@@ -1,0 +1,4 @@
+{
+    "Indexes" : {"tag": "tags"},
+    "BaseUrl"    : "http://localhost"
+}
