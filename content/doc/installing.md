@@ -16,3 +16,13 @@ is the most probable location.
 
 Hugo doesn't have any external dependencies, but can benefit from external
 programs.
+
+
+## Installing from source
+
+Make sure you have a recent version of go installed. Hugo requires go 1.1+.
+
+    git clone https://github.com/spf13/hugo
+    cd hugo
+    go build -o hugo main.go
+

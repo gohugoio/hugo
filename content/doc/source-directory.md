@@ -51,4 +51,4 @@ This directory structure tells us a lot about this site:
 2. It will also apply two different indexes to that content, categories and tags.
 3. It will be displaying content in 3 different views, a list, a summary and a full page view.
 
-Included with the repository is an this example site ready to be rendered.
+Included with the repository is this example site ready to be rendered.
