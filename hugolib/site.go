@@ -81,10 +81,10 @@ func (site *Site) Render() {
 	site.timer.Step("render and write indexes")
 	site.RenderLists()
 	site.timer.Step("render and write lists")
-	site.RenderPages()
-	site.timer.Step("render pages")
 	site.ProcessShortcodes()
 	site.timer.Step("render shortcodes")
+	site.RenderPages()
+	site.timer.Step("render pages")
 	site.RenderHomePage()
 	site.timer.Step("render and write homepage")
 }
@@ -178,9 +178,7 @@ func (s *Site) checkDirectories() {
 
 func (s *Site) ProcessShortcodes() {
 	for i, _ := range s.Pages {
-		var bb bytes.Buffer
-		bb.WriteString(ShortcodesHandle(s.Pages[i].RenderedContent.String(), s.Pages[i], s.Tmpl))
-		s.Pages[i].RenderedContent = &bb
+		s.Pages[i].Content = template.HTML(ShortcodesHandle(string(s.Pages[i].Content), s.Pages[i], s.Tmpl))
 	}
 }
 
