@@ -21,7 +21,7 @@ kind of website including blogs, tumbles and docs.
 
 Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
 
-The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases)
+The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases).
 We currently build for Windows, Linux, FreeBSD and OS X for x64
 and 386 architectures. 
 
@@ -126,7 +126,7 @@ Make sure either hugo is in your path or provide a path to it.
       -p="": filesystem path to read files relative from
       -w=false: watch filesystem for changes and recreate as needed
       -s=false: a (very) simple webserver
-      -p="1313": port for webserver to run on
+      -port="1313": port for webserver to run on
 
 The most common use is probably to run hugo with your current 
 directory being the input directory.
