@@ -2,21 +2,24 @@
     "title": "Installing Hugo",
     "Pubdate": "2013-07-01"
 }
+Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
+
+The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases)
+We currently build for Windows, Linux, FreeBSD and OS X for x64
+and 386 architectures. 
+
+Installation is very easy. Simply download the appropriate version for your
+platform. Once downloaded it can be run from anywhere. You don't need to install
+it into a global location. This works well for shared hosts and other systems
+where you don't have a privileged account.
+
+Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
+is the most probable location.
+
+*Hugo has no external dependencies.*
 
 Installation is very easy. Simply download the appropriate version for your
 platform. 
-
-Hugo is written in GoLang with support for Windows, Linux and OSX.
-
-<div class="alert alert-info">
-Please make sure that you place the executable in your path. `/usr/local/bin` 
-is the most probable location.
-</div>
-
-
-Hugo doesn't have any external dependencies, but can benefit from external
-programs.
-
 
 ## Installing from source
 

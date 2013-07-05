@@ -15,7 +15,7 @@ Make sure either hugo is in your path or provide a path to it.
       -p="": filesystem path to read files relative from
       -w=false: watch filesystem for changes and recreate as needed
       -s=false: a (very) simple webserver
-      -p="1313": port for webserver to run on
+      -port="1313": port for webserver to run on
 
 ## Common Usage Example:
 
@@ -25,7 +25,7 @@ directory being the input directory.
 
     $ hugo
     > X pages created
-    > Y indicies created
+    > Y indexes created
 
 
 If you are working on things and want to see the changes 

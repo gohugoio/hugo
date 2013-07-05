@@ -19,14 +19,21 @@ kind of website including blogs, tumbles and docs.
 
 ## Installing Hugo
 
-Installation is very easy. Simply download the appropriate version for your
-platform. Hugo is written in GoLang with support for Windows, Linux and OSX.
+Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
 
-Please make sure that you place the executable in your path. `/usr/local/bin` 
+The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases)
+We currently build for Windows, Linux, FreeBSD and OS X for x64
+and 386 architectures. 
+
+Installation is very easy. Simply download the appropriate version for your
+platform. Once downloaded it can be run from anywhere. You don't need to install
+it into a global location. This works well for shared hosts and other systems
+where you don't have a privileged account.
+
+Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
 is the most probable location.
 
-Hugo doesn't have any external dependencies, but can benefit from external
-programs.
+*Hugo has no external dependencies.*
 
 ## Installing from source
 
@@ -127,7 +134,7 @@ directory being the input directory.
 
     $ hugo
     > X pages created
-    > Y indicies created
+    > Y indexes created
 
 
 If you are working on things and want to see the changes 
@@ -403,9 +410,9 @@ To check if a parameter has been provided use the isset method provided by Hugo.
   * Hugo now includes a simple server
   * First public release
 * **0.6.0** July 2, 2013
-  * Hugo includes an example documentation site which it builds
+  * Hugo includes an [example documentation site](http://hugo.spf13.com) which it builds
 * **0.5.0** June 25, 2013
-  * Hugo is quite usable and able to build spf13.com
+  * Hugo is quite usable and able to build [spf13.com](http://spf13.com)
 
 ## Roadmap
 In no particular order, here is what I'm working on:
