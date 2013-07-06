@@ -1,7 +1,7 @@
-{
-    "title": "Contributing to Hugo",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Contributing to Hugo"
+Pubdate: "2013-07-01"
+...
 
 1. Fork it from https://github.com/spf13/hugo
 2. Create your feature branch (`git checkout -b my-new-feature`)

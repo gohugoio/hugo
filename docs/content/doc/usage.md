@@ -1,7 +1,7 @@
-{
-    "title": "Using Hugo",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Using Hugo"
+Pubdate: "2013-07-01"
+...
 
 Make sure either hugo is in your path or provide a path to it.
 

@@ -1,7 +1,8 @@
-{
-    "title": "Installing Hugo",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Installing Hugo"
+Pubdate: "2013-07-01"
+...
+
 Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
 
 The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases).

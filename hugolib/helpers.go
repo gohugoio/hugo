@@ -81,7 +81,7 @@ func interfaceToBool(i interface{}) bool {
 	case bool:
 		return b
 	default:
-		Error("Only Boolean values are supported for this JSON key")
+		Error("Only Boolean values are supported for this YAML key")
 	}
 
 	return false
@@ -106,7 +106,7 @@ func interfaceToString(i interface{}) string {
 	case string:
 		return s
 	default:
-		Error("Only Strings are supported for this JSON key")
+		Error("Only Strings are supported for this YAML key")
 	}
 
 	return ""

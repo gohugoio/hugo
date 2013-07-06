@@ -15,7 +15,7 @@ package hugolib
 
 import (
 	"bytes"
-	"encoding/json"
+	"launchpad.net/goyaml"
 	"fmt"
 	"github.com/theplant/blackfriday"
 	"html/template"
@@ -141,23 +141,23 @@ func (p *Page) analyzePage() {
 }
 
 // TODO //rewrite to use byte methods instead
-func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
+func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	var err error
 
 	lines := strings.Split(string(data), "\n")
 	datum := lines[0:]
 
-	// go through content parse between "{" and "}"
+	// go through content parse between "---" and "..."
 	// must be on their own lines (for now)
 	var found = 0
 	for i, line := range lines {
 		line = strings.TrimSpace(line)
 
-		if line == "{" {
+		if line == "---" {
 			found += 1
 		}
 
-		if line == "}" {
+		if line == "..." {
 			found -= 1
 		}
 
@@ -168,7 +168,7 @@ func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 		}
 	}
 
-	err = page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
+	err = page.handleYamlMetaData([]byte(strings.Join(datum, "\n")))
 
 	return lines, err
 }
@@ -185,10 +185,10 @@ func (p *Page) Permalink() template.HTML {
 	}
 }
 
-func (page *Page) handleJsonMetaData(datum []byte) error {
+func (page *Page) handleYamlMetaData(datum []byte) error {
 	var f interface{}
-	if err := json.Unmarshal(datum, &f); err != nil {
-		return fmt.Errorf("Invalide JSON in $v \nError parsing page meta data: %s", page.FileName, err)
+	if err := goyaml.Unmarshal(datum, &f); err != nil {
+		return fmt.Errorf("Invalide YAML in $v \nError parsing page meta data: %s", page.FileName, err)
 	}
 
 	m := f.(map[string]interface{})
@@ -309,7 +309,7 @@ func (page *Page) parseFileHeading(data []byte) ([]string, error) {
 		if data[0] == '-' {
 			return page.parseFileMetaData(data)
 		}
-		return page.parseJsonMetaData(data)
+		return page.parseYamlMetaData(data)
 	}
 	return nil, nil
 }

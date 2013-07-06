@@ -1,7 +1,7 @@
-{
-    "title": "Roadmap",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Roadmap"
+Pubdate: "2013-07-01"
+...
 
 In no particular order, here is what I'm working on:
 
