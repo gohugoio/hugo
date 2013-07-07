@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"encoding/json"
 	"launchpad.net/goyaml"
 	"fmt"
 	"github.com/theplant/blackfriday"
@@ -31,17 +32,17 @@ import (
 var _ = filepath.Base("")
 
 type Page struct {
-	Status          string
-	Images          []string
-	Content         template.HTML
-	Summary         template.HTML
-	RawMarkdown     string // TODO should be []byte
-	Params          map[string]interface{}
+	Status		string
+	Images		[]string
+	Content		template.HTML
+	Summary		template.HTML
+	RawMarkdown	string // TODO should be []byte
+	Params		map[string]interface{}
 	RenderedContent *bytes.Buffer
-	contentType     string
-	Draft           bool
-	Tmpl            *template.Template
-	Markup          string
+	contentType	string
+	Draft		bool
+	Tmpl		*template.Template
+	Markup		string
 	PageMeta
 	File
 	Position
@@ -66,12 +67,12 @@ type Position struct {
 
 type Pages []*Page
 
-func (p Pages) Len() int           { return len(p) }
+func (p Pages) Len() int	   { return len(p) }
 func (p Pages) Less(i, j int) bool { return p[i].Date.Unix() > p[j].Date.Unix() }
-func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p Pages) Swap(i, j int)	   { p[i], p[j] = p[j], p[i] }
 
 // TODO eliminate unnecessary things
-func (p Pages) Sort()             { sort.Sort(p) }
+func (p Pages) Sort()		  { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
 func initializePage(filename string) (page Page) {
@@ -175,6 +176,38 @@ func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	return lines, err
 }
 
+func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
+	var err error
+
+	lines := strings.Split(string(data), "\n")
+	datum := lines[0:]
+
+	// go through content parse between "{" and "}"
+	// must be on their own lines (for now)
+	var found = 0
+	for i, line := range lines {
+		line = strings.TrimSpace(line)
+
+		if line == "{" {
+			found += 1
+		}
+
+		if line == "}" {
+			found -= 1
+		}
+
+		if found == 0 {
+			datum = lines[0 : i+1]
+			lines = lines[i+1:]
+			break
+		}
+	}
+
+	err = page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
+
+	return lines, err
+}
+
 func (p *Page) Permalink() template.HTML {
 	if len(strings.TrimSpace(p.Slug)) > 0 {
 		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug))
@@ -267,6 +300,9 @@ func (page *Page) parseFileHeading(data []byte) ([]string, error) {
 	if len(data) == 0 {
 		page.Err("Empty File, skipping")
 	} else {
+		if data[0] == '{' {
+			return page.parseJsonMetaData(data)
+		}
 		return page.parseYamlMetaData(data)
 	}
 	return nil, nil
