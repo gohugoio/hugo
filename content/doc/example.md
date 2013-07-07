@@ -16,7 +16,7 @@ Somethings are better shown than explained. The following is a very basic exampl
     Topics": [ "Development", "GoLang" ]
     Slug": "nitro"
     project_url": "http://github.com/spf13/nitro"
-    ...
+    ---
 
     # Nitro
 
