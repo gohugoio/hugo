@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -40,6 +41,7 @@ type Page struct {
 	contentType     string
 	Draft           bool
 	Tmpl            *template.Template
+	Markup          string
 	PageMeta
 	File
 	Position
@@ -80,6 +82,7 @@ func initializePage(filename string) (page Page) {
 	page.Extension = "html"
 	page.Params = make(map[string]interface{})
 	page.Keywords = make([]string, 10, 30)
+	page.Markup = "md"
 	page.setSection()
 
 	return page
@@ -216,6 +219,8 @@ func (page *Page) handleYamlMetaData(datum []byte) error {
 			page.Draft = interfaceToBool(v)
 		case "layout":
 			page.layout = interfaceToString(v)
+		case "markup":
+			page.Markup = interfaceToString(v)
 		case "status":
 			page.Status = interfaceToString(v)
 		default:
@@ -352,7 +357,12 @@ func (page *Page) buildPageFromFile() error {
 		return err
 	}
 
-	page.convertMarkdown(content)
+	switch page.Markup {
+	case "md":
+		page.convertMarkdown(content)
+	case "rst":
+		page.convertRestructuredText(content)
+	}
 	return nil
 }
 
@@ -376,6 +386,23 @@ func (page *Page) convertMarkdown(lines []string) {
 
 	page.RawMarkdown = strings.Join(lines, "\n")
 	content := string(blackfriday.MarkdownCommon([]byte(page.RawMarkdown)))
+	page.Content = template.HTML(content)
+	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
+}
+
+func (page *Page) convertRestructuredText(lines []string) {
+
+	page.RawMarkdown = strings.Join(lines, " ")
+
+	cmd := exec.Command("rst2html.py", "--template=/tmp/template.txt")
+	cmd.Stdin = strings.NewReader(page.RawMarkdown)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		print(err)
+	}
+
+	content := out.String()
 	page.Content = template.HTML(content)
 	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
 }

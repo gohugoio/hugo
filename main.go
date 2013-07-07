@@ -14,10 +14,10 @@
 package main
 
 import (
+	"./hugolib"
 	"flag"
 	"fmt"
 	"github.com/howeyc/fsnotify"
-	"./hugolib"
 	"net/http"
 	"os"
 	"path/filepath"
