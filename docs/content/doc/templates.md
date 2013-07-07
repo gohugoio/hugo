@@ -1,7 +1,7 @@
-{
-    "title": "Templates",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Templates"
+Pubdate: "2013-07-01"
+...
 
 Hugo uses the excellent golang html/template library for it's template engine. It is an extremely
 lightweight engine that provides a very small amount of logic. In our 

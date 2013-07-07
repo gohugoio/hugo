@@ -14,10 +14,10 @@
 package main
 
 import (
+	"./hugolib"
 	"flag"
 	"fmt"
 	"github.com/howeyc/fsnotify"
-	"github.com/spf13/hugo/hugolib"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -26,12 +26,12 @@ import (
 )
 
 const (
-	cfgFiledefault = "config.json"
+	cfgFiledefault = "config.yaml"
 )
 
 var (
 	baseUrl    = flag.String("b", "", "hostname (and path) to the root eg. http://spf13.com/")
-	cfgfile    = flag.String("c", cfgFiledefault, "config file (default is path/config.json)")
+	cfgfile    = flag.String("c", cfgFiledefault, "config file (default is path/config.yaml)")
 	checkMode  = flag.Bool("k", false, "analyze content and provide feedback")
 	draft      = flag.Bool("d", false, "include content marked as draft")
 	help       = flag.Bool("h", false, "show this help")
