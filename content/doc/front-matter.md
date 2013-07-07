@@ -1,7 +1,7 @@
 ---
 title: "Front Matter"
 Pubdate: "2013-07-01"
----
+...
 
 The front matter is one of the features that gives Hugo it's strength. It enables
 you to include the meta data of the content right with it. Hugo supports a few 
@@ -16,7 +16,7 @@ different formats. The main format supported is YAML. Here is an example:
       - "Development"
       - "VIM"
     Slug: "spf13-vim-3-0-release-and-new-website"
-    ---
+    ...
 
 ### Variables
 
