@@ -1,7 +1,7 @@
 ---
 title: "Example Content File"
 Pubdate: "2013-07-01"
-...
+---
 
 Somethings are better shown than explained. The following is a very basic example of a content file:
 

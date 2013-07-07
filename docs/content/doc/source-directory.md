@@ -1,7 +1,7 @@
 ---
 title: "Source Directory Organization"
 Pubdate: "2013-07-01"
-...
+---
 
 Hugo takes a single directory and uses it as the input for creating a complete website.
 

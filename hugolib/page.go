@@ -154,18 +154,17 @@ func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	// must be on their own lines (for now)
 	var found = 0
 	for i, line := range lines {
-		line = strings.TrimSpace(line)
 
-		if line == "---" {
+		if strings.HasPrefix(line, "---") {
 			found += 1
 		}
 
-		if line == "..." {
+		if strings.HasPrefix(line, "---") {
 			found -= 1
 		}
 
 		if found == 0 {
-			datum = lines[0 : i+1]
+			datum = lines[0: i+1]
 			lines = lines[i+1:]
 			break
 		}
@@ -189,12 +188,10 @@ func (p *Page) Permalink() template.HTML {
 }
 
 func (page *Page) handleYamlMetaData(datum []byte) error {
-	var f interface{}
-	if err := goyaml.Unmarshal(datum, &f); err != nil {
-		return fmt.Errorf("Invalide YAML in $v \nError parsing page meta data: %s", page.FileName, err)
+	m := map[string]interface{}{}
+	if err := goyaml.Unmarshal(datum, &m); err != nil {
+		return fmt.Errorf("Invalid YAML in $v \nError parsing page meta data: %s", page.FileName, err)
 	}
-
-	m := f.(map[string]interface{})
 
 	for k, v := range m {
 		switch strings.ToLower(k) {
@@ -261,47 +258,6 @@ func (page *Page) GetParam(key string) interface{} {
 	return nil
 }
 
-func (page *Page) parseFileMetaData(data []byte) ([]string, error) {
-	lines := strings.Split(string(data), "\n")
-
-	// go through content parse from --- to ---
-	var found = 0
-	for i, line := range lines {
-		line = strings.TrimSpace(line)
-
-		if found == 1 {
-			// parse line for param
-			colonIndex := strings.Index(line, ":")
-			if colonIndex > 0 {
-				key := strings.TrimSpace(line[:colonIndex])
-				value := strings.TrimSpace(line[colonIndex+1:])
-				value = strings.Trim(value, "\"") //remove quotes
-				switch key {
-				case "title":
-					page.Title = value
-				case "layout":
-					page.layout = value
-				case "extension":
-					page.Extension = "." + value
-				default:
-					page.Params[key] = value
-				}
-			}
-
-		} else if found >= 2 {
-			// params over
-			lines = lines[i:]
-			break
-		}
-
-		if line == "---" {
-			found += 1
-		}
-	}
-
-	return lines, nil
-}
-
 func (page *Page) Err(message string) {
 	fmt.Println(page.FileName + " : " + message)
 }
@@ -311,9 +267,6 @@ func (page *Page) parseFileHeading(data []byte) ([]string, error) {
 	if len(data) == 0 {
 		page.Err("Empty File, skipping")
 	} else {
-		if data[0] == '-' {
-			return page.parseFileMetaData(data)
-		}
 		return page.parseYamlMetaData(data)
 	}
 	return nil, nil
