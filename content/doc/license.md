@@ -1,7 +1,7 @@
 ---
 title: "License"
 Pubdate: "2013-07-01"
-...
+---
 
 Hugo is released under the Simple Public License.
 
