@@ -165,14 +165,13 @@ func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 		}
 
 		if found == 0 {
-			datum = lines[0: i+1]
-			lines = lines[i+1:]
+			datum = lines[1: i+2]
+			lines = lines[i+3:]
 			break
 		}
 	}
 
-	err = page.handleYamlMetaData([]byte(strings.Join(datum, "\n")))
-
+	err = page.handleMetaData(page.handleYamlMetaData([]byte(strings.Join(datum, "\n"))))
 	return lines, err
 }
 
@@ -203,8 +202,7 @@ func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 		}
 	}
 
-	err = page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
-
+	err = page.handleMetaData(page.handleJsonMetaData([]byte(strings.Join(datum, "\n"))))
 	return lines, err
 }
 
@@ -220,11 +218,25 @@ func (p *Page) Permalink() template.HTML {
 	}
 }
 
-func (page *Page) handleYamlMetaData(datum []byte) error {
+func (page *Page) handleYamlMetaData(datum []byte) interface{} {
 	m := map[string]interface{}{}
 	if err := goyaml.Unmarshal(datum, &m); err != nil {
-		return fmt.Errorf("Invalid YAML in $v \nError parsing page meta data: %s", page.FileName, err)
+		return fmt.Errorf("Invalid YAML in %s \nError parsing page meta data: %s", page.FileName, err)
 	}
+	return m
+}
+
+
+func (page *Page) handleJsonMetaData(datum []byte) interface{} {
+	var f interface{}
+	if err := json.Unmarshal(datum, &f); err != nil {
+		return fmt.Errorf("Invalide JSON in $v \nError parsing page meta data: %s", page.FileName, err)
+	}
+	return f
+}
+
+func (page *Page) handleMetaData(f interface{}) error {
+	m := f.(map[string]interface{})
 
 	for k, v := range m {
 		switch strings.ToLower(k) {
@@ -271,8 +283,8 @@ func (page *Page) handleYamlMetaData(datum []byte) error {
 			}
 		}
 	}
-	//Printer(page.Params)
 	return nil
+
 }
 
 func (page *Page) GetParam(key string) interface{} {
@@ -388,7 +400,7 @@ func (page *Page) convertRestructuredText(lines []string) {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		print(err)
+		fmt.Println(err)
 	}
 
 	content := out.String()
