@@ -1,7 +1,7 @@
 ---
 title: "Release Notes"
 Pubdate: "2013-07-01"
----
+...
 
 * **0.7.0** July 4, 2013
   * Hugo now includes a simple server

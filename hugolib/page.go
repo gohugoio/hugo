@@ -148,62 +148,44 @@ func (p *Page) analyzePage() {
 func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	var err error
 
-	lines := strings.Split(string(data), "\n")
-	datum := lines[0:]
-
-	// go through content parse between "---" and "..."
-	// must be on their own lines (for now)
-	var found = 0
-	for i, line := range lines {
-
-		if strings.HasPrefix(line, "---") {
-			found += 1
-		}
-
-		if strings.HasPrefix(line, "---") {
-			found -= 1
-		}
-
-		if found == 0 {
-			datum = lines[1: i+2]
-			lines = lines[i+3:]
-			break
-		}
-	}
+	datum, lines := splitPageContent(data, "---", "...")
 
 	err = page.handleMetaData(page.handleYamlMetaData([]byte(strings.Join(datum, "\n"))))
 	return lines, err
 }
 
+
 func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 	var err error
 
+	datum, lines := splitPageContent(data, "{", "}")
+
+	err = page.handleMetaData(page.handleJsonMetaData([]byte(strings.Join(datum, "\n"))))
+	return lines, err
+}
+
+func splitPageContent(data []byte, start string, end string) ([]string, []string) {
 	lines := strings.Split(string(data), "\n")
 	datum := lines[0:]
 
-	// go through content parse between "{" and "}"
-	// must be on their own lines (for now)
 	var found = 0
 	for i, line := range lines {
-		line = strings.TrimSpace(line)
 
-		if line == "{" {
+		if strings.HasPrefix(line, start) {
 			found += 1
 		}
 
-		if line == "}" {
+		if strings.HasPrefix(line, end) {
 			found -= 1
 		}
 
 		if found == 0 {
-			datum = lines[0 : i+1]
+			datum = lines[1: i+1]
 			lines = lines[i+1:]
 			break
 		}
 	}
-
-	err = page.handleMetaData(page.handleJsonMetaData([]byte(strings.Join(datum, "\n"))))
-	return lines, err
+	return datum, lines
 }
 
 func (p *Page) Permalink() template.HTML {
