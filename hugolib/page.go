@@ -16,11 +16,11 @@ package hugolib
 import (
 	"bytes"
 	"encoding/json"
-	"launchpad.net/goyaml"
 	"fmt"
 	"github.com/theplant/blackfriday"
 	"html/template"
 	"io/ioutil"
+	"launchpad.net/goyaml"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -32,17 +32,17 @@ import (
 var _ = filepath.Base("")
 
 type Page struct {
-	Status		string
-	Images		[]string
-	Content		template.HTML
-	Summary		template.HTML
-	RawMarkdown	string // TODO should be []byte
-	Params		map[string]interface{}
+	Status          string
+	Images          []string
+	Content         template.HTML
+	Summary         template.HTML
+	RawMarkdown     string // TODO should be []byte
+	Params          map[string]interface{}
 	RenderedContent *bytes.Buffer
-	contentType	string
-	Draft		bool
-	Tmpl		*template.Template
-	Markup		string
+	contentType     string
+	Draft           bool
+	Tmpl            *template.Template
+	Markup          string
 	PageMeta
 	File
 	Position
@@ -67,12 +67,12 @@ type Position struct {
 
 type Pages []*Page
 
-func (p Pages) Len() int	   { return len(p) }
+func (p Pages) Len() int           { return len(p) }
 func (p Pages) Less(i, j int) bool { return p[i].Date.Unix() > p[j].Date.Unix() }
-func (p Pages) Swap(i, j int)	   { p[i], p[j] = p[j], p[i] }
+func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // TODO eliminate unnecessary things
-func (p Pages) Sort()		  { sort.Sort(p) }
+func (p Pages) Sort()             { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
 func initializePage(filename string) (page Page) {
@@ -148,12 +148,11 @@ func (p *Page) analyzePage() {
 func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	var err error
 
-	datum, lines := splitPageContent(data, "---", "...")
+	datum, lines := splitPageContent(data, "---", "---")
 
 	err = page.handleMetaData(page.handleYamlMetaData([]byte(strings.Join(datum, "\n"))))
 	return lines, err
 }
-
 
 func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 	var err error
@@ -169,18 +168,30 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 	datum := lines[0:]
 
 	var found = 0
-	for i, line := range lines {
+	if start != end {
+		for i, line := range lines {
 
-		if strings.HasPrefix(line, start) {
+			if strings.HasPrefix(line, start) {
+				found += 1
+			}
+
+			if strings.HasPrefix(line, end) {
+				found -= 1
+			}
+
+			if found == 0 {
+				datum = lines[1 : i+1]
+				lines = lines[i+1:]
+				break
+			}
+		}
+	} else {
+		if found == 0 && strings.HasPrefix(line, start) {
 			found += 1
 		}
 
-		if strings.HasPrefix(line, end) {
-			found -= 1
-		}
-
-		if found == 0 {
-			datum = lines[1: i+1]
+		if found == 0 && strings.HasPrefix(line, end) {
+			datum = lines[1 : i+1]
 			lines = lines[i+1:]
 			break
 		}
@@ -207,7 +218,6 @@ func (page *Page) handleYamlMetaData(datum []byte) interface{} {
 	}
 	return m
 }
-
 
 func (page *Page) handleJsonMetaData(datum []byte) interface{} {
 	var f interface{}

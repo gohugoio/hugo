@@ -1,7 +1,7 @@
 ---
 title: "Configuring Hugo"
 pubdate: "2013-07-01"
-...
+---
 
 The directory structure and templates provide the majority of the
 configuration for a site. In fact a config file isn't even needed for many websites

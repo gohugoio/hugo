@@ -1,7 +1,7 @@
 ---
 title: "Organization"
 Pubdate: "2013-07-01"
-...
+---
 
 Hugo uses markdown files with headers commonly called the front matter. Hugo respects the organization
 that you provide for your content to minimize any extra configuration, though this can be overridden
