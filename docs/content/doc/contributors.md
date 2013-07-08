@@ -1,7 +1,7 @@
-{
-    "title": "Contributors",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Contributors"
+Pubdate: "2013-07-01"
+...
 
 Hugo was built with love and golang by:
 

@@ -1,7 +1,7 @@
-{
-    "title": "Shortcodes",
-    "Pubdate": "2013-07-01"
-}
+---
+title: "Shortcodes"
+Pubdate: "2013-07-01"
+...
 
 Because Hugo uses markdown for it's content format, it was clear that there's a lot of things that 
 markdown doesn't support well. This is good, the simple nature of markdown is exactly why we chose it.

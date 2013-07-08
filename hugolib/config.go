@@ -14,7 +14,7 @@
 package hugolib
 
 import (
-	"encoding/json"
+	"launchpad.net/goyaml"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -55,7 +55,7 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 
 	file, err := ioutil.ReadFile(configPath)
 	if err == nil {
-		if err := json.Unmarshal(file, &c); err != nil {
+		if err := goyaml.Unmarshal(file, &c); err != nil {
 			fmt.Printf("Error parsing config: %s", err)
 			os.Exit(1)
 		}

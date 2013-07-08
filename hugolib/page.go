@@ -16,11 +16,13 @@ package hugolib
 import (
 	"bytes"
 	"encoding/json"
+	"launchpad.net/goyaml"
 	"fmt"
 	"github.com/theplant/blackfriday"
 	"html/template"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -30,16 +32,17 @@ import (
 var _ = filepath.Base("")
 
 type Page struct {
-	Status          string
-	Images          []string
-	Content         template.HTML
-	Summary         template.HTML
-	RawMarkdown     string // TODO should be []byte
-	Params          map[string]interface{}
+	Status		string
+	Images		[]string
+	Content		template.HTML
+	Summary		template.HTML
+	RawMarkdown	string // TODO should be []byte
+	Params		map[string]interface{}
 	RenderedContent *bytes.Buffer
-	contentType     string
-	Draft           bool
-	Tmpl            *template.Template
+	contentType	string
+	Draft		bool
+	Tmpl		*template.Template
+	Markup		string
 	PageMeta
 	File
 	Position
@@ -64,12 +67,12 @@ type Position struct {
 
 type Pages []*Page
 
-func (p Pages) Len() int           { return len(p) }
+func (p Pages) Len() int	   { return len(p) }
 func (p Pages) Less(i, j int) bool { return p[i].Date.Unix() > p[j].Date.Unix() }
-func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p Pages) Swap(i, j int)	   { p[i], p[j] = p[j], p[i] }
 
 // TODO eliminate unnecessary things
-func (p Pages) Sort()             { sort.Sort(p) }
+func (p Pages) Sort()		  { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
 func initializePage(filename string) (page Page) {
@@ -80,6 +83,7 @@ func initializePage(filename string) (page Page) {
 	page.Extension = "html"
 	page.Params = make(map[string]interface{})
 	page.Keywords = make([]string, 10, 30)
+	page.Markup = "md"
 	page.setSection()
 
 	return page
@@ -141,36 +145,47 @@ func (p *Page) analyzePage() {
 }
 
 // TODO //rewrite to use byte methods instead
+func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
+	var err error
+
+	datum, lines := splitPageContent(data, "---", "...")
+
+	err = page.handleMetaData(page.handleYamlMetaData([]byte(strings.Join(datum, "\n"))))
+	return lines, err
+}
+
+
 func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 	var err error
 
+	datum, lines := splitPageContent(data, "{", "}")
+
+	err = page.handleMetaData(page.handleJsonMetaData([]byte(strings.Join(datum, "\n"))))
+	return lines, err
+}
+
+func splitPageContent(data []byte, start string, end string) ([]string, []string) {
 	lines := strings.Split(string(data), "\n")
 	datum := lines[0:]
 
-	// go through content parse between "{" and "}"
-	// must be on their own lines (for now)
 	var found = 0
 	for i, line := range lines {
-		line = strings.TrimSpace(line)
 
-		if line == "{" {
+		if strings.HasPrefix(line, start) {
 			found += 1
 		}
 
-		if line == "}" {
+		if strings.HasPrefix(line, end) {
 			found -= 1
 		}
 
 		if found == 0 {
-			datum = lines[0 : i+1]
+			datum = lines[1: i+1]
 			lines = lines[i+1:]
 			break
 		}
 	}
-
-	err = page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
-
-	return lines, err
+	return datum, lines
 }
 
 func (p *Page) Permalink() template.HTML {
@@ -185,12 +200,24 @@ func (p *Page) Permalink() template.HTML {
 	}
 }
 
-func (page *Page) handleJsonMetaData(datum []byte) error {
+func (page *Page) handleYamlMetaData(datum []byte) interface{} {
+	m := map[string]interface{}{}
+	if err := goyaml.Unmarshal(datum, &m); err != nil {
+		return fmt.Errorf("Invalid YAML in %s \nError parsing page meta data: %s", page.FileName, err)
+	}
+	return m
+}
+
+
+func (page *Page) handleJsonMetaData(datum []byte) interface{} {
 	var f interface{}
 	if err := json.Unmarshal(datum, &f); err != nil {
 		return fmt.Errorf("Invalide JSON in $v \nError parsing page meta data: %s", page.FileName, err)
 	}
+	return f
+}
 
+func (page *Page) handleMetaData(f interface{}) error {
 	m := f.(map[string]interface{})
 
 	for k, v := range m {
@@ -216,6 +243,8 @@ func (page *Page) handleJsonMetaData(datum []byte) error {
 			page.Draft = interfaceToBool(v)
 		case "layout":
 			page.layout = interfaceToString(v)
+		case "markup":
+			page.Markup = interfaceToString(v)
 		case "status":
 			page.Status = interfaceToString(v)
 		default:
@@ -236,8 +265,8 @@ func (page *Page) handleJsonMetaData(datum []byte) error {
 			}
 		}
 	}
-	//Printer(page.Params)
 	return nil
+
 }
 
 func (page *Page) GetParam(key string) interface{} {
@@ -256,47 +285,6 @@ func (page *Page) GetParam(key string) interface{} {
 	return nil
 }
 
-func (page *Page) parseFileMetaData(data []byte) ([]string, error) {
-	lines := strings.Split(string(data), "\n")
-
-	// go through content parse from --- to ---
-	var found = 0
-	for i, line := range lines {
-		line = strings.TrimSpace(line)
-
-		if found == 1 {
-			// parse line for param
-			colonIndex := strings.Index(line, ":")
-			if colonIndex > 0 {
-				key := strings.TrimSpace(line[:colonIndex])
-				value := strings.TrimSpace(line[colonIndex+1:])
-				value = strings.Trim(value, "\"") //remove quotes
-				switch key {
-				case "title":
-					page.Title = value
-				case "layout":
-					page.layout = value
-				case "extension":
-					page.Extension = "." + value
-				default:
-					page.Params[key] = value
-				}
-			}
-
-		} else if found >= 2 {
-			// params over
-			lines = lines[i:]
-			break
-		}
-
-		if line == "---" {
-			found += 1
-		}
-	}
-
-	return lines, nil
-}
-
 func (page *Page) Err(message string) {
 	fmt.Println(page.FileName + " : " + message)
 }
@@ -306,10 +294,10 @@ func (page *Page) parseFileHeading(data []byte) ([]string, error) {
 	if len(data) == 0 {
 		page.Err("Empty File, skipping")
 	} else {
-		if data[0] == '-' {
-			return page.parseFileMetaData(data)
+		if data[0] == '{' {
+			return page.parseJsonMetaData(data)
 		}
-		return page.parseJsonMetaData(data)
+		return page.parseYamlMetaData(data)
 	}
 	return nil, nil
 }
@@ -352,7 +340,12 @@ func (page *Page) buildPageFromFile() error {
 		return err
 	}
 
-	page.convertMarkdown(content)
+	switch page.Markup {
+	case "md":
+		page.convertMarkdown(content)
+	case "rst":
+		page.convertRestructuredText(content)
+	}
 	return nil
 }
 
@@ -376,6 +369,23 @@ func (page *Page) convertMarkdown(lines []string) {
 
 	page.RawMarkdown = strings.Join(lines, "\n")
 	content := string(blackfriday.MarkdownCommon([]byte(page.RawMarkdown)))
+	page.Content = template.HTML(content)
+	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
+}
+
+func (page *Page) convertRestructuredText(lines []string) {
+
+	page.RawMarkdown = strings.Join(lines, " ")
+
+	cmd := exec.Command("rst2html.py", "--template=/tmp/template.txt")
+	cmd.Stdin = strings.NewReader(page.RawMarkdown)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		fmt.Println(err)
+	}
+
+	content := out.String()
 	page.Content = template.HTML(content)
 	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
 }
