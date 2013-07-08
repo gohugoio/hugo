@@ -1,7 +1,7 @@
 ---
 title: "Variables"
 Pubdate: "2013-07-01"
-...
+---
 
 Hugo makes a set of values available to the templates. Go templates are context based. The following
 are available in the context for the templates.
