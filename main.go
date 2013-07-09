@@ -37,6 +37,7 @@ var (
 	help       = flag.Bool("h", false, "show this help")
 	path       = flag.String("p", "", "filesystem path to read files relative from")
 	verbose    = flag.Bool("v", false, "verbose output")
+	version    = flag.Bool("version", false, "which version of hugo")
 	cpuprofile = flag.Int("cpuprofile", 0, "Number of times to create the site and profile it")
 	watchMode  = flag.Bool("w", false, "watch filesystem for changes and recreate as needed")
 	server     = flag.Bool("s", false, "run a (very) simple web server")
@@ -63,6 +64,10 @@ func main() {
 
 	if *baseUrl != "" {
 		config.BaseUrl = *baseUrl
+	}
+
+	if *version {
+		fmt.Println("Hugo Static Site Generator v0.8")
 	}
 
 	if *cpuprofile != 0 {
