@@ -205,7 +205,7 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 			}
 
 			if found == 0 {
-				datum = lines[1 : i+1]
+				datum = lines[0 : i+1]
 				lines = lines[i+1:]
 				break
 			}
