@@ -1,6 +1,6 @@
 ---
 title: "Contributors"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
 ---
 
 Hugo was built with love and golang by:
