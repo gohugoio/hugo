@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/theplant/blackfriday"
 	"html/template"
 	"io/ioutil"
@@ -154,6 +155,15 @@ func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	return lines, err
 }
 
+func (page *Page) parseTomlMetaData(data []byte) ([]string, error) {
+	var err error
+
+	datum, lines := splitPageContent(data, "+++", "+++")
+
+	err = page.handleMetaData(page.handleTomlMetaData([]byte(strings.Join(datum, "\n"))))
+	return lines, err
+}
+
 func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 	var err error
 
@@ -185,15 +195,17 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 				break
 			}
 		}
-	} else {
-		if found == 0 && strings.HasPrefix(line, start) {
-			found += 1
-		}
+	} else { // Start token & end token are the same
+		for i, line := range lines {
+			if found == 1 && strings.HasPrefix(line, end) {
+				datum = lines[1:i]
+				lines = lines[i+1:]
+				break
+			}
 
-		if found == 0 && strings.HasPrefix(line, end) {
-			datum = lines[1 : i+1]
-			lines = lines[i+1:]
-			break
+			if found == 0 && strings.HasPrefix(line, start) {
+				found = 1
+			}
 		}
 	}
 	return datum, lines
@@ -209,6 +221,14 @@ func (p *Page) Permalink() template.HTML {
 		x := replaceExtension(strings.TrimSpace(t), p.Extension)
 		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+x))
 	}
+}
+
+func (page *Page) handleTomlMetaData(datum []byte) interface{} {
+	m := map[string]interface{}{}
+	if _, err := toml.Decode(string(datum), &m); err != nil {
+		return fmt.Errorf("Invalid TOML in %s \nError parsing page meta data: %s", page.FileName, err)
+	}
+	return m
 }
 
 func (page *Page) handleYamlMetaData(datum []byte) interface{} {
@@ -304,10 +324,14 @@ func (page *Page) parseFileHeading(data []byte) ([]string, error) {
 	if len(data) == 0 {
 		page.Err("Empty File, skipping")
 	} else {
-		if data[0] == '{' {
+		switch data[0] {
+		case '{':
 			return page.parseJsonMetaData(data)
+		case '-':
+			return page.parseYamlMetaData(data)
+		case '+':
+			return page.parseTomlMetaData(data)
 		}
-		return page.parseYamlMetaData(data)
 	}
 	return nil, nil
 }

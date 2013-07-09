@@ -11,8 +11,8 @@ In no particular order, here is what I'm working on:
  * Syntax highlighting
  * Previous & Next
  * Related Posts
- * Support for TOML front matter
- * Proper YAML support for front matter
+ * Support for TOML front matter -- in head
+ * Proper YAML support for front matter -- in head
  * Support for other formats
 
 

@@ -1,43 +1,82 @@
----
-title: "Front Matter"
-Pubdate: "2013-07-01"
----
++++
+title = "Front Matter"
+date = "2013-07-01"
++++
 
 The front matter is one of the features that gives Hugo it's strength. It enables
 you to include the meta data of the content right with it. Hugo supports a few 
-different formats. The main format supported is YAML. Here is an example:
+different formats each with their own identifying tokens. 
+
+Supported formats: <br>
+  **YAML**, identified by '\-\-\-'. <br>
+  **TOML**, indentified with '+++'.<br>
+  **JSON**, a single JSON object which is surrounded by '{' and '}' each on their own line.
+
+### YAML Example
 
     ---
-    Title: "spf13-vim 3.0 release and new website"
-    Description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-    Tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    Pubdate: "2012-04-06"
-    Categories:
+    title: "spf13-vim 3.0 release and new website"
+    description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+    tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+    pubdate: "2012-04-06"
+    categories:
       - "Development"
       - "VIM"
-    Slug: "spf13-vim-3-0-release-and-new-website"
+    slug: "spf13-vim-3-0-release-and-new-website"
     ---
+    Content of the file goes Here 
+
+### TOML Example
+
+    +++
+    title = "spf13-vim 3.0 release and new website"
+    description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+    tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+    Pubdate = "2012-04-06"
+    categories = [
+      "Development",
+      "VIM"
+    ]
+    slug = "spf13-vim-3-0-release-and-new-website"
+    +++
+    Content of the file goes Here 
+
+### JSON Example
+
+    {
+    "title": "spf13-vim 3.0 release and new website",
+    "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
+    "tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
+    "date": "2012-04-06",
+    "categories": [
+        "Development",
+        "VIM"
+    ],
+    "slug": "spf13-vim-3-0-release-and-new-website",
+    }
+    Content of the file goes Here 
 
 ### Variables
 
 There are a few predefined variables that Hugo is aware of and utilizes. The user can also create
 any variable they want to. These will be placed into the `.Params` variable available to the templates.
+**Field names are case insensitive.**
 
 #### Required
 
-**Title**  The title for the content. <br>
-**Description** The description for the content.<br>
-**Pubdate** The date the content will be sorted by.<br>
-**Indexes** These will use the field name of the plural form of the index (see tags and categories above)
+**title**  The title for the content. <br>
+**description** The description for the content.<br>
+**date** The date the content will be sorted by.<br>
+**indexes** These will use the field name of the plural form of the index (see tags and categories above)
 
 #### Optional
 
-**Draft** If true the content will not be rendered unless `hugo` is called with -d<br>
-**Type** The type of the content (will be derived from the directory automatically if unset).<br>
-**Markup** (Experimental) Specify "rst" for reStructuredText (requires
+**draft** If true the content will not be rendered unless `hugo` is called with -d<br>
+**type** The type of the content (will be derived from the directory automatically if unset).<br>
+**markup** (Experimental) Specify "rst" for reStructuredText (requires
            `rst2html`,) or "md" (default) for the Markdown.<br>
-**Slug** The token to appear in the tail of the url.<br>
+**slug** The token to appear in the tail of the url.<br>
   *or*<br>
-**Url** The full path to the content from the web root.<br>
+**url** The full path to the content from the web root.<br>
 *If neither is present the filename will be used.*
 
