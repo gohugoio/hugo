@@ -409,9 +409,9 @@ func (page *Page) convertMarkdown(lines []string) {
 
 func (page *Page) convertRestructuredText(lines []string) {
 
-	page.RawMarkdown = strings.Join(lines, " ")
+	page.RawMarkdown = strings.Join(lines, "\n")
 
-	cmd := exec.Command("rst2html.py", "--template=/tmp/template.txt")
+	cmd := exec.Command("rst2html.py")
 	cmd.Stdin = strings.NewReader(page.RawMarkdown)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -419,7 +419,13 @@ func (page *Page) convertRestructuredText(lines []string) {
 		fmt.Println(err)
 	}
 
-	content := out.String()
+	rstLines := strings.Split(out.String(), "\n")
+	for i, line := range rstLines {
+		if strings.HasPrefix(line, "<body>") {
+			rstLines = (rstLines[i+1:len(rstLines)-3])
+		}
+	}
+	content := strings.Join(rstLines, "\n")
 	page.Content = template.HTML(content)
 	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
 }
