@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"sync"
+	"time"
 )
 
 const (
@@ -118,11 +119,11 @@ func serve(port string, config *hugolib.Config) {
 }
 
 func buildSite(config *hugolib.Config) *hugolib.Site {
+    startTime := time.Now()
 	site := hugolib.NewSite(config)
 	site.Build()
-
 	site.Stats()
-
+	fmt.Printf("in %v ms\n", int(1000 * time.Since(startTime).Seconds()))
 	return site
 }
 
