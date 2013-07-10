@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"html/template"
 	"time"
 )
 
@@ -145,6 +146,13 @@ func mkdirIf(path string) {
 
 func Urlize(url string) string {
 	return Sanitize(strings.ToLower(strings.Replace(strings.TrimSpace(url), " ", "-", -1)))
+}
+
+func AbsUrl(url string, base string) template.HTML {
+	if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+		return template.HTML(url)
+	}
+	return template.HTML(MakePermalink(base, url))
 }
 
 func Gt(a interface{}, b interface{}) bool {
