@@ -14,7 +14,7 @@
 package main
 
 import (
-	"./hugolib"
+	"github.com/spf13/hugo/hugolib"
 	"flag"
 	"fmt"
 	"github.com/howeyc/fsnotify"
