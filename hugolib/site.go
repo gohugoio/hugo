@@ -83,6 +83,8 @@ func (site *Site) Render() {
 	site.timer.Step("render and write lists")
 	site.ProcessShortcodes()
 	site.timer.Step("render shortcodes")
+	site.AbsUrlify()
+	site.timer.Step("absolute URLify")
 	site.RenderPages()
 	site.timer.Step("render pages")
 	site.RenderHomePage()
@@ -179,6 +181,17 @@ func (s *Site) checkDirectories() {
 func (s *Site) ProcessShortcodes() {
 	for i, _ := range s.Pages {
 		s.Pages[i].Content = template.HTML(ShortcodesHandle(string(s.Pages[i].Content), s.Pages[i], s.Tmpl))
+	}
+}
+
+func (s *Site) AbsUrlify() {
+	for i, _ := range s.Pages {
+		content := string(s.Pages[i].Content)
+		content = strings.Replace(content, " src=\"/", " src=\""+s.c.BaseUrl+"/", -1)
+		content = strings.Replace(content, " src='/", " src='"+s.c.BaseUrl+"/", -1)
+		content = strings.Replace(content, " href='/", " href='"+s.c.BaseUrl+"/", -1)
+		content = strings.Replace(content, " href=\"/", " href=\""+s.c.BaseUrl+"/", -1)
+		s.Pages[i].Content = template.HTML(content)
 	}
 }
 

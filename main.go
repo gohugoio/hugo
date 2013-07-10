@@ -64,7 +64,9 @@ func main() {
 
 	if *baseUrl != "" {
 		config.BaseUrl = *baseUrl
-	}
+	} else if *server {
+        config.BaseUrl = "http://localhost:" + *port
+    }
 
 	if *version {
 		fmt.Println("Hugo Static Site Generator v0.8")
