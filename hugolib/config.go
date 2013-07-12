@@ -91,7 +91,6 @@ func (c *Config) readInConfig() {
                 }
         }
     }
-    Printer(c)
 }
 
 func (c *Config) setPath(p string) {
