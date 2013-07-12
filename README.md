@@ -102,16 +102,48 @@ The directory structure and templates provide the majority of the
 configuration for a site. In fact a config file isn't even needed for many websites
 since the defaults used follow commonly used patterns.
 
-The following is an example of a config file with the default values
+**Please note the field names must be all lowercase**
 
+### Config Examples
+
+The following is an example of a yaml config file with the default values: 
+    ---
+    sourcedir: "content"
+    layoutdir: "layouts"
+    publishdir: "public"
+    builddrafts: false
+    indexes:
+       category: "categories"
+       tag: "tags"
+    baseurl: "http://yoursite.com/"
+    ...
+
+
+The following is an example of a json config file with the default values: 
     {
-        "SourceDir" : "content",
-        "LayoutDir" : "layouts",
-        "PublishDir" : "public",
-        "BuildDrafts" : false,
-        "Tags" : { "category" : "categories", "tag" : "tags" },
-        "BaseUrl"    : "http://yourSite.com/"
+        "sourcedir": "content",
+        "layoutdir": "layouts",
+        "publishdir": "public",
+        "builddrafts": false,
+        "indexes": {
+           category: "categories",
+           tag: "tags"
+        },
+        "baseurl": "http://yoursite.com/"
     }
+
+
+The following is an example of a toml config file with the default values: 
+
+    sourcedir = "content"
+    layoutdir = "layouts"
+    publishdir = "public"
+    builddrafts = false
+    baseurl = "http://yoursite.com/"
+    [indexes]
+       category = "categories"
+       tag = "tags"
+
 
 ## Usage 
 Make sure either hugo is in your path or provide a path to it.

@@ -45,6 +45,7 @@ type SiteInfo struct {
 	Indexes    *OrderedIndexList
 	Recent     *Pages
 	LastChange time.Time
+    Title      string
 }
 
 func (s *Site) getFromIndex(kind string, name string) Pages {
@@ -163,7 +164,7 @@ func (s *Site) initialize() {
 
 	filepath.Walk(s.c.GetAbsPath(s.c.SourceDir), walker)
 
-	s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl)}
+    s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl), Title: s.c.Title}
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
 }
@@ -308,7 +309,7 @@ func (s *Site) RenderLists() {
 
 func (s *Site) RenderHomePage() {
 	n := s.NewNode()
-	n.Title = ""
+	n.Title = n.Site.Title
 	n.Url = Urlize(string(n.Site.BaseUrl))
 	n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string("/index.xml")))
 	n.Permalink = template.HTML(string(n.Site.BaseUrl))

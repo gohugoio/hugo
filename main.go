@@ -26,13 +26,9 @@ import (
 	"time"
 )
 
-const (
-	cfgFiledefault = "config.yaml"
-)
-
 var (
 	baseUrl    = flag.String("b", "", "hostname (and path) to the root eg. http://spf13.com/")
-	cfgfile    = flag.String("c", cfgFiledefault, "config file (default is path/config.yaml)")
+	cfgfile    = flag.String("c", "", "config file (default is path/config.yaml|json|toml)")
 	checkMode  = flag.Bool("k", false, "analyze content and provide feedback")
 	draft      = flag.Bool("d", false, "include content marked as draft")
 	help       = flag.Bool("h", false, "show this help")
