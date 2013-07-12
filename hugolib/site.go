@@ -78,14 +78,14 @@ func (site *Site) Process() {
 }
 
 func (site *Site) Render() {
-	site.RenderIndexes()
-	site.timer.Step("render and write indexes")
-	site.RenderLists()
-	site.timer.Step("render and write lists")
 	site.ProcessShortcodes()
 	site.timer.Step("render shortcodes")
 	site.AbsUrlify()
 	site.timer.Step("absolute URLify")
+	site.RenderIndexes()
+	site.timer.Step("render and write indexes")
+	site.RenderLists()
+	site.timer.Step("render and write lists")
 	site.RenderPages()
 	site.timer.Step("render pages")
 	site.RenderHomePage()
