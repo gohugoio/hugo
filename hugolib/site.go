@@ -188,10 +188,10 @@ func (s *Site) ProcessShortcodes() {
 func (s *Site) AbsUrlify() {
 	for i, _ := range s.Pages {
 		content := string(s.Pages[i].Content)
-		content = strings.Replace(content, " src=\"/", " src=\""+s.c.BaseUrl+"/", -1)
-		content = strings.Replace(content, " src='/", " src='"+s.c.BaseUrl+"/", -1)
-		content = strings.Replace(content, " href='/", " href='"+s.c.BaseUrl+"/", -1)
-		content = strings.Replace(content, " href=\"/", " href=\""+s.c.BaseUrl+"/", -1)
+		content = strings.Replace(content, " src=\"/", " src=\""+s.c.BaseUrl, -1)
+		content = strings.Replace(content, " src='/", " src='"+s.c.BaseUrl, -1)
+		content = strings.Replace(content, " href='/", " href='"+s.c.BaseUrl, -1)
+		content = strings.Replace(content, " href=\"/", " href=\""+s.c.BaseUrl, -1)
 		s.Pages[i].Content = template.HTML(content)
 	}
 }
@@ -276,7 +276,7 @@ func (s *Site) RenderIndexes() {
 				// XML Feed
 				y := s.NewXMLBuffer()
 				n.Url = Urlize(plural + "/" + k + ".xml")
-                n.Permalink = template.HTML(string(n.Site.BaseUrl) + "/" + plural + "/" + k + ".xml")
+                n.Permalink = template.HTML(string(n.Site.BaseUrl) + plural + "/" + k + ".xml")
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 				s.WritePublic(plural, k+".xml", y.Bytes())
 			}
@@ -301,7 +301,7 @@ func (s *Site) RenderLists() {
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
 			n.Url = Urlize(section + "/index.xml")
-            n.Permalink = template.HTML(string(n.Site.BaseUrl) + "/" + section + "/index.xml")
+            n.Permalink = template.HTML(string(n.Site.BaseUrl) + section + "/index.xml")
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 			s.WritePublic(section, "index.xml", y.Bytes())
@@ -313,7 +313,7 @@ func (s *Site) RenderHomePage() {
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	n.Url = Urlize(string(n.Site.BaseUrl))
-	n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string("/index.xml")))
+	n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string("index.xml")))
 	n.Permalink = template.HTML(string(n.Site.BaseUrl))
 	n.Date = s.Pages[0].Date
 	if len(s.Pages) < 9 {
@@ -328,7 +328,7 @@ func (s *Site) RenderHomePage() {
 		// XML Feed
 		n.Url = Urlize("index.xml")
         n.Title = "Recent Content"
-        n.Permalink = template.HTML(string(n.Site.BaseUrl) + "/index.xml")
+        n.Permalink = template.HTML(string(n.Site.BaseUrl) + "index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 		s.WritePublic("", "index.xml", y.Bytes())

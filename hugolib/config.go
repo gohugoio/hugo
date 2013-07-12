@@ -22,6 +22,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 // config file items
@@ -65,6 +66,11 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 		c.Indexes["tag"] = "tags"
 		c.Indexes["category"] = "categories"
 	}
+
+    if !strings.HasSuffix(c.BaseUrl, "/") {
+        c.BaseUrl = c.BaseUrl + "/"
+    }
+
 	return &c
 }
 
