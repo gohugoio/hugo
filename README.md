@@ -107,6 +107,7 @@ since the defaults used follow commonly used patterns.
 ### Config Examples
 
 The following is an example of a yaml config file with the default values: 
+
     ---
     sourcedir: "content"
     layoutdir: "layouts"
@@ -120,6 +121,7 @@ The following is an example of a yaml config file with the default values:
 
 
 The following is an example of a json config file with the default values: 
+
     {
         "sourcedir": "content",
         "layoutdir": "layouts",

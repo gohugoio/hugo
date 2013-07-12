@@ -16,6 +16,7 @@ then look for a config.json file, followed by a config.toml file.
 ## Examples
 
 The following is an example of a yaml config file with the default values: 
+
     ---
     sourcedir: "content"
     layoutdir: "layouts"
@@ -29,6 +30,7 @@ The following is an example of a yaml config file with the default values:
 
 
 The following is an example of a json config file with the default values: 
+
     {
         "sourcedir": "content",
         "layoutdir": "layouts",
