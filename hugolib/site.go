@@ -276,6 +276,7 @@ func (s *Site) RenderIndexes() {
 				// XML Feed
 				y := s.NewXMLBuffer()
 				n.Url = Urlize(plural + "/" + k + ".xml")
+                n.Permalink = template.HTML(string(n.Site.BaseUrl) + "/" + plural + "/" + k + ".xml")
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 				s.WritePublic(plural, k+".xml", y.Bytes())
 			}
@@ -300,6 +301,7 @@ func (s *Site) RenderLists() {
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
 			n.Url = Urlize(section + "/index.xml")
+            n.Permalink = template.HTML(string(n.Site.BaseUrl) + "/" + section + "/index.xml")
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 			s.WritePublic(section, "index.xml", y.Bytes())
@@ -325,6 +327,8 @@ func (s *Site) RenderHomePage() {
 	if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 		// XML Feed
 		n.Url = Urlize("index.xml")
+        n.Title = "Recent Content"
+        n.Permalink = template.HTML(string(n.Site.BaseUrl) + "/index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 		s.WritePublic("", "index.xml", y.Bytes())
