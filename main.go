@@ -14,9 +14,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/howeyc/fsnotify"
+	flag "github.com/ogier/pflag"
 	"github.com/spf13/hugo/hugolib"
 	"net/http"
 	"os"
@@ -27,17 +27,17 @@ import (
 )
 
 var (
-	baseUrl    = flag.String("b", "", "hostname (and path) to the root eg. http://spf13.com/")
-	cfgfile    = flag.String("c", "", "config file (default is path/config.yaml|json|toml)")
-	checkMode  = flag.Bool("k", false, "analyze content and provide feedback")
-	draft      = flag.Bool("d", false, "include content marked as draft")
-	help       = flag.Bool("h", false, "show this help")
-	path       = flag.String("p", "", "filesystem path to read files relative from")
-	verbose    = flag.Bool("v", false, "verbose output")
+	baseUrl    = flag.StringP("base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	cfgfile    = flag.String("config", "", "config file (default is path/config.yaml|json|toml)")
+	checkMode  = flag.Bool("check", false, "analyze content and provide feedback")
+	draft      = flag.BoolP("build-drafts", "d", false, "include content marked as draft")
+	help       = flag.BoolP("help", "h", false, "show this help")
+	path       = flag.StringP("source", "s", "", "filesystem path to read files relative from")
+	verbose    = flag.BoolP("verbose", "v", false, "verbose output")
 	version    = flag.Bool("version", false, "which version of hugo")
-	cpuprofile = flag.Int("cpuprofile", 0, "Number of times to create the site and profile it")
-	watchMode  = flag.Bool("w", false, "watch filesystem for changes and recreate as needed")
-	server     = flag.Bool("s", false, "run a (very) simple web server")
+	cpuprofile = flag.Int("profile", 0, "Number of times to create the site and profile it")
+	watchMode  = flag.BoolP("watch", "w", false, "watch filesystem for changes and recreate as needed")
+	server     = flag.BoolP("server", "S", false, "run a (very) simple web server")
 	port       = flag.String("port", "1313", "port to run web server on, default :1313")
 	uglyUrls   = flag.Bool("uglyurls", false, "use /filename.html instead of /filename/ ")
 )
@@ -45,7 +45,7 @@ var (
 func usage() {
 	PrintErr("usage: hugo [flags]", "")
 	flag.PrintDefaults()
-	os.Exit(2)
+	os.Exit(0)
 }
 
 func main() {
@@ -90,7 +90,7 @@ func main() {
 	if *checkMode {
 		site := hugolib.NewSite(config)
 		site.Analyze()
-		os.Exit(2)
+		os.Exit(0)
 	}
 
 	if *watchMode {
