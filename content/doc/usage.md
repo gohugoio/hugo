@@ -7,15 +7,17 @@ Make sure either hugo is in your path or provide a path to it.
 
     $ hugo --help
     usage: hugo [flags] []
-      -b="": hostname (and path) to the root eg. http://spf13.com/
-      -c="config.json": config file (default is path/config.json)
-      -d=false: include content marked as draft
-      -h=false: show this help
-      -k=false: analyze content and provide feedback
-      -p="": filesystem path to read files relative from
-      -w=false: watch filesystem for changes and recreate as needed
-      -s=false: a (very) simple webserver
-      -port="1313": port for webserver to run on
+      -b, --base-url="": hostname (and path) to the root eg. http://spf13.com/
+      -d, --build-drafts=false: include content marked as draft
+          --config="": config file (default is path/config.yaml|json|toml)
+      -h, --help=false: show this help
+          --port="1313": port to run web server on, default :1313
+      -S, --server=false: run a (very) simple web server
+      -s, --source="": filesystem path to read files relative from
+          --uglyurls=false: use /filename.html instead of /filename/
+      -v, --verbose=false: verbose output
+          --version=false: which version of hugo
+      -w, --watch=false: watch filesystem for changes and recreate as needed
 
 ## Common Usage Example:
 
@@ -35,14 +37,14 @@ immediately, tell Hugo to watch for changes.
 recreate the site faster than you can tab over to 
 your browser to view the changes.**
 
-    $ hugo -p ~/mysite -w
+    $ hugo --source ~/mysite --watch
        Watching for changes. Press ctrl+c to stop
        15 pages created
        0 tags created
 
 Hugo can even run a server and create your site at the same time!
 
-    $hugo -p ~/mysite -w -s
+    $hugo --server -ws ~/mysite
        Watching for changes. Press ctrl+c to stop
        15 pages created
        0 tags created
