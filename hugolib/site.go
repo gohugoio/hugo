@@ -27,6 +27,8 @@ import (
 	//"sync"
 )
 
+const slash = string(os.PathSeparator)
+
 type Site struct {
 	c           Config
 	Pages       Pages
@@ -45,7 +47,7 @@ type SiteInfo struct {
 	Indexes    *OrderedIndexList
 	Recent     *Pages
 	LastChange time.Time
-    Title      string
+	Title      string
 }
 
 func (s *Site) getFromIndex(kind string, name string) Pages {
@@ -164,7 +166,7 @@ func (s *Site) initialize() {
 
 	filepath.Walk(s.c.GetAbsPath(s.c.SourceDir), walker)
 
-    s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl), Title: s.c.Title}
+	s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl), Title: s.c.Title}
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
 }
@@ -201,6 +203,7 @@ func (s *Site) CreatePages() {
 		page := NewPage(fileName)
 		page.Site = s.Info
 		page.Tmpl = s.Tmpl
+		s.setOutFile(page)
 		if s.c.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}
@@ -251,7 +254,30 @@ func (s *Site) RenderPages() {
 
 func (s *Site) WritePages() {
 	for _, p := range s.Pages {
-		s.WritePublic(p.Section, p.OutFile, p.RenderedContent.Bytes())
+		s.WritePublic(p.Section+slash+p.OutFile, p.RenderedContent.Bytes())
+	}
+}
+
+func (s *Site) setOutFile(p *Page) {
+	if len(strings.TrimSpace(p.Slug)) > 0 {
+		// Use Slug if provided
+		if s.c.UglyUrls {
+			p.OutFile = strings.TrimSpace(p.Slug + "." + p.Extension)
+		} else {
+			p.OutFile = strings.TrimSpace(p.Slug + "/index.html")
+		}
+	} else if len(strings.TrimSpace(p.Url)) > 2 {
+		// Use Url if provided & Slug missing
+		p.OutFile = strings.TrimSpace(p.Url)
+	} else {
+		// Fall back to filename
+		_, t := filepath.Split(p.FileName)
+		if s.c.UglyUrls {
+			p.OutFile = replaceExtension(strings.TrimSpace(t), p.Extension)
+		} else {
+			file, _ := fileExt(strings.TrimSpace(t))
+			p.OutFile = file + "/index." + p.Extension
+		}
 	}
 }
 
@@ -261,24 +287,42 @@ func (s *Site) RenderIndexes() {
 			n := s.NewNode()
 			n.Title = strings.Title(k)
 			url := Urlize(plural + "/" + k)
-			n.Url = url + ".html"
-			n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
+			plink := url
+			if s.c.UglyUrls {
+				n.Url = url + ".html"
+				plink = n.Url
+			} else {
+				n.Url = url + "/index.html"
+			}
+			n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(plink)))
 			n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(url+".xml")))
 			n.Date = o[0].Date
 			n.Data[singular] = o
 			n.Data["Pages"] = o
-			layout := "indexes/" + singular + ".html"
+			layout := "indexes" + slash + singular + ".html"
 
 			x := s.RenderThing(n, layout)
-			s.WritePublic(plural, k+".html", x.Bytes())
+
+			var base string
+			if s.c.UglyUrls {
+				base = plural + slash + k
+			} else {
+				base = plural + slash + k + slash + "index"
+			}
+
+			s.WritePublic(base+".html", x.Bytes())
 
 			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 				// XML Feed
 				y := s.NewXMLBuffer()
-				n.Url = Urlize(plural + "/" + k + ".xml")
-                n.Permalink = template.HTML(string(n.Site.BaseUrl) + plural + "/" + k + ".xml")
+				if s.c.UglyUrls {
+					n.Url = Urlize(plural + "/" + k + ".xml")
+				} else {
+					n.Url = Urlize(plural + "/" + k + "/index.xml")
+				}
+				n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-				s.WritePublic(plural, k+".xml", y.Bytes())
+				s.WritePublic(base+".xml", y.Bytes())
 			}
 		}
 	}
@@ -290,21 +334,21 @@ func (s *Site) RenderLists() {
 		n.Title = strings.Title(inflect.Pluralize(section))
 		n.Url = Urlize(section + "/index.html")
 		n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
-		n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(section+"/index.xml")))
+		n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(section+".xml")))
 		n.Date = data[0].Date
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
 		x := s.RenderThing(n, layout)
-		s.WritePublic(section, "index.html", x.Bytes())
+		s.WritePublic(section+slash+"index.html", x.Bytes())
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
-			n.Url = Urlize(section + "/index.xml")
-            n.Permalink = template.HTML(string(n.Site.BaseUrl) + section + "/index.xml")
+			n.Url = Urlize(section + ".xml")
+			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			s.WritePublic(section, "index.xml", y.Bytes())
+			s.WritePublic(section+slash+"index.xml", y.Bytes())
 		}
 	}
 }
@@ -322,16 +366,16 @@ func (s *Site) RenderHomePage() {
 		n.Data["Pages"] = s.Pages[:9]
 	}
 	x := s.RenderThing(n, "index.html")
-	s.WritePublic("", "index.html", x.Bytes())
+	s.WritePublic("index.html", x.Bytes())
 
 	if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 		// XML Feed
 		n.Url = Urlize("index.xml")
-        n.Title = "Recent Content"
-        n.Permalink = template.HTML(string(n.Site.BaseUrl) + "index.xml")
+		n.Title = "Recent Content"
+		n.Permalink = template.HTML(string(n.Site.BaseUrl) + "index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-		s.WritePublic("", "index.xml", y.Bytes())
+		s.WritePublic("index.xml", y.Bytes())
 	}
 }
 
@@ -361,17 +405,18 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 	return bytes.NewBufferString(header)
 }
 
-func (s *Site) WritePublic(path string, filename string, content []byte) {
-	AbsPath := ""
-	if path != "" {
-		// TODO double check the following line.. calling GetAbsPath 2x seems wrong
-		mkdirIf(s.c.GetAbsPath(filepath.Join(s.c.GetAbsPath(s.c.PublishDir), path)))
-		AbsPath = filepath.Join(s.c.GetAbsPath(s.c.PublishDir), path, filename)
-	} else {
-		AbsPath = filepath.Join(s.c.GetAbsPath(s.c.PublishDir), filename)
+func (s *Site) WritePublic(path string, content []byte) {
+
+	if s.c.Verbose {
+		fmt.Println(path)
 	}
 
-	file, _ := os.Create(AbsPath)
+	path, filename := filepath.Split(path)
+
+	path = filepath.FromSlash(s.c.GetAbsPath(filepath.Join(s.c.PublishDir, path)))
+	mkdirIf(path)
+
+	file, _ := os.Create(filepath.Join(path, filename))
 	defer file.Close()
 
 	file.Write(content)

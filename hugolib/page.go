@@ -150,11 +150,11 @@ func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
 	var err error
 
 	datum, lines := splitPageContent(data, "---", "---")
-    d, err := page.handleYamlMetaData([]byte(strings.Join(datum, "\n")))
+	d, err := page.handleYamlMetaData([]byte(strings.Join(datum, "\n")))
 
-    if err != nil {
-        return lines, err
-    }
+	if err != nil {
+		return lines, err
+	}
 
 	err = page.handleMetaData(d)
 	return lines, err
@@ -164,11 +164,11 @@ func (page *Page) parseTomlMetaData(data []byte) ([]string, error) {
 	var err error
 
 	datum, lines := splitPageContent(data, "+++", "+++")
-    d, err := page.handleTomlMetaData([]byte(strings.Join(datum, "\n")))
+	d, err := page.handleTomlMetaData([]byte(strings.Join(datum, "\n")))
 
-    if err != nil {
-        return lines, err
-    }
+	if err != nil {
+		return lines, err
+	}
 
 	err = page.handleMetaData(d)
 	return lines, err
@@ -178,11 +178,11 @@ func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
 	var err error
 
 	datum, lines := splitPageContent(data, "{", "}")
-    d, err := page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
+	d, err := page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
 
-    if err != nil {
-        return lines, err
-    }
+	if err != nil {
+		return lines, err
+	}
 
 	err = page.handleMetaData(d)
 	return lines, err
@@ -254,7 +254,7 @@ func (page *Page) handleYamlMetaData(datum []byte) (interface{}, error) {
 	return m, nil
 }
 
-func (page *Page) handleJsonMetaData(datum []byte) ( interface{}, error ) {
+func (page *Page) handleJsonMetaData(datum []byte) (interface{}, error) {
 	var f interface{}
 	if err := json.Unmarshal(datum, &f); err != nil {
 		return f, fmt.Errorf("Invalid JSON in %v \nError parsing page meta data: %s", page.FileName, err)
@@ -385,32 +385,12 @@ func (page *Page) buildPageFromFile() error {
 		return err
 	}
 
-	if err := page.setOutFile(); err != nil {
-		return err
-	}
-
 	switch page.Markup {
 	case "md":
 		page.convertMarkdown(content)
 	case "rst":
 		page.convertRestructuredText(content)
 	}
-	return nil
-}
-
-func (p *Page) setOutFile() error {
-	if len(strings.TrimSpace(p.Slug)) > 0 {
-		// Use Slug if provided
-		p.OutFile = strings.TrimSpace(p.Slug + "." + p.Extension)
-	} else if len(strings.TrimSpace(p.Url)) > 2 {
-		// Use Url if provided & Slug missing
-		p.OutFile = strings.TrimSpace(p.Url)
-	} else {
-		// Fall back to filename
-		_, t := filepath.Split(p.FileName)
-		p.OutFile = replaceExtension(strings.TrimSpace(t), p.Extension)
-	}
-
 	return nil
 }
 
@@ -437,7 +417,7 @@ func (page *Page) convertRestructuredText(lines []string) {
 	rstLines := strings.Split(out.String(), "\n")
 	for i, line := range rstLines {
 		if strings.HasPrefix(line, "<body>") {
-			rstLines = (rstLines[i+1:len(rstLines)-3])
+			rstLines = (rstLines[i+1 : len(rstLines)-3])
 		}
 	}
 	content := strings.Join(rstLines, "\n")

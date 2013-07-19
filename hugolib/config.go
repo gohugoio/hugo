@@ -14,11 +14,11 @@
 package hugolib
 
 import (
-	"launchpad.net/goyaml"
-	"github.com/BurntSushi/toml"
 	"encoding/json"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"io/ioutil"
+	"launchpad.net/goyaml"
 	"os"
 	"path"
 	"path/filepath"
@@ -29,11 +29,11 @@ import (
 type Config struct {
 	SourceDir, PublishDir, BaseUrl, StaticDir string
 	Path, CacheDir, LayoutDir, DefaultLayout  string
-    ConfigFile                                string
-    Title                                     string
+	ConfigFile                                string
+	Title                                     string
 	Indexes                                   map[string]string // singular, plural
 	ProcessFilters                            map[string][]string
-	BuildDrafts                               bool
+	BuildDrafts, UglyUrls, Verbose            bool
 }
 
 var c Config
@@ -42,8 +42,8 @@ var c Config
 func SetupConfig(cfgfile *string, path *string) *Config {
 	c.setPath(*path)
 
-    cfg , err := c.findConfigFile(*cfgfile)
-    c.ConfigFile = cfg
+	cfg, err := c.findConfigFile(*cfgfile)
+	c.ConfigFile = cfg
 
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -57,8 +57,10 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 	c.StaticDir = "static"
 	c.DefaultLayout = "post"
 	c.BuildDrafts = false
+	c.UglyUrls = false
+	c.Verbose = false
 
-    c.readInConfig()
+	c.readInConfig()
 
 	// set index defaults if none provided
 	if len(c.Indexes) == 0 {
@@ -67,36 +69,36 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 		c.Indexes["category"] = "categories"
 	}
 
-    if !strings.HasSuffix(c.BaseUrl, "/") {
-        c.BaseUrl = c.BaseUrl + "/"
-    }
+	if !strings.HasSuffix(c.BaseUrl, "/") {
+		c.BaseUrl = c.BaseUrl + "/"
+	}
 
 	return &c
 }
 
 func (c *Config) readInConfig() {
-    file, err := ioutil.ReadFile(c.ConfigFile)
-    if err == nil {
-        switch path.Ext(c.ConfigFile) {
-            case ".yaml":
-                if err := goyaml.Unmarshal(file, &c); err != nil {
-                    fmt.Printf("Error parsing config: %s", err)
-                    os.Exit(1)
-                }
+	file, err := ioutil.ReadFile(c.ConfigFile)
+	if err == nil {
+		switch path.Ext(c.ConfigFile) {
+		case ".yaml":
+			if err := goyaml.Unmarshal(file, &c); err != nil {
+				fmt.Printf("Error parsing config: %s", err)
+				os.Exit(1)
+			}
 
-            case ".json":
-                if err := json.Unmarshal(file, &c); err != nil {
-                    fmt.Printf("Error parsing config: %s", err)
-                    os.Exit(1)
-                }
+		case ".json":
+			if err := json.Unmarshal(file, &c); err != nil {
+				fmt.Printf("Error parsing config: %s", err)
+				os.Exit(1)
+			}
 
-            case ".toml":
-                if _, err := toml.Decode(string(file), &c); err != nil {
-                    fmt.Printf("Error parsing config: %s", err)
-                    os.Exit(1)
-                }
-        }
-    }
+		case ".toml":
+			if _, err := toml.Decode(string(file), &c); err != nil {
+				fmt.Printf("Error parsing config: %s", err)
+				os.Exit(1)
+			}
+		}
+	}
 }
 
 func (c *Config) setPath(p string) {
@@ -156,33 +158,33 @@ func (c *Config) GetAbsPath(name string) string {
 
 func (c *Config) findConfigFile(configFileName string) (string, error) {
 
-    if configFileName == "" { // config not specified, let's search
-        if b, _ := exists(c.GetAbsPath("config.json")); b {
-            return c.GetAbsPath("config.json"), nil
-        }
+	if configFileName == "" { // config not specified, let's search
+		if b, _ := exists(c.GetAbsPath("config.json")); b {
+			return c.GetAbsPath("config.json"), nil
+		}
 
-        if b, _ := exists(c.GetAbsPath("config.toml")); b {
-            return c.GetAbsPath("config.toml"), nil
-        } 
+		if b, _ := exists(c.GetAbsPath("config.toml")); b {
+			return c.GetAbsPath("config.toml"), nil
+		}
 
-        if b, _ := exists(c.GetAbsPath("config.yaml")); b {
-            return c.GetAbsPath("config.yaml"), nil
-        }
+		if b, _ := exists(c.GetAbsPath("config.yaml")); b {
+			return c.GetAbsPath("config.yaml"), nil
+		}
 
-        return "", fmt.Errorf("config file not found in: %s", c.GetPath())
+		return "", fmt.Errorf("config file not found in: %s", c.GetPath())
 
-    } else {
-        // If the full path is given, just use that
-        if path.IsAbs(configFileName) {
-            return configFileName, nil
-        }
+	} else {
+		// If the full path is given, just use that
+		if path.IsAbs(configFileName) {
+			return configFileName, nil
+		}
 
-        // Else check the local directory
-        t := c.GetAbsPath(configFileName)
-        if b, _ := exists(t); b {
-            return t, nil
-        } else {
-            return "", fmt.Errorf("config file not found at: %s", t)
-        }
-    }
+		// Else check the local directory
+		t := c.GetAbsPath(configFileName)
+		if b, _ := exists(t); b {
+			return t, nil
+		} else {
+			return "", fmt.Errorf("config file not found at: %s", t)
+		}
+	}
 }

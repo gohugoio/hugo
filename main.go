@@ -14,10 +14,10 @@
 package main
 
 import (
-	"github.com/spf13/hugo/hugolib"
 	"flag"
 	"fmt"
 	"github.com/howeyc/fsnotify"
+	"github.com/spf13/hugo/hugolib"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -39,6 +39,7 @@ var (
 	watchMode  = flag.Bool("w", false, "watch filesystem for changes and recreate as needed")
 	server     = flag.Bool("s", false, "run a (very) simple web server")
 	port       = flag.String("port", "1313", "port to run web server on, default :1313")
+	uglyUrls   = flag.Bool("uglyurls", false, "use /filename.html instead of /filename/ ")
 )
 
 func usage() {
@@ -58,12 +59,14 @@ func main() {
 
 	config := hugolib.SetupConfig(cfgfile, path)
 	config.BuildDrafts = *draft
+	config.UglyUrls = *uglyUrls
+	config.Verbose = *verbose
 
 	if *baseUrl != "" {
 		config.BaseUrl = *baseUrl
 	} else if *server {
-        config.BaseUrl = "http://localhost:" + *port
-    }
+		config.BaseUrl = "http://localhost:" + *port
+	}
 
 	if *version {
 		fmt.Println("Hugo Static Site Generator v0.8")
@@ -115,11 +118,11 @@ func serve(port string, config *hugolib.Config) {
 }
 
 func buildSite(config *hugolib.Config) *hugolib.Site {
-    startTime := time.Now()
+	startTime := time.Now()
 	site := hugolib.NewSite(config)
 	site.Build()
 	site.Stats()
-	fmt.Printf("in %v ms\n", int(1000 * time.Since(startTime).Seconds()))
+	fmt.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 	return site
 }
 
@@ -145,6 +148,9 @@ func NewWatcher(c *hugolib.Config, port string, server bool) error {
 			select {
 			case ev := <-watcher.Event:
 				var _ = ev
+				if c.Verbose {
+					fmt.Println(ev)
+				}
 				watchChange(c)
 				// TODO add newly created directories to the watch list
 			case err := <-watcher.Error:
