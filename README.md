@@ -37,12 +37,28 @@ is the most probable location.
 
 ## Installing from source
 
+### Dependencies
+
 Make sure you have a recent version of go installed. Hugo requires go 1.1+.
+
+**Due to packaging dependencies the following are also required: Git, Bazaar, Mercurial**
+
+### Cloning and Installing dependencies
 
     git clone https://github.com/spf13/hugo
     cd hugo
+    go get
     go build -o hugo main.go
 
+### Running Hugo
+
+    cd hugo
+    go run main.go
+
+### Building Hugo
+
+    cd hugo
+    go build -o hugo main.go
 
 ## Source Directory Organization
 
