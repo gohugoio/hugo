@@ -48,7 +48,6 @@ Make sure you have a recent version of go installed. Hugo requires go 1.1+.
     git clone https://github.com/spf13/hugo
     cd hugo
     go get
-    go build -o hugo main.go
 
 ### Running Hugo
 
