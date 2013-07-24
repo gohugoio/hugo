@@ -25,7 +25,7 @@ The latest release can be found at [hugo releases](https://github.com/spf13/hugo
 We currently build for Windows, Linux, FreeBSD and OS X for x64
 and 386 architectures.
 
-## Installing Hugo (binary)
+### Installing Hugo (binary)
 
 Installation is very easy. Simply download the appropriate version for your
 platform from [hugo releases](https://github.com/spf13/hugo/releases).
@@ -38,16 +38,16 @@ is the most probable location.
 
 *the Hugo executible has no external dependencies.*
 
-## Installing from source
+### Installing from source
 
-### Dependencies
+#### Dependencies
 
 * Git
 * Go 1.1+
 * Mercurial
 * Bazaar
 
-### Clone locally (for contributors):
+#### Clone locally (for contributors):
 
     git clone https://github.com/spf13/hugo
     cd hugo
@@ -59,18 +59,18 @@ it's helpful to symlink the project to one of the following paths:
  * ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo
  * ln -s /path/to/your/hugo $GOROOT/src/pkg/github.com/spf13/hugo
 
-### Get directly from Github:
+#### Get directly from Github:
 
 If you don't intend to contribute, it's even easier. 
 
     go get github.com/spf13/hugo
 
-### Running Hugo
+#### Running Hugo
 
     cd /path/to/hugo
     go run main.go
 
-### Building Hugo
+#### Building Hugo
 
     cd /path/to/hugo
     go build -o hugo main.go
