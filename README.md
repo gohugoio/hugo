@@ -4,15 +4,15 @@ A really fast static site generator written in GoLang.
 
 ## Overview
 
-Hugo is a static site generator written in GoLang. It is optimized for 
+Hugo is a static site generator written in GoLang. It is optimized for
 speed, easy use and configurability. Hugo takes a directory with content and
 templates and renders them into a full html website.
 
-Hugo makes use of markdown files with front matter for meta data.  
+Hugo makes use of markdown files with front matter for meta data.
 
-A typical website of moderate size can be 
+A typical website of moderate size can be
 rendered in a fraction of a second. It is written to work well with any
-kind of website including blogs, tumbles and docs. 
+kind of website including blogs, tumbles and docs.
 
 
 # Getting Started
@@ -23,20 +23,21 @@ Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
 
 The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases).
 We currently build for Windows, Linux, FreeBSD and OS X for x64
-and 386 architectures. 
+and 386 architectures.
 
 Installation is very easy. Simply download the appropriate version for your
 platform. Once downloaded it can be run from anywhere. You don't need to install
 it into a global location. This works well for shared hosts and other systems
 where you don't have a privileged account.
 
-Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
+Ideally you should install it somewhere in your path for easy use. `/usr/local/bin`
 is the most probable location.
 
 *Hugo has no external dependencies.*
 
 ## Installing from source
 
+<<<<<<< HEAD
 ### Dependencies
 
 Make sure you have a recent version of go installed. Hugo requires go 1.1+.
@@ -45,9 +46,24 @@ Make sure you have a recent version of go installed. Hugo requires go 1.1+.
 
 ### Cloning and Installing dependencies
 
+Pre-requisites:
+
+* Git
+* Go 1.1+
+* Mercurial
+* Bazaar
+
+### Getting locally (for contributors):
+
+    # clone and build
     git clone https://github.com/spf13/hugo
     cd hugo
     go get
+    go build -o hugo main.go
+
+### Install directly from Github:
+
+    go get github.com/spf13/hugo
     go build -o hugo main.go
 
 ### Running Hugo
@@ -64,7 +80,7 @@ Make sure you have a recent version of go installed. Hugo requires go 1.1+.
 
 Hugo takes a single directory and uses it as the input for creating a complete website.
 
-Hugo has a very small amount of configuration, while remaining highly customizable. 
+Hugo has a very small amount of configuration, while remaining highly customizable.
 It accomplishes by assuming that you will only provide templates with the intent of
 using them.
 
@@ -122,7 +138,7 @@ since the defaults used follow commonly used patterns.
 
 ### Config Examples
 
-The following is an example of a yaml config file with the default values: 
+The following is an example of a yaml config file with the default values:
 
     ---
     sourcedir: "content"
@@ -136,7 +152,7 @@ The following is an example of a yaml config file with the default values:
     ...
 
 
-The following is an example of a json config file with the default values: 
+The following is an example of a json config file with the default values:
 
     {
         "sourcedir": "content",
@@ -151,7 +167,7 @@ The following is an example of a json config file with the default values:
     }
 
 
-The following is an example of a toml config file with the default values: 
+The following is an example of a toml config file with the default values:
 
     sourcedir = "content"
     layoutdir = "layouts"
@@ -163,7 +179,7 @@ The following is an example of a toml config file with the default values:
        tag = "tags"
 
 
-## Usage 
+## Usage
 Make sure either hugo is in your path or provide a path to it.
 
     $ hugo --help
@@ -180,7 +196,7 @@ Make sure either hugo is in your path or provide a path to it.
           --version=false: which version of hugo
       -w, --watch=false: watch filesystem for changes and recreate as needed
 
-The most common use is probably to run hugo with your current 
+The most common use is probably to run hugo with your current
 directory being the input directory.
 
 
@@ -189,9 +205,9 @@ directory being the input directory.
     > Y indexes created
 
 
-If you are working on things and want to see the changes 
-immediately, tell Hugo to watch for changes. **It will 
-recreate the site faster than you can tab over to 
+If you are working on things and want to see the changes
+immediately, tell Hugo to watch for changes. **It will
+recreate the site faster than you can tab over to
 your browser to view the changes.**
 
     $ hugo --source ~/mysite --watch
@@ -215,7 +231,7 @@ Hugo is very flexible about how you organize and structure your content.
 ## Templates
 
 Hugo uses the excellent golang html/template library for it's template engine. It is an extremely
-lightweight engine that provides a very small amount of logic. In our 
+lightweight engine that provides a very small amount of logic. In our
 experience that it is just the right amount of logic to be able to create a good static website
 
 This document will not cover how to use golang templates, but the [golang docs](http://golang.org/pkg/html/template/)
@@ -226,19 +242,19 @@ provide a good introduction.
 There are 5 different kinds of templates that Hugo works with.
 
 #### index.html
-This file must exist in the layouts directory. It is the template used to render the 
+This file must exist in the layouts directory. It is the template used to render the
 homepage of your site.
 
 #### rss.xml
 This file must exist in the layouts directory. It will be used to render all rss documents.
-The one provided in the example application will generate an ATOM format. 
+The one provided in the example application will generate an ATOM format.
 
 *Important: Hugo will automatically add the following header line to this file.*
 
     <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
 #### Indexes
-An index is a page that list multiple pieces of content. If you think of a typical blog, the tag 
+An index is a page that list multiple pieces of content. If you think of a typical blog, the tag
 pages are good examples of indexes.
 
 
@@ -249,8 +265,8 @@ to render content in a variety of ways as determined by the type.
 #### Chrome
 Chrome is simply the decoration of your site. It's not a requirement to have this, but in practice
 it's very convenient. Hugo doesn't know anything about Chrome, it's simply a convention that you may
-likely find beneficial. As you create the rest of your templates you will include templates from the 
-/layout/chrome directory. I've found it helpful to include a header and footer template 
+likely find beneficial. As you create the rest of your templates you will include templates from the
+/layout/chrome directory. I've found it helpful to include a header and footer template
 in Chrome so I can include those in the other full page layouts (index.html, indexes/ type/single.html).
 
 ### Adding a new content type
@@ -267,7 +283,7 @@ Create a file called single.html inside your directory. *Eg /layouts/post/single
 Create a file with the same name as your directory in /layouts/indexes/. *Eg /layouts/index/post.html*.
 
 **Step 4:**
-Many sites support rendering content in a few different ways, for instance a single page view and a 
+Many sites support rendering content in a few different ways, for instance a single page view and a
 summary view to be used when displaying a list of contents on a single page. Hugo makes no assumptions
 here about how you want to display your content, and will support as many different views of a content
 type as your site requires. All that is required for these additional views is that a template
@@ -289,11 +305,11 @@ are available in the context for the templates.
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.RSSLink** Link to the indexes' rss link <br>
 
-Any value defined in the front matter, including indexes will be made available under `.Params`. 
+Any value defined in the front matter, including indexes will be made available under `.Params`.
 Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
 
-**.Params.Tags** <br> 
-**.Params.Categories** <br> 
+**.Params.Tags** <br>
+**.Params.Categories** <br>
 
 Also available is `.Site` which has the following:
 
@@ -324,8 +340,8 @@ Without any additional configuration the following will just work.
 ## Front Matter
 
 The front matter is one of the features that gives Hugo it's strength. It enables
-you to include the meta data of the content right with it. Hugo supports a few 
-different formats each with their own identifying tokens. 
+you to include the meta data of the content right with it. Hugo supports a few
+different formats each with their own identifying tokens.
 
 Supported formats: <br>
   **YAML**, identified by '\-\-\-'. <br>
@@ -344,7 +360,7 @@ Supported formats: <br>
       - "VIM"
     slug: "spf13-vim-3-0-release-and-new-website"
     ---
-    Content of the file goes Here 
+    Content of the file goes Here
 
 ### TOML Example
 
@@ -359,7 +375,7 @@ Supported formats: <br>
     ]
     slug = "spf13-vim-3-0-release-and-new-website"
     +++
-    Content of the file goes Here 
+    Content of the file goes Here
 
 ### JSON Example
 
@@ -374,7 +390,7 @@ Supported formats: <br>
     ],
     "slug": "spf13-vim-3-0-release-and-new-website",
     }
-    Content of the file goes Here 
+    Content of the file goes Here
 
 ### Variables
 There are a few predefined variables that Hugo is aware of and utilizes. The user can also create
@@ -438,12 +454,12 @@ Somethings are better shown than explained. The following is a very basic exampl
 # Extras
 
 ## Shortcodes
-Because Hugo uses markdown for it's content format, it was clear that there's a lot of things that 
+Because Hugo uses markdown for it's content format, it was clear that there's a lot of things that
 markdown doesn't support well. This is good, the simple nature of markdown is exactly why we chose it.
 
 However we cannot accept being constrained by our simple format. Also unacceptable is writing raw
-html in our markdown every time we want to include unsupported content such as a video. To do 
-so is in complete opposition to the intent of using a bare bones format for our content and 
+html in our markdown every time we want to include unsupported content such as a video. To do
+so is in complete opposition to the intent of using a bare bones format for our content and
 utilizing templates to apply styling for display.
 
 To avoid both of these limitations Hugo has full support for shortcodes.
@@ -452,7 +468,7 @@ To avoid both of these limitations Hugo has full support for shortcodes.
 A shortcode is a simple snippet inside a markdown file that Hugo will render using a template.
 
 Short codes are designated by the opening and closing characters of '{{%' and '%}}' respectively.
-Short codes are space delimited. The first word is always the name of the shortcode.  Following the 
+Short codes are space delimited. The first word is always the name of the shortcode.  Following the
 name are the parameters. The author of the shortcode can choose if the short code
 will use positional parameters or named parameters (but not both). A good rule of thumb is that if a
 short code has a single required value in the case of the youtube example below then positional
@@ -464,11 +480,11 @@ The format for named parameters models that of html with the format name="value"
 
     {{% youtube 09jf3ow9jfw %}}
 
-This would be rendered as 
+This would be rendered as
 
     <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
-        width="640" height="385" 
+        width="640" height="385"
         src="http://www.youtube.com/embed/09jf3ow9jfw"
         allowfullscreen frameborder="0">
     </iframe>
