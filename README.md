@@ -59,7 +59,6 @@ Pre-requisites:
     git clone https://github.com/spf13/hugo
     cd hugo
     go get
-    go build -o hugo main.go
 
 ### Install directly from Github:
 
