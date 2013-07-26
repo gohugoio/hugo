@@ -19,7 +19,6 @@ import (
 	"github.com/kr/pretty"
 	"html/template"
 	"os"
-	"path/filepath"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -139,24 +138,7 @@ func exists(path string) (bool, error) {
 }
 
 func mkdirIf(path string) error {
-	err := os.Mkdir(path, 0777)
-	if err != nil {
-		if os.IsExist(err) {
-			return nil
-		}
-		if os.IsNotExist(err) {
-			parent, _ := filepath.Split(path)
-			err2 := mkdirIf(parent)
-			if err2 != nil {
-				return err2
-			} else {
-				return mkdirIf(path)
-			}
-		}
-		return err
-	}
-
-	return nil
+	return os.MkdirAll(path, 0777)
 }
 
 func Urlize(url string) string {
