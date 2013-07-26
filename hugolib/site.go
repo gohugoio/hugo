@@ -414,7 +414,11 @@ func (s *Site) WritePublic(path string, content []byte) {
 	path, filename := filepath.Split(path)
 
 	path = filepath.FromSlash(s.c.GetAbsPath(filepath.Join(s.c.PublishDir, path)))
-	mkdirIf(path)
+	err := mkdirIf(path)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	file, _ := os.Create(filepath.Join(path, filename))
 	defer file.Close()
