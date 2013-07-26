@@ -165,7 +165,7 @@ func (s *Site) initialize() {
 		return nil
 	}
 
-	filepath.Walk(s.c.GetAbsPath(s.c.SourceDir), walker)
+	filepath.Walk(s.c.GetAbsPath(s.c.ContentDir), walker)
 
 	s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl), Title: s.c.Title, Config: &s.c}
 
@@ -176,8 +176,8 @@ func (s *Site) checkDirectories() {
 	if b, _ := dirExists(s.c.GetAbsPath(s.c.LayoutDir)); !b {
 		FatalErr("No layout directory found, expecting to find it at " + s.c.GetAbsPath(s.c.LayoutDir))
 	}
-	if b, _ := dirExists(s.c.GetAbsPath(s.c.SourceDir)); !b {
-		FatalErr("No source directory found, expecting to find it at " + s.c.GetAbsPath(s.c.SourceDir))
+	if b, _ := dirExists(s.c.GetAbsPath(s.c.ContentDir)); !b {
+		FatalErr("No source directory found, expecting to find it at " + s.c.GetAbsPath(s.c.ContentDir))
 	}
 	mkdirIf(s.c.GetAbsPath(s.c.PublishDir))
 }

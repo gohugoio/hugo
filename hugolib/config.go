@@ -27,13 +27,13 @@ import (
 
 // config file items
 type Config struct {
-	SourceDir, PublishDir, BaseUrl, StaticDir string
-	Path, CacheDir, LayoutDir, DefaultLayout  string
-	ConfigFile                                string
-	Title                                     string
-	Indexes                                   map[string]string // singular, plural
-	ProcessFilters                            map[string][]string
-	BuildDrafts, UglyUrls, Verbose            bool
+	ContentDir, PublishDir, BaseUrl, StaticDir string
+	Path, CacheDir, LayoutDir, DefaultLayout   string
+	ConfigFile                                 string
+	Title                                      string
+	Indexes                                    map[string]string // singular, plural
+	ProcessFilters                             map[string][]string
+	BuildDrafts, UglyUrls, Verbose             bool
 }
 
 var c Config
@@ -51,7 +51,7 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 	}
 
 	// set defaults
-	c.SourceDir = "content"
+	c.ContentDir = "content"
 	c.LayoutDir = "layouts"
 	c.PublishDir = "public"
 	c.StaticDir = "static"

@@ -27,19 +27,20 @@ import (
 )
 
 var (
-	baseUrl    = flag.StringP("base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
-	cfgfile    = flag.String("config", "", "config file (default is path/config.yaml|json|toml)")
-	checkMode  = flag.Bool("check", false, "analyze content and provide feedback")
-	draft      = flag.BoolP("build-drafts", "d", false, "include content marked as draft")
-	help       = flag.BoolP("help", "h", false, "show this help")
-	path       = flag.StringP("source", "s", "", "filesystem path to read files relative from")
-	verbose    = flag.BoolP("verbose", "v", false, "verbose output")
-	version    = flag.Bool("version", false, "which version of hugo")
-	cpuprofile = flag.Int("profile", 0, "Number of times to create the site and profile it")
-	watchMode  = flag.BoolP("watch", "w", false, "watch filesystem for changes and recreate as needed")
-	server     = flag.BoolP("server", "S", false, "run a (very) simple web server")
-	port       = flag.String("port", "1313", "port to run web server on, default :1313")
-	uglyUrls   = flag.Bool("uglyurls", false, "use /filename.html instead of /filename/ ")
+	baseUrl     = flag.StringP("base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	cfgfile     = flag.String("config", "", "config file (default is path/config.yaml|json|toml)")
+	checkMode   = flag.Bool("check", false, "analyze content and provide feedback")
+	draft       = flag.BoolP("build-drafts", "D", false, "include content marked as draft")
+	help        = flag.BoolP("help", "h", false, "show this help")
+	source      = flag.StringP("source", "s", "", "filesystem path to read files relative from")
+	destination = flag.StringP("destination", "d", "", "filesystem path to write files to")
+	verbose     = flag.BoolP("verbose", "v", false, "verbose output")
+	version     = flag.Bool("version", false, "which version of hugo")
+	cpuprofile  = flag.Int("profile", 0, "Number of times to create the site and profile it")
+	watchMode   = flag.BoolP("watch", "w", false, "watch filesystem for changes and recreate as needed")
+	server      = flag.BoolP("server", "S", false, "run a (very) simple web server")
+	port        = flag.String("port", "1313", "port to run web server on, default :1313")
+	uglyUrls    = flag.Bool("uglyurls", false, "use /filename.html instead of /filename/ ")
 )
 
 func usage() {
@@ -57,10 +58,14 @@ func main() {
 		usage()
 	}
 
-	config := hugolib.SetupConfig(cfgfile, path)
+	config := hugolib.SetupConfig(cfgfile, source)
 	config.BuildDrafts = *draft
 	config.UglyUrls = *uglyUrls
 	config.Verbose = *verbose
+
+	if *destination != "" {
+		config.PublishDir = *destination
+	}
 
 	if *baseUrl != "" {
 		config.BaseUrl = *baseUrl
@@ -194,7 +199,7 @@ func getDirList(c *hugolib.Config) []string {
 		return nil
 	}
 
-	filepath.Walk(c.GetAbsPath(c.SourceDir), walker)
+	filepath.Walk(c.GetAbsPath(c.ContentDir), walker)
 	filepath.Walk(c.GetAbsPath(c.LayoutDir), walker)
 
 	return a
