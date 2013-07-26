@@ -228,13 +228,22 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 
 func (p *Page) Permalink() template.HTML {
 	if len(strings.TrimSpace(p.Slug)) > 0 {
-		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug))
+		if p.Site.Config.UglyUrls {
+			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug+"."+p.Extension))
+		} else {
+			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug))
+		}
 	} else if len(strings.TrimSpace(p.Url)) > 2 {
 		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Url)))
 	} else {
 		_, t := filepath.Split(p.FileName)
-		x := replaceExtension(strings.TrimSpace(t), p.Extension)
-		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+x))
+		if p.Site.Config.UglyUrls {
+			x := replaceExtension(strings.TrimSpace(t), p.Extension)
+			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+x))
+		} else {
+			file, _ := fileExt(strings.TrimSpace(t))
+			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+file))
+		}
 	}
 }
 

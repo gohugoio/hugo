@@ -48,6 +48,7 @@ type SiteInfo struct {
 	Recent     *Pages
 	LastChange time.Time
 	Title      string
+	Config     *Config
 }
 
 func (s *Site) getFromIndex(kind string, name string) Pages {
@@ -166,7 +167,7 @@ func (s *Site) initialize() {
 
 	filepath.Walk(s.c.GetAbsPath(s.c.SourceDir), walker)
 
-	s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl), Title: s.c.Title}
+	s.Info = SiteInfo{BaseUrl: template.URL(s.c.BaseUrl), Title: s.c.Title, Config: &s.c}
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
 }
