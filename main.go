@@ -112,6 +112,11 @@ func main() {
 }
 
 func serve(port string, config *hugolib.Config) {
+
+	if config.Verbose {
+		fmt.Println("Serving pages from " + config.GetAbsPath(config.PublishDir))
+	}
+
 	fmt.Println("Web Server is available at http://localhost:" + port)
 	fmt.Println("Press ctrl+c to stop")
 	panic(http.ListenAndServe(":"+port, http.FileServer(http.Dir(config.PublishDir))))
