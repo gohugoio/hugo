@@ -119,7 +119,7 @@ func serve(port string, config *hugolib.Config) {
 
 	fmt.Println("Web Server is available at http://localhost:" + port)
 	fmt.Println("Press ctrl+c to stop")
-	panic(http.ListenAndServe(":"+port, http.FileServer(http.Dir(config.PublishDir))))
+	panic(http.ListenAndServe(":"+port, http.FileServer(http.Dir(config.GetAbsPath(config.PublishDir)))))
 }
 
 func buildSite(config *hugolib.Config) *hugolib.Site {
