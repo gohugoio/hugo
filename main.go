@@ -16,8 +16,10 @@ package main
 import (
 	"fmt"
 	"github.com/howeyc/fsnotify"
+	"github.com/mostafah/fsync"
 	flag "github.com/ogier/pflag"
 	"github.com/spf13/hugo/hugolib"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -63,14 +65,14 @@ func main() {
 	config.UglyUrls = *uglyUrls
 	config.Verbose = *verbose
 
-	if *destination != "" {
-		config.PublishDir = *destination
-	}
-
 	if *baseUrl != "" {
 		config.BaseUrl = *baseUrl
 	} else if *server {
 		config.BaseUrl = "http://localhost:" + *port
+	}
+
+	if *destination != "" {
+		config.PublishDir = *destination
 	}
 
 	if *version {
@@ -90,6 +92,12 @@ func main() {
 		for i := 0; i < *cpuprofile; i++ {
 			_ = buildSite(config)
 		}
+	}
+
+	// Copy Static to Destination first
+	err := fsync.SyncDel(config.GetAbsPath(config.PublishDir+"/"), config.GetAbsPath(config.StaticDir+"/"))
+	if err != nil {
+		log.Fatalf("Error copying static files to %s: %v", config.GetAbsPath(config.PublishDir), err)
 	}
 
 	if *checkMode {
