@@ -37,8 +37,8 @@ The following is an example of a json config file with the default values:
         "publishdir": "public",
         "builddrafts": false,
         "indexes": {
-           category: "categories",
-           tag: "tags"
+           "category": "categories",
+           "tag": "tags"
         },
         "baseurl": "http://yoursite.com/"
     }
