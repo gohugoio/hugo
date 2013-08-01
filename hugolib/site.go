@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"errors"
 	//"sync"
 )
 
@@ -59,10 +60,13 @@ func NewSite(config *Config) *Site {
 	return &Site{c: *config, timer: nitro.Initalize()}
 }
 
-func (site *Site) Build() {
-	site.Process()
+func (site *Site) Build() (err error) {
+	if err = site.Process(); err != nil {
+		return
+	}
 	site.Render()
 	site.Write()
+	return nil
 }
 
 func (site *Site) Analyze() {
@@ -70,14 +74,17 @@ func (site *Site) Analyze() {
 	site.checkDescriptions()
 }
 
-func (site *Site) Process() {
+func (site *Site) Process() (err error){
 	site.initialize()
 	site.prepTemplates()
 	site.timer.Step("initialize & template prep")
 	site.CreatePages()
 	site.timer.Step("import pages")
-	site.BuildSiteMeta()
+	if err = site.BuildSiteMeta(); err != nil {
+		return
+	}
 	site.timer.Step("build indexes")
+	return
 }
 
 func (site *Site) Render() {
@@ -213,7 +220,7 @@ func (s *Site) CreatePages() {
 	s.Pages.Sort()
 }
 
-func (s *Site) BuildSiteMeta() {
+func (s *Site) BuildSiteMeta() (err error) {
 	s.Indexes = make(IndexList)
 	s.Sections = make(Index)
 
@@ -243,8 +250,11 @@ func (s *Site) BuildSiteMeta() {
 	}
 
 	s.Info.Indexes = s.Indexes.BuildOrderedIndexList()
-
+	if len(s.Pages) == 0 {
+		return errors.New(fmt.Sprintf("Unable to build site metadata, no pages found in directory %s", s.c.ContentDir))
+	}
 	s.Info.LastChange = s.Pages[0].Date
+	return
 }
 
 func (s *Site) RenderPages() {

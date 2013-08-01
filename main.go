@@ -90,7 +90,7 @@ func main() {
 		defer pprof.StopCPUProfile()
 
 		for i := 0; i < *cpuprofile; i++ {
-			_ = buildSite(config)
+			_, _ = buildSite(config)
 		}
 	}
 
@@ -108,15 +108,20 @@ func main() {
 
 	if *watchMode {
 		fmt.Println("Watching for changes. Press ctrl+c to stop")
-		_ = buildSite(config)
+		_, err = buildSite(config)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		err := NewWatcher(config, *port, *server)
-
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
 
-	_ = buildSite(config)
+	if _, err = buildSite(config); err != nil {
+		fmt.Println(err)
+	}
 
 	if *server {
 		serve(*port, config)
@@ -135,13 +140,16 @@ func serve(port string, config *hugolib.Config) {
 	panic(http.ListenAndServe(":"+port, http.FileServer(http.Dir(config.GetAbsPath(config.PublishDir)))))
 }
 
-func buildSite(config *hugolib.Config) *hugolib.Site {
+func buildSite(config *hugolib.Config) (site *hugolib.Site, err error) {
 	startTime := time.Now()
-	site := hugolib.NewSite(config)
-	site.Build()
+	site = hugolib.NewSite(config)
+	err = site.Build()
+	if err != nil {
+		return
+	}
 	site.Stats()
 	fmt.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
-	return site
+	return site, nil
 }
 
 func watchChange(c *hugolib.Config) {
