@@ -16,6 +16,7 @@ package hugolib
 import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/spf13/nitro"
 	"html/template"
@@ -24,7 +25,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"errors"
 	//"sync"
 )
 
@@ -74,11 +74,12 @@ func (site *Site) Analyze() {
 	site.checkDescriptions()
 }
 
-func (site *Site) Process() (err error){
+func (site *Site) Process() (err error) {
 	site.initialize()
 	site.prepTemplates()
 	site.timer.Step("initialize & template prep")
 	site.CreatePages()
+	site.setupPrevNext()
 	site.timer.Step("import pages")
 	if err = site.BuildSiteMeta(); err != nil {
 		return
@@ -218,6 +219,18 @@ func (s *Site) CreatePages() {
 	}
 
 	s.Pages.Sort()
+}
+
+func (s *Site) setupPrevNext() {
+	for i, _ := range s.Pages {
+		if i < len(s.Pages)-1 {
+			s.Pages[i].Next = s.Pages[i+1]
+		}
+
+		if i > 0 {
+			s.Pages[i].Prev = s.Pages[i-1]
+		}
+	}
 }
 
 func (s *Site) BuildSiteMeta() (err error) {

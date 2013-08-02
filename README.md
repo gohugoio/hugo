@@ -68,6 +68,7 @@ If you don't intend to contribute, it's even easier.
 #### Running Hugo
 
     cd /path/to/hugo
+    go install github.com/spf13/hugo/hugolibs
     go run main.go
 
 #### Building Hugo
@@ -118,7 +119,7 @@ An example directory may look like:
     |   |   └── youtube.html
     |   ├── index.html
     |   └── rss.xml
-    └── public
+    └── static
 
 This directory structure tells us a lot about this site:
 
@@ -185,8 +186,9 @@ Make sure either hugo is in your path or provide a path to it.
     $ hugo --help
     usage: hugo [flags] []
       -b, --base-url="": hostname (and path) to the root eg. http://spf13.com/
-      -d, --build-drafts=false: include content marked as draft
+      -D, --build-drafts=false: include content marked as draft
           --config="": config file (default is path/config.yaml|json|toml)
+      -d, --destination="": filesystem path to write files to
       -h, --help=false: show this help
           --port="1313": port to run web server on, default :1313
       -S, --server=false: run a (very) simple web server
@@ -214,6 +216,7 @@ your browser to view the changes.**
        Watching for changes. Press ctrl+c to stop
        15 pages created
        0 tags created
+       in 8 ms
 
 Hugo can even run a server and create your site at the same time!
 
@@ -221,6 +224,7 @@ Hugo can even run a server and create your site at the same time!
        Watching for changes. Press ctrl+c to stop
        15 pages created
        0 tags created
+       in 8 ms
        Web Server is available at http://localhost:1313
        Press ctrl+c to stop
 
@@ -527,6 +531,17 @@ To check if a parameter has been provided use the isset method provided by Hugo.
 
 ## Release Notes
 
+* **0.8.0** August 1, 2013
+  * Added support for pretty urls (filename/index.html vs filename.html)
+  * Hugo supports a destination directory
+  * Will efficiently sync content in static to destination directory
+  * Cleaned up options.. now with support for short and long options
+  * Added support for TOML
+  * Added support for YAML
+  * Added support for Previous & Next
+  * Support for Series
+  * Adding verbose output
+  * Loads of bugfixes
 * **0.7.0** July 4, 2013
   * Hugo now includes a simple server
   * First public release
@@ -544,8 +559,6 @@ In no particular order, here is what I'm working on:
  * Syntax highlighting
  * Previous & Next
  * Related Posts
- * Support for TOML front matter -- in head
- * Proper YAML support for front matter -- in head
  * Support for other formats
 
 ## Contributing
