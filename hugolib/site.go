@@ -64,7 +64,9 @@ func (site *Site) Build() (err error) {
 	if err = site.Process(); err != nil {
 		return
 	}
-	site.Render()
+	if err = site.Render(); err != nil {
+		return
+	}
 	site.Write()
 	return nil
 }
@@ -88,7 +90,7 @@ func (site *Site) Process() (err error) {
 	return
 }
 
-func (site *Site) Render() {
+func (site *Site) Render() (err error) {
 	site.ProcessShortcodes()
 	site.timer.Step("render shortcodes")
 	site.AbsUrlify()
@@ -98,10 +100,13 @@ func (site *Site) Render() {
 	site.timer.Step("render and write indexes")
 	site.RenderLists()
 	site.timer.Step("render and write lists")
-	site.RenderPages()
+	if err = site.RenderPages(); err != nil {
+		return
+	}
 	site.timer.Step("render pages")
 	site.RenderHomePage()
 	site.timer.Step("render and write homepage")
+	return
 }
 
 func (site *Site) Write() {
@@ -280,15 +285,20 @@ func (s *Site) BuildSiteMeta() (err error) {
 	return
 }
 
-func (s *Site) RenderPages() {
+func (s *Site) RenderPages() error {
 	for i, _ := range s.Pages {
-		s.Pages[i].RenderedContent = s.RenderThing(s.Pages[i], s.Pages[i].Layout())
+		content, err := s.RenderThing(s.Pages[i], s.Pages[i].Layout())
+		if err != nil {
+			return err
+		}
+		s.Pages[i].RenderedContent = content
 	}
+	return nil
 }
 
 func (s *Site) WritePages() {
 	for _, p := range s.Pages {
-		s.WritePublic(p.Section+slash+p.OutFile, p.RenderedContent.Bytes())
+		s.WritePublic(p.Section + slash + p.OutFile, p.RenderedContent.Bytes())
 	}
 }
 
@@ -298,7 +308,7 @@ func (s *Site) setOutFile(p *Page) {
 		if s.c.UglyUrls {
 			p.OutFile = strings.TrimSpace(p.Slug + "." + p.Extension)
 		} else {
-			p.OutFile = strings.TrimSpace(p.Slug + "/index.html")
+			p.OutFile = strings.TrimSpace(p.Slug + slash + "index.html")
 		}
 	} else if len(strings.TrimSpace(p.Url)) > 2 {
 		// Use Url if provided & Slug missing
@@ -310,17 +320,17 @@ func (s *Site) setOutFile(p *Page) {
 			p.OutFile = replaceExtension(strings.TrimSpace(t), p.Extension)
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			p.OutFile = file + "/index." + p.Extension
+			p.OutFile = file + slash + "index." + p.Extension
 		}
 	}
 }
 
-func (s *Site) RenderIndexes() {
+func (s *Site) RenderIndexes() error {
 	for singular, plural := range s.c.Indexes {
 		for k, o := range s.Indexes[plural] {
 			n := s.NewNode()
 			n.Title = strings.Title(k)
-			url := Urlize(plural + "/" + k)
+			url := Urlize(plural + slash + k)
 			plink := url
 			if s.c.UglyUrls {
 				n.Url = url + ".html"
@@ -334,14 +344,16 @@ func (s *Site) RenderIndexes() {
 			n.Data[singular] = o
 			n.Data["Pages"] = o
 			layout := "indexes" + slash + singular + ".html"
-
-			x := s.RenderThing(n, layout)
+			x, err := s.RenderThing(n, layout)
+			if err != nil {
+				return err
+			}
 
 			var base string
 			if s.c.UglyUrls {
-				base = plural + slash + k
+				base = plural + "/" + k
 			} else {
-				base = plural + slash + k + slash + "index"
+				base = plural + "/" + k + "/" + "index"
 			}
 
 			s.WritePublic(base+".html", x.Bytes())
@@ -352,7 +364,7 @@ func (s *Site) RenderIndexes() {
 				if s.c.UglyUrls {
 					n.Url = Urlize(plural + "/" + k + ".xml")
 				} else {
-					n.Url = Urlize(plural + "/" + k + "/index.xml")
+					n.Url = Urlize(plural + "/" + k + "/" + "index.xml")
 				}
 				n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
@@ -360,6 +372,7 @@ func (s *Site) RenderIndexes() {
 			}
 		}
 	}
+	return nil
 }
 
 func (s *Site) RenderIndexesIndexes() {
@@ -382,19 +395,22 @@ func (s *Site) RenderIndexesIndexes() {
 	}
 }
 
-func (s *Site) RenderLists() {
+func (s *Site) RenderLists() error {
 	for section, data := range s.Sections {
 		n := s.NewNode()
 		n.Title = strings.Title(inflect.Pluralize(section))
-		n.Url = Urlize(section + "/index.html")
+		n.Url = Urlize(section + "/" + "index.html")
 		n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
 		n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(section+".xml")))
 		n.Date = data[0].Date
 		n.Data["Pages"] = data
-		layout := "indexes/" + section + ".html"
+		layout := "indexes" + slash + section + ".html"
 
-		x := s.RenderThing(n, layout)
-		s.WritePublic(section+slash+"index.html", x.Bytes())
+		x, err := s.RenderThing(n, layout)
+		if err != nil {
+			return err
+		}
+		s.WritePublic(section + slash + "index.html", x.Bytes())
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
@@ -402,12 +418,13 @@ func (s *Site) RenderLists() {
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			s.WritePublic(section+slash+"index.xml", y.Bytes())
+			s.WritePublic(section + slash + "index.xml", y.Bytes())
 		}
 	}
+	return nil
 }
 
-func (s *Site) RenderHomePage() {
+func (s *Site) RenderHomePage() error {
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	n.Url = Urlize(string(n.Site.BaseUrl))
@@ -419,7 +436,10 @@ func (s *Site) RenderHomePage() {
 	} else {
 		n.Data["Pages"] = s.Pages[:9]
 	}
-	x := s.RenderThing(n, "index.html")
+	x, err := s.RenderThing(n, "index.html")
+	if err != nil {
+		return err
+	}
 	s.WritePublic("index.html", x.Bytes())
 
 	if a := s.Tmpl.Lookup("rss.xml"); a != nil {
@@ -431,6 +451,7 @@ func (s *Site) RenderHomePage() {
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 		s.WritePublic("index.xml", y.Bytes())
 	}
+	return nil
 }
 
 func (s *Site) Stats() {
@@ -448,10 +469,10 @@ func (s *Site) NewNode() Node {
 	return y
 }
 
-func (s *Site) RenderThing(d interface{}, layout string) *bytes.Buffer {
+func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
 	buffer := new(bytes.Buffer)
-	s.Tmpl.ExecuteTemplate(buffer, layout, d)
-	return buffer
+	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
+	return buffer, err
 }
 
 func (s *Site) NewXMLBuffer() *bytes.Buffer {
