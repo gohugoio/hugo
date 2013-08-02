@@ -1,2 +1,4 @@
 hugo
 docs/public*
+hugo.exe
+*.swp

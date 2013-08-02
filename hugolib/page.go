@@ -91,7 +91,7 @@ func initializePage(filename string) (page Page) {
 }
 
 func (p *Page) setSection() {
-	x := strings.Split(p.FileName, "/")
+	x := strings.Split(p.FileName, string(os.PathSeparator))
 
 	if section := x[len(x)-2]; section != "content" {
 		p.Section = section
