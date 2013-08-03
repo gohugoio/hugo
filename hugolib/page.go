@@ -77,14 +77,13 @@ func (p Pages) Sort()             { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
 func initializePage(filename string) (page Page) {
-	page = Page{}
+	page = Page{contentType: "",
+		File: File{FileName: filename,
+		Extension: "html"},
+		Params: make(map[string]interface{}),
+		Node: Node{Keywords: make([]string, 10, 30)},
+		Markup: "md"}
 	page.Date, _ = time.Parse("20060102", "20080101")
-	page.FileName = filename
-	page.contentType = ""
-	page.Extension = "html"
-	page.Params = make(map[string]interface{})
-	page.Keywords = make([]string, 10, 30)
-	page.Markup = "md"
 	page.setSection()
 
 	return page
