@@ -3,16 +3,15 @@ title: "Roadmap"
 Pubdate: "2013-07-01"
 ---
 
-In no particular order, here is what I'm working on:
+In no particular order, here is what we are working on:
 
  * Pagination
  * Support for top level pages (other than homepage)
- * Series support
+ * Better error handling
  * Syntax highlighting
- * Previous & Next
+ * Commands
+ * Actions (eg. hugo create page)
  * Related Posts
- * Support for TOML front matter -- in head
- * Proper YAML support for front matter -- in head
  * Support for other formats
 
 

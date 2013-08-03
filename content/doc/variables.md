@@ -14,6 +14,8 @@ are available in the context for the templates.
 **.Permalink** The Permanent link for this page.<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.RSSLink** Link to the indexes' rss link <br>
+**.Prev** Pointer to the previous content (based on pub date)<br>
+**.Next** Pointer to the following content (based on pub date)<br>
 
 Any value defined in the front matter, including indexes will be made available under `.Params`. 
 Take for example I'm using tags and categories as my indexes. The following would be how I would access them:

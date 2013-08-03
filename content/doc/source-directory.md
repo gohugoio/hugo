@@ -12,7 +12,7 @@ using them.
 An example directory may look like:
 
     .
-    ├── config.json
+    ├── config.yaml
     ├── content
     |   ├── post
     |   |   ├── firstpost.md
@@ -43,7 +43,7 @@ An example directory may look like:
     |   |   └── youtube.html
     |   ├── index.html
     |   └── rss.xml
-    └── public
+    └── static
 
 This directory structure tells us a lot about this site:
 
