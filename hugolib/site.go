@@ -176,7 +176,6 @@ func (s *Site) initialize() {
 			site.Files = append(site.Files, path)
 			return nil
 		}
-		return nil
 	}
 
 	filepath.Walk(s.c.GetAbsPath(s.c.ContentDir), walker)
