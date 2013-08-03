@@ -355,7 +355,7 @@ func (s *Site) RenderIndexes() {
 }
 
 func (s *Site) RenderIndexesIndexes() {
-	layout := "indexes" + slash + "index.html"
+	layout := "indexes" + slash + "indexes.html"
 	if s.Tmpl.Lookup(layout) != nil {
 		for singular, plural := range s.c.Indexes {
 			n := s.NewNode()
