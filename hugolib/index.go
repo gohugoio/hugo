@@ -17,10 +17,15 @@ import (
 	"sort"
 )
 
+type IndexCount struct {
+	Name  string
+	Count int
+}
+
 type Index map[string]Pages
 type IndexList map[string]Index
 
-type OrderedIndex []*Pages
+type OrderedIndex []IndexCount
 type OrderedIndexList map[string]OrderedIndex
 
 // KeyPrep... Indexes should be case insensitive. Can make it easily conditional later.
@@ -35,24 +40,21 @@ func (i Index) Add(key string, p *Page) {
 	i[key] = append(i[key], p)
 }
 
-func (l IndexList) BuildOrderedIndexList() *OrderedIndexList {
+func (l IndexList) BuildOrderedIndexList() OrderedIndexList {
 	oil := make(OrderedIndexList, len(l))
 	for idx_name, index := range l {
 		i := 0
 		oi := make(OrderedIndex, len(index))
-		for _, e := range index {
-			oi[i] = &e
+		for name, pages := range index {
+			oi[i] = IndexCount{name, len(pages)}
 			i++
 		}
-		oi.Sort()
+		sort.Sort(oi)
 		oil[idx_name] = oi
 	}
-	return &oil
+	return oil
 }
 
-func (idx OrderedIndex) Len() int { return len(idx) }
-
-func (idx OrderedIndex) Less(i, j int) bool       { return len(*idx[i]) < len(*idx[j]) }
-func (idx OrderedIndex) Swap(i, j int)            { idx[i], idx[j] = idx[j], idx[i] }
-func (idx OrderedIndex) Sort()                    { sort.Sort(idx) }
-func (idx OrderedIndex) Limit(n int) OrderedIndex { return idx[0:n] }
+func (idx OrderedIndex) Len() int           { return len(idx) }
+func (idx OrderedIndex) Less(i, j int) bool { return idx[i].Count > idx[j].Count }
+func (idx OrderedIndex) Swap(i, j int)      { idx[i], idx[j] = idx[j], idx[i] }

@@ -45,7 +45,7 @@ type Site struct {
 
 type SiteInfo struct {
 	BaseUrl    template.URL
-	Indexes    *OrderedIndexList
+	Indexes    OrderedIndexList
 	Recent     *Pages
 	LastChange time.Time
 	Title      string
@@ -94,6 +94,7 @@ func (site *Site) Render() {
 	site.AbsUrlify()
 	site.timer.Step("absolute URLify")
 	site.RenderIndexes()
+	site.RenderIndexesIndexes()
 	site.timer.Step("render and write indexes")
 	site.RenderLists()
 	site.timer.Step("render and write lists")
@@ -263,6 +264,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	s.Info.Indexes = s.Indexes.BuildOrderedIndexList()
+
 	if len(s.Pages) == 0 {
 		return errors.New(fmt.Sprintf("Unable to build site metadata, no pages found in directory %s", s.c.ContentDir))
 	}
@@ -348,6 +350,27 @@ func (s *Site) RenderIndexes() {
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 				s.WritePublic(base+".xml", y.Bytes())
 			}
+		}
+	}
+}
+
+func (s *Site) RenderIndexesIndexes() {
+	layout := "indexes" + slash + "index.html"
+	if s.Tmpl.Lookup(layout) != nil {
+		for singular, plural := range s.c.Indexes {
+			n := s.NewNode()
+			n.Title = strings.Title(plural)
+			url := Urlize(plural)
+			n.Url = url + "/index.html"
+			n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
+			n.Data["Singular"] = singular
+			n.Data["Plural"] = plural
+			n.Data["Index"] = s.Indexes[plural]
+			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
+			fmt.Println(s.Info.Indexes)
+
+			x := s.RenderThing(n, layout)
+			s.WritePublic(plural+slash+"index.html", x.Bytes())
 		}
 	}
 }
