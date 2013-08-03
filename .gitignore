@@ -2,3 +2,4 @@ hugo
 docs/public*
 hugo.exe
 *.swp
+.DS_Store
