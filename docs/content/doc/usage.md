@@ -37,7 +37,7 @@ immediately, tell Hugo to watch for changes. **It will
 recreate the site faster than you can tab over to
 your browser to view the changes.**
 
-    $ hugo --source ~/mysite --watch
+    $ hugo -s ~/mysite --watch
        Watching for changes. Press ctrl+c to stop
        15 pages created
        0 tags created
