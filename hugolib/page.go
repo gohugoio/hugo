@@ -14,12 +14,15 @@
 package hugolib
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/theplant/blackfriday"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"launchpad.net/goyaml"
 	"os"
@@ -28,6 +31,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 )
 
 var _ = filepath.Base("")
@@ -126,6 +130,22 @@ func (page *Page) Layout(l ...string) string {
 	return strings.ToLower(page.Type()) + "/" + layout + ".html"
 }
 
+func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
+	if len(name) == 0 {
+		return nil, errors.New("Zero length page name")
+	}
+
+	p := initializePage(name)
+
+	if err = p.parse(buf); err != nil {
+		return
+	}
+
+	p.analyzePage()
+
+	return &p, nil
+}
+
 // TODO should return errors as well
 // TODO new page should return just a page
 // TODO initalize separately... load from reader (file, or []byte)
@@ -133,7 +153,6 @@ func NewPage(filename string) *Page {
 	p := initializePage(filename)
 	if err := p.buildPageFromFile(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
 	}
 
 	p.analyzePage()
@@ -144,49 +163,6 @@ func NewPage(filename string) *Page {
 func (p *Page) analyzePage() {
 	p.WordCount = TotalWords(p.RawMarkdown)
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
-}
-
-// TODO //rewrite to use byte methods instead
-func (page *Page) parseYamlMetaData(data []byte) ([]string, error) {
-	var err error
-
-	datum, lines := splitPageContent(data, "---", "---")
-	d, err := page.handleYamlMetaData([]byte(strings.Join(datum, "\n")))
-
-	if err != nil {
-		return lines, err
-	}
-
-	err = page.handleMetaData(d)
-	return lines, err
-}
-
-func (page *Page) parseTomlMetaData(data []byte) ([]string, error) {
-	var err error
-
-	datum, lines := splitPageContent(data, "+++", "+++")
-	d, err := page.handleTomlMetaData([]byte(strings.Join(datum, "\n")))
-
-	if err != nil {
-		return lines, err
-	}
-
-	err = page.handleMetaData(d)
-	return lines, err
-}
-
-func (page *Page) parseJsonMetaData(data []byte) ([]string, error) {
-	var err error
-
-	datum, lines := splitPageContent(data, "{", "}")
-	d, err := page.handleJsonMetaData([]byte(strings.Join(datum, "\n")))
-
-	if err != nil {
-		return lines, err
-	}
-
-	err = page.handleMetaData(d)
-	return lines, err
 }
 
 func splitPageContent(data []byte, start string, end string) ([]string, []string) {
@@ -209,18 +185,6 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 				datum = lines[0 : i+1]
 				lines = lines[i+1:]
 				break
-			}
-		}
-	} else { // Start token & end token are the same
-		for i, line := range lines {
-			if found == 1 && strings.HasPrefix(line, end) {
-				datum = lines[1:i]
-				lines = lines[i+1:]
-				break
-			}
-
-			if found == 0 && strings.HasPrefix(line, start) {
-				found = 1
 			}
 		}
 	}
@@ -272,7 +236,7 @@ func (page *Page) handleJsonMetaData(datum []byte) (interface{}, error) {
 	return f, nil
 }
 
-func (page *Page) handleMetaData(f interface{}) error {
+func (page *Page) update(f interface{}) error {
 	m := f.(map[string]interface{})
 
 	for k, v := range m {
@@ -304,7 +268,6 @@ func (page *Page) handleMetaData(f interface{}) error {
 			page.Status = interfaceToString(v)
 		default:
 			// If not one of the explicit values, store in Params
-			//fmt.Println(strings.ToLower(k))
 			switch vv := v.(type) {
 			case string: // handle string values
 				page.Params[strings.ToLower(k)] = vv
@@ -340,25 +303,106 @@ func (page *Page) GetParam(key string) interface{} {
 	return nil
 }
 
-func (page *Page) Err(message string) {
-	fmt.Println(page.FileName + " : " + message)
+// TODO return error on last line instead of nil
+func (page *Page) parseFrontMatter(data *bufio.Reader) (err error) {
+
+	if err = checkEmpty(data); err != nil {
+		return err
+	}
+
+	var mark rune
+	if mark, err = chompWhitespace(data); err != nil {
+		return err
+	}
+
+	f := page.detectFrontMatter(mark)
+	if f == nil {
+		return errors.New("unable to match beginning front matter delimiter")
+	}
+
+	if found, err := beginFrontMatter(data, f); err != nil || !found {
+		return errors.New("unable to match beginning front matter delimiter")
+	}
+
+	var frontmatter = new(bytes.Buffer)
+	for {
+		line, _, err := data.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				return errors.New("unable to match ending front matter delimiter")
+			}
+			return err
+		}
+		if bytes.Equal(line, f.markend) {
+			break
+		}
+		frontmatter.Write(line)
+		frontmatter.Write([]byte{'\n'})
+	}
+
+	metadata, err := f.parse(frontmatter.Bytes())
+	if err != nil {
+		return err
+	}
+
+	if err = page.update(metadata); err != nil {
+		return err
+	}
+
+	return
 }
 
-// TODO return error on last line instead of nil
-func (page *Page) parseFileHeading(data []byte) ([]string, error) {
-	if len(data) == 0 {
-		page.Err("Empty File, skipping")
-	} else {
-		switch data[0] {
-		case '{':
-			return page.parseJsonMetaData(data)
-		case '-':
-			return page.parseYamlMetaData(data)
-		case '+':
-			return page.parseTomlMetaData(data)
-		}
+func checkEmpty(data *bufio.Reader) (err error) {
+	if _, _, err = data.ReadRune(); err != nil {
+		return errors.New("unable to locate front matter")
 	}
-	return nil, nil
+	if err = data.UnreadRune(); err != nil {
+		return errors.New("unable to unread first charactor in page buffer.")
+	}
+	return
+}
+
+type frontmatterType struct {
+	markstart, markend []byte
+	parse              func([]byte) (interface{}, error)
+}
+
+func (page *Page) detectFrontMatter(mark rune) (f *frontmatterType) {
+	switch mark {
+	case '-':
+		return &frontmatterType{[]byte{'-', '-', '-'}, []byte{'-', '-', '-'}, page.handleYamlMetaData}
+	case '+':
+		return &frontmatterType{[]byte{'+', '+', '+'}, []byte{'+', '+', '+'}, page.handleTomlMetaData}
+	case '{':
+		return &frontmatterType{[]byte{'{'}, []byte{'}'}, page.handleJsonMetaData}
+	default:
+		return nil
+	}
+}
+
+func beginFrontMatter(data *bufio.Reader, f *frontmatterType) (bool, error) {
+	peek := make([]byte, 3)
+	_, err := data.Read(peek)
+	if err != nil {
+		return false, err
+	}
+	return bytes.Equal(peek, f.markstart), nil
+}
+
+func chompWhitespace(data *bufio.Reader) (r rune, err error) {
+	for {
+		r, _, err = data.ReadRune()
+		if err != nil {
+			return
+		}
+		if unicode.IsSpace(r) {
+			continue
+		}
+		if err := data.UnreadRune(); err != nil {
+			return r, errors.New("unable to unread first charactor in front matter.")
+		}
+		return r, nil
+	}
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
@@ -378,46 +422,50 @@ func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 	return buffer
 }
 
-func (page *Page) readFile() []byte {
-	var data, err = ioutil.ReadFile(page.FileName)
+func (page *Page) readFile() (data []byte, err error) {
+	data, err = ioutil.ReadFile(page.FileName)
 	if err != nil {
-		PrintErr("Error Reading: " + page.FileName)
-		return nil
+		return nil, err
 	}
-	return data
+	return data, nil
 }
 
 func (page *Page) buildPageFromFile() error {
-	data := page.readFile()
+	f, err := os.Open(page.FileName)
+	if err != nil {
+		return err
+	}
+	return page.parse(bufio.NewReader(f))
+}
 
-	content, err := page.parseFileHeading(data)
+func (page *Page) parse(reader io.Reader) error {
+	data := bufio.NewReader(reader)
+
+	err := page.parseFrontMatter(data)
 	if err != nil {
 		return err
 	}
 
 	switch page.Markup {
 	case "md":
-		page.convertMarkdown(content)
+		page.convertMarkdown(data)
 	case "rst":
-		page.convertRestructuredText(content)
+		page.convertRestructuredText(data)
 	}
 	return nil
 }
 
-func (page *Page) convertMarkdown(lines []string) {
-
-	page.RawMarkdown = strings.Join(lines, "\n")
-	content := string(blackfriday.MarkdownCommon([]byte(page.RawMarkdown)))
+func (page *Page) convertMarkdown(lines io.Reader) {
+	b := new(bytes.Buffer)
+	b.ReadFrom(lines)
+	content := string(blackfriday.MarkdownCommon(b.Bytes()))
 	page.Content = template.HTML(content)
 	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
 }
 
-func (page *Page) convertRestructuredText(lines []string) {
-
-	page.RawMarkdown = strings.Join(lines, "\n")
-
+func (page *Page) convertRestructuredText(lines io.Reader) {
 	cmd := exec.Command("rst2html.py")
-	cmd.Stdin = strings.NewReader(page.RawMarkdown)
+	cmd.Stdin = lines
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
