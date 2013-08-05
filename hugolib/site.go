@@ -367,7 +367,6 @@ func (s *Site) RenderIndexesIndexes() {
 			n.Data["Plural"] = plural
 			n.Data["Index"] = s.Indexes[plural]
 			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
-			fmt.Println(s.Info.Indexes)
 
 			x := s.RenderThing(n, layout)
 			s.WritePublic(plural+slash+"index.html", x.Bytes())
