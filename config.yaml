@@ -1,4 +1,4 @@
-Indexes:
+indexes:
   tag: 'tags'
-BaseUrl: 'http://localhost'
+baseurl: 'http://hugo.spf13.com'
 ...
