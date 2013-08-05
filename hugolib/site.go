@@ -297,7 +297,7 @@ func (s *Site) RenderPages() error {
 
 func (s *Site) WritePages() {
 	for _, p := range s.Pages {
-		s.WritePublic(p.Section + slash + p.OutFile, p.RenderedContent.Bytes())
+		s.WritePublic(p.Section+slash+p.OutFile, p.RenderedContent.Bytes())
 	}
 }
 
@@ -409,7 +409,7 @@ func (s *Site) RenderLists() error {
 		if err != nil {
 			return err
 		}
-		s.WritePublic(section + slash + "index.html", x.Bytes())
+		s.WritePublic(section+slash+"index.html", x.Bytes())
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
@@ -417,7 +417,7 @@ func (s *Site) RenderLists() error {
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			s.WritePublic(section + slash + "index.xml", y.Bytes())
+			s.WritePublic(section+slash+"index.xml", y.Bytes())
 		}
 	}
 	return nil
