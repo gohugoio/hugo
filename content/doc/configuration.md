@@ -18,7 +18,7 @@ then look for a config.json file, followed by a config.toml file.
 The following is an example of a yaml config file with the default values: 
 
     ---
-    sourcedir: "content"
+    contentdir: "content"
     layoutdir: "layouts"
     publishdir: "public"
     builddrafts: false
@@ -32,7 +32,7 @@ The following is an example of a yaml config file with the default values:
 The following is an example of a json config file with the default values: 
 
     {
-        "sourcedir": "content",
+        "contentdir": "content",
         "layoutdir": "layouts",
         "publishdir": "public",
         "builddrafts": false,
@@ -46,7 +46,7 @@ The following is an example of a json config file with the default values:
 
 The following is an example of a toml config file with the default values: 
 
-    sourcedir = "content"
+    contentdir = "content"
     layoutdir = "layouts"
     publishdir = "public"
     builddrafts = false
