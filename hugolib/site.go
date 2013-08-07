@@ -271,6 +271,12 @@ func (s *Site) BuildSiteMeta() (err error) {
 		return errors.New(fmt.Sprintf("Unable to build site metadata, no pages found in directory %s", s.c.ContentDir))
 	}
 	s.Info.LastChange = s.Pages[0].Date
+
+	// populate pages with site metadata
+	for _, p := range s.Pages {
+		p.Site = s.Info
+	}
+
 	return
 }
 
