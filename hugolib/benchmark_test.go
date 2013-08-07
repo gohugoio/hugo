@@ -1,8 +1,8 @@
 package hugolib
 
 import (
-	"os"
 	"bytes"
+	"os"
 	"testing"
 )
 
@@ -12,7 +12,7 @@ func BenchmarkParsePage(b *testing.B) {
 	sample.ReadFrom(f)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ReadFrom(sample, "bench")	
+		ReadFrom(sample, "bench")
 	}
 }
 

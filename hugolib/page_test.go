@@ -39,6 +39,36 @@ title: Leading WS
 Leading
 `
 
+var SIMPLE_PAGE_JSON = `
+{
+"title": "spf13-vim 3.0 release and new website",
+"description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
+"tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
+"date": "2012-04-06",
+"categories": [
+    "Development",
+    "VIM"
+],
+"slug": "spf13-vim-3-0-release-and-new-website"
+}
+
+Content of the file goes Here 
+`
+
+var SIMPLE_PAGE_JSON_MULTIPLE = `
+{
+	"title": "foobar",
+	"customData": { "foo": "bar" },
+	"date": "2012-08-06"
+}
+Some text
+`
+
+var SIMPLE_PAGE_JSON_COMPACT = `
+{"title":"foobar","customData":{"foo":"bar"},"date":"2012-08-06"}
+Text
+`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil")
@@ -101,6 +131,23 @@ func TestCreateNewPage(t *testing.T) {
 	checkPageLayout(t, p, "page/single.html")
 }
 
+func TestCreatePage(t *testing.T) {
+	var tests = []struct {
+		r io.Reader
+	}{
+		{strings.NewReader(SIMPLE_PAGE_JSON)},
+		{strings.NewReader(SIMPLE_PAGE_JSON_MULTIPLE)},
+		//{strings.NewReader(SIMPLE_PAGE_JSON_COMPACT)},
+	}
+
+	for _, test := range tests {
+		_, err := ReadFrom(test.r, "page")
+		if err != nil {
+			t.Errorf("Unable to parse page: %s", err)
+		}
+	}
+}
+
 func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 	var tests = []struct {
 		r   io.Reader
@@ -108,7 +155,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 	}{
 		{strings.NewReader(INVALID_FRONT_MATTER_SHORT_DELIM), "unable to match beginning front matter delimiter"},
 		{strings.NewReader(INVALID_FRONT_MATTER_SHORT_DELIM_ENDING), "unable to match ending front matter delimiter"},
-		{strings.NewReader(INVALID_FRONT_MATTER_MISSING), "unable to match beginning front matter delimiter"},
+		{strings.NewReader(INVALID_FRONT_MATTER_MISSING), "unable to detect front matter"},
 	}
 	for _, test := range tests {
 		_, err := ReadFrom(test.r, "invalid/front/matter/short/delim")

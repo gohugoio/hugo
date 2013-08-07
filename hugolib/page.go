@@ -303,25 +303,28 @@ func (page *Page) GetParam(key string) interface{} {
 	return nil
 }
 
-// TODO return error on last line instead of nil
+var ErrDetectingFrontMatter = errors.New("unable to detect front matter")
+var ErrMatchingStartingFrontMatterDelimiter = errors.New("unable to match beginning front matter delimiter")
+var ErrMatchingEndingFrontMatterDelimiter = errors.New("unable to match ending front matter delimiter")
+
 func (page *Page) parseFrontMatter(data *bufio.Reader) (err error) {
 
 	if err = checkEmpty(data); err != nil {
-		return err
+		return
 	}
 
 	var mark rune
 	if mark, err = chompWhitespace(data); err != nil {
-		return err
+		return
 	}
 
 	f := page.detectFrontMatter(mark)
 	if f == nil {
-		return errors.New("unable to match beginning front matter delimiter")
+		return ErrDetectingFrontMatter
 	}
 
 	if found, err := beginFrontMatter(data, f); err != nil || !found {
-		return errors.New("unable to match beginning front matter delimiter")
+		return ErrMatchingStartingFrontMatterDelimiter
 	}
 
 	var frontmatter = new(bytes.Buffer)
@@ -329,24 +332,29 @@ func (page *Page) parseFrontMatter(data *bufio.Reader) (err error) {
 		line, _, err := data.ReadLine()
 		if err != nil {
 			if err == io.EOF {
-				return errors.New("unable to match ending front matter delimiter")
+				return ErrMatchingEndingFrontMatterDelimiter
 			}
 			return err
 		}
+
 		if bytes.Equal(line, f.markend) {
+			if f.includeMark {
+				frontmatter.Write(line)
+			}
 			break
 		}
+
 		frontmatter.Write(line)
 		frontmatter.Write([]byte{'\n'})
 	}
 
 	metadata, err := f.parse(frontmatter.Bytes())
 	if err != nil {
-		return err
+		return
 	}
 
 	if err = page.update(metadata); err != nil {
-		return err
+		return
 	}
 
 	return
@@ -365,24 +373,31 @@ func checkEmpty(data *bufio.Reader) (err error) {
 type frontmatterType struct {
 	markstart, markend []byte
 	parse              func([]byte) (interface{}, error)
+	includeMark        bool
 }
 
 func (page *Page) detectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {
 	case '-':
-		return &frontmatterType{[]byte{'-', '-', '-'}, []byte{'-', '-', '-'}, page.handleYamlMetaData}
+		return &frontmatterType{[]byte{'-', '-', '-'}, []byte{'-', '-', '-'}, page.handleYamlMetaData, false}
 	case '+':
-		return &frontmatterType{[]byte{'+', '+', '+'}, []byte{'+', '+', '+'}, page.handleTomlMetaData}
+		return &frontmatterType{[]byte{'+', '+', '+'}, []byte{'+', '+', '+'}, page.handleTomlMetaData, false}
 	case '{':
-		return &frontmatterType{[]byte{'{'}, []byte{'}'}, page.handleJsonMetaData}
+		return &frontmatterType{[]byte{'{'}, []byte{'}'}, page.handleJsonMetaData, true}
 	default:
 		return nil
 	}
 }
 
 func beginFrontMatter(data *bufio.Reader, f *frontmatterType) (bool, error) {
-	peek := make([]byte, 3)
-	_, err := data.Read(peek)
+	var err error
+	var peek []byte
+	if f.includeMark {
+		peek, err = data.Peek(len(f.markstart))
+	} else {
+		peek = make([]byte, len(f.markstart))
+		_, err = data.Read(peek)
+	}
 	if err != nil {
 		return false, err
 	}
