@@ -41,7 +41,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 }
 
 func TestSettingOutFileOnPageContainsCorrectSlashes(t *testing.T) {
-	s := NewSite(&Config{})
+	s := &Site{Config: Config{}}
 	p := NewPage(filepath.Join("sub", "foobar"))
 	s.setOutFile(p)
 }
