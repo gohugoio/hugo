@@ -6,7 +6,7 @@ Pubdate: "2013-07-01"
 Hugo makes a set of values available to the templates. Go templates are context based. The following
 are available in the context for the templates.
 
-**.Title**  The title for the content. <br>
+**.Title**  The title for the content.<br>
 **.Description** The description for the content.<br>
 **.Keywords** The meta keywords for this content.<br>
 **.Date** The date the content is published on.<br>
@@ -16,6 +16,7 @@ are available in the context for the templates.
 **.RSSLink** Link to the indexes' rss link <br>
 **.Prev** Pointer to the previous content (based on pub date)<br>
 **.Next** Pointer to the following content (based on pub date)<br>
+**.Content** The content itself, defined below the front matter.<br>
 
 Any value defined in the front matter, including indexes will be made available under `.Params`. 
 Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
