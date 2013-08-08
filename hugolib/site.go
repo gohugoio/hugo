@@ -198,14 +198,15 @@ func (s *Site) ProcessShortcodes() {
 }
 
 func (s *Site) AbsUrlify() {
+	baseWithoutTrailingSlash := strings.TrimRight(s.c.BaseUrl, "/")
+	baseWithSlash := baseWithoutTrailingSlash + "/"
 	for i, _ := range s.Pages {
 		content := string(s.Pages[i].Content)
-		content = strings.Replace(content, " src=\"/", " src=\""+s.c.BaseUrl, -1)
-		content = strings.Replace(content, " src='/", " src='"+s.c.BaseUrl, -1)
-		content = strings.Replace(content, " href='/", " href='"+s.c.BaseUrl, -1)
-		content = strings.Replace(content, " href=\"/", " href=\""+s.c.BaseUrl, -1)
-		baseWithoutTrailingSlash := strings.TrimRight(s.c.BaseUrl, "/")
-		content = strings.Replace(content, baseWithoutTrailingSlash+"//", baseWithoutTrailingSlash+"/", -1)
+		content = strings.Replace(content, " src=\"/", " src=\""+baseWithSlash, -1)
+		content = strings.Replace(content, " src='/", " src='"+baseWithSlash, -1)
+		content = strings.Replace(content, " href='/", " href='"+baseWithSlash, -1)
+		content = strings.Replace(content, " href=\"/", " href=\""+baseWithSlash, -1)
+		content = strings.Replace(content, baseWithoutTrailingSlash+"//", baseWithSlash, -1)
 		s.Pages[i].Content = template.HTML(content)
 	}
 }
