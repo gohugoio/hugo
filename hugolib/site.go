@@ -70,6 +70,11 @@ func (site *Site) Build() (err error) {
 		return
 	}
 	if err = site.Render(); err != nil {
+		fmt.Printf("Error rendering site: %s\n", err)
+		fmt.Printf("Available templates:")
+		for _, template := range site.Tmpl.Templates() {
+			fmt.Printf("\t%s\n", template.Name())
+		}
 		return
 	}
 	site.Write()
