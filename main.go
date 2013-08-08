@@ -60,6 +60,11 @@ func main() {
 		usage()
 	}
 
+	if *version {
+		fmt.Println("Hugo Static Site Generator v0.8")
+		return
+	}
+
 	config := hugolib.SetupConfig(cfgfile, source)
 	config.BuildDrafts = *draft
 	config.UglyUrls = *uglyUrls
@@ -73,10 +78,6 @@ func main() {
 
 	if *destination != "" {
 		config.PublishDir = *destination
-	}
-
-	if *version {
-		fmt.Println("Hugo Static Site Generator v0.8")
 	}
 
 	if *cpuprofile != 0 {
