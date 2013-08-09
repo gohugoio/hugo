@@ -117,6 +117,17 @@ each content piece are located in the usual place
       {{ end }}
     </ul>
 
+If you wish to display the list of all indexes, the index can
+be retrieved from the `.Site` variable.
+
+#### Example
+
+    <ul id="all-tags">
+      {{ range .Site.Indexes.tags }}  
+        <li><a href="/tags/{{ .Name | urlize }}">{{ .Name }}</a></li>  
+      {{ end }}
+    </ul>
+
 ## Creating Indexes of Indexes
 
 Hugo also supports creating pages that list your values for each 
@@ -180,4 +191,31 @@ that the data structure of the two is different.
 **.Data.Plural** The plural name of the index<br>
 **.Data.Index** The Alphabetical index<br>
 **.Data.OrderedIndex** The popular index<br>
+
+## Creating a menu based on indexes
+
+Hugo can generate menus based on indexes by iterating and
+nesting the index keys. This can be used to build a hierarchy
+of content within your site.
+
+To have hugo create the menu, simply create a template in chome
+called menu.html, then include it using the 
+`{{ template "chrome/menu.html" . }}` syntax.
+
+
+#### Example menu.html file 
+
+    <section id="menu">
+      <ul>
+        {{ range $indexname, $index := .Site.Indexes }}
+          <li><a href="/{{ $indexname | urlize }}">{{ $indexname }}</a> 
+            <ul> 
+              {{ range $index }}
+                <li><a href="/{{ $indexname | urlize }}/{{ .Name | urlize }}">{{ .Name }}</a></li>
+              {{ end }}
+            </ul>
+          </li> 
+        {{ end }}
+      </ul>
+    </section>
 
