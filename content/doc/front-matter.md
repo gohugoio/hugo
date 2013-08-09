@@ -4,8 +4,8 @@ date = "2013-07-01"
 +++
 
 The front matter is one of the features that gives Hugo it's strength. It enables
-you to include the meta data of the content right with it. Hugo supports a few 
-different formats each with their own identifying tokens. 
+you to include the meta data of the content right with it. Hugo supports a few
+different formats each with their own identifying tokens.
 
 Supported formats: <br>
   **YAML**, identified by '\-\-\-'. <br>
@@ -24,7 +24,7 @@ Supported formats: <br>
       - "VIM"
     slug: "spf13-vim-3-0-release-and-new-website"
     ---
-    Content of the file goes Here 
+    Content of the file goes Here
 
 ### TOML Example
 
@@ -39,7 +39,7 @@ Supported formats: <br>
     ]
     slug = "spf13-vim-3-0-release-and-new-website"
     +++
-    Content of the file goes Here 
+    Content of the file goes Here
 
 ### JSON Example
 
@@ -54,7 +54,7 @@ Supported formats: <br>
     ],
     "slug": "spf13-vim-3-0-release-and-new-website",
     }
-    Content of the file goes Here 
+    Content of the file goes Here
 
 ### Variables
 
@@ -71,6 +71,7 @@ any variable they want to. These will be placed into the `.Params` variable avai
 
 #### Optional
 
+**redirect** Mark the post as a redirect post<br>
 **draft** If true the content will not be rendered unless `hugo` is called with -d<br>
 **type** The type of the content (will be derived from the directory automatically if unset).<br>
 **markup** (Experimental) Specify "rst" for reStructuredText (requires
