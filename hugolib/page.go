@@ -42,6 +42,7 @@ type Page struct {
 	RenderedContent *bytes.Buffer
 	contentType     string
 	Draft           bool
+	Redirect        bool
 	Tmpl            *template.Template
 	Markup          string
 	PageMeta
@@ -85,15 +86,22 @@ func initializePage(filename string) (page Page) {
 	page.Params = make(map[string]interface{})
 	page.Keywords = make([]string, 10, 30)
 	page.Markup = "md"
-	page.setSection()
 
 	return page
 }
 
 func (p *Page) setSection() {
 	x := strings.Split(p.FileName, string(os.PathSeparator))
+	section := x[len(x)-2]
 
-	if section := x[len(x)-2]; section != "content" {
+	c := p.Site.Config
+	systemDirs := map[string] bool {
+		c.ContentDir: true,
+		c.StaticDir: true,
+		c.LayoutDir: true,
+	}
+
+	if !systemDirs[section] && !p.Redirect {
 		p.Section = section
 	}
 }
@@ -102,7 +110,7 @@ func (page *Page) Type() string {
 	if page.contentType != "" {
 		return page.contentType
 	}
-
+	page.setSection()
 	if x := page.GetSection(); x != "" {
 		return x
 	}
@@ -130,6 +138,7 @@ func (page *Page) Layout(l ...string) string {
 // TODO initalize separately... load from reader (file, or []byte)
 func NewPage(filename string) *Page {
 	p := initializePage(filename)
+
 	if err := p.buildPageFromFile(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -299,6 +308,8 @@ func (page *Page) handleMetaData(f interface{}) error {
 			page.layout = interfaceToString(v)
 		case "markup":
 			page.Markup = interfaceToString(v)
+		case "redirect":
+			page.Redirect = interfaceToBool(v)
 		case "status":
 			page.Status = interfaceToString(v)
 		default:
