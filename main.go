@@ -102,7 +102,7 @@ func main() {
 	}
 
 	if *checkMode {
-		site := hugolib.NewSite(config)
+		site := hugolib.Site{Config: *config}
 		site.Analyze()
 		os.Exit(0)
 	}
@@ -143,7 +143,7 @@ func serve(port string, config *hugolib.Config) {
 
 func buildSite(config *hugolib.Config) (site *hugolib.Site, err error) {
 	startTime := time.Now()
-	site = hugolib.NewSite(config)
+	site = &hugolib.Site{Config: *config}
 	err = site.Build()
 	if err != nil {
 		return
