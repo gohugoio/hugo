@@ -102,6 +102,7 @@ func (site *Site) Process() (err error) {
 
 func (site *Site) Render() (err error) {
 	site.RenderAliases()
+	site.timerStep("render and write aliases")
 	site.ProcessShortcodes()
 	site.timerStep("render shortcodes")
 	site.AbsUrlify()
