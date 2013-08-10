@@ -101,6 +101,7 @@ func (site *Site) Process() (err error) {
 }
 
 func (site *Site) Render() (err error) {
+	site.RenderAliases()
 	site.ProcessShortcodes()
 	site.timerStep("render shortcodes")
 	site.AbsUrlify()
@@ -144,6 +145,12 @@ func (s *Site) prepTemplates() {
 
 	templates.Funcs(funcMap)
 
+	s.Tmpl = templates
+	s.primeTemplates()
+	s.loadTemplates()
+}
+
+func (s *Site) loadTemplates() {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			PrintErr("Walker: ", err)
@@ -157,15 +164,20 @@ func (s *Site) prepTemplates() {
 			}
 			text := string(filetext)
 			name := path[len(s.Config.GetAbsPath(s.Config.LayoutDir))+1:]
-			t := templates.New(name)
+			t := s.Tmpl.New(name)
 			template.Must(t.Parse(text))
 		}
 		return nil
 	}
 
 	filepath.Walk(s.Config.GetAbsPath(s.Config.LayoutDir), walker)
+}
 
-	s.Tmpl = templates
+func (s *Site) primeTemplates() {
+	alias := "<!DOCTYPE html>\n <html>\n <head>\n <link rel=\"canonical\" href=\"{{ . }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
+
+	t := s.Tmpl.New("alias")
+	template.Must(t.Parse(alias))
 }
 
 func (s *Site) initialize() {
@@ -305,6 +317,22 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	return
+}
+
+func (s *Site) RenderAliases() error {
+	for i, p := range s.Pages {
+		for _, a := range p.Aliases {
+			content, err := s.RenderThing(s.Pages[i], "alias")
+			if strings.HasSuffix(a, "/") {
+				a = a + "index.html"
+			}
+			if err != nil {
+				return err
+			}
+			s.WritePublic(a, content.Bytes())
+		}
+	}
+	return nil
 }
 
 func (s *Site) RenderPages() error {

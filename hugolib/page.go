@@ -99,21 +99,9 @@ func (p *Page) setSection() {
 		return
 	}
 
-	//section := x[len(x)-2]
 	if section := x[len(x)-2]; section != "content" {
 		p.Section = section
 	}
-
-	//c := p.Site.Config
-	//systemDirs := map[string]bool{
-	//c.ContentDir: true,
-	//c.StaticDir:  true,
-	//c.LayoutDir:  true,
-	//}
-
-	//if !systemDirs[section] && !p.Redirect {
-	//p.Section = section
-	//}
 }
 
 func (page *Page) Type() string {
