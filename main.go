@@ -60,6 +60,11 @@ func main() {
 		usage()
 	}
 
+	if *version {
+		fmt.Println("Hugo Static Site Generator v0.8")
+		return
+	}
+
 	config := hugolib.SetupConfig(cfgfile, source)
 	config.BuildDrafts = *draft
 	config.UglyUrls = *uglyUrls
@@ -73,10 +78,6 @@ func main() {
 
 	if *destination != "" {
 		config.PublishDir = *destination
-	}
-
-	if *version {
-		fmt.Println("Hugo Static Site Generator v0.8")
 	}
 
 	if *cpuprofile != 0 {
@@ -101,7 +102,7 @@ func main() {
 	}
 
 	if *checkMode {
-		site := hugolib.NewSite(config)
+		site := hugolib.Site{Config: *config}
 		site.Analyze()
 		os.Exit(0)
 	}
@@ -142,7 +143,7 @@ func serve(port string, config *hugolib.Config) {
 
 func buildSite(config *hugolib.Config) (site *hugolib.Site, err error) {
 	startTime := time.Now()
-	site = hugolib.NewSite(config)
+	site = &hugolib.Site{Config: *config}
 	err = site.Build()
 	if err != nil {
 		return
