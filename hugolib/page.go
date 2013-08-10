@@ -46,6 +46,7 @@ type Page struct {
 	RenderedContent *bytes.Buffer
 	contentType     string
 	Draft           bool
+	Aliases         []string
 	Tmpl            *template.Template
 	Markup          string
 	PageMeta
@@ -98,16 +99,28 @@ func (p *Page) setSection() {
 		return
 	}
 
+	//section := x[len(x)-2]
 	if section := x[len(x)-2]; section != "content" {
 		p.Section = section
 	}
+
+	//c := p.Site.Config
+	//systemDirs := map[string]bool{
+	//c.ContentDir: true,
+	//c.StaticDir:  true,
+	//c.LayoutDir:  true,
+	//}
+
+	//if !systemDirs[section] && !p.Redirect {
+	//p.Section = section
+	//}
 }
 
 func (page *Page) Type() string {
 	if page.contentType != "" {
 		return page.contentType
 	}
-
+	page.setSection()
 	if x := page.GetSection(); x != "" {
 		return x
 	}
@@ -151,6 +164,7 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 // TODO initalize separately... load from reader (file, or []byte)
 func NewPage(filename string) *Page {
 	p := initializePage(filename)
+
 	if err := p.buildPageFromFile(); err != nil {
 		fmt.Println(err)
 	}
@@ -264,6 +278,13 @@ func (page *Page) update(f interface{}) error {
 			page.layout = interfaceToString(v)
 		case "markup":
 			page.Markup = interfaceToString(v)
+		case "aliases":
+			page.Aliases = interfaceArrayToStringArray(v)
+			for _, alias := range page.Aliases {
+				if strings.HasPrefix(alias, "http://") || strings.HasPrefix(alias, "https://") {
+					return fmt.Errorf("Only relative aliases are supported, %v provided", alias)
+				}
+			}
 		case "status":
 			page.Status = interfaceToString(v)
 		default:
