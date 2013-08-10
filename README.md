@@ -2,6 +2,8 @@
 A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com) 
 and [friends](http://github.com/spf13/hugo/graphs/contributors) in Go.
 
+[![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo)
+
 ## Overview
 
 Hugo is a static site generator written in GoLang. It is optimized for
