@@ -247,7 +247,8 @@ func TestParsingDateInFrontMatter(t *testing.T) {
 			t.Fatalf("Expected to be able to parse page.")
 		}
 		if !dt.Equal(p.Date) {
-			t.Errorf("Date does not equal frontmatter:\n%s\nGot: %s. Diff: %s", test.buf, p.Date, dt.Sub(p.Date))
+		//if dt != p.Date {
+			t.Errorf("Date does not equal frontmatter:\n%s\nExpecting: %s\n      Got: %s. Diff: %s\n internal: %#v\n           %#v", test.buf, dt, p.Date, dt.Sub(p.Date), dt, p.Date)
 		}
 	}
 }
