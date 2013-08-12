@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 )
 
 var EMPTY_PAGE = ""
@@ -68,6 +69,51 @@ var SIMPLE_PAGE_JSON_COMPACT = `
 {"title":"foobar","customData":{"foo":"bar"},"date":"2012-08-06"}
 Text
 `
+
+var PAGE_WITH_INVALID_DATE = `---
+date: 2010-05-02 15:29:31+08:00
+---
+Page With Invalid Date (missing the T for RFC 3339)`
+
+var PAGE_WITH_DATE_RFC3339 = `---
+date: 2010-05-02T15:29:31+08:00
+---
+Page With Date RFC3339`
+
+var PAGE_WITH_DATE_RFC1123 = `---
+date: Sun, 02 May 2010 15:29:31 PST
+---
+Page With Date RFC1123`
+
+var PAGE_WITH_DATE_RFC1123Z = `---
+date: Sun, 02 May 2010 15:29:31 +0800
+---
+Page With Date RFC1123Z`
+
+var PAGE_WITH_DATE_RFC822 = `---
+date: 02 May 10 15:29 PST
+---
+Page With Date RFC822`
+
+var PAGE_WITH_DATE_RFC822Z = `---
+date: 02 May 10 15:29 +0800
+---
+Page With Date RFC822Z`
+
+var PAGE_WITH_DATE_ANSIC = `---
+date: Sun May 2 15:29:31 2010
+---
+Page With Date ANSIC`
+
+var PAGE_WITH_DATE_UnixDate = `---
+date: Sun May 2 15:29:31 PST 2010
+---
+Page With Date UnixDate`
+
+var PAGE_WITH_DATE_RubyDate = `---
+date: Sun May 02 15:29:31 +0800 2010
+---
+Page With Date RubyDate`
 
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
@@ -167,5 +213,41 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 	_, err := ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS), "invalid/front/matter/leading/ws")
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
+	}
+}
+
+func TestDegenerateDateFrontMatter(t *testing.T) {
+	p, _ := ReadFrom(strings.NewReader(PAGE_WITH_INVALID_DATE), "page/with/invalid/date")
+	if p.Date != time.Unix(0, 0) {
+		t.Fatalf("Date should be set to computer epoch.  Got: %s", p.Date)
+	}
+}
+
+func TestParsingDateInFrontMatter(t *testing.T) {
+
+	for _, test := range []struct {
+		buf string
+		dt  string
+	}{
+		{PAGE_WITH_DATE_RFC3339, "2010-05-02T15:29:31+08:00"},
+		{PAGE_WITH_DATE_RFC1123, "2010-05-02T15:29:31-08:00"},
+		{PAGE_WITH_DATE_RFC1123Z, "2010-05-02T15:29:31+08:00"},
+		{PAGE_WITH_DATE_RFC822, "2010-05-02T15:29:00-08:00"},
+		{PAGE_WITH_DATE_RFC822Z, "2010-05-02T15:29:00+08:00"},
+		{PAGE_WITH_DATE_ANSIC, "2010-05-02T15:29:31Z"},
+		{PAGE_WITH_DATE_UnixDate, "2010-05-02T15:29:31-08:00"},
+		{PAGE_WITH_DATE_RubyDate, "2010-05-02T15:29:31+08:00"},
+	} {
+		dt, e := time.Parse(time.RFC3339, test.dt)
+		if e != nil {
+			t.Fatalf("Unable to parse date time (RFC3339) for running the test: %s", e)
+		}
+		p, err := ReadFrom(strings.NewReader(test.buf), "page/with/date")
+		if err != nil {
+			t.Fatalf("Expected to be able to parse page.")
+		}
+		if !dt.Equal(p.Date) {
+			t.Errorf("Date does not equal frontmatter:\n%s\nGot: %s. Diff: %s", test.buf, p.Date, dt.Sub(p.Date))
+		}
 	}
 }

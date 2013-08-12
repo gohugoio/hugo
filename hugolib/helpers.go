@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/kr/pretty"
 	"html/template"
@@ -63,18 +64,30 @@ func Error(str string, a ...interface{}) {
 
 func interfaceToStringToDate(i interface{}) time.Time {
 	s := interfaceToString(i)
-	d, e := time.Parse("02 Jan 06 15:04 MST", s)
 
-	if e != nil {
-		d, e = time.Parse("2006-01-02", s)
+	if d, e := parseDateWith(s, []string{
+		time.RFC3339,
+		time.RFC1123Z,
+		time.RFC1123,
+		time.RFC822Z,
+		time.RFC822,
+		time.ANSIC,
+		time.UnixDate,
+		time.RubyDate,
+	}); e == nil {
+		return d
 	}
 
-	if e != nil {
-		d, e = time.Parse("02 Jan 06", s)
+	return time.Unix(0, 0)
+}
+
+func parseDateWith(s string, dates []string) (d time.Time, e error) {
+	for _, dateType := range dates {
+		if d, e = time.Parse(dateType, s); e == nil {
+			return
+		}
 	}
-
-	return d
-
+	return d, errors.New(fmt.Sprintf("Unable to parse date: %s", s))
 }
 
 func interfaceToBool(i interface{}) bool {
