@@ -74,6 +74,10 @@ func interfaceToStringToDate(i interface{}) time.Time {
 		time.ANSIC,
 		time.UnixDate,
 		time.RubyDate,
+		"2006-01-02 15:04:05Z07:00",
+		"02 Jan 06 15:04 MST",
+		"2006-01-02",
+		"02 Jan 2006",
 	}); e == nil {
 		return d
 	}

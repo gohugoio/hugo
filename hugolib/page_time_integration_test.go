@@ -9,14 +9,19 @@ import (
 )
 
 var PAGE_WITH_INVALID_DATE = `---
-date: 2010-05-02 15:29:31+08:00
+date: 2010-05-02_15:29:31+08:00
 ---
-Page With Invalid Date (missing the T for RFC 3339)`
+Page With Invalid Date (replace T with _ for RFC 3339)`
 
 var PAGE_WITH_DATE_RFC3339 = `---
 date: 2010-05-02T15:29:31+08:00
 ---
 Page With Date RFC3339`
+
+var PAGE_WITH_DATE_RFC3339_NO_T = `---
+date: 2010-05-02 15:29:31+08:00
+---
+Page With Date RFC3339_NO_T`
 
 var PAGE_WITH_DATE_RFC1123 = `---
 date: Sun, 02 May 2010 15:29:31 PST
@@ -53,6 +58,21 @@ date: Sun May 02 15:29:31 +0800 2010
 ---
 Page With Date RubyDate`
 
+var PAGE_WITH_DATE_HugoYearNumeric = `---
+date: 2010-05-02
+---
+Page With Date HugoYearNumeric`
+
+var PAGE_WITH_DATE_HugoYear = `---
+date: 02 May 2010
+---
+Page With Date HugoYear`
+
+var PAGE_WITH_DATE_HugoLong = `---
+date: 02 May 2010 15:29 PST
+---
+Page With Date HugoLong`
+
 func TestDegenerateDateFrontMatter(t *testing.T) {
 	p, _ := ReadFrom(strings.NewReader(PAGE_WITH_INVALID_DATE), "page/with/invalid/date")
 	if p.Date != time.Unix(0, 0) {
@@ -66,10 +86,13 @@ func TestParsingDateInFrontMatter(t *testing.T) {
 		dt  string
 	}{
 		{PAGE_WITH_DATE_RFC3339, "2010-05-02T15:29:31+08:00"},
+		{PAGE_WITH_DATE_RFC3339_NO_T, "2010-05-02T15:29:31+08:00"},
 		{PAGE_WITH_DATE_RFC1123Z, "2010-05-02T15:29:31+08:00"},
 		{PAGE_WITH_DATE_RFC822Z, "2010-05-02T15:29:00+08:00"},
 		{PAGE_WITH_DATE_ANSIC, "2010-05-02T15:29:31Z"},
 		{PAGE_WITH_DATE_RubyDate, "2010-05-02T15:29:31+08:00"},
+		{PAGE_WITH_DATE_HugoYearNumeric, "2010-05-02T00:00:00Z"},
+		{PAGE_WITH_DATE_HugoYear, "2010-05-02T00:00:00Z"},
 	}
 
 	tzShortCodeTests := []struct {
@@ -77,8 +100,9 @@ func TestParsingDateInFrontMatter(t *testing.T) {
 		dt  string
 	}{
 		{PAGE_WITH_DATE_RFC1123, "2010-05-02T15:29:31-08:00"},
-		{PAGE_WITH_DATE_RFC822, "2010-05-02T15:29:00-08:00"},
+		{PAGE_WITH_DATE_RFC822, "2010-05-02T15:29:00-08:00Z"},
 		{PAGE_WITH_DATE_UnixDate, "2010-05-02T15:29:31-08:00"},
+		{PAGE_WITH_DATE_HugoLong, "2010-05-02T15:21:00+08:00"},
 	}
 
 	if _, err := time.LoadLocation("PST"); err == nil {
