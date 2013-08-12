@@ -163,14 +163,18 @@ func (s *Site) loadTemplates() {
 				return err
 			}
 			text := string(filetext)
-			name := path[len(s.Config.GetAbsPath(s.Config.LayoutDir))+1:]
-			t := s.Tmpl.New(name)
+			t := s.Tmpl.New(s.generateTemplateNameFrom(path))
 			template.Must(t.Parse(text))
 		}
 		return nil
 	}
 
-	filepath.Walk(s.Config.GetAbsPath(s.Config.LayoutDir), walker)
+	filepath.Walk(s.absLayoutDir(), walker)
+}
+
+func (s *Site) generateTemplateNameFrom(path string) (name string) {
+	name = filepath.ToSlash(path[len(s.absLayoutDir())+1:])
+	return
 }
 
 func (s *Site) primeTemplates() {
