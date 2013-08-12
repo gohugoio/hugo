@@ -16,7 +16,6 @@ package hugolib
 import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/spf13/nitro"
 	"html/template"
@@ -308,7 +307,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	s.Info.Indexes = s.Indexes.BuildOrderedIndexList()
 
 	if len(s.Pages) == 0 {
-		return errors.New(fmt.Sprintf("Unable to build site metadata, no pages found in directory %s", s.Config.ContentDir))
+		return
 	}
 	s.Info.LastChange = s.Pages[0].Date
 
@@ -483,11 +482,13 @@ func (s *Site) RenderHomePage() error {
 	n.Url = Urlize(string(n.Site.BaseUrl))
 	n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string("index.xml")))
 	n.Permalink = template.HTML(string(n.Site.BaseUrl))
-	n.Date = s.Pages[0].Date
-	if len(s.Pages) < 9 {
-		n.Data["Pages"] = s.Pages
-	} else {
-		n.Data["Pages"] = s.Pages[:9]
+	if len(s.Pages) > 0 {
+		n.Date = s.Pages[0].Date
+		if len(s.Pages) < 9 {
+			n.Data["Pages"] = s.Pages
+		} else {
+			n.Data["Pages"] = s.Pages[:9]
+		}
 	}
 	x, err := s.RenderThing(n, "index.html")
 	if err != nil {
