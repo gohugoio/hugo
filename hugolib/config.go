@@ -148,7 +148,7 @@ func FindPath() (string, error) {
 }
 
 func (c *Config) GetAbsPath(name string) string {
-	if path.IsAbs(name) {
+	if filepath.IsAbs(name) {
 		return name
 	}
 
