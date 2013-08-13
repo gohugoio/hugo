@@ -206,7 +206,12 @@ func (s *Site) initialize() {
 
 	filepath.Walk(s.Config.GetAbsPath(s.Config.ContentDir), walker)
 
-	s.Info = SiteInfo{BaseUrl: template.URL(s.Config.BaseUrl), Title: s.Config.Title, Config: &s.Config}
+	s.Info = SiteInfo{
+		BaseUrl: template.URL(s.Config.BaseUrl),
+		Title:   s.Config.Title,
+		Recent:  &s.Pages,
+		Config:  &s.Config,
+	}
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
 }
@@ -471,9 +476,9 @@ func (s *Site) RenderLists() error {
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
 			if s.Config.UglyUrls {
-			        n.Url = Urlize(section + ".xml")
+				n.Url = Urlize(section + ".xml")
 			} else {
-			        n.Url = Urlize(section + "/" + "index.xml")
+				n.Url = Urlize(section + "/" + "index.xml")
 			}
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
