@@ -348,7 +348,11 @@ func (s *Site) RenderPages() error {
 	for i, _ := range s.Pages {
 		content, err := s.RenderThing(s.Pages[i], s.Pages[i].Layout())
 		if err != nil {
-			return err
+			var err2 error
+			content, err2 = s.RenderThing(s.Pages[i], "_default/single.html")
+			if err2 != nil {
+				return err
+			}
 		}
 		s.Pages[i].RenderedContent = content
 	}
