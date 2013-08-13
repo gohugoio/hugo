@@ -27,7 +27,6 @@ import (
 	//"sync"
 )
 
-const slash = string(os.PathSeparator)
 
 var DefaultTimer = nitro.Initalize()
 
@@ -378,7 +377,7 @@ func (s *Site) RenderPages() error {
 
 func (s *Site) WritePages() {
 	for _, p := range s.Pages {
-		s.WritePublic(p.Section+slash+p.OutFile, p.RenderedContent.Bytes())
+		s.WritePublic(p.Section + "/" + p.OutFile, p.RenderedContent.Bytes())
 	}
 }
 
@@ -388,7 +387,7 @@ func (s *Site) setOutFile(p *Page) {
 		if s.Config.UglyUrls {
 			p.OutFile = strings.TrimSpace(p.Slug + "." + p.Extension)
 		} else {
-			p.OutFile = strings.TrimSpace(p.Slug + slash + "index.html")
+			p.OutFile = filepath.Join(strings.TrimSpace(p.Slug), "index.html")
 		}
 	} else if len(strings.TrimSpace(p.Url)) > 2 {
 		// Use Url if provided & Slug missing
@@ -400,7 +399,7 @@ func (s *Site) setOutFile(p *Page) {
 			p.OutFile = replaceExtension(strings.TrimSpace(t), p.Extension)
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			p.OutFile = file + slash + "index." + p.Extension
+			p.OutFile = filepath.Join(file, "index." + p.Extension)
 		}
 	}
 }
@@ -410,7 +409,7 @@ func (s *Site) RenderIndexes() error {
 		for k, o := range s.Indexes[plural] {
 			n := s.NewNode()
 			n.Title = strings.Title(k)
-			url := Urlize(plural + slash + k)
+			url := Urlize(plural + "/" + k)
 			plink := url
 			if s.Config.UglyUrls {
 				n.Url = url + ".html"
@@ -423,7 +422,7 @@ func (s *Site) RenderIndexes() error {
 			n.Date = o[0].Date
 			n.Data[singular] = o
 			n.Data["Pages"] = o
-			layout := "indexes" + slash + singular + ".html"
+			layout := "indexes/" + singular + ".html"
 			x, err := s.RenderThing(n, layout)
 			if err != nil {
 				return err
@@ -436,7 +435,7 @@ func (s *Site) RenderIndexes() error {
 				base = plural + "/" + k + "/" + "index"
 			}
 
-			s.WritePublic(base+".html", x.Bytes())
+			s.WritePublic(base + ".html", x.Bytes())
 
 			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 				// XML Feed
@@ -448,7 +447,7 @@ func (s *Site) RenderIndexes() error {
 				}
 				n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-				s.WritePublic(base+".xml", y.Bytes())
+				s.WritePublic(base + ".xml", y.Bytes())
 			}
 		}
 	}
@@ -456,7 +455,7 @@ func (s *Site) RenderIndexes() error {
 }
 
 func (s *Site) RenderIndexesIndexes() (err error) {
-	layout := "indexes" + slash + "indexes.html"
+	layout := "indexes/indexes.html"
 	if s.Tmpl.Lookup(layout) != nil {
 		for singular, plural := range s.Config.Indexes {
 			n := s.NewNode()
@@ -470,7 +469,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
 
 			x, err := s.RenderThing(n, layout)
-			s.WritePublic(plural+slash+"index.html", x.Bytes())
+			s.WritePublic(plural + "/index.html", x.Bytes())
 			return err
 		}
 	}
@@ -486,13 +485,13 @@ func (s *Site) RenderLists() error {
 		n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(section+".xml")))
 		n.Date = data[0].Date
 		n.Data["Pages"] = data
-		layout := "indexes" + slash + section + ".html"
+		layout := "indexes/" + section + ".html"
 
 		x, err := s.RenderThing(n, layout)
 		if err != nil {
 			return err
 		}
-		s.WritePublic(section+slash+"index.html", x.Bytes())
+		s.WritePublic(section + "/index.html", x.Bytes())
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
@@ -500,7 +499,7 @@ func (s *Site) RenderLists() error {
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			s.WritePublic(section+slash+"index.xml", y.Bytes())
+			s.WritePublic(section + "/index.xml", y.Bytes())
 		}
 	}
 	return nil
@@ -541,7 +540,7 @@ func (s *Site) RenderHomePage() error {
 func (s *Site) Stats() {
 	fmt.Printf("%d pages created \n", len(s.Pages))
 	for _, pl := range s.Config.Indexes {
-		fmt.Printf("%d %s created\n", len(s.Indexes[pl]), pl)
+		fmt.Printf("%d %s index created\n", len(s.Indexes[pl]), pl)
 	}
 }
 
