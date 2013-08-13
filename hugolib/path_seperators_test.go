@@ -23,10 +23,10 @@ func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
 }
 
 func TestNewPageWithFilePath(t *testing.T) {
-	toCheck := []struct{
-		input string
+	toCheck := []struct {
+		input   string
 		section string
-		layout string
+		layout  string
 	}{
 		{filepath.Join("sub", "foobar.html"), "sub", "sub/single.html"},
 		{filepath.Join("content", "sub", "foobar.html"), "sub", "sub/single.html"},
@@ -47,5 +47,3 @@ func TestNewPageWithFilePath(t *testing.T) {
 		}
 	}
 }
-
-
