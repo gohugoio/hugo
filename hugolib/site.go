@@ -27,7 +27,6 @@ import (
 	//"sync"
 )
 
-
 var DefaultTimer = nitro.Initalize()
 
 type Site struct {
@@ -377,7 +376,7 @@ func (s *Site) RenderPages() error {
 
 func (s *Site) WritePages() {
 	for _, p := range s.Pages {
-		s.WritePublic(p.Section + "/" + p.OutFile, p.RenderedContent.Bytes())
+		s.WritePublic(p.Section+"/"+p.OutFile, p.RenderedContent.Bytes())
 	}
 }
 
@@ -399,7 +398,7 @@ func (s *Site) setOutFile(p *Page) {
 			p.OutFile = replaceExtension(strings.TrimSpace(t), p.Extension)
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			p.OutFile = filepath.Join(file, "index." + p.Extension)
+			p.OutFile = filepath.Join(file, "index."+p.Extension)
 		}
 	}
 }
@@ -435,7 +434,7 @@ func (s *Site) RenderIndexes() error {
 				base = plural + "/" + k + "/" + "index"
 			}
 
-			s.WritePublic(base + ".html", x.Bytes())
+			s.WritePublic(base+".html", x.Bytes())
 
 			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 				// XML Feed
@@ -447,7 +446,7 @@ func (s *Site) RenderIndexes() error {
 				}
 				n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-				s.WritePublic(base + ".xml", y.Bytes())
+				s.WritePublic(base+".xml", y.Bytes())
 			}
 		}
 	}
@@ -469,7 +468,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
 
 			x, err := s.RenderThing(n, layout)
-			s.WritePublic(plural + "/index.html", x.Bytes())
+			s.WritePublic(plural+"/index.html", x.Bytes())
 			return err
 		}
 	}
@@ -491,7 +490,7 @@ func (s *Site) RenderLists() error {
 		if err != nil {
 			return err
 		}
-		s.WritePublic(section + "/index.html", x.Bytes())
+		s.WritePublic(section+"/index.html", x.Bytes())
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
@@ -499,7 +498,7 @@ func (s *Site) RenderLists() error {
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			s.WritePublic(section + "/index.xml", y.Bytes())
+			s.WritePublic(section+"/index.xml", y.Bytes())
 		}
 	}
 	return nil
