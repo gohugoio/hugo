@@ -470,7 +470,11 @@ func (s *Site) RenderLists() error {
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
-			n.Url = Urlize(section + ".xml")
+            if s.Config.UglyUrls {
+                    n.Url = Urlize(section + ".xml")
+            } else {
+                    n.Url = Urlize(section + "/" + "index.xml")
+            }
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
