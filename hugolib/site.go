@@ -326,9 +326,9 @@ func (s *Site) setOutFile(p *Page) {
 	if len(strings.TrimSpace(p.Slug)) > 0 {
 		// Use Slug if provided
 		if s.Config.UglyUrls {
-			outfile = p.Slug + "." + p.Extension
+			outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
 		} else {
-			outfile = p.Slug + slash + "index." + p.Extension
+			outfile = filepath.Join(strings.TrimSpace(p.Slug), "index."+p.Extension)
 		}
 	} else {
 		// Fall back to filename
@@ -337,7 +337,7 @@ func (s *Site) setOutFile(p *Page) {
 			outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			outfile = file + slash + "index." + p.Extension
+			outfile = filepath.Join(file, "index."+p.Extension)
 		}
 	}
 

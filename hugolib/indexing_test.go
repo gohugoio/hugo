@@ -1,8 +1,8 @@
 package hugolib
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestSitePossibleIndexes(t *testing.T) {
@@ -14,5 +14,3 @@ func TestSitePossibleIndexes(t *testing.T) {
 		t.Fatalf("possible indexes do not match [tags categories].  Got: %s", indexes)
 	}
 }
-
-
