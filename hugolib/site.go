@@ -263,7 +263,8 @@ func (s *Site) CreatePages() {
 		page := NewPage(fileName)
 		page.Site = s.Info
 		page.Tmpl = s.Tmpl
-		s.setOutFile(page)
+		page.Initalize()
+		page.setOutFile()
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}
@@ -361,30 +362,7 @@ func (s *Site) RenderPages() error {
 
 func (s *Site) WritePages() {
 	for _, p := range s.Pages {
-		s.WritePublic(p.Section+slash+p.OutFile, p.RenderedContent.Bytes())
-	}
-}
-
-func (s *Site) setOutFile(p *Page) {
-	if len(strings.TrimSpace(p.Slug)) > 0 {
-		// Use Slug if provided
-		if s.Config.UglyUrls {
-			p.OutFile = strings.TrimSpace(p.Slug + "." + p.Extension)
-		} else {
-			p.OutFile = strings.TrimSpace(p.Slug + slash + "index.html")
-		}
-	} else if len(strings.TrimSpace(p.Url)) > 2 {
-		// Use Url if provided & Slug missing
-		p.OutFile = strings.TrimSpace(p.Url)
-	} else {
-		// Fall back to filename
-		_, t := filepath.Split(p.FileName)
-		if s.Config.UglyUrls {
-			p.OutFile = replaceExtension(strings.TrimSpace(t), p.Extension)
-		} else {
-			file, _ := fileExt(strings.TrimSpace(t))
-			p.OutFile = file + slash + "index." + p.Extension
-		}
+		s.WritePublic(p.OutFile, p.RenderedContent.Bytes())
 	}
 }
 

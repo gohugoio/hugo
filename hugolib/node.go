@@ -19,18 +19,23 @@ import (
 )
 
 type Node struct {
-	Url         string
-	Permalink   template.HTML
 	RSSlink     template.HTML
 	Site        SiteInfo
 	layout      string
 	Data        map[string]interface{}
-	Section     string
-	Slug        string
 	Title       string
 	Description string
 	Keywords    []string
 	Date        time.Time
+	UrlPath
+}
+
+type UrlPath struct {
+	Url       string
+	Permalink template.HTML
+	Slug      string
+	Section   string
+	Path      string
 }
 
 func (n *Node) GetSection() string {
