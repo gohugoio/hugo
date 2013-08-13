@@ -27,7 +27,7 @@ import (
 	"time"
 )
 
-var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9/_-.]")
+var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // TODO: Make these wrappers private
 // Wrapper around Fprintf taking verbose flag in account.
