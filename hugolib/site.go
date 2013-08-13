@@ -329,6 +329,26 @@ func (s *Site) BuildSiteMeta() (err error) {
 	return
 }
 
+func (s *Site) possibleIndexes() (indexes []string) {
+	for _, p := range s.Pages {
+		for k, _ := range p.Params {
+			if !inStringArray(indexes, k) {
+				indexes = append(indexes, k)
+			}
+		}
+	}
+	return
+}
+
+func inStringArray(arr []string, el string) bool {
+	for _, v := range arr {
+		if v == el {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Site) RenderAliases() error {
 	for i, p := range s.Pages {
 		for _, a := range p.Aliases {
