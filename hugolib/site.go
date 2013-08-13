@@ -106,10 +106,16 @@ func (site *Site) Render() (err error) {
 	site.timerStep("render shortcodes")
 	site.AbsUrlify()
 	site.timerStep("absolute URLify")
-	site.RenderIndexes()
-	site.RenderIndexesIndexes()
+	if err = site.RenderIndexes(); err != nil {
+		return
+	}
+	if err = site.RenderIndexesIndexes(); err != nil {
+		return
+	}
 	site.timerStep("render and write indexes")
-	site.RenderLists()
+	if err = site.RenderLists(); err != nil {
+		return
+	}
 	site.timerStep("render and write lists")
 	if err = site.RenderPages(); err != nil {
 		return
