@@ -107,7 +107,9 @@ func (site *Site) Render() (err error) {
 	site.timerStep("render shortcodes")
 	site.AbsUrlify()
 	site.timerStep("absolute URLify")
-	site.RenderIndexes()
+	if err = site.RenderIndexes(); err != nil {
+		return
+	}
 	site.RenderIndexesIndexes()
 	site.timerStep("render and write indexes")
 	site.RenderLists()
@@ -200,12 +202,15 @@ func (s *Site) initialize() {
 			site.Directories = append(site.Directories, path)
 			return nil
 		} else {
+			if ignoreDotFile(path) {
+				return nil
+			}
 			site.Files = append(site.Files, path)
 			return nil
 		}
 	}
 
-	filepath.Walk(s.Config.GetAbsPath(s.Config.ContentDir), walker)
+	filepath.Walk(s.absContentDir(), walker)
 
 	s.Info = SiteInfo{
 		BaseUrl: template.URL(s.Config.BaseUrl),
@@ -215,6 +220,10 @@ func (s *Site) initialize() {
 	}
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
+}
+
+func ignoreDotFile(path string) bool {
+	return filepath.Base(path)[0] == '.'
 }
 
 func (s *Site) absLayoutDir() string {
