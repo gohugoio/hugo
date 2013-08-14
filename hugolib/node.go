@@ -37,7 +37,3 @@ type UrlPath struct {
 	Section   string
 	Path      string
 }
-
-func (n *Node) GetSection() string {
-	return n.Section
-}

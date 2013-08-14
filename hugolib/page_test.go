@@ -2,7 +2,7 @@ package hugolib
 
 import (
 	"html/template"
-	"io"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -69,6 +69,28 @@ var SIMPLE_PAGE_JSON_COMPACT = `
 Text
 `
 
+var SIMPLE_PAGE_NOLAYOUT = `---
+title: simple_no_layout
+---
+No Layout called out`
+
+var SIMPLE_PAGE_LAYOUT_FOOBAR = `---
+title: simple layout foobar
+layout: foobar
+---
+Layout foobar`
+
+var SIMPLE_PAGE_TYPE_FOOBAR = `---
+type: foobar
+---
+type foobar`
+
+var SIMPLE_PAGE_TYPE_LAYOUT = `---
+type: barfoo
+layout: buzfoo
+---
+type and layout set`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil")
@@ -133,16 +155,15 @@ func TestCreateNewPage(t *testing.T) {
 
 func TestCreatePage(t *testing.T) {
 	var tests = []struct {
-		r io.Reader
+		r string
 	}{
-		{strings.NewReader(SIMPLE_PAGE_JSON)},
-		{strings.NewReader(SIMPLE_PAGE_JSON_MULTIPLE)},
+		{SIMPLE_PAGE_JSON},
+		{SIMPLE_PAGE_JSON_MULTIPLE},
 		//{strings.NewReader(SIMPLE_PAGE_JSON_COMPACT)},
 	}
 
 	for _, test := range tests {
-		_, err := ReadFrom(test.r, "page")
-		if err != nil {
+		if _, err := ReadFrom(strings.NewReader(test.r), "page"); err != nil {
 			t.Errorf("Unable to parse page: %s", err)
 		}
 	}
@@ -150,15 +171,15 @@ func TestCreatePage(t *testing.T) {
 
 func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 	var tests = []struct {
-		r   io.Reader
+		r   string
 		err string
 	}{
-		{strings.NewReader(INVALID_FRONT_MATTER_SHORT_DELIM), "unable to match beginning front matter delimiter"},
-		{strings.NewReader(INVALID_FRONT_MATTER_SHORT_DELIM_ENDING), "unable to match ending front matter delimiter"},
-		{strings.NewReader(INVALID_FRONT_MATTER_MISSING), "unable to detect front matter"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM, "unable to match beginning front matter delimiter"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "unable to match ending front matter delimiter"},
+		{INVALID_FRONT_MATTER_MISSING, "unable to detect front matter"},
 	}
 	for _, test := range tests {
-		_, err := ReadFrom(test.r, "invalid/front/matter/short/delim")
+		_, err := ReadFrom(strings.NewReader(test.r), "invalid/front/matter/short/delim")
 		checkError(t, err, test.err)
 	}
 }
@@ -167,5 +188,49 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 	_, err := ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS), "invalid/front/matter/leading/ws")
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
+	}
+}
+
+func TestLayoutOverride(t *testing.T) {
+	var (
+		path_content_one_dir = filepath.Join("content", "gub", "file1.md")
+		path_content_two_dir = filepath.Join("content", "dub", "sub", "file1.md")
+		path_content_no_dir  = filepath.Join("content", "file1")
+		path_one_directory   = filepath.Join("fub", "file1.md")
+		path_no_directory    = filepath.Join("file1.md")
+	)
+	tests := []struct {
+		content        string
+		path           string
+		expectedLayout string
+	}{
+		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, "sub/single.html"},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, "gub/single.html"},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, "page/single.html"},
+		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, "fub/single.html"},
+		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, "page/single.html"},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, "foobar"},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, "foobar"},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, "foobar"},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, "foobar"},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_two_dir, "foobar/single.html"},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_one_dir, "foobar/single.html"},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_no_dir, "foobar/single.html"},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_one_directory, "foobar/single.html"},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_no_directory, "foobar/single.html"},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_two_dir, "buzfoo"},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_one_dir, "buzfoo"},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_no_dir, "buzfoo"},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_one_directory, "buzfoo"},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, "buzfoo"},
+	}
+	for _, test := range tests {
+		p, err := ReadFrom(strings.NewReader(test.content), test.path)
+		if err != nil {
+			t.Fatalf("Unable to parse content:\n%s\n", test.content)
+		}
+		if p.Layout() != test.expectedLayout {
+			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
+		}
 	}
 }

@@ -25,7 +25,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	//"sync"
 )
 
 var DefaultTimer = nitro.Initalize()
@@ -381,8 +380,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	for i, p := range s.Pages {
-		sect := p.GetSection()
-		s.Sections.Add(sect, s.Pages[i])
+		s.Sections.Add(p.Section, s.Pages[i])
 	}
 
 	for k, _ := range s.Sections {

@@ -118,7 +118,7 @@ func (page *Page) Type() string {
 		return page.contentType
 	}
 	page.guessSection()
-	if x := page.GetSection(); x != "" {
+	if x := page.Section; x != "" {
 		return x
 	}
 
