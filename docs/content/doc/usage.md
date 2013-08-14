@@ -15,7 +15,7 @@ Make sure either hugo is in your path or provide a path to it.
           --port="1313": port to run web server on, default :1313
       -S, --server=false: run a (very) simple web server
       -s, --source="": filesystem path to read files relative from
-          --uglyurls=false: use /filename.html instead of /filename/
+          --uglyurls=false: if true, use /filename.html instead of /filename/
       -v, --verbose=false: verbose output
           --version=false: which version of hugo
       -w, --watch=false: watch filesystem for changes and recreate as needed
