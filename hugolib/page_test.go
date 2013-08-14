@@ -32,7 +32,7 @@ Short Delim
 `
 
 var INVALID_FRONT_MATTER_LEADING_WS = `
- 
+
  ---
 title: Leading WS
 ---
@@ -52,7 +52,7 @@ var SIMPLE_PAGE_JSON = `
 "slug": "spf13-vim-3-0-release-and-new-website"
 }
 
-Content of the file goes Here 
+Content of the file goes Here
 `
 
 var SIMPLE_PAGE_JSON_MULTIPLE = `

@@ -16,6 +16,7 @@ package hugolib
 import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/spf13/nitro"
 	"html/template"
@@ -263,8 +264,9 @@ func (s *Site) CreatePages() {
 		page := NewPage(fileName)
 		page.Site = s.Info
 		page.Tmpl = s.Tmpl
+		_ = s.setUrlPath(page)
 		page.Initalize()
-		page.setOutFile()
+		s.setOutFile(page)
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}
@@ -283,6 +285,52 @@ func (s *Site) setupPrevNext() {
 			s.Pages[i].Prev = s.Pages[i-1]
 		}
 	}
+}
+
+func (s *Site) setUrlPath(p *Page) error {
+	y := strings.TrimPrefix(p.FileName, s.Config.GetAbsPath(s.Config.ContentDir))
+	x := strings.Split(y, string(os.PathSeparator))
+
+	if len(x) <= 1 {
+		return errors.New("Zero length page name")
+	}
+
+	p.Section = strings.Trim(x[1], "/\\")
+	p.Path = strings.Trim(strings.Join(x[:len(x)-1], string(os.PathSeparator)), "/\\")
+	return nil
+}
+
+// If Url is provided it is assumed to be the complete relative path
+// and will override everything
+// Otherwise path + slug is used if provided
+// Lastly path + filename is used if provided
+func (s *Site) setOutFile(p *Page) {
+	// Always use Url if it's specified
+	if len(strings.TrimSpace(p.Url)) > 2 {
+		p.OutFile = strings.TrimSpace(p.Url)
+		return
+	}
+
+	var outfile string
+	if len(strings.TrimSpace(p.Slug)) > 0 {
+		// Use Slug if provided
+		if s.Config.UglyUrls {
+			outfile = p.Slug + "." + p.Extension
+		} else {
+			outfile = p.Slug + slash + "index." + p.Extension
+		}
+	} else {
+		// Fall back to filename
+		_, t := filepath.Split(p.FileName)
+		if s.Config.UglyUrls {
+			outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
+		} else {
+			file, _ := fileExt(strings.TrimSpace(t))
+			outfile = file + slash + "index." + p.Extension
+		}
+	}
+
+	p.OutFile = p.Path + string(os.PathSeparator) + strings.TrimSpace(outfile)
 }
 
 func (s *Site) BuildSiteMeta() (err error) {

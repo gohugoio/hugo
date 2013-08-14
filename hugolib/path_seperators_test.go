@@ -23,10 +23,10 @@ func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
 }
 
 func TestNewPageWithFilePath(t *testing.T) {
-	toCheck := []struct{
-		input string
+	toCheck := []struct {
+		input   string
 		section string
-		layout string
+		layout  string
 	}{
 		{filepath.Join("sub", "foobar.html"), "sub", "sub/single.html"},
 		{filepath.Join("content", "sub", "foobar.html"), "sub", "sub/single.html"},
@@ -35,6 +35,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 
 	for _, el := range toCheck {
 		p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
+		p.guessSection()
 		if err != nil {
 			t.Fatalf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)
 		}
@@ -47,5 +48,3 @@ func TestNewPageWithFilePath(t *testing.T) {
 		}
 	}
 }
-
-

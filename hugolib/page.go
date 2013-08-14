@@ -94,11 +94,7 @@ func NewPage(filename string) *Page {
 }
 
 func (page *Page) Initalize() error {
-	err := page.setUrlPath()
-	if err != nil {
-		return err
-	}
-	err = page.buildPageFromFile()
+	err := page.buildPageFromFile()
 	if err != nil {
 		return err
 	}
@@ -106,57 +102,22 @@ func (page *Page) Initalize() error {
 	return nil
 }
 
-func (p *Page) setUrlPath() error {
-	y := strings.TrimPrefix(p.FileName, p.Site.Config.GetAbsPath(p.Site.Config.ContentDir))
-	x := strings.Split(y, string(os.PathSeparator))
-
-	if len(x) <= 1 {
-		return errors.New("Zero length page name")
-	}
-
-	p.Section = strings.Trim(x[1], "/\\")
-	p.Path = strings.Trim(strings.Join(x[:len(x)-1], string(os.PathSeparator)), "/\\")
-	return nil
-}
-
-// If Url is provided it is assumed to be the complete relative path
-// and will override everything
-// Otherwise path + slug is used if provided
-// Lastly path + filename is used if provided
-func (p *Page) setOutFile() {
-	// Always use Url if it's specified
-	if len(strings.TrimSpace(p.Url)) > 2 {
-		p.OutFile = strings.TrimSpace(p.Url)
-		return
-	}
-
-	var outfile string
-	if len(strings.TrimSpace(p.Slug)) > 0 {
-		// Use Slug if provided
-		if p.Site.Config.UglyUrls {
-			outfile = p.Slug + "." + p.Extension
-		} else {
-			outfile = p.Slug + slash + "index." + p.Extension
-		}
-	} else {
-		// Fall back to filename
-		_, t := filepath.Split(p.FileName)
-		if p.Site.Config.UglyUrls {
-			outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
-		} else {
-			file, _ := fileExt(strings.TrimSpace(t))
-			outfile = file + slash + "index." + p.Extension
+func (p *Page) guessSection() {
+	if p.Section == "" {
+		x := strings.Split(p.FileName, string(os.PathSeparator))
+		if len(x) > 1 {
+			if section := x[len(x)-2]; section != "content" {
+				p.Section = section
+			}
 		}
 	}
-
-	p.OutFile = p.Path + string(os.PathSeparator) + strings.TrimSpace(outfile)
 }
 
 func (page *Page) Type() string {
 	if page.contentType != "" {
 		return page.contentType
 	}
-	page.setUrlPath()
+	page.guessSection()
 	if x := page.GetSection(); x != "" {
 		return x
 	}

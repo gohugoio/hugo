@@ -39,10 +39,5 @@ type UrlPath struct {
 }
 
 func (n *Node) GetSection() string {
-	s := ""
-	if n.Section != "" {
-		s = n.Section
-	}
-
-	return s
+	return n.Section
 }
