@@ -192,6 +192,8 @@ func (s *Site) initialize() {
 
 	s.checkDirectories()
 
+	staticDir := s.Config.GetAbsPath(s.Config.StaticDir+"/")
+
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			PrintErr("Walker: ", err)
@@ -199,6 +201,9 @@ func (s *Site) initialize() {
 		}
 
 		if fi.IsDir() {
+			if (path == staticDir) {
+				return filepath.SkipDir
+			}
 			site.Directories = append(site.Directories, path)
 			return nil
 		} else {
@@ -211,7 +216,6 @@ func (s *Site) initialize() {
 	}
 
 	filepath.Walk(s.absContentDir(), walker)
-
 	s.Info = SiteInfo{
 		BaseUrl: template.URL(s.Config.BaseUrl),
 		Title:   s.Config.Title,
