@@ -182,9 +182,13 @@ func (s *Site) generateTemplateNameFrom(path string) (name string) {
 
 func (s *Site) primeTemplates() {
 	alias := "<!DOCTYPE html>\n <html>\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
+	alias_xhtml := "<!DOCTYPE html>\n <html xmlns=\"http://www.w3.org/1999/xhtml\">\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
 
 	t := s.Tmpl.New("alias")
 	template.Must(t.Parse(alias))
+
+	t = s.Tmpl.New("alias-xhtml")
+	template.Must(t.Parse(alias_xhtml))
 }
 
 func (s *Site) initialize() {
@@ -389,7 +393,11 @@ func (s *Site) BuildSiteMeta() (err error) {
 func (s *Site) RenderAliases() error {
 	for i, p := range s.Pages {
 		for _, a := range p.Aliases {
-			content, err := s.RenderThing(s.Pages[i], "alias")
+			t := "alias";
+			if strings.HasSuffix(a, ".xhtml") {
+				t = "alias-xhtml"
+			}
+			content, err := s.RenderThing(s.Pages[i], t)
 			if strings.HasSuffix(a, "/") {
 				a = a + "index.html"
 			}
