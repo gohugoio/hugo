@@ -42,7 +42,7 @@ var (
 	watchMode   = flag.BoolP("watch", "w", false, "watch filesystem for changes and recreate as needed")
 	server      = flag.BoolP("server", "S", false, "run a (very) simple web server")
 	port        = flag.String("port", "1313", "port to run web server on, default :1313")
-	uglyUrls    = flag.Bool("uglyurls", false, "use /filename.html instead of /filename/ ")
+	uglyUrls    = flag.Bool("uglyurls", false, "if true, use /filename.html instead of /filename/")
 )
 
 func usage() {
