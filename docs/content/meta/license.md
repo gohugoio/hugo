@@ -1,6 +1,7 @@
 ---
 title: "License"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/license/", "/license/"]
 ---
 
 Hugo is released under the Simple Public License.

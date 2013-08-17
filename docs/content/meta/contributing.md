@@ -1,15 +1,16 @@
 ---
 title: "Contributing to Hugo"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/contributing/"]
 ---
 
-We welcome all contributions. If you want to contribute, all 
-that is needed is simply fork Hugo, make changes and submit 
+We welcome all contributions. If you want to contribute, all
+that is needed is simply fork Hugo, make changes and submit
 a pull request. If you prefer, pick something from the roadmap
-or contact [spf13](http://spf13.com) about what may make sense 
+or contact [spf13](http://spf13.com) about what may make sense
 to do next.
 
-## Overview 
+## Overview
 1. Fork it from https://github.com/spf13/hugo
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
@@ -23,8 +24,8 @@ to do next.
     cd hugo
     go get
 
-Because go expects all of your libraries to be found in either 
-$GOROOT or $GOPATH, it's helpful to symlink the project to one 
+Because go expects all of your libraries to be found in either
+$GOROOT or $GOPATH, it's helpful to symlink the project to one
 of the following paths:
 
  * ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo

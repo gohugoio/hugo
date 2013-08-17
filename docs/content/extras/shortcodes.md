@@ -1,6 +1,7 @@
 ---
 title: "Shortcodes"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/shortcodes/"]
 ---
 
 Because Hugo uses markdown for it's content format, it was clear that there's a lot of things that 

@@ -1,6 +1,7 @@
 ---
 title: "Roadmap"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/roadmap/"]
 ---
 
 In no particular order, here is what we are working on:

@@ -1,10 +1,17 @@
 ---
 title: "Release Notes"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/release-notes/"]
 ---
 
-* **0.9.0**
+* **0.9.0** HEAD
   * Added support for aliases (redirects)
+  * Cleanup of how content organization is handled
+  * Support for top level pages (other than homepage)
+  * Loads of unit and performance tests
+  * Integration with travis ci
+  * Complete overhaul of the documentation site
+  * Full Windows support
 * **0.8.0** August 2, 2013
   * Added support for pretty urls (filename/index.html vs filename.html)
   * Hugo supports a destination directory

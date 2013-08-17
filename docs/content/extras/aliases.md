@@ -1,9 +1,10 @@
 ---
 title: "Aliases"
-Pubdate: "2013-07-09"
-Aliases:
+date: "2013-07-09"
+aliases:
     - /doc/redirects/
     - /doc/alias/
+    - /doc/aliases/
 ---
 
 For people migrating existing published content to Hugo theres a good chance
