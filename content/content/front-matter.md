@@ -1,6 +1,7 @@
 +++
 title = "Front Matter"
 date = "2013-07-01"
+aliases = ["/doc/front-matter/"]
 +++
 
 The front matter is one of the features that gives Hugo it's strength. It enables
@@ -18,7 +19,7 @@ Supported formats: <br>
     title: "spf13-vim 3.0 release and new website"
     description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
     tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    pubdate: "2012-04-06"
+    date: "2012-04-06"
     categories:
       - "Development"
       - "VIM"
@@ -32,7 +33,7 @@ Supported formats: <br>
     title = "spf13-vim 3.0 release and new website"
     description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
     tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    Pubdate = "2012-04-06"
+    date = "2012-04-06"
     categories = [
       "Development",
       "VIM"

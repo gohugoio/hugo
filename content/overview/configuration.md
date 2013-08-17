@@ -1,6 +1,7 @@
 ---
 title: "Configuring Hugo"
-pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/configuration/"]
 ---
 
 The directory structure and templates provide the majority of the
@@ -15,7 +16,7 @@ then look for a config.json file, followed by a config.toml file.
 
 ## Examples
 
-The following is an example of a yaml config file with the default values: 
+The following is an example of a yaml config file with the default values:
 
     ---
     contentdir: "content"
@@ -29,7 +30,7 @@ The following is an example of a yaml config file with the default values:
     ...
 
 
-The following is an example of a json config file with the default values: 
+The following is an example of a json config file with the default values:
 
     {
         "contentdir": "content",
@@ -44,7 +45,7 @@ The following is an example of a json config file with the default values:
     }
 
 
-The following is an example of a toml config file with the default values: 
+The following is an example of a toml config file with the default values:
 
     contentdir = "content"
     layoutdir = "layouts"
@@ -54,5 +55,4 @@ The following is an example of a toml config file with the default values:
     [indexes]
        category = "categories"
        tag = "tags"
-
 

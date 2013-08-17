@@ -1,6 +1,7 @@
 ---
 title: "Example Content File"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/example/"]
 ---
 
 Somethings are better shown than explained. The following is a very basic example of a content file:
@@ -12,7 +13,7 @@ Somethings are better shown than explained. The following is a very basic exampl
     Description": ""
     Keywords": [ "Development", "golang", "profiling" ]
     Tags": [ "Development", "golang", "profiling" ]
-    Pubdate": "2013-06-19"
+    date": "2013-06-19"
     Topics": [ "Development", "GoLang" ]
     Slug": "nitro"
     project_url": "http://github.com/spf13/nitro"

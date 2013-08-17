@@ -1,6 +1,7 @@
 ---
 title: "Indexes"
-Pubdate: "2013-07-01"
+date: "2013-07-01"
+aliases: ["/doc/indexes/"]
 ---
 
 Hugo includes support for user defined indexes of content. In our 
@@ -70,8 +71,6 @@ The following variables are available to the index template:
       </div>
     </section>
 
-    <aside id="meta"> </aside>
-
     {{ template "chrome/footer.html" }}
 
 
@@ -88,13 +87,13 @@ and assign all keys you want this content to match against.
 
 #### Example
     {
-        "Title": "Hugo: A fast and flexible static site generator",
-        "Tags": [
+        "title": "Hugo: A fast and flexible static site generator",
+        "tags": [
             "Development",
             "golang",
             "Blogging"
         ],
-        "Slug": "hugo",
+        "slug": "hugo",
         "project_url": "http://github.com/spf13/hugo"
     }
 
