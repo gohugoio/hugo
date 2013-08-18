@@ -192,7 +192,7 @@ func (p *Page) Permalink() template.HTML {
 		if p.Site.Config.UglyUrls {
 			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug+"."+p.Extension))
 		} else {
-			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug))
+			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug+"/"))
 		}
 	} else if len(strings.TrimSpace(p.Url)) > 2 {
 		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Url)))
