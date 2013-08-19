@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/pprof"
+	"strings"
 	"sync"
 	"time"
 )
@@ -95,8 +96,7 @@ func main() {
 		}
 	}
 
-	// Copy Static to Destination first
-	err := fsync.SyncDel(config.GetAbsPath(config.PublishDir+"/"), config.GetAbsPath(config.StaticDir+"/"))
+	err := copyStatic(config)
 	if err != nil {
 		log.Fatalf("Error copying static files to %s: %v", config.GetAbsPath(config.PublishDir), err)
 	}
@@ -130,6 +130,11 @@ func main() {
 
 }
 
+func copyStatic(config *hugolib.Config) error {
+	// Copy Static to Destination
+	return fsync.SyncDel(config.GetAbsPath(config.PublishDir+"/"), config.GetAbsPath(config.StaticDir+"/"))
+}
+
 func serve(port string, config *hugolib.Config) {
 
 	if config.Verbose {
@@ -153,9 +158,14 @@ func buildSite(config *hugolib.Config) (site *hugolib.Site, err error) {
 	return site, nil
 }
 
-func watchChange(c *hugolib.Config) {
-	fmt.Println("Change detected, rebuilding site\n")
-	buildSite(c)
+func watchChange(c *hugolib.Config, ev *fsnotify.FileEvent) {
+	if strings.HasPrefix(ev.Name, c.GetAbsPath(c.StaticDir)) {
+		fmt.Println("Static file changed, syncing\n")
+		copyStatic(c)
+	} else {
+		fmt.Println("Change detected, rebuilding site\n")
+		buildSite(c)
+	}
 }
 
 func NewWatcher(c *hugolib.Config, port string, server bool) error {
@@ -163,8 +173,8 @@ func NewWatcher(c *hugolib.Config, port string, server bool) error {
 	var wg sync.WaitGroup
 
 	if err != nil {
-		return err
 		fmt.Println(err)
+		return err
 	}
 
 	defer watcher.Close()
@@ -174,11 +184,10 @@ func NewWatcher(c *hugolib.Config, port string, server bool) error {
 		for {
 			select {
 			case ev := <-watcher.Event:
-				var _ = ev
 				if c.Verbose {
 					fmt.Println(ev)
 				}
-				watchChange(c)
+				watchChange(c, ev)
 				// TODO add newly created directories to the watch list
 			case err := <-watcher.Error:
 				if err != nil {
@@ -218,6 +227,7 @@ func getDirList(c *hugolib.Config) []string {
 
 	filepath.Walk(c.GetAbsPath(c.ContentDir), walker)
 	filepath.Walk(c.GetAbsPath(c.LayoutDir), walker)
+	filepath.Walk(c.GetAbsPath(c.StaticDir), walker)
 
 	return a
 }
