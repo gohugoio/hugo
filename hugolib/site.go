@@ -362,8 +362,13 @@ func (s *Site) BuildSiteMeta() (err error) {
 			vals := p.GetParam(plural)
 
 			if vals != nil {
-				for _, idx := range vals.([]string) {
-					s.Indexes[plural].Add(idx, s.Pages[i])
+				v, ok := vals.([]string)
+				if ok {
+					for _, idx := range v {
+						s.Indexes[plural].Add(idx, s.Pages[i])
+					}
+				} else {
+					PrintErr("Invalid " + plural + " in " + p.File.FileName)
 				}
 			}
 		}
