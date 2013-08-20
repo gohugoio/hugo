@@ -119,7 +119,9 @@ func (site *Site) Render() (err error) {
 		return
 	}
 	site.timerStep("render pages")
-	site.RenderHomePage()
+	if err = site.RenderHomePage(); err != nil {
+		return
+        }
 	site.timerStep("render and write homepage")
 	return
 }
