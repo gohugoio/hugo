@@ -20,6 +20,7 @@ import (
 	"github.com/kr/pretty"
 	"html/template"
 	"os"
+	"os/exec"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -28,6 +29,8 @@ import (
 )
 
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
+var summaryLength = 70
+var summaryDivider = []byte("<!--more-->")
 
 // TODO: Make these wrappers private
 // Wrapper around Fprintf taking verbose flag in account.
@@ -328,4 +331,33 @@ func TruncateWordsToWholeSentence(s string, max int) string {
 
 func MakePermalink(domain string, path string) string {
 	return strings.TrimRight(domain, "/") + "/" + strings.TrimLeft(path, "/")
+}
+
+func getSummaryString(content []byte) ([]byte, bool) {
+	if (bytes.Contains(content, summaryDivider)) {
+		return bytes.Split(content, summaryDivider)[0], false
+	} else {
+		plainContent := StripHTML(StripShortcodes(string(content)))
+		return []byte(TruncateWordsToWholeSentence(plainContent, summaryLength)), true
+	}
+}
+
+func getRstContent(content []byte) string {
+	cleanContent := bytes.Replace(content, summaryDivider, []byte(""), 1)
+
+	cmd := exec.Command("rst2html.py", "--leave-comments")
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		fmt.Println(err)
+	}
+
+	rstLines := strings.Split(out.String(), "\n")
+	for i, line := range rstLines {
+		if strings.HasPrefix(line, "<body>") {
+			rstLines = (rstLines[i+1 : len(rstLines)-3])
+		}
+	}
+	return strings.Join(rstLines, "\n")
 }
