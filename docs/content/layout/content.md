@@ -65,8 +65,12 @@ It makes use of [chrome templates](/layout/chrome)
         </ul>
         </div>
         <div>
-            <a class="previous" href="{{.Prev.Permalink}}"> {{.Prev.Title}}</a>
-            <a class="next" href="{{.Next.Permalink}}"> {{.Next.Title}}</a>
+            {{ if .Prev }}
+              <a class="previous" href="{{.Prev.Permalink}}"> {{.Prev.Title}}</a>
+            {{ end }}
+            {{ if .Next }}
+              <a class="next" href="{{.Next.Permalink}}"> {{.Next.Title}}</a>
+            {{ end }}
         </div>
     </aside>
 
