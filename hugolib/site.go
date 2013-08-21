@@ -596,6 +596,18 @@ func (s *Site) RenderHomePage() error {
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 		s.WritePublic("index.xml", y.Bytes())
 	}
+
+	if a := s.Tmpl.Lookup("404.html"); a != nil {
+		n.Url = Urlize("404.html")
+		n.Title = "404 Page not found"
+		n.Permalink = template.HTML(string(n.Site.BaseUrl) + "404.html")
+		x, err := s.RenderThing(n, "404.html")
+		if err != nil {
+			return err
+		}
+		s.WritePublic("404.html", x.Bytes())
+	}
+
 	return nil
 }
 
