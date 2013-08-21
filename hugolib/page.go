@@ -26,7 +26,6 @@ import (
 	"io/ioutil"
 	"launchpad.net/goyaml"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -54,8 +53,6 @@ type Page struct {
 	Position
 	Node
 }
-
-const summaryLength = 70
 
 type File struct {
 	FileName, OutFile, Extension string
@@ -476,27 +473,25 @@ func (page *Page) parse(reader io.Reader) error {
 func (page *Page) convertMarkdown(lines io.Reader) {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
-	content := string(blackfriday.MarkdownCommon(b.Bytes()))
-	page.Content = template.HTML(content)
-	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
+	content := b.Bytes()
+	page.Content = template.HTML(string(blackfriday.MarkdownCommon(content)))
+	summary, plain := getSummaryString(content)
+	if plain {
+		page.Summary = template.HTML(string(summary))
+	} else {
+		page.Summary = template.HTML(string(blackfriday.MarkdownCommon(summary)))
+	}
 }
 
 func (page *Page) convertRestructuredText(lines io.Reader) {
-	cmd := exec.Command("rst2html.py")
-	cmd.Stdin = lines
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
+	b := new(bytes.Buffer)
+	b.ReadFrom(lines)
+	content := b.Bytes()
+	page.Content = template.HTML(getRstContent(content))
+	summary, plain := getSummaryString(content)
+	if plain {
+		page.Summary = template.HTML(string(summary))
+	} else {
+		page.Summary = template.HTML(getRstContent(summary))
 	}
-
-	rstLines := strings.Split(out.String(), "\n")
-	for i, line := range rstLines {
-		if strings.HasPrefix(line, "<body>") {
-			rstLines = (rstLines[i+1 : len(rstLines)-3])
-		}
-	}
-	content := strings.Join(rstLines, "\n")
-	page.Content = template.HTML(content)
-	page.Summary = template.HTML(TruncateWordsToWholeSentence(StripHTML(StripShortcodes(content)), summaryLength))
 }

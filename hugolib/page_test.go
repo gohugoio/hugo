@@ -91,6 +91,15 @@ layout: buzfoo
 ---
 type and layout set`
 
+var SIMPLE_PAGE_WITH_SUMMARY_DELIMITER = `---
+title: Simple
+---
+Simple Page
+
+<!--more-->
+Some more text
+`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil")
@@ -130,6 +139,12 @@ func checkPageContent(t *testing.T, page *Page, content string) {
 	}
 }
 
+func checkPageSummary(t *testing.T, page *Page, summary string) {
+	if page.Summary != template.HTML(summary) {
+		t.Fatalf("Page summary is: `%s`.  Expected `%s`", page.Summary, summary)
+	}
+}
+
 func checkPageType(t *testing.T, page *Page, pageType string) {
 	if page.Type() != pageType {
 		t.Fatalf("Page type is: %s.  Expected: %s", page.Type(), pageType)
@@ -149,6 +164,19 @@ func TestCreateNewPage(t *testing.T) {
 	}
 	checkPageTitle(t, p, "Simple")
 	checkPageContent(t, p, "<p>Simple Page</p>\n")
+	checkPageSummary(t, p, "Simple Page")
+	checkPageType(t, p, "page")
+	checkPageLayout(t, p, "page/single.html")
+}
+
+func TestPageWithDelimiter(t *testing.T) {
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER), "simple")
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageTitle(t, p, "Simple")
+	checkPageContent(t, p, "<p>Simple Page</p>\n\n<!--more-->\n\n<p>Some more text</p>\n")
+	checkPageSummary(t, p, "<p>Simple Page</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html")
 }
