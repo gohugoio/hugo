@@ -545,11 +545,15 @@ func (s *Site) RenderLists() error {
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
-		x, err := s.RenderThing(n, layout)
+		content, err := s.RenderThing(n, layout)
 		if err != nil {
-			return err
+			var err2 error
+			content, err2 = s.RenderThing(n, "_default/index.html")
+			if err2 != nil {
+				return err
+			}
 		}
-		s.WritePublic(section+"/index.html", x.Bytes())
+		s.WritePublic(section+"/index.html", content.Bytes())
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
