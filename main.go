@@ -132,7 +132,7 @@ func main() {
 
 func copyStatic(config *hugolib.Config) error {
 	// Copy Static to Destination
-	return fsync.SyncDel(config.GetAbsPath(config.PublishDir+"/"), config.GetAbsPath(config.StaticDir+"/"))
+	return fsync.Sync(config.GetAbsPath(config.PublishDir+"/"), config.GetAbsPath(config.StaticDir+"/"))
 }
 
 func serve(port string, config *hugolib.Config) {
