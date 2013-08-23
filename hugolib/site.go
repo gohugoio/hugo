@@ -163,6 +163,9 @@ func (s *Site) loadTemplates() {
 		}
 
 		if !fi.IsDir() {
+			if ignoreDotFile(path) {
+				return nil
+			}
 			filetext, err := ioutil.ReadFile(path)
 			if err != nil {
 				return err
