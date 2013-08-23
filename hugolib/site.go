@@ -169,14 +169,17 @@ func (s *Site) loadTemplates() {
 			if err != nil {
 				return err
 			}
-			text := string(filetext)
-			t := s.Tmpl.New(s.generateTemplateNameFrom(path))
-			template.Must(t.Parse(text))
+			s.addTemplate(s.generateTemplateNameFrom(path), string(filetext))
 		}
 		return nil
 	}
 
 	filepath.Walk(s.absLayoutDir(), walker)
+}
+
+func (s *Site) addTemplate(name, tmpl string) (err error) {
+	_, err = s.Tmpl.New(name).Parse(tmpl)
+	return
 }
 
 func (s *Site) generateTemplateNameFrom(path string) (name string) {
@@ -188,11 +191,9 @@ func (s *Site) primeTemplates() {
 	alias := "<!DOCTYPE html>\n <html>\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
 	alias_xhtml := "<!DOCTYPE html>\n <html xmlns=\"http://www.w3.org/1999/xhtml\">\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
 
-	t := s.Tmpl.New("alias")
-	template.Must(t.Parse(alias))
+	s.addTemplate("alias", alias)
+	s.addTemplate("alias-xhtml", alias_xhtml)
 
-	t = s.Tmpl.New("alias-xhtml")
-	template.Must(t.Parse(alias_xhtml))
 }
 
 func (s *Site) initialize() {
@@ -616,6 +617,9 @@ func (s *Site) NewNode() Node {
 }
 
 func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
+	if s.Tmpl.Lookup(layout) == nil {
+		return nil, errors.New("Layout not found")
+	}
 	buffer := new(bytes.Buffer)
 	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
 	return buffer, err
