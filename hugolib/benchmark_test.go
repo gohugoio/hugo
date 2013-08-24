@@ -12,7 +12,8 @@ func BenchmarkParsePage(b *testing.B) {
 	sample.ReadFrom(f)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ReadFrom(sample, "bench")
+		p, _ := ReadFrom(bytes.NewReader(sample.Bytes()), "bench")
+		p = p
 	}
 }
 

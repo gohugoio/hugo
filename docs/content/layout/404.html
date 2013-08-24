@@ -1,0 +1,31 @@
+---
+title: "404.html Templates"
+date: "2013-08-21"
+---
+
+When using Hugo with [github pages](http://pages.github.com/) you can provide
+your own 404 template by creating a 404.html file in the root.
+
+404 pages are of the type "node" and have all the [node
+variables](/layout/variables/) available to use in the templates.
+
+In addition to the standard node variables, the homepage has access to
+all site content accessible from .Data.Pages
+
+    ▾ layouts/
+        404.html
+
+## 404.html
+This is a basic example of a 404.html template:
+
+    {{ template "chrome/header.html" . }}
+    {{ template "chrome/subheader.html" . }}
+
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+      </div>
+    </section>
+
+    {{ template "chrome/footer.html" }}
+

@@ -6,9 +6,9 @@ import (
 
 func TestIgnoreDotFiles(t *testing.T) {
 	tests := []struct {
-		path string
+		path   string
 		ignore bool
-	} {
+	}{
 		{"barfoo.md", false},
 		{"foobar/barfoo.md", false},
 		{"foobar/.barfoo.md", true},

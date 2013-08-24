@@ -25,7 +25,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	//"sync"
 )
 
 var DefaultTimer = nitro.Initalize()
@@ -120,7 +119,9 @@ func (site *Site) Render() (err error) {
 		return
 	}
 	site.timerStep("render pages")
-	site.RenderHomePage()
+	if err = site.RenderHomePage(); err != nil {
+		return
+        }
 	site.timerStep("render and write homepage")
 	return
 }
@@ -163,18 +164,24 @@ func (s *Site) loadTemplates() {
 		}
 
 		if !fi.IsDir() {
+			if ignoreDotFile(path) {
+				return nil
+			}
 			filetext, err := ioutil.ReadFile(path)
 			if err != nil {
 				return err
 			}
-			text := string(filetext)
-			t := s.Tmpl.New(s.generateTemplateNameFrom(path))
-			template.Must(t.Parse(text))
+			s.addTemplate(s.generateTemplateNameFrom(path), string(filetext))
 		}
 		return nil
 	}
 
 	filepath.Walk(s.absLayoutDir(), walker)
+}
+
+func (s *Site) addTemplate(name, tmpl string) (err error) {
+	_, err = s.Tmpl.New(name).Parse(tmpl)
+	return
 }
 
 func (s *Site) generateTemplateNameFrom(path string) (name string) {
@@ -186,11 +193,9 @@ func (s *Site) primeTemplates() {
 	alias := "<!DOCTYPE html>\n <html>\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
 	alias_xhtml := "<!DOCTYPE html>\n <html xmlns=\"http://www.w3.org/1999/xhtml\">\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
 
-	t := s.Tmpl.New("alias")
-	template.Must(t.Parse(alias))
+	s.addTemplate("alias", alias)
+	s.addTemplate("alias-xhtml", alias_xhtml)
 
-	t = s.Tmpl.New("alias-xhtml")
-	template.Must(t.Parse(alias_xhtml))
 }
 
 func (s *Site) initialize() {
@@ -378,8 +383,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	for i, p := range s.Pages {
-		sect := p.GetSection()
-		s.Sections.Add(sect, s.Pages[i])
+		s.Sections.Add(p.Section, s.Pages[i])
 	}
 
 	for k, _ := range s.Sections {
@@ -600,6 +604,18 @@ func (s *Site) RenderHomePage() error {
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 		s.WritePublic("index.xml", y.Bytes())
 	}
+
+	if a := s.Tmpl.Lookup("404.html"); a != nil {
+		n.Url = Urlize("404.html")
+		n.Title = "404 Page not found"
+		n.Permalink = template.HTML(string(n.Site.BaseUrl) + "404.html")
+		x, err := s.RenderThing(n, "404.html")
+		if err != nil {
+			return err
+		}
+		s.WritePublic("404.html", x.Bytes())
+	}
+
 	return nil
 }
 
@@ -619,6 +635,9 @@ func (s *Site) NewNode() Node {
 }
 
 func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
+	if s.Tmpl.Lookup(layout) == nil {
+		return nil, errors.New("Layout not found")
+	}
 	buffer := new(bytes.Buffer)
 	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
 	return buffer, err
