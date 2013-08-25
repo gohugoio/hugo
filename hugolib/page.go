@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/theplant/blackfriday"
+	"github.com/noahcampbell/akebia/parser"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -30,7 +31,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"unicode"
 )
 
 var _ = filepath.Base("")
@@ -158,32 +158,6 @@ func (p *Page) analyzePage() {
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 }
 
-func splitPageContent(data []byte, start string, end string) ([]string, []string) {
-	lines := strings.Split(string(data), "\n")
-	datum := lines[0:]
-
-	var found = 0
-	if start != end {
-		for i, line := range lines {
-
-			if strings.HasPrefix(line, start) {
-				found += 1
-			}
-
-			if strings.HasPrefix(line, end) {
-				found -= 1
-			}
-
-			if found == 0 {
-				datum = lines[0 : i+1]
-				lines = lines[i+1:]
-				break
-			}
-		}
-	}
-	return datum, lines
-}
-
 func (p *Page) Permalink() template.HTML {
 	if len(strings.TrimSpace(p.Slug)) > 0 {
 		if p.Site.Config.UglyUrls {
@@ -207,10 +181,15 @@ func (p *Page) Permalink() template.HTML {
 
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
+	datum = removeTomlIdentifier(datum)
 	if _, err := toml.Decode(string(datum), &m); err != nil {
 		return m, fmt.Errorf("Invalid TOML in %s \nError parsing page meta data: %s", page.FileName, err)
 	}
 	return m, nil
+}
+
+func removeTomlIdentifier(datum []byte) []byte {
+	return bytes.Replace(datum, []byte("+++"), []byte(""), -1)
 }
 
 func (page *Page) handleYamlMetaData(datum []byte) (interface{}, error) {
@@ -303,73 +282,6 @@ func (page *Page) GetParam(key string) interface{} {
 	return nil
 }
 
-var ErrDetectingFrontMatter = errors.New("unable to detect front matter")
-var ErrMatchingStartingFrontMatterDelimiter = errors.New("unable to match beginning front matter delimiter")
-var ErrMatchingEndingFrontMatterDelimiter = errors.New("unable to match ending front matter delimiter")
-
-func (page *Page) parseFrontMatter(data *bufio.Reader) (err error) {
-
-	if err = checkEmpty(data); err != nil {
-		return
-	}
-
-	var mark rune
-	if mark, err = chompWhitespace(data); err != nil {
-		return
-	}
-
-	f := page.detectFrontMatter(mark)
-	if f == nil {
-		return ErrDetectingFrontMatter
-	}
-
-	if found, err := beginFrontMatter(data, f); err != nil || !found {
-		return ErrMatchingStartingFrontMatterDelimiter
-	}
-
-	var frontmatter = new(bytes.Buffer)
-	for {
-		line, _, err := data.ReadLine()
-		if err != nil {
-			if err == io.EOF {
-				return ErrMatchingEndingFrontMatterDelimiter
-			}
-			return err
-		}
-
-		if bytes.Equal(line, f.markend) {
-			if f.includeMark {
-				frontmatter.Write(line)
-			}
-			break
-		}
-
-		frontmatter.Write(line)
-		frontmatter.Write([]byte{'\n'})
-	}
-
-	metadata, err := f.parse(frontmatter.Bytes())
-	if err != nil {
-		return
-	}
-
-	if err = page.update(metadata); err != nil {
-		return
-	}
-
-	return
-}
-
-func checkEmpty(data *bufio.Reader) (err error) {
-	if _, _, err = data.ReadRune(); err != nil {
-		return errors.New("unable to locate front matter")
-	}
-	if err = data.UnreadRune(); err != nil {
-		return errors.New("unable to unread first charactor in page buffer.")
-	}
-	return
-}
-
 type frontmatterType struct {
 	markstart, markend []byte
 	parse              func([]byte) (interface{}, error)
@@ -386,37 +298,6 @@ func (page *Page) detectFrontMatter(mark rune) (f *frontmatterType) {
 		return &frontmatterType{[]byte{'{'}, []byte{'}'}, page.handleJsonMetaData, true}
 	default:
 		return nil
-	}
-}
-
-func beginFrontMatter(data *bufio.Reader, f *frontmatterType) (bool, error) {
-	var err error
-	var peek []byte
-	if f.includeMark {
-		peek, err = data.Peek(len(f.markstart))
-	} else {
-		peek = make([]byte, len(f.markstart))
-		_, err = data.Read(peek)
-	}
-	if err != nil {
-		return false, err
-	}
-	return bytes.Equal(peek, f.markstart), nil
-}
-
-func chompWhitespace(data *bufio.Reader) (r rune, err error) {
-	for {
-		r, _, err = data.ReadRune()
-		if err != nil {
-			return
-		}
-		if unicode.IsSpace(r) {
-			continue
-		}
-		if err := data.UnreadRune(); err != nil {
-			return r, errors.New("unable to unread first charactor in front matter.")
-		}
-		return r, nil
 	}
 }
 
@@ -454,18 +335,30 @@ func (page *Page) buildPageFromFile() error {
 }
 
 func (page *Page) parse(reader io.Reader) error {
-	data := bufio.NewReader(reader)
-
-	err := page.parseFrontMatter(data)
+	p, err := parser.ReadFrom(reader)
 	if err != nil {
+		return err
+	}
+
+	front := p.FrontMatter()
+	if len(front) == 0 {
+		return errors.New("Unable to locate frontmatter")
+	}
+	fm := page.detectFrontMatter(rune(front[0]))
+	meta, err := fm.parse(front)
+	if err != nil {
+		return err
+	}
+
+	if err = page.update(meta); err != nil {
 		return err
 	}
 
 	switch page.Markup {
 	case "md":
-		page.convertMarkdown(data)
+		page.convertMarkdown(bytes.NewReader(p.Content()))
 	case "rst":
-		page.convertRestructuredText(data)
+		page.convertRestructuredText(bytes.NewReader(p.Content()))
 	}
 	return nil
 }
