@@ -447,13 +447,9 @@ func (s *Site) RenderAliases() error {
 
 func (s *Site) RenderPages() error {
 	for i, _ := range s.Pages {
-		content, err := s.RenderThing(s.Pages[i], s.Pages[i].Layout())
+		content, err := s.RenderThingOrDefault(s.Pages[i], s.Pages[i].Layout(), "_default/single.html")
 		if err != nil {
-			var err2 error
-			content, err2 = s.RenderThing(s.Pages[i], "_default/single.html")
-			if err2 != nil {
-				return err
-			}
+			return err
 		}
 		s.Pages[i].RenderedContent = content
 	}
@@ -549,13 +545,9 @@ func (s *Site) RenderLists() error {
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
-		content, err := s.RenderThing(n, layout)
+		content, err := s.RenderThingOrDefault(n, layout, "_default/index.html")
 		if err != nil {
-			var err2 error
-			content, err2 = s.RenderThing(n, "_default/index.html")
-			if err2 != nil {
-				return err
-			}
+			return err
 		}
 		s.WritePublic(section+"/index.html", content.Bytes())
 
@@ -641,6 +633,18 @@ func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) 
 	buffer := new(bytes.Buffer)
 	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
 	return buffer, err
+}
+
+func (s *Site) RenderThingOrDefault(d interface{}, layout string, defaultLayout string) (*bytes.Buffer, error) {
+	content, err := s.RenderThing(d, layout)
+	if err != nil {
+		var err2 error
+		content, err2 = s.RenderThing(d, defaultLayout)
+		if err2 == nil {
+			return content, err2
+		}
+	}
+	return content, err
 }
 
 func (s *Site) NewXMLBuffer() *bytes.Buffer {

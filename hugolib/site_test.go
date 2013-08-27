@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"fmt"
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -104,8 +105,8 @@ func TestRenderThing(t *testing.T) {
 			t.Fatalf("Unable to add template")
 		}
 
-		html, err := s.RenderThing(p, templateName)
-		if err != nil {
+		html, err2 := s.RenderThing(p, templateName)
+		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
 		}
 
@@ -114,3 +115,47 @@ func TestRenderThing(t *testing.T) {
 		}
 	}
 }
+
+func TestRenderThingOrDefault(t *testing.T) {
+	tests := []struct {
+		content  string
+		missing  bool
+		template string
+		expected string
+	}{
+		{PAGE_SIMPLE_TITLE, true, TEMPLATE_TITLE, "simple template"},
+		{PAGE_SIMPLE_TITLE, true, TEMPLATE_FUNC, "simple-template"},
+		{PAGE_SIMPLE_TITLE, false, TEMPLATE_TITLE, "simple template"},
+		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, "simple-template"},
+	}
+
+	s := new(Site)
+	s.prepTemplates()
+
+	for i, test := range tests {
+		p, err := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+		if err != nil {
+			t.Fatalf("Error parsing buffer: %s", err)
+		}
+		templateName := fmt.Sprintf("default%d", i)
+		err = s.addTemplate(templateName, test.template)
+		if err != nil {
+			t.Fatalf("Unable to add template")
+		}
+
+		var html *bytes.Buffer
+		var err2 error
+		if test.missing {
+			html, err2 = s.RenderThingOrDefault(p, "missing", templateName)
+		} else {
+			html, err2 = s.RenderThingOrDefault(p, templateName, "missing_default")
+		}
+
+		if err2 != nil {
+			t.Errorf("Unable to render html: %s", err)
+		}
+
+		if string(html.Bytes()) != test.expected {
+			t.Errorf("Content does not match.  Expected '%s', got '%s'", test.expected, html)
+		}
+	}}
