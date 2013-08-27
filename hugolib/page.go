@@ -433,7 +433,11 @@ func (p *Page) Render(layout ...string) template.HTML {
 func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 	l := p.Layout(layout)
 	buffer := new(bytes.Buffer)
-	p.Tmpl.ExecuteTemplate(buffer, l, p)
+	err := p.Tmpl.ExecuteTemplate(buffer, l, p)
+	if err != nil {
+		defaultLayout :=  "_default/" + layout + ".html"
+		p.Tmpl.ExecuteTemplate(buffer, defaultLayout, p)
+	}
 	return buffer
 }
 

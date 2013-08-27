@@ -1,0 +1,8 @@
+{{ template "chrome/header.html" . }}
+    <h1>{{ .Title }}</h1>
+    <ul>
+    {{ range .Data.Pages }}
+        {{ .Render "li" }}
+    {{ end }}
+    </ul>
+{{ template "chrome/footer.html" . }}
