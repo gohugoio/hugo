@@ -33,7 +33,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	}
 }
 
-func TestPrimeTempaltes(t *testing.T) {
+func TestPrimeTemplates(t *testing.T) {
 	s := new(Site)
 	s.prepTemplates()
 	s.primeTemplates()
