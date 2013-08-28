@@ -185,24 +185,30 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 }
 
 func (p *Page) Permalink() template.HTML {
-	if len(strings.TrimSpace(p.Slug)) > 0 {
+	baseUrl := string(p.Site.BaseUrl)
+	section := strings.TrimSpace(p.Section)
+	pSlug := strings.TrimSpace(p.Slug)
+	pUrl := strings.TrimSpace(p.Url)
+	var path string
+	if len(pSlug) > 0 {
 		if p.Site.Config.UglyUrls {
-			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug+"."+p.Extension))
+			path = section + "/" + p.Slug + "." + p.Extension
 		} else {
-			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+p.Slug+"/"))
+			path = section + "/" + p.Slug + "/"
 		}
-	} else if len(strings.TrimSpace(p.Url)) > 2 {
-		return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Url)))
+	} else if len(pUrl) > 2 {
+		path = pUrl
 	} else {
 		_, t := filepath.Split(p.FileName)
 		if p.Site.Config.UglyUrls {
 			x := replaceExtension(strings.TrimSpace(t), p.Extension)
-			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+x))
+			path = section + "/" + x
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			return template.HTML(MakePermalink(string(p.Site.BaseUrl), strings.TrimSpace(p.Section)+"/"+file))
+			path = section + "/" + file
 		}
 	}
+	return template.HTML(MakePermalink(baseUrl, path))
 }
 
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
