@@ -332,6 +332,10 @@ func (s *Site) setOutFile(p *Page) {
 	// Always use Url if it's specified
 	if len(strings.TrimSpace(p.Url)) > 2 {
 		p.OutFile = strings.TrimSpace(p.Url)
+
+		if strings.HasSuffix(p.OutFile, "/") {
+			p.OutFile = p.OutFile + "index.html"
+		}
 		return
 	}
 
