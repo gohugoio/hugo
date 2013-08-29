@@ -21,6 +21,7 @@ are available in the context for the templates.
 **.Next** Pointer to the following content (based on pub date)<br>
 **.Site** See site variables below<br>
 **.Content** The content itself, defined below the front matter.<br>
+**.Summary** A generated summary of the content for easily showing a snippet in a summary view.<br>
 
 Any value defined in the front matter, including indexes will be made available under `.Params`.
 Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
