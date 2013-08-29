@@ -16,6 +16,12 @@ content`
 var TEMPLATE_MISSING_FUNC = "{{ .Title | funcdoesnotexists }}"
 var TEMPLATE_FUNC = "{{ .Title | urlize }}"
 
+var PAGE_URL_SPECIFIED = `---
+title: simple template
+url: "mycategory/my-whatever-content/"
+---
+content`
+
 func pageMust(p *Page, err error) *Page {
 	if err != nil {
 		panic(err)
@@ -159,3 +165,15 @@ func TestRenderThingOrDefault(t *testing.T) {
 			t.Errorf("Content does not match.  Expected '%s', got '%s'", test.expected, html)
 		}
 	}}
+
+func TestSetOutFile(t *testing.T) {
+    s := new(Site)
+	p := pageMust(ReadFrom(strings.NewReader(PAGE_URL_SPECIFIED), "content/a/file.md"))
+    s.setOutFile(p)
+
+    expected := "mycategory/my-whatever-content/index.html"
+
+    if p.OutFile != "mycategory/my-whatever-content/index.html" {
+        t.Errorf("Outfile does not match.  Expected '%s', got '%s'", expected, p.OutFile)
+    }
+}
