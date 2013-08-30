@@ -334,7 +334,7 @@ func MakePermalink(domain string, path string) string {
 }
 
 func getSummaryString(content []byte) ([]byte, bool) {
-	if (bytes.Contains(content, summaryDivider)) {
+	if bytes.Contains(content, summaryDivider) {
 		return bytes.Split(content, summaryDivider)[0], false
 	} else {
 		plainContent := StripHTML(StripShortcodes(string(content)))

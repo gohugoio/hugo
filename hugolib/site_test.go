@@ -1,8 +1,8 @@
 package hugolib
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -164,16 +164,17 @@ func TestRenderThingOrDefault(t *testing.T) {
 		if string(html.Bytes()) != test.expected {
 			t.Errorf("Content does not match.  Expected '%s', got '%s'", test.expected, html)
 		}
-	}}
+	}
+}
 
 func TestSetOutFile(t *testing.T) {
-    s := new(Site)
+	s := new(Site)
 	p := pageMust(ReadFrom(strings.NewReader(PAGE_URL_SPECIFIED), "content/a/file.md"))
-    s.setOutFile(p)
+	s.setOutFile(p)
 
-    expected := "mycategory/my-whatever-content/index.html"
+	expected := "mycategory/my-whatever-content/index.html"
 
-    if p.OutFile != "mycategory/my-whatever-content/index.html" {
-        t.Errorf("Outfile does not match.  Expected '%s', got '%s'", expected, p.OutFile)
-    }
+	if p.OutFile != "mycategory/my-whatever-content/index.html" {
+		t.Errorf("Outfile does not match.  Expected '%s', got '%s'", expected, p.OutFile)
+	}
 }

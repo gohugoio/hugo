@@ -121,7 +121,7 @@ func (site *Site) Render() (err error) {
 	site.timerStep("render pages")
 	if err = site.RenderHomePage(); err != nil {
 		return
-        }
+	}
 	site.timerStep("render and write homepage")
 	return
 }
@@ -203,7 +203,7 @@ func (s *Site) initialize() {
 
 	s.checkDirectories()
 
-	staticDir := s.Config.GetAbsPath(s.Config.StaticDir+"/")
+	staticDir := s.Config.GetAbsPath(s.Config.StaticDir + "/")
 
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -212,7 +212,7 @@ func (s *Site) initialize() {
 		}
 
 		if fi.IsDir() {
-			if (path == staticDir) {
+			if path == staticDir {
 				return filepath.SkipDir
 			}
 			site.Directories = append(site.Directories, path)
@@ -432,7 +432,7 @@ func inStringArray(arr []string, el string) bool {
 func (s *Site) RenderAliases() error {
 	for i, p := range s.Pages {
 		for _, a := range p.Aliases {
-			t := "alias";
+			t := "alias"
 			if strings.HasSuffix(a, ".xhtml") {
 				t = "alias-xhtml"
 			}
