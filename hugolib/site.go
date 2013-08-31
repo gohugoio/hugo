@@ -36,7 +36,6 @@ type Site struct {
 	Tmpl        *template.Template
 	Indexes     IndexList
 	Files       []string
-	Directories []string
 	Sections    Index
 	Info        SiteInfo
 	Shortcodes  map[string]ShortcodeFunc
@@ -213,7 +212,6 @@ func (s *Site) initialize() {
 			if path == staticDir {
 				return filepath.SkipDir
 			}
-			site.Directories = append(site.Directories, path)
 			return nil
 		} else {
 			if ignoreDotFile(path) {
