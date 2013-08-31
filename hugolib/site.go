@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/spf13/hugo/target"
 	"github.com/spf13/nitro"
 	"html/template"
 	"io/ioutil"
@@ -40,6 +41,7 @@ type Site struct {
 	Info        SiteInfo
 	Shortcodes  map[string]ShortcodeFunc
 	timer       *nitro.B
+	Target      target.Publisher
 }
 
 type SiteInfo struct {
@@ -628,7 +630,7 @@ func (s *Site) NewNode() Node {
 
 func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
 	if s.Tmpl.Lookup(layout) == nil {
-		return nil, errors.New("Layout not found")
+		return nil, errors.New(fmt.Sprintf("Layout not found: %s", layout))
 	}
 	buffer := new(bytes.Buffer)
 	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
@@ -653,6 +655,10 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 }
 
 func (s *Site) WritePublic(path string, content []byte) {
+
+	if s.Target != nil {
+		s.Target.Publish(path, bytes.NewReader(content))
+	}
 
 	if s.Config.Verbose {
 		fmt.Println(path)
