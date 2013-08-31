@@ -107,13 +107,9 @@ func (site *Site) Render() (err error) {
 	if err = site.RenderIndexes(); err != nil {
 		return
 	}
-	if err = site.RenderIndexesIndexes(); err != nil {
-		return
-	}
+	site.RenderIndexesIndexes()
 	site.timerStep("render and write indexes")
-	if err = site.RenderLists(); err != nil {
-		return
-	}
+	site.RenderLists()
 	site.timerStep("render and write lists")
 	if err = site.RenderPages(); err != nil {
 		return
