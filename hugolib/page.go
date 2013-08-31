@@ -87,6 +87,7 @@ func NewPage(filename string) *Page {
 		Params: make(map[string]interface{}),
 		Markup: "md"}
 	page.Date, _ = time.Parse("20060102", "20080101")
+	page.guessSection()
 	return &page
 }
 
