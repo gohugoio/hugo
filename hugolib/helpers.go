@@ -270,6 +270,10 @@ func WordCount(s string) map[string]int {
 	return m
 }
 
+func RemoveSummaryDivider(content []byte) []byte {
+	return bytes.Replace(content, summaryDivider, []byte(""), -1)
+}
+
 func StripHTML(s string) string {
 	output := ""
 

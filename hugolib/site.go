@@ -31,16 +31,16 @@ import (
 var DefaultTimer = nitro.Initalize()
 
 type Site struct {
-	Config      Config
-	Pages       Pages
-	Tmpl        *template.Template
-	Indexes     IndexList
-	Files       []string
-	Sections    Index
-	Info        SiteInfo
-	Shortcodes  map[string]ShortcodeFunc
-	timer       *nitro.B
-	Target      target.Publisher
+	Config     Config
+	Pages      Pages
+	Tmpl       *template.Template
+	Indexes    IndexList
+	Files      []string
+	Sections   Index
+	Info       SiteInfo
+	Shortcodes map[string]ShortcodeFunc
+	timer      *nitro.B
+	Target     target.Publisher
 }
 
 type SiteInfo struct {
