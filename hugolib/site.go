@@ -592,10 +592,11 @@ func (s *Site) Stats() {
 	}
 }
 
-func (s *Site) NewNode() (y Node) {
-	y.Data = make(map[string]interface{})
-	y.Site = s.Info
-	return y
+func (s *Site) NewNode() *Node {
+	return &Node{
+		Data: make(map[string]interface{}),
+		Site: s.Info,
+	}
 }
 
 func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
