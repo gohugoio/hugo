@@ -100,6 +100,14 @@ Simple Page
 Some more text
 `
 
+var SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
+title: Simple
+---
+Simple Page<!--more-->
+
+Some more text
+`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil")
@@ -175,7 +183,20 @@ func TestPageWithDelimiter(t *testing.T) {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 	checkPageTitle(t, p, "Simple")
-	checkPageContent(t, p, "<p>Simple Page</p>\n\n<!--more-->\n\n<p>Some more text</p>\n")
+	checkPageContent(t, p, "<p>Simple Page</p>\n\n<p>Some more text</p>\n")
+	checkPageSummary(t, p, "<p>Simple Page</p>\n")
+	checkPageType(t, p, "page")
+	checkPageLayout(t, p, "page/single.html")
+
+}
+
+func TestPageWithMoreTag(t *testing.T) {
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE), "simple")
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageTitle(t, p, "Simple")
+	checkPageContent(t, p, "<p>Simple Page</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Simple Page</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html")

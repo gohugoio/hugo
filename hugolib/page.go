@@ -481,7 +481,7 @@ func (page *Page) convertMarkdown(lines io.Reader) {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	content := b.Bytes()
-	page.Content = template.HTML(string(blackfriday.MarkdownCommon(content)))
+	page.Content = template.HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
 	summary, plain := getSummaryString(content)
 	if plain {
 		page.Summary = template.HTML(string(summary))
