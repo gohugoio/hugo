@@ -1,8 +1,8 @@
 package hugolib
 
 import (
-	"testing"
 	"bytes"
+	"testing"
 )
 
 func checkShowPlanExpected(t *testing.T, expected, got string) {
@@ -15,7 +15,7 @@ func TestDegenerateNoFiles(t *testing.T) {
 	s := new(Site)
 	out := new(bytes.Buffer)
 	if err := s.ShowPlan(out); err != nil {
-		t.Errorf("ShowPlan unexpectedly returned an error: %s", err) 
+		t.Errorf("ShowPlan unexpectedly returned an error: %s", err)
 	}
 	expected := "No source files provided.\n"
 	got := out.String()

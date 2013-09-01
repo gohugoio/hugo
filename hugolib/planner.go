@@ -1,8 +1,8 @@
 package hugolib
 
 import (
-	"io"
 	"fmt"
+	"io"
 )
 
 func (s *Site) ShowPlan(out io.Writer) (err error) {
