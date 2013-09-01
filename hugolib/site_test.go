@@ -15,12 +15,22 @@ content`
 
 var TEMPLATE_MISSING_FUNC = "{{ .Title | funcdoesnotexists }}"
 var TEMPLATE_FUNC = "{{ .Title | urlize }}"
+var TEMPLATE_CONTENT = "{{ .Content }}"
 
 var PAGE_URL_SPECIFIED = `---
 title: simple template
 url: "mycategory/my-whatever-content/"
 ---
 content`
+
+var PAGE_WITH_MD = `---
+title: page with md
+---
+# heading 1
+text
+## heading 2
+more text
+`
 
 func pageMust(p *Page, err error) *Page {
 	if err != nil {
@@ -94,13 +104,14 @@ func TestRenderThing(t *testing.T) {
 	}{
 		{PAGE_SIMPLE_TITLE, TEMPLATE_TITLE, "simple template"},
 		{PAGE_SIMPLE_TITLE, TEMPLATE_FUNC, "simple-template"},
+		{PAGE_WITH_MD, TEMPLATE_CONTENT, "<h1>heading 1</h1>\n<p>text</p>\n<h2>heading 2</h2>\n<p>more text</p>\n"},
 	}
 
 	s := new(Site)
 	s.prepTemplates()
 
 	for i, test := range tests {
-		p, err := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+		p, err := ReadFrom(strings.NewReader(test.content), "content/a/file.md")
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
@@ -116,7 +127,7 @@ func TestRenderThing(t *testing.T) {
 		}
 
 		if string(html.Bytes()) != test.expected {
-			t.Errorf("Content does not match.  Expected '%s', got '%s'", test.expected, html)
+			t.Errorf("Content does not match.  Expected\n\t'%q'\ngot\n\t'%q'", test.expected, html)
 		}
 	}
 }

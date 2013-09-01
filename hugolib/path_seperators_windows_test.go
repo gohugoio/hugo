@@ -4,13 +4,14 @@ import (
 	"testing"
 )
 
+const (
+	win_base = "c:\\a\\windows\\path\\layout"
+	win_path = "c:\\a\\windows\\path\\layout\\sub1\\index.html"
+)
+
 func TestTemplatePathSeperator(t *testing.T) {
-	config := Config{
-		LayoutDir: "c:\\a\\windows\\path\\layout",
-		Path:      "c:\\a\\windows\\path",
-	}
-	s := &Site{Config: config}
-	if name := s.generateTemplateNameFrom("c:\\a\\windows\\path\\layout\\sub1\\index.html"); name != "sub1/index.html" {
+	tmpl := new(GoHtmlTemplate)
+	if name := tmpl.generateTemplateNameFrom(win_base, win_path); name != "sub1/index.html" {
 		t.Fatalf("Template name incorrect.  Expected: %s, Got: %s", "sub1/index.html", name)
 	}
 }
