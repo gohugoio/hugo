@@ -16,7 +16,6 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"strings"
 	"unicode"
 )
@@ -37,7 +36,7 @@ type ShortcodeWithPage struct {
 
 type Shortcodes map[string]ShortcodeFunc
 
-func ShortcodesHandle(stringToParse string, p *Page, t *template.Template) string {
+func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
 	posStart := strings.Index(stringToParse, "{{%")
 	if posStart > 0 {
 		posEnd := strings.Index(stringToParse[posStart:], "%}}") + posStart
@@ -124,7 +123,7 @@ func SplitParams(in string) (name string, par2 string) {
 	return strings.TrimSpace(in[:i+1]), strings.TrimSpace(in[i+1:])
 }
 
-func ShortcodeRender(name string, data *ShortcodeWithPage, t *template.Template) string {
+func ShortcodeRender(name string, data *ShortcodeWithPage, t Template) string {
 	buffer := new(bytes.Buffer)
 	t.ExecuteTemplate(buffer, "shortcodes/"+name+".html", data)
 	return buffer.String()
