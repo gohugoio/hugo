@@ -3,7 +3,9 @@ package target
 import (
 	"fmt"
 	"io"
+	"os"
 	"path"
+	"path/filepath"
 )
 
 type Publisher interface {
@@ -17,9 +19,39 @@ type Translator interface {
 type Filesystem struct {
 	UglyUrls         bool
 	DefaultExtension string
+	PublishDir       string
+}
+
+func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
+
+	translated, err := fs.Translate(path)
+	if err != nil {
+		return
+	}
+
+	path, _ = filepath.Split(translated)
+	dest := filepath.Join(fs.PublishDir, path)
+	ospath := filepath.FromSlash(dest)
+
+	err = os.MkdirAll(ospath, 0764) // rwx, rw, r
+	if err != nil {
+		return
+	}
+
+	file, err := os.Create(filepath.Join(fs.PublishDir, translated))
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, r)
+	return
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {
+	if src == "/" {
+		return "index.html", nil
+	}
 	if fs.UglyUrls {
 		return src, nil
 	}

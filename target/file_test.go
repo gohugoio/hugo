@@ -9,6 +9,8 @@ func TestFileTranslator(t *testing.T) {
 		content  string
 		expected string
 	}{
+		{"/", "index.html"},
+		{"index.html", "index/index.html"},
 		{"foo", "foo/index.html"},
 		{"foo.html", "foo/index.html"},
 		{"foo.xhtml", "foo/index.xhtml"},
@@ -31,14 +33,25 @@ func TestFileTranslator(t *testing.T) {
 }
 
 func TestTranslateUglyUrls(t *testing.T) {
-	f := &Filesystem{UglyUrls: true}
-	dest, err := f.Translate("foo.html")
-	if err != nil {
-		t.Fatalf("Translate returned an unexpected err: %s", err)
+	tests := []struct {
+		content  string
+		expected string
+	}{
+		{"foo.html", "foo.html"},
+		{"/", "index.html"},
+		{"index.html", "index.html"},
 	}
 
-	if dest != "foo.html" {
-		t.Errorf("Translate expected return: %s, got: %s", "foo.html", dest)
+	for _, test := range tests {
+		f := &Filesystem{UglyUrls: true}
+		dest, err := f.Translate(test.content)
+		if err != nil {
+			t.Fatalf("Translate returned an unexpected err: %s", err)
+		}
+
+		if dest != test.expected {
+			t.Errorf("Translate expected return: %s, got: %s", test.expected, dest)
+		}
 	}
 }
 

@@ -329,21 +329,11 @@ func (s *Site) setOutFile(p *Page) {
 
 	var outfile string
 	if len(strings.TrimSpace(p.Slug)) > 0 {
-		// Use Slug if provided
-		if s.Config.UglyUrls {
-			outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
-		} else {
-			outfile = filepath.Join(strings.TrimSpace(p.Slug), "index."+p.Extension)
-		}
+		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
 	} else {
 		// Fall back to filename
 		_, t := filepath.Split(p.FileName)
-		if s.Config.UglyUrls {
-			outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
-		} else {
-			file, _ := fileExt(strings.TrimSpace(t))
-			outfile = filepath.Join(file, "index."+p.Extension)
-		}
+		outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
 	}
 
 	p.OutFile = p.Path + string(os.PathSeparator) + strings.TrimSpace(outfile)
@@ -467,13 +457,8 @@ func (s *Site) RenderIndexes() error {
 			n := s.NewNode()
 			n.Title = strings.Title(k)
 			url := helpers.Urlize(plural + "/" + k)
-			plink := url
-			if s.Config.UglyUrls {
-				n.Url = url + ".html"
-				plink = n.Url
-			} else {
-				n.Url = url + "/index.html"
-			}
+			n.Url = url + ".html"
+			plink := n.Url
 			n.Permalink = permalink(s, plink)
 			n.RSSlink = permalink(s, url+".xml")
 			n.Date = o[0].Date
@@ -486,12 +471,7 @@ func (s *Site) RenderIndexes() error {
 			}
 
 			var base string
-			if s.Config.UglyUrls {
-				base = plural + "/" + k
-			} else {
-				base = plural + "/" + k + "/" + "index"
-			}
-
+			base = plural + "/" + k
 			err = s.WritePublic(base+".html", x.Bytes())
 			if err != nil {
 				return err
@@ -500,11 +480,7 @@ func (s *Site) RenderIndexes() error {
 			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 				// XML Feed
 				y := s.NewXMLBuffer()
-				if s.Config.UglyUrls {
-					n.Url = helpers.Urlize(plural + "/" + k + ".xml")
-				} else {
-					n.Url = helpers.Urlize(plural + "/" + k + "/" + "index.xml")
-				}
+				n.Url = helpers.Urlize(plural + "/" + k + ".xml")
 				n.Permalink = permalink(s, n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 				err = s.WritePublic(base+".xml", y.Bytes())
@@ -567,11 +543,7 @@ func (s *Site) RenderLists() error {
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
-			if s.Config.UglyUrls {
-				n.Url = helpers.Urlize(section + ".xml")
-			} else {
-				n.Url = helpers.Urlize(section + "/" + "index.xml")
-			}
+			n.Url = Urlize(section + ".xml")
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
@@ -600,7 +572,7 @@ func (s *Site) RenderHomePage() error {
 	if err != nil {
 		return err
 	}
-	err = s.WritePublic("index.html", x.Bytes())
+	err = s.WritePublic("/", x.Bytes())
 	if err != nil {
 		return err
 	}
@@ -677,25 +649,16 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 
 func (s *Site) WritePublic(path string, content []byte) (err error) {
 
-	if s.Target != nil {
-		return s.Target.Publish(path, bytes.NewReader(content))
+	if s.Target == nil {
+		s.Target = &target.Filesystem{
+			PublishDir: s.absPublishDir(),
+			UglyUrls:   s.Config.UglyUrls,
+		}
 	}
 
 	if s.Config.Verbose {
 		fmt.Println(path)
 	}
 
-	path, filename := filepath.Split(path)
-
-	path = filepath.FromSlash(s.Config.GetAbsPath(filepath.Join(s.Config.PublishDir, path)))
-	err = mkdirIf(path)
-	if err != nil {
-		return
-	}
-
-	file, _ := os.Create(filepath.Join(path, filename))
-	defer file.Close()
-
-	_, err = file.Write(content)
-	return
+	return s.Target.Publish(path, bytes.NewReader(content))
 }
