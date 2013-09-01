@@ -47,6 +47,23 @@ func PrintErr(str string, a ...interface{}) {
 	fmt.Fprintln(os.Stderr, str, a)
 }
 
+// Site contains all the information relevent for constructing a static
+// site.  The basic flow of information is as follows:
+//
+// 1. A list of Files is parsed and then converted into Pages.
+//
+// 2. Pages contain sections (based on the file they were generated from),
+//    aliases and slugs (included in a pages frontmatter) which are the
+//		various targets that will get generated.  There will be canonical
+//		listing.
+//
+// 3. Indexes are created via configuration and will present some aspect of
+//    the final page and typically a perm url.
+//
+// 4. All Pages are passed through a template based on their desired
+// 		layout based on numerous different elements.
+//
+// 5. The entire collection of files is written to disk.
 type Site struct {
 	Config     Config
 	Pages      Pages
@@ -85,10 +102,9 @@ func (s *Site) Build() (err error) {
 		return
 	}
 	if err = s.Render(); err != nil {
-		fmt.Printf("Error rendering site: %s\n", err)
-		fmt.Printf("Available templates:")
-		for _, tpl := range s.Tmpl.Templates() {
-			fmt.Printf("\t%s\n", tpl.Name())
+		fmt.Printf("Error rendering site: %s\nAvailable templates:\n", err)
+		for _, template := range s.Tmpl.Templates() {
+			fmt.Printf("\t%s\n", template.Name())
 		}
 		return
 	}
