@@ -646,11 +646,9 @@ func (s *Site) Stats() {
 	}
 }
 
-func (s *Site) NewNode() Node {
-	var y Node
+func (s *Site) NewNode() (y Node) {
 	y.Data = make(map[string]interface{})
 	y.Site = s.Info
-
 	return y
 }
 
