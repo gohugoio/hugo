@@ -142,13 +142,13 @@ func checkPageTitle(t *testing.T, page *Page, title string) {
 }
 
 func checkPageContent(t *testing.T, page *Page, content string) {
-	if page.Content != template.HTML(content) {
+	if page.Content != HTML(content) {
 		t.Fatalf("Page content is: %s.  Expected %s", page.Content, content)
 	}
 }
 
 func checkPageSummary(t *testing.T, page *Page, summary string) {
-	if page.Summary != template.HTML(summary) {
+	if page.Summary != HTML(summary) {
 		t.Fatalf("Page summary is: `%s`.  Expected `%s`", page.Summary, summary)
 	}
 }

@@ -38,8 +38,8 @@ var _ = filepath.Base("")
 type Page struct {
 	Status          string
 	Images          []string
-	Content         template.HTML
-	Summary         template.HTML
+	Content         HTML
+	Summary         HTML
 	RawMarkdown     string // TODO should be []byte
 	Params          map[string]interface{}
 	RenderedContent *bytes.Buffer
@@ -185,7 +185,7 @@ func splitPageContent(data []byte, start string, end string) ([]string, []string
 	return datum, lines
 }
 
-func (p *Page) Permalink() template.HTML {
+func (p *Page) Permalink() HTML {
 	baseUrl := string(p.Site.BaseUrl)
 	section := strings.TrimSpace(p.Section)
 	pSlug := strings.TrimSpace(p.Slug)
@@ -209,7 +209,7 @@ func (p *Page) Permalink() template.HTML {
 			path = section + "/" + file
 		}
 	}
-	return template.HTML(MakePermalink(baseUrl, path))
+	return HTML(MakePermalink(baseUrl, path))
 }
 
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
@@ -427,14 +427,14 @@ func chompWhitespace(data *bufio.Reader) (r rune, err error) {
 	}
 }
 
-func (p *Page) Render(layout ...string) template.HTML {
+func (p *Page) Render(layout ...string) HTML {
 	curLayout := ""
 
 	if len(layout) > 0 {
 		curLayout = layout[0]
 	}
 
-	return template.HTML(string(p.ExecuteTemplate(curLayout).Bytes()))
+	return HTML(string(p.ExecuteTemplate(curLayout).Bytes()))
 }
 
 func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
@@ -481,12 +481,12 @@ func (page *Page) convertMarkdown(lines io.Reader) {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	content := b.Bytes()
-	page.Content = template.HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
+	page.Content = HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
 	summary, plain := getSummaryString(content)
 	if plain {
-		page.Summary = template.HTML(string(summary))
+		page.Summary = HTML(string(summary))
 	} else {
-		page.Summary = template.HTML(string(blackfriday.MarkdownCommon(summary)))
+		page.Summary = HTML(string(blackfriday.MarkdownCommon(summary)))
 	}
 }
 
@@ -494,11 +494,11 @@ func (page *Page) convertRestructuredText(lines io.Reader) {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	content := b.Bytes()
-	page.Content = template.HTML(getRstContent(content))
+	page.Content = HTML(getRstContent(content))
 	summary, plain := getSummaryString(content)
 	if plain {
-		page.Summary = template.HTML(string(summary))
+		page.Summary = HTML(string(summary))
 	} else {
-		page.Summary = template.HTML(getRstContent(summary))
+		page.Summary = HTML(getRstContent(summary))
 	}
 }
