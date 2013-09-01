@@ -63,73 +63,73 @@ func (s *Site) timerStep(step string) {
 	s.timer.Step(step)
 }
 
-func (site *Site) Build() (err error) {
-	if err = site.Process(); err != nil {
+func (s *Site) Build() (err error) {
+	if err = s.Process(); err != nil {
 		return
 	}
-	if err = site.Render(); err != nil {
+	if err = s.Render(); err != nil {
 		fmt.Printf("Error rendering site: %s\n", err)
 		fmt.Printf("Available templates:")
-		for _, template := range site.Tmpl.Templates() {
+		for _, template := range s.Tmpl.Templates() {
 			fmt.Printf("\t%s\n", template.Name())
 		}
 		return
 	}
-	site.Write()
+	s.Write()
 	return nil
 }
 
-func (site *Site) Analyze() {
-	site.Process()
-	site.checkDescriptions()
+func (s *Site) Analyze() {
+	s.Process()
+	s.checkDescriptions()
 }
 
-func (site *Site) Process() (err error) {
-	site.initialize()
-	site.prepTemplates()
-	site.timerStep("initialize & template prep")
-	site.CreatePages()
-	site.setupPrevNext()
-	site.timerStep("import pages")
-	if err = site.BuildSiteMeta(); err != nil {
+func (s *Site) Process() (err error) {
+	s.initialize()
+	s.prepTemplates()
+	s.timerStep("initialize & template prep")
+	s.CreatePages()
+	s.setupPrevNext()
+	s.timerStep("import pages")
+	if err = s.BuildSiteMeta(); err != nil {
 		return
 	}
-	site.timerStep("build indexes")
+	s.timerStep("build indexes")
 	return
 }
 
-func (site *Site) Render() (err error) {
-	site.RenderAliases()
-	site.timerStep("render and write aliases")
-	site.ProcessShortcodes()
-	site.timerStep("render shortcodes")
-	site.AbsUrlify()
-	site.timerStep("absolute URLify")
-	if err = site.RenderIndexes(); err != nil {
+func (s *Site) Render() (err error) {
+	s.RenderAliases()
+	s.timerStep("render and write aliases")
+	s.ProcessShortcodes()
+	s.timerStep("render shortcodes")
+	s.AbsUrlify()
+	s.timerStep("absolute URLify")
+	if err = s.RenderIndexes(); err != nil {
 		return
 	}
-	site.RenderIndexesIndexes()
-	site.timerStep("render and write indexes")
-	site.RenderLists()
-	site.timerStep("render and write lists")
-	if err = site.RenderPages(); err != nil {
+	s.RenderIndexesIndexes()
+	s.timerStep("render and write indexes")
+	s.RenderLists()
+	s.timerStep("render and write lists")
+	if err = s.RenderPages(); err != nil {
 		return
 	}
-	site.timerStep("render pages")
-	if err = site.RenderHomePage(); err != nil {
+	s.timerStep("render pages")
+	if err = s.RenderHomePage(); err != nil {
 		return
 	}
-	site.timerStep("render and write homepage")
+	s.timerStep("render and write homepage")
 	return
 }
 
-func (site *Site) Write() {
-	site.WritePages()
-	site.timerStep("write pages")
+func (s *Site) Write() {
+	s.WritePages()
+	s.timerStep("write pages")
 }
 
-func (site *Site) checkDescriptions() {
-	for _, p := range site.Pages {
+func (s *Site) checkDescriptions() {
+	for _, p := range s.Pages {
 		if len(p.Description) < 60 {
 			fmt.Print(p.FileName + " ")
 		}
@@ -196,8 +196,6 @@ func (s *Site) primeTemplates() {
 }
 
 func (s *Site) initialize() {
-	site := s
-
 	s.checkDirectories()
 
 	staticDir := s.Config.GetAbsPath(s.Config.StaticDir + "/")
@@ -217,7 +215,7 @@ func (s *Site) initialize() {
 			if ignoreDotFile(path) {
 				return nil
 			}
-			site.Files = append(site.Files, path)
+			s.Files = append(s.Files, path)
 			return nil
 		}
 	}
