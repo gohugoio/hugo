@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/nitro"
-	"html/template"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +31,7 @@ var DefaultTimer = nitro.Initalize()
 type Site struct {
 	Config     Config
 	Pages      Pages
-	Tmpl       *template.Template
+	Tmpl       Template
 	Indexes    IndexList
 	Files      []string
 	Sections   Index
@@ -44,7 +42,7 @@ type Site struct {
 }
 
 type SiteInfo struct {
-	BaseUrl    template.URL
+	BaseUrl    URL
 	Indexes    OrderedIndexList
 	Recent     *Pages
 	LastChange time.Time
@@ -70,8 +68,8 @@ func (s *Site) Build() (err error) {
 	if err = s.Render(); err != nil {
 		fmt.Printf("Error rendering site: %s\n", err)
 		fmt.Printf("Available templates:")
-		for _, template := range s.Tmpl.Templates() {
-			fmt.Printf("\t%s\n", template.Name())
+		for _, tpl := range s.Tmpl.Templates() {
+			fmt.Printf("\t%s\n", tpl.Name())
 		}
 		return
 	}
@@ -82,6 +80,15 @@ func (s *Site) Build() (err error) {
 func (s *Site) Analyze() {
 	s.Process()
 	s.checkDescriptions()
+}
+
+func (s *Site) prepTemplates() {
+	s.Tmpl = NewTemplate()
+	s.Tmpl.LoadTemplates(s.absLayoutDir())
+}
+
+func (s *Site) addTemplate(name, data string) error {
+	return s.Tmpl.AddTemplate(name, data)
 }
 
 func (s *Site) Process() (err error) {
@@ -136,65 +143,6 @@ func (s *Site) checkDescriptions() {
 	}
 }
 
-func (s *Site) prepTemplates() {
-	var templates = template.New("")
-
-	funcMap := template.FuncMap{
-		"urlize":    Urlize,
-		"gt":        Gt,
-		"isset":     IsSet,
-		"echoParam": ReturnWhenSet,
-	}
-
-	templates.Funcs(funcMap)
-
-	s.Tmpl = templates
-	s.primeTemplates()
-	s.loadTemplates()
-}
-
-func (s *Site) loadTemplates() {
-	walker := func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			PrintErr("Walker: ", err)
-			return nil
-		}
-
-		if !fi.IsDir() {
-			if ignoreDotFile(path) {
-				return nil
-			}
-			filetext, err := ioutil.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			s.addTemplate(s.generateTemplateNameFrom(path), string(filetext))
-		}
-		return nil
-	}
-
-	filepath.Walk(s.absLayoutDir(), walker)
-}
-
-func (s *Site) addTemplate(name, tmpl string) (err error) {
-	_, err = s.Tmpl.New(name).Parse(tmpl)
-	return
-}
-
-func (s *Site) generateTemplateNameFrom(path string) (name string) {
-	name = filepath.ToSlash(path[len(s.absLayoutDir())+1:])
-	return
-}
-
-func (s *Site) primeTemplates() {
-	alias := "<!DOCTYPE html>\n <html>\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
-	alias_xhtml := "<!DOCTYPE html>\n <html xmlns=\"http://www.w3.org/1999/xhtml\">\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
-
-	s.addTemplate("alias", alias)
-	s.addTemplate("alias-xhtml", alias_xhtml)
-
-}
-
 func (s *Site) initialize() {
 	s.checkDirectories()
 
@@ -222,7 +170,7 @@ func (s *Site) initialize() {
 
 	filepath.Walk(s.absContentDir(), walker)
 	s.Info = SiteInfo{
-		BaseUrl: template.URL(s.Config.BaseUrl),
+		BaseUrl: URL(s.Config.BaseUrl),
 		Title:   s.Config.Title,
 		Recent:  &s.Pages,
 		Config:  &s.Config,

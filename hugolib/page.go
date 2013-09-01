@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/theplant/blackfriday"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"launchpad.net/goyaml"
@@ -46,7 +45,7 @@ type Page struct {
 	contentType     string
 	Draft           bool
 	Aliases         []string
-	Tmpl            *template.Template
+	Tmpl            Template
 	Markup          string
 	PageMeta
 	File

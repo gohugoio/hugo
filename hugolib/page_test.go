@@ -1,7 +1,6 @@
 package hugolib
 
 import (
-	"html/template"
 	"path/filepath"
 	"strings"
 	"testing"
