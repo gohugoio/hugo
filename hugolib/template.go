@@ -105,7 +105,7 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 				}
 
 				// note t.New(tplName)
-				if tpl, err := compiler.CompileWithTemplate(t.New(tplName)); err != nil {
+				if _, err := compiler.CompileWithTemplate(t.New(tplName)); err != nil {
 					PrintErr("Could not compile amber file: "+path, err)
 					return err
 				}
