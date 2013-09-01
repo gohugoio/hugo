@@ -112,7 +112,7 @@ func main() {
 		_, err = buildSite(config)
 		if err != nil {
 			fmt.Println(err)
-			return
+			os.Exit(-1)
 		}
 		err := NewWatcher(config, *port, *server)
 		if err != nil {
@@ -122,6 +122,7 @@ func main() {
 
 	if _, err = buildSite(config); err != nil {
 		fmt.Println(err)
+		os.Exit(-1)
 	}
 
 	if *server {
