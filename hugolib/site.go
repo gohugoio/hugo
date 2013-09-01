@@ -259,7 +259,7 @@ func (s *Site) checkDirectories() {
 
 func (s *Site) ProcessShortcodes() {
 	for i, _ := range s.Pages {
-		s.Pages[i].Content = template.HTML(ShortcodesHandle(string(s.Pages[i].Content), s.Pages[i], s.Tmpl))
+		s.Pages[i].Content = HTML(ShortcodesHandle(string(s.Pages[i].Content), s.Pages[i], s.Tmpl))
 	}
 }
 
@@ -273,7 +273,7 @@ func (s *Site) AbsUrlify() {
 		content = strings.Replace(content, " href='/", " href='"+baseWithSlash, -1)
 		content = strings.Replace(content, " href=\"/", " href=\""+baseWithSlash, -1)
 		content = strings.Replace(content, baseWithoutTrailingSlash+"//", baseWithSlash, -1)
-		s.Pages[i].Content = template.HTML(content)
+		s.Pages[i].Content = HTML(content)
 	}
 }
 
@@ -480,8 +480,8 @@ func (s *Site) RenderIndexes() error {
 			} else {
 				n.Url = url + "/index.html"
 			}
-			n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(plink)))
-			n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(url+".xml")))
+			n.Permalink = HTML(MakePermalink(string(n.Site.BaseUrl), string(plink)))
+			n.RSSlink = HTML(MakePermalink(string(n.Site.BaseUrl), string(url+".xml")))
 			n.Date = o[0].Date
 			n.Data[singular] = o
 			n.Data["Pages"] = o
@@ -511,7 +511,7 @@ func (s *Site) RenderIndexes() error {
 				} else {
 					n.Url = Urlize(plural + "/" + k + "/" + "index.xml")
 				}
-				n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
+				n.Permalink = HTML(string(n.Site.BaseUrl) + n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 				err = s.WritePublic(base+".xml", y.Bytes())
 				if err != nil {
@@ -531,7 +531,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Title = strings.Title(plural)
 			url := Urlize(plural)
 			n.Url = url + "/index.html"
-			n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
+			n.Permalink = HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
 			n.Data["Singular"] = singular
 			n.Data["Plural"] = plural
 			n.Data["Index"] = s.Indexes[plural]
@@ -556,8 +556,8 @@ func (s *Site) RenderLists() error {
 		n := s.NewNode()
 		n.Title = strings.Title(inflect.Pluralize(section))
 		n.Url = Urlize(section + "/" + "index.html")
-		n.Permalink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
-		n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string(section+".xml")))
+		n.Permalink = HTML(MakePermalink(string(n.Site.BaseUrl), string(n.Url)))
+		n.RSSlink = HTML(MakePermalink(string(n.Site.BaseUrl), string(section+".xml")))
 		n.Date = data[0].Date
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
@@ -578,7 +578,7 @@ func (s *Site) RenderLists() error {
 			} else {
 				n.Url = Urlize(section + "/" + "index.xml")
 			}
-			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
+			n.Permalink = HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 			err = s.WritePublic(section+"/index.xml", y.Bytes())
@@ -592,8 +592,8 @@ func (s *Site) RenderHomePage() error {
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	n.Url = Urlize(string(n.Site.BaseUrl))
-	n.RSSlink = template.HTML(MakePermalink(string(n.Site.BaseUrl), string("index.xml")))
-	n.Permalink = template.HTML(string(n.Site.BaseUrl))
+	n.RSSlink = HTML(MakePermalink(string(n.Site.BaseUrl), string("index.xml")))
+	n.Permalink = HTML(string(n.Site.BaseUrl))
 	if len(s.Pages) > 0 {
 		n.Date = s.Pages[0].Date
 		if len(s.Pages) < 9 {
@@ -615,7 +615,7 @@ func (s *Site) RenderHomePage() error {
 		// XML Feed
 		n.Url = Urlize("index.xml")
 		n.Title = "Recent Content"
-		n.Permalink = template.HTML(string(n.Site.BaseUrl) + "index.xml")
+		n.Permalink = HTML(string(n.Site.BaseUrl) + "index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 		err = s.WritePublic("index.xml", y.Bytes())
@@ -625,7 +625,7 @@ func (s *Site) RenderHomePage() error {
 	if a := s.Tmpl.Lookup("404.html"); a != nil {
 		n.Url = Urlize("404.html")
 		n.Title = "404 Page not found"
-		n.Permalink = template.HTML(string(n.Site.BaseUrl) + "404.html")
+		n.Permalink = HTML(string(n.Site.BaseUrl) + "404.html")
 		x, err := s.RenderThing(n, "404.html")
 		if err != nil {
 			return err
