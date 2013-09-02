@@ -16,7 +16,6 @@ package hugolib
 import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/nitro"
@@ -258,7 +257,7 @@ func (s *Site) setUrlPath(p *Page) error {
 	x := strings.Split(y, string(os.PathSeparator))
 
 	if len(x) <= 1 {
-		return errors.New("Zero length page name")
+		return fmt.Errorf("Zero length page name")
 	}
 
 	p.Section = strings.Trim(x[1], "/\\")
@@ -605,7 +604,7 @@ func (s *Site) NewNode() *Node {
 
 func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
 	if s.Tmpl.Lookup(layout) == nil {
-		return nil, errors.New(fmt.Sprintf("Layout not found: %s", layout))
+		return nil, fmt.Errorf("Layout not found: %s", layout)
 	}
 	buffer := new(bytes.Buffer)
 	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
