@@ -102,10 +102,14 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 
 			tplName := t.generateTemplateNameFrom(absPath, path)
 
+
 			if strings.HasSuffix(path, ".amber") {
+				tplName = strings.Replace(tplName,"amber", "html", 1)
+
 				compiler := amber.New()
 				// Parse the input file
 				if err := compiler.ParseFile(path); err != nil {
+					PrintErr("Could not parse amber file: "+path, err)
 					return nil
 				}
 
