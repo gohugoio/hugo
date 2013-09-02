@@ -206,22 +206,22 @@ func (s *Site) checkDirectories() {
 }
 
 func (s *Site) ProcessShortcodes() {
-	for i, _ := range s.Pages {
-		s.Pages[i].Content = HTML(ShortcodesHandle(string(s.Pages[i].Content), s.Pages[i], s.Tmpl))
+	for _, page := range s.Pages {
+		page.Content = HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
 	}
 }
 
 func (s *Site) AbsUrlify() {
 	baseWithoutTrailingSlash := strings.TrimRight(s.Config.BaseUrl, "/")
 	baseWithSlash := baseWithoutTrailingSlash + "/"
-	for i, _ := range s.Pages {
-		content := string(s.Pages[i].Content)
+	for _, page := range s.Pages {
+		content := string(page.Content)
 		content = strings.Replace(content, " src=\"/", " src=\""+baseWithSlash, -1)
 		content = strings.Replace(content, " src='/", " src='"+baseWithSlash, -1)
 		content = strings.Replace(content, " href='/", " href='"+baseWithSlash, -1)
 		content = strings.Replace(content, " href=\"/", " href=\""+baseWithSlash, -1)
 		content = strings.Replace(content, baseWithoutTrailingSlash+"//", baseWithSlash, -1)
-		s.Pages[i].Content = HTML(content)
+		page.Content = HTML(content)
 	}
 }
 
@@ -242,13 +242,13 @@ func (s *Site) CreatePages() {
 }
 
 func (s *Site) setupPrevNext() {
-	for i, _ := range s.Pages {
+	for i, page := range s.Pages {
 		if i < len(s.Pages)-1 {
-			s.Pages[i].Next = s.Pages[i+1]
+			page.Next = s.Pages[i+1]
 		}
 
 		if i > 0 {
-			s.Pages[i].Prev = s.Pages[i-1]
+			page.Prev = s.Pages[i-1]
 		}
 	}
 }
@@ -309,14 +309,14 @@ func (s *Site) BuildSiteMeta() (err error) {
 
 	for _, plural := range s.Config.Indexes {
 		s.Indexes[plural] = make(Index)
-		for i, p := range s.Pages {
+		for _, p := range s.Pages {
 			vals := p.GetParam(plural)
 
 			if vals != nil {
 				v, ok := vals.([]string)
 				if ok {
 					for _, idx := range v {
-						s.Indexes[plural].Add(idx, s.Pages[i])
+						s.Indexes[plural].Add(idx, p)
 					}
 				} else {
 					PrintErr("Invalid " + plural + " in " + p.File.FileName)
@@ -328,8 +328,8 @@ func (s *Site) BuildSiteMeta() (err error) {
 		}
 	}
 
-	for i, p := range s.Pages {
-		s.Sections.Add(p.Section, s.Pages[i])
+	for _, p := range s.Pages {
+		s.Sections.Add(p.Section, p)
 	}
 
 	for k, _ := range s.Sections {
@@ -372,13 +372,13 @@ func inStringArray(arr []string, el string) bool {
 }
 
 func (s *Site) RenderAliases() error {
-	for i, p := range s.Pages {
+	for _, p := range s.Pages {
 		for _, a := range p.Aliases {
 			t := "alias"
 			if strings.HasSuffix(a, ".xhtml") {
 				t = "alias-xhtml"
 			}
-			content, err := s.RenderThing(s.Pages[i], t)
+			content, err := s.RenderThing(p, t)
 			if strings.HasSuffix(a, "/") {
 				a = a + "index.html"
 			}
@@ -395,12 +395,12 @@ func (s *Site) RenderAliases() error {
 }
 
 func (s *Site) RenderPages() error {
-	for i, _ := range s.Pages {
-		content, err := s.RenderThingOrDefault(s.Pages[i], s.Pages[i].Layout(), "_default/single.html")
+	for _, p := range s.Pages {
+		content, err := s.RenderThingOrDefault(p, p.Layout(), "_default/single.html")
 		if err != nil {
 			return err
 		}
-		s.Pages[i].RenderedContent = content
+		p.RenderedContent = content
 	}
 	return nil
 }

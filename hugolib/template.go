@@ -86,7 +86,6 @@ func (t *GoHtmlTemplate) primeTemplates() {
 
 	t.AddTemplate("alias", alias)
 	t.AddTemplate("alias-xhtml", alias_xhtml)
-
 }
 
 func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
