@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"io/ioutil"
 	"github.com/eknkc/amber"
 	"html/template"
 	"io"
@@ -63,7 +64,12 @@ func (t *GoHtmlTemplate) AddTemplate(name, tpl string) error {
 }
 
 func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
-	_, err := t.New(name).ParseFiles(path)
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	s := string(b)
+	_, err = t.New(name).Parse(s)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 	}
