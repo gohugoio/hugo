@@ -11,29 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package template
 
 import (
-	"html/template"
-	"time"
+	"regexp"
+	"strings"
 )
 
-type Node struct {
-	RSSlink     template.HTML
-	Site        SiteInfo
-	layout      string
-	Data        map[string]interface{}
-	Title       string
-	Description string
-	Keywords    []string
-	Date        time.Time
-	UrlPath
+var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
+
+func Urlize(url string) string {
+	return Sanitize(strings.ToLower(strings.Replace(strings.TrimSpace(url), " ", "-", -1)))
 }
 
-type UrlPath struct {
-	Url       string
-	Permalink template.HTML
-	Slug      string
-	Section   string
-	Path      string
+func Sanitize(s string) string {
+	return sanitizeRegexp.ReplaceAllString(s, "")
 }

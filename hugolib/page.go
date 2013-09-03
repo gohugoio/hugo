@@ -20,9 +20,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	helper "github.com/spf13/hugo/template"
+	"github.com/spf13/hugo/template/bundle"
 	"github.com/theplant/blackfriday"
-	"io"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"launchpad.net/goyaml"
 	"os"
@@ -46,7 +48,7 @@ type Page struct {
 	contentType     string
 	Draft           bool
 	Aliases         []string
-	Tmpl            Template
+	Tmpl            bundle.Template
 	Markup          string
 	PageMeta
 	File
@@ -78,6 +80,15 @@ func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p Pages) Sort()             { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
+func getSummaryString(content []byte) ([]byte, bool) {
+	if bytes.Contains(content, summaryDivider) {
+		return bytes.Split(content, summaryDivider)[0], false
+	} else {
+		plainContent := StripHTML(StripShortcodes(string(content)))
+		return []byte(TruncateWordsToWholeSentence(plainContent, summaryLength)), true
+	}
+}
+
 // TODO abstract further to support loading from more
 // than just files on disk. Should load reader (file, []byte)
 func NewPage(filename string) *Page {
@@ -89,6 +100,38 @@ func NewPage(filename string) *Page {
 	page.Date, _ = time.Parse("20060102", "20080101")
 	page.guessSection()
 	return &page
+}
+
+func StripHTML(s string) string {
+	output := ""
+
+	// Shortcut strings with no tags in them
+	if !strings.ContainsAny(s, "<>") {
+		output = s
+	} else {
+		s = strings.Replace(s, "\n", " ", -1)
+		s = strings.Replace(s, "</p>", " \n", -1)
+		s = strings.Replace(s, "<br>", " \n", -1)
+		s = strings.Replace(s, "</br>", " \n", -1)
+
+		// Walk through the string removing all tags
+		b := new(bytes.Buffer)
+		inTag := false
+		for _, r := range s {
+			switch r {
+			case '<':
+				inTag = true
+			case '>':
+				inTag = false
+			default:
+				if !inTag {
+					b.WriteRune(r)
+				}
+			}
+		}
+		output = b.String()
+	}
+	return output
 }
 
 func (page *Page) Initalize() error {
@@ -246,12 +289,12 @@ func (page *Page) update(f interface{}) error {
 		case "description":
 			page.Description = interfaceToString(v)
 		case "slug":
-			page.Slug = Urlize(interfaceToString(v))
+			page.Slug = helper.Urlize(interfaceToString(v))
 		case "url":
 			if url := interfaceToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative urls are supported, %v provided", url)
 			}
-			page.Url = Urlize(interfaceToString(v))
+			page.Url = helper.Urlize(interfaceToString(v))
 		case "type":
 			page.contentType = interfaceToString(v)
 		case "keywords":

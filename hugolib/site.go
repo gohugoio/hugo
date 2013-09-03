@@ -15,11 +15,13 @@ package hugolib
 
 import (
 	"bitbucket.org/pkg/inflect"
-	"html/template"
 	"bytes"
 	"fmt"
 	"github.com/spf13/hugo/target"
+	helpers "github.com/spf13/hugo/template"
+	"github.com/spf13/hugo/template/bundle"
 	"github.com/spf13/nitro"
+	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,10 +30,27 @@ import (
 
 var DefaultTimer = nitro.Initalize()
 
+func MakePermalink(domain string, path string) string {
+	return strings.TrimRight(domain, "/") + "/" + strings.TrimLeft(path, "/")
+}
+
+func mkdirIf(path string) error {
+	return os.MkdirAll(path, 0777)
+}
+
+func FatalErr(str string) {
+	fmt.Println(str)
+	os.Exit(1)
+}
+
+func PrintErr(str string, a ...interface{}) {
+	fmt.Fprintln(os.Stderr, str, a)
+}
+
 type Site struct {
 	Config     Config
 	Pages      Pages
-	Tmpl       Template
+	Tmpl       bundle.Template
 	Indexes    IndexList
 	Files      []string
 	Sections   Index
@@ -83,7 +102,7 @@ func (s *Site) Analyze() {
 }
 
 func (s *Site) prepTemplates() {
-	s.Tmpl = NewTemplate()
+	s.Tmpl = bundle.NewTemplate()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
 }
 
@@ -150,7 +169,6 @@ func (s *Site) initialize() {
 
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
-			PrintErr("Walker: ", err)
 			return nil
 		}
 
@@ -177,6 +195,18 @@ func (s *Site) initialize() {
 	}
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
+}
+
+// Check if File / Directory Exists
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func ignoreDotFile(path string) bool {
@@ -420,7 +450,7 @@ func (s *Site) RenderIndexes() error {
 		for k, o := range s.Indexes[plural] {
 			n := s.NewNode()
 			n.Title = strings.Title(k)
-			url := Urlize(plural + "/" + k)
+			url := helpers.Urlize(plural + "/" + k)
 			plink := url
 			if s.Config.UglyUrls {
 				n.Url = url + ".html"
@@ -455,9 +485,9 @@ func (s *Site) RenderIndexes() error {
 				// XML Feed
 				y := s.NewXMLBuffer()
 				if s.Config.UglyUrls {
-					n.Url = Urlize(plural + "/" + k + ".xml")
+					n.Url = helpers.Urlize(plural + "/" + k + ".xml")
 				} else {
-					n.Url = Urlize(plural + "/" + k + "/" + "index.xml")
+					n.Url = helpers.Urlize(plural + "/" + k + "/" + "index.xml")
 				}
 				n.Permalink = permalink(s, n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
@@ -477,7 +507,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 		for singular, plural := range s.Config.Indexes {
 			n := s.NewNode()
 			n.Title = strings.Title(plural)
-			url := Urlize(plural)
+			url := helpers.Urlize(plural)
 			n.Url = url + "/index.html"
 			n.Permalink = permalink(s, n.Url)
 			n.Data["Singular"] = singular
@@ -503,7 +533,7 @@ func (s *Site) RenderLists() error {
 	for section, data := range s.Sections {
 		n := s.NewNode()
 		n.Title = strings.Title(inflect.Pluralize(section))
-		n.Url = Urlize(section + "/" + "index.html")
+		n.Url = helpers.Urlize(section + "/" + "index.html")
 		n.Permalink = permalink(s, n.Url)
 		n.RSSlink = permalink(s, section+".xml")
 		n.Date = data[0].Date
@@ -522,9 +552,9 @@ func (s *Site) RenderLists() error {
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
 			if s.Config.UglyUrls {
-				n.Url = Urlize(section + ".xml")
+				n.Url = helpers.Urlize(section + ".xml")
 			} else {
-				n.Url = Urlize(section + "/" + "index.xml")
+				n.Url = helpers.Urlize(section + "/" + "index.xml")
 			}
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
@@ -539,7 +569,7 @@ func (s *Site) RenderLists() error {
 func (s *Site) RenderHomePage() error {
 	n := s.NewNode()
 	n.Title = n.Site.Title
-	n.Url = Urlize(string(n.Site.BaseUrl))
+	n.Url = helpers.Urlize(string(n.Site.BaseUrl))
 	n.RSSlink = permalink(s, "index.xml")
 	n.Permalink = permalink(s, "")
 	if len(s.Pages) > 0 {
@@ -561,7 +591,7 @@ func (s *Site) RenderHomePage() error {
 
 	if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 		// XML Feed
-		n.Url = Urlize("index.xml")
+		n.Url = helpers.Urlize("index.xml")
 		n.Title = "Recent Content"
 		n.Permalink = permalink(s, "index.xml")
 		y := s.NewXMLBuffer()
@@ -571,7 +601,7 @@ func (s *Site) RenderHomePage() error {
 	}
 
 	if a := s.Tmpl.Lookup("404.html"); a != nil {
-		n.Url = Urlize("404.html")
+		n.Url = helpers.Urlize("404.html")
 		n.Title = "404 Page not found"
 		n.Permalink = permalink(s, "404.html")
 		x, err := s.RenderThing(n, "404.html")

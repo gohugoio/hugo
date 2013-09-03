@@ -1,4 +1,4 @@
-package hugolib
+package bundle
 
 import (
 	"testing"

@@ -1,19 +1,82 @@
-package hugolib
+package bundle
 
 import (
-	"io/ioutil"
 	"github.com/eknkc/amber"
+	helpers "github.com/spf13/hugo/template"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
-// HTML encapsulates a known safe HTML document fragment.
-// It should not be used for HTML from a third-party, or HTML with
-// unclosed tags or comments. The outputs of a sound HTML sanitizer
-// and a template escaped by this package are fine for use with HTML.
+func Gt(a interface{}, b interface{}) bool {
+	var left, right int64
+	av := reflect.ValueOf(a)
+
+	switch av.Kind() {
+	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
+		left = int64(av.Len())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		left = av.Int()
+	case reflect.String:
+		left, _ = strconv.ParseInt(av.String(), 10, 64)
+	}
+
+	bv := reflect.ValueOf(b)
+
+	switch bv.Kind() {
+	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
+		right = int64(bv.Len())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		right = bv.Int()
+	case reflect.String:
+		right, _ = strconv.ParseInt(bv.String(), 10, 64)
+	}
+
+	return left > right
+}
+
+func IsSet(a interface{}, key interface{}) bool {
+	av := reflect.ValueOf(a)
+	kv := reflect.ValueOf(key)
+
+	switch av.Kind() {
+	case reflect.Array, reflect.Chan, reflect.Slice:
+		if int64(av.Len()) > kv.Int() {
+			return true
+		}
+	case reflect.Map:
+		if kv.Type() == av.Type().Key() {
+			return av.MapIndex(kv).IsValid()
+		}
+	}
+
+	return false
+}
+
+func ReturnWhenSet(a interface{}, index int) interface{} {
+	av := reflect.ValueOf(a)
+
+	switch av.Kind() {
+	case reflect.Array, reflect.Slice:
+		if av.Len() > index {
+
+			avv := av.Index(index)
+			switch avv.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				return avv.Int()
+			case reflect.String:
+				return avv.String()
+			}
+		}
+	}
+
+	return ""
+}
 
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
@@ -41,7 +104,7 @@ func NewTemplate() Template {
 	}
 
 	funcMap := template.FuncMap{
-		"urlize":    Urlize,
+		"urlize":    helpers.Urlize,
 		"gt":        Gt,
 		"isset":     IsSet,
 		"echoParam": ReturnWhenSet,
@@ -85,10 +148,13 @@ func (t *GoHtmlTemplate) primeTemplates() {
 	t.AddTemplate("alias-xhtml", alias_xhtml)
 }
 
+func ignoreDotFile(path string) bool {
+	return filepath.Base(path)[0] == '.'
+}
+
 func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
-			PrintErr("Walker: ", err)
 			return nil
 		}
 
@@ -108,7 +174,6 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 
 				// note t.New(tplName)
 				if _, err := compiler.CompileWithTemplate(t.New(tplName)); err != nil {
-					PrintErr("Could not compile amber file: "+path, err)
 					return err
 				}
 

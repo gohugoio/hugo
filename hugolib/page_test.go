@@ -1,11 +1,11 @@
 package hugolib
 
 import (
+	"html/template"
 	"path/filepath"
-	"time"
 	"strings"
 	"testing"
-	"html/template"
+	"time"
 )
 
 var EMPTY_PAGE = ""

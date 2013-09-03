@@ -3,9 +3,9 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"strings"
 	"testing"
-	"html/template"
 )
 
 var TEMPLATE_TITLE = "{{ .Title }}"
