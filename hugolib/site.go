@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bitbucket.org/pkg/inflect"
+	"html/template"
 	"bytes"
 	"fmt"
 	"github.com/spf13/hugo/target"
@@ -41,7 +42,7 @@ type Site struct {
 }
 
 type SiteInfo struct {
-	BaseUrl    URL
+	BaseUrl    template.URL
 	Indexes    OrderedIndexList
 	Recent     *Pages
 	LastChange time.Time
@@ -169,7 +170,7 @@ func (s *Site) initialize() {
 
 	filepath.Walk(s.absContentDir(), walker)
 	s.Info = SiteInfo{
-		BaseUrl: URL(s.Config.BaseUrl),
+		BaseUrl: template.URL(s.Config.BaseUrl),
 		Title:   s.Config.Title,
 		Recent:  &s.Pages,
 		Config:  &s.Config,
@@ -206,7 +207,7 @@ func (s *Site) checkDirectories() {
 
 func (s *Site) ProcessShortcodes() {
 	for _, page := range s.Pages {
-		page.Content = HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
+		page.Content = template.HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
 	}
 }
 
@@ -220,7 +221,7 @@ func (s *Site) AbsUrlify() {
 		content = strings.Replace(content, " href='/", " href='"+baseWithSlash, -1)
 		content = strings.Replace(content, " href=\"/", " href=\""+baseWithSlash, -1)
 		content = strings.Replace(content, baseWithoutTrailingSlash+"//", baseWithSlash, -1)
-		page.Content = HTML(content)
+		page.Content = template.HTML(content)
 	}
 }
 
@@ -525,7 +526,7 @@ func (s *Site) RenderLists() error {
 			} else {
 				n.Url = Urlize(section + "/" + "index.xml")
 			}
-			n.Permalink = HTML(string(n.Site.BaseUrl) + n.Url)
+			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 			err = s.WritePublic(section+"/index.xml", y.Bytes())
@@ -591,8 +592,8 @@ func (s *Site) Stats() {
 	}
 }
 
-func permalink(s *Site, plink string) HTML {
-	return HTML(MakePermalink(string(s.Info.BaseUrl), plink))
+func permalink(s *Site, plink string) template.HTML {
+	return template.HTML(MakePermalink(string(s.Info.BaseUrl), plink))
 }
 
 func (s *Site) NewNode() *Node {

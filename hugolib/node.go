@@ -15,10 +15,11 @@ package hugolib
 
 import (
 	"time"
+	"html/template"
 )
 
 type Node struct {
-	RSSlink     HTML
+	RSSlink     template.HTML
 	Site        SiteInfo
 	layout      string
 	Data        map[string]interface{}
@@ -31,7 +32,7 @@ type Node struct {
 
 type UrlPath struct {
 	Url       string
-	Permalink HTML
+	Permalink template.HTML
 	Slug      string
 	Section   string
 	Path      string

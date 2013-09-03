@@ -14,7 +14,6 @@ import (
 // It should not be used for HTML from a third-party, or HTML with
 // unclosed tags or comments. The outputs of a sound HTML sanitizer
 // and a template escaped by this package are fine for use with HTML.
-type HTML template.HTML
 
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
@@ -24,8 +23,6 @@ type Template interface {
 	LoadTemplates(absPath string)
 	AddTemplate(name, tpl string) error
 }
-
-type URL template.URL
 
 type templateErr struct {
 	name string

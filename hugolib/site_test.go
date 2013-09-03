@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"html/template"
 )
 
 var TEMPLATE_TITLE = "{{ .Title }}"
@@ -104,7 +105,7 @@ func TestRenderThing(t *testing.T) {
 	}{
 		{PAGE_SIMPLE_TITLE, TEMPLATE_TITLE, "simple template"},
 		{PAGE_SIMPLE_TITLE, TEMPLATE_FUNC, "simple-template"},
-		{PAGE_WITH_MD, TEMPLATE_CONTENT, "<h1>heading 1</h1>\n<p>text</p>\n<h2>heading 2</h2>\n<p>more text</p>\n"},
+		{PAGE_WITH_MD, TEMPLATE_CONTENT, "<h1>heading 1</h1>\n\n<p>text</p>\n\n<h2>heading 2</h2>\n\n<p>more text</p>\n"},
 	}
 
 	s := new(Site)
@@ -121,6 +122,7 @@ func TestRenderThing(t *testing.T) {
 			t.Fatalf("Unable to add template")
 		}
 
+		p.Content = template.HTML(p.Content)
 		html, err2 := s.RenderThing(p, templateName)
 		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
