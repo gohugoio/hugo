@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"path/filepath"
+	"time"
 	"strings"
 	"testing"
 	"html/template"
@@ -54,7 +55,7 @@ var SIMPLE_PAGE_JSON = `
 
 Content of the file goes Here
 `
-
+var SIMPLE_PAGE_RFC3339_DATE = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
 var SIMPLE_PAGE_JSON_MULTIPLE = `
 {
 	"title": "foobar",
@@ -165,6 +166,12 @@ func checkPageLayout(t *testing.T, page *Page, layout string) {
 	}
 }
 
+func checkPageDate(t *testing.T, page *Page, time time.Time) {
+	if page.Date != time {
+		t.Fatalf("Page date is: %s.  Expected: %s", page.Date, time)
+	}
+}
+
 func TestCreateNewPage(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE), "simple")
 	if err != nil {
@@ -200,6 +207,18 @@ func TestPageWithMoreTag(t *testing.T) {
 	checkPageSummary(t, p, "<p>Simple Page</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html")
+}
+
+func TestPageWithDate(t *testing.T) {
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE), "simple")
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	d, err := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
+	if err != nil {
+		t.Fatalf("Unable to prase page.")
+	}
+	checkPageDate(t, p, d)
 }
 
 func TestCreatePage(t *testing.T) {

@@ -17,6 +17,8 @@ content`
 var TEMPLATE_MISSING_FUNC = "{{ .Title | funcdoesnotexists }}"
 var TEMPLATE_FUNC = "{{ .Title | urlize }}"
 var TEMPLATE_CONTENT = "{{ .Content }}"
+var TEMPLATE_DATE = "{{ .Date }}"
+var INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
 
 var PAGE_URL_SPECIFIED = `---
 title: simple template
@@ -106,6 +108,7 @@ func TestRenderThing(t *testing.T) {
 		{PAGE_SIMPLE_TITLE, TEMPLATE_TITLE, "simple template"},
 		{PAGE_SIMPLE_TITLE, TEMPLATE_FUNC, "simple-template"},
 		{PAGE_WITH_MD, TEMPLATE_CONTENT, "<h1>heading 1</h1>\n\n<p>text</p>\n\n<h2>heading 2</h2>\n\n<p>more text</p>\n"},
+		{SIMPLE_PAGE_RFC3339_DATE, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
 	s := new(Site)
@@ -129,7 +132,7 @@ func TestRenderThing(t *testing.T) {
 		}
 
 		if string(html.Bytes()) != test.expected {
-			t.Errorf("Content does not match.  Expected\n\t'%q'\ngot\n\t'%q'", test.expected, html)
+			t.Errorf("Content does not match.\nExpected\n\t'%q'\ngot\n\t'%q'", test.expected, html)
 		}
 	}
 }
