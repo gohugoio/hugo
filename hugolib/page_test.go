@@ -133,7 +133,7 @@ func TestDegenerateEmptyPage(t *testing.T) {
 		t.Fatalf("Expected ReadFrom to return an error when an empty buffer is passed.")
 	}
 
-	checkError(t, err, "unable to locate front matter")
+	checkError(t, err, "test: unable to locate front matter")
 }
 
 func checkPageTitle(t *testing.T, page *Page, title string) {

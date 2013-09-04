@@ -25,7 +25,6 @@ import (
 	"github.com/theplant/blackfriday"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"launchpad.net/goyaml"
 	"os"
 	"path/filepath"
@@ -91,7 +90,7 @@ func getSummaryString(content []byte) ([]byte, bool) {
 
 // TODO abstract further to support loading from more
 // than just files on disk. Should load reader (file, []byte)
-func NewPage(filename string) *Page {
+func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		File:   File{FileName: filename, Extension: "html"},
 		Node:   Node{Keywords: make([]string, 10, 30)},
@@ -132,15 +131,6 @@ func StripHTML(s string) string {
 		output = b.String()
 	}
 	return output
-}
-
-func (page *Page) Initalize() error {
-	err := page.buildPageFromFile()
-	if err != nil {
-		return err
-	}
-	page.analyzePage()
-	return nil
 }
 
 func (p *Page) guessSection() {
@@ -186,7 +176,7 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 		return nil, errors.New("Zero length page name")
 	}
 
-	p := NewPage(name)
+	p := newPage(name)
 
 	if err = p.parse(buf); err != nil {
 		return
@@ -360,7 +350,7 @@ var ErrMatchingEndingFrontMatterDelimiter = errors.New("unable to match ending f
 func (page *Page) parseFrontMatter(data *bufio.Reader) (err error) {
 
 	if err = checkEmpty(data); err != nil {
-		return
+		return fmt.Errorf("%s: %s", page.FileName, err)
 	}
 
 	var mark rune
@@ -485,22 +475,6 @@ func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
 	p.Tmpl.ExecuteTemplate(buffer, l, p)
 	return buffer
-}
-
-func (page *Page) readFile() (data []byte, err error) {
-	data, err = ioutil.ReadFile(page.FileName)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
-}
-
-func (page *Page) buildPageFromFile() error {
-	f, err := os.Open(page.FileName)
-	if err != nil {
-		return err
-	}
-	return page.parse(bufio.NewReader(f))
 }
 
 func (page *Page) parse(reader io.Reader) error {

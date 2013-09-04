@@ -16,9 +16,3 @@ func BenchmarkParsePage(b *testing.B) {
 		p = p
 	}
 }
-
-func BenchmarkNewPage(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		NewPage("redis.cn.md")
-	}
-}

@@ -131,7 +131,9 @@ func (s *Site) Process() (err error) {
 	s.initialize()
 	s.prepTemplates()
 	s.timerStep("initialize & template prep")
-	s.CreatePages()
+	if err = s.CreatePages(); err != nil {
+		return err
+	}
 	s.setupPrevNext()
 	s.timerStep("import pages")
 	if err = s.BuildSiteMeta(); err != nil {
@@ -272,13 +274,19 @@ func (s *Site) AbsUrlify() {
 	}
 }
 
-func (s *Site) CreatePages() {
+func (s *Site) CreatePages() (err error) {
 	for _, fileName := range s.Files {
-		page := NewPage(fileName)
+		f, err := os.Open(fileName)	
+		if err != nil {
+			return err
+		}
+		page, err := ReadFrom(f, fileName)
+		if err != nil {
+			return err
+		}
 		page.Site = s.Info
 		page.Tmpl = s.Tmpl
 		_ = s.setUrlPath(page)
-		page.Initalize()
 		s.setOutFile(page)
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
@@ -286,6 +294,7 @@ func (s *Site) CreatePages() {
 	}
 
 	s.Pages.Sort()
+	return
 }
 
 func (s *Site) setupPrevNext() {
