@@ -74,7 +74,7 @@ type Site struct {
 	Info       SiteInfo
 	Shortcodes map[string]ShortcodeFunc
 	timer      *nitro.B
-	Target     target.Publisher
+	Target     target.Output
 }
 
 type SiteInfo struct {
@@ -114,7 +114,8 @@ func (s *Site) Build() (err error) {
 
 func (s *Site) Analyze() {
 	s.Process()
-	s.checkDescriptions()
+	s.initTarget()
+	s.ShowPlan(os.Stdout)
 }
 
 func (s *Site) prepTemplates() {
@@ -173,7 +174,7 @@ func (s *Site) Write() {
 func (s *Site) checkDescriptions() {
 	for _, p := range s.Pages {
 		if len(p.Description) < 60 {
-			fmt.Print(p.FileName + " ")
+			fmt.Println(p.FileName + " ")
 		}
 	}
 }
@@ -543,7 +544,7 @@ func (s *Site) RenderLists() error {
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
-			n.Url = Urlize(section + ".xml")
+			n.Url = helpers.Urlize(section + ".xml")
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
@@ -647,14 +648,17 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 	return bytes.NewBufferString(header)
 }
 
-func (s *Site) WritePublic(path string, content []byte) (err error) {
-
+func (s *Site) initTarget() {
 	if s.Target == nil {
 		s.Target = &target.Filesystem{
 			PublishDir: s.absPublishDir(),
 			UglyUrls:   s.Config.UglyUrls,
 		}
 	}
+}
+
+func (s *Site) WritePublic(path string, content []byte) (err error) {
+	s.initTarget()
 
 	if s.Config.Verbose {
 		fmt.Println(path)

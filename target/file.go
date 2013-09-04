@@ -16,6 +16,11 @@ type Translator interface {
 	Translate(string) (string, error)
 }
 
+type Output interface {
+	Publisher
+	Translator
+}
+
 type Filesystem struct {
 	UglyUrls         bool
 	DefaultExtension string
@@ -52,18 +57,24 @@ func (fs *Filesystem) Translate(src string) (dest string, err error) {
 	if src == "/" {
 		return "index.html", nil
 	}
-	if fs.UglyUrls {
-		return src, nil
-	}
 
 	dir, file := path.Split(src)
 	ext := fs.extension(path.Ext(file))
 	name := filename(file)
 
+	if fs.UglyUrls {
+		return path.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil
+	}
+
 	return path.Join(dir, name, fmt.Sprintf("index%s", ext)), nil
 }
 
 func (fs *Filesystem) extension(ext string) string {
+	switch ext {
+	case ".md", ".rst": // TODO make this list configurable.  page.go has the list of markup types.
+		return ".html"
+	}
+
 	if ext != "" {
 		return ext
 	}

@@ -40,6 +40,10 @@ func (t *InMemoryTarget) Publish(label string, reader io.Reader) (err error) {
 	return
 }
 
+func (t *InMemoryTarget) Translate(label string) (dest string, err error) {
+	return label, nil
+}
+
 func TestPageCount(t *testing.T) {
 	target := new(InMemoryTarget)
 	s := &Site{Target: target}
