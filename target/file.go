@@ -35,15 +35,16 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 	}
 
 	path, _ = filepath.Split(translated)
-	dest := filepath.Join(fs.PublishDir, path)
-	ospath := filepath.FromSlash(dest)
+	ospath := filepath.FromSlash(path)
 
-	err = os.MkdirAll(ospath, 0764) // rwx, rw, r
-	if err != nil {
-		return
+	if ospath != "" {
+		err = os.MkdirAll(ospath, 0764) // rwx, rw, r
+		if err != nil {
+			return
+		}
 	}
 
-	file, err := os.Create(filepath.Join(fs.PublishDir, translated))
+	file, err := os.Create(translated)
 	if err != nil {
 		return
 	}
@@ -61,6 +62,9 @@ func (fs *Filesystem) Translate(src string) (dest string, err error) {
 	dir, file := path.Split(src)
 	ext := fs.extension(path.Ext(file))
 	name := filename(file)
+	if fs.PublishDir != "" {
+		dir = path.Join(fs.PublishDir, dir)
+	}
 
 	if fs.UglyUrls {
 		return path.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil

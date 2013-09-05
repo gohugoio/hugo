@@ -49,8 +49,8 @@ func TestPageCount(t *testing.T) {
 	s := &Site{Target: target}
 	s.prepTemplates()
 	must(s.addTemplate("indexes/blue.html", INDEX_TEMPLATE))
-	s.Files = append(s.Files, "blue/doc1.md")
-	s.Files = append(s.Files, "blue/doc2.md")
+	//s.Files = append(s.Files, "blue/doc1.md")
+	//s.Files = append(s.Files, "blue/doc2.md")
 	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_1), filepath.FromSlash("content/blue/doc1.md"))))
 	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_2), filepath.FromSlash("content/blue/doc2.md"))))
 

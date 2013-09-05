@@ -17,6 +17,7 @@ import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
+	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	helpers "github.com/spf13/hugo/template"
 	"github.com/spf13/hugo/template/bundle"
@@ -69,7 +70,7 @@ type Site struct {
 	Pages      Pages
 	Tmpl       bundle.Template
 	Indexes    IndexList
-	Files      []string
+	Source     source.Input
 	Sections   Index
 	Info       SiteInfo
 	Shortcodes map[string]ShortcodeFunc
@@ -186,26 +187,11 @@ func (s *Site) initialize() {
 
 	staticDir := s.Config.GetAbsPath(s.Config.StaticDir + "/")
 
-	walker := func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-
-		if fi.IsDir() {
-			if path == staticDir {
-				return filepath.SkipDir
-			}
-			return nil
-		} else {
-			if ignoreDotFile(path) {
-				return nil
-			}
-			s.Files = append(s.Files, path)
-			return nil
-		}
+	s.Source = &source.Filesystem{
+		AvoidPaths: []string{staticDir},
+		Base:       s.absContentDir(),
 	}
 
-	filepath.Walk(s.absContentDir(), walker)
 	s.Info = SiteInfo{
 		BaseUrl: template.URL(s.Config.BaseUrl),
 		Title:   s.Config.Title,
@@ -226,10 +212,6 @@ func exists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
-}
-
-func ignoreDotFile(path string) bool {
-	return filepath.Base(path)[0] == '.'
 }
 
 func (s *Site) absLayoutDir() string {
@@ -275,12 +257,8 @@ func (s *Site) AbsUrlify() {
 }
 
 func (s *Site) CreatePages() (err error) {
-	for _, fileName := range s.Files {
-		f, err := os.Open(fileName)	
-		if err != nil {
-			return err
-		}
-		page, err := ReadFrom(f, fileName)
+	for _, file := range s.Source.Files() {
+		page, err := ReadFrom(file.Contents, file.Name)
 		if err != nil {
 			return err
 		}

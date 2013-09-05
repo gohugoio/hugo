@@ -6,19 +6,19 @@ import (
 )
 
 func (s *Site) ShowPlan(out io.Writer) (err error) {
-	if len(s.Files) <= 0 {
+	if s.Source == nil || len(s.Source.Files()) <= 0 {
 		fmt.Fprintf(out, "No source files provided.\n")
 	}
 
-	for _, file := range s.Files {
-		fmt.Fprintf(out, "%s\n", file)
+	for _, p := range s.Pages {
+		fmt.Fprintf(out, "%s\n", p.FileName)
 		fmt.Fprintf(out, " canonical => ")
 		if s.Target == nil {
 			fmt.Fprintf(out, "%s\n", "!no target specified!")
 			continue
 		}
 
-		trns, err := s.Target.Translate(file)
+		trns, err := s.Target.Translate(p.OutFile)
 		if err != nil {
 			return err
 		}
