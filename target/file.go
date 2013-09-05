@@ -56,6 +56,9 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {
 	if src == "/" {
+		if fs.PublishDir != "" {
+			return path.Join(fs.PublishDir, "index.html"), nil
+		}
 		return "index.html", nil
 	}
 

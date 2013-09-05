@@ -32,6 +32,31 @@ func TestFileTranslator(t *testing.T) {
 	}
 }
 
+func TestFileTranslatorBase(t *testing.T) {
+	tests := []struct {
+		content string
+		expected string
+	}{
+		{"/", "a/base/index.html"},
+	}
+
+	for _, test := range tests {
+		f := &Filesystem{PublishDir: "a/base"}
+		fts := &Filesystem{PublishDir: "a/base/"}
+
+		for _, fs := range []*Filesystem{f, fts} {
+			dest, err := fs.Translate(test.content)
+			if err != nil {
+				t.Fatalf("Translated returned and err: %s", err)
+			}
+
+			if dest != test.expected {
+				t.Errorf("Translate expected: %s, got: %s", test.expected, dest)
+			}
+		}
+	}
+}
+
 func TestTranslateUglyUrls(t *testing.T) {
 	tests := []struct {
 		content  string
