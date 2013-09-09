@@ -78,6 +78,10 @@ func ReturnWhenSet(a interface{}, index int) interface{} {
 	return ""
 }
 
+func SafeHtml(text string) template.HTML {
+	return template.HTML(text)
+}
+
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
 	Lookup(name string) *template.Template
@@ -108,6 +112,7 @@ func NewTemplate() Template {
 		"gt":        Gt,
 		"isset":     IsSet,
 		"echoParam": ReturnWhenSet,
+		"safeHtml":  SafeHtml,
 	}
 
 	templates.Funcs(funcMap)
