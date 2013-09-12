@@ -14,6 +14,8 @@ func TestFileTranslator(t *testing.T) {
 		{"foo", "foo/index.html"},
 		{"foo.html", "foo/index.html"},
 		{"foo.xhtml", "foo/index.xhtml"},
+		{"section", "section/index.html"},
+		{"section/", "section/index.html"},
 		{"section/foo", "section/foo/index.html"},
 		{"section/foo.html", "section/foo/index.html"},
 		{"section/foo.rss", "section/foo/index.rss"},
@@ -34,7 +36,7 @@ func TestFileTranslator(t *testing.T) {
 
 func TestFileTranslatorBase(t *testing.T) {
 	tests := []struct {
-		content string
+		content  string
 		expected string
 	}{
 		{"/", "a/base/index.html"},
@@ -64,6 +66,7 @@ func TestTranslateUglyUrls(t *testing.T) {
 	}{
 		{"foo.html", "foo.html"},
 		{"/", "index.html"},
+		{"section", "section.html"},
 		{"index.html", "index.html"},
 	}
 

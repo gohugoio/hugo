@@ -3,7 +3,6 @@ package hugolib
 import (
 	"bytes"
 	"io"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -49,8 +48,8 @@ func TestPageCount(t *testing.T) {
 	s := &Site{Target: target}
 	s.prepTemplates()
 	must(s.addTemplate("indexes/blue.html", INDEX_TEMPLATE))
-	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_1), filepath.FromSlash("content/blue/doc1.md"))))
-	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_2), filepath.FromSlash("content/blue/doc2.md"))))
+	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_1), "content/blue/doc1.md")))
+	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_2), "content/blue/doc2.md")))
 
 	if err := s.BuildSiteMeta(); err != nil {
 		t.Errorf("Unable to build site metadata: %s", err)
@@ -60,7 +59,7 @@ func TestPageCount(t *testing.T) {
 		t.Errorf("Unable to render site lists: %s", err)
 	}
 
-	blueIndex := target.files["blue/index.html"]
+	blueIndex := target.files["blue"]
 	if blueIndex == nil {
 		t.Errorf("No indexed rendered. %v", target.files)
 	}

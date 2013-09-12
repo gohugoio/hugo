@@ -1,7 +1,7 @@
 package hugolib
 
 import (
-	"path/filepath"
+	"path"
 	"strings"
 	"testing"
 )
@@ -13,7 +13,7 @@ Sample Text
 `
 
 func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_YAML), filepath.Join("foobar"))
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_YAML), path.Join("foobar"))
 	if err != nil {
 		t.Fatalf("Error in ReadFrom")
 	}
@@ -28,9 +28,9 @@ func TestNewPageWithFilePath(t *testing.T) {
 		section string
 		layout  string
 	}{
-		{filepath.Join("sub", "foobar.html"), "sub", "sub/single.html"},
-		{filepath.Join("content", "sub", "foobar.html"), "sub", "sub/single.html"},
-		{filepath.Join("content", "dub", "sub", "foobar.html"), "sub", "sub/single.html"},
+		{path.Join("sub", "foobar.html"), "sub", "sub/single.html"},
+		{path.Join("content", "sub", "foobar.html"), "sub", "sub/single.html"},
+		{path.Join("content", "dub", "sub", "foobar.html"), "sub", "sub/single.html"},
 	}
 
 	for _, el := range toCheck {

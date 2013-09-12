@@ -27,6 +27,7 @@ func (f *Filesystem) Files() []*File {
 }
 
 func (f *Filesystem) add(name string, reader io.Reader) {
+	name = filepath.ToSlash(name)
 	f.files = append(f.files, &File{Name: name, Contents: reader})
 }
 

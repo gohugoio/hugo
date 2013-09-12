@@ -103,7 +103,7 @@ func (c *Config) readInConfig() {
 
 func (c *Config) setPath(p string) {
 	if p == "" {
-		path, err := FindPath()
+		path, err := findPath()
 		if err != nil {
 			fmt.Printf("Error finding path: %s", err)
 		}
@@ -124,7 +124,7 @@ func (c *Config) GetPath() string {
 	return c.Path
 }
 
-func FindPath() (string, error) {
+func findPath() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
 
 	if err != nil {
@@ -147,13 +147,14 @@ func FindPath() (string, error) {
 	return path, nil
 }
 
+// GetAbsPath return the absolute path for a given path with the internal slashes
+// properly converted.
 func (c *Config) GetAbsPath(name string) string {
 	if filepath.IsAbs(name) {
 		return name
 	}
 
-	p := filepath.Join(c.GetPath(), name)
-	return p
+	return filepath.ToSlash(filepath.Join(c.GetPath(), name))
 }
 
 func (c *Config) findConfigFile(configFileName string) (string, error) {

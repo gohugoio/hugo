@@ -2,7 +2,7 @@ package hugolib
 
 import (
 	"html/template"
-	"path/filepath"
+	"path"
 	"strings"
 	"testing"
 	"time"
@@ -260,7 +260,7 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 }
 
 func TestSectionEvaluation(t *testing.T) {
-	page, _ := ReadFrom(strings.NewReader(SIMPLE_PAGE), filepath.FromSlash("blue/file1.md"))
+	page, _ := ReadFrom(strings.NewReader(SIMPLE_PAGE), "blue/file1.md")
 	if page.Section != "blue" {
 		t.Errorf("Section should be %s, got: %s", "blue", page.Section)
 	}
@@ -268,11 +268,11 @@ func TestSectionEvaluation(t *testing.T) {
 
 func TestLayoutOverride(t *testing.T) {
 	var (
-		path_content_one_dir = filepath.Join("content", "gub", "file1.md")
-		path_content_two_dir = filepath.Join("content", "dub", "sub", "file1.md")
-		path_content_no_dir  = filepath.Join("content", "file1")
-		path_one_directory   = filepath.Join("fub", "file1.md")
-		path_no_directory    = filepath.Join("file1.md")
+		path_content_one_dir = path.Join("content", "gub", "file1.md")
+		path_content_two_dir = path.Join("content", "dub", "sub", "file1.md")
+		path_content_no_dir  = path.Join("content", "file1")
+		path_one_directory   = path.Join("fub", "file1.md")
+		path_no_directory    = path.Join("file1.md")
 	)
 	tests := []struct {
 		content        string

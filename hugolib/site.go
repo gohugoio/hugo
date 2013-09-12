@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/nitro"
 	"html/template"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 )
@@ -264,7 +264,9 @@ func (s *Site) CreatePages() (err error) {
 		}
 		page.Site = s.Info
 		page.Tmpl = s.Tmpl
-		_ = s.setUrlPath(page)
+		if err = s.setUrlPath(page); err != nil {
+			return err
+		}
 		s.setOutFile(page)
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
@@ -288,15 +290,15 @@ func (s *Site) setupPrevNext() {
 }
 
 func (s *Site) setUrlPath(p *Page) error {
-	y := strings.TrimPrefix(p.FileName, s.Config.GetAbsPath(s.Config.ContentDir))
-	x := strings.Split(y, string(os.PathSeparator))
+	y := strings.TrimPrefix(p.FileName, s.absContentDir())
+	x := strings.Split(y, "/")
 
 	if len(x) <= 1 {
 		return fmt.Errorf("Zero length page name")
 	}
 
-	p.Section = strings.Trim(x[1], "/\\")
-	p.Path = strings.Trim(strings.Join(x[:len(x)-1], string(os.PathSeparator)), "/\\")
+	p.Section = strings.Trim(x[1], "/")
+	p.Path = path.Join(x[:len(x)-1]...)
 	return nil
 }
 
@@ -320,11 +322,11 @@ func (s *Site) setOutFile(p *Page) {
 		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
 	} else {
 		// Fall back to filename
-		_, t := filepath.Split(p.FileName)
+		_, t := path.Split(p.FileName)
 		outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
 	}
 
-	p.OutFile = p.Path + string(os.PathSeparator) + strings.TrimSpace(outfile)
+	p.OutFile = p.Path + "/" + strings.TrimSpace(outfile)
 }
 
 func (s *Site) BuildSiteMeta() (err error) {
@@ -524,7 +526,7 @@ func (s *Site) RenderLists() error {
 		if err != nil {
 			return err
 		}
-		err = s.WritePublic(section+"/index.html", content.Bytes())
+		err = s.WritePublic(section, content.Bytes())
 		if err != nil {
 			return err
 		}

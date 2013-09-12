@@ -26,15 +26,12 @@ import (
 	"html/template"
 	"io"
 	"launchpad.net/goyaml"
-	"os"
-	"path/filepath"
+	"path"
 	"sort"
 	"strings"
 	"time"
 	"unicode"
 )
-
-var _ = filepath.Base("")
 
 type Page struct {
 	Status          string
@@ -135,7 +132,7 @@ func StripHTML(s string) string {
 
 func (p *Page) guessSection() {
 	if p.Section == "" {
-		x := strings.Split(p.FileName, string(os.PathSeparator))
+		x := strings.Split(p.FileName, "/")
 		if len(x) > 1 {
 			if section := x[len(x)-2]; section != "content" {
 				p.Section = section
@@ -223,26 +220,26 @@ func (p *Page) Permalink() template.HTML {
 	section := strings.TrimSpace(p.Section)
 	pSlug := strings.TrimSpace(p.Slug)
 	pUrl := strings.TrimSpace(p.Url)
-	var path string
+	var permalink string
 	if len(pSlug) > 0 {
 		if p.Site.Config.UglyUrls {
-			path = section + "/" + p.Slug + "." + p.Extension
+			permalink = section + "/" + p.Slug + "." + p.Extension
 		} else {
-			path = section + "/" + p.Slug + "/"
+			permalink = section + "/" + p.Slug + "/"
 		}
 	} else if len(pUrl) > 2 {
-		path = pUrl
+		permalink = pUrl
 	} else {
-		_, t := filepath.Split(p.FileName)
+		_, t := path.Split(p.FileName)
 		if p.Site.Config.UglyUrls {
 			x := replaceExtension(strings.TrimSpace(t), p.Extension)
-			path = section + "/" + x
+			permalink = section + "/" + x
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			path = section + "/" + file
+			permalink = section + "/" + file
 		}
 	}
-	return template.HTML(MakePermalink(baseUrl, path))
+	return template.HTML(MakePermalink(baseUrl, permalink))
 }
 
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
