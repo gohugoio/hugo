@@ -3,11 +3,12 @@ package hugolib
 import (
 	"bytes"
 	"io"
-	"strings"
 	"testing"
 )
 
-const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\n---\nslug doc 1 content"
+const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.php\n---\nslug doc 1 content"
+
+//const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\n---\nslug doc 1 content"
 const SLUG_DOC_2 = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
 
 const INDEX_TEMPLATE = "{{ range .Data.Pages }}.{{ end }}"
@@ -43,19 +44,34 @@ func (t *InMemoryTarget) Translate(label string) (dest string, err error) {
 	return label, nil
 }
 
+var urlFakeSource = []byteSource{
+	{"content/blue/doc1.md", []byte(SLUG_DOC_1)},
+	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
+}
+
 func TestPageCount(t *testing.T) {
 	target := new(InMemoryTarget)
-	s := &Site{Target: target}
+	s := &Site{
+		Target: target,
+		Config: Config{UglyUrls: false},
+		Source: &inMemorySource{urlFakeSource},
+	}
+	s.initializeSiteInfo()
 	s.prepTemplates()
 	must(s.addTemplate("indexes/blue.html", INDEX_TEMPLATE))
-	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_1), "content/blue/doc1.md")))
-	s.Pages = append(s.Pages, mustReturn(ReadFrom(strings.NewReader(SLUG_DOC_2), "content/blue/doc2.md")))
 
+	if err := s.CreatePages(); err != nil {
+		t.Errorf("Unable to create pages: %s", err)
+	}
 	if err := s.BuildSiteMeta(); err != nil {
 		t.Errorf("Unable to build site metadata: %s", err)
 	}
 
 	if err := s.RenderLists(); err != nil {
+		t.Errorf("Unable to render site lists: %s", err)
+	}
+
+	if err := s.RenderAliases(); err != nil {
 		t.Errorf("Unable to render site lists: %s", err)
 	}
 
@@ -66,5 +82,16 @@ func TestPageCount(t *testing.T) {
 
 	if len(blueIndex) != 2 {
 		t.Errorf("Number of pages does not equal 2, got %d. %q", len(blueIndex), blueIndex)
+	}
+
+	for _, s := range []string{
+		"sd1/foo/index.html",
+		"sd2",
+		"sd3/index.html",
+		"sd4.php",
+	} {
+		if _, ok := target.files[s]; !ok {
+			t.Errorf("No alias rendered: %s", s)
+		}
 	}
 }

@@ -76,6 +76,7 @@ type Site struct {
 	Shortcodes map[string]ShortcodeFunc
 	timer      *nitro.B
 	Target     target.Output
+	Alias      target.Translator
 }
 
 type SiteInfo struct {
@@ -192,14 +193,18 @@ func (s *Site) initialize() {
 		Base:       s.absContentDir(),
 	}
 
+	s.initializeSiteInfo()
+
+	s.Shortcodes = make(map[string]ShortcodeFunc)
+}
+
+func (s *Site) initializeSiteInfo() {
 	s.Info = SiteInfo{
 		BaseUrl: template.URL(s.Config.BaseUrl),
 		Title:   s.Config.Title,
 		Recent:  &s.Pages,
 		Config:  &s.Config,
 	}
-
-	s.Shortcodes = make(map[string]ShortcodeFunc)
 }
 
 // Check if File / Directory Exists
@@ -405,14 +410,10 @@ func (s *Site) RenderAliases() error {
 				t = "alias-xhtml"
 			}
 			content, err := s.RenderThing(p, t)
-			if strings.HasSuffix(a, "/") {
-				a = a + "index.html"
-			}
 			if err != nil {
 				return err
 			}
-			err = s.WritePublic(a, content.Bytes())
-			if err != nil {
+			if err = s.WriteAlias(a, content.Bytes()); err != nil {
 				return err
 			}
 		}
@@ -653,5 +654,21 @@ func (s *Site) WritePublic(path string, content []byte) (err error) {
 		fmt.Println(path)
 	}
 
+	return s.Target.Publish(path, bytes.NewReader(content))
+}
+
+func (s *Site) WriteAlias(path string, content []byte) (err error) {
+	if s.Alias == nil {
+		s.initTarget()
+		s.Alias = new(target.HTMLRedirectAlias)
+	}
+
+	if s.Config.Verbose {
+		fmt.Println(path)
+	}
+
+	if path, err = s.Alias.Translate(path); err != nil {
+		return err
+	}
 	return s.Target.Publish(path, bytes.NewReader(content))
 }

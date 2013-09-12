@@ -7,19 +7,26 @@ import (
 	"testing"
 )
 
-var fakeSource = []struct {
+const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
+
+type byteSource struct {
 	name    string
 	content []byte
-}{
+}
+
+var fakeSource = []byteSource{
 	{"foo/bar/file.md", []byte(SIMPLE_PAGE)},
+	{"alias/test/file1.md", []byte(ALIAS_DOC_1)},
+	//{"slug/test/file1.md", []byte(SLUG_DOC_1)},
 }
 
 type inMemorySource struct {
+	byteSource []byteSource
 }
 
-func (i inMemorySource) Files() (files []*source.File) {
-	files = make([]*source.File, len(fakeSource))
-	for i, fake := range fakeSource {
+func (i *inMemorySource) Files() (files []*source.File) {
+	files = make([]*source.File, len(i.byteSource))
+	for i, fake := range i.byteSource {
 		files[i] = &source.File{
 			Name:     fake.name,
 			Contents: bytes.NewReader(fake.content),
@@ -44,38 +51,57 @@ func TestDegenerateNoFiles(t *testing.T) {
 }
 
 func TestDegenerateNoTarget(t *testing.T) {
-	s := &Site{Source: new(inMemorySource)}
+	s := &Site{
+		Source: &inMemorySource{fakeSource},
+	}
 	must(s.CreatePages())
-	expected := "foo/bar/file.md\n canonical => !no target specified!\n"
+	expected := "foo/bar/file.md\n canonical => !no target specified!\n" +
+		"alias/test/file1.md\n canonical => !no target specified!\n"
 	checkShowPlanExpected(t, s, expected)
 }
 
 func TestFileTarget(t *testing.T) {
 	s := &Site{
-		Source: new(inMemorySource),
+		Source: &inMemorySource{fakeSource},
 		Target: new(target.Filesystem),
+		Alias:  new(target.HTMLRedirectAlias),
 	}
 	must(s.CreatePages())
-	checkShowPlanExpected(t, s, "foo/bar/file.md\n canonical => foo/bar/file/index.html\n")
+	expected := "foo/bar/file.md\n canonical => foo/bar/file/index.html\n" +
+		"alias/test/file1.md\n" +
+		" canonical => alias/test/file1/index.html\n" +
+		" alias1/ => alias1/index.html\n" +
+		" alias-2/ => alias-2/index.html\n"
+	checkShowPlanExpected(t, s, expected)
 }
 
 func TestFileTargetUgly(t *testing.T) {
 	s := &Site{
 		Target: &target.Filesystem{UglyUrls: true},
-		Source: new(inMemorySource),
+		Source: &inMemorySource{fakeSource},
+		Alias:  new(target.HTMLRedirectAlias),
 	}
 	s.CreatePages()
-	expected := "foo/bar/file.md\n canonical => foo/bar/file.html\n"
+	expected := "foo/bar/file.md\n canonical => foo/bar/file.html\n" +
+		"alias/test/file1.md\n" +
+		" canonical => alias/test/file1.html\n" +
+		" alias1/ => alias1/index.html\n" +
+		" alias-2/ => alias-2/index.html\n"
 	checkShowPlanExpected(t, s, expected)
 }
 
 func TestFileTargetPublishDir(t *testing.T) {
 	s := &Site{
 		Target: &target.Filesystem{PublishDir: "../public"},
-		Source: new(inMemorySource),
+		Source: &inMemorySource{fakeSource},
+		Alias:  &target.HTMLRedirectAlias{PublishDir: "../public"},
 	}
 
 	must(s.CreatePages())
-	expected := "foo/bar/file.md\n canonical => ../public/foo/bar/file/index.html\n"
+	expected := "foo/bar/file.md\n canonical => ../public/foo/bar/file/index.html\n" +
+		"alias/test/file1.md\n" +
+		" canonical => ../public/alias/test/file1/index.html\n" +
+		" alias1/ => ../public/alias1/index.html\n" +
+		" alias-2/ => ../public/alias-2/index.html\n"
 	checkShowPlanExpected(t, s, expected)
 }

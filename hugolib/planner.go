@@ -22,9 +22,19 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 		if err != nil {
 			return err
 		}
-
 		fmt.Fprintf(out, "%s\n", trns)
 
+		if s.Alias == nil {
+			continue
+		}
+
+		for _, alias := range p.Aliases {
+			aliasTrans, err := s.Alias.Translate(alias)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(out, " %s => %s\n", alias, aliasTrans)
+		}
 	}
 	return
 }
