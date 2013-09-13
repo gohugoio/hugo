@@ -110,7 +110,6 @@ func (s *Site) Build() (err error) {
 		}
 		return
 	}
-	s.Write()
 	return nil
 }
 
@@ -168,11 +167,6 @@ func (s *Site) Render() (err error) {
 	}
 	s.timerStep("render and write homepage")
 	return
-}
-
-func (s *Site) Write() {
-	s.WritePages()
-	s.timerStep("write pages")
 }
 
 func (s *Site) checkDescriptions() {
@@ -419,19 +413,12 @@ func (s *Site) RenderPages() error {
 		if err != nil {
 			return err
 		}
-		p.RenderedContent = content
-	}
-	return nil
-}
-
-func (s *Site) WritePages() (err error) {
-	for _, p := range s.Pages {
-		err = s.WritePublic(p.OutFile, p.RenderedContent.Bytes())
+		err = s.WritePublic(p.OutFile, content.Bytes())
 		if err != nil {
-			return
+			return err
 		}
 	}
-	return
+	return nil
 }
 
 func (s *Site) RenderIndexes() error {

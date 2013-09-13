@@ -40,7 +40,6 @@ type Page struct {
 	Summary         template.HTML
 	RawMarkdown     string // TODO should be []byte
 	Params          map[string]interface{}
-	RenderedContent *bytes.Buffer
 	contentType     string
 	Draft           bool
 	Aliases         []string
