@@ -116,6 +116,9 @@ func (s *Site) Build() (err error) {
 func (s *Site) Analyze() {
 	s.Process()
 	s.initTarget()
+	s.Alias = &target.HTMLRedirectAlias{
+		PublishDir: s.absPublishDir(),
+	}
 	s.ShowPlan(os.Stdout)
 }
 
