@@ -145,7 +145,9 @@ func (s *Site) Process() (err error) {
 }
 
 func (s *Site) Render() (err error) {
-	s.RenderAliases()
+	if err = s.RenderAliases(); err != nil {
+		return
+	}
 	s.timerStep("render and write aliases")
 	s.ProcessShortcodes()
 	s.timerStep("render shortcodes")
@@ -161,7 +163,7 @@ func (s *Site) Render() (err error) {
 	if err = s.RenderPages(); err != nil {
 		return
 	}
-	s.timerStep("render pages")
+	s.timerStep("render and write pages")
 	if err = s.RenderHomePage(); err != nil {
 		return
 	}

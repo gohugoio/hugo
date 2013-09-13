@@ -2,13 +2,13 @@ package hugolib
 
 import (
 	"bytes"
+	"github.com/spf13/hugo/target"
+	"html/template"
 	"io"
 	"testing"
-	"html/template"
-	"github.com/spf13/hugo/target"
 )
 
-const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.php\n---\nslug doc 1 content"
+const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content"
 
 //const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\n---\nslug doc 1 content"
 const SLUG_DOC_2 = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
@@ -68,7 +68,7 @@ func TestPageCount(t *testing.T) {
 	alias := &InMemoryAliasTarget{files: files}
 	s := &Site{
 		Target: target,
-		Alias: alias,
+		Alias:  alias,
 		Config: Config{UglyUrls: false},
 		Source: &inMemorySource{urlFakeSource},
 	}
@@ -102,9 +102,9 @@ func TestPageCount(t *testing.T) {
 
 	for _, s := range []string{
 		"sd1/foo/index.html",
-		"sd2",
+		"sd2/index.html",
 		"sd3/index.html",
-		"sd4.php",
+		"sd4.html",
 	} {
 		if _, ok := target.files[s]; !ok {
 			t.Errorf("No alias rendered: %s", s)

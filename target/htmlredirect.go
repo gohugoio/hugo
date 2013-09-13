@@ -1,15 +1,15 @@
 package target
 
 import (
-	helpers "github.com/spf13/hugo/template"
-	"path"
 	"bytes"
-	"strings"
+	helpers "github.com/spf13/hugo/template"
 	"html/template"
+	"path"
+	"strings"
 )
 
 const ALIAS = "<!DOCTYPE html><html><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
-const	ALIAS_XHTML = "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
+const ALIAS_XHTML = "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
 
 var DefaultAliasTemplates *template.Template
 
@@ -26,12 +26,18 @@ type AliasPublisher interface {
 
 type HTMLRedirectAlias struct {
 	PublishDir string
-	Templates *template.Template
+	Templates  *template.Template
 }
 
 func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error) {
+	if len(alias) <= 0 {
+		return
+	}
+
 	if strings.HasSuffix(alias, "/") {
 		alias = alias + "index.html"
+	} else if !strings.HasSuffix(alias, ".html") {
+		alias = alias + "/index.html"
 	}
 	return path.Join(h.PublishDir, helpers.Urlize(alias)), nil
 }

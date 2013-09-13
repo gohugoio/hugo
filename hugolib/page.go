@@ -34,17 +34,17 @@ import (
 )
 
 type Page struct {
-	Status          string
-	Images          []string
-	Content         template.HTML
-	Summary         template.HTML
-	RawMarkdown     string // TODO should be []byte
-	Params          map[string]interface{}
-	contentType     string
-	Draft           bool
-	Aliases         []string
-	Tmpl            bundle.Template
-	Markup          string
+	Status      string
+	Images      []string
+	Content     template.HTML
+	Summary     template.HTML
+	RawMarkdown string // TODO should be []byte
+	Params      map[string]interface{}
+	contentType string
+	Draft       bool
+	Aliases     []string
+	Tmpl        bundle.Template
+	Markup      string
 	PageMeta
 	File
 	Position
