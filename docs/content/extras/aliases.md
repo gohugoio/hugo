@@ -27,7 +27,7 @@ will redirect to the page.
 ## Important Behaviors
 
 1. *Hugo makes no assumptions about aliases. They also don't change based
-on your UglyUrls setting. You Need to provide a relative path and the
+on your UglyUrls setting. You need to provide absolute path to your webroot and the
 complete filename or directory.*
 
 2. *Aliases are rendered prior to any content and will be overwritten by
