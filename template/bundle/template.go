@@ -116,7 +116,6 @@ func NewTemplate() Template {
 	}
 
 	templates.Funcs(funcMap)
-	templates.primeTemplates()
 	return templates
 }
 
@@ -143,14 +142,6 @@ func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
 
 func (t *GoHtmlTemplate) generateTemplateNameFrom(base, path string) string {
 	return filepath.ToSlash(path[len(base)+1:])
-}
-
-func (t *GoHtmlTemplate) primeTemplates() {
-	alias := "<!DOCTYPE html>\n <html>\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
-	alias_xhtml := "<!DOCTYPE html>\n <html xmlns=\"http://www.w3.org/1999/xhtml\">\n <head>\n <link rel=\"canonical\" href=\"{{ .Permalink }}\"/>\n <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n <meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" />\n </head>\n </html>"
-
-	t.AddTemplate("alias", alias)
-	t.AddTemplate("alias-xhtml", alias_xhtml)
 }
 
 func ignoreDotFile(path string) bool {

@@ -34,7 +34,11 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 		return
 	}
 
-	path, _ = filepath.Split(translated)
+	return writeToDisk(translated, r)
+}
+
+func writeToDisk(translated string, r io.Reader) (err error) {
+	path, _ := filepath.Split(translated)
 	ospath := filepath.FromSlash(path)
 
 	if ospath != "" {

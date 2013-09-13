@@ -76,7 +76,7 @@ type Site struct {
 	Shortcodes map[string]ShortcodeFunc
 	timer      *nitro.B
 	Target     target.Output
-	Alias      target.Translator
+	Alias      target.AliasPublisher
 }
 
 type SiteInfo struct {
@@ -405,15 +405,7 @@ func inStringArray(arr []string, el string) bool {
 func (s *Site) RenderAliases() error {
 	for _, p := range s.Pages {
 		for _, a := range p.Aliases {
-			t := "alias"
-			if strings.HasSuffix(a, ".xhtml") {
-				t = "alias-xhtml"
-			}
-			content, err := s.RenderThing(p, t)
-			if err != nil {
-				return err
-			}
-			if err = s.WriteAlias(a, content.Bytes()); err != nil {
+			if err := s.WriteAlias(a, p.Permalink()); err != nil {
 				return err
 			}
 		}
@@ -657,18 +649,17 @@ func (s *Site) WritePublic(path string, content []byte) (err error) {
 	return s.Target.Publish(path, bytes.NewReader(content))
 }
 
-func (s *Site) WriteAlias(path string, content []byte) (err error) {
+func (s *Site) WriteAlias(path string, permalink template.HTML) (err error) {
 	if s.Alias == nil {
 		s.initTarget()
-		s.Alias = new(target.HTMLRedirectAlias)
+		s.Alias = &target.HTMLRedirectAlias{
+			PublishDir: s.absPublishDir(),
+		}
 	}
 
 	if s.Config.Verbose {
 		fmt.Println(path)
 	}
 
-	if path, err = s.Alias.Translate(path); err != nil {
-		return err
-	}
-	return s.Target.Publish(path, bytes.NewReader(content))
+	return s.Alias.Publish(path, permalink)
 }

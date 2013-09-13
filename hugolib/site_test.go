@@ -52,14 +52,6 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	}
 }
 
-func TestPrimeTemplates(t *testing.T) {
-	s := new(Site)
-	s.prepTemplates()
-	if s.Tmpl.Lookup("alias") == nil {
-		t.Fatalf("alias template not created.")
-	}
-}
-
 func TestAddInvalidTemplate(t *testing.T) {
 	s := new(Site)
 	s.prepTemplates()

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 	"testing"
+	"html/template"
+	"github.com/spf13/hugo/target"
 )
 
 const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.php\n---\nslug doc 1 content"
@@ -44,15 +46,29 @@ func (t *InMemoryTarget) Translate(label string) (dest string, err error) {
 	return label, nil
 }
 
+type InMemoryAliasTarget struct {
+	target.HTMLRedirectAlias
+	files map[string][]byte
+}
+
+func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (err error) {
+	f, _ := t.Translate(label)
+	t.files[f] = []byte("--dummy text--")
+	return
+}
+
 var urlFakeSource = []byteSource{
 	{"content/blue/doc1.md", []byte(SLUG_DOC_1)},
 	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
 }
 
 func TestPageCount(t *testing.T) {
-	target := new(InMemoryTarget)
+	files := make(map[string][]byte)
+	target := &InMemoryTarget{files: files}
+	alias := &InMemoryAliasTarget{files: files}
 	s := &Site{
 		Target: target,
+		Alias: alias,
 		Config: Config{UglyUrls: false},
 		Source: &inMemorySource{urlFakeSource},
 	}
