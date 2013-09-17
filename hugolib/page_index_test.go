@@ -44,7 +44,7 @@ func TestParseIndexes(t *testing.T) {
 	} {
 		p, err := ReadFrom(strings.NewReader(test), "page/with/index")
 		if err != nil {
-			t.Fatalf("Failed parsing page: %s", err)
+			t.Fatalf("Failed parsing %q: %s", test, err)
 		}
 
 		param := p.GetParam("tags")

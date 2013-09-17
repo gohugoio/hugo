@@ -133,7 +133,7 @@ func TestDegenerateEmptyPage(t *testing.T) {
 		t.Fatalf("Expected ReadFrom to return an error when an empty buffer is passed.")
 	}
 
-	checkError(t, err, "test: unable to locate front matter")
+	checkError(t, err, "EOF")
 }
 
 func checkPageTitle(t *testing.T, page *Page, title string) {
@@ -242,9 +242,9 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		r   string
 		err string
 	}{
-		{INVALID_FRONT_MATTER_SHORT_DELIM, "unable to match beginning front matter delimiter"},
-		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "unable to match ending front matter delimiter"},
-		{INVALID_FRONT_MATTER_MISSING, "unable to detect front matter"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM, "Unable to locate frontmatter"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "EOF"},
+		{INVALID_FRONT_MATTER_MISSING, "Unable to locate frontmatter"},
 	}
 	for _, test := range tests {
 		_, err := ReadFrom(strings.NewReader(test.r), "invalid/front/matter/short/delim")
