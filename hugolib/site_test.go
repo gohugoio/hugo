@@ -19,6 +19,7 @@ var TEMPLATE_FUNC = "{{ .Title | urlize }}"
 var TEMPLATE_CONTENT = "{{ .Content }}"
 var TEMPLATE_DATE = "{{ .Date }}"
 var INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
+var TEMPLATE_WITH_URL = "<a href=\"foobar.jpg\">Going</a>"
 
 var PAGE_URL_SPECIFIED = `---
 title: simple template
@@ -183,5 +184,40 @@ func TestSetOutFile(t *testing.T) {
 
 	if p.OutFile != "mycategory/my-whatever-content/index.html" {
 		t.Errorf("Outfile does not match.  Expected '%s', got '%s'", expected, p.OutFile)
+	}
+}
+
+func TestAbsUrlify(t *testing.T) {
+	files := make(map[string][]byte)
+	target := &InMemoryTarget{files: files}
+	s := &Site{
+		Target: target,
+		Config: Config{BaseUrl: "http://auth/bub/"},
+		Source: &inMemorySource{urlFakeSource},
+	}
+	s.initializeSiteInfo()
+	s.prepTemplates()
+	must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL))
+
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	if err := s.RenderPages(); err != nil {
+		t.Fatalf("Unable to render pages. %s", err)
+	}
+
+	content, ok := target.files["content/blue/slug-doc-1.html"]
+	if !ok {
+		t.Fatalf("Unable to locate rendered content")
+	}
+
+	expected := "<html><head></head><body><a href=\"http://auth/bub/foobar.jpg\">Going</a></body></html>"
+	if string(content) != expected {
+		t.Errorf("Expected: %q, got: %q", expected, string(content))
 	}
 }

@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"io"
 	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
@@ -21,6 +22,7 @@ import (
 	"github.com/spf13/hugo/target"
 	helpers "github.com/spf13/hugo/template"
 	"github.com/spf13/hugo/template/bundle"
+	"github.com/spf13/hugo/transform"
 	"github.com/spf13/nitro"
 	"html/template"
 	"os"
@@ -75,6 +77,7 @@ type Site struct {
 	Info       SiteInfo
 	Shortcodes map[string]ShortcodeFunc
 	timer      *nitro.B
+	Transformer *transform.Transformer
 	Target     target.Output
 	Alias      target.AliasPublisher
 }
@@ -154,7 +157,6 @@ func (s *Site) Render() (err error) {
 	s.timerStep("render and write aliases")
 	s.ProcessShortcodes()
 	s.timerStep("render shortcodes")
-	s.AbsUrlify()
 	s.timerStep("absolute URLify")
 	if err = s.RenderIndexes(); err != nil {
 		return
@@ -243,20 +245,6 @@ func (s *Site) checkDirectories() {
 func (s *Site) ProcessShortcodes() {
 	for _, page := range s.Pages {
 		page.Content = template.HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
-	}
-}
-
-func (s *Site) AbsUrlify() {
-	baseWithoutTrailingSlash := strings.TrimRight(s.Config.BaseUrl, "/")
-	baseWithSlash := baseWithoutTrailingSlash + "/"
-	for _, page := range s.Pages {
-		content := string(page.Content)
-		content = strings.Replace(content, " src=\"/", " src=\""+baseWithSlash, -1)
-		content = strings.Replace(content, " src='/", " src='"+baseWithSlash, -1)
-		content = strings.Replace(content, " href='/", " href='"+baseWithSlash, -1)
-		content = strings.Replace(content, " href=\"/", " href=\""+baseWithSlash, -1)
-		content = strings.Replace(content, baseWithoutTrailingSlash+"//", baseWithSlash, -1)
-		page.Content = template.HTML(content)
 	}
 }
 
@@ -418,7 +406,7 @@ func (s *Site) RenderPages() error {
 		if err != nil {
 			return err
 		}
-		err = s.WritePublic(p.OutFile, content.Bytes())
+		err = s.WritePublic(p.OutFile, content)
 		if err != nil {
 			return err
 		}
@@ -447,7 +435,7 @@ func (s *Site) RenderIndexes() error {
 
 			var base string
 			base = plural + "/" + k
-			err = s.WritePublic(base+".html", x.Bytes())
+			err = s.WritePublic(base+".html", x)
 			if err != nil {
 				return err
 			}
@@ -458,7 +446,7 @@ func (s *Site) RenderIndexes() error {
 				n.Url = helpers.Urlize(plural + "/" + k + ".xml")
 				n.Permalink = permalink(s, n.Url)
 				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-				err = s.WritePublic(base+".xml", y.Bytes())
+				err = s.WritePublic(base+".xml", y)
 				if err != nil {
 					return err
 				}
@@ -487,7 +475,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 				return err
 			}
 
-			err = s.WritePublic(plural+"/index.html", x.Bytes())
+			err = s.WritePublic(plural+"/index.html", x)
 			if err != nil {
 				return err
 			}
@@ -511,7 +499,7 @@ func (s *Site) RenderLists() error {
 		if err != nil {
 			return err
 		}
-		err = s.WritePublic(section, content.Bytes())
+		err = s.WritePublic(section, content)
 		if err != nil {
 			return err
 		}
@@ -522,7 +510,7 @@ func (s *Site) RenderLists() error {
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			err = s.WritePublic(section+"/index.xml", y.Bytes())
+			err = s.WritePublic(section+"/index.xml", y)
 			return err
 		}
 	}
@@ -547,7 +535,7 @@ func (s *Site) RenderHomePage() error {
 	if err != nil {
 		return err
 	}
-	err = s.WritePublic("/", x.Bytes())
+	err = s.WritePublic("/", x)
 	if err != nil {
 		return err
 	}
@@ -559,7 +547,7 @@ func (s *Site) RenderHomePage() error {
 		n.Permalink = permalink(s, "index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-		err = s.WritePublic("index.xml", y.Bytes())
+		err = s.WritePublic("index.xml", y)
 		return err
 	}
 
@@ -571,7 +559,7 @@ func (s *Site) RenderHomePage() error {
 		if err != nil {
 			return err
 		}
-		err = s.WritePublic("404.html", x.Bytes())
+		err = s.WritePublic("404.html", x)
 		return err
 	}
 
@@ -631,14 +619,19 @@ func (s *Site) initTarget() {
 	}
 }
 
-func (s *Site) WritePublic(path string, content []byte) (err error) {
+func (s *Site) WritePublic(path string, content io.Reader) (err error) {
 	s.initTarget()
 
 	if s.Config.Verbose {
 		fmt.Println(path)
 	}
 
-	return s.Target.Publish(path, bytes.NewReader(content))
+	if s.Transformer == nil {
+		s.Transformer = &transform.Transformer{BaseURL: s.Config.BaseUrl}
+	}
+	final := new(bytes.Buffer)
+	s.Transformer.Apply(content, final)
+	return s.Target.Publish(path, final)
 }
 
 func (s *Site) WriteAlias(path string, permalink template.HTML) (err error) {

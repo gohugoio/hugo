@@ -17,14 +17,18 @@ func (t *Transformer) Apply(r io.Reader, w io.Writer) (err error) {
 		return
 	}
 
-	if err = t.absUrlify(tr); err != nil {
+	if err = t.absUrlify(tr, elattr{"a", "href"}, elattr{"script", "src"}); err != nil {
 		return
 	}
 
 	return tr.Render(w)
 }
 
-func (t *Transformer) absUrlify(tr *htmltran.Transformer) (err error) {
+type elattr struct {
+	tag, attr string
+}
+
+func (t *Transformer) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (err error) {
 	var baseURL, inURL *url.URL
 
 	if baseURL, err = url.Parse(t.BaseURL); err != nil {
@@ -38,9 +42,11 @@ func (t *Transformer) absUrlify(tr *htmltran.Transformer) (err error) {
 		return baseURL.ResolveReference(inURL).String()
 	}
 
-	if err = tr.Apply(htmltran.TransformAttrib("src", replace), "script"); err != nil {
-		return
+	for _, el := range selectors {
+		if err = tr.Apply(htmltran.TransformAttrib(el.attr, replace), el.tag); err != nil {
+			return
+		}
 	}
 
-	return tr.Apply(htmltran.TransformAttrib("href", replace), "a")
+	return
 }

@@ -96,8 +96,9 @@ func TestPageCount(t *testing.T) {
 		t.Errorf("No indexed rendered. %v", target.files)
 	}
 
-	if len(blueIndex) != 2 {
-		t.Errorf("Number of pages does not equal 2, got %d. %q", len(blueIndex), blueIndex)
+	expected := "<html><head></head><body>..</body></html>"
+	if string(blueIndex) != expected {
+		t.Errorf("Index template does not match expected: %q, got: %q", expected, string(blueIndex))
 	}
 
 	for _, s := range []string{
