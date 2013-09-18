@@ -39,6 +39,7 @@ type Content []byte
 type Page interface {
 	FrontMatter() FrontMatter
 	Content() Content
+	IsRenderable() bool
 }
 
 type page struct {
@@ -53,6 +54,10 @@ func (p *page) Content() Content {
 
 func (p *page) FrontMatter() FrontMatter {
 	return p.frontmatter
+}
+
+func (p *page) IsRenderable() bool {
+	return p.render
 }
 
 // ReadFrom reads the content from an io.Reader and constructs a page.

@@ -10,24 +10,25 @@ import (
 
 var EMPTY_PAGE = ""
 
-var SIMPLE_PAGE = "---\ntitle: Simple\n---\nSimple Page\n"
-var INVALID_FRONT_MATTER_MISSING = "This is a test"
-
-var INVALID_FRONT_MATTER_SHORT_DELIM = `
+const (
+	SIMPLE_PAGE                      = "---\ntitle: Simple\n---\nSimple Page\n"
+	INVALID_FRONT_MATTER_MISSING     = "This is a test"
+	RENDER_NO_FRONT_MATTER           = "<!doctype><html><head></head><body>This is a test</body></html>"
+	INVALID_FRONT_MATTER_SHORT_DELIM = `
 --
 title: Short delim start
 ---
 Short Delim
 `
 
-var INVALID_FRONT_MATTER_SHORT_DELIM_ENDING = `
+	INVALID_FRONT_MATTER_SHORT_DELIM_ENDING = `
 ---
 title: Short delim ending
 --
 Short Delim
 `
 
-var INVALID_FRONT_MATTER_LEADING_WS = `
+	INVALID_FRONT_MATTER_LEADING_WS = `
 
  ---
 title: Leading WS
@@ -35,7 +36,7 @@ title: Leading WS
 Leading
 `
 
-var SIMPLE_PAGE_JSON = `
+	SIMPLE_PAGE_JSON = `
 {
 "title": "spf13-vim 3.0 release and new website",
 "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
@@ -50,8 +51,8 @@ var SIMPLE_PAGE_JSON = `
 
 Content of the file goes Here
 `
-var SIMPLE_PAGE_RFC3339_DATE = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
-var SIMPLE_PAGE_JSON_MULTIPLE = `
+	SIMPLE_PAGE_RFC3339_DATE  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
+	SIMPLE_PAGE_JSON_MULTIPLE = `
 {
 	"title": "foobar",
 	"customData": { "foo": "bar" },
@@ -60,34 +61,34 @@ var SIMPLE_PAGE_JSON_MULTIPLE = `
 Some text
 `
 
-var SIMPLE_PAGE_JSON_COMPACT = `
+	SIMPLE_PAGE_JSON_COMPACT = `
 {"title":"foobar","customData":{"foo":"bar"},"date":"2012-08-06"}
 Text
 `
 
-var SIMPLE_PAGE_NOLAYOUT = `---
+	SIMPLE_PAGE_NOLAYOUT = `---
 title: simple_no_layout
 ---
 No Layout called out`
 
-var SIMPLE_PAGE_LAYOUT_FOOBAR = `---
+	SIMPLE_PAGE_LAYOUT_FOOBAR = `---
 title: simple layout foobar
 layout: foobar
 ---
 Layout foobar`
 
-var SIMPLE_PAGE_TYPE_FOOBAR = `---
+	SIMPLE_PAGE_TYPE_FOOBAR = `---
 type: foobar
 ---
 type foobar`
 
-var SIMPLE_PAGE_TYPE_LAYOUT = `---
+	SIMPLE_PAGE_TYPE_LAYOUT = `---
 type: barfoo
 layout: buzfoo
 ---
 type and layout set`
 
-var SIMPLE_PAGE_WITH_SUMMARY_DELIMITER = `---
+	SIMPLE_PAGE_WITH_SUMMARY_DELIMITER = `---
 title: Simple
 ---
 Summary Next Line
@@ -96,17 +97,18 @@ Summary Next Line
 Some more text
 `
 
-var SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
+	SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
 title: Simple
 ---
 Summary Same Line<!--more-->
 
 Some more text
 `
+)
 
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
-		t.Fatalf("err is nil")
+		t.Fatalf("err is nil.  Expected: %s", expected)
 	}
 	if err.Error() != expected {
 		t.Errorf("err.Error() returned: '%s'.  Expected: '%s'", err.Error(), expected)
@@ -237,13 +239,30 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		r   string
 		err string
 	}{
-		{INVALID_FRONT_MATTER_SHORT_DELIM, "Unable to locate frontmatter"},
 		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "Unable to read frontmatter at filepos 45: EOF"},
-		{INVALID_FRONT_MATTER_MISSING, "Unable to locate frontmatter"},
 	}
 	for _, test := range tests {
 		_, err := ReadFrom(strings.NewReader(test.r), "invalid/front/matter/short/delim")
 		checkError(t, err, test.err)
+	}
+}
+
+func TestShouldRenderContent(t *testing.T) {
+	var tests = []struct {
+		text   string
+		render bool
+	}{
+		{INVALID_FRONT_MATTER_MISSING, true},
+		// TODO how to deal with malformed frontmatter.  In this case it'll be rendered as markdown.
+		{INVALID_FRONT_MATTER_SHORT_DELIM, true},
+		{RENDER_NO_FRONT_MATTER, false},
+	}
+
+	for _, test := range tests {
+		p := pageMust(ReadFrom(strings.NewReader(test.text), "render/front/matter"))
+		if p.IsRenderable() != test.render {
+			t.Errorf("expected p.IsRenderable() == %t, got %t", test.render, p.IsRenderable())
+		}
 	}
 }
 

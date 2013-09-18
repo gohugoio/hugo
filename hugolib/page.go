@@ -44,6 +44,7 @@ type Page struct {
 	Aliases     []string
 	Tmpl        bundle.Template
 	Markup      string
+	renderable  bool
 	PageMeta
 	File
 	Position
@@ -126,6 +127,10 @@ func StripHTML(s string) string {
 		output = b.String()
 	}
 	return output
+}
+
+func (p *Page) IsRenderable() bool {
+	return p.renderable
 }
 
 func (p *Page) guessSection() {
@@ -323,12 +328,15 @@ type frontmatterType struct {
 	includeMark        bool
 }
 
+const YAML_DELIM = "---"
+const TOML_DELIM = "+++"
+
 func (page *Page) detectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {
 	case '-':
-		return &frontmatterType{[]byte{'-', '-', '-'}, []byte{'-', '-', '-'}, page.handleYamlMetaData, false}
+		return &frontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), page.handleYamlMetaData, false}
 	case '+':
-		return &frontmatterType{[]byte{'+', '+', '+'}, []byte{'+', '+', '+'}, page.handleTomlMetaData, false}
+		return &frontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), page.handleTomlMetaData, false}
 	case '{':
 		return &frontmatterType{[]byte{'{'}, []byte{'}'}, page.handleJsonMetaData, true}
 	default:
@@ -359,18 +367,20 @@ func (page *Page) parse(reader io.Reader) error {
 		return err
 	}
 
-	front := p.FrontMatter()
-	if len(front) == 0 {
-		return errors.New("Unable to locate frontmatter")
-	}
-	fm := page.detectFrontMatter(rune(front[0]))
-	meta, err := fm.parse(front)
-	if err != nil {
-		return err
-	}
+	page.renderable = p.IsRenderable()
 
-	if err = page.update(meta); err != nil {
-		return err
+	front := p.FrontMatter()
+
+	if len(front) != 0 {
+		fm := page.detectFrontMatter(rune(front[0]))
+		meta, err := fm.parse(front)
+		if err != nil {
+			return err
+		}
+
+		if err = page.update(meta); err != nil {
+			return err
+		}
 	}
 
 	switch page.Markup {
