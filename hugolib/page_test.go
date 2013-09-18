@@ -170,7 +170,7 @@ func checkPageDate(t *testing.T, page *Page, time time.Time) {
 }
 
 func TestCreateNewPage(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE), "simple")
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE), "simple.md")
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -182,7 +182,7 @@ func TestCreateNewPage(t *testing.T) {
 }
 
 func TestPageWithDelimiter(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER), "simple")
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER), "simple.md")
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -195,7 +195,7 @@ func TestPageWithDelimiter(t *testing.T) {
 }
 
 func TestPageWithMoreTag(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE), "simple")
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE), "simple.md")
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}

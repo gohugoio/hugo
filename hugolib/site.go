@@ -286,7 +286,7 @@ func (s *Site) setUrlPath(p *Page) error {
 	x := strings.Split(y, "/")
 
 	if len(x) <= 1 {
-		return fmt.Errorf("Zero length page name")
+		return fmt.Errorf("Zero length page name.  filename: %s", y)
 	}
 
 	p.Section = strings.Trim(x[1], "/")
@@ -400,9 +400,21 @@ func (s *Site) RenderAliases() error {
 	return nil
 }
 
-func (s *Site) RenderPages() error {
+func (s *Site) RenderPages() (err error) {
 	for _, p := range s.Pages {
-		content, err := s.RenderThingOrDefault(p, p.Layout(), "_default/single.html")
+		var layout string
+
+		if !p.IsRenderable() {
+			layout = "__" + p.FileName
+			_, err := s.Tmpl.New(layout).Parse(string(p.Content))
+			if err != nil {
+				return err
+			}
+		} else {
+			layout = p.Layout()
+		}
+
+		content, err := s.RenderThingOrDefault(p, layout, "_default/single.html")
 		if err != nil {
 			return err
 		}

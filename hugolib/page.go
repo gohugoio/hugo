@@ -90,8 +90,7 @@ func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		File:   File{FileName: filename, Extension: "html"},
 		Node:   Node{Keywords: make([]string, 10, 30)},
-		Params: make(map[string]interface{}),
-		Markup: "md"}
+		Params: make(map[string]interface{})}
 	page.Date, _ = time.Parse("20060102", "20080101")
 	page.guessSection()
 	return &page
@@ -361,6 +360,18 @@ func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 	return buffer
 }
 
+func (page *Page) guessMarkupType() string {
+	if page.Markup != "" {
+		return page.Markup
+	}
+
+	if strings.HasSuffix(page.FileName, ".md") {
+		return "md"
+	}
+
+	return "unknown"
+}
+
 func (page *Page) parse(reader io.Reader) error {
 	p, err := parser.ReadFrom(reader)
 	if err != nil {
@@ -383,11 +394,15 @@ func (page *Page) parse(reader io.Reader) error {
 		}
 	}
 
-	switch page.Markup {
-	case "md":
+	switch page.guessMarkupType() {
+	case "md", "markdown", "mdown":
 		page.convertMarkdown(bytes.NewReader(p.Content()))
 	case "rst":
 		page.convertRestructuredText(bytes.NewReader(p.Content()))
+	case "html":
+		fallthrough
+	default:
+		page.Content = template.HTML(p.Content())
 	}
 	return nil
 }

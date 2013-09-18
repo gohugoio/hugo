@@ -188,6 +188,63 @@ func TestSetOutFile(t *testing.T) {
 	}
 }
 
+func TestSkipRender(t *testing.T) {
+	files := make(map[string][]byte)
+	target := &InMemoryTarget{files: files}
+	sources := []byteSource{
+		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>")},
+		{"sect/doc3.md", []byte("# doc3\n*some* content")},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
+		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
+	}
+
+	s := &Site{
+		Target: target,
+		Config: Config{BaseUrl: "http://auth/bub/"},
+		Source: &inMemorySource{sources},
+	}
+	s.initializeSiteInfo()
+	s.prepTemplates()
+
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
+
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	if err := s.RenderPages(); err != nil {
+		t.Fatalf("Unable to render pages. %s", err)
+	}
+
+	tests := []struct {
+		doc      string
+		expected string
+	}{
+		{"sect/doc1.html", "<html><head></head><body><h1>title</h1>\n\n<p>some <em>content</em></p>\n</body></html>"},
+		{"sect/doc2.html", "<!DOCTYPE html><html><head></head><body>more content</body></html>"},
+		{"sect/doc3.html", "<html><head></head><body><h1>doc3</h1>\n\n<p><em>some</em> content</p>\n</body></html>"},
+		{"sect/doc4.html", "<html><head></head><body><h1>doc4</h1>\n\n<p><em>some content</em></p>\n</body></html>"},
+		{"sect/doc5.html", "<!DOCTYPE html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
+	}
+
+	for _, test := range tests {
+		content, ok := target.files[test.doc]
+		if !ok {
+			t.Fatalf("Did not find %s in target. %v", test.doc, target.files)
+		}
+
+		if !bytes.Equal(content, []byte(test.expected)) {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		}
+	}
+}
+
 func TestAbsUrlify(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &InMemoryTarget{files: files}
@@ -219,6 +276,6 @@ func TestAbsUrlify(t *testing.T) {
 
 	expected := "<html><head></head><body><a href=\"http://auth/bub/foobar.jpg\">Going</a></body></html>"
 	if string(content) != expected {
-		t.Errorf("Expected: %q, got: %q", expected, string(content))
+		t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
 	}
 }

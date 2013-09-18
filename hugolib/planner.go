@@ -18,8 +18,8 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 			fmt.Fprintf(out, " (renderer: n/a)")
 		}
 		if s.Tmpl != nil {
-		fmt.Fprintf(out, " (layout: %s, exists: %t)", p.Layout(), s.Tmpl.Lookup(p.Layout()) != nil)
-	}
+			fmt.Fprintf(out, " (layout: %s, exists: %t)", p.Layout(), s.Tmpl.Lookup(p.Layout()) != nil)
+		}
 		fmt.Fprintf(out, "\n")
 		fmt.Fprintf(out, " canonical => ")
 		if s.Target == nil {
