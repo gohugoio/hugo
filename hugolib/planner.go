@@ -11,7 +11,11 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 	}
 
 	for _, p := range s.Pages {
-		fmt.Fprintf(out, "%s\n", p.FileName)
+		fmt.Fprintf(out, "%s", p.FileName)
+		if p.IsRenderable() {
+			fmt.Fprintf(out, " (renderer: markdown)")
+		}
+		fmt.Fprintf(out, "\n")
 		fmt.Fprintf(out, " canonical => ")
 		if s.Target == nil {
 			fmt.Fprintf(out, "%s\n", "!no target specified!")

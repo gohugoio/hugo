@@ -8,26 +8,26 @@ import (
 	"testing"
 )
 
-var TEMPLATE_TITLE = "{{ .Title }}"
-var PAGE_SIMPLE_TITLE = `---
+const (
+	TEMPLATE_TITLE    = "{{ .Title }}"
+	PAGE_SIMPLE_TITLE = `---
 title: simple template
 ---
 content`
 
-var TEMPLATE_MISSING_FUNC = "{{ .Title | funcdoesnotexists }}"
-var TEMPLATE_FUNC = "{{ .Title | urlize }}"
-var TEMPLATE_CONTENT = "{{ .Content }}"
-var TEMPLATE_DATE = "{{ .Date }}"
-var INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
-var TEMPLATE_WITH_URL = "<a href=\"foobar.jpg\">Going</a>"
-
-var PAGE_URL_SPECIFIED = `---
+	TEMPLATE_MISSING_FUNC        = "{{ .Title | funcdoesnotexists }}"
+	TEMPLATE_FUNC                = "{{ .Title | urlize }}"
+	TEMPLATE_CONTENT             = "{{ .Content }}"
+	TEMPLATE_DATE                = "{{ .Date }}"
+	INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
+	TEMPLATE_WITH_URL            = "<a href=\"foobar.jpg\">Going</a>"
+	PAGE_URL_SPECIFIED           = `---
 title: simple template
 url: "mycategory/my-whatever-content/"
 ---
 content`
 
-var PAGE_WITH_MD = `---
+	PAGE_WITH_MD = `---
 title: page with md
 ---
 # heading 1
@@ -35,6 +35,7 @@ text
 ## heading 2
 more text
 `
+)
 
 func pageMust(p *Page, err error) *Page {
 	if err != nil {
