@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"io"
 	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
@@ -25,6 +24,7 @@ import (
 	"github.com/spf13/hugo/transform"
 	"github.com/spf13/nitro"
 	"html/template"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -68,18 +68,18 @@ func PrintErr(str string, a ...interface{}) {
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Config     Config
-	Pages      Pages
-	Tmpl       bundle.Template
-	Indexes    IndexList
-	Source     source.Input
-	Sections   Index
-	Info       SiteInfo
-	Shortcodes map[string]ShortcodeFunc
-	timer      *nitro.B
+	Config      Config
+	Pages       Pages
+	Tmpl        bundle.Template
+	Indexes     IndexList
+	Source      source.Input
+	Sections    Index
+	Info        SiteInfo
+	Shortcodes  map[string]ShortcodeFunc
+	timer       *nitro.B
 	Transformer *transform.Transformer
-	Target     target.Output
-	Alias      target.AliasPublisher
+	Target      target.Output
+	Alias       target.AliasPublisher
 }
 
 type SiteInfo struct {

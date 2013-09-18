@@ -24,12 +24,15 @@ var (
 	CONTENT_INCOMPLETE_BEG_FM_DELIM = "--\ntitle: incomplete beg fm delim\n---\nincomplete frontmatter delim"
 	CONTENT_INCOMPLETE_END_FM_DELIM = "---\ntitle: incomplete end fm delim\n--\nincomplete frontmatter delim"
 	CONTENT_MISSING_END_FM_DELIM    = "---\ntitle: incomplete end fm delim\nincomplete frontmatter delim"
+	CONTENT_SLUG_WORKING            = "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\nslug doc 2 content"
+	CONTENT_SLUG_WORKING_VARIATION  = "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\nslug doc 3 content"
+	CONTENT_SLUG_BUG                = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
 	CONTENT_FM_NO_DOC               = "---\ntitle: no doc\n---"
-	CONTENT_WITH_JS_FM = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	CONTENT_WITH_JS_FM              = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
 )
 
 var lineEndings = []string{"\n", "\r\n"}
-var delimiters = []string{"-", "+"}
+var delimiters = []string{"---", "+++"}
 
 func pageMust(p Page, err error) *page {
 	if err != nil {
@@ -83,13 +86,13 @@ func checkPageFrontMatterContent(t *testing.T, p *page, frontMatter string) {
 		return
 	}
 	if !bytes.Equal(p.frontmatter, []byte(frontMatter)) {
-		t.Errorf("expected frontmatter %q, got %q", frontMatter, p.frontmatter)
+		t.Errorf("frontmatter mismatch\nexp: %q\ngot: %q", frontMatter, p.frontmatter)
 	}
 }
 
 func checkPageContent(t *testing.T, p *page, expected string) {
 	if !bytes.Equal(p.content, []byte(expected)) {
-		t.Errorf("expected content %q, got %q", expected, p.content)
+		t.Errorf("content mismatch\nexp: %q\ngot: %q", expected, p.content)
 	}
 }
 
@@ -101,6 +104,7 @@ func TestStandaloneCreatePageFrom(t *testing.T) {
 		frontMatter        string
 		bodycontent        string
 	}{
+
 		{CONTENT_NO_FRONTMATTER, true, true, "", "a page with no front matter"},
 		{CONTENT_WITH_FRONTMATTER, true, false, "---\ntitle: front matter\n---\n", "Content with front matter"},
 		{CONTENT_HTML_NODOCTYPE, false, true, "", "<html>\n\t<body>\n\t</body>\n</html>"},
@@ -109,6 +113,9 @@ func TestStandaloneCreatePageFrom(t *testing.T) {
 		{CONTENT_LWS_HTML, false, true, "", "<html><body></body></html>"},
 		{CONTENT_LWS_LF_HTML, false, true, "", "<html><body></body></html>"},
 		{CONTENT_WITH_JS_FM, true, false, "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
+		{CONTENT_SLUG_WORKING, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\n", "slug doc 2 content"},
+		{CONTENT_SLUG_WORKING_VARIATION, true, false, "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\n", "slug doc 3 content"},
+		{CONTENT_SLUG_BUG, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n", "slug doc 2 content"},
 	}
 
 	for _, test := range tests {
@@ -224,6 +231,7 @@ func TestExtractFrontMatter(t *testing.T) {
 		{"---\nralb\n---\n", []byte("---\nralb\n---\n"), true},
 		{"---\nminc\n---\ncontent", []byte("---\nminc\n---\n"), true},
 		{"---\ncnim\n---\ncontent\n", []byte("---\ncnim\n---\n"), true},
+		{"---\ntitle: slug doc 2\nslug: slug-doc-2\n---\ncontent\n", []byte("---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n"), true},
 	}
 
 	for _, test := range tests {
@@ -231,8 +239,8 @@ func TestExtractFrontMatter(t *testing.T) {
 			test.frontmatter = strings.Replace(test.frontmatter, "\n", ending, -1)
 			test.extracted = bytes.Replace(test.extracted, []byte("\n"), []byte(ending), -1)
 			for _, delim := range delimiters {
-				test.frontmatter = strings.Replace(test.frontmatter, "-", delim, -1)
-				test.extracted = bytes.Replace(test.extracted, []byte("-"), []byte(delim), -1)
+				test.frontmatter = strings.Replace(test.frontmatter, "---", delim, -1)
+				test.extracted = bytes.Replace(test.extracted, []byte("---"), []byte(delim), -1)
 				line, err := peekLine(bufio.NewReader(strings.NewReader(test.frontmatter)))
 				if err != nil {
 					continue
@@ -245,8 +253,7 @@ func TestExtractFrontMatter(t *testing.T) {
 					continue
 				}
 				if !bytes.Equal(fm, test.extracted) {
-					t.Logf("\n%q\n", string(test.frontmatter))
-					t.Errorf("Expected front matter %q. got %q", string(test.extracted), fm)
+					t.Errorf("Frontmatter did not match:\nexp: %q\ngot: %q", string(test.extracted), fm)
 				}
 			}
 		}
@@ -285,8 +292,7 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		}
 		if !bytes.Equal(fm, []byte(test.extracted)) {
 			t.Logf("\n%q\n", string(test.frontmatter))
-			t.Errorf("Expected front matter %q. got %q", string(test.extracted), fm)
+			t.Errorf("Frontmatter did not match:\nexp: %q\ngot: %q", string(test.extracted), fm)
 		}
 	}
 }
-

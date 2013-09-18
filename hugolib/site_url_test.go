@@ -10,7 +10,12 @@ import (
 
 const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
 
-const SLUG_DOC_2 = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content\n"
+const SLUG_DOC_2 = `---
+title: slug doc 2
+slug: slug-doc-2
+---
+slug doc 2 content
+`
 
 const INDEX_TEMPLATE = "{{ range .Data.Pages }}.{{ end }}"
 
@@ -58,7 +63,7 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 
 var urlFakeSource = []byteSource{
 	{"content/blue/doc1.md", []byte(SLUG_DOC_1)},
-//	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
+	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
 }
 
 func TestPageCount(t *testing.T) {
@@ -95,7 +100,7 @@ func TestPageCount(t *testing.T) {
 		t.Errorf("No indexed rendered. %v", target.files)
 	}
 
-	expected := "<html><head></head><body>.</body></html>"
+	expected := "<html><head></head><body>..</body></html>"
 	if string(blueIndex) != expected {
 		t.Errorf("Index template does not match expected: %q, got: %q", expected, string(blueIndex))
 	}

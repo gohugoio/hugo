@@ -10,13 +10,8 @@ import (
 
 var EMPTY_PAGE = ""
 
-var SIMPLE_PAGE = `---
-title: Simple
----
-Simple Page
-`
-
-var INVALID_FRONT_MATTER_MISSING = `This is a test`
+var SIMPLE_PAGE = "---\ntitle: Simple\n---\nSimple Page\n"
+var INVALID_FRONT_MATTER_MISSING = "This is a test"
 
 var INVALID_FRONT_MATTER_SHORT_DELIM = `
 --
@@ -95,7 +90,7 @@ type and layout set`
 var SIMPLE_PAGE_WITH_SUMMARY_DELIMITER = `---
 title: Simple
 ---
-Simple Page
+Summary Next Line
 
 <!--more-->
 Some more text
@@ -104,7 +99,7 @@ Some more text
 var SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
 title: Simple
 ---
-Simple Page<!--more-->
+Summary Same Line<!--more-->
 
 Some more text
 `
@@ -144,7 +139,7 @@ func checkPageTitle(t *testing.T, page *Page, title string) {
 
 func checkPageContent(t *testing.T, page *Page, content string) {
 	if page.Content != template.HTML(content) {
-		t.Fatalf("Page content is: %s.  Expected %s", page.Content, content)
+		t.Fatalf("Page content mismatch\nexp: %q\ngot: %q", content, page.Content)
 	}
 }
 
@@ -190,8 +185,8 @@ func TestPageWithDelimiter(t *testing.T) {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 	checkPageTitle(t, p, "Simple")
-	checkPageContent(t, p, "<p>Simple Page</p>\n\n<p>Some more text</p>\n")
-	checkPageSummary(t, p, "<p>Simple Page</p>\n")
+	checkPageContent(t, p, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n")
+	checkPageSummary(t, p, "<p>Summary Next Line</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html")
 
@@ -203,8 +198,8 @@ func TestPageWithMoreTag(t *testing.T) {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 	checkPageTitle(t, p, "Simple")
-	checkPageContent(t, p, "<p>Simple Page</p>\n\n<p>Some more text</p>\n")
-	checkPageSummary(t, p, "<p>Simple Page</p>\n")
+	checkPageContent(t, p, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n")
+	checkPageSummary(t, p, "<p>Summary Same Line</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html")
 }
@@ -243,7 +238,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		err string
 	}{
 		{INVALID_FRONT_MATTER_SHORT_DELIM, "Unable to locate frontmatter"},
-		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "EOF"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "Unable to read frontmatter at filepos 45: EOF"},
 		{INVALID_FRONT_MATTER_MISSING, "Unable to locate frontmatter"},
 	}
 	for _, test := range tests {

@@ -1,9 +1,9 @@
 package transform
 
 import (
+	htmltran "code.google.com/p/go-html-transform/html/transform"
 	"io"
 	"net/url"
-	htmltran "code.google.com/p/go-html-transform/html/transform"
 )
 
 type Transformer struct {

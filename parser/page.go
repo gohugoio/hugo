@@ -2,9 +2,9 @@ package parser
 
 import (
 	"bufio"
-	"fmt"
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"unicode"
 )
@@ -164,22 +164,34 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 }
 
 func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatter, err error) {
-	var level int = 0
-	var sameDelim = bytes.Equal(left, right)
+	var (
+		c         byte
+		level     int = 0
+		bytesRead int = 0
+		sameDelim     = bytes.Equal(left, right)
+	)
+
 	wr := new(bytes.Buffer)
 	for {
-		c, err := r.ReadByte()
-		if err != nil {
-			return nil, err
+		if c, err = r.ReadByte(); err != nil {
+			return nil, fmt.Errorf("Unable to read frontmatter at filepos %d: %s", bytesRead, err)
 		}
+		bytesRead += 1
 
 		switch c {
 		case left[0]:
-			match, err := matches(r, wr, []byte{c}, left)
-			if err != nil {
+			var (
+				buf       []byte = []byte{c}
+				remaining []byte
+			)
+
+			if remaining, err = r.Peek(len(left) - 1); err != nil {
 				return nil, err
 			}
-			if match {
+
+			buf = append(buf, remaining...)
+
+			if bytes.Equal(buf, left) {
 				if sameDelim {
 					if level == 0 {
 						level = 1
@@ -188,6 +200,19 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 					}
 				} else {
 					level += 1
+				}
+			}
+
+			if _, err = wr.Write([]byte{c}); err != nil {
+				return nil, err
+			}
+
+			if level == 0 {
+				if _, err = r.Read(remaining); err != nil {
+					return nil, err
+				}
+				if _, err = wr.Write(remaining); err != nil {
+					return nil, err
 				}
 			}
 		case right[0]:
@@ -216,6 +241,10 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	return nil, errors.New("Could not find front matter.")
 }
 
+func matches_quick(buf, expected []byte) (ok bool, err error) {
+	return bytes.Equal(expected, buf), nil
+}
+
 func matches(r *bufio.Reader, wr io.Writer, c, expected []byte) (ok bool, err error) {
 	if len(expected) == 1 {
 		if _, err = wr.Write(c); err != nil {
@@ -223,16 +252,13 @@ func matches(r *bufio.Reader, wr io.Writer, c, expected []byte) (ok bool, err er
 		}
 		return bytes.Equal(c, expected), nil
 	}
+
 	buf := make([]byte, len(expected)-1)
-	if _, err = r.Read(buf); err != nil {
+	if buf, err = r.Peek(len(expected) - 1); err != nil {
 		return
 	}
 
 	buf = append(c, buf...)
-	if _, err = wr.Write(buf); err != nil {
-		return
-	}
-
 	return bytes.Equal(expected, buf), nil
 }
 
