@@ -14,11 +14,16 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 		fmt.Fprintf(out, "%s", p.FileName)
 		if p.IsRenderable() {
 			fmt.Fprintf(out, " (renderer: markdown)")
+		} else {
+			fmt.Fprintf(out, " (renderer: n/a)")
 		}
+		if s.Tmpl != nil {
+		fmt.Fprintf(out, " (layout: %s, exists: %t)", p.Layout(), s.Tmpl.Lookup(p.Layout()) != nil)
+	}
 		fmt.Fprintf(out, "\n")
 		fmt.Fprintf(out, " canonical => ")
 		if s.Target == nil {
-			fmt.Fprintf(out, "%s\n", "!no target specified!")
+			fmt.Fprintf(out, "%s\n\n", "!no target specified!")
 			continue
 		}
 
@@ -39,6 +44,7 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 			}
 			fmt.Fprintf(out, " %s => %s\n", alias, aliasTrans)
 		}
+		fmt.Fprintln(out)
 	}
 	return
 }

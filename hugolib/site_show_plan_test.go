@@ -17,6 +17,7 @@ type byteSource struct {
 var fakeSource = []byteSource{
 	{"foo/bar/file.md", []byte(SIMPLE_PAGE)},
 	{"alias/test/file1.md", []byte(ALIAS_DOC_1)},
+	{"section/somecontent.html", []byte(RENDER_NO_FRONT_MATTER)},
 }
 
 type inMemorySource struct {
@@ -54,8 +55,9 @@ func TestDegenerateNoTarget(t *testing.T) {
 		Source: &inMemorySource{fakeSource},
 	}
 	must(s.CreatePages())
-	expected := "foo/bar/file.md (renderer: markdown)\n canonical => !no target specified!\n" +
-		"alias/test/file1.md (renderer: markdown)\n canonical => !no target specified!\n"
+	expected := "foo/bar/file.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
+		"alias/test/file1.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
+		"section/somecontent.html (renderer: n/a)\n canonical => !no target specified!\n\n"
 	checkShowPlanExpected(t, s, expected)
 }
 
@@ -66,11 +68,13 @@ func TestFileTarget(t *testing.T) {
 		Alias:  new(target.HTMLRedirectAlias),
 	}
 	must(s.CreatePages())
-	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file/index.html\n" +
+	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => alias/test/file1/index.html\n" +
 		" alias1/ => alias1/index.html\n" +
-		" alias-2/ => alias-2/index.html\n"
+		" alias-2/ => alias-2/index.html\n\n" +
+		"section/somecontent.html (renderer: n/a)\n canonical => section/somecontent/index.html\n\n"
+
 	checkShowPlanExpected(t, s, expected)
 }
 
@@ -81,11 +85,12 @@ func TestFileTargetUgly(t *testing.T) {
 		Alias:  new(target.HTMLRedirectAlias),
 	}
 	s.CreatePages()
-	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file.html\n" +
+	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => alias/test/file1.html\n" +
 		" alias1/ => alias1/index.html\n" +
-		" alias-2/ => alias-2/index.html\n"
+		" alias-2/ => alias-2/index.html\n\n" +
+		"section/somecontent.html (renderer: n/a)\n canonical => section/somecontent.html\n\n"
 	checkShowPlanExpected(t, s, expected)
 }
 
@@ -97,10 +102,11 @@ func TestFileTargetPublishDir(t *testing.T) {
 	}
 
 	must(s.CreatePages())
-	expected := "foo/bar/file.md (renderer: markdown)\n canonical => ../public/foo/bar/file/index.html\n" +
+	expected := "foo/bar/file.md (renderer: markdown)\n canonical => ../public/foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => ../public/alias/test/file1/index.html\n" +
 		" alias1/ => ../public/alias1/index.html\n" +
-		" alias-2/ => ../public/alias-2/index.html\n"
+		" alias-2/ => ../public/alias-2/index.html\n\n" +
+		"section/somecontent.html (renderer: n/a)\n canonical => ../public/section/somecontent/index.html\n\n"
 	checkShowPlanExpected(t, s, expected)
 }
