@@ -39,6 +39,9 @@ func (t *Transformer) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (
 		if inURL, err = url.Parse(in); err != nil {
 			return in + "?"
 		}
+		if fragmentOnly(inURL) {
+			return in
+		}
 		return baseURL.ResolveReference(inURL).String()
 	}
 
@@ -49,4 +52,8 @@ func (t *Transformer) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (
 	}
 
 	return
+}
+
+func fragmentOnly(u *url.URL) bool {
+	return u.Fragment != "" && u.Scheme == "" && u.Opaque == "" && u.User == nil && u.Host == "" && u.Path == "" && u.Path == "" && u.RawQuery == ""
 }

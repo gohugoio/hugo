@@ -248,10 +248,14 @@ func TestSkipRender(t *testing.T) {
 func TestAbsUrlify(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &InMemoryTarget{files: files}
+	sources := []byteSource{
+		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
+		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
+	}
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/"},
-		Source: &inMemorySource{urlFakeSource},
+		Source: &inMemorySource{sources},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()
@@ -269,13 +273,22 @@ func TestAbsUrlify(t *testing.T) {
 		t.Fatalf("Unable to render pages. %s", err)
 	}
 
-	content, ok := target.files["content/blue/slug-doc-1.html"]
-	if !ok {
-		t.Fatalf("Unable to locate rendered content")
+	tests := []struct {
+		file, expected string
+	}{
+		{"content/blue/doc2.html", "<html><head></head><body><a href=\"http://auth/bub/foobar.jpg\">Going</a></body></html>"},
+		{"sect/doc1.html", "<!DOCTYPE html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
 	}
 
-	expected := "<html><head></head><body><a href=\"http://auth/bub/foobar.jpg\">Going</a></body></html>"
+	for _, test := range tests {
+	content, ok := target.files[test.file]
+	if !ok {
+		t.Fatalf("Unable to locate rendered content: %s", test.file)
+	}
+
+	expected := test.expected
 	if string(content) != expected {
 		t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
 	}
+}
 }
