@@ -158,7 +158,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 	}
 }
 
-func TestSetOutFile(t *testing.T) {
+func TestTargetPath(t *testing.T) {
 	tests := []struct {
 		doc             string
 		content         string
@@ -175,19 +175,15 @@ func TestSetOutFile(t *testing.T) {
 		return
 	}
 	for _, test := range tests {
-		var err error
 		s := &Site{
 			Config: Config{ContentDir: "content"},
 		}
 		p := pageMust(ReadFrom(strings.NewReader(test.content), s.Config.GetAbsPath(test.doc)))
-		if err = s.setUrlPath(p); err != nil {
-			t.Fatalf("Unable to set urlpath: %s", err)
-		}
 
 		expected := test.expectedOutFile
 
-		if p.OutFile != expected {
-			t.Errorf("%s => p.OutFile  expected: '%s', got: '%s'", test.doc, expected, p.OutFile)
+		if p.TargetPath() != expected {
+			t.Errorf("%s => OutFile  expected: '%s', got: '%s'", test.doc, expected, p.TargetPath())
 		}
 
 		if p.Section != test.expectedSection {
@@ -240,7 +236,7 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc3.html", "<html><head></head><body><h1>doc3</h1>\n\n<p><em>some</em> content</p>\n</body></html>"},
 		{"sect/doc4.html", "<html><head></head><body><h1>doc4</h1>\n\n<p><em>some content</em></p>\n</body></html>"},
 		{"sect/doc5.html", "<!DOCTYPE html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
-		{"./doc7.html", "<html><head></head><body>doc7 content</body></html>"},
+		{"doc7.html", "<html><head></head><body>doc7 content</body></html>"},
 	}
 
 	for _, test := range tests {

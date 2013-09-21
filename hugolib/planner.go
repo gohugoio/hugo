@@ -27,7 +27,7 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 			continue
 		}
 
-		trns, err := s.Target.Translate(p.OutFile)
+		trns, err := s.Target.Translate(p.TargetPath())
 		if err != nil {
 			return err
 		}

@@ -52,7 +52,7 @@ type Page struct {
 }
 
 type File struct {
-	FileName, OutFile, Extension, Dir string
+	FileName, Extension, Dir string
 }
 
 type PageMeta struct {
@@ -432,3 +432,27 @@ func (page *Page) convertRestructuredText(lines io.Reader) {
 		page.Summary = template.HTML(getRstContent(summary))
 	}
 }
+
+func (p *Page) TargetPath() (outfile string) {
+
+	// Always use Url if it's specified
+	if len(strings.TrimSpace(p.Url)) > 2 {
+		outfile = strings.TrimSpace(p.Url)
+
+		if strings.HasSuffix(outfile, "/") {
+			outfile = outfile + "index.html"
+		}
+		return
+	}
+
+	if len(strings.TrimSpace(p.Slug)) > 0 {
+		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
+	} else {
+		// Fall back to filename
+		_, t := path.Split(p.FileName)
+		outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
+	}
+
+	return path.Join(p.Dir, strings.TrimSpace(outfile))
+}
+

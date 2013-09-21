@@ -26,7 +26,6 @@ import (
 	"html/template"
 	"io"
 	"os"
-	"path"
 	"strings"
 	"time"
 )
@@ -265,43 +264,12 @@ func (s *Site) CreatePages() (err error) {
 		page.Tmpl = s.Tmpl
 		page.Section = file.Section
 		page.Dir = file.Dir
-		if err = s.setUrlPath(page); err != nil {
-			return err
-		}
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}
 	}
 
 	s.Pages.Sort()
-	return
-}
-
-// Set p.Section and p.OutFile relying on p.FileName as the source.
-// Filename is broken apart for a "Section" which basically equates to
-// the folder the file exists in.
-func (s *Site) setUrlPath(p *Page) (err error) {
-
-	// Always use Url if it's specified
-	if len(strings.TrimSpace(p.Url)) > 2 {
-		p.OutFile = strings.TrimSpace(p.Url)
-
-		if strings.HasSuffix(p.OutFile, "/") {
-			p.OutFile = p.OutFile + "index.html"
-		}
-		return
-	}
-
-	var outfile string
-	if len(strings.TrimSpace(p.Slug)) > 0 {
-		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
-	} else {
-		// Fall back to filename
-		_, t := path.Split(p.FileName)
-		outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
-	}
-
-	p.OutFile = p.Dir + "/" + strings.TrimSpace(outfile)
 	return
 }
 
@@ -389,7 +357,7 @@ func (s *Site) RenderPages() (err error) {
 		var layout string
 
 		if !p.IsRenderable() {
-			layout = "__" + p.FileName
+			layout = "__" + p.TargetPath()
 			_, err := s.Tmpl.New(layout).Parse(string(p.Content))
 			if err != nil {
 				return err
@@ -402,7 +370,7 @@ func (s *Site) RenderPages() (err error) {
 		if err != nil {
 			return err
 		}
-		err = s.WritePublic(p.OutFile, content)
+		err = s.WritePublic(p.TargetPath(), content)
 		if err != nil {
 			return err
 		}
@@ -514,6 +482,8 @@ func (s *Site) RenderLists() error {
 }
 
 func (s *Site) RenderHomePage() error {
+	return nil
+
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	n.Url = helpers.Urlize(string(n.Site.BaseUrl))
