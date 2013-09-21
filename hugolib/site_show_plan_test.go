@@ -9,30 +9,19 @@ import (
 
 const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
 
-type byteSource struct {
-	name    string
-	content []byte
-}
-
-var fakeSource = []byteSource{
-	{"foo/bar/file.md", []byte(SIMPLE_PAGE)},
-	{"alias/test/file1.md", []byte(ALIAS_DOC_1)},
-	{"section/somecontent.html", []byte(RENDER_NO_FRONT_MATTER)},
-}
-
-type inMemorySource struct {
-	byteSource []byteSource
-}
-
-func (i *inMemorySource) Files() (files []*source.File) {
-	files = make([]*source.File, len(i.byteSource))
-	for i, fake := range i.byteSource {
-		files[i] = &source.File{
-			Name:     fake.name,
-			Contents: bytes.NewReader(fake.content),
-		}
-	}
-	return
+var fakeSource = []source.ByteSource{
+	{
+		Name:    "foo/bar/file.md",
+		Content: []byte(SIMPLE_PAGE),
+	},
+	{
+		Name:    "alias/test/file1.md",
+		Content: []byte(ALIAS_DOC_1),
+	},
+	{
+		Name:    "section/somecontent.html",
+		Content: []byte(RENDER_NO_FRONT_MATTER),
+	},
 }
 
 func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
@@ -52,7 +41,7 @@ func TestDegenerateNoFiles(t *testing.T) {
 
 func TestDegenerateNoTarget(t *testing.T) {
 	s := &Site{
-		Source: &inMemorySource{fakeSource},
+		Source: &source.InMemorySource{fakeSource},
 	}
 	must(s.CreatePages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
@@ -63,7 +52,7 @@ func TestDegenerateNoTarget(t *testing.T) {
 
 func TestFileTarget(t *testing.T) {
 	s := &Site{
-		Source: &inMemorySource{fakeSource},
+		Source: &source.InMemorySource{fakeSource},
 		Target: new(target.Filesystem),
 		Alias:  new(target.HTMLRedirectAlias),
 	}
@@ -81,7 +70,7 @@ func TestFileTarget(t *testing.T) {
 func TestFileTargetUgly(t *testing.T) {
 	s := &Site{
 		Target: &target.Filesystem{UglyUrls: true},
-		Source: &inMemorySource{fakeSource},
+		Source: &source.InMemorySource{fakeSource},
 		Alias:  new(target.HTMLRedirectAlias),
 	}
 	s.CreatePages()
@@ -97,7 +86,7 @@ func TestFileTargetUgly(t *testing.T) {
 func TestFileTargetPublishDir(t *testing.T) {
 	s := &Site{
 		Target: &target.Filesystem{PublishDir: "../public"},
-		Source: &inMemorySource{fakeSource},
+		Source: &source.InMemorySource{fakeSource},
 		Alias:  &target.HTMLRedirectAlias{PublishDir: "../public"},
 	}
 

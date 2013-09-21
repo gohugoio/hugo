@@ -35,5 +35,4 @@ type UrlPath struct {
 	Permalink template.HTML
 	Slug      string
 	Section   string
-	Path      string
 }

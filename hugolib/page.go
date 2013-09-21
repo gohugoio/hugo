@@ -52,7 +52,7 @@ type Page struct {
 }
 
 type File struct {
-	FileName, OutFile, Extension string
+	FileName, OutFile, Extension, Dir string
 }
 
 type PageMeta struct {

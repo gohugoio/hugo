@@ -44,7 +44,7 @@ func writeToDisk(translated string, r io.Reader) (err error) {
 	if ospath != "" {
 		err = os.MkdirAll(ospath, 0764) // rwx, rw, r
 		if err != nil {
-			return
+			panic(err)
 		}
 	}
 

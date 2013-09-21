@@ -3,6 +3,7 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"github.com/spf13/hugo/source"
 	"html/template"
 	"strings"
 	"testing"
@@ -72,25 +73,6 @@ func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected strin
 	if string(content.Bytes()) != expected {
 		t.Fatalf("Content did not match expected: %s. got: %s", expected, content)
 	}
-}
-
-func _TestAddSameTemplateTwice(t *testing.T) {
-	p := pageMust(ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md"))
-	s := new(Site)
-	s.prepTemplates()
-	err := s.addTemplate("foo", TEMPLATE_TITLE)
-	if err != nil {
-		t.Fatalf("Unable to add template foo")
-	}
-
-	matchRender(t, s, p, "foo", "simple template")
-
-	err = s.addTemplate("foo", "NEW {{ .Title }}")
-	if err != nil {
-		t.Fatalf("Unable to add template foo: %s", err)
-	}
-
-	matchRender(t, s, p, "foo", "NEW simple template")
 }
 
 func TestRenderThing(t *testing.T) {
@@ -177,32 +159,59 @@ func TestRenderThingOrDefault(t *testing.T) {
 }
 
 func TestSetOutFile(t *testing.T) {
-	s := new(Site)
-	p := pageMust(ReadFrom(strings.NewReader(PAGE_URL_SPECIFIED), "content/a/file.md"))
-	s.setOutFile(p)
+	tests := []struct {
+		doc             string
+		content         string
+		expectedOutFile string
+		expectedSection string
+	}{
+		{"content/a/file.md", PAGE_URL_SPECIFIED, "mycategory/my-whatever-content/index.html", "a"},
+		{"content/b/file.md", SIMPLE_PAGE, "b/file.html", "b"},
+		{"a/file.md", SIMPLE_PAGE, "a/file.html", "a"},
+		{"file.md", SIMPLE_PAGE, "file.html", ""},
+	}
 
-	expected := "mycategory/my-whatever-content/index.html"
+	if true {
+		return
+	}
+	for _, test := range tests {
+		var err error
+		s := &Site{
+			Config: Config{ContentDir: "content"},
+		}
+		p := pageMust(ReadFrom(strings.NewReader(test.content), s.Config.GetAbsPath(test.doc)))
+		if err = s.setUrlPath(p); err != nil {
+			t.Fatalf("Unable to set urlpath: %s", err)
+		}
 
-	if p.OutFile != "mycategory/my-whatever-content/index.html" {
-		t.Errorf("Outfile does not match.  Expected '%s', got '%s'", expected, p.OutFile)
+		expected := test.expectedOutFile
+
+		if p.OutFile != expected {
+			t.Errorf("%s => p.OutFile  expected: '%s', got: '%s'", test.doc, expected, p.OutFile)
+		}
+
+		if p.Section != test.expectedSection {
+			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section)
+		}
 	}
 }
 
 func TestSkipRender(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &InMemoryTarget{files: files}
-	sources := []byteSource{
-		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>")},
-		{"sect/doc3.md", []byte("# doc3\n*some* content")},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
+	sources := []source.ByteSource{
+		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*"), "sect"},
+		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>"), "sect"},
+		{"sect/doc3.md", []byte("# doc3\n*some* content"), "sect"},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*"), "sect"},
+		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"), "sect"},
+		{"doc7.html", []byte("<html><body>doc7 content</body></html>"), ""},
 	}
 
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/"},
-		Source: &inMemorySource{sources},
+		Source: &source.InMemorySource{sources},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()
@@ -231,6 +240,7 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc3.html", "<html><head></head><body><h1>doc3</h1>\n\n<p><em>some</em> content</p>\n</body></html>"},
 		{"sect/doc4.html", "<html><head></head><body><h1>doc4</h1>\n\n<p><em>some content</em></p>\n</body></html>"},
 		{"sect/doc5.html", "<!DOCTYPE html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
+		{"./doc7.html", "<html><head></head><body>doc7 content</body></html>"},
 	}
 
 	for _, test := range tests {
@@ -248,14 +258,14 @@ func TestSkipRender(t *testing.T) {
 func TestAbsUrlify(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &InMemoryTarget{files: files}
-	sources := []byteSource{
-		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
-		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
+	sources := []source.ByteSource{
+		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"), "sect"},
+		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"), "blue"},
 	}
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/"},
-		Source: &inMemorySource{sources},
+		Source: &source.InMemorySource{sources},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()
@@ -281,14 +291,14 @@ func TestAbsUrlify(t *testing.T) {
 	}
 
 	for _, test := range tests {
-	content, ok := target.files[test.file]
-	if !ok {
-		t.Fatalf("Unable to locate rendered content: %s", test.file)
-	}
+		content, ok := target.files[test.file]
+		if !ok {
+			t.Fatalf("Unable to locate rendered content: %s", test.file)
+		}
 
-	expected := test.expected
-	if string(content) != expected {
-		t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
+		expected := test.expected
+		if string(content) != expected {
+			t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
+		}
 	}
-}
 }

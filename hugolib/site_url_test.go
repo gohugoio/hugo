@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"bytes"
+	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"html/template"
 	"io"
@@ -61,9 +62,9 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 	return
 }
 
-var urlFakeSource = []byteSource{
-	{"content/blue/doc1.md", []byte(SLUG_DOC_1)},
-	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
+var urlFakeSource = []source.ByteSource{
+	{"content/blue/doc1.md", []byte(SLUG_DOC_1), "blue"},
+	{"content/blue/doc2.md", []byte(SLUG_DOC_2), "blue"},
 }
 
 func TestPageCount(t *testing.T) {
@@ -74,7 +75,7 @@ func TestPageCount(t *testing.T) {
 		Target: target,
 		Alias:  alias,
 		Config: Config{UglyUrls: false},
-		Source: &inMemorySource{urlFakeSource},
+		Source: &source.InMemorySource{urlFakeSource},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()

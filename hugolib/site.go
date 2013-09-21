@@ -37,10 +37,6 @@ func MakePermalink(domain string, path string) string {
 	return strings.TrimRight(domain, "/") + "/" + strings.TrimLeft(path, "/")
 }
 
-func mkdirIf(path string) error {
-	return os.MkdirAll(path, 0777)
-}
-
 func FatalErr(str string) {
 	fmt.Println(str)
 	os.Exit(1)
@@ -150,6 +146,18 @@ func (s *Site) Process() (err error) {
 	return
 }
 
+func (s *Site) setupPrevNext() {
+	for i, page := range s.Pages {
+		if i < len(s.Pages)-1 {
+			page.Next = s.Pages[i+1]
+		}
+
+		if i > 0 {
+			page.Prev = s.Pages[i-1]
+		}
+	}
+}
+
 func (s *Site) Render() (err error) {
 	if err = s.RenderAliases(); err != nil {
 		return
@@ -239,7 +247,6 @@ func (s *Site) checkDirectories() {
 	if b, _ := dirExists(s.absContentDir()); !b {
 		FatalErr("No source directory found, expecting to find it at " + s.absContentDir())
 	}
-	mkdirIf(s.absPublishDir())
 }
 
 func (s *Site) ProcessShortcodes() {
@@ -250,16 +257,17 @@ func (s *Site) ProcessShortcodes() {
 
 func (s *Site) CreatePages() (err error) {
 	for _, file := range s.Source.Files() {
-		page, err := ReadFrom(file.Contents, file.Name)
+		page, err := ReadFrom(file.Contents, file.LogicalName)
 		if err != nil {
 			return err
 		}
 		page.Site = s.Info
 		page.Tmpl = s.Tmpl
+		page.Section = file.Section
+		page.Dir = file.Dir
 		if err = s.setUrlPath(page); err != nil {
 			return err
 		}
-		s.setOutFile(page)
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}
@@ -269,36 +277,11 @@ func (s *Site) CreatePages() (err error) {
 	return
 }
 
-func (s *Site) setupPrevNext() {
-	for i, page := range s.Pages {
-		if i < len(s.Pages)-1 {
-			page.Next = s.Pages[i+1]
-		}
+// Set p.Section and p.OutFile relying on p.FileName as the source.
+// Filename is broken apart for a "Section" which basically equates to
+// the folder the file exists in.
+func (s *Site) setUrlPath(p *Page) (err error) {
 
-		if i > 0 {
-			page.Prev = s.Pages[i-1]
-		}
-	}
-}
-
-func (s *Site) setUrlPath(p *Page) error {
-	y := strings.TrimPrefix(p.FileName, s.absContentDir())
-	x := strings.Split(y, "/")
-
-	if len(x) <= 1 {
-		return fmt.Errorf("Zero length page name.  filename: %s", y)
-	}
-
-	p.Section = strings.Trim(x[1], "/")
-	p.Path = path.Join(x[:len(x)-1]...)
-	return nil
-}
-
-// If Url is provided it is assumed to be the complete relative path
-// and will override everything
-// Otherwise path + slug is used if provided
-// Lastly path + filename is used if provided
-func (s *Site) setOutFile(p *Page) {
 	// Always use Url if it's specified
 	if len(strings.TrimSpace(p.Url)) > 2 {
 		p.OutFile = strings.TrimSpace(p.Url)
@@ -318,7 +301,8 @@ func (s *Site) setOutFile(p *Page) {
 		outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
 	}
 
-	p.OutFile = p.Path + "/" + strings.TrimSpace(outfile)
+	p.OutFile = p.Dir + "/" + strings.TrimSpace(outfile)
+	return
 }
 
 func (s *Site) BuildSiteMeta() (err error) {

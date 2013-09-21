@@ -1,8 +1,10 @@
 package source
 
 import (
+	"errors"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -11,8 +13,11 @@ type Input interface {
 }
 
 type File struct {
-	Name     string
-	Contents io.Reader
+	name        string
+	LogicalName string
+	Contents    io.Reader
+	Section     string
+	Dir         string
 }
 
 type Filesystem struct {
@@ -26,32 +31,66 @@ func (f *Filesystem) Files() []*File {
 	return f.files
 }
 
-func (f *Filesystem) add(name string, reader io.Reader) {
+var errMissingBaseDir = errors.New("source: missing base directory")
+
+func (f *Filesystem) add(name string, reader io.Reader) (err error) {
+
+	if name, err = f.getRelativePath(name); err != nil {
+		return err
+	}
+
+	dir, logical := path.Split(name)
+	_, section := path.Split(path.Dir(name))
+	if section == "." {
+		section = ""
+	}
+
+	f.files = append(f.files, &File{
+		name:        name,
+		LogicalName: logical,
+		Contents:    reader,
+		Section:     section,
+		Dir:         dir,
+	})
+	return
+}
+
+func (f *Filesystem) getRelativePath(name string) (final string, err error) {
+	if filepath.IsAbs(name) && f.Base == "" {
+		return "", errMissingBaseDir
+	}
+	name = filepath.Clean(name)
+	base := filepath.Clean(f.Base)
+
+	name, err = filepath.Rel(base, name)
+	if err != nil {
+		return "", err
+	}
 	name = filepath.ToSlash(name)
-	f.files = append(f.files, &File{Name: name, Contents: reader})
+	return name, nil
 }
 
 func (f *Filesystem) captureFiles() {
 
-	walker := func(path string, fi os.FileInfo, err error) error {
+	walker := func(filePath string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
 
 		if fi.IsDir() {
-			if f.avoid(path) {
+			if f.avoid(filePath) {
 				return filepath.SkipDir
 			}
 			return nil
 		} else {
-			if ignoreDotFile(path) {
+			if ignoreDotFile(filePath) {
 				return nil
 			}
-			file, err := os.Open(path)
+			file, err := os.Open(filePath)
 			if err != nil {
 				return err
 			}
-			f.add(path, file)
+			f.add(filePath, file)
 			return nil
 		}
 	}
@@ -59,15 +98,15 @@ func (f *Filesystem) captureFiles() {
 	filepath.Walk(f.Base, walker)
 }
 
-func (f *Filesystem) avoid(path string) bool {
+func (f *Filesystem) avoid(filePath string) bool {
 	for _, avoid := range f.AvoidPaths {
-		if avoid == path {
+		if avoid == filePath {
 			return true
 		}
 	}
 	return false
 }
 
-func ignoreDotFile(path string) bool {
-	return filepath.Base(path)[0] == '.'
+func ignoreDotFile(filePath string) bool {
+	return filepath.Base(filePath)[0] == '.'
 }

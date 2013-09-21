@@ -2,6 +2,8 @@ package source
 
 import (
 	"bytes"
+	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -12,21 +14,58 @@ func TestEmptySourceFilesystem(t *testing.T) {
 	}
 }
 
+type TestPath struct {
+	filename string
+	logical  string
+	content  string
+	section  string
+	dir      string
+}
+
 func TestAddFile(t *testing.T) {
-	src := new(Filesystem)
-	src.add("foobar", bytes.NewReader([]byte("aaa")))
-	if len(src.Files()) != 1 {
-		t.Errorf("Files() should return 1 file")
-	}
+	tests := platformPaths
+	for _, test := range tests {
+		base := platformBase
+		srcDefault := new(Filesystem)
+		srcWithBase := &Filesystem{
+			Base: base,
+		}
 
-	f := src.Files()[0]
-	if f.Name != "foobar" {
-		t.Errorf("File name should be 'foobar', got: %s", f.Name)
-	}
+		for _, src := range []*Filesystem{srcDefault, srcWithBase} {
+			p := test.filename
+			if !filepath.IsAbs(test.filename) {
+				p = path.Join(src.Base, test.filename)
+			}
 
-	b := new(bytes.Buffer)
-	b.ReadFrom(f.Contents)
-	if b.String() != "aaa" {
-		t.Errorf("File contents should be 'aaa', got: %s", b.String())
+			if err := src.add(p, bytes.NewReader([]byte(test.content))); err != nil {
+				if err == errMissingBaseDir {
+					continue
+				}
+				t.Fatalf("%s add returned and error: %s", p, err)
+			}
+
+			if len(src.Files()) != 1 {
+				t.Fatalf("%s Files() should return 1 file", p)
+			}
+
+			f := src.Files()[0]
+			if f.LogicalName != test.logical {
+				t.Errorf("Filename (Base: %q) expected: %q, got: %q", src.Base, test.logical, f.LogicalName)
+			}
+
+			b := new(bytes.Buffer)
+			b.ReadFrom(f.Contents)
+			if b.String() != test.content {
+				t.Errorf("File (Base: %q) contents should be %q, got: %q", src.Base, test.content, b.String())
+			}
+
+			if f.Section != test.section {
+				t.Errorf("File section (Base: %q) expected: %q, got: %q", src.Base, test.section, f.Section)
+			}
+
+			if f.Dir != test.dir {
+				t.Errorf("Dir path (Base: %q) expected: %q, got: %q", src.Base, test.dir, f.Dir)
+			}
+		}
 	}
 }
