@@ -482,7 +482,6 @@ func (s *Site) RenderLists() error {
 }
 
 func (s *Site) RenderHomePage() error {
-	return nil
 
 	n := s.NewNode()
 	n.Title = n.Site.Title
