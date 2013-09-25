@@ -28,21 +28,13 @@ import (
 	"os"
 	"strings"
 	"time"
+	"net/url"
 )
 
 var DefaultTimer = nitro.Initalize()
 
-func MakePermalink(domain string, path string) string {
-	return strings.TrimRight(domain, "/") + "/" + strings.TrimLeft(path, "/")
-}
-
-func FatalErr(str string) {
-	fmt.Println(str)
-	os.Exit(1)
-}
-
-func PrintErr(str string, a ...interface{}) {
-	fmt.Fprintln(os.Stderr, str, a)
+func MakePermalink(base *url.URL, path *url.URL) (*url.URL) {
+	return base.ResolveReference(path)
 }
 
 // Site contains all the information relevent for constructing a static
@@ -84,10 +76,6 @@ type SiteInfo struct {
 	LastChange time.Time
 	Title      string
 	Config     *Config
-}
-
-func (s *Site) getFromIndex(kind string, name string) Pages {
-	return s.Indexes[kind][name]
 }
 
 func (s *Site) timerStep(step string) {
@@ -191,8 +179,10 @@ func (s *Site) checkDescriptions() {
 	}
 }
 
-func (s *Site) initialize() {
-	s.checkDirectories()
+func (s *Site) initialize() (err error) {
+	if err = s.checkDirectories(); err != nil {
+		return err
+	}
 
 	staticDir := s.Config.GetAbsPath(s.Config.StaticDir + "/")
 
@@ -204,6 +194,7 @@ func (s *Site) initialize() {
 	s.initializeSiteInfo()
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
+	return
 }
 
 func (s *Site) initializeSiteInfo() {
@@ -239,13 +230,14 @@ func (s *Site) absPublishDir() string {
 	return s.Config.GetAbsPath(s.Config.PublishDir)
 }
 
-func (s *Site) checkDirectories() {
+func (s *Site) checkDirectories() (err error) {
 	if b, _ := dirExists(s.absLayoutDir()); !b {
-		FatalErr("No layout directory found, expecting to find it at " + s.absLayoutDir())
+		return fmt.Errorf("No layout directory found, expecting to find it at " + s.absLayoutDir())
 	}
 	if b, _ := dirExists(s.absContentDir()); !b {
-		FatalErr("No source directory found, expecting to find it at " + s.absContentDir())
+		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
 	}
+	return
 }
 
 func (s *Site) ProcessShortcodes() {
@@ -289,7 +281,9 @@ func (s *Site) BuildSiteMeta() (err error) {
 						s.Indexes[plural].Add(idx, p)
 					}
 				} else {
-					PrintErr("Invalid " + plural + " in " + p.File.FileName)
+					if s.Config.Verbose {
+						fmt.Fprintf(os.Stderr, "Invalid %s in %s\n", plural, p.File.FileName)
+					}
 				}
 			}
 		}
@@ -344,7 +338,11 @@ func inStringArray(arr []string, el string) bool {
 func (s *Site) RenderAliases() error {
 	for _, p := range s.Pages {
 		for _, a := range p.Aliases {
-			if err := s.WriteAlias(a, p.Permalink()); err != nil {
+			plink, err := p.Permalink()
+			if err != nil {
+				return err
+			}
+			if err := s.WriteAlias(a, template.HTML(plink)); err != nil {
 				return err
 			}
 		}
@@ -538,8 +536,18 @@ func (s *Site) Stats() {
 	}
 }
 
-func permalink(s *Site, plink string) template.HTML {
-	return template.HTML(MakePermalink(string(s.Info.BaseUrl), plink))
+func permalink(s *Site, plink string) (template.HTML) {
+	base, err := url.Parse(string(s.Config.BaseUrl))
+	if err != nil {
+		panic(err)
+	}
+
+	path, err := url.Parse(plink)
+	if err != nil {
+		panic(err)
+	}
+
+	return template.HTML(MakePermalink(base, path).String())
 }
 
 func (s *Site) NewNode() *Node {

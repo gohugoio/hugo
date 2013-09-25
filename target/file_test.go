@@ -10,7 +10,8 @@ func TestFileTranslator(t *testing.T) {
 		expected string
 	}{
 		{"/", "index.html"},
-		{"index.html", "index/index.html"},
+		{"index.html", "index.html"},
+		{"bar/index.html", "bar/index.html"},
 		{"foo", "foo/index.html"},
 		{"foo.html", "foo/index.html"},
 		{"foo.xhtml", "foo/index.xhtml"},

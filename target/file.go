@@ -73,7 +73,7 @@ func (fs *Filesystem) Translate(src string) (dest string, err error) {
 		dir = path.Join(fs.PublishDir, dir)
 	}
 
-	if fs.UglyUrls {
+	if fs.UglyUrls || file == "index.html" {
 		return path.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil
 	}
 

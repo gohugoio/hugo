@@ -30,6 +30,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"net/url"
 )
 
 type Page struct {
@@ -191,7 +192,7 @@ func (p *Page) analyzePage() {
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 }
 
-func (p *Page) Permalink() template.HTML {
+func (p *Page) Permalink() (string, error) {
 	baseUrl := string(p.Site.BaseUrl)
 	section := strings.TrimSpace(p.Section)
 	pSlug := strings.TrimSpace(p.Slug)
@@ -215,7 +216,18 @@ func (p *Page) Permalink() template.HTML {
 			permalink = section + "/" + file
 		}
 	}
-	return template.HTML(MakePermalink(baseUrl, permalink))
+
+	base, err := url.Parse(baseUrl)
+	if err != nil {
+		return "", err
+	}
+
+	path, err := url.Parse(permalink)
+	if err != nil {
+		return "", err
+	}
+
+	return MakePermalink(base, path).String(), nil
 }
 
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
