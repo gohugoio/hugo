@@ -247,6 +247,12 @@ func (s *Site) ProcessShortcodes() {
 }
 
 func (s *Site) CreatePages() (err error) {
+	if s.Source == nil {
+		return fmt.Errorf("No source files found in", s.absContentDir())
+	}
+	if len(s.Source.Files()) < 1 {
+		return fmt.Errorf("No source files found in", s.absContentDir())
+	}
 	for _, file := range s.Source.Files() {
 		page, err := ReadFrom(file.Contents, file.LogicalName)
 		if err != nil {
