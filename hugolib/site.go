@@ -25,15 +25,15 @@ import (
 	"github.com/spf13/nitro"
 	"html/template"
 	"io"
+	"net/url"
 	"os"
 	"strings"
 	"time"
-	"net/url"
 )
 
 var DefaultTimer = nitro.Initalize()
 
-func MakePermalink(base *url.URL, path *url.URL) (*url.URL) {
+func MakePermalink(base *url.URL, path *url.URL) *url.URL {
 	return base.ResolveReference(path)
 }
 
@@ -542,7 +542,7 @@ func (s *Site) Stats() {
 	}
 }
 
-func permalink(s *Site, plink string) (template.HTML) {
+func permalink(s *Site, plink string) template.HTML {
 	base, err := url.Parse(string(s.Config.BaseUrl))
 	if err != nil {
 		panic(err)
