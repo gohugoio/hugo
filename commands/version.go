@@ -11,12 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package commands
 
 import (
-	"github.com/spf13/hugo/commands"
+	"fmt"
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	commands.Execute()
+var version = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of Hugo",
+	Long:  `All software has versions. This is Hugo's`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Hugo Static Site Generator v0.9 -- HEAD")
+	},
 }

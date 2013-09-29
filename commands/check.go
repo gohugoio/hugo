@@ -11,12 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package commands
 
 import (
-	"github.com/spf13/hugo/commands"
+	"github.com/spf13/cobra"
+	"github.com/spf13/hugo/hugolib"
 )
 
-func main() {
-	commands.Execute()
+var check = &cobra.Command{
+	Use:   "check",
+	Short: "Check content in the source directory",
+	Long: `Hugo will perform some basic analysis on the
+    content provided and will give feedback.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		InitializeConfig()
+		site := hugolib.Site{Config: *Config}
+		site.Analyze()
+	},
 }
