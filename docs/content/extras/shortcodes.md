@@ -4,7 +4,7 @@ date: "2013-07-01"
 aliases: ["/doc/shortcodes/"]
 ---
 
-Because Hugo uses markdown for it's content format, it was clear that there's a lot of things that 
+Because Hugo uses markdown for its content format, it was clear that there's a lot of things that 
 markdown doesn't support well. This is good, the simple nature of markdown is exactly why we chose it.
 
 However we cannot accept being constrained by our simple format. Also unacceptable is writing raw

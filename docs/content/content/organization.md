@@ -19,7 +19,7 @@ content nested at any level. The top level is special in Hugo and is used as the
         ├── post
         |   ├── firstpost.md       // <- http://site.com/post/firstpost/
         |   ├── happy
-        |   |   └── happiness.md   // <- http://site.com/happy/happiness/
+        |   |   └── happiness.md   // <- http://site.com/post/happy/happiness/
         |   └── secondpost.md      // <- http://site.com/post/secondpost/
         └── quote
             ├── first.md           // <- http://site.com/quote/first/
@@ -32,7 +32,7 @@ content nested at any level. The top level is special in Hugo and is used as the
         ├── post
         |   ├── firstpost.md       // <- http://site.com/post/firstpost.html
         |   ├── happy
-        |   |   └── happiness.md   // <- http://site.com/happy/happiness.html
+        |   |   └── happiness.md   // <- http://site.com/post/happy/happiness.html
         |   └── secondpost.md      // <- http://site.com/post/secondpost.html
         └── quote
             ├── first.md           // <- http://site.com/quote/first.html
