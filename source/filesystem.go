@@ -27,7 +27,7 @@ type Filesystem struct {
 }
 
 func (f *Filesystem) Files() []*File {
-	f.captureFiles()
+	if len(f.files)<1 {f.captureFiles()}
 	return f.files
 }
 
