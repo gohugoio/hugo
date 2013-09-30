@@ -4,7 +4,7 @@ date = "2013-07-01"
 aliases = ["/doc/front-matter/"]
 +++
 
-The front matter is one of the features that gives Hugo it's strength. It enables
+The front matter is one of the features that gives Hugo its strength. It enables
 you to include the meta data of the content right with it. Hugo supports a few
 different formats each with their own identifying tokens.
 

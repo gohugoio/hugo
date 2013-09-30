@@ -7,7 +7,7 @@ An index template is any template that will be used to render multiple pieces of
 content (with the exception of the [homepage](/layout/homepage) which has a
 dedicated template).
 
-We are using the term index in it's truest sense, a sequential arrangement of
+We are using the term index in its truest sense, a sequential arrangement of
 material, especially in alphabetical or numerical order. In the case of Hugo
 each index will render the content in newest first order based on the date
 provided in the [front matter](/content/front-matter).

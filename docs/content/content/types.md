@@ -3,7 +3,7 @@ title: "Content Types"
 date: "2013-07-01"
 ---
 
-Hugo has full support for multiple content types each with it's own set
+Hugo has full support for multiple content types each with its own set
 of meta data and template. A good example of when multiple types are
 needed is to look a tumblr. A piece of content could be a photo, quote
 or post, each with different meta data and rendered differently.
