@@ -45,7 +45,10 @@ var Source, Destination, BaseUrl, CfgFile string
 func Execute() {
 	AddCommands()
 	Hugo := HugoCmd.ToCommander()
-	Hugo.Execute()
+	err := Hugo.Execute()
+	if err != nil {
+		os.Exit(-1)
+	}
 }
 
 func AddCommands() {
