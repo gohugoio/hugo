@@ -15,12 +15,9 @@ package commands
 
 import (
 	"fmt"
-	"github.com/howeyc/fsnotify"
 	"github.com/spf13/cobra"
 	"net/http"
 	"strconv"
-	"strings"
-	"sync"
 )
 
 var serverPort int
@@ -50,7 +47,7 @@ func server(cmd *cobra.Command, args []string) {
 	// Watch runs its own server as part of the routine
 	if serverWatch {
 		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
-		err := NewWatcher(serverPort, true)
+		err := NewWatcher(serverPort)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -67,57 +64,4 @@ func serve(port int) {
 	fmt.Println("Web Server is available at http://localhost:", port)
 	fmt.Println("Press ctrl+c to stop")
 	panic(http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir)))))
-}
-
-func NewWatcher(port int, server bool) error {
-	watcher, err := fsnotify.NewWatcher()
-	var wg sync.WaitGroup
-
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	defer watcher.Close()
-
-	wg.Add(1)
-	go func() {
-		for {
-			select {
-			case ev := <-watcher.Event:
-				if Verbose {
-					fmt.Println(ev)
-				}
-				watchChange(ev)
-				// TODO add newly created directories to the watch list
-			case err := <-watcher.Error:
-				if err != nil {
-					fmt.Println("error:", err)
-				}
-			}
-		}
-	}()
-
-	for _, d := range getDirList() {
-		if d != "" {
-			_ = watcher.Watch(d)
-		}
-	}
-
-	if server {
-		go serve(port)
-	}
-
-	wg.Wait()
-	return nil
-}
-
-func watchChange(ev *fsnotify.FileEvent) {
-	if strings.HasPrefix(ev.Name, Config.GetAbsPath(Config.StaticDir)) {
-		fmt.Println("Static file changed, syncing\n")
-		copyStatic()
-	} else {
-		fmt.Println("Change detected, rebuilding site\n")
-		buildSite()
-	}
 }

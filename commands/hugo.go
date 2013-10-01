@@ -15,12 +15,15 @@ package commands
 
 import (
 	"fmt"
+	"github.com/howeyc/fsnotify"
 	"github.com/mostafah/fsync"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -88,15 +91,14 @@ func build(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 
-	// Does this even make sense without the server setting?
-	//if BuildWatch {
-	//fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
-	//_, err = buildSite()
-	//if err != nil {
-	//fmt.Println(err)
-	//os.Exit(-1)
-	//}
-	//}
+	if BuildWatch {
+		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
+		fmt.Println("Press ctrl+c to stop")
+		err := NewWatcher(0)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func copyStatic() error {
@@ -135,4 +137,57 @@ func buildSite() (site *hugolib.Site, err error) {
 	site.Stats()
 	fmt.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 	return site, nil
+}
+
+func NewWatcher(port int) error {
+	watcher, err := fsnotify.NewWatcher()
+	var wg sync.WaitGroup
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	defer watcher.Close()
+
+	wg.Add(1)
+	go func() {
+		for {
+			select {
+			case ev := <-watcher.Event:
+				if Verbose {
+					fmt.Println(ev)
+				}
+				watchChange(ev)
+				// TODO add newly created directories to the watch list
+			case err := <-watcher.Error:
+				if err != nil {
+					fmt.Println("error:", err)
+				}
+			}
+		}
+	}()
+
+	for _, d := range getDirList() {
+		if d != "" {
+			_ = watcher.Watch(d)
+		}
+	}
+
+	if port > 0 {
+		go serve(port)
+	}
+
+	wg.Wait()
+	return nil
+}
+
+func watchChange(ev *fsnotify.FileEvent) {
+	if strings.HasPrefix(ev.Name, Config.GetAbsPath(Config.StaticDir)) {
+		fmt.Println("Static file changed, syncing\n")
+		copyStatic()
+	} else {
+		fmt.Println("Change detected, rebuilding site\n")
+		buildSite()
+	}
 }
