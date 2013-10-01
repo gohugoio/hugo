@@ -6,20 +6,34 @@ aliases: ["/doc/usage/"]
 
 Make sure either hugo is in your path or provide a path to it.
 
-    $ hugo --help
-    usage: hugo [flags] []
+    $ hugo help
+    A Fast and Flexible Static Site Generator
+    built with love by spf13 and friends in Go.
+
+    Complete documentation is available at http://hugo.spf13.com
+
+    Usage:
+      hugo [flags]
+      hugo [command]
+
+    Available Commands:
+      server          :: Hugo runs it's own a webserver to render the files
+      version         :: Print the version number of Hugo
+      check           :: Check content in the source directory
+      benchmark       :: Benchmark hugo by building a site a number of times
+      help [command]  :: Help about any command
+
+     Available Flags:
       -b, --base-url="": hostname (and path) to the root eg. http://spf13.com/
       -D, --build-drafts=false: include content marked as draft
           --config="": config file (default is path/config.yaml|json|toml)
       -d, --destination="": filesystem path to write files to
-      -h, --help=false: show this help
-          --port="1313": port to run web server on, default :1313
-      -S, --server=false: run a (very) simple web server
       -s, --source="": filesystem path to read files relative from
           --uglyurls=false: if true, use /filename.html instead of /filename/
       -v, --verbose=false: verbose output
-          --version=false: which version of hugo
       -w, --watch=false: watch filesystem for changes and recreate as needed
+
+    Use "hugo help [command]" for more information about that command.
 
 ## Common Usage Example:
 
@@ -39,18 +53,19 @@ recreate the site faster than you can tab over to
 your browser to view the changes.**
 
     $ hugo -s ~/mysite --watch
-       Watching for changes. Press ctrl+c to stop
-       15 pages created
-       0 tags created
-       in 8 ms
+       28 pages created
+       0 tags index created
+       in 38 ms
+       Watching for changes in /Users/spf13/Code/hugo/docs/content
+       Press ctrl+c to stop
 
 Hugo can even run a server and create your site at the same time!
 
-    $hugo --server -ws ~/mysite
-       Watching for changes. Press ctrl+c to stop
-       15 pages created
-       0 tags created
-       in 8 ms
+    $ hugo server -ws ~/mysite
+       Watching for changes in /Users/spf13/Code/hugo/docs/content
        Web Server is available at http://localhost:1313
        Press ctrl+c to stop
+       28 pages created
+       0 tags created
+       in 28 ms
 
