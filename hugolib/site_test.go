@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
 	"html/template"
 	"strings"
 	"testing"
@@ -194,7 +195,7 @@ func TestTargetPath(t *testing.T) {
 
 func TestSkipRender(t *testing.T) {
 	files := make(map[string][]byte)
-	target := &InMemoryTarget{files: files}
+	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
 		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*"), "sect"},
 		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>"), "sect"},
@@ -240,9 +241,9 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		content, ok := target.files[test.doc]
+		content, ok := target.Files[test.doc]
 		if !ok {
-			t.Fatalf("Did not find %s in target. %v", test.doc, target.files)
+			t.Fatalf("Did not find %s in target. %v", test.doc, target.Files)
 		}
 
 		if !bytes.Equal(content, []byte(test.expected)) {
@@ -253,7 +254,7 @@ func TestSkipRender(t *testing.T) {
 
 func TestAbsUrlify(t *testing.T) {
 	files := make(map[string][]byte)
-	target := &InMemoryTarget{files: files}
+	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
 		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"), "sect"},
 		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"), "blue"},
@@ -287,7 +288,7 @@ func TestAbsUrlify(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		content, ok := target.files[test.file]
+		content, ok := target.Files[test.file]
 		if !ok {
 			t.Fatalf("Unable to locate rendered content: %s", test.file)
 		}

@@ -1,11 +1,9 @@
 package hugolib
 
 import (
-	"bytes"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"html/template"
-	"io"
 	"testing"
 )
 
@@ -33,24 +31,6 @@ func mustReturn(ret *Page, err error) *Page {
 	return ret
 }
 
-type InMemoryTarget struct {
-	files map[string][]byte
-}
-
-func (t *InMemoryTarget) Publish(label string, reader io.Reader) (err error) {
-	if t.files == nil {
-		t.files = make(map[string][]byte)
-	}
-	bytes := new(bytes.Buffer)
-	bytes.ReadFrom(reader)
-	t.files[label] = bytes.Bytes()
-	return
-}
-
-func (t *InMemoryTarget) Translate(label string) (dest string, err error) {
-	return label, nil
-}
-
 type InMemoryAliasTarget struct {
 	target.HTMLRedirectAlias
 	files map[string][]byte
@@ -69,7 +49,7 @@ var urlFakeSource = []source.ByteSource{
 
 func TestPageCount(t *testing.T) {
 	files := make(map[string][]byte)
-	target := &InMemoryTarget{files: files}
+	target := &target.InMemoryTarget{Files: files}
 	alias := &InMemoryAliasTarget{files: files}
 	s := &Site{
 		Target: target,
@@ -96,9 +76,9 @@ func TestPageCount(t *testing.T) {
 		t.Errorf("Unable to render site lists: %s", err)
 	}
 
-	blueIndex := target.files["blue"]
+	blueIndex := target.Files["blue"]
 	if blueIndex == nil {
-		t.Errorf("No indexed rendered. %v", target.files)
+		t.Errorf("No indexed rendered. %v", target.Files)
 	}
 
 	expected := "<html><head></head><body>..</body></html>"
@@ -112,7 +92,7 @@ func TestPageCount(t *testing.T) {
 		"sd3/index.html",
 		"sd4.html",
 	} {
-		if _, ok := target.files[s]; !ok {
+		if _, ok := target.Files[s]; !ok {
 			t.Errorf("No alias rendered: %s", s)
 		}
 	}
