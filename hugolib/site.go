@@ -376,7 +376,7 @@ func (s *Site) RenderPages() (err error) {
 			layout = p.Layout()
 		}
 
-		content, err := s.RenderThingOrDefault(p, layout, "_default/single.html")
+		content, err := s.renderThingOrDefault(p, layout, "_default/single.html")
 		if err != nil {
 			return err
 		}
@@ -402,7 +402,7 @@ func (s *Site) RenderIndexes() error {
 			n.Data[singular] = o
 			n.Data["Pages"] = o
 			layout := "indexes/" + singular + ".html"
-			x, err := s.RenderThing(n, layout)
+			x, err := s.renderThing(n, layout)
 			if err != nil {
 				return err
 			}
@@ -444,7 +444,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Data["Index"] = s.Indexes[plural]
 			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
 
-			x, err := s.RenderThing(n, layout)
+			x, err := s.renderThing(n, layout)
 			if err != nil {
 				return err
 			}
@@ -469,7 +469,7 @@ func (s *Site) RenderLists() error {
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
-		content, err := s.RenderThingOrDefault(n, layout, "_default/index.html")
+		content, err := s.renderThingOrDefault(n, layout, "_default/index.html")
 		if err != nil {
 			return err
 		}
@@ -508,7 +508,7 @@ func (s *Site) RenderHomePage() error {
 			n.Data["Pages"] = s.Pages[:9]
 		}
 	}
-	x, err := s.RenderThing(n, "index.html")
+	x, err := s.renderThing(n, "index.html")
 	if err != nil {
 		return err
 	}
@@ -534,7 +534,7 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("404.html")
 		n.Title = "404 Page not found"
 		n.Permalink = permalink(s, "404.html")
-		x, err := s.RenderThing(n, "404.html")
+		x, err := s.renderThing(n, "404.html")
 		if err != nil {
 			return err
 		}
@@ -575,7 +575,7 @@ func (s *Site) NewNode() *Node {
 	}
 }
 
-func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) {
+func (s *Site) renderThing(d interface{}, layout string) (*bytes.Buffer, error) {
 	if s.Tmpl.Lookup(layout) == nil {
 		return nil, fmt.Errorf("Layout not found: %s", layout)
 	}
@@ -584,11 +584,11 @@ func (s *Site) RenderThing(d interface{}, layout string) (*bytes.Buffer, error) 
 	return buffer, err
 }
 
-func (s *Site) RenderThingOrDefault(d interface{}, layout string, defaultLayout string) (*bytes.Buffer, error) {
-	content, err := s.RenderThing(d, layout)
+func (s *Site) renderThingOrDefault(d interface{}, layout string, defaultLayout string) (*bytes.Buffer, error) {
+	content, err := s.renderThing(d, layout)
 	if err != nil {
 		var err2 error
-		content, err2 = s.RenderThing(d, defaultLayout)
+		content, err2 = s.renderThing(d, defaultLayout)
 		if err2 == nil {
 			return content, err2
 		}
@@ -623,9 +623,12 @@ func (s *Site) WritePublic(path string, content io.Reader) (err error) {
 			&transform.NavActive{Section: "tbd"},
 		)
 	}
-	final := new(bytes.Buffer)
-	s.Transformer.Apply(final, content)
-	return s.Target.Publish(path, final)
+	reader, writer := io.Pipe()
+	go func() {
+		s.Transformer.Apply(writer, content)
+		writer.Close()
+	}()
+	return s.Target.Publish(path, reader)
 }
 
 func (s *Site) WriteAlias(path string, permalink template.HTML) (err error) {

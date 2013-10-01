@@ -46,11 +46,11 @@ func pageMust(p *Page, err error) *Page {
 	return p
 }
 
-func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
+func TestDegeneraterenderThingMissingTemplate(t *testing.T) {
 	p, _ := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 	s := new(Site)
 	s.prepTemplates()
-	_, err := s.RenderThing(p, "foobar")
+	_, err := s.renderThing(p, "foobar")
 	if err == nil {
 		t.Errorf("Expected err to be returned when missing the template.")
 	}
@@ -66,7 +66,7 @@ func TestAddInvalidTemplate(t *testing.T) {
 }
 
 func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected string) {
-	content, err := s.RenderThing(p, tmplName)
+	content, err := s.renderThing(p, tmplName)
 	if err != nil {
 		t.Fatalf("Unable to render template.")
 	}
@@ -76,7 +76,7 @@ func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected strin
 	}
 }
 
-func TestRenderThing(t *testing.T) {
+func TestrenderThing(t *testing.T) {
 	tests := []struct {
 		content  string
 		template string
@@ -103,7 +103,7 @@ func TestRenderThing(t *testing.T) {
 		}
 
 		p.Content = template.HTML(p.Content)
-		html, err2 := s.RenderThing(p, templateName)
+		html, err2 := s.renderThing(p, templateName)
 		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
 		}
@@ -114,7 +114,7 @@ func TestRenderThing(t *testing.T) {
 	}
 }
 
-func TestRenderThingOrDefault(t *testing.T) {
+func TestrenderThingOrDefault(t *testing.T) {
 	tests := []struct {
 		content  string
 		missing  bool
@@ -144,9 +144,9 @@ func TestRenderThingOrDefault(t *testing.T) {
 		var html *bytes.Buffer
 		var err2 error
 		if test.missing {
-			html, err2 = s.RenderThingOrDefault(p, "missing", templateName)
+			html, err2 = s.renderThingOrDefault(p, "missing", templateName)
 		} else {
-			html, err2 = s.RenderThingOrDefault(p, templateName, "missing_default")
+			html, err2 = s.renderThingOrDefault(p, templateName, "missing_default")
 		}
 
 		if err2 != nil {
