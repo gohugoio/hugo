@@ -2,12 +2,12 @@ package transform
 
 import (
 	htmltran "code.google.com/p/go-html-transform/html/transform"
-	"io"
 	"fmt"
+	"io"
 )
 
 type NavActive struct {
-	Section string
+	Section  string
 	AttrName string
 }
 
@@ -27,7 +27,10 @@ func (n *NavActive) Apply(r io.Reader, w io.Writer) (err error) {
 		n.AttrName = "hugo-nav"
 	}
 
-	tr.Apply(htmltran.ModifyAttrib("class", "active"), fmt.Sprintf("li[%s=%s]", n.AttrName, n.Section))
+	err = tr.Apply(htmltran.ModifyAttrib("class", "active"), fmt.Sprintf("li[%s=%s]", n.AttrName, n.Section))
+	if err != nil {
+		return
+	}
 
 	return tr.Render(w)
 }
