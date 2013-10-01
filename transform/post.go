@@ -5,5 +5,5 @@ import (
 )
 
 type Transformer interface {
-	Apply(io.Reader, io.Writer) error
+	Apply(io.Writer, io.Reader) error
 }

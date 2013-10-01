@@ -38,7 +38,7 @@ var abs_url_tests = []test {
 func apply(t *testing.T, tr Transformer, tests []test) {
 	for _, test := range tests {
 		out := new(bytes.Buffer)
-		err := tr.Apply(strings.NewReader(test.content), out)
+		err := tr.Apply(out, strings.NewReader(test.content))
 		if err != nil {
 			t.Errorf("Unexpected error: %s", err)
 		}

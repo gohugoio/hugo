@@ -37,7 +37,7 @@ func TestDegenerateNoSectionSet(t *testing.T) {
 		out = new(bytes.Buffer)
 	)
 
-	if err := tr.Apply(strings.NewReader(HTML_WITH_NAV), out); err != nil {
+	if err := tr.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
 		t.Errorf("Unexpected error in NavActive.Apply: %s", err)
 	}
 
@@ -49,7 +49,7 @@ func TestDegenerateNoSectionSet(t *testing.T) {
 func TestSetNav(t *testing.T) {
 	tr := &NavActive{Section: "section_2"}
 	out := new(bytes.Buffer)
-	if err := tr.Apply(strings.NewReader(HTML_WITH_NAV), out); err != nil {
+	if err := tr.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
 		t.Errorf("Unexpected error in Apply() for NavActive: %s", err)
 	}
 

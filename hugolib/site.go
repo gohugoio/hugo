@@ -618,10 +618,13 @@ func (s *Site) WritePublic(path string, content io.Reader) (err error) {
 	}
 
 	if s.Transformer == nil {
-		s.Transformer = &transform.AbsURL{BaseURL: s.Config.BaseUrl}
+		s.Transformer = transform.NewChain(
+			&transform.AbsURL{BaseURL: s.Config.BaseUrl},
+			&transform.NavActive{Section: "tbd"},
+		)
 	}
 	final := new(bytes.Buffer)
-	s.Transformer.Apply(content, final)
+	s.Transformer.Apply(final, content)
 	return s.Target.Publish(path, final)
 }
 

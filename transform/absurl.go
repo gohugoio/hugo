@@ -10,7 +10,7 @@ type AbsURL struct {
 	BaseURL string
 }
 
-func (t *AbsURL) Apply(r io.Reader, w io.Writer) (err error) {
+func (t *AbsURL) Apply(w io.Writer, r io.Reader) (err error) {
 	var tr *htmltran.Transformer
 
 	if tr, err = htmltran.NewFromReader(r); err != nil {

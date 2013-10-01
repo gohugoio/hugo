@@ -11,7 +11,7 @@ type NavActive struct {
 	AttrName string
 }
 
-func (n *NavActive) Apply(r io.Reader, w io.Writer) (err error) {
+func (n *NavActive) Apply(w io.Writer, r io.Reader) (err error) {
 	var tr *htmltran.Transformer
 
 	if n.Section == "" {
