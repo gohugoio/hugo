@@ -8,6 +8,7 @@ import (
 
 type NavActive struct {
 	Section string
+	AttrName string
 }
 
 func (n *NavActive) Apply(r io.Reader, w io.Writer) (err error) {
@@ -22,7 +23,11 @@ func (n *NavActive) Apply(r io.Reader, w io.Writer) (err error) {
 		return
 	}
 
-	tr.Apply(htmltran.ModifyAttrib("class", "active"), fmt.Sprintf("li[data-nav=%s]", n.Section))
+	if n.AttrName == "" {
+		n.AttrName = "hugo-nav"
+	}
+
+	tr.Apply(htmltran.ModifyAttrib("class", "active"), fmt.Sprintf("li[%s=%s]", n.AttrName, n.Section))
 
 	return tr.Render(w)
 }

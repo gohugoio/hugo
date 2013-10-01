@@ -12,8 +12,8 @@ const HTML_WITH_NAV = `<!DOCTYPE html>
 <body>
 <nav>
 	<ul class="nav navbar-nav">
-		<li data-nav="section_1"><a href="#">Section 1</a></li>
-		<li data-nav="section_2"><a href="#">Section 2</a></li>
+		<li hugo-nav="section_1"><a href="#">Section 1</a></li>
+		<li hugo-nav="section_2"><a href="#">Section 2</a></li>
 	</ul>
 </nav>
 </body>
@@ -23,8 +23,8 @@ const EXPECTED_HTML_WITH_NAV_1 = `<!DOCTYPE html><html><head></head>
 <body>
 <nav>
 	<ul class="nav navbar-nav">
-		<li data-nav="section_1"><a href="#">Section 1</a></li>
-		<li data-nav="section_2" class="active"><a href="#">Section 2</a></li>
+		<li hugo-nav="section_1"><a href="#">Section 1</a></li>
+		<li hugo-nav="section_2" class="active"><a href="#">Section 2</a></li>
 	</ul>
 </nav>
 
