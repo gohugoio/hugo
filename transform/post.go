@@ -6,11 +6,15 @@ import (
 	"net/url"
 )
 
-type Transformer struct {
+type Transformer interface {
+	Apply(io.Reader, io.Writer) error
+}
+
+type AbsURL struct {
 	BaseURL string
 }
 
-func (t *Transformer) Apply(r io.Reader, w io.Writer) (err error) {
+func (t *AbsURL) Apply(r io.Reader, w io.Writer) (err error) {
 	var tr *htmltran.Transformer
 
 	if tr, err = htmltran.NewFromReader(r); err != nil {
@@ -28,7 +32,7 @@ type elattr struct {
 	tag, attr string
 }
 
-func (t *Transformer) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (err error) {
+func (t *AbsURL) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (err error) {
 	var baseURL, inURL *url.URL
 
 	if baseURL, err = url.Parse(t.BaseURL); err != nil {

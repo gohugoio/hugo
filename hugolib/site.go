@@ -64,7 +64,7 @@ type Site struct {
 	Info        SiteInfo
 	Shortcodes  map[string]ShortcodeFunc
 	timer       *nitro.B
-	Transformer *transform.Transformer
+	Transformer transform.Transformer
 	Target      target.Output
 	Alias       target.AliasPublisher
 }
@@ -618,7 +618,7 @@ func (s *Site) WritePublic(path string, content io.Reader) (err error) {
 	}
 
 	if s.Transformer == nil {
-		s.Transformer = &transform.Transformer{BaseURL: s.Config.BaseUrl}
+		s.Transformer = &transform.AbsURL{BaseURL: s.Config.BaseUrl}
 	}
 	final := new(bytes.Buffer)
 	s.Transformer.Apply(content, final)

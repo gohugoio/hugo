@@ -26,7 +26,7 @@ func TestAbsUrlify(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		tr := &Transformer{
+		tr := &AbsURL{
 			BaseURL: "http://base",
 		}
 		out := new(bytes.Buffer)
