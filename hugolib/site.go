@@ -557,8 +557,8 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	fmt.Println("Section is:", section)
 
 	transformer := transform.NewChain(
-		&transform.AbsURL{BaseURL: s.Config.BaseUrl},
 		&transform.NavActive{Section: section},
+		&transform.AbsURL{BaseURL: s.Config.BaseUrl},
 	)
 
 	renderReader, renderWriter := io.Pipe()
