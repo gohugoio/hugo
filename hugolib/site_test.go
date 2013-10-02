@@ -114,20 +114,28 @@ func TestrenderThing(t *testing.T) {
 	}
 }
 
-func TestrenderThingOrDefault(t *testing.T) {
+func HTML(in string) string {
+	return fmt.Sprintf("<html><head></head><body>%s</body></html>", in)
+}
+
+func TestRenderThingOrDefault(t *testing.T) {
 	tests := []struct {
 		content  string
 		missing  bool
 		template string
 		expected string
 	}{
-		{PAGE_SIMPLE_TITLE, true, TEMPLATE_TITLE, "simple template"},
-		{PAGE_SIMPLE_TITLE, true, TEMPLATE_FUNC, "simple-template"},
-		{PAGE_SIMPLE_TITLE, false, TEMPLATE_TITLE, "simple template"},
-		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, "simple-template"},
+		{PAGE_SIMPLE_TITLE, true, TEMPLATE_TITLE, HTML("simple template")},
+		{PAGE_SIMPLE_TITLE, true, TEMPLATE_FUNC, HTML("simple-template")},
+		{PAGE_SIMPLE_TITLE, false, TEMPLATE_TITLE, HTML("simple template")},
+		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, HTML("simple-template")},
 	}
 
-	s := new(Site)
+	files := make(map[string][]byte)
+	target := &target.InMemoryTarget{Files: files}
+	s := &Site{
+		Target: target,
+	}
 	s.prepTemplates()
 
 	for i, test := range tests {
@@ -141,20 +149,19 @@ func TestrenderThingOrDefault(t *testing.T) {
 			t.Fatalf("Unable to add template")
 		}
 
-		var html *bytes.Buffer
 		var err2 error
 		if test.missing {
-			html, err2 = s.renderThingOrDefault(p, "missing", templateName)
+			err2 = s.render(p, "missing", templateName, "out")
 		} else {
-			html, err2 = s.renderThingOrDefault(p, templateName, "missing_default")
+			err2 = s.render(p, templateName, "missing_default", "out")
 		}
 
 		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
 		}
 
-		if string(html.Bytes()) != test.expected {
-			t.Errorf("Content does not match.  Expected '%s', got '%s'", test.expected, html)
+		if string(files["out"]) != test.expected {
+			t.Errorf("Content does not match. Expected '%s', got '%s'", test.expected, files["out"])
 		}
 	}
 }

@@ -376,11 +376,7 @@ func (s *Site) RenderPages() (err error) {
 			layout = p.Layout()
 		}
 
-		content, err := s.renderThingOrDefault(p, layout, "_default/single.html")
-		if err != nil {
-			return err
-		}
-		err = s.WritePublic(p.TargetPath(), content)
+		err := s.render(p, layout, "_default/single.html", p.TargetPath())
 		if err != nil {
 			return err
 		}
@@ -402,14 +398,10 @@ func (s *Site) RenderIndexes() error {
 			n.Data[singular] = o
 			n.Data["Pages"] = o
 			layout := "indexes/" + singular + ".html"
-			x, err := s.renderThing(n, layout)
-			if err != nil {
-				return err
-			}
 
 			var base string
 			base = plural + "/" + k
-			err = s.WritePublic(base+".html", x)
+			err := s.render(n, layout, "_default/indexes.html", base+".html")
 			if err != nil {
 				return err
 			}
@@ -444,12 +436,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Data["Index"] = s.Indexes[plural]
 			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
 
-			x, err := s.renderThing(n, layout)
-			if err != nil {
-				return err
-			}
-
-			err = s.WritePublic(plural+"/index.html", x)
+			err := s.render(n, layout, "_default/indexesindexes.html", plural+"/index.html")
 			if err != nil {
 				return err
 			}
@@ -469,11 +456,7 @@ func (s *Site) RenderLists() error {
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
-		content, err := s.renderThingOrDefault(n, layout, "_default/index.html")
-		if err != nil {
-			return err
-		}
-		err = s.WritePublic(section, content)
+		err := s.render(n, layout, "_default/index.html", section)
 		if err != nil {
 			return err
 		}
@@ -508,11 +491,7 @@ func (s *Site) RenderHomePage() error {
 			n.Data["Pages"] = s.Pages[:9]
 		}
 	}
-	x, err := s.renderThing(n, "index.html")
-	if err != nil {
-		return err
-	}
-	err = s.WritePublic("/", x)
+	err := s.render(n, "index.html", "_default/index.html", "/")
 	if err != nil {
 		return err
 	}
@@ -524,7 +503,7 @@ func (s *Site) RenderHomePage() error {
 		n.Permalink = permalink(s, "index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-		err = s.WritePublic(".xml", y)
+		err = s.WritePublic("index.xml", y)
 		if err != nil {
 			return err
 		}
@@ -534,14 +513,7 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("404.html")
 		n.Title = "404 Page not found"
 		n.Permalink = permalink(s, "404.html")
-		x, err := s.renderThing(n, "404.html")
-		if err != nil {
-			return err
-		}
-		err = s.WritePublic("404.html", x)
-		if err != nil {
-			return err
-		}
+		return s.render(n, "404.html", "_default/404.html", "404.html")
 	}
 
 	return nil
@@ -573,6 +545,19 @@ func (s *Site) NewNode() *Node {
 		Data: make(map[string]interface{}),
 		Site: s.Info,
 	}
+}
+
+func (s *Site) render(d interface{}, layout, defaultLayout, out string) (err error) {
+	r, err := s.renderThingOrDefault(d, layout, defaultLayout)
+	if err != nil {
+		return err
+	}
+
+	err = s.WritePublic(out, r)
+	if err != nil {
+		return err
+	}
+	return
 }
 
 func (s *Site) renderThing(d interface{}, layout string) (*bytes.Buffer, error) {
