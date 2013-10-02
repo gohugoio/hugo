@@ -539,7 +539,6 @@ func (s *Site) NewNode() *Node {
 }
 
 func (s *Site) render(d interface{}, out string, layouts ...string) (err error) {
-	reader, writer := io.Pipe()
 
 	layout := s.findFirstLayout(layouts...)
 	if layout == "" {
@@ -548,14 +547,35 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		}
 		return
 	}
+
+	section := ""
+	page, ok := d.(*Page)
+	if ok {
+		section = page.Section
+	}
+
+	fmt.Println("Section is:", section)
+
+	transformer := transform.NewChain(
+		&transform.AbsURL{BaseURL: s.Config.BaseUrl},
+		&transform.NavActive{Section: section},
+	)
+
+	renderReader, renderWriter := io.Pipe()
 	go func() {
-		err = s.renderThing(d, layout, writer)
+		err = s.renderThing(d, layout, renderWriter)
 		if err != nil {
 			panic(err)
 		}
 	}()
 
-	return s.WritePublic(out, reader)
+	trReader, trWriter := io.Pipe()
+	go func() {
+		transformer.Apply(trWriter, renderReader)
+		trWriter.Close()
+	}()
+
+	return s.WritePublic(out, trReader)
 }
 
 func (s *Site) findFirstLayout(layouts ...string) (layout string) {
@@ -590,24 +610,12 @@ func (s *Site) initTarget() {
 	}
 }
 
-func (s *Site) WritePublic(path string, content io.Reader) (err error) {
+func (s *Site) WritePublic(path string, reader io.Reader) (err error) {
 	s.initTarget()
 
 	if s.Config.Verbose {
 		fmt.Println(path)
 	}
-
-	if s.Transformer == nil {
-		s.Transformer = transform.NewChain(
-			&transform.AbsURL{BaseURL: s.Config.BaseUrl},
-			&transform.NavActive{Section: "tbd"},
-		)
-	}
-	reader, writer := io.Pipe()
-	go func() {
-		s.Transformer.Apply(writer, content)
-		writer.Close()
-	}()
 	return s.Target.Publish(path, reader)
 }
 
