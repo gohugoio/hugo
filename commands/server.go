@@ -61,7 +61,7 @@ func serve(port int) {
 		fmt.Println("Serving pages from " + Config.GetAbsPath(Config.PublishDir))
 	}
 
-	fmt.Println("Web Server is available at http://localhost:", port)
+	fmt.Printf("Web Server is available at http://localhost:%v\n", port)
 	fmt.Println("Press ctrl+c to stop")
 	panic(http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir)))))
 }

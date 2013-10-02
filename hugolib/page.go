@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -26,11 +25,12 @@ import (
 	"html/template"
 	"io"
 	"launchpad.net/goyaml"
+	json "launchpad.net/rjson"
+	"net/url"
 	"path"
 	"sort"
 	"strings"
 	"time"
-	"net/url"
 )
 
 type Page struct {
@@ -467,4 +467,3 @@ func (p *Page) TargetPath() (outfile string) {
 
 	return path.Join(p.Dir, strings.TrimSpace(outfile))
 }
-

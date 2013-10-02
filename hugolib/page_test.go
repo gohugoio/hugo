@@ -51,6 +51,21 @@ Leading
 
 Content of the file goes Here
 `
+	SIMPLE_PAGE_JSON_LOOSE = `
+{
+"title": "spf13-vim 3.0 release and new website"
+"description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+"tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+"date": "2012-04-06"
+"categories": [
+    "Development"
+    "VIM"
+],
+"slug": "spf13-vim-3-0-release-and-new-website"
+}
+
+Content of the file goes Here
+`
 	SIMPLE_PAGE_RFC3339_DATE  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
 	SIMPLE_PAGE_JSON_MULTIPLE = `
 {
@@ -223,6 +238,7 @@ func TestCreatePage(t *testing.T) {
 		r string
 	}{
 		{SIMPLE_PAGE_JSON},
+		{SIMPLE_PAGE_JSON_LOOSE},
 		{SIMPLE_PAGE_JSON_MULTIPLE},
 		//{strings.NewReader(SIMPLE_PAGE_JSON_COMPACT)},
 	}

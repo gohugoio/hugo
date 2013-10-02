@@ -29,6 +29,7 @@ var (
 	CONTENT_SLUG_BUG                = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
 	CONTENT_FM_NO_DOC               = "---\ntitle: no doc\n---"
 	CONTENT_WITH_JS_FM              = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	CONTENT_WITH_JS_LOOSE_FM        = "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
 )
 
 var lineEndings = []string{"\n", "\r\n"}
@@ -113,6 +114,7 @@ func TestStandaloneCreatePageFrom(t *testing.T) {
 		{CONTENT_LWS_HTML, false, true, "", "<html><body></body></html>"},
 		{CONTENT_LWS_LF_HTML, false, true, "", "<html><body></body></html>"},
 		{CONTENT_WITH_JS_FM, true, false, "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
+		{CONTENT_WITH_JS_LOOSE_FM, true, false, "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
 		{CONTENT_SLUG_WORKING, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\n", "slug doc 2 content"},
 		{CONTENT_SLUG_WORKING_VARIATION, true, false, "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\n", "slug doc 3 content"},
 		{CONTENT_SLUG_BUG, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n", "slug doc 2 content"},
@@ -281,6 +283,7 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		{"{ { } { } }", "{ { } { } }", noErrExpected},
 		{"{\n{\n}\n}\n", "{\n{\n}\n}", noErrExpected},
 		{"{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories", "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", noErrExpected},
+		{"{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories", "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}", noErrExpected},
 	}
 
 	for _, test := range tests {
