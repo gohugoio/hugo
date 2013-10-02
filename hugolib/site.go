@@ -551,14 +551,14 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	section := ""
 	page, ok := d.(*Page)
 	if ok {
-		section = page.Section
+		section, _ = page.Permalink()
 	}
 
 	fmt.Println("Section is:", section)
 
 	transformer := transform.NewChain(
-		&transform.NavActive{Section: section},
 		&transform.AbsURL{BaseURL: s.Config.BaseUrl},
+		&transform.NavActive{Section: section},
 	)
 
 	renderReader, renderWriter := io.Pipe()

@@ -207,7 +207,7 @@ func (p *Page) analyzePage() {
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 }
 
-func (p *Page) Permalink() (string, error) {
+func (p *Page) permalink() (*url.URL, error) {
 	baseUrl := string(p.Site.BaseUrl)
 	section := strings.TrimSpace(p.Section)
 	pSlug := strings.TrimSpace(p.Slug)
@@ -223,7 +223,7 @@ func (p *Page) Permalink() (string, error) {
 		permalink = pUrl
 	} else {
 		_, t := path.Split(p.FileName)
-		if p.Site.Config.UglyUrls {
+		if p.Site.Config != nil && p.Site.Config.UglyUrls {
 			x := replaceExtension(strings.TrimSpace(t), p.Extension)
 			permalink = section + "/" + x
 		} else {
@@ -234,15 +234,23 @@ func (p *Page) Permalink() (string, error) {
 
 	base, err := url.Parse(baseUrl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	path, err := url.Parse(permalink)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return MakePermalink(base, path).String(), nil
+	return MakePermalink(base, path), nil
+}
+
+func (p *Page) Permalink() (string, error) {
+	link, err := p.permalink()
+	if err != nil {
+		return "", err
+	}
+	return link.String(), nil
 }
 
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
