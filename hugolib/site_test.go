@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"bytes"
+	"io"
 	"fmt"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
@@ -46,11 +47,11 @@ func pageMust(p *Page, err error) *Page {
 	return p
 }
 
-func TestDegeneraterenderThingMissingTemplate(t *testing.T) {
+func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 	s := new(Site)
 	s.prepTemplates()
-	_, err := s.renderThing(p, "foobar")
+	err := s.renderThing(p, "foobar", nil)
 	if err == nil {
 		t.Errorf("Expected err to be returned when missing the template.")
 	}
@@ -65,8 +66,19 @@ func TestAddInvalidTemplate(t *testing.T) {
 	}
 }
 
+type nopCloser struct {
+	io.Writer
+}
+
+func (nopCloser) Close() error { return nil }
+
+func NopCloser(w io.Writer) io.WriteCloser {
+	return nopCloser{w}
+}
+
 func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected string) {
-	content, err := s.renderThing(p, tmplName)
+	content := new(bytes.Buffer)
+	err := s.renderThing(p, tmplName, NopCloser(content))
 	if err != nil {
 		t.Fatalf("Unable to render template.")
 	}
@@ -103,8 +115,9 @@ func TestrenderThing(t *testing.T) {
 		}
 
 		p.Content = template.HTML(p.Content)
-		html, err2 := s.renderThing(p, templateName)
-		if err2 != nil {
+		html := new(bytes.Buffer)
+		err = s.renderThing(p, templateName, NopCloser(html))
+		if err != nil {
 			t.Errorf("Unable to render html: %s", err)
 		}
 
@@ -151,9 +164,9 @@ func TestRenderThingOrDefault(t *testing.T) {
 
 		var err2 error
 		if test.missing {
-			err2 = s.render(p, "missing", templateName, "out")
+			err2 = s.render(p, "out", "missing", templateName)
 		} else {
-			err2 = s.render(p, templateName, "missing_default", "out")
+			err2 = s.render(p, "out", templateName, "missing_default")
 		}
 
 		if err2 != nil {

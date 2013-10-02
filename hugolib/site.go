@@ -376,7 +376,7 @@ func (s *Site) RenderPages() (err error) {
 			layout = p.Layout()
 		}
 
-		err := s.render(p, layout, "_default/single.html", p.TargetPath())
+		err := s.render(p, p.TargetPath(), layout, "_default/single.html")
 		if err != nil {
 			return err
 		}
@@ -401,18 +401,16 @@ func (s *Site) RenderIndexes() error {
 
 			var base string
 			base = plural + "/" + k
-			err := s.render(n, layout, "_default/indexes.html", base+".html")
+			err := s.render(n, base+".html", layout, "_default/indexes.html")
 			if err != nil {
 				return err
 			}
 
 			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 				// XML Feed
-				y := s.NewXMLBuffer()
 				n.Url = helpers.Urlize(plural + "/" + k + ".xml")
 				n.Permalink = permalink(s, n.Url)
-				s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-				err = s.WritePublic(base+".xml", y)
+				err := s.render(n, base+".xml", "rss.xml")
 				if err != nil {
 					return err
 				}
@@ -436,7 +434,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Data["Index"] = s.Indexes[plural]
 			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
 
-			err := s.render(n, layout, "_default/indexesindexes.html", plural+"/index.html")
+			err := s.render(n, plural+"/index.html", layout)
 			if err != nil {
 				return err
 			}
@@ -456,7 +454,7 @@ func (s *Site) RenderLists() error {
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
-		err := s.render(n, layout, "_default/index.html", section)
+		err := s.render(n, section, layout, "_default/index.html")
 		if err != nil {
 			return err
 		}
@@ -465,12 +463,7 @@ func (s *Site) RenderLists() error {
 			// XML Feed
 			n.Url = helpers.Urlize(section + ".xml")
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
-			y := s.NewXMLBuffer()
-			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-			err = s.WritePublic(section+"/index.xml", y)
-			if err != nil {
-				return err
-			}
+			return s.render(n, section+"/index.html", "rss.xml")
 		}
 	}
 	return nil
@@ -491,7 +484,7 @@ func (s *Site) RenderHomePage() error {
 			n.Data["Pages"] = s.Pages[:9]
 		}
 	}
-	err := s.render(n, "index.html", "_default/index.html", "/")
+	err := s.render(n, "/", "index.html")
 	if err != nil {
 		return err
 	}
@@ -501,9 +494,7 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("index.xml")
 		n.Title = "Recent Content"
 		n.Permalink = permalink(s, "index.xml")
-		y := s.NewXMLBuffer()
-		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-		err = s.WritePublic("index.xml", y)
+		err := s.render(n, "index.html", "rss.xml")
 		if err != nil {
 			return err
 		}
@@ -513,7 +504,7 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("404.html")
 		n.Title = "404 Page not found"
 		n.Permalink = permalink(s, "404.html")
-		return s.render(n, "404.html", "_default/404.html", "404.html")
+		return s.render(n, "404.html", "404.html")
 	}
 
 	return nil
@@ -547,41 +538,39 @@ func (s *Site) NewNode() *Node {
 	}
 }
 
-func (s *Site) render(d interface{}, layout, defaultLayout, out string) (err error) {
-	r, err := s.renderThingOrDefault(d, layout, defaultLayout)
-	if err != nil {
-		return err
-	}
+func (s *Site) render(d interface{}, out string, layouts ...string) (err error) {
+	reader, writer := io.Pipe()
 
-	err = s.WritePublic(out, r)
-	if err != nil {
-		return err
-	}
-	return
+	layout := s.findFirstLayout(layouts...)
+	go func() {
+		err = s.renderThing(d, layout, writer)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	return s.WritePublic(out, reader)
 }
 
-func (s *Site) renderThing(d interface{}, layout string) (*bytes.Buffer, error) {
-	if s.Tmpl.Lookup(layout) == nil {
-		return nil, fmt.Errorf("Layout not found: %s", layout)
-	}
-	buffer := new(bytes.Buffer)
-	err := s.Tmpl.ExecuteTemplate(buffer, layout, d)
-	return buffer, err
-}
-
-func (s *Site) renderThingOrDefault(d interface{}, layout string, defaultLayout string) (*bytes.Buffer, error) {
-	content, err := s.renderThing(d, layout)
-	if err != nil {
-		var err2 error
-		content, err2 = s.renderThing(d, defaultLayout)
-		if err2 == nil {
-			return content, err2
+func (s *Site) findFirstLayout(layouts ...string) string {
+	for _, layout := range layouts {
+		if s.Tmpl.Lookup(layout) != nil {
+			return layout
 		}
 	}
-	return content, err
+	panic("Unable to find layout.")
 }
 
-func (s *Site) NewXMLBuffer() *bytes.Buffer {
+func (s *Site) renderThing(d interface{}, layout string, w io.WriteCloser) error {
+	// If the template doesn't exist, then return, but leave the Writer open
+	if s.Tmpl.Lookup(layout) == nil {
+		return fmt.Errorf("Layout not found: %s", layout)
+	}
+	defer w.Close()
+	return s.Tmpl.ExecuteTemplate(w, layout, d)
+}
+
+func (s *Site) whyNewXMLBuffer() *bytes.Buffer {
 	header := "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n"
 	return bytes.NewBufferString(header)
 }
