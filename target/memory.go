@@ -1,8 +1,8 @@
 package target
 
 import (
-	"io"
 	"bytes"
+	"io"
 )
 
 type InMemoryTarget struct {
@@ -22,4 +22,3 @@ func (t *InMemoryTarget) Publish(label string, reader io.Reader) (err error) {
 func (t *InMemoryTarget) Translate(label string) (dest string, err error) {
 	return label, nil
 }
-

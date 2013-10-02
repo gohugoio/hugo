@@ -1,8 +1,8 @@
 package transform
 
 import (
-	"io"
 	"bytes"
+	"io"
 )
 
 type chain struct {
@@ -23,7 +23,7 @@ func (c *chain) Apply(w io.Writer, r io.Reader) (err error) {
 		}
 		in = bytes.NewBuffer(out.Bytes())
 	}
-	
+
 	_, err = io.Copy(w, in)
 	return
 }

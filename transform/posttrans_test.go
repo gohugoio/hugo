@@ -25,15 +25,15 @@ func TestAbsUrlify(t *testing.T) {
 }
 
 type test struct {
-	content string
+	content  string
 	expected string
 }
 
-var abs_url_tests = []test {
-		{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF},
-		{H5_JS_CONTENT_SINGLE_QUOTE, CORRECT_OUTPUT_SRC_HREF},
-		{H5_JS_CONTENT_ABS_URL, H5_JS_CONTENT_ABS_URL},
-	}
+var abs_url_tests = []test{
+	{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF},
+	{H5_JS_CONTENT_SINGLE_QUOTE, CORRECT_OUTPUT_SRC_HREF},
+	{H5_JS_CONTENT_ABS_URL, H5_JS_CONTENT_ABS_URL},
+}
 
 func apply(t *testing.T, tr Transformer, tests []test) {
 	for _, test := range tests {
