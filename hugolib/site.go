@@ -401,7 +401,7 @@ func (s *Site) RenderIndexes() error {
 
 			var base string
 			base = plural + "/" + k
-			err := s.render(n, base+".html", layout, "_default/indexes.html")
+			err := s.render(n, base+".html", layout)
 			if err != nil {
 				return err
 			}
@@ -454,7 +454,7 @@ func (s *Site) RenderLists() error {
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 
-		err := s.render(n, section, layout, "_default/index.html")
+		err := s.render(n, section, layout, "_default/indexes.html")
 		if err != nil {
 			return err
 		}
@@ -542,6 +542,12 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	reader, writer := io.Pipe()
 
 	layout := s.findFirstLayout(layouts...)
+	if layout == "" {
+		if s.Config.Verbose {
+			fmt.Printf("Unable to locate layout: %s\n", layouts)
+		}
+		return
+	}
 	go func() {
 		err = s.renderThing(d, layout, writer)
 		if err != nil {
@@ -552,13 +558,13 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	return s.WritePublic(out, reader)
 }
 
-func (s *Site) findFirstLayout(layouts ...string) string {
-	for _, layout := range layouts {
+func (s *Site) findFirstLayout(layouts ...string) (layout string) {
+	for _, layout = range layouts {
 		if s.Tmpl.Lookup(layout) != nil {
-			return layout
+			return
 		}
 	}
-	panic("Unable to find layout.")
+	return ""
 }
 
 func (s *Site) renderThing(d interface{}, layout string, w io.WriteCloser) error {
