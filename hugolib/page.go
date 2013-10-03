@@ -253,6 +253,19 @@ func (p *Page) Permalink() (string, error) {
 	return link.String(), nil
 }
 
+func (p *Page) RelPermalink() (string, error) {
+	link, err := p.permalink()
+	if err != nil {
+		return "", err
+	}
+
+	link.Scheme = ""
+	link.Host = ""
+	link.User = nil
+	link.Opaque = ""
+	return link.String(), nil
+}
+
 func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	datum = removeTomlIdentifier(datum)

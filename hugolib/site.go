@@ -551,7 +551,7 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	section := ""
 	page, ok := d.(*Page)
 	if ok {
-		section, _ = page.Permalink()
+		section, _ = page.RelPermalink()
 	}
 
 	fmt.Println("Section is:", section)
