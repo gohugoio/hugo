@@ -31,7 +31,7 @@ import (
 	"time"
 )
 
-var DefaultTimer = nitro.Initalize()
+var DefaultTimer *nitro.B
 
 func MakePermalink(base *url.URL, path *url.URL) *url.URL {
 	return base.ResolveReference(path)
@@ -76,6 +76,10 @@ type SiteInfo struct {
 	LastChange time.Time
 	Title      string
 	Config     *Config
+}
+
+func init() {
+	DefaultTimer = nitro.Initalize()
 }
 
 func (s *Site) timerStep(step string) {

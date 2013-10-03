@@ -19,6 +19,7 @@ import (
 	"github.com/mostafah/fsync"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
+	"github.com/spf13/nitro"
 	"log"
 	"os"
 	"path/filepath"
@@ -66,6 +67,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyurls", false, "if true, use /filename.html instead of /filename/")
 	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 }
 
