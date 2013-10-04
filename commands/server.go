@@ -40,7 +40,8 @@ Serve them up.`,
 func server(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
-	if Config.BaseUrl == "" {
+	// Unless command line overrides, we use localhost for the server
+	if BaseUrl == "" {
 		Config.BaseUrl = "http://localhost:" + strconv.Itoa(serverPort)
 	}
 
