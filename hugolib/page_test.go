@@ -111,6 +111,14 @@ Summary Next Line
 <!--more-->
 Some more text
 `
+	SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY = `---
+title: Simple
+---
+Summary Next Line. {{% img src="/not/real" %}}.
+More text here.
+
+Some more text
+`
 
 	SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
 title: Simple
@@ -206,7 +214,18 @@ func TestPageWithDelimiter(t *testing.T) {
 	checkPageSummary(t, p, "<p>Summary Next Line</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html")
+}
 
+func TestPageWithShortCodeInSummary(t *testing.T) {
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY), "simple.md")
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageTitle(t, p, "Simple")
+	checkPageContent(t, p, "<p>Summary Next Line. {{% img src=&ldquo;/not/real&rdquo; %}}.\nMore text here.</p>\n\n<p>Some more text</p>\n")
+	checkPageSummary(t, p, "Summary Next Line. . More text here. Some more text")
+	checkPageType(t, p, "page")
+	checkPageLayout(t, p, "page/single.html")
 }
 
 func TestPageWithMoreTag(t *testing.T) {

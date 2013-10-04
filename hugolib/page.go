@@ -76,12 +76,27 @@ func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p Pages) Sort()             { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
-func getSummaryString(content []byte) ([]byte, bool) {
+func getSummaryString(content []byte, fmt string) []byte {
 	if bytes.Contains(content, summaryDivider) {
-		return bytes.Split(content, summaryDivider)[0], false
+		// If user defines split:
+		// Split then render
+		return renderBytes(bytes.Split(content, summaryDivider)[0], fmt)
 	} else {
-		plainContent := StripHTML(StripShortcodes(string(content)))
-		return []byte(TruncateWordsToWholeSentence(plainContent, summaryLength)), true
+		// If hugo defines split:
+		// render, strip html, then split
+		plainContent := StripHTML(StripShortcodes(string(renderBytes(content, fmt))))
+		return []byte(TruncateWordsToWholeSentence(plainContent, summaryLength))
+	}
+}
+
+func renderBytes(content []byte, fmt string) []byte {
+	switch fmt {
+	default:
+		return blackfriday.MarkdownCommon(content)
+	case "markdown":
+		return blackfriday.MarkdownCommon(content)
+	case "rst":
+		return []byte(getRstContent(content))
 	}
 }
 
@@ -424,12 +439,8 @@ func (page *Page) convertMarkdown(lines io.Reader) {
 	b.ReadFrom(lines)
 	content := b.Bytes()
 	page.Content = template.HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
-	summary, plain := getSummaryString(content)
-	if plain {
-		page.Summary = template.HTML(string(summary))
-	} else {
-		page.Summary = template.HTML(string(blackfriday.MarkdownCommon(summary)))
-	}
+	summary := getSummaryString(content, "markdown")
+	page.Summary = template.HTML(string(summary))
 }
 
 func (page *Page) convertRestructuredText(lines io.Reader) {
@@ -437,12 +448,8 @@ func (page *Page) convertRestructuredText(lines io.Reader) {
 	b.ReadFrom(lines)
 	content := b.Bytes()
 	page.Content = template.HTML(getRstContent(content))
-	summary, plain := getSummaryString(content)
-	if plain {
-		page.Summary = template.HTML(string(summary))
-	} else {
-		page.Summary = template.HTML(getRstContent(summary))
-	}
+	summary := getSummaryString(content, "rst")
+	page.Summary = template.HTML(string(summary))
 }
 
 func (p *Page) TargetPath() (outfile string) {
