@@ -247,6 +247,7 @@ func (s *Site) checkDirectories() (err error) {
 func (s *Site) ProcessShortcodes() {
 	for _, page := range s.Pages {
 		page.Content = template.HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
+		page.Summary = template.HTML(ShortcodesHandle(string(page.Summary), page, s.Tmpl))
 	}
 }
 
