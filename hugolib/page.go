@@ -46,6 +46,7 @@ type Page struct {
 	Tmpl        bundle.Template
 	Markup      string
 	renderable  bool
+	layout			string
 	PageMeta
 	File
 	Position
@@ -151,11 +152,14 @@ func (p *Page) IsRenderable() bool {
 func (p *Page) guessSection() {
 	if p.Section == "" {
 		x := strings.Split(p.FileName, "/")
-		if len(x) > 1 {
-			if section := x[len(x)-2]; section != "content" {
-				p.Section = section
-			}
+		x = x[:len(x)-1]
+		if len(x) == 0 {
+			return
 		}
+		if x[0] == "content" {
+			x = x[1:]
+		}
+		p.Section = path.Join(x...)
 	}
 }
 
@@ -171,7 +175,11 @@ func (page *Page) Type() string {
 	return "page"
 }
 
-func (page *Page) Layout(l ...string) string {
+func (page *Page) Layout(l ...string) []string {
+	if page.layout != "" {
+		return layouts(page.Type(), page.layout)
+	}
+
 	layout := ""
 	if len(l) == 0 {
 		layout = "single"
@@ -179,11 +187,17 @@ func (page *Page) Layout(l ...string) string {
 		layout = l[0]
 	}
 
-	if x := page.layout; x != "" {
-		return x
-	}
+	return layouts(page.Type(), layout)
+}
 
-	return strings.ToLower(page.Type()) + "/" + layout + ".html"
+func layouts(types string, layout string) (layouts []string) {
+	t := strings.Split(types, "/")
+	for i := range t  {
+		search := t[:len(t)-i]
+		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
+	}
+	layouts = append(layouts, fmt.Sprintf("%s.html", layout))
+	return
 }
 
 func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
@@ -214,7 +228,7 @@ func (p *Page) permalink() (*url.URL, error) {
 	pUrl := strings.TrimSpace(p.Url)
 	var permalink string
 	if len(pSlug) > 0 {
-		if p.Site.Config.UglyUrls {
+		if p.Site.Config != nil && p.Site.Config.UglyUrls {
 			permalink = section + "/" + p.Slug + "." + p.Extension
 		} else {
 			permalink = section + "/" + p.Slug + "/"
@@ -404,7 +418,12 @@ func (p *Page) Render(layout ...string) template.HTML {
 func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 	l := p.Layout(layout)
 	buffer := new(bytes.Buffer)
-	p.Tmpl.ExecuteTemplate(buffer, l, p)
+	for _, layout := range l {
+		if p.Tmpl.Lookup(layout) != nil {
+			p.Tmpl.ExecuteTemplate(buffer, layout, p)
+			break
+		}
+	}
 	return buffer
 }
 

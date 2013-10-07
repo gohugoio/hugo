@@ -180,8 +180,8 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 	}
 }
 
-func checkPageLayout(t *testing.T, page *Page, layout string) {
-	if page.Layout() != layout {
+func checkPageLayout(t *testing.T, page *Page, layout ...string) {
+	if !listEqual(page.Layout(), layout) {
 		t.Fatalf("Page layout is: %s.  Expected: %s", page.Layout(), layout)
 	}
 }
@@ -201,7 +201,7 @@ func TestCreateNewPage(t *testing.T) {
 	checkPageContent(t, p, "<p>Simple Page</p>\n")
 	checkPageSummary(t, p, "Simple Page")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html")
+	checkPageLayout(t, p, "page/single.html", "single.html")
 }
 
 func TestPageWithDelimiter(t *testing.T) {
@@ -213,7 +213,7 @@ func TestPageWithDelimiter(t *testing.T) {
 	checkPageContent(t, p, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Summary Next Line</p>\n")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html")
+	checkPageLayout(t, p, "page/single.html", "single.html")
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -225,7 +225,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	checkPageContent(t, p, "<p>Summary Next Line. {{% img src=&ldquo;/not/real&rdquo; %}}.\nMore text here.</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "Summary Next Line. . More text here. Some more text")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html")
+	checkPageLayout(t, p, "page/single.html", "single.html")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
@@ -237,7 +237,7 @@ func TestPageWithMoreTag(t *testing.T) {
 	checkPageContent(t, p, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Summary Same Line</p>\n")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html")
+	checkPageLayout(t, p, "page/single.html", "single.html")
 }
 
 func TestPageWithDate(t *testing.T) {
@@ -315,10 +315,14 @@ func TestSectionEvaluation(t *testing.T) {
 	}
 }
 
+func L(s ...string) []string {
+	return s
+}
+
 func TestLayoutOverride(t *testing.T) {
 	var (
-		path_content_one_dir = path.Join("content", "gub", "file1.md")
 		path_content_two_dir = path.Join("content", "dub", "sub", "file1.md")
+		path_content_one_dir = path.Join("content", "gub", "file1.md")
 		path_content_no_dir  = path.Join("content", "file1")
 		path_one_directory   = path.Join("fub", "file1.md")
 		path_no_directory    = path.Join("file1.md")
@@ -326,35 +330,49 @@ func TestLayoutOverride(t *testing.T) {
 	tests := []struct {
 		content        string
 		path           string
-		expectedLayout string
+		expectedLayout []string
 	}{
-		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, "sub/single.html"},
-		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, "gub/single.html"},
-		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, "page/single.html"},
-		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, "fub/single.html"},
-		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, "page/single.html"},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, "foobar"},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, "foobar"},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, "foobar"},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, "foobar"},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_two_dir, "foobar/single.html"},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_one_dir, "foobar/single.html"},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_no_dir, "foobar/single.html"},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_one_directory, "foobar/single.html"},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_no_directory, "foobar/single.html"},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_two_dir, "buzfoo"},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_one_dir, "buzfoo"},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_no_dir, "buzfoo"},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_one_directory, "buzfoo"},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, "buzfoo"},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, L("dub/sub/single.html", "dub/single.html", "single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, L("gub/single.html", "single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, L("page/single.html", "single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, L("fub/single.html", "single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, L("page/single.html", "single.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, L("dub/sub/foobar.html", "dub/foobar.html", "foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, L("gub/foobar.html", "foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, L("fub/foobar.html", "foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, L("page/foobar.html", "foobar.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_two_dir, L("foobar/single.html", "single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_one_dir, L("foobar/single.html", "single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_no_dir, L("foobar/single.html", "single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_one_directory, L("foobar/single.html", "single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_no_directory, L("foobar/single.html", "single.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_two_dir, L("barfoo/buzfoo.html", "buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_one_dir, L("barfoo/buzfoo.html", "buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_no_dir, L("barfoo/buzfoo.html", "buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_one_directory, L("barfoo/buzfoo.html", "buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, L("barfoo/buzfoo.html", "buzfoo.html")},
 	}
 	for _, test := range tests {
 		p, err := ReadFrom(strings.NewReader(test.content), test.path)
 		if err != nil {
 			t.Fatalf("Unable to parse content:\n%s\n", test.content)
 		}
-		if p.Layout() != test.expectedLayout {
+		if !listEqual(p.Layout(), test.expectedLayout) {
 			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
 		}
 	}
+}
+
+func listEqual(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+
+	for i := range left {
+		if left[i] != right[i] {
+			return false
+		}
+	}
+
+	return true
 }

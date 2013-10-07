@@ -26,25 +26,26 @@ func TestNewPageWithFilePath(t *testing.T) {
 	toCheck := []struct {
 		input   string
 		section string
-		layout  string
+		layout  []string
 	}{
-		{path.Join("sub", "foobar.html"), "sub", "sub/single.html"},
-		{path.Join("content", "sub", "foobar.html"), "sub", "sub/single.html"},
-		{path.Join("content", "dub", "sub", "foobar.html"), "sub", "sub/single.html"},
+		{path.Join("sub", "foobar.html"), "sub", L("sub/single.html", "single.html")},
+		{path.Join("content", "foobar.html"), "", L("page/single.html", "single.html")},
+		{path.Join("content", "sub", "foobar.html"), "sub", L("sub/single.html", "single.html")},
+		{path.Join("content", "dub", "sub", "foobar.html"), "dub/sub", L("dub/sub/single.html", "dub/single.html", "single.html")},
 	}
 
 	for _, el := range toCheck {
 		p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
 		p.guessSection()
 		if err != nil {
-			t.Fatalf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)
+			t.Errorf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)
 		}
 		if p.Section != el.section {
-			t.Fatalf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section)
+			t.Errorf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section)
 		}
 
-		if p.Layout() != el.layout {
-			t.Fatalf("Layout incorrect. Expected: '%s', Got: '%s'", el.layout, p.Layout())
+		if !listEqual(p.Layout(), el.layout) {
+			t.Errorf("Layout incorrect. Expected: '%s', Got: '%s'", el.layout, p.Layout())
 		}
 	}
 }

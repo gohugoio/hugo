@@ -22,7 +22,7 @@ The homepage of your site.
 ### [RSS](/layout/rss/)
 Used to render all rss documents.
 
-### [Index](/layout/index)
+### [Index](/layout/indexes)
 Page that list multiple pieces of content.
 
 ### [Content](/layout/content)

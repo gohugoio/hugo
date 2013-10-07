@@ -227,7 +227,7 @@ func TestSkipRender(t *testing.T) {
 
 	s := &Site{
 		Target: target,
-		Config: Config{BaseUrl: "http://auth/bub/"},
+		Config: Config{Verbose: true, BaseUrl: "http://auth/bub/"},
 		Source: &source.InMemorySource{sources},
 	}
 	s.initializeSiteInfo()

@@ -67,6 +67,7 @@ type Site struct {
 	Transformer transform.Transformer
 	Target      target.Output
 	Alias       target.AliasPublisher
+	Completed	  chan bool
 }
 
 type SiteInfo struct {
@@ -364,19 +365,21 @@ func (s *Site) RenderAliases() error {
 
 func (s *Site) RenderPages() (err error) {
 	for _, p := range s.Pages {
-		var layout string
+		var layout []string
 
 		if !p.IsRenderable() {
-			layout = "__" + p.TargetPath()
-			_, err := s.Tmpl.New(layout).Parse(string(p.Content))
+			self := "__" + p.TargetPath()
+			_, err := s.Tmpl.New(self).Parse(string(p.Content))
 			if err != nil {
 				return err
 			}
+			layout = append(layout, self)
 		} else {
-			layout = p.Layout()
+			layout = append(layout, p.Layout()...)
+			layout = append(layout, "_default/single.html")
 		}
 
-		err := s.render(p, p.TargetPath(), layout, "_default/single.html")
+		err := s.render(p, p.TargetPath(), layout...)
 		if err != nil {
 			return err
 		}
@@ -484,7 +487,7 @@ func (s *Site) RenderHomePage() error {
 			n.Data["Pages"] = s.Pages[:9]
 		}
 	}
-	err := s.render(n, "/", "index.html")
+	err := s.render(n, "/", "index.html", "_default/single.html")
 	if err != nil {
 		return err
 	}
@@ -553,8 +556,6 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	if ok {
 		section, _ = page.RelPermalink()
 	}
-
-	fmt.Println("Section is:", section)
 
 	transformer := transform.NewChain(
 		&transform.AbsURL{BaseURL: s.Config.BaseUrl},
