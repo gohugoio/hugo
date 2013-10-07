@@ -524,8 +524,10 @@ func (s *Site) RenderHomePage() error {
 		n.Permalink = permalink(s, "index.xml")
 		y := s.NewXMLBuffer()
 		s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
-		err = s.WritePublic("index.xml", y)
-		return err
+		err = s.WritePublic(".xml", y)
+		if err != nil {
+			return err
+		}
 	}
 
 	if a := s.Tmpl.Lookup("404.html"); a != nil {
