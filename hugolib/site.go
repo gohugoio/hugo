@@ -539,7 +539,9 @@ func (s *Site) RenderHomePage() error {
 			return err
 		}
 		err = s.WritePublic("404.html", x)
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
