@@ -160,8 +160,9 @@ func (s *Site) Render() (err error) {
 	if err = s.RenderIndexes(); err != nil {
 		return
 	}
-	s.RenderIndexesIndexes()
 	s.timerStep("render and write indexes")
+	s.RenderIndexesIndexes()
+	s.timerStep("render & write index indexes")
 	s.RenderLists()
 	s.timerStep("render and write lists")
 	if err = s.RenderPages(); err != nil {
@@ -303,8 +304,8 @@ func (s *Site) BuildSiteMeta() (err error) {
 		}
 	}
 
-	for _, p := range s.Pages {
-		s.Sections.Add(p.Section, p)
+	for i, p := range s.Pages {
+		s.Sections.Add(p.Section, s.Pages[i])
 	}
 
 	for k, _ := range s.Sections {
@@ -484,7 +485,9 @@ func (s *Site) RenderLists() error {
 			y := s.NewXMLBuffer()
 			s.Tmpl.ExecuteTemplate(y, "rss.xml", n)
 			err = s.WritePublic(section+"/index.xml", y)
-			return err
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
