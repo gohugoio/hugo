@@ -67,7 +67,7 @@ type Site struct {
 	Transformer transform.Transformer
 	Target      target.Output
 	Alias       target.AliasPublisher
-	Completed	  chan bool
+	Completed   chan bool
 }
 
 type SiteInfo struct {
@@ -487,7 +487,7 @@ func (s *Site) RenderHomePage() error {
 			n.Data["Pages"] = s.Pages[:9]
 		}
 	}
-	err := s.render(n, "/", "index.html", "_default/single.html")
+	err := s.render(n, "/", "index.html")
 	if err != nil {
 		return err
 	}
@@ -552,8 +552,7 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	}
 
 	section := ""
-	page, ok := d.(*Page)
-	if ok {
+	if page, ok := d.(*Page); ok {
 		section, _ = page.RelPermalink()
 	}
 

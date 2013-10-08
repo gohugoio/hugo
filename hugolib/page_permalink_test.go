@@ -7,7 +7,7 @@ import (
 
 func TestPermalink(t *testing.T) {
 	tests := []struct {
-		base     template.URL
+		base        template.URL
 		expectedAbs string
 		expectedRel string
 	}{
@@ -18,10 +18,10 @@ func TestPermalink(t *testing.T) {
 	for _, test := range tests {
 		p := &Page{
 			Node: Node{
-				UrlPath: UrlPath{Section: "x/y/z"},
+				UrlPath: UrlPath{Section: "z"},
 				Site:    SiteInfo{BaseUrl: test.base},
 			},
-			File: File{FileName: "x/y/z/boofar.md"},
+			File: File{FileName: "x/y/z/boofar.md", Dir: "x/y/z"},
 		}
 
 		u, err := p.Permalink()

@@ -46,7 +46,7 @@ type Page struct {
 	Tmpl        bundle.Template
 	Markup      string
 	renderable  bool
-	layout			string
+	layout      string
 	PageMeta
 	File
 	Position
@@ -192,7 +192,7 @@ func (page *Page) Layout(l ...string) []string {
 
 func layouts(types string, layout string) (layouts []string) {
 	t := strings.Split(types, "/")
-	for i := range t  {
+	for i := range t {
 		search := t[:len(t)-i]
 		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
 	}
@@ -223,15 +223,15 @@ func (p *Page) analyzePage() {
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseUrl := string(p.Site.BaseUrl)
-	section := strings.TrimSpace(p.Section)
+	dir := strings.TrimSpace(p.Dir)
 	pSlug := strings.TrimSpace(p.Slug)
 	pUrl := strings.TrimSpace(p.Url)
 	var permalink string
 	if len(pSlug) > 0 {
 		if p.Site.Config != nil && p.Site.Config.UglyUrls {
-			permalink = section + "/" + p.Slug + "." + p.Extension
+			permalink = path.Join(dir, p.Slug, p.Extension)
 		} else {
-			permalink = section + "/" + p.Slug + "/"
+			permalink = dir + "/" + p.Slug + "/"
 		}
 	} else if len(pUrl) > 2 {
 		permalink = pUrl
@@ -239,10 +239,10 @@ func (p *Page) permalink() (*url.URL, error) {
 		_, t := path.Split(p.FileName)
 		if p.Site.Config != nil && p.Site.Config.UglyUrls {
 			x := replaceExtension(strings.TrimSpace(t), p.Extension)
-			permalink = section + "/" + x
+			permalink = path.Join(dir, x)
 		} else {
 			file, _ := fileExt(strings.TrimSpace(t))
-			permalink = section + "/" + file
+			permalink = path.Join(dir, file)
 		}
 	}
 
