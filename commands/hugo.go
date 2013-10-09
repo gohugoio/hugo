@@ -19,8 +19,8 @@ import (
 	"github.com/mostafah/fsync"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
+	"github.com/spf13/hugo/utils"
 	"github.com/spf13/nitro"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +36,10 @@ var HugoCmd = &cobra.Command{
 love by spf13 and friends in Go.
 
 Complete documentation is available at http://hugo.spf13.com`,
-	Run: build,
+	Run: func(cmd *cobra.Command, args []string) {
+		InitializeConfig()
+		build()
+	},
 }
 
 var Hugo *cobra.Commander
@@ -46,10 +49,7 @@ var Source, Destination, BaseUrl, CfgFile string
 func Execute() {
 	AddCommands()
 	Hugo := HugoCmd.ToCommander()
-	err := Hugo.Execute()
-	if err != nil {
-		os.Exit(-1)
-	}
+	utils.CheckErrExit(Hugo.Execute())
 }
 
 func AddCommands() {
@@ -84,25 +84,16 @@ func InitializeConfig() {
 	}
 }
 
-func build(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func build() {
+	utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
 
-	err := copyStatic()
-	if err != nil {
-		log.Fatalf("Error copying static files to %s: %v", Config.GetAbsPath(Config.PublishDir), err)
-	}
-	if _, err := buildSite(); err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
-	}
+	_, e := buildSite()
+	utils.CheckErrExit(e)
 
 	if BuildWatch {
 		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
 		fmt.Println("Press ctrl+c to stop")
-		err := NewWatcher(0)
-		if err != nil {
-			fmt.Println(err)
-		}
+		utils.CheckErr(NewWatcher(0))
 	}
 }
 

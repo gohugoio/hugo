@@ -45,7 +45,7 @@ func server(cmd *cobra.Command, args []string) {
 		Config.BaseUrl = "http://localhost:" + strconv.Itoa(serverPort)
 	}
 
-	build(cmd, args)
+	build()
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
