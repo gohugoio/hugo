@@ -46,6 +46,6 @@ func bench(cmd *cobra.Command, args []string) {
 	defer pprof.StopCPUProfile()
 
 	for i := 0; i < benchmarkTimes; i++ {
-		_, _ = buildSite()
+		_ = buildSite()
 	}
 }

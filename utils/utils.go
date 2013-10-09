@@ -14,7 +14,7 @@ func CheckErr(err error, s ...string) {
 	}
 }
 
-func CheckErrExit(err error, s ...string) {
+func StopOnErr(err error, s ...string) {
 	if err != nil {
 		CheckErr(err, s...)
 		os.Exit(-1)

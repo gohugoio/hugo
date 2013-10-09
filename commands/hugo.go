@@ -49,7 +49,7 @@ var Source, Destination, BaseUrl, CfgFile string
 func Execute() {
 	AddCommands()
 	Hugo := HugoCmd.ToCommander()
-	utils.CheckErrExit(Hugo.Execute())
+	utils.StopOnErr(Hugo.Execute())
 }
 
 func AddCommands() {
@@ -86,9 +86,7 @@ func InitializeConfig() {
 
 func build() {
 	utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
-
-	_, e := buildSite()
-	utils.CheckErrExit(e)
+	utils.StopOnErr(buildSite())
 
 	if BuildWatch {
 		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
@@ -123,16 +121,16 @@ func getDirList() []string {
 	return a
 }
 
-func buildSite() (site *hugolib.Site, err error) {
+func buildSite() (err error) {
 	startTime := time.Now()
-	site = &hugolib.Site{Config: *Config}
+	site := &hugolib.Site{Config: *Config}
 	err = site.Build()
 	if err != nil {
 		return
 	}
 	site.Stats()
 	fmt.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
-	return site, nil
+	return nil
 }
 
 func NewWatcher(port int) error {
@@ -181,9 +179,9 @@ func NewWatcher(port int) error {
 func watchChange(ev *fsnotify.FileEvent) {
 	if strings.HasPrefix(ev.Name, Config.GetAbsPath(Config.StaticDir)) {
 		fmt.Println("Static file changed, syncing\n")
-		copyStatic()
+		utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
 	} else {
 		fmt.Println("Change detected, rebuilding site\n")
-		buildSite()
+		utils.StopOnErr(buildSite())
 	}
 }

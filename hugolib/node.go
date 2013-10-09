@@ -19,9 +19,9 @@ import (
 )
 
 type Node struct {
-	RSSlink     template.HTML
-	Site        SiteInfo
-//	layout      string
+	RSSlink template.HTML
+	Site    SiteInfo
+	//	layout      string
 	Data        map[string]interface{}
 	Title       string
 	Description string
