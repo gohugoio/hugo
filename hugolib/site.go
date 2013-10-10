@@ -164,7 +164,9 @@ func (s *Site) Render() (err error) {
 	s.timerStep("render and write indexes")
 	s.RenderIndexesIndexes()
 	s.timerStep("render & write index indexes")
-	s.RenderLists()
+	if err = s.RenderLists(); err != nil {
+		return
+	}
 	s.timerStep("render and write lists")
 	if err = s.RenderPages(); err != nil {
 		return
@@ -466,7 +468,10 @@ func (s *Site) RenderLists() error {
 			// XML Feed
 			n.Url = helpers.Urlize(section + ".xml")
 			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
-			return s.render(n, section+"/index.html", "rss.xml")
+			err = s.render(n, section+".xml", "rss.xml")
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -497,7 +502,7 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("index.xml")
 		n.Title = "Recent Content"
 		n.Permalink = permalink(s, "index.xml")
-		err := s.render(n, "index.html", "rss.xml")
+		err := s.render(n, ".xml", "rss.xml")
 		if err != nil {
 			return err
 		}
