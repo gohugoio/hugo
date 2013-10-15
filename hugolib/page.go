@@ -38,7 +38,7 @@ type Page struct {
 	Images      []string
 	Content     template.HTML
 	Summary     template.HTML
-	RawMarkdown string // TODO should be []byte
+	plain       string // TODO should be []byte
 	Params      map[string]interface{}
 	contentType string
 	Draft       bool
@@ -77,6 +77,13 @@ func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p Pages) Sort()             { sort.Sort(p) }
 func (p Pages) Limit(n int) Pages { return p[0:n] }
 
+func (p Page) Plain() string {
+	if len(p.plain) == 0 {
+		p.plain = StripHTML(StripShortcodes(string(p.Content)))
+	}
+	return p.plain
+}
+
 func getSummaryString(content []byte, fmt string) []byte {
 	if bytes.Contains(content, summaryDivider) {
 		// If user defines split:
@@ -85,8 +92,8 @@ func getSummaryString(content []byte, fmt string) []byte {
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
-		plainContent := StripHTML(StripShortcodes(string(renderBytes(content, fmt))))
-		return []byte(TruncateWordsToWholeSentence(plainContent, summaryLength))
+		plain := StripHTML(StripShortcodes(string(renderBytes(content, fmt))))
+		return []byte(TruncateWordsToWholeSentence(plain, summaryLength))
 	}
 }
 
@@ -217,7 +224,7 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 }
 
 func (p *Page) analyzePage() {
-	p.WordCount = TotalWords(p.RawMarkdown)
+	p.WordCount = TotalWords(p.Plain())
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 }
 
