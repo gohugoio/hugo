@@ -277,6 +277,10 @@ func TestWordCount(t *testing.T) {
 	if p.FuzzyWordCount != 500 {
 		t.Fatalf("incorrect word count. expected %v, got %v", 500, p.WordCount)
 	}
+
+	if p.MinRead != 3 {
+		t.Fatalf("incorrect min read. expected %v, got %v", 3, p.MinRead)
+	}
 }
 
 func TestCreatePage(t *testing.T) {

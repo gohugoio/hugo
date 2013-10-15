@@ -60,6 +60,7 @@ type File struct {
 type PageMeta struct {
 	WordCount      int
 	FuzzyWordCount int
+	MinRead        int
 }
 
 type Position struct {
@@ -226,6 +227,7 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 func (p *Page) analyzePage() {
 	p.WordCount = TotalWords(p.Plain())
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
+	p.MinRead = int((p.WordCount + 212) / 213)
 }
 
 func (p *Page) permalink() (*url.URL, error) {
