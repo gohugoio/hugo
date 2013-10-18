@@ -321,3 +321,62 @@ func TestAbsUrlify(t *testing.T) {
 		}
 	}
 }
+
+var WEIGHTED_PAGE_1 = []byte(`+++
+weight = "2"
+title = "One"
++++
+Front Matter with Ordered Pages`)
+
+var WEIGHTED_PAGE_2 = []byte(`+++
+weight = "6"
+title = "Two"
++++
+Front Matter with Ordered Pages 2`)
+
+var WEIGHTED_PAGE_3 = []byte(`+++
+weight = "4"
+title = "Three"
+date = "2012-04-06"
++++
+Front Matter with Ordered Pages 3`)
+
+var WEIGHTED_PAGE_4 = []byte(`+++
+weight = "4"
+title = "Four"
+date = "2012-01-01"
++++
+Front Matter with Ordered Pages 4`)
+
+func TestOrderedPages(t *testing.T) {
+	files := make(map[string][]byte)
+	target := &target.InMemoryTarget{Files: files}
+	sources := []source.ByteSource{
+		{"sect/doc1.md", WEIGHTED_PAGE_1, "sect"},
+		{"sect/doc2.md", WEIGHTED_PAGE_2, "sect"},
+		{"sect/doc3.md", WEIGHTED_PAGE_3, "sect"},
+		{"sect/doc4.md", WEIGHTED_PAGE_4, "sect"},
+	}
+	s := &Site{
+		Target: target,
+		Config: Config{BaseUrl: "http://auth/bub/"},
+		Source: &source.InMemorySource{sources},
+	}
+	s.initializeSiteInfo()
+
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	if s.Sections["sect"][0].Weight != 6 || s.Sections["sect"][3].Weight != 2 {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", 6, s.Sections["sect"][0].Weight)
+	}
+
+	if s.Sections["sect"][1].Page.Title != "Three" || s.Sections["sect"][2].Page.Title != "Four" {
+		t.Errorf("Pages in unexpected order. Second should be '%s', got '%s'", "Three", s.Sections["sect"][1].Page.Title)
+	}
+}

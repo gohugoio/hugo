@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -67,6 +68,24 @@ func interfaceArrayToStringArray(i interface{}) []string {
 	}
 
 	return a
+}
+
+func interfaceToInt(i interface{}) int {
+	switch s := i.(type) {
+	case int:
+		return s
+	case string:
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return int(v)
+		} else {
+			errorf("Only Ints are supported for this key\nErr:", err)
+		}
+	default:
+		errorf("Only Ints are supported for this key")
+	}
+
+	return 0
 }
 
 func interfaceToString(i interface{}) string {

@@ -61,6 +61,7 @@ type PageMeta struct {
 	WordCount      int
 	FuzzyWordCount int
 	MinRead        int
+	Weight         int
 }
 
 type Position struct {
@@ -70,9 +71,16 @@ type Position struct {
 
 type Pages []*Page
 
-func (p Pages) Len() int           { return len(p) }
-func (p Pages) Less(i, j int) bool { return p[i].Date.Unix() > p[j].Date.Unix() }
-func (p Pages) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p Pages) Len() int { return len(p) }
+func (p Pages) Less(i, j int) bool {
+	if p[i].Weight == p[j].Weight {
+		return p[i].Date.Unix() > p[j].Date.Unix()
+	} else {
+		return p[i].Weight > p[j].Weight
+	}
+}
+
+func (p Pages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
 // TODO eliminate unnecessary things
 func (p Pages) Sort()             { sort.Sort(p) }
@@ -346,6 +354,8 @@ func (page *Page) update(f interface{}) error {
 			page.layout = interfaceToString(v)
 		case "markup":
 			page.Markup = interfaceToString(v)
+		case "weight":
+			page.Weight = interfaceToInt(v)
 		case "aliases":
 			page.Aliases = interfaceArrayToStringArray(v)
 			for _, alias := range page.Aliases {

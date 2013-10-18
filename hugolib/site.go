@@ -310,7 +310,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	for i, p := range s.Pages {
-		s.Sections.Add(p.Section, WeightedIndexEntry{0, s.Pages[i]})
+		s.Sections.Add(p.Section, WeightedIndexEntry{s.Pages[i].Weight, s.Pages[i]})
 	}
 
 	for k, _ := range s.Sections {
