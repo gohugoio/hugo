@@ -37,7 +37,7 @@ func MakePermalink(base *url.URL, path *url.URL) *url.URL {
 	return base.ResolveReference(path)
 }
 
-// Site contains all the information relevent for constructing a static
+// Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
 //
 // 1. A list of Files is parsed and then converted into Pages.
@@ -293,7 +293,9 @@ func (s *Site) BuildSiteMeta() (err error) {
 				v, ok := vals.([]string)
 				if ok {
 					for _, idx := range v {
-						s.Indexes[plural].Add(idx, p)
+						x := WeightedIndexEntry{0, p}
+
+						s.Indexes[plural].Add(idx, x)
 					}
 				} else {
 					if s.Config.Verbose {
@@ -308,7 +310,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	for i, p := range s.Pages {
-		s.Sections.Add(p.Section, s.Pages[i])
+		s.Sections.Add(p.Section, WeightedIndexEntry{0, s.Pages[i]})
 	}
 
 	for k, _ := range s.Sections {
@@ -399,7 +401,7 @@ func (s *Site) RenderIndexes() error {
 			plink := n.Url
 			n.Permalink = permalink(s, plink)
 			n.RSSlink = permalink(s, url+".xml")
-			n.Date = o[0].Date
+			n.Date = o[0].Page.Date
 			n.Data[singular] = o
 			n.Data["Pages"] = o
 			layout := "indexes/" + singular + ".html"
@@ -455,7 +457,7 @@ func (s *Site) RenderLists() error {
 		n.Url = helpers.Urlize(section + "/" + "index.html")
 		n.Permalink = permalink(s, n.Url)
 		n.RSSlink = permalink(s, section+".xml")
-		n.Date = data[0].Date
+		n.Date = data[0].Page.Date
 		n.Data["Pages"] = data
 		layout := "indexes/" + section + ".html"
 

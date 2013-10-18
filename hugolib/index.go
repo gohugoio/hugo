@@ -23,7 +23,27 @@ type IndexCount struct {
 	Count int
 }
 
-type Index map[string]Pages
+type WeightedIndexEntry struct {
+	Weight int
+	Page   *Page
+}
+
+type IndexedPages []WeightedIndexEntry
+
+func (p IndexedPages) Len() int { return len(p) }
+func (p IndexedPages) Less(i, j int) bool {
+	if p[i].Weight == p[j].Weight {
+		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
+	} else {
+		return p[i].Weight > p[j].Weight
+	}
+}
+func (p IndexedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+
+// TODO eliminate unnecessary things
+func (p IndexedPages) Sort() { sort.Sort(p) }
+
+type Index map[string]IndexedPages
 type IndexList map[string]Index
 
 type OrderedIndex []IndexCount
@@ -34,11 +54,11 @@ func kp(in string) string {
 	return template.Urlize(in)
 }
 
-func (i Index) Get(key string) Pages { return i[kp(key)] }
-func (i Index) Count(key string) int { return len(i[kp(key)]) }
-func (i Index) Add(key string, p *Page) {
+func (i Index) Get(key string) IndexedPages { return i[kp(key)] }
+func (i Index) Count(key string) int        { return len(i[kp(key)]) }
+func (i Index) Add(key string, w WeightedIndexEntry) {
 	key = kp(key)
-	i[key] = append(i[key], p)
+	i[key] = append(i[key], w)
 }
 
 func (l IndexList) BuildOrderedIndexList() OrderedIndexList {
