@@ -1,54 +1,210 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <title>Hugo Static Site Generator written in Go lang</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    {{ template "chrome/includes.html" . }}
-  </head>
-  <body>
-    <div class="navbar"></div>
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span3">
-        {{ template "chrome/menu.html" . }}
-        </div>
-        <div class="span9">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-          <div class="hero-unit" style="background-color: #222; color: #ccc;">
-            <h1>Hugo</h1>
-            <p>A Fast and Flexible Static Site Generator built with love by <a href="http://spf13.com">spf13</a> 
-            and <a href="http://github.com/spf13/hugo/graphs/contributors">friends</a> in Go</p>
-            <p>
-              <a class="btn btn-large btn-success" href="/doc/installing">Get Started</a> 
-            </p>
+    <title>Hugo :: A fast and flexible static site generator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Add custom CSS here -->
+    <link href="/static/css/styles.css" rel="stylesheet">
+    <link href="/static/css/hugoicon.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Full Page Image Header Area -->
+    <div id="top" class="header">
+      <div class="vert-text">
+        <h1>Hugo</h1>
+        <h3>The <em>Fast and Flexible</em> Static Site Generator</h3>
+        <br>
+        <a href="#intro" class="btn btn-clear btn-lg">LEARN MORE</a>&nbsp; &nbsp;
+        <a href="#download" class="btn btn-success btn-lg">DOWNLOAD <i class="icon-arrow-down"></i></a><br>
+        <br>
+        <a href="/overview/quickstart/" class="btn btn-info btn-lg">DOCUMENTATION</a>
+      </div>
+    </div>
+    <!-- /Full Page Image Header Area -->
+
+    <div id="main">
+        <!-- Intro -->
+        <div id="intro" class="counterpoint">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                  <i class="lead-icon icon-pacman"></i>
+                <h2>Make the Web Fun Again</h2>
+                <p class="lead">
+                    Introducing Hugo, a new idea around making website creation simple again.
+                    Written in go, Hugo runs everywhere without dependencies on
+                    databases, webservers, runtimes or interpreters.
+                    Hugo flexibly works with many formats and is ideal for
+                    blogs, docs, portfolios and much more.
+                    Hugo's nearly instant creation fosters
+                    creativity and makes building a website fun again.
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="row-fluid">
-            <div class="span4">
-              <h2>Fast
-                <br> 
-              </h2>
-              <p>Written in GoLang for speed, Hugo is significantly faster than most
-              other static site generators.
-              A typical website of moderate size can be
-              rendered in a fraction of a second. A good rule of thumb is that Hugo
-              takes around 1 millisecond for each piece of content.<br>
-              It's so fast that it will render the site in 
-              less time than it takes to switch to your browser and reload.</p>
-            </div>
-            <div class="span4">
-              <h2>Flexible</h2>
-              <p>Hugo is made to be very flexible. Define your own content types. Define
-              your own indexes. Build your own templates, shortcodes and more.
-              It is written to work well with any
-              kind of website including blogs, tumbles and docs.</p>
-            </div>
-            <div class="span4">
-              <h2>Fun</h2>
-              <p>Hugo runs everywhere. Sites generated with Hugo work on every web 
-              server without any special configuration. Hugo
-              removes all the cruft of building a site allowing you to 
-              focus on writing great content.</p>
+        </div>
+        <!-- /Intro -->
+
+        <!-- Point -->
+        <div id="intro" class="point">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                  <i class="point-icon icon-tux"></i>
+                  <i class="point-icon icon-apple"></i>
+                  <i class="point-icon icon-windows8"></i>
+                <h2>Run Anywhere</h2>
+                <p class="lead">
+                    Hugo is written in pure go. It is packaged as a single binary for easy installation
+                    and doesn't depend on root or administrative privileges, databases, runtimes, interpreters
+                    or packages. Hugo is quite possibly the easiest to install software you've ever used.
+                    Simply download and run.
+                </p>
+              </div>
             </div>
           </div>
-{{ template "chrome/footer.html" }}
+        </div>
+        <!-- /Point -->
+
+        <!-- Point -->
+        <div class="counterpoint">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                  <i class="lead-icon icon-rocket"></i>
+                <h2>Fast & Powerful</h2>
+                <p class="lead">
+                Hugo is written for speed and performance. Great care has been
+                taken to ensure that Hugo build time is as short as possible.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Point -->
+
+        <!-- Point -->
+        <div class="point">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                  <i class="point-icon icon-fork"></i>
+                <h2>Flexible</h2>
+                <p class="lead">
+                Hugo is designed to how you want with minimal configuration. 
+                Define your own meta data adhoc.
+                Define your own indexes to organize your content how you want.
+                Work with many different formats simultaneously, Hugo will just work.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Point -->
+
+        <!-- Point -->
+        <div class="counterpoint">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                  <i class="lead-icon icon-octocat"></i>
+                <h2>Open and Free</h2>
+                <p class="lead">
+                    Hugo is <a href="http://github.com/spf13/hugo">open source</a> and completely free.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Point -->
+
+        <!-- Point -->
+        <div class="point">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                  <i class="point-icon icon-beaker-alt"></i>
+                  <i class="point-icon icon-heart"></i>
+                  <i class="point-icon icon-spf"></i>
+                <h2>Built with Love</h2>
+                <p class="lead">
+                Hugo is developed with love by <a href="http://spf13.com">spf13</a> and friends.
+                We welcome all contributions.
+                    New to go? Not a problem, we will help you.
+                    Not a developer? Help with docs, templates and themes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Point -->
+    </div>
+
+        <!-- Call to Action -->
+        <div id="action" class="call-to-action">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                <h3>Get Started Today!</h3>
+                <a href="#top" class="btn btn-md btn-default">Documentation</a>
+                <a href="#top" class="btn btn-lg btn-primary">Download <i class="icon-arrow-down"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Call to Action -->
+        <div id="footerSpacer"></div>
+
+        <!-- Footer -->
+        <footer id="footer">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 text-center">
+                <ul class="list-inline">
+                    <li><a href="http://twitter.com/spf13" class="icon-twitter icon-2x"></a></li>
+                    <li><a href="http://github.com/spf13/hugo" class="icon-octocat icon-2x"></a></li>
+                </ul>
+                <hr>
+                <p>Copyright &copy; Steve Francia 2013</p>
+              </div>
+            </div>
+          </div>
+        </footer>
+    <!-- /Footer -->
+
+  <!-- Bootstrap core JavaScript -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/jquery.js"></script>
+
+  <script>
+    $(function() {
+        $('a[href*=#]:not([href=#])').click(function() {
+          if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') 
+              || location.hostname == this.hostname) {
+
+            var target = $(this.hash);
+            target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+            if (target.length) {
+              $('html,body').animate({
+                scrollTop: target.offset().top
+              }, 1000);
+              return false;
+            }
+          }
+        });
+      });
+    </script>
+
+  </body>
+
+</html>
