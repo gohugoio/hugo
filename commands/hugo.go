@@ -181,7 +181,12 @@ func watchChange(ev *fsnotify.FileEvent) {
 		fmt.Println("Static file changed, syncing\n")
 		utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
 	} else {
-		fmt.Println("Change detected, rebuilding site\n")
-		utils.StopOnErr(buildSite())
+		if !ev.IsRename() { // Rename is always accompanied by a create or modify
+			// Ignoring temp files created by editors (vim)
+			if !strings.HasSuffix(ev.Name, "~") && !strings.HasSuffix(ev.Name, ".swp") {
+				fmt.Println("Change detected, rebuilding site\n")
+				utils.StopOnErr(buildSite())
+			}
+		}
 	}
 }
