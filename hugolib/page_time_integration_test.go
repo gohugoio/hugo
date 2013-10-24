@@ -75,8 +75,8 @@ Page With Date HugoLong`
 
 func TestDegenerateDateFrontMatter(t *testing.T) {
 	p, _ := ReadFrom(strings.NewReader(PAGE_WITH_INVALID_DATE), "page/with/invalid/date")
-	if p.Date != time.Unix(0, 0) {
-		t.Fatalf("Date should be set to computer epoch.  Got: %s", p.Date)
+	if p.Date != *new(time.Time) {
+		t.Fatalf("Date should be set to time.Time zero value.  Got: %s", p.Date)
 	}
 }
 

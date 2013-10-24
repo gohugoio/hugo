@@ -8,10 +8,35 @@ import (
 	"time"
 )
 
+func interfaceToTime(i interface{}) time.Time {
+	switch s := i.(type) {
+	case time.Time:
+		return s
+	case string:
+		d, e := stringToDate(s)
+		if e == nil {
+			return d
+		}
+		errorf("Invalid Time/Date format")
+	default:
+		errorf("Only Time is supported for this key")
+	}
+
+	return *new(time.Time)
+}
+
 func interfaceToStringToDate(i interface{}) time.Time {
 	s := interfaceToString(i)
 
-	if d, e := parseDateWith(s, []string{
+	if d, e := stringToDate(s); e == nil {
+		return d
+	}
+
+	return time.Unix(0, 0)
+}
+
+func stringToDate(s string) (time.Time, error) {
+	return parseDateWith(s, []string{
 		time.RFC3339,
 		time.RFC1123Z,
 		time.RFC1123,
@@ -24,11 +49,7 @@ func interfaceToStringToDate(i interface{}) time.Time {
 		"02 Jan 06 15:04 MST",
 		"2006-01-02",
 		"02 Jan 2006",
-	}); e == nil {
-		return d
-	}
-
-	return time.Unix(0, 0)
+	})
 }
 
 // TODO remove this and return a proper error.
@@ -116,17 +137,6 @@ func interfaceToInt(i interface{}) int {
 	}
 
 	return 0
-}
-
-func interfaceToTime(i interface{}) time.Time {
-	switch s := i.(type) {
-	case time.Time:
-		return s
-	default:
-		errorf("Only Time is supported for this key")
-	}
-
-	return *new(time.Time)
 }
 
 func interfaceToString(i interface{}) string {

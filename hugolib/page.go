@@ -348,7 +348,7 @@ func (page *Page) update(f interface{}) error {
 		case "keywords":
 			page.Keywords = interfaceArrayToStringArray(v)
 		case "date", "pubdate":
-			page.Date = interfaceToStringToDate(v)
+			page.Date = interfaceToTime(v)
 		case "draft":
 			page.Draft = interfaceToBool(v)
 		case "layout":
@@ -384,7 +384,7 @@ func (page *Page) update(f interface{}) error {
 					for i, u := range vvv {
 						a[i] = interfaceToString(u)
 					}
-					page.Params[strings.ToLower(k)] = a
+					page.Params[loki] = a
 				}
 			}
 		}
