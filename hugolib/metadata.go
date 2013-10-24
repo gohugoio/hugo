@@ -70,10 +70,40 @@ func interfaceArrayToStringArray(i interface{}) []string {
 	return a
 }
 
+func interfaceToFloat64(i interface{}) float64 {
+	switch s := i.(type) {
+	case float64:
+		return s
+	case float32:
+		return float64(s)
+
+	case string:
+		v, err := strconv.ParseFloat(s, 64)
+		if err == nil {
+			return float64(v)
+		} else {
+			errorf("Only Floats are supported for this key\nErr:", err)
+		}
+
+	default:
+		errorf("Only Floats are supported for this key")
+	}
+
+	return 0.0
+}
+
 func interfaceToInt(i interface{}) int {
 	switch s := i.(type) {
 	case int:
 		return s
+	case int64:
+		return int(s)
+	case int32:
+		return int(s)
+	case int16:
+		return int(s)
+	case int8:
+		return int(s)
 	case string:
 		v, err := strconv.ParseInt(s, 0, 0)
 		if err == nil {
@@ -88,12 +118,23 @@ func interfaceToInt(i interface{}) int {
 	return 0
 }
 
+func interfaceToTime(i interface{}) time.Time {
+	switch s := i.(type) {
+	case time.Time:
+		return s
+	default:
+		errorf("Only Time is supported for this key")
+	}
+
+	return *new(time.Time)
+}
+
 func interfaceToString(i interface{}) string {
 	switch s := i.(type) {
 	case string:
 		return s
 	default:
-		errorf("Only Strings are supported for this YAML key")
+		errorf("Only Strings are supported for this key")
 	}
 
 	return ""

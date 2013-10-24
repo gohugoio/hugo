@@ -330,7 +330,8 @@ func (page *Page) update(f interface{}) error {
 	m := f.(map[string]interface{})
 
 	for k, v := range m {
-		switch strings.ToLower(k) {
+		loki := strings.ToLower(k)
+		switch loki {
 		case "title":
 			page.Title = interfaceToString(v)
 		case "description":
@@ -368,8 +369,14 @@ func (page *Page) update(f interface{}) error {
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
-			case string: // handle string values
-				page.Params[strings.ToLower(k)] = vv
+			case string:
+				page.Params[loki] = vv
+			case int64, int32, int16, int8, int:
+				page.Params[loki] = vv
+			case float64, float32:
+				page.Params[loki] = vv
+			case time.Time:
+				page.Params[loki] = vv
 			default: // handle array of strings as well
 				switch vvv := vv.(type) {
 				case []interface{}:
@@ -396,6 +403,12 @@ func (page *Page) GetParam(key string) interface{} {
 	switch v.(type) {
 	case string:
 		return interfaceToString(v)
+	case int64, int32, int16, int8, int:
+		return interfaceToInt(v)
+	case float64, float32:
+		return interfaceToFloat64(v)
+	case time.Time:
+		return interfaceToTime(v)
 	case []string:
 		return v
 	}

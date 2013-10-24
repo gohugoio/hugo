@@ -141,6 +141,14 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 `
 )
 
+var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
+a_string = "bar"
+an_integer = 1
+a_float = 1.3
+a_date = 1979-05-27T07:32:00Z
++++
+Front Matter with various frontmatter types`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
@@ -329,6 +337,24 @@ func TestShouldRenderContent(t *testing.T) {
 		if p.IsRenderable() != test.render {
 			t.Errorf("expected p.IsRenderable() == %t, got %t", test.render, p.IsRenderable())
 		}
+	}
+}
+
+func TestDifferentFrontMatterVarTypes(t *testing.T) {
+	page, _ := ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES), "test/file1.md")
+
+	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
+	if page.GetParam("a_string") != "bar" {
+		t.Errorf("frontmatter not handling strings correctly should be %s, got: %s", "bar", page.GetParam("a_string"))
+	}
+	if page.GetParam("an_integer") != 1 {
+		t.Errorf("frontmatter not handling ints correctly should be %s, got: %s", "1", page.GetParam("an_integer"))
+	}
+	if page.GetParam("a_float") != 1.3 {
+		t.Errorf("frontmatter not handling floats correctly should be %s, got: %s", 1.3, page.GetParam("a_float"))
+	}
+	if page.GetParam("a_date") != dateval {
+		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
 	}
 }
 
