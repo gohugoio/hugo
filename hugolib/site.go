@@ -288,12 +288,16 @@ func (s *Site) BuildSiteMeta() (err error) {
 		s.Indexes[plural] = make(Index)
 		for _, p := range s.Pages {
 			vals := p.GetParam(plural)
+			weight := p.GetParam(plural + "_weight")
+			if weight == nil {
+				weight = 0
+			}
 
 			if vals != nil {
 				v, ok := vals.([]string)
 				if ok {
 					for _, idx := range v {
-						x := WeightedIndexEntry{0, p}
+						x := WeightedIndexEntry{weight.(int), p}
 
 						s.Indexes[plural].Add(idx, x)
 					}
@@ -403,7 +407,7 @@ func (s *Site) RenderIndexes() error {
 			n.RSSlink = permalink(s, url+".xml")
 			n.Date = o[0].Page.Date
 			n.Data[singular] = o
-			n.Data["Pages"] = o
+			n.Data["Pages"] = o.Pages()
 			layout := "indexes/" + singular + ".html"
 
 			var base string
@@ -458,7 +462,7 @@ func (s *Site) RenderLists() error {
 		n.Permalink = permalink(s, n.Url)
 		n.RSSlink = permalink(s, section+".xml")
 		n.Date = data[0].Page.Date
-		n.Data["Pages"] = data
+		n.Data["Pages"] = data.Pages()
 		layout := "indexes/" + section + ".html"
 
 		err := s.render(n, section, layout, "_default/indexes.html")

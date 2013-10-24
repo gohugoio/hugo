@@ -380,3 +380,72 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. Second should be '%s', got '%s'", "Three", s.Sections["sect"][1].Page.Title)
 	}
 }
+
+var PAGE_WITH_WEIGHTED_INDEXES_2 = []byte(`+++
+tags = [ "a", "b", "c" ]
+tags_weight = 22
+categories = ["d"]
+title = "foo"
+categories_weight = 44
++++
+Front Matter with weighted tags and categories`)
+
+var PAGE_WITH_WEIGHTED_INDEXES_1 = []byte(`+++
+tags = [ "a" ]
+tags_weight = 33
+title = "bar"
+categories = [ "d", "e" ]
+categories_weight = 11
+alias = "spf13"
+date = 1979-05-27T07:32:00Z
++++
+Front Matter with weighted tags and categories`)
+
+var PAGE_WITH_WEIGHTED_INDEXES_3 = []byte(`+++
+title = "bza"
+categories = [ "e" ]
+categories_weight = 11
+alias = "spf13"
+date = 2010-05-27T07:32:00Z
++++
+Front Matter with weighted tags and categories`)
+
+func TestWeightedIndexes(t *testing.T) {
+	files := make(map[string][]byte)
+	target := &target.InMemoryTarget{Files: files}
+	sources := []source.ByteSource{
+		{"sect/doc1.md", PAGE_WITH_WEIGHTED_INDEXES_1, "sect"},
+		{"sect/doc2.md", PAGE_WITH_WEIGHTED_INDEXES_2, "sect"},
+		{"sect/doc3.md", PAGE_WITH_WEIGHTED_INDEXES_3, "sect"},
+	}
+	indexes := make(map[string]string)
+
+	indexes["tag"] = "tags"
+	indexes["category"] = "categories"
+	s := &Site{
+		Target: target,
+		Config: Config{BaseUrl: "http://auth/bub/", Indexes: indexes},
+		Source: &source.InMemorySource{sources},
+	}
+	s.initializeSiteInfo()
+
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	if s.Indexes["tags"]["a"][0].Page.Title != "bar" {
+		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Indexes["tags"]["a"][0].Page.Title)
+	}
+
+	if s.Indexes["categories"]["d"][0].Page.Title != "foo" {
+		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Indexes["categories"]["d"][0].Page.Title)
+	}
+
+	if s.Indexes["categories"]["e"][0].Page.Title != "bza" {
+		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Indexes["categories"]["e"][0].Page.Title)
+	}
+}

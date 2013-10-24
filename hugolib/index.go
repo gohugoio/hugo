@@ -30,7 +30,9 @@ type WeightedIndexEntry struct {
 
 type IndexedPages []WeightedIndexEntry
 
-func (p IndexedPages) Len() int { return len(p) }
+func (p IndexedPages) Len() int      { return len(p) }
+func (p IndexedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p IndexedPages) Sort()         { sort.Sort(p) }
 func (p IndexedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
 		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
@@ -38,10 +40,14 @@ func (p IndexedPages) Less(i, j int) bool {
 		return p[i].Weight > p[j].Weight
 	}
 }
-func (p IndexedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
-// TODO eliminate unnecessary things
-func (p IndexedPages) Sort() { sort.Sort(p) }
+func (ip IndexedPages) Pages() Pages {
+	pages := make(Pages, len(ip))
+	for i, _ := range ip {
+		pages[i] = ip[i].Page
+	}
+	return pages
+}
 
 type Index map[string]IndexedPages
 type IndexList map[string]Index
