@@ -15,6 +15,8 @@ are available in the context for the templates.
 **.Date** The date the content is published on.<br>
 **.Indexes** These will use the field name of the plural form of the index (see tags and categories above)<br>
 **.Permalink** The Permanent link for this page.<br>
+**.RelPermalink** The Relative permanent link for this page.<br>
+**.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.RSSLink** Link to the indexes' rss link <br>
 **.Prev** Pointer to the previous content (based on pub date)<br>
@@ -46,7 +48,7 @@ includes indexes, lists and the homepage.
 Also available is `.Site` which has the following:
 
 **.Site.BaseUrl** The base URL for the site as defined in the config.json file.<br>
-**.Site.Indexes** The names of the indexes of the site.<br>
+**.Site.Indexes** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Recent** Array of all content ordered by Date, newest first<br>
 

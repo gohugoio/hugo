@@ -47,6 +47,7 @@ type Page struct {
 	Markup      string
 	renderable  bool
 	layout      string
+	linkTitle   string
 	PageMeta
 	File
 	Position
@@ -276,6 +277,14 @@ func (p *Page) permalink() (*url.URL, error) {
 	return MakePermalink(base, path), nil
 }
 
+func (p *Page) LinkTitle() string {
+	if len(p.linkTitle) > 0 {
+		return p.linkTitle
+	} else {
+		return p.Title
+	}
+}
+
 func (p *Page) Permalink() (string, error) {
 	link, err := p.permalink()
 	if err != nil {
@@ -334,6 +343,8 @@ func (page *Page) update(f interface{}) error {
 		switch loki {
 		case "title":
 			page.Title = interfaceToString(v)
+		case "linktitle":
+			page.linkTitle = interfaceToString(v)
 		case "description":
 			page.Description = interfaceToString(v)
 		case "slug":
