@@ -1,10 +1,9 @@
-          <ul class="nav nav-stacked">
+          <ul class="nav nav-stacked nav-pills">
             <li class="text-muted"><h4>Getting Started</h4></li>
-            <li hugo-nav="/overview/quickstart"> <a href="/overview/quickstart">Quick Start</a></li>
-            <li hugo-nav="/overview/installing"> <a href="/overview/installing">Installing Hugo</a></li>
-            <li hugo-nav="/overview/usage"> <a href="/overview/usage">Usage</a> </li>
-            <li hugo-nav="/overview/configuration"> <a href="/overview/configuration">Configuration</a></li>
-            <li hugo-nav="/overview/source-directory"> <a href="/overview/source-directory">Source Directory Layout</a></li>
+
+            {{ range $key, $value := .Site.Indexes.groups.gettingstarted.Pages }}
+            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+            {{ end }}
             <li class="divider"></li>
 
             <li class="text-muted"><h4>Layout</h4></li>
@@ -33,6 +32,7 @@
             <li hugo-nav="/extras/indexes/category"> <a href="/extras/indexes/category">Example Index - Category</a></li>
             <!--<li> <a href="/extras/indexes/series">Example Index - Series</a></li>-->
             <li class="divider"></li>
+
             <li class="text-muted"><h4>Meta</h4></li>
             <li hugo-nav="/meta/release-notes"> <a href="/meta/release-notes">Release Notes</a></li>
             <li hugo-nav="/meta/roadmap"> <a href="/meta/roadmap">Roadmap</a> </li>
