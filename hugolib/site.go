@@ -73,7 +73,7 @@ type Site struct {
 
 type SiteInfo struct {
 	BaseUrl    template.URL
-	Indexes    OrderedIndexList
+	Indexes    IndexList
 	Recent     *Pages
 	LastChange time.Time
 	Title      string
@@ -330,7 +330,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 		s.Sections[k].Sort()
 	}
 
-	s.Info.Indexes = s.Indexes.BuildOrderedIndexList()
+	s.Info.Indexes = s.Indexes
 
 	if len(s.Pages) == 0 {
 		return

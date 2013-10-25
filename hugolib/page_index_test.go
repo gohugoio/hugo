@@ -12,7 +12,7 @@ categories: 'd'
 YAML frontmatter with tags and categories index.`
 
 var PAGE_YAML_WITH_INDEXES_B = `---
-tags: 
+tags:
  - "a"
  - "b"
  - "c"
@@ -23,8 +23,8 @@ YAML frontmatter with tags and categories index.`
 var PAGE_JSON_WITH_INDEXES = `{
   "categories": "d",
   "tags": [
-    "a", 
-    "b", 
+    "a",
+    "b",
     "c"
   ]
 }
