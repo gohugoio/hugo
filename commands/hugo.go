@@ -84,9 +84,13 @@ func InitializeConfig() {
 	}
 }
 
-func build() {
+func build(watches ...bool) {
 	utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
-	utils.StopOnErr(buildSite())
+	watch := false
+	if len(watches) > 0 && watches[0] {
+		watch = true
+	}
+	utils.StopOnErr(buildSite(BuildWatch || watch))
 
 	if BuildWatch {
 		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
@@ -121,9 +125,12 @@ func getDirList() []string {
 	return a
 }
 
-func buildSite() (err error) {
+func buildSite(watching ...bool) (err error) {
 	startTime := time.Now()
 	site := &hugolib.Site{Config: *Config}
+	if len(watching) > 0 && watching[0] {
+		site.RunMode.Watching = true
+	}
 	err = site.Build()
 	if err != nil {
 		return
@@ -185,7 +192,7 @@ func watchChange(ev *fsnotify.FileEvent) {
 			// Ignoring temp files created by editors (vim)
 			if !strings.HasSuffix(ev.Name, "~") && !strings.HasSuffix(ev.Name, ".swp") {
 				fmt.Println("Change detected, rebuilding site\n")
-				utils.StopOnErr(buildSite())
+				utils.StopOnErr(buildSite(true))
 			}
 		}
 	}

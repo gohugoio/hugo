@@ -68,6 +68,7 @@ type Site struct {
 	Target      target.Output
 	Alias       target.AliasPublisher
 	Completed   chan bool
+	RunMode     runmode
 }
 
 type SiteInfo struct {
@@ -77,6 +78,14 @@ type SiteInfo struct {
 	LastChange time.Time
 	Title      string
 	Config     *Config
+}
+
+type runmode struct {
+	Watching bool
+}
+
+func (s *Site) Running() bool {
+	return s.RunMode.Watching
 }
 
 func init() {
@@ -576,7 +585,11 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	go func() {
 		err = s.renderThing(d, layout, renderWriter)
 		if err != nil {
-			panic(err)
+			// Behavior here should be dependent on if running in server or watch mode.
+			fmt.Println(fmt.Errorf("Rendering error: %v", err))
+			if !s.Running() {
+				os.Exit(-1)
+			}
 		}
 	}()
 
