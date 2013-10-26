@@ -2,6 +2,9 @@
 title: "Example Content File"
 date: "2013-07-01"
 aliases: ["/doc/example/"]
+linktitle: "Example"
+groups: ['content']
+groups_weight: 50
 ---
 
 Somethings are better shown than explained. The following is a very basic example of a content file:

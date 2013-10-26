@@ -2,6 +2,8 @@
 title: "Shortcodes"
 date: "2013-07-01"
 aliases: ["/doc/shortcodes/"]
+groups: ["extras"]
+groups_weight: 10
 ---
 
 Because Hugo uses markdown for its content format, it was clear that there's a lot of things that 

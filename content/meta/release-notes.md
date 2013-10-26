@@ -2,6 +2,8 @@
 title: "Release Notes"
 date: "2013-07-01"
 aliases: ["/doc/release-notes/"]
+groups: ["meta"]
+groups_weight: 10
 ---
 
 * **0.9.0** HEAD

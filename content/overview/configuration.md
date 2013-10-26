@@ -4,7 +4,7 @@ date: "2013-07-01"
 aliases: ["/doc/configuration/"]
 groups: ['gettingStarted']
 linktitle: "Configuration"
-groups_weight: 20
+groups_weight: 40
 ---
 
 The directory structure and templates provide the majority of the

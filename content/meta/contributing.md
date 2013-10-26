@@ -2,6 +2,8 @@
 title: "Contributing to Hugo"
 date: "2013-07-01"
 aliases: ["/doc/contributing/"]
+groups: ["meta"]
+groups_weight: 30
 ---
 
 We welcome all contributions. If you want to contribute, all

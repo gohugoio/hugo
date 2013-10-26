@@ -1,42 +1,62 @@
-          <ul class="nav nav-stacked nav-pills">
-            <li class="text-muted"><h4>Getting Started</h4></li>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/"><i class="icon-rocket "></i>&nbsp; Hugo</a>
+  </div>
 
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Getting Started <b class="caret"></b></a>
+        <ul class="dropdown-menu">
             {{ range $key, $value := .Site.Indexes.groups.gettingstarted.Pages }}
             <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
             {{ end }}
-            <li class="divider"></li>
-
-            <li class="text-muted"><h4>Layout</h4></li>
-            <li> <a href="/layout/templates">Overview</a></li>
-            <li hugo-nav="/layout/variables"> <a href="/layout/variables">Variables</a></li>
-            <li hugo-nav="/layout/homepage"> <a href="/layout/homepage">Homepage</a></li>
-            <li hugo-nav="/layout/rss"> <a href="/layout/rss">RSS</a></li>
-            <li hugo-nav="/layout/indexes"> <a href="/layout/indexes">Index</a></li>
-            <li hugo-nav="/layout/content"> <a href="/layout/content">Content</a></li>
-            <li hugo-nav="/layout/views"> <a href="/layout/views">Content Views</a></li>
-            <li hugo-nav="/layout/chrome"> <a href="/layout/chrome">Chrome</a></li>
-            <li class="divider"></li>
-
-            <li class="text-muted"><h4>Content</h4></li>
-            <li hugo-nav="/content/organization"> <a href="/content/organization">Organization</a></li>
-            <li hugo-nav="/content/sections"> <a href="/content/sections">Sections</a></li>
-            <li hugo-nav="/content/types"> <a href="/content/types">Types</a></li>
-            <li hugo-nav="/content/front-matter"> <a href="/content/front-matter">Front Matter</a></li>
-            <li hugo-nav="/content/example"> <a href="/content/example">Example</a></li>
-            <li class="divider"></li>
-
-            <li class="text-muted"><h4>Extras</h4></li>
-            <li hugo-nav="/extras/shortcodes"> <a href="/extras/shortcodes">ShortCodes</a></li>
-            <li hugo-nav="/extras/aliases"> <a href="/extras/aliases">Aliases</a></li>
-            <li hugo-nav="/extras/indexes"> <a href="/extras/indexes">Indexes</a></li>
-            <li hugo-nav="/extras/indexes/category"> <a href="/extras/indexes/category">Example Index - Category</a></li>
-            <!--<li> <a href="/extras/indexes/series">Example Index - Series</a></li>-->
-            <li class="divider"></li>
-
-            <li class="text-muted"><h4>Meta</h4></li>
-            <li hugo-nav="/meta/release-notes"> <a href="/meta/release-notes">Release Notes</a></li>
-            <li hugo-nav="/meta/roadmap"> <a href="/meta/roadmap">Roadmap</a> </li>
-            <li hugo-nav="/meta/contributing"> <a href="/meta/contributing">Contributing</a></li>
-            <li hugo-nav="/meta/contributors"> <a href="/meta/contributors">Contributors</a></li>
-            <li hugo-nav="/meta/license"> <a href="/meta/license">License</a></li>
-          </ul>
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {{ range $key, $value := .Site.Indexes.groups.content.Pages }}
+            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+            {{ end }}
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Layout <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {{ range $key, $value := .Site.Indexes.groups.layout.Pages }}
+            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+            {{ end }}
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Extras <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {{ range $key, $value := .Site.Indexes.groups.extras.Pages }}
+            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+            {{ end }}
+        </ul>
+      </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Meta <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {{ range $key, $value := .Site.Indexes.groups.meta.Pages }}
+            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+            {{ end }}
+        </ul>
+      </li>
+      <li><a href="http://github.com/spf13/hugo/releases"><i class="icon-arrow-down "> </i></a></li>
+      <li><a href="http://github.com/spf13/hugo"><i class="icon-octocat icon-2x"> </i></a></li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</nav>

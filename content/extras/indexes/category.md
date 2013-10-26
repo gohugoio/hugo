@@ -1,6 +1,9 @@
 ---
 title: "Index Category Example"
 date: "2013-07-01"
+linktitle: "Example - Categories"
+groups: ["extras"]
+groups_weight: 40
 ---
 
 This page demonstrates an example of using indexes to provide categories for your site.

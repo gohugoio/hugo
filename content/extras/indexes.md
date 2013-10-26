@@ -2,6 +2,8 @@
 title: "Indexes"
 date: "2013-07-01"
 aliases: ["/doc/indexes/"]
+groups: ["extras"]
+groups_weight: 30
 ---
 
 Hugo includes support for user defined indexes of content. In our 

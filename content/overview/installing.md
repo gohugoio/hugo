@@ -3,7 +3,7 @@ title: "Installing Hugo"
 date: "2013-07-01"
 aliases: ["/doc/installing/"]
 groups: ['gettingStarted']
-groups_weight: 40
+groups_weight: 20
 ---
 
 Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.

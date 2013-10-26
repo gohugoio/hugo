@@ -2,6 +2,9 @@
 title: "Templates"
 date: "2013-07-01"
 aliases: ["/doc/templates/"]
+linktitle: "Overview"
+groups: ["layout"]
+groups_weight: 10
 ---
 
 Hugo uses the excellent golang html/template library for its template engine.

@@ -2,6 +2,8 @@
 title: "Contributors"
 date: "2013-07-01"
 aliases: ["/doc/contributors/"]
+groups: ["meta"]
+groups_weight: 40
 ---
 
 Hugo was built with love and golang by:

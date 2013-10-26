@@ -7,16 +7,9 @@
     {{ template "chrome/includes.html" . }}
   </head>
   <body>
+
+    {{ template "chrome/menu.html" . }}
+
     <div class="container">
       <div class="row">
-        <div class="col-md-3 well" style="margin-top:1.8em;padding-top:0px;">
-          <div >
-            <h1><a href="/">Hugo</a></h1>
-            <p>A Fast and Flexible Static Site Generator 
-            built with love by <a href="http://spf13.com">spf13</a> and <a
-            href="http://github.com/spf13/hugo/graphs/contributors">friends</a>
-            in Go</p>
-          </div>
-        {{ template "chrome/menu.html" . }}
-        </div>
-        <div class="col-md-9">
+        <div class="col-md-12">
