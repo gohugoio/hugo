@@ -32,7 +32,7 @@ func (p IndexedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
 		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
 	} else {
-		return p[i].Weight > p[j].Weight
+		return p[i].Weight < p[j].Weight
 	}
 }
 

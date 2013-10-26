@@ -372,8 +372,8 @@ func TestOrderedPages(t *testing.T) {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if s.Sections["sect"][0].Weight != 6 || s.Sections["sect"][3].Weight != 2 {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", 6, s.Sections["sect"][0].Weight)
+	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", 2, s.Sections["sect"][0].Weight)
 	}
 
 	if s.Sections["sect"][1].Page.Title != "Three" || s.Sections["sect"][2].Page.Title != "Four" {
@@ -437,12 +437,12 @@ func TestWeightedIndexes(t *testing.T) {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if s.Indexes["tags"]["a"][0].Page.Title != "bar" {
-		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Indexes["tags"]["a"][0].Page.Title)
+	if s.Indexes["tags"]["a"][0].Page.Title != "foo" {
+		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Indexes["tags"]["a"][0].Page.Title)
 	}
 
-	if s.Indexes["categories"]["d"][0].Page.Title != "foo" {
-		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Indexes["categories"]["d"][0].Page.Title)
+	if s.Indexes["categories"]["d"][0].Page.Title != "bar" {
+		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Indexes["categories"]["d"][0].Page.Title)
 	}
 
 	if s.Indexes["categories"]["e"][0].Page.Title != "bza" {
