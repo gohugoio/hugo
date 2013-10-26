@@ -1,29 +1,5 @@
 body { padding-top: 70px; }
 
-#ribbon {
-    background-color: #a00;
-    overflow: hidden;
-    position: absolute;
-    right: -3em;
-    /*top: 2.5em;*/
-    top: 85px; 
-    -moz-transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-    -moz-box-shadow: 0 0 1em #888;
-    -webkit-box-shadow: 0 0 1em #888;
-}
-#ribbon a {
-    border: 1px solid #faa;
-    color: #fff;
-    display: block;
-    font: bold 81.25% "Helvetiva Neue",Helvetica,Arial,sans-serif;
-    margin: 0.05em 0 0.075em 0;
-    padding: 0.5em 3.5em;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 0 0 0.5em #444;
-}
-
 body {
     background-color: rgb(253, 253, 251);
 }
@@ -89,3 +65,16 @@ nav.navbar {
 .navbar-inverse .navbar-toggle {
     border-color: white;
 }
+
+@media (max-width: 767px) {
+    .navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+        color: white !important;
+    }
+    .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a, .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a:hover, .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a:focus {
+        background-color: rgb(15, 166, 188);
+    }
+    nav.navbar {
+        opacity: 0.98;
+    }
+}
+
