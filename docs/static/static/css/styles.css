@@ -1,9 +1,12 @@
+body { padding-top: 70px; }
+
 #ribbon {
     background-color: #a00;
     overflow: hidden;
     position: absolute;
     right: -3em;
-    top: 2.5em;
+    /*top: 2.5em;*/
+    top: 85px; 
     -moz-transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
     -moz-box-shadow: 0 0 1em #888;
@@ -19,4 +22,70 @@
     text-align: center;
     text-decoration: none;
     text-shadow: 0 0 0.5em #444;
+}
+
+body {
+    background-color: rgb(253, 253, 251);
+}
+
+
+h1, h2, h3 {
+    color: rgb(25,71,86);
+}
+
+a {
+    color: rgb(0,140,158);
+}
+
+a:hover {
+    color: rgb(21,201,239);
+}
+
+#footer {
+    margin-bottom: 2em;
+}
+
+nav.navbar {
+    background: none repeat scroll 0% 0% rgb(22, 203, 230);
+    border-top: 4px solid rgb(15, 166, 188);
+    border-bottom: 1px solid rgb(15, 166, 188);
+    opacity: .9;
+}
+
+.navbar-nav a > i {
+    font-size: 140%;
+    line-height: 49%;
+    vertical-align: -4px;
+}
+
+.navbar-inverse .navbar-nav > li > a, .navbar-inverse .navbar-brand {
+    color: white !important;
+}
+.navbar-inverse .navbar-nav > .dropdown > a .caret {
+    border-top-color: white;
+    border-bottom-color: white;
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    background-color: rgb(15, 166, 188);
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+    background-color: rgb(15, 166, 188);
+}
+
+.dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus {
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    outline: 0px none;
+    background-color: rgb(15, 166, 188);
+}
+
+.navbar-inverse .navbar-toggle:hover, .navbar-inverse .navbar-toggle:focus {
+    background-color: rgb(15, 166, 188);
+}
+.navbar-inverse .navbar-toggle {
+    border-color: white;
 }

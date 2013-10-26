@@ -1,6 +1,8 @@
 ---
 title: "Chrome Templates"
 date: "2013-07-01"
+groups: ["layout"]
+groups_weight: 80
 ---
 Chrome is a convention to create templates that are used by the other templates
 throughout the site. There is nothing special about the name "chrome", feel free

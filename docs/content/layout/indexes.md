@@ -1,6 +1,8 @@
 ---
 title: "Index Templates"
 date: "2013-07-01"
+groups: ["layout"]
+groups_weight: 50
 ---
 
 An index template is any template that will be used to render multiple pieces of

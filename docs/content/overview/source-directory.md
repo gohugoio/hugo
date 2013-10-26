@@ -3,7 +3,7 @@ title: "Source Directory Organization"
 date: "2013-07-01"
 aliases: ["/doc/source-directory/"]
 groups: ['gettingStarted']
-groups_weight: 10
+groups_weight: 50
 ---
 
 Hugo takes a single directory and uses it as the input for creating a complete website.

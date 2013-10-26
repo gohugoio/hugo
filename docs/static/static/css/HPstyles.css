@@ -72,7 +72,7 @@ body {
 }
 
 .point {
-    background: #7fbbda;
+    background: rgb(22, 203, 230);
     padding: 50px 0;
     color: #ffffff;
 }
@@ -105,12 +105,12 @@ i.point-icon {
 
 i.lead-icon:hover {
     color: #fff;
-    border: 3px solid #7FBBDB;
-    background: #7FBBDB;
+    border: 3px solid black;
+    background: black;
 }
 
 i.point-icon:hover {
-    color: #7FBBDB;
+    color: rgb(22, 203, 230);
     border: 3px solid #fff;
     background: #fff;
 }

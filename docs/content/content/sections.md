@@ -1,6 +1,8 @@
 ---
 title: "Sections"
 date: "2013-07-01"
+groups: ['content']
+groups_weight: 20
 ---
 
 Hugo thinks that you organize your content with a purpose. The same structure

@@ -2,6 +2,8 @@
 title = "Front Matter"
 date = "2013-07-01"
 aliases = ["/doc/front-matter/"]
+groups = ["content"]
+groups_weight = 40
 +++
 
 The front matter is one of the features that gives Hugo its strength. It enables
