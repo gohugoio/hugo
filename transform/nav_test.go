@@ -58,3 +58,13 @@ func TestSetNav(t *testing.T) {
 		t.Errorf("NavActive.Apply output expected and got:\n%q\n%q", expected, out.String())
 	}
 }
+
+func BenchmarkTransform(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		tr := &NavActive{Section: "section_2"}
+		out := new(bytes.Buffer)
+		if err := tr.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
+			b.Errorf("Unexpected error in Apply() for NavActive: %s", err)
+		}
+	}
+}

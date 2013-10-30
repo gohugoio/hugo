@@ -21,7 +21,7 @@ func TestAbsUrlify(t *testing.T) {
 		BaseURL: "http://base",
 	}
 
-	apply(t, tr, abs_url_tests)
+	apply(t.Errorf, tr, abs_url_tests)
 }
 
 type test struct {
@@ -35,15 +35,17 @@ var abs_url_tests = []test{
 	{H5_JS_CONTENT_ABS_URL, H5_JS_CONTENT_ABS_URL},
 }
 
-func apply(t *testing.T, tr Transformer, tests []test) {
+type errorf func (string, ...interface{})
+
+func apply(ef errorf, tr Transformer, tests []test) {
 	for _, test := range tests {
 		out := new(bytes.Buffer)
 		err := tr.Apply(out, strings.NewReader(test.content))
 		if err != nil {
-			t.Errorf("Unexpected error: %s", err)
+			ef("Unexpected error: %s", err)
 		}
 		if test.expected != string(out.Bytes()) {
-			t.Errorf("Expected:\n%s\nGot:\n%s", test.expected, string(out.Bytes()))
+			ef("Expected:\n%s\nGot:\n%s", test.expected, string(out.Bytes()))
 		}
 	}
 }
