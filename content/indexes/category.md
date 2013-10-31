@@ -1,12 +1,13 @@
 ---
-title: "Index Category Example"
+title: "Example Index - Category"
 date: "2013-07-01"
 linktitle: "Example - Categories"
-groups: ["extras"]
-groups_weight: 40
+aliases: ["/extras/indexes/category"]
+groups: ["indexes"]
+groups_weight: 60
 ---
 
-This page demonstrates an example of using indexes to provide categories for your site.
+This page demonstrates what would be required to add a new index called "categories" to your site.
 
 ### config.yaml
 First step is to define the index in your config file.
