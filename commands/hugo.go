@@ -100,6 +100,11 @@ func build(watches ...bool) {
 }
 
 func copyStatic() error {
+	staticDir := Config.GetAbsPath(Config.StaticDir + "/")
+	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
+		return nil
+	}
+
 	// Copy Static to Destination
 	return fsync.Sync(Config.GetAbsPath(Config.PublishDir+"/"), Config.GetAbsPath(Config.StaticDir+"/"))
 }

@@ -132,11 +132,13 @@ func (s *Site) addTemplate(name, data string) error {
 }
 
 func (s *Site) Process() (err error) {
-	s.initialize()
+	if err = s.initialize(); err != nil {
+		return
+	}
 	s.prepTemplates()
 	s.timerStep("initialize & template prep")
 	if err = s.CreatePages(); err != nil {
-		return err
+		return
 	}
 	s.setupPrevNext()
 	s.timerStep("import pages")
@@ -248,9 +250,11 @@ func (s *Site) absPublishDir() string {
 }
 
 func (s *Site) checkDirectories() (err error) {
-	if b, _ := dirExists(s.absLayoutDir()); !b {
-		return fmt.Errorf("No layout directory found, expecting to find it at " + s.absLayoutDir())
-	}
+	/*
+		if b, _ := dirExists(s.absLayoutDir()); !b {
+			return fmt.Errorf("No layout directory found, expecting to find it at " + s.absLayoutDir())
+		}
+	*/
 	if b, _ := dirExists(s.absContentDir()); !b {
 		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
 	}
@@ -266,10 +270,10 @@ func (s *Site) ProcessShortcodes() {
 
 func (s *Site) CreatePages() (err error) {
 	if s.Source == nil {
-		return fmt.Errorf("No source files found in", s.absContentDir())
+		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
 	if len(s.Source.Files()) < 1 {
-		return fmt.Errorf("No source files found in", s.absContentDir())
+		return fmt.Errorf("No source files found in %s", s.absContentDir())
 	}
 	for _, file := range s.Source.Files() {
 		page, err := ReadFrom(file.Contents, file.LogicalName)
