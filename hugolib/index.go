@@ -28,6 +28,7 @@ type IndexedPages []WeightedIndexEntry
 func (p IndexedPages) Len() int      { return len(p) }
 func (p IndexedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 func (p IndexedPages) Sort()         { sort.Sort(p) }
+func (p IndexedPages) Count() int    { return len(p) }
 func (p IndexedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
 		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
@@ -59,17 +60,17 @@ func (i Index) Add(key string, w WeightedIndexEntry) {
 	i[key] = append(i[key], w)
 }
 
-func (i Index) IndexArray() []IndexEntry {
+func (i Index) IndexArray() IndexEntries {
 	ies := make([]IndexEntry, len(i))
 	count := 0
 	for k, v := range i {
-		ies[count] = IndexEntry{Name: k, Pages: v}
+		ies[count] = IndexEntry{Name: k, WeightedPages: v}
 		count++
 	}
 	return ies
 }
 
-func (i Index) Alphabetical() []IndexEntry {
+func (i Index) Alphabetical() IndexEntries {
 	name := func(i1, i2 *IndexEntry) bool {
 		return i1.Name < i2.Name
 	}
@@ -79,9 +80,9 @@ func (i Index) Alphabetical() []IndexEntry {
 	return ia
 }
 
-func (i Index) ByCount() []IndexEntry {
+func (i Index) ByCount() IndexEntries {
 	count := func(i1, i2 *IndexEntry) bool {
-		return len(i1.Pages) < len(i2.Pages)
+		return len(i1.WeightedPages) > len(i2.WeightedPages)
 	}
 
 	ia := i.IndexArray()
@@ -90,9 +91,19 @@ func (i Index) ByCount() []IndexEntry {
 }
 
 type IndexEntry struct {
-	Name  string
-	Pages IndexedPages
+	Name          string
+	WeightedPages IndexedPages
 }
+
+func (ie IndexEntry) Pages() []*Page {
+	return ie.WeightedPages.Pages()
+}
+
+func (ie IndexEntry) Count() int {
+	return len(ie.WeightedPages)
+}
+
+type IndexEntries []IndexEntry
 
 type By func(i1, i2 *IndexEntry) bool
 

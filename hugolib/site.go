@@ -452,7 +452,8 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 			n.Data["Singular"] = singular
 			n.Data["Plural"] = plural
 			n.Data["Index"] = s.Indexes[plural]
-			n.Data["OrderedIndex"] = s.Info.Indexes[plural]
+			// keep the following just for legacy reasons
+			n.Data["OrderedIndex"] = s.Indexes[plural]
 
 			err := s.render(n, plural+"/index.html", layout)
 			if err != nil {
