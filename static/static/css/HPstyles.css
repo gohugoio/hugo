@@ -4,6 +4,7 @@ html,
 body {
     height: 100%;
     width: 100%;
+    letter-spacing: 0.5px;
 }
 
 .vert-text {
