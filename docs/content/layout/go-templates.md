@@ -1,8 +1,9 @@
 ---
 title: "Go Templates"
 date: "2013-07-01"
-groups: ["layout---"]
+groups: ["layout"]
 groups_weight: 80
+draft: true
 ---
 
 Hugo uses the excellent golang html/template library for its template engine.

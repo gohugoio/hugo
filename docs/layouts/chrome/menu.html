@@ -38,6 +38,14 @@
         </ul>
       </li>
       <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Indexes <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {{ range $key, $value := .Site.Indexes.groups.indexes.Pages }}
+            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+            {{ end }}
+        </ul>
+      </li>
+      <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Extras <b class="caret"></b></a>
         <ul class="dropdown-menu">
             {{ range $key, $value := .Site.Indexes.groups.extras.Pages }}
