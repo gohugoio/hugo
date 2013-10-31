@@ -1,7 +1,7 @@
-body { padding-top: 70px; }
-
 body {
     background-color: rgb(253, 253, 251);
+    padding-top: 70px;
+    letter-spacing: 0.3px;
 }
 
 
@@ -25,7 +25,7 @@ nav.navbar {
     background: none repeat scroll 0% 0% rgb(22, 203, 230);
     border-top: 4px solid rgb(15, 166, 188);
     border-bottom: 1px solid rgb(15, 166, 188);
-    opacity: .9;
+    opacity: .97;
 }
 
 .navbar-nav a > i {
@@ -72,9 +72,6 @@ nav.navbar {
     }
     .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a, .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a:hover, .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a:focus {
         background-color: rgb(15, 166, 188);
-    }
-    nav.navbar {
-        opacity: 0.98;
     }
 }
 
