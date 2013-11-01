@@ -15,7 +15,8 @@ func TestChainZeroTransformers(t *testing.T) {
 }
 
 func TestChainOneTransformer(t *testing.T) {
-	tr := NewChain(&AbsURL{BaseURL: "http://base"})
+	absURL, _ := AbsURL("http://base")
+	tr := NewChain(absURL...)
 	apply(t.Errorf, tr, abs_url_tests)
 }
 
@@ -28,19 +29,19 @@ var two_chain_tests = []test{
 }
 
 func TestChainTwoTransformer(t *testing.T) {
-	tr := NewChain(
-		&AbsURL{BaseURL: "http://two"},
-		&NavActive{Section: "section_1"},
-	)
+	absURL, _ := AbsURL("http://two")
+	nav := NavActive("section_1", "hugo-nav")
+	tr := NewChain(append(absURL, nav...)...)
 	apply(t.Errorf, tr, two_chain_tests)
 }
 
 func BenchmarkChain(b *testing.B) {
 
-	tr := NewChain(
-		&AbsURL{BaseURL: "http://two"},
-		&NavActive{Section: "section_1"},
-	)
+	absURL, _ := AbsURL("http://two")
+	nav := NavActive("section_1", "hugo-nav")
+	tr := NewChain(append(absURL, nav...)...)
+
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		apply(b.Errorf, tr, two_chain_tests)
 	}

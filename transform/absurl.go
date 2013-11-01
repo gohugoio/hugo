@@ -2,38 +2,28 @@ package transform
 
 import (
 	htmltran "code.google.com/p/go-html-transform/html/transform"
-	"io"
 	"net/url"
 )
 
-type AbsURL struct {
-	BaseURL string
-}
+func AbsURL(absURL string) (trs []*htmltran.Transform, err error) {
+	var baseURL *url.URL
 
-func (t *AbsURL) Apply(w io.Writer, r io.Reader) (err error) {
-	var tr *htmltran.Transformer
-
-	if tr, err = htmltran.NewFromReader(r); err != nil {
+	if baseURL, err = url.Parse(absURL); err != nil {
 		return
 	}
 
-	if err = t.absUrlify(tr, elattr{"a", "href"}, elattr{"script", "src"}); err != nil {
+	if trs, err = absUrlify(baseURL, elattr{"a", "href"}, elattr{"script", "src"}); err != nil {
 		return
 	}
-
-	return tr.Render(w)
+	return
 }
 
 type elattr struct {
 	tag, attr string
 }
 
-func (t *AbsURL) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (err error) {
-	var baseURL, inURL *url.URL
-
-	if baseURL, err = url.Parse(t.BaseURL); err != nil {
-		return
-	}
+func absUrlify(baseURL *url.URL, selectors ...elattr) (trs []*htmltran.Transform, err error) {
+	var inURL *url.URL
 
 	replace := func(in string) string {
 		if inURL, err = url.Parse(in); err != nil {
@@ -46,9 +36,8 @@ func (t *AbsURL) absUrlify(tr *htmltran.Transformer, selectors ...elattr) (err e
 	}
 
 	for _, el := range selectors {
-		if err = tr.Apply(htmltran.TransformAttrib(el.attr, replace), el.tag); err != nil {
-			return
-		}
+		mt := htmltran.MustTrans(htmltran.TransformAttrib(el.attr, replace), el.tag)
+		trs = append(trs, mt)
 	}
 
 	return

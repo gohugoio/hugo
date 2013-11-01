@@ -64,7 +64,6 @@ type Site struct {
 	Info        SiteInfo
 	Shortcodes  map[string]ShortcodeFunc
 	timer       *nitro.B
-	Transformer transform.Transformer
 	Target      target.Output
 	Alias       target.AliasPublisher
 	Completed   chan bool
@@ -581,9 +580,14 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		section, _ = page.RelPermalink()
 	}
 
+
+	absURL, err := transform.AbsURL(s.Config.BaseUrl)
+	if err != nil {
+		return
+	}
+
 	transformer := transform.NewChain(
-		&transform.AbsURL{BaseURL: s.Config.BaseUrl},
-		&transform.NavActive{Section: section},
+		append(absURL, transform.NavActive(section, "hugo-nav")...)...
 	)
 
 	renderReader, renderWriter := io.Pipe()

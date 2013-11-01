@@ -16,12 +16,9 @@ const H5_JS_CONTENT_ABS_URL = "<!DOCTYPE html><html><head><script src=\"http://u
 const CORRECT_OUTPUT_SRC_HREF = "<!DOCTYPE html><html><head><script src=\"http://base/foobar.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"http://base/foobar\">foobar</a>. Follow up</article></body></html>"
 
 func TestAbsUrlify(t *testing.T) {
-
-	tr := &AbsURL{
-		BaseURL: "http://base",
-	}
-
-	apply(t.Errorf, tr, abs_url_tests)
+	tr, _ := AbsURL("http://base")
+	chain := NewChain(tr...)
+	apply(t.Errorf, chain, abs_url_tests)
 }
 
 type test struct {
@@ -35,9 +32,9 @@ var abs_url_tests = []test{
 	{H5_JS_CONTENT_ABS_URL, H5_JS_CONTENT_ABS_URL},
 }
 
-type errorf func (string, ...interface{})
+type errorf func(string, ...interface{})
 
-func apply(ef errorf, tr Transformer, tests []test) {
+func apply(ef errorf, tr chain, tests []test) {
 	for _, test := range tests {
 		out := new(bytes.Buffer)
 		err := tr.Apply(out, strings.NewReader(test.content))

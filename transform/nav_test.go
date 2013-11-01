@@ -31,25 +31,11 @@ const EXPECTED_HTML_WITH_NAV_1 = `<!DOCTYPE html><html><head></head>
 
 </body></html>`
 
-func TestDegenerateNoSectionSet(t *testing.T) {
-	var (
-		tr  = new(NavActive)
-		out = new(bytes.Buffer)
-	)
-
-	if err := tr.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
-		t.Errorf("Unexpected error in NavActive.Apply: %s", err)
-	}
-
-	if out.String() != HTML_WITH_NAV {
-		t.Errorf("NavActive.Apply should simply pass along the buffer unmodified.")
-	}
-}
-
 func TestSetNav(t *testing.T) {
-	tr := &NavActive{Section: "section_2"}
+	trs := NavActive("section_2", "hugo-nav")
+	chain := NewChain(trs...)
 	out := new(bytes.Buffer)
-	if err := tr.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
+	if err := chain.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
 		t.Errorf("Unexpected error in Apply() for NavActive: %s", err)
 	}
 
@@ -60,11 +46,13 @@ func TestSetNav(t *testing.T) {
 }
 
 func BenchmarkTransform(b *testing.B) {
+	tr := NavActive("section_2", "hugo-nav")
+	chain := NewChain(tr...)
+	out := new(bytes.Buffer)
 	for i := 0; i < b.N; i++ {
-		tr := &NavActive{Section: "section_2"}
-		out := new(bytes.Buffer)
-		if err := tr.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
+		if err := chain.Apply(out, strings.NewReader(HTML_WITH_NAV)); err != nil {
 			b.Errorf("Unexpected error in Apply() for NavActive: %s", err)
 		}
+		out.Reset()
 	}
 }
