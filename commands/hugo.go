@@ -42,14 +42,12 @@ Complete documentation is available at http://hugo.spf13.com`,
 	},
 }
 
-var Hugo *cobra.Commander
 var BuildWatch, Draft, UglyUrls, Verbose bool
 var Source, Destination, BaseUrl, CfgFile string
 
 func Execute() {
 	AddCommands()
-	Hugo := HugoCmd.ToCommander()
-	utils.StopOnErr(Hugo.Execute())
+	utils.StopOnErr(HugoCmd.Execute())
 }
 
 func AddCommands() {
