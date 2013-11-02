@@ -27,7 +27,10 @@ var benchmark = &cobra.Command{
 	Short: "Benchmark hugo by building a site a number of times",
 	Long: `Hugo can build a site many times over and anlyze the
     running process creating a `,
-	Run: bench,
+	Run: func(cmd *cobra.Command, args []string) {
+		InitializeConfig()
+		bench(cmd, args)
+	},
 }
 
 func init() {
