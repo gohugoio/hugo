@@ -576,6 +576,7 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		return
 	}
 
+
 	section := ""
 	if page, ok := d.(*Page); ok {
 		section, _ = page.RelPermalink()
@@ -585,20 +586,19 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	if err != nil {
 		return
 	}
-
 	transformer := transform.NewChain(
 		append(absURL, transform.NavActive(section, "hugo-nav")...)...,
 	)
 
-	var RenderBuffer *bytes.Buffer
+	var renderBuffer *bytes.Buffer
 
 	if strings.HasSuffix(out, ".xml") {
-		RenderBuffer = s.NewXMLBuffer()
+		renderBuffer = s.NewXMLBuffer()
 	} else {
-		RenderBuffer = new(bytes.Buffer)
+		renderBuffer = new(bytes.Buffer)
 	}
 
-	err = s.renderThing(d, layout, RenderBuffer)
+	err = s.renderThing(d, layout, renderBuffer)
 	if err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
 		fmt.Println(fmt.Errorf("Rendering error: %v", err))
@@ -608,7 +608,12 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	}
 
 	var outBuffer = new(bytes.Buffer)
-	transformer.Apply(outBuffer, RenderBuffer)
+	if strings.HasSuffix(out, ".xml") {
+		outBuffer = renderBuffer
+	} else {
+		transformer.Apply(outBuffer, renderBuffer)
+	}
+
 	return s.WritePublic(out, outBuffer)
 }
 

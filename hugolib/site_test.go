@@ -348,19 +348,20 @@ date = "2012-01-01"
 +++
 Front Matter with Ordered Pages 4`)
 
+var WEIGHTED_SOURCES = []source.ByteSource{
+	{"sect/doc1.md", WEIGHTED_PAGE_1, "sect"},
+	{"sect/doc2.md", WEIGHTED_PAGE_2, "sect"},
+	{"sect/doc3.md", WEIGHTED_PAGE_3, "sect"},
+	{"sect/doc4.md", WEIGHTED_PAGE_4, "sect"},
+}
+
 func TestOrderedPages(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
-	sources := []source.ByteSource{
-		{"sect/doc1.md", WEIGHTED_PAGE_1, "sect"},
-		{"sect/doc2.md", WEIGHTED_PAGE_2, "sect"},
-		{"sect/doc3.md", WEIGHTED_PAGE_3, "sect"},
-		{"sect/doc4.md", WEIGHTED_PAGE_4, "sect"},
-	}
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/"},
-		Source: &source.InMemorySource{sources},
+		Source: &source.InMemorySource{WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
 
