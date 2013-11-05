@@ -88,7 +88,7 @@ func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected strin
 	}
 }
 
-func TestrenderThing(t *testing.T) {
+func TestRenderThing(t *testing.T) {
 	tests := []struct {
 		content  string
 		template string
