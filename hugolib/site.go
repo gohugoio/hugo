@@ -31,6 +31,8 @@ import (
 	"time"
 )
 
+var _ = transform.AbsURL
+
 var DefaultTimer *nitro.B
 
 func MakePermalink(base *url.URL, path *url.URL) *url.URL {
@@ -55,19 +57,19 @@ func MakePermalink(base *url.URL, path *url.URL) *url.URL {
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Config      Config
-	Pages       Pages
-	Tmpl        bundle.Template
-	Indexes     IndexList
-	Source      source.Input
-	Sections    Index
-	Info        SiteInfo
-	Shortcodes  map[string]ShortcodeFunc
-	timer       *nitro.B
-	Target      target.Output
-	Alias       target.AliasPublisher
-	Completed   chan bool
-	RunMode     runmode
+	Config     Config
+	Pages      Pages
+	Tmpl       bundle.Template
+	Indexes    IndexList
+	Source     source.Input
+	Sections   Index
+	Info       SiteInfo
+	Shortcodes map[string]ShortcodeFunc
+	timer      *nitro.B
+	Target     target.Output
+	Alias      target.AliasPublisher
+	Completed  chan bool
+	RunMode    runmode
 }
 
 type SiteInfo struct {
@@ -167,7 +169,6 @@ func (s *Site) Render() (err error) {
 	s.timerStep("render and write aliases")
 	s.ProcessShortcodes()
 	s.timerStep("render shortcodes")
-	s.timerStep("absolute URLify")
 	if err = s.RenderIndexes(); err != nil {
 		return
 	}
@@ -580,35 +581,35 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		section, _ = page.RelPermalink()
 	}
 
-
 	absURL, err := transform.AbsURL(s.Config.BaseUrl)
 	if err != nil {
 		return
 	}
 
 	transformer := transform.NewChain(
-		append(absURL, transform.NavActive(section, "hugo-nav")...)...
+		append(absURL, transform.NavActive(section, "hugo-nav")...)...,
 	)
 
-	renderReader, renderWriter := io.Pipe()
-	go func() {
-		err = s.renderThing(d, layout, renderWriter)
-		if err != nil {
-			// Behavior here should be dependent on if running in server or watch mode.
-			fmt.Println(fmt.Errorf("Rendering error: %v", err))
-			if !s.Running() {
-				os.Exit(-1)
-			}
+	var RenderBuffer *bytes.Buffer
+
+	if strings.HasSuffix(out, ".xml") {
+		RenderBuffer = s.NewXMLBuffer()
+	} else {
+		RenderBuffer = new(bytes.Buffer)
+	}
+
+	err = s.renderThing(d, layout, RenderBuffer)
+	if err != nil {
+		// Behavior here should be dependent on if running in server or watch mode.
+		fmt.Println(fmt.Errorf("Rendering error: %v", err))
+		if !s.Running() {
+			os.Exit(-1)
 		}
-	}()
+	}
 
-	trReader, trWriter := io.Pipe()
-	go func() {
-		transformer.Apply(trWriter, renderReader)
-		trWriter.Close()
-	}()
-
-	return s.WritePublic(out, trReader)
+	var outBuffer = new(bytes.Buffer)
+	transformer.Apply(outBuffer, RenderBuffer)
+	return s.WritePublic(out, outBuffer)
 }
 
 func (s *Site) findFirstLayout(layouts ...string) (layout string) {
@@ -620,16 +621,16 @@ func (s *Site) findFirstLayout(layouts ...string) (layout string) {
 	return ""
 }
 
-func (s *Site) renderThing(d interface{}, layout string, w io.WriteCloser) error {
+func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 	// If the template doesn't exist, then return, but leave the Writer open
 	if s.Tmpl.Lookup(layout) == nil {
 		return fmt.Errorf("Layout not found: %s", layout)
 	}
-	defer w.Close()
+	//defer w.Close()
 	return s.Tmpl.ExecuteTemplate(w, layout, d)
 }
 
-func (s *Site) whyNewXMLBuffer() *bytes.Buffer {
+func (s *Site) NewXMLBuffer() *bytes.Buffer {
 	header := "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n"
 	return bytes.NewBufferString(header)
 }
