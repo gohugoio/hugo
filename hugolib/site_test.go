@@ -23,7 +23,8 @@ content`
 	TEMPLATE_CONTENT             = "{{ .Content }}"
 	TEMPLATE_DATE                = "{{ .Date }}"
 	INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
-	TEMPLATE_WITH_URL            = "<a href=\"foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_REL            = "<a href=\"foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_ABS            = "<a href=\"/foobar.jpg\">Going</a>"
 	PAGE_URL_SPECIFIED           = `---
 title: simple template
 url: "mycategory/my-whatever-content/"
@@ -128,7 +129,7 @@ func TestRenderThing(t *testing.T) {
 }
 
 func HTML(in string) string {
-	return fmt.Sprintf("<html><head></head><body>%s</body></html>", in)
+	return in
 }
 
 func TestRenderThingOrDefault(t *testing.T) {
@@ -224,12 +225,13 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc3.md", []byte("# doc3\n*some* content"), "sect"},
 		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*"), "sect"},
 		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"), "sect"},
+		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"), "sect"},
 		{"doc7.html", []byte("<html><body>doc7 content</body></html>"), ""},
 	}
 
 	s := &Site{
 		Target: target,
-		Config: Config{Verbose: true, BaseUrl: "http://auth/bub/"},
+		Config: Config{Verbose: true, BaseUrl: "http://auth/bub"},
 		Source: &source.InMemorySource{sources},
 	}
 	s.initializeSiteInfo()
@@ -237,6 +239,7 @@ func TestSkipRender(t *testing.T) {
 
 	must(s.addTemplate("_default/single.html", "{{.Content}}"))
 	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
+	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
@@ -254,12 +257,13 @@ func TestSkipRender(t *testing.T) {
 		doc      string
 		expected string
 	}{
-		{"sect/doc1.html", "<html><head></head><body><h1>title</h1>\n\n<p>some <em>content</em></p>\n</body></html>"},
-		{"sect/doc2.html", "<!DOCTYPE html><html><head></head><body>more content</body></html>"},
-		{"sect/doc3.html", "<html><head></head><body><h1>doc3</h1>\n\n<p><em>some</em> content</p>\n</body></html>"},
-		{"sect/doc4.html", "<html><head></head><body><h1>doc4</h1>\n\n<p><em>some content</em></p>\n</body></html>"},
-		{"sect/doc5.html", "<!DOCTYPE html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
-		{"doc7.html", "<html><head></head><body>doc7 content</body></html>"},
+		{"sect/doc1.html", "<h1>title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{"sect/doc2.html", "<!doctype html><html><body>more content</body></html>"},
+		{"sect/doc3.html", "<h1>doc3</h1>\n\n<p><em>some</em> content</p>\n"},
+		{"sect/doc4.html", "<h1>doc4</h1>\n\n<p><em>some content</em></p>\n"},
+		{"sect/doc5.html", "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
+		{"sect/doc6.html", "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
+		{"doc7.html", "<html><body>doc7 content</body></html>"},
 	}
 
 	for _, test := range tests {
@@ -283,12 +287,12 @@ func TestAbsUrlify(t *testing.T) {
 	}
 	s := &Site{
 		Target: target,
-		Config: Config{BaseUrl: "http://auth/bub/"},
+		Config: Config{BaseUrl: "http://auth/bub"},
 		Source: &source.InMemorySource{sources},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()
-	must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL))
+	must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
@@ -305,8 +309,8 @@ func TestAbsUrlify(t *testing.T) {
 	tests := []struct {
 		file, expected string
 	}{
-		{"content/blue/doc2.html", "<html><head></head><body><a href=\"http://auth/bub/foobar.jpg\">Going</a></body></html>"},
-		{"sect/doc1.html", "<!DOCTYPE html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
+		{"content/blue/doc2.html", "<a href=\"http://auth/bub/foobar.jpg\">Going</a>"},
+		{"sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
 	}
 
 	for _, test := range tests {

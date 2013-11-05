@@ -576,19 +576,11 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		return
 	}
 
-
-	section := ""
-	if page, ok := d.(*Page); ok {
-		section, _ = page.RelPermalink()
-	}
-
 	absURL, err := transform.AbsURL(s.Config.BaseUrl)
 	if err != nil {
 		return
 	}
-	transformer := transform.NewChain(
-		append(absURL, transform.NavActive(section, "hugo-nav")...)...,
-	)
+	transformer := transform.NewChain(absURL...)
 
 	var renderBuffer *bytes.Buffer
 

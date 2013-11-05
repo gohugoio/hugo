@@ -1,25 +1,30 @@
 package transform
 
 import (
-	htmltran "code.google.com/p/go-html-transform/html/transform"
+	"bytes"
 	"io"
 )
 
-type chain []*htmltran.Transform
+type trans func([]byte) []byte
 
-func NewChain(trs ...*htmltran.Transform) chain {
+type link trans
+
+type chain []link
+
+func NewChain(trs ...link) chain {
 	return trs
 }
 
 func (c *chain) Apply(w io.Writer, r io.Reader) (err error) {
 
-	var tr *htmltran.Transformer
-
-	if tr, err = htmltran.NewFromReader(r); err != nil {
-		return
+	buffer := new(bytes.Buffer)
+	buffer.ReadFrom(r)
+	b := buffer.Bytes()
+	for _, tr := range *c {
+		b = tr(b)
 	}
-
-	tr.ApplyAll(*c...)
-
-	return tr.Render(w)
+	buffer.Reset()
+	buffer.Write(b)
+	buffer.WriteTo(w)
+	return
 }

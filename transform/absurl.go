@@ -3,18 +3,29 @@ package transform
 import (
 	htmltran "code.google.com/p/go-html-transform/html/transform"
 	"net/url"
+	"bytes"
 )
 
-func AbsURL(absURL string) (trs []*htmltran.Transform, err error) {
+func AbsURL(absURL string) (trs []link, err error) {
 	var baseURL *url.URL
 
 	if baseURL, err = url.Parse(absURL); err != nil {
 		return
 	}
 
-	if trs, err = absUrlify(baseURL, elattr{"a", "href"}, elattr{"script", "src"}); err != nil {
-		return
-	}
+	var (
+		srcdq = []byte(" src=\""+baseURL.String()+"/")
+		hrefdq = []byte(" href=\""+baseURL.String()+"/")
+		srcsq = []byte(" src='"+baseURL.String()+"/")
+		hrefsq = []byte(" href='"+baseURL.String()+"/")
+	)
+	trs = append(trs, func(content []byte) []byte {
+		content = bytes.Replace(content, []byte(" src=\"/"), srcdq, -1)
+		content = bytes.Replace(content, []byte(" src='/"), srcsq, -1)
+		content = bytes.Replace(content, []byte(" href=\"/"), hrefdq, -1)
+		content = bytes.Replace(content, []byte(" href='/"), hrefsq, -1)
+		return content
+	})
 	return
 }
 

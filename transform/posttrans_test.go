@@ -6,14 +6,18 @@ import (
 	"testing"
 )
 
-const H5_JS_CONTENT_DOUBLE_QUOTE = "<!DOCTYPE html><html><head><script src=\"foobar.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href='/foobar'>foobar</a>. Follow up</article></body></html>"
-const H5_JS_CONTENT_SINGLE_QUOTE = "<!DOCTYPE html><html><head><script src='foobar.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='/foobar'>foobar</a>. Follow up</article></body></html>"
+const H5_JS_CONTENT_DOUBLE_QUOTE = "<!DOCTYPE html><html><head><script src=\"foobar.js\"></script><script src=\"/barfoo.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"foobar\">foobar</a>. <a href=\"/foobar\">Follow up</a></article></body></html>"
+
+const H5_JS_CONTENT_SINGLE_QUOTE = "<!DOCTYPE html><html><head><script src='foobar.js'></script><script src='/barfoo.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='foobar'>foobar</a>. <a href='/foobar'>Follow up</a></article></body></html>"
+
 const H5_JS_CONTENT_ABS_URL = "<!DOCTYPE html><html><head><script src=\"http://user@host:10234/foobar.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"https://host/foobar\">foobar</a>. Follow up</article></body></html>"
 
 // URL doesn't recognize authorities.  BUG?
 //const H5_JS_CONTENT_ABS_URL = "<!DOCTYPE html><html><head><script src=\"//host/foobar.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"https://host/foobar\">foobar</a>. Follow up</article></body></html>"
 
-const CORRECT_OUTPUT_SRC_HREF = "<!DOCTYPE html><html><head><script src=\"http://base/foobar.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"http://base/foobar\">foobar</a>. Follow up</article></body></html>"
+const CORRECT_OUTPUT_SRC_HREF_DQ = "<!DOCTYPE html><html><head><script src=\"foobar.js\"></script><script src=\"http://base/barfoo.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"foobar\">foobar</a>. <a href=\"http://base/foobar\">Follow up</a></article></body></html>"
+
+const CORRECT_OUTPUT_SRC_HREF_SQ = "<!DOCTYPE html><html><head><script src='foobar.js'></script><script src='http://base/barfoo.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='foobar'>foobar</a>. <a href='http://base/foobar'>Follow up</a></article></body></html>"
 
 func TestAbsUrlify(t *testing.T) {
 	tr, _ := AbsURL("http://base")
@@ -27,8 +31,8 @@ type test struct {
 }
 
 var abs_url_tests = []test{
-	{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF},
-	{H5_JS_CONTENT_SINGLE_QUOTE, CORRECT_OUTPUT_SRC_HREF},
+	{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_DQ},
+	{H5_JS_CONTENT_SINGLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_SQ},
 	{H5_JS_CONTENT_ABS_URL, H5_JS_CONTENT_ABS_URL},
 }
 
