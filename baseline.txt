@@ -1,4 +1,3 @@
 PASS
-BenchmarkChain	   50000	     50453 ns/op	   10998 B/op	     103 allocs/op
-BenchmarkTransform	   50000	     45531 ns/op	   10665 B/op	     106 allocs/op
-ok  	github.com/spf13/hugo/transform	5.904s
+BenchmarkChain	  500000	      7074 ns/op	    3913 B/op	      15 allocs/op
+ok  	github.com/spf13/hugo/transform	3.669s
