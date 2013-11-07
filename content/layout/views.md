@@ -6,7 +6,7 @@ groups_weight: 70
 ---
 
 In addition to the [single content view](/layout/content/), Hugo can render alternative views of
-your content. These are especially useful in [index](/layout/index) templates.
+your content. These are especially useful in [index](/layout/indexes) templates.
 
 To create a new view simple create a template in each of your different content
 type directories with the view name. In the following example we have created a
