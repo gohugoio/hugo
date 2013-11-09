@@ -23,13 +23,20 @@ func AbsURL(absURL string) (trs []link, err error) {
 		hrefsq = []byte(" href='" + base + "/")
 	)
 	trs = append(trs, func(content []byte) []byte {
-		content = bytes.Replace(content, []byte(" src=\"/"), srcdq, -1)
-		content = bytes.Replace(content, []byte(" src='/"), srcsq, -1)
-		content = bytes.Replace(content, []byte(" href=\"/"), hrefdq, -1)
-		content = bytes.Replace(content, []byte(" href='/"), hrefsq, -1)
+		content = guardReplace(content, []byte(" src=\"//"), []byte(" src=\"/"), srcdq)
+		content = guardReplace(content, []byte(" src='//"), []byte(" src='/"), srcsq)
+		content = guardReplace(content, []byte(" href=\"//"), []byte(" href=\"/"), hrefdq)
+		content = guardReplace(content, []byte(" href='//"), []byte(" href='/"), hrefsq)
 		return content
 	})
 	return
+}
+
+func guardReplace(content, guard, match, replace []byte) []byte {
+		if !bytes.Contains(content, guard) {
+			content = bytes.Replace(content, match, replace, -1)
+		}
+		return content
 }
 
 type elattr struct {
