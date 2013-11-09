@@ -24,8 +24,9 @@ body {
 
 .header {
     display: table;
-    height: 85%;
+    height: 70%;
     width: 100%;
+    min-height: 70%;
     position: relative;
     background: url(../img/converse-fields.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
@@ -34,6 +35,43 @@ body {
     background-size: cover;
     z-index: 99999;
     background-color: black;
+}
+
+@media only screen 
+and (min-device-width : 320px)
+and (max-device-width : 1024px)
+and (orientation : portrait)
+{
+    .header {
+        display: table;
+        height: 70%;
+        width: 100%;
+        position: relative;
+        background: url(../img/converse-fields-mini.jpg) no-repeat;
+        background-size: 100% 100%;
+        z-index: 99999;
+        background-color: black;
+    }
+}
+
+@media only screen 
+and (min-device-width : 320px)
+and (max-device-width : 1024px)
+and (orientation : landscape) {
+    .header {
+        display: table;
+        height: 70%;
+        width: 100%;
+        position: relative;
+        background: url(../img/converse-fields-long.jpg) no-repeat;
+        background-size: 100% 100%;
+        z-index: 99999;
+        background-color: black;
+    }
+}
+
+.header .btn {
+    margin: 10px;
 }
 
 #main {
@@ -136,7 +174,7 @@ i.service-icon:hover {
     display: table;
     height: 400px;
     width: 100%;
-    background: url(../img/section-two.JPG) no-repeat center center fixed; 
+    background: url(/static/img/section-two.JPG) no-repeat center center fixed; 
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -168,7 +206,7 @@ i.service-icon:hover {
 }
 
 #action {
-    background: url(../img/gray.png);
+    background: url(/static/img/gray.png);
     padding: 50px 0px 30px;
     position: fixed;
     bottom: 130px;
@@ -219,8 +257,8 @@ div.point a {
 
 
 .btn-clear {
-    color: #FFF;
-    background-color: rgba(255, 255, 255, 0.19);
+    color: #444;
+    background-color: rgba(255, 255, 255, 0.5);
     border-color: #FFF;
 }
 
