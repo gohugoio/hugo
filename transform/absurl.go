@@ -1,9 +1,10 @@
 package transform
 
 import (
+	"bytes"
 	htmltran "code.google.com/p/go-html-transform/html/transform"
 	"net/url"
-	"bytes"
+	"strings"
 )
 
 func AbsURL(absURL string) (trs []link, err error) {
@@ -13,11 +14,13 @@ func AbsURL(absURL string) (trs []link, err error) {
 		return
 	}
 
+	base := strings.TrimRight(baseURL.String(), "/")
+
 	var (
-		srcdq = []byte(" src=\""+baseURL.String()+"/")
-		hrefdq = []byte(" href=\""+baseURL.String()+"/")
-		srcsq = []byte(" src='"+baseURL.String()+"/")
-		hrefsq = []byte(" href='"+baseURL.String()+"/")
+		srcdq  = []byte(" src=\"" + base + "/")
+		hrefdq = []byte(" href=\"" + base + "/")
+		srcsq  = []byte(" src='" + base + "/")
+		hrefsq = []byte(" href='" + base + "/")
 	)
 	trs = append(trs, func(content []byte) []byte {
 		content = bytes.Replace(content, []byte(" src=\"/"), srcdq, -1)
