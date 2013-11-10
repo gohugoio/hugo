@@ -212,6 +212,19 @@ func checkPageDate(t *testing.T, page *Page, time time.Time) {
 	}
 }
 
+func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
+	if page.Summary == "" {
+		t.Fatal("page has no summary, can not check truncation")
+	}
+	if page.Truncated != shouldBe {
+		if shouldBe {
+			t.Fatalf("page wasn't truncated: %s", msg)
+		} else {
+			t.Fatalf("page was truncated: %s", msg)
+		}
+	}
+}
+
 func TestCreateNewPage(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE), "simple.md")
 	if err != nil {
@@ -222,6 +235,7 @@ func TestCreateNewPage(t *testing.T) {
 	checkPageSummary(t, p, "Simple Page")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html", "single.html")
+	checkTruncation(t, p, false, "simple short page")
 }
 
 func TestPageWithDelimiter(t *testing.T) {
@@ -234,6 +248,7 @@ func TestPageWithDelimiter(t *testing.T) {
 	checkPageSummary(t, p, "<p>Summary Next Line</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html", "single.html")
+	checkTruncation(t, p, true, "page with summary delimiter")
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
@@ -273,7 +288,7 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestWordCount(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT), "simple")
+	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT), "simple.md")
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -289,6 +304,8 @@ func TestWordCount(t *testing.T) {
 	if p.MinRead != 3 {
 		t.Fatalf("incorrect min read. expected %v, got %v", 3, p.MinRead)
 	}
+
+	checkTruncation(t, p, true, "long page")
 }
 
 func TestCreatePage(t *testing.T) {

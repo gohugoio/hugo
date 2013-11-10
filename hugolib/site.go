@@ -70,6 +70,7 @@ type Site struct {
 	Alias      target.AliasPublisher
 	Completed  chan bool
 	RunMode    runmode
+	params     map[string]interface{}
 }
 
 type SiteInfo struct {
@@ -79,6 +80,7 @@ type SiteInfo struct {
 	LastChange time.Time
 	Title      string
 	Config     *Config
+	Params     map[string]interface{}
 }
 
 type runmode struct {
@@ -222,6 +224,7 @@ func (s *Site) initializeSiteInfo() {
 		Title:   s.Config.Title,
 		Recent:  &s.Pages,
 		Config:  &s.Config,
+		Params:  s.Config.Params,
 	}
 }
 
