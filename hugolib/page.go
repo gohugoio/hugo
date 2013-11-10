@@ -38,6 +38,7 @@ type Page struct {
 	Images      []string
 	Content     template.HTML
 	Summary     template.HTML
+	Truncated   bool
 	plain       string // TODO should be []byte
 	Params      map[string]interface{}
 	contentType string
@@ -94,21 +95,26 @@ func (p Page) Plain() string {
 	return p.plain
 }
 
-func getSummaryString(content []byte, fmt string) []byte {
+// nb: this is only called for recognised types; so while .html might work for
+// creating posts, it results in missing summaries.
+func getSummaryString(content []byte, pagefmt string) (summary []byte, truncates bool) {
 	if bytes.Contains(content, summaryDivider) {
 		// If user defines split:
 		// Split then render
-		return renderBytes(bytes.Split(content, summaryDivider)[0], fmt)
+		truncates = true // by definition
+		summary = renderBytes(bytes.Split(content, summaryDivider)[0], pagefmt)
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
-		plain := StripHTML(StripShortcodes(string(renderBytes(content, fmt))))
-		return []byte(TruncateWordsToWholeSentence(plain, summaryLength))
+		plain := strings.TrimSpace(StripHTML(StripShortcodes(string(renderBytes(content, pagefmt)))))
+		summary = []byte(TruncateWordsToWholeSentence(plain, summaryLength))
+		truncates = len(summary) != len(plain)
 	}
+	return
 }
 
-func renderBytes(content []byte, fmt string) []byte {
-	switch fmt {
+func renderBytes(content []byte, pagefmt string) []byte {
+	switch pagefmt {
 	default:
 		return blackfriday.MarkdownCommon(content)
 	case "markdown":
@@ -522,8 +528,9 @@ func (page *Page) convertMarkdown(lines io.Reader) {
 	b.ReadFrom(lines)
 	content := b.Bytes()
 	page.Content = template.HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
-	summary := getSummaryString(content, "markdown")
+	summary, truncated := getSummaryString(content, "markdown")
 	page.Summary = template.HTML(string(summary))
+	page.Truncated = truncated
 }
 
 func (page *Page) convertRestructuredText(lines io.Reader) {
@@ -531,8 +538,9 @@ func (page *Page) convertRestructuredText(lines io.Reader) {
 	b.ReadFrom(lines)
 	content := b.Bytes()
 	page.Content = template.HTML(getRstContent(content))
-	summary := getSummaryString(content, "rst")
+	summary, truncated := getSummaryString(content, "rst")
 	page.Summary = template.HTML(string(summary))
+	page.Truncated = truncated
 }
 
 func (p *Page) TargetPath() (outfile string) {

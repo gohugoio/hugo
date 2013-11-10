@@ -1,6 +1,7 @@
 package bundle
 
 import (
+	"errors"
 	"github.com/eknkc/amber"
 	helpers "github.com/spf13/hugo/template"
 	"html/template"
@@ -38,6 +39,36 @@ func Gt(a interface{}, b interface{}) bool {
 	}
 
 	return left > right
+}
+
+// First is exposed to templates, to iterate over the first N items in a
+// rangeable list.
+func First(limit int, seq interface{}) (interface{}, error) {
+	if limit < 1 {
+		return nil, errors.New("can't return negative/empty count of items from sequence")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	// this is better than my first pass; ripped from text/template/exec.go indirect():
+	for ; seqv.Kind() == reflect.Ptr || seqv.Kind() == reflect.Interface; seqv = seqv.Elem() {
+		if seqv.IsNil() {
+			return nil, errors.New("can't iterate over a nil value")
+		}
+		if seqv.Kind() == reflect.Interface && seqv.NumMethod() > 0 {
+			break
+		}
+	}
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice, reflect.String:
+		// okay
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+	if limit > seqv.Len() {
+		limit = seqv.Len()
+	}
+	return seqv.Slice(0, limit).Interface(), nil
 }
 
 func IsSet(a interface{}, key interface{}) bool {
@@ -113,6 +144,7 @@ func NewTemplate() Template {
 		"isset":     IsSet,
 		"echoParam": ReturnWhenSet,
 		"safeHtml":  SafeHtml,
+		"First":     First,
 	}
 
 	templates.Funcs(funcMap)

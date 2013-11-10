@@ -33,6 +33,7 @@ type Config struct {
 	Title                                      string
 	Indexes                                    map[string]string // singular, plural
 	ProcessFilters                             map[string][]string
+	Params                                     map[string]interface{}
 	BuildDrafts, UglyUrls, Verbose             bool
 }
 
