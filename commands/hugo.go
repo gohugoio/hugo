@@ -41,6 +41,8 @@ Complete documentation is available at http://hugo.spf13.com`,
 		build()
 	},
 }
+var hugoCmdV *cobra.Command
+
 
 var BuildWatch, Draft, UglyUrls, Verbose bool
 var Source, Destination, BaseUrl, CfgFile string
@@ -67,20 +69,21 @@ func init() {
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	hugoCmdV = HugoCmd
 }
 
 func InitializeConfig() {
 	Config = hugolib.SetupConfig(&CfgFile, &Source)
 
-	if HugoCmd.PersistentFlags().Lookup("build-drafts").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("build-drafts").Changed {
 		Config.BuildDrafts = Draft
 	}
 
-	if HugoCmd.PersistentFlags().Lookup("uglyurls").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("uglyurls").Changed {
 		Config.UglyUrls = UglyUrls
 	}
 
-	if HugoCmd.PersistentFlags().Lookup("verbose").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		Config.Verbose = Verbose
 	}
 	if BaseUrl != "" {
