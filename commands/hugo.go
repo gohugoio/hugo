@@ -71,9 +71,18 @@ func init() {
 
 func InitializeConfig() {
 	Config = hugolib.SetupConfig(&CfgFile, &Source)
-	Config.BuildDrafts = Draft
-	Config.UglyUrls = UglyUrls
-	Config.Verbose = Verbose
+
+	if HugoCmd.PersistentFlags().Lookup("build-drafts").Changed {
+		Config.BuildDrafts = Draft
+	}
+
+	if HugoCmd.PersistentFlags().Lookup("uglyurls").Changed {
+		Config.UglyUrls = UglyUrls
+	}
+
+	if HugoCmd.PersistentFlags().Lookup("verbose").Changed {
+		Config.Verbose = Verbose
+	}
 	if BaseUrl != "" {
 		Config.BaseUrl = BaseUrl
 	}
