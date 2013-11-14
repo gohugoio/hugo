@@ -144,7 +144,7 @@ func NewTemplate() Template {
 		"isset":     IsSet,
 		"echoParam": ReturnWhenSet,
 		"safeHtml":  SafeHtml,
-		"First":     First,
+		"first":     First,
 	}
 
 	templates.Funcs(funcMap)
