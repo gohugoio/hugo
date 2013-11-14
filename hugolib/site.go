@@ -501,20 +501,12 @@ func (s *Site) RenderLists() error {
 }
 
 func (s *Site) RenderHomePage() error {
-
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	n.Url = helpers.Urlize(string(n.Site.BaseUrl))
 	n.RSSlink = permalink(s, "index.xml")
 	n.Permalink = permalink(s, "")
-	if len(s.Pages) > 0 {
-		n.Date = s.Pages[0].Date
-		if len(s.Pages) < 9 {
-			n.Data["Pages"] = s.Pages
-		} else {
-			n.Data["Pages"] = s.Pages[:9]
-		}
-	}
+	n.Data["Pages"] = s.Pages
 	err := s.render(n, "/", "index.html")
 	if err != nil {
 		return err
