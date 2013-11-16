@@ -6,25 +6,34 @@ groups: ["meta"]
 groups_weight: 10
 ---
 
-* **0.9.0** HEAD
+* **0.9.0**
   * New command based interface similar to git (hugo server -s ./ )
-  * Added support for aliases (redirects)
-  * Cleanup of how content organization is handled
-  * Support for top level pages (other than homepage)
-  * Loads of unit and performance tests
-  * Integration with travis ci
+  * Amber template support
+  * Aliases (redirects)
+  * Support for top level pages (in addition to homepage)
   * Complete overhaul of the documentation site
   * Full Windows support
-  * Support for ordering pages by weight
-  * More support for indexes
+  * Better index support including ordering by content weight
+  * Add params to site config, available in .Site.Params from templates
+  * Friendlier json support
+  * Support for html & xml content (with frontmatter support)
+  * Support for summary content divider (&lt;!–more–>)
+  * HTML in summary (when using divider)
+  * Added "Minutes to Read" functionality
+  * Support for a custom 404 page
+  * Cleanup of how content organization is handled
+  * Loads of unit and performance tests
+  * Integration with travis ci
+  * Static directory now watched and copied on any addition or modification
   * Support for relative permalinks
   * Fixed watching being triggered multiple times for the same event
   * Watch now ignores temp files (as created by Vim)
+  * Configurable number of posts on homepage
   * Front matter supports multiple types (int, string, date, float)
-  * Support for summary content divider (&lt;!--more-->)
-  * Ability to highlight current page.
-  * Added default templates for indexes
-  * Support for Amber templates
+  * Indexes can now use a default template
+  * Addition of truncated bool to content to determine if should show 'more' link
+  * Support for linkTitles
+  * Better handling of most errors with directions on how to resolve
   * Support for more date / time formats
   * Support for go 1.2
 * **0.8.0** August 2, 2013
