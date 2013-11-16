@@ -43,7 +43,7 @@ It makes use of [chrome templates](/layout/chrome)
 
     <section id="main">
       <div>
-        {{ range .Data.Pages }}
+        {{ range first 10 .Data.Pages }}
             {{ .Render "summary"}}
         {{ end }}
       </div>
