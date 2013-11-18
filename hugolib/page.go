@@ -251,23 +251,35 @@ func (p *Page) permalink() (*url.URL, error) {
 	pSlug := strings.TrimSpace(p.Slug)
 	pUrl := strings.TrimSpace(p.Url)
 	var permalink string
-	if len(pSlug) > 0 {
-		if p.Site.Config != nil && p.Site.Config.UglyUrls {
-			permalink = path.Join(dir, p.Slug, p.Extension)
-		} else {
-			permalink = dir + "/" + p.Slug + "/"
+	var err error
+
+	if override, ok := p.Site.Permalinks[p.Section]; ok {
+		permalink, err = override.Expand(p)
+		if err != nil {
+			return nil, err
 		}
-	} else if len(pUrl) > 2 {
-		permalink = pUrl
+		//fmt.Printf("have an override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
-		_, t := path.Split(p.FileName)
-		if p.Site.Config != nil && p.Site.Config.UglyUrls {
-			x := replaceExtension(strings.TrimSpace(t), p.Extension)
-			permalink = path.Join(dir, x)
+
+		if len(pSlug) > 0 {
+			if p.Site.Config != nil && p.Site.Config.UglyUrls {
+				permalink = path.Join(dir, p.Slug, p.Extension)
+			} else {
+				permalink = dir + "/" + p.Slug + "/"
+			}
+		} else if len(pUrl) > 2 {
+			permalink = pUrl
 		} else {
-			file, _ := fileExt(strings.TrimSpace(t))
-			permalink = path.Join(dir, file)
+			_, t := path.Split(p.FileName)
+			if p.Site.Config != nil && p.Site.Config.UglyUrls {
+				x := replaceExtension(strings.TrimSpace(t), p.Extension)
+				permalink = path.Join(dir, x)
+			} else {
+				file, _ := fileExt(strings.TrimSpace(t))
+				permalink = path.Join(dir, file)
+			}
 		}
+
 	}
 
 	base, err := url.Parse(baseUrl)
@@ -553,6 +565,18 @@ func (p *Page) TargetPath() (outfile string) {
 			outfile = outfile + "index.html"
 		}
 		return
+	}
+
+	// If there's a Permalink specification, we use that
+	if override, ok := p.Site.Permalinks[p.Section]; ok {
+		var err error
+		outfile, err = override.Expand(p)
+		if err == nil {
+			if strings.HasSuffix(outfile, "/") {
+				outfile += "index.html"
+			}
+			return
+		}
 	}
 
 	if len(strings.TrimSpace(p.Slug)) > 0 {

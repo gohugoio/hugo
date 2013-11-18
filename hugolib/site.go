@@ -46,14 +46,14 @@ func MakePermalink(base *url.URL, path *url.URL) *url.URL {
 //
 // 2. Pages contain sections (based on the file they were generated from),
 //    aliases and slugs (included in a pages frontmatter) which are the
-//		various targets that will get generated.  There will be canonical
-//		listing.
+//    various targets that will get generated.  There will be canonical
+//    listing.  The canonical path can be overruled based on a pattern.
 //
 // 3. Indexes are created via configuration and will present some aspect of
 //    the final page and typically a perm url.
 //
 // 4. All Pages are passed through a template based on their desired
-// 		layout based on numerous different elements.
+//    layout based on numerous different elements.
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
@@ -80,6 +80,7 @@ type SiteInfo struct {
 	LastChange time.Time
 	Title      string
 	Config     *Config
+	Permalinks PermalinkOverrides
 	Params     map[string]interface{}
 }
 
@@ -220,11 +221,12 @@ func (s *Site) initialize() (err error) {
 
 func (s *Site) initializeSiteInfo() {
 	s.Info = SiteInfo{
-		BaseUrl: template.URL(s.Config.BaseUrl),
-		Title:   s.Config.Title,
-		Recent:  &s.Pages,
-		Config:  &s.Config,
-		Params:  s.Config.Params,
+		BaseUrl:    template.URL(s.Config.BaseUrl),
+		Title:      s.Config.Title,
+		Recent:     &s.Pages,
+		Config:     &s.Config,
+		Params:     s.Config.Params,
+		Permalinks: s.Config.Permalinks,
 	}
 }
 

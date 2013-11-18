@@ -34,6 +34,7 @@ type Config struct {
 	Indexes                                    map[string]string // singular, plural
 	ProcessFilters                             map[string][]string
 	Params                                     map[string]interface{}
+	Permalinks                                 PermalinkOverrides
 	BuildDrafts, UglyUrls, Verbose             bool
 }
 
@@ -68,6 +69,11 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 		c.Indexes = make(map[string]string)
 		c.Indexes["tag"] = "tags"
 		c.Indexes["category"] = "categories"
+	}
+
+	// ensure map exists, albeit empty
+	if c.Permalinks == nil {
+		c.Permalinks = make(PermalinkOverrides, 0)
 	}
 
 	if !strings.HasSuffix(c.BaseUrl, "/") {
