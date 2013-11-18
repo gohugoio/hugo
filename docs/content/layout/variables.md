@@ -52,5 +52,5 @@ Also available is `.Site` which has the following:
 **.Site.BaseUrl** The base URL for the site as defined in the config.json file.<br>
 **.Site.Indexes** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
-**.Site.Recent** Array of all content ordered by Date, newest first<br>
-
+**.Site.Recent** Array of all content ordered by Date, newest first.<br>
+**.Site.Params** A container holding the values from `params` in your site configuration file.<br>

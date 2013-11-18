@@ -36,6 +36,8 @@ groups_weight: 10
   * Better handling of most errors with directions on how to resolve
   * Support for more date / time formats
   * Support for go 1.2
+  * Support for `first` in templates
+  * Support for site per-section permalink pattern specifications
 * **0.8.0** August 2, 2013
   * Added support for pretty urls (filename/index.html vs filename.html)
   * Hugo supports a destination directory
