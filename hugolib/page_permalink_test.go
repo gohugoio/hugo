@@ -7,12 +7,18 @@ import (
 
 func TestPermalink(t *testing.T) {
 	tests := []struct {
+		file        string
+		dir         string
 		base        template.URL
+		slug        string
 		expectedAbs string
 		expectedRel string
 	}{
-		{"", "/x/y/z/boofar", "/x/y/z/boofar"},
-		{"http://barnew/", "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z", "", "", "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "", "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
 	}
 
 	for _, test := range tests {
@@ -21,7 +27,13 @@ func TestPermalink(t *testing.T) {
 				UrlPath: UrlPath{Section: "z"},
 				Site:    SiteInfo{BaseUrl: test.base},
 			},
-			File: File{FileName: "x/y/z/boofar.md", Dir: "x/y/z"},
+			File: File{FileName: test.file, Dir: test.dir},
+		}
+
+		if test.slug != "" {
+			p.update(map[string]interface{}{
+				"slug": test.slug,
+			})
 		}
 
 		u, err := p.Permalink()
