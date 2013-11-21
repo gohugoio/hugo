@@ -31,7 +31,7 @@ Corresponding pseudo commands:
 
     git clone https://github.com/spf13/hugo
     cd hugo
-    /path/to/hugo/from/step/1/hugo server --source ./docs
+    /path/to/hugo/from/step/1/hugo server -s ./docs
     > 29 pages created
     > 0 tags index created
     > in 27 ms
