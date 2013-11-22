@@ -8,7 +8,7 @@ groups_weight: 30
 
 Hugo has full support for multiple content types each with its own set
 of meta data and template. A good example of when multiple types are
-needed is to look a tumblr. A piece of content could be a photo, quote
+needed is to look at Tumblr. A piece of content could be a photo, quote
 or post, each with different meta data and rendered differently.
 
 
