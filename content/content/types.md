@@ -27,7 +27,7 @@ Create a directory with the name of the type in layouts.Type is always singular.
 Create a file called single.html inside your directory. *Eg /layouts/post/single.html*.
 
 **Step 3:**
-Create a file with the same name as your directory in /layouts/indexes/. *Eg /layouts/index/post.html*.
+Create a file with the same name as your directory in /layouts/indexes/. *Eg /layouts/indexes/post.html*.
 
 **Step 4:**
 Many sites support rendering content in a few different ways, for
