@@ -1,0 +1,5 @@
+indexes:
+  tag: 'tags'
+  group: 'groups'
+  menu: 'menu'
+baseurl: ''
