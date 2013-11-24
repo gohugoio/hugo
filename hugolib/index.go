@@ -39,7 +39,7 @@ func (p IndexedPages) Less(i, j int) bool {
 
 func (ip IndexedPages) Pages() Pages {
 	pages := make(Pages, len(ip))
-	for i, _ := range ip {
+	for i := range ip {
 		pages[i] = ip[i].Page
 	}
 	return pages
