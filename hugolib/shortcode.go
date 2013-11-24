@@ -185,7 +185,7 @@ func Tokenize(in string) interface{} {
 
 		// No closing "... just make remainder the final token
 		if inQuote && i == len(first) {
-			final = append(final, first[start:len(first)]...)
+			final = append(final, first[start:]...)
 		}
 	}
 

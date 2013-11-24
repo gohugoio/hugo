@@ -326,7 +326,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 				}
 			}
 		}
-		for k, _ := range s.Indexes[plural] {
+		for k := range s.Indexes[plural] {
 			s.Indexes[plural][k].Sort()
 		}
 	}
@@ -335,7 +335,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 		s.Sections.Add(p.Section, WeightedIndexEntry{s.Pages[i].Weight, s.Pages[i]})
 	}
 
-	for k, _ := range s.Sections {
+	for k := range s.Sections {
 		s.Sections[k].Sort()
 	}
 
@@ -356,7 +356,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 
 func (s *Site) possibleIndexes() (indexes []string) {
 	for _, p := range s.Pages {
-		for k, _ := range p.Params {
+		for k := range p.Params {
 			if !inStringArray(indexes, k) {
 				indexes = append(indexes, k)
 			}

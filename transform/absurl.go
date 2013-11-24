@@ -33,10 +33,10 @@ func AbsURL(absURL string) (trs []link, err error) {
 }
 
 func guardReplace(content, guard, match, replace []byte) []byte {
-		if !bytes.Contains(content, guard) {
-			content = bytes.Replace(content, match, replace, -1)
-		}
-		return content
+	if !bytes.Contains(content, guard) {
+		content = bytes.Replace(content, match, replace, -1)
+	}
+	return content
 }
 
 type elattr struct {
