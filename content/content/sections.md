@@ -17,15 +17,11 @@ The following example site uses two sections, "post" and "quote".
         ├── post
         |   ├── firstpost.md       // <- http://site.com/post/firstpost/
         |   ├── happy
-        |   |   └── happiness.md   // <- http://site.com/happy/happiness/
+        |   |   └── happiness.md   // <- http://site.com/post/happy/happiness/
         |   └── secondpost.md      // <- http://site.com/post/secondpost/
         └── quote
             ├── first.md           // <- http://site.com/quote/first/
             └── second.md          // <- http://site.com/quote/second/
-
-
-*Regardless of location on disk, the section can be provided in the front matter
-which will affect the destination location*.
 
 ## Sections and Types
 
