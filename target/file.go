@@ -42,7 +42,7 @@ func writeToDisk(translated string, r io.Reader) (err error) {
 	ospath := filepath.FromSlash(path)
 
 	if ospath != "" {
-		err = os.MkdirAll(ospath, 0764) // rwx, rw, r
+		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
 		if err != nil {
 			panic(err)
 		}
