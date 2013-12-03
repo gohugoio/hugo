@@ -23,8 +23,8 @@ content`
 	TEMPLATE_CONTENT             = "{{ .Content }}"
 	TEMPLATE_DATE                = "{{ .Date }}"
 	INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
-	TEMPLATE_WITH_URL_REL            = "<a href=\"foobar.jpg\">Going</a>"
-	TEMPLATE_WITH_URL_ABS            = "<a href=\"/foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_REL        = "<a href=\"foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_ABS        = "<a href=\"/foobar.jpg\">Going</a>"
 	PAGE_URL_SPECIFIED           = `---
 title: simple template
 url: "mycategory/my-whatever-content/"

@@ -43,7 +43,6 @@ Complete documentation is available at http://hugo.spf13.com`,
 }
 var hugoCmdV *cobra.Command
 
-
 var BuildWatch, Draft, UglyUrls, Verbose bool
 var Source, Destination, BaseUrl, CfgFile string
 
