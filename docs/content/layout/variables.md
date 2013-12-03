@@ -1,6 +1,6 @@
 ---
 title: "Variables"
-date: "2013-07-01"
+date: "2013-07-02"
 aliases: ["/doc/variables/"]
 groups: ["layout"]
 groups_weight: 20

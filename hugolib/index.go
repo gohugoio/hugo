@@ -45,6 +45,27 @@ func (ip IndexedPages) Pages() Pages {
 	return pages
 }
 
+func (ip IndexedPages) PagesByDate(asc bool) Pages {
+	by := func(p1, p2 *Page) bool {
+		return p1.Date.Unix() < p2.Date.Unix()
+	}
+
+	if asc == false {
+		by = func(p1, p2 *Page) bool {
+			return p1.Date.Unix() > p2.Date.Unix()
+		}
+	}
+
+	ps := &PageSorter{
+		pages: ip.Pages(),
+		by:    by,
+	}
+
+	sort.Sort(ps)
+
+	return ps.pages
+}
+
 type Index map[string]IndexedPages
 type IndexList map[string]Index
 
@@ -134,3 +155,13 @@ func (s *indexEntrySorter) Swap(i, j int) {
 func (s *indexEntrySorter) Less(i, j int) bool {
 	return s.by(&s.indexEntrys[i], &s.indexEntrys[j])
 }
+
+// Sorting pages
+type PageSorter struct {
+	pages Pages
+	by    func(p1, p2 *Page) bool
+}
+
+func (ps *PageSorter) Len() int           { return len(ps.pages) }
+func (ps *PageSorter) Swap(i, j int)      { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
+func (ps *PageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j]) }

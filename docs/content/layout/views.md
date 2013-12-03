@@ -1,6 +1,6 @@
 ---
 title: "Content Views"
-date: "2013-07-01"
+date: "2013-07-03"
 groups: ["layout"]
 groups_weight: 70
 ---
