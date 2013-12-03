@@ -1,4 +1,22 @@
 {{ template "chrome/header.html" . }}
+<div class="row">
+	<div class="col-md-6">
+		<h2>.Pages</h2>
+		<ul>
+		    {{ range .Site.Indexes.groups.layout.Pages }}
+		    <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} {{ .Date }}</a> </li>
+		    {{ end }}
+		</ul>
+		</div>
+		<div class="col-md-6">
+		<h2>.PagesByDate</h2>
+		<ul>
+		    {{ range .Site.Indexes.groups.layout.PagesByDate true }}
+		    <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} {{ .Date }}</a> </li>
+		    {{ end }}
+		</ul>
+	</div>
+</div>
           <h1>{{ .Title }}</h1>
           {{ .Content }}
 {{ template "chrome/footer.html" . }}
