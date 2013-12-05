@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/eknkc/amber"
 	"github.com/spf13/hugo/helpers"
+	"html"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -109,6 +110,23 @@ func ReturnWhenSet(a interface{}, index int) interface{} {
 	return ""
 }
 
+func Highlight(in interface{}, lang string) template.HTML {
+	var str string
+	av := reflect.ValueOf(in)
+	switch av.Kind() {
+	case reflect.String:
+		str = av.String()
+	}
+
+	if strings.HasPrefix(strings.TrimSpace(str), "<pre><code>") {
+		str = str[strings.Index(str, "<pre><code>")+11:]
+	}
+	if strings.HasSuffix(strings.TrimSpace(str), "</code></pre>") {
+		str = str[:strings.LastIndex(str, "</code></pre>")]
+	}
+	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang))
+}
+
 func SafeHtml(text string) template.HTML {
 	return template.HTML(text)
 }
@@ -145,6 +163,7 @@ func NewTemplate() Template {
 		"echoParam": ReturnWhenSet,
 		"safeHtml":  SafeHtml,
 		"first":     First,
+		"highlight": Highlight,
 	}
 
 	templates.Funcs(funcMap)
