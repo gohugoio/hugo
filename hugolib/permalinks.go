@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	helper "github.com/spf13/hugo/template"
+	"github.com/spf13/hugo/helpers"
 )
 
 // PathPattern represents a string which builds up a URL from attributes
@@ -117,7 +117,7 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 	// Page contains Node which has Title
 	// (also contains UrlPath which has Slug, sometimes)
-	return helper.Urlize(p.Title), nil
+	return helpers.Urlize(p.Title), nil
 }
 
 // if the page has a slug, return the slug, else return the title

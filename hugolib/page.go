@@ -18,8 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
-	helper "github.com/spf13/hugo/template"
 	"github.com/spf13/hugo/template/bundle"
 	"github.com/theplant/blackfriday"
 	"html/template"
@@ -366,12 +366,12 @@ func (page *Page) update(f interface{}) error {
 		case "description":
 			page.Description = interfaceToString(v)
 		case "slug":
-			page.Slug = helper.Urlize(interfaceToString(v))
+			page.Slug = helpers.Urlize(interfaceToString(v))
 		case "url":
 			if url := interfaceToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative urls are supported, %v provided", url)
 			}
-			page.Url = helper.Urlize(interfaceToString(v))
+			page.Url = helpers.Urlize(interfaceToString(v))
 		case "type":
 			page.contentType = interfaceToString(v)
 		case "keywords":
