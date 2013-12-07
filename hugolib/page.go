@@ -240,6 +240,11 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 	return p, nil
 }
 
+func (p *Page) ProcessShortcodes(t bundle.Template) {
+	p.Content = template.HTML(ShortcodesHandle(string(p.Content), p, t))
+	p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
+}
+
 func (p *Page) analyzePage() {
 	p.WordCount = TotalWords(p.Plain())
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
