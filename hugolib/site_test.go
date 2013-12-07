@@ -229,6 +229,7 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"), "sect"},
 		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"), "sect"},
 		{"doc7.html", []byte("<html><body>doc7 content</body></html>"), ""},
+		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*"), "sect"},
 	}
 
 	s := &Site{
@@ -267,6 +268,7 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc5.html", "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
 		{"sect/doc6.html", "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
 		{"doc7.html", "<html><body>doc7 content</body></html>"},
+		{"sect/doc8.html", "<h1>title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {

@@ -490,14 +490,32 @@ func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 }
 
 func (page *Page) guessMarkupType() string {
+	// First try the explicitly set markup from the frontmatter
 	if page.Markup != "" {
-		return page.Markup
+		format := guessType(page.Markup)
+		if format != "unknown" {
+			return format
+		}
 	}
 
-	if strings.HasSuffix(page.FileName, ".md") {
-		return "md"
+	// Then try to guess from the extension
+	ext := strings.ToLower(path.Ext(page.FileName))
+	if strings.HasPrefix(ext, ".") {
+		return guessType(ext[1:])
 	}
 
+	return "unknown"
+}
+
+func guessType(in string) string {
+	switch in {
+	case "md", "markdown", "mdown":
+		return "markdown"
+	case "rst":
+		return "rst"
+	case "html", "htm":
+		return "html"
+	}
 	return "unknown"
 }
 
@@ -530,14 +548,10 @@ func (page *Page) parse(reader io.Reader) error {
 
 func (page *Page) Convert() error {
 	switch page.guessMarkupType() {
-	case "md", "markdown", "mdown":
+	case "markdown":
 		page.convertMarkdown(bytes.NewReader([]byte(page.Content)))
 	case "rst":
 		page.convertRestructuredText(bytes.NewReader([]byte(page.Content)))
-	case "html":
-		fallthrough
-	default:
-		page.Content = template.HTML(page.Content)
 	}
 	return nil
 }
