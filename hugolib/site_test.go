@@ -23,8 +23,8 @@ content`
 	TEMPLATE_CONTENT             = "{{ .Content }}"
 	TEMPLATE_DATE                = "{{ .Date }}"
 	INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
-	TEMPLATE_WITH_URL_REL            = "<a href=\"foobar.jpg\">Going</a>"
-	TEMPLATE_WITH_URL_ABS            = "<a href=\"/foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_REL        = "<a href=\"foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_ABS        = "<a href=\"/foobar.jpg\">Going</a>"
 	PAGE_URL_SPECIFIED           = `---
 title: simple template
 url: "mycategory/my-whatever-content/"
@@ -50,6 +50,7 @@ func pageMust(p *Page, err error) *Page {
 
 func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+	p.Convert()
 	s := new(Site)
 	s.prepTemplates()
 	err := s.renderThing(p, "foobar", nil)
@@ -106,6 +107,7 @@ func TestRenderThing(t *testing.T) {
 
 	for i, test := range tests {
 		p, err := ReadFrom(strings.NewReader(test.content), "content/a/file.md")
+		p.Convert()
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
@@ -234,6 +236,7 @@ func TestSkipRender(t *testing.T) {
 		Config: Config{Verbose: true, BaseUrl: "http://auth/bub"},
 		Source: &source.InMemorySource{sources},
 	}
+
 	s.initializeSiteInfo()
 	s.prepTemplates()
 

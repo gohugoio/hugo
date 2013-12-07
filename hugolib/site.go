@@ -170,8 +170,6 @@ func (s *Site) Render() (err error) {
 		return
 	}
 	s.timerStep("render and write aliases")
-	s.ProcessShortcodes()
-	s.timerStep("render shortcodes")
 	if err = s.RenderIndexes(); err != nil {
 		return
 	}
@@ -289,6 +287,16 @@ func (s *Site) CreatePages() (err error) {
 		page.Tmpl = s.Tmpl
 		page.Section = file.Section
 		page.Dir = file.Dir
+
+		// Handling short codes prior to Conversion to HTML
+		page.Content = template.HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
+		page.Summary = template.HTML(ShortcodesHandle(string(page.Summary), page, s.Tmpl))
+
+		err = page.Convert()
+		if err != nil {
+			return err
+		}
+
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}

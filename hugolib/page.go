@@ -36,6 +36,7 @@ import (
 type Page struct {
 	Status      string
 	Images      []string
+	RawContent  []byte
 	Content     template.HTML
 	Summary     template.HTML
 	Truncated   bool
@@ -520,17 +521,23 @@ func (page *Page) parse(reader io.Reader) error {
 		if err = page.update(meta); err != nil {
 			return err
 		}
-	}
 
+	}
+	page.Content = template.HTML(p.Content())
+
+	return nil
+}
+
+func (page *Page) Convert() error {
 	switch page.guessMarkupType() {
 	case "md", "markdown", "mdown":
-		page.convertMarkdown(bytes.NewReader(p.Content()))
+		page.convertMarkdown(bytes.NewReader([]byte(page.Content)))
 	case "rst":
-		page.convertRestructuredText(bytes.NewReader(p.Content()))
+		page.convertRestructuredText(bytes.NewReader([]byte(page.Content)))
 	case "html":
 		fallthrough
 	default:
-		page.Content = template.HTML(p.Content())
+		page.Content = template.HTML(page.Content)
 	}
 	return nil
 }
