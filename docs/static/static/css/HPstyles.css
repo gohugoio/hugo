@@ -120,7 +120,7 @@ and (orientation : landscape) {
     margin-bottom: 15px;
 }
 
-i.point-icon, i.lead-icon {
+i.callout-icon, i.point-icon, i.lead-icon {
     border-radius: 50%;
     display: inline-block;
     font-size: 56px;
@@ -138,7 +138,7 @@ i.lead-icon {
     border: 3px solid #222;
 }
 
-i.point-icon {
+i.point-icon, i.callout-icon {
     border: 3px solid #ffffff;
 }
 
@@ -172,13 +172,36 @@ i.service-icon:hover {
 .callout {
     color: #ffffff;
     display: table;
-    height: 400px;
+    height: 420px;
     width: 100%;
-    background: url(/static/img/section-two.JPG) no-repeat center center fixed; 
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
+    background-color: rgb(47, 197, 47);
+    padding: 50px 0;
+    color: #ffffff;
+}
+
+.banner { position: relative; overflow: auto; }
+.banner li { list-style: none; font-size:28px; padding: 1.7em 3em 0 3em; font-weight:200; }
+.banner ul li { float: left; }
+
+.banner blockquote {
+    border-left: 0;
+    font-size: 20px;
+    font-weight:100;
+}
+
+.banner blockquote p {
+    font-size: 34px;
+    text-shadow: rgba(0,0,0,0.5) 2px 2px 5px;
+}
+
+.banner blockquote > a {
+    display: block;
+}
+
+i.callout-icon:hover {
+    color: rgb(47, 197, 47);
+    border: 3px solid #fff;
+    background: #fff;
 }
 
 /* Portfolio */
