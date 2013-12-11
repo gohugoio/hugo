@@ -33,6 +33,13 @@ The format for named parameters models that of html with the format name="value"
 
     {{ % youtube 09jf3ow9jfw %}}
 
+Would load the template /layouts/shortcodes/youtube.html
+
+    <div class="embed video-player">
+    <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
+    </iframe>
+    </div>
+
 This would be rendered as 
 
     <div class="embed video-player">
@@ -47,6 +54,27 @@ This would be rendered as
 *Example has an extra space so Hugo doesn't actually render it*
 
     {{ % img src="/media/spf13.jpg" title="Steve Francia" %}}
+
+Would load the template /layouts/shortcodes/img.html
+
+    <!-- image -->
+    <figure {{ if isset .Params "class" }}class="{{ index .Params "class" }}"{{ end }}>
+        {{ if isset .Params "link"}}<a href="{{ index .Params "link"}}">{{ end }}
+            <img src="{{ index .Params "src" }}" {{ if or (isset .Params "alt") (isset .Params "caption") }}alt="{{ if isset .Params "alt"}}{{ index .Params "alt"}}{{else}}{{ index .Params "caption" }}{{ end }}"{{ end }} />
+        {{ if isset .Params "link"}}</a>{{ end }}
+        {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
+        <figcaption>{{ if isset .Params "title" }}
+            <h4>{{ index .Params "title" }}</h4>{{ end }}
+            {{ if or (isset .Params "caption") (isset .Params "attr")}}<p>
+            {{ index .Params "caption" }}
+            {{ if isset .Params "attrlink"}}<a href="{{ index .Params "attrlink"}}"> {{ end }}
+                {{ index .Params "attr" }}
+            {{ if isset .Params "attrlink"}}</a> {{ end }}
+            </p> {{ end }} 
+        </figcaption>
+        {{ end }}
+    </figure>
+    <!-- image -->
 
 Would be rendered as:
 
