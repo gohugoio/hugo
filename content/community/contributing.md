@@ -1,24 +1,29 @@
 ---
 title: "Contributing to Hugo"
 date: "2013-07-01"
-aliases: ["/doc/contributing/"]
-groups: ["meta"]
+aliases: ["/doc/contributing/", "/meta/contributing/"]
+groups: ["community"]
 groups_weight: 30
 ---
 
 We welcome all contributions. If you want to contribute, all
 that is needed is simply fork Hugo, make changes and submit
-a pull request. If you prefer, pick something from the roadmap
+a pull request. **All pull requests must include comprehensive test cases.**
+If you prefer, pick something from the roadmap
 or contact [spf13](http://spf13.com) about what may make sense
 to do next.
 
 ## Overview
-1. Fork it from https://github.com/spf13/hugo
+
+1. Fork Hugo from https://github.com/spf13/hugo
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+4. Commit passing tests to validate changes.
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request
 
+
+# Building from source
 
 ### Clone locally (for contributors):
 
