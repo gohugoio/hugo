@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/hugo/template/bundle"
+	"html/template"
 	"strings"
 	"unicode"
 )
@@ -32,24 +33,83 @@ type Shortcode struct {
 
 type ShortcodeWithPage struct {
 	Params interface{}
+	Inner  template.HTML
 	Page   *Page
 }
 
 type Shortcodes map[string]ShortcodeFunc
 
 func ShortcodesHandle(stringToParse string, p *Page, t bundle.Template) string {
-	posStart := strings.Index(stringToParse, "{{%")
-	if posStart > 0 {
-		posEnd := strings.Index(stringToParse[posStart:], "%}}") + posStart
-		if posEnd > posStart {
-			name, par := SplitParams(stringToParse[posStart+3 : posEnd])
+	leadStart := strings.Index(stringToParse, `{{%`)
+	if leadStart >= 0 {
+		leadEnd := strings.Index(stringToParse[leadStart:], `%}}`) + leadStart
+		if leadEnd > leadStart {
+			name, par := SplitParams(stringToParse[leadStart+3 : leadEnd])
+			tmpl := GetTemplate(name, t)
+			if tmpl == nil {
+				return stringToParse
+			}
 			params := Tokenize(par)
+			// Always look for closing tag.
+			endStart, endEnd := FindEnd(stringToParse[leadEnd:], name)
 			var data = &ShortcodeWithPage{Params: params, Page: p}
-			newString := stringToParse[:posStart] + ShortcodeRender(name, data, t) + ShortcodesHandle(stringToParse[posEnd+3:], p, t)
-			return newString
+			if endStart > 0 {
+				s := stringToParse[leadEnd+3 : leadEnd+endStart]
+				data.Inner = template.HTML(CleanP(ShortcodesHandle(s, p, t)))
+				remainder := CleanP(stringToParse[leadEnd+endEnd:])
+
+				return CleanP(stringToParse[:leadStart]) +
+					ShortcodeRender(tmpl, data) +
+					CleanP(ShortcodesHandle(remainder, p, t))
+			}
+			return CleanP(stringToParse[:leadStart]) +
+				ShortcodeRender(tmpl, data) +
+				CleanP(ShortcodesHandle(stringToParse[leadEnd+3:], p,
+					t))
 		}
 	}
 	return stringToParse
+}
+
+// Clean up odd behavior when closing tag is on first line
+// or opening tag is on the last line due to extra line in markdown file
+func CleanP(str string) string {
+	if strings.HasSuffix(strings.TrimSpace(str), "<p>") {
+		idx := strings.LastIndex(str, "<p>")
+		str = str[:idx]
+	}
+
+	if strings.HasPrefix(strings.TrimSpace(str), "</p>") {
+		str = str[strings.Index(str, "</p>")+5:]
+	}
+
+	return str
+}
+
+func FindEnd(str string, name string) (int, int) {
+	var endPos int
+	var startPos int
+	var try []string
+
+	try = append(try, "{{% /"+name+" %}}")
+	try = append(try, "{{% /"+name+"%}}")
+	try = append(try, "{{%/"+name+"%}}")
+	try = append(try, "{{%/"+name+" %}}")
+
+	lowest := len(str)
+	for _, x := range try {
+		start := strings.Index(str, x)
+		if start < lowest && start > 0 {
+			startPos = start
+			endPos = startPos + len(x)
+		}
+	}
+
+	return startPos, endPos
+}
+
+func GetTemplate(name string, t bundle.Template) *template.Template {
+	return t.Lookup("shortcodes/" + name + ".html")
 }
 
 func StripShortcodes(stringToParse string) string {
@@ -67,6 +127,12 @@ func StripShortcodes(stringToParse string) string {
 func Tokenize(in string) interface{} {
 	first := strings.Fields(in)
 	var final = make([]string, 0)
+
+	// if don't need to parse, don't parse.
+	if strings.Index(in, " ") < 0 && strings.Index(in, "=") < 1 {
+		return append(final, in)
+	}
+
 	var keys = make([]string, 0)
 	inQuote := false
 	start := 0
@@ -81,18 +147,38 @@ func Tokenize(in string) interface{} {
 			}
 		}
 
-		if !strings.HasPrefix(v, "&ldquo;") && !inQuote {
+		// Adjusted to handle htmlencoded and non htmlencoded input
+		if !strings.HasPrefix(v, "&ldquo;") && !strings.HasPrefix(v, "\"") && !inQuote {
 			final = append(final, v)
-		} else if inQuote && strings.HasSuffix(v, "&rdquo;") && !strings.HasSuffix(v, "\\\"") {
-			first[i] = v[:len(v)-7]
+		} else if inQuote && (strings.HasSuffix(v, "&rdquo;") ||
+			strings.HasSuffix(v, "\"")) && !strings.HasSuffix(v, "\\\"") {
+			if strings.HasSuffix(v, "\"") {
+				first[i] = v[:len(v)-1]
+			} else {
+				first[i] = v[:len(v)-7]
+			}
 			final = append(final, strings.Join(first[start:i+1], " "))
 			inQuote = false
-		} else if strings.HasPrefix(v, "&ldquo;") && !inQuote {
-			if strings.HasSuffix(v, "&rdquo;") {
-				final = append(final, v[7:len(v)-7])
+		} else if (strings.HasPrefix(v, "&ldquo;") ||
+			strings.HasPrefix(v, "\"")) && !inQuote {
+			if strings.HasSuffix(v, "&rdquo;") || strings.HasSuffix(v,
+				"\"") {
+				if strings.HasSuffix(v, "\"") {
+					if len(v) > 1 {
+						final = append(final, v[1:len(v)-1])
+					} else {
+						final = append(final, "")
+					}
+				} else {
+					final = append(final, v[7:len(v)-7])
+				}
 			} else {
 				start = i
-				first[i] = v[7:]
+				if strings.HasPrefix(v, "\"") {
+					first[i] = v[1:]
+				} else {
+					first[i] = v[7:]
+				}
 				inQuote = true
 			}
 		}
@@ -101,6 +187,10 @@ func Tokenize(in string) interface{} {
 		if inQuote && i == len(first) {
 			final = append(final, first[start:len(first)]...)
 		}
+	}
+
+	if len(keys) > 0 && (len(keys) != len(final)) {
+		panic("keys and final different lengths")
 	}
 
 	if len(keys) > 0 {
@@ -124,8 +214,8 @@ func SplitParams(in string) (name string, par2 string) {
 	return strings.TrimSpace(in[:i+1]), strings.TrimSpace(in[i+1:])
 }
 
-func ShortcodeRender(name string, data *ShortcodeWithPage, t bundle.Template) string {
+func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
 	buffer := new(bytes.Buffer)
-	t.ExecuteTemplate(buffer, "shortcodes/"+name+".html", data)
+	tmpl.Execute(buffer, data)
 	return buffer.String()
 }

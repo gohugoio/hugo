@@ -2,7 +2,7 @@ package target
 
 import (
 	"bytes"
-	helpers "github.com/spf13/hugo/template"
+	"github.com/spf13/hugo/helpers"
 	"html/template"
 	"path"
 	"strings"

@@ -14,7 +14,7 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/template"
+	"github.com/spf13/hugo/helpers"
 	"sort"
 )
 
@@ -50,7 +50,7 @@ type IndexList map[string]Index
 
 // KeyPrep... Indexes should be case insensitive. Can make it easily conditional later.
 func kp(in string) string {
-	return template.Urlize(in)
+	return helpers.Urlize(in)
 }
 
 func (i Index) Get(key string) IndexedPages { return i[kp(key)] }

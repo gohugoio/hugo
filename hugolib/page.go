@@ -18,8 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
-	helper "github.com/spf13/hugo/template"
 	"github.com/spf13/hugo/template/bundle"
 	"github.com/theplant/blackfriday"
 	"html/template"
@@ -36,6 +36,7 @@ import (
 type Page struct {
 	Status      string
 	Images      []string
+	RawContent  []byte
 	Content     template.HTML
 	Summary     template.HTML
 	Truncated   bool
@@ -239,6 +240,11 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 	return p, nil
 }
 
+func (p *Page) ProcessShortcodes(t bundle.Template) {
+	p.Content = template.HTML(ShortcodesHandle(string(p.Content), p, t))
+	p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
+}
+
 func (p *Page) analyzePage() {
 	p.WordCount = TotalWords(p.Plain())
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
@@ -366,12 +372,12 @@ func (page *Page) update(f interface{}) error {
 		case "description":
 			page.Description = interfaceToString(v)
 		case "slug":
-			page.Slug = helper.Urlize(interfaceToString(v))
+			page.Slug = helpers.Urlize(interfaceToString(v))
 		case "url":
 			if url := interfaceToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative urls are supported, %v provided", url)
 			}
-			page.Url = helper.Urlize(interfaceToString(v))
+			page.Url = helpers.Urlize(interfaceToString(v))
 		case "type":
 			page.contentType = interfaceToString(v)
 		case "keywords":
@@ -489,14 +495,32 @@ func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 }
 
 func (page *Page) guessMarkupType() string {
+	// First try the explicitly set markup from the frontmatter
 	if page.Markup != "" {
-		return page.Markup
+		format := guessType(page.Markup)
+		if format != "unknown" {
+			return format
+		}
 	}
 
-	if strings.HasSuffix(page.FileName, ".md") {
-		return "md"
+	// Then try to guess from the extension
+	ext := strings.ToLower(path.Ext(page.FileName))
+	if strings.HasPrefix(ext, ".") {
+		return guessType(ext[1:])
 	}
 
+	return "unknown"
+}
+
+func guessType(in string) string {
+	switch in {
+	case "md", "markdown", "mdown":
+		return "markdown"
+	case "rst":
+		return "rst"
+	case "html", "htm":
+		return "html"
+	}
 	return "unknown"
 }
 
@@ -520,17 +544,19 @@ func (page *Page) parse(reader io.Reader) error {
 		if err = page.update(meta); err != nil {
 			return err
 		}
-	}
 
+	}
+	page.Content = template.HTML(p.Content())
+
+	return nil
+}
+
+func (page *Page) Convert() error {
 	switch page.guessMarkupType() {
-	case "md", "markdown", "mdown":
-		page.convertMarkdown(bytes.NewReader(p.Content()))
+	case "markdown":
+		page.convertMarkdown(bytes.NewReader([]byte(page.Content)))
 	case "rst":
-		page.convertRestructuredText(bytes.NewReader(p.Content()))
-	case "html":
-		fallthrough
-	default:
-		page.Content = template.HTML(p.Content())
+		page.convertRestructuredText(bytes.NewReader([]byte(page.Content)))
 	}
 	return nil
 }

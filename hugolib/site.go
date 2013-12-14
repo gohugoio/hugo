@@ -17,9 +17,9 @@ import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
-	helpers "github.com/spf13/hugo/template"
 	"github.com/spf13/hugo/template/bundle"
 	"github.com/spf13/hugo/transform"
 	"github.com/spf13/nitro"
@@ -170,8 +170,6 @@ func (s *Site) Render() (err error) {
 		return
 	}
 	s.timerStep("render and write aliases")
-	s.ProcessShortcodes()
-	s.timerStep("render shortcodes")
 	if err = s.RenderIndexes(); err != nil {
 		return
 	}
@@ -266,13 +264,6 @@ func (s *Site) checkDirectories() (err error) {
 	return
 }
 
-func (s *Site) ProcessShortcodes() {
-	for _, page := range s.Pages {
-		page.Content = template.HTML(ShortcodesHandle(string(page.Content), page, s.Tmpl))
-		page.Summary = template.HTML(ShortcodesHandle(string(page.Summary), page, s.Tmpl))
-	}
-}
-
 func (s *Site) CreatePages() (err error) {
 	if s.Source == nil {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
@@ -289,6 +280,15 @@ func (s *Site) CreatePages() (err error) {
 		page.Tmpl = s.Tmpl
 		page.Section = file.Section
 		page.Dir = file.Dir
+
+		//Handling short codes prior to Conversion to HTML
+		page.ProcessShortcodes(s.Tmpl)
+
+		err = page.Convert()
+		if err != nil {
+			return err
+		}
+
 		if s.Config.BuildDrafts || !page.Draft {
 			s.Pages = append(s.Pages, page)
 		}

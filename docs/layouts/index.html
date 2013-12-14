@@ -116,6 +116,32 @@
         </div>
         <!-- /Point -->
 
+
+        <div class="callout">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-10 col-md-offset-1 text-center">
+                  <i class="callout-icon icon-circlestar"></i>
+                  <div class="banner">
+                      <ul>
+                          <li><blockquote class="twitter-tweet" lang="en"><p>Hugo is super-rad. </p>&mdash; David Gay (@oddshocks) <a href="https://twitter.com/oddshocks/statuses/405083217893421056">November 25, 2013</a></blockquote>
+</li>
+                          <li><blockquote class="twitter-tweet" data-conversation="none" lang="en"><p>I had a play with Hugo and it was good, uses Markdown files for content</p>&mdash; David Caunt (@dcaunt) <a href="https://twitter.com/dcaunt/statuses/406466996277374976">November 29, 2013</a></blockquote> </li>
+                          <li><blockquote class="twitter-tweet" lang="en"><p>Even as a long-time Octopress fan, I’ve gotta admit that this project Hugo looks very very cool</p>&mdash; Douglas Stephen (@DougStephenJr) <a href="https://twitter.com/DougStephenJr/statuses/364512471660249088">August 5, 2013</a></blockquote></li>
+                          <li><blockquote class="twitter-tweet" lang="en"><p>A static site generator without the long build times? Yes, please! </p>&mdash; Josh Matz (@joshmatz) <a href="https://twitter.com/joshmatz/statuses/364437436870696960">August 5, 2013</a></blockquote> </li>
+                          <li><blockquote class="twitter-tweet" lang="en"><p>Finally someone builds me my own static site generator </p>&mdash; Hugo Rodger-Brown (@hugorodgerbrown) <a href="https://twitter.com/hugorodgerbrown/statuses/364417910153818112">August 5, 2013</a></blockquote></li>
+                          <li><blockquote class="twitter-tweet" lang="en"><p>I&#39;m loving the static site generator renaissance we are currently enjoying. Hugo is new, looks great, written in Go</p>&mdash; Jim Biancolo (@jimbiancolo) <a href="https://twitter.com/jimbiancolo/statuses/408678420348813314">December 5, 2013</a></blockquote>
+</li>
+                          <li><blockquote class="twitter-tweet" data-cards="hidden" lang="en"><p>Good work on Hugo, I&#39;m impressed with the speed!</p>&mdash; Ludovic Chabant (@ludovicchabant) <a href="https://twitter.com/ludovicchabant/statuses/408806199602053120">December 6, 2013</a></blockquote></li>
+                          <li><blockquote class="twitter-tweet" data-cards="hidden" lang="en"><p>Checking out Hugo; Loving it so far. Like Jekyll but not so blog-oriented and written in golang</p>&mdash; Jose Gonzalvo (@jgonzalvo) <a href="https://twitter.com/jgonzalvo/statuses/408177855819173888">December 4, 2013</a></blockquote></li>
+                      </ul>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Point -->
+
         <!-- Point -->
         <div class="counterpoint">
           <div class="container">
@@ -158,7 +184,7 @@
         <div id="action" class="call-to-action">
           <div class="container">
             <div class="row">
-              <div class="col-md-6 col-md-offset-3 text-center">
+              <div class="col-md-10 col-md-offset-1 text-center">
                 <h3>Get Started Today!</h3>
                 <a href="https://github.com/spf13/hugo/releases" class="btn btn-lg btn-primary">Download <i class="icon-arrow-down"></i></a>
                 <a href="/overview/quickstart" style="color:white;font-weight:300;">Documentation</a>
@@ -189,8 +215,9 @@
   <!-- Bootstrap core JavaScript -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="/static/js/jquery.js"></script>
+  <script src="/static/js/unslider.min.js"></script>
+  <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
   <script src="/static/js/bootstrap.min.js"></script>
-
   <script>
     $(function() {
         $('a[href*=#]:not([href=#])').click(function() {
@@ -208,6 +235,15 @@
           }
         });
       });
+    $(function() {
+            $('.banner').unslider({
+                speed: 300,               //  The speed to animate each slide (in milliseconds)
+                delay: 2000,              //  The delay between slide animations (in milliseconds)
+                keys: true,               //  Enable keyboard (left, right) arrow shortcuts
+                dots: true,               //  Display dot navigation
+                fluid: true              //  Support responsive design. May break non-responsive designs
+                });
+        });
     </script>
 
     {{ template "chrome/analytics.html" . }}

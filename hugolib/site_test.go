@@ -23,8 +23,8 @@ content`
 	TEMPLATE_CONTENT             = "{{ .Content }}"
 	TEMPLATE_DATE                = "{{ .Date }}"
 	INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
-	TEMPLATE_WITH_URL_REL            = "<a href=\"foobar.jpg\">Going</a>"
-	TEMPLATE_WITH_URL_ABS            = "<a href=\"/foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_REL        = "<a href=\"foobar.jpg\">Going</a>"
+	TEMPLATE_WITH_URL_ABS        = "<a href=\"/foobar.jpg\">Going</a>"
 	PAGE_URL_SPECIFIED           = `---
 title: simple template
 url: "mycategory/my-whatever-content/"
@@ -50,6 +50,7 @@ func pageMust(p *Page, err error) *Page {
 
 func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+	p.Convert()
 	s := new(Site)
 	s.prepTemplates()
 	err := s.renderThing(p, "foobar", nil)
@@ -106,6 +107,7 @@ func TestRenderThing(t *testing.T) {
 
 	for i, test := range tests {
 		p, err := ReadFrom(strings.NewReader(test.content), "content/a/file.md")
+		p.Convert()
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
@@ -227,6 +229,7 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"), "sect"},
 		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"), "sect"},
 		{"doc7.html", []byte("<html><body>doc7 content</body></html>"), ""},
+		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*"), "sect"},
 	}
 
 	s := &Site{
@@ -234,6 +237,7 @@ func TestSkipRender(t *testing.T) {
 		Config: Config{Verbose: true, BaseUrl: "http://auth/bub"},
 		Source: &source.InMemorySource{sources},
 	}
+
 	s.initializeSiteInfo()
 	s.prepTemplates()
 
@@ -264,6 +268,7 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc5.html", "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
 		{"sect/doc6.html", "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
 		{"doc7.html", "<html><body>doc7 content</body></html>"},
+		{"sect/doc8.html", "<h1>title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {

@@ -1,8 +1,8 @@
 ---
 title: "Contributors"
 date: "2013-07-01"
-aliases: ["/doc/contributors/"]
-groups: ["meta"]
+aliases: ["/doc/contributors/", "/meta/contributors/"]
+groups: ["community"]
 groups_weight: 40
 ---
 

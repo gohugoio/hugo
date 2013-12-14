@@ -227,6 +227,8 @@ func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
 
 func TestCreateNewPage(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE), "simple.md")
+	p.Convert()
+
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -240,6 +242,7 @@ func TestCreateNewPage(t *testing.T) {
 
 func TestPageWithDelimiter(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER), "simple.md")
+	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -253,6 +256,7 @@ func TestPageWithDelimiter(t *testing.T) {
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY), "simple.md")
+	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -265,6 +269,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 
 func TestPageWithMoreTag(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE), "simple.md")
+	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -277,6 +282,7 @@ func TestPageWithMoreTag(t *testing.T) {
 
 func TestPageWithDate(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE), "simple")
+	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -289,6 +295,7 @@ func TestPageWithDate(t *testing.T) {
 
 func TestWordCount(t *testing.T) {
 	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT), "simple.md")
+	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}

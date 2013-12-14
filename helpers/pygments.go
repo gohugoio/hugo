@@ -11,19 +11,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package template
+package helpers
 
 import (
-	"regexp"
+	"bytes"
+	"log"
+	"os/exec"
 	"strings"
 )
 
-var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
+func Highlight(code string, lexer string) string {
+	var pygmentsBin = "pygmentize"
 
-func Urlize(url string) string {
-	return Sanitize(strings.ToLower(strings.Replace(strings.TrimSpace(url), " ", "-", -1)))
-}
+	if _, err := exec.LookPath(pygmentsBin); err != nil {
+		log.Print("Highlighting requries Pygments to be installed and in the path")
+		return code
+	}
 
-func Sanitize(s string) string {
-	return sanitizeRegexp.ReplaceAllString(s, "")
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O style=monokai,noclasses=true,encoding=utf-8")
+	cmd.Stdin = strings.NewReader(code)
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		log.Print(stderr.String())
+		log.Fatal(err)
+	}
+
+	return out.String()
 }
