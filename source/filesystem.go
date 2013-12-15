@@ -1,8 +1,10 @@
 package source
 
 import (
+	"bytes"
 	"errors"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -88,11 +90,11 @@ func (f *Filesystem) captureFiles() {
 			if ignoreDotFile(filePath) {
 				return nil
 			}
-			file, err := os.Open(filePath)
+			data, err := ioutil.ReadFile(filePath)
 			if err != nil {
 				return err
 			}
-			f.add(filePath, file)
+			f.add(filePath, bytes.NewBuffer(data))
 			return nil
 		}
 	}
