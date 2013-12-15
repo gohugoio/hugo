@@ -15,11 +15,11 @@ package commands
 
 import (
 	"fmt"
-	"github.com/howeyc/fsnotify"
 	"github.com/mostafah/fsync"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/utils"
+	"github.com/spf13/hugo/watcher"
 	"github.com/spf13/nitro"
 	"os"
 	"path/filepath"
@@ -155,7 +155,7 @@ func buildSite(watching ...bool) (err error) {
 }
 
 func NewWatcher(port int) error {
-	watcher, err := fsnotify.NewWatcher()
+	watcher, err := watcher.New(1 * time.Second)
 	var wg sync.WaitGroup
 
 	if err != nil {
@@ -166,15 +166,56 @@ func NewWatcher(port int) error {
 	defer watcher.Close()
 
 	wg.Add(1)
+
+	for _, d := range getDirList() {
+		if d != "" {
+			_ = watcher.Watch(d)
+		}
+	}
+
 	go func() {
 		for {
 			select {
-			case ev := <-watcher.Event:
+			case evs := <-watcher.Event:
 				if Verbose {
-					fmt.Println(ev)
+					fmt.Println(evs)
 				}
-				watchChange(ev)
-				// TODO add newly created directories to the watch list
+
+				static_changed := false
+				dynamic_changed := false
+
+				for _, ev := range evs {
+					ext := filepath.Ext(ev.Name)
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp")
+					if istemp {
+						continue
+					}
+					// renames are always followed with Create/Modify
+					if ev.IsRename() {
+						continue
+					}
+
+					isstatic := strings.HasPrefix(ev.Name, Config.GetAbsPath(Config.StaticDir))
+					static_changed = static_changed || isstatic
+					dynamic_changed = dynamic_changed || !isstatic
+
+					// add new directory to watch list
+					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
+						if ev.IsCreate() {
+							watcher.Watch(ev.Name)
+						}
+					}
+				}
+
+				if static_changed {
+					fmt.Println("Static file changed, syncing\n")
+					utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
+				}
+
+				if dynamic_changed {
+					fmt.Println("Change detected, rebuilding site\n")
+					utils.StopOnErr(buildSite(true))
+				}
 			case err := <-watcher.Error:
 				if err != nil {
 					fmt.Println("error:", err)
@@ -183,35 +224,10 @@ func NewWatcher(port int) error {
 		}
 	}()
 
-	for _, d := range getDirList() {
-		if d != "" {
-			_ = watcher.Watch(d)
-		}
-	}
-
 	if port > 0 {
 		go serve(port)
 	}
 
 	wg.Wait()
 	return nil
-}
-
-func watchChange(ev *fsnotify.FileEvent) {
-	ext := filepath.Ext(ev.Name)
-	// ignore temp files
-	istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp")
-	if istemp {
-		return
-	}
-
-	if strings.HasPrefix(ev.Name, Config.GetAbsPath(Config.StaticDir)) {
-		fmt.Println("Static file changed, syncing\n")
-		utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
-	} else {
-		if !ev.IsRename() { // Rename is always accompanied by a create or modify
-			fmt.Println("Change detected, rebuilding site\n")
-			utils.StopOnErr(buildSite(true))
-		}
-	}
 }
