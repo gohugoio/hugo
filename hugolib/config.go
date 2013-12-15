@@ -161,7 +161,7 @@ func (c *Config) GetAbsPath(name string) string {
 		return name
 	}
 
-	return filepath.ToSlash(filepath.Join(c.GetPath(), name))
+	return filepath.Join(c.GetPath(), name)
 }
 
 func (c *Config) findConfigFile(configFileName string) (string, error) {

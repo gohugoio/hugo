@@ -198,16 +198,20 @@ func NewWatcher(port int) error {
 }
 
 func watchChange(ev *fsnotify.FileEvent) {
+	ext := filepath.Ext(ev.Name)
+	// ignore temp files
+	istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp")
+	if istemp {
+		return
+	}
+
 	if strings.HasPrefix(ev.Name, Config.GetAbsPath(Config.StaticDir)) {
 		fmt.Println("Static file changed, syncing\n")
 		utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
 	} else {
 		if !ev.IsRename() { // Rename is always accompanied by a create or modify
-			// Ignoring temp files created by editors (vim)
-			if !strings.HasSuffix(ev.Name, "~") && !strings.HasSuffix(ev.Name, ".swp") {
-				fmt.Println("Change detected, rebuilding site\n")
-				utils.StopOnErr(buildSite(true))
-			}
+			fmt.Println("Change detected, rebuilding site\n")
+			utils.StopOnErr(buildSite(true))
 		}
 	}
 }
