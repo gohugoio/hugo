@@ -64,12 +64,12 @@ func (p *page) IsRenderable() bool {
 func ReadFrom(r io.Reader) (p Page, err error) {
 	reader := bufio.NewReader(r)
 
-	if err = chompWhitespace(reader); err != nil {
+	if err = chompWhitespace(reader); err != nil && err != io.EOF {
 		return
 	}
 
 	firstLine, err := peekLine(reader)
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return
 	}
 
