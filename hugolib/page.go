@@ -74,20 +74,78 @@ type Position struct {
 
 type Pages []*Page
 
-func (p Pages) Len() int { return len(p) }
-func (p Pages) Less(i, j int) bool {
-	if p[i].Weight == p[j].Weight {
-		return p[i].Date.Unix() > p[j].Date.Unix()
+/*
+ * Implementation of a custom sorter for Pages
+ */
+
+// A type to implement the sort interface for Pages
+type PageSorter struct {
+	pages Pages
+	by    PageBy
+}
+
+// Closure used in the Sort.Less method.
+type PageBy func(p1, p2 *Page) bool
+
+func (by PageBy) Sort(pages Pages) {
+	ps := &PageSorter{
+		pages: pages,
+		by:    by, // The Sort method's receiver is the function (closure) that defines the sort order.
+	}
+	sort.Sort(ps)
+}
+
+var DefaultPageSort = func(p1, p2 *Page) bool {
+	if p1.Weight == p2.Weight {
+		return p1.Date.Unix() > p2.Date.Unix()
 	} else {
-		return p[i].Weight > p[j].Weight
+		return p1.Weight < p2.Weight
 	}
 }
 
-func (p Pages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (ps *PageSorter) Len() int      { return len(ps.pages) }
+func (ps *PageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
 
-// TODO eliminate unnecessary things
-func (p Pages) Sort()             { sort.Sort(p) }
-func (p Pages) Limit(n int) Pages { return p[0:n] }
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (ps *PageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j]) }
+
+func (p Pages) Sort() {
+	PageBy(DefaultPageSort).Sort(p)
+}
+
+func (p Pages) Limit(n int) Pages {
+	if len(p) < n {
+		return p[0:n]
+	} else {
+		return p
+	}
+}
+
+func (p Pages) ByDate() Pages {
+	date := func(p1, p2 *Page) bool {
+		return p1.Date.Unix() < p2.Date.Unix()
+	}
+
+	PageBy(date).Sort(p)
+	return p
+}
+
+func (p Pages) ByLength() Pages {
+	length := func(p1, p2 *Page) bool {
+		return len(p1.Content) < len(p2.Content)
+	}
+
+	PageBy(length).Sort(p)
+	return p
+}
+
+func (p Pages) Reverse() Pages {
+	for i, j := 0, len(p)-1; i < j; i, j = i+1, j-1 {
+		p[i], p[j] = p[j], p[i]
+	}
+
+	return p
+}
 
 func (p Page) Plain() string {
 	if len(p.plain) == 0 {

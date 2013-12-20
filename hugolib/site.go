@@ -315,7 +315,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 				v, ok := vals.([]string)
 				if ok {
 					for _, idx := range v {
-						x := WeightedIndexEntry{weight.(int), p}
+						x := WeightedPage{weight.(int), p}
 
 						s.Indexes[plural].Add(idx, x)
 					}
@@ -332,7 +332,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	}
 
 	for i, p := range s.Pages {
-		s.Sections.Add(p.Section, WeightedIndexEntry{s.Pages[i].Weight, s.Pages[i]})
+		s.Sections.Add(p.Section, WeightedPage{s.Pages[i].Weight, s.Pages[i]})
 	}
 
 	for k := range s.Sections {
