@@ -18,18 +18,148 @@ import (
 	"sort"
 )
 
-type WeightedIndexEntry struct {
+/*
+ *  An index list is a list of all indexes and their values
+ *  EG. List['tags'] => TagIndex (from above)
+ */
+type IndexList map[string]Index
+
+/*
+ *  An index is a map of keywords to a list of pages.
+ *  For example
+ *    TagIndex['technology'] = WeightedPages
+ *    TagIndex['golang']  =  WeightedPages2
+ */
+type Index map[string]WeightedPages
+
+/*
+ *  A list of Pages with their corresponding (and relative) weight
+ *  [{Weight: 30, Page: *1}, {Weight: 40, Page: *2}]
+ */
+type WeightedPages []WeightedPage
+type WeightedPage struct {
 	Weight int
 	Page   *Page
 }
 
-type IndexedPages []WeightedIndexEntry
+/*
+ * This is another representation of an Index using an array rather than a map.
+ * Important because you can't order a map.
+ */
+type OrderedIndex []OrderedIndexEntry
 
-func (p IndexedPages) Len() int      { return len(p) }
-func (p IndexedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p IndexedPages) Sort()         { sort.Sort(p) }
-func (p IndexedPages) Count() int    { return len(p) }
-func (p IndexedPages) Less(i, j int) bool {
+/*
+ * Similar to an element of an Index, but with the key embedded (as name)
+ * Eg:  {Name: Technology, WeightedPages: Indexedpages}
+ */
+type OrderedIndexEntry struct {
+	Name          string
+	WeightedPages WeightedPages
+}
+
+// KeyPrep... Indexes should be case insensitive. Can make it easily conditional later.
+func kp(in string) string {
+	return helpers.Urlize(in)
+}
+
+func (i Index) Get(key string) WeightedPages { return i[kp(key)] }
+func (i Index) Count(key string) int         { return len(i[kp(key)]) }
+func (i Index) Add(key string, w WeightedPage) {
+	key = kp(key)
+	i[key] = append(i[key], w)
+}
+
+// Returns an ordered index with a non defined order
+func (i Index) IndexArray() OrderedIndex {
+	ies := make([]OrderedIndexEntry, len(i))
+	count := 0
+	for k, v := range i {
+		ies[count] = OrderedIndexEntry{Name: k, WeightedPages: v}
+		count++
+	}
+	return ies
+}
+
+// Returns an ordered index sorted by key name
+func (i Index) Alphabetical() OrderedIndex {
+	name := func(i1, i2 *OrderedIndexEntry) bool {
+		return i1.Name < i2.Name
+	}
+
+	ia := i.IndexArray()
+	OIby(name).Sort(ia)
+	return ia
+}
+
+// Returns an ordered index sorted by # of pages per key
+func (i Index) ByCount() OrderedIndex {
+	count := func(i1, i2 *OrderedIndexEntry) bool {
+		return len(i1.WeightedPages) > len(i2.WeightedPages)
+	}
+
+	ia := i.IndexArray()
+	OIby(count).Sort(ia)
+	return ia
+}
+
+// Helper to move the page access up a level
+func (ie OrderedIndexEntry) Pages() []*Page {
+	return ie.WeightedPages.Pages()
+}
+
+func (ie OrderedIndexEntry) Count() int {
+	return len(ie.WeightedPages)
+}
+
+/*
+ * Implementation of a custom sorter for OrderedIndexes
+ */
+
+// A type to implement the sort interface for IndexEntries.
+type orderedIndexSorter struct {
+	index OrderedIndex
+	by    OIby
+}
+
+// Closure used in the Sort.Less method.
+type OIby func(i1, i2 *OrderedIndexEntry) bool
+
+func (by OIby) Sort(index OrderedIndex) {
+	ps := &orderedIndexSorter{
+		index: index,
+		by:    by, // The Sort method's receiver is the function (closure) that defines the sort order.
+	}
+	sort.Sort(ps)
+}
+
+// Len is part of sort.Interface.
+func (s *orderedIndexSorter) Len() int {
+	return len(s.index)
+}
+
+// Swap is part of sort.Interface.
+func (s *orderedIndexSorter) Swap(i, j int) {
+	s.index[i], s.index[j] = s.index[j], s.index[i]
+}
+
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (s *orderedIndexSorter) Less(i, j int) bool {
+	return s.by(&s.index[i], &s.index[j])
+}
+
+func (wp WeightedPages) Pages() Pages {
+	pages := make(Pages, len(wp))
+	for i := range wp {
+		pages[i] = wp[i].Page
+	}
+	return pages
+}
+
+func (p WeightedPages) Len() int      { return len(p) }
+func (p WeightedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p WeightedPages) Sort()         { sort.Sort(p) }
+func (p WeightedPages) Count() int    { return len(p) }
+func (p WeightedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
 		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
 	} else {
@@ -37,100 +167,4 @@ func (p IndexedPages) Less(i, j int) bool {
 	}
 }
 
-func (ip IndexedPages) Pages() Pages {
-	pages := make(Pages, len(ip))
-	for i, _ := range ip {
-		pages[i] = ip[i].Page
-	}
-	return pages
-}
-
-type Index map[string]IndexedPages
-type IndexList map[string]Index
-
-// KeyPrep... Indexes should be case insensitive. Can make it easily conditional later.
-func kp(in string) string {
-	return helpers.Urlize(in)
-}
-
-func (i Index) Get(key string) IndexedPages { return i[kp(key)] }
-func (i Index) Count(key string) int        { return len(i[kp(key)]) }
-func (i Index) Add(key string, w WeightedIndexEntry) {
-	key = kp(key)
-	i[key] = append(i[key], w)
-}
-
-func (i Index) IndexArray() IndexEntries {
-	ies := make([]IndexEntry, len(i))
-	count := 0
-	for k, v := range i {
-		ies[count] = IndexEntry{Name: k, WeightedPages: v}
-		count++
-	}
-	return ies
-}
-
-func (i Index) Alphabetical() IndexEntries {
-	name := func(i1, i2 *IndexEntry) bool {
-		return i1.Name < i2.Name
-	}
-
-	ia := i.IndexArray()
-	By(name).Sort(ia)
-	return ia
-}
-
-func (i Index) ByCount() IndexEntries {
-	count := func(i1, i2 *IndexEntry) bool {
-		return len(i1.WeightedPages) > len(i2.WeightedPages)
-	}
-
-	ia := i.IndexArray()
-	By(count).Sort(ia)
-	return ia
-}
-
-type IndexEntry struct {
-	Name          string
-	WeightedPages IndexedPages
-}
-
-func (ie IndexEntry) Pages() []*Page {
-	return ie.WeightedPages.Pages()
-}
-
-func (ie IndexEntry) Count() int {
-	return len(ie.WeightedPages)
-}
-
-type IndexEntries []IndexEntry
-
-type By func(i1, i2 *IndexEntry) bool
-
-func (by By) Sort(indexEntrys []IndexEntry) {
-	ps := &indexEntrySorter{
-		indexEntrys: indexEntrys,
-		by:          by, // The Sort method's receiver is the function (closure) that defines the sort order.
-	}
-	sort.Sort(ps)
-}
-
-type indexEntrySorter struct {
-	indexEntrys []IndexEntry
-	by          func(p1, p2 *IndexEntry) bool // Closure used in the Less method.
-}
-
-// Len is part of sort.Interface.
-func (s *indexEntrySorter) Len() int {
-	return len(s.indexEntrys)
-}
-
-// Swap is part of sort.Interface.
-func (s *indexEntrySorter) Swap(i, j int) {
-	s.indexEntrys[i], s.indexEntrys[j] = s.indexEntrys[j], s.indexEntrys[i]
-}
-
-// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
-func (s *indexEntrySorter) Less(i, j int) bool {
-	return s.by(&s.indexEntrys[i], &s.indexEntrys[j])
-}
+// TODO mimic PagesSorter for WeightedPages

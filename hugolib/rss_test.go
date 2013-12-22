@@ -1,10 +1,10 @@
 package hugolib
 
 import (
-	"testing"
 	"bytes"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
+	"testing"
 )
 
 const RSS_TEMPLATE = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -39,7 +39,7 @@ func TestRSSOutput(t *testing.T) {
 	s.initializeSiteInfo()
 	s.prepTemplates()
 	//  Add an rss.xml template to invoke the rss build.
-	s.addTemplate("rss.xml", RSS_TEMPLATE) 
+	s.addTemplate("rss.xml", RSS_TEMPLATE)
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)

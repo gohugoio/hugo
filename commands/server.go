@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 var serverPort int
@@ -40,10 +41,15 @@ Serve them up.`,
 func server(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
-	// Unless command line overrides, we use localhost for the server
 	if BaseUrl == "" {
-		Config.BaseUrl = "http://localhost:" + strconv.Itoa(serverPort)
+		BaseUrl = "http://localhost"
 	}
+
+	if !strings.HasPrefix(BaseUrl, "http://") {
+		BaseUrl = "http://" + BaseUrl
+	}
+
+	Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/") + ":" + strconv.Itoa(serverPort)
 
 	build(serverWatch)
 
@@ -64,7 +70,7 @@ func serve(port int) {
 		fmt.Println("Serving pages from " + Config.GetAbsPath(Config.PublishDir))
 	}
 
-	fmt.Printf("Web Server is available at http://localhost:%v\n", port)
+	fmt.Printf("Web server is available at %s\n", Config.BaseUrl)
 	fmt.Println("Press ctrl+c to stop")
 	panic(http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir)))))
 }

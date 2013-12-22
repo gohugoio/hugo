@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 type Input interface {
@@ -43,8 +44,11 @@ func (f *Filesystem) add(name string, reader io.Reader) (err error) {
 		return err
 	}
 
+	// section should be the first part of the path
 	dir, logical := path.Split(name)
-	_, section := path.Split(path.Dir(name))
+	parts := strings.Split(dir, "/")
+	section := parts[0]
+
 	if section == "." {
 		section = ""
 	}
@@ -56,6 +60,7 @@ func (f *Filesystem) add(name string, reader io.Reader) (err error) {
 		Section:     section,
 		Dir:         dir,
 	})
+
 	return
 }
 

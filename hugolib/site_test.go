@@ -355,7 +355,7 @@ weight = "4"
 title = "Four"
 date = "2012-01-01"
 +++
-Front Matter with Ordered Pages 4`)
+Front Matter with Ordered Pages 4. This is longer content`)
 
 var WEIGHTED_SOURCES = []source.ByteSource{
 	{"sect/doc1.md", WEIGHTED_PAGE_1, "sect"},
@@ -388,6 +388,27 @@ func TestOrderedPages(t *testing.T) {
 
 	if s.Sections["sect"][1].Page.Title != "Three" || s.Sections["sect"][2].Page.Title != "Four" {
 		t.Errorf("Pages in unexpected order. Second should be '%s', got '%s'", "Three", s.Sections["sect"][1].Page.Title)
+	}
+
+	bydate := s.Pages.ByDate()
+
+	if bydate[0].Title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bydate[0].Title)
+	}
+
+	rev := bydate.Reverse()
+	if rev[0].Title != "Three" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rev[0].Title)
+	}
+
+	bylength := s.Pages.ByLength()
+	if bylength[0].Title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].Title)
+	}
+
+	rbylength := bylength.Reverse()
+	if rbylength[0].Title != "Four" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Four", rbylength[0].Title)
 	}
 }
 

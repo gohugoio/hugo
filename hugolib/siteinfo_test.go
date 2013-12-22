@@ -1,12 +1,11 @@
 package hugolib
 
 import (
-	"testing"
 	"bytes"
+	"testing"
 )
 
 const SITE_INFO_PARAM_TEMPLATE = `{{ .Site.Params.MyGlobalParam }}`
-
 
 func TestSiteInfoParams(t *testing.T) {
 	s := &Site{
