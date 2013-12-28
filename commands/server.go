@@ -23,10 +23,12 @@ import (
 
 var serverPort int
 var serverWatch bool
+var serverAppend bool
 
 func init() {
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port to run the server on")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	serverCmd.Flags().BoolVarP(&serverAppend, "append-port", "", true, "append port to baseurl")
 }
 
 var serverCmd = &cobra.Command{
@@ -49,7 +51,11 @@ func server(cmd *cobra.Command, args []string) {
 		BaseUrl = "http://" + BaseUrl
 	}
 
-	Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/") + ":" + strconv.Itoa(serverPort)
+    if serverAppend {
+        Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/") + ":" + strconv.Itoa(serverPort)
+    } else {
+        Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/")
+    }
 
 	build(serverWatch)
 
