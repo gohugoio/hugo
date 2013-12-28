@@ -169,11 +169,11 @@ func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
 
 func TestDegenerateEmptyPage(t *testing.T) {
 	_, err := ReadFrom(strings.NewReader(EMPTY_PAGE), "test")
-	if err == nil {
-		t.Fatalf("Expected ReadFrom to return an error when an empty buffer is passed.")
+	if err != nil {
+		t.Fatalf("Empty files should not trigger an error. Should be able to touch a file while watching without erroring out.")
 	}
 
-	checkError(t, err, "EOF")
+	//checkError(t, err, "EOF")
 }
 
 func checkPageTitle(t *testing.T, page *Page, title string) {

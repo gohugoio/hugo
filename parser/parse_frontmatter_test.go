@@ -52,7 +52,6 @@ func TestDegenerateCreatePageFrom(t *testing.T) {
 	tests := []struct {
 		content string
 	}{
-		{CONTENT_EMPTY},
 		{CONTENT_MISSING_END_FM_DELIM},
 		{CONTENT_INCOMPLETE_END_FM_DELIM},
 		{CONTENT_FM_NO_DOC},
