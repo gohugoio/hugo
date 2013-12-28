@@ -121,6 +121,11 @@ func (p Pages) Limit(n int) Pages {
 	}
 }
 
+func (p Pages) ByWeight() Pages {
+	PageBy(DefaultPageSort).Sort(p)
+	return p
+}
+
 func (p Pages) ByDate() Pages {
 	date := func(p1, p2 *Page) bool {
 		return p1.Date.Unix() < p2.Date.Unix()
