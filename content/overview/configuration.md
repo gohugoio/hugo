@@ -30,6 +30,7 @@ indexes:
    category: "categories"
    tag: "tags"
 baseurl: "http://yoursite.example.com/"
+canonifyurls: true
 ...
 {{% /highlight %}}
 
@@ -46,6 +47,7 @@ The following is an example of a json config file with the default values:
        "tag": "tags"
     },
     "baseurl": "http://yoursite.example.com/"
+    "canonifyurls": true
 }
 {{% /highlight %}}
 
@@ -56,6 +58,7 @@ The following is an example of a toml config file with the default values:
     publishdir = "public"
     builddrafts = false
     baseurl = "http://yoursite.example.com/"
+    canonifyurls = true
     [indexes]
        category = "categories"
        tag = "tags"
