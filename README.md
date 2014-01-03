@@ -95,3 +95,6 @@ We welcome your contributions.  To make the process as seamless as possible, we 
      * Make sure `go test ./...` passes, and go build completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on windows from time to time, but if you have access please check on a Windows machine too.
 
 **Complete documentation is available at [Hugo Documentation](http://hugo.spf13.com).**
+
+[![Analytics](https://ga-beacon.appspot.com/UA-7131036-6/hugo/readme)](https://github.com/igrigorik/ga-beacon)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/hugo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
