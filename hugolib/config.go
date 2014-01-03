@@ -36,6 +36,7 @@ type Config struct {
 	Params                                     map[string]interface{}
 	Permalinks                                 PermalinkOverrides
 	BuildDrafts, UglyUrls, Verbose             bool
+	CanonifyUrls							   bool
 }
 
 var c Config
@@ -61,6 +62,7 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 	c.BuildDrafts = false
 	c.UglyUrls = false
 	c.Verbose = false
+	c.CanonifyUrls = true
 
 	c.readInConfig()
 

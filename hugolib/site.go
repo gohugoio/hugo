@@ -573,11 +573,17 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		return
 	}
 
-	absURL, err := transform.AbsURL(s.Config.BaseUrl)
-	if err != nil {
-		return
+	transformLinks := transform.NewEmptyTransforms()
+
+	if s.Config.CanonifyUrls {
+		absURL, err := transform.AbsURL(s.Config.BaseUrl)
+		if err != nil {
+			return err
+		}
+		transformLinks = append(transformLinks, absURL...)
 	}
-	transformer := transform.NewChain(absURL...)
+
+	transformer := transform.NewChain(transformLinks...)
 
 	var renderBuffer *bytes.Buffer
 
