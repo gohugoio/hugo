@@ -15,6 +15,10 @@ func NewChain(trs ...link) chain {
 	return trs
 }
 
+func NewEmptyTransforms() []link {
+	return make([]link, 0, 20)
+}
+
 func (c *chain) Apply(w io.Writer, r io.Reader) (err error) {
 
 	buffer := new(bytes.Buffer)

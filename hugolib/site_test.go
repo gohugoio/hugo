@@ -234,7 +234,11 @@ func TestSkipRender(t *testing.T) {
 
 	s := &Site{
 		Target: target,
-		Config: Config{Verbose: true, BaseUrl: "http://auth/bub"},
+		Config: Config{
+			Verbose: true,
+			BaseUrl: "http://auth/bub",
+			CanonifyUrls: true,
+		},
 		Source: &source.InMemorySource{sources},
 	}
 
@@ -290,43 +294,52 @@ func TestAbsUrlify(t *testing.T) {
 		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"), "sect"},
 		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"), "blue"},
 	}
-	s := &Site{
-		Target: target,
-		Config: Config{BaseUrl: "http://auth/bub"},
-		Source: &source.InMemorySource{sources},
-	}
-	s.initializeSiteInfo()
-	s.prepTemplates()
-	must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
+	for _, canonify := range []bool{true, false} {
+		s := &Site{
+			Target: target,
+			Config: Config{
+				BaseUrl: "http://auth/bub",
+				CanonifyUrls: canonify,
+			},
+			Source: &source.InMemorySource{sources},
+		}
+		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", s.Config.BaseUrl, canonify)
+		s.initializeSiteInfo()
+		s.prepTemplates()
+		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
 
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
-
-	if err := s.RenderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
-	}
-
-	tests := []struct {
-		file, expected string
-	}{
-		{"content/blue/doc2.html", "<a href=\"http://auth/bub/foobar.jpg\">Going</a>"},
-		{"sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
-	}
-
-	for _, test := range tests {
-		content, ok := target.Files[test.file]
-		if !ok {
-			t.Fatalf("Unable to locate rendered content: %s", test.file)
+		if err := s.CreatePages(); err != nil {
+			t.Fatalf("Unable to create pages: %s", err)
 		}
 
-		expected := test.expected
-		if string(content) != expected {
-			t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
+		if err := s.BuildSiteMeta(); err != nil {
+			t.Fatalf("Unable to build site metadata: %s", err)
+		}
+
+		if err := s.RenderPages(); err != nil {
+			t.Fatalf("Unable to render pages. %s", err)
+		}
+
+		tests := []struct {
+			file, expected string
+		}{
+			{"content/blue/doc2.html", "<a href=\"http://auth/bub/foobar.jpg\">Going</a>"},
+			{"sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
+		}
+
+		for _, test := range tests {
+			content, ok := target.Files[test.file]
+			if !ok {
+				t.Fatalf("Unable to locate rendered content: %s", test.file)
+			}
+
+			expected := test.expected
+			if !canonify {
+				expected = strings.Replace(expected, s.Config.BaseUrl, "", -1)
+			}
+			if string(content) != expected {
+				t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
+			}
 		}
 	}
 }
