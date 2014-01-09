@@ -173,6 +173,7 @@ func NewTemplate() Template {
 }
 
 func (t *GoHtmlTemplate) LoadEmbedded() {
+    t.EmbedShortcodes()
 }
 
 func (t *GoHtmlTemplate) AddInternalTemplate(prefix, name, tpl string) error {
