@@ -2,19 +2,52 @@ body {
     background-color: rgb(253, 253, 251);
     padding-top: 70px;
     letter-spacing: 0.3px;
+    font-family: 'Arbutus Slab', "Helvetica Neue", "Helvitica", "Serif";
+}
+
+#main.container {
+    font-size: 21px;
+    line-height: 175%;
 }
 
 
 h1, h2, h3 {
+    padding-bottom: .3em;
+    padding-top: 1.4em;
+    margin-bottom: .7em;
+}
+
+h1, h2, h3, h4, h5, h6 {
     color: rgb(25,71,86);
+    font-family: 'Cabin', "Helvetica Neue", "Helvitica", "Serif";
+}
+
+h1 {
+    font-size: 46px;
+    padding-top: .3em;
+}
+
+h1, h2 {
+    border-bottom: 1px solid #CCC;
+}
+
+pre {
+    background-color: #022b34;
+    color: #e6e6e6;
+    font-family: 'Source Code Pro', sans-serif;
+    font-size: 17px;
+    line-height: 1.2;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
 }
 
 a {
-    color: rgb(0,140,158);
+    color: rgb(96,210,211);
 }
 
 a:hover {
-    color: rgb(21,201,239);
+    color: rgb(15, 166, 188);
 }
 
 #footer {
@@ -22,7 +55,7 @@ a:hover {
 }
 
 nav.navbar {
-    background: none repeat scroll 0% 0% rgb(22, 203, 230);
+    background: none repeat scroll 0% 0% rgb(96,210,211);
     border-top: 4px solid rgb(15, 166, 188);
     border-bottom: 1px solid rgb(15, 166, 188);
     opacity: .97;
@@ -76,7 +109,9 @@ nav.navbar {
 }
 
 
-
+.highlight {
+    background-color: #fdfdfb !important;
+}
 
 #main table{width:100%;margin-bottom:20px;}#main table thead>tr>th,#main table tbody>tr>th,#main table tfoot>tr>th,#main table thead>tr>td,#main table tbody>tr>td,#main table tfoot>tr>td{padding:8px;line-height:1.428571429;vertical-align:top;border-top:1px solid #dddddd;}
 #main table thead>tr>th{vertical-align:bottom;border-bottom:2px solid #dddddd;}
