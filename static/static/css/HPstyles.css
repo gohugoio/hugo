@@ -7,6 +7,16 @@ body {
     letter-spacing: 0.5px;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cabin', "Helvetica Neue", "Helvitica", "Serif";
+}
+
+body {
+
+    font-family: 'Arbutus Slab', "Helvetica Neue", "Helvitica", "Serif" !important;
+    line-height: 1.6;
+}
+
 .vert-text {
     display: table-cell;
     vertical-align: middle;
@@ -107,17 +117,22 @@ and (orientation : landscape) {
 
 .counterpoint {
     padding: 50px 0;
-    background-color: white;
+    background-color: rgb(255, 252, 244);
 }
 
 .point {
-    background: rgb(22, 203, 230);
+    background: rgb(96,210,211);
     padding: 50px 0;
     color: #ffffff;
 }
 
 .point-item {
     margin-bottom: 15px;
+}
+
+.point h2, .counterpoint h2 {
+    font-size: 32pt;
+    line-height: 1.7;
 }
 
 i.callout-icon, i.point-icon, i.lead-icon {
@@ -174,32 +189,13 @@ i.service-icon:hover {
     display: table;
     height: 420px;
     width: 100%;
-    background-color: rgb(47, 197, 47);
+    background-color: rgb(118,156,172);
     padding: 50px 0;
     color: #ffffff;
 }
 
-.banner { position: relative; overflow: auto; }
-.banner li { list-style: none; font-size:28px; padding: 1.7em 3em 0 3em; font-weight:200; }
-.banner ul li { float: left; }
-
-.banner blockquote {
-    border-left: 0;
-    font-size: 20px;
-    font-weight:100;
-}
-
-.banner blockquote p {
-    font-size: 34px;
-    text-shadow: rgba(0,0,0,0.5) 2px 2px 5px;
-}
-
-.banner blockquote > a {
-    display: block;
-}
-
 i.callout-icon:hover {
-    color: rgb(47, 197, 47);
+    color: rgb(249, 176, 190);
     border: 3px solid #fff;
     background: #fff;
 }
@@ -272,15 +268,15 @@ footer a:hover {
     text-decoration: none;
 }
 
-div.point a {
-    color: #0a5175;
+.point a, .counterpoint a {
+    color: rgb(7,162,166);
 }
 
 /* Bootstrap Addons */
 
 
 .btn-clear {
-    color: #444;
+    color:#888;
     background-color: rgba(255, 255, 255, 0.5);
     border-color: #FFF;
 }
@@ -300,3 +296,40 @@ div.point a {
 .open .dropdown-toggle.btn-clear {
     background-image: none;
 }
+
+
+div#carousel-quotes {
+    width:100%;
+}
+
+.carousel-inner > .item {
+    height: 16em;
+    font-size: 140%;
+}
+
+@media all and (max-width: 685px) {
+    .carousel-inner > .item {
+        height: 22em;
+    }
+}
+
+@media all and (max-width: 1200px) and (min-width: 686px) {
+    .carousel-inner > .item {
+        height: 18em;
+    }
+}
+
+.slide blockquote {
+    border-left: 0;
+}
+
+.slide blockquote p {
+    font-size: 200%;
+    text-shadow: rgba(0,0,0,0.5) 2px 2px 5px;
+}
+
+.slide blockquote > a {
+    display: block;
+    color: rgb(249, 176, 190);
+}
+
