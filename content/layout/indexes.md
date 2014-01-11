@@ -43,21 +43,23 @@ It makes use of [chrome templates](/layout/chrome). All examples use a
 [view](/layout/views/) called either "li" or "summary" which this example site
 defined.
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+{{% highlight html %}}
+{{ template "chrome/header.html" . }}
+{{ template "chrome/subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-            <ul id="list">
-                {{ range .Data.Pages }}
-                    {{ .Render "li"}}
-                {{ end }}
-            </ul>
-      </div>
-    </section>
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+        <ul id="list">
+            {{ range .Data.Pages }}
+                {{ .Render "li"}}
+            {{ end }}
+        </ul>
+  </div>
+</section>
 
-    {{ template "chrome/footer.html" }}
+{{ template "chrome/footer.html" }}
+{{% /highlight %}}
 
 ## Example index template (tag.html)
 This content template is used for [spf13.com](http://spf13.com).
@@ -65,20 +67,21 @@ It makes use of [chrome templates](/layout/chrome). All examples use a
 [view](/layout/views/) called either "li" or "summary" which this example site
 defined.
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+{{% highlight html %}}
+{{ template "chrome/header.html" . }}
+{{ template "chrome/subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-        {{ range .Data.Pages }}
-            {{ .Render "summary"}}
-        {{ end }}
-      </div>
-    </section>
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+    {{ range .Data.Pages }}
+        {{ .Render "summary"}}
+    {{ end }}
+  </div>
+</section>
 
-    {{ template "chrome/footer.html" }}
-
+{{ template "chrome/footer.html" }}
+{{% /highlight %}}
 
 ## Example listing of indexes template (indexes.html)
 This content template is used for [spf13.com](http://spf13.com).
@@ -95,29 +98,31 @@ the latter uses .Data.OrderedIndex. .Data.Index is alphabetical by key name, whi
 .Data.Orderedindex is ordered by the quantity of content assigned to that particular
 index key.  In practice you would only use one of these approaches.
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+{{% highlight html %}}
+{{ template "chrome/header.html" . }}
+{{ template "chrome/subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
 
-       <ul>
-       {{ $data := .Data }}
-        {{ range $key, $value := .Data.Index }}
-        <li><a href="{{ $data.Plural }}/{{ $key | urlize }}"> {{ $key }} </a> {{ len $value }} </li>
-        {{ end }}
-       </ul>
-      </div>
+   <ul>
+   {{ $data := .Data }}
+    {{ range $key, $value := .Data.Index }}
+    <li><a href="{{ $data.Plural }}/{{ $key | urlize }}"> {{ $key }} </a> {{ len $value }} </li>
+    {{ end }}
+   </ul>
+  </div>
 
-       <ul>
-        {{ range $data.OrderedIndex }}
-        <li><a href="{{ $data.Plural }}/{{ .Name | urlize }}"> {{ .Name }} </a> {{ .Count }} </li>
-        {{ end }}
-       </ul>
-    </section>
+   <ul>
+    {{ range $data.OrderedIndex }}
+    <li><a href="{{ $data.Plural }}/{{ .Name | urlize }}"> {{ .Name }} </a> {{ .Count }} </li>
+    {{ end }}
+   </ul>
+</section>
 
-    {{ template "chrome/footer.html" }}
+{{ template "chrome/footer.html" }}
+{{% /highlight %}}
 
 
 

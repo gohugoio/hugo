@@ -11,34 +11,36 @@ Somethings are better shown than explained. The following is a very basic exampl
 
 **mysite/project/nitro.md  <- http://mysite.com/project/nitro.html**
 
-    ---
-    Title:       "Nitro : A quick and simple profiler for golang"
-    Description: ""
-    Keywords:    [ "Development", "golang", "profiling" ]
-    Tags:        [ "Development", "golang", "profiling" ]
-    date:        "2013-06-19"
-    Topics:      [ "Development", "GoLang" ]
-    Slug:        "nitro"
-    project_url: "http://github.com/spf13/nitro"
-    ---
+{{% highlight yaml %}}
+---
+Title:       "Nitro : A quick and simple profiler for golang"
+Description: ""
+Keywords:    [ "Development", "golang", "profiling" ]
+Tags:        [ "Development", "golang", "profiling" ]
+date:        "2013-06-19"
+Topics:      [ "Development", "GoLang" ]
+Slug:        "nitro"
+project_url: "http://github.com/spf13/nitro"
+---
 
-    # Nitro
+# Nitro
 
-    Quick and easy performance analyzer library for golang.
+Quick and easy performance analyzer library for golang.
 
-    ## Overview
+## Overview
 
-    Nitro is a quick and easy performance analyzer library for golang.
-    It is useful for comparing A/B against different drafts of functions
-    or different functions.
+Nitro is a quick and easy performance analyzer library for golang.
+It is useful for comparing A/B against different drafts of functions
+or different functions.
 
-    ## Implementing Nitro
+## Implementing Nitro
 
-    Using Nitro is simple. First use go get to install the latest version
-    of the library.
+Using Nitro is simple. First use go get to install the latest version
+of the library.
 
-        $ go get github.com/spf13/nitro
+    $ go get github.com/spf13/nitro
 
-    Next include nitro in your application.
+Next include nitro in your application.
 
+{{% /highlight %}}
 

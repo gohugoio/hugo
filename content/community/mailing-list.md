@@ -7,28 +7,28 @@ groups_weight: 10
 
 Hugo has two mailing lists:
 
-### Announcements
+## Announcements
 Very low traffic. Only releases will be emailed here.
 
 https://groups.google.com/forum/#!forum/hugo-announce
 
-### Discussion
+## Discussion
 For all questions and discussions:
 
 https://groups.google.com/forum/#!forum/hugo-discuss
 
 # Other Resources
 
-### GoNuts
+## GoNuts
 
 For general go questions or discussion please refer to the go mailing list.
 
 https://groups.google.com/forum/#!forum/golang-nuts
 
-### Github Issues
+## Github Issues
 
 https://github.com/spf13/hugo/issues
 
-### Twitter
+## Twitter
 
 Hugo doesn't have it's own twitter handle, but feel free to tweet [@spf13](http://twitter.com/spf13).

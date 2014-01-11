@@ -8,12 +8,9 @@ groups_weight: 50
 
 Hugo is released under the Simple Public License.
 
+## Simple Public License (SimPL-2.0)
 
-Simple Public License (SimPL-2.0)
-=================================
-
-Preamble
---------
+### Preamble
 
 This Simple Public License 2.0 (SimPL-2.0 for short) is a plain language
 implementation of GPL 2.0.  The words are different, but the goal is the
@@ -22,8 +19,7 @@ software.  If anyone wonders about the meaning of the SimPL, they should
 interpret it as consistent with GPL 2.0.
 
 
-Simple Public License (SimPL) 2.0
-=================================
+## Simple Public License (SimPL) 2.0
 
 The SimPL applies to the software's source and object code and comes
 with any rights that I have in it (other than trademarks). You agree to
@@ -68,8 +64,7 @@ automatically if:
 -   Anyone prevents you from distributing the software under the terms
     of the SimPL.
 
-License for the License
------------------------
+## License for the License
 
 You may do anything that you want with the SimPL text; it's a license
 form to use in any way that you find helpful.  To avoid confusion,

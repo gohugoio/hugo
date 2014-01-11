@@ -6,7 +6,7 @@ groups: ["meta"]
 groups_weight: 10
 ---
 
-* **0.9.0**
+## **0.9.0** November 15, 2013
   * New command based interface similar to git (hugo server -s ./ )
   * Amber template support
   * Aliases (redirects)
@@ -38,7 +38,8 @@ groups_weight: 10
   * Support for go 1.2
   * Support for `first` in templates
   * Support for site per-section permalink pattern specifications
-* **0.8.0** August 2, 2013
+
+## **0.8.0** August 2, 2013
   * Added support for pretty urls (filename/index.html vs filename.html)
   * Hugo supports a destination directory
   * Will efficiently sync content in static to destination directory
@@ -51,11 +52,14 @@ groups_weight: 10
   * Support for series
   * Adding verbose output
   * Loads of bugfixes
-* **0.7.0** July 4, 2013
+
+## **0.7.0** July 4, 2013
   * Hugo now includes a simple server
   * First public release
-* **0.6.0** July 2, 2013
+
+## **0.6.0** July 2, 2013
   * Hugo includes an example documentation site which it builds
-* **0.5.0** June 25, 2013
+
+## **0.5.0** June 25, 2013
   * Hugo is quite usable and able to build spf13.com
 

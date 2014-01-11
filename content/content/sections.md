@@ -15,13 +15,13 @@ The following example site uses two sections, "post" and "quote".
     .
     └── content
         ├── post
-        |   ├── firstpost.md       // <- http://site.com/post/firstpost/
+        |   ├── firstpost.md       // <- http://1.com/post/firstpost/
         |   ├── happy
-        |   |   └── happiness.md   // <- http://site.com/post/happy/happiness/
-        |   └── secondpost.md      // <- http://site.com/post/secondpost/
+        |   |   └── ness.md   // <- http://1.com/post/happy/ness/
+        |   └── secondpost.md      // <- http://1.com/post/secondpost/
         └── quote
-            ├── first.md           // <- http://site.com/quote/first/
-            └── second.md          // <- http://site.com/quote/second/
+            ├── first.md           // <- http://1.com/quote/first/
+            └── second.md          // <- http://1.com/quote/second/
 
 ## Sections and Types
 
