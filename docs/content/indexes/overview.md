@@ -1,5 +1,5 @@
 ---
-title: "Index Overview"
+title: "Indexes"
 date: "2013-07-01"
 aliases: ["/doc/indexes/", "/extras/indexes"]
 linktitle: "Overview"
@@ -17,9 +17,9 @@ navigation, series and many more. Just think of an index as way to organize simi
 It's important to understand what Indexes do. At it's most basic form an index
 is simply a map of a key to a list of content values.
 
-In the hugo internals this is stored as Site.Indexes[Plural][key][]pages.
+In the hugo internals this is stored as `Site.Indexes[Plural][key][]pages`.
 For example all the content tagged with GoLang would be found at 
-Site.Indexes["tags"]["golang"].
+`Site.Indexes["tags"]["golang"]`.
 
 For a
 more complete example see the source of [this docs site](http://github.com/spf13/hugo/docs/).
@@ -35,16 +35,17 @@ we could use an inflection library to pluralize this, they currently
 support only a few languages, so instead we've opted for user defined
 pluralization.
 
-**config.yaml**
+### config.yaml
 
-    ---
-    indexes:
-        tag: "tags"
-        category: "categories"
-    baseurl: "http://spf13.com/"
-    title: "Steve Francia is spf13.com"
-    ---
-
+{{% highlight yaml %}}
+---
+indexes:
+    tag: "tags"
+    category: "categories"
+baseurl: "http://spf13.com/"
+title: "Steve Francia is spf13.com"
+---
+{{% /highlight %}}
 
 ## Assigning index values to content
 
@@ -57,19 +58,22 @@ and assign all keys you want this content to match against.
 
 **Index values are case insensitive**
 
-#### Example
-    {
-        "title": "Hugo: A fast and flexible static site generator",
-        "tags": [
-            "Development",
-            "golang",
-            "fast",
-            "Blogging"
-        ],
-        "categories" : [
-            "Development"
-        ]
-        "slug": "hugo",
-        "project_url": "http://github.com/spf13/hugo"
-    }
+### Example
+
+{{% highlight json %}}
+{
+    "title": "Hugo: A fast and flexible static site generator",
+    "tags": [
+        "Development",
+        "golang",
+        "fast",
+        "Blogging"
+    ],
+    "categories" : [
+        "Development"
+    ]
+    "slug": "hugo",
+    "project_url": "http://github.com/spf13/hugo"
+}
+{{% /highlight %}}
 

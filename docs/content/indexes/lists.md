@@ -8,7 +8,7 @@ groups_weight: 40
 ---
 
 An index list is a list of all the keys that are contained in the index. When a
-template is present, this will be rendered at /IndexPlural/
+template is present, this will be rendered at `/IndexPlural/`
 
 Hugo also supports creating pages that list your values for each index along
 with the number of content items associated with the index key. These are
@@ -22,44 +22,46 @@ Hugo can order the meta data in two different ways. It can be ordered by the
 number of content assigned to that key or alphabetically.
 
 
-#### Example indexes.html file (alphabetical)
+### Example indexes.html file (alphabetical)
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+{{% highlight html %}}
+{{ template "chrome/header.html" . }}
+{{ template "chrome/subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-       <ul>
-       {{ $data := .Data }}
-        {{ range $key, $value := .Data.Index.Alphabetical }}
-        <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-        {{ end }}
-       </ul>
-      </div>
-    </section>
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+   <ul>
+   {{ $data := .Data }}
+    {{ range $key, $value := .Data.Index.Alphabetical }}
+    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ end }}
+   </ul>
+  </div>
+</section>
+{{ template "chrome/footer.html" }}
+{{% /highlight %}}
 
-    {{ template "chrome/footer.html" }}
+### Example indexes.html file (ordered)
 
+{{% highlight html %}}
+{{ template "chrome/header.html" . }}
+{{ template "chrome/subheader.html" . }}
 
-#### Example indexes.html file (ordered)
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+   <ul>
+   {{ $data := .Data }}
+    {{ range $key, $value := .Data.Index.ByCount }}
+    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ end }}
+   </ul>
+  </div>
+</section>
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
-
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-       <ul>
-       {{ $data := .Data }}
-        {{ range $key, $value := .Data.Index.ByCount }}
-        <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-        {{ end }}
-       </ul>
-      </div>
-    </section>
-
-    {{ template "chrome/footer.html" }}
+{{ template "chrome/footer.html" }}
+{{% /highlight %}}
 
 ### Variables available to list of indexes pages.
 

@@ -15,44 +15,50 @@ First step is to define the index in your config file.
 important to provide both here. We require this, rather than using inflection in
 effort to support as many languages as possible.*
 
-    ---
-    indexes:
-        category: "categories"
-    baseurl: "http://spf13.com/"
-    title: "Steve Francia is spf13.com"
-    ---
+{{% highlight yaml %}}
+---
+indexes:
+category: "categories"
+baseurl: "http://spf13.com/"
+title: "Steve Francia is spf13.com"
+---
+{{% /highlight %}}
 
 ### /layouts/indexes/category.html
 
 For each index type a template needs to be provided to render the index page.
-In the case of categories, this will render the content for /categories/CATEGORYNAME/.
+In the case of categories, this will render the content for /categories/`CATEGORYNAME`/.
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+{{% highlight html %}}
+{{ template "chrome/header.html" . }}
+{{ template "chrome/subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-        {{ range .Data.Pages }}
-            {{ .Render "summary"}}
-        {{ end }}
-      </div>
-    </section>
+<section id="main">
+<div>
+<h1 id="title">{{ .Title }}</h1>
+{{ range .Data.Pages }}
+{{ .Render "summary"}}
+{{ end }}
+</div>
+</section>
 
-    {{ template "chrome/footer.html" }}
+{{ template "chrome/footer.html" }}
+{{% /highlight %}}
 
 
 ### Assigning indexes to content
 
 Make sure that the index is set in the front matter:
 
-    {
-        "title": "Hugo: A fast and flexible static site generator",
-        "categories": [
-            "Development",
-            "golang",
-            "Blogging"
-        ],
-        "slug": "hugo"
-    }
+{{% highlight json %}}
+{
+    "title": "Hugo: A fast and flexible static site generator",
+    "categories": [
+        "Development",
+        "golang",
+        "Blogging"
+    ],
+    "slug": "hugo"
+}
+{{% /highlight %}}
 

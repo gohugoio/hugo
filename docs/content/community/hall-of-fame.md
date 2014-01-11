@@ -11,8 +11,8 @@ If you want to be added to this page please send a [pull request](https://github
 
 
 
-| **Site**                                     | **Source**                                            | **License**  |
-| -------------------------------------------- | ----------------------------------------------------- | -----------: |
-|  [hugo](http://hugo.spf13.com)               |  [source](http://github.com/spf13/hugo/docs)          |   SIMPL      |
-|  [spf13](http://spf13.com)                   |  [source](http://github.com/spf13/spf13.com)          |   MIT        |
-|  [Chimera Art Space](http://chimeraarts.org) |  [source](https://github.com/chimera/chimeraarts.org) |   CC-SA      |
+| **Site**                                         | **Source**                                            | **License**  |
+| ------------------------------------------------ | ----------------------------------------------------- | -----------: |
+| [hugo](http://hugo.spf13.com)                    | [source](http://github.com/spf13/hugo/docs)           | SIMPL        |
+| [spf13](http://spf13.com)                        | [source](http://github.com/spf13/spf13.com)           | MIT          |
+| [Chimera Art Space](http://chimeraarts.org)      | [source](https://github.com/chimera/chimeraarts.org)  | CC-SA        |

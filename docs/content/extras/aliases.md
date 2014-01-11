@@ -16,12 +16,13 @@ Luckily, this can be handled easily with aliases in Hugo.
 
 ## Example
 **content/posts/my-awesome-blog-post.md**
-
-    ---
-    aliases:
-        - /posts/my-original-url/
-        - /2010/even-earlier-url.html
-    ---
+{{% highlight yaml %}}
+---
+aliases:
+    - /posts/my-original-url/
+    - /2010/even-earlier-url.html
+---
+{{% /highlight %}}
 
 Now when you go to any of the aliases locations they
 will redirect to the page.

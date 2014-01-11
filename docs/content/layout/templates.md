@@ -20,19 +20,19 @@ is a great place to start.
 There are 6 different kinds of templates that Hugo works with.
 
 ### [Homepage](/layout/homepage/)
-The homepage of your site.
+The homepage of your site
 
 ### [RSS](/layout/rss/)
-Used to render all rss documents.
+Used to render all rss documents
 
 ### [Index](/layout/indexes)
-Page that list multiple pieces of content.
+Page that list multiple pieces of content
 
 ### [Content](/layout/content)
-Templates to render a single piece of content.
+Render a single piece of content
 
 ### [Views](/layout/views)
-Different ways of rendering each content type
+Different view of a single piece of content type
 
 ### [Chrome](/layout/chrome)
-Simply the decoration of your site.
+Support for the above templates
