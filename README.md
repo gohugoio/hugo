@@ -3,6 +3,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 and [friends](http://github.com/spf13/hugo/graphs/contributors) in Go.
 
 [![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo)
+[![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32)
 
 ## Overview
 
