@@ -1,7 +1,7 @@
 language: go
 go:
-  - 1.1
-script: 
+  - tip
+script:
   - go test ./...
   - go build
   - ./hugo -s docs/
