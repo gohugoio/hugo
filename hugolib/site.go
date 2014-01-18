@@ -519,6 +519,14 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("index.xml")
 		n.Title = "Recent Content"
 		n.Permalink = permalink(s, "index.xml")
+        high := 15
+        if len(s.Pages) < high {
+            high = len(s.Pages)
+        }
+        n.Data["Pages"] = s.Pages[:high]
+        if len(s.Pages) > 0 {
+            n.Date = s.Pages[0].Date
+        }
 		err := s.render(n, ".xml", "rss.xml")
 		if err != nil {
 			return err
