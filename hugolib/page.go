@@ -34,22 +34,23 @@ import (
 )
 
 type Page struct {
-    Status      string
-    Images      []string
-    RawContent  []byte
-    Content     template.HTML
-    Summary     template.HTML
-    Truncated   bool
-    plain       string // TODO should be []byte
-    Params      map[string]interface{}
-    contentType string
-    Draft       bool
-    Aliases     []string
-    Tmpl        bundle.Template
-    Markup      string
-    renderable  bool
-    layout      string
-    linkTitle   string
+    Status          string
+    Images          []string
+    RawContent      []byte
+    Content         template.HTML
+    Summary         template.HTML
+    TableOfContents template.HTML
+    Truncated       bool
+    plain           string // TODO should be []byte
+    Params          map[string]interface{}
+    contentType     string
+    Draft           bool
+    Aliases         []string
+    Tmpl            bundle.Template
+    Markup          string
+    renderable      bool
+    layout          string
+    linkTitle       string
     PageMeta
     File
     Position
@@ -624,6 +625,16 @@ func (page *Page) Convert() error {
     return nil
 }
 
+func getTableOfContents(content []byte) template.HTML {
+    htmlFlags := 0
+    htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
+    htmlFlags |= blackfriday.HTML_TOC
+    htmlFlags |= blackfriday.HTML_OMIT_CONTENTS
+    renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
+
+    return template.HTML(string(blackfriday.Markdown(content, renderer, 0)))
+}
+
 func (page *Page) convertMarkdown(lines io.Reader) {
     b := new(bytes.Buffer)
     b.ReadFrom(lines)
@@ -631,6 +642,7 @@ func (page *Page) convertMarkdown(lines io.Reader) {
     page.Content = template.HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
     summary, truncated := getSummaryString(content, "markdown")
     page.Summary = template.HTML(string(summary))
+    page.TableOfContents = getTableOfContents(RemoveSummaryDivider(content))
     page.Truncated = truncated
 }
 
