@@ -274,6 +274,22 @@ footer a:hover {
 
 /* Bootstrap Addons */
 
+.btn-dark {
+    color:white;
+    background-color: rgba(30,30,30, 0.8);
+    border-color: black;
+}
+
+.btn-dark:hover,
+.btn-dark:focus,
+.btn-dark:active,
+.btn-dark.active,
+.open .dropdown-toggle.btn-dark {
+    color: white;
+    background-color: black;
+    border-color: black;
+}
+
 
 .btn-clear {
     color:#888;
