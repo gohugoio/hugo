@@ -164,6 +164,12 @@ func NewTemplate() Template {
         "safeHtml":  SafeHtml,
         "first":     First,
         "highlight": Highlight,
+        "add":       func(a, b int) int { return a + b },
+        "sub":       func(a, b int) int { return a - b },
+        "div":       func(a, b int) int { return a / b },
+        "mod":       func(a, b int) int { return a % b },
+        "mul":       func(a, b int) int { return a * b },
+        "modBool":   func(a, b int) bool { return a%b == 0 },
     }
 
     templates.Funcs(funcMap)
