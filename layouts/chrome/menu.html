@@ -56,6 +56,7 @@
       <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Community <b class="caret"></b></a>
         <ul class="dropdown-menu">
+            <li hugo-nav="showcase"><a href="/showcase"> Showcase </a> </li>
             {{ range $key, $value := .Site.Indexes.groups.community.Pages }}
             <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
             {{ end }}
