@@ -11,27 +11,43 @@ are available in the context for the templates.
 
 ## Page Variables
 
+The following is a list of most of the accessible variables which can be
+defined for a piece of content. Many of these will be defined in the front
+matter, content or derived from file location.
+
 **.Title**  The title for the content.<br>
+**.Content** The content itself, defined below the front matter.<br>
+**.Summary** A generated summary of the content for easily showing a snippet in a summary view.<br>
 **.Description** The description for the content.<br>
 **.Keywords** The meta keywords for this content.<br>
 **.Date** The date the content is published on.<br>
-**.Indexes** These will use the field name of the plural form of the index (see tags and categories above)<br>
+**.Type** The content [type](/content/types/) (eg. post)<br>
+**.Section** The [section](/content/sections/) this content belongs to<br>
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
 **.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title<br>
-**.FuzzyWordCount** The approximate number of words in the content.<br>
+**.Indexes** These will use the field name of the plural form of the index (see tags and categories above)<br>
 **.RSSLink** Link to the indexes' rss link <br>
 **.Prev** Pointer to the previous content (based on pub date)<br>
 **.Next** Pointer to the following content (based on pub date)<br>
+**.FuzzyWordCount** The approximate number of words in the content.<br>
+**.WordCount** The number of words in the content.<br>
+**.ReadingTime** The estimated time it takes to read the content in minutes.<br>
+**.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.Site** See site variables below<br>
-**.Content** The content itself, defined below the front matter.<br>
-**.Summary** A generated summary of the content for easily showing a snippet in a summary view.<br>
 
-Any value defined in the front matter, including indexes will be made available under `.Params`.
+<<<<<<< HEAD
+## Page Params
+
+=======
+>>>>>>> fab475f... Updating page variable documentation (for templates).
+Any other value defined in the front matter, including indexes will be made available under `.Params`.
 Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
 
-**.Params.Tags** <br>
-**.Params.Categories** <br>
+**.Params.tags** <br>
+**.Params.categories** <br>
+<br>
+**All Params are only accessible using all lowercase characters**<br>
 
 ## Node Variables
 In Hugo a node is any page not rendered directly by a content file. This
@@ -39,10 +55,10 @@ includes indexes, lists and the homepage.
 
 **.Title**  The title for the content.<br>
 **.Date** The date the content is published on.<br>
-**.Data** The data specific to this type of node.<br>
 **.Permalink** The Permanent link for this node<br>
 **.Url** The relative url for this node.<br>
 **.RSSLink** Link to the indexes' rss link <br>
+**.Data** The data specific to this type of node.<br>
 **.Site** See site variables below<br>
 
 ## Site Variables
