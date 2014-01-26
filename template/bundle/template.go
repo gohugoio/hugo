@@ -170,6 +170,9 @@ func NewTemplate() Template {
         "mod":       func(a, b int) int { return a % b },
         "mul":       func(a, b int) int { return a * b },
         "modBool":   func(a, b int) bool { return a%b == 0 },
+        "lower":     func(a string) string { return strings.ToLower(a) },
+        "upper":     func(a string) string { return strings.ToUpper(a) },
+        "title":     func(a string) string { return strings.Title(a) },
     }
 
     templates.Funcs(funcMap)
