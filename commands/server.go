@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -83,5 +84,10 @@ func serve(port int) {
 	}
 
 	fmt.Println("Press ctrl+c to stop")
-	panic(http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir)))))
+
+	err := http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir))))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err.Error())
+		os.Exit(1)
+	}
 }
