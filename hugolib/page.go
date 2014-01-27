@@ -28,29 +28,27 @@ import (
     json "launchpad.net/rjson"
     "net/url"
     "path"
-    "sort"
     "strings"
     "time"
 )
 
 type Page struct {
-    Status          string
-    Images          []string
-    RawContent      []byte
-    Content         template.HTML
-    Summary         template.HTML
-    TableOfContents template.HTML
-    Truncated       bool
-    plain           string // TODO should be []byte
-    Params          map[string]interface{}
-    contentType     string
-    Draft           bool
-    Aliases         []string
-    Tmpl            bundle.Template
-    Markup          string
-    renderable      bool
-    layout          string
-    linkTitle       string
+    Status      string
+    Images      []string
+    rawContent  []byte
+    Content     template.HTML
+    Summary     template.HTML
+    Truncated   bool
+    plain       string // TODO should be []byte
+    Params      map[string]interface{}
+    contentType string
+    Draft       bool
+    Aliases     []string
+    Tmpl        bundle.Template
+    Markup      string
+    renderable  bool
+    layout      string
+    linkTitle   string
     PageMeta
     File
     Position
@@ -75,107 +73,39 @@ type Position struct {
 
 type Pages []*Page
 
-/*
- * Implementation of a custom sorter for Pages
- */
-
-// A type to implement the sort interface for Pages
-type PageSorter struct {
-    pages Pages
-    by    PageBy
-}
-
-// Closure used in the Sort.Less method.
-type PageBy func(p1, p2 *Page) bool
-
-func (by PageBy) Sort(pages Pages) {
-    ps := &PageSorter{
-        pages: pages,
-        by:    by, // The Sort method's receiver is the function (closure) that defines the sort order.
-    }
-    sort.Sort(ps)
-}
-
-var DefaultPageSort = func(p1, p2 *Page) bool {
-    if p1.Weight == p2.Weight {
-        return p1.Date.Unix() > p2.Date.Unix()
-    } else {
-        return p1.Weight < p2.Weight
-    }
-}
-
-func (ps *PageSorter) Len() int      { return len(ps.pages) }
-func (ps *PageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
-
-// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
-func (ps *PageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j]) }
-
-func (p Pages) Sort() {
-    PageBy(DefaultPageSort).Sort(p)
-}
-
-func (p Pages) Limit(n int) Pages {
-    if len(p) < n {
-        return p[0:n]
-    } else {
-        return p
-    }
-}
-
-func (p Pages) ByWeight() Pages {
-    PageBy(DefaultPageSort).Sort(p)
-    return p
-}
-
-func (p Pages) ByDate() Pages {
-    date := func(p1, p2 *Page) bool {
-        return p1.Date.Unix() < p2.Date.Unix()
-    }
-
-    PageBy(date).Sort(p)
-    return p
-}
-
-func (p Pages) ByLength() Pages {
-    length := func(p1, p2 *Page) bool {
-        return len(p1.Content) < len(p2.Content)
-    }
-
-    PageBy(length).Sort(p)
-    return p
-}
-
-func (p Pages) Reverse() Pages {
-    for i, j := 0, len(p)-1; i < j; i, j = i+1, j-1 {
-        p[i], p[j] = p[j], p[i]
-    }
-
-    return p
-}
-
-func (p Page) Plain() string {
+func (p *Page) Plain() string {
     if len(p.plain) == 0 {
-        p.plain = StripHTML(StripShortcodes(string(p.Content)))
+        p.plain = StripHTML(StripShortcodes(string(p.rawContent)))
     }
     return p.plain
 }
 
-// nb: this is only called for recognised types; so while .html might work for
-// creating posts, it results in missing summaries.
-func getSummaryString(content []byte, pagefmt string) (summary []byte, truncates bool) {
-    if bytes.Contains(content, summaryDivider) {
+func (p *Page) setSummary() {
+    if bytes.Contains(p.rawContent, summaryDivider) {
         // If user defines split:
         // Split then render
-        truncates = true // by definition
-        summary = renderBytes(bytes.Split(content, summaryDivider)[0], pagefmt)
+        p.Truncated = true // by definition
+        header := string(bytes.Split(p.rawContent, summaryDivider)[0])
+        p.Summary = bytesToHTML(p.renderBytes([]byte(ShortcodesHandle(header, p, p.Tmpl))))
     } else {
         // If hugo defines split:
         // render, strip html, then split
-        plain := strings.TrimSpace(StripHTML(StripShortcodes(string(renderBytes(content, pagefmt)))))
-        summary = []byte(TruncateWordsToWholeSentence(plain, summaryLength))
-        truncates = len(summary) != len(plain)
+        plain := strings.TrimSpace(p.Plain())
+        p.Summary = bytesToHTML([]byte(TruncateWordsToWholeSentence(plain, summaryLength)))
+        p.Truncated = len(p.Summary) != len(plain)
     }
-    return
+}
+
+func bytesToHTML(b []byte) template.HTML {
+    return template.HTML(string(b))
+}
+
+func (p *Page) renderBytes(content []byte) []byte {
+    return renderBytes(content, p.guessMarkupType())
+}
+
+func (p *Page) renderString(content string) []byte {
+    return renderBytes([]byte(content), p.guessMarkupType())
 }
 
 func renderBytes(content []byte, pagefmt string) []byte {
@@ -293,20 +223,18 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
         return nil, errors.New("Zero length page name")
     }
 
+    // Create new page
     p := newPage(name)
 
+    // Parse for metadata & body
     if err = p.parse(buf); err != nil {
         return
     }
 
+    //analyze for raw stats
     p.analyzePage()
 
     return p, nil
-}
-
-func (p *Page) ProcessShortcodes(t bundle.Template) {
-    p.Content = template.HTML(ShortcodesHandle(string(p.Content), p, t))
-    p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
 }
 
 func (p *Page) analyzePage() {
@@ -543,7 +471,7 @@ func (p *Page) Render(layout ...string) template.HTML {
         curLayout = layout[0]
     }
 
-    return template.HTML(string(p.ExecuteTemplate(curLayout).Bytes()))
+    return bytesToHTML(p.ExecuteTemplate(curLayout).Bytes())
 }
 
 func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
@@ -577,7 +505,7 @@ func (page *Page) guessMarkupType() string {
 }
 
 func guessType(in string) string {
-    switch in {
+    switch strings.ToLower(in) {
     case "md", "markdown", "mdown":
         return "markdown"
     case "rst":
@@ -610,50 +538,49 @@ func (page *Page) parse(reader io.Reader) error {
         }
 
     }
-    page.Content = template.HTML(p.Content())
+    page.rawContent = p.Content()
+    page.setSummary()
 
     return nil
 }
 
+func (p *Page) ProcessShortcodes(t bundle.Template) {
+    p.rawContent = []byte(ShortcodesHandle(string(p.rawContent), p, t))
+    p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
+}
+
 func (page *Page) Convert() error {
-    switch page.guessMarkupType() {
-    case "markdown":
-        page.convertMarkdown(bytes.NewReader([]byte(page.Content)))
-    case "rst":
-        page.convertRestructuredText(bytes.NewReader([]byte(page.Content)))
+    markupType := page.guessMarkupType()
+    switch markupType {
+    case "markdown", "rst":
+        page.Content = bytesToHTML(page.renderString(string(RemoveSummaryDivider(page.rawContent))))
+    case "html":
+        page.Content = bytesToHTML(page.rawContent)
+    default:
+        return errors.New("Error converting unsupported file type " + markupType)
     }
     return nil
 }
 
-func getTableOfContents(content []byte) template.HTML {
+// Lazily generate the TOC
+func (page *Page) TableOfContents() template.HTML {
+    return tableOfContentsFromBytes([]byte(page.Content))
+}
+
+func tableOfContentsFromBytes(content []byte) template.HTML {
     htmlFlags := 0
     htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
     htmlFlags |= blackfriday.HTML_TOC
     htmlFlags |= blackfriday.HTML_OMIT_CONTENTS
     renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
-    return template.HTML(string(blackfriday.Markdown(content, renderer, 0)))
+    return template.HTML(string(blackfriday.Markdown(RemoveSummaryDivider(content), renderer, 0)))
 }
 
-func (page *Page) convertMarkdown(lines io.Reader) {
+func ReaderToBytes(lines io.Reader) []byte {
     b := new(bytes.Buffer)
     b.ReadFrom(lines)
-    content := b.Bytes()
-    page.Content = template.HTML(string(blackfriday.MarkdownCommon(RemoveSummaryDivider(content))))
-    summary, truncated := getSummaryString(content, "markdown")
-    page.Summary = template.HTML(string(summary))
-    page.TableOfContents = getTableOfContents(RemoveSummaryDivider(content))
-    page.Truncated = truncated
-}
-
-func (page *Page) convertRestructuredText(lines io.Reader) {
-    b := new(bytes.Buffer)
-    b.ReadFrom(lines)
-    content := b.Bytes()
-    page.Content = template.HTML(getRstContent(content))
-    summary, truncated := getSummaryString(content, "rst")
-    page.Summary = template.HTML(string(summary))
-    page.Truncated = truncated
+    return b.Bytes()
 }
 
 func (p *Page) TargetPath() (outfile string) {

@@ -1,11 +1,11 @@
 package hugolib
 
 import (
-	"testing"
+    "testing"
 )
 
 func TestTableOfContents(t *testing.T) {
-	text := `
+    text := `
 Blah blah blah blah blah.
 
 ## AA
@@ -25,10 +25,10 @@ Blah blah blah blah blah.
 Blah blah blah blah blah.
 `
 
-	markdown := RemoveSummaryDivider([]byte(text))
-	toc := string(getTableOfContents(markdown))
+    markdown := RemoveSummaryDivider([]byte(text))
+    toc := string(tableOfContentsFromBytes(markdown))
 
-	expected := `<nav>
+    expected := `<nav>
 <ul>
 <li>
 <ul>
@@ -45,7 +45,7 @@ Blah blah blah blah blah.
 </nav>
 `
 
-	if toc != expected {
-		t.Errorf("Expected table of contents: %s, got: %s", expected, toc)
-	}
+    if toc != expected {
+        t.Errorf("Expected table of contents: %s, got: %s", expected, toc)
+    }
 }

@@ -296,6 +296,7 @@ func TestPageWithDate(t *testing.T) {
 func TestWordCount(t *testing.T) {
     p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT), "simple.md")
     p.Convert()
+    p.analyzePage()
     if err != nil {
         t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
     }
