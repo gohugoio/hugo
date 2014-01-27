@@ -36,11 +36,8 @@ matter, content or derived from file location.
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.Site** See site variables below<br>
 
-<<<<<<< HEAD
 ## Page Params
 
-=======
->>>>>>> fab475f... Updating page variable documentation (for templates).
 Any other value defined in the front matter, including indexes will be made available under `.Params`.
 Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
 
