@@ -85,8 +85,8 @@ func (p *Page) setSummary() {
         // If user defines split:
         // Split then render
         p.Truncated = true // by definition
-        header := string(bytes.Split(p.rawContent, summaryDivider)[0])
-        p.Summary = bytesToHTML(p.renderBytes([]byte(ShortcodesHandle(header, p, p.Tmpl))))
+        header := bytes.Split(p.rawContent, summaryDivider)[0]
+        p.Summary = bytesToHTML(p.renderBytes(header))
     } else {
         // If hugo defines split:
         // render, strip html, then split
