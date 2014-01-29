@@ -3,6 +3,7 @@ title: "Homepage Templates"
 date: "2013-07-01"
 groups: ["layout"]
 groups_weight: 30
+notoc: true
 ---
 
 Home pages are of the type "node" and have all the [node

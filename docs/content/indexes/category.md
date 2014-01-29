@@ -9,7 +9,7 @@ groups_weight: 60
 
 This page demonstrates what would be required to add a new index called "categories" to your site.
 
-### config.yaml
+## config.yaml
 First step is to define the index in your config file.
 *Because we use both the singular and plural name of the index in our rendering it's
 important to provide both here. We require this, rather than using inflection in
@@ -24,7 +24,7 @@ title: "Steve Francia is spf13.com"
 ---
 {{% /highlight %}}
 
-### /layouts/indexes/category.html
+## /layouts/indexes/category.html
 
 For each index type a template needs to be provided to render the index page.
 In the case of categories, this will render the content for /categories/`CATEGORYNAME`/.
@@ -46,7 +46,7 @@ In the case of categories, this will render the content for /categories/`CATEGOR
 {{% /highlight %}}
 
 
-### Assigning indexes to content
+## Assigning indexes to content
 
 Make sure that the index is set in the front matter:
 

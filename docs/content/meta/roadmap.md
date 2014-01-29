@@ -4,6 +4,7 @@ date: "2013-07-01"
 aliases: ["/doc/roadmap/"]
 groups: ["meta"]
 groups_weight: 20
+notoc: true
 ---
 
 In no particular order, here is what we are working on:

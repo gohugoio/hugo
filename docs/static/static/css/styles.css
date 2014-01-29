@@ -113,6 +113,25 @@ nav.navbar {
     background-color: #fdfdfb !important;
 }
 
+#toc {
+    float: right;
+    margin-left: 1em;
+    padding: 1em;
+}
+
+#TableOfContents > ul {
+    margin-left: -1em;
+    padding: 0;
+}
+
+#TableOfContents>ul>li {
+   list-style: none outside none;
+}
+
+#TableOfContents > ul > li > a {
+    padding-left: 1em;
+}
+
 #main table{width:100%;margin-bottom:20px;}#main table thead>tr>th,#main table tbody>tr>th,#main table tfoot>tr>th,#main table thead>tr>td,#main table tbody>tr>td,#main table tfoot>tr>td{padding:8px;line-height:1.428571429;vertical-align:top;border-top:1px solid #dddddd;}
 #main table thead>tr>th{vertical-align:bottom;border-bottom:2px solid #dddddd;}
 #main table caption+thead tr:first-child th,#main table colgroup+thead tr:first-child th,#main table thead:first-child tr:first-child th,#main table caption+thead tr:first-child td,#main table colgroup+thead tr:first-child td,#main table thead:first-child tr:first-child td{border-top:0;}

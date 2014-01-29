@@ -5,6 +5,7 @@ aliases: ["/doc/example/"]
 linktitle: "Example"
 groups: ['content']
 groups_weight: 50
+notoc: true
 ---
 
 Somethings are better shown than explained. The following is a very basic example of a content file:
