@@ -52,11 +52,11 @@ func server(cmd *cobra.Command, args []string) {
 		BaseUrl = "http://" + BaseUrl
 	}
 
-    if serverAppend {
-        Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/") + ":" + strconv.Itoa(serverPort)
-    } else {
-        Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/")
-    }
+	if serverAppend {
+		Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/") + ":" + strconv.Itoa(serverPort)
+	} else {
+		Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/")
+	}
 
 	build(serverWatch)
 

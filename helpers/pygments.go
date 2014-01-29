@@ -14,32 +14,32 @@
 package helpers
 
 import (
-    "bytes"
-    "log"
-    "os/exec"
-    "strings"
+	"bytes"
+	"log"
+	"os/exec"
+	"strings"
 )
 
 func Highlight(code string, lexer string) string {
-    var pygmentsBin = "pygmentize"
+	var pygmentsBin = "pygmentize"
 
-    if _, err := exec.LookPath(pygmentsBin); err != nil {
-        log.Print("Highlighting requries Pygments to be installed and in the path")
-        return code
-    }
+	if _, err := exec.LookPath(pygmentsBin); err != nil {
+		log.Print("Highlighting requries Pygments to be installed and in the path")
+		return code
+	}
 
-    var out bytes.Buffer
-    var stderr bytes.Buffer
+	var out bytes.Buffer
+	var stderr bytes.Buffer
 
-    cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O style=monokai,noclasses=true,encoding=utf-8")
-    cmd.Stdin = strings.NewReader(code)
-    cmd.Stdout = &out
-    cmd.Stderr = &stderr
+	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O style=monokai,noclasses=true,encoding=utf-8")
+	cmd.Stdin = strings.NewReader(code)
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
 
-    if err := cmd.Run(); err != nil {
-        log.Print(stderr.String())
-        return code
-    }
+	if err := cmd.Run(); err != nil {
+		log.Print(stderr.String())
+		return code
+	}
 
-    return out.String()
+	return out.String()
 }

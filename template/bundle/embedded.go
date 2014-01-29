@@ -14,16 +14,16 @@
 package bundle
 
 type Tmpl struct {
-    Name string
-    Data string
+	Name string
+	Data string
 }
 
 func (t *GoHtmlTemplate) EmbedShortcodes() {
-    const k = "shortcodes"
+	const k = "shortcodes"
 
-    t.AddInternalTemplate(k, "highlight.html", `{{ $lang := index .Params 0 }}{{ highlight .Inner $lang }}`)
-    t.AddInternalTemplate(k, "test.html", `This is a simple Test`)
-    t.AddInternalTemplate(k, "figure.html", `<!-- image -->
+	t.AddInternalTemplate(k, "highlight.html", `{{ $lang := index .Params 0 }}{{ highlight .Inner $lang }}`)
+	t.AddInternalTemplate(k, "test.html", `This is a simple Test`)
+	t.AddInternalTemplate(k, "figure.html", `<!-- image -->
 <figure {{ if isset .Params "class" }}class="{{ index .Params "class" }}"{{ end }}>
     {{ if isset .Params "link"}}<a href="{{ index .Params "link"}}">{{ end }}
         <img src="{{ index .Params "src" }}" {{ if or (isset .Params "alt") (isset .Params "caption") }}alt="{{ if isset .Params "alt"}}{{ index .Params "alt"}}{{else}}{{ index .Params "caption" }}{{ end }}"{{ end }} />
