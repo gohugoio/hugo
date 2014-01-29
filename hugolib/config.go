@@ -36,7 +36,7 @@ type Config struct {
 	Params                                     map[string]interface{}
 	Permalinks                                 PermalinkOverrides
 	BuildDrafts, UglyUrls, Verbose             bool
-	CanonifyUrls							   bool
+	CanonifyUrls                               bool
 }
 
 var c Config

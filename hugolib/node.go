@@ -14,29 +14,29 @@
 package hugolib
 
 import (
-    "html/template"
-    "time"
+	"html/template"
+	"time"
 )
 
 type Node struct {
-    RSSLink template.HTML
-    Site    SiteInfo
-    //	layout      string
-    Data        map[string]interface{}
-    Title       string
-    Description string
-    Keywords    []string
-    Date        time.Time
-    UrlPath
+	RSSLink template.HTML
+	Site    SiteInfo
+	//	layout      string
+	Data        map[string]interface{}
+	Title       string
+	Description string
+	Keywords    []string
+	Date        time.Time
+	UrlPath
 }
 
 func (n Node) RSSlink() template.HTML {
-    return n.RSSLink
+	return n.RSSLink
 }
 
 type UrlPath struct {
-    Url       string
-    Permalink template.HTML
-    Slug      string
-    Section   string
+	Url       string
+	Permalink template.HTML
+	Slug      string
+	Section   string
 }
