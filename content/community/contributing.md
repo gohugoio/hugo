@@ -31,7 +31,7 @@ When you're ready to create a pull request, be sure to:
 
 # Building from source
 
-### Clone locally (for contributors):
+## Clone locally (for contributors):
 
     git clone https://github.com/spf13/hugo
     cd hugo
@@ -44,13 +44,13 @@ of the following paths:
  * ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo
  * ln -s /path/to/your/hugo $GOROOT/src/pkg/github.com/spf13/hugo
 
-### Running Hugo
+## Running Hugo
 
     cd /path/to/hugo
     go install github.com/spf13/hugo/hugolibs
     go run main.go
 
-### Building Hugo
+## Building Hugo
 
     cd /path/to/hugo
     go build -o hugo main.go

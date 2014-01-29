@@ -12,7 +12,21 @@
       </div>
       <script src="/static/js/jquery.js"></script>
       <script src="/static/js/bootstrap.min.js"></script>
+
+      <script>
+        $(document).ready(function() {
+            $("nav#TableOfContents a").click(function() {
+                $("html, body").animate({
+                    scrollTop: $($(this).attr("href")).offset().top-25 + "px"
+                }, {
+                    duration: 450,
+                });
+                return false;
+            });
+        });
+    </script>
     {{ template "chrome/analytics.html" . }}
+
   </body>
 
 </html>

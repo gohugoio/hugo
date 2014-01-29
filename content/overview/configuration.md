@@ -5,6 +5,7 @@ aliases: ["/doc/configuration/"]
 groups: ['gettingStarted']
 linktitle: "Configuration"
 groups_weight: 40
+notoc: true
 ---
 
 The directory structure and templates provide the majority of the

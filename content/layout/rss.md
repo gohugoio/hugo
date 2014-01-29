@@ -3,6 +3,7 @@ title: "RSS (feed) Templates"
 date: "2013-07-01"
 groups: ["layout"]
 groups_weight: 40
+notoc: "one"
 ---
 
 A single RSS template is used to generate all of the RSS content for the entire

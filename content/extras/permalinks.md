@@ -5,6 +5,7 @@ aliases:
   - "/doc/permalinks/"
 groups: ["extras"]
 groups_weight: 30
+notoc: true
 ---
 
 By default, content is laid out into the target `publishdir` (public)

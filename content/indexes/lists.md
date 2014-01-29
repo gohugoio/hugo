@@ -22,7 +22,7 @@ Hugo can order the meta data in two different ways. It can be ordered by the
 number of content assigned to that key or alphabetically.
 
 
-### Example indexes.html file (alphabetical)
+## Example indexes.html file (alphabetical)
 
 {{% highlight html %}}
 {{ template "chrome/header.html" . }}
@@ -42,7 +42,7 @@ number of content assigned to that key or alphabetically.
 {{ template "chrome/footer.html" }}
 {{% /highlight %}}
 
-### Example indexes.html file (ordered)
+## Example indexes.html file (ordered)
 
 {{% highlight html %}}
 {{ template "chrome/header.html" . }}
@@ -63,7 +63,7 @@ number of content assigned to that key or alphabetically.
 {{ template "chrome/footer.html" }}
 {{% /highlight %}}
 
-### Variables available to list of indexes pages.
+## Variables available to list of indexes pages.
 
 **.Title**  The title for the content. <br>
 **.Date** The date the content is published on.<br>

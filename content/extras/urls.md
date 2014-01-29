@@ -5,6 +5,7 @@ aliases:
   - "/doc/urls/"
 groups: ["extras"]
 groups_weight: 40
+notoc: true
 ---
 By default, all relative URLs encountered in the input will be canonicalized
 using `baseurl`, so that a link `/css/foo.css` becomes
