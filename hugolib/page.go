@@ -33,22 +33,23 @@ import (
 )
 
 type Page struct {
-    Status      string
-    Images      []string
-    rawContent  []byte
-    Content     template.HTML
-    Summary     template.HTML
-    Truncated   bool
-    plain       string // TODO should be []byte
-    Params      map[string]interface{}
-    contentType string
-    Draft       bool
-    Aliases     []string
-    Tmpl        bundle.Template
-    Markup      string
-    renderable  bool
-    layout      string
-    linkTitle   string
+    Status          string
+    Images          []string
+    rawContent      []byte
+    Content         template.HTML
+    Summary         template.HTML
+    TableOfContents template.HTML
+    Truncated       bool
+    plain           string // TODO should be []byte
+    Params          map[string]interface{}
+    contentType     string
+    Draft           bool
+    Aliases         []string
+    Tmpl            bundle.Template
+    Markup          string
+    renderable      bool
+    layout          string
+    linkTitle       string
     PageMeta
     File
     Position
@@ -75,7 +76,7 @@ type Pages []*Page
 
 func (p *Page) Plain() string {
     if len(p.plain) == 0 {
-        p.plain = StripHTML(StripShortcodes(string(p.rawContent)))
+        p.plain = StripHTML(StripShortcodes(string(p.renderBytes(p.rawContent))))
     }
     return p.plain
 }
@@ -96,6 +97,10 @@ func (p *Page) setSummary() {
     }
 }
 
+func stripEmptyNav(in []byte) []byte {
+    return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
+}
+
 func bytesToHTML(b []byte) template.HTML {
     return template.HTML(string(b))
 }
@@ -104,16 +109,27 @@ func (p *Page) renderBytes(content []byte) []byte {
     return renderBytes(content, p.guessMarkupType())
 }
 
-func (p *Page) renderString(content string) []byte {
-    return renderBytes([]byte(content), p.guessMarkupType())
+func (p *Page) renderContent(content []byte) []byte {
+    return renderBytesWithTOC(content, p.guessMarkupType())
+}
+
+func renderBytesWithTOC(content []byte, pagefmt string) []byte {
+    switch pagefmt {
+    default:
+        return markdownRenderWithTOC(content)
+    case "markdown":
+        return markdownRenderWithTOC(content)
+    case "rst":
+        return []byte(getRstContent(content))
+    }
 }
 
 func renderBytes(content []byte, pagefmt string) []byte {
     switch pagefmt {
     default:
-        return blackfriday.MarkdownCommon(content)
+        return markdownRender(content)
     case "markdown":
-        return blackfriday.MarkdownCommon(content)
+        return markdownRender(content)
     case "rst":
         return []byte(getRstContent(content))
     }
@@ -553,7 +569,9 @@ func (page *Page) Convert() error {
     markupType := page.guessMarkupType()
     switch markupType {
     case "markdown", "rst":
-        page.Content = bytesToHTML(page.renderString(string(RemoveSummaryDivider(page.rawContent))))
+        tmpContent, tmpTableOfContents := extractTOC(page.renderContent(RemoveSummaryDivider(page.rawContent)))
+        page.Content = bytesToHTML(tmpContent)
+        page.TableOfContents = bytesToHTML(tmpTableOfContents)
     case "html":
         page.Content = bytesToHTML(page.rawContent)
     default:
@@ -562,19 +580,58 @@ func (page *Page) Convert() error {
     return nil
 }
 
-// Lazily generate the TOC
-func (page *Page) TableOfContents() template.HTML {
-    return tableOfContentsFromBytes([]byte(page.Content))
+func markdownRender(content []byte) []byte {
+    htmlFlags := 0
+    htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
+    htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+    renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
+
+    return blackfriday.Markdown(content, renderer, 0)
 }
 
-func tableOfContentsFromBytes(content []byte) template.HTML {
+func markdownRenderWithTOC(content []byte) []byte {
     htmlFlags := 0
     htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
     htmlFlags |= blackfriday.HTML_TOC
-    htmlFlags |= blackfriday.HTML_OMIT_CONTENTS
+    htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
     renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
-    return template.HTML(string(blackfriday.Markdown(RemoveSummaryDivider(content), renderer, 0)))
+    return blackfriday.Markdown(content, renderer, 0)
+}
+
+func extractTOC(content []byte) (newcontent []byte, toc []byte) {
+    origContent := make([]byte, len(content))
+    copy(origContent, content)
+    first := []byte(`<nav>
+<ul>`)
+
+    last := []byte(`</ul>
+</nav>`)
+
+    replacement := []byte(`<nav id="TableOfContents">
+<ul>`)
+
+    startOfTOC := bytes.Index(content, first)
+
+    peekEnd := len(content)
+    if peekEnd > 70+startOfTOC {
+        peekEnd = 70 + startOfTOC
+    }
+
+    if startOfTOC < 0 {
+        return stripEmptyNav(content), toc
+    }
+    // Need to peek ahead to see if this nav element is actually the right one.
+    correctNav := bytes.Index(content[startOfTOC:peekEnd], []byte(`#toc_0`))
+    if correctNav < 0 { // no match found
+        return content, toc
+    }
+    lengthOfTOC := bytes.Index(content[startOfTOC:], last) + len(last)
+    endOfTOC := startOfTOC + lengthOfTOC
+
+    newcontent = append(content[:startOfTOC], content[endOfTOC:]...)
+    toc = append(replacement, origContent[startOfTOC+len(first):endOfTOC]...)
+    return
 }
 
 func ReaderToBytes(lines io.Reader) []byte {
