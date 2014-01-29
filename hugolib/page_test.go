@@ -209,6 +209,7 @@ var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
 a_string = "bar"
 an_integer = 1
 a_float = 1.3
+a_bool = false
 a_date = 1979-05-27T07:32:00Z
 +++
 Front Matter with various frontmatter types`
@@ -457,6 +458,9 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
     }
     if page.GetParam("a_float") != 1.3 {
         t.Errorf("frontmatter not handling floats correctly should be %s, got: %s", 1.3, page.GetParam("a_float"))
+    }
+    if page.GetParam("a_bool") != false {
+        t.Errorf("frontmatter not handling bools correctly should be %s, got: %s", false, page.GetParam("a_bool"))
     }
     if page.GetParam("a_date") != dateval {
         t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))

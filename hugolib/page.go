@@ -412,6 +412,8 @@ func (page *Page) update(f interface{}) error {
         default:
             // If not one of the explicit values, store in Params
             switch vv := v.(type) {
+            case bool:
+                page.Params[loki] = vv
             case string:
                 page.Params[loki] = vv
             case int64, int32, int16, int8, int:
@@ -444,6 +446,8 @@ func (page *Page) GetParam(key string) interface{} {
     }
 
     switch v.(type) {
+    case bool:
+        return interfaceToBool(v)
     case string:
         return interfaceToString(v)
     case int64, int32, int16, int8, int:
