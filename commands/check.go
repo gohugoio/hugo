@@ -14,18 +14,52 @@
 package commands
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/hugolib"
+    "fmt"
+    "github.com/spf13/cobra"
+    "github.com/spf13/hugo/hugolib"
+    "syscall"
 )
 
+func init() {
+    check.AddCommand(limit)
+}
+
 var check = &cobra.Command{
-	Use:   "check",
-	Short: "Check content in the source directory",
-	Long: `Hugo will perform some basic analysis on the
+    Use:   "check",
+    Short: "Check content in the source directory",
+    Long: `Hugo will perform some basic analysis on the
     content provided and will give feedback.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
-		site := hugolib.Site{Config: *Config}
-		site.Analyze()
-	},
+    Run: func(cmd *cobra.Command, args []string) {
+        InitializeConfig()
+        site := hugolib.Site{Config: *Config}
+        site.Analyze()
+    },
+}
+
+var limit = &cobra.Command{
+    Use:   "ulimit",
+    Short: "Check system ulimit settings",
+    Long: `Hugo will inspect the current ulimit settings on the system.
+    This is primarily to ensure that Hugo can watch enough files on some OSs`,
+    Run: func(cmd *cobra.Command, args []string) {
+        var rLimit syscall.Rlimit
+        err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+        if err != nil {
+            fmt.Println("Error Getting Rlimit ", err)
+        }
+        fmt.Println("Current rLimit:", rLimit)
+
+        fmt.Println("Attempting to increase limit")
+        rLimit.Max = 999999
+        rLimit.Cur = 999999
+        err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+        if err != nil {
+            fmt.Println("Error Setting rLimit ", err)
+        }
+        err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+        if err != nil {
+            fmt.Println("Error Getting rLimit ", err)
+        }
+        fmt.Println("rLimit after change:", rLimit)
+    },
 }
