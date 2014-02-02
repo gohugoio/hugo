@@ -59,7 +59,7 @@ type OrderedIndexEntry struct {
 
 // KeyPrep... Indexes should be case insensitive. Can make it easily conditional later.
 func kp(in string) string {
-	return helpers.Urlize(in)
+	return helpers.MakePath(in)
 }
 
 func (i Index) Get(key string) WeightedPages { return i[kp(key)] }

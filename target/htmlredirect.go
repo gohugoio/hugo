@@ -39,7 +39,7 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 	} else if !strings.HasSuffix(alias, ".html") {
 		alias = alias + "/index.html"
 	}
-	return path.Join(h.PublishDir, helpers.Urlize(alias)), nil
+	return path.Join(h.PublishDir, helpers.MakePath(alias)), nil
 }
 
 type AliasNode struct {
