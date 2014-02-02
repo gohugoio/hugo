@@ -20,6 +20,7 @@ func TestHTMLRedirectAlias(t *testing.T) {
 		{"alias 3.html", "alias-3.html"},
 		{"alias4.html", "alias4.html"},
 		{"/alias 5.html", "/alias-5.html"},
+		{"/трям.html", "/трям.html"},
 	}
 
 	for _, test := range tests {
