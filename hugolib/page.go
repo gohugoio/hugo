@@ -277,7 +277,8 @@ func (p *Page) permalink() (*url.URL, error) {
 
 		if len(pSlug) > 0 {
 			if p.Site.Config != nil && p.Site.Config.UglyUrls {
-				permalink = path.Join(dir, p.Slug, p.Extension)
+				filename := fmt.Sprintf("%s.%s", p.Slug, p.Extension)
+				permalink = path.Join(dir, filename)
 			} else {
 				permalink = path.Join(dir, p.Slug) + "/"
 			}

@@ -11,23 +11,34 @@ func TestPermalink(t *testing.T) {
 		dir         string
 		base        template.URL
 		slug        string
+		uglyurls    bool
 		expectedAbs string
 		expectedRel string
 	}{
-		{"x/y/z/boofar.md", "x/y/z", "", "", "/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z/", "", "", "/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", "/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "x/y/z", "", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", false, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "x/y/z", "", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", true, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", true, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 	}
 
 	for _, test := range tests {
 		p := &Page{
 			Node: Node{
 				UrlPath: UrlPath{Section: "z"},
-				Site:    SiteInfo{BaseUrl: test.base},
+				Site: SiteInfo{
+					BaseUrl: test.base,
+					Config: &Config{
+						UglyUrls: test.uglyurls,
+					},
+				},
 			},
-			File: File{FileName: test.file, Dir: test.dir},
+			File: File{FileName: test.file, Dir: test.dir, Extension: "html"},
 		}
 
 		if test.slug != "" {
