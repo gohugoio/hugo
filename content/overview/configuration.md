@@ -47,7 +47,7 @@ The following is an example of a json config file with the default values:
        "category": "categories",
        "tag": "tags"
     },
-    "baseurl": "http://yoursite.example.com/"
+    "baseurl": "http://yoursite.example.com/",
     "canonifyurls": true
 }
 {{% /highlight %}}
