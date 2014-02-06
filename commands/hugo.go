@@ -23,6 +23,7 @@ import (
     "github.com/spf13/nitro"
     "os"
     "path/filepath"
+    "runtime"
     "strings"
     "sync"
     "syscall"
@@ -156,17 +157,19 @@ func buildSite(watching ...bool) (err error) {
 }
 
 func NewWatcher(port int) error {
-    var rLimit syscall.Rlimit
-    err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-    if err != nil {
-        fmt.Println("Error Getting Rlimit ", err)
-    }
-    if rLimit.Cur < rLimit.Max {
-        rLimit.Max = 999999
-        rLimit.Cur = 999999
-        err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+    if runtime.GOOS == "darwin" {
+        var rLimit syscall.Rlimit
+        err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
         if err != nil {
-            fmt.Println("Error Setting rLimit ", err)
+            fmt.Println("Unable to obtain rLimit", err)
+        }
+        if rLimit.Cur < rLimit.Max {
+            rLimit.Max = 999999
+            rLimit.Cur = 999999
+            err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+            if err != nil {
+                fmt.Println("Unable to increase number of open files limit", err)
+            }
         }
     }
 
