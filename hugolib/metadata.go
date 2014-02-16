@@ -38,6 +38,7 @@ func interfaceToStringToDate(i interface{}) time.Time {
 func stringToDate(s string) (time.Time, error) {
 	return parseDateWith(s, []string{
 		time.RFC3339,
+		"2006-01-02T15:04:05", // iso8601 without timezone
 		time.RFC1123Z,
 		time.RFC1123,
 		time.RFC822Z,
