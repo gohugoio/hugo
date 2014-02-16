@@ -17,7 +17,7 @@ func interfaceToTime(i interface{}) time.Time {
 		if e == nil {
 			return d
 		}
-		errorf("Invalid Time/Date format")
+		errorf("Could not parse Date/Time format:", e)
 	default:
 		errorf("Only Time is supported for this key")
 	}
