@@ -71,6 +71,11 @@ func interfaceToBool(i interface{}) bool {
 	switch b := i.(type) {
 	case bool:
 		return b
+	case int:
+		if i.(int) > 0 {
+			return true
+		}
+		return false
 	default:
 		errorf("Only Boolean values are supported for this YAML key")
 	}
