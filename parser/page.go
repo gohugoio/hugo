@@ -17,7 +17,7 @@ const (
 	TOML_LEAD       = "+"
 	TOML_DELIM_UNIX = "+++\n"
 	TOML_DELIM_DOS  = "+++\r\n"
-	JAVA_LEAD       = "{"
+	JSON_LEAD       = "{"
 )
 
 var (
@@ -26,7 +26,7 @@ var (
 		[]byte(YAML_DELIM_DOS),
 		[]byte(TOML_DELIM_UNIX),
 		[]byte(TOML_DELIM_DOS),
-		[]byte(JAVA_LEAD),
+		[]byte(JSON_LEAD),
 	}
 
 	unixEnding = []byte("\n")
@@ -161,7 +161,7 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 	case 2:
 		fallthrough
 	case 1:
-		return []byte(JAVA_LEAD), []byte("}")
+		return []byte(JSON_LEAD), []byte("}")
 	default:
 		panic(fmt.Sprintf("Unable to determine delims from %q", firstLine))
 	}
