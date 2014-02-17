@@ -149,8 +149,12 @@ func interfaceToString(i interface{}) string {
 	switch s := i.(type) {
 	case string:
 		return s
+	case float64:
+		return strconv.FormatFloat(i.(float64), 'f', -1, 64)
+	case int:
+		return strconv.FormatInt(int64(i.(int)), 10)
 	default:
-		errorf("Only Strings are supported for this key")
+		errorf(fmt.Sprintf("Only Strings are supported for this key (got type '%T'): %s", s, s))
 	}
 
 	return ""
