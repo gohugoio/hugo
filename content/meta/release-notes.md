@@ -5,21 +5,36 @@ aliases: ["/doc/release-notes/"]
 groups: ["meta"]
 groups_weight: 10
 ---
+## **0.10.0** Feb 15, 2014
+  * Syntax [highlighting](/extras/highlighting) powered by pygments (**slow**)
+  * Ability to [sort content](/content/ordering) many more ways
+  * Automatic [table of contents](http://XXXXXXXXXXXXX) generation
+  * Support for unicode urls, aliases and indexes
+  * Configurable per-section [permalink](/extras/permalinks) pattern support
+  * Support for [paired shortcodes](/extras/shortcodes)
+  * Shipping with some [shortcodes](/extras/shortcodes) (highlight & figure)
+  * Adding [canonify](/extras/urls) option to keep urls relative
+  * A bunch of [additional template functions](/layouts/templatefunctions)
+  * Watching very large sites now works on mac
+  * RSS generation improved. Limited to 50 items by default, can limit further in [template](/layout/rss)
+  * Boolean params now supported in [frontmatter](/content/front-matter)
+  * Launched website [showcase](/showcase). Show off your own hugo site!
+  * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
 
 ## **0.9.0** November 15, 2013
-  * New command based interface similar to git (hugo server -s ./ )
+  * New [command based interface](/overview/usage) similar to git (hugo server -s ./ )
   * Amber template support
-  * Aliases (redirects)
+  * [Aliases](/extras/aliases) (redirects)
   * Support for top level pages (in addition to homepage)
   * Complete overhaul of the documentation site
   * Full Windows support
-  * Better index support including ordering by content weight
+  * Better index support including [ordering by content weight](/content/ordering)
   * Add params to site config, available in .Site.Params from templates
   * Friendlier json support
   * Support for html & xml content (with frontmatter support)
-  * Support for summary content divider (&lt;!–more–>)
-  * HTML in summary (when using divider)
-  * Added "Minutes to Read" functionality
+  * Support for [summary](/content/summaries) content divider (&lt;!–more–>)
+  * HTML in [summary](/content/summaries) (when using divider)
+  * Added ["Minutes to Read"](/layout/variables) functionality
   * Support for a custom 404 page
   * Cleanup of how content organization is handled
   * Loads of unit and performance tests
@@ -28,16 +43,15 @@ groups_weight: 10
   * Support for relative permalinks
   * Fixed watching being triggered multiple times for the same event
   * Watch now ignores temp files (as created by Vim)
-  * Configurable number of posts on homepage
-  * Front matter supports multiple types (int, string, date, float)
+  * Configurable number of posts on [homepage](/layout/homepage/)
+  * [Front matter](/content/front-matter) supports multiple types (int, string, date, float)
   * Indexes can now use a default template
   * Addition of truncated bool to content to determine if should show 'more' link
-  * Support for linkTitles
+  * Support for [linkTitles](/layout/variables)
   * Better handling of most errors with directions on how to resolve
   * Support for more date / time formats
   * Support for go 1.2
   * Support for `first` in templates
-  * Support for site per-section permalink pattern specifications
 
 ## **0.8.0** August 2, 2013
   * Added support for pretty urls (filename/index.html vs filename.html)

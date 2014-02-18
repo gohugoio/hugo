@@ -10,10 +10,15 @@ notoc: true
 In no particular order, here is what we are working on:
 
  * Pagination
- * Support for top level pages (other than homepage)
  * Better error handling
- * Syntax highlighting
  * Related Posts
  * Support for other formats
+ * Full theming support
+ * Ability to automatically import from other website systems (wordpress, jekyll)
+ * Ship with a few default themes
+ * An interactive web based editor
+ * Easy deployment to S3, SSH, Github, rsync
+ * Live preview (auto refresh in browser)
+ * Dynamic image resizing via shortcodes
 
 
