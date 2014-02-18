@@ -20,16 +20,16 @@ templates that the new type will use.
 It is essential to provide the single render view template as well as a
 list view template.
 
-### Step 1:
+### Step 1: Create Type Directory
 Create a directory with the name of the type in layouts.Type is always singular.  *Eg /layouts/post*.
 
-### Step 2:
+### Step 2: Create template
 Create a file called single.html inside your directory. *Eg /layouts/post/single.html*.
 
-### Step 3:
+### Step 3: Create list template
 Create a file with the same name as your directory in /layouts/indexes/. *Eg /layouts/indexes/post.html*.
 
-### Step 4:
+### Step 4: Create views
 Many sites support rendering content in a few different ways, for
 instance a single page view and a summary view to be used when displaying a list
 of contents on a single page. Hugo makes no assumptions here about how you want
