@@ -1,5 +1,5 @@
 ---
-title: "Templates"
+title: "Hugo Templates"
 date: "2013-07-01"
 aliases: ["/doc/templates/"]
 linktitle: "Overview"

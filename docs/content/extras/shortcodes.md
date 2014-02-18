@@ -6,52 +6,117 @@ groups: ["extras"]
 groups_weight: 10
 ---
 
-Because Hugo uses markdown for its simple content format, however there's a lot of things that 
-markdown doesn't support well.
+Because Hugo uses markdown for its simple content format, however there's a lot
+of things that markdown doesn't support well.
 
-We are unwilling to accept being constrained by our simple format. Also unacceptable is writing raw
-html in our markdown every time we want to include unsupported content such as a video. To do 
-so is in complete opposition to the intent of using a bare bones format for our content and 
-utilizing templates to apply styling for display.
+We are unwilling to accept being constrained by our simple format. Also
+unacceptable is writing raw html in our markdown every time we want to include
+unsupported content such as a video. To do so is in complete opposition to the
+intent of using a bare bones format for our content and utilizing templates to
+apply styling for display.
 
 To avoid both of these limitations Hugo created shortcodes.
 
-## What is a shortcode?
-A shortcode is a simple snippet inside a markdown file that Hugo will render using a predefined template.
+A shortcode is a simple snippet inside a markdown file that Hugo will render
+using a predefined template.
 
-An example of a shortcode would be `{{% video http://urlToVideo %}}`
-
-Shortcodes are created by placing a template file in `layouts/shortcodes/`. The
-name of the file becomes the name of the shortcode (without the extension).
+## Using a shortcode
 
 In your content files a shortcode can be called by using '{{&#37; name parameters
 %}}' respectively. Shortcodes are space delimited (parameters with spaces
-can be quoted). 
+can be quoted).
 
-The first word is always the name of the shortcode.  Following
-the name are the parameters.
+The first word is always the name of the shortcode. Parameters follow the name.
+The format for named parameters models that of html with the format
+name="value". The current implementation only supports this exact format. Extra
+spaces or different quote marks will not parse properly.
 
-The author of the shortcode can choose if the short code will use positional
-parameters or named parameters (but not both). A good rule of thumb is that if
-a short code has a single required value in the case of the youtube example
-below then positional works very well. For more complex layouts with optional
+Some shortcodes use or require closing shortcodes. Like HTML, the opening and closing
+shortcodes match (name only), the closing being prepended with a slash.
+
+Example of a paired shortcode:
+{{&#37; highlight go %}} A bunch of code here {{&#37; /highlight %}} 
+
+
+## Hugo Shortcodes
+
+Hugo ships with a set of predefined shortcodes.
+
+### highlight
+
+This shortcode will convert the source code provided into syntax highlighted
+html. Read more on [highlighting](/extras/highlighting).
+
+#### Usage
+Highlight takes exactly one required parameter of language and requires a
+closing shortcode.
+
+#### Example
+{{% highlight html %}}
+    {{&#37; highlight html %}}
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+        {{ range .Data.Pages }}
+            {{ .Render "summary"}}
+        {{ end }}
+      </div>
+    </section>
+    {{&#37; /highlight %}}
+{{% /highlight %}}
+
+
+#### Example Output
+
+{{% highlight html %}}
+    <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
+      <span style="color: #f92672">&lt;div&gt;</span>
+       <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
+        {{ range .Data.Pages }}
+            {{ .Render &quot;summary&quot;}}
+        {{ end }}
+      <span style="color: #f92672">&lt;/div&gt;</span>
+    <span style="color: #f92672">&lt;/section&gt;</span>
+{{% /highlight %}}
+
+### figure
+Figure is simply an extension of the image capabilities present with Markdown.
+figure provides the ability to add captions, css classes, alt text, links etc.
+
+#### Usage
+
+figure can use the following parameters
+
+ * src
+ * link
+ * title
+ * caption
+ * attr (attribution)
+ * attrlink
+ * alt
+
+#### Example
+
+{{% highlight html %}}
+    {{&#37; figure src="/media/spf13.jpg" title="Steve Francia" %}}
+{{% /highlight %}}
+
+#### Example output
+
+{{% highlight html %}}
+
+{{% /highlight %}}
+
+## Creating your own shortcodes
+
+To create a shortcode, place a template in the layouts/shortcodes directory. The
+template name will be the name of the shortcode.
+
+In creating a shortcode you can choose if the short code will use positional
+parameters or named parameters (but not both). A good rule of thumb is that if a
+short code has a single required value in the case of the youtube example below
+then positional works very well. For more complex layouts with optional
 parameters named parameters work best.
-
-The format for named parameters models that of html with the format name="value"
-
-Lastly like HTML, shortcodes can be singular or paired. An example of a paired
-shortcode would be:
-
-    {{% code_highlight %}} A bunch of code here {{% /code_highlight %}} 
-
-Shortcodes are paired with an opening shortcode identical to a single shortcode
-and a closing shortcode.
-
-## Creating a shortcode
-
-All that you need to do to create a shortcode is place a template in the layouts/shortcodes directory.
-
-The template name will be the name of the shortcode.
 
 **Inside the template**
 
@@ -65,9 +130,10 @@ To check if a parameter has been provided use the isset method provided by Hugo.
 
     {{ if isset .Params "class"}} class="{{ index .Params "class"}}" {{ end }}
 
-For paired shortcodes the variable .Inner is available which contains all of
-the content between the opening and closing shortcodes. **Simply using this
-variable is the only difference between single and paired shortcodes.**
+If a closing shortcode is used, the variable .Inner will be populated with all
+of the content between the opening and closing shortcodes. If a closing
+shortcode is required, you can check the length of .Inner and provide a warning
+to the user.
 
 ## Single Positional Example: youtube
 
@@ -110,7 +176,7 @@ Would load the template /layouts/shortcodes/img.html
             {{ if isset .Params "attrlink"}}<a href="{{ index .Params "attrlink"}}"> {{ end }}
                 {{ index .Params "attr" }}
             {{ if isset .Params "attrlink"}}</a> {{ end }}
-            </p> {{ end }} 
+            </p> {{ end }}
         </figcaption>
         {{ end }}
     </figure>
