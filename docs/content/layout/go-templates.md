@@ -129,7 +129,7 @@ range.
 
 If, else, with, or, & and provide the framework for handling conditional
 logic in Go Templates. Like range, each statement is closed with `end`.
-There is not an elseif function.
+
 
 Go Templates treat the following values as false: 
 
@@ -162,6 +162,14 @@ and skips the block if the variable is absent.
 The first example above could be simplified as:
 
     {{ with .Params.title }}<h4>{{ . }}</h4>{{ end }}
+
+**Example 5: If -> Else If ** 
+
+    {{ if isset .Params "alt" }} 
+        {{ index .Params "alt" }}
+    {{ else if isset .Params "caption" }}
+        {{ index .Params "caption" }}
+    {{ end }}
 
 ## Pipes
 
@@ -263,8 +271,7 @@ notoc: true
 
 Here is the corresponding code inside of the template:
 
-      {{ if .Params.notoc }}
-      {{ else }}
+      {{ if not .Params.notoc }}
         <div id="toc" class="well col-md-4 col-sm-6">
         {{ .TableOfContents }}
         </div>
