@@ -143,6 +143,11 @@ func Tokenize(in string) interface{} {
 	for i, v := range first {
 		index := strings.Index(v, "=")
 
+		if index < 0 {
+			fmt.Printf("Shortcode parameters must be key=value pairs (no spaces) (saw '%s')\n", v)
+			continue
+		}
+
 		if !inQuote {
 			if index > 1 {
 				keys = append(keys, v[:index])
