@@ -7,6 +7,25 @@ groups: ["extras"]
 groups_weight: 40
 notoc: true
 ---
+
+## Pretty Urls
+
+By default Hugo will create content with 'pretty' urls. For example
+content created at /content/extras/urls.md will be rendered at
+/content/extras/urls/index.html and accessible at /content/extras/urls. No
+no standard server side configuration is required for these pretty urls to
+work. 
+
+If you would like to have uglyurls you are in luck. Hugo supports the
+ability to create your entire site with ugly urls. Simply use the
+`--uglyurls=true` flag on the command line.
+
+If you want a specific piece of content to have an exact url you can
+specify this in the front matter under the url key. See [Content
+Organization](content/organization/) for more details. 
+
+## Canonicalization
+
 By default, all relative URLs encountered in the input will be canonicalized
 using `baseurl`, so that a link `/css/foo.css` becomes
 `http://yoursite.example.com/css/foo.css`.
