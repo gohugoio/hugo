@@ -63,6 +63,8 @@ Hugo boasts the following features:
   * ["Minutes to Read"](/layout/variables) functionality
   * ["Wordcount"](/layout/variables) functionality
 
+See what's coming next in the [roadmap](/meta/roadmap)
+
 ## Who should use Hugo?
 
 Hugo is for people that prefer writing in a text editor over
@@ -82,7 +84,9 @@ I wrote Hugo ultimately for a few reasons. First I was disappointed with
 wordpress, my then website solution. It rendered slowly. I couldn't create
 content as efficiently as I wanted to and needed to be online to write
 posts. The constant security updates and the horror stories of people's
-hacked blogs. 
+hacked blogs. I hated how content was written in HTML instead of the much
+simpler markdown. Overall I felt like it got in my way more than it helped
+my from writing great content.
 
 I looked at existing static site generators like Jekyll, Middle and Nanoc.
 All had complicated dependencies to install and took far longer to render
@@ -97,3 +101,11 @@ dependencies. The Go language seemed to have all of the features I needed
 in a language. I began developing Hugo in Go and fell in love with the
 language. I hope you will enjoy using (and contributing to) Hugo as much
 as I have writing it.
+
+## Next Steps
+
+
+ * [Install Hugo](/overview/installing)
+ * [Quick start](/overview/quickstart)
+ * [Join the Mailing List](/community/mailing-list)
+ * [Star us on Github](http://github.com/spf13/hugo)

@@ -5,10 +5,10 @@ aliases: ["/doc/release-notes/"]
 groups: ["meta"]
 groups_weight: 10
 ---
-## **0.10.0** Feb 15, 2014
-  * Syntax [highlighting](/extras/highlighting) powered by pygments (**slow**)
+## **0.10.0** Feb 22, 2014
+  * [Syntax highlighting](/extras/highlighting) powered by pygments (**slow**)
   * Ability to [sort content](/content/ordering) many more ways
-  * Automatic [table of contents](http://XXXXXXXXXXXXX) generation
+  * Automatic [table of contents](/extras/toc) generation
   * Support for unicode urls, aliases and indexes
   * Configurable per-section [permalink](/extras/permalinks) pattern support
   * Support for [paired shortcodes](/extras/shortcodes)
