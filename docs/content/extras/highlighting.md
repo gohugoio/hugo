@@ -13,14 +13,14 @@ the path, it will silently simply pass the content along unhighlighted.
 
 ## Disclaimers
 
- * **Warning** Pygments is relatively slow and our integration with it isn't
+ * **Warning** Pygments is relatively slow and our integration isn't
 speed optimized. Expect much longer build times when using highlighting
- * The languages available depends on your pygments installation.
+ * Languages available depends on your pygments installation.
  * While pygments supports a few different output formats and options we currently
 only support output=html, style=monokai, noclasses=true, and encoding=utf-8.
  * Styles are inline in order to be supported in syndicated content when references
 to style sheets are not carried over.
- * We have sought to have the simpliest interface possible, which consequently
+ * We have sought to have the simplest interface possible, which consequently
 limits configuration. An ambitious user is encouraged to extend the current
 functionality to offer more customization.
 
@@ -46,13 +46,13 @@ closing shortcode.
 ## Example Output
 
 {{% highlight html %}}
-    <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
-      <span style="color: #f92672">&lt;div&gt;</span>
-       <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
-        {{ range .Data.Pages }}
-            {{ .Render &quot;summary&quot;}}
-        {{ end }}
-      <span style="color: #f92672">&lt;/div&gt;</span>
-    <span style="color: #f92672">&lt;/section&gt;</span>
+<span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
+  <span style="color: #f92672">&lt;div&gt;</span>
+   <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
+    {{ range .Data.Pages }}
+        {{ .Render &quot;summary&quot;}}
+    {{ end }}
+  <span style="color: #f92672">&lt;/div&gt;</span>
+<span style="color: #f92672">&lt;/section&gt;</span>
 {{% /highlight %}}
 

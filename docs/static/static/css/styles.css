@@ -2,7 +2,12 @@ body {
     background-color: rgb(253, 253, 251);
     padding-top: 70px;
     letter-spacing: 0.3px;
-    font-family: 'Arbutus Slab', "Helvetica Neue", "Helvitica", "Serif";
+    font-family: "Helvetica Neue", "Helvitica", "Serif";
+    font-weight: 300;
+}
+
+p {
+    margin: 0 0 2em;
 }
 
 #main.container {
@@ -43,7 +48,7 @@ pre {
 }
 
 a {
-    color: rgb(96,210,211);
+    color: #2b91ae;
 }
 
 a:hover {

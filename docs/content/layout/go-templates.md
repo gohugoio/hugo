@@ -163,7 +163,7 @@ The first example above could be simplified as:
 
     {{ with .Params.title }}<h4>{{ . }}</h4>{{ end }}
 
-**Example 5: If -> Else If ** 
+**Example 5: If -> Else If** 
 
     {{ if isset .Params "alt" }} 
         {{ index .Params "alt" }}

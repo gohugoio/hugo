@@ -15,8 +15,7 @@ Somethings are better shown than explained. The following is a very basic exampl
 {{% highlight yaml %}}
 ---
 Title:       "Nitro : A quick and simple profiler for golang"
-Description: ""
-Keywords:    [ "Development", "golang", "profiling" ]
+Description: "Nitro is a simple profiler for you go lang applications"
 Tags:        [ "Development", "golang", "profiling" ]
 date:        "2013-06-19"
 Topics:      [ "Development", "GoLang" ]

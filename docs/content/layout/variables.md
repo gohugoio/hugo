@@ -28,6 +28,7 @@ matter, content or derived from file location.
 **.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title<br>
 **.Indexes** These will use the field name of the plural form of the index (see tags and categories above)<br>
 **.RSSLink** Link to the indexes' rss link <br>
+**.TableOfContents** The rendered table of contents for this content<br>
 **.Prev** Pointer to the previous content (based on pub date)<br>
 **.Next** Pointer to the following content (based on pub date)<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
