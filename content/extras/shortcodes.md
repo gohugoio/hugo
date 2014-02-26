@@ -120,15 +120,24 @@ parameters named parameters work best.
 
 **Inside the template**
 
-To access a parameter by either position or name the index method can be used.
+To access a parameter by position the .Get method can be used.
 
-    {{ index .Params 0 }}
-    or
-    {{ index .Params "class" }}
+    {{ .Get 0 }}
 
-To check if a parameter has been provided use the isset method provided by Hugo.
+To access a parameter by name the .Get method should be utilized
 
-    {{ if isset .Params "class"}} class="{{ index .Params "class"}}" {{ end }}
+    {{ .Get "class" }}
+
+
+With is great when the output depends on a parameter being set
+
+    {{ with .Get "class"}} class="{{.}}"{{ end }}
+
+Get can also be used to check if a parameter has been provided. This is
+most helpful when the condition depends on either one value or another...
+or both. 
+
+    {{ or .Get "title" | .Get "alt" | if }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
 
 If a closing shortcode is used, the variable .Inner will be populated with all
 of the content between the opening and closing shortcodes. If a closing
@@ -162,20 +171,19 @@ This would be rendered as
     {{ % img src="/media/spf13.jpg" title="Steve Francia" %}}
 
 Would load the template /layouts/shortcodes/img.html
-
     <!-- image -->
-    <figure {{ if isset .Params "class" }}class="{{ index .Params "class" }}"{{ end }}>
-        {{ if isset .Params "link"}}<a href="{{ index .Params "link"}}">{{ end }}
-            <img src="{{ index .Params "src" }}" {{ if or (isset .Params "alt") (isset .Params "caption") }}alt="{{ if isset .Params "alt"}}{{ index .Params "alt"}}{{else}}{{ index .Params "caption" }}{{ end }}"{{ end }} />
-        {{ if isset .Params "link"}}</a>{{ end }}
-        {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
+    <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
+        {{ with .Get "link"}}<a href="{{.}}">{{ end }}
+            <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}"{{ end }} />
+        {{ if .Get "link"}}</a>{{ end }}
+        {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr")}}
         <figcaption>{{ if isset .Params "title" }}
-            <h4>{{ index .Params "title" }}</h4>{{ end }}
-            {{ if or (isset .Params "caption") (isset .Params "attr")}}<p>
-            {{ index .Params "caption" }}
-            {{ if isset .Params "attrlink"}}<a href="{{ index .Params "attrlink"}}"> {{ end }}
-                {{ index .Params "attr" }}
-            {{ if isset .Params "attrlink"}}</a> {{ end }}
+            <h4>{{ .Get "title" }}</h4>{{ end }}
+            {{ if or (.Get "caption") (.Get "attr")}}<p>
+            {{ .Get "caption" }}
+            {{ with .Get "attrlink"}}<a href="{{.}}"> {{ end }}
+                {{ .Get "attr" }}
+            {{ if .Get "attrlink"}}</a> {{ end }}
             </p> {{ end }}
         </figcaption>
         {{ end }}
@@ -203,8 +211,7 @@ Would be rendered as:
     {{% /highlight %}}
 
 The template for this utilizes the following code (already include in hugo)
-
-    {{ $lang := index .Params 0 }}{{ highlight .Inner $lang }}
+    {{ .Get 0 | highlight .Inner  }}
 
 And will be rendered as:
 
