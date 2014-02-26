@@ -138,6 +138,8 @@ type Template interface {
 	New(name string) *template.Template
 	LoadTemplates(absPath string)
 	AddTemplate(name, tpl string) error
+	AddInternalTemplate(prefix, name, tpl string) error
+	AddInternalShortcode(name, tpl string) error
 }
 
 type templateErr struct {
@@ -187,6 +189,10 @@ func (t *GoHtmlTemplate) LoadEmbedded() {
 
 func (t *GoHtmlTemplate) AddInternalTemplate(prefix, name, tpl string) error {
 	return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
+}
+
+func (t *GoHtmlTemplate) AddInternalShortcode(name, content string) error {
+	return t.AddInternalTemplate("shortcodes", name, content)
 }
 
 func (t *GoHtmlTemplate) AddTemplate(name, tpl string) error {

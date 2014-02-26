@@ -19,27 +19,24 @@ type Tmpl struct {
 }
 
 func (t *GoHtmlTemplate) EmbedShortcodes() {
-	const k = "shortcodes"
-
-	t.AddInternalTemplate(k, "highlight.html", `{{ $lang := index .Params 0 }}{{ highlight .Inner $lang }}`)
-	t.AddInternalTemplate(k, "test.html", `This is a simple Test`)
-	t.AddInternalTemplate(k, "figure.html", `<!-- image -->
-<figure {{ if isset .Params "class" }}class="{{ index .Params "class" }}"{{ end }}>
-    {{ if isset .Params "link"}}<a href="{{ index .Params "link"}}">{{ end }}
-        <img src="{{ index .Params "src" }}" {{ if or (isset .Params "alt") (isset .Params "caption") }}alt="{{ if isset .Params "alt"}}{{ index .Params "alt"}}{{else}}{{ index .Params "caption" }}{{ end }}"{{ end }} />
-    {{ if isset .Params "link"}}</a>{{ end }}
-    {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
+	t.AddInternalShortcode("highlight.html", `{{ .Get 0 | highlight .Inner  }}`)
+	t.AddInternalShortcode("test.html", `This is a simple Test`)
+	t.AddInternalShortcode("figure.html", `<!-- image -->
+<figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
+    {{ with .Get "link"}}<a href="{{.}}">{{ end }}
+        <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}"{{ end }} />
+    {{ if .Get "link"}}</a>{{ end }}
+    {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr")}}
     <figcaption>{{ if isset .Params "title" }}
-        <h4>{{ index .Params "title" }}</h4>{{ end }}
-        {{ if or (isset .Params "caption") (isset .Params "attr")}}<p>
-        {{ index .Params "caption" }}
-        {{ if isset .Params "attrlink"}}<a href="{{ index .Params "attrlink"}}"> {{ end }}
-            {{ index .Params "attr" }}
-        {{ if isset .Params "attrlink"}}</a> {{ end }}
+        <h4>{{ .Get "title" }}</h4>{{ end }}
+        {{ if or (.Get "caption") (.Get "attr")}}<p>
+        {{ .Get "caption" }}
+        {{ with .Get "attrlink"}}<a href="{{.}}"> {{ end }}
+            {{ .Get "attr" }}
+        {{ if .Get "attrlink"}}</a> {{ end }}
         </p> {{ end }}
     </figcaption>
     {{ end }}
 </figure>
 <!-- image -->`)
-
 }

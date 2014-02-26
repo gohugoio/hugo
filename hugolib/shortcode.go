@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"github.com/spf13/hugo/template/bundle"
 	"html/template"
+	"reflect"
 	"strings"
 	"unicode"
 )
@@ -35,6 +36,45 @@ type ShortcodeWithPage struct {
 	Params interface{}
 	Inner  template.HTML
 	Page   *Page
+}
+
+func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
+	if reflect.ValueOf(scp.Params).Len() == 0 {
+		return nil
+	}
+
+	var x reflect.Value
+
+	switch key.(type) {
+	case int64, int32, int16, int8, int:
+		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
+			return "error: cannot access named params by position"
+		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
+			x = reflect.ValueOf(scp.Params).Index(int(reflect.ValueOf(key).Int()))
+		}
+	case string:
+		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
+			x = reflect.ValueOf(scp.Params).MapIndex(reflect.ValueOf(key))
+			if !x.IsValid() {
+				return ""
+			}
+		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
+			if reflect.ValueOf(scp.Params).Len() == 1 && reflect.ValueOf(scp.Params).Index(0).String() == "" {
+				return nil
+			}
+			return "error: cannot access positional params by string name"
+		}
+	}
+
+	switch x.Kind() {
+	case reflect.String:
+		return x.String()
+	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
+		return x.Int()
+	default:
+		return x
+	}
+
 }
 
 type Shortcodes map[string]ShortcodeFunc
@@ -127,12 +167,44 @@ func StripShortcodes(stringToParse string) string {
 	return stringToParse
 }
 
+func CleanupSpacesAroundEquals(rawfirst []string) []string {
+	var first = make([]string, 0)
+
+	for i := 0; i < len(rawfirst); i++ {
+		v := rawfirst[i]
+		index := strings.Index(v, "=")
+
+		if index == len(v)-1 {
+			// Trailing '='
+			if len(rawfirst) > i {
+				if v == "=" {
+					first[len(first)-1] = first[len(first)-1] + v + rawfirst[i+1] // concat prior with this and next
+					i++                                                           // Skip next
+				} else {
+					// Trailing ' = '
+					first = append(first, v+rawfirst[i+1]) // append this token and the next
+					i++                                    // Skip next
+				}
+			} else {
+				break
+			}
+		} else if index == 0 {
+			// Leading '='
+			first[len(first)-1] = first[len(first)-1] + v // concat this token to the prior one
+			continue
+		} else {
+			first = append(first, v)
+		}
+	}
+
+	return first
+}
+
 func Tokenize(in string) interface{} {
-	first := strings.Fields(in)
 	var final = make([]string, 0)
 
-	// if don't need to parse, don't parse.
-	if strings.Index(in, " ") < 0 && strings.Index(in, "=") < 1 {
+	// if there isn't a space or an equal sign, no need to parse
+	if strings.Index(in, " ") < 0 && strings.Index(in, "=") < 0 {
 		return append(final, in)
 	}
 
@@ -140,14 +212,10 @@ func Tokenize(in string) interface{} {
 	inQuote := false
 	start := 0
 
+	first := CleanupSpacesAroundEquals(strings.Fields(in))
+
 	for i, v := range first {
 		index := strings.Index(v, "=")
-
-		if index < 0 {
-			fmt.Printf("Shortcode parameters must be key=value pairs (no spaces) (saw '%s')\n", v)
-			continue
-		}
-
 		if !inQuote {
 			if index > 1 {
 				keys = append(keys, v[:index])
@@ -198,7 +266,8 @@ func Tokenize(in string) interface{} {
 	}
 
 	if len(keys) > 0 && (len(keys) != len(final)) {
-		panic("keys and final different lengths")
+		// This will happen if the quotes aren't balanced
+		return final
 	}
 
 	if len(keys) > 0 {
@@ -214,12 +283,13 @@ func Tokenize(in string) interface{} {
 }
 
 func SplitParams(in string) (name string, par2 string) {
-	i := strings.IndexFunc(strings.TrimSpace(in), unicode.IsSpace)
+	newIn := strings.TrimSpace(in)
+	i := strings.IndexFunc(newIn, unicode.IsSpace)
 	if i < 1 {
 		return strings.TrimSpace(in), ""
 	}
 
-	return strings.TrimSpace(in[:i+1]), strings.TrimSpace(in[i+1:])
+	return strings.TrimSpace(newIn[:i+1]), strings.TrimSpace(newIn[i+1:])
 }
 
 func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
@@ -227,6 +297,7 @@ func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
 		fmt.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
+		fmt.Println(data)
 	}
 	return buffer.String()
 }
