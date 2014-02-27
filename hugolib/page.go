@@ -76,7 +76,7 @@ type Pages []*Page
 
 func (p *Page) Plain() string {
 	if len(p.plain) == 0 {
-		p.plain = StripHTML(StripShortcodes(string(p.renderBytes(p.rawContent))))
+		p.plain = helpers.StripHTML(StripShortcodes(string(p.renderBytes(p.rawContent))))
 	}
 	return p.plain
 }
@@ -145,38 +145,6 @@ func newPage(filename string) *Page {
 	page.Date, _ = time.Parse("20060102", "20080101")
 	page.guessSection()
 	return &page
-}
-
-func StripHTML(s string) string {
-	output := ""
-
-	// Shortcut strings with no tags in them
-	if !strings.ContainsAny(s, "<>") {
-		output = s
-	} else {
-		s = strings.Replace(s, "\n", " ", -1)
-		s = strings.Replace(s, "</p>", " \n", -1)
-		s = strings.Replace(s, "<br>", " \n", -1)
-		s = strings.Replace(s, "</br>", " \n", -1)
-
-		// Walk through the string removing all tags
-		b := new(bytes.Buffer)
-		inTag := false
-		for _, r := range s {
-			switch r {
-			case '<':
-				inTag = true
-			case '>':
-				inTag = false
-			default:
-				if !inTag {
-					b.WriteRune(r)
-				}
-			}
-		}
-		output = b.String()
-	}
-	return output
 }
 
 func (p *Page) IsRenderable() bool {
@@ -274,40 +242,17 @@ func (p *Page) permalink() (*url.URL, error) {
 		}
 		//fmt.Printf("have an override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
-
 		if len(pSlug) > 0 {
-			if p.Site.Config != nil && p.Site.Config.UglyUrls {
-				filename := fmt.Sprintf("%s.%s", p.Slug, p.Extension)
-				permalink = path.Join(dir, filename)
-			} else {
-				permalink = path.Join(dir, p.Slug) + "/"
-			}
+			permalink = helpers.UrlPrep(p.Site.Config.UglyUrls, path.Join(dir, p.Slug+"."+p.Extension))
 		} else if len(pUrl) > 2 {
 			permalink = pUrl
 		} else {
 			_, t := path.Split(p.FileName)
-			if p.Site.Config != nil && p.Site.Config.UglyUrls {
-				x := replaceExtension(strings.TrimSpace(t), p.Extension)
-				permalink = path.Join(dir, x)
-			} else {
-				file, _ := fileExt(strings.TrimSpace(t))
-				permalink = path.Join(dir, file)
-			}
+			permalink = helpers.UrlPrep(p.Site.Config.UglyUrls, path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)))
 		}
-
 	}
 
-	base, err := url.Parse(baseUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	path, err := url.Parse(permalink)
-	if err != nil {
-		return nil, err
-	}
-
-	return MakePermalink(base, path), nil
+	return helpers.MakePermalink(baseUrl, permalink), nil
 }
 
 func (p *Page) LinkTitle() string {
@@ -696,7 +641,7 @@ func (p *Page) TargetPath() (outfile string) {
 	} else {
 		// Fall back to filename
 		_, t := path.Split(p.FileName)
-		outfile = replaceExtension(strings.TrimSpace(t), p.Extension)
+		outfile = helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)
 	}
 
 	return path.Join(p.Dir, strings.TrimSpace(outfile))

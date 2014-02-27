@@ -25,7 +25,6 @@ import (
 	"github.com/spf13/nitro"
 	"html/template"
 	"io"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -34,10 +33,6 @@ import (
 var _ = transform.AbsURL
 
 var DefaultTimer *nitro.B
-
-func MakePermalink(base *url.URL, path *url.URL) *url.URL {
-	return base.ResolveReference(path)
-}
 
 // Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
@@ -228,18 +223,6 @@ func (s *Site) initializeSiteInfo() {
 	}
 }
 
-// Check if File / Directory Exists
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
-
 func (s *Site) absLayoutDir() string {
 	return s.Config.GetAbsPath(s.Config.LayoutDir)
 }
@@ -253,12 +236,7 @@ func (s *Site) absPublishDir() string {
 }
 
 func (s *Site) checkDirectories() (err error) {
-	/*
-		if b, _ := dirExists(s.absLayoutDir()); !b {
-			return fmt.Errorf("No layout directory found, expecting to find it at " + s.absLayoutDir())
-		}
-	*/
-	if b, _ := dirExists(s.absContentDir()); !b {
+	if b, _ := helpers.DirExists(s.absContentDir()); !b {
 		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
 	}
 	return
@@ -418,18 +396,12 @@ func (s *Site) RenderIndexes() error {
 		for k, o := range s.Indexes[plural] {
 			n := s.NewNode()
 			n.Title = strings.Title(k)
-			url := helpers.Urlize(plural + "/" + k)
-			n.Url = url + ".html"
-			plink := n.Url
-			n.Permalink = permalink(s, plink)
-			n.RSSLink = permalink(s, url+".xml")
+			base := plural + "/" + k
+			s.setUrls(n, base)
 			n.Date = o[0].Page.Date
 			n.Data[singular] = o
 			n.Data["Pages"] = o.Pages()
 			layout := "indexes/" + singular + ".html"
-
-			var base string
-			base = plural + "/" + k
 			err := s.render(n, base+".html", layout)
 			if err != nil {
 				return err
@@ -437,8 +409,7 @@ func (s *Site) RenderIndexes() error {
 
 			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 				// XML Feed
-				n.Url = helpers.Urlize(plural + "/" + k + ".xml")
-				n.Permalink = permalink(s, n.Url)
+				s.setUrls(n, base+".xml")
 				err := s.render(n, base+".xml", "rss.xml")
 				if err != nil {
 					return err
@@ -455,9 +426,7 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 		for singular, plural := range s.Config.Indexes {
 			n := s.NewNode()
 			n.Title = strings.Title(plural)
-			url := helpers.Urlize(plural)
-			n.Url = url + "/index.html"
-			n.Permalink = permalink(s, n.Url)
+			s.setUrls(n, plural)
 			n.Data["Singular"] = singular
 			n.Data["Plural"] = plural
 			n.Data["Index"] = s.Indexes[plural]
@@ -477,9 +446,7 @@ func (s *Site) RenderLists() error {
 	for section, data := range s.Sections {
 		n := s.NewNode()
 		n.Title = strings.Title(inflect.Pluralize(section))
-		n.Url = helpers.Urlize(section + "/" + "index.html")
-		n.Permalink = permalink(s, n.Url)
-		n.RSSLink = permalink(s, section+".xml")
+		s.setUrls(n, section)
 		n.Date = data[0].Page.Date
 		n.Data["Pages"] = data.Pages()
 		layout := "indexes/" + section + ".html"
@@ -491,8 +458,7 @@ func (s *Site) RenderLists() error {
 
 		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
 			// XML Feed
-			n.Url = helpers.Urlize(section + ".xml")
-			n.Permalink = template.HTML(string(n.Site.BaseUrl) + n.Url)
+			s.setUrls(n, section+".xml")
 			err = s.render(n, section+".xml", "rss.xml")
 			if err != nil {
 				return err
@@ -505,9 +471,7 @@ func (s *Site) RenderLists() error {
 func (s *Site) RenderHomePage() error {
 	n := s.NewNode()
 	n.Title = n.Site.Title
-	n.Url = helpers.Urlize(string(n.Site.BaseUrl))
-	n.RSSLink = permalink(s, "index.xml")
-	n.Permalink = permalink(s, "")
+	s.setUrls(n, "/")
 	n.Data["Pages"] = s.Pages
 	err := s.render(n, "/", "index.html")
 	if err != nil {
@@ -518,7 +482,7 @@ func (s *Site) RenderHomePage() error {
 		// XML Feed
 		n.Url = helpers.Urlize("index.xml")
 		n.Title = "Recent Content"
-		n.Permalink = permalink(s, "index.xml")
+		n.Permalink = s.permalink("index.xml")
 		high := 50
 		if len(s.Pages) < high {
 			high = len(s.Pages)
@@ -536,7 +500,7 @@ func (s *Site) RenderHomePage() error {
 	if a := s.Tmpl.Lookup("404.html"); a != nil {
 		n.Url = helpers.Urlize("404.html")
 		n.Title = "404 Page not found"
-		n.Permalink = permalink(s, "404.html")
+		n.Permalink = s.permalink("404.html")
 		return s.render(n, "404.html", "404.html")
 	}
 
@@ -550,18 +514,26 @@ func (s *Site) Stats() {
 	}
 }
 
-func permalink(s *Site, plink string) template.HTML {
-	base, err := url.Parse(string(s.Config.BaseUrl))
-	if err != nil {
-		panic(err)
-	}
+func (s *Site) setUrls(n *Node, in string) {
+	n.Url = s.prepUrl(in)
+	n.Permalink = s.permalink(n.Url)
+	n.RSSLink = s.permalink(in + ".xml")
+}
 
-	path, err := url.Parse(plink)
-	if err != nil {
-		panic(err)
-	}
+func (s *Site) permalink(plink string) template.HTML {
+	return template.HTML(helpers.MakePermalink(string(s.Config.BaseUrl), s.prepUrl(plink)).String())
+}
 
-	return template.HTML(MakePermalink(base, path).String())
+func (s *Site) prepUrl(in string) string {
+	return helpers.Urlize(s.PrettifyUrl(in))
+}
+
+func (s *Site) PrettifyUrl(in string) string {
+	return helpers.UrlPrep(s.Config.UglyUrls, in)
+}
+
+func (s *Site) PrettifyPath(in string) string {
+	return helpers.PathPrep(s.Config.UglyUrls, in)
 }
 
 func (s *Site) NewNode() *Node {

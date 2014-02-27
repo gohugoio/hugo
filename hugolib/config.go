@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/hugo/helpers"
 	"io/ioutil"
 	"launchpad.net/goyaml"
 	"os"
@@ -67,7 +68,7 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 	c.readInConfig()
 
 	// set index defaults if none provided
-	if len(c.Indexes) == 0 {
+	if c.Indexes == nil {
 		c.Indexes = make(map[string]string)
 		c.Indexes["tag"] = "tags"
 		c.Indexes["category"] = "categories"
@@ -169,15 +170,15 @@ func (c *Config) GetAbsPath(name string) string {
 func (c *Config) findConfigFile(configFileName string) (string, error) {
 
 	if configFileName == "" { // config not specified, let's search
-		if b, _ := exists(c.GetAbsPath("config.json")); b {
+		if b, _ := helpers.Exists(c.GetAbsPath("config.json")); b {
 			return c.GetAbsPath("config.json"), nil
 		}
 
-		if b, _ := exists(c.GetAbsPath("config.toml")); b {
+		if b, _ := helpers.Exists(c.GetAbsPath("config.toml")); b {
 			return c.GetAbsPath("config.toml"), nil
 		}
 
-		if b, _ := exists(c.GetAbsPath("config.yaml")); b {
+		if b, _ := helpers.Exists(c.GetAbsPath("config.yaml")); b {
 			return c.GetAbsPath("config.yaml"), nil
 		}
 
@@ -191,7 +192,7 @@ func (c *Config) findConfigFile(configFileName string) (string, error) {
 
 		// Else check the local directory
 		t := c.GetAbsPath(configFileName)
-		if b, _ := exists(t); b {
+		if b, _ := helpers.Exists(t); b {
 			return t, nil
 		} else {
 			return "", fmt.Errorf("config file not found at: %s", t)
