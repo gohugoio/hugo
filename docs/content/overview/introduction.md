@@ -13,7 +13,7 @@ a static site generator. This means that unlike systems like Wordpress,
 Ghost & Drupal which run on your web server expensively building a page
 every time a visitor requests one, Hugo does the building when you create
 your content. Since websites are viewed far more often then they are
-edited, Hugo is optimized for website viewing without sacrificing a great
+edited, Hugo is optimized for website viewing while providing a great
 writing experience. 
 
 Sites built with hugo are extremely fast and very secure. Hugo sites can
@@ -25,7 +25,7 @@ on any databases.
 We think of Hugo as the ideal website creation tool. With nearly instant
 built times and the ability to rebuild whenever a change is made Hugo
 provides a very fast feedback loop. This is essential when you are
-designing websites, but also very useful when creating content. 
+designing websites, but also very useful when creating content.  
 
 ## What does Hugo do?
 
@@ -39,21 +39,21 @@ Hugo boasts the following features:
   * Content written in [Markdown](/content/example)
   * Easy [installation](/overview/installing)
   * Straightforward website [organization](/content/organization)
-  * Completely customizable [homepage](/layout/homepage)
-  * Support for different [content types](/content/types)
-  * Support for website [sections](/content/sections)
+  * Completely [customizable homepage](/layout/homepage)
+  * Support for multiple [content types](/content/types)
+  * Support for [website sections](/content/sections)
   * Completely customizable [urls](/extras/urls)  
   * Render changes [on the fly](/overview/usage) as you develop
   * Host your site anywhere
   * Support for disqus comments
   * Dynamic menu creation
-  * Support for TOML, YAML and JSON in [frontmatter](/content/front-matter)
+  * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter)
   * [permalink](/extras/permalinks) pattern support
   * [pretty urls](/extras/urls) support
   * [shortcodes](/extras/shortcodes)
   * [Aliases](/extras/aliases) (redirects)
   * Automatic [RSS](/layout/rss) creation 
-  * Support for both go and amber templates
+  * Support for go and amber templates
   * Support for [categories](/indexes/category) and tags
   * Support for configurable [indexes](/indexes/overview) to create your own organization
   * Syntax [highlighting](/extras/highlighting) powered by pygments
@@ -103,7 +103,6 @@ language. I hope you will enjoy using (and contributing to) Hugo as much
 as I have writing it.
 
 ## Next Steps
-
 
  * [Install Hugo](/overview/installing)
  * [Quick start](/overview/quickstart)
