@@ -235,17 +235,19 @@ func (p *Page) permalink() (*url.URL, error) {
 	var permalink string
 	var err error
 
+	if len(pUrl) > 0 {
+		return helpers.MakePermalink(baseUrl, pUrl), nil
+	}
+
 	if override, ok := p.Site.Permalinks[p.Section]; ok {
 		permalink, err = override.Expand(p)
 		if err != nil {
 			return nil, err
 		}
-		//fmt.Printf("have an override for %q in section %s → %s\n", p.Title, p.Section, permalink)
+		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
 			permalink = helpers.UrlPrep(p.Site.Config.UglyUrls, path.Join(dir, p.Slug+"."+p.Extension))
-		} else if len(pUrl) > 2 {
-			permalink = pUrl
 		} else {
 			_, t := path.Split(p.FileName)
 			permalink = helpers.UrlPrep(p.Site.Config.UglyUrls, path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)))

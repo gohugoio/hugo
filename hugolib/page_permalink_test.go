@@ -11,26 +11,33 @@ func TestPermalink(t *testing.T) {
 		dir         string
 		base        template.URL
 		slug        string
+		url         string
 		uglyurls    bool
 		expectedAbs string
 		expectedRel string
 	}{
-		{"x/y/z/boofar.md", "x/y/z", "", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z/", "", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", false, "/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", false, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", false, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
-		{"x/y/z/boofar.md", "x/y/z", "", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "x/y/z/", "", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", true, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", true, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z", "", "", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", "", false, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", "", false, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", "", false, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "x/y/z", "", "", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", "", true, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", "", true, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", "", true, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+
+		// test url overrides
+		{"x/y/z/boofar.md", "x/y/z", "", "", "/z/y/q/", false, "/z/y/q/", "/z/y/q/"},
 	}
 
 	for _, test := range tests {
 		p := &Page{
 			Node: Node{
-				UrlPath: UrlPath{Section: "z"},
+				UrlPath: UrlPath{
+					Section: "z",
+					Url:     test.url,
+				},
 				Site: SiteInfo{
 					BaseUrl: test.base,
 					Config: &Config{
