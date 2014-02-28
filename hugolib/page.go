@@ -527,7 +527,7 @@ func (page *Page) Convert() error {
 	case "html":
 		page.Content = bytesToHTML(page.rawContent)
 	default:
-		return errors.New("Error converting unsupported file type " + markupType)
+		return fmt.Errorf("Error converting unsupported file type '%s' for page '%s'", markupType, page.FileName)
 	}
 	return nil
 }
