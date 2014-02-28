@@ -31,7 +31,7 @@ func Highlight(code string, lexer string) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 
-	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O style=monokai,noclasses=true,encoding=utf-8")
+	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O style=pastie,encoding=utf-8")
 	cmd.Stdin = strings.NewReader(code)
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
