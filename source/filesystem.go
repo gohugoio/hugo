@@ -117,5 +117,14 @@ func (f *Filesystem) avoid(filePath string) bool {
 }
 
 func ignoreDotFile(filePath string) bool {
-	return filepath.Base(filePath)[0] == '.'
+	base := filepath.Base(filePath)
+	if base[0] == '.' {
+		return true
+	}
+
+	if base[len(base)-1] == '~' {
+		return true
+	}
+
+	return false
 }
