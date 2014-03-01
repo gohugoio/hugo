@@ -15,6 +15,10 @@ func TestIgnoreDotFiles(t *testing.T) {
 		{".barfoo.md", true},
 		{".md", true},
 		{"", true},
+		{"foobar/barfoo.md~", true},
+		{".foobar/barfoo.md~", true},
+		{"foobar~/barfoo.md", false},
+		{"foobar/bar~foo.md", false},
 	}
 
 	for _, test := range tests {
