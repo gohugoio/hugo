@@ -5,7 +5,7 @@ aliases: ["/doc/release-notes/"]
 groups: ["meta"]
 groups_weight: 10
 ---
-## **0.10.0** Feb 22, 2014
+## **0.10.0** March 1, 2014
   * [Syntax highlighting](/extras/highlighting) powered by pygments (**slow**)
   * Ability to [sort content](/content/ordering) many more ways
   * Automatic [table of contents](/extras/toc) generation
