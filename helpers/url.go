@@ -105,6 +105,4 @@ func Uglify(in string) string {
 			return path.Clean(in)
 		}
 	}
-
-	return in
 }

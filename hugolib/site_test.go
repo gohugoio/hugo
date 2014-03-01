@@ -239,7 +239,7 @@ func TestSkipRender(t *testing.T) {
 			BaseUrl:      "http://auth/bub",
 			CanonifyUrls: true,
 		},
-		Source: &source.InMemorySource{sources},
+		Source: &source.InMemorySource{ByteSource: sources},
 	}
 
 	s.initializeSiteInfo()
@@ -301,7 +301,7 @@ func TestAbsUrlify(t *testing.T) {
 				BaseUrl:      "http://auth/bub",
 				CanonifyUrls: canonify,
 			},
-			Source: &source.InMemorySource{sources},
+			Source: &source.InMemorySource{ByteSource: sources},
 		}
 		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", s.Config.BaseUrl, canonify)
 		s.initializeSiteInfo()
@@ -383,7 +383,7 @@ func TestOrderedPages(t *testing.T) {
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/"},
-		Source: &source.InMemorySource{WEIGHTED_SOURCES},
+		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
 
@@ -396,7 +396,7 @@ func TestOrderedPages(t *testing.T) {
 	}
 
 	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", 2, s.Sections["sect"][0].Weight)
+		t.Errorf("Pages in unexpected order. First should be '%d', got '%d'", 2, s.Sections["sect"][0].Weight)
 	}
 
 	if s.Sections["sect"][1].Page.Title != "Three" || s.Sections["sect"][2].Page.Title != "Four" {
@@ -469,7 +469,7 @@ func TestWeightedIndexes(t *testing.T) {
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/", Indexes: indexes},
-		Source: &source.InMemorySource{sources},
+		Source: &source.InMemorySource{ByteSource: sources},
 	}
 	s.initializeSiteInfo()
 

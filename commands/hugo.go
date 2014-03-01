@@ -213,12 +213,12 @@ func NewWatcher(port int) error {
 				}
 
 				if static_changed {
-					fmt.Println("Static file changed, syncing\n")
+					fmt.Print("Static file changed, syncing\n\n")
 					utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
 				}
 
 				if dynamic_changed {
-					fmt.Println("Change detected, rebuilding site\n")
+					fmt.Print("Change detected, rebuilding site\n\n")
 					utils.StopOnErr(buildSite(true))
 				}
 			case err := <-watcher.Error:

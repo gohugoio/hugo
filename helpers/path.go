@@ -116,5 +116,4 @@ func PrettifyPath(in string) string {
 			return path.Join(path.Dir(in), name, "index"+ext)
 		}
 	}
-	return in
 }
