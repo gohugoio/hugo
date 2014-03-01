@@ -55,7 +55,7 @@ func TestPageCount(t *testing.T) {
 		Target: target,
 		Alias:  alias,
 		Config: Config{UglyUrls: false},
-		Source: &source.InMemorySource{urlFakeSource},
+		Source: &source.InMemorySource{ByteSource: urlFakeSource},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()

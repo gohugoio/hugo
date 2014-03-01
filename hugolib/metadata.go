@@ -17,9 +17,9 @@ func interfaceToTime(i interface{}) time.Time {
 		if e == nil {
 			return d
 		}
-		errorf("Could not parse Date/Time format:", e)
+		errorln("Could not parse Date/Time format:", e)
 	default:
-		errorf("Only Time is supported for this key")
+		errorln("Only Time is supported for this key")
 	}
 
 	return *new(time.Time)
@@ -54,7 +54,7 @@ func stringToDate(s string) (time.Time, error) {
 }
 
 // TODO remove this and return a proper error.
-func errorf(str string, a ...interface{}) {
+func errorln(str string, a ...interface{}) {
 	fmt.Fprintln(os.Stderr, str, a)
 }
 
@@ -77,7 +77,7 @@ func interfaceToBool(i interface{}) bool {
 		}
 		return false
 	default:
-		errorf("Only Boolean values are supported for this YAML key")
+		errorln("Only Boolean values are supported for this YAML key")
 	}
 
 	return false
@@ -109,11 +109,11 @@ func interfaceToFloat64(i interface{}) float64 {
 		if err == nil {
 			return float64(v)
 		} else {
-			errorf("Only Floats are supported for this key\nErr:", err)
+			errorln("Only Floats are supported for this key\nErr:", err)
 		}
 
 	default:
-		errorf("Only Floats are supported for this key")
+		errorln("Only Floats are supported for this key")
 	}
 
 	return 0.0
@@ -136,10 +136,10 @@ func interfaceToInt(i interface{}) int {
 		if err == nil {
 			return int(v)
 		} else {
-			errorf("Only Ints are supported for this key\nErr:", err)
+			errorln("Only Ints are supported for this key\nErr:", err)
 		}
 	default:
-		errorf("Only Ints are supported for this key")
+		errorln("Only Ints are supported for this key")
 	}
 
 	return 0
@@ -154,7 +154,7 @@ func interfaceToString(i interface{}) string {
 	case int:
 		return strconv.FormatInt(int64(i.(int)), 10)
 	default:
-		errorf(fmt.Sprintf("Only Strings are supported for this key (got type '%T'): %s", s, s))
+		errorln(fmt.Sprintf("Only Strings are supported for this key (got type '%T'): %s", s, s))
 	}
 
 	return ""

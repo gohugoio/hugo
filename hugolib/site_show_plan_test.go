@@ -41,7 +41,7 @@ func TestDegenerateNoFiles(t *testing.T) {
 
 func TestDegenerateNoTarget(t *testing.T) {
 	s := &Site{
-		Source: &source.InMemorySource{fakeSource},
+		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
 	must(s.CreatePages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
@@ -52,7 +52,7 @@ func TestDegenerateNoTarget(t *testing.T) {
 
 func TestFileTarget(t *testing.T) {
 	s := &Site{
-		Source: &source.InMemorySource{fakeSource},
+		Source: &source.InMemorySource{ByteSource: fakeSource},
 		Target: new(target.Filesystem),
 		Alias:  new(target.HTMLRedirectAlias),
 	}
@@ -70,7 +70,7 @@ func TestFileTarget(t *testing.T) {
 func TestFileTargetUgly(t *testing.T) {
 	s := &Site{
 		Target: &target.Filesystem{UglyUrls: true},
-		Source: &source.InMemorySource{fakeSource},
+		Source: &source.InMemorySource{ByteSource: fakeSource},
 		Alias:  new(target.HTMLRedirectAlias),
 	}
 	s.CreatePages()
@@ -86,7 +86,7 @@ func TestFileTargetUgly(t *testing.T) {
 func TestFileTargetPublishDir(t *testing.T) {
 	s := &Site{
 		Target: &target.Filesystem{PublishDir: "../public"},
-		Source: &source.InMemorySource{fakeSource},
+		Source: &source.InMemorySource{ByteSource: fakeSource},
 		Alias:  &target.HTMLRedirectAlias{PublishDir: "../public"},
 	}
 

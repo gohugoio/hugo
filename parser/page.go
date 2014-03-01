@@ -3,7 +3,6 @@ package parser
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"unicode"
@@ -106,7 +105,6 @@ func chompWhitespace(r io.RuneScanner) (err error) {
 			return nil
 		}
 	}
-	return
 }
 
 func peekLine(r *bufio.Reader) (line []byte, err error) {
@@ -165,7 +163,6 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 	default:
 		panic(fmt.Sprintf("Unable to determine delims from %q", firstLine))
 	}
-	return
 }
 
 func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatter, err error) {
@@ -243,7 +240,6 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 			return wr.Bytes(), nil
 		}
 	}
-	return nil, errors.New("Could not find front matter.")
 }
 
 func matches_quick(buf, expected []byte) (ok bool, err error) {

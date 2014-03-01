@@ -34,7 +34,7 @@ func TestRSSOutput(t *testing.T) {
 	s := &Site{
 		Target: target,
 		Config: Config{BaseUrl: "http://auth/bub/"},
-		Source: &source.InMemorySource{WEIGHTED_SOURCES},
+		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates()

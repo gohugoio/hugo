@@ -457,10 +457,10 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 		t.Errorf("frontmatter not handling ints correctly should be %s, got: %s", "1", page.GetParam("an_integer"))
 	}
 	if page.GetParam("a_float") != 1.3 {
-		t.Errorf("frontmatter not handling floats correctly should be %s, got: %s", 1.3, page.GetParam("a_float"))
+		t.Errorf("frontmatter not handling floats correctly should be %f, got: %s", 1.3, page.GetParam("a_float"))
 	}
 	if page.GetParam("a_bool") != false {
-		t.Errorf("frontmatter not handling bools correctly should be %s, got: %s", false, page.GetParam("a_bool"))
+		t.Errorf("frontmatter not handling bools correctly should be %t, got: %s", false, page.GetParam("a_bool"))
 	}
 	if page.GetParam("a_date") != dateval {
 		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
