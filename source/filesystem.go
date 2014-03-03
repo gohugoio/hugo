@@ -122,6 +122,10 @@ func ignoreDotFile(filePath string) bool {
 		return true
 	}
 
+	if base[0] == '#' {
+		return true
+	}
+
 	if base[len(base)-1] == '~' {
 		return true
 	}
