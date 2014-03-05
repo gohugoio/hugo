@@ -69,6 +69,24 @@ func (p Pages) ByWeight() Pages {
 	return p
 }
 
+func (p Pages) ByTitle() Pages {
+	title := func(p1, p2 *Page) bool {
+		return p1.Title < p2.Title
+	}
+
+	PageBy(title).Sort(p)
+	return p
+}
+
+func (p Pages) ByLinkTitle() Pages {
+	linkTitle := func(p1, p2 *Page) bool {
+		return p1.linkTitle < p2.linkTitle
+	}
+
+	PageBy(linkTitle).Sort(p)
+	return p
+}
+
 func (p Pages) ByDate() Pages {
 	date := func(p1, p2 *Page) bool {
 		return p1.Date.Unix() < p2.Date.Unix()
