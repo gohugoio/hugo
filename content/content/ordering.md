@@ -1,6 +1,6 @@
 ---
 title: "Ordering Content"
-date: "2013-07-01"
+date: "2014-03-06"
 linktitle: "Ordering"
 groups: ['content']
 groups_weight: 60
@@ -8,15 +8,13 @@ groups_weight: 60
 
 In Hugo you have a good degree of control of how your content can be ordered.
 
-By default, content is ordered by weight, then by date with the most recent date first.
+By default, content is ordered by weight, then by date with the most recent date first, but alternative sorting (by title and linktitle) is also available.
 
 _Both the date and weight fields are optional._
 
 Unweighted pages appear at the end of the list.
 If no weights are provided (or if weights are the same) date will be used to sort. If neither are provided
 content will be ordered based on how it's read off the disk and no order is guaranteed.
-
-Alternative sorting is also available to order content by date (ignoring weight), length and reverse the order.
 
 ## Assigning Weight to content
 
@@ -48,7 +46,6 @@ Alternative sorting is also available to order content by date (ignoring weight)
 </li>
 {{ end }}
 {{% /highlight %}}
-
 
 ## Order by Date
 
@@ -83,6 +80,29 @@ Can be applied to any of the above. Using Date for an example.
 </li>
 {{ end }}
 {{% /highlight %}}
+
+## Order by Title
+
+{{% highlight html %}}
+{{ range .Data.Pages.ByTitle }}
+<li>
+<a href="{{ .Permalink }}">{{ .Title }}</a>
+<div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+</li>
+{{ end }}
+{{% /highlight %}}
+
+## Order by LinkTitle
+
+{{% highlight html %}}
+{{ range .Data.Pages.ByLinkTitle }}
+<li>
+<a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
+<div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+</li>
+{{ end }}
+{{% /highlight %}}
+
 
 ## Ordering Content Within Indexes
 
