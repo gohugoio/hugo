@@ -27,6 +27,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -249,29 +250,39 @@ func (s *Site) CreatePages() (err error) {
 	if len(s.Source.Files()) < 1 {
 		return fmt.Errorf("No source files found in %s", s.absContentDir())
 	}
-	for _, file := range s.Source.Files() {
-		page, err := ReadFrom(file.Contents, file.LogicalName)
-		if err != nil {
-			return err
-		}
-		page.Site = s.Info
-		page.Tmpl = s.Tmpl
-		page.Section = file.Section
-		page.Dir = file.Dir
 
-		//Handling short codes prior to Conversion to HTML
-		page.ProcessShortcodes(s.Tmpl)
+	var wg sync.WaitGroup
+	for _, fi := range s.Source.Files() {
+		wg.Add(1)
+		go func(file *source.File) (err error) {
+			defer wg.Done()
 
-		err = page.Convert()
-		if err != nil {
-			return err
-		}
+			page, err := ReadFrom(file.Contents, file.LogicalName)
+			if err != nil {
+				return err
+			}
+			page.Site = s.Info
+			page.Tmpl = s.Tmpl
+			page.Section = file.Section
+			page.Dir = file.Dir
 
-		if s.Config.BuildDrafts || !page.Draft {
-			s.Pages = append(s.Pages, page)
-		}
+			//Handling short codes prior to Conversion to HTML
+			page.ProcessShortcodes(s.Tmpl)
+
+			err = page.Convert()
+			if err != nil {
+				return err
+			}
+
+			if s.Config.BuildDrafts || !page.Draft {
+				s.Pages = append(s.Pages, page)
+			}
+
+			return
+		}(fi)
 	}
 
+	wg.Wait()
 	s.Pages.Sort()
 	return
 }
@@ -368,55 +379,70 @@ func (s *Site) RenderAliases() error {
 }
 
 func (s *Site) RenderPages() (err error) {
-	for _, p := range s.Pages {
-		var layout []string
+	var wg sync.WaitGroup
+	for _, page := range s.Pages {
+		wg.Add(1)
+		go func(p *Page) (err error) {
+			var layout []string
+			defer wg.Done()
 
-		if !p.IsRenderable() {
-			self := "__" + p.TargetPath()
-			_, err := s.Tmpl.New(self).Parse(string(p.Content))
-			if err != nil {
-				return err
+			if !p.IsRenderable() {
+				self := "__" + p.TargetPath()
+				_, err := s.Tmpl.New(self).Parse(string(p.Content))
+				if err != nil {
+					return err
+				}
+				layout = append(layout, self)
+			} else {
+				layout = append(layout, p.Layout()...)
+				layout = append(layout, "_default/single.html")
 			}
-			layout = append(layout, self)
-		} else {
-			layout = append(layout, p.Layout()...)
-			layout = append(layout, "_default/single.html")
-		}
 
-		err := s.render(p, p.TargetPath(), layout...)
-		if err != nil {
-			return err
-		}
+			return s.render(p, p.TargetPath(), layout...)
+		}(page)
+	}
+	wg.Wait()
+
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func (s *Site) RenderIndexes() error {
+func (s *Site) RenderIndexes() (err error) {
+	var wg sync.WaitGroup
 	for singular, plural := range s.Config.Indexes {
-		for k, o := range s.Indexes[plural] {
-			n := s.NewNode()
-			n.Title = strings.Title(k)
-			base := plural + "/" + k
-			s.setUrls(n, base)
-			n.Date = o[0].Page.Date
-			n.Data[singular] = o
-			n.Data["Pages"] = o.Pages()
-			layout := "indexes/" + singular + ".html"
-			err := s.render(n, base+".html", layout)
-			if err != nil {
-				return err
-			}
+		for key, oo := range s.Indexes[plural] {
+			wg.Add(1)
 
-			if a := s.Tmpl.Lookup("rss.xml"); a != nil {
-				// XML Feed
-				s.setUrls(n, base+".xml")
-				err := s.render(n, base+".xml", "rss.xml")
+			go func(k string, o WeightedPages) (err error) {
+				defer wg.Done()
+				n := s.NewNode()
+				n.Title = strings.Title(k)
+				base := plural + "/" + k
+				s.setUrls(n, base)
+				n.Date = o[0].Page.Date
+				n.Data[singular] = o
+				n.Data["Pages"] = o.Pages()
+				layout := "indexes/" + singular + ".html"
+				err = s.render(n, base+".html", layout)
 				if err != nil {
 					return err
 				}
-			}
+
+				if a := s.Tmpl.Lookup("rss.xml"); a != nil {
+					// XML Feed
+					s.setUrls(n, base+".xml")
+					err := s.render(n, base+".xml", "rss.xml")
+					if err != nil {
+						return err
+					}
+				}
+				return
+			}(key, oo)
 		}
 	}
+	wg.Wait()
 	return nil
 }
 

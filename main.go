@@ -15,8 +15,10 @@ package main
 
 import (
 	"github.com/spf13/hugo/commands"
+	"runtime"
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	commands.Execute()
 }
