@@ -17,7 +17,7 @@ More complete instructions are available at [installing hugo](/overview/installi
 
 ## Step 2. Build the Docs
 
-Hugo has it's own example site which happens to also be the documentation site 
+Hugo has its own example site which happens to also be the documentation site
 you are reading right now.
 
 Follow the following steps:
@@ -31,7 +31,7 @@ Corresponding pseudo commands:
 
     git clone https://github.com/spf13/hugo
     cd hugo
-    /path/to/hugo/from/step/1/hugo server --source=./docs
+    /path/to/where/you/installed/hugo server --source=./docs
     > 29 pages created
     > 0 tags index created
     > in 27 ms
@@ -88,4 +88,3 @@ Things to try:
  * Define your own field in [front matter](/content/front-matter/)
  * Display that [field in the template](/layout/variables/)
  * Create a [new content type](/content/types/)
-
