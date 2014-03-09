@@ -81,7 +81,7 @@ If you only want to build from source, it's even easier.
 #### Running Hugo
 
     cd /path/to/hugo
-    go install github.com/spf13/hugo/hugolibs
+    go install github.com/spf13/hugo/hugolib
     go run main.go
 
 #### Contribution Guidelines
