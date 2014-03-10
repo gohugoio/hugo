@@ -415,16 +415,17 @@ func (s *Site) RenderIndexes() (err error) {
 		for key, oo := range s.Indexes[plural] {
 			wg.Add(1)
 
-			go func(k string, o WeightedPages) (err error) {
+			n := s.NewNode()
+			n.Title = strings.Title(key)
+			base := plural + "/" + key
+			n.Date = oo[0].Page.Date
+			n.Data[singular] = oo
+			n.Data["Pages"] = oo.Pages()
+			layout := "indexes/" + singular + ".html"
+
+			go func(n *Node, base, layout string) (err error) {
 				defer wg.Done()
-				n := s.NewNode()
-				n.Title = strings.Title(k)
-				base := plural + "/" + k
 				s.setUrls(n, base)
-				n.Date = o[0].Page.Date
-				n.Data[singular] = o
-				n.Data["Pages"] = o.Pages()
-				layout := "indexes/" + singular + ".html"
 				err = s.render(n, base+".html", layout)
 				if err != nil {
 					return err
@@ -439,7 +440,7 @@ func (s *Site) RenderIndexes() (err error) {
 					}
 				}
 				return
-			}(key, oo)
+			}(n, base, layout)
 		}
 	}
 	wg.Wait()
