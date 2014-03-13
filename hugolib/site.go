@@ -411,15 +411,14 @@ func (s *Site) RenderPages() (err error) {
 
 func (s *Site) RenderIndexes() (err error) {
 	var wg sync.WaitGroup
-	for singular, plural := range s.Config.Indexes {
-		for key, oo := range s.Indexes[plural] {
+	for sing, pl := range s.Config.Indexes {
+		for key, oo := range s.Indexes[pl] {
 			wg.Add(1)
-
-			go func(k string, o WeightedPages) (err error) {
+			go func(k string, o WeightedPages, singular string, plural string) (err error) {
 				defer wg.Done()
+				base := plural + "/" + k
 				n := s.NewNode()
 				n.Title = strings.Title(k)
-				base := plural + "/" + k
 				s.setUrls(n, base)
 				n.Date = o[0].Page.Date
 				n.Data[singular] = o
@@ -439,7 +438,7 @@ func (s *Site) RenderIndexes() (err error) {
 					}
 				}
 				return
-			}(key, oo)
+			}(key, oo, sing, pl)
 		}
 	}
 	wg.Wait()
