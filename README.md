@@ -43,7 +43,7 @@ where you don't have a privileged account.
 Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
 is the most probable location.
 
-*The Hugo executible has no external dependencies.*
+*The Hugo executable has no external dependencies.*
 
 ### Installing from source
 
