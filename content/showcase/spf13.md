@@ -1,5 +1,5 @@
 +++
-title = "spf13 is Steve Francia"
+title = "spf13.com"
 date = 2013-07-01T07:32:00Z 
 description = "The first Hugo powered website."
 license = "MIT"

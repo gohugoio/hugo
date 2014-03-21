@@ -38,13 +38,23 @@ body {
     width: 100%;
     min-height: 70%;
     position: relative;
-    background: url(../img/converse-fields.jpg) no-repeat center center fixed;
+    background: url(../img/desk.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
     z-index: 99999;
     background-color: black;
+}
+
+.logo {
+    max-width: 35em; 
+    width: 100%;
+    padding: 2em;
+}
+
+.buttonbox {
+    margin: 2em 0 4em;
 }
 
 @media only screen 
@@ -57,7 +67,7 @@ and (orientation : portrait)
         height: 70%;
         width: 100%;
         position: relative;
-        background: url(../img/converse-fields-mini.jpg) no-repeat;
+        background: url(../img/desk-mini.jpg) no-repeat;
         background-size: 100% 100%;
         z-index: 99999;
         background-color: black;
@@ -73,7 +83,7 @@ and (orientation : landscape) {
         height: 70%;
         width: 100%;
         position: relative;
-        background: url(../img/converse-fields-long.jpg) no-repeat;
+        background: url(../img/desk-long.jpg) no-repeat;
         background-size: 100% 100%;
         z-index: 99999;
         background-color: black;
@@ -225,7 +235,7 @@ i.callout-icon:hover {
 }
 
 #action {
-    background: url(/static/img/gray.png);
+    background: url(../img/gray.png);
     padding: 50px 0px 30px;
     position: fixed;
     bottom: 130px;

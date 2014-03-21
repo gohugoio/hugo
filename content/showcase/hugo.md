@@ -1,5 +1,5 @@
 +++
-title = "Hugo Documentation"
+title = "Hugo"
 date = 2013-07-01T07:32:00Z 
 description = "This site"
 license = "Simpl"
