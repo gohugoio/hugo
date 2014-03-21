@@ -6,12 +6,6 @@ groups_weight: 10
 author: "Spencer Lyon"
 ---
 
-<script type="text/javascript"
-
-src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-
-</script>
-
 ## What is MathJax?
 
 [MathJax](http://www.mathjax.org/) is a JavaScript library that allows allows the display of mathematical expressions described via a LaTeX-style syntax in the html (or markdown) source of a web page. As it is a pure a JavaScript library, getting it to work within Hugo is fairly straightforward, but does have some oddities that will be discussed here.
