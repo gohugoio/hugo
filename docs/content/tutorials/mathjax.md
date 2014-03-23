@@ -66,7 +66,7 @@ MathJax.Hub.Config({
 </script>
 {{% /highlight %}}
 
-As before, this content should be included in the html source of each page that you would like to use 
+As before, this content should be included in the html source of each page that will be using MathJax. The next code snippet contains the CSS that is used to have verbatim MathJax blocks render with the same font style as the body of the page.
 
 
 {{% highlight css %}}
@@ -77,7 +77,7 @@ code.has-jax {font: inherit;
               color: #515151;}
 {{% /highlight %}}
 
-In the css snippet notice the line `color: #515151;`. This is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to look good on a particular website, this value should be updated to match the color of the text body for that page.
+In the css snippet notice the line `color: #515151;`. `#515151` is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to fit in with the body of a web page, this value should be the same as e color of the body.
 
 
 ### Usage
