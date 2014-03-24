@@ -7,7 +7,7 @@ groups_weight: 40
 notoc: true
 ---
 
-Hugo was built with love and golang by:
+Hugo was built with love and Go by:
 
 * Steve Francia - [spf13](https://github.com/spf13)
 * Noah Campbell - [noahcampbell](https://github.com/noahcampbell)

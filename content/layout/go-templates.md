@@ -5,14 +5,14 @@ groups: ["layout"]
 groups_weight: 15
 ---
 
-Hugo uses the excellent [golang][] [html/template][gohtmltemplate] library for
+Hugo uses the excellent [go][] [html/template][gohtmltemplate] library for
 its template engine. It is an extremely lightweight engine that provides a very
 small amount of logic. In our experience that it is just the right amount of
 logic to be able to create a good static website. If you have used other
 template systems from different languages or frameworks you will find a lot of
 similarities in go templates.
 
-This document is a brief primer on using go templates. The [golang docs][gohtmltemplate]
+This document is a brief primer on using go templates. The [go docs][gohtmltemplate]
 provide more details.
 
 ## Introduction to Go Templates
@@ -23,7 +23,7 @@ One consequence of this simplicity is that go templates parse very quickly.
 
 A unique characteristic of go templates is they are content aware. Variables and
 content will be sanitized depending on the context of where they are used. More
-details can be found in the [golang docs][gohtmltemplate].
+details can be found in the [go docs][gohtmltemplate].
 
 ## Basic Syntax
 
@@ -217,7 +217,7 @@ Could be rewritten as
 
 ## Context (aka. the dot)
 
-The most easily overlooked concept to understand about golang templates is that {{ . }}
+The most easily overlooked concept to understand about go templates is that {{ . }}
 always refers to the current context. In the top level of your template this
 will be the data set made available to it. Inside of a iteration it will have
 the value of the current item. When inside of a loop the context has changed. .
@@ -329,5 +329,5 @@ so, such as in this example:
 ```
 
 
-[golang]: <http://golang.org/>
+[go]: <http://golang.org/>
 [gohtmltemplate]: <http://golang.org/pkg/html/template/>

@@ -6,7 +6,7 @@ groups: ["layout"]
 groups_weight: 70
 ---
 
-Hugo uses the excellent golang html/template library for its template engine.
+Hugo uses the excellent go html/template library for its template engine.
 It is an extremely lightweight engine that provides a very small amount of
 logic. In our experience that it is just the right amount of logic to be able
 to create a good static website.
@@ -14,7 +14,7 @@ to create a good static website.
 Go templates are lightweight but extensible. Hugo has added the following
 functions to the basic template logic.
 
-Golang documentation for the built-in functions can be found [here](http://golang.org/pkg/text/template/)
+Go documentation for the built-in functions can be found [here](http://golang.org/pkg/text/template/)
 
 ## General
 

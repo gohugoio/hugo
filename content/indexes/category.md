@@ -55,7 +55,7 @@ Make sure that the index is set in the front matter:
     "title": "Hugo: A fast and flexible static site generator",
     "categories": [
         "Development",
-        "golang",
+        "Go",
         "Blogging"
     ],
     "slug": "hugo"
