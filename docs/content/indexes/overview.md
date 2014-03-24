@@ -18,8 +18,8 @@ It's important to understand what Indexes do. At it's most basic form an index
 is simply a map of a key to a list of content values.
 
 In the hugo internals this is stored as `Site.Indexes[Plural][key][]pages`.
-For example all the content tagged with GoLang would be found at 
-`Site.Indexes["tags"]["golang"]`.
+For example all the content tagged with Go would be found at 
+`Site.Indexes["tags"]["Go"]`.
 
 For a
 more complete example see the source of [this docs site](http://github.com/spf13/hugo/docs/).
@@ -65,7 +65,7 @@ and assign all keys you want this content to match against.
     "title": "Hugo: A fast and flexible static site generator",
     "tags": [
         "Development",
-        "golang",
+        "Go",
         "fast",
         "Blogging"
     ],
