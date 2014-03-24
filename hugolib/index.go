@@ -28,7 +28,7 @@ type IndexList map[string]Index
  *  An index is a map of keywords to a list of pages.
  *  For example
  *    TagIndex['technology'] = WeightedPages
- *    TagIndex['golang']  =  WeightedPages2
+ *    TagIndex['go']  =  WeightedPages2
  */
 type Index map[string]WeightedPages
 

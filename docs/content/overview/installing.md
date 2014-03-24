@@ -6,7 +6,7 @@ groups: ['gettingStarted']
 groups_weight: 20
 ---
 
-Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
+Hugo is written in Go with support for Windows, Linux, FreeBSD and OSX.
 
 The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases).
 We currently build for Windows, Linux, FreeBSD and OS X for x64
