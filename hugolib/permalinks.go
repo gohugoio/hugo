@@ -26,9 +26,6 @@ var knownPermalinkAttributes map[string]PageToPermaAttribute
 
 // validate determines if a PathPattern is well-formed
 func (pp PathPattern) validate() bool {
-	if pp[0] != '/' {
-		return false
-	}
 	fragments := strings.Split(string(pp[1:]), "/")
 	var bail = false
 	for i := range fragments {

@@ -14,9 +14,8 @@ var testdataPermalinks = []struct {
 }{
 	{"/:year/:month/:title/", true, "/2012/04/spf13-vim-3.0-release-and-new-website/"},
 	{"/:title", true, "/spf13-vim-3.0-release-and-new-website"},
-	{":title", false, ""},
+	{":title", true, "spf13-vim-3.0-release-and-new-website"},
 	{"/blog/:year/:yearday/:title", true, "/blog/2012/97/spf13-vim-3.0-release-and-new-website"},
-	{":fred", false, ""},
 	{"/blog/:fred", false, ""},
 	{"/:year//:title", false, ""},
 	{
