@@ -1,7 +1,12 @@
 <div class="col-sm-6 col-md-4" style="padding-bottom:1em;">
     <div class="thumbnail">
     <a href="{{ .Params.sitelink }}"><img class="img-responsive img-rounded" style="width:100%;" src="{{ .Params.thumbnail }}" alt="{{ .Description }}"></a>
-    <a href="{{ .Params.sitelink }}"><h4>{{ .Title }}<a href="{{ .Params.sourcelink }}" class="small pull-right">source</a></h4></a>
+    <h4>
+      <a href="{{ .Params.sitelink }}">{{ .Title }}</a>
+      {{ if (isset .Params "sourcelink") }} 
+      <a href="{{ .Params.sourcelink }}" class="small pull-right">source</a>
+      {{ end }}
+    </h4>
             {{ range .Params.tags }}
             <span class="label label-default" style="font-size:60%;">{{ . }}</span>
             {{ end }}
