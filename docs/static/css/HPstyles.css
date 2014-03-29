@@ -48,7 +48,7 @@ body {
 }
 
 .logo {
-    max-width: 35em; 
+    max-width: 35em;
     width: 100%;
     padding: 2em;
 }
@@ -57,7 +57,7 @@ body {
     margin: 2em 0 4em;
 }
 
-@media only screen 
+@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 1024px)
 and (orientation : portrait)
@@ -74,7 +74,7 @@ and (orientation : portrait)
     }
 }
 
-@media only screen 
+@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 1024px)
 and (orientation : landscape) {
@@ -329,8 +329,19 @@ div#carousel-quotes {
 }
 
 .carousel-inner > .item {
-    height: 16em;
+    height: 23em;
     font-size: 140%;
+}
+
+.carousel-inner > .item img{
+  border: 5px solid #ffffff;
+  width: 150px;
+  height: 150px;
+  -webkit-border-radius: 75px;
+  -moz-border-radius: 75px;
+  -ms-border-radius: 75px;
+  -o-border-radius: 75px;
+  border-radius: 75px;
 }
 
 @media all and (max-width: 685px) {
@@ -358,4 +369,3 @@ div#carousel-quotes {
     display: block;
     color: rgb(249, 176, 190);
 }
-
