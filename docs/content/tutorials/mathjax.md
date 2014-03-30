@@ -6,17 +6,11 @@ groups_weight: 10
 author: "Spencer Lyon"
 ---
 
-<script type="text/javascript"
-
-src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-
-</script>
-
 ## What is MathJax?
 
 [MathJax](http://www.mathjax.org/) is a JavaScript library that allows allows the display of mathematical expressions described via a LaTeX-style syntax in the html (or markdown) source of a web page. As it is a pure a JavaScript library, getting it to work within Hugo is fairly straightforward, but does have some oddities that will be discussed here.
 
-This is an introduction into actually using MathJax to render typeset mathematics on your website. Instead this page is a collection of tips and hints for one way to get MathJax working on a website built with Hugo.
+This is not an introduction into actually using MathJax to render typeset mathematics on your website. Instead this page is a collection of tips and hints for one way to get MathJax working on a website built with Hugo.
 
 ## Enabling MathJax
 
@@ -28,7 +22,7 @@ The first step is to enable MathJax on pages that you would like to have typeset
 </script>
 {{% /highlight %}}
 
-One way to ensure that this code is included in all pages is to put it in one of the templates that live in the `layouts/chrome/` directory. For example, I have included this in the bottom of my template `footer.html` because I know that the footer will be included in every page of my website. 
+One way to ensure that this code is included in all pages is to put it in one of the templates that live in the `layouts/chrome/` directory. For example, I have included this in the bottom of my template `footer.html` because I know that the footer will be included in every page of my website.
 
 ### Options and Features
 
@@ -72,7 +66,7 @@ MathJax.Hub.Config({
 </script>
 {{% /highlight %}}
 
-As before, this content should be included in the html source of each page that you would like to use 
+As before, this content should be included in the html source of each page that will be using MathJax. The next code snippet contains the CSS that is used to have verbatim MathJax blocks render with the same font style as the body of the page.
 
 
 {{% highlight css %}}
@@ -83,8 +77,7 @@ code.has-jax {font: inherit;
               color: #515151;}
 {{% /highlight %}}
 
-In the css snippet notice the line `color: #515151;`. This is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to look good on a particular website, this value should be updated to match the color of the text body for that page.
-
+In the css snippet notice the line `color: #515151;`. `#515151` is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to fit in with the body of a web page, this value should be the same as e color of the body.
 
 ### Usage
 

@@ -7,7 +7,7 @@ and [friends](http://github.com/spf13/hugo/graphs/contributors) in Go.
 
 ## Overview
 
-Hugo is a static site generator written in GoLang. It is optimized for
+Hugo is a static site generator written in Go. It is optimized for
 speed, easy use and configurability. Hugo takes a directory with content and
 templates and renders them into a full html website.
 
@@ -26,7 +26,7 @@ kind of website including blogs, tumbles and docs.
 
 ## Installing Hugo
 
-Hugo is written in GoLang with support for Windows, Linux, FreeBSD and OSX.
+Hugo is written in Go with support for Windows, Linux, FreeBSD and OSX.
 
 The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases).
 We currently build for Windows, Linux, FreeBSD and OS X for x64
@@ -43,7 +43,7 @@ where you don't have a privileged account.
 Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
 is the most probable location.
 
-*The Hugo executible has no external dependencies.*
+*The Hugo executable has no external dependencies.*
 
 ### Installing from source
 
