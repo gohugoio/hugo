@@ -36,7 +36,7 @@ After enabling MathJax, any math entered in-between proper markers (see document
 
 There are multiple ways to remedy this problem. One solution is to simply escape each underscore in your math code by entering `\_` instead of `_`. This can become quite tedious if the equations you are entering are full of subscripts.
 
-Another option is to tell markdown to treat the MathJax code as verbatim code and not process it. One way to do this is to wrap the math expression inside a `<div>` `</div>` block. Markdown would ignore these sections and they would get passed directly on to MathJax and processed correctly. This works great for display style mathematics, but for inline math expressions the line break induced by the `<div>` is not acceptable. The syntax for instructing markdown to treat inline text as verbatim is by wrapping it in backticks (`` ` ``). You might have noticed, however, that the text included in between backticks is given special rendered differently than standard text (on this site these are items highlighted in red). To get around this problem we could create a new css entry that would apply standard styling to all inline verbatim text that includes MathJax code. Below I will show the html and css source that would accomplish this (note this solution adapted from [this blog post](http://doswa.com/2011/07/20/mathjax-in-markdown.html) -- all credit goes to the original author).
+Another option is to tell markdown to treat the MathJax code as verbatim code and not process it. One way to do this is to wrap the math expression inside a `<div>` `</div>` block. Markdown would ignore these sections and they would get passed directly on to MathJax and processed correctly. This works great for display style mathematics, but for inline math expressions the line break induced by the `<div>` is not acceptable. The syntax for instructing markdown to treat inline text as verbatim is by wrapping it in backticks (`` ` ``). You might have noticed, however, that the text included in between backticks is rendered differently than standard text (on this site these are items highlighted in red). To get around this problem we could create a new css entry that would apply standard styling to all inline verbatim text that includes MathJax code. Below I will show the html and css source that would accomplish this (note this solution adapted from [this blog post](http://doswa.com/2011/07/20/mathjax-in-markdown.html) -- all credit goes to the original author).
 
 {{% highlight html %}}
 <script type="text/x-mathjax-config">
@@ -77,7 +77,7 @@ code.has-jax {font: inherit;
               color: #515151;}
 {{% /highlight %}}
 
-In the css snippet notice the line `color: #515151;`. `#515151` is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to fit in with the body of a web page, this value should be the same as e color of the body.
+In the css snippet notice the line `color: #515151;`. `#515151` is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to fit in with the body of a web page, this value should be the same as the color of the body.
 
 
 ### Usage
