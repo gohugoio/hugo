@@ -15,16 +15,18 @@ package helpers
 
 import (
 	"bytes"
-	"log"
 	"os/exec"
 	"strings"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func Highlight(code string, lexer string) string {
 	var pygmentsBin = "pygmentize"
 
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
-		log.Print("Highlighting requries Pygments to be installed and in the path")
+
+		jww.WARN.Println("Highlighting requries Pygments to be installed and in the path")
 		return code
 	}
 
@@ -37,7 +39,7 @@ func Highlight(code string, lexer string) string {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		log.Print(stderr.String())
+		jww.ERROR.Print(stderr.String())
 		return code
 	}
 

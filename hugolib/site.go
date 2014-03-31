@@ -14,21 +14,23 @@
 package hugolib
 
 import (
-	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
-	"github.com/spf13/hugo/template/bundle"
-	"github.com/spf13/hugo/transform"
-	"github.com/spf13/nitro"
 	"html/template"
 	"io"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"bitbucket.org/pkg/inflect"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
+	"github.com/spf13/hugo/template/bundle"
+	"github.com/spf13/hugo/transform"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/nitro"
 )
 
 var _ = transform.AbsURL
@@ -104,9 +106,9 @@ func (s *Site) Build() (err error) {
 		return
 	}
 	if err = s.Render(); err != nil {
-		fmt.Printf("Error rendering site: %s\nAvailable templates:\n", err)
+		jww.ERROR.Printf("Error rendering site: %s\nAvailable templates:\n", err)
 		for _, template := range s.Tmpl.Templates() {
-			fmt.Printf("\t%s\n", template.Name())
+			jww.ERROR.Printf("\t%s\n", template.Name())
 		}
 		return
 	}
@@ -190,7 +192,7 @@ func (s *Site) Render() (err error) {
 func (s *Site) checkDescriptions() {
 	for _, p := range s.Pages {
 		if len(p.Description) < 60 {
-			fmt.Println(p.FileName + " ")
+			jww.FEEDBACK.Println(p.FileName + " ")
 		}
 	}
 }
@@ -309,9 +311,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 						s.Indexes[plural].Add(idx, x)
 					}
 				} else {
-					if s.Config.Verbose {
-						fmt.Fprintf(os.Stderr, "Invalid %s in %s\n", plural, p.File.FileName)
-					}
+					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.FileName)
 				}
 			}
 		}
@@ -533,9 +533,9 @@ func (s *Site) RenderHomePage() error {
 }
 
 func (s *Site) Stats() {
-	fmt.Printf("%d pages created \n", len(s.Pages))
+	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
 	for _, pl := range s.Config.Indexes {
-		fmt.Printf("%d %s index created\n", len(s.Indexes[pl]), pl)
+		jww.FEEDBACK.Printf("%d %s index created\n", len(s.Indexes[pl]), pl)
 	}
 }
 
@@ -572,9 +572,7 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 
 	layout := s.findFirstLayout(layouts...)
 	if layout == "" {
-		if s.Config.Verbose {
-			fmt.Printf("Unable to locate layout: %s\n", layouts)
-		}
+		jww.WARN.Printf("Unable to locate layout: %s\n", layouts)
 		return
 	}
 
@@ -601,7 +599,7 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	err = s.renderThing(d, layout, renderBuffer)
 	if err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
-		fmt.Println(fmt.Errorf("Rendering error: %v", err))
+		jww.ERROR.Println(fmt.Errorf("Rendering error: %v", err))
 		if !s.Running() {
 			os.Exit(-1)
 		}
@@ -631,7 +629,6 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 	if s.Tmpl.Lookup(layout) == nil {
 		return fmt.Errorf("Layout not found: %s", layout)
 	}
-	//defer w.Close()
 	return s.Tmpl.ExecuteTemplate(w, layout, d)
 }
 
@@ -652,9 +649,7 @@ func (s *Site) initTarget() {
 func (s *Site) WritePublic(path string, reader io.Reader) (err error) {
 	s.initTarget()
 
-	if s.Config.Verbose {
-		fmt.Println(path)
-	}
+	jww.DEBUG.Println("writing to", path)
 	return s.Target.Publish(path, reader)
 }
 
@@ -666,9 +661,7 @@ func (s *Site) WriteAlias(path string, permalink template.HTML) (err error) {
 		}
 	}
 
-	if s.Config.Verbose {
-		fmt.Println(path)
-	}
+	jww.DEBUG.Println("alias created at", path)
 
 	return s.Alias.Publish(path, permalink)
 }

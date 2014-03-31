@@ -14,12 +14,9 @@
 package helpers
 
 import (
-	"fmt"
 	"net/url"
 	"path"
 )
-
-var _ = fmt.Println
 
 // Similar to MakePath, but with Unicode handling
 // Example:

@@ -1,22 +1,24 @@
 package utils
 
 import (
-	"log"
 	"os"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func CheckErr(err error, s ...string) {
 	if err != nil {
 		for _, message := range s {
-			log.Fatalf(message)
+			jww.ERROR.Println(message)
 		}
-		log.Fatalf("Fatal Error: %v", err)
 	}
 }
 
 func StopOnErr(err error, s ...string) {
 	if err != nil {
-		CheckErr(err, s...)
+		for _, message := range s {
+			jww.CRITICAL.Println(message)
+		}
 		os.Exit(-1)
 	}
 }

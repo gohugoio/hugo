@@ -15,9 +15,10 @@
 package commands
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
 	"syscall"
+
+	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func init() {
@@ -33,22 +34,22 @@ var limit = &cobra.Command{
 		var rLimit syscall.Rlimit
 		err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			fmt.Println("Error Getting Rlimit ", err)
+			jww.ERROR.Println("Error Getting Rlimit ", err)
 		}
-		fmt.Println("Current rLimit:", rLimit)
+		jww.FEEDBACK.Println("Current rLimit:", rLimit)
 
-		fmt.Println("Attempting to increase limit")
+		jww.FEEDBACK.Println("Attempting to increase limit")
 		rLimit.Max = 999999
 		rLimit.Cur = 999999
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			fmt.Println("Error Setting rLimit ", err)
+			jww.ERROR.Println("Error Setting rLimit ", err)
 		}
 		err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			fmt.Println("Error Getting rLimit ", err)
+			jww.ERROR.Println("Error Getting rLimit ", err)
 		}
-		fmt.Println("rLimit after change:", rLimit)
+		jww.FEEDBACK.Println("rLimit after change:", rLimit)
 	},
 }
 
@@ -56,14 +57,14 @@ func tweakLimit() {
 	var rLimit syscall.Rlimit
 	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 	if err != nil {
-		fmt.Println("Unable to obtain rLimit", err)
+		jww.ERROR.Println("Unable to obtain rLimit", err)
 	}
 	if rLimit.Cur < rLimit.Max {
 		rLimit.Max = 999999
 		rLimit.Cur = 999999
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			fmt.Println("Unable to increase number of open files limit", err)
+			jww.ERROR.Println("Unable to increase number of open files limit", err)
 		}
 	}
 }

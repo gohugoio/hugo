@@ -15,15 +15,14 @@ package hugolib
 
 import (
 	"bytes"
-	"fmt"
-	"github.com/spf13/hugo/template/bundle"
 	"html/template"
 	"reflect"
 	"strings"
 	"unicode"
-)
 
-var _ = fmt.Println
+	"github.com/spf13/hugo/template/bundle"
+	jww "github.com/spf13/jwalterweatherman"
+)
 
 type ShortcodeFunc func([]string) string
 
@@ -296,8 +295,8 @@ func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
 	buffer := new(bytes.Buffer)
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
-		fmt.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
-		fmt.Println(data)
+		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
+		jww.WARN.Println(data)
 	}
 	return buffer.String()
 }

@@ -17,19 +17,21 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/BurntSushi/toml"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/parser"
-	"github.com/spf13/hugo/template/bundle"
-	"github.com/theplant/blackfriday"
 	"html/template"
 	"io"
-	"launchpad.net/goyaml"
-	json "launchpad.net/rjson"
 	"net/url"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/BurntSushi/toml"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/parser"
+	"github.com/spf13/hugo/template/bundle"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/theplant/blackfriday"
+	"launchpad.net/goyaml"
+	json "launchpad.net/rjson"
 )
 
 type Page struct {
@@ -142,6 +144,8 @@ func newPage(filename string) *Page {
 		File:   File{FileName: filename, Extension: "html"},
 		Node:   Node{Keywords: make([]string, 10, 30)},
 		Params: make(map[string]interface{})}
+
+	jww.DEBUG.Println("Reading from", page.File.FileName)
 	page.Date, _ = time.Parse("20060102", "20080101")
 	page.guessSection()
 	return &page
@@ -212,6 +216,7 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 
 	// Parse for metadata & body
 	if err = p.parse(buf); err != nil {
+		jww.ERROR.Print(err)
 		return
 	}
 

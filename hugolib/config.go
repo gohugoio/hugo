@@ -16,21 +16,23 @@ package hugolib
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/BurntSushi/toml"
-	"github.com/spf13/hugo/helpers"
 	"io/ioutil"
-	"launchpad.net/goyaml"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/BurntSushi/toml"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
+	"launchpad.net/goyaml"
 )
 
 // config file items
 type Config struct {
 	ContentDir, PublishDir, BaseUrl, StaticDir string
 	Path, CacheDir, LayoutDir, DefaultLayout   string
-	ConfigFile                                 string
+	ConfigFile, LogFile                        string
 	Title                                      string
 	Indexes                                    map[string]string // singular, plural
 	ProcessFilters                             map[string][]string
@@ -50,8 +52,8 @@ func SetupConfig(cfgfile *string, path *string) *Config {
 	c.ConfigFile = cfg
 
 	if err != nil {
-		fmt.Printf("%v", err)
-		fmt.Println(" using defaults instead")
+		jww.ERROR.Printf("%v", err)
+		jww.FEEDBACK.Println("using defaults instead")
 	}
 
 	// set defaults
@@ -92,19 +94,19 @@ func (c *Config) readInConfig() {
 		switch path.Ext(c.ConfigFile) {
 		case ".yaml":
 			if err := goyaml.Unmarshal(file, &c); err != nil {
-				fmt.Printf("Error parsing config: %s", err)
+				jww.ERROR.Printf("Error parsing config: %s", err)
 				os.Exit(1)
 			}
 
 		case ".json":
 			if err := json.Unmarshal(file, &c); err != nil {
-				fmt.Printf("Error parsing config: %s", err)
+				jww.ERROR.Printf("Error parsing config: %s", err)
 				os.Exit(1)
 			}
 
 		case ".toml":
 			if _, err := toml.Decode(string(file), &c); err != nil {
-				fmt.Printf("Error parsing config: %s", err)
+				jww.ERROR.Printf("Error parsing config: %s", err)
 				os.Exit(1)
 			}
 		}
@@ -115,13 +117,13 @@ func (c *Config) setPath(p string) {
 	if p == "" {
 		path, err := findPath()
 		if err != nil {
-			fmt.Printf("Error finding path: %s", err)
+			jww.ERROR.Printf("Error finding path: %s", err)
 		}
 		c.Path = path
 	} else {
 		path, err := filepath.Abs(p)
 		if err != nil {
-			fmt.Printf("Error finding path: %s", err)
+			jww.ERROR.Printf("Error finding path: %s", err)
 		}
 		c.Path = path
 	}

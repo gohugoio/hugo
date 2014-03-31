@@ -2,9 +2,10 @@ package hugolib
 
 import (
 	"bytes"
-	"fmt"
 	"os/exec"
 	"strings"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var summaryLength = 70
@@ -62,7 +63,7 @@ func getRstContent(content []byte) string {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
+		jww.ERROR.Println(err)
 	}
 
 	rstLines := strings.Split(out.String(), "\n")

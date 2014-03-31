@@ -3,9 +3,10 @@ package hugolib
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func interfaceToTime(i interface{}) time.Time {
@@ -17,9 +18,9 @@ func interfaceToTime(i interface{}) time.Time {
 		if e == nil {
 			return d
 		}
-		errorln("Could not parse Date/Time format:", e)
+		jww.ERROR.Println("Could not parse Date/Time format:", e)
 	default:
-		errorln("Only Time is supported for this key")
+		jww.ERROR.Println("Only Time is supported for this key")
 	}
 
 	return *new(time.Time)
@@ -53,11 +54,6 @@ func stringToDate(s string) (time.Time, error) {
 	})
 }
 
-// TODO remove this and return a proper error.
-func errorln(str string, a ...interface{}) {
-	fmt.Fprintln(os.Stderr, str, a)
-}
-
 func parseDateWith(s string, dates []string) (d time.Time, e error) {
 	for _, dateType := range dates {
 		if d, e = time.Parse(dateType, s); e == nil {
@@ -77,7 +73,7 @@ func interfaceToBool(i interface{}) bool {
 		}
 		return false
 	default:
-		errorln("Only Boolean values are supported for this YAML key")
+		jww.ERROR.Println("Only Boolean values are supported for this YAML key")
 	}
 
 	return false
@@ -109,11 +105,11 @@ func interfaceToFloat64(i interface{}) float64 {
 		if err == nil {
 			return float64(v)
 		} else {
-			errorln("Only Floats are supported for this key\nErr:", err)
+			jww.ERROR.Println("Only Floats are supported for this key\nErr:", err)
 		}
 
 	default:
-		errorln("Only Floats are supported for this key")
+		jww.ERROR.Println("Only Floats are supported for this key")
 	}
 
 	return 0.0
@@ -136,10 +132,10 @@ func interfaceToInt(i interface{}) int {
 		if err == nil {
 			return int(v)
 		} else {
-			errorln("Only Ints are supported for this key\nErr:", err)
+			jww.ERROR.Println("Only Ints are supported for this key\nErr:", err)
 		}
 	default:
-		errorln("Only Ints are supported for this key")
+		jww.ERROR.Println("Only Ints are supported for this key")
 	}
 
 	return 0
@@ -154,7 +150,7 @@ func interfaceToString(i interface{}) string {
 	case int:
 		return strconv.FormatInt(int64(i.(int)), 10)
 	default:
-		errorln(fmt.Sprintf("Only Strings are supported for this key (got type '%T'): %s", s, s))
+		jww.ERROR.Println(fmt.Sprintf("Only Strings are supported for this key (got type '%T'): %s", s, s))
 	}
 
 	return ""

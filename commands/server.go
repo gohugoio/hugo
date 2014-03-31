@@ -15,11 +15,13 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var serverPort int
@@ -62,7 +64,7 @@ func server(cmd *cobra.Command, args []string) {
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
-		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
+		jww.FEEDBACK.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
 		err := NewWatcher(serverPort)
 		if err != nil {
 			fmt.Println(err)
@@ -73,21 +75,19 @@ func server(cmd *cobra.Command, args []string) {
 }
 
 func serve(port int) {
-	if Verbose {
-		fmt.Println("Serving pages from " + Config.GetAbsPath(Config.PublishDir))
-	}
+	jww.FEEDBACK.Println("Serving pages from " + Config.GetAbsPath(Config.PublishDir))
 
 	if BaseUrl == "" {
-		fmt.Printf("Web Server is available at %s\n", Config.BaseUrl)
+		jww.FEEDBACK.Printf("Web Server is available at %s\n", Config.BaseUrl)
 	} else {
-		fmt.Printf("Web Server is available at http://localhost:%v\n", port)
+		jww.FEEDBACK.Printf("Web Server is available at http://localhost:%v\n", port)
 	}
 
 	fmt.Println("Press ctrl+c to stop")
 
 	err := http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir))))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err.Error())
+		jww.ERROR.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 }

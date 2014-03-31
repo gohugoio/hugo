@@ -15,18 +15,20 @@ package commands
 
 import (
 	"fmt"
-	"github.com/mostafah/fsync"
-	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/hugolib"
-	"github.com/spf13/hugo/utils"
-	"github.com/spf13/hugo/watcher"
-	"github.com/spf13/nitro"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/mostafah/fsync"
+	"github.com/spf13/cobra"
+	"github.com/spf13/hugo/hugolib"
+	"github.com/spf13/hugo/utils"
+	"github.com/spf13/hugo/watcher"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/nitro"
 )
 
 var Config *hugolib.Config
@@ -44,8 +46,8 @@ Complete documentation is available at http://hugo.spf13.com`,
 }
 var hugoCmdV *cobra.Command
 
-var BuildWatch, Draft, UglyUrls, Verbose bool
-var Source, Destination, BaseUrl, CfgFile string
+var BuildWatch, Draft, UglyUrls, Verbose, Logging, VerboseLog bool
+var Source, Destination, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
 	AddCommands()
@@ -67,6 +69,9 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyurls", false, "if true, use /filename.html instead of /filename/")
 	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
+	HugoCmd.PersistentFlags().StringVar(&LogFile, "logfile", "", "Log File path (if set, logging enabled automatically)")
+	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboselog", false, "verbose logging")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	hugoCmdV = HugoCmd
@@ -86,11 +91,34 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		Config.Verbose = Verbose
 	}
+
+	if hugoCmdV.PersistentFlags().Lookup("logfile").Changed {
+		Config.LogFile = LogFile
+	}
+
 	if BaseUrl != "" {
 		Config.BaseUrl = BaseUrl
 	}
 	if Destination != "" {
 		Config.PublishDir = Destination
+	}
+
+	if VerboseLog || Logging || Config.LogFile != "" {
+		if Config.LogFile != "" {
+			jww.SetLogFile(Config.LogFile)
+		} else {
+			jww.UseTempLogFile("hugo")
+		}
+	} else {
+		jww.DiscardLogging()
+	}
+
+	if Config.Verbose {
+		jww.SetStdoutThreshold(jww.LevelDebug)
+	}
+
+	if VerboseLog {
+		jww.SetLogThreshold(jww.LevelDebug)
 	}
 }
 
@@ -103,8 +131,8 @@ func build(watches ...bool) {
 	utils.StopOnErr(buildSite(BuildWatch || watch))
 
 	if BuildWatch {
-		fmt.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
-		fmt.Println("Press ctrl+c to stop")
+		jww.FEEDBACK.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
+		jww.FEEDBACK.Println("Press ctrl+c to stop")
 		utils.CheckErr(NewWatcher(0))
 	}
 }
@@ -123,7 +151,7 @@ func getDirList() []string {
 	var a []string
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Println("Walker: ", err)
+			jww.ERROR.Println("Walker: ", err)
 			return nil
 		}
 
@@ -151,7 +179,7 @@ func buildSite(watching ...bool) (err error) {
 		return
 	}
 	site.Stats()
-	fmt.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
+	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 	return nil
 }
 
@@ -182,9 +210,7 @@ func NewWatcher(port int) error {
 		for {
 			select {
 			case evs := <-watcher.Event:
-				if Verbose {
-					fmt.Println(evs)
-				}
+				jww.INFO.Println(evs)
 
 				static_changed := false
 				dynamic_changed := false
@@ -214,7 +240,7 @@ func NewWatcher(port int) error {
 
 				if static_changed {
 					fmt.Print("Static file changed, syncing\n\n")
-					utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
+					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", Config.GetAbsPath(Config.PublishDir)))
 				}
 
 				if dynamic_changed {
