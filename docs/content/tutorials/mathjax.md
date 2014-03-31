@@ -22,7 +22,7 @@ The first step is to enable MathJax on pages that you would like to have typeset
 </script>
 {{% /highlight %}}
 
-One way to ensure that this code is included in all pages is to put it in one of the templates that live in the `layouts/chrome/` directory. For example, I have included this in the bottom of my template `footer.html` because I know that the footer will be included in every page of my website. 
+One way to ensure that this code is included in all pages is to put it in one of the templates that live in the `layouts/chrome/` directory. For example, I have included this in the bottom of my template `footer.html` because I know that the footer will be included in every page of my website.
 
 ### Options and Features
 
@@ -78,7 +78,6 @@ code.has-jax {font: inherit;
 {{% /highlight %}}
 
 In the css snippet notice the line `color: #515151;`. `#515151` is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to fit in with the body of a web page, this value should be the same as e color of the body.
-
 
 ### Usage
 
