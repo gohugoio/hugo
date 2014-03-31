@@ -31,9 +31,12 @@ Make sure either hugo is in your path or provide a path to it.
       -D, --build-drafts=false: include content marked as draft
           --config="": config file (default is path/config.yaml|json|toml)
       -d, --destination="": filesystem path to write files to
+          --log=false: Enable Logging
+          --logfile="": Log File path (if set, logging enabled automatically)
       -s, --source="": filesystem path to read files relative from
           --uglyurls=false: if true, use /filename.html instead of /filename/
       -v, --verbose=false: verbose output
+          --verboselog=false: verbose logging
       -w, --watch=false: watch filesystem for changes and recreate as needed
 
     Use "hugo help [command]" for more information about that command.
