@@ -21,7 +21,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 var serverPort int
@@ -55,16 +57,16 @@ func server(cmd *cobra.Command, args []string) {
 	}
 
 	if serverAppend {
-		Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/") + ":" + strconv.Itoa(serverPort)
+		viper.Set("BaseUrl", strings.TrimSuffix(BaseUrl, "/")+":"+strconv.Itoa(serverPort))
 	} else {
-		Config.BaseUrl = strings.TrimSuffix(BaseUrl, "/")
+		viper.Set("BaseUrl", strings.TrimSuffix(BaseUrl, "/"))
 	}
 
 	build(serverWatch)
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
-		jww.FEEDBACK.Println("Watching for changes in", Config.GetAbsPath(Config.ContentDir))
+		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
 		err := NewWatcher(serverPort)
 		if err != nil {
 			fmt.Println(err)
@@ -75,17 +77,17 @@ func server(cmd *cobra.Command, args []string) {
 }
 
 func serve(port int) {
-	jww.FEEDBACK.Println("Serving pages from " + Config.GetAbsPath(Config.PublishDir))
+	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
 
 	if BaseUrl == "" {
-		jww.FEEDBACK.Printf("Web Server is available at %s\n", Config.BaseUrl)
+		jww.FEEDBACK.Printf("Web Server is available at %s\n", viper.GetString("BaseUrl"))
 	} else {
 		jww.FEEDBACK.Printf("Web Server is available at http://localhost:%v\n", port)
 	}
 
 	fmt.Println("Press ctrl+c to stop")
 
-	err := http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(Config.GetAbsPath(Config.PublishDir))))
+	err := http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))))
 	if err != nil {
 		jww.ERROR.Printf("Error: %s\n", err.Error())
 		os.Exit(1)

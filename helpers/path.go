@@ -14,11 +14,14 @@
 package helpers
 
 import (
+	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+	"github.com/spf13/viper"
 )
 
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
@@ -75,6 +78,14 @@ func Exists(path string) (bool, error) {
 	return false, err
 }
 
+func AbsPathify(inPath string) string {
+	if filepath.IsAbs(inPath) {
+		return filepath.Clean(inPath)
+	}
+
+	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
+}
+
 func FileAndExt(in string) (name string, ext string) {
 	ext = path.Ext(in)
 	base := path.Base(in)
@@ -116,4 +127,27 @@ func PrettifyPath(in string) string {
 			return path.Join(path.Dir(in), name, "index"+ext)
 		}
 	}
+}
+
+func FindCWD() (string, error) {
+	serverFile, err := filepath.Abs(os.Args[0])
+
+	if err != nil {
+		return "", fmt.Errorf("Can't get absolute path for executable: %v", err)
+	}
+
+	path := filepath.Dir(serverFile)
+	realFile, err := filepath.EvalSymlinks(serverFile)
+
+	if err != nil {
+		if _, err = os.Stat(serverFile + ".exe"); err == nil {
+			realFile = filepath.Clean(serverFile + ".exe")
+		}
+	}
+
+	if err == nil && realFile != serverFile {
+		path = filepath.Dir(realFile)
+	}
+
+	return path, nil
 }

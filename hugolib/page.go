@@ -25,10 +25,12 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/template/bundle"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 	"github.com/theplant/blackfriday"
 	"launchpad.net/goyaml"
 	json "launchpad.net/rjson"
@@ -252,10 +254,10 @@ func (p *Page) permalink() (*url.URL, error) {
 		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.UrlPrep(p.Site.Config.UglyUrls, path.Join(dir, p.Slug+"."+p.Extension))
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, p.Slug+"."+p.Extension))
 		} else {
 			_, t := path.Split(p.FileName)
-			permalink = helpers.UrlPrep(p.Site.Config.UglyUrls, path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)))
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)))
 		}
 	}
 
@@ -327,41 +329,41 @@ func (page *Page) update(f interface{}) error {
 		loki := strings.ToLower(k)
 		switch loki {
 		case "title":
-			page.Title = interfaceToString(v)
+			page.Title = cast.ToString(v)
 		case "linktitle":
-			page.linkTitle = interfaceToString(v)
+			page.linkTitle = cast.ToString(v)
 		case "description":
-			page.Description = interfaceToString(v)
+			page.Description = cast.ToString(v)
 		case "slug":
-			page.Slug = helpers.Urlize(interfaceToString(v))
+			page.Slug = helpers.Urlize(cast.ToString(v))
 		case "url":
-			if url := interfaceToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative urls are supported, %v provided", url)
 			}
-			page.Url = helpers.Urlize(interfaceToString(v))
+			page.Url = helpers.Urlize(cast.ToString(v))
 		case "type":
-			page.contentType = interfaceToString(v)
+			page.contentType = cast.ToString(v)
 		case "keywords":
-			page.Keywords = interfaceArrayToStringArray(v)
+			page.Keywords = cast.ToStringSlice(v)
 		case "date", "pubdate":
-			page.Date = interfaceToTime(v)
+			page.Date = cast.ToTime(v)
 		case "draft":
-			page.Draft = interfaceToBool(v)
+			page.Draft = cast.ToBool(v)
 		case "layout":
-			page.layout = interfaceToString(v)
+			page.layout = cast.ToString(v)
 		case "markup":
-			page.Markup = interfaceToString(v)
+			page.Markup = cast.ToString(v)
 		case "weight":
-			page.Weight = interfaceToInt(v)
+			page.Weight = cast.ToInt(v)
 		case "aliases":
-			page.Aliases = interfaceArrayToStringArray(v)
+			page.Aliases = cast.ToStringSlice(v)
 			for _, alias := range page.Aliases {
 				if strings.HasPrefix(alias, "http://") || strings.HasPrefix(alias, "https://") {
 					return fmt.Errorf("Only relative aliases are supported, %v provided", alias)
 				}
 			}
 		case "status":
-			page.Status = interfaceToString(v)
+			page.Status = cast.ToString(v)
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
@@ -380,7 +382,7 @@ func (page *Page) update(f interface{}) error {
 				case []interface{}:
 					var a = make([]string, len(vvv))
 					for i, u := range vvv {
-						a[i] = interfaceToString(u)
+						a[i] = cast.ToString(u)
 					}
 					page.Params[loki] = a
 				}
@@ -400,15 +402,15 @@ func (page *Page) GetParam(key string) interface{} {
 
 	switch v.(type) {
 	case bool:
-		return interfaceToBool(v)
+		return cast.ToBool(v)
 	case string:
-		return interfaceToString(v)
+		return cast.ToString(v)
 	case int64, int32, int16, int8, int:
-		return interfaceToInt(v)
+		return cast.ToInt(v)
 	case float64, float32:
-		return interfaceToFloat64(v)
+		return cast.ToFloat64(v)
 	case time.Time:
-		return interfaceToTime(v)
+		return cast.ToTime(v)
 	case []string:
 		return v
 	}

@@ -25,7 +25,7 @@ var check = &cobra.Command{
     content provided and will give feedback.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
-		site := hugolib.Site{Config: *Config}
+		site := hugolib.Site{}
 		site.Analyze()
 	},
 }

@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/hugo/transform"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
+	"github.com/spf13/viper"
 )
 
 var _ = transform.AbsURL
@@ -55,7 +56,6 @@ var DefaultTimer *nitro.B
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Config     Config
 	Pages      Pages
 	Tmpl       bundle.Template
 	Indexes    IndexList
@@ -77,7 +77,7 @@ type SiteInfo struct {
 	Recent     *Pages
 	LastChange time.Time
 	Title      string
-	Config     *Config
+	ConfigGet  func(key string) interface{}
 	Permalinks PermalinkOverrides
 	Params     map[string]interface{}
 }
@@ -202,7 +202,7 @@ func (s *Site) initialize() (err error) {
 		return err
 	}
 
-	staticDir := s.Config.GetAbsPath(s.Config.StaticDir + "/")
+	staticDir := helpers.AbsPathify(viper.GetString("StaticDir") + "/")
 
 	s.Source = &source.Filesystem{
 		AvoidPaths: []string{staticDir},
@@ -216,26 +216,35 @@ func (s *Site) initialize() (err error) {
 }
 
 func (s *Site) initializeSiteInfo() {
+	params, ok := viper.Get("Params").(map[string]interface{})
+	if !ok {
+		params = make(map[string]interface{})
+	}
+
+	permalinks, ok := viper.Get("Permalinks").(PermalinkOverrides)
+	if !ok {
+		permalinks = make(PermalinkOverrides)
+	}
+
 	s.Info = SiteInfo{
-		BaseUrl:    template.URL(s.Config.BaseUrl),
-		Title:      s.Config.Title,
+		BaseUrl:    template.URL(viper.GetString("BaseUrl")),
+		Title:      viper.GetString("Title"),
 		Recent:     &s.Pages,
-		Config:     &s.Config,
-		Params:     s.Config.Params,
-		Permalinks: s.Config.Permalinks,
+		Params:     params,
+		Permalinks: permalinks,
 	}
 }
 
 func (s *Site) absLayoutDir() string {
-	return s.Config.GetAbsPath(s.Config.LayoutDir)
+	return helpers.AbsPathify(viper.GetString("LayoutDir"))
 }
 
 func (s *Site) absContentDir() string {
-	return s.Config.GetAbsPath(s.Config.ContentDir)
+	return helpers.AbsPathify(viper.GetString("ContentDir"))
 }
 
 func (s *Site) absPublishDir() string {
-	return s.Config.GetAbsPath(s.Config.PublishDir)
+	return helpers.AbsPathify(viper.GetString("PublishDir"))
 }
 
 func (s *Site) checkDirectories() (err error) {
@@ -276,7 +285,7 @@ func (s *Site) CreatePages() (err error) {
 				return err
 			}
 
-			if s.Config.BuildDrafts || !page.Draft {
+			if viper.GetBool("BuildDrafts") || !page.Draft {
 				s.Pages = append(s.Pages, page)
 			}
 
@@ -293,7 +302,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 	s.Indexes = make(IndexList)
 	s.Sections = make(Index)
 
-	for _, plural := range s.Config.Indexes {
+	for _, plural := range viper.GetStringMapString("Indexes") {
 		s.Indexes[plural] = make(Index)
 		for _, p := range s.Pages {
 			vals := p.GetParam(plural)
@@ -411,34 +420,38 @@ func (s *Site) RenderPages() (err error) {
 
 func (s *Site) RenderIndexes() (err error) {
 	var wg sync.WaitGroup
-	for sing, pl := range s.Config.Indexes {
-		for key, oo := range s.Indexes[pl] {
-			wg.Add(1)
-			go func(k string, o WeightedPages, singular string, plural string) (err error) {
-				defer wg.Done()
-				base := plural + "/" + k
-				n := s.NewNode()
-				n.Title = strings.Title(k)
-				s.setUrls(n, base)
-				n.Date = o[0].Page.Date
-				n.Data[singular] = o
-				n.Data["Pages"] = o.Pages()
-				layout := "indexes/" + singular + ".html"
-				err = s.render(n, base+".html", layout)
-				if err != nil {
-					return err
-				}
 
-				if a := s.Tmpl.Lookup("rss.xml"); a != nil {
-					// XML Feed
-					s.setUrls(n, base+".xml")
-					err := s.render(n, base+".xml", "rss.xml")
+	indexes, ok := viper.Get("Indexes").(map[string]string)
+	if ok {
+		for sing, pl := range indexes {
+			for key, oo := range s.Indexes[pl] {
+				wg.Add(1)
+				go func(k string, o WeightedPages, singular string, plural string) (err error) {
+					defer wg.Done()
+					base := plural + "/" + k
+					n := s.NewNode()
+					n.Title = strings.Title(k)
+					s.setUrls(n, base)
+					n.Date = o[0].Page.Date
+					n.Data[singular] = o
+					n.Data["Pages"] = o.Pages()
+					layout := "indexes/" + singular + ".html"
+					err = s.render(n, base+".html", layout)
 					if err != nil {
 						return err
 					}
-				}
-				return
-			}(key, oo, sing, pl)
+
+					if a := s.Tmpl.Lookup("rss.xml"); a != nil {
+						// XML Feed
+						s.setUrls(n, base+".xml")
+						err := s.render(n, base+".xml", "rss.xml")
+						if err != nil {
+							return err
+						}
+					}
+					return
+				}(key, oo, sing, pl)
+			}
 		}
 	}
 	wg.Wait()
@@ -448,19 +461,23 @@ func (s *Site) RenderIndexes() (err error) {
 func (s *Site) RenderIndexesIndexes() (err error) {
 	layout := "indexes/indexes.html"
 	if s.Tmpl.Lookup(layout) != nil {
-		for singular, plural := range s.Config.Indexes {
-			n := s.NewNode()
-			n.Title = strings.Title(plural)
-			s.setUrls(n, plural)
-			n.Data["Singular"] = singular
-			n.Data["Plural"] = plural
-			n.Data["Index"] = s.Indexes[plural]
-			// keep the following just for legacy reasons
-			n.Data["OrderedIndex"] = s.Indexes[plural]
 
-			err := s.render(n, plural+"/index.html", layout)
-			if err != nil {
-				return err
+		indexes, ok := viper.Get("Indexes").(map[string]string)
+		if ok {
+			for singular, plural := range indexes {
+				n := s.NewNode()
+				n.Title = strings.Title(plural)
+				s.setUrls(n, plural)
+				n.Data["Singular"] = singular
+				n.Data["Plural"] = plural
+				n.Data["Index"] = s.Indexes[plural]
+				// keep the following just for legacy reasons
+				n.Data["OrderedIndex"] = s.Indexes[plural]
+
+				err := s.render(n, plural+"/index.html", layout)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -534,7 +551,10 @@ func (s *Site) RenderHomePage() error {
 
 func (s *Site) Stats() {
 	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
-	for _, pl := range s.Config.Indexes {
+
+	indexes := viper.GetStringMapString("Indexes")
+
+	for _, pl := range indexes {
 		jww.FEEDBACK.Printf("%d %s index created\n", len(s.Indexes[pl]), pl)
 	}
 }
@@ -546,7 +566,7 @@ func (s *Site) setUrls(n *Node, in string) {
 }
 
 func (s *Site) permalink(plink string) template.HTML {
-	return template.HTML(helpers.MakePermalink(string(s.Config.BaseUrl), s.prepUrl(plink)).String())
+	return template.HTML(helpers.MakePermalink(string(viper.GetString("BaseUrl")), s.prepUrl(plink)).String())
 }
 
 func (s *Site) prepUrl(in string) string {
@@ -554,11 +574,11 @@ func (s *Site) prepUrl(in string) string {
 }
 
 func (s *Site) PrettifyUrl(in string) string {
-	return helpers.UrlPrep(s.Config.UglyUrls, in)
+	return helpers.UrlPrep(viper.GetBool("UglyUrls"), in)
 }
 
 func (s *Site) PrettifyPath(in string) string {
-	return helpers.PathPrep(s.Config.UglyUrls, in)
+	return helpers.PathPrep(viper.GetBool("UglyUrls"), in)
 }
 
 func (s *Site) NewNode() *Node {
@@ -578,8 +598,8 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 
 	transformLinks := transform.NewEmptyTransforms()
 
-	if s.Config.CanonifyUrls {
-		absURL, err := transform.AbsURL(s.Config.BaseUrl)
+	if viper.GetBool("CanonifyUrls") {
+		absURL, err := transform.AbsURL(viper.GetString("BaseUrl"))
 		if err != nil {
 			return err
 		}
@@ -641,7 +661,7 @@ func (s *Site) initTarget() {
 	if s.Target == nil {
 		s.Target = &target.Filesystem{
 			PublishDir: s.absPublishDir(),
-			UglyUrls:   s.Config.UglyUrls,
+			UglyUrls:   viper.GetBool("UglyUrls"),
 		}
 	}
 }
