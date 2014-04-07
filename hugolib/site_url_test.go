@@ -1,10 +1,12 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"html/template"
 	"testing"
+
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
+	"github.com/spf13/viper"
 )
 
 const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
@@ -51,10 +53,11 @@ func TestPageCount(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 	alias := &InMemoryAliasTarget{files: files}
+
+	viper.Set("uglyurls", false)
 	s := &Site{
 		Target: target,
 		Alias:  alias,
-		Config: Config{UglyUrls: false},
 		Source: &source.InMemorySource{ByteSource: urlFakeSource},
 	}
 	s.initializeSiteInfo()

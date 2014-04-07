@@ -3,12 +3,15 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"html/template"
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -200,11 +203,9 @@ func TestTargetPath(t *testing.T) {
 	if true {
 		return
 	}
+
 	for _, test := range tests {
-		s := &Site{
-			Config: Config{ContentDir: "content"},
-		}
-		p := pageMust(ReadFrom(strings.NewReader(test.content), s.Config.GetAbsPath(test.doc)))
+		p := pageMust(ReadFrom(strings.NewReader(test.content), helpers.AbsPathify(test.doc)))
 
 		expected := test.expectedOutFile
 
@@ -232,13 +233,11 @@ func TestSkipRender(t *testing.T) {
 		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*"), "sect"},
 	}
 
+	viper.Set("verbose", true)
+	viper.Set("CanonifyUrls", true)
+	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
 		Target: target,
-		Config: Config{
-			Verbose:      true,
-			BaseUrl:      "http://auth/bub",
-			CanonifyUrls: true,
-		},
 		Source: &source.InMemorySource{ByteSource: sources},
 	}
 
@@ -295,15 +294,13 @@ func TestAbsUrlify(t *testing.T) {
 		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"), "blue"},
 	}
 	for _, canonify := range []bool{true, false} {
+		viper.Set("CanonifyUrls", canonify)
+		viper.Set("BaseUrl", "http://auth/bub")
 		s := &Site{
 			Target: target,
-			Config: Config{
-				BaseUrl:      "http://auth/bub",
-				CanonifyUrls: canonify,
-			},
 			Source: &source.InMemorySource{ByteSource: sources},
 		}
-		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", s.Config.BaseUrl, canonify)
+		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", viper.GetString("baseUrl"), canonify)
 		s.initializeSiteInfo()
 		s.prepTemplates()
 		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
@@ -335,7 +332,7 @@ func TestAbsUrlify(t *testing.T) {
 
 			expected := test.expected
 			if !canonify {
-				expected = strings.Replace(expected, s.Config.BaseUrl, "", -1)
+				expected = strings.Replace(expected, viper.GetString("baseurl"), "", -1)
 			}
 			if string(content) != expected {
 				t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
@@ -380,9 +377,10 @@ var WEIGHTED_SOURCES = []source.ByteSource{
 func TestOrderedPages(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
+
+	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
 		Target: target,
-		Config: Config{BaseUrl: "http://auth/bub/"},
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
@@ -466,9 +464,11 @@ func TestWeightedIndexes(t *testing.T) {
 
 	indexes["tag"] = "tags"
 	indexes["category"] = "categories"
+
+	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("indexes", indexes)
 	s := &Site{
 		Target: target,
-		Config: Config{BaseUrl: "http://auth/bub/", Indexes: indexes},
 		Source: &source.InMemorySource{ByteSource: sources},
 	}
 	s.initializeSiteInfo()

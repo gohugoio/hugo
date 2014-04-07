@@ -3,6 +3,8 @@ package hugolib
 import (
 	"html/template"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestPermalink(t *testing.T) {
@@ -32,6 +34,7 @@ func TestPermalink(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		viper.Set("uglyurls", test.uglyurls)
 		p := &Page{
 			Node: Node{
 				UrlPath: UrlPath{
@@ -40,9 +43,6 @@ func TestPermalink(t *testing.T) {
 				},
 				Site: SiteInfo{
 					BaseUrl: test.base,
-					Config: &Config{
-						UglyUrls: test.uglyurls,
-					},
 				},
 			},
 			File: File{FileName: test.file, Dir: test.dir, Extension: "html"},

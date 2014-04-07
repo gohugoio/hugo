@@ -80,7 +80,7 @@ func init() {
 }
 
 func InitializeConfig() {
-	viper.SetConfigName(CfgFile) // config
+	viper.SetConfigName(CfgFile)
 	viper.AddConfigPath(Source)
 	viper.ReadInConfig()
 

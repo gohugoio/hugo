@@ -2,9 +2,11 @@ package hugolib
 
 import (
 	"bytes"
+	"testing"
+
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
-	"testing"
+	"github.com/spf13/viper"
 )
 
 const RSS_TEMPLATE = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -31,9 +33,9 @@ const RSS_TEMPLATE = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom
 func TestRSSOutput(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
+	viper.Set("baseurl", "http://auth/bub/")
 	s := &Site{
 		Target: target,
-		Config: Config{BaseUrl: "http://auth/bub/"},
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()

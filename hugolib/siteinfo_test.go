@@ -3,14 +3,15 @@ package hugolib
 import (
 	"bytes"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 const SITE_INFO_PARAM_TEMPLATE = `{{ .Site.Params.MyGlobalParam }}`
 
 func TestSiteInfoParams(t *testing.T) {
-	s := &Site{
-		Config: Config{Params: map[string]interface{}{"MyGlobalParam": "FOOBAR_PARAM"}},
-	}
+	viper.Set("Params", map[string]interface{}{"MyGlobalParam": "FOOBAR_PARAM"})
+	s := &Site{}
 
 	s.initialize()
 	if s.Info.Params["MyGlobalParam"] != "FOOBAR_PARAM" {
