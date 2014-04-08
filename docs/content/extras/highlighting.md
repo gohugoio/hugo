@@ -7,13 +7,13 @@ groups_weight: 15
 
 Hugo provides the ability for you to highlight source code from within your
 content. Highlighting is performed by an external python based program called
-pygments and is triggered via an embedded shortcode. If pygments is absent from
+[pygments](http://pygments.org) and is triggered via an embedded shortcode. If pygments is absent from
 the path, it will silently simply pass the content along unhighlighted.
 
 
 ## Disclaimers
 
- * **Warning** Pygments is relatively slow and our integration isn't
+ * **Warning** pygments is relatively slow and our integration isn't
 speed optimized. Expect much longer build times when using highlighting
  * Languages available depends on your pygments installation.
  * While pygments supports a few different output formats and options we currently
