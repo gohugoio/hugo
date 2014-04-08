@@ -16,7 +16,17 @@ package helpers
 import (
 	"net/url"
 	"path"
+
+	"github.com/PuerkitoBio/purell"
 )
+
+func SanitizeUrl(in string) string {
+	url, err := purell.NormalizeURLString(in, purell.FlagsUsuallySafeGreedy|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+	if err != nil {
+		return in
+	}
+	return url
+}
 
 // Similar to MakePath, but with Unicode handling
 // Example:
@@ -55,6 +65,7 @@ func MakePermalink(host, plink string) *url.URL {
 }
 
 func UrlPrep(ugly bool, in string) string {
+	in = SanitizeUrl(in)
 	if ugly {
 		return Uglify(in)
 	} else {

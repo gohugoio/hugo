@@ -2,8 +2,6 @@ package bundle
 
 import (
 	"errors"
-	"github.com/eknkc/amber"
-	"github.com/spf13/hugo/helpers"
 	"html"
 	"html/template"
 	"io"
@@ -13,6 +11,9 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/eknkc/amber"
+	"github.com/spf13/hugo/helpers"
 )
 
 func Gt(a interface{}, b interface{}) bool {
@@ -159,22 +160,23 @@ func NewTemplate() Template {
 	}
 
 	funcMap := template.FuncMap{
-		"urlize":    helpers.Urlize,
-		"gt":        Gt,
-		"isset":     IsSet,
-		"echoParam": ReturnWhenSet,
-		"safeHtml":  SafeHtml,
-		"first":     First,
-		"highlight": Highlight,
-		"add":       func(a, b int) int { return a + b },
-		"sub":       func(a, b int) int { return a - b },
-		"div":       func(a, b int) int { return a / b },
-		"mod":       func(a, b int) int { return a % b },
-		"mul":       func(a, b int) int { return a * b },
-		"modBool":   func(a, b int) bool { return a%b == 0 },
-		"lower":     func(a string) string { return strings.ToLower(a) },
-		"upper":     func(a string) string { return strings.ToUpper(a) },
-		"title":     func(a string) string { return strings.Title(a) },
+		"urlize":      helpers.Urlize,
+		"sanitizeurl": helpers.SanitizeUrl,
+		"gt":          Gt,
+		"isset":       IsSet,
+		"echoParam":   ReturnWhenSet,
+		"safeHtml":    SafeHtml,
+		"first":       First,
+		"highlight":   Highlight,
+		"add":         func(a, b int) int { return a + b },
+		"sub":         func(a, b int) int { return a - b },
+		"div":         func(a, b int) int { return a / b },
+		"mod":         func(a, b int) int { return a % b },
+		"mul":         func(a, b int) int { return a * b },
+		"modBool":     func(a, b int) bool { return a%b == 0 },
+		"lower":       func(a string) string { return strings.ToLower(a) },
+		"upper":       func(a string) string { return strings.ToUpper(a) },
+		"title":       func(a string) string { return strings.Title(a) },
 	}
 
 	templates.Funcs(funcMap)

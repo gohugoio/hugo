@@ -227,7 +227,7 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseUrl:    template.URL(viper.GetString("BaseUrl")),
+		BaseUrl:    template.URL(helpers.SanitizeUrl(viper.GetString("BaseUrl"))),
 		Title:      viper.GetString("Title"),
 		Recent:     &s.Pages,
 		Params:     params,
