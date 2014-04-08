@@ -14,7 +14,7 @@ groups_weight: 10
   * Support for [paired shortcodes](/extras/shortcodes)
   * Shipping with some [shortcodes](/extras/shortcodes) (highlight & figure)
   * Adding [canonify](/extras/urls) option to keep urls relative
-  * A bunch of [additional template functions](/layouts/templatefunctions)
+  * A bunch of [additional template functions](/layout/functions)
   * Watching very large sites now works on mac
   * RSS generation improved. Limited to 50 items by default, can limit further in [template](/layout/rss)
   * Boolean params now supported in [frontmatter](/content/front-matter)
