@@ -302,7 +302,10 @@ func (s *Site) BuildSiteMeta() (err error) {
 	s.Indexes = make(IndexList)
 	s.Sections = make(Index)
 
-	for _, plural := range viper.GetStringMapString("Indexes") {
+	indexes := viper.GetStringMapString("Indexes")
+	jww.INFO.Printf("found indexes: %#v\n", indexes)
+
+	for _, plural := range indexes {
 		s.Indexes[plural] = make(Index)
 		for _, p := range s.Pages {
 			vals := p.GetParam(plural)
@@ -421,37 +424,35 @@ func (s *Site) RenderPages() (err error) {
 func (s *Site) RenderIndexes() (err error) {
 	var wg sync.WaitGroup
 
-	indexes, ok := viper.Get("Indexes").(map[string]string)
-	if ok {
-		for sing, pl := range indexes {
-			for key, oo := range s.Indexes[pl] {
-				wg.Add(1)
-				go func(k string, o WeightedPages, singular string, plural string) (err error) {
-					defer wg.Done()
-					base := plural + "/" + k
-					n := s.NewNode()
-					n.Title = strings.Title(k)
-					s.setUrls(n, base)
-					n.Date = o[0].Page.Date
-					n.Data[singular] = o
-					n.Data["Pages"] = o.Pages()
-					layout := "indexes/" + singular + ".html"
-					err = s.render(n, base+".html", layout)
+	indexes := viper.GetStringMapString("Indexes")
+	for sing, pl := range indexes {
+		for key, oo := range s.Indexes[pl] {
+			wg.Add(1)
+			go func(k string, o WeightedPages, singular string, plural string) (err error) {
+				defer wg.Done()
+				base := plural + "/" + k
+				n := s.NewNode()
+				n.Title = strings.Title(k)
+				s.setUrls(n, base)
+				n.Date = o[0].Page.Date
+				n.Data[singular] = o
+				n.Data["Pages"] = o.Pages()
+				layout := "indexes/" + singular + ".html"
+				err = s.render(n, base+".html", layout)
+				if err != nil {
+					return err
+				}
+
+				if a := s.Tmpl.Lookup("rss.xml"); a != nil {
+					// XML Feed
+					s.setUrls(n, base+".xml")
+					err := s.render(n, base+".xml", "rss.xml")
 					if err != nil {
 						return err
 					}
-
-					if a := s.Tmpl.Lookup("rss.xml"); a != nil {
-						// XML Feed
-						s.setUrls(n, base+".xml")
-						err := s.render(n, base+".xml", "rss.xml")
-						if err != nil {
-							return err
-						}
-					}
-					return
-				}(key, oo, sing, pl)
-			}
+				}
+				return
+			}(key, oo, sing, pl)
 		}
 	}
 	wg.Wait()
@@ -462,22 +463,20 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 	layout := "indexes/indexes.html"
 	if s.Tmpl.Lookup(layout) != nil {
 
-		indexes, ok := viper.Get("Indexes").(map[string]string)
-		if ok {
-			for singular, plural := range indexes {
-				n := s.NewNode()
-				n.Title = strings.Title(plural)
-				s.setUrls(n, plural)
-				n.Data["Singular"] = singular
-				n.Data["Plural"] = plural
-				n.Data["Index"] = s.Indexes[plural]
-				// keep the following just for legacy reasons
-				n.Data["OrderedIndex"] = s.Indexes[plural]
+		indexes := viper.GetStringMapString("Indexes")
+		for singular, plural := range indexes {
+			n := s.NewNode()
+			n.Title = strings.Title(plural)
+			s.setUrls(n, plural)
+			n.Data["Singular"] = singular
+			n.Data["Plural"] = plural
+			n.Data["Index"] = s.Indexes[plural]
+			// keep the following just for legacy reasons
+			n.Data["OrderedIndex"] = s.Indexes[plural]
 
-				err := s.render(n, plural+"/index.html", layout)
-				if err != nil {
-					return err
-				}
+			err := s.render(n, plural+"/index.html", layout)
+			if err != nil {
+				return err
 			}
 		}
 	}

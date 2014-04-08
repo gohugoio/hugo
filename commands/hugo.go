@@ -146,6 +146,8 @@ func InitializeConfig() {
 	if VerboseLog {
 		jww.SetLogThreshold(jww.LevelDebug)
 	}
+
+	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
 }
 
 func build(watches ...bool) {
