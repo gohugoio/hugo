@@ -23,7 +23,12 @@ where you don't have a privileged account.
 Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
 is the most probable location.
 
-*the Hugo executible has no external dependencies.*
+The Hugo executable has one *optional* external dependency for source code highlighting (pygments).
+
+### Installing pygments
+
+If you want to have source code highlighting using the [highlight shortcode](/extras/highlighting)
+you need to install the python-based pygments program. The procedure is outlined on the [pygments home page](http://pygments.org).
 
 ## Installing from source
 
