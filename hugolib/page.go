@@ -144,7 +144,7 @@ func renderBytes(content []byte, pagefmt string) []byte {
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		File:   File{FileName: filename, Extension: "html"},
-		Node:   Node{Keywords: make([]string, 10, 30)},
+		Node:   Node{Keywords: []string{}},
 		Params: make(map[string]interface{})}
 
 	jww.DEBUG.Println("Reading from", page.File.FileName)
