@@ -26,7 +26,7 @@ func Highlight(code string, lexer string) string {
 
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
 
-		jww.WARN.Println("Highlighting requries Pygments to be installed and in the path")
+		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
 	}
 
