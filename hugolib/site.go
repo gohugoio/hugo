@@ -457,11 +457,10 @@ func (s *Site) RenderTaxonomiesLists() (err error) {
 					return err
 				}
 
-				if a := s.Tmpl.Lookup("rss.xml"); a != nil {
+				if !viper.GetBool("DisableRSS") {
 					// XML Feed
 					s.setUrls(n, base+".xml")
-					err := s.render(n, base+".xml", "rss.xml")
-					// TODO add "taxonomy.xml", "_internal/rss.xml"
+					err := s.render(n, base+".xml", "rss.xml", "_internal/_default/rss.xml")
 					if err != nil {
 						return err
 					}
@@ -515,12 +514,11 @@ func (s *Site) RenderSectionLists() error {
 			return err
 		}
 
-		if a := s.Tmpl.Lookup("rss.xml"); a != nil {
+		if !viper.GetBool("DisableRSS") {
 			// XML Feed
 			s.setUrls(n, section+".xml")
-			err = s.render(n, section+".xml", "rss.xml")
+			err = s.render(n, section+".xml", "rss.xml", "_internal/_default/rss.xml")
 			//TODO add section specific rss
-			// TODO add internal rss
 			if err != nil {
 				return err
 			}
@@ -539,7 +537,7 @@ func (s *Site) RenderHomePage() error {
 		return err
 	}
 
-	if a := s.Tmpl.Lookup("rss.xml"); a != nil {
+	if !viper.GetBool("DisableRSS") {
 		// XML Feed
 		n.Url = helpers.Urlize("index.xml")
 		n.Title = "Recent Content"
@@ -552,8 +550,7 @@ func (s *Site) RenderHomePage() error {
 		if len(s.Pages) > 0 {
 			n.Date = s.Pages[0].Date
 		}
-		err := s.render(n, ".xml", "rss.xml")
-		// TODO add internal RSS
+		err := s.render(n, ".xml", "rss.xml", "_internal/_default/rss.xml")
 		if err != nil {
 			return err
 		}

@@ -48,7 +48,7 @@ Complete documentation is available at http://hugo.spf13.com`,
 }
 var hugoCmdV *cobra.Command
 
-var BuildWatch, Draft, UglyUrls, Verbose, Logging, VerboseLog bool
+var BuildWatch, Draft, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS bool
 var Source, Destination, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
@@ -65,6 +65,7 @@ func AddCommands() {
 
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&Draft, "build-drafts", "D", false, "include content marked as draft")
+	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
@@ -86,6 +87,7 @@ func InitializeConfig() {
 
 	viper.RegisterAlias("taxonomies", "indexes")
 
+	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("ContentDir", "content")
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("StaticDir", "static")
@@ -104,6 +106,10 @@ func InitializeConfig() {
 
 	if hugoCmdV.PersistentFlags().Lookup("uglyurls").Changed {
 		viper.Set("UglyUrls", UglyUrls)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("disableRSS").Changed {
+		viper.Set("DisableRSS", DisableRSS)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
