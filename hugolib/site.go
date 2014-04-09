@@ -72,15 +72,19 @@ type Site struct {
 }
 
 type SiteInfo struct {
-	BaseUrl    template.URL
-	Taxonomies TaxonomyList
-	Indexes    *TaxonomyList // legacy, should be identical to Taxonomies
-	Recent     *Pages
-	LastChange time.Time
-	Title      string
-	ConfigGet  func(key string) interface{}
-	Permalinks PermalinkOverrides
-	Params     map[string]interface{}
+	BaseUrl      template.URL
+	Taxonomies   TaxonomyList
+	Indexes      *TaxonomyList // legacy, should be identical to Taxonomies
+	Recent       *Pages
+	Title        string
+	Author       string
+	AuthorEmail  string
+	LanguageCode string
+	Copyright    string
+	LastChange   time.Time
+	ConfigGet    func(key string) interface{}
+	Permalinks   PermalinkOverrides
+	Params       map[string]interface{}
 }
 
 type runmode struct {
@@ -228,11 +232,15 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseUrl:    template.URL(helpers.SanitizeUrl(viper.GetString("BaseUrl"))),
-		Title:      viper.GetString("Title"),
-		Recent:     &s.Pages,
-		Params:     params,
-		Permalinks: permalinks,
+		BaseUrl:      template.URL(helpers.SanitizeUrl(viper.GetString("BaseUrl"))),
+		Title:        viper.GetString("Title"),
+		Author:       viper.GetString("author"),
+		AuthorEmail:  viper.GetString("authoremail"),
+		LanguageCode: viper.GetString("languagecode"),
+		Copyright:    viper.GetString("copyright"),
+		Recent:       &s.Pages,
+		Params:       params,
+		Permalinks:   permalinks,
 	}
 }
 
