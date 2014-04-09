@@ -12,8 +12,11 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title | Author | Date  |
 | ------ | ------ | -----: |
+| [Hugo - A Static Site Builder in Go](http://deepfriedcode.com/post/hugo/) | Deep Fried Code |  30 Mar 2014   |
+| [Hugo](http://bra.am/post/hugo/) | bra.am |  23 Mar 2014   |
 | [Converting Blogger To Markdown](http://trishagee.github.io/project/atom-to-hugo/) | Trisha Gee |  20 Mar 2014   |
 | [Moving to Hugo Static Web Pages](http://tepid.org/tech/hugo-web/) |  Tobias Weingartner  |  16 Mar 2014   |
+| [Hugo and Github Pages](http://sglyon.com/blog/2014/creating-the-site/) | Spencer Lyon |  15 Mar 2014   |
 | [Hugo + gulp.js = Huggle](http://ktmud.github.io/huggle/intro/) | Jesse Yang  | 8 Mar 2014   |
 | [Powered by Hugo](http://kieranhealy.org/blog/archives/2014/02/24/powered-by-hugo/) | Kieran Healy  | 24 Feb 2014   |
 | [Latest Roundup of Useful Tools For Developers](http://codegeekz.com/latest-roundup-of-useful-tools-for-developers/) | CodeGeekz  |  13 Feb 2014   |
