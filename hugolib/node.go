@@ -26,6 +26,7 @@ type Node struct {
 	Title       string
 	Description string
 	Keywords    []string
+	Params      map[string]interface{}
 	Date        time.Time
 	UrlPath
 }
