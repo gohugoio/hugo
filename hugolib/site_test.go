@@ -423,7 +423,7 @@ func TestOrderedPages(t *testing.T) {
 	}
 }
 
-var PAGE_WITH_WEIGHTED_INDEXES_2 = []byte(`+++
+var PAGE_WITH_WEIGHTED_TAXONOMIES_2 = []byte(`+++
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
@@ -432,7 +432,7 @@ categories_weight = 44
 +++
 Front Matter with weighted tags and categories`)
 
-var PAGE_WITH_WEIGHTED_INDEXES_1 = []byte(`+++
+var PAGE_WITH_WEIGHTED_TAXONOMIES_1 = []byte(`+++
 tags = [ "a" ]
 tags_weight = 33
 title = "bar"
@@ -443,7 +443,7 @@ date = 1979-05-27T07:32:00Z
 +++
 Front Matter with weighted tags and categories`)
 
-var PAGE_WITH_WEIGHTED_INDEXES_3 = []byte(`+++
+var PAGE_WITH_WEIGHTED_TAXONOMIES_3 = []byte(`+++
 title = "bza"
 categories = [ "e" ]
 categories_weight = 11
@@ -452,21 +452,21 @@ date = 2010-05-27T07:32:00Z
 +++
 Front Matter with weighted tags and categories`)
 
-func TestWeightedIndexes(t *testing.T) {
+func TestWeightedTaxonomies(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
-		{"sect/doc1.md", PAGE_WITH_WEIGHTED_INDEXES_1, "sect"},
-		{"sect/doc2.md", PAGE_WITH_WEIGHTED_INDEXES_2, "sect"},
-		{"sect/doc3.md", PAGE_WITH_WEIGHTED_INDEXES_3, "sect"},
+		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1, "sect"},
+		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2, "sect"},
+		{"sect/doc3.md", PAGE_WITH_WEIGHTED_TAXONOMIES_3, "sect"},
 	}
-	indexes := make(map[string]string)
+	taxonomies := make(map[string]string)
 
-	indexes["tag"] = "tags"
-	indexes["category"] = "categories"
+	taxonomies["tag"] = "tags"
+	taxonomies["category"] = "categories"
 
 	viper.Set("baseurl", "http://auth/bub")
-	viper.Set("indexes", indexes)
+	viper.Set("taxonomies", taxonomies)
 	s := &Site{
 		Target: target,
 		Source: &source.InMemorySource{ByteSource: sources},
@@ -481,15 +481,15 @@ func TestWeightedIndexes(t *testing.T) {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if s.Indexes["tags"]["a"][0].Page.Title != "foo" {
-		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Indexes["tags"]["a"][0].Page.Title)
+	if s.Taxonomies["tags"]["a"][0].Page.Title != "foo" {
+		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title)
 	}
 
-	if s.Indexes["categories"]["d"][0].Page.Title != "bar" {
-		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Indexes["categories"]["d"][0].Page.Title)
+	if s.Taxonomies["categories"]["d"][0].Page.Title != "bar" {
+		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Taxonomies["categories"]["d"][0].Page.Title)
 	}
 
-	if s.Indexes["categories"]["e"][0].Page.Title != "bza" {
-		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Indexes["categories"]["e"][0].Page.Title)
+	if s.Taxonomies["categories"]["e"][0].Page.Title != "bza" {
+		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title)
 	}
 }

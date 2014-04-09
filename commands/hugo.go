@@ -84,6 +84,8 @@ func InitializeConfig() {
 	viper.AddConfigPath(Source)
 	viper.ReadInConfig()
 
+	viper.RegisterAlias("taxonomies", "indexes")
+
 	viper.SetDefault("ContentDir", "content")
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("StaticDir", "static")

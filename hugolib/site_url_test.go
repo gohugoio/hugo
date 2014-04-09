@@ -71,8 +71,8 @@ func TestPageCount(t *testing.T) {
 		t.Errorf("Unable to build site metadata: %s", err)
 	}
 
-	if err := s.RenderLists(); err != nil {
-		t.Errorf("Unable to render site lists: %s", err)
+	if err := s.RenderSectionLists(); err != nil {
+		t.Errorf("Unable to render section lists: %s", err)
 	}
 
 	if err := s.RenderAliases(); err != nil {

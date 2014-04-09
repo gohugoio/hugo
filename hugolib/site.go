@@ -48,7 +48,7 @@ var DefaultTimer *nitro.B
 //    various targets that will get generated.  There will be canonical
 //    listing.  The canonical path can be overruled based on a pattern.
 //
-// 3. Indexes are created via configuration and will present some aspect of
+// 3. Taxonomies are created via configuration and will present some aspect of
 //    the final page and typically a perm url.
 //
 // 4. All Pages are passed through a template based on their desired
@@ -58,9 +58,9 @@ var DefaultTimer *nitro.B
 type Site struct {
 	Pages      Pages
 	Tmpl       bundle.Template
-	Indexes    IndexList
+	Taxonomies TaxonomyList
 	Source     source.Input
-	Sections   Index
+	Sections   Taxonomy
 	Info       SiteInfo
 	Shortcodes map[string]ShortcodeFunc
 	timer      *nitro.B
@@ -73,7 +73,8 @@ type Site struct {
 
 type SiteInfo struct {
 	BaseUrl    template.URL
-	Indexes    IndexList
+	Taxonomies TaxonomyList
+	Indexes    *TaxonomyList // legacy, should be identical to Taxonomies
 	Recent     *Pages
 	LastChange time.Time
 	Title      string
@@ -147,7 +148,7 @@ func (s *Site) Process() (err error) {
 	if err = s.BuildSiteMeta(); err != nil {
 		return
 	}
-	s.timerStep("build indexes")
+	s.timerStep("build taxonomies")
 	return
 }
 
@@ -168,13 +169,13 @@ func (s *Site) Render() (err error) {
 		return
 	}
 	s.timerStep("render and write aliases")
-	if err = s.RenderIndexes(); err != nil {
+	if err = s.RenderTaxonomiesLists(); err != nil {
 		return
 	}
-	s.timerStep("render and write indexes")
-	s.RenderIndexesIndexes()
-	s.timerStep("render & write index indexes")
-	if err = s.RenderLists(); err != nil {
+	s.timerStep("render and write taxonomies")
+	s.RenderListsOfTaxonomyTerms()
+	s.timerStep("render & write taxonomy lists")
+	if err = s.RenderSectionLists(); err != nil {
 		return
 	}
 	s.timerStep("render and write lists")
@@ -299,14 +300,14 @@ func (s *Site) CreatePages() (err error) {
 }
 
 func (s *Site) BuildSiteMeta() (err error) {
-	s.Indexes = make(IndexList)
-	s.Sections = make(Index)
+	s.Taxonomies = make(TaxonomyList)
+	s.Sections = make(Taxonomy)
 
-	indexes := viper.GetStringMapString("Indexes")
-	jww.INFO.Printf("found indexes: %#v\n", indexes)
+	taxonomies := viper.GetStringMapString("Taxonomies")
+	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
-	for _, plural := range indexes {
-		s.Indexes[plural] = make(Index)
+	for _, plural := range taxonomies {
+		s.Taxonomies[plural] = make(Taxonomy)
 		for _, p := range s.Pages {
 			vals := p.GetParam(plural)
 			weight := p.GetParam(plural + "_weight")
@@ -320,15 +321,15 @@ func (s *Site) BuildSiteMeta() (err error) {
 					for _, idx := range v {
 						x := WeightedPage{weight.(int), p}
 
-						s.Indexes[plural].Add(idx, x)
+						s.Taxonomies[plural].Add(idx, x)
 					}
 				} else {
 					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.FileName)
 				}
 			}
 		}
-		for k := range s.Indexes[plural] {
-			s.Indexes[plural][k].Sort()
+		for k := range s.Taxonomies[plural] {
+			s.Taxonomies[plural][k].Sort()
 		}
 	}
 
@@ -340,7 +341,8 @@ func (s *Site) BuildSiteMeta() (err error) {
 		s.Sections[k].Sort()
 	}
 
-	s.Info.Indexes = s.Indexes
+	s.Info.Taxonomies = s.Taxonomies
+	s.Info.Indexes = &s.Taxonomies
 
 	if len(s.Pages) == 0 {
 		return
@@ -355,11 +357,11 @@ func (s *Site) BuildSiteMeta() (err error) {
 	return
 }
 
-func (s *Site) possibleIndexes() (indexes []string) {
+func (s *Site) possibleTaxonomies() (taxonomies []string) {
 	for _, p := range s.Pages {
 		for k := range p.Params {
-			if !inStringArray(indexes, k) {
-				indexes = append(indexes, k)
+			if !inStringArray(taxonomies, k) {
+				taxonomies = append(taxonomies, k)
 			}
 		}
 	}
@@ -375,6 +377,7 @@ func inStringArray(arr []string, el string) bool {
 	return false
 }
 
+// Render shell pages that simply have a redirect in the header
 func (s *Site) RenderAliases() error {
 	for _, p := range s.Pages {
 		for _, a := range p.Aliases {
@@ -390,12 +393,13 @@ func (s *Site) RenderAliases() error {
 	return nil
 }
 
+// Render pages each corresponding to a markdown file
 func (s *Site) RenderPages() (err error) {
 	var wg sync.WaitGroup
 	for _, page := range s.Pages {
 		wg.Add(1)
 		go func(p *Page) (err error) {
-			var layout []string
+			var layouts []string
 			defer wg.Done()
 
 			if !p.IsRenderable() {
@@ -404,13 +408,13 @@ func (s *Site) RenderPages() (err error) {
 				if err != nil {
 					return err
 				}
-				layout = append(layout, self)
+				layouts = append(layouts, self)
 			} else {
-				layout = append(layout, p.Layout()...)
-				layout = append(layout, "_default/single.html")
+				layouts = append(layouts, p.Layout()...)
+				layouts = append(layouts, "_default/single.html")
 			}
 
-			return s.render(p, p.TargetPath(), layout...)
+			return s.render(p, p.TargetPath(), layouts...)
 		}(page)
 	}
 	wg.Wait()
@@ -421,12 +425,14 @@ func (s *Site) RenderPages() (err error) {
 	return nil
 }
 
-func (s *Site) RenderIndexes() (err error) {
+// Render the listing pages based on the meta data
+// each unique term within a taxonomy will have a page created
+func (s *Site) RenderTaxonomiesLists() (err error) {
 	var wg sync.WaitGroup
 
-	indexes := viper.GetStringMapString("Indexes")
-	for sing, pl := range indexes {
-		for key, oo := range s.Indexes[pl] {
+	taxonomies := viper.GetStringMapString("Taxonomies")
+	for sing, pl := range taxonomies {
+		for key, oo := range s.Taxonomies[pl] {
 			wg.Add(1)
 			go func(k string, o WeightedPages, singular string, plural string) (err error) {
 				defer wg.Done()
@@ -437,8 +443,8 @@ func (s *Site) RenderIndexes() (err error) {
 				n.Date = o[0].Page.Date
 				n.Data[singular] = o
 				n.Data["Pages"] = o.Pages()
-				layout := "indexes/" + singular + ".html"
-				err = s.render(n, base+".html", layout)
+				err = s.render(n, base+".html", "taxonomies/"+singular+".html", "indexes/"+singular+".html")
+				//TODO add , "_default/taxonomy.html", "_default/list.html"
 				if err != nil {
 					return err
 				}
@@ -447,6 +453,7 @@ func (s *Site) RenderIndexes() (err error) {
 					// XML Feed
 					s.setUrls(n, base+".xml")
 					err := s.render(n, base+".xml", "rss.xml")
+					// TODO add "taxonomy.xml", "_internal/rss.xml"
 					if err != nil {
 						return err
 					}
@@ -459,22 +466,25 @@ func (s *Site) RenderIndexes() (err error) {
 	return nil
 }
 
-func (s *Site) RenderIndexesIndexes() (err error) {
-	layout := "indexes/indexes.html"
-	if s.Tmpl.Lookup(layout) != nil {
-
-		indexes := viper.GetStringMapString("Indexes")
-		for singular, plural := range indexes {
+// Render a page per taxonomy that lists the terms for that taxonomy
+func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
+	layouts := []string{"taxonomies/termslist.html", "indexes/indexes.html"}
+	// TODO add "_default/termsList.html", "_default/termslist.html"
+	// TODO add support for unique taxonomy terms list (`single`terms.html)
+	if s.layoutExists(layouts...) {
+		taxonomies := viper.GetStringMapString("Taxonomies")
+		for singular, plural := range taxonomies {
 			n := s.NewNode()
 			n.Title = strings.Title(plural)
 			s.setUrls(n, plural)
 			n.Data["Singular"] = singular
 			n.Data["Plural"] = plural
-			n.Data["Index"] = s.Indexes[plural]
+			n.Data["Terms"] = s.Taxonomies[plural]
 			// keep the following just for legacy reasons
-			n.Data["OrderedIndex"] = s.Indexes[plural]
+			n.Data["OrderedIndex"] = n.Data["Terms"]
+			n.Data["Index"] = n.Data["Terms"]
 
-			err := s.render(n, plural+"/index.html", layout)
+			err := s.render(n, plural+"/index.html", layouts...)
 			if err != nil {
 				return err
 			}
@@ -483,16 +493,16 @@ func (s *Site) RenderIndexesIndexes() (err error) {
 	return
 }
 
-func (s *Site) RenderLists() error {
+// Render a page for each section
+func (s *Site) RenderSectionLists() error {
 	for section, data := range s.Sections {
 		n := s.NewNode()
 		n.Title = strings.Title(inflect.Pluralize(section))
 		s.setUrls(n, section)
 		n.Date = data[0].Page.Date
 		n.Data["Pages"] = data.Pages()
-		layout := "indexes/" + section + ".html"
 
-		err := s.render(n, section, layout, "_default/indexes.html")
+		err := s.render(n, section, "section/"+section+".html", "indexes/"+section+".html", "_default/section.html", "_default/list.html", "_default/indexes.html")
 		if err != nil {
 			return err
 		}
@@ -501,6 +511,8 @@ func (s *Site) RenderLists() error {
 			// XML Feed
 			s.setUrls(n, section+".xml")
 			err = s.render(n, section+".xml", "rss.xml")
+			//TODO add section specific rss
+			// TODO add internal rss
 			if err != nil {
 				return err
 			}
@@ -533,6 +545,7 @@ func (s *Site) RenderHomePage() error {
 			n.Date = s.Pages[0].Date
 		}
 		err := s.render(n, ".xml", "rss.xml")
+		// TODO add internal RSS
 		if err != nil {
 			return err
 		}
@@ -551,10 +564,10 @@ func (s *Site) RenderHomePage() error {
 func (s *Site) Stats() {
 	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
 
-	indexes := viper.GetStringMapString("Indexes")
+	taxonomies := viper.GetStringMapString("Taxonomies")
 
-	for _, pl := range indexes {
-		jww.FEEDBACK.Printf("%d %s index created\n", len(s.Indexes[pl]), pl)
+	for _, pl := range taxonomies {
+		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
 	}
 }
 
@@ -587,10 +600,16 @@ func (s *Site) NewNode() *Node {
 	}
 }
 
+func (s *Site) layoutExists(layouts ...string) bool {
+	_, found := s.findFirstLayout(layouts...)
+
+	return found
+}
+
 func (s *Site) render(d interface{}, out string, layouts ...string) (err error) {
 
-	layout := s.findFirstLayout(layouts...)
-	if layout == "" {
+	layout, found := s.findFirstLayout(layouts...)
+	if found == false {
 		jww.WARN.Printf("Unable to locate layout: %s\n", layouts)
 		return
 	}
@@ -634,13 +653,13 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	return s.WritePublic(out, outBuffer)
 }
 
-func (s *Site) findFirstLayout(layouts ...string) (layout string) {
-	for _, layout = range layouts {
+func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
+	for _, layout := range layouts {
 		if s.Tmpl.Lookup(layout) != nil {
-			return
+			return layout, true
 		}
 	}
-	return ""
+	return "", false
 }
 
 func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {

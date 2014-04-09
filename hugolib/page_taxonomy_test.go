@@ -5,22 +5,22 @@ import (
 	"testing"
 )
 
-var PAGE_YAML_WITH_INDEXES_A = `---
+var PAGE_YAML_WITH_TAXONOMIES_A = `---
 tags: ['a', 'b', 'c']
 categories: 'd'
 ---
-YAML frontmatter with tags and categories index.`
+YAML frontmatter with tags and categories taxonomy.`
 
-var PAGE_YAML_WITH_INDEXES_B = `---
+var PAGE_YAML_WITH_TAXONOMIES_B = `---
 tags:
  - "a"
  - "b"
  - "c"
 categories: 'd'
 ---
-YAML frontmatter with tags and categories index.`
+YAML frontmatter with tags and categories taxonomy.`
 
-var PAGE_JSON_WITH_INDEXES = `{
+var PAGE_JSON_WITH_TAXONOMIES = `{
   "categories": "d",
   "tags": [
     "a",
@@ -30,19 +30,19 @@ var PAGE_JSON_WITH_INDEXES = `{
 }
 JSON Front Matter with tags and categories`
 
-var PAGE_TOML_WITH_INDEXES = `+++
+var PAGE_TOML_WITH_TAXONOMIES = `+++
 tags = [ "a", "b", "c" ]
 categories = "d"
 +++
 TOML Front Matter with tags and categories`
 
-func TestParseIndexes(t *testing.T) {
-	for _, test := range []string{PAGE_TOML_WITH_INDEXES,
-		PAGE_JSON_WITH_INDEXES,
-		PAGE_YAML_WITH_INDEXES_A,
-		PAGE_YAML_WITH_INDEXES_B,
+func TestParseTaxonomies(t *testing.T) {
+	for _, test := range []string{PAGE_TOML_WITH_TAXONOMIES,
+		PAGE_JSON_WITH_TAXONOMIES,
+		PAGE_YAML_WITH_TAXONOMIES_A,
+		PAGE_YAML_WITH_TAXONOMIES_B,
 	} {
-		p, err := ReadFrom(strings.NewReader(test), "page/with/index")
+		p, err := ReadFrom(strings.NewReader(test), "page/with/taxonomy")
 		if err != nil {
 			t.Fatalf("Failed parsing %q: %s", test, err)
 		}
