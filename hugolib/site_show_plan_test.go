@@ -2,9 +2,11 @@ package hugolib
 
 import (
 	"bytes"
+	"strings"
+	"testing"
+
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
-	"testing"
 )
 
 const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
@@ -24,14 +26,35 @@ var fakeSource = []source.ByteSource{
 	},
 }
 
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
 	out := new(bytes.Buffer)
 	if err := s.ShowPlan(out); err != nil {
 		t.Fatalf("ShowPlan unexpectedly returned an error: %s", err)
 	}
 	got := out.String()
-	if got != expected {
-		t.Errorf("ShowPlan expected:\n%q\ngot\n%q", expected, got)
+
+	gotList := strings.Split(got, "\n")
+	expectedList := strings.Split(expected, "\n")
+
+	for _, x := range gotList {
+		if !stringInSlice(x, expectedList) {
+			t.Errorf("ShowPlan expected:\n%q\ngot\n%q", expected, got)
+		}
+	}
+
+	for _, x := range expectedList {
+		if !stringInSlice(x, gotList) {
+			t.Errorf("ShowPlan expected:\n%q\ngot\n%q", expected, got)
+		}
 	}
 }
 
