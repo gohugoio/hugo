@@ -84,7 +84,10 @@ func init() {
 func InitializeConfig() {
 	viper.SetConfigName(CfgFile)
 	viper.AddConfigPath(Source)
-	viper.ReadInConfig()
+	err := viper.ReadInConfig()
+	if err != nil {
+		jww.ERROR.Println("Config not found... using only defaults, stuff may not work")
+	}
 
 	viper.RegisterAlias("taxonomies", "indexes")
 
