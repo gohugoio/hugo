@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,6 +132,9 @@ func (s *Site) Analyze() {
 func (s *Site) prepTemplates() {
 	s.Tmpl = bundle.NewTemplate()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
+	if s.hasTheme() {
+		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
+	}
 }
 
 func (s *Site) addTemplate(name, data string) error {
@@ -242,6 +245,14 @@ func (s *Site) initializeSiteInfo() {
 		Params:       params,
 		Permalinks:   permalinks,
 	}
+}
+
+func (s *Site) hasTheme() bool {
+	return viper.GetString("theme") != ""
+}
+
+func (s *Site) absThemeDir() string {
+	return helpers.AbsPathify("themes/" + viper.GetString("theme"))
 }
 
 func (s *Site) absLayoutDir() string {
@@ -422,7 +433,7 @@ func (s *Site) RenderPages() (err error) {
 				layouts = append(layouts, "_default/single.html")
 			}
 
-			return s.render(p, p.TargetPath(), layouts...)
+			return s.render(p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
 		}(page)
 	}
 	wg.Wait()
@@ -431,6 +442,34 @@ func (s *Site) RenderPages() (err error) {
 		return err
 	}
 	return nil
+}
+
+func (s *Site) appendThemeTemplates(in []string) []string {
+	if s.hasTheme() {
+		out := []string{}
+		// First place all non internal templates
+		for _, t := range in {
+			if !strings.HasPrefix("_internal/", t) {
+				out = append(out, t)
+			}
+		}
+
+		// Then place theme templates with the same names
+		for _, t := range in {
+			if !strings.HasPrefix("_internal/", t) {
+				out = append(out, "theme/"+t)
+			}
+		}
+		// Lastly place internal templates
+		for _, t := range in {
+			if strings.HasPrefix("_internal/", t) {
+				out = append(out, "theme/"+t)
+			}
+		}
+		return out
+	} else {
+		return in
+	}
 }
 
 // Render the listing pages based on the meta data
@@ -451,8 +490,8 @@ func (s *Site) RenderTaxonomiesLists() (err error) {
 				n.Date = o[0].Page.Date
 				n.Data[singular] = o
 				n.Data["Pages"] = o.Pages()
-				err = s.render(n, base+".html", "taxonomies/"+singular+".html", "indexes/"+singular+".html")
-				//TODO add , "_default/taxonomy.html", "_default/list.html"
+				layouts := []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
+				err = s.render(n, base+".html", s.appendThemeTemplates(layouts)...)
 				if err != nil {
 					return err
 				}
@@ -460,7 +499,8 @@ func (s *Site) RenderTaxonomiesLists() (err error) {
 				if !viper.GetBool("DisableRSS") {
 					// XML Feed
 					s.setUrls(n, base+".xml")
-					err := s.render(n, base+".xml", "rss.xml", "_internal/_default/rss.xml")
+					rssLayouts := []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
+					err := s.render(n, base+".xml", s.appendThemeTemplates(rssLayouts)...)
 					if err != nil {
 						return err
 					}
@@ -475,28 +515,27 @@ func (s *Site) RenderTaxonomiesLists() (err error) {
 
 // Render a page per taxonomy that lists the terms for that taxonomy
 func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
-	layouts := []string{"taxonomies/termslist.html", "indexes/indexes.html"}
-	// TODO add "_default/termsList.html", "_default/termslist.html"
-	// TODO add support for unique taxonomy terms list (`single`terms.html)
-	if s.layoutExists(layouts...) {
-		taxonomies := viper.GetStringMapString("Taxonomies")
-		for singular, plural := range taxonomies {
-			n := s.NewNode()
-			n.Title = strings.Title(plural)
-			s.setUrls(n, plural)
-			n.Data["Singular"] = singular
-			n.Data["Plural"] = plural
-			n.Data["Terms"] = s.Taxonomies[plural]
-			// keep the following just for legacy reasons
-			n.Data["OrderedIndex"] = n.Data["Terms"]
-			n.Data["Index"] = n.Data["Terms"]
-
+	taxonomies := viper.GetStringMapString("Taxonomies")
+	for singular, plural := range taxonomies {
+		n := s.NewNode()
+		n.Title = strings.Title(plural)
+		s.setUrls(n, plural)
+		n.Data["Singular"] = singular
+		n.Data["Plural"] = plural
+		n.Data["Terms"] = s.Taxonomies[plural]
+		// keep the following just for legacy reasons
+		n.Data["OrderedIndex"] = n.Data["Terms"]
+		n.Data["Index"] = n.Data["Terms"]
+		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
+		layouts = s.appendThemeTemplates(layouts)
+		if s.layoutExists(layouts...) {
 			err := s.render(n, plural+"/index.html", layouts...)
 			if err != nil {
 				return err
 			}
 		}
 	}
+
 	return
 }
 
@@ -508,17 +547,18 @@ func (s *Site) RenderSectionLists() error {
 		s.setUrls(n, section)
 		n.Date = data[0].Page.Date
 		n.Data["Pages"] = data.Pages()
+		layouts := []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
 
-		err := s.render(n, section, "section/"+section+".html", "indexes/"+section+".html", "_default/section.html", "_default/list.html", "_default/indexes.html")
+		err := s.render(n, section, s.appendThemeTemplates(layouts)...)
 		if err != nil {
 			return err
 		}
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
+			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			s.setUrls(n, section+".xml")
-			err = s.render(n, section+".xml", "rss.xml", "_internal/_default/rss.xml")
-			//TODO add section specific rss
+			err = s.render(n, section+".xml", s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				return err
 			}
@@ -532,7 +572,8 @@ func (s *Site) RenderHomePage() error {
 	n.Title = n.Site.Title
 	s.setUrls(n, "/")
 	n.Data["Pages"] = s.Pages
-	err := s.render(n, "/", "index.html")
+	layouts := []string{"index.html"}
+	err := s.render(n, "/", s.appendThemeTemplates(layouts)...)
 	if err != nil {
 		return err
 	}
@@ -550,9 +591,13 @@ func (s *Site) RenderHomePage() error {
 		if len(s.Pages) > 0 {
 			n.Date = s.Pages[0].Date
 		}
-		err := s.render(n, ".xml", "rss.xml", "_internal/_default/rss.xml")
-		if err != nil {
-			return err
+
+		if !viper.GetBool("DisableRSS") {
+			rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
+			err := s.render(n, ".xml", s.appendThemeTemplates(rssLayouts)...)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -560,7 +605,9 @@ func (s *Site) RenderHomePage() error {
 		n.Url = helpers.Urlize("404.html")
 		n.Title = "404 Page not found"
 		n.Permalink = s.permalink("404.html")
-		return s.render(n, "404.html", "404.html")
+
+		layouts := []string{"404.html"}
+		return s.render(n, "404.html", s.appendThemeTemplates(layouts)...)
 	}
 
 	return nil

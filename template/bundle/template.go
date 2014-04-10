@@ -138,6 +138,7 @@ type Template interface {
 	Templates() []*template.Template
 	New(name string) *template.Template
 	LoadTemplates(absPath string)
+	LoadTemplatesWithPrefix(absPath, prefix string)
 	AddTemplate(name, tpl string) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
@@ -211,12 +212,7 @@ func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
 	if err != nil {
 		return err
 	}
-	s := string(b)
-	_, err = t.New(name).Parse(s)
-	if err != nil {
-		t.errors = append(t.errors, &templateErr{name: name, err: err})
-	}
-	return err
+	return t.AddTemplate(name, string(b))
 }
 
 func (t *GoHtmlTemplate) generateTemplateNameFrom(base, path string) string {
@@ -227,7 +223,7 @@ func ignoreDotFile(path string) bool {
 	return filepath.Base(path)[0] == '.'
 }
 
-func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
+func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
@@ -240,6 +236,11 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 
 			tplName := t.generateTemplateNameFrom(absPath, path)
 
+			if prefix != "" {
+				tplName = strings.Trim(prefix, "/") + "/" + tplName
+			}
+
+			// TODO move this into the AddTemplateFile function
 			if strings.HasSuffix(path, ".amber") {
 				compiler := amber.New()
 				// Parse the input file
@@ -247,7 +248,6 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 					return nil
 				}
 
-				// note t.New(tplName)
 				if _, err := compiler.CompileWithTemplate(t.New(tplName)); err != nil {
 					return err
 				}
@@ -260,4 +260,12 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 	}
 
 	filepath.Walk(absPath, walker)
+}
+
+func (t *GoHtmlTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
+	t.loadTemplates(absPath, prefix)
+}
+
+func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
+	t.loadTemplates(absPath, "")
 }

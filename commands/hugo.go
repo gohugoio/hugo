@@ -49,7 +49,7 @@ Complete documentation is available at http://hugo.spf13.com`,
 var hugoCmdV *cobra.Command
 
 var BuildWatch, Draft, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS bool
-var Source, Destination, BaseUrl, CfgFile, LogFile string
+var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
 	AddCommands()
@@ -68,6 +68,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
+	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyurls", false, "if true, use /filename.html instead of /filename/")
 	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
@@ -126,6 +127,11 @@ func InitializeConfig() {
 		}
 		viper.Set("BaseUrl", BaseUrl)
 	}
+
+	if Theme != "" {
+		viper.Set("theme", Theme)
+	}
+
 	if Destination != "" {
 		viper.Set("PublishDir", Destination)
 	}
@@ -176,10 +182,24 @@ func build(watches ...bool) {
 func copyStatic() error {
 	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
 	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
+		jww.ERROR.Println("Unable to find Static Directory:", viper.GetString("theme"), "in", staticDir)
 		return nil
 	}
 
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+
+	if themeSet() {
+		themeDir := helpers.AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Println("Unable to find static directory for theme :", viper.GetString("theme"), "in", themeDir)
+			return nil
+		}
+
+		// Copy Static to Destination
+		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
+		return fsync.Sync(publishDir, themeDir)
+	}
+
 	// Copy Static to Destination
 	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
 	return fsync.Sync(publishDir, staticDir)
@@ -202,8 +222,15 @@ func getDirList() []string {
 	filepath.Walk(helpers.AbsPathify(viper.GetString("ContentDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
+	if themeSet() {
+		filepath.Walk(helpers.AbsPathify("themes/"+viper.GetString("theme")), walker)
+	}
 
 	return a
+}
+
+func themeSet() bool {
+	return viper.GetString("theme") != ""
 }
 
 func buildSite(watching ...bool) (err error) {
