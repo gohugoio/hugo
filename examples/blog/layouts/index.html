@@ -1,0 +1,19 @@
+{{ template "chrome/header.html" . }}
+<body>
+{{ template "chrome/navbar.html" . }}
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+        {{ range first 10 .Data.Pages }}
+            {{ .Render "summary" }}
+        {{ end }}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-3">
+        {{ template "chrome/menu.html" . }}
+        </div>
+    </div>
+{{ template "chrome/footer.copyright.html" . }}
+</div>
+{{ template "chrome/footer.html" . }}
