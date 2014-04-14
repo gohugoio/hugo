@@ -87,12 +87,12 @@ func (f *Filesystem) captureFiles() {
 		}
 
 		if fi.IsDir() {
-			if f.avoid(filePath) {
+			if f.avoid(filePath) || isNonProcessablePath(filePath) {
 				return filepath.SkipDir
 			}
 			return nil
 		} else {
-			if ignoreDotFile(filePath) {
+			if isNonProcessablePath(filePath) {
 				return nil
 			}
 			data, err := ioutil.ReadFile(filePath)
@@ -116,7 +116,7 @@ func (f *Filesystem) avoid(filePath string) bool {
 	return false
 }
 
-func ignoreDotFile(filePath string) bool {
+func isNonProcessablePath(filePath string) bool {
 	base := filepath.Base(filePath)
 	if base[0] == '.' {
 		return true
