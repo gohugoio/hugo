@@ -10,6 +10,7 @@ title: Release Notes
 weight: 10
 ---
 
+
 ## **0.12.0** Sept 1, 2014
 
 A lot has happened since Hugo v0.11.0 was released. Most of the work has been
@@ -55,6 +56,9 @@ This release represents over 110 code commits from 29 different contributors.
   * More informative verbose output
   * Renamed Indexes > [Taxonomies](/taxonomies/overview)
   * Renamed Chrome > [Partials](/templates/partials)
+
+## Next release
+  * Added section Prev/Next pointers.
 
 ## **0.10.0** March 1, 2014
 
