@@ -341,10 +341,10 @@ func (s *Site) BuildSiteMeta() (err error) {
 
 		for i, wp := range s.Sections[k] {
 			if i > 0 {
-				wp.Page.NextInSection = s.Sections[k][i - 1].Page;
+				wp.Page.PrevInSection = s.Sections[k][i - 1].Page;
 			}
 			if i < len(s.Sections[k]) - 1 {
-				wp.Page.PrevInSection = s.Sections[k][i + 1].Page;
+				wp.Page.NextInSection = s.Sections[k][i + 1].Page;
 			}
 		}
 	}
