@@ -247,6 +247,7 @@ func (p *Page) permalink() (*url.URL, error) {
 
 	if override, ok := p.Site.Permalinks[p.Section]; ok {
 		permalink, err = override.Expand(p)
+
 		if err != nil {
 			return nil, err
 		}
@@ -384,6 +385,8 @@ func (page *Page) update(f interface{}) error {
 						a[i] = cast.ToString(u)
 					}
 					page.Params[loki] = a
+				default:
+					page.Params[loki] = vv
 				}
 			}
 		}
