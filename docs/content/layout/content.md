@@ -1,6 +1,9 @@
 ---
 title: "Content Templates"
 date: "2013-07-01"
+menu:
+  main:
+    parent: 'layout'
 ---
 
 Content templates are created in a directory matching the name of the content.

@@ -2,8 +2,10 @@
 title: "License"
 date: "2013-07-01"
 aliases: ["/doc/license/", "/license/"]
-groups: ["meta"]
-groups_weight: 50
+weight: 50
+menu:
+  right:
+    parent: 'meta'
 ---
 
 Hugo is released under the Simple Public License.

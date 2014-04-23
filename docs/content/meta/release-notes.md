@@ -2,8 +2,10 @@
 title: "Release Notes"
 date: "2013-07-01"
 aliases: ["/doc/release-notes/"]
-groups: ["meta"]
-groups_weight: 10
+weight: 10
+menu:
+  right:
+    parent: 'meta'
 ---
 ## **0.10.0** March 1, 2014
   * [Syntax highlighting](/extras/highlighting) powered by pygments (**slow**)

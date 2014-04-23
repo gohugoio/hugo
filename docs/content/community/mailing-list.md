@@ -1,8 +1,10 @@
 ---
 title: "Mailing List"
 date: "2013-07-01"
-groups: ["community"]
-groups_weight: 10
+weight: 10
+menu:
+  main:
+    parent: 'community'
 ---
 
 Hugo has two mailing lists:

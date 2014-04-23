@@ -1,9 +1,11 @@
 ---
 title: "MathJax Support"
 date: "2014-03-20"
-groups: ["tutorials"]
-groups_weight: 10
+weight: 10
 author: "Spencer Lyon"
+menu:
+  main:
+    parent: 'tutorials'
 ---
 
 ## What is MathJax?

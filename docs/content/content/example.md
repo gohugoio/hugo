@@ -3,8 +3,10 @@ title: "Example Content File"
 date: "2013-07-01"
 aliases: ["/doc/example/"]
 linktitle: "Example"
-groups: ['content']
-groups_weight: 50
+menu:
+    main:
+        parent: 'content'
+weight: 50
 notoc: true
 ---
 

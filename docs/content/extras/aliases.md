@@ -5,8 +5,10 @@ aliases:
     - /doc/redirects/
     - /doc/alias/
     - /doc/aliases/
-groups: ["extras"]
-groups_weight: 20
+weight: 20
+menu:
+  main:
+    parent: 'extras'
 ---
 
 For people migrating existing published content to Hugo theres a good chance

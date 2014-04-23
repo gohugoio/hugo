@@ -2,8 +2,10 @@
 title: "Template Functions"
 date: "2013-07-01"
 linktitle: "Template Functions"
-groups: ["layout"]
-groups_weight: 70
+weight: 70
+menu:
+  main:
+    parent: 'layout'
 ---
 
 Hugo uses the excellent go html/template library for its template engine.

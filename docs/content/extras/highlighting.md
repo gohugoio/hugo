@@ -1,8 +1,10 @@
 ---
 title: "Highlighting"
 date: "2013-07-01"
-groups: ["extras"]
-groups_weight: 15
+weight: 15
+menu:
+  main:
+    parent: 'extras'
 ---
 
 Hugo provides the ability for you to highlight source code from within your

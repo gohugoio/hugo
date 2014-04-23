@@ -2,9 +2,10 @@
 title = "Press, Blogs and Media Coverage"
 date = 2014-03-24T20:00:00Z 
 linktitle = "Press"
-groups = ["community"]
-groups_weight = 20
+weight = 20
 notoc = true
+[menu.main]
+    parent = "community"
 +++
 
 Hugo has been featured in the following Blog Posts, Press and Media.

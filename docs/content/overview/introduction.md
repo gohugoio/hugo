@@ -1,9 +1,11 @@
 ---
 title: "Introduction to Hugo"
 date: "2013-07-01"
-groups: ['gettingStarted']
 linktitle: "Introduction"
-groups_weight: 5
+weight: 5
+menu:
+  main:
+    parent: 'getting started'
 ---
 
 ## What is Hugo?

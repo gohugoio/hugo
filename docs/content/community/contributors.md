@@ -2,9 +2,11 @@
 title: "Contributors"
 date: "2013-07-01"
 aliases: ["/doc/contributors/", "/meta/contributors/"]
-groups: ["community"]
-groups_weight: 40
+weight: 40
 notoc: true
+menu:
+  main:
+    parent: 'community'
 ---
 
 Hugo was built with love and Go by:

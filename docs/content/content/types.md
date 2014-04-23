@@ -2,8 +2,10 @@
 title: "Content Types"
 date: "2013-07-01"
 linktitle: "Types"
-groups: ['content']
-groups_weight: 30
+menu:
+    main:
+        parent: 'content'
+weight: 30
 ---
 
 Hugo has full support for multiple content types each with its own set

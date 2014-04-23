@@ -1,8 +1,10 @@
 ---
 title: "Using Go Templates"
 date: "2013-07-01"
-groups: ["layout"]
-groups_weight: 15
+weight: 15
+menu:
+  main:
+    parent: 'layout'
 ---
 
 Hugo uses the excellent [go][] [html/template][gohtmltemplate] library for

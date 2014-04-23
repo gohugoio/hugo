@@ -1,5 +1,3 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <!-- Brand and toggle get grouped for better mobile display -->
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
       <span class="sr-only">Toggle navigation</span>
@@ -13,73 +11,41 @@
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Getting Started <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.gettingstarted.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+      {{ $currentNode := . }}
+      {{ range .Site.Menus.main }}
+          {{ if .HasChildren }}
+          <li class="dropdown{{if $currentNode.HasMenuCurrent "main" . }} active-child{{end}}">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{.Name}} <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+            {{ range .Children }}
+                <li{{if $currentNode.IsMenuCurrent "main" .Name}} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
             {{ end }}
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.content.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
-            {{ end }}
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Layout <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.layout.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
-            {{ end }}
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Indexes <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.indexes.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
-            {{ end }}
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Extras <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.extras.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
-            {{ end }}
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tutorials <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.tutorials.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
-            {{ end }}
-        </ul>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Community <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            <li hugo-nav="showcase"><a href="/showcase"> Showcase </a> </li>
-            {{ range $key, $value := .Site.Indexes.groups.community.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
-            {{ end }}
-        </ul>
-      </li>
+            </ul>
+          {{else}}
+            <li>
+            <a href="{{.Url}}"> {{ .Name }} </a>
+          {{end}}
+          </li>
+      {{end}}
     </ul>
     <ul class="nav navbar-nav navbar-right">
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Meta <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            {{ range $key, $value := .Site.Indexes.groups.meta.Pages }}
-            <li hugo-nav="{{$value.RelPermalink}}"><a href="{{$value.Permalink}}"> {{ $value.LinkTitle }} </a> </li>
+      {{ $currentNode := . }}
+      {{ $menu := "right"}}
+      {{ range .Site.Menus.right }}
+          {{ if .HasChildren }}
+          <li class="dropdown{{if $currentNode.HasMenuCurrent $menu . }} active-child{{end}}">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{.Name}} <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+            {{ range .Children }}
+                <li{{if $currentNode.IsMenuCurrent $menu .Name}} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
             {{ end }}
-        </ul>
-      </li>
+            </ul>
+          {{else}}
+            <li>
+            <a href="{{.Url}}"> {{ .Name }} </a>
+          {{end}}
+          </li>
+      {{end}}
       <li><a href="http://github.com/spf13/hugo/releases"><i class="icon-arrow-down "> </i></a></li>
       <li><a href="http://github.com/spf13/hugo"><i class="icon-octocat icon-2x"> </i></a></li>
     </ul>
