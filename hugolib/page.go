@@ -28,7 +28,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
-	"github.com/spf13/hugo/template/bundle"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/theplant/blackfriday"
@@ -49,7 +48,7 @@ type Page struct {
 	contentType     string
 	Draft           bool
 	Aliases         []string
-	Tmpl            bundle.Template
+	Tmpl            Template
 	Markup          string
 	renderable      bool
 	layout          string
@@ -519,7 +518,7 @@ func (page *Page) parse(reader io.Reader) error {
 	return nil
 }
 
-func (p *Page) ProcessShortcodes(t bundle.Template) {
+func (p *Page) ProcessShortcodes(t Template) {
 	p.rawContent = []byte(ShortcodesHandle(string(p.rawContent), p, t))
 	p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
 }

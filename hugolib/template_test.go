@@ -1,4 +1,4 @@
-package bundle
+package hugolib
 
 import (
 	"reflect"

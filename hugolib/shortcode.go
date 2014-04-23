@@ -20,7 +20,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/spf13/hugo/template/bundle"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -78,7 +77,7 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 
 type Shortcodes map[string]ShortcodeFunc
 
-func ShortcodesHandle(stringToParse string, p *Page, t bundle.Template) string {
+func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
 	leadStart := strings.Index(stringToParse, `{{%`)
 	if leadStart >= 0 {
 		leadEnd := strings.Index(stringToParse[leadStart:], `%}}`) + leadStart
@@ -147,7 +146,7 @@ func FindEnd(str string, name string) (int, int) {
 	return startPos, endPos
 }
 
-func GetTemplate(name string, t bundle.Template) *template.Template {
+func GetTemplate(name string, t Template) *template.Template {
 	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
 		return x
 	}

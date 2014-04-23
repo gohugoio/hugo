@@ -1,4 +1,4 @@
-package bundle
+package hugolib
 
 import (
 	"errors"
@@ -192,7 +192,11 @@ func (t *GoHtmlTemplate) LoadEmbedded() {
 }
 
 func (t *GoHtmlTemplate) AddInternalTemplate(prefix, name, tpl string) error {
-	return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
+	if prefix != "" {
+		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
+	} else {
+		return t.AddTemplate("_internal/"+name, tpl)
+	}
 }
 
 func (t *GoHtmlTemplate) AddInternalShortcode(name, content string) error {
