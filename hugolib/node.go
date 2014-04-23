@@ -31,7 +31,18 @@ type Node struct {
 	UrlPath
 }
 
-func (n Node) RSSlink() template.HTML {
+func (n *Node) Now() time.Time {
+	return time.Now()
+}
+
+func (n *Node) HasMenuCurrent(menu string, me *MenuEntry) bool {
+	return false
+}
+func (n *Node) IsMenuCurrent(menu string, name string) bool {
+	return false
+}
+
+func (n *Node) RSSlink() template.HTML {
 	return n.RSSLink
 }
 

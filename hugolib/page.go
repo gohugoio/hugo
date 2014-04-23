@@ -419,6 +419,97 @@ func (page *Page) GetParam(key string) interface{} {
 	return nil
 }
 
+func (page *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
+	menus := page.Menus()
+
+	if m, ok := menus[menu]; ok {
+		if me.HasChildren() {
+			for _, child := range me.Children {
+				if child.Name == m.Name {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+
+}
+
+func (page *Page) IsMenuCurrent(menu string, name string) bool {
+	menus := page.Menus()
+
+	if me, ok := menus[menu]; ok {
+		return me.Name == name
+	}
+
+	return false
+}
+
+func (page *Page) Menus() PageMenus {
+	ret := PageMenus{}
+
+	if ms, ok := page.Params["menu"]; ok {
+		link, _ := page.Permalink()
+
+		me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
+
+		// Could be the name of the menu to attach it to
+		mname, err := cast.ToStringE(ms)
+
+		if err == nil {
+			me.Menu = mname
+			ret[mname] = &me
+			return ret
+		}
+
+		// Could be an slice of strings
+		mnames, err := cast.ToStringSliceE(ms)
+
+		if err == nil {
+			for _, mname := range mnames {
+				me.Menu = mname
+				ret[mname] = &me
+				return ret
+			}
+		}
+
+		// Could be a structured menu entry
+		menus, err := cast.ToStringMapE(ms)
+
+		if err != nil {
+			jww.ERROR.Printf("unable to process menus for %q\n", page.Title)
+		}
+
+		for name, menu := range menus {
+			menuEntry := MenuEntry{Name: page.LinkTitle(), Url: link, Weight: page.Weight, Menu: name}
+			jww.DEBUG.Printf("found menu: %q, in %q\n", name, page.Title)
+
+			ime, err := cast.ToStringMapE(menu)
+			if err != nil {
+				jww.ERROR.Printf("unable to process menus for %q\n", page.Title)
+			}
+
+			for k, v := range ime {
+				loki := strings.ToLower(k)
+				switch loki {
+				case "weight":
+					menuEntry.Weight = cast.ToInt(v)
+				case "name":
+					menuEntry.Name = cast.ToString(v)
+				case "parent":
+					menuEntry.Parent = cast.ToString(v)
+				}
+			}
+
+			ret[name] = &menuEntry
+		}
+		return ret
+	}
+
+	return nil
+}
+
 type frontmatterType struct {
 	markstart, markend []byte
 	parse              func([]byte) (interface{}, error)

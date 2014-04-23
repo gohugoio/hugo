@@ -63,6 +63,7 @@ type Site struct {
 	Sections   Taxonomy
 	Info       *SiteInfo
 	Shortcodes map[string]ShortcodeFunc
+	Menus      Menus
 	timer      *nitro.B
 	Target     target.Output
 	Alias      target.AliasPublisher
@@ -76,6 +77,7 @@ type SiteInfo struct {
 	Taxonomies      TaxonomyList
 	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
 	Recent          *Pages
+	Menus           *Menus
 	Title           string
 	Author          map[string]string
 	LanguageCode    string
@@ -241,6 +243,8 @@ func (s *Site) initialize() (err error) {
 		Base:       s.absContentDir(),
 	}
 
+	s.Menus = Menus{}
+
 	s.initializeSiteInfo()
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
@@ -266,6 +270,7 @@ func (s *Site) initializeSiteInfo() {
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
 		Recent:          &s.Pages,
+		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
 	}
@@ -343,6 +348,65 @@ func (s *Site) CreatePages() (err error) {
 }
 
 func (s *Site) BuildSiteMeta() (err error) {
+
+	s.assembleMenus()
+
+	if len(s.Pages) == 0 {
+		return
+	}
+
+	s.assembleTaxonomies()
+	s.assembleSections()
+	s.Info.LastChange = s.Pages[0].Date
+
+	return
+}
+
+func (s *Site) assembleMenus() {
+
+	type twoD struct {
+		MenuName, EntryName string
+	}
+	flat := map[twoD]*MenuEntry{}
+	children := map[twoD]Menu{}
+
+	//creating flat hash
+	for _, p := range s.Pages {
+		for name, me := range p.Menus() {
+			flat[twoD{name, me.Name}] = me
+		}
+	}
+
+	// Create Children Menus First
+	for _, e := range flat {
+		if e.Parent != "" {
+			children[twoD{e.Menu, e.Parent}] = children[twoD{e.Menu, e.Parent}].Add(e)
+		}
+	}
+
+	// Placing Children in Parents (in flat)
+	for p, childmenu := range children {
+		_, ok := flat[twoD{p.MenuName, p.EntryName}]
+		if !ok {
+			// if parent does not exist, create one without a url
+			flat[twoD{p.MenuName, p.EntryName}] = &MenuEntry{Name: p.EntryName, Url: ""}
+		}
+		flat[twoD{p.MenuName, p.EntryName}].Children = childmenu
+	}
+
+	// Assembling Top Level of Tree
+	for menu, e := range flat {
+		if e.Parent == "" {
+			_, ok := s.Menus[menu.MenuName]
+			if !ok {
+				s.Menus[menu.MenuName] = &Menu{}
+			}
+			*s.Menus[menu.MenuName] = s.Menus[menu.MenuName].Add(e)
+		}
+	}
+}
+
+func (s *Site) assembleTaxonomies() {
 	s.Taxonomies = make(TaxonomyList)
 	s.Sections = make(Taxonomy)
 
@@ -376,6 +440,11 @@ func (s *Site) BuildSiteMeta() (err error) {
 		}
 	}
 
+	s.Info.Taxonomies = s.Taxonomies
+	s.Info.Indexes = &s.Taxonomies
+}
+
+func (s *Site) assembleSections() {
 	for i, p := range s.Pages {
 		s.Sections.Add(p.Section, WeightedPage{s.Pages[i].Weight, s.Pages[i]})
 	}
@@ -383,21 +452,6 @@ func (s *Site) BuildSiteMeta() (err error) {
 	for k := range s.Sections {
 		s.Sections[k].Sort()
 	}
-
-	s.Info.Taxonomies = s.Taxonomies
-	s.Info.Indexes = &s.Taxonomies
-
-	if len(s.Pages) == 0 {
-		return
-	}
-	s.Info.LastChange = s.Pages[0].Date
-
-	// populate pages with site metadata
-	for _, p := range s.Pages {
-		p.Site = s.Info
-	}
-
-	return
 }
 
 func (s *Site) possibleTaxonomies() (taxonomies []string) {
