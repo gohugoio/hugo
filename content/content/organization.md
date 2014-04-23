@@ -3,8 +3,10 @@ title: "Content Organization"
 date: "2013-07-01"
 aliases: ["/doc/organization/"]
 linktitle: "Organization"
-groups: ['content']
-groups_weight: 10
+weight: 10
+menu:
+  main:
+    parent: 'content'
 ---
 
 Hugo uses markdown files with headers commonly called the front matter. Hugo respects the organization

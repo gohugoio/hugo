@@ -5,6 +5,9 @@ aliases: ["/doc/roadmap/"]
 groups: ["meta"]
 groups_weight: 20
 notoc: true
+menu:
+  right:
+    parent: 'meta'
 ---
 
 In no particular order, here is what we are working on:

@@ -1,9 +1,11 @@
 ---
 title: "Hosting a Blog on GitHub Pages"
 date: "2014-03-21"
-groups: ["tutorials"]
-groups_weight: 10
+weight: 10
 author: "Spencer Lyon"
+menu:
+  main:
+    parent: 'tutorials'
 ---
 
 ## Intro

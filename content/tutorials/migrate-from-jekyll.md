@@ -1,8 +1,10 @@
 ---
 title: "Migrate to Hugo from Jekyll"
 date: "2014-03-10"
-groups: ["tutorials"]
-groups_weight: 10
+weight: 10
+menu:
+  main:
+    parent: 'tutorials'
 ---
 
 ## Move static content to `static`

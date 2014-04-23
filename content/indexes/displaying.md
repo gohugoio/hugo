@@ -1,9 +1,12 @@
 ---
-title:  "Rendering Indexes"
+title:  "Rendering Taxonomies"
 date: "2013-07-01"
 linktitle: "Displaying"
-groups: ["indexes"]
-groups_weight: 20
+aliases: ["/indexes/displaying/"]
+weight: 20
+menu:
+  main:
+    parent: 'taxonomy'
 ---
 
 ## Rendering index values assigned to this content

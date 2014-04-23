@@ -1,10 +1,11 @@
 ---
-title: "Indexes"
+title: "Taxonomy Overview"
 date: "2013-07-01"
-aliases: ["/doc/indexes/", "/extras/indexes"]
-linktitle: "Overview"
-groups: ["indexes"]
-groups_weight: 10
+aliases: ["/indexes/overview/","/doc/indexes/", "/extras/indexes"]
+weight: 10
+menu:
+  main:
+    parent: 'taxonomy'
 ---
 
 Hugo includes support for user defined groupings of content called indexes.

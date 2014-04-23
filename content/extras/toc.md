@@ -1,8 +1,10 @@
 ---
 title: "Table of Contents"
 date: "2013-07-09"
-groups: ["extras"]
-groups_weight: 70
+weight: 70
+menu:
+  main:
+    parent: 'extras'
 ---
 
 Hugo will automatically parse the markdown for your content and create

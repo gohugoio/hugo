@@ -1,8 +1,10 @@
 ---
 title: "Sections"
 date: "2013-07-01"
-groups: ['content']
-groups_weight: 20
+menu:
+    main:
+        parent: 'content'
+weight: 20
 notoc: true
 ---
 

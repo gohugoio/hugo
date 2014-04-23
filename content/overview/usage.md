@@ -2,9 +2,11 @@
 title: "Using Hugo"
 date: "2013-07-01"
 aliases: ["/doc/usage/"]
-groups: ['gettingStarted']
-groups_weight: 30
+weight: 30
 notoc: true
+menu:
+  main:
+    parent: 'getting started'
 ---
 
 Make sure either hugo is in your path or provide a path to it.

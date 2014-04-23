@@ -3,9 +3,11 @@ title: "Permalinks"
 date: "2013-11-18"
 aliases:
   - "/doc/permalinks/"
-groups: ["extras"]
-groups_weight: 30
+weight: 30
 notoc: true
+menu:
+  main:
+    parent: 'extras'
 ---
 
 By default, content is laid out into the target `publishdir` (public)

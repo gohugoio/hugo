@@ -2,10 +2,12 @@
 title: "Configuring Hugo"
 date: "2013-07-01"
 aliases: ["/doc/configuration/"]
-groups: ['gettingStarted']
 linktitle: "Configuration"
-groups_weight: 40
+weight: 40
 notoc: true
+menu:
+  main:
+    parent: 'getting started'
 ---
 
 The directory structure and templates provide the majority of the

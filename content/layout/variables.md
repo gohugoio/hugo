@@ -2,8 +2,10 @@
 title: "Variables"
 date: "2013-07-01"
 aliases: ["/doc/variables/"]
-groups: ["layout"]
-groups_weight: 20
+weight: 20
+menu:
+  main:
+    parent: 'layout'
 ---
 
 Hugo makes a set of values available to the templates. Go templates are context based. The following

@@ -1,8 +1,10 @@
 ---
 title: "Content Views"
 date: "2013-07-01"
-groups: ["layout"]
-groups_weight: 70
+weight: 70
+menu:
+  main:
+    parent: 'layout'
 ---
 
 In addition to the [single content view](/layout/content/), Hugo can render alternative views of

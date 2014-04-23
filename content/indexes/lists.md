@@ -1,10 +1,12 @@
 ---
-title: "Index Lists"
+title: "Taxonomy Lists"
 date: "2013-07-01"
-aliases: ["/doc/indexes/", "/extras/indexes"]
+aliases: ["/indexes/lists/","/doc/indexes/", "/extras/indexes"]
 linktitle: "Lists"
-groups: ["indexes"]
-groups_weight: 40
+weight: 40
+menu:
+  main:
+    parent: 'taxonomy'
 ---
 
 An index list is a list of all the keys that are contained in the index. When a

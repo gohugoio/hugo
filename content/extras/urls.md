@@ -3,9 +3,11 @@ title: "URLs"
 date: "2014-01-03"
 aliases:
   - "/doc/urls/"
-groups: ["extras"]
-groups_weight: 40
+weight: 40
 notoc: true
+menu:
+  main:
+    parent: 'extras'
 ---
 
 ## Pretty Urls

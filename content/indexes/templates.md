@@ -1,9 +1,12 @@
 ---
-title: "Index Templates"
+title: "Taxonomy Templates"
 date: "2013-07-01"
 linktitle: "Templates"
-groups: ["indexes"]
-groups_weight: 30
+aliases: ["/indexes/templates/"]
+weight: 30
+menu:
+  main:
+    parent: 'taxonomy'
 ---
 
 There are two different templates that the use of indexes will require you to provide.

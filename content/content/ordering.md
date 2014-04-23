@@ -2,8 +2,10 @@
 title: "Ordering Content"
 date: "2014-03-06"
 linktitle: "Ordering"
-groups: ['content']
-groups_weight: 60
+menu:
+  main:
+    parent: "content"
+weight: 60
 ---
 
 In Hugo you have a good degree of control of how your content can be ordered.

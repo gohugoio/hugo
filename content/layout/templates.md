@@ -3,8 +3,10 @@ title: "Hugo Templates"
 date: "2013-07-01"
 aliases: ["/doc/templates/"]
 linktitle: "Overview"
-groups: ["layout"]
-groups_weight: 10
+weight: 10
+menu:
+  main:
+    parent: 'layout'
 ---
 
 Hugo uses the excellent go html/template library for its template engine.

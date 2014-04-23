@@ -1,9 +1,11 @@
 ---
 title: "Hugo Quickstart Guide"
 date: "2013-07-01"
-groups: ['gettingStarted']
 linktitle: "Quickstart"
-groups_weight: 10
+weight: 10
+menu:
+  main:
+    parent: 'getting started'
 ---
 
 ## Step 1. Install Hugo

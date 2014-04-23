@@ -1,9 +1,12 @@
 ---
-title: "Ordering Indexes"
+title: "Ordering Taxonomies"
 date: "2013-07-01"
 linktitle: "Ordering"
-groups: ["indexes"]
-groups_weight: 60
+aliases: ["/indexes/ordering/"]
+weight: 60
+menu:
+  main:
+    parent: 'taxonomy'
 ---
 
 Hugo provides the ability to both:
