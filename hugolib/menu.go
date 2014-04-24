@@ -13,7 +13,12 @@
 
 package hugolib
 
-import "sort"
+import (
+	"sort"
+	"strings"
+
+	"github.com/spf13/cast"
+)
 
 type MenuEntry struct {
 	Url      string
@@ -37,6 +42,22 @@ func (me *MenuEntry) AddChild(child *MenuEntry) {
 
 func (me *MenuEntry) HasChildren() bool {
 	return me.Children != nil
+}
+
+func (me *MenuEntry) MarshallMap(ime map[string]interface{}) {
+	for k, v := range ime {
+		loki := strings.ToLower(k)
+		switch loki {
+		case "url":
+			me.Url = cast.ToString(v)
+		case "weight":
+			me.Weight = cast.ToInt(v)
+		case "name":
+			me.Name = cast.ToString(v)
+		case "parent":
+			me.Parent = cast.ToString(v)
+		}
+	}
 }
 
 //func (me *MenuEntry) RelUrl() string {

@@ -490,18 +490,7 @@ func (page *Page) Menus() PageMenus {
 				jww.ERROR.Printf("unable to process menus for %q\n", page.Title)
 			}
 
-			for k, v := range ime {
-				loki := strings.ToLower(k)
-				switch loki {
-				case "weight":
-					menuEntry.Weight = cast.ToInt(v)
-				case "name":
-					menuEntry.Name = cast.ToString(v)
-				case "parent":
-					menuEntry.Parent = cast.ToString(v)
-				}
-			}
-
+			menuEntry.MarshallMap(ime)
 			ret[name] = &menuEntry
 		}
 		return ret

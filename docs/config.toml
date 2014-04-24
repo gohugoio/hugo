@@ -1,0 +1,27 @@
+baseurl = "http://hugo.spf13.com"
+
+[indexes]
+  tag = "tags"
+  group = "groups"
+
+[[menu.main]]
+    name = "getting started"
+    weight = -100
+[[menu.main]]
+    name = "content"
+    weight = -90
+[[menu.main]]
+    name = "layout"
+    weight = -80
+[[menu.main]]
+    name = "taxonomy"
+    weight = -70
+[[menu.main]]
+    name = "extras"
+    weight = -60
+[[menu.main]]
+    name = "community"
+    weight = -50
+[[menu.main]]
+    name = "tutorials"
+    weight = -40

@@ -362,6 +362,40 @@ func (s *Site) BuildSiteMeta() (err error) {
 	return
 }
 
+func (s *Site) getMenusFromConfig() Menus {
+
+	ret := Menus{}
+
+	if menus := viper.GetStringMap("menu"); menus != nil {
+		for name, menu := range menus {
+			m, err := cast.ToSliceE(menu)
+			if err != nil {
+				jww.ERROR.Printf("unable to process menus in site config\n")
+				jww.ERROR.Println(err)
+			} else {
+				for _, entry := range m {
+					jww.DEBUG.Printf("found menu: %q, in site config\n", name)
+
+					menuEntry := MenuEntry{Menu: name}
+					ime, err := cast.ToStringMapE(entry)
+					if err != nil {
+						jww.ERROR.Printf("unable to process menus in site config\n")
+						jww.ERROR.Println(err)
+					}
+
+					menuEntry.MarshallMap(ime)
+					if ret[name] == nil {
+						ret[name] = &Menu{}
+					}
+					*ret[name] = ret[name].Add(&menuEntry)
+				}
+			}
+		}
+		return ret
+	}
+	return ret
+}
+
 func (s *Site) assembleMenus() {
 
 	type twoD struct {
@@ -369,6 +403,13 @@ func (s *Site) assembleMenus() {
 	}
 	flat := map[twoD]*MenuEntry{}
 	children := map[twoD]Menu{}
+
+	menuConfig := s.getMenusFromConfig()
+	for name, menu := range menuConfig {
+		for _, me := range *menu {
+			flat[twoD{name, me.Name}] = me
+		}
+	}
 
 	//creating flat hash
 	for _, p := range s.Pages {

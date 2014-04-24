@@ -1,5 +1,0 @@
-indexes:
-  tag: 'tags'
-  group: 'groups'
-baseurl: 'http://hugo.spf13.com'
-...
