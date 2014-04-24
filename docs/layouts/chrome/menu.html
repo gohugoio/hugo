@@ -16,7 +16,7 @@
       {{ $currentNode := . }}
       {{ range .Site.Menus.main }}
           {{ if .HasChildren }}
-          <li class="dropdown{{if $currentNode.HasMenuCurrent "main" . }} active-child{{end}}">
+          <li class="dropdown{{if $currentNode.HasMenuCurrent "main" . }} active{{end}}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{.Name}} <b class="caret"></b></a>
             <ul class="dropdown-menu">
             {{ range .Children }}

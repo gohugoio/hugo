@@ -90,6 +90,10 @@ nav.navbar {
     background-color: rgb(15, 166, 188);
 }
 
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus { 
+    background-color: rgb(15, 166, 188);
+}
+
 .dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus {
     color: rgb(255, 255, 255);
     text-decoration: none;
