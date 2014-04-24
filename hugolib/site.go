@@ -61,7 +61,7 @@ type Site struct {
 	Taxonomies TaxonomyList
 	Source     source.Input
 	Sections   Taxonomy
-	Info       *SiteInfo
+	Info       SiteInfo
 	Shortcodes map[string]ShortcodeFunc
 	Menus      Menus
 	timer      *nitro.B
@@ -262,7 +262,7 @@ func (s *Site) initializeSiteInfo() {
 		permalinks = make(PermalinkOverrides)
 	}
 
-	s.Info = &SiteInfo{
+	s.Info = SiteInfo{
 		BaseUrl:         template.URL(helpers.SanitizeUrl(viper.GetString("BaseUrl"))),
 		Title:           viper.GetString("Title"),
 		Author:          viper.GetStringMapString("author"),
@@ -321,7 +321,7 @@ func (s *Site) CreatePages() (err error) {
 			if err != nil {
 				return err
 			}
-			page.Site = *s.Info
+			page.Site = s.Info
 			page.Tmpl = s.Tmpl
 			page.Section = file.Section
 			page.Dir = file.Dir
@@ -726,7 +726,7 @@ func (s *Site) PrettifyPath(in string) string {
 func (s *Site) NewNode() *Node {
 	return &Node{
 		Data: make(map[string]interface{}),
-		Site: *s.Info,
+		Site: s.Info,
 	}
 }
 
