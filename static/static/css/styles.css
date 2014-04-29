@@ -2,7 +2,7 @@ body {
     background-color: rgb(253, 253, 251);
     padding-top: 70px;
     letter-spacing: 0.3px;
-    font-family: "Helvetica Neue", "Helvitica", "Serif";
+    font-family: "Helvetica Neue", "Helvetica", sans-serif;
     font-weight: 300;
 }
 
@@ -24,7 +24,7 @@ h1, h2, h3 {
 
 h1, h2, h3, h4, h5, h6 {
     color: rgb(25,71,86);
-    font-family: 'Cabin', "Helvetica Neue", "Helvitica", "Serif";
+    font-family: 'Cabin', "Helvetica Neue", "Helvetica", sans-serif;
 }
 
 h1 {
@@ -39,7 +39,7 @@ h1, h2 {
 pre {
     background-color: #022b34;
     color: #e6e6e6;
-    font-family: 'Source Code Pro', sans-serif;
+    font-family: 'Source Code Pro', monospace;
     font-size: 17px;
     line-height: 1.2;
     -webkit-border-radius: 12px;
