@@ -8,12 +8,12 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cabin', "Helvetica Neue", "Helvitica", "Serif";
+    font-family: 'Cabin', "Helvetica Neue", "Helvetica", sans-serif;
 }
 
 body {
 
-    font-family: 'Arbutus Slab', "Helvetica Neue", "Helvitica", "Serif" !important;
+    font-family: 'Arbutus Slab', "Helvetica Neue", "Helvetica", sans-serif !important;
     line-height: 1.6;
 }
 
