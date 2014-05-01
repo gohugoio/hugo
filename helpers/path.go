@@ -15,12 +15,14 @@ package helpers
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+
 	"github.com/spf13/viper"
 )
 
@@ -150,4 +152,25 @@ func FindCWD() (string, error) {
 	}
 
 	return path, nil
+}
+
+func WriteToDisk(inpath string, r io.Reader) (err error) {
+	dir, _ := filepath.Split(inpath)
+	ospath := filepath.FromSlash(dir)
+
+	if ospath != "" {
+		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	file, err := os.Create(inpath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, r)
+	return
 }

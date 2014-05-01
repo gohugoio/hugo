@@ -3,9 +3,9 @@ package target
 import (
 	"fmt"
 	"io"
-	"os"
 	"path"
-	"path/filepath"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 type Publisher interface {
@@ -34,28 +34,7 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 		return
 	}
 
-	return writeToDisk(translated, r)
-}
-
-func writeToDisk(translated string, r io.Reader) (err error) {
-	path, _ := filepath.Split(translated)
-	ospath := filepath.FromSlash(path)
-
-	if ospath != "" {
-		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	file, err := os.Create(translated)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, r)
-	return
+	return helpers.WriteToDisk(translated, r)
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {
