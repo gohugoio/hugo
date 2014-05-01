@@ -13,9 +13,11 @@ const (
 	YAML_LEAD       = "-"
 	YAML_DELIM_UNIX = "---\n"
 	YAML_DELIM_DOS  = "---\r\n"
+	YAML_DELIM      = "---"
 	TOML_LEAD       = "+"
 	TOML_DELIM_UNIX = "+++\n"
 	TOML_DELIM_DOS  = "+++\r\n"
+	TOML_DELIM      = "+++"
 	JSON_LEAD       = "{"
 )
 
@@ -39,6 +41,7 @@ type Page interface {
 	FrontMatter() FrontMatter
 	Content() Content
 	IsRenderable() bool
+	Metadata() (interface{}, error)
 }
 
 type page struct {
@@ -57,6 +60,19 @@ func (p *page) FrontMatter() FrontMatter {
 
 func (p *page) IsRenderable() bool {
 	return p.render
+}
+
+func (p *page) Metadata() (meta interface{}, err error) {
+	frontmatter := p.FrontMatter()
+
+	if len(frontmatter) != 0 {
+		fm := DetectFrontMatter(rune(frontmatter[0]))
+		meta, err = fm.Parse(frontmatter)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 // ReadFrom reads the content from an io.Reader and constructs a page.

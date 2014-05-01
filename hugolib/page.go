@@ -24,35 +24,35 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BurntSushi/toml"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/theplant/blackfriday"
-	"launchpad.net/goyaml"
-	json "launchpad.net/rjson"
 )
 
 type Page struct {
-	Status          string
-	Images          []string
-	rawContent      []byte
-	Content         template.HTML
-	Summary         template.HTML
-	TableOfContents template.HTML
-	Truncated       bool
-	plain           string // TODO should be []byte
-	Params          map[string]interface{}
-	contentType     string
-	Draft           bool
-	Aliases         []string
-	Tmpl            Template
-	Markup          string
-	renderable      bool
-	layout          string
-	linkTitle       string
+	Status            string
+	Images            []string
+	rawContent        []byte
+	Content           template.HTML
+	Summary           template.HTML
+	TableOfContents   template.HTML
+	Truncated         bool
+	plain             string // TODO should be []byte
+	Params            map[string]interface{}
+	contentType       string
+	Draft             bool
+	Aliases           []string
+	Tmpl              Template
+	Markup            string
+	renderable        bool
+	layout            string
+	linkTitle         string
+	frontmatter       []byte
+	sourceFrontmatter []byte
+	sourceContent     []byte
 	PageMeta
 	File
 	Position
@@ -293,35 +293,6 @@ func (p *Page) RelPermalink() (string, error) {
 	return link.String(), nil
 }
 
-func (page *Page) handleTomlMetaData(datum []byte) (interface{}, error) {
-	m := map[string]interface{}{}
-	datum = removeTomlIdentifier(datum)
-	if _, err := toml.Decode(string(datum), &m); err != nil {
-		return m, fmt.Errorf("Invalid TOML in %s \nError parsing page meta data: %s", page.FileName, err)
-	}
-	return m, nil
-}
-
-func removeTomlIdentifier(datum []byte) []byte {
-	return bytes.Replace(datum, []byte("+++"), []byte(""), -1)
-}
-
-func (page *Page) handleYamlMetaData(datum []byte) (interface{}, error) {
-	m := map[string]interface{}{}
-	if err := goyaml.Unmarshal(datum, &m); err != nil {
-		return m, fmt.Errorf("Invalid YAML in %s \nError parsing page meta data: %s", page.FileName, err)
-	}
-	return m, nil
-}
-
-func (page *Page) handleJsonMetaData(datum []byte) (interface{}, error) {
-	var f interface{}
-	if err := json.Unmarshal(datum, &f); err != nil {
-		return f, fmt.Errorf("Invalid JSON in %v \nError parsing page meta data: %s", page.FileName, err)
-	}
-	return f, nil
-}
-
 func (page *Page) update(f interface{}) error {
 	m := f.(map[string]interface{})
 
@@ -499,28 +470,6 @@ func (page *Page) Menus() PageMenus {
 	return nil
 }
 
-type frontmatterType struct {
-	markstart, markend []byte
-	parse              func([]byte) (interface{}, error)
-	includeMark        bool
-}
-
-const YAML_DELIM = "---"
-const TOML_DELIM = "+++"
-
-func (page *Page) detectFrontMatter(mark rune) (f *frontmatterType) {
-	switch mark {
-	case '-':
-		return &frontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), page.handleYamlMetaData, false}
-	case '+':
-		return &frontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), page.handleTomlMetaData, false}
-	case '{':
-		return &frontmatterType{[]byte{'{'}, []byte{'}'}, page.handleJsonMetaData, true}
-	default:
-		return nil
-	}
-}
-
 func (p *Page) Render(layout ...string) template.HTML {
 	curLayout := ""
 
@@ -573,30 +522,45 @@ func guessType(in string) string {
 	return "unknown"
 }
 
+func (page *Page) detectFrontMatter() (f *parser.FrontmatterType) {
+	return parser.DetectFrontMatter(rune(page.frontmatter[0]))
+}
+
 func (page *Page) parse(reader io.Reader) error {
-	p, err := parser.ReadFrom(reader)
+	psr, err := parser.ReadFrom(reader)
 	if err != nil {
 		return err
 	}
 
-	page.renderable = p.IsRenderable()
-
-	front := p.FrontMatter()
-
-	if len(front) != 0 {
-		fm := page.detectFrontMatter(rune(front[0]))
-		meta, err := fm.parse(front)
-		if err != nil {
-			return err
-		}
-
-		if err = page.update(meta); err != nil {
-			return err
-		}
-
+	page.renderable = psr.IsRenderable()
+	page.frontmatter = psr.FrontMatter()
+	meta, err := psr.Metadata()
+	if err != nil {
+		jww.ERROR.Printf("Error parsing page meta data for %s", page.FileName)
+		jww.ERROR.Println(err)
+		return err
 	}
-	page.rawContent = p.Content()
+	if err = page.update(meta); err != nil {
+		return err
+	}
+
+	page.rawContent = psr.Content()
 	page.setSummary()
+
+	return nil
+}
+
+func (page *Page) SetSourceContent(content []byte) {
+	page.sourceContent = content
+}
+
+func (page *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
+	by, err := parser.InterfaceToFrontMatter(in, mark)
+	if err != nil {
+		return err
+	}
+
+	page.sourceFrontmatter = by
 
 	return nil
 }
