@@ -567,6 +567,27 @@ func (page *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
 	return nil
 }
 
+func (page *Page) SaveSourceAs(path string) {
+	b := new(bytes.Buffer)
+	b.Write(page.sourceFrontmatter)
+	b.Write(page.sourceContent)
+
+	page.saveSource(b.Bytes(), path)
+}
+
+func (page *Page) saveSource(by []byte, inpath string) (err error) {
+	if !path.IsAbs(inpath) {
+		inpath = helpers.AbsPathify(inpath)
+	}
+	jww.INFO.Println("creating", inpath)
+	helpers.WriteToDisk(inpath, bytes.NewReader(by))
+	return nil
+}
+
+func (page *Page) SaveSource() {
+	page.SaveSourceAs(page.FullFilePath())
+}
+
 func (p *Page) ProcessShortcodes(t Template) {
 	p.rawContent = []byte(ShortcodesHandle(string(p.rawContent), p, t))
 	p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
@@ -667,6 +688,10 @@ func ReaderToBytes(lines io.Reader) []byte {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	return b.Bytes()
+}
+
+func (p *Page) FullFilePath() string {
+	return path.Join(p.Dir, p.FileName)
 }
 
 func (p *Page) TargetPath() (outfile string) {
