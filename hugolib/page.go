@@ -138,8 +138,6 @@ func renderBytes(content []byte, pagefmt string) []byte {
 	}
 }
 
-// TODO abstract further to support loading from more
-// than just files on disk. Should load reader (file, []byte)
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		File:   File{FileName: filename, Extension: "html"},
@@ -207,7 +205,7 @@ func layouts(types string, layout string) (layouts []string) {
 	return
 }
 
-func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
+func NewPage(name string) (page *Page, err error) {
 	if len(name) == 0 {
 		return nil, errors.New("Zero length page name")
 	}
@@ -215,6 +213,10 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 	// Create new page
 	p := newPage(name)
 
+	return p, nil
+}
+
+func (p *Page) ReadFrom(buf io.Reader) (err error) {
 	// Parse for metadata & body
 	if err = p.parse(buf); err != nil {
 		jww.ERROR.Print(err)
@@ -224,7 +226,7 @@ func ReadFrom(buf io.Reader, name string) (page *Page, err error) {
 	//analyze for raw stats
 	p.analyzePage()
 
-	return p, nil
+	return nil
 }
 
 func (p *Page) analyzePage() {

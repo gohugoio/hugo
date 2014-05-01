@@ -231,6 +231,10 @@ func (s *Site) checkDescriptions() {
 	}
 }
 
+func (s *Site) Initialise() (err error) {
+	return s.initialize()
+}
+
 func (s *Site) initialize() (err error) {
 	if err = s.checkDirectories(); err != nil {
 		return err
@@ -317,7 +321,11 @@ func (s *Site) CreatePages() (err error) {
 		go func(file *source.File) (err error) {
 			defer wg.Done()
 
-			page, err := ReadFrom(file.Contents, file.LogicalName)
+			page, err := NewPage(file.LogicalName)
+			if err != nil {
+				return err
+			}
+			err = page.ReadFrom(file.Contents)
 			if err != nil {
 				return err
 			}
