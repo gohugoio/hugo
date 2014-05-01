@@ -6,7 +6,7 @@ import (
 )
 
 func pageFromString(in, filename string) (*Page, error) {
-	return ReadFrom(strings.NewReader(in), filename)
+	return NewPageFrom(strings.NewReader(in), filename)
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, template Template) {

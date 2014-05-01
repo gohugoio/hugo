@@ -7,7 +7,7 @@ import (
 
 func TestSitePossibleTaxonomies(t *testing.T) {
 	site := new(Site)
-	page, _ := ReadFrom(strings.NewReader(PAGE_YAML_WITH_TAXONOMIES_A), "path/to/page")
+	page, _ := NewPageFrom(strings.NewReader(PAGE_YAML_WITH_TAXONOMIES_A), "path/to/page")
 	site.Pages = append(site.Pages, page)
 	taxonomies := site.possibleTaxonomies()
 	if !compareStringSlice(taxonomies, []string{"tags", "categories"}) {

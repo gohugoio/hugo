@@ -52,7 +52,7 @@ func pageMust(p *Page, err error) *Page {
 }
 
 func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
-	p, _ := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+	p, _ := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 	p.Convert()
 	s := new(Site)
 	s.prepTemplates()
@@ -109,7 +109,7 @@ func TestRenderThing(t *testing.T) {
 	s.prepTemplates()
 
 	for i, test := range tests {
-		p, err := ReadFrom(strings.NewReader(test.content), "content/a/file.md")
+		p, err := NewPageFrom(strings.NewReader(test.content), "content/a/file.md")
 		p.Convert()
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
@@ -158,7 +158,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 	s.prepTemplates()
 
 	for i, test := range tests {
-		p, err := ReadFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+		p, err := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
@@ -205,7 +205,7 @@ func TestTargetPath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		p := pageMust(ReadFrom(strings.NewReader(test.content), helpers.AbsPathify(test.doc)))
+		p := pageMust(NewPageFrom(strings.NewReader(test.content), helpers.AbsPathify(test.doc)))
 
 		expected := test.expectedOutFile
 

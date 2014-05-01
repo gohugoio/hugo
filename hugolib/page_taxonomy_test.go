@@ -42,7 +42,9 @@ func TestParseTaxonomies(t *testing.T) {
 		PAGE_YAML_WITH_TAXONOMIES_A,
 		PAGE_YAML_WITH_TAXONOMIES_B,
 	} {
-		p, err := ReadFrom(strings.NewReader(test), "page/with/taxonomy")
+
+		p, _ := NewPage("page/with/taxonomy")
+		err := p.ReadFrom(strings.NewReader(test))
 		if err != nil {
 			t.Fatalf("Failed parsing %q: %s", test, err)
 		}

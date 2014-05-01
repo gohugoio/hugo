@@ -53,7 +53,7 @@ func TestPermalinkValidation(t *testing.T) {
 }
 
 func TestPermalinkExpansion(t *testing.T) {
-	page, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_JSON), "blue/test-page.md")
+	page, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_JSON), "blue/test-page.md")
 	if err != nil {
 		t.Fatalf("failed before we began, could not parse SIMPLE_PAGE_JSON: %s", err)
 	}

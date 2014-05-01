@@ -13,9 +13,9 @@ Sample Text
 `
 
 func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_YAML), path.Join("foobar"))
+	p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), path.Join("foobar"))
 	if err != nil {
-		t.Fatalf("Error in ReadFrom")
+		t.Fatalf("Error in NewPageFrom")
 	}
 	if p.Section != "" {
 		t.Fatalf("No section should be set for a file path: foobar")
@@ -35,7 +35,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 	}
 
 	for _, el := range toCheck {
-		p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
+		p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
 		p.guessSection()
 		if err != nil {
 			t.Errorf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)

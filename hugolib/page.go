@@ -205,6 +205,16 @@ func layouts(types string, layout string) (layouts []string) {
 	return
 }
 
+func NewPageFrom(buf io.Reader, name string) (page *Page, err error) {
+	p, err := NewPage(name)
+	if err != nil {
+		return p, err
+	}
+	err = p.ReadFrom(buf)
+
+	return p, err
+}
+
 func NewPage(name string) (page *Page, err error) {
 	if len(name) == 0 {
 		return nil, errors.New("Zero length page name")
@@ -296,6 +306,9 @@ func (p *Page) RelPermalink() (string, error) {
 }
 
 func (page *Page) update(f interface{}) error {
+	if f == nil {
+		return fmt.Errorf("no metadata found")
+	}
 	m := f.(map[string]interface{})
 
 	for k, v := range m {
@@ -537,13 +550,15 @@ func (page *Page) parse(reader io.Reader) error {
 	page.renderable = psr.IsRenderable()
 	page.frontmatter = psr.FrontMatter()
 	meta, err := psr.Metadata()
-	if err != nil {
-		jww.ERROR.Printf("Error parsing page meta data for %s", page.FileName)
-		jww.ERROR.Println(err)
-		return err
-	}
-	if err = page.update(meta); err != nil {
-		return err
+	if meta != nil {
+		if err != nil {
+			jww.ERROR.Printf("Error parsing page meta data for %s", page.FileName)
+			jww.ERROR.Println(err)
+			return err
+		}
+		if err = page.update(meta); err != nil {
+			return err
+		}
 	}
 
 	page.rawContent = psr.Content()

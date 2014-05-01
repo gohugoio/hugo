@@ -224,7 +224,8 @@ func checkError(t *testing.T, err error, expected string) {
 }
 
 func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
-	_, err := ReadFrom(strings.NewReader(EMPTY_PAGE), "")
+
+	_, err := NewPage("")
 	if err == nil {
 		t.Fatalf("A zero length page name must return an error")
 	}
@@ -233,12 +234,10 @@ func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
 }
 
 func TestDegenerateEmptyPage(t *testing.T) {
-	_, err := ReadFrom(strings.NewReader(EMPTY_PAGE), "test")
+	_, err := NewPageFrom(strings.NewReader(EMPTY_PAGE), "test")
 	if err != nil {
 		t.Fatalf("Empty files should not trigger an error. Should be able to touch a file while watching without erroring out.")
 	}
-
-	//checkError(t, err, "EOF")
 }
 
 func checkPageTitle(t *testing.T, page *Page, title string) {
@@ -297,7 +296,8 @@ func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
 }
 
 func TestCreateNewPage(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE), "simple.md")
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE))
 	p.Convert()
 
 	if err != nil {
@@ -312,7 +312,8 @@ func TestCreateNewPage(t *testing.T) {
 }
 
 func TestPageWithDelimiter(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER), "simple.md")
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -326,7 +327,8 @@ func TestPageWithDelimiter(t *testing.T) {
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY), "simple.md")
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -339,7 +341,8 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(PAGE_WITH_TOC), "tocpage.md")
+	p, _ := NewPage("tocpage.md")
+	err := p.ReadFrom(strings.NewReader(PAGE_WITH_TOC))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -349,7 +352,8 @@ func TestTableOfContents(t *testing.T) {
 }
 
 func TestPageWithMoreTag(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE), "simple.md")
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -362,7 +366,8 @@ func TestPageWithMoreTag(t *testing.T) {
 }
 
 func TestPageWithDate(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE), "simple")
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -375,7 +380,8 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestWordCount(t *testing.T) {
-	p, err := ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT), "simple.md")
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -408,7 +414,8 @@ func TestCreatePage(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if _, err := ReadFrom(strings.NewReader(test.r), "page"); err != nil {
+		p, _ := NewPage("page")
+		if err := p.ReadFrom(strings.NewReader(test.r)); err != nil {
 			t.Errorf("Unable to parse page: %s", err)
 		}
 	}
@@ -422,7 +429,9 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "Unable to read frontmatter at filepos 45: EOF"},
 	}
 	for _, test := range tests {
-		_, err := ReadFrom(strings.NewReader(test.r), "invalid/front/matter/short/delim")
+
+		p, _ := NewPage("invalid/front/matter/short/delim")
+		err := p.ReadFrom(strings.NewReader(test.r))
 		checkError(t, err, test.err)
 	}
 }
@@ -439,7 +448,10 @@ func TestShouldRenderContent(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		p := pageMust(ReadFrom(strings.NewReader(test.text), "render/front/matter"))
+
+		p, _ := NewPage("render/front/matter")
+		err := p.ReadFrom(strings.NewReader(test.text))
+		p = pageMust(p, err)
 		if p.IsRenderable() != test.render {
 			t.Errorf("expected p.IsRenderable() == %t, got %t", test.render, p.IsRenderable())
 		}
@@ -447,7 +459,8 @@ func TestShouldRenderContent(t *testing.T) {
 }
 
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
-	page, _ := ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES), "test/file1.md")
+	page, _ := NewPage("test/file1.md")
+	_ = page.ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
 	if page.GetParam("a_string") != "bar" {
@@ -468,14 +481,16 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 }
 
 func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
-	_, err := ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS), "invalid/front/matter/leading/ws")
+	p, _ := NewPage("invalid/front/matter/leading/ws")
+	err := p.ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS))
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
 	}
 }
 
 func TestSectionEvaluation(t *testing.T) {
-	page, _ := ReadFrom(strings.NewReader(SIMPLE_PAGE), "blue/file1.md")
+	page, _ := NewPage("blue/file1.md")
+	page.ReadFrom(strings.NewReader(SIMPLE_PAGE))
 	if page.Section != "blue" {
 		t.Errorf("Section should be %s, got: %s", "blue", page.Section)
 	}
@@ -519,7 +534,8 @@ func TestLayoutOverride(t *testing.T) {
 		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, L("barfoo/buzfoo.html", "buzfoo.html")},
 	}
 	for _, test := range tests {
-		p, err := ReadFrom(strings.NewReader(test.content), test.path)
+		p, _ := NewPage(test.path)
+		err := p.ReadFrom(strings.NewReader(test.content))
 		if err != nil {
 			t.Fatalf("Unable to parse content:\n%s\n", test.content)
 		}
