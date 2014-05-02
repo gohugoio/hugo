@@ -105,10 +105,12 @@ func convertContents(mark rune) (err error) {
 
 		psr, err := parser.ReadFrom(file.Contents)
 		if err != nil {
+			jww.ERROR.Println("Error processing file:", path.Join(file.Dir, file.LogicalName))
 			return err
 		}
 		metadata, err := psr.Metadata()
 		if err != nil {
+			jww.ERROR.Println("Error processing file:", path.Join(file.Dir, file.LogicalName))
 			return err
 		}
 
