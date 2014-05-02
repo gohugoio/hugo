@@ -156,15 +156,7 @@ func (p *Page) IsRenderable() bool {
 
 func (p *Page) guessSection() {
 	if p.Section == "" {
-		x := strings.Split(p.FileName, "/")
-		x = x[:len(x)-1]
-		if len(x) == 0 {
-			return
-		}
-		if x[0] == "content" {
-			x = x[1:]
-		}
-		p.Section = path.Join(x...)
+		p.Section = helpers.GuessSection(p.FileName)
 	}
 }
 
@@ -582,25 +574,45 @@ func (page *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
 	return nil
 }
 
-func (page *Page) SaveSourceAs(path string) {
+func (page *Page) SafeSaveSourceAs(path string) error {
+	return page.saveSourceAs(path, true)
+}
+
+func (page *Page) SaveSourceAs(path string) error {
+	return page.saveSourceAs(path, false)
+}
+
+func (page *Page) saveSourceAs(path string, safe bool) error {
 	b := new(bytes.Buffer)
 	b.Write(page.sourceFrontmatter)
 	b.Write(page.sourceContent)
 
-	page.saveSource(b.Bytes(), path)
+	err := page.saveSource(b.Bytes(), path, safe)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (page *Page) saveSource(by []byte, inpath string) (err error) {
+func (page *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 	if !path.IsAbs(inpath) {
 		inpath = helpers.AbsPathify(inpath)
 	}
 	jww.INFO.Println("creating", inpath)
-	helpers.WriteToDisk(inpath, bytes.NewReader(by))
+
+	if safe {
+		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by))
+	} else {
+		err = helpers.WriteToDisk(inpath, bytes.NewReader(by))
+	}
+	if err != nil {
+		return
+	}
 	return nil
 }
 
-func (page *Page) SaveSource() {
-	page.SaveSourceAs(page.FullFilePath())
+func (page *Page) SaveSource() error {
+	return page.SaveSourceAs(page.FullFilePath())
 }
 
 func (p *Page) ProcessShortcodes(t Template) {
