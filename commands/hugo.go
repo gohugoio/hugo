@@ -62,6 +62,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(check)
 	HugoCmd.AddCommand(benchmark)
 	HugoCmd.AddCommand(convertCmd)
+	HugoCmd.AddCommand(newCmd)
 }
 
 func init() {
@@ -92,10 +93,12 @@ func InitializeConfig() {
 
 	viper.RegisterAlias("taxonomies", "indexes")
 
+	viper.SetDefault("MetadataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("ContentDir", "content")
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("StaticDir", "static")
+	viper.SetDefault("ArchetypeDir", "archetypes")
 	viper.SetDefault("PublishDir", "public")
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)

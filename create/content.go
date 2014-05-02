@@ -1,0 +1,128 @@
+// Copyright © 2014 Steve Francia <spf@spf13.com>.
+//
+// Licensed under the Simple Public License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://opensource.org/licenses/Simple-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package create
+
+import (
+	"bytes"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
+	"time"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugolib"
+	"github.com/spf13/hugo/parser"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
+)
+
+func NewContent(kind, name string) (err error) {
+	jww.INFO.Println("attempting to create", name, "of", kind)
+
+	location := FindArchetype(kind)
+
+	var by []byte
+
+	if location != "" {
+		by, err = ioutil.ReadFile(location)
+		if err != nil {
+			jww.ERROR.Println(err)
+		}
+	}
+	if location == "" || err != nil {
+		by = []byte("+++\n title = \"title\"\n draft = true \n+++\n")
+	}
+
+	psr, err := parser.ReadFrom(bytes.NewReader(by))
+	if err != nil {
+		return err
+	}
+	metadata, err := psr.Metadata()
+	if err != nil {
+		return err
+	}
+	newmetadata, err := cast.ToStringMapE(metadata)
+	if err != nil {
+		return err
+	}
+
+	for k, _ := range newmetadata {
+		switch strings.ToLower(k) {
+		case "date":
+			newmetadata[k] = time.Now()
+		case "title":
+			newmetadata[k] = helpers.MakeTitle(helpers.Filename(name))
+		}
+	}
+
+	caseimatch := func(m map[string]interface{}, key string) bool {
+		for k, _ := range m {
+			if strings.ToLower(k) == strings.ToLower(key) {
+				return true
+			}
+		}
+		return false
+	}
+
+	if !caseimatch(newmetadata, "date") {
+		newmetadata["date"] = time.Now()
+	}
+
+	if !caseimatch(newmetadata, "title") {
+		newmetadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+	}
+
+	page, err := hugolib.NewPage(name)
+	if err != nil {
+		return err
+	}
+
+	page.Dir = viper.GetString("sourceDir")
+	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat")))
+
+	if err = page.SafeSaveSourceAs(path.Join(viper.GetString("contentDir"), name)); err != nil {
+		return
+	}
+	jww.FEEDBACK.Println(helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)), "created")
+
+	return nil
+}
+
+func FindArchetype(kind string) (outpath string) {
+	search := []string{helpers.AbsPathify(viper.GetString("archetypeDir"))}
+
+	if viper.GetString("theme") != "" {
+		themeDir := path.Join(helpers.AbsPathify("themes/"+viper.GetString("theme")), "/archetypes/")
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Println("Unable to find archetypes directory for theme :", viper.GetString("theme"), "in", themeDir)
+		} else {
+			search = append(search, themeDir)
+		}
+	}
+
+	for _, x := range search {
+		pathsToCheck := []string{kind + ".md", kind, "default.md", "default"}
+		for _, p := range pathsToCheck {
+			curpath := path.Join(x, p)
+			jww.DEBUG.Println("checking", curpath, "for archetypes")
+			if exists, _ := helpers.Exists(curpath); exists {
+				return curpath
+			}
+		}
+	}
+
+	return ""
+}
