@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"launchpad.net/goyaml"
@@ -84,6 +85,20 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 	default:
 		return nil, fmt.Errorf("Unsupported Format provided")
 	}
+}
+
+func FormatToLeadRune(kind string) rune {
+	switch strings.ToLower(kind) {
+	case "yaml":
+		return rune([]byte(YAML_LEAD)[0])
+	case "toml":
+		return rune([]byte(TOML_LEAD)[0])
+	case "json":
+		return rune([]byte(JSON_LEAD)[0])
+	default:
+		return rune([]byte(TOML_LEAD)[0])
+	}
+
 }
 
 func DetectFrontMatter(mark rune) (f *FrontmatterType) {
