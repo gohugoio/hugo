@@ -7,13 +7,18 @@ menu:
     parent: 'extras'
 ---
 
-Hugo provides the ability for you to highlight source code from within your
-content. Highlighting is performed by an external python based program called
-[pygments](http://pygments.org) and is triggered via an embedded shortcode. If pygments is absent from
-the path, it will silently simply pass the content along unhighlighted.
+Hugo provides the ability for you to highlight source code in two different
+ways &mdash; either pre-processed server side from your content, or to defer the
+processing to the client side, using a JavaScript library.
 
+For the pre-processed approach, Highlighting is performed by an external
+python based program called [pygments](http://pygments.org) and is triggered
+via an embedded shortcode. If pygments is absent from the path, it will
+silently simply pass the content along unhighlighted.
 
-## Disclaimers
+## Server Side
+
+### Disclaimers
 
  * **Warning** pygments is relatively slow and our integration isn't
 speed optimized. Expect much longer build times when using highlighting
@@ -58,3 +63,34 @@ closing shortcode.
 <span style="color: #f92672">&lt;/section&gt;</span>
 {{% /highlight %}}
 
+## Client-side
+
+Alternatively, code highlighting can be done in client-side JavaScript.
+
+Client-side syntax highlighting is very simple to add. You'll need to pick
+a library and a corresponding theme. Some popular libraries are:
+
+- [Rainbow]
+- [Syntax Highlighter]
+- [Google Prettify]
+- [Highlight.js]
+
+This example uses the popular [Highlight.js] library, hosted by [Yandex], a
+popular Russian search engine.
+
+In your `./layouts/chrome/` folder, depending on your specific theme, there
+will be a snippet that will be included in every generated HTML page, such
+as `header.html` or `header.includes.html`. Simply add:
+
+{{% highlight html %}}
+  <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
+  <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+{{% /highlight %}}
+
+You can of course use your own copy of these files, typically in `./static/`.
+
+[Rainbow]: http://craig.is/making/rainbows
+[Syntax Highlighter]: http://alexgorbatchev.com/SyntaxHighlighter/
+[Google Prettify]: https://code.google.com/p/google-code-prettify/
+[Yandex]: http://yandex.ru/
+[Highlight.js]: http://highlightjs.org/
