@@ -109,6 +109,7 @@ func InitializeConfig() {
 	viper.SetDefault("CanonifyUrls", false)
 	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
+	viper.SetDefault("Sitemap", hugolib.Sitemap{"", -1})
 
 	if hugoCmdV.PersistentFlags().Lookup("build-drafts").Changed {
 		viper.Set("BuildDrafts", Draft)
