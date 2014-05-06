@@ -28,6 +28,7 @@ type Node struct {
 	Keywords    []string
 	Params      map[string]interface{}
 	Date        time.Time
+	Sitemap     Sitemap
 	UrlPath
 }
 

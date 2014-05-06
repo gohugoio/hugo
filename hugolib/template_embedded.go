@@ -65,6 +65,17 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
   </channel>
 </rss>`)
 
+	t.AddInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {{ range .Data.Pages }}
+  <url>
+    <loc>{{ .Permalink }}</loc>
+    <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
+    <changefreq>{{ . }}</changefreq>{{ end }}{{ with .Sitemap.Priority }}
+    <priority>{{ . }}</priority>{{ end }}
+  </url>
+  {{ end }}
+</urlset>`)
+
 	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = '{{ .Site.DisqusShortname }}';
