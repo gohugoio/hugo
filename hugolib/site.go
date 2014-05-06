@@ -220,6 +220,10 @@ func (s *Site) Render() (err error) {
 		return
 	}
 	s.timerStep("render and write homepage")
+	if err = s.RenderSitemap(); err != nil {
+		return
+	}
+	s.timerStep("render and write Sitemap")
 	return
 }
 
@@ -735,6 +739,36 @@ func (s *Site) RenderHomePage() error {
 
 		layouts := []string{"404.html"}
 		return s.render(n, "404.html", s.appendThemeTemplates(layouts)...)
+	}
+
+	return nil
+}
+
+func (s *Site) RenderSitemap() error {
+	if viper.GetBool("DisableSitemap") {
+		return nil
+	}
+
+	optChanged := false
+
+	n := s.NewNode()
+	n.Data["Pages"] = s.Pages
+
+	// Force `UglyUrls` option to force `sitemap.xml` file name
+	switch s.Target.(type) {
+	case *target.Filesystem:
+		s.Target.(*target.Filesystem).UglyUrls = true
+		optChanged = true
+	}
+
+	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
+	err := s.render(n, "sitemap.xml", s.appendThemeTemplates(smLayouts)...)
+	if err != nil {
+		return err
+	}
+
+	if optChanged {
+		s.Target.(*target.Filesystem).UglyUrls = viper.GetBool("UglyUrls")
 	}
 
 	return nil
