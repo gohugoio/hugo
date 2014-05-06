@@ -749,10 +749,33 @@ func (s *Site) RenderSitemap() error {
 		return nil
 	}
 
+	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
+
 	optChanged := false
 
 	n := s.NewNode()
-	n.Data["Pages"] = s.Pages
+
+	// Prepend homepage to the list of pages
+	pages := make(Pages, 0)
+
+	page := &Page{}
+	page.Site = s.Info
+	page.Url = "/"
+
+	pages = append(pages, page)
+	pages = append(pages, s.Pages...)
+
+	n.Data["Pages"] = pages
+
+	for _, page := range pages {
+		if page.Sitemap.ChangeFreq == "" {
+			page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
+		}
+
+		if page.Sitemap.Priority == -1 {
+			page.Sitemap.Priority = sitemapDefault.Priority
+		}
+	}
 
 	// Force `UglyUrls` option to force `sitemap.xml` file name
 	switch s.Target.(type) {

@@ -141,7 +141,7 @@ func renderBytes(content []byte, pagefmt string) []byte {
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		File:   File{FileName: filename, Extension: "html"},
-		Node:   Node{Keywords: []string{}},
+		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params: make(map[string]interface{})}
 
 	jww.DEBUG.Println("Reading from", page.File.FileName)
@@ -342,6 +342,8 @@ func (page *Page) update(f interface{}) error {
 			}
 		case "status":
 			page.Status = cast.ToString(v)
+		case "sitemap":
+			page.Sitemap = parseSitemap(cast.ToStringMap(v))
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
