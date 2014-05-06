@@ -49,7 +49,7 @@ of the following paths:
 ## Running Hugo
 
     cd /path/to/hugo
-    go install github.com/spf13/hugo/hugolibs
+    go install github.com/spf13/hugo/hugo
     go run main.go
 
 ## Building Hugo
