@@ -73,6 +73,8 @@ type PageMeta struct {
 type Position struct {
 	Prev *Page
 	Next *Page
+	PrevInSection *Page
+	NextInSection *Page
 }
 
 type Pages []*Page

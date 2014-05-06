@@ -7,6 +7,9 @@ menu:
   right:
     parent: 'meta'
 ---
+## Next release
+  * Added section Prev/Next pointers.
+
 ## **0.10.0** March 1, 2014
   * [Syntax highlighting](/extras/highlighting) powered by pygments (**slow**)
   * Ability to [sort content](/content/ordering) many more ways
