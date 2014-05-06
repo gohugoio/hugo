@@ -194,6 +194,7 @@ func layouts(types string, layout string) (layouts []string) {
 		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
 	}
 	layouts = append(layouts, fmt.Sprintf("%s.html", layout))
+	layouts = append(layouts, fmt.Sprintf("_default/%s.html", layout))
 	return
 }
 
