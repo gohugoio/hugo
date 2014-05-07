@@ -18,13 +18,13 @@ the path, it will silently simply pass the content along unhighlighted.
  * **Warning** pygments is relatively slow and our integration isn't
 speed optimized. Expect much longer build times when using highlighting
  * Languages available depends on your pygments installation.
- * While pygments supports a few different output formats and options we currently
-only support output=html, style=monokai, noclasses=true, and encoding=utf-8.
  * Styles are inline in order to be supported in syndicated content when references
 to style sheets are not carried over.
  * We have sought to have the simplest interface possible, which consequently
 limits configuration. An ambitious user is encouraged to extend the current
 functionality to offer more customization.
+* You can change appearance with config options `pygmentsstyle`(default
+`"monokai"`) and `pygmentsuseclasses`(defaut `false`).
 
 ## Usage
 Highlight takes exactly one required parameter of language and requires a

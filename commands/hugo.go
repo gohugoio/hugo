@@ -107,6 +107,8 @@ func InitializeConfig() {
 	viper.SetDefault("CanonifyUrls", false)
 	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
+	viper.SetDefault("PygmentsStyle", "monokai")
+	viper.SetDefault("PygmentsUseClasses", false)
 
 	if hugoCmdV.PersistentFlags().Lookup("build-drafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -127,7 +129,6 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("logfile").Changed {
 		viper.Set("LogFile", LogFile)
 	}
-
 	if BaseUrl != "" {
 		if !strings.HasSuffix(BaseUrl, "/") {
 			BaseUrl = BaseUrl + "/"
