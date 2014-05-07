@@ -15,10 +15,12 @@ package helpers
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"strings"
 
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 func Highlight(code string, lexer string) string {
@@ -32,8 +34,15 @@ func Highlight(code string, lexer string) string {
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
+	style := viper.GetString("PygmentsStyle")
 
-	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O style=monokai,noclasses=true,encoding=utf-8")
+	noclasses := "true"
+	if viper.GetBool("PygmentsUseClasses") {
+		noclasses = "false"
+	}
+
+	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O",
+		fmt.Sprintf("style=%s,noclasses=%s,encoding=utf8", style, noclasses))
 	cmd.Stdin = strings.NewReader(code)
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
