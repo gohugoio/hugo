@@ -29,6 +29,47 @@ type FrontmatterType struct {
 	includeMark        bool
 }
 
+func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
+	if in == nil {
+		return []byte{}, fmt.Errorf("input was nil")
+	}
+
+	b := new(bytes.Buffer)
+
+	switch mark {
+	case rune(YAML_LEAD[0]):
+		by, err := goyaml.Marshal(in)
+		if err != nil {
+			return nil, err
+		}
+		b.Write(by)
+		_, err = b.Write([]byte("..."))
+		if err != nil {
+			return nil, err
+		}
+		return b.Bytes(), nil
+	case rune(TOML_LEAD[0]):
+		err := toml.NewEncoder(b).Encode(in)
+		if err != nil {
+			return nil, err
+		}
+		return b.Bytes(), nil
+	case rune(JSON_LEAD[0]):
+		by, err := json.MarshalIndent(in, "", "   ")
+		if err != nil {
+			return nil, err
+		}
+		b.Write(by)
+		_, err = b.Write([]byte("\n"))
+		if err != nil {
+			return nil, err
+		}
+		return b.Bytes(), nil
+	default:
+		return nil, fmt.Errorf("Unsupported Format provided")
+	}
+}
+
 func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 	if in == nil {
 		return []byte{}, fmt.Errorf("input was nil")
@@ -60,8 +101,6 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 
 		err = toml.NewEncoder(b).Encode(in)
 		if err != nil {
-			fmt.Println("toml encoder failed", in)
-			fmt.Println(err)
 			return nil, err
 		}
 		_, err = b.Write([]byte("\n" + TOML_DELIM_UNIX))
@@ -72,8 +111,6 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 	case rune(JSON_LEAD[0]):
 		by, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
-			fmt.Println("json encoder failed", in)
-			fmt.Println(err)
 			return nil, err
 		}
 		b.Write(by)
@@ -88,7 +125,7 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 }
 
 func FormatToLeadRune(kind string) rune {
-	switch strings.ToLower(kind) {
+	switch FormatSanitize(kind) {
 	case "yaml":
 		return rune([]byte(YAML_LEAD)[0])
 	case "toml":
@@ -98,7 +135,19 @@ func FormatToLeadRune(kind string) rune {
 	default:
 		return rune([]byte(TOML_LEAD)[0])
 	}
+}
 
+func FormatSanitize(kind string) string {
+	switch strings.ToLower(kind) {
+	case "yaml", "yml":
+		return "yaml"
+	case "toml", "tml":
+		return "toml"
+	case "json", "js":
+		return "json"
+	default:
+		return "toml"
+	}
 }
 
 func DetectFrontMatter(mark rune) (f *FrontmatterType) {

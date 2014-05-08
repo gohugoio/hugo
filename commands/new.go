@@ -12,12 +12,16 @@
 package commands
 
 import (
-	"fmt"
+	"bytes"
+	"os"
+	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -28,10 +32,10 @@ var contentFormat string
 var contentFrontMatter string
 
 func init() {
-	//newSiteCmd.Flags().StringVarP(&siteType, "type", "t", "blog", "What type of site to new")
-	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "yaml", "Config file format")
+	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
 	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
 	newCmd.AddCommand(newSiteCmd)
+	newCmd.AddCommand(newThemeCmd)
 }
 
 var newCmd = &cobra.Command{
@@ -45,10 +49,32 @@ If archetypes are provided in your theme or site, they will be used.
 	Run: NewContent,
 }
 
+var newSiteCmd = &cobra.Command{
+	Use:   "site [path]",
+	Short: "Create a new site (skeleton)",
+	Long: `Create a new site in the provided directory.
+The new site will have the correct structure, but no content or theme yet.
+Use 'hugo new [contentPath]' to create new content.
+	`,
+	Run: NewSite,
+}
+
+var newThemeCmd = &cobra.Command{
+	Use:   "theme [name]",
+	Short: "Create a new theme",
+	Long: `Create a new theme (skeleton) called [name] in the current directory.
+New theme is a skeleton. Please add content to the touched files. Add your
+name to the copyright line in the license and adjust the theme.toml file
+as you see fit.
+	`,
+	Run: NewTheme,
+}
+
 func NewContent(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
 	if len(args) < 1 {
+		cmd.Usage()
 		jww.FATAL.Fatalln("path needs to be provided")
 	}
 
@@ -71,16 +97,146 @@ func NewContent(cmd *cobra.Command, args []string) {
 	}
 }
 
-var newSiteCmd = &cobra.Command{
-	Use:   "site [type]",
-	Short: "Create a new site of [type]",
-	Long:  `Create a new site as a (blog, project, etc)`,
-	Run:   NewSite,
+func NewSite(cmd *cobra.Command, args []string) {
+	if len(args) < 1 {
+		cmd.Usage()
+		jww.FATAL.Fatalln("path needs to be provided")
+	}
+
+	createpath, err := filepath.Abs(filepath.Clean(args[0]))
+	if err != nil {
+		cmd.Usage()
+		jww.FATAL.Fatalln(err)
+	}
+
+	if x, _ := helpers.Exists(createpath); x {
+		jww.FATAL.Fatalln(createpath, "already exists")
+	}
+
+	mkdir(createpath, "layouts")
+	mkdir(createpath, "content")
+	mkdir(createpath, "archetypes")
+	mkdir(createpath, "static")
+
+	createConfig(createpath, configFormat)
 }
 
-func NewSite(cmd *cobra.Command, args []string) {
+func NewTheme(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
-	fmt.Println("new site called")
-	fmt.Println(args)
+	if len(args) < 1 {
+		cmd.Usage()
+		jww.FATAL.Fatalln("theme name needs to be provided")
+	}
+
+	createpath := helpers.AbsPathify(path.Join("themes", args[0]))
+	jww.INFO.Println("creating theme at", createpath)
+
+	if x, _ := helpers.Exists(createpath); x {
+		jww.FATAL.Fatalln(createpath, "already exists")
+	}
+
+	mkdir(createpath, "layouts", "_default")
+	mkdir(createpath, "layouts", "chrome")
+
+	touchFile(createpath, "layouts", "index.html")
+	touchFile(createpath, "layouts", "_default", "list.html")
+	touchFile(createpath, "layouts", "_default", "single.html")
+
+	touchFile(createpath, "layouts", "chrome", "header.html")
+	touchFile(createpath, "layouts", "chrome", "footer.html")
+
+	mkdir(createpath, "archetypes")
+	touchFile(createpath, "archetypes", "default.md")
+
+	mkdir(createpath, "static", "js")
+	mkdir(createpath, "static", "css")
+
+	by := []byte(`The MIT License (MIT)
+
+Copyright (c) 2014 YOUR_NAME_HERE
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+`)
+
+	err := helpers.WriteToDisk(path.Join(createpath, "LICENSE.md"), bytes.NewReader(by))
+	if err != nil {
+		jww.FATAL.Fatalln(err)
+	}
+
+	createThemeMD(createpath)
+}
+
+func mkdir(x ...string) {
+	p := path.Join(x...)
+
+	err := os.MkdirAll(p, 0777) // rwx, rw, r
+	if err != nil {
+		jww.FATAL.Fatalln(err)
+	}
+}
+
+func touchFile(x ...string) {
+	inpath := path.Join(x...)
+	mkdir(filepath.Dir(inpath))
+	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}))
+	if err != nil {
+		jww.FATAL.Fatalln(err)
+	}
+}
+
+func createThemeMD(inpath string) (err error) {
+
+	in := map[string]interface{}{
+		"name":        helpers.MakeTitle(filepath.Base(inpath)),
+		"license":     "MIT",
+		"source_repo": "",
+		"author":      "",
+		"description": "",
+		"tags":        []string{"", ""},
+	}
+
+	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune("toml"))
+	if err != nil {
+		return err
+	}
+
+	err = helpers.WriteToDisk(path.Join(inpath, "theme.toml"), bytes.NewReader(by))
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
+func createConfig(inpath string, kind string) (err error) {
+	in := map[string]string{"baseurl": "http://yourSiteHere", "title": "my new hugo site", "languageCode": "en-us"}
+	kind = parser.FormatSanitize(kind)
+
+	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))
+	if err != nil {
+		return err
+	}
+
+	err = helpers.WriteToDisk(path.Join(inpath, "config."+kind), bytes.NewReader(by))
+	if err != nil {
+		return
+	}
+
+	return nil
 }
