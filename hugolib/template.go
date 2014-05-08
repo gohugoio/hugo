@@ -16,7 +16,35 @@ import (
 	"github.com/spf13/hugo/helpers"
 )
 
-func Gt(a interface{}, b interface{}) bool {
+func Eq(x, y interface{}) bool {
+	return reflect.DeepEqual(x, y)
+}
+
+func Ne(x, y interface{}) bool {
+	return !Eq(x, y)
+}
+
+func Ge(a, b interface{}) bool {
+	left, right := compareGetInt(a, b)
+	return left >= right
+}
+
+func Gt(a, b interface{}) bool {
+	left, right := compareGetInt(a, b)
+	return left > right
+}
+
+func Le(a, b interface{}) bool {
+	left, right := compareGetInt(a, b)
+	return left <= right
+}
+
+func Lt(a, b interface{}) bool {
+	left, right := compareGetInt(a, b)
+	return left < right
+}
+
+func compareGetInt(a interface{}, b interface{}) (int64, int64) {
 	var left, right int64
 	av := reflect.ValueOf(a)
 
@@ -40,7 +68,7 @@ func Gt(a interface{}, b interface{}) bool {
 		right, _ = strconv.ParseInt(bv.String(), 10, 64)
 	}
 
-	return left > right
+	return left, right
 }
 
 // First is exposed to templates, to iterate over the first N items in a
@@ -163,7 +191,12 @@ func NewTemplate() Template {
 	funcMap := template.FuncMap{
 		"urlize":      helpers.Urlize,
 		"sanitizeurl": helpers.SanitizeUrl,
+		"eq":          Eq,
+		"ne":          Ne,
 		"gt":          Gt,
+		"ge":          Ge,
+		"lt":          Lt,
+		"le":          Le,
 		"isset":       IsSet,
 		"echoParam":   ReturnWhenSet,
 		"safeHtml":    SafeHtml,
