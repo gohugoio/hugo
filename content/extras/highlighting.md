@@ -8,8 +8,12 @@ menu:
 ---
 
 Hugo provides the ability for you to highlight source code in two different
-ways &mdash; either pre-processed server side from your content, or to defer the
-processing to the client side, using a JavaScript library.
+ways &mdash; either pre-processed server side from your content, or to defer
+the processing to the client side, using a JavaScript library. The advantage of
+server side is that it doesn’t depend on a JavaScript library and consequently
+works very well when read from an rss feed. The advantage of client side is that
+it doesn’t cost anything when building your site and some of the highlighting 
+scripts available cover more languages than pygments does.
 
 For the pre-processed approach, Highlighting is performed by an external
 python based program called [pygments](http://pygments.org) and is triggered
@@ -21,7 +25,7 @@ silently simply pass the content along unhighlighted.
 ### Disclaimers
 
  * **Warning** pygments is relatively slow and our integration isn't
-speed optimized. Expect much longer build times when using highlighting
+as optimized as it could be. Expect much longer build times when using server side highlighting.
  * Languages available depends on your pygments installation.
  * While pygments supports a few different output formats and options we currently
 only support output=html, style=monokai, noclasses=true, and encoding=utf-8.
@@ -31,11 +35,11 @@ to style sheets are not carried over.
 limits configuration. An ambitious user is encouraged to extend the current
 functionality to offer more customization.
 
-## Usage
+### Usage
 Highlight takes exactly one required parameter of language and requires a
 closing shortcode.
 
-## Example
+### Example
 {{% highlight html %}}
     {{&#37; highlight html %}}
     <section id="main">
@@ -50,7 +54,7 @@ closing shortcode.
 {{% /highlight %}}
 
 
-## Example Output
+### Example Output
 
 {{% highlight html %}}
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
@@ -94,3 +98,5 @@ You can of course use your own copy of these files, typically in `./static/`.
 [Google Prettify]: https://code.google.com/p/google-code-prettify/
 [Yandex]: http://yandex.ru/
 [Highlight.js]: http://highlightjs.org/
+
+Please see individual libraries documentation for how to implement the JavaScript based libraries.
