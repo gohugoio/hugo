@@ -79,11 +79,7 @@ func server(cmd *cobra.Command, args []string) {
 func serve(port int) {
 	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
 
-	if BaseUrl == "" {
-		jww.FEEDBACK.Printf("Web Server is available at %s\n", viper.GetString("BaseUrl"))
-	} else {
-		jww.FEEDBACK.Printf("Web Server is available at http://localhost:%v\n", port)
-	}
+	jww.FEEDBACK.Printf("Web Server is available at %s\n", viper.GetString("BaseUrl"))
 
 	fmt.Println("Press ctrl+c to stop")
 
