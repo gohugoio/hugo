@@ -759,6 +759,7 @@ func (s *Site) RenderSitemap() error {
 	pages := make(Pages, 0)
 
 	page := &Page{}
+	page.Date = s.Info.LastChange
 	page.Site = s.Info
 	page.Url = "/"
 
