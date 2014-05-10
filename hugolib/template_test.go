@@ -16,6 +16,8 @@ func TestGt(t *testing.T) {
 		{5, 5, false},
 		{-2, 1, false},
 		{2, -5, true},
+		{0.0, 1.23, false},
+		{1.23, 0.0, true},
 		{"8", "5", true},
 		{"5", "0001", true},
 		{[]int{100, 99}, []int{1, 2, 3, 4}, false},
