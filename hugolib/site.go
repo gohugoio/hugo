@@ -265,9 +265,9 @@ func (s *Site) initializeSiteInfo() {
 		params = make(map[string]interface{})
 	}
 
-	permalinks, ok := viper.Get("Permalinks").(PermalinkOverrides)
-	if !ok {
-		permalinks = make(PermalinkOverrides)
+	permalinks := make(PermalinkOverrides)
+	for k, v := range viper.GetStringMapString("Permalinks") {
+		permalinks[k] = PathPattern(v)
 	}
 
 	s.Info = SiteInfo{

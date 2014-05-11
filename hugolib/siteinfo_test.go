@@ -30,3 +30,15 @@ func TestSiteInfoParams(t *testing.T) {
 		t.Errorf("Expected FOOBAR_PARAM: got %s", buf.String())
 	}
 }
+
+func TestSiteInfoPermalinks (t *testing.T) {
+	viper.Set("Permalinks", map[string]interface{}{"section": "/:title"})
+	s := &Site{}
+
+	s.initialize()
+	permalink := s.Info.Permalinks["section"]
+
+	if permalink != "/:title" {
+		t.Errorf("Could not set permalink (%#v)", permalink)
+	}
+}
