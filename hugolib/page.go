@@ -570,6 +570,7 @@ func (page *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
 	if err != nil {
 		return err
 	}
+	by = append(by, '\n')
 
 	page.sourceFrontmatter = by
 
