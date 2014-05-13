@@ -565,6 +565,9 @@ func (s *Site) RenderPages() (err error) {
 				layouts = append(layouts, p.Layout()...)
 				layouts = append(layouts, "_default/single.html")
 			}
+			// Page is a node, which has Site info passed as value
+			// hence we need to refresh it before rendering
+			p.Site = s.Info
 
 			return s.render(p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
 		}(page)
