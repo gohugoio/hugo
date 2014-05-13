@@ -703,7 +703,7 @@ func (s *Site) RenderHomePage() error {
 	n.Title = n.Site.Title
 	s.setUrls(n, "/")
 	n.Data["Pages"] = s.Pages
-	layouts := []string{"index.html"}
+	layouts := []string{"index.html", "_default/list.html", "_default/single.html"}
 	err := s.render(n, "/", s.appendThemeTemplates(layouts)...)
 	if err != nil {
 		return err
