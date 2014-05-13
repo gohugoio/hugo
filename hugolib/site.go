@@ -76,6 +76,7 @@ type SiteInfo struct {
 	BaseUrl         template.URL
 	Taxonomies      TaxonomyList
 	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
+	Sections        Taxonomy
 	Recent          *Pages
 	Menus           *Menus
 	Title           string
@@ -495,6 +496,7 @@ func (s *Site) assembleTaxonomies() {
 
 	s.Info.Taxonomies = s.Taxonomies
 	s.Info.Indexes = &s.Taxonomies
+	s.Info.Sections = s.Sections
 }
 
 func (s *Site) assembleSections() {
