@@ -215,6 +215,7 @@ func NewTemplate() Template {
 		"lower":       func(a string) string { return strings.ToLower(a) },
 		"upper":       func(a string) string { return strings.ToUpper(a) },
 		"title":       func(a string) string { return strings.Title(a) },
+		"colorize16":  helpers.Colorize16,
 	}
 
 	templates.Funcs(funcMap)
