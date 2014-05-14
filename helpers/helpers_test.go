@@ -74,3 +74,22 @@ func TestUrlize(t *testing.T) {
 		}
 	}
 }
+
+func TestColorize16(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"01", "#16a085"},
+		{"16", "#f39c12"},
+		{"16", "#f39c12"},
+		{"22", "#f1c40f"},
+	}
+
+	for _, test := range tests {
+		output := Colorize16(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
