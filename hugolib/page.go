@@ -405,7 +405,7 @@ func (page *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 	if m, ok := menus[menu]; ok {
 		if me.HasChildren() {
 			for _, child := range me.Children {
-				if child.Name == m.Name {
+				if child.IsEqual(m) {
 					return true
 				}
 			}
@@ -416,11 +416,11 @@ func (page *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 
 }
 
-func (page *Page) IsMenuCurrent(menu string, name string) bool {
+func (page *Page) IsMenuCurrent(menu string, inme *MenuEntry) bool {
 	menus := page.Menus()
 
 	if me, ok := menus[menu]; ok {
-		return me.Name == name
+		return me.IsEqual(inme)
 	}
 
 	return false

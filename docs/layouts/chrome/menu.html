@@ -20,7 +20,7 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{.Name}} <b class="caret"></b></a>
             <ul class="dropdown-menu">
             {{ range .Children }}
-                <li{{if $currentNode.IsMenuCurrent "main" .Name}} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
+                <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
             {{ end }}
             </ul>
           {{else}}
@@ -39,7 +39,7 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{.Name}} <b class="caret"></b></a>
             <ul class="dropdown-menu">
             {{ range .Children }}
-                <li{{if $currentNode.IsMenuCurrent $menu .Name}} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
+                <li{{if $currentNode.IsMenuCurrent $menu . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
             {{ end }}
             </ul>
           {{else}}

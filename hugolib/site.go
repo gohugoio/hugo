@@ -419,14 +419,17 @@ func (s *Site) assembleMenus() {
 	menuConfig := s.getMenusFromConfig()
 	for name, menu := range menuConfig {
 		for _, me := range *menu {
-			flat[twoD{name, me.Name}] = me
+			flat[twoD{name, me.KeyName()}] = me
 		}
 	}
 
 	//creating flat hash
 	for _, p := range s.Pages {
 		for name, me := range p.Menus() {
-			flat[twoD{name, me.Name}] = me
+			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
+				jww.ERROR.Printf("Two or more menu items have the same name/identifier in %q Menu. Identified as %q.\n Rename or set a unique identifier. \n", name, me.KeyName())
+			}
+			flat[twoD{name, me.KeyName()}] = me
 		}
 	}
 
