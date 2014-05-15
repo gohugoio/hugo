@@ -6,6 +6,7 @@ aliases: ["/indexes/ordering/"]
 weight: 60
 menu:
   main:
+    identifier: "Ordering Taxonomies"
     parent: 'taxonomy'
 ---
 
@@ -20,25 +21,21 @@ Indexes can be ordered by either alphabetical key or by the number of content pi
 
 ### Order Alphabetically Example:
 
-{{% highlight html %}}
-<ul>
-{{ $data := .Data }}
-{{ range $key, $value := .Data.Index.Alphabetical }}
-<li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-{{ end }}
-</ul>
-{{% /highlight %}}
+    <ul>
+    {{ $data := .Data }}
+    {{ range $key, $value := .Data.Index.Alphabetical }}
+    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ end }}
+    </ul>
 
 ### Order by Popularity Example:
 
-{{% highlight html %}}
-<ul>
-{{ $data := .Data }}
-{{ range $key, $value := .Data.Index.ByCount }}
-<li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-{{ end }}
-</ul>
-{{% /highlight %}}
+    <ul>
+    {{ $data := .Data }}
+    {{ range $key, $value := .Data.Index.ByCount }}
+    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ end }}
+    </ul>
 
 
 [See Also Index Lists](/indexes/lists/)

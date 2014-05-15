@@ -38,15 +38,13 @@ pluralization.
 
 ### config.yaml
 
-{{% highlight yaml %}}
----
-indexes:
-    tag: "tags"
-    category: "categories"
-baseurl: "http://spf13.com/"
-title: "Steve Francia is spf13.com"
----
-{{% /highlight %}}
+    ---
+    indexes:
+        tag: "tags"
+        category: "categories"
+    baseurl: "http://spf13.com/"
+    title: "Steve Francia is spf13.com"
+    ---
 
 ## Assigning index values to content
 
@@ -61,20 +59,18 @@ and assign all keys you want this content to match against.
 
 ### Example
 
-{{% highlight json %}}
-{
-    "title": "Hugo: A fast and flexible static site generator",
-    "tags": [
-        "Development",
-        "Go",
-        "fast",
-        "Blogging"
-    ],
-    "categories" : [
-        "Development"
-    ]
-    "slug": "hugo",
-    "project_url": "http://github.com/spf13/hugo"
-}
-{{% /highlight %}}
+    {
+        "title": "Hugo: A fast and flexible static site generator",
+        "tags": [
+            "Development",
+            "Go",
+            "fast",
+            "Blogging"
+        ],
+        "categories" : [
+            "Development"
+        ]
+        "slug": "hugo",
+        "project_url": "http://github.com/spf13/hugo"
+    }
 

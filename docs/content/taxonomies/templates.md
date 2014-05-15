@@ -41,18 +41,16 @@ The following variables are available to the index template:
 **.Data.`singular`** The index itself.<br>
 
 ## Example
-{{% highlight html %}}
-{{ template "chrome/header.html" . }}
-{{ template "chrome/subheader.html" . }}
+    {{ template "chrome/header.html" . }}
+    {{ template "chrome/subheader.html" . }}
 
-<section id="main">
-  <div>
-   <h1 id="title">{{ .Title }}</h1>
-    {{ range .Data.Pages }}
-        {{ .Render "summary"}}
-    {{ end }}
-  </div>
-</section>
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+        {{ range .Data.Pages }}
+            {{ .Render "summary"}}
+        {{ end }}
+      </div>
+    </section>
 
-{{ template "chrome/footer.html" }}
-{{% /highlight %}}
+    {{ template "chrome/footer.html" }}
