@@ -26,44 +26,40 @@ number of content assigned to that key or alphabetically.
 
 ## Example indexes.html file (alphabetical)
 
-{{% highlight html %}}
-{{ template "chrome/header.html" . }}
-{{ template "chrome/subheader.html" . }}
+    {{ template "chrome/header.html" . }}
+    {{ template "chrome/subheader.html" . }}
 
-<section id="main">
-  <div>
-   <h1 id="title">{{ .Title }}</h1>
-   <ul>
-   {{ $data := .Data }}
-    {{ range $key, $value := .Data.Index.Alphabetical }}
-    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-    {{ end }}
-   </ul>
-  </div>
-</section>
-{{ template "chrome/footer.html" }}
-{{% /highlight %}}
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+       <ul>
+       {{ $data := .Data }}
+        {{ range $key, $value := .Data.Index.Alphabetical }}
+        <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+        {{ end }}
+       </ul>
+      </div>
+    </section>
+    {{ template "chrome/footer.html" }}
 
 ## Example indexes.html file (ordered)
 
-{{% highlight html %}}
-{{ template "chrome/header.html" . }}
-{{ template "chrome/subheader.html" . }}
+    {{ template "chrome/header.html" . }}
+    {{ template "chrome/subheader.html" . }}
 
-<section id="main">
-  <div>
-   <h1 id="title">{{ .Title }}</h1>
-   <ul>
-   {{ $data := .Data }}
-    {{ range $key, $value := .Data.Index.ByCount }}
-    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-    {{ end }}
-   </ul>
-  </div>
-</section>
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+       <ul>
+       {{ $data := .Data }}
+        {{ range $key, $value := .Data.Index.ByCount }}
+        <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+        {{ end }}
+       </ul>
+      </div>
+    </section>
 
-{{ template "chrome/footer.html" }}
-{{% /highlight %}}
+    {{ template "chrome/footer.html" }}
 
 ## Variables available to list of indexes pages.
 

@@ -21,13 +21,11 @@ each content piece are located in the usual place
 
 ### Example
 
-{{% highlight html %}}
-<ul id="tags">
-  {{ range .Params.tags }}
-    <li><a href="tags/{{ . | urlize }}">{{ . }}</a> </li>
-  {{ end }}
-</ul>
-{{% /highlight %}}
+    <ul id="tags">
+      {{ range .Params.tags }}
+        <li><a href="tags/{{ . | urlize }}">{{ . }}</a> </li>
+      {{ end }}
+    </ul>
 
 ## Rendering a Site's Indexes
 
@@ -40,13 +38,11 @@ The following example displays all tag keys:
 
 ### Example
 
-{{% highlight html %}}
-<ul id="all-tags">
-  {{ range .Site.Indexes.tags }}
-    <li><a href="/tags/{{ .Name | urlize }}">{{ .Name }}</a></li>  
-  {{ end }}
-</ul>
-{{% /highlight %}}
+    <ul id="all-tags">
+      {{ range .Site.Indexes.tags }}
+        <li><a href="/tags/{{ .Name | urlize }}">{{ .Name }}</a></li>  
+      {{ end }}
+    </ul>
 
 ## Creating a menu based on indexes
 
@@ -63,60 +59,54 @@ called menu.html, then include it using the
 ### Example complete menu.html file
 This example will list all indexes, each of their keys and all the content assigned to each key.
 
-{{% highlight html %}}
-<section id="menu">
-  <ul>
-    {{ range $indexname, $index := .Site.Indexes }}
-      <li><a href="/{{ $indexname | urlize }}">{{ $indexname }}</a> 
-        <ul> 
-          {{ range $key, $value := $index }}
-          <li> {{ $key }} </li>
-                <ul>
-                {{ range $value.Pages }}
-                    <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
-                {{ end }}
-                </ul>
-          {{ end }}
-        </ul>
-      </li> 
-    {{ end }}
-  </ul>
-</section>
-{{% /highlight %}}
+    <section id="menu">
+      <ul>
+        {{ range $indexname, $index := .Site.Indexes }}
+          <li><a href="/{{ $indexname | urlize }}">{{ $indexname }}</a> 
+            <ul> 
+              {{ range $key, $value := $index }}
+              <li> {{ $key }} </li>
+                    <ul>
+                    {{ range $value.Pages }}
+                        <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+                    {{ end }}
+                    </ul>
+              {{ end }}
+            </ul>
+          </li> 
+        {{ end }}
+      </ul>
+    </section>
 
 ### menu.html using a single index
 It is more likely that you would want to use a single index for navigation.
 In this example we are using the `groups` index for our menu.
 
-{{% highlight html %}}
-<section id="menu">
-    <ul>
-        {{ range $key, $index := .Site.Indexes.groups }}
-        <li> {{ $key }} </li>
+    <section id="menu">
         <ul>
-            {{ range $index.Pages }}
-            <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+            {{ range $key, $index := .Site.Indexes.groups }}
+            <li> {{ $key }} </li>
+            <ul>
+                {{ range $index.Pages }}
+                <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+                {{ end }}
+            </ul>
             {{ end }}
         </ul>
-        {{ end }}
-    </ul>
-</section>
-{{% /highlight %}}
+    </section>
 
 
 ### menu.html using a single index ordered by Popularity
 
-{{% highlight html %}}
-<section id="menu">
-    <ul>
-        {{ range .Site.Indexes.groups.ByCount }}
-        <li> {{ .Name }} </li>
+    <section id="menu">
         <ul>
-            {{ range .Pages }}
-            <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+            {{ range .Site.Indexes.groups.ByCount }}
+            <li> {{ .Name }} </li>
+            <ul>
+                {{ range .Pages }}
+                <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+                {{ end }}
+            </ul>
             {{ end }}
         </ul>
-        {{ end }}
-    </ul>
-</section>
-{{% /highlight %}}
+    </section>
