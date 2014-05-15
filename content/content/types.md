@@ -13,7 +13,6 @@ of meta data and template. A good example of when multiple types are
 needed is to look at Tumblr. A piece of content could be a photo, quote
 or post, each with different meta data and rendered differently.
 
-
 ## Defining a content type
 
 Creating a new content type is easy in Hugo. You simply provide the
@@ -49,6 +48,3 @@ this then each new piece of content you place into a section will automatically
 inherit the type.
 
 Alternatively you can set the type in the meta data under the key "type".
-
-
-

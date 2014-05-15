@@ -45,44 +45,38 @@ variables](/layout/variables) for a complete list.
 ## Example li.html
 This content template is used for [spf13.com](http://spf13.com).
 
-{{% highlight html %}}
-<li>
-<a href="{{ .Permalink }}">{{ .Title }}</a>
-<div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-</li>
-{{% /highlight %}}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
 
 ## Example summary.html
 This content template is used for [spf13.com](http://spf13.com).
 
-{{% highlight html %}}
-<article class="post">
-<header>
-<h2><a href='{{ .Permalink }}'> {{ .Title }}</a> </h2>
-<div class="post-meta">{{ .Date.Format "Mon, Jan 2, 2006" }} - {{ .FuzzyWordCount }} Words </div>
-</header>
+    <article class="post">
+    <header>
+    <h2><a href='{{ .Permalink }}'> {{ .Title }}</a> </h2>
+    <div class="post-meta">{{ .Date.Format "Mon, Jan 2, 2006" }} - {{ .FuzzyWordCount }} Words </div>
+    </header>
 
-{{ .Summary }}
-<footer>
-<a href='{{ .Permalink }}'><nobr>Read more →</nobr></a>
-</footer>
-</article>
-{{% /highlight %}}
+    {{ .Summary }}
+    <footer>
+    <a href='{{ .Permalink }}'><nobr>Read more →</nobr></a>
+    </footer>
+    </article>
 
 
 ## Example render of view
 Using the summary view inside of another ([index](/layout/index)) template.
 
-{{% highlight html %}}
-<section id="main">
-<div>
-<h1 id="title">{{ .Title }}</h1>
-{{ range .Data.Pages }}
-{{ .Render "summary"}}
-{{ end }}
-</div>
-</section>
-{{% /highlight %}}
+    <section id="main">
+    <div>
+    <h1 id="title">{{ .Title }}</h1>
+    {{ range .Data.Pages }}
+    {{ .Render "summary"}}
+    {{ end }}
+    </div>
+    </section>
 
 In the above example you will notice that we have called .Render and passed in
 which view to render the content with. Render is a special function available on

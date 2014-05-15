@@ -18,11 +18,9 @@ This is not an introduction into actually using MathJax to render typeset mathem
 
 The first step is to enable MathJax on pages that you would like to have typeset math. There are multiple ways to do this (adventerous readers can consult the [Loading and Configuring](http://docs.mathjax.org/en/latest/configuration.html) section of the MathJax documentation for additional methods of including MathJax), but the easiest way is to use the secure MathJax CDN by including the following html snippet in the source of a page:
 
-{{% highlight html %}}
-<script type="text/javascript"
-  src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-{{% /highlight %}}
+    <script type="text/javascript"
+      src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
 
 One way to ensure that this code is included in all pages is to put it in one of the templates that live in the `layouts/chrome/` directory. For example, I have included this in the bottom of my template `footer.html` because I know that the footer will be included in every page of my website. 
 
@@ -40,47 +38,42 @@ There are multiple ways to remedy this problem. One solution is to simply escape
 
 Another option is to tell markdown to treat the MathJax code as verbatim code and not process it. One way to do this is to wrap the math expression inside a `<div>` `</div>` block. Markdown would ignore these sections and they would get passed directly on to MathJax and processed correctly. This works great for display style mathematics, but for inline math expressions the line break induced by the `<div>` is not acceptable. The syntax for instructing markdown to treat inline text as verbatim is by wrapping it in backticks (`` ` ``). You might have noticed, however, that the text included in between backticks is rendered differently than standard text (on this site these are items highlighted in red). To get around this problem we could create a new css entry that would apply standard styling to all inline verbatim text that includes MathJax code. Below I will show the html and css source that would accomplish this (note this solution adapted from [this blog post](http://doswa.com/2011/07/20/mathjax-in-markdown.html) -- all credit goes to the original author).
 
-{{% highlight html %}}
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  tex2jax: {
-    inlineMath: [['$','$'], ['\\(','\\)']],
-    displayMath: [['$$','$$'], ['\[','\]']],
-    processEscapes: true,
-    processEnvironments: true,
-    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-    TeX: { equationNumbers: { autoNumber: "AMS" },
-         extensions: ["AMSmath.js", "AMSsymbols.js"] }
-  }
-});
-</script>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\[','\]']],
+        processEscapes: true,
+        processEnvironments: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        TeX: { equationNumbers: { autoNumber: "AMS" },
+             extensions: ["AMSmath.js", "AMSsymbols.js"] }
+      }
+    });
+    </script>
 
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    // Fix <code> tags after MathJax finishes running. This is a
-    // hack to overcome a shortcoming of Markdown. Discussion at
-    // https://github.com/mojombo/jekyll/issues/199
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i = 0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-});
-</script>
-{{% /highlight %}}
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        // Fix <code> tags after MathJax finishes running. This is a
+        // hack to overcome a shortcoming of Markdown. Discussion at
+        // https://github.com/mojombo/jekyll/issues/199
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
 
 As before, this content should be included in the html source of each page that will be using MathJax. The next code snippet contains the CSS that is used to have verbatim MathJax blocks render with the same font style as the body of the page.
 
 
-{{% highlight css %}}
-code.has-jax {font: inherit;
-              font-size: 100%;
-              background: inherit;
-              border: inherit;
-              color: #515151;}
-{{% /highlight %}}
+    code.has-jax {font: inherit;
+                  font-size: 100%;
+                  background: inherit;
+                  border: inherit;
+                  color: #515151;}
 
 In the css snippet notice the line `color: #515151;`. `#515151` is the value assigned to the `color` attribute of the `body` class in my css. In order for the equations to fit in with the body of a web page, this value should be the same as the color of the body.
-
 
 ### Usage
 

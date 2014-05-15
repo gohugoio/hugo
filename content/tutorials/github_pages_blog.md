@@ -24,17 +24,15 @@ As our goal is to host a website using GitHub pages, it is natural for us to hos
 
 The very first step in creating a new Hugo site is to [write the config file](/overview/configuration). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseurl`) go and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yaml` with the following contents
 
-{{% highlight yaml %}}
----
-contentdir: "content"
-layoutdir: "layouts"
-publishdir: "public"
-indexes:
-  category: "categories"
-baseurl: "http://spencerlyon2.github.io/hugo_gh_blog"
-title: "Hugo Blog Template for GitHub Pages"
-...
-{{% /highlight %}}
+    ---
+    contentdir: "content"
+    layoutdir: "layouts"
+    publishdir: "public"
+    indexes:
+      category: "categories"
+    baseurl: "http://spencerlyon2.github.io/hugo_gh_blog"
+    title: "Hugo Blog Template for GitHub Pages"
+    ...
 
 ### Define Structure of Website
 
@@ -82,17 +80,15 @@ Each of the files in the example repository is well commented with a description
 
 The final step in creating the blog is to add some actual blog posts. To do this simply create one markdown file (with extension .md) for each new blog post. At the top of each file you should include a metadata section that tells Hugo some things about the post (see [docs](/content/front-matter)). For example, consider the yaml metadata section from the top of the file `/content/posts/newest.md` from the example repository
 
-{{% highlight yaml %}}
----
-title: "Just another sample post"
-date: "2014-03-29"
-description: "This should be a more useful description"
-categories: 
-    - "hugo"
-    - "fun"
-    - "test"
----
-{{% /highlight %}}
+    ---
+    title: "Just another sample post"
+    date: "2014-03-29"
+    description: "This should be a more useful description"
+    categories: 
+        - "hugo"
+        - "fun"
+        - "test"
+    ---
 
 The keys set in this section are the mandatory `title` and `date` as well as the optional `description` and `categories`. Each of these items is used throughout the templates found in the `/layouts` directory and gives Hugo information about the post from other pages in the website.
 
@@ -104,47 +100,45 @@ GitHub pages will serve up a website for any repository that has a branch called
 
 To get this properly set up we will execute a series of commands at the terminal. I will include all of them in one place here for easy copy and paste, and will explain what each line does via comments. Note that this is to be run from the `<root>` directory (wherever the `content` and `layout` folders of your Hugo project live). Also note that you will need to change the commands that have the example repository GitHub address so that they point to your repo.
 
-{{% highlight bash %}}
-# Create a new orphand branch (no commit history) named gh-pages
-git checkout --orphan gh-pages
+    # Create a new orphand branch (no commit history) named gh-pages
+    git checkout --orphan gh-pages
 
-# Unstage all files
-git rm --cached $(git ls-files)
+    # Unstage all files
+    git rm --cached $(git ls-files)
 
-# Grab one file from the master branch so we can make a commit
-git checkout master README.md
+    # Grab one file from the master branch so we can make a commit
+    git checkout master README.md
 
-# Add and commit that file
-git add .
-git commit -m "INIT: initial commit on gh-pages branch"
+    # Add and commit that file
+    git add .
+    git commit -m "INIT: initial commit on gh-pages branch"
 
-# Push to remote gh-pages branch 
-git push origin gh-pages
+    # Push to remote gh-pages branch 
+    git push origin gh-pages
 
-# Return to master branch
-git checkout master
+    # Return to master branch
+    git checkout master
 
-# Remove the public folder to make room for the gh-pages subtree
-rm -rf public
+    # Remove the public folder to make room for the gh-pages subtree
+    rm -rf public
 
-# Add the gh-pages branch of the repository. It will look like a folder named public
-git subtree add --prefix public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages --squash
+    # Add the gh-pages branch of the repository. It will look like a folder named public
+    git subtree add --prefix public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages --squash
 
-# Pull down the file we just committed. This helps avoid merge conflicts
-git subtree pull --prefix=public
+    # Pull down the file we just committed. This helps avoid merge conflicts
+    git subtree pull --prefix=public
 
-# Run hugo. Generated site will be placed in public directory
-hugo
+    # Run hugo. Generated site will be placed in public directory
+    hugo
 
-# Add everything
-git add -A
+    # Add everything
+    git add -A
 
-# Commit and push to master
-git commit -m "Updating site" && git push origin master
+    # Commit and push to master
+    git commit -m "Updating site" && git push origin master
 
-# Push the public subtree to the gh-pages branch
-git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
-{{% /highlight %}}
+    # Push the public subtree to the gh-pages branch
+    git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
 
 After executing these commands and waiting for the GitHub servers to update, the website we just created was live at [http://spencerlyon2.github.io/hugo_gh_blog](http://spencerlyon2.github.io/hugo_gh_blog). 
 
@@ -161,28 +155,26 @@ Now, as you add new posts to your blog, you will follow steps that look somethin
 
 The first two items in the previous list are simply a way to conveniently preview your content as you write. This is a dynamic and fairly streamlined process. All the remaining items, however, are the same every time you want to add new content to the website. To make this repetitive process easier, I have adapted a script from the source repository for the [Chimer Arta & Maker Space](https://github.com/chimera/chimeraarts.org) website that is highlighted in the [Hugo Showcase](/showcase). The script lives in a file called `deploy.sh` and has the following contents
 
-{{% highlight bash %}}
-#!/bin/bash
+    #!/bin/bash
 
-echo -e "\033[0;32mDeploying updates to Github...\033[0m"
+    echo -e "\033[0;32mDeploying updates to Github...\033[0m"
 
-# Build the project.
-hugo
+    # Build the project.
+    hugo
 
-# Add changes to git.
-git add -A
+    # Add changes to git.
+    git add -A
 
-# Commit changes.
-msg="rebuilding site `date`"
-if [ $# -eq 1 ]
-  then msg="$1"
-fi
-git commit -m "$msg"
+    # Commit changes.
+    msg="rebuilding site `date`"
+    if [ $# -eq 1 ]
+      then msg="$1"
+    fi
+    git commit -m "$msg"
 
-# Push source and build repos.
-git push origin master
-git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
-{{% /highlight %}}
+    # Push source and build repos.
+    git push origin master
+    git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
 
 Now I can replace the last four items from our workflow list with a single command `bash deploy.sh`. This script accepts as an optional argument the commit message that git should use when committing your changes. If you wish to include a custom commit message, do so by putting it quotes after calling bash on the script: `bash deploy.sh "<my commit msg>"`. If you choose not to specify the commit message, one will be generated for you using the current time.
 
