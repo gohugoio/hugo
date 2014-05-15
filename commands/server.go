@@ -15,6 +15,7 @@ package commands
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -54,6 +55,19 @@ func server(cmd *cobra.Command, args []string) {
 
 	if !strings.HasPrefix(BaseUrl, "http://") {
 		BaseUrl = "http://" + BaseUrl
+	}
+
+	l, err := net.Listen("tcp", ":"+strconv.Itoa(serverPort))
+	if err == nil {
+		l.Close()
+	} else {
+		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
+		sp, err := helpers.FindAvailablePort()
+		if err != nil {
+			jww.ERROR.Println("Unable to find alternative port to use")
+			jww.ERROR.Fatalln(err)
+		}
+		serverPort = sp.Port
 	}
 
 	if serverAppend {
