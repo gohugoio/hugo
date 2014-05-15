@@ -37,7 +37,8 @@ Some shortcodes use or require closing shortcodes. Like HTML, the opening and cl
 shortcodes match (name only), the closing being prepended with a slash.
 
 Example of a paired shortcode:
-{{&#37; highlight go %}} A bunch of code here {{&#37; /highlight %}} 
+
+    {{ % highlight go %}} A bunch of code here {{ % /highlight %}} 
 
 
 ## Hugo Shortcodes
@@ -54,8 +55,9 @@ Highlight takes exactly one required parameter of language and requires a
 closing shortcode.
 
 #### Example
-{{% highlight html %}}
-    {{&#37; highlight html %}}
+The example has an extra space between the “{{” and “%” characters to prevent rendering here.
+
+    {{ % highlight html %}}
     <section id="main">
       <div>
        <h1 id="title">{{ .Title }}</h1>
@@ -64,13 +66,11 @@ closing shortcode.
         {{ end }}
       </div>
     </section>
-    {{&#37; /highlight %}}
-{{% /highlight %}}
+    {{ % /highlight %}}
 
 
 #### Example Output
 
-{{% highlight html %}}
     <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
       <span style="color: #f92672">&lt;div&gt;</span>
        <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
@@ -79,7 +79,6 @@ closing shortcode.
         {{ end }}
       <span style="color: #f92672">&lt;/div&gt;</span>
     <span style="color: #f92672">&lt;/section&gt;</span>
-{{% /highlight %}}
 
 ### figure
 Figure is simply an extension of the image capabilities present with Markdown.
@@ -98,16 +97,18 @@ figure can use the following parameters
  * alt
 
 #### Example
+*Example has an extra space so Hugo doesn't actually render it*.
 
-{{% highlight html %}}
-    {{&#37; figure src="/media/spf13.jpg" title="Steve Francia" %}}
-{{% /highlight %}}
+    {{ % figure src="/media/spf13.jpg" title="Steve Francia" %}}
 
 #### Example output
 
-{{% highlight html %}}
-
-{{% /highlight %}}
+    <figure>
+        <img src="/media/spf13.jpg"  />
+        <figcaption>
+            <h4>Steve Francia</h4>
+        </figcaption>
+    </figure>
 
 ## Creating your own shortcodes
 
@@ -173,6 +174,7 @@ This would be rendered as
     {{ % img src="/media/spf13.jpg" title="Steve Francia" %}}
 
 Would load the template /layouts/shortcodes/img.html
+
     <!-- image -->
     <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
         {{ with .Get "link"}}<a href="{{.}}">{{ end }}
@@ -206,11 +208,9 @@ Would be rendered as:
 
 *Example has an extra space so Hugo doesn't actually render it*.
 
-    {{% highlight html %}}
     <html>
         <body> This HTML </body>
     </html>
-    {{% /highlight %}}
 
 The template for this utilizes the following code (already include in hugo)
     {{ .Get 0 | highlight .Inner  }}

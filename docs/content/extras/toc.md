@@ -9,12 +9,12 @@ menu:
 
 Hugo will automatically parse the markdown for your content and create
 a Table of Contents you can use to guide readers to the sections within
-your content. 
+your content.
 
 ## Usage
 
 Simply create content like you normally would with the appropriate
-headers. 
+headers.
 
 Hugo will take this markdown and create a table of contents stored in the
 [content variable](/layout/variables) .TableOfContents

@@ -32,56 +32,51 @@ used for both nodes and pages we can use the same chrome for both.
 ## example header.html
 This header template is used for [spf13.com](http://spf13.com).
 
-{{% highlight html %}}
-<!DOCTYPE html>
-<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
-<head>
-    <meta charset="utf-8">
+    <!DOCTYPE html>
+    <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+    <head>
+        <meta charset="utf-8">
 
-    {{ template "chrome/meta.html" . }}
+        {{ template "chrome/meta.html" . }}
 
-    <base href="{{ .Site.BaseUrl }}">
-    <title> {{ .Title }} : spf13.com </title>
-    <link rel="canonical" href="{{ .Permalink }}">
-    {{ if .RSSlink }}<link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
+        <base href="{{ .Site.BaseUrl }}">
+        <title> {{ .Title }} : spf13.com </title>
+        <link rel="canonical" href="{{ .Permalink }}">
+        {{ if .RSSlink }}<link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
 
-    {{ template "chrome/head_includes.html" . }}
-</head>
-<body lang="en">
-{{% /highlight %}}
-
+        {{ template "chrome/head_includes.html" . }}
+    </head>
+    <body lang="en">
 
 ## example footer.html
 This header template is used for [spf13.com](http://spf13.com).
 
-{{% highlight html %}}
-<footer>
-  <div>
-    <p>
-    &copy; 2013 Steve Francia.
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>; 
-    please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
-    </p>
-  </div>
-</footer>
-<script type="text/javascript">
+    <footer>
+      <div>
+        <p>
+        &copy; 2013 Steve Francia.
+        <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>; 
+        please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
+        </p>
+      </div>
+    </footer>
+    <script type="text/javascript">
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-XYSYXYSY-X']);
-  _gaq.push(['_trackPageview']);
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-XYSYXYSY-X']);
+      _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script');
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 
-        'http://www') + '.google-analytics.com/ga.js';
-    ga.setAttribute('async', 'true');
-    document.documentElement.firstChild.appendChild(ga);
-  })();
+      (function() {
+        var ga = document.createElement('script');
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 
+            'http://www') + '.google-analytics.com/ga.js';
+        ga.setAttribute('async', 'true');
+        document.documentElement.firstChild.appendChild(ga);
+      })();
 
-</script>
-</body>
-</html>
-{{% /highlight %}}
+    </script>
+    </body>
+    </html>
 
 **For examples of referencing these templates, see [content
 templates](/layout/content/) and [homepage templates](/layout/homepage/)**
