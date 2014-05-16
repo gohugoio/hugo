@@ -260,6 +260,7 @@ func buildSite(watching ...bool) (err error) {
 	}
 	site.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
+
 	return nil
 }
 
@@ -321,11 +322,17 @@ func NewWatcher(port int) error {
 				if static_changed {
 					fmt.Print("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+
+					// Tell livereload a js file changed to force a hard refresh
+					wsHub.broadcast <- []byte(`{"command":"reload","path":"/x.js","originalPath":"","liveCSS":true}`)
 				}
 
 				if dynamic_changed {
 					fmt.Print("Change detected, rebuilding site\n\n")
 					utils.StopOnErr(buildSite(true))
+
+					// Tell livereload a js file changed to force a hard refresh
+					wsHub.broadcast <- []byte(`{"command":"reload","path":"/x.js","originalPath":"","liveCSS":true}`)
 				}
 			case err := <-watcher.Error:
 				if err != nil {

@@ -14,12 +14,16 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/websocket"
+	//"code.google.com/p/go.net/websocket"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
@@ -97,9 +101,106 @@ func serve(port int) {
 
 	fmt.Println("Press ctrl+c to stop")
 
-	err := http.ListenAndServe(":"+strconv.Itoa(port), http.FileServer(http.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))))
+	http.Handle("/", http.FileServer(http.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))))
+	go wsHub.run()
+	http.HandleFunc("/livereload", wsHandler)
+
+	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
 		jww.ERROR.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
+}
+
+type hub struct {
+	// Registered connections.
+	connections map[*connection]bool
+
+	// Inbound messages from the connections.
+	broadcast chan []byte
+
+	// Register requests from the connections.
+	register chan *connection
+
+	// Unregister requests from connections.
+	unregister chan *connection
+}
+
+var wsHub = hub{
+	broadcast:   make(chan []byte),
+	register:    make(chan *connection),
+	unregister:  make(chan *connection),
+	connections: make(map[*connection]bool),
+}
+
+func (h *hub) run() {
+	for {
+		select {
+		case c := <-h.register:
+			h.connections[c] = true
+		case c := <-h.unregister:
+			delete(h.connections, c)
+			close(c.send)
+		case m := <-h.broadcast:
+			for c := range h.connections {
+				select {
+				case c.send <- m:
+				default:
+					delete(h.connections, c)
+					close(c.send)
+				}
+			}
+		}
+	}
+}
+
+type connection struct {
+	// The websocket connection.
+	ws *websocket.Conn
+
+	// Buffered channel of outbound messages.
+	send chan []byte
+}
+
+func (c *connection) reader() {
+	for {
+		_, message, err := c.ws.ReadMessage()
+		if err != nil {
+			break
+		}
+		fmt.Println(string(message))
+		switch true {
+		case bytes.Contains(message, []byte(`"command":"hello"`)):
+			wsHub.broadcast <- []byte(`{
+			  "command": "hello",
+			  "protocols": [ "http://livereload.com/protocols/official-7" ],
+			  "serverName": "Hugo"
+			  }`)
+		}
+	}
+	c.ws.Close()
+}
+
+func (c *connection) writer() {
+	for message := range c.send {
+		err := c.ws.WriteMessage(websocket.TextMessage, message)
+		if err != nil {
+			break
+		}
+	}
+	c.ws.Close()
+}
+
+var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
+
+func wsHandler(w http.ResponseWriter, r *http.Request) {
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return
+	}
+	c := &connection{send: make(chan []byte, 256), ws: ws}
+	wsHub.register <- c
+	defer func() { wsHub.unregister <- c }()
+	go c.writer()
+	c.reader()
 }
