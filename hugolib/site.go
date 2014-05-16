@@ -864,6 +864,10 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 		transformLinks = append(transformLinks, absURL...)
 	}
 
+	if viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
+		transformLinks = append(transformLinks, transform.LiveReloadInject)
+	}
+
 	transformer := transform.NewChain(transformLinks...)
 
 	var renderBuffer *bytes.Buffer

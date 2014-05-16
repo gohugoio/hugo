@@ -15,6 +15,7 @@ package commands
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -26,6 +27,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugolib"
+	"github.com/spf13/hugo/livereload"
 	"github.com/spf13/hugo/utils"
 	"github.com/spf13/hugo/watcher"
 	jww "github.com/spf13/jwalterweatherman"
@@ -46,6 +48,7 @@ Complete documentation is available at http://hugo.spf13.com`,
 		build()
 	},
 }
+
 var hugoCmdV *cobra.Command
 
 var BuildWatch, Draft, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap bool
@@ -66,19 +69,19 @@ func AddCommands() {
 }
 
 func init() {
-	HugoCmd.PersistentFlags().BoolVarP(&Draft, "build-drafts", "D", false, "include content marked as draft")
+	HugoCmd.PersistentFlags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyurls", false, "if true, use /filename.html instead of /filename/")
-	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "base-url", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
+	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
-	HugoCmd.PersistentFlags().StringVar(&LogFile, "logfile", "", "Log File path (if set, logging enabled automatically)")
-	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboselog", false, "verbose logging")
+	HugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
+	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	hugoCmdV = HugoCmd
@@ -94,6 +97,7 @@ func InitializeConfig() {
 
 	viper.RegisterAlias("taxonomies", "indexes")
 
+	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetadataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("DisableSitemap", false)
@@ -112,12 +116,13 @@ func InitializeConfig() {
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
 	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("PygmentsUseClasses", false)
+	viper.SetDefault("DisableLiveReload", false)
 
-	if hugoCmdV.PersistentFlags().Lookup("build-drafts").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
 	}
 
-	if hugoCmdV.PersistentFlags().Lookup("uglyurls").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("uglyUrls").Changed {
 		viper.Set("UglyUrls", UglyUrls)
 	}
 
@@ -133,7 +138,7 @@ func InitializeConfig() {
 		viper.Set("Verbose", Verbose)
 	}
 
-	if hugoCmdV.PersistentFlags().Lookup("logfile").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
 		viper.Set("LogFile", LogFile)
 	}
 	if BaseUrl != "" {
@@ -323,16 +328,14 @@ func NewWatcher(port int) error {
 					fmt.Print("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
-					// Tell livereload a js file changed to force a hard refresh
-					wsHub.broadcast <- []byte(`{"command":"reload","path":"/x.js","originalPath":"","liveCSS":true}`)
+					livereload.ForceRefresh()
 				}
 
 				if dynamic_changed {
 					fmt.Print("Change detected, rebuilding site\n\n")
 					utils.StopOnErr(buildSite(true))
 
-					// Tell livereload a js file changed to force a hard refresh
-					wsHub.broadcast <- []byte(`{"command":"reload","path":"/x.js","originalPath":"","liveCSS":true}`)
+					livereload.ForceRefresh()
 				}
 			case err := <-watcher.Error:
 				if err != nil {
@@ -343,6 +346,12 @@ func NewWatcher(port int) error {
 	}()
 
 	if port > 0 {
+		if !viper.GetBool("DisableLiveReload") {
+			livereload.Initialize()
+			http.HandleFunc("/livereload.js", livereload.ServeJS)
+			http.HandleFunc("/livereload", livereload.Handler)
+		}
+
 		go serve(port)
 	}
 
