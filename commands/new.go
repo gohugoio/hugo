@@ -110,7 +110,12 @@ func NewSite(cmd *cobra.Command, args []string) {
 	}
 
 	if x, _ := helpers.Exists(createpath); x {
-		jww.FATAL.Fatalln(createpath, "already exists")
+		y, _ := helpers.IsDir(createpath)
+		if z, _ := helpers.IsEmpty(createpath); y && z {
+			jww.INFO.Println(createpath, "already exists and is empty")
+		} else {
+			jww.FATAL.Fatalln(createpath, "already exists and is not empty")
+		}
 	}
 
 	mkdir(createpath, "layouts")

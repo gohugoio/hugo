@@ -72,6 +72,35 @@ func DirExists(path string) (bool, error) {
 	return false, err
 }
 
+func IsDir(path string) (bool, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return fi.IsDir(), nil
+}
+
+func IsEmpty(path string) (bool, error) {
+	if b, _ := Exists(path); !b {
+		return false, fmt.Errorf("%q path does not exist", path)
+	}
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	if fi.IsDir() {
+		f, err := os.Open(path)
+		if err != nil {
+			return false, err
+		}
+		list, err := f.Readdir(-1)
+		f.Close()
+		return len(list) == 0, nil
+	} else {
+		return fi.Size() == 0, nil
+	}
+}
+
 // Check if File / Directory Exists
 func Exists(path string) (bool, error) {
 	_, err := os.Stat(path)
