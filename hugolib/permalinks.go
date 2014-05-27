@@ -3,6 +3,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -117,6 +118,13 @@ func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 	return helpers.Urlize(p.Title), nil
 }
 
+// pageToPermalinkFilename returns the URL-safe form of the filename
+func pageToPermalinkFilename(p *Page, _ string) (string, error) {
+	var extension = filepath.Ext(p.FileName)
+	var name = p.FileName[0 : len(p.FileName)-len(extension)]
+	return helpers.Urlize(name), nil
+}
+
 // if the page has a slug, return the slug, else return the title
 func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 	if p.Slug != "" {
@@ -142,5 +150,6 @@ func init() {
 		"section":     pageToPermalinkSection,
 		"title":       pageToPermalinkTitle,
 		"slug":        pageToPermalinkSlugElseTitle,
+		"filename":    pageToPermalinkFilename,
 	}
 }
