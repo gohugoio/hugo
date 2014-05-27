@@ -1,10 +1,12 @@
 ---
 title: "Migrate to Hugo from Jekyll"
+linktitle: "Migrating from Jekyll"
 date: "2014-03-10"
 weight: 10
 menu:
   main:
     parent: 'tutorials'
+prev: "/tutorials/mathjax"
 ---
 
 ## Move static content to `static`
@@ -135,11 +137,11 @@ is written as this Hugo shortcode:
 ### Usage
 I simply changed:
 
-  {% image full http://farm5.staticflickr.com/4136/4829260124_57712e570a_o_d.jpg "One of my favorite touristy-type photos. I secretly waited for the good light while we were "having fun" and took this. Only regret: a stupid pole in the top-left corner of the frame I had to clumsily get rid of at post-processing." ->http://www.flickr.com/photos/alexnormand/4829260124/in/set-72157624547713078/ %}
+    {% image full http://farm5.staticflickr.com/4136/4829260124_57712e570a_o_d.jpg "One of my favorite touristy-type photos. I secretly waited for the good light while we were "having fun" and took this. Only regret: a stupid pole in the top-left corner of the frame I had to clumsily get rid of at post-processing." ->http://www.flickr.com/photos/alexnormand/4829260124/in/set-72157624547713078/ %}
 
 to this (this example uses a slightly extended version named `fig`, different than the built-in `figure`):
 
-  {{% fig class="full" src="http://farm5.staticflickr.com/4136/4829260124_57712e570a_o_d.jpg" title="One of my favorite touristy-type photos. I secretly waited for the good light while we were having fun and took this. Only regret: a stupid pole in the top-left corner of the frame I had to clumsily get rid of at post-processing." link="http://www.flickr.com/photos/alexnormand/4829260124/in/set-72157624547713078/" %}}
+    {{% fig class="full" src="http://farm5.staticflickr.com/4136/4829260124_57712e570a_o_d.jpg" title="One of my favorite touristy-type photos. I secretly waited for the good light while we were having fun and took this. Only regret: a stupid pole in the top-left corner of the frame I had to clumsily get rid of at post-processing." link="http://www.flickr.com/photos/alexnormand/4829260124/in/set-72157624547713078/" %}}
 
 As a bonus, the shortcode named parameters are, arguably, more readable. 
 

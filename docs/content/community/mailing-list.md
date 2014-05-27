@@ -5,6 +5,8 @@ weight: 10
 menu:
   main:
     parent: 'community'
+prev: "/extras/urls"
+next: "/community/press"
 ---
 
 Hugo has two mailing lists:

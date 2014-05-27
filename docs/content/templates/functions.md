@@ -1,11 +1,14 @@
 ---
-title: "Template Functions"
+title: "Hugo Template Functions"
 date: "2013-07-01"
-linktitle: "Template Functions"
-weight: 70
+linktitle: "Functions"
+aliases: ["/layout/functions/"]
+weight: 20
 menu:
   main:
     parent: 'layout'
+prev: "/templates/go-templates"
+next: "/templates/variables"
 ---
 
 Hugo uses the excellent go html/template library for its template engine.

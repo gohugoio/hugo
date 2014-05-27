@@ -8,6 +8,8 @@ notoc: true
 menu:
   main:
     parent: 'extras'
+prev: "/extras/menus"
+next: "/extras/shortcodes"
 ---
 
 By default, content is laid out into the target `publishdir` (public)

@@ -1,11 +1,14 @@
 ---
-title: "Variables"
+title: "Template Variables"
+linktitle: "Variables"
 date: "2013-07-01"
-aliases: ["/doc/variables/"]
+aliases: ["/doc/variables/","/layout/variables/"]
 weight: 20
 menu:
   main:
     parent: 'layout'
+prev: "/templates/functions"
+next: "/templates/content"
 ---
 
 Hugo makes a set of values available to the templates. Go templates are context based. The following

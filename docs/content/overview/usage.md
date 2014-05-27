@@ -7,9 +7,13 @@ notoc: true
 menu:
   main:
     parent: 'getting started'
+prev: '/overview/installing'
+next: '/overview/configuration'
 ---
 
 Make sure either hugo is in your path or provide a path to it.
+
+
 
     $ hugo help
     A Fast and Flexible Static Site Generator
@@ -22,23 +26,28 @@ Make sure either hugo is in your path or provide a path to it.
       hugo [command]
 
     Available Commands:
-      server          :: Hugo runs it's own a webserver to render the files
-      version         :: Print the version number of Hugo
-      check           :: Check content in the source directory
-      benchmark       :: Benchmark hugo by building a site a number of times
-      help [command]  :: Help about any command
+      server                    :: Hugo runs it's own a webserver to render the files
+      version                   :: Print the version number of Hugo
+      check                     :: Check content in the source directory
+      benchmark                 :: Benchmark hugo by building a site a number of times
+      new [path]                :: Create new content for your site
+      help [command]            :: Help about any command
 
      Available Flags:
-      -b, --base-url="": hostname (and path) to the root eg. http://spf13.com/
-      -D, --build-drafts=false: include content marked as draft
+      -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/
+      -D, --buildDrafts=false: include content marked as draft
           --config="": config file (default is path/config.yaml|json|toml)
       -d, --destination="": filesystem path to write files to
+          --disableRSS=false: Do not build RSS files
+          --disableSitemap=false: Do not build Sitemap file
           --log=false: Enable Logging
-          --logfile="": Log File path (if set, logging enabled automatically)
+          --logFile="": Log File path (if set, logging enabled automatically)
       -s, --source="": filesystem path to read files relative from
-          --uglyurls=false: if true, use /filename.html instead of /filename/
+          --stepAnalysis=false: display memory and timing of different steps of the program
+      -t, --theme="": theme to use (located in /themes/THEMENAME/)
+          --uglyUrls=false: if true, use /filename.html instead of /filename/
       -v, --verbose=false: verbose output
-          --verboselog=false: verbose logging
+          --verboseLog=false: verbose logging
       -w, --watch=false: watch filesystem for changes and recreate as needed
 
     Use "hugo help [command]" for more information about that command.
@@ -48,26 +57,25 @@ Make sure either hugo is in your path or provide a path to it.
 The most common use is probably to run hugo with your current
 directory being the input directory.
 
-
     $ hugo
     > X pages created
-    > Y indexes created
       in 8 ms
 
-
 If you are working on things and want to see the changes
-immediately, tell Hugo to watch for changes. **It will
-recreate the site faster than you can tab over to
-your browser to view the changes.**
+immediately, tell Hugo to watch for changes.
+
+Hugo will watch the filesystem for changes, rebuild your site as soon as a file
+is saved.
 
     $ hugo -s ~/mysite --watch
        28 pages created
-       0 tags index created
        in 18 ms
        Watching for changes in /Users/spf13/Code/hugo/docs/content
        Press ctrl+c to stop
 
-Hugo can even run a server and create your site at the same time!
+Hugo can even run a server and create your site at the same time! Hugo
+implements live reload technology to automatically reload any open pages in
+all browsers (including mobile).
 
     $ hugo server -ws ~/mysite
        Watching for changes in /Users/spf13/Code/hugo/docs/content

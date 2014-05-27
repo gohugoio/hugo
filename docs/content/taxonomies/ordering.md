@@ -8,22 +8,24 @@ menu:
   main:
     identifier: "Ordering Taxonomies"
     parent: 'taxonomy'
+prev: "/taxonomies/templates"
+next: "/extras/aliases"
 ---
 
 Hugo provides the ability to both:
 
- 1. Order the way the keys for an index are displayed
- 2. Order the way indexed content appears
+ 1. Order the way the keys for an taxonomy are displayed
+ 2. Order the way taxonomyed content appears
 
 
-## Ordering Indexes
-Indexes can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
+## Ordering Taxonomies
+Taxonomies can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
 
 ### Order Alphabetically Example:
 
     <ul>
     {{ $data := .Data }}
-    {{ range $key, $value := .Data.Index.Alphabetical }}
+    {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
     <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
     {{ end }}
     </ul>
@@ -32,26 +34,26 @@ Indexes can be ordered by either alphabetical key or by the number of content pi
 
     <ul>
     {{ $data := .Data }}
-    {{ range $key, $value := .Data.Index.ByCount }}
+    {{ range $key, $value := .Data.Taxonomy.ByCount }}
     <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
     {{ end }}
     </ul>
 
 
-[See Also Index Lists](/indexes/lists/)
+[See Also Taxonomy Lists](/taxonomies/lists/)
 
-## Ordering Content within Indexes
+## Ordering Content within Taxonomies
 
-Hugo uses both **Date** and **Weight** to order content within indexes.
+Hugo uses both **Date** and **Weight** to order content within taxonomies.
 
 Each piece of content in Hugo can optionally be assigned a date.
-It can also be assigned a weight for each index it is assigned to.
+It can also be assigned a weight for each taxonomy it is assigned to.
 
-When iterating over content within indexes the default sort is first by weight then by date. This means that if the weights for two pieces of content are the same, than the more recent content will be displayed first. The default weight for any piece of content is 0.
+When iterating over content within taxonomies the default sort is first by weight then by date. This means that if the weights for two pieces of content are the same, than the more recent content will be displayed first. The default weight for any piece of content is 0.
 
 ### Assigning Weight
 
-Content can be assigned weight for each index that it's assigned to.
+Content can be assigned weight for each taxonomy that it's assigned to.
 
     +++
     tags = [ "a", "b", "c" ]
@@ -63,12 +65,12 @@ Content can be assigned weight for each index that it's assigned to.
     Front Matter with weighted tags and categories
 
 
-The convention is `indexname_weight`.
+The convention is `taxonomyname_weight`.
 
-In the above example, this piece of content has a weight of 22 which applies to the sorting when rendering the pages assigned to the "a", "b" and "c" values of the 'tag' index.
+In the above example, this piece of content has a weight of 22 which applies to the sorting when rendering the pages assigned to the "a", "b" and "c" values of the 'tag' taxonomy.
 
 It has also been assigned the weight of 44 when rendering the 'd' category.
 
-With this the same piece of content can appear in different positions in different indexes.
+With this the same piece of content can appear in different positions in different taxonomies.
 
-Currently indexes only support the default ordering of content which is weight -> date.
+Currently taxonomies only support the default ordering of content which is weight -> date.

@@ -6,6 +6,8 @@ author: "Spencer Lyon"
 menu:
   main:
     parent: 'tutorials'
+prev: "/tutorials/github_pages_blog"
+next: "/tutorials/migrate-from-jekyll"
 ---
 
 ## What is MathJax?

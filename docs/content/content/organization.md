@@ -7,17 +7,21 @@ weight: 10
 menu:
   main:
     parent: 'content'
+prev: '/overview/source-directory'
+next: '/content/front-matter'
 ---
 
-Hugo uses markdown files with headers commonly called the front matter. Hugo respects the organization
-that you provide for your content to minimize any extra configuration, though this can be overridden
-by additional configuration in the front matter.
+Hugo uses markdown files with headers commonly called the front matter. Hugo
+respects the organization that you provide for your content to minimize any
+extra configuration, though this can be overridden by additional configuration
+in the front matter.
 
 ## Organization
-In Hugo the content should be arranged in the same way they are intended for the rendered website.
-Without any additional configuration the following will just work. Hugo supports
-content nested at any level. The top level is special in Hugo and is used as the
-[section](/content/sections).
+
+In Hugo the content should be arranged in the same way they are intended for
+the rendered website. Without any additional configuration the following will
+just work. Hugo supports content nested at any level. The top level is special
+in Hugo and is used as the [section](/content/sections).
 
     .
     └── content

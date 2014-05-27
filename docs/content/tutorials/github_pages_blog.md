@@ -1,11 +1,14 @@
 ---
-title: "Hosting a Blog on GitHub Pages"
+title: "Hosting on GitHub Pages"
+linktitle: "Hosting on GitHub"
 date: "2014-03-21"
 weight: 10
 author: "Spencer Lyon"
 menu:
   main:
     parent: 'tutorials'
+prev: "/community/contributors"
+next: "/tutorials/mathjax"
 ---
 
 ## Intro

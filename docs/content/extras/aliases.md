@@ -5,10 +5,12 @@ aliases:
     - /doc/redirects/
     - /doc/alias/
     - /doc/aliases/
-weight: 20
+weight: 10
 menu:
   main:
     parent: 'extras'
+prev: "/taxonomies/ordering"
+next: "/extras/builders"
 ---
 
 For people migrating existing published content to Hugo theres a good chance

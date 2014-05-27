@@ -6,6 +6,10 @@ weight: 20
 menu:
   main:
     parent: 'getting started'
+
+prev: '/overview/quickstart'
+next: '/overview/usage'
+
 ---
 
 Hugo is written in Go with support for Windows, Linux, FreeBSD and OSX.
@@ -25,12 +29,18 @@ where you don't have a privileged account.
 Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
 is the most probable location.
 
-The Hugo executable has one *optional* external dependency for source code highlighting (pygments).
+### Installing pygments (optional)
 
-### Installing pygments
+The Hugo executable has one *optional* external dependency for source code highlighting (pygments).
 
 If you want to have source code highlighting using the [highlight shortcode](/extras/highlighting)
 you need to install the python-based pygments program. The procedure is outlined on the [pygments home page](http://pygments.org).
+
+## Upgrading Hugo
+
+Upgrading hugo is as easy as downloading and replacing the executable you’ve
+placed in your path.
+
 
 ## Installing from source
 

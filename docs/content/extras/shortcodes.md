@@ -2,10 +2,12 @@
 title: "Shortcodes"
 date: "2013-07-01"
 aliases: ["/doc/shortcodes/"]
-weight: 10
+weight: 40
 menu:
   main:
     parent: 'extras'
+prev: "/extras/permalinks"
+next: "/extras/highlighting"
 ---
 
 Because Hugo uses markdown for its simple content format, however there's a lot
