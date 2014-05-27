@@ -142,14 +142,14 @@ func NewTheme(cmd *cobra.Command, args []string) {
 	}
 
 	mkdir(createpath, "layouts", "_default")
-	mkdir(createpath, "layouts", "chrome")
+	mkdir(createpath, "layouts", "partials")
 
 	touchFile(createpath, "layouts", "index.html")
 	touchFile(createpath, "layouts", "_default", "list.html")
 	touchFile(createpath, "layouts", "_default", "single.html")
 
-	touchFile(createpath, "layouts", "chrome", "header.html")
-	touchFile(createpath, "layouts", "chrome", "footer.html")
+	touchFile(createpath, "layouts", "partials", "header.html")
+	touchFile(createpath, "layouts", "partials", "footer.html")
 
 	mkdir(createpath, "archetypes")
 	touchFile(createpath, "archetypes", "default.md")
