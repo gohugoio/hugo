@@ -7,11 +7,12 @@ notoc: true
 menu:
   main:
     parent: 'community'
+prev: "/community/contributing"
+next: "/tutorials/github_pages_blog"
 ---
 
 Hugo was built with love and Go by:
 
 * Steve Francia - [spf13](https://github.com/spf13)
-* Noah Campbell - [noahcampbell](https://github.com/noahcampbell)
 * [Many more](http://github.com/spf13/hugo/graphs/contributors)
 

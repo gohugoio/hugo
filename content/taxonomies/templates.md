@@ -7,50 +7,18 @@ weight: 30
 menu:
   main:
     parent: 'taxonomy'
+prev: "/templates/displaying"
+next: "/taxonomies/ordering"
 ---
 
-There are two different templates that the use of indexes will require you to provide.
+There are two different templates that the use of taxonomies will require you to provide.
 
-The first is a list of all the content assigned to a specific index key. The
-second is a [list](/indexes/lists/) of all keys for that index. This document
-addresses the template used for the first type.
+Both templates are covered in detail in the templates section.
 
-## Creating index templates
-For each index type a template needs to be provided to render the index page.
-In the case of tags, this will render the content for `/tags/TAGNAME/`.
+A [list template](/templates/list/) is any template that will be used to render multiple pieces of
+content in a single html page. This template will be used to generate
+all the automatically created taxonomy pages.
 
-The template must be called the singular name of the index and placed in 
-layouts/indexes
+A [taxonomy terms template](/templates/terms/) is a template used to
+generate the list of terms for a given template.
 
-    .
-    └── layouts
-        └── indexes
-            └── category.html
-
-The template will be provided Data about the index. 
-
-## Variables
-
-The following variables are available to the index template:
-
-**.Title**  The title for the content. <br>
-**.Date** The date the content is published on.<br>
-**.Permalink** The Permanent link for this page.<br>
-**.RSSLink** Link to the indexes' rss link. <br>
-**.Data.Pages** The content that is assigned this index.<br>
-**.Data.`singular`** The index itself.<br>
-
-## Example
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
-
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-        {{ range .Data.Pages }}
-            {{ .Render "summary"}}
-        {{ end }}
-      </div>
-    </section>
-
-    {{ template "chrome/footer.html" }}

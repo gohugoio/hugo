@@ -1,76 +1,89 @@
 ---
 title: "Taxonomy Overview"
+linktitle: "Overview"
 date: "2013-07-01"
 aliases: ["/indexes/overview/","/doc/indexes/", "/extras/indexes"]
 weight: 10
 menu:
   main:
     parent: 'taxonomy'
+    identifier: 'taxonomy overview'
+prev: "/templates/404"
+next: "/taxonomies/usage"
 ---
 
-Hugo includes support for user defined groupings of content called indexes.
+Hugo includes support for user defined groupings of content called
+taxonomies. Taxonomies give us a way to classify our content so we can
+demonstrate relationships in a variety of logical ways.
 
-Indexes can be used to organize content in a variety of ways. For example, if I
-wanted to use a wordpress style organization I would create two indexes called
-"categories" and "tags". Other common uses would include categories, tags, groups,
-navigation, series and many more. Just think of an index as way to organize similar content.
+The default taxonomies for Hugo are tags and categories. These
+taxonomies are  common to many websites systems (Wordpress, Drupal,
+Jekyll). Unlike all of those Systems, Hugo makes it trivial to customize
+the taxonomies you will be using for your site however you wish. Another
+good use for taxonomies is to group a set of posts into a series. Other
+common uses would include categories, tags, groups, series and many
+more.
 
-It's important to understand what Indexes do. At it's most basic form an index
-is simply a map of a key to a list of content values.
+When taxonomies are used (and templates are provided) Hugo will
+automatically create pages listing all of the taxonomies, their terms
+and all of the content attached to those terms.
 
-In the hugo internals this is stored as `Site.Indexes[Plural][key][]pages`.
-For example all the content tagged with Go would be found at 
-`Site.Indexes["tags"]["Go"]`.
+## Definitions
 
-For a
-more complete example see the source of [this docs site](http://github.com/spf13/hugo/docs/).
+**Taxonomy:** A categorization that can be used to classify content
 
-## Defining Indexes for a site
+**Term:** A key within that taxonomy 
 
-Indexes must be defined in the site configuration, before they
-can be used throughout the site. 
+**Value:** A piece of content assigned to that Term
 
-Here is an example configuration in YAML that specifies two indexes.
-Notice the format is **singular key** : *plural value*. While 
-we could use an inflection library to pluralize this, they currently
-support only a few languages, so instead we've opted for user defined
-pluralization.
+## Example
 
-### config.yaml
+For example if I was writing about movies I may want the following
+taxonomies:
 
-    ---
-    indexes:
-        tag: "tags"
-        category: "categories"
-    baseurl: "http://spf13.com/"
-    title: "Steve Francia is spf13.com"
-    ---
+* Actors
+* Directors
+* Studios
+* Genre
+* Year
+* Awards
 
-## Assigning index values to content
+I would then specify in each movies front-matter the specific terms for
+each of those taxonomies. Hugo would then automatically create pages for
+each Actor, Director, Studio, Genre, Year and Award listing all of the
+Movies that matched that specific Actor, Director, etc.
 
-Once an index is defined at the site level, any piece of content
-can be assigned to it regardless of content type or section.
 
-Assigning content to an index is done in the front matter.
-Simply create a variable with the *plural* name of the index
-and assign all keys you want this content to match against. 
+### Taxonomy Organization
 
-**Index values are case insensitive**
+Let’s use an example to demonstrate the different labels in action.
+From the perspective of the taxonomy it could be visualized as:
 
-### Example
+    Actor                    <- Taxonomy
+        Bruce Willis         <- Term
+            The Six Sense    <- Content
+            Unbreakable      <- Content
+            Moonrise Kingdom <- Content
+        Samuel L. Jackson    <- Term
+            Unbreakable      <- Content
+            The Avengers     <- Content
+            xXx              <- Content
 
-    {
-        "title": "Hugo: A fast and flexible static site generator",
-        "tags": [
-            "Development",
-            "Go",
-            "fast",
-            "Blogging"
-        ],
-        "categories" : [
-            "Development"
-        ]
-        "slug": "hugo",
-        "project_url": "http://github.com/spf13/hugo"
-    }
+From the perspective of the content if would appear differently, though
+the data and labels used are the same:
+
+    Unbreakable                 <- Content
+        Actors                  <- Taxonomy
+            Bruce Willis        <- Term
+            Samuel L. Jackson   <- Term
+        Director                <- Taxonomy
+            M. Night Shyamalan  <- Term
+        ...
+    Moonrise Kingdom            <- Content
+        Actors                  <- Taxonomy
+            Bruce Willis        <- Term
+            Bill Murray         <- Term
+        Director                <- Taxonomy
+            Wes Anderson        <- Term
+        ...
 

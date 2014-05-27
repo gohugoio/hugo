@@ -6,6 +6,7 @@ weight: 5
 menu:
   main:
     parent: 'getting started'
+next: '/overview/quickstart'
 ---
 
 ## What is Hugo?
@@ -36,41 +37,53 @@ templates and uses these as input to create a complete website.
 
 Hugo boasts the following features:
 
+### General
+
   * Extremely fast built times (~1ms per page)
-  * Runs on Mac OSX, Linux and Windows 
-  * Content written in [Markdown](/content/example)
+  * Completely cross platform: Runs on Mac OSX, Linux and Windows 
   * Easy [installation](/overview/installing)
-  * Straightforward website [organization](/content/organization)
-  * Completely [customizable homepage](/layout/homepage)
-  * Support for multiple [content types](/content/types)
-  * Support for [website sections](/content/sections)
-  * Completely customizable [urls](/extras/urls)  
-  * Render changes [on the fly](/overview/usage) as you develop
+  * Render changes [on the fly](/overview/usage) with [live reload](#) as you develop
+  * Complete theme support
   * Host your site anywhere
-  * Support for disqus comments
-  * Dynamic menu creation
-  * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter)
-  * [permalink](/extras/permalinks) pattern support
-  * [pretty urls](/extras/urls) support
-  * [shortcodes](/extras/shortcodes)
-  * [Aliases](/extras/aliases) (redirects)
-  * Automatic [RSS](/layout/rss) creation 
-  * Support for go and amber templates
+
+### Organization
+
+  * Straightforward [organization](/content/organization)
+  * Support for [website sections](/content/sections)
+  * Completely customizable [urls](/extras/urls)
   * Support for [categories](/indexes/category) and tags
-  * Support for configurable [indexes](/indexes/overview) to create your own organization
-  * Syntax [highlighting](/extras/highlighting) powered by pygments
+  * Support for configurable [taxonomies](/indexes/overview) to create your own organization
   * Ability to [sort content](/content/ordering) as you desire
   * Automatic [table of contents](/extras/toc) generation
+  * Dynamic menu creation
+  * [pretty urls](/extras/urls) support
+  * [permalink](/extras/permalinks) pattern support
+  * [Aliases](/extras/aliases) (redirects)
+
+### Content
+
+  * Content written in [Markdown](/content/example)
+  * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter)
+  * Completely [customizable homepage](/layout/homepage)
+  * Support for multiple [content types](/content/types)
   * Automatic and user defined [summaries](/content/summaries)
+  * [shortcodes](/extras/shortcodes) to enable rich content inside of markdown
   * ["Minutes to Read"](/layout/variables) functionality
   * ["Wordcount"](/layout/variables) functionality
+
+### Additional Features
+
+  * Integrated Disqus comment support
+  * Automatic [RSS](/layout/rss) creation
+  * Support for go and amber templates
+  * Syntax [highlighting](/extras/highlighting) powered by pygments
 
 See what's coming next in the [roadmap](/meta/roadmap)
 
 ## Who should use Hugo?
 
 Hugo is for people that prefer writing in a text editor over
-a browser.  
+a browser.
 
 Hugo is for people who want to hand code their own website without
 worrying about setting up complicated runtimes, dependencies and

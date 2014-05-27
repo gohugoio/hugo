@@ -1,14 +1,20 @@
 ---
 title: "Sitemap Template"
+linktitle: "Sitemap"
 date: "2014-05-07"
-weight: 45
+weight: 95
 notoc: true
 menu:
   main:
     parent: 'layout'
+aliases: ["/layout/sitemap/"]
+prev: "/templates/rss"
+next: "/templates/404"
 ---
 
 A single Sitemap template is used to generate the `sitemap.xml` file.
+Hugo Automatically comes with this template file. **No work is needed on
+the users part unless they want to customize the sitemap.xml.**
 
 This page is of the type "node" and have all the [node
 variables](/layout/variables/) available to use in this template
@@ -20,10 +26,10 @@ along with Sitemap-specific ones:
 In addition to the standard node variables, the homepage has access to all
 site pages through `.Data.Pages`.
 
-    ▾ layouts/
-        sitemap.xml
+If provided Hugo will use /layouts/sitemap.xml instead of the internal
+one.
 
-## sitemap.xml
+## Hugo’s sitemap.xml
 
 This template respects the version 0.9 of the [Sitemap
 Protocol](http://www.sitemaps.org/protocol.html).

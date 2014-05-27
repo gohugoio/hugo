@@ -1,44 +1,71 @@
 ---
-title: "Content Templates"
+title: "Single Content Template"
+linktitle: "Single"
 date: "2013-07-01"
+weight: 30
 menu:
   main:
     parent: 'layout'
+aliases: ["/layout/functions/"]
+prev: "/templates/variables"
+next: "/templates/list"
 ---
 
-Content templates are created in a directory matching the name of the content.
+The primary view of content in hugo is the single view. Hugo for every
+markdown file provided hugo will render it with a single template.
+
+
+## Which Template will be rendered?
+Hugo uses a set of rules to figure out which template to use when
+rendering a specific page.
+
+Hugo will use the following prioritized list. If a file isn’t present
+than the next one in the list will be used. This enables you to craft
+specific layouts when you want to without creating more templates
+then necessary. For most sites only the \_default file at the end of
+the list will be needed.
+
+Users can specify the `type` and `layout` in the [front-matter](/content/front-matter). `Section`
+is determined based on the content file’s location. If `type` is provide
+it will be used instead of `section`.
+
+### Single
+
+* /layouts/`TYPE` or `SECTION`/`LAYOUT`.html
+* /layouts/`TYPE` or `SECTION`/single.html
+* /layouts/\_default/single.html
+* /themes/`THEME`/layouts/`TYPE` or `SECTION`/`LAYOUT`.html
+* /themes/`THEME`/layouts/`TYPE` or `SECTION`/single.html
+* /themes/`THEME`/layouts/\_default/single.html
+
+## Example Single Template File
 
 Content pages are of the type "page" and have all the [page
-variables](/layout/variables/) available to use in the templates.
+variables](/layout/variables/) and [site
+variables](/templates/variables/) available to use in the templates.
 
 In the following examples we have created two different content types as well as
 a default content type.
 
+The default content template to be used in the event that a specific
+template has not been provided for that type. The default type works the
+same as the other types but the directory must be called "\_default".
+
     ▾ layouts/
+      ▾ _default/
+          single.html
       ▾ post/
           single.html
       ▾ project/
           single.html
 
-Hugo also has support for a default content template to be used in the event
-that a specific template has not been provided for that type. The default type
-works the same as the other types but the directory must be called "_default".
-[Content views](/layout/views) can also be defined in the "_default" directory.
-
-
-    ▾ layouts/
-      ▾ _default/
-          single.html
-
-
-
 
 ## post/single.html
 This content template is used for [spf13.com](http://spf13.com).
-It makes use of [chrome templates](/layout/chrome)
+It makes use of [partial templates](/layout/partials)
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+    {{ template "partials/header.html" . }}
+    {{ template "partials/subheader.html" . }}
     {{ $baseurl := .Site.BaseUrl }}
 
     <section id="main">
@@ -77,17 +104,17 @@ It makes use of [chrome templates](/layout/chrome)
         </div>
     </aside>
 
-    {{ template "chrome/disqus.html" . }}
-    {{ template "chrome/footer.html" . }}
+    {{ template "partials/disqus.html" . }}
+    {{ template "partials/footer.html" . }}
 
 
 ## project/single.html
 This content template is used for [spf13.com](http://spf13.com).
-It makes use of [chrome templates](/layout/chrome)
+It makes use of [partial templates](/layout/partials)
 
 
-    {{ template "chrome/header.html" . }}
-    {{ template "chrome/subheader.html" . }}
+    {{ template "partials/header.html" . }}
+    {{ template "partials/subheader.html" . }}
     {{ $baseurl := .Site.BaseUrl }}
 
     <section id="main">
@@ -124,9 +151,10 @@ It makes use of [chrome templates](/layout/chrome)
     </div>
     {{ end }}
 
-    {{ template "chrome/footer.html" }}
-
+    {{ template "partials/footer.html" }}
 
 Notice how the project/single.html template uses an additional parameter unique
 to this template. This doesn't need to be defined ahead of time. If the key is
-present in the front matter than it can be used in the template.
+present in the front matter than it can be used in the template. To
+easily generate new content of this type with these keys ready use
+[content archetypes](/content/archetypes).

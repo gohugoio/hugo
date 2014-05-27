@@ -1,10 +1,13 @@
 ---
-title: "Using Go Templates"
+title: "Go Template Primer"
 date: "2013-07-01"
+aliases: ["/layout/go-templates/"]
 weight: 15
 menu:
   main:
     parent: 'layout'
+prev: "/templates/overview"
+next: "/templates/functions"
 ---
 
 Hugo uses the excellent [go][] [html/template][gohtmltemplate] library for

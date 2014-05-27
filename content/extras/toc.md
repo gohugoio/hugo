@@ -1,10 +1,12 @@
 ---
 title: "Table of Contents"
 date: "2013-07-09"
-weight: 70
+weight: 60
 menu:
   main:
     parent: 'extras'
+prev: "/extras/highlighting"
+next: "/extras/urls"
 ---
 
 Hugo will automatically parse the markdown for your content and create
@@ -24,12 +26,12 @@ Hugo will take this markdown and create a table of contents stored in the
 
 This is example code of a [single.html template](/layout/content).
 
-    {{ template "chrome/header.html" . }}
+    {{ template "partials/header.html" . }}
         <div id="toc" class="well col-md-4 col-sm-6">
         {{ .TableOfContents }}
         </div>
         <h1>{{ .Title }}</h1>
         {{ .Content }}
-    {{ template "chrome/footer.html" . }}
+    {{ template "partials/footer.html" . }}
 
 

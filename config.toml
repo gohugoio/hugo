@@ -1,27 +1,46 @@
 baseurl = "http://hugo.spf13.com"
+MetaDataFormat = "yaml"
 
 [indexes]
   tag = "tags"
   group = "groups"
 
 [[menu.main]]
+    name = "about hugo"
+    pre = "<i class='fa fa-heart'></i>"
+    weight = -110
+    identifier = "about"
+[[menu.main]]
     name = "getting started"
+    pre = "<i class='fa fa-road'></i>"
     weight = -100
 [[menu.main]]
     name = "content"
+    pre = "<i class='fa fa-file-text'></i>"
     weight = -90
 [[menu.main]]
-    name = "layout"
+    name = "themes"
+    pre = "<i class='fa fa-desktop'></i>"
+    weight = -85
+[[menu.main]]
+    name = "templates"
+    identifier = "layout"
+    pre = "<i class='fa fa-columns'></i>"
     weight = -80
 [[menu.main]]
-    name = "taxonomy"
+    name = "taxonomies"
+    identifier = "taxonomy"
+    pre = "<i class='fa fa-tags'></i>"
     weight = -70
 [[menu.main]]
     name = "extras"
+    pre = "<i class='fa fa-gift'></i>"
     weight = -60
 [[menu.main]]
     name = "community"
+    pre = "<i class='fa fa-group'></i>"
     weight = -50
 [[menu.main]]
     name = "tutorials"
+    pre = "<i class='fa fa-book'></i>"
     weight = -40

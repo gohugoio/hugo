@@ -1,27 +1,23 @@
 ---
-title: "Roadmap"
+title: "Hugo Roadmap"
 date: "2013-07-01"
-aliases: ["/doc/roadmap/"]
-groups: ["meta"]
-groups_weight: 20
+aliases: ["/doc/roadmap/","/meta/roadmap/"]
+weight: 20
 notoc: true
 menu:
-  right:
-    parent: 'meta'
+  main:
+    parent: 'about'
 ---
 
 In no particular order, here is what we are working on:
 
- * Pagination
- * Better error handling
- * Related Posts
- * Support for other formats
- * Full theming support
- * Ability to automatically import from other website systems (wordpress, jekyll)
- * Ship with a few default themes
+ * Intelligently Related Posts
+ * Even easier deployment to S3, SSH, Github, rsync
+ * Import from other website systems (wordpress, jekyll)
  * An interactive web based editor
- * Easy deployment to S3, SSH, Github, rsync
- * Live preview (auto refresh in browser)
+ * Additional Themes
  * Dynamic image resizing via shortcodes
-
+ * Support for additional formats
+ * Pagination
+ * Your best ideas
 

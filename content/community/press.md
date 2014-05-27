@@ -4,6 +4,8 @@ date = 2014-03-24T20:00:00Z
 linktitle = "Press"
 weight = 20
 notoc = true
+prev = "/community/mailing-list"
+next = "/community/contributing"
 [menu.main]
     parent = "community"
 +++

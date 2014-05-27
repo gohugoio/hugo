@@ -6,8 +6,10 @@ linktitle: "Example"
 menu:
     main:
         parent: 'content'
-weight: 50
+weight: 70
 notoc: true
+prev: '/content/ordering'
+next: '/themes/overview'
 ---
 
 Somethings are better shown than explained. The following is a very basic example of a content file:

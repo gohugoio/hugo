@@ -3,11 +3,13 @@ title: "URLs"
 date: "2014-01-03"
 aliases:
   - "/doc/urls/"
-weight: 40
+weight: 70
 notoc: true
 menu:
   main:
     parent: 'extras'
+prev: "/extras/toc"
+next: "/community/mailing-list"
 ---
 
 ## Pretty Urls
@@ -16,7 +18,7 @@ By default Hugo will create content with 'pretty' urls. For example
 content created at /content/extras/urls.md will be rendered at
 /content/extras/urls/index.html and accessible at /content/extras/urls. No
 no standard server side configuration is required for these pretty urls to
-work. 
+work.
 
 If you would like to have uglyurls you are in luck. Hugo supports the
 ability to create your entire site with ugly urls. Simply use the

@@ -1,12 +1,30 @@
 ---
 title: "Release Notes"
 date: "2013-07-01"
-aliases: ["/doc/release-notes/"]
+aliases: ["/doc/release-notes/", "/meta/release-notes/"]
 weight: 10
 menu:
-  right:
-    parent: 'meta'
+  main:
+    parent: 'about'
 ---
+
+## **0.11.0** May 27, 2014
+  * Considerably faster... about 3 - 4x faster on average
+  * Live Reload... Hugo will automatically reload the browser when the build is complete
+  * Theme engine w/[Theme Repository](http://github.com/spf13/hugoThemes)
+  * Menu system with support for active page
+  * Builders to quickly create a new site, content or theme
+  * XML sitemap generation
+  * Integrated Disqus support
+  * Streamlined template organization
+  * Brand new docs site
+  * More sort options
+  * Logging support
+  * Much better error handling
+  * More informative verbose output
+  * Renamed Indexes > Taxonomies
+  * Renamed Chrome > Partials
+
 ## **0.10.0** March 1, 2014
   * [Syntax highlighting](/extras/highlighting) powered by pygments (**slow**)
   * Ability to [sort content](/content/ordering) many more ways
