@@ -174,11 +174,11 @@ func InitializeConfig() {
 	}
 
 	if viper.GetBool("verbose") {
-		jww.SetStdoutThreshold(jww.LevelDebug)
+		jww.SetStdoutThreshold(jww.LevelInfo)
 	}
 
 	if VerboseLog {
-		jww.SetLogThreshold(jww.LevelDebug)
+		jww.SetLogThreshold(jww.LevelInfo)
 	}
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
@@ -312,7 +312,7 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.AbsPathify(viper.GetString("StaticDir")))
+					isstatic := strings.HasPrefix(ev.Name, helpers.AbsPathify(viper.GetString("StaticDir"))) || strings.HasPrefix(ev.Name, helpers.AbsPathify("themes/"+viper.GetString("theme"))+"/static/")
 					static_changed = static_changed || isstatic
 					dynamic_changed = dynamic_changed || !isstatic
 
