@@ -35,11 +35,11 @@ func (c *connection) reader() {
 		}
 		switch true {
 		case bytes.Contains(message, []byte(`"command":"hello"`)):
-			wsHub.broadcast <- []byte(`{
-			  "command": "hello",
-			  "protocols": [ "http://livereload.com/protocols/official-7" ],
-			  "serverName": "Hugo"
-			  }`)
+			c.send <- []byte(`{
+				"command": "hello",
+				"protocols": [ "http://livereload.com/protocols/official-7" ],
+				"serverName": "Hugo"
+			}`)
 		}
 	}
 	c.ws.Close()
