@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"html/template"
 	"sort"
 	"strings"
 
@@ -25,8 +26,8 @@ type MenuEntry struct {
 	Name       string
 	Menu       string
 	Identifier string
-	PreName    string
-	PostName   string
+	Pre        template.HTML
+	Post       template.HTML
 	Weight     int
 	Parent     string
 	Children   Menu
@@ -76,6 +77,10 @@ func (me *MenuEntry) MarshallMap(ime map[string]interface{}) {
 			me.Weight = cast.ToInt(v)
 		case "name":
 			me.Name = cast.ToString(v)
+		case "pre":
+			me.Pre = template.HTML(cast.ToString(v))
+		case "post":
+			me.Post = template.HTML(cast.ToString(v))
 		case "identifier":
 			me.Identifier = cast.ToString(v)
 		case "parent":
