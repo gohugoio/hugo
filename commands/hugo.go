@@ -217,7 +217,7 @@ func copyStatic() error {
 
 		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
-		return fsync.Sync(publishDir, themeDir)
+		fsync.Sync(publishDir, themeDir)
 	}
 
 	// Copy Static to Destination
