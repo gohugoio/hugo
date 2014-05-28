@@ -1,0 +1,31 @@
+
+                    </div>
+                    </section>
+                </div>
+                <div class="col-md-1">
+                    {{ with .GetParam "next" }}
+                    <a class="navigation next" href="{{.}}">
+                        <i class="fa fa-angle-right"> </i>
+                    </a>
+                    {{ end }}
+                </div>
+              </div>
+              <!-- page start-->
+          </section>
+      </section>
+     <!--main content end-->
+  </section>
+  <!-- container section end -->
+    <!-- javascripts -->
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.scrollTo.min.js"></script>
+    <script src="/js/jquery.nicescroll.js" type="text/javascript"></script>
+    <!--custom script for all page-->
+    <script src="/static/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/js/scripts.js"></script>
+    <script async defer id="github-bjs" src="/js/buttons.js"></script>
+    {{ template "partials/analytics.html" . }}
+  </body>
+</html>
