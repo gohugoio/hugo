@@ -41,7 +41,7 @@ func TestPermalink(t *testing.T) {
 					Section: "z",
 					Url:     test.url,
 				},
-				Site: SiteInfo{
+				Site: &SiteInfo{
 					BaseUrl: test.base,
 				},
 			},
