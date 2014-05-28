@@ -83,6 +83,8 @@ func server(cmd *cobra.Command, args []string) {
 		serverPort = sp.Port
 	}
 
+	viper.Set("port", serverPort)
+
 	if serverAppend {
 		viper.Set("BaseUrl", strings.TrimSuffix(BaseUrl, "/")+":"+strconv.Itoa(serverPort))
 	} else {
