@@ -260,18 +260,7 @@ func (s *Site) initialize() (err error) {
 }
 
 func (s *Site) initializeSiteInfo() {
-	paramsV, ok := viper.Get("Params").(map[interface{}]interface{})
-	// Warning: viper.Get(map_item) returns map[interface{}]interface{}
-	// even if .SetDefault called with a map[string]interface{}
-	if !ok {
-		paramsV = make(map[interface{}]interface{})
-	}
-	params := make(map[string]interface{}, len(paramsV))
-	for k, v := range paramsV {
-		if s, ok := k.(string); ok {
-			params[s] = v
-		}
-	}
+	params := viper.GetStringMap("Params")
 
 	permalinks := make(PermalinkOverrides)
 	for k, v := range viper.GetStringMapString("Permalinks") {
