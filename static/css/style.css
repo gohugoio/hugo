@@ -35,6 +35,9 @@ Website: http://geekslabs.com/
     border-color: #adadad;
 }
 
+.nav-github {
+    width: 325px;
+}
  .nav-github > span {
      padding-right: 0.5em;
  }
