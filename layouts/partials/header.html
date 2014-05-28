@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keyword" content="">
+    <link rel="shortcut icon" href="img/favicon.png">
+
+    <title>{{.Title}}</title>
+
+    <link href="/css/bootstrap-theme.css" rel="stylesheet">
+    <link href="/css/elegant-icons-style.css" rel="stylesheet" />
+    <link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/style-responsive.css" rel="stylesheet" />
+    <link href="/css/monokai_sublime.css" rel="stylesheet" />
+
+  </head>
+
+  <body>
+  <!-- container section start -->
+  <section id="container" class="">
+
+      <!--header start-->
+      <header class="header black-bg">
+            <div class="toggle-nav">
+                <i class="fa fa-bars"></i>
+                <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+            </div>
+
+            <!--logo start-->
+            <a href="/" class="logo"><img src="/img/hugo-logo.png" style="height:40px;"></a>
+            <!--logo end-->
+            <div class="top-nav notification-row">
+                <!-- notification dropdown end-->
+                <div class="hidden-xs nav-github pull-right">
+
+                    <span rel="show-github" data-user="spf13" data-repo="hugo" data-type="follow"></span>
+                    <span rel="show-github" data-user="spf13" data-repo="hugo"></span>
+                    <span rel="show-github" data-user="spf13" data-repo="hugo" data-type="fork"></span>
+                    <!--<span rel="show-github" data-user="spf13" data-repo="hugo"><span class="github-btn github-watchers"><a class="btn btn-xs btn-default" href="https://github.com/spf13/hugo/" target="_blank"><i class="fa fa-github"></i> <span class="gh-text">Star</span></a><a class="gh-count" href="https://github.com/spf13/hugo/stargazers" target="_blank" style="display: inline-block;">2,144</a></span></span>-->
+                    <!--<span rel="show-github" data-user="spf13" data-repo="hugo" data-type="fork"><span class="github-btn github-forks"><a class="btn btn-xs btn-default" href="https://github.com/spf13/hugo/" target="_blank"><i class="fa fa-github"></i> <span class="gh-text">Fork</span></a><a class="gh-count" href="https://github.com/spf13/hugo/network" target="_blank" style="display: inline-block;">582</a></span></span>-->
+                    <!--<a href="https://github.com/spf13"       class="github-button" data-count-href="/spf13/followers" data-count-api="/users/spf13#followers">@spf13</a> &nbsp;-->
+                    <!--<a href="https://github.com/spf13/hugo"  class="github-button" data-icon="octicon-star" data-count-href="/spf13/hugo/stargazers" data-count-api="/repos/spf13/hugo#stargazers_count">Star</a> &nbsp;-->
+                    <!--<a href="https://github.com/spf13/hugo"  class="github-button" data-icon="octicon-git-branch-create" data-count-href="/spf13/hugo/network" data-count-api="/repos/spf13/hugo#forks_count">Fork</a>-->
+                </div>
+            </div>
+
+            <div class="nav title-row" id="top_menu">
+                <h1 class="nav top-menu"> {{.Title}} </h1>
+            </div>
+      </header>
+      <!--header end-->
+
+{{ template "partials/menu.html" . }}
+
+      <!--main content start-->
+      <section id="main-content">
+          <section class="wrapper">
+
+              <!--<div class="row">-->
+                  <!--<div class="col-lg-12">-->
+                      <!--breadcrumbs start -->
+                      <!--<ul class="breadcrumb">-->
+                          <!--<li><a href="#"><i class="icon_house_alt"></i> Home</a></li>-->
+                          <!--<li><a href="#"> UI Kit</a></li>-->
+                          <!--<li class="active"> General</li>-->
+                      <!--</ul>-->
+                      <!--breadcrumbs end -->
+                  <!--</div>-->
+              <!--</div>-->
+
+              <div class="row">
+                  <div class="col-md-1">
+                      {{ with .GetParam "prev" }}
+                      <a class="navigation prev" href="{{.}}">
+                      <i class="fa fa-angle-left"></i>
+                      </a>
+                      {{ end }}
+                  </div>
+                <div class="col-md-10">
+                    <section class="panel">
+                          <!--<header class="panel-heading">-->
+                              <!--<h3>{{.Title}}</h3>-->
+                          <!--</header>-->
+                    <div class="panel-body">

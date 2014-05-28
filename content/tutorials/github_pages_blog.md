@@ -7,7 +7,7 @@ author: "Spencer Lyon"
 menu:
   main:
     parent: 'tutorials'
-prev: "/community/contributors"
+prev: "/community/contributing"
 next: "/tutorials/mathjax"
 ---
 

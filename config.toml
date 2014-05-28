@@ -6,6 +6,11 @@ MetaDataFormat = "yaml"
   group = "groups"
 
 [[menu.main]]
+    name = "Download Hugo"
+    pre = "<i class='fa fa-download'></i>"
+    url = "https://github.com/spf13/hugo/releases"
+    weight = -200
+[[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
     weight = -110
@@ -37,10 +42,10 @@ MetaDataFormat = "yaml"
     pre = "<i class='fa fa-gift'></i>"
     weight = -60
 [[menu.main]]
-    name = "community"
-    pre = "<i class='fa fa-group'></i>"
-    weight = -50
-[[menu.main]]
     name = "tutorials"
     pre = "<i class='fa fa-book'></i>"
     weight = -40
+[[menu.main]]
+    name = "community"
+    pre = "<i class='fa fa-group'></i>"
+    weight = -50

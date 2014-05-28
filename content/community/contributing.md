@@ -7,7 +7,7 @@ menu:
   main:
     parent: 'community'
 prev: "/community/press"
-next: "/community/contributors"
+next: "/tutorials/github_pages_blog"
 ---
 
 All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project. Feel free to pick something from the roadmap
