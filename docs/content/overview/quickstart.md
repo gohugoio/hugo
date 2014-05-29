@@ -1,13 +1,13 @@
 ---
-title: "Hugo Quickstart Guide"
-date: "2013-07-01"
-linktitle: "Quickstart"
-weight: 10
+date: 2013-07-01
+linktitle: Quickstart
 menu:
   main:
-    parent: 'getting started'
-prev: '/overview/introduction'
-next: '/overview/installing'
+    parent: getting started
+next: /overview/installing
+prev: /overview/introduction
+title: Hugo Quickstart Guide
+weight: 10
 ---
 
 _This quickstart depends on features introduced in hugo v0.11. If you

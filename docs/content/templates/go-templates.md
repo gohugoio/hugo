@@ -1,13 +1,14 @@
 ---
-title: "Go Template Primer"
-date: "2013-07-01"
-aliases: ["/layout/go-templates/"]
-weight: 15
+aliases:
+- /layout/go-templates/
+date: 2013-07-01
 menu:
   main:
-    parent: 'layout'
-prev: "/templates/overview"
-next: "/templates/functions"
+    parent: layout
+next: /templates/functions
+prev: /templates/overview
+title: Go Template Primer
+weight: 15
 ---
 
 Hugo uses the excellent [go][] [html/template][gohtmltemplate] library for

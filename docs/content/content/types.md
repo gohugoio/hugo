@@ -1,13 +1,13 @@
 ---
-title: "Content Types"
-date: "2013-07-01"
-linktitle: "Types"
+date: 2013-07-01
+linktitle: Types
 menu:
-    main:
-        parent: 'content'
+  main:
+    parent: content
+next: /content/archetypes
+prev: /content/sections
+title: Content Types
 weight: 40
-prev: '/content/sections'
-next: '/content/archetypes'
 ---
 
 Hugo has full support for different types of content. A content type can have a

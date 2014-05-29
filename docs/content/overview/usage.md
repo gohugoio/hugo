@@ -1,14 +1,15 @@
 ---
-title: "Using Hugo"
-date: "2013-07-01"
-aliases: ["/doc/usage/"]
-weight: 30
-notoc: true
+aliases:
+- /doc/usage/
+date: 2013-07-01
 menu:
   main:
-    parent: 'getting started'
-prev: '/overview/installing'
-next: '/overview/configuration'
+    parent: getting started
+next: /overview/configuration
+notoc: true
+prev: /overview/installing
+title: Using Hugo
+weight: 30
 ---
 
 Make sure either hugo is in your path or provide a path to it.

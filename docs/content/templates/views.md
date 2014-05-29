@@ -1,13 +1,14 @@
 ---
-title: "Content Views"
-date: "2013-07-01"
-weight: 70
+aliases:
+- /templates/views/
+date: 2013-07-01
 menu:
   main:
-    parent: 'layout'
-aliases: ["/templates/views/"]
-prev: "/templates/terms"
-next: "/templates/partials"
+    parent: layout
+next: /templates/partials
+prev: /templates/terms
+title: Content Views
+weight: 70
 ---
 
 In addition to the [single content template](/templates/content/), Hugo can render alternative views of

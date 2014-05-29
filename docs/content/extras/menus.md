@@ -1,13 +1,13 @@
-+++
-title = "Menus"
-weight = 20
-prev = "/extras/livereload"
-next = "/extras/permalinks"
-date = 2014-05-14T02:36:37Z
-[menu]
-  [menu.main]
-    parent = "extras"
-+++
+---
+date: 2014-05-14T02:36:37Z
+menu:
+  main:
+    parent: extras
+next: /extras/permalinks
+prev: /extras/livereload
+title: Menus
+weight: 20
+---
 
 Hugo has a simple yet powerful menu system that permits content to be
 placed in menus with a good degree of control without a lot of work. 

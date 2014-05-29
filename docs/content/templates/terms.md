@@ -1,14 +1,17 @@
 ---
-title: "Taxonomy Terms Template"
-linktitle: "Taxonomy Terms"
-date: "2014-05-21"
-weight: 60
-aliases: ["/indexes/lists/","/doc/indexes/", "/extras/indexes"]
+aliases:
+- /indexes/lists/
+- /doc/indexes/
+- /extras/indexes
+date: 2014-05-21
+linktitle: Taxonomy Terms
 menu:
   main:
-    parent: 'layout'
-prev: "/templates/homepage"
-next: "/templates/views"
+    parent: layout
+next: /templates/views
+prev: /templates/homepage
+title: Taxonomy Terms Template
+weight: 60
 ---
 
 A unique template is needed to create a list of the terms for a given

@@ -1,11 +1,13 @@
-+++
-title = "Tech Made Plain"
-date = 2014-05-22T19:54:00Z 
-description = "Tech Coaching site"
-license = ""
-licenseLink = ""
-sitelink = "http://techmadeplain.com"
-thumbnail = "/static/img/techmadeplain-tn.jpg"
-tags = ["personal", "blog"]
-+++
+---
+date: 2014-05-22T19:54:00Z
+description: Tech Coaching site
+license: ""
+licenseLink: ""
+sitelink: http://techmadeplain.com
+tags:
+- personal
+- blog
+thumbnail: /static/img/techmadeplain-tn.jpg
+title: Tech Made Plain
+---
 

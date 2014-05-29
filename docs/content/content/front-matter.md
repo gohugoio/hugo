@@ -1,15 +1,15 @@
-+++
-title = "Front Matter"
-date = "2013-07-01"
-aliases = ["/doc/front-matter/"]
-weight = 20
-prev = "/content/organization"
-next = "/content/sections"
-
-[menu.main]
-    parent = "content"
-
-+++
+---
+aliases:
+- /doc/front-matter/
+date: 2013-07-01
+menu:
+  main:
+    parent: content
+next: /content/sections
+prev: /content/organization
+title: Front Matter
+weight: 20
+---
 
 The front matter is one of the features that gives Hugo its strength. It enables
 you to include the meta data of the content right with it. Hugo supports a few

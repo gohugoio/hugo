@@ -1,14 +1,14 @@
 ---
-title: "Hosting on GitHub Pages"
-linktitle: "Hosting on GitHub"
-date: "2014-03-21"
-weight: 10
-author: "Spencer Lyon"
+author: Spencer Lyon
+date: 2014-03-21
+linktitle: Hosting on GitHub
 menu:
   main:
-    parent: 'tutorials'
-prev: "/community/contributing"
-next: "/tutorials/mathjax"
+    parent: tutorials
+next: /tutorials/mathjax
+prev: /community/contributing
+title: Hosting on GitHub Pages
+weight: 10
 ---
 
 ## Intro

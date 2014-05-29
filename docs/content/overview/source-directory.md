@@ -1,14 +1,15 @@
 ---
-title: "Source Organization"
-date: "2013-07-01"
-aliases: ["/doc/source-directory/"]
-weight: 50
-notoc: true
+aliases:
+- /doc/source-directory/
+date: 2013-07-01
 menu:
   main:
-    parent: 'getting started'
-prev: '/overview/configuration'
-next: '/content/organization'
+    parent: getting started
+next: /content/organization
+notoc: true
+prev: /overview/configuration
+title: Source Organization
+weight: 50
 ---
 
 Hugo takes a single directory and uses it as the input for creating a complete

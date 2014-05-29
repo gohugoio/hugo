@@ -1,14 +1,13 @@
-+++
-title = "Customizing a Theme"
-weight = 40
-date = 2014-05-12T10:09:34Z
-prev = "/themes/usage"
-next = "/themes/creation"
-
-[menu]
-  [menu.main]
-    parent = "themes"
-+++
+---
+date: 2014-05-12T10:09:34Z
+menu:
+  main:
+    parent: themes
+next: /themes/creation
+prev: /themes/usage
+title: Customizing a Theme
+weight: 40
+---
 
 Hugo themes permit you to supplement or override any template or file
 from within your working directory.

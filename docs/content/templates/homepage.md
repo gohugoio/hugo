@@ -1,14 +1,15 @@
 ---
-title: "Homepage"
-date: "2013-07-01"
-weight: 50
-notoc: true
+aliases:
+- /layout/homepage/
+date: 2013-07-01
 menu:
   main:
-    parent: 'layout'
-aliases: ["/layout/homepage/"]
-prev: "/templates/list"
-next: "/templates/terms"
+    parent: layout
+next: /templates/terms
+notoc: true
+prev: /templates/list
+title: Homepage
+weight: 50
 ---
 
 The home page of a website is often formatted differently than the other

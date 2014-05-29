@@ -1,14 +1,13 @@
-+++
-title = "Creating a Theme"
-weight = 50
-date = 2014-05-12T10:09:17Z
-prev = "/themes/customizing"
-next = "/templates/overview"
-
-[menu]
-  [menu.main]
-    parent = "themes"
-+++
+---
+date: 2014-05-12T10:09:17Z
+menu:
+  main:
+    parent: themes
+next: /templates/overview
+prev: /themes/customizing
+title: Creating a Theme
+weight: 50
+---
 
 Hugo has the ability to create a new theme in your themes directory for you
 using the `hugo new` command.

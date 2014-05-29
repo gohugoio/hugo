@@ -1,12 +1,12 @@
 ---
-title: "Table of Contents"
-date: "2013-07-09"
-weight: 60
+date: 2013-07-09
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/highlighting"
-next: "/extras/urls"
+    parent: extras
+next: /extras/urls
+prev: /extras/highlighting
+title: Table of Contents
+weight: 60
 ---
 
 Hugo will automatically parse the markdown for your content and create

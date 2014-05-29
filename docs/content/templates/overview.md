@@ -1,14 +1,16 @@
 ---
-title: "Hugo Templates"
-date: "2013-07-01"
-aliases: ["/doc/templates/", "/layout/templates/"]
-linktitle: "Overview"
-weight: 10
+aliases:
+- /doc/templates/
+- /layout/templates/
+date: 2013-07-01
+linktitle: Overview
 menu:
   main:
-    parent: 'layout'
-prev: "/themes/creation"
-next: "/templates/go-templates"
+    parent: layout
+next: /templates/go-templates
+prev: /themes/creation
+title: Hugo Templates
+weight: 10
 ---
 
 Hugo uses the excellent go html/template library for its template engine.

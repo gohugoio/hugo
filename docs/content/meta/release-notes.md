@@ -1,11 +1,13 @@
 ---
-title: "Release Notes"
-date: "2013-07-01"
-aliases: ["/doc/release-notes/", "/meta/release-notes/"]
-weight: 10
+aliases:
+- /doc/release-notes/
+- /meta/release-notes/
+date: 2013-07-01
 menu:
   main:
-    parent: 'about'
+    parent: about
+title: Release Notes
+weight: 10
 ---
 
 ## **0.11.0** May 28, 2014

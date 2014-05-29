@@ -1,14 +1,13 @@
-+++
-title = "Using a Theme"
-weight = 30
-date = 2014-05-12T10:09:27Z
-prev = "/themes/installing"
-next = "/themes/customizing"
-
-[menu]
-  [menu.main]
-    parent = "themes"
-+++
+---
+date: 2014-05-12T10:09:27Z
+menu:
+  main:
+    parent: themes
+next: /themes/customizing
+prev: /themes/installing
+title: Using a Theme
+weight: 30
+---
 
 Please make certain you have installed the themes you want to use in the
 /themes directory.

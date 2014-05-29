@@ -1,15 +1,16 @@
 ---
-title: "RSS (feed) Templates"
-linktitle: "RSS"
-date: "2013-07-01"
-weight: 90
-notoc: "one"
+aliases:
+- /layout/rss/
+date: 2013-07-01
+linktitle: RSS
 menu:
   main:
-    parent: 'layout'
-aliases: ["/layout/rss/"]
-prev: "/templates/partials"
-next: "/templates/sitemap"
+    parent: layout
+next: /templates/sitemap
+notoc: one
+prev: /templates/partials
+title: RSS (feed) Templates
+weight: 90
 ---
 
 Like all other templates, you can use a single RSS template to generate

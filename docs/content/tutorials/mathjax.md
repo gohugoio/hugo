@@ -1,13 +1,13 @@
 ---
-title: "MathJax Support"
-date: "2014-03-20"
-weight: 10
-author: "Spencer Lyon"
+author: Spencer Lyon
+date: 2014-03-20
 menu:
   main:
-    parent: 'tutorials'
-prev: "/tutorials/github_pages_blog"
-next: "/tutorials/migrate-from-jekyll"
+    parent: tutorials
+next: /tutorials/migrate-from-jekyll
+prev: /tutorials/github_pages_blog
+title: MathJax Support
+weight: 10
 ---
 
 ## What is MathJax?

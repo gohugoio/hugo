@@ -1,14 +1,15 @@
 ---
-title: "Content Organization"
-date: "2013-07-01"
-aliases: ["/doc/organization/"]
-linktitle: "Organization"
-weight: 10
+aliases:
+- /doc/organization/
+date: 2013-07-01
+linktitle: Organization
 menu:
   main:
-    parent: 'content'
-prev: '/overview/source-directory'
-next: '/content/front-matter'
+    parent: content
+next: /content/front-matter
+prev: /overview/source-directory
+title: Content Organization
+weight: 10
 ---
 
 Hugo uses markdown files with headers commonly called the front matter. Hugo

@@ -1,15 +1,16 @@
 ---
-title: "Configuring Hugo"
-date: "2013-07-01"
-aliases: ["/doc/configuration/"]
-linktitle: "Configuration"
-weight: 40
-notoc: true
+aliases:
+- /doc/configuration/
+date: 2013-07-01
+linktitle: Configuration
 menu:
   main:
-    parent: 'getting started'
-prev: '/overview/usage'
-next: '/overview/source-directory'
+    parent: getting started
+next: /overview/source-directory
+notoc: true
+prev: /overview/usage
+title: Configuring Hugo
+weight: 40
 ---
 
 The directory structure and templates provide the majority of the

@@ -1,14 +1,13 @@
-+++
-title = "Installing Themes"
-weight = 20
-date = 2014-05-12T10:09:49Z
-prev = "/themes/overview"
-next = "/themes/usage"
-
-[menu]
-  [menu.main]
-    parent = "themes"
-+++
+---
+date: 2014-05-12T10:09:49Z
+menu:
+  main:
+    parent: themes
+next: /themes/usage
+prev: /themes/overview
+title: Installing Themes
+weight: 20
+---
 
 Hugo themes are located in a centralized github repository. [Hugo Themes
 Repo](http://github.com/spf13/hugoThemes) itself is really a meta

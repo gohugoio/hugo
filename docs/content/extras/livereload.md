@@ -1,12 +1,12 @@
 ---
-title: "Live Reload"
-date: "2014-05-26"
-weight: 15
+date: 2014-05-26
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/comments"
-next: "/extras/menus"
+    parent: extras
+next: /extras/menus
+prev: /extras/comments
+title: Live Reload
+weight: 15
 ---
 
 Hugo may not be the first static site generator to utilize live reload
