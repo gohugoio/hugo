@@ -44,6 +44,7 @@ type Page struct {
 	Params            map[string]interface{}
 	contentType       string
 	Draft             bool
+	PublishDate       time.Time
 	Aliases           []string
 	Tmpl              Template
 	Markup            string
@@ -276,6 +277,15 @@ func (p *Page) LinkTitle() string {
 	}
 }
 
+func (page *Page) ShouldBuild() bool {
+	if viper.GetBool("BuildFuture") || page.PublishDate.IsZero() || page.PublishDate.Before(time.Now()) {
+		if viper.GetBool("BuildDrafts") || !page.Draft {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Page) Permalink() (string, error) {
 	link, err := p.permalink()
 	if err != nil {
@@ -323,8 +333,10 @@ func (page *Page) update(f interface{}) error {
 			page.contentType = cast.ToString(v)
 		case "keywords":
 			page.Keywords = cast.ToStringSlice(v)
-		case "date", "pubdate":
+		case "date":
 			page.Date = cast.ToTime(v)
+		case "publishdate", "pubdate":
+			page.PublishDate = cast.ToTime(v)
 		case "draft":
 			page.Draft = cast.ToBool(v)
 		case "layout":

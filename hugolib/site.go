@@ -344,7 +344,7 @@ func (s *Site) CreatePages() (err error) {
 				return err
 			}
 
-			if viper.GetBool("BuildDrafts") || !page.Draft {
+			if page.ShouldBuild() {
 				s.Pages = append(s.Pages, page)
 			}
 

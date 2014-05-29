@@ -219,6 +219,66 @@ func TestTargetPath(t *testing.T) {
 	}
 }
 
+func TestDraftAndFutureRender(t *testing.T) {
+	files := make(map[string][]byte)
+	target := &target.InMemoryTarget{Files: files}
+	sources := []source.ByteSource{
+		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*"), "sect"},
+		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*"), "sect"},
+		{"sect/doc3.md", []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*"), "sect"},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*"), "sect"},
+	}
+
+	siteSetup := func() *Site {
+		s := &Site{
+			Target: target,
+			Source: &source.InMemorySource{ByteSource: sources},
+		}
+
+		s.initializeSiteInfo()
+
+		if err := s.CreatePages(); err != nil {
+			t.Fatalf("Unable to create pages: %s", err)
+		}
+		return s
+	}
+
+	viper.Set("baseurl", "http://auth/bub")
+
+	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
+	s := siteSetup()
+	if len(s.Pages) != 1 {
+		t.Fatal("Draft or Future dated content published unexpectedly")
+	}
+
+	// only publishDate in the past should be rendered
+	viper.Set("BuildDrafts", true)
+	s = siteSetup()
+	if len(s.Pages) != 2 {
+		t.Fatal("Future Dated Posts published unexpectedly")
+	}
+
+	//  drafts should not be rendered, but all dates should
+	viper.Set("BuildDrafts", false)
+	viper.Set("BuildFuture", true)
+	s = siteSetup()
+	if len(s.Pages) != 2 {
+		t.Fatal("Draft posts published unexpectedly")
+	}
+
+	// all 4 should be included
+	viper.Set("BuildDrafts", true)
+	viper.Set("BuildFuture", true)
+	s = siteSetup()
+	if len(s.Pages) != 4 {
+		t.Fatal("Drafts or Future posts not included as expected")
+	}
+
+	//setting defaults back
+	viper.Set("BuildDrafts", false)
+	viper.Set("BuildFuture", false)
+}
+
 func TestSkipRender(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}

@@ -51,7 +51,7 @@ Complete documentation is available at http://hugo.spf13.com`,
 
 var hugoCmdV *cobra.Command
 
-var BuildWatch, Draft, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap bool
+var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap bool
 var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
@@ -70,6 +70,7 @@ func AddCommands() {
 
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
+	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with datePublished in the future")
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
@@ -108,6 +109,7 @@ func InitializeConfig() {
 	viper.SetDefault("PublishDir", "public")
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)
+	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyUrls", false)
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("CanonifyUrls", false)
@@ -120,6 +122,10 @@ func InitializeConfig() {
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("buildFuture").Changed {
+		viper.Set("BuildFuture", Future)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("uglyUrls").Changed {
