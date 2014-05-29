@@ -1,15 +1,15 @@
 ---
-title: "URLs"
-date: "2014-01-03"
 aliases:
-  - "/doc/urls/"
-weight: 70
-notoc: true
+- /doc/urls/
+date: 2014-01-03
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/toc"
-next: "/community/mailing-list"
+    parent: extras
+next: /community/mailing-list
+notoc: true
+prev: /extras/toc
+title: URLs
+weight: 70
 ---
 
 ## Pretty Urls

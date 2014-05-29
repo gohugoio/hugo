@@ -1,13 +1,13 @@
 ---
-title: "Sections"
-date: "2013-07-01"
+date: 2013-07-01
 menu:
-    main:
-        parent: 'content'
-weight: 30
+  main:
+    parent: content
+next: /content/types
 notoc: true
-prev: '/content/front-matter'
-next: '/content/types'
+prev: /content/front-matter
+title: Sections
+weight: 30
 ---
 
 Hugo thinks that you organize your content with a purpose. The same structure

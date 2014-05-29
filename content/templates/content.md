@@ -1,14 +1,15 @@
 ---
-title: "Single Content Template"
-linktitle: "Single"
-date: "2013-07-01"
-weight: 30
+aliases:
+- /layout/functions/
+date: 2013-07-01
+linktitle: Single
 menu:
   main:
-    parent: 'layout'
-aliases: ["/layout/functions/"]
-prev: "/templates/variables"
-next: "/templates/list"
+    parent: layout
+next: /templates/list
+prev: /templates/variables
+title: Single Content Template
+weight: 30
 ---
 
 The primary view of content in hugo is the single view. Hugo for every

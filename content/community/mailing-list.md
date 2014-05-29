@@ -1,12 +1,12 @@
 ---
-title: "Mailing List"
-date: "2013-07-01"
-weight: 10
+date: 2013-07-01
 menu:
   main:
-    parent: 'community'
-prev: "/extras/urls"
-next: "/community/press"
+    parent: community
+next: /community/press
+prev: /extras/urls
+title: Mailing List
+weight: 10
 ---
 
 Hugo has two mailing lists:

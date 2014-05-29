@@ -1,14 +1,13 @@
-+++
-title = "Themes Overview"
-weight = 10
-date = 2014-05-12T10:03:52Z
-prev = "/content/example"
-next = "/themes/installing"
-
-[menu]
-  [menu.main]
-    parent = "themes"
-+++
+---
+date: 2014-05-12T10:03:52Z
+menu:
+  main:
+    parent: themes
+next: /themes/installing
+prev: /content/example
+title: Themes Overview
+weight: 10
+---
 
 Hugo provides a robust theming system which is simple, yet capable of producing
 even the most complicated websites.

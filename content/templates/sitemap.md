@@ -1,15 +1,16 @@
 ---
-title: "Sitemap Template"
-linktitle: "Sitemap"
-date: "2014-05-07"
-weight: 95
-notoc: true
+aliases:
+- /layout/sitemap/
+date: 2014-05-07
+linktitle: Sitemap
 menu:
   main:
-    parent: 'layout'
-aliases: ["/layout/sitemap/"]
-prev: "/templates/rss"
-next: "/templates/404"
+    parent: layout
+next: /templates/404
+notoc: true
+prev: /templates/rss
+title: Sitemap Template
+weight: 95
 ---
 
 A single Sitemap template is used to generate the `sitemap.xml` file.

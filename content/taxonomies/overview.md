@@ -1,15 +1,18 @@
 ---
-title: "Taxonomy Overview"
-linktitle: "Overview"
-date: "2013-07-01"
-aliases: ["/indexes/overview/","/doc/indexes/", "/extras/indexes"]
-weight: 10
+aliases:
+- /indexes/overview/
+- /doc/indexes/
+- /extras/indexes
+date: 2013-07-01
+linktitle: Overview
 menu:
   main:
-    parent: 'taxonomy'
-    identifier: 'taxonomy overview'
-prev: "/templates/404"
-next: "/taxonomies/usage"
+    identifier: taxonomy overview
+    parent: taxonomy
+next: /taxonomies/usage
+prev: /templates/404
+title: Taxonomy Overview
+weight: 10
 ---
 
 Hugo includes support for user defined groupings of content called

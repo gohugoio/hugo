@@ -1,13 +1,15 @@
 ---
-title: "Contributing to Hugo"
-date: "2013-07-01"
-aliases: ["/doc/contributing/", "/meta/contributing/"]
-weight: 30
+aliases:
+- /doc/contributing/
+- /meta/contributing/
+date: 2013-07-01
 menu:
   main:
-    parent: 'community'
-prev: "/community/press"
-next: "/tutorials/github_pages_blog"
+    parent: community
+next: /tutorials/github_pages_blog
+prev: /community/press
+title: Contributing to Hugo
+weight: 30
 ---
 
 All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project. Feel free to pick something from the roadmap

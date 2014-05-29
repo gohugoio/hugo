@@ -1,13 +1,14 @@
 ---
-title: "Shortcodes"
-date: "2013-07-01"
-aliases: ["/doc/shortcodes/"]
-weight: 40
+aliases:
+- /doc/shortcodes/
+date: 2013-07-01
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/permalinks"
-next: "/extras/highlighting"
+    parent: extras
+next: /extras/highlighting
+prev: /extras/permalinks
+title: Shortcodes
+weight: 40
 ---
 
 Because Hugo uses markdown for its simple content format, however there's a lot

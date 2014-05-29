@@ -1,13 +1,13 @@
 ---
-title: "Ordering Content"
-date: "2014-03-06"
-linktitle: "Ordering"
+date: 2014-03-06
+linktitle: Ordering
 menu:
   main:
-    parent: "content"
+    parent: content
+next: /content/example
+prev: /content/archetypes
+title: Ordering Content
 weight: 60
-prev: '/content/archetypes'
-next: '/content/example'
 ---
 
 Hugo provides you with all the flexibility you need to organize how your content is ordered.

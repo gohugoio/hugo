@@ -1,13 +1,14 @@
 ---
-title: "Partial Templates"
-date: "2013-07-01"
-weight: 80
+aliases:
+- /layout/chrome/
+date: 2013-07-01
 menu:
   main:
-    parent: 'layout'
-aliases: ["/layout/chrome/"]
-prev: "/templates/views"
-next: "/templates/rss"
+    parent: layout
+next: /templates/rss
+prev: /templates/views
+title: Partial Templates
+weight: 80
 ---
 
 It's not a requirement to have this, but in practice it's very

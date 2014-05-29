@@ -1,12 +1,14 @@
 ---
-title: "Hugo Roadmap"
-date: "2013-07-01"
-aliases: ["/doc/roadmap/","/meta/roadmap/"]
-weight: 20
-notoc: true
+aliases:
+- /doc/roadmap/
+- /meta/roadmap/
+date: 2013-07-01
 menu:
   main:
-    parent: 'about'
+    parent: about
+notoc: true
+title: Hugo Roadmap
+weight: 20
 ---
 
 In no particular order, here is what we are working on:

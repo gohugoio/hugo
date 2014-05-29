@@ -1,14 +1,15 @@
 ---
-title:  "Displaying Taxonomies"
-date: "2013-07-01"
-linktitle: "Displaying"
-aliases: ["/indexes/displaying/"]
-weight: 20
+aliases:
+- /indexes/displaying/
+date: 2013-07-01
+linktitle: Displaying
 menu:
   main:
-    parent: 'taxonomy'
-prev: "/taxonomies/usage"
-next: "/taxonomies/templates"
+    parent: taxonomy
+next: /taxonomies/templates
+prev: /taxonomies/usage
+title: Displaying Taxonomies
+weight: 20
 ---
 
 There are four common ways you can display the data in your

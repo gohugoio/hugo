@@ -1,14 +1,15 @@
 ---
-title: "Content List Template"
-linktitle: "List"
-date: "2013-07-01"
-weight: 40
+aliases:
+- /layout/indexes/
+date: 2013-07-01
+linktitle: List
 menu:
   main:
-    parent: 'layout'
-aliases: ["/layout/indexes/"]
-prev: "/templates/content"
-next: "/templates/homepage"
+    parent: layout
+next: /templates/homepage
+prev: /templates/content
+title: Content List Template
+weight: 40
 ---
 
 A list template is any template that will be used to render multiple pieces of

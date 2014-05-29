@@ -1,13 +1,13 @@
 ---
-title: "Hugo Builders"
-linktitle: "Builders"
-date: "2014-05-26"
-weight: 12
+date: 2014-05-26
+linktitle: Builders
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/aliases"
-next: "/extras/comments"
+    parent: extras
+next: /extras/comments
+prev: /extras/aliases
+title: Hugo Builders
+weight: 12
 ---
 
 Hugo provides the functionality to quickly get a site, theme or page

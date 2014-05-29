@@ -1,15 +1,16 @@
 ---
-title: "Example Content File"
-date: "2013-07-01"
-aliases: ["/doc/example/"]
-linktitle: "Example"
+aliases:
+- /doc/example/
+date: 2013-07-01
+linktitle: Example
 menu:
-    main:
-        parent: 'content'
-weight: 70
+  main:
+    parent: content
+next: /themes/overview
 notoc: true
-prev: '/content/ordering'
-next: '/themes/overview'
+prev: /content/ordering
+title: Example Content File
+weight: 70
 ---
 
 Somethings are better shown than explained. The following is a very basic example of a content file:

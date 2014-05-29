@@ -1,15 +1,15 @@
 ---
-title: "Permalinks"
-date: "2013-11-18"
 aliases:
-  - "/doc/permalinks/"
-weight: 30
-notoc: true
+- /doc/permalinks/
+date: 2013-11-18
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/menus"
-next: "/extras/shortcodes"
+    parent: extras
+next: /extras/shortcodes
+notoc: true
+prev: /extras/menus
+title: Permalinks
+weight: 30
 ---
 
 By default, content is laid out into the target `publishdir` (public)

@@ -1,13 +1,13 @@
 ---
-title: "Comments in Hugo"
-linktitle: "Comments"
-date: "2014-05-26"
-weight: 14
+date: 2014-05-26
+linktitle: Comments
 menu:
   main:
-    parent: 'extras'
-prev: "/extras/builders"
-next: "/extras/livereload"
+    parent: extras
+next: /extras/livereload
+prev: /extras/builders
+title: Comments in Hugo
+weight: 14
 ---
 
 As Hugo is a static site generator, the content produced is static and

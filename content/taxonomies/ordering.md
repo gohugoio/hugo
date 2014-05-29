@@ -1,15 +1,16 @@
 ---
-title: "Ordering Taxonomies"
-date: "2013-07-01"
-linktitle: "Ordering"
-aliases: ["/indexes/ordering/"]
-weight: 60
+aliases:
+- /indexes/ordering/
+date: 2013-07-01
+linktitle: Ordering
 menu:
   main:
-    identifier: "Ordering Taxonomies"
-    parent: 'taxonomy'
-prev: "/taxonomies/templates"
-next: "/extras/aliases"
+    identifier: Ordering Taxonomies
+    parent: taxonomy
+next: /extras/aliases
+prev: /taxonomies/templates
+title: Ordering Taxonomies
+weight: 60
 ---
 
 Hugo provides the ability to both:

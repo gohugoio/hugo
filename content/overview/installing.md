@@ -1,15 +1,14 @@
 ---
-title: "Installing Hugo"
-date: "2013-07-01"
-aliases: ["/doc/installing/"]
-weight: 20
+aliases:
+- /doc/installing/
+date: 2013-07-01
 menu:
   main:
-    parent: 'getting started'
-
-prev: '/overview/quickstart'
-next: '/overview/usage'
-
+    parent: getting started
+next: /overview/usage
+prev: /overview/quickstart
+title: Installing Hugo
+weight: 20
 ---
 
 Hugo is written in Go with support for Windows, Linux, FreeBSD and OSX.

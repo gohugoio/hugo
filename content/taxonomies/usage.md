@@ -1,13 +1,13 @@
 ---
-title: "Using Taxonomies"
-linktitle: "Usage"
-date: "2014-05-26"
-weight: 15
+date: 2014-05-26
+linktitle: Usage
 menu:
   main:
-    parent: 'taxonomy'
-prev: "/taxonomies/overview"
-next: "/taxonomies/displaying"
+    parent: taxonomy
+next: /taxonomies/displaying
+prev: /taxonomies/overview
+title: Using Taxonomies
+weight: 15
 ---
 
 ## Defining taxonomies for a site

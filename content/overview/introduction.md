@@ -1,12 +1,12 @@
 ---
-title: "Introduction to Hugo"
-date: "2013-07-01"
-linktitle: "Introduction"
-weight: 5
+date: 2013-07-01
+linktitle: Introduction
 menu:
   main:
-    parent: 'getting started'
-next: '/overview/quickstart'
+    parent: getting started
+next: /overview/quickstart
+title: Introduction to Hugo
+weight: 5
 ---
 
 ## What is Hugo?

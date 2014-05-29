@@ -1,14 +1,15 @@
 ---
-title: "Taxonomy Templates"
-date: "2013-07-01"
-linktitle: "Templates"
-aliases: ["/indexes/templates/"]
-weight: 30
+aliases:
+- /indexes/templates/
+date: 2013-07-01
+linktitle: Templates
 menu:
   main:
-    parent: 'taxonomy'
-prev: "/templates/displaying"
-next: "/taxonomies/ordering"
+    parent: taxonomy
+next: /taxonomies/ordering
+prev: /templates/displaying
+title: Taxonomy Templates
+weight: 30
 ---
 
 There are two different templates that the use of taxonomies will require you to provide.
