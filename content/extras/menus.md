@@ -37,12 +37,14 @@ A menu entry has the following properties:
 * **Parent**     string
 * **Children**   Menu
 
+And the following functions:
+
+* **HasChildren** bool
 
 Additionally there are some relevant functions available on the page:
 
- * **HasChildren** bool
- * **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
- * **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
+* **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
+* **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
 
 
 ## Adding content to menus
