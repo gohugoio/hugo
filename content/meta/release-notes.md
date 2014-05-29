@@ -18,6 +18,7 @@ menu:
   * [Integrated Disqus](/extras/comments) support
   * Streamlined [template organization](/templates/overview)
   * [Brand new docs site](http://hugo.spf13.com)
+  * Support for publishDate which allows for posts to be dated in the future
   * More [sort](/content/ordering) options
   * Logging support
   * Much better error handling

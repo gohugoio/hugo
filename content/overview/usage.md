@@ -35,7 +35,8 @@ Make sure either hugo is in your path or provide a path to it.
 
      Available Flags:
       -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/
-      -D, --buildDrafts=false: include content marked as draft
+      -D, --buildDrafts=false: build content marked as draft
+      -F, --buildFuture=false: build content with PublishDate in the future
           --config="": config file (default is path/config.yaml|json|toml)
       -d, --destination="": filesystem path to write files to
           --disableRSS=false: Do not build RSS files
@@ -74,7 +75,7 @@ is saved.
        Press ctrl+c to stop
 
 Hugo can even run a server and create your site at the same time! Hugo
-implements live reload technology to automatically reload any open pages in
+implements [live reload](/extras/livereload) technology to automatically reload any open pages in
 all browsers (including mobile).
 
     $ hugo server -ws ~/mysite
