@@ -75,13 +75,15 @@ any variable they want to. These will be placed into the `.Params` variable avai
 * **title** The title for the content
 * **description** The description for the content
 * **date** The date the content will be sorted by
-* **indexes** These will use the field name of the plural form of the index (see tags and categories above)
+* **taxonomies** These will use the field name of the plural form of the index (see tags and categories above)
 
 ### Optional
 
 * **redirect** Mark the post as a redirect post
-* **draft** If true the content will not be rendered unless hugo is called with --build-drafts
+* **draft** If true the content will not be rendered unless hugo is called with --buildDrafts
+* **publishdate** If in the future, content will not be rendered unless hugo is called with --buildFuture
 * **type** The type of the content (will be derived from the directory automatically if unset)
+* **weight** Used for sorting
 * **markup** (Experimental) Specify "rst" for reStructuredText (requires
             `rst2html`,) or "md" (default) for the Markdown
 * **slug** The token to appear in the tail of the url

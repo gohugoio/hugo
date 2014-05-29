@@ -25,7 +25,8 @@ matter, content or derived from file location.
 **.Summary** A generated summary of the content for easily showing a snippet in a summary view.<br>
 **.Description** The description for the content.<br>
 **.Keywords** The meta keywords for this content.<br>
-**.Date** The date the content is published on.<br>
+**.Date** The date the content is associated with.<br>
+**.PublishDate** The date the content is published on.<br>
 **.Type** The content [type](/content/types/) (eg. post)<br>
 **.Section** The [section](/content/sections/) this content belongs to<br>
 **.Permalink** The Permanent link for this page.<br>
