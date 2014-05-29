@@ -90,6 +90,10 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
+	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" {
+		newmetadata["date"] = time.Now().Format(time.RFC3339)
+	}
+
 	page.Dir = viper.GetString("sourceDir")
 	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat")))
 

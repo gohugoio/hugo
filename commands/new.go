@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 var siteType string
@@ -33,6 +34,7 @@ var contentFrontMatter string
 
 func init() {
 	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
+	newCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
 	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
 	newCmd.AddCommand(newSiteCmd)
 	newCmd.AddCommand(newThemeCmd)
@@ -72,6 +74,10 @@ as you see fit.
 
 func NewContent(cmd *cobra.Command, args []string) {
 	InitializeConfig()
+
+	if cmd.Flags().Lookup("format").Changed {
+		viper.Set("MetaDataFormat", configFormat)
+	}
 
 	if len(args) < 1 {
 		cmd.Usage()

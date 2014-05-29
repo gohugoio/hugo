@@ -99,7 +99,7 @@ func InitializeConfig() {
 	viper.RegisterAlias("taxonomies", "indexes")
 
 	viper.SetDefault("Watch", false)
-	viper.SetDefault("MetadataFormat", "toml")
+	viper.SetDefault("MetaDataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("DisableSitemap", false)
 	viper.SetDefault("ContentDir", "content")

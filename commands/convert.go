@@ -16,7 +16,9 @@ package commands
 import (
 	"fmt"
 	"path"
+	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/parser"
@@ -112,6 +114,18 @@ func convertContents(mark rune) (err error) {
 		if err != nil {
 			jww.ERROR.Println("Error processing file:", path.Join(file.Dir, file.LogicalName))
 			return err
+		}
+
+		// better handling of dates in formats that don't have support for them
+		if mark == parser.FormatToLeadRune("json") || mark == parser.FormatToLeadRune("yaml") {
+			newmetadata := cast.ToStringMap(metadata)
+			for k, v := range newmetadata {
+				switch vv := v.(type) {
+				case time.Time:
+					newmetadata[k] = vv.Format(time.RFC3339)
+				}
+			}
+			metadata = newmetadata
 		}
 
 		page.Dir = file.Dir
