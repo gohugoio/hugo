@@ -120,6 +120,12 @@ More text here.
 Some more text
 `
 
+	SIMPLE_PAGE_WITH_EMBEDDED_SCRIPT = `---
+title: Simple
+---
+<script type='text/javascript'>alert('the script tags are still there, right?');</script>
+`
+
 	SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
 title: Simple
 ---
@@ -338,6 +344,16 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	checkPageSummary(t, p, "Summary Next Line. . More text here. Some more text")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html", "single.html")
+}
+
+func TestPageWithEmbeddedScriptTag(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_EMBEDDED_SCRIPT))
+	p.Convert()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n")
 }
 
 func TestTableOfContents(t *testing.T) {

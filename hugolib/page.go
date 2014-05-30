@@ -652,7 +652,6 @@ func (page *Page) Convert() error {
 
 func markdownRender(content []byte) []byte {
 	htmlFlags := 0
-	htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
@@ -672,7 +671,6 @@ func markdownRender(content []byte) []byte {
 
 func markdownRenderWithTOC(content []byte) []byte {
 	htmlFlags := 0
-	htmlFlags |= blackfriday.HTML_SKIP_SCRIPT
 	htmlFlags |= blackfriday.HTML_TOC
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
