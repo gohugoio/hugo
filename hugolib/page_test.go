@@ -307,7 +307,7 @@ func TestCreateNewPage(t *testing.T) {
 	checkPageContent(t, p, "<p>Simple Page</p>\n")
 	checkPageSummary(t, p, "Simple Page")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html", "single.html")
+	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	checkTruncation(t, p, false, "simple short page")
 }
 
@@ -322,7 +322,7 @@ func TestPageWithDelimiter(t *testing.T) {
 	checkPageContent(t, p, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Summary Next Line</p>\n")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html", "single.html")
+	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	checkTruncation(t, p, true, "page with summary delimiter")
 }
 
@@ -337,7 +337,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	checkPageContent(t, p, "<p>Summary Next Line. {{% img src=&ldquo;/not/real&rdquo; %}}.\nMore text here.</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "Summary Next Line. . More text here. Some more text")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html", "single.html")
+	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 }
 
 func TestTableOfContents(t *testing.T) {
@@ -362,7 +362,7 @@ func TestPageWithMoreTag(t *testing.T) {
 	checkPageContent(t, p, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Summary Same Line</p>\n")
 	checkPageType(t, p, "page")
-	checkPageLayout(t, p, "page/single.html", "single.html")
+	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 }
 
 func TestPageWithDate(t *testing.T) {
@@ -513,31 +513,35 @@ func TestLayoutOverride(t *testing.T) {
 		path           string
 		expectedLayout []string
 	}{
-		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, L("dub/sub/single.html", "dub/single.html", "single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, L("gub/single.html", "single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, L("page/single.html", "single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, L("fub/single.html", "single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, L("page/single.html", "single.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, L("dub/sub/foobar.html", "dub/foobar.html", "foobar.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, L("gub/foobar.html", "foobar.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, L("fub/foobar.html", "foobar.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, L("page/foobar.html", "foobar.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_two_dir, L("foobar/single.html", "single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_one_dir, L("foobar/single.html", "single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_no_dir, L("foobar/single.html", "single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_one_directory, L("foobar/single.html", "single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_no_directory, L("foobar/single.html", "single.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_two_dir, L("barfoo/buzfoo.html", "buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_one_dir, L("barfoo/buzfoo.html", "buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_no_dir, L("barfoo/buzfoo.html", "buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_one_directory, L("barfoo/buzfoo.html", "buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, L("barfoo/buzfoo.html", "buzfoo.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, L("dub/sub/single.html", "dub/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, L("gub/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, L("page/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, L("fub/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, L("page/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, L("dub/sub/foobar.html", "dub/foobar.html", "_default/foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, L("gub/foobar.html", "_default/foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, L("fub/foobar.html", "_default/foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, L("page/foobar.html", "_default/foobar.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_two_dir, L("foobar/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_one_dir, L("foobar/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_no_dir, L("foobar/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_one_directory, L("foobar/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_TYPE_FOOBAR, path_no_directory, L("foobar/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_two_dir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_one_dir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_no_dir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_one_directory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
 	}
 	for _, test := range tests {
 		p, _ := NewPage(test.path)
 		err := p.ReadFrom(strings.NewReader(test.content))
 		if err != nil {
 			t.Fatalf("Unable to parse content:\n%s\n", test.content)
+		}
+
+		for _, y := range test.expectedLayout {
+			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
 		}
 		if !listEqual(p.Layout(), test.expectedLayout) {
 			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())

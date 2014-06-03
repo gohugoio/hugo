@@ -28,10 +28,10 @@ func TestNewPageWithFilePath(t *testing.T) {
 		section string
 		layout  []string
 	}{
-		{path.Join("sub", "foobar.html"), "sub", L("sub/single.html", "single.html")},
-		{path.Join("content", "foobar.html"), "", L("page/single.html", "single.html")},
-		{path.Join("content", "sub", "foobar.html"), "sub", L("sub/single.html", "single.html")},
-		{path.Join("content", "dub", "sub", "foobar.html"), "dub/sub", L("dub/sub/single.html", "dub/single.html", "single.html")},
+		{path.Join("sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
+		{path.Join("content", "foobar.html"), "", L("page/single.html", "_default/single.html")},
+		{path.Join("content", "sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
+		{path.Join("content", "dub", "sub", "foobar.html"), "dub/sub", L("dub/sub/single.html", "dub/single.html", "_default/single.html")},
 	}
 
 	for _, el := range toCheck {
@@ -42,6 +42,10 @@ func TestNewPageWithFilePath(t *testing.T) {
 		}
 		if p.Section != el.section {
 			t.Errorf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section)
+		}
+
+		for _, y := range el.layout {
+			el.layout = append(el.layout, "theme/"+y)
 		}
 
 		if !listEqual(p.Layout(), el.layout) {

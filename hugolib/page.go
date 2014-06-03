@@ -190,11 +190,21 @@ func (page *Page) Layout(l ...string) []string {
 
 func layouts(types string, layout string) (layouts []string) {
 	t := strings.Split(types, "/")
+
+	// Add type/layout.html
 	for i := range t {
 		search := t[:len(t)-i]
 		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
 	}
-	layouts = append(layouts, fmt.Sprintf("%s.html", layout))
+
+	// Add _default/layout.html
+	layouts = append(layouts, fmt.Sprintf("_default/%s.html", layout))
+
+	// Add theme/type/layout.html & theme/_default/layout.html
+	for _, l := range layouts {
+		layouts = append(layouts, "theme/"+l)
+	}
+
 	return
 }
 
