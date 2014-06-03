@@ -98,6 +98,7 @@ your content
     Press ctrl+c to stop
 
 We specified two options here.
+
  * --theme to pick which theme.
  * --buildDrafts because we want to display our content, both set to draft status
 
