@@ -514,11 +514,17 @@ func (p *Page) Render(layout ...string) template.HTML {
 func (p *Page) ExecuteTemplate(layout string) *bytes.Buffer {
 	l := p.Layout(layout)
 	buffer := new(bytes.Buffer)
+	worked := false
 	for _, layout := range l {
 		if p.Tmpl.Lookup(layout) != nil {
 			p.Tmpl.ExecuteTemplate(buffer, layout, p)
+			worked = true
 			break
 		}
+	}
+	if !worked {
+		jww.ERROR.Println("Unable to render", layout, ".")
+		jww.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", l)
 	}
 	return buffer
 }
