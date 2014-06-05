@@ -220,6 +220,13 @@ Could be rewritten as
     Stuff Here 
     {{ end }}
 
+### Internet Explorer conditional comments using Pipes
+
+By default Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
+
+    {{ "<!--[if lt IE 9]>" | safeHtml }}
+      <script src="html5shiv.js"></script>
+    {{ "<![endif]-->" | safeHtml }}
 
 ## Context (aka. the dot)
 
