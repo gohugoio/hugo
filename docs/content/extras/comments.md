@@ -44,6 +44,38 @@ for a given piece of content
  * **disqus_title**
  * **disqus_url**
 
+
+## Conditional Loading of Disqus Comments
+
+Users have noticed that enabling disqus comments when running the hugo web server on localhost causes the creation of unwanted discussions on the associated disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in your `partials` folder that looks like this:
+
+```javascript
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+
+(function() {
+    // Don't ever inject disqus on localhost--it creates unwanted 
+    // discussions from 'localhost:1313' on your disqus account...
+    if (window.location.hostname == "localhost") 
+        return;
+
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    var disqus_shortname = '{{ .Site.Params.disqusShortname }}';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+```
+
+Notice that there is a simple if statement that detects when you are running on localhost and skips the initialization of the disqus comment injection.
+
+Now reference the partial template from your page template:
+
+    {{ template "partials/disqus.html" . }}
+
+
 # Alternatives
 
 A few alternatives exist to Disqus.
