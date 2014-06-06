@@ -14,9 +14,14 @@ weight: 80
 It's not a requirement to have this, but in practice it's very
 convenient to split out common template portions into a partial template
 that can be included anywhere. As you create the rest of your templates
-you will include templates from the /layout/partials directory. Hugo
-doesn't know anything about partials, it's simply a convention that you
-may likely find beneficial.
+you will include templates from the /layout/partials directory.
+
+Partials are especially important for themes as it gives users an opportunity
+to overwrite just a small part of your theme, while maintaining future compatibility.
+
+In fact theme developers may want to include a few partials with empty html
+files in the theme just so end users have an easy place to inject their
+customized content.
 
 
 I've found it helpful to include a header and footer template in
@@ -32,6 +37,21 @@ like good names to use for inclusion in your other templates.
 By ensuring that we only reference [variables](/layout/variables/)
 used for both nodes and pages we can use the same partials for both.
 
+## Partial vs Template 
+
+Version v0.12 of Hugo introduced the partial call inside the template system.
+This is a change to the way partials were handled previously inside the
+template system. This is a change to hthe way partials were handled previously.
+Previously Hugo didn’t treat partials specially and you could include a partial
+template with the `template` call in the standard template language.
+
+With the addition of the theme system in v0.11 it became apparent that a theme
+& override aware partial was needed.
+
+When using Hugo v0.12 and above please use the `partial` call (and leave out
+the “partial/” path). The old approach will still work, but won’t benefit from
+the ability to have users override the partial theme file with local layouts.
+
 ## example header.html
 This header template is used for [spf13.com](http://spf13.com).
 
@@ -40,14 +60,14 @@ This header template is used for [spf13.com](http://spf13.com).
     <head>
         <meta charset="utf-8">
 
-        {{ template "partials/meta.html" . }}
+        {{ partial "meta.html" . }}
 
         <base href="{{ .Site.BaseUrl }}">
         <title> {{ .Title }} : spf13.com </title>
         <link rel="canonical" href="{{ .Permalink }}">
         {{ if .RSSlink }}<link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
 
-        {{ template "partials/head_includes.html" . }}
+        {{ partial "head_includes.html" . }}
     </head>
     <body lang="en">
 
