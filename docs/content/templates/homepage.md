@@ -54,18 +54,18 @@ It makes use of [partial templates](/templates/partials) and uses a similar appr
     <head>
         <meta charset="utf-8">
 
-        {{ template "partials/meta.html" . }}
+        {{ partial "meta.html" . }}
 
         <base href="{{ .Site.BaseUrl }}">
         <title>{{ .Site.Title }}</title>
         <link rel="canonical" href="{{ .Permalink }}">
         <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
 
-        {{ template "partials/head_includes.html" . }}
+        {{ partial "head_includes.html" . }}
     </head>
     <body lang="en">
 
-    {{ template "partials/subheader.html" . }}
+    {{ partial "subheader.html" . }}
 
     <section id="main">
       <div>
@@ -75,4 +75,4 @@ It makes use of [partial templates](/templates/partials) and uses a similar appr
       </div>
     </section>
 
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}

@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"errors"
 	"html"
 	"html/template"
@@ -14,7 +15,10 @@ import (
 
 	"github.com/eknkc/amber"
 	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 )
+
+var localTemplates *template.Template
 
 func Eq(x, y interface{}) bool {
 	return reflect.DeepEqual(x, y)
@@ -192,6 +196,8 @@ func NewTemplate() Template {
 		errors:   make([]*templateErr, 0),
 	}
 
+	localTemplates = &templates.Template
+
 	funcMap := template.FuncMap{
 		"urlize":      helpers.Urlize,
 		"sanitizeurl": helpers.SanitizeUrl,
@@ -215,12 +221,43 @@ func NewTemplate() Template {
 		"lower":       func(a string) string { return strings.ToLower(a) },
 		"upper":       func(a string) string { return strings.ToUpper(a) },
 		"title":       func(a string) string { return strings.Title(a) },
+		"partial":     Partial,
 	}
 
 	templates.Funcs(funcMap)
 
 	templates.LoadEmbedded()
 	return templates
+}
+
+func Partial(name string, context interface{}) template.HTML {
+	if strings.HasPrefix("partials/", name) {
+		name = name[8:]
+	}
+	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
+}
+
+func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
+	buffer := new(bytes.Buffer)
+	worked := false
+	for _, layout := range layouts {
+		if localTemplates.Lookup(layout) != nil {
+			localTemplates.ExecuteTemplate(buffer, layout, context)
+			worked = true
+			break
+		}
+	}
+	if !worked {
+		jww.ERROR.Println("Unable to render", layouts)
+		jww.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+	}
+
+	return buffer
+}
+
+func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
+	b := ExecuteTemplate(context, layouts...)
+	return template.HTML(string(b.Bytes()))
 }
 
 func (t *GoHtmlTemplate) LoadEmbedded() {

@@ -70,8 +70,8 @@ content tagged with each tag.
 
 .Data.Terms is an map of terms => [contents]
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
 
     <section id="main">
       <div>
@@ -86,7 +86,7 @@ content tagged with each tag.
       </div>
     </section>
 
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}
 
 
 ## Ordering
@@ -97,8 +97,8 @@ number of content assigned to that key or alphabetically.
 
 ## Example indexes.html file (alphabetical)
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
 
     <section id="main">
       <div>
@@ -111,12 +111,12 @@ number of content assigned to that key or alphabetically.
        </ul>
       </div>
     </section>
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}
 
 ## Example indexes.html file (ordered)
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
 
     <section id="main">
       <div>
@@ -130,5 +130,5 @@ number of content assigned to that key or alphabetically.
       </div>
     </section>
 
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}
 

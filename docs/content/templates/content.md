@@ -65,8 +65,8 @@ same as the other types but the directory must be called "\_default".
 This content template is used for [spf13.com](http://spf13.com).
 It makes use of [partial templates](/layout/partials)
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
     {{ $baseurl := .Site.BaseUrl }}
 
     <section id="main">
@@ -105,8 +105,8 @@ It makes use of [partial templates](/layout/partials)
         </div>
     </aside>
 
-    {{ template "partials/disqus.html" . }}
-    {{ template "partials/footer.html" . }}
+    {{ partial "disqus.html" . }}
+    {{ partial "footer.html" . }}
 
 
 ## project/single.html
@@ -114,8 +114,8 @@ This content template is used for [spf13.com](http://spf13.com).
 It makes use of [partial templates](/layout/partials)
 
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
     {{ $baseurl := .Site.BaseUrl }}
 
     <section id="main">
@@ -152,7 +152,7 @@ It makes use of [partial templates](/layout/partials)
     </div>
     {{ end }}
 
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}
 
 Notice how the project/single.html template uses an additional parameter unique
 to this template. This doesn't need to be defined ahead of time. If the key is

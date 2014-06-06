@@ -107,8 +107,8 @@ It makes use of [partial templates](/templates/partials). All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
 
     <section id="main">
       <div>
@@ -121,7 +121,7 @@ defined.
       </div>
     </section>
 
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}
 
 ### Example taxonomy template (tag.html)
 This content template is used for [spf13.com](http://spf13.com).
@@ -129,8 +129,8 @@ It makes use of [partial templates](/templates/partials). All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
-    {{ template "partials/header.html" . }}
-    {{ template "partials/subheader.html" . }}
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
 
     <section id="main">
       <div>
@@ -141,7 +141,7 @@ defined.
       </div>
     </section>
 
-    {{ template "partials/footer.html" }}
+    {{ partial "footer.html" }}
 
 ## Ordering Content
 

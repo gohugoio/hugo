@@ -42,6 +42,15 @@ The default single file layout is located at `layouts/_default/single.html`.
 
 The default list file layout is located at `layouts/_default/list.html`
 
+### Partial Templates
+
+Theme creators should liberally use [partial templates](/templates/partials)
+throughout their theme files. Not only is a good DRY practice to include shared
+code, but partials are a special template type that enables the themes end user
+to be able to overwrite just a small piece of a file or inject code into the
+theme from their local /layouts. These partial templates are perfect for easy
+injection into the theme with minimal maintenance to ensure future
+compatibility.
 
 ### Static
 
