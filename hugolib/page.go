@@ -24,12 +24,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/russross/blackfriday"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"github.com/theplant/blackfriday"
 )
 
 type Page struct {
@@ -654,6 +654,7 @@ func markdownRender(content []byte) []byte {
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
 	extensions := 0
@@ -663,6 +664,7 @@ func markdownRender(content []byte) []byte {
 	extensions |= blackfriday.EXTENSION_AUTOLINK
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
+	extensions |= blackfriday.EXTENSION_FOOTNOTES
 
 	return blackfriday.Markdown(content, renderer, extensions)
 }
@@ -674,6 +676,7 @@ func markdownRenderWithTOC(content []byte) []byte {
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
 	extensions := 0
@@ -683,6 +686,7 @@ func markdownRenderWithTOC(content []byte) []byte {
 	extensions |= blackfriday.EXTENSION_AUTOLINK
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
+	extensions |= blackfriday.EXTENSION_FOOTNOTES
 
 	return blackfriday.Markdown(content, renderer, extensions)
 }
