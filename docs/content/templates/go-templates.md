@@ -335,5 +335,5 @@ so, such as in this example:
 ```
 
 
-[go]: <http://golang.org/>
-[gohtmltemplate]: <http://golang.org/pkg/html/template/>
+[go]: http://golang.org/
+[gohtmltemplate]: http://golang.org/pkg/html/template/
