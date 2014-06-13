@@ -119,6 +119,7 @@ func InitializeConfig() {
 	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
+	viper.SetDefault("PandocExtensions", "footnotes")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)

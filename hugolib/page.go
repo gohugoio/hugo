@@ -20,6 +20,7 @@ import (
 	"html/template"
 	"io"
 	"net/url"
+	"os/exec"
 	"path"
 	"strings"
 	"time"
@@ -117,6 +118,16 @@ func (p *Page) renderContent(content []byte) []byte {
 	return renderBytesWithTOC(content, p.guessMarkupType())
 }
 
+func pandocRender(content []byte) string {
+	var aOut bytes.Buffer
+	cmd := exec.Command("pandoc", "-f", "markdown+"+viper.GetString("PandocExtensions"))
+	cmd.Stdin = bytes.NewReader([]byte(content))
+	cmd.Stdout = &aOut
+	cmd.Run()
+	print(viper.GetString("PandocExtensions"))
+	return aOut.String()
+}
+
 func renderBytesWithTOC(content []byte, pagefmt string) []byte {
 	switch pagefmt {
 	default:
@@ -125,6 +136,8 @@ func renderBytesWithTOC(content []byte, pagefmt string) []byte {
 		return markdownRenderWithTOC(content)
 	case "rst":
 		return []byte(getRstContent(content))
+	case "pandoc":
+		return []byte(pandocRender(content))
 	}
 }
 
@@ -134,6 +147,8 @@ func renderBytes(content []byte, pagefmt string) []byte {
 		return markdownRender(content)
 	case "markdown":
 		return markdownRender(content)
+	case "pandoc":
+		return []byte(pandocRender(content))
 	case "rst":
 		return []byte(getRstContent(content))
 	}
@@ -535,6 +550,8 @@ func guessType(in string) string {
 		return "markdown"
 	case "rst":
 		return "rst"
+	case "mkd":
+		return "pandoc"
 	case "html", "htm":
 		return "html"
 	}
@@ -636,7 +653,7 @@ func (p *Page) ProcessShortcodes(t Template) {
 func (page *Page) Convert() error {
 	markupType := page.guessMarkupType()
 	switch markupType {
-	case "markdown", "rst":
+	case "markdown", "rst", "pandoc":
 		tmpContent, tmpTableOfContents := extractTOC(page.renderContent(RemoveSummaryDivider(page.rawContent)))
 		page.Content = bytesToHTML(tmpContent)
 		page.TableOfContents = bytesToHTML(tmpTableOfContents)
