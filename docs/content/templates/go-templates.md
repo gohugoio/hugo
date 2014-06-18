@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/go-templates/
+- /layouts/go-templates/
 date: 2013-07-01
 menu:
   main:
