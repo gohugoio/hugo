@@ -57,7 +57,7 @@ Different ways of rendering a (single) content type
 ### [Taxonomy Terms](/templates/terms)
 A list of the terms used for a specific taxonomy eg. a Tag cloud
 
-## Other Templates (generally unncessary)
+## Other Templates (generally unnecessary)
 
 ### [RSS](/templates/rss/)
 Used to render all rss documents
