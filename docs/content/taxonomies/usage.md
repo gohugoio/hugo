@@ -22,7 +22,7 @@ Notice the format is **singular key** : *plural value*.
 ### config.yaml
 
     ---
-    taxonomies:
+    Taxonomies:
         tag: "tags"
         category: "categories"
         series: "series"
