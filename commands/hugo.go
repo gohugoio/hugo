@@ -51,7 +51,7 @@ Complete documentation is available at http://hugo.spf13.com`,
 
 var hugoCmdV *cobra.Command
 
-var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap bool
+var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles bool
 var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
@@ -84,6 +84,7 @@ func init() {
 	HugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
+	HugoCmd.PersistentFlags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	hugoCmdV = HugoCmd
 }
@@ -119,6 +120,7 @@ func InitializeConfig() {
 	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
+	viper.SetDefault("PluralizeListTitles", true)
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -142,6 +144,10 @@ func InitializeConfig() {
 
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("pluralizeListTitles").Changed {
+		viper.Set("PluralizeListTitles", PluralizeListTitles)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {

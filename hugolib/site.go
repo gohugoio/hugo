@@ -676,7 +676,11 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 func (s *Site) RenderSectionLists() error {
 	for section, data := range s.Sections {
 		n := s.NewNode()
-		n.Title = strings.Title(inflect.Pluralize(section))
+		if viper.GetBool("PluralizeListTitles") {
+			n.Title = strings.Title(inflect.Pluralize(section))
+		} else {
+			n.Title = strings.Title(section)
+		}
 		s.setUrls(n, section)
 		n.Date = data[0].Page.Date
 		n.Data["Pages"] = data.Pages()
