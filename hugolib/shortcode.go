@@ -150,6 +150,9 @@ func GetTemplate(name string, t Template) *template.Template {
 	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
 		return x
 	}
+	if x := t.Lookup("theme/shortcodes/" + name + ".html"); x != nil {
+		return x
+	}
 	return t.Lookup("_internal/shortcodes/" + name + ".html")
 }
 
