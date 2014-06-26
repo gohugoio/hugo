@@ -734,13 +734,14 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
-	if a := s.Tmpl.Lookup("404.html"); a != nil {
-		n.Url = helpers.Urlize("404.html")
-		n.Title = "404 Page not found"
-		n.Permalink = s.permalink("404.html")
+	n.Url = helpers.Urlize("404.html")
+	n.Title = "404 Page not found"
+	n.Permalink = s.permalink("404.html")
 
-		layouts := []string{"404.html"}
-		return s.render(n, "404.html", s.appendThemeTemplates(layouts)...)
+	nfLayouts := []string{"404.html"}
+	nfErr := s.render(n, "404.html", s.appendThemeTemplates(nfLayouts)...)
+	if nfErr != nil {
+		return nfErr
 	}
 
 	return nil
