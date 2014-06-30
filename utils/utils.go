@@ -8,16 +8,24 @@ import (
 
 func CheckErr(err error, s ...string) {
 	if err != nil {
-		for _, message := range s {
-			jww.ERROR.Println(message)
+		if len(s) == 0 {
+			jww.CRITICAL.Println(err)
+		} else {
+			for _, message := range s {
+				jww.ERROR.Println(message)
+			}
 		}
 	}
 }
 
 func StopOnErr(err error, s ...string) {
 	if err != nil {
-		for _, message := range s {
-			jww.CRITICAL.Println(message)
+		if len(s) == 0 {
+			jww.CRITICAL.Println(err)
+		} else {
+			for _, message := range s {
+				jww.CRITICAL.Println(message)
+			}
 		}
 		os.Exit(-1)
 	}
