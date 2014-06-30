@@ -314,7 +314,7 @@ func (s *Site) CreatePages() (err error) {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
 	if len(s.Source.Files()) < 1 {
-		return fmt.Errorf("No source files found in %s", s.absContentDir())
+		return
 	}
 
 	var wg sync.WaitGroup
