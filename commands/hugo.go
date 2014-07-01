@@ -89,7 +89,7 @@ func init() {
 }
 
 func InitializeConfig() {
-	viper.SetConfigName(CfgFile)
+	viper.SetConfigFile(CfgFile)
 	viper.AddConfigPath(Source)
 	err := viper.ReadInConfig()
 	if err != nil {
