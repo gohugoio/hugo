@@ -31,7 +31,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [New jQuery Plugins And Resources That Web Designers Need](http://www.designyourway.net/blog/resources/new-jquery-plugins-and-resources-that-web-designers-need/) | Design Your Way  |   2014   |
 | [Hugo](http://onethingwell.org/post/69070926608/hugo) | One Thing Well  |  5 Dec 2013   |
 | [Hosting a blog on S3 and Cloudfront](http://www.danesparza.net/2013/07/hosting-a-blog-on-s3-and-cloudfront/) | Dan Esparza  | 24 July 2013   |
-
+| [An Introduction To Hugo, A Go-Based Static Site Generator](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/)  | Dan Silber | July 1 2014 |
 ### Wrote a post, article or tutorial?
 
 Have you written a post, article or tutorial on hugo? Send us a pull request or issue with the addition.
