@@ -36,3 +36,18 @@ A file named `content/post/sample-entry` which contains a line
 appearing at `public/2013/11/sample-entry/index.html` and be reachable via
 the URL <http://yoursite.example.com/2013/11/sample-entry/>.
 
+The following is a list of values that can be used in a permalink definition, 
+all references to time are dependent on the content's date.
+
+**:year** the 4 digit year<br/>
+**:month** the 2 digit month<br/>
+**:monthname** the name of the month<br/>
+**:day** the 2 digit day<br/>
+**:weekday** the 1 digit day of the week (Sunday = 0)<br/>
+**:weekdayname** the name of the day of the week<br/>
+**:yearday** the 1-3 digit day of the year<br/>
+**:section** the content's section<br/>
+**:title** the content's title<br/>
+**:slug** the content's slug (or title if no slug)<br/>
+**:filename** the content's filename (without extension)<br/>
+
