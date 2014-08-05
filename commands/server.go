@@ -36,8 +36,8 @@ var disableLiveReload bool
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Hugo runs it's own a webserver to render the files",
-	Long: `Hugo is able to run it's own high performance web server.
+	Short: "Hugo runs its own webserver to render the files",
+	Long: `Hugo is able to run its own high performance web server.
 Hugo will render all the files defined in the source directory and
 Serve them up.`,
 	//Run: server,
