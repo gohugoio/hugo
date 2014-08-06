@@ -11,7 +11,7 @@ title: Shortcodes
 weight: 40
 ---
 
-Because Hugo uses markdown for its simple content format, however there's a lot
+Hugo uses markdown for its simple content format, however there's a lot
 of things that markdown doesn't support well.
 
 We are unwilling to accept being constrained by our simple format. Also
