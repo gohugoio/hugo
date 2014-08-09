@@ -354,10 +354,11 @@ table tr th { color: #007AFF;}
 /*sidebar navigation*/
 
 #sidebar {
-    width: 180px;
+    width: 190px;
     height: 100%;
     position: fixed;
     background: #ffffff;
+    overflow-y: auto;
 }
 
 .nav-collapse.collapse {
