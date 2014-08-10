@@ -162,7 +162,7 @@ The first two items in the previous list are simply a way to conveniently previe
 
     echo -e "\033[0;32mDeploying updates to Github...\033[0m"
 
-    # Build the project.
+    # Build the project. (If you only have drafts, no site will be generated)
     hugo
 
     # Add changes to git.
