@@ -131,8 +131,9 @@ To get this properly set up we will execute a series of commands at the terminal
     # Pull down the file we just committed. This helps avoid merge conflicts
     git subtree pull --prefix=public
 
-    # Run hugo. Generated site will be placed in public directory
-    hugo
+    # Run hugo. Generated site will be placed in public directory (or omit -t ThemeName if you're not using a theme)
+    hugo -t ThemeName
+
 
     # Add everything
     git add -A
@@ -162,8 +163,8 @@ The first two items in the previous list are simply a way to conveniently previe
 
     echo -e "\033[0;32mDeploying updates to Github...\033[0m"
 
-    # Build the project.
-    hugo
+    # Build the project. (or omit -t ThemeName if you're not using a theme)
+    hugo -t ThemeName
 
     # Add changes to git.
     git add -A
