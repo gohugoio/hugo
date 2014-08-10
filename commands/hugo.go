@@ -273,7 +273,7 @@ func buildSite(watching ...bool) (err error) {
 	}
 	err = site.Build()
 	if err != nil {
-		return
+		return err
 	}
 	site.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
