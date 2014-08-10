@@ -16,7 +16,10 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title | Author | Date  |
 | ------ | ------ | -----: |
+| [Hugo: Beyond the Defaults](http://npf.io/2014/08/hugo-beyond-the-defaults/)  | Nate Finch | Aug 8 2014 |
+| [Hugo Is Friggin' Awesome](http://npf.io/2014/08/hugo-is-awesome/)  | Nate Finch | Aug 1 2014 |
 | [An Introduction To Hugo, A Go-Based Static Site Generator](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/)  | Dan Silber | July 1 2014 |
+| [Mission Not Accomplished](http://johnsto.co.uk/blog/mission-not-accomplished/) | Dave Johnston |  3 Apr 2014   |
 | [Hugo - A Static Site Builder in Go](http://deepfriedcode.com/post/hugo/) | Deep Fried Code |  30 Mar 2014   |
 | [Hugo](http://bra.am/post/hugo/) | bra.am |  23 Mar 2014   |
 | [Converting Blogger To Markdown](http://trishagee.github.io/project/atom-to-hugo/) | Trisha Gee |  20 Mar 2014   |
