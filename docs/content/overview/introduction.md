@@ -51,8 +51,7 @@ Hugo boasts the following features:
   * Straightforward [organization](/content/organization)
   * Support for [website sections](/content/sections)
   * Completely customizable [urls](/extras/urls)
-  * Support for [categories](/indexes/category) and tags
-  * Support for configurable [taxonomies](/indexes/overview) to create your own organization
+  * Support for configurable [taxonomies](/indexes/overview) which includes categories and tags.  Create your own custom organization of content
   * Ability to [sort content](/content/ordering) as you desire
   * Automatic [table of contents](/extras/toc) generation
   * Dynamic menu creation
