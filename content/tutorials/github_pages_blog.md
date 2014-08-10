@@ -131,8 +131,9 @@ To get this properly set up we will execute a series of commands at the terminal
     # Pull down the file we just committed. This helps avoid merge conflicts
     git subtree pull --prefix=public
 
-    # Run hugo. Generated site will be placed in public directory
-    hugo
+    # Run hugo. Generated site will be placed in public directory (or omit -t ThemeName if you're not using a theme)
+    hugo -t ThemeName
+
 
     # Add everything
     git add -A
@@ -156,15 +157,29 @@ Now, as you add new posts to your blog, you will follow steps that look somethin
 * Push the `master` branch
 * Push the public subtree to the remote `gh-pages` branch
 
-The first two items in the previous list are simply a way to conveniently preview your content as you write. This is a dynamic and fairly streamlined process. All the remaining items, however, are the same every time you want to add new content to the website. To make this repetitive process easier, I have adapted a script from the source repository for the [Chimer Arta & Maker Space](https://github.com/chimera/chimeraarts.org) website that is highlighted in the [Hugo Showcase](/showcase). The script lives in a file called `deploy.sh` and has the following contents
+The first two items in the previous list are simply a way to conveniently preview your content as you write. This is a dynamic and fairly streamlined process. All the remaining items, however, are the same every time you want to add new content to the website. To make this repetitive process easier, I have adapted a script from the source repository for the [Chimer Arta & Maker Space](https://github.com/chimera/chimeraarts.org) website that is highlighted in the [Hugo Showcase](/showcase). The script lives in a file called `deploy.sh` and has the following contents:
+
+**Note:**
+
+The first command `hugo` assumes you are running with all the default settings. 
+
+To use a theme, make sure to specify it with `-t ThemeName` instead (or include the theme in the config file).
+
+    hugo -t ThemeName
+
+To build all draft posts *(If you only have drafts, no site will be generated)*
+
+    hugo --buildDrafts
+
+**Deploy.sh:**
 
     #!/bin/bash
 
     echo -e "\033[0;32mDeploying updates to Github...\033[0m"
 
-    # Build the project. (If you only have drafts, no site will be generated)
+    # Build the project. 
     hugo
-
+    
     # Add changes to git.
     git add -A
 
