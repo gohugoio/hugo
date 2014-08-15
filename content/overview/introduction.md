@@ -42,7 +42,7 @@ Hugo boasts the following features:
   * Extremely fast built times (~1ms per page)
   * Completely cross platform: Runs on Mac OSX, Linux and Windows 
   * Easy [installation](/overview/installing)
-  * Render changes [on the fly](/overview/usage) with [live reload](#) as you develop
+  * Render changes [on the fly](/overview/usage) with [live reload](/extras/livereload) as you develop
   * Complete theme support
   * Host your site anywhere
 
