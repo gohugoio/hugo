@@ -61,3 +61,8 @@ Here is a yaml configuration file which sets a few more options
       SidebarRecentLimit: 5
     ...
 
+## Notes
+
+Config changes do not reflect with [Live Reload](http://hugo.spf13.com/extras/livereload)
+
+Please restart `hugo server --watch` whenever you make a config change.
