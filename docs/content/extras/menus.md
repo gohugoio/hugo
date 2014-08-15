@@ -87,7 +87,7 @@ available.
 ## Adding (non-content) entries to a menu
 
 You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the site wide config file.
+content. This takes place in the site wide [config file](http://hugo.spf13.com/overview/configuration).
 
 Here’s an example (in toml):
 
@@ -100,6 +100,20 @@ Here’s an example (in toml):
         name = "getting started"
         pre = "<i class='fa fa-road'></i>"
         weight = -100
+
+Here’s an example (in yaml):
+
+    ---
+    menu:
+      main:
+          - Name: "about hugo"
+            Pre: "<i class='fa fa-heart'></i>"
+            Weight: -110
+            Identifier: "about"
+          - Name: "getting started"
+            Pre: "<i class='fa fa-road'></i>"
+            Weight: -100
+    ---            
 
 ## Nesting
 
