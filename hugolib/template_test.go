@@ -55,3 +55,30 @@ func TestFirst(t *testing.T) {
 		}
 	}
 }
+
+func TestWhere(t *testing.T) {
+	type X struct {
+		A, B string
+	}
+	for i, this := range []struct {
+		sequence interface{}
+		key      interface{}
+		match    interface{}
+		expect   interface{}
+	}{
+		{[]map[int]string{{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"}}, 2, "m", []map[int]string{{1: "a", 2: "m"}}},
+		{[]map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4}}, "b", 4, []map[string]int{{"a": 3, "b": 4}}},
+		{[]X{{"a", "b"}, {"c", "d"}, {"e", "f"}}, "B", "f", []X{{"e", "f"}}},
+		{[]*map[int]string{&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"}}, 2, "m", []*map[int]string{&map[int]string{1: "a", 2: "m"}}},
+		{[]*X{&X{"a", "b"}, &X{"c", "d"}, &X{"e", "f"}}, "B", "f", []*X{&X{"e", "f"}}},
+	} {
+		results, err := Where(this.sequence, this.key, this.match)
+		if err != nil {
+			t.Errorf("[%d] failed: %s", i, err)
+			continue
+		}
+		if !reflect.DeepEqual(results, this.expect) {
+			t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, this.key, this.match, results, this.expect)
+		}
+	}
+}
