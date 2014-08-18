@@ -117,7 +117,7 @@ func convertContents(mark rune) (err error) {
 		}
 
 		// better handling of dates in formats that don't have support for them
-		if mark == parser.FormatToLeadRune("json") || mark == parser.FormatToLeadRune("yaml") {
+		if mark == parser.FormatToLeadRune("json") || mark == parser.FormatToLeadRune("yaml") || mark == parser.FormatToLeadRune("toml") {
 			newmetadata := cast.ToStringMap(metadata)
 			for k, v := range newmetadata {
 				switch vv := v.(type) {
