@@ -90,7 +90,7 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" {
+	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" || x == "toml" {
 		newmetadata["date"] = time.Now().Format(time.RFC3339)
 	}
 
