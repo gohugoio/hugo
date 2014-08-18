@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"launchpad.net/goyaml"
+	"gopkg.in/yaml.v1"
 )
 
 type FrontmatterType struct {
@@ -38,7 +38,7 @@ func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
 
 	switch mark {
 	case rune(YAML_LEAD[0]):
-		by, err := goyaml.Marshal(in)
+		by, err := yaml.Marshal(in)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +83,7 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		by, err := goyaml.Marshal(in)
+		by, err := yaml.Marshal(in)
 		if err != nil {
 			return nil, err
 		}
@@ -178,7 +178,7 @@ func removeTomlIdentifier(datum []byte) []byte {
 
 func HandleYamlMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
-	if err := goyaml.Unmarshal(datum, &m); err != nil {
+	if err := yaml.Unmarshal(datum, &m); err != nil {
 		return m, err
 	}
 	return m, nil
