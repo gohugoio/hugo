@@ -30,11 +30,11 @@ import (
 )
 
 func NewContent(kind, name string) (err error) {
-	jww.INFO.Println("attempting to create", name, "of", kind)
+	jww.INFO.Println("attempting to create ", name, "of", kind)
 
 	location := FindArchetype(kind)
 
-	var by []byte
+ 	var by []byte
 
 	if location != "" {
 		by, err = ioutil.ReadFile(location)
@@ -118,11 +118,21 @@ func FindArchetype(kind string) (outpath string) {
 	}
 
 	for _, x := range search {
-		pathsToCheck := []string{kind + ".md", kind, "default.md", "default"}
+		// If the new content isn't in a subdirectory, kind == "".
+		// Therefore it should be excluded otherwise `is a directory` 
+		// error will occur. github.com/spf13/hugo/issues/411
+		var pathsToCheck []string
+
+		if kind == "" {
+			pathsToCheck = []string{"default.md", "default"}
+		} else {
+			pathsToCheck = []string{kind + ".md", kind, "default.md", "default"}
+		}
 		for _, p := range pathsToCheck {
 			curpath := path.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
 			if exists, _ := helpers.Exists(curpath); exists {
+				jww.INFO.Println("curpath: " + curpath)
 				return curpath
 			}
 		}
