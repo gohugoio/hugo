@@ -8,7 +8,7 @@ sourceLink: https://github.com/alexandre-normand/alexandre-normand
 tags:
 - personal
 - blog
-thumbnail: /static/img/heyitsalex-tn.jpg
+thumbnail: /img/heyitsalex-tn.jpg
 title: Hey, it's Alex
 ---
 

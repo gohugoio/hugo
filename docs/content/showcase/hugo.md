@@ -8,7 +8,7 @@ sourceLink: http://github.com/spf13/hugo/docs
 tags:
 - documentation
 - bootstrap
-thumbnail: /static/img/hugo-tn.jpg
+thumbnail: /img/hugo-tn.jpg
 title: Hugo
 ---
 

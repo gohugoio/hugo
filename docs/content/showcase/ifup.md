@@ -8,7 +8,7 @@ sourceLink: http://www.ifup.org
 tags:
 - personal
 - blog
-thumbnail: /static/img/ifup-tn.jpg
+thumbnail: /img/ifup-tn.jpg
 title: ifup
 ---
 
