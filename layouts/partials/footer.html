@@ -3,10 +3,12 @@
                     </section>
                 </div>
                 <div class="col-md-1">
+                    {{ if .IsPage }}
                     {{ with .GetParam "next" }}
                     <a class="navigation next" href="{{.}}">
                         <i class="fa fa-angle-right"> </i>
                     </a>
+                    {{ end }}
                     {{ end }}
                 </div>
               </div>

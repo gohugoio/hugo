@@ -48,7 +48,7 @@
       </header>
       <!--header end-->
 
-{{ template "partials/menu.html" . }}
+{{ partial "menu.html" . }}
 
       <!--main content start-->
       <section id="main-content">
@@ -68,10 +68,12 @@
 
               <div class="row">
                   <div class="col-md-1">
+                      {{ if .IsPage }}
                       {{ with .GetParam "prev" }}
                       <a class="navigation prev" href="{{.}}">
                       <i class="fa fa-angle-left"></i>
                       </a>
+                      {{ end }}
                       {{ end }}
                   </div>
                 <div class="col-md-10">
