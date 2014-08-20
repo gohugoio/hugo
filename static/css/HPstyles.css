@@ -295,8 +295,8 @@ footer a:hover {
 .btn-dark:active,
 .btn-dark.active,
 .open .dropdown-toggle.btn-dark {
-    color: white;
-    background-color: black;
+    color: black;
+    background-color: aliceblue;
     border-color: black;
 }
 
@@ -323,6 +323,9 @@ footer a:hover {
     background-image: none;
 }
 
+.btn-info:hover, .btn-primary:hover, .btn-success:hover {
+    background: aliceblue;
+}
 
 div#carousel-quotes {
     width:100%;
