@@ -31,7 +31,7 @@ Learn more about the different directories and what their purpose is
 * [archetypes](/content/archetypes)
 * [content](/content/organization)
 * [layouts](/layout/overview)
-* [static]()
+* [static](/themes/creation#toc_4)
 * [themes](/themes/overview)
 
 
