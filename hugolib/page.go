@@ -304,6 +304,17 @@ func (page *Page) ShouldBuild() bool {
 	return false
 }
 
+func (page *Page) IsDraft() bool {
+	return page.Draft
+}
+
+func (page *Page) IsFuture() bool {
+	if page.PublishDate.Before(time.Now()) {
+		return false
+	}
+	return true
+}
+
 func (p *Page) Permalink() (string, error) {
 	link, err := p.permalink()
 	if err != nil {
