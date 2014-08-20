@@ -222,12 +222,12 @@ textarea {
   background-image: none;
 }
 a {
-  color: #007aff;
+  color: #ff4088;
   text-decoration: none;
 }
 a:hover,
 a:focus {
-  color: #0055b3;
+  color: #ff4088;
   text-decoration: underline;
 }
 a:focus {
@@ -842,6 +842,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .hidden-xs {
   display: block !important;
 }
+
 @media (max-width: 767px) {
   .hidden-xs {
     display: none !important;
