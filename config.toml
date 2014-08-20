@@ -11,6 +11,11 @@ MetaDataFormat = "yaml"
     url = "https://github.com/spf13/hugo/releases"
     weight = -200
 [[menu.main]]
+    name = "Showcase"
+    pre = "<i class='fa fa-cubes'></i>"
+    url = "/showcase/"
+    weight = -200
+[[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
     weight = -110
