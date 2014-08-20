@@ -354,7 +354,7 @@ table tr th { color: #007AFF;}
 /*sidebar navigation*/
 
 #sidebar {
-    width: 190px;
+    width: 200px;
     height: 100%;
     position: fixed;
     background: #ffffff;
@@ -453,6 +453,7 @@ ul.sidebar-menu li a{
     transition: all 0.3s ease;
     border-right: 1px solid #D7D7D7;
     border-bottom: 1px solid #D7D7D7;
+    overflow:hidden;
 }
 /*ul.sidebar-menu li a i{
     position: relative;
@@ -586,7 +587,7 @@ ul.sidebar-menu li.active a i {
 /*main content*/
 
 #main-content {
-    margin-left: 180px;
+    margin-left: 200px;
     line-height: 1.8;
     font-size: 19px;
 }

@@ -63,7 +63,7 @@
     }
 
     #sidebar ul > li.active > a .arrow, #sidebar ul > li > a:hover .arrow, #sidebar ul > li > a:focus .arrow,
-    #sidebar > ul > li.active > a .arrow.open, #sidebar > ul > li > a:hover .arrow.open, #sidebar > ul > li > a:focus .arrow.open{
+    #sidebar > ul > li.active > a .arrow.open, #sidebar > ul > li > a:hover .arrow.open, #sidebar > ul > li > a:focus .arrow.open {
         margin-top: 15px;
     }
 
@@ -99,13 +99,11 @@
         border-right: 15px solid transparent;
     }
 
-
     /*---------*/
 
     .btn {
         margin-bottom: 5px;
     }
-
 
     .inbox-wrapper aside {
         display: block;
@@ -200,12 +198,6 @@
         margin-bottom:0px !important;
     }
 
-    /*--*/
-
-    /*.chart-position {*/
-        /*margin-top: 0px;*/
-    /*}*/
-
     .timeline-desk .album a {
         margin-bottom: 5px;
         margin-right: 4px;
@@ -219,20 +211,18 @@
         margin-bottom: 0;
     }
 
-
-
 }
 
 
 @media (max-width: 740px) {
-    #task_notificatoin_bar,#mail_notificatoin_bar,#alert_notificatoin_bar{
+    #task_notificatoin_bar,#mail_notificatoin_bar,#alert_notificatoin_bar {
         display: none;
     }
 }
 
 @media (max-width: 480px) {
 
-    .notification-row,.task_notificatoin_bar, .search-row,.knob-charts, .dont-show , .inbox-head .sr-input, .inbox-head .sr-btn{
+    .notification-row,.task_notificatoin_bar, .search-row,.knob-charts, .dont-show , .inbox-head .sr-input, .inbox-head .sr-btn {
         display: none;
     }
 
@@ -240,13 +230,14 @@
         display: block;
     }
 
-    .inbox-wrapper .inbox-left , .inbox-wrapper .inbox-right{
+    .inbox-wrapper .inbox-left , .inbox-wrapper .inbox-right {
         width: 100% ;
     }
 
     #top_menu .nav > li, ul.top-menu > li {
         float: right;
     }
+
     .hidden-phone {
         display: none !important;
     }
@@ -274,6 +265,7 @@
 }
 
 @media (max-width:320px) {
+
     .login-social-link a {
         padding: 15px 17px !important;
     }
@@ -286,7 +278,7 @@
         display: block ;
     }
 
-    .inbox-wrapper .inbox-left , .inbox-wrapper .inbox-right{
+    .inbox-wrapper .inbox-left , .inbox-wrapper .inbox-right {
         width: 100% ;
     }
 
@@ -320,7 +312,3 @@
     }
 
 }
-
-
-
-

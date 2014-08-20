@@ -12,9 +12,9 @@
                 {{ .Pre }}
                 <!--<i class="icon_desktop"></i>-->
                 <span>{{ .Name }}</span>
-                <span class="menu-arrow arrow_carrot-right"></span>
+                <span class="menu-arrow fa {{if $currentNode.HasMenuCurrent "main" . }}fa-angle-down{{else}}fa-angle-right{{end}}"></span>
             </a>
-                <ul class="sub">
+                <ul class="sub{{if $currentNode.HasMenuCurrent "main" . }} open{{end}}">
                     {{ range .Children }}
                     <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
                     {{ end }}
