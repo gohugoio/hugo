@@ -30,7 +30,9 @@
               </li>
           {{end}}
             <li> <a href="https://github.com/spf13/hugo/issues" target="blank"><i class='fa fa-life-ring'></i>Issues & Help</a> </li>
-            {{ $File := .File }}  {{with .File.FileName }}<li><a href="https://github.com/spf13/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.FileName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
+            {{ if .IsPage }}
+            {{ $File := .File }}  {{with $File.FileName }}<li><a href="https://github.com/spf13/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.FileName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
+            {{ end }}
         </ul>
         <!-- sidebar menu end-->
     </div>
