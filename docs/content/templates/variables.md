@@ -43,6 +43,8 @@ matter, content or derived from file location.
 **.WordCount** The number of words in the content.<br>
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
+**.IsNode** Always false for pages.<br>
+**.IsPage** Always true for page.<br>
 **.Site** See site variables below<br>
 
 ## Page Params
@@ -65,6 +67,8 @@ includes indexes, lists and the homepage.
 **.Url** The relative url for this node.<br>
 **.RSSLink** Link to the indexes' rss link <br>
 **.Data** The data specific to this type of node.<br>
+**.IsNode** Always true for nodes.<br>
+**.IsPage** Always false for nodes.<br>
 **.Site** See site variables below<br>
 
 ## Site Variables

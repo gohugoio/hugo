@@ -85,6 +85,14 @@ func (p *Page) Plain() string {
 	return p.plain
 }
 
+func (p *Page) IsNode() bool {
+	return false
+}
+
+func (p *Page) IsPage() bool {
+	return true
+}
+
 func (p *Page) setSummary() {
 	if bytes.Contains(p.rawContent, summaryDivider) {
 		// If user defines split:

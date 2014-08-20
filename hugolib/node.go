@@ -47,6 +47,14 @@ func (n *Node) RSSlink() template.HTML {
 	return n.RSSLink
 }
 
+func (n *Node) IsNode() bool {
+	return true
+}
+
+func (n *Node) IsPage() bool {
+	return !n.IsNode()
+}
+
 type UrlPath struct {
 	Url       string
 	Permalink template.HTML
