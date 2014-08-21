@@ -748,6 +748,15 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
+	// Force `UglyUrls` option to force `404.html` file name
+	switch s.Target.(type) {
+	case *target.Filesystem:
+		if !s.Target.(*target.Filesystem).UglyUrls {
+			s.Target.(*target.Filesystem).UglyUrls = true
+			defer func() { s.Target.(*target.Filesystem).UglyUrls = false }()
+		}
+	}
+
 	n.Url = helpers.Urlize("404.html")
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
