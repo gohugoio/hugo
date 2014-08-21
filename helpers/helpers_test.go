@@ -40,11 +40,34 @@ func TestMakePath(t *testing.T) {
 		input    string
 		expected string
 	}{
+		{"  Foo bar  ", "Foo-bar"},
+		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo"},
+		{"fOO,bar:foo%bAR", "fOObarfoobAR"},
+		{"FOo/BaR.html", "FOo/BaR.html"},
+		{"трям/трям", "трям/трям"},
+		{"은행","은행"},
+		{"Банковский кассир","Банковский-кассир"},
+	}
+
+	for _, test := range tests {
+		output := MakePath(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestMakeToLower(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
 		{"  foo bar  ", "foo-bar"},
 		{"foo.bar/foo_bar-foo", "foo.bar/foo_bar-foo"},
 		{"foo,bar:foo%bar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},
 		{"трям/трям", "трям/трям"},
+		{"은행","은행"},
 	}
 
 	for _, test := range tests {

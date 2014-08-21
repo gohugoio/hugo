@@ -29,9 +29,18 @@ import (
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // Take a string with any characters and replace it so the string could be used in a path.
-// E.g. Social Media -> social-media
+// MakePath creates a Unicode sanitized string, with the spaces replaced, whilst
+// preserving the original casing of the string.
+// E.g. Social Media -> Social-Media
 func MakePath(s string) string {
-	return UnicodeSanitize(strings.ToLower(strings.Replace(strings.TrimSpace(s), " ", "-", -1)))
+	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
+}
+
+// MakePathToLowerr creates a Unicode santized string, with the spaces replaced,
+// and transformed to lower case.
+// E.g. Social Media -> social-media
+func MakePathToLower(s string) string {
+        return UnicodeSanitize(strings.ToLower(strings.Replace(strings.TrimSpace(s), " ", "-", -1)))
 }
 
 func MakeTitle(inpath string) string {
