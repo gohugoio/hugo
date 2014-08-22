@@ -74,3 +74,25 @@ func TestUrlize(t *testing.T) {
 		}
 	}
 }
+
+func TestMakePermalink(t *testing.T) {
+	type test struct {
+		host, link, output string
+	}
+
+	data := []test{
+		{"http://abc.com/foo", "post/bar", "http://abc.com/foo/post/bar"},
+		{"http://abc.com/foo/", "post/bar", "http://abc.com/foo/post/bar"},
+		{"http://abc.com", "post/bar", "http://abc.com/post/bar"},
+		{"http://abc.com", "bar", "http://abc.com/bar"},
+		{"http://abc.com/foo/bar", "post/bar", "http://abc.com/foo/bar/post/bar"},
+		{"http://abc.com/foo/bar", "post/bar/", "http://abc.com/foo/bar/post/bar/"},
+	}
+
+	for i, d := range data {
+		output := MakePermalink(d.host, d.link).String()
+		if d.output != output {
+			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
+		}
+	}
+}

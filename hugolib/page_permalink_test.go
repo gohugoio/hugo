@@ -33,7 +33,7 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "x/y/z", "", "", "/z/y/q/", false, "/z/y/q/", "/z/y/q/"},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		viper.Set("uglyurls", test.uglyurls)
 		p := &Page{
 			Node: Node{
@@ -56,22 +56,22 @@ func TestPermalink(t *testing.T) {
 
 		u, err := p.Permalink()
 		if err != nil {
-			t.Errorf("Unable to process permalink: %s", err)
+			t.Errorf("Test %d: Unable to process permalink: %s", i, err)
 		}
 
 		expected := test.expectedAbs
 		if u != expected {
-			t.Errorf("Expected abs url: %s, got: %s", expected, u)
+			t.Errorf("Test %d: Expected abs url: %s, got: %s", i, expected, u)
 		}
 
 		u, err = p.RelPermalink()
 		if err != nil {
-			t.Errorf("Unable to process permalink: %s", err)
+			t.Errorf("Test %d: Unable to process permalink: %s", i, err)
 		}
 
 		expected = test.expectedRel
 		if u != expected {
-			t.Errorf("Expected abs url: %s, got: %s", expected, u)
+			t.Errorf("Test %d: Expected abs url: %s, got: %s", i, expected, u)
 		}
 	}
 }
