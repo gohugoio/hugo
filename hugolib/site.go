@@ -738,14 +738,14 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
-  // Force `UglyUrls` option to force `404.html` file name
-  switch targ := s.Target.(type) {
-  case *target.FileSystem:
-      if !targ.UglyUrls {
-          targ.UglyUrls = true
-          defer func(){ targ.UglyUrls = false }()
-      }
-  }
+	// Force `UglyUrls` option to force `404.html` file name
+	switch targ := s.Target.(type) {
+	case *target.FileSystem:
+		if !targ.UglyUrls {
+			targ.UglyUrls = true
+			defer func() { targ.UglyUrls = false }()
+		}
+	}
 
 	n.Url = helpers.Urlize("404.html")
 	n.Title = "404 Page not found"
