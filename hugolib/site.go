@@ -739,11 +739,11 @@ func (s *Site) RenderHomePage() error {
 	}
 
 	// Force `UglyUrls` option to force `404.html` file name
-	switch targ := s.Target.(type) {
-	case *target.FileSystem:
-		if !targ.UglyUrls {
-			targ.UglyUrls = true
-			defer func() { targ.UglyUrls = false }()
+	switch s.Target.(type) {
+	case *target.Filesystem:
+		if !s.Target.(*target.Filesystem).UglyUrls {
+			s.Target.(*target.Filesystem).UglyUrls = true
+			defer func() { s.Target.(*target.Filesystem).UglyUrls = false }()
 		}
 	}
 
