@@ -705,7 +705,6 @@ func (s *Site) RenderSectionLists() error {
 }
 
 func (s *Site) RenderHomePage() error {
-  optChanged := false
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	s.setUrls(n, "/")
@@ -740,10 +739,12 @@ func (s *Site) RenderHomePage() error {
 	}
 
   // Force `UglyUrls` option to force `404.html` file name
-  switch s.Target.(type) {
-  case *target.Filesystem:
-    s.Target.(*target.Filesystem).UglyUrls = true
-    optChanged = true
+  switch targ := s.Target.(type) {
+  case *target.FileSystem:
+      if !targ.UglyUrls {
+          targ.UglyUrls = true
+          defer func(){ targ.UglyUrls = false }()
+      }
   }
 
 	n.Url = helpers.Urlize("404.html")
@@ -755,10 +756,6 @@ func (s *Site) RenderHomePage() error {
 	if nfErr != nil {
 		return nfErr
 	}
-
-  if optChanged {
-    s.Target.(*target.Filesystem).UglyUrls = viper.GetBool("UglyUrls")
-  }
 
 	return nil
 }
