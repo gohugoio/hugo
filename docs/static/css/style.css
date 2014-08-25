@@ -2,6 +2,7 @@
 /* ******************************
  For the github btn
 ****************************** */
+
 .github-btn {
   font-size: 11px;
 }
@@ -125,9 +126,27 @@ a, a:hover, a:focus {
     outline: 0;
 }
 
-.panel-body a:hover {
-    text-decoration: underline;
+
+.panel-body a {
+    line-height: 1.1;
+    display: inline-block;
 }
+.panel-body a:after {
+  display: block;
+  content: "";
+  height: 2px;
+  width: 0%;
+  background-color: #ff4088;
+  -webkit-transition: width 0.3s ease;
+  -moz-transition: width 0.3s ease;
+  -ms-transition: width 0.3s ease;
+  transition: width 0.3s ease;
+}
+
+.panel-body a:hover:after, .panel-body a:focus:after {
+    width: 100%;
+}
+
 input:focus, textarea:focus { outline: none; }
 *:focus {outline: none;}
 ::selection {
