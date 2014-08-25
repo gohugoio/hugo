@@ -56,21 +56,21 @@ var DefaultTimer *nitro.B
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Pages      Pages
-	Tmpl       Template
-	Taxonomies TaxonomyList
-	Source     source.Input
-	Sections   Taxonomy
-	Info       SiteInfo
-	Shortcodes map[string]ShortcodeFunc
-	Menus      Menus
-	timer      *nitro.B
-	Target     target.Output
-	Alias      target.AliasPublisher
-	Completed  chan bool
-	RunMode    runmode
-	params     map[string]interface{}
-	draftCount int
+	Pages       Pages
+	Tmpl        Template
+	Taxonomies  TaxonomyList
+	Source      source.Input
+	Sections    Taxonomy
+	Info        SiteInfo
+	Shortcodes  map[string]ShortcodeFunc
+	Menus       Menus
+	timer       *nitro.B
+	Target      target.Output
+	Alias       target.AliasPublisher
+	Completed   chan bool
+	RunMode     runmode
+	params      map[string]interface{}
+	draftCount  int
 	futureCount int
 }
 
@@ -353,7 +353,7 @@ func (s *Site) CreatePages() (err error) {
 			if page.IsDraft() {
 				s.draftCount += 1
 			}
-		
+
 			if page.IsFuture() {
 				s.futureCount += 1
 			}
@@ -827,7 +827,7 @@ func (s *Site) RenderSitemap() error {
 func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
-        jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
+	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
 
 	taxonomies := viper.GetStringMapString("Taxonomies")
 
@@ -987,26 +987,26 @@ func (s *Site) draftStats() string {
 
 	if viper.GetBool("BuildDrafts") {
 		return fmt.Sprintf("%d of ", s.draftCount) + msg
-	} 
+	}
 
 	return "0 of " + msg
 }
 
 func (s *Site) futureStats() string {
-        var msg string
+	var msg string
 
-        switch s.futureCount {
-        case 0:
-                return "0 future content "
-        case 1:
-                msg = "1 future rendered "
-        default:
-                msg = fmt.Sprintf("%d future rendered", s.draftCount)
-        }
+	switch s.futureCount {
+	case 0:
+		return "0 future content "
+	case 1:
+		msg = "1 future rendered "
+	default:
+		msg = fmt.Sprintf("%d future rendered", s.draftCount)
+	}
 
-        if viper.GetBool("BuildFuture") {
-                return fmt.Sprintf("%d of ", s.futureCount) + msg
-        }
+	if viper.GetBool("BuildFuture") {
+		return fmt.Sprintf("%d of ", s.futureCount) + msg
+	}
 
-        return "0 of " + msg
+	return "0 of " + msg
 }
