@@ -23,7 +23,7 @@ import (
 )
 
 func SanitizeUrl(in string) string {
-	url, err := purell.NormalizeURLString(in, purell.FlagsUsuallySafeGreedy|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+	url, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 	if err != nil {
 		return in
 	}
@@ -79,11 +79,16 @@ func MakePermalink(host, plink string) *url.URL {
 }
 
 func UrlPrep(ugly bool, in string) string {
-	in = SanitizeUrl(in)
 	if ugly {
-		return Uglify(in)
+		x := Uglify(SanitizeUrl(in))
+		return x
 	} else {
-		return PrettifyUrl(in)
+		x := PrettifyUrl(SanitizeUrl(in))
+		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
+		if err != nil {
+			return in
+		}
+		return url
 	}
 }
 
