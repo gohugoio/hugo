@@ -308,7 +308,7 @@ func NewWatcher(port int) error {
 		for {
 			select {
 			case evs := <-watcher.Event:
-				jww.INFO.Println(evs)
+				jww.INFO.Println("File System Event:", evs)
 
 				static_changed := false
 				dynamic_changed := false
@@ -340,14 +340,20 @@ func NewWatcher(port int) error {
 					fmt.Print("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
-					livereload.ForceRefresh()
+					if !viper.GetBool("DisableLiveReload") {
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						livereload.ForceRefresh()
+					}
 				}
 
 				if dynamic_changed {
 					fmt.Print("Change detected, rebuilding site\n\n")
 					utils.StopOnErr(buildSite(true))
 
-					livereload.ForceRefresh()
+					if !viper.GetBool("DisableLiveReload") {
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						livereload.ForceRefresh()
+					}
 				}
 			case err := <-watcher.Error:
 				if err != nil {
