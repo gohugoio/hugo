@@ -1,4 +1,6 @@
 ---
+aliases:
+- /extras/highlight/
 date: 2013-07-01
 menu:
   main:
