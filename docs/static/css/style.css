@@ -134,13 +134,13 @@ a, a:hover, a:focus {
 .panel-body a:after {
   display: block;
   content: "";
-  height: 2px;
+  height: 1px;
   width: 0%;
   background-color: #ff4088;
-  -webkit-transition: width 0.3s ease;
-  -moz-transition: width 0.3s ease;
-  -ms-transition: width 0.3s ease;
-  transition: width 0.3s ease;
+  -webkit-transition: width 0.5s ease;
+  -moz-transition: width 0.5s ease;
+  -ms-transition: width 0.5s ease;
+  transition: width 0.5s ease;
 }
 
 .panel-body a:hover:after, .panel-body a:focus:after {
