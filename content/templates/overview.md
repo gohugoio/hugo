@@ -2,6 +2,7 @@
 aliases:
 - /doc/templates/
 - /layout/templates/
+- /layout/overview/
 date: 2013-07-01
 linktitle: Overview
 menu:
