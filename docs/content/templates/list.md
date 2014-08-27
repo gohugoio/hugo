@@ -215,3 +215,39 @@ Can be applied to any of the above. Using Date for an example.
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
     {{ end }}
+
+## Grouping Content
+
+Hugo provides some grouping functions for list pages. You can use them to
+group pages by Section, Date etc.
+
+Here are a variety of different ways you can group the content items in
+your list templates:
+
+### Grouping by Page field
+
+    {{ range .Data.Pages.GroupBy "Section" "asc" }}
+    <h3>{{ .Key }}</h3>
+    <ul>
+        {{ range .Data }}
+        <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
+
+### Grouping by Page date
+
+    {{ range .Data.Pages.GroupByDate "2006-01" "desc" }}
+    <h3>{{ .Key }}</h3>
+    <ul>
+        {{ range .Data }}
+        <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
