@@ -68,7 +68,7 @@ Supported formats: <br>
 
 There are a few predefined variables that Hugo is aware of and utilizes. The user can also create
 any variable they want to. These will be placed into the `.Params` variable available to the templates.
-Field names are always normalized to lowercase (eg `camelCase: true` is available as `.Params.camelcase`.
+Field names are always normalized to lowercase (eg. `camelCase: true` is available as `.Params.camelcase`).
 
 ### Required
 
