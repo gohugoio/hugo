@@ -44,6 +44,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [Converting Blogger To Markdown](http://trishagee.github.io/project/atom-to-hugo/) | Trisha Gee |  20 Mar 2014   |
 | [Moving to Hugo Static Web Pages](http://tepid.org/tech/hugo-web/) |  Tobias Weingartner  |  16 Mar 2014   |
 | [Hugo and Github Pages](http://sglyon.com/blog/2014/creating-the-site/) | Spencer Lyon |  15 Mar 2014   |
+| [New Blog Engine: Hugo](https://blog.afoolishmanifesto.com/posts/hugo/) | fREW Schmidt  |  15 Mar 2014   |
 | [Hugo + gulp.js = Huggle](http://ktmud.github.io/huggle/intro/) | Jesse Yang  | 8 Mar 2014   |
 | [Powered by Hugo](http://kieranhealy.org/blog/archives/2014/02/24/powered-by-hugo/) | Kieran Healy  | 24 Feb 2014   |
 | [静的サイトを素早く構築するためにGoLangで作られたジェネレータHugo](http://hamasyou.com/blog/2014/02/21/hugo/) | Shogo Hamada  | 21 Feb 2014   |
