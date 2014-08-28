@@ -53,8 +53,20 @@ func TestInnerSC(t *testing.T) {
 	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 
 	CheckShortCodeMatch(t, `{{% inside class="aspen" %}}`, `<div class="aspen"></div>`, tem)
-	CheckShortCodeMatch(t, `{{% inside class="aspen" %}}More Here{{% /inside %}}`, `<div class="aspen">More Here</div>`, tem)
-	CheckShortCodeMatch(t, `{{% inside %}}More Here{{% /inside %}}`, `<div>More Here</div>`, tem)
+	CheckShortCodeMatch(t, `{{% inside class="aspen" %}}More Here{{% /inside %}}`, "<div class=\"aspen\"><p>More Here</p>\n</div>", tem)
+	CheckShortCodeMatch(t, `{{% inside %}}More Here{{% /inside %}}`, "<div><p>More Here</p>\n</div>", tem)
+}
+
+func TestInnerSCWithMarkdown(t *testing.T) {
+	tem := NewTemplate()
+	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+
+	CheckShortCodeMatch(t, `{{% inside %}}
+# More Here
+
+[link](http://spf13.com) and text
+
+{{% /inside %}}`, "<div><h1>More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
 }
 
 func TestEmbeddedSC(t *testing.T) {
