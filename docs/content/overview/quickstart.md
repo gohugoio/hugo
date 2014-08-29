@@ -81,7 +81,6 @@ We still lack any templates to tell us how to display the content.
 
     git clone --recursive https://github.com/spf13/hugoThemes themes
 
-
 ## Step 5. Run Hugo
 
 Hugo contains it’s own high performance web server. Simply run `hugo
@@ -99,8 +98,8 @@ your content
 
 We specified two options here.
 
- * --theme to pick which theme.
- * --buildDrafts because we want to display our content, both set to draft status
+ * `--theme` to pick which theme.
+ * `--buildDrafts` because we want to display our content, both set to draft status
 
 To learn about what other options hugo has run 
 
@@ -128,6 +127,7 @@ Stop the Hugo process by hitting ctrl+c. Then run the following:
     Serving pages from exampleHugoSite/public
     Web Server is available at http://localhost:1313
     Press ctrl+c to stop
+
 Open your [favorite editor](http://vim.spf13.com), edit and save your content and watch as Hugo rebuilds and reloads automatically.
 
 It’s especially productive to leave a browser open on a second monitor
@@ -135,8 +135,7 @@ and just glance at it whenever you save. You don’t even need to tab to
 your browser. Hugo is so fast, that the new site will be there before
 you can look at the browser in most cases.
 
-
-Change and save this file.. Notice what happened in your terminal.
+Change and save this file. Notice what happened in your terminal.
 
     Change detected, rebuilding site
 
