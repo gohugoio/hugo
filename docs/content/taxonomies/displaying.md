@@ -90,8 +90,8 @@ The following example displays all tag keys:
 ### Example
 
     <ul id="all-tags">
-      {{ range .Site.Taxonomies.tags }}
-        <li><a href="/tags/{{ .Name | urlize }}">{{ .Name }}</a></li>  
+      {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+        <li><a href="/tags/{{ $name | urlize }}">{{ $name }}</a></li>  
       {{ end }}
     </ul>
 
