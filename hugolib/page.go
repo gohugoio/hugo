@@ -684,6 +684,7 @@ func markdownRender(content []byte) []byte {
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 	extensions |= blackfriday.EXTENSION_FOOTNOTES
+	extensions |= blackfriday.EXTENSION_HEADER_IDS
 
 	return blackfriday.Markdown(content, renderer, extensions)
 }
@@ -706,6 +707,7 @@ func markdownRenderWithTOC(content []byte) []byte {
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 	extensions |= blackfriday.EXTENSION_FOOTNOTES
+	extensions |= blackfriday.EXTENSION_HEADER_IDS
 
 	return blackfriday.Markdown(content, renderer, extensions)
 }
