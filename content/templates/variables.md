@@ -34,7 +34,7 @@ matter, content or derived from file location.
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
 **.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title<br>
-**.Indexes** These will use the field name of the plural form of the index (see tags and categories above)<br>
+**.Taxonomies** These will use the field name of the plural form of the index (see tags and categories above)<br>
 **.RSSLink** Link to the indexes' rss link <br>
 **.TableOfContents** The rendered table of contents for this content<br>
 **.Prev** Pointer to the previous content (based on pub date)<br>
@@ -76,7 +76,7 @@ includes indexes, lists and the homepage.
 Also available is `.Site` which has the following:
 
 **.Site.BaseUrl** The base URL for the site as defined in the config.json file.<br>
-**.Site.Indexes** The indexes for the entire site.<br>
+**.Site.Taxonomies** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Recent** Array of all content ordered by Date, newest first.<br>
 **.Site.Params** A container holding the values from `params` in your site configuration file.<br>

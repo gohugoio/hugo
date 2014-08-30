@@ -89,6 +89,32 @@ content tagged with each tag.
     {{ partial "footer.html" }}
 
 
+Another example listing the content for each term (ordered by Date)
+
+
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
+
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+
+        {{ $data := .Data }}
+        {{ range $key,$value := .Data.Terms.ByCount }}
+        <h2><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </h2>
+        <ul>
+            {{ range $value.Pages.ByDate }}
+            <li>
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+            </li>
+            {{ end }}
+        </ul>
+        {{ end }}
+      </div>
+    </section>
+
+    {{ partial "footer.html" }}
+
 ## Ordering
 
 Hugo can order the meta data in two different ways. It can be ordered by the
