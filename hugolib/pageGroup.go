@@ -62,7 +62,6 @@ func sortKeys(v []reflect.Value, order string) []reflect.Value {
 	return v
 }
 
-func (p Pages) GroupBy(key, order string) ([]PageGroup, error) {
 type PagesGroup []PageGroup
 
 func (p PagesGroup) Reverse() PagesGroup {
@@ -73,12 +72,15 @@ func (p PagesGroup) Reverse() PagesGroup {
 	return p
 }
 
+func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
 	}
 
-	if order != "asc" && order != "desc" {
-		return nil, errors.New("order argument must be 'asc' or 'desc'")
+	direction := "asc"
+
+	if len(order) > 0 && (strings.ToLower(order[0]) == "desc" || strings.ToLower(order[0]) == "rev" || strings.ToLower(order[0]) == "reverse") {
+		direction = "desc"
 	}
 
 	ppt := reflect.TypeOf(&Page{})
@@ -105,17 +107,14 @@ func (p PagesGroup) Reverse() PagesGroup {
 	return r, nil
 }
 
-func (p Pages) GroupByDate(format, order string) ([]PageGroup, error) {
+func (p Pages) GroupByDate(format string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
 	}
 
-	if order != "asc" && order != "desc" {
-		return nil, errors.New("order argument must be 'asc' or 'desc'")
-	}
-
 	sp := p.ByDate()
-	if order == "desc" {
+
+	if !(len(order) > 0 && (strings.ToLower(order[0]) == "asc" || strings.ToLower(order[0]) == "rev" || strings.ToLower(order[0]) == "reverse")) {
 		sp = sp.Reverse()
 	}
 
