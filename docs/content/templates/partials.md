@@ -11,18 +11,16 @@ title: Partial Templates
 weight: 80
 ---
 
-It's not a requirement to have this, but in practice it's very
-convenient to split out common template portions into a partial template
-that can be included anywhere. As you create the rest of your templates
-you will include templates from the /layout/partials directory.
+In practice it's very convenient to split out common template portions into a
+partial template that can be included anywhere. As you create the rest of your
+templates you will include templates from the /layout/partials directory.
 
 Partials are especially important for themes as it gives users an opportunity
 to overwrite just a small part of your theme, while maintaining future compatibility.
 
-In fact theme developers may want to include a few partials with empty html
+Theme developers may want to include a few partials with empty html
 files in the theme just so end users have an easy place to inject their
 customized content.
-
 
 I've found it helpful to include a header and footer template in
 partials so I can include those in all the full page layouts.  There is
@@ -41,9 +39,9 @@ used for both nodes and pages we can use the same partials for both.
 
 Version v0.12 of Hugo introduced the partial call inside the template system.
 This is a change to the way partials were handled previously inside the
-template system. This is a change to hthe way partials were handled previously.
-Previously Hugo didn’t treat partials specially and you could include a partial
-template with the `template` call in the standard template language.
+template system. In earlier versions, Hugo didn’t treat partials specially and
+you could include a partial template with the `template` call in the standard
+template language.
 
 With the addition of the theme system in v0.11 it became apparent that a theme
 & override aware partial was needed.
