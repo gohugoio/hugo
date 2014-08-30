@@ -2,7 +2,7 @@
 aliases:
 - /layout/indexes/
 date: 2013-07-01
-linktitle: List
+linktitle: List of Content
 menu:
   main:
     parent: layout
@@ -296,3 +296,43 @@ within each group in alphabetical order by title.
         {{ end }}
     </ul>
     {{ end }}
+
+## Filtering & Limiting Content
+
+Sometimes you only want to list a subset of the available content. A common
+request is to only display “Posts” on the homepage. Using the `where` function
+you can do just that.
+
+### First 
+
+`first` works like the limit keyword in SQL. It reduces the array to only the
+first X elements. It takes the array and number of elements as input.
+
+    {{ range first 10 .Data.Pages }}
+        {{ .Render "summary"}}
+    {{ end }}
+
+### Where
+
+`where` works in a similar manner to the where keyword in SQL. It selects all
+elements of the slice that match the provided field and value. It takes three
+arguments 'array or slice of maps or structs', 'key or field name' and 'match
+value'
+
+    {{ range where .Data.Pages "Section" "post" }}
+       {{ .Content}}
+    {{ end }}
+
+### First & Where Together
+
+Using both together can be very powerful.
+
+    {{ range first 5 (where .Data.Pages "Section" "post") }}
+       {{ .Content}}
+    {{ end }}
+
+If `where` or `first` receives invalid input or a field name that doesn’t exist they will provide an error and stop site generation.
+
+These are both template functions and work on not only
+[lists](/templates/list/), but [taxonomies](/taxonomies/displaying/),
+[terms](/templates/terms/) and [groups](/templates/list/).
