@@ -2,7 +2,7 @@
 aliases:
 - /layout/functions/
 date: 2013-07-01
-linktitle: Single
+linktitle: Single Content
 menu:
   main:
     parent: layout

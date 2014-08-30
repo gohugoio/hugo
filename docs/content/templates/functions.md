@@ -38,9 +38,30 @@ eg. {{echoParam .Params "project_url" }}
 ### first
 Slices an array to only the first X elements.
 
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
 eg.
     {{ range first 10 .Data.Pages }}
         {{ .Render "summary"}}
+    {{ end }}
+
+### where
+Filters an array to only elements containing a matching value for a given field.
+
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
+eg.
+
+    {{ range where .Data.Pages "Section" "post" }}
+       {{ .Content}}
+    {{ end }}
+
+*where and first can be stacked*
+
+eg.
+
+    {{ range first 5 (where .Data.Pages "Section" "post") }}
+       {{ .Content}}
     {{ end }}
 
 
