@@ -334,7 +334,7 @@ func (s *Site) CreatePages() error {
 
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < procs*2; i++ {
+	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
 		go pageRenderer(s, input, results, wg)
 	}
