@@ -112,6 +112,10 @@ func (ie OrderedTaxonomyEntry) Count() int {
 	return len(ie.WeightedPages)
 }
 
+func (ie OrderedTaxonomyEntry) Term() string {
+	return ie.Name
+}
+
 /*
  * Implementation of a custom sorter for OrderedTaxonomies
  */
