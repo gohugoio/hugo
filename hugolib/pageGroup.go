@@ -17,6 +17,7 @@ import (
 	"errors"
 	"reflect"
 	"sort"
+	"strings"
 )
 
 type PageGroup struct {
@@ -62,6 +63,16 @@ func sortKeys(v []reflect.Value, order string) []reflect.Value {
 }
 
 func (p Pages) GroupBy(key, order string) ([]PageGroup, error) {
+type PagesGroup []PageGroup
+
+func (p PagesGroup) Reverse() PagesGroup {
+	for i, j := 0, len(p)-1; i < j; i, j = i+1, j-1 {
+		p[i], p[j] = p[j], p[i]
+	}
+
+	return p
+}
+
 	if len(p) < 1 {
 		return nil, nil
 	}
