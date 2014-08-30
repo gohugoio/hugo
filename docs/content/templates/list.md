@@ -226,10 +226,10 @@ your list templates:
 
 ### Grouping by Page field
 
-    {{ range .Data.Pages.GroupBy "Section" "asc" }}
+    {{ range .Data.Pages.GroupBy "Section" }}
     <h3>{{ .Key }}</h3>
     <ul>
-        {{ range .Data }}
+        {{ range .Pages }}
         <li>
         <a href="{{ .Permalink }}">{{ .Title }}</a>
         <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
@@ -240,10 +240,55 @@ your list templates:
 
 ### Grouping by Page date
 
-    {{ range .Data.Pages.GroupByDate "2006-01" "desc" }}
+    {{ range .Data.Pages.GroupByDate "2006-01" }}
     <h3>{{ .Key }}</h3>
     <ul>
-        {{ range .Data }}
+        {{ range .Pages }}
+        <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
+
+### Reversing Key Order
+
+The ordering of the groups is performed by keys in alpha-numeric order (A-Z,
+1-100) and  in reverse chronological order (newest first) for dates.
+
+While these are logical defaults, they are not always the desired order. There
+are two different syntaxes to change the order, they both work the same way, so
+it’s really just a matter of preference.
+
+#### Reverse method
+
+    {{ range (.Data.Pages.GroupBy "Section").Reverse }}
+    ...
+
+    {{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
+    ...
+
+
+#### Providing the (alternate) direction
+
+    {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
+    ...
+
+    {{ range .Data.Pages.GroupBy "Section" "desc" }}
+    ...
+
+### Ordering Pages within Group
+
+Because Grouping returns a key and a slice of pages all of the ordering methods listed above are available.
+
+In this example I’ve ordered the groups in chronological order and the content
+within each group in alphabetical order by title.
+
+    {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
+    <h3>{{ .Key }}</h3>
+    <ul>
+        {{ range .Pages.ByTitle }}
         <li>
         <a href="{{ .Permalink }}">{{ .Title }}</a>
         <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
