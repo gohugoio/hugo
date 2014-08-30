@@ -104,7 +104,7 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 }
 
 // Helper to move the page access up a level
-func (ie OrderedTaxonomyEntry) Pages() []*Page {
+func (ie OrderedTaxonomyEntry) Pages() Pages {
 	return ie.WeightedPages.Pages()
 }
 
