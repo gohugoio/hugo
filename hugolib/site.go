@@ -19,6 +19,7 @@ import (
 	"html/template"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -311,60 +312,107 @@ func (s *Site) checkDirectories() (err error) {
 	return
 }
 
-func (s *Site) CreatePages() (err error) {
+type pageRenderResult struct {
+	page *Page
+	err  error
+}
+
+func (s *Site) CreatePages() error {
 	if s.Source == nil {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
 	if len(s.Source.Files()) < 1 {
-		return
+		return nil
 	}
 
-	var wg sync.WaitGroup
-	for _, fi := range s.Source.Files() {
+	files := s.Source.Files()
+
+	results := make(chan pageRenderResult)
+	input := make(chan *source.File)
+
+	procs := getGoMaxProcs()
+
+	wg := &sync.WaitGroup{}
+
+	for i := 0; i < procs*2; i++ {
 		wg.Add(1)
-		go func(file *source.File) (err error) {
-			defer wg.Done()
-
-			page, err := NewPage(file.LogicalName)
-			if err != nil {
-				return err
-			}
-			err = page.ReadFrom(file.Contents)
-			if err != nil {
-				return err
-			}
-			page.Site = &s.Info
-			page.Tmpl = s.Tmpl
-			page.Section = file.Section
-			page.Dir = file.Dir
-
-			//Handling short codes prior to Conversion to HTML
-			page.ProcessShortcodes(s.Tmpl)
-
-			err = page.Convert()
-			if err != nil {
-				return err
-			}
-
-			if page.ShouldBuild() {
-				s.Pages = append(s.Pages, page)
-			}
-
-			if page.IsDraft() {
-				s.draftCount += 1
-			}
-
-			if page.IsFuture() {
-				s.futureCount += 1
-			}
-
-			return
-		}(fi)
+		go pageRenderer(s, input, results, wg)
 	}
+
+	errs := make(chan error)
+
+	// we can only have exactly one result collator, since it makes changes that
+	// must be synchronized.
+	go resultCollator(s, results, errs)
+
+	for _, fi := range files {
+		input <- fi
+	}
+
+	close(input)
 
 	wg.Wait()
+
+	close(results)
+
+	return <-errs
+}
+
+func pageRenderer(s *Site, input <-chan *source.File, results chan<- pageRenderResult, wg *sync.WaitGroup) {
+	for file := range input {
+		page, err := NewPage(file.LogicalName)
+		if err != nil {
+			results <- pageRenderResult{nil, err}
+			continue
+		}
+		err = page.ReadFrom(file.Contents)
+		if err != nil {
+			results <- pageRenderResult{nil, err}
+			continue
+		}
+		page.Site = &s.Info
+		page.Tmpl = s.Tmpl
+		page.Section = file.Section
+		page.Dir = file.Dir
+
+		//Handling short codes prior to Conversion to HTML
+		page.ProcessShortcodes(s.Tmpl)
+
+		err = page.Convert()
+		if err != nil {
+			results <- pageRenderResult{nil, err}
+			continue
+		}
+		results <- pageRenderResult{page, nil}
+	}
+	wg.Done()
+}
+
+func resultCollator(s *Site, results <-chan pageRenderResult, errs chan<- error) {
+	errMsgs := []string{}
+	for r := range results {
+		if r.err != nil {
+			errMsgs = append(errMsgs, r.err.Error())
+			continue
+		}
+
+		if r.page.ShouldBuild() {
+			s.Pages = append(s.Pages, r.page)
+		}
+
+		if r.page.IsDraft() {
+			s.draftCount += 1
+		}
+
+		if r.page.IsFuture() {
+			s.futureCount += 1
+		}
+	}
 	s.Pages.Sort()
-	return
+	if len(errMsgs) == 0 {
+		errs <- nil
+	}
+	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
 }
 
 func (s *Site) BuildSiteMeta() (err error) {
@@ -1009,4 +1057,13 @@ func (s *Site) futureStats() string {
 	}
 
 	return "0 of " + msg
+}
+
+func getGoMaxProcs() int {
+	if gmp := os.Getenv("GOMAXPROCS"); gmp != "" {
+		if p, err := strconv.Atoi(gmp); err != nil {
+			return p
+		}
+	}
+	return 1
 }
