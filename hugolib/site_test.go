@@ -522,11 +522,11 @@ func TestGroupedPages(t *testing.T) {
 	if rbysection[2].Key != "sect1" {
 		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "sect1", rbysection[2].Key)
 	}
-	if rbysection[0].Data[0].Title != "Four" {
-		t.Errorf("PageGroup has an unexpected page. First group's data should have '%s', got '%s'", "Four", rbysection[0].Data[0].Title)
+	if rbysection[0].Pages[0].Title != "Four" {
+		t.Errorf("PageGroup has an unexpected page. First group's pages should have '%s', got '%s'", "Four", rbysection[0].Pages[0].Title)
 	}
-	if len(rbysection[2].Data) != 2 {
-		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Data))
+	if len(rbysection[2].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
 	}
 
 	bydate, err := s.Pages.GroupByDate("2006-01", "asc")
@@ -542,11 +542,11 @@ func TestGroupedPages(t *testing.T) {
 	if bydate[2].Key != "2012-04" {
 		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "2012-04", bydate[2].Key)
 	}
-	if bydate[2].Data[0].Title != "Three" {
-		t.Errorf("PageGroup has an unexpected page. Third group's data should have '%s', got '%s'", "Three", bydate[2].Data[0].Title)
+	if bydate[2].Pages[0].Title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bydate[2].Pages[0].Title)
 	}
-	if len(bydate[0].Data) != 2 {
-		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bydate[2].Data))
+	if len(bydate[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bydate[2].Pages))
 	}
 }
 

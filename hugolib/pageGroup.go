@@ -20,8 +20,8 @@ import (
 )
 
 type PageGroup struct {
-	Key  interface{}
-	Data Pages
+	Key   interface{}
+	Pages Pages
 }
 
 type mapKeyValues []reflect.Value
@@ -87,8 +87,8 @@ func (p Pages) GroupBy(key, order string) ([]PageGroup, error) {
 	}
 
 	var r []PageGroup
-	for _, k := range sortKeys(tmp.MapKeys(), order) {
-		r = append(r, PageGroup{Key: k.Interface(), Data: tmp.MapIndex(k).Interface().([]*Page)})
+	for _, k := range sortKeys(tmp.MapKeys(), direction) {
+		r = append(r, PageGroup{Key: k.Interface(), Pages: tmp.MapIndex(k).Interface().([]*Page)})
 	}
 
 	return r, nil
@@ -110,8 +110,8 @@ func (p Pages) GroupByDate(format, order string) ([]PageGroup, error) {
 
 	date := sp[0].Date.Format(format)
 	var r []PageGroup
-	r = append(r, PageGroup{Key: date, Data: make(Pages, 0)})
-	r[0].Data = append(r[0].Data, sp[0])
+	r = append(r, PageGroup{Key: date, Pages: make(Pages, 0)})
+	r[0].Pages = append(r[0].Pages, sp[0])
 
 	i := 0
 	for _, e := range sp[1:] {
@@ -120,7 +120,7 @@ func (p Pages) GroupByDate(format, order string) ([]PageGroup, error) {
 			r = append(r, PageGroup{Key: date})
 			i++
 		}
-		r[i].Data = append(r[i].Data, e)
+		r[i].Pages = append(r[i].Pages, e)
 	}
 	return r, nil
 }
