@@ -12,7 +12,7 @@ title: Contributing to Hugo
 weight: 30
 ---
 
-All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project. Feel free to pick something from the roadmap
+All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project, feel free to pick something from the roadmap
 or contact [spf13](http://spf13.com) about what may make sense
 to do next.
 
@@ -24,7 +24,7 @@ When you're ready to create a pull request, be sure to:
   * Have test cases for the new code.  If you have questions about how to do it, please ask in your pull request.
   * Run `go fmt`
   * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.
-  * Make sure `go test ./...` passes, and go build completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on windows from time to time, but if you have access please check on a Windows machine too.
+  * Make sure `go test ./...` passes, and `go build` completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
 
 ## Contribution Overview
 
@@ -46,7 +46,7 @@ When you're ready to create a pull request, be sure to:
     cd hugo
     go get
 
-Because go expects all of your libraries to be found in either
+Because Go expects all of your libraries to be found in either
 $GOROOT or $GOPATH, it's helpful to symlink the project to one
 of the following paths:
 

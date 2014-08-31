@@ -27,7 +27,7 @@ Make sure either hugo is in your path or provide a path to it.
       hugo [command]
 
     Available Commands:
-      server                    :: Hugo runs it's own a webserver to render the files
+      server                    :: Hugo runs its own a webserver to render the files
       version                   :: Print the version number of Hugo
       check                     :: Check content in the source directory
       benchmark                 :: Benchmark hugo by building a site a number of times

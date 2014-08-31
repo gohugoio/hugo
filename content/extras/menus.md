@@ -22,8 +22,8 @@ Some of the features of Hugo Menus:
 ## What is a menu?
 
 A menus is a named array of menu entries accessible on the site under
-.Site.Menus by name. For example if I have a menu called `main` I would
-access it via .Site.Menus.main.
+`.Site.Menus` by name. For example if I have a menu called `main` I would
+access it via `.Site.Menus.main`.
 
 A menu entry has the following properties:
 
@@ -134,7 +134,7 @@ and all content entries are attached to one of these entries via the
 ## Rendering menus
 
 Hugo makes no assumptions about how your rendered HTML will be
-structured, instead it provides all of the functions you will need to be
+structured. Instead, it provides all of the functions you will need to be
 able to build your menu however you want. 
 
 

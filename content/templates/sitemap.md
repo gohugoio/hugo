@@ -14,7 +14,7 @@ weight: 95
 ---
 
 A single Sitemap template is used to generate the `sitemap.xml` file.
-Hugo Automatically comes with this template file. **No work is needed on
+Hugo automatically comes with this template file. **No work is needed on
 the users part unless they want to customize the sitemap.xml.**
 
 This page is of the type "node" and have all the [node

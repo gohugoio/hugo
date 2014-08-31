@@ -90,7 +90,7 @@ When a url is provided it will be used exactly. Using url will ignore the
 -\-uglyurls setting.
 
 
-## Path breakdown in hugo
+## Path breakdown in Hugo
 
 ### Content
 
@@ -152,12 +152,12 @@ When a url is provided it will be used exactly. Using url will ignore the
 * based on content-name.md 
 * front matter overrides
 
-**path** = section + path to file exluding slug
+**path** = section + path to file excluding slug
 
 * based on path to content location
 
 
-**url** = relative url
+**url** = relative URL
 
 * defined in front matter
 * overrides all the above

@@ -12,25 +12,25 @@ title: Go Template Primer
 weight: 15
 ---
 
-Hugo uses the excellent [go][] [html/template][gohtmltemplate] library for
+Hugo uses the excellent [Go][] [html/template][gohtmltemplate] library for
 its template engine. It is an extremely lightweight engine that provides a very
-small amount of logic. In our experience that it is just the right amount of
+small amount of logic. In our experience it is just the right amount of
 logic to be able to create a good static website. If you have used other
-template systems from different languages or frameworks you will find a lot of
-similarities in go templates.
+template systems from different languages or frameworks, you will find a lot of
+similarities in Go templates.
 
-This document is a brief primer on using go templates. The [go docs][gohtmltemplate]
+This document is a brief primer on using Go templates. The [Go docs][gohtmltemplate]
 provide more details.
 
 ## Introduction to Go Templates
 
 Go templates provide an extremely simple template language. It adheres to the
 belief that only the most basic of logic belongs in the template or view layer.
-One consequence of this simplicity is that go templates parse very quickly.
+One consequence of this simplicity is that Go templates parse very quickly.
 
-A unique characteristic of go templates is they are content aware. Variables and
+A unique characteristic of Go templates is they are content aware. Variables and
 content will be sanitized depending on the context of where they are used. More
-details can be found in the [go docs][gohtmltemplate].
+details can be found in the [Go docs][gohtmltemplate].
 
 ## Basic Syntax
 
@@ -62,7 +62,7 @@ Accessing the Page Parameter "bar"
 
 ## Variables
 
-Each go template has a struct (object) made available to it. In hugo each
+Each Go template has a struct (object) made available to it. In Hugo each
 template is passed either a page or a node struct depending on which type of
 page you are rendering. More details are available on the
 [variables](/layout/variables) page.
@@ -109,7 +109,7 @@ Go templates provide the most basic iteration and conditional logic.
 
 ### Iteration 
 
-Just like in go, the go templates make heavy use of range to iterate over
+Just like in Go, the Go templates make heavy use of range to iterate over
 a map, array or slice. The following are different examples of how to use
 range.
 
@@ -180,12 +180,12 @@ The first example above could be simplified as:
 
 ## Pipes
 
-One of the most powerful components of go templates is the ability to
+One of the most powerful components of Go templates is the ability to
 stack actions one after another. This is done by using pipes. Borrowed
 from unix pipes, the concept is simple, each pipeline's output becomes the
 input of the following pipe. 
 
-Because of the very simple syntax of go templates, the pipe is essential
+Because of the very simple syntax of Go templates, the pipe is essential
 to being able to chain together function calls. One limitation of the
 pipes is that they only can work with a single value and that value
 becomes the last parameter of the next pipeline. 
@@ -229,14 +229,15 @@ By default Go Templates remove HTML comments from output. This has the unfortuna
       <script src="html5shiv.js"></script>
     {{ "<![endif]-->" | safeHtml }}
 
-## Context (aka. the dot)
+## Context (a.k.a. the dot)
 
-The most easily overlooked concept to understand about go templates is that {{ . }}
+The most easily overlooked concept to understand about Go templates is that `{{ . }}`
 always refers to the current context. In the top level of your template this
 will be the data set made available to it. Inside of a iteration it will have
-the value of the current item. When inside of a loop the context has changed. .
-will no longer refer to the data available to the entire page. If you need to
-access this from within the loop you will likely want to set it to a variable
+the value of the current item. When inside of a loop the context has changed.
+`.` will no longer refer to the data available to the entire page. If you need
+to
+access this from within the loop, you will likely want to set it to a variable
 instead of depending on the context.
 
 **Example:**
@@ -246,7 +247,7 @@ instead of depending on the context.
         <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> - {{ $title }} </li>
       {{ end }}
 
-Notice how once we have entered the loop the value of {{ . }} has changed. We
+Notice how once we have entered the loop the value of `{{ . }}` has changed. We
 have defined a variable outside of the loop so we have access to it from within
 the loop.
 
