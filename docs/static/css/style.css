@@ -1,3 +1,5 @@
+/* Import fonts */
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic);
 
 /* ******************************
  For the github btn
@@ -90,12 +92,8 @@ h1, h2, h3 {
 
 pre code {
     font-size: 18px !important;
-    font-family: "courier new", monospace;
+    font-family: 'Courier New', monospace;
 }
-
-/* Import fonts */
-@import url(http://fonts.googleapis.com/css?family=Lato:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic);
-@import url(line-icons.css);
 
 body {
     color: #353b44;
