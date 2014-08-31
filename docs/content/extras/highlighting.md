@@ -24,12 +24,12 @@ python based program called [pygments](http://pygments.org) and is triggered
 via an embedded shortcode. If pygments is absent from the path, it will
 silently simply pass the content along unhighlighted.
 
-## Server Side
+## Server-side
 
 ### Disclaimers
 
- * **Warning** pygments is relatively slow. Expect much longer build times when using server side highlighting.
- * Languages available depends on your pygments installation.
+ * **Warning:** Pygments is relatively slow. Expect much longer build times when using server-side highlighting.
+ * Languages available depends on your Pygments installation.
  * Styles are inline in order to be supported in syndicated content when references
 to style sheets are not carried over.
  * We have sought to have the simplest interface possible, which consequently

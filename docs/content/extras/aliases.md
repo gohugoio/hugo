@@ -13,8 +13,8 @@ title: Aliases
 weight: 10
 ---
 
-For people migrating existing published content to Hugo theres a good chance
-you need a mechanism to handle redirecting old urls.
+For people migrating existing published content to Hugo there's a good chance
+you need a mechanism to handle redirecting old URLs.
 
 Luckily, this can be handled easily with aliases in Hugo.
 

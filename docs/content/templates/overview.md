@@ -14,21 +14,21 @@ title: Hugo Templates
 weight: 10
 ---
 
-Hugo uses the excellent go html/template library for its template engine.
+Hugo uses the excellent Go html/template library for its template engine.
 It is an extremely lightweight engine that provides a very small amount of
-logic. In our experience that it is just the right amount of logic to be able
+logic. In our experience it is just the right amount of logic to be able
 to create a good static website.
 
 While Hugo has a number of different template roles, most complete
 websites can be built using just a small number of template files.
 Please don’t be afraid of the variety of different template roles. They
-are enable Hugo to build very complicated sites. Most sites will only
+enable Hugo to build very complicated sites. Most sites will only
 need to create a [/layouts/\_default/single.html](/templates/content) & [/layouts/\_default/list.html](/templates/list)
 
-If you are new to go's templates the [go template primer](/layout/go-templates)
+If you are new to Go's templates, the [Go Template Primer](/layout/go-templates)
 is a great place to start.
 
-If you are familiar with go’s templates, Hugo provides some [additional
+If you are familiar with Go’s templates, Hugo provides some [additional
 template functions](/templates/functions) and [variables](/templates/variables) you will want to be familiar
 with.
 
@@ -56,7 +56,7 @@ Common page parts to be included in the above mentioned templates
 Different ways of rendering a (single) content type
 
 ### [Taxonomy Terms](/templates/terms)
-A list of the terms used for a specific taxonomy eg. a Tag cloud
+A list of the terms used for a specific taxonomy, e.g. a Tag cloud
 
 ## Other Templates (generally unnecessary)
 
@@ -67,6 +67,6 @@ Used to render all rss documents
 Used to render the XML sitemap
 
 ### [404](/templates/404)
-This template will create a 404.html page used when hosting on github pages
+This template will create a 404.html page used when hosting on GitHub Pages
 
 

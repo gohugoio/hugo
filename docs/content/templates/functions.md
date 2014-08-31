@@ -12,9 +12,9 @@ title: Hugo Template Functions
 weight: 20
 ---
 
-Hugo uses the excellent go html/template library for its template engine.
+Hugo uses the excellent Go html/template library for its template engine.
 It is an extremely lightweight engine that provides a very small amount of
-logic. In our experience that it is just the right amount of logic to be able
+logic. In our experience it is just the right amount of logic to be able
 to create a good static website.
 
 Go templates are lightweight but extensible. Hugo has added the following

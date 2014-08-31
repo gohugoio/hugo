@@ -16,7 +16,7 @@ started.
 
 ## New Site
 
-Want to get a site built quickly?.
+Want to get a site built quickly?
 
     hugo new site /path/to/site
 
