@@ -14,10 +14,10 @@ weight: 20
 In no particular order, here is what we are working on:
 
  * Intelligently Related Posts
- * Even easier deployment to S3, SSH, Github, rsync
- * Import from other website systems (wordpress, jekyll)
+ * Even easier deployment to S3, SSH, GitHub, rsync
+ * Import from other website systems (WordPress, Jekyll)
  * An interactive web based editor
- * Additional Themes
+ * Additional themes
  * Dynamic image resizing via shortcodes
  * Support for additional formats
  * Pagination

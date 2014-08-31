@@ -29,7 +29,7 @@ matter, content or derived from file location.
 **.Keywords** The meta keywords for this content.<br>
 **.Date** The date the content is associated with.<br>
 **.PublishDate** The date the content is published on.<br>
-**.Type** The content [type](/content/types/) (eg. post)<br>
+**.Type** The content [type](/content/types/) (e.g. post)<br>
 **.Section** The [section](/content/sections/) this content belongs to<br>
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
