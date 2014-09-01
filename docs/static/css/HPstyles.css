@@ -258,38 +258,14 @@ footer a:hover {
     background: aliceblue;
 }
 
-div#carousel-quotes {
-    width:100%;
+.owl-carousel blockquote {
+    border-left: 0px;
 }
 
-.carousel-inner > .item {
-    height: 16em;
-    font-size: 140%;
+.owl-carousel a {
+    color: #243382;
 }
 
-@media all and (max-width: 685px) {
-    .carousel-inner > .item {
-        height: 22em;
-    }
+.owl-carousel blockquote p {
+    font-size: 20pt;
 }
-
-@media all and (max-width: 1200px) and (min-width: 686px) {
-    .carousel-inner > .item {
-        height: 18em;
-    }
-}
-
-.slide blockquote {
-    border-left: 0;
-}
-
-.slide blockquote p {
-    font-size: 200%;
-    text-shadow: rgba(0,0,0,0.5) 2px 2px 5px;
-}
-
-.slide blockquote > a {
-    display: block;
-    color: rgb(249, 176, 190);
-}
-
