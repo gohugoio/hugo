@@ -24,10 +24,10 @@ if weights are the same) date will be used to sort. If neither are provided
 content will be ordered based on how it's read off the disk and no order is
 guaranteed.
 
-## Assigning Weight to content
+## Assigning weight to content
 
     +++
-    weight = "4"
+    weight = 4
     title = "Three"
     date = "2012-04-06"
     +++
