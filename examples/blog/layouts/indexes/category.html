@@ -1,6 +1,6 @@
-{{ template "chrome/header.html" . }}
+{{ partial "header.html" . }}
 <body>
-{{ template "chrome/navbar.html" . }}
+{{ partial "navbar.html" . }}
 <div class="container">
     <div class="row">
         <div class="col-md-9">
@@ -16,9 +16,9 @@
 
         <!-- Sidebar -->
         <div class="col-md-3">
-        {{ template "chrome/menu.html" . }}
+        {{ partial "menu.html" . }}
         </div>
     </div>
-{{ template "chrome/footer.copyright.html" . }}
+{{ partial "footer.copyright.html" . }}
 </div>
-{{ template "chrome/footer.html" . }}
+{{ partial "footer.html" . }}
