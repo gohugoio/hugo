@@ -1,8 +1,9 @@
 package helpers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPretty(t *testing.T) {
@@ -45,8 +46,8 @@ func TestMakePath(t *testing.T) {
 		{"fOO,bar:foo%bAR", "fOObarfoobAR"},
 		{"FOo/BaR.html", "FOo/BaR.html"},
 		{"трям/трям", "трям/трям"},
-		{"은행","은행"},
-		{"Банковский кассир","Банковский-кассир"},
+		{"은행", "은행"},
+		{"Банковский кассир", "Банковский-кассир"},
 	}
 
 	for _, test := range tests {
@@ -63,15 +64,16 @@ func TestMakeToLower(t *testing.T) {
 		expected string
 	}{
 		{"  foo bar  ", "foo-bar"},
+		{"  Foo Bar  ", "foo-bar"},
 		{"foo.bar/foo_bar-foo", "foo.bar/foo_bar-foo"},
 		{"foo,bar:foo%bar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},
 		{"трям/трям", "трям/трям"},
-		{"은행","은행"},
+		{"은행", "은행"},
 	}
 
 	for _, test := range tests {
-		output := MakePath(test.input)
+		output := MakePathToLower(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
@@ -84,6 +86,7 @@ func TestUrlize(t *testing.T) {
 		expected string
 	}{
 		{"  foo bar  ", "foo-bar"},
+		{"Foo And BAR", "foo-and-bar"},
 		{"foo.bar/foo_bar-foo", "foo.bar/foo_bar-foo"},
 		{"foo,bar:foo%bar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},

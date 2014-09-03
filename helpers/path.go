@@ -40,7 +40,7 @@ func MakePath(s string) string {
 // and transformed to lower case.
 // E.g. Social Media -> social-media
 func MakePathToLower(s string) string {
-        return UnicodeSanitize(strings.ToLower(strings.Replace(strings.TrimSpace(s), " ", "-", -1)))
+	return UnicodeSanitize(strings.ToLower(strings.Replace(strings.TrimSpace(s), " ", "-", -1)))
 }
 
 func MakeTitle(inpath string) string {
