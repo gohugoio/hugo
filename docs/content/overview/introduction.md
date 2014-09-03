@@ -12,17 +12,17 @@ weight: 5
 ## What is Hugo?
 
 Hugo is a general-purpose website framework. Technically speaking, Hugo is
-a static site generator. This means that unlike systems like WordPress,
-Ghost and Drupal which run on your web server expensively building a page
+a static site generator. This means that, unlike systems like WordPress,
+Ghost and Drupal, which run on your web server expensively building a page
 every time a visitor requests one, Hugo does the building when you create
 your content. Since websites are viewed far more often then they are
 edited, Hugo is optimized for website viewing while providing a great
 writing experience.
 
 Sites built with Hugo are extremely fast and very secure. Hugo sites can
-be hosted anywhere including Heroku, GoDaddy, GitHub pages, S3
-and Cloudfront and work well with CDNs. Hugo sites run without dependencies
-on expensive run times like Ruby, Python or PHP and without dependencies
+be hosted anywhere, including Heroku, GoDaddy, GitHub Pages, Amazon S3
+and CloudFront, and work well with CDNs. Hugo sites run without dependencies
+on expensive runtimes like Ruby, Python or PHP and without dependencies
 on any databases.
 
 We think of Hugo as the ideal website creation tool. With nearly instant
@@ -32,7 +32,7 @@ designing websites, but also very useful when creating content.
 
 ## What does Hugo do?
 
-In technical terms Hugo takes a source directory of Markdown files and
+In technical terms, Hugo takes a source directory of Markdown files and
 templates and uses these as input to create a complete website.
 
 Hugo boasts the following features:
@@ -77,7 +77,7 @@ Hugo boasts the following features:
   * Support for Go and [Amber](https://github.com/eknkc/amber) templates
   * Syntax [highlighting](/extras/highlighting) powered by pygments
 
-See what's coming next in the [roadmap](/meta/roadmap)
+See what's coming next in the [roadmap](/meta/roadmap).
 
 ## Who should use Hugo?
 
@@ -94,23 +94,23 @@ pages.
 
 ## Why did you write Hugo?
 
-I wrote Hugo ultimately for a few reasons. First I was disappointed with
+I wrote Hugo ultimately for a few reasons. First, I was disappointed with
 WordPress, my then website solution. It rendered slowly. I couldn't create
 content as efficiently as I wanted to and needed to be online to write
 posts. The constant security updates and the horror stories of people's
 hacked blogs. I hated how content was written in HTML instead of the much
-simpler Markdown. Overall I felt like it got in my way more than it helped
-my from writing great content.
+simpler Markdown. Overall, I felt like it got in my way more than it helped
+me from writing great content.
 
 I looked at existing static site generators like Jekyll, Middleman and nanoc.
 All had complicated dependencies to install and took far longer to render
 my blog with hundreds of posts than I felt was acceptable. I wanted
 a framework to be able to get rapid feedback while making changes to the
-templates and the 5+-minute render times was just too slow. In general
+templates, and the 5+-minute render times was just too slow. In general,
 they were also very blog minded and didn't have the ability to have
 different content types and flexible URLs.
 
-I wanted to develop a fast and full featured website framework without
+I wanted to develop a fast and full-featured website framework without
 dependencies. The Go language seemed to have all of the features I needed
 in a language. I began developing Hugo in Go and fell in love with the
 language. I hope you will enjoy using (and contributing to) Hugo as much

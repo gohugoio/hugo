@@ -13,12 +13,13 @@ weight: 20
 
 The front matter is one of the features that gives Hugo its strength. It enables
 you to include the meta data of the content right with it. Hugo supports a few
-different formats each with their own identifying tokens.
+different formats, each with their own identifying tokens.
 
-Supported formats: <br>
-  **YAML**, identified by '\-\-\-'. <br>
-  **TOML**, indentified with '+++'.<br>
-  **JSON**, a single JSON object which is surrounded by '{' and '}' each on their own line.
+Supported formats:
+
+  * **YAML**, identified by '`---`'.
+  * **TOML**, identified with '`+++`'.
+  * **JSON**, a single JSON object which is surrounded by '`{`' and '`}`', each on their own line.
 
 ### YAML Example
 
@@ -68,7 +69,7 @@ Supported formats: <br>
 
 There are a few predefined variables that Hugo is aware of and utilizes. The user can also create
 any variable they want to. These will be placed into the `.Params` variable available to the templates.
-Field names are always normalized to lowercase (eg. `camelCase: true` is available as `.Params.camelcase`).
+Field names are always normalized to lowercase (e.g. `camelCase: true` is available as `.Params.camelcase`).
 
 ### Required
 

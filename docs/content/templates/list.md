@@ -13,7 +13,7 @@ weight: 40
 ---
 
 A list template is any template that will be used to render multiple pieces of
-content in a single html page (with the exception of the [homepage](/layout/homepage) which has a
+content in a single HTML page (with the exception of the [homepage](/layout/homepage) which has a
 dedicated template).
 
 We are using the term list in its truest sense, a sequential arrangement
@@ -26,10 +26,10 @@ taxonomies and sections.
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present
-than the next one in the list will be used. This enables you to craft
+Hugo will use the following prioritized list. If a file isn’t present,
+then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
-then necessary. For most sites only the \_default file at the end of
+than necessary. For most sites only the \_default file at the end of
 the list will be needed.
 
 
@@ -60,8 +60,8 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/
 
 A Section’s RSS will be rendered at /`SECTION`/index.xml
 
-*Hugo ships with it’s own ATOM 2.0 RSS template. In most cases this will
-be sufficient and an RSS template will not need to be provided by the
+*Hugo ships with its own ATOM 2.0 RSS template. In most cases this will
+be sufficient, and an RSS template will not need to be provided by the
 user.*
 
 Hugo provides the ability for you to define any RSS type you wish, and
@@ -76,8 +76,8 @@ can have different RSS files for each section and taxonomy.
 
 A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml
 
-*Hugo ships with it’s own ATOM 2.0 RSS template. In most cases this will
-be sufficient and an RSS template will not need to be provided by the
+*Hugo ships with its own ATOM 2.0 RSS template. In most cases this will
+be sufficient, and an RSS template will not need to be provided by the
 user.*
 
 Hugo provides the ability for you to define any RSS type you wish, and
@@ -254,8 +254,8 @@ your list templates:
 
 ### Reversing Key Order
 
-The ordering of the groups is performed by keys in alpha-numeric order (A-Z,
-1-100) and  in reverse chronological order (newest first) for dates.
+The ordering of the groups is performed by keys in alpha-numeric order (A–Z,
+1–100) and in reverse chronological order (newest first) for dates.
 
 While these are logical defaults, they are not always the desired order. There
 are two different syntaxes to change the order, they both work the same way, so
@@ -280,7 +280,7 @@ it’s really just a matter of preference.
 
 ### Ordering Pages within Group
 
-Because Grouping returns a key and a slice of pages all of the ordering methods listed above are available.
+Because Grouping returns a key and a slice of pages, all of the ordering methods listed above are available.
 
 In this example I’ve ordered the groups in chronological order and the content
 within each group in alphabetical order by title.
@@ -305,7 +305,7 @@ you can do just that.
 
 ### First 
 
-`first` works like the limit keyword in SQL. It reduces the array to only the
+`first` works like the `limit` keyword in SQL. It reduces the array to only the
 first X elements. It takes the array and number of elements as input.
 
     {{ range first 10 .Data.Pages }}
@@ -314,7 +314,7 @@ first X elements. It takes the array and number of elements as input.
 
 ### Where
 
-`where` works in a similar manner to the where keyword in SQL. It selects all
+`where` works in a similar manner to the `where` keyword in SQL. It selects all
 elements of the slice that match the provided field and value. It takes three
 arguments 'array or slice of maps or structs', 'key or field name' and 'match
 value'

@@ -13,15 +13,15 @@ weight: 60
 Hugo provides you with all the flexibility you need to organize how your content is ordered.
 
 By default, content is ordered by weight, then by date with the most
-recent date first, but alternative sorting (by title and linktitle) is
-also available. The order the content will appear will be specified in
+recent date first, but alternative sorting (by `title` and `linktitle`) is
+also available. The order the content would appear is specified in
 the [list template](/templates/list).
 
-_Both the date and weight fields are optional._
+_Both the `date` and `weight` fields are optional._
 
 Unweighted pages appear at the end of the list. If no weights are provided (or
-if weights are the same) date will be used to sort. If neither are provided
-content will be ordered based on how it's read off the disk and no order is
+if weights are the same), `date` will be used to sort. If neither is provided,
+content will be ordered based on how it's read off the disk, and no order is
 guaranteed.
 
 ## Assigning weight to content
@@ -36,4 +36,4 @@ guaranteed.
 
 ## Ordering Content Within Taxonomies
 
-Please see the [Taxonomy Ordering Documentation](/taxonomies/ordering/)
+Please see the [Taxonomy Ordering Documentation](/taxonomies/ordering/).

@@ -11,14 +11,14 @@ title: Partial Templates
 weight: 80
 ---
 
-In practice it's very convenient to split out common template portions into a
+In practice, it's very convenient to split out common template portions into a
 partial template that can be included anywhere. As you create the rest of your
-templates you will include templates from the /layout/partials directory.
+templates, you will include templates from the /layout/partials directory.
 
 Partials are especially important for themes as it gives users an opportunity
 to overwrite just a small part of your theme, while maintaining future compatibility.
 
-Theme developers may want to include a few partials with empty html
+Theme developers may want to include a few partials with empty HTML
 files in the theme just so end users have an easy place to inject their
 customized content.
 
@@ -33,25 +33,25 @@ like good names to use for inclusion in your other templates.
           footer.html
 
 By ensuring that we only reference [variables](/layout/variables/)
-used for both nodes and pages we can use the same partials for both.
+used for both nodes and pages, we can use the same partials for both.
 
 ## Partial vs Template 
 
-Version v0.12 of Hugo introduced the partial call inside the template system.
+Version v0.12 of Hugo introduced the `partial` call inside the template system.
 This is a change to the way partials were handled previously inside the
-template system. In earlier versions, Hugo didn’t treat partials specially and
+template system. In earlier versions, Hugo didn’t treat partials specially, and
 you could include a partial template with the `template` call in the standard
 template language.
 
-With the addition of the theme system in v0.11 it became apparent that a theme
+With the addition of the theme system in v0.11, it became apparent that a theme
 & override aware partial was needed.
 
-When using Hugo v0.12 and above please use the `partial` call (and leave out
-the “partial/” path). The old approach will still work, but won’t benefit from
+When using Hugo v0.12 and above, please use the `partial` call (and leave out
+the “partial/” path). The old approach would still work, but wouldn’t benefit from
 the ability to have users override the partial theme file with local layouts.
 
-## example header.html
-This header template is used for [spf13.com](http://spf13.com).
+## Example header.html
+This header template is used for [spf13.com](http://spf13.com):
 
     <!DOCTYPE html>
     <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -69,13 +69,13 @@ This header template is used for [spf13.com](http://spf13.com).
     </head>
     <body lang="en">
 
-## example footer.html
-This header template is used for [spf13.com](http://spf13.com).
+## Example footer.html
+This footer template is used for [spf13.com](http://spf13.com):
 
     <footer>
       <div>
         <p>
-        &copy; 2013 Steve Francia.
+        &copy; 2013-14 Steve Francia.
         <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>; 
         please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
         </p>
@@ -100,4 +100,4 @@ This header template is used for [spf13.com](http://spf13.com).
     </html>
 
 **For examples of referencing these templates, see [single content
-templates](/templates/content), [list templates](/templates/list) and [homepage templates](/templates/homepage)**
+templates](/templates/content), [list templates](/templates/list) and [homepage templates](/templates/homepage).**
