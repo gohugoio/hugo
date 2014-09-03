@@ -1,0 +1,6 @@
+baseurl = ""
+
+[indexes]
+tag = "tags"
+group = "groups"
+menu = "menu"

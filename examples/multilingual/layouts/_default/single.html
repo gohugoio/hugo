@@ -1,4 +1,4 @@
-{{ template "chrome/head.html" . }}
-{{ template "chrome/header.html" . }}
-{{ .Content }}
-{{ template "chrome/footer.html" . }}
+{{ partial "head.html" . }}
+{{ partial "header.html" . }}
+{{ if .IsPage }}{{ .Content }}{{ end }}
+{{ partial "footer.html" . }}

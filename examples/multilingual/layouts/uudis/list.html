@@ -1,5 +1,5 @@
-{{ template "chrome/head.html" . }}
-{{ template "chrome/header.html" . }}
+{{ partial "head.html" . }}
+{{ partial "header.html" . }}
 {{ range .Site.Indexes.groups.uudised.Pages }}
 <article class="post">
 	<header>
@@ -12,4 +12,4 @@
 	</footer>
 </article>
 {{ end }}
-{{ template "chrome/footer.html" . }}
+{{ partial "footer.html" . }}
