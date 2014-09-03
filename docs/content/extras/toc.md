@@ -26,12 +26,12 @@ Hugo will take this Markdown and create a table of contents stored in the
 
 This is example code of a [single.html template](/layout/content).
 
-    {{ template "partials/header.html" . }}
+    {{ partial "header.html" . }}
         <div id="toc" class="well col-md-4 col-sm-6">
         {{ .TableOfContents }}
         </div>
         <h1>{{ .Title }}</h1>
         {{ .Content }}
-    {{ template "partials/footer.html" . }}
+    {{ partial "footer.html" . }}
 
 

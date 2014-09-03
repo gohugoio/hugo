@@ -28,19 +28,19 @@ Go documentation for the built-in functions can be found [here](http://golang.or
 Return true if the parameter is set.
 Takes either a slice, array or channel and an index or a map and a key as input.
 
-eg. {{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}
+e.g. {{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}
 
 ### echoParam
 If parameter is set, then echo it.
 
-eg. {{echoParam .Params "project_url" }}
+e.g. {{echoParam .Params "project_url" }}
 
 ### first
 Slices an array to only the first X elements.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
-eg.
+e.g.
     {{ range first 10 .Data.Pages }}
         {{ .Render "summary"}}
     {{ end }}
@@ -50,7 +50,7 @@ Filters an array to only elements containing a matching value for a given field.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
-eg.
+e.g.
 
     {{ range where .Data.Pages "Section" "post" }}
        {{ .Content}}
@@ -58,7 +58,7 @@ eg.
 
 *where and first can be stacked*
 
-eg.
+e.g.
 
     {{ range first 5 (where .Data.Pages "Section" "post") }}
        {{ .Content}}
@@ -70,61 +70,61 @@ eg.
 ### add
 Adds two integers.
 
-eg {{add 1 2}} -> 3
+e.g. {{add 1 2}} → 3
 
 ### sub
 Subtracts two integers.
 
-eg {{sub 3 2}} -> 1
+e.g. {{sub 3 2}} → 1
 
 ### div
 Divides two integers.
 
-eg {{div 6 3}} -> 2
+e.g. {{div 6 3}} → 2
 
 ### mul
 Multiplies two integers.
 
-eg {{mul 2 3}} -> 6
+e.g. {{mul 2 3}} → 6
 
 ### mod
 Modulus of two integers.
 
-eg {{mod 15 3}} -> 0
+e.g. {{mod 15 3}} → 0
 
 ### modBool
 Boolean of modulus of two integers.
 true if modulus is 0.
 
-eg {{modBool 15 3}} -> true
+e.g. {{modBool 15 3}} → true
 
 ## Strings
 
 ### urlize
-Takes a string and sanitizes it for usage in urls, converts spaces to "-".
+Takes a string and sanitizes it for usage in URLs, converts spaces to "-".
 
-eg. &lt;a href="/tags/{{ . | urlize }}"&gt;{{ . }}&lt;/a&gt;
+e.g. &lt;a href="/tags/{{ . | urlize }}"&gt;{{ . }}&lt;/a&gt;
 
 ### safeHtml
-Declares the provided string as "safe" so go templates will not filter it.
+Declares the provided string as "safe" so Go templates will not filter it.
 
-eg. {{ .Params.CopyrightHTML | safeHtml }}
+e.g. {{ .Params.CopyrightHTML | safeHtml }}
 
 ### lower
 Convert all characters in string to lowercase.
 
-eg {{lower "BatMan"}} -> "batman"
+e.g. {{lower "BatMan"}} → "batman"
 
 ### upper
 Convert all characters in string to uppercase.
 
-eg {{upper "BatMan"}} -> "BATMAN"
+e.g. {{upper "BatMan"}} → "BATMAN"
 
 ### title
 Convert all characters in string to titlecase.
 
-eg {{title "BatMan"}} -> "Batman"
+e.g. {{title "BatMan"}} → "Batman"
 
 ### highlight
-Take a string of code and a language, uses pygments to return the syntax
-highlighted code in html. Used in the [highlight shortcode](/extras/highlighting).
+Take a string of code and a language, uses Pygments to return the syntax
+highlighted code in HTML. Used in the [highlight shortcode](/extras/highlighting).

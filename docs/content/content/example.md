@@ -13,9 +13,9 @@ title: Example Content File
 weight: 70
 ---
 
-Somethings are better shown than explained. The following is a very basic example of a content file:
+Some things are better shown than explained. The following is a very basic example of a content file:
 
-**mysite/project/nitro.md  <- http://mysite.com/project/nitro.html**
+**mysite/project/nitro.md  ← http://mysite.com/project/nitro.html**
 
     ---
     Title:       "Nitro : A quick and simple profiler for Go"

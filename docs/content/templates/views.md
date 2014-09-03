@@ -43,7 +43,7 @@ provide a specific view for a given type and continue to use the
 
 Hugo also has support for a default content template to be used in the event
 that a specific template has not been provided for that type. The default type
-works the same as the other types but the directory must be called "_default".
+works the same as the other types, but the directory must be called "_default".
 Content views can also be defined in the "_default" directory.
 
 
@@ -58,10 +58,10 @@ Content views can also be defined in the "_default" directory.
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present
-than the next one in the list will be used. This enables you to craft
+Hugo will use the following prioritized list. If a file isn’t present,
+then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
-then necessary. For most sites only the \_default file at the end of
+than necessary. For most sites only the \_default file at the end of
 the list will be needed.
 
 * /layouts/`TYPE`/`VIEW`.html
