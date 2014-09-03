@@ -12,7 +12,7 @@
 	{{ else }}
 	<h1 class="title">My multilingual site</h1>
 	{{ end }}
-	
+
 	<nav class="menu main-menu">
 		<ul>
 			{{ range (index .Site.Indexes.menu .Params.lang).Pages }}
