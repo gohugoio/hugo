@@ -296,9 +296,16 @@ func NewTemplate() Template {
 	return templates
 }
 
-func Partial(name string, context interface{}) template.HTML {
+func Partial(name string, context_list ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
+	}
+	var context interface{}
+
+	if len(context_list) == 0 {
+		context = nil
+	} else {
+		context = context_list[0]
 	}
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
