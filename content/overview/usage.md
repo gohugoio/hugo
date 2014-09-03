@@ -54,7 +54,7 @@ Make sure either hugo is in your path or provide a path to it.
 
     Use "hugo help [command]" for more information about that command.
 
-## Common Usage Example:
+## Common Usage Example
 
 The most common use is probably to run hugo with your current
 directory being the input directory.

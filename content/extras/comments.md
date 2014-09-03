@@ -33,7 +33,7 @@ Simply include the following line where you want your comments to appear
 
 ## Configuring Disqus
 
-That template requires you to set a single value in your site config file, eg. config.yaml.
+That template requires you to set a single value in your site config file, e.g. config.yaml.
 
     disqusShortname = "XYW"
 
@@ -73,7 +73,7 @@ Notice that there is a simple if statement that detects when you are running on 
 
 Now reference the partial template from your page template:
 
-    {{ template "partials/disqus.html" . }}
+    {{ partial "disqus.html" . }}
 
 
 # Alternatives

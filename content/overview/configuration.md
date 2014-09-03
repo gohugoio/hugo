@@ -14,11 +14,11 @@ weight: 40
 ---
 
 The directory structure and templates provide the majority of the
-configuration for a site. In fact a config file isn't even needed for many
+configuration for a site. In fact, a config file isn't even needed for many
 websites since the defaults follow commonly used patterns.
 
 Hugo expects to find the config file in the root of the source directory and
-will look there first for a `config.toml` file. If none is present it will
+will look there first for a `config.toml` file. If none is present, it will
 then look for a `config.yaml` file, followed by a `config.json` file.
 
 The config file is a site-wide config. The config file provides directions to

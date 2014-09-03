@@ -15,13 +15,13 @@ Hugo provides the ability for you to highlight source code in two different
 ways &mdash; either pre-processed server side from your content, or to defer
 the processing to the client side, using a JavaScript library. The advantage of
 server side is that it doesn’t depend on a JavaScript library and consequently
-works very well when read from an rss feed. The advantage of client side is that
+works very well when read from an RSS feed. The advantage of client side is that
 it doesn’t cost anything when building your site and some of the highlighting 
-scripts available cover more languages than pygments does.
+scripts available cover more languages than Pygments does.
 
 For the pre-processed approach, Highlighting is performed by an external
-python based program called [pygments](http://pygments.org) and is triggered
-via an embedded shortcode. If pygments is absent from the path, it will
+Python-based program called [Pygments](http://pygments.org) and is triggered
+via an embedded shortcode. If Pygments is absent from the path, it will
 silently simply pass the content along unhighlighted.
 
 ## Server-side
@@ -83,7 +83,7 @@ a library and a corresponding theme. Some popular libraries are:
 This example uses the popular [Highlight.js] library, hosted by [Yandex], a
 popular Russian search engine.
 
-In your `./layouts/chrome/` folder, depending on your specific theme, there
+In your `./layouts/partials/` (or `./layouts/chrome/`) folder, depending on your specific theme, there
 will be a snippet that will be included in every generated HTML page, such
 as `header.html` or `header.includes.html`. Simply add:
 
@@ -98,4 +98,4 @@ You can of course use your own copy of these files, typically in `./static/`.
 [Google Prettify]: https://code.google.com/p/google-code-prettify/
 [Yandex]: http://yandex.ru/
 
-Please see individual libraries documentation for how to implement the JavaScript based libraries.
+Please see individual libraries documentation for how to implement the JavaScript-based libraries.

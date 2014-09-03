@@ -22,7 +22,7 @@ Some of the features of Hugo Menus:
 ## What is a menu?
 
 A menus is a named array of menu entries accessible on the site under
-`.Site.Menus` by name. For example if I have a menu called `main` I would
+`.Site.Menus` by name. For example, if I have a menu called `main`, I would
 access it via `.Site.Menus.main`.
 
 A menu entry has the following properties:
@@ -89,7 +89,7 @@ available.
 You can also add entries to menus that aren’t attached to a piece of
 content. This takes place in the site wide [config file](http://hugo.spf13.com/overview/configuration).
 
-Here’s an example (in toml):
+Here’s an example (in TOML):
 
     [[menu.main]]
         name = "about hugo"
@@ -101,7 +101,7 @@ Here’s an example (in toml):
         pre = "<i class='fa fa-road'></i>"
         weight = -100
 
-Here’s an example (in yaml):
+Here’s an example (in YAML):
 
     ---
     menu:
