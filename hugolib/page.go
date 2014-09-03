@@ -54,6 +54,7 @@ type Page struct {
 	frontmatter       []byte
 	sourceFrontmatter []byte
 	sourceContent     []byte
+	ExcludeFromFeed		bool
 	PageMeta
 	File
 	Position
@@ -385,6 +386,8 @@ func (page *Page) update(f interface{}) error {
 			page.Status = cast.ToString(v)
 		case "sitemap":
 			page.Sitemap = parseSitemap(cast.ToStringMap(v))
+		case "excludefromfeed":
+			page.ExcludeFromFeed = cast.ToBool(v)
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {

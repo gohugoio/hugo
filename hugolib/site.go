@@ -779,10 +779,19 @@ func (s *Site) RenderHomePage() error {
 		n.Title = "Recent Content"
 		n.Permalink = s.permalink("index.xml")
 		high := 50
-		if len(s.Pages) < high {
-			high = len(s.Pages)
+
+		filteredPages := make(Pages, 0)
+		for _, p := range s.Pages {
+			if !p.ExcludeFromFeed {
+				filteredPages = append(filteredPages, p)
+			}
 		}
-		n.Data["Pages"] = s.Pages[:high]
+
+		if len(filteredPages) < high {
+			high = len(filteredPages)
+		}
+
+		n.Data["Pages"] = filteredPages[:high]
 		if len(s.Pages) > 0 {
 			n.Date = s.Pages[0].Date
 		}
