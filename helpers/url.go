@@ -35,7 +35,7 @@ func SanitizeUrl(in string) string {
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
 func Urlize(uri string) string {
-	sanitized := MakePath(uri)
+	sanitized := MakePathToLower(uri)
 
 	// escape unicode letters
 	parsedUri, err := url.Parse(sanitized)
