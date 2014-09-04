@@ -21,6 +21,7 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -61,7 +62,7 @@ type Page struct {
 }
 
 type File struct {
-	FileName, Extension, Dir string
+	Name, FileName, Extension, Dir string
 }
 
 type PageMeta struct {
@@ -148,8 +149,12 @@ func renderBytes(content []byte, pagefmt string) []byte {
 }
 
 func newPage(filename string) *Page {
+	name := filepath.Base(filename)
+	// strip off the extension
+	name = name[:len(name)-len(filepath.Ext(name))]
+
 	page := Page{contentType: "",
-		File:   File{FileName: filename, Extension: "html"},
+		File:   File{Name: name, FileName: filename, Extension: "html"},
 		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params: make(map[string]interface{})}
 
