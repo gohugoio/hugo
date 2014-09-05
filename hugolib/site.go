@@ -80,7 +80,8 @@ type SiteInfo struct {
 	Taxonomies      TaxonomyList
 	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
 	Sections        Taxonomy
-	Recent          *Pages
+	Pages           *Pages
+	Recent          *Pages // legacy, should be identical to Pages
 	Menus           *Menus
 	Title           string
 	Author          map[string]string
@@ -278,6 +279,7 @@ func (s *Site) initializeSiteInfo() {
 		LanguageCode:    viper.GetString("languagecode"),
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
+		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
 		Params:          params,
@@ -312,7 +314,7 @@ func (s *Site) checkDirectories() (err error) {
 	return
 }
 
-type pageRenderResult struct {
+type pageResult struct {
 	page *Page
 	err  error
 }
@@ -327,8 +329,8 @@ func (s *Site) CreatePages() error {
 
 	files := s.Source.Files()
 
-	results := make(chan pageRenderResult)
-	input := make(chan *source.File)
+	results := make(chan pageResult)
+	filechan := make(chan *source.File)
 
 	procs := getGoMaxProcs()
 
@@ -336,59 +338,114 @@ func (s *Site) CreatePages() error {
 
 	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
-		go pageRenderer(s, input, results, wg)
+		go pageReader(s, filechan, results, wg)
 	}
 
 	errs := make(chan error)
 
 	// we can only have exactly one result collator, since it makes changes that
 	// must be synchronized.
-	go resultCollator(s, results, errs)
+	go readCollator(s, results, errs)
 
-	for _, fi := range files {
-		input <- fi
+	for _, file := range files {
+		filechan <- file
 	}
 
-	close(input)
+	close(filechan)
 
 	wg.Wait()
 
 	close(results)
 
-	return <-errs
+	readErrs := <-errs
+
+	results = make(chan pageResult)
+	pagechan := make(chan *Page)
+
+	wg = &sync.WaitGroup{}
+
+	for i := 0; i < procs*4; i++ {
+		wg.Add(1)
+		go pageRenderer(s, pagechan, results, wg)
+	}
+
+	go renderCollator(s, results, errs)
+
+	for _, p := range s.Pages {
+		pagechan <- p
+	}
+
+	close(pagechan)
+
+	wg.Wait()
+
+	close(results)
+
+	renderErrs := <-errs
+
+	if renderErrs == nil && readErrs == nil {
+		return nil
+	}
+	if renderErrs == nil {
+		return readErrs
+	}
+	if readErrs == nil {
+		return renderErrs
+	}
+	return fmt.Errorf("%s\n%s", readErrs, renderErrs)
 }
 
-func pageRenderer(s *Site, input <-chan *source.File, results chan<- pageRenderResult, wg *sync.WaitGroup) {
-	for file := range input {
+func pageReader(s *Site, files <-chan *source.File, results chan<- pageResult, wg *sync.WaitGroup) {
+	for file := range files {
 		page, err := NewPage(file.LogicalName)
 		if err != nil {
-			results <- pageRenderResult{nil, err}
-			continue
-		}
-		err = page.ReadFrom(file.Contents)
-		if err != nil {
-			results <- pageRenderResult{nil, err}
+			results <- pageResult{nil, err}
 			continue
 		}
 		page.Site = &s.Info
 		page.Tmpl = s.Tmpl
 		page.Section = file.Section
 		page.Dir = file.Dir
-
-		//Handling short codes prior to Conversion to HTML
-		page.ProcessShortcodes(s.Tmpl)
-
-		err = page.Convert()
-		if err != nil {
-			results <- pageRenderResult{nil, err}
+		if err := page.ReadFrom(file.Contents); err != nil {
+			results <- pageResult{nil, err}
 			continue
 		}
-		results <- pageRenderResult{page, nil}
+		results <- pageResult{page, nil}
 	}
 	wg.Done()
 }
 
-func resultCollator(s *Site, results <-chan pageRenderResult, errs chan<- error) {
+func pageRenderer(s *Site, pages <-chan *Page, results chan<- pageResult, wg *sync.WaitGroup) {
+	for page := range pages {
+		//Handling short codes prior to Conversion to HTML
+		page.ProcessShortcodes(s.Tmpl)
+
+		err := page.Convert()
+		if err != nil {
+			results <- pageResult{nil, err}
+			continue
+		}
+		results <- pageResult{page, nil}
+	}
+	wg.Done()
+}
+
+func renderCollator(s *Site, results <-chan pageResult, errs chan<- error) {
+	errMsgs := []string{}
+	for r := range results {
+		if r.err != nil {
+			errMsgs = append(errMsgs, r.err.Error())
+			continue
+		}
+	}
+	if len(errMsgs) == 0 {
+		errs <- nil
+		return
+	}
+	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
+}
+
+func readCollator(s *Site, results <-chan pageResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
@@ -411,8 +468,9 @@ func resultCollator(s *Site, results <-chan pageRenderResult, errs chan<- error)
 	s.Pages.Sort()
 	if len(errMsgs) == 0 {
 		errs <- nil
+		return
 	}
-	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
+	errs <- fmt.Errorf("Errors reading pages: %s", strings.Join(errMsgs, "\n"))
 }
 
 func (s *Site) BuildSiteMeta() (err error) {
