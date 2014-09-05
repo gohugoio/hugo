@@ -560,7 +560,7 @@ categories_weight = 44
 Front Matter with weighted tags and categories`)
 
 var PAGE_WITH_WEIGHTED_TAXONOMIES_1 = []byte(`+++
-tags = [ "a" ]
+tags = "a"
 tags_weight = 33
 title = "bar"
 categories = [ "d", "e" ]

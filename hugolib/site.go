@@ -535,13 +535,14 @@ func (s *Site) assembleTaxonomies() {
 			}
 
 			if vals != nil {
-				v, ok := vals.([]string)
-				if ok {
+				if v, ok := vals.([]string); ok {
 					for _, idx := range v {
 						x := WeightedPage{weight.(int), p}
-
 						s.Taxonomies[plural].Add(idx, x)
 					}
+				} else if v, ok := vals.(string); ok {
+					x := WeightedPage{weight.(int), p}
+					s.Taxonomies[plural].Add(v, x)
 				} else {
 					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.FileName)
 				}
