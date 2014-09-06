@@ -533,8 +533,8 @@ func TestGroupedPages(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
-	if bydate[0].Key != "2008-01" {
-		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "2008-01", bydate[0].Key)
+	if bydate[0].Key != "0001-01" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "0001-01", bydate[0].Key)
 	}
 	if bydate[1].Key != "2012-01" {
 		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "2012-01", bydate[1].Key)

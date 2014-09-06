@@ -154,7 +154,6 @@ func newPage(filename string) *Page {
 		Params: make(map[string]interface{})}
 
 	jww.DEBUG.Println("Reading from", page.File.FileName)
-	page.Date, _ = time.Parse("20060102", "20080101")
 	page.guessSection()
 	return &page
 }
