@@ -15,6 +15,7 @@ func CheckErr(err error, s ...string) {
 			for _, message := range s {
 				jww.ERROR.Println(message)
 			}
+			jww.ERROR.Println(err)
 		}
 	}
 }
