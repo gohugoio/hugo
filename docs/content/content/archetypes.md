@@ -56,7 +56,7 @@ You can specify a different default format in your config file using
 the `MetaDataFormat` directive. Possible values are `toml`, `yaml` and `json`.
 
 
-## Which archtype is being used
+## Which archetype is being used
 
 The following rules apply:
 
