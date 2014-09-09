@@ -431,7 +431,7 @@ func (page *Page) GetParam(key string) interface{} {
 	case bool:
 		return cast.ToBool(v)
 	case string:
-		return cast.ToString(v)
+		return strings.ToLower(cast.ToString(v))
 	case int64, int32, int16, int8, int:
 		return cast.ToInt(v)
 	case float64, float32:
@@ -439,7 +439,7 @@ func (page *Page) GetParam(key string) interface{} {
 	case time.Time:
 		return cast.ToTime(v)
 	case []string:
-		return v
+		return sliceToLower(v.([]string))
 	}
 	return nil
 }
@@ -794,4 +794,18 @@ func (p *Page) TargetPath() (outfile string) {
 	}
 
 	return path.Join(p.Dir, strings.TrimSpace(outfile))
+}
+
+// sliceToLower goes through the source slice and lowers all values.
+func sliceToLower(s []string) []string {
+	if s == nil {
+		return nil
+	}
+
+	l  := make([]string, len(s))
+	for i, v := range s {
+		l[i] = strings.ToLower(v)
+	}
+
+	return l
 }
