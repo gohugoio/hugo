@@ -134,7 +134,7 @@ func (by OIby) Sort(taxonomy OrderedTaxonomy) {
 		taxonomy: taxonomy,
 		by:       by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
-	sort.Sort(ps)
+	sort.Stable(ps)
 }
 
 // Len is part of sort.Interface.
@@ -162,7 +162,7 @@ func (wp WeightedPages) Pages() Pages {
 
 func (p WeightedPages) Len() int      { return len(p) }
 func (p WeightedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p WeightedPages) Sort()         { sort.Sort(p) }
+func (p WeightedPages) Sort()         { sort.Stable(p) }
 func (p WeightedPages) Count() int    { return len(p) }
 func (p WeightedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
