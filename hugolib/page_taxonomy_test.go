@@ -6,7 +6,7 @@ import (
 )
 
 var PAGE_YAML_WITH_TAXONOMIES_A = `---
-tags: ['a', 'b', 'c']
+tags: ['a', 'B', 'c']
 categories: 'd'
 ---
 YAML frontmatter with tags and categories taxonomy.`
@@ -14,20 +14,20 @@ YAML frontmatter with tags and categories taxonomy.`
 var PAGE_YAML_WITH_TAXONOMIES_B = `---
 tags:
  - "a"
- - "b"
+ - "B"
  - "c"
 categories: 'd'
 ---
 YAML frontmatter with tags and categories taxonomy.`
 
 var PAGE_YAML_WITH_TAXONOMIES_C = `---
-tags: 'e'
+tags: 'E'
 categories: 'd'
 ---
 YAML frontmatter with tags and categories taxonomy.`
 
 var PAGE_JSON_WITH_TAXONOMIES = `{
-  "categories": "d",
+  "categories": "D",
   "tags": [
     "a",
     "b",
@@ -37,7 +37,7 @@ var PAGE_JSON_WITH_TAXONOMIES = `{
 JSON Front Matter with tags and categories`
 
 var PAGE_TOML_WITH_TAXONOMIES = `+++
-tags = [ "a", "b", "c" ]
+tags = [ "a", "B", "c" ]
 categories = "d"
 +++
 TOML Front Matter with tags and categories`

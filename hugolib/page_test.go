@@ -40,7 +40,7 @@ Leading
 {
 "title": "spf13-vim 3.0 release and new website",
 "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
-"tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
+"tags": [ ".vimrc", "plugins", "spf13-vim", "VIm" ],
 "date": "2012-04-06",
 "categories": [
     "Development",
@@ -55,7 +55,7 @@ Content of the file goes Here
 {
 "title": "spf13-vim 3.0 release and new website"
 "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-"tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+"tags": [ ".vimrc", "plugins", "spf13-vim", "VIm" ]
 "date": "2012-04-06"
 "categories": [
     "Development"
@@ -561,6 +561,26 @@ func TestLayoutOverride(t *testing.T) {
 		}
 		if !listEqual(p.Layout(), test.expectedLayout) {
 			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
+		}
+	}
+}
+
+func TestSliceToLower(t *testing.T) {
+	tests := []struct{
+		value []string
+		expected []string
+	}{
+		{[]string{"a","b","c"}, []string{"a", "b", "c"}},
+                {[]string{"a","B","c"}, []string{"a", "b", "c"}},
+                {[]string{"A","B","C"}, []string{"a", "b", "c"}},
+	}
+
+	for _, test := range tests {
+		res := sliceToLower(test.value)
+		for i, val := range res {
+			if val != test.expected[i] {
+				t.Errorf("Case mismatch. Expected %s, got %s", test.expected[i], res[i])
+			}
 		}
 	}
 }
