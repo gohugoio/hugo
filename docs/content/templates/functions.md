@@ -35,6 +35,12 @@ If parameter is set, then echo it.
 
 e.g. {{echoParam .Params "project_url" }}
 
+### eq
+Return true if the parameters are equal.
+
+e.g.
+    {{ if eq .Section "blog" }}current{{ end}}"
+
 ### first
 Slices an array to only the first X elements.
 
