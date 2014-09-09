@@ -359,11 +359,30 @@ func (t *GoHtmlTemplate) AddTemplate(name, tpl string) error {
 }
 
 func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
+	// get the suffix and switch on that
+	ext := filepath.Ext(path)
+	switch ext {
+	case ".amber":
+		compiler := amber.New()
+		// Parse the input file
+		if err := compiler.ParseFile(path); err != nil {
+			return nil
+		}
+
+		if _, err := compiler.CompileWithTemplate(t.New(name)); err != nil {
+			return err
+		}
+	default:
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		return t.AddTemplate(name, string(b))
 	}
-	return t.AddTemplate(name, string(b))
+
+	return nil
+
 }
 
 func (t *GoHtmlTemplate) generateTemplateNameFrom(base, path string) string {
@@ -391,21 +410,8 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 				tplName = strings.Trim(prefix, "/") + "/" + tplName
 			}
 
-			// TODO move this into the AddTemplateFile function
-			if strings.HasSuffix(path, ".amber") {
-				compiler := amber.New()
-				// Parse the input file
-				if err := compiler.ParseFile(path); err != nil {
-					return nil
-				}
+			t.AddTemplateFile(tplName, path)
 
-				if _, err := compiler.CompileWithTemplate(t.New(tplName)); err != nil {
-					return err
-				}
-
-			} else {
-				t.AddTemplateFile(tplName, path)
-			}
 		}
 		return nil
 	}
