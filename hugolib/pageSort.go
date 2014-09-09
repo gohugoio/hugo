@@ -35,7 +35,7 @@ func (by PageBy) Sort(pages Pages) {
 		pages: pages,
 		by:    by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
-	sort.Sort(ps)
+	sort.Stable(ps)
 }
 
 var DefaultPageSort = func(p1, p2 *Page) bool {

@@ -129,7 +129,7 @@ func (by MenuEntryBy) Sort(menu Menu) {
 		menu: menu,
 		by:   by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
-	sort.Sort(ms)
+	sort.Stable(ms)
 }
 
 var DefaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
