@@ -166,10 +166,12 @@ func (p WeightedPages) Sort()         { sort.Stable(p) }
 func (p WeightedPages) Count() int    { return len(p) }
 func (p WeightedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
-		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
-	} else {
-		return p[i].Weight < p[j].Weight
+		if p[i].Page.Date.Equal(p[j].Page.Date) {
+			return p[i].Page.Title < p[j].Page.Title
+		}
+		return p[i].Page.Date.After(p[i].Page.Date)
 	}
+	return p[i].Weight < p[j].Weight
 }
 
 // TODO mimic PagesSorter for WeightedPages
