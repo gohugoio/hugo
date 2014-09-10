@@ -312,10 +312,11 @@ func NewWatcher(port int) error {
 
 				static_changed := false
 				dynamic_changed := false
+				static_files_changed := make(map[string]bool)
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
-					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp")
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp") || (strings.HasPrefix(ext, ".goutputstream"))
 					if istemp {
 						continue
 					}
@@ -327,6 +328,12 @@ func NewWatcher(port int) error {
 					isstatic := strings.HasPrefix(ev.Name, helpers.AbsPathify(viper.GetString("StaticDir"))) || strings.HasPrefix(ev.Name, helpers.AbsPathify("themes/"+viper.GetString("theme"))+"/static/")
 					static_changed = static_changed || isstatic
 					dynamic_changed = dynamic_changed || !isstatic
+
+					if isstatic {
+						if staticPath, err := helpers.MakeStaticPathRelative(ev.Name); err == nil {
+							static_files_changed[staticPath] = true
+						}
+					}
 
 					// add new directory to watch list
 					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
@@ -342,7 +349,16 @@ func NewWatcher(port int) error {
 
 					if !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
-						livereload.ForceRefresh()
+
+						// force refresh when more than one file
+						if len(static_files_changed) == 1 {
+							for path := range static_files_changed {
+								livereload.RefreshPath(path)
+							}
+
+						} else {
+							livereload.ForceRefresh()
+						}
 					}
 				}
 

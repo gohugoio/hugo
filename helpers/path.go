@@ -14,6 +14,7 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -128,6 +129,23 @@ func AbsPathify(inPath string) string {
 	}
 
 	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
+}
+
+func MakeStaticPathRelative(inPath string) (string, error) {
+	staticDir := AbsPathify(viper.GetString("StaticDir"))
+	themeStaticDir := AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
+
+	return MakePathRelative(inPath, staticDir, themeStaticDir)
+}
+
+func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
+
+	for _, currentPath := range possibleDirectories {
+		if strings.HasPrefix(inPath, currentPath) {
+			return strings.TrimPrefix(inPath, currentPath), nil
+		}
+	}
+	return inPath, errors.New("Can't extract relative path, unknown prefix")
 }
 
 func Filename(in string) (name string) {
