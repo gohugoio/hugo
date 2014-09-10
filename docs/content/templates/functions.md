@@ -20,7 +20,9 @@ to create a good static website.
 Go templates are lightweight but extensible. Hugo has added the following
 functions to the basic template logic.
 
-Go documentation for the built-in functions can be found [here](http://golang.org/pkg/text/template/)
+(Go itself supplies built-in functions, including comparison operators
+and other basic tools; these are listed in the
+[Go template documentation](http://golang.org/pkg/text/template/#hdr-Functions).)
 
 ## General
 
