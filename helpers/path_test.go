@@ -457,44 +457,42 @@ func TestFindCWD(t *testing.T) {
 }
 
 func TestSafeWriteToDisk(t *testing.T) {
-	/*
-		emptyFile, _ := createZeroSizedFileInTempDir()
-		defer deleteFileInTempDir(emptyFile)
-		tmpDir, _ := createEmptyTempDir()
-		defer deleteTempDir(tmpDir)
-		os.MkdirAll(tmpDir+"/this/dir/does/not/exist/", 0644)
+	emptyFile, _ := createZeroSizedFileInTempDir()
+	defer deleteFileInTempDir(emptyFile)
+	tmpDir, _ := createEmptyTempDir()
+	defer deleteTempDir(tmpDir)
+	os.MkdirAll(tmpDir+"/this/dir/does/not/exist/", 0644)
 
-		randomString := "This is a random string!"
-		reader := strings.NewReader(randomString)
+	randomString := "This is a random string!"
+	reader := strings.NewReader(randomString)
 
-		fileExists := fmt.Errorf("%v already exists", emptyFile.Name())
-		type test struct {
-			filename    string
-			expectedErr error
-		}
+	fileExists := fmt.Errorf("%v already exists", emptyFile.Name())
+	type test struct {
+		filename    string
+		expectedErr error
+	}
 
-		data := []test{
-			{emptyFile.Name(), fileExists},
-			{tmpDir + "/" + emptyFile.Name(), nil},
-		}
+	data := []test{
+		{emptyFile.Name(), fileExists},
+		{tmpDir + "/" + emptyFile.Name(), nil},
+	}
 
-		for i, d := range data {
-			e := WriteToDisk(d.filename, reader)
-			t.Errorf("Failed: e is %q %#v", e, e)
-			if d.expectedErr != nil {
-				if d.expectedErr.Error() != e.Error() {
-					t.Errorf("Test %d failed. Expected error %q but got %q", i, d.expectedErr.Error(), e.Error())
-				}
-			}
-			if d.expectedErr != e {
-				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
-			}
-			contents, e := ioutil.ReadFile(d.filename)
-			if randomString != string(contents) {
-				t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
+	for i, d := range data {
+		e := SafeWriteToDisk(d.filename, reader)
+		t.Errorf("Failed: e is %q %#v", e, e)
+		if d.expectedErr != nil {
+			if d.expectedErr.Error() != e.Error() {
+				t.Errorf("Test %d failed. Expected error %q but got %q", i, d.expectedErr.Error(), e.Error())
 			}
 		}
-	*/
+		if d.expectedErr != e {
+			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
+		}
+		contents, e := ioutil.ReadFile(d.filename)
+		if randomString != string(contents) {
+			t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
+		}
+	}
 }
 
 func TestWriteToDisk(t *testing.T) {
