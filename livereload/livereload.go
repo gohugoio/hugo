@@ -39,7 +39,12 @@ func Initialize() {
 
 func ForceRefresh() {
 	// Tell livereload a js file changed to force a hard refresh
-	wsHub.broadcast <- []byte(`{"command":"reload","path":"/x.js","originalPath":"","liveCSS":true}`)
+	RefreshPath("/x.js")
+}
+
+func RefreshPath(s string) {
+	// Tell livereload a file has changed - will force a hard refresh if not CSS or an image
+	wsHub.broadcast <- []byte(`{"command":"reload","path":"` + s + "\"" + `,"originalPath":"","liveCSS":true,"liveImg":true}`)
 }
 
 func ServeJS(w http.ResponseWriter, r *http.Request) {
