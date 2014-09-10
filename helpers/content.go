@@ -37,9 +37,9 @@ func StripHTML(s string) string {
 		output = s
 	} else {
 		s = strings.Replace(s, "\n", " ", -1)
-		s = strings.Replace(s, "</p>", " \n", -1)
-		s = strings.Replace(s, "<br>", " \n", -1)
-		s = strings.Replace(s, "</br>", " \n", -1)
+		s = strings.Replace(s, "</p>", "\n", -1)
+		s = strings.Replace(s, "<br>", "\n", -1)
+		s = strings.Replace(s, "<br />", "\n", -1) // <br /> is the xhtml line break tag
 
 		// Walk through the string removing all tags
 		b := new(bytes.Buffer)
