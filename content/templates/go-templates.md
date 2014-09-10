@@ -20,7 +20,7 @@ template systems from different languages or frameworks, you will find a lot of
 similarities in Go templates.
 
 This document is a brief primer on using Go templates. The [Go docs][gohtmltemplate]
-provide more details.
+go into more depth and cover features that aren't mentioned here.
 
 ## Introduction to Go Templates
 
@@ -87,9 +87,16 @@ are useful for building websites. Functions are called by using their name
 followed by the required parameters separated by spaces. Template
 functions cannot be added without recompiling Hugo.
 
-**Example:**
+**Example 1: Adding numbers**
 
     {{ add 1 2 }}
+
+**Example 2: Comparing numbers**
+
+    {{ lt 1 2 }}
+
+(There are more boolean operators, detailed in the
+[template documentation](http://golang.org/pkg/text/template/#hdr-Functions).)
 
 ## Includes
 
@@ -141,7 +148,6 @@ range.
 
 `if`, `else`, `with`, `or` & `and` provide the framework for handling conditional
 logic in Go Templates. Like `range`, each statement is closed with `end`.
-
 
 Go Templates treat the following values as false:
 
@@ -351,3 +357,23 @@ so, such as in this example:
 
 [go]: http://golang.org/
 [gohtmltemplate]: http://golang.org/pkg/html/template/
+
+# Template example: Show only upcoming events
+
+Go allows you to do more than what's shown here.  Using Hugo's
+[`where`](/templates/functions/#toc_4) function and Go built-ins, we can list
+only the items from `content/events/` whose date (set in the front matter) is in
+the future:
+
+    <h4>Upcoming Events</h4>
+    <ul class="upcoming-events">
+    {{ range where .Data.Pages.ByDate "Section" "events" }}
+      {{ if ge .Date.Unix .Now.Unix }}
+        <li><span class="event-type">{{ .Type | title }} —</span>
+          {{ .Title }}
+          on <span class="event-date">
+          {{ .Date.Format "2 January at 3:04pm" }}</span>
+          at {{ .Params.place }}
+        </li>
+      {{ end }}
+    {{ end }}
