@@ -92,6 +92,7 @@ type SiteInfo struct {
 	ConfigGet       func(key string) interface{}
 	Permalinks      PermalinkOverrides
 	Params          map[string]interface{}
+	BuildDrafts     bool
 }
 
 func (s *SiteInfo) GetParam(key string) interface{} {
@@ -279,6 +280,7 @@ func (s *Site) initializeSiteInfo() {
 		LanguageCode:    viper.GetString("languagecode"),
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
+		BuildDrafts:     viper.GetBool("BuildDrafts"),
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
