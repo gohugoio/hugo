@@ -89,7 +89,6 @@ type SiteInfo struct {
 	DisqusShortname string
 	Copyright       string
 	LastChange      time.Time
-	ConfigGet       func(key string) interface{}
 	Permalinks      PermalinkOverrides
 	Params          map[string]interface{}
 }
