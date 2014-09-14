@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -664,7 +665,7 @@ func (s *Site) RenderAliases() error {
 }
 
 // Render pages each corresponding to a markdown file
-func (s *Site) RenderPages() (err error) {
+func (s *Site) RenderPages() error {
 
 	results := make(chan error)
 	pages := make(chan *Page)
@@ -680,7 +681,7 @@ func (s *Site) RenderPages() (err error) {
 
 	errs := make(chan error)
 
-	go renderCollator(s, results, errs)
+	go errorCollator(results, errs)
 
 	for _, page := range s.Pages {
 		pages <- page
@@ -692,7 +693,11 @@ func (s *Site) RenderPages() (err error) {
 
 	close(results)
 
-	return <-errs
+	err := <-errs
+	if err != nil {
+		return fmt.Errorf("Error(s) rendering pages: %s", err)
+	}
+	return nil
 }
 
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
@@ -717,19 +722,19 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	}
 }
 
-func renderCollator(s *Site, results <-chan error, errs chan<- error) {
+func errorCollator(results <-chan error, errs chan<- error) {
 	errMsgs := []string{}
 	for err := range results {
 		if err != nil {
 			errMsgs = append(errMsgs, err.Error())
-			continue
 		}
 	}
 	if len(errMsgs) == 0 {
 		errs <- nil
-		return
+	} else {
+		errs <- errors.New(strings.Join(errMsgs, "\n"))
 	}
-	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
+	close(errs)
 }
 
 func (s *Site) appendThemeTemplates(in []string) []string {
@@ -760,45 +765,80 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 	}
 }
 
+type taxRenderInfo struct {
+	key      string
+	pages    WeightedPages
+	singular string
+	plural   string
+}
+
 // Render the listing pages based on the meta data
 // each unique term within a taxonomy will have a page created
-func (s *Site) RenderTaxonomiesLists() (err error) {
-	var wg sync.WaitGroup
+func (s *Site) RenderTaxonomiesLists() error {
+	wg := &sync.WaitGroup{}
+
+	taxes := make(chan taxRenderInfo)
+	results := make(chan error)
+
+	procs := getGoMaxProcs()
+
+	for i := 0; i < procs*4; i++ {
+		wg.Add(1)
+		go taxonomyRenderer(s, taxes, results, wg)
+	}
+
+	errs := make(chan error)
+
+	go errorCollator(results, errs)
 
 	taxonomies := viper.GetStringMapString("Taxonomies")
-	for sing, pl := range taxonomies {
-		for key, oo := range s.Taxonomies[pl] {
-			wg.Add(1)
-			go func(k string, o WeightedPages, singular string, plural string) (err error) {
-				defer wg.Done()
-				base := plural + "/" + k
-				n := s.NewNode()
-				n.Title = strings.Title(k)
-				s.setUrls(n, base)
-				n.Date = o[0].Page.Date
-				n.Data[singular] = o
-				n.Data["Pages"] = o.Pages()
-				layouts := []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
-				err = s.render(n, base+".html", s.appendThemeTemplates(layouts)...)
-				if err != nil {
-					return err
-				}
-
-				if !viper.GetBool("DisableRSS") {
-					// XML Feed
-					s.setUrls(n, base+".xml")
-					rssLayouts := []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-					err := s.render(n, base+".xml", s.appendThemeTemplates(rssLayouts)...)
-					if err != nil {
-						return err
-					}
-				}
-				return
-			}(key, oo, sing, pl)
+	for singular, plural := range taxonomies {
+		for key, pages := range s.Taxonomies[plural] {
+			taxes <- taxRenderInfo{key, pages, singular, plural}
 		}
 	}
+	close(taxes)
+
 	wg.Wait()
+
+	close(results)
+
+	err := <-errs
+	if err != nil {
+		return fmt.Errorf("Error(s) rendering taxonomies: %s", err)
+	}
 	return nil
+}
+
+func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for t := range taxes {
+		base := t.plural + "/" + t.key
+		n := s.NewNode()
+		n.Title = strings.Title(t.key)
+		s.setUrls(n, base)
+		n.Date = t.pages[0].Page.Date
+		n.Data[t.singular] = t.pages
+		n.Data["Pages"] = t.pages.Pages()
+		layouts := []string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"}
+		err := s.render(n, base+".html", s.appendThemeTemplates(layouts)...)
+		if err != nil {
+			results <- err
+			continue
+		}
+
+		if !viper.GetBool("DisableRSS") {
+			// XML Feed
+			s.setUrls(n, base+".xml")
+			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
+			err := s.render(n, base+".xml", s.appendThemeTemplates(rssLayouts)...)
+			if err != nil {
+				results <- err
+				continue
+			}
+		}
+		results <- nil
+	}
 }
 
 // Render a page per taxonomy that lists the terms for that taxonomy
