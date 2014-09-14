@@ -367,10 +367,10 @@ func (s *Site) CreatePages() error {
 
 	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
-		go pageRenderer(s, pagechan, results, wg)
+		go pageConverter(s, pagechan, results, wg)
 	}
 
-	go renderCollator(s, results, errs)
+	go converterCollator(s, results, errs)
 
 	for _, p := range s.Pages {
 		pagechan <- p
@@ -397,6 +397,7 @@ func (s *Site) CreatePages() error {
 }
 
 func pageReader(s *Site, files <-chan *source.File, results chan<- pageResult, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for file := range files {
 		page, err := NewPage(file.LogicalName)
 		if err != nil {
@@ -413,10 +414,10 @@ func pageReader(s *Site, files <-chan *source.File, results chan<- pageResult, w
 		}
 		results <- pageResult{page, nil}
 	}
-	wg.Done()
 }
 
-func pageRenderer(s *Site, pages <-chan *Page, results chan<- pageResult, wg *sync.WaitGroup) {
+func pageConverter(s *Site, pages <-chan *Page, results chan<- pageResult, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for page := range pages {
 		//Handling short codes prior to Conversion to HTML
 		page.ProcessShortcodes(s.Tmpl)
@@ -428,10 +429,9 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- pageResult, wg *sy
 		}
 		results <- pageResult{page, nil}
 	}
-	wg.Done()
 }
 
-func renderCollator(s *Site, results <-chan pageResult, errs chan<- error) {
+func converterCollator(s *Site, results <-chan pageResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
@@ -665,34 +665,71 @@ func (s *Site) RenderAliases() error {
 
 // Render pages each corresponding to a markdown file
 func (s *Site) RenderPages() (err error) {
-	var wg sync.WaitGroup
-	for _, page := range s.Pages {
+
+	results := make(chan error)
+	pages := make(chan *Page)
+
+	procs := getGoMaxProcs()
+
+	wg := &sync.WaitGroup{}
+
+	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
-		go func(p *Page) (err error) {
-			var layouts []string
-			defer wg.Done()
-
-			if !p.IsRenderable() {
-				self := "__" + p.TargetPath()
-				_, err := s.Tmpl.New(self).Parse(string(p.Content))
-				if err != nil {
-					return err
-				}
-				layouts = append(layouts, self)
-			} else {
-				layouts = append(layouts, p.Layout()...)
-				layouts = append(layouts, "_default/single.html")
-			}
-
-			return s.render(p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
-		}(page)
+		go pageRenderer(s, pages, results, wg)
 	}
+
+	errs := make(chan error)
+
+	go renderCollator(s, results, errs)
+
+	for _, page := range s.Pages {
+		pages <- page
+	}
+
+	close(pages)
+
 	wg.Wait()
 
-	if err != nil {
-		return err
+	close(results)
+
+	return <-errs
+}
+
+func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for p := range pages {
+		var layouts []string
+
+		if !p.IsRenderable() {
+			self := "__" + p.TargetPath()
+			_, err := s.Tmpl.New(self).Parse(string(p.Content))
+			if err != nil {
+				results <- err
+				continue
+			}
+			layouts = append(layouts, self)
+		} else {
+			layouts = append(layouts, p.Layout()...)
+			layouts = append(layouts, "_default/single.html")
+		}
+
+		results <- s.render(p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
 	}
-	return nil
+}
+
+func renderCollator(s *Site, results <-chan error, errs chan<- error) {
+	errMsgs := []string{}
+	for err := range results {
+		if err != nil {
+			errMsgs = append(errMsgs, err.Error())
+			continue
+		}
+	}
+	if len(errMsgs) == 0 {
+		errs <- nil
+		return
+	}
+	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
 }
 
 func (s *Site) appendThemeTemplates(in []string) []string {
