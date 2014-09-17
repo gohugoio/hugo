@@ -22,7 +22,7 @@ work.
 
 If you would like to have ugly URLs, you are in luck. Hugo supports the
 ability to create your entire site with ugly URLs. Simply use the
-`--uglyurls=true` flag on the command line.
+`--uglyUrls=true` flag on the command line.
 
 If you want a specific piece of content to have an exact URL, you can
 specify this in the front matter under the url key. See [Content
