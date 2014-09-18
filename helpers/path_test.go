@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestMakePath(t *testing.T) {
@@ -461,20 +463,22 @@ func TestSafeWriteToDisk(t *testing.T) {
 	defer deleteFileInTempDir(emptyFile)
 	tmpDir, _ := createEmptyTempDir()
 	defer deleteTempDir(tmpDir)
-	os.MkdirAll(tmpDir+"/this/dir/does/not/exist/", 0644)
 
 	randomString := "This is a random string!"
 	reader := strings.NewReader(randomString)
 
 	fileExists := fmt.Errorf("%v already exists", emptyFile.Name())
+
 	type test struct {
 		filename    string
 		expectedErr error
 	}
 
+	now := time.Now().Unix()
+	nowStr := strconv.FormatInt(now, 10)
 	data := []test{
 		{emptyFile.Name(), fileExists},
-		{tmpDir + "/" + emptyFile.Name(), nil},
+		{tmpDir + "/" + nowStr, nil},
 	}
 
 	for i, d := range data {
@@ -510,35 +514,19 @@ func TestWriteToDisk(t *testing.T) {
 		expectedErr error
 	}
 
+	now := time.Now().Unix()
+	nowStr := strconv.FormatInt(now, 10)
 	data := []test{
 		{emptyFile.Name(), nil},
-		{tmpDir + "/abcd", nil},
+		{tmpDir + "/" + nowStr, nil},
 	}
 
 	for i, d := range data {
-		//		fmt.Printf("Writing to: %s\n", d.filename)
-		//		dir, _ := filepath.Split(d.filename)
-		//		ospath := filepath.FromSlash(dir)
-
-		//		fmt.Printf("dir: %q, ospath: %q\n", dir, ospath)
 		e := WriteToDisk(d.filename, reader)
-		//		fmt.Printf("Error from WriteToDisk: %s\n", e)
-		//		f, e := os.Open(d.filename)
-		//		if e != nil {
-		//			fmt.Errorf("could not open file %s, error %s\n", d.filename, e)
-		//		}
-		//		fi, e := f.Stat()
-		//		if e != nil {
-		//			fmt.Errorf("Could not stat file %s, error %s\n", d.filename, e)
-		//		}
-		//		fmt.Printf("file size of %s is %d bytes\n", d.filename, fi.Size())
 		if d.expectedErr != e {
 			t.Errorf("Test %d failed. WriteToDisk Error Expected %q but got %q", i, d.expectedErr, e)
 		}
-		//		fmt.Printf("Reading from %s\n", d.filename)
 		contents, e := ioutil.ReadFile(d.filename)
-		//		fmt.Printf("Error from ReadFile: %s\n", e)
-		//		fmt.Printf("Contents: %#v, %s\n", contents, string(contents))
 		if e != nil {
 			t.Error("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
 		}
