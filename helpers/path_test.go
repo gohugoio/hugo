@@ -479,19 +479,20 @@ func TestSafeWriteToDisk(t *testing.T) {
 
 	for i, d := range data {
 		e := SafeWriteToDisk(d.filename, reader)
-		t.Errorf("Failed: e is %q %#v", e, e)
 		if d.expectedErr != nil {
 			if d.expectedErr.Error() != e.Error() {
 				t.Errorf("Test %d failed. Expected error %q but got %q", i, d.expectedErr.Error(), e.Error())
 			}
+		} else {
+			if d.expectedErr != e {
+				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
+			}
+			contents, _ := ioutil.ReadFile(d.filename)
+			if randomString != string(contents) {
+				t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
+			}
 		}
-		if d.expectedErr != e {
-			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
-		}
-		contents, e := ioutil.ReadFile(d.filename)
-		if randomString != string(contents) {
-			t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
-		}
+		reader.Seek(0, 0)
 	}
 }
 
@@ -500,7 +501,6 @@ func TestWriteToDisk(t *testing.T) {
 	defer deleteFileInTempDir(emptyFile)
 	tmpDir, _ := createEmptyTempDir()
 	defer deleteTempDir(tmpDir)
-	os.MkdirAll(tmpDir+"/this/dir/does/not/exist/", 0644)
 
 	randomString := "This is a random string!"
 	reader := strings.NewReader(randomString)
@@ -512,17 +512,39 @@ func TestWriteToDisk(t *testing.T) {
 
 	data := []test{
 		{emptyFile.Name(), nil},
-		{tmpDir + "/" + emptyFile.Name(), nil},
+		{tmpDir + "/abcd", nil},
 	}
 
 	for i, d := range data {
+		//		fmt.Printf("Writing to: %s\n", d.filename)
+		//		dir, _ := filepath.Split(d.filename)
+		//		ospath := filepath.FromSlash(dir)
+
+		//		fmt.Printf("dir: %q, ospath: %q\n", dir, ospath)
 		e := WriteToDisk(d.filename, reader)
+		//		fmt.Printf("Error from WriteToDisk: %s\n", e)
+		//		f, e := os.Open(d.filename)
+		//		if e != nil {
+		//			fmt.Errorf("could not open file %s, error %s\n", d.filename, e)
+		//		}
+		//		fi, e := f.Stat()
+		//		if e != nil {
+		//			fmt.Errorf("Could not stat file %s, error %s\n", d.filename, e)
+		//		}
+		//		fmt.Printf("file size of %s is %d bytes\n", d.filename, fi.Size())
 		if d.expectedErr != e {
-			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
+			t.Errorf("Test %d failed. WriteToDisk Error Expected %q but got %q", i, d.expectedErr, e)
 		}
+		//		fmt.Printf("Reading from %s\n", d.filename)
 		contents, e := ioutil.ReadFile(d.filename)
+		//		fmt.Printf("Error from ReadFile: %s\n", e)
+		//		fmt.Printf("Contents: %#v, %s\n", contents, string(contents))
+		if e != nil {
+			t.Error("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
+		}
 		if randomString != string(contents) {
 			t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
 		}
+		reader.Seek(0, 0)
 	}
 }
