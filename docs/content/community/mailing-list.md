@@ -9,6 +9,14 @@ title: Mailing List
 weight: 10
 ---
 
+# Discussion Forum
+
+Hugo has it’s own [discussion forum](http://discuss.gohugo.io) powered by [Discourse](http://www.discourse.org/)
+
+Please use this for all discussions, questions, etc.
+
+# Mailing List
+
 Hugo has two mailing lists:
 
 ## Announcements
@@ -16,10 +24,14 @@ Very low traffic. Only releases will be emailed here.
 
 https://groups.google.com/forum/#!forum/hugo-announce
 
-## Discussion
-For all questions and discussions:
+## Discussion (Archive)
+
+**This has been replaced with the [Hugo discussion forum](http://discuss.gohugo.io).**
+
+It is available for archival purposes.
 
 https://groups.google.com/forum/#!forum/hugo-discuss
+
 
 # Other Resources
 
