@@ -1,4 +1,4 @@
-baseurl = "http://hugo.spf13.com"
+baseurl = "http://gohugo.io"
 MetaDataFormat = "yaml"
 
 [indexes]
@@ -14,7 +14,12 @@ MetaDataFormat = "yaml"
     name = "Showcase"
     pre = "<i class='fa fa-cubes'></i>"
     url = "/showcase/"
-    weight = -200
+    weight = -180
+[[menu.main]]
+    name = "Discuss Hugo"
+    pre = "<i class='fa fa-comments'></i>"
+    url = "http://discuss.gohugo.io"
+    weight = -150
 [[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
@@ -54,3 +59,8 @@ MetaDataFormat = "yaml"
     name = "community"
     pre = "<i class='fa fa-group'></i>"
     weight = -50
+[[menu.main]]
+    parent = "community"
+    name = "Discussion Forum"
+    url = "http://discuss.gohugo.io"
+    weight = 150

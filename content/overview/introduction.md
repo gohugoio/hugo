@@ -122,3 +122,5 @@ as I have writing it.
  * [Quick start](/overview/quickstart)
  * [Join the Mailing List](/community/mailing-list)
  * [Star us on GitHub](http://github.com/spf13/hugo)
+ * [Discussion Forum](http://discuss.gohugo.io)
+
