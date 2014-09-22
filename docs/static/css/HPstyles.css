@@ -42,7 +42,7 @@ body {
 }
 
 .logo {
-    max-width: 35em; 
+    max-width: 35em;
     width: 100%;
     padding: 2em;
 }
@@ -51,7 +51,7 @@ body {
     margin: 2em 0 4em;
 }
 
-@media only screen 
+@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 1024px)
 and (orientation : portrait)
@@ -68,7 +68,7 @@ and (orientation : portrait)
     }
 }
 
-@media only screen 
+@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 1024px)
 and (orientation : landscape) {
@@ -192,27 +192,25 @@ i.callout-icon:hover {
 
 #action {
     background: url(../img/gray.png);
-    padding: 50px 0px 30px;
-    position: fixed;
-    bottom: 130px;
-    z-index: 99998;
+    padding: 30px 0px 40px;
     width: 100%;
 }
-
-#footerSpacer {
-    display: block;
-    min-height: 310px;
-    background-color: rgba(0, 0, 0, 0);
+#action pre {
+    background-color: #545454;
+    color: #f9f2f4;
+}
+#action pre:hover {
+    background-color: #f9f2f4;
+    color: #545454;
+}
+#action code {
+    font-family: Lato, monospace;
+    font-size: 14pt;
 }
 
 #footer {
-    bottom: 0px;
-    left: 0px;
-    padding: 10px 0px;
-    position: fixed;
-    width: 100%;
     font-size: 14px;
-    z-index: 99998;
+    padding: 50px 0px 25px 0px;
     background: rgb(255, 255, 255);
 }
 
