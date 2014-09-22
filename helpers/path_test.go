@@ -86,7 +86,7 @@ func TestReplaceExtension(t *testing.T) {
 		{"banana/pie/index.html", "xml", "index.xml"},
 		{"../pies/fish/index.html", "xml", "index.xml"},
 		// but these all fail
-		{"filename-without-ext", ".ext", "filename-without-an-ext.ext"},
+		{"filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
 		{"/filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
 		{"/directory/mydir/", "ext", ".ext"},
 		{"mydir/", "ext", ".ext"},
