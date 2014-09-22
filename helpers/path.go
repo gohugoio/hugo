@@ -158,16 +158,38 @@ func Filename(in string) (name string) {
 	return
 }
 
+// FileAndExt returns the filename and any extension of a file path as
+// two separate strings.
+// If path, in, contains a directory name ending in a slash then
+// both name and ext will be empty strings.
+// If the path, in, is either the current directory, the parent
+// directory or the root directory, or an empty string, then both
+// name and ext will be empty strings.
+// If the path, in, represents the path of a file without an extension
+// then name will be the name of the file and ext will be an empty string.
+// If the path, in, represents a filename with an extension then
+// then name will be the filename minus any extension - including the dot
+// and ext will contain the extension - minus the dot.
 func FileAndExt(in string) (name string, ext string) {
 	ext = path.Ext(in)
-	base := path.Base(in)
+	base := path.Base(in) // path.Base strips any trailing slash!
 
-	if strings.Contains(base, ".") {
+	// No file name cases. These are defined as:
+	// 1. any "in" path that ends in a os.PathSeparator i.e. "/" on linux
+	// 2. any "base" consisting of just an os.PathSeparator
+	// 3. any "base" consisting of just an empty string
+	// 4. any "base" consisting of just the current directory i.e. "."
+	// 5. any "base" consisting of just the parent directory i.e. ".."
+	if (strings.LastIndex(in, string(os.PathSeparator)) == len(in)-1) || base == "" || base == "." || base == ".." || base == string(os.PathListSeparator) {
+		name = "" // there is NO filename
+	} else if ext != "" { // there was an Extension
+		// return the filename minus the extension (and the ".")
 		name = base[:strings.LastIndex(base, ".")]
 	} else {
-		name = in
+		// no extension case so just return base, which willi
+		// be the filename
+		name = base
 	}
-
 	return
 }
 
