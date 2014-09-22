@@ -69,24 +69,27 @@ func TestMakeTitle(t *testing.T) {
 	}
 }
 
-//
-// comment
-//
+// Replace Extension is probably poorly named, but the intent of the
+// function is to accept a path and return only the file name with a
+// new extension. It's intentionally designed to strip out the path
+// and only provide the name. We should probably rename the function to
+// be more explicit at some point.
 func TestReplaceExtension(t *testing.T) {
 	type test struct {
 		input, newext, expected string
 	}
 	data := []test{
-		// none of these work as you might expect
-		{"/some/randome/path/file.xml", "html", "/some/randompath/file.html"},
-		{"/banana.html", "HTML", "/banana.HTML"},
-		{"./banana.html", "xml", "./banana.xml"},
-		{"banana/pie/index.html", "xml", "banana/pie/index.xml"},
-		{"../pies/fish/index.html", "xml", "../pies/fish/index.xml"},
-		// but these all work even though they make no sense!
-		{"/directory", "ext", "/directory.ext"},
-		{"/directory/mydir/", "ext", "/directory/mydir/.ext"},
-		{"mydir/", "ext", "mydir/.ext"},
+		// These work according to the above defination
+		{"/some/random/path/file.xml", "html", "file.html"},
+		{"/banana.html", "xml", "banana.xml"},
+		{"./banana.html", "xml", "banana.xml"},
+		{"banana/pie/index.html", "xml", "index.xml"},
+		{"../pies/fish/index.html", "xml", "index.xml"},
+		// but these all fail
+		{"filename-without-ext", ".ext", "filename-without-an-ext.ext"},
+		{"/filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
+		{"/directory/mydir/", "ext", ".ext"},
+		{"mydir/", "ext", ".ext"},
 	}
 
 	for i, d := range data {
@@ -363,6 +366,10 @@ func TestFilename(t *testing.T) {
 		{"filename-no-ext", "filename-no-ext"},
 		{"directoy/", ""}, // no filename case??
 		{"directory/.hidden.ext", ".hidden"},
+		{"./directory/../~/banana/gold.fish", "gold"},
+		{"../directory/banana.man", "banana"},
+		{"~/mydir/filename.ext", "filename"},
+		{"./directory//tmp/filename.ext", "filename"},
 	}
 
 	for i, d := range data {
@@ -388,6 +395,10 @@ func TestFileAndExt(t *testing.T) {
 		{"filename-no-ext", "filename-no-ext", ""},
 		{"directoy/", "", ""}, // no filename case??
 		{"directory/.hidden.ext", ".hidden", ".ext"},
+		{"./directory/../~/banana/gold.fish", "gold", ".fish"},
+		{"../directory/banana.man", "banana", ".man"},
+		{"~/mydir/filename.ext", "filename", ".ext"},
+		{"./directory//tmp/filename.ext", "filename", ".ext"},
 	}
 
 	for i, d := range data {
