@@ -89,6 +89,7 @@ as `header.html` or `header.includes.html`. Simply add:
 
     <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
     <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
 
 You can of course use your own copy of these files, typically in `./static/`.
 
