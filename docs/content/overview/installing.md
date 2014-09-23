@@ -25,8 +25,11 @@ Once downloaded it can be run from anywhere. You don't need to install
 it into a global location. This works well for shared hosts and other systems
 where you don't have a privileged account.
 
-Ideally you should install it somewhere in your path for easy use. `/usr/local/bin` 
+Ideally you should install it somewhere in your path for easy use. `/usr/local/bin`
 is the most probable location.
+
+If you have [Homebrew](http://brew.sh), installation is even easier.  Just run
+`brew install hugo`.
 
 ### Installing Pygments (optional)
 
