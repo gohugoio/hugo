@@ -26,7 +26,7 @@ Getting Started
 
 To get started, you should simply fork or clone this repository! That's definitely an important first step.
 
-[Install Hugo](http://hugo.spf13.com/overview/installing) in a way that best suits your environment and comfort level.
+[Install Hugo](http://gohugo.io/overview/installing) in a way that best suits your environment and comfort level.
 
 Edit `config.toml` and change the default properties to suit your own information. This is not required to run the
 example, but this is the global configuration file and you're going to need to use it eventually. Start here!
@@ -38,5 +38,5 @@ If that wasn't amazing enough, from the same terminal, run `hugo server -w`. Thi
 and rebuild the site immediately, *and* it will make these changes available at http://localhost:1313/ so you can view
 your finished site in your browser. Go on, try it. This is one of the best ways to preview your site while working on it.
 
-To further learn Hugo and learn more, read through the Hugo [documentation](http://hugo.spf13.com/overview/introduction)
+To further learn Hugo and learn more, read through the Hugo [documentation](http://gohugo.io/overview/introduction)
 or browse around the files in this repository. Have fun!

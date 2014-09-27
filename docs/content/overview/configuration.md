@@ -63,6 +63,6 @@ Here is a yaml configuration file which sets a few more options
 
 ## Notes
 
-Config changes do not reflect with [Live Reload](http://hugo.spf13.com/extras/livereload)
+Config changes do not reflect with [Live Reload](http://gohugo.io/extras/livereload)
 
 Please restart `hugo server --watch` whenever you make a config change.

@@ -33,7 +33,7 @@ This release represents over 90 code commits from 28 different contributors.
   * Pretty links now always have trailing slashes
   * [BaseUrl](/overview/configuration/) can now include a subdirectory
   * Better feedback about draft & future post rendering
-  * A variety of improvements to [the website](http://hugo.spf13.com)
+  * A variety of improvements to [the website](http://gohugo.io)
 
 ## **0.11.0** May 28, 2014
 
@@ -47,7 +47,7 @@ This release represents over 110 code commits from 29 different contributors.
   * [XML sitemap](/templates/sitemap) generation
   * [Integrated Disqus](/extras/comments) support
   * Streamlined [template organization](/templates/overview)
-  * [Brand new docs site](http://hugo.spf13.com)
+  * [Brand new docs site](http://gohugo.io)
   * Support for publishDate which allows for posts to be dated in the future
   * More [sort](/content/ordering) options
   * Logging support

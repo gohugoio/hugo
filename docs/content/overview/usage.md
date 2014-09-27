@@ -20,7 +20,7 @@ Make sure either hugo is in your path or provide a path to it.
     A Fast and Flexible Static Site Generator
     built with love by spf13 and friends in Go.
 
-    Complete documentation is available at http://hugo.spf13.com
+    Complete documentation is available at http://gohugo.io
 
     Usage:
       hugo [flags]
