@@ -40,6 +40,7 @@ The following is an example of a toml config file with some of the default value
     builddrafts = false
     baseurl = "http://yoursite.example.com/"
     canonifyurls = true
+
     [indexes]
        category = "categories"
        tag = "tags"
@@ -49,6 +50,7 @@ Here is a yaml configuration file which sets a few more options
     ---
     baseurl: "http://yoursite.example.com/"
     title: "Yoyodyne Widget Blogging"
+    footnotereturnlinkcontents: "↩"
     permalinks:
       post: /:year/:month/:title/
     params:
