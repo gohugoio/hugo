@@ -87,7 +87,7 @@ available.
 ## Adding (non-content) entries to a menu
 
 You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the site wide [config file](http://hugo.spf13.com/overview/configuration).
+content. This takes place in the site wide [config file](http://gohugo.io/overview/configuration).
 
 Here’s an example (in TOML):
 
