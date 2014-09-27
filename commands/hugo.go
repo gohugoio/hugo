@@ -121,6 +121,8 @@ func InitializeConfig() {
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
 	viper.SetDefault("PluralizeListTitles", true)
+	viper.SetDefault("FootnoteAnchorPrefix", "")
+	viper.SetDefault("FootnoteReturnLinkContents", "")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)

@@ -671,49 +671,42 @@ func (page *Page) Convert() error {
 	return nil
 }
 
-func markdownRender(content []byte) []byte {
+func getHtmlRenderer(withTOC bool) blackfriday.Renderer {
+	renderParameters := blackfriday.HtmlRendererParameters{
+		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
+	}
+
 	htmlFlags := 0
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
-	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
-	extensions := 0
-	extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
-	extensions |= blackfriday.EXTENSION_TABLES
-	extensions |= blackfriday.EXTENSION_FENCED_CODE
-	extensions |= blackfriday.EXTENSION_AUTOLINK
-	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
-	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
-	extensions |= blackfriday.EXTENSION_FOOTNOTES
-	extensions |= blackfriday.EXTENSION_HEADER_IDS
+	if withTOC {
+		htmlFlags |= blackfriday.HTML_TOC
+	}
 
-	return blackfriday.Markdown(content, renderer, extensions)
+	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+}
+
+func getMarkdownExtensions() int {
+	return 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
+		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
+		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
+		blackfriday.EXTENSION_SPACE_HEADERS | blackfriday.EXTENSION_FOOTNOTES |
+		blackfriday.EXTENSION_HEADER_IDS
+}
+
+func markdownRender(content []byte) []byte {
+	return blackfriday.Markdown(content, getHtmlRenderer(false),
+		getMarkdownExtensions())
 }
 
 func markdownRenderWithTOC(content []byte) []byte {
-	htmlFlags := 0
-	htmlFlags |= blackfriday.HTML_TOC
-	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
-	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
-
-	extensions := 0
-	extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
-	extensions |= blackfriday.EXTENSION_TABLES
-	extensions |= blackfriday.EXTENSION_FENCED_CODE
-	extensions |= blackfriday.EXTENSION_AUTOLINK
-	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
-	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
-	extensions |= blackfriday.EXTENSION_FOOTNOTES
-	extensions |= blackfriday.EXTENSION_HEADER_IDS
-
-	return blackfriday.Markdown(content, renderer, extensions)
+	return blackfriday.Markdown(content, getHtmlRenderer(true),
+		getMarkdownExtensions())
 }
 
 func extractTOC(content []byte) (newcontent []byte, toc []byte) {
@@ -802,7 +795,7 @@ func sliceToLower(s []string) []string {
 		return nil
 	}
 
-	l  := make([]string, len(s))
+	l := make([]string, len(s))
 	for i, v := range s {
 		l[i] = strings.ToLower(v)
 	}
