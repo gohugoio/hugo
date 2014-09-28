@@ -77,7 +77,7 @@ We still lack any templates to tell us how to display the content.
 
 ## Step 4. Install some themes
 
-    Hugo has rich theme support and a growing set of themes to choose from.
+Hugo has rich theme support and a growing set of themes to choose from.
 
     git clone --recursive https://github.com/spf13/hugoThemes themes
 
