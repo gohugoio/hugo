@@ -43,7 +43,7 @@ func init() {
 var newCmd = &cobra.Command{
 	Use:   "new [path]",
 	Short: "Create new content for your site",
-	Long: `Create will create a new content file and automatically set the date and title.
+	Long: `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
 You can also specify the kind with -k KIND
 If archetypes are provided in your theme or site, they will be used.
