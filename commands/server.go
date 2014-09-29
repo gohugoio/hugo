@@ -82,7 +82,7 @@ func server(cmd *cobra.Command, args []string) {
 
 	viper.Set("port", serverPort)
 
-	BaseUrl, err := fixUrl(BaseUrl)
+	BaseUrl, err := fixUrl(viper.GetString("BaseUrl"))
 	if err != nil {
 		jww.ERROR.Fatal(err)
 	}
