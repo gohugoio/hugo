@@ -119,30 +119,30 @@ func bytesToHTML(b []byte) template.HTML {
 }
 
 func (p *Page) renderBytes(content []byte) []byte {
-	return renderBytes(content, p.guessMarkupType())
+	return renderBytes(content, p.guessMarkupType(), p.File.Name)
 }
 
 func (p *Page) renderContent(content []byte) []byte {
-	return renderBytesWithTOC(content, p.guessMarkupType())
+	return renderBytesWithTOC(content, p.guessMarkupType(), p.File.Name)
 }
 
-func renderBytesWithTOC(content []byte, pagefmt string) []byte {
+func renderBytesWithTOC(content []byte, pagefmt string, footnoteref string) []byte {
 	switch pagefmt {
 	default:
-		return markdownRenderWithTOC(content)
+		return markdownRenderWithTOC(content, footnoteref)
 	case "markdown":
-		return markdownRenderWithTOC(content)
+		return markdownRenderWithTOC(content, footnoteref)
 	case "rst":
 		return []byte(getRstContent(content))
 	}
 }
 
-func renderBytes(content []byte, pagefmt string) []byte {
+func renderBytes(content []byte, pagefmt string, footnoteref string) []byte {
 	switch pagefmt {
 	default:
-		return markdownRender(content)
+		return markdownRender(content, footnoteref)
 	case "markdown":
-		return markdownRender(content)
+		return markdownRender(content, footnoteref)
 	case "rst":
 		return []byte(getRstContent(content))
 	}
@@ -671,22 +671,23 @@ func (page *Page) Convert() error {
 	return nil
 }
 
-func getHtmlRenderer(withTOC bool) blackfriday.Renderer {
+func getHtmlRenderer(defaultFlags int, footnoteref string) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	htmlFlags := 0
+	if len(footnoteref) != 0 {
+		renderParameters.FootnoteAnchorPrefix = footnoteref + ":" +
+			renderParameters.FootnoteAnchorPrefix
+	}
+
+	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
-
-	if withTOC {
-		htmlFlags |= blackfriday.HTML_TOC
-	}
 
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
 }
@@ -699,13 +700,14 @@ func getMarkdownExtensions() int {
 		blackfriday.EXTENSION_HEADER_IDS
 }
 
-func markdownRender(content []byte) []byte {
-	return blackfriday.Markdown(content, getHtmlRenderer(false),
+func markdownRender(content []byte, footnoteref string) []byte {
+	return blackfriday.Markdown(content, getHtmlRenderer(0, footnoteref),
 		getMarkdownExtensions())
 }
 
-func markdownRenderWithTOC(content []byte) []byte {
-	return blackfriday.Markdown(content, getHtmlRenderer(true),
+func markdownRenderWithTOC(content []byte, footnoteref string) []byte {
+	return blackfriday.Markdown(content,
+		getHtmlRenderer(blackfriday.HTML_TOC, footnoteref),
 		getMarkdownExtensions())
 }
 
