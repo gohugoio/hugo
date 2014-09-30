@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yosssi/ace"
 )
 
 var localTemplates *template.Template
@@ -669,6 +670,24 @@ func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
 		if _, err := compiler.CompileWithTemplate(t.New(name)); err != nil {
 			return err
 		}
+	case ".ace":
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		name = name[:len(name)-len(ext)] + ".html"
+		base := ace.NewFile(path, b)
+		inner := ace.NewFile("", []byte{})
+		rslt, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
+		if err != nil {
+			t.errors = append(t.errors, &templateErr{name: name, err: err})
+			return err
+		}
+		_, err = ace.CompileResultWithTemplate(t.New(name), rslt, nil)
+		if err != nil {
+			t.errors = append(t.errors, &templateErr{name: name, err: err})
+		}
+		return err
 	default:
 		b, err := ioutil.ReadFile(path)
 		if err != nil {
