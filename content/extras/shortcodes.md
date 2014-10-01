@@ -128,11 +128,11 @@ parameters named parameters work best.
 
 **Inside the template**
 
-To access a parameter by position the .Get method can be used.
+To access a parameter by position the `.Get` method can be used.
 
     {{ .Get 0 }}
 
-To access a parameter by name the .Get method should be utilized
+To access a parameter by name the `.Get` method should be utilized
 
     {{ .Get "class" }}
 
@@ -147,10 +147,14 @@ or both.
 
     {{ or .Get "title" | .Get "alt" | if }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
 
-If a closing shortcode is used, the variable .Inner will be populated with all
+If a closing shortcode is used, the variable `.Inner` will be populated with all
 of the content between the opening and closing shortcodes. If a closing
-shortcode is required, you can check the length of .Inner and provide a warning
+shortcode is required, you can check the length of `.Inner` and provide a warning
 to the user.
+
+The variable `.Params` contains the list of parameters in case you need to do more complicated things than `.Get`.
+
+You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/). 
 
 ## Single Positional Example: youtube
 
