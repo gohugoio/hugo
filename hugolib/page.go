@@ -15,6 +15,8 @@ package hugolib
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"html/template"
@@ -62,7 +64,7 @@ type Page struct {
 }
 
 type File struct {
-	Name, FileName, Extension, Dir string
+	Name, FileName, Extension, Dir, UniqueId string
 }
 
 type PageMeta struct {
@@ -94,6 +96,10 @@ func (p *Page) IsPage() bool {
 	return true
 }
 
+func (p *Page) UniqueId() string {
+	return p.File.UniqueId
+}
+
 func (p *Page) setSummary() {
 	if bytes.Contains(p.rawContent, summaryDivider) {
 		// If user defines split:
@@ -119,11 +125,11 @@ func bytesToHTML(b []byte) template.HTML {
 }
 
 func (p *Page) renderBytes(content []byte) []byte {
-	return renderBytes(content, p.guessMarkupType(), p.File.Name)
+	return renderBytes(content, p.guessMarkupType(), p.UniqueId())
 }
 
 func (p *Page) renderContent(content []byte) []byte {
-	return renderBytesWithTOC(content, p.guessMarkupType(), p.File.Name)
+	return renderBytesWithTOC(content, p.guessMarkupType(), p.UniqueId())
 }
 
 func renderBytesWithTOC(content []byte, pagefmt string, footnoteref string) []byte {
@@ -154,7 +160,7 @@ func newPage(filename string) *Page {
 	name = name[:len(name)-len(filepath.Ext(name))]
 
 	page := Page{contentType: "",
-		File:   File{Name: name, FileName: filename, Extension: "html"},
+		File:   File{Name: name, FileName: filename, Extension: "html", UniqueId: md5ForFilename(filename)},
 		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params: make(map[string]interface{})}
 
@@ -803,4 +809,10 @@ func sliceToLower(s []string) []string {
 	}
 
 	return l
+}
+
+func md5ForFilename(f string) string {
+	h := md5.New()
+	h.Write([]byte(f))
+	return hex.EncodeToString(h.Sum([]byte{}))
 }

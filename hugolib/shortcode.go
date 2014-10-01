@@ -93,7 +93,7 @@ func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
 			var data = &ShortcodeWithPage{Params: params, Page: p}
 			if endStart > 0 {
 				s := stringToParse[leadEnd+3 : leadEnd+endStart]
-				data.Inner = template.HTML(renderBytes([]byte(CleanP(ShortcodesHandle(s, p, t))), p.guessMarkupType(), p.File.Name))
+				data.Inner = template.HTML(renderBytes([]byte(CleanP(ShortcodesHandle(s, p, t))), p.guessMarkupType(), p.UniqueId()))
 				remainder := CleanP(stringToParse[leadEnd+endEnd:])
 
 				return CleanP(stringToParse[:leadStart]) +
