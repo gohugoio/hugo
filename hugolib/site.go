@@ -815,7 +815,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 	for t := range taxes {
 		base := t.plural + "/" + t.key
 		n := s.NewNode()
-		n.Title = strings.Title(t.key)
+		n.Title = strings.Replace(strings.Title(t.key), "-", " ", -1)
 		s.setUrls(n, base)
 		n.Date = t.pages[0].Page.Date
 		n.Data[t.singular] = t.pages
