@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
@@ -49,6 +51,8 @@ func init() {
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
+	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.Run = server
 }
 
@@ -83,6 +87,10 @@ func server(cmd *cobra.Command, args []string) {
 		jww.ERROR.Fatal(err)
 	}
 	viper.Set("BaseUrl", BaseUrl)
+
+	if err := memStats(); err != nil {
+		jww.ERROR.Println("memstats error:", err)
+	}
 
 	build(serverWatch)
 
@@ -156,4 +164,39 @@ func fixUrl(s string) (string, error) {
 		u.Host = "localhost"
 	}
 	return u.String(), nil
+}
+
+func memStats() error {
+	memstats := serverCmd.Flags().Lookup("memstats").Value.String()
+	if memstats != "" {
+		interval, err := time.ParseDuration(serverCmd.Flags().Lookup("meminterval").Value.String())
+		if err != nil {
+			interval, _ = time.ParseDuration("100ms")
+		}
+
+		fileMemStats, err := os.Create(memstats)
+		if err != nil {
+			return err
+		}
+
+		fileMemStats.WriteString("# Time\tHeapSys\tHeapAlloc\tHeapIdle\tHeapReleased\n")
+
+		go func() {
+			var stats runtime.MemStats
+
+			start := time.Now().UnixNano()
+
+			for {
+				runtime.ReadMemStats(&stats)
+				if fileMemStats != nil {
+					fileMemStats.WriteString(fmt.Sprintf("%d\t%d\t%d\t%d\t%d\n",
+						(time.Now().UnixNano()-start)/1000000, stats.HeapSys, stats.HeapAlloc, stats.HeapIdle, stats.HeapReleased))
+					time.Sleep(interval)
+				} else {
+					break
+				}
+			}
+		}()
+	}
+	return nil
 }

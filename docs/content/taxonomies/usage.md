@@ -16,7 +16,8 @@ Taxonomies must be defined in the site configuration, before they can be
 used throughout the site. You need to provide both the plural and
 singular labels for each taxonomy.
 
-Here is an example configuration in YAML that specifies two taxonomies.
+Here is an example configuration in YAML that specifies three taxonomies
+(the default two, plus `series`).
 
 Notice the format is **singular key** : *plural value*. 
 ### config.yaml

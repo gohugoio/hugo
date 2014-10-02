@@ -170,9 +170,9 @@ func TestRenderThingOrDefault(t *testing.T) {
 
 		var err2 error
 		if test.missing {
-			err2 = s.render(p, "out", "missing", templateName)
+			err2 = s.render("name", p, "out", "missing", templateName)
 		} else {
-			err2 = s.render(p, "out", templateName, "missing_default")
+			err2 = s.render("name", p, "out", templateName, "missing_default")
 		}
 
 		if err2 != nil {

@@ -29,7 +29,7 @@
         <a href="#intro"><img src="/img/hugo.png" class="logo"> </a>
         <div class="buttonbox">
         <a href="/overview/introduction" class="btn btn-primary btn-lg">Docs <i class="icon-idea"></i></a>
-        <a href="https://github.com/spf13/hugo/releases" class="btn btn-success btn-lg">Download <i class="icon-arrow-down"></i></a>
+        <a href="#action" class="btn btn-success btn-lg">Install <i class="icon-arrow-down"></i></a>
         <a href="http://discuss.gohugo.io" class="btn btn-info btn-lg">Community <i class="icon-talking"></i></a>
         <a href="https://github.com/spf13/hugo" class="btn btn-dark btn-lg">Github <i class="icon-circlestar"></i></a>
         </div>
@@ -111,7 +111,7 @@
                 Organize your content however you want with any URL structure.
                 Declare your own content types.
                 Define your own meta data in YAML, TOML or JSON.
-                Use indexes to group your content however you want. 
+                Use indexes to group your content however you want.
                 Best of all this is all done with virtually no configuration, Hugo
                 just works.
 
@@ -210,15 +210,17 @@
           <div class="container">
             <div class="row">
               <div class="col-md-10 col-md-offset-1 text-center">
-                <h3>Get Started Today!</h3>
+                <h1 style="padding-bottom:.5em;">Getting Started</h1>
                 <a href="https://github.com/spf13/hugo/releases" class="btn btn-lg btn-primary">Download <i class="icon-arrow-down"></i></a>
-                <a href="/overview/introduction" style="color:white;font-weight:300;">Documentation</a>
+                <a href="/overview/quickstart" style="color:white;font-weight:300;">Quickstart Guide</a>
+                <p>&nbsp;</p>
+                <h4>Using Homebrew?</h4>
+                <pre><code>brew install hugo</code></pre>
               </div>
             </div>
           </div>
         </div>
         <!-- /Call to Action -->
-        <div id="footerSpacer"></div>
 
         <!-- Footer -->
         <footer id="footer">
@@ -245,7 +247,7 @@
   <script>
     $(function() {
         $('a[href*=#]:not([href=#])').click(function() {
-          if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') 
+          if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
               || location.hostname == this.hostname) {
 
             var target = $(this.hash);

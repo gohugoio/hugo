@@ -718,7 +718,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			layouts = append(layouts, "_default/single.html")
 		}
 
-		results <- s.render(p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
+		results <- s.render("page "+p.FullFilePath(), p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
 	}
 }
 
@@ -821,7 +821,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 		n.Data[t.singular] = t.pages
 		n.Data["Pages"] = t.pages.Pages()
 		layouts := []string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"}
-		err := s.render(n, base+".html", s.appendThemeTemplates(layouts)...)
+		err := s.render("taxononomy "+t.singular, n, base+".html", s.appendThemeTemplates(layouts)...)
 		if err != nil {
 			results <- err
 			continue
@@ -831,7 +831,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			// XML Feed
 			s.setUrls(n, base+".xml")
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			err := s.render(n, base+".xml", s.appendThemeTemplates(rssLayouts)...)
+			err := s.render("taxonomy "+t.singular+" rss", n, base+".xml", s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				results <- err
 				continue
@@ -857,7 +857,7 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 		layouts = s.appendThemeTemplates(layouts)
 		if s.layoutExists(layouts...) {
-			err := s.render(n, plural+"/index.html", layouts...)
+			err := s.render("taxonomy terms for "+singular, n, plural+"/index.html", layouts...)
 			if err != nil {
 				return err
 			}
@@ -881,7 +881,7 @@ func (s *Site) RenderSectionLists() error {
 		n.Data["Pages"] = data.Pages()
 		layouts := []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
 
-		err := s.render(n, section, s.appendThemeTemplates(layouts)...)
+		err := s.render("section "+section, n, section, s.appendThemeTemplates(layouts)...)
 		if err != nil {
 			return err
 		}
@@ -890,7 +890,7 @@ func (s *Site) RenderSectionLists() error {
 			// XML Feed
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			s.setUrls(n, section+".xml")
-			err = s.render(n, section+".xml", s.appendThemeTemplates(rssLayouts)...)
+			err = s.render("section "+section+" rss", n, section+".xml", s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				return err
 			}
@@ -905,7 +905,7 @@ func (s *Site) RenderHomePage() error {
 	s.setUrls(n, "/")
 	n.Data["Pages"] = s.Pages
 	layouts := []string{"index.html", "_default/list.html", "_default/single.html"}
-	err := s.render(n, "/", s.appendThemeTemplates(layouts)...)
+	err := s.render("homepage", n, "/", s.appendThemeTemplates(layouts)...)
 	if err != nil {
 		return err
 	}
@@ -926,7 +926,7 @@ func (s *Site) RenderHomePage() error {
 
 		if !viper.GetBool("DisableRSS") {
 			rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-			err := s.render(n, ".xml", s.appendThemeTemplates(rssLayouts)...)
+			err := s.render("homepage rss", n, ".xml", s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				return err
 			}
@@ -947,7 +947,7 @@ func (s *Site) RenderHomePage() error {
 	n.Permalink = s.permalink("404.html")
 
 	nfLayouts := []string{"404.html"}
-	nfErr := s.render(n, "404.html", s.appendThemeTemplates(nfLayouts)...)
+	nfErr := s.render("404 page", n, "404.html", s.appendThemeTemplates(nfLayouts)...)
 	if nfErr != nil {
 		return nfErr
 	}
@@ -997,7 +997,7 @@ func (s *Site) RenderSitemap() error {
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
-	err := s.render(n, "sitemap.xml", s.appendThemeTemplates(smLayouts)...)
+	err := s.render("sitemap", n, "sitemap.xml", s.appendThemeTemplates(smLayouts)...)
 	if err != nil {
 		return err
 	}
@@ -1056,11 +1056,11 @@ func (s *Site) layoutExists(layouts ...string) bool {
 	return found
 }
 
-func (s *Site) render(d interface{}, out string, layouts ...string) (err error) {
+func (s *Site) render(name string, d interface{}, out string, layouts ...string) (err error) {
 
 	layout, found := s.findFirstLayout(layouts...)
 	if found == false {
-		jww.WARN.Printf("Unable to locate layout: %s\n", layouts)
+		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
 		return
 	}
 
@@ -1091,7 +1091,7 @@ func (s *Site) render(d interface{}, out string, layouts ...string) (err error) 
 	err = s.renderThing(d, layout, renderBuffer)
 	if err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
-		jww.ERROR.Println(fmt.Errorf("Rendering error: %v", err))
+		jww.ERROR.Println(fmt.Errorf("Error while rendering %s: %v", name, err))
 		if !s.Running() {
 			os.Exit(-1)
 		}
