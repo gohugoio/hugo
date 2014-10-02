@@ -128,6 +128,14 @@ func pageToPermalinkFilename(p *Page, _ string) (string, error) {
 // if the page has a slug, return the slug, else return the title
 func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 	if p.Slug != "" {
+		// Don't start or end with a -
+		if strings.HasPrefix(p.Slug, "-") {
+			p.Slug = p.Slug[1:len(p.Slug)]
+		}
+
+		if strings.HasSuffix(p.Slug, "-") {
+			p.Slug = p.Slug[0 : len(p.Slug)-1]
+		}
 		return p.Slug, nil
 	}
 	return pageToPermalinkTitle(p, a)

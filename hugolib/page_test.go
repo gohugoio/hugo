@@ -46,7 +46,7 @@ Leading
     "Development",
     "VIM"
 ],
-"slug": "spf13-vim-3-0-release-and-new-website"
+"slug": "-spf13-vim-3-0-release-and-new-website-"
 }
 
 Content of the file goes Here
@@ -566,13 +566,13 @@ func TestLayoutOverride(t *testing.T) {
 }
 
 func TestSliceToLower(t *testing.T) {
-	tests := []struct{
-		value []string
+	tests := []struct {
+		value    []string
 		expected []string
 	}{
-		{[]string{"a","b","c"}, []string{"a", "b", "c"}},
-                {[]string{"a","B","c"}, []string{"a", "b", "c"}},
-                {[]string{"A","B","C"}, []string{"a", "b", "c"}},
+		{[]string{"a", "b", "c"}, []string{"a", "b", "c"}},
+		{[]string{"a", "B", "c"}, []string{"a", "b", "c"}},
+		{[]string{"A", "B", "C"}, []string{"a", "b", "c"}},
 	}
 
 	for _, test := range tests {
