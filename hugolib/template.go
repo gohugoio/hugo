@@ -79,6 +79,87 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
+func Intersect(l1, l2 interface{}) (interface{}, error) {
+	l1v := reflect.ValueOf(l1)
+	l2v := reflect.ValueOf(l2)
+
+	switch l1v.Kind() {
+	case reflect.Array, reflect.Slice:
+		switch l2v.Kind() {
+		case reflect.Array, reflect.Slice:
+			r := reflect.MakeSlice(l1v.Type(), 0, 0)
+			for i := 0; i < l1v.Len(); i++ {
+				l1vv := l1v.Index(i)
+				for j := 0; j < l2v.Len(); j++ {
+					l2vv := l2v.Index(j)
+					switch l1vv.Kind() {
+					case reflect.String:
+						if l1vv.Type() == l2vv.Type() && l1vv.String() == l2vv.String() && !In(r, l2vv) {
+							r = reflect.Append(r, l2vv)
+						}
+					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+						switch l2vv.Kind() {
+						case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+							if l1vv.Int() == l2vv.Int() && !In(r, l2vv) {
+								r = reflect.Append(r, l2vv)
+							}
+						}
+					case reflect.Float32, reflect.Float64:
+						switch l2vv.Kind() {
+						case reflect.Float32, reflect.Float64:
+							if l1vv.Float() == l2vv.Float() && !In(r, l2vv) {
+								r = reflect.Append(r, l2vv)
+							}
+						}
+					}
+				}
+			}
+			return r.Interface(), nil
+		default:
+			return nil, errors.New("can't iterate over " + reflect.ValueOf(l2).Type().String())
+		}
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(l1).Type().String())
+	}
+}
+
+func In(l interface{}, v interface{}) bool {
+	lv := reflect.ValueOf(l)
+	vv := reflect.ValueOf(v)
+
+	switch lv.Kind() {
+	case reflect.Array, reflect.Slice:
+		for i := 0; i < lv.Len(); i++ {
+			lvv := lv.Index(i)
+			switch lvv.Kind() {
+			case reflect.String:
+				if vv.Type() == lvv.Type() && vv.String() == lvv.String() {
+					return true
+				}
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				switch vv.Kind() {
+				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					if vv.Int() == lvv.Int() {
+						return true
+					}
+				}
+			case reflect.Float32, reflect.Float64:
+				switch vv.Kind() {
+				case reflect.Float32, reflect.Float64:
+					if vv.Float() == lvv.Float() {
+						return true
+					}
+				}
+			}
+		}
+	case reflect.String:
+		if vv.Type() == lv.Type() && strings.Contains(lv.String(), vv.String()) {
+			return true
+		}
+	}
+	return false
+}
+
 // First is exposed to templates, to iterate over the first N items in a
 // rangeable list.
 func First(limit int, seq interface{}) (interface{}, error) {
@@ -272,6 +353,8 @@ func NewTemplate() Template {
 		"ge":          Ge,
 		"lt":          Lt,
 		"le":          Le,
+		"in":          In,
+		"intersect":   Intersect,
 		"isset":       IsSet,
 		"echoParam":   ReturnWhenSet,
 		"safeHtml":    SafeHtml,
