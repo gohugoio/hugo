@@ -434,7 +434,10 @@ func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
 	worked := false
 	for _, layout := range layouts {
 		if localTemplates.Lookup(layout) != nil {
-			localTemplates.ExecuteTemplate(buffer, layout, context)
+			err := localTemplates.ExecuteTemplate(buffer, layout, context)
+			if err != nil {
+				jww.ERROR.Println(err, "in", layout)
+			}
 			worked = true
 			break
 		}
