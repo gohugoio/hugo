@@ -214,7 +214,7 @@ func build(watches ...bool) {
 func copyStatic() error {
 	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
 	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-		jww.ERROR.Println("Unable to find Static Directory:", viper.GetString("theme"), "in", staticDir)
+		jww.ERROR.Println("Unable to find Static Directory:", staticDir)
 		return nil
 	}
 
@@ -223,7 +223,7 @@ func copyStatic() error {
 	if themeSet() {
 		themeDir := helpers.AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Println("Unable to find static directory for theme :", viper.GetString("theme"), "in", themeDir)
+			jww.ERROR.Println("Unable to find static directory for theme:", viper.GetString("theme"), "in", themeDir)
 			return nil
 		}
 
