@@ -136,7 +136,7 @@ func fixUrl(s string) (string, error) {
 		s = viper.GetString("BaseUrl")
 		useLocalhost = true
 	}
-	if !strings.HasPrefix(s, "http://") {
+	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {
 		s = "http://" + s
 	}
 	u, err := url.Parse(s)
