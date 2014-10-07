@@ -211,7 +211,7 @@ is the same as
 
     {{ eq 1 1 | if }} Same {{ end }}
 
-It does look odd to place the if at the end, but it does provide a good
+It does look odd to place the `if` at the end, but it does provide a good
 illustration of how to use the pipes.
 
 **Example 2:**
