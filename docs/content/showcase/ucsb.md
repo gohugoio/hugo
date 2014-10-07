@@ -6,7 +6,7 @@ licenseLink: ""
 sitelink: http://www.philosophy.ucsb.edu/
 sourceLink: https://github.com/grumble/philweb
 tags:
-- educatation
+- education
 thumbnail: /img/ucsb-tn.jpg
 title: ucsb
 ---
