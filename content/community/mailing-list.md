@@ -11,7 +11,7 @@ weight: 10
 
 # Discussion Forum
 
-Hugo has it’s own [discussion forum](http://discuss.gohugo.io) powered by [Discourse](http://www.discourse.org/)
+Hugo has its own [discussion forum](http://discuss.gohugo.io) powered by [Discourse](http://www.discourse.org/).
 
 Please use this for all discussions, questions, etc.
 

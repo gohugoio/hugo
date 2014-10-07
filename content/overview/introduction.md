@@ -66,7 +66,7 @@ Hugo boasts the following features:
   * Completely [customizable homepage](/layout/homepage)
   * Support for multiple [content types](/content/types)
   * Automatic and user defined [summaries](/content/summaries)
-  * [shortcodes](/extras/shortcodes) to enable rich content inside of Markdown
+  * [Shortcodes](/extras/shortcodes) to enable rich content inside of Markdown
   * ["Minutes to Read"](/layout/variables) functionality
   * ["Wordcount"](/layout/variables) functionality
 

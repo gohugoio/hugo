@@ -27,12 +27,12 @@ Make sure either hugo is in your path or provide a path to it.
       hugo [command]
 
     Available Commands:
-      server                    :: Hugo runs its own a webserver to render the files
-      version                   :: Print the version number of Hugo
-      check                     :: Check content in the source directory
-      benchmark                 :: Benchmark hugo by building a site a number of times
-      new [path]                :: Create new content for your site
-      help [command]            :: Help about any command
+      server                    Hugo runs its own webserver to render the files
+      version                   Print the version number of Hugo
+      check                     Check content in the source directory
+      benchmark                 Benchmark hugo by building a site a number of times
+      new [path]                Create new content for your site
+      help [command]            Help about any command
 
      Available Flags:
       -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/

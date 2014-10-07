@@ -21,7 +21,7 @@ Some of the features of Hugo Menus:
 
 ## What is a menu?
 
-A menus is a named array of menu entries accessible on the site under
+A menu is a named array of menu entries accessible on the site under
 `.Site.Menus` by name. For example, if I have a menu called `main`, I would
 access it via `.Site.Menus.main`.
 
@@ -87,7 +87,7 @@ available.
 ## Adding (non-content) entries to a menu
 
 You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the site wide [config file](http://gohugo.io/overview/configuration).
+content. This takes place in the sitewide [config file](/overview/configuration).
 
 Here’s an example (in TOML):
 
