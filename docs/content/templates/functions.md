@@ -72,6 +72,32 @@ e.g.
        {{ .Content}}
     {{ end }}
 
+### in
+Checks if an element is in an array (or slice) and returns a boolean.  The elements supported are strings, integers and floats (only float64 will match as expected).  In addition, it can also check if a substring exists in a string.
+
+e.g.
+    {{ if in .Params.tags "Git" }}Follow me on GitHub!{{ end }}
+or
+    {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
+
+### intersect
+Given two arrays (or slices), this function will return the common elements in the arrays.  The elements supported are strings, integers and floats (only float64).
+
+A useful example of this functionality is a 'similar posts' block.  Create a list of links to posts where any of the tags in the current post match any tags in other posts.
+
+e.g.
+    <ul>
+    {{ $page_link := .Permalink }}
+    {{ $tags := .Params.tags }}
+    {{ range .Site.Recent }}
+        {{ $page := . }}
+        {{ $has_common_tags := intersect $tags .Params.tags | len | lt 0 }}
+        {{ if and $has_common_tags (ne $page_link $page.Permalink) }}
+            <li><a href="{{ $page.Permalink }}">{{ $page.Title }}</a></li>
+        {{ end }}
+    {{ end }}
+    </ul>
+
 
 ## Math
 
