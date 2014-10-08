@@ -144,6 +144,73 @@ func TestFirst(t *testing.T) {
 	}
 }
 
+func TestIn(t *testing.T) {
+	for i, this := range []struct {
+		v1     interface{}
+		v2     interface{}
+		expect bool
+	}{
+		{[]string{"a", "b", "c"}, "b", true},
+		{[]string{"a", "b", "c"}, "d", false},
+		{[]string{"a", "12", "c"}, 12, false},
+		{[]int{1, 2, 4}, 2, true},
+		{[]int{1, 2, 4}, 3, false},
+		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
+		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},
+		{"this substring should be found", "substring", true},
+		{"this substring should not be found", "subseastring", false},
+	} {
+		result := In(this.v1, this.v2)
+
+		if result != this.expect {
+			t.Errorf("[%d] Got %v but expected %v", i, result, this.expect)
+		}
+	}
+}
+
+func TestIntersect(t *testing.T) {
+	for i, this := range []struct {
+		sequence1 interface{}
+		sequence2 interface{}
+		expect    interface{}
+	}{
+		{[]string{"a", "b", "c"}, []string{"a", "b"}, []string{"a", "b"}},
+		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b"}},
+		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{}},
+		{[]string{}, []string{}, []string{}},
+		{[]string{"a", "b"}, nil, make([]interface{}, 0)},
+		{nil, []string{"a", "b"}, make([]interface{}, 0)},
+		{nil, nil, make([]interface{}, 0)},
+		{[]string{"1", "2"}, []int{1, 2}, []string{}},
+		{[]int{1, 2}, []string{"1", "2"}, []int{}},
+		{[]int{1, 2, 4}, []int{2, 4}, []int{2, 4}},
+		{[]int{2, 4}, []int{1, 2, 4}, []int{2, 4}},
+		{[]int{1, 2, 4}, []int{3, 6}, []int{}},
+		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4}},
+	} {
+		results, err := Intersect(this.sequence1, this.sequence2)
+		if err != nil {
+			t.Errorf("[%d] failed: %s", i, err)
+			continue
+		}
+		if !reflect.DeepEqual(results, this.expect) {
+			t.Errorf("[%d] Got %v but expected %v", i, results, this.expect)
+		}
+	}
+
+	_, err1 := Intersect("not an array or slice", []string{"a"})
+
+	if err1 == nil {
+		t.Error("Excpected error for non array as first arg")
+	}
+
+	_, err2 := Intersect([]string{"a"}, "not an array or slice")
+
+	if err2 == nil {
+		t.Error("Excpected error for non array as second arg")
+	}
+}
+
 func TestWhere(t *testing.T) {
 	type X struct {
 		A, B string

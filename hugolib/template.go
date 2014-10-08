@@ -80,6 +80,11 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 }
 
 func Intersect(l1, l2 interface{}) (interface{}, error) {
+
+	if l1 == nil || l2 == nil {
+		return make([]interface{}, 0), nil
+	}
+
 	l1v := reflect.ValueOf(l1)
 	l2v := reflect.ValueOf(l2)
 
