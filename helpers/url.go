@@ -84,6 +84,9 @@ func UrlPrep(ugly bool, in string) string {
 		return x
 	} else {
 		x := PrettifyUrl(SanitizeUrl(in))
+		if path.Ext(x) == ".xml" {
+			return x
+		}
 		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
 		if err != nil {
 			return in
