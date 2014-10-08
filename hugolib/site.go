@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"html/template"
@@ -27,6 +26,7 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
@@ -409,6 +409,7 @@ func pageReader(s *Site, files <-chan *source.File, results chan<- pageResult, w
 		page.Tmpl = s.Tmpl
 		page.Section = file.Section
 		page.Dir = file.Dir
+
 		if err := page.ReadFrom(file.Contents); err != nil {
 			results <- pageResult{nil, err}
 			continue
@@ -1080,12 +1081,11 @@ func (s *Site) render(name string, d interface{}, out string, layouts ...string)
 
 	transformer := transform.NewChain(transformLinks...)
 
-	var renderBuffer *bytes.Buffer
+	renderBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(renderBuffer)
 
 	if strings.HasSuffix(out, ".xml") {
-		renderBuffer = s.NewXMLBuffer()
-	} else {
-		renderBuffer = new(bytes.Buffer)
+		renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
 	}
 
 	err = s.renderThing(d, layout, renderBuffer)
@@ -1097,14 +1097,16 @@ func (s *Site) render(name string, d interface{}, out string, layouts ...string)
 		}
 	}
 
-	var outBuffer = new(bytes.Buffer)
 	if strings.HasSuffix(out, ".xml") {
-		outBuffer = renderBuffer
+		return s.WritePublic(out, renderBuffer)
 	} else {
+
+		outBuffer := bp.GetBuffer()
+		defer bp.PutBuffer(outBuffer)
 		transformer.Apply(outBuffer, renderBuffer)
+		return s.WritePublic(out, outBuffer)
 	}
 
-	return s.WritePublic(out, outBuffer)
 }
 
 func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
@@ -1122,11 +1124,6 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 		return fmt.Errorf("Layout not found: %s", layout)
 	}
 	return s.Tmpl.ExecuteTemplate(w, layout, d)
-}
-
-func (s *Site) NewXMLBuffer() *bytes.Buffer {
-	header := "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n"
-	return bytes.NewBufferString(header)
 }
 
 func (s *Site) initTarget() {

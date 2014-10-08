@@ -14,10 +14,11 @@
 package helpers
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"strings"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 func StripHTML(s string) string {
@@ -33,7 +34,9 @@ func StripHTML(s string) string {
 		s = strings.Replace(s, "</br>", " \n", -1)
 
 		// Walk through the string removing all tags
-		b := new(bytes.Buffer)
+
+		b := bp.GetBuffer()
+		defer bp.PutBuffer(b)
 		inTag := false
 		for _, r := range s {
 			switch r {

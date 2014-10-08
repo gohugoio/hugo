@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	bp "github.com/spf13/hugo/bufferpool"
 	"gopkg.in/yaml.v1"
 )
 
@@ -34,7 +35,8 @@ func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
 		return []byte{}, fmt.Errorf("input was nil")
 	}
 
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
 
 	switch mark {
 	case rune(YAML_LEAD[0]):
@@ -75,7 +77,8 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 		return []byte{}, fmt.Errorf("input was nil")
 	}
 
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
 
 	switch mark {
 	case rune(YAML_LEAD[0]):

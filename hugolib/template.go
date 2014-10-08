@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/eknkc/amber"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -513,7 +514,9 @@ func Partial(name string, context_list ...interface{}) template.HTML {
 }
 
 func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
-	buffer := new(bytes.Buffer)
+	buffer := bp.GetBuffer()
+	defer bp.PutBuffer(buffer)
+
 	worked := false
 	for _, layout := range layouts {
 		if localTemplates.Lookup(layout) != nil {

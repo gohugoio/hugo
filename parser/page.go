@@ -3,9 +3,12 @@ package parser
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"unicode"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 const (
@@ -67,9 +70,13 @@ func (p *page) Metadata() (meta interface{}, err error) {
 
 	if len(frontmatter) != 0 {
 		fm := DetectFrontMatter(rune(frontmatter[0]))
-		meta, err = fm.Parse(frontmatter)
-		if err != nil {
-			return
+		if fm == nil {
+			return nil, errors.New("Invalid Front Matter detected, got: " + string(frontmatter[:70]) + "...")
+		} else {
+			meta, err = fm.Parse(frontmatter)
+			if err != nil {
+				return
+			}
 		}
 	}
 	return
@@ -77,6 +84,7 @@ func (p *page) Metadata() (meta interface{}, err error) {
 
 // ReadFrom reads the content from an io.Reader and constructs a page.
 func ReadFrom(r io.Reader) (p Page, err error) {
+
 	reader := bufio.NewReader(r)
 
 	if err = chompWhitespace(reader); err != nil && err != io.EOF {
@@ -190,6 +198,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	)
 
 	wr := new(bytes.Buffer)
+
 	for {
 		if c, err = r.ReadByte(); err != nil {
 			return nil, fmt.Errorf("Unable to read frontmatter at filepos %d: %s", bytesRead, err)
@@ -280,7 +289,9 @@ func matches(r *bufio.Reader, wr io.Writer, c, expected []byte) (ok bool, err er
 }
 
 func extractContent(r io.Reader) (content Content, err error) {
-	wr := new(bytes.Buffer)
+	wr := bp.GetBuffer()
+	defer bp.PutBuffer(wr)
+
 	if _, err = wr.ReadFrom(r); err != nil {
 		return
 	}

@@ -29,6 +29,7 @@ import (
 
 	"github.com/russross/blackfriday"
 	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
@@ -583,12 +584,10 @@ func (page *Page) parse(reader io.Reader) error {
 	page.renderable = psr.IsRenderable()
 	page.frontmatter = psr.FrontMatter()
 	meta, err := psr.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error parsing page meta data for %s\n%s", page.FileName, err)
+	}
 	if meta != nil {
-		if err != nil {
-			jww.ERROR.Printf("Error parsing page meta data for %s", page.FileName)
-			jww.ERROR.Println(err)
-			return err
-		}
 		if err = page.update(meta); err != nil {
 			return err
 		}
@@ -625,7 +624,10 @@ func (page *Page) SaveSourceAs(path string) error {
 }
 
 func (page *Page) saveSourceAs(path string, safe bool) error {
-	b := new(bytes.Buffer)
+
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
 	b.Write(page.sourceFrontmatter)
 	b.Write(page.sourceContent)
 
@@ -753,7 +755,9 @@ func extractTOC(content []byte) (newcontent []byte, toc []byte) {
 }
 
 func ReaderToBytes(lines io.Reader) []byte {
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
 	b.ReadFrom(lines)
 	return b.Bytes()
 }

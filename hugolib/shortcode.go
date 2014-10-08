@@ -14,12 +14,12 @@
 package hugolib
 
 import (
-	"bytes"
 	"html/template"
 	"reflect"
 	"strings"
 	"unicode"
 
+	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -294,7 +294,9 @@ func SplitParams(in string) (name string, par2 string) {
 }
 
 func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
-	buffer := new(bytes.Buffer)
+	buffer := bp.GetBuffer()
+	defer bp.PutBuffer(buffer)
+
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
