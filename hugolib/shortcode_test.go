@@ -78,7 +78,7 @@ func TestEmbeddedSC(t *testing.T) {
 
 func TestFigureImgWidth(t *testing.T) {
 	tem := NewTemplate()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" width="100px" />\n    \n    \n</figure>\n", tem)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
 }
 
 func TestUnbalancedQuotes(t *testing.T) {
