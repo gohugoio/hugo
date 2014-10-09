@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/eknkc/amber"
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -162,8 +163,15 @@ func In(l interface{}, v interface{}) bool {
 
 // First is exposed to templates, to iterate over the first N items in a
 // rangeable list.
-func First(limit int, seq interface{}) (interface{}, error) {
-	if limit < 1 {
+func First(limit interface{}, seq interface{}) (interface{}, error) {
+
+	limitv, err := cast.ToIntE(limit)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if limitv < 1 {
 		return nil, errors.New("can't return negative/empty count of items from sequence")
 	}
 
@@ -184,10 +192,10 @@ func First(limit int, seq interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
 	}
-	if limit > seqv.Len() {
-		limit = seqv.Len()
+	if limitv > seqv.Len() {
+		limitv = seqv.Len()
 	}
-	return seqv.Slice(0, limit).Interface(), nil
+	return seqv.Slice(0, limitv).Interface(), nil
 }
 
 func Where(seq, key, match interface{}) (interface{}, error) {
