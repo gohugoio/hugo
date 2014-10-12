@@ -34,7 +34,7 @@ func NewContent(kind, name string) (err error) {
 
 	location := FindArchetype(kind)
 
- 	var by []byte
+	var by []byte
 
 	if location != "" {
 		by, err = ioutil.ReadFile(location)
@@ -96,7 +96,7 @@ func NewContent(kind, name string) (err error) {
 
 	page.Dir = viper.GetString("sourceDir")
 	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat")))
-
+	page.SetSourceContent(psr.Content())
 	if err = page.SafeSaveSourceAs(path.Join(viper.GetString("contentDir"), name)); err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func FindArchetype(kind string) (outpath string) {
 
 	for _, x := range search {
 		// If the new content isn't in a subdirectory, kind == "".
-		// Therefore it should be excluded otherwise `is a directory` 
+		// Therefore it should be excluded otherwise `is a directory`
 		// error will occur. github.com/spf13/hugo/issues/411
 		var pathsToCheck []string
 
