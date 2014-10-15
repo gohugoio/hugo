@@ -125,21 +125,31 @@ func TestDoArithmetic(t *testing.T) {
 
 func TestFirst(t *testing.T) {
 	for i, this := range []struct {
-		count    int
+		count    interface{}
 		sequence interface{}
 		expect   interface{}
 	}{
-		{2, []string{"a", "b", "c"}, []string{"a", "b"}},
-		{3, []string{"a", "b"}, []string{"a", "b"}},
-		{2, []int{100, 200, 300}, []int{100, 200}},
+		{int(2), []string{"a", "b", "c"}, []string{"a", "b"}},
+		{int32(3), []string{"a", "b"}, []string{"a", "b"}},
+		{int64(2), []int{100, 200, 300}, []int{100, 200}},
+		{100, []int{100, 200}, []int{100, 200}},
+		{"1", []int{100, 200, 300}, []int{100}},
+		{int64(-1), []int{100, 200, 300}, false},
+		{"noint", []int{100, 200, 300}, false},
 	} {
 		results, err := First(this.count, this.sequence)
-		if err != nil {
-			t.Errorf("[%d] failed: %s", i, err)
-			continue
-		}
-		if !reflect.DeepEqual(results, this.expect) {
-			t.Errorf("[%d] First %d items, got %v but expected %v", i, this.count, results, this.expect)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] First didn't return an expected error")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(results, this.expect) {
+				t.Errorf("[%d] First %d items, got %v but expected %v", i, this.count, results, this.expect)
+			}
 		}
 	}
 }
