@@ -48,6 +48,7 @@ func RefreshPath(s string) {
 }
 
 func ServeJS(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/javascript")
 	w.Write(livereloadJS)
 }
 
