@@ -53,7 +53,7 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
-var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
+var Source, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
 
 func Execute() {
 	AddCommands()
@@ -82,6 +82,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
 	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
 	HugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
@@ -127,6 +128,7 @@ func InitializeConfig() {
 	viper.SetDefault("PluralizeListTitles", true)
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
+	viper.SetDefault("NewContentEditor", "")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -154,6 +156,10 @@ func InitializeConfig() {
 
 	if hugoCmdV.PersistentFlags().Lookup("pluralizeListTitles").Changed {
 		viper.Set("PluralizeListTitles", PluralizeListTitles)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("editor").Changed {
+		viper.Set("NewContentEditor", Editor)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
