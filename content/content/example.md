@@ -8,7 +8,7 @@ menu:
     parent: content
 next: /themes/overview
 notoc: true
-prev: /content/ordering
+prev: /content/summaries
 title: Example Content File
 weight: 70
 ---

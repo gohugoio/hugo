@@ -4,7 +4,7 @@ linktitle: Ordering
 menu:
   main:
     parent: content
-next: /content/example
+next: /content/summaries
 prev: /content/archetypes
 title: Ordering Content
 weight: 60
