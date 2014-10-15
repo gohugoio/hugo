@@ -17,6 +17,8 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -103,6 +105,21 @@ func NewContent(kind, name string) (err error) {
 		return
 	}
 	jww.FEEDBACK.Println(helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)), "created")
+
+	editor := viper.GetString("NewContentEditor")
+
+	if editor != "" {
+		jww.FEEDBACK.Printf("Editing %s in %s.\n", name, editor)
+
+		cmd := exec.Command(editor, path.Join(viper.GetString("contentDir"), name))
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err = cmd.Run(); err != nil {
+			return
+		}
+	}
 
 	return nil
 }
