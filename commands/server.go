@@ -110,8 +110,6 @@ func server(cmd *cobra.Command, args []string) {
 
 func serve(port int) {
 	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
-	jww.FEEDBACK.Printf("Web Server is available at %s\n", viper.GetString("BaseUrl"))
-	fmt.Println("Press ctrl+c to stop")
 
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
 	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
@@ -125,6 +123,10 @@ func serve(port int) {
 	} else {
 		http.Handle(u.Path+"/", http.StripPrefix(u.Path+"/", fileserver))
 	}
+
+	u.Scheme = "http"
+	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
+	fmt.Println("Press ctrl+c to stop")
 
 	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
