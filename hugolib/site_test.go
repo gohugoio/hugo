@@ -404,12 +404,16 @@ func TestAbsUrlify(t *testing.T) {
 var WEIGHTED_PAGE_1 = []byte(`+++
 weight = "2"
 title = "One"
+my_param = "foo"
+my_date = 1979-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages`)
 
 var WEIGHTED_PAGE_2 = []byte(`+++
 weight = "6"
 title = "Two"
+publishdate = "2012-03-05"
+my_param = "foo"
 +++
 Front Matter with Ordered Pages 2`)
 
@@ -417,6 +421,10 @@ var WEIGHTED_PAGE_3 = []byte(`+++
 weight = "4"
 title = "Three"
 date = "2012-04-06"
+publishdate = "2012-04-06"
+my_param = "bar"
+only_one = "yes"
+my_date = 2010-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages 3`)
 
@@ -424,6 +432,9 @@ var WEIGHTED_PAGE_4 = []byte(`+++
 weight = "4"
 title = "Four"
 date = "2012-01-01"
+publishdate = "2012-01-01"
+my_param = "baz"
+my_date = 2010-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages 4. This is longer content`)
 
@@ -470,6 +481,17 @@ func TestOrderedPages(t *testing.T) {
 	rev := bydate.Reverse()
 	if rev[0].Title != "Three" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rev[0].Title)
+	}
+
+	bypubdate := s.Pages.ByPublishDate()
+
+	if bypubdate[0].Title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bypubdate[0].Title)
+	}
+
+	rbypubdate := bypubdate.Reverse()
+	if rbypubdate[0].Title != "Three" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].Title)
 	}
 
 	bylength := s.Pages.ByLength()
@@ -534,6 +556,26 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
 	}
 
+	bytype, err := s.Pages.GroupBy("Type", "asc")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if bytype[0].Key != "sect1" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "sect1", bytype[0].Key)
+	}
+	if bytype[1].Key != "sect2" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "sect2", bytype[1].Key)
+	}
+	if bytype[2].Key != "sect3" {
+		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "sect3", bytype[2].Key)
+	}
+	if bytype[2].Pages[0].Title != "Four" {
+		t.Errorf("PageGroup has an unexpected page. Third group's data should have '%s', got '%s'", "Four", bytype[0].Pages[0].Title)
+	}
+	if len(bytype[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bytype[2].Pages))
+	}
+
 	bydate, err := s.Pages.GroupByDate("2006-01", "asc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
@@ -552,6 +594,76 @@ func TestGroupedPages(t *testing.T) {
 	}
 	if len(bydate[0].Pages) != 2 {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bydate[2].Pages))
+	}
+
+	bypubdate, err := s.Pages.GroupByPublishDate("2006")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if bypubdate[0].Key != "2012" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "2012", bypubdate[0].Key)
+	}
+	if bypubdate[1].Key != "0001" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "0001", bypubdate[1].Key)
+	}
+	if bypubdate[0].Pages[0].Title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bypubdate[0].Pages[0].Title)
+	}
+	if len(bypubdate[0].Pages) != 3 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 3, len(bypubdate[0].Pages))
+	}
+
+	byparam, err := s.Pages.GroupByParam("my_param", "desc")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if byparam[0].Key != "foo" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "foo", byparam[0].Key)
+	}
+	if byparam[1].Key != "baz" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "baz", byparam[1].Key)
+	}
+	if byparam[2].Key != "bar" {
+		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "bar", byparam[2].Key)
+	}
+	if byparam[2].Pages[0].Title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", byparam[2].Pages[0].Title)
+	}
+	if len(byparam[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byparam[0].Pages))
+	}
+
+	_, err = s.Pages.GroupByParam("not_exist")
+	if err == nil {
+		t.Errorf("GroupByParam didn't return an expected error")
+	}
+
+	byOnlyOneParam, err := s.Pages.GroupByParam("only_one")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if len(byOnlyOneParam) != 1 {
+		t.Errorf("PageGroup array has unexpected elements. Group length should be '%d', got '%d'", 1, len(byOnlyOneParam))
+	}
+	if byOnlyOneParam[0].Key != "yes" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "yes", byOnlyOneParam[0].Key)
+	}
+
+	byParamDate, err := s.Pages.GroupByParamDate("my_date", "2006-01")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if byParamDate[0].Key != "2010-05" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "2010-05", byParamDate[0].Key)
+	}
+	if byParamDate[1].Key != "1979-05" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "1979-05", byParamDate[1].Key)
+	}
+	if byParamDate[1].Pages[0].Title != "One" {
+		t.Errorf("PageGroup has an unexpected page. Second group's pages should have '%s', got '%s'", "One", byParamDate[1].Pages[0].Title)
+	}
+	if len(byParamDate[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byParamDate[2].Pages))
 	}
 }
 
