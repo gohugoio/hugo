@@ -400,6 +400,14 @@ func (s *Site) CreatePages() error {
 func sourceReader(s *Site, files <-chan *source.File, results chan<- pageResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
+		// TODO: Switch here on extension
+		h := handlers.Handler(file.Extension())
+		if h != nil {
+
+		} else {
+			jww.ERROR.Println("Unsupported File Type", file.Path())
+		}
+
 		page, err := NewPage(file.Path())
 		if err != nil {
 			results <- pageResult{nil, err}
