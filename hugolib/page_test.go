@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 var EMPTY_PAGE = ""
@@ -507,7 +509,7 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 func TestSectionEvaluation(t *testing.T) {
 	page, _ := NewPage("blue/file1.md")
 	page.ReadFrom(strings.NewReader(SIMPLE_PAGE))
-	if page.Section != "blue" {
+	if page.Section() != "blue" {
 		t.Errorf("Section should be %s, got: %s", "blue", page.Section)
 	}
 }
@@ -529,12 +531,12 @@ func TestLayoutOverride(t *testing.T) {
 		path           string
 		expectedLayout []string
 	}{
-		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, L("dub/sub/single.html", "dub/single.html", "_default/single.html")},
+		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, L("dub/single.html", "_default/single.html")},
 		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, L("gub/single.html", "_default/single.html")},
 		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, L("page/single.html", "_default/single.html")},
 		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, L("fub/single.html", "_default/single.html")},
 		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, L("page/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, L("dub/sub/foobar.html", "dub/foobar.html", "_default/foobar.html")},
+		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, L("dub/foobar.html", "_default/foobar.html")},
 		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, L("gub/foobar.html", "_default/foobar.html")},
 		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, L("fub/foobar.html", "_default/foobar.html")},
 		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, L("page/foobar.html", "_default/foobar.html")},
@@ -576,7 +578,7 @@ func TestSliceToLower(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		res := sliceToLower(test.value)
+		res := helpers.SliceToLower(test.value)
 		for i, val := range res {
 			if val != test.expected[i] {
 				t.Errorf("Case mismatch. Expected %s, got %s", test.expected[i], res[i])

@@ -45,8 +45,8 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 }
 
 var urlFakeSource = []source.ByteSource{
-	{"content/blue/doc1.md", []byte(SLUG_DOC_1), "blue"},
-	{"content/blue/doc2.md", []byte(SLUG_DOC_2), "blue"},
+	{"content/blue/doc1.md", []byte(SLUG_DOC_1)},
+	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
 }
 
 func TestPageCount(t *testing.T) {

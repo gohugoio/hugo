@@ -236,7 +236,7 @@ func (s *Site) Render() (err error) {
 func (s *Site) checkDescriptions() {
 	for _, p := range s.Pages {
 		if len(p.Description) < 60 {
-			jww.FEEDBACK.Println(p.FileName + " ")
+			jww.FEEDBACK.Println(p.Source.Path() + " ")
 		}
 	}
 }
@@ -340,7 +340,7 @@ func (s *Site) CreatePages() error {
 
 	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
-		go pageReader(s, filechan, results, wg)
+		go sourceReader(s, filechan, results, wg)
 	}
 
 	errs := make(chan error)
@@ -397,18 +397,16 @@ func (s *Site) CreatePages() error {
 	return fmt.Errorf("%s\n%s", readErrs, renderErrs)
 }
 
-func pageReader(s *Site, files <-chan *source.File, results chan<- pageResult, wg *sync.WaitGroup) {
+func sourceReader(s *Site, files <-chan *source.File, results chan<- pageResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		page, err := NewPage(file.LogicalName)
+		page, err := NewPage(file.Path())
 		if err != nil {
 			results <- pageResult{nil, err}
 			continue
 		}
 		page.Site = &s.Info
 		page.Tmpl = s.Tmpl
-		page.Section = file.Section
-		page.Dir = file.Dir
 		if err := page.ReadFrom(file.Contents); err != nil {
 			results <- pageResult{nil, err}
 			continue
@@ -604,7 +602,7 @@ func (s *Site) assembleTaxonomies() {
 					x := WeightedPage{weight.(int), p}
 					s.Taxonomies[plural].Add(v, x)
 				} else {
-					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.FileName)
+					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
 				}
 			}
 		}
@@ -620,7 +618,7 @@ func (s *Site) assembleTaxonomies() {
 
 func (s *Site) assembleSections() {
 	for i, p := range s.Pages {
-		s.Sections.Add(p.Section, WeightedPage{s.Pages[i].Weight, s.Pages[i]})
+		s.Sections.Add(p.Section(), WeightedPage{s.Pages[i].Weight, s.Pages[i]})
 	}
 
 	for k := range s.Sections {

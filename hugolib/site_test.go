@@ -213,7 +213,7 @@ func TestTargetPath(t *testing.T) {
 			t.Errorf("%s => OutFile  expected: '%s', got: '%s'", test.doc, expected, p.TargetPath())
 		}
 
-		if p.Section != test.expectedSection {
+		if p.Section() != test.expectedSection {
 			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section)
 		}
 	}
@@ -223,10 +223,10 @@ func TestDraftAndFutureRender(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
-		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*"), "sect"},
-		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*"), "sect"},
-		{"sect/doc3.md", []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*"), "sect"},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*"), "sect"},
+		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
+		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
+		{"sect/doc3.md", []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
 	siteSetup := func() *Site {
@@ -283,14 +283,14 @@ func TestSkipRender(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
-		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*"), "sect"},
-		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>"), "sect"},
-		{"sect/doc3.md", []byte("# doc3\n*some* content"), "sect"},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*"), "sect"},
-		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"), "sect"},
-		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"), "sect"},
-		{"doc7.html", []byte("<html><body>doc7 content</body></html>"), ""},
-		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*"), "sect"},
+		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>")},
+		{"sect/doc3.md", []byte("# doc3\n*some* content")},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
+		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
+		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
+		{"doc7.html", []byte("<html><body>doc7 content</body></html>")},
+		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
 	viper.Set("verbose", true)
@@ -350,8 +350,8 @@ func TestAbsUrlify(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
-		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"), "sect"},
-		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"), "blue"},
+		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
+		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, canonify := range []bool{true, false} {
 		viper.Set("CanonifyUrls", canonify)
@@ -428,10 +428,10 @@ date = "2012-01-01"
 Front Matter with Ordered Pages 4. This is longer content`)
 
 var WEIGHTED_SOURCES = []source.ByteSource{
-	{"sect/doc1.md", WEIGHTED_PAGE_1, "sect"},
-	{"sect/doc2.md", WEIGHTED_PAGE_2, "sect"},
-	{"sect/doc3.md", WEIGHTED_PAGE_3, "sect"},
-	{"sect/doc4.md", WEIGHTED_PAGE_4, "sect"},
+	{"sect/doc1.md", WEIGHTED_PAGE_1},
+	{"sect/doc2.md", WEIGHTED_PAGE_2},
+	{"sect/doc3.md", WEIGHTED_PAGE_3},
+	{"sect/doc4.md", WEIGHTED_PAGE_4},
 }
 
 func TestOrderedPages(t *testing.T) {
@@ -484,13 +484,18 @@ func TestOrderedPages(t *testing.T) {
 }
 
 var GROUPED_SOURCES = []source.ByteSource{
-	{"sect1/doc1.md", WEIGHTED_PAGE_1, "sect1"},
-	{"sect1/doc2.md", WEIGHTED_PAGE_2, "sect1"},
-	{"sect2/doc3.md", WEIGHTED_PAGE_3, "sect2"},
-	{"sect3/doc4.md", WEIGHTED_PAGE_4, "sect3"},
+	{"sect1/doc1.md", WEIGHTED_PAGE_1},
+	{"sect1/doc2.md", WEIGHTED_PAGE_2},
+	{"sect2/doc3.md", WEIGHTED_PAGE_3},
+	{"sect3/doc4.md", WEIGHTED_PAGE_4},
 }
 
 func TestGroupedPages(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+		}
+	}()
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 
@@ -583,9 +588,9 @@ func TestWeightedTaxonomies(t *testing.T) {
 	files := make(map[string][]byte)
 	target := &target.InMemoryTarget{Files: files}
 	sources := []source.ByteSource{
-		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1, "sect"},
-		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2, "sect"},
-		{"sect/doc3.md", PAGE_WITH_WEIGHTED_TAXONOMIES_3, "sect"},
+		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1},
+		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2},
+		{"sect/doc3.md", PAGE_WITH_WEIGHTED_TAXONOMIES_3},
 	}
 	taxonomies := make(map[string]string)
 

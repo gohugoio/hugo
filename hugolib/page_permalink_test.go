@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"testing"
 
+	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 )
 
@@ -33,6 +34,8 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "x/y/z", "", "", "/z/y/q/", false, "/z/y/q/", "/z/y/q/"},
 	}
 
+	viper.Set("DefaultExtension", "html")
+
 	for i, test := range tests {
 		viper.Set("uglyurls", test.uglyurls)
 		p := &Page{
@@ -45,7 +48,7 @@ func TestPermalink(t *testing.T) {
 					BaseUrl: test.base,
 				},
 			},
-			File: File{FileName: test.file, Dir: test.dir, Extension: "html"},
+			Source: Source{File: *source.NewFile(test.file)},
 		}
 
 		if test.slug != "" {

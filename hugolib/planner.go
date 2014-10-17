@@ -11,7 +11,7 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 	}
 
 	for _, p := range s.Pages {
-		fmt.Fprintf(out, "%s", p.FileName)
+		fmt.Fprintf(out, "%s", p.Source.Path())
 		if p.IsRenderable() {
 			fmt.Fprintf(out, " (renderer: markdown)")
 		} else {

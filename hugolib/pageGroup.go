@@ -83,20 +83,25 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		direction = "desc"
 	}
 
-	ppt := reflect.TypeOf(&Page{})
+	ppt := reflect.TypeOf(&Page{}) // *hugolib.Page
+
 	ft, ok := ppt.Elem().FieldByName(key)
+
 	if !ok {
 		return nil, errors.New("No such field in Page struct")
 	}
+
 	tmp := reflect.MakeMap(reflect.MapOf(ft.Type, reflect.SliceOf(ppt)))
 
 	for _, e := range p {
 		ppv := reflect.ValueOf(e)
 		fv := ppv.Elem().FieldByName(key)
-		if !tmp.MapIndex(fv).IsValid() {
-			tmp.SetMapIndex(fv, reflect.MakeSlice(reflect.SliceOf(ppt), 0, 0))
+		if !fv.IsNil() {
+			if !tmp.MapIndex(fv).IsValid() {
+				tmp.SetMapIndex(fv, reflect.MakeSlice(reflect.SliceOf(ppt), 0, 0))
+			}
+			tmp.SetMapIndex(fv, reflect.Append(tmp.MapIndex(fv), ppv))
 		}
-		tmp.SetMapIndex(fv, reflect.Append(tmp.MapIndex(fv), ppv))
 	}
 
 	var r []PageGroup

@@ -166,16 +166,52 @@ func FileAndExt(in string) (name string, ext string) {
 	return
 }
 
+func GetRelativePath(path, base string) (final string, err error) {
+	if filepath.IsAbs(path) && base == "" {
+		return "", errors.New("source: missing base directory")
+	}
+	name := filepath.Clean(path)
+	base = filepath.Clean(base)
+
+	name, err = filepath.Rel(base, name)
+	if err != nil {
+		return "", err
+	}
+	name = filepath.ToSlash(name)
+	return name, nil
+}
+
+// Given a source path, determine the section
 func GuessSection(in string) string {
-	x := strings.Split(in, "/")
-	x = x[:len(x)-1]
-	if len(x) == 0 {
+	parts := strings.Split(in, "/")
+
+	if len(parts) == 0 {
 		return ""
 	}
-	if x[0] == "content" {
-		x = x[1:]
+
+	// trim filename
+	if !strings.HasSuffix(in, "/") {
+		parts = parts[:len(parts)-1]
 	}
-	return path.Join(x...)
+
+	if len(parts) == 0 {
+		return ""
+	}
+
+	// if first directory is "content", return second directory
+	section := ""
+
+	if parts[0] == "content" && len(parts) > 1 {
+		section = parts[1]
+	} else {
+		section = parts[0]
+	}
+
+	if section == "." {
+		return ""
+	}
+
+	return section
 }
 
 func PathPrep(ugly bool, in string) string {

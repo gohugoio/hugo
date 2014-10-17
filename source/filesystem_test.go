@@ -32,16 +32,17 @@ func TestAddFile(t *testing.T) {
 		}
 
 		for _, src := range []*Filesystem{srcDefault, srcWithBase} {
+
 			p := test.filename
 			if !filepath.IsAbs(test.filename) {
 				p = path.Join(src.Base, test.filename)
 			}
 
 			if err := src.add(p, bytes.NewReader([]byte(test.content))); err != nil {
-				if err == errMissingBaseDir {
+				if err.Error() == "source: missing base directory" {
 					continue
 				}
-				t.Fatalf("%s add returned and error: %s", p, err)
+				t.Fatalf("%s add returned an error: %s", p, err)
 			}
 
 			if len(src.Files()) != 1 {
@@ -49,8 +50,8 @@ func TestAddFile(t *testing.T) {
 			}
 
 			f := src.Files()[0]
-			if f.LogicalName != test.logical {
-				t.Errorf("Filename (Base: %q) expected: %q, got: %q", src.Base, test.logical, f.LogicalName)
+			if f.LogicalName() != test.logical {
+				t.Errorf("Filename (Base: %q) expected: %q, got: %q", src.Base, test.logical, f.LogicalName())
 			}
 
 			b := new(bytes.Buffer)
@@ -59,12 +60,12 @@ func TestAddFile(t *testing.T) {
 				t.Errorf("File (Base: %q) contents should be %q, got: %q", src.Base, test.content, b.String())
 			}
 
-			if f.Section != test.section {
-				t.Errorf("File section (Base: %q) expected: %q, got: %q", src.Base, test.section, f.Section)
+			if f.Section() != test.section {
+				t.Errorf("File section (Base: %q) expected: %q, got: %q", src.Base, test.section, f.Section())
 			}
 
-			if f.Dir != test.dir {
-				t.Errorf("Dir path (Base: %q) expected: %q, got: %q", src.Base, test.dir, f.Dir)
+			if f.Dir() != test.dir {
+				t.Errorf("Dir path (Base: %q) expected: %q, got: %q", src.Base, test.dir, f.Dir())
 			}
 		}
 	}

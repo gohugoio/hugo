@@ -15,56 +15,63 @@ package hugolib
 
 import (
 	"bytes"
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"html/template"
 	"io"
 	"net/url"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/russross/blackfriday"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
+	"github.com/spf13/hugo/source"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
 
 type Page struct {
-	Status            string
-	Images            []string
-	rawContent        []byte
-	Content           template.HTML
-	Summary           template.HTML
-	TableOfContents   template.HTML
-	Truncated         bool
-	plain             string // TODO should be []byte
-	Params            map[string]interface{}
-	contentType       string
-	Draft             bool
-	PublishDate       time.Time
-	Aliases           []string
-	Tmpl              Template
-	Markup            string
-	renderable        bool
-	layout            string
-	linkTitle         string
-	frontmatter       []byte
-	sourceFrontmatter []byte
-	sourceContent     []byte
+	Params          map[string]interface{}
+	Content         template.HTML
+	Summary         template.HTML
+	Aliases         []string
+	Status          string
+	Images          []string
+	TableOfContents template.HTML
+	Truncated       bool
+	Draft           bool
+	PublishDate     time.Time
+	Tmpl            Template
+	Markup          string
+
+	extension   string
+	contentType string
+	renderable  bool
+	layout      string
+	linkTitle   string
+	frontmatter []byte
+	rawContent  []byte
+	plain       string // TODO should be []byte
+	//sourceFrontmatter []byte
+	//sourceContent     []byte
 	PageMeta
-	File
+	//SourceFile source.File
+	Source
 	Position
 	Node
+	//Destination source.File
 }
 
-type File struct {
-	Name, FileName, Extension, Dir, UniqueId string
+//type File struct {
+//Name, FileName, Extension, Dir, UniqueId string
+//}
+
+type Source struct {
+	Frontmatter []byte
+	Content     []byte
+	source.File
 }
 
 type PageMeta struct {
@@ -97,75 +104,40 @@ func (p *Page) IsPage() bool {
 }
 
 func (p *Page) UniqueId() string {
-	return p.File.UniqueId
+	return p.Source.UniqueId()
 }
 
 func (p *Page) setSummary() {
-	if bytes.Contains(p.rawContent, summaryDivider) {
+	if bytes.Contains(p.rawContent, helpers.SummaryDivider) {
 		// If user defines split:
 		// Split then render
 		p.Truncated = true // by definition
-		header := bytes.Split(p.rawContent, summaryDivider)[0]
-		p.Summary = bytesToHTML(p.renderBytes(header))
+		header := bytes.Split(p.rawContent, helpers.SummaryDivider)[0]
+		p.Summary = helpers.BytesToHTML(p.renderBytes(header))
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
 		plain := strings.TrimSpace(p.Plain())
-		p.Summary = bytesToHTML([]byte(TruncateWordsToWholeSentence(plain, summaryLength)))
+		p.Summary = helpers.BytesToHTML([]byte(helpers.TruncateWordsToWholeSentence(plain, helpers.SummaryLength)))
 		p.Truncated = len(p.Summary) != len(plain)
 	}
 }
 
-func stripEmptyNav(in []byte) []byte {
-	return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
-}
-
-func bytesToHTML(b []byte) template.HTML {
-	return template.HTML(string(b))
-}
-
 func (p *Page) renderBytes(content []byte) []byte {
-	return renderBytes(content, p.guessMarkupType(), p.UniqueId())
+	return helpers.RenderBytes(content, p.guessMarkupType(), p.UniqueId())
 }
 
 func (p *Page) renderContent(content []byte) []byte {
-	return renderBytesWithTOC(content, p.guessMarkupType(), p.UniqueId())
-}
-
-func renderBytesWithTOC(content []byte, pagefmt string, footnoteref string) []byte {
-	switch pagefmt {
-	default:
-		return markdownRenderWithTOC(content, footnoteref)
-	case "markdown":
-		return markdownRenderWithTOC(content, footnoteref)
-	case "rst":
-		return []byte(getRstContent(content))
-	}
-}
-
-func renderBytes(content []byte, pagefmt string, footnoteref string) []byte {
-	switch pagefmt {
-	default:
-		return markdownRender(content, footnoteref)
-	case "markdown":
-		return markdownRender(content, footnoteref)
-	case "rst":
-		return []byte(getRstContent(content))
-	}
+	return helpers.RenderBytesWithTOC(content, p.guessMarkupType(), p.UniqueId())
 }
 
 func newPage(filename string) *Page {
-	name := filepath.Base(filename)
-	// strip off the extension
-	name = name[:len(name)-len(filepath.Ext(name))]
-
 	page := Page{contentType: "",
-		File:   File{Name: name, FileName: filename, Extension: "html", UniqueId: md5ForFilename(filename)},
+		Source: Source{File: *source.NewFile(filename)},
 		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params: make(map[string]interface{})}
 
-	jww.DEBUG.Println("Reading from", page.File.FileName)
-	page.guessSection()
+	jww.DEBUG.Println("Reading from", page.File.Path())
 	return &page
 }
 
@@ -173,22 +145,20 @@ func (p *Page) IsRenderable() bool {
 	return p.renderable
 }
 
-func (p *Page) guessSection() {
-	if p.Section == "" {
-		p.Section = helpers.GuessSection(p.FileName)
-	}
-}
-
 func (page *Page) Type() string {
 	if page.contentType != "" {
 		return page.contentType
 	}
-	page.guessSection()
-	if x := page.Section; x != "" {
+
+	if x := page.Section(); x != "" {
 		return x
 	}
 
 	return "page"
+}
+
+func (page *Page) Section() string {
+	return page.Source.Section()
 }
 
 func (page *Page) Layout(l ...string) []string {
@@ -261,14 +231,14 @@ func (p *Page) ReadFrom(buf io.Reader) (err error) {
 }
 
 func (p *Page) analyzePage() {
-	p.WordCount = TotalWords(p.Plain())
+	p.WordCount = helpers.TotalWords(p.Plain())
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 	p.ReadingTime = int((p.WordCount + 212) / 213)
 }
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseUrl := string(p.Site.BaseUrl)
-	dir := strings.TrimSpace(p.Dir)
+	dir := strings.TrimSpace(p.Source.Dir())
 	pSlug := strings.TrimSpace(p.Slug)
 	pUrl := strings.TrimSpace(p.Url)
 	var permalink string
@@ -278,7 +248,7 @@ func (p *Page) permalink() (*url.URL, error) {
 		return helpers.MakePermalink(baseUrl, pUrl), nil
 	}
 
-	if override, ok := p.Site.Permalinks[p.Section]; ok {
+	if override, ok := p.Site.Permalinks[p.Section()]; ok {
 		permalink, err = override.Expand(p)
 
 		if err != nil {
@@ -287,14 +257,22 @@ func (p *Page) permalink() (*url.URL, error) {
 		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, p.Slug+"."+p.Extension))
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
-			_, t := path.Split(p.FileName)
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)))
+			_, t := path.Split(p.Source.LogicalName())
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
 
 	return helpers.MakePermalink(baseUrl, permalink), nil
+}
+
+func (p *Page) Extension() string {
+	if p.extension != "" {
+		return p.extension
+	} else {
+		return viper.GetString("DefaultExtension")
+	}
 }
 
 func (p *Page) LinkTitle() string {
@@ -370,6 +348,8 @@ func (page *Page) update(f interface{}) error {
 			page.Url = helpers.Urlize(cast.ToString(v))
 		case "type":
 			page.contentType = cast.ToString(v)
+		case "extension", "ext":
+			page.extension = cast.ToString(v)
 		case "keywords":
 			page.Keywords = cast.ToStringSlice(v)
 		case "date":
@@ -445,7 +425,7 @@ func (page *Page) GetParam(key string) interface{} {
 	case time.Time:
 		return cast.ToTime(v)
 	case []string:
-		return sliceToLower(v.([]string))
+		return helpers.SliceToLower(v.([]string))
 	}
 	return nil
 }
@@ -543,31 +523,13 @@ func (p *Page) Render(layout ...string) template.HTML {
 func (page *Page) guessMarkupType() string {
 	// First try the explicitly set markup from the frontmatter
 	if page.Markup != "" {
-		format := guessType(page.Markup)
+		format := helpers.GuessType(page.Markup)
 		if format != "unknown" {
 			return format
 		}
 	}
 
-	// Then try to guess from the extension
-	ext := strings.ToLower(path.Ext(page.FileName))
-	if strings.HasPrefix(ext, ".") {
-		return guessType(ext[1:])
-	}
-
-	return "unknown"
-}
-
-func guessType(in string) string {
-	switch strings.ToLower(in) {
-	case "md", "markdown", "mdown":
-		return "markdown"
-	case "rst":
-		return "rst"
-	case "html", "htm":
-		return "html"
-	}
-	return "unknown"
+	return helpers.GuessType(page.Source.Ext())
 }
 
 func (page *Page) detectFrontMatter() (f *parser.FrontmatterType) {
@@ -585,7 +547,7 @@ func (page *Page) parse(reader io.Reader) error {
 	meta, err := psr.Metadata()
 	if meta != nil {
 		if err != nil {
-			jww.ERROR.Printf("Error parsing page meta data for %s", page.FileName)
+			jww.ERROR.Printf("Error parsing page meta data for %s", page.File.Path())
 			jww.ERROR.Println(err)
 			return err
 		}
@@ -601,7 +563,7 @@ func (page *Page) parse(reader io.Reader) error {
 }
 
 func (page *Page) SetSourceContent(content []byte) {
-	page.sourceContent = content
+	page.Source.Content = content
 }
 
 func (page *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
@@ -611,7 +573,7 @@ func (page *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
 	}
 	by = append(by, '\n')
 
-	page.sourceFrontmatter = by
+	page.Source.Frontmatter = by
 
 	return nil
 }
@@ -626,8 +588,8 @@ func (page *Page) SaveSourceAs(path string) error {
 
 func (page *Page) saveSourceAs(path string, safe bool) error {
 	b := new(bytes.Buffer)
-	b.Write(page.sourceFrontmatter)
-	b.Write(page.sourceContent)
+	b.Write(page.Source.Frontmatter)
+	b.Write(page.Source.Content)
 
 	err := page.saveSource(b.Bytes(), path, safe)
 	if err != nil {
@@ -666,100 +628,19 @@ func (page *Page) Convert() error {
 	markupType := page.guessMarkupType()
 	switch markupType {
 	case "markdown", "rst":
-		tmpContent, tmpTableOfContents := extractTOC(page.renderContent(RemoveSummaryDivider(page.rawContent)))
-		page.Content = bytesToHTML(tmpContent)
-		page.TableOfContents = bytesToHTML(tmpTableOfContents)
+		tmpContent, tmpTableOfContents := helpers.ExtractTOC(page.renderContent(helpers.RemoveSummaryDivider(page.rawContent)))
+		page.Content = helpers.BytesToHTML(tmpContent)
+		page.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
 	case "html":
-		page.Content = bytesToHTML(page.rawContent)
+		page.Content = helpers.BytesToHTML(page.rawContent)
 	default:
-		return fmt.Errorf("Error converting unsupported file type '%s' for page '%s'", markupType, page.FileName)
+		return fmt.Errorf("Error converting unsupported file type '%s' for page '%s'", markupType, page.Source.Path())
 	}
 	return nil
 }
 
-func getHtmlRenderer(defaultFlags int, footnoteref string) blackfriday.Renderer {
-	renderParameters := blackfriday.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
-	}
-
-	if len(footnoteref) != 0 {
-		renderParameters.FootnoteAnchorPrefix = footnoteref + ":" +
-			renderParameters.FootnoteAnchorPrefix
-	}
-
-	htmlFlags := defaultFlags
-	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
-
-	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
-}
-
-func getMarkdownExtensions() int {
-	return 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
-		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
-		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
-		blackfriday.EXTENSION_SPACE_HEADERS | blackfriday.EXTENSION_FOOTNOTES |
-		blackfriday.EXTENSION_HEADER_IDS
-}
-
-func markdownRender(content []byte, footnoteref string) []byte {
-	return blackfriday.Markdown(content, getHtmlRenderer(0, footnoteref),
-		getMarkdownExtensions())
-}
-
-func markdownRenderWithTOC(content []byte, footnoteref string) []byte {
-	return blackfriday.Markdown(content,
-		getHtmlRenderer(blackfriday.HTML_TOC, footnoteref),
-		getMarkdownExtensions())
-}
-
-func extractTOC(content []byte) (newcontent []byte, toc []byte) {
-	origContent := make([]byte, len(content))
-	copy(origContent, content)
-	first := []byte(`<nav>
-<ul>`)
-
-	last := []byte(`</ul>
-</nav>`)
-
-	replacement := []byte(`<nav id="TableOfContents">
-<ul>`)
-
-	startOfTOC := bytes.Index(content, first)
-
-	peekEnd := len(content)
-	if peekEnd > 70+startOfTOC {
-		peekEnd = 70 + startOfTOC
-	}
-
-	if startOfTOC < 0 {
-		return stripEmptyNav(content), toc
-	}
-	// Need to peek ahead to see if this nav element is actually the right one.
-	correctNav := bytes.Index(content[startOfTOC:peekEnd], []byte(`#toc_0`))
-	if correctNav < 0 { // no match found
-		return content, toc
-	}
-	lengthOfTOC := bytes.Index(content[startOfTOC:], last) + len(last)
-	endOfTOC := startOfTOC + lengthOfTOC
-
-	newcontent = append(content[:startOfTOC], content[endOfTOC:]...)
-	toc = append(replacement, origContent[startOfTOC+len(first):endOfTOC]...)
-	return
-}
-
-func ReaderToBytes(lines io.Reader) []byte {
-	b := new(bytes.Buffer)
-	b.ReadFrom(lines)
-	return b.Bytes()
-}
-
 func (p *Page) FullFilePath() string {
-	return path.Join(p.Dir, p.FileName)
+	return path.Join(p.Source.Dir(), p.Source.Path())
 }
 
 func (p *Page) TargetPath() (outfile string) {
@@ -775,7 +656,7 @@ func (p *Page) TargetPath() (outfile string) {
 	}
 
 	// If there's a Permalink specification, we use that
-	if override, ok := p.Site.Permalinks[p.Section]; ok {
+	if override, ok := p.Site.Permalinks[p.Section()]; ok {
 		var err error
 		outfile, err = override.Expand(p)
 		if err == nil {
@@ -787,32 +668,11 @@ func (p *Page) TargetPath() (outfile string) {
 	}
 
 	if len(strings.TrimSpace(p.Slug)) > 0 {
-		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension
+		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension()
 	} else {
 		// Fall back to filename
-		_, t := path.Split(p.FileName)
-		outfile = helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension)
+		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
 	}
 
-	return path.Join(p.Dir, strings.TrimSpace(outfile))
-}
-
-// sliceToLower goes through the source slice and lowers all values.
-func sliceToLower(s []string) []string {
-	if s == nil {
-		return nil
-	}
-
-	l := make([]string, len(s))
-	for i, v := range s {
-		l[i] = strings.ToLower(v)
-	}
-
-	return l
-}
-
-func md5ForFilename(f string) string {
-	h := md5.New()
-	h.Write([]byte(f))
-	return hex.EncodeToString(h.Sum([]byte{}))
+	return path.Join(p.Source.Dir(), strings.TrimSpace(outfile))
 }

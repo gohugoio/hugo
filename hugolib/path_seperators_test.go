@@ -17,7 +17,7 @@ func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error in NewPageFrom")
 	}
-	if p.Section != "" {
+	if p.Section() != "" {
 		t.Fatalf("No section should be set for a file path: foobar")
 	}
 }
@@ -31,17 +31,16 @@ func TestNewPageWithFilePath(t *testing.T) {
 		{path.Join("sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
 		{path.Join("content", "foobar.html"), "", L("page/single.html", "_default/single.html")},
 		{path.Join("content", "sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
-		{path.Join("content", "dub", "sub", "foobar.html"), "dub/sub", L("dub/sub/single.html", "dub/single.html", "_default/single.html")},
+		{path.Join("content", "dub", "sub", "foobar.html"), "dub", L("dub/single.html", "_default/single.html")},
 	}
 
 	for _, el := range toCheck {
 		p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
-		p.guessSection()
 		if err != nil {
 			t.Errorf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)
 		}
-		if p.Section != el.section {
-			t.Errorf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section)
+		if p.Section() != el.section {
+			t.Errorf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section())
 		}
 
 		for _, y := range el.layout {

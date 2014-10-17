@@ -118,6 +118,7 @@ func InitializeConfig() {
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
 	viper.SetDefault("PygmentsStyle", "monokai")
+	viper.SetDefault("DefaultExtension", "html")
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
 	viper.SetDefault("PluralizeListTitles", true)

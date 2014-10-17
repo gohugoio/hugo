@@ -94,7 +94,7 @@ func NewContent(kind, name string) (err error) {
 		newmetadata["date"] = time.Now().Format(time.RFC3339)
 	}
 
-	page.Dir = viper.GetString("sourceDir")
+	//page.Dir = viper.GetString("sourceDir")
 	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat")))
 	page.SetSourceContent(psr.Content())
 	if err = page.SafeSaveSourceAs(path.Join(viper.GetString("contentDir"), name)); err != nil {

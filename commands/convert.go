@@ -99,20 +99,20 @@ func convertContents(mark rune) (err error) {
 
 	jww.FEEDBACK.Println("processing", len(site.Source.Files()), "content files")
 	for _, file := range site.Source.Files() {
-		jww.INFO.Println("Attempting to convert", file.LogicalName)
-		page, err := hugolib.NewPage(file.LogicalName)
+		jww.INFO.Println("Attempting to convert", file.LogicalName())
+		page, err := hugolib.NewPage(file.LogicalName())
 		if err != nil {
 			return err
 		}
 
 		psr, err := parser.ReadFrom(file.Contents)
 		if err != nil {
-			jww.ERROR.Println("Error processing file:", path.Join(file.Dir, file.LogicalName))
+			jww.ERROR.Println("Error processing file:", file.Path())
 			return err
 		}
 		metadata, err := psr.Metadata()
 		if err != nil {
-			jww.ERROR.Println("Error processing file:", path.Join(file.Dir, file.LogicalName))
+			jww.ERROR.Println("Error processing file:", file.Path())
 			return err
 		}
 
@@ -128,7 +128,7 @@ func convertContents(mark rune) (err error) {
 			metadata = newmetadata
 		}
 
-		page.Dir = file.Dir
+		//page.Dir = file.Dir
 		page.SetSourceContent(psr.Content())
 		page.SetSourceMetaData(metadata, mark)
 
