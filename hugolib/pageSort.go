@@ -96,6 +96,15 @@ func (p Pages) ByDate() Pages {
 	return p
 }
 
+func (p Pages) ByPublishDate() Pages {
+	pubDate := func(p1, p2 *Page) bool {
+		return p1.PublishDate.Unix() < p2.PublishDate.Unix()
+	}
+
+	PageBy(pubDate).Sort(p)
+	return p
+}
+
 func (p Pages) ByLength() Pages {
 	length := func(p1, p2 *Page) bool {
 		return len(p1.Content) < len(p2.Content)
