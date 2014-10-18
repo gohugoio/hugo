@@ -178,6 +178,15 @@ your list templates:
     </li>
     {{ end }}
 
+### Order by PublishDate
+
+    {{ range .Data.Pages.ByPublishDate }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+
 ### Order by Length
 
     {{ range .Data.Pages.ByLength }}
@@ -219,7 +228,7 @@ Can be applied to any of the above. Using Date for an example.
 ## Grouping Content
 
 Hugo provides some grouping functions for list pages. You can use them to
-group pages by Section, Date etc.
+group pages by Section, Type, Date etc.
 
 Here are a variety of different ways you can group the content items in
 your list templates:
@@ -241,6 +250,48 @@ your list templates:
 ### Grouping by Page date
 
     {{ range .Data.Pages.GroupByDate "2006-01" }}
+    <h3>{{ .Key }}</h3>
+    <ul>
+        {{ range .Pages }}
+        <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
+
+### Grouping by Page publish date
+
+    {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
+    <h3>{{ .Key }}</h3>
+    <ul>
+        {{ range .Pages }}
+        <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
+
+### Grouping by Page param
+
+    {{ range .Data.Pages.GroupByParam "param_key" }}
+    <h3>{{ .Key }}</h3>
+    <ul>
+        {{ range .Pages }}
+        <li>
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}
+
+### Grouping by Page param in date format
+
+    {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
     <h3>{{ .Key }}</h3>
     <ul>
         {{ range .Pages }}
