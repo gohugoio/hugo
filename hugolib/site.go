@@ -533,6 +533,10 @@ func (s *Site) getMenusFromConfig() Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
+					if strings.HasPrefix(menuEntry.Url, "/") {
+						// make it absolute so it matches the nodes
+						menuEntry.Url = s.permalinkStr(menuEntry.Url)
+					}
 					if ret[name] == nil {
 						ret[name] = &Menu{}
 					}
@@ -822,16 +826,23 @@ func (s *Site) RenderTaxonomiesLists() error {
 	return nil
 }
 
+func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
+	base := t.plural + "/" + t.key
+	n := s.NewNode()
+	n.Title = strings.Replace(strings.Title(t.key), "-", " ", -1)
+	s.setUrls(n, base)
+	if len(t.pages) > 0 {
+		n.Date = t.pages[0].Page.Date
+	}
+	n.Data[t.singular] = t.pages
+	n.Data["Pages"] = t.pages.Pages()
+	return n, base
+}
+
 func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for t := range taxes {
-		base := t.plural + "/" + t.key
-		n := s.NewNode()
-		n.Title = strings.Replace(strings.Title(t.key), "-", " ", -1)
-		s.setUrls(n, base)
-		n.Date = t.pages[0].Page.Date
-		n.Data[t.singular] = t.pages
-		n.Data["Pages"] = t.pages.Pages()
+		n, base := s.newTaxonomyNode(t)
 		layouts := []string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"}
 		err := s.render("taxononomy "+t.singular, n, base+".html", s.appendThemeTemplates(layouts)...)
 		if err != nil {
@@ -911,11 +922,16 @@ func (s *Site) RenderSectionLists() error {
 	return nil
 }
 
-func (s *Site) RenderHomePage() error {
+func (s *Site) newHomeNode() *Node {
 	n := s.NewNode()
 	n.Title = n.Site.Title
 	s.setUrls(n, "/")
 	n.Data["Pages"] = s.Pages
+	return n
+}
+
+func (s *Site) RenderHomePage() error {
+	n := s.newHomeNode()
 	layouts := []string{"index.html", "_default/list.html", "_default/single.html"}
 	err := s.render("homepage", n, "/", s.appendThemeTemplates(layouts)...)
 	if err != nil {
@@ -1040,7 +1056,11 @@ func (s *Site) setUrls(n *Node, in string) {
 }
 
 func (s *Site) permalink(plink string) template.HTML {
-	return template.HTML(helpers.MakePermalink(string(viper.GetString("BaseUrl")), s.prepUrl(plink)).String())
+	return template.HTML(s.permalinkStr(plink))
+}
+
+func (s *Site) permalinkStr(plink string) string {
+	return helpers.MakePermalink(string(viper.GetString("BaseUrl")), s.prepUrl(plink)).String()
 }
 
 func (s *Site) prepUrl(in string) string {
