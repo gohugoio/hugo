@@ -43,8 +43,9 @@ Highlight takes exactly one required parameter of language and requires a
 closing shortcode.
 
 ### Example
-The example has an extra space between the “{{” and “%” characters to prevent rendering here.
-
+The example has an extra space between the “{{” and “%” characters to prevent rendering here.  Since this example is a code block, we use Github flavored Markdown's code fences, ```, to delimit the code. If you are using standard Markdown, instead of the code fence delimiters, each line must be preceeded by 4 spaces to identify each line as a line of code. Not doing either will result in the text being rendered as HTML. This will prevent Pytment highlighting from working.
+ 
+    ```  
     {{ % highlight html %}}
     <section id="main">
       <div>
@@ -55,7 +56,7 @@ The example has an extra space between the “{{” and “%” characters to pr
       </div>
     </section>
     {{ % /highlight %}}
-
+    ```
 
 ### Example Output
 
