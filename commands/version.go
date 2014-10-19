@@ -15,8 +15,22 @@ package commands
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+	"time"
 
+	"bitbucket.org/kardianos/osext"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
+
+var timeLayout string // the layout for time.Time
+
+var (
+	commitHash string
+	buildDate  string
 )
 
 var version = &cobra.Command{
@@ -24,6 +38,61 @@ var version = &cobra.Command{
 	Short: "Print the version number of Hugo",
 	Long:  `All software has versions. This is Hugo's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hugo Static Site Generator v0.13-DEV")
+		InitializeConfig()
+		if buildDate == "" {
+			setBuildDate() // set the build date from executable's mdate
+		} else {
+			formatBuildDate() // format the compile time
+		}
+		if commitHash == "" {
+			fmt.Printf("Hugo Static Site Generator v0.13-DEV buildDate: %s\n", buildDate)
+		} else {
+			fmt.Printf("Hugo Static Site Generator v0.13-DEV-%s buildDate: %s\n", strings.ToUpper(commitHash), buildDate)
+		}
 	},
 }
+
+// setBuildDate checks the ModTime of the Hugo executable and returns it as a
+// formatted string.  This assumes that the executable name is Hugo, if it does
+// not exist, an empty string will be returned.  This is only called if the 
+// buildDate wasn't set during compile time.
+//
+// osext is used for cross-platform.
+func setBuildDate() {
+	fname, _ := osext.Executable()
+	dir, err := filepath.Abs(filepath.Dir(fname))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fi, err := os.Lstat(path.Join(dir, "hugo"))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	t := fi.ModTime()
+	buildDate = t.Format(getDateFormat())
+}
+
+// formatBuildDate formats the buildDate according to the value in
+// .Params.DateFormat, if it's set.
+func formatBuildDate() {
+	t, _ := time.Parse("2006-01-02T15:04:05", buildDate)
+	buildDate = t.Format(getDateFormat())
+}
+
+// getDateFormat gets the dateFormat value from Params. The dateFormat should
+// be a valid time layout. If it isn't set, time.RFC3339 is used.
+func getDateFormat() string {
+	params := viper.Get("params")
+	if params == nil {
+		return time.RFC3339
+	}
+	parms := params.(map[interface{}]interface{})
+	layout := parms["DateFormat"]
+	if layout == nil || layout == "" {
+		return time.RFC3339
+	}
+	return layout.(string)
+}
+
