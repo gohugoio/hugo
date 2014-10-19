@@ -120,7 +120,7 @@ func serve(port int) {
 	if u.Path == "" || u.Path == "/" {
 		http.Handle("/", fileserver)
 	} else {
-		http.Handle(u.Path+"/", http.StripPrefix(u.Path+"/", fileserver))
+		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
 
 	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
