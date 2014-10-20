@@ -13,8 +13,11 @@
 
 package hugolib
 
-var Pager interface {
-	Read()
+import "github.com/spf13/hugo/source"
+
+var Filer interface {
+	Read(*source.File)
 	Render()
 	Convert()
+	Extensions() []string
 }

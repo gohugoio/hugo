@@ -13,14 +13,39 @@
 
 package hugolib
 
-var Handler interface {
-	Read()
-	Render()
-	Convert()
-	Extensions()
+import "github.com/spf13/hugo/source"
+
+type Handler interface {
+	Read(*source.File, HandleResults)
+	//Render()
+	//Convert()
+	Extensions() []string
+}
+
+type HandledResult struct {
+	page *Page
+	file *source.File
+	err  error
+}
+
+type HandleResults chan<- HandledResult
+
+type ReadFunc func(*source.File, HandleResults)
+
+type Handle struct {
+	extensions []string
+	readrun    ReadFunc
 }
 
 var handlers []Handler
+
+func (h Handle) Extensions() []string {
+	return h.extensions
+}
+
+func (h Handle) Read(s *source.File, results HandleResults) {
+	h.readrun(s, results)
+}
 
 func RegisterHandler(h Handler) {
 	handlers = append(handlers, h)
@@ -30,16 +55,16 @@ func Handlers() []Handler {
 	return handlers
 }
 
-func Handler(ext string) Handler {
+func FindHandler(ext string) Handler {
 	for _, h := range Handlers() {
-		if h.Match(ext) {
+		if HandlerMatch(h, ext) {
 			return h
 		}
 	}
 	return nil
 }
 
-func (h Handler) Match(ext string) bool {
+func HandlerMatch(h Handler, ext string) bool {
 	for _, x := range h.Extensions() {
 		if ext == x {
 			return true

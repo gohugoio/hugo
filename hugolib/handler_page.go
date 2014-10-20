@@ -13,8 +13,31 @@
 
 package hugolib
 
-var Filer interface {
-	Read()
+import "github.com/spf13/hugo/source"
+
+var Pager interface {
+	Read(*source.File)
 	Render()
 	Convert()
+	Extensions() []string
+}
+
+var markdown = Handle{
+	extensions: []string{"mdown", "markdown", "md"},
+	readrun: func(f *source.File, results HandleResults) {
+		page, err := NewPage(f.Path())
+		if err != nil {
+			results <- HandledResult{file: f, err: err}
+		}
+
+		if err := page.ReadFrom(f.Contents); err != nil {
+			results <- HandledResult{file: f, err: err}
+		}
+
+		results <- HandledResult{file: f, page: page, err: err}
+	},
+}
+
+func init() {
+	RegisterHandler(markdown)
 }

@@ -331,7 +331,7 @@ func (s *Site) CreatePages() error {
 
 	files := s.Source.Files()
 
-	results := make(chan pageResult)
+	results := make(chan HandledResult)
 	filechan := make(chan *source.File)
 
 	procs := getGoMaxProcs()
@@ -361,7 +361,7 @@ func (s *Site) CreatePages() error {
 
 	readErrs := <-errs
 
-	results = make(chan pageResult)
+	results = make(chan HandledResult)
 	pagechan := make(chan *Page)
 
 	wg = &sync.WaitGroup{}
@@ -397,33 +397,23 @@ func (s *Site) CreatePages() error {
 	return fmt.Errorf("%s\n%s", readErrs, renderErrs)
 }
 
-func sourceReader(s *Site, files <-chan *source.File, results chan<- pageResult, wg *sync.WaitGroup) {
+func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		// TODO: Switch here on extension
-		h := handlers.Handler(file.Extension())
+		h := FindHandler(file.Extension())
 		if h != nil {
-
+			h.Read(file, results)
 		} else {
 			jww.ERROR.Println("Unsupported File Type", file.Path())
 		}
 
-		page, err := NewPage(file.Path())
-		if err != nil {
-			results <- pageResult{nil, err}
-			continue
-		}
-		page.Site = &s.Info
-		page.Tmpl = s.Tmpl
-		if err := page.ReadFrom(file.Contents); err != nil {
-			results <- pageResult{nil, err}
-			continue
-		}
-		results <- pageResult{page, nil}
+		// TODO: Figure out Site stuff
+		//page.Site = &s.Info
+		//page.Tmpl = s.Tmpl
 	}
 }
 
-func pageConverter(s *Site, pages <-chan *Page, results chan<- pageResult, wg *sync.WaitGroup) {
+func pageConverter(s *Site, pages <-chan *Page, results HandleResults, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for page := range pages {
 		//Handling short codes prior to Conversion to HTML
@@ -431,14 +421,14 @@ func pageConverter(s *Site, pages <-chan *Page, results chan<- pageResult, wg *s
 
 		err := page.Convert()
 		if err != nil {
-			results <- pageResult{nil, err}
+			results <- HandledResult{err: err}
 			continue
 		}
-		results <- pageResult{page, nil}
+		results <- HandledResult{err: err}
 	}
 }
 
-func converterCollator(s *Site, results <-chan pageResult, errs chan<- error) {
+func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
@@ -453,7 +443,7 @@ func converterCollator(s *Site, results <-chan pageResult, errs chan<- error) {
 	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
 }
 
-func readCollator(s *Site, results <-chan pageResult, errs chan<- error) {
+func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {

@@ -54,19 +54,11 @@ type Page struct {
 	frontmatter []byte
 	rawContent  []byte
 	plain       string // TODO should be []byte
-	//sourceFrontmatter []byte
-	//sourceContent     []byte
 	PageMeta
-	//SourceFile source.File
 	Source
 	Position
 	Node
-	//Destination source.File
 }
-
-//type File struct {
-//Name, FileName, Extension, Dir, UniqueId string
-//}
 
 type Source struct {
 	Frontmatter []byte
