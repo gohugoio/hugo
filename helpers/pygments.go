@@ -23,10 +23,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Highlight(code string, lexer string) string {
-	var pygmentsBin = "pygmentize"
+const PYGMENTS_BIN = "pygmentize"
 
-	if _, err := exec.LookPath(pygmentsBin); err != nil {
+func HasPygments() bool {
+	if _, err := exec.LookPath(PYGMENTS_BIN); err != nil {
+		return false
+	}
+	return true
+}
+
+func Highlight(code string, lexer string) string {
+
+	if !HasPygments() {
 
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
@@ -41,7 +49,7 @@ func Highlight(code string, lexer string) string {
 		noclasses = "false"
 	}
 
-	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O",
+	cmd := exec.Command(PYGMENTS_BIN, "-l"+lexer, "-fhtml", "-O",
 		fmt.Sprintf("style=%s,noclasses=%s,encoding=utf8", style, noclasses))
 	cmd.Stdin = strings.NewReader(code)
 	cmd.Stdout = &out

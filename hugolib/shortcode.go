@@ -36,6 +36,11 @@ type ShortcodeWithPage struct {
 	Page   *Page
 }
 
+// a set of internal short codes that should not be treated as markdown
+var noMarkupShortCodes = map[string]bool{
+	"highlight": true,
+}
+
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if reflect.ValueOf(scp.Params).Len() == 0 {
 		return nil
@@ -93,7 +98,13 @@ func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
 			var data = &ShortcodeWithPage{Params: params, Page: p}
 			if endStart > 0 {
 				s := stringToParse[leadEnd+3 : leadEnd+endStart]
-				data.Inner = template.HTML(renderBytes([]byte(CleanP(ShortcodesHandle(s, p, t))), p.guessMarkupType(), p.UniqueId()))
+
+				if noMarkupShortCodes[name] {
+					data.Inner = template.HTML(ShortcodesHandle(s, p, t))
+				} else {
+					data.Inner = template.HTML(renderBytes([]byte(CleanP(ShortcodesHandle(s, p, t))), p.guessMarkupType(), p.UniqueId()))
+				}
+
 				remainder := CleanP(stringToParse[leadEnd+endEnd:])
 
 				return CleanP(stringToParse[:leadStart]) +

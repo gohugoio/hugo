@@ -1,6 +1,8 @@
 package hugolib
 
 import (
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/viper"
 	"strings"
 	"testing"
 )
@@ -85,4 +87,20 @@ func TestUnbalancedQuotes(t *testing.T) {
 	tem := NewTemplate()
 
 	CheckShortCodeMatch(t, `{{% figure src="/uploads/2011/12/spf13-mongosv-speaking-copy-1024x749.jpg "Steve Francia speaking at OSCON 2012" alt="MongoSV 2011" %}}`, "\n<figure >\n    \n        <img src=\"/uploads/2011/12/spf13-mongosv-speaking-copy-1024x749.jpg%20%22Steve%20Francia%20speaking%20at%20OSCON%202012\" alt=\"MongoSV 2011\" />\n    \n    \n</figure>\n", tem)
+}
+
+func TestHighlight(t *testing.T) {
+	if !helpers.HasPygments() {
+		t.Skip("Skip test as Pygments is not installed")
+	}
+	defer viper.Set("PygmentsStyle", viper.Get("PygmentsStyle"))
+	viper.Set("PygmentsStyle", "bw")
+
+	tem := NewTemplate()
+
+	code := `
+{{% highlight java %}}
+void do();
+{{% /highlight %}}`
+	CheckShortCodeMatch(t, code, "\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\"><span style=\"font-weight: bold\">void</span> do();\n</pre></div>\n", tem)
 }
