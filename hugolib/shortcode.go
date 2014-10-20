@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,10 +77,26 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 
 type Shortcodes map[string]ShortcodeFunc
 
+type shortCodeType struct {
+	prefix         string
+	suffix         string
+	handleAsMarkup bool
+	strCleaner     func(string) string
+}
+
+var shortCodeTypes = []shortCodeType{{"{{%", "%}}", true, cleanP}, {"{{<", ">}}", false, func(str string) string { return str }}}
+
 func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
-	leadStart := strings.Index(stringToParse, `{{%`)
+	for _, sct := range shortCodeTypes {
+		stringToParse = shortcodesHandleType(sct, stringToParse, p, t)
+	}
+	return stringToParse
+}
+
+func shortcodesHandleType(sct shortCodeType, stringToParse string, p *Page, t Template) string {
+	leadStart := strings.Index(stringToParse, sct.prefix)
 	if leadStart >= 0 {
-		leadEnd := strings.Index(stringToParse[leadStart:], `%}}`) + leadStart
+		leadEnd := strings.Index(stringToParse[leadStart:], sct.suffix) + leadStart
 		if leadEnd > leadStart {
 			name, par := SplitParams(stringToParse[leadStart+3 : leadEnd])
 			tmpl := GetTemplate(name, t)
@@ -89,20 +105,24 @@ func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
 			}
 			params := Tokenize(par)
 			// Always look for closing tag.
-			endStart, endEnd := FindEnd(stringToParse[leadEnd:], name)
+			endStart, endEnd := FindEnd(sct, stringToParse[leadEnd:], name)
 			var data = &ShortcodeWithPage{Params: params, Page: p}
 			if endStart > 0 {
 				s := stringToParse[leadEnd+3 : leadEnd+endStart]
-				data.Inner = template.HTML(renderBytes([]byte(CleanP(ShortcodesHandle(s, p, t))), p.guessMarkupType(), p.UniqueId()))
-				remainder := CleanP(stringToParse[leadEnd+endEnd:])
+				if sct.handleAsMarkup {
+					data.Inner = template.HTML(renderBytes([]byte(sct.strCleaner(shortcodesHandleType(sct, s, p, t))), p.guessMarkupType(), p.UniqueId()))
+				} else {
+					data.Inner = template.HTML(sct.strCleaner(shortcodesHandleType(sct, s, p, t)))
+				}
+				remainder := sct.strCleaner(stringToParse[leadEnd+endEnd:])
 
-				return CleanP(stringToParse[:leadStart]) +
+				return sct.strCleaner(stringToParse[:leadStart]) +
 					ShortcodeRender(tmpl, data) +
-					CleanP(ShortcodesHandle(remainder, p, t))
+					sct.strCleaner(shortcodesHandleType(sct, remainder, p, t))
 			}
-			return CleanP(stringToParse[:leadStart]) +
+			return sct.strCleaner(stringToParse[:leadStart]) +
 				ShortcodeRender(tmpl, data) +
-				CleanP(ShortcodesHandle(stringToParse[leadEnd+3:], p,
+				sct.strCleaner(shortcodesHandleType(sct, stringToParse[leadEnd+3:], p,
 					t))
 		}
 	}
@@ -111,7 +131,7 @@ func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
 
 // Clean up odd behavior when closing tag is on first line
 // or opening tag is on the last line due to extra line in markdown file
-func CleanP(str string) string {
+func cleanP(str string) string {
 	if strings.HasSuffix(strings.TrimSpace(str), "<p>") {
 		idx := strings.LastIndex(str, "<p>")
 		str = str[:idx]
@@ -124,15 +144,15 @@ func CleanP(str string) string {
 	return str
 }
 
-func FindEnd(str string, name string) (int, int) {
+func FindEnd(sct shortCodeType, str string, name string) (int, int) {
 	var endPos int
 	var startPos int
 	var try []string
 
-	try = append(try, "{{% /"+name+" %}}")
-	try = append(try, "{{% /"+name+"%}}")
-	try = append(try, "{{%/"+name+"%}}")
-	try = append(try, "{{%/"+name+" %}}")
+	try = append(try, sct.prefix+" /"+name+" "+sct.suffix)
+	try = append(try, sct.prefix+" /"+name+sct.suffix)
+	try = append(try, sct.prefix+"/"+name+sct.suffix)
+	try = append(try, sct.prefix+"/"+name+" "+sct.suffix)
 
 	lowest := len(str)
 	for _, x := range try {

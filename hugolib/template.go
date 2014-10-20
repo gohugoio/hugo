@@ -314,12 +314,6 @@ func Highlight(in interface{}, lang string) template.HTML {
 		str = av.String()
 	}
 
-	if strings.HasPrefix(strings.TrimSpace(str), "<pre><code>") {
-		str = str[strings.Index(str, "<pre><code>")+11:]
-	}
-	if strings.HasSuffix(strings.TrimSpace(str), "</code></pre>") {
-		str = str[:strings.LastIndex(str, "</code></pre>")]
-	}
 	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang))
 }
 
