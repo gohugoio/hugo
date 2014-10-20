@@ -402,14 +402,10 @@ func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResu
 	for file := range files {
 		h := FindHandler(file.Extension())
 		if h != nil {
-			h.Read(file, results)
+			h.Read(file, s, results)
 		} else {
 			jww.ERROR.Println("Unsupported File Type", file.Path())
 		}
-
-		// TODO: Figure out Site stuff
-		//page.Site = &s.Info
-		//page.Tmpl = s.Tmpl
 	}
 }
 

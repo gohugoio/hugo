@@ -24,7 +24,7 @@ var Pager interface {
 
 var markdown = Handle{
 	extensions: []string{"mdown", "markdown", "md"},
-	readrun: func(f *source.File, results HandleResults) {
+	readrun: func(f *source.File, s *Site, results HandleResults) {
 		page, err := NewPage(f.Path())
 		if err != nil {
 			results <- HandledResult{file: f, err: err}
@@ -33,6 +33,9 @@ var markdown = Handle{
 		if err := page.ReadFrom(f.Contents); err != nil {
 			results <- HandledResult{file: f, err: err}
 		}
+
+		page.Site = &s.Info
+		page.Tmpl = s.Tmpl
 
 		results <- HandledResult{file: f, page: page, err: err}
 	},

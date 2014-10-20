@@ -16,7 +16,7 @@ package hugolib
 import "github.com/spf13/hugo/source"
 
 type Handler interface {
-	Read(*source.File, HandleResults)
+	Read(*source.File, *Site, HandleResults)
 	//Render()
 	//Convert()
 	Extensions() []string
@@ -30,7 +30,7 @@ type HandledResult struct {
 
 type HandleResults chan<- HandledResult
 
-type ReadFunc func(*source.File, HandleResults)
+type ReadFunc func(*source.File, *Site, HandleResults)
 
 type Handle struct {
 	extensions []string
@@ -43,8 +43,8 @@ func (h Handle) Extensions() []string {
 	return h.extensions
 }
 
-func (h Handle) Read(s *source.File, results HandleResults) {
-	h.readrun(s, results)
+func (h Handle) Read(f *source.File, s *Site, results HandleResults) {
+	h.readrun(f, s, results)
 }
 
 func RegisterHandler(h Handler) {
