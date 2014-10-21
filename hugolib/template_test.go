@@ -123,6 +123,81 @@ func TestDoArithmetic(t *testing.T) {
 	}
 }
 
+func TestMod(t *testing.T) {
+	for i, this := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{3, 2, int64(1)},
+		{3, 1, int64(0)},
+		{3, 0, false},
+		{0, 3, int64(0)},
+		{3.1, 2, false},
+		{3, 2.1, false},
+		{3.1, 2.1, false},
+		{int8(3), int8(2), int64(1)},
+		{int16(3), int16(2), int64(1)},
+		{int32(3), int32(2), int64(1)},
+		{int64(3), int64(2), int64(1)},
+	} {
+		result, err := Mod(this.a, this.b)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] modulo didn't return an expected error")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] modulo got %v but expected %v", i, result, this.expect)
+			}
+		}
+	}
+}
+
+func TestModBool(t *testing.T) {
+	for i, this := range []struct {
+		a      interface{}
+		b      interface{}
+		expect interface{}
+	}{
+		{3, 3, true},
+		{3, 2, false},
+		{3, 1, true},
+		{3, 0, nil},
+		{0, 3, true},
+		{3.1, 2, nil},
+		{3, 2.1, nil},
+		{3.1, 2.1, nil},
+		{int8(3), int8(3), true},
+		{int8(3), int8(2), false},
+		{int16(3), int16(3), true},
+		{int16(3), int16(2), false},
+		{int32(3), int32(3), true},
+		{int32(3), int32(2), false},
+		{int64(3), int64(3), true},
+		{int64(3), int64(2), false},
+	} {
+		result, err := ModBool(this.a, this.b)
+		if this.expect == nil {
+			if err == nil {
+				t.Errorf("[%d] modulo didn't return an expected error")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] modulo got %v but expected %v", i, result, this.expect)
+			}
+		}
+	}
+}
+
 func TestFirst(t *testing.T) {
 	for i, this := range []struct {
 		count    interface{}
