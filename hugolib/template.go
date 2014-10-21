@@ -446,6 +446,40 @@ func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 	}
 }
 
+func Mod(a, b interface{}) (int64, error) {
+	av := reflect.ValueOf(a)
+	bv := reflect.ValueOf(b)
+	var ai, bi int64
+
+	switch av.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		ai = av.Int()
+	default:
+		return 0, errors.New("Modulo operator can't be used with non integer value")
+	}
+
+	switch bv.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		bi = bv.Int()
+	default:
+		return 0, errors.New("Modulo operator can't be used with non integer value")
+	}
+
+	if bi == 0 {
+		return 0, errors.New("The number can't be divided by zero at modulo operation")
+	}
+
+	return ai % bi, nil
+}
+
+func ModBool(a, b interface{}) (bool, error) {
+	res, err := Mod(a, b)
+	if err != nil {
+		return false, err
+	}
+	return res == int64(0), nil
+}
+
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
 	Lookup(name string) *template.Template
@@ -496,9 +530,9 @@ func NewTemplate() Template {
 		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
 		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
 		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":         func(a, b int) int { return a % b },
+		"mod":         Mod,
 		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":     func(a, b int) bool { return a%b == 0 },
+		"modBool":     ModBool,
 		"lower":       func(a string) string { return strings.ToLower(a) },
 		"upper":       func(a string) string { return strings.ToUpper(a) },
 		"title":       func(a string) string { return strings.Title(a) },
