@@ -59,6 +59,7 @@ var DefaultTimer *nitro.B
 // 5. The entire collection of files is written to disk.
 type Site struct {
 	Pages       Pages
+	Files       []*source.File
 	Tmpl        Template
 	Taxonomies  TaxonomyList
 	Source      source.Input
@@ -82,6 +83,7 @@ type SiteInfo struct {
 	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
 	Sections        Taxonomy
 	Pages           *Pages
+	Files           []*source.File
 	Recent          *Pages // legacy, should be identical to Pages
 	Menus           *Menus
 	Title           string
@@ -363,9 +365,16 @@ func (s *Site) CreatePages() error {
 
 	results = make(chan HandledResult)
 	pagechan := make(chan *Page)
+	filechan = make(chan *source.File)
 
 	wg = &sync.WaitGroup{}
 
+	for i := 0; i < procs*4; i++ {
+		wg.Add(1)
+		go fileConverter(s, filechan, results, wg)
+	}
+
+	wg = &sync.WaitGroup{}
 	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
 		go pageConverter(s, pagechan, results, wg)
@@ -377,7 +386,13 @@ func (s *Site) CreatePages() error {
 		pagechan <- p
 	}
 
+	for _, f := range s.Files {
+		fmt.Println(f)
+		filechan <- f
+	}
+
 	close(pagechan)
+	close(filechan)
 
 	wg.Wait()
 
@@ -412,15 +427,22 @@ func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResu
 func pageConverter(s *Site, pages <-chan *Page, results HandleResults, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for page := range pages {
-		//Handling short codes prior to Conversion to HTML
-		page.ProcessShortcodes(s.Tmpl)
-
-		err := page.Convert()
-		if err != nil {
-			results <- HandledResult{err: err}
-			continue
+		h := FindHandler(page.File.Extension())
+		if h != nil {
+			h.Convert(page, s, results)
 		}
-		results <- HandledResult{err: err}
+	}
+}
+
+func fileConverter(s *Site, files <-chan *source.File, results HandleResults, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for file := range files {
+		fmt.Println(file.Path())
+		//Handling short codes prior to Conversion to HTML
+		h := FindHandler(file.Extension())
+		if h != nil {
+			h.Convert(file, s, results)
+		}
 	}
 }
 
@@ -447,18 +469,24 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 			continue
 		}
 
-		if r.page.ShouldBuild() {
-			s.Pages = append(s.Pages, r.page)
-		}
+		// !page == file
+		if r.page == nil {
+			s.Files = append(s.Files, r.file)
+		} else {
+			if r.page.ShouldBuild() {
+				s.Pages = append(s.Pages, r.page)
+			}
 
-		if r.page.IsDraft() {
-			s.draftCount += 1
-		}
+			if r.page.IsDraft() {
+				s.draftCount += 1
+			}
 
-		if r.page.IsFuture() {
-			s.futureCount += 1
+			if r.page.IsFuture() {
+				s.futureCount += 1
+			}
 		}
 	}
+
 	s.Pages.Sort()
 	if len(errMsgs) == 0 {
 		errs <- nil
@@ -623,21 +651,12 @@ func (s *Site) assembleSections() {
 func (s *Site) possibleTaxonomies() (taxonomies []string) {
 	for _, p := range s.Pages {
 		for k := range p.Params {
-			if !inStringArray(taxonomies, k) {
+			if !helpers.InStringArray(taxonomies, k) {
 				taxonomies = append(taxonomies, k)
 			}
 		}
 	}
 	return
-}
-
-func inStringArray(arr []string, el string) bool {
-	for _, v := range arr {
-		if v == el {
-			return true
-		}
-	}
-	return false
 }
 
 // Render shell pages that simply have a redirect in the header

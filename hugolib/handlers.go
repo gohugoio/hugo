@@ -18,7 +18,7 @@ import "github.com/spf13/hugo/source"
 type Handler interface {
 	Read(*source.File, *Site, HandleResults)
 	//Render()
-	//Convert()
+	Convert(interface{}, *Site, HandleResults)
 	Extensions() []string
 }
 
@@ -31,10 +31,14 @@ type HandledResult struct {
 type HandleResults chan<- HandledResult
 
 type ReadFunc func(*source.File, *Site, HandleResults)
+type PageConvertFunc func(*Page, *Site, HandleResults)
+type FileConvertFunc ReadFunc
 
 type Handle struct {
-	extensions []string
-	readrun    ReadFunc
+	extensions  []string
+	read        ReadFunc
+	pageConvert PageConvertFunc
+	fileConvert FileConvertFunc
 }
 
 var handlers []Handler
@@ -44,7 +48,15 @@ func (h Handle) Extensions() []string {
 }
 
 func (h Handle) Read(f *source.File, s *Site, results HandleResults) {
-	h.readrun(f, s, results)
+	h.read(f, s, results)
+}
+
+func (h Handle) Convert(i interface{}, s *Site, results HandleResults) {
+	if h.pageConvert != nil {
+		h.pageConvert(i.(*Page), s, results)
+	} else {
+		h.fileConvert(i.(*source.File), s, results)
+	}
 }
 
 func RegisterHandler(h Handler) {

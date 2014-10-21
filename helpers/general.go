@@ -36,6 +36,15 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 	return nil, err
 }
 
+func InStringArray(arr []string, el string) bool {
+	for _, v := range arr {
+		if v == el {
+			return true
+		}
+	}
+	return false
+}
+
 func GuessType(in string) string {
 	switch strings.ToLower(in) {
 	case "md", "markdown", "mdown":
