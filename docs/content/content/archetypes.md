@@ -31,13 +31,13 @@ I use ‘tags’ and ‘categories’ for my taxonomies.
 
 ## Using archetypes
 
-If I wanted to create a new post in the `posts` section, I would run the following command:
+If I wanted to create a new post in the `post` section, I would run the following command:
 
-`hugo new posts/my-new-post.md`
+`hugo new post/my-new-post.md`
 
 Hugo would create the file with the following contents:
 
-### contents/posts/my-new-post.md
+### content/post/my-new-post.md
 
     +++
     title = "my new post"
