@@ -7,7 +7,7 @@ menu:
   main:
     identifier: Ordering Taxonomies
     parent: taxonomy
-next: /taxonomies/functions
+next: /taxonomies/methods
 prev: /taxonomies/templates
 title: Ordering Taxonomies
 weight: 60
