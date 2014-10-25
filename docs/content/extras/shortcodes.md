@@ -216,9 +216,11 @@ Would be rendered as:
 
 *Example has an extra space so Hugo doesn’t actually render it*.
 
+    {{ % highlight html %}}
     <html>
         <body> This HTML </body>
     </html>
+    {{ % /highlight %}}
 
 The template for this utilizes the following code (already include in Hugo)
 
