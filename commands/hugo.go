@@ -365,7 +365,9 @@ func NewWatcher(port int) error {
 				}
 
 				if dynamic_changed {
-					fmt.Print("Change detected, rebuilding site\n\n")
+					fmt.Print("\nChange detected, rebuilding site\n")
+					const layout = "2006-01-02 15:04 -0700"
+					fmt.Println(time.Now().Format(layout))
 					utils.StopOnErr(buildSite(true))
 
 					if !viper.GetBool("DisableLiveReload") {
