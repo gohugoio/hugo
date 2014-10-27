@@ -116,7 +116,7 @@ Some more text
 	SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY = `---
 title: Simple
 ---
-Summary Next Line. {{% img src="/not/real" %}}.
+Summary Next Line. {{<figure src="/not/real" >}}.
 More text here.
 
 Some more text
@@ -335,14 +335,18 @@ func TestPageWithDelimiter(t *testing.T) {
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
+	s := new(Site)
+	s.prepTemplates()
 	p, _ := NewPage("simple.md")
 	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY))
-	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
+	p.ProcessShortcodes(s.Tmpl)
+	p.Convert()
+
 	checkPageTitle(t, p, "Simple")
-	checkPageContent(t, p, "<p>Summary Next Line. {{% img src=&ldquo;/not/real&rdquo; %}}.\nMore text here.</p>\n\n<p>Some more text</p>\n")
+	checkPageContent(t, p, "<p>Summary Next Line. \n<figure >\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "Summary Next Line. . More text here. Some more text")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
