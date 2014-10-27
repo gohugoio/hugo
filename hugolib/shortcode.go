@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@ package hugolib
 
 import (
 	"bytes"
-	"html/template"
-	"reflect"
-	"strings"
-	"unicode"
-
+	"fmt"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
+	"html/template"
+	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 type ShortcodeFunc func([]string) string
@@ -76,75 +77,357 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 
 }
 
-type Shortcodes map[string]ShortcodeFunc
+// Note - this value must not contain any markup syntax
+const shortcodePlaceholderPrefix = "HUGOSHORTCODE"
 
-func ShortcodesHandle(stringToParse string, p *Page, t Template) string {
-	leadStart := strings.Index(stringToParse, `{{%`)
-	if leadStart >= 0 {
-		leadEnd := strings.Index(stringToParse[leadStart:], `%}}`) + leadStart
-		if leadEnd > leadStart {
-			name, par := SplitParams(stringToParse[leadStart+3 : leadEnd])
-			tmpl := GetTemplate(name, t)
+type shortcode struct {
+	name     string
+	inner    []interface{} // string or nested shortcode
+	params   interface{}   // map or array
+	err      error
+	doMarkup bool
+}
+
+func (sc shortcode) String() string {
+	// for testing (mostly), so any change here will break tests!
+	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, sc.params, sc.doMarkup, sc.inner)
+}
+
+// all in  one go: extract, render and replace
+// only used for testing
+func ShortcodesHandle(stringToParse string, page *Page, t Template) string {
+
+	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
+
+	if len(tmpShortcodes) > 0 {
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, -1, true, tmpShortcodes)
+
+		if err != nil {
+			jww.ERROR.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
+		} else {
+			return string(tmpContentWithTokensReplaced)
+		}
+	}
+
+	return string(tmpContent)
+}
+
+var isInnerShortcodeCache = make(map[string]bool)
+
+// to avoid potential costly look-aheads for closing tags we look inside the template itself
+// we could change the syntax to self-closing tags, but that would make users cry
+// the value found is cached
+func isInnerShortcode(t *template.Template) bool {
+	if m, ok := isInnerShortcodeCache[t.Name()]; ok {
+		return m
+	}
+
+	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
+	isInnerShortcodeCache[t.Name()] = match
+
+	return match
+}
+
+func createShortcodePlaceholder(id int) string {
+	return fmt.Sprintf("<div>%s-%d</div>", shortcodePlaceholderPrefix, id)
+}
+
+func renderShortcodes(sc shortcode, p *Page, t Template) string {
+
+	tokenizedRenderedShortcodes := make(map[string](string))
+	startCount := 0
+
+	shortcodes := renderShortcode(sc, tokenizedRenderedShortcodes, startCount, p, t)
+
+	// placeholders will be numbered from 1.. and top down
+	for i := 1; i <= len(tokenizedRenderedShortcodes); i++ {
+		placeHolder := createShortcodePlaceholder(i)
+		shortcodes = strings.Replace(shortcodes, placeHolder, tokenizedRenderedShortcodes[placeHolder], 1)
+	}
+	return shortcodes
+}
+
+func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt int, p *Page, t Template) string {
+	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
+	tmpl := GetTemplate(sc.name, t)
+
+	if tmpl == nil {
+		jww.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
+		return ""
+	}
+
+	if len(sc.inner) > 0 {
+		var inner string
+		for _, innerData := range sc.inner {
+			switch innerData.(type) {
+			case string:
+				inner += innerData.(string)
+			case shortcode:
+				// nested shortcodes will be rendered individually, replace them with temporary numbered tokens
+				cnt++
+				placeHolder := createShortcodePlaceholder(cnt)
+				renderedContent := renderShortcode(innerData.(shortcode), tokenizedShortcodes, cnt, p, t)
+				tokenizedShortcodes[placeHolder] = renderedContent
+				inner += placeHolder
+			default:
+				jww.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
+					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
+				return ""
+			}
+		}
+
+		if sc.doMarkup {
+			data.Inner = template.HTML(helpers.RenderBytes([]byte(inner), p.guessMarkupType(), p.UniqueId()))
+		} else {
+			data.Inner = template.HTML(inner)
+		}
+
+	}
+
+	return ShortcodeRender(tmpl, data)
+}
+
+func extractAndRenderShortcodes(stringToParse string, p *Page, t Template) (string, map[string]string) {
+
+	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
+	renderedShortcodes := make(map[string]string)
+
+	if err != nil {
+		//  try to render what we have whilst logging the error
+		jww.ERROR.Println(err.Error())
+	}
+
+	for key, sc := range shortcodes {
+		if sc.err != nil {
+			// need to have something to replace with
+			renderedShortcodes[key] = ""
+		} else {
+			renderedShortcodes[key] = renderShortcodes(sc, p, t)
+		}
+	}
+
+	return content, renderedShortcodes
+
+}
+
+// pageTokens state:
+// - before: positioned just before the shortcode start
+// - after: shortcode(s) consumed (plural when they are nested)
+func extractShortcode(pt *pageTokens, p *Page, t Template) (shortcode, error) {
+	sc := shortcode{}
+	var isInner = false
+
+	var currItem item
+	var cnt = 0
+
+Loop:
+	for {
+		currItem = pt.next()
+
+		switch currItem.typ {
+		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
+			next := pt.peek()
+			if next.typ == tScClose {
+				continue
+			}
+
+			if cnt > 0 {
+				// nested shortcode; append it to inner content
+				pt.backup3(currItem, next)
+				nested, err := extractShortcode(pt, p, t)
+				if err == nil {
+					sc.inner = append(sc.inner, nested)
+				} else {
+					return sc, err
+				}
+
+			} else {
+				sc.doMarkup = currItem.typ == tLeftDelimScWithMarkup
+			}
+
+			cnt++
+
+		case tRightDelimScWithMarkup, tRightDelimScNoMarkup:
+			// we trust the template on this:
+			// if there's no inner, we're done
+			if !isInner {
+				return sc, nil
+			}
+
+		case tScClose:
+			if !isInner {
+				next := pt.peek()
+				if next.typ == tError {
+					// return that error, more specific
+					continue
+				}
+				return sc, fmt.Errorf("Shortcode '%s' has no .Inner, yet a closing tag was provided", next.val)
+			}
+			pt.consume(2)
+			return sc, nil
+		case tText:
+			sc.inner = append(sc.inner, currItem.val)
+		case tScName:
+			sc.name = currItem.val
+			tmpl := GetTemplate(sc.name, t)
+
 			if tmpl == nil {
-				return stringToParse
+				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 			}
-			params := Tokenize(par)
-			// Always look for closing tag.
-			endStart, endEnd := FindEnd(stringToParse[leadEnd:], name)
-			var data = &ShortcodeWithPage{Params: params, Page: p}
-			if endStart > 0 {
-				s := stringToParse[leadEnd+3 : leadEnd+endStart]
-				data.Inner = template.HTML(helpers.RenderBytes([]byte(CleanP(ShortcodesHandle(s, p, t))), p.guessMarkupType(), p.UniqueId()))
-				remainder := CleanP(stringToParse[leadEnd+endEnd:])
+			isInner = isInnerShortcode(tmpl)
 
-				return CleanP(stringToParse[:leadStart]) +
-					ShortcodeRender(tmpl, data) +
-					CleanP(ShortcodesHandle(remainder, p, t))
+		case tScParam:
+			if !pt.isValueNext() {
+				continue
+			} else if pt.peek().typ == tScParamVal {
+				// named params
+				if sc.params == nil {
+					params := make(map[string]string)
+					params[currItem.val] = pt.next().val
+					sc.params = params
+				} else {
+					params := sc.params.(map[string]string)
+					params[currItem.val] = pt.next().val
+				}
+			} else {
+				// positional params
+				if sc.params == nil {
+					var params []string
+					params = append(params, currItem.val)
+					sc.params = params
+				} else {
+					params := sc.params.([]string)
+					params = append(params, currItem.val)
+					sc.params = params
+				}
 			}
-			return CleanP(stringToParse[:leadStart]) +
-				ShortcodeRender(tmpl, data) +
-				CleanP(ShortcodesHandle(stringToParse[leadEnd+3:], p,
-					t))
+
+		case tError, tEOF:
+			// handled by caller
+			pt.backup()
+			break Loop
+
 		}
 	}
-	return stringToParse
+	return sc, nil
 }
 
-// Clean up odd behavior when closing tag is on first line
-// or opening tag is on the last line due to extra line in markdown file
-func CleanP(str string) string {
-	if strings.HasSuffix(strings.TrimSpace(str), "<p>") {
-		idx := strings.LastIndex(str, "<p>")
-		str = str[:idx]
+func extractShortcodes(stringToParse string, p *Page, t Template) (string, map[string]shortcode, error) {
+
+	shortCodes := make(map[string]shortcode)
+
+	startIdx := strings.Index(stringToParse, "{{")
+
+	// short cut for docs with no shortcodes
+	if startIdx < 0 {
+		return stringToParse, shortCodes, nil
 	}
 
-	if strings.HasPrefix(strings.TrimSpace(str), "</p>") {
-		str = str[strings.Index(str, "</p>")+5:]
-	}
+	// the parser takes a string;
+	// since this is an internal API, it could make sense to use the mutable []byte all the way, but
+	// it seems that the time isn't really spent in the byte copy operations, and the impl. gets a lot cleaner
+	pt := &pageTokens{lexer: newShortcodeLexer("parse-page", stringToParse, pos(startIdx))}
 
-	return str
-}
+	id := 1 // incremented id, will be appended onto temp. shortcode placeholders
+	var result bytes.Buffer
 
-func FindEnd(str string, name string) (int, int) {
-	var endPos int
-	var startPos int
-	var try []string
+	// the parser is guaranteed to return items in proper order or fail, so …
+	// … it's safe to keep some "global" state
+	var currItem item
+	var currShortcode shortcode
+	var err error
 
-	try = append(try, "{{% /"+name+" %}}")
-	try = append(try, "{{% /"+name+"%}}")
-	try = append(try, "{{%/"+name+"%}}")
-	try = append(try, "{{%/"+name+" %}}")
+Loop:
+	for {
+		currItem = pt.next()
 
-	lowest := len(str)
-	for _, x := range try {
-		start := strings.Index(str, x)
-		if start < lowest && start > 0 {
-			startPos = start
-			endPos = startPos + len(x)
+		switch currItem.typ {
+		case tText:
+			result.WriteString(currItem.val)
+		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
+			// let extractShortcode handle left delim (will do so recursively)
+			pt.backup()
+			if currShortcode, err = extractShortcode(pt, p, t); err != nil {
+				return result.String(), shortCodes, err
+			}
+
+			if currShortcode.params == nil {
+				currShortcode.params = make([]string, 0)
+			}
+
+			// wrap it in a block level element to let it be left alone by the markup engine
+			placeHolder := createShortcodePlaceholder(id)
+			result.WriteString(placeHolder)
+			shortCodes[placeHolder] = currShortcode
+			id++
+		case tEOF:
+			break Loop
+		case tError:
+			err := fmt.Errorf("%s:%d: %s",
+				p.BaseFileName(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
+			currShortcode.err = err
+			return result.String(), shortCodes, err
 		}
 	}
 
-	return startPos, endPos
+	return result.String(), shortCodes, nil
+
+}
+
+// Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
+// This assumes that all tokens exist in the input string and that they are in order.
+// numReplacements = -1 will do len(replacements), and it will always start from the beginning (1)
+// wrappendInDiv = true means that the token is wrapped in a <div></div>
+func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, wrappedInDiv bool, replacements map[string]string) ([]byte, error) {
+
+	if numReplacements < 0 {
+		numReplacements = len(replacements)
+	}
+
+	if numReplacements == 0 {
+		return source, nil
+	}
+
+	newLen := len(source)
+
+	for i := 1; i <= numReplacements; i++ {
+		key := prefix + "-" + strconv.Itoa(i)
+
+		if wrappedInDiv {
+			key = "<div>" + key + "</div>"
+		}
+		val := []byte(replacements[key])
+
+		newLen += (len(val) - len(key))
+	}
+
+	buff := make([]byte, newLen)
+
+	width := 0
+	start := 0
+
+	for i := 0; i < numReplacements; i++ {
+		tokenNum := i + 1
+		oldVal := prefix + "-" + strconv.Itoa(tokenNum)
+		if wrappedInDiv {
+			oldVal = "<div>" + oldVal + "</div>"
+		}
+		newVal := []byte(replacements[oldVal])
+		j := start
+
+		k := bytes.Index(source[start:], []byte(oldVal))
+		if k < 0 {
+			// this should never happen, but let the caller decide to panic or not
+			return nil, fmt.Errorf("illegal state in content; shortcode token #%d is missing or out of order", tokenNum)
+		}
+		j += k
+
+		width += copy(buff[width:], source[start:j])
+		width += copy(buff[width:], newVal)
+		start = j + len(oldVal)
+	}
+	width += copy(buff[width:], source[start:])
+	return buff[0:width], nil
 }
 
 func GetTemplate(name string, t Template) *template.Template {
@@ -155,143 +438,6 @@ func GetTemplate(name string, t Template) *template.Template {
 		return x
 	}
 	return t.Lookup("_internal/shortcodes/" + name + ".html")
-}
-
-func StripShortcodes(stringToParse string) string {
-	posStart := strings.Index(stringToParse, "{{%")
-	if posStart > 0 {
-		posEnd := strings.Index(stringToParse[posStart:], "%}}") + posStart
-		if posEnd > posStart {
-			newString := stringToParse[:posStart] + StripShortcodes(stringToParse[posEnd+3:])
-			return newString
-		}
-	}
-	return stringToParse
-}
-
-func CleanupSpacesAroundEquals(rawfirst []string) []string {
-	var first = make([]string, 0)
-
-	for i := 0; i < len(rawfirst); i++ {
-		v := rawfirst[i]
-		index := strings.Index(v, "=")
-
-		if index == len(v)-1 {
-			// Trailing '='
-			if len(rawfirst) > i {
-				if v == "=" {
-					first[len(first)-1] = first[len(first)-1] + v + rawfirst[i+1] // concat prior with this and next
-					i++                                                           // Skip next
-				} else {
-					// Trailing ' = '
-					first = append(first, v+rawfirst[i+1]) // append this token and the next
-					i++                                    // Skip next
-				}
-			} else {
-				break
-			}
-		} else if index == 0 {
-			// Leading '='
-			first[len(first)-1] = first[len(first)-1] + v // concat this token to the prior one
-			continue
-		} else {
-			first = append(first, v)
-		}
-	}
-
-	return first
-}
-
-func Tokenize(in string) interface{} {
-	var final = make([]string, 0)
-
-	// if there isn't a space or an equal sign, no need to parse
-	if strings.Index(in, " ") < 0 && strings.Index(in, "=") < 0 {
-		return append(final, in)
-	}
-
-	var keys = make([]string, 0)
-	inQuote := false
-	start := 0
-
-	first := CleanupSpacesAroundEquals(strings.Fields(in))
-
-	for i, v := range first {
-		index := strings.Index(v, "=")
-		if !inQuote {
-			if index > 1 {
-				keys = append(keys, v[:index])
-				v = v[index+1:]
-			}
-		}
-
-		// Adjusted to handle htmlencoded and non htmlencoded input
-		if !strings.HasPrefix(v, "&ldquo;") && !strings.HasPrefix(v, "\"") && !inQuote {
-			final = append(final, v)
-		} else if inQuote && (strings.HasSuffix(v, "&rdquo;") ||
-			strings.HasSuffix(v, "\"")) && !strings.HasSuffix(v, "\\\"") {
-			if strings.HasSuffix(v, "\"") {
-				first[i] = v[:len(v)-1]
-			} else {
-				first[i] = v[:len(v)-7]
-			}
-			final = append(final, strings.Join(first[start:i+1], " "))
-			inQuote = false
-		} else if (strings.HasPrefix(v, "&ldquo;") ||
-			strings.HasPrefix(v, "\"")) && !inQuote {
-			if strings.HasSuffix(v, "&rdquo;") || strings.HasSuffix(v,
-				"\"") {
-				if strings.HasSuffix(v, "\"") {
-					if len(v) > 1 {
-						final = append(final, v[1:len(v)-1])
-					} else {
-						final = append(final, "")
-					}
-				} else {
-					final = append(final, v[7:len(v)-7])
-				}
-			} else {
-				start = i
-				if strings.HasPrefix(v, "\"") {
-					first[i] = v[1:]
-				} else {
-					first[i] = v[7:]
-				}
-				inQuote = true
-			}
-		}
-
-		// No closing "... just make remainder the final token
-		if inQuote && i == len(first) {
-			final = append(final, first[start:]...)
-		}
-	}
-
-	if len(keys) > 0 && (len(keys) != len(final)) {
-		// This will happen if the quotes aren't balanced
-		return final
-	}
-
-	if len(keys) > 0 {
-		var m = make(map[string]string)
-		for i, k := range keys {
-			m[k] = final[i]
-		}
-
-		return m
-	}
-
-	return final
-}
-
-func SplitParams(in string) (name string, par2 string) {
-	newIn := strings.TrimSpace(in)
-	i := strings.IndexFunc(newIn, unicode.IsSpace)
-	if i < 1 {
-		return strings.TrimSpace(in), ""
-	}
-
-	return strings.TrimSpace(newIn[:i+1]), strings.TrimSpace(newIn[i+1:])
 }
 
 func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {

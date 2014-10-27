@@ -17,6 +17,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/parser"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 	"html/template"
 	"io"
 	"net/url"
@@ -25,12 +29,8 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 type Page struct {
@@ -47,14 +47,15 @@ type Page struct {
 	Tmpl            Template
 	Markup          string
 
-	extension   string
-	contentType string
-	renderable  bool
-	layout      string
-	linkTitle   string
-	frontmatter []byte
-	rawContent  []byte
-	plain       string // TODO should be []byte
+	extension         string
+	contentType       string
+	renderable        bool
+	layout            string
+	linkTitle         string
+	frontmatter       []byte
+	rawContent        []byte
+	contentShortCodes map[string]string
+	plain             string // TODO should be []byte
 	PageMeta
 	Source
 	Position
@@ -83,7 +84,7 @@ type Pages []*Page
 
 func (p *Page) Plain() string {
 	if len(p.plain) == 0 {
-		p.plain = helpers.StripHTML(StripShortcodes(string(p.renderBytes(p.rawContent))))
+		p.plain = helpers.StripHTML(string(p.Content))
 	}
 	return p.plain
 }
@@ -100,13 +101,33 @@ func (p *Page) UniqueId() string {
 	return p.Source.UniqueId()
 }
 
+// for logging
+func (p *Page) lineNumRawContentStart() int {
+	return bytes.Count(p.frontmatter, []byte("\n")) + 1
+}
+
 func (p *Page) setSummary() {
+
+	// at this point, p.rawContent contains placeholders for the short codes,
+	// rendered and ready in p.contentShortcodes
+
 	if bytes.Contains(p.rawContent, helpers.SummaryDivider) {
 		// If user defines split:
-		// Split then render
+		// Split, replace shortcode tokens, then render
 		p.Truncated = true // by definition
 		header := bytes.Split(p.rawContent, helpers.SummaryDivider)[0]
-		p.Summary = helpers.BytesToHTML(p.renderBytes(header))
+		renderedHeader := p.renderBytes(header)
+		numShortcodesInHeader := bytes.Count(header, []byte(shortcodePlaceholderPrefix))
+		if len(p.contentShortCodes) > 0 {
+			tmpContentWithTokensReplaced, err :=
+				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, numShortcodesInHeader, true, p.contentShortCodes)
+			if err != nil {
+				jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
+			} else {
+				renderedHeader = tmpContentWithTokensReplaced
+			}
+		}
+		p.Summary = helpers.BytesToHTML(renderedHeader)
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
@@ -216,9 +237,6 @@ func (p *Page) ReadFrom(buf io.Reader) (err error) {
 		jww.ERROR.Print(err)
 		return
 	}
-
-	//analyze for raw stats
-	p.analyzePage()
 
 	return nil
 }
@@ -550,7 +568,6 @@ func (page *Page) parse(reader io.Reader) error {
 	}
 
 	page.rawContent = psr.Content()
-	page.setSummary()
 
 	return nil
 }
@@ -613,15 +630,32 @@ func (page *Page) SaveSource() error {
 }
 
 func (p *Page) ProcessShortcodes(t Template) {
-	p.rawContent = []byte(ShortcodesHandle(string(p.rawContent), p, t))
-	p.Summary = template.HTML(ShortcodesHandle(string(p.Summary), p, t))
+
+	// these short codes aren't used until after Page render,
+	// but processed here to avoid coupling
+	tmpContent, tmpContentShortCodes := extractAndRenderShortcodes(string(p.rawContent), p, t)
+	p.rawContent = []byte(tmpContent)
+	p.contentShortCodes = tmpContentShortCodes
+
 }
 
 func (page *Page) Convert() error {
 	markupType := page.guessMarkupType()
 	switch markupType {
 	case "markdown", "rst":
+
 		tmpContent, tmpTableOfContents := helpers.ExtractTOC(page.renderContent(helpers.RemoveSummaryDivider(page.rawContent)))
+
+		if len(page.contentShortCodes) > 0 {
+			tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, -1, true, page.contentShortCodes)
+
+			if err != nil {
+				jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
+			} else {
+				tmpContent = tmpContentWithTokensReplaced
+			}
+		}
+
 		page.Content = helpers.BytesToHTML(tmpContent)
 		page.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
 	case "html":
@@ -629,6 +663,12 @@ func (page *Page) Convert() error {
 	default:
 		return fmt.Errorf("Error converting unsupported file type '%s' for page '%s'", markupType, page.Source.Path())
 	}
+
+	// now we know enough to create a summary of the page and count some words
+	page.setSummary()
+	//analyze for raw stats
+	page.analyzePage()
+
 	return nil
 }
 

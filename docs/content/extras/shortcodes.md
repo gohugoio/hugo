@@ -29,8 +29,8 @@ want a [partial template](/templates/partial) instead.
 
 ## Using a shortcode
 
-In your content files, a shortcode can be called by using '`{{% name parameters
-%}}`' respectively. Shortcodes are space delimited (parameters with spaces
+In your content files, a shortcode can be called by using '`{{%/* name parameters
+*/%}}`' respectively. Shortcodes are space delimited (parameters with spaces
 can be quoted).
 
 The first word is always the name of the shortcode. Parameters follow the name.
@@ -43,7 +43,7 @@ shortcodes match (name only), the closing being prepended with a slash.
 
 Example of a paired shortcode:
 
-    {{ % highlight go %}} A bunch of code here {{ % /highlight %}}
+    {{%/* highlight go */%}} A bunch of code here {{%/* /highlight */%}}
 
 
 ## Hugo Shortcodes
@@ -60,9 +60,8 @@ HTML. Read more on [highlighting](/extras/highlighting).
 closing shortcode.
 
 #### Example
-The example has an extra space between the “`{{`” and “`%`” characters to prevent rendering here.
 
-    {{ % highlight html %}}
+    {{%/* highlight html */%}}
     <section id="main">
       <div>
        <h1 id="title">{{ .Title }}</h1>
@@ -71,7 +70,7 @@ The example has an extra space between the “`{{`” and “`%`” characters t
         {{ end }}
       </div>
     </section>
-    {{ % /highlight %}}
+    {{%/* /highlight */%}}
 
 
 #### Example Output
@@ -104,7 +103,7 @@ The example has an extra space between the “`{{`” and “`%`” characters t
 #### Example
 *Example has an extra space so Hugo doesn’t actually render it*.
 
-    {{ % figure src="/media/spf13.jpg" title="Steve Francia" %}}
+    {{%/* figure src="/media/spf13.jpg" title="Steve Francia" */%}}
 
 #### Example output
 
@@ -157,7 +156,7 @@ You can also use the variable `.Page` to access all the normal [Page Variables](
 
 ## Single Positional Example: youtube
 
-    {{% youtube 09jf3ow9jfw %}}
+    {{%/* youtube 09jf3ow9jfw */%}}
 
 Would load the template /layouts/shortcodes/youtube.html
 
@@ -179,7 +178,7 @@ This would be rendered as:
 ## Single Named Example: image with caption
 *Example has an extra space so Hugo doesn’t actually render it*
 
-    {{ % img src="/media/spf13.jpg" title="Steve Francia" %}}
+    {{%/* img src="/media/spf13.jpg" title="Steve Francia" */%}}
 
 Would load the template /layouts/shortcodes/img.html
 
@@ -216,11 +215,11 @@ Would be rendered as:
 
 *Example has an extra space so Hugo doesn’t actually render it*.
 
-    {{ % highlight html %}}
+    {{%/* highlight html */%}}
     <html>
         <body> This HTML </body>
     </html>
-    {{ % /highlight %}}
+    {{%/* /highlight */%}}
 
 The template for this utilizes the following code (already include in Hugo)
 

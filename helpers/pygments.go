@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,11 +23,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Highlight(code string, lexer string) string {
-	var pygmentsBin = "pygmentize"
+const pygmentsBin = "pygmentize"
 
+func HasPygments() bool {
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
+		return false
+	}
+	return true
+}
 
+func Highlight(code string, lexer string) string {
+
+	if !HasPygments() {
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
 	}
