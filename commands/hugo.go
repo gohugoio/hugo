@@ -43,8 +43,8 @@ import (
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
-	Long: `hugo is the main command, used to build your Hugo site. 
-	
+	Long: `hugo is the main command, used to build your Hugo site.
+
 Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io`,
@@ -158,6 +158,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
+	viper.SetDefault("Title404", "404 Page not found")
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
@@ -192,7 +193,7 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("disableSitemap").Changed {
 		viper.Set("DisableSitemap", DisableSitemap)
 	}
-	
+
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
 	}
