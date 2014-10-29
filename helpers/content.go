@@ -69,15 +69,15 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-func GetHtmlRenderer(defaultFlags int, footnoteref string) blackfriday.Renderer {
+func GetHtmlRenderer(defaultFlags int, documentId string) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	if len(footnoteref) != 0 {
-		renderParameters.FootnoteAnchorPrefix = footnoteref + ":" +
-			renderParameters.FootnoteAnchorPrefix
+	if len(documentId) != 0 {
+		renderParameters.FootnoteAnchorPrefix = documentId + ":" + renderParameters.FootnoteAnchorPrefix
+		renderParameters.HeaderIDSuffix = ":" + documentId
 	}
 
 	htmlFlags := defaultFlags
@@ -95,17 +95,17 @@ func GetMarkdownExtensions() int {
 		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
 		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
 		blackfriday.EXTENSION_SPACE_HEADERS | blackfriday.EXTENSION_FOOTNOTES |
-		blackfriday.EXTENSION_HEADER_IDS
+		blackfriday.EXTENSION_HEADER_IDS | blackfriday.EXTENSION_AUTO_HEADER_IDS
 }
 
-func MarkdownRender(content []byte, footnoteref string) []byte {
-	return blackfriday.Markdown(content, GetHtmlRenderer(0, footnoteref),
+func MarkdownRender(content []byte, documentId string) []byte {
+	return blackfriday.Markdown(content, GetHtmlRenderer(0, documentId),
 		GetMarkdownExtensions())
 }
 
-func MarkdownRenderWithTOC(content []byte, footnoteref string) []byte {
+func MarkdownRenderWithTOC(content []byte, documentId string) []byte {
 	return blackfriday.Markdown(content,
-		GetHtmlRenderer(blackfriday.HTML_TOC, footnoteref),
+		GetHtmlRenderer(blackfriday.HTML_TOC, documentId),
 		GetMarkdownExtensions())
 }
 
@@ -132,7 +132,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 		return StripEmptyNav(content), toc
 	}
 	// Need to peek ahead to see if this nav element is actually the right one.
-	correctNav := bytes.Index(content[startOfTOC:peekEnd], []byte(`#toc_0`))
+	correctNav := bytes.Index(content[startOfTOC:peekEnd], []byte(`<li><a href="#`))
 	if correctNav < 0 { // no match found
 		return content, toc
 	}
@@ -144,23 +144,23 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	return
 }
 
-func RenderBytesWithTOC(content []byte, pagefmt string, footnoteref string) []byte {
+func RenderBytesWithTOC(content []byte, pagefmt string, documentId string) []byte {
 	switch pagefmt {
 	default:
-		return MarkdownRenderWithTOC(content, footnoteref)
+		return MarkdownRenderWithTOC(content, documentId)
 	case "markdown":
-		return MarkdownRenderWithTOC(content, footnoteref)
+		return MarkdownRenderWithTOC(content, documentId)
 	case "rst":
 		return []byte(GetRstContent(content))
 	}
 }
 
-func RenderBytes(content []byte, pagefmt string, footnoteref string) []byte {
+func RenderBytes(content []byte, pagefmt string, documentId string) []byte {
 	switch pagefmt {
 	default:
-		return MarkdownRender(content, footnoteref)
+		return MarkdownRender(content, documentId)
 	case "markdown":
-		return MarkdownRender(content, footnoteref)
+		return MarkdownRender(content, documentId)
 	case "rst":
 		return []byte(GetRstContent(content))
 	}
