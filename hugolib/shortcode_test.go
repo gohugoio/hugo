@@ -72,13 +72,13 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 func TestEmbeddedSC(t *testing.T) {
 	tem := NewTemplate()
 	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", tem)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\"  />\n    \n    \n</figure>\n", tem)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", tem)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", tem)
 }
 
 func TestFigureImgWidth(t *testing.T) {
 	tem := NewTemplate()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
 }
 
 func TestUnbalancedQuotes(t *testing.T) {
