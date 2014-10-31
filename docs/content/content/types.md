@@ -71,6 +71,6 @@ that a template exists in each layout/type directory with the same name.
 
 ### Create a corresponding archetype
 
-Create a file called `type`.md in the /archetypes directory *Eg /archetypes/post.md*.
+Create a file called `type`.md in the /archetypes directory *Eg /archetypes/posts.md*. Please take into account that you have to use the **plural form** of the type name.
 
 More details about archetypes can be found at the [archetypes docs](/content/archetypes)
