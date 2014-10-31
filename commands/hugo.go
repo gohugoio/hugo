@@ -352,10 +352,10 @@ func NewWatcher(port int) error {
 				}
 
 				if static_changed {
-					fmt.Print("Static file changed, syncing\n\n")
+					jww.FEEDBACK.Println("Static file changed, syncing\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
-					if !viper.GetBool("DisableLiveReload") {
+					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 
 						// force refresh when more than one file
@@ -376,7 +376,7 @@ func NewWatcher(port int) error {
 					fmt.Println(time.Now().Format(layout))
 					utils.StopOnErr(buildSite(true))
 
-					if !viper.GetBool("DisableLiveReload") {
+					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 						livereload.ForceRefresh()
 					}
