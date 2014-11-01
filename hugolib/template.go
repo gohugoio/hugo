@@ -563,10 +563,16 @@ func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
 	worked := false
 	for _, layout := range layouts {
-		if localTemplates.Lookup(layout) != nil {
-			err := localTemplates.ExecuteTemplate(buffer, layout, context)
+		name := layout
+
+		if localTemplates.Lookup(name) == nil {
+			name = layout + ".html"
+		}
+
+		if localTemplates.Lookup(name) != nil {
+			err := localTemplates.ExecuteTemplate(buffer, name, context)
 			if err != nil {
-				jww.ERROR.Println(err, "in", layout)
+				jww.ERROR.Println(err, "in", name)
 			}
 			worked = true
 			break
