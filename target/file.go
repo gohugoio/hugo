@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 )
 
 type Publisher interface {
@@ -34,7 +35,7 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 		return
 	}
 
-	return helpers.WriteToDisk(translated, r)
+	return helpers.WriteToDisk(translated, r, hugofs.DestinationFS)
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {

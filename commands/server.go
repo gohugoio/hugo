@@ -24,8 +24,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
@@ -111,7 +113,8 @@ func serve(port int) {
 	jww.FEEDBACK.Printf("Web Server is available at %s\n", viper.GetString("BaseUrl"))
 	fmt.Println("Press ctrl+c to stop")
 
-	fileserver := http.FileServer(http.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
+	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
+	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
 
 	u, err := url.Parse(viper.GetString("BaseUrl"))
 	if err != nil {

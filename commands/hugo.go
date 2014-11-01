@@ -23,9 +23,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mostafah/fsync"
 	"github.com/spf13/cobra"
+	"github.com/spf13/fsync"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/livereload"
 	"github.com/spf13/hugo/utils"
@@ -223,6 +224,10 @@ func copyStatic() error {
 
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
 
+	syncer := fsync.NewSyncer()
+	syncer.SrcFs = hugofs.SourceFs
+	syncer.DestFs = hugofs.DestinationFS
+
 	if themeSet() {
 		themeDir := helpers.AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
@@ -232,12 +237,12 @@ func copyStatic() error {
 
 		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
-		utils.CheckErr(fsync.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
+		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
 	}
 
 	// Copy Static to Destination
 	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-	return fsync.Sync(publishDir, staticDir)
+	return syncer.Sync(publishDir, staticDir)
 }
 
 func getDirList() []string {

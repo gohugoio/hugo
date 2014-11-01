@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 )
 
 const ALIAS = "<!DOCTYPE html><html><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
@@ -68,5 +69,5 @@ func (h *HTMLRedirectAlias) Publish(path string, permalink template.HTML) (err e
 		return
 	}
 
-	return helpers.WriteToDisk(path, buffer)
+	return helpers.WriteToDisk(path, buffer, hugofs.DestinationFS)
 }

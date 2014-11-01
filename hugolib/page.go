@@ -26,6 +26,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
 	jww "github.com/spf13/jwalterweatherman"
@@ -597,9 +598,9 @@ func (page *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 	jww.INFO.Println("creating", inpath)
 
 	if safe {
-		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by))
+		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), hugofs.SourceFs)
 	} else {
-		err = helpers.WriteToDisk(inpath, bytes.NewReader(by))
+		err = helpers.WriteToDisk(inpath, bytes.NewReader(by), hugofs.SourceFs)
 	}
 	if err != nil {
 		return

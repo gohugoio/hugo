@@ -24,6 +24,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 
@@ -71,8 +72,8 @@ func ReplaceExtension(path string, newExt string) string {
 }
 
 // Check if Exists && is Directory
-func DirExists(path string) (bool, error) {
-	fi, err := os.Stat(path)
+func DirExists(path string, fs afero.Fs) (bool, error) {
+	fi, err := fs.Stat(path)
 	if err == nil && fi.IsDir() {
 		return true, nil
 	}
@@ -82,24 +83,24 @@ func DirExists(path string) (bool, error) {
 	return false, err
 }
 
-func IsDir(path string) (bool, error) {
-	fi, err := os.Stat(path)
+func IsDir(path string, fs afero.Fs) (bool, error) {
+	fi, err := fs.Stat(path)
 	if err != nil {
 		return false, err
 	}
 	return fi.IsDir(), nil
 }
 
-func IsEmpty(path string) (bool, error) {
-	if b, _ := Exists(path); !b {
+func IsEmpty(path string, fs afero.Fs) (bool, error) {
+	if b, _ := Exists(path, fs); !b {
 		return false, fmt.Errorf("%q path does not exist", path)
 	}
-	fi, err := os.Stat(path)
+	fi, err := fs.Stat(path)
 	if err != nil {
 		return false, err
 	}
 	if fi.IsDir() {
-		f, err := os.Open(path)
+		f, err := fs.Open(path)
 		if err != nil {
 			return false, err
 		}
@@ -112,8 +113,8 @@ func IsEmpty(path string) (bool, error) {
 }
 
 // Check if File / Directory Exists
-func Exists(path string) (bool, error) {
-	_, err := os.Stat(path)
+func Exists(path string, fs afero.Fs) (bool, error) {
+	_, err := fs.Stat(path)
 	if err == nil {
 		return true, nil
 	}
@@ -267,18 +268,18 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
-func SafeWriteToDisk(inpath string, r io.Reader) (err error) {
+func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	dir, _ := filepath.Split(inpath)
 	ospath := filepath.FromSlash(dir)
 
 	if ospath != "" {
-		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
+		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
 		if err != nil {
 			return
 		}
 	}
 
-	exists, err := Exists(inpath)
+	exists, err := Exists(inpath, fs)
 	if err != nil {
 		return
 	}
@@ -286,7 +287,7 @@ func SafeWriteToDisk(inpath string, r io.Reader) (err error) {
 		return fmt.Errorf("%v already exists", inpath)
 	}
 
-	file, err := os.Create(inpath)
+	file, err := fs.Create(inpath)
 	if err != nil {
 		return
 	}
@@ -296,18 +297,20 @@ func SafeWriteToDisk(inpath string, r io.Reader) (err error) {
 	return
 }
 
-func WriteToDisk(inpath string, r io.Reader) (err error) {
+func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	dir, _ := filepath.Split(inpath)
 	ospath := filepath.FromSlash(dir)
 
 	if ospath != "" {
-		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
+		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
 		if err != nil {
-			panic(err)
+			if err != os.ErrExist {
+				panic(err)
+			}
 		}
 	}
 
-	file, err := os.Create(inpath)
+	file, err := fs.Create(inpath)
 	if err != nil {
 		return
 	}

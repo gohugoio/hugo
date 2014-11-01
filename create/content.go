@@ -23,6 +23,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
@@ -131,7 +132,7 @@ func FindArchetype(kind string) (outpath string) {
 		for _, p := range pathsToCheck {
 			curpath := path.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
-			if exists, _ := helpers.Exists(curpath); exists {
+			if exists, _ := helpers.Exists(curpath, hugofs.SourceFs); exists {
 				jww.INFO.Println("curpath: " + curpath)
 				return curpath
 			}

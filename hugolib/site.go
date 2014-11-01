@@ -28,6 +28,7 @@ import (
 	"bitbucket.org/pkg/inflect"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/transform"
@@ -312,7 +313,7 @@ func (s *Site) absPublishDir() string {
 }
 
 func (s *Site) checkDirectories() (err error) {
-	if b, _ := helpers.DirExists(s.absContentDir()); !b {
+	if b, _ := helpers.DirExists(s.absContentDir(), hugofs.SourceFs); !b {
 		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
 	}
 	return
