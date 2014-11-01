@@ -85,7 +85,7 @@ type SiteInfo struct {
 	Recent          *Pages // legacy, should be identical to Pages
 	Menus           *Menus
 	Title           string
-	Author          map[string]string
+	Author          map[string]interface{}
 	LanguageCode    string
 	DisqusShortname string
 	Copyright       string
@@ -276,7 +276,7 @@ func (s *Site) initializeSiteInfo() {
 	s.Info = SiteInfo{
 		BaseUrl:         template.URL(helpers.SanitizeUrl(viper.GetString("BaseUrl"))),
 		Title:           viper.GetString("Title"),
-		Author:          viper.GetStringMapString("author"),
+		Author:          viper.GetStringMap("author"),
 		LanguageCode:    viper.GetString("languagecode"),
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
