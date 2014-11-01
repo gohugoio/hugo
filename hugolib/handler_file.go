@@ -13,11 +13,23 @@
 
 package hugolib
 
-import "github.com/spf13/hugo/source"
+import (
+	"fmt"
+	_ "github.com/dchest/cssmin"
+	"github.com/spf13/hugo/source"
+)
 
-var Filer interface {
-	Read(*source.File)
-	Render()
-	Convert()
-	Extensions() []string
+func init() {
+	RegisterHandler(css)
+}
+
+var css = Handle{
+	extensions: []string{"css"},
+	read: func(f *source.File, s *Site, results HandleResults) {
+		results <- HandledResult{file: f}
+	},
+	fileConvert: func(f *source.File, s *Site, results HandleResults) {
+
+		fmt.Println(f.Path())
+	},
 }

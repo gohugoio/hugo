@@ -15,11 +15,8 @@ package hugolib
 
 import "github.com/spf13/hugo/source"
 
-var Pager interface {
-	Read(*source.File)
-	Render()
-	Convert()
-	Extensions() []string
+func init() {
+	RegisterHandler(markdown)
 }
 
 var markdown = Handle{
@@ -48,8 +45,4 @@ var markdown = Handle{
 
 		results <- HandledResult{err: err}
 	},
-}
-
-func init() {
-	RegisterHandler(markdown)
 }

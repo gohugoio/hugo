@@ -16,9 +16,14 @@ package hugolib
 import "github.com/spf13/hugo/source"
 
 type Handler interface {
+	// Read the Files in and register
 	Read(*source.File, *Site, HandleResults)
-	//Render()
+
+	// Convert Pages to prepare for templatizing
+	// Convert Files to their final destination
 	Convert(interface{}, *Site, HandleResults)
+
+	// Extensions to register the handle for
 	Extensions() []string
 }
 
