@@ -196,6 +196,33 @@ To build all draft posts *(If you only have drafts, no site will be generated)*
 
 Now I can replace the last four items from our workflow list with a single command `bash deploy.sh`. This script accepts as an optional argument the commit message that git should use when committing your changes. If you wish to include a custom commit message, do so by putting it quotes after calling bash on the script: `bash deploy.sh "<my commit msg>"`. If you choose not to specify the commit message, one will be generated for you using the current time.
 
+## Configure `git` Workflow, the Alternate Way
+The above uses a `git subtree` to deploy to Gits `gh-pages` branch. This works great, but with one drawback: It requires the generated content to be committed to the source branch.
+
+There's another approach:
+
+1. Set up your Hugo-site on `master`
+2. Create an orphaned `gh-pages` branch. (See [here](https://help.github.com/articles/creating-project-pages-manually/) for more information.)
+3. Follow the instructions below.
+
+So, assuming you have your `gh-pages` set up, and `master` has a commit with some content you want to publish: 
+
+```
+# Fetch the deployment script into the root of your source tree, make it executable.
+wget https://github.com/X1011/git-directory-deploy/raw/master/deploy.sh && chmod +x deploy.sh
+
+# For setting it up to build to a folder other than "dist", see the options in deploy.sh.
+# Build the site to /dist.
+hugo -d dist
+
+# Run the deploy.sh script installed above.
+./deploy.sh
+```
+
+This will use the last commit as a base for the commit message to the `gh-pages` branch.
+
+For more information about the deployment script, see this [README](https://github.com/X1011/git-directory-deploy).
+
 ## Conclusion
 
 Hopefully this tutorial helped you get your website off its feet and out into the open! If you have any further questions feel free to contact the community through the [mailing lists](/community/mailing-list).
