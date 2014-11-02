@@ -843,6 +843,8 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 		n.Date = t.pages[0].Page.Date
 	}
 	n.Data[t.singular] = t.pages
+	n.Data["Singular"] = t.singular
+	n.Data["Plural"] = t.plural
 	n.Data["Pages"] = t.pages.Pages()
 	return n, base
 }
