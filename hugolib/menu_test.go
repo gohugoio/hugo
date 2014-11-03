@@ -1,12 +1,13 @@
 package hugolib
 
 import (
+	"strings"
+	"testing"
+
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
-	"strings"
-	"testing"
 )
 
 const (
@@ -63,7 +64,7 @@ weight = 2
 	[menu.p_one]
 	[menu.p_two]
 		Identity = "Two"
-	
+
 +++
 Front Matter with Menu Pages`)
 
@@ -78,9 +79,9 @@ weight = 3
 Front Matter with Menu Pages`)
 
 var MENU_PAGE_SOURCES = []source.ByteSource{
-	{"sect/doc1.md", MENU_PAGE_1, "sect"},
-	{"sect/doc2.md", MENU_PAGE_2, "sect"},
-	{"sect/doc3.md", MENU_PAGE_3, "sect"},
+	{"sect/doc1.md", MENU_PAGE_1},
+	{"sect/doc2.md", MENU_PAGE_2},
+	{"sect/doc3.md", MENU_PAGE_3},
 }
 
 type testMenuState struct {
