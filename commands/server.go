@@ -15,6 +15,7 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -118,9 +119,9 @@ func serve(port int) {
 		jww.ERROR.Fatalf("Invalid BaseUrl: %s", err)
 	}
 	if u.Path == "" || u.Path == "/" {
-		http.Handle("/", fileserver)
+		http.Handle("/", WritePathToFile(fileserver))
 	} else {
-		http.Handle(u.Path+"/", http.StripPrefix(u.Path+"/", fileserver))
+		http.Handle(u.Path+"/", http.StripPrefix(u.Path+"/", WritePathToFile(fileserver)))
 	}
 
 	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
@@ -128,6 +129,18 @@ func serve(port int) {
 		jww.ERROR.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
+}
+
+func WritePathToFile(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// try to filter out static files
+		urlStr := r.URL.String()
+		if strings.HasSuffix(urlStr, "/") {
+			jww.FEEDBACK.Printf("%s\n", urlStr)
+			ioutil.WriteFile("/tmp/hugopath.txt", []byte(urlStr[:len(urlStr)-1]), 0777)
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
 
 func fixUrl(s string) (string, error) {
