@@ -57,6 +57,7 @@ func NewContent(kind, name string) (err error) {
 	}
 	newmetadata, err := cast.ToStringMapE(metadata)
 	if err != nil {
+		jww.ERROR.Println("Error processing archetype file:", location)
 		return err
 	}
 
