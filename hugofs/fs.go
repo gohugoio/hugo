@@ -15,7 +15,7 @@ package hugofs
 
 import "github.com/spf13/afero"
 
-var SourceFs = new(afero.OsFs)
-var DestinationFS = new(afero.OsFs)
+var SourceFs afero.Fs = new(afero.OsFs)
+var DestinationFS afero.Fs = new(afero.OsFs)
 
-//var DestinationFS = new(afero.MemMapFs)
+//var DestinationFS afero.Fs = new(afero.MemMapFs)
