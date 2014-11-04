@@ -64,6 +64,20 @@ func ReaderToBytes(lines io.Reader) []byte {
 	return b.Bytes()
 }
 
+func ReaderToString(lines io.Reader) string {
+	b := new(bytes.Buffer)
+	b.ReadFrom(lines)
+	return b.String()
+}
+
+func StringToReader(in string) io.Reader {
+	return strings.NewReader(in)
+}
+
+func BytesToReader(in []byte) io.Reader {
+	return bytes.NewReader(in)
+}
+
 // sliceToLower goes through the source slice and lowers all values.
 func SliceToLower(s []string) []string {
 	if s == nil {
