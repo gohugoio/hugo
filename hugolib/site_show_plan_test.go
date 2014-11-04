@@ -47,13 +47,13 @@ func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
 
 	for _, x := range gotList {
 		if !stringInSlice(x, expectedList) {
-			t.Errorf("\nShowPlan expected:\n%q\ngot:\n%q", expected, got)
+			t.Errorf("%v %v %v %v", "\nShowPlan expected:\n", expected, "\ngot:\n", got)
 		}
 	}
 
 	for _, x := range expectedList {
 		if !stringInSlice(x, gotList) {
-			t.Errorf("\nShowPlan expected:\n%q\ngot:\n%q", expected, got)
+			t.Errorf("%v %v %v %v", "\nShowPlan expected:\n", expected, "\ngot:\n", got)
 		}
 	}
 }
