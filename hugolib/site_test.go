@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
@@ -150,11 +152,8 @@ func TestRenderThingOrDefault(t *testing.T) {
 		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, HTML("simple-template")},
 	}
 
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
-	s := &Site{
-		Target: target,
-	}
+	hugofs.DestinationFS = new(afero.MemMapFs)
+	s := &Site{}
 	s.prepTemplates()
 
 	for i, test := range tests {
@@ -169,18 +168,26 @@ func TestRenderThingOrDefault(t *testing.T) {
 		}
 
 		var err2 error
+		var b io.Reader
 		if test.missing {
-			err2 = s.render("name", p, "out", "missing", templateName)
+			b, err2 = s.renderPage("name", p, "missing", templateName)
 		} else {
-			err2 = s.render("name", p, "out", templateName, "missing_default")
+			b, err2 = s.renderPage("name", p, templateName, "missing_default")
 		}
 
 		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
 		}
+		if err2 := s.WriteDestPage("out", b); err2 != nil {
+			t.Errorf("Unable to write html: %s", err)
+		}
 
-		if string(files["out"]) != test.expected {
-			t.Errorf("Content does not match. Expected '%s', got '%s'", test.expected, files["out"])
+		file, err := hugofs.DestinationFS.Open("out/index.html")
+		if err != nil {
+			t.Errorf("Unable to open html: %s", err)
+		}
+		if helpers.ReaderToString(file) != test.expected {
+			t.Errorf("Content does not match. Expected '%s', got '%s'", test.expected, helpers.ReaderToString(file))
 		}
 	}
 }
@@ -220,8 +227,7 @@ func TestTargetPath(t *testing.T) {
 }
 
 func TestDraftAndFutureRender(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
 		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
@@ -231,7 +237,6 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	siteSetup := func() *Site {
 		s := &Site{
-			Target: target,
 			Source: &source.InMemorySource{ByteSource: sources},
 		}
 
@@ -280,8 +285,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 }
 
 func TestSkipRender(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
 		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>")},
@@ -297,8 +301,8 @@ func TestSkipRender(t *testing.T) {
 	viper.Set("CanonifyUrls", true)
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Target: target,
-		Source: &source.InMemorySource{ByteSource: sources},
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
 	}
 
 	s.initializeSiteInfo()
@@ -335,10 +339,11 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		content, ok := target.Files[test.doc]
-		if !ok {
-			t.Fatalf("Did not find %s in target. %v", test.doc, target.Files)
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target.", test.doc)
 		}
+		content := helpers.ReaderToBytes(file)
 
 		if !bytes.Equal(content, []byte(test.expected)) {
 			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
@@ -347,8 +352,7 @@ func TestSkipRender(t *testing.T) {
 }
 
 func TestAbsUrlify(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
 		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
@@ -357,8 +361,8 @@ func TestAbsUrlify(t *testing.T) {
 		viper.Set("CanonifyUrls", canonify)
 		viper.Set("BaseUrl", "http://auth/bub")
 		s := &Site{
-			Target: target,
-			Source: &source.InMemorySource{ByteSource: sources},
+			Source:  &source.InMemorySource{ByteSource: sources},
+			Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
 		}
 		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", viper.GetString("baseUrl"), canonify)
 		s.initializeSiteInfo()
@@ -385,10 +389,12 @@ func TestAbsUrlify(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			content, ok := target.Files[test.file]
-			if !ok {
+
+			file, err := hugofs.DestinationFS.Open(test.file)
+			if err != nil {
 				t.Fatalf("Unable to locate rendered content: %s", test.file)
 			}
+			content := helpers.ReaderToBytes(file)
 
 			expected := test.expected
 			if !canonify {
@@ -446,12 +452,10 @@ var WEIGHTED_SOURCES = []source.ByteSource{
 }
 
 func TestOrderedPages(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
@@ -518,12 +522,11 @@ func TestGroupedPages(t *testing.T) {
 			fmt.Println("Recovered in f", r)
 		}
 	}()
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+
+	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: GROUPED_SOURCES},
 	}
 	s.initializeSiteInfo()
@@ -537,6 +540,7 @@ func TestGroupedPages(t *testing.T) {
 	}
 
 	rbysection, err := s.Pages.GroupBy("Section", "desc")
+	fmt.Println(rbysection)
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -697,8 +701,7 @@ date = 2010-05-27T07:32:00Z
 Front Matter with weighted tags and categories`)
 
 func TestWeightedTaxonomies(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1},
 		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2},
@@ -712,7 +715,6 @@ func TestWeightedTaxonomies(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub")
 	viper.Set("taxonomies", taxonomies)
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: sources},
 	}
 	s.initializeSiteInfo()

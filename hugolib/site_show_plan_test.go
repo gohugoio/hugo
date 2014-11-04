@@ -76,9 +76,9 @@ func TestDegenerateNoTarget(t *testing.T) {
 func TestFileTarget(t *testing.T) {
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
-		Target: new(target.Filesystem),
-		Alias:  new(target.HTMLRedirectAlias),
 	}
+	s.AliasTarget()
+	s.PageTarget()
 	must(s.CreatePages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
@@ -90,12 +90,13 @@ func TestFileTarget(t *testing.T) {
 	checkShowPlanExpected(t, s, expected)
 }
 
-func TestFileTargetUgly(t *testing.T) {
+func TestPageTargetUgly(t *testing.T) {
 	s := &Site{
-		Target: &target.Filesystem{UglyUrls: true},
-		Source: &source.InMemorySource{ByteSource: fakeSource},
-		Alias:  new(target.HTMLRedirectAlias),
+		Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
+		Source:  &source.InMemorySource{ByteSource: fakeSource},
 	}
+	s.AliasTarget()
+
 	s.CreatePages()
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
@@ -108,9 +109,12 @@ func TestFileTargetUgly(t *testing.T) {
 
 func TestFileTargetPublishDir(t *testing.T) {
 	s := &Site{
-		Target: &target.Filesystem{PublishDir: "../public"},
+
+		Targets: targetList{
+			Page:  &target.PagePub{PublishDir: "../public"},
+			Alias: &target.HTMLRedirectAlias{PublishDir: "../public"},
+		},
 		Source: &source.InMemorySource{ByteSource: fakeSource},
-		Alias:  &target.HTMLRedirectAlias{PublishDir: "../public"},
 	}
 
 	must(s.CreatePages())

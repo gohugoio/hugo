@@ -5,8 +5,9 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 )
 
@@ -283,11 +284,9 @@ func resetMenuTestState(state *testMenuState) {
 }
 
 func createTestSite() *Site {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: MENU_PAGE_SOURCES},
 	}
 	return s

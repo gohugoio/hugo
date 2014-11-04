@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 )
 
@@ -21,13 +23,11 @@ const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap
 </urlset>`
 
 func TestSitemapOutput(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("baseurl", "http://auth/bub/")
 
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 
@@ -52,12 +52,13 @@ func TestSitemapOutput(t *testing.T) {
 		t.Fatalf("Unable to RenderSitemap: %s", err)
 	}
 
-	if _, ok := files["sitemap.xml"]; !ok {
-		t.Errorf("Unable to locate: sitemap.xml")
-		t.Logf("%q", files)
+	sitemapFile, err := hugofs.DestinationFS.Open("sitemap.xml")
+
+	if err != nil {
+		t.Fatalf("Unable to locate: sitemap.xml")
 	}
 
-	sitemap, _ := files["sitemap.xml"]
+	sitemap := helpers.ReaderToBytes(sitemapFile)
 	if !bytes.HasPrefix(sitemap, []byte("<?xml")) {
 		t.Errorf("Sitemap file should start with <?xml. %s", sitemap)
 	}
