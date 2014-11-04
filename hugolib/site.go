@@ -428,7 +428,12 @@ func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResu
 func pageConverter(s *Site, pages <-chan *Page, results HandleResults, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for page := range pages {
-		h := FindHandler(page.File.Extension())
+		var h Handler
+		if page.Markup != "" {
+			h = FindHandler(page.Markup)
+		} else {
+			h = FindHandler(page.File.Extension())
+		}
 		if h != nil {
 			h.Convert(page, s, results)
 		}
@@ -438,8 +443,6 @@ func pageConverter(s *Site, pages <-chan *Page, results HandleResults, wg *sync.
 func fileConverter(s *Site, files <-chan *source.File, results HandleResults, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		fmt.Println(file.Path())
-		//Handling short codes prior to Conversion to HTML
 		h := FindHandler(file.Extension())
 		if h != nil {
 			h.Convert(file, s, results)
