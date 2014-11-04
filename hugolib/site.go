@@ -69,13 +69,18 @@ type Site struct {
 	Shortcodes  map[string]ShortcodeFunc
 	Menus       Menus
 	timer       *nitro.B
-	Target      target.Output
-	Alias       target.AliasPublisher
+	Targets     targetList
 	Completed   chan bool
 	RunMode     runmode
 	params      map[string]interface{}
 	draftCount  int
 	futureCount int
+}
+
+type targetList struct {
+	Page  target.Output
+	File  target.Output
+	Alias target.AliasPublisher
 }
 
 type SiteInfo struct {
@@ -157,10 +162,6 @@ func (s *Site) Build() (err error) {
 
 func (s *Site) Analyze() {
 	s.Process()
-	s.initTarget()
-	s.Alias = &target.HTMLRedirectAlias{
-		PublishDir: s.absPublishDir(),
-	}
 	s.ShowPlan(os.Stdout)
 }
 
@@ -671,7 +672,7 @@ func (s *Site) RenderAliases() error {
 			if err != nil {
 				return err
 			}
-			if err := s.WriteAlias(a, template.HTML(plink)); err != nil {
+			if err := s.WriteDestAlias(a, template.HTML(plink)); err != nil {
 				return err
 			}
 		}
@@ -733,7 +734,12 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			layouts = append(layouts, "_default/single.html")
 		}
 
-		results <- s.render("page "+p.FullFilePath(), p, p.TargetPath(), s.appendThemeTemplates(layouts)...)
+		b, err := s.renderPage("page "+p.FullFilePath(), p, s.appendThemeTemplates(layouts)...)
+		if err != nil {
+			results <- err
+		} else {
+			results <- s.WriteDestPage(p.TargetPath(), b)
+		}
 	}
 }
 
@@ -843,23 +849,32 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 	for t := range taxes {
 		n, base := s.newTaxonomyNode(t)
 		layouts := []string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"}
-		err := s.render("taxononomy "+t.singular, n, base+".html", s.appendThemeTemplates(layouts)...)
+		b, err := s.renderPage("taxononomy "+t.singular, n, s.appendThemeTemplates(layouts)...)
 		if err != nil {
 			results <- err
 			continue
+		} else {
+			err := s.WriteDestPage(base+".html", b)
+			if err != nil {
+				results <- err
+			}
 		}
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
 			s.setUrls(n, base+".xml")
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			err := s.render("taxonomy "+t.singular+" rss", n, base+".xml", s.appendThemeTemplates(rssLayouts)...)
+			b, err := s.renderXML("taxonomy "+t.singular+" rss", n, s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				results <- err
 				continue
+			} else {
+				err := s.WriteDestFile(base+".xml", b)
+				if err != nil {
+					results <- err
+				}
 			}
 		}
-		results <- nil
 	}
 }
 
@@ -879,8 +894,11 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 		layouts = s.appendThemeTemplates(layouts)
 		if s.layoutExists(layouts...) {
-			err := s.render("taxonomy terms for "+singular, n, plural+"/index.html", layouts...)
+			b, err := s.renderPage("taxonomy terms for "+singular, n, layouts...)
 			if err != nil {
+				return err
+			}
+			if err := s.WriteDestPage(plural+"/index.html", b); err != nil {
 				return err
 			}
 		}
@@ -903,8 +921,11 @@ func (s *Site) RenderSectionLists() error {
 		n.Data["Pages"] = data.Pages()
 		layouts := []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
 
-		err := s.render("section "+section, n, section, s.appendThemeTemplates(layouts)...)
+		b, err := s.renderPage("section "+section, n, s.appendThemeTemplates(layouts)...)
 		if err != nil {
+			return err
+		}
+		if err := s.WriteDestPage(section, b); err != nil {
 			return err
 		}
 
@@ -912,8 +933,11 @@ func (s *Site) RenderSectionLists() error {
 			// XML Feed
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			s.setUrls(n, section+".xml")
-			err = s.render("section "+section+" rss", n, section+".xml", s.appendThemeTemplates(rssLayouts)...)
+			b, err = s.renderXML("section "+section+" rss", n, s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
+				return err
+			}
+			if err := s.WriteDestFile(section+".xml", b); err != nil {
 				return err
 			}
 		}
@@ -932,8 +956,11 @@ func (s *Site) newHomeNode() *Node {
 func (s *Site) RenderHomePage() error {
 	n := s.newHomeNode()
 	layouts := []string{"index.html", "_default/list.html", "_default/single.html"}
-	err := s.render("homepage", n, "/", s.appendThemeTemplates(layouts)...)
+	b, err := s.renderPage("homepage", n, s.appendThemeTemplates(layouts)...)
 	if err != nil {
+		return err
+	}
+	if err := s.WriteDestPage("/", b); err != nil {
 		return err
 	}
 
@@ -953,19 +980,13 @@ func (s *Site) RenderHomePage() error {
 
 		if !viper.GetBool("DisableRSS") {
 			rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-			err := s.render("homepage rss", n, ".xml", s.appendThemeTemplates(rssLayouts)...)
+			b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				return err
 			}
-		}
-	}
-
-	// Force `UglyUrls` option to force `404.html` file name
-	switch s.Target.(type) {
-	case *target.Filesystem:
-		if !s.Target.(*target.Filesystem).UglyUrls {
-			s.Target.(*target.Filesystem).UglyUrls = true
-			defer func() { s.Target.(*target.Filesystem).UglyUrls = false }()
+			if err := s.WriteDestFile("rss.xml", b); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -974,9 +995,12 @@ func (s *Site) RenderHomePage() error {
 	n.Permalink = s.permalink("404.html")
 
 	nfLayouts := []string{"404.html"}
-	nfErr := s.render("404 page", n, "404.html", s.appendThemeTemplates(nfLayouts)...)
+	b, nfErr := s.renderPage("404 page", n, s.appendThemeTemplates(nfLayouts)...)
 	if nfErr != nil {
 		return nfErr
+	}
+	if err := s.WriteDestFile("404.html", b); err != nil {
+		return err
 	}
 
 	return nil
@@ -1017,20 +1041,23 @@ func (s *Site) RenderSitemap() error {
 	}
 
 	// Force `UglyUrls` option to force `sitemap.xml` file name
-	switch s.Target.(type) {
+	switch s.PageTarget().(type) {
 	case *target.Filesystem:
-		s.Target.(*target.Filesystem).UglyUrls = true
+		s.PageTarget().(*target.PagePub).UglyUrls = true
 		optChanged = true
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
-	err := s.render("sitemap", n, "sitemap.xml", s.appendThemeTemplates(smLayouts)...)
+	b, err := s.renderXML("sitemap", n, s.appendThemeTemplates(smLayouts)...)
 	if err != nil {
+		return err
+	}
+	if err := s.WriteDestFile("sitemap.xml", b); err != nil {
 		return err
 	}
 
 	if optChanged {
-		s.Target.(*target.Filesystem).UglyUrls = viper.GetBool("UglyUrls")
+		s.PageTarget().(*target.PagePub).UglyUrls = viper.GetBool("UglyUrls")
 	}
 
 	return nil
@@ -1087,20 +1114,24 @@ func (s *Site) layoutExists(layouts ...string) bool {
 	return found
 }
 
-func (s *Site) render(name string, d interface{}, out string, layouts ...string) (err error) {
+func (s *Site) renderXML(name string, d interface{}, layouts ...string) (io.Reader, error) {
+	renderBuffer := s.NewXMLBuffer()
+	err := s.render(name, d, renderBuffer, layouts...)
+	return renderBuffer, err
+}
 
-	layout, found := s.findFirstLayout(layouts...)
-	if found == false {
-		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
-		return
-	}
+func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {
+	renderBuffer := new(bytes.Buffer)
+	err := s.render(name, d, renderBuffer, layouts...)
+
+	var outBuffer = new(bytes.Buffer)
 
 	transformLinks := transform.NewEmptyTransforms()
 
 	if viper.GetBool("CanonifyUrls") {
 		absURL, err := transform.AbsURL(viper.GetString("BaseUrl"))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		transformLinks = append(transformLinks, absURL...)
 	}
@@ -1110,17 +1141,18 @@ func (s *Site) render(name string, d interface{}, out string, layouts ...string)
 	}
 
 	transformer := transform.NewChain(transformLinks...)
+	transformer.Apply(outBuffer, renderBuffer)
+	return outBuffer, err
+}
 
-	var renderBuffer *bytes.Buffer
-
-	if strings.HasSuffix(out, ".xml") {
-		renderBuffer = s.NewXMLBuffer()
-	} else {
-		renderBuffer = new(bytes.Buffer)
+func (s *Site) render(name string, d interface{}, renderBuffer *bytes.Buffer, layouts ...string) error {
+	layout, found := s.findFirstLayout(layouts...)
+	if found == false {
+		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
+		return nil
 	}
 
-	err = s.renderThing(d, layout, renderBuffer)
-	if err != nil {
+	if err := s.renderThing(d, layout, renderBuffer); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
 		jww.ERROR.Println(fmt.Errorf("Error while rendering %s: %v", name, err))
 		if !s.Running() {
@@ -1128,14 +1160,7 @@ func (s *Site) render(name string, d interface{}, out string, layouts ...string)
 		}
 	}
 
-	var outBuffer = new(bytes.Buffer)
-	if strings.HasSuffix(out, ".xml") {
-		outBuffer = renderBuffer
-	} else {
-		transformer.Apply(outBuffer, renderBuffer)
-	}
-
-	return s.WritePublic(out, outBuffer)
+	return nil
 }
 
 func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
@@ -1160,33 +1185,48 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 	return bytes.NewBufferString(header)
 }
 
-func (s *Site) initTarget() {
-	if s.Target == nil {
-		s.Target = &target.Filesystem{
+func (s *Site) PageTarget() target.Output {
+	if s.Targets.Page == nil {
+		s.Targets.Page = &target.PagePub{
 			PublishDir: s.absPublishDir(),
 			UglyUrls:   viper.GetBool("UglyUrls"),
 		}
 	}
+	return s.Targets.Page
 }
 
-func (s *Site) WritePublic(path string, reader io.Reader) (err error) {
-	s.initTarget()
-
-	jww.DEBUG.Println("writing to", path)
-	return s.Target.Publish(path, reader)
-}
-
-func (s *Site) WriteAlias(path string, permalink template.HTML) (err error) {
-	if s.Alias == nil {
-		s.initTarget()
-		s.Alias = &target.HTMLRedirectAlias{
+func (s *Site) FileTarget() target.Output {
+	if s.Targets.File == nil {
+		s.Targets.File = &target.Filesystem{
 			PublishDir: s.absPublishDir(),
 		}
 	}
+	return s.Targets.File
+}
 
-	jww.DEBUG.Println("alias created at", path)
+func (s *Site) AliasTarget() target.AliasPublisher {
+	if s.Targets.Alias == nil {
+		s.Targets.Alias = &target.HTMLRedirectAlias{
+			PublishDir: s.absPublishDir(),
+		}
 
-	return s.Alias.Publish(path, permalink)
+	}
+	return s.Targets.Alias
+}
+
+func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
+	jww.DEBUG.Println("creating file:", path)
+	return s.FileTarget().Publish(path, reader)
+}
+
+func (s *Site) WriteDestPage(path string, reader io.Reader) (err error) {
+	jww.DEBUG.Println("creating page:", path)
+	return s.PageTarget().Publish(path, reader)
+}
+
+func (s *Site) WriteDestAlias(path string, permalink template.HTML) (err error) {
+	jww.DEBUG.Println("alias created at:", path)
+	return s.AliasTarget().Publish(path, permalink)
 }
 
 func (s *Site) draftStats() string {

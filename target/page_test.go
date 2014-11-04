@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestFileTranslator(t *testing.T) {
+func TestPageTranslator(t *testing.T) {
 	tests := []struct {
 		content  string
 		expected string
@@ -23,7 +23,7 @@ func TestFileTranslator(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		f := new(Filesystem)
+		f := new(PagePub)
 		dest, err := f.Translate(test.content)
 		if err != nil {
 			t.Fatalf("Translate returned and unexpected err: %s", err)
@@ -35,7 +35,7 @@ func TestFileTranslator(t *testing.T) {
 	}
 }
 
-func TestFileTranslatorBase(t *testing.T) {
+func TestPageTranslatorBase(t *testing.T) {
 	tests := []struct {
 		content  string
 		expected string
@@ -44,10 +44,10 @@ func TestFileTranslatorBase(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		f := &Filesystem{PublishDir: "a/base"}
-		fts := &Filesystem{PublishDir: "a/base/"}
+		f := &PagePub{PublishDir: "a/base"}
+		fts := &PagePub{PublishDir: "a/base/"}
 
-		for _, fs := range []*Filesystem{f, fts} {
+		for _, fs := range []*PagePub{f, fts} {
 			dest, err := fs.Translate(test.content)
 			if err != nil {
 				t.Fatalf("Translated returned and err: %s", err)
@@ -72,7 +72,7 @@ func TestTranslateUglyUrls(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		f := &Filesystem{UglyUrls: true}
+		f := &PagePub{UglyUrls: true}
 		dest, err := f.Translate(test.content)
 		if err != nil {
 			t.Fatalf("Translate returned an unexpected err: %s", err)
@@ -85,7 +85,7 @@ func TestTranslateUglyUrls(t *testing.T) {
 }
 
 func TestTranslateDefaultExtension(t *testing.T) {
-	f := &Filesystem{DefaultExtension: ".foobar"}
+	f := &PagePub{DefaultExtension: ".foobar"}
 	dest, _ := f.Translate("baz")
 	if dest != "baz/index.foobar" {
 		t.Errorf("Translate expected return: %s, got %s", "baz/index.foobar", dest)
