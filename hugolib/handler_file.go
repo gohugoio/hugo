@@ -14,8 +14,8 @@
 package hugolib
 
 import (
-	"fmt"
-	_ "github.com/dchest/cssmin"
+	"github.com/dchest/cssmin"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 )
 
@@ -29,7 +29,7 @@ var css = Handle{
 		results <- HandledResult{file: f}
 	},
 	fileConvert: func(f *source.File, s *Site, results HandleResults) {
-
-		fmt.Println(f.Path())
+		x := cssmin.Minify(f.Bytes())
+		s.WriteDestFile(f.Path(), helpers.BytesToReader(x))
 	},
 }
