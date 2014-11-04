@@ -54,7 +54,7 @@ var version = &cobra.Command{
 
 // setBuildDate checks the ModTime of the Hugo executable and returns it as a
 // formatted string.  This assumes that the executable name is Hugo, if it does
-// not exist, an empty string will be returned.  This is only called if the 
+// not exist, an empty string will be returned.  This is only called if the
 // buildDate wasn't set during compile time.
 //
 // osext is used for cross-platform.
@@ -88,11 +88,10 @@ func getDateFormat() string {
 	if params == nil {
 		return time.RFC3339
 	}
-	parms := params.(map[interface{}]interface{})
+	parms := params.(map[string]interface{})
 	layout := parms["DateFormat"]
 	if layout == nil || layout == "" {
 		return time.RFC3339
 	}
 	return layout.(string)
 }
-
