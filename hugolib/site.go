@@ -365,35 +365,34 @@ func (s *Site) CreatePages() error {
 	readErrs := <-errs
 
 	results = make(chan HandledResult)
-	pagechan := make(chan *Page)
-	filechan = make(chan *source.File)
+	pageChan := make(chan *Page)
+	fileConvChan := make(chan *source.File)
 
 	wg = &sync.WaitGroup{}
 
 	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
-		go fileConverter(s, filechan, results, wg)
+		go fileConverter(s, fileConvChan, results, wg)
 	}
 
 	wg = &sync.WaitGroup{}
 	for i := 0; i < procs*4; i++ {
 		wg.Add(1)
-		go pageConverter(s, pagechan, results, wg)
+		go pageConverter(s, pageChan, results, wg)
 	}
 
 	go converterCollator(s, results, errs)
 
 	for _, p := range s.Pages {
-		pagechan <- p
+		pageChan <- p
 	}
 
 	for _, f := range s.Files {
-		fmt.Println(f)
-		filechan <- f
+		fileConvChan <- f
 	}
 
-	close(pagechan)
-	close(filechan)
+	close(pageChan)
+	close(fileConvChan)
 
 	wg.Wait()
 
