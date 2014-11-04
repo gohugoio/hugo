@@ -39,6 +39,14 @@ func (f *File) UniqueId() string {
 	return f.uniqueId
 }
 
+func (f *File) String() string {
+	return helpers.ReaderToString(f.Contents)
+}
+
+func (f *File) Bytes() []byte {
+	return helpers.ReaderToBytes(f.Contents)
+}
+
 // Filename without extension
 func (f *File) BaseFileName() string {
 	return helpers.Filename(f.LogicalName())
