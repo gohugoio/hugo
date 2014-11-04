@@ -79,6 +79,9 @@ var (
 )
 
 func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
+
+	key = strings.ToLower(key)
+
 	if len(p) < 1 {
 		return nil, nil
 	}
