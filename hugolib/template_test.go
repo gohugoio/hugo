@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"github.com/spf13/hugo/source"
 	"reflect"
 	"testing"
 )
@@ -296,10 +297,23 @@ func TestIntersect(t *testing.T) {
 	}
 }
 
+func (x *TstX) TstRp() string {
+	return "r" + x.A
+}
+
+func (x TstX) TstRv() string {
+	return "r" + x.B
+}
+
+type TstX struct {
+	A, B string
+}
+
 func TestWhere(t *testing.T) {
-	type X struct {
-		A, B string
-	}
+
+	page1 := &Page{contentType: "v", Source: Source{File: *source.NewFile("/x/y/z/source.md")}}
+	page2 := &Page{contentType: "w", Source: Source{File: *source.NewFile("/y/z/a/source.md")}}
+
 	for i, this := range []struct {
 		sequence interface{}
 		key      interface{}
@@ -308,9 +322,13 @@ func TestWhere(t *testing.T) {
 	}{
 		{[]map[int]string{{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"}}, 2, "m", []map[int]string{{1: "a", 2: "m"}}},
 		{[]map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4}}, "b", 4, []map[string]int{{"a": 3, "b": 4}}},
-		{[]X{{"a", "b"}, {"c", "d"}, {"e", "f"}}, "B", "f", []X{{"e", "f"}}},
+		{[]TstX{{"a", "b"}, {"c", "d"}, {"e", "f"}}, "B", "f", []TstX{{"e", "f"}}},
 		{[]*map[int]string{&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"}}, 2, "m", []*map[int]string{&map[int]string{1: "a", 2: "m"}}},
-		{[]*X{&X{"a", "b"}, &X{"c", "d"}, &X{"e", "f"}}, "B", "f", []*X{&X{"e", "f"}}},
+		{[]*TstX{&TstX{"a", "b"}, &TstX{"c", "d"}, &TstX{"e", "f"}}, "B", "f", []*TstX{&TstX{"e", "f"}}},
+		{[]*TstX{&TstX{"a", "b"}, &TstX{"c", "d"}, &TstX{"e", "c"}}, "TstRp", "rc", []*TstX{&TstX{"c", "d"}}},
+		{[]TstX{TstX{"a", "b"}, TstX{"c", "d"}, TstX{"e", "c"}}, "TstRv", "rc", []TstX{TstX{"e", "c"}}},
+		{[]*Page{page1, page2}, "Type", "v", []*Page{page1}},
+		{[]*Page{page1, page2}, "Section", "y", []*Page{page2}},
 	} {
 		results, err := Where(this.sequence, this.key, this.match)
 		if err != nil {
