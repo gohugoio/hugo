@@ -209,36 +209,37 @@ func GetRelativePath(path, base string) (final string, err error) {
 }
 
 // Given a source path, determine the section
+// A section is the part between the root slash and the second slash or before the first slash
 func GuessSection(in string) string {
 	parts := strings.Split(in, "/")
+	// This will include an empty entry before and after paths with leading and trailing slashes
+	// eg... /sect/one/ -> ["", "sect", "one", ""]
 
-	if len(parts) == 0 {
+	// Needs to have at least a value and a slash
+	if len(parts) < 2 {
 		return ""
 	}
 
-	// trim filename
-	if !strings.HasSuffix(in, "/") {
-		parts = parts[:len(parts)-1]
+	// If it doesn't have a leading slash and value and file or trailing slash, then return ""
+	if parts[0] == "" && len(parts) < 3 {
+		return ""
 	}
 
-	if len(parts) == 0 {
-		return ""
+	// strip leading slash
+	if parts[0] == "" {
+		parts = parts[1:]
 	}
 
 	// if first directory is "content", return second directory
-	section := ""
-
-	if parts[0] == "content" && len(parts) > 1 {
-		section = parts[1]
-	} else {
-		section = parts[0]
+	if parts[0] == "content" {
+		if len(parts) > 2 {
+			return parts[1]
+		} else {
+			return ""
+		}
 	}
 
-	if section == "." {
-		return ""
-	}
-
-	return section
+	return parts[0]
 }
 
 func PathPrep(ugly bool, in string) string {

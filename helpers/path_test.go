@@ -423,17 +423,20 @@ func TestGuessSection(t *testing.T) {
 		{"", ""},
 		{"/content", ""},
 		{"content/", ""},
-		{"/content/", "content"},
+		{"/content/", ""}, // /content/ is a special case. It will never be the section
 		{"/blog", ""},
 		{"/blog/", "blog"},
 		{"blog", ""},
 		{"content/blog", ""},
 		{"/content/blog/", "blog"},
-		{"/content/blog", "blog"},
-		{"content/blog/", ""},
+		{"/content/blog", ""}, // Lack of trailing slash indicates 'blog' is not a directory.
+		{"content/blog/", "blog"},
 		{"/contents/myblog/", "contents"},
 		{"/contents/yourblog", "contents"},
 		{"/contents/ourblog/", "contents"},
+		{"/content/myblog/", "myblog"},
+		{"/content/yourblog", ""},
+		{"/content/ourblog/", "ourblog"},
 	}
 
 	for i, d := range data {
