@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/spf13/afero"
 )
 
 func TestMakePath(t *testing.T) {
@@ -123,7 +125,7 @@ func TestDirExists(t *testing.T) {
 	}
 
 	for i, d := range data {
-		exists, _ := DirExists(d.input)
+		exists, _ := DirExists(d.input, new(afero.OsFs))
 		if d.expected != exists {
 			t.Errorf("Test %d failed. Expected %t got %t", i, d.expected, exists)
 		}
@@ -143,7 +145,8 @@ func TestIsDir(t *testing.T) {
 	}
 
 	for i, d := range data {
-		exists, _ := IsDir(d.input)
+
+		exists, _ := IsDir(d.input, new(afero.OsFs))
 		if d.expected != exists {
 			t.Errorf("Test %d failed. Expected %t got %t", i, d.expected, exists)
 		}
@@ -183,7 +186,7 @@ func TestIsEmpty(t *testing.T) {
 		{nonExistentDir, false, dirDoesNotExist},
 	}
 	for i, d := range data {
-		exists, err := IsEmpty(d.input)
+		exists, err := IsEmpty(d.input, new(afero.OsFs))
 		if d.expectedResult != exists {
 			t.Errorf("Test %d failed. Expected result %t got %t", i, d.expectedResult, exists)
 		}
@@ -319,7 +322,7 @@ func TestExists(t *testing.T) {
 		{nonExistentDir, false, nil},
 	}
 	for i, d := range data {
-		exists, err := Exists(d.input)
+		exists, err := Exists(d.input, new(afero.OsFs))
 		if d.expectedResult != exists {
 			t.Errorf("Test %d failed. Expected result %t got %t", i, d.expectedResult, exists)
 		}
@@ -500,7 +503,7 @@ func TestSafeWriteToDisk(t *testing.T) {
 	}
 
 	for i, d := range data {
-		e := SafeWriteToDisk(d.filename, reader)
+		e := SafeWriteToDisk(d.filename, reader, new(afero.OsFs))
 		if d.expectedErr != nil {
 			if d.expectedErr.Error() != e.Error() {
 				t.Errorf("Test %d failed. Expected error %q but got %q", i, d.expectedErr.Error(), e.Error())
@@ -540,7 +543,7 @@ func TestWriteToDisk(t *testing.T) {
 	}
 
 	for i, d := range data {
-		e := WriteToDisk(d.filename, reader)
+		e := WriteToDisk(d.filename, reader, new(afero.OsFs))
 		if d.expectedErr != e {
 			t.Errorf("Test %d failed. WriteToDisk Error Expected %q but got %q", i, d.expectedErr, e)
 		}
