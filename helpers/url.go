@@ -81,7 +81,6 @@ func MakePermalink(host, plink string) *url.URL {
 func UrlPrep(ugly bool, in string) string {
 	if ugly {
 		x := Uglify(SanitizeUrl(in))
-		fmt.Printf("Ugly case. Returning x = %q\n", x)
 		return x
 	} else {
 		x := PrettifyUrl(SanitizeUrl(in))
@@ -93,7 +92,6 @@ func UrlPrep(ugly bool, in string) string {
 			fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
 			return in
 		}
-		fmt.Printf("NO error returning url = %q\n", url)
 		return url
 	}
 }

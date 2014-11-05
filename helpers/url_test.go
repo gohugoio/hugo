@@ -56,7 +56,7 @@ func TestUrlPrep(t *testing.T) {
 	}
 
 	data := []test{
-		{false, "/section/name.html", "/section/name/index.html"},
+		{false, "/section/name.html", "/section/name/"},
 		{true, "/section/name/index.html", "/section/name.html"},
 	}
 	for i, d := range data {
