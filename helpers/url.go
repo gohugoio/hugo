@@ -16,7 +16,7 @@ package helpers
 import (
 	"fmt"
 	"net/url"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/PuerkitoBio/purell"
@@ -68,7 +68,7 @@ func MakePermalink(host, plink string) *url.URL {
 		panic(fmt.Errorf("Can't make permalink from absolute link %q", plink))
 	}
 
-	base.Path = path.Join(base.Path, p.Path)
+	base.Path = filepath.Join(base.Path, p.Path)
 
 	// path.Join will strip off the last /, so put it back if it was there.
 	if strings.HasSuffix(p.Path, "/") && !strings.HasSuffix(base.Path, "/") {
@@ -84,7 +84,7 @@ func UrlPrep(ugly bool, in string) string {
 		return x
 	} else {
 		x := PrettifyUrl(SanitizeUrl(in))
-		if path.Ext(x) == ".xml" {
+		if filepath.Ext(x) == ".xml" {
 			return x
 		}
 		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
@@ -100,8 +100,8 @@ func UrlPrep(ugly bool, in string) string {
 func PrettifyUrl(in string) string {
 	x := PrettifyPath(in)
 
-	if path.Base(x) == "index.html" {
-		return path.Dir(x)
+	if filepath.Base(x) == "index.html" {
+		return filepath.Dir(x)
 	}
 
 	if in == "" {
@@ -115,17 +115,17 @@ func PrettifyUrl(in string) string {
 // /section/name/  -> /section/name.html
 // /section/name.html -> /section/name.html
 func Uglify(in string) string {
-	if path.Ext(in) == "" {
+	if filepath.Ext(in) == "" {
 		if len(in) < 2 {
 			return "/"
 		}
 		// /section/name/  -> /section/name.html
-		return path.Clean(in) + ".html"
+		return filepath.Clean(in) + ".html"
 	} else {
 		name, ext := FileAndExt(in)
 		if name == "index" {
 			// /section/name/index.html -> /section/name.html
-			d := path.Dir(in)
+			d := filepath.Dir(in)
 			if len(d) > 1 {
 				return d + ext
 			} else {
@@ -133,7 +133,7 @@ func Uglify(in string) string {
 			}
 		} else {
 			// /section/name.html -> /section/name.html
-			return path.Clean(in)
+			return filepath.Clean(in)
 		}
 	}
 }
