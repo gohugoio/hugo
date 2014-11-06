@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -171,8 +170,8 @@ func Filename(in string) (name string) {
 // then name will be the filename minus any extension - including the dot
 // and ext will contain the extension - minus the dot.
 func FileAndExt(in string) (name string, ext string) {
-	ext = path.Ext(in)
-	base := path.Base(in) // path.Base strips any trailing slash!
+	ext = filepath.Ext(in)
+	base := filepath.Base(in) // path.Base strips any trailing slash!
 
 	// No file name cases. These are defined as:
 	// 1. any "in" path that ends in a os.PathSeparator i.e. "/" on linux
@@ -254,20 +253,20 @@ func PathPrep(ugly bool, in string) string {
 // /section/name/  -> /section/name/index.html
 // /section/name/index.html -> /section/name/index.html
 func PrettifyPath(in string) string {
-	if path.Ext(in) == "" {
+	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
 		if len(in) < 2 {
 			return "/"
 		}
-		return path.Join(path.Clean(in), "index.html")
+		return filepath.Join(filepath.Clean(in), "index.html")
 	} else {
 		name, ext := FileAndExt(in)
 		if name == "index" {
 			// /section/name/index.html -> /section/name/index.html
-			return path.Clean(in)
+			return filepath.Clean(in)
 		} else {
 			// /section/name.html -> /section/name/index.html
-			return path.Join(path.Dir(in), name, "index"+ext)
+			return filepath.Join(filepath.Dir(in), name, "index"+ext)
 		}
 	}
 }
