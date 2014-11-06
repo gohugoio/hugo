@@ -16,7 +16,6 @@ package commands
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -54,7 +53,7 @@ var version = &cobra.Command{
 
 // setBuildDate checks the ModTime of the Hugo executable and returns it as a
 // formatted string.  This assumes that the executable name is Hugo, if it does
-// not exist, an empty string will be returned.  This is only called if the 
+// not exist, an empty string will be returned.  This is only called if the
 // buildDate wasn't set during compile time.
 //
 // osext is used for cross-platform.
@@ -65,7 +64,7 @@ func setBuildDate() {
 		fmt.Println(err)
 		return
 	}
-	fi, err := os.Lstat(path.Join(dir, "hugo"))
+	fi, err := os.Lstat(filepath.Join(dir, "hugo"))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -95,4 +94,3 @@ func getDateFormat() string {
 	}
 	return layout.(string)
 }
-

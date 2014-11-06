@@ -14,7 +14,6 @@ package commands
 import (
 	"bytes"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -141,7 +140,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 		jww.FATAL.Fatalln("theme name needs to be provided")
 	}
 
-	createpath := helpers.AbsPathify(path.Join("themes", args[0]))
+	createpath := helpers.AbsPathify(filepath.Join("themes", args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
@@ -186,7 +185,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `)
 
-	err := helpers.WriteToDisk(path.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
+	err := helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
@@ -195,7 +194,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 }
 
 func mkdir(x ...string) {
-	p := path.Join(x...)
+	p := filepath.Join(x...)
 
 	err := os.MkdirAll(p, 0777) // rwx, rw, r
 	if err != nil {
@@ -204,7 +203,7 @@ func mkdir(x ...string) {
 }
 
 func touchFile(x ...string) {
-	inpath := path.Join(x...)
+	inpath := filepath.Join(x...)
 	mkdir(filepath.Dir(inpath))
 	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), hugofs.SourceFs)
 	if err != nil {
@@ -228,7 +227,7 @@ func createThemeMD(inpath string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(path.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		return
 	}
@@ -245,7 +244,7 @@ func createConfig(inpath string, kind string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(path.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		return
 	}
