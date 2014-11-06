@@ -16,7 +16,6 @@ package commands
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -65,7 +64,7 @@ func setBuildDate() {
 		fmt.Println(err)
 		return
 	}
-	fi, err := os.Lstat(path.Join(dir, "hugo"))
+	fi, err := os.Lstat(filepath.Join(dir, "hugo"))
 	if err != nil {
 		fmt.Println(err)
 		return

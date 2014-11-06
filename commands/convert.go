@@ -15,7 +15,7 @@ package commands
 
 import (
 	"fmt"
-	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cast"
@@ -133,7 +133,7 @@ func convertContents(mark rune) (err error) {
 		page.SetSourceMetaData(metadata, mark)
 
 		if OutputDir != "" {
-			page.SaveSourceAs(path.Join(OutputDir, page.FullFilePath()))
+			page.SaveSourceAs(filepath.Join(OutputDir, page.FullFilePath()))
 		} else {
 			if Unsafe {
 				page.SaveSource()
