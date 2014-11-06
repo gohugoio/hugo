@@ -78,6 +78,31 @@ If you only want to build from source, it's even easier.
     go build -o hugo main.go
     mv hugo /usr/local/bin/
 
+##### Adding compile information to Hugo
+
+When Hugo is built using the above steps, the `version` sub-command will include the `mdate` of the Hugo executable.  Instead, it is possible to have the `version` sub-command return information about the git commit used and time of compilation using `build` flags.
+
+To do this, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
+
+    go build -ldflags "-X /path/to/hugo/commands.commitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/commands.buildDate `date +%FT%T`"  
+
+This will result in hugo version output that looks similar to:
+
+    Hugo Static Site Generator v0.13-DEV buildDate: 2014-10-16T09:59:55Z
+    Hugo Static Site Generator v0.13-DEV-24BBFE7 buildDate: 2014-10-16T10:00:55Z
+
+The format of the date is configurable via the `Params.DateFormat` setting.  `DateFormat` is a string value representing the Go time layout that should be used to format the date output. If `Params.DateFormat` is not set, `time.RFC3339` will be used as the default format.See [time documentation](http://golang.org/pkg/time/#pkg-constants) for more information.
+
+Configuration setting using config.yaml as example:
+
+    Params:
+       DateFormat: "2006-01-02"
+
+Will result in:
+
+    Hugo Static Site Generator v0.13-DEV buildDate: 2014-10-16
+    Hugo Static Site Generator v0.13-DEV-24BBFE7 buildDate: 2014-10-16
+
 #### Running Hugo
 
     cd /path/to/hugo
