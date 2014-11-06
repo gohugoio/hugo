@@ -17,7 +17,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -99,10 +99,10 @@ func NewContent(kind, name string) (err error) {
 	//page.Dir = viper.GetString("sourceDir")
 	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat")))
 	page.SetSourceContent(psr.Content())
-	if err = page.SafeSaveSourceAs(path.Join(viper.GetString("contentDir"), name)); err != nil {
+	if err = page.SafeSaveSourceAs(filepath.Join(viper.GetString("contentDir"), name)); err != nil {
 		return
 	}
-	jww.FEEDBACK.Println(helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)), "created")
+	jww.FEEDBACK.Println(helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)), "created")
 
 	return nil
 }
@@ -111,7 +111,7 @@ func FindArchetype(kind string) (outpath string) {
 	search := []string{helpers.AbsPathify(viper.GetString("archetypeDir"))}
 
 	if viper.GetString("theme") != "" {
-		themeDir := path.Join(helpers.AbsPathify("themes/"+viper.GetString("theme")), "/archetypes/")
+		themeDir := filepath.Join(helpers.AbsPathify("themes/"+viper.GetString("theme")), "/archetypes/")
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
 			jww.ERROR.Println("Unable to find archetypes directory for theme :", viper.GetString("theme"), "in", themeDir)
 		} else {
@@ -131,7 +131,7 @@ func FindArchetype(kind string) (outpath string) {
 			pathsToCheck = []string{kind + ".md", kind, "default.md", "default"}
 		}
 		for _, p := range pathsToCheck {
-			curpath := path.Join(x, p)
+			curpath := filepath.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
 			if exists, _ := helpers.Exists(curpath, hugofs.SourceFs); exists {
 				jww.INFO.Println("curpath: " + curpath)
