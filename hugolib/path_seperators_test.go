@@ -1,7 +1,7 @@
 package hugolib
 
 import (
-	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -13,7 +13,7 @@ Sample Text
 `
 
 func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), path.Join("foobar"))
+	p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), filepath.Join("foobar"))
 	if err != nil {
 		t.Fatalf("Error in NewPageFrom")
 	}
@@ -28,10 +28,10 @@ func TestNewPageWithFilePath(t *testing.T) {
 		section string
 		layout  []string
 	}{
-		{path.Join("sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
-		{path.Join("content", "foobar.html"), "", L("page/single.html", "_default/single.html")},
-		{path.Join("content", "sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
-		{path.Join("content", "dub", "sub", "foobar.html"), "dub", L("dub/single.html", "_default/single.html")},
+		{filepath.Join("sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
+		{filepath.Join("content", "foobar.html"), "", L("page/single.html", "_default/single.html")},
+		{filepath.Join("content", "sub", "foobar.html"), "sub", L("sub/single.html", "_default/single.html")},
+		{filepath.Join("content", "dub", "sub", "foobar.html"), "dub", L("dub/single.html", "_default/single.html")},
 	}
 
 	for _, el := range toCheck {

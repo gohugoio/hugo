@@ -20,7 +20,7 @@ import (
 	"html/template"
 	"io"
 	"net/url"
-	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -175,7 +175,7 @@ func layouts(types string, layout string) (layouts []string) {
 	// Add type/layout.html
 	for i := range t {
 		search := t[:len(t)-i]
-		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
+		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(filepath.Join(search...)), layout))
 	}
 
 	// Add _default/layout.html
@@ -250,10 +250,10 @@ func (p *Page) permalink() (*url.URL, error) {
 		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, p.Slug+"."+p.Extension()))
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), filepath.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
-			_, t := path.Split(p.Source.LogicalName())
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
+			_, t := filepath.Split(p.Source.LogicalName())
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), filepath.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
 
@@ -592,7 +592,7 @@ func (page *Page) saveSourceAs(path string, safe bool) error {
 }
 
 func (page *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
-	if !path.IsAbs(inpath) {
+	if !filepath.IsAbs(inpath) {
 		inpath = helpers.AbsPathify(inpath)
 	}
 	jww.INFO.Println("creating", inpath)
@@ -633,7 +633,7 @@ func (page *Page) Convert() error {
 }
 
 func (p *Page) FullFilePath() string {
-	return path.Join(p.Source.Dir(), p.Source.Path())
+	return filepath.Join(p.Source.Dir(), p.Source.Path())
 }
 
 func (p *Page) TargetPath() (outfile string) {
@@ -667,5 +667,5 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
 	}
 
-	return path.Join(p.Source.Dir(), strings.TrimSpace(outfile))
+	return filepath.Join(p.Source.Dir(), strings.TrimSpace(outfile))
 }

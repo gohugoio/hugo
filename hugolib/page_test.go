@@ -2,7 +2,7 @@ package hugolib
 
 import (
 	"html/template"
-	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -520,11 +520,11 @@ func L(s ...string) []string {
 
 func TestLayoutOverride(t *testing.T) {
 	var (
-		path_content_two_dir = path.Join("content", "dub", "sub", "file1.md")
-		path_content_one_dir = path.Join("content", "gub", "file1.md")
-		path_content_no_dir  = path.Join("content", "file1")
-		path_one_directory   = path.Join("fub", "file1.md")
-		path_no_directory    = path.Join("file1.md")
+		path_content_two_dir = filepath.Join("content", "dub", "sub", "file1.md")
+		path_content_one_dir = filepath.Join("content", "gub", "file1.md")
+		path_content_no_dir  = filepath.Join("content", "file1")
+		path_one_directory   = filepath.Join("fub", "file1.md")
+		path_no_directory    = filepath.Join("file1.md")
 	)
 	tests := []struct {
 		content        string
