@@ -2,7 +2,6 @@ package source
 
 import (
 	"bytes"
-	"path"
 	"path/filepath"
 	"testing"
 )
@@ -35,7 +34,7 @@ func TestAddFile(t *testing.T) {
 
 			p := test.filename
 			if !filepath.IsAbs(test.filename) {
-				p = path.Join(src.Base, test.filename)
+				p = filepath.Join(src.Base, test.filename)
 			}
 
 			if err := src.add(p, bytes.NewReader([]byte(test.content))); err != nil {
