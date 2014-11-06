@@ -2,7 +2,7 @@ package target
 
 import (
 	"io"
-	"path"
+	"path/filepath"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -35,7 +35,7 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {
-	return path.Join(fs.PublishDir, src), nil
+	return filepath.Join(fs.PublishDir, src), nil
 }
 
 func (fs *Filesystem) extension(ext string) string {
@@ -43,7 +43,7 @@ func (fs *Filesystem) extension(ext string) string {
 }
 
 func filename(f string) string {
-	ext := path.Ext(f)
+	ext := filepath.Ext(f)
 	if ext == "" {
 		return f
 	}

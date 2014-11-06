@@ -3,7 +3,7 @@ package target
 import (
 	"bytes"
 	"html/template"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/hugo/helpers"
@@ -41,7 +41,7 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 	} else if !strings.HasSuffix(alias, ".html") {
 		alias = alias + "/index.html"
 	}
-	return path.Join(h.PublishDir, helpers.MakePath(alias)), nil
+	return filepath.Join(h.PublishDir, helpers.MakePath(alias)), nil
 }
 
 type AliasNode struct {
