@@ -55,6 +55,29 @@ func TestMakePathToLower(t *testing.T) {
 	}
 }
 
+func TestMakePathRelative(t *testing.T) {
+	type test struct {
+		inPath, path1, path2, output string
+	}
+
+	data := []test{
+		{"/abc/bcd/ab.css", "/abc/bcd", "/bbc/bcd", "/ab.css"},
+		{"/abc/bcd/ab.css", "/abcd/bcd", "/abc/bcd", "/ab.css"},
+	}
+
+	for i, d := range data {
+		output, _ := MakePathRelative(d.inPath, d.path1, d.path2)
+		if d.output != output {
+			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
+		}
+	}
+	_, error := MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
+
+	if error == nil {
+		t.Errorf("Test #%d failed. Expected error")
+	}
+}
+
 func TestMakeTitle(t *testing.T) {
 	type test struct {
 		input, expected string
