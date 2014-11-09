@@ -125,6 +125,7 @@ func InitializeConfig() {
 	viper.SetDefault("PluralizeListTitles", true)
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
+	viper.SetDefault("PandocExtensions", "footnotes")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)

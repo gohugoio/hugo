@@ -20,6 +20,7 @@ import (
 	"html/template"
 	"io"
 	"net/url"
+	"os/exec"
 	"path"
 	"strings"
 	"time"
@@ -121,7 +122,47 @@ func (p *Page) renderBytes(content []byte) []byte {
 }
 
 func (p *Page) renderContent(content []byte) []byte {
+<<<<<<< HEAD
+	return renderBytesWithTOC(content, p.guessMarkupType())
+}
+
+func pandocRender(content []byte) string {
+	var aOut bytes.Buffer
+	cmd := exec.Command("pandoc", "-f", "markdown+"+viper.GetString("PandocExtensions"))
+	cmd.Stdin = bytes.NewReader([]byte(content))
+	cmd.Stdout = &aOut
+	cmd.Run()
+	print(viper.GetString("PandocExtensions"))
+	return aOut.String()
+}
+
+func renderBytesWithTOC(content []byte, pagefmt string) []byte {
+	switch pagefmt {
+	default:
+		return markdownRenderWithTOC(content)
+	case "markdown":
+		return markdownRenderWithTOC(content)
+	case "rst":
+		return []byte(getRstContent(content))
+	case "pandoc":
+		return []byte(pandocRender(content))
+	}
+}
+
+func renderBytes(content []byte, pagefmt string) []byte {
+	switch pagefmt {
+	default:
+		return markdownRender(content)
+	case "markdown":
+		return markdownRender(content)
+	case "pandoc":
+		return []byte(pandocRender(content))
+	case "rst":
+		return []byte(getRstContent(content))
+	}
+=======
 	return helpers.RenderBytesWithTOC(content, p.guessMarkupType(), p.UniqueId())
+>>>>>>> cafd39eb9bc8736c8c4fe24a905a3e9aba0b2272
 }
 
 func newPage(filename string) *Page {
@@ -522,7 +563,27 @@ func (page *Page) guessMarkupType() string {
 		}
 	}
 
-	return helpers.GuessType(page.Source.Ext())
+	// Then try to guess from the extension
+	ext := strings.ToLower(path.Ext(page.FileName))
+	if strings.HasPrefix(ext, ".") {
+		return guessType(ext[1:])
+	}
+
+	return "unknown"
+}
+
+func guessType(in string) string {
+	switch strings.ToLower(in) {
+	case "md", "markdown", "mdown":
+		return "markdown"
+	case "rst":
+		return "rst"
+	case "mkd":
+		return "pandoc"
+	case "html", "htm":
+		return "html"
+	}
+	return "unknown"
 }
 
 func (page *Page) detectFrontMatter() (f *parser.FrontmatterType) {
@@ -620,10 +681,17 @@ func (p *Page) ProcessShortcodes(t Template) {
 func (page *Page) Convert() error {
 	markupType := page.guessMarkupType()
 	switch markupType {
+<<<<<<< HEAD
+	case "markdown", "rst", "pandoc":
+		tmpContent, tmpTableOfContents := extractTOC(page.renderContent(RemoveSummaryDivider(page.rawContent)))
+		page.Content = bytesToHTML(tmpContent)
+		page.TableOfContents = bytesToHTML(tmpTableOfContents)
+=======
 	case "markdown", "rst":
 		tmpContent, tmpTableOfContents := helpers.ExtractTOC(page.renderContent(helpers.RemoveSummaryDivider(page.rawContent)))
 		page.Content = helpers.BytesToHTML(tmpContent)
 		page.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+>>>>>>> cafd39eb9bc8736c8c4fe24a905a3e9aba0b2272
 	case "html":
 		page.Content = helpers.BytesToHTML(page.rawContent)
 	default:
