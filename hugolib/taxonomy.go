@@ -60,7 +60,7 @@ type OrderedTaxonomyEntry struct {
 
 // KeyPrep... Taxonomies should be case insensitive. Can make it easily conditional later.
 func kp(in string) string {
-	return helpers.MakePath(in)
+	return helpers.MakePathToLower(in)
 }
 
 func (i Taxonomy) Get(key string) WeightedPages { return i[kp(key)] }
@@ -104,12 +104,16 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 }
 
 // Helper to move the page access up a level
-func (ie OrderedTaxonomyEntry) Pages() []*Page {
+func (ie OrderedTaxonomyEntry) Pages() Pages {
 	return ie.WeightedPages.Pages()
 }
 
 func (ie OrderedTaxonomyEntry) Count() int {
 	return len(ie.WeightedPages)
+}
+
+func (ie OrderedTaxonomyEntry) Term() string {
+	return ie.Name
 }
 
 /*
@@ -130,7 +134,7 @@ func (by OIby) Sort(taxonomy OrderedTaxonomy) {
 		taxonomy: taxonomy,
 		by:       by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
-	sort.Sort(ps)
+	sort.Stable(ps)
 }
 
 // Len is part of sort.Interface.
@@ -158,14 +162,16 @@ func (wp WeightedPages) Pages() Pages {
 
 func (p WeightedPages) Len() int      { return len(p) }
 func (p WeightedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p WeightedPages) Sort()         { sort.Sort(p) }
+func (p WeightedPages) Sort()         { sort.Stable(p) }
 func (p WeightedPages) Count() int    { return len(p) }
 func (p WeightedPages) Less(i, j int) bool {
 	if p[i].Weight == p[j].Weight {
-		return p[i].Page.Date.Unix() > p[j].Page.Date.Unix()
-	} else {
-		return p[i].Weight < p[j].Weight
+		if p[i].Page.Date.Equal(p[j].Page.Date) {
+			return p[i].Page.Title < p[j].Page.Title
+		}
+		return p[i].Page.Date.After(p[i].Page.Date)
 	}
+	return p[i].Weight < p[j].Weight
 }
 
 // TODO mimic PagesSorter for WeightedPages

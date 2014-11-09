@@ -8,7 +8,7 @@ sourceLink: https://gitlab.com/acodispo/andrewcodispoti-com
 tags:
 - personal
 - bootstrap
-thumbnail: /static/img/asc-tn.jpg
+thumbnail: /img/asc-tn.jpg
 title: Andrew S Codispoti
 ---
 

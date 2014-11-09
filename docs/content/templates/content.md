@@ -2,7 +2,7 @@
 aliases:
 - /layout/functions/
 date: 2013-07-01
-linktitle: Single
+linktitle: Single Content
 menu:
   main:
     parent: layout
@@ -12,31 +12,31 @@ title: Single Content Template
 weight: 30
 ---
 
-The primary view of content in hugo is the single view. Hugo for every
-markdown file provided hugo will render it with a single template.
+The primary view of content in Hugo is the single view. Hugo, for every
+Markdown file provided, will render it with a single template.
 
 
 ## Which Template will be rendered?
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present
-than the next one in the list will be used. This enables you to craft
+Hugo will use the following prioritized list. If a file isn’t present,
+then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
-then necessary. For most sites only the \_default file at the end of
+than necessary. For most sites only the \_default file at the end of
 the list will be needed.
 
 Users can specify the `type` and `layout` in the [front-matter](/content/front-matter). `Section`
-is determined based on the content file’s location. If `type` is provide
+is determined based on the content file’s location. If `type` is provide,
 it will be used instead of `section`.
 
 ### Single
 
-* /layouts/`TYPE` or `SECTION`/`LAYOUT`.html
-* /layouts/`TYPE` or `SECTION`/single.html
+* /layouts/`TYPE`-or-`SECTION`/`LAYOUT`.html
+* /layouts/`TYPE`-or-`SECTION`/single.html
 * /layouts/\_default/single.html
-* /themes/`THEME`/layouts/`TYPE` or `SECTION`/`LAYOUT`.html
-* /themes/`THEME`/layouts/`TYPE` or `SECTION`/single.html
+* /themes/`THEME`/layouts/`TYPE`-or-`SECTION`/`LAYOUT`.html
+* /themes/`THEME`/layouts/`TYPE`-or-`SECTION`/single.html
 * /themes/`THEME`/layouts/\_default/single.html
 
 ## Example Single Template File
@@ -50,7 +50,7 @@ a default content type.
 
 The default content template to be used in the event that a specific
 template has not been provided for that type. The default type works the
-same as the other types but the directory must be called "\_default".
+same as the other types, but the directory must be called "\_default".
 
     ▾ layouts/
       ▾ _default/

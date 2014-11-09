@@ -9,7 +9,7 @@ tags:
 - personal
 - blog
 - academic
-thumbnail: /static/img/kjhealy-tn.jpg
+thumbnail: /img/kjhealy-tn.jpg
 title: Kieran Healy
 ---
 

@@ -20,14 +20,14 @@ taxonomies. Taxonomies give us a way to classify our content so we can
 demonstrate relationships in a variety of logical ways.
 
 The default taxonomies for Hugo are tags and categories. These
-taxonomies are  common to many websites systems (Wordpress, Drupal,
-Jekyll). Unlike all of those Systems, Hugo makes it trivial to customize
+taxonomies are common to many website systems (WordPress, Drupal,
+Jekyll). Unlike all of those systems, Hugo makes it trivial to customize
 the taxonomies you will be using for your site however you wish. Another
 good use for taxonomies is to group a set of posts into a series. Other
 common uses would include categories, tags, groups, series and many
 more.
 
-When taxonomies are used (and templates are provided) Hugo will
+When taxonomies are used (and templates are provided), Hugo will
 automatically create pages listing all of the taxonomies, their terms
 and all of the content attached to those terms.
 
@@ -41,7 +41,7 @@ and all of the content attached to those terms.
 
 ## Example
 
-For example if I was writing about movies I may want the following
+For example, if I was writing about movies, I may want the following
 taxonomies:
 
 * Actors
@@ -51,7 +51,7 @@ taxonomies:
 * Year
 * Awards
 
-I would then specify in each movies front-matter the specific terms for
+I would then specify in each movie’s front-matter the specific terms for
 each of those taxonomies. Hugo would then automatically create pages for
 each Actor, Director, Studio, Genre, Year and Award listing all of the
 Movies that matched that specific Actor, Director, etc.
@@ -60,7 +60,7 @@ Movies that matched that specific Actor, Director, etc.
 ### Taxonomy Organization
 
 Let’s use an example to demonstrate the different labels in action.
-From the perspective of the taxonomy it could be visualized as:
+From the perspective of the taxonomy, it could be visualized as:
 
     Actor                    <- Taxonomy
         Bruce Willis         <- Term
@@ -72,7 +72,7 @@ From the perspective of the taxonomy it could be visualized as:
             The Avengers     <- Content
             xXx              <- Content
 
-From the perspective of the content if would appear differently, though
+From the perspective of the content, it would appear differently, though
 the data and labels used are the same:
 
     Unbreakable                 <- Content

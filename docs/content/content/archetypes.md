@@ -29,15 +29,15 @@ I use ‘tags’ and ‘categories’ for my taxonomies.
     +++
 
 
-## using archetypes
+## Using archetypes
 
-If I wanted to create a new post in the `posts` section I would run the following command...
+If I wanted to create a new post in the `post` section, I would run the following command:
 
-`hugo new posts/my-new-post.md`
+`hugo new post/my-new-post.md`
 
 Hugo would create the file with the following contents:
 
-### contents/posts/my-new-post.md
+### content/post/my-new-post.md
 
     +++
     title = "my new post"
@@ -49,26 +49,26 @@ Hugo would create the file with the following contents:
 
 ## Using a different front matter format
 
-By default the front matter will be created in the TOML format
+By default, the front matter will be created in the TOML format
 regardless of what format the archetype is using.
 
 You can specify a different default format in your config file using
 the `MetaDataFormat` directive. Possible values are `toml`, `yaml` and `json`.
 
 
-## Which archtype is being used
+## Which archetype is being used
 
 The following rules apply:
 
-* If an archetype with a filename that matches the content type being created it will be used.
-* If no match is found `archetypes/default.md` will be used.
-* If neither are present and a theme is in use then within the theme...
-    * If an archetype with a filename that matches the content type being created it will be used.
-    * If no match is found `archetypes/default.md` will be used.
-* If no archetype files are present then the one that ships with hugo will be used.
+* If an archetype with a filename that matches the content type being created, it will be used.
+* If no match is found, `archetypes/default.md` will be used.
+* If neither are present and a theme is in use, then within the theme:
+    * If an archetype with a filename that matches the content type being created, it will be used.
+    * If no match is found, `archetypes/default.md` will be used.
+* If no archetype files are present, then the one that ships with Hugo will be used.
 
 Hugo provides a simple archetype which sets the title (based on the
-file name) and the date based on now().
+file name) and the date based on `now()`.
 
 Content type is automatically detected based on the path. You are welcome to declare which 
 type to create using the `--kind` flag during creation.

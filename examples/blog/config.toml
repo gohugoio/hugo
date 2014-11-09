@@ -1,0 +1,4 @@
+baseurl = "http://blog.hugoexample.com/"
+languageCode = "en-us"
+title = "Hugo Example Blog"
+canonifyurls = true

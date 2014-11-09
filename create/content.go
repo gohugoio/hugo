@@ -23,6 +23,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
@@ -30,7 +31,7 @@ import (
 )
 
 func NewContent(kind, name string) (err error) {
-	jww.INFO.Println("attempting to create", name, "of", kind)
+	jww.INFO.Println("attempting to create ", name, "of", kind)
 
 	location := FindArchetype(kind)
 
@@ -90,13 +91,13 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" {
+	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" || x == "toml" {
 		newmetadata["date"] = time.Now().Format(time.RFC3339)
 	}
 
-	page.Dir = viper.GetString("sourceDir")
+	//page.Dir = viper.GetString("sourceDir")
 	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat")))
-
+	page.SetSourceContent(psr.Content())
 	if err = page.SafeSaveSourceAs(path.Join(viper.GetString("contentDir"), name)); err != nil {
 		return
 	}
@@ -118,11 +119,21 @@ func FindArchetype(kind string) (outpath string) {
 	}
 
 	for _, x := range search {
-		pathsToCheck := []string{kind + ".md", kind, "default.md", "default"}
+		// If the new content isn't in a subdirectory, kind == "".
+		// Therefore it should be excluded otherwise `is a directory`
+		// error will occur. github.com/spf13/hugo/issues/411
+		var pathsToCheck []string
+
+		if kind == "" {
+			pathsToCheck = []string{"default.md", "default"}
+		} else {
+			pathsToCheck = []string{kind + ".md", kind, "default.md", "default"}
+		}
 		for _, p := range pathsToCheck {
 			curpath := path.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
-			if exists, _ := helpers.Exists(curpath); exists {
+			if exists, _ := helpers.Exists(curpath, hugofs.SourceFs); exists {
+				jww.INFO.Println("curpath: " + curpath)
 				return curpath
 			}
 		}

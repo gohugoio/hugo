@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
@@ -150,11 +152,8 @@ func TestRenderThingOrDefault(t *testing.T) {
 		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, HTML("simple-template")},
 	}
 
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
-	s := &Site{
-		Target: target,
-	}
+	hugofs.DestinationFS = new(afero.MemMapFs)
+	s := &Site{}
 	s.prepTemplates()
 
 	for i, test := range tests {
@@ -169,18 +168,26 @@ func TestRenderThingOrDefault(t *testing.T) {
 		}
 
 		var err2 error
+		var b io.Reader
 		if test.missing {
-			err2 = s.render(p, "out", "missing", templateName)
+			b, err2 = s.renderPage("name", p, "missing", templateName)
 		} else {
-			err2 = s.render(p, "out", templateName, "missing_default")
+			b, err2 = s.renderPage("name", p, templateName, "missing_default")
 		}
 
 		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
 		}
+		if err2 := s.WriteDestPage("out", b); err2 != nil {
+			t.Errorf("Unable to write html: %s", err)
+		}
 
-		if string(files["out"]) != test.expected {
-			t.Errorf("Content does not match. Expected '%s', got '%s'", test.expected, files["out"])
+		file, err := hugofs.DestinationFS.Open("out/index.html")
+		if err != nil {
+			t.Errorf("Unable to open html: %s", err)
+		}
+		if helpers.ReaderToString(file) != test.expected {
+			t.Errorf("Content does not match. Expected '%s', got '%s'", test.expected, helpers.ReaderToString(file))
 		}
 	}
 }
@@ -213,25 +220,23 @@ func TestTargetPath(t *testing.T) {
 			t.Errorf("%s => OutFile  expected: '%s', got: '%s'", test.doc, expected, p.TargetPath())
 		}
 
-		if p.Section != test.expectedSection {
+		if p.Section() != test.expectedSection {
 			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section)
 		}
 	}
 }
 
 func TestDraftAndFutureRender(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*"), "sect"},
-		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*"), "sect"},
-		{"sect/doc3.md", []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*"), "sect"},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*"), "sect"},
+		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
+		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
+		{"sect/doc3.md", []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
 	siteSetup := func() *Site {
 		s := &Site{
-			Target: target,
 			Source: &source.InMemorySource{ByteSource: sources},
 		}
 
@@ -280,25 +285,24 @@ func TestDraftAndFutureRender(t *testing.T) {
 }
 
 func TestSkipRender(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*"), "sect"},
-		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>"), "sect"},
-		{"sect/doc3.md", []byte("# doc3\n*some* content"), "sect"},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*"), "sect"},
-		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"), "sect"},
-		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"), "sect"},
-		{"doc7.html", []byte("<html><body>doc7 content</body></html>"), ""},
-		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*"), "sect"},
+		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>")},
+		{"sect/doc3.md", []byte("# doc3\n*some* content")},
+		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
+		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
+		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
+		{"doc7.html", []byte("<html><body>doc7 content</body></html>")},
+		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
 	viper.Set("verbose", true)
 	viper.Set("CanonifyUrls", true)
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Target: target,
-		Source: &source.InMemorySource{ByteSource: sources},
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
 	}
 
 	s.initializeSiteInfo()
@@ -335,10 +339,11 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		content, ok := target.Files[test.doc]
-		if !ok {
-			t.Fatalf("Did not find %s in target. %v", test.doc, target.Files)
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target.", test.doc)
 		}
+		content := helpers.ReaderToBytes(file)
 
 		if !bytes.Equal(content, []byte(test.expected)) {
 			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
@@ -347,18 +352,17 @@ func TestSkipRender(t *testing.T) {
 }
 
 func TestAbsUrlify(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"), "sect"},
-		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"), "blue"},
+		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
+		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, canonify := range []bool{true, false} {
 		viper.Set("CanonifyUrls", canonify)
 		viper.Set("BaseUrl", "http://auth/bub")
 		s := &Site{
-			Target: target,
-			Source: &source.InMemorySource{ByteSource: sources},
+			Source:  &source.InMemorySource{ByteSource: sources},
+			Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
 		}
 		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", viper.GetString("baseUrl"), canonify)
 		s.initializeSiteInfo()
@@ -385,10 +389,12 @@ func TestAbsUrlify(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			content, ok := target.Files[test.file]
-			if !ok {
+
+			file, err := hugofs.DestinationFS.Open(test.file)
+			if err != nil {
 				t.Fatalf("Unable to locate rendered content: %s", test.file)
 			}
+			content := helpers.ReaderToBytes(file)
 
 			expected := test.expected
 			if !canonify {
@@ -404,12 +410,16 @@ func TestAbsUrlify(t *testing.T) {
 var WEIGHTED_PAGE_1 = []byte(`+++
 weight = "2"
 title = "One"
+my_param = "foo"
+my_date = 1979-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages`)
 
 var WEIGHTED_PAGE_2 = []byte(`+++
 weight = "6"
 title = "Two"
+publishdate = "2012-03-05"
+my_param = "foo"
 +++
 Front Matter with Ordered Pages 2`)
 
@@ -417,6 +427,10 @@ var WEIGHTED_PAGE_3 = []byte(`+++
 weight = "4"
 title = "Three"
 date = "2012-04-06"
+publishdate = "2012-04-06"
+my_param = "bar"
+only_one = "yes"
+my_date = 2010-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages 3`)
 
@@ -424,23 +438,24 @@ var WEIGHTED_PAGE_4 = []byte(`+++
 weight = "4"
 title = "Four"
 date = "2012-01-01"
+publishdate = "2012-01-01"
+my_param = "baz"
+my_date = 2010-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages 4. This is longer content`)
 
 var WEIGHTED_SOURCES = []source.ByteSource{
-	{"sect/doc1.md", WEIGHTED_PAGE_1, "sect"},
-	{"sect/doc2.md", WEIGHTED_PAGE_2, "sect"},
-	{"sect/doc3.md", WEIGHTED_PAGE_3, "sect"},
-	{"sect/doc4.md", WEIGHTED_PAGE_4, "sect"},
+	{"sect/doc1.md", WEIGHTED_PAGE_1},
+	{"sect/doc2.md", WEIGHTED_PAGE_2},
+	{"sect/doc3.md", WEIGHTED_PAGE_3},
+	{"sect/doc4.md", WEIGHTED_PAGE_4},
 }
 
 func TestOrderedPages(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
@@ -472,6 +487,17 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rev[0].Title)
 	}
 
+	bypubdate := s.Pages.ByPublishDate()
+
+	if bypubdate[0].Title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bypubdate[0].Title)
+	}
+
+	rbypubdate := bypubdate.Reverse()
+	if rbypubdate[0].Title != "Three" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].Title)
+	}
+
 	bylength := s.Pages.ByLength()
 	if bylength[0].Title != "One" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].Title)
@@ -480,6 +506,168 @@ func TestOrderedPages(t *testing.T) {
 	rbylength := bylength.Reverse()
 	if rbylength[0].Title != "Four" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Four", rbylength[0].Title)
+	}
+}
+
+var GROUPED_SOURCES = []source.ByteSource{
+	{"sect1/doc1.md", WEIGHTED_PAGE_1},
+	{"sect1/doc2.md", WEIGHTED_PAGE_2},
+	{"sect2/doc3.md", WEIGHTED_PAGE_3},
+	{"sect3/doc4.md", WEIGHTED_PAGE_4},
+}
+
+func TestGroupedPages(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+		}
+	}()
+
+	hugofs.DestinationFS = new(afero.MemMapFs)
+
+	viper.Set("baseurl", "http://auth/bub")
+	s := &Site{
+		Source: &source.InMemorySource{ByteSource: GROUPED_SOURCES},
+	}
+	s.initializeSiteInfo()
+
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	rbysection, err := s.Pages.GroupBy("Section", "desc")
+	fmt.Println(rbysection)
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if rbysection[0].Key != "sect3" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "sect3", rbysection[0].Key)
+	}
+	if rbysection[1].Key != "sect2" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "sect2", rbysection[1].Key)
+	}
+	if rbysection[2].Key != "sect1" {
+		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "sect1", rbysection[2].Key)
+	}
+	if rbysection[0].Pages[0].Title != "Four" {
+		t.Errorf("PageGroup has an unexpected page. First group's pages should have '%s', got '%s'", "Four", rbysection[0].Pages[0].Title)
+	}
+	if len(rbysection[2].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
+	}
+
+	bytype, err := s.Pages.GroupBy("Type", "asc")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if bytype[0].Key != "sect1" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "sect1", bytype[0].Key)
+	}
+	if bytype[1].Key != "sect2" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "sect2", bytype[1].Key)
+	}
+	if bytype[2].Key != "sect3" {
+		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "sect3", bytype[2].Key)
+	}
+	if bytype[2].Pages[0].Title != "Four" {
+		t.Errorf("PageGroup has an unexpected page. Third group's data should have '%s', got '%s'", "Four", bytype[0].Pages[0].Title)
+	}
+	if len(bytype[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bytype[2].Pages))
+	}
+
+	bydate, err := s.Pages.GroupByDate("2006-01", "asc")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if bydate[0].Key != "0001-01" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "0001-01", bydate[0].Key)
+	}
+	if bydate[1].Key != "2012-01" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "2012-01", bydate[1].Key)
+	}
+	if bydate[2].Key != "2012-04" {
+		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "2012-04", bydate[2].Key)
+	}
+	if bydate[2].Pages[0].Title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bydate[2].Pages[0].Title)
+	}
+	if len(bydate[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bydate[2].Pages))
+	}
+
+	bypubdate, err := s.Pages.GroupByPublishDate("2006")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if bypubdate[0].Key != "2012" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "2012", bypubdate[0].Key)
+	}
+	if bypubdate[1].Key != "0001" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "0001", bypubdate[1].Key)
+	}
+	if bypubdate[0].Pages[0].Title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bypubdate[0].Pages[0].Title)
+	}
+	if len(bypubdate[0].Pages) != 3 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 3, len(bypubdate[0].Pages))
+	}
+
+	byparam, err := s.Pages.GroupByParam("my_param", "desc")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if byparam[0].Key != "foo" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "foo", byparam[0].Key)
+	}
+	if byparam[1].Key != "baz" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "baz", byparam[1].Key)
+	}
+	if byparam[2].Key != "bar" {
+		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "bar", byparam[2].Key)
+	}
+	if byparam[2].Pages[0].Title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", byparam[2].Pages[0].Title)
+	}
+	if len(byparam[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byparam[0].Pages))
+	}
+
+	_, err = s.Pages.GroupByParam("not_exist")
+	if err == nil {
+		t.Errorf("GroupByParam didn't return an expected error")
+	}
+
+	byOnlyOneParam, err := s.Pages.GroupByParam("only_one")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if len(byOnlyOneParam) != 1 {
+		t.Errorf("PageGroup array has unexpected elements. Group length should be '%d', got '%d'", 1, len(byOnlyOneParam))
+	}
+	if byOnlyOneParam[0].Key != "yes" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "yes", byOnlyOneParam[0].Key)
+	}
+
+	byParamDate, err := s.Pages.GroupByParamDate("my_date", "2006-01")
+	if err != nil {
+		t.Fatalf("Unable to make PageGroup array: %s", err)
+	}
+	if byParamDate[0].Key != "2010-05" {
+		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "2010-05", byParamDate[0].Key)
+	}
+	if byParamDate[1].Key != "1979-05" {
+		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "1979-05", byParamDate[1].Key)
+	}
+	if byParamDate[1].Pages[0].Title != "One" {
+		t.Errorf("PageGroup has an unexpected page. Second group's pages should have '%s', got '%s'", "One", byParamDate[1].Pages[0].Title)
+	}
+	if len(byParamDate[0].Pages) != 2 {
+		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byParamDate[2].Pages))
 	}
 }
 
@@ -493,7 +681,7 @@ categories_weight = 44
 Front Matter with weighted tags and categories`)
 
 var PAGE_WITH_WEIGHTED_TAXONOMIES_1 = []byte(`+++
-tags = [ "a" ]
+tags = "a"
 tags_weight = 33
 title = "bar"
 categories = [ "d", "e" ]
@@ -513,12 +701,11 @@ date = 2010-05-27T07:32:00Z
 Front Matter with weighted tags and categories`)
 
 func TestWeightedTaxonomies(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1, "sect"},
-		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2, "sect"},
-		{"sect/doc3.md", PAGE_WITH_WEIGHTED_TAXONOMIES_3, "sect"},
+		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1},
+		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2},
+		{"sect/doc3.md", PAGE_WITH_WEIGHTED_TAXONOMIES_3},
 	}
 	taxonomies := make(map[string]string)
 
@@ -528,7 +715,6 @@ func TestWeightedTaxonomies(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub")
 	viper.Set("taxonomies", taxonomies)
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: sources},
 	}
 	s.initializeSiteInfo()

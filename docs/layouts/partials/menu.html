@@ -12,9 +12,9 @@
                 {{ .Pre }}
                 <!--<i class="icon_desktop"></i>-->
                 <span>{{ .Name }}</span>
-                <span class="menu-arrow arrow_carrot-right"></span>
+                <span class="menu-arrow fa {{if $currentNode.HasMenuCurrent "main" . }}fa-angle-down{{else}}fa-angle-right{{end}}"></span>
             </a>
-                <ul class="sub">
+                <ul class="sub{{if $currentNode.HasMenuCurrent "main" . }} open{{end}}">
                     {{ range .Children }}
                     <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
                     {{ end }}
@@ -30,7 +30,9 @@
               </li>
           {{end}}
             <li> <a href="https://github.com/spf13/hugo/issues" target="blank"><i class='fa fa-life-ring'></i>Issues & Help</a> </li>
-            {{ $File := .File }}  {{with .File.FileName }}<li><a href="https://github.com/spf13/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.FileName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
+            {{ if .IsPage }}
+            {{ $File := .File }}  {{with $File.Path }}<li><a href="https://github.com/spf13/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.LogicalName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
+            {{ end }}
         </ul>
         <!-- sidebar menu end-->
     </div>

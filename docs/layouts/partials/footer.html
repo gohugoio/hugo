@@ -3,10 +3,12 @@
                     </section>
                 </div>
                 <div class="col-md-1">
+                    {{ if .IsPage }}
                     {{ with .GetParam "next" }}
                     <a class="navigation next" href="{{.}}">
                         <i class="fa fa-angle-right"> </i>
                     </a>
+                    {{ end }}
                     {{ end }}
                 </div>
               </div>
@@ -17,10 +19,9 @@
   </section>
   <!-- container section end -->
     <!-- javascripts -->
-    <script src="/js/jquery.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery-2.1.1.min.js"></script>
     <script src="/js/jquery.scrollTo.min.js"></script>
-    <script src="/js/jquery.nicescroll.js" type="text/javascript"></script>
+    <script src="/js/bootstrap.min.js"></script>
     <!--custom script for all page-->
     <script src="/js/highlight.pack.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>

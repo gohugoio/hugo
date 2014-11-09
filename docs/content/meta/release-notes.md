@@ -10,7 +10,35 @@ title: Release Notes
 weight: 10
 ---
 
+## **0.12.0** Sept 1, 2014
+
+A lot has happened since Hugo v0.11.0 was released. Most of the work has been
+focused on polishing the theme engine and adding critical functionality to the
+templates.
+
+This release represents over 90 code commits from 28 different contributors.
+
+  * 10 [new themes](https://github.com/spf13/hugoThemes) created by the community
+  * Fully themable [Partials](/templates/partials)
+  * [404 template](/templates/404/) support in themes
+  * [Shortcode](/extras/shortcodes/) support in themes
+  * [Views](/templates/views/) support in themes
+  * Inner [shortcode](/extras/shortcodes/) content now treated as Markdown
+  * Support for header ids in Markdown (# Header {#myid})
+  * [Where](/templates/list) template function to filter lists of content, taxonomies, etc
+  * [GroupBy](/templates/list) & [GroupByDate](/templates/list) methods to group pages
+  * Taxonomy [pages list](/taxonomies/methods/) now sortable, filterable, limitable & groupable
+  * General cleanup to taxonomies & documentation to make it more clear and consistent
+  * [Showcase](/showcase/) returned and has been expanded
+  * Pretty links now always have trailing slashes
+  * [BaseUrl](/overview/configuration/) can now include a subdirectory
+  * Better feedback about draft & future post rendering
+  * A variety of improvements to [the website](http://gohugo.io)
+
 ## **0.11.0** May 28, 2014
+
+This release represents over 110 code commits from 29 different contributors.
+
   * Considerably faster... about 3 - 4x faster on average
   * [Live Reload](/extras/livereload). Hugo will automatically reload the browser when the build is complete
   * Theme engine w/[Theme Repository](http://github.com/spf13/hugoThemes)
@@ -19,7 +47,7 @@ weight: 10
   * [XML sitemap](/templates/sitemap) generation
   * [Integrated Disqus](/extras/comments) support
   * Streamlined [template organization](/templates/overview)
-  * [Brand new docs site](http://hugo.spf13.com)
+  * [Brand new docs site](http://gohugo.io)
   * Support for publishDate which allows for posts to be dated in the future
   * More [sort](/content/ordering) options
   * Logging support
@@ -29,6 +57,9 @@ weight: 10
   * Renamed Chrome > [Partials](/templates/partials)
 
 ## **0.10.0** March 1, 2014
+
+This release represents over 110 code commits from 29 different contributors.
+
   * [Syntax highlighting](/extras/highlighting) powered by pygments (**slow**)
   * Ability to [sort content](/content/ordering) many more ways
   * Automatic [table of contents](/extras/toc) generation
@@ -45,6 +76,9 @@ weight: 10
   * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
 
 ## **0.9.0** November 15, 2013
+
+This release represents over 220 code commits from 22 different contributors.
+
   * New [command based interface](/overview/usage) similar to git (hugo server -s ./ )
   * Amber template support
   * [Aliases](/extras/aliases) (redirects)
@@ -77,6 +111,9 @@ weight: 10
   * Support for `first` in templates
 
 ## **0.8.0** August 2, 2013
+
+This release represents over 65 code commits from 6 different contributors.
+
   * Added support for pretty urls (filename/index.html vs filename.html)
   * Hugo supports a destination directory
   * Will efficiently sync content in static to destination directory

@@ -35,7 +35,7 @@ func (by PageBy) Sort(pages Pages) {
 		pages: pages,
 		by:    by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
-	sort.Sort(ps)
+	sort.Stable(ps)
 }
 
 var DefaultPageSort = func(p1, p2 *Page) bool {
@@ -93,6 +93,15 @@ func (p Pages) ByDate() Pages {
 	}
 
 	PageBy(date).Sort(p)
+	return p
+}
+
+func (p Pages) ByPublishDate() Pages {
+	pubDate := func(p1, p2 *Page) bool {
+		return p1.PublishDate.Unix() < p2.PublishDate.Unix()
+	}
+
+	PageBy(pubDate).Sort(p)
 	return p
 }
 

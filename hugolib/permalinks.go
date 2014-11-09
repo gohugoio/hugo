@@ -3,7 +3,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -25,6 +25,8 @@ type PermalinkOverrides map[string]PathPattern
 // to be used to replace that tag.
 var knownPermalinkAttributes map[string]PageToPermaAttribute
 
+var attributeRegexp *regexp.Regexp
+
 // validate determines if a PathPattern is well-formed
 func (pp PathPattern) validate() bool {
 	fragments := strings.Split(string(pp[1:]), "/")
@@ -37,12 +39,17 @@ func (pp PathPattern) validate() bool {
 			bail = true
 			continue
 		}
-		if !strings.HasPrefix(fragments[i], ":") {
+
+		matches := attributeRegexp.FindAllStringSubmatch(fragments[i], -1)
+		if matches == nil {
 			continue
 		}
-		k := strings.ToLower(fragments[i][1:])
-		if _, ok := knownPermalinkAttributes[k]; !ok {
-			return false
+
+		for _, match := range matches {
+			k := strings.ToLower(match[0][1:])
+			if _, ok := knownPermalinkAttributes[k]; !ok {
+				return false
+			}
 		}
 	}
 	return true
@@ -71,18 +78,35 @@ func (pp PathPattern) Expand(p *Page) (string, error) {
 	}
 	sections := strings.Split(string(pp), "/")
 	for i, field := range sections {
-		if len(field) == 0 || field[0] != ':' {
+		if len(field) == 0 {
 			continue
 		}
-		attr := field[1:]
-		callback, ok := knownPermalinkAttributes[attr]
-		if !ok {
-			return "", &permalinkExpandError{pattern: pp, section: strconv.Itoa(i), err: errPermalinkAttributeUnknown}
+
+		matches := attributeRegexp.FindAllStringSubmatch(field, -1)
+
+		if matches == nil {
+			continue
 		}
-		newField, err := callback(p, attr)
-		if err != nil {
-			return "", &permalinkExpandError{pattern: pp, section: strconv.Itoa(i), err: err}
+
+		newField := field
+
+		for _, match := range matches {
+			attr := match[0][1:]
+			callback, ok := knownPermalinkAttributes[attr]
+
+			if !ok {
+				return "", &permalinkExpandError{pattern: pp, section: strconv.Itoa(i), err: errPermalinkAttributeUnknown}
+			}
+
+			newAttr, err := callback(p, attr)
+
+			if err != nil {
+				return "", &permalinkExpandError{pattern: pp, section: strconv.Itoa(i), err: err}
+			}
+
+			newField = strings.Replace(newField, match[0], newAttr, 1)
 		}
+
 		sections[i] = newField
 	}
 	return strings.Join(sections, "/"), nil
@@ -120,14 +144,22 @@ func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 
 // pageToPermalinkFilename returns the URL-safe form of the filename
 func pageToPermalinkFilename(p *Page, _ string) (string, error) {
-	var extension = filepath.Ext(p.FileName)
-	var name = p.FileName[0 : len(p.FileName)-len(extension)]
-	return helpers.Urlize(name), nil
+	//var extension = p.Source.Ext
+	//var name = p.Source.Path()[0 : len(p.Source.Path())-len(extension)]
+	return helpers.Urlize(p.Source.BaseFileName()), nil
 }
 
 // if the page has a slug, return the slug, else return the title
 func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 	if p.Slug != "" {
+		// Don't start or end with a -
+		if strings.HasPrefix(p.Slug, "-") {
+			p.Slug = p.Slug[1:len(p.Slug)]
+		}
+
+		if strings.HasSuffix(p.Slug, "-") {
+			p.Slug = p.Slug[0 : len(p.Slug)-1]
+		}
 		return p.Slug, nil
 	}
 	return pageToPermalinkTitle(p, a)
@@ -135,7 +167,7 @@ func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 
 func pageToPermalinkSection(p *Page, _ string) (string, error) {
 	// Page contains Node contains UrlPath which has Section
-	return p.Section, nil
+	return p.Section(), nil
 }
 
 func init() {
@@ -152,4 +184,6 @@ func init() {
 		"slug":        pageToPermalinkSlugElseTitle,
 		"filename":    pageToPermalinkFilename,
 	}
+
+	attributeRegexp = regexp.MustCompile(":\\w+")
 }

@@ -1,0 +1,25 @@
+<header>
+	<nav class="menu language-menu">
+		<ul>
+			<li><a href="/">English</a></li>
+			<li><a href="/kodu">Eesti</a></li>
+		</ul>
+		<div class="clear"></div>
+	</nav>
+
+	{{ if (eq .Params.lang "et") }}
+	<h1 class="title">Minu mitmekeelne leht</h1>
+	{{ else }}
+	<h1 class="title">My multilingual site</h1>
+	{{ end }}
+
+	<nav class="menu main-menu">
+		<ul>
+			{{ range (index .Site.Indexes.menu .Params.lang).Pages }}
+			<li><a href="{{ .Permalink  }}">{{ .LinkTitle }}</a></li>
+			{{ end }}
+		</ul>
+	</nav>
+</header>
+
+<h2 class="subtitle">{{ .Title }}</h2>

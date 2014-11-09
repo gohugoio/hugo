@@ -23,12 +23,6 @@ body {
     text-align: center;
 }
 
-.vert-text h1 {
-    padding: 0;
-    margin: 0;
-    font-size: 4.5em;
-    font-weight: 700;
-}
 
 /* Full Page Image Header Area */
 
@@ -48,7 +42,7 @@ body {
 }
 
 .logo {
-    max-width: 35em; 
+    max-width: 35em;
     width: 100%;
     padding: 2em;
 }
@@ -57,7 +51,7 @@ body {
     margin: 2em 0 4em;
 }
 
-@media only screen 
+@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 1024px)
 and (orientation : portrait)
@@ -74,7 +68,7 @@ and (orientation : portrait)
     }
 }
 
-@media only screen 
+@media only screen
 and (min-device-width : 320px)
 and (max-device-width : 1024px)
 and (orientation : landscape) {
@@ -101,24 +95,6 @@ and (orientation : landscape) {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
-.header h4, .header h3, .header h2, .header h1 {
-    color: white;
-    text-shadow: black 1px 1px 3px;
-}
-
-.header h4 {
-    text-shadow: black 1px 3px 3px;
-    font-weight: 100;
-}
-
-.header h2 {
-    font-weight: 200;
-}
-
-.header h1 {
-    font-weight: 500;
-}
-
 .header .btn {
     font-weight: 100;
 }
@@ -136,9 +112,6 @@ and (orientation : landscape) {
     color: #ffffff;
 }
 
-.point-item {
-    margin-bottom: 15px;
-}
 
 .point h2, .counterpoint h2 {
     font-size: 32pt;
@@ -184,9 +157,6 @@ a:hover {
 }
 
 
-i.service-icon:hover {
-    font-size: 68px;
-}
 
 .icon-2x {
     font-size: 200%;
@@ -210,20 +180,6 @@ i.callout-icon:hover {
     background: #fff;
 }
 
-/* Portfolio */
-
-.portfolio {
-    padding: 50px 0;
-}
-
-.portfolio-item {
-    margin-bottom: 25px;
-}
-
-.img-portfolio {
-    margin: 0 auto;
-}
-
 
 /* Call to Action */
 
@@ -236,27 +192,25 @@ i.callout-icon:hover {
 
 #action {
     background: url(../img/gray.png);
-    padding: 50px 0px 30px;
-    position: fixed;
-    bottom: 130px;
-    z-index: 99998;
+    padding: 30px 0px 40px;
     width: 100%;
 }
-
-#footerSpacer {
-    display: block;
-    min-height: 310px;
-    background-color: rgba(0, 0, 0, 0);
+#action pre {
+    background-color: #545454;
+    color: #f9f2f4;
+}
+#action pre:hover {
+    background-color: #f9f2f4;
+    color: #545454;
+}
+#action code {
+    font-family: Lato, monospace;
+    font-size: 14pt;
 }
 
 #footer {
-    bottom: 0px;
-    left: 0px;
-    padding: 10px 0px;
-    position: fixed;
-    width: 100%;
     font-size: 14px;
-    z-index: 99998;
+    padding: 50px 0px 25px 0px;
     background: rgb(255, 255, 255);
 }
 
@@ -292,70 +246,24 @@ footer a:hover {
 
 .btn-dark:hover,
 .btn-dark:focus,
-.btn-dark:active,
-.btn-dark.active,
-.open .dropdown-toggle.btn-dark {
-    color: white;
-    background-color: black;
+.btn-dark:active {
+    color: black;
+    background-color: aliceblue;
     border-color: black;
 }
 
-
-.btn-clear {
-    color:#888;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-color: #FFF;
+.btn-info:hover, .btn-primary:hover, .btn-success:hover {
+    background: aliceblue;
 }
 
-.btn-clear:hover,
-.btn-clear:focus,
-.btn-clear:active,
-.btn-clear.active,
-.open .dropdown-toggle.btn-clear {
-    color: #333333;
-    background-color: #ebebeb;
-    border-color: #adadad;
+.owl-carousel blockquote {
+    border-left: 0px;
 }
 
-.btn-clear:active,
-.btn-clear.active,
-.open .dropdown-toggle.btn-clear {
-    background-image: none;
+.owl-carousel a {
+    color: #243382;
 }
 
-
-div#carousel-quotes {
-    width:100%;
+.owl-carousel blockquote p {
+    font-size: 20pt;
 }
-
-.carousel-inner > .item {
-    height: 16em;
-    font-size: 140%;
-}
-
-@media all and (max-width: 685px) {
-    .carousel-inner > .item {
-        height: 22em;
-    }
-}
-
-@media all and (max-width: 1200px) and (min-width: 686px) {
-    .carousel-inner > .item {
-        height: 18em;
-    }
-}
-
-.slide blockquote {
-    border-left: 0;
-}
-
-.slide blockquote p {
-    font-size: 200%;
-    text-shadow: rgba(0,0,0,0.5) 2px 2px 5px;
-}
-
-.slide blockquote > a {
-    display: block;
-    color: rgb(249, 176, 190);
-}
-

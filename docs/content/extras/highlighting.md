@@ -1,4 +1,6 @@
 ---
+aliases:
+- /extras/highlight/
 date: 2013-07-01
 menu:
   main:
@@ -13,21 +15,21 @@ Hugo provides the ability for you to highlight source code in two different
 ways &mdash; either pre-processed server side from your content, or to defer
 the processing to the client side, using a JavaScript library. The advantage of
 server side is that it doesn’t depend on a JavaScript library and consequently
-works very well when read from an rss feed. The advantage of client side is that
+works very well when read from an RSS feed. The advantage of client side is that
 it doesn’t cost anything when building your site and some of the highlighting 
-scripts available cover more languages than pygments does.
+scripts available cover more languages than Pygments does.
 
 For the pre-processed approach, Highlighting is performed by an external
-python based program called [pygments](http://pygments.org) and is triggered
-via an embedded shortcode. If pygments is absent from the path, it will
+Python-based program called [Pygments](http://pygments.org) and is triggered
+via an embedded shortcode. If Pygments is absent from the path, it will
 silently simply pass the content along unhighlighted.
 
-## Server Side
+## Server-side
 
 ### Disclaimers
 
- * **Warning** pygments is relatively slow. Expect much longer build times when using server side highlighting.
- * Languages available depends on your pygments installation.
+ * **Warning:** Pygments is relatively slow. Expect much longer build times when using server-side highlighting.
+ * Languages available depends on your Pygments installation.
  * Styles are inline in order to be supported in syndicated content when references
 to style sheets are not carried over.
  * We have sought to have the simplest interface possible, which consequently
@@ -41,8 +43,9 @@ Highlight takes exactly one required parameter of language and requires a
 closing shortcode.
 
 ### Example
-The example has an extra space between the “{{” and “%” characters to prevent rendering here.
-
+The example has an extra space between the “{{” and “%” characters to prevent rendering here.  Since this example is a code block, we use Github flavored Markdown's code fences, ```, to delimit the code. If you are using standard Markdown, instead of the code fence delimiters, each line must be preceeded by 4 spaces to identify each line as a line of code. Not doing either will result in the text being rendered as HTML. This will prevent Pytment highlighting from working.
+ 
+    ```  
     {{ % highlight html %}}
     <section id="main">
       <div>
@@ -53,7 +56,7 @@ The example has an extra space between the “{{” and “%” characters to pr
       </div>
     </section>
     {{ % /highlight %}}
-
+    ```
 
 ### Example Output
 
@@ -81,12 +84,13 @@ a library and a corresponding theme. Some popular libraries are:
 This example uses the popular [Highlight.js] library, hosted by [Yandex], a
 popular Russian search engine.
 
-In your `./layouts/chrome/` folder, depending on your specific theme, there
+In your `./layouts/partials/` (or `./layouts/chrome/`) folder, depending on your specific theme, there
 will be a snippet that will be included in every generated HTML page, such
 as `header.html` or `header.includes.html`. Simply add:
 
     <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css">
     <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
 
 You can of course use your own copy of these files, typically in `./static/`.
 
@@ -96,4 +100,4 @@ You can of course use your own copy of these files, typically in `./static/`.
 [Google Prettify]: https://code.google.com/p/google-code-prettify/
 [Yandex]: http://yandex.ru/
 
-Please see individual libraries documentation for how to implement the JavaScript based libraries.
+Please see individual libraries documentation for how to implement the JavaScript-based libraries.

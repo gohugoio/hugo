@@ -8,7 +8,7 @@ sourceLink: http://github.com/spf13/spf13.com
 tags:
 - personal
 - blog
-thumbnail: /static/img/spf13-tn.jpg
+thumbnail: /img/spf13-tn.jpg
 title: spf13.com
 ---
 

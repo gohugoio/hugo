@@ -24,7 +24,7 @@ func (t *GoHtmlTemplate) EmbedShortcodes() {
 	t.AddInternalShortcode("figure.html", `<!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
     {{ with .Get "link"}}<a href="{{.}}">{{ end }}
-        <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}"{{ end }} />
+        <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}"{{ end }}{{ with .Get "width" }}width="{{.}}"{{ end }} />
     {{ if .Get "link"}}</a>{{ end }}
     {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr")}}
     <figcaption>{{ if isset .Params "title" }}
@@ -46,7 +46,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 	t.AddInternalTemplate("_default", "rss.xml", `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
       <title>{{ .Title }} on {{ .Site.Title }} </title>
-      <generator uri="https://hugo.spf13.com">Hugo</generator>
+      <generator uri="https://gohugo.io">Hugo</generator>
     <link>{{ .Permalink }}</link>
     {{ with .Site.LanguageCode }}<language>{{.}}</language>{{end}}
     {{ with .Site.Author.name }}<author>{{.}}</author>{{end}}

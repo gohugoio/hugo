@@ -22,10 +22,10 @@ as that template is a list of content, where this is a list of meta data.
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present
-than the next one in the list will be used. This enables you to craft
+Hugo will use the following prioritized list. If a file isn’t present,
+then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
-then necessary. For most sites only the \_default file at the end of
+than necessary. For most sites only the \_default file at the end of
 the list will be needed.
 
 A Taxonomy Terms List will be rendered at /`PLURAL`/
@@ -43,15 +43,15 @@ dedicated page for the terms.
 
 Taxonomy Terms pages are of the type "node" and have all the [node
 variables](/templates/variables/) and [site
-variables](/templates/variables/) available to use in the templates. 
+variables](/templates/variables/) available to use in the templates.
 
 Taxonomy Terms pages will additionally have:
 
-**.Data.Singular** The singular name of the taxonomy <br>
-**.Data.Plural** The plural name of the taxonomy<br>
-**.Data.Terms** The taxonomy itself<br>
-**.Data.Terms.Alphabetical** The Terms alphabetized<br>
-**.Data.Terms.ByCount** The Terms ordered by popularity<br>
+* **.Data.Singular** The singular name of the taxonomy
+* **.Data.Plural** The plural name of the taxonomy
+* **.Data.Terms** The taxonomy itself
+* **.Data.Terms.Alphabetical** The Terms alphabetized
+* **.Data.Terms.ByCount** The Terms ordered by popularity
 
 ## Example terms.html file
 
@@ -68,7 +68,7 @@ This particular template lists all of the Tags used on
 [spf13.com](http://spf13.com) and provides a count for the number of pieces of
 content tagged with each tag.
 
-.Data.Terms is an map of terms => [contents]
+`.Data.Terms` is an map of terms ⇒ [contents]
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
@@ -88,6 +88,32 @@ content tagged with each tag.
 
     {{ partial "footer.html" }}
 
+
+Another example listing the content for each term (ordered by Date)
+
+
+    {{ partial "header.html" . }}
+    {{ partial "subheader.html" . }}
+
+    <section id="main">
+      <div>
+       <h1 id="title">{{ .Title }}</h1>
+
+        {{ $data := .Data }}
+        {{ range $key,$value := .Data.Terms.ByCount }}
+        <h2><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </h2>
+        <ul>
+            {{ range $value.Pages.ByDate }}
+            <li>
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+            </li>
+            {{ end }}
+        </ul>
+        {{ end }}
+      </div>
+    </section>
+
+    {{ partial "footer.html" }}
 
 ## Ordering
 

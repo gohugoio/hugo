@@ -24,17 +24,17 @@ bootstrapping a new site and template. It is also the only required
 template when using a single page site.*
 
 In addition to the standard node variables, the homepage has access to
-all site content accessible from .Data.Pages . Details on how to use the
-list of pages can be found in the [Lists Template](/templates/list/)
+all site content accessible from `.Data.Pages`. Details on how to use the
+list of pages can be found in the [Lists Template](/templates/list/).
 
 ## Which Template will be rendered?
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present
-than the next one in the list will be used. This enables you to craft
+Hugo will use the following prioritized list. If a file isn’t present,
+then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
-then necessary. For most sites only the \_default file at the end of
+than necessary. For most sites, only the \_default file at the end of
 the list will be needed.
 
 * /layouts/index.html
@@ -44,7 +44,7 @@ the list will be needed.
 * /themes/`THEME`/layouts/\_default/list.html
 * /themes/`THEME`/layouts/\_default/single.html
 
-## example index.html
+## Example index.html
 This content template is used for [spf13.com](http://spf13.com).
 
 It makes use of [partial templates](/templates/partials) and uses a similar approach as a [List](/templates/list/).

@@ -11,7 +11,7 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 	}
 
 	for _, p := range s.Pages {
-		fmt.Fprintf(out, "%s", p.FileName)
+		fmt.Fprintf(out, "%s", p.Source.Path())
 		if p.IsRenderable() {
 			fmt.Fprintf(out, " (renderer: markdown)")
 		} else {
@@ -24,23 +24,23 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 		}
 		fmt.Fprintf(out, "\n")
 		fmt.Fprintf(out, " canonical => ")
-		if s.Target == nil {
+		if s.Targets.Page == nil {
 			fmt.Fprintf(out, "%s\n\n", "!no target specified!")
 			continue
 		}
 
-		trns, err := s.Target.Translate(p.TargetPath())
+		trns, err := s.PageTarget().Translate(p.TargetPath())
 		if err != nil {
 			return err
 		}
 		fmt.Fprintf(out, "%s\n", trns)
 
-		if s.Alias == nil {
+		if s.Targets.Alias == nil {
 			continue
 		}
 
 		for _, alias := range p.Aliases {
-			aliasTrans, err := s.Alias.Translate(alias)
+			aliasTrans, err := s.AliasTarget().Translate(alias)
 			if err != nil {
 				return err
 			}

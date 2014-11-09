@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{ partial "meta.html" . }}
+
+    <title>{{ .Title }} - {{ .Site.BaseUrl }}</title>
+    <link rel="canonical" href="{{ .Permalink }}">
+    {{ partial "header.includes.html" . }}
+    {{ if .RSSlink }}<link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />{{ end }}
+</head>

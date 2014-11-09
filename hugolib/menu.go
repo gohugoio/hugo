@@ -67,6 +67,10 @@ func (me *MenuEntry) IsEqual(inme *MenuEntry) bool {
 	return me.hopefullyUniqueId() == inme.hopefullyUniqueId() && me.Parent == inme.Parent
 }
 
+func (me *MenuEntry) IsSameResource(inme *MenuEntry) bool {
+	return me.Url != "" && inme.Url != "" && me.Url == inme.Url
+}
+
 func (me *MenuEntry) MarshallMap(ime map[string]interface{}) {
 	for k, v := range ime {
 		loki := strings.ToLower(k)
@@ -129,7 +133,7 @@ func (by MenuEntryBy) Sort(menu Menu) {
 		menu: menu,
 		by:   by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
-	sort.Sort(ms)
+	sort.Stable(ms)
 }
 
 var DefaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {

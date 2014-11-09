@@ -1,32 +1,54 @@
+// Copyright © 2014 Steve Francia <spf@spf13.com>.
+//
+// Licensed under the Simple Public License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://opensource.org/licenses/Simple-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package source
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 type Input interface {
 	Files() []*File
 }
 
-type File struct {
-	name        string
-	LogicalName string
-	Contents    io.Reader
-	Section     string
-	Dir         string
-}
-
 type Filesystem struct {
 	files      []*File
 	Base       string
 	AvoidPaths []string
+}
+
+func (f *Filesystem) FilesByExts(exts ...string) []*File {
+	var newFiles []*File
+
+	if len(exts) == 0 {
+		return f.Files()
+	}
+
+	for _, x := range f.Files() {
+		for _, e := range exts {
+			if x.Ext() == strings.TrimPrefix(e, ".") {
+				newFiles = append(newFiles, x)
+			}
+		}
+	}
+	return newFiles
 }
 
 func (f *Filesystem) Files() []*File {
@@ -36,47 +58,23 @@ func (f *Filesystem) Files() []*File {
 	return f.files
 }
 
-var errMissingBaseDir = errors.New("source: missing base directory")
-
 func (f *Filesystem) add(name string, reader io.Reader) (err error) {
+	var file *File
 
-	if name, err = f.getRelativePath(name); err != nil {
-		return err
+	//if f.Base == "" {
+	//file = NewFileWithContents(name, reader)
+	//} else {
+	file, err = NewFileFromAbs(f.Base, name, reader)
+	//}
+
+	if err == nil {
+		f.files = append(f.files, file)
 	}
-
-	// section should be the first part of the path
-	dir, logical := path.Split(name)
-	parts := strings.Split(dir, "/")
-	section := parts[0]
-
-	if section == "." {
-		section = ""
-	}
-
-	f.files = append(f.files, &File{
-		name:        name,
-		LogicalName: logical,
-		Contents:    reader,
-		Section:     section,
-		Dir:         dir,
-	})
-
-	return
+	return err
 }
 
 func (f *Filesystem) getRelativePath(name string) (final string, err error) {
-	if filepath.IsAbs(name) && f.Base == "" {
-		return "", errMissingBaseDir
-	}
-	name = filepath.Clean(name)
-	base := filepath.Clean(f.Base)
-
-	name, err = filepath.Rel(base, name)
-	if err != nil {
-		return "", err
-	}
-	name = filepath.ToSlash(name)
-	return name, nil
+	return helpers.GetRelativePath(name, f.Base)
 }
 
 func (f *Filesystem) captureFiles() {

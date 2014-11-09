@@ -16,12 +16,12 @@ proceeding._
 
 ## Step 1. Install Hugo
 
-Goto [hugo releases](https://github.com/spf13/hugo/releases) and download the
+Go to [Hugo Releases](https://github.com/spf13/hugo/releases) and download the
 appropriate version for your os and architecture.
 
 Save it somewhere specific as we will be using it in the next step.
 
-More complete instructions are available at [installing hugo](/overview/installing/)
+More complete instructions are available at [Installing Hugo](/overview/installing/)
 
 ## Step 2. Have Hugo Create a site for you
 
@@ -59,7 +59,7 @@ A new file is now created in `content/` with the following contents
 
 Notice the date is automatically set to the moment you created the content.
 
-Place some content in this file below the `+++` in the markdown format.
+Place some content in this file below the `+++` in the Markdown format.
 
 For example you could put this
 
@@ -67,7 +67,7 @@ For example you could put this
 
     Some Content
 
-For fun, let’s create another piece of content and place some markdown in it as well.
+For fun, let’s create another piece of content and place some Markdown in it as well.
 
     hugo new post/first.md
 
@@ -77,16 +77,15 @@ We still lack any templates to tell us how to display the content.
 
 ## Step 4. Install some themes
 
-    Hugo has rich theme support and a growing set of themes to choose from.
+Hugo has rich theme support and a growing set of themes to choose from:
 
     git clone --recursive https://github.com/spf13/hugoThemes themes
 
-
 ## Step 5. Run Hugo
 
-Hugo contains it’s own high performance web server. Simply run `hugo
+Hugo contains its own high performance web server. Simply run `hugo
 server` and Hugo will find an available port and run a server with
-your content 
+your content:
 
     hugo server --theme=hyde --buildDrafts
     2 pages created
@@ -97,16 +96,16 @@ your content
     Web Server is available at http://localhost:1313
     Press ctrl+c to stop
 
-We specified two options here.
+We specified two options here:
 
- * --theme to pick which theme.
- * --buildDrafts because we want to display our content, both set to draft status
+ * `--theme` to pick which theme;
+ * `--buildDrafts` because we want to display our content, both set to draft status.
 
-To learn about what other options hugo has run 
+To learn about what other options hugo has, run:
 
     hugo help
 
-To learn about the server options
+To learn about the server options:
 
     hugo help server
 
@@ -128,15 +127,15 @@ Stop the Hugo process by hitting ctrl+c. Then run the following:
     Serving pages from exampleHugoSite/public
     Web Server is available at http://localhost:1313
     Press ctrl+c to stop
+
 Open your [favorite editor](http://vim.spf13.com), edit and save your content and watch as Hugo rebuilds and reloads automatically.
 
 It’s especially productive to leave a browser open on a second monitor
 and just glance at it whenever you save. You don’t even need to tab to
-your browser. Hugo is so fast, that the new site will be there before
+your browser. Hugo is so fast that the new site will be there before
 you can look at the browser in most cases.
 
-
-Change and save this file.. Notice what happened in your terminal.
+Change and save this file. Notice what happened in your terminal.
 
     Change detected, rebuilding site
 
@@ -154,7 +153,7 @@ Things to try:
  * Add a [new content file](/content/organization/)
  * Create a [new section](/content/sections/)
  * Modify [a template](/layout/templates/)
- * Create content with [toml front matter](/content/front-matter/)
+ * Create content with [TOML front matter](/content/front-matter/)
  * Define your own field in [front matter](/content/front-matter/)
  * Display that [field in the template](/layout/variables/)
  * Create a [new content type](/content/types/)

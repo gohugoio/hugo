@@ -20,19 +20,19 @@ Make sure either hugo is in your path or provide a path to it.
     A Fast and Flexible Static Site Generator
     built with love by spf13 and friends in Go.
 
-    Complete documentation is available at http://hugo.spf13.com
+    Complete documentation is available at http://gohugo.io
 
     Usage:
       hugo [flags]
       hugo [command]
 
     Available Commands:
-      server                    :: Hugo runs it's own a webserver to render the files
-      version                   :: Print the version number of Hugo
-      check                     :: Check content in the source directory
-      benchmark                 :: Benchmark hugo by building a site a number of times
-      new [path]                :: Create new content for your site
-      help [command]            :: Help about any command
+      server                    Hugo runs its own webserver to render the files
+      version                   Print the version number of Hugo
+      check                     Check content in the source directory
+      benchmark                 Benchmark hugo by building a site a number of times
+      new [path]                Create new content for your site
+      help [command]            Help about any command
 
      Available Flags:
       -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/
@@ -54,7 +54,7 @@ Make sure either hugo is in your path or provide a path to it.
 
     Use "hugo help [command]" for more information about that command.
 
-## Common Usage Example:
+## Common Usage Example
 
 The most common use is probably to run hugo with your current
 directory being the input directory.

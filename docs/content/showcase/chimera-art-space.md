@@ -8,7 +8,7 @@ sourceLink: https://github.com/chimera/chimeraarts.org
 tags:
 - company
 - bootstrap
-thumbnail: /static/img/chimera-tn.jpg
+thumbnail: /img/chimera-tn.jpg
 title: Chimera Art Space
 ---
 

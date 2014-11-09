@@ -14,23 +14,23 @@ weight: 20
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo
-using the [list templates](/templates/list).
+using the [list templates](/templates/list):
 
-1. For a given piece of content you can list the terms attached 
-2. For a given piece of content you can list other content with the same
+1. For a given piece of content, you can list the terms attached
+2. For a given piece of content, you can list other content with the same
    term
 3. You can list all terms for a taxonomy
 4. You can list all taxonomies (with their terms)
 
 ## 1. Displaying taxonomy terms assigned to this content
 
-Within your content templates you may wish to display 
+Within your content templates, you may wish to display
 the taxonomies that that piece of content is assigned to.
 
-Because we are leveraging the front matter system to 
-define taxonomies for content, the taxonomies assigned to 
-each content piece are located in the usual place 
-(.Params.`plural`)
+Because we are leveraging the front matter system to
+define taxonomies for content, the taxonomies assigned to
+each content piece are located in the usual place
+(.Params.`plural`).
 
 ### Example
 
@@ -42,7 +42,7 @@ each content piece are located in the usual place
 
 ## 2. Listing content with the same taxonomy term
 
-First you may be asking why you would use this. If you are using a
+First, you may be asking why you would use this. If you are using a
 taxonomy for something like a series of posts, this is exactly how you
 would do it. It’s also an quick and dirty way to show some related
 content.
@@ -80,7 +80,7 @@ different terms to the content.
 
 ## 4. Rendering a Site's Taxonomies
 
-If you wish to display the list of all keys for an taxonomy you can find retrieve
+If you wish to display the list of all keys for an taxonomy, you can find retrieve
 them from the `.Site` variable which is available on every page.
 
 This may take the form of a tag cloud, a menu or simply a list.
@@ -90,8 +90,8 @@ The following example displays all tag keys:
 ### Example
 
     <ul id="all-tags">
-      {{ range .Site.Taxonomies.tags }}
-        <li><a href="/tags/{{ .Name | urlize }}">{{ .Name }}</a></li>  
+      {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+        <li><a href="/tags/{{ $name | urlize }}">{{ $name }}</a></li>
       {{ end }}
     </ul>
 
@@ -101,7 +101,7 @@ This example will list all taxonomies, each of their keys and all the content as
     <section>
       <ul>
         {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-          <li><a href="/{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a> 
+          <li><a href="/{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
             <ul>
               {{ range $key, $value := $taxonomy }}
               <li> {{ $key }} </li>
@@ -112,7 +112,7 @@ This example will list all taxonomies, each of their keys and all the content as
                     </ul>
               {{ end }}
             </ul>
-          </li> 
+          </li>
         {{ end }}
       </ul>
     </section>

@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,15 +36,72 @@ func (n *Node) Now() time.Time {
 	return time.Now()
 }
 
-func (n *Node) HasMenuCurrent(menu string, me *MenuEntry) bool {
+func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
+	if inme.HasChildren() {
+		me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
+
+		for _, child := range inme.Children {
+			if me.IsSameResource(child) {
+				return true
+			}
+		}
+	}
+
 	return false
 }
-func (n *Node) IsMenuCurrent(menu string, me *MenuEntry) bool {
+
+func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
+
+	me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
+
+	if !me.IsSameResource(inme) {
+		return false
+	}
+
+	// this resource may be included in several menus
+	// search for it to make sure that it is in the menu with the given menuId
+	if menu, ok := (*n.Site.Menus)[menuId]; ok {
+		for _, menuEntry := range *menu {
+			if menuEntry.IsSameResource(inme) {
+				return true
+			}
+
+			descendantFound := n.isSameAsDescendantMenu(inme, menuEntry)
+			if descendantFound {
+				return descendantFound
+			}
+
+		}
+	}
+
+	return false
+}
+
+func (n *Node) isSameAsDescendantMenu(inme *MenuEntry, parent *MenuEntry) bool {
+	if parent.HasChildren() {
+		for _, child := range parent.Children {
+			if child.IsSameResource(inme) {
+				return true
+			}
+			descendantFound := n.isSameAsDescendantMenu(inme, child)
+			if descendantFound {
+				return descendantFound
+			}
+		}
+	}
 	return false
 }
 
 func (n *Node) RSSlink() template.HTML {
 	return n.RSSLink
+}
+
+func (n *Node) IsNode() bool {
+	return true
+}
+
+func (n *Node) IsPage() bool {
+	return !n.IsNode()
 }
 
 type UrlPath struct {

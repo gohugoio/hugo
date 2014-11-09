@@ -6,27 +6,30 @@ function initializeJS() {
     //popovers
     jQuery('.popovers').popover();
 
-    //custom scrollbar
-        //for html
-    jQuery("html").niceScroll({styler:"fb",cursorcolor:"#007AFF", cursorwidth: '6', cursorborderradius: '10px', background: '#F7F7F7', cursorborder: '', zindex: '1000'});
-        //for sidebar
-    jQuery("#sidebar").niceScroll({styler:"fb",cursorcolor:"#007AFF", cursorwidth: '3', cursorborderradius: '10px', background: '#F7F7F7', cursorborder: ''});
-        // for scroll panel
-    jQuery(".scroll-panel").niceScroll({styler:"fb",cursorcolor:"#007AFF", cursorwidth: '3', cursorborderradius: '10px', background: '#F7F7F7', cursorborder: ''});
-
     //sidebar dropdown menu
     jQuery('#sidebar .sub-menu > a').click(function () {
-        var last = jQuery('.sub-menu.open', jQuery('#sidebar'));
-        jQuery('.menu-arrow').removeClass('arrow_carrot-right');
-        jQuery('.sub', last).slideUp(200);
+        // Close previous open submenu
+        var last = jQuery('.sub.open', jQuery('#sidebar'));
+        jQuery(last).slideUp(200);
+        jQuery(last).removeClass("open");
+        jQuery('.menu-arrow', jQuery(last).parent()).addClass('fa-angle-right');
+        jQuery('.menu-arrow', jQuery(last).parent()).removeClass('fa-angle-down');
+
+        // Toggle current submenu
         var sub = jQuery(this).next();
         if (sub.is(":visible")) {
-            jQuery('.menu-arrow').addClass('arrow_carrot-right');
+            jQuery('.menu-arrow', this).addClass('fa-angle-right');
+            jQuery('.menu-arrow', this).removeClass('fa-angle-down');
             sub.slideUp(200);
+            jQuery(sub).removeClass("open")
         } else {
-            jQuery('.menu-arrow').addClass('arrow_carrot-down');
+            jQuery('.menu-arrow', this).addClass('fa-angle-down');
+			jQuery('.menu-arrow', this).removeClass('fa-angle-right');
             sub.slideDown(200);
+            jQuery(sub).addClass("open")
         }
+
+        // Center menu on screen
         var o = (jQuery(this).offset());
         diff = 200 - o.top;
         if(diff>0)

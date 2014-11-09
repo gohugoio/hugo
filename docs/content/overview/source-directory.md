@@ -25,13 +25,13 @@ The top level of a source directory will typically have the following elements:
     ▸ themes/
       config.toml
 
-Learn more about the different directories and what their purpose is 
+Learn more about the different directories and what their purpose is:
 
 * [config](/overview/configuration)
 * [archetypes](/content/archetypes)
 * [content](/content/organization)
 * [layouts](/layout/overview)
-* [static]()
+* [static](/themes/creation#toc_4)
 * [themes](/themes/overview)
 
 
@@ -85,6 +85,6 @@ An example directory may look like:
 
 This directory structure tells us a lot about this site:
 
-1. the website intends to have two different types of content, posts and quotes.
-2. It will also apply two different indexes to that content, categories and tags.
-3. It will be displaying content in 3 different views, a list, a summary and a full page view.
+1. The website intends to have two different types of content: posts and quotes.
+2. It will also apply two different indexes to that content: categories and tags.
+3. It will be displaying content in 3 different views: a list, a summary and a full page view.

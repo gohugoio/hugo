@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/go-templates/
+- /layouts/go-templates/
 date: 2013-07-01
 menu:
   main:
@@ -11,30 +12,30 @@ title: Go Template Primer
 weight: 15
 ---
 
-Hugo uses the excellent [go][] [html/template][gohtmltemplate] library for
+Hugo uses the excellent [Go][] [html/template][gohtmltemplate] library for
 its template engine. It is an extremely lightweight engine that provides a very
-small amount of logic. In our experience that it is just the right amount of
+small amount of logic. In our experience it is just the right amount of
 logic to be able to create a good static website. If you have used other
-template systems from different languages or frameworks you will find a lot of
-similarities in go templates.
+template systems from different languages or frameworks, you will find a lot of
+similarities in Go templates.
 
-This document is a brief primer on using go templates. The [go docs][gohtmltemplate]
-provide more details.
+This document is a brief primer on using Go templates. The [Go docs][gohtmltemplate]
+go into more depth and cover features that aren't mentioned here.
 
 ## Introduction to Go Templates
 
 Go templates provide an extremely simple template language. It adheres to the
 belief that only the most basic of logic belongs in the template or view layer.
-One consequence of this simplicity is that go templates parse very quickly.
+One consequence of this simplicity is that Go templates parse very quickly.
 
-A unique characteristic of go templates is they are content aware. Variables and
+A unique characteristic of Go templates is they are content aware. Variables and
 content will be sanitized depending on the context of where they are used. More
-details can be found in the [go docs][gohtmltemplate].
+details can be found in the [Go docs][gohtmltemplate].
 
 ## Basic Syntax
 
-Go lang templates are html files with the addition of variables and
-functions. 
+Go lang templates are HTML files with the addition of variables and
+functions.
 
 **Go variables and functions are accessible within {{ }}**
 
@@ -44,7 +45,7 @@ Accessing a predefined variable "foo":
 
 **Parameters are separated using spaces**
 
-Calling the add function with input of 1, 2:
+Calling the `add` function with input of 1, 2:
 
     {{ add 1 2 }}
 
@@ -61,7 +62,7 @@ Accessing the Page Parameter "bar"
 
 ## Variables
 
-Each go template has a struct (object) made available to it. In hugo each
+Each Go template has a struct (object) made available to it. In Hugo, each
 template is passed either a page or a node struct depending on which type of
 page you are rendering. More details are available on the
 [variables](/layout/variables) page.
@@ -78,100 +79,111 @@ Variables can also be defined and referenced.
 
 ## Functions
 
-Go template ship with a few functions which provide basic functionality. The go
+Go template ships with a few functions which provide basic functionality. The Go
 template system also provides a mechanism for applications to extend the
 available functions with their own. [Hugo template
 functions](/layout/functions) provide some additional functionality we believe
 are useful for building websites. Functions are called by using their name
 followed by the required parameters separated by spaces. Template
-functions cannot be added without recompiling hugo.
+functions cannot be added without recompiling Hugo.
 
-**Example:**
+**Example 1: Adding numbers**
 
     {{ add 1 2 }}
 
+**Example 2: Comparing numbers**
+
+    {{ lt 1 2 }}
+
+(There are more boolean operators, detailed in the
+[template documentation](http://golang.org/pkg/text/template/#hdr-Functions).)
+
 ## Includes
 
-When including another template you will pass to it the data it will be
-able to access. To pass along the current context please remember to
+When including another template, you will pass to it the data it will be
+able to access. To pass along the current context, please remember to
 include a trailing dot. The templates location will always be starting at
 the /layout/ directory within Hugo.
 
 **Example:**
 
-    {{ template "chrome/header.html" . }}
+    {{ template "partials/header.html" . }}
+
+And, starting with Hugo v0.12, you may also use the `partial` call
+for [partial templates](/templates/partials/):
+
+    {{ partial "header.html" . }}
 
 
 ## Logic
 
 Go templates provide the most basic iteration and conditional logic.
 
-### Iteration 
+### Iteration
 
-Just like in go, the go templates make heavy use of range to iterate over
+Just like in Go, the Go templates make heavy use of `range` to iterate over
 a map, array or slice. The following are different examples of how to use
 range.
 
 **Example 1: Using Context**
 
-    {{ range array }} 
+    {{ range array }}
         {{ . }}
     {{ end }}
 
 **Example 2: Declaring value variable name**
 
-    {{range $element := array}} 
-        {{ $element }} 
+    {{range $element := array}}
+        {{ $element }}
     {{ end }}
 
 **Example 2: Declaring key and value variable name**
 
     {{range $index, $element := array}}
-        {{ $index }} 
-        {{ $element }} 
+        {{ $index }}
+        {{ $element }}
     {{ end }}
 
-### Conditionals 
+### Conditionals
 
-If, else, with, or, & and provide the framework for handling conditional
-logic in Go Templates. Like range, each statement is closed with `end`.
+`if`, `else`, `with`, `or` & `and` provide the framework for handling conditional
+logic in Go Templates. Like `range`, each statement is closed with `end`.
 
-
-Go Templates treat the following values as false: 
+Go Templates treat the following values as false:
 
 * false
-* 0 
+* 0
 * any array, slice, map, or string of length zero
 
-**Example 1: If**
+**Example 1: `if`**
 
     {{ if isset .Params "title" }}<h4>{{ index .Params "title" }}</h4>{{ end }}
 
-**Example 2: If -> Else** 
+**Example 2: `if` … `else`**
 
-    {{ if isset .Params "alt" }} 
+    {{ if isset .Params "alt" }}
         {{ index .Params "alt" }}
     {{else}}
         {{ index .Params "caption" }}
     {{ end }}
 
-**Example 3: And & Or**
+**Example 3: `and` & `or`**
 
     {{ if and (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
 
-**Example 4: With**
+**Example 4: `with`**
 
-An alternative way of writing "if" and then referencing the same value
-is to use "with" instead. With rebinds the context `.` within its scope,
+An alternative way of writing "`if`" and then referencing the same value
+is to use "`with`" instead. `with` rebinds the context `.` within its scope,
 and skips the block if the variable is absent.
 
 The first example above could be simplified as:
 
     {{ with .Params.title }}<h4>{{ . }}</h4>{{ end }}
 
-**Example 5: If -> Else If** 
+**Example 5: `if` … `else if`**
 
-    {{ if isset .Params "alt" }} 
+    {{ if isset .Params "alt" }}
         {{ index .Params "alt" }}
     {{ else if isset .Params "caption" }}
         {{ index .Params "caption" }}
@@ -179,56 +191,64 @@ The first example above could be simplified as:
 
 ## Pipes
 
-One of the most powerful components of go templates is the ability to
+One of the most powerful components of Go templates is the ability to
 stack actions one after another. This is done by using pipes. Borrowed
-from unix pipes, the concept is simple, each pipeline's output becomes the
-input of the following pipe. 
+from Unix pipes, the concept is simple, each pipeline's output becomes the
+input of the following pipe.
 
-Because of the very simple syntax of go templates, the pipe is essential
+Because of the very simple syntax of Go templates, the pipe is essential
 to being able to chain together function calls. One limitation of the
 pipes is that they only can work with a single value and that value
-becomes the last parameter of the next pipeline. 
+becomes the last parameter of the next pipeline.
 
 A few simple examples should help convey how to use the pipe.
 
-**Example 1 :**
+**Example 1:**
 
     {{ if eq 1 1 }} Same {{ end }}
 
-is the same as 
+is the same as
 
     {{ eq 1 1 | if }} Same {{ end }}
 
-It does look odd to place the if at the end, but it does provide a good
+It does look odd to place the `if` at the end, but it does provide a good
 illustration of how to use the pipes.
 
-**Example 2 :**
+**Example 2:**
 
     {{ index .Params "disqus_url" | html }}
 
 Access the page parameter called "disqus_url" and escape the HTML.
 
-**Example 3 :**
+**Example 3:**
 
     {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
     Stuff Here
     {{ end }}
 
-Could be rewritten as 
+Could be rewritten as
 
     {{  isset .Params "caption" | or isset .Params "title" | or isset .Params "attr" | if }}
-    Stuff Here 
+    Stuff Here
     {{ end }}
 
+### Internet Explorer conditional comments using Pipes
 
-## Context (aka. the dot)
+By default, Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
 
-The most easily overlooked concept to understand about go templates is that {{ . }}
+    {{ "<!--[if lt IE 9]>" | safeHtml }}
+      <script src="html5shiv.js"></script>
+    {{ "<![endif]-->" | safeHtml }}
+
+## Context (a.k.a. the dot)
+
+The most easily overlooked concept to understand about Go templates is that `{{ . }}`
 always refers to the current context. In the top level of your template this
 will be the data set made available to it. Inside of a iteration it will have
-the value of the current item. When inside of a loop the context has changed. .
-will no longer refer to the data available to the entire page. If you need to
-access this from within the loop you will likely want to set it to a variable
+the value of the current item. When inside of a loop the context has changed.
+`.` will no longer refer to the data available to the entire page. If you need
+to
+access this from within the loop, you will likely want to set it to a variable
 instead of depending on the context.
 
 **Example:**
@@ -238,28 +258,28 @@ instead of depending on the context.
         <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> - {{ $title }} </li>
       {{ end }}
 
-Notice how once we have entered the loop the value of {{ . }} has changed. We
+Notice how once we have entered the loop the value of `{{ . }}` has changed. We
 have defined a variable outside of the loop so we have access to it from within
 the loop.
 
-# Hugo Parameters 
+# Hugo Parameters
 
 Hugo provides the option of passing values to the template language
 through the site configuration (for sitewide values), or through the meta
 data of each specific piece of content. You can define any values of any
 type (supported by your front matter/config format) and use them however
-you want to inside of your templates. 
+you want to inside of your templates.
 
 
-## Using Content (page) Parameters 
+## Using Content (page) Parameters
 
-In each piece of content you can provide variables to be used by the
-templates. This happens in the [front matter](/content/front-matter). 
+In each piece of content, you can provide variables to be used by the
+templates. This happens in the [front matter](/content/front-matter).
 
 An example of this is used in this documentation site. Most of the pages
 benefit from having the table of contents provided. Sometimes the TOC just
 doesn't make a lot of sense. We've defined a variable in our front matter
-of some pages to turn off the TOC from being displayed. 
+of some pages to turn off the TOC from being displayed.
 
 Here is the example front matter:
 
@@ -286,8 +306,8 @@ Here is the corresponding code inside of the template:
 
 
 ## Using Site (config) Parameters
-In your top-level configuration file (eg, `config.yaml`) you can define site
-parameters, which are values which will be available to you in chrome.
+In your top-level configuration file (e.g., `config.yaml`) you can define site
+parameters, which are values which will be available to you in partials.
 
 For instance, you might declare:
 
@@ -310,8 +330,8 @@ January 1st, instead of hunting through your templates.
 </footer>{{end}}
 ```
 
-An alternative way of writing the "if" and then referencing the same value
-is to use "with" instead. With rebinds the context `.` within its scope,
+An alternative way of writing the "`if`" and then referencing the same value
+is to use "`with`" instead. With rebinds the context `.` within its scope,
 and skips the block if the variable is absent:
 
 ```
@@ -335,5 +355,25 @@ so, such as in this example:
 ```
 
 
-[go]: <http://golang.org/>
-[gohtmltemplate]: <http://golang.org/pkg/html/template/>
+[go]: http://golang.org/
+[gohtmltemplate]: http://golang.org/pkg/html/template/
+
+# Template example: Show only upcoming events
+
+Go allows you to do more than what's shown here.  Using Hugo's
+[`where`](/templates/functions/#toc_4) function and Go built-ins, we can list
+only the items from `content/events/` whose date (set in the front matter) is in
+the future:
+
+    <h4>Upcoming Events</h4>
+    <ul class="upcoming-events">
+    {{ range where .Data.Pages.ByDate "Section" "events" }}
+      {{ if ge .Date.Unix .Now.Unix }}
+        <li><span class="event-type">{{ .Type | title }} —</span>
+          {{ .Title }}
+          on <span class="event-date">
+          {{ .Date.Format "2 January at 3:04pm" }}</span>
+          at {{ .Params.place }}
+        </li>
+      {{ end }}
+    {{ end }}

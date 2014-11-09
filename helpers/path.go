@@ -14,6 +14,7 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -23,24 +24,35 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // Take a string with any characters and replace it so the string could be used in a path.
-// E.g. Social Media -> social-media
+// MakePath creates a Unicode sanitized string, with the spaces replaced, whilst
+// preserving the original casing of the string.
+// E.g. Social Media -> Social-Media
 func MakePath(s string) string {
-	return UnicodeSanitize(strings.ToLower(strings.Replace(strings.TrimSpace(s), " ", "-", -1)))
+	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
+}
+
+// MakePathToLower creates a Unicode santized string, with the spaces replaced,
+// and transformed to lower case.
+// E.g. Social Media -> social-media
+func MakePathToLower(s string) string {
+	return strings.ToLower(MakePath(s))
 }
 
 func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }
 
-func Sanitize(s string) string {
-	return sanitizeRegexp.ReplaceAllString(s, "")
-}
+// unused
+//func Sanitize(s string) string {
+//	return sanitizeRegexp.ReplaceAllString(s, "")
+//}
 
 func UnicodeSanitize(s string) string {
 	source := []rune(s)
@@ -61,8 +73,8 @@ func ReplaceExtension(path string, newExt string) string {
 }
 
 // Check if Exists && is Directory
-func DirExists(path string) (bool, error) {
-	fi, err := os.Stat(path)
+func DirExists(path string, fs afero.Fs) (bool, error) {
+	fi, err := fs.Stat(path)
 	if err == nil && fi.IsDir() {
 		return true, nil
 	}
@@ -72,29 +84,32 @@ func DirExists(path string) (bool, error) {
 	return false, err
 }
 
-func IsDir(path string) (bool, error) {
-	fi, err := os.Stat(path)
+func IsDir(path string, fs afero.Fs) (bool, error) {
+	fi, err := fs.Stat(path)
 	if err != nil {
 		return false, err
 	}
 	return fi.IsDir(), nil
 }
 
-func IsEmpty(path string) (bool, error) {
-	if b, _ := Exists(path); !b {
+func IsEmpty(path string, fs afero.Fs) (bool, error) {
+	if b, _ := Exists(path, fs); !b {
 		return false, fmt.Errorf("%q path does not exist", path)
 	}
-	fi, err := os.Stat(path)
+	fi, err := fs.Stat(path)
 	if err != nil {
 		return false, err
 	}
 	if fi.IsDir() {
 		f, err := os.Open(path)
+		// FIX: Resource leak - f.close() should be called here by defer or is missed
+		// if the err != nil branch is taken.
+		defer f.Close()
 		if err != nil {
 			return false, err
 		}
 		list, err := f.Readdir(-1)
-		f.Close()
+		// f.Close() - see bug fix above
 		return len(list) == 0, nil
 	} else {
 		return fi.Size() == 0, nil
@@ -102,8 +117,8 @@ func IsEmpty(path string) (bool, error) {
 }
 
 // Check if File / Directory Exists
-func Exists(path string) (bool, error) {
-	_, err := os.Stat(path)
+func Exists(path string, fs afero.Fs) (bool, error) {
+	_, err := fs.Stat(path)
 	if err == nil {
 		return true, nil
 	}
@@ -121,34 +136,110 @@ func AbsPathify(inPath string) string {
 	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
 }
 
+func MakeStaticPathRelative(inPath string) (string, error) {
+	staticDir := AbsPathify(viper.GetString("StaticDir"))
+	themeStaticDir := AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
+
+	return MakePathRelative(inPath, staticDir, themeStaticDir)
+}
+
+func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
+
+	for _, currentPath := range possibleDirectories {
+		if strings.HasPrefix(inPath, currentPath) {
+			return strings.TrimPrefix(inPath, currentPath), nil
+		}
+	}
+	return inPath, errors.New("Can't extract relative path, unknown prefix")
+}
+
 func Filename(in string) (name string) {
 	name, _ = FileAndExt(in)
 	return
 }
 
+// FileAndExt returns the filename and any extension of a file path as
+// two separate strings.
+// If path, in, contains a directory name ending in a slash then
+// both name and ext will be empty strings.
+// If the path, in, is either the current directory, the parent
+// directory or the root directory, or an empty string, then both
+// name and ext will be empty strings.
+// If the path, in, represents the path of a file without an extension
+// then name will be the name of the file and ext will be an empty string.
+// If the path, in, represents a filename with an extension then
+// then name will be the filename minus any extension - including the dot
+// and ext will contain the extension - minus the dot.
 func FileAndExt(in string) (name string, ext string) {
 	ext = path.Ext(in)
-	base := path.Base(in)
+	base := path.Base(in) // path.Base strips any trailing slash!
 
-	if strings.Contains(base, ".") {
+	// No file name cases. These are defined as:
+	// 1. any "in" path that ends in a os.PathSeparator i.e. "/" on linux
+	// 2. any "base" consisting of just an os.PathSeparator
+	// 3. any "base" consisting of just an empty string
+	// 4. any "base" consisting of just the current directory i.e. "."
+	// 5. any "base" consisting of just the parent directory i.e. ".."
+	if (strings.LastIndex(in, string(os.PathSeparator)) == len(in)-1) || base == "" || base == "." || base == ".." || base == string(os.PathListSeparator) {
+		name = "" // there is NO filename
+	} else if ext != "" { // there was an Extension
+		// return the filename minus the extension (and the ".")
 		name = base[:strings.LastIndex(base, ".")]
 	} else {
-		name = in
+		// no extension case so just return base, which willi
+		// be the filename
+		name = base
 	}
-
 	return
 }
 
+func GetRelativePath(path, base string) (final string, err error) {
+	if filepath.IsAbs(path) && base == "" {
+		return "", errors.New("source: missing base directory")
+	}
+	name := filepath.Clean(path)
+	base = filepath.Clean(base)
+
+	name, err = filepath.Rel(base, name)
+	if err != nil {
+		return "", err
+	}
+	name = filepath.ToSlash(name)
+	return name, nil
+}
+
+// Given a source path, determine the section
+// A section is the part between the root slash and the second slash or before the first slash
 func GuessSection(in string) string {
-	x := strings.Split(in, "/")
-	x = x[:len(x)-1]
-	if len(x) == 0 {
+	parts := strings.Split(in, "/")
+	// This will include an empty entry before and after paths with leading and trailing slashes
+	// eg... /sect/one/ -> ["", "sect", "one", ""]
+
+	// Needs to have at least a value and a slash
+	if len(parts) < 2 {
 		return ""
 	}
-	if x[0] == "content" {
-		x = x[1:]
+
+	// If it doesn't have a leading slash and value and file or trailing slash, then return ""
+	if parts[0] == "" && len(parts) < 3 {
+		return ""
 	}
-	return path.Join(x...)
+
+	// strip leading slash
+	if parts[0] == "" {
+		parts = parts[1:]
+	}
+
+	// if first directory is "content", return second directory
+	if parts[0] == "content" {
+		if len(parts) > 2 {
+			return parts[1]
+		} else {
+			return ""
+		}
+	}
+
+	return parts[0]
 }
 
 func PathPrep(ugly bool, in string) string {
@@ -204,18 +295,18 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
-func SafeWriteToDisk(inpath string, r io.Reader) (err error) {
+func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	dir, _ := filepath.Split(inpath)
 	ospath := filepath.FromSlash(dir)
 
 	if ospath != "" {
-		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
+		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
 		if err != nil {
 			return
 		}
 	}
 
-	exists, err := Exists(inpath)
+	exists, err := Exists(inpath, fs)
 	if err != nil {
 		return
 	}
@@ -223,7 +314,7 @@ func SafeWriteToDisk(inpath string, r io.Reader) (err error) {
 		return fmt.Errorf("%v already exists", inpath)
 	}
 
-	file, err := os.Create(inpath)
+	file, err := fs.Create(inpath)
 	if err != nil {
 		return
 	}
@@ -233,18 +324,20 @@ func SafeWriteToDisk(inpath string, r io.Reader) (err error) {
 	return
 }
 
-func WriteToDisk(inpath string, r io.Reader) (err error) {
+func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	dir, _ := filepath.Split(inpath)
 	ospath := filepath.FromSlash(dir)
 
 	if ospath != "" {
-		err = os.MkdirAll(ospath, 0777) // rwx, rw, r
+		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
 		if err != nil {
-			panic(err)
+			if err != os.ErrExist {
+				panic(err)
+			}
 		}
 	}
 
-	file, err := os.Create(inpath)
+	file, err := fs.Create(inpath)
 	if err != nil {
 		return
 	}

@@ -11,7 +11,6 @@
     <title>{{.Title}}</title>
 
     <link href="/css/bootstrap-theme.css" rel="stylesheet">
-    <link href="/css/elegant-icons-style.css" rel="stylesheet" />
     <link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/style-responsive.css" rel="stylesheet" />
@@ -48,7 +47,7 @@
       </header>
       <!--header end-->
 
-{{ template "partials/menu.html" . }}
+{{ partial "menu.html" . }}
 
       <!--main content start-->
       <section id="main-content">
@@ -68,10 +67,12 @@
 
               <div class="row">
                   <div class="col-md-1">
+                      {{ if .IsPage }}
                       {{ with .GetParam "prev" }}
                       <a class="navigation prev" href="{{.}}">
                       <i class="fa fa-angle-left"></i>
                       </a>
+                      {{ end }}
                       {{ end }}
                   </div>
                 <div class="col-md-10">

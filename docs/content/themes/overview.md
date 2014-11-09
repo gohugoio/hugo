@@ -18,7 +18,7 @@ site.
 Hugo themes have been designed to be the perfect balance between
 simplicity and functionality. Hugo themes are powered by the excellent
 go template library. If you are new to go templates, see our [primer on
-go templates](/layouts/go-templates).
+go templates](/templates/go-templates).
 
 Hugo themes support all modern features you come to expect. They are
 structured in such a way to eliminate code duplication. Themes are also

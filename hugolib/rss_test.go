@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 )
 
@@ -31,11 +33,10 @@ const RSS_TEMPLATE = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom
 </rss>`
 
 func TestRSSOutput(t *testing.T) {
-	files := make(map[string][]byte)
-	target := &target.InMemoryTarget{Files: files}
 	viper.Set("baseurl", "http://auth/bub/")
+
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	s := &Site{
-		Target: target,
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
 	s.initializeSiteInfo()
@@ -55,12 +56,13 @@ func TestRSSOutput(t *testing.T) {
 		t.Fatalf("Unable to RenderHomePage: %s", err)
 	}
 
-	if _, ok := files[".xml"]; !ok {
-		t.Errorf("Unable to locate: %s", ".xml")
-		t.Logf("%q", files)
+	file, err := hugofs.DestinationFS.Open("rss.xml")
+
+	if err != nil {
+		t.Fatalf("Unable to locate: %s", "rss.xml")
 	}
 
-	rss, _ := files[".xml"]
+	rss := helpers.ReaderToBytes(file)
 	if !bytes.HasPrefix(rss, []byte("<?xml")) {
 		t.Errorf("rss feed should start with <?xml. %s", rss)
 	}

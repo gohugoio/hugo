@@ -9,7 +9,7 @@ tags:
 - personal
 - blog
 - foundation
-thumbnail: /static/img/antzucaro-tn.jpg
+thumbnail: /img/antzucaro-tn.jpg
 title: Ant Zucaro
 ---
 

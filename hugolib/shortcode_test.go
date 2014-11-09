@@ -53,8 +53,20 @@ func TestInnerSC(t *testing.T) {
 	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 
 	CheckShortCodeMatch(t, `{{% inside class="aspen" %}}`, `<div class="aspen"></div>`, tem)
-	CheckShortCodeMatch(t, `{{% inside class="aspen" %}}More Here{{% /inside %}}`, `<div class="aspen">More Here</div>`, tem)
-	CheckShortCodeMatch(t, `{{% inside %}}More Here{{% /inside %}}`, `<div>More Here</div>`, tem)
+	CheckShortCodeMatch(t, `{{% inside class="aspen" %}}More Here{{% /inside %}}`, "<div class=\"aspen\"><p>More Here</p>\n</div>", tem)
+	CheckShortCodeMatch(t, `{{% inside %}}More Here{{% /inside %}}`, "<div><p>More Here</p>\n</div>", tem)
+}
+
+func TestInnerSCWithMarkdown(t *testing.T) {
+	tem := NewTemplate()
+	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+
+	CheckShortCodeMatch(t, `{{% inside %}}
+# More Here
+
+[link](http://spf13.com) and text
+
+{{% /inside %}}`, "<div><h1>More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
 }
 
 func TestEmbeddedSC(t *testing.T) {
@@ -62,6 +74,11 @@ func TestEmbeddedSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", tem)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\"  />\n    \n    \n</figure>\n", tem)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", tem)
+}
+
+func TestFigureImgWidth(t *testing.T) {
+	tem := NewTemplate()
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
 }
 
 func TestUnbalancedQuotes(t *testing.T) {

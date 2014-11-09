@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
@@ -43,7 +44,7 @@ func init() {
 var newCmd = &cobra.Command{
 	Use:   "new [path]",
 	Short: "Create new content for your site",
-	Long: `Create will create a new content file and automatically set the date and title.
+	Long: `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
 You can also specify the kind with -k KIND
 If archetypes are provided in your theme or site, they will be used.
@@ -115,9 +116,9 @@ func NewSite(cmd *cobra.Command, args []string) {
 		jww.FATAL.Fatalln(err)
 	}
 
-	if x, _ := helpers.Exists(createpath); x {
-		y, _ := helpers.IsDir(createpath)
-		if z, _ := helpers.IsEmpty(createpath); y && z {
+	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
+		y, _ := helpers.IsDir(createpath, hugofs.SourceFs)
+		if z, _ := helpers.IsEmpty(createpath, hugofs.SourceFs); y && z {
 			jww.INFO.Println(createpath, "already exists and is empty")
 		} else {
 			jww.FATAL.Fatalln(createpath, "already exists and is not empty")
@@ -143,7 +144,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 	createpath := helpers.AbsPathify(path.Join("themes", args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
-	if x, _ := helpers.Exists(createpath); x {
+	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
 		jww.FATAL.Fatalln(createpath, "already exists")
 	}
 
@@ -185,7 +186,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `)
 
-	err := helpers.WriteToDisk(path.Join(createpath, "LICENSE.md"), bytes.NewReader(by))
+	err := helpers.WriteToDisk(path.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
@@ -205,7 +206,7 @@ func mkdir(x ...string) {
 func touchFile(x ...string) {
 	inpath := path.Join(x...)
 	mkdir(filepath.Dir(inpath))
-	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}))
+	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), hugofs.SourceFs)
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
@@ -227,7 +228,7 @@ func createThemeMD(inpath string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(path.Join(inpath, "theme.toml"), bytes.NewReader(by))
+	err = helpers.WriteToDisk(path.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		return
 	}
@@ -244,7 +245,7 @@ func createConfig(inpath string, kind string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(path.Join(inpath, "config."+kind), bytes.NewReader(by))
+	err = helpers.WriteToDisk(path.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		return
 	}

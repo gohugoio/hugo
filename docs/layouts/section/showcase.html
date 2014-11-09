@@ -1,0 +1,12 @@
+{{ partial "header.html" . }}
+
+   <h1 id="title">Hugo Built Sites (with source)</h1>
+        <div class="row">
+        {{ range .Data.Pages.ByDate }}
+            {{ .Render "thumbnail"}}
+        {{ end }}
+        </div>
+  <br><br>
+  If you want to be added to this page, please send a <a href="https://github.com/spf13/hugo/pulls">pull request</a>.
+
+{{ partial "footer.html" . }}

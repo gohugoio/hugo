@@ -21,9 +21,9 @@ Some of the features of Hugo Menus:
 
 ## What is a menu?
 
-A menus is a named array of menu entries accessible on the site under
-.Site.Menus by name. For example if I have a menu called `main` I would
-access it via .Site.Menus.main.
+A menu is a named array of menu entries accessible on the site under
+`.Site.Menus` by name. For example, if I have a menu called `main`, I would
+access it via `.Site.Menus.main`.
 
 A menu entry has the following properties:
 
@@ -87,9 +87,9 @@ available.
 ## Adding (non-content) entries to a menu
 
 You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the site wide config file.
+content. This takes place in the sitewide [config file](/overview/configuration).
 
-Here’s an example (in toml):
+Here’s an example (in TOML):
 
     [[menu.main]]
         name = "about hugo"
@@ -100,6 +100,20 @@ Here’s an example (in toml):
         name = "getting started"
         pre = "<i class='fa fa-road'></i>"
         weight = -100
+
+Here’s an example (in YAML):
+
+    ---
+    menu:
+      main:
+          - Name: "about hugo"
+            Pre: "<i class='fa fa-heart'></i>"
+            Weight: -110
+            Identifier: "about"
+          - Name: "getting started"
+            Pre: "<i class='fa fa-road'></i>"
+            Weight: -100
+    ---            
 
 ## Nesting
 
@@ -120,7 +134,7 @@ and all content entries are attached to one of these entries via the
 ## Rendering menus
 
 Hugo makes no assumptions about how your rendered HTML will be
-structured, instead it provides all of the functions you will need to be
+structured. Instead, it provides all of the functions you will need to be
 able to build your menu however you want. 
 
 

@@ -23,9 +23,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mostafah/fsync"
 	"github.com/spf13/cobra"
+	"github.com/spf13/fsync"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/livereload"
 	"github.com/spf13/hugo/utils"
@@ -42,7 +43,7 @@ var HugoCmd = &cobra.Command{
 	Long: `A Fast and Flexible Static Site Generator built with
 love by spf13 and friends in Go.
 
-Complete documentation is available at http://hugo.spf13.com`,
+Complete documentation is available at http://gohugo.io`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		build()
@@ -51,7 +52,7 @@ Complete documentation is available at http://hugo.spf13.com`,
 
 var hugoCmdV *cobra.Command
 
-var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap bool
+var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles bool
 var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
@@ -84,16 +85,17 @@ func init() {
 	HugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
+	HugoCmd.PersistentFlags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	hugoCmdV = HugoCmd
 }
 
 func InitializeConfig() {
-	viper.SetConfigName(CfgFile)
+	viper.SetConfigFile(CfgFile)
 	viper.AddConfigPath(Source)
 	err := viper.ReadInConfig()
 	if err != nil {
-		jww.ERROR.Println("Config not found... using only defaults, stuff may not work")
+		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
 	}
 
 	viper.RegisterAlias("taxonomies", "indexes")
@@ -117,8 +119,12 @@ func InitializeConfig() {
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
 	viper.SetDefault("PygmentsStyle", "monokai")
+	viper.SetDefault("DefaultExtension", "html")
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
+	viper.SetDefault("PluralizeListTitles", true)
+	viper.SetDefault("FootnoteAnchorPrefix", "")
+	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("PandocExtensions", "footnotes")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
@@ -143,6 +149,10 @@ func InitializeConfig() {
 
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("pluralizeListTitles").Changed {
+		viper.Set("PluralizeListTitles", PluralizeListTitles)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
@@ -209,27 +219,31 @@ func build(watches ...bool) {
 func copyStatic() error {
 	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
 	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-		jww.ERROR.Println("Unable to find Static Directory:", viper.GetString("theme"), "in", staticDir)
+		jww.ERROR.Println("Unable to find Static Directory:", staticDir)
 		return nil
 	}
 
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
 
+	syncer := fsync.NewSyncer()
+	syncer.SrcFs = hugofs.SourceFs
+	syncer.DestFs = hugofs.DestinationFS
+
 	if themeSet() {
 		themeDir := helpers.AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Println("Unable to find static directory for theme :", viper.GetString("theme"), "in", themeDir)
+			jww.ERROR.Println("Unable to find static directory for theme:", viper.GetString("theme"), "in", themeDir)
 			return nil
 		}
 
 		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
-		fsync.Sync(publishDir, themeDir)
+		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
 	}
 
 	// Copy Static to Destination
 	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-	return fsync.Sync(publishDir, staticDir)
+	return syncer.Sync(publishDir, staticDir)
 }
 
 func getDirList() []string {
@@ -268,7 +282,7 @@ func buildSite(watching ...bool) (err error) {
 	}
 	err = site.Build()
 	if err != nil {
-		return
+		return err
 	}
 	site.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
@@ -303,14 +317,15 @@ func NewWatcher(port int) error {
 		for {
 			select {
 			case evs := <-watcher.Event:
-				jww.INFO.Println(evs)
+				jww.INFO.Println("File System Event:", evs)
 
 				static_changed := false
 				dynamic_changed := false
+				static_files_changed := make(map[string]bool)
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
-					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp")
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp") || (strings.HasPrefix(ext, ".goutputstream"))
 					if istemp {
 						continue
 					}
@@ -323,6 +338,12 @@ func NewWatcher(port int) error {
 					static_changed = static_changed || isstatic
 					dynamic_changed = dynamic_changed || !isstatic
 
+					if isstatic {
+						if staticPath, err := helpers.MakeStaticPathRelative(ev.Name); err == nil {
+							static_files_changed[staticPath] = true
+						}
+					}
+
 					// add new directory to watch list
 					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
 						if ev.IsCreate() {
@@ -332,17 +353,34 @@ func NewWatcher(port int) error {
 				}
 
 				if static_changed {
-					fmt.Print("Static file changed, syncing\n\n")
+					jww.FEEDBACK.Println("Static file changed, syncing\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
-					livereload.ForceRefresh()
+					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+
+						// force refresh when more than one file
+						if len(static_files_changed) == 1 {
+							for path := range static_files_changed {
+								livereload.RefreshPath(path)
+							}
+
+						} else {
+							livereload.ForceRefresh()
+						}
+					}
 				}
 
 				if dynamic_changed {
-					fmt.Print("Change detected, rebuilding site\n\n")
+					fmt.Print("\nChange detected, rebuilding site\n")
+					const layout = "2006-01-02 15:04 -0700"
+					fmt.Println(time.Now().Format(layout))
 					utils.StopOnErr(buildSite(true))
 
-					livereload.ForceRefresh()
+					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						livereload.ForceRefresh()
+					}
 				}
 			case err := <-watcher.Error:
 				if err != nil {

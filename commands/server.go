@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +17,17 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
@@ -36,8 +41,8 @@ var disableLiveReload bool
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Hugo runs it's own a webserver to render the files",
-	Long: `Hugo is able to run it's own high performance web server.
+	Short: "Hugo runs its own webserver to render the files",
+	Long: `Hugo is able to run its own high performance web server.
 Hugo will render all the files defined in the source directory and
 Serve them up.`,
 	//Run: server,
@@ -48,15 +53,13 @@ func init() {
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
+	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.Run = server
 }
 
 func server(cmd *cobra.Command, args []string) {
 	InitializeConfig()
-
-	if BaseUrl == "" {
-		BaseUrl = "http://localhost"
-	}
 
 	if cmd.Flags().Lookup("disableLiveReload").Changed {
 		viper.Set("DisableLiveReload", disableLiveReload)
@@ -64,10 +67,6 @@ func server(cmd *cobra.Command, args []string) {
 
 	if serverWatch {
 		viper.Set("Watch", true)
-	}
-
-	if !strings.HasPrefix(BaseUrl, "http://") {
-		BaseUrl = "http://" + BaseUrl
 	}
 
 	l, err := net.Listen("tcp", ":"+strconv.Itoa(serverPort))
@@ -85,10 +84,14 @@ func server(cmd *cobra.Command, args []string) {
 
 	viper.Set("port", serverPort)
 
-	if serverAppend {
-		viper.Set("BaseUrl", strings.TrimSuffix(BaseUrl, "/")+":"+strconv.Itoa(serverPort))
-	} else {
-		viper.Set("BaseUrl", strings.TrimSuffix(BaseUrl, "/"))
+	BaseUrl, err := fixUrl(BaseUrl)
+	if err != nil {
+		jww.ERROR.Fatal(err)
+	}
+	viper.Set("BaseUrl", BaseUrl)
+
+	if err := memStats(); err != nil {
+		jww.ERROR.Println("memstats error:", err)
 	}
 
 	build(serverWatch)
@@ -107,13 +110,98 @@ func server(cmd *cobra.Command, args []string) {
 
 func serve(port int) {
 	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
-	jww.FEEDBACK.Printf("Web Server is available at %s\n", viper.GetString("BaseUrl"))
+
+	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
+	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
+
+	u, err := url.Parse(viper.GetString("BaseUrl"))
+	if err != nil {
+		jww.ERROR.Fatalf("Invalid BaseUrl: %s", err)
+	}
+	if u.Path == "" || u.Path == "/" {
+		http.Handle("/", fileserver)
+	} else {
+		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
+	}
+
+	u.Scheme = "http"
+	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
 	fmt.Println("Press ctrl+c to stop")
 
-	http.Handle("/", http.FileServer(http.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))))
-	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
+	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
 		jww.ERROR.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
+}
+
+func fixUrl(s string) (string, error) {
+	useLocalhost := false
+	if s == "" {
+		s = viper.GetString("BaseUrl")
+		useLocalhost = true
+	}
+	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {
+		s = "http://" + s
+	}
+	u, err := url.Parse(s)
+	if err != nil {
+		return "", err
+	}
+
+	if serverAppend {
+		if useLocalhost {
+			u.Host = fmt.Sprintf("localhost:%d", serverPort)
+			return u.String(), nil
+		}
+		host := u.Host
+		if strings.Contains(host, ":") {
+			host, _, err = net.SplitHostPort(u.Host)
+			if err != nil {
+				return "", fmt.Errorf("Failed to split BaseUrl hostpost: %s", err)
+			}
+		}
+		u.Host = fmt.Sprintf("%s:%d", host, serverPort)
+		return u.String(), nil
+	}
+
+	if useLocalhost {
+		u.Host = "localhost"
+	}
+	return u.String(), nil
+}
+
+func memStats() error {
+	memstats := serverCmd.Flags().Lookup("memstats").Value.String()
+	if memstats != "" {
+		interval, err := time.ParseDuration(serverCmd.Flags().Lookup("meminterval").Value.String())
+		if err != nil {
+			interval, _ = time.ParseDuration("100ms")
+		}
+
+		fileMemStats, err := os.Create(memstats)
+		if err != nil {
+			return err
+		}
+
+		fileMemStats.WriteString("# Time\tHeapSys\tHeapAlloc\tHeapIdle\tHeapReleased\n")
+
+		go func() {
+			var stats runtime.MemStats
+
+			start := time.Now().UnixNano()
+
+			for {
+				runtime.ReadMemStats(&stats)
+				if fileMemStats != nil {
+					fileMemStats.WriteString(fmt.Sprintf("%d\t%d\t%d\t%d\t%d\n",
+						(time.Now().UnixNano()-start)/1000000, stats.HeapSys, stats.HeapAlloc, stats.HeapIdle, stats.HeapReleased))
+					time.Sleep(interval)
+				} else {
+					break
+				}
+			}
+		}()
+	}
+	return nil
 }
