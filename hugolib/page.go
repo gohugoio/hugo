@@ -620,7 +620,7 @@ func (p *Page) ProcessShortcodes(t Template) {
 func (page *Page) Convert() error {
 	markupType := page.guessMarkupType()
 	switch markupType {
-	case "markdown", "rst":
+	case "markdown", "rst", "pandoc":
 		tmpContent, tmpTableOfContents := helpers.ExtractTOC(page.renderContent(helpers.RemoveSummaryDivider(page.rawContent)))
 		page.Content = helpers.BytesToHTML(tmpContent)
 		page.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)

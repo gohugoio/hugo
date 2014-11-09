@@ -144,6 +144,16 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	return
 }
 
+func pandocRender(content []byte) string {
+  var aOut bytes.Buffer
+  cmd := exec.Command("pandoc", "-f", "markdown+"+viper.GetString("PandocExtensions"))
+  cmd.Stdin = bytes.NewReader([]byte(content))
+  cmd.Stdout = &aOut
+  cmd.Run()
+  print(viper.GetString("PandocExtensions"))
+  return aOut.String()
+}
+
 func RenderBytesWithTOC(content []byte, pagefmt string, footnoteref string) []byte {
 	switch pagefmt {
 	default:
@@ -152,6 +162,8 @@ func RenderBytesWithTOC(content []byte, pagefmt string, footnoteref string) []by
 		return MarkdownRenderWithTOC(content, footnoteref)
 	case "rst":
 		return []byte(GetRstContent(content))
+  case "pandoc":
+    return []byte(pandocRender(content))
 	}
 }
 
@@ -163,6 +175,8 @@ func RenderBytes(content []byte, pagefmt string, footnoteref string) []byte {
 		return MarkdownRender(content, footnoteref)
 	case "rst":
 		return []byte(GetRstContent(content))
+  case "pandoc":
+    return []byte(pandocRender(content))
 	}
 }
 
