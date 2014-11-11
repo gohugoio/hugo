@@ -79,9 +79,6 @@ var (
 )
 
 func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
-
-	key = strings.ToLower(key)
-
 	if len(p) < 1 {
 		return nil, nil
 	}
@@ -93,12 +90,8 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 	}
 
 	var ft interface{}
-	ft, ok := pagePtrType.Elem().FieldByName(key)
-	if !ok {
-		m, ok := pagePtrType.MethodByName(key)
-		if !ok {
-			return nil, errors.New(key + " is neither a field nor a method of Page")
-		}
+	m, ok := pagePtrType.MethodByName(key)
+	if ok {
 		if m.Type.NumIn() != 1 || m.Type.NumOut() == 0 || m.Type.NumOut() > 2 {
 			return nil, errors.New(key + " is a Page method but you can't use it with GroupBy")
 		}
@@ -109,6 +102,11 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 			return nil, errors.New(key + " is a Page method but you can't use it with GroupBy")
 		}
 		ft = m
+	} else {
+		ft, ok = pagePtrType.Elem().FieldByName(key)
+		if !ok {
+			return nil, errors.New(key + " is neither a field nor a method of Page")
+		}
 	}
 
 	var tmp reflect.Value
@@ -134,6 +132,7 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		if !tmp.MapIndex(fv).IsValid() {
 			tmp.SetMapIndex(fv, reflect.MakeSlice(reflect.SliceOf(pagePtrType), 0, 0))
 		}
+		tmp.SetMapIndex(fv, reflect.Append(tmp.MapIndex(fv), ppv))
 	}
 
 	var r []PageGroup
