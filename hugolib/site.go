@@ -766,21 +766,22 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 		out := []string{}
 		// First place all non internal templates
 		for _, t := range in {
-			if !strings.HasPrefix("_internal/", t) {
+			if !strings.HasPrefix(t, "_internal/") {
 				out = append(out, t)
 			}
 		}
 
 		// Then place theme templates with the same names
 		for _, t := range in {
-			if !strings.HasPrefix("_internal/", t) {
+			if !strings.HasPrefix(t, "_internal/") {
 				out = append(out, "theme/"+t)
 			}
 		}
+
 		// Lastly place internal templates
 		for _, t := range in {
-			if strings.HasPrefix("_internal/", t) {
-				out = append(out, "theme/"+t)
+			if strings.HasPrefix(t, "_internal/") {
+				out = append(out, t)
 			}
 		}
 		return out
@@ -936,6 +937,7 @@ func (s *Site) RenderSectionLists() error {
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
+			fmt.Println("Section...")
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			s.setUrls(n, section+".xml")
 			b, err = s.renderXML("section "+section+" rss", n, s.appendThemeTemplates(rssLayouts)...)
