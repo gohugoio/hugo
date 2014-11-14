@@ -934,7 +934,7 @@ func (s *Site) RenderSectionLists() error {
 			return err
 		}
 
-		if !viper.GetBool("DisableRSS") {
+		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			s.setUrls(n, section+".xml")
