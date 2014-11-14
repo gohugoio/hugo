@@ -752,11 +752,9 @@ func (s *Site) RenderSectionLists() error {
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-			fmt.Println("Section...")
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			s.setUrls(n, section+".xml")
 			err = s.render(n, section+".xml", s.appendThemeTemplates(rssLayouts)...)
-			fmt.Println("Section complete...\n")
 			if err != nil {
 				return err
 			}
