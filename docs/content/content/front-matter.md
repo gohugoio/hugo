@@ -85,8 +85,7 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 * **publishdate** If in the future, content will not be rendered unless `hugo` is called with `--buildFuture`
 * **type** The type of the content (will be derived from the directory automatically if unset)
 * **weight** Used for sorting
-* **markup** (Experimental) Specify "rst" for reStructuredText (requires
-            `rst2html`,) or "md" (default) for the Markdown
+* **markup** (Experimental) Specify either "rst" for reStructuredText (requires rst2html), "md" (default) for the Markdown, or "pandoc" (Markdown) (files need to be ".mkd", not ".md" or the likes).
 * **slug** The token to appear in the tail of the URL
    *or*<br>
 * **url** The full path to the content from the web root.<br>
