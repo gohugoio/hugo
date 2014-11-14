@@ -56,10 +56,10 @@ func TestRSSOutput(t *testing.T) {
 		t.Fatalf("Unable to RenderHomePage: %s", err)
 	}
 
-	file, err := hugofs.DestinationFS.Open("rss.xml")
+	file, err := hugofs.DestinationFS.Open("index.xml")
 
 	if err != nil {
-		t.Fatalf("Unable to locate: %s", "rss.xml")
+		t.Fatalf("Unable to locate: %s", "index.xml")
 	}
 
 	rss := helpers.ReaderToBytes(file)
