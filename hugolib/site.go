@@ -983,15 +983,13 @@ func (s *Site) RenderHomePage() error {
 			n.Date = s.Pages[0].Date
 		}
 
-		if !viper.GetBool("DisableRSS") {
-			rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-			b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
-			if err != nil {
-				return err
-			}
-			if err := s.WriteDestFile("rss.xml", b); err != nil {
-				return err
-			}
+		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
+		b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
+		if err != nil {
+			return err
+		}
+		if err := s.WriteDestFile("index.xml", b); err != nil {
+			return err
 		}
 	}
 
