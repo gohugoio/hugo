@@ -45,13 +45,15 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 	t.AddInternalTemplate("_default", "rss.xml", `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-      <title>{{ .Title }} on {{ .Site.Title }} </title>
-      <generator uri="https://gohugo.io">Hugo</generator>
+    <title>{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}</title>
     <link>{{ .Permalink }}</link>
+    <description>Recent content {{ with .Title }}in {{.}} {{ end }}on {{ .Site.Title }}</description>
+    <generator>Hugo -- gohugo.io</generator>
     {{ with .Site.LanguageCode }}<language>{{.}}</language>{{end}}
     {{ with .Site.Author.name }}<author>{{.}}</author>{{end}}
     {{ with .Site.Copyright }}<copyright>{{.}}</copyright>{{end}}
-    <updated>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</updated>
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</lastBuildDate>
+    <atom:link href="{{.Url}}" rel="self" type="application/rss+xml" />
     {{ range first 15 .Data.Pages }}
     <item>
       <title>{{ .Title }}</title>
