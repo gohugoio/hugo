@@ -868,14 +868,15 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-			s.setUrls(n, base+".xml")
+			n.Url = s.permalinkStr(base + "/index.xml")
+			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			b, err := s.renderXML("taxonomy "+t.singular+" rss", n, s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				results <- err
 				continue
 			} else {
-				err := s.WriteDestFile(base+".xml", b)
+				err := s.WriteDestFile(base+"/index.xml", b)
 				if err != nil {
 					results <- err
 				}
@@ -935,16 +936,16 @@ func (s *Site) RenderSectionLists() error {
 			return err
 		}
 
-		if !viper.GetBool("DisableRSS") {
+		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
-			fmt.Println("Section...")
+			n.Url = s.permalinkStr(section + "/index.xml")
+			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			s.setUrls(n, section+".xml")
 			b, err = s.renderXML("section "+section+" rss", n, s.appendThemeTemplates(rssLayouts)...)
 			if err != nil {
 				return err
 			}
-			if err := s.WriteDestFile(section+".xml", b); err != nil {
+			if err := s.WriteDestFile(section+"/index.xml", b); err != nil {
 				return err
 			}
 		}
@@ -973,9 +974,8 @@ func (s *Site) RenderHomePage() error {
 
 	if !viper.GetBool("DisableRSS") {
 		// XML Feed
-		n.Url = helpers.Urlize("index.xml")
-		n.Title = "Recent Content"
-		n.Permalink = s.permalink("index.xml")
+		n.Url = s.permalinkStr("index.xml")
+		n.Title = ""
 		high := 50
 		if len(s.Pages) < high {
 			high = len(s.Pages)
@@ -985,15 +985,13 @@ func (s *Site) RenderHomePage() error {
 			n.Date = s.Pages[0].Date
 		}
 
-		if !viper.GetBool("DisableRSS") {
-			rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-			b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
-			if err != nil {
-				return err
-			}
-			if err := s.WriteDestFile("rss.xml", b); err != nil {
-				return err
-			}
+		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
+		b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
+		if err != nil {
+			return err
+		}
+		if err := s.WriteDestFile("index.xml", b); err != nil {
+			return err
 		}
 	}
 
