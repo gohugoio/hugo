@@ -70,9 +70,9 @@ func (f *File) LogicalName() string {
 	}
 }
 
-//func (f *File) SetDir(dir string) {
-//f.dir = dir
-//}
+func (f *File) SetDir(dir string) {
+	f.dir = dir
+}
 
 func (f *File) Dir() string {
 	if f.dir != "" {

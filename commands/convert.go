@@ -15,14 +15,15 @@ package commands
 
 import (
 	"fmt"
-	"path/filepath"
-	"time"
-
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
+	"path/filepath"
+	"time"
 )
 
 var OutputDir string
@@ -128,7 +129,7 @@ func convertContents(mark rune) (err error) {
 			metadata = newmetadata
 		}
 
-		//page.Dir = file.Dir
+		page.SetDir(filepath.Join(helpers.AbsPathify(viper.GetString("ContentDir")), file.Dir()))
 		page.SetSourceContent(psr.Content())
 		page.SetSourceMetaData(metadata, mark)
 
