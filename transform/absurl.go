@@ -2,7 +2,6 @@ package transform
 
 import (
 	"bytes"
-	htmltran "code.google.com/p/go-html-transform/html/transform"
 	"net/url"
 	"strings"
 )
@@ -37,33 +36,4 @@ func guardReplace(content, guard, match, replace []byte) []byte {
 		content = bytes.Replace(content, match, replace, -1)
 	}
 	return content
-}
-
-type elattr struct {
-	tag, attr string
-}
-
-func absUrlify(baseURL *url.URL, selectors ...elattr) (trs []*htmltran.Transform, err error) {
-	var inURL *url.URL
-
-	replace := func(in string) string {
-		if inURL, err = url.Parse(in); err != nil {
-			return in + "?"
-		}
-		if fragmentOnly(inURL) {
-			return in
-		}
-		return baseURL.ResolveReference(inURL).String()
-	}
-
-	for _, el := range selectors {
-		mt := htmltran.MustTrans(htmltran.TransformAttrib(el.attr, replace), el.tag)
-		trs = append(trs, mt)
-	}
-
-	return
-}
-
-func fragmentOnly(u *url.URL) bool {
-	return u.Fragment != "" && u.Scheme == "" && u.Opaque == "" && u.User == nil && u.Host == "" && u.Path == "" && u.Path == "" && u.RawQuery == ""
 }
