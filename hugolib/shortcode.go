@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -90,7 +91,28 @@ type shortcode struct {
 
 func (sc shortcode) String() string {
 	// for testing (mostly), so any change here will break tests!
-	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, sc.params, sc.doMarkup, sc.inner)
+	var params interface{}
+	switch v := sc.params.(type) {
+	case map[string]string:
+		// sort the keys so test assertions won't fail
+		var keys []string
+		for k := range v {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		var tmp = make([]string, len(keys))
+
+		for i, k := range keys {
+			tmp[i] = k + ":" + v[k]
+		}
+		params = tmp
+
+	default:
+		// use it as is
+		params = sc.params
+	}
+
+	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
 // all in  one go: extract, render and replace
