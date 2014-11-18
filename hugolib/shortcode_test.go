@@ -167,8 +167,8 @@ func TestExtractShortcodes(t *testing.T) {
 		{"one shortcode, markup", "{{% tag %}}", "", testScPlaceholderRegexp, ""},
 		{"one pos param", "{{% tag param1 %}}", `tag([\"param1\"], true){[]}"]`, testScPlaceholderRegexp, ""},
 		{"two pos params", "{{< tag param1 param2>}}", `tag([\"param1\" \"param2\"], false){[]}"]`, testScPlaceholderRegexp, ""},
-		{"one named param", `{{% tag param1="value" %}}`, `tag(map[\"param1\":\"value\"], true){[]}`, testScPlaceholderRegexp, ""},
-		{"two named params", `{{< tag param1="value1" param2="value2" >}}`, `tag(map[\"param1\":\"value1\" \"param2\":\"value2\"], false){[]}"]`,
+		{"one named param", `{{% tag param1="value" %}}`, `tag([\"param1:value\"], true){[]}`, testScPlaceholderRegexp, ""},
+		{"two named params", `{{< tag param1="value1" param2="value2" >}}`, `tag([\"param1:value1\" \"param2:value2\"], false){[]}"]`,
 			testScPlaceholderRegexp, ""},
 		{"inner", `Some text. {{< inner >}}Inner Content{{< / inner >}}. Some more text.`, `inner([], false){[Inner Content]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
@@ -188,10 +188,10 @@ func TestExtractShortcodes(t *testing.T) {
 			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2([], false){[]}"]`,
 			testScPlaceholderRegexp + testScPlaceholderRegexp, ""},
 		{"mix of shortcodes", `Hello {{< sc1 >}}world{{% sc2 p2="2"%}}. And that's it.`,
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2(map[\"p2\":\"2\"]`,
+			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2([\"p2:2\"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"mix with inner", `Hello {{< sc1 >}}world{{% inner p2="2"%}}Inner{{%/ inner %}}. And that's it.`,
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:inner(map[\"p2\":\"2\"], true){[Inner]}"]`,
+			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:inner([\"p2:2\"], true){[Inner]}"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
