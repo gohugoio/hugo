@@ -35,16 +35,32 @@ can be quoted).
 
 The first word is always the name of the shortcode. Parameters follow the name.
 The format for named parameters models that of HTML with the format
-`name="value"`. The current implementation only supports this exact format. Extra
-spaces or different quotation marks will not parse properly.
+`name="value"`.
 
 Some shortcodes use or require closing shortcodes. Like HTML, the opening and closing
 shortcodes match (name only), the closing being prepended with a slash.
 
 Example of a paired shortcode:
 
-    {{%/* highlight go */%}} A bunch of code here {{%/* /highlight */%}}
+    {{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
 
+The examples above use two different delimiters, the difference being the `%` and the `<` character:
+
+### Shortcodes with Markdown
+
+The `%` characters indicates that the shortcode's inner content needs further processing by the page's rendering processor (i.e. Markdown), needed to get the **bold** text in the example below:
+
+ ```
+{{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
+```
+
+### Shortcodes without Markdown
+
+The `<` character indicates that the shortcode's inner content doesn't need any further rendering, this will typically be pure HTML:
+
+ ```
+{{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
+```
 
 ## Hugo Shortcodes
 
@@ -61,7 +77,7 @@ closing shortcode.
 
 #### Example
 
-    {{%/* highlight html */%}}
+    {{</* highlight html */>}}
     <section id="main">
       <div>
        <h1 id="title">{{ .Title }}</h1>
@@ -70,7 +86,7 @@ closing shortcode.
         {{ end }}
       </div>
     </section>
-    {{%/* /highlight */%}}
+    {{</* /highlight */>}}
 
 
 #### Example Output
@@ -101,9 +117,8 @@ closing shortcode.
  * alt
 
 #### Example
-*Example has an extra space so Hugo doesn’t actually render it*.
 
-    {{%/* figure src="/media/spf13.jpg" title="Steve Francia" */%}}
+    {{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
 
 #### Example output
 
@@ -156,7 +171,7 @@ You can also use the variable `.Page` to access all the normal [Page Variables](
 
 ## Single Positional Example: youtube
 
-    {{%/* youtube 09jf3ow9jfw */%}}
+    {{</* youtube 09jf3ow9jfw */>}}
 
 Would load the template /layouts/shortcodes/youtube.html
 
@@ -176,9 +191,8 @@ This would be rendered as:
     </div>
 
 ## Single Named Example: image with caption
-*Example has an extra space so Hugo doesn’t actually render it*
 
-    {{%/* img src="/media/spf13.jpg" title="Steve Francia" */%}}
+    {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
 
 Would load the template /layouts/shortcodes/img.html
 
@@ -213,13 +227,11 @@ Would be rendered as:
 ## Paired Example: Highlight
 *Hugo already ships with the `highlight` shortcode*
 
-*Example has an extra space so Hugo doesn’t actually render it*.
-
-    {{%/* highlight html */%}}
+    {{</* highlight html */>}}
     <html>
         <body> This HTML </body>
     </html>
-    {{%/* /highlight */%}}
+    {{</* /highlight */>}}
 
 The template for this utilizes the following code (already include in Hugo)
 
