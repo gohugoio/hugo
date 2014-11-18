@@ -25,7 +25,7 @@ To avoid both of these limitations, Hugo created shortcodes.
 A shortcode is a simple snippet inside a content file that Hugo will render
 using a predefined template. Note that shortcodes will not work in template
 files---if you need a functionality like that in a template, you most likely
-want a [partial template](/templates/partial) instead.
+want a [partial template](/templates/partials) instead.
 
 ## Using a shortcode
 
