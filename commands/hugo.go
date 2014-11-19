@@ -67,6 +67,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(benchmark)
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
+	HugoCmd.AddCommand(listCmd)
 }
 
 func init() {
