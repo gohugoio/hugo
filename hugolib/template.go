@@ -541,6 +541,7 @@ func NewTemplate() Template {
 		"upper":       func(a string) string { return strings.ToUpper(a) },
 		"title":       func(a string) string { return strings.Title(a) },
 		"partial":     Partial,
+		"rawPartial":  RawPartial,
 	}
 
 	templates.Funcs(funcMap)
@@ -593,6 +594,15 @@ func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
 func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
 	b := ExecuteTemplate(context, layouts...)
 	return template.HTML(string(b.Bytes()))
+}
+
+func RawPartial(name string) template.HTML {
+	file, err := ioutil.ReadFile("./layouts/partials/" + name)
+	if err == nil {
+		return template.HTML(html.UnescapeString(string(file)))
+	}
+
+	return ""
 }
 
 func (t *GoHtmlTemplate) LoadEmbedded() {
