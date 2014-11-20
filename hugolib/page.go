@@ -640,32 +640,20 @@ func (p *Page) ProcessShortcodes(t tpl.Template) {
 
 }
 
+// TODO(spf13): Remove this entirely
+// Here for backwards compatibility & testing. Only works in isolation
 func (page *Page) Convert() error {
-	markupType := page.guessMarkupType()
-	switch markupType {
-	case "markdown", "rst":
-
-		tmpContent, tmpTableOfContents := helpers.ExtractTOC(page.renderContent(helpers.RemoveSummaryDivider(page.rawContent)))
-
-		if len(page.contentShortCodes) > 0 {
-			tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, -1, true, page.contentShortCodes)
-
-			if err != nil {
-				jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
-			} else {
-				tmpContent = tmpContentWithTokensReplaced
-			}
-		}
-
-		page.Content = helpers.BytesToHTML(tmpContent)
-		page.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-	case "html":
-		page.Content = helpers.BytesToHTML(page.rawContent)
-	default:
-		return fmt.Errorf("Error converting unsupported file type '%s' for page '%s'", markupType, page.Source.Path())
+	var h Handler
+	if page.Markup != "" {
+		h = FindHandler(page.Markup)
+	} else {
+		h = FindHandler(page.File.Extension())
+	}
+	if h != nil {
+		h.PageConvert(page, tpl.T())
 	}
 
-	// now we know enough to create a summary of the page and count some words
+	//// now we know enough to create a summary of the page and count some words
 	page.setSummary()
 	//analyze for raw stats
 	page.analyzePage()

@@ -417,7 +417,7 @@ func (s *Site) CreatePages() error {
 func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		h := FindHandler(file.Extension())
+		h := NewMetaHandler(file.Extension())
 		if h != nil {
 			h.Read(file, s, results)
 		} else {
@@ -429,11 +429,11 @@ func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResu
 func pageConverter(s *Site, pages <-chan *Page, results HandleResults, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for page := range pages {
-		var h Handler
+		var h *MetaHandle
 		if page.Markup != "" {
-			h = FindHandler(page.Markup)
+			h = NewMetaHandler(page.Markup)
 		} else {
-			h = FindHandler(page.File.Extension())
+			h = NewMetaHandler(page.File.Extension())
 		}
 		if h != nil {
 			h.Convert(page, s, results)
@@ -444,7 +444,7 @@ func pageConverter(s *Site, pages <-chan *Page, results HandleResults, wg *sync.
 func fileConverter(s *Site, files <-chan *source.File, results HandleResults, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		h := FindHandler(file.Extension())
+		h := NewMetaHandler(file.Extension())
 		if h != nil {
 			h.Convert(file, s, results)
 		}
@@ -470,7 +470,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
-			errMsgs = append(errMsgs, r.err.Error())
+			errMsgs = append(errMsgs, r.Error())
 			continue
 		}
 

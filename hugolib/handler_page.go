@@ -13,65 +13,89 @@
 
 package hugolib
 
-import "github.com/spf13/hugo/source"
+import (
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
+)
 
 func init() {
-	RegisterHandler(markdownHandler)
-	RegisterHandler(htmlHandler)
+	RegisterHandler(new(markdownHandler))
+	RegisterHandler(new(htmlHandler))
+	RegisterHandler(new(asciidocHandler))
 }
 
-var markdownHandler = Handle{
-	extensions: []string{"mdown", "markdown", "md"},
-	read: func(f *source.File, s *Site, results HandleResults) {
-		page, err := NewPage(f.Path())
-		if err != nil {
-			results <- HandledResult{file: f, err: err}
-		}
+type basicPageHandler Handle
 
-		if err := page.ReadFrom(f.Contents); err != nil {
-			results <- HandledResult{file: f, err: err}
-		}
+func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
+	page, err := NewPage(f.Path())
+	if err != nil {
+		return HandledResult{file: f, err: err}
+	}
 
-		page.Site = &s.Info
-		page.Tmpl = s.Tmpl
+	if err := page.ReadFrom(f.Contents); err != nil {
+		return HandledResult{file: f, err: err}
+	}
 
-		results <- HandledResult{file: f, page: page, err: err}
-	},
-	pageConvert: func(p *Page, s *Site, results HandleResults) {
-		p.ProcessShortcodes(s.Tmpl)
-		err := p.Convert()
-		if err != nil {
-			results <- HandledResult{err: err}
-		}
+	page.Site = &s.Info
+	page.Tmpl = s.Tmpl
 
-		results <- HandledResult{err: err}
-	},
+	return HandledResult{file: f, page: page, err: err}
 }
 
-var htmlHandler = Handle{
-	extensions: []string{"html", "htm"},
-	read: func(f *source.File, s *Site, results HandleResults) {
-		page, err := NewPage(f.Path())
+func (b basicPageHandler) FileConvert(*source.File, *Site) HandledResult {
+	return HandledResult{}
+}
+
+type markdownHandler struct {
+	basicPageHandler
+}
+
+func (h markdownHandler) Extensions() []string { return []string{"mdown", "markdown", "md"} }
+func (h markdownHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	p.ProcessShortcodes(t)
+
+	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
+
+	if len(p.contentShortCodes) > 0 {
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, -1, true, p.contentShortCodes)
+
 		if err != nil {
-			results <- HandledResult{file: f, err: err}
+			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			return HandledResult{err: err}
+		} else {
+			tmpContent = tmpContentWithTokensReplaced
 		}
+	}
 
-		if err := page.ReadFrom(f.Contents); err != nil {
-			results <- HandledResult{file: f, err: err}
-		}
+	p.Content = helpers.BytesToHTML(tmpContent)
+	p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
 
-		page.Site = &s.Info
-		page.Tmpl = s.Tmpl
+	return HandledResult{err: nil}
+}
 
-		results <- HandledResult{file: f, page: page, err: err}
-	},
-	pageConvert: func(p *Page, s *Site, results HandleResults) {
-		p.ProcessShortcodes(s.Tmpl)
-		err := p.Convert()
-		if err != nil {
-			results <- HandledResult{err: err}
-		}
+type htmlHandler struct {
+	basicPageHandler
+}
 
-		results <- HandledResult{err: err}
-	},
+func (h htmlHandler) Extensions() []string { return []string{"html", "htm"} }
+func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	p.ProcessShortcodes(t)
+	p.Content = helpers.BytesToHTML(p.rawContent)
+	return HandledResult{err: nil}
+}
+
+type asciidocHandler struct {
+	basicPageHandler
+}
+
+func (h asciidocHandler) Extensions() []string { return []string{"asciidoc", "ad"} }
+func (h asciidocHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	p.ProcessShortcodes(t)
+
+	// TODO(spf13) Add Ascii Doc Logic here
+
+	//err := p.Convert()
+	return HandledResult{page: p, err: nil}
 }

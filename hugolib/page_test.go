@@ -342,7 +342,6 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
-	p.ProcessShortcodes(s.Tmpl)
 	p.Convert()
 
 	checkPageTitle(t, p, "Simple")

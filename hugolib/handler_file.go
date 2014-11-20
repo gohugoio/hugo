@@ -17,19 +17,30 @@ import (
 	"github.com/dchest/cssmin"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/tpl"
 )
 
 func init() {
-	RegisterHandler(css)
+	RegisterHandler(new(cssHandler))
 }
 
-var css = Handle{
-	extensions: []string{"css"},
-	read: func(f *source.File, s *Site, results HandleResults) {
-		results <- HandledResult{file: f}
-	},
-	fileConvert: func(f *source.File, s *Site, results HandleResults) {
-		x := cssmin.Minify(f.Bytes())
-		s.WriteDestFile(f.Path(), helpers.BytesToReader(x))
-	},
+type basicFileHandler Handle
+
+func (h basicFileHandler) Read(f *source.File, s *Site) HandledResult {
+	return HandledResult{file: f}
+}
+
+func (h basicFileHandler) PageConvert(*Page, tpl.Template) HandledResult {
+	return HandledResult{}
+}
+
+type cssHandler struct {
+	basicFileHandler
+}
+
+func (h cssHandler) Extensions() []string { return []string{"css"} }
+func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
+	x := cssmin.Minify(f.Bytes())
+	s.WriteDestFile(f.Path(), helpers.BytesToReader(x))
+	return HandledResult{file: f}
 }
