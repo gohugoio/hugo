@@ -2,20 +2,22 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 	"reflect"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/tpl"
+	"github.com/spf13/viper"
 )
 
 func pageFromString(in, filename string) (*Page, error) {
 	return NewPageFrom(strings.NewReader(in), filename)
 }
 
-func CheckShortCodeMatch(t *testing.T, input, expected string, template Template) {
+func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Template) {
 
 	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
 	output := ShortcodesHandle(input, p, template)
@@ -26,13 +28,13 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, template Template
 }
 
 func TestNonSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	// notice the syntax diff from 0.12, now comment delims must be added
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", tem)
 }
 
 func TestPositionalParamSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
 
 	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video 47238zzb", tem)
@@ -43,7 +45,7 @@ func TestPositionalParamSC(t *testing.T) {
 }
 
 func TestNamedParamSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
 
 	CheckShortCodeMatch(t, `{{< img src="one" >}}`, `<img src="one">`, tem)
@@ -55,7 +57,7 @@ func TestNamedParamSC(t *testing.T) {
 }
 
 func TestInnerSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 
 	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}`, `<div class="aspen"></div>`, tem)
@@ -64,7 +66,7 @@ func TestInnerSC(t *testing.T) {
 }
 
 func TestInnerSCWithMarkdown(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 
 	CheckShortCodeMatch(t, `{{% inside %}}
@@ -76,7 +78,7 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 
 	CheckShortCodeMatch(t, `{{% inside %}}
@@ -98,14 +100,14 @@ This is **plain** text.
 }
 
 func TestEmbeddedSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", tem)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", tem)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", tem)
 }
 
 func TestNestedSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
 	tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
 
@@ -113,7 +115,7 @@ func TestNestedSC(t *testing.T) {
 }
 
 func TestNestedComplexSC(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
 	tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
 	tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
@@ -127,7 +129,7 @@ func TestNestedComplexSC(t *testing.T) {
 }
 
 func TestFigureImgWidth(t *testing.T) {
-	tem := NewTemplate()
+	tem := tpl.New()
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
 }
 
@@ -138,7 +140,7 @@ func TestHighlight(t *testing.T) {
 	defer viper.Set("PygmentsStyle", viper.Get("PygmentsStyle"))
 	viper.Set("PygmentsStyle", "bw")
 
-	tem := NewTemplate()
+	tem := tpl.New()
 
 	code := `
 {{< highlight java >}}
@@ -196,7 +198,7 @@ func TestExtractShortcodes(t *testing.T) {
 	} {
 
 		p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
-		tem := NewTemplate()
+		tem := tpl.New()
 		tem.AddInternalShortcode("tag.html", `tag`)
 		tem.AddInternalShortcode("sc1.html", `sc1`)
 		tem.AddInternalShortcode("sc2.html", `sc2`)

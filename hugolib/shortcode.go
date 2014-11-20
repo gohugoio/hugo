@@ -16,14 +16,16 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
 	"html/template"
 	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 type ShortcodeFunc func([]string) string
@@ -117,7 +119,7 @@ func (sc shortcode) String() string {
 
 // all in  one go: extract, render and replace
 // only used for testing
-func ShortcodesHandle(stringToParse string, page *Page, t Template) string {
+func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
 
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
 
@@ -154,7 +156,7 @@ func createShortcodePlaceholder(id int) string {
 	return fmt.Sprintf("<div>%s-%d</div>", shortcodePlaceholderPrefix, id)
 }
 
-func renderShortcodes(sc shortcode, p *Page, t Template) string {
+func renderShortcodes(sc shortcode, p *Page, t tpl.Template) string {
 
 	tokenizedRenderedShortcodes := make(map[string](string))
 	startCount := 0
@@ -169,7 +171,7 @@ func renderShortcodes(sc shortcode, p *Page, t Template) string {
 	return shortcodes
 }
 
-func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt int, p *Page, t Template) string {
+func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt int, p *Page, t tpl.Template) string {
 	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
 	tmpl := GetTemplate(sc.name, t)
 
@@ -209,7 +211,7 @@ func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt 
 	return ShortcodeRender(tmpl, data)
 }
 
-func extractAndRenderShortcodes(stringToParse string, p *Page, t Template) (string, map[string]string) {
+func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string) {
 
 	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
 	renderedShortcodes := make(map[string]string)
@@ -235,7 +237,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t Template) (stri
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func extractShortcode(pt *pageTokens, p *Page, t Template) (shortcode, error) {
+func extractShortcode(pt *pageTokens, p *Page, t tpl.Template) (shortcode, error) {
 	sc := shortcode{}
 	var isInner = false
 
@@ -334,7 +336,7 @@ Loop:
 	return sc, nil
 }
 
-func extractShortcodes(stringToParse string, p *Page, t Template) (string, map[string]shortcode, error) {
+func extractShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]shortcode, error) {
 
 	shortCodes := make(map[string]shortcode)
 
@@ -452,7 +454,7 @@ func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, w
 	return buff[0:width], nil
 }
 
-func GetTemplate(name string, t Template) *template.Template {
+func GetTemplate(name string, t tpl.Template) *template.Template {
 	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
 		return x
 	}

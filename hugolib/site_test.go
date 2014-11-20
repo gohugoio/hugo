@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
+	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 )
 
@@ -46,6 +47,14 @@ more text
 `
 )
 
+func templatePrep(s *Site) {
+	s.Tmpl = tpl.New()
+	s.Tmpl.LoadTemplates(s.absLayoutDir())
+	if s.hasTheme() {
+		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
+	}
+}
+
 func pageMust(p *Page, err error) *Page {
 	if err != nil {
 		panic(err)
@@ -57,7 +66,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 	p.Convert()
 	s := new(Site)
-	s.prepTemplates()
+	templatePrep(s)
 	err := s.renderThing(p, "foobar", nil)
 	if err == nil {
 		t.Errorf("Expected err to be returned when missing the template.")
@@ -66,7 +75,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 
 func TestAddInvalidTemplate(t *testing.T) {
 	s := new(Site)
-	s.prepTemplates()
+	templatePrep(s)
 	err := s.addTemplate("missing", TEMPLATE_MISSING_FUNC)
 	if err == nil {
 		t.Fatalf("Expecting the template to return an error")
@@ -108,7 +117,7 @@ func TestRenderThing(t *testing.T) {
 	}
 
 	s := new(Site)
-	s.prepTemplates()
+	templatePrep(s)
 
 	for i, test := range tests {
 		p, err := NewPageFrom(strings.NewReader(test.content), "content/a/file.md")
@@ -154,7 +163,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	s := &Site{}
-	s.prepTemplates()
+	templatePrep(s)
 
 	for i, test := range tests {
 		p, err := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
@@ -306,7 +315,7 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	s.initializeSiteInfo()
-	s.prepTemplates()
+	templatePrep(s)
 
 	must(s.addTemplate("_default/single.html", "{{.Content}}"))
 	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
@@ -366,7 +375,7 @@ func TestAbsUrlify(t *testing.T) {
 		}
 		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", viper.GetString("baseUrl"), canonify)
 		s.initializeSiteInfo()
-		s.prepTemplates()
+		templatePrep(s)
 		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
 
 		if err := s.CreatePages(); err != nil {

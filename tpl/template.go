@@ -1,4 +1,17 @@
-package hugolib
+// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
+//
+// Licensed under the Simple Public License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://opensource.org/licenses/Simple-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package tpl
 
 import (
 	"bytes"
@@ -20,6 +33,82 @@ import (
 )
 
 var localTemplates *template.Template
+var tmpl Template
+
+type Template interface {
+	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
+	Lookup(name string) *template.Template
+	Templates() []*template.Template
+	New(name string) *template.Template
+	LoadTemplates(absPath string)
+	LoadTemplatesWithPrefix(absPath, prefix string)
+	AddTemplate(name, tpl string) error
+	AddInternalTemplate(prefix, name, tpl string) error
+	AddInternalShortcode(name, tpl string) error
+}
+
+type templateErr struct {
+	name string
+	err  error
+}
+
+type GoHtmlTemplate struct {
+	template.Template
+	errors []*templateErr
+}
+
+// The "Global" Template System
+func T() Template {
+	if tmpl == nil {
+		tmpl = New()
+	}
+
+	return tmpl
+}
+
+// Return a new Hugo Template System
+// With all the additional features, templates & functions
+func New() Template {
+	var templates = &GoHtmlTemplate{
+		Template: *template.New(""),
+		errors:   make([]*templateErr, 0),
+	}
+
+	localTemplates = &templates.Template
+
+	funcMap := template.FuncMap{
+		"urlize":      helpers.Urlize,
+		"sanitizeurl": helpers.SanitizeUrl,
+		"eq":          Eq,
+		"ne":          Ne,
+		"gt":          Gt,
+		"ge":          Ge,
+		"lt":          Lt,
+		"le":          Le,
+		"in":          In,
+		"intersect":   Intersect,
+		"isset":       IsSet,
+		"echoParam":   ReturnWhenSet,
+		"safeHtml":    SafeHtml,
+		"first":       First,
+		"where":       Where,
+		"highlight":   Highlight,
+		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"mod":         Mod,
+		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"modBool":     ModBool,
+		"lower":       func(a string) string { return strings.ToLower(a) },
+		"upper":       func(a string) string { return strings.ToUpper(a) },
+		"title":       func(a string) string { return strings.Title(a) },
+		"partial":     Partial,
+	}
+
+	templates.Funcs(funcMap)
+	templates.LoadEmbedded()
+	return templates
+}
 
 func Eq(x, y interface{}) bool {
 	return reflect.DeepEqual(x, y)
@@ -482,71 +571,6 @@ func ModBool(a, b interface{}) (bool, error) {
 		return false, err
 	}
 	return res == int64(0), nil
-}
-
-type Template interface {
-	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
-	Lookup(name string) *template.Template
-	Templates() []*template.Template
-	New(name string) *template.Template
-	LoadTemplates(absPath string)
-	LoadTemplatesWithPrefix(absPath, prefix string)
-	AddTemplate(name, tpl string) error
-	AddInternalTemplate(prefix, name, tpl string) error
-	AddInternalShortcode(name, tpl string) error
-}
-
-type templateErr struct {
-	name string
-	err  error
-}
-
-type GoHtmlTemplate struct {
-	template.Template
-	errors []*templateErr
-}
-
-func NewTemplate() Template {
-	var templates = &GoHtmlTemplate{
-		Template: *template.New(""),
-		errors:   make([]*templateErr, 0),
-	}
-
-	localTemplates = &templates.Template
-
-	funcMap := template.FuncMap{
-		"urlize":      helpers.Urlize,
-		"sanitizeurl": helpers.SanitizeUrl,
-		"eq":          Eq,
-		"ne":          Ne,
-		"gt":          Gt,
-		"ge":          Ge,
-		"lt":          Lt,
-		"le":          Le,
-		"in":          In,
-		"intersect":   Intersect,
-		"isset":       IsSet,
-		"echoParam":   ReturnWhenSet,
-		"safeHtml":    SafeHtml,
-		"first":       First,
-		"where":       Where,
-		"highlight":   Highlight,
-		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":         Mod,
-		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":     ModBool,
-		"lower":       func(a string) string { return strings.ToLower(a) },
-		"upper":       func(a string) string { return strings.ToUpper(a) },
-		"title":       func(a string) string { return strings.Title(a) },
-		"partial":     Partial,
-	}
-
-	templates.Funcs(funcMap)
-
-	templates.LoadEmbedded()
-	return templates
 }
 
 func Partial(name string, context_list ...interface{}) template.HTML {

@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
+	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/hugo/transform"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
@@ -61,7 +62,7 @@ var DefaultTimer *nitro.B
 type Site struct {
 	Pages       Pages
 	Files       []*source.File
-	Tmpl        Template
+	Tmpl        tpl.Template
 	Taxonomies  TaxonomyList
 	Source      source.Input
 	Sections    Taxonomy
@@ -166,7 +167,7 @@ func (s *Site) Analyze() {
 }
 
 func (s *Site) prepTemplates() {
-	s.Tmpl = NewTemplate()
+	s.Tmpl = tpl.T()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
 	if s.hasTheme() {
 		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")

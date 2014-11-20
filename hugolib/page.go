@@ -17,10 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/parser"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"html/template"
 	"io"
 	"net/url"
@@ -29,8 +25,13 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 type Page struct {
@@ -44,7 +45,7 @@ type Page struct {
 	Truncated       bool
 	Draft           bool
 	PublishDate     time.Time
-	Tmpl            Template
+	Tmpl            tpl.Template
 	Markup          string
 
 	extension         string
@@ -528,7 +529,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 		curLayout = layout[0]
 	}
 
-	return ExecuteTemplateToHTML(p, p.Layout(curLayout)...)
+	return tpl.ExecuteTemplateToHTML(p, p.Layout(curLayout)...)
 }
 
 func (page *Page) guessMarkupType() string {
@@ -629,7 +630,7 @@ func (page *Page) SaveSource() error {
 	return page.SaveSourceAs(page.FullFilePath())
 }
 
-func (p *Page) ProcessShortcodes(t Template) {
+func (p *Page) ProcessShortcodes(t tpl.Template) {
 
 	// these short codes aren't used until after Page render,
 	// but processed here to avoid coupling
