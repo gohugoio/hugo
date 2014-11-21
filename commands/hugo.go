@@ -190,7 +190,7 @@ func InitializeConfig() {
 	if Source != "" {
 		viper.Set("WorkingDir", Source)
 	} else {
-		dir, _ := helpers.FindCWD()
+		dir, _ := os.Getwd()
 		viper.Set("WorkingDir", dir)
 	}
 
