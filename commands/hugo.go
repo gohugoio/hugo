@@ -52,7 +52,7 @@ Complete documentation is available at http://gohugo.io`,
 
 var hugoCmdV *cobra.Command
 
-var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes, DeletePublishDir bool
 var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
 
 func Execute() {
@@ -89,6 +89,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
+	HugoCmd.Flags().BoolVarP(&DeletePublishDir, "deletePublishDir", "", false, "Delete files in PublishDir-cleans the directory of unsynched files")
 	hugoCmdV = HugoCmd
 }
 
@@ -228,6 +229,7 @@ func copyStatic() error {
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
+	syncer.Delete = viper.GetBool("DeletePublishDir")
 	syncer.SrcFs = hugofs.SourceFs
 	syncer.DestFs = hugofs.DestinationFS
 
