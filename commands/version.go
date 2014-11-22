@@ -87,7 +87,19 @@ func getDateFormat() string {
 	if params == nil {
 		return time.RFC3339
 	}
-	parms := params.(map[string]interface{})
+
+	//	var typMapIfaceIface = reflect.TypeOf(map[interface{}{}]interface{}{})
+	//	var typMapStringIface = reflect.TypeOf(map[string]interface{}{})
+	parms := map[string]interface{}{}
+	switch params.(type) {
+	case map[interface{}]interface{}:
+		for k, v := range params.(map[interface{}]interface{}) {
+			parms[k.(string)] = v
+		}
+	case map[string]interface{}:
+		parms = params.(map[string]interface{})
+	}
+
 	layout := parms["DateFormat"]
 	if layout == nil || layout == "" {
 		return time.RFC3339
