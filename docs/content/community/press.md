@@ -16,6 +16,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title | Author | Date  |
 | ------ | ------ | -----: |
+| [Travel Blogging Setup](http://www.stou.dk/2014/11/travel-blogging-setup/) | Rasmus Stougaard | 23 Nov 2014 |
 | [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 19 Aug 2014 |
 | [Hello Hugo!](http://commiechink.com/2014/08/hello-hugo/) | Jason Yee | 19 Aug 2014 |
 | [Going with hugo](http://www.markuseliasson.se/article/going-with-hugo/) | Markus Eliasson | 18 Aug 2014 |
