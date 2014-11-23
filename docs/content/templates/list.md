@@ -41,7 +41,7 @@ A Section will be rendered at /`SECTION`/
 * /layouts/\_default/section.html
 * /layouts/\_default/list.html
 * /themes/`THEME`/layouts/section/`SECTION`.html
-* /themes/`THEME`/\_default/section.html
+* /themes/`THEME`/layouts/\_default/section.html
 * /themes/`THEME`/layouts/\_default/list.html
 
 
@@ -53,7 +53,7 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/
 * /layouts/\_default/taxonomy.html
 * /layouts/\_default/list.html
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
-* /themes/`THEME`/\_default/taxonomy.html
+* /themes/`THEME`/layouts/\_default/taxonomy.html
 * /themes/`THEME`/layouts/\_default/list.html
 
 ### Section RSS
