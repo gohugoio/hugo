@@ -343,8 +343,8 @@ func (s *Site) CreatePages() error {
 
 	wg := &sync.WaitGroup{}
 
+	wg.Add(procs * 4)
 	for i := 0; i < procs*4; i++ {
-		wg.Add(1)
 		go sourceReader(s, filechan, results, wg)
 	}
 
@@ -372,14 +372,9 @@ func (s *Site) CreatePages() error {
 
 	wg = &sync.WaitGroup{}
 
+	wg.Add(2 * procs * 4)
 	for i := 0; i < procs*4; i++ {
-		wg.Add(1)
 		go fileConverter(s, fileConvChan, results, wg)
-	}
-
-	wg = &sync.WaitGroup{}
-	for i := 0; i < procs*4; i++ {
-		wg.Add(1)
 		go pageConverter(s, pageChan, results, wg)
 	}
 
