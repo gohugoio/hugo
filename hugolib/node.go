@@ -104,6 +104,14 @@ func (n *Node) IsPage() bool {
 	return !n.IsNode()
 }
 
+func (n *Node) Ref(ref string) (string, error) {
+	return n.Site.Ref(ref, nil)
+}
+
+func (n *Node) RelRef(ref string) (string, error) {
+	return n.Site.RelRef(ref, nil)
+}
+
 type UrlPath struct {
 	Url       string
 	Permalink template.HTML

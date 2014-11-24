@@ -19,6 +19,8 @@ type Tmpl struct {
 }
 
 func (t *GoHtmlTemplate) EmbedShortcodes() {
+	t.AddInternalShortcode("ref.html", `{{ .Get 0 | ref .Page }}`)
+	t.AddInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
 	t.AddInternalShortcode("highlight.html", `{{ .Get 0 | highlight .Inner  }}`)
 	t.AddInternalShortcode("test.html", `This is a simple Test`)
 	t.AddInternalShortcode("figure.html", `<!-- image -->
