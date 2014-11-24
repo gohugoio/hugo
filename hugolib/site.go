@@ -167,7 +167,7 @@ func (s *Site) Analyze() {
 }
 
 func (s *Site) prepTemplates() {
-	s.Tmpl = tpl.T()
+	s.Tmpl = tpl.InitializeT()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
 	if s.hasTheme() {
 		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")

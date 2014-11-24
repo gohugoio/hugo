@@ -66,6 +66,12 @@ func T() Template {
 	return tmpl
 }
 
+// Resets the internal template state to it's initial state
+func InitializeT() Template {
+	tmpl = New()
+	return tmpl
+}
+
 // Return a new Hugo Template System
 // With all the additional features, templates & functions
 func New() Template {
