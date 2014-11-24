@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -119,7 +120,7 @@ func TestReplaceExtension(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output := ReplaceExtension(d.input, d.newext)
+		output := ReplaceExtension(filepath.FromSlash(d.input), d.newext)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -139,8 +140,8 @@ func TestDirExists(t *testing.T) {
 		{"../", true},
 		{"./..", true},
 		{"./../", true},
-		{"/tmp", true},
-		{"/tmp/", true},
+		{os.TempDir() + "/", true}, // /tempdir/
+		{os.TempDir(), true},       // .tempdir
 		{"/", true},
 		{"/some-really-random-directory-name", false},
 		{"/some/really/random/directory/name", false},
@@ -371,9 +372,9 @@ func TestAbsPathify(t *testing.T) {
 	}
 
 	for i, d := range data {
-		expected := AbsPathify(d.input)
-		if d.expected != expected {
-			t.Errorf("Test %d failed. Expected %q but go %q", i, d.expected, expected)
+		expected := AbsPathify(filepath.FromSlash(d.input))
+		if filepath.FromSlash(d.expected) != expected {
+			t.Errorf("Test %d failed. Expected %q but go %q", i, filepath.FromSlash(d.expected), expected)
 		}
 	}
 }
@@ -400,7 +401,7 @@ func TestFilename(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output := Filename(d.input)
+		output := Filename(filepath.FromSlash(d.input))
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -429,7 +430,7 @@ func TestFileAndExt(t *testing.T) {
 	}
 
 	for i, d := range data {
-		file, ext := FileAndExt(d.input)
+		file, ext := FileAndExt(filepath.FromSlash(d.input))
 		if d.expectedFile != file {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
