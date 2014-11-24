@@ -16,6 +16,7 @@ package tpl
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/eknkc/amber"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
@@ -110,6 +111,8 @@ func New() Template {
 		"upper":       func(a string) string { return strings.ToUpper(a) },
 		"title":       func(a string) string { return strings.Title(a) },
 		"partial":     Partial,
+		"ref":         Ref,
+		"relref":      RelRef,
 	}
 
 	templates.Funcs(funcMap)
@@ -425,6 +428,41 @@ func Highlight(in interface{}, lang string) template.HTML {
 
 func Markdownify(text string) template.HTML {
 	return template.HTML(helpers.RenderBytes([]byte(text), "markdown", ""))
+}
+
+func refPage(page interface{}, ref, methodName string) template.HTML {
+	value := reflect.ValueOf(page)
+
+	method := value.MethodByName(methodName)
+
+	if method.IsValid() && method.Type().NumIn() == 1 && method.Type().NumOut() == 2 {
+		result := method.Call([]reflect.Value{reflect.ValueOf(ref)})
+
+		url, err := result[0], result[1]
+
+		if !err.IsNil() {
+			jww.ERROR.Printf("%s", err.Interface())
+			return template.HTML(fmt.Sprintf("%s", err.Interface()))
+		}
+
+		if url.String() == "" {
+			jww.ERROR.Printf("ref %s could not be found\n", ref)
+			return template.HTML(ref)
+		}
+
+		return template.HTML(url.String())
+	}
+
+	jww.ERROR.Printf("Can only create references from Page and Node objects.")
+	return template.HTML(ref)
+}
+
+func Ref(page interface{}, ref string) template.HTML {
+	return refPage(page, ref, "Ref")
+}
+
+func RelRef(page interface{}, ref string) template.HTML {
+	return refPage(page, ref, "RelRef")
 }
 
 func SafeHtml(text string) template.HTML {

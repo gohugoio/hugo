@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -126,6 +127,65 @@ func (s *SiteInfo) GetParam(key string) interface{} {
 		return v
 	}
 	return nil
+}
+
+func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error) {
+	var refUrl *url.URL
+	var err error
+
+	refUrl, err = url.Parse(ref)
+
+	if err != nil {
+		return "", err
+	}
+
+	var target *Page = nil
+	var link string = ""
+
+	if refUrl.Path != "" {
+		var target *Page
+
+		for _, page := range []*Page(*s.Pages) {
+			if page.Source.Path() == refUrl.Path || page.Source.LogicalName() == refUrl.Path {
+				target = page
+				break
+			}
+		}
+
+		if target == nil {
+			return "", errors.New(fmt.Sprintf("No page found with path or logical name \"%s\".\n", refUrl.Path))
+		}
+
+		if relative {
+			link, err = target.RelPermalink()
+		} else {
+			link, err = target.Permalink()
+		}
+
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if refUrl.Fragment != "" {
+		link = link + "#" + refUrl.Fragment
+
+		if refUrl.Path != "" {
+			link = link + ":" + target.UniqueId()
+		} else if page != nil {
+			link = link + ":" + page.UniqueId()
+		}
+	}
+
+	return link, nil
+}
+
+func (s *SiteInfo) Ref(ref string, page *Page) (string, error) {
+	return s.refLink(ref, page, false)
+}
+
+func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
+	return s.refLink(ref, page, true)
 }
 
 type runmode struct {

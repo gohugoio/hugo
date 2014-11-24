@@ -102,6 +102,14 @@ func (p *Page) UniqueId() string {
 	return p.Source.UniqueId()
 }
 
+func (p *Page) Ref(ref string) (string, error) {
+	return p.Node.Site.Ref(ref, p)
+}
+
+func (p *Page) RelRef(ref string) (string, error) {
+	return p.Node.Site.RelRef(ref, p)
+}
+
 // for logging
 func (p *Page) lineNumRawContentStart() int {
 	return bytes.Count(p.frontmatter, []byte("\n")) + 1
