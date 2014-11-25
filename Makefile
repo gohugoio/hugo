@@ -5,7 +5,7 @@
 # https://github.com/spf13/hugo/issues/540
 
 COMMIT_HASH=`git rev-parse --short HEAD 2>/dev/null`
-BUILD_DATE=`date +%FT%T%z`
+BUILD_DATE=`date +%FT%T`
 LDFLAGS=-ldflags "-X github.com/spf13/hugo/commands.commitHash ${COMMIT_HASH} -X github.com/spf13/hugo/commands.buildDate ${BUILD_DATE}"
 
 all: gitinfo
