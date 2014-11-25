@@ -74,6 +74,13 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
     <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
     <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
+    {{ range .Params.images }}
+    <image:image>
+      <image:loc>.src</image:loc>
+      {{ with .title }}<image:title><![CDATA[.]]></image:title>{{ end }}
+      {{ with .caption }}<image:caption><![CDATA[.]]></image:caption>{{ end }}
+    </image:image>
+    {{ end }}
   </url>
   {{ end }}
 </urlset>`)
@@ -93,5 +100,4 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`)
-
 }
