@@ -174,4 +174,10 @@ e.g. `{{title "BatMan"}}` → "Batman"
 
 ### highlight
 Take a string of code and a language, uses Pygments to return the syntax
-highlighted code in HTML. Used in the [highlight shortcode](/extras/highlighting).
+highlighted code in HTML. Used in the [highlight
+shortcode](/extras/highlighting).
+
+### ref, relref
+Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
+
+e.g. {{ ref . "about.md" }}

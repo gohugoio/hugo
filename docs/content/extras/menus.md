@@ -6,7 +6,7 @@ menu:
 next: /extras/permalinks
 prev: /extras/livereload
 title: Menus
-weight: 20
+weight: 60
 ---
 
 Hugo has a simple yet powerful menu system that permits content to be
