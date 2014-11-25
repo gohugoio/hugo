@@ -4,10 +4,10 @@ linktitle: Comments
 menu:
   main:
     parent: extras
-next: /extras/livereload
+next: /extras/crossreferences
 prev: /extras/builders
 title: Comments in Hugo
-weight: 14
+weight: 30
 ---
 
 As Hugo is a static site generator, the content produced is static and

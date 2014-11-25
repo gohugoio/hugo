@@ -6,7 +6,7 @@ menu:
 next: /extras/urls
 prev: /extras/highlighting
 title: Table of Contents
-weight: 60
+weight: 100
 ---
 
 Hugo will automatically parse the Markdown for your content and create
