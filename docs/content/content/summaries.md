@@ -22,9 +22,9 @@ When using automatic summaries, Hugo will strip all HTML tags from the summary.
 
 ## User-defined: manual summary split:
 
-Hugo also provides an easy way to customize where a piece of content will be split with its summary content divider:  <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>. The summary content divider is Hugo's version of a "more tag", "summary divider", "excerpt separator", etc. found in other systems. For the summary content divider to be valid, it most be entered as <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>; with no additional spaces or other characters between the `<code>` and `</code>` tags.
+Hugo also provides an easy way to customize where a piece of content will be split with its summary content divider:  <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>. The summary content divider is Hugo's version of a "more tag", "summary divider", "excerpt separator", etc. found in other systems. For the summary content divider to be valid, it most be entered as <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>; with no additional spaces or other characters between the <code>&#60;&#33;&#45;&#45;</code> and <code>&#45;&#45;&#62;</code> tags.
 
-If the summary content divider exists within a piece of content, Hugo will split the content at that point, instead of its default split point of 70 words. The content prior to the summary content provider will be used as that content's summary and the summary content divider will be replaces with a `Read More` link. When the full content is rendered, the summary content provider, <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>, is elided from the output.
+If the summary content divider exists within a piece of content, Hugo will split the content at that point, instead of its default split point of 70 words. The content prior to the summary content provider will be used as that content's summary and the summary content divider will be replaced with a `Read More` link. When the full content is rendered, the summary content provider, <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>, is elided from the output.
 
 When using user-defined summaries, <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>, Hugo will preserve the HTML in the summary.
 
