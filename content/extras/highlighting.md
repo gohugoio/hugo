@@ -8,7 +8,7 @@ menu:
 next: /extras/toc
 prev: /extras/shortcodes
 title: Syntax Highlighting
-weight: 50
+weight: 90
 ---
 
 Hugo provides the ability for you to highlight source code in two different
@@ -43,20 +43,20 @@ Highlight takes exactly one required parameter of language and requires a
 closing shortcode.
 
 ### Example
-The example has an extra space between the “`{{`” and “`%`” characters to prevent rendering here.  Since this example is a code block, we use GitHub flavored Markdown's code fences, ```, to delimit the code. If you are using standard Markdown, instead of the code fence delimiters, each line must be preceeded by 4 spaces to identify each line as a line of code. Not doing either will result in the text being rendered as HTML. This will prevent Pygments highlighting from working.
+Since this example is a code block, we use Github flavored Markdown's code fences, ```, to delimit the code. If you are using standard Markdown, instead of the code fence delimiters, each line must be preceeded by 4 spaces to identify each line as a line of code. Not doing either will result in the text being rendered as HTML. This will prevent Pygment highlighting from working.
  
-    ```  
-    {{ % highlight html %}}
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-        {{ range .Data.Pages }}
-            {{ .Render "summary"}}
-        {{ end }}
-      </div>
-    </section>
-    {{ % /highlight %}}
-    ```
+```  
+{{%/* highlight html */%}}
+<section id="main">
+  <div>
+    <h1 id="title">{{ .Title }}</h1>
+    {{ range .Data.Pages }}
+        {{ .Render "summary"}}
+    {{ end }}
+  </div>
+</section>
+{{%/* /highlight */%}}
+```
 
 ### Example Output
 

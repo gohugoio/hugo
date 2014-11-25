@@ -9,7 +9,7 @@ next: /community/mailing-list
 notoc: true
 prev: /extras/toc
 title: URLs
-weight: 70
+weight: 110
 ---
 
 ## Pretty URLs

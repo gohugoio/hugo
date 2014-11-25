@@ -9,7 +9,7 @@ next: /extras/shortcodes
 notoc: true
 prev: /extras/menus
 title: Permalinks
-weight: 30
+weight: 70
 ---
 
 By default, content is laid out into the target `publishdir` (public)
