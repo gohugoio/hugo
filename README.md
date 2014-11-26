@@ -104,6 +104,14 @@ Will result in:
     Hugo Static Site Generator v0.13-DEV buildDate: 2014-10-16
     Hugo Static Site Generator v0.13-DEV-24BBFE7 buildDate: 2014-10-16
 
+If you have make installed on your system, you may simply run
+
+    make
+
+in the root of the hugo repo
+and the extra linker flags providing the git information will be added for you.
+
+
 #### Running Hugo
 
     cd /path/to/hugo
