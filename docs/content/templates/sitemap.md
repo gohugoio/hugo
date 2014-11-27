@@ -36,7 +36,7 @@ This template respects the version 0.9 of the [Sitemap
 Protocol](http://www.sitemaps.org/protocol.html).
 
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      {{ range .Data.Pages }}
+      {{ range .Data.Pages }}{{ if not .Params.noindex }}
       <url>
         <loc>{{ .Permalink }}</loc>
         <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
@@ -48,7 +48,7 @@ Protocol](http://www.sitemaps.org/protocol.html).
           {{ with .caption }}<image:caption><![CDATA[.]]></image:caption>{{ end }}
         </image:image>{{ end }}
       </url>
-      {{ end }}
+      {{ end }}{{ end }}
     </urlset>
 
 *Important: Hugo will automatically add the following header line to this file

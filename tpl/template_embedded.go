@@ -68,7 +68,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 </rss>`)
 
 	t.AddInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {{ range .Data.Pages }}
+  {{ range .Data.Pages }}{{ if not .Params.noindex }}
   <url>
     <loc>{{ .Permalink }}</loc>
     <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
@@ -80,7 +80,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
       {{ with .caption }}<image:caption><![CDATA[.]]></image:caption>{{ end }}
     </image:image>{{ end }}
   </url>
-  {{ end }}
+  {{ end }}{{ end }}
 </urlset>`)
 
 	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
