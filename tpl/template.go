@@ -96,6 +96,7 @@ func New() Template {
 		"isset":       IsSet,
 		"echoParam":   ReturnWhenSet,
 		"safeHtml":    SafeHtml,
+		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,
 		"highlight":   Highlight,
@@ -420,6 +421,10 @@ func Highlight(in interface{}, lang string) template.HTML {
 	}
 
 	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang))
+}
+
+func Markdownify(text string) template.HTML {
+	return template.HTML(helpers.RenderBytes([]byte(text), "markdown", ""))
 }
 
 func SafeHtml(text string) template.HTML {

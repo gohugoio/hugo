@@ -1,6 +1,7 @@
 package tpl
 
 import (
+	"html/template"
 	"reflect"
 	"testing"
 )
@@ -337,5 +338,16 @@ func TestWhere(t *testing.T) {
 		if !reflect.DeepEqual(results, this.expect) {
 			t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, this.key, this.match, results, this.expect)
 		}
+	}
+}
+
+func TestMarkdownify(t *testing.T) {
+
+	result := Markdownify("Hello **World!**")
+
+	expect := template.HTML("<p>Hello <strong>World!</strong></p>\n")
+
+	if result != expect {
+		t.Errorf("Markdownify: got '%s', expected '%s'", result, expect)
 	}
 }

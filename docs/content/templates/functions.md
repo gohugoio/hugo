@@ -144,6 +144,13 @@ Declares the provided string as "safe" so Go templates will not filter it.
 
 e.g. {{ .Params.CopyrightHTML | safeHtml }}
 
+
+### markdownify
+
+This will run the string through the Markdown processesor. The result will be declared as "safe" so Go templates will not filter it.
+
+e.g. {{ .Title | markdownify }}
+
 ### lower
 Convert all characters in string to lowercase.
 
