@@ -160,6 +160,30 @@ func (wp WeightedPages) Pages() Pages {
 	return pages
 }
 
+func (wp WeightedPages) Prev(cur *Page) *Page {
+	for x, c := range wp {
+		if c.Page.UniqueId() == cur.UniqueId() {
+			if x == 0 {
+				return wp[len(wp)-1].Page
+			}
+			return wp[x-1].Page
+		}
+	}
+	return nil
+}
+
+func (wp WeightedPages) Next(cur *Page) *Page {
+	for x, c := range wp {
+		if c.Page.UniqueId() == cur.UniqueId() {
+			if x < len(wp)-1 {
+				return wp[x+1].Page
+			}
+			return wp[0].Page
+		}
+	}
+	return nil
+}
+
 func (p WeightedPages) Len() int      { return len(p) }
 func (p WeightedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 func (p WeightedPages) Sort()         { sort.Stable(p) }
