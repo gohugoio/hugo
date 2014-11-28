@@ -618,7 +618,7 @@ func Highlight(in interface{}, lang string) template.HTML {
 }
 
 func Markdownify(text string) template.HTML {
-	return template.HTML(helpers.RenderBytes([]byte(text), "markdown", ""))
+	return template.HTML(helpers.RenderBytes(helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
