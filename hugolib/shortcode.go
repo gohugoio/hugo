@@ -212,7 +212,9 @@ func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt 
 		}
 
 		if sc.doMarkup {
-			newInner := helpers.RenderBytes([]byte(inner), p.guessMarkupType(), p.UniqueId())
+			newInner := helpers.RenderBytes(helpers.RenderingContext{
+				Content: []byte(inner), PageFmt: p.guessMarkupType(),
+				DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
 
 			// If the type is “unknown” or “markdown”, we assume the markdown
 			// generation has been performed. Given the input: `a line`, markdown
