@@ -223,6 +223,55 @@ This will use the last commit as a base for the commit message to the `gh-pages`
 
 For more information about the deployment script, see this [README](https://github.com/X1011/git-directory-deploy).
 
+## Hosting Personal/Organization Pages
+
+As mentionned [in this github's article](https://help.github.com/articles/user-organization-and-project-pages/), besides project pages, you may also want to host a user/organization page. Here are the key differences:
+
+> - You must use the username.github.io naming scheme.
+> - Content from the master branch will be used to build and publish your GitHub Pages site.
+
+It becomes much simpler in that case: we'll create two separated repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
+
+Step by step:
+
+1. Create on github `<your-project>-hugo` repository (it will host hugo's content)
+2. Create on github `<username>.github.io` repository (it will host the `public` folder: the static website)
+2. `git clone <<your-project>-hugo-url> && cd <your-project>-hugo`
+3. Make your website work locally (`hugo serve --watch -t <yourtheme>`)
+4. Once you are happy with the results, `Ctrl+c` (kill server) and `rm -rf public` (don't worry it can always be regenerated with `hugo -t <yourtheme>`)
+5. `git submodule add git@github.com:<username>/<username>.github.io.git public`
+6. Almost done: add a `deploy.sh` script to help you (and make it executable: `chmod +x deploy.sh`):
+
+```
+#!/bin/bash
+
+echo -e "\033[0;32mDeploying updates to GitHub...\033[0m"
+
+# Build the project. 
+hugo # if using a theme, replace by `hugo -t <yourtheme>`
+
+# Go To Public folder
+cd public
+# Add changes to git.
+git add -A
+
+# Commit changes.
+msg="rebuilding site `date`"
+if [ $# -eq 1 ]
+  then msg="$1"
+fi
+git commit -m "$msg"
+
+# Push source and build repos.
+git push origin master
+
+# Come Back
+cd ..
+```
+7. `./deploy.sh "Your optional commit message"` to send changes to `<username>.github.io` (carefull, you may also want to commit changes on the `<your-project>-hugo` repo).
+
+That's it, your personal page is running at [http://username.github.io](http://username.github.io) (after up to 10 minutes delay).
+
 ## Conclusion
 
 Hopefully this tutorial helped you get your website off its feet and out into the open! If you have any further questions feel free to contact the community through the [mailing lists](/community/mailing-list).
