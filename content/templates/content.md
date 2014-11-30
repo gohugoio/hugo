@@ -1,6 +1,6 @@
 ---
 aliases:
-- /layout/functions/
+- /layout/content/
 date: 2013-07-01
 linktitle: Single Content
 menu:
