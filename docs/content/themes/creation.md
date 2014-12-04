@@ -37,10 +37,9 @@ a large amount of flexibility.
 
 The default single file layout is located at `layouts/_default/single.html`.
 
-
 ### List of Contents
 
-The default list file layout is located at `layouts/_default/list.html`
+The default list file layout is located at `layouts/_default/list.html`.
 
 ### Partial Templates
 
