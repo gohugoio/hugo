@@ -15,12 +15,12 @@ title: Taxonomy Overview
 weight: 10
 ---
 
-Hugo includes support for user defined groupings of content called
+Hugo includes support for user-defined groupings of content called
 taxonomies. Taxonomies give us a way to classify our content so we can
 demonstrate relationships in a variety of logical ways.
 
 The default taxonomies for Hugo are tags and categories. These
-taxonomies are common to many website systems (WordPress, Drupal,
+taxonomies are common to many website systems (e.g. WordPress, Drupal,
 Jekyll). Unlike all of those systems, Hugo makes it trivial to customize
 the taxonomies you will be using for your site however you wish. Another
 good use for taxonomies is to group a set of posts into a series. Other
