@@ -18,8 +18,9 @@ repository which contains pointers to set of contributed themes.
 If you would like to install all of the available hugo themes, simply
 clone the entire repository from within your working directory.
 
-    git clone --recursive https://github.com/spf13/hugoThemes.git themes
-
+```bash
+git clone --recursive https://github.com/spf13/hugoThemes.git themes
+```
 
 ## Installing a specific theme
 

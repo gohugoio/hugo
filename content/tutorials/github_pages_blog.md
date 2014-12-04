@@ -225,20 +225,20 @@ For more information about the deployment script, see this [README](https://gith
 
 ## Hosting Personal/Organization Pages
 
-As mentionned [in this github's article](https://help.github.com/articles/user-organization-and-project-pages/), besides project pages, you may also want to host a user/organization page. Here are the key differences:
+As mentioned [in this GitHub's article](https://help.github.com/articles/user-organization-and-project-pages/), besides project pages, you may also want to host a user/organization page. Here are the key differences:
 
-> - You must use the username.github.io naming scheme.
-> - Content from the master branch will be used to build and publish your GitHub Pages site.
+> - You must use the `username.github.io` naming scheme.
+> - Content from the `master` branch will be used to build and publish your GitHub Pages site.
 
-It becomes much simpler in that case: we'll create two separated repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
+It becomes much simpler in that case: we'll create two separate repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
 
 Step by step:
 
-1. Create on github `<your-project>-hugo` repository (it will host hugo's content)
-2. Create on github `<username>.github.io` repository (it will host the `public` folder: the static website)
+1. Create on GitHub `<your-project>-hugo` repository (it will host Hugo's content)
+2. Create on GitHub `<username>.github.io` repository (it will host the `public` folder: the static website)
 2. `git clone <<your-project>-hugo-url> && cd <your-project>-hugo`
 3. Make your website work locally (`hugo serve --watch -t <yourtheme>`)
-4. Once you are happy with the results, `Ctrl+c` (kill server) and `rm -rf public` (don't worry it can always be regenerated with `hugo -t <yourtheme>`)
+4. Once you are happy with the results, `Ctrl+c` (kill server) and `rm -rf public` (don't worry, it can always be regenerated with `hugo -t <yourtheme>`)
 5. `git submodule add git@github.com:<username>/<username>.github.io.git public`
 6. Almost done: add a `deploy.sh` script to help you (and make it executable: `chmod +x deploy.sh`):
 
@@ -268,10 +268,10 @@ git push origin master
 # Come Back
 cd ..
 ```
-7. `./deploy.sh "Your optional commit message"` to send changes to `<username>.github.io` (carefull, you may also want to commit changes on the `<your-project>-hugo` repo).
+7. `./deploy.sh "Your optional commit message"` to send changes to `<username>.github.io` (careful, you may also want to commit changes on the `<your-project>-hugo` repo).
 
-That's it, your personal page is running at [http://username.github.io](http://username.github.io) (after up to 10 minutes delay).
+That's it! Your personal page is running at [http://username.github.io](http://username.github.io) (after up to 10 minutes delay).
 
 ## Conclusion
 
-Hopefully this tutorial helped you get your website off its feet and out into the open! If you have any further questions feel free to contact the community through the [mailing lists](/community/mailing-list).
+Hopefully this tutorial helped you get your website off its feet and out into the open! If you have any further questions, feel free to contact the community through the [discussion forum](/community/mailing-list).

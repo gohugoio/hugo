@@ -30,18 +30,19 @@ and other basic tools; these are listed in the
 Return true if the parameter is set.
 Takes either a slice, array or channel and an index or a map and a key as input.
 
-e.g. {{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}
+e.g. `{{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}`
 
 ### echoParam
 If parameter is set, then echo it.
 
-e.g. {{echoParam .Params "project_url" }}
+e.g. `{{echoParam .Params "project_url" }}`
 
 ### eq
 Return true if the parameters are equal.
 
 e.g.
-    {{ if eq .Section "blog" }}current{{ end}}"
+
+    {{ if eq .Section "blog" }}current{{ end }}
 
 ### first
 Slices an array to only the first X elements.
@@ -49,8 +50,9 @@ Slices an array to only the first X elements.
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
 e.g.
+
     {{ range first 10 .Data.Pages }}
-        {{ .Render "summary"}}
+        {{ .Render "summary" }}
     {{ end }}
 
 ### where
@@ -76,8 +78,11 @@ e.g.
 Checks if an element is in an array (or slice) and returns a boolean.  The elements supported are strings, integers and floats (only float64 will match as expected).  In addition, it can also check if a substring exists in a string.
 
 e.g.
+
     {{ if in .Params.tags "Git" }}Follow me on GitHub!{{ end }}
+
 or
+
     {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 
 ### intersect
@@ -86,6 +91,7 @@ Given two arrays (or slices), this function will return the common elements in t
 A useful example of this functionality is a 'similar posts' block.  Create a list of links to posts where any of the tags in the current post match any tags in other posts.
 
 e.g.
+
     <ul>
     {{ $page_link := .Permalink }}
     {{ $tags := .Params.tags }}
@@ -104,67 +110,67 @@ e.g.
 ### add
 Adds two integers.
 
-e.g. {{add 1 2}} → 3
+e.g. `{{add 1 2}}` → 3
 
 ### sub
 Subtracts two integers.
 
-e.g. {{sub 3 2}} → 1
+e.g. `{{sub 3 2}}` → 1
 
 ### div
 Divides two integers.
 
-e.g. {{div 6 3}} → 2
+e.g. `{{div 6 3}}` → 2
 
 ### mul
 Multiplies two integers.
 
-e.g. {{mul 2 3}} → 6
+e.g. `{{mul 2 3}}` → 6
 
 ### mod
 Modulus of two integers.
 
-e.g. {{mod 15 3}} → 0
+e.g. `{{mod 15 3}}` → 0
 
 ### modBool
 Boolean of modulus of two integers.
 true if modulus is 0.
 
-e.g. {{modBool 15 3}} → true
+e.g. `{{modBool 15 3}}` → true
 
 ## Strings
 
 ### urlize
 Takes a string and sanitizes it for usage in URLs, converts spaces to "-".
 
-e.g. &lt;a href="/tags/{{ . | urlize }}"&gt;{{ . }}&lt;/a&gt;
+e.g. `<a href="/tags/{{ . | urlize }}">{{ . }}</a>`
 
 ### safeHtml
 Declares the provided string as "safe" so Go templates will not filter it.
 
-e.g. {{ .Params.CopyrightHTML | safeHtml }}
+e.g. `{{ .Params.CopyrightHTML | safeHtml }}`
 
 
 ### markdownify
 
 This will run the string through the Markdown processesor. The result will be declared as "safe" so Go templates will not filter it.
 
-e.g. {{ .Title | markdownify }}
+e.g. `{{ .Title | markdownify }}`
 
 ### lower
 Convert all characters in string to lowercase.
 
-e.g. {{lower "BatMan"}} → "batman"
+e.g. `{{lower "BatMan"}}` → "batman"
 
 ### upper
 Convert all characters in string to uppercase.
 
-e.g. {{upper "BatMan"}} → "BATMAN"
+e.g. `{{upper "BatMan"}}` → "BATMAN"
 
 ### title
 Convert all characters in string to titlecase.
 
-e.g. {{title "BatMan"}} → "Batman"
+e.g. `{{title "BatMan"}}` → "Batman"
 
 ### highlight
 Take a string of code and a language, uses Pygments to return the syntax

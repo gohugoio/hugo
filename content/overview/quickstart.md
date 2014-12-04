@@ -10,8 +10,8 @@ title: Hugo Quickstart Guide
 weight: 10
 ---
 
-_This quickstart depends on features introduced in hugo v0.11. If you
-have an earlier version of hugo you will need to [upgrade](/overview/installing/) before
+_This quickstart depends on features introduced in Hugo v0.11. If you
+have an earlier version of Hugo, you will need to [upgrade](/overview/installing/) before
 proceeding._
 
 ## Step 1. Install Hugo
@@ -79,7 +79,9 @@ We still lack any templates to tell us how to display the content.
 
 Hugo has rich theme support and a growing set of themes to choose from:
 
-    git clone --recursive https://github.com/spf13/hugoThemes themes
+```bash
+git clone --recursive https://github.com/spf13/hugoThemes themes
+```
 
 ## Step 5. Run Hugo
 
