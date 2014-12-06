@@ -24,7 +24,7 @@ var check = &cobra.Command{
 	Long: `Hugo will perform some basic analysis on the
     content provided and will give feedback.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
+		InitializeConfig(cmdCheck)
 		site := hugolib.Site{}
 		site.Analyze()
 	},

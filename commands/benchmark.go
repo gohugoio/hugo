@@ -14,9 +14,10 @@
 package commands
 
 import (
-	"github.com/spf13/cobra"
 	"os"
 	"runtime/pprof"
+
+	"github.com/spf13/cobra"
 )
 
 var cpuProfilefile string
@@ -28,7 +29,7 @@ var benchmark = &cobra.Command{
 	Long: `Hugo can build a site many times over and anlyze the
     running process creating a `,
 	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
+		InitializeConfig(cmdBenchmark)
 		bench(cmd, args)
 	},
 }

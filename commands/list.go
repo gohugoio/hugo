@@ -40,7 +40,7 @@ var listDraftsCmd = &cobra.Command{
 	Long:  `List all of the drafts in your content directory`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		InitializeConfig()
+		InitializeConfig(cmdList)
 		viper.Set("BuildDrafts", true)
 
 		site := &hugolib.Site{}
@@ -65,7 +65,7 @@ var listFutureCmd = &cobra.Command{
 	Long:  `List all of the posts in your content directory who will be posted in the future`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		InitializeConfig()
+		InitializeConfig(cmdList)
 		viper.Set("BuildFuture", true)
 
 		site := &hugolib.Site{}

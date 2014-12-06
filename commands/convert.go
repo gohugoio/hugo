@@ -85,7 +85,7 @@ func init() {
 }
 
 func convertContents(mark rune) (err error) {
-	InitializeConfig()
+	InitializeConfig(cmdConvert)
 	site := &hugolib.Site{}
 
 	if err := site.Initialise(); err != nil {

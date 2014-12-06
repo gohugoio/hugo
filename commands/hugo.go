@@ -36,6 +36,42 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	cmdUnknown cmdType = iota
+	cmdBenchmark
+	cmdCheck
+	cmdConvert
+	cmdHugo
+	cmdList
+	cmdNew
+	cmdServer
+	cmdVersion
+)
+
+type cmdType int
+
+func (c cmdType) String() string {
+	switch c {
+	case cmdBenchmark:
+		return "benchmark"
+	case cmdCheck:
+		return "check"
+	case cmdConvert:
+		return "convert"
+	case cmdHugo:
+		return "hugo"
+	case cmdList:
+		return "list"
+	case cmdNew:
+		return "new"
+	case cmdServer:
+		return "server"
+	case cmdVersion:
+		return "version"
+	}
+	return "unknown"
+}
+
 //var Config *hugolib.Config
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
@@ -45,7 +81,7 @@ love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io`,
 	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
+		InitializeConfig(cmdHugo)
 		build()
 	},
 }
@@ -92,12 +128,14 @@ func init() {
 	hugoCmdV = HugoCmd
 }
 
-func InitializeConfig() {
+func InitializeConfig(cmd cmdType) {
 	viper.SetConfigFile(CfgFile)
 	viper.AddConfigPath(Source)
 	err := viper.ReadInConfig()
-	if err != nil {
-		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+	if cmd != cmdVersion {
+		if err != nil {
+			jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+		}
 	}
 
 	viper.RegisterAlias("taxonomies", "indexes")
