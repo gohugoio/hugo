@@ -73,7 +73,7 @@ as you see fit.
 }
 
 func NewContent(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+	InitializeConfig(cmdNew)
 
 	if cmd.Flags().Lookup("format").Changed {
 		viper.Set("MetaDataFormat", configFormat)
@@ -133,7 +133,7 @@ func NewSite(cmd *cobra.Command, args []string) {
 }
 
 func NewTheme(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+	InitializeConfig(cmdNew)
 
 	if len(args) < 1 {
 		cmd.Usage()

@@ -59,7 +59,7 @@ func init() {
 }
 
 func server(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+	InitializeConfig(cmdServer)
 
 	if cmd.Flags().Lookup("disableLiveReload").Changed {
 		viper.Set("DisableLiveReload", disableLiveReload)
