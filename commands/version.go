@@ -22,7 +22,6 @@ import (
 
 	"bitbucket.org/kardianos/osext"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var timeLayout string // the layout for time.Time
@@ -37,7 +36,6 @@ var version = &cobra.Command{
 	Short: "Print the version number of Hugo",
 	Long:  `All software has versions. This is Hugo's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
 		if buildDate == "" {
 			setBuildDate() // set the build date from executable's mdate
 		} else {
@@ -70,39 +68,12 @@ func setBuildDate() {
 		return
 	}
 	t := fi.ModTime()
-	buildDate = t.Format(getDateFormat())
+	buildDate = t.Format(time.RFC3339)
 }
 
 // formatBuildDate formats the buildDate according to the value in
 // .Params.DateFormat, if it's set.
 func formatBuildDate() {
 	t, _ := time.Parse("2006-01-02T15:04:05", buildDate)
-	buildDate = t.Format(getDateFormat())
-}
-
-// getDateFormat gets the dateFormat value from Params. The dateFormat should
-// be a valid time layout. If it isn't set, time.RFC3339 is used.
-func getDateFormat() string {
-	params := viper.Get("params")
-	if params == nil {
-		return time.RFC3339
-	}
-
-	//	var typMapIfaceIface = reflect.TypeOf(map[interface{}{}]interface{}{})
-	//	var typMapStringIface = reflect.TypeOf(map[string]interface{}{})
-	parms := map[string]interface{}{}
-	switch params.(type) {
-	case map[interface{}]interface{}:
-		for k, v := range params.(map[interface{}]interface{}) {
-			parms[k.(string)] = v
-		}
-	case map[string]interface{}:
-		parms = params.(map[string]interface{})
-	}
-
-	layout := parms["DateFormat"]
-	if layout == nil || layout == "" {
-		return time.RFC3339
-	}
-	return layout.(string)
+	buildDate = t.Format(time.RFC3339)
 }
