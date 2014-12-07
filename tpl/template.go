@@ -603,6 +603,7 @@ func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
 	worked := false
 	for _, layout := range layouts {
+
 		name := layout
 
 		if localTemplates.Lookup(name) == nil {
@@ -701,7 +702,7 @@ func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
 
 }
 
-func (t *GoHtmlTemplate) generateTemplateNameFrom(base, path string) string {
+func (t *GoHtmlTemplate) GenerateTemplateNameFrom(base, path string) string {
 	return filepath.ToSlash(path[len(base)+1:])
 }
 
@@ -720,7 +721,7 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 				return nil
 			}
 
-			tplName := t.generateTemplateNameFrom(absPath, path)
+			tplName := t.GenerateTemplateNameFrom(absPath, path)
 
 			if prefix != "" {
 				tplName = strings.Trim(prefix, "/") + "/" + tplName

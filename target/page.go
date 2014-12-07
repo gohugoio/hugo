@@ -32,7 +32,7 @@ func (pp *PagePub) Publish(path string, r io.Reader) (err error) {
 }
 
 func (pp *PagePub) Translate(src string) (dest string, err error) {
-	if src == "/" {
+	if src == helpers.FilePathSeparator {
 		if pp.PublishDir != "" {
 			return filepath.Join(pp.PublishDir, "index.html"), nil
 		}

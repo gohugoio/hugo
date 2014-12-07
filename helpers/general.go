@@ -20,8 +20,11 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"path/filepath"
 	"strings"
 )
+
+const FilePathSeparator = string(filepath.Separator)
 
 func FindAvailablePort() (*net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")

@@ -14,12 +14,10 @@
 package source
 
 import (
+	"github.com/spf13/hugo/helpers"
 	"io"
-	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/spf13/hugo/helpers"
 )
 
 type File struct {
@@ -65,7 +63,7 @@ func (f *File) LogicalName() string {
 	if f.logicalName != "" {
 		return f.logicalName
 	} else {
-		_, f.logicalName = path.Split(f.relpath)
+		_, f.logicalName = filepath.Split(f.relpath)
 		return f.logicalName
 	}
 }
@@ -78,7 +76,7 @@ func (f *File) Dir() string {
 	if f.dir != "" {
 		return f.dir
 	} else {
-		f.dir, _ = path.Split(f.relpath)
+		f.dir, _ = filepath.Split(f.relpath)
 		return f.dir
 	}
 }

@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"errors"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -26,7 +27,7 @@ var pageGroupTestSources = []pageGroupTestObject{
 func preparePageGroupTestPages(t *testing.T) Pages {
 	var pages Pages
 	for _, s := range pageGroupTestSources {
-		p, err := NewPage(s.path)
+		p, err := NewPage(filepath.FromSlash(s.path))
 		if err != nil {
 			t.Fatalf("failed to prepare test page %s", s.path)
 		}

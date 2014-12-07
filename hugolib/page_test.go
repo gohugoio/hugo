@@ -510,10 +510,10 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 }
 
 func TestSectionEvaluation(t *testing.T) {
-	page, _ := NewPage("blue/file1.md")
+	page, _ := NewPage(filepath.FromSlash("blue/file1.md"))
 	page.ReadFrom(strings.NewReader(SIMPLE_PAGE))
 	if page.Section() != "blue" {
-		t.Errorf("Section should be %s, got: %s", "blue", page.Section)
+		t.Errorf("Section should be %s, got: %s", "blue", page.Section())
 	}
 }
 

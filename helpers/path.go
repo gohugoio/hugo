@@ -16,15 +16,14 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
-
-	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
@@ -173,13 +172,18 @@ func FileAndExt(in string) (name string, ext string) {
 	ext = filepath.Ext(in)
 	base := filepath.Base(in) // path.Base strips any trailing slash!
 
+	return FileAndExtSep(in, ext, base, FilePathSeparator), ext
+}
+
+func FileAndExtSep(in, ext, base, pathSeparator string) (name string) {
+
 	// No file name cases. These are defined as:
-	// 1. any "in" path that ends in a os.PathSeparator i.e. "/" on linux
-	// 2. any "base" consisting of just an os.PathSeparator
+	// 1. any "in" path that ends in a pathSeparator
+	// 2. any "base" consisting of just an pathSeparator
 	// 3. any "base" consisting of just an empty string
 	// 4. any "base" consisting of just the current directory i.e. "."
 	// 5. any "base" consisting of just the parent directory i.e. ".."
-	if (strings.LastIndex(in, string(os.PathSeparator)) == len(in)-1) || base == "" || base == "." || base == ".." || base == string(os.PathListSeparator) {
+	if (strings.LastIndex(in, pathSeparator) == len(in)-1) || base == "" || base == "." || base == ".." || base == pathSeparator {
 		name = "" // there is NO filename
 	} else if ext != "" { // there was an Extension
 		// return the filename minus the extension (and the ".")
@@ -190,6 +194,7 @@ func FileAndExt(in string) (name string, ext string) {
 		name = base
 	}
 	return
+
 }
 
 func GetRelativePath(path, base string) (final string, err error) {
@@ -203,14 +208,13 @@ func GetRelativePath(path, base string) (final string, err error) {
 	if err != nil {
 		return "", err
 	}
-	name = filepath.ToSlash(name)
 	return name, nil
 }
 
 // Given a source path, determine the section
 // A section is the part between the root slash and the second slash or before the first slash
 func GuessSection(in string) string {
-	parts := strings.Split(in, "/")
+	parts := strings.Split(in, FilePathSeparator)
 	// This will include an empty entry before and after paths with leading and trailing slashes
 	// eg... /sect/one/ -> ["", "sect", "one", ""]
 
@@ -256,7 +260,7 @@ func PrettifyPath(in string) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
 		if len(in) < 2 {
-			return "/"
+			return FilePathSeparator
 		}
 		return filepath.Join(filepath.Clean(in), "index.html")
 	} else {

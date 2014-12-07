@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -119,7 +119,7 @@ func TestReplaceExtension(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output := ReplaceExtension(d.input, d.newext)
+		output := ReplaceExtension(filepath.FromSlash(d.input), d.newext)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -139,8 +139,8 @@ func TestDirExists(t *testing.T) {
 		{"../", true},
 		{"./..", true},
 		{"./../", true},
-		{"/tmp", true},
-		{"/tmp/", true},
+		{os.TempDir(), true},
+		{os.TempDir() + FilePathSeparator, true},
 		{"/", true},
 		{"/some-really-random-directory-name", false},
 		{"/some/really/random/directory/name", false},
@@ -149,7 +149,7 @@ func TestDirExists(t *testing.T) {
 	}
 
 	for i, d := range data {
-		exists, _ := DirExists(d.input, new(afero.OsFs))
+		exists, _ := DirExists(filepath.FromSlash(d.input), new(afero.OsFs))
 		if d.expected != exists {
 			t.Errorf("Test %d failed. Expected %t got %t", i, d.expected, exists)
 		}
@@ -366,8 +366,8 @@ func TestAbsPathify(t *testing.T) {
 		input, expected string
 	}
 	data := []test{
-		{os.TempDir(), path.Clean(os.TempDir())}, // TempDir has trailing slash
-		{"/banana/../dir/", "/dir"},
+		{os.TempDir(), filepath.Clean(os.TempDir())}, // TempDir has trailing slash
+		{filepath.FromSlash("/banana/../dir/"), filepath.FromSlash("/dir")},
 	}
 
 	for i, d := range data {
@@ -400,7 +400,7 @@ func TestFilename(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output := Filename(d.input)
+		output := Filename(filepath.FromSlash(d.input))
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -429,7 +429,7 @@ func TestFileAndExt(t *testing.T) {
 	}
 
 	for i, d := range data {
-		file, ext := FileAndExt(d.input)
+		file, ext := FileAndExt(filepath.FromSlash(d.input))
 		if d.expectedFile != file {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
@@ -467,7 +467,7 @@ func TestGuessSection(t *testing.T) {
 	}
 
 	for i, d := range data {
-		expected := GuessSection(d.input)
+		expected := GuessSection(filepath.FromSlash(d.input))
 		if d.expected != expected {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, expected)
 		}
