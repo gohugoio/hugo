@@ -549,7 +549,6 @@ func TestGroupedPages(t *testing.T) {
 	}
 
 	rbysection, err := s.Pages.GroupBy("Section", "desc")
-	fmt.Println(rbysection)
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
