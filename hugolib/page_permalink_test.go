@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"html/template"
+	"path/filepath"
 	"testing"
 
 	"github.com/spf13/hugo/source"
@@ -48,7 +49,7 @@ func TestPermalink(t *testing.T) {
 					BaseUrl: test.base,
 				},
 			},
-			Source: Source{File: *source.NewFile(test.file)},
+			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},
 		}
 
 		if test.slug != "" {

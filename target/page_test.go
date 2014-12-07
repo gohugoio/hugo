@@ -1,6 +1,7 @@
 package target
 
 import (
+	"path/filepath"
 	"testing"
 )
 
@@ -24,13 +25,14 @@ func TestPageTranslator(t *testing.T) {
 
 	for _, test := range tests {
 		f := new(PagePub)
-		dest, err := f.Translate(test.content)
+		dest, err := f.Translate(filepath.FromSlash(test.content))
+		expected := filepath.FromSlash(test.expected)
 		if err != nil {
 			t.Fatalf("Translate returned and unexpected err: %s", err)
 		}
 
-		if dest != test.expected {
-			t.Errorf("Tranlate expected return: %s, got: %s", test.expected, dest)
+		if dest != expected {
+			t.Errorf("Translate expected return: %s, got: %s", expected, dest)
 		}
 	}
 }
@@ -53,7 +55,7 @@ func TestPageTranslatorBase(t *testing.T) {
 				t.Fatalf("Translated returned and err: %s", err)
 			}
 
-			if dest != test.expected {
+			if dest != filepath.FromSlash(test.expected) {
 				t.Errorf("Translate expected: %s, got: %s", test.expected, dest)
 			}
 		}
@@ -73,7 +75,7 @@ func TestTranslateUglyUrls(t *testing.T) {
 
 	for _, test := range tests {
 		f := &PagePub{UglyUrls: true}
-		dest, err := f.Translate(test.content)
+		dest, err := f.Translate(filepath.FromSlash(test.content))
 		if err != nil {
 			t.Fatalf("Translate returned an unexpected err: %s", err)
 		}
@@ -87,7 +89,7 @@ func TestTranslateUglyUrls(t *testing.T) {
 func TestTranslateDefaultExtension(t *testing.T) {
 	f := &PagePub{DefaultExtension: ".foobar"}
 	dest, _ := f.Translate("baz")
-	if dest != "baz/index.foobar" {
+	if dest != filepath.FromSlash("baz/index.foobar") {
 		t.Errorf("Translate expected return: %s, got %s", "baz/index.foobar", dest)
 	}
 }

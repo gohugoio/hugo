@@ -17,13 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"html/template"
-	"io"
-	"net/url"
-	"path/filepath"
-	"strings"
-	"time"
-
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -32,6 +25,13 @@ import (
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"html/template"
+	"io"
+	"net/url"
+	"path"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 type Page struct {
@@ -197,7 +197,7 @@ func layouts(types string, layout string) (layouts []string) {
 	// Add type/layout.html
 	for i := range t {
 		search := t[:len(t)-i]
-		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(filepath.Join(search...)), layout))
+		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
 	}
 
 	// Add _default/layout.html
@@ -250,7 +250,7 @@ func (p *Page) analyzePage() {
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseUrl := string(p.Site.BaseUrl)
-	dir := strings.TrimSpace(p.Source.Dir())
+	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
 	pSlug := strings.TrimSpace(p.Slug)
 	pUrl := strings.TrimSpace(p.Url)
 	var permalink string
@@ -269,10 +269,10 @@ func (p *Page) permalink() (*url.URL, error) {
 		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), filepath.Join(dir, p.Slug+"."+p.Extension()))
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
 			_, t := filepath.Split(p.Source.LogicalName())
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), filepath.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
+			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
 
@@ -674,6 +674,7 @@ func (p *Page) TargetPath() (outfile string) {
 		if strings.HasSuffix(outfile, "/") {
 			outfile = outfile + "index.html"
 		}
+		outfile = filepath.FromSlash(outfile)
 		return
 	}
 
@@ -685,6 +686,7 @@ func (p *Page) TargetPath() (outfile string) {
 			if strings.HasSuffix(outfile, "/") {
 				outfile += "index.html"
 			}
+			outfile = filepath.FromSlash(outfile)
 			return
 		}
 	}

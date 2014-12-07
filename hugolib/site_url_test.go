@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"html/template"
+	"path/filepath"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -47,8 +48,8 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 }
 
 var urlFakeSource = []source.ByteSource{
-	{"content/blue/doc1.md", []byte(SLUG_DOC_1)},
-	{"content/blue/doc2.md", []byte(SLUG_DOC_2)},
+	{filepath.FromSlash("content/blue/doc1.md"), []byte(SLUG_DOC_1)},
+	{filepath.FromSlash("content/blue/doc2.md"), []byte(SLUG_DOC_2)},
 }
 
 func TestPageCount(t *testing.T) {
@@ -93,7 +94,7 @@ func TestPageCount(t *testing.T) {
 		"sd3/index.html",
 		"sd4.html",
 	} {
-		if _, err := hugofs.DestinationFS.Open(s); err != nil {
+		if _, err := hugofs.DestinationFS.Open(filepath.FromSlash(s)); err != nil {
 			t.Errorf("No alias rendered: %s", s)
 		}
 	}

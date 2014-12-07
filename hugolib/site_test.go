@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -191,7 +192,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 			t.Errorf("Unable to write html: %s", err)
 		}
 
-		file, err := hugofs.DestinationFS.Open("out/index.html")
+		file, err := hugofs.DestinationFS.Open(filepath.FromSlash("out/index.html"))
 		if err != nil {
 			t.Errorf("Unable to open html: %s", err)
 		}
@@ -221,9 +222,9 @@ func TestTargetPath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		p := pageMust(NewPageFrom(strings.NewReader(test.content), helpers.AbsPathify(test.doc)))
+		p := pageMust(NewPageFrom(strings.NewReader(test.content), helpers.AbsPathify(filepath.FromSlash(test.doc))))
 
-		expected := test.expectedOutFile
+		expected := filepath.FromSlash(test.expectedOutFile)
 
 		if p.TargetPath() != expected {
 			t.Errorf("%s => OutFile  expected: '%s', got: '%s'", test.doc, expected, p.TargetPath())
@@ -238,10 +239,10 @@ func TestTargetPath(t *testing.T) {
 func TestDraftAndFutureRender(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.md", []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
-		{"sect/doc2.md", []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
-		{"sect/doc3.md", []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
+		{filepath.FromSlash("sect/doc1.md"), []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
+		{filepath.FromSlash("sect/doc2.md"), []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
+		{filepath.FromSlash("sect/doc3.md"), []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
+		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
 	siteSetup := func() *Site {
@@ -296,14 +297,14 @@ func TestDraftAndFutureRender(t *testing.T) {
 func TestSkipRender(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.html", []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{"sect/doc2.html", []byte("<!doctype html><html><body>more content</body></html>")},
-		{"sect/doc3.md", []byte("# doc3\n*some* content")},
-		{"sect/doc4.md", []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{"sect/doc5.html", []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
-		{"sect/doc6.html", []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
-		{"doc7.html", []byte("<html><body>doc7 content</body></html>")},
-		{"sect/doc8.html", []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
+		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
+		{filepath.FromSlash("sect/doc3.md"), []byte("# doc3\n*some* content")},
+		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
+		{filepath.FromSlash("sect/doc5.html"), []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
+		{filepath.FromSlash("sect/doc6.html"), []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
+		{filepath.FromSlash("doc7.html"), []byte("<html><body>doc7 content</body></html>")},
+		{filepath.FromSlash("sect/doc8.html"), []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
 	viper.Set("verbose", true)
@@ -337,14 +338,14 @@ func TestSkipRender(t *testing.T) {
 		doc      string
 		expected string
 	}{
-		{"sect/doc1.html", "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
-		{"sect/doc2.html", "<!doctype html><html><body>more content</body></html>"},
-		{"sect/doc3.html", "\n\n<h1 id=\"doc3:28c75a9e2162b8eccda73a1ab9ce80b4\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
-		{"sect/doc4.html", "\n\n<h1 id=\"doc4:f8e6806123f341b8975509637645a4d3\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
-		{"sect/doc5.html", "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
-		{"sect/doc6.html", "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
-		{"doc7.html", "<html><body>doc7 content</body></html>"},
-		{"sect/doc8.html", "\n\n<h1 id=\"title:0ae308ad73e2f37bd09874105281b5d8\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
+		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3:28c75a9e2162b8eccda73a1ab9ce80b4\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
+		{filepath.FromSlash("sect/doc4.html"), "\n\n<h1 id=\"doc4:f8e6806123f341b8975509637645a4d3\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
+		{filepath.FromSlash("sect/doc5.html"), "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
+		{filepath.FromSlash("sect/doc6.html"), "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
+		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
+		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title:0ae308ad73e2f37bd09874105281b5d8\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {
@@ -363,8 +364,8 @@ func TestSkipRender(t *testing.T) {
 func TestAbsUrlify(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.html", []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
-		{"content/blue/doc2.html", []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
+		{filepath.FromSlash("sect/doc1.html"), []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
+		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, canonify := range []bool{true, false} {
 		viper.Set("CanonifyUrls", canonify)
@@ -399,7 +400,7 @@ func TestAbsUrlify(t *testing.T) {
 
 		for _, test := range tests {
 
-			file, err := hugofs.DestinationFS.Open(test.file)
+			file, err := hugofs.DestinationFS.Open(filepath.FromSlash(test.file))
 			if err != nil {
 				t.Fatalf("Unable to locate rendered content: %s", test.file)
 			}
@@ -454,10 +455,10 @@ my_date = 2010-05-27T07:32:00Z
 Front Matter with Ordered Pages 4. This is longer content`)
 
 var WEIGHTED_SOURCES = []source.ByteSource{
-	{"sect/doc1.md", WEIGHTED_PAGE_1},
-	{"sect/doc2.md", WEIGHTED_PAGE_2},
-	{"sect/doc3.md", WEIGHTED_PAGE_3},
-	{"sect/doc4.md", WEIGHTED_PAGE_4},
+	{filepath.FromSlash("sect/doc1.md"), WEIGHTED_PAGE_1},
+	{filepath.FromSlash("sect/doc2.md"), WEIGHTED_PAGE_2},
+	{filepath.FromSlash("sect/doc3.md"), WEIGHTED_PAGE_3},
+	{filepath.FromSlash("sect/doc4.md"), WEIGHTED_PAGE_4},
 }
 
 func TestOrderedPages(t *testing.T) {
@@ -519,10 +520,10 @@ func TestOrderedPages(t *testing.T) {
 }
 
 var GROUPED_SOURCES = []source.ByteSource{
-	{"sect1/doc1.md", WEIGHTED_PAGE_1},
-	{"sect1/doc2.md", WEIGHTED_PAGE_2},
-	{"sect2/doc3.md", WEIGHTED_PAGE_3},
-	{"sect3/doc4.md", WEIGHTED_PAGE_4},
+	{filepath.FromSlash("sect1/doc1.md"), WEIGHTED_PAGE_1},
+	{filepath.FromSlash("sect1/doc2.md"), WEIGHTED_PAGE_2},
+	{filepath.FromSlash("sect2/doc3.md"), WEIGHTED_PAGE_3},
+	{filepath.FromSlash("sect3/doc4.md"), WEIGHTED_PAGE_4},
 }
 
 func TestGroupedPages(t *testing.T) {
@@ -712,9 +713,9 @@ Front Matter with weighted tags and categories`)
 func TestWeightedTaxonomies(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
-		{"sect/doc1.md", PAGE_WITH_WEIGHTED_TAXONOMIES_1},
-		{"sect/doc2.md", PAGE_WITH_WEIGHTED_TAXONOMIES_2},
-		{"sect/doc3.md", PAGE_WITH_WEIGHTED_TAXONOMIES_3},
+		{filepath.FromSlash("sect/doc1.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_1},
+		{filepath.FromSlash("sect/doc2.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_2},
+		{filepath.FromSlash("sect/doc3.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_3},
 	}
 	taxonomies := make(map[string]string)
 

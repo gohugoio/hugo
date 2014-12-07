@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"github.com/spf13/hugo/tpl"
 	"testing"
 )
 
@@ -10,8 +11,8 @@ const (
 )
 
 func TestTemplatePathSeperator(t *testing.T) {
-	tmpl := new(GoHtmlTemplate)
-	if name := tmpl.generateTemplateNameFrom(win_base, win_path); name != "sub1/index.html" {
+	tmpl := new(tpl.GoHtmlTemplate)
+	if name := tmpl.GenerateTemplateNameFrom(win_base, win_path); name != "sub1/index.html" {
 		t.Fatalf("Template name incorrect.  Expected: %s, Got: %s", "sub1/index.html", name)
 	}
 }

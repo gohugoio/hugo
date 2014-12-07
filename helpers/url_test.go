@@ -69,14 +69,14 @@ func TestUrlPrep(t *testing.T) {
 }
 
 func TestPretty(t *testing.T) {
-	assert.Equal(t, PrettifyPath("/section/name.html"), "/section/name/index.html")
-	assert.Equal(t, PrettifyPath("/section/sub/name.html"), "/section/sub/name/index.html")
-	assert.Equal(t, PrettifyPath("/section/name/"), "/section/name/index.html")
-	assert.Equal(t, PrettifyPath("/section/name/index.html"), "/section/name/index.html")
-	assert.Equal(t, PrettifyPath("/index.html"), "/index.html")
-	assert.Equal(t, PrettifyPath("/name.xml"), "/name/index.xml")
-	assert.Equal(t, PrettifyPath("/"), "/")
-	assert.Equal(t, PrettifyPath(""), "/")
+	assert.Equal(t, PrettifyUrlPath("/section/name.html"), "/section/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/section/sub/name.html"), "/section/sub/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/section/name/"), "/section/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/section/name/index.html"), "/section/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/index.html"), "/index.html")
+	assert.Equal(t, PrettifyUrlPath("/name.xml"), "/name/index.xml")
+	assert.Equal(t, PrettifyUrlPath("/"), "/")
+	assert.Equal(t, PrettifyUrlPath(""), "/")
 	assert.Equal(t, PrettifyUrl("/section/name.html"), "/section/name")
 	assert.Equal(t, PrettifyUrl("/section/sub/name.html"), "/section/sub/name")
 	assert.Equal(t, PrettifyUrl("/section/name/"), "/section/name")
