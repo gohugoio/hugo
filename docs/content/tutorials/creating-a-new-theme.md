@@ -1,14 +1,16 @@
-+++
-author = "Michael Henderson"
-date = "2014-09-28"
-linktitle = "Creating a New Theme"
-next = "/tutorials/mathjax"
-prev = "/community/contributing"
-title = "Creating a New Theme"
-weight = 10
-[[menu.main]]
-    parent = "tutorials"
-+++
+---
+author: "Michael Henderson"
+date: 2014-09-28
+linktitle: Creating a New Theme
+menu:
+  main:
+    parent: tutorials
+next: /tutorials/mathjax
+prev: /community/contributing
+title: Creating a New Theme
+weight: 10
+---
+
 
 ## Introduction
 
