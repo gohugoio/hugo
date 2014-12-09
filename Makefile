@@ -10,12 +10,17 @@ LDFLAGS=-ldflags "-X github.com/spf13/hugo/commands.commitHash ${COMMIT_HASH} -X
 
 all: gitinfo
 
+install: install-gitinfo
+
 help:
 	echo ${COMMIT_HASH}
 	echo ${BUILD_DATE}
 
 gitinfo:
 	go build ${LDFLAGS} -o hugo main.go
+
+install-gitinfo:
+	go install ${LDFLAGS} ./...
 
 no-git-info:
 	go build -o hugo main.go
