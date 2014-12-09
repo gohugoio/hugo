@@ -1,5 +1,5 @@
 # Hugo
-A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com) 
+A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com)
 and [friends](http://github.com/spf13/hugo/graphs/contributors) in Go.
 
 [![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo)
@@ -85,7 +85,7 @@ When Hugo is built using the above steps, the `version` sub-command will include
 
 To do this, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
 
-    go build -ldflags "-X /path/to/hugo/commands.commitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/commands.buildDate `date +%FT%T`"  
+    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate `date +%FT%T`"
 
 This will result in hugo version output that looks similar to:
 
@@ -118,7 +118,7 @@ We welcome your contributions.  To make the process as seamless as possible, we 
 * When you're ready to create a pull request, be sure to:
      * Have test cases for the new code.  If you have questions about how to do it, please ask in your pull request.
      * Run `go fmt`
-     * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.  
+     * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.
      * Make sure `go test ./...` passes, and go build completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
 
 **Complete documentation is available at [Hugo Documentation](http://gohugo.io).**
