@@ -87,6 +87,8 @@ type targetList struct {
 type SiteInfo struct {
 	BaseUrl         template.URL
 	Taxonomies      TaxonomyList
+	Authors         AuthorList
+	Social          SiteSocial
 	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
 	Sections        Taxonomy
 	Pages           *Pages
@@ -103,6 +105,21 @@ type SiteInfo struct {
 	Params          map[string]interface{}
 	BuildDrafts     bool
 }
+
+// SiteSocial is a place to put social details on a site level. These are the
+// standard keys that themes will expect to have available, but can be
+// expanded to any others on a per site basis
+// github
+// facebook
+// facebook_admin
+// twitter
+// twitter_domain
+// googleplus
+// pinterest
+// instagram
+// youtube
+// linkedin
+type SiteSocial map[string]string
 
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]

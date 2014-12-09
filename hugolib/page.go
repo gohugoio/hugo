@@ -40,7 +40,8 @@ type Page struct {
 	Summary         template.HTML
 	Aliases         []string
 	Status          string
-	Images          []string
+	Images          []Image
+	Videos          []Video
 	TableOfContents template.HTML
 	Truncated       bool
 	Draft           bool
@@ -68,7 +69,6 @@ type Source struct {
 	Content     []byte
 	source.File
 }
-
 type PageMeta struct {
 	WordCount      int
 	FuzzyWordCount int
@@ -96,6 +96,32 @@ func (p *Page) IsNode() bool {
 
 func (p *Page) IsPage() bool {
 	return true
+}
+
+func (p *Page) Author() Author {
+	authors := p.Authors()
+
+	for _, author := range authors {
+		return author
+	}
+	return Author{}
+}
+
+func (p *Page) Authors() AuthorList {
+	authorKeys, ok := p.Params["authors"]
+	authors := authorKeys.([]string)
+	if !ok || len(authors) < 1 || len(p.Site.Authors) < 1 {
+		return AuthorList{}
+	}
+
+	al := make(AuthorList)
+	for _, author := range authors {
+		a, ok := p.Site.Authors[author]
+		if ok {
+			al[author] = a
+		}
+	}
+	return al
 }
 
 func (p *Page) UniqueId() string {
