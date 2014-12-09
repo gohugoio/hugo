@@ -48,6 +48,7 @@ matter, content or derived from file location.
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
 **.Site** See site variables below.<br>
+**.Hugo** See site variables below<br>
 
 ## Page Params
 
@@ -74,6 +75,7 @@ includes indexes, lists and the homepage.
 **.IsNode** Always true for nodes.<br>
 **.IsPage** Always false for nodes.<br>
 **.Site** See site variables below<br>
+**.Hugo** See site variables below<br>
 
 ## Site Variables
 
@@ -83,6 +85,7 @@ Also available is `.Site` which has the following:
 **.Site.Taxonomies** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Recent** Array of all content ordered by Date, newest first.<br>
+<<<<<<< HEAD
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
     baseurl = "http://yoursite.example.com/"
@@ -102,3 +105,12 @@ Also available is `.Site` which has the following:
 **.Site.LastChange** A string representing the last time content has been updated.<br>
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
 **.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
+
+## Hugo Variables
+
+Also available is `.Hugo` which has the following:
+
+**.Hugo.Generator** Meta tag for the version of Hugo that generated the site. Highly recommended to be included by default in all theme headers so we can start to track Hugo usage and popularity. e.g. `<meta name="generator" content="Hugo 0.13" />`<br>
+**.Hugo.Version** The current version of the Hugo binary you are using e.g. `0.13-DEV`<br>
+**.Hugo.CommitHash** The git commit hash of the current Hugo binary e.g. `0e8bed9ccffba0df554728b46c5bbf6d78ae5247`<br>
+**.Hugo.BuildDate** The compile date of the current Hugo binary formatted with RFC 3339 e.g. `2002-10-02T10:00:00-05:00`<br>
