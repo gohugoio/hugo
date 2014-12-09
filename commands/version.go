@@ -74,6 +74,6 @@ func setBuildDate() {
 // formatBuildDate formats the buildDate according to the value in
 // .Params.DateFormat, if it's set.
 func formatBuildDate() {
-	t, _ := time.Parse("2006-01-02T15:04:05", buildDate)
+	t, _ := time.Parse("2006-01-02T15:04:05-0700", buildDate)
 	buildDate = t.Format(time.RFC3339)
 }
