@@ -1,5 +1,5 @@
 # Hugo
-A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com) 
+A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com)
 and [friends](http://github.com/spf13/hugo/graphs/contributors) in Go.
 
 [![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo)
@@ -27,10 +27,10 @@ kind of website including blogs, tumbles and docs.
 
 ## Installing Hugo
 
-Hugo is written in Go with support for Windows, Linux, FreeBSD and OS X.
+Hugo is written in Go with support for Windows, Linux, FreeBSD and OS X.
 
 The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
-We currently build for Windows, Linux, FreeBSD and OS X for x64
+We currently build for Windows, Linux, FreeBSD and OS X for x64
 and i386 architectures.
 
 ### Installing Hugo (binary)
@@ -89,7 +89,7 @@ Instead, it is possible to have the `version` sub-command return information abo
 
 To do this, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
 
-    go build -ldflags "-X /path/to/hugo/commands.commitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/commands.buildDate `date +%FT%T%z`"
+    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate `date +%FT%T%z`"
 
 This will result in `hugo version` output that looks similar to:
 

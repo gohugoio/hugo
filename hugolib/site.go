@@ -67,6 +67,7 @@ type Site struct {
 	Taxonomies  TaxonomyList
 	Source      source.Input
 	Sections    Taxonomy
+	Hugo        HugoInfo
 	Info        SiteInfo
 	Shortcodes  map[string]ShortcodeFunc
 	Menus       Menus
@@ -96,6 +97,7 @@ type SiteInfo struct {
 	Files           []*source.File
 	Recent          *Pages // legacy, should be identical to Pages
 	Menus           *Menus
+	Hugo            *HugoInfo
 	Title           string
 	Author          map[string]interface{}
 	LanguageCode    string
@@ -339,6 +341,7 @@ func (s *Site) initialize() (err error) {
 
 	s.Menus = Menus{}
 
+	s.Hugo = NewHugoInfo()
 	s.initializeSiteInfo()
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
@@ -366,6 +369,7 @@ func (s *Site) initializeSiteInfo() {
 		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
+		Hugo:            &s.Hugo,
 	}
 }
 
@@ -1190,6 +1194,7 @@ func (s *Site) NewNode() *Node {
 	return &Node{
 		Data: make(map[string]interface{}),
 		Site: &s.Info,
+		Hugo: &s.Hugo,
 	}
 }
 

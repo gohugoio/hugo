@@ -29,6 +29,7 @@ type Node struct {
 	Params      map[string]interface{}
 	Date        time.Time
 	Sitemap     Sitemap
+	Hugo        *HugoInfo
 	UrlPath
 }
 
