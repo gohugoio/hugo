@@ -252,6 +252,11 @@ Convert all characters in string to titlecase.
 
 e.g. `{{title "BatMan"}}` → "Batman"
 
+### chomp
+Removes any trailing newline characters. Useful in a pipeline to remove newlines added by other processing (including `markdownify`).
+
+e.g., `{{chomp "<p>Blockhead</p>\n"` → `"<p>Blockhead</p>"`
+
 ### highlight
 Take a string of code and a language, uses Pygments to return the syntax
 highlighted code in HTML. Used in the [highlight
