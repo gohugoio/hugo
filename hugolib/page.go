@@ -473,7 +473,7 @@ func (page *Page) Menus() PageMenus {
 	ret := PageMenus{}
 
 	if ms, ok := page.Params["menu"]; ok {
-		link, _ := page.Permalink()
+		link, _ := page.RelPermalink()
 
 		me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
 

@@ -182,7 +182,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	defer resetMenuTestState(ts)
 
 	home := ts.site.newHomeNode()
-	homeMenuEntry := &MenuEntry{Name: home.Title, Url: string(home.Permalink)}
+	homeMenuEntry := &MenuEntry{Name: home.Title, Url: home.Url}
 
 	for i, this := range []struct {
 		menu           string

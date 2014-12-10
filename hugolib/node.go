@@ -38,7 +38,7 @@ func (n *Node) Now() time.Time {
 
 func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 	if inme.HasChildren() {
-		me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
+		me := MenuEntry{Name: n.Title, Url: n.Url}
 
 		for _, child := range inme.Children {
 			if me.IsSameResource(child) {
@@ -52,8 +52,7 @@ func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 
 func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 
-	me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
-
+	me := MenuEntry{Name: n.Title, Url: n.Url}
 	if !me.IsSameResource(inme) {
 		return false
 	}

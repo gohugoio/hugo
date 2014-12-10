@@ -532,10 +532,12 @@ func (s *Site) getMenusFromConfig() Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
+
 					if strings.HasPrefix(menuEntry.Url, "/") {
-						// make it absolute so it matches the nodes
-						menuEntry.Url = s.permalinkStr(menuEntry.Url)
+						// make it match the nodes
+						menuEntry.Url = s.prepUrl(menuEntry.Url)
 					}
+
 					if ret[name] == nil {
 						ret[name] = &Menu{}
 					}
