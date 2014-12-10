@@ -36,6 +36,7 @@ import (
 
 var localTemplates *template.Template
 var tmpl Template
+var funcMap template.FuncMap
 
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
@@ -83,40 +84,6 @@ func New() Template {
 	}
 
 	localTemplates = &templates.Template
-
-	funcMap := template.FuncMap{
-		"urlize":      helpers.Urlize,
-		"sanitizeurl": helpers.SanitizeUrl,
-		"eq":          Eq,
-		"ne":          Ne,
-		"gt":          Gt,
-		"ge":          Ge,
-		"lt":          Lt,
-		"le":          Le,
-		"in":          In,
-		"intersect":   Intersect,
-		"isset":       IsSet,
-		"echoParam":   ReturnWhenSet,
-		"safeHtml":    SafeHtml,
-		"markdownify": Markdownify,
-		"first":       First,
-		"where":       Where,
-		"delimit":     Delimit,
-		"sort":        Sort,
-		"highlight":   Highlight,
-		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":         Mod,
-		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":     ModBool,
-		"lower":       func(a string) string { return strings.ToLower(a) },
-		"upper":       func(a string) string { return strings.ToUpper(a) },
-		"title":       func(a string) string { return strings.Title(a) },
-		"partial":     Partial,
-		"ref":         Ref,
-		"relref":      RelRef,
-	}
 
 	templates.Funcs(funcMap)
 	templates.LoadEmbedded()
@@ -1020,4 +987,40 @@ func (t *GoHtmlTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) 
 
 func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 	t.loadTemplates(absPath, "")
+}
+
+func init() {
+	funcMap = template.FuncMap{
+		"urlize":      helpers.Urlize,
+		"sanitizeurl": helpers.SanitizeUrl,
+		"eq":          Eq,
+		"ne":          Ne,
+		"gt":          Gt,
+		"ge":          Ge,
+		"lt":          Lt,
+		"le":          Le,
+		"in":          In,
+		"intersect":   Intersect,
+		"isset":       IsSet,
+		"echoParam":   ReturnWhenSet,
+		"safeHtml":    SafeHtml,
+		"markdownify": Markdownify,
+		"first":       First,
+		"where":       Where,
+		"delimit":     Delimit,
+		"sort":        Sort,
+		"highlight":   Highlight,
+		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"mod":         Mod,
+		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"modBool":     ModBool,
+		"lower":       func(a string) string { return strings.ToLower(a) },
+		"upper":       func(a string) string { return strings.ToUpper(a) },
+		"title":       func(a string) string { return strings.Title(a) },
+		"partial":     Partial,
+		"ref":         Ref,
+		"relref":      RelRef,
+	}
 }
