@@ -204,7 +204,6 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 }
 
 func Intersect(l1, l2 interface{}) (interface{}, error) {
-
 	if l1 == nil || l2 == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -305,7 +304,6 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 // First is exposed to templates, to iterate over the first N items in a
 // rangeable list.
 func First(limit interface{}, seq interface{}) (interface{}, error) {
-
 	limitv, err := cast.ToIntE(limit)
 
 	if err != nil {
@@ -335,7 +333,7 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 }
 
 var (
-	zero reflect.Value
+	zero      reflect.Value
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
 )
 
