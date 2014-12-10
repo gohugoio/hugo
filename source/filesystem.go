@@ -15,13 +15,13 @@ package source
 
 import (
 	"bytes"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/spf13/hugo/helpers"
 )
 
 type Input interface {
@@ -81,6 +81,11 @@ func (f *Filesystem) captureFiles() {
 
 	walker := func(filePath string, fi os.FileInfo, err error) error {
 		if err != nil {
+			return nil
+		}
+
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", filePath)
 			return nil
 		}
 

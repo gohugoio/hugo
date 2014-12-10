@@ -256,6 +256,11 @@ func getDirList() []string {
 			return nil
 		}
 
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", path)
+			return nil
+		}
+
 		if fi.IsDir() {
 			a = append(a, path)
 		}
