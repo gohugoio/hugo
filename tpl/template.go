@@ -16,6 +16,11 @@ package tpl
 import (
 	"bytes"
 	"errors"
+	"github.com/eknkc/amber"
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yosssi/ace"
 	"html"
 	"html/template"
 	"io"
@@ -25,12 +30,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/eknkc/amber"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/yosssi/ace"
 )
 
 var localTemplates *template.Template
@@ -703,7 +702,8 @@ func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
 }
 
 func (t *GoHtmlTemplate) GenerateTemplateNameFrom(base, path string) string {
-	return filepath.ToSlash(path[len(base)+1:])
+	name, _ := filepath.Rel(base, path)
+	return filepath.ToSlash(name)
 }
 
 func ignoreDotFile(path string) bool {
@@ -713,6 +713,11 @@ func ignoreDotFile(path string) bool {
 func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
+			return nil
+		}
+
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", absPath)
 			return nil
 		}
 
