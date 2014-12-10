@@ -422,6 +422,68 @@ func Where(seq, key, match interface{}) (r interface{}, err error) {
 	}
 }
 
+func Apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+	if seq == nil {
+		return make([]interface{}, 0), nil
+	}
+
+	if fname == "apply" {
+		return nil, errors.New("can't apply myself (no turtles allowed)")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
+	}
+
+	fn, found := funcMap[fname]
+	if !found {
+		return nil, errors.New("can't find function " + fname)
+	}
+
+	fnv := reflect.ValueOf(fn)
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice:
+		r := make([]interface{}, seqv.Len())
+		for i := 0; i < seqv.Len(); i++ {
+			vv := seqv.Index(i)
+
+			vvv, err := applyFnToThis(fnv, vv, args...)
+
+			if err != nil {
+				return nil, err
+			}
+
+			r[i] = vvv.Interface()
+		}
+
+		return r, nil
+	default:
+		return nil, errors.New("can't apply over " + reflect.ValueOf(seq).Type().String())
+	}
+}
+
+func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, error) {
+	n := make([]reflect.Value, len(args))
+	for i, arg := range args {
+		if arg == "." {
+			n[i] = this
+		} else {
+			n[i] = reflect.ValueOf(arg)
+		}
+	}
+
+	res := fn.Call(n)
+
+	if len(res) == 1 || res[1].IsNil() {
+		return res[0], nil
+	} else {
+		return reflect.ValueOf(nil), res[1].Interface().(error)
+	}
+}
+
 func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
 	d, err := cast.ToStringE(delimiter)
 	if err != nil {
@@ -1033,6 +1095,7 @@ func init() {
 		"partial":     Partial,
 		"ref":         Ref,
 		"relref":      RelRef,
+		"apply":       Apply,
 		"chomp":       Chomp,
 	}
 
