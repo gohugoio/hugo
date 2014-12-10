@@ -29,6 +29,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,6 +38,7 @@ import (
 var localTemplates *template.Template
 var tmpl Template
 var funcMap template.FuncMap
+var chompRegexp *regexp.Regexp
 
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
@@ -667,6 +669,15 @@ func RelRef(page interface{}, ref string) template.HTML {
 	return refPage(page, ref, "RelRef")
 }
 
+func Chomp(text interface{}) (string, error) {
+	s, err := cast.ToStringE(text)
+	if err != nil {
+		return "", err
+	}
+
+	return chompRegexp.ReplaceAllString(s, ""), nil
+}
+
 func SafeHtml(text string) template.HTML {
 	return template.HTML(text)
 }
@@ -1022,5 +1033,8 @@ func init() {
 		"partial":     Partial,
 		"ref":         Ref,
 		"relref":      RelRef,
+		"chomp":       Chomp,
 	}
+
+	chompRegexp = regexp.MustCompile("[\r\n]+$")
 }
