@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//Package commands defines and implements command-line commands and flags used by Hugo. Commands and flags are implemented using
+//cobra.
 package commands
 
 import (
@@ -36,7 +38,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-//var Config *hugolib.Config
+//HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "Hugo is a very fast static site generator",
@@ -52,14 +54,17 @@ Complete documentation is available at http://gohugo.io`,
 
 var hugoCmdV *cobra.Command
 
+//Flags that are to be added to commands.
 var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
 var Source, Destination, Theme, BaseUrl, CfgFile, LogFile string
 
+//Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
 	AddCommands()
 	utils.StopOnErr(HugoCmd.Execute())
 }
 
+//AddCommands adds child commands to the root command HugoCmd.
 func AddCommands() {
 	HugoCmd.AddCommand(serverCmd)
 	HugoCmd.AddCommand(version)
@@ -70,6 +75,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(listCmd)
 }
 
+//Initializes flags
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
 	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with datePublished in the future")
@@ -92,6 +98,7 @@ func init() {
 	hugoCmdV = HugoCmd
 }
 
+// InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig() {
 	viper.SetConfigFile(CfgFile)
 	viper.AddConfigPath(Source)
@@ -297,6 +304,7 @@ func buildSite(watching ...bool) (err error) {
 	return nil
 }
 
+//NewWatcher creates a new watcher to watch filesystem events.
 func NewWatcher(port int) error {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
