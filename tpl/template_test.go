@@ -341,6 +341,123 @@ func TestWhere(t *testing.T) {
 	}
 }
 
+func TestDelimit(t *testing.T) {
+	for i, this := range []struct {
+		sequence  interface{}
+		delimiter interface{}
+		last      interface{}
+		expect    template.HTML
+	}{
+		{[]string{"class1", "class2", "class3"}, " ", nil, "class1 class2 class3"},
+		{[]int{1, 2, 3, 4, 5}, ",", nil, "1,2,3,4,5"},
+		{[]int{1, 2, 3, 4, 5}, ", ", nil, "1, 2, 3, 4, 5"},
+		{[]string{"class1", "class2", "class3"}, " ", " and ", "class1 class2 and class3"},
+		{[]int{1, 2, 3, 4, 5}, ",", ",", "1,2,3,4,5"},
+		{[]int{1, 2, 3, 4, 5}, ", ", ", and ", "1, 2, 3, 4, and 5"},
+		// test maps with and without sorting required
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "--", nil, "10--20--30--40--50"},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "--", nil, "30--20--10--40--50"},
+		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, "--", nil, "10--20--30--40--50"},
+		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, "--", nil, "30--20--10--40--50"},
+		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, "--", nil, "50--40--10--30--20"},
+		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, "--", nil, "10--20--30--40--50"},
+		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, "--", nil, "30--20--10--40--50"},
+		{map[float64]string{3.3: "10", 2.3: "20", 1.3: "30", 4.3: "40", 5.3: "50"}, "--", nil, "30--20--10--40--50"},
+		// test maps with a last delimiter
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "--", "--and--", "10--20--30--40--and--50"},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "--", "--and--", "30--20--10--40--and--50"},
+		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, "--", "--and--", "10--20--30--40--and--50"},
+		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, "--", "--and--", "30--20--10--40--and--50"},
+		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, "--", "--and--", "50--40--10--30--and--20"},
+		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, "--", "--and--", "10--20--30--40--and--50"},
+		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, "--", "--and--", "30--20--10--40--and--50"},
+		{map[float64]string{3.5: "10", 2.5: "20", 1.5: "30", 4.5: "40", 5.5: "50"}, "--", "--and--", "30--20--10--40--and--50"},
+	} {
+		var result template.HTML
+		var err error
+		if this.last == nil {
+			result, err = Delimit(this.sequence, this.delimiter)
+		} else {
+			result, err = Delimit(this.sequence, this.delimiter, this.last)
+		}
+		if err != nil {
+			t.Errorf("[%d] failed: %s", i, err)
+			continue
+		}
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] Delimit called on sequence: %v | delimiter: `%v` | last: `%v`, got %v but expected %v", i, this.sequence, this.delimiter, this.last, result, this.expect)
+		}
+	}
+}
+
+func TestSort(t *testing.T) {
+	type ts struct {
+		MyInt    int
+		MyFloat  float64
+		MyString string
+	}
+	for i, this := range []struct {
+		sequence    interface{}
+		sortByField interface{}
+		sortAsc     string
+		expect      []interface{}
+	}{
+		{[]string{"class1", "class2", "class3"}, nil, "asc", []interface{}{"class1", "class2", "class3"}},
+		{[]string{"class3", "class1", "class2"}, nil, "asc", []interface{}{"class1", "class2", "class3"}},
+		{[]int{1, 2, 3, 4, 5}, nil, "asc", []interface{}{1, 2, 3, 4, 5}},
+		{[]int{5, 4, 3, 1, 2}, nil, "asc", []interface{}{1, 2, 3, 4, 5}},
+		// test map sorting by keys
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []interface{}{10, 20, 30, 40, 50}},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, nil, "asc", []interface{}{30, 20, 10, 40, 50}},
+		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, nil, "asc", []interface{}{"10", "20", "30", "40", "50"}},
+		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
+		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, nil, "asc", []interface{}{"50", "40", "10", "30", "20"}},
+		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, nil, "asc", []interface{}{"10", "20", "30", "40", "50"}},
+		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
+		{map[float64]string{3.3: "10", 2.3: "20", 1.3: "30", 4.3: "40", 5.3: "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
+		// test map sorting by value
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
+		// test map sorting by field value
+		{
+			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			"MyInt",
+			"asc",
+			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
+		},
+		{
+			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			"MyFloat",
+			"asc",
+			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
+		},
+		{
+			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			"MyString",
+			"asc",
+			[]interface{}{ts{50, 50.5, "fifty"}, ts{40, 40.5, "forty"}, ts{10, 10.5, "ten"}, ts{30, 30.5, "thirty"}, ts{20, 20.5, "twenty"}},
+		},
+		// Test sort desc
+		{[]string{"class1", "class2", "class3"}, "value", "desc", []interface{}{"class3", "class2", "class1"}},
+		{[]string{"class3", "class1", "class2"}, "value", "desc", []interface{}{"class3", "class2", "class1"}},
+	} {
+		var result []interface{}
+		var err error
+		if this.sortByField == nil {
+			result, err = Sort(this.sequence)
+		} else {
+			result, err = Sort(this.sequence, this.sortByField, this.sortAsc)
+		}
+		if err != nil {
+			t.Errorf("[%d] failed: %s", i, err)
+			continue
+		}
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] Sort called on sequence: %v | sortByField: `%v` | got %v but expected %v", i, this.sequence, this.sortByField, result, this.expect)
+		}
+	}
+}
+
 func TestMarkdownify(t *testing.T) {
 
 	result := Markdownify("Hello **World!**")

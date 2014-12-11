@@ -29,6 +29,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -100,6 +101,8 @@ func New() Template {
 		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,
+		"delimit":     Delimit,
+		"sort":        Sort,
 		"highlight":   Highlight,
 		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
 		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
@@ -150,6 +153,8 @@ func Lt(a, b interface{}) bool {
 
 func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
+	var leftStr, rightStr *string
+	var err error
 	av := reflect.ValueOf(a)
 
 	switch av.Kind() {
@@ -160,7 +165,11 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Float32, reflect.Float64:
 		left = av.Float()
 	case reflect.String:
-		left, _ = strconv.ParseFloat(av.String(), 64)
+		left, err = strconv.ParseFloat(av.String(), 64)
+		if err != nil {
+			str := av.String()
+			leftStr = &str
+		}
 	}
 
 	bv := reflect.ValueOf(b)
@@ -173,7 +182,22 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Float32, reflect.Float64:
 		right = bv.Float()
 	case reflect.String:
-		right, _ = strconv.ParseFloat(bv.String(), 64)
+		right, err = strconv.ParseFloat(bv.String(), 64)
+		if err != nil {
+			str := bv.String()
+			rightStr = &str
+		}
+
+	}
+
+	switch {
+	case leftStr == nil || rightStr == nil:
+	case *leftStr < *rightStr:
+		return 0, 1
+	case *leftStr > *rightStr:
+		return 1, 0
+	default:
+		return 0, 0
 	}
 
 	return left, right
@@ -375,6 +399,173 @@ func Where(seq, key, match interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
 	}
+}
+
+func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
+	d, err := cast.ToStringE(delimiter)
+	if err != nil {
+		return "", err
+	}
+
+	var dLast *string
+	for _, l := range last {
+		dStr, err := cast.ToStringE(l)
+		if err != nil {
+			dLast = nil
+		}
+		dLast = &dStr
+		break
+	}
+
+	seqv := reflect.ValueOf(seq)
+	for ; seqv.Kind() == reflect.Ptr || seqv.Kind() == reflect.Interface; seqv = seqv.Elem() {
+		if seqv.IsNil() {
+			return "", errors.New("can't iterate over a nil value")
+		}
+		if seqv.Kind() == reflect.Interface && seqv.NumMethod() > 0 {
+			break
+		}
+	}
+
+	var str string
+	switch seqv.Kind() {
+	case reflect.Map:
+		sortSeq, err := Sort(seq)
+		if err != nil {
+			return "", err
+		}
+		seqv = reflect.ValueOf(sortSeq)
+		fallthrough
+	case reflect.Array, reflect.Slice, reflect.String:
+		for i := 0; i < seqv.Len(); i++ {
+			val := seqv.Index(i).Interface()
+			valStr, err := cast.ToStringE(val)
+			if err != nil {
+				continue
+			}
+			switch {
+			case i == seqv.Len()-2 && dLast != nil:
+				str += valStr + *dLast
+			case i == seqv.Len()-1:
+				str += valStr
+			default:
+				str += valStr + d
+			}
+		}
+
+	default:
+		return "", errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+
+	return template.HTML(str), nil
+}
+
+func Sort(seq interface{}, args ...interface{}) ([]interface{}, error) {
+	seqv := reflect.ValueOf(seq)
+	for ; seqv.Kind() == reflect.Ptr || seqv.Kind() == reflect.Interface; seqv = seqv.Elem() {
+		if seqv.IsNil() {
+			return nil, errors.New("can't iterate over a nil value")
+		}
+		if seqv.Kind() == reflect.Interface && seqv.NumMethod() > 0 {
+			break
+		}
+	}
+
+	// Create a list of pairs that will be used to do the sort
+	p := pairList{SortAsc: true}
+	p.Pairs = make([]pair, seqv.Len())
+
+	for i, l := range args {
+		dStr, err := cast.ToStringE(l)
+		switch {
+		case i == 0 && err != nil:
+			p.SortByField = ""
+		case i == 0 && err == nil:
+			p.SortByField = dStr
+		case i == 1 && err == nil && dStr == "desc":
+			p.SortAsc = false
+		case i == 1:
+			p.SortAsc = true
+		}
+	}
+
+	var sorted []interface{}
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice:
+		for i := 0; i < seqv.Len(); i++ {
+			p.Pairs[i].Key = reflect.ValueOf(i)
+			p.Pairs[i].Value = seqv.Index(i)
+		}
+		if p.SortByField == "" {
+			p.SortByField = "value"
+		}
+
+	case reflect.Map:
+		keys := seqv.MapKeys()
+		for i := 0; i < seqv.Len(); i++ {
+			p.Pairs[i].Key = keys[i]
+			p.Pairs[i].Value = seqv.MapIndex(keys[i])
+		}
+
+	default:
+		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
+	}
+	sorted = p.sort()
+	return sorted, nil
+}
+
+// Credit for pair sorting method goes to Andrew Gerrand
+// https://groups.google.com/forum/#!topic/golang-nuts/FT7cjmcL7gw
+// A data structure to hold a key/value pair.
+type pair struct {
+	Key   reflect.Value
+	Value reflect.Value
+}
+
+// A slice of pairs that implements sort.Interface to sort by Value.
+type pairList struct {
+	Pairs       []pair
+	SortByField string
+	SortAsc     bool
+}
+
+func (p pairList) Swap(i, j int) { p.Pairs[i], p.Pairs[j] = p.Pairs[j], p.Pairs[i] }
+func (p pairList) Len() int      { return len(p.Pairs) }
+func (p pairList) Less(i, j int) bool {
+	var truth bool
+	switch {
+	case p.SortByField == "value":
+		iVal := p.Pairs[i].Value
+		jVal := p.Pairs[j].Value
+		truth = Lt(iVal.Interface(), jVal.Interface())
+
+	case p.SortByField != "":
+		if p.Pairs[i].Value.FieldByName(p.SortByField).IsValid() {
+			iVal := p.Pairs[i].Value.FieldByName(p.SortByField)
+			jVal := p.Pairs[j].Value.FieldByName(p.SortByField)
+			truth = Lt(iVal.Interface(), jVal.Interface())
+		}
+	default:
+		iVal := p.Pairs[i].Key
+		jVal := p.Pairs[j].Key
+		truth = Lt(iVal.Interface(), jVal.Interface())
+	}
+	return truth
+}
+
+// sorts a pairList and returns a slice of sorted values
+func (p pairList) sort() []interface{} {
+	if p.SortAsc {
+		sort.Sort(p)
+	} else {
+		sort.Sort(sort.Reverse(p))
+	}
+	sorted := make([]interface{}, len(p.Pairs))
+	for i, v := range p.Pairs {
+		sorted[i] = v.Value.Interface()
+	}
+
+	return sorted
 }
 
 func IsSet(a interface{}, key interface{}) bool {
