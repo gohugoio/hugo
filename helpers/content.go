@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//Package helpers implements general utility functions that work with and on content.
 package helpers
 
 import (
@@ -26,9 +27,13 @@ import (
 	"strings"
 )
 
+// Length of the summary that Hugo extracts from a content.
 var SummaryLength = 70
+
+// Custom divider "<!--more-->" let's user define where summarization ends.
 var SummaryDivider = []byte("<!--more-->")
 
+//StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
 	output := ""
 
@@ -61,10 +66,12 @@ func StripHTML(s string) string {
 	return output
 }
 
+// StripEmptyNav strips out empty <nav> tags from content.
 func StripEmptyNav(in []byte) []byte {
 	return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
 }
 
+//BytesToHTML converts bytes to type template.HTML.
 func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
@@ -109,6 +116,7 @@ func MarkdownRenderWithTOC(content []byte, documentId string) []byte {
 		GetMarkdownExtensions())
 }
 
+//ExtractTOC extracts Table of Contents from content.
 func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	origContent := make([]byte, len(content))
 	copy(origContent, content)

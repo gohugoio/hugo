@@ -24,6 +24,7 @@ import (
 	"strings"
 )
 
+//Filepath separator defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
 func FindAvailablePort() (*net.TCPAddr, error) {
@@ -39,6 +40,7 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 	return nil, err
 }
 
+// InStringArray checks if a string is an element of a slice of strings and returns a boolean value.
 func InStringArray(arr []string, el string) bool {
 	for _, v := range arr {
 		if v == el {
@@ -48,6 +50,7 @@ func InStringArray(arr []string, el string) bool {
 	return false
 }
 
+// GuessType attempts to guess the type of file from a given string.
 func GuessType(in string) string {
 	switch strings.ToLower(in) {
 	case "md", "markdown", "mdown":

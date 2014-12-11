@@ -70,7 +70,7 @@ func ReplaceExtension(path string, newExt string) string {
 	return f + "." + newExt
 }
 
-// Check if Exists && is Directory
+// DirExists checks if a path exists and is a directory.
 func DirExists(path string, fs afero.Fs) (bool, error) {
 	fi, err := fs.Stat(path)
 	if err == nil && fi.IsDir() {
@@ -82,6 +82,7 @@ func DirExists(path string, fs afero.Fs) (bool, error) {
 	return false, err
 }
 
+//IsDir check if a given path is a directory.
 func IsDir(path string, fs afero.Fs) (bool, error) {
 	fi, err := fs.Stat(path)
 	if err != nil {
@@ -90,6 +91,7 @@ func IsDir(path string, fs afero.Fs) (bool, error) {
 	return fi.IsDir(), nil
 }
 
+//IsEmpty checks if a given path is empty.
 func IsEmpty(path string, fs afero.Fs) (bool, error) {
 	if b, _ := Exists(path, fs); !b {
 		return false, fmt.Errorf("%q path does not exist", path)
@@ -114,7 +116,7 @@ func IsEmpty(path string, fs afero.Fs) (bool, error) {
 	}
 }
 
-// Check if File / Directory Exists
+// Check if a file or directory exists.
 func Exists(path string, fs afero.Fs) (bool, error) {
 	_, err := fs.Stat(path)
 	if err == nil {
@@ -151,6 +153,7 @@ func MakePathRelative(inPath string, possibleDirectories ...string) (string, err
 	return inPath, errors.New("Can't extract relative path, unknown prefix")
 }
 
+//Filename takes a path, strips out the extension and returns the name of the file.
 func Filename(in string) (name string) {
 	name, _ = FileAndExt(in)
 	return
@@ -197,6 +200,7 @@ func FileAndExtSep(in, ext, base, pathSeparator string) (name string) {
 
 }
 
+//GetRelativePath returns the relative path of a given path.
 func GetRelativePath(path, base string) (final string, err error) {
 	if filepath.IsAbs(path) && base == "" {
 		return "", errors.New("source: missing base directory")
@@ -275,6 +279,7 @@ func PrettifyPath(in string) string {
 	}
 }
 
+//FindCWD returns the current working directory from where the Hugo executable is run from.
 func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
 
