@@ -72,6 +72,7 @@ as you see fit.
 	Run: NewTheme,
 }
 
+//NewContent adds new content to a Hugo site.
 func NewContent(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
@@ -103,6 +104,7 @@ func NewContent(cmd *cobra.Command, args []string) {
 	}
 }
 
+// NewSite creates a new hugo site and initializes a structured Hugo directory.
 func NewSite(cmd *cobra.Command, args []string) {
 	if len(args) < 1 {
 		cmd.Usage()
@@ -132,6 +134,7 @@ func NewSite(cmd *cobra.Command, args []string) {
 	createConfig(createpath, configFormat)
 }
 
+//NewTheme creates a new Hugo theme.
 func NewTheme(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
