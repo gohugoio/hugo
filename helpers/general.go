@@ -64,22 +64,26 @@ func GuessType(in string) string {
 	return "unknown"
 }
 
+//ReaderToBytes takes an io.Reader argument, reads from it and returns bytes.
 func ReaderToBytes(lines io.Reader) []byte {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	return b.Bytes()
 }
 
+//ReaderToString is the same as ReaderToBytes, but returns a string.
 func ReaderToString(lines io.Reader) string {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	return b.String()
 }
 
+//StringToReader does the opposite of ReaderToString.
 func StringToReader(in string) io.Reader {
 	return strings.NewReader(in)
 }
 
+//BytesToReader does the opposite of ReaderToBytes.
 func BytesToReader(in []byte) io.Reader {
 	return bytes.NewReader(in)
 }
@@ -98,6 +102,7 @@ func SliceToLower(s []string) []string {
 	return l
 }
 
+//Md5String takes a string and returns a MD5 Hash of it.
 func Md5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
