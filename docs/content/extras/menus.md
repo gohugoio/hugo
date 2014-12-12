@@ -96,10 +96,12 @@ Here’s an example `config.toml`:
         pre = "<i class='fa fa-heart'></i>"
         weight = -110
         identifier = "about"
+        url = "/about/"
     [[menu.main]]
         name = "getting started"
         pre = "<i class='fa fa-road'></i>"
         weight = -100
+        url = "/getting-started/"
 
 And the equivalent example `config.yaml`:
 
@@ -110,11 +112,16 @@ And the equivalent example `config.yaml`:
             Pre: "<i class='fa fa-heart'></i>"
             Weight: -110
             Identifier: "about"
+            Url: "/about/"
           - Name: "getting started"
             Pre: "<i class='fa fa-road'></i>"
             Weight: -100
+            Url: "/getting-started/"
     ---            
 
+
+**NOTE:** The urls must be relative to the context root. If the `BaseUrl` is `http://example.com/mysite/`, then the urls in the menu must not include the context root `mysite`. 
+  
 ## Nesting
 
 All nesting of content is done via the `parent` field.

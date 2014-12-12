@@ -265,18 +265,27 @@ func TestPageMenu(t *testing.T) {
 // issue #719
 func TestMenuWithUnicodeUrls(t *testing.T) {
 	for _, uglyUrls := range []bool{true, false} {
-		doTestMenuWithUnicodeUrls(t, uglyUrls)
+		for _, canonifyUrls := range []bool{true, false} {
+			doTestMenuWithUnicodeUrls(t, canonifyUrls, uglyUrls)
+		}
 	}
 }
 
-func doTestMenuWithUnicodeUrls(t *testing.T, uglyUrls bool) {
+func doTestMenuWithUnicodeUrls(t *testing.T, canonifyUrls, uglyUrls bool) {
+	viper.Set("CanonifyUrls", canonifyUrls)
 	viper.Set("UglyUrls", uglyUrls)
+
 	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
 	defer resetMenuTestState(ts)
 
 	unicodeRussian := ts.findTestMenuEntryById("unicode", "unicode-russian")
 
-	expectedBase := "http://foo.local/zoo/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0"
+	expectedBase := "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0"
+
+	if !canonifyUrls {
+		expectedBase = "/zoo" + expectedBase
+	}
+
 	var expected string
 	if uglyUrls {
 		expected = expectedBase + ".html"
@@ -288,6 +297,7 @@ func doTestMenuWithUnicodeUrls(t *testing.T, uglyUrls bool) {
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {
+	viper.Set("CanonifyUrls", true)
 	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
 	defer resetMenuTestState(ts)
 
@@ -333,7 +343,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	defer resetMenuTestState(ts)
 
 	home := ts.site.newHomeNode()
-	homeMenuEntry := &MenuEntry{Name: home.Title, Url: string(home.Permalink)}
+	homeMenuEntry := &MenuEntry{Name: home.Title, Url: home.Url}
 
 	for i, this := range []struct {
 		menu           string
