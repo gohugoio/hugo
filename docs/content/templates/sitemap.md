@@ -36,14 +36,19 @@ This template respects the version 0.9 of the [Sitemap
 Protocol](http://www.sitemaps.org/protocol.html).
 
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      {{ range .Data.Pages }}
+      {{ range .Data.Pages }}{{ if not .Params.noindex }}
       <url>
         <loc>{{ .Permalink }}</loc>
         <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
         <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
-        <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
+        <priority>{{ .Sitemap.Priority }}</priority>{{ end }}{{ range .Params.images }}
+        <image:image>
+          <image:loc>.src</image:loc>
+          {{ with .title }}<image:title><![CDATA[.]]></image:title>{{ end }}
+          {{ with .caption }}<image:caption><![CDATA[.]]></image:caption>{{ end }}
+        </image:image>{{ end }}
       </url>
-      {{ end }}
+      {{ end }}{{ end }}
     </urlset>
 
 ***Important:** Hugo will automatically add the following header line to this file
