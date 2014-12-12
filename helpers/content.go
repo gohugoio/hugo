@@ -11,7 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//Package helpers implements general utility functions that work with and on content.
+//Package helpers implements general utility functions that work with and on content. The helper functions defined here
+//lay down the foundation of how Hugo works with files, filepaths and does string operations on content.
 package helpers
 
 import (
@@ -30,7 +31,7 @@ import (
 // Length of the summary that Hugo extracts from a content.
 var SummaryLength = 70
 
-// Custom divider "<!--more-->" let's user define where summarization ends.
+// Custom divider <!--more--> let's user define where summarization ends.
 var SummaryDivider = []byte("<!--more-->")
 
 //StripHTML accepts a string, strips out all HTML tags and returns it.
@@ -174,10 +175,12 @@ func RenderBytes(content []byte, pagefmt string, documentId string) []byte {
 	}
 }
 
+// TotalWords returns an int of the total number of words in a given content.
 func TotalWords(s string) int {
 	return len(strings.Fields(s))
 }
 
+//WordCount takes content and returns a map of words and count of each word.
 func WordCount(s string) map[string]int {
 	m := make(map[string]int)
 	for _, f := range strings.Fields(s) {
@@ -187,10 +190,12 @@ func WordCount(s string) map[string]int {
 	return m
 }
 
+//RemoveSummaryDivider removes summary-divider <!--more--> from content.
 func RemoveSummaryDivider(content []byte) []byte {
 	return bytes.Replace(content, SummaryDivider, []byte(""), -1)
 }
 
+//TruncateWords takes content and na int and shortens down the number of words in the content down to the number of int.
 func TruncateWords(s string, max int) string {
 	words := strings.Fields(s)
 	if max > len(words) {
@@ -200,6 +205,7 @@ func TruncateWords(s string, max int) string {
 	return strings.Join(words[:max], " ")
 }
 
+//TruncateWordsToWholeSentence takes content and an int and returns entire sentences from content, delimited by the int.
 func TruncateWordsToWholeSentence(s string, max int) string {
 	words := strings.Fields(s)
 	if max > len(words) {
