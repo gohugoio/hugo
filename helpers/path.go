@@ -65,6 +65,7 @@ func UnicodeSanitize(s string) string {
 	return string(target)
 }
 
+//ReplaceExtension takes a path and an extension, strips the old extension and returns the path with the new extension.
 func ReplaceExtension(path string, newExt string) string {
 	f, _ := FileAndExt(path)
 	return f + "." + newExt
@@ -257,9 +258,10 @@ func PathPrep(ugly bool, in string) string {
 	}
 }
 
-// /section/name.html -> /section/name/index.html
-// /section/name/  -> /section/name/index.html
-// /section/name/index.html -> /section/name/index.html
+// Same as PrettifyUrlPath() but for paths.
+// 	/section/name.html becomes /section/name/index.html
+// 	/section/name/  becomes /section/name/index.html
+// 	/section/name/index.html becomes /section/name/index.html
 func PrettifyPath(in string) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
@@ -279,7 +281,7 @@ func PrettifyPath(in string) string {
 	}
 }
 
-//FindCWD returns the current working directory from where the Hugo executable is run from.
+//FindCWD returns the current working directory from where the Hugo executable is run.
 func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
 
@@ -303,6 +305,7 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
+//Same as WriteToDisk but checks to see if file/directory already exists.
 func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	dir, _ := filepath.Split(inpath)
 	ospath := filepath.FromSlash(dir)
@@ -332,6 +335,7 @@ func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return
 }
 
+// Writes content to disk.
 func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	dir, _ := filepath.Split(inpath)
 	ospath := filepath.FromSlash(dir)

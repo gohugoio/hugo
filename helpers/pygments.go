@@ -25,6 +25,7 @@ import (
 
 const pygmentsBin = "pygmentize"
 
+//HasPygments checks to see if Pygments is installed and available on the system.
 func HasPygments() bool {
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
 		return false
@@ -32,6 +33,7 @@ func HasPygments() bool {
 	return true
 }
 
+//Highlight takes some code and returns highlighted code.
 func Highlight(code string, lexer string) string {
 
 	if !HasPygments() {
