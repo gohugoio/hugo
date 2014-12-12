@@ -397,6 +397,16 @@ func (p *Page) RelPermalink() (string, error) {
 		return "", err
 	}
 
+	if viper.GetBool("CanonifyUrls") {
+		// replacements for relpermalink with baseUrl on the form http://myhost.com/sub/ will fail later on
+		// have to return the Url relative from baseUrl
+		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseUrl))
+		if err != nil {
+			return "", err
+		}
+		return "/" + filepath.ToSlash(relpath), nil
+	}
+
 	link.Scheme = ""
 	link.Host = ""
 	link.User = nil
@@ -549,7 +559,7 @@ func (page *Page) Menus() PageMenus {
 	ret := PageMenus{}
 
 	if ms, ok := page.Params["menu"]; ok {
-		link, _ := page.Permalink()
+		link, _ := page.RelPermalink()
 
 		me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
 

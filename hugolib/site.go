@@ -106,6 +106,7 @@ type SiteInfo struct {
 	Permalinks      PermalinkOverrides
 	Params          map[string]interface{}
 	BuildDrafts     bool
+	canonifyUrls    bool
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -362,6 +363,7 @@ func (s *Site) initializeSiteInfo() {
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
 		BuildDrafts:     viper.GetBool("BuildDrafts"),
+		canonifyUrls:    viper.GetBool("CanonifyUrls"),
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
@@ -608,10 +610,16 @@ func (s *Site) getMenusFromConfig() Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
+
 					if strings.HasPrefix(menuEntry.Url, "/") {
-						// make it absolute so it matches the nodes
-						menuEntry.Url = s.permalinkStr(menuEntry.Url)
+						// make it match the nodes
+						menuEntryUrl := menuEntry.Url
+						if !s.Info.canonifyUrls {
+							menuEntryUrl = helpers.AddContextRoot(string(s.Info.BaseUrl), menuEntryUrl)
+						}
+						menuEntry.Url = s.prepUrl(menuEntryUrl)
 					}
+
 					if ret[name] == nil {
 						ret[name] = &Menu{}
 					}
