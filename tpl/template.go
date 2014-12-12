@@ -110,6 +110,7 @@ func New() Template {
 		"upper":       func(a string) string { return strings.ToUpper(a) },
 		"title":       func(a string) string { return strings.Title(a) },
 		"partial":     Partial,
+		"join":        func(a []string, b string) string { return strings.Join(a, b) },      
 	}
 
 	templates.Funcs(funcMap)
