@@ -8,15 +8,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-// More information about Tf-Idf algorithm 
+// More information about Tf-Idf algorithm
 // http://en.wikipedia.org/wiki/Tf%E2%80%93idf
 
 // TokenRelevance represents the score for a given token (Value)
 type TokenRelevance struct {
 	Value string
-	Freq float64
-	Tf float64
-	Idf float64
+	Freq  float64
+	Tf    float64
+	Idf   float64
 	TfIdf float64
 }
 
@@ -43,12 +43,12 @@ func BuildRelatedGraph(s *Site) {
 		m := s.Taxonomies[plural]
 		vocabulary := make([]string, len(m))
 		i := 0
-	    for k, _ := range m {
-	        vocabulary[i] = k
-	        i++
-	    }
+		for k, _ := range m {
+			vocabulary[i] = k
+			i++
+		}
 
-	    // For all pages
+		// For all pages
 		for _, p := range s.Pages {
 			// Get taxononomy values
 			vals := p.GetParam(plural)
@@ -57,27 +57,27 @@ func BuildRelatedGraph(s *Site) {
 			if vals != nil {
 				v, ok := vals.([]string)
 				if ok {
-					if ( p.relevance == nil) {
-						p.relevance = make(Relevance)	
+					if p.relevance == nil {
+						p.relevance = make(Relevance)
 					}
-					
+
 					// Generate the relevance score according to all token present in vocabuary
 					for _, voc := range vocabulary {
 						// Default token is not used in this page
 						freq := 0.
-						if( helpers.InStringArray(v, voc) ) {
+						if helpers.InStringArray(v, voc) {
 							// Token is used in this page
 							freq = 1.
 						}
 						// Token frequency
 						tf := freq / float64(len(v))
 						// Inverted document frequency
-						idf := math.Log(float64(len(vocabulary)) / float64(1 + s.Taxonomies[plural][voc].Len()))
+						idf := math.Log(float64(len(vocabulary)) / float64(1+s.Taxonomies[plural][voc].Len()))
 						// Score
 						tfidf := tf * idf
 
 						// Store scores on the page
-						x := TokenRelevance{voc,freq,tf,idf,tfidf}
+						x := TokenRelevance{voc, freq, tf, idf, tfidf}
 						p.relevance[voc] = x
 					}
 
@@ -87,7 +87,7 @@ func BuildRelatedGraph(s *Site) {
 						potential_related := s.Taxonomies[plural][idx].Pages()
 						// Remove unrelated documents
 						for _, rpage := range potential_related {
-							if(rpage.relevance[idx].TfIdf > 0. && rpage != p) {
+							if rpage.relevance[idx].TfIdf > 0. && rpage != p {
 								// Store related page to current page
 								p.RelatedPages = appendIfMissing(p.RelatedPages, rpage)
 								// Store related page to reverse association
@@ -104,4 +104,3 @@ func BuildRelatedGraph(s *Site) {
 	}
 
 }
-

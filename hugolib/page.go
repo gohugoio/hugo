@@ -57,8 +57,8 @@ type Page struct {
 	rawContent        []byte
 	contentShortCodes map[string]string
 	plain             string // TODO should be []byte
-	RelatedPages	  Pages
-	relevance	      Relevance
+	RelatedPages      Pages
+	relevance         Relevance
 	PageMeta
 	Source
 	Position
