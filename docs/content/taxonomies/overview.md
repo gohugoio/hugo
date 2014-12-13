@@ -10,7 +10,7 @@ menu:
     identifier: taxonomy overview
     parent: taxonomy
 next: /taxonomies/usage
-prev: /templates/404
+prev: /templates/related
 title: Taxonomy Overview
 weight: 10
 ---
