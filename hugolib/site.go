@@ -193,6 +193,7 @@ func (s *Site) Process() (err error) {
 		return
 	}
 	s.timerStep("build taxonomies")
+	BuildRelatedGraph(s)
 	return
 }
 
