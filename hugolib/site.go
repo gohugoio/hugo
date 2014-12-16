@@ -1168,7 +1168,7 @@ func (s *Site) permalinkStr(plink string) string {
 }
 
 func (s *Site) prepUrl(in string) string {
-	return helpers.Urlize(s.PrettifyUrl(in))
+	return s.PrettifyUrl(helpers.Urlize(in))
 }
 
 func (s *Site) PrettifyUrl(in string) string {
