@@ -1118,7 +1118,17 @@ func (s *Site) layoutExists(layouts ...string) bool {
 func (s *Site) renderXML(name string, d interface{}, layouts ...string) (io.Reader, error) {
 	renderBuffer := s.NewXMLBuffer()
 	err := s.render(name, d, renderBuffer, layouts...)
-	return renderBuffer, err
+
+	var outBuffer = new(bytes.Buffer)
+
+	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseUrl"))
+	if err != nil {
+		return nil, err
+	}
+
+	transformer := transform.NewChain(absURLInXML...)
+	transformer.Apply(outBuffer, renderBuffer)
+	return outBuffer, err
 }
 
 func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {
