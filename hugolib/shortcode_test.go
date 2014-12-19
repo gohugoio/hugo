@@ -297,7 +297,6 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		{[]byte("An PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A.")},
 		{[]byte("An PREFIX-1 PREFIX-2."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A PREFIX-2.")},
 	} {
-		fmt.Printf("this<%#v>", this)
 		results, err := replaceShortcodeTokens(this.input, this.prefix, this.numReplacements, this.wrappedInDiv, this.replacements)
 
 		if b, ok := this.expect.(bool); ok && !b {
