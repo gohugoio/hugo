@@ -23,7 +23,7 @@ different type of content to the content itself.
 
 ## Creating a content view
 
-To create a new view, simple create a template in each of your different
+To create a new view, simply create a template in each of your different
 content type directories with the view name. In the following example, we
 have created a "li" view and a "summary" view for our two content types
 of post and project. As you can see, these sit next to the [single
