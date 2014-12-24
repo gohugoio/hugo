@@ -80,9 +80,9 @@ Now, reference the partial template from your page template:
 
 A few alternatives exist to [Disqus](http://disqus.com):
 
-* [Intense Debate](http://intensedebate.com/)
-* [LiveFyre](http://livefyre.com/)
-* [Moot](http://muut.com)
+* [IntenseDebate](http://intensedebate.com/)
+* [Livefyre](http://livefyre.com/)
+* [Muut](http://muut.com)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [Kaiju](http://github.com/spf13/kaiju)
 

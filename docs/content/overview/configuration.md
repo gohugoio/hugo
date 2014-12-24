@@ -63,6 +63,24 @@ Here is a yaml configuration file which sets a few more options
       SidebarRecentLimit: 5
     ...
 
+## Configure Blackfriday rendering
+
+[Blackfriday](https://github.com/russross/blackfriday) is the [Markdown](http://daringfireball.net/projects/markdown/) rendering engine used in Hugo. The Blackfriday configuration in Hugo is mostly a set of sane defaults that should fit most use cases.
+
+But Hugo does expose some options -- in the table below matched with the corresponding flag in the  [Blackfriday source](https://github.com/russross/blackfriday/blob/master/html.go):
+
+
+Flag | Default | Blackfriday flag | Purpose
+--- | --- | --- | ---
+angledQuotes | false | HTML_SMARTYPANTS_ANGLED_QUOTES |  Enable angled double quotes (`« »`)
+
+**Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.
+
+```
+blackfriday:
+  angledQuotes = true
+```
+
 ## Notes
 
 Config changes do not reflect with [Live Reload](/extras/livereload).

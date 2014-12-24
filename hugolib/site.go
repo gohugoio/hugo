@@ -160,8 +160,6 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string = ""
 
 	if refUrl.Path != "" {
-		var target *Page
-
 		for _, page := range []*Page(*s.Pages) {
 			if page.Source.Path() == refUrl.Path || page.Source.LogicalName() == refUrl.Path {
 				target = page
@@ -187,7 +185,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	if refUrl.Fragment != "" {
 		link = link + "#" + refUrl.Fragment
 
-		if refUrl.Path != "" {
+		if refUrl.Path != "" && target != nil {
 			link = link + ":" + target.UniqueId()
 		} else if page != nil {
 			link = link + ":" + page.UniqueId()
@@ -1168,7 +1166,7 @@ func (s *Site) permalinkStr(plink string) string {
 }
 
 func (s *Site) prepUrl(in string) string {
-	return helpers.Urlize(s.PrettifyUrl(in))
+	return s.PrettifyUrl(helpers.Urlize(in))
 }
 
 func (s *Site) PrettifyUrl(in string) string {
@@ -1195,7 +1193,17 @@ func (s *Site) layoutExists(layouts ...string) bool {
 func (s *Site) renderXML(name string, d interface{}, layouts ...string) (io.Reader, error) {
 	renderBuffer := s.NewXMLBuffer()
 	err := s.render(name, d, renderBuffer, layouts...)
-	return renderBuffer, err
+
+	var outBuffer = new(bytes.Buffer)
+
+	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseUrl"))
+	if err != nil {
+		return nil, err
+	}
+
+	transformer := transform.NewChain(absURLInXML...)
+	transformer.Apply(outBuffer, renderBuffer)
+	return outBuffer, err
 }
 
 func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {

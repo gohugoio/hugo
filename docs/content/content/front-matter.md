@@ -93,3 +93,9 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 
 *If neither `slug` or `url` is present, the filename will be used.*
 
+## Configure Blackfriday rendering
+
+It's possible to set some options for Markdown rendering in the page's front matter, as an override to the site wide configuration.
+
+See [Configuration]({{< ref "overview/configuration.md#configure-blackfriday-rendering" >}}) for more.
+

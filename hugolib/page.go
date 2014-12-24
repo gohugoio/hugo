@@ -17,10 +17,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/parser"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -173,11 +174,32 @@ func (p *Page) setSummary() {
 }
 
 func (p *Page) renderBytes(content []byte) []byte {
-	return helpers.RenderBytes(content, p.guessMarkupType(), p.UniqueId())
+	return helpers.RenderBytes(
+		helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
+			DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
-	return helpers.RenderBytesWithTOC(content, p.guessMarkupType(), p.UniqueId())
+	return helpers.RenderBytesWithTOC(helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
+		DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
+}
+
+func (p *Page) getRenderingConfigFlags() map[string]bool {
+	flags := make(map[string]bool)
+
+	pageParam := p.GetParam("blackfriday")
+	siteParam := viper.GetStringMap("blackfriday")
+
+	flags = cast.ToStringMapBool(siteParam)
+
+	if pageParam != nil {
+		pageFlags := cast.ToStringMapBool(pageParam)
+		for key, value := range pageFlags {
+			flags[key] = value
+		}
+	}
+
+	return flags
 }
 
 func newPage(filename string) *Page {
@@ -472,6 +494,8 @@ func (page *Page) GetParam(key string) interface{} {
 		return cast.ToTime(v)
 	case []string:
 		return helpers.SliceToLower(v.([]string))
+	case map[interface{}]interface{}:
+		return v
 	}
 	return nil
 }

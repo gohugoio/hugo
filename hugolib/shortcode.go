@@ -15,12 +15,8 @@ package hugolib
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"html/template"
-	"io/ioutil"
-	"net/http"
-	"os"
 	"reflect"
 	"regexp"
 	"sort"
@@ -30,7 +26,6 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 type ShortcodeFunc func([]string) string
@@ -91,88 +86,6 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		return x
 	}
 
-}
-
-// getJsonUrl returns the URL from the frontmatters and also if it is
-// a downloadable URL
-func (scp *ShortcodeWithPage) getJsonUrl(index string) (string, bool) {
-
-	if _, ok := scp.Page.Params["json"]; !ok {
-		return "", false
-	}
-
-	var jRes []string
-	jRes, ok := scp.Page.Params["json"].([]string)
-	if !ok {
-		jww.ERROR.Println("Cannot cast json to type []string")
-		return "", false
-	}
-
-	i, err := strconv.Atoi(index)
-	if err != nil {
-		jww.ERROR.Println("Cannot convert index %s to type int: %s", index, err)
-		return "", false
-	}
-
-	if len(jRes) == 0 || i > len(jRes) {
-		return "", false
-	}
-
-	url := jRes[i]
-
-	// local file
-	if !strings.Contains(url, "://") { // @todo optimize
-		return url, false
-	}
-	return url, true
-}
-
-// GetJson expects the index ID to grep the JSON url from the front matter json list.
-// If the JSON url is a remote one the content will be download and maybe blocks the whole
-// hugo build process until the file has been retrieve (Please clarify someone if that is true).
-// GetJson returns nil or parsed JSON to use in a short code.
-func (scp *ShortcodeWithPage) GetJson(index string) interface{} {
-	url, isRemote := scp.getJsonUrl(index)
-	if url == "" {
-		return nil
-	}
-	var c []byte
-	var err error
-	// @todo maybe convert that into a goroutine and refactor more
-	if isRemote {
-		// load remote file. this is now blocking ...
-		res, err := http.Get(url)
-		if err != nil {
-			jww.ERROR.Printf("Failed to download %s with error: %s", url, err)
-			return nil
-		}
-		c, err = ioutil.ReadAll(res.Body)
-		res.Body.Close()
-		if err != nil {
-			jww.ERROR.Printf("Failed to read body from %s with error: %s", url, err)
-			return nil
-		}
-	} else {
-		// load local file
-		jFile := viper.GetString("WorkingDir") + string(os.PathSeparator) + url
-		if _, err := os.Stat(jFile); os.IsNotExist(err) {
-			jww.ERROR.Printf("File not found %s", jFile)
-			return nil
-		}
-		c, err = ioutil.ReadFile(jFile)
-		if err != nil {
-			jww.ERROR.Printf("Read file %s with error message %s", jFile, err)
-			return nil
-		}
-	}
-
-	var v interface{}
-	err = json.Unmarshal(c, &v)
-	if err != nil {
-		jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
-		return nil
-	}
-	return v
 }
 
 // Note - this value must not contain any markup syntax
@@ -299,7 +212,9 @@ func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt 
 		}
 
 		if sc.doMarkup {
-			newInner := helpers.RenderBytes([]byte(inner), p.guessMarkupType(), p.UniqueId())
+			newInner := helpers.RenderBytes(helpers.RenderingContext{
+				Content: []byte(inner), PageFmt: p.guessMarkupType(),
+				DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
 
 			// If the type is “unknown” or “markdown”, we assume the markdown
 			// generation has been performed. Given the input: `a line`, markdown

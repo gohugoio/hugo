@@ -25,8 +25,8 @@ var benchmarkTimes int
 var benchmark = &cobra.Command{
 	Use:   "benchmark",
 	Short: "Benchmark hugo by building a site a number of times",
-	Long: `Hugo can build a site many times over and anlyze the
-    running process creating a `,
+	Long: `Hugo can build a site many times over and analyze the
+running process creating a benchmark.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		bench(cmd, args)
