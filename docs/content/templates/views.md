@@ -23,10 +23,10 @@ different type of content to the content itself.
 
 ## Creating a content view
 
-To create a new view simple create a template in each of your different
-content type directories with the view name. In the following example we
+To create a new view, simple create a template in each of your different
+content type directories with the view name. In the following example, we
 have created a "li" view and a "summary" view for our two content types
-of post and project. As you can see these sit next to the [single
+of post and project. As you can see, these sit next to the [single
 content view](/templates/content) template "single.html". You can even
 provide a specific view for a given type and continue to use the
 \_default/single.html for the primary view.
@@ -86,10 +86,10 @@ templates](/templates/list)).
     </div>
     </section>
 
-In the above example you will notice that we have called .Render and passed in
-which view to render the content with. Render is a special function available on
+In the above example, you will notice that we have called `.Render` and passed in
+which view to render the content with. `.Render` is a special function available on
 a content which tells the content to render itself with the provided view template.
-In this example we are not using the li view. To use this we would
+In this example, we are not using the li view. To use this we would
 change the render line to `{{ .Render "li" }}`.
 
 
