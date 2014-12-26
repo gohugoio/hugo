@@ -29,7 +29,7 @@ kind of website including blogs, tumbles and docs.
 
 Hugo is written in Go with support for Windows, Linux, FreeBSD and OS X.
 
-The latest release can be found at [hugo releases](https://github.com/spf13/hugo/releases).
+The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
 We currently build for Windows, Linux, FreeBSD and OS X for x64
 and i386 architectures.
 
@@ -61,7 +61,7 @@ is the most probable location.
     cd hugo
     go get
 
-Because Go expects all of your libraries to be found in either $GOROOT or $GOPATH,
+Because Go expects all of your libraries to be found in either `$GOROOT` or `$GOPATH`,
 it's helpful to symlink the project to one of the following paths:
 
  * `ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo`
@@ -81,18 +81,21 @@ If you only want to build from source, it's even easier.
 
 ##### Adding compile information to Hugo
 
-When Hugo is built using the above steps, the `version` sub-command will include the `mdate` of the Hugo executable.  Instead, it is possible to have the `version` sub-command return information about the git commit used and time of compilation using `build` flags.
+When Hugo is built using the above steps, the `version` sub-command will include the `mdate` of the Hugo executable, similar to the following:
+
+    Hugo Static Site Generator v0.13-DEV buildDate: 2014-12-24T04:46:03-07:00
+
+Instead, it is possible to have the `version` sub-command return information about the git commit used and time of compilation using `build` flags.
 
 To do this, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
 
-    go build -ldflags "-X /path/to/hugo/commands.commitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/commands.buildDate `date +%FT%T`"  
+    go build -ldflags "-X /path/to/hugo/commands.commitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/commands.buildDate `date +%FT%T%z`"
 
-This will result in hugo version output that looks similar to:
+This will result in `hugo version` output that looks similar to:
 
-    Hugo Static Site Generator v0.13-DEV buildDate: 2014-10-16T09:59:55Z
-    Hugo Static Site Generator v0.13-DEV-24BBFE7 buildDate: 2014-10-16T10:00:55Z
+    Hugo Static Site Generator v0.13-DEV-8042E77 buildDate: 2014-12-25T03:25:57-07:00
 
-The format of the date is configurable via the `Params.DateFormat` setting.  `DateFormat` is a string value representing the Go time layout that should be used to format the date output. If `Params.DateFormat` is not set, `time.RFC3339` will be used as the default format.See [time documentation](http://golang.org/pkg/time/#pkg-constants) for more information.
+The format of the date is configurable via the `Params.DateFormat` setting.  `DateFormat` is a string value representing the Go time layout that should be used to format the date output. If `Params.DateFormat` is not set, `time.RFC3339` will be used as the default format. See Go's ["time" package documentation](http://golang.org/pkg/time/#pkg-constants) for more information.
 
 Configuration setting using config.yaml as example:
 
@@ -119,7 +122,7 @@ We welcome your contributions.  To make the process as seamless as possible, we 
      * Have test cases for the new code.  If you have questions about how to do it, please ask in your pull request.
      * Run `go fmt`
      * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.  
-     * Make sure `go test ./...` passes, and go build completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
+     * Make sure `go test ./...` passes, and `go build` completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
 
 **Complete documentation is available at [Hugo Documentation](http://gohugo.io).**
 
