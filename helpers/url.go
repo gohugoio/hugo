@@ -21,7 +21,7 @@ import (
 	"strings"
 )
 
-//SanitizeUrl sanitizes the input URL string.
+// SanitizeUrl sanitizes the input URL string.
 func SanitizeUrl(in string) string {
 	url, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 	if err != nil {
@@ -111,10 +111,11 @@ func PrettifyUrl(in string) string {
 	return x
 }
 
-//PrettifyUrlPath takes a URL path to a content and converts it to enable pretty URLS.
-//	/section/name.html becomes /section/name/index.html
-//	/section/name/  becomes /section/name/index.html
-//	/section/name/index.html becomes /section/name/index.html
+// PrettifyUrlPath takes a URL path to a content and converts it
+// to enable pretty URLs.
+//     /section/name.html       becomes /section/name/index.html
+//     /section/name/           becomes /section/name/index.html
+//     /section/name/index.html becomes /section/name/index.html
 func PrettifyUrlPath(in string) string {
 	if path.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
@@ -134,10 +135,10 @@ func PrettifyUrlPath(in string) string {
 	}
 }
 
-//Uglify does the opposite of PrettifyPath().
-// 	/section/name/index.html becomes /section/name.html
-// 	/section/name/  becomes /section/name.html
-// 	/section/name.html becomes /section/name.html
+// Uglify does the opposite of PrettifyUrlPath().
+//     /section/name/index.html becomes /section/name.html
+//     /section/name/           becomes /section/name.html
+//     /section/name.html       becomes /section/name.html
 func Uglify(in string) string {
 	if path.Ext(in) == "" {
 		if len(in) < 2 {
@@ -162,7 +163,7 @@ func Uglify(in string) string {
 	}
 }
 
-// Same as FileAndExt, but for Urls
+// Same as FileAndExt, but for URLs.
 func ResourceAndExt(in string) (name string, ext string) {
 	ext = path.Ext(in)
 	base := path.Base(in)
