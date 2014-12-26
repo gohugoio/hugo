@@ -78,7 +78,7 @@ angledQuotes | false | HTML_SMARTYPANTS_ANGLED_QUOTES |  Enable angled double qu
 
 ```
 blackfriday:
-  angledQuotes: true
+  angledQuotes = true
 ```
 
 ## Notes

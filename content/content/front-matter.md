@@ -97,5 +97,5 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 
 It's possible to set some options for Markdown rendering in the page's front matter, as an override to the site wide configuration.
 
-See [Configuration]({{< ref "overview/configuration.md" >}}) for more.
+See [Configuration]({{< ref "overview/configuration.md#configure-blackfriday-rendering" >}}) for more.
 
