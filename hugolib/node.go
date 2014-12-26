@@ -33,6 +33,7 @@ type Node struct {
 	UrlPath
 	paginator     *pager
 	paginatorInit sync.Once
+	scratch       *Scratch
 }
 
 func (n *Node) Now() time.Time {
@@ -123,4 +124,12 @@ type UrlPath struct {
 	Permalink template.HTML
 	Slug      string
 	Section   string
+}
+
+// Scratch returns the writable context associated with this Node.
+func (n *Node) Scratch() *Scratch {
+	if n.scratch == nil {
+		n.scratch = newScratch()
+	}
+	return n.scratch
 }
