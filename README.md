@@ -51,7 +51,7 @@ is the most probable location.
 #### Dependencies
 
 * Git
-* Go 1.1+
+* Go 1.1+ (Go 1.4+ on Windows, see Go [Issue #8090](https://code.google.com/p/go/issues/detail?id=8090))
 * Mercurial
 * Bazaar
 
