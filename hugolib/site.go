@@ -160,8 +160,6 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string = ""
 
 	if refUrl.Path != "" {
-		var target *Page
-
 		for _, page := range []*Page(*s.Pages) {
 			if page.Source.Path() == refUrl.Path || page.Source.LogicalName() == refUrl.Path {
 				target = page
@@ -187,7 +185,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	if refUrl.Fragment != "" {
 		link = link + "#" + refUrl.Fragment
 
-		if refUrl.Path != "" {
+		if refUrl.Path != "" && target != nil {
 			link = link + ":" + target.UniqueId()
 		} else if page != nil {
 			link = link + ":" + page.UniqueId()
