@@ -56,6 +56,7 @@ func TestPageCount(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("uglyurls", false)
+	viper.Set("paginate", 10)
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: urlFakeSource},
 	}

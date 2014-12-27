@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"html/template"
+	"sync"
 	"time"
 )
 
@@ -30,6 +31,8 @@ type Node struct {
 	Date        time.Time
 	Sitemap     Sitemap
 	UrlPath
+	paginator     *pager
+	paginatorInit sync.Once
 }
 
 func (n *Node) Now() time.Time {

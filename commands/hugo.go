@@ -136,6 +136,8 @@ func InitializeConfig() {
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
+	viper.SetDefault("Paginate", 0)
+	viper.SetDefault("PaginatePath", "page")
 	viper.SetDefault("Blackfriday", new(helpers.Blackfriday))
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
