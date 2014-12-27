@@ -437,3 +437,28 @@ func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	_, err = io.Copy(file, r)
 	return
 }
+
+// GetTempDir returns the OS default temp directory with trailing slash
+// if subPath is not empty then it will be created recursively
+func GetTempDir(subPath string, fs afero.Fs) string {
+	dir := os.TempDir()
+	if FilePathSeparator != dir[len(dir)-1:] {
+		dir = dir + FilePathSeparator
+	}
+	if subPath != "" {
+		dir = dir + MakePath(subPath)
+
+		if exists, _ := Exists(dir, fs); exists {
+			return dir
+		}
+
+		err := fs.MkdirAll(dir, 0777) // rwx, rw, r
+		if err != nil {
+			panic(err)
+		}
+		if FilePathSeparator != dir[len(dir)-1:] {
+			dir = dir + FilePathSeparator
+		}
+	}
+	return dir
+}

@@ -56,7 +56,7 @@ var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
 var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
-var Source, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
+var Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
@@ -83,6 +83,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "$TMPDIR/hugo_cache/", "filesystem path to cache directory")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
@@ -201,6 +202,15 @@ func InitializeConfig() {
 	} else {
 		dir, _ := os.Getwd()
 		viper.Set("WorkingDir", dir)
+	}
+
+	if CacheDir != "" {
+		if helpers.FilePathSeparator != CacheDir[len(CacheDir)-1:] {
+			CacheDir = CacheDir + helpers.FilePathSeparator
+		}
+		viper.Set("CacheDir", CacheDir)
+	} else {
+		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
 	}
 
 	if VerboseLog || Logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
