@@ -446,7 +446,14 @@ func GetTempDir(subPath string, fs afero.Fs) string {
 		dir = dir + FilePathSeparator
 	}
 	if subPath != "" {
+		// preserve windows backslash :-(
+		if FilePathSeparator == "\\" {
+			subPath = strings.Replace(subPath, "\\", "____", -1)
+		}
 		dir = dir + MakePath(subPath)
+		if FilePathSeparator == "\\" {
+			dir = strings.Replace(dir, "____", "\\", -1)
+		}
 
 		if exists, _ := Exists(dir, fs); exists {
 			return dir
