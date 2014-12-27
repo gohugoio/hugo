@@ -116,6 +116,8 @@ func New() Template {
 		"partial":     Partial,
 		"ref":         Ref,
 		"relref":      RelRef,
+		"getJson":     GetJson,
+		"getCsv":      GetCsv,
 	}
 
 	templates.Funcs(funcMap)
