@@ -16,6 +16,7 @@ package helpers
 import (
 	"fmt"
 	"github.com/PuerkitoBio/purell"
+	"github.com/spf13/viper"
 	"net/url"
 	"path"
 	"strings"
@@ -95,6 +96,10 @@ func AddContextRoot(baseUrl, relativePath string) string {
 		newPath += "/"
 	}
 	return newPath
+}
+
+func UrlizeAndPrep(in string) string {
+	return UrlPrep(viper.GetBool("UglyUrls"), Urlize(in))
 }
 
 func UrlPrep(ugly bool, in string) string {
