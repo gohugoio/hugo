@@ -72,10 +72,10 @@ Hugo boasts the following features:
 
 ### Additional Features
 
-  * Integrated Disqus comment support
+  * Integrated [Disqus](https://disqus.com/) comment support
   * Automatic [RSS](/layout/rss) creation
-  * Support for Go and [Amber](https://github.com/eknkc/amber) templates
-  * Syntax [highlighting](/extras/highlighting) powered by pygments
+  * Support for [Go](http://golang.org/pkg/html/template/) and [Amber](https://github.com/eknkc/amber) HTML templates
+  * Syntax [highlighting](/extras/highlighting) powered by [Pygments](http://pygments.org/)
 
 See what's coming next in the [roadmap](/meta/roadmap).
 
