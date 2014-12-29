@@ -66,6 +66,19 @@ e.g.
        {{ .Content}}
     {{ end }}
 
+It can be used with dot chaining second argument to refer a nested element of a value.
+
+e.g.
+
+    // Front matter on some pages
+    +++
+    series: golang
+    +++
+
+    {{ range where .Site.Recent "Params.series" "golang" }}
+       {{ .Content}}
+    {{ end }}
+
 *where and first can be stacked*
 
 e.g.
