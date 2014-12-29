@@ -136,6 +136,7 @@ func InitializeConfig() {
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
+	viper.SetDefault("StaticRelativePath", "")
 	viper.SetDefault("Blackfriday", map[string]bool{"angledQuotes": false})
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
@@ -238,7 +239,7 @@ func copyStatic() error {
 		return nil
 	}
 
-	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/" + viper.GetString("StaticRelativePath")
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
