@@ -112,7 +112,7 @@ func TestDoArithmetic(t *testing.T) {
 		result, err := doArithmetic(this.a, this.b, this.op)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error")
+				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
@@ -147,7 +147,7 @@ func TestMod(t *testing.T) {
 		result, err := Mod(this.a, this.b)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] modulo didn't return an expected error")
+				t.Errorf("[%d] modulo didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
@@ -187,7 +187,7 @@ func TestModBool(t *testing.T) {
 		result, err := ModBool(this.a, this.b)
 		if this.expect == nil {
 			if err == nil {
-				t.Errorf("[%d] modulo didn't return an expected error")
+				t.Errorf("[%d] modulo didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
@@ -218,7 +218,7 @@ func TestFirst(t *testing.T) {
 		results, err := First(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] First didn't return an expected error")
+				t.Errorf("[%d] First didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
