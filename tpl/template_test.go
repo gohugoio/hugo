@@ -1,6 +1,8 @@
 package tpl
 
 import (
+	"errors"
+	"fmt"
 	"html/template"
 	"reflect"
 	"testing"
@@ -305,14 +307,95 @@ func (x TstX) TstRv() string {
 	return "r" + x.B
 }
 
+func (x TstX) unexportedMethod() string {
+	return x.unexported
+}
+
+func (x TstX) MethodWithArg(s string) string {
+	return s
+}
+
+func (x TstX) MethodReturnNothing() {}
+
+func (x TstX) MethodReturnErrorOnly() error {
+	return errors.New("something error occured")
+}
+
+func (x TstX) MethodReturnTwoValues() (string, string) {
+	return "foo", "bar"
+}
+
+func (x TstX) MethodReturnValueWithError() (string, error) {
+	return "", errors.New("something error occured")
+}
+
+func (x TstX) String() string {
+	return fmt.Sprintf("A: %s, B: %s", x.A, x.B)
+}
+
 type TstX struct {
 	A, B string
+	unexported string
+}
+
+func TestEvaluateSubElem(t *testing.T) {
+	tstx := TstX{A: "foo", B: "bar"}
+	var inner struct {
+		S fmt.Stringer
+	}
+	inner.S = tstx
+	interfaceValue := reflect.ValueOf(&inner).Elem().Field(0)
+
+	for i, this := range []struct {
+		value  reflect.Value
+		key    string
+		expect interface{}
+	}{
+		{reflect.ValueOf(tstx), "A", "foo"},
+		{reflect.ValueOf(&tstx), "TstRp", "rfoo"},
+		{reflect.ValueOf(tstx), "TstRv", "rbar"},
+		//{reflect.ValueOf(map[int]string{1: "foo", 2: "bar"}), 1, "foo"},
+		{reflect.ValueOf(map[string]string{"key1": "foo", "key2": "bar"}), "key1", "foo"},
+		{interfaceValue, "String", "A: foo, B: bar"},
+		{reflect.Value{}, "foo", false},
+		//{reflect.ValueOf(map[int]string{1: "foo", 2: "bar"}), 1.2, false},
+		{reflect.ValueOf(tstx), "unexported", false},
+		{reflect.ValueOf(tstx), "unexportedMethod", false},
+		{reflect.ValueOf(tstx), "MethodWithArg", false},
+		{reflect.ValueOf(tstx), "MethodReturnNothing", false},
+		{reflect.ValueOf(tstx), "MethodReturnErrorOnly", false},
+		{reflect.ValueOf(tstx), "MethodReturnTwoValues", false},
+		{reflect.ValueOf(tstx), "MethodReturnValueWithError", false},
+		{reflect.ValueOf((*TstX)(nil)), "A", false},
+		{reflect.ValueOf(tstx), "C", false},
+		{reflect.ValueOf(map[int]string{1: "foo", 2: "bar"}), "1", false},
+		{reflect.ValueOf([]string{"foo", "bar"}), "1", false},
+	} {
+		result, err := evaluateSubElem(this.value, this.key)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] evaluateSubElem didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if result.Kind() != reflect.String || result.String() != this.expect {
+				t.Errorf("[%d] evaluateSubElem with %v got %v but expected %v", i, this.key, result, this.expect)
+			}
+		}
+	}
 }
 
 func TestWhere(t *testing.T) {
 	// TODO(spf): Put these page tests back in
 	//page1 := &Page{contentType: "v", Source: Source{File: *source.NewFile("/x/y/z/source.md")}}
 	//page2 := &Page{contentType: "w", Source: Source{File: *source.NewFile("/y/z/a/source.md")}}
+
+	type Mid struct {
+		Tst TstX
+	}
 
 	for i, this := range []struct {
 		sequence interface{}
@@ -322,21 +405,37 @@ func TestWhere(t *testing.T) {
 	}{
 		{[]map[int]string{{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"}}, 2, "m", []map[int]string{{1: "a", 2: "m"}}},
 		{[]map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4}}, "b", 4, []map[string]int{{"a": 3, "b": 4}}},
-		{[]TstX{{"a", "b"}, {"c", "d"}, {"e", "f"}}, "B", "f", []TstX{{"e", "f"}}},
+		{[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}}, "B", "f", []TstX{{A: "e", B: "f"}}},
 		{[]*map[int]string{&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"}}, 2, "m", []*map[int]string{&map[int]string{1: "a", 2: "m"}}},
-		{[]*TstX{&TstX{"a", "b"}, &TstX{"c", "d"}, &TstX{"e", "f"}}, "B", "f", []*TstX{&TstX{"e", "f"}}},
-		{[]*TstX{&TstX{"a", "b"}, &TstX{"c", "d"}, &TstX{"e", "c"}}, "TstRp", "rc", []*TstX{&TstX{"c", "d"}}},
-		{[]TstX{TstX{"a", "b"}, TstX{"c", "d"}, TstX{"e", "c"}}, "TstRv", "rc", []TstX{TstX{"e", "c"}}},
+		{[]*TstX{&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "f"}}, "B", "f", []*TstX{&TstX{A: "e", B: "f"}}},
+		{[]*TstX{&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "c"}}, "TstRp", "rc", []*TstX{&TstX{A: "c", B: "d"}}},
+		{[]TstX{TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "c"}}, "TstRv", "rc", []TstX{TstX{A: "e", B: "c"}}},
+		{[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}}, "foo.B", "d", []map[string]TstX{{"foo": TstX{A: "c", B: "d"}}}},
+		{[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}}, ".foo.B", "d", []map[string]TstX{{"foo": TstX{A: "c", B: "d"}}}},
+		{[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}}, "foo.TstRv", "rd", []map[string]TstX{{"foo": TstX{A: "c", B: "d"}}}},
+		{[]map[string]*TstX{{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}}}, "foo.TstRp", "rc", []map[string]*TstX{{"foo": &TstX{A: "c", B: "d"}}}},
+		{[]map[string]Mid{{"foo": Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": Mid{Tst: TstX{A: "e", B: "f"}}}}, "foo.Tst.B", "d", []map[string]Mid{{"foo": Mid{Tst: TstX{A: "c", B: "d"}}}}},
+		{[]map[string]Mid{{"foo": Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": Mid{Tst: TstX{A: "e", B: "f"}}}}, "foo.Tst.TstRv", "rd", []map[string]Mid{{"foo": Mid{Tst: TstX{A: "c", B: "d"}}}}},
+		{[]map[string]*Mid{{"foo": &Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": &Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": &Mid{Tst: TstX{A: "e", B: "f"}}}}, "foo.Tst.TstRp", "rc", []map[string]*Mid{{"foo": &Mid{Tst: TstX{A: "c", B: "d"}}}}},
+		{(*[]TstX)(nil), "A", "a", false},
+		{TstX{A: "a", B: "b"}, "A", "a", false},
+		{[]map[string]*TstX{{"foo": nil}}, "foo.B", "d", false},
 		//{[]*Page{page1, page2}, "Type", "v", []*Page{page1}},
 		//{[]*Page{page1, page2}, "Section", "y", []*Page{page2}},
 	} {
 		results, err := Where(this.sequence, this.key, this.match)
-		if err != nil {
-			t.Errorf("[%d] failed: %s", i, err)
-			continue
-		}
-		if !reflect.DeepEqual(results, this.expect) {
-			t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, this.key, this.match, results, this.expect)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Where didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(results, this.expect) {
+				t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, this.key, this.match, results, this.expect)
+			}
 		}
 	}
 }
