@@ -317,14 +317,9 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 	}
 
 	seqv := reflect.ValueOf(seq)
-	// this is better than my first pass; ripped from text/template/exec.go indirect():
-	for ; seqv.Kind() == reflect.Ptr || seqv.Kind() == reflect.Interface; seqv = seqv.Elem() {
-		if seqv.IsNil() {
-			return nil, errors.New("can't iterate over a nil value")
-		}
-		if seqv.Kind() == reflect.Interface && seqv.NumMethod() > 0 {
-			break
-		}
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
 	}
 
 	switch seqv.Kind() {
@@ -477,13 +472,9 @@ func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 	}
 
 	seqv := reflect.ValueOf(seq)
-	for ; seqv.Kind() == reflect.Ptr || seqv.Kind() == reflect.Interface; seqv = seqv.Elem() {
-		if seqv.IsNil() {
-			return "", errors.New("can't iterate over a nil value")
-		}
-		if seqv.Kind() == reflect.Interface && seqv.NumMethod() > 0 {
-			break
-		}
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return "", errors.New("can't iterate over a nil value")
 	}
 
 	var str string
@@ -521,13 +512,9 @@ func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 
 func Sort(seq interface{}, args ...interface{}) ([]interface{}, error) {
 	seqv := reflect.ValueOf(seq)
-	for ; seqv.Kind() == reflect.Ptr || seqv.Kind() == reflect.Interface; seqv = seqv.Elem() {
-		if seqv.IsNil() {
-			return nil, errors.New("can't iterate over a nil value")
-		}
-		if seqv.Kind() == reflect.Interface && seqv.NumMethod() > 0 {
-			break
-		}
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
 	}
 
 	// Create a list of pairs that will be used to do the sort
