@@ -4,9 +4,9 @@ menu:
   main:
     parent: extras
 next: /extras/menus
-prev: /extras/comments
+prev: /extras/crossreferences
 title: Live Reload
-weight: 15
+weight: 50
 ---
 
 Hugo may not be the first static site generator to utilize live reload

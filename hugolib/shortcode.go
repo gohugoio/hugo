@@ -41,6 +41,14 @@ type ShortcodeWithPage struct {
 	Page   *Page
 }
 
+func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
+	return scp.Page.Ref(ref)
+}
+
+func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
+	return scp.Page.RelRef(ref)
+}
+
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if reflect.ValueOf(scp.Params).Len() == 0 {
 		return nil
@@ -120,7 +128,6 @@ func (sc shortcode) String() string {
 // all in  one go: extract, render and replace
 // only used for testing
 func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
-
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
 
 	if len(tmpShortcodes) > 0 {
@@ -153,7 +160,7 @@ func isInnerShortcode(t *template.Template) bool {
 }
 
 func createShortcodePlaceholder(id int) string {
-	return fmt.Sprintf("<div>%s-%d</div>", shortcodePlaceholderPrefix, id)
+	return fmt.Sprintf("{@{@%s-%d@}@}", shortcodePlaceholderPrefix, id)
 }
 
 func renderShortcodes(sc shortcode, p *Page, t tpl.Template) string {
@@ -170,6 +177,10 @@ func renderShortcodes(sc shortcode, p *Page, t tpl.Template) string {
 	}
 	return shortcodes
 }
+
+const innerNewlineRegexp = "\n"
+const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
+const innerCleanupExpand = "$1"
 
 func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt int, p *Page, t tpl.Template) string {
 	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
@@ -201,7 +212,35 @@ func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt 
 		}
 
 		if sc.doMarkup {
-			data.Inner = template.HTML(helpers.RenderBytes([]byte(inner), p.guessMarkupType(), p.UniqueId()))
+			newInner := helpers.RenderBytes(helpers.RenderingContext{
+				Content: []byte(inner), PageFmt: p.guessMarkupType(),
+				DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
+
+			// If the type is “unknown” or “markdown”, we assume the markdown
+			// generation has been performed. Given the input: `a line`, markdown
+			// specifies the HTML `<p>a line</p>\n`. When dealing with documents as a
+			// whole, this is OK. When dealing with an `{{ .Inner }}` block in Hugo,
+			// this is not so good. This code does two things:
+			//
+			// 1.  Check to see if inner has a newline in it. If so, the Inner data is
+			//     unchanged.
+			// 2   If inner does not have a newline, strip the wrapping <p> block and
+			//     the newline. This was previously tricked out by wrapping shortcode
+			//     substitutions in <div>HUGOSHORTCODE-1</div> which prevents the
+			//     generation, but means that you can’t use shortcodes inside of
+			//     markdown structures itself (e.g., `[foo]({{% ref foo.md %}})`).
+			switch p.guessMarkupType() {
+			case "unknown", "markdown":
+				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
+					cleaner, err := regexp.Compile(innerCleanupRegexp)
+
+					if err == nil {
+						newInner = cleaner.ReplaceAll(newInner, []byte(innerCleanupExpand))
+					}
+				}
+			}
+
+			data.Inner = template.HTML(newInner)
 		} else {
 			data.Inner = template.HTML(inner)
 		}
@@ -401,8 +440,8 @@ Loop:
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
 // This assumes that all tokens exist in the input string and that they are in order.
 // numReplacements = -1 will do len(replacements), and it will always start from the beginning (1)
-// wrappendInDiv = true means that the token is wrapped in a <div></div>
-func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, wrappedInDiv bool, replacements map[string]string) ([]byte, error) {
+// wrapped = true means that the token has been wrapped in {@{@/@}@}
+func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, wrapped bool, replacements map[string]string) ([]byte, error) {
 
 	if numReplacements < 0 {
 		numReplacements = len(replacements)
@@ -417,8 +456,8 @@ func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, w
 	for i := 1; i <= numReplacements; i++ {
 		key := prefix + "-" + strconv.Itoa(i)
 
-		if wrappedInDiv {
-			key = "<div>" + key + "</div>"
+		if wrapped {
+			key = "{@{@" + key + "@}@}"
 		}
 		val := []byte(replacements[key])
 
@@ -433,16 +472,17 @@ func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, w
 	for i := 0; i < numReplacements; i++ {
 		tokenNum := i + 1
 		oldVal := prefix + "-" + strconv.Itoa(tokenNum)
-		if wrappedInDiv {
-			oldVal = "<div>" + oldVal + "</div>"
+		if wrapped {
+			oldVal = "{@{@" + oldVal + "@}@}"
 		}
 		newVal := []byte(replacements[oldVal])
 		j := start
 
 		k := bytes.Index(source[start:], []byte(oldVal))
+
 		if k < 0 {
 			// this should never happen, but let the caller decide to panic or not
-			return nil, fmt.Errorf("illegal state in content; shortcode token #%d is missing or out of order", tokenNum)
+			return nil, fmt.Errorf("illegal state in content; shortcode token #%d is missing or out of order (%q)", tokenNum, source)
 		}
 		j += k
 

@@ -19,6 +19,8 @@ type Tmpl struct {
 }
 
 func (t *GoHtmlTemplate) EmbedShortcodes() {
+	t.AddInternalShortcode("ref.html", `{{ .Get 0 | ref .Page }}`)
+	t.AddInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
 	t.AddInternalShortcode("highlight.html", `{{ .Get 0 | highlight .Inner  }}`)
 	t.AddInternalShortcode("test.html", `This is a simple Test`)
 	t.AddInternalShortcode("figure.html", `<!-- image -->
@@ -93,5 +95,84 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`)
+
+	// Add SEO & Social metadata
+	t.AddInternalTemplate("_default", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
+<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}" />
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
+<meta property="og:url" content="{{ .Permalink }}" />
+{{ with .Params.images }}{{ range first 6 . }}
+  <meta property="og:image" content="{{ . }}" />
+{{ end }}{{ end }}
+
+<meta property="og:updated_time" content="{{ .Date }}"/>{{ with .Params.audio }}
+<meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
+<meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
+<meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
+{{ range .Params.videos }}
+  <meta property="og:video" content="{{ . }}" />
+{{ end }}
+
+<!-- If it is part of a series, link to related articles -->
+{{ $permalink := .Permalink }}
+{{ $siteSeries := .Site.Taxonomies.series }}{{ with .Params.series }}
+{{ range $name := . }}
+  {{ $series := index $siteSeries $name }}
+  {{ range $page := first 6 $series.Pages }}
+    {{ if ne $page.Permalink $permalink }}<meta property="og:see_also" content="{{ $page.Permalink }}" />{{ end }}
+  {{ end }}
+{{ end }}{{ end }}
+
+{{ if .IsPage }}
+{{ range .Site.Authors }}{{ with .Social.facebook }}
+<meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ with .Site.Social.facebook }}
+<meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
+<meta property="article:published_time" content="{{ .PublishDate }}" />
+<meta property="article:modified_time" content="{{ .Date }}" />
+<meta property="article:section" content="{{ .Section }}" />
+{{ with .Params.tags }}{{ range first 6 . }}
+  <meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
+{{ end }}
+
+<!-- Facebook Page Admin ID for Domain Insights -->
+{{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`)
+
+	t.AddInternalTemplate("_default", "twitter_cards.html", `{{ if .IsPage }}
+{{ with .Params.images }}
+<!-- Twitter summary card with large image must be at least 280x150px -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:image:src" content="{{ index . 0 }}"/>
+{{ else }}
+  <meta name="twitter:card" content="summary"/>
+{{ end }}
+
+<!-- Twitter Card data -->
+<meta name="twitter:title" content="{{ .Title }}"/>
+<meta name="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}"/>
+{{ with .Site.Social.twitter }}<meta name="twitter:site" content="@{{ . }}"/>{{ end }}
+{{ with .Site.Social.twitter_domain }}<meta name="twitter:domain" content="{{ . }}"/>{{ end }}
+{{ range .Site.Authors }}
+  {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
+{{ end }}{{ end }}`)
+
+	t.AddInternalTemplate("_default", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
+  <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
+{{ end }}{{ end }}`)
+
+	t.AddInternalTemplate("_default", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
+<meta itemprop="name" content="{{ .Title }}">
+<meta itemprop="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}">
+
+{{if .IsPage}}
+<meta itemprop="datePublished" content="{{ .PublishDate }}" />
+<meta itemprop="dateModified" content="{{ .Date }}" />
+<meta itemprop="wordCount" content="{{ .WordCount }}">
+{{ with .Params.images }}{{ range first 6 . }}
+  <meta itemprop="image" content="{{ . }}">
+{{ end }}{{ end }}
+
+<!-- Output all taxonomies as schema.org keywords -->
+<meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
+{{ end }}{{ end }}`)
 
 }

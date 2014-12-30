@@ -44,7 +44,7 @@ var serverCmd = &cobra.Command{
 	Short: "Hugo runs its own webserver to render the files",
 	Long: `Hugo is able to run its own high performance web server.
 Hugo will render all the files defined in the source directory and
-Serve them up.`,
+serve them up.`,
 	//Run: server,
 }
 

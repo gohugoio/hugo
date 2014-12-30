@@ -66,6 +66,19 @@ e.g.
        {{ .Content}}
     {{ end }}
 
+It can be used with dot chaining second argument to refer a nested element of a value.
+
+e.g.
+
+    // Front matter on some pages
+    +++
+    series: golang
+    +++
+
+    {{ range where .Site.Recent "Params.series" "golang" }}
+       {{ .Content}}
+    {{ end }}
+
 *where and first can be stacked*
 
 e.g.
@@ -73,6 +86,73 @@ e.g.
     {{ range first 5 (where .Data.Pages "Section" "post") }}
        {{ .Content}}
     {{ end }}
+
+### delimit
+Loops through any array, slice or map and returns a string of all the values separated by the delimiter. There is an optional third parameter that lets you choose a different delimiter to go between the last two values.
+Maps will be sorted by the keys, and only a slice of the values will be returned, keeping a consistent output order.
+
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
+e.g.
+    // Front matter
+    +++
+    tags: [ "tag1", "tag2", "tag3" ]
+    +++
+
+    // Used anywhere in a template
+    Tags: {{ delimit .Params.tags ", " }}
+
+    // Outputs Tags: tag1, tag2, tag3
+
+    // Example with the optional "last" parameter
+    Tags: {{ delimit .Params.tags ", " " and " }}
+
+    // Outputs Tags: tag1, tag2 and tag3
+
+### sort
+Sorts maps, arrays and slices, returning a sorted slice. A sorted array of map values will be returned, with the keys eliminated. There are two optional arguments, which are `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order.
+
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
+e.g.
+    // Front matter
+    +++
+    tags: [ "tag3", "tag1", "tag2" ]
+    +++
+
+    // Site config
+    +++
+    [params.authors]
+      [params.authors.Derek]
+        "firstName"  = "Derek"
+        "lastName"   = "Perkins"
+      [params.authors.Joe]
+        "firstName"  = "Joe"
+        "lastName"   = "Bergevin"
+      [params.authors.Tanner]
+        "firstName"  = "Tanner"
+        "lastName"   = "Linsley"
+    +++
+
+    // Use default sort options - sort by key / ascending
+    Tags: {{ range sort .Params.tags }}{{ . }} {{ end }}
+
+    // Outputs Tags: tag1 tag2 tag3
+
+    // Sort by value / descending
+    Tags: {{ range sort .Params.tags "value" "desc" }}{{ . }} {{ end }}
+
+    // Outputs Tags: tag3 tag2 tag1
+
+    // Use default sort options - sort by value / descending
+    Authors: {{ range sort .Site.Params.authors }}{{ .firstName }} {{ end }}
+
+    // Outputs Authors: Derek Joe Tanner
+
+    // Use default sort options - sort by value / descending
+    Authors: {{ range sort .Site.Params.authors "lastName" "desc" }}{{ .lastName }} {{ end }}
+
+    // Outputs Authors: Perkins Linsley Bergevin
 
 ### in
 Checks if an element is in an array (or slice) and returns a boolean.  The elements supported are strings, integers and floats (only float64 will match as expected).  In addition, it can also check if a substring exists in a string.
@@ -174,4 +254,10 @@ e.g. `{{title "BatMan"}}` → "Batman"
 
 ### highlight
 Take a string of code and a language, uses Pygments to return the syntax
-highlighted code in HTML. Used in the [highlight shortcode](/extras/highlighting).
+highlighted code in HTML. Used in the [highlight
+shortcode](/extras/highlighting).
+
+### ref, relref
+Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
+
+e.g. {{ ref . "about.md" }}
