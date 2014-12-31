@@ -105,6 +105,7 @@ type SiteInfo struct {
 	Permalinks      PermalinkOverrides
 	Params          map[string]interface{}
 	BuildDrafts     bool
+	SummaryStrategy string
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -367,6 +368,7 @@ func (s *Site) initializeSiteInfo() {
 		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
+		SummaryStrategy: viper.GetString("Summerization"),
 	}
 }
 

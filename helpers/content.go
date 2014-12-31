@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"html/template"
 	"os/exec"
+	"regexp"
 
 	"github.com/russross/blackfriday"
 	"github.com/spf13/viper"
@@ -243,6 +244,12 @@ func TruncateWordsToWholeSentence(s string, max int) string {
 	}
 
 	return strings.Join(words[:max], " ")
+}
+
+// ExtractFirstParagraph takes the content
+// and returns the first paragraph of the html content.
+func ExtractFirstParagraph(content string) string {
+	return regexp.MustCompile("<h[123456]").Split(content, 2)[0]
 }
 
 // GetRstContent calls the Python script rst2html as an external helper
