@@ -17,7 +17,7 @@ func TestFixUrl(t *testing.T) {
 	}
 	tests := []data{
 		{"Basic http localhost", "", "http://foo.com", true, 1313, "http://localhost:1313"},
-		{"Basic https localhost", "", "https://foo.com", true, 1313, "https://localhost:1313"},
+		{"Basic https production, http localhost", "", "https://foo.com", true, 1313, "http://localhost:1313"},
 		{"Basic subdir", "", "http://foo.com/bar", true, 1313, "http://localhost:1313/bar"},
 		{"Basic production", "http://foo.com", "http://foo.com", false, 80, "http://foo.com"},
 		{"Production subdir", "http://foo.com/bar", "http://foo.com/bar", false, 80, "http://foo.com/bar"},
