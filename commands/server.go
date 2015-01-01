@@ -152,6 +152,7 @@ func fixUrl(s string) (string, error) {
 	if serverAppend {
 		if useLocalhost {
 			u.Host = fmt.Sprintf("localhost:%d", serverPort)
+			u.Scheme = "http"
 			return u.String(), nil
 		}
 		host := u.Host
