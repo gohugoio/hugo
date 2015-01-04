@@ -79,6 +79,25 @@ e.g.
        {{ .Content}}
     {{ end }}
 
+It can also be used with an operator like `!=`, `>=`, `in` etc. Without an operator (like above), `where` compares a given field with a matching value in a way like `=` is specified.
+
+e.g.
+
+    {{ range where .Data.Pages "Section" "!=" "post" }}
+       {{ .Content}}
+    {{ end }}
+
+Following operators are now available
+
+- `=`, `==`, `eq`: True if a given field value equals a matching value
+- `!=`, `<>`, `ne`: True if a given field value doesn't equal a matching value
+- `>=`, `ge`: True if a given field value is greater than or equal to a matching value
+- `>`, `gt`: True if a given field value is greater than a matching value
+- `<=`, `le`: True if a given field value is lesser than or equal to a matching value
+- `<`, `lt`: True if a given field value is lesser than a matching value
+- `in`: True if a given field value is included in a matching value. A matching value must be an array or a slice
+- `not in`: True if a given field value isn't included in a matching value. A matching value must be an array or a slice
+
 *where and first can be stacked*
 
 e.g.

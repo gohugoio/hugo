@@ -368,10 +368,141 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	return zero, fmt.Errorf("%s is neither a struct field, a method nor a map element of type %s", elemName, typ)
 }
 
-func Where(seq, key, match interface{}) (r interface{}, err error) {
+func checkCondition(v, mv reflect.Value, op string) (bool, error) {
+	if !v.IsValid() || !mv.IsValid() {
+		return false, nil
+	}
+
+	var isNil bool
+	v, isNil = indirect(v)
+	if isNil {
+		return false, nil
+	}
+	mv, isNil = indirect(mv)
+	if isNil {
+		return false, nil
+	}
+
+	var ivp, imvp *int64
+	var svp, smvp *string
+	var ima []int64
+	var sma []string
+	if mv.Type() == v.Type() {
+		switch v.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			iv := v.Int()
+			ivp = &iv
+			imv := mv.Int()
+			imvp = &imv
+		case reflect.String:
+			sv := v.String()
+			svp = &sv
+			smv := mv.String()
+			smvp = &smv
+		}
+	} else {
+		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
+			return false, nil
+		}
+		if mv.Type().Elem() != v.Type() {
+			return false, nil
+		}
+		switch v.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			iv := v.Int()
+			ivp = &iv
+			for i := 0; i < mv.Len(); i++ {
+				ima = append(ima, mv.Index(i).Int())
+			}
+		case reflect.String:
+			sv := v.String()
+			svp = &sv
+			for i := 0; i < mv.Len(); i++ {
+				sma = append(sma, mv.Index(i).String())
+			}
+		}
+	}
+
+	switch op {
+	case "", "=", "==", "eq":
+		if ivp != nil && imvp != nil {
+			return *ivp == *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp == *smvp, nil
+		}
+	case "!=", "<>", "ne":
+		if ivp != nil && imvp != nil {
+			return *ivp != *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp != *smvp, nil
+		}
+	case ">=", "ge":
+		if ivp != nil && imvp != nil {
+			return *ivp >= *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp >= *smvp, nil
+		}
+	case ">", "gt":
+		if ivp != nil && imvp != nil {
+			return *ivp > *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp > *smvp, nil
+		}
+	case "<=", "le":
+		if ivp != nil && imvp != nil {
+			return *ivp <= *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp <= *smvp, nil
+		}
+	case "<", "lt":
+		if ivp != nil && imvp != nil {
+			return *ivp < *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp < *smvp, nil
+		}
+	case "in", "not in":
+		var r bool
+		if ivp != nil && len(ima) > 0 {
+			r = In(ima, *ivp)
+		} else if svp != nil {
+			if len(sma) > 0 {
+				r = In(sma, *svp)
+			} else if smvp != nil {
+				r = In(*smvp, *svp)
+			}
+		} else {
+			return false, nil
+		}
+		if op == "not in" {
+			return !r, nil
+		} else {
+			return r, nil
+		}
+	default:
+		return false, errors.New("no such an operator")
+	}
+	return false, nil
+}
+
+func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error) {
 	seqv := reflect.ValueOf(seq)
 	kv := reflect.ValueOf(key)
-	mv := reflect.ValueOf(match)
+
+	var mv reflect.Value
+	var op string
+	switch len(args) {
+	case 1:
+		mv = reflect.ValueOf(args[0])
+	case 2:
+		var ok bool
+		if op, ok = args[0].(string); !ok {
+			return nil, errors.New("operator argument must be string type")
+		}
+		op = strings.TrimSpace(strings.ToLower(op))
+		mv = reflect.ValueOf(args[1])
+	default:
+		return nil, errors.New("can't evaluate the array by no match argument or more than or equal to two arguments")
+	}
 
 	seqv, isNil := indirect(seqv)
 	if isNil {
@@ -403,17 +534,10 @@ func Where(seq, key, match interface{}) (r interface{}, err error) {
 					vvv = vv.MapIndex(kv)
 				}
 			}
-			if vvv.IsValid() && mv.Type() == vvv.Type() {
-				switch mv.Kind() {
-				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-					if mv.Int() == vvv.Int() {
-						rv = reflect.Append(rv, rvv)
-					}
-				case reflect.String:
-					if mv.String() == vvv.String() {
-						rv = reflect.Append(rv, rvv)
-					}
-				}
+			if ok, err := checkCondition(vvv, mv, op); ok {
+				rv = reflect.Append(rv, rvv)
+			} else if err != nil {
+				return nil, err
 			}
 		}
 		return rv.Interface(), nil

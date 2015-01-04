@@ -334,7 +334,7 @@ func (x TstX) String() string {
 }
 
 type TstX struct {
-	A, B string
+	A, B       string
 	unexported string
 }
 
@@ -388,6 +388,62 @@ func TestEvaluateSubElem(t *testing.T) {
 	}
 }
 
+func TestCheckCondition(t *testing.T) {
+	type expect struct {
+		result  bool
+		isError bool
+	}
+
+	for i, this := range []struct {
+		value reflect.Value
+		match reflect.Value
+		op    string
+		expect
+	}{
+		{reflect.ValueOf(123), reflect.ValueOf(123), "", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf("foo"), "", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf(456), "!=", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), "!=", expect{true, false}},
+		{reflect.ValueOf(456), reflect.ValueOf(123), ">=", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">=", expect{true, false}},
+		{reflect.ValueOf(456), reflect.ValueOf(123), ">", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf(456), "<=", expect{true, false}},
+		{reflect.ValueOf("bar"), reflect.ValueOf("foo"), "<=", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf(456), "<", expect{true, false}},
+		{reflect.ValueOf("bar"), reflect.ValueOf("foo"), "<", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]int{123, 45, 678}), "in", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"foo", "bar", "baz"}), "in", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"bar", "baz"}), "not in", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf("bar-foo-baz"), "in", expect{true, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf("bar--baz"), "not in", expect{true, false}},
+		{reflect.Value{}, reflect.ValueOf("foo"), "", expect{false, false}},
+		{reflect.ValueOf("foo"), reflect.Value{}, "", expect{false, false}},
+		{reflect.ValueOf((*TstX)(nil)), reflect.ValueOf("foo"), "", expect{false, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf((*TstX)(nil)), "", expect{false, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf(map[int]string{}), "", expect{false, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf([]int{1, 2}), "", expect{false, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "in", expect{false, false}},
+		{reflect.ValueOf(123), reflect.ValueOf(123), "op", expect{false, true}},
+	} {
+		result, err := checkCondition(this.value, this.match, this.op)
+		if this.expect.isError {
+			if err == nil {
+				t.Errorf("[%d] checkCondition didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if result != this.expect.result {
+				t.Errorf("[%d] check condition %v %s %v, got %v but expected %v", i, this.value, this.op, this.match, result, this.expect.result)
+			}
+		}
+	}
+}
+
 func TestWhere(t *testing.T) {
 	// TODO(spf): Put these page tests back in
 	//page1 := &Page{contentType: "v", Source: Source{File: *source.NewFile("/x/y/z/source.md")}}
@@ -400,30 +456,192 @@ func TestWhere(t *testing.T) {
 	for i, this := range []struct {
 		sequence interface{}
 		key      interface{}
+		op       string
 		match    interface{}
 		expect   interface{}
 	}{
-		{[]map[int]string{{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"}}, 2, "m", []map[int]string{{1: "a", 2: "m"}}},
-		{[]map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4}}, "b", 4, []map[string]int{{"a": 3, "b": 4}}},
-		{[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}}, "B", "f", []TstX{{A: "e", B: "f"}}},
-		{[]*map[int]string{&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"}}, 2, "m", []*map[int]string{&map[int]string{1: "a", 2: "m"}}},
-		{[]*TstX{&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "f"}}, "B", "f", []*TstX{&TstX{A: "e", B: "f"}}},
-		{[]*TstX{&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "c"}}, "TstRp", "rc", []*TstX{&TstX{A: "c", B: "d"}}},
-		{[]TstX{TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "c"}}, "TstRv", "rc", []TstX{TstX{A: "e", B: "c"}}},
-		{[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}}, "foo.B", "d", []map[string]TstX{{"foo": TstX{A: "c", B: "d"}}}},
-		{[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}}, ".foo.B", "d", []map[string]TstX{{"foo": TstX{A: "c", B: "d"}}}},
-		{[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}}, "foo.TstRv", "rd", []map[string]TstX{{"foo": TstX{A: "c", B: "d"}}}},
-		{[]map[string]*TstX{{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}}}, "foo.TstRp", "rc", []map[string]*TstX{{"foo": &TstX{A: "c", B: "d"}}}},
-		{[]map[string]Mid{{"foo": Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": Mid{Tst: TstX{A: "e", B: "f"}}}}, "foo.Tst.B", "d", []map[string]Mid{{"foo": Mid{Tst: TstX{A: "c", B: "d"}}}}},
-		{[]map[string]Mid{{"foo": Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": Mid{Tst: TstX{A: "e", B: "f"}}}}, "foo.Tst.TstRv", "rd", []map[string]Mid{{"foo": Mid{Tst: TstX{A: "c", B: "d"}}}}},
-		{[]map[string]*Mid{{"foo": &Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": &Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": &Mid{Tst: TstX{A: "e", B: "f"}}}}, "foo.Tst.TstRp", "rc", []map[string]*Mid{{"foo": &Mid{Tst: TstX{A: "c", B: "d"}}}}},
-		{(*[]TstX)(nil), "A", "a", false},
-		{TstX{A: "a", B: "b"}, "A", "a", false},
-		{[]map[string]*TstX{{"foo": nil}}, "foo.B", "d", false},
+		{
+			sequence: []map[int]string{
+				{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"},
+			},
+			key: 2, match: "m",
+			expect: []map[int]string{
+				{1: "a", 2: "m"},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4},
+			},
+			key: "b", match: 4,
+			expect: []map[string]int{
+				{"a": 3, "b": 4},
+			},
+		},
+		{
+			sequence: []TstX{
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
+			},
+			key: "B", match: "f",
+			expect: []TstX{
+				{A: "e", B: "f"},
+			},
+		},
+		{
+			sequence: []*map[int]string{
+				&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"},
+			},
+			key: 2, match: "m",
+			expect: []*map[int]string{
+				&map[int]string{1: "a", 2: "m"},
+			},
+		},
+		{
+			sequence: []*TstX{
+				&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "f"},
+			},
+			key: "B", match: "f",
+			expect: []*TstX{
+				&TstX{A: "e", B: "f"},
+			},
+		},
+		{
+			sequence: []*TstX{
+				&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "c"},
+			},
+			key: "TstRp", match: "rc",
+			expect: []*TstX{
+				&TstX{A: "c", B: "d"},
+			},
+		},
+		{
+			sequence: []TstX{
+				TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "c"},
+			},
+			key: "TstRv", match: "rc",
+			expect: []TstX{
+				TstX{A: "e", B: "c"},
+			},
+		},
+		{
+			sequence: []map[string]TstX{
+				{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}},
+			},
+			key: "foo.B", match: "d",
+			expect: []map[string]TstX{
+				{"foo": TstX{A: "c", B: "d"}},
+			},
+		},
+		{
+			sequence: []map[string]TstX{
+				{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}},
+			},
+			key: ".foo.B", match: "d",
+			expect: []map[string]TstX{
+				{"foo": TstX{A: "c", B: "d"}},
+			},
+		},
+		{
+			sequence: []map[string]TstX{
+				{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}},
+			},
+			key: "foo.TstRv", match: "rd",
+			expect: []map[string]TstX{
+				{"foo": TstX{A: "c", B: "d"}},
+			},
+		},
+		{
+			sequence: []map[string]*TstX{
+				{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}},
+			},
+			key: "foo.TstRp", match: "rc",
+			expect: []map[string]*TstX{
+				{"foo": &TstX{A: "c", B: "d"}},
+			},
+		},
+		{
+			sequence: []map[string]Mid{
+				{"foo": Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": Mid{Tst: TstX{A: "e", B: "f"}}},
+			},
+			key: "foo.Tst.B", match: "d",
+			expect: []map[string]Mid{
+				{"foo": Mid{Tst: TstX{A: "c", B: "d"}}},
+			},
+		},
+		{
+			sequence: []map[string]Mid{
+				{"foo": Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": Mid{Tst: TstX{A: "e", B: "f"}}},
+			},
+			key: "foo.Tst.TstRv", match: "rd",
+			expect: []map[string]Mid{
+				{"foo": Mid{Tst: TstX{A: "c", B: "d"}}},
+			},
+		},
+		{
+			sequence: []map[string]*Mid{
+				{"foo": &Mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": &Mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": &Mid{Tst: TstX{A: "e", B: "f"}}},
+			},
+			key: "foo.Tst.TstRp", match: "rc",
+			expect: []map[string]*Mid{
+				{"foo": &Mid{Tst: TstX{A: "c", B: "d"}}},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "b": 6},
+			},
+			key: "b", op: ">", match: 3,
+			expect: []map[string]int{
+				{"a": 3, "b": 4}, {"a": 5, "b": 6},
+			},
+		},
+		{
+			sequence: []TstX{
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
+			},
+			key: "B", op: "!=", match: "f",
+			expect: []TstX{
+				{A: "a", B: "b"}, {A: "c", B: "d"},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "in", match: []int{3, 4, 5},
+			expect: []map[string]int{
+				{"a": 3, "b": 4},
+			},
+		},
+		{
+			sequence: []TstX{
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
+			},
+			key: "B", op: "not in", match: []string{"c", "d", "e"},
+			expect: []TstX{
+				{A: "a", B: "b"}, {A: "e", B: "f"},
+			},
+		},
+		{sequence: (*[]TstX)(nil), key: "A", match: "a", expect: false},
+		{sequence: TstX{A: "a", B: "b"}, key: "A", match: "a", expect: false},
+		{sequence: []map[string]*TstX{{"foo": nil}}, key: "foo.B", match: "d", expect: false},
+		{
+			sequence: []TstX{
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
+			},
+			key: "B", op: "op", match: "f",
+			expect: false,
+		},
 		//{[]*Page{page1, page2}, "Type", "v", []*Page{page1}},
 		//{[]*Page{page1, page2}, "Section", "y", []*Page{page2}},
 	} {
-		results, err := Where(this.sequence, this.key, this.match)
+		var results interface{}
+		var err error
+		if len(this.op) > 0 {
+			results, err = Where(this.sequence, this.key, this.op, this.match)
+		} else {
+			results, err = Where(this.sequence, this.key, this.match)
+		}
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] Where didn't return an expected error", i)
@@ -437,6 +655,22 @@ func TestWhere(t *testing.T) {
 				t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, this.key, this.match, results, this.expect)
 			}
 		}
+	}
+
+	var err error
+	_, err = Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
+	if err == nil {
+		t.Errorf("Where called with none string op value didn't return an expected error")
+	}
+
+	_, err = Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
+	if err == nil {
+		t.Errorf("Where called with more than two variable arguments didn't return an expected error")
+	}
+
+	_, err = Where(map[string]int{"a": 1, "b": 2}, "a")
+	if err == nil {
+		t.Errorf("Where called with no variable arguments didn't return an expected error")
 	}
 }
 
