@@ -123,6 +123,8 @@ func InitializeConfig() {
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyUrls", false)
+	viper.SetDefault("DisableFootnoteAnchorPrefix", false)
+	viper.SetDefault("DisableHeaderIDSuffix", false)
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("CanonifyUrls", false)
 	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
