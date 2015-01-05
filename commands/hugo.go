@@ -123,8 +123,6 @@ func InitializeConfig() {
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyUrls", false)
-	viper.SetDefault("DisableFootnoteAnchorPrefix", false)
-	viper.SetDefault("DisableHeaderIDSuffix", false)
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("CanonifyUrls", false)
 	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
@@ -138,7 +136,7 @@ func InitializeConfig() {
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
-	viper.SetDefault("Blackfriday", map[string]bool{"angledQuotes": false})
+	viper.SetDefault("Blackfriday", map[string]bool{"angledQuotes": false, "documentIDAnchor": true})
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
