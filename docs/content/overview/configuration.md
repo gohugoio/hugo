@@ -73,14 +73,14 @@ But Hugo does expose some options -- in the table below matched with the corresp
 Flag | Default | Blackfriday flag | Purpose
 --- | --- | --- | ---
 angledQuotes | false | HTML_SMARTYPANTS_ANGLED_QUOTES |  Enable angled double quotes (`« »`)
-documentIDAnchor | true | FootnoteAnchorPrefix and HeaderIDSuffix |  Enable the prepending / appending of the unique document ID to the footnote and header anchor IDs
+plainIdAnchors | false | FootnoteAnchorPrefix and HeaderIDSuffix |  If true, then header and footnote IDs are generated without the document ID (so, `#my-header` instead of `#my-header:bec3ed8ba720b9073ab75abcf3ba5d97`)
 
 **Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.
 
 ```
 blackfriday:
   angledQuotes = true
-  documentIDAnchor = false
+  plainIdAnchors = true
 ```
 
 ## Notes
