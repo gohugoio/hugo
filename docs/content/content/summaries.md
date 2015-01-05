@@ -29,3 +29,14 @@ If the summary content divider exists within a piece of content, Hugo will split
 When using user-defined summaries, <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code>, Hugo will preserve the HTML in the summary.
 
 The summary content divider only applies to the content that it appears in.
+
+## Showing Summaries
+
+You can show content summaries with the following code. You could do this, for example, on a [list](/templates/list/) node.
+
+    {{ range first 10 .Data.Pages }}
+      <div class="summary">
+        <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+        {{ .Summary }}
+      </div>
+    {{ end }}
