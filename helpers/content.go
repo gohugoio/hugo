@@ -85,11 +85,8 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	if len(ctx.DocumentId) != 0 && !viper.GetBool("DisableFootnoteAnchorPrefix") {
+	if m, ok := ctx.ConfigFlags["documentIDAnchor"]; ok && m && len(ctx.DocumentId) != 0 {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentId + ":" + renderParameters.FootnoteAnchorPrefix
-	}
-
-	if len(ctx.DocumentId) != 0 && !viper.GetBool("DisableHeaderIDSuffix") {
 		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
 
