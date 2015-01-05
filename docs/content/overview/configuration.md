@@ -32,7 +32,7 @@ The following is an example of a typical yaml config file:
     baseurl: "http://yoursite.example.com/"
     ...
 
-The following is an example of a toml config file with some of the default values:
+The following is an example of a toml config file with some of the default values. Values under `[params]` will populate the `.Site.Params` variable for use in templates:
 
     contentdir = "content"
     layoutdir = "layouts"
@@ -42,8 +42,12 @@ The following is an example of a toml config file with some of the default value
     canonifyurls = true
 
     [indexes]
-       category = "categories"
-       tag = "tags"
+      category = "categories"
+      tag = "tags"
+       
+    [params]
+      description = "Tesla's Awesome Hugo Site"
+      author = "Nikola Tesla"
 
 Here is a yaml configuration file which sets a few more options
 
