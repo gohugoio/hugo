@@ -104,7 +104,7 @@ func init() {
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
-	
+
   Hugo is a command line tool
 
   You need to open cmd.exe and run it from there.`
@@ -153,6 +153,7 @@ func InitializeConfig() {
 	viper.SetDefault("PaginatePath", "page")
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
+	viper.SetDefault("SectionPagesMenu", "")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
