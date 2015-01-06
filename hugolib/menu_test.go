@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"path/filepath"
 )
 
 const (
@@ -90,9 +91,15 @@ weight = 3
 Front Matter with Menu Pages`)
 
 var MENU_PAGE_SOURCES = []source.ByteSource{
-	{"sect/doc1.md", MENU_PAGE_1},
-	{"sect/doc2.md", MENU_PAGE_2},
-	{"sect/doc3.md", MENU_PAGE_3},
+	{filepath.FromSlash("sect/doc1.md"), MENU_PAGE_1},
+	{filepath.FromSlash("sect/doc2.md"), MENU_PAGE_2},
+	{filepath.FromSlash("sect/doc3.md"), MENU_PAGE_3},
+}
+
+var MENU_PAGE_SECTIONS_SOURCES = []source.ByteSource{
+	{filepath.FromSlash("first/doc1.md"), MENU_PAGE_1},
+	{filepath.FromSlash("first/doc2.md"), MENU_PAGE_2},
+	{filepath.FromSlash("second-section/doc3.md"), MENU_PAGE_3},
 }
 
 func tstCreateMenuPageWithNameToml(title, menu, name string) []byte {
