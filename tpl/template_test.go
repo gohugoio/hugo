@@ -791,6 +791,31 @@ func TestSort(t *testing.T) {
 	}
 }
 
+func TestReturnWhenSet(t *testing.T) {
+	for i, this := range []struct {
+		data   interface{}
+		key    interface{}
+		expect interface{}
+	}{
+		{[]int{1, 2, 3}, 1, int64(2)},
+		{[]uint{1, 2, 3}, 1, uint64(2)},
+		{[]float64{1.1, 2.2, 3.3}, 1, float64(2.2)},
+		{[]string{"foo", "bar", "baz"}, 1, "bar"},
+		{[]TstX{TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "f"}}, 1, ""},
+		{map[string]int{"foo": 1, "bar": 2, "baz": 3}, "bar", int64(2)},
+		{map[string]uint{"foo": 1, "bar": 2, "baz": 3}, "bar", uint64(2)},
+		{map[string]float64{"foo": 1.1, "bar": 2.2, "baz": 3.3}, "bar", float64(2.2)},
+		{map[string]string{"foo": "FOO", "bar": "BAR", "baz": "BAZ"}, "bar", "BAR"},
+		{map[string]TstX{"foo": TstX{A: "a", B: "b"}, "bar": TstX{A: "c", B: "d"}, "baz": TstX{A: "e", B: "f"}}, "bar", ""},
+		{(*[]string)(nil), "bar", ""},
+	} {
+		result := ReturnWhenSet(this.data, this.key)
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] ReturnWhenSet got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
+		}
+	}
+}
+
 func TestMarkdownify(t *testing.T) {
 
 	result := Markdownify("Hello **World!**")
