@@ -431,3 +431,29 @@ h1.top-menu {
 .navigation:hover {
     background-color: rgba(0,0,0,0.1);
 }
+
+/* Google Custom Search box */
+
+input.gsc-input,
+.gsc-input-box,
+.gsc-input-box-hover,
+.gsc-input-box-focus,
+.gsc-search-button,
+.gsc-inline-block {
+  box-sizing: content-box;
+  line-height: normal;
+}
+
+.gsc-control-cse {
+  padding: 0.1em 0 0.5em 1em !important;
+  width: 16em !important;
+  float: right;
+}
+
+input.gsc-search-button-v2 {
+  padding: 6px 12px !important;
+}
+
+.gsc-search-box-tools .gsc-search-box .gsc-input {
+  padding-right: 1px !important;
+}
