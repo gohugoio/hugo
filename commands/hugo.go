@@ -397,7 +397,7 @@ func NewWatcher(port int) error {
 					fmt.Print("\nChange detected, rebuilding site\n")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
-					utils.StopOnErr(buildSite(true))
+					utils.CheckErr(buildSite(true))
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
