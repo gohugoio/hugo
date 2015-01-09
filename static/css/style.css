@@ -457,3 +457,47 @@ input.gsc-search-button-v2 {
 .gsc-search-box-tools .gsc-search-box .gsc-input {
   padding-right: 1px !important;
 }
+
+/* Styled keypress from Wikipedia */
+
+kbd {
+  border: 1px solid #aaa;
+  -moz-border-radius: 0.2em;
+  -webkit-border-radius: 0.2em;
+  border-radius: 0.2em;
+  -moz-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  -webkit-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  box-shadow: 0.1em 0.2em 0.2em #ddd;
+  background-color: #f9f9f9;
+  background-image: -moz-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -o-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -webkit-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: linear-gradient(to bottom, #eee, #f9f9f9, #eee);
+  padding: 0.1em 0.3em;
+  font-family: inherit;
+  font-size: 0.85em;
+}
+
+/* For the table used in overview/configuration */
+
+table.table {
+  margin: 1em 0;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 2px solid #ddd;
+  padding: 0 0.5em;
+}
+
+td.purpose-title {
+  text-align: right;
+  vertical-align: top;
+  border-right: 0;
+  padding-right: 0.5em;
+  font-weight: bold;
+}
+
+td.purpose-description {
+  border-left: 0;
+}
