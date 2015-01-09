@@ -28,6 +28,7 @@ I use ‘tags’ and ‘categories’ for my taxonomies.
     categories = ["x", "y"]
     +++
 
+__NOTE:__  Some editors (e.g. Sublime) do not insert an EOL at the last line.  If you get an EOF error using `hugo new` type a carriage return `<Enter>` after the closing `+++` in each archetype file.
 
 ## Using archetypes
 
