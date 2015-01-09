@@ -1,6 +1,6 @@
 <!--sidebar start-->
 <aside>
-    <div id="sidebar"  class="nav-collapse ">
+    <div id="sidebar" class="nav-collapse">
         <!-- sidebar menu start-->
         <ul class="sidebar-menu">
           {{ $currentNode := . }}
@@ -16,7 +16,7 @@
             </a>
                 <ul class="sub{{if $currentNode.HasMenuCurrent "main" . }} open{{end}}">
                     {{ range .Children }}
-                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
+                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}">{{ .Name }}</a> </li>
                     {{ end }}
                 </ul>
               {{else}}

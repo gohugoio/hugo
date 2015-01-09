@@ -12,9 +12,7 @@ title: Using Hugo
 weight: 30
 ---
 
-Make sure either hugo is in your path or provide a path to it.
-
-
+Make sure either `hugo` is in your `PATH` or provide a path to it.
 
     $ hugo help
     A Fast and Flexible Static Site Generator
@@ -56,7 +54,7 @@ Make sure either hugo is in your path or provide a path to it.
 
 ## Common Usage Example
 
-The most common use is probably to run hugo with your current
+The most common use is probably to run `hugo` with your current
 directory being the input directory.
 
     $ hugo
@@ -76,7 +74,7 @@ is saved.
        Press ctrl+c to stop
 
 Hugo can even run a server and create your site at the same time! Hugo
-implements [live reload](/extras/livereload) technology to automatically reload any open pages in
+implements [LiveReload](/extras/livereload) technology to automatically reload any open pages in
 all browsers (including mobile).
 
     $ hugo server -ws ~/mysite
