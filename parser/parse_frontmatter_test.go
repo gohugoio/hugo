@@ -54,7 +54,6 @@ func TestDegenerateCreatePageFrom(t *testing.T) {
 	}{
 		{CONTENT_MISSING_END_FM_DELIM},
 		{CONTENT_INCOMPLETE_END_FM_DELIM},
-		{CONTENT_FM_NO_DOC},
 	}
 
 	for _, test := range tests {
@@ -230,6 +229,7 @@ func TestExtractFrontMatter(t *testing.T) {
 		{"---\nfoobar\nbarfoo\nfizbaz\n", nil, false},
 		{"---\nblar\n-\n", nil, false},
 		{"---\nralb\n---\n", []byte("---\nralb\n---\n"), true},
+		{"---\neof\n---", []byte("---\neof\n---"), true},
 		{"---\nminc\n---\ncontent", []byte("---\nminc\n---\n"), true},
 		{"---\ncnim\n---\ncontent\n", []byte("---\ncnim\n---\n"), true},
 		{"---\ntitle: slug doc 2\nslug: slug-doc-2\n---\ncontent\n", []byte("---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n"), true},
@@ -274,7 +274,6 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		{"", "", errExpected},
 		{"{", "", errExpected},
 		{"{}", "{}", noErrExpected},
-		{" {}", " {}", noErrExpected},
 		{"{} ", "{}", noErrExpected},
 		{"{ } ", "{ }", noErrExpected},
 		{"{ { }", "", errExpected},
