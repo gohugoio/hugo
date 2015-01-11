@@ -1300,6 +1300,8 @@ func init() {
 		"replace":     Replace,
 		"trim":        Trim,
 		"dateFormat":  DateFormat,
+		"getJson":     GetJson,
+		"getCsv":      GetCsv,
 	}
 
 }
