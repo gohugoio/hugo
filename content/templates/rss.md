@@ -15,8 +15,9 @@ weight: 90
 
 Like all other templates, you can use a single RSS template to generate
 all of your RSS feeds, or you can create a specific template for each
-individual feed. Unlike other templates, *Hugo ships with its own ATOM
-2.0 RSS template. In most cases this will be sufficient, and an RSS
+individual feed. Unlike other templates, *Hugo ships with its own
+[RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320).
+In most cases this will be sufficient, and an RSS
 template will not need to be provided by the user.*
 
 RSS pages are of the type "node" and have all the [node
@@ -70,7 +71,7 @@ will be included in the RSS output. Example values are provided.
 
 ## The Embedded rss.xml
 This is the RSS template that ships with Hugo. It adheres to the
-ATOM 2.0 Spec.
+[RSS 2.0 Specification][RSS 2.0].
 
     <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
       <channel>
@@ -98,3 +99,6 @@ ATOM 2.0 Spec.
 on render… please don't include this in the template as it's not valid HTML.*
 
     <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+
+[RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
