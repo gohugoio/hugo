@@ -128,10 +128,10 @@ To get this properly set up, we will execute a series of commands at the termina
     rm -rf public
 
     # Add the gh-pages branch of the repository. It will look like a folder named public
-    git subtree add --prefix public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages --squash
+    git subtree add --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages --squash
 
     # Pull down the file we just committed. This helps avoid merge conflicts
-    git subtree pull --prefix=public
+    git subtree pull --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
 
     # Run hugo. Generated site will be placed in public directory (or omit -t ThemeName if you're not using a theme)
     hugo -t ThemeName

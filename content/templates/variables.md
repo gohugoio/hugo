@@ -79,7 +79,7 @@ includes indexes, lists and the homepage.
 
 Also available is `.Site` which has the following:
 
-**.Site.BaseUrl** The base URL for the site as defined in the config.json file.<br>
+**.Site.BaseUrl** The base URL for the site as defined in the site configuration file.<br>
 **.Site.Taxonomies** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Recent** Array of all content ordered by Date, newest first.<br>
@@ -90,3 +90,15 @@ Also available is `.Site` which has the following:
     [params]
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
+**.Site.Sections** Top level directories of the site.<br>
+**.Site.Pages** All of the content pages of the site.<br>
+**.Site.Files** All of the source files of the site.<br>
+**.Site.Menus** All of the menus in the site.<br>
+**.Site.Title** A string representing the title of the site.<br>
+**.Site.Author** A map of the authors as defined in the site configuration.<br>
+**.Site.LanguageCode** A string representing the language as defined in the site configuration.<br>
+**.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
+**.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
+**.Site.LastChange** A string representing the last time content has been updated.<br>
+**.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
+**.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
