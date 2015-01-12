@@ -6,7 +6,7 @@ menu:
   main:
     parent: tutorials
 next: /tutorials/mathjax
-prev: /community/contributing
+prev: /tutorials/creating-a-new-theme
 title: Hosting on GitHub Pages
 weight: 10
 ---

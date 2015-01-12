@@ -5,8 +5,8 @@ linktitle: Creating a New Theme
 menu:
   main:
     parent: tutorials
-next: /tutorials/mathjax
-prev: /community/contributing
+next: /tutorials/github_pages_blog
+prev: /tutorials/automated-deployments
 title: Creating a New Theme
 weight: 10
 ---
