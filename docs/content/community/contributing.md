@@ -6,7 +6,7 @@ date: 2013-07-01
 menu:
   main:
     parent: community
-next: /tutorials/github_pages_blog
+next: /tutorials/automated-deployments
 prev: /community/press
 title: Contributing to Hugo
 weight: 30
