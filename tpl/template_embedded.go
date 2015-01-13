@@ -52,16 +52,17 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
     <description>Recent content {{ with .Title }}in {{.}} {{ end }}on {{ .Site.Title }}</description>
     <generator>Hugo -- gohugo.io</generator>
     {{ with .Site.LanguageCode }}<language>{{.}}</language>{{end}}
-    {{ with .Site.Author.name }}<author>{{.}}</author>{{end}}
+    {{ if .Site.Author.email }}<managingEditor>{{.Site.Author.email}}{{ with .Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}
+    {{ if .Site.Author.email }}<webMaster>{{.Site.Author.email}}{{ with .Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}
     {{ with .Site.Copyright }}<copyright>{{.}}</copyright>{{end}}
-    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</lastBuildDate>
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05" }} {{ with .Date.Format "MST" }}{{ if eq . "UTC" }}UT{{else}}{{.}}{{end}}{{end}}</lastBuildDate>
     <atom:link href="{{.Url}}" rel="self" type="application/rss+xml" />
     {{ range first 15 .Data.Pages }}
     <item>
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
-      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</pubDate>
-      {{with .Site.Author.name}}<author>{{.}}</author>{{end}}
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05" }} {{ with .Date.Format "MST" }}{{ if eq . "UTC" }}UT{{else}}{{.}}{{end}}{{end}}</pubDate>
+      {{ if .Site.Author.email }}<author>{{.Site.Author.email}}{{ with .Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Content | html }}</description>
     </item>
