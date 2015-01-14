@@ -10,7 +10,7 @@ title: Sections
 weight: 30
 ---
 
-Hugo thinks that you organize your content with a purpose. The same structure
+Hugo believes that you organize your content with a purpose. The same structure
 that works to organize your source content is used to organize the rendered
 site (see [Organization](/content/organization)). Following this pattern Hugo
 uses the top level of your content organization as **the Section**.
