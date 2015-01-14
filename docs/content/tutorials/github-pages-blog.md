@@ -1,4 +1,6 @@
 ---
+aliases:
+    - /tutorials/github_pages_blog/
 author: Spencer Lyon
 date: 2014-03-21
 linktitle: Hosting on GitHub
