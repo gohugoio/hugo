@@ -5,7 +5,7 @@ linktitle: Creating a New Theme
 menu:
   main:
     parent: tutorials
-next: /tutorials/github_pages_blog
+next: /tutorials/github-pages-blog
 prev: /tutorials/automated-deployments
 title: Creating a New Theme
 weight: 10
