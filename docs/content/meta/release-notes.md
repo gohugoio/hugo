@@ -10,6 +10,51 @@ title: Release Notes
 weight: 10
 ---
 
+## **0.13.0** ???, 2015
+
+A lot has happened since Hugo v0.12.0 was released. 
+
+* Changes to docs:
+	* New Troubleshooting section is added
+	* It's now searchable through Google Custom Search
+	* Some new great tutorials:
+		* [Automated deployments](/tutorials/automated-deployments)
+		* [Creating a new theme](/tutorials/creating-a-new-theme)
+* Several improvements to the [template functions](/templates/functions):
+	* `where` is now even more powerful and accepts SQL-like syntax with the operators `==, eq, !=, <>, ne, >=, ge, >, gt, <=, le, <, lt, in, not in`
+	* `where` template function now also accepts dot chaining key argument (i.e. `Params.foo.bar`)
+* New template functions:
+	* `apply`
+	* `chomp`
+	* `delimit`
+	* `sort`
+	* `markdownify`
+	* `in` and `intersect` 
+* Several new ways to order and group content:
+	* `ByPublishDate`
+	* `GroupByPublishDate(format, order)`
+	* `GroupByParam(key, order)`
+	* `GroupByParamDate(key, format, order)`
+* The [shortcode](/extras/shortcodes) handling is rewritten for speed and better error messages. Noticeable functional change is the distinction between  `{{</* */>}}` (typically  raw HTML) and `{{%/* */%}}` (Markdown)
+* Support for [cross-references](/extras/crossreferences)
+* A new, generic Next/Prev functionality is added to all lists of pages (sections, taxonomies, etc)
+* Add in-section [Next/Prev](/templates/variables) content pointers
+* Several improvements related to Markdown rendering:
+	* Configuration of footnote rendering
+	* Optional support for angled quotes
+	* Enable descriptive header IDs
+* The content is now copied from archetype on `hugo new` (in addition to the front matter metadata)
+* Improved unit test coverage
+* Hugo has undergone a major refactoring, with a new handler system and a generic file system. This sounds and is technical, but will pave the way for new features and make Hugo even speedier
+* Ace templates support
+* Fixed a lot of Windows-related path issues
+* Improved error messages for template and rendering errors
+* Various fixes in RSS feed generation
+* Enabled soft livereload of CSS and images
+* URLs in XML output is now correctly canonified
+* `HasMenuCurrent` and `IsMenuCurrent` is now supported on Nodes
+* A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
+
 
 ## **0.12.0** Sept 1, 2014
 
@@ -56,9 +101,6 @@ This release represents over 110 code commits from 29 different contributors.
   * More informative verbose output
   * Renamed Indexes > [Taxonomies](/taxonomies/overview)
   * Renamed Chrome > [Partials](/templates/partials)
-
-## Next release
-  * Added section Prev/Next pointers.
 
 ## **0.10.0** March 1, 2014
 
