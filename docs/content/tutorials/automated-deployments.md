@@ -112,7 +112,7 @@ Let's start by setting up an account for Wercker. To do so we'll go to www.werck
 
 ## Register
 
-To make life easier for ourselves, we will then register using GitHub. If you don't have a GitHub account, or don't want to use it for your account you can of course register with a username and password as well.
+To make life easier for ourselves, we will then register using GitHub. If you don't have a GitHub account, or don't want to use it for your account, you can of course register with a username and password as well.
 
 ![][4]
 

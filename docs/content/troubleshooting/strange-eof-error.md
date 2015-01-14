@@ -24,17 +24,17 @@ Is there something that I am blatantly missing?
 
 ## Solution
 
-Thank you for reporting this issue.  The solution is to add a final newline (or EOL) to the end of your default.md archetype file of your theme.  More discussions happened on the forum here:
+Thank you for reporting this issue.  The solution is to add a final newline (i.e. EOL) to the end of your default.md archetype file of your theme.  More discussions happened on the forum here:
 
 * http://discuss.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
 * http://discuss.gohugo.io/t/eol-f-in-archetype-files/554
 
-So yes, we do need to fix this.  We need to do the following:
+Due to popular demand, Hugo's parser has been enhanced to
+accommodate archetype files without final EOL,
+thanks to the great work by [@tatsushid](https://github.com/tatsushid),
+in the upcoming v0.13 release,
 
-1. Add warnings about this in the Hugo documentation, as several people have run into the same problem already.  (Users of editors like Vim, nano and gedit are immune to this because these editors enforce an EOL at the end of the file by default, but other editors like Emacs don't do that.)
-2. Improve the error message.  It is difficult to determine what went wrong with just three characters "`EOF`"
-3. Allow archetype files without the final EOL to compile anyway, but do give an appropriate and detailed warning.  (optional, to be discussed)
-https://github.com/spf13/hugo/issues/776
+Until then, for us running the stable v0.12 release, please remember to add the final EOL diligently.  <i class="fa fa-smile-o"></i>
 
 ## References
 

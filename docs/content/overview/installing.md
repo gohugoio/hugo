@@ -11,10 +11,10 @@ title: Installing Hugo
 weight: 20
 ---
 
-Hugo is written in Go with support for Windows, Linux, FreeBSD and OS&nbsp;X.
+Hugo is written in Go with support for multiple platforms.
 
 The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
-We currently build for Windows, Linux, FreeBSD and OS&nbsp;X for x64
+We currently build for <i class="fa fa-windows"></i> Windows, <i class="fa fa-linux"></i> Linux, FreeBSD and <i class="fa fa-apple"></i> OS&nbsp;X for x64
 and i386 architectures.
 
 ## Installing Hugo (binary)
@@ -53,15 +53,15 @@ placed in your `PATH`.
 * Mercurial
 * Bazaar
 
-### Get directly from GitHub:
+### Get directly from GitHub
 
+    $ export GOPATH=$HOME/go
     $ go get -v github.com/spf13/hugo
 
-### Building Hugo
-
-    $ cd /path/to/hugo
-    $ go build -o hugo main.go
-    $ mv hugo /usr/local/bin/
+`go get` will then fetch Hugo and all its dependent libraries to your
+`$GOPATH/src` directory, and compile everything into the final `hugo`
+(or `hugo.exe`) executable, which you will find sitting in the
+`$GOPATH/bin/hugo` directory, all ready to go!
 
 ## Contributing
 
