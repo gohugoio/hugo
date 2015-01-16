@@ -292,6 +292,16 @@ Removes any trailing newline characters. Useful in a pipeline to remove newlines
 
 e.g., `{{chomp "<p>Blockhead</p>\n"` → `"<p>Blockhead</p>"`
 
+### trim
+Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
+
+e.g. `{{ trim "++Batman--" "+-" }}` → "Batman"
+
+### replace
+Replace all occurences of the search string with the replacement string.
+
+e.g. `{{ replace "Batman and Robin" "Robin" "Catwoman" }}` → "Batman and Catwoman"
+
 ### highlight
 Take a string of code and a language, uses Pygments to return the syntax highlighted code in HTML. Used in the [highlight shortcode](/extras/highlighting).
 

@@ -1237,6 +1237,8 @@ func init() {
 		"relref":      RelRef,
 		"apply":       Apply,
 		"chomp":       Chomp,
+    "replace":     func(a string, b string, c string) string { return strings.Replace(a, b, c, -1) },
+    "trim":        func(a string, b string) string { return strings.Trim(a, b) },
 	}
 
 	chompRegexp = regexp.MustCompile("[\r\n]+$")
