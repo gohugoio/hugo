@@ -111,7 +111,7 @@ func TestNestedSC(t *testing.T) {
 	tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
 	tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
 
-	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div></div>", tem)
+	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", tem)
 
 	CheckShortCodeMatch(t, `{{< scn1 >}}{{% scn2 %}}{{< /scn1 >}}`, "<div>Outer, inner is <div>SC2</div></div>", tem)
 }
@@ -123,11 +123,11 @@ func TestNestedComplexSC(t *testing.T) {
 	tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
 
 	CheckShortCodeMatch(t, `{{< row >}}1-s{{% column %}}2-**s**{{< aside >}}3-**s**{{< /aside >}}4-s{{% /column %}}5-s{{< /row >}}6-s`,
-		"-row-1-s-col-2-<strong>s</strong>-aside-3-**s**-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 
 	// turn around the markup flag
 	CheckShortCodeMatch(t, `{{% row %}}1-s{{< column >}}2-**s**{{% aside %}}3-**s**{{% /aside %}}4-s{{< /column >}}5-s{{% /row %}}6-s`,
-		"-row-1-s-col-2-**s**-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 }
 
 func TestFigureImgWidth(t *testing.T) {
