@@ -121,7 +121,7 @@ defined.
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 ### Example taxonomy template (tag.html)
 This content template is used for [spf13.com](http://spf13.com).
@@ -141,7 +141,7 @@ defined.
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 ## Ordering Content
 
