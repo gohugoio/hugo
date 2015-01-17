@@ -52,10 +52,6 @@ MetaDataFormat = "yaml"
     pre = "<i class='fa fa-gift'></i>"
     weight = -60
 [[menu.main]]
-    name = "tutorials"
-    pre = "<i class='fa fa-book'></i>"
-    weight = -40
-[[menu.main]]
     name = "community"
     pre = "<i class='fa fa-group'></i>"
     weight = -50
@@ -64,3 +60,11 @@ MetaDataFormat = "yaml"
     name = "Discussion Forum"
     url = "http://discuss.gohugo.io"
     weight = 150
+[[menu.main]]
+    name = "tutorials"
+    pre = "<i class='fa fa-book'></i>"
+    weight = -40
+[[menu.main]]
+    name = "troubleshooting"
+    pre = "<i class='fa fa-wrench'></i>"
+    weight = -30

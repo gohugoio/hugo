@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -87,6 +88,8 @@ type targetList struct {
 type SiteInfo struct {
 	BaseUrl         template.URL
 	Taxonomies      TaxonomyList
+	Authors         AuthorList
+	Social          SiteSocial
 	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
 	Sections        Taxonomy
 	Pages           *Pages
@@ -103,6 +106,21 @@ type SiteInfo struct {
 	Params          map[string]interface{}
 	BuildDrafts     bool
 }
+
+// SiteSocial is a place to put social details on a site level. These are the
+// standard keys that themes will expect to have available, but can be
+// expanded to any others on a per site basis
+// github
+// facebook
+// facebook_admin
+// twitter
+// twitter_domain
+// googleplus
+// pinterest
+// instagram
+// youtube
+// linkedin
+type SiteSocial map[string]string
 
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]
@@ -126,6 +144,63 @@ func (s *SiteInfo) GetParam(key string) interface{} {
 		return v
 	}
 	return nil
+}
+
+func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error) {
+	var refUrl *url.URL
+	var err error
+
+	refUrl, err = url.Parse(ref)
+
+	if err != nil {
+		return "", err
+	}
+
+	var target *Page = nil
+	var link string = ""
+
+	if refUrl.Path != "" {
+		for _, page := range []*Page(*s.Pages) {
+			if page.Source.Path() == refUrl.Path || page.Source.LogicalName() == refUrl.Path {
+				target = page
+				break
+			}
+		}
+
+		if target == nil {
+			return "", errors.New(fmt.Sprintf("No page found with path or logical name \"%s\".\n", refUrl.Path))
+		}
+
+		if relative {
+			link, err = target.RelPermalink()
+		} else {
+			link, err = target.Permalink()
+		}
+
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if refUrl.Fragment != "" {
+		link = link + "#" + refUrl.Fragment
+
+		if refUrl.Path != "" && target != nil {
+			link = link + ":" + target.UniqueId()
+		} else if page != nil {
+			link = link + ":" + page.UniqueId()
+		}
+	}
+
+	return link, nil
+}
+
+func (s *SiteInfo) Ref(ref string, page *Page) (string, error) {
+	return s.refLink(ref, page, false)
+}
+
+func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
+	return s.refLink(ref, page, true)
 }
 
 type runmode struct {
@@ -650,6 +725,15 @@ func (s *Site) assembleSections() {
 
 	for k := range s.Sections {
 		s.Sections[k].Sort()
+
+		for i, wp := range s.Sections[k] {
+			if i > 0 {
+				wp.Page.NextInSection = s.Sections[k][i - 1].Page;
+			}
+			if i < len(s.Sections[k]) - 1 {
+				wp.Page.PrevInSection = s.Sections[k][i + 1].Page;
+			}
+		}
 	}
 }
 
@@ -1092,7 +1176,7 @@ func (s *Site) permalinkStr(plink string) string {
 }
 
 func (s *Site) prepUrl(in string) string {
-	return helpers.Urlize(s.PrettifyUrl(in))
+	return s.PrettifyUrl(helpers.Urlize(in))
 }
 
 func (s *Site) PrettifyUrl(in string) string {
@@ -1119,7 +1203,17 @@ func (s *Site) layoutExists(layouts ...string) bool {
 func (s *Site) renderXML(name string, d interface{}, layouts ...string) (io.Reader, error) {
 	renderBuffer := s.NewXMLBuffer()
 	err := s.render(name, d, renderBuffer, layouts...)
-	return renderBuffer, err
+
+	var outBuffer = new(bytes.Buffer)
+
+	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseUrl"))
+	if err != nil {
+		return nil, err
+	}
+
+	transformer := transform.NewChain(absURLInXML...)
+	transformer.Apply(outBuffer, renderBuffer)
+	return outBuffer, err
 }
 
 func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {

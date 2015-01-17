@@ -447,7 +447,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		r   string
 		err string
 	}{
-		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "Unable to read frontmatter at filepos 45: EOF"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "unable to read frontmatter at filepos 45: EOF"},
 	}
 	for _, test := range tests {
 

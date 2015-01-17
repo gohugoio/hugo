@@ -24,7 +24,7 @@ import (
 	"strings"
 )
 
-//Filepath separator defined by os.Separator.
+// Filepath separator defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
 func FindAvailablePort() (*net.TCPAddr, error) {
@@ -40,7 +40,8 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 	return nil, err
 }
 
-// InStringArray checks if a string is an element of a slice of strings and returns a boolean value.
+// InStringArray checks if a string is an element of a slice of strings
+// and returns a boolean value.
 func InStringArray(arr []string, el string) bool {
 	for _, v := range arr {
 		if v == el {
@@ -64,27 +65,32 @@ func GuessType(in string) string {
 	return "unknown"
 }
 
+// ReaderToBytes takes an io.Reader argument, reads from it
+// and returns bytes.
 func ReaderToBytes(lines io.Reader) []byte {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	return b.Bytes()
 }
 
+// ReaderToString is the same as ReaderToBytes, but returns a string.
 func ReaderToString(lines io.Reader) string {
 	b := new(bytes.Buffer)
 	b.ReadFrom(lines)
 	return b.String()
 }
 
+// StringToReader does the opposite of ReaderToString.
 func StringToReader(in string) io.Reader {
 	return strings.NewReader(in)
 }
 
+// BytesToReader does the opposite of ReaderToBytes.
 func BytesToReader(in []byte) io.Reader {
 	return bytes.NewReader(in)
 }
 
-// sliceToLower goes through the source slice and lowers all values.
+// SliceToLower goes through the source slice and lowers all values.
 func SliceToLower(s []string) []string {
 	if s == nil {
 		return nil
@@ -98,6 +104,7 @@ func SliceToLower(s []string) []string {
 	return l
 }
 
+// Md5String takes a string and returns its MD5 hash.
 func Md5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))

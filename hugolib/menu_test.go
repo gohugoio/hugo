@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -47,7 +48,11 @@ const (
 [[menu.tax]]
 	name = "Tax RSS"
     url = "/two/key.xml"
-	identifier="xml"`
+	identifier="xml"
+[[menu.unicode]]
+   name = "Unicode Russian"
+   identifier = "unicode-russian"
+   url = "/новости-проекта"` // Russian => "news-project"
 )
 
 var MENU_PAGE_1 = []byte(`+++
@@ -134,6 +139,31 @@ func TestPageMenu(t *testing.T) {
 
 	}
 
+}
+
+// issue #719
+func TestMenuWithUnicodeUrls(t *testing.T) {
+	for _, uglyUrls := range []bool{true, false} {
+		doTestMenuWithUnicodeUrls(t, uglyUrls)
+	}
+}
+
+func doTestMenuWithUnicodeUrls(t *testing.T, uglyUrls bool) {
+	viper.Set("UglyUrls", uglyUrls)
+	ts := setupMenuTests(t)
+	defer resetMenuTestState(ts)
+
+	unicodeRussian := ts.findTestMenuEntryById("unicode", "unicode-russian")
+
+	expectedBase := "http://foo.local/zoo/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0"
+	var expected string
+	if uglyUrls {
+		expected = expectedBase + ".html"
+	} else {
+		expected = expectedBase + "/"
+	}
+
+	assert.Equal(t, expected, unicodeRussian.Url, "uglyUrls[%t]", uglyUrls)
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {

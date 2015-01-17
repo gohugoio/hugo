@@ -81,7 +81,8 @@ type htmlHandler struct {
 
 func (h htmlHandler) Extensions() []string { return []string{"html", "htm"} }
 func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
-	p.ProcessShortcodes(t)
+	// see #674 - disabled by bjornerik for now
+	// p.ProcessShortcodes(t)
 	p.Content = helpers.BytesToHTML(p.rawContent)
 	return HandledResult{err: nil}
 }

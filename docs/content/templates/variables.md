@@ -29,23 +29,25 @@ matter, content or derived from file location.
 **.Keywords** The meta keywords for this content.<br>
 **.Date** The date the content is associated with.<br>
 **.PublishDate** The date the content is published on.<br>
-**.Type** The content [type](/content/types/) (e.g. post)<br>
-**.Section** The [section](/content/sections/) this content belongs to<br>
+**.Type** The content [type](/content/types/) (e.g. post).<br>
+**.Section** The [section](/content/sections/) this content belongs to.<br>
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
-**.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title<br>
-**.Taxonomies** These will use the field name of the plural form of the index (see tags and categories above)<br>
-**.RSSLink** Link to the indexes' rss link <br>
-**.TableOfContents** The rendered table of contents for this content<br>
-**.Prev** Pointer to the previous content (based on pub date)<br>
-**.Next** Pointer to the following content (based on pub date)<br>
+**.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title.<br>
+**.Taxonomies** These will use the field name of the plural form of the index (see tags and categories above).<br>
+**.RSSLink** Link to the indexes' rss link.<br>
+**.TableOfContents** The rendered table of contents for this content.<br>
+**.Prev** Pointer to the previous content (based on pub date).<br>
+**.Next** Pointer to the following content (based on pub date).<br>
+**.PrevInSection** Pointer to the previous content within the same section (based on pub date)<br>
+**.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.WordCount** The number of words in the content.<br>
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
-**.Site** See site variables below<br>
+**.Site** See site variables below.<br>
 
 ## Page Params
 
@@ -65,6 +67,8 @@ includes indexes, lists and the homepage.
 **.Date** The date the content is published on.<br>
 **.Permalink** The Permanent link for this node<br>
 **.Url** The relative url for this node.<br>
+**.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
+**.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RSSLink** Link to the indexes' rss link <br>
 **.Data** The data specific to this type of node.<br>
 **.IsNode** Always true for nodes.<br>
@@ -75,8 +79,26 @@ includes indexes, lists and the homepage.
 
 Also available is `.Site` which has the following:
 
-**.Site.BaseUrl** The base URL for the site as defined in the config.json file.<br>
+**.Site.BaseUrl** The base URL for the site as defined in the site configuration file.<br>
 **.Site.Taxonomies** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Recent** Array of all content ordered by Date, newest first.<br>
-**.Site.Params** A container holding the values from `params` in your site configuration file.<br>
+**.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
+
+    baseurl = "http://yoursite.example.com/"
+
+    [params]
+      description = "Tesla's Awesome Hugo Site"
+      author = "Nikola Tesla"
+**.Site.Sections** Top level directories of the site.<br>
+**.Site.Pages** All of the content pages of the site.<br>
+**.Site.Files** All of the source files of the site.<br>
+**.Site.Menus** All of the menus in the site.<br>
+**.Site.Title** A string representing the title of the site.<br>
+**.Site.Author** A map of the authors as defined in the site configuration.<br>
+**.Site.LanguageCode** A string representing the language as defined in the site configuration.<br>
+**.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
+**.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
+**.Site.LastChange** A string representing the last time content has been updated.<br>
+**.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
+**.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>

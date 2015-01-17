@@ -112,6 +112,8 @@ func TestNestedSC(t *testing.T) {
 	tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
 
 	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", tem)
+
+	CheckShortCodeMatch(t, `{{< scn1 >}}{{% scn2 %}}{{< /scn1 >}}`, "<div>Outer, inner is <div>SC2</div></div>", tem)
 }
 
 func TestNestedComplexSC(t *testing.T) {
@@ -121,11 +123,11 @@ func TestNestedComplexSC(t *testing.T) {
 	tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
 
 	CheckShortCodeMatch(t, `{{< row >}}1-s{{% column %}}2-**s**{{< aside >}}3-**s**{{< /aside >}}4-s{{% /column %}}5-s{{< /row >}}6-s`,
-		"-row-1-s-col-<p>2-<strong>s</strong>-aside-3-**s**-asideStop-4-s</p>\n-colStop-5-s-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 
 	// turn around the markup flag
 	CheckShortCodeMatch(t, `{{% row %}}1-s{{< column >}}2-**s**{{% aside %}}3-**s**{{% /aside %}}4-s{{< /column >}}5-s{{% /row %}}6-s`,
-		"-row-<p>1-s-col-2-**s**-aside-<p>3-<strong>s</strong></p>\n-asideStop-4-s-colStop-5-s</p>\n-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 }
 
 func TestFigureImgWidth(t *testing.T) {
@@ -149,7 +151,7 @@ void do();
 	CheckShortCodeMatch(t, code, "\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\"><span style=\"font-weight: bold\">void</span> do();\n</pre></div>\n", tem)
 }
 
-const testScPlaceholderRegexp = "<div>HUGOSHORTCODE-\\d+</div>"
+const testScPlaceholderRegexp = "{@{@HUGOSHORTCODE-\\d+@}@}"
 
 func TestExtractShortcodes(t *testing.T) {
 	for i, this := range []struct {
@@ -182,18 +184,18 @@ func TestExtractShortcodes(t *testing.T) {
 			`inner([], false){[inner2-> inner2([\"param1\"], true){[inner2txt->inner3 inner3(%!q(<nil>), false){[inner3txt]}]} final close->`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
 		{"two inner", `Some text. {{% inner %}}First **Inner** Content{{% / inner %}} {{< inner >}}Inner **Content**{{< / inner >}}. Some more text.`,
-			`map["<div>HUGOSHORTCODE-1</div>:inner([], true){[First **Inner** Content]}" "<div>HUGOSHORTCODE-2</div>:inner([], false){[Inner **Content**]}"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:inner([], true){[First **Inner** Content]}" "{@{@HUGOSHORTCODE-2@}@}:inner([], false){[Inner **Content**]}"]`,
 			fmt.Sprintf("Some text. %s %s. Some more text.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"closed without content", `Some text. {{< inner param1 >}}{{< / inner >}}. Some more text.`, `inner([\"param1\"], false){[]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
 		{"two shortcodes", "{{< sc1 >}}{{< sc2 >}}",
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2([], false){[]}"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([], false){[]}"]`,
 			testScPlaceholderRegexp + testScPlaceholderRegexp, ""},
 		{"mix of shortcodes", `Hello {{< sc1 >}}world{{% sc2 p2="2"%}}. And that's it.`,
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2([\"p2:2\"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([\"p2:2\"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"mix with inner", `Hello {{< sc1 >}}world{{% inner p2="2"%}}Inner{{%/ inner %}}. And that's it.`,
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:inner([\"p2:2\"], true){[Inner]}"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:inner([\"p2:2\"], true){[Inner]}"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
@@ -286,23 +288,14 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		wrappedInDiv    bool
 		expect          interface{}
 	}{
-		{[]byte("Hello PREFIX-1."), "PREFIX",
-			map[string]string{"PREFIX-1": "World"}, -1, false, []byte("Hello World.")},
-		{[]byte("A <div>A-1</div> asdf <div>A-2</div>."), "A",
-			map[string]string{"<div>A-1</div>": "v1", "<div>A-2</div>": "v2"}, -1, true, []byte("A v1 asdf v2.")},
-		{[]byte("Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!."), "PREFIX2",
-			map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"},
-			-1, false, []byte("Hello Europe. Go Jonny, Go, Go Johnny Go Go!.")},
-		{[]byte("A PREFIX-2 PREFIX-1."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
-		{[]byte("A PREFIX-1 PREFIX-2"), "PREFIX",
-			map[string]string{"PREFIX-1": "A"}, -1, false, []byte("A A PREFIX-2")},
-		{[]byte("A PREFIX-1 but not the second."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
-		{[]byte("An PREFIX-1."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A.")},
-		{[]byte("An PREFIX-1 PREFIX-2."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A PREFIX-2.")},
+		{[]byte("Hello PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "World"}, -1, false, []byte("Hello World.")},
+		{[]byte("A {@{@A-1@}@} asdf {@{@A-2@}@}."), "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, -1, true, []byte("A v1 asdf v2.")},
+		{[]byte("Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!."), "PREFIX2", map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"}, -1, false, []byte("Hello Europe. Go Jonny, Go, Go Johnny Go Go!.")},
+		{[]byte("A PREFIX-2 PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
+		{[]byte("A PREFIX-1 PREFIX-2"), "PREFIX", map[string]string{"PREFIX-1": "A"}, -1, false, []byte("A A PREFIX-2")},
+		{[]byte("A PREFIX-1 but not the second."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
+		{[]byte("An PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A.")},
+		{[]byte("An PREFIX-1 PREFIX-2."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A PREFIX-2.")},
 	} {
 		results, err := replaceShortcodeTokens(this.input, this.prefix, this.numReplacements, this.wrappedInDiv, this.replacements)
 

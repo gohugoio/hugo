@@ -136,6 +136,7 @@ func InitializeConfig() {
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
+	viper.SetDefault("Blackfriday", map[string]bool{"angledQuotes": false, "plainIdAnchors": false})
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -346,7 +347,7 @@ func NewWatcher(port int) error {
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
-					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".tmp") || (strings.HasPrefix(ext, ".goutputstream"))
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || (strings.HasPrefix(ext, ".goutputstream"))
 					if istemp {
 						continue
 					}
@@ -396,7 +397,7 @@ func NewWatcher(port int) error {
 					fmt.Print("\nChange detected, rebuilding site\n")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
-					utils.StopOnErr(buildSite(true))
+					utils.CheckErr(buildSite(true))
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized

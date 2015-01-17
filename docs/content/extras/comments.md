@@ -4,17 +4,17 @@ linktitle: Comments
 menu:
   main:
     parent: extras
-next: /extras/livereload
+next: /extras/crossreferences
 prev: /extras/builders
 title: Comments in Hugo
-weight: 14
+weight: 30
 ---
 
 As Hugo is a static site generator, the content produced is static and
 doesn’t interact with the users. The most common interaction people ask
 for is comment capability.
 
-Hugo ships with support for [Disqus](http://disqus.com), a third-party
+Hugo ships with support for [Disqus](https://disqus.com), a third-party
 service that provides comment and community capabilities to website via
 JavaScript.
 
@@ -78,11 +78,11 @@ Now, reference the partial template from your page template:
 
 # Alternatives
 
-A few alternatives exist to [Disqus](http://disqus.com):
+A few alternatives exist to [Disqus](https://disqus.com):
 
-* [Intense Debate](http://intensedebate.com/)
-* [LiveFyre](http://livefyre.com/)
-* [Moot](http://muut.com)
+* [IntenseDebate](http://intensedebate.com/)
+* [Livefyre](http://livefyre.com/)
+* [Muut](http://muut.com)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [Kaiju](http://github.com/spf13/kaiju)
 

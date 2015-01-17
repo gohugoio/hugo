@@ -6,7 +6,7 @@ menu:
 next: /extras/permalinks
 prev: /extras/livereload
 title: Menus
-weight: 20
+weight: 60
 ---
 
 Hugo has a simple yet powerful menu system that permits content to be
@@ -41,7 +41,7 @@ And the following functions:
 
 * **HasChildren** bool
 
-Additionally there are some relevant functions available on the page:
+Additionally, there are some relevant functions available on the page:
 
 * **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
 * **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
@@ -89,7 +89,7 @@ available.
 You can also add entries to menus that aren’t attached to a piece of
 content. This takes place in the sitewide [config file](/overview/configuration).
 
-Here’s an example (in TOML):
+Here’s an example `config.toml`:
 
     [[menu.main]]
         name = "about hugo"
@@ -101,7 +101,7 @@ Here’s an example (in TOML):
         pre = "<i class='fa fa-road'></i>"
         weight = -100
 
-Here’s an example (in YAML):
+And the equivalent example `config.yaml`:
 
     ---
     menu:
@@ -142,7 +142,7 @@ The following is an example:
 
     <!--sidebar start-->
     <aside>
-        <div id="sidebar"  class="nav-collapse ">
+        <div id="sidebar" class="nav-collapse">
             <!-- sidebar menu start-->
             <ul class="sidebar-menu">
               {{ $currentNode := . }}

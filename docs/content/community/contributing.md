@@ -6,7 +6,7 @@ date: 2013-07-01
 menu:
   main:
     parent: community
-next: /tutorials/github_pages_blog
+next: /tutorials/automated-deployments
 prev: /community/press
 title: Contributing to Hugo
 weight: 30
@@ -47,11 +47,11 @@ When you're ready to create a pull request, be sure to:
     go get
 
 Because Go expects all of your libraries to be found in either
-$GOROOT or $GOPATH, it's helpful to symlink the project to one
+`$GOROOT` or `$GOPATH`, it's helpful to symlink the project to one
 of the following paths:
 
- * ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo
- * ln -s /path/to/your/hugo $GOROOT/src/pkg/github.com/spf13/hugo
+ * `ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo`
+ * `ln -s /path/to/your/hugo $GOROOT/src/pkg/github.com/spf13/hugo`
 
 ## Running Hugo
 
