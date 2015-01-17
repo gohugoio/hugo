@@ -9,18 +9,18 @@ weight: 5
 
 ## Trouble: `hugo new` aborts with cryptic EOF error
 
-I'm running into an issue where I cannot get archetypes working, when running `hugo new showcase/test.md`, for example, I see an `EOF` error thrown by Hugo.
-
-I have set up this test repository to show exactly what I've done, but it is essentially a vanilla installation of Hugo. https://github.com/polds/hugo-archetypes-test
-
-When in that repository, using Hugo v0.12 to run `hugo new -v showcase/test.md`, I see the following output:
-
-    INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml
-    INFO: 2015/01/04 attempting to create  showcase/test.md of showcase
-    INFO: 2015/01/04 curpath: /private/tmp/test/archetypes/showcase.md
-    ERROR: 2015/01/04 EOF
-
-Is there something that I am blatantly missing?
+> I'm running into an issue where I cannot get archetypes working, when running `hugo new showcase/test.md`, for example, I see an `EOF` error thrown by Hugo.
+>
+> I have set up this test repository to show exactly what I've done, but it is essentially a vanilla installation of Hugo. https://github.com/polds/hugo-archetypes-test
+>
+> When in that repository, using Hugo v0.12 to run `hugo new -v showcase/test.md`, I see the following output:
+>
+>     INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml
+>     INFO: 2015/01/04 attempting to create  showcase/test.md of showcase
+>     INFO: 2015/01/04 curpath: /private/tmp/test/archetypes/showcase.md
+>     ERROR: 2015/01/04 EOF
+>
+> Is there something that I am blatantly missing?
 
 ## Solution
 

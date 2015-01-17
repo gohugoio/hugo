@@ -33,7 +33,7 @@ We will use ‘tags’ and ‘categories’ for our taxonomies, so let's create 
     categories = ["x", "y"]
     +++
 
-__CAVEAT:__  Some editors (e.g. Sublime, Emacs) do not insert an EOL (end-of-line) character at the end of the file (i.e. EOF).  If you get a [strange EOF error](/troubleshooting/strange-eof-error/) when using `hugo new`, please open each archetype file (i.e. `archetypes/*.md`) and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` as necessary.
+> __CAVEAT:__  Some editors (e.g. Sublime, Emacs) do not insert an EOL (end-of-line) character at the end of the file (i.e. EOF).  If you get a [strange EOF error](/troubleshooting/strange-eof-error/) when using `hugo new`, please open each archetype file (i.e.&nbsp;`archetypes/*.md`) and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` as necessary.
 
 
 ### Step 2. Using the archetype
@@ -80,8 +80,13 @@ The following rules apply:
 * If no archetype files are present, then the one that ships with Hugo will be used.
 
 Hugo provides a simple archetype which sets the `title` (based on the
-file name) and the `date` based on `now()`.
+file name) and the `date` in RFC&nbsp;3339 format based on
+[`now()`](http://golang.org/pkg/time/#Now), which returns the current time.
 
-Content type is automatically detected based on the path. You are welcome to declare which 
-type to create using the `--kind` flag during creation.
+> *Note: `hugo new` does not automatically add `draft = true` when the user
+> provides an archetype.  This is by design, rationale being that
+> the archetype should set its own value for all fields.
+> `title` and `date`, which are dynamic and unique for each piece of content,
+> are the sole exceptions.*
 
+Content type is automatically detected based on the path. You are welcome to declare which type to create using the `--kind` flag during creation.

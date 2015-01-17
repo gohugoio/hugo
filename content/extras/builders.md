@@ -18,7 +18,7 @@ started.
 
 Want to get a site built quickly?
 
-    hugo new site /path/to/site
+    $ hugo new site /path/to/site
 
 Hugo will create all the needed directories and files to get started
 quickly.
@@ -31,7 +31,7 @@ you... but luckily we have builders for content (see below).
 
 Want to design a new theme?
 
-    hugo new theme `THEME_NAME`
+    $ hugo new theme THEME_NAME
 
 Run from your working directory, this will create a new theme with all
 the needed files in your themes directory. Hugo will provide you with a
@@ -49,12 +49,10 @@ Leveraging [content archetypes](/content/archetypes) the content builder
 will not only insert the current date and appropriate metadata, but it
 will pre-populate values based on the content type.
 
-    hugo new relative/path/to/content
+    $ hugo new relative/path/to/content
 
 This assumes it is being run from your working directory and the content
 path starts from your content directory.
 
 I typically keep two different terminals open, one to run `hugo server
 --watch`, and another to use the builders to create new content.
-
-
