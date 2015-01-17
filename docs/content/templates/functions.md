@@ -14,7 +14,7 @@ weight: 20
 
 Hugo uses the excellent Go html/template library for its template engine.
 It is an extremely lightweight engine that provides a very small amount of
-logic. In our experience it is just the right amount of logic to be able
+logic. In our experience, it is just the right amount of logic to be able
 to create a good static website.
 
 Go templates are lightweight but extensible. Hugo has added the following
@@ -63,7 +63,7 @@ Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [term
 e.g.
 
     {{ range where .Data.Pages "Section" "post" }}
-       {{ .Content}}
+       {{ .Content }}
     {{ end }}
 
 It can be used with dot chaining second argument to refer a nested element of a value.
@@ -98,12 +98,10 @@ Following operators are now available
 - `in`: True if a given field value is included in a matching value. A matching value must be an array or a slice
 - `not in`: True if a given field value isn't included in a matching value. A matching value must be an array or a slice
 
-*where and first can be stacked*
-
-e.g.
+*`where` and `first` can be stacked, e.g.:*
 
     {{ range first 5 (where .Data.Pages "Section" "post") }}
-       {{ .Content}}
+       {{ .Content }}
     {{ end }}
 
 ### delimit
@@ -206,36 +204,54 @@ e.g.
 
 ## Math
 
-### add
-Adds two integers.
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
 
-e.g. `{{add 1 2}}` → 3
+<tbody>
+<tr>
+<td><code>add</code></td>
+<td>Adds two integers.</td>
+<td><code>{{add 1 2}}</code> → 3</td>
+</tr>
 
-### sub
-Subtracts two integers.
+<tr>
+<td><code>sub</code></td>
+<td>Subtracts two integers.</td>
+<td><code>{{sub 3 2}}</code> → 1</td>
+</tr>
 
-e.g. `{{sub 3 2}}` → 1
+<tr>
+<td><code>mul</code></td>
+<td>Multiplies two integers.</td>
+<td><code>{{mul 2 3}}</code> → 6</td>
+</tr>
 
-### div
-Divides two integers.
+<tr>
+<td><code>div</code></td>
+<td>Divides two integers.</td>
+<td><code>{{div 6 3}}</code> → 2</td>
+</tr>
 
-e.g. `{{div 6 3}}` → 2
+<tr>
+<td><code>mod</code></td>
+<td>Modulus of two integers.</td>
+<td><code>{{mod 15 3}}</code> → 0</td>
+</tr>
 
-### mul
-Multiplies two integers.
+<tr>
+<td><code>modBool</code></td>
+<td>Boolean of modulus of two integers.  <code>true</code> if modulus is 0.</td>
+<td><code>{{modBool 15 3}}</code> → true</td>
+</tr>
+</tbody>
+</table>
 
-e.g. `{{mul 2 3}}` → 6
-
-### mod
-Modulus of two integers.
-
-e.g. `{{mod 15 3}}` → 0
-
-### modBool
-Boolean of modulus of two integers.
-true if modulus is 0.
-
-e.g. `{{modBool 15 3}}` → true
 
 ## Strings
 
