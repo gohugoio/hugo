@@ -29,6 +29,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,6 +37,8 @@ import (
 
 var localTemplates *template.Template
 var tmpl Template
+var funcMap template.FuncMap
+var chompRegexp *regexp.Regexp
 
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
@@ -83,40 +86,6 @@ func New() Template {
 	}
 
 	localTemplates = &templates.Template
-
-	funcMap := template.FuncMap{
-		"urlize":      helpers.Urlize,
-		"sanitizeurl": helpers.SanitizeUrl,
-		"eq":          Eq,
-		"ne":          Ne,
-		"gt":          Gt,
-		"ge":          Ge,
-		"lt":          Lt,
-		"le":          Le,
-		"in":          In,
-		"intersect":   Intersect,
-		"isset":       IsSet,
-		"echoParam":   ReturnWhenSet,
-		"safeHtml":    SafeHtml,
-		"markdownify": Markdownify,
-		"first":       First,
-		"where":       Where,
-		"delimit":     Delimit,
-		"sort":        Sort,
-		"highlight":   Highlight,
-		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":         Mod,
-		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":     ModBool,
-		"lower":       func(a string) string { return strings.ToLower(a) },
-		"upper":       func(a string) string { return strings.ToUpper(a) },
-		"title":       func(a string) string { return strings.Title(a) },
-		"partial":     Partial,
-		"ref":         Ref,
-		"relref":      RelRef,
-	}
 
 	templates.Funcs(funcMap)
 	templates.LoadEmbedded()
@@ -204,7 +173,6 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 }
 
 func Intersect(l1, l2 interface{}) (interface{}, error) {
-
 	if l1 == nil || l2 == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -305,7 +273,6 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 // First is exposed to templates, to iterate over the first N items in a
 // rangeable list.
 func First(limit interface{}, seq interface{}) (interface{}, error) {
-
 	limitv, err := cast.ToIntE(limit)
 
 	if err != nil {
@@ -335,7 +302,7 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 }
 
 var (
-	zero reflect.Value
+	zero      reflect.Value
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
 )
 
@@ -401,10 +368,141 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	return zero, fmt.Errorf("%s is neither a struct field, a method nor a map element of type %s", elemName, typ)
 }
 
-func Where(seq, key, match interface{}) (r interface{}, err error) {
+func checkCondition(v, mv reflect.Value, op string) (bool, error) {
+	if !v.IsValid() || !mv.IsValid() {
+		return false, nil
+	}
+
+	var isNil bool
+	v, isNil = indirect(v)
+	if isNil {
+		return false, nil
+	}
+	mv, isNil = indirect(mv)
+	if isNil {
+		return false, nil
+	}
+
+	var ivp, imvp *int64
+	var svp, smvp *string
+	var ima []int64
+	var sma []string
+	if mv.Type() == v.Type() {
+		switch v.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			iv := v.Int()
+			ivp = &iv
+			imv := mv.Int()
+			imvp = &imv
+		case reflect.String:
+			sv := v.String()
+			svp = &sv
+			smv := mv.String()
+			smvp = &smv
+		}
+	} else {
+		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
+			return false, nil
+		}
+		if mv.Type().Elem() != v.Type() {
+			return false, nil
+		}
+		switch v.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			iv := v.Int()
+			ivp = &iv
+			for i := 0; i < mv.Len(); i++ {
+				ima = append(ima, mv.Index(i).Int())
+			}
+		case reflect.String:
+			sv := v.String()
+			svp = &sv
+			for i := 0; i < mv.Len(); i++ {
+				sma = append(sma, mv.Index(i).String())
+			}
+		}
+	}
+
+	switch op {
+	case "", "=", "==", "eq":
+		if ivp != nil && imvp != nil {
+			return *ivp == *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp == *smvp, nil
+		}
+	case "!=", "<>", "ne":
+		if ivp != nil && imvp != nil {
+			return *ivp != *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp != *smvp, nil
+		}
+	case ">=", "ge":
+		if ivp != nil && imvp != nil {
+			return *ivp >= *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp >= *smvp, nil
+		}
+	case ">", "gt":
+		if ivp != nil && imvp != nil {
+			return *ivp > *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp > *smvp, nil
+		}
+	case "<=", "le":
+		if ivp != nil && imvp != nil {
+			return *ivp <= *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp <= *smvp, nil
+		}
+	case "<", "lt":
+		if ivp != nil && imvp != nil {
+			return *ivp < *imvp, nil
+		} else if svp != nil && smvp != nil {
+			return *svp < *smvp, nil
+		}
+	case "in", "not in":
+		var r bool
+		if ivp != nil && len(ima) > 0 {
+			r = In(ima, *ivp)
+		} else if svp != nil {
+			if len(sma) > 0 {
+				r = In(sma, *svp)
+			} else if smvp != nil {
+				r = In(*smvp, *svp)
+			}
+		} else {
+			return false, nil
+		}
+		if op == "not in" {
+			return !r, nil
+		} else {
+			return r, nil
+		}
+	default:
+		return false, errors.New("no such an operator")
+	}
+	return false, nil
+}
+
+func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error) {
 	seqv := reflect.ValueOf(seq)
 	kv := reflect.ValueOf(key)
-	mv := reflect.ValueOf(match)
+
+	var mv reflect.Value
+	var op string
+	switch len(args) {
+	case 1:
+		mv = reflect.ValueOf(args[0])
+	case 2:
+		var ok bool
+		if op, ok = args[0].(string); !ok {
+			return nil, errors.New("operator argument must be string type")
+		}
+		op = strings.TrimSpace(strings.ToLower(op))
+		mv = reflect.ValueOf(args[1])
+	default:
+		return nil, errors.New("can't evaluate the array by no match argument or more than or equal to two arguments")
+	}
 
 	seqv, isNil := indirect(seqv)
 	if isNil {
@@ -436,22 +534,77 @@ func Where(seq, key, match interface{}) (r interface{}, err error) {
 					vvv = vv.MapIndex(kv)
 				}
 			}
-			if vvv.IsValid() && mv.Type() == vvv.Type() {
-				switch mv.Kind() {
-				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-					if mv.Int() == vvv.Int() {
-						rv = reflect.Append(rv, rvv)
-					}
-				case reflect.String:
-					if mv.String() == vvv.String() {
-						rv = reflect.Append(rv, rvv)
-					}
-				}
+			if ok, err := checkCondition(vvv, mv, op); ok {
+				rv = reflect.Append(rv, rvv)
+			} else if err != nil {
+				return nil, err
 			}
 		}
 		return rv.Interface(), nil
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+}
+
+func Apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+	if seq == nil {
+		return make([]interface{}, 0), nil
+	}
+
+	if fname == "apply" {
+		return nil, errors.New("can't apply myself (no turtles allowed)")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
+	}
+
+	fn, found := funcMap[fname]
+	if !found {
+		return nil, errors.New("can't find function " + fname)
+	}
+
+	fnv := reflect.ValueOf(fn)
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice:
+		r := make([]interface{}, seqv.Len())
+		for i := 0; i < seqv.Len(); i++ {
+			vv := seqv.Index(i)
+
+			vvv, err := applyFnToThis(fnv, vv, args...)
+
+			if err != nil {
+				return nil, err
+			}
+
+			r[i] = vvv.Interface()
+		}
+
+		return r, nil
+	default:
+		return nil, errors.New("can't apply over " + reflect.ValueOf(seq).Type().String())
+	}
+}
+
+func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, error) {
+	n := make([]reflect.Value, len(args))
+	for i, arg := range args {
+		if arg == "." {
+			n[i] = this
+		} else {
+			n[i] = reflect.ValueOf(arg)
+		}
+	}
+
+	res := fn.Call(n)
+
+	if len(res) == 1 || res[1].IsNil() {
+		return res[0], nil
+	} else {
+		return reflect.ValueOf(nil), res[1].Interface().(error)
 	}
 }
 
@@ -632,20 +785,36 @@ func IsSet(a interface{}, key interface{}) bool {
 	return false
 }
 
-func ReturnWhenSet(a interface{}, index int) interface{} {
-	av := reflect.ValueOf(a)
+func ReturnWhenSet(a, k interface{}) interface{} {
+	av, isNil := indirect(reflect.ValueOf(a))
+	if isNil {
+		return ""
+	}
 
+	var avv reflect.Value
 	switch av.Kind() {
 	case reflect.Array, reflect.Slice:
-		if av.Len() > index {
+		index, ok := k.(int)
+		if ok && av.Len() > index {
+			avv = av.Index(index)
+		}
+	case reflect.Map:
+		kv := reflect.ValueOf(k)
+		if kv.Type().AssignableTo(av.Type().Key()) {
+			avv = av.MapIndex(kv)
+		}
+	}
 
-			avv := av.Index(index)
-			switch avv.Kind() {
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				return avv.Int()
-			case reflect.String:
-				return avv.String()
-			}
+	if avv.IsValid() {
+		switch avv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return avv.Int()
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return avv.Uint()
+		case reflect.Float32, reflect.Float64:
+			return avv.Float()
+		case reflect.String:
+			return avv.String()
 		}
 	}
 
@@ -700,6 +869,15 @@ func Ref(page interface{}, ref string) template.HTML {
 
 func RelRef(page interface{}, ref string) template.HTML {
 	return refPage(page, ref, "RelRef")
+}
+
+func Chomp(text interface{}) (string, error) {
+	s, err := cast.ToStringE(text)
+	if err != nil {
+		return "", err
+	}
+
+	return chompRegexp.ReplaceAllString(s, ""), nil
 }
 
 func SafeHtml(text string) template.HTML {
@@ -1022,4 +1200,44 @@ func (t *GoHtmlTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) 
 
 func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 	t.loadTemplates(absPath, "")
+}
+
+func init() {
+	funcMap = template.FuncMap{
+		"urlize":      helpers.Urlize,
+		"sanitizeurl": helpers.SanitizeUrl,
+		"eq":          Eq,
+		"ne":          Ne,
+		"gt":          Gt,
+		"ge":          Ge,
+		"lt":          Lt,
+		"le":          Le,
+		"in":          In,
+		"intersect":   Intersect,
+		"isset":       IsSet,
+		"echoParam":   ReturnWhenSet,
+		"safeHtml":    SafeHtml,
+		"markdownify": Markdownify,
+		"first":       First,
+		"where":       Where,
+		"delimit":     Delimit,
+		"sort":        Sort,
+		"highlight":   Highlight,
+		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"mod":         Mod,
+		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"modBool":     ModBool,
+		"lower":       func(a string) string { return strings.ToLower(a) },
+		"upper":       func(a string) string { return strings.ToUpper(a) },
+		"title":       func(a string) string { return strings.Title(a) },
+		"partial":     Partial,
+		"ref":         Ref,
+		"relref":      RelRef,
+		"apply":       Apply,
+		"chomp":       Chomp,
+	}
+
+	chompRegexp = regexp.MustCompile("[\r\n]+$")
 }

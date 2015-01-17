@@ -135,6 +135,8 @@ func serve(port int) {
 	}
 }
 
+// fixUrl massages the BaseUrl into a form needed for serving
+// all pages correctly.
 func fixUrl(s string) (string, error) {
 	useLocalhost := false
 	if s == "" {
@@ -144,6 +146,9 @@ func fixUrl(s string) (string, error) {
 	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {
 		s = "http://" + s
 	}
+	if !strings.HasSuffix(s, "/") {
+		s = s + "/"
+	}
 	u, err := url.Parse(s)
 	if err != nil {
 		return "", err
@@ -152,6 +157,7 @@ func fixUrl(s string) (string, error) {
 	if serverAppend {
 		if useLocalhost {
 			u.Host = fmt.Sprintf("localhost:%d", serverPort)
+			u.Scheme = "http"
 			return u.String(), nil
 		}
 		host := u.Host

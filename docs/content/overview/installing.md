@@ -11,10 +11,10 @@ title: Installing Hugo
 weight: 20
 ---
 
-Hugo is written in Go with support for Windows, Linux, FreeBSD and OS&nbsp;X.
+Hugo is written in Go with support for multiple platforms.
 
 The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
-We currently build for Windows, Linux, FreeBSD and OS&nbsp;X for x64
+We currently build for <i class="fa fa-windows"></i> Windows, <i class="fa fa-linux"></i> Linux, FreeBSD and <i class="fa fa-apple"></i> OS&nbsp;X for x64
 and i386 architectures.
 
 ## Installing Hugo (binary)
@@ -25,11 +25,11 @@ Once downloaded it can be run from anywhere. You don't need to install
 it into a global location. This works well for shared hosts and other systems
 where you don't have a privileged account.
 
-Ideally you should install it somewhere in your path for easy use. `/usr/local/bin`
-is the most probable location.
+Ideally, you should install it somewhere in your `PATH` for easy use.
+`/usr/local/bin` is the most probable location.
 
-If you have [Homebrew](http://brew.sh), installation is even easier.  Just run
-`brew install hugo`.
+On OS&nbsp;X, if you have [Homebrew](http://brew.sh), installation is even
+easier: just run `brew install hugo`.
 
 ### Installing Pygments (optional)
 
@@ -41,7 +41,7 @@ you need to install the Python-based Pygments program. The procedure is outlined
 ## Upgrading Hugo
 
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve
-placed in your path.
+placed in your `PATH`.
 
 
 ## Installing from source
@@ -53,15 +53,15 @@ placed in your path.
 * Mercurial
 * Bazaar
 
-### Get directly from GitHub:
+### Get directly from GitHub
 
-    go get -v github.com/spf13/hugo
+    $ export GOPATH=$HOME/go
+    $ go get -v github.com/spf13/hugo
 
-### Building Hugo
-
-    cd /path/to/hugo
-    go build -o hugo main.go
-    mv hugo /usr/local/bin/
+`go get` will then fetch Hugo and all its dependent libraries to your
+`$GOPATH/src` directory, and compile everything into the final `hugo`
+(or `hugo.exe`) executable, which you will find sitting in the
+`$GOPATH/bin/hugo` directory, all ready to go!
 
 ## Contributing
 

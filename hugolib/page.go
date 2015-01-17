@@ -82,6 +82,8 @@ type PageMeta struct {
 type Position struct {
 	Prev *Page
 	Next *Page
+	PrevInSection *Page
+	NextInSection *Page
 }
 
 type Pages []*Page
@@ -395,7 +397,7 @@ func (page *Page) update(f interface{}) error {
 		return fmt.Errorf("no metadata found")
 	}
 	m := f.(map[string]interface{})
-
+	var err error
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -419,9 +421,15 @@ func (page *Page) update(f interface{}) error {
 		case "keywords":
 			page.Keywords = cast.ToStringSlice(v)
 		case "date":
-			page.Date = cast.ToTime(v)
+			page.Date, err = cast.ToTimeE(v)
+			if err != nil {
+				jww.ERROR.Printf("Failed to parse date '%v' in page %s", v, page.File.Path())
+			}
 		case "publishdate", "pubdate":
-			page.PublishDate = cast.ToTime(v)
+			page.PublishDate, err = cast.ToTimeE(v)
+			if err != nil {
+				jww.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, page.File.Path())
+			}
 		case "draft":
 			page.Draft = cast.ToBool(v)
 		case "layout":

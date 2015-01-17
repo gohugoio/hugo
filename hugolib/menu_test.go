@@ -96,10 +96,7 @@ type testMenuState struct {
 	oldBaseUrl interface{}
 }
 
-// temporarily disabled
-// will be enabled once the cast related build issues is fixed
-// todo bep
-func _TestPageMenu(t *testing.T) {
+func TestPageMenu(t *testing.T) {
 	ts := setupMenuTests(t)
 	defer resetMenuTestState(ts)
 

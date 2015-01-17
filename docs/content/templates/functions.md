@@ -79,6 +79,25 @@ e.g.
        {{ .Content}}
     {{ end }}
 
+It can also be used with an operator like `!=`, `>=`, `in` etc. Without an operator (like above), `where` compares a given field with a matching value in a way like `=` is specified.
+
+e.g.
+
+    {{ range where .Data.Pages "Section" "!=" "post" }}
+       {{ .Content}}
+    {{ end }}
+
+Following operators are now available
+
+- `=`, `==`, `eq`: True if a given field value equals a matching value
+- `!=`, `<>`, `ne`: True if a given field value doesn't equal a matching value
+- `>=`, `ge`: True if a given field value is greater than or equal to a matching value
+- `>`, `gt`: True if a given field value is greater than a matching value
+- `<=`, `le`: True if a given field value is lesser than or equal to a matching value
+- `<`, `lt`: True if a given field value is lesser than a matching value
+- `in`: True if a given field value is included in a matching value. A matching value must be an array or a slice
+- `not in`: True if a given field value isn't included in a matching value. A matching value must be an array or a slice
+
 *where and first can be stacked*
 
 e.g.
@@ -252,12 +271,81 @@ Convert all characters in string to titlecase.
 
 e.g. `{{title "BatMan"}}` → "Batman"
 
+### chomp
+Removes any trailing newline characters. Useful in a pipeline to remove newlines added by other processing (including `markdownify`).
+
+e.g., `{{chomp "<p>Blockhead</p>\n"` → `"<p>Blockhead</p>"`
+
 ### highlight
-Take a string of code and a language, uses Pygments to return the syntax
-highlighted code in HTML. Used in the [highlight
-shortcode](/extras/highlighting).
+Take a string of code and a language, uses Pygments to return the syntax highlighted code in HTML. Used in the [highlight shortcode](/extras/highlighting).
 
 ### ref, relref
 Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
 
 e.g. {{ ref . "about.md" }}
+
+## Advanced
+
+### apply
+
+Given a map, array, or slice, returns a new slice with a function applied over it. Expects at least three parameters, depending on the function being applied. The first parameter is the sequence to operate on; the second is the name of the function as a string, which must be in the Hugo function map (generally, it is these functions documented here). After that, the parameters to the applied function are provided, with the string `"."` standing in for each element of the sequence the function is to be applied against. An example is in order:
+
+    +++
+    names: [ "Derek Perkins", "Joe Bergevin", "Tanner Linsley" ]
+    +++
+
+    {{ apply .Params.names "urlize" "." }} → [ "derek-perkins", "joe-bergevin", "tanner-linsley" ]
+
+This is roughly equivalent to:
+
+    {{ range .Params.names }}{{ . | urlize }}{{ end }}
+
+However, it isn’t possible to provide the output of a range to the `delimit` function, so you need to `apply` it. A more complete example should explain this. Let's say you have two partials for displaying tag links in a post,  "post/tag/list.html" and "post/tag/link.html", as shown below.
+
+    <!-- post/tag/list.html -->
+    {{ with .Params.tags }}
+    <div class="tags-list">
+      Tags:
+      {{ $len := len . }}
+      {{ if eq $len 1 }}
+        {{ partial "post/tag/link" (index . 0) }}
+      {{ else }}
+        {{ $last := sub $len 1 }}
+        {{ range first $last . }}
+          {{ partial "post/tag/link" . }},
+        {{ end }}
+        {{ partial "post/tag/link" (index . $last) }}
+      {{ end }}
+    </div>
+    {{ end }}
+
+
+    <!-- post/tag/link.html -->
+    <a class="post-tag post-tag-{{ . | urlize }}" href="/tags/{{ . | urlize }}">{{ . }}</a>
+
+This works, but the complexity of "post/tag/list.html" is fairly high; the Hugo template needs to perform special behaviour for the case where there’s only one tag, and it has to treat the last tag as special. Additionally, the tag list will be rendered something like "Tags: tag1 , tag2 , tag3" because of the way that the HTML is generated and it is interpreted by a browser.
+
+This is Hugo. We have a better way. If this were your "post/tag/list.html" instead, all of those problems are fixed automatically (this first version separates all of the operations for ease of reading; the combined version will be shown after the explanation).
+
+    <!-- post/tag/list.html -->
+    {{ with.Params.tags }}
+    <div class="tags-list">
+      Tags:
+      {{ $sort := sort . }}
+      {{ $links := apply $sort "partial" "post/tag/link" "." }}
+      {{ $clean := apply $links "chomp" "." }}
+      {{ delimit $clean ", " }}
+    </div>
+    {{ end }}
+
+In this version, we are now sorting the tags, converting them to links with "post/tag/link.html", cleaning off stray newlines, and joining them together in a delimited list for presentation. That can also be written as:
+
+    <!-- post/tag/list.html -->
+    {{ with.Params.tags }}
+    <div class="tags-list">
+      Tags:
+      {{ delimit (apply (apply (sort .) "partial" "post/tag/link" ".") "chomp" ".") ", " }}
+    </div>
+    {{ end }}
+
+`apply` does not work when receiving the sequence as an argument through a pipeline.

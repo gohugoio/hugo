@@ -1,8 +1,9 @@
 package watcher
 
 import (
-	"github.com/howeyc/fsnotify"
 	"time"
+
+	"gopkg.in/fsnotify.v0"
 )
 
 type Batcher struct {

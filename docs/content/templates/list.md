@@ -60,7 +60,7 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/
 
 A Section’s RSS will be rendered at /`SECTION`/index.xml
 
-*Hugo ships with its own ATOM 2.0 RSS template. In most cases this will
+*Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the
 user.*
 
@@ -76,7 +76,7 @@ can have different RSS files for each section and taxonomy.
 
 A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml
 
-*Hugo ships with its own ATOM 2.0 RSS template. In most cases this will
+*Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the
 user.*
 
@@ -121,7 +121,7 @@ defined.
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 ### Example taxonomy template (tag.html)
 This content template is used for [spf13.com](http://spf13.com).
@@ -141,7 +141,7 @@ defined.
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 ## Ordering Content
 
@@ -387,3 +387,6 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 These are both template functions and work on not only
 [lists](/templates/list/), but [taxonomies](/taxonomies/displaying/),
 [terms](/templates/terms/) and [groups](/templates/list/).
+
+
+[RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
