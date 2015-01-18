@@ -88,7 +88,7 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable angled double quotes (<code>« »</code>)</td>
+<td class="purpose-description" colspan="2">Enable smart angled double quotes <small>(e.g.&nbsp;<code>"Hugo"</code> renders to «Hugo» instead of “Hugo”)</small></td>
 </tr>
 
 <tr>
@@ -98,19 +98,29 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID <small>(so,&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>)</small></td>
+<td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID <small>(e.g.&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>)</small></td>
 </tr>
 </tbody>
 </table>
 
 
-**Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.
+**Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
 
-```
-blackfriday:
-  angledQuotes = true
-  plainIdAnchors = true
-```
+<table class="table">
+<tr>
+<th>TOML</th><th>YAML</th>
+</tr>
+<tr>
+<td><pre><code>[blackfriday]
+    angledQuotes = true
+    plainIdAnchors = true
+</code></pre></td>
+<td><pre><code>blackfriday:
+  angledQuotes: true
+  plainIdAnchors: true
+</code></pre></td>
+</tr>
+</table>
 
 ## Notes
 
