@@ -21,11 +21,26 @@ Luckily, this can be handled easily with aliases in Hugo.
 ## Example
 **content/posts/my-awesome-blog-post.md**
 
-    ---
-    aliases:
-        - /posts/my-original-url/
-        - /2010/even-earlier-url.html
-    ---
+<table class="table">
+<tr>
+<th>TOML</th><th>YAML</th>
+</tr>
+<tr valign="top">
+<td><pre><code>---
+aliases:
+    - /posts/my-original-url/
+    - /2010/even-earlier-url.html
+---
+</code></pre></td>
+<td><pre><code>+++
+aliases = [
+    "/posts/my-original-url/",
+    "/2010/even-earlier-url.html"
+]
++++
+</code></pre></td>
+</tr>
+</table>
 
 Now when you go to any of the aliases locations, they
 will redirect to the page.

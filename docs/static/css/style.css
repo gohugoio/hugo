@@ -164,7 +164,7 @@ input:focus, textarea:focus { outline: none; }
 /*sidebar navigation*/
 
 #sidebar {
-    width: 200px;
+    width: 214px;
     height: 100%;
     position: fixed;
     background: #ffffff;
@@ -227,7 +227,6 @@ ul.sidebar-menu li ul.sub li a:hover, ul.sidebar-menu li ul.sub li.active a {
 
 ul.sidebar-menu li{
     line-height: 20px !important;
-    text-transform: capitalize;
 }
 
 ul.sidebar-menu li.sub-menu{
@@ -254,7 +253,7 @@ ul.sidebar-menu li a{
     transition: all 0.3s ease;
     border-right: 1px solid #D7D7D7;
     border-bottom: 1px solid #D7D7D7;
-    overflow:hidden;
+    white-space: nowrap;
 }
 
 ul.sidebar-menu li.active a, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {

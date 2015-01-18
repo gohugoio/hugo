@@ -880,6 +880,32 @@ func Chomp(text interface{}) (string, error) {
 	return chompRegexp.ReplaceAllString(s, ""), nil
 }
 
+// Trim leading/trailing characters defined by b from a
+func Trim(a interface{}, b string) (string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return "", err
+	}
+	return strings.Trim(aStr, b), nil
+}
+
+// Replace all occurences of b with c in a
+func Replace(a, b, c interface{}) (string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return "", err
+	}
+	bStr, err := cast.ToStringE(b)
+	if err != nil {
+		return "", err
+	}
+	cStr, err := cast.ToStringE(c)
+	if err != nil {
+		return "", err
+	}
+	return strings.Replace(aStr, bStr, cStr, -1), nil
+}
+
 func SafeHtml(text string) template.HTML {
 	return template.HTML(text)
 }
@@ -1237,6 +1263,8 @@ func init() {
 		"relref":      RelRef,
 		"apply":       Apply,
 		"chomp":       Chomp,
+		"replace":     Replace,
+		"trim":        Trim,
 	}
 
 	chompRegexp = regexp.MustCompile("[\r\n]+$")
