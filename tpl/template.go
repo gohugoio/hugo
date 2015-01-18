@@ -1265,6 +1265,7 @@ func init() {
 		"chomp":       Chomp,
 		"replace":     Replace,
 		"trim":        Trim,
+		"colorize16":  helpers.Colorize16,
 	}
 
 	chompRegexp = regexp.MustCompile("[\r\n]+$")
