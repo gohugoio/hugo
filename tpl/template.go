@@ -890,12 +890,20 @@ func Trim(a interface{}, b string) (string, error) {
 }
 
 // Replace all occurences of b with c in a
-func Replace(a interface{}, b string, c string) (string, error) {
+func Replace(a, b, c interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
 	}
-	return strings.Replace(aStr, b, c, -1), nil
+	bStr, err := cast.ToStringE(b)
+	if err != nil {
+		return "", err
+	}
+	cStr, err := cast.ToStringE(c)
+	if err != nil {
+		return "", err
+	}
+	return strings.Replace(aStr, bStr, cStr, -1), nil
 }
 
 func SafeHtml(text string) template.HTML {
