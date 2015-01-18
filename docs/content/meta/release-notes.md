@@ -30,6 +30,8 @@ A lot has happened since Hugo v0.12.0 was released.
 	* `sort`
 	* `markdownify`
 	* `in` and `intersect` 
+	* `trim`
+	* `replace`
 * Several new ways to order and group content:
 	* `ByPublishDate`
 	* `GroupByPublishDate(format, order)`
