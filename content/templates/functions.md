@@ -76,7 +76,7 @@ e.g.
     +++
 
     {{ range where .Site.Recent "Params.series" "golang" }}
-       {{ .Content}}
+       {{ .Content }}
     {{ end }}
 
 It can also be used with an operator like `!=`, `>=`, `in` etc. Without an operator (like above), `where` compares a given field with a matching value in a way like `=` is specified.
@@ -84,7 +84,7 @@ It can also be used with an operator like `!=`, `>=`, `in` etc. Without an opera
 e.g.
 
     {{ range where .Data.Pages "Section" "!=" "post" }}
-       {{ .Content}}
+       {{ .Content }}
     {{ end }}
 
 Following operators are now available
@@ -111,6 +111,7 @@ Maps will be sorted by the keys, and only a slice of the values will be returned
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
 e.g.
+
     // Front matter
     +++
     tags: [ "tag1", "tag2", "tag3" ]
@@ -132,6 +133,7 @@ Sorts maps, arrays and slices, returning a sorted slice. A sorted array of map v
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
 e.g.
+
     // Front matter
     +++
     tags: [ "tag3", "tag1", "tag2" ]
