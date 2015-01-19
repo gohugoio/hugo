@@ -32,6 +32,7 @@ A lot has happened since Hugo v0.12.0 was released.
 	* `in` and `intersect` 
 	* `trim`
 	* `replace`
+* A top level `Hugo` variable is added with various build information
 * Several new ways to order and group content:
 	* `ByPublishDate`
 	* `GroupByPublishDate(format, order)`
