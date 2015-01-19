@@ -522,7 +522,7 @@ dd {
 }
 
 /* Prevent linebreak right after an icon */
-.fa {
+#main-content .fa {
   display: inline;
 }
 
