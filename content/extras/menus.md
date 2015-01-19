@@ -27,30 +27,24 @@ access it via `.Site.Menus.main`.
 
 A menu entry has the following properties:
 
-<dl>
-<dt><code>Url</code></dt>        <dd>string</dd>
-<dt><code>Name</code></dt>       <dd>string</dd>
-<dt><code>Menu</code></dt>       <dd>string</dd>
-<dt><code>Identifier</code></dt> <dd>string</dd>
-<dt><code>Pre</code></dt>        <dd>template.HTML</dd>
-<dt><code>Post</code></dt>       <dd>template.HTML</dd>
-<dt><code>Weight</code></dt>     <dd>int</dd>
-<dt><code>Parent</code></dt>     <dd>string</dd>
-<dt><code>Children</code></dt>   <dd>Menu</dd>
-</dl>
+* **Url**        string
+* **Name**       string
+* **Menu**       string
+* **Identifier** string
+* **Pre**        template.HTML
+* **Post**       template.HTML
+* **Weight**     int
+* **Parent**     string
+* **Children**   Menu
 
 And the following functions:
 
-<dl>
-<dt><code>HasChildren</code></dt> <dd>bool</dd>
-</dl>
+* **HasChildren** bool
 
 Additionally, there are some relevant functions available on the page:
 
-<dl>
-<dt><code>IsMenuCurrent</code></dt> <dd>(menu string, menuEntry *MenuEntry ) bool</dd>
-<dt><code>HasMenuCurrent</code></dt> <dd>(menu string, menuEntry *MenuEntry) bool</dd>
-</dl>
+* **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
+* **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
 
 
 ## Adding content to menus

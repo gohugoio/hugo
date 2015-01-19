@@ -16,12 +16,10 @@ Hugo makes a set of values and methods available on the various Taxonomy structu
 
 A Taxonomy is a `map[string]WeightedPages`.
 
-<dl>
-<dt><code>.Get(term)</code></dt><dd>Returns the WeightedPages for a term.</dd>
-<dt><code>.Count(term)</code></dt><dd>The number of pieces of content assigned to this term.</dd>
-<dt><code>.Alphabetical</code></dt><dd>Returns an OrderedTaxonomy (slice) ordered by Term.</dd>
-<dt><code>.ByCount</code></dt><dd>Returns an OrderedTaxonomy (slice) ordered by number of entries.</dd>
-</dl>
+**.Get(term)** Returns the WeightedPages for a term. <br>
+**.Count(term)** The number of pieces of content assigned to this term.<br>
+**.Alphabetical** Returns an OrderedTaxonomy (slice) ordered by Term. <br>
+**.ByCount** Returns an OrderedTaxonomy (slice) ordered by number of entries. <br>
 
 ## OrderedTaxonomy
 
@@ -34,12 +32,10 @@ Since Maps are unordered, an OrderedTaxonomy is a special structure that has a d
 
 Each element of the slice has:
 
-<dl>
-<dt><code>.Term</code></dt><dd>The Term used.</dd>
-<dt><code>.WeightedPages</code></dt><dd>A slice of Weighted Pages.</dd>
-<dt><code>.Count</code></dt><dd>The number of pieces of content assigned to this term.</dd>
-<dt><code>.Pages</code></dt><dd>All Pages assigned to this term. All <a href="/templates/list/">list methods</a> are available to this.</dd>
-</dl>
+**.Term**  The Term used.<br>
+**.WeightedPages**  A slice of Weighted Pages.<br>
+**.Count** The number of pieces of content assigned to this term.<br>
+**.Pages**  All Pages assigned to this term. All [list methods](/templates/list/) are available to this.<br>
 
 ## WeightedPages
 
@@ -47,7 +43,12 @@ WeightedPages is simply a slice of WeightedPage.
 
     type WeightedPages []WeightedPage
 
-<dl>
-<dt><code>.Count(term)</code></dt><dd>The number of pieces of content assigned to this term.</dd>
-<dt><code>.Pages</code></dt><dd>Returns a slice of pages, which then can be ordered using any of the <a href="/templates/list/">list methods</a>.</dd>
-</dl>
+**.Count(term)** The number of pieces of content assigned to this term.<br>
+**.Pages** Returns a slice of pages, which then can be ordered using any of the [list methods](/templates/list/). <br>
+
+
+
+
+
+
+
