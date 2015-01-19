@@ -500,3 +500,23 @@ td.purpose-title {
 td.purpose-description {
   border-left: 0;
 }
+
+/* For definitions of variables */
+
+dl {
+    margin: 1em;
+    border-bottom: 1px solid #ccc;
+}
+
+dt {
+    float: left;
+    clear: left;
+    width: 9.5em;
+    margin: 0.125em;
+    padding: 2px 4px;
+}
+
+dd {
+    padding: 0.2em 0 0.2em 10em;
+    border-top: 1px solid #ccc;
+}
