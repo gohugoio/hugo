@@ -17,14 +17,11 @@ type HugoInfo struct {
 	BuildDate  string
 }
 
-func getHugoInfo() *HugoInfo {
-	if hugoInfo == nil {
-		hugoInfo = &HugoInfo{
-			Version:    Version,
-			CommitHash: CommitHash,
-			BuildDate:  BuildDate,
-			Generator:  `<meta name="generator" content="Hugo ` + Version + `" />`,
-		}
+func init() {
+	hugoInfo = &HugoInfo{
+		Version:    Version,
+		CommitHash: CommitHash,
+		BuildDate:  BuildDate,
+		Generator:  `<meta name="generator" content="Hugo ` + Version + `" />`,
 	}
-	return hugoInfo
 }

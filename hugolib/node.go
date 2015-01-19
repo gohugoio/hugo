@@ -78,7 +78,7 @@ func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 }
 
 func (n *Node) Hugo() *HugoInfo {
-	return getHugoInfo()
+	return hugoInfo
 }
 
 func (n *Node) isSameAsDescendantMenu(inme *MenuEntry, parent *MenuEntry) bool {
