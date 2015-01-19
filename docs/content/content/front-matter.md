@@ -80,25 +80,23 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 
 ### Required variables
 
-<dl>
-<dt><code>title</code></dt><dd>The title for the content</dd>
-<dt><code>description</code></dt><dd>The description for the content</dd>
-<dt><code>date</code></dt><dd>The date the content will be sorted by</dd>
-<dt><code>taxonomies</code></dt><dd>These will use the field name of the plural form of the index (see tags and categories above)</dd>
-</dl>
+* **title** The title for the content
+* **description** The description for the content
+* **date** The date the content will be sorted by
+* **taxonomies** These will use the field name of the plural form of the index (see tags and categories above)
 
 ### Optional variables
 
-<dl>
-<dt><code>redirect</code></dt><dd>Mark the post as a redirect post</dd>
-<dt><code>draft</code></dt><dd>If true, the content will not be rendered unless <code>hugo</code> is called with <code>--buildDrafts</code></dd>
-<dt><code>publishdate</code></dt><dd>If in the future, content will not be rendered unless <code>hugo</code> is called with <code>--buildFuture</code></dd>
-<dt><code>type</code></dt><dd>The type of the content (will be derived from the directory automatically if unset)</dd>
-<dt><code>weight</code></dt><dd>Used for sorting</dd>
-<dt><code>markup</code></dt><dd><em>(Experimental)</em> Specify <code>"rst"</code> for reStructuredText (requires <code>rst2html</code>) or <code>"md"</code> (default) for Markdown</dd>
-<dt><code>slug</code></dt><dd>The token to appear in the tail of the URL, <em>or</em></dd>
-<dt><code>url</code></dt><dd>The full path to the content from the web root.<br></dd>
-</dl>
+* **redirect** Mark the post as a redirect post
+* **draft** If true, the content will not be rendered unless `hugo` is called with `--buildDrafts`
+* **publishdate** If in the future, content will not be rendered unless `hugo` is called with `--buildFuture`
+* **type** The type of the content (will be derived from the directory automatically if unset)
+* **weight** Used for sorting
+* **markup** *(Experimental)* Specify `"rst"` for reStructuredText (requires
+            `rst2html`) or `"md"` (default) for Markdown
+* **slug** The token to appear in the tail of the URL,
+   *or*<br>
+* **url** The full path to the content from the web root.<br>
 
 *If neither `slug` or `url` is present, the filename will be used.*
 
