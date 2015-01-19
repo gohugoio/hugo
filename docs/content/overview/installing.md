@@ -14,8 +14,11 @@ weight: 20
 Hugo is written in Go with support for multiple platforms.
 
 The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
-We currently build for <i class="fa fa-windows"></i> Windows, <i class="fa fa-linux"></i> Linux, FreeBSD and <i class="fa fa-apple"></i> OS&nbsp;X for x64
-and i386 architectures.
+We currently build for <i class="fa fa-windows"></i>&nbsp;Windows,
+<i class="fa fa-linux"></i>&nbsp;Linux,
+<i class="fa freebsd-19px"></i>&nbsp;FreeBSD
+and <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X
+for x64 and i386 architectures.
 
 ## Installing Hugo (binary)
 

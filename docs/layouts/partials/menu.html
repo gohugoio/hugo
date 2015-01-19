@@ -29,7 +29,7 @@
               {{end}}
               </li>
           {{end}}
-            <li> <a href="https://github.com/spf13/hugo/issues" target="blank"><i class='fa fa-life-ring'></i>Issues & Help</a> </li>
+            <li> <a href="https://github.com/spf13/hugo/issues" target="blank"><i class='fa fa-life-ring'></i> <span>Issues & Help</span></a> </li>
             {{ if .IsPage }}
             {{ $File := .File }}  {{with $File.Path }}<li><a href="https://github.com/spf13/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.LogicalName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
             {{ end }}
