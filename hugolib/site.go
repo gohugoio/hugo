@@ -67,7 +67,6 @@ type Site struct {
 	Taxonomies  TaxonomyList
 	Source      source.Input
 	Sections    Taxonomy
-	Hugo        HugoInfo
 	Info        SiteInfo
 	Shortcodes  map[string]ShortcodeFunc
 	Menus       Menus
@@ -341,7 +340,6 @@ func (s *Site) initialize() (err error) {
 
 	s.Menus = Menus{}
 
-	s.Hugo = NewHugoInfo()
 	s.initializeSiteInfo()
 
 	s.Shortcodes = make(map[string]ShortcodeFunc)
@@ -369,7 +367,6 @@ func (s *Site) initializeSiteInfo() {
 		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
-		Hugo:            &s.Hugo,
 	}
 }
 
@@ -731,10 +728,10 @@ func (s *Site) assembleSections() {
 
 		for i, wp := range s.Sections[k] {
 			if i > 0 {
-				wp.Page.NextInSection = s.Sections[k][i - 1].Page;
+				wp.Page.NextInSection = s.Sections[k][i-1].Page
 			}
-			if i < len(s.Sections[k]) - 1 {
-				wp.Page.PrevInSection = s.Sections[k][i + 1].Page;
+			if i < len(s.Sections[k])-1 {
+				wp.Page.PrevInSection = s.Sections[k][i+1].Page
 			}
 		}
 	}
@@ -1194,7 +1191,6 @@ func (s *Site) NewNode() *Node {
 	return &Node{
 		Data: make(map[string]interface{}),
 		Site: &s.Info,
-		Hugo: &s.Hugo,
 	}
 }
 

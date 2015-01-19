@@ -7,7 +7,7 @@ var (
 	BuildDate  string
 )
 
-// Hugo contains all the information about the current Hugo environment
+// HugoInfo contains information about the current Hugo environment
 type HugoInfo struct {
 	Version    string
 	Generator  string
@@ -15,8 +15,8 @@ type HugoInfo struct {
 	BuildDate  string
 }
 
-func NewHugoInfo() HugoInfo {
-	return HugoInfo{
+func newHugoInfo() *HugoInfo {
+	return &HugoInfo{
 		Version:    Version,
 		CommitHash: CommitHash,
 		BuildDate:  BuildDate,
