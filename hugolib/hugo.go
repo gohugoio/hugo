@@ -1,5 +1,9 @@
 package hugolib
 
+import (
+	"html/template"
+)
+
 const Version = "0.13-DEV"
 
 var (
@@ -12,7 +16,7 @@ var hugoInfo *HugoInfo
 // HugoInfo contains information about the current Hugo environment
 type HugoInfo struct {
 	Version    string
-	Generator  string
+	Generator  template.HTML
 	CommitHash string
 	BuildDate  string
 }
