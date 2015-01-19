@@ -7,6 +7,8 @@ var (
 	BuildDate  string
 )
 
+var hugoInfo *HugoInfo
+
 // HugoInfo contains information about the current Hugo environment
 type HugoInfo struct {
 	Version    string
@@ -15,11 +17,14 @@ type HugoInfo struct {
 	BuildDate  string
 }
 
-func newHugoInfo() *HugoInfo {
-	return &HugoInfo{
-		Version:    Version,
-		CommitHash: CommitHash,
-		BuildDate:  BuildDate,
-		Generator:  `<meta name="generator" content="Hugo ` + Version + `" />`,
+func getHugoInfo() *HugoInfo {
+	if hugoInfo == nil {
+		hugoInfo = &HugoInfo{
+			Version:    Version,
+			CommitHash: CommitHash,
+			BuildDate:  BuildDate,
+			Generator:  `<meta name="generator" content="Hugo ` + Version + `" />`,
+		}
 	}
+	return hugoInfo
 }

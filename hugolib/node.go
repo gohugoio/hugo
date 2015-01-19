@@ -29,7 +29,6 @@ type Node struct {
 	Params      map[string]interface{}
 	Date        time.Time
 	Sitemap     Sitemap
-	hugo        *HugoInfo
 	UrlPath
 }
 
@@ -79,10 +78,7 @@ func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 }
 
 func (n *Node) Hugo() *HugoInfo {
-	if n.hugo == nil {
-		n.hugo = newHugoInfo()
-	}
-	return n.hugo
+	return getHugoInfo()
 }
 
 func (n *Node) isSameAsDescendantMenu(inme *MenuEntry, parent *MenuEntry) bool {
