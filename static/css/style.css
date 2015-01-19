@@ -520,3 +520,14 @@ dd {
     padding: 0.2em 0 0.2em 10em;
     border-top: 1px solid #ccc;
 }
+
+/* Prevent linebreak right after an icon */
+.fa {
+  display: inline;
+}
+
+/* Logo for FreeBSD until Font Awesome adds it, see https://github.com/FortAwesome/Font-Awesome/issues/1116 */
+i.freebsd-19px:before {
+  content: url(/img/freebsd-19px.svg);
+  vertical-align: -7%;
+}
