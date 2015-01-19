@@ -48,7 +48,7 @@ matter, content or derived from file location.
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
 **.Site** See site variables below.<br>
-**.Hugo** See site variables below<br>
+**.Hugo** See Hugo variables below<br>
 
 ## Page Params
 
@@ -85,7 +85,6 @@ Also available is `.Site` which has the following:
 **.Site.Taxonomies** The indexes for the entire site.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Recent** Array of all content ordered by Date, newest first.<br>
-<<<<<<< HEAD
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
     baseurl = "http://yoursite.example.com/"
