@@ -119,6 +119,7 @@ func InitializeConfig() {
 	viper.SetDefault("StaticDir", "static")
 	viper.SetDefault("ArchetypeDir", "archetypes")
 	viper.SetDefault("PublishDir", "public")
+	viper.SetDefault("DataDir", "data")
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
@@ -287,6 +288,7 @@ func getDirList() []string {
 		return nil
 	}
 
+	filepath.Walk(helpers.AbsPathify(viper.GetString("DataDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("ContentDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
