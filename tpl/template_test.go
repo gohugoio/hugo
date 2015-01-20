@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"html/template"
 	"reflect"
 	"testing"
@@ -850,6 +851,16 @@ func TestChomp(t *testing.T) {
 			t.Errorf("Chomp should fail")
 		}
 	}
+}
+
+func TestTrim(t *testing.T) {
+	v, _ := Trim("1234 my way 13", "123")
+	assert.Equal(t, "4 my way ", v)
+	v, _ = Trim("   my way    ", " ")
+	v, _ = Trim(1234, "14")
+	assert.Equal(t, "23", v)
+	_, e := Trim(tstNoStringer{}, " ")
+	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
 }
 
 func TestSafeHtml(t *testing.T) {
