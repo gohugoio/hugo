@@ -6,39 +6,96 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"html/template"
+	"path"
 	"reflect"
+	"runtime"
 	"testing"
 )
 
 type tstNoStringer struct {
 }
 
-func TestGt(t *testing.T) {
-	for i, this := range []struct {
-		left          interface{}
-		right         interface{}
-		leftShouldWin bool
+type tstCompareType int
+
+const (
+	tstEq tstCompareType = iota
+	tstNe
+	tstGt
+	tstGe
+	tstLt
+	tstLe
+)
+
+func tstIsEq(tp tstCompareType) bool {
+	return tp == tstEq || tp == tstGe || tp == tstLe
+}
+
+func tstIsGt(tp tstCompareType) bool {
+	return tp == tstGt || tp == tstGe
+}
+
+func tstIsLt(tp tstCompareType) bool {
+	return tp == tstLt || tp == tstLe
+}
+
+func TestCompare(t *testing.T) {
+	for _, this := range []struct {
+		tstCompareType
+		funcUnderTest func(a, b interface{}) bool
 	}{
-		{5, 8, false},
-		{8, 5, true},
-		{5, 5, false},
-		{-2, 1, false},
-		{2, -5, true},
-		{0.0, 1.23, false},
-		{1.23, 0.0, true},
-		{"8", "5", true},
-		{"5", "0001", true},
-		{[]int{100, 99}, []int{1, 2, 3, 4}, false},
+		{tstGt, Gt},
+		{tstLt, Lt},
+		{tstGe, Ge},
+		{tstLe, Le},
+		{tstEq, Eq},
+		{tstNe, Ne},
 	} {
-		leftIsBigger := Gt(this.left, this.right)
-		if leftIsBigger != this.leftShouldWin {
-			var which string
-			if leftIsBigger {
-				which = "expected right to be bigger, but left was"
+		doTestCompare(t, this.tstCompareType, this.funcUnderTest)
+	}
+
+}
+
+func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b interface{}) bool) {
+	for i, this := range []struct {
+		left            interface{}
+		right           interface{}
+		expectIndicator int
+	}{
+		{5, 8, -1},
+		{8, 5, 1},
+		{5, 5, 0},
+		{-2, 1, -1},
+		{2, -5, 1},
+		{0.0, 1.23, -1},
+		{1.23, 0.0, 1},
+		{"5", "5", 0},
+		{"8", "5", 1},
+		{"5", "0001", 1},
+		{[]int{100, 99}, []int{1, 2, 3, 4}, -1},
+	} {
+		result := funcUnderTest(this.left, this.right)
+		success := false
+
+		if this.expectIndicator == 0 {
+			if tstIsEq(tp) {
+				success = result
 			} else {
-				which = "expected left to be bigger, but right was"
+				success = !result
 			}
-			t.Errorf("[%d] %v compared to %v: %s", i, this.left, this.right, which)
+		}
+
+		if this.expectIndicator < 0 {
+			success = result && (tstIsLt(tp) || tp == tstNe)
+			success = success || (!result && !tstIsLt(tp))
+		}
+
+		if this.expectIndicator > 0 {
+			success = result && (tstIsGt(tp) || tp == tstNe)
+			success = success || (!result && (!tstIsGt(tp) || tp != tstNe))
+		}
+
+		if !success {
+			t.Errorf("[%d][%s] %v compared to %v: %t", i, path.Base(runtime.FuncForPC(reflect.ValueOf(funcUnderTest).Pointer()).Name()), this.left, this.right, result)
 		}
 	}
 }
