@@ -1,9 +1,51 @@
 package helpers
 
 import (
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 )
+
+func TestGuessType(t *testing.T) {
+	for i, this := range []struct {
+		in     string
+		expect string
+	}{
+		{"md", "markdown"},
+		{"markdown", "markdown"},
+		{"mdown", "markdown"},
+		{"rst", "rst"},
+		{"html", "html"},
+		{"htm", "html"},
+		{"excel", "unknown"},
+	} {
+		result := GuessType(this.in)
+		if result != this.expect {
+			t.Errorf("[%d] GuessType guessed wrong, expected %s, got %s", i, this.expect, result)
+		}
+	}
+}
+
+func TestBytesToReader(t *testing.T) {
+	asBytes := ReaderToBytes(strings.NewReader("Hello World!"))
+	asReader := BytesToReader(asBytes)
+	assert.Equal(t, []byte("Hello World!"), asBytes)
+	assert.Equal(t, asBytes, ReaderToBytes(asReader))
+}
+
+func TestStringToReader(t *testing.T) {
+	asString := ReaderToString(strings.NewReader("Hello World!"))
+	assert.Equal(t, "Hello World!", asString)
+	asReader := StringToReader(asString)
+	assert.Equal(t, asString, ReaderToString(asReader))
+}
+
+func TestFindAvailablePort(t *testing.T) {
+	addr, err := FindAvailablePort()
+	assert.Nil(t, err)
+	assert.NotNil(t, addr)
+	assert.True(t, addr.Port > 0)
+}
 
 func TestInStringArrayCaseSensitive(t *testing.T) {
 	type test struct {
