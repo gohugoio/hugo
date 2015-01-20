@@ -898,7 +898,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 	}
 }
 
-func TestSafeCSS(t *testing.T) {
+func TestSafeCss(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -910,6 +910,7 @@ func TestSafeCSS(t *testing.T) {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
 			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			continue
 		}
 
 		buf := new(bytes.Buffer)
@@ -922,12 +923,47 @@ func TestSafeCSS(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeCSS(this.str))
+		err = tmpl.Execute(buf, SafeCss(this.str))
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeCSS returns unexpected error: %s", i, err)
+			t.Errorf("[%d] execute template with an escaped string value by SafeCss returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeCSS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by SafeCss, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		}
+	}
+}
+
+func TestSafeUrl(t *testing.T) {
+	for i, this := range []struct {
+		str                 string
+		tmplStr             string
+		expectWithoutEscape string
+		expectWithEscape    string
+	}{
+		{`irc://irc.freenode.net/#golang`, `<a href="{{ . }}">IRC</a>`, `<a href="#ZgotmplZ">IRC</a>`, `<a href="irc://irc.freenode.net/#golang">IRC</a>`},
+	} {
+		tmpl, err := template.New("test").Parse(this.tmplStr)
+		if err != nil {
+			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			continue
+		}
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, this.str)
+		if err != nil {
+			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithoutEscape {
+			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		}
+
+		buf.Reset()
+		err = tmpl.Execute(buf, SafeUrl(this.str))
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by SafeUrl returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithEscape {
+			t.Errorf("[%d] execute template with an escaped string value by SafeUrl, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }

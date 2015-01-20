@@ -910,12 +910,18 @@ func SafeHtml(text string) template.HTML {
 	return template.HTML(text)
 }
 
+// "safeHtmlAttr" is currently disabled, pending further discussion
+// on its use case.  2015-01-19
 func SafeHtmlAttr(text string) template.HTMLAttr {
 	return template.HTMLAttr(text)
 }
 
-func SafeCSS(text string) template.CSS {
+func SafeCss(text string) template.CSS {
 	return template.CSS(text)
+}
+
+func SafeUrl(text string) template.URL {
+	return template.URL(text)
 }
 
 func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
@@ -1251,8 +1257,8 @@ func init() {
 		"isset":        IsSet,
 		"echoParam":    ReturnWhenSet,
 		"safeHtml":     SafeHtml,
-		"safeHtmlAttr": SafeHtmlAttr,
-		"safeCSS":      SafeCSS,
+		"safeCss":      SafeCss,
+		"safeUrl":      SafeUrl,
 		"markdownify":  Markdownify,
 		"first":        First,
 		"where":        Where,

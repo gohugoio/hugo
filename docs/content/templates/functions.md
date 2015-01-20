@@ -263,10 +263,96 @@ Takes a string and sanitizes it for usage in URLs, converts spaces to "-".
 e.g. `<a href="/tags/{{ . | urlize }}">{{ . }}</a>`
 
 ### safeHtml
-Declares the provided string as "safe" so Go templates will not filter it.
+Declares the provided string as a "safe" HTML document fragment
+so Go html/template will not filter it.  It should not be used
+for HTML from a third-party, or HTML with unclosed tags or comments.
 
-e.g. `{{ .Params.CopyrightHTML | safeHtml }}`
+Example: Given a site-wide `config.toml` that contains this line:
 
+    copyright = "© 2015 Jane Doe.  <a href=\"http://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
+
+`{{ .Site.Copyright | safeHtml }}` would then output:
+
+> © 2015 Jane Doe.  <a href="http://creativecommons.org/licenses/by/4.0/">Some rights reserved</a>.
+
+However, without the `safeHtml` function, html/template assumes
+`.Site.Copyright` to be unsafe, escaping all HTML tags,
+rendering the whole string as plain-text like this:
+
+<blockquote>
+<p>© 2015 Jane Doe.  &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
+</blockquote>
+
+<!--
+### safeHtmlAttr
+Declares the provided string as a "safe" HTML attribute
+from a trusted source, for example, ` dir="ltr"`,
+so Go html/template will not filter it.
+
+Example: Given a site-wide `config.toml` that contains this menu entry:
+
+    [[menu.main]]
+        name = "IRC: #golang at freenode"
+        url = "irc://irc.freenode.net/#golang"
+
+* `<a href="{{ .Url }}">` ⇒ `<a href="#ZgotmplZ">` (Bad!)
+* `<a {{ printf "href=%q" .Url | safeHtmlAttr }}>` ⇒ `<a href="irc://irc.freenode.net/#golang">` (Good!)
+-->
+
+### safeCss
+Declares the provided string as a known "safe" CSS string
+so Go html/templates will not filter it.
+"Safe" means CSS content that matches any of:
+
+1. The CSS3 stylesheet production, such as `p { color: purple }`.
+2. The CSS3 rule production, such as `a[href=~"https:"].foo#bar`.
+3. CSS3 declaration productions, such as `color: red; margin: 2px`.
+4. The CSS3 value production, such as `rgba(0, 0, 255, 127)`.
+
+Example: Given `style = "color: red;"` defined in the front matter of your `.md` file:
+
+* `<p style="{{ .Params.style | safeCss }}">…</p>` ⇒ `<p style="color: red;">…</p>` (Good!)
+* `<p style="{{ .Params.style }}">…</p>` ⇒ `<p style="ZgotmplZ">…</p>` (Bad!)
+
+Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
+CSS or URL context.
+
+### safeUrl
+Declares the provided string as a "safe" URL or URL substring (see [RFC 3986][]).
+A URL like `javascript:checkThatFormNotEditedBeforeLeavingPage()` from a trusted
+source should go in the page, but by default dynamic `javascript:` URLs are
+filtered out since they are a frequently exploited injection vector.
+
+[RFC 3986]: http://tools.ietf.org/html/rfc3986
+
+Without `safeUrl`, only the URI schemes `http:`, `https:` and `mailto:`
+are considered safe.  All other URI schemes, e.g.&nbsp;`irc:` and
+`javascript:`, get filtered and replaced with the `ZgotmplZ` unsafe
+content indicator.
+
+Example: Given a site-wide `config.toml` that contains this menu entry:
+
+    [[menu.main]]
+        name = "IRC: #golang at freenode"
+        url = "irc://irc.freenode.net/#golang"
+
+The following template:
+
+    <ul class="sidebar-menu">
+      {{ range .Site.Menus.main }}
+      <li><a href="{{ .Url }}">{{ .Name }}</a></li>
+      {{ end }}
+    </ul>
+
+would produce `<li><a href="#ZgotmplZ">IRC: #golang at freenode</a></li>`
+for the `irc://…` URL.
+
+To fix this, add ` | safeUrl` after `.Url` on the 3rd line, like this:
+
+      <li><a href="{{ .Url | safeUrl }}">{{ .Name }}</a></li>
+
+With this change, we finally get `<li><a href="irc://irc.freenode.net/#golang">IRC: #golang at freenode</a></li>`
+as intended.
 
 ### markdownify
 
