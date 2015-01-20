@@ -832,6 +832,48 @@ func TestMarkdownify(t *testing.T) {
 	}
 }
 
+func TestApply(t *testing.T) {
+	strings := []interface{}{"a\n", "b\n"}
+	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
+
+	var nilErr *error = nil
+
+	chomped, _ := Apply(strings, "chomp", ".")
+	assert.Equal(t, []interface{}{"a", "b"}, chomped)
+
+	chomped, _ = Apply(strings, "chomp", "c\n")
+	assert.Equal(t, []interface{}{"c", "c"}, chomped)
+
+	chomped, _ = Apply(nil, "chomp", ".")
+	assert.Equal(t, []interface{}{}, chomped)
+
+	_, err := Apply(strings, "apply", ".")
+	if err == nil {
+		t.Errorf("apply with apply should fail")
+	}
+
+	_, err = Apply(nilErr, "chomp", ".")
+	if err == nil {
+		t.Errorf("apply with nil in seq should fail")
+	}
+
+	_, err = Apply(strings, "dobedobedo", ".")
+	if err == nil {
+		t.Errorf("apply with unknown func should fail")
+	}
+
+	_, err = Apply(noStringers, "chomp", ".")
+	if err == nil {
+		t.Errorf("apply when func fails should fail")
+	}
+
+	_, err = Apply(tstNoStringer{}, "chomp", ".")
+	if err == nil {
+		t.Errorf("apply with non-sequence should fail")
+	}
+
+}
+
 func TestChomp(t *testing.T) {
 	base := "\n This is\na story "
 	for i, item := range []string{
