@@ -9,6 +9,9 @@ import (
 	"testing"
 )
 
+type tstNoStringer struct {
+}
+
 func TestGt(t *testing.T) {
 	for i, this := range []struct {
 		left          interface{}
@@ -825,6 +828,27 @@ func TestMarkdownify(t *testing.T) {
 
 	if result != expect {
 		t.Errorf("Markdownify: got '%s', expected '%s'", result, expect)
+	}
+}
+
+func TestChomp(t *testing.T) {
+	base := "\n This is\na story "
+	for i, item := range []string{
+		"\n",
+		"\r",
+		"\r\n",
+	} {
+		chomped, _ := Chomp(base + item)
+
+		if chomped != base {
+			t.Errorf("[%d] Chomp failed, got '%v'", i, chomped)
+		}
+
+		_, err := Chomp(tstNoStringer{})
+
+		if err == nil {
+			t.Errorf("Chomp should fail")
+		}
 	}
 }
 
