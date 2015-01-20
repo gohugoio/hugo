@@ -544,6 +544,7 @@ func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error)
 	}
 }
 
+// Apply, given a map, array, or slice, returns a new slice with the function fname applied over it.
 func Apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
 	if seq == nil {
 		return make([]interface{}, 0), nil
