@@ -130,6 +130,7 @@ func NewSite(cmd *cobra.Command, args []string) {
 	mkdir(createpath, "content")
 	mkdir(createpath, "archetypes")
 	mkdir(createpath, "static")
+	mkdir(createpath, "data")
 
 	createConfig(createpath, configFormat)
 }
