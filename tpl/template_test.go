@@ -853,6 +853,21 @@ func TestChomp(t *testing.T) {
 	}
 }
 
+func TestReplace(t *testing.T) {
+	v, _ := Replace("aab", "a", "b")
+	assert.Equal(t, "bbb", v)
+	v, _ = Replace("11a11", 1, 2)
+	assert.Equal(t, "22a22", v)
+	v, _ = Replace(12345, 1, 2)
+	assert.Equal(t, "22345", v)
+	_, e := Replace(tstNoStringer{}, "a", "b")
+	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
+	_, e = Replace("a", tstNoStringer{}, "b")
+	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
+	_, e = Replace("a", "b", tstNoStringer{})
+	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
+}
+
 func TestTrim(t *testing.T) {
 	v, _ := Trim("1234 my way 13", "123")
 	assert.Equal(t, "4 my way ", v)
