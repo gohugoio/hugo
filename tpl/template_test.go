@@ -981,6 +981,7 @@ func TestTrim(t *testing.T) {
 	v, _ := Trim("1234 my way 13", "123")
 	assert.Equal(t, "4 my way ", v)
 	v, _ = Trim("   my way    ", " ")
+	assert.Equal(t, "my way", v)
 	v, _ = Trim(1234, "14")
 	assert.Equal(t, "23", v)
 	_, e := Trim(tstNoStringer{}, " ")
