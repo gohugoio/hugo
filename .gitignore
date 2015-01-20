@@ -1,6 +1,7 @@
 hugo
 docs/public*
 hugo.exe
+cover.out
 *.swp
 *.swo
 .DS_Store
