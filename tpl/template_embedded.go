@@ -99,20 +99,20 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 	// Add SEO & Social metadata
 	t.AddInternalTemplate("_default", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
-<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}" />
+<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
 {{ with .Params.images }}{{ range first 6 . }}
   <meta property="og:image" content="{{ . }}" />
 {{ end }}{{ end }}
 
-<meta property="og:updated_time" content="{{ .Date }}"/>{{ with .Params.audio }}
+<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}"/>{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
 {{ range .Params.videos }}
   <meta property="og:video" content="{{ . }}" />
-{{ end }}
+{{ end }}{{ end }}
 
 <!-- If it is part of a series, link to related articles -->
 {{ $permalink := .Permalink }}
@@ -133,7 +133,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 <meta property="article:section" content="{{ .Section }}" />
 {{ with .Params.tags }}{{ range first 6 . }}
   <meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
-{{ end }}
+{{ end }}{{ end }}
 
 <!-- Facebook Page Admin ID for Domain Insights -->
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`)
@@ -162,11 +162,11 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 	t.AddInternalTemplate("_default", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
 <meta itemprop="name" content="{{ .Title }}">
-<meta itemprop="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}">
+<meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}">
 
-{{if .IsPage}}
-<meta itemprop="datePublished" content="{{ .PublishDate }}" />
-<meta itemprop="dateModified" content="{{ .Date }}" />
+{{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if ne (.PublishDate.Format $ISO8601) "0001-01-01T00:00:00+00:00" }}
+<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 }}" />{{ end }}
+<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 }}" />
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
   <meta itemprop="image" content="{{ . }}">
@@ -174,6 +174,6 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
-{{ end }}{{ end }}`)
+{{ end }}`)
 
 }
