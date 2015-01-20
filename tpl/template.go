@@ -29,7 +29,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -38,7 +37,6 @@ import (
 var localTemplates *template.Template
 var tmpl Template
 var funcMap template.FuncMap
-var chompRegexp *regexp.Regexp
 
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
@@ -877,7 +875,7 @@ func Chomp(text interface{}) (string, error) {
 		return "", err
 	}
 
-	return chompRegexp.ReplaceAllString(s, ""), nil
+	return strings.TrimRight(s, "\r\n"), nil
 }
 
 // Trim leading/trailing characters defined by b from a
@@ -1245,44 +1243,43 @@ func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 
 func init() {
 	funcMap = template.FuncMap{
-		"urlize":       helpers.Urlize,
-		"sanitizeurl":  helpers.SanitizeUrl,
-		"eq":           Eq,
-		"ne":           Ne,
-		"gt":           Gt,
-		"ge":           Ge,
-		"lt":           Lt,
-		"le":           Le,
-		"in":           In,
-		"intersect":    Intersect,
-		"isset":        IsSet,
-		"echoParam":    ReturnWhenSet,
-		"safeHtml":     SafeHtml,
-		"safeCss":      SafeCss,
-		"safeUrl":      SafeUrl,
-		"markdownify":  Markdownify,
-		"first":        First,
-		"where":        Where,
-		"delimit":      Delimit,
-		"sort":         Sort,
-		"highlight":    Highlight,
-		"add":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":          Mod,
-		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":      ModBool,
-		"lower":        func(a string) string { return strings.ToLower(a) },
-		"upper":        func(a string) string { return strings.ToUpper(a) },
-		"title":        func(a string) string { return strings.Title(a) },
-		"partial":      Partial,
-		"ref":          Ref,
-		"relref":       RelRef,
-		"apply":        Apply,
-		"chomp":        Chomp,
-		"replace":      Replace,
-		"trim":         Trim,
+		"urlize":      helpers.Urlize,
+		"sanitizeurl": helpers.SanitizeUrl,
+		"eq":          Eq,
+		"ne":          Ne,
+		"gt":          Gt,
+		"ge":          Ge,
+		"lt":          Lt,
+		"le":          Le,
+		"in":          In,
+		"intersect":   Intersect,
+		"isset":       IsSet,
+		"echoParam":   ReturnWhenSet,
+		"safeHtml":    SafeHtml,
+		"safeCss":     SafeCss,
+		"safeUrl":     SafeUrl,
+		"markdownify": Markdownify,
+		"first":       First,
+		"where":       Where,
+		"delimit":     Delimit,
+		"sort":        Sort,
+		"highlight":   Highlight,
+		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"mod":         Mod,
+		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"modBool":     ModBool,
+		"lower":       func(a string) string { return strings.ToLower(a) },
+		"upper":       func(a string) string { return strings.ToUpper(a) },
+		"title":       func(a string) string { return strings.Title(a) },
+		"partial":     Partial,
+		"ref":         Ref,
+		"relref":      RelRef,
+		"apply":       Apply,
+		"chomp":       Chomp,
+		"replace":     Replace,
+		"trim":        Trim,
 	}
 
-	chompRegexp = regexp.MustCompile("[\r\n]+$")
 }

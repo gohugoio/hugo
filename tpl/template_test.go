@@ -835,9 +835,9 @@ func TestMarkdownify(t *testing.T) {
 func TestChomp(t *testing.T) {
 	base := "\n This is\na story "
 	for i, item := range []string{
-		"\n",
-		"\r",
-		"\r\n",
+		"\n", "\n\n",
+		"\r", "\r\r",
+		"\r\n", "\r\n\r\n",
 	} {
 		chomped, _ := Chomp(base + item)
 
