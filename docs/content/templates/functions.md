@@ -326,9 +326,10 @@ filtered out since they are a frequently exploited injection vector.
 [RFC 3986]: http://tools.ietf.org/html/rfc3986
 
 Without `safeUrl`, only the URI schemes `http:`, `https:` and `mailto:`
-are considered safe.  All other URI schemes, e.g.&nbsp;`irc:` and
-`javascript:`, get filtered and replaced with the `ZgotmplZ` unsafe
-content indicator.
+are considered safe by Go.  If any other URI schemes, e.g.&nbsp;`irc:` and
+`javascript:`, are detected, the whole URL would be replaced with
+`#ZgotmplZ`.  This is to "defang" any potential attack in the URL,
+rendering it useless.
 
 Example: Given a site-wide `config.toml` that contains this menu entry:
 
