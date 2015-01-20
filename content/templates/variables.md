@@ -24,7 +24,8 @@ matter, content or derived from file location.
 
 **.Title**  The title for the content.<br>
 **.Content** The content itself, defined below the front matter.<br>
-**.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.<br>
+**.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
+**.Truncated** A boolean, `true` if the `.Summary` is truncated.  Useful for showing a "Read more..." link only if necessary.  See [Summaries](/content/summaries/) for more details.<br>
 **.Description** The description for the content.<br>
 **.Keywords** The meta keywords for this content.<br>
 **.Date** The date the content is associated with.<br>
