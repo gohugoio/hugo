@@ -48,11 +48,6 @@ func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }
 
-// unused
-//func Sanitize(s string) string {
-//	return sanitizeRegexp.ReplaceAllString(s, "")
-//}
-
 func UnicodeSanitize(s string) string {
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
@@ -183,10 +178,10 @@ func FileAndExt(in string) (name string, ext string) {
 	ext = filepath.Ext(in)
 	base := filepath.Base(in) // path.Base strips any trailing slash!
 
-	return FileAndExtSep(in, ext, base, FilePathSeparator), ext
+	return extractFilename(in, ext, base, FilePathSeparator), ext
 }
 
-func FileAndExtSep(in, ext, base, pathSeparator string) (name string) {
+func extractFilename(in, ext, base, pathSeparator string) (name string) {
 
 	// No file name cases. These are defined as:
 	// 1. any "in" path that ends in a pathSeparator
@@ -223,7 +218,7 @@ func GetRelativePath(path, base string) (final string, err error) {
 	return name, nil
 }
 
-// Given a source path, determine the section.
+// GuessSection returns the section given a source path.
 // A section is the part between the root slash and the second slash
 // or before the first slash.
 func GuessSection(in string) string {

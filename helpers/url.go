@@ -168,5 +168,5 @@ func ResourceAndExt(in string) (name string, ext string) {
 	ext = path.Ext(in)
 	base := path.Base(in)
 
-	return FileAndExtSep(in, ext, base, "/"), ext
+	return extractFilename(in, ext, base, "/"), ext
 }
