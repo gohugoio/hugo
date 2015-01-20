@@ -169,7 +169,7 @@ func (p *Page) setSummary() {
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
-		plain := strings.TrimSpace(p.Plain())
+		plain := strings.Join(strings.Fields(p.Plain()), " ")
 		p.Summary = helpers.BytesToHTML([]byte(helpers.TruncateWordsToWholeSentence(plain, helpers.SummaryLength)))
 		p.Truncated = len(p.Summary) != len(plain)
 	}
