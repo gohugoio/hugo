@@ -1198,7 +1198,7 @@ func (t *GoHtmlTemplate) GenerateTemplateNameFrom(base, path string) string {
 	return filepath.ToSlash(name)
 }
 
-func ignoreDotFile(path string) bool {
+func isDotFile(path string) bool {
 	return filepath.Base(path)[0] == '.'
 }
 
@@ -1214,7 +1214,7 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if !fi.IsDir() {
-			if ignoreDotFile(path) {
+			if isDotFile(path) {
 				return nil
 			}
 
