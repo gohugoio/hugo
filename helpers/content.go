@@ -252,7 +252,17 @@ func TruncateWordsToWholeSentence(s string, max int) string {
 func GetRstContent(content []byte) string {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	cmd := exec.Command("rst2html.py", "--leave-comments")
+	path, err := exec.LookPath("rst2html")
+	if err != nil {
+		path, err = exec.LookPath("rst2html.py")
+		if err != nil {
+			jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
+			                  "                 Leaving reStructuredText content unrendered.")
+			return(string(content))
+		}
+	}
+
+	cmd := exec.Command(path, "--leave-comments")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out bytes.Buffer
 	cmd.Stdout = &out
