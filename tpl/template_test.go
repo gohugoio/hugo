@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+	"time"
 )
 
 type tstNoStringer struct {
@@ -986,6 +987,35 @@ func TestTrim(t *testing.T) {
 	assert.Equal(t, "23", v)
 	_, e := Trim(tstNoStringer{}, " ")
 	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
+}
+
+func TestDateFormat(t *testing.T) {
+	for i, this := range []struct {
+		layout string
+		value interface{}
+		expect interface{}
+	}{
+		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
+		{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
+		{"This isn't a date layout string", "2015-01-21", "This isn't a date layout string"},
+		{"Monday, Jan 2, 2006", 1421733600, false},
+		{"Monday, Jan 2, 2006", 1421733600.123, false},
+	} {
+		result, err := DateFormat(this.layout, this.value)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] DateFormat didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] DateFormat failed: %s", i, err)
+				continue
+			}
+			if result != this.expect {
+				t.Errorf("[%d] DateFormat got %v but expected %v", i, result, this.expect)
+			}
+		}
+	}
 }
 
 func TestSafeHtml(t *testing.T) {

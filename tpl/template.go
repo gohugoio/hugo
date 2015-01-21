@@ -905,6 +905,17 @@ func Replace(a, b, c interface{}) (string, error) {
 	return strings.Replace(aStr, bStr, cStr, -1), nil
 }
 
+// DateFormat converts the textual representation of the datetime string into
+// the other form or returns it of the time.Time value. These are formatted
+// with the layout string
+func DateFormat(layout string, v interface{}) (string, error) {
+	t, err := cast.ToTimeE(v)
+	if err != nil {
+		return "", err
+	}
+	return t.Format(layout), nil
+}
+
 func SafeHtml(text string) template.HTML {
 	return template.HTML(text)
 }
@@ -1281,6 +1292,7 @@ func init() {
 		"chomp":       Chomp,
 		"replace":     Replace,
 		"trim":        Trim,
+		"dateFormat":  DateFormat,
 	}
 
 }
