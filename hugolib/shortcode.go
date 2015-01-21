@@ -22,6 +22,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
@@ -143,18 +144,28 @@ func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
 	return string(tmpContent)
 }
 
-var isInnerShortcodeCache = make(map[string]bool)
+var isInnerShortcodeCache = struct {
+	sync.RWMutex
+	m map[string]bool
+}{m: make(map[string]bool)}
 
 // to avoid potential costly look-aheads for closing tags we look inside the template itself
 // we could change the syntax to self-closing tags, but that would make users cry
 // the value found is cached
 func isInnerShortcode(t *template.Template) bool {
-	if m, ok := isInnerShortcodeCache[t.Name()]; ok {
+	isInnerShortcodeCache.RLock()
+	m, ok := isInnerShortcodeCache.m[t.Name()]
+	isInnerShortcodeCache.RUnlock()
+
+	if ok {
 		return m
 	}
 
 	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
-	isInnerShortcodeCache[t.Name()] = match
+
+	isInnerShortcodeCache.Lock()
+	isInnerShortcodeCache.m[t.Name()] = match
+	isInnerShortcodeCache.Unlock()
 
 	return match
 }
