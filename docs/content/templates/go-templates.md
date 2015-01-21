@@ -249,24 +249,47 @@ Alternatively, use the backtick (`` ` ``) to quote the IE conditional comments, 
 ## Context (a.k.a. the dot)
 
 The most easily overlooked concept to understand about Go templates is that `{{ . }}`
-always refers to the current context. In the top level of your template this
-will be the data set made available to it. Inside of a iteration it will have
-the value of the current item. When inside of a loop the context has changed.
-`.` will no longer refer to the data available to the entire page. If you need
+always refers to the current context. In the top level of your template, this
+will be the data set made available to it. Inside of a iteration, however, it will have
+the value of the current item. When inside of a loop, the context has changed:
+`{{ . }}` will no longer refer to the data available to the entire page. If you need
 to
-access this from within the loop, you will likely want to set it to a variable
-instead of depending on the context.
+access this from within the loop, you will likely want to do one of the following:
 
-**Example:**
+1. Set it to a variable instead of depending on the context.  For example:
 
-      {{ $title := .Site.Title }}
-      {{ range .Params.tags }}
-        <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> - {{ $title }} </li>
-      {{ end }}
+        {{ $title := .Site.Title }}
+        {{ range .Params.tags }}
+          <li>
+            <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a>
+            - {{ $title }}
+          </li>
+        {{ end }}
 
-Notice how once we have entered the loop the value of `{{ . }}` has changed. We
-have defined a variable outside of the loop so we have access to it from within
-the loop.
+    Notice how once we have entered the loop the value of `{{ . }}` has changed. We
+    have defined a variable outside of the loop so we have access to it from within
+    the loop.
+
+2. Use `$.` to access the global context from anywhere.
+   Here is an equivalent example:
+
+        {{ range .Params.tags }}
+          <li>
+            <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a>
+            - {{ $.Site.Title }}
+          </li>
+        {{ end }}
+
+    This is because `$`, a special variable, is set to the starting value
+    of `.` the dot by default,
+    a [documented feature](http://golang.org/pkg/text/template/#hdr-Variables)
+    of Go text/template.  Very handy, eh?
+
+    > However, this little magic would cease to work if someone were to
+    > mischievously redefine `$`, e.g. `{{ $ := .Site }}`.
+    > *(No, don't do it!)*
+    > You may, of course, recover from this mischief by using `{{ $ := . }}`
+    > in a global context to reset `$` to its default value.
 
 # Hugo Parameters
 
