@@ -186,9 +186,9 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	if refUrl.Fragment != "" {
 		link = link + "#" + refUrl.Fragment
 
-		if refUrl.Path != "" && target != nil {
+		if refUrl.Path != "" && target != nil && !target.isRenderingFlagEnabled("plainIdAnchors") {
 			link = link + ":" + target.UniqueId()
-		} else if page != nil {
+		} else if page != nil && !page.isRenderingFlagEnabled("plainIdAnchors") {
 			link = link + ":" + page.UniqueId()
 		}
 	}

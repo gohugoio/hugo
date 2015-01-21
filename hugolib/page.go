@@ -78,8 +78,8 @@ type PageMeta struct {
 }
 
 type Position struct {
-	Prev *Page
-	Next *Page
+	Prev          *Page
+	Next          *Page
 	PrevInSection *Page
 	NextInSection *Page
 }
@@ -202,6 +202,10 @@ func (p *Page) getRenderingConfigFlags() map[string]bool {
 	}
 
 	return flags
+}
+
+func (p *Page) isRenderingFlagEnabled(flag string) bool {
+	return p.getRenderingConfigFlags()[flag]
 }
 
 func newPage(filename string) *Page {
