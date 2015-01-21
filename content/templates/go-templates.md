@@ -240,6 +240,12 @@ By default, Go Templates remove HTML comments from output. This has the unfortun
       <script src="html5shiv.js"></script>
     {{ "<![endif]-->" | safeHtml }}
 
+Alternatively, use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](http://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation, e.g.:
+
+```
+{{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHtml }}
+```
+
 ## Context (a.k.a. the dot)
 
 The most easily overlooked concept to understand about Go templates is that `{{ . }}`
