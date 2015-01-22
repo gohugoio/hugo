@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -69,7 +70,7 @@ weight = 2
 [menu]
 	[menu.p_one]
 	[menu.p_two]
-		Identity = "Two"
+		identifier = "Two"
 
 +++
 Front Matter with Menu Pages`)
@@ -90,14 +91,134 @@ var MENU_PAGE_SOURCES = []source.ByteSource{
 	{"sect/doc3.md", MENU_PAGE_3},
 }
 
+func tstCreateMenuPageWithNameToml(title, menu, name string) []byte {
+	return []byte(fmt.Sprintf(`+++
+title = "%s"
+weight = 1
+[menu]
+	[menu.%s]
+		name = "%s"
++++
+Front Matter with Menu with Name`, title, menu, name))
+}
+
+func tstCreateMenuPageWithIdentifierToml(title, menu, identifier string) []byte {
+	return []byte(fmt.Sprintf(`+++
+title = "%s"
+weight = 1
+[menu]
+	[menu.%s]
+		identifier = "%s"
+		name = "somename"
++++
+Front Matter with Menu with Identifier`, title, menu, identifier))
+}
+
+func tstCreateMenuPageWithNameYaml(title, menu, name string) []byte {
+	return []byte(fmt.Sprintf(`---
+title: "%s"
+weight: 1
+menu:
+    %s:
+      name: "%s"
+---
+Front Matter with Menu with Name`, title, menu, name))
+}
+
+func tstCreateMenuPageWithIdentifierYaml(title, menu, identifier string) []byte {
+	return []byte(fmt.Sprintf(`---
+title: "%s"
+weight: 1
+menu:
+    %s:
+      identifier: "%s"
+      name: "somename"
+---
+Front Matter with Menu with Identifier`, title, menu, identifier))
+}
+
 type testMenuState struct {
 	site       *Site
 	oldMenu    interface{}
 	oldBaseUrl interface{}
 }
 
+// Issue 817 - identifier should trump everything
+func TestPageMenuWithIdentifier(t *testing.T) {
+
+	toml := []source.ByteSource{
+		{"sect/doc1.md", tstCreateMenuPageWithIdentifierToml("t1", "m1", "i1")},
+		{"sect/doc2.md", tstCreateMenuPageWithIdentifierToml("t1", "m1", "i2")},
+		{"sect/doc3.md", tstCreateMenuPageWithIdentifierToml("t1", "m1", "i2")}, // duplicate
+	}
+
+	yaml := []source.ByteSource{
+		{"sect/doc1.md", tstCreateMenuPageWithIdentifierYaml("t1", "m1", "i1")},
+		{"sect/doc2.md", tstCreateMenuPageWithIdentifierYaml("t1", "m1", "i2")},
+		{"sect/doc3.md", tstCreateMenuPageWithIdentifierYaml("t1", "m1", "i2")}, // duplicate
+	}
+
+	doTestPageMenuWithIdentifier(t, toml)
+	doTestPageMenuWithIdentifier(t, yaml)
+
+}
+
+func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSource) {
+
+	ts := setupMenuTests(t, menuPageSources)
+	defer resetMenuTestState(ts)
+
+	assert.Equal(t, 3, len(ts.site.Pages), "Not enough pages")
+
+	me1 := ts.findTestMenuEntryById("m1", "i1")
+	me2 := ts.findTestMenuEntryById("m1", "i2")
+
+	assert.NotNil(t, me1)
+	assert.NotNil(t, me2)
+
+	assert.True(t, strings.Contains(me1.Url, "doc1"))
+	assert.True(t, strings.Contains(me2.Url, "doc2"))
+
+}
+
+// Issue 817 contd - name should be second identifier in
+func TestPageMenuWithDuplicateName(t *testing.T) {
+	toml := []source.ByteSource{
+		{"sect/doc1.md", tstCreateMenuPageWithNameToml("t1", "m1", "n1")},
+		{"sect/doc2.md", tstCreateMenuPageWithNameToml("t1", "m1", "n2")},
+		{"sect/doc3.md", tstCreateMenuPageWithNameToml("t1", "m1", "n2")}, // duplicate
+	}
+
+	yaml := []source.ByteSource{
+		{"sect/doc1.md", tstCreateMenuPageWithNameYaml("t1", "m1", "n1")},
+		{"sect/doc2.md", tstCreateMenuPageWithNameYaml("t1", "m1", "n2")},
+		{"sect/doc3.md", tstCreateMenuPageWithNameYaml("t1", "m1", "n2")}, // duplicate
+	}
+
+	doTestPageMenuWithDuplicateName(t, toml)
+	doTestPageMenuWithDuplicateName(t, yaml)
+
+}
+
+func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.ByteSource) {
+	ts := setupMenuTests(t, menuPageSources)
+	defer resetMenuTestState(ts)
+
+	assert.Equal(t, 3, len(ts.site.Pages), "Not enough pages")
+
+	me1 := ts.findTestMenuEntryByName("m1", "n1")
+	me2 := ts.findTestMenuEntryByName("m1", "n2")
+
+	assert.NotNil(t, me1)
+	assert.NotNil(t, me2)
+
+	assert.True(t, strings.Contains(me1.Url, "doc1"))
+	assert.True(t, strings.Contains(me2.Url, "doc2"))
+
+}
+
 func TestPageMenu(t *testing.T) {
-	ts := setupMenuTests(t)
+	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
 	defer resetMenuTestState(ts)
 
 	if len(ts.site.Pages) != 3 {
@@ -109,7 +230,7 @@ func TestPageMenu(t *testing.T) {
 	third := ts.site.Pages[2]
 
 	pOne := ts.findTestMenuEntryByName("p_one", "One")
-	pTwo := ts.findTestMenuEntryByName("p_two", "Two")
+	pTwo := ts.findTestMenuEntryById("p_two", "Two")
 
 	for i, this := range []struct {
 		menu           string
@@ -120,7 +241,7 @@ func TestPageMenu(t *testing.T) {
 	}{
 		{"p_one", first, pOne, true, false},
 		{"p_one", first, pTwo, false, false},
-		{"p_one", second, pTwo, true, false},
+		{"p_one", second, pTwo, false, false},
 		{"p_two", second, pTwo, true, false},
 		{"p_two", third, pTwo, false, true},
 		{"p_one", third, pTwo, false, false},
@@ -150,7 +271,7 @@ func TestMenuWithUnicodeUrls(t *testing.T) {
 
 func doTestMenuWithUnicodeUrls(t *testing.T, uglyUrls bool) {
 	viper.Set("UglyUrls", uglyUrls)
-	ts := setupMenuTests(t)
+	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
 	defer resetMenuTestState(ts)
 
 	unicodeRussian := ts.findTestMenuEntryById("unicode", "unicode-russian")
@@ -167,7 +288,7 @@ func doTestMenuWithUnicodeUrls(t *testing.T, uglyUrls bool) {
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {
-	ts := setupMenuTests(t)
+	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
 	defer resetMenuTestState(ts)
 
 	for i, this := range []struct {
@@ -208,7 +329,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 }
 
 func TestHomeNodeMenu(t *testing.T) {
-	ts := setupMenuTests(t)
+	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
 	defer resetMenuTestState(ts)
 
 	home := ts.site.newHomeNode()
@@ -252,37 +373,51 @@ func (ts testMenuState) findTestMenuEntryByName(mn string, id string) *MenuEntry
 }
 
 func (ts testMenuState) findTestMenuEntry(mn string, id string, matcher func(me *MenuEntry, id string) bool) *MenuEntry {
+	var found *MenuEntry = nil
 	if menu, ok := ts.site.Menus[mn]; ok {
 		for _, me := range *menu {
 
 			if matcher(me, id) {
-				return me
+				if found != nil {
+					panic(fmt.Sprintf("Duplicate menu entry in menu %s with id/name %s", mn, id))
+				}
+				found = me
 			}
 
 			descendant := ts.findDescendantTestMenuEntry(me, id, matcher)
 			if descendant != nil {
-				return descendant
+				if found != nil {
+					panic(fmt.Sprintf("Duplicate menu entry in menu %s with id/name %s", mn, id))
+				}
+				found = descendant
 			}
 		}
 	}
-	return nil
+	return found
 }
 
 func (ts testMenuState) findDescendantTestMenuEntry(parent *MenuEntry, id string, matcher func(me *MenuEntry, id string) bool) *MenuEntry {
+	var found *MenuEntry = nil
 	if parent.HasChildren() {
 		for _, child := range parent.Children {
 
 			if matcher(child, id) {
-				return child
+				if found != nil {
+					panic(fmt.Sprintf("Duplicate menu entry in menuitem %s with id/name %s", parent.KeyName(), id))
+				}
+				found = child
 			}
 
 			descendant := ts.findDescendantTestMenuEntry(child, id, matcher)
 			if descendant != nil {
-				return descendant
+				if found != nil {
+					panic(fmt.Sprintf("Duplicate menu entry in menuitem %s with id/name %s", parent.KeyName(), id))
+				}
+				found = descendant
 			}
 		}
 	}
-	return nil
+	return found
 }
 
 func getTestMenuState(s *Site, t *testing.T) *testMenuState {
@@ -300,8 +435,8 @@ func getTestMenuState(s *Site, t *testing.T) *testMenuState {
 	return menuState
 }
 
-func setupMenuTests(t *testing.T) *testMenuState {
-	s := createTestSite()
+func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *testMenuState {
+	s := createTestSite(pageSources)
 	testState := getTestMenuState(s, t)
 	testSiteSetup(s, t)
 
@@ -313,11 +448,11 @@ func resetMenuTestState(state *testMenuState) {
 	viper.Set("baseurl", state.oldBaseUrl)
 }
 
-func createTestSite() *Site {
+func createTestSite(pageSources []source.ByteSource) *Site {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: MENU_PAGE_SOURCES},
+		Source: &source.InMemorySource{ByteSource: pageSources},
 	}
 	return s
 }
