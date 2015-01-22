@@ -1154,7 +1154,6 @@ func (t *GoHtmlTemplate) AddInternalShortcode(name, content string) error {
 func (t *GoHtmlTemplate) AddTemplate(name, tpl string) error {
 	_, err := t.New(name).Parse(tpl)
 	if err != nil {
-		jww.ERROR.Println(err)
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 	}
 	return err
