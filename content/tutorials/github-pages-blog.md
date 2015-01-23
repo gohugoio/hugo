@@ -39,7 +39,17 @@ The very first step in creating a new Hugo site is to [write the config file](/o
       category: "categories"
     baseurl: "http://spencerlyon2.github.io/hugo_gh_blog"
     title: "Hugo Blog Template for GitHub Pages"
+    canonifyurls: true
     ...
+
+> **Caveat:** Hugo's former default of `canonifyurls: true` has been changed
+> to `false` since this tutorial has written.  **Please make sure you manually
+> add `canonifyurls: true` to your `config.yaml`** if you are using Spencer's
+> https://github.com/spencerlyon2/hugo_gh_blog for this tutorial, or you *will*
+> run into problems such as the CSS files not loading.
+
+> See ["Canonicalization: Caveat" on the "Extras: URLs page"](/extras/urls/)
+> for more information.
 
 ### Define Structure of Website
 
