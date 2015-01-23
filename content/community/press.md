@@ -16,8 +16,10 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title | Author | Date  |
 | ------ | ------ | -----: |
+| [把这个博客静态化了](http://lich-eng.com/2015/01/03/migrate-to-hugo/) | Li Cheng | 3 Jan 2015
 | [My Hugo Experiment](http://baty.net/2014/12/2014-12-31-my-hugo-experiment/) | Jack Baty | 31 Dec 2014 |
 | [Travel Blogging Setup](http://www.stou.dk/2014/11/travel-blogging-setup/) | Rasmus Stougaard | 23 Nov 2014 |
+| [使用Hugo搭建免费个人Blog](http://ulricqin.com/post/how-to-use-hugo/) | Ulric Qin 秦晓辉 | 11 Nov 2014 |
 | [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 19 Aug 2014 |
 | [Hello Hugo!](http://commiechink.com/2014/08/hello-hugo/) | Jason Yee | 19 Aug 2014 |
 | [Going with hugo](http://www.markuseliasson.se/article/going-with-hugo/) | Markus Eliasson | 18 Aug 2014 |
@@ -33,7 +35,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [Embedding Gists in Hugo](http://danmux.com/posts/embedded_gists/)  | Dan Mull | 5 July 2014 |
 | [An Introduction To Hugo](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/)  | Dan Silber | 1 July 2014 |
 | [Moving to Hugo](http://danmux.com/posts/hugo_based_blog/) | Dan Mull | 29 May 2014   |
-| [开源之静态站点生成器排行榜](http://code.csdn.net/news/2819909) | csdn.net | 23 May 2014   |
+| [开源之静态站点生成器排行榜](http://code.csdn.net/news/2819909) | CSDN.net | 23 May 2014   |
 | [How I deploy this site using Fabric](http://carlorat.me/quote/fabric/) | Carlo Ratam | 21 May 2014   |
 | [Finally, a satisfying and effective blog setup](http://michaelwhatcott.com/now-powered-by-hugo/) | Michael Whatcott | 20 May 2014   |
 | [Hugo from scratch](http://zackofalltrades.com/notes/2014/05/hugo-from-scratch/) | Zack Williams | 18 May 2014   |
@@ -45,11 +47,11 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [Hugo](http://bra.am/post/hugo/) | bra.am |  23 Mar 2014   |
 | [Converting Blogger To Markdown](http://trishagee.github.io/project/atom-to-hugo/) | Trisha Gee |  20 Mar 2014   |
 | [Moving to Hugo Static Web Pages](http://tepid.org/tech/hugo-web/) |  Tobias Weingartner  |  16 Mar 2014   |
-| [Hugo and Github Pages](http://sglyon.com/blog/2014/creating-the-site/) | Spencer Lyon |  15 Mar 2014   |
+| [Hugo and GitHub Pages](http://sglyon.com/blog/2014/creating-the-site/) | Spencer Lyon |  15 Mar 2014   |
 | [New Blog Engine: Hugo](https://blog.afoolishmanifesto.com/posts/hugo/) | fREW Schmidt  |  15 Mar 2014   |
-| [Hugo + gulp.js = Huggle](http://ktmud.github.io/huggle/intro/) | Jesse Yang  | 8 Mar 2014   |
+| [Hugo + gulp.js = Huggle](http://ktmud.github.io/huggle/en/intro/) ([English](http://ktmud.github.io/huggle/en/intro/), [中文](http://ktmud.github.io/huggle/zh/intro/)) | Jesse Yang 杨建超 | 8 Mar 2014   |
 | [Powered by Hugo](http://kieranhealy.org/blog/archives/2014/02/24/powered-by-hugo/) | Kieran Healy  | 24 Feb 2014   |
-| [静的サイトを素早く構築するためにGoLangで作られたジェネレータHugo](http://hamasyou.com/blog/2014/02/21/hugo/) | Shogo Hamada  | 21 Feb 2014   |
+| [静的サイトを素早く構築するために<br>GoLangで作られたジェネレータHugo](http://hamasyou.com/blog/2014/02/21/hugo/) | <div style="line-height: 1.1;">Shogo Hamada<br>濱田章吾</div> | 21 Feb 2014   |
 | [Latest Roundup of Useful Tools For Developers](http://codegeekz.com/latest-roundup-of-useful-tools-for-developers/) | CodeGeekz  |  13 Feb 2014   |
 | [Hugo: Static Site Generator written in Go](http://www.braveterry.com/2014/02/06/hugo-static-site-generator-written-in-go/) | Brave Terry  | 6 Feb 2014   |
 | [10 Useful HTML5 Tools for Web Designers and Developers](http://designdizzy.com/10-useful-html5-tools-for-web-designers-and-developers/) | Design Dizzy  | 4 Feb 2014   |
