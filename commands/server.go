@@ -146,7 +146,7 @@ func fixUrl(s string) (string, error) {
 	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {
 		s = "http://" + s
 	}
-	if len(s) > 0 && !strings.HasSuffix(s, "/") {
+	if !strings.HasSuffix(s, "/") {
 		s = s + "/"
 	}
 	u, err := url.Parse(s)
