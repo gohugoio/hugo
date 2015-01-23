@@ -230,6 +230,8 @@ func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 		return markdownRenderWithTOC(ctx)
 	case "markdown":
 		return markdownRenderWithTOC(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -242,6 +244,8 @@ func RenderBytes(ctx *RenderingContext) []byte {
 		return markdownRender(ctx)
 	case "markdown":
 		return markdownRender(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -297,6 +301,39 @@ func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
 	}
 
 	return strings.Join(words[:max], " "), true
+}
+
+// GetAsciidocContent calls asciidoctor or asciidoc as an external helper
+// to convert AsciiDoc content to HTML.
+func GetAsciidocContent(content []byte) string {
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		path, err = exec.LookPath("asciidoc")
+		if err != nil {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return (string(content))
+		}
+	}
+
+	jww.INFO.Println("Rendering with", path, "...")
+	cmd := exec.Command(path, "--safe", "-")
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		jww.ERROR.Println(err)
+	}
+
+	asciidocLines := strings.Split(out.String(), "\n")
+	for i, line := range asciidocLines {
+		if strings.HasPrefix(line, "<body") {
+			asciidocLines = (asciidocLines[i+1 : len(asciidocLines)-3])
+		}
+	}
+	return strings.Join(asciidocLines, "\n")
 }
 
 // GetRstContent calls the Python script rst2html as an external helper
