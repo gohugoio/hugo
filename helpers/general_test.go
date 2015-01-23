@@ -14,6 +14,8 @@ func TestGuessType(t *testing.T) {
 		{"md", "markdown"},
 		{"markdown", "markdown"},
 		{"mdown", "markdown"},
+		{"asciidoc", "asciidoc"},
+		{"ad", "asciidoc"},
 		{"rst", "rst"},
 		{"html", "html"},
 		{"htm", "html"},
