@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -746,5 +747,20 @@ func TestWeightedTaxonomies(t *testing.T) {
 
 	if s.Taxonomies["categories"]["e"][0].Page.Title != "bza" {
 		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title)
+	}
+}
+
+func TestDataDir(t *testing.T) {
+	sources := []source.ByteSource{
+		{filepath.FromSlash("test" + string(os.PathSeparator) + "foo.yaml"), []byte("bar: foofoo")},
+		{filepath.FromSlash("test.yaml"), []byte("hello:\n- world: foo")},
+	}
+
+	s := &Site{}
+	s.loadData(&source.InMemorySource{ByteSource: sources})
+
+	expected := "map[test:map[hello:[map[world:foo]] foo:map[bar:foofoo]]]"
+	if fmt.Sprint(s.Data) != expected {
+		t.Errorf("Expected structure '%s', got '%s'", expected, s.Data)
 	}
 }

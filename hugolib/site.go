@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
@@ -77,6 +78,7 @@ type Site struct {
 	params      map[string]interface{}
 	draftCount  int
 	futureCount int
+	Data        map[string]interface{}
 }
 
 type targetList struct {
@@ -106,6 +108,7 @@ type SiteInfo struct {
 	Permalinks      PermalinkOverrides
 	Params          map[string]interface{}
 	BuildDrafts     bool
+	Data            *map[string]interface{}
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -254,11 +257,70 @@ func (s *Site) addTemplate(name, data string) error {
 	return s.Tmpl.AddTemplate(name, data)
 }
 
+func (s *Site) loadData(fs source.Input) (err error) {
+	s.Data = make(map[string]interface{})
+
+	for _, r := range fs.Files() {
+		// Crawl in data tree to insert data
+		var current map[string]interface{}
+		current = s.Data
+		for _, key := range strings.Split(r.Dir(), string(os.PathSeparator)) {
+			if key != "" {
+				if _, ok := current[key]; !ok {
+					current[key] = make(map[string]interface{})
+				}
+				current = current[key].(map[string]interface{})
+			}
+		}
+
+		// Read data file
+		data, err := readFile(r)
+		if err != nil {
+			return err
+		}
+
+		// Copy content from current to data when needed
+		if _, ok := current[r.BaseFileName()]; ok {
+			data := data.(map[string]interface{})
+
+			for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
+				if _, override := data[key]; override {
+					return errors.New("Data in " + r.Path() + " is overrided in subfolder.")
+				} else {
+					data[key] = value
+				}
+			}
+		}
+
+		// Insert data
+		current[r.BaseFileName()] = data
+	}
+
+	return
+}
+
+func readFile(f *source.File) (interface{}, error) {
+	switch f.Extension() {
+	case "yaml", "yml":
+		return parser.HandleYamlMetaData(f.Bytes())
+	case "json":
+		return parser.HandleJsonMetaData(f.Bytes())
+	case "toml":
+		return parser.HandleTomlMetaData(f.Bytes())
+	default:
+		return nil, errors.New("Not supported for data: " + f.Extension())
+	}
+}
+
 func (s *Site) Process() (err error) {
 	if err = s.initialize(); err != nil {
 		return
 	}
 	s.prepTemplates()
+	s.timerStep("load data")
+	if err = s.loadData(&source.Filesystem{Base: s.absDataDir()}); err != nil {
+		return
+	}
 	s.timerStep("initialize & template prep")
 	if err = s.CreatePages(); err != nil {
 		return
@@ -367,11 +429,16 @@ func (s *Site) initializeSiteInfo() {
 		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
+		Data:            &s.Data,
 	}
 }
 
 func (s *Site) hasTheme() bool {
 	return viper.GetString("theme") != ""
+}
+
+func (s *Site) absDataDir() string {
+	return helpers.AbsPathify(viper.GetString("DataDir"))
 }
 
 func (s *Site) absThemeDir() string {
