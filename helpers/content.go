@@ -95,10 +95,11 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	var angledQuotes, fractions bool
+	var angledQuotes bool
 
 	if m, ok := ctx.ConfigFlags["angledQuotes"]; ok {
 		angledQuotes = m
@@ -108,12 +109,8 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	if m, ok := ctx.ConfigFlags["fractions"]; ok {
-		fractions = m
-	}
-
-	if fractions {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	if m, ok := ctx.ConfigFlags["fractions"]; ok && !m {
+		htmlFlags &^= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
