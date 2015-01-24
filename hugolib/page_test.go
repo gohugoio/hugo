@@ -3,10 +3,12 @@ package hugolib
 import (
 	"html/template"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 )
 
@@ -219,6 +221,9 @@ an_integer = 1
 a_float = 1.3
 a_bool = false
 a_date = 1979-05-27T07:32:00Z
+
+[a_table]
+a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
 
@@ -498,6 +503,13 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	}
 	if page.GetParam("a_date") != dateval {
 		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
+	}
+	param := page.GetParam("a_table")
+	if param == nil {
+		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
+	}
+	if cast.ToStringMap(param)["a_key"] != "a_value" {
+		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.Params["a_table"])["a_key"])
 	}
 }
 

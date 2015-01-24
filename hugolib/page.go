@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
+	"reflect"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/hugofs"
@@ -522,9 +523,13 @@ func (page *Page) GetParam(key string) interface{} {
 		return cast.ToTime(v)
 	case []string:
 		return helpers.SliceToLower(v.([]string))
-	case map[interface{}]interface{}:
+	case map[string]interface{}: // JSON and TOML
+		return v
+	case map[interface{}]interface{}: // YAML
 		return v
 	}
+
+	jww.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
 	return nil
 }
 
