@@ -95,18 +95,39 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	var angledQuotes bool
+	angledQuotes := false
+	smartFractions := true
+	latexDashes := true
+	footnoteReturnLink := true
 
 	if m, ok := ctx.ConfigFlags["angledQuotes"]; ok {
 		angledQuotes = m
 	}
+	if m, ok := ctx.ConfigFlags["smartFractions"]; ok {
+		smartFractions = m
+	}
+	if m, ok := ctx.ConfigFlags["latexDashes"]; ok {
+		latexDashes = m
+	}
+	if m, ok := ctx.ConfigFlags["footnoteReturnLink"]; ok {
+		footnoteReturnLink = m
+	}
 
 	if angledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
+	}
+
+	if smartFractions {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	}
+
+	if latexDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	}
+
+	if footnoteReturnLink {
+		htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 	}
 
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)

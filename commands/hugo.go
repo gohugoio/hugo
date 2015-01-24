@@ -136,7 +136,8 @@ func InitializeConfig() {
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
-	viper.SetDefault("Blackfriday", map[string]bool{"angledQuotes": false, "plainIdAnchors": false})
+	viper.SetDefault("Blackfriday", map[string]bool{"angledQuotes": false, "plainIdAnchors": false, "smartFractions": true,
+		"latexDashes": true, "footnoteReturnLink": true})
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)

@@ -91,6 +91,27 @@ But Hugo does expose some options---as listed in the table below, matched with t
 <td class="purpose-description" colspan="2">Enable smart angled double quotes <small>(e.g.&nbsp;<code>"Hugo"</code> renders to «Hugo» instead of “Hugo”)</small></td>
 </tr>
 
+<tbody>
+<tr>
+<td><code>smartFractions</code></td>
+<td><code>true</code></td>
+<td><code>HTML_SMARTYPANTS_FRACTIONS</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Enable smart fractions</small></td>
+</tr>
+
+<tbody>
+<tr>
+<td><code>latexDashes</code></td>
+<td><code>true</code></td>
+<td><code>HTML_SMARTYPANTS_LATEX_DASHES</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Enable LaTeX-style dashes</small></td>
+</tr>
 <tr>
 <td><code>plainIdAnchors</code></td>
 <td><code>false</code></td>
@@ -103,7 +124,6 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tbody>
 </table>
 
-
 **Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
 
 <table class="table">
@@ -114,13 +134,18 @@ But Hugo does expose some options---as listed in the table below, matched with t
 <td><pre><code>[blackfriday]
     angledQuotes = true
     plainIdAnchors = true
+    latexDashes = false
+    smartFractions = false
 </code></pre></td>
 <td><pre><code>blackfriday:
   angledQuotes: true
   plainIdAnchors: true
+  latexDashes: false
+  smartFractions: false
 </code></pre></td>
 </tr>
 </table>
+
 
 ## Notes
 
