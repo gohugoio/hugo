@@ -81,6 +81,10 @@ func NewContent(kind, name string) (err error) {
 		return false
 	}
 
+	if newmetadata == nil {
+		newmetadata = make(map[string]interface{})
+	}
+
 	if !caseimatch(newmetadata, "date") {
 		newmetadata["date"] = time.Now()
 	}
