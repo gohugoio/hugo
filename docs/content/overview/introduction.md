@@ -28,7 +28,7 @@ Python or PHP and without dependencies on any databases.
 [Heroku]: https://www.heroku.com/
 [GoDaddy]: https://www.godaddy.com/
 [DreamHost]: http://www.dreamhost.com/
-[GitHub Pages]: http://www.dreamhost.com/cloud/
+[GitHub Pages]: https://pages.github.com/
 [Amazon S3]: http://aws.amazon.com/s3/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 
