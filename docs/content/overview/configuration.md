@@ -92,6 +92,21 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 
 <tr>
+<td><code>fractions</code></td>
+<td><code>true</code></td>
+<td><code>HTML_SMARTYPANTS_FRACTIONS</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Enable smart fractions
+<small>(e.g.&nbsp;<code>5/12</code> renders to <sup>5</sup>&frasl;<sub>12</sub> (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>))
+<strong>Caveat:</strong> Even with <code>fractions = false</code>,
+Blackfriday would still convert 1/2, 1/4 and 3/4 to ½&nbsp;(<code>&amp;frac12;</code>),
+¼&nbsp;(<code>&amp;frac14;</code>) and ¾&nbsp;(<code>&amp;frac34;</code>) respectively,
+but only these three.</small></td>
+</tr>
+
+<tr>
 <td><code>plainIdAnchors</code></td>
 <td><code>false</code></td>
 <td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
@@ -112,11 +127,13 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 <tr>
 <td><pre><code>[blackfriday]
-    angledQuotes = true
-    plainIdAnchors = true
+  angledQuotes = true
+  fractions = false
+  plainIdAnchors = true
 </code></pre></td>
 <td><pre><code>blackfriday:
   angledQuotes: true
+  fractions: false
   plainIdAnchors: true
 </code></pre></td>
 </tr>

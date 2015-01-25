@@ -109,6 +109,10 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
+	if m, ok := ctx.ConfigFlags["fractions"]; ok && !m {
+		htmlFlags &^= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	}
+
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
 }
 
