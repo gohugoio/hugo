@@ -213,6 +213,16 @@ the cylinder and strike me down. ## BB
 
 "You're a great Granser," he cried delightedly, "always making believe them little marks mean something."
 `
+
+	SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION = `+++
+[blackfriday]
+  extensions = ["hardLineBreak"]
++++
+first line.
+second line.
+
+fourth line.
+`
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -364,6 +374,16 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 	checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n")
+}
+
+func TestPageWithAdditionalExtension(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION))
+	p.Convert()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
 }
 
 func TestTableOfContents(t *testing.T) {
