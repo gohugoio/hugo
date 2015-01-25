@@ -614,7 +614,7 @@ func (s *Site) getMenusFromConfig() Menus {
 					if strings.HasPrefix(menuEntry.Url, "/") {
 						// make it match the nodes
 						menuEntryUrl := menuEntry.Url
-						menuEntry.Url = s.prepUrl(menuEntryUrl)
+						menuEntryUrl = s.prepUrl(menuEntryUrl)
 						if !s.Info.canonifyUrls {
 							menuEntryUrl = helpers.AddContextRoot(string(s.Info.BaseUrl), menuEntryUrl)
 						}
