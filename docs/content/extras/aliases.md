@@ -23,7 +23,7 @@ Luckily, this can be handled easily with aliases in Hugo.
 
 <table class="table">
 <tr>
-<th>TOML</th><th>YAML</th>
+<th>YAML</th><th>TOML</th>
 </tr>
 <tr valign="top">
 <td><pre><code>---
