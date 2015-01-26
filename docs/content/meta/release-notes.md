@@ -51,7 +51,7 @@ A lot has happened since Hugo v0.12.0 was released.
 * Improved unit test coverage
 * Hugo has undergone a major refactoring, with a new handler system and a generic file system. This sounds and is technical, but will pave the way for new features and make Hugo even speedier
 * [Ace](http://ace.yoss.si/) template engine support ([#541][])
-* Add pagination support for home page, sections and taxonomies ([#750][])
+* Add [pagination support](/extras/pagination) for home page, sections and taxonomies ([#750][])
 * Fixed a lot of Windows-related path issues
 * Improved error messages for template and rendering errors
 * Enabled soft LiveReload of CSS and images ([#490][])
