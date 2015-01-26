@@ -25,8 +25,8 @@ import (
 	"github.com/russross/blackfriday"
 	"github.com/spf13/viper"
 
+	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
-
 	"strings"
 	"sync"
 )
@@ -104,6 +104,14 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
+type hugoBlackfridayRenderer struct {
+	*blackfriday.Html
+}
+
+func (r *hugoBlackfridayRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
+	fmt.Fprintf(out, `<a href="%s" target="_blank">%s</a>`, link, content)
+}
+
 func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -132,7 +140,9 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 		htmlFlags &^= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
-	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	renderer := &hugoBlackfridayRenderer{Html: blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters).(*blackfriday.Html)}
+
+	return renderer
 }
 
 func GetMarkdownExtensions(ctx RenderingContext) int {
