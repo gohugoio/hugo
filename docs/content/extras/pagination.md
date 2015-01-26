@@ -17,10 +17,12 @@ Hugo supports pagination for the home page, sections and taxonomies.
 
 Pagination can be configured in the site configuration (e.g. `config.toml`):
 
-* `Paginate` (default `0`) 
+* `Paginate` (default `10`) 
 * `PaginatePath` (default `page`)
 
-Setting `Paginate` to a positive value will split the list pages for the home page, sections and taxonomies into chunks of that size.[^lazy] `PaginatePath` is used to adapt the `Url` to the pages in the paginator (the default setting will produce urls on the form `/page/1/`. 
+Setting `Paginate` to a positive value will split the list pages for the home page, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and home page is *lazy* -- the pages will not be created if not referenced by a `.Paginator` (see below).
+
+ `PaginatePath` is used to adapt the `Url` to the pages in the paginator (the default setting will produce urls on the form `/page/1/`. 
 
 ## List the pages
 
@@ -90,5 +92,4 @@ The pages are built on the following form (`BLANK` means no value):
 ....
 ```
 
-[^lazy]: The generation of the pagination pages for sections, taxonomies and home page is *lazy* -- they will not be created if not referenced by a `.Paginator`.
 

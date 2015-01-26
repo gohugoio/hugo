@@ -1293,9 +1293,7 @@ func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
 	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
-	if viper.GetInt("paginate") > 0 {
-		jww.FEEDBACK.Printf("%d paginator pages created \n", s.Info.paginationPageCount)
-	}
+	jww.FEEDBACK.Printf("%d paginator pages created \n", s.Info.paginationPageCount)
 	taxonomies := viper.GetStringMapString("Taxonomies")
 
 	for _, pl := range taxonomies {
