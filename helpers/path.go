@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"io"
 	"os"
@@ -391,7 +392,7 @@ func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
 		if err != nil {
 			if err != os.ErrExist {
-				panic(err)
+				jww.FATAL.Fatalln(err)
 			}
 		}
 	}
