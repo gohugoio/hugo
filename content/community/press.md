@@ -16,10 +16,10 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title | Author | Date  |
 | ------ | ------ | -----: |
-| [把这个博客静态化了](http://lich-eng.com/2015/01/03/migrate-to-hugo/) | Li Cheng | 3 Jan 2015
+| [把这个博客静态化了 <small>(Migrate to Hugo)</small>](http://lich-eng.com/2015/01/03/migrate-to-hugo/) | Li Cheng | 3 Jan 2015 |
 | [My Hugo Experiment](http://baty.net/2014/12/2014-12-31-my-hugo-experiment/) | Jack Baty | 31 Dec 2014 |
 | [Travel Blogging Setup](http://www.stou.dk/2014/11/travel-blogging-setup/) | Rasmus Stougaard | 23 Nov 2014 |
-| [使用Hugo搭建免费个人Blog](http://ulricqin.com/post/how-to-use-hugo/) | Ulric Qin 秦晓辉 | 11 Nov 2014 |
+| [使用Hugo搭建免费个人Blog <small>(How to use Hugo)</small>](http://ulricqin.com/post/how-to-use-hugo/) | Ulric Qin 秦晓辉 | 11 Nov 2014 |
 | [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 19 Aug 2014 |
 | [Hello Hugo!](http://commiechink.com/2014/08/hello-hugo/) | Jason Yee | 19 Aug 2014 |
 | [Going with hugo](http://www.markuseliasson.se/article/going-with-hugo/) | Markus Eliasson | 18 Aug 2014 |
@@ -32,10 +32,11 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about-hugo/) |  Joshua McKenty | 4 Aug 2014 |
 | [Hugo over Octopress](http://kennywoo.com/blog/hugo---golang-based-static-site-generator/)  | Kenny Woo | 3 Aug 2014 |
 | [Hugo Is Friggin' Awesome](http://npf.io/2014/08/hugo-is-awesome/)  | Nate Finch | 1 Aug 2014 |
+| [再次搬家 <small>(Move from WordPress to Hugo)</small>](http://www.chingli.com/misc/move-from-wordpress-to-hugo/) | 青砾 (chingli) | 12 July 2014 |
 | [Embedding Gists in Hugo](http://danmux.com/posts/embedded_gists/)  | Dan Mull | 5 July 2014 |
 | [An Introduction To Hugo](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/)  | Dan Silber | 1 July 2014 |
 | [Moving to Hugo](http://danmux.com/posts/hugo_based_blog/) | Dan Mull | 29 May 2014   |
-| [开源之静态站点生成器排行榜](http://code.csdn.net/news/2819909) | CSDN.net | 23 May 2014   |
+| [开源之静态站点生成器排行榜<br><small>(Leaderboard of open-source static website generators)</small>](http://code.csdn.net/news/2819909) | CSDN.net | 23 May 2014   |
 | [How I deploy this site using Fabric](http://carlorat.me/quote/fabric/) | Carlo Ratam | 21 May 2014   |
 | [Finally, a satisfying and effective blog setup](http://michaelwhatcott.com/now-powered-by-hugo/) | Michael Whatcott | 20 May 2014   |
 | [Hugo from scratch](http://zackofalltrades.com/notes/2014/05/hugo-from-scratch/) | Zack Williams | 18 May 2014   |
