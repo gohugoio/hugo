@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -52,6 +53,37 @@ func TestMakePathToLower(t *testing.T) {
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
+	}
+}
+
+func TestGetRelativePath(t *testing.T) {
+	tests := []struct {
+		path   string
+		base   string
+		expect interface{}
+	}{
+		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
+		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
+		{filepath.FromSlash("/c"), "", false},
+	}
+	for i, this := range tests {
+		// ultimately a fancy wrapper around filepath.Rel
+		result, err := GetRelativePath(this.path, this.base)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] GetRelativePath didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] GetRelativePath failed: %s", i, err)
+				continue
+			}
+			if result != this.expect {
+				t.Errorf("[%d] GetRelativePath got %v but expected %v", i, result, this.expect)
+			}
+		}
+
 	}
 }
 
@@ -357,21 +389,21 @@ func TestExists(t *testing.T) {
 
 }
 
-// TestAbsPathify cannot be tested further because it relies on the
-// viper.GetString("WorkingDir") which the test cannot know.
-// viper.GetString("WorkingDir") should be passed to AbsPathify as a
-// parameter.
 func TestAbsPathify(t *testing.T) {
 	type test struct {
-		input, expected string
+		inPath, workingDir, expected string
 	}
 	data := []test{
-		{os.TempDir(), filepath.Clean(os.TempDir())}, // TempDir has trailing slash
-		{filepath.FromSlash("/banana/../dir/"), filepath.FromSlash("/dir")},
+		{os.TempDir(), filepath.FromSlash("/work"), filepath.Clean(os.TempDir())}, // TempDir has trailing slash
+		{filepath.FromSlash("/banana/../dir/"), filepath.FromSlash("/work"), filepath.FromSlash("/dir")},
+		{"dir", filepath.FromSlash("/work"), filepath.FromSlash("/work/dir")},
 	}
 
 	for i, d := range data {
-		expected := AbsPathify(d.input)
+		// todo see comment in AbsPathify
+		viper.Set("WorkingDir", d.workingDir)
+
+		expected := AbsPathify(d.inPath)
 		if d.expected != expected {
 			t.Errorf("Test %d failed. Expected %q but go %q", i, d.expected, expected)
 		}
