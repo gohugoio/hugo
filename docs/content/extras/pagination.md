@@ -11,7 +11,7 @@ title: Pagination
 weight: 80
 ---
 
-Hugo supports pagination for the home page, sections and taxonomies.
+Hugo supports pagination for the home page, sections and taxonomies. It's built to be easy use, but with loads of flexibility when needed. The real power shines when you combine it with [`where`](/templates/functions), with its SQL-like operators, `first` and others -- you can even [order the content](/templates/list) the way you've become used to with Hugo.
 
 ## Configuration
 
@@ -31,7 +31,7 @@ Setting `Paginate` to a positive value will split the list pages for the home pa
 There are two ways to configure and use a `.Paginator`:
 
 1. The simplest way is just to call `.Paginator.Pages` from a template. It will contain the pages for *that page* .
-2. Select a sub-set of the pages with the available template functions and pass the slice to `.Paginate`, i.e. `{{ range (.Paginate (where .Data.Pages "Type" "post")).Pages }}`
+2. Select a sub-set of the pages with the available template functions and ordering options, and pass the slice to `.Paginate`, e.g. `{{ range (.Paginate ( first 50 .Data.Pages.ByTitle )).Pages }}`.
 
 For a given **Node**, it's one of the options above. The `.Paginator` is static and cannot change once created.
 
@@ -45,7 +45,7 @@ The easiest way to add this to your pages is to include the built-in template (w
 {{ template "_internal/pagination.html" . }}
 ```
 
-**Note:** If you use any filters or sorting functions to create your `.Paginator` **and** you want the navigation buttons to be shown before the page listing, you must create the `.Paginator` before it's used:
+**Note:** If you use any filters or ordering functions to create your `.Paginator` **and** you want the navigation buttons to be shown before the page listing, you must create the `.Paginator` before it's used:
 
 ```
 {{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
