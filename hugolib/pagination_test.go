@@ -24,14 +24,17 @@ func TestSplitPages(t *testing.T) {
 
 }
 
-func TestPaginator(t *testing.T) {
+func TestPager(t *testing.T) {
 
 	pages := createTestPages(21)
 	urlFactory := func(page int) string {
 		return fmt.Sprintf("page/%d/", page)
 	}
 
-	paginator := newPaginator(pages, 5, urlFactory)
+	_, err := newPaginator(pages, -1, urlFactory)
+	assert.NotNil(t, err)
+
+	paginator, _ := newPaginator(pages, 5, urlFactory)
 	paginatorPages := paginator.Pagers()
 
 	assert.Equal(t, 5, len(paginatorPages))
@@ -43,22 +46,40 @@ func TestPaginator(t *testing.T) {
 	assert.Equal(t, "page/1/", first.Url())
 	assert.Equal(t, first, first.First())
 	assert.Equal(t, true, first.HasNext())
+	assert.Equal(t, paginatorPages[1], first.Next())
 	assert.Equal(t, false, first.HasPrev())
+	assert.Nil(t, first.Prev())
 	assert.Equal(t, 5, first.NumberOfElements())
 	assert.Equal(t, 1, first.PageNumber())
 
 	third := paginatorPages[2]
 	assert.Equal(t, true, third.HasNext())
 	assert.Equal(t, true, third.HasPrev())
+	assert.Equal(t, paginatorPages[1], third.Prev())
 
 	last := paginatorPages[4]
 	assert.Equal(t, "page/5/", last.Url())
 	assert.Equal(t, last, last.Last())
 	assert.Equal(t, false, last.HasNext())
+	assert.Nil(t, last.Next())
 	assert.Equal(t, true, last.HasPrev())
 	assert.Equal(t, 1, last.NumberOfElements())
 	assert.Equal(t, 5, last.PageNumber())
+}
 
+func TestPagerNoPages(t *testing.T) {
+	pages := createTestPages(0)
+	urlFactory := func(page int) string {
+		return fmt.Sprintf("page/%d/", page)
+	}
+
+	paginator, _ := newPaginator(pages, 5, urlFactory)
+	paginatorPages := paginator.Pagers()
+
+	assert.Equal(t, 0, len(paginatorPages))
+	assert.Equal(t, 0, paginator.TotalNumberOfElements())
+	assert.Equal(t, 5, paginator.PageSize())
+	assert.Equal(t, 0, paginator.TotalPages())
 }
 
 func TestPaginationUrlFactory(t *testing.T) {
@@ -70,6 +91,88 @@ func TestPaginationUrlFactory(t *testing.T) {
 	assert.Equal(t, "/foo/bar/", fooBar(1))
 	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/zoo/4/", unicode(4))
 	assert.Equal(t, "/foo/bar/zoo/12345/", fooBar(12345))
+
+}
+
+func TestPaginator(t *testing.T) {
+	viper.Set("paginate", 5)
+	pages := createTestPages(12)
+	s := &Site{}
+	n1 := s.newHomeNode()
+	n2 := s.newHomeNode()
+	n1.Data["Pages"] = pages
+
+	paginator1, err := n1.Paginator()
+
+	assert.Nil(t, err)
+	assert.NotNil(t, paginator1)
+	assert.Equal(t, 3, paginator1.TotalPages())
+	assert.Equal(t, 12, paginator1.TotalNumberOfElements())
+
+	n2.paginator = paginator1.Next()
+	paginator2, err := n2.Paginator()
+	assert.Nil(t, err)
+	assert.Equal(t, paginator2, paginator1.Next())
+
+	n1.Data["Pages"] = createTestPages(1)
+	samePaginator, _ := n1.Paginator()
+	assert.Equal(t, paginator1, samePaginator)
+
+	p, _ := NewPage("test")
+	_, err = p.Paginator()
+	assert.NotNil(t, err)
+}
+
+func TestPaginatorWithNegativePaginate(t *testing.T) {
+	viper.Set("paginate", -1)
+	s := &Site{}
+	_, err := s.newHomeNode().Paginator()
+	assert.NotNil(t, err)
+}
+
+func TestPaginate(t *testing.T) {
+	viper.Set("paginate", 5)
+	pages := createTestPages(6)
+	s := &Site{}
+	n1 := s.newHomeNode()
+	n2 := s.newHomeNode()
+
+	paginator1, err := n1.Paginate(pages)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, paginator1)
+	assert.Equal(t, 2, paginator1.TotalPages())
+	assert.Equal(t, 6, paginator1.TotalNumberOfElements())
+
+	n2.paginator = paginator1.Next()
+	paginator2, err := n2.Paginate(pages)
+	assert.Nil(t, err)
+	assert.Equal(t, paginator2, paginator1.Next())
+
+	samePaginator, err := n1.Paginate(createTestPages(2))
+	assert.Equal(t, paginator1, samePaginator)
+
+	p, _ := NewPage("test")
+	_, err = p.Paginate(pages)
+	assert.NotNil(t, err)
+}
+
+func TestPaginateWithNegativePaginate(t *testing.T) {
+	viper.Set("paginate", -1)
+	s := &Site{}
+	_, err := s.newHomeNode().Paginate(createTestPages(2))
+	assert.NotNil(t, err)
+}
+
+func TestPaginatePages(t *testing.T) {
+	viper.Set("paginate", 11)
+	for i, seq := range []interface{}{createTestPages(11), WeightedPages{}, PageGroup{}, &Pages{}} {
+		v, err := paginatePages(seq, "t")
+		assert.NotNil(t, v, "Val %d", i)
+		assert.Nil(t, err, "Err %d", i)
+	}
+	_, err := paginatePages(Site{}, "t")
+	assert.NotNil(t, err)
 
 }
 

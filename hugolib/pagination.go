@@ -88,19 +88,11 @@ func (p *pager) Next() *pager {
 
 // First returns the pager for the first page.
 func (p *pager) First() *pager {
-	if p.TotalPages() == 0 {
-		return nil
-	}
-
 	return p.pagers[0]
 }
 
 // Last returns the pager for the last page.
 func (p *pager) Last() *pager {
-	if p.TotalPages() == 0 {
-		return nil
-	}
-
 	return p.pagers[len(p.pagers)-1]
 }
 
@@ -138,10 +130,6 @@ func splitPages(pages Pages, size int) []Pages {
 // If it's not, one will be created with all pages in Data["Pages"].
 func (n *Node) Paginator() (*pager, error) {
 
-	if n.IsPage() {
-		return nil, errors.New("Paginators isn't supported for content pages.")
-	}
-
 	var initError error
 
 	n.paginatorInit.Do(func() {
@@ -170,14 +158,17 @@ func (n *Node) Paginator() (*pager, error) {
 	return n.paginator, nil
 }
 
+func (p *Page) Paginator() (*pager, error) {
+	return nil, errors.New("Paginators not supported for content pages.")
+}
+func (p *Page) Paginate(seq interface{}) (*pager, error) {
+	return nil, errors.New("Paginators not supported for content pages.")
+}
+
 // Paginate gets this Node's paginator if it's already created.
 // If it's not, one will be created with the qiven sequence.
 // Note that repeated calls will return the same result, even if the sequence is different.
 func (n *Node) Paginate(seq interface{}) (*pager, error) {
-
-	if n.IsPage() {
-		return nil, errors.New("Paginators isn't supported for content pages.")
-	}
 
 	var initError error
 
@@ -227,16 +218,16 @@ func paginatePages(seq interface{}, section string) (pagers, error) {
 	}
 
 	urlFactory := newPaginationUrlFactory(section)
-	paginator := newPaginator(pages, paginateSize, urlFactory)
+	paginator, _ := newPaginator(pages, paginateSize, urlFactory)
 	pagers := paginator.Pagers()
 
 	return pagers, nil
 }
 
-func newPaginator(pages Pages, size int, urlFactory paginationUrlFactory) *paginator {
+func newPaginator(pages Pages, size int, urlFactory paginationUrlFactory) (*paginator, error) {
 
 	if size <= 0 {
-		panic("Paginator size must be positive")
+		return nil, errors.New("Paginator size must be positive")
 	}
 
 	split := splitPages(pages, size)
@@ -250,7 +241,7 @@ func newPaginator(pages Pages, size int, urlFactory paginationUrlFactory) *pagin
 
 	p.pagers = pagers
 
-	return p
+	return p, nil
 }
 
 func newPaginationUrlFactory(pathElements ...string) paginationUrlFactory {
