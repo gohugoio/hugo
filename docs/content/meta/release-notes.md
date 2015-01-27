@@ -51,6 +51,7 @@ A lot has happened since Hugo v0.12.0 was released.
 * Improved unit test coverage
 * Hugo has undergone a major refactoring, with a new handler system and a generic file system. This sounds and is technical, but will pave the way for new features and make Hugo even speedier
 * [Ace](http://ace.yoss.si/) template engine support ([#541][])
+* Add [pagination support](/extras/pagination) for home page, sections and taxonomies ([#750][])
 * Fixed a lot of Windows-related path issues
 * Improved error messages for template and rendering errors
 * Enabled soft LiveReload of CSS and images ([#490][])
@@ -63,6 +64,7 @@ A lot has happened since Hugo v0.12.0 was released.
 [#541]: https://github.com/spf13/hugo/pull/541 "Pull Request #541: Add Ace template engine support"
 [#725]: https://github.com/spf13/hugo/issues/725 "Issue #725: CanonifyUrls does not canonicalize urls in RSS"
 [#728]: https://github.com/spf13/hugo/issues/728 "Pull Request #728: Add ability to canonify URLs in rendered XML output."
+[#750]: https://github.com/spf13/hugo/issues/750 "Pull Request: Add pagination support for home page, sections and taxonomies"
 [#753]: https://github.com/spf13/hugo/issues/753 "Add search to documentation"
 [#789]: https://github.com/spf13/hugo/issues/789 "Issue #789: RSS feeds do not validate"
 

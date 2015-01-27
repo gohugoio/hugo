@@ -17,15 +17,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"reflect"
+
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"html/template"
 	"io"
 	"net/url"
@@ -34,6 +31,13 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 type Page struct {
@@ -51,17 +55,17 @@ type Page struct {
 	Tmpl            tpl.Template
 	Markup          string
 
-	extension                string
-	contentType              string
-	renderable               bool
-	layout                   string
-	linkTitle                string
-	frontmatter              []byte
-	rawContent               []byte
-	contentShortCodes        map[string]string
-	plain                    string // TODO should be []byte
-	renderingConfigFlags     map[string]bool
-	renderingConfigFlagsInit sync.Once
+	extension           string
+	contentType         string
+	renderable          bool
+	layout              string
+	linkTitle           string
+	frontmatter         []byte
+	rawContent          []byte
+	contentShortCodes   map[string]string
+	plain               string // TODO should be []byte
+	renderingConfig     *helpers.Blackfriday
+	renderingConfigInit sync.Once
 	PageMeta
 	Source
 	Position
@@ -181,37 +185,33 @@ func (p *Page) setSummary() {
 func (p *Page) renderBytes(content []byte) []byte {
 	return helpers.RenderBytes(
 		helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-			DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
+			DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
 	return helpers.RenderBytesWithTOC(helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-		DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
+		DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 }
 
-func (p *Page) getRenderingConfigFlags() map[string]bool {
+func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
-	p.renderingConfigFlagsInit.Do(func() {
-		p.renderingConfigFlags = make(map[string]bool)
-
+	p.renderingConfigInit.Do(func() {
 		pageParam := p.GetParam("blackfriday")
 		siteParam := viper.GetStringMap("blackfriday")
 
-		p.renderingConfigFlags = cast.ToStringMapBool(siteParam)
-
 		if pageParam != nil {
-			pageFlags := cast.ToStringMapBool(pageParam)
-			for key, value := range pageFlags {
-				p.renderingConfigFlags[key] = value
+			pageConfig := cast.ToStringMap(pageParam)
+			for key, value := range pageConfig {
+				siteParam[key] = value
 			}
+		}
+		p.renderingConfig = new(helpers.Blackfriday)
+		if err := mapstructure.Decode(siteParam, p.renderingConfig); err != nil {
+			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	})
 
-	return p.renderingConfigFlags
-}
-
-func (p *Page) isRenderingFlagEnabled(flag string) bool {
-	return p.getRenderingConfigFlags()[flag]
+	return p.renderingConfig
 }
 
 func newPage(filename string) *Page {
@@ -397,6 +397,16 @@ func (p *Page) RelPermalink() (string, error) {
 		return "", err
 	}
 
+	if viper.GetBool("CanonifyUrls") {
+		// replacements for relpermalink with baseUrl on the form http://myhost.com/sub/ will fail later on
+		// have to return the Url relative from baseUrl
+		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseUrl))
+		if err != nil {
+			return "", err
+		}
+		return "/" + filepath.ToSlash(relpath), nil
+	}
+
 	link.Scheme = ""
 	link.Host = ""
 	link.User = nil
@@ -512,9 +522,13 @@ func (page *Page) GetParam(key string) interface{} {
 		return cast.ToTime(v)
 	case []string:
 		return helpers.SliceToLower(v.([]string))
-	case map[interface{}]interface{}:
+	case map[string]interface{}: // JSON and TOML
+		return v
+	case map[interface{}]interface{}: // YAML
 		return v
 	}
+
+	jww.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
 	return nil
 }
 
@@ -549,7 +563,7 @@ func (page *Page) Menus() PageMenus {
 	ret := PageMenus{}
 
 	if ms, ok := page.Params["menu"]; ok {
-		link, _ := page.Permalink()
+		link, _ := page.RelPermalink()
 
 		me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
 

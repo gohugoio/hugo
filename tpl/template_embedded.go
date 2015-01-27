@@ -81,6 +81,34 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
   {{ end }}
 </urlset>`)
 
+	t.AddInternalTemplate("", "pagination.html", `{{ $pag := .Paginator }}
+    {{ if gt $pag.TotalPages 1 }}
+    <ul class="pagination">
+        {{ with $pag.First }}
+        <li>
+            <a href="{{ .Url }}" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+        </li>
+        {{ end }}
+        <li
+        {{ if not $pag.HasPrev }}class="disabled"{{ end }}>
+        <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.Url }}{{ end }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        </li>
+        {{ range $pag.Pagers }}
+        <li
+        {{ if eq . $pag }}class="active"{{ end }}><a href="{{ .Url }}">{{ .PageNumber }}</a></li>
+        {{ end }}
+        <li
+        {{ if not $pag.HasNext }}class="disabled"{{ end }}>
+        <a href="{{ if $pag.HasNext }}{{ $pag.Next.Url }}{{ end }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        </li>
+        {{ with $pag.Last }}
+        <li>
+            <a href="{{ .Url }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}`)
+
 	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = '{{ .Site.DisqusShortname }}';

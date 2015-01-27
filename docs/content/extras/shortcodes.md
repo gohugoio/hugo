@@ -5,7 +5,7 @@ date: 2013-07-01
 menu:
   main:
     parent: extras
-next: /extras/highlighting
+next: /extras/pagination
 prev: /extras/permalinks
 title: Shortcodes
 weight: 80

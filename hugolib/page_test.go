@@ -3,10 +3,12 @@ package hugolib
 import (
 	"html/template"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 )
 
@@ -211,6 +213,16 @@ the cylinder and strike me down. ## BB
 
 "You're a great Granser," he cried delightedly, "always making believe them little marks mean something."
 `
+
+	SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION = `+++
+[blackfriday]
+  extensions = ["hardLineBreak"]
++++
+first line.
+second line.
+
+fourth line.
+`
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -219,6 +231,9 @@ an_integer = 1
 a_float = 1.3
 a_bool = false
 a_date = 1979-05-27T07:32:00Z
+
+[a_table]
+a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
 
@@ -361,6 +376,16 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 	checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n")
 }
 
+func TestPageWithAdditionalExtension(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION))
+	p.Convert()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
+}
+
 func TestTableOfContents(t *testing.T) {
 	p, _ := NewPage("tocpage.md")
 	err := p.ReadFrom(strings.NewReader(PAGE_WITH_TOC))
@@ -498,6 +523,13 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	}
 	if page.GetParam("a_date") != dateval {
 		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
+	}
+	param := page.GetParam("a_table")
+	if param == nil {
+		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
+	}
+	if cast.ToStringMap(param)["a_key"] != "a_value" {
+		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.Params["a_table"])["a_key"])
 	}
 }
 
