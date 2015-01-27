@@ -45,24 +45,24 @@ func TestPager(t *testing.T) {
 	first := paginatorPages[0]
 	assert.Equal(t, "page/1/", first.Url())
 	assert.Equal(t, first, first.First())
-	assert.Equal(t, true, first.HasNext())
+	assert.True(t, first.HasNext())
 	assert.Equal(t, paginatorPages[1], first.Next())
-	assert.Equal(t, false, first.HasPrev())
+	assert.False(t, first.HasPrev())
 	assert.Nil(t, first.Prev())
 	assert.Equal(t, 5, first.NumberOfElements())
 	assert.Equal(t, 1, first.PageNumber())
 
 	third := paginatorPages[2]
-	assert.Equal(t, true, third.HasNext())
-	assert.Equal(t, true, third.HasPrev())
+	assert.True(t, third.HasNext())
+	assert.True(t, third.HasPrev())
 	assert.Equal(t, paginatorPages[1], third.Prev())
 
 	last := paginatorPages[4]
 	assert.Equal(t, "page/5/", last.Url())
 	assert.Equal(t, last, last.Last())
-	assert.Equal(t, false, last.HasNext())
+	assert.False(t, last.HasNext())
 	assert.Nil(t, last.Next())
-	assert.Equal(t, true, last.HasPrev())
+	assert.True(t, last.HasPrev())
 	assert.Equal(t, 1, last.NumberOfElements())
 	assert.Equal(t, 5, last.PageNumber())
 }
