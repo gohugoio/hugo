@@ -12,6 +12,8 @@ weight: 10
 
 > _Note: This quickstart depends on features introduced in Hugo v0.11.  If you have an earlier version of Hugo, you will need to [upgrade](/overview/installing/) before proceeding._
 
+{{% youtube w7Ft2ymGmfc %}}
+
 ## Step 1. Install Hugo
 
 Go to [Hugo Releases](https://github.com/spf13/hugo/releases) and download the
