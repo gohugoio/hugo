@@ -395,7 +395,6 @@ func TestAbsPathify(t *testing.T) {
 	}
 	data := []test{
 		{os.TempDir(), filepath.FromSlash("/work"), filepath.Clean(os.TempDir())}, // TempDir has trailing slash
-		// todo bep breaks on Windows: {filepath.FromSlash("/banana/../dir/"), filepath.FromSlash("/work"), filepath.FromSlash("/dir")},
 		{"dir", filepath.FromSlash("/work"), filepath.FromSlash("/work/dir")},
 	}
 
