@@ -26,7 +26,5 @@ func Exec(args ...string) string {
 		jww.ERROR.Print("Error executing", err, stderr.String())
 		return stderr.String()
 	}
-	jww.ERROR.Print("It got here")
-
 	return out.String()
 }
