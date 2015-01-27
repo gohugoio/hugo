@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -398,6 +399,16 @@ func TestAbsPathify(t *testing.T) {
 		{"dir", filepath.FromSlash("/work"), filepath.FromSlash("/work/dir")},
 	}
 
+	windowsData := []test{
+		{"c:\\banana\\..\\dir", "c:\\foo", "c:\\dir"},
+		{"\\dir", "c:\\foo", "c:\\foo\\dir"},
+		{"c:\\", "c:\\foo", "c:\\"},
+	}
+
+	unixData := []test{
+		{"/banana/../dir/", "/work", "/dir"},
+	}
+
 	for i, d := range data {
 		// todo see comment in AbsPathify
 		viper.Set("WorkingDir", d.workingDir)
@@ -407,6 +418,27 @@ func TestAbsPathify(t *testing.T) {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 		}
 	}
+	t.Logf("Running platform specific path tests for %s", runtime.GOOS)
+	if runtime.GOOS == "windows" {
+		for i, d := range windowsData {
+			viper.Set("WorkingDir", d.workingDir)
+
+			expected := AbsPathify(d.inPath)
+			if d.expected != expected {
+				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
+			}
+		}
+	} else {
+		for i, d := range unixData {
+			viper.Set("WorkingDir", d.workingDir)
+
+			expected := AbsPathify(d.inPath)
+			if d.expected != expected {
+				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
+			}
+		}
+	}
+
 }
 
 func TestFilename(t *testing.T) {
