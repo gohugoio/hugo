@@ -831,6 +831,10 @@ func Highlight(in interface{}, lang string) template.HTML {
 	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang))
 }
 
+func Exec(args ...string) template.HTML {
+	return template.HTML(helpers.Exec(args...))
+}
+
 func Markdownify(text string) template.HTML {
 	return template.HTML(helpers.RenderBytes(helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
 }
@@ -1275,6 +1279,7 @@ func init() {
 		"delimit":     Delimit,
 		"sort":        Sort,
 		"highlight":   Highlight,
+		"exec":        Exec,
 		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
 		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
 		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
