@@ -22,6 +22,35 @@ import (
 	"strings"
 )
 
+type PathBridge struct {
+}
+
+func (PathBridge) Base(in string) string {
+	return path.Base(in)
+}
+
+func (PathBridge) Clean(in string) string {
+	return path.Clean(in)
+}
+
+func (PathBridge) Dir(in string) string {
+	return path.Dir(in)
+}
+
+func (PathBridge) Ext(in string) string {
+	return path.Ext(in)
+}
+
+func (PathBridge) Join(elem ...string) string {
+	return path.Join(elem...)
+}
+
+func (PathBridge) Separator() string {
+	return "/"
+}
+
+var pathBridge PathBridge
+
 // SanitizeUrl sanitizes the input URL string.
 func SanitizeUrl(in string) string {
 	url, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
@@ -141,22 +170,7 @@ func PrettifyUrl(in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyUrlPath(in string) string {
-	if path.Ext(in) == "" {
-		// /section/name/  -> /section/name/index.html
-		if len(in) < 2 {
-			return "/"
-		}
-		return path.Join(path.Clean(in), "index.html")
-	} else {
-		name, ext := ResourceAndExt(in)
-		if name == "index" {
-			// /section/name/index.html -> /section/name/index.html
-			return path.Clean(in)
-		} else {
-			// /section/name.html -> /section/name/index.html
-			return path.Join(path.Dir(in), name, "index"+ext)
-		}
-	}
+	return PrettiyPath(in, pathBridge)
 }
 
 // Uglify does the opposite of PrettifyUrlPath().
@@ -171,7 +185,7 @@ func Uglify(in string) string {
 		// /section/name/  -> /section/name.html
 		return path.Clean(in) + ".html"
 	} else {
-		name, ext := ResourceAndExt(in)
+		name, ext := FileAndExt(in, pathBridge)
 		if name == "index" {
 			// /section/name/index.html -> /section/name.html
 			d := path.Dir(in)
@@ -185,12 +199,4 @@ func Uglify(in string) string {
 			return path.Clean(in)
 		}
 	}
-}
-
-// Same as FileAndExt, but for URLs.
-func ResourceAndExt(in string) (name string, ext string) {
-	ext = path.Ext(in)
-	base := path.Base(in)
-
-	return extractFilename(in, ext, base, "/"), ext
 }
