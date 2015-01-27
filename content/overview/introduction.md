@@ -37,6 +37,10 @@ build times and the ability to rebuild whenever a change is made, Hugo
 provides a very fast feedback loop. This is essential when you are
 designing websites, but also very useful when creating content.
 
+## How fast is Hugo?
+
+{{% youtube CdiDYZ51a2o %}}
+
 ## What does Hugo do?
 
 In technical terms, Hugo takes a source directory of Markdown files and
