@@ -81,6 +81,8 @@ func TestAddContextRoot(t *testing.T) {
 		// cannot guess that the context root is already added int the example below
 		{"http://example.com/sub/", "/sub/foo", "/sub/sub/foo"},
 		{"http://example.com/тря", "/трям/", "/тря/трям/"},
+		{"http://example.com", "/", "/"},
+		{"http://example.com/bar", "//", "/bar/"},
 	}
 
 	for _, test := range tests {

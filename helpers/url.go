@@ -15,11 +15,12 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/purell"
-	"github.com/spf13/viper"
 	"net/url"
 	"path"
 	"strings"
+
+	"github.com/PuerkitoBio/purell"
+	"github.com/spf13/viper"
 )
 
 type PathBridge struct {
@@ -120,8 +121,8 @@ func AddContextRoot(baseUrl, relativePath string) string {
 
 	newPath := path.Join(url.Path, relativePath)
 
-	// path strips traling slash
-	if strings.HasSuffix(relativePath, "/") {
+	// path strips traling slash, ignore root path.
+	if newPath != "/" && strings.HasSuffix(relativePath, "/") {
 		newPath += "/"
 	}
 	return newPath
