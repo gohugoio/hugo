@@ -58,7 +58,7 @@ func setBuildDate() {
 		fmt.Println(err)
 		return
 	}
-	fi, err := os.Lstat(filepath.Join(dir, "hugo"))
+	fi, err := os.Lstat(filepath.Join(dir, filepath.Base(fname)))
 	if err != nil {
 		fmt.Println(err)
 		return
