@@ -74,7 +74,7 @@ is saved.
        Press ctrl+c to stop
 
 Hugo can even run a server and create your site at the same time! Hugo
-implements [LiveReload](/extras/livereload) technology to automatically reload any open pages in
+implements [LiveReload](/extras/livereload/) technology to automatically reload any open pages in
 all browsers (including mobile).
 
     $ hugo server -ws ~/mysite

@@ -13,7 +13,7 @@ weight: 40
 ---
 
 A list template is any template that will be used to render multiple pieces of
-content in a single HTML page (with the exception of the [homepage](/layout/homepage) which has a
+content in a single HTML page (with the exception of the [homepage](/layout/homepage/) which has a
 dedicated template).
 
 We are using the term list in its truest sense, a sequential arrangement
@@ -102,8 +102,8 @@ Taxonomy pages will additionally have:
 ## Example List Template Pages
 
 ### Example section template (post.html)
-This content template is used for [spf13.com](http://spf13.com).
-It makes use of [partial templates](/templates/partials). All examples use a
+This content template is used for [spf13.com](http://spf13.com/).
+It makes use of [partial templates](/templates/partials/). All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
@@ -124,8 +124,8 @@ defined.
     {{ partial "footer.html" . }}
 
 ### Example taxonomy template (tag.html)
-This content template is used for [spf13.com](http://spf13.com).
-It makes use of [partial templates](/templates/partials). All examples use a
+This content template is used for [spf13.com](http://spf13.com/).
+It makes use of [partial templates](/templates/partials/). All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
@@ -146,7 +146,7 @@ defined.
 ## Ordering Content
 
 In the case of Hugo each list will render the content based on metadata provided in the [front
-matter](/content/front-matter). See [ordering content](/content/ordering) for more information.
+matter](/content/front-matter/). See [ordering content](/content/ordering/) for more information.
 
 Here are a variety of different ways you can order the content items in
 your list templates:

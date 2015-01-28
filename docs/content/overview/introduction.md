@@ -52,43 +52,43 @@ Hugo boasts the following features:
 
   * Extremely fast build times (~1&nbsp;ms per page)
   * Completely cross platform: Runs on <i class="fa fa-apple"></i>&nbsp;Mac OS&nbsp;X, <i class="fa fa-linux"></i>&nbsp;Linux, <i class="fa fa-windows"></i>&nbsp;Windows, and more!
-  * Easy [installation](/overview/installing)
-  * Render changes [on the fly](/overview/usage) with [LiveReload](/extras/livereload) as you develop
+  * Easy [installation](/overview/installing/)
+  * Render changes [on the fly](/overview/usage/) with [LiveReload](/extras/livereload/) as you develop
   * Complete theme support
   * Host your site anywhere
 
 ### Organization
 
-  * Straightforward [organization](/content/organization)
-  * Support for [website sections](/content/sections)
-  * Completely customizable [URLs](/extras/urls)
-  * Support for configurable [taxonomies](/indexes/overview) which includes categories and tags.  Create your own custom organization of content
-  * Ability to [sort content](/content/ordering) as you desire
-  * Automatic [table of contents](/extras/toc) generation
+  * Straightforward [organization](/content/organization/)
+  * Support for [website sections](/content/sections/)
+  * Completely customizable [URLs](/extras/urls/)
+  * Support for configurable [taxonomies](/taxonomies/overview/) which includes categories and tags.  Create your own custom organization of content
+  * Ability to [sort content](/content/ordering/) as you desire
+  * Automatic [table of contents](/extras/toc/) generation
   * Dynamic menu creation
-  * [Pretty URLs](/extras/urls) support
-  * [Permalink](/extras/permalinks) pattern support
-  * [Aliases](/extras/aliases) (redirects)
+  * [Pretty URLs](/extras/urls/) support
+  * [Permalink](/extras/permalinks/) pattern support
+  * [Aliases](/extras/aliases/) (redirects)
 
 ### Content
 
-  * Content written in [Markdown](/content/example)
-  * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter)
-  * Completely [customizable homepage](/layout/homepage)
-  * Support for multiple [content types](/content/types)
-  * Automatic and user defined [summaries](/content/summaries)
-  * [Shortcodes](/extras/shortcodes) to enable rich content inside of Markdown
-  * ["Minutes to Read"](/layout/variables) functionality
-  * ["Wordcount"](/layout/variables) functionality
+  * Content written in [Markdown](/content/example/)
+  * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter/)
+  * Completely [customizable homepage](/layout/homepage/)
+  * Support for multiple [content types](/content/types/)
+  * Automatic and user defined [summaries](/content/summaries/)
+  * [Shortcodes](/extras/shortcodes/) to enable rich content inside of Markdown
+  * ["Minutes to Read"](/layout/variables/) functionality
+  * ["Wordcount"](/layout/variables/) functionality
 
 ### Additional Features
 
   * Integrated [Disqus](https://disqus.com/) comment support
-  * Automatic [RSS](/layout/rss) creation
+  * Automatic [RSS](/layout/rss/) creation
   * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](http://ace.yoss.si/) HTML templates
-  * Syntax [highlighting](/extras/highlighting) powered by [Pygments](http://pygments.org/)
+  * Syntax [highlighting](/extras/highlighting/) powered by [Pygments](http://pygments.org/)
 
-See what's coming next in the [roadmap](/meta/roadmap).
+See what's coming next in the [roadmap](/meta/roadmap/).
 
 ## Who should use Hugo?
 
@@ -135,9 +135,9 @@ as I have writing it.
 
 ## Next Steps
 
- * [Install Hugo](/overview/installing)
- * [Quick start](/overview/quickstart)
- * [Join the Mailing List](/community/mailing-list)
- * [Star us on GitHub](http://github.com/spf13/hugo)
- * [Discussion Forum](http://discuss.gohugo.io)
+ * [Install Hugo](/overview/installing/)
+ * [Quick start](/overview/quickstart/)
+ * [Join the Mailing List](/community/mailing-list/)
+ * [Star us on GitHub](https://github.com/spf13/hugo)
+ * [Discussion Forum](http://discuss.gohugo.io/)
 

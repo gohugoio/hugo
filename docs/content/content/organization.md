@@ -22,7 +22,7 @@ in the front matter.
 In Hugo, the content should be arranged in the same way they are intended for
 the rendered website. Without any additional configuration, the following will
 just work. Hugo supports content nested at any level. The top level is special
-in Hugo and is used as the [section](/content/sections).
+in Hugo and is used as the [section](/content/sections/).
 
     .
     └── content
@@ -72,16 +72,16 @@ destination.
 
 ### filepath
 The actual path to the file on disk. Destination will create the destination
-with the same path. Includes [section](/content/sections).
+with the same path. Includes [section](/content/sections/).
 
 ### section
 section can be provided in the front matter overriding the section derived from
-the source content location on disk. See [section](/content/sections).
+the source content location on disk. See [section](/content/sections/).
 
 ### path
 path can be provided in the front matter. This will replace the actual
 path to the file on disk. Destination will create the destination with the same
-path. Includes [section](/content/sections).
+path. Includes [section](/content/sections/).
 
 ### url
 A complete URL can be provided. This will override all the above as it pertains

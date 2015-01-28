@@ -26,12 +26,12 @@ in the same relative path `/static/js/jquery.min.js`.
 Anytime Hugo looks for a matching template, it will first check the
 working directory before looking in the theme directory. If you would
 like to modify a template, simply create that template in your local
-`layouts` directory. In the [template documentation](/templates/overview)
+`layouts` directory. In the [template documentation](/templates/overview/)
 each different template type explains the rules it uses to determine
 which template to use.
 
 This is especially helpful when the theme creator used [partial
-templates](/templates/partials). These partial templates are perfect for easy
+templates](/templates/partials/). These partial templates are perfect for easy
 injection into the theme with minimal maintenance to ensure future
 compatibility.
 

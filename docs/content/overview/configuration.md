@@ -132,9 +132,12 @@ but only these three.</small></td>
 **Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
 
 <table class="table">
+<thead>
 <tr>
 <th>TOML</th><th>YAML</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td><pre><code>[blackfriday]
   angledQuotes = true
@@ -150,10 +153,11 @@ but only these three.</small></td>
     - hardLineBreak
 </code></pre></td>
 </tr>
+</tbody>
 </table>
 
 ## Notes
 
-Config changes are not reflected with [LiveReload](/extras/livereload).
+Config changes are not reflected with [LiveReload](/extras/livereload/).
 
 Please restart `hugo server --watch` whenever you make a config change.

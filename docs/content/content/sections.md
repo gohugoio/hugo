@@ -12,7 +12,7 @@ weight: 30
 
 Hugo believes that you organize your content with a purpose. The same structure
 that works to organize your source content is used to organize the rendered
-site (see [Organization](/content/organization)). Following this pattern Hugo
+site (see [Organization](/content/organization/)). Following this pattern Hugo
 uses the top level of your content organization as **the Section**.
 
 The following example site uses two sections, "post" and "quote".
@@ -32,7 +32,7 @@ The following example site uses two sections, "post" and "quote".
 ## Section Lists
 
 Hugo will automatically create pages for each section root that list all
-of the content in that section. See [List Templates](/templates/list)
+of the content in that section. See [List Templates](/templates/list/)
 for details on customizing the way they appear.
 
 ## Sections and Types

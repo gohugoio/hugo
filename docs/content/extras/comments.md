@@ -14,7 +14,7 @@ As Hugo is a static site generator, the content produced is static and
 doesn’t interact with the users. The most common interaction people ask
 for is comment capability.
 
-Hugo ships with support for [Disqus](https://disqus.com), a third-party
+Hugo ships with support for [Disqus](https://disqus.com/), a third-party
 service that provides comment and community capabilities to website via
 JavaScript.
 
@@ -66,7 +66,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 ```
 
 Notice that there is a simple `if` statement that detects when you are running on localhost and skips the initialization of the Disqus comment injection.
@@ -78,17 +78,17 @@ Now, reference the partial template from your page template:
 
 # Alternatives
 
-A few alternatives exist to [Disqus](https://disqus.com):
+A few alternatives exist to [Disqus](https://disqus.com/):
 
 * [IntenseDebate](http://intensedebate.com/)
 * [Livefyre](http://livefyre.com/)
-* [Muut](http://muut.com)
+* [Muut](http://muut.com/)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
-* [Kaiju](http://github.com/spf13/kaiju)
+* [Kaiju](https://github.com/spf13/kaiju)
 
 
-[Kaiju](http://github.com/spf13/kaiju) is an open-source project started
-by [spf13](http://spf13.com) (Hugo’s author) to bring easy and fast real
+[Kaiju](https://github.com/spf13/kaiju) is an open-source project started
+by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real
 time discussions to the web.
 
 Written using Go, Socket.io and MongoDB, it is very fast and easy to

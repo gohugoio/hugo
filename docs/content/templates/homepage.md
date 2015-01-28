@@ -45,9 +45,9 @@ the list will be needed.
 * /themes/`THEME`/layouts/\_default/single.html
 
 ## Example index.html
-This content template is used for [spf13.com](http://spf13.com).
+This content template is used for [spf13.com](http://spf13.com/).
 
-It makes use of [partial templates](/templates/partials) and uses a similar approach as a [List](/templates/list/).
+It makes use of [partial templates](/templates/partials/) and uses a similar approach as a [List](/templates/list/).
 
     <!DOCTYPE html>
     <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
