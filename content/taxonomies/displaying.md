@@ -14,7 +14,7 @@ weight: 20
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo
-using the [list templates](/templates/list):
+using the [list templates](/templates/list/):
 
 1. For a given piece of content, you can list the terms attached
 2. For a given piece of content, you can list other content with the same

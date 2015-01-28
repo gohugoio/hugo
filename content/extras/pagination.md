@@ -11,7 +11,7 @@ title: Pagination
 weight: 80
 ---
 
-Hugo supports pagination for the home page, sections and taxonomies. It's built to be easy use, but with loads of flexibility when needed. The real power shines when you combine it with [`where`](/templates/functions), with its SQL-like operators, `first` and others -- you can even [order the content](/templates/list) the way you've become used to with Hugo.
+Hugo supports pagination for the home page, sections and taxonomies. It's built to be easy use, but with loads of flexibility when needed. The real power shines when you combine it with [`where`](/templates/functions/), with its SQL-like operators, `first` and others --- you can even [order the content](/templates/list/) the way you've become used to with Hugo.
 
 ## Configuration
 
@@ -20,7 +20,7 @@ Pagination can be configured in the site configuration (e.g. `config.toml`):
 * `Paginate` (default `10`) 
 * `PaginatePath` (default `page`)
 
-Setting `Paginate` to a positive value will split the list pages for the home page, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and home page is *lazy* -- the pages will not be created if not referenced by a `.Paginator` (see below).
+Setting `Paginate` to a positive value will split the list pages for the home page, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and home page is *lazy* --- the pages will not be created if not referenced by a `.Paginator` (see below).
 
  `PaginatePath` is used to adapt the `Url` to the pages in the paginator (the default setting will produce urls on the form `/page/1/`. 
 

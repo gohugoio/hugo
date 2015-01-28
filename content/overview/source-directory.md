@@ -27,12 +27,12 @@ The top level of a source directory will typically have the following elements:
 
 Learn more about the different directories and what their purpose is:
 
-* [config](/overview/configuration)
-* [archetypes](/content/archetypes)
-* [content](/content/organization)
-* [layouts](/layout/overview)
+* [config](/overview/configuration/)
+* [archetypes](/content/archetypes/)
+* [content](/content/organization/)
+* [layouts](/layout/overview/)
 * [static](/themes/creation#toc_4)
-* [themes](/themes/overview)
+* [themes](/themes/overview/)
 
 
 ## Example

@@ -1,6 +1,10 @@
 baseurl = "http://gohugo.io/"
 MetaDataFormat = "yaml"
 
+[params]
+  description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13 and friends in Go"
+  author = "Steve Francia (spf13) and friends"
+
 [indexes]
   tag = "tags"
   group = "groups"
@@ -18,7 +22,7 @@ MetaDataFormat = "yaml"
 [[menu.main]]
     name = "Discuss Hugo"
     pre = "<i class='fa fa-comments'></i>"
-    url = "http://discuss.gohugo.io"
+    url = "http://discuss.gohugo.io/"
     weight = -150
 [[menu.main]]
     name = "About Hugo"

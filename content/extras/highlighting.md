@@ -20,7 +20,7 @@ it doesn’t cost anything when building your site and some of the highlighting
 scripts available cover more languages than Pygments does.
 
 For the pre-processed approach, Highlighting is performed by an external
-Python-based program called [Pygments](http://pygments.org) and is triggered
+Python-based program called [Pygments](http://pygments.org/) and is triggered
 via an embedded shortcode. If Pygments is absent from the path, it will
 silently simply pass the content along unhighlighted.
 

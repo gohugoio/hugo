@@ -48,7 +48,7 @@ and assign all terms you want to apply to this content.
     categories = [ "Development" ]
     series = [ "Go Web Dev" ]
     slug = "hugo"
-    project_url = "http://github.com/spf13/hugo"
+    project_url = "https://github.com/spf13/hugo"
     +++
 
 ### Front Matter Example (in JSON)
@@ -68,5 +68,5 @@ and assign all terms you want to apply to this content.
             "Go Web Dev"
         ],
         "slug": "hugo",
-        "project_url": "http://github.com/spf13/hugo"
+        "project_url": "https://github.com/spf13/hugo"
     }
