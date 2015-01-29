@@ -358,7 +358,7 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.AbsPathify(viper.GetString("StaticDir"))) || strings.HasPrefix(ev.Name, helpers.AbsPathify("themes/"+viper.GetString("theme"))+"/static/")
+					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || strings.HasPrefix(ev.Name, helpers.GetThemesDirPath())
 					static_changed = static_changed || isstatic
 					dynamic_changed = dynamic_changed || !isstatic
 
