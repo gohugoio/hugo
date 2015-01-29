@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"sync/atomic"
+
 	"bitbucket.org/pkg/inflect"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
@@ -38,7 +40,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
-	"sync/atomic"
 )
 
 var _ = transform.AbsURL
@@ -355,8 +356,6 @@ func (s *Site) initialize() (err error) {
 }
 
 func (s *Site) initializeSiteInfo() {
-	params := viper.GetStringMap("Params")
-
 	permalinks := make(PermalinkOverrides)
 	for k, v := range viper.GetStringMapString("Permalinks") {
 		permalinks[k] = PathPattern(v)
@@ -374,7 +373,7 @@ func (s *Site) initializeSiteInfo() {
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
-		Params:          params,
+		Params:          viper.GetStringMap("Params"),
 		Permalinks:      permalinks,
 	}
 }

@@ -9,8 +9,8 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 		path   string
 		ignore bool
 	}{
-		{".foobar/", true },
-		{"foobar/.barfoo/", true },
+		{".foobar/", true},
+		{"foobar/.barfoo/", true},
 		{"barfoo.md", false},
 		{"foobar/barfoo.md", false},
 		{"foobar/.barfoo.md", true},

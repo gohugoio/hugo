@@ -992,7 +992,7 @@ func TestTrim(t *testing.T) {
 func TestDateFormat(t *testing.T) {
 	for i, this := range []struct {
 		layout string
-		value interface{}
+		value  interface{}
 		expect interface{}
 	}{
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
