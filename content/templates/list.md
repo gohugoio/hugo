@@ -35,7 +35,7 @@ the list will be needed.
 
 ### Section Lists
 
-A Section will be rendered at /`SECTION`/
+A Section will be rendered at /`SECTION`/ (e.g.&nbsp;http://spf13.com/project/)
 
 * /layouts/section/`SECTION`.html
 * /layouts/\_default/section.html
@@ -47,9 +47,9 @@ A Section will be rendered at /`SECTION`/
 
 ### Taxonomy Lists
 
-A Taxonomy will be rendered at /`PLURAL`/`TERM`/
+A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
 
-* /layouts/taxonomy/`SINGULAR`.html
+* /layouts/taxonomy/`SINGULAR`.html (e.g.&nbsp;`/layouts/taxonomy/topic.html`)
 * /layouts/\_default/taxonomy.html
 * /layouts/\_default/list.html
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
@@ -58,7 +58,7 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/
 
 ### Section RSS
 
-A Section’s RSS will be rendered at /`SECTION`/index.xml
+A Section’s RSS will be rendered at /`SECTION`/index.xml (e.g.&nbsp;http://spf13.com/project/index.xml)
 
 *Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the
@@ -74,7 +74,7 @@ can have different RSS files for each section and taxonomy.
 
 ### Taxonomy RSS
 
-A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml
+A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml (e.g.&nbsp;http://spf13.com/topics/golang/index.xml)
 
 *Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the

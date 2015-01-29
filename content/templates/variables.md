@@ -35,8 +35,8 @@ matter, content or derived from file location.
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
 **.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
-**.Taxonomies** These will use the field name of the plural form of the index (see tags and categories above).<br>
-**.RSSLink** Link to the indexes' RSS link.<br>
+**.Taxonomies** These will use the field name of the plural form of the taxonomy (see tags and categories below).<br>
+**.RSSLink** Link to the taxonomies' RSS link.<br>
 **.TableOfContents** The rendered table of contents for this content.<br>
 **.Prev** Pointer to the previous content (based on pub date).<br>
 **.Next** Pointer to the following content (based on pub date).<br>
@@ -53,8 +53,8 @@ matter, content or derived from file location.
 
 ## Page Params
 
-Any other value defined in the front matter, including indexes will be made available under `.Params`.
-Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
+Any other value defined in the front matter, including taxonomies, will be made available under `.Params`.
+Take for example I'm using *tags* and *categories* as my taxonomies. The following would be how I would access them:
 
 * **.Params.tags**
 * **.Params.categories**
@@ -63,7 +63,7 @@ Take for example I'm using tags and categories as my indexes. The following woul
 
 ## Node Variables
 In Hugo, a node is any page not rendered directly by a content file. This
-includes indexes, lists and the homepage.
+includes taxonomies, lists and the homepage.
 
 **.Title**  The title for the content.<br>
 **.Date** The date the content is published on.<br>
@@ -71,7 +71,7 @@ includes indexes, lists and the homepage.
 **.Url** The relative URL for this node.<br>
 **.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
-**.RSSLink** Link to the indexes' RSS link.<br>
+**.RSSLink** Link to the taxonomies' RSS link.<br>
 **.Data** The data specific to this type of node.<br>
 **.IsNode** Always true for nodes.<br>
 **.IsPage** Always false for nodes.<br>
@@ -83,9 +83,9 @@ includes indexes, lists and the homepage.
 Also available is `.Site` which has the following:
 
 **.Site.BaseUrl** The base URL for the site as defined in the site configuration file.<br>
-**.Site.Taxonomies** The indexes for the entire site.<br>
+**.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
-**.Site.Recent** Array of all content ordered by Date, newest first.<br>
+**.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
     baseurl = "http://yoursite.example.com/"

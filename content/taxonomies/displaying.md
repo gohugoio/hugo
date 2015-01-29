@@ -80,7 +80,7 @@ different terms to the content.
 
 ## 4. Rendering a Site's Taxonomies
 
-If you wish to display the list of all keys for an taxonomy, you can find retrieve
+If you wish to display the list of all keys for a taxonomy, you can find retrieve
 them from the `.Site` variable which is available on every page.
 
 This may take the form of a tag cloud, a menu or simply a list.

@@ -41,7 +41,7 @@ The following is an example of a toml config file with some of the default value
     baseurl = "http://yoursite.example.com/"
     canonifyurls = true
 
-    [indexes]
+    [taxonomies]
       category = "categories"
       tag = "tags"
        

@@ -16,18 +16,33 @@ Taxonomies must be defined in the site configuration before they can be
 used throughout the site. You need to provide both the plural and
 singular labels for each taxonomy.
 
-Here is an example configuration in YAML that specifies three taxonomies
-(the default two, plus `series`).
+Here is an example configuration in TOML and YAML
+that specifies three taxonomies (the default two, plus `series`).
 
-Notice the format is **singular key** : *plural value*. 
-### config.yaml
+Notice the format is <code><strong>singular key</strong> = &quot;<em>plural value</em>&quot;</code> for TOML,
+or <code><strong>singular key</strong>: &quot;<em>plural value</em>&quot;</code> for YAML:
 
-    ---
-    Taxonomies:
-        tag: "tags"
-        category: "categories"
-        series: "series"
-    ---
+<table class="table">
+<thead>
+<tr>
+<th>config.toml excerpt:</th><th>config.yaml excerpt:</th>
+</tr>
+</thead>
+<tbody>
+<tr valign="top">
+<td><pre><code>[taxonomies]
+  tag = "tags"
+  category = "categories"
+  series = "series"
+</code></pre></td>
+<td><pre><code class="language-yaml">taxonomies:
+  tag: "tags"
+  category: "categories"
+  series: "series"
+</code></pre></td>
+</tr>
+</tbody>
+</table>
 
 ## Assigning taxonomy values to content
 
