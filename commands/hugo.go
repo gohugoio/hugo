@@ -233,7 +233,7 @@ func build(watches ...bool) {
 
 	if BuildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
-		jww.FEEDBACK.Println("Press ctrl+c to stop")
+		jww.FEEDBACK.Println("Press Ctrl+C to stop")
 		utils.CheckErr(NewWatcher(0))
 	}
 }
