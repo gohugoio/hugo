@@ -71,7 +71,7 @@ is saved.
        28 pages created
        in 18 ms
        Watching for changes in /Users/spf13/Code/hugo/docs/content
-       Press ctrl+c to stop
+       Press Ctrl+C to stop
 
 Hugo can even run a server and create your site at the same time! Hugo
 implements [LiveReload](/extras/livereload/) technology to automatically reload any open pages in
@@ -80,7 +80,7 @@ all browsers (including mobile).
     $ hugo server -ws ~/mysite
        Watching for changes in /Users/spf13/Code/hugo/docs/content
        Web Server is available at http://localhost:1313
-       Press ctrl+c to stop
+       Press Ctrl+C to stop
        28 pages created
        0 tags created
        in 18 ms
