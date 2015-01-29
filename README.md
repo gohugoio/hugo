@@ -1,6 +1,6 @@
 # Hugo
-A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com)
-and [friends](http://github.com/spf13/hugo/graphs/contributors) in Go.
+A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/)
+and [friends](https://github.com/spf13/hugo/graphs/contributors) in Go.
 
 [![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo)
 [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32)
@@ -21,7 +21,7 @@ takes around 1 millisecond for each piece of content.
 It is written to work well with any
 kind of website including blogs, tumbles and docs.
 
-**Complete documentation is available at [Hugo Documentation](http://gohugo.io).**
+**Complete documentation is available at [Hugo Documentation](http://gohugo.io/).**
 
 # Getting Started
 
@@ -51,7 +51,7 @@ is the most probable location.
 #### Dependencies
 
 * Git
-* Go 1.1+ (Go 1.4+ on Windows, see Go [Issue #8090](https://code.google.com/p/go/issues/detail?id=8090))
+* Go 1.3+ (Go 1.4+ on Windows, see Go [Issue #8090](https://code.google.com/p/go/issues/detail?id=8090))
 * Mercurial
 * Bazaar
 
@@ -69,9 +69,16 @@ it's helpful to symlink the project to one of the following paths:
 
 #### Get directly from GitHub:
 
-If you only want to build from source, it's even easier.
+If you only want to build from source, it's even easier:
 
     go get -v github.com/spf13/hugo
+
+Once completed, your may find your new `hugo` (or `hugo.exe`) executable
+sitting inside `$GOPATH/bin/`.
+
+You may also run `go get` with the `-u` option to update Hugo’s dependencies:
+
+    go get -u -v github.com/spf13/hugo
 
 #### Building Hugo
 
@@ -124,7 +131,7 @@ We welcome your contributions.  To make the process as seamless as possible, we 
      * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.  
      * Make sure `go test ./...` passes, and `go build` completes.  Our Travis CI loop will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
 
-**Complete documentation is available at [Hugo Documentation](http://gohugo.io).**
+**Complete documentation is available at [Hugo Documentation](http://gohugo.io/).**
 
 [![Analytics](https://ga-beacon.appspot.com/UA-7131036-6/hugo/readme)](https://github.com/igrigorik/ga-beacon)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/hugo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

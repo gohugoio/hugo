@@ -20,6 +20,8 @@ Here are some examples:
 * [How do I include an image gallery on my website?](http://discuss.gohugo.io/t/image-gallery/594)
 * ... And a lot more!
 
+{{% youtube c8fJIRNChmU %}}
+
 Indeed, you may find many questions and solutions
 to problems in our [discussion forum](http://discuss.gohugo.io/),
 and you may find the [support](http://discuss.gohugo.io/category/support)

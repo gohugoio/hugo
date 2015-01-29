@@ -65,7 +65,7 @@ Accessing the Page Parameter "bar"
 Each Go template has a struct (object) made available to it. In Hugo, each
 template is passed either a page or a node struct depending on which type of
 page you are rendering. More details are available on the
-[variables](/layout/variables) page.
+[variables](/layout/variables/) page.
 
 A variable is accessed by referencing the variable name.
 
@@ -82,7 +82,7 @@ Variables can also be defined and referenced.
 Go template ships with a few functions which provide basic functionality. The Go
 template system also provides a mechanism for applications to extend the
 available functions with their own. [Hugo template
-functions](/layout/functions) provide some additional functionality we believe
+functions](/layout/functions/) provide some additional functionality we believe
 are useful for building websites. Functions are called by using their name
 followed by the required parameters separated by spaces. Template
 functions cannot be added without recompiling Hugo.
@@ -303,7 +303,7 @@ you want to inside of your templates.
 ## Using Content (page) Parameters
 
 In each piece of content, you can provide variables to be used by the
-templates. This happens in the [front matter](/content/front-matter).
+templates. This happens in the [front matter](/content/front-matter/).
 
 An example of this is used in this documentation site. Most of the pages
 benefit from having the table of contents provided. Sometimes the TOC just

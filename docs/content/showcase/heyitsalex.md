@@ -3,7 +3,7 @@ date: 2014-03-09T06:00:00Z
 description: ""
 license: MIT
 licenseLink: ""
-sitelink: http://heyitsalex.net
+sitelink: http://heyitsalex.net/
 sourceLink: https://github.com/alexandre-normand/alexandre-normand
 tags:
 - personal

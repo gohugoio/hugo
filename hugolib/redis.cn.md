@@ -41,7 +41,7 @@ Karl之前还写了[《The Little MongoDB Book》](http://openmymind.net/2011/3/
 ### 最新版本
 
 此书的最新有效资源在：
-<http://github.com/karlseguin/the-little-redis-book>
+<https://github.com/karlseguin/the-little-redis-book>
 
 中文版是英文版的一个分支，最新的中文版本在：
 <https://github.com/JasonLai256/the-little-redis-book>

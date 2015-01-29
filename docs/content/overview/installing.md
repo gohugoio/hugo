@@ -31,15 +31,15 @@ where you don't have a privileged account.
 Ideally, you should install it somewhere in your `PATH` for easy use.
 `/usr/local/bin` is the most probable location.
 
-On OS&nbsp;X, if you have [Homebrew](http://brew.sh), installation is even
+On OS&nbsp;X, if you have [Homebrew](http://brew.sh/), installation is even
 easier: just run `brew install hugo`.
 
 ### Installing Pygments (optional)
 
 The Hugo executable has one *optional* external dependency for source code highlighting (Pygments).
 
-If you want to have source code highlighting using the [highlight shortcode](/extras/highlighting),
-you need to install the Python-based Pygments program. The procedure is outlined on the [Pygments home page](http://pygments.org).
+If you want to have source code highlighting using the [highlight shortcode](/extras/highlighting/),
+you need to install the Python-based Pygments program. The procedure is outlined on the [Pygments home page](http://pygments.org/).
 
 ## Upgrading Hugo
 
@@ -64,8 +64,12 @@ placed in your `PATH`.
 `go get` will then fetch Hugo and all its dependent libraries to your
 `$GOPATH/src` directory, and compile everything into the final `hugo`
 (or `hugo.exe`) executable, which you will find sitting in the
-`$GOPATH/bin/hugo` directory, all ready to go!
+`$GOPATH/bin/` directory, all ready to go!
+
+You may run `go get` with the `-u` option to update Hugo's dependencies:
+
+    $ go get -u -v github.com/spf13/hugo
 
 ## Contributing
 
-Please see the [contributing guide](/doc/contributing).
+Please see the [contributing guide](/doc/contributing/).

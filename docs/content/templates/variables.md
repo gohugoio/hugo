@@ -34,9 +34,9 @@ matter, content or derived from file location.
 **.Section** The [section](/content/sections/) this content belongs to.<br>
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
-**.LinkTitle** Access when creating links to this content. Will use linktitle if set in front-matter, else title.<br>
-**.Taxonomies** These will use the field name of the plural form of the index (see tags and categories above).<br>
-**.RSSLink** Link to the indexes' rss link.<br>
+**.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
+**.Taxonomies** These will use the field name of the plural form of the taxonomy (see tags and categories below).<br>
+**.RSSLink** Link to the taxonomies' RSS link.<br>
 **.TableOfContents** The rendered table of contents for this content.<br>
 **.Prev** Pointer to the previous content (based on pub date).<br>
 **.Next** Pointer to the following content (based on pub date).<br>
@@ -48,44 +48,44 @@ matter, content or derived from file location.
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
-**.Site** See site variables below.<br>
-**.Hugo** See Hugo variables below<br>
+**.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
+**.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 
 ## Page Params
 
-Any other value defined in the front matter, including indexes will be made available under `.Params`.
-Take for example I'm using tags and categories as my indexes. The following would be how I would access them:
+Any other value defined in the front matter, including taxonomies, will be made available under `.Params`.
+Take for example I'm using *tags* and *categories* as my taxonomies. The following would be how I would access them:
 
-**.Params.tags** <br>
-**.Params.categories** <br>
-<br>
-**All Params are only accessible using all lowercase characters**<br>
+* **.Params.tags**
+* **.Params.categories**
+
+**All Params are only accessible using all lowercase characters.**
 
 ## Node Variables
-In Hugo a node is any page not rendered directly by a content file. This
-includes indexes, lists and the homepage.
+In Hugo, a node is any page not rendered directly by a content file. This
+includes taxonomies, lists and the homepage.
 
 **.Title**  The title for the content.<br>
 **.Date** The date the content is published on.<br>
 **.Permalink** The Permanent link for this node<br>
-**.Url** The relative url for this node.<br>
+**.Url** The relative URL for this node.<br>
 **.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
-**.RSSLink** Link to the indexes' rss link <br>
+**.RSSLink** Link to the taxonomies' RSS link.<br>
 **.Data** The data specific to this type of node.<br>
 **.IsNode** Always true for nodes.<br>
 **.IsPage** Always false for nodes.<br>
-**.Site** See site variables below<br>
-**.Hugo** See site variables below<br>
+**.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
+**.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 
 ## Site Variables
 
 Also available is `.Site` which has the following:
 
 **.Site.BaseUrl** The base URL for the site as defined in the site configuration file.<br>
-**.Site.Taxonomies** The indexes for the entire site.<br>
+**.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
-**.Site.Recent** Array of all content ordered by Date, newest first.<br>
+**.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
     baseurl = "http://yoursite.example.com/"
