@@ -179,7 +179,7 @@ func GetStaticDirPath() string {
 }
 
 func GetThemesDirPath() string {
-	return AbsPathify("themes"+string(os.PathSeparator)+viper.GetString("theme")) + string(os.PathSeparator) + "static" + string(os.PathSeparator)
+	return AbsPathify(filepath.Join("themes", viper.GetString("theme"), "static"))
 }
 
 func MakeStaticPathRelative(inPath string) (string, error) {
