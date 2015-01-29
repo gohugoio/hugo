@@ -20,7 +20,6 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -132,7 +131,7 @@ func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
 
 	if len(tmpShortcodes) > 0 {
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, -1, true, tmpShortcodes)
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, true, tmpShortcodes)
 
 		if err != nil {
 			jww.ERROR.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
@@ -428,60 +427,44 @@ Loop:
 }
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
-// This assumes that all tokens exist in the input string and that they are in order.
-// numReplacements = -1 will do len(replacements), and it will always start from the beginning (1)
 // wrapped = true means that the token has been wrapped in {@{@/@}@}
-func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, wrapped bool, replacements map[string]string) ([]byte, error) {
+func replaceShortcodeTokens(source []byte, prefix string, wrapped bool, replacements map[string]string) (b []byte, err error) {
+	var re *regexp.Regexp
 
-	if numReplacements < 0 {
-		numReplacements = len(replacements)
-	}
-
-	if numReplacements == 0 {
-		return source, nil
-	}
-
-	newLen := len(source)
-
-	for i := 1; i <= numReplacements; i++ {
-		key := prefix + "-" + strconv.Itoa(i)
-
-		if wrapped {
-			key = "{@{@" + key + "@}@}"
+	if wrapped {
+		re, err = regexp.Compile(`\{@\{@` + regexp.QuoteMeta(prefix) + `-\d+@\}@\}`)
+		if err != nil {
+			return nil, err
 		}
-		val := []byte(replacements[key])
-
-		newLen += (len(val) - len(key))
+	} else {
+		re, err = regexp.Compile(regexp.QuoteMeta(prefix) + `-(\d+)`)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	buff := make([]byte, newLen)
-
-	width := 0
-	start := 0
-
-	for i := 0; i < numReplacements; i++ {
-		tokenNum := i + 1
-		oldVal := prefix + "-" + strconv.Itoa(tokenNum)
-		if wrapped {
-			oldVal = "{@{@" + oldVal + "@}@}"
+	// use panic/recover for reporting if an unknown
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			b = nil
+			err, ok = r.(error)
+			if !ok {
+				err = fmt.Errorf("unexpected panic during replaceShortcodeTokens: %v", r)
+			}
 		}
-		newVal := []byte(replacements[oldVal])
-		j := start
+	}()
+	b = re.ReplaceAllFunc(source, func(m []byte) []byte {
+		key := string(m)
 
-		k := bytes.Index(source[start:], []byte(oldVal))
-
-		if k < 0 {
-			// this should never happen, but let the caller decide to panic or not
-			return nil, fmt.Errorf("illegal state in content; shortcode token #%d is missing or out of order (%q)", tokenNum, source)
+		if val, ok := replacements[key]; ok {
+			return []byte(val)
+		} else {
+			panic(fmt.Errorf("unknown shortcode token %q", key))
 		}
-		j += k
+	})
 
-		width += copy(buff[width:], source[start:j])
-		width += copy(buff[width:], newVal)
-		start = j + len(oldVal)
-	}
-	width += copy(buff[width:], source[start:])
-	return buff[0:width], nil
+	return b, err
 }
 
 func GetTemplate(name string, t tpl.Template) *template.Template {

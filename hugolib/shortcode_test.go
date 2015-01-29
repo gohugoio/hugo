@@ -281,23 +281,24 @@ func collectAndShortShortcodes(shortcodes map[string]shortcode) []string {
 
 func TestReplaceShortcodeTokens(t *testing.T) {
 	for i, this := range []struct {
-		input           []byte
-		prefix          string
-		replacements    map[string]string
-		numReplacements int
-		wrappedInDiv    bool
-		expect          interface{}
+		input        []byte
+		prefix       string
+		replacements map[string]string
+		wrappedInDiv bool
+		expect       interface{}
 	}{
-		{[]byte("Hello PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "World"}, -1, false, []byte("Hello World.")},
-		{[]byte("A {@{@A-1@}@} asdf {@{@A-2@}@}."), "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, -1, true, []byte("A v1 asdf v2.")},
-		{[]byte("Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!."), "PREFIX2", map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"}, -1, false, []byte("Hello Europe. Go Jonny, Go, Go Johnny Go Go!.")},
-		{[]byte("A PREFIX-2 PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
-		{[]byte("A PREFIX-1 PREFIX-2"), "PREFIX", map[string]string{"PREFIX-1": "A"}, -1, false, []byte("A A PREFIX-2")},
-		{[]byte("A PREFIX-1 but not the second."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
-		{[]byte("An PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A.")},
-		{[]byte("An PREFIX-1 PREFIX-2."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A PREFIX-2.")},
+		{[]byte("Hello PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "World"}, false, []byte("Hello World.")},
+		{[]byte("A {@{@A-1@}@} asdf {@{@A-2@}@}."), "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, true, []byte("A v1 asdf v2.")},
+		{[]byte("Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!."), "PREFIX2", map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"}, false, []byte("Hello Europe. Go Jonny, Go, Go Johnny Go Go!.")},
+		{[]byte("A PREFIX-2 PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, []byte("A B A.")},
+		{[]byte("A PREFIX-1 PREFIX-2"), "PREFIX", map[string]string{"PREFIX-1": "A"}, false, false},
+		{[]byte("A PREFIX-1 but not the second."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, []byte("A A but not the second.")},
+		{[]byte("An PREFIX-1."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, []byte("An A.")},
+		{[]byte("An PREFIX-1 PREFIX-2."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, []byte("An A B.")},
+		{[]byte("A PREFIX-1 PREFIX-2 PREFIX-3 PREFIX-1 PREFIX-3."), "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B", "PREFIX-3": "C"}, false, []byte("A A B C A C.")},
+		{[]byte("A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}."), "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, true, []byte("A A B C A C.")},
 	} {
-		results, err := replaceShortcodeTokens(this.input, this.prefix, this.numReplacements, this.wrappedInDiv, this.replacements)
+		results, err := replaceShortcodeTokens(this.input, this.prefix, this.wrappedInDiv, this.replacements)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
