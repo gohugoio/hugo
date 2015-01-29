@@ -16,22 +16,24 @@ weight: 60
 
 A unique template is needed to create a list of the terms for a given
 taxonomy. This is different from the [list template](/templates/list/)
-as that template is a list of content, where this is a list of meta data.
+as that template is a list of content, whereas this is a list of meta data.
 
 ## Which Template will be rendered?
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present,
+A Taxonomy Terms List will be rendered at /`PLURAL`/
+(e.g. http://spf13.com/topics/)
+from the following prioritized list:
+
+* /layouts/taxonomy/`SINGULAR`.terms.html (e.g. `/layouts/taxonomy/topic.terms.html`)
+* /layouts/\_default/terms.html
+
+If a file isn’t present,
 then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
 than necessary. For most sites, only the `_default` file at the end of
 the list will be needed.
-
-A Taxonomy Terms List will be rendered at /`PLURAL`/
-
-* /layouts/taxonomy/`SINGLE`.terms.html
-* /layouts/\_default/terms.html
 
 If that neither file is found in either the /layouts or /theme/layouts
 directory, then Hugo will not render the taxonomy terms pages. It is also
@@ -63,7 +65,7 @@ List pages are of the type "node" and have all the
 available to use in the templates.
 
 This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates](/templates/partials/). The list of indexes
+It makes use of [partial templates](/templates/partials/). The list of taxonomy
 templates cannot use a [content view](/templates/views/) as they don't display the content, but
 rather information about the content.
 

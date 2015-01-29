@@ -85,6 +85,6 @@ An example directory may look like:
 
 This directory structure tells us a lot about this site:
 
-1. The website intends to have two different types of content: posts and quotes.
-2. It will also apply two different indexes to that content: categories and tags.
+1. The website intends to have two different types of content: *posts* and *quotes*.
+2. It will also apply two different taxonomies to that content: *categories* and *tags*.
 3. It will be displaying content in 3 different views: a list, a summary and a full page view.
