@@ -27,8 +27,11 @@ import (
 	"sync"
 	"time"
 
+	"sync/atomic"
+
 	"bitbucket.org/pkg/inflect"
 	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -38,7 +41,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
-	"sync/atomic"
 )
 
 var _ = transform.AbsURL
@@ -1015,15 +1017,10 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			n.Url = s.permalinkStr(base + "/index.xml")
 			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			b, err := s.renderXML("taxonomy "+t.singular+" rss", n, s.appendThemeTemplates(rssLayouts)...)
-			if err != nil {
+
+			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				results <- err
 				continue
-			} else {
-				err := s.WriteDestFile(base+"/index.xml", b)
-				if err != nil {
-					results <- err
-				}
 			}
 		}
 	}
@@ -1127,11 +1124,7 @@ func (s *Site) RenderSectionLists() error {
 			n.Url = s.permalinkStr(section + "/index.xml")
 			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			b, err := s.renderXML("section "+section+" rss", n, s.appendThemeTemplates(rssLayouts)...)
-			if err != nil {
-				return err
-			}
-			if err := s.WriteDestFile(section+"/index.xml", b); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", section+"/index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
@@ -1207,11 +1200,8 @@ func (s *Site) RenderHomePage() error {
 		}
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-		b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
-		if err != nil {
-			return err
-		}
-		if err := s.WriteDestFile("index.xml", b); err != nil {
+
+		if err := s.renderAndWriteXML("homepage rss", "index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}
@@ -1274,11 +1264,8 @@ func (s *Site) RenderSitemap() error {
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
-	b, err := s.renderXML("sitemap", n, s.appendThemeTemplates(smLayouts)...)
-	if err != nil {
-		return err
-	}
-	if err := s.WriteDestFile("sitemap.xml", b); err != nil {
+
+	if err := s.renderAndWriteXML("sitemap", "sitemap.xml", n, s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
 	}
 
@@ -1328,20 +1315,29 @@ func (s *Site) layoutExists(layouts ...string) bool {
 	return found
 }
 
-func (s *Site) renderXML(name string, d interface{}, layouts ...string) (io.Reader, error) {
-	renderBuffer := s.NewXMLBuffer()
-	err := s.render(name, d, renderBuffer, layouts...)
+func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layouts ...string) error {
+	renderBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(renderBuffer)
+	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
 
-	var outBuffer = new(bytes.Buffer)
+	err := s.render(name, d, renderBuffer, layouts...)
 
 	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseUrl"))
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
 
 	transformer := transform.NewChain(absURLInXML...)
 	transformer.Apply(outBuffer, renderBuffer)
-	return outBuffer, err
+
+	if err == nil {
+		err = s.WriteDestFile(dest, outBuffer)
+	}
+
+	return err
 }
 
 func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {
