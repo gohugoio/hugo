@@ -50,18 +50,18 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
     <title>{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}</title>
     <link>{{ .Permalink }}</link>
     <description>Recent content {{ with .Title }}in {{.}} {{ end }}on {{ .Site.Title }}</description>
-    <generator>Hugo -- gohugo.io</generator>
-    {{ with .Site.LanguageCode }}<language>{{.}}</language>{{end}}
-    {{ with .Site.Author.email }}<managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}
-    {{ with .Site.Author.email }}<webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}
-    {{ with .Site.Copyright }}<copyright>{{.}}</copyright>{{end}}
-    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" }}</lastBuildDate>
+    <generator>Hugo -- gohugo.io</generator>{{ with .Site.LanguageCode }}
+    <language>{{.}}</language>{{end}}{{ with .Site.Author.email }}
+    <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
+    <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
+    <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHtml }}</lastBuildDate>{{ end }}
     <atom:link href="{{.Url}}" rel="self" type="application/rss+xml" />
     {{ range first 15 .Data.Pages }}
     <item>
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
-      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" }}</pubDate>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHtml }}</pubDate>
       {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Content | html }}</description>
@@ -73,8 +73,8 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 	t.AddInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
   <url>
-    <loc>{{ .Permalink }}</loc>
-    <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
+    <loc>{{ .Permalink }}</loc>{{ if not .Date.IsZero }}
+    <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
     <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
   </url>
@@ -134,7 +134,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
   <meta property="og:image" content="{{ . }}" />
 {{ end }}{{ end }}
 
-<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}"/>{{ with .Params.audio }}
+<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHtml }}"/>{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
@@ -192,9 +192,9 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 <meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}">
 
-{{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if ne (.PublishDate.Format $ISO8601) "0001-01-01T00:00:00+00:00" }}
-<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 }}" />{{ end }}
-<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 }}" />
+{{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
+<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHtml }}" />{{ end }}
+<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHtml }}" />
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
   <meta itemprop="image" content="{{ . }}">
