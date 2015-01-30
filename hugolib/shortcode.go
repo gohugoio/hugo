@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -383,7 +384,10 @@ func extractShortcodes(stringToParse string, p *Page, t tpl.Template) (string, m
 	pt := &pageTokens{lexer: newShortcodeLexer("parse-page", stringToParse, pos(startIdx))}
 
 	id := 1 // incremented id, will be appended onto temp. shortcode placeholders
-	var result bytes.Buffer
+
+	result := bp.GetBuffer()
+	defer bp.PutBuffer(result)
+	//var result bytes.Buffer
 
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
@@ -495,7 +499,9 @@ func GetTemplate(name string, t tpl.Template) *template.Template {
 }
 
 func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
-	buffer := new(bytes.Buffer)
+	buffer := bp.GetBuffer()
+	defer bp.PutBuffer(buffer)
+
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
