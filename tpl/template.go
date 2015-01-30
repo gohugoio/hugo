@@ -50,6 +50,7 @@ type Template interface {
 	AddTemplate(name, tpl string) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
+	PrintErrors()
 }
 
 type templateErr struct {
@@ -1251,6 +1252,12 @@ func (t *GoHtmlTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) 
 
 func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
 	t.loadTemplates(absPath, "")
+}
+
+func (t *GoHtmlTemplate) PrintErrors() {
+	for _, e := range t.errors {
+		jww.ERROR.Println(e.err)
+	}
 }
 
 func init() {
