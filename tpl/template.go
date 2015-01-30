@@ -17,11 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/eknkc/amber"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/yosssi/ace"
 	"html"
 	"html/template"
 	"io"
@@ -32,6 +27,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/eknkc/amber"
+	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yosssi/ace"
 )
 
 var localTemplates *template.Template
@@ -1101,8 +1103,7 @@ func Partial(name string, context_list ...interface{}) template.HTML {
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
-	buffer := new(bytes.Buffer)
+func ExecuteTemplate(context interface{}, buffer *bytes.Buffer, layouts ...string) {
 	worked := false
 	for _, layout := range layouts {
 
@@ -1125,13 +1126,13 @@ func ExecuteTemplate(context interface{}, layouts ...string) *bytes.Buffer {
 		jww.ERROR.Println("Unable to render", layouts)
 		jww.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
 	}
-
-	return buffer
 }
 
 func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
-	b := ExecuteTemplate(context, layouts...)
-	return template.HTML(string(b.Bytes()))
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+	ExecuteTemplate(context, b, layouts...)
+	return template.HTML(b.String())
 }
 
 func (t *GoHtmlTemplate) LoadEmbedded() {
