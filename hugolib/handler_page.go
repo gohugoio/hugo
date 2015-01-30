@@ -25,6 +25,7 @@ func init() {
 	RegisterHandler(new(htmlHandler))
 	RegisterHandler(new(asciidocHandler))
 	RegisterHandler(new(rstHandler))
+	RegisterHandler(new(mmarkHandler))
 }
 
 type basicPageHandler Handle
@@ -149,6 +150,33 @@ func (h rstHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 		}
 		tmpContent = replaced[0]
 		tmpTableOfContents = replaced[1]
+	}
+
+	p.Content = helpers.BytesToHTML(tmpContent)
+	p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+
+	return HandledResult{err: nil}
+}
+
+type mmarkHandler struct {
+	basicPageHandler
+}
+
+func (h mmarkHandler) Extensions() []string { return []string{"mmark"} }
+func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	p.ProcessShortcodes(t)
+
+	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
+
+	if len(p.contentShortCodes) > 0 {
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
+
+		if err != nil {
+			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			return HandledResult{err: err}
+		} else {
+			tmpContent = tmpContentWithTokensReplaced
+		}
 	}
 
 	p.Content = helpers.BytesToHTML(tmpContent)

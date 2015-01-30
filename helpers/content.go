@@ -22,6 +22,7 @@ import (
 	"html/template"
 	"os/exec"
 
+	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
@@ -73,6 +74,19 @@ var blackfridayExtensionMap = map[string]int{
 }
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
+
+var mmarkExtensionMap = map[string]int{
+	"tables":                 mmark.EXTENSION_TABLES,
+	"fencedCode":             mmark.EXTENSION_FENCED_CODE,
+	"autolink":               mmark.EXTENSION_AUTOLINK,
+	"laxHtmlBlocks":          mmark.EXTENSION_LAX_HTML_BLOCKS,
+	"spaceHeaders":           mmark.EXTENSION_SPACE_HEADERS,
+	"hardLineBreak":          mmark.EXTENSION_HARD_LINE_BREAK,
+	"footnotes":              mmark.EXTENSION_FOOTNOTES,
+	"noEmptyLineBeforeBlock": mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
+	"headerIds":              mmark.EXTENSION_HEADER_IDS,
+	"autoHeaderIds":          mmark.EXTENSION_AUTO_HEADER_IDS,
+}
 
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
@@ -174,6 +188,61 @@ func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 		getMarkdownExtensions(ctx))
 }
 
+// mmark
+func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+	renderParameters := mmark.HtmlRendererParameters{
+		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
+	}
+
+	b := len(ctx.DocumentID) != 0
+
+	if b && !ctx.getConfig().PlainIDAnchors {
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
+		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
+	}
+
+	htmlFlags := defaultFlags
+	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
+
+	return mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+}
+
+func GetMmarkExtensions(ctx RenderingContext) int {
+	flags := 0
+	flags |= mmark.EXTENSION_TABLES
+	flags |= mmark.EXTENSION_FENCED_CODE
+	flags |= mmark.EXTENSION_AUTOLINK
+	flags |= mmark.EXTENSION_SPACE_HEADERS
+	flags |= mmark.EXTENSION_CITATION
+	flags |= mmark.EXTENSION_TITLEBLOCK_TOML
+	flags |= mmark.EXTENSION_HEADER_IDS
+	flags |= mmark.EXTENSION_AUTO_HEADER_IDS
+	flags |= mmark.EXTENSION_UNIQUE_HEADER_IDS
+	flags |= mmark.EXTENSION_FOOTNOTES
+	flags |= mmark.EXTENSION_SHORT_REF
+	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
+	flags |= mmark.EXTENSION_INCLUDE
+
+	for _, extension := range ctx.getConfig().Extensions {
+		if flag, ok := mmarkExtensionMap[extension]; ok {
+			flags |= flag
+		}
+	}
+	return flags
+}
+
+func MmarkRender(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content, GetMmarkHtmlRenderer(0, ctx),
+		GetMmarkExtensions(*ctx)).Bytes()
+}
+
+func MmarkRenderWithTOC(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content,
+		GetMmarkHtmlRenderer(0, ctx),
+		GetMmarkExtensions(*ctx)).Bytes()
+}
+
 // ExtractTOC extracts Table of Contents from content.
 func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	origContent := make([]byte, len(content))
@@ -238,6 +307,8 @@ func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 		return markdownRenderWithTOC(ctx)
 	case "asciidoc":
 		return []byte(GetAsciidocContent(ctx.Content))
+	case "mmark":
+		return MmarkRenderWithTOC(ctx)
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -252,6 +323,8 @@ func RenderBytes(ctx *RenderingContext) []byte {
 		return markdownRender(ctx)
 	case "asciidoc":
 		return []byte(GetAsciidocContent(ctx.Content))
+	case "mmark":
+		return MmarkRender(ctx)
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}

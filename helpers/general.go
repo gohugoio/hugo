@@ -19,16 +19,17 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"io"
 	"net"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 // Filepath separator defined by os.Separator.
@@ -66,6 +67,8 @@ func GuessType(in string) string {
 		return "markdown"
 	case "asciidoc", "adoc", "ad":
 		return "asciidoc"
+	case "mmark":
+		return "mmark"
 	case "rst":
 		return "rst"
 	case "html", "htm":
