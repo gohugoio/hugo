@@ -22,6 +22,8 @@ import (
 	"net"
 	"path/filepath"
 	"strings"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 // Filepath separator defined by os.Separator.
@@ -68,14 +70,20 @@ func GuessType(in string) string {
 // ReaderToBytes takes an io.Reader argument, reads from it
 // and returns bytes.
 func ReaderToBytes(lines io.Reader) []byte {
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
 	b.ReadFrom(lines)
-	return b.Bytes()
+
+	bc := make([]byte, b.Len(), b.Len())
+	copy(bc, b.Bytes())
+	return bc
 }
 
 // ReaderToString is the same as ReaderToBytes, but returns a string.
 func ReaderToString(lines io.Reader) string {
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
 	b.ReadFrom(lines)
 	return b.String()
 }
