@@ -837,11 +837,9 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			layouts = append(layouts, "_default/single.html")
 		}
 
-		b, err := s.renderPage("page "+p.FullFilePath(), p, s.appendThemeTemplates(layouts)...)
+		err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(layouts)...)
 		if err != nil {
 			results <- err
-		} else {
-			results <- s.WriteDestPage(p.TargetPath(), b)
 		}
 	}
 }
@@ -963,14 +961,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		n, base = s.newTaxonomyNode(t)
 
-		b, err := s.renderPage("taxononomy "+t.singular, n, layouts...)
-		if err != nil {
-			results <- err
-			continue
-		}
-
-		err = s.WriteDestPage(base, b)
-		if err != nil {
+		if err := s.renderAndWritePage("taxononomy "+t.singular, base, n, layouts...); err != nil {
 			results <- err
 			continue
 		}
@@ -997,18 +988,10 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
-				b, err := s.renderPage(fmt.Sprintf("taxononomy_%s_%d", t.singular, pageNumber), taxonomyPagerNode, layouts...)
-				if err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy_%s_%d", t.singular, pageNumber), htmlBase, taxonomyPagerNode, layouts...); err != nil {
 					results <- err
 					continue
 				}
-
-				err = s.WriteDestPage(htmlBase, b)
-				if err != nil {
-					results <- err
-					continue
-				}
-
 			}
 		}
 
@@ -1042,11 +1025,7 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 		layouts = s.appendThemeTemplates(layouts)
 		if s.layoutExists(layouts...) {
-			b, err := s.renderPage("taxonomy terms for "+singular, n, layouts...)
-			if err != nil {
-				return err
-			}
-			if err := s.WriteDestPage(plural+"/index.html", b); err != nil {
+			if err := s.renderAndWritePage("taxonomy terms for "+singular, plural+"/index.html", n, layouts...); err != nil {
 				return err
 			}
 		}
@@ -1078,11 +1057,7 @@ func (s *Site) RenderSectionLists() error {
 
 		n := s.newSectionListNode(section, data)
 
-		b, err := s.renderPage(fmt.Sprintf("section%s_%d", section, 1), n, s.appendThemeTemplates(layouts)...)
-		if err != nil {
-			return err
-		}
-		if err := s.WriteDestPage(fmt.Sprintf("/%s", section), b); err != nil {
+		if err := s.renderAndWritePage(fmt.Sprintf("section%s_%d", section, 1), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
 
@@ -1108,14 +1083,9 @@ func (s *Site) RenderSectionLists() error {
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
-				b, err := s.renderPage(fmt.Sprintf("section_%s_%d", section, pageNumber), sectionPagerNode, layouts...)
-				if err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("section_%s_%d", section, pageNumber), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
 					return err
 				}
-				if err := s.WriteDestPage(filepath.FromSlash(htmlBase), b); err != nil {
-					return err
-				}
-
 			}
 		}
 
@@ -1144,12 +1114,7 @@ func (s *Site) RenderHomePage() error {
 	n := s.newHomeNode()
 	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html", "_default/single.html"})
 
-	b, err := s.renderPage("homepage", n, layouts...)
-
-	if err != nil {
-		return err
-	}
-	if err := s.WriteDestPage("/", b); err != nil {
+	if err := s.renderAndWritePage("homepage", "/", n, layouts...); err != nil {
 		return err
 	}
 
@@ -1175,14 +1140,9 @@ func (s *Site) RenderHomePage() error {
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
-			b, err := s.renderPage(fmt.Sprintf("homepage_%d", pageNumber), homePagerNode, layouts...)
-			if err != nil {
+			if err := s.renderAndWritePage(fmt.Sprintf("homepage_%d", pageNumber), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
 				return err
 			}
-			if err := s.WriteDestPage(filepath.FromSlash(htmlBase), b); err != nil {
-				return err
-			}
-
 		}
 	}
 
@@ -1211,12 +1171,8 @@ func (s *Site) RenderHomePage() error {
 	n.Permalink = s.permalink("404.html")
 
 	nfLayouts := []string{"404.html"}
-	b, nfErr := s.renderPage("404 page", n, s.appendThemeTemplates(nfLayouts)...)
-	if nfErr != nil {
+	if nfErr := s.renderAndWritePage("404 page", "404.html", n, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
 		return nfErr
-	}
-	if err := s.WriteDestFile("404.html", b); err != nil {
-		return err
 	}
 
 	return nil
@@ -1340,18 +1296,21 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	return err
 }
 
-func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {
-	renderBuffer := new(bytes.Buffer)
+func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layouts ...string) error {
+	renderBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(renderBuffer)
+
 	err := s.render(name, d, renderBuffer, layouts...)
 
-	var outBuffer = new(bytes.Buffer)
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
 
 	transformLinks := transform.NewEmptyTransforms()
 
 	if viper.GetBool("CanonifyUrls") {
 		absURL, err := transform.AbsURL(viper.GetString("BaseUrl"))
 		if err != nil {
-			return nil, err
+			return err
 		}
 		transformLinks = append(transformLinks, absURL...)
 	}
@@ -1362,7 +1321,13 @@ func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Rea
 
 	transformer := transform.NewChain(transformLinks...)
 	transformer.Apply(outBuffer, renderBuffer)
-	return outBuffer, err
+
+	if err == nil {
+		if err = s.WriteDestPage(dest, outBuffer); err != nil {
+			return err
+		}
+	}
+	return err
 }
 
 func (s *Site) render(name string, d interface{}, renderBuffer *bytes.Buffer, layouts ...string) error {
