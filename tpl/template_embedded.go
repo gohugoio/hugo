@@ -126,7 +126,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`)
 
 	// Add SEO & Social metadata
-	t.AddInternalTemplate("_default", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
+	t.AddInternalTemplate("", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
@@ -166,7 +166,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 <!-- Facebook Page Admin ID for Domain Insights -->
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`)
 
-	t.AddInternalTemplate("_default", "twitter_cards.html", `{{ if .IsPage }}
+	t.AddInternalTemplate("", "twitter_cards.html", `{{ if .IsPage }}
 {{ with .Params.images }}
 <!-- Twitter summary card with large image must be at least 280x150px -->
   <meta name="twitter:card" content="summary_large_image"/>
@@ -184,11 +184,11 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
   {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
 {{ end }}{{ end }}`)
 
-	t.AddInternalTemplate("_default", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
+	t.AddInternalTemplate("", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`)
 
-	t.AddInternalTemplate("_default", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
+	t.AddInternalTemplate("", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
 <meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}">
 
