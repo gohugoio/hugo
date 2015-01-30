@@ -269,6 +269,7 @@ func (s *Site) Process() (err error) {
 		return
 	}
 	s.prepTemplates()
+	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 	if err = s.CreatePages(); err != nil {
 		return
