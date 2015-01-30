@@ -134,7 +134,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
   <meta property="og:image" content="{{ . }}" />
 {{ end }}{{ end }}
 
-<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHtml }}"/>{{ with .Params.audio }}
+{{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHtml }}"/>{{ end }}{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
@@ -194,7 +194,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 {{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
 <meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHtml }}" />{{ end }}
-<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHtml }}" />
+{{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHtml }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
   <meta itemprop="image" content="{{ . }}">
