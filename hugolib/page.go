@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
@@ -688,11 +689,16 @@ func (page *Page) SaveSourceAs(path string) error {
 }
 
 func (page *Page) saveSourceAs(path string, safe bool) error {
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
 	b.Write(page.Source.Frontmatter)
 	b.Write(page.Source.Content)
 
-	err := page.saveSource(b.Bytes(), path, safe)
+	bc := make([]byte, b.Len(), b.Len())
+	copy(bc, b.Bytes())
+
+	err := page.saveSource(bc, path, safe)
 	if err != nil {
 		return err
 	}
