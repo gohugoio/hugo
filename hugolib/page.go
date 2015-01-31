@@ -199,14 +199,17 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 		pageParam := p.GetParam("blackfriday")
 		siteParam := viper.GetStringMap("blackfriday")
 
-		combinedParam := make(map[string]interface{})
-
-		for k, v := range siteParam {
-			combinedParam[k] = v
-		}
+		combinedParam := siteParam
 
 		if pageParam != nil {
+			combinedParam = make(map[string]interface{})
+
+			for k, v := range siteParam {
+				combinedParam[k] = v
+			}
+
 			pageConfig := cast.ToStringMap(pageParam)
+
 			for key, value := range pageConfig {
 				combinedParam[key] = value
 			}
