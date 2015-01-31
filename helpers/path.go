@@ -174,9 +174,17 @@ func AbsPathify(inPath string) string {
 	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
 }
 
+func GetStaticDirPath() string {
+	return AbsPathify(viper.GetString("StaticDir"))
+}
+
+func GetThemesDirPath() string {
+	return AbsPathify(filepath.Join("themes", viper.GetString("theme"), "static"))
+}
+
 func MakeStaticPathRelative(inPath string) (string, error) {
-	staticDir := AbsPathify(viper.GetString("StaticDir"))
-	themeStaticDir := AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
+	staticDir := GetStaticDirPath()
+	themeStaticDir := GetThemesDirPath()
 
 	return MakePathRelative(inPath, staticDir, themeStaticDir)
 }

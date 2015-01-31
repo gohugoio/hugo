@@ -163,10 +163,9 @@ func (p *Page) setSummary() {
 		p.Truncated = true // by definition
 		header := bytes.Split(p.rawContent, helpers.SummaryDivider)[0]
 		renderedHeader := p.renderBytes(header)
-		numShortcodesInHeader := bytes.Count(header, []byte(shortcodePlaceholderPrefix))
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
-				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, numShortcodesInHeader, true, p.contentShortCodes)
+				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, true, p.contentShortCodes)
 			if err != nil {
 				jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
 			} else {
