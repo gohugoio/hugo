@@ -22,6 +22,8 @@ The following is a list of most of the accessible variables which can be
 defined for a piece of content. Many of these will be defined in the front
 matter, content or derived from file location.
 
+**See also:** [Scratch](/extras/scratch) for page-scoped writable variables.
+
 **.Title**  The title for the content.<br>
 **.Content** The content itself, defined below the front matter.<br>
 **.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
@@ -64,6 +66,8 @@ Take for example I'm using *tags* and *categories* as my taxonomies. The followi
 ## Node Variables
 In Hugo, a node is any page not rendered directly by a content file. This
 includes taxonomies, lists and the homepage.
+
+**See also:** [Scratch](/extras/scratch) for global node variables.
 
 **.Title**  The title for the content.<br>
 **.Date** The date the content is published on.<br>

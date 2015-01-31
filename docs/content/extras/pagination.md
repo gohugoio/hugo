@@ -5,7 +5,7 @@ date: 2014-01-01
 menu:
   main:
     parent: extras
-next: /extras/highlighting
+next: /extras/scratch
 prev: /extras/shortcodes
 title: Pagination
 weight: 80
