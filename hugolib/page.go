@@ -211,7 +211,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 				combinedParam[key] = value
 			}
 		}
-		p.renderingConfig = new(helpers.Blackfriday)
+		p.renderingConfig = helpers.NewBlackfriday()
 		if err := mapstructure.Decode(combinedParam, p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}

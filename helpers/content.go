@@ -44,6 +44,14 @@ type Blackfriday struct {
 	Extensions     []string
 }
 
+func NewBlackfriday() *Blackfriday {
+	return &Blackfriday{
+		AngledQuotes:   false,
+		Fractions:      true,
+		PlainIdAnchors: false,
+	}
+}
+
 var blackfridayExtensionMap = map[string]int{
 	"noIntraEmphasis":        blackfriday.EXTENSION_NO_INTRA_EMPHASIS,
 	"tables":                 blackfriday.EXTENSION_TABLES,
@@ -120,7 +128,6 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
@@ -128,8 +135,8 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	if !ctx.getConfig().Fractions {
-		htmlFlags &^= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	if ctx.getConfig().Fractions {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
@@ -207,7 +214,7 @@ type RenderingContext struct {
 func (c *RenderingContext) getConfig() *Blackfriday {
 	c.configInit.Do(func() {
 		if c.Config == nil {
-			c.Config = new(Blackfriday)
+			c.Config = NewBlackfriday()
 		}
 	})
 	return c.Config

@@ -138,7 +138,7 @@ func InitializeConfig() {
 	viper.SetDefault("NewContentEditor", "")
 	viper.SetDefault("Paginate", 10)
 	viper.SetDefault("PaginatePath", "page")
-	viper.SetDefault("Blackfriday", new(helpers.Blackfriday))
+	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
