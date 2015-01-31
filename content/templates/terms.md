@@ -91,7 +91,7 @@ content tagged with each tag.
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 
 Another example listing the content for each term (ordered by Date):
@@ -115,7 +115,7 @@ Another example listing the content for each term (ordered by Date):
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 
 ## Ordering
@@ -141,7 +141,7 @@ Hugo can order the meta data in two different ways. It can be ordered:
         </ul>
       </div>
     </section>
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 ### Example terms.html file (ordered by popularity)
 
@@ -160,4 +160,4 @@ Hugo can order the meta data in two different ways. It can be ordered:
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
