@@ -75,4 +75,4 @@ It makes use of [partial templates](/templates/partials/) and uses a similar app
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}

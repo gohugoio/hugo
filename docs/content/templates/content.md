@@ -152,7 +152,7 @@ It makes use of [partial templates](/layout/partials/)
     </div>
     {{ end }}
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 Notice how the project/single.html template uses an additional parameter unique
 to this template. This doesn't need to be defined ahead of time. If the key is
