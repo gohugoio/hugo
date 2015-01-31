@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"fmt"
 	"html/template"
 	"reflect"
