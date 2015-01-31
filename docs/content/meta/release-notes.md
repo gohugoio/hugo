@@ -41,6 +41,7 @@ A lot has happened since Hugo v0.12.0 was released.
 	* `GroupByParamDate(key, format, order)`
 * The [shortcode](/extras/shortcodes/) handling is rewritten for speed and better error messages. Noticeable functional change is the distinction between `{{</* */>}}` (typically raw HTML) and `{{%/* */%}}` (Markdown)
 * Support for [cross-references](/extras/crossreferences/)
+* `Scratch` -- [a "scratchpad"](/extras/scratch) for your node- and page-scoped variables
 * A new, generic Next/Prev functionality is added to all lists of pages (sections, taxonomies, etc.)
 * Add in-section [Next/Prev](/templates/variables/) content pointers
 * Several [configurable improvements related to Markdown rendering](/overview/configuration/#configure-blackfriday-rendering:a66b35d20295cb764719ac8bd35837ec):
