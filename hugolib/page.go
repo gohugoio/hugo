@@ -199,14 +199,20 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 		pageParam := p.GetParam("blackfriday")
 		siteParam := viper.GetStringMap("blackfriday")
 
+		combinedParam := make(map[string]interface{})
+
+		for k, v := range siteParam {
+			combinedParam[k] = v
+		}
+
 		if pageParam != nil {
 			pageConfig := cast.ToStringMap(pageParam)
 			for key, value := range pageConfig {
-				siteParam[key] = value
+				combinedParam[key] = value
 			}
 		}
 		p.renderingConfig = new(helpers.Blackfriday)
-		if err := mapstructure.Decode(siteParam, p.renderingConfig); err != nil {
+		if err := mapstructure.Decode(combinedParam, p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	})
