@@ -31,7 +31,7 @@ func TestSiteInfoParams(t *testing.T) {
 	}
 }
 
-func TestSiteInfoPermalinks (t *testing.T) {
+func TestSiteInfoPermalinks(t *testing.T) {
 	viper.Set("Permalinks", map[string]interface{}{"section": "/:title"})
 	s := &Site{}
 

@@ -358,8 +358,6 @@ func (s *Site) initialize() (err error) {
 }
 
 func (s *Site) initializeSiteInfo() {
-	params := viper.GetStringMap("Params")
-
 	permalinks := make(PermalinkOverrides)
 	for k, v := range viper.GetStringMapString("Permalinks") {
 		permalinks[k] = PathPattern(v)
@@ -377,7 +375,7 @@ func (s *Site) initializeSiteInfo() {
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
-		Params:          params,
+		Params:          viper.GetStringMap("Params"),
 		Permalinks:      permalinks,
 	}
 }
