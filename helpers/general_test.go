@@ -1,9 +1,52 @@
 package helpers
 
 import (
+	"github.com/stretchr/testify/assert"
+	"reflect"
 	"strings"
 	"testing"
 )
+
+func TestGuessType(t *testing.T) {
+	for i, this := range []struct {
+		in     string
+		expect string
+	}{
+		{"md", "markdown"},
+		{"markdown", "markdown"},
+		{"mdown", "markdown"},
+		{"rst", "rst"},
+		{"html", "html"},
+		{"htm", "html"},
+		{"excel", "unknown"},
+	} {
+		result := GuessType(this.in)
+		if result != this.expect {
+			t.Errorf("[%d] GuessType guessed wrong, expected %s, got %s", i, this.expect, result)
+		}
+	}
+}
+
+func TestBytesToReader(t *testing.T) {
+	asBytes := ReaderToBytes(strings.NewReader("Hello World!"))
+	asReader := BytesToReader(asBytes)
+	assert.Equal(t, []byte("Hello World!"), asBytes)
+	assert.Equal(t, asBytes, ReaderToBytes(asReader))
+}
+
+func TestStringToReader(t *testing.T) {
+	asString := ReaderToString(strings.NewReader("Hello World!"))
+	assert.Equal(t, "Hello World!", asString)
+	asReader := StringToReader(asString)
+	assert.Equal(t, asString, ReaderToString(asReader))
+}
+
+func TestFindAvailablePort(t *testing.T) {
+	addr, err := FindAvailablePort()
+	assert.Nil(t, err)
+	assert.NotNil(t, addr)
+	assert.True(t, addr.Port > 0)
+}
 
 func TestInStringArrayCaseSensitive(t *testing.T) {
 	type test struct {
@@ -84,5 +127,93 @@ func TestMd5StringEmpty(t *testing.T) {
 
 	for _, in := range inputs {
 		Md5String(in)
+	}
+}
+
+func TestDoArithmetic(t *testing.T) {
+	for i, this := range []struct {
+		a      interface{}
+		b      interface{}
+		op     rune
+		expect interface{}
+	}{
+		{3, 2, '+', int64(5)},
+		{3, 2, '-', int64(1)},
+		{3, 2, '*', int64(6)},
+		{3, 2, '/', int64(1)},
+		{3.0, 2, '+', float64(5)},
+		{3.0, 2, '-', float64(1)},
+		{3.0, 2, '*', float64(6)},
+		{3.0, 2, '/', float64(1.5)},
+		{3, 2.0, '+', float64(5)},
+		{3, 2.0, '-', float64(1)},
+		{3, 2.0, '*', float64(6)},
+		{3, 2.0, '/', float64(1.5)},
+		{3.0, 2.0, '+', float64(5)},
+		{3.0, 2.0, '-', float64(1)},
+		{3.0, 2.0, '*', float64(6)},
+		{3.0, 2.0, '/', float64(1.5)},
+		{uint(3), uint(2), '+', uint64(5)},
+		{uint(3), uint(2), '-', uint64(1)},
+		{uint(3), uint(2), '*', uint64(6)},
+		{uint(3), uint(2), '/', uint64(1)},
+		{uint(3), 2, '+', uint64(5)},
+		{uint(3), 2, '-', uint64(1)},
+		{uint(3), 2, '*', uint64(6)},
+		{uint(3), 2, '/', uint64(1)},
+		{3, uint(2), '+', uint64(5)},
+		{3, uint(2), '-', uint64(1)},
+		{3, uint(2), '*', uint64(6)},
+		{3, uint(2), '/', uint64(1)},
+		{uint(3), -2, '+', int64(1)},
+		{uint(3), -2, '-', int64(5)},
+		{uint(3), -2, '*', int64(-6)},
+		{uint(3), -2, '/', int64(-1)},
+		{-3, uint(2), '+', int64(-1)},
+		{-3, uint(2), '-', int64(-5)},
+		{-3, uint(2), '*', int64(-6)},
+		{-3, uint(2), '/', int64(-1)},
+		{uint(3), 2.0, '+', float64(5)},
+		{uint(3), 2.0, '-', float64(1)},
+		{uint(3), 2.0, '*', float64(6)},
+		{uint(3), 2.0, '/', float64(1.5)},
+		{3.0, uint(2), '+', float64(5)},
+		{3.0, uint(2), '-', float64(1)},
+		{3.0, uint(2), '*', float64(6)},
+		{3.0, uint(2), '/', float64(1.5)},
+		{0, 0, '+', 0},
+		{0, 0, '-', 0},
+		{0, 0, '*', 0},
+		{"foo", "bar", '+', "foobar"},
+		{3, 0, '/', false},
+		{3.0, 0, '/', false},
+		{3, 0.0, '/', false},
+		{uint(3), uint(0), '/', false},
+		{3, uint(0), '/', false},
+		{-3, uint(0), '/', false},
+		{uint(3), 0, '/', false},
+		{3.0, uint(0), '/', false},
+		{uint(3), 0.0, '/', false},
+		{3, "foo", '+', false},
+		{3.0, "foo", '+', false},
+		{uint(3), "foo", '+', false},
+		{"foo", 3, '+', false},
+		{"foo", "bar", '-', false},
+		{3, 2, '%', false},
+	} {
+		result, err := DoArithmetic(this.a, this.b, this.op)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] doArithmetic didn't return an expected error")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] doArithmetic got %v but expected %v", i, result, this.expect)
+			}
+		}
 	}
 }

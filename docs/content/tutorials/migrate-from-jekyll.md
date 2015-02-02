@@ -10,7 +10,7 @@ weight: 10
 ---
 
 ## Move static content to `static`
-Jekyll has a rule that any directory not starting with `_` will be copied as-is to the `_site` output. Hugo keeps all static content under `static`. You should therefore move it all there. 
+Jekyll has a rule that any directory not starting with `_` will be copied as-is to the `_site` output. Hugo keeps all static content under `static`. You should therefore move it all there.
 With Jekyll, something that looked like
 
     ▾ <root>/
@@ -47,9 +47,9 @@ The default is for Jekyll to publish to `_site` and for Hugo to publish to `publ
         }
 
 ## Convert Jekyll templates to Hugo templates
-That's the bulk of the work right here. The documentation is your friend. You should refer to [Jekyll's template documentation](http://jekyllrb.com/docs/templates/) if you need to refresh your memory on how you built your blog and [Hugo's template](/layout/templates/) to learn Hugo's way. 
+That's the bulk of the work right here. The documentation is your friend. You should refer to [Jekyll's template documentation](http://jekyllrb.com/docs/templates/) if you need to refresh your memory on how you built your blog and [Hugo's template](/layout/templates/) to learn Hugo's way.
 
-As a single reference data point, converting my templates for [heyitsalex.net](http://heyitsalex.net) took me no more than a few hours. 
+As a single reference data point, converting my templates for [heyitsalex.net](http://heyitsalex.net/) took me no more than a few hours.
 
 ## Convert Jekyll plugins to Hugo shortcodes
 Jekyll has [plugins](http://jekyllrb.com/docs/plugins/); Hugo has [shortcodes](/doc/shortcodes/). It's fairly trivial to do a port.
@@ -66,11 +66,11 @@ Jekyll's plugin:
         @class = nil
         @link = nil
         // Patterns
-        IMAGE_URL_WITH_CLASS_AND_CAPTION = 
+        IMAGE_URL_WITH_CLASS_AND_CAPTION =
         IMAGE_URL_WITH_CLASS_AND_CAPTION_AND_LINK = /(\w+)(\s+)((https?:\/\/|\/)(\S+))(\s+)"(.*?)"(\s+)->((https?:\/\/|\/)(\S+))(\s*)/i
         IMAGE_URL_WITH_CAPTION = /((https?:\/\/|\/)(\S+))(\s+)"(.*?)"/i
         IMAGE_URL_WITH_CLASS = /(\w+)(\s+)((https?:\/\/|\/)(\S+))/i
-        IMAGE_URL = /((https?:\/\/|\/)(\S+))/i    
+        IMAGE_URL = /((https?:\/\/|\/)(\S+))/i
         def initialize(tag_name, markup, tokens)
           super
           if markup =~ IMAGE_URL_WITH_CLASS_AND_CAPTION_AND_LINK
@@ -89,7 +89,7 @@ Jekyll's plugin:
             @class = $1
             @url   = $3
           elsif markup =~ IMAGE_URL
-            @url = $1      
+            @url = $1
           end
         end
         def render(context)
@@ -98,11 +98,11 @@ Jekyll's plugin:
           else
             source = "<figure>"
           end
-          if @link 
+          if @link
             source += "<a href=\"#{@link}\">"
           end
           source += "<img src=\"#{@url}\">"
-          if @link 
+          if @link
             source += "</a>"
           end
           source += "<figcaption>#{@caption}</figcaption>" if @caption
@@ -143,14 +143,14 @@ to this (this example uses a slightly extended version named `fig`, different th
 
     {{%/* fig class="full" src="http://farm5.staticflickr.com/4136/4829260124_57712e570a_o_d.jpg" title="One of my favorite touristy-type photos. I secretly waited for the good light while we were having fun and took this. Only regret: a stupid pole in the top-left corner of the frame I had to clumsily get rid of at post-processing." link="http://www.flickr.com/photos/alexnormand/4829260124/in/set-72157624547713078/" */%}}
 
-As a bonus, the shortcode named parameters are, arguably, more readable. 
+As a bonus, the shortcode named parameters are, arguably, more readable.
 
-## Finishing touches 
+## Finishing touches
 ### Fix content
-Depending on the amount of customization that was done with each post with Jekyll, this step will require more or less effort. There are no hard and fast rules here except that `hugo server --watch` is your friend. Test your changes and fix errors as needed. 
+Depending on the amount of customization that was done with each post with Jekyll, this step will require more or less effort. There are no hard and fast rules here except that `hugo server --watch` is your friend. Test your changes and fix errors as needed.
 
 ### Clean up
-You'll want to remove the Jekyll configuration at this point. If you have anything else that isn't used, delete it. 
+You'll want to remove the Jekyll configuration at this point. If you have anything else that isn't used, delete it.
 
 ## A practical example in a diff
-[Hey, it's Alex](http://heyitsalex.net) was migrated in less than a _father-with-kids day_ from Jekyll to Hugo. You can see all the changes (and screw-ups) by looking at this [diff](https://github.com/alexandre-normand/alexandre-normand/compare/869d69435bd2665c3fbf5b5c78d4c22759d7613a...b7f6605b1265e83b4b81495423294208cc74d610).
+[Hey, it's Alex](http://heyitsalex.net/) was migrated in less than a _father-with-kids day_ from Jekyll to Hugo. You can see all the changes (and screw-ups) by looking at this [diff](https://github.com/alexandre-normand/alexandre-normand/compare/869d69435bd2665c3fbf5b5c78d4c22759d7613a...b7f6605b1265e83b4b81495423294208cc74d610).

@@ -41,7 +41,7 @@ The following is an example of a toml config file with some of the default value
     baseurl = "http://yoursite.example.com/"
     canonifyurls = true
 
-    [indexes]
+    [taxonomies]
       category = "categories"
       tag = "tags"
        
@@ -71,7 +71,7 @@ Here is a yaml configuration file which sets a few more options
 
 [Blackfriday](https://github.com/russross/blackfriday) is the [Markdown](http://daringfireball.net/projects/markdown/) rendering engine used in Hugo. The Blackfriday configuration in Hugo is mostly a set of sane defaults that should fit most use cases.
 
-But Hugo does expose some options---as listed in the table below, matched with the corresponding flag in the [Blackfriday source](https://github.com/russross/blackfriday/blob/master/html.go):
+But Hugo does expose some options---as listed in the table below, matched with the corresponding flag in the Blackfriday source ([html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)):
 
 <table class="table table-bordered">
 <thead>
@@ -92,6 +92,21 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 
 <tr>
+<td><code>fractions</code></td>
+<td><code>true</code></td>
+<td><code>HTML_SMARTYPANTS_FRACTIONS</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Enable smart fractions
+<small>(e.g.&nbsp;<code>5/12</code> renders to <sup>5</sup>&frasl;<sub>12</sub> (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>))
+<strong>Caveat:</strong> Even with <code>fractions = false</code>,
+Blackfriday would still convert 1/2, 1/4 and 3/4 to ½&nbsp;(<code>&amp;frac12;</code>),
+¼&nbsp;(<code>&amp;frac14;</code>) and ¾&nbsp;(<code>&amp;frac34;</code>) respectively,
+but only these three.</small></td>
+</tr>
+
+<tr>
 <td><code>plainIdAnchors</code></td>
 <td><code>false</code></td>
 <td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
@@ -100,6 +115,16 @@ But Hugo does expose some options---as listed in the table below, matched with t
 <td class="purpose-title">Purpose:</td>
 <td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID <small>(e.g.&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>)</small></td>
 </tr>
+
+<tr>
+<td><code>extensions</code></td>
+<td><code>[]</code></td>
+<td><code>EXTENSION_*</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Use non-default additional extensions <small>(e.g.&nbsp;Add <code>"hardLineBreak"</code> to use <code>EXTENSION_HARD_LINE_BREAK</code>)</small></td>
+</tr>
 </tbody>
 </table>
 
@@ -107,23 +132,32 @@ But Hugo does expose some options---as listed in the table below, matched with t
 **Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
 
 <table class="table">
+<thead>
 <tr>
 <th>TOML</th><th>YAML</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td><pre><code>[blackfriday]
-    angledQuotes = true
-    plainIdAnchors = true
+  angledQuotes = true
+  fractions = false
+  plainIdAnchors = true
+  extensions = ["hardLineBreak"]
 </code></pre></td>
 <td><pre><code>blackfriday:
   angledQuotes: true
+  fractions: false
   plainIdAnchors: true
+  extensions:
+    - hardLineBreak
 </code></pre></td>
 </tr>
+</tbody>
 </table>
 
 ## Notes
 
-Config changes are not reflected with [LiveReload](/extras/livereload).
+Config changes are not reflected with [LiveReload](/extras/livereload/).
 
 Please restart `hugo server --watch` whenever you make a config change.

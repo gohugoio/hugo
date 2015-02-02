@@ -21,13 +21,17 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"sync/atomic"
+
 	"bitbucket.org/pkg/inflect"
 	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -86,26 +90,29 @@ type targetList struct {
 }
 
 type SiteInfo struct {
-	BaseUrl         template.URL
-	Taxonomies      TaxonomyList
-	Authors         AuthorList
-	Social          SiteSocial
-	Indexes         *TaxonomyList // legacy, should be identical to Taxonomies
-	Sections        Taxonomy
-	Pages           *Pages
-	Files           []*source.File
-	Recent          *Pages // legacy, should be identical to Pages
-	Menus           *Menus
-	Title           string
-	Author          map[string]interface{}
-	LanguageCode    string
-	DisqusShortname string
-	Copyright       string
-	LastChange      time.Time
-	Permalinks      PermalinkOverrides
-	Params          map[string]interface{}
-	BuildDrafts     bool
-	SummaryStrategy string
+	BaseUrl             template.URL
+	Taxonomies          TaxonomyList
+	Authors             AuthorList
+	Social              SiteSocial
+	Indexes             *TaxonomyList // legacy, should be identical to Taxonomies
+	Sections            Taxonomy
+	Pages               *Pages
+	Files               []*source.File
+	Recent              *Pages // legacy, should be identical to Pages
+	Menus               *Menus
+	Hugo                *HugoInfo
+	Title               string
+	Author              map[string]interface{}
+	LanguageCode        string
+	DisqusShortname     string
+	Copyright           string
+	LastChange          time.Time
+	Permalinks          PermalinkOverrides
+	Params              map[string]interface{}
+	BuildDrafts         bool
+	SummaryStrategy 	string
+	canonifyUrls        bool
+	paginationPageCount uint64
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -186,9 +193,9 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	if refUrl.Fragment != "" {
 		link = link + "#" + refUrl.Fragment
 
-		if refUrl.Path != "" && target != nil {
+		if refUrl.Path != "" && target != nil && !target.getRenderingConfig().PlainIdAnchors {
 			link = link + ":" + target.UniqueId()
-		} else if page != nil {
+		} else if page != nil && !page.getRenderingConfig().PlainIdAnchors {
 			link = link + ":" + page.UniqueId()
 		}
 	}
@@ -202,6 +209,10 @@ func (s *SiteInfo) Ref(ref string, page *Page) (string, error) {
 
 func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
 	return s.refLink(ref, page, true)
+}
+
+func (s *SiteInfo) addToPaginationPageCount(cnt uint64) {
+	atomic.AddUint64(&s.paginationPageCount, cnt)
 }
 
 type runmode struct {
@@ -259,6 +270,7 @@ func (s *Site) Process() (err error) {
 		return
 	}
 	s.prepTemplates()
+	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 	if err = s.CreatePages(); err != nil {
 		return
@@ -363,6 +375,7 @@ func (s *Site) initializeSiteInfo() {
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
 		BuildDrafts:     viper.GetBool("BuildDrafts"),
+		canonifyUrls:    viper.GetBool("CanonifyUrls"),
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
@@ -610,10 +623,17 @@ func (s *Site) getMenusFromConfig() Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
+
 					if strings.HasPrefix(menuEntry.Url, "/") {
-						// make it absolute so it matches the nodes
-						menuEntry.Url = s.permalinkStr(menuEntry.Url)
+						// make it match the nodes
+						menuEntryUrl := menuEntry.Url
+						menuEntryUrl = helpers.UrlizeAndPrep(menuEntryUrl)
+						if !s.Info.canonifyUrls {
+							menuEntryUrl = helpers.AddContextRoot(string(s.Info.BaseUrl), menuEntryUrl)
+						}
+						menuEntry.Url = menuEntryUrl
 					}
+
 					if ret[name] == nil {
 						ret[name] = &Menu{}
 					}
@@ -646,6 +666,7 @@ func (s *Site) assembleMenus() {
 		for name, me := range p.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
 				jww.ERROR.Printf("Two or more menu items have the same name/identifier in %q Menu. Identified as %q.\n Rename or set a unique identifier. \n", name, me.KeyName())
+				continue
 			}
 			flat[twoD{name, me.KeyName()}] = me
 		}
@@ -730,10 +751,10 @@ func (s *Site) assembleSections() {
 
 		for i, wp := range s.Sections[k] {
 			if i > 0 {
-				wp.Page.NextInSection = s.Sections[k][i - 1].Page;
+				wp.Page.NextInSection = s.Sections[k][i-1].Page
 			}
-			if i < len(s.Sections[k]) - 1 {
-				wp.Page.PrevInSection = s.Sections[k][i + 1].Page;
+			if i < len(s.Sections[k])-1 {
+				wp.Page.PrevInSection = s.Sections[k][i+1].Page
 			}
 		}
 	}
@@ -820,11 +841,9 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			layouts = append(layouts, "_default/single.html")
 		}
 
-		b, err := s.renderPage("page "+p.FullFilePath(), p, s.appendThemeTemplates(layouts)...)
+		err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(layouts)...)
 		if err != nil {
 			results <- err
-		} else {
-			results <- s.WriteDestPage(p.TargetPath(), b)
 		}
 	}
 }
@@ -935,17 +954,48 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 
 func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
+
+	var n *Node
+
 	for t := range taxes {
-		n, base := s.newTaxonomyNode(t)
-		layouts := []string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"}
-		b, err := s.renderPage("taxononomy "+t.singular, n, s.appendThemeTemplates(layouts)...)
-		if err != nil {
+
+		var base string
+		layouts := s.appendThemeTemplates(
+			[]string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"})
+
+		n, base = s.newTaxonomyNode(t)
+
+		if err := s.renderAndWritePage("taxononomy "+t.singular, base, n, layouts...); err != nil {
 			results <- err
 			continue
-		} else {
-			err := s.WriteDestPage(base+".html", b)
-			if err != nil {
-				results <- err
+		}
+
+		if n.paginator != nil {
+
+			paginatePath := viper.GetString("paginatePath")
+
+			// write alias for page 1
+			s.WriteDestAlias(fmt.Sprintf("%s/%s/%d/index.html", base, paginatePath, 1), s.permalink(base))
+
+			pagers := n.paginator.Pagers()
+
+			for i, pager := range pagers {
+				if i == 0 {
+					// already created
+					continue
+				}
+
+				taxonomyPagerNode, _ := s.newTaxonomyNode(t)
+				taxonomyPagerNode.paginator = pager
+				if pager.TotalPages() > 0 {
+					taxonomyPagerNode.Date = pager.Pages()[0].Date
+				}
+				pageNumber := i + 1
+				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
+				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy_%s_%d", t.singular, pageNumber), htmlBase, taxonomyPagerNode, layouts...); err != nil {
+					results <- err
+					continue
+				}
 			}
 		}
 
@@ -954,15 +1004,10 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			n.Url = s.permalinkStr(base + "/index.xml")
 			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			b, err := s.renderXML("taxonomy "+t.singular+" rss", n, s.appendThemeTemplates(rssLayouts)...)
-			if err != nil {
+
+			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				results <- err
 				continue
-			} else {
-				err := s.WriteDestFile(base+"/index.xml", b)
-				if err != nil {
-					results <- err
-				}
 			}
 		}
 	}
@@ -984,11 +1029,7 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 		layouts = s.appendThemeTemplates(layouts)
 		if s.layoutExists(layouts...) {
-			b, err := s.renderPage("taxonomy terms for "+singular, n, layouts...)
-			if err != nil {
-				return err
-			}
-			if err := s.WriteDestPage(plural+"/index.html", b); err != nil {
+			if err := s.renderAndWritePage("taxonomy terms for "+singular, plural+"/index.html", n, layouts...); err != nil {
 				return err
 			}
 		}
@@ -997,26 +1038,59 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 	return
 }
 
+func (s *Site) newSectionListNode(section string, data WeightedPages) *Node {
+	n := s.NewNode()
+	if viper.GetBool("PluralizeListTitles") {
+		n.Title = strings.Title(inflect.Pluralize(section))
+	} else {
+		n.Title = strings.Title(section)
+	}
+	s.setUrls(n, section)
+	n.Date = data[0].Page.Date
+	n.Data["Pages"] = data.Pages()
+
+	return n
+}
+
 // Render a page for each section
 func (s *Site) RenderSectionLists() error {
 	for section, data := range s.Sections {
-		n := s.NewNode()
-		if viper.GetBool("PluralizeListTitles") {
-			n.Title = strings.Title(inflect.Pluralize(section))
-		} else {
-			n.Title = strings.Title(section)
-		}
-		s.setUrls(n, section)
-		n.Date = data[0].Page.Date
-		n.Data["Pages"] = data.Pages()
-		layouts := []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
 
-		b, err := s.renderPage("section "+section, n, s.appendThemeTemplates(layouts)...)
-		if err != nil {
+		layouts := s.appendThemeTemplates(
+			[]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
+
+		n := s.newSectionListNode(section, data)
+
+		if err := s.renderAndWritePage(fmt.Sprintf("section%s_%d", section, 1), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
-		if err := s.WriteDestPage(section, b); err != nil {
-			return err
+
+		if n.paginator != nil {
+
+			paginatePath := viper.GetString("paginatePath")
+
+			// write alias for page 1
+			s.WriteDestAlias(filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", section, paginatePath, 1)), s.permalink(section))
+
+			pagers := n.paginator.Pagers()
+
+			for i, pager := range pagers {
+				if i == 0 {
+					// already created
+					continue
+				}
+
+				sectionPagerNode := s.newSectionListNode(section, data)
+				sectionPagerNode.paginator = pager
+				if pager.TotalPages() > 0 {
+					sectionPagerNode.Date = pager.Pages()[0].Date
+				}
+				pageNumber := i + 1
+				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
+				if err := s.renderAndWritePage(fmt.Sprintf("section_%s_%d", section, pageNumber), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
+					return err
+				}
+			}
 		}
 
 		if !viper.GetBool("DisableRSS") && section != "" {
@@ -1024,11 +1098,7 @@ func (s *Site) RenderSectionLists() error {
 			n.Url = s.permalinkStr(section + "/index.xml")
 			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			b, err = s.renderXML("section "+section+" rss", n, s.appendThemeTemplates(rssLayouts)...)
-			if err != nil {
-				return err
-			}
-			if err := s.WriteDestFile(section+"/index.xml", b); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", section+"/index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
@@ -1046,13 +1116,38 @@ func (s *Site) newHomeNode() *Node {
 
 func (s *Site) RenderHomePage() error {
 	n := s.newHomeNode()
-	layouts := []string{"index.html", "_default/list.html", "_default/single.html"}
-	b, err := s.renderPage("homepage", n, s.appendThemeTemplates(layouts)...)
-	if err != nil {
+	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html", "_default/single.html"})
+
+	if err := s.renderAndWritePage("homepage", "/", n, layouts...); err != nil {
 		return err
 	}
-	if err := s.WriteDestPage("/", b); err != nil {
-		return err
+
+	if n.paginator != nil {
+
+		paginatePath := viper.GetString("paginatePath")
+
+		// write alias for page 1
+		s.WriteDestAlias(filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, 1)), s.permalink("/"))
+
+		pagers := n.paginator.Pagers()
+
+		for i, pager := range pagers {
+			if i == 0 {
+				// already created
+				continue
+			}
+
+			homePagerNode := s.newHomeNode()
+			homePagerNode.paginator = pager
+			if pager.TotalPages() > 0 {
+				homePagerNode.Date = pager.Pages()[0].Date
+			}
+			pageNumber := i + 1
+			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
+			if err := s.renderAndWritePage(fmt.Sprintf("homepage_%d", pageNumber), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
+				return err
+			}
+		}
 	}
 
 	if !viper.GetBool("DisableRSS") {
@@ -1069,11 +1164,8 @@ func (s *Site) RenderHomePage() error {
 		}
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-		b, err := s.renderXML("homepage rss", n, s.appendThemeTemplates(rssLayouts)...)
-		if err != nil {
-			return err
-		}
-		if err := s.WriteDestFile("index.xml", b); err != nil {
+
+		if err := s.renderAndWriteXML("homepage rss", "index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}
@@ -1083,12 +1175,8 @@ func (s *Site) RenderHomePage() error {
 	n.Permalink = s.permalink("404.html")
 
 	nfLayouts := []string{"404.html"}
-	b, nfErr := s.renderPage("404 page", n, s.appendThemeTemplates(nfLayouts)...)
-	if nfErr != nil {
+	if nfErr := s.renderAndWritePage("404 page", "404.html", n, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
 		return nfErr
-	}
-	if err := s.WriteDestFile("404.html", b); err != nil {
-		return err
 	}
 
 	return nil
@@ -1136,11 +1224,8 @@ func (s *Site) RenderSitemap() error {
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
-	b, err := s.renderXML("sitemap", n, s.appendThemeTemplates(smLayouts)...)
-	if err != nil {
-		return err
-	}
-	if err := s.WriteDestFile("sitemap.xml", b); err != nil {
+
+	if err := s.renderAndWriteXML("sitemap", "sitemap.xml", n, s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
 	}
 
@@ -1155,7 +1240,7 @@ func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
 	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
-
+	jww.FEEDBACK.Printf("%d paginator pages created \n", s.Info.paginationPageCount)
 	taxonomies := viper.GetStringMapString("Taxonomies")
 
 	for _, pl := range taxonomies {
@@ -1164,7 +1249,7 @@ func (s *Site) Stats() {
 }
 
 func (s *Site) setUrls(n *Node, in string) {
-	n.Url = s.prepUrl(in)
+	n.Url = helpers.UrlizeAndPrep(in)
 	n.Permalink = s.permalink(n.Url)
 	n.RSSLink = s.permalink(in + ".xml")
 }
@@ -1174,19 +1259,7 @@ func (s *Site) permalink(plink string) template.HTML {
 }
 
 func (s *Site) permalinkStr(plink string) string {
-	return helpers.MakePermalink(string(viper.GetString("BaseUrl")), s.prepUrl(plink)).String()
-}
-
-func (s *Site) prepUrl(in string) string {
-	return s.PrettifyUrl(helpers.Urlize(in))
-}
-
-func (s *Site) PrettifyUrl(in string) string {
-	return helpers.UrlPrep(viper.GetBool("UglyUrls"), in)
-}
-
-func (s *Site) PrettifyPath(in string) string {
-	return helpers.PathPrep(viper.GetBool("UglyUrls"), in)
+	return helpers.MakePermalink(string(viper.GetString("BaseUrl")), helpers.UrlizeAndPrep(plink)).String()
 }
 
 func (s *Site) NewNode() *Node {
@@ -1202,34 +1275,46 @@ func (s *Site) layoutExists(layouts ...string) bool {
 	return found
 }
 
-func (s *Site) renderXML(name string, d interface{}, layouts ...string) (io.Reader, error) {
-	renderBuffer := s.NewXMLBuffer()
-	err := s.render(name, d, renderBuffer, layouts...)
+func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layouts ...string) error {
+	renderBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(renderBuffer)
+	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
 
-	var outBuffer = new(bytes.Buffer)
+	err := s.render(name, d, renderBuffer, layouts...)
 
 	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseUrl"))
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
 
 	transformer := transform.NewChain(absURLInXML...)
 	transformer.Apply(outBuffer, renderBuffer)
-	return outBuffer, err
+
+	if err == nil {
+		err = s.WriteDestFile(dest, outBuffer)
+	}
+
+	return err
 }
 
-func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Reader, error) {
-	renderBuffer := new(bytes.Buffer)
+func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layouts ...string) error {
+	renderBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(renderBuffer)
+
 	err := s.render(name, d, renderBuffer, layouts...)
 
-	var outBuffer = new(bytes.Buffer)
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
 
 	transformLinks := transform.NewEmptyTransforms()
 
 	if viper.GetBool("CanonifyUrls") {
 		absURL, err := transform.AbsURL(viper.GetString("BaseUrl"))
 		if err != nil {
-			return nil, err
+			return err
 		}
 		transformLinks = append(transformLinks, absURL...)
 	}
@@ -1240,7 +1325,13 @@ func (s *Site) renderPage(name string, d interface{}, layouts ...string) (io.Rea
 
 	transformer := transform.NewChain(transformLinks...)
 	transformer.Apply(outBuffer, renderBuffer)
-	return outBuffer, err
+
+	if err == nil {
+		if err = s.WriteDestPage(dest, outBuffer); err != nil {
+			return err
+		}
+	}
+	return err
 }
 
 func (s *Site) render(name string, d interface{}, renderBuffer *bytes.Buffer, layouts ...string) error {

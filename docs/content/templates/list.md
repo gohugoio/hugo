@@ -13,7 +13,7 @@ weight: 40
 ---
 
 A list template is any template that will be used to render multiple pieces of
-content in a single HTML page (with the exception of the [homepage](/layout/homepage) which has a
+content in a single HTML page (with the exception of the [homepage](/layout/homepage/) which has a
 dedicated template).
 
 We are using the term list in its truest sense, a sequential arrangement
@@ -35,7 +35,7 @@ the list will be needed.
 
 ### Section Lists
 
-A Section will be rendered at /`SECTION`/
+A Section will be rendered at /`SECTION`/ (e.g.&nbsp;http://spf13.com/project/)
 
 * /layouts/section/`SECTION`.html
 * /layouts/\_default/section.html
@@ -47,9 +47,9 @@ A Section will be rendered at /`SECTION`/
 
 ### Taxonomy Lists
 
-A Taxonomy will be rendered at /`PLURAL`/`TERM`/
+A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
 
-* /layouts/taxonomy/`SINGULAR`.html
+* /layouts/taxonomy/`SINGULAR`.html (e.g.&nbsp;`/layouts/taxonomy/topic.html`)
 * /layouts/\_default/taxonomy.html
 * /layouts/\_default/list.html
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
@@ -58,7 +58,7 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/
 
 ### Section RSS
 
-A Section’s RSS will be rendered at /`SECTION`/index.xml
+A Section’s RSS will be rendered at /`SECTION`/index.xml (e.g.&nbsp;http://spf13.com/project/index.xml)
 
 *Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the
@@ -74,7 +74,7 @@ can have different RSS files for each section and taxonomy.
 
 ### Taxonomy RSS
 
-A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml
+A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml (e.g.&nbsp;http://spf13.com/topics/golang/index.xml)
 
 *Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the
@@ -102,8 +102,8 @@ Taxonomy pages will additionally have:
 ## Example List Template Pages
 
 ### Example section template (post.html)
-This content template is used for [spf13.com](http://spf13.com).
-It makes use of [partial templates](/templates/partials). All examples use a
+This content template is used for [spf13.com](http://spf13.com/).
+It makes use of [partial templates](/templates/partials/). All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
@@ -124,8 +124,8 @@ defined.
     {{ partial "footer.html" . }}
 
 ### Example taxonomy template (tag.html)
-This content template is used for [spf13.com](http://spf13.com).
-It makes use of [partial templates](/templates/partials). All examples use a
+This content template is used for [spf13.com](http://spf13.com/).
+It makes use of [partial templates](/templates/partials/). All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
@@ -146,7 +146,7 @@ defined.
 ## Ordering Content
 
 In the case of Hugo each list will render the content based on metadata provided in the [front
-matter](/content/front-matter). See [ordering content](/content/ordering) for more information.
+matter](/content/front-matter/). See [ordering content](/content/ordering/) for more information.
 
 Here are a variety of different ways you can order the content items in
 your list templates:

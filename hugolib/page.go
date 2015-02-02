@@ -17,22 +17,28 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"reflect"
+
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"html/template"
 	"io"
 	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 type Page struct {
@@ -50,17 +56,21 @@ type Page struct {
 	Tmpl            tpl.Template
 	Markup          string
 
-	extension         string
-	contentType       string
-	renderable        bool
-	layout            string
-	linkTitle         string
-	frontmatter       []byte
-	rawContent        []byte
-	contentShortCodes map[string]string
-	plain             string // TODO should be []byte
+	extension           string
+	contentType         string
+	renderable          bool
+	layout              string
+	linkTitle           string
+	frontmatter         []byte
+	rawContent          []byte
+	contentShortCodes   map[string]string
+	plain               string // TODO should be []byte
+	renderingConfig     *helpers.Blackfriday
+	renderingConfigInit sync.Once
+
 	RelatedPages      Pages
 	relevance         Relevance
+
 	PageMeta
 	Source
 	Position
@@ -80,8 +90,8 @@ type PageMeta struct {
 }
 
 type Position struct {
-	Prev *Page
-	Next *Page
+	Prev          *Page
+	Next          *Page
 	PrevInSection *Page
 	NextInSection *Page
 }
@@ -157,10 +167,9 @@ func (p *Page) setSummary() {
 		p.Truncated = true // by definition
 		header := bytes.Split(p.rawContent, helpers.SummaryDivider)[0]
 		renderedHeader := p.renderBytes(header)
-		numShortcodesInHeader := bytes.Count(header, []byte(shortcodePlaceholderPrefix))
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
-				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, numShortcodesInHeader, true, p.contentShortCodes)
+				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, true, p.contentShortCodes)
 			if err != nil {
 				jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
 			} else {
@@ -176,30 +185,42 @@ func (p *Page) setSummary() {
 func (p *Page) renderBytes(content []byte) []byte {
 	return helpers.RenderBytes(
 		helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-			DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
+			DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
 	return helpers.RenderBytesWithTOC(helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-		DocumentId: p.UniqueId(), ConfigFlags: p.getRenderingConfigFlags()})
+		DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 }
 
-func (p *Page) getRenderingConfigFlags() map[string]bool {
-	flags := make(map[string]bool)
+func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
-	pageParam := p.GetParam("blackfriday")
-	siteParam := viper.GetStringMap("blackfriday")
+	p.renderingConfigInit.Do(func() {
+		pageParam := p.GetParam("blackfriday")
+		siteParam := viper.GetStringMap("blackfriday")
 
-	flags = cast.ToStringMapBool(siteParam)
+		combinedParam := siteParam
 
-	if pageParam != nil {
-		pageFlags := cast.ToStringMapBool(pageParam)
-		for key, value := range pageFlags {
-			flags[key] = value
+		if pageParam != nil {
+			combinedParam = make(map[string]interface{})
+
+			for k, v := range siteParam {
+				combinedParam[k] = v
+			}
+
+			pageConfig := cast.ToStringMap(pageParam)
+
+			for key, value := range pageConfig {
+				combinedParam[key] = value
+			}
 		}
-	}
+		p.renderingConfig = helpers.NewBlackfriday()
+		if err := mapstructure.Decode(combinedParam, p.renderingConfig); err != nil {
+			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
+		}
+	})
 
-	return flags
+	return p.renderingConfig
 }
 
 func newPage(filename string) *Page {
@@ -385,6 +406,16 @@ func (p *Page) RelPermalink() (string, error) {
 		return "", err
 	}
 
+	if viper.GetBool("CanonifyUrls") {
+		// replacements for relpermalink with baseUrl on the form http://myhost.com/sub/ will fail later on
+		// have to return the Url relative from baseUrl
+		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseUrl))
+		if err != nil {
+			return "", err
+		}
+		return "/" + filepath.ToSlash(relpath), nil
+	}
+
 	link.Scheme = ""
 	link.Host = ""
 	link.User = nil
@@ -500,9 +531,13 @@ func (page *Page) GetParam(key string) interface{} {
 		return cast.ToTime(v)
 	case []string:
 		return helpers.SliceToLower(v.([]string))
-	case map[interface{}]interface{}:
+	case map[string]interface{}: // JSON and TOML
+		return v
+	case map[interface{}]interface{}: // YAML
 		return v
 	}
+
+	jww.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
 	return nil
 }
 
@@ -537,7 +572,7 @@ func (page *Page) Menus() PageMenus {
 	ret := PageMenus{}
 
 	if ms, ok := page.Params["menu"]; ok {
-		link, _ := page.Permalink()
+		link, _ := page.RelPermalink()
 
 		me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
 
@@ -662,11 +697,16 @@ func (page *Page) SaveSourceAs(path string) error {
 }
 
 func (page *Page) saveSourceAs(path string, safe bool) error {
-	b := new(bytes.Buffer)
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
 	b.Write(page.Source.Frontmatter)
 	b.Write(page.Source.Content)
 
-	err := page.saveSource(b.Bytes(), path, safe)
+	bc := make([]byte, b.Len(), b.Len())
+	copy(bc, b.Bytes())
+
+	err := page.saveSource(bc, path, safe)
 	if err != nil {
 		return err
 	}

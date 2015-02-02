@@ -1,127 +1,102 @@
 package tpl
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"html/template"
+	"path"
 	"reflect"
+	"runtime"
 	"testing"
+	"time"
 )
 
-func TestGt(t *testing.T) {
-	for i, this := range []struct {
-		left          interface{}
-		right         interface{}
-		leftShouldWin bool
-	}{
-		{5, 8, false},
-		{8, 5, true},
-		{5, 5, false},
-		{-2, 1, false},
-		{2, -5, true},
-		{0.0, 1.23, false},
-		{1.23, 0.0, true},
-		{"8", "5", true},
-		{"5", "0001", true},
-		{[]int{100, 99}, []int{1, 2, 3, 4}, false},
-	} {
-		leftIsBigger := Gt(this.left, this.right)
-		if leftIsBigger != this.leftShouldWin {
-			var which string
-			if leftIsBigger {
-				which = "expected right to be bigger, but left was"
-			} else {
-				which = "expected left to be bigger, but right was"
-			}
-			t.Errorf("[%d] %v compared to %v: %s", i, this.left, this.right, which)
-		}
-	}
+type tstNoStringer struct {
 }
 
-func TestDoArithmetic(t *testing.T) {
-	for i, this := range []struct {
-		a      interface{}
-		b      interface{}
-		op     rune
-		expect interface{}
+type tstCompareType int
+
+const (
+	tstEq tstCompareType = iota
+	tstNe
+	tstGt
+	tstGe
+	tstLt
+	tstLe
+)
+
+func tstIsEq(tp tstCompareType) bool {
+	return tp == tstEq || tp == tstGe || tp == tstLe
+}
+
+func tstIsGt(tp tstCompareType) bool {
+	return tp == tstGt || tp == tstGe
+}
+
+func tstIsLt(tp tstCompareType) bool {
+	return tp == tstLt || tp == tstLe
+}
+
+func TestCompare(t *testing.T) {
+	for _, this := range []struct {
+		tstCompareType
+		funcUnderTest func(a, b interface{}) bool
 	}{
-		{3, 2, '+', int64(5)},
-		{3, 2, '-', int64(1)},
-		{3, 2, '*', int64(6)},
-		{3, 2, '/', int64(1)},
-		{3.0, 2, '+', float64(5)},
-		{3.0, 2, '-', float64(1)},
-		{3.0, 2, '*', float64(6)},
-		{3.0, 2, '/', float64(1.5)},
-		{3, 2.0, '+', float64(5)},
-		{3, 2.0, '-', float64(1)},
-		{3, 2.0, '*', float64(6)},
-		{3, 2.0, '/', float64(1.5)},
-		{3.0, 2.0, '+', float64(5)},
-		{3.0, 2.0, '-', float64(1)},
-		{3.0, 2.0, '*', float64(6)},
-		{3.0, 2.0, '/', float64(1.5)},
-		{uint(3), uint(2), '+', uint64(5)},
-		{uint(3), uint(2), '-', uint64(1)},
-		{uint(3), uint(2), '*', uint64(6)},
-		{uint(3), uint(2), '/', uint64(1)},
-		{uint(3), 2, '+', uint64(5)},
-		{uint(3), 2, '-', uint64(1)},
-		{uint(3), 2, '*', uint64(6)},
-		{uint(3), 2, '/', uint64(1)},
-		{3, uint(2), '+', uint64(5)},
-		{3, uint(2), '-', uint64(1)},
-		{3, uint(2), '*', uint64(6)},
-		{3, uint(2), '/', uint64(1)},
-		{uint(3), -2, '+', int64(1)},
-		{uint(3), -2, '-', int64(5)},
-		{uint(3), -2, '*', int64(-6)},
-		{uint(3), -2, '/', int64(-1)},
-		{-3, uint(2), '+', int64(-1)},
-		{-3, uint(2), '-', int64(-5)},
-		{-3, uint(2), '*', int64(-6)},
-		{-3, uint(2), '/', int64(-1)},
-		{uint(3), 2.0, '+', float64(5)},
-		{uint(3), 2.0, '-', float64(1)},
-		{uint(3), 2.0, '*', float64(6)},
-		{uint(3), 2.0, '/', float64(1.5)},
-		{3.0, uint(2), '+', float64(5)},
-		{3.0, uint(2), '-', float64(1)},
-		{3.0, uint(2), '*', float64(6)},
-		{3.0, uint(2), '/', float64(1.5)},
-		{0, 0, '+', 0},
-		{0, 0, '-', 0},
-		{0, 0, '*', 0},
-		{"foo", "bar", '+', "foobar"},
-		{3, 0, '/', false},
-		{3.0, 0, '/', false},
-		{3, 0.0, '/', false},
-		{uint(3), uint(0), '/', false},
-		{3, uint(0), '/', false},
-		{-3, uint(0), '/', false},
-		{uint(3), 0, '/', false},
-		{3.0, uint(0), '/', false},
-		{uint(3), 0.0, '/', false},
-		{3, "foo", '+', false},
-		{3.0, "foo", '+', false},
-		{uint(3), "foo", '+', false},
-		{"foo", 3, '+', false},
-		{"foo", "bar", '-', false},
-		{3, 2, '%', false},
+		{tstGt, Gt},
+		{tstLt, Lt},
+		{tstGe, Ge},
+		{tstLe, Le},
+		{tstEq, Eq},
+		{tstNe, Ne},
 	} {
-		result, err := doArithmetic(this.a, this.b, this.op)
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
+		doTestCompare(t, this.tstCompareType, this.funcUnderTest)
+	}
+
+}
+
+func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b interface{}) bool) {
+	for i, this := range []struct {
+		left            interface{}
+		right           interface{}
+		expectIndicator int
+	}{
+		{5, 8, -1},
+		{8, 5, 1},
+		{5, 5, 0},
+		{-2, 1, -1},
+		{2, -5, 1},
+		{0.0, 1.23, -1},
+		{1.23, 0.0, 1},
+		{"5", "5", 0},
+		{"8", "5", 1},
+		{"5", "0001", 1},
+		{[]int{100, 99}, []int{1, 2, 3, 4}, -1},
+	} {
+		result := funcUnderTest(this.left, this.right)
+		success := false
+
+		if this.expectIndicator == 0 {
+			if tstIsEq(tp) {
+				success = result
+			} else {
+				success = !result
 			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] doArithmetic got %v but expected %v", i, result, this.expect)
-			}
+		}
+
+		if this.expectIndicator < 0 {
+			success = result && (tstIsLt(tp) || tp == tstNe)
+			success = success || (!result && !tstIsLt(tp))
+		}
+
+		if this.expectIndicator > 0 {
+			success = result && (tstIsGt(tp) || tp == tstNe)
+			success = success || (!result && (!tstIsGt(tp) || tp != tstNe))
+		}
+
+		if !success {
+			t.Errorf("[%d][%s] %v compared to %v: %t", i, path.Base(runtime.FuncForPC(reflect.ValueOf(funcUnderTest).Pointer()).Name()), this.left, this.right, result)
 		}
 	}
 }
@@ -297,6 +272,16 @@ func TestIntersect(t *testing.T) {
 	if err2 == nil {
 		t.Error("Excpected error for non array as second arg")
 	}
+}
+
+func TestIsSet(t *testing.T) {
+	aSlice := []interface{}{1, 2, 3, 5}
+	aMap := map[string]interface{}{"a": 1, "b": 2}
+
+	assert.True(t, IsSet(aSlice, 2))
+	assert.True(t, IsSet(aMap, "b"))
+	assert.False(t, IsSet(aSlice, 22))
+	assert.False(t, IsSet(aMap, "bc"))
 }
 
 func (x *TstX) TstRp() string {
@@ -824,5 +809,263 @@ func TestMarkdownify(t *testing.T) {
 
 	if result != expect {
 		t.Errorf("Markdownify: got '%s', expected '%s'", result, expect)
+	}
+}
+
+func TestApply(t *testing.T) {
+	strings := []interface{}{"a\n", "b\n"}
+	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
+
+	var nilErr *error = nil
+
+	chomped, _ := Apply(strings, "chomp", ".")
+	assert.Equal(t, []interface{}{"a", "b"}, chomped)
+
+	chomped, _ = Apply(strings, "chomp", "c\n")
+	assert.Equal(t, []interface{}{"c", "c"}, chomped)
+
+	chomped, _ = Apply(nil, "chomp", ".")
+	assert.Equal(t, []interface{}{}, chomped)
+
+	_, err := Apply(strings, "apply", ".")
+	if err == nil {
+		t.Errorf("apply with apply should fail")
+	}
+
+	_, err = Apply(nilErr, "chomp", ".")
+	if err == nil {
+		t.Errorf("apply with nil in seq should fail")
+	}
+
+	_, err = Apply(strings, "dobedobedo", ".")
+	if err == nil {
+		t.Errorf("apply with unknown func should fail")
+	}
+
+	_, err = Apply(noStringers, "chomp", ".")
+	if err == nil {
+		t.Errorf("apply when func fails should fail")
+	}
+
+	_, err = Apply(tstNoStringer{}, "chomp", ".")
+	if err == nil {
+		t.Errorf("apply with non-sequence should fail")
+	}
+
+}
+
+func TestChomp(t *testing.T) {
+	base := "\n This is\na story "
+	for i, item := range []string{
+		"\n", "\n\n",
+		"\r", "\r\r",
+		"\r\n", "\r\n\r\n",
+	} {
+		chomped, _ := Chomp(base + item)
+
+		if chomped != base {
+			t.Errorf("[%d] Chomp failed, got '%v'", i, chomped)
+		}
+
+		_, err := Chomp(tstNoStringer{})
+
+		if err == nil {
+			t.Errorf("Chomp should fail")
+		}
+	}
+}
+
+func TestReplace(t *testing.T) {
+	v, _ := Replace("aab", "a", "b")
+	assert.Equal(t, "bbb", v)
+	v, _ = Replace("11a11", 1, 2)
+	assert.Equal(t, "22a22", v)
+	v, _ = Replace(12345, 1, 2)
+	assert.Equal(t, "22345", v)
+	_, e := Replace(tstNoStringer{}, "a", "b")
+	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
+	_, e = Replace("a", tstNoStringer{}, "b")
+	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
+	_, e = Replace("a", "b", tstNoStringer{})
+	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
+}
+
+func TestTrim(t *testing.T) {
+	v, _ := Trim("1234 my way 13", "123")
+	assert.Equal(t, "4 my way ", v)
+	v, _ = Trim("   my way    ", " ")
+	assert.Equal(t, "my way", v)
+	v, _ = Trim(1234, "14")
+	assert.Equal(t, "23", v)
+	_, e := Trim(tstNoStringer{}, " ")
+	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
+}
+
+func TestDateFormat(t *testing.T) {
+	for i, this := range []struct {
+		layout string
+		value interface{}
+		expect interface{}
+	}{
+		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
+		{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
+		{"This isn't a date layout string", "2015-01-21", "This isn't a date layout string"},
+		{"Monday, Jan 2, 2006", 1421733600, false},
+		{"Monday, Jan 2, 2006", 1421733600.123, false},
+	} {
+		result, err := DateFormat(this.layout, this.value)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] DateFormat didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] DateFormat failed: %s", i, err)
+				continue
+			}
+			if result != this.expect {
+				t.Errorf("[%d] DateFormat got %v but expected %v", i, result, this.expect)
+			}
+		}
+	}
+}
+
+func TestSafeHtml(t *testing.T) {
+	for i, this := range []struct {
+		str                 string
+		tmplStr             string
+		expectWithoutEscape string
+		expectWithEscape    string
+	}{
+		{`<div></div>`, `{{ . }}`, `&lt;div&gt;&lt;/div&gt;`, `<div></div>`},
+	} {
+		tmpl, err := template.New("test").Parse(this.tmplStr)
+		if err != nil {
+			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			continue
+		}
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, this.str)
+		if err != nil {
+			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithoutEscape {
+			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		}
+
+		buf.Reset()
+		err = tmpl.Execute(buf, SafeHtml(this.str))
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by SafeHtml returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithEscape {
+			t.Errorf("[%d] execute template with an escaped string value by SafeHtml, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		}
+	}
+}
+
+func TestSafeHtmlAttr(t *testing.T) {
+	for i, this := range []struct {
+		str                 string
+		tmplStr             string
+		expectWithoutEscape string
+		expectWithEscape    string
+	}{
+		{`href="irc://irc.freenode.net/#golang"`, `<a {{ . }}>irc</a>`, `<a ZgotmplZ>irc</a>`, `<a href="irc://irc.freenode.net/#golang">irc</a>`},
+	} {
+		tmpl, err := template.New("test").Parse(this.tmplStr)
+		if err != nil {
+			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			continue
+		}
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, this.str)
+		if err != nil {
+			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithoutEscape {
+			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		}
+
+		buf.Reset()
+		err = tmpl.Execute(buf, SafeHtmlAttr(this.str))
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by SafeHtmlAttr returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithEscape {
+			t.Errorf("[%d] execute template with an escaped string value by SafeHtmlAttr, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		}
+	}
+}
+
+func TestSafeCss(t *testing.T) {
+	for i, this := range []struct {
+		str                 string
+		tmplStr             string
+		expectWithoutEscape string
+		expectWithEscape    string
+	}{
+		{`width: 60px;`, `<div style="{{ . }}"></div>`, `<div style="ZgotmplZ"></div>`, `<div style="width: 60px;"></div>`},
+	} {
+		tmpl, err := template.New("test").Parse(this.tmplStr)
+		if err != nil {
+			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			continue
+		}
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, this.str)
+		if err != nil {
+			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithoutEscape {
+			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		}
+
+		buf.Reset()
+		err = tmpl.Execute(buf, SafeCss(this.str))
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by SafeCss returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithEscape {
+			t.Errorf("[%d] execute template with an escaped string value by SafeCss, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		}
+	}
+}
+
+func TestSafeUrl(t *testing.T) {
+	for i, this := range []struct {
+		str                 string
+		tmplStr             string
+		expectWithoutEscape string
+		expectWithEscape    string
+	}{
+		{`irc://irc.freenode.net/#golang`, `<a href="{{ . }}">IRC</a>`, `<a href="#ZgotmplZ">IRC</a>`, `<a href="irc://irc.freenode.net/#golang">IRC</a>`},
+	} {
+		tmpl, err := template.New("test").Parse(this.tmplStr)
+		if err != nil {
+			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			continue
+		}
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, this.str)
+		if err != nil {
+			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithoutEscape {
+			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		}
+
+		buf.Reset()
+		err = tmpl.Execute(buf, SafeUrl(this.str))
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by SafeUrl returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithEscape {
+			t.Errorf("[%d] execute template with an escaped string value by SafeUrl, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		}
 	}
 }

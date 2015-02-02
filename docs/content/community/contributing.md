@@ -13,7 +13,7 @@ weight: 30
 ---
 
 All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project, feel free to pick something from the roadmap
-or contact [spf13](http://spf13.com) about what may make sense
+or contact [spf13](http://spf13.com/) about what may make sense
 to do next.
 
 You should fork the project and make your changes.  *We encourage pull requests to discuss code changes.*

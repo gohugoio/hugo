@@ -104,7 +104,7 @@ git push -u origin master
 
 ## Welcome to wercker
 
-Let's start by setting up an account for Wercker. To do so we'll go to www.wercker.com and click on the **register** link at the top-right corner.
+Let's start by setting up an account for Wercker. To do so we'll go to http://wercker.com and click on the **register** link at the top-right corner.
 
 ![][3]
 

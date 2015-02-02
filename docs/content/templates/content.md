@@ -23,10 +23,10 @@ rendering a specific page.
 Hugo will use the following prioritized list. If a file isn’t present,
 then the next one in the list will be used. This enables you to craft
 specific layouts when you want to without creating more templates
-than necessary. For most sites only the \_default file at the end of
+than necessary. For most sites, only the `_default` file at the end of
 the list will be needed.
 
-Users can specify the `type` and `layout` in the [front-matter](/content/front-matter). `Section`
+Users can specify the `type` and `layout` in the [front-matter](/content/front-matter/). `Section`
 is determined based on the content file’s location. If `type` is provide,
 it will be used instead of `section`.
 
@@ -62,8 +62,8 @@ same as the other types, but the directory must be called "\_default".
 
 
 ## post/single.html
-This content template is used for [spf13.com](http://spf13.com).
-It makes use of [partial templates](/layout/partials)
+This content template is used for [spf13.com](http://spf13.com/).
+It makes use of [partial templates](/layout/partials/)
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
@@ -110,8 +110,8 @@ It makes use of [partial templates](/layout/partials)
 
 
 ## project/single.html
-This content template is used for [spf13.com](http://spf13.com).
-It makes use of [partial templates](/layout/partials)
+This content template is used for [spf13.com](http://spf13.com/).
+It makes use of [partial templates](/layout/partials/)
 
 
     {{ partial "header.html" . }}
@@ -152,10 +152,10 @@ It makes use of [partial templates](/layout/partials)
     </div>
     {{ end }}
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}
 
 Notice how the project/single.html template uses an additional parameter unique
 to this template. This doesn't need to be defined ahead of time. If the key is
 present in the front matter than it can be used in the template. To
 easily generate new content of this type with these keys ready use
-[content archetypes](/content/archetypes).
+[content archetypes](/content/archetypes/).

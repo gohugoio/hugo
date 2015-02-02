@@ -24,7 +24,7 @@ Hugo will create all the needed directories and files to get started
 quickly.
 
 Hugo will only touch the files and create the directories (in the right
-places), [configuration](/overview/configuration) and content are up to
+places), [configuration](/overview/configuration/) and content are up to
 you... but luckily we have builders for content (see below).
 
 ## New Theme
@@ -37,7 +37,7 @@ Run from your working directory, this will create a new theme with all
 the needed files in your themes directory. Hugo will provide you with a
 license and theme.toml file with most of the work done for you.
 
-Follow the [Theme Creation Guide](/themes/creation) once the builder is
+Follow the [Theme Creation Guide](/themes/creation/) once the builder is
 done.
 
 ## New Content
@@ -45,7 +45,7 @@ done.
 You will use this builder the most of all. Every time you want to create
 a new piece of content, the content builder will get you started right.
 
-Leveraging [content archetypes](/content/archetypes) the content builder
+Leveraging [content archetypes](/content/archetypes/) the content builder
 will not only insert the current date and appropriate metadata, but it
 will pre-populate values based on the content type.
 

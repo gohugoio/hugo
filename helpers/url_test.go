@@ -68,6 +68,31 @@ func TestUrlPrep(t *testing.T) {
 
 }
 
+func TestAddContextRoot(t *testing.T) {
+	tests := []struct {
+		baseUrl  string
+		url      string
+		expected string
+	}{
+		{"http://example.com/sub/", "/foo", "/sub/foo"},
+		{"http://example.com/sub/", "/foo/index.html", "/sub/foo/index.html"},
+		{"http://example.com/sub1/sub2", "/foo", "/sub1/sub2/foo"},
+		{"http://example.com", "/foo", "/foo"},
+		// cannot guess that the context root is already added int the example below
+		{"http://example.com/sub/", "/sub/foo", "/sub/sub/foo"},
+		{"http://example.com/тря", "/трям/", "/тря/трям/"},
+		{"http://example.com", "/", "/"},
+		{"http://example.com/bar", "//", "/bar/"},
+	}
+
+	for _, test := range tests {
+		output := AddContextRoot(test.baseUrl, test.url)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
 func TestPretty(t *testing.T) {
 	assert.Equal(t, PrettifyUrlPath("/section/name.html"), "/section/name/index.html")
 	assert.Equal(t, PrettifyUrlPath("/section/sub/name.html"), "/section/sub/name/index.html")

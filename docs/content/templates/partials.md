@@ -51,7 +51,7 @@ the “partial/” path). The old approach would still work, but wouldn’t bene
 the ability to have users override the partial theme file with local layouts.
 
 ## Example header.html
-This header template is used for [spf13.com](http://spf13.com):
+This header template is used for [spf13.com](http://spf13.com/):
 
     <!DOCTYPE html>
     <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -70,7 +70,7 @@ This header template is used for [spf13.com](http://spf13.com):
     <body lang="en">
 
 ## Example footer.html
-This footer template is used for [spf13.com](http://spf13.com):
+This footer template is used for [spf13.com](http://spf13.com/):
 
     <footer>
       <div>
@@ -100,4 +100,4 @@ This footer template is used for [spf13.com](http://spf13.com):
     </html>
 
 **For examples of referencing these templates, see [single content
-templates](/templates/content), [list templates](/templates/list) and [homepage templates](/templates/homepage).**
+templates](/templates/content/), [list templates](/templates/list/) and [homepage templates](/templates/homepage/).**

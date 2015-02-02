@@ -178,18 +178,15 @@ func TestRenderThingOrDefault(t *testing.T) {
 		}
 
 		var err2 error
-		var b io.Reader
+
 		if test.missing {
-			b, err2 = s.renderPage("name", p, "missing", templateName)
+			err2 = s.renderAndWritePage("name", "out", p, "missing", templateName)
 		} else {
-			b, err2 = s.renderPage("name", p, templateName, "missing_default")
+			err2 = s.renderAndWritePage("name", "out", p, templateName, "missing_default")
 		}
 
 		if err2 != nil {
 			t.Errorf("Unable to render html: %s", err)
-		}
-		if err2 := s.WriteDestPage("out", b); err2 != nil {
-			t.Errorf("Unable to write html: %s", err)
 		}
 
 		file, err := hugofs.DestinationFS.Open(filepath.FromSlash("out/index.html"))

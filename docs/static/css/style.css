@@ -500,3 +500,54 @@ td.purpose-title {
 td.purpose-description {
   border-left: 0;
 }
+
+/* For definitions of variables */
+
+dl {
+    margin: 1em;
+    border-bottom: 1px solid #ccc;
+}
+
+dt {
+    float: left;
+    clear: left;
+    width: 9.5em;
+    margin: 0.125em;
+    padding: 2px 4px;
+}
+
+dd {
+    padding: 0.2em 0 0.2em 10em;
+    border-top: 1px solid #ccc;
+}
+
+/* Prevent linebreak right after an icon */
+#main-content .fa {
+  display: inline;
+}
+
+/* Logo for FreeBSD until Font Awesome adds it, see https://github.com/FortAwesome/Font-Awesome/issues/1116 */
+i.freebsd-19px:before {
+  content: url(/img/freebsd-19px.svg);
+  vertical-align: -7%;
+}
+
+/* Responsive videos */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+    margin: 20px 0;
+}
+ 
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;    
+}

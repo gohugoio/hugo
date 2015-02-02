@@ -29,7 +29,7 @@ As our goal is to host a website using GitHub Pages, it is natural for us to hos
 
 ### Write a `config.yaml` File
 
-The very first step in creating a new Hugo site is to [write the config file](/overview/configuration). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseurl`) go and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yaml` with the following contents
+The very first step in creating a new Hugo site is to [write the config file](/overview/configuration/). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseurl`) go, and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yaml` with the following contents
 
     ---
     contentdir: "content"
@@ -39,7 +39,17 @@ The very first step in creating a new Hugo site is to [write the config file](/o
       category: "categories"
     baseurl: "http://spencerlyon2.github.io/hugo_gh_blog"
     title: "Hugo Blog Template for GitHub Pages"
+    canonifyurls: true
     ...
+
+> **Caveat:** Hugo's former default of `canonifyurls: true` has been changed
+> to `false` since this tutorial has written.  **Please make sure you manually
+> add `canonifyurls: true` to your `config.yaml`** if you are using Spencer's
+> https://github.com/spencerlyon2/hugo_gh_blog for this tutorial, or you *will*
+> run into problems such as the CSS files not loading.
+
+> See ["Canonicalization: Caveat" on the "Extras: URLs page"](/extras/urls/)
+> for more information.
 
 ### Define Structure of Website
 
@@ -53,7 +63,7 @@ Hugo assumes that you organize the content of your site in a meaningful way and 
 
 ### Create HTML Templates
 
-The next step is to define the look and feel of your new website. Because Hugo will generate the site using HTML templates written by the user (you), this step is very subjective. I will merely present one possible theme that could be used to generate a blog. I decided to base the example project on a Jekyll theme called [Lanyon](http://lanyon.getpoole.com). The Lanyon theme is pure CSS and a slightly modified version of the CSS is in the `/static/css` directory of the example repository. If you are following along, you should grab the `static` folder from the example repository and put it alongside the `content` folder you just created.
+The next step is to define the look and feel of your new website. Because Hugo will generate the site using HTML templates written by the user (you), this step is very subjective. I will merely present one possible theme that could be used to generate a blog. I decided to base the example project on a Jekyll theme called [Lanyon](http://lanyon.getpoole.com/). The Lanyon theme is pure CSS and a slightly modified version of the CSS is in the `/static/css` directory of the example repository. If you are following along, you should grab the `static` folder from the example repository and put it alongside the `content` folder you just created.
 
 Because there are so many files needed to fully compose a complete website, I will not be able to go through each of them here. I will, however, show what the directory structure should look like when all is said and done:
 
@@ -85,7 +95,7 @@ Each of the files in the example repository is well commented with a description
 
 ### Add Some Content
 
-The final step in creating the blog is to add some actual blog posts. To do this, simply create one Markdown file (with extension `.md`) for each new blog post. At the top of each file you should include a metadata section that tells Hugo some things about the post (see [docs](/content/front-matter)). For example, consider the yaml metadata section from the top of the file `/content/posts/newest.md` from the example repository:
+The final step in creating the blog is to add some actual blog posts. To do this, simply create one Markdown file (with extension `.md`) for each new blog post. At the top of each file you should include a metadata section that tells Hugo some things about the post (see [docs](/content/front-matter/)). For example, consider the yaml metadata section from the top of the file `/content/posts/newest.md` from the example repository:
 
     ---
     title: "Just another sample post"
@@ -161,7 +171,7 @@ Now, as you add new posts to your blog, you will follow steps that look somethin
 * Push the `master` branch
 * Push the public subtree to the remote `gh-pages` branch
 
-The first two items in the previous list are simply a way to conveniently preview your content as you write. This is a dynamic and fairly streamlined process. All the remaining items, however, are the same every time you want to add new content to the website. To make this repetitive process easier, I have adapted a script from the source repository for the [Chimer Arts & Maker Space](https://github.com/chimera/chimeraarts.org) website that is highlighted in the [Hugo Showcase](/showcase). The script lives in a file called `deploy.sh` and has the following contents:
+The first two items in the previous list are simply a way to conveniently preview your content as you write. This is a dynamic and fairly streamlined process. All the remaining items, however, are the same every time you want to add new content to the website. To make this repetitive process easier, I have adapted a script from the source repository for the [Chimer Arts & Maker Space](https://github.com/chimera/chimeraarts.org) website that is highlighted in the [Hugo Showcase](/showcase/). The script lives in a file called `deploy.sh` and has the following contents:
 
 **Note:**
 
@@ -274,8 +284,8 @@ cd ..
 ```
 7. `./deploy.sh "Your optional commit message"` to send changes to `<username>.github.io` (careful, you may also want to commit changes on the `<your-project>-hugo` repo).
 
-That's it! Your personal page is running at [http://username.github.io](http://username.github.io) (after up to 10 minutes delay).
+That's it! Your personal page is running at [http://username.github.io/](http://username.github.io/) (after up to 10 minutes delay).
 
 ## Conclusion
 
-Hopefully this tutorial helped you get your website off its feet and out into the open! If you have any further questions, feel free to contact the community through the [discussion forum](/community/mailing-list).
+Hopefully this tutorial helped you get your website off its feet and out into the open! If you have any further questions, feel free to contact the community through the [discussion forum](/community/mailing-list/).

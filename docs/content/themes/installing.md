@@ -10,7 +10,7 @@ weight: 20
 ---
 
 Hugo themes are located in a centralized GitHub repository. The [Hugo Themes
-Repo](http://github.com/spf13/hugoThemes) itself is really a meta
+Repo](https://github.com/spf13/hugoThemes) itself is really a meta
 repository which contains pointers to set of contributed themes.
 
 ## Installing all themes

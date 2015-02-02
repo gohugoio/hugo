@@ -262,6 +262,7 @@ footer a:hover {
 
 .owl-carousel a {
     color: #243382;
+    white-space: nowrap;
 }
 
 .owl-carousel blockquote p {

@@ -19,4 +19,4 @@ To use a theme for a site:
 The *ThemeName* must match the name of the directory inside `/themes`.
 
 Hugo will then apply the theme first, then apply anything that is in the local
-directory. To learn more, go to [customizing themes](/themes/customizing).
+directory. To learn more, go to [customizing themes](/themes/customizing/).

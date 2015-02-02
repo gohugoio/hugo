@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"html/template"
+	"sync"
 	"time"
 )
 
@@ -30,6 +31,9 @@ type Node struct {
 	Date        time.Time
 	Sitemap     Sitemap
 	UrlPath
+	paginator     *pager
+	paginatorInit sync.Once
+	scratch       *Scratch
 }
 
 func (n *Node) Now() time.Time {
@@ -38,7 +42,7 @@ func (n *Node) Now() time.Time {
 
 func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 	if inme.HasChildren() {
-		me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
+		me := MenuEntry{Name: n.Title, Url: n.Url}
 
 		for _, child := range inme.Children {
 			if me.IsSameResource(child) {
@@ -52,8 +56,7 @@ func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 
 func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 
-	me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
-
+	me := MenuEntry{Name: n.Title, Url: n.Url}
 	if !me.IsSameResource(inme) {
 		return false
 	}
@@ -75,6 +78,10 @@ func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 	}
 
 	return false
+}
+
+func (n *Node) Hugo() *HugoInfo {
+	return hugoInfo
 }
 
 func (n *Node) isSameAsDescendantMenu(inme *MenuEntry, parent *MenuEntry) bool {
@@ -117,4 +124,12 @@ type UrlPath struct {
 	Permalink template.HTML
 	Slug      string
 	Section   string
+}
+
+// Scratch returns the writable context associated with this Node.
+func (n *Node) Scratch() *Scratch {
+	if n.scratch == nil {
+		n.scratch = newScratch()
+	}
+	return n.scratch
 }

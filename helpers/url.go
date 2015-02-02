@@ -15,11 +15,42 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/purell"
 	"net/url"
 	"path"
 	"strings"
+
+	"github.com/PuerkitoBio/purell"
+	"github.com/spf13/viper"
 )
+
+type PathBridge struct {
+}
+
+func (PathBridge) Base(in string) string {
+	return path.Base(in)
+}
+
+func (PathBridge) Clean(in string) string {
+	return path.Clean(in)
+}
+
+func (PathBridge) Dir(in string) string {
+	return path.Dir(in)
+}
+
+func (PathBridge) Ext(in string) string {
+	return path.Ext(in)
+}
+
+func (PathBridge) Join(elem ...string) string {
+	return path.Join(elem...)
+}
+
+func (PathBridge) Separator() string {
+	return "/"
+}
+
+var pathBridge PathBridge
 
 // SanitizeUrl sanitizes the input URL string.
 func SanitizeUrl(in string) string {
@@ -78,6 +109,29 @@ func MakePermalink(host, plink string) *url.URL {
 	return base
 }
 
+// AddContextRoot adds the context root to an URL if it's not already set.
+// For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
+// relative URLs must not include the context root if canonifyUrls is enabled. But if it's disabled, it must be set.
+func AddContextRoot(baseUrl, relativePath string) string {
+
+	url, err := url.Parse(baseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	newPath := path.Join(url.Path, relativePath)
+
+	// path strips traling slash, ignore root path.
+	if newPath != "/" && strings.HasSuffix(relativePath, "/") {
+		newPath += "/"
+	}
+	return newPath
+}
+
+func UrlizeAndPrep(in string) string {
+	return UrlPrep(viper.GetBool("UglyUrls"), Urlize(in))
+}
+
 func UrlPrep(ugly bool, in string) string {
 	if ugly {
 		x := Uglify(SanitizeUrl(in))
@@ -117,22 +171,7 @@ func PrettifyUrl(in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyUrlPath(in string) string {
-	if path.Ext(in) == "" {
-		// /section/name/  -> /section/name/index.html
-		if len(in) < 2 {
-			return "/"
-		}
-		return path.Join(path.Clean(in), "index.html")
-	} else {
-		name, ext := ResourceAndExt(in)
-		if name == "index" {
-			// /section/name/index.html -> /section/name/index.html
-			return path.Clean(in)
-		} else {
-			// /section/name.html -> /section/name/index.html
-			return path.Join(path.Dir(in), name, "index"+ext)
-		}
-	}
+	return PrettiyPath(in, pathBridge)
 }
 
 // Uglify does the opposite of PrettifyUrlPath().
@@ -147,7 +186,7 @@ func Uglify(in string) string {
 		// /section/name/  -> /section/name.html
 		return path.Clean(in) + ".html"
 	} else {
-		name, ext := ResourceAndExt(in)
+		name, ext := FileAndExt(in, pathBridge)
 		if name == "index" {
 			// /section/name/index.html -> /section/name.html
 			d := path.Dir(in)
@@ -161,12 +200,4 @@ func Uglify(in string) string {
 			return path.Clean(in)
 		}
 	}
-}
-
-// Same as FileAndExt, but for URLs.
-func ResourceAndExt(in string) (name string, ext string) {
-	ext = path.Ext(in)
-	base := path.Base(in)
-
-	return FileAndExtSep(in, ext, base, "/"), ext
 }
