@@ -55,7 +55,7 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -84,6 +84,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "$TMPDIR/hugo_cache/", "filesystem path to cache directory")
+	HugoCmd.PersistentFlags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
@@ -127,6 +128,7 @@ func InitializeConfig() {
 	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyUrls", false)
 	viper.SetDefault("Verbose", false)
+	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyUrls", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
@@ -204,9 +206,18 @@ func InitializeConfig() {
 		viper.Set("WorkingDir", dir)
 	}
 
+	if hugoCmdV.PersistentFlags().Lookup("ignoreCache").Changed {
+		viper.Set("IgnoreCache", IgnoreCache)
+	}
+
 	if CacheDir != "" {
 		if helpers.FilePathSeparator != CacheDir[len(CacheDir)-1:] {
 			CacheDir = CacheDir + helpers.FilePathSeparator
+		}
+		isDir, err := helpers.DirExists(CacheDir, hugofs.SourceFs)
+		utils.CheckErr(err)
+		if isDir == false {
+			mkdir(CacheDir)
 		}
 		viper.Set("CacheDir", CacheDir)
 	} else {

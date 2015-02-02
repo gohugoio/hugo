@@ -30,19 +30,21 @@ func TestScpCache(t *testing.T) {
 	tests := []struct {
 		path    string
 		content []byte
+		ignore  bool
 	}{
-		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`)},
-		{"fOO,bar:foo%bAR", []byte(`T€st Content 123 fOO,bar:foo%bAR`)},
-		{"FOo/BaR.html", []byte(`FOo/BaR.html T€st Content 123`)},
-		{"трям/трям", []byte(`T€st трям/трям Content 123`)},
-		{"은행", []byte(`T€st C은행ontent 123`)},
-		{"Банковский кассир", []byte(`Банковский кассир T€st Content 123`)},
+		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`), false},
+		{"fOO,bar:foo%bAR", []byte(`T€st Content 123 fOO,bar:foo%bAR`), false},
+		{"FOo/BaR.html", []byte(`FOo/BaR.html T€st Content 123`), false},
+		{"трям/трям", []byte(`T€st трям/трям Content 123`), false},
+		{"은행", []byte(`T€st C은행ontent 123`), false},
+		{"Банковский кассир", []byte(`Банковский кассир T€st Content 123`), false},
+		{"Банковский кассир", []byte(`Банковский кассир T€st Content 456`), true},
 	}
 
 	fs := new(afero.MemMapFs)
 
 	for _, test := range tests {
-		c, err := resGetCache(test.path, fs)
+		c, err := resGetCache(test.path, fs, test.ignore)
 		if err != nil {
 			t.Errorf("Error getting cache: %s", err)
 		}
@@ -55,12 +57,18 @@ func TestScpCache(t *testing.T) {
 			t.Errorf("Error writing cache: %s", err)
 		}
 
-		c, err = resGetCache(test.path, fs)
+		c, err = resGetCache(test.path, fs, test.ignore)
 		if err != nil {
 			t.Errorf("Error getting cache after writing: %s", err)
 		}
-		if bytes.Compare(c, test.content) != 0 {
-			t.Errorf("\nExpected: %s\nActual: %s\n", string(test.content), string(c))
+		if test.ignore {
+			if c != nil {
+				t.Errorf("Cache ignored but content is not nil: %s", string(c))
+			}
+		} else {
+			if bytes.Compare(c, test.content) != 0 {
+				t.Errorf("\nExpected: %s\nActual: %s\n", string(test.content), string(c))
+			}
 		}
 	}
 }
@@ -111,10 +119,12 @@ func TestScpGetRemote(t *testing.T) {
 	tests := []struct {
 		path    string
 		content []byte
+		ignore  bool
 	}{
-		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`)},
-		{"http://Doppel.Gänger/foo_Bar-Foo", []byte(`T€st Cont€nt 123`)},
-		{"http://Doppel.Gänger/Fizz_Bazz-Foo", []byte(`T€st Банковский кассир Cont€nt 123`)},
+		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`), false},
+		{"http://Doppel.Gänger/foo_Bar-Foo", []byte(`T€st Cont€nt 123`), false},
+		{"http://Doppel.Gänger/Fizz_Bazz-Foo", []byte(`T€st Банковский кассир Cont€nt 123`), false},
+		{"http://Doppel.Gänger/Fizz_Bazz-Bar", []byte(`T€st Банковский кассир Cont€nt 456`), true},
 	}
 
 	for _, test := range tests {
@@ -131,12 +141,18 @@ func TestScpGetRemote(t *testing.T) {
 		if bytes.Compare(c, test.content) != 0 {
 			t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(test.content), string(c))
 		}
-		cc, cErr := resGetCache(test.path, fs)
+		cc, cErr := resGetCache(test.path, fs, test.ignore)
 		if cErr != nil {
 			t.Error(cErr)
 		}
-		if bytes.Compare(cc, test.content) != 0 {
-			t.Errorf("\nCache Expected: %s\nCache Actual: %s\n", string(test.content), string(c))
+		if test.ignore {
+			if cc != nil {
+				t.Errorf("Cache ignored but content is not nil: %s", string(cc))
+			}
+		} else {
+			if bytes.Compare(cc, test.content) != 0 {
+				t.Errorf("\nCache Expected: %s\nCache Actual: %s\n", string(test.content), string(cc))
+			}
 		}
 	}
 }

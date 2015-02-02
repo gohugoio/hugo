@@ -64,7 +64,10 @@ func getCacheFileID(id string) string {
 
 // resGetCache returns the content for an ID from the file cache or an error
 // if the file is not found returns nil,nil
-func resGetCache(id string, fs afero.Fs) ([]byte, error) {
+func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
+	if ignoreCache {
+		return nil, nil
+	}
 	fID := getCacheFileID(id)
 	isExists, err := helpers.Exists(fID, fs)
 	if err != nil {
@@ -99,7 +102,7 @@ func resWriteCache(id string, c []byte, fs afero.Fs) error {
 // resGetRemote loads the content of a remote file. This method is thread safe.
 func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 
-	c, err := resGetCache(url, fs)
+	c, err := resGetCache(url, fs, viper.GetBool("IgnoreCache"))
 	if c != nil && err == nil {
 		return c, nil
 	}
@@ -112,7 +115,7 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 	defer func() { remoteUrlLock.UrlUnlock(url) }()
 
 	// avoid multiple locks due to calling resGetCache twice
-	c, err = resGetCache(url, fs)
+	c, err = resGetCache(url, fs, viper.GetBool("IgnoreCache"))
 	if c != nil && err == nil {
 		return c, nil
 	}
