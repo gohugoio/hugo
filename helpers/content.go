@@ -275,8 +275,7 @@ func TruncateWords(s string, max int) string {
 
 // TruncateWordsToWholeSentence takes content and an int
 // and returns entire sentences from content, delimited by the int.
-func TruncateWordsToWholeSentence(s string, max int) string {
-	words := strings.Fields(s)
+func TruncateWordsToWholeSentence(words []string, max int) string {
 	if max > len(words) {
 		return strings.Join(words, " ")
 	}

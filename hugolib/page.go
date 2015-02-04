@@ -65,6 +65,8 @@ type Page struct {
 	rawContent          []byte
 	contentShortCodes   map[string]string
 	plain               string // TODO should be []byte
+	plainWords          []string
+	plainInit           sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
 	PageMeta
@@ -97,10 +99,20 @@ type Position struct {
 type Pages []*Page
 
 func (p *Page) Plain() string {
-	if len(p.plain) == 0 {
-		p.plain = helpers.StripHTML(string(p.Content))
-	}
+	p.initPlain()
 	return p.plain
+}
+
+func (p *Page) PlainWords() []string {
+	p.initPlain()
+	return p.plainWords
+}
+
+func (p *Page) initPlain() {
+	p.plainInit.Do(func() {
+		p.plain = helpers.StripHTML(string(p.Content))
+		p.plainWords = strings.Fields(p.plain)
+	})
 }
 
 func (p *Page) IsNode() bool {
@@ -178,9 +190,11 @@ func (p *Page) setSummary() {
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
-		plain := strings.Join(strings.Fields(p.Plain()), " ")
-		p.Summary = helpers.BytesToHTML([]byte(helpers.TruncateWordsToWholeSentence(plain, helpers.SummaryLength)))
-		p.Truncated = len(p.Summary) != len(plain)
+		p.Summary = helpers.BytesToHTML([]byte(helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)))
+
+		// todo bep - check if the Plain() can be trimmed earlier
+		p.Truncated = len(p.Summary) != len(strings.Trim(p.Plain(), "\n\r "))
+
 	}
 }
 
@@ -322,7 +336,7 @@ func (p *Page) ReadFrom(buf io.Reader) (err error) {
 }
 
 func (p *Page) analyzePage() {
-	p.WordCount = helpers.TotalWords(p.Plain())
+	p.WordCount = len(p.PlainWords())
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 	p.ReadingTime = int((p.WordCount + 212) / 213)
 }
