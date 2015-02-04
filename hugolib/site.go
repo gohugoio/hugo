@@ -1463,5 +1463,5 @@ func getGoMaxProcs() int {
 }
 
 func getNumGoRoutines() int {
-	return getGoMaxProcs() * 4
+	return getGoMaxProcs() * 6
 }
