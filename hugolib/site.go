@@ -427,12 +427,12 @@ func (s *Site) CreatePages() error {
 	results := make(chan HandledResult)
 	filechan := make(chan *source.File)
 
-	procs := getGoMaxProcs()
+	numRoutines := getNumGoRoutines()
 
 	wg := &sync.WaitGroup{}
 
-	wg.Add(procs * 4)
-	for i := 0; i < procs*4; i++ {
+	wg.Add(numRoutines)
+	for i := 0; i < numRoutines; i++ {
 		go sourceReader(s, filechan, results, wg)
 	}
 
@@ -460,8 +460,8 @@ func (s *Site) CreatePages() error {
 
 	wg = &sync.WaitGroup{}
 
-	wg.Add(2 * procs * 4)
-	for i := 0; i < procs*4; i++ {
+	wg.Add(2 * numRoutines)
+	for i := 0; i < numRoutines; i++ {
 		go fileConverter(s, fileConvChan, results, wg)
 		go pageConverter(s, pageChan, results, wg)
 	}
@@ -790,11 +790,11 @@ func (s *Site) RenderPages() error {
 	results := make(chan error)
 	pages := make(chan *Page)
 
-	procs := getGoMaxProcs()
+	numRoutines := getNumGoRoutines()
 
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < procs*4; i++ {
+	for i := 0; i < numRoutines; i++ {
 		wg.Add(1)
 		go pageRenderer(s, pages, results, wg)
 	}
@@ -904,9 +904,9 @@ func (s *Site) RenderTaxonomiesLists() error {
 	taxes := make(chan taxRenderInfo)
 	results := make(chan error)
 
-	procs := getGoMaxProcs()
+	numRoutines := getNumGoRoutines()
 
-	for i := 0; i < procs*4; i++ {
+	for i := 0; i < numRoutines; i++ {
 		wg.Add(1)
 		go taxonomyRenderer(s, taxes, results, wg)
 	}
@@ -1460,4 +1460,8 @@ func getGoMaxProcs() int {
 		}
 	}
 	return 1
+}
+
+func getNumGoRoutines() int {
+	return getGoMaxProcs() * 4
 }
