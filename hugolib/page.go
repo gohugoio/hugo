@@ -71,6 +71,8 @@ type Page struct {
 	Source
 	Position
 	Node
+	pageMenus     PageMenus
+	pageMenusInit sync.Once
 }
 
 type Source struct {
@@ -569,56 +571,57 @@ func (page *Page) IsMenuCurrent(menu string, inme *MenuEntry) bool {
 }
 
 func (page *Page) Menus() PageMenus {
-	ret := PageMenus{}
+	page.pageMenusInit.Do(func() {
+		page.pageMenus = PageMenus{}
 
-	if ms, ok := page.Params["menu"]; ok {
-		link, _ := page.RelPermalink()
+		if ms, ok := page.Params["menu"]; ok {
+			link, _ := page.RelPermalink()
 
-		me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
+			me := MenuEntry{Name: page.LinkTitle(), Weight: page.Weight, Url: link}
 
-		// Could be the name of the menu to attach it to
-		mname, err := cast.ToStringE(ms)
+			// Could be the name of the menu to attach it to
+			mname, err := cast.ToStringE(ms)
 
-		if err == nil {
-			me.Menu = mname
-			ret[mname] = &me
-			return ret
-		}
-
-		// Could be an slice of strings
-		mnames, err := cast.ToStringSliceE(ms)
-
-		if err == nil {
-			for _, mname := range mnames {
+			if err == nil {
 				me.Menu = mname
-				ret[mname] = &me
-				return ret
+				page.pageMenus[mname] = &me
+				return
 			}
-		}
 
-		// Could be a structured menu entry
-		menus, err := cast.ToStringMapE(ms)
+			// Could be a slice of strings
+			mnames, err := cast.ToStringSliceE(ms)
 
-		if err != nil {
-			jww.ERROR.Printf("unable to process menus for %q\n", page.Title)
-		}
+			if err == nil {
+				for _, mname := range mnames {
+					me.Menu = mname
+					page.pageMenus[mname] = &me
+					return
+				}
+			}
 
-		for name, menu := range menus {
-			menuEntry := MenuEntry{Name: page.LinkTitle(), Url: link, Weight: page.Weight, Menu: name}
-			jww.DEBUG.Printf("found menu: %q, in %q\n", name, page.Title)
+			// Could be a structured menu entry
+			menus, err := cast.ToStringMapE(ms)
 
-			ime, err := cast.ToStringMapE(menu)
 			if err != nil {
 				jww.ERROR.Printf("unable to process menus for %q\n", page.Title)
 			}
 
-			menuEntry.MarshallMap(ime)
-			ret[name] = &menuEntry
-		}
-		return ret
-	}
+			for name, menu := range menus {
+				menuEntry := MenuEntry{Name: page.LinkTitle(), Url: link, Weight: page.Weight, Menu: name}
+				jww.DEBUG.Printf("found menu: %q, in %q\n", name, page.Title)
 
-	return nil
+				ime, err := cast.ToStringMapE(menu)
+				if err != nil {
+					jww.ERROR.Printf("unable to process menus for %q\n", page.Title)
+				}
+
+				menuEntry.MarshallMap(ime)
+				page.pageMenus[name] = &menuEntry
+			}
+		}
+	})
+
+	return page.pageMenus
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
