@@ -271,10 +271,11 @@ func TruncateWords(s string, max int) string {
 }
 
 // TruncateWordsToWholeSentence takes content and an int
-// and returns entire sentences from content, delimited by the int.
-func TruncateWordsToWholeSentence(words []string, max int) string {
-	if max > len(words) {
-		return strings.Join(words, " ")
+// and returns entire sentences from content, delimited by the int
+// and whether it's truncated or not.
+func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
+	if max >= len(words) {
+		return strings.Join(words, " "), false
 	}
 
 	for counter, word := range words[max:] {
@@ -282,11 +283,12 @@ func TruncateWordsToWholeSentence(words []string, max int) string {
 			strings.HasSuffix(word, "?") ||
 			strings.HasSuffix(word, ".\"") ||
 			strings.HasSuffix(word, "!") {
-			return strings.Join(words[:max+counter+1], " ")
+			upper := max + counter + 1
+			return strings.Join(words[:upper], " "), (upper < len(words))
 		}
 	}
 
-	return strings.Join(words[:max], " ")
+	return strings.Join(words[:max], " "), true
 }
 
 // GetRstContent calls the Python script rst2html as an external helper

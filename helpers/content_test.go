@@ -3,6 +3,7 @@ package helpers
 import (
 	"github.com/stretchr/testify/assert"
 	"html/template"
+	"strings"
 	"testing"
 )
 
@@ -32,4 +33,31 @@ func TestStripEmptyNav(t *testing.T) {
 
 func TestBytesToHTML(t *testing.T) {
 	assert.Equal(t, template.HTML("dobedobedo"), BytesToHTML([]byte("dobedobedo")))
+}
+
+func TestTruncateWordsToWholeSentence(t *testing.T) {
+	type test struct {
+		input, expected string
+		max             int
+		truncated       bool
+	}
+	data := []test{
+		{"a b c", "a b c", 12, false},
+		{"a b c", "a b c", 3, false},
+		{"a", "a", 1, false},
+		{"This is a sentence.", "This is a sentence.", 5, false},
+		{"This is also a sentence!", "This is also a sentence!", 1, false},
+		{"To be. Or not to be. That's the question.", "To be.", 1, true},
+		{" \nThis is not a sentence\n ", "This is not a", 4, true},
+	}
+	for i, d := range data {
+		output, truncated := TruncateWordsToWholeSentence(strings.Fields(d.input), d.max)
+		if d.expected != output {
+			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
+		}
+
+		if d.truncated != truncated {
+			t.Errorf("Test %d failed. Expected truncated=%t got %t", i, d.truncated, truncated)
+		}
+	}
 }
