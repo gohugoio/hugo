@@ -69,18 +69,16 @@ var blackfridayExtensionMap = map[string]int{
 	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
 }
 
+var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
+
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
-	output := ""
 
 	// Shortcut strings with no tags in them
 	if !strings.ContainsAny(s, "<>") {
-		output = s
+		return s
 	} else {
-		s = strings.Replace(s, "\n", " ", -1)
-		s = strings.Replace(s, "</p>", "\n", -1)
-		s = strings.Replace(s, "<br>", "\n", -1)
-		s = strings.Replace(s, "<br />", "\n", -1) // <br /> is the xhtml line break tag
+		s = stripHTMLReplacer.Replace(s)
 
 		// Walk through the string removing all tags
 		b := new(bytes.Buffer)
@@ -97,9 +95,8 @@ func StripHTML(s string) string {
 				}
 			}
 		}
-		output = b.String()
+		return b.String()
 	}
-	return output
 }
 
 // StripEmptyNav strips out empty <nav> tags from content.
