@@ -23,9 +23,9 @@ import (
 	"os/exec"
 
 	"github.com/russross/blackfriday"
-	"github.com/spf13/viper"
-
+	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 
 	"strings"
 	"sync"
@@ -81,7 +81,9 @@ func StripHTML(s string) string {
 		s = stripHTMLReplacer.Replace(s)
 
 		// Walk through the string removing all tags
-		b := new(bytes.Buffer)
+		b := bp.GetBuffer()
+		defer bp.PutBuffer(b)
+
 		inTag := false
 		for _, r := range s {
 			switch r {
