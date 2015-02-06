@@ -182,6 +182,10 @@ func InitializeConfig() {
 		viper.Set("BaseUrl", BaseUrl)
 	}
 
+	if viper.GetString("BaseUrl") == "" {
+		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
+	}
+
 	if Theme != "" {
 		viper.Set("theme", Theme)
 	}
