@@ -1,7 +1,6 @@
 package hugolib
 
 import (
-	"strings"
 	"regexp"
 
 	"github.com/spf13/hugo/helpers"
@@ -31,17 +30,17 @@ func (summerization Summerization) String() string {
  return summerizations[summerization - 1]
 }
 
-func plainSummarizationStrategy(p *Page) ([]byte, bool) {
-	plain := strings.TrimSpace(p.Plain())
-	return []byte(helpers.TruncateWordsToWholeSentence(plain, helpers.SummaryLength)), len(p.Summary) != len(plain)
+func plainSummarizationStrategy(p *Page) (string, bool) {
+	plain := p.PlainWords()
+	return helpers.TruncateWordsToWholeSentence(plain, helpers.SummaryLength)
 }
 
-func htmlFirstParagraphSummerizationStrategy(p *Page) ([]byte, bool) {
+func htmlFirstParagraphSummerizationStrategy(p *Page) (string, bool) {
 	content := string(p.renderBytes(p.rawContent))
-	return []byte(regexp.MustCompile("<h[123456]").Split(content, 2)[0]), len(content) != len(p.Summary)
+	return regexp.MustCompile("<h[123456]").Split(content, 2)[0], len(content) != len(p.Summary)
 }
 
-func summaryStrategySwitch(p *Page) ([]byte, bool) {
+func summaryStrategySwitch(p *Page) (string, bool) {
 	if p.Site.SummaryStrategy == "html_firstparagraph" {
 		return htmlFirstParagraphSummerizationStrategy(p)
 	} else {
@@ -51,6 +50,6 @@ func summaryStrategySwitch(p *Page) ([]byte, bool) {
 
 func Summarize(p *Page) {
 	summary, truncated := summaryStrategySwitch(p)
-	p.Summary = helpers.BytesToHTML(summary)
+	p.Summary = helpers.BytesToHTML([]byte(summary))
 	p.Truncated = truncated
 } 
