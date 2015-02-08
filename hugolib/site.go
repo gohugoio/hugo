@@ -114,7 +114,7 @@ type SiteInfo struct {
 	BuildDrafts         bool
 	canonifyUrls        bool
 	paginationPageCount uint64
-	Data            *map[string]interface{}
+	Data                *map[string]interface{}
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -295,7 +295,7 @@ func (s *Site) loadData(fs source.Input) (err error) {
 
 			for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
 				if _, override := data[key]; override {
-					return errors.New("Data in " + r.Path() + " is overrided in subfolder.")
+					jww.ERROR.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
 				} else {
 					data[key] = value
 				}
