@@ -3,9 +3,9 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"github.com/spf13/hugo/parser"
 	"html/template"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
+	"reflect"
 )
 
 const (
@@ -747,17 +748,68 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 }
 
-func TestDataDir(t *testing.T) {
+func TestDataDirJson(t *testing.T) {
 	sources := []source.ByteSource{
-		{filepath.FromSlash("test" + string(os.PathSeparator) + "foo.yaml"), []byte("bar: foofoo")},
-		{filepath.FromSlash("test.yaml"), []byte("hello:\n- world: foo")},
+		{filepath.FromSlash("test/foo.json"), []byte(`{ "bar": "foofoo"  }`)},
+		{filepath.FromSlash("test.json"), []byte(`{ "hello": [ { "world": "foo" } ] }`)},
 	}
 
-	s := &Site{}
-	s.loadData(&source.InMemorySource{ByteSource: sources})
+	expected, err := parser.HandleJsonMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
 
-	expected := "map[test:map[hello:[map[world:foo]] foo:map[bar:foofoo]]]"
-	if fmt.Sprint(s.Data) != expected {
-		t.Errorf("Expected structure '%s', got '%s'", expected, s.Data)
+	if err != nil {
+		t.Fatalf("Error %s", err)
+	}
+
+	doTestDataDir(t, expected, sources)
+}
+
+func TestDataDirToml(t *testing.T) {
+	sources := []source.ByteSource{
+		{filepath.FromSlash("test/kung.toml"), []byte("[foo]\nbar = 1")},
+	}
+
+	expected, err := parser.HandleTomlMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
+
+	if err != nil {
+		t.Fatalf("Error %s", err)
+	}
+
+	doTestDataDir(t, expected, sources)
+}
+
+func TestDataDirYamlWithOverridenValue(t *testing.T) {
+	sources := []source.ByteSource{
+		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
+		{filepath.FromSlash("a.yaml"), []byte("a: 1")},
+		{filepath.FromSlash("test/v1.yaml"), []byte("v1-2: 2")},
+		{filepath.FromSlash("test/v2.yaml"), []byte("v2:\n- 2\n- 3")},
+		{filepath.FromSlash("test.yaml"), []byte("v1: 1")},
+	}
+
+	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1},
+		"test": map[string]interface{}{"v1": map[string]interface{}{"v1-2": 2}, "v2": map[string]interface{}{"v2": []interface{}{2, 3}}}}
+
+	doTestDataDir(t, expected, sources)
+}
+
+func TestDataDirUnknownFormat(t *testing.T) {
+	sources := []source.ByteSource{
+		{filepath.FromSlash("test.roml"), []byte("boo")},
+	}
+	s := &Site{}
+	err := s.loadData(&source.InMemorySource{ByteSource: sources})
+	if err == nil {
+		t.Fatalf("Should return an error")
+	}
+}
+
+func doTestDataDir(t *testing.T, expected interface{}, sources []source.ByteSource) {
+	s := &Site{}
+	err := s.loadData(&source.InMemorySource{ByteSource: sources})
+	if err != nil {
+		t.Fatalf("Error loading data: %s", err)
+	}
+	if !reflect.DeepEqual(expected, s.Data) {
+		t.Errorf("Expected structure\n%#v got\n%#v", expected, s.Data)
 	}
 }

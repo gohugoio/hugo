@@ -114,7 +114,7 @@ type SiteInfo struct {
 	BuildDrafts         bool
 	canonifyUrls        bool
 	paginationPageCount uint64
-	Data            *map[string]interface{}
+	Data                *map[string]interface{}
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -269,12 +269,12 @@ func (s *Site) addTemplate(name, data string) error {
 
 func (s *Site) loadData(fs source.Input) (err error) {
 	s.Data = make(map[string]interface{})
+	var current map[string]interface{}
 
 	for _, r := range fs.Files() {
 		// Crawl in data tree to insert data
-		var current map[string]interface{}
 		current = s.Data
-		for _, key := range strings.Split(r.Dir(), string(os.PathSeparator)) {
+		for _, key := range strings.Split(r.Dir(), helpers.FilePathSeparator) {
 			if key != "" {
 				if _, ok := current[key]; !ok {
 					current[key] = make(map[string]interface{})
@@ -283,8 +283,7 @@ func (s *Site) loadData(fs source.Input) (err error) {
 			}
 		}
 
-		// Read data file
-		data, err := readFile(r)
+		data, err := readData(r)
 		if err != nil {
 			return err
 		}
@@ -295,10 +294,10 @@ func (s *Site) loadData(fs source.Input) (err error) {
 
 			for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
 				if _, override := data[key]; override {
-					return errors.New("Data in " + r.Path() + " is overrided in subfolder.")
-				} else {
-					data[key] = value
+					// filepath.Walk walks the files in lexical order, '/' comes before '.'
+					jww.ERROR.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
 				}
+				data[key] = value
 			}
 		}
 
@@ -309,7 +308,7 @@ func (s *Site) loadData(fs source.Input) (err error) {
 	return
 }
 
-func readFile(f *source.File) (interface{}, error) {
+func readData(f *source.File) (interface{}, error) {
 	switch f.Extension() {
 	case "yaml", "yml":
 		return parser.HandleYamlMetaData(f.Bytes())
@@ -318,7 +317,7 @@ func readFile(f *source.File) (interface{}, error) {
 	case "toml":
 		return parser.HandleTomlMetaData(f.Bytes())
 	default:
-		return nil, errors.New("Not supported for data: " + f.Extension())
+		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
 	}
 }
 
@@ -328,11 +327,13 @@ func (s *Site) Process() (err error) {
 	}
 	s.prepTemplates()
 	s.Tmpl.PrintErrors()
+	s.timerStep("initialize & template prep")
+
 	if err = s.loadData(&source.Filesystem{Base: s.absDataDir()}); err != nil {
 		return
 	}
 	s.timerStep("load data")
-	s.timerStep("initialize & template prep")
+
 	if err = s.CreatePages(); err != nil {
 		return
 	}
