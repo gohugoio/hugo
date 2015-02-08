@@ -173,9 +173,11 @@ func resGetResource(url string) ([]byte, error) {
 	return resGetLocal(url, hugofs.SourceFs)
 }
 
-// GetJson expects the url to a resource which can either be a local or a remote one.
+// GetJson expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// If you provide multiple parts they will be joined together to the final URL.
 // GetJson returns nil or parsed JSON to use in a short code.
-func GetJson(url string) interface{} {
+func GetJson(urlParts ...string) interface{} {
+	url := strings.Join(urlParts, "")
 	c, err := resGetResource(url)
 	if err != nil {
 		jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
@@ -204,11 +206,13 @@ func parseCsv(c []byte, sep string) ([][]string, error) {
 	return r.ReadAll()
 }
 
-// GetCsv expects the url to a resource which can either be a local or a remote one and the type
-// of the data separator which can be comma, semi-colon, pipe, but only one character.
+// GetCsv expects a data separator and one or n-parts of a URL to a resource which
+// can either be a local or a remote one.
+// The data separator can be a comma, semi-colon, pipe, etc, but only one character.
+// If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCsv returns nil or a slice slice to use in a short code.
-func GetCsv(url string, sep string) [][]string {
-
+func GetCsv(sep string, urlParts ...string) [][]string {
+	url := strings.Join(urlParts, "")
 	c, err := resGetResource(url)
 	if err != nil {
 		jww.ERROR.Printf("Failed to get csv resource %s with error message %s", url, err)
