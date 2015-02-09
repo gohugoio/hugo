@@ -1,6 +1,6 @@
 ---
 aliases:
-- /doc/scratch/
+- /doc/datafiles/
 date: 2015-01-22
 menu:
   main:
