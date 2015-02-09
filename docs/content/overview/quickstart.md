@@ -82,7 +82,8 @@ We still lack any templates to tell us how to display the content.
 
 ## Step 4. Install some themes
 
-Hugo has rich theme support and a growing set of themes to choose from:
+Hugo has rich theme support and a growing set of themes to choose from.
+To install all of the available Hugo themes, simply clone the entire **hugoThemes** repository from within your working directory:
 
 ```bash
 $ git clone --recursive https://github.com/spf13/hugoThemes themes
