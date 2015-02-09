@@ -20,6 +20,7 @@ The top level of a source directory will typically have the following elements:
 
     ▸ archetypes/
     ▸ content/
+    ▸ data/
     ▸ layouts/
     ▸ static/
     ▸ themes/
@@ -28,6 +29,7 @@ The top level of a source directory will typically have the following elements:
 Learn more about the different directories and what their purpose is:
 
 * [config](/overview/configuration/)
+* [data](/extras/datafiles/)
 * [archetypes](/content/archetypes/)
 * [content](/content/organization/)
 * [layouts](/layout/overview/)
@@ -50,6 +52,7 @@ An example directory may look like:
     |   └── quote
     |   |   ├── first.md
     |   |   └── second.md
+    ├── data
     ├── layouts
     |   ├── _default
     |   |   ├── single.html
