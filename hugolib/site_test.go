@@ -779,12 +779,15 @@ func TestDataDirToml(t *testing.T) {
 
 func TestDataDirYamlWithOverridenValue(t *testing.T) {
 	sources := []source.ByteSource{
-		{filepath.FromSlash("test/v1.yaml"), []byte("v2: 1")},
-		{filepath.FromSlash("test.yaml"), []byte("v1: 2")},
+		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
+		{filepath.FromSlash("a.yaml"), []byte("a: 1")},
+		{filepath.FromSlash("test/v1.yaml"), []byte("v1-2: 2")},
+		{filepath.FromSlash("test/v2.yaml"), []byte("v2:\n- 2\n- 3")},
+		{filepath.FromSlash("test.yaml"), []byte("v1: 1")},
 	}
 
-	// YAML uses interface{} as keys - in this case we will get a mix of string and interface{} keys
-	expected := map[string]interface{}{"test": map[string]interface{}{"v1": 2}}
+	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1},
+		"test": map[string]interface{}{"v1": map[string]interface{}{"v1-2": 2}, "v2": map[string]interface{}{"v2": []interface{}{2, 3}}}}
 
 	doTestDataDir(t, expected, sources)
 }
@@ -807,6 +810,6 @@ func doTestDataDir(t *testing.T, expected interface{}, sources []source.ByteSour
 		t.Fatalf("Error loading data: %s", err)
 	}
 	if !reflect.DeepEqual(expected, s.Data) {
-		t.Errorf("Expected structure\n'%#v' got\n'%#v'", expected, s.Data)
+		t.Errorf("Expected structure\n%#v got\n%#v", expected, s.Data)
 	}
 }

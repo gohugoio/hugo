@@ -294,10 +294,10 @@ func (s *Site) loadData(fs source.Input) (err error) {
 
 			for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
 				if _, override := data[key]; override {
+					// filepath.Walk walks the files in lexical order, '/' comes before '.'
 					jww.ERROR.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
-				} else {
-					data[key] = value
 				}
+				data[key] = value
 			}
 		}
 
