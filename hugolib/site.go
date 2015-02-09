@@ -285,7 +285,7 @@ func (s *Site) loadData(fs source.Input) (err error) {
 
 		data, err := readData(r)
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
 		}
 
 		// Copy content from current to data when needed
