@@ -109,6 +109,7 @@ Also available is `.Site` which has the following:
 **.Site.LastChange** A string representing the last time content has been updated.<br>
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
 **.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
+**.Site.Data**  Custom data, see [Data Files](/extras/datafiles/).<br>
 
 ## Hugo Variables
 
