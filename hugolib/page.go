@@ -191,7 +191,7 @@ func (p *Page) setSummary() {
 		// If hugo defines split:
 		// render, strip html, then split
 		summary, truncated := helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
-		p.Summary = helpers.BytesToHTML([]byte(summary))
+		p.Summary = template.HTML(summary)
 		p.Truncated = truncated
 
 	}
