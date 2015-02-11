@@ -793,17 +793,17 @@ func TestDataDirYamlWithOverridenValue(t *testing.T) {
 }
 
 // issue 892
-func _TestDataDirMultipleSources(t *testing.T) {
+func TestDataDirMultipleSources(t *testing.T) {
 	s1 := []source.ByteSource{
-		{filepath.FromSlash("test/first.toml"), []byte("[foo]\nbar = 1")},
+		{filepath.FromSlash("test/first.toml"), []byte("bar = 1")},
 	}
 
 	s2 := []source.ByteSource{
-		{filepath.FromSlash("test/first.toml"), []byte("[foo]\nbar = 2")},
-		{filepath.FromSlash("test/second.toml"), []byte("[foo]\ntender = 2")},
+		{filepath.FromSlash("test/first.toml"), []byte("bar = 2")},
+		{filepath.FromSlash("test/second.toml"), []byte("tender = 2")},
 	}
 
-	expected := map[string]interface{}{"test": map[string]interface{}{"first": map[string]interface{}{"foo": map[string]interface{}{"bar": 1}}, "second": map[string]interface{}{"foo": map[string]interface{}{"tender": 2}}}}
+	expected, _ := parser.HandleTomlMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
 
 	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: s1}, &source.InMemorySource{ByteSource: s2}})
 
