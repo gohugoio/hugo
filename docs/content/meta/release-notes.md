@@ -30,7 +30,7 @@ maintainers and their tremendous contributions this release.
   [JSON](http://www.json.org/), or [TOML](https://github.com/toml-lang/toml)
   located in the `data` directory ([#885][])
 * Support for dynamically loading JSON & CSV from remote sources via GetJson
-  and GetJson in short codes or other layout files ([#748][])
+  and GetCsv in short codes or other layout files ([#748][])
 * [Pagination support](/extras/pagination/) for home page, sections and
   taxonomies ([#750][])
 * Universal sequencing support
