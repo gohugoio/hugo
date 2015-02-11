@@ -178,6 +178,29 @@ func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("StaticDir"))
 }
 
+// GetThemeStaticDirPath returns the theme's static dir path if theme is set.
+// If theme is set and the static dir doesn't exist, an error is returned.
+func GetThemeStaticDirPath() (string, error) {
+	return getThemeDirPath("static")
+}
+
+// GetThemeStaticDirPath returns the theme's data dir path if theme is set.
+// If theme is set and the data dir doesn't exist, an error is returned.
+func GetThemeDataDirPath() (string, error) {
+	return getThemeDirPath("data")
+}
+
+func getThemeDirPath(path string) (string, error) {
+	var themeDir string
+	if ThemeSet() {
+		themeDir = AbsPathify("themes/"+viper.GetString("theme")) + FilePathSeparator + path
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
+		}
+	}
+	return themeDir, nil
+}
+
 func GetThemesDirPath() string {
 	return AbsPathify(filepath.Join("themes", viper.GetString("theme"), "static"))
 }

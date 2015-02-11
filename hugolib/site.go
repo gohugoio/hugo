@@ -267,42 +267,46 @@ func (s *Site) addTemplate(name, data string) error {
 	return s.Tmpl.AddTemplate(name, data)
 }
 
-func (s *Site) loadData(fs source.Input) (err error) {
+func (s *Site) loadData(sources []source.Input) (err error) {
 	s.Data = make(map[string]interface{})
 	var current map[string]interface{}
-
-	for _, r := range fs.Files() {
-		// Crawl in data tree to insert data
-		current = s.Data
-		for _, key := range strings.Split(r.Dir(), helpers.FilePathSeparator) {
-			if key != "" {
-				if _, ok := current[key]; !ok {
-					current[key] = make(map[string]interface{})
+	for _, currentSource := range sources {
+		for _, r := range currentSource.Files() {
+			// Crawl in data tree to insert data
+			current = s.Data
+			for _, key := range strings.Split(r.Dir(), helpers.FilePathSeparator) {
+				if key != "" {
+					if _, ok := current[key]; !ok {
+						current[key] = make(map[string]interface{})
+					}
+					current = current[key].(map[string]interface{})
 				}
-				current = current[key].(map[string]interface{})
 			}
-		}
 
-		data, err := readData(r)
-		if err != nil {
-			return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
-		}
+			data, err := readData(r)
+			if err != nil {
+				return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
+			}
 
-		// Copy content from current to data when needed
-		if _, ok := current[r.BaseFileName()]; ok {
-			data := data.(map[string]interface{})
+			// Copy content from current to data when needed
+			if _, ok := current[r.BaseFileName()]; ok {
+				data := data.(map[string]interface{})
 
-			for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
-				if _, override := data[key]; override {
-					// filepath.Walk walks the files in lexical order, '/' comes before '.'
-					jww.ERROR.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
+				for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
+					if _, override := data[key]; override {
+						// filepath.Walk walks the files in lexical order, '/' comes before '.'
+						// this warning could happen if
+						// 1. A theme uses the same key; the main data folder wins
+						// 2. A sub folder uses the same key: the sub folder wins
+						jww.WARN.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
+					}
+					data[key] = value
 				}
-				data[key] = value
 			}
-		}
 
-		// Insert data
-		current[r.BaseFileName()] = data
+			// Insert data
+			current[r.BaseFileName()] = data
+		}
 	}
 
 	return
@@ -329,7 +333,17 @@ func (s *Site) Process() (err error) {
 	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 
-	if err = s.loadData(&source.Filesystem{Base: s.absDataDir()}); err != nil {
+	dataSources := make([]source.Input, 0, 2)
+
+	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
+
+	// have to be last - duplicate keys in earlier entries will win
+	themeStaticDir, err := helpers.GetThemeDataDirPath()
+	if err == nil {
+		dataSources = append(dataSources, &source.Filesystem{Base: themeStaticDir})
+	}
+
+	if err = s.loadData(dataSources); err != nil {
 		return
 	}
 	s.timerStep("load data")

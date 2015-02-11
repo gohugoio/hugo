@@ -252,13 +252,13 @@ func copyStatic() error {
 	syncer.SrcFs = hugofs.SourceFs
 	syncer.DestFs = hugofs.DestinationFS
 
-	if themeSet() {
-		themeDir := helpers.AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
-		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Println("Unable to find static directory for theme:", viper.GetString("theme"), "in", themeDir)
-			return nil
-		}
+	themeDir, err := helpers.GetThemeStaticDirPath()
+	if err != nil {
+		jww.ERROR.Println(err)
+		return nil
+	}
 
+	if themeDir != "" {
 		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
 		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
@@ -292,15 +292,11 @@ func getDirList() []string {
 	filepath.Walk(helpers.AbsPathify(viper.GetString("ContentDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
-	if themeSet() {
+	if helpers.ThemeSet() {
 		filepath.Walk(helpers.AbsPathify("themes/"+viper.GetString("theme")), walker)
 	}
 
 	return a
-}
-
-func themeSet() bool {
-	return viper.GetString("theme") != ""
 }
 
 func buildSite(watching ...bool) (err error) {

@@ -760,7 +760,7 @@ func TestDataDirJson(t *testing.T) {
 		t.Fatalf("Error %s", err)
 	}
 
-	doTestDataDir(t, expected, sources)
+	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: sources}})
 }
 
 func TestDataDirToml(t *testing.T) {
@@ -774,7 +774,7 @@ func TestDataDirToml(t *testing.T) {
 		t.Fatalf("Error %s", err)
 	}
 
-	doTestDataDir(t, expected, sources)
+	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: sources}})
 }
 
 func TestDataDirYamlWithOverridenValue(t *testing.T) {
@@ -789,7 +789,24 @@ func TestDataDirYamlWithOverridenValue(t *testing.T) {
 	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1},
 		"test": map[string]interface{}{"v1": map[string]interface{}{"v1-2": 2}, "v2": map[string]interface{}{"v2": []interface{}{2, 3}}}}
 
-	doTestDataDir(t, expected, sources)
+	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: sources}})
+}
+
+// issue 892
+func TestDataDirMultipleSources(t *testing.T) {
+	s1 := []source.ByteSource{
+		{filepath.FromSlash("test/first.toml"), []byte("[foo]\nbar = 1")},
+	}
+
+	s2 := []source.ByteSource{
+		{filepath.FromSlash("test/first.toml"), []byte("[foo]\nbar = 2")},
+		{filepath.FromSlash("test/second.toml"), []byte("[foo]\ntender = 2")},
+	}
+
+	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1}}
+
+	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: s1}, &source.InMemorySource{ByteSource: s2}})
+
 }
 
 func TestDataDirUnknownFormat(t *testing.T) {
@@ -797,15 +814,15 @@ func TestDataDirUnknownFormat(t *testing.T) {
 		{filepath.FromSlash("test.roml"), []byte("boo")},
 	}
 	s := &Site{}
-	err := s.loadData(&source.InMemorySource{ByteSource: sources})
+	err := s.loadData([]source.Input{&source.InMemorySource{ByteSource: sources}})
 	if err == nil {
 		t.Fatalf("Should return an error")
 	}
 }
 
-func doTestDataDir(t *testing.T, expected interface{}, sources []source.ByteSource) {
+func doTestDataDir(t *testing.T, expected interface{}, sources []source.Input) {
 	s := &Site{}
-	err := s.loadData(&source.InMemorySource{ByteSource: sources})
+	err := s.loadData(sources)
 	if err != nil {
 		t.Fatalf("Error loading data: %s", err)
 	}
