@@ -258,11 +258,9 @@ func copyStatic() error {
 		return nil
 	}
 
-	if themeDir != "" {
-		// Copy Static to Destination
-		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
-		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
-	}
+	// Copy Static to Destination
+	jww.INFO.Println("syncing from", themeDir, "to", publishDir)
+	utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
 
 	// Copy Static to Destination
 	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
