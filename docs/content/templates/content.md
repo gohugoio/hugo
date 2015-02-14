@@ -63,7 +63,7 @@ same as the other types, but the directory must be called "\_default".
 
 ## post/single.html
 This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates](/layout/partials/)
+It makes use of [partial templates](/templates/partials/)
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
