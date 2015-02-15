@@ -42,6 +42,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
+	"github.com/yosssi/gohtml"
 )
 
 var _ = transform.AbsURL
@@ -1484,11 +1485,25 @@ func (s *Site) AliasTarget() target.AliasPublisher {
 
 func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating file:", path)
+
 	return s.FileTarget().Publish(path, reader)
 }
 
 func (s *Site) WriteDestPage(path string, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating page:", path)
+
+	if viper.GetBool("PostFormat") {
+		ext := filepath.Ext(path)
+		switch ext {
+		case ".html", ".htm":
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(reader)
+			ustring := buf.String()
+			fstring := gohtml.Format(ustring)
+			reader = strings.NewReader(fstring)
+		}
+	}
+
 	return s.PageTarget().Publish(path, reader)
 }
 
