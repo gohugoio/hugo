@@ -13,28 +13,28 @@ weight: 91
 
 Dynamic content with a static site generator? Yes it is possible!
 
-Besides the [data files](/extras/datafiles/) feature, we have also
-implemented the feature "Dynamic Content" which lets you load
+In addition to the [data files](/extras/datafiles/) feature, we have also
+implemented the feature "Dynamic Content", which lets you load
 any [JSON](http://www.json.org/) or
 [CSV](http://en.wikipedia.org/wiki/Comma-separated_values) file
 from nearly any resource.
 
-"Dynamic Content" consists at the moment of two functions `getJson`
-and `getCsv` which are available in **all template files**.
+"Dynamic Content" currently consists of two functions, `getJson`
+and `getCsv`, which are available in **all template files**.
 
 ## Implementation details
 
 ### Calling the functions with an URL
 
-In any template file call the functions like:
+In any HTML template or Markdown document call the functions like:
 
 
 	{{ $dataJ := getJson "url" }}
-   {{ $dataC := getCsv "separator" "url" }}
+	{{ $dataC := getCsv "separator" "url" }}
 
 
 or if you use a prefix or postfix for the URL the functions
-accepts [variadic arguments](http://en.wikipedia.org/wiki/Variadic_function):
+accept [variadic arguments](http://en.wikipedia.org/wiki/Variadic_function):
 
 	{{ $dataJ := getJson "url prefix" "arg1" "arg2" "arg n" }}
 	{{ $dataC := getCsv  "separator" "url prefix" "arg1" "arg2" "arg n" }}
@@ -45,7 +45,7 @@ only one character long.
 All passed arguments will be joined to the final URL, example:
 
 	{{ $urlPre := "https://api.github.com" }}
-   {{ $gistJ := getJson $urlPre "/users/GITHUB_USERNAME/gists" }}
+	{{ $gistJ := getJson $urlPre "/users/GITHUB_USERNAME/gists" }}
 
 will resolve internally to:
 
@@ -103,14 +103,15 @@ temporary directory.
 With the command line flag `--cacheDir` you can specify any folder on
 your system as a caching directory.
 
-If you don't like caching at all you can fully disable to read from the
-cache with the command line flag `--ignoreCache`. But hugo will always
+If you don't like caching at all, you can fully disable to read from the
+cache with the command line flag `--ignoreCache`. However Hugo will always
 write, on each build of the site, to the cache folder (silent backup).
 
 ### Authentication when using REST URLs
 
-At the moment you can only use those authentication methods which can
-be put into an URL. OAuth or other stuff is not implemented.
+Currently you can only use those authentication methods that can
+be put into an URL. [OAuth](http://en.wikipedia.org/wiki/OAuth) or
+other authentication methods are not implemented.
 
 ### Loading local files
 
@@ -123,15 +124,15 @@ It applies the same output logic as in the topic: *Calling the functions with an
 ## Live reload
 
 There is no chance to trigger a [LiveReload](/extras/livereload/) when
-the content of an URL changes. But when a local JSON/CSV file changes
-then of course a live reload will be triggered. Symlinks not supported.
+the content of an URL changes. However when a local JSON/CSV file changes
+then a live reload will be triggered of course. Symlinks not supported.
 
 **URLs and Live reload**: If you change any local file and the live reload
-got trigger Hugo will either read the URL content from the cache or if
-you have disabled the cache Hugo will re-download the content.
-This can creates a huge traffic and also you may reach API limits quickly.
+got triggered Hugo will either read the URL content from the cache or, if
+you have disabled the cache, Hugo will re-download the content.
+This can create huge traffic and you may also reach API limits quickly.
 
-As downloading of content takes a while Hugo stops with processing
+As downloading of content takes a while, Hugo stops with processing
 your markdown files until the content has been downloaded.
 
 ## Examples
@@ -146,7 +147,7 @@ your markdown files until the content has been downloaded.
 
 If the community demands the implementation of *getYaml*
 [YAML](http://yaml.org/) or *getToml* [TOML](https://github.com/toml-lang/toml)
-these functions will for sure follow.
+these functions will certainly follow.
 
 ### getSql
 
@@ -160,7 +161,7 @@ Maybe adding a new CLI option:
 
 The file must start with `[mysql|postres|mssql|...]_[\w]+.ext`
 
-The part until the first underscore specifies the driver to use which can
+The part before the first underscore specifies the driver to use, which can
 be one from [https://github.com/golang/go/wiki/SQLDrivers](https://github.com/golang/go/wiki/SQLDrivers).
 
 The file itself contains only the connection string and no other comments
@@ -177,16 +178,17 @@ The file `mysql_credentials.txt` contains the connection string:
 In your template you can process `getSql` the same way as with
 the `getJson` function:
 
-	{{ $rows := getSql "SELECT id,artist,genre,title from musicTable" }}
+	{{ $rows := getSql "SELECT id,artist,genre,title FROM musicTable" }}
 	<ul>
 		{{range first 5 $rows }}
 			<li>#{{ .id }} {{.artist}}</a></li>
 		{{end}}
 	</ul>
 
-Queries with `SELECT * from table` are of course also possible.
+Queries with `SELECT * FROM table` are of course also possible but
+should not be used.
 Returned **values** will be converted to **strings**.
 
 Abusing `getSql` with [DML](http://en.wikipedia.org/wiki/Data_manipulation_language)
 or [DDL](http://en.wikipedia.org/wiki/Data_definition_language) statements
-is up to you.
+causes Hugo to hang up.
