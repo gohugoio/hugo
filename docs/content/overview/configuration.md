@@ -67,6 +67,79 @@ Here is a yaml configuration file which sets a few more options
       SidebarRecentLimit: 5
     ...
 
+## Configuration variables
+
+Following is a list of Hugo-defined variables that you can configure and their current default values:
+
+    ---
+    archetypedir:               "archetype"
+    # hostname (and path) to the root eg. http://spf13.com/
+    baseurl:                    "" 
+    # include content marked as draft
+    buildDrafts:                false 
+    # include content with datePublished in the future
+    buildFuture:                false 
+    canonifyUrls:               false
+    # config file (default is path/config.yaml|json|toml)
+    config:                     "config.toml"    
+    contentdir:                 "content"
+    dataDir:                    "data"
+    defaultExtension:           "html"
+    defaultLayout:              "post"
+    # filesystem path to write files to
+    destination:                ""    
+    disableLiveReload:          false
+    # Do not build RSS files
+    disableRSS:                 false 
+    # Do not build Sitemap file
+    disableSitemap:             false 
+    # edit new content with this editor, if provided
+    editor:                     ""    
+    footnoteAnchorPrefix:       ""
+    footnoteReturnLinkContents: ""
+    languageCode:               ""
+    layoutdir:                  "layouts"
+    # Enable Logging
+    log:                        false 
+    # Log File path (if set, logging enabled automatically)
+    logFile:                    ""    
+    # "yaml", "toml", "json"
+    metaDataFormat:             "toml" 
+    newContentEditor:           ""
+    # Don't sync modification time of files
+    noTimes:                    false 
+    paginate:                   10
+    paginatePath:               "page"
+    permalinks:         
+    # Pluralize titles in lists using inflect
+    pluralizeListTitles:         true 
+    publishdir:                 "public"
+    # color-codes for highlighting derived from this style
+    pygmentsStyle:              "monokai"
+    # true: use pygments-css or false: color-codes directly
+    pygmentsUseClasses:         false 
+    sitemap:                    ""
+    # filesystem path to read files relative from 
+    source:                     ""    
+    staticdir:                  "static"
+    # display memory and timing of different steps of the program
+    stepAnalysis:               false 
+    # theme to use (located in /themes/THEMENAME/)
+    theme:                      ""    
+    title:                      ""
+    # if true, use /filename.html instead of /filename/
+    uglyUrls:                   false 
+    # verbose output
+    verbose:                    false 
+    # verbose logging
+    verboseLog:                 false 
+    # watch filesystem for changes and recreate as needed
+    watch:                      false 
+    ---
+
+
+
+
 ## Configure Blackfriday rendering
 
 [Blackfriday](https://github.com/russross/blackfriday) is the [Markdown](http://daringfireball.net/projects/markdown/) rendering engine used in Hugo. The Blackfriday configuration in Hugo is mostly a set of sane defaults that should fit most use cases.
