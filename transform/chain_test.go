@@ -14,20 +14,28 @@ const CORRECT_OUTPUT_SRC_HREF_DQ = "<!DOCTYPE html><html><head><script src=\"foo
 const CORRECT_OUTPUT_SRC_HREF_SQ = "<!DOCTYPE html><html><head><script src='foobar.js'></script><script src='http://base/barfoo.js'></script></head><body><nav><h1>title</h1></nav><article>content <a href='foobar'>foobar</a>. <a href='http://base/foobar'>Follow up</a></article></body></html>"
 
 const H5_XML_CONTENT_ABS_URL = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;/foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;/foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
-const CORRECT_OUTPUT_SRC_HREF_IN_XML = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;http://xml/foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;http://xml/foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
+const CORRECT_OUTPUT_SRC_HREF_IN_XML = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;http://base/foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;http://base/foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
 const H5_XML_CONTENT_GUARDED = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><feed xmlns=\"http://www.w3.org/2005/Atom\"><entry><content type=\"html\">&lt;p&gt;&lt;a href=&#34;//foobar&#34;&gt;foobar&lt;/a&gt;&lt;/p&gt; &lt;p&gt;A video: &lt;iframe src=&#39;//foo&#39;&gt;&lt;/iframe&gt;&lt;/p&gt;</content></entry></feed>"
 
-var abs_url_tests = []test{
+// additional sanity tests for replacements testing
+const REPLACE_1 = "No replacements."
+const REPLACE_2 = "ᚠᛇᚻ ᛒᛦᚦ ᚠᚱᚩᚠᚢᚱ\nᚠᛁᚱᚪ ᚷᛖᚻᚹᛦᛚᚳᚢᛗ"
+
+var abs_url_bench_tests = []test{
 	{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_DQ},
 	{H5_JS_CONTENT_SINGLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_SQ},
 	{H5_JS_CONTENT_ABS_URL, H5_JS_CONTENT_ABS_URL},
 	{H5_JS_CONTENT_ABS_URL_SCHEMALESS, H5_JS_CONTENT_ABS_URL_SCHEMALESS},
 }
 
-var xml_abs_url_tests = []test{
+var xml_abs_url_bench_tests = []test{
 	{H5_XML_CONTENT_ABS_URL, CORRECT_OUTPUT_SRC_HREF_IN_XML},
 	{H5_XML_CONTENT_GUARDED, H5_XML_CONTENT_GUARDED},
 }
+
+var sanity_tests = []test{{REPLACE_1, REPLACE_1}, {REPLACE_2, REPLACE_2}}
+var abs_url_tests = append(abs_url_bench_tests, sanity_tests...)
+var xml_abs_url_tests = append(xml_abs_url_bench_tests, sanity_tests...)
 
 func TestChainZeroTransformers(t *testing.T) {
 	tr := NewChain()
@@ -44,7 +52,7 @@ func BenchmarkAbsUrl(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		apply(b.Errorf, tr, abs_url_tests)
+		apply(b.Errorf, tr, abs_url_bench_tests)
 	}
 }
 
@@ -57,17 +65,17 @@ func TestAbsUrl(t *testing.T) {
 }
 
 func BenchmarkXmlAbsUrl(b *testing.B) {
-	absURLInXML, _ := AbsURLInXML("http://xml")
+	absURLInXML, _ := AbsURLInXML("http://base")
 	tr := NewChain(absURLInXML...)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		apply(b.Errorf, tr, xml_abs_url_tests)
+		apply(b.Errorf, tr, xml_abs_url_bench_tests)
 	}
 }
 
 func TestXMLAbsUrl(t *testing.T) {
-	absURLInXML, _ := AbsURLInXML("http://xml")
+	absURLInXML, _ := AbsURLInXML("http://base")
 	tr := NewChain(absURLInXML...)
 	apply(t.Errorf, tr, xml_abs_url_tests)
 }
