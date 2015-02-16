@@ -29,8 +29,9 @@ maintainers and their tremendous contributions this release.
 * Support for [data files](/extras/datafiles/) in [YAML](http://yaml.org/),
   [JSON](http://www.json.org/), or [TOML](https://github.com/toml-lang/toml)
   located in the `data` directory ([#885][])
-* Support for dynamically loading JSON & CSV from remote sources via GetJson
-  and GetCsv in short codes or other layout files ([#748][])
+* Support for [dynamic content](/extras/dynamiccontent/) by loading JSON & CSV
+  from remote sources via GetJson and GetCsv in short codes or other layout
+  files ([#748][])
 * [Pagination support](/extras/pagination/) for home page, sections and
   taxonomies ([#750][])
 * Universal sequencing support
@@ -39,6 +40,8 @@ maintainers and their tremendous contributions this release.
     * Add in-section [Next/Prev](/templates/variables/) content pointers
 * `Scratch` -- [a "scratchpad"](/extras/scratch) for your node- and page-scoped
   variables
+* [Cross Reference](/extras/crossreferences/) support to easily link documents
+  together with the ref and relref shortcodes. 
 * [Ace](http://ace.yoss.si/) template engine support ([#541][])
 * A new [shortcode](/extras/shortcodes/) token of `{{</* */>}}` (raw HTML)
   alongside the existing `{{%/* */%}}` (Markdown)
@@ -92,9 +95,7 @@ maintainers and their tremendous contributions this release.
         * [Automated deployments with
           Wercker](/tutorials/automated-deployments/)
         * [Creating a new theme](/tutorials/creating-a-new-theme/)
-* Support for [cross-references](/extras/crossreferences/)
-* The content is now copied from archetype on `hugo new` (in addition to the
-  front matter metadata)
+* [`hugo new`](/content/archetypes/) now copies the content in addition to the front matter
 * Improved unit test coverage
 * Fixed a lot of Windows-related path issues
 * Improved error messages for template and rendering errors

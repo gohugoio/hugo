@@ -82,7 +82,6 @@ limits configuration. An ambitious user is encouraged to extend the current
 functionality to offer more customization.
 
 
-
 ## Client-side
 
 Alternatively, code highlighting can be done in client-side JavaScript.
