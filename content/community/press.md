@@ -18,6 +18,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | ------ | ------ | -----: |
 | [把这个博客静态化了 <small>(Migrate to Hugo)</small>](http://lich-eng.com/2015/01/03/migrate-to-hugo/) | Li Cheng | 3 Jan 2015 |
 | [My Hugo Experiment](http://baty.net/2014/12/2014-12-31-my-hugo-experiment/) | Jack Baty | 31 Dec 2014 |
+| [6 Static Blog Generators That Aren’t Jekyll](http://www.sitepoint.com/6-static-blog-generators-arent-jekyll/) | David Turnbull | 8 Dec 2014 |
 | [Travel Blogging Setup](http://www.stou.dk/2014/11/travel-blogging-setup/) | Rasmus Stougaard | 23 Nov 2014 |
 | [使用Hugo搭建免费个人Blog <small>(How to use Hugo)</small>](http://ulricqin.com/post/how-to-use-hugo/) | Ulric Qin 秦晓辉 | 11 Nov 2014 |
 | [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 19 Aug 2014 |
