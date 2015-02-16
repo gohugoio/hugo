@@ -42,7 +42,7 @@ Highlighting is carried out via the in-built shortcode `highlight`. `highlight` 
 closing shortcode.
 
 ### Example
-If you want to highlight you need to either fence it with ``` according to Github flavored Markdown or each line must be preceeded by 4 spaces to identify each line as a line of code.
+If you want to highlight code you need to either fence the code with ``` according to Github flavored Markdown or each line must be preceeded by 4 spaces to identify each line as a line of code.
 
 Not doing either will result in the text being rendered as HTML. This will prevent Pygment highlighting from working.
  
