@@ -109,7 +109,7 @@ func InitializeConfig() {
 		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
 	}
 
-	viper.RegisterAlias("taxonomies", "indexes")
+	viper.RegisterAlias("indexes", "taxonomies")
 
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
@@ -127,7 +127,7 @@ func InitializeConfig() {
 	viper.SetDefault("UglyUrls", false)
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("CanonifyUrls", false)
-	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
+	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
 	viper.SetDefault("PygmentsStyle", "monokai")
