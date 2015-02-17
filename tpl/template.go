@@ -1222,7 +1222,19 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", absPath)
+			link, err := filepath.EvalSymlinks(absPath)
+			if err != nil {
+				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
+				return nil
+			}
+			linkfi, err := os.Stat(link)
+			if err != nil {
+				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				return nil
+			}
+			if !linkfi.Mode().IsRegular() {
+				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
+			}
 			return nil
 		}
 
