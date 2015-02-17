@@ -21,6 +21,12 @@ const H5_XML_CONTENT_GUARDED = "<?xml version=\"1.0\" encoding=\"utf-8\" standal
 const REPLACE_1 = "No replacements."
 const REPLACE_2 = "ᚠᛇᚻ ᛒᛦᚦ ᚠᚱᚩᚠᚢᚱ\nᚠᛁᚱᚪ ᚷᛖᚻᚹᛦᛚᚳᚢᛗ"
 
+// Issue: 816, schemaless links combined with others
+const REPLACE_SCHEMALESS_HTML = `Pre. src='//schemaless' src='/normal'  <a href="//schemaless">Schemaless</a>. <a href="/normal">normal</a>. Post.`
+const REPLACE_SCHEMALESS_HTML_CORRECT = `Pre. src='//schemaless' src='http://base/normal'  <a href="//schemaless">Schemaless</a>. <a href="http://base/normal">normal</a>. Post.`
+const REPLACE_SCHEMALESS_XML = `Pre. src=&#34;//schemaless&#34; src=&#34;/normal&#34;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;/normal&#39;>normal</a>. Post.`
+const REPLACE_SCHEMALESS_XML_CORRECT = `Pre. src=&#34;//schemaless&#34; src=&#34;http://base/normal&#34;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;http://base/normal&#39;>normal</a>. Post.`
+
 var abs_url_bench_tests = []test{
 	{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_DQ},
 	{H5_JS_CONTENT_SINGLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_SQ},
@@ -34,8 +40,10 @@ var xml_abs_url_bench_tests = []test{
 }
 
 var sanity_tests = []test{{REPLACE_1, REPLACE_1}, {REPLACE_2, REPLACE_2}}
-var abs_url_tests = append(abs_url_bench_tests, sanity_tests...)
-var xml_abs_url_tests = append(xml_abs_url_bench_tests, sanity_tests...)
+var extra_tests_html = []test{{REPLACE_SCHEMALESS_HTML, REPLACE_SCHEMALESS_HTML_CORRECT}}
+var abs_url_tests = append(abs_url_bench_tests, append(sanity_tests, extra_tests_html...)...)
+var extra_tests_xml = []test{{REPLACE_SCHEMALESS_XML, REPLACE_SCHEMALESS_XML_CORRECT}}
+var xml_abs_url_tests = append(xml_abs_url_bench_tests, append(sanity_tests, extra_tests_xml...)...)
 
 func TestChainZeroTransformers(t *testing.T) {
 	tr := NewChain()

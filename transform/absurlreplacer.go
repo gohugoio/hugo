@@ -37,11 +37,6 @@ const (
 	tHrefdq
 	tSrcsq
 	tHrefsq
-	// guards
-	tGrcdq
-	tGhrefdq
-	tGsrcsq
-	tGhrefsq
 )
 
 type contentlexer struct {
@@ -130,24 +125,6 @@ var itemSlicePool = &sync.Pool{
 	},
 }
 
-func replace(content []byte, matchers []absurlMatcher) *contentlexer {
-	var items []item
-	if x := itemSlicePool.Get(); x != nil {
-		items = x.([]item)[:0]
-		defer itemSlicePool.Put(items)
-	} else {
-		items = make([]item, 0, 8)
-	}
-
-	lexer := &contentlexer{content: content,
-		items:        items,
-		prefixLookup: &prefixes{pr: mainPrefixRunes},
-		matchers:     matchers}
-
-	lexer.runReplacer()
-	return lexer
-}
-
 func (l *contentlexer) runReplacer() {
 	for l.state = lexReplacements; l.state != nil; {
 		l.state = l.state(l)
@@ -156,11 +133,8 @@ func (l *contentlexer) runReplacer() {
 
 type absurlMatcher struct {
 	replaceType itemType
-	guardType   itemType
 	match       []byte
-	guard       []byte
 	replacement []byte
-	guarded     bool
 }
 
 func (a absurlMatcher) isSourceType() bool {
@@ -207,24 +181,21 @@ func checkCandidate(l *contentlexer) {
 	isSource := l.prefixLookup.first == 's'
 	for _, m := range l.matchers {
 
-		if m.guarded {
-			continue
-		}
-
 		if isSource && !m.isSourceType() || !isSource && m.isSourceType() {
 			continue
 		}
 
-		s := l.content[l.pos:]
-		if bytes.HasPrefix(s, m.guard) {
-			if l.pos > l.start {
-				l.emit(tText)
+		if bytes.HasPrefix(l.content[l.pos:], m.match) {
+			// check for schemaless urls
+			posAfter := pos(int(l.pos) + len(m.match))
+			if int(posAfter) >= len(l.content) {
+				return
 			}
-			l.pos += pos(len(m.guard))
-			l.emit(m.guardType)
-			m.guarded = true
-			return
-		} else if bytes.HasPrefix(s, m.match) {
+			r, _ := utf8.DecodeRune(l.content[posAfter:])
+			if r == '/' {
+				// schemaless: skip
+				return
+			}
 			if l.pos > l.start {
 				l.emit(tText)
 			}
@@ -240,31 +211,30 @@ func doReplace(content []byte, matchers []absurlMatcher) []byte {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 
-	guards := make([]bool, len(matchers))
-	replaced := replace(content, matchers)
-
-	// first pass: check guards
-	for _, item := range replaced.items {
-		if item.typ != tText {
-			for i, e := range matchers {
-				if item.typ == e.guardType {
-					guards[i] = true
-					break
-				}
-			}
-		}
+	var items []item
+	if x := itemSlicePool.Get(); x != nil {
+		items = x.([]item)[:0]
+		defer itemSlicePool.Put(items)
+	} else {
+		items = make([]item, 0, 8)
 	}
-	// second pass: do replacements for non-guarded tokens
-	for _, token := range replaced.items {
+
+	lexer := &contentlexer{content: content,
+		items:        items,
+		prefixLookup: &prefixes{pr: mainPrefixRunes},
+		matchers:     matchers}
+
+	lexer.runReplacer()
+
+	for _, token := range lexer.items {
 		switch token.typ {
 		case tText:
 			b.Write(token.val)
 		default:
-			for i, e := range matchers {
-				if token.typ == e.replaceType && !guards[i] {
+			for _, e := range matchers {
+				if token.typ == e.replaceType {
 					b.Write(e.replacement)
-				} else if token.typ == e.replaceType || token.typ == e.guardType {
-					b.Write(token.val)
+					break
 				}
 			}
 		}
@@ -286,15 +256,9 @@ func newAbsurlReplacer(baseUrl string) *absurlReplacer {
 	dqHtmlMatch := []byte("\"/")
 	sqHtmlMatch := []byte("'/")
 
-	dqGuard := []byte("\"//")
-	sqGuard := []byte("'//")
-
 	// XML
 	dqXmlMatch := []byte("&#34;/")
 	sqXmlMatch := []byte("&#39;/")
-
-	dqXmlGuard := []byte("&#34;//")
-	sqXmlGuard := []byte("&#39;//")
 
 	dqHtml := []byte("\"" + base + "/")
 	sqHtml := []byte("'" + base + "/")
@@ -303,15 +267,15 @@ func newAbsurlReplacer(baseUrl string) *absurlReplacer {
 	sqXml := []byte("&#39;" + base + "/")
 
 	return &absurlReplacer{htmlMatchers: []absurlMatcher{
-		{tSrcdq, tGrcdq, dqHtmlMatch, dqGuard, dqHtml, false},
-		{tSrcsq, tGsrcsq, sqHtmlMatch, sqGuard, sqHtml, false},
-		{tHrefdq, tGhrefdq, dqHtmlMatch, dqGuard, dqHtml, false},
-		{tHrefsq, tGhrefsq, sqHtmlMatch, sqGuard, sqHtml, false}},
+		{tSrcdq, dqHtmlMatch, dqHtml},
+		{tSrcsq, sqHtmlMatch, sqHtml},
+		{tHrefdq, dqHtmlMatch, dqHtml},
+		{tHrefsq, sqHtmlMatch, sqHtml}},
 		xmlMatchers: []absurlMatcher{
-			{tSrcdq, tGrcdq, dqXmlMatch, dqXmlGuard, dqXml, false},
-			{tSrcsq, tGsrcsq, sqXmlMatch, sqXmlGuard, sqXml, false},
-			{tHrefdq, tGhrefdq, dqXmlMatch, dqXmlGuard, dqXml, false},
-			{tHrefsq, tGhrefsq, sqXmlMatch, sqXmlGuard, sqXml, false},
+			{tSrcdq, dqXmlMatch, dqXml},
+			{tSrcsq, sqXmlMatch, sqXml},
+			{tHrefdq, dqXmlMatch, dqXml},
+			{tHrefsq, sqXmlMatch, sqXml},
 		}}
 
 }
