@@ -54,18 +54,15 @@ Make sure either `hugo` is in your `PATH` or provide a path to it.
 
 ## Common Usage Example
 
-The most common use is probably to run `hugo` with your current
-directory being the input directory.
+The most common use is probably to run `hugo` with your current directory being the input directory.
 
     $ hugo
     > X pages created
       in 8 ms
 
-If you are working on things and want to see the changes
-immediately, tell Hugo to watch for changes.
+If you are working on things and want to see the changes immediately, tell Hugo to watch for changes.
 
-Hugo will watch the filesystem for changes, rebuild your site as soon as a file
-is saved.
+Hugo will watch the filesystem for changes, rebuild your site as soon as a file is saved.
 
     $ hugo -s ~/mysite --watch
        28 pages created
@@ -73,9 +70,8 @@ is saved.
        Watching for changes in /Users/spf13/Code/hugo/docs/content
        Press Ctrl+C to stop
 
-Hugo can even run a server and create your site at the same time! Hugo
-implements [LiveReload](/extras/livereload/) technology to automatically reload any open pages in
-all browsers (including mobile).
+Hugo can even run a server and create a site preview at the same time! Hugo
+implements [LiveReload](/extras/livereload/) technology to automatically reload any open pages in all browsers (including mobile). (Note that you'll need to run without -w before you deploy your site.)
 
     $ hugo server -ws ~/mysite
        Watching for changes in /Users/spf13/Code/hugo/docs/content
@@ -84,4 +80,3 @@ all browsers (including mobile).
        28 pages created
        0 tags created
        in 18 ms
-
