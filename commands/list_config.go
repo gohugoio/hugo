@@ -1,4 +1,4 @@
-// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-15 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"reflect"
 	"sort"
 )
 
@@ -27,13 +28,26 @@ var config = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		allSettings := viper.AllSettings()
+
+		var separator string
+		if allSettings["metadataformat"] == "toml" {
+			separator = " = "
+		} else {
+			separator = ": "
+		}
+
 		var keys []string
 		for k := range allSettings {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			fmt.Printf("%s: %+v\n", k, allSettings[k])
+			kv := reflect.ValueOf(allSettings[k])
+			if kv.Kind() == reflect.String {
+				fmt.Printf("%s%s\"%+v\"\n", k, separator, allSettings[k])
+			} else {
+				fmt.Printf("%s%s%+v\n", k, separator, allSettings[k])
+			}
 		}
 	},
 }
