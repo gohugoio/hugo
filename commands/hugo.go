@@ -300,7 +300,19 @@ func getDirList() []string {
 		}
 
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", path)
+			link, err := filepath.EvalSymlinks(path)
+			if err != nil {
+				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
+				return nil
+			}
+			linkfi, err := os.Stat(link)
+			if err != nil {
+				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				return nil
+			}
+			if !linkfi.Mode().IsRegular() {
+				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", path)
+			}
 			return nil
 		}
 
