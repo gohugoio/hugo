@@ -16,15 +16,16 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 // Bridge for common functionality in filepath vs path
@@ -439,12 +440,16 @@ func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 }
 
 // GetTempDir returns the OS default temp directory with trailing slash
-// if subPath is not empty then it will be created recursively
+// if subPath is not empty then it will be created recursively with mode 777 rwx rwx rwx
 func GetTempDir(subPath string, fs afero.Fs) string {
-	dir := os.TempDir()
-	if FilePathSeparator != dir[len(dir)-1:] {
-		dir = dir + FilePathSeparator
+	addSlash := func(p string) string {
+		if FilePathSeparator != p[len(p)-1:] {
+			p = p + FilePathSeparator
+		}
+		return p
 	}
+	dir := addSlash(os.TempDir())
+
 	if subPath != "" {
 		// preserve windows backslash :-(
 		if FilePathSeparator == "\\" {
@@ -456,16 +461,14 @@ func GetTempDir(subPath string, fs afero.Fs) string {
 		}
 
 		if exists, _ := Exists(dir, fs); exists {
-			return dir
+			return addSlash(dir)
 		}
 
-		err := fs.MkdirAll(dir, 0777) // rwx, rw, r
+		err := fs.MkdirAll(dir, 0777)
 		if err != nil {
 			panic(err)
 		}
-		if FilePathSeparator != dir[len(dir)-1:] {
-			dir = dir + FilePathSeparator
-		}
+		dir = addSlash(dir)
 	}
 	return dir
 }
