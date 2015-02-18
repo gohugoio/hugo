@@ -6,10 +6,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LiveReloadInject(content []byte) []byte {
+func LiveReloadInject(content []byte) (injected []byte) {
 	defer func() {
 		if r := recover(); r != nil {
 			jww.ERROR.Println("Recovered in LiveReloadInject", r)
+			injected = content
 		}
 	}()
 	match := []byte("</body>")
