@@ -160,11 +160,10 @@ func isInnerShortcode(t *template.Template) bool {
 		return m
 	}
 
-	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
-
 	isInnerShortcodeCache.Lock()
+	defer isInnerShortcodeCache.Unlock()
+	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
 	isInnerShortcodeCache.m[t.Name()] = match
-	isInnerShortcodeCache.Unlock()
 
 	return match
 }
