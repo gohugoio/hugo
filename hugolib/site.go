@@ -66,23 +66,24 @@ var DefaultTimer *nitro.B
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Pages       Pages
-	Files       []*source.File
-	Tmpl        tpl.Template
-	Taxonomies  TaxonomyList
-	Source      source.Input
-	Sections    Taxonomy
-	Info        SiteInfo
-	Shortcodes  map[string]ShortcodeFunc
-	Menus       Menus
-	timer       *nitro.B
-	Targets     targetList
-	Completed   chan bool
-	RunMode     runmode
-	params      map[string]interface{}
-	draftCount  int
-	futureCount int
-	Data        map[string]interface{}
+	Pages          Pages
+	Files          []*source.File
+	Tmpl           tpl.Template
+	Taxonomies     TaxonomyList
+	Source         source.Input
+	Sections       Taxonomy
+	Info           SiteInfo
+	Shortcodes     map[string]ShortcodeFunc
+	Menus          Menus
+	timer          *nitro.B
+	Targets        targetList
+	targetListInit sync.Once
+	Completed      chan bool
+	RunMode        runmode
+	params         map[string]interface{}
+	draftCount     int
+	futureCount    int
+	Data           map[string]interface{}
 }
 
 type targetList struct {
@@ -1454,32 +1455,39 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 }
 
 func (s *Site) PageTarget() target.Output {
-	if s.Targets.Page == nil {
-		s.Targets.Page = &target.PagePub{
-			PublishDir: s.absPublishDir(),
-			UglyUrls:   viper.GetBool("UglyUrls"),
-		}
-	}
+	s.initTargetList()
 	return s.Targets.Page
 }
 
 func (s *Site) FileTarget() target.Output {
-	if s.Targets.File == nil {
-		s.Targets.File = &target.Filesystem{
-			PublishDir: s.absPublishDir(),
-		}
-	}
+	s.initTargetList()
 	return s.Targets.File
 }
 
 func (s *Site) AliasTarget() target.AliasPublisher {
-	if s.Targets.Alias == nil {
-		s.Targets.Alias = &target.HTMLRedirectAlias{
-			PublishDir: s.absPublishDir(),
-		}
-
-	}
+	s.initTargetList()
 	return s.Targets.Alias
+}
+
+func (s *Site) initTargetList() {
+	s.targetListInit.Do(func() {
+		if s.Targets.Page == nil {
+			s.Targets.Page = &target.PagePub{
+				PublishDir: s.absPublishDir(),
+				UglyUrls:   viper.GetBool("UglyUrls"),
+			}
+		}
+		if s.Targets.File == nil {
+			s.Targets.File = &target.Filesystem{
+				PublishDir: s.absPublishDir(),
+			}
+		}
+		if s.Targets.Alias == nil {
+			s.Targets.Alias = &target.HTMLRedirectAlias{
+				PublishDir: s.absPublishDir(),
+			}
+		}
+	})
 }
 
 func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
