@@ -126,7 +126,7 @@ func serve(port int) {
 
 	u.Scheme = "http"
 	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
-	fmt.Println("Press ctrl+c to stop")
+	fmt.Println("Press Ctrl+C to stop")
 
 	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {

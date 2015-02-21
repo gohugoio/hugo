@@ -16,15 +16,16 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 // Bridge for common functionality in filepath vs path
@@ -92,7 +93,7 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '_' || r == '-' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}
@@ -176,6 +177,29 @@ func AbsPathify(inPath string) string {
 
 func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("StaticDir"))
+}
+
+// GetThemeStaticDirPath returns the theme's static dir path if theme is set.
+// If theme is set and the static dir doesn't exist, an error is returned.
+func GetThemeStaticDirPath() (string, error) {
+	return getThemeDirPath("static")
+}
+
+// GetThemeStaticDirPath returns the theme's data dir path if theme is set.
+// If theme is set and the data dir doesn't exist, an error is returned.
+func GetThemeDataDirPath() (string, error) {
+	return getThemeDirPath("data")
+}
+
+func getThemeDirPath(path string) (string, error) {
+	var themeDir string
+	if ThemeSet() {
+		themeDir = AbsPathify("themes/"+viper.GetString("theme")) + FilePathSeparator + path
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
+		}
+	}
+	return themeDir, nil
 }
 
 func GetThemesDirPath() string {
@@ -413,4 +437,38 @@ func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 
 	_, err = io.Copy(file, r)
 	return
+}
+
+// GetTempDir returns the OS default temp directory with trailing slash
+// if subPath is not empty then it will be created recursively with mode 777 rwx rwx rwx
+func GetTempDir(subPath string, fs afero.Fs) string {
+	addSlash := func(p string) string {
+		if FilePathSeparator != p[len(p)-1:] {
+			p = p + FilePathSeparator
+		}
+		return p
+	}
+	dir := addSlash(os.TempDir())
+
+	if subPath != "" {
+		// preserve windows backslash :-(
+		if FilePathSeparator == "\\" {
+			subPath = strings.Replace(subPath, "\\", "____", -1)
+		}
+		dir = dir + MakePath(subPath)
+		if FilePathSeparator == "\\" {
+			dir = strings.Replace(dir, "____", "\\", -1)
+		}
+
+		if exists, _ := Exists(dir, fs); exists {
+			return addSlash(dir)
+		}
+
+		err := fs.MkdirAll(dir, 0777)
+		if err != nil {
+			panic(err)
+		}
+		dir = addSlash(dir)
+	}
+	return dir
 }

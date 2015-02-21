@@ -34,6 +34,7 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
@@ -65,22 +66,24 @@ var DefaultTimer *nitro.B
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Pages       Pages
-	Files       []*source.File
-	Tmpl        tpl.Template
-	Taxonomies  TaxonomyList
-	Source      source.Input
-	Sections    Taxonomy
-	Info        SiteInfo
-	Shortcodes  map[string]ShortcodeFunc
-	Menus       Menus
-	timer       *nitro.B
-	Targets     targetList
-	Completed   chan bool
-	RunMode     runmode
-	params      map[string]interface{}
-	draftCount  int
-	futureCount int
+	Pages          Pages
+	Files          []*source.File
+	Tmpl           tpl.Template
+	Taxonomies     TaxonomyList
+	Source         source.Input
+	Sections       Taxonomy
+	Info           SiteInfo
+	Shortcodes     map[string]ShortcodeFunc
+	Menus          Menus
+	timer          *nitro.B
+	Targets        targetList
+	targetListInit sync.Once
+	Completed      chan bool
+	RunMode        runmode
+	params         map[string]interface{}
+	draftCount     int
+	futureCount    int
+	Data           map[string]interface{}
 }
 
 type targetList struct {
@@ -113,6 +116,7 @@ type SiteInfo struct {
 	SummaryStrategy 	string
 	canonifyUrls        bool
 	paginationPageCount uint64
+	Data                *map[string]interface{}
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -265,6 +269,64 @@ func (s *Site) addTemplate(name, data string) error {
 	return s.Tmpl.AddTemplate(name, data)
 }
 
+func (s *Site) loadData(sources []source.Input) (err error) {
+	s.Data = make(map[string]interface{})
+	var current map[string]interface{}
+	for _, currentSource := range sources {
+		for _, r := range currentSource.Files() {
+			// Crawl in data tree to insert data
+			current = s.Data
+			for _, key := range strings.Split(r.Dir(), helpers.FilePathSeparator) {
+				if key != "" {
+					if _, ok := current[key]; !ok {
+						current[key] = make(map[string]interface{})
+					}
+					current = current[key].(map[string]interface{})
+				}
+			}
+
+			data, err := readData(r)
+			if err != nil {
+				return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
+			}
+
+			// Copy content from current to data when needed
+			if _, ok := current[r.BaseFileName()]; ok {
+				data := data.(map[string]interface{})
+
+				for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
+					if _, override := data[key]; override {
+						// filepath.Walk walks the files in lexical order, '/' comes before '.'
+						// this warning could happen if
+						// 1. A theme uses the same key; the main data folder wins
+						// 2. A sub folder uses the same key: the sub folder wins
+						jww.WARN.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
+					}
+					data[key] = value
+				}
+			}
+
+			// Insert data
+			current[r.BaseFileName()] = data
+		}
+	}
+
+	return
+}
+
+func readData(f *source.File) (interface{}, error) {
+	switch f.Extension() {
+	case "yaml", "yml":
+		return parser.HandleYamlMetaData(f.Bytes())
+	case "json":
+		return parser.HandleJsonMetaData(f.Bytes())
+	case "toml":
+		return parser.HandleTomlMetaData(f.Bytes())
+	default:
+		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
+	}
+}
+
 func (s *Site) Process() (err error) {
 	if err = s.initialize(); err != nil {
 		return
@@ -272,6 +334,22 @@ func (s *Site) Process() (err error) {
 	s.prepTemplates()
 	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
+
+	dataSources := make([]source.Input, 0, 2)
+
+	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
+
+	// have to be last - duplicate keys in earlier entries will win
+	themeStaticDir, err := helpers.GetThemeDataDirPath()
+	if err == nil {
+		dataSources = append(dataSources, &source.Filesystem{Base: themeStaticDir})
+	}
+
+	if err = s.loadData(dataSources); err != nil {
+		return
+	}
+	s.timerStep("load data")
+
 	if err = s.CreatePages(); err != nil {
 		return
 	}
@@ -376,17 +454,22 @@ func (s *Site) initializeSiteInfo() {
 		DisqusShortname: viper.GetString("DisqusShortname"),
 		BuildDrafts:     viper.GetBool("BuildDrafts"),
 		canonifyUrls:    viper.GetBool("CanonifyUrls"),
+		SummaryStrategy: viper.GetString("Summerization"),
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
 		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
-		SummaryStrategy: viper.GetString("Summerization"),
+		Data:            &s.Data,
 	}
 }
 
 func (s *Site) hasTheme() bool {
 	return viper.GetString("theme") != ""
+}
+
+func (s *Site) absDataDir() string {
+	return helpers.AbsPathify(viper.GetString("DataDir"))
 }
 
 func (s *Site) absThemeDir() string {
@@ -1375,32 +1458,39 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 }
 
 func (s *Site) PageTarget() target.Output {
-	if s.Targets.Page == nil {
-		s.Targets.Page = &target.PagePub{
-			PublishDir: s.absPublishDir(),
-			UglyUrls:   viper.GetBool("UglyUrls"),
-		}
-	}
+	s.initTargetList()
 	return s.Targets.Page
 }
 
 func (s *Site) FileTarget() target.Output {
-	if s.Targets.File == nil {
-		s.Targets.File = &target.Filesystem{
-			PublishDir: s.absPublishDir(),
-		}
-	}
+	s.initTargetList()
 	return s.Targets.File
 }
 
 func (s *Site) AliasTarget() target.AliasPublisher {
-	if s.Targets.Alias == nil {
-		s.Targets.Alias = &target.HTMLRedirectAlias{
-			PublishDir: s.absPublishDir(),
-		}
-
-	}
+	s.initTargetList()
 	return s.Targets.Alias
+}
+
+func (s *Site) initTargetList() {
+	s.targetListInit.Do(func() {
+		if s.Targets.Page == nil {
+			s.Targets.Page = &target.PagePub{
+				PublishDir: s.absPublishDir(),
+				UglyUrls:   viper.GetBool("UglyUrls"),
+			}
+		}
+		if s.Targets.File == nil {
+			s.Targets.File = &target.Filesystem{
+				PublishDir: s.absPublishDir(),
+			}
+		}
+		if s.Targets.Alias == nil {
+			s.Targets.Alias = &target.HTMLRedirectAlias{
+				PublishDir: s.absPublishDir(),
+			}
+		}
+	})
 }
 
 func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {

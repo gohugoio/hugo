@@ -55,8 +55,8 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
-var Source, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
+var BuildWatch, IgnoreCache, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
@@ -68,6 +68,7 @@ func Execute() {
 func AddCommands() {
 	HugoCmd.AddCommand(serverCmd)
 	HugoCmd.AddCommand(version)
+	HugoCmd.AddCommand(config)
 	HugoCmd.AddCommand(check)
 	HugoCmd.AddCommand(benchmark)
 	HugoCmd.AddCommand(convertCmd)
@@ -82,6 +83,8 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
+	HugoCmd.PersistentFlags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
@@ -108,7 +111,7 @@ func InitializeConfig() {
 		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
 	}
 
-	viper.RegisterAlias("taxonomies", "indexes")
+	viper.RegisterAlias("indexes", "taxonomies")
 
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
@@ -119,13 +122,15 @@ func InitializeConfig() {
 	viper.SetDefault("StaticDir", "static")
 	viper.SetDefault("ArchetypeDir", "archetypes")
 	viper.SetDefault("PublishDir", "public")
+	viper.SetDefault("DataDir", "data")
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyUrls", false)
 	viper.SetDefault("Verbose", false)
+	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyUrls", false)
-	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
+	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
 	viper.SetDefault("PygmentsStyle", "monokai")
@@ -201,6 +206,24 @@ func InitializeConfig() {
 		viper.Set("WorkingDir", dir)
 	}
 
+	if hugoCmdV.PersistentFlags().Lookup("ignoreCache").Changed {
+		viper.Set("IgnoreCache", IgnoreCache)
+	}
+
+	if CacheDir != "" {
+		if helpers.FilePathSeparator != CacheDir[len(CacheDir)-1:] {
+			CacheDir = CacheDir + helpers.FilePathSeparator
+		}
+		isDir, err := helpers.DirExists(CacheDir, hugofs.SourceFs)
+		utils.CheckErr(err)
+		if isDir == false {
+			mkdir(CacheDir)
+		}
+		viper.Set("CacheDir", CacheDir)
+	} else {
+		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
+	}
+
 	if VerboseLog || Logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
 		if viper.IsSet("LogFile") && viper.GetString("LogFile") != "" {
 			jww.SetLogFile(viper.GetString("LogFile"))
@@ -232,7 +255,7 @@ func build(watches ...bool) {
 
 	if BuildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
-		jww.FEEDBACK.Println("Press ctrl+c to stop")
+		jww.FEEDBACK.Println("Press Ctrl+C to stop")
 		utils.CheckErr(NewWatcher(0))
 	}
 }
@@ -251,13 +274,13 @@ func copyStatic() error {
 	syncer.SrcFs = hugofs.SourceFs
 	syncer.DestFs = hugofs.DestinationFS
 
-	if themeSet() {
-		themeDir := helpers.AbsPathify("themes/"+viper.GetString("theme")) + "/static/"
-		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Println("Unable to find static directory for theme:", viper.GetString("theme"), "in", themeDir)
-			return nil
-		}
+	themeDir, err := helpers.GetThemeStaticDirPath()
+	if err != nil {
+		jww.ERROR.Println(err)
+		return nil
+	}
 
+	if themeDir != "" {
 		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
 		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
@@ -277,7 +300,19 @@ func getDirList() []string {
 		}
 
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", path)
+			link, err := filepath.EvalSymlinks(path)
+			if err != nil {
+				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
+				return nil
+			}
+			linkfi, err := os.Stat(link)
+			if err != nil {
+				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				return nil
+			}
+			if !linkfi.Mode().IsRegular() {
+				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", path)
+			}
 			return nil
 		}
 
@@ -287,18 +322,15 @@ func getDirList() []string {
 		return nil
 	}
 
+	filepath.Walk(helpers.AbsPathify(viper.GetString("DataDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("ContentDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
-	if themeSet() {
+	if helpers.ThemeSet() {
 		filepath.Walk(helpers.AbsPathify("themes/"+viper.GetString("theme")), walker)
 	}
 
 	return a
-}
-
-func themeSet() bool {
-	return viper.GetString("theme") != ""
 }
 
 func buildSite(watching ...bool) (err error) {

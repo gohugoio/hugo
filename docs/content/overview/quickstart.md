@@ -82,7 +82,8 @@ We still lack any templates to tell us how to display the content.
 
 ## Step 4. Install some themes
 
-Hugo has rich theme support and a growing set of themes to choose from:
+Hugo has rich theme support and a growing set of themes to choose from.
+To install all of the available Hugo themes, simply clone the entire **hugoThemes** repository from within your working directory:
 
 ```bash
 $ git clone --recursive https://github.com/spf13/hugoThemes themes
@@ -101,7 +102,7 @@ your content:
     in 5 ms
     Serving pages from exampleHugoSite/public
     Web Server is available at http://localhost:1313
-    Press ctrl+c to stop
+    Press Ctrl+C to stop
 
 We specified two options here:
 
@@ -133,7 +134,7 @@ Stop the Hugo process by hitting <kbd>Ctrl</kbd>+<kbd>C</kbd>. Then run the foll
     Watching for changes in exampleHugoSite/content
     Serving pages from exampleHugoSite/public
     Web Server is available at http://localhost:1313
-    Press ctrl+c to stop
+    Press Ctrl+C to stop
 
 Open your [favorite editor](http://vim.spf13.com/), edit and save your content, and watch as Hugo rebuilds and reloads automatically.
 

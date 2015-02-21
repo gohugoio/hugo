@@ -207,7 +207,7 @@ WARN: 2014/09/29 Unable to locate layout: [404.html]
 in 2 ms
 Serving pages from /Users/quoha/Sites/zafta/public
 Web Server is available at http://localhost:1313
-Press ctrl+c to stop
+Press Ctrl+C to stop
 ```
 
 Connect to the listed URL (it's on the line that starts with "Web Server"). If everything is working correctly, you should get a page that shows the following:
@@ -463,7 +463,7 @@ in 2 ms
 Watching for changes in /Users/quoha/Sites/zafta/content
 Serving pages from /Users/quoha/Sites/zafta/public
 Web Server is available at http://localhost:1313
-Press ctrl+c to stop
+Press Ctrl+C to stop
 INFO: 2014/09/29 File System Event: ["/Users/quoha/Sites/zafta/themes/zafta/layouts/index.html": MODIFY|ATTRIB]
 Change detected, rebuilding site
 

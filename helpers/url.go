@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-2015 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,11 +54,37 @@ var pathBridge PathBridge
 
 // SanitizeUrl sanitizes the input URL string.
 func SanitizeUrl(in string) string {
-	url, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+	s, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 	if err != nil {
 		return in
 	}
-	return url
+
+	// Temporary workaround for the bug fix and resulting
+	// behavioral change in purell.NormalizeURLString():
+	// a leading '/' was inadvertently to relative links,
+	// but no longer, see #878.
+	//
+	// I think the real solution is to allow Hugo to
+	// make relative URL with relative path,
+	// e.g. "../../post/hello-again/", as wished by users
+	// in issues #157, #622, etc., without forcing
+	// relative URLs to begin with '/'.
+	// Once the fixes are in, let's remove this kludge
+	// and restore SanitizeUrl() to the way it was.
+	//                         -- @anthonyfok, 2015-02-16
+	//
+	// Begin temporary kludge
+	u, err := url.Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	if !strings.HasPrefix(u.Path, "/") {
+		u.Path = "/" + u.Path
+	}
+	return u.String()
+	// End temporary kludge
+
+	//return s
 }
 
 // Similar to MakePath, but with Unicode handling

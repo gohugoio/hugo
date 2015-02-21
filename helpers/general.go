@@ -19,13 +19,13 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/viper"
 	"io"
 	"net"
 	"path/filepath"
 	"reflect"
 	"strings"
-
-	bp "github.com/spf13/hugo/bufferpool"
 )
 
 // Filepath separator defined by os.Separator.
@@ -98,6 +98,10 @@ func StringToReader(in string) io.Reader {
 // BytesToReader does the opposite of ReaderToBytes.
 func BytesToReader(in []byte) io.Reader {
 	return bytes.NewReader(in)
+}
+
+func ThemeSet() bool {
+	return viper.GetString("theme") != ""
 }
 
 // SliceToLower goes through the source slice and lowers all values.

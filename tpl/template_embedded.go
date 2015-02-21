@@ -81,7 +81,7 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
   {{ end }}
 </urlset>`)
 
-	t.AddInternalTemplate("", "pagination.html", `{{ $pag := .Paginator }}
+	t.AddInternalTemplate("", "pagination.html", `{{ $pag := $.Paginator }}
     {{ if gt $pag.TotalPages 1 }}
     <ul class="pagination">
         {{ with $pag.First }}

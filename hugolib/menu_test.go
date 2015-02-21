@@ -50,6 +50,10 @@ const (
 	name = "Tax RSS"
     url = "/two/key.xml"
 	identifier="xml"
+[[menu.hash]]
+   name = "Tax With #"
+   url = "/resource#anchor"
+   identifier="hash"
 [[menu.unicode]]
    name = "Unicode Russian"
    identifier = "unicode-russian"
@@ -260,6 +264,18 @@ func TestPageMenu(t *testing.T) {
 
 	}
 
+}
+
+// issue #888
+func TestMenuWithHashInUrl(t *testing.T) {
+	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
+	defer resetMenuTestState(ts)
+
+	me := ts.findTestMenuEntryById("hash", "hash")
+
+	assert.NotNil(t, me)
+
+	assert.Equal(t, "/Zoo/resource/#anchor", me.Url)
 }
 
 // issue #719

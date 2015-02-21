@@ -1,3 +1,5 @@
+// Copyright © 2014-2015 Steve Francia <spf@spf13.com>.
+//
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
@@ -72,7 +75,7 @@ as you see fit.
 	Run: NewTheme,
 }
 
-//NewContent adds new content to a Hugo site.
+// NewContent adds new content to a Hugo site.
 func NewContent(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
@@ -130,11 +133,12 @@ func NewSite(cmd *cobra.Command, args []string) {
 	mkdir(createpath, "content")
 	mkdir(createpath, "archetypes")
 	mkdir(createpath, "static")
+	mkdir(createpath, "data")
 
 	createConfig(createpath, configFormat)
 }
 
-//NewTheme creates a new Hugo theme.
+// NewTheme creates a new Hugo theme.
 func NewTheme(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
@@ -168,7 +172,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 
 	by := []byte(`The MIT License (MIT)
 
-Copyright (c) 2014 YOUR_NAME_HERE
+Copyright (c) ` + time.Now().Format("2006") + ` YOUR_NAME_HERE
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -199,7 +203,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 func mkdir(x ...string) {
 	p := filepath.Join(x...)
 
-	err := os.MkdirAll(p, 0777) // rwx, rw, r
+	err := os.MkdirAll(p, 0777) // before umask
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
@@ -216,19 +220,24 @@ func touchFile(x ...string) {
 
 func createThemeMD(inpath string) (err error) {
 
-	in := map[string]interface{}{
-		"name":        helpers.MakeTitle(filepath.Base(inpath)),
-		"license":     "MIT",
-		"source_repo": "",
-		"author":      "",
-		"description": "",
-		"tags":        []string{"", ""},
-	}
+	by := []byte(`name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
+license = "MIT"
+licenselink = "https://github.com/.../.../LICENSE.md"
+description = ""
+homepage = "http://siteforthistheme.com/"
+tags = ["", ""]
+features = ["", ""]
 
-	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune("toml"))
-	if err != nil {
-		return err
-	}
+[author]
+  name = ""
+  homepage = ""
+
+# If porting an existing theme
+[original]
+  name = ""
+  homepage = ""
+  repo = ""
+`)
 
 	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
@@ -239,7 +248,11 @@ func createThemeMD(inpath string) (err error) {
 }
 
 func createConfig(inpath string, kind string) (err error) {
-	in := map[string]string{"baseurl": "http://yourSiteHere", "title": "my new hugo site", "languageCode": "en-us"}
+	in := map[string]string{
+		"baseurl":      "http://yourSiteHere/",
+		"title":        "My New Hugo Site",
+		"languageCode": "en-us",
+	}
 	kind = parser.FormatSanitize(kind)
 
 	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))

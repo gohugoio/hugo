@@ -112,6 +112,7 @@ closing shortcode.
  * link
  * title
  * caption
+ * class
  * attr (attribution)
  * attrlink
  * alt
