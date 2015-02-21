@@ -11,14 +11,17 @@ title: Installing Hugo
 weight: 20
 ---
 
-Hugo is written in Go with support for multiple platforms.
+Hugo is written in [Go][] with support for multiple platforms.
 
 The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
-We currently build for <i class="fa fa-windows"></i>&nbsp;Windows,
+We currently provide pre-built binaries for
+<i class="fa fa-windows"></i>&nbsp;Windows,
 <i class="fa fa-linux"></i>&nbsp;Linux,
 <i class="fa freebsd-19px"></i>&nbsp;FreeBSD
 and <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X
 for x64 and i386 architectures.
+
+Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for ARM architecture and for other operating systems including DragonFly BSD, NetBSD, OpenBSD, Plan&nbsp;9 and Solaris.  See http://golang.org/doc/install/source for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Installing Hugo (binary)
 
@@ -49,12 +52,11 @@ placed in your `PATH`.
 
 ## Installing from source
 
-### Dependencies
+### Prerequisite tools for downloading and building source code
 
-* Git
-* Go 1.1+ (Go 1.4+ on Windows, see Go [Issue #8090](https://code.google.com/p/go/issues/detail?id=8090))
-* Mercurial
-* Bazaar
+* [Git](http://git-scm.com/)
+* [Mercurial](http://mercurial.selenic.com/)
+* [Go][] 1.3+ (Go 1.4+ on Windows, see Go [Issue #8090](https://code.google.com/p/go/issues/detail?id=8090))
 
 ### Get directly from GitHub
 
@@ -73,3 +75,5 @@ You may run `go get` with the `-u` option to update Hugo's dependencies:
 ## Contributing
 
 Please see the [contributing guide](/doc/contributing/).
+
+[Go]: http://golang.org/
