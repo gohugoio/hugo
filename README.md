@@ -15,9 +15,9 @@ Hugo is meant to work well for any kind of website including blogs, tumbles and 
 
 #### Supported Architectures
 
-Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD and OS&nbsp;X for x64 and i386 architectures.
+Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBSD and OS&nbsp;X (Darwin) for x64, i386 and ARM architectures.
 
-Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for ARM architecture and for other operating systems including DragonFly BSD, NetBSD, OpenBSD, Plan&nbsp;9 and Solaris.
+Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for other operating systems including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris.
 
 **Complete documentation is available at [Hugo Documentation](http://gohugo.io/).**
 
