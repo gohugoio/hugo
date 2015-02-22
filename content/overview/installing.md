@@ -18,10 +18,10 @@ We currently provide pre-built binaries for
 <i class="fa fa-windows"></i>&nbsp;Windows,
 <i class="fa fa-linux"></i>&nbsp;Linux,
 <i class="fa freebsd-19px"></i>&nbsp;FreeBSD
-and <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X
-for x64 and i386 architectures.
+and <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X (Darwin)
+for x64, i386 and ARM architectures.
 
-Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for ARM architecture and for other operating systems including DragonFly BSD, NetBSD, OpenBSD, Plan&nbsp;9 and Solaris.  See http://golang.org/doc/install/source for the full set of supported combinations of target operating systems and compilation architectures.
+Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for other operating systems including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris.  See http://golang.org/doc/install/source for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Installing Hugo (binary)
 
