@@ -4,7 +4,7 @@ import (
 	"html/template"
 )
 
-const Version = "0.13-DEV"
+const Version = "0.14-DEV"
 
 var (
 	CommitHash string
