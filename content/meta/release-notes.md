@@ -10,16 +10,15 @@ title: Release Notes
 weight: 10
 ---
 
-## **0.13.0** Feb 14, 2015
+## **0.13.0** Feb 21, 2015
 
-Hugo has seen a lot of improvements since v0.12.0 was released. The v0.13.0
-release is the largest Hugo release to date. The release introduced some long
-sought after features (pagination, sequencing, data loading, tons of template
-improvements) as well as major internal improvements. In addition to the code
-changes, the Hugo community has grown significantly and now has over 3000 stars
-on github, 134 contributors, 23 themes and 1000s of happy users.
+The v0.13.0 release is the largest Hugo release to date. The release introduced
+some long sought after features (pagination, sequencing, data loading, tons of
+template improvements) as well as major internal improvements. In addition to
+the code changes, the Hugo community has grown significantly and now has over
+3000 stars on github, 134 contributors, 24 themes and 1000s of happy users.
 
-This release represents 392 contributions by 56 contributors
+This release represents **448 contributions by 65 contributors**
 
 A special shout out to [@bep](https://github.com/bep) and
 [@anthonyfok](https://github.com/anthonyfok) for their new role as Hugo
