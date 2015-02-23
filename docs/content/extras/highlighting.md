@@ -49,7 +49,7 @@ If you want to highlight code, you need to either fence the code with ``` accord
 Not doing either will result in the text being rendered as HTML. This will prevent Pygments highlighting from working.
 
 ```
-{{</* highlight html */>}}
+{{% highlight html %}}
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
@@ -58,7 +58,7 @@ Not doing either will result in the text being rendered as HTML. This will preve
     {{ end }}
   </div>
 </section>
-{{</* /highlight */>}}
+{{% /highlight %}}
 ```
 
 ### Example Output
