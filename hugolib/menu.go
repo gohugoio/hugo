@@ -136,12 +136,11 @@ func (by MenuEntryBy) Sort(menu Menu) {
 	sort.Stable(ms)
 }
 
-var DefaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
+var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 	if m1.Weight == m2.Weight {
 		return m1.Name < m2.Name
-	} else {
-		return m1.Weight < m2.Weight
 	}
+	return m1.Weight < m2.Weight
 }
 
 func (ms *MenuSorter) Len() int      { return len(ms.menu) }
@@ -150,30 +149,29 @@ func (ms *MenuSorter) Swap(i, j int) { ms.menu[i], ms.menu[j] = ms.menu[j], ms.m
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
 func (ms *MenuSorter) Less(i, j int) bool { return ms.by(ms.menu[i], ms.menu[j]) }
 
-func (p Menu) Sort() {
-	MenuEntryBy(DefaultMenuEntrySort).Sort(p)
+func (m Menu) Sort() {
+	MenuEntryBy(defaultMenuEntrySort).Sort(m)
 }
 
-func (p Menu) Limit(n int) Menu {
-	if len(p) < n {
-		return p[0:n]
-	} else {
-		return p
+func (m Menu) Limit(n int) Menu {
+	if len(m) < n {
+		return m[0:n]
 	}
+	return m
 }
 
-func (p Menu) ByWeight() Menu {
-	MenuEntryBy(DefaultMenuEntrySort).Sort(p)
-	return p
+func (m Menu) ByWeight() Menu {
+	MenuEntryBy(defaultMenuEntrySort).Sort(m)
+	return m
 }
 
-func (p Menu) ByName() Menu {
+func (m Menu) ByName() Menu {
 	title := func(m1, m2 *MenuEntry) bool {
 		return m1.Name < m2.Name
 	}
 
-	MenuEntryBy(title).Sort(p)
-	return p
+	MenuEntryBy(title).Sort(m)
+	return m
 }
 
 func (m Menu) Reverse() Menu {

@@ -84,11 +84,11 @@ func server(cmd *cobra.Command, args []string) {
 
 	viper.Set("port", serverPort)
 
-	BaseUrl, err := fixUrl(BaseUrl)
+	BaseURL, err := fixURL(BaseURL)
 	if err != nil {
 		jww.ERROR.Fatal(err)
 	}
-	viper.Set("BaseUrl", BaseUrl)
+	viper.Set("BaseURL", BaseURL)
 
 	if err := memStats(); err != nil {
 		jww.ERROR.Println("memstats error:", err)
@@ -114,9 +114,9 @@ func serve(port int) {
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
 	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
 
-	u, err := url.Parse(viper.GetString("BaseUrl"))
+	u, err := url.Parse(viper.GetString("BaseURL"))
 	if err != nil {
-		jww.ERROR.Fatalf("Invalid BaseUrl: %s", err)
+		jww.ERROR.Fatalf("Invalid BaseURL: %s", err)
 	}
 	if u.Path == "" || u.Path == "/" {
 		http.Handle("/", fileserver)
@@ -137,10 +137,10 @@ func serve(port int) {
 
 // fixUrl massages the BaseUrl into a form needed for serving
 // all pages correctly.
-func fixUrl(s string) (string, error) {
+func fixURL(s string) (string, error) {
 	useLocalhost := false
 	if s == "" {
-		s = viper.GetString("BaseUrl")
+		s = viper.GetString("BaseURL")
 		useLocalhost = true
 	}
 	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {

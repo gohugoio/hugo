@@ -30,8 +30,8 @@ var (
 		[]byte(JSON_LEAD),
 	}
 
-	unixEnding = []byte("\n")
-	dosEnding  = []byte("\r\n")
+	UnixEnding = []byte("\n")
+	DosEnding  = []byte("\r\n")
 )
 
 type FrontMatter []byte
@@ -132,7 +132,7 @@ func peekLine(r *bufio.Reader) (line []byte, err error) {
 	if idx == -1 {
 		return firstFive, nil
 	}
-	idx += 1 // include newline.
+	idx++ // include newline.
 	return firstFive[:idx], nil
 }
 
@@ -184,8 +184,8 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	var (
 		c         byte
 		buf       bytes.Buffer
-		level     int  = 0
-		sameDelim bool = bytes.Equal(left, right)
+		level     int
+		sameDelim = bytes.Equal(left, right)
 	)
 
 	// Frontmatter must start with a delimiter. To check it first,

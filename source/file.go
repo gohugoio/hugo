@@ -27,14 +27,14 @@ type File struct {
 	section     string // The first directory
 	dir         string // The full directory Path (minus file name)
 	ext         string // Just the ext (eg txt)
-	uniqueId    string // MD5 of the filename
+	uniqueID    string // MD5 of the filename
 }
 
-func (f *File) UniqueId() string {
-	if f.uniqueId == "" {
-		f.uniqueId = helpers.Md5String(f.LogicalName())
+func (f *File) UniqueID() string {
+	if f.uniqueID == "" {
+		f.uniqueID = helpers.Md5String(f.LogicalName())
 	}
-	return f.uniqueId
+	return f.uniqueID
 }
 
 func (f *File) String() string {
@@ -53,19 +53,17 @@ func (f *File) BaseFileName() string {
 func (f *File) Section() string {
 	if f.section != "" {
 		return f.section
-	} else {
-		f.section = helpers.GuessSection(f.Dir())
-		return f.section
 	}
+	f.section = helpers.GuessSection(f.Dir())
+	return f.section
 }
 
 func (f *File) LogicalName() string {
 	if f.logicalName != "" {
 		return f.logicalName
-	} else {
-		_, f.logicalName = filepath.Split(f.relpath)
-		return f.logicalName
 	}
+	_, f.logicalName = filepath.Split(f.relpath)
+	return f.logicalName
 }
 
 func (f *File) SetDir(dir string) {
@@ -75,19 +73,17 @@ func (f *File) SetDir(dir string) {
 func (f *File) Dir() string {
 	if f.dir != "" {
 		return f.dir
-	} else {
-		f.dir, _ = filepath.Split(f.relpath)
-		return f.dir
 	}
+	f.dir, _ = filepath.Split(f.relpath)
+	return f.dir
 }
 
 func (f *File) Extension() string {
 	if f.ext != "" {
 		return f.ext
-	} else {
-		f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
-		return f.ext
 	}
+	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
+	return f.ext
 }
 
 func (f *File) Ext() string {

@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/kardianos/osext"
+	"github.com/kardianos/osext"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
 )

@@ -15,6 +15,9 @@ func TestGuessType(t *testing.T) {
 		{"md", "markdown"},
 		{"markdown", "markdown"},
 		{"mdown", "markdown"},
+		{"asciidoc", "asciidoc"},
+		{"adoc", "asciidoc"},
+		{"ad", "asciidoc"},
 		{"rst", "rst"},
 		{"html", "html"},
 		{"htm", "html"},
@@ -110,13 +113,13 @@ func TestSliceToLowerNonDestructive(t *testing.T) {
 	// This assignment actually copies the content
 	// of input into a new object.
 	// Otherwise, the test would not make sense...
-	input_copy := input
+	inputCopy := input
 
 	SliceToLower(input)
 
 	for i, e := range input {
-		if e != input_copy[i] {
-			t.Errorf("TestSliceToLowerNonDestructive failed. Expected element #%d of input slice to be %s. Found %s.", i, input_copy[i], input[i])
+		if e != inputCopy[i] {
+			t.Errorf("TestSliceToLowerNonDestructive failed. Expected element #%d of input slice to be %s. Found %s.", i, inputCopy[i], input[i])
 		}
 	}
 }
@@ -127,6 +130,49 @@ func TestMd5StringEmpty(t *testing.T) {
 
 	for _, in := range inputs {
 		Md5String(in)
+	}
+}
+
+func TestSeq(t *testing.T) {
+	for i, this := range []struct {
+		in     []interface{}
+		expect interface{}
+	}{
+		{[]interface{}{-2, 5}, []int{-2, -1, 0, 1, 2, 3, 4, 5}},
+		{[]interface{}{1, 2, 4}, []int{1, 3}},
+		{[]interface{}{1}, []int{1}},
+		{[]interface{}{3}, []int{1, 2, 3}},
+		{[]interface{}{3.2}, []int{1, 2, 3}},
+		{[]interface{}{0}, []int{}},
+		{[]interface{}{-1}, []int{-1}},
+		{[]interface{}{-3}, []int{-1, -2, -3}},
+		{[]interface{}{3, -2}, []int{3, 2, 1, 0, -1, -2}},
+		{[]interface{}{6, -2, 2}, []int{6, 4, 2}},
+		{[]interface{}{1, 0, 2}, false},
+		{[]interface{}{1, -1, 2}, false},
+		{[]interface{}{2, 1, 1}, false},
+		{[]interface{}{2, 1, 1, 1}, false},
+		{[]interface{}{2001}, false},
+		{[]interface{}{}, false},
+		{[]interface{}{t}, []int{}},
+		{nil, false},
+	} {
+
+		result, err := Seq(this.in...)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] TestSeq didn't return an expected error %s", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] TestSeq got %v but expected %v", i, result, this.expect)
+			}
+		}
 	}
 }
 
@@ -204,7 +250,7 @@ func TestDoArithmetic(t *testing.T) {
 		result, err := DoArithmetic(this.a, this.b, this.op)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error")
+				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {

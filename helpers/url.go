@@ -52,9 +52,8 @@ func (PathBridge) Separator() string {
 
 var pathBridge PathBridge
 
-// SanitizeUrl sanitizes the input URL string.
-func SanitizeUrl(in string) string {
-	s, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
+	s, err := purell.NormalizeURLString(in, f)
 	if err != nil {
 		return in
 	}
@@ -85,13 +84,24 @@ func SanitizeUrl(in string) string {
 	// End temporary kludge
 
 	//return s
+
+}
+
+// SanitizeUrl sanitizes the input URL string.
+func SanitizeURL(in string) string {
+	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+}
+
+// SanitizeUrlKeepTrailingSlash is the same as SanitizeUrl, but will keep any trailing slash.
+func SanitizeURLKeepTrailingSlash(in string) string {
+	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
 // Similar to MakePath, but with Unicode handling
 // Example:
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
-func Urlize(uri string) string {
+func URLize(uri string) string {
 	sanitized := MakePathToLower(uri)
 
 	// escape unicode letters
@@ -138,9 +148,9 @@ func MakePermalink(host, plink string) *url.URL {
 // AddContextRoot adds the context root to an URL if it's not already set.
 // For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
 // relative URLs must not include the context root if canonifyUrls is enabled. But if it's disabled, it must be set.
-func AddContextRoot(baseUrl, relativePath string) string {
+func AddContextRoot(baseURL, relativePath string) string {
 
-	url, err := url.Parse(baseUrl)
+	url, err := url.Parse(baseURL)
 	if err != nil {
 		panic(err)
 	}
@@ -154,31 +164,30 @@ func AddContextRoot(baseUrl, relativePath string) string {
 	return newPath
 }
 
-func UrlizeAndPrep(in string) string {
-	return UrlPrep(viper.GetBool("UglyUrls"), Urlize(in))
+func URLizeAndPrep(in string) string {
+	return URLPrep(viper.GetBool("UglyURLs"), URLize(in))
 }
 
-func UrlPrep(ugly bool, in string) string {
+func URLPrep(ugly bool, in string) string {
 	if ugly {
-		x := Uglify(SanitizeUrl(in))
+		x := Uglify(SanitizeURL(in))
 		return x
-	} else {
-		x := PrettifyUrl(SanitizeUrl(in))
-		if path.Ext(x) == ".xml" {
-			return x
-		}
-		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
-		if err != nil {
-			fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
-			return in
-		}
-		return url
 	}
+	x := PrettifyURL(SanitizeURL(in))
+	if path.Ext(x) == ".xml" {
+		return x
+	}
+	url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
+	if err != nil {
+		fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
+		return in
+	}
+	return url
 }
 
 // PrettifyUrl takes a URL string and returns a semantic, clean URL.
-func PrettifyUrl(in string) string {
-	x := PrettifyUrlPath(in)
+func PrettifyURL(in string) string {
+	x := PrettifyURLPath(in)
 
 	if path.Base(x) == "index.html" {
 		return path.Dir(x)
@@ -196,7 +205,7 @@ func PrettifyUrl(in string) string {
 //     /section/name.html       becomes /section/name/index.html
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
-func PrettifyUrlPath(in string) string {
+func PrettifyURLPath(in string) string {
 	return PrettiyPath(in, pathBridge)
 }
 
@@ -211,19 +220,17 @@ func Uglify(in string) string {
 		}
 		// /section/name/  -> /section/name.html
 		return path.Clean(in) + ".html"
-	} else {
-		name, ext := FileAndExt(in, pathBridge)
-		if name == "index" {
-			// /section/name/index.html -> /section/name.html
-			d := path.Dir(in)
-			if len(d) > 1 {
-				return d + ext
-			} else {
-				return in
-			}
-		} else {
-			// /section/name.html -> /section/name.html
-			return path.Clean(in)
-		}
 	}
+
+	name, ext := FileAndExt(in, pathBridge)
+	if name == "index" {
+		// /section/name/index.html -> /section/name.html
+		d := path.Dir(in)
+		if len(d) > 1 {
+			return d + ext
+		}
+		return in
+	}
+	// /section/name.html -> /section/name.html
+	return path.Clean(in)
 }

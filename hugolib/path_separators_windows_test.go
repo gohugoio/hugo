@@ -11,7 +11,7 @@ const (
 )
 
 func TestTemplatePathSeparator(t *testing.T) {
-	tmpl := new(tpl.GoHtmlTemplate)
+	tmpl := new(tpl.GoHTMLTemplate)
 	if name := tmpl.GenerateTemplateNameFrom(win_base, win_path); name != "sub1/index.html" {
 		t.Fatalf("Template name incorrect.  Expected: %s, Got: %s", "sub1/index.html", name)
 	}

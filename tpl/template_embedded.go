@@ -18,7 +18,7 @@ type Tmpl struct {
 	Data string
 }
 
-func (t *GoHtmlTemplate) EmbedShortcodes() {
+func (t *GoHTMLTemplate) EmbedShortcodes() {
 	t.AddInternalShortcode("ref.html", `{{ .Get 0 | ref .Page }}`)
 	t.AddInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
 	t.AddInternalShortcode("highlight.html", `{{ .Get 0 | highlight .Inner  }}`)
@@ -43,7 +43,7 @@ func (t *GoHtmlTemplate) EmbedShortcodes() {
 <!-- image -->`)
 }
 
-func (t *GoHtmlTemplate) EmbedTemplates() {
+func (t *GoHTMLTemplate) EmbedTemplates() {
 
 	t.AddInternalTemplate("_default", "rss.xml", `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>

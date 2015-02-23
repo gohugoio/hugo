@@ -40,7 +40,7 @@ func (n *Node) Now() time.Time {
 	return time.Now()
 }
 
-func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
+func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 	if inme.HasChildren() {
 		me := MenuEntry{Name: n.Title, Url: n.Url}
 
@@ -54,7 +54,7 @@ func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 	return false
 }
 
-func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
+func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 	me := MenuEntry{Name: n.Title, Url: n.Url}
 	if !me.IsSameResource(inme) {
@@ -63,7 +63,7 @@ func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 
 	// this resource may be included in several menus
 	// search for it to make sure that it is in the menu with the given menuId
-	if menu, ok := (*n.Site.Menus)[menuId]; ok {
+	if menu, ok := (*n.Site.Menus)[menuID]; ok {
 		for _, menuEntry := range *menu {
 			if menuEntry.IsSameResource(inme) {
 				return true

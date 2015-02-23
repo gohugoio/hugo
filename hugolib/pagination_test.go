@@ -76,16 +76,31 @@ func TestPagerNoPages(t *testing.T) {
 	paginator, _ := newPaginator(pages, 5, urlFactory)
 	paginatorPages := paginator.Pagers()
 
-	assert.Equal(t, 0, len(paginatorPages))
+	assert.Equal(t, 1, len(paginatorPages))
 	assert.Equal(t, 0, paginator.TotalNumberOfElements())
 	assert.Equal(t, 5, paginator.PageSize())
 	assert.Equal(t, 0, paginator.TotalPages())
+
+	// pageOne should be nothing but the first
+	pageOne := paginatorPages[0]
+	assert.NotNil(t, pageOne.First())
+	assert.False(t, pageOne.HasNext())
+	assert.False(t, pageOne.HasPrev())
+	assert.Nil(t, pageOne.Next())
+	assert.Equal(t, 1, len(pageOne.Pagers()))
+	assert.Equal(t, 0, len(pageOne.Pages()))
+	assert.Equal(t, 0, pageOne.NumberOfElements())
+	assert.Equal(t, 0, pageOne.TotalNumberOfElements())
+	assert.Equal(t, 0, pageOne.TotalPages())
+	assert.Equal(t, 1, pageOne.PageNumber())
+	assert.Equal(t, 5, pageOne.PageSize())
+
 }
 
 func TestPaginationUrlFactory(t *testing.T) {
 	viper.Set("PaginatePath", "zoo")
-	unicode := newPaginationUrlFactory("новости проекта")
-	fooBar := newPaginationUrlFactory("foo", "bar")
+	unicode := newPaginationURLFactory("новости проекта")
+	fooBar := newPaginationURLFactory("foo", "bar")
 
 	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/", unicode(1))
 	assert.Equal(t, "/foo/bar/", fooBar(1))

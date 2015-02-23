@@ -125,7 +125,7 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// all in  one go: extract, render and replace
+// ShortcodesHandle does all in  one go: extract, render and replace
 // only used for testing
 func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
@@ -201,9 +201,9 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 		}
 
 		if sc.doMarkup {
-			newInner := helpers.RenderBytes(helpers.RenderingContext{
+			newInner := helpers.RenderBytes(&helpers.RenderingContext{
 				Content: []byte(inner), PageFmt: p.guessMarkupType(),
-				DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
+				DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
 
 			// If the type is “unknown” or “markdown”, we assume the markdown
 			// generation has been performed. Given the input: `a line`, markdown
@@ -307,15 +307,21 @@ Loop:
 			}
 
 		case tScClose:
+			next := pt.peek()
 			if !isInner {
-				next := pt.peek()
 				if next.typ == tError {
 					// return that error, more specific
 					continue
 				}
-				return sc, fmt.Errorf("Shortcode '%s' has no .Inner, yet a closing tag was provided", next.val)
+				return sc, fmt.Errorf("Shortcode '%s' in page '%s' has no .Inner, yet a closing tag was provided", next.val, p.FullFilePath())
 			}
-			pt.consume(2)
+			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup {
+				// self-closing
+				pt.consume(1)
+			} else {
+				pt.consume(2)
+			}
+
 			return sc, nil
 		case tText:
 			sc.inner = append(sc.inner, currItem.val)
@@ -461,9 +467,8 @@ func replaceShortcodeTokens(source []byte, prefix string, wrapped bool, replacem
 
 		if val, ok := replacements[key]; ok {
 			return []byte(val)
-		} else {
-			panic(fmt.Errorf("unknown shortcode token %q", key))
 		}
+		panic(fmt.Errorf("unknown shortcode token %q", key))
 	})
 
 	return b, err

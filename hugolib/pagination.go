@@ -30,15 +30,17 @@ type pager struct {
 
 type pagers []*pager
 
+var paginatorEmptyPages Pages
+
 type paginator struct {
 	paginatedPages []Pages
 	pagers
-	paginationUrlFactory
+	paginationURLFactory
 	total int
 	size  int
 }
 
-type paginationUrlFactory func(int) string
+type paginationURLFactory func(int) string
 
 // PageNumber returns the current page's number in the pager sequence.
 func (p *pager) PageNumber() int {
@@ -47,11 +49,14 @@ func (p *pager) PageNumber() int {
 
 // Url returns the url to the current page.
 func (p *pager) Url() template.HTML {
-	return template.HTML(p.paginationUrlFactory(p.PageNumber()))
+	return template.HTML(p.paginationURLFactory(p.PageNumber()))
 }
 
 // Pages returns the elements on this page.
 func (p *pager) Pages() Pages {
+	if len(p.paginatedPages) == 0 {
+		return paginatorEmptyPages
+	}
 	return p.paginatedPages[p.PageNumber()-1]
 }
 
@@ -126,7 +131,7 @@ func splitPages(pages Pages, size int) []Pages {
 	return split
 }
 
-// Paginate gets this Node's paginator if it's already created.
+// Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
 func (n *Node) Paginator() (*pager, error) {
 
@@ -158,9 +163,12 @@ func (n *Node) Paginator() (*pager, error) {
 	return n.paginator, nil
 }
 
+// Paginator on Page isn't supported, calling this yields an error.
 func (p *Page) Paginator() (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
+
+// Paginate on Page isn't supported, calling this yields an error.
 func (p *Page) Paginate(seq interface{}) (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
@@ -217,14 +225,14 @@ func paginatePages(seq interface{}, section string) (pagers, error) {
 		return nil, errors.New(fmt.Sprintf("unsupported type in paginate, got %T", seq))
 	}
 
-	urlFactory := newPaginationUrlFactory(section)
+	urlFactory := newPaginationURLFactory(section)
 	paginator, _ := newPaginator(pages, paginateSize, urlFactory)
 	pagers := paginator.Pagers()
 
 	return pagers, nil
 }
 
-func newPaginator(pages Pages, size int, urlFactory paginationUrlFactory) (*paginator, error) {
+func newPaginator(pages Pages, size int, urlFactory paginationURLFactory) (*paginator, error) {
 
 	if size <= 0 {
 		return nil, errors.New("Paginator size must be positive")
@@ -232,19 +240,26 @@ func newPaginator(pages Pages, size int, urlFactory paginationUrlFactory) (*pagi
 
 	split := splitPages(pages, size)
 
-	p := &paginator{total: len(pages), paginatedPages: split, size: size, paginationUrlFactory: urlFactory}
-	pagers := make(pagers, len(split))
+	p := &paginator{total: len(pages), paginatedPages: split, size: size, paginationURLFactory: urlFactory}
 
-	for i := range p.paginatedPages {
-		pagers[i] = &pager{number: (i + 1), paginator: p}
+	var ps pagers
+
+	if len(split) > 0 {
+		ps = make(pagers, len(split))
+		for i := range p.paginatedPages {
+			ps[i] = &pager{number: (i + 1), paginator: p}
+		}
+	} else {
+		ps = make(pagers, 1)
+		ps[0] = &pager{number: 1, paginator: p}
 	}
 
-	p.pagers = pagers
+	p.pagers = ps
 
 	return p, nil
 }
 
-func newPaginationUrlFactory(pathElements ...string) paginationUrlFactory {
+func newPaginationURLFactory(pathElements ...string) paginationURLFactory {
 	paginatePath := viper.GetString("paginatePath")
 
 	return func(page int) string {
@@ -255,6 +270,6 @@ func newPaginationUrlFactory(pathElements ...string) paginationUrlFactory {
 			rel = fmt.Sprintf("/%s/%s/%d/", path.Join(pathElements...), paginatePath, page)
 		}
 
-		return helpers.UrlizeAndPrep(rel)
+		return helpers.URLizeAndPrep(rel)
 	}
 }
