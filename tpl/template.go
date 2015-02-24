@@ -1314,6 +1314,7 @@ func init() {
 		"dateFormat":  DateFormat,
 		"getJson":     GetJson,
 		"getCsv":      GetCsv,
+		"seq":         helpers.Seq,
 	}
 
 }
