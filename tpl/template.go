@@ -1340,6 +1340,7 @@ func init() {
 		"getJson":     GetJSON,
 		"getCSV":      GetCSV,
 		"getCsv":      GetCSV,
+		"seq":         helpers.Seq,
 	}
 
 }
