@@ -55,8 +55,8 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
-var Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
+var BuildWatch, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var Source, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
@@ -74,6 +74,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
+	HugoCmd.AddCommand(finalizeCmd)
 }
 
 //Initializes flags
@@ -83,8 +84,6 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
-	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
-	HugoCmd.PersistentFlags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
@@ -111,7 +110,7 @@ func InitializeConfig() {
 		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
 	}
 
-	viper.RegisterAlias("indexes", "taxonomies")
+	viper.RegisterAlias("taxonomies", "indexes")
 
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
@@ -128,9 +127,8 @@ func InitializeConfig() {
 	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyUrls", false)
 	viper.SetDefault("Verbose", false)
-	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyUrls", false)
-	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
+	viper.SetDefault("Indexes", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
 	viper.SetDefault("PygmentsStyle", "monokai")
@@ -204,24 +202,6 @@ func InitializeConfig() {
 	} else {
 		dir, _ := os.Getwd()
 		viper.Set("WorkingDir", dir)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("ignoreCache").Changed {
-		viper.Set("IgnoreCache", IgnoreCache)
-	}
-
-	if CacheDir != "" {
-		if helpers.FilePathSeparator != CacheDir[len(CacheDir)-1:] {
-			CacheDir = CacheDir + helpers.FilePathSeparator
-		}
-		isDir, err := helpers.DirExists(CacheDir, hugofs.SourceFs)
-		utils.CheckErr(err)
-		if isDir == false {
-			mkdir(CacheDir)
-		}
-		viper.Set("CacheDir", CacheDir)
-	} else {
-		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
 	}
 
 	if VerboseLog || Logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
@@ -300,19 +280,7 @@ func getDirList() []string {
 		}
 
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			link, err := filepath.EvalSymlinks(path)
-			if err != nil {
-				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
-				return nil
-			}
-			linkfi, err := os.Stat(link)
-			if err != nil {
-				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
-				return nil
-			}
-			if !linkfi.Mode().IsRegular() {
-				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", path)
-			}
+			jww.ERROR.Printf("Symbolic links not supported, skipping '%s'", path)
 			return nil
 		}
 
