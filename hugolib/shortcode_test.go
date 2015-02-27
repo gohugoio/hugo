@@ -33,6 +33,14 @@ func TestNonSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", tem)
 }
 
+// Issue #929
+func TestHyphenatedSC(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+
+	CheckShortCodeMatch(t, "{{< hyphenated-video 47238zzb >}}", "Playing Video 47238zzb", tem)
+}
+
 func TestPositionalParamSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
