@@ -313,7 +313,7 @@ Loop:
 					// return that error, more specific
 					continue
 				}
-				return sc, fmt.Errorf("Shortcode '%s' has no .Inner, yet a closing tag was provided", next.val)
+				return sc, fmt.Errorf("Shortcode '%s' in page '%s' has no .Inner, yet a closing tag was provided", next.val, p.FullFilePath())
 			}
 			pt.consume(2)
 			return sc, nil

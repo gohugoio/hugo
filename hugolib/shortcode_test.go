@@ -184,7 +184,7 @@ func TestExtractShortcodes(t *testing.T) {
 			testScPlaceholderRegexp, ""},
 		{"inner", `Some text. {{< inner >}}Inner Content{{< / inner >}}. Some more text.`, `inner([], false){[Inner Content]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
-		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' has no .Inner.*"},
+		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' in page 'simple.md' has no .Inner.*"},
 		{"nested inner", `Inner->{{< inner >}}Inner Content->{{% inner2 param1 %}}inner2txt{{% /inner2 %}}Inner close->{{< / inner >}}<-done`,
 			`inner([], false){[Inner Content-> inner2([\"param1\"], true){[inner2txt]} Inner close->]}`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
