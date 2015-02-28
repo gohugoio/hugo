@@ -52,9 +52,8 @@ func (PathBridge) Separator() string {
 
 var pathBridge PathBridge
 
-// SanitizeUrl sanitizes the input URL string.
-func SanitizeUrl(in string) string {
-	s, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+func sanitizeUrlWithFlags(in string, f purell.NormalizationFlags) string {
+	s, err := purell.NormalizeURLString(in, f)
 	if err != nil {
 		return in
 	}
@@ -85,6 +84,17 @@ func SanitizeUrl(in string) string {
 	// End temporary kludge
 
 	//return s
+
+}
+
+// SanitizeUrl sanitizes the input URL string.
+func SanitizeUrl(in string) string {
+	return sanitizeUrlWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+}
+
+// SanitizeUrlKeepTrailingSlash is the same as SanitizeUrl, but will keep any trailing slash.
+func SanitizeUrlKeepTrailingSlash(in string) string {
+	return sanitizeUrlWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
 // Similar to MakePath, but with Unicode handling

@@ -444,7 +444,7 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseUrl:         template.URL(helpers.SanitizeUrl(viper.GetString("BaseUrl"))),
+		BaseUrl:         template.URL(helpers.SanitizeUrlKeepTrailingSlash(viper.GetString("BaseUrl"))),
 		Title:           viper.GetString("Title"),
 		Author:          viper.GetStringMap("author"),
 		LanguageCode:    viper.GetString("languagecode"),

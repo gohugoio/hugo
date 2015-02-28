@@ -1,9 +1,9 @@
 package helpers
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/assert"
+	"strings"
+	"testing"
 )
 
 func TestUrlize(t *testing.T) {
@@ -22,6 +22,34 @@ func TestUrlize(t *testing.T) {
 		output := Urlize(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestSanitizeUrl(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"http://foo.bar/", "http://foo.bar/"},
+		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
+	}
+
+	for _, test := range tests {
+		o1 := SanitizeUrl(test.input)
+		o2 := SanitizeUrlKeepTrailingSlash(test.input)
+
+		expected2 := test.expected
+
+		if strings.HasSuffix(test.input, "/") && !strings.HasSuffix(expected2, "/") {
+			expected2 += "/"
+		}
+
+		if o1 != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, o1)
+		}
+		if o2 != expected2 {
+			t.Errorf("Expected %#v, got %#v\n", expected2, o2)
 		}
 	}
 }
