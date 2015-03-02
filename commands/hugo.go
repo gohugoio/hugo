@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -56,7 +57,7 @@ var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
 var BuildWatch, IgnoreCache, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
-var Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
+var SqlSource, Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
@@ -83,6 +84,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	HugoCmd.PersistentFlags().StringVar(&SqlSource, "sqlSource", "", "SQL DSN file path. Supported Drivers: "+strings.Join(sql.Drivers(), ", "))
 	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	HugoCmd.PersistentFlags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
@@ -144,6 +146,7 @@ func InitializeConfig() {
 	viper.SetDefault("Paginate", 10)
 	viper.SetDefault("PaginatePath", "page")
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
+	viper.SetDefault("SqlSource", "")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -222,6 +225,22 @@ func InitializeConfig() {
 		viper.Set("CacheDir", CacheDir)
 	} else {
 		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
+	}
+
+	viper.BindEnv("SqlSourceEnv", "HUGO_SQL_SOURCE")
+	if sse := viper.GetString("SqlSourceEnv"); SqlSource != "" || sse != "" {
+		if sse != "" {
+			jww.INFO.Println("Using environment variable HUGO_SQL_SOURCE for database access and ignoring command line argument")
+			viper.Set("SqlSource", sse)
+		} else {
+			ok, err := helpers.Exists(SqlSource, hugofs.SourceFs)
+			utils.CheckErr(err)
+			if ok {
+				viper.Set("SqlSource", SqlSource)
+			} else {
+				jww.FATAL.Fatalf("sqlSource file \"%s\" not found!", SqlSource)
+			}
+		}
 	}
 
 	if VerboseLog || Logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {

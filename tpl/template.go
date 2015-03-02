@@ -32,6 +32,7 @@ import (
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugosql"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/yosssi/ace"
 )
@@ -1314,6 +1315,7 @@ func init() {
 		"dateFormat":  DateFormat,
 		"getJson":     GetJson,
 		"getCsv":      GetCsv,
+		"getSql":      hugosql.GetSql,
 	}
 
 }
