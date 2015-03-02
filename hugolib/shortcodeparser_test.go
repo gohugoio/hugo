@@ -65,6 +65,9 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 
 	{"two params", `{{< sc1 param1   param2 >}}`, []item{
 		tstLeftNoMD, tstSC1, tstParam1, tstParam2, tstRightNoMD, tstEOF}},
+	// issue #934
+	{"self-closing", `{{< sc1 />}}`, []item{
+		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF}},
 	{"nested simple", `{{< sc1 >}}{{< sc2 >}}{{< /sc1 >}}`, []item{
 		tstLeftNoMD, tstSC1, tstRightNoMD,
 		tstLeftNoMD, tstSC2, tstRightNoMD,

@@ -307,15 +307,21 @@ Loop:
 			}
 
 		case tScClose:
+			next := pt.peek()
 			if !isInner {
-				next := pt.peek()
 				if next.typ == tError {
 					// return that error, more specific
 					continue
 				}
 				return sc, fmt.Errorf("Shortcode '%s' in page '%s' has no .Inner, yet a closing tag was provided", next.val, p.FullFilePath())
 			}
-			pt.consume(2)
+			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup {
+				// self-closing
+				pt.consume(1)
+			} else {
+				pt.consume(2)
+			}
+
 			return sc, nil
 		case tText:
 			sc.inner = append(sc.inner, currItem.val)
