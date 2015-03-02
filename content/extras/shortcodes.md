@@ -193,6 +193,10 @@ of the content between the opening and closing shortcodes. If a closing
 shortcode is required, you can check the length of `.Inner` and provide a warning
 to the user.
 
+A shortcode with `.Inner` content can be used wihout the inline content, and without the closing shortcode, by using the self-closing syntax:
+
+    {{</* innershortcode /*/>}}
+
 The variable `.Params` contains the list of parameters in case you need to do more complicated things than `.Get`.
 
 You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/). 
