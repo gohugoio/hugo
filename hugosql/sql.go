@@ -1,6 +1,6 @@
 package hugosql
 
-// sqlite3 is the default driver and always included.
+// mysql is the default driver and always included.
 // Other drivers can be included with their build tag or the build tag alldb
 // to include all drivers.
 
