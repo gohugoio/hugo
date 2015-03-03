@@ -12,6 +12,8 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"time"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -188,7 +190,7 @@ func TestDateTime(t *testing.T) {
 			"2006/01/02 15:04",
 		},
 		{
-			"2015/02/27 10:02",
+			time.Unix(1424991728, 0).Format("2006/01/02 15:04"),
 			"k5",
 			"unix",
 			"2006/01/02 15:04",
