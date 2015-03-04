@@ -19,6 +19,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/viper"
 	"io"
@@ -123,6 +124,74 @@ func Md5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
 	return hex.EncodeToString(h.Sum([]byte{}))
+}
+
+// Seq creates a sequence of integers.
+// It's named and used as GNU's seq.
+// Examples:
+// 3 => 1, 2, 3
+// 1 2 4 => 1, 3
+// -3 => -1, -2, -3
+// 1 4 => 1, 2, 3, 4
+// 1 -2 => 1, 0, -1, -2
+func Seq(args ...interface{}) ([]int, error) {
+	if len(args) < 1 || len(args) > 3 {
+		return nil, errors.New("Seq, invalid number of args: 'first' 'increment' (optional) 'last' (optional)")
+	}
+
+	intArgs := cast.ToIntSlice(args)
+
+	var inc int = 1
+	var last int
+	var first = intArgs[0]
+
+	if len(intArgs) == 1 {
+		last = first
+		if last == 0 {
+			return []int{}, nil
+		} else if last > 0 {
+			first = 1
+		} else {
+			first = -1
+			inc = -1
+		}
+	} else if len(intArgs) == 2 {
+		last = intArgs[1]
+		if last < first {
+			inc = -1
+		}
+	} else {
+		inc = intArgs[1]
+		last = intArgs[2]
+		if inc == 0 {
+			return nil, errors.New("'increment' must not be 0")
+		}
+		if first < last && inc < 0 {
+			return nil, errors.New("'increment' must be > 0")
+		}
+		if first > last && inc > 0 {
+			return nil, errors.New("'increment' must be < 0")
+		}
+	}
+
+	size := int(((last - first) / inc) + 1)
+
+	// sanity check
+	if size > 2000 {
+		return nil, errors.New("size of result exeeds limit")
+	}
+
+	seq := make([]int, size)
+	val := first
+	for i := 0; ; i++ {
+		seq[i] = val
+		val += inc
+		if (inc < 0 && val < last) || (inc > 0 && val > last) {
+			break
+		}
+	}
+
+	return seq, nil
 }
 
 // DoArithmetic performs arithmetic operations (+,-,*,/) using reflection to
