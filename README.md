@@ -1,4 +1,4 @@
-![Hugo](https://raw.githubusercontent.com/spf13/hugo/master/docs/static/img/hugo-logo-med.png)
+![Hugo](https://raw.githubusercontent.com/spf13/hugo/master/docs/static/img/hugo-logo.png)
 
 [Website](http://gohugo.io) |
 [Forum](https://discuss.gohugo.io) |
