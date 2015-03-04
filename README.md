@@ -74,7 +74,16 @@ To update Hugo’s dependencies, use `go get` with the `-u` option.
 
     go get -u -v github.com/spf13/hugo
 
-## Contributing Code
+## Contributing to Hugo
+
+We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, documentation, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc. The Hugo community and maintainers are very active and helpful and the project benefits greatly from this activity.
+
+[![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
+
+If you have any questions about how to contribute or what to contribute please ask on the [forum](http://discuss.gohugo.io)
+
+
+## Code Contribution Guide
 
 Contributors should build Hugo and test their changes before submitting a code change.
 
