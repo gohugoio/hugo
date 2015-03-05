@@ -126,12 +126,24 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 		item{tText, 0, "{{<"}, item{tText, 0, " sc1 >}}"}, {tError, 0, "comment ends before the right shortcode delimiter"}}},
 }
 
-func TestPagelexer(t *testing.T) {
+func TestShortcodeLexer(t *testing.T) {
 	for _, test := range shortCodeLexerTests {
 
 		items := collect(&test)
 		if !equal(items, test.items) {
 			t.Errorf("%s: got\n\t%v\nexpected\n\t%v", test.name, items, test.items)
+		}
+	}
+}
+
+func BenchmarkShortcodeLexer(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, test := range shortCodeLexerTests {
+			items := collect(&test)
+			if !equal(items, test.items) {
+				b.Errorf("%s: got\n\t%v\nexpected\n\t%v", test.name, items, test.items)
+			}
 		}
 	}
 }
