@@ -474,38 +474,38 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			sequence: []*map[int]string{
-				&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"},
+				{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"},
 			},
 			key: 2, match: "m",
 			expect: []*map[int]string{
-				&map[int]string{1: "a", 2: "m"},
+				{1: "a", 2: "m"},
 			},
 		},
 		{
 			sequence: []*TstX{
-				&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "f"},
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
 			},
 			key: "B", match: "f",
 			expect: []*TstX{
-				&TstX{A: "e", B: "f"},
+				{A: "e", B: "f"},
 			},
 		},
 		{
 			sequence: []*TstX{
-				&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "c"},
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "c"},
 			},
 			key: "TstRp", match: "rc",
 			expect: []*TstX{
-				&TstX{A: "c", B: "d"},
+				{A: "c", B: "d"},
 			},
 		},
 		{
 			sequence: []TstX{
-				TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "c"},
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "c"},
 			},
 			key: "TstRv", match: "rc",
 			expect: []TstX{
-				TstX{A: "e", B: "c"},
+				{A: "e", B: "c"},
 			},
 		},
 		{
@@ -738,19 +738,19 @@ func TestSort(t *testing.T) {
 		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
 		// test map sorting by field value
 		{
-			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyInt",
 			"asc",
 			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
 		},
 		{
-			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyFloat",
 			"asc",
 			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
 		},
 		{
-			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyString",
 			"asc",
 			[]interface{}{ts{50, 50.5, "fifty"}, ts{40, 40.5, "forty"}, ts{10, 10.5, "ten"}, ts{30, 30.5, "thirty"}, ts{20, 20.5, "twenty"}},
@@ -786,12 +786,12 @@ func TestReturnWhenSet(t *testing.T) {
 		{[]uint{1, 2, 3}, 1, uint64(2)},
 		{[]float64{1.1, 2.2, 3.3}, 1, float64(2.2)},
 		{[]string{"foo", "bar", "baz"}, 1, "bar"},
-		{[]TstX{TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "f"}}, 1, ""},
+		{[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}}, 1, ""},
 		{map[string]int{"foo": 1, "bar": 2, "baz": 3}, "bar", int64(2)},
 		{map[string]uint{"foo": 1, "bar": 2, "baz": 3}, "bar", uint64(2)},
 		{map[string]float64{"foo": 1.1, "bar": 2.2, "baz": 3.3}, "bar", float64(2.2)},
 		{map[string]string{"foo": "FOO", "bar": "BAR", "baz": "BAZ"}, "bar", "BAR"},
-		{map[string]TstX{"foo": TstX{A: "a", B: "b"}, "bar": TstX{A: "c", B: "d"}, "baz": TstX{A: "e", B: "f"}}, "bar", ""},
+		{map[string]TstX{"foo": {A: "a", B: "b"}, "bar": {A: "c", B: "d"}, "baz": {A: "e", B: "f"}}, "bar", ""},
 		{(*[]string)(nil), "bar", ""},
 	} {
 		result := ReturnWhenSet(this.data, this.key)
@@ -904,7 +904,7 @@ func TestTrim(t *testing.T) {
 func TestDateFormat(t *testing.T) {
 	for i, this := range []struct {
 		layout string
-		value interface{}
+		value  interface{}
 		expect interface{}
 	}{
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
