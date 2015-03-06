@@ -204,7 +204,7 @@ func TestDoArithmetic(t *testing.T) {
 		result, err := DoArithmetic(this.a, this.b, this.op)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error")
+				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {

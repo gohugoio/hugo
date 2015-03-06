@@ -201,7 +201,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 		}
 
 		if sc.doMarkup {
-			newInner := helpers.RenderBytes(helpers.RenderingContext{
+			newInner := helpers.RenderBytes(&helpers.RenderingContext{
 				Content: []byte(inner), PageFmt: p.guessMarkupType(),
 				DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 
