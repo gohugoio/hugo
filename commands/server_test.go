@@ -34,7 +34,7 @@ func TestFixUrl(t *testing.T) {
 		serverPort = test.Port
 		result, err := fixUrl(BaseUrl)
 		if err != nil {
-			t.Errorf("Test #%d %s: unexpected error %s", err)
+			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
 		}
 		if result != test.Result {
 			t.Errorf("Test #%d %s: expected %q, got %q", i, test.TestName, test.Result, result)

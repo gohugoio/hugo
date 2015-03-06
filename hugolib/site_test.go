@@ -230,7 +230,7 @@ func TestTargetPath(t *testing.T) {
 		}
 
 		if p.Section() != test.expectedSection {
-			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section)
+			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section())
 		}
 	}
 }

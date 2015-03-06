@@ -941,7 +941,7 @@ func TestSafeHtml(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -976,7 +976,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -1011,7 +1011,7 @@ func TestSafeCss(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -1046,7 +1046,7 @@ func TestSafeUrl(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
