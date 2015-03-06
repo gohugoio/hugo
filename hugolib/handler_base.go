@@ -56,6 +56,6 @@ func (h HandledResult) String() string {
 	return h.Error()
 }
 
-func (hr HandledResult) Page() *Page {
-	return hr.page
+func (h HandledResult) Page() *Page {
+	return h.page
 }
