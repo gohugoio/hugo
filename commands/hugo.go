@@ -379,9 +379,9 @@ func NewWatcher(port int) error {
 			case evs := <-watcher.Event:
 				jww.INFO.Println("File System Event:", evs)
 
-				static_changed := false
-				dynamic_changed := false
-				static_files_changed := make(map[string]bool)
+				staticChanged := false
+				dynamicChanged := false
+				staticFilesChanged := make(map[string]bool)
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
@@ -395,12 +395,12 @@ func NewWatcher(port int) error {
 					}
 
 					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || strings.HasPrefix(ev.Name, helpers.GetThemesDirPath())
-					static_changed = static_changed || isstatic
-					dynamic_changed = dynamic_changed || !isstatic
+					staticChanged = staticChanged || isstatic
+					dynamicChanged = dynamicChanged || !isstatic
 
 					if isstatic {
 						if staticPath, err := helpers.MakeStaticPathRelative(ev.Name); err == nil {
-							static_files_changed[staticPath] = true
+							staticFilesChanged[staticPath] = true
 						}
 					}
 
@@ -412,7 +412,7 @@ func NewWatcher(port int) error {
 					}
 				}
 
-				if static_changed {
+				if staticChanged {
 					jww.FEEDBACK.Println("Static file changed, syncing\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
@@ -420,8 +420,8 @@ func NewWatcher(port int) error {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 
 						// force refresh when more than one file
-						if len(static_files_changed) == 1 {
-							for path := range static_files_changed {
+						if len(staticFilesChanged) == 1 {
+							for path := range staticFilesChanged {
 								livereload.RefreshPath(path)
 							}
 
@@ -431,7 +431,7 @@ func NewWatcher(port int) error {
 					}
 				}
 
-				if dynamic_changed {
+				if dynamicChanged {
 					fmt.Print("\nChange detected, rebuilding site\n")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
