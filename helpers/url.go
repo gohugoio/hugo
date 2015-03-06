@@ -172,18 +172,17 @@ func UrlPrep(ugly bool, in string) string {
 	if ugly {
 		x := Uglify(SanitizeUrl(in))
 		return x
-	} else {
-		x := PrettifyUrl(SanitizeUrl(in))
-		if path.Ext(x) == ".xml" {
-			return x
-		}
-		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
-		if err != nil {
-			fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
-			return in
-		}
-		return url
 	}
+	x := PrettifyUrl(SanitizeUrl(in))
+	if path.Ext(x) == ".xml" {
+		return x
+	}
+	url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
+	if err != nil {
+		fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
+		return in
+	}
+	return url
 }
 
 // PrettifyUrl takes a URL string and returns a semantic, clean URL.
@@ -221,19 +220,17 @@ func Uglify(in string) string {
 		}
 		// /section/name/  -> /section/name.html
 		return path.Clean(in) + ".html"
-	} else {
-		name, ext := FileAndExt(in, pathBridge)
-		if name == "index" {
-			// /section/name/index.html -> /section/name.html
-			d := path.Dir(in)
-			if len(d) > 1 {
-				return d + ext
-			} else {
-				return in
-			}
-		} else {
-			// /section/name.html -> /section/name.html
-			return path.Clean(in)
-		}
 	}
+
+	name, ext := FileAndExt(in, pathBridge)
+	if name == "index" {
+		// /section/name/index.html -> /section/name.html
+		d := path.Dir(in)
+		if len(d) > 1 {
+			return d + ext
+		}
+		return in
+	}
+	// /section/name.html -> /section/name.html
+	return path.Clean(in)
 }
