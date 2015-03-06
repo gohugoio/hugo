@@ -107,7 +107,7 @@ func TestMakePathRelative(t *testing.T) {
 	_, error := MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
 
 	if error == nil {
-		t.Errorf("Test #%d failed. Expected error")
+		t.Errorf("Test #%d failed. Expected error", i)
 	}
 }
 
@@ -497,7 +497,7 @@ func TestFileAndExt(t *testing.T) {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
 		if d.expectedExt != ext {
-			t.Errorf("Test %d failed. Expected extension $q got %q.", i, d.expectedExt, ext)
+			t.Errorf("Test %d failed. Expected extension %q got %q.", i, d.expectedExt, ext)
 		}
 	}
 
@@ -564,7 +564,7 @@ func TestFindCWD(t *testing.T) {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedDir, dir)
 		}
 		if d.expectedErr != err {
-			t.Error("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
+			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
 		}
 	}
 }
@@ -639,7 +639,7 @@ func TestWriteToDisk(t *testing.T) {
 		}
 		contents, e := ioutil.ReadFile(d.filename)
 		if e != nil {
-			t.Error("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
+			t.Errorf("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
 		}
 		if randomString != string(contents) {
 			t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
