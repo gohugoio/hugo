@@ -1250,6 +1250,12 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
+	// Force `UglyUrls` option to force `404.html` file name
+	if !s.PageTarget().(*target.PagePub).UglyUrls {
+		s.PageTarget().(*target.PagePub).UglyUrls = true
+		defer func() { s.PageTarget().(*target.PagePub).UglyUrls = false }()
+	}
+
 	n.Url = helpers.Urlize("404.html")
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
@@ -1268,8 +1274,6 @@ func (s *Site) RenderSitemap() error {
 	}
 
 	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
-
-	optChanged := false
 
 	n := s.NewNode()
 
@@ -1296,21 +1300,10 @@ func (s *Site) RenderSitemap() error {
 		}
 	}
 
-	// Force `UglyUrls` option to force `sitemap.xml` file name
-	switch s.PageTarget().(type) {
-	case *target.Filesystem:
-		s.PageTarget().(*target.PagePub).UglyUrls = true
-		optChanged = true
-	}
-
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
 
 	if err := s.renderAndWriteXML("sitemap", "sitemap.xml", n, s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
-	}
-
-	if optChanged {
-		s.PageTarget().(*target.PagePub).UglyUrls = viper.GetBool("UglyUrls")
 	}
 
 	return nil
