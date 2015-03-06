@@ -199,12 +199,12 @@ func (p *Page) setSummary() {
 
 func (p *Page) renderBytes(content []byte) []byte {
 	return helpers.RenderBytes(
-		helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
+		&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
 			DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
-	return helpers.RenderBytesWithTOC(helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
+	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
 		DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
 }
 

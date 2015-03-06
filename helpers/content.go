@@ -111,7 +111,7 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Renderer {
+func GetHtmlRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
@@ -141,7 +141,7 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
 }
 
-func GetMarkdownExtensions(ctx RenderingContext) int {
+func GetMarkdownExtensions(ctx *RenderingContext) int {
 	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
 		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
 		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
@@ -155,12 +155,12 @@ func GetMarkdownExtensions(ctx RenderingContext) int {
 	return flags
 }
 
-func MarkdownRender(ctx RenderingContext) []byte {
+func MarkdownRender(ctx *RenderingContext) []byte {
 	return blackfriday.Markdown(ctx.Content, GetHtmlRenderer(0, ctx),
 		GetMarkdownExtensions(ctx))
 }
 
-func MarkdownRenderWithTOC(ctx RenderingContext) []byte {
+func MarkdownRenderWithTOC(ctx *RenderingContext) []byte {
 	return blackfriday.Markdown(ctx.Content,
 		GetHtmlRenderer(blackfriday.HTML_TOC, ctx),
 		GetMarkdownExtensions(ctx))
@@ -219,7 +219,7 @@ func (c *RenderingContext) getConfig() *Blackfriday {
 	return c.Config
 }
 
-func RenderBytesWithTOC(ctx RenderingContext) []byte {
+func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
 		return MarkdownRenderWithTOC(ctx)
@@ -230,7 +230,7 @@ func RenderBytesWithTOC(ctx RenderingContext) []byte {
 	}
 }
 
-func RenderBytes(ctx RenderingContext) []byte {
+func RenderBytes(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
 		return MarkdownRender(ctx)
