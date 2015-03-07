@@ -367,7 +367,7 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyUrls bool) {
 	for _, test := range tests {
 		file, err := hugofs.DestinationFS.Open(test.doc)
 		if err != nil {
-			t.Fatalf("Did not find %s in target.", test.doc)
+			t.Fatalf("Did not find %s in target: %s", test.doc, err)
 		}
 		content := helpers.ReaderToBytes(file)
 
