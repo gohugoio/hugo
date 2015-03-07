@@ -50,6 +50,20 @@ more text
 `
 )
 
+func createAndRenderPages(t *testing.T, s *Site) {
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	if err := s.RenderPages(); err != nil {
+		t.Fatalf("Unable to render pages. %s", err)
+	}
+}
+
 func templatePrep(s *Site) {
 	s.Tmpl = tpl.New()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
@@ -293,6 +307,77 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildFuture", false)
 }
 
+// Issue #939
+func Test404ShouldAlwaysHaveUglyUrls(t *testing.T) {
+	for _, uglyUrls := range []bool{true, false} {
+		doTest404ShouldAlwaysHaveUglyUrls(t, uglyUrls)
+	}
+}
+
+func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyUrls bool) {
+	viper.Set("verbose", true)
+	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("DisableSitemap", false)
+	viper.Set("DisableRSS", false)
+
+	viper.Set("UglyUrls", uglyUrls)
+
+	sources := []source.ByteSource{
+		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+	}
+
+	s := &Site{
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyUrls: uglyUrls}},
+	}
+
+	s.initializeSiteInfo()
+	templatePrep(s)
+
+	must(s.addTemplate("index.html", "Home Sweet Home"))
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("404.html", "Page Not Found"))
+
+	// make sure the XML files also end up with ugly urls
+	must(s.addTemplate("rss.xml", "<root>RSS</root>"))
+	must(s.addTemplate("sitemap.xml", "<root>SITEMAP</root>"))
+
+	createAndRenderPages(t, s)
+	s.RenderHomePage()
+	s.RenderSitemap()
+
+	var expectedPagePath string
+	if uglyUrls {
+		expectedPagePath = "sect/doc1.html"
+	} else {
+		expectedPagePath = "sect/doc1/index.html"
+	}
+
+	tests := []struct {
+		doc      string
+		expected string
+	}{
+		{filepath.FromSlash("index.html"), "Home Sweet Home"},
+		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("404.html"), "Page Not Found"},
+		{filepath.FromSlash("index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
+		{filepath.FromSlash("sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
+	}
+
+	for _, test := range tests {
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target.", test.doc)
+		}
+		content := helpers.ReaderToBytes(file)
+
+		if !bytes.Equal(content, []byte(test.expected)) {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		}
+	}
+
+}
+
 func TestSkipRender(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
@@ -321,17 +406,7 @@ func TestSkipRender(t *testing.T) {
 	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
 	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
 
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
-
-	if err := s.RenderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
-	}
+	createAndRenderPages(t, s)
 
 	tests := []struct {
 		doc      string
