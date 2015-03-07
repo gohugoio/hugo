@@ -131,7 +131,7 @@ func splitPages(pages Pages, size int) []Pages {
 	return split
 }
 
-// Paginate gets this Node's paginator if it's already created.
+// Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
 func (n *Node) Paginator() (*pager, error) {
 
@@ -163,9 +163,12 @@ func (n *Node) Paginator() (*pager, error) {
 	return n.paginator, nil
 }
 
+// Paginator on Page isn't supported, calling this yields an error.
 func (p *Page) Paginator() (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
+
+// Paginate on Page isn't supported, calling this yields an error.
 func (p *Page) Paginate(seq interface{}) (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }

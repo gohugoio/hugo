@@ -125,7 +125,7 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// all in  one go: extract, render and replace
+// ShortcodesHandle does all in  one go: extract, render and replace
 // only used for testing
 func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
@@ -467,9 +467,8 @@ func replaceShortcodeTokens(source []byte, prefix string, wrapped bool, replacem
 
 		if val, ok := replacements[key]; ok {
 			return []byte(val)
-		} else {
-			panic(fmt.Errorf("unknown shortcode token %q", key))
 		}
+		panic(fmt.Errorf("unknown shortcode token %q", key))
 	})
 
 	return b, err

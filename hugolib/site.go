@@ -167,8 +167,8 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 		return "", err
 	}
 
-	var target *Page = nil
-	var link string = ""
+	var target *Page
+	var link string
 
 	if refUrl.Path != "" {
 		for _, page := range []*Page(*s.Pages) {
@@ -179,7 +179,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 		}
 
 		if target == nil {
-			return "", errors.New(fmt.Sprintf("No page found with path or logical name \"%s\".\n", refUrl.Path))
+			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refUrl.Path)
 		}
 
 		if relative {
@@ -649,11 +649,11 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 			}
 
 			if r.page.IsDraft() {
-				s.draftCount += 1
+				s.draftCount++
 			}
 
 			if r.page.IsFuture() {
-				s.futureCount += 1
+				s.futureCount++
 			}
 		}
 	}
@@ -851,7 +851,7 @@ func (s *Site) possibleTaxonomies() (taxonomies []string) {
 	return
 }
 
-// Render shell pages that simply have a redirect in the header
+// RenderAliases renders shell pages that simply have a redirect in the header
 func (s *Site) RenderAliases() error {
 	for _, p := range s.Pages {
 		for _, a := range p.Aliases {
@@ -867,7 +867,7 @@ func (s *Site) RenderAliases() error {
 	return nil
 }
 
-// Render pages each corresponding to a markdown file
+// RenderPages renders pages each corresponding to a markdown file
 func (s *Site) RenderPages() error {
 
 	results := make(chan error)
@@ -967,9 +967,8 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 			}
 		}
 		return out
-	} else {
-		return in
 	}
+	return in
 }
 
 type taxRenderInfo struct {
@@ -979,7 +978,7 @@ type taxRenderInfo struct {
 	plural   string
 }
 
-// Render the listing pages based on the meta data
+// RenderTaxonomiesLists renders the listing pages based on the meta data
 // each unique term within a taxonomy will have a page created
 func (s *Site) RenderTaxonomiesLists() error {
 	wg := &sync.WaitGroup{}
@@ -1093,7 +1092,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 	}
 }
 
-// Render a page per taxonomy that lists the terms for that taxonomy
+// RenderListsOfTaxonomyTerms renders a page per taxonomy that lists the terms for that taxonomy
 func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 	taxonomies := viper.GetStringMapString("Taxonomies")
 	for singular, plural := range taxonomies {
@@ -1132,7 +1131,7 @@ func (s *Site) newSectionListNode(section string, data WeightedPages) *Node {
 	return n
 }
 
-// Render a page for each section
+// RenderSectionLists renders a page for each section
 func (s *Site) RenderSectionLists() error {
 	for section, data := range s.Sections {
 
