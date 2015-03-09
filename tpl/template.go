@@ -94,6 +94,21 @@ func New() Template {
 }
 
 func Eq(x, y interface{}) bool {
+	normalize := func(v interface{}) interface{} {
+		vv := reflect.ValueOf(v)
+		switch vv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return vv.Int()
+		case reflect.Float32, reflect.Float64:
+			return vv.Float()
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return vv.Uint()
+		default:
+			return v
+		}
+	}
+	x = normalize(x)
+	y = normalize(y)
 	return reflect.DeepEqual(x, y)
 }
 
