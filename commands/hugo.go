@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-2015 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
+	"gopkg.in/fsnotify.v1"
 )
 
 //HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
@@ -349,7 +350,7 @@ func buildSite(watching ...bool) (err error) {
 	return nil
 }
 
-//NewWatcher creates a new watcher to watch filesystem events.
+// NewWatcher creates a new watcher to watch filesystem events.
 func NewWatcher(port int) error {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
@@ -369,14 +370,14 @@ func NewWatcher(port int) error {
 
 	for _, d := range getDirList() {
 		if d != "" {
-			_ = watcher.Watch(d)
+			_ = watcher.Add(d)
 		}
 	}
 
 	go func() {
 		for {
 			select {
-			case evs := <-watcher.Event:
+			case evs := <-watcher.Events:
 				jww.INFO.Println("File System Event:", evs)
 
 				staticChanged := false
@@ -385,12 +386,12 @@ func NewWatcher(port int) error {
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
-					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || (strings.HasPrefix(ext, ".goutputstream"))
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || strings.HasPrefix(ext, ".goutputstream")
 					if istemp {
 						continue
 					}
 					// renames are always followed with Create/Modify
-					if ev.IsRename() {
+					if ev.Op&fsnotify.Rename == fsnotify.Rename {
 						continue
 					}
 
@@ -406,8 +407,8 @@ func NewWatcher(port int) error {
 
 					// add new directory to watch list
 					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-						if ev.IsCreate() {
-							watcher.Watch(ev.Name)
+						if ev.Op&fsnotify.Create == fsnotify.Create {
+							watcher.Add(ev.Name)
 						}
 					}
 				}
@@ -442,7 +443,7 @@ func NewWatcher(port int) error {
 						livereload.ForceRefresh()
 					}
 				}
-			case err := <-watcher.Error:
+			case err := <-watcher.Errors:
 				if err != nil {
 					fmt.Println("error:", err)
 				}
