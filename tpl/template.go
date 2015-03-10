@@ -1230,6 +1230,10 @@ func isDotFile(path string) bool {
 	return filepath.Base(path)[0] == '.'
 }
 
+func isBackupFile(path string) bool {
+	return path[len(path)-1] == '~'
+}
+
 func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -1254,7 +1258,7 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if !fi.IsDir() {
-			if isDotFile(path) {
+			if isDotFile(path) || isBackupFile(path) {
 				return nil
 			}
 
