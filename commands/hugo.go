@@ -292,6 +292,7 @@ func copyStatic() error {
 	return syncer.Sync(publishDir, staticDir)
 }
 
+// getDirList provides NewWatcher() with a list of directories to watch for changes.
 func getDirList() []string {
 	var a []string
 	walker := func(path string, fi os.FileInfo, err error) error {
@@ -318,6 +319,10 @@ func getDirList() []string {
 		}
 
 		if fi.IsDir() {
+			if fi.Name() == ".git" ||
+				fi.Name() == "node_modules" || fi.Name() == "bower_components" {
+				return filepath.SkipDir
+			}
 			a = append(a, path)
 		}
 		return nil
