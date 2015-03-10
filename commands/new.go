@@ -220,13 +220,17 @@ func touchFile(x ...string) {
 
 func createThemeMD(inpath string) (err error) {
 
-	by := []byte(`name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
+	by := []byte(`# theme.toml template for a Hugo theme
+# See https://github.com/spf13/hugoThemes#themetoml for an example
+
+name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
 license = "MIT"
-licenselink = "https://github.com/.../.../LICENSE.md"
+licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE.md"
 description = ""
 homepage = "http://siteforthistheme.com/"
 tags = ["", ""]
 features = ["", ""]
+min_version = 0.13
 
 [author]
   name = ""
