@@ -53,19 +53,17 @@ func (f *File) BaseFileName() string {
 func (f *File) Section() string {
 	if f.section != "" {
 		return f.section
-	} else {
-		f.section = helpers.GuessSection(f.Dir())
-		return f.section
 	}
+	f.section = helpers.GuessSection(f.Dir())
+	return f.section
 }
 
 func (f *File) LogicalName() string {
 	if f.logicalName != "" {
 		return f.logicalName
-	} else {
-		_, f.logicalName = filepath.Split(f.relpath)
-		return f.logicalName
 	}
+	_, f.logicalName = filepath.Split(f.relpath)
+	return f.logicalName
 }
 
 func (f *File) SetDir(dir string) {
@@ -75,19 +73,17 @@ func (f *File) SetDir(dir string) {
 func (f *File) Dir() string {
 	if f.dir != "" {
 		return f.dir
-	} else {
-		f.dir, _ = filepath.Split(f.relpath)
-		return f.dir
 	}
+	f.dir, _ = filepath.Split(f.relpath)
+	return f.dir
 }
 
 func (f *File) Extension() string {
 	if f.ext != "" {
 		return f.ext
-	} else {
-		f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
-		return f.ext
 	}
+	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
+	return f.ext
 }
 
 func (f *File) Ext() string {

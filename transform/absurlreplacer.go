@@ -5,12 +5,8 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"net/url"
 	"strings"
-	"sync"
 	"unicode/utf8"
 )
-
-// position (in bytes)
-type pos int
 
 type matchState int
 
@@ -21,37 +17,23 @@ const (
 	matchStateFull
 )
 
-type item struct {
-	typ itemType
-	pos pos
-	val []byte
-}
-
-type itemType int
-
 const (
-	tText itemType = iota
-
-	// matches
-	tSrcdq
-	tHrefdq
-	tSrcsq
-	tHrefsq
+	matchPrefixSrc int = iota
+	matchPrefixHref
 )
 
 type contentlexer struct {
 	content []byte
 
-	pos   pos // input position
-	start pos // item start position
-	width pos // width of last element
+	pos   int // input position
+	start int // item start position
+	width int // width of last element
 
 	matchers     []absurlMatcher
 	state        stateFunc
 	prefixLookup *prefixes
 
-	// items delivered to client
-	items []item
+	b *bytes.Buffer
 }
 
 type stateFunc func(*contentlexer) stateFunc
@@ -112,36 +94,55 @@ func (l *contentlexer) match(r rune) {
 	l.prefixLookup.ms = matchStateNone
 }
 
-func (l *contentlexer) emit(t itemType) {
-	l.items = append(l.items, item{t, l.start, l.content[l.start:l.pos]})
+func (l *contentlexer) emit() {
+	l.b.Write(l.content[l.start:l.pos])
 	l.start = l.pos
 }
 
 var mainPrefixRunes = []prefixRunes{{'s', 'r', 'c', '='}, {'h', 'r', 'e', 'f', '='}}
 
-var itemSlicePool = &sync.Pool{
-	New: func() interface{} {
-		return make([]item, 0, 8)
-	},
-}
-
-func (l *contentlexer) runReplacer() {
-	for l.state = lexReplacements; l.state != nil; {
-		l.state = l.state(l)
-	}
-}
-
 type absurlMatcher struct {
-	replaceType itemType
+	prefix      int
 	match       []byte
 	replacement []byte
 }
 
 func (a absurlMatcher) isSourceType() bool {
-	return a.replaceType == tSrcdq || a.replaceType == tSrcsq
+	return a.prefix == matchPrefixSrc
 }
 
-func lexReplacements(l *contentlexer) stateFunc {
+func checkCandidate(l *contentlexer) {
+	isSource := l.prefixLookup.first == 's'
+	for _, m := range l.matchers {
+
+		if isSource && !m.isSourceType() || !isSource && m.isSourceType() {
+			continue
+		}
+
+		if bytes.HasPrefix(l.content[l.pos:], m.match) {
+			// check for schemaless urls
+			posAfter := l.pos + len(m.match)
+			if int(posAfter) >= len(l.content) {
+				return
+			}
+			r, _ := utf8.DecodeRune(l.content[posAfter:])
+			if r == '/' {
+				// schemaless: skip
+				return
+			}
+			if l.pos > l.start {
+				l.emit()
+			}
+			l.pos += len(m.match)
+			l.b.Write(m.replacement)
+			l.start = l.pos
+			return
+
+		}
+	}
+}
+
+func (l *contentlexer) replace() {
 	contentLength := len(l.content)
 	var r rune
 
@@ -156,7 +157,7 @@ func lexReplacements(l *contentlexer) stateFunc {
 		if r >= utf8.RuneSelf {
 			r, width = utf8.DecodeRune(l.content[l.pos:])
 		}
-		l.width = pos(width)
+		l.width = width
 		l.pos += l.width
 
 		if r == ' ' {
@@ -172,38 +173,7 @@ func lexReplacements(l *contentlexer) stateFunc {
 
 	// Done!
 	if l.pos > l.start {
-		l.emit(tText)
-	}
-	return nil
-}
-
-func checkCandidate(l *contentlexer) {
-	isSource := l.prefixLookup.first == 's'
-	for _, m := range l.matchers {
-
-		if isSource && !m.isSourceType() || !isSource && m.isSourceType() {
-			continue
-		}
-
-		if bytes.HasPrefix(l.content[l.pos:], m.match) {
-			// check for schemaless urls
-			posAfter := pos(int(l.pos) + len(m.match))
-			if int(posAfter) >= len(l.content) {
-				return
-			}
-			r, _ := utf8.DecodeRune(l.content[posAfter:])
-			if r == '/' {
-				// schemaless: skip
-				return
-			}
-			if l.pos > l.start {
-				l.emit(tText)
-			}
-			l.pos += pos(len(m.match))
-			l.emit(m.replaceType)
-			return
-
-		}
+		l.emit()
 	}
 }
 
@@ -211,34 +181,12 @@ func doReplace(content []byte, matchers []absurlMatcher) []byte {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 
-	var items []item
-	if x := itemSlicePool.Get(); x != nil {
-		items = x.([]item)[:0]
-		defer itemSlicePool.Put(items)
-	} else {
-		items = make([]item, 0, 8)
-	}
-
 	lexer := &contentlexer{content: content,
-		items:        items,
+		b:            b,
 		prefixLookup: &prefixes{pr: mainPrefixRunes},
 		matchers:     matchers}
 
-	lexer.runReplacer()
-
-	for _, token := range lexer.items {
-		switch token.typ {
-		case tText:
-			b.Write(token.val)
-		default:
-			for _, e := range matchers {
-				if token.typ == e.replaceType {
-					b.Write(e.replacement)
-					break
-				}
-			}
-		}
-	}
+	lexer.replace()
 
 	return b.Bytes()
 }
@@ -266,16 +214,17 @@ func newAbsurlReplacer(baseUrl string) *absurlReplacer {
 	dqXml := []byte("&#34;" + base + "/")
 	sqXml := []byte("&#39;" + base + "/")
 
-	return &absurlReplacer{htmlMatchers: []absurlMatcher{
-		{tSrcdq, dqHtmlMatch, dqHtml},
-		{tSrcsq, sqHtmlMatch, sqHtml},
-		{tHrefdq, dqHtmlMatch, dqHtml},
-		{tHrefsq, sqHtmlMatch, sqHtml}},
+	return &absurlReplacer{
+		htmlMatchers: []absurlMatcher{
+			{matchPrefixSrc, dqHtmlMatch, dqHtml},
+			{matchPrefixSrc, sqHtmlMatch, sqHtml},
+			{matchPrefixHref, dqHtmlMatch, dqHtml},
+			{matchPrefixHref, sqHtmlMatch, sqHtml}},
 		xmlMatchers: []absurlMatcher{
-			{tSrcdq, dqXmlMatch, dqXml},
-			{tSrcsq, sqXmlMatch, sqXml},
-			{tHrefdq, dqXmlMatch, dqXml},
-			{tHrefsq, sqXmlMatch, sqXml},
+			{matchPrefixSrc, dqXmlMatch, dqXml},
+			{matchPrefixSrc, sqXmlMatch, sqXml},
+			{matchPrefixHref, dqXmlMatch, dqXml},
+			{matchPrefixHref, sqXmlMatch, sqXml},
 		}}
 
 }

@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-var OutputDir string
-var Unsafe bool
+var outputDir string
+var unsafe bool
 
 var convertCmd = &cobra.Command{
 	Use:   "convert",
@@ -80,8 +80,8 @@ func init() {
 	convertCmd.AddCommand(toJSONCmd)
 	convertCmd.AddCommand(toTOMLCmd)
 	convertCmd.AddCommand(toYAMLCmd)
-	convertCmd.PersistentFlags().StringVarP(&OutputDir, "output", "o", "", "filesystem path to write files to")
-	convertCmd.PersistentFlags().BoolVar(&Unsafe, "unsafe", false, "enable less safe operations, please backup first")
+	convertCmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
+	convertCmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
 }
 
 func convertContents(mark rune) (err error) {
@@ -134,10 +134,10 @@ func convertContents(mark rune) (err error) {
 		page.SetSourceContent(psr.Content())
 		page.SetSourceMetaData(metadata, mark)
 
-		if OutputDir != "" {
-			page.SaveSourceAs(filepath.Join(OutputDir, page.FullFilePath()))
+		if outputDir != "" {
+			page.SaveSourceAs(filepath.Join(outputDir, page.FullFilePath()))
 		} else {
-			if Unsafe {
+			if unsafe {
 				page.SaveSource()
 			} else {
 				jww.FEEDBACK.Println("Unsafe operation not allowed, use --unsafe or set a different output path")

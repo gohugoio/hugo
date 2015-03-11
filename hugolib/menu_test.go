@@ -399,7 +399,7 @@ func (ts testMenuState) findTestMenuEntryByName(mn string, id string) *MenuEntry
 }
 
 func (ts testMenuState) findTestMenuEntry(mn string, id string, matcher func(me *MenuEntry, id string) bool) *MenuEntry {
-	var found *MenuEntry = nil
+	var found *MenuEntry
 	if menu, ok := ts.site.Menus[mn]; ok {
 		for _, me := range *menu {
 
@@ -423,7 +423,7 @@ func (ts testMenuState) findTestMenuEntry(mn string, id string, matcher func(me 
 }
 
 func (ts testMenuState) findDescendantTestMenuEntry(parent *MenuEntry, id string, matcher func(me *MenuEntry, id string) bool) *MenuEntry {
-	var found *MenuEntry = nil
+	var found *MenuEntry
 	if parent.HasChildren() {
 		for _, child := range parent.Children {
 
@@ -500,7 +500,7 @@ func testSiteSetup(s *Site, t *testing.T) {
 }
 
 func tomlToMap(s string) (map[string]interface{}, error) {
-	var data map[string]interface{} = make(map[string]interface{})
+	var data = make(map[string]interface{})
 	if _, err := toml.Decode(s, &data); err != nil {
 		return nil, err
 	}

@@ -128,8 +128,6 @@ func FormatToLeadRune(kind string) rune {
 	switch FormatSanitize(kind) {
 	case "yaml":
 		return rune([]byte(YAML_LEAD)[0])
-	case "toml":
-		return rune([]byte(TOML_LEAD)[0])
 	case "json":
 		return rune([]byte(JSON_LEAD)[0])
 	default:

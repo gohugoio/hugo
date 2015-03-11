@@ -52,9 +52,8 @@ func (PathBridge) Separator() string {
 
 var pathBridge PathBridge
 
-// SanitizeUrl sanitizes the input URL string.
-func SanitizeUrl(in string) string {
-	s, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+func sanitizeUrlWithFlags(in string, f purell.NormalizationFlags) string {
+	s, err := purell.NormalizeURLString(in, f)
 	if err != nil {
 		return in
 	}
@@ -85,6 +84,17 @@ func SanitizeUrl(in string) string {
 	// End temporary kludge
 
 	//return s
+
+}
+
+// SanitizeUrl sanitizes the input URL string.
+func SanitizeUrl(in string) string {
+	return sanitizeUrlWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+}
+
+// SanitizeUrlKeepTrailingSlash is the same as SanitizeUrl, but will keep any trailing slash.
+func SanitizeUrlKeepTrailingSlash(in string) string {
+	return sanitizeUrlWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
 // Similar to MakePath, but with Unicode handling
@@ -162,18 +172,17 @@ func UrlPrep(ugly bool, in string) string {
 	if ugly {
 		x := Uglify(SanitizeUrl(in))
 		return x
-	} else {
-		x := PrettifyUrl(SanitizeUrl(in))
-		if path.Ext(x) == ".xml" {
-			return x
-		}
-		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
-		if err != nil {
-			fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
-			return in
-		}
-		return url
 	}
+	x := PrettifyUrl(SanitizeUrl(in))
+	if path.Ext(x) == ".xml" {
+		return x
+	}
+	url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
+	if err != nil {
+		fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
+		return in
+	}
+	return url
 }
 
 // PrettifyUrl takes a URL string and returns a semantic, clean URL.
@@ -211,19 +220,17 @@ func Uglify(in string) string {
 		}
 		// /section/name/  -> /section/name.html
 		return path.Clean(in) + ".html"
-	} else {
-		name, ext := FileAndExt(in, pathBridge)
-		if name == "index" {
-			// /section/name/index.html -> /section/name.html
-			d := path.Dir(in)
-			if len(d) > 1 {
-				return d + ext
-			} else {
-				return in
-			}
-		} else {
-			// /section/name.html -> /section/name.html
-			return path.Clean(in)
-		}
 	}
+
+	name, ext := FileAndExt(in, pathBridge)
+	if name == "index" {
+		// /section/name/index.html -> /section/name.html
+		d := path.Dir(in)
+		if len(d) > 1 {
+			return d + ext
+		}
+		return in
+	}
+	// /section/name.html -> /section/name.html
+	return path.Clean(in)
 }

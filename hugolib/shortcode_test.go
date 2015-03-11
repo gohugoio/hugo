@@ -33,6 +33,14 @@ func TestNonSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", tem)
 }
 
+// Issue #929
+func TestHyphenatedSC(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+
+	CheckShortCodeMatch(t, "{{< hyphenated-video 47238zzb >}}", "Playing Video 47238zzb", tem)
+}
+
 func TestPositionalParamSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
@@ -176,7 +184,10 @@ func TestExtractShortcodes(t *testing.T) {
 			testScPlaceholderRegexp, ""},
 		{"inner", `Some text. {{< inner >}}Inner Content{{< / inner >}}. Some more text.`, `inner([], false){[Inner Content]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
-		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' has no .Inner.*"},
+		// issue #934
+		{"inner self-closing", `Some text. {{< inner />}}. Some more text.`, `inner([], false){[]}`,
+			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
+		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' in page 'simple.md' has no .Inner.*"},
 		{"nested inner", `Inner->{{< inner >}}Inner Content->{{% inner2 param1 %}}inner2txt{{% /inner2 %}}Inner close->{{< / inner >}}<-done`,
 			`inner([], false){[Inner Content-> inner2([\"param1\"], true){[inner2txt]} Inner close->]}`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
@@ -204,7 +215,7 @@ func TestExtractShortcodes(t *testing.T) {
 		tem.AddInternalShortcode("tag.html", `tag`)
 		tem.AddInternalShortcode("sc1.html", `sc1`)
 		tem.AddInternalShortcode("sc2.html", `sc2`)
-		tem.AddInternalShortcode("inner.html", `{{.Inner}}`)
+		tem.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
 		tem.AddInternalShortcode("inner2.html", `{{.Inner}}`)
 		tem.AddInternalShortcode("inner3.html", `{{.Inner}}`)
 

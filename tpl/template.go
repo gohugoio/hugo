@@ -94,6 +94,21 @@ func New() Template {
 }
 
 func Eq(x, y interface{}) bool {
+	normalize := func(v interface{}) interface{} {
+		vv := reflect.ValueOf(v)
+		switch vv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return vv.Int()
+		case reflect.Float32, reflect.Float64:
+			return vv.Float()
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return vv.Uint()
+		default:
+			return v
+		}
+	}
+	x = normalize(x)
+	y = normalize(y)
 	return reflect.DeepEqual(x, y)
 }
 
@@ -835,7 +850,7 @@ func Highlight(in interface{}, lang string) template.HTML {
 }
 
 func Markdownify(text string) template.HTML {
-	return template.HTML(helpers.RenderBytes(helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
+	return template.HTML(helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
@@ -1215,6 +1230,10 @@ func isDotFile(path string) bool {
 	return filepath.Base(path)[0] == '.'
 }
 
+func isBackupFile(path string) bool {
+	return path[len(path)-1] == '~'
+}
+
 func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -1239,7 +1258,7 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if !fi.IsDir() {
-			if isDotFile(path) {
+			if isDotFile(path) || isBackupFile(path) {
 				return nil
 			}
 

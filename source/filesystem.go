@@ -107,17 +107,17 @@ func (f *Filesystem) captureFiles() {
 				return filepath.SkipDir
 			}
 			return nil
-		} else {
-			if isNonProcessablePath(filePath) {
-				return nil
-			}
-			data, err := ioutil.ReadFile(filePath)
-			if err != nil {
-				return err
-			}
-			f.add(filePath, bytes.NewBuffer(data))
+		}
+
+		if isNonProcessablePath(filePath) {
 			return nil
 		}
+		data, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			return err
+		}
+		f.add(filePath, bytes.NewBuffer(data))
+		return nil
 	}
 
 	filepath.Walk(f.Base, walker)

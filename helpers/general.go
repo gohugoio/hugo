@@ -31,6 +31,7 @@ import (
 // Filepath separator defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
+// FindAvailablePort returns an available and valid TCP port.
 func FindAvailablePort() (*net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")
 	if err == nil {
@@ -100,6 +101,7 @@ func BytesToReader(in []byte) io.Reader {
 	return bytes.NewReader(in)
 }
 
+// ThemeSet checks whether a theme is in use or not.
 func ThemeSet() bool {
 	return viper.GetString("theme") != ""
 }
@@ -193,9 +195,8 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 		if bv.Kind() == reflect.String && op == '+' {
 			bs := bv.String()
 			return as + bs, nil
-		} else {
-			return nil, errors.New("Can't apply the operator to the values")
 		}
+		return nil, errors.New("Can't apply the operator to the values")
 	default:
 		return nil, errors.New("Can't apply the operator to the values")
 	}

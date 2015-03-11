@@ -76,10 +76,25 @@ func TestPagerNoPages(t *testing.T) {
 	paginator, _ := newPaginator(pages, 5, urlFactory)
 	paginatorPages := paginator.Pagers()
 
-	assert.Equal(t, 0, len(paginatorPages))
+	assert.Equal(t, 1, len(paginatorPages))
 	assert.Equal(t, 0, paginator.TotalNumberOfElements())
 	assert.Equal(t, 5, paginator.PageSize())
 	assert.Equal(t, 0, paginator.TotalPages())
+
+	// pageOne should be nothing but the first
+	pageOne := paginatorPages[0]
+	assert.NotNil(t, pageOne.First())
+	assert.False(t, pageOne.HasNext())
+	assert.False(t, pageOne.HasPrev())
+	assert.Nil(t, pageOne.Next())
+	assert.Equal(t, 1, len(pageOne.Pagers()))
+	assert.Equal(t, 0, len(pageOne.Pages()))
+	assert.Equal(t, 0, pageOne.NumberOfElements())
+	assert.Equal(t, 0, pageOne.TotalNumberOfElements())
+	assert.Equal(t, 0, pageOne.TotalPages())
+	assert.Equal(t, 1, pageOne.PageNumber())
+	assert.Equal(t, 5, pageOne.PageSize())
+
 }
 
 func TestPaginationUrlFactory(t *testing.T) {

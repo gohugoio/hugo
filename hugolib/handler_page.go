@@ -65,9 +65,8 @@ func (h markdownHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
 			return HandledResult{err: err}
-		} else {
-			tmpContent = tmpContentWithTokensReplaced
 		}
+		tmpContent = tmpContentWithTokensReplaced
 	}
 
 	p.Content = helpers.BytesToHTML(tmpContent)
@@ -118,9 +117,8 @@ func (h rstHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
 			return HandledResult{err: err}
-		} else {
-			tmpContent = tmpContentWithTokensReplaced
 		}
+		tmpContent = tmpContentWithTokensReplaced
 	}
 
 	p.Content = helpers.BytesToHTML(tmpContent)

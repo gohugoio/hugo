@@ -13,7 +13,7 @@
 
 package hugolib
 
-// An image contains metadata for images + image sitemaps
+// An Image contains metadata for images + image sitemaps
 // https://support.google.com/webmasters/answer/178636?hl=en
 type Image struct {
 
@@ -37,7 +37,7 @@ type Image struct {
 	License string
 }
 
-// An video contains metadata for videos + video sitemaps
+// A Video contains metadata for videos + video sitemaps
 // https://support.google.com/webmasters/answer/80471?hl=en
 type Video struct {
 	ThumbnailLoc         string

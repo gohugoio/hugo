@@ -110,13 +110,13 @@ func TestSliceToLowerNonDestructive(t *testing.T) {
 	// This assignment actually copies the content
 	// of input into a new object.
 	// Otherwise, the test would not make sense...
-	input_copy := input
+	inputCopy := input
 
 	SliceToLower(input)
 
 	for i, e := range input {
-		if e != input_copy[i] {
-			t.Errorf("TestSliceToLowerNonDestructive failed. Expected element #%d of input slice to be %s. Found %s.", i, input_copy[i], input[i])
+		if e != inputCopy[i] {
+			t.Errorf("TestSliceToLowerNonDestructive failed. Expected element #%d of input slice to be %s. Found %s.", i, inputCopy[i], input[i])
 		}
 	}
 }
@@ -204,7 +204,7 @@ func TestDoArithmetic(t *testing.T) {
 		result, err := DoArithmetic(this.a, this.b, this.op)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error")
+				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
