@@ -56,8 +56,8 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyUrls, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
-var Source, CacheDir, Destination, Theme, BaseUrl, CfgFile, LogFile, Editor string
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
@@ -89,8 +89,8 @@ func init() {
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&UglyUrls, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
-	HugoCmd.PersistentFlags().StringVarP(&BaseUrl, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
+	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
@@ -127,10 +127,10 @@ func InitializeConfig() {
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
-	viper.SetDefault("UglyUrls", false)
+	viper.SetDefault("UglyURLs", false)
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("IgnoreCache", false)
-	viper.SetDefault("CanonifyUrls", false)
+	viper.SetDefault("CanonifyURLs", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
@@ -155,7 +155,7 @@ func InitializeConfig() {
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("uglyUrls").Changed {
-		viper.Set("UglyUrls", UglyUrls)
+		viper.Set("UglyURLs", UglyURLs)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("disableRSS").Changed {
@@ -181,14 +181,14 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
 		viper.Set("LogFile", LogFile)
 	}
-	if BaseUrl != "" {
-		if !strings.HasSuffix(BaseUrl, "/") {
-			BaseUrl = BaseUrl + "/"
+	if BaseURL != "" {
+		if !strings.HasSuffix(BaseURL, "/") {
+			BaseURL = BaseURL + "/"
 		}
-		viper.Set("BaseUrl", BaseUrl)
+		viper.Set("BaseURL", BaseURL)
 	}
 
-	if viper.GetString("BaseUrl") == "" {
+	if viper.GetString("BaseURL") == "" {
 		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
 	}
 

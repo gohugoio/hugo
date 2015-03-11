@@ -16,8 +16,8 @@ func TestPermalink(t *testing.T) {
 		base         template.URL
 		slug         string
 		url          string
-		uglyUrls     bool
-		canonifyUrls bool
+		uglyURLs     bool
+		canonifyURLs bool
 		expectedAbs  string
 		expectedRel  string
 	}{
@@ -42,8 +42,8 @@ func TestPermalink(t *testing.T) {
 	viper.Set("DefaultExtension", "html")
 
 	for i, test := range tests {
-		viper.Set("uglyurls", test.uglyUrls)
-		viper.Set("canonifyurls", test.canonifyUrls)
+		viper.Set("uglyurls", test.uglyURLs)
+		viper.Set("canonifyurls", test.canonifyURLs)
 		p := &Page{
 			Node: Node{
 				UrlPath: UrlPath{

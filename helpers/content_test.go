@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const tstHtmlContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
+const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
 
 func TestStripHTML(t *testing.T) {
 	type test struct {
@@ -31,7 +31,7 @@ func TestStripHTML(t *testing.T) {
 func BenchmarkStripHTML(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		StripHTML(tstHtmlContent)
+		StripHTML(tstHTMLContent)
 	}
 }
 

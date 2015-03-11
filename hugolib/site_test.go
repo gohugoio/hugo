@@ -309,18 +309,18 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 // Issue #939
 func Test404ShouldAlwaysHaveUglyUrls(t *testing.T) {
-	for _, uglyUrls := range []bool{true, false} {
-		doTest404ShouldAlwaysHaveUglyUrls(t, uglyUrls)
+	for _, uglyURLs := range []bool{true, false} {
+		doTest404ShouldAlwaysHaveUglyUrls(t, uglyURLs)
 	}
 }
 
-func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyUrls bool) {
+func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 	viper.Set("verbose", true)
 	viper.Set("baseurl", "http://auth/bub")
 	viper.Set("DisableSitemap", false)
 	viper.Set("DisableRSS", false)
 
-	viper.Set("UglyUrls", uglyUrls)
+	viper.Set("UglyURLs", uglyURLs)
 
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
@@ -328,7 +328,7 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyUrls bool) {
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyUrls: uglyUrls}},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: uglyURLs}},
 	}
 
 	s.initializeSiteInfo()
@@ -347,7 +347,7 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyUrls bool) {
 	s.RenderSitemap()
 
 	var expectedPagePath string
-	if uglyUrls {
+	if uglyURLs {
 		expectedPagePath = "sect/doc1.html"
 	} else {
 		expectedPagePath = "sect/doc1/index.html"
@@ -392,11 +392,11 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	viper.Set("verbose", true)
-	viper.Set("CanonifyUrls", true)
+	viper.Set("CanonifyURLs", true)
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
 	}
 
 	s.initializeSiteInfo()
@@ -442,13 +442,13 @@ func TestAbsUrlify(t *testing.T) {
 		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, canonify := range []bool{true, false} {
-		viper.Set("CanonifyUrls", canonify)
-		viper.Set("BaseUrl", "http://auth/bub")
+		viper.Set("CanonifyURLs", canonify)
+		viper.Set("BaseURL", "http://auth/bub")
 		s := &Site{
 			Source:  &source.InMemorySource{ByteSource: sources},
-			Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
+			Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
 		}
-		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", viper.GetString("baseUrl"), canonify)
+		t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
 		s.initializeSiteInfo()
 		templatePrep(s)
 		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
@@ -823,13 +823,13 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 }
 
-func TestDataDirJson(t *testing.T) {
+func TestDataDirJSON(t *testing.T) {
 	sources := []source.ByteSource{
 		{filepath.FromSlash("test/foo.json"), []byte(`{ "bar": "foofoo"  }`)},
 		{filepath.FromSlash("test.json"), []byte(`{ "hello": [ { "world": "foo" } ] }`)},
 	}
 
-	expected, err := parser.HandleJsonMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
+	expected, err := parser.HandleJSONMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
 
 	if err != nil {
 		t.Fatalf("Error %s", err)
@@ -843,7 +843,7 @@ func TestDataDirToml(t *testing.T) {
 		{filepath.FromSlash("test/kung.toml"), []byte("[foo]\nbar = 1")},
 	}
 
-	expected, err := parser.HandleTomlMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
+	expected, err := parser.HandleTOMLMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
 
 	if err != nil {
 		t.Fatalf("Error %s", err)
@@ -852,7 +852,7 @@ func TestDataDirToml(t *testing.T) {
 	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: sources}})
 }
 
-func TestDataDirYamlWithOverridenValue(t *testing.T) {
+func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 	sources := []source.ByteSource{
 		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
 		{filepath.FromSlash("a.yaml"), []byte("a: 1")},
@@ -878,7 +878,7 @@ func TestDataDirMultipleSources(t *testing.T) {
 		{filepath.FromSlash("test/second.toml"), []byte("tender = 2")},
 	}
 
-	expected, _ := parser.HandleTomlMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
+	expected, _ := parser.HandleTOMLMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
 
 	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: s1}, &source.InMemorySource{ByteSource: s2}})
 
