@@ -27,14 +27,14 @@ type File struct {
 	section     string // The first directory
 	dir         string // The full directory Path (minus file name)
 	ext         string // Just the ext (eg txt)
-	uniqueId    string // MD5 of the filename
+	uniqueID    string // MD5 of the filename
 }
 
-func (f *File) UniqueId() string {
-	if f.uniqueId == "" {
-		f.uniqueId = helpers.Md5String(f.LogicalName())
+func (f *File) UniqueID() string {
+	if f.uniqueID == "" {
+		f.uniqueID = helpers.Md5String(f.LogicalName())
 	}
-	return f.uniqueId
+	return f.uniqueID
 }
 
 func (f *File) String() string {

@@ -74,7 +74,7 @@ func TestTranslateUglyUrls(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		f := &PagePub{UglyUrls: true}
+		f := &PagePub{UglyURLs: true}
 		dest, err := f.Translate(filepath.FromSlash(test.content))
 		if err != nil {
 			t.Fatalf("Translate returned an unexpected err: %s", err)

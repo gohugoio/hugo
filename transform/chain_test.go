@@ -54,7 +54,7 @@ func TestChainZeroTransformers(t *testing.T) {
 	}
 }
 
-func BenchmarkAbsUrl(b *testing.B) {
+func BenchmarkAbsURL(b *testing.B) {
 	absURL, _ := AbsURL("http://base")
 	tr := NewChain(absURL...)
 
@@ -64,7 +64,7 @@ func BenchmarkAbsUrl(b *testing.B) {
 	}
 }
 
-func TestAbsUrl(t *testing.T) {
+func TestAbsURL(t *testing.T) {
 	absURL, _ := AbsURL("http://base")
 	tr := NewChain(absURL...)
 
@@ -72,7 +72,7 @@ func TestAbsUrl(t *testing.T) {
 
 }
 
-func BenchmarkXmlAbsUrl(b *testing.B) {
+func BenchmarkXMLAbsURL(b *testing.B) {
 	absURLInXML, _ := AbsURLInXML("http://base")
 	tr := NewChain(absURLInXML...)
 
@@ -82,7 +82,7 @@ func BenchmarkXmlAbsUrl(b *testing.B) {
 	}
 }
 
-func TestXMLAbsUrl(t *testing.T) {
+func TestXMLAbsURL(t *testing.T) {
 	absURLInXML, _ := AbsURLInXML("http://base")
 	tr := NewChain(absURLInXML...)
 	apply(t.Errorf, tr, xml_abs_url_tests)

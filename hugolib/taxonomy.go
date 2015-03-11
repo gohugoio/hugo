@@ -162,7 +162,7 @@ func (wp WeightedPages) Pages() Pages {
 
 func (wp WeightedPages) Prev(cur *Page) *Page {
 	for x, c := range wp {
-		if c.Page.UniqueId() == cur.UniqueId() {
+		if c.Page.UniqueID() == cur.UniqueID() {
 			if x == 0 {
 				return wp[len(wp)-1].Page
 			}
@@ -174,7 +174,7 @@ func (wp WeightedPages) Prev(cur *Page) *Page {
 
 func (wp WeightedPages) Next(cur *Page) *Page {
 	for x, c := range wp {
-		if c.Page.UniqueId() == cur.UniqueId() {
+		if c.Page.UniqueID() == cur.UniqueID() {
 			if x < len(wp)-1 {
 				return wp[x+1].Page
 			}

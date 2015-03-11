@@ -29,7 +29,7 @@ type contentlexer struct {
 	start int // item start position
 	width int // width of last element
 
-	matchers     []absurlMatcher
+	matchers     []absURLMatcher
 	state        stateFunc
 	prefixLookup *prefixes
 
@@ -101,13 +101,13 @@ func (l *contentlexer) emit() {
 
 var mainPrefixRunes = []prefixRunes{{'s', 'r', 'c', '='}, {'h', 'r', 'e', 'f', '='}}
 
-type absurlMatcher struct {
+type absURLMatcher struct {
 	prefix      int
 	match       []byte
 	replacement []byte
 }
 
-func (a absurlMatcher) isSourceType() bool {
+func (a absURLMatcher) isSourceType() bool {
 	return a.prefix == matchPrefixSrc
 }
 
@@ -177,7 +177,7 @@ func (l *contentlexer) replace() {
 	}
 }
 
-func doReplace(content []byte, matchers []absurlMatcher) []byte {
+func doReplace(content []byte, matchers []absURLMatcher) []byte {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 
@@ -191,48 +191,48 @@ func doReplace(content []byte, matchers []absurlMatcher) []byte {
 	return b.Bytes()
 }
 
-type absurlReplacer struct {
-	htmlMatchers []absurlMatcher
-	xmlMatchers  []absurlMatcher
+type absURLReplacer struct {
+	htmlMatchers []absURLMatcher
+	xmlMatchers  []absURLMatcher
 }
 
-func newAbsurlReplacer(baseUrl string) *absurlReplacer {
-	u, _ := url.Parse(baseUrl)
+func newAbsurlReplacer(baseURL string) *absURLReplacer {
+	u, _ := url.Parse(baseURL)
 	base := strings.TrimRight(u.String(), "/")
 
 	// HTML
-	dqHtmlMatch := []byte("\"/")
-	sqHtmlMatch := []byte("'/")
+	dqHTMLMatch := []byte("\"/")
+	sqHTMLMatch := []byte("'/")
 
 	// XML
-	dqXmlMatch := []byte("&#34;/")
-	sqXmlMatch := []byte("&#39;/")
+	dqXMLMatch := []byte("&#34;/")
+	sqXMLMatch := []byte("&#39;/")
 
-	dqHtml := []byte("\"" + base + "/")
-	sqHtml := []byte("'" + base + "/")
+	dqHTML := []byte("\"" + base + "/")
+	sqHTML := []byte("'" + base + "/")
 
-	dqXml := []byte("&#34;" + base + "/")
-	sqXml := []byte("&#39;" + base + "/")
+	dqXML := []byte("&#34;" + base + "/")
+	sqXML := []byte("&#39;" + base + "/")
 
-	return &absurlReplacer{
-		htmlMatchers: []absurlMatcher{
-			{matchPrefixSrc, dqHtmlMatch, dqHtml},
-			{matchPrefixSrc, sqHtmlMatch, sqHtml},
-			{matchPrefixHref, dqHtmlMatch, dqHtml},
-			{matchPrefixHref, sqHtmlMatch, sqHtml}},
-		xmlMatchers: []absurlMatcher{
-			{matchPrefixSrc, dqXmlMatch, dqXml},
-			{matchPrefixSrc, sqXmlMatch, sqXml},
-			{matchPrefixHref, dqXmlMatch, dqXml},
-			{matchPrefixHref, sqXmlMatch, sqXml},
+	return &absURLReplacer{
+		htmlMatchers: []absURLMatcher{
+			{matchPrefixSrc, dqHTMLMatch, dqHTML},
+			{matchPrefixSrc, sqHTMLMatch, sqHTML},
+			{matchPrefixHref, dqHTMLMatch, dqHTML},
+			{matchPrefixHref, sqHTMLMatch, sqHTML}},
+		xmlMatchers: []absURLMatcher{
+			{matchPrefixSrc, dqXMLMatch, dqXML},
+			{matchPrefixSrc, sqXMLMatch, sqXML},
+			{matchPrefixHref, dqXMLMatch, dqXML},
+			{matchPrefixHref, sqXMLMatch, sqXML},
 		}}
 
 }
 
-func (au *absurlReplacer) replaceInHtml(content []byte) []byte {
+func (au *absURLReplacer) replaceInHTML(content []byte) []byte {
 	return doReplace(content, au.htmlMatchers)
 }
 
-func (au *absurlReplacer) replaceInXml(content []byte) []byte {
+func (au *absURLReplacer) replaceInXML(content []byte) []byte {
 	return doReplace(content, au.xmlMatchers)
 }

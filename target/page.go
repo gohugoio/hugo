@@ -16,7 +16,7 @@ type PagePublisher interface {
 }
 
 type PagePub struct {
-	UglyUrls         bool
+	UglyURLs         bool
 	DefaultExtension string
 	PublishDir       string
 }
@@ -46,7 +46,7 @@ func (pp *PagePub) Translate(src string) (dest string, err error) {
 		dir = filepath.Join(pp.PublishDir, dir)
 	}
 
-	if pp.UglyUrls || file == "index.html" || file == "404.html" {
+	if pp.UglyURLs || file == "index.html" || file == "404.html" {
 		return filepath.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil
 	}
 
