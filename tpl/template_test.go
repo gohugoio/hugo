@@ -123,10 +123,10 @@ func TestArethmic(t *testing.T) {
 		{uint8(2), uint8(2), '*', uint64(4)},
 		{uint16(4), uint8(2), '/', uint64(2)},
 		{4, 2, '¤', false},
+		{4, 0, '/', false},
 	} {
 		// TODO(bep): Take precision into account.
 		result, err := doArithmetic(this.a, this.b, this.op)
-
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] doArethmic didn't return an expected error", i)
