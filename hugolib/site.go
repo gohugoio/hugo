@@ -1305,8 +1305,8 @@ func (s *Site) RenderSitemap() error {
 func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
-	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
-	jww.FEEDBACK.Printf("%d paginator pages created \n", s.Info.paginationPageCount)
+	jww.FEEDBACK.Printf("%d pages created\n", len(s.Pages))
+	jww.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
 	taxonomies := viper.GetStringMapString("Taxonomies")
 
 	for _, pl := range taxonomies {
@@ -1496,9 +1496,9 @@ func (s *Site) draftStats() string {
 
 	switch s.draftCount {
 	case 0:
-		return "0 draft content "
+		return "0 draft content"
 	case 1:
-		msg = "1 draft rendered "
+		msg = "1 draft rendered"
 	default:
 		msg = fmt.Sprintf("%d drafts rendered", s.draftCount)
 	}
