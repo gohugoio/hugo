@@ -20,12 +20,14 @@ import (
 	"errors"
 	"fmt"
 	bp "github.com/spf13/hugo/bufferpool"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"io"
 	"net"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 // Filepath separator defined by os.Separator.
@@ -104,6 +106,25 @@ func BytesToReader(in []byte) io.Reader {
 // ThemeSet checks whether a theme is in use or not.
 func ThemeSet() bool {
 	return viper.GetString("theme") != ""
+}
+
+// Avoid spamming the logs with errors
+var deprecatedLogs = struct {
+	sync.RWMutex
+	m map[string]bool
+}{m: make(map[string]bool)}
+
+func Deprecated(object, item, alternative string) {
+	deprecatedLogs.RLock()
+	logged := deprecatedLogs.m[object+item+alternative]
+	deprecatedLogs.RUnlock()
+	if logged {
+		return
+	}
+	deprecatedLogs.Lock()
+	jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo 0.15. Use %s instead.", object, item, alternative)
+	deprecatedLogs.m[object+item+alternative] = true
+	deprecatedLogs.Unlock()
 }
 
 // SliceToLower goes through the source slice and lowers all values.
