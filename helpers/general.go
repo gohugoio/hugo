@@ -115,15 +115,18 @@ var deprecatedLogs = struct {
 }{m: make(map[string]bool)}
 
 func Deprecated(object, item, alternative string) {
+	key := object + item + alternative
 	deprecatedLogs.RLock()
-	logged := deprecatedLogs.m[object+item+alternative]
+	logged := deprecatedLogs.m[key]
 	deprecatedLogs.RUnlock()
 	if logged {
 		return
 	}
 	deprecatedLogs.Lock()
-	jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo 0.15. Use %s instead.", object, item, alternative)
-	deprecatedLogs.m[object+item+alternative] = true
+	if !deprecatedLogs.m[key] {
+		jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo 0.15. Use %s instead.", object, item, alternative)
+		deprecatedLogs.m[key] = true
+	}
 	deprecatedLogs.Unlock()
 }
 
