@@ -295,8 +295,14 @@ func copyStatic() error {
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
 func getDirList() []string {
 	var a []string
+	dataDir := helpers.AbsPathify(viper.GetString("DataDir"))
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
+			if path == dataDir && os.IsNotExist(err) {
+				jww.WARN.Println("Skip DataDir:", err)
+				return nil
+
+			}
 			jww.ERROR.Println("Walker: ", err)
 			return nil
 		}
@@ -328,7 +334,7 @@ func getDirList() []string {
 		return nil
 	}
 
-	filepath.Walk(helpers.AbsPathify(viper.GetString("DataDir")), walker)
+	filepath.Walk(dataDir, walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("ContentDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
