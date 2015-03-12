@@ -75,6 +75,9 @@ func GuessType(in string) string {
 // ReaderToBytes takes an io.Reader argument, reads from it
 // and returns bytes.
 func ReaderToBytes(lines io.Reader) []byte {
+	if lines == nil {
+		return []byte{}
+	}
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 
@@ -87,6 +90,9 @@ func ReaderToBytes(lines io.Reader) []byte {
 
 // ReaderToString is the same as ReaderToBytes, but returns a string.
 func ReaderToString(lines io.Reader) string {
+	if lines == nil {
+		return ""
+	}
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 	b.ReadFrom(lines)
