@@ -365,6 +365,8 @@ func init() {
 		"getCSV":      GetCSV,
 		"getCsv":      GetCSV,
 		"seq":         helpers.Seq,
+		"getSql":      hugosql.GetSQL,
+		"getSQL":      hugosql.GetSQL,
 	}
 
 }
