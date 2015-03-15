@@ -153,8 +153,8 @@ func (p *Page) Authors() AuthorList {
 	return al
 }
 
-func (p *Page) UniqueId() string {
-	return p.Source.UniqueId()
+func (p *Page) UniqueID() string {
+	return p.Source.UniqueID()
 }
 
 func (p *Page) Ref(ref string) (string, error) {
@@ -199,12 +199,12 @@ func (p *Page) setSummary() {
 func (p *Page) renderBytes(content []byte) []byte {
 	return helpers.RenderBytes(
 		&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-			DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
+			DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
 	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-		DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
+		DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
@@ -340,15 +340,15 @@ func (p *Page) analyzePage() {
 }
 
 func (p *Page) permalink() (*url.URL, error) {
-	baseUrl := string(p.Site.BaseUrl)
+	baseURL := string(p.Site.BaseUrl)
 	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
 	pSlug := strings.TrimSpace(p.Slug)
-	pUrl := strings.TrimSpace(p.Url)
+	pURL := strings.TrimSpace(p.Url)
 	var permalink string
 	var err error
 
-	if len(pUrl) > 0 {
-		return helpers.MakePermalink(baseUrl, pUrl), nil
+	if len(pURL) > 0 {
+		return helpers.MakePermalink(baseURL, pURL), nil
 	}
 
 	if override, ok := p.Site.Permalinks[p.Section()]; ok {
@@ -360,14 +360,14 @@ func (p *Page) permalink() (*url.URL, error) {
 		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, p.Slug+"."+p.Extension()))
+			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
 			_, t := filepath.Split(p.Source.LogicalName())
-			permalink = helpers.UrlPrep(viper.GetBool("UglyUrls"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
+			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
 
-	return helpers.MakePermalink(baseUrl, permalink), nil
+	return helpers.MakePermalink(baseURL, permalink), nil
 }
 
 func (p *Page) Extension() string {
@@ -418,7 +418,7 @@ func (p *Page) RelPermalink() (string, error) {
 		return "", err
 	}
 
-	if viper.GetBool("CanonifyUrls") {
+	if viper.GetBool("CanonifyURLs") {
 		// replacements for relpermalink with baseUrl on the form http://myhost.com/sub/ will fail later on
 		// have to return the Url relative from baseUrl
 		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseUrl))
@@ -451,12 +451,12 @@ func (p *Page) update(f interface{}) error {
 		case "description":
 			p.Description = cast.ToString(v)
 		case "slug":
-			p.Slug = helpers.Urlize(cast.ToString(v))
+			p.Slug = helpers.URLize(cast.ToString(v))
 		case "url":
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative urls are supported, %v provided", url)
 			}
-			p.Url = helpers.Urlize(cast.ToString(v))
+			p.Url = helpers.URLize(cast.ToString(v))
 		case "type":
 			p.contentType = cast.ToString(v)
 		case "extension", "ext":

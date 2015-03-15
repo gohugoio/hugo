@@ -42,7 +42,7 @@ var SummaryDivider = []byte("<!--more-->")
 type Blackfriday struct {
 	AngledQuotes   bool
 	Fractions      bool
-	PlainIdAnchors bool
+	PlainIDAnchors bool
 	Extensions     []string
 }
 
@@ -51,7 +51,7 @@ func NewBlackfriday() *Blackfriday {
 	return &Blackfriday{
 		AngledQuotes:   false,
 		Fractions:      true,
-		PlainIdAnchors: false,
+		PlainIDAnchors: false,
 	}
 }
 
@@ -114,17 +114,17 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // GetHtmlRenderer creates a new Renderer with the given configuration.
-func GetHtmlRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
+func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	b := len(ctx.DocumentId) != 0
+	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIdAnchors {
-		renderParameters.FootnoteAnchorPrefix = ctx.DocumentId + ":" + renderParameters.FootnoteAnchorPrefix
-		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
+	if b && !ctx.getConfig().PlainIDAnchors {
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
+		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
 
 	htmlFlags := defaultFlags
@@ -159,13 +159,13 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 }
 
 func markdownRender(ctx *RenderingContext) []byte {
-	return blackfriday.Markdown(ctx.Content, GetHtmlRenderer(0, ctx),
+	return blackfriday.Markdown(ctx.Content, GetHTMLRenderer(0, ctx),
 		getMarkdownExtensions(ctx))
 }
 
 func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 	return blackfriday.Markdown(ctx.Content,
-		GetHtmlRenderer(blackfriday.HTML_TOC, ctx),
+		GetHTMLRenderer(blackfriday.HTML_TOC, ctx),
 		getMarkdownExtensions(ctx))
 }
 
@@ -210,7 +210,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 type RenderingContext struct {
 	Content    []byte
 	PageFmt    string
-	DocumentId string
+	DocumentID string
 	Config     *Blackfriday
 	configInit sync.Once
 }
@@ -231,6 +231,8 @@ func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 		return markdownRenderWithTOC(ctx)
 	case "markdown":
 		return markdownRenderWithTOC(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -243,6 +245,8 @@ func RenderBytes(ctx *RenderingContext) []byte {
 		return markdownRender(ctx)
 	case "markdown":
 		return markdownRender(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -304,6 +308,39 @@ func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
 // and returns the first paragraph of the html content.
 func ExtractFirstParagraph(content string) string {
 	return regexp.MustCompile("<h[123456]").Split(content, 2)[0]
+}
+
+// GetAsciidocContent calls asciidoctor or asciidoc as an external helper
+// to convert AsciiDoc content to HTML.
+func GetAsciidocContent(content []byte) string {
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		path, err = exec.LookPath("asciidoc")
+		if err != nil {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return (string(content))
+		}
+	}
+
+	jww.INFO.Println("Rendering with", path, "...")
+	cmd := exec.Command(path, "--safe", "-")
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		jww.ERROR.Println(err)
+	}
+
+	asciidocLines := strings.Split(out.String(), "\n")
+	for i, line := range asciidocLines {
+		if strings.HasPrefix(line, "<body") {
+			asciidocLines = (asciidocLines[i+1 : len(asciidocLines)-3])
+		}
+	}
+	return strings.Join(asciidocLines, "\n")
 }
 
 // GetRstContent calls the Python script rst2html as an external helper

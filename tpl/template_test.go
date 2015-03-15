@@ -972,7 +972,7 @@ func TestDateFormat(t *testing.T) {
 	}
 }
 
-func TestSafeHtml(t *testing.T) {
+func TestSafeHTML(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -997,7 +997,7 @@ func TestSafeHtml(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeHtml(this.str))
+		err = tmpl.Execute(buf, SafeHTML(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeHtml returns unexpected error: %s", i, err)
 		}
@@ -1007,7 +1007,7 @@ func TestSafeHtml(t *testing.T) {
 	}
 }
 
-func TestSafeHtmlAttr(t *testing.T) {
+func TestSafeHTMLAttr(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -1032,7 +1032,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeHtmlAttr(this.str))
+		err = tmpl.Execute(buf, SafeHTMLAttr(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeHtmlAttr returns unexpected error: %s", i, err)
 		}
@@ -1042,7 +1042,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 	}
 }
 
-func TestSafeCss(t *testing.T) {
+func TestSafeCSS(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -1067,7 +1067,7 @@ func TestSafeCss(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeCss(this.str))
+		err = tmpl.Execute(buf, SafeCSS(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeCss returns unexpected error: %s", i, err)
 		}
@@ -1077,7 +1077,7 @@ func TestSafeCss(t *testing.T) {
 	}
 }
 
-func TestSafeUrl(t *testing.T) {
+func TestSafeURL(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -1102,7 +1102,7 @@ func TestSafeUrl(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeUrl(this.str))
+		err = tmpl.Execute(buf, SafeURL(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeUrl returns unexpected error: %s", i, err)
 		}

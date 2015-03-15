@@ -113,8 +113,8 @@ type SiteInfo struct {
 	Permalinks          PermalinkOverrides
 	Params              map[string]interface{}
 	BuildDrafts         bool
-	SummaryStrategy 	string
-	canonifyUrls        bool
+	SummaryStrategy     string
+	canonifyURLs        bool
 	paginationPageCount uint64
 	Data                *map[string]interface{}
 }
@@ -159,10 +159,10 @@ func (s *SiteInfo) GetParam(key string) interface{} {
 }
 
 func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error) {
-	var refUrl *url.URL
+	var refURL *url.URL
 	var err error
 
-	refUrl, err = url.Parse(ref)
+	refURL, err = url.Parse(ref)
 
 	if err != nil {
 		return "", err
@@ -171,16 +171,16 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var target *Page
 	var link string
 
-	if refUrl.Path != "" {
+	if refURL.Path != "" {
 		for _, page := range []*Page(*s.Pages) {
-			if page.Source.Path() == refUrl.Path || page.Source.LogicalName() == refUrl.Path {
+			if page.Source.Path() == refURL.Path || page.Source.LogicalName() == refURL.Path {
 				target = page
 				break
 			}
 		}
 
 		if target == nil {
-			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refUrl.Path)
+			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refURL.Path)
 		}
 
 		if relative {
@@ -194,13 +194,13 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 		}
 	}
 
-	if refUrl.Fragment != "" {
-		link = link + "#" + refUrl.Fragment
+	if refURL.Fragment != "" {
+		link = link + "#" + refURL.Fragment
 
-		if refUrl.Path != "" && target != nil && !target.getRenderingConfig().PlainIdAnchors {
-			link = link + ":" + target.UniqueId()
-		} else if page != nil && !page.getRenderingConfig().PlainIdAnchors {
-			link = link + ":" + page.UniqueId()
+		if refURL.Path != "" && target != nil && !target.getRenderingConfig().PlainIDAnchors {
+			link = link + ":" + target.UniqueID()
+		} else if page != nil && !page.getRenderingConfig().PlainIDAnchors {
+			link = link + ":" + page.UniqueID()
 		}
 	}
 
@@ -317,11 +317,11 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 func readData(f *source.File) (interface{}, error) {
 	switch f.Extension() {
 	case "yaml", "yml":
-		return parser.HandleYamlMetaData(f.Bytes())
+		return parser.HandleYAMLMetaData(f.Bytes())
 	case "json":
-		return parser.HandleJsonMetaData(f.Bytes())
+		return parser.HandleJSONMetaData(f.Bytes())
 	case "toml":
-		return parser.HandleTomlMetaData(f.Bytes())
+		return parser.HandleTOMLMetaData(f.Bytes())
 	default:
 		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
 	}
@@ -446,14 +446,14 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseUrl:         template.URL(helpers.SanitizeUrlKeepTrailingSlash(viper.GetString("BaseUrl"))),
+		BaseUrl:         template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
 		Title:           viper.GetString("Title"),
 		Author:          viper.GetStringMap("author"),
 		LanguageCode:    viper.GetString("languagecode"),
 		Copyright:       viper.GetString("copyright"),
 		DisqusShortname: viper.GetString("DisqusShortname"),
 		BuildDrafts:     viper.GetBool("BuildDrafts"),
-		canonifyUrls:    viper.GetBool("CanonifyUrls"),
+		canonifyURLs:    viper.GetBool("CanonifyUrls"),
 		SummaryStrategy: viper.GetString("Summerization"),
 		Pages:           &s.Pages,
 		Recent:          &s.Pages,
@@ -709,12 +709,12 @@ func (s *Site) getMenusFromConfig() Menus {
 
 					if strings.HasPrefix(menuEntry.Url, "/") {
 						// make it match the nodes
-						menuEntryUrl := menuEntry.Url
-						menuEntryUrl = helpers.UrlizeAndPrep(menuEntryUrl)
-						if !s.Info.canonifyUrls {
-							menuEntryUrl = helpers.AddContextRoot(string(s.Info.BaseUrl), menuEntryUrl)
+						menuEntryURL := menuEntry.Url
+						menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
+						if !s.Info.canonifyURLs {
+							menuEntryURL = helpers.AddContextRoot(string(s.Info.BaseUrl), menuEntryURL)
 						}
-						menuEntry.Url = menuEntryUrl
+						menuEntry.Url = menuEntryURL
 					}
 
 					if ret[name] == nil {
@@ -1252,7 +1252,7 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
-	n.Url = helpers.Urlize("404.html")
+	n.Url = helpers.URLize("404.html")
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
 
@@ -1308,8 +1308,8 @@ func (s *Site) RenderSitemap() error {
 func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
-	jww.FEEDBACK.Printf("%d pages created \n", len(s.Pages))
-	jww.FEEDBACK.Printf("%d paginator pages created \n", s.Info.paginationPageCount)
+	jww.FEEDBACK.Printf("%d pages created\n", len(s.Pages))
+	jww.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
 	taxonomies := viper.GetStringMapString("Taxonomies")
 
 	for _, pl := range taxonomies {
@@ -1318,7 +1318,7 @@ func (s *Site) Stats() {
 }
 
 func (s *Site) setUrls(n *Node, in string) {
-	n.Url = helpers.UrlizeAndPrep(in)
+	n.Url = helpers.URLizeAndPrep(in)
 	n.Permalink = s.permalink(n.Url)
 	n.RSSLink = s.permalink(in + ".xml")
 }
@@ -1328,7 +1328,7 @@ func (s *Site) permalink(plink string) template.HTML {
 }
 
 func (s *Site) permalinkStr(plink string) string {
-	return helpers.MakePermalink(string(viper.GetString("BaseUrl")), helpers.UrlizeAndPrep(plink)).String()
+	return helpers.MakePermalink(string(viper.GetString("BaseURL")), helpers.URLizeAndPrep(plink)).String()
 }
 
 func (s *Site) NewNode() *Node {
@@ -1351,7 +1351,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 	err := s.render(name, d, renderBuffer, layouts...)
 
-	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseUrl"))
+	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseURL"))
 	if err != nil {
 		return err
 	}
@@ -1380,8 +1380,8 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	transformLinks := transform.NewEmptyTransforms()
 
-	if viper.GetBool("CanonifyUrls") {
-		absURL, err := transform.AbsURL(viper.GetString("BaseUrl"))
+	if viper.GetBool("CanonifyURLs") {
+		absURL, err := transform.AbsURL(viper.GetString("BaseURL"))
 		if err != nil {
 			return err
 		}
@@ -1463,7 +1463,7 @@ func (s *Site) initTargetList() {
 		if s.Targets.Page == nil {
 			s.Targets.Page = &target.PagePub{
 				PublishDir: s.absPublishDir(),
-				UglyUrls:   viper.GetBool("UglyUrls"),
+				UglyURLs:   viper.GetBool("UglyURLs"),
 			}
 		}
 		if s.Targets.File == nil {
@@ -1499,9 +1499,9 @@ func (s *Site) draftStats() string {
 
 	switch s.draftCount {
 	case 0:
-		return "0 draft content "
+		return "0 draft content"
 	case 1:
-		msg = "1 draft rendered "
+		msg = "1 draft rendered"
 	default:
 		msg = fmt.Sprintf("%d drafts rendered", s.draftCount)
 	}

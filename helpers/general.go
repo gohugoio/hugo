@@ -19,13 +19,16 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"io"
 	"net"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 // Filepath separator defined by os.Separator.
@@ -61,6 +64,8 @@ func GuessType(in string) string {
 	switch strings.ToLower(in) {
 	case "md", "markdown", "mdown":
 		return "markdown"
+	case "asciidoc", "adoc", "ad":
+		return "asciidoc"
 	case "rst":
 		return "rst"
 	case "html", "htm":
@@ -73,6 +78,9 @@ func GuessType(in string) string {
 // ReaderToBytes takes an io.Reader argument, reads from it
 // and returns bytes.
 func ReaderToBytes(lines io.Reader) []byte {
+	if lines == nil {
+		return []byte{}
+	}
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 
@@ -85,6 +93,9 @@ func ReaderToBytes(lines io.Reader) []byte {
 
 // ReaderToString is the same as ReaderToBytes, but returns a string.
 func ReaderToString(lines io.Reader) string {
+	if lines == nil {
+		return ""
+	}
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
 	b.ReadFrom(lines)
@@ -106,6 +117,28 @@ func ThemeSet() bool {
 	return viper.GetString("theme") != ""
 }
 
+// Avoid spamming the logs with errors
+var deprecatedLogs = struct {
+	sync.RWMutex
+	m map[string]bool
+}{m: make(map[string]bool)}
+
+func Deprecated(object, item, alternative string) {
+	key := object + item + alternative
+	deprecatedLogs.RLock()
+	logged := deprecatedLogs.m[key]
+	deprecatedLogs.RUnlock()
+	if logged {
+		return
+	}
+	deprecatedLogs.Lock()
+	if !deprecatedLogs.m[key] {
+		jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo 0.15. Use %s instead.", object, item, alternative)
+		deprecatedLogs.m[key] = true
+	}
+	deprecatedLogs.Unlock()
+}
+
 // SliceToLower goes through the source slice and lowers all values.
 func SliceToLower(s []string) []string {
 	if s == nil {
@@ -125,6 +158,74 @@ func Md5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
 	return hex.EncodeToString(h.Sum([]byte{}))
+}
+
+// Seq creates a sequence of integers.
+// It's named and used as GNU's seq.
+// Examples:
+// 3 => 1, 2, 3
+// 1 2 4 => 1, 3
+// -3 => -1, -2, -3
+// 1 4 => 1, 2, 3, 4
+// 1 -2 => 1, 0, -1, -2
+func Seq(args ...interface{}) ([]int, error) {
+	if len(args) < 1 || len(args) > 3 {
+		return nil, errors.New("Seq, invalid number of args: 'first' 'increment' (optional) 'last' (optional)")
+	}
+
+	intArgs := cast.ToIntSlice(args)
+
+	var inc int = 1
+	var last int
+	var first = intArgs[0]
+
+	if len(intArgs) == 1 {
+		last = first
+		if last == 0 {
+			return []int{}, nil
+		} else if last > 0 {
+			first = 1
+		} else {
+			first = -1
+			inc = -1
+		}
+	} else if len(intArgs) == 2 {
+		last = intArgs[1]
+		if last < first {
+			inc = -1
+		}
+	} else {
+		inc = intArgs[1]
+		last = intArgs[2]
+		if inc == 0 {
+			return nil, errors.New("'increment' must not be 0")
+		}
+		if first < last && inc < 0 {
+			return nil, errors.New("'increment' must be > 0")
+		}
+		if first > last && inc > 0 {
+			return nil, errors.New("'increment' must be < 0")
+		}
+	}
+
+	size := int(((last - first) / inc) + 1)
+
+	// sanity check
+	if size > 2000 {
+		return nil, errors.New("size of result exeeds limit")
+	}
+
+	seq := make([]int, size)
+	val := first
+	for i := 0; ; i++ {
+		seq[i] = val
+		val += inc
+		if (inc < 0 && val < last) || (inc > 0 && val > last) {
+			break
+		}
+	}
+
+	return seq, nil
 }
 
 // DoArithmetic performs arithmetic operations (+,-,*,/) using reflection to

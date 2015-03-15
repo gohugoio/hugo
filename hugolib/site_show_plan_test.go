@@ -92,7 +92,7 @@ func TestFileTarget(t *testing.T) {
 
 func TestPageTargetUgly(t *testing.T) {
 	s := &Site{
-		Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
 		Source:  &source.InMemorySource{ByteSource: fakeSource},
 	}
 	s.AliasTarget()

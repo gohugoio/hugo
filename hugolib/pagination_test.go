@@ -99,8 +99,8 @@ func TestPagerNoPages(t *testing.T) {
 
 func TestPaginationUrlFactory(t *testing.T) {
 	viper.Set("PaginatePath", "zoo")
-	unicode := newPaginationUrlFactory("новости проекта")
-	fooBar := newPaginationUrlFactory("foo", "bar")
+	unicode := newPaginationURLFactory("новости проекта")
+	fooBar := newPaginationURLFactory("foo", "bar")
 
 	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/", unicode(1))
 	assert.Equal(t, "/foo/bar/", fooBar(1))
