@@ -13,6 +13,8 @@ weight: 50
 
 Hugo is released under the Simple Public License.
 
+> *Note: There is a plan to switch to [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0), for future Hugo releases.  This change would only apply forward.  Existing versions of Hugo will remain released under the SimPL-2.0 license.  For more information, see [the "Switching to Apache 2 license" thread in the public forum](http://discuss.gohugo.io/t/switching-to-apache-2-license/173).*
+
 ## Simple Public License (SimPL-2.0)
 
 ### Preamble

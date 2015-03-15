@@ -132,7 +132,7 @@ func peekLine(r *bufio.Reader) (line []byte, err error) {
 	if idx == -1 {
 		return firstFive, nil
 	}
-	idx += 1 // include newline.
+	idx++ // include newline.
 	return firstFive[:idx], nil
 }
 
@@ -159,17 +159,13 @@ func isFrontMatterDelim(data []byte) bool {
 
 func determineDelims(firstLine []byte) (left, right []byte) {
 	switch len(firstLine) {
+	case 5:
+		fallthrough
 	case 4:
 		if firstLine[0] == YAML_LEAD[0] {
-			return []byte(YAML_DELIM_UNIX), []byte(YAML_DELIM_UNIX)
+			return []byte(YAML_DELIM), []byte(YAML_DELIM)
 		}
-		return []byte(TOML_DELIM_UNIX), []byte(TOML_DELIM_UNIX)
-
-	case 5:
-		if firstLine[0] == YAML_LEAD[0] {
-			return []byte(YAML_DELIM_DOS), []byte(YAML_DELIM_DOS)
-		}
-		return []byte(TOML_DELIM_DOS), []byte(TOML_DELIM_DOS)
+		return []byte(TOML_DELIM), []byte(TOML_DELIM)
 	case 3:
 		fallthrough
 	case 2:
@@ -181,102 +177,96 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 	}
 }
 
+// extractFrontMatterDelims takes a frontmatter from the content bufio.Reader.
+// Begining white spaces of the bufio.Reader must be trimmed before call this
+// function.
 func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatter, err error) {
 	var (
 		c         byte
-		level     int = 0
-		bytesRead int = 0
-		sameDelim     = bytes.Equal(left, right)
+		buf       bytes.Buffer
+		level     int
+		sameDelim = bytes.Equal(left, right)
 	)
 
-	wr := new(bytes.Buffer)
+	// Frontmatter must start with a delimiter. To check it first,
+	// pre-reads beginning delimiter length - 1 bytes from Reader
+	for i := 0; i < len(left)-1; i++ {
+		if c, err = r.ReadByte(); err != nil {
+			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+		}
+		if err = buf.WriteByte(c); err != nil {
+			return nil, err
+		}
+	}
+
+	// Reads a character from Reader one by one and checks it matches the
+	// last character of one of delemiters to find the last character of
+	// frontmatter. If it matches, makes sure it contains the delimiter
+	// and if so, also checks it is followed by CR+LF or LF when YAML,
+	// TOML case. In JSON case, nested delimiters must be parsed and it
+	// is expected that the delimiter only contains one character.
 	for {
 		if c, err = r.ReadByte(); err != nil {
-			return nil, fmt.Errorf("Unable to read frontmatter at filepos %d: %s", bytesRead, err)
+			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
 		}
-		bytesRead += 1
+		if err = buf.WriteByte(c); err != nil {
+			return nil, err
+		}
 
 		switch c {
-		case left[0]:
-			var (
-				buf       []byte = []byte{c}
-				remaining []byte
-			)
-
-			if remaining, err = r.Peek(len(left) - 1); err != nil {
-				return nil, err
-			}
-
-			buf = append(buf, remaining...)
-
-			if bytes.Equal(buf, left) {
-				if sameDelim {
+		case left[len(left)-1]:
+			if sameDelim { // YAML, TOML case
+				if bytes.HasSuffix(buf.Bytes(), left) {
+					c, err = r.ReadByte()
+					if err != nil {
+						// It is ok that the end delimiter ends with EOF
+						if err != io.EOF || level != 1 {
+							return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+						}
+					} else {
+						switch c {
+						case '\n':
+							// ok
+						case '\r':
+							if err = buf.WriteByte(c); err != nil {
+								return nil, err
+							}
+							if c, err = r.ReadByte(); err != nil {
+								return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+							}
+							if c != '\n' {
+								return nil, fmt.Errorf("frontmatter delimiter must be followed by CR+LF or LF but those can't be found at filepos %d", buf.Len())
+							}
+						default:
+							return nil, fmt.Errorf("frontmatter delimiter must be followed by CR+LF or LF but those can't be found at filepos %d", buf.Len())
+						}
+						if err = buf.WriteByte(c); err != nil {
+							return nil, err
+						}
+					}
 					if level == 0 {
 						level = 1
 					} else {
 						level = 0
 					}
-				} else {
-					level += 1
 				}
+			} else { // JSON case
+				level++
 			}
-
-			if _, err = wr.Write([]byte{c}); err != nil {
-				return nil, err
-			}
-
-			if level == 0 {
-				if _, err = r.Read(remaining); err != nil {
-					return nil, err
-				}
-				if _, err = wr.Write(remaining); err != nil {
-					return nil, err
-				}
-			}
-		case right[0]:
-			match, err := matches(r, wr, []byte{c}, right)
-			if err != nil {
-				return nil, err
-			}
-			if match {
-				level -= 1
-			}
-		default:
-			if err = wr.WriteByte(c); err != nil {
-				return nil, err
-			}
+		case right[len(right)-1]: // JSON case only reaches here
+			level--
 		}
 
-		if level == 0 && !unicode.IsSpace(rune(c)) {
+		if level == 0 {
+			// Consumes white spaces immediately behind frontmatter
 			if err = chompWhitespace(r); err != nil {
 				if err != io.EOF {
 					return nil, err
 				}
 			}
-			return wr.Bytes(), nil
+			return buf.Bytes(), nil
 		}
 	}
-}
-
-func matches_quick(buf, expected []byte) (ok bool, err error) {
-	return bytes.Equal(expected, buf), nil
-}
-
-func matches(r *bufio.Reader, wr io.Writer, c, expected []byte) (ok bool, err error) {
-	if len(expected) == 1 {
-		if _, err = wr.Write(c); err != nil {
-			return
-		}
-		return bytes.Equal(c, expected), nil
-	}
-
-	buf := make([]byte, len(expected)-1)
-	if buf, err = r.Peek(len(expected) - 1); err != nil {
-		return
-	}
-
-	buf = append(c, buf...)
-	return bytes.Equal(expected, buf), nil
 }
 
 func extractContent(r io.Reader) (content Content, err error) {

@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 type Input interface {
@@ -84,22 +85,39 @@ func (f *Filesystem) captureFiles() {
 			return nil
 		}
 
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			link, err := filepath.EvalSymlinks(filePath)
+			if err != nil {
+				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filePath, err)
+				return nil
+			}
+			linkfi, err := os.Stat(link)
+			if err != nil {
+				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				return nil
+			}
+			if !linkfi.Mode().IsRegular() {
+				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", filePath)
+			}
+			return nil
+		}
+
 		if fi.IsDir() {
 			if f.avoid(filePath) || isNonProcessablePath(filePath) {
 				return filepath.SkipDir
 			}
 			return nil
-		} else {
-			if isNonProcessablePath(filePath) {
-				return nil
-			}
-			data, err := ioutil.ReadFile(filePath)
-			if err != nil {
-				return err
-			}
-			f.add(filePath, bytes.NewBuffer(data))
+		}
+
+		if isNonProcessablePath(filePath) {
 			return nil
 		}
+		data, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			return err
+		}
+		f.add(filePath, bytes.NewBuffer(data))
+		return nil
 	}
 
 	filepath.Walk(f.Base, walker)

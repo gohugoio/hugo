@@ -33,6 +33,14 @@ func TestNonSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", tem)
 }
 
+// Issue #929
+func TestHyphenatedSC(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+
+	CheckShortCodeMatch(t, "{{< hyphenated-video 47238zzb >}}", "Playing Video 47238zzb", tem)
+}
+
 func TestPositionalParamSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
@@ -74,7 +82,7 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 
 [link](http://spf13.com) and text
 
-{{% /inside %}}`, "<div><h1>More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
+{{% /inside %}}`, "<div><h1 id=\"more-here:bec3ed8ba720b9073ab75abcf3ba5d97\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
@@ -96,7 +104,7 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1>More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
+`, "<div><h1 id=\"more-here:bec3ed8ba720b9073ab75abcf3ba5d97\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
 }
 
 func TestEmbeddedSC(t *testing.T) {
@@ -112,6 +120,8 @@ func TestNestedSC(t *testing.T) {
 	tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
 
 	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", tem)
+
+	CheckShortCodeMatch(t, `{{< scn1 >}}{{% scn2 %}}{{< /scn1 >}}`, "<div>Outer, inner is <div>SC2</div></div>", tem)
 }
 
 func TestNestedComplexSC(t *testing.T) {
@@ -121,11 +131,11 @@ func TestNestedComplexSC(t *testing.T) {
 	tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
 
 	CheckShortCodeMatch(t, `{{< row >}}1-s{{% column %}}2-**s**{{< aside >}}3-**s**{{< /aside >}}4-s{{% /column %}}5-s{{< /row >}}6-s`,
-		"-row-1-s-col-<p>2-<strong>s</strong>-aside-3-**s**-asideStop-4-s</p>\n-colStop-5-s-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 
 	// turn around the markup flag
 	CheckShortCodeMatch(t, `{{% row %}}1-s{{< column >}}2-**s**{{% aside %}}3-**s**{{% /aside %}}4-s{{< /column >}}5-s{{% /row %}}6-s`,
-		"-row-<p>1-s-col-2-**s**-aside-<p>3-<strong>s</strong></p>\n-asideStop-4-s-colStop-5-s</p>\n-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 }
 
 func TestFigureImgWidth(t *testing.T) {
@@ -149,7 +159,7 @@ void do();
 	CheckShortCodeMatch(t, code, "\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\"><span style=\"font-weight: bold\">void</span> do();\n</pre></div>\n", tem)
 }
 
-const testScPlaceholderRegexp = "<div>HUGOSHORTCODE-\\d+</div>"
+const testScPlaceholderRegexp = "{@{@HUGOSHORTCODE-\\d+@}@}"
 
 func TestExtractShortcodes(t *testing.T) {
 	for i, this := range []struct {
@@ -174,7 +184,10 @@ func TestExtractShortcodes(t *testing.T) {
 			testScPlaceholderRegexp, ""},
 		{"inner", `Some text. {{< inner >}}Inner Content{{< / inner >}}. Some more text.`, `inner([], false){[Inner Content]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
-		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' has no .Inner.*"},
+		// issue #934
+		{"inner self-closing", `Some text. {{< inner />}}. Some more text.`, `inner([], false){[]}`,
+			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
+		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' in page 'simple.md' has no .Inner.*"},
 		{"nested inner", `Inner->{{< inner >}}Inner Content->{{% inner2 param1 %}}inner2txt{{% /inner2 %}}Inner close->{{< / inner >}}<-done`,
 			`inner([], false){[Inner Content-> inner2([\"param1\"], true){[inner2txt]} Inner close->]}`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
@@ -182,18 +195,18 @@ func TestExtractShortcodes(t *testing.T) {
 			`inner([], false){[inner2-> inner2([\"param1\"], true){[inner2txt->inner3 inner3(%!q(<nil>), false){[inner3txt]}]} final close->`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
 		{"two inner", `Some text. {{% inner %}}First **Inner** Content{{% / inner %}} {{< inner >}}Inner **Content**{{< / inner >}}. Some more text.`,
-			`map["<div>HUGOSHORTCODE-1</div>:inner([], true){[First **Inner** Content]}" "<div>HUGOSHORTCODE-2</div>:inner([], false){[Inner **Content**]}"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:inner([], true){[First **Inner** Content]}" "{@{@HUGOSHORTCODE-2@}@}:inner([], false){[Inner **Content**]}"]`,
 			fmt.Sprintf("Some text. %s %s. Some more text.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"closed without content", `Some text. {{< inner param1 >}}{{< / inner >}}. Some more text.`, `inner([\"param1\"], false){[]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
 		{"two shortcodes", "{{< sc1 >}}{{< sc2 >}}",
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2([], false){[]}"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([], false){[]}"]`,
 			testScPlaceholderRegexp + testScPlaceholderRegexp, ""},
 		{"mix of shortcodes", `Hello {{< sc1 >}}world{{% sc2 p2="2"%}}. And that's it.`,
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:sc2([\"p2:2\"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([\"p2:2\"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"mix with inner", `Hello {{< sc1 >}}world{{% inner p2="2"%}}Inner{{%/ inner %}}. And that's it.`,
-			`map["<div>HUGOSHORTCODE-1</div>:sc1([], false){[]}" "<div>HUGOSHORTCODE-2</div>:inner([\"p2:2\"], true){[Inner]}"]`,
+			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:inner([\"p2:2\"], true){[Inner]}"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
@@ -202,7 +215,7 @@ func TestExtractShortcodes(t *testing.T) {
 		tem.AddInternalShortcode("tag.html", `tag`)
 		tem.AddInternalShortcode("sc1.html", `sc1`)
 		tem.AddInternalShortcode("sc2.html", `sc2`)
-		tem.AddInternalShortcode("inner.html", `{{.Inner}}`)
+		tem.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
 		tem.AddInternalShortcode("inner2.html", `{{.Inner}}`)
 		tem.AddInternalShortcode("inner3.html", `{{.Inner}}`)
 
@@ -279,32 +292,24 @@ func collectAndShortShortcodes(shortcodes map[string]shortcode) []string {
 
 func TestReplaceShortcodeTokens(t *testing.T) {
 	for i, this := range []struct {
-		input           []byte
-		prefix          string
-		replacements    map[string]string
-		numReplacements int
-		wrappedInDiv    bool
-		expect          interface{}
+		input        string
+		prefix       string
+		replacements map[string]string
+		wrappedInDiv bool
+		expect       interface{}
 	}{
-		{[]byte("Hello PREFIX-1."), "PREFIX",
-			map[string]string{"PREFIX-1": "World"}, -1, false, []byte("Hello World.")},
-		{[]byte("A <div>A-1</div> asdf <div>A-2</div>."), "A",
-			map[string]string{"<div>A-1</div>": "v1", "<div>A-2</div>": "v2"}, -1, true, []byte("A v1 asdf v2.")},
-		{[]byte("Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!."), "PREFIX2",
-			map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"},
-			-1, false, []byte("Hello Europe. Go Jonny, Go, Go Johnny Go Go!.")},
-		{[]byte("A PREFIX-2 PREFIX-1."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
-		{[]byte("A PREFIX-1 PREFIX-2"), "PREFIX",
-			map[string]string{"PREFIX-1": "A"}, -1, false, []byte("A A PREFIX-2")},
-		{[]byte("A PREFIX-1 but not the second."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, -1, false, false},
-		{[]byte("An PREFIX-1."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A.")},
-		{[]byte("An PREFIX-1 PREFIX-2."), "PREFIX",
-			map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, 1, false, []byte("An A PREFIX-2.")},
+		{"Hello PREFIX-1.", "PREFIX", map[string]string{"PREFIX-1": "World"}, false, "Hello World."},
+		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, true, "A v1 asdf v2."},
+		{"Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!.", "PREFIX2", map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"}, false, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
+		{"A PREFIX-2 PREFIX-1.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "A B A."},
+		{"A PREFIX-1 PREFIX-2", "PREFIX", map[string]string{"PREFIX-1": "A"}, false, false},
+		{"A PREFIX-1 but not the second.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "A A but not the second."},
+		{"An PREFIX-1.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "An A."},
+		{"An PREFIX-1 PREFIX-2.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "An A B."},
+		{"A PREFIX-1 PREFIX-2 PREFIX-3 PREFIX-1 PREFIX-3.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B", "PREFIX-3": "C"}, false, "A A B C A C."},
+		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, true, "A A B C A C."},
 	} {
-		results, err := replaceShortcodeTokens(this.input, this.prefix, this.numReplacements, this.wrappedInDiv, this.replacements)
+		results, err := replaceShortcodeTokens([]byte(this.input), this.prefix, this.wrappedInDiv, this.replacements)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -315,7 +320,7 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 				t.Errorf("[%d] failed: %s", i, err)
 				continue
 			}
-			if !reflect.DeepEqual(results, this.expect) {
+			if !reflect.DeepEqual(results, []byte(this.expect.(string))) {
 				t.Errorf("[%d] replaceShortcodeTokens, got %q but expected %q", i, results, this.expect)
 			}
 		}

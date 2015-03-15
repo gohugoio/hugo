@@ -1,4 +1,4 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-2015 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,18 +16,85 @@ package helpers
 import (
 	"fmt"
 	"net/url"
-	"path/filepath"
+	"path"
 	"strings"
 
 	"github.com/PuerkitoBio/purell"
+	"github.com/spf13/viper"
 )
 
-func SanitizeUrl(in string) string {
-	url, err := purell.NormalizeURLString(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+type PathBridge struct {
+}
+
+func (PathBridge) Base(in string) string {
+	return path.Base(in)
+}
+
+func (PathBridge) Clean(in string) string {
+	return path.Clean(in)
+}
+
+func (PathBridge) Dir(in string) string {
+	return path.Dir(in)
+}
+
+func (PathBridge) Ext(in string) string {
+	return path.Ext(in)
+}
+
+func (PathBridge) Join(elem ...string) string {
+	return path.Join(elem...)
+}
+
+func (PathBridge) Separator() string {
+	return "/"
+}
+
+var pathBridge PathBridge
+
+func sanitizeUrlWithFlags(in string, f purell.NormalizationFlags) string {
+	s, err := purell.NormalizeURLString(in, f)
 	if err != nil {
 		return in
 	}
-	return url
+
+	// Temporary workaround for the bug fix and resulting
+	// behavioral change in purell.NormalizeURLString():
+	// a leading '/' was inadvertently to relative links,
+	// but no longer, see #878.
+	//
+	// I think the real solution is to allow Hugo to
+	// make relative URL with relative path,
+	// e.g. "../../post/hello-again/", as wished by users
+	// in issues #157, #622, etc., without forcing
+	// relative URLs to begin with '/'.
+	// Once the fixes are in, let's remove this kludge
+	// and restore SanitizeUrl() to the way it was.
+	//                         -- @anthonyfok, 2015-02-16
+	//
+	// Begin temporary kludge
+	u, err := url.Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	if !strings.HasPrefix(u.Path, "/") {
+		u.Path = "/" + u.Path
+	}
+	return u.String()
+	// End temporary kludge
+
+	//return s
+
+}
+
+// SanitizeUrl sanitizes the input URL string.
+func SanitizeUrl(in string) string {
+	return sanitizeUrlWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
+}
+
+// SanitizeUrlKeepTrailingSlash is the same as SanitizeUrl, but will keep any trailing slash.
+func SanitizeUrlKeepTrailingSlash(in string) string {
+	return sanitizeUrlWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
 // Similar to MakePath, but with Unicode handling
@@ -47,7 +114,7 @@ func Urlize(uri string) string {
 	return x
 }
 
-// Combines a base with a path
+// Combines base URL with content path to create full URL paths.
 // Example
 //    base:   http://spf13.com/
 //    path:   post/how-i-blog
@@ -68,7 +135,7 @@ func MakePermalink(host, plink string) *url.URL {
 		panic(fmt.Errorf("Can't make permalink from absolute link %q", plink))
 	}
 
-	base.Path = filepath.Join(base.Path, p.Path)
+	base.Path = path.Join(base.Path, p.Path)
 
 	// path.Join will strip off the last /, so put it back if it was there.
 	if strings.HasSuffix(p.Path, "/") && !strings.HasSuffix(base.Path, "/") {
@@ -78,30 +145,52 @@ func MakePermalink(host, plink string) *url.URL {
 	return base
 }
 
+// AddContextRoot adds the context root to an URL if it's not already set.
+// For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
+// relative URLs must not include the context root if canonifyUrls is enabled. But if it's disabled, it must be set.
+func AddContextRoot(baseUrl, relativePath string) string {
+
+	url, err := url.Parse(baseUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	newPath := path.Join(url.Path, relativePath)
+
+	// path strips traling slash, ignore root path.
+	if newPath != "/" && strings.HasSuffix(relativePath, "/") {
+		newPath += "/"
+	}
+	return newPath
+}
+
+func UrlizeAndPrep(in string) string {
+	return UrlPrep(viper.GetBool("UglyUrls"), Urlize(in))
+}
+
 func UrlPrep(ugly bool, in string) string {
 	if ugly {
 		x := Uglify(SanitizeUrl(in))
 		return x
-	} else {
-		x := PrettifyUrl(SanitizeUrl(in))
-		if filepath.Ext(x) == ".xml" {
-			return x
-		}
-		url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
-		if err != nil {
-			fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
-			return in
-		}
-		return url
 	}
+	x := PrettifyUrl(SanitizeUrl(in))
+	if path.Ext(x) == ".xml" {
+		return x
+	}
+	url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
+	if err != nil {
+		fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
+		return in
+	}
+	return url
 }
 
-// Don't Return /index.html portion.
+// PrettifyUrl takes a URL string and returns a semantic, clean URL.
 func PrettifyUrl(in string) string {
-	x := PrettifyPath(in)
+	x := PrettifyUrlPath(in)
 
-	if filepath.Base(x) == "index.html" {
-		return filepath.Dir(x)
+	if path.Base(x) == "index.html" {
+		return path.Dir(x)
 	}
 
 	if in == "" {
@@ -111,29 +200,37 @@ func PrettifyUrl(in string) string {
 	return x
 }
 
-// /section/name/index.html -> /section/name.html
-// /section/name/  -> /section/name.html
-// /section/name.html -> /section/name.html
+// PrettifyUrlPath takes a URL path to a content and converts it
+// to enable pretty URLs.
+//     /section/name.html       becomes /section/name/index.html
+//     /section/name/           becomes /section/name/index.html
+//     /section/name/index.html becomes /section/name/index.html
+func PrettifyUrlPath(in string) string {
+	return PrettiyPath(in, pathBridge)
+}
+
+// Uglify does the opposite of PrettifyUrlPath().
+//     /section/name/index.html becomes /section/name.html
+//     /section/name/           becomes /section/name.html
+//     /section/name.html       becomes /section/name.html
 func Uglify(in string) string {
-	if filepath.Ext(in) == "" {
+	if path.Ext(in) == "" {
 		if len(in) < 2 {
 			return "/"
 		}
 		// /section/name/  -> /section/name.html
-		return filepath.Clean(in) + ".html"
-	} else {
-		name, ext := FileAndExt(in)
-		if name == "index" {
-			// /section/name/index.html -> /section/name.html
-			d := filepath.Dir(in)
-			if len(d) > 1 {
-				return d + ext
-			} else {
-				return in
-			}
-		} else {
-			// /section/name.html -> /section/name.html
-			return filepath.Clean(in)
-		}
+		return path.Clean(in) + ".html"
 	}
+
+	name, ext := FileAndExt(in, pathBridge)
+	if name == "index" {
+		// /section/name/index.html -> /section/name.html
+		d := path.Dir(in)
+		if len(d) > 1 {
+			return d + ext
+		}
+		return in
+	}
+	// /section/name.html -> /section/name.html
+	return path.Clean(in)
 }

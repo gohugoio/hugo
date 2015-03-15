@@ -20,13 +20,14 @@ import (
 )
 
 var cpuProfilefile string
+var memProfilefile string
 var benchmarkTimes int
 
 var benchmark = &cobra.Command{
 	Use:   "benchmark",
 	Short: "Benchmark hugo by building a site a number of times",
-	Long: `Hugo can build a site many times over and anlyze the
-    running process creating a `,
+	Long: `Hugo can build a site many times over and analyze the
+running process creating a benchmark.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		bench(cmd, args)
@@ -34,21 +35,41 @@ var benchmark = &cobra.Command{
 }
 
 func init() {
-	benchmark.Flags().StringVar(&cpuProfilefile, "outputfile", "/tmp/hugo-cpuprofile", "path/filename for the profile file")
+	benchmark.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
+	benchmark.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
+
 	benchmark.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
 }
 
 func bench(cmd *cobra.Command, args []string) {
-	f, err := os.Create(cpuProfilefile)
 
-	if err != nil {
-		panic(err)
+	if memProfilefile != "" {
+		f, err := os.Create(memProfilefile)
+
+		if err != nil {
+			panic(err)
+		}
+		for i := 0; i < benchmarkTimes; i++ {
+			_ = buildSite()
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+
+	} else {
+		if cpuProfilefile == "" {
+			cpuProfilefile = "/tmp/hugo-cpuprofile"
+		}
+		f, err := os.Create(cpuProfilefile)
+
+		if err != nil {
+			panic(err)
+		}
+
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+		for i := 0; i < benchmarkTimes; i++ {
+			_ = buildSite()
+		}
 	}
 
-	pprof.StartCPUProfile(f)
-	defer pprof.StopCPUProfile()
-
-	for i := 0; i < benchmarkTimes; i++ {
-		_ = buildSite()
-	}
 }

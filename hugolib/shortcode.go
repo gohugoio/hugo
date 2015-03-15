@@ -14,15 +14,15 @@
 package hugolib
 
 import (
-	"bytes"
 	"fmt"
 	"html/template"
 	"reflect"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
+	"sync"
 
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -39,6 +39,14 @@ type ShortcodeWithPage struct {
 	Params interface{}
 	Inner  template.HTML
 	Page   *Page
+}
+
+func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
+	return scp.Page.Ref(ref)
+}
+
+func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
+	return scp.Page.RelRef(ref)
 }
 
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
@@ -117,14 +125,13 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// all in  one go: extract, render and replace
+// ShortcodesHandle does all in  one go: extract, render and replace
 // only used for testing
 func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
-
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
 
 	if len(tmpShortcodes) > 0 {
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, -1, true, tmpShortcodes)
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, true, tmpShortcodes)
 
 		if err != nil {
 			jww.ERROR.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
@@ -136,42 +143,40 @@ func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
 	return string(tmpContent)
 }
 
-var isInnerShortcodeCache = make(map[string]bool)
+var isInnerShortcodeCache = struct {
+	sync.RWMutex
+	m map[string]bool
+}{m: make(map[string]bool)}
 
 // to avoid potential costly look-aheads for closing tags we look inside the template itself
 // we could change the syntax to self-closing tags, but that would make users cry
 // the value found is cached
 func isInnerShortcode(t *template.Template) bool {
-	if m, ok := isInnerShortcodeCache[t.Name()]; ok {
+	isInnerShortcodeCache.RLock()
+	m, ok := isInnerShortcodeCache.m[t.Name()]
+	isInnerShortcodeCache.RUnlock()
+
+	if ok {
 		return m
 	}
 
+	isInnerShortcodeCache.Lock()
+	defer isInnerShortcodeCache.Unlock()
 	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
-	isInnerShortcodeCache[t.Name()] = match
+	isInnerShortcodeCache.m[t.Name()] = match
 
 	return match
 }
 
 func createShortcodePlaceholder(id int) string {
-	return fmt.Sprintf("<div>%s-%d</div>", shortcodePlaceholderPrefix, id)
+	return fmt.Sprintf("{@{@%s-%d@}@}", shortcodePlaceholderPrefix, id)
 }
 
-func renderShortcodes(sc shortcode, p *Page, t tpl.Template) string {
+const innerNewlineRegexp = "\n"
+const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
+const innerCleanupExpand = "$1"
 
-	tokenizedRenderedShortcodes := make(map[string](string))
-	startCount := 0
-
-	shortcodes := renderShortcode(sc, tokenizedRenderedShortcodes, startCount, p, t)
-
-	// placeholders will be numbered from 1.. and top down
-	for i := 1; i <= len(tokenizedRenderedShortcodes); i++ {
-		placeHolder := createShortcodePlaceholder(i)
-		shortcodes = strings.Replace(shortcodes, placeHolder, tokenizedRenderedShortcodes[placeHolder], 1)
-	}
-	return shortcodes
-}
-
-func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt int, p *Page, t tpl.Template) string {
+func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
 	tmpl := GetTemplate(sc.name, t)
 
@@ -187,12 +192,7 @@ func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt 
 			case string:
 				inner += innerData.(string)
 			case shortcode:
-				// nested shortcodes will be rendered individually, replace them with temporary numbered tokens
-				cnt++
-				placeHolder := createShortcodePlaceholder(cnt)
-				renderedContent := renderShortcode(innerData.(shortcode), tokenizedShortcodes, cnt, p, t)
-				tokenizedShortcodes[placeHolder] = renderedContent
-				inner += placeHolder
+				inner += renderShortcode(innerData.(shortcode), p, t)
 			default:
 				jww.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
 					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
@@ -201,7 +201,35 @@ func renderShortcode(sc shortcode, tokenizedShortcodes map[string](string), cnt 
 		}
 
 		if sc.doMarkup {
-			data.Inner = template.HTML(helpers.RenderBytes([]byte(inner), p.guessMarkupType(), p.UniqueId()))
+			newInner := helpers.RenderBytes(&helpers.RenderingContext{
+				Content: []byte(inner), PageFmt: p.guessMarkupType(),
+				DocumentId: p.UniqueId(), Config: p.getRenderingConfig()})
+
+			// If the type is “unknown” or “markdown”, we assume the markdown
+			// generation has been performed. Given the input: `a line`, markdown
+			// specifies the HTML `<p>a line</p>\n`. When dealing with documents as a
+			// whole, this is OK. When dealing with an `{{ .Inner }}` block in Hugo,
+			// this is not so good. This code does two things:
+			//
+			// 1.  Check to see if inner has a newline in it. If so, the Inner data is
+			//     unchanged.
+			// 2   If inner does not have a newline, strip the wrapping <p> block and
+			//     the newline. This was previously tricked out by wrapping shortcode
+			//     substitutions in <div>HUGOSHORTCODE-1</div> which prevents the
+			//     generation, but means that you can’t use shortcodes inside of
+			//     markdown structures itself (e.g., `[foo]({{% ref foo.md %}})`).
+			switch p.guessMarkupType() {
+			case "unknown", "markdown":
+				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
+					cleaner, err := regexp.Compile(innerCleanupRegexp)
+
+					if err == nil {
+						newInner = cleaner.ReplaceAll(newInner, []byte(innerCleanupExpand))
+					}
+				}
+			}
+
+			data.Inner = template.HTML(newInner)
 		} else {
 			data.Inner = template.HTML(inner)
 		}
@@ -226,7 +254,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 			// need to have something to replace with
 			renderedShortcodes[key] = ""
 		} else {
-			renderedShortcodes[key] = renderShortcodes(sc, p, t)
+			renderedShortcodes[key] = renderShortcode(sc, p, t)
 		}
 	}
 
@@ -279,15 +307,21 @@ Loop:
 			}
 
 		case tScClose:
+			next := pt.peek()
 			if !isInner {
-				next := pt.peek()
 				if next.typ == tError {
 					// return that error, more specific
 					continue
 				}
-				return sc, fmt.Errorf("Shortcode '%s' has no .Inner, yet a closing tag was provided", next.val)
+				return sc, fmt.Errorf("Shortcode '%s' in page '%s' has no .Inner, yet a closing tag was provided", next.val, p.FullFilePath())
 			}
-			pt.consume(2)
+			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup {
+				// self-closing
+				pt.consume(1)
+			} else {
+				pt.consume(2)
+			}
+
 			return sc, nil
 		case tText:
 			sc.inner = append(sc.inner, currItem.val)
@@ -353,7 +387,10 @@ func extractShortcodes(stringToParse string, p *Page, t tpl.Template) (string, m
 	pt := &pageTokens{lexer: newShortcodeLexer("parse-page", stringToParse, pos(startIdx))}
 
 	id := 1 // incremented id, will be appended onto temp. shortcode placeholders
-	var result bytes.Buffer
+
+	result := bp.GetBuffer()
+	defer bp.PutBuffer(result)
+	//var result bytes.Buffer
 
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
@@ -379,7 +416,6 @@ Loop:
 				currShortcode.params = make([]string, 0)
 			}
 
-			// wrap it in a block level element to let it be left alone by the markup engine
 			placeHolder := createShortcodePlaceholder(id)
 			result.WriteString(placeHolder)
 			shortCodes[placeHolder] = currShortcode
@@ -399,59 +435,43 @@ Loop:
 }
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
-// This assumes that all tokens exist in the input string and that they are in order.
-// numReplacements = -1 will do len(replacements), and it will always start from the beginning (1)
-// wrappendInDiv = true means that the token is wrapped in a <div></div>
-func replaceShortcodeTokens(source []byte, prefix string, numReplacements int, wrappedInDiv bool, replacements map[string]string) ([]byte, error) {
+// wrapped = true means that the token has been wrapped in {@{@/@}@}
+func replaceShortcodeTokens(source []byte, prefix string, wrapped bool, replacements map[string]string) (b []byte, err error) {
+	var re *regexp.Regexp
 
-	if numReplacements < 0 {
-		numReplacements = len(replacements)
-	}
-
-	if numReplacements == 0 {
-		return source, nil
-	}
-
-	newLen := len(source)
-
-	for i := 1; i <= numReplacements; i++ {
-		key := prefix + "-" + strconv.Itoa(i)
-
-		if wrappedInDiv {
-			key = "<div>" + key + "</div>"
+	if wrapped {
+		re, err = regexp.Compile(`\{@\{@` + regexp.QuoteMeta(prefix) + `-\d+@\}@\}`)
+		if err != nil {
+			return nil, err
 		}
-		val := []byte(replacements[key])
-
-		newLen += (len(val) - len(key))
+	} else {
+		re, err = regexp.Compile(regexp.QuoteMeta(prefix) + `-(\d+)`)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	buff := make([]byte, newLen)
-
-	width := 0
-	start := 0
-
-	for i := 0; i < numReplacements; i++ {
-		tokenNum := i + 1
-		oldVal := prefix + "-" + strconv.Itoa(tokenNum)
-		if wrappedInDiv {
-			oldVal = "<div>" + oldVal + "</div>"
+	// use panic/recover for reporting if an unknown
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			b = nil
+			err, ok = r.(error)
+			if !ok {
+				err = fmt.Errorf("unexpected panic during replaceShortcodeTokens: %v", r)
+			}
 		}
-		newVal := []byte(replacements[oldVal])
-		j := start
+	}()
+	b = re.ReplaceAllFunc(source, func(m []byte) []byte {
+		key := string(m)
 
-		k := bytes.Index(source[start:], []byte(oldVal))
-		if k < 0 {
-			// this should never happen, but let the caller decide to panic or not
-			return nil, fmt.Errorf("illegal state in content; shortcode token #%d is missing or out of order", tokenNum)
+		if val, ok := replacements[key]; ok {
+			return []byte(val)
 		}
-		j += k
+		panic(fmt.Errorf("unknown shortcode token %q", key))
+	})
 
-		width += copy(buff[width:], source[start:j])
-		width += copy(buff[width:], newVal)
-		start = j + len(oldVal)
-	}
-	width += copy(buff[width:], source[start:])
-	return buff[0:width], nil
+	return b, err
 }
 
 func GetTemplate(name string, t tpl.Template) *template.Template {
@@ -465,7 +485,9 @@ func GetTemplate(name string, t tpl.Template) *template.Template {
 }
 
 func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
-	buffer := new(bytes.Buffer)
+	buffer := bp.GetBuffer()
+	defer bp.PutBuffer(buffer)
+
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)

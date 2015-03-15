@@ -5,7 +5,7 @@ menu:
   main:
     parent: tutorials
 next: /tutorials/migrate-from-jekyll
-prev: /tutorials/github_pages_blog
+prev: /tutorials/github-pages-blog
 title: MathJax Support
 weight: 10
 ---
@@ -21,7 +21,7 @@ This is not an introduction into actually using MathJax to render typeset mathem
 The first step is to enable MathJax on pages that you would like to have typeset math. There are multiple ways to do this (adventerous readers can consult the [Loading and Configuring](http://docs.mathjax.org/en/latest/configuration.html) section of the MathJax documentation for additional methods of including MathJax), but the easiest way is to use the secure MathJax CDN by including the following HTML snippet in the source of a page:
 
     <script type="text/javascript"
-      src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
     </script>
 
 One way to ensure that this code is included in all pages is to put it in one of the templates that live in the `layouts/partials/` directory. For example, I have included this in the bottom of my template `footer.html` because I know that the footer will be included in every page of my website.

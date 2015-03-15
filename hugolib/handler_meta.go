@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 
+	"fmt"
 	"github.com/spf13/hugo/source"
 )
 
@@ -66,6 +67,12 @@ func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 			results <- HandledResult{err: errors.New("file resulted in a nil page")}
 			return
 		}
+
+		if h == nil {
+			results <- HandledResult{err: fmt.Errorf("No handler found for page '%s'. Verify the markup is supported by Hugo.", p.FullFilePath())}
+			return
+		}
+
 		results <- h.PageConvert(p, s.Tmpl)
 		p.setSummary()
 		p.analyzePage()

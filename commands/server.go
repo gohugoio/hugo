@@ -44,7 +44,7 @@ var serverCmd = &cobra.Command{
 	Short: "Hugo runs its own webserver to render the files",
 	Long: `Hugo is able to run its own high performance web server.
 Hugo will render all the files defined in the source directory and
-Serve them up.`,
+serve them up.`,
 	//Run: server,
 }
 
@@ -126,7 +126,7 @@ func serve(port int) {
 
 	u.Scheme = "http"
 	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
-	fmt.Println("Press ctrl+c to stop")
+	fmt.Println("Press Ctrl+C to stop")
 
 	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
@@ -135,6 +135,8 @@ func serve(port int) {
 	}
 }
 
+// fixUrl massages the BaseUrl into a form needed for serving
+// all pages correctly.
 func fixUrl(s string) (string, error) {
 	useLocalhost := false
 	if s == "" {
@@ -144,6 +146,9 @@ func fixUrl(s string) (string, error) {
 	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {
 		s = "http://" + s
 	}
+	if !strings.HasSuffix(s, "/") {
+		s = s + "/"
+	}
 	u, err := url.Parse(s)
 	if err != nil {
 		return "", err
@@ -152,6 +157,7 @@ func fixUrl(s string) (string, error) {
 	if serverAppend {
 		if useLocalhost {
 			u.Host = fmt.Sprintf("localhost:%d", serverPort)
+			u.Scheme = "http"
 			return u.String(), nil
 		}
 		host := u.Host

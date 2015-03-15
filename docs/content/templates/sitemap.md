@@ -15,7 +15,7 @@ weight: 95
 
 A single Sitemap template is used to generate the `sitemap.xml` file.
 Hugo automatically comes with this template file. **No work is needed on
-the users part unless they want to customize the sitemap.xml.**
+the users' part unless they want to customize `sitemap.xml`.**
 
 This page is of the type "node" and have all the [node
 variables](/layout/variables/) available to use in this template
@@ -27,7 +27,7 @@ along with Sitemap-specific ones:
 In addition to the standard node variables, the homepage has access to all
 site pages through `.Data.Pages`.
 
-If provided Hugo will use /layouts/sitemap.xml instead of the internal
+If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal
 one.
 
 ## Hugo’s sitemap.xml
@@ -46,7 +46,7 @@ Protocol](http://www.sitemaps.org/protocol.html).
       {{ end }}
     </urlset>
 
-*Important: Hugo will automatically add the following header line to this file
-on render...please don't include this in the template as it's not valid HTML.*
+***Important:** Hugo will automatically add the following header line to this file
+on render. Please don't include this in the template as it's not valid HTML.*
 
     <?xml version="1.0" encoding="utf-8" standalone="yes" ?>

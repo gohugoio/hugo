@@ -6,7 +6,7 @@ menu:
 next: /extras/permalinks
 prev: /extras/livereload
 title: Menus
-weight: 20
+weight: 60
 ---
 
 Hugo has a simple yet powerful menu system that permits content to be
@@ -41,7 +41,7 @@ And the following functions:
 
 * **HasChildren** bool
 
-Additionally there are some relevant functions available on the page:
+Additionally, there are some relevant functions available on the page:
 
 * **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
 * **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
@@ -87,21 +87,23 @@ available.
 ## Adding (non-content) entries to a menu
 
 You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the sitewide [config file](/overview/configuration).
+content. This takes place in the sitewide [config file](/overview/configuration/).
 
-Here’s an example (in TOML):
+Here’s an example `config.toml`:
 
     [[menu.main]]
         name = "about hugo"
         pre = "<i class='fa fa-heart'></i>"
         weight = -110
         identifier = "about"
+        url = "/about/"
     [[menu.main]]
         name = "getting started"
         pre = "<i class='fa fa-road'></i>"
         weight = -100
+        url = "/getting-started/"
 
-Here’s an example (in YAML):
+And the equivalent example `config.yaml`:
 
     ---
     menu:
@@ -110,11 +112,16 @@ Here’s an example (in YAML):
             Pre: "<i class='fa fa-heart'></i>"
             Weight: -110
             Identifier: "about"
+            Url: "/about/"
           - Name: "getting started"
             Pre: "<i class='fa fa-road'></i>"
             Weight: -100
+            Url: "/getting-started/"
     ---            
 
+
+**NOTE:** The urls must be relative to the context root. If the `BaseUrl` is `http://example.com/mysite/`, then the urls in the menu must not include the context root `mysite`. 
+  
 ## Nesting
 
 All nesting of content is done via the `parent` field.
@@ -142,7 +149,7 @@ The following is an example:
 
     <!--sidebar start-->
     <aside>
-        <div id="sidebar"  class="nav-collapse ">
+        <div id="sidebar" class="nav-collapse">
             <!-- sidebar menu start-->
             <ul class="sidebar-menu">
               {{ $currentNode := . }}

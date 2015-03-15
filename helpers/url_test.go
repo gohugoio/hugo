@@ -1,9 +1,9 @@
 package helpers
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/assert"
+	"strings"
+	"testing"
 )
 
 func TestUrlize(t *testing.T) {
@@ -22,6 +22,34 @@ func TestUrlize(t *testing.T) {
 		output := Urlize(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestSanitizeUrl(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"http://foo.bar/", "http://foo.bar/"},
+		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
+	}
+
+	for _, test := range tests {
+		o1 := SanitizeUrl(test.input)
+		o2 := SanitizeUrlKeepTrailingSlash(test.input)
+
+		expected2 := test.expected
+
+		if strings.HasSuffix(test.input, "/") && !strings.HasSuffix(expected2, "/") {
+			expected2 += "/"
+		}
+
+		if o1 != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, o1)
+		}
+		if o2 != expected2 {
+			t.Errorf("Expected %#v, got %#v\n", expected2, o2)
 		}
 	}
 }
@@ -68,15 +96,40 @@ func TestUrlPrep(t *testing.T) {
 
 }
 
+func TestAddContextRoot(t *testing.T) {
+	tests := []struct {
+		baseUrl  string
+		url      string
+		expected string
+	}{
+		{"http://example.com/sub/", "/foo", "/sub/foo"},
+		{"http://example.com/sub/", "/foo/index.html", "/sub/foo/index.html"},
+		{"http://example.com/sub1/sub2", "/foo", "/sub1/sub2/foo"},
+		{"http://example.com", "/foo", "/foo"},
+		// cannot guess that the context root is already added int the example below
+		{"http://example.com/sub/", "/sub/foo", "/sub/sub/foo"},
+		{"http://example.com/тря", "/трям/", "/тря/трям/"},
+		{"http://example.com", "/", "/"},
+		{"http://example.com/bar", "//", "/bar/"},
+	}
+
+	for _, test := range tests {
+		output := AddContextRoot(test.baseUrl, test.url)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
 func TestPretty(t *testing.T) {
-	assert.Equal(t, PrettifyPath("/section/name.html"), "/section/name/index.html")
-	assert.Equal(t, PrettifyPath("/section/sub/name.html"), "/section/sub/name/index.html")
-	assert.Equal(t, PrettifyPath("/section/name/"), "/section/name/index.html")
-	assert.Equal(t, PrettifyPath("/section/name/index.html"), "/section/name/index.html")
-	assert.Equal(t, PrettifyPath("/index.html"), "/index.html")
-	assert.Equal(t, PrettifyPath("/name.xml"), "/name/index.xml")
-	assert.Equal(t, PrettifyPath("/"), "/")
-	assert.Equal(t, PrettifyPath(""), "/")
+	assert.Equal(t, PrettifyUrlPath("/section/name.html"), "/section/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/section/sub/name.html"), "/section/sub/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/section/name/"), "/section/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/section/name/index.html"), "/section/name/index.html")
+	assert.Equal(t, PrettifyUrlPath("/index.html"), "/index.html")
+	assert.Equal(t, PrettifyUrlPath("/name.xml"), "/name/index.xml")
+	assert.Equal(t, PrettifyUrlPath("/"), "/")
+	assert.Equal(t, PrettifyUrlPath(""), "/")
 	assert.Equal(t, PrettifyUrl("/section/name.html"), "/section/name")
 	assert.Equal(t, PrettifyUrl("/section/sub/name.html"), "/section/sub/name")
 	assert.Equal(t, PrettifyUrl("/section/name/"), "/section/name")

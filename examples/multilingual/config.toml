@@ -1,6 +1,6 @@
 baseurl = ""
 
-[indexes]
+[taxonomies]
 tag = "tags"
 group = "groups"
 menu = "menu"

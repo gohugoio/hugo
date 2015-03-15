@@ -164,7 +164,7 @@ input:focus, textarea:focus { outline: none; }
 /*sidebar navigation*/
 
 #sidebar {
-    width: 200px;
+    width: 214px;
     height: 100%;
     position: fixed;
     background: #ffffff;
@@ -227,7 +227,6 @@ ul.sidebar-menu li ul.sub li a:hover, ul.sidebar-menu li ul.sub li.active a {
 
 ul.sidebar-menu li{
     line-height: 20px !important;
-    text-transform: capitalize;
 }
 
 ul.sidebar-menu li.sub-menu{
@@ -254,7 +253,7 @@ ul.sidebar-menu li a{
     transition: all 0.3s ease;
     border-right: 1px solid #D7D7D7;
     border-bottom: 1px solid #D7D7D7;
-    overflow:hidden;
+    white-space: nowrap;
 }
 
 ul.sidebar-menu li.active a, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
@@ -430,4 +429,125 @@ h1.top-menu {
 
 .navigation:hover {
     background-color: rgba(0,0,0,0.1);
+}
+
+/* Google Custom Search box */
+
+input.gsc-input,
+.gsc-input-box,
+.gsc-input-box-hover,
+.gsc-input-box-focus,
+.gsc-search-button,
+.gsc-inline-block {
+  box-sizing: content-box;
+  line-height: normal;
+}
+
+.gsc-control-cse {
+  padding: 0.1em 0 0.5em 1em !important;
+  width: 16em !important;
+  float: right;
+}
+
+input.gsc-search-button-v2 {
+  padding: 6px 12px !important;
+}
+
+.gsc-search-box-tools .gsc-search-box .gsc-input {
+  padding-right: 1px !important;
+}
+
+/* Styled keypress from Wikipedia */
+
+kbd {
+  border: 1px solid #aaa;
+  -moz-border-radius: 0.2em;
+  -webkit-border-radius: 0.2em;
+  border-radius: 0.2em;
+  -moz-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  -webkit-box-shadow: 0.1em 0.2em 0.2em #ddd;
+  box-shadow: 0.1em 0.2em 0.2em #ddd;
+  background-color: #f9f9f9;
+  background-image: -moz-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -o-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: -webkit-linear-gradient(top, #eee, #f9f9f9, #eee);
+  background-image: linear-gradient(to bottom, #eee, #f9f9f9, #eee);
+  padding: 0.1em 0.3em;
+  font-family: inherit;
+  font-size: 0.85em;
+}
+
+/* For the table used in overview/configuration */
+
+table.table {
+  margin: 1em 0;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 2px solid #ddd;
+  padding: 0 0.5em;
+}
+
+td.purpose-title {
+  text-align: right;
+  vertical-align: top;
+  border-right: 0;
+  padding-right: 0.5em;
+  font-weight: bold;
+}
+
+td.purpose-description {
+  border-left: 0;
+}
+
+/* For definitions of variables */
+
+dl {
+    margin: 1em;
+    border-bottom: 1px solid #ccc;
+}
+
+dt {
+    float: left;
+    clear: left;
+    width: 9.5em;
+    margin: 0.125em;
+    padding: 2px 4px;
+}
+
+dd {
+    padding: 0.2em 0 0.2em 10em;
+    border-top: 1px solid #ccc;
+}
+
+/* Prevent linebreak right after an icon */
+#main-content .fa {
+  display: inline;
+}
+
+/* Logo for FreeBSD until Font Awesome adds it, see https://github.com/FortAwesome/Font-Awesome/issues/1116 */
+i.freebsd-19px:before {
+  content: url(/img/freebsd-19px.svg);
+  vertical-align: -7%;
+}
+
+/* Responsive videos */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+    margin: 20px 0;
+}
+ 
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;    
 }

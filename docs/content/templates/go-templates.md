@@ -65,7 +65,7 @@ Accessing the Page Parameter "bar"
 Each Go template has a struct (object) made available to it. In Hugo, each
 template is passed either a page or a node struct depending on which type of
 page you are rendering. More details are available on the
-[variables](/layout/variables) page.
+[variables](/layout/variables/) page.
 
 A variable is accessed by referencing the variable name.
 
@@ -82,7 +82,7 @@ Variables can also be defined and referenced.
 Go template ships with a few functions which provide basic functionality. The Go
 template system also provides a mechanism for applications to extend the
 available functions with their own. [Hugo template
-functions](/layout/functions) provide some additional functionality we believe
+functions](/layout/functions/) provide some additional functionality we believe
 are useful for building websites. Functions are called by using their name
 followed by the required parameters separated by spaces. Template
 functions cannot be added without recompiling Hugo.
@@ -240,27 +240,56 @@ By default, Go Templates remove HTML comments from output. This has the unfortun
       <script src="html5shiv.js"></script>
     {{ "<![endif]-->" | safeHtml }}
 
+Alternatively, use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](http://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation, e.g.:
+
+```
+{{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHtml }}
+```
+
 ## Context (a.k.a. the dot)
 
 The most easily overlooked concept to understand about Go templates is that `{{ . }}`
-always refers to the current context. In the top level of your template this
-will be the data set made available to it. Inside of a iteration it will have
-the value of the current item. When inside of a loop the context has changed.
-`.` will no longer refer to the data available to the entire page. If you need
+always refers to the current context. In the top level of your template, this
+will be the data set made available to it. Inside of a iteration, however, it will have
+the value of the current item. When inside of a loop, the context has changed:
+`{{ . }}` will no longer refer to the data available to the entire page. If you need
 to
-access this from within the loop, you will likely want to set it to a variable
-instead of depending on the context.
+access this from within the loop, you will likely want to do one of the following:
 
-**Example:**
+1. Set it to a variable instead of depending on the context.  For example:
 
-      {{ $title := .Site.Title }}
-      {{ range .Params.tags }}
-        <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> - {{ $title }} </li>
-      {{ end }}
+        {{ $title := .Site.Title }}
+        {{ range .Params.tags }}
+          <li>
+            <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a>
+            - {{ $title }}
+          </li>
+        {{ end }}
 
-Notice how once we have entered the loop the value of `{{ . }}` has changed. We
-have defined a variable outside of the loop so we have access to it from within
-the loop.
+    Notice how once we have entered the loop the value of `{{ . }}` has changed. We
+    have defined a variable outside of the loop so we have access to it from within
+    the loop.
+
+2. Use `$.` to access the global context from anywhere.
+   Here is an equivalent example:
+
+        {{ range .Params.tags }}
+          <li>
+            <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a>
+            - {{ $.Site.Title }}
+          </li>
+        {{ end }}
+
+    This is because `$`, a special variable, is set to the starting value
+    of `.` the dot by default,
+    a [documented feature](http://golang.org/pkg/text/template/#hdr-Variables)
+    of Go text/template.  Very handy, eh?
+
+    > However, this little magic would cease to work if someone were to
+    > mischievously redefine `$`, e.g. `{{ $ := .Site }}`.
+    > *(No, don't do it!)*
+    > You may, of course, recover from this mischief by using `{{ $ := . }}`
+    > in a global context to reset `$` to its default value.
 
 # Hugo Parameters
 
@@ -274,7 +303,7 @@ you want to inside of your templates.
 ## Using Content (page) Parameters
 
 In each piece of content, you can provide variables to be used by the
-templates. This happens in the [front matter](/content/front-matter).
+templates. This happens in the [front matter](/content/front-matter/).
 
 An example of this is used in this documentation site. Most of the pages
 benefit from having the table of contents provided. Sometimes the TOC just

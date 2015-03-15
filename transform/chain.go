@@ -1,8 +1,9 @@
 package transform
 
 import (
-	"bytes"
 	"io"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 type trans func([]byte) []byte
@@ -20,8 +21,9 @@ func NewEmptyTransforms() []link {
 }
 
 func (c *chain) Apply(w io.Writer, r io.Reader) (err error) {
+	buffer := bp.GetBuffer()
+	defer bp.PutBuffer(buffer)
 
-	buffer := new(bytes.Buffer)
 	buffer.ReadFrom(r)
 	b := buffer.Bytes()
 	for _, tr := range *c {

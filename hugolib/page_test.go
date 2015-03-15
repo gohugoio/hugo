@@ -3,10 +3,12 @@ package hugolib
 import (
 	"html/template"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 )
 
@@ -211,6 +213,16 @@ the cylinder and strike me down. ## BB
 
 "You're a great Granser," he cried delightedly, "always making believe them little marks mean something."
 `
+
+	SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION = `+++
+[blackfriday]
+  extensions = ["hardLineBreak"]
++++
+first line.
+second line.
+
+fourth line.
+`
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -219,6 +231,9 @@ an_integer = 1
 a_float = 1.3
 a_bool = false
 a_date = 1979-05-27T07:32:00Z
+
+[a_table]
+a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
 
@@ -361,6 +376,16 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 	checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n")
 }
 
+func TestPageWithAdditionalExtension(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION))
+	p.Convert()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
+}
+
 func TestTableOfContents(t *testing.T) {
 	p, _ := NewPage("tocpage.md")
 	err := p.ReadFrom(strings.NewReader(PAGE_WITH_TOC))
@@ -368,8 +393,8 @@ func TestTableOfContents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
-	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"toc_0\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"toc_1\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"toc_2\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
-	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#toc_0\">AA</a>\n<ul>\n<li><a href=\"#toc_1\">AAA</a></li>\n<li><a href=\"#toc_2\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
+	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa:90b9174a5bdb091a9625b04adac96ca6\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa:90b9174a5bdb091a9625b04adac96ca6\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb:90b9174a5bdb091a9625b04adac96ca6\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa:90b9174a5bdb091a9625b04adac96ca6\">AA</a>\n<ul>\n<li><a href=\"#aaa:90b9174a5bdb091a9625b04adac96ca6\">AAA</a></li>\n<li><a href=\"#bbb:90b9174a5bdb091a9625b04adac96ca6\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
@@ -447,7 +472,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		r   string
 		err string
 	}{
-		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "Unable to read frontmatter at filepos 45: EOF"},
+		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "unable to read frontmatter at filepos 45: EOF"},
 	}
 	for _, test := range tests {
 
@@ -499,6 +524,13 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	if page.GetParam("a_date") != dateval {
 		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
 	}
+	param := page.GetParam("a_table")
+	if param == nil {
+		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
+	}
+	if cast.ToStringMap(param)["a_key"] != "a_value" {
+		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.Params["a_table"])["a_key"])
+	}
 }
 
 func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
@@ -510,10 +542,10 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 }
 
 func TestSectionEvaluation(t *testing.T) {
-	page, _ := NewPage("blue/file1.md")
+	page, _ := NewPage(filepath.FromSlash("blue/file1.md"))
 	page.ReadFrom(strings.NewReader(SIMPLE_PAGE))
 	if page.Section() != "blue" {
-		t.Errorf("Section should be %s, got: %s", "blue", page.Section)
+		t.Errorf("Section should be %s, got: %s", "blue", page.Section())
 	}
 }
 

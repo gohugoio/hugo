@@ -1,6 +1,10 @@
 hugo
 docs/public*
 hugo.exe
+*.test
+*.prof
+nohup.out
+cover.out
 *.swp
 *.swo
 .DS_Store

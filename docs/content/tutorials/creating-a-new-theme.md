@@ -1,14 +1,16 @@
-+++
-author = "Michael Henderson"
-date = "2014-09-28"
-linktitle = "Creating a New Theme"
-next = "/tutorials/mathjax"
-prev = "/community/contributing"
-title = "Creating a New Theme"
-weight = 10
-[[menu:main]]
-	parent = "tutorials"
-+++
+---
+author: "Michael Henderson"
+date: 2014-09-28
+linktitle: Creating a New Theme
+menu:
+  main:
+    parent: tutorials
+next: /tutorials/github-pages-blog
+prev: /tutorials/automated-deployments
+title: Creating a New Theme
+weight: 10
+---
+
 
 ## Introduction
 
@@ -81,7 +83,7 @@ Content is stored in text files that contain two sections. The first section is 
 
 #### Front Matter
 
-The front matter is information about the content. Like the configuration file, it can be written in TOML, YAML, or JSON. Unlike the configuration file, Hugo doesn’t use the file’s extension to know the format. It looks for markers to signal the type. TOML is surrounded by “+++,” YAML by “---,” and JSON is enclosed in curly braces. I prefer to use TOML, so you’ll need to translate my examples if you prefer YAML or JSON.
+The front matter is information about the content. Like the configuration file, it can be written in TOML, YAML, or JSON. Unlike the configuration file, Hugo doesn’t use the file’s extension to know the format. It looks for markers to signal the type. TOML is surrounded by “`+++`”, YAML by “`---`”, and JSON is enclosed in curly braces. I prefer to use TOML, so you’ll need to translate my examples if you prefer YAML or JSON.
 
 The information in the front matter is passed into the template before the content is rendered into HTML.
 
@@ -140,7 +142,7 @@ The other directories (archetypes/, layouts/, and static/) are used when customi
 
 ### Generate the HTML For the New Site
 
-Running the hugo command with no options will read all the available content and generate the HTML files. It will also copy all static files (that's everything that's not content). Since we have an empty site, it won't do much, but it will do it very quickly.
+Running the `hugo` command with no options will read all the available content and generate the HTML files. It will also copy all static files (that's everything that's not content). Since we have an empty site, it won't do much, but it will do it very quickly.
 
 ```
 $ hugo --verbose
@@ -157,7 +159,7 @@ in 2 ms
 $ 
 ```
 
-The "--verbose" flag gives extra information that will be helpful when we build the template. Every line of the output that starts with "INFO:" or "WARN:" is present because we used that flag. The lines that start with "WARN:" are warning messages. We'll go over them later.
+The "`--verbose`" flag gives extra information that will be helpful when we build the template. Every line of the output that starts with "INFO:" or "WARN:" is present because we used that flag. The lines that start with "WARN:" are warning messages. We'll go over them later.
 
 We can verify that the command worked by looking at the directory again.
 
@@ -205,7 +207,7 @@ WARN: 2014/09/29 Unable to locate layout: [404.html]
 in 2 ms
 Serving pages from /Users/quoha/Sites/zafta/public
 Web Server is available at http://localhost:1313
-Press ctrl+c to stop
+Press Ctrl+C to stop
 ```
 
 Connect to the listed URL (it's on the line that starts with "Web Server"). If everything is working correctly, you should get a page that shows the following:
@@ -422,7 +424,7 @@ Note: If you're building on an SSD, you should ignore this. Churning on a SSD ca
 
 ### Hugo's Watch Option
 
-Hugo's "--watch" option will monitor the content/ and your theme directories for changes and rebuild the site automatically.
+Hugo's "`--watch`" option will monitor the content/ and your theme directories for changes and rebuild the site automatically.
 
 ### Live Reload
 
@@ -461,7 +463,7 @@ in 2 ms
 Watching for changes in /Users/quoha/Sites/zafta/content
 Serving pages from /Users/quoha/Sites/zafta/public
 Web Server is available at http://localhost:1313
-Press ctrl+c to stop
+Press Ctrl+C to stop
 INFO: 2014/09/29 File System Event: ["/Users/quoha/Sites/zafta/themes/zafta/layouts/index.html": MODIFY|ATTRIB]
 Change detected, rebuilding site
 
@@ -529,7 +531,7 @@ $ cat public/index.html
 
 #### Live Reload
 
-Note: If you're running the server with the --watch option, you'll see different content in the file:
+Note: If you're running the server with the `--watch` option, you'll see different content in the file:
 
 ```
 $ cat public/index.html 
@@ -544,7 +546,7 @@ $ cat public/index.html
 </html>
 ```
 
-When you use --watch, the Live Reload script is added by Hugo. Look for live reload in the documentation to see what it does and how to disable it.
+When you use `--watch`, the Live Reload script is added by Hugo. Look for live reload in the documentation to see what it does and how to disable it.
 
 ### Build a "Dynamic" Home Page
 
@@ -1145,4 +1147,4 @@ Note that we removed the date logic from the default template and put it in the 
 
 ### Don't Repeat Yourself
 
-DRY is a good design goal and Hugo does a great job supporting it. Part of the art of a good template is knowing when to add a new template and when to update an existing one. While you're figuring that out, Accept that you'll be doing some refactoring. Hugo makes that easy and fast, so it's okay to delay splitting up a template.
+DRY is a good design goal and Hugo does a great job supporting it. Part of the art of a good template is knowing when to add a new template and when to update an existing one. While you're figuring that out, accept that you'll be doing some refactoring. Hugo makes that easy and fast, so it's okay to delay splitting up a template.

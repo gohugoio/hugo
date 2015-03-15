@@ -21,7 +21,7 @@ to Go, the [Go template primer](/layout/go-templates/) will help you get started
 ## Theme Components
 
 A theme consists of templates and static assets such as javascript and css
-files. Themes can also optionally provide [archetypes](/content/archetypes)
+files. Themes can also optionally provide [archetypes](/content/archetypes/)
 which are archetypal content types used by the `hugo new` command.
 
 ### Layouts
@@ -37,14 +37,13 @@ a large amount of flexibility.
 
 The default single file layout is located at `layouts/_default/single.html`.
 
-
 ### List of Contents
 
-The default list file layout is located at `layouts/_default/list.html`
+The default list file layout is located at `layouts/_default/list.html`.
 
 ### Partial Templates
 
-Theme creators should liberally use [partial templates](/templates/partials)
+Theme creators should liberally use [partial templates](/templates/partials/)
 throughout their theme files. Not only is a good DRY practice to include shared
 code, but partials are a special template type that enables the themes end user
 to be able to overwrite just a small piece of a file or inject code into the
@@ -67,7 +66,7 @@ The actual structure is entirely up to you, the theme creator, on how you would 
 
 ### Archetypes
 
-If your theme makes use of specific keys in the front matter it is a good idea
+If your theme makes use of specific keys in the front matter, it is a good idea
 to provide an archetype for each content type you have. Archetypes follow the
-[guidelines provided](/content/archetypes).
+[guidelines provided](/content/archetypes/).
 

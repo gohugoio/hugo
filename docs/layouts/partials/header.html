@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta name="keyword" content="">
-    <link rel="shortcut icon" href="img/favicon.png">
+    <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+    {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
+    {{ .Hugo.Generator }}
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 
     <title>{{.Title}}</title>
 
@@ -30,7 +30,7 @@
             </div>
 
             <!--logo start-->
-            <a href="/" class="logo"><img src="/img/hugo-logo.png" style="height:40px;"></a>
+            <a href="/" class="logo"><img src="/img/hugo-logo.png" style="height: 40px; vertical-align: bottom;"> <span style="font-size: small; text-transform: none;">v{{ .Hugo.Version }}</span></a>
             <!--logo end-->
             <div class="top-nav notification-row">
                 <!-- notification dropdown end-->
@@ -42,7 +42,7 @@
             </div>
 
             <div class="nav title-row" id="top_menu">
-                <h1 class="nav top-menu"> {{.Title}} </h1>
+                <h1 class="nav top-menu">{{.Title}}</h1>
             </div>
       </header>
       <!--header end-->
@@ -81,3 +81,4 @@
                               <!--<h3>{{.Title}}</h3>-->
                           <!--</header>-->
                     <div class="panel-body">
+{{ partial "google-cse.html" . }}

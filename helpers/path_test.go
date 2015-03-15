@@ -2,9 +2,11 @@ package helpers
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -55,6 +57,37 @@ func TestMakePathToLower(t *testing.T) {
 	}
 }
 
+func TestGetRelativePath(t *testing.T) {
+	tests := []struct {
+		path   string
+		base   string
+		expect interface{}
+	}{
+		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
+		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
+		{filepath.FromSlash("/c"), "", false},
+	}
+	for i, this := range tests {
+		// ultimately a fancy wrapper around filepath.Rel
+		result, err := GetRelativePath(this.path, this.base)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] GetRelativePath didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] GetRelativePath failed: %s", i, err)
+				continue
+			}
+			if result != this.expect {
+				t.Errorf("[%d] GetRelativePath got %v but expected %v", i, result, this.expect)
+			}
+		}
+
+	}
+}
+
 func TestMakePathRelative(t *testing.T) {
 	type test struct {
 		inPath, path1, path2, output string
@@ -74,7 +107,7 @@ func TestMakePathRelative(t *testing.T) {
 	_, error := MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
 
 	if error == nil {
-		t.Errorf("Test #%d failed. Expected error")
+		t.Errorf("Test failed, expected error")
 	}
 }
 
@@ -119,7 +152,7 @@ func TestReplaceExtension(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output := ReplaceExtension(d.input, d.newext)
+		output := ReplaceExtension(filepath.FromSlash(d.input), d.newext)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -139,8 +172,8 @@ func TestDirExists(t *testing.T) {
 		{"../", true},
 		{"./..", true},
 		{"./../", true},
-		{"/tmp", true},
-		{"/tmp/", true},
+		{os.TempDir(), true},
+		{os.TempDir() + FilePathSeparator, true},
 		{"/", true},
 		{"/some-really-random-directory-name", false},
 		{"/some/really/random/directory/name", false},
@@ -149,7 +182,7 @@ func TestDirExists(t *testing.T) {
 	}
 
 	for i, d := range data {
-		exists, _ := DirExists(d.input, new(afero.OsFs))
+		exists, _ := DirExists(filepath.FromSlash(d.input), new(afero.OsFs))
 		if d.expected != exists {
 			t.Errorf("Test %d failed. Expected %t got %t", i, d.expected, exists)
 		}
@@ -357,25 +390,55 @@ func TestExists(t *testing.T) {
 
 }
 
-// TestAbsPathify cannot be tested further because it relies on the
-// viper.GetString("WorkingDir") which the test cannot know.
-// viper.GetString("WorkingDir") should be passed to AbsPathify as a
-// parameter.
 func TestAbsPathify(t *testing.T) {
 	type test struct {
-		input, expected string
+		inPath, workingDir, expected string
 	}
 	data := []test{
-		{os.TempDir(), path.Clean(os.TempDir())}, // TempDir has trailing slash
-		{"/banana/../dir/", "/dir"},
+		{os.TempDir(), filepath.FromSlash("/work"), filepath.Clean(os.TempDir())}, // TempDir has trailing slash
+		{"dir", filepath.FromSlash("/work"), filepath.FromSlash("/work/dir")},
+	}
+
+	windowsData := []test{
+		{"c:\\banana\\..\\dir", "c:\\foo", "c:\\dir"},
+		{"\\dir", "c:\\foo", "c:\\foo\\dir"},
+		{"c:\\", "c:\\foo", "c:\\"},
+	}
+
+	unixData := []test{
+		{"/banana/../dir/", "/work", "/dir"},
 	}
 
 	for i, d := range data {
-		expected := AbsPathify(d.input)
+		// todo see comment in AbsPathify
+		viper.Set("WorkingDir", d.workingDir)
+
+		expected := AbsPathify(d.inPath)
 		if d.expected != expected {
-			t.Errorf("Test %d failed. Expected %q but go %q", i, d.expected, expected)
+			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 		}
 	}
+	t.Logf("Running platform specific path tests for %s", runtime.GOOS)
+	if runtime.GOOS == "windows" {
+		for i, d := range windowsData {
+			viper.Set("WorkingDir", d.workingDir)
+
+			expected := AbsPathify(d.inPath)
+			if d.expected != expected {
+				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
+			}
+		}
+	} else {
+		for i, d := range unixData {
+			viper.Set("WorkingDir", d.workingDir)
+
+			expected := AbsPathify(d.inPath)
+			if d.expected != expected {
+				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
+			}
+		}
+	}
+
 }
 
 func TestFilename(t *testing.T) {
@@ -400,7 +463,7 @@ func TestFilename(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output := Filename(d.input)
+		output := Filename(filepath.FromSlash(d.input))
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -429,12 +492,12 @@ func TestFileAndExt(t *testing.T) {
 	}
 
 	for i, d := range data {
-		file, ext := FileAndExt(d.input)
+		file, ext := FileAndExt(filepath.FromSlash(d.input), filepathBridge)
 		if d.expectedFile != file {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
 		if d.expectedExt != ext {
-			t.Errorf("Test %d failed. Expected extension $q got %q.", i, d.expectedExt, ext)
+			t.Errorf("Test %d failed. Expected extension %q got %q.", i, d.expectedExt, ext)
 		}
 	}
 
@@ -467,7 +530,7 @@ func TestGuessSection(t *testing.T) {
 	}
 
 	for i, d := range data {
-		expected := GuessSection(d.input)
+		expected := GuessSection(filepath.FromSlash(d.input))
 		if d.expected != expected {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, expected)
 		}
@@ -501,7 +564,7 @@ func TestFindCWD(t *testing.T) {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedDir, dir)
 		}
 		if d.expectedErr != err {
-			t.Error("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
+			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
 		}
 	}
 }
@@ -576,11 +639,39 @@ func TestWriteToDisk(t *testing.T) {
 		}
 		contents, e := ioutil.ReadFile(d.filename)
 		if e != nil {
-			t.Error("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
+			t.Errorf("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
 		}
 		if randomString != string(contents) {
 			t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
 		}
 		reader.Seek(0, 0)
+	}
+}
+
+func TestGetTempDir(t *testing.T) {
+	dir := os.TempDir()
+	if FilePathSeparator != dir[len(dir)-1:] {
+		dir = dir + FilePathSeparator
+	}
+	testDir := "hugoTestFolder" + FilePathSeparator
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"", dir},
+		{testDir + "  Foo bar  ", dir + testDir + "--Foo-bar" + FilePathSeparator},
+		{testDir + "Foo.Bar/foo_Bar-Foo", dir + testDir + "Foo.Bar/foo_Bar-Foo" + FilePathSeparator},
+		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoobAR" + FilePathSeparator},
+		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
+		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
+		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковский-кассир" + FilePathSeparator},
+	}
+
+	for _, test := range tests {
+		output := GetTempDir(test.input, new(afero.MemMapFs))
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
 	}
 }

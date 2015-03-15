@@ -12,7 +12,7 @@ weight: 70
 ---
 
 In addition to the [single content template](/templates/content/), Hugo can render alternative views of
-your content. These are especially useful in [list templates](/templates/list).
+your content. These are especially useful in [list templates](/templates/list/).
 
 For example you may want content of every type to be shown on the
 homepage, but only a summary view of it there. Perhaps on a taxonomy
@@ -23,11 +23,11 @@ different type of content to the content itself.
 
 ## Creating a content view
 
-To create a new view simple create a template in each of your different
-content type directories with the view name. In the following example we
+To create a new view, simply create a template in each of your different
+content type directories with the view name. In the following example, we
 have created a "li" view and a "summary" view for our two content types
-of post and project. As you can see these sit next to the [single
-content view](/templates/content) template "single.html". You can even
+of post and project. As you can see, these sit next to the [single
+content view](/templates/content/) template "single.html". You can even
 provide a specific view for a given type and continue to use the
 \_default/single.html for the primary view.
 
@@ -75,7 +75,7 @@ the list will be needed.
 ### rendering view inside of a list
 
 Using the summary view (defined below) inside of a ([list
-templates](/templates/list)). 
+templates](/templates/list/)).
 
     <section id="main">
     <div>
@@ -86,19 +86,19 @@ templates](/templates/list)).
     </div>
     </section>
 
-In the above example you will notice that we have called .Render and passed in
-which view to render the content with. Render is a special function available on
+In the above example, you will notice that we have called `.Render` and passed in
+which view to render the content with. `.Render` is a special function available on
 a content which tells the content to render itself with the provided view template.
-In this example we are not using the li view. To use this we would
+In this example, we are not using the li view. To use this we would
 change the render line to `{{ .Render "li" }}`.
 
 
 ### li.html
 
 Hugo will pass the entire page object to the view template. See [page
-variables](/templates/variables) for a complete list.
+variables](/templates/variables/) for a complete list.
 
-This content template is used for [spf13.com](http://spf13.com).
+This content template is used for [spf13.com](http://spf13.com/).
 
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -108,9 +108,9 @@ This content template is used for [spf13.com](http://spf13.com).
 ### summary.html
 
 Hugo will pass the entire page object to the view template. See [page
-variables](/templates/variables) for a complete list.
+variables](/templates/variables/) for a complete list.
 
-This content template is used for [spf13.com](http://spf13.com).
+This content template is used for [spf13.com](http://spf13.com/).
 
     <article class="post">
     <header>

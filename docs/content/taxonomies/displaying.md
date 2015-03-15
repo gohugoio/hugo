@@ -14,7 +14,7 @@ weight: 20
 
 There are four common ways you can display the data in your
 taxonomies in addition to the automatic taxonomy pages created by hugo
-using the [list templates](/templates/list):
+using the [list templates](/templates/list/):
 
 1. For a given piece of content, you can list the terms attached
 2. For a given piece of content, you can list other content with the same
@@ -80,7 +80,7 @@ different terms to the content.
 
 ## 4. Rendering a Site's Taxonomies
 
-If you wish to display the list of all keys for an taxonomy, you can find retrieve
+If you wish to display the list of all keys for a taxonomy, you can find retrieve
 them from the `.Site` variable which is available on every page.
 
 This may take the form of a tag cloud, a menu or simply a list.

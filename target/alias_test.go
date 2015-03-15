@@ -1,6 +1,7 @@
 package target
 
 import (
+	"path/filepath"
 	"testing"
 )
 
@@ -13,14 +14,14 @@ func TestHTMLRedirectAlias(t *testing.T) {
 		expected string
 	}{
 		{"", ""},
-		{"s", "s/index.html"},
-		{"/", "/index.html"},
-		{"alias 1", "alias-1/index.html"},
-		{"alias 2/", "alias-2/index.html"},
+		{"s", filepath.FromSlash("s/index.html")},
+		{"/", filepath.FromSlash("/index.html")},
+		{"alias 1", filepath.FromSlash("alias-1/index.html")},
+		{"alias 2/", filepath.FromSlash("alias-2/index.html")},
 		{"alias 3.html", "alias-3.html"},
 		{"alias4.html", "alias4.html"},
-		{"/alias 5.html", "/alias-5.html"},
-		{"/трям.html", "/трям.html"},
+		{"/alias 5.html", filepath.FromSlash("/alias-5.html")},
+		{"/трям.html", filepath.FromSlash("/трям.html")},
 	}
 
 	for _, test := range tests {

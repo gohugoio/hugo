@@ -17,6 +17,8 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -61,7 +63,7 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	for k, _ := range newmetadata {
+	for k := range newmetadata {
 		switch strings.ToLower(k) {
 		case "date":
 			newmetadata[k] = time.Now()
@@ -71,12 +73,16 @@ func NewContent(kind, name string) (err error) {
 	}
 
 	caseimatch := func(m map[string]interface{}, key string) bool {
-		for k, _ := range m {
+		for k := range m {
 			if strings.ToLower(k) == strings.ToLower(key) {
 				return true
 			}
 		}
 		return false
+	}
+
+	if newmetadata == nil {
+		newmetadata = make(map[string]interface{})
 	}
 
 	if !caseimatch(newmetadata, "date") {
@@ -92,7 +98,7 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" || x == "toml" {
+	if x := parser.FormatSanitize(viper.GetString("MetaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
 		newmetadata["date"] = time.Now().Format(time.RFC3339)
 	}
 
@@ -103,6 +109,21 @@ func NewContent(kind, name string) (err error) {
 		return
 	}
 	jww.FEEDBACK.Println(helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)), "created")
+
+	editor := viper.GetString("NewContentEditor")
+
+	if editor != "" {
+		jww.FEEDBACK.Printf("Editing %s in %s.\n", name, editor)
+
+		cmd := exec.Command(editor, path.Join(viper.GetString("contentDir"), name))
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err = cmd.Run(); err != nil {
+			return
+		}
+	}
 
 	return nil
 }
