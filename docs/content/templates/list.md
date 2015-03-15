@@ -97,7 +97,7 @@ variables](/templates/variables/) available to use in the templates.
 
 Taxonomy pages will additionally have:
 
-**.Data.`singular`** The taxonomy itself.<br>
+**.Data.`Singular`** The taxonomy itself.<br>
 
 ## Example List Template Pages
 
