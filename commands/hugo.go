@@ -75,6 +75,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
+	HugoCmd.AddCommand(undraftCmd)
 }
 
 //Initializes flags
