@@ -13,14 +13,10 @@
 
 package hugolib
 
-/*
- *  An author list is a list of all authors and their metadata
- */
+// AuthorList is a list of all authors and their metadata.
 type AuthorList map[string]Author
 
-/*
- *  An author contains details about the author of a page
- */
+// Author contains details about the author of a page.
 type Author struct {
 	GivenName   string
 	FamilyName  string

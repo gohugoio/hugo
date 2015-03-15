@@ -50,6 +50,20 @@ more text
 `
 )
 
+func createAndRenderPages(t *testing.T, s *Site) {
+	if err := s.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	if err := s.BuildSiteMeta(); err != nil {
+		t.Fatalf("Unable to build site metadata: %s", err)
+	}
+
+	if err := s.RenderPages(); err != nil {
+		t.Fatalf("Unable to render pages. %s", err)
+	}
+}
+
 func templatePrep(s *Site) {
 	s.Tmpl = tpl.New()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
@@ -230,7 +244,7 @@ func TestTargetPath(t *testing.T) {
 		}
 
 		if p.Section() != test.expectedSection {
-			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section)
+			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section())
 		}
 	}
 }
@@ -293,6 +307,77 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildFuture", false)
 }
 
+// Issue #939
+func Test404ShouldAlwaysHaveUglyUrls(t *testing.T) {
+	for _, uglyURLs := range []bool{true, false} {
+		doTest404ShouldAlwaysHaveUglyUrls(t, uglyURLs)
+	}
+}
+
+func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
+	viper.Set("verbose", true)
+	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("DisableSitemap", false)
+	viper.Set("DisableRSS", false)
+
+	viper.Set("UglyURLs", uglyURLs)
+
+	sources := []source.ByteSource{
+		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+	}
+
+	s := &Site{
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: uglyURLs}},
+	}
+
+	s.initializeSiteInfo()
+	templatePrep(s)
+
+	must(s.addTemplate("index.html", "Home Sweet Home"))
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("404.html", "Page Not Found"))
+
+	// make sure the XML files also end up with ugly urls
+	must(s.addTemplate("rss.xml", "<root>RSS</root>"))
+	must(s.addTemplate("sitemap.xml", "<root>SITEMAP</root>"))
+
+	createAndRenderPages(t, s)
+	s.RenderHomePage()
+	s.RenderSitemap()
+
+	var expectedPagePath string
+	if uglyURLs {
+		expectedPagePath = "sect/doc1.html"
+	} else {
+		expectedPagePath = "sect/doc1/index.html"
+	}
+
+	tests := []struct {
+		doc      string
+		expected string
+	}{
+		{filepath.FromSlash("index.html"), "Home Sweet Home"},
+		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("404.html"), "Page Not Found"},
+		{filepath.FromSlash("index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
+		{filepath.FromSlash("sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
+	}
+
+	for _, test := range tests {
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target: %s", test.doc, err)
+		}
+		content := helpers.ReaderToBytes(file)
+
+		if !bytes.Equal(content, []byte(test.expected)) {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		}
+	}
+
+}
+
 func TestSkipRender(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
@@ -307,11 +392,11 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	viper.Set("verbose", true)
-	viper.Set("CanonifyUrls", true)
+	viper.Set("CanonifyURLs", true)
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
 	}
 
 	s.initializeSiteInfo()
@@ -321,17 +406,7 @@ func TestSkipRender(t *testing.T) {
 	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
 	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
 
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
-
-	if err := s.RenderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
-	}
+	createAndRenderPages(t, s)
 
 	tests := []struct {
 		doc      string
@@ -367,13 +442,13 @@ func TestAbsUrlify(t *testing.T) {
 		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, canonify := range []bool{true, false} {
-		viper.Set("CanonifyUrls", canonify)
-		viper.Set("BaseUrl", "http://auth/bub")
+		viper.Set("CanonifyURLs", canonify)
+		viper.Set("BaseURL", "http://auth/bub")
 		s := &Site{
 			Source:  &source.InMemorySource{ByteSource: sources},
-			Targets: targetList{Page: &target.PagePub{UglyUrls: true}},
+			Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
 		}
-		t.Logf("Rendering with BaseUrl %q and CanonifyUrls set %v", viper.GetString("baseUrl"), canonify)
+		t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
 		s.initializeSiteInfo()
 		templatePrep(s)
 		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
@@ -748,13 +823,13 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 }
 
-func TestDataDirJson(t *testing.T) {
+func TestDataDirJSON(t *testing.T) {
 	sources := []source.ByteSource{
 		{filepath.FromSlash("test/foo.json"), []byte(`{ "bar": "foofoo"  }`)},
 		{filepath.FromSlash("test.json"), []byte(`{ "hello": [ { "world": "foo" } ] }`)},
 	}
 
-	expected, err := parser.HandleJsonMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
+	expected, err := parser.HandleJSONMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
 
 	if err != nil {
 		t.Fatalf("Error %s", err)
@@ -768,7 +843,7 @@ func TestDataDirToml(t *testing.T) {
 		{filepath.FromSlash("test/kung.toml"), []byte("[foo]\nbar = 1")},
 	}
 
-	expected, err := parser.HandleTomlMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
+	expected, err := parser.HandleTOMLMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
 
 	if err != nil {
 		t.Fatalf("Error %s", err)
@@ -777,7 +852,7 @@ func TestDataDirToml(t *testing.T) {
 	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: sources}})
 }
 
-func TestDataDirYamlWithOverridenValue(t *testing.T) {
+func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 	sources := []source.ByteSource{
 		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
 		{filepath.FromSlash("a.yaml"), []byte("a: 1")},
@@ -803,7 +878,7 @@ func TestDataDirMultipleSources(t *testing.T) {
 		{filepath.FromSlash("test/second.toml"), []byte("tender = 2")},
 	}
 
-	expected, _ := parser.HandleTomlMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
+	expected, _ := parser.HandleTOMLMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
 
 	doTestDataDir(t, expected, []source.Input{&source.InMemorySource{ByteSource: s1}, &source.InMemorySource{ByteSource: s2}})
 

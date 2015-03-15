@@ -63,7 +63,7 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	for k, _ := range newmetadata {
+	for k := range newmetadata {
 		switch strings.ToLower(k) {
 		case "date":
 			newmetadata[k] = time.Now()
@@ -73,7 +73,7 @@ func NewContent(kind, name string) (err error) {
 	}
 
 	caseimatch := func(m map[string]interface{}, key string) bool {
-		for k, _ := range m {
+		for k := range m {
 			if strings.ToLower(k) == strings.ToLower(key) {
 				return true
 			}

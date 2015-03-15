@@ -65,9 +65,15 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		{5, 8, -1},
 		{8, 5, 1},
 		{5, 5, 0},
+		{int(5), int64(5), 0},
+		{int32(5), int(5), 0},
+		{int16(4), int(5), -1},
+		{uint(15), uint64(15), 0},
 		{-2, 1, -1},
 		{2, -5, 1},
 		{0.0, 1.23, -1},
+		{1.1, 1.1, 0},
+		{float32(1.0), float64(1.0), 0},
 		{1.23, 0.0, 1},
 		{"5", "5", 0},
 		{"8", "5", 1},
@@ -97,6 +103,42 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 
 		if !success {
 			t.Errorf("[%d][%s] %v compared to %v: %t", i, path.Base(runtime.FuncForPC(reflect.ValueOf(funcUnderTest).Pointer()).Name()), this.left, this.right, result)
+		}
+	}
+}
+
+func TestArethmic(t *testing.T) {
+	for i, this := range []struct {
+		a      interface{}
+		b      interface{}
+		op     rune
+		expect interface{}
+	}{
+		{1, 2, '+', int64(3)},
+		{1, 2, '-', int64(-1)},
+		{2, 2, '*', int64(4)},
+		{4, 2, '/', int64(2)},
+		{uint8(1), uint8(3), '+', uint64(4)},
+		{uint8(3), uint8(2), '-', uint64(1)},
+		{uint8(2), uint8(2), '*', uint64(4)},
+		{uint16(4), uint8(2), '/', uint64(2)},
+		{4, 2, '¤', false},
+		{4, 0, '/', false},
+	} {
+		// TODO(bep): Take precision into account.
+		result, err := doArithmetic(this.a, this.b, this.op)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] doArethmic didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] doArethmic got %v (%T) but expected %v (%T)", i, result, result, this.expect, this.expect)
+			}
 		}
 	}
 }
@@ -474,38 +516,38 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			sequence: []*map[int]string{
-				&map[int]string{1: "a", 2: "m"}, &map[int]string{1: "c", 2: "d"}, &map[int]string{1: "e", 3: "m"},
+				{1: "a", 2: "m"}, {1: "c", 2: "d"}, {1: "e", 3: "m"},
 			},
 			key: 2, match: "m",
 			expect: []*map[int]string{
-				&map[int]string{1: "a", 2: "m"},
+				{1: "a", 2: "m"},
 			},
 		},
 		{
 			sequence: []*TstX{
-				&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "f"},
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
 			},
 			key: "B", match: "f",
 			expect: []*TstX{
-				&TstX{A: "e", B: "f"},
+				{A: "e", B: "f"},
 			},
 		},
 		{
 			sequence: []*TstX{
-				&TstX{A: "a", B: "b"}, &TstX{A: "c", B: "d"}, &TstX{A: "e", B: "c"},
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "c"},
 			},
 			key: "TstRp", match: "rc",
 			expect: []*TstX{
-				&TstX{A: "c", B: "d"},
+				{A: "c", B: "d"},
 			},
 		},
 		{
 			sequence: []TstX{
-				TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "c"},
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "c"},
 			},
 			key: "TstRv", match: "rc",
 			expect: []TstX{
-				TstX{A: "e", B: "c"},
+				{A: "e", B: "c"},
 			},
 		},
 		{
@@ -738,19 +780,19 @@ func TestSort(t *testing.T) {
 		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
 		// test map sorting by field value
 		{
-			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyInt",
 			"asc",
 			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
 		},
 		{
-			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyFloat",
 			"asc",
 			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
 		},
 		{
-			map[string]ts{"1": ts{10, 10.5, "ten"}, "2": ts{20, 20.5, "twenty"}, "3": ts{30, 30.5, "thirty"}, "4": ts{40, 40.5, "forty"}, "5": ts{50, 50.5, "fifty"}},
+			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyString",
 			"asc",
 			[]interface{}{ts{50, 50.5, "fifty"}, ts{40, 40.5, "forty"}, ts{10, 10.5, "ten"}, ts{30, 30.5, "thirty"}, ts{20, 20.5, "twenty"}},
@@ -786,12 +828,12 @@ func TestReturnWhenSet(t *testing.T) {
 		{[]uint{1, 2, 3}, 1, uint64(2)},
 		{[]float64{1.1, 2.2, 3.3}, 1, float64(2.2)},
 		{[]string{"foo", "bar", "baz"}, 1, "bar"},
-		{[]TstX{TstX{A: "a", B: "b"}, TstX{A: "c", B: "d"}, TstX{A: "e", B: "f"}}, 1, ""},
+		{[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}}, 1, ""},
 		{map[string]int{"foo": 1, "bar": 2, "baz": 3}, "bar", int64(2)},
 		{map[string]uint{"foo": 1, "bar": 2, "baz": 3}, "bar", uint64(2)},
 		{map[string]float64{"foo": 1.1, "bar": 2.2, "baz": 3.3}, "bar", float64(2.2)},
 		{map[string]string{"foo": "FOO", "bar": "BAR", "baz": "BAZ"}, "bar", "BAR"},
-		{map[string]TstX{"foo": TstX{A: "a", B: "b"}, "bar": TstX{A: "c", B: "d"}, "baz": TstX{A: "e", B: "f"}}, "bar", ""},
+		{map[string]TstX{"foo": {A: "a", B: "b"}, "bar": {A: "c", B: "d"}, "baz": {A: "e", B: "f"}}, "bar", ""},
 		{(*[]string)(nil), "bar", ""},
 	} {
 		result := ReturnWhenSet(this.data, this.key)
@@ -904,7 +946,7 @@ func TestTrim(t *testing.T) {
 func TestDateFormat(t *testing.T) {
 	for i, this := range []struct {
 		layout string
-		value interface{}
+		value  interface{}
 		expect interface{}
 	}{
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
@@ -930,7 +972,7 @@ func TestDateFormat(t *testing.T) {
 	}
 }
 
-func TestSafeHtml(t *testing.T) {
+func TestSafeHTML(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -941,7 +983,7 @@ func TestSafeHtml(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -955,7 +997,7 @@ func TestSafeHtml(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeHtml(this.str))
+		err = tmpl.Execute(buf, SafeHTML(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeHtml returns unexpected error: %s", i, err)
 		}
@@ -965,7 +1007,7 @@ func TestSafeHtml(t *testing.T) {
 	}
 }
 
-func TestSafeHtmlAttr(t *testing.T) {
+func TestSafeHTMLAttr(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -976,7 +1018,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -990,7 +1032,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeHtmlAttr(this.str))
+		err = tmpl.Execute(buf, SafeHTMLAttr(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeHtmlAttr returns unexpected error: %s", i, err)
 		}
@@ -1000,7 +1042,7 @@ func TestSafeHtmlAttr(t *testing.T) {
 	}
 }
 
-func TestSafeCss(t *testing.T) {
+func TestSafeCSS(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -1011,7 +1053,7 @@ func TestSafeCss(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -1025,7 +1067,7 @@ func TestSafeCss(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeCss(this.str))
+		err = tmpl.Execute(buf, SafeCSS(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeCss returns unexpected error: %s", i, err)
 		}
@@ -1035,7 +1077,7 @@ func TestSafeCss(t *testing.T) {
 	}
 }
 
-func TestSafeUrl(t *testing.T) {
+func TestSafeURL(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -1046,7 +1088,7 @@ func TestSafeUrl(t *testing.T) {
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
 		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", this.tmplStr, err)
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
 			continue
 		}
 
@@ -1060,7 +1102,7 @@ func TestSafeUrl(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeUrl(this.str))
+		err = tmpl.Execute(buf, SafeURL(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeUrl returns unexpected error: %s", i, err)
 		}

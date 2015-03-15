@@ -58,7 +58,7 @@ type templateErr struct {
 	err  error
 }
 
-type GoHtmlTemplate struct {
+type GoHTMLTemplate struct {
 	template.Template
 	errors []*templateErr
 }
@@ -81,7 +81,7 @@ func InitializeT() Template {
 // Return a new Hugo Template System
 // With all the additional features, templates & functions
 func New() Template {
-	var templates = &GoHtmlTemplate{
+	var templates = &GoHTMLTemplate{
 		Template: *template.New(""),
 		errors:   make([]*templateErr, 0),
 	}
@@ -94,6 +94,21 @@ func New() Template {
 }
 
 func Eq(x, y interface{}) bool {
+	normalize := func(v interface{}) interface{} {
+		vv := reflect.ValueOf(v)
+		switch vv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return vv.Int()
+		case reflect.Float32, reflect.Float64:
+			return vv.Float()
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return vv.Uint()
+		default:
+			return v
+		}
+	}
+	x = normalize(x)
+	y = normalize(y)
 	return reflect.DeepEqual(x, y)
 }
 
@@ -835,7 +850,7 @@ func Highlight(in interface{}, lang string) template.HTML {
 }
 
 func Markdownify(text string) template.HTML {
-	return template.HTML(helpers.RenderBytes(helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
+	return template.HTML(helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
@@ -919,21 +934,21 @@ func DateFormat(layout string, v interface{}) (string, error) {
 	return t.Format(layout), nil
 }
 
-func SafeHtml(text string) template.HTML {
+func SafeHTML(text string) template.HTML {
 	return template.HTML(text)
 }
 
 // "safeHtmlAttr" is currently disabled, pending further discussion
 // on its use case.  2015-01-19
-func SafeHtmlAttr(text string) template.HTMLAttr {
+func SafeHTMLAttr(text string) template.HTMLAttr {
 	return template.HTMLAttr(text)
 }
 
-func SafeCss(text string) template.CSS {
+func SafeCSS(text string) template.CSS {
 	return template.CSS(text)
 }
 
-func SafeUrl(text string) template.URL {
+func SafeURL(text string) template.URL {
 	return template.URL(text)
 }
 
@@ -1136,12 +1151,12 @@ func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML
 	return template.HTML(b.String())
 }
 
-func (t *GoHtmlTemplate) LoadEmbedded() {
+func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedShortcodes()
 	t.EmbedTemplates()
 }
 
-func (t *GoHtmlTemplate) AddInternalTemplate(prefix, name, tpl string) error {
+func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
 	if prefix != "" {
 		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
 	} else {
@@ -1149,11 +1164,11 @@ func (t *GoHtmlTemplate) AddInternalTemplate(prefix, name, tpl string) error {
 	}
 }
 
-func (t *GoHtmlTemplate) AddInternalShortcode(name, content string) error {
+func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
 	return t.AddInternalTemplate("shortcodes", name, content)
 }
 
-func (t *GoHtmlTemplate) AddTemplate(name, tpl string) error {
+func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	_, err := t.New(name).Parse(tpl)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
@@ -1161,7 +1176,7 @@ func (t *GoHtmlTemplate) AddTemplate(name, tpl string) error {
 	return err
 }
 
-func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
+func (t *GoHTMLTemplate) AddTemplateFile(name, path string) error {
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {
@@ -1206,7 +1221,7 @@ func (t *GoHtmlTemplate) AddTemplateFile(name, path string) error {
 
 }
 
-func (t *GoHtmlTemplate) GenerateTemplateNameFrom(base, path string) string {
+func (t *GoHTMLTemplate) GenerateTemplateNameFrom(base, path string) string {
 	name, _ := filepath.Rel(base, path)
 	return filepath.ToSlash(name)
 }
@@ -1215,7 +1230,11 @@ func isDotFile(path string) bool {
 	return filepath.Base(path)[0] == '.'
 }
 
-func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
+func isBackupFile(path string) bool {
+	return path[len(path)-1] == '~'
+}
+
+func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
@@ -1239,7 +1258,7 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if !fi.IsDir() {
-			if isDotFile(path) {
+			if isDotFile(path) || isBackupFile(path) {
 				return nil
 			}
 
@@ -1258,15 +1277,15 @@ func (t *GoHtmlTemplate) loadTemplates(absPath string, prefix string) {
 	filepath.Walk(absPath, walker)
 }
 
-func (t *GoHtmlTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
+func (t *GoHTMLTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
 	t.loadTemplates(absPath, prefix)
 }
 
-func (t *GoHtmlTemplate) LoadTemplates(absPath string) {
+func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
 	t.loadTemplates(absPath, "")
 }
 
-func (t *GoHtmlTemplate) PrintErrors() {
+func (t *GoHTMLTemplate) PrintErrors() {
 	for _, e := range t.errors {
 		jww.ERROR.Println(e.err)
 	}
@@ -1274,8 +1293,9 @@ func (t *GoHtmlTemplate) PrintErrors() {
 
 func init() {
 	funcMap = template.FuncMap{
-		"urlize":      helpers.Urlize,
-		"sanitizeurl": helpers.SanitizeUrl,
+		"urlize":      helpers.URLize,
+		"sanitizeURL": helpers.SanitizeURL,
+		"sanitizeurl": helpers.SanitizeURL,
 		"eq":          Eq,
 		"ne":          Ne,
 		"gt":          Gt,
@@ -1284,11 +1304,15 @@ func init() {
 		"le":          Le,
 		"in":          In,
 		"intersect":   Intersect,
+		"isSet":       IsSet,
 		"isset":       IsSet,
 		"echoParam":   ReturnWhenSet,
-		"safeHtml":    SafeHtml,
-		"safeCss":     SafeCss,
-		"safeUrl":     SafeUrl,
+		"safeHTML":    SafeHTML,
+		"safeHtml":    SafeHTML,
+		"safeCSS":     SafeCSS,
+		"safeCss":     SafeCSS,
+		"safeURL":     SafeURL,
+		"safeUrl":     SafeURL,
 		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,
@@ -1312,8 +1336,11 @@ func init() {
 		"replace":     Replace,
 		"trim":        Trim,
 		"dateFormat":  DateFormat,
-		"getJson":     GetJson,
-		"getCsv":      GetCsv,
+		"getJSON":     GetJSON,
+		"getJson":     GetJSON,
+		"getCSV":      GetCSV,
+		"getCsv":      GetCSV,
+		"seq":         helpers.Seq,
 	}
 
 }
