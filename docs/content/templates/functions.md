@@ -55,6 +55,17 @@ e.g.
         {{ .Render "summary" }}
     {{ end }}
 
+### getenv
+Returns the value of an environment variable.
+
+Takes a string containing the name of the variable as input.
+Returns an empty string if the variable is not set, otherwise returns the value of the variable.
+Note that in Unix-like environments, the variable must also be *export*ed in order to be seen by `hugo`.
+
+e.g.
+
+    {{ getenv "HOME" }}
+
 ### where
 Filters an array to only elements containing a matching value for a given field.
 
