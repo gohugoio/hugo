@@ -1341,6 +1341,7 @@ func init() {
 		"getCSV":      GetCSV,
 		"getCsv":      GetCSV,
 		"seq":         helpers.Seq,
+		"getenv":      func(varName string) string { return os.Getenv(varName) },
 	}
 
 }
