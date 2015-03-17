@@ -2,7 +2,7 @@ package transform
 
 import (
 	"bytes"
-	bp "github.com/spf13/hugo/bufferpool"
+	"io"
 	"net/url"
 	"strings"
 	"unicode/utf8"
@@ -33,7 +33,7 @@ type contentlexer struct {
 	state        stateFunc
 	prefixLookup *prefixes
 
-	b *bytes.Buffer
+	w io.Writer
 }
 
 type stateFunc func(*contentlexer) stateFunc
@@ -95,7 +95,7 @@ func (l *contentlexer) match(r rune) {
 }
 
 func (l *contentlexer) emit() {
-	l.b.Write(l.content[l.start:l.pos])
+	l.w.Write(l.content[l.start:l.pos])
 	l.start = l.pos
 }
 
@@ -134,7 +134,7 @@ func checkCandidate(l *contentlexer) {
 				l.emit()
 			}
 			l.pos += len(m.match)
-			l.b.Write(m.replacement)
+			l.w.Write(m.replacement)
 			l.start = l.pos
 			return
 
@@ -159,7 +159,6 @@ func (l *contentlexer) replace() {
 		}
 		l.width = width
 		l.pos += l.width
-
 		if r == ' ' {
 			l.prefixLookup.ms = matchStateWhitespace
 		} else if l.prefixLookup.ms != matchStateNone {
@@ -177,18 +176,16 @@ func (l *contentlexer) replace() {
 	}
 }
 
-func doReplace(content []byte, matchers []absURLMatcher) []byte {
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
+func doReplace(rw ContentReWriter, matchers []absURLMatcher) {
 
-	lexer := &contentlexer{content: content,
-		b:            b,
+	lexer := &contentlexer{
+		content:      rw.Content(),
+		w:            rw,
 		prefixLookup: &prefixes{pr: mainPrefixRunes},
 		matchers:     matchers}
 
 	lexer.replace()
 
-	return b.Bytes()
 }
 
 type absURLReplacer struct {
@@ -229,10 +226,10 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 
 }
 
-func (au *absURLReplacer) replaceInHTML(content []byte) []byte {
-	return doReplace(content, au.htmlMatchers)
+func (au *absURLReplacer) replaceInHTML(rw ContentReWriter) {
+	doReplace(rw, au.htmlMatchers)
 }
 
-func (au *absURLReplacer) replaceInXML(content []byte) []byte {
-	return doReplace(content, au.xmlMatchers)
+func (au *absURLReplacer) replaceInXML(rw ContentReWriter) {
+	doReplace(rw, au.xmlMatchers)
 }

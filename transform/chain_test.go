@@ -2,6 +2,7 @@ package transform
 
 import (
 	"bytes"
+	"github.com/spf13/hugo/helpers"
 	"strings"
 	"testing"
 )
@@ -51,6 +52,35 @@ func TestChainZeroTransformers(t *testing.T) {
 	out := new(bytes.Buffer)
 	if err := tr.Apply(in, out); err != nil {
 		t.Errorf("A zero transformer chain returned an error.")
+	}
+}
+
+func TestChaingMultipleTransformers(t *testing.T) {
+	f1 := func(rw ContentReWriter) {
+		rw.Write(bytes.Replace(rw.Content(), []byte("f1"), []byte("f1r"), -1))
+	}
+	f2 := func(rw ContentReWriter) {
+		rw.Write(bytes.Replace(rw.Content(), []byte("f2"), []byte("f2r"), -1))
+	}
+	f3 := func(rw ContentReWriter) {
+		rw.Write(bytes.Replace(rw.Content(), []byte("f3"), []byte("f3r"), -1))
+	}
+
+	f4 := func(rw ContentReWriter) {
+		rw.Write(bytes.Replace(rw.Content(), []byte("f4"), []byte("f4r"), -1))
+	}
+
+	tr := NewChain(f1, f2, f3, f4)
+
+	out := new(bytes.Buffer)
+	if err := tr.Apply(out, helpers.StringToReader("Test: f4 f3 f1 f2 f1 The End.")); err != nil {
+		t.Errorf("Multi transformer chain returned an error: %s", err)
+	}
+
+	expected := "Test: f4r f3r f1r f2r f1r The End."
+
+	if string(out.Bytes()) != expected {
+		t.Errorf("Expected %s got %s", expected, string(out.Bytes()))
 	}
 }
 
