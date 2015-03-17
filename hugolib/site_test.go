@@ -307,6 +307,83 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildFuture", false)
 }
 
+// Issue #957
+func TestCrossrefs(t *testing.T) {
+	for _, uglyUrls := range []bool{true, false} {
+		for _, relative := range []bool{true, false} {
+			doTestCrossrefs(t, relative, uglyUrls)
+		}
+	}
+}
+
+func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
+	baseUrl := "http://foo/bar"
+	viper.Set("baseurl", baseUrl)
+	viper.Set("UglyURLs", uglyUrls)
+	viper.Set("verbose", true)
+
+	var refShortcode string
+	var expectedBase string
+	var expectedUrlSuffix string
+	var expectedPathSuffix string
+
+	if relative {
+		refShortcode = "relref"
+		expectedBase = "/bar"
+	} else {
+		refShortcode = "ref"
+		expectedBase = baseUrl
+	}
+
+	if uglyUrls {
+		expectedUrlSuffix = ".html"
+		expectedPathSuffix = ".html"
+	} else {
+		expectedUrlSuffix = "/"
+		expectedPathSuffix = "/index.html"
+	}
+
+	sources := []source.ByteSource{
+		{filepath.FromSlash("sect/doc1.md"),
+			[]byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode))},
+		{filepath.FromSlash("sect/doc2.md"),
+			[]byte(fmt.Sprintf(`Ref 1: {{< %s "sect/doc1.md" >}}`, refShortcode))},
+	}
+
+	s := &Site{
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: uglyUrls}},
+	}
+
+	s.initializeSiteInfo()
+	templatePrep(s)
+
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+
+	createAndRenderPages(t, s)
+
+	tests := []struct {
+		doc      string
+		expected string
+	}{
+		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 2: %s/sect/doc2%s</p>\n", expectedBase, expectedUrlSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 1: %s/sect/doc1%s</p>\n", expectedBase, expectedUrlSuffix)},
+	}
+
+	for _, test := range tests {
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target: %s", test.doc, err)
+		}
+		content := helpers.ReaderToBytes(file)
+
+		if !bytes.Equal(content, []byte(test.expected)) {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		}
+	}
+
+}
+
 // Issue #939
 func Test404ShouldAlwaysHaveUglyUrls(t *testing.T) {
 	for _, uglyURLs := range []bool{true, false} {

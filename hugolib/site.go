@@ -172,7 +172,8 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 
 	if refURL.Path != "" {
 		for _, page := range []*Page(*s.Pages) {
-			if page.Source.Path() == refURL.Path || page.Source.LogicalName() == refURL.Path {
+			refPath := filepath.FromSlash(refURL.Path)
+			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
 				break
 			}
