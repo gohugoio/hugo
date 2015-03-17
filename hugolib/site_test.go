@@ -372,13 +372,15 @@ func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
 
 	for _, test := range tests {
 		file, err := hugofs.DestinationFS.Open(test.doc)
+
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.doc, err)
 		}
-		content := helpers.ReaderToBytes(file)
 
-		if !bytes.Equal(content, []byte(test.expected)) {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		content := helpers.ReaderToString(file)
+
+		if content != test.expected {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
 		}
 	}
 
@@ -446,10 +448,11 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.doc, err)
 		}
-		content := helpers.ReaderToBytes(file)
 
-		if !bytes.Equal(content, []byte(test.expected)) {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		content := helpers.ReaderToString(file)
+
+		if content != test.expected {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
 		}
 	}
 
@@ -504,10 +507,11 @@ func TestSkipRender(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Did not find %s in target.", test.doc)
 		}
-		content := helpers.ReaderToBytes(file)
 
-		if !bytes.Equal(content, []byte(test.expected)) {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, string(content))
+		content := helpers.ReaderToString(file)
+
+		if content != test.expected {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
 		}
 	}
 }
@@ -555,14 +559,17 @@ func TestAbsUrlify(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Unable to locate rendered content: %s", test.file)
 			}
-			content := helpers.ReaderToBytes(file)
+
+			content := helpers.ReaderToString(file)
 
 			expected := test.expected
+
 			if !canonify {
 				expected = strings.Replace(expected, viper.GetString("baseurl"), "", -1)
 			}
-			if string(content) != expected {
-				t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, string(content))
+
+			if content != expected {
+				t.Errorf("AbsUrlify content expected:\n%q\ngot\n%q", expected, content)
 			}
 		}
 	}
