@@ -1363,7 +1363,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 	err := s.render(name, d, renderBuffer, layouts...)
 
-	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseURL"))
+	absURLInXML, err := transform.AbsURLInXML()
 	if err != nil {
 		return err
 	}
@@ -1393,7 +1393,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	transformLinks := transform.NewEmptyTransforms()
 
 	if viper.GetBool("CanonifyURLs") {
-		absURL, err := transform.AbsURL(viper.GetString("BaseURL"))
+		absURL, err := transform.AbsURL()
 		if err != nil {
 			return err
 		}

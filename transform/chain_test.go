@@ -85,7 +85,7 @@ func TestChaingMultipleTransformers(t *testing.T) {
 }
 
 func BenchmarkAbsURL(b *testing.B) {
-	absURL, _ := AbsURL("http://base")
+	absURL, _ := absURLFromURL("http://base")
 	tr := NewChain(absURL...)
 
 	b.ResetTimer()
@@ -95,7 +95,7 @@ func BenchmarkAbsURL(b *testing.B) {
 }
 
 func TestAbsURL(t *testing.T) {
-	absURL, _ := AbsURL("http://base")
+	absURL, _ := absURLFromURL("http://base")
 	tr := NewChain(absURL...)
 
 	apply(t.Errorf, tr, abs_url_tests)
@@ -103,7 +103,7 @@ func TestAbsURL(t *testing.T) {
 }
 
 func BenchmarkXMLAbsURL(b *testing.B) {
-	absURLInXML, _ := AbsURLInXML("http://base")
+	absURLInXML, _ := absURLInXMLFromURL("http://base")
 	tr := NewChain(absURLInXML...)
 
 	b.ResetTimer()
@@ -113,7 +113,7 @@ func BenchmarkXMLAbsURL(b *testing.B) {
 }
 
 func TestXMLAbsURL(t *testing.T) {
-	absURLInXML, _ := AbsURLInXML("http://base")
+	absURLInXML, _ := absURLInXMLFromURL("http://base")
 	tr := NewChain(absURLInXML...)
 	apply(t.Errorf, tr, xml_abs_url_tests)
 }
