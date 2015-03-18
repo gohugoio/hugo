@@ -120,7 +120,7 @@ func checkCandidate(l *contentlexer) {
 		}
 
 		if bytes.HasPrefix(l.content[l.pos:], m.match) {
-			// check for schemaless urls
+			// check for schemaless URLs
 			posAfter := l.pos + len(m.match)
 			if int(posAfter) >= len(l.content) {
 				return
@@ -196,7 +196,7 @@ type absURLReplacer struct {
 	xmlMatchers  []absURLMatcher
 }
 
-func newAbsurlReplacer(baseURL string) *absURLReplacer {
+func newAbsURLReplacer(baseURL string) *absURLReplacer {
 	u, _ := url.Parse(baseURL)
 	base := strings.TrimRight(u.String(), "/")
 

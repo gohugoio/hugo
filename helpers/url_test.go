@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestUrlize(t *testing.T) {
+func TestURLize(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -26,7 +26,7 @@ func TestUrlize(t *testing.T) {
 	}
 }
 
-func TestSanitizeUrl(t *testing.T) {
+func TestSanitizeURL(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -76,7 +76,7 @@ func TestMakePermalink(t *testing.T) {
 	}
 }
 
-func TestUrlPrep(t *testing.T) {
+func TestURLPrep(t *testing.T) {
 	type test struct {
 		ugly   bool
 		input  string

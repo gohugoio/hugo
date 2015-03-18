@@ -938,7 +938,7 @@ func SafeHTML(text string) template.HTML {
 	return template.HTML(text)
 }
 
-// "safeHtmlAttr" is currently disabled, pending further discussion
+// "safeHTMLAttr" is currently disabled, pending further discussion
 // on its use case.  2015-01-19
 func SafeHTMLAttr(text string) template.HTMLAttr {
 	return template.HTMLAttr(text)
@@ -1308,11 +1308,8 @@ func init() {
 		"isset":       IsSet,
 		"echoParam":   ReturnWhenSet,
 		"safeHTML":    SafeHTML,
-		"safeHtml":    SafeHTML,
 		"safeCSS":     SafeCSS,
-		"safeCss":     SafeCSS,
 		"safeURL":     SafeURL,
-		"safeUrl":     SafeURL,
 		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,
@@ -1337,11 +1334,35 @@ func init() {
 		"trim":        Trim,
 		"dateFormat":  DateFormat,
 		"getJSON":     GetJSON,
-		"getJson":     GetJSON,
 		"getCSV":      GetCSV,
-		"getCsv":      GetCSV,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
+
+		// "getJson" is deprecated. Will be removed in 0.15.
+		"getJson": func(urlParts ...string) interface{} {
+			helpers.Deprecated("Template", "getJson", "getJSON")
+			return GetJSON(urlParts...)
+		},
+		// "getJson" is deprecated. Will be removed in 0.15.
+		"getCsv": func(sep string, urlParts ...string) [][]string {
+			helpers.Deprecated("Template", "getCsv", "getCSV")
+			return GetCSV(sep, urlParts...)
+		},
+		// "safeHtml" is deprecated. Will be removed in 0.15.
+		"safeHtml": func(text string) template.HTML {
+			helpers.Deprecated("Template", "safeHtml", "safeHTML")
+			return SafeHTML(text)
+		},
+		// "safeCss" is deprecated. Will be removed in 0.15.
+		"safeCss": func(text string) template.CSS {
+			helpers.Deprecated("Template", "safeCss", "safeCSS")
+			return SafeCSS(text)
+		},
+		// "safeUrl" is deprecated. Will be removed in 0.15.
+		"safeUrl": func(text string) template.URL {
+			helpers.Deprecated("Template", "safeUrl", "safeURL")
+			return SafeURL(text)
+		},
 	}
 
 }

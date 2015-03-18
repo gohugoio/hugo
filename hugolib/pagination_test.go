@@ -43,7 +43,7 @@ func TestPager(t *testing.T) {
 	assert.Equal(t, 5, paginator.TotalPages())
 
 	first := paginatorPages[0]
-	assert.Equal(t, "page/1/", first.Url())
+	assert.Equal(t, "page/1/", first.URL())
 	assert.Equal(t, first, first.First())
 	assert.True(t, first.HasNext())
 	assert.Equal(t, paginatorPages[1], first.Next())
@@ -58,7 +58,7 @@ func TestPager(t *testing.T) {
 	assert.Equal(t, paginatorPages[1], third.Prev())
 
 	last := paginatorPages[4]
-	assert.Equal(t, "page/5/", last.Url())
+	assert.Equal(t, "page/5/", last.URL())
 	assert.Equal(t, last, last.Last())
 	assert.False(t, last.HasNext())
 	assert.Nil(t, last.Next())
@@ -97,7 +97,7 @@ func TestPagerNoPages(t *testing.T) {
 
 }
 
-func TestPaginationUrlFactory(t *testing.T) {
+func TestPaginationURLFactory(t *testing.T) {
 	viper.Set("PaginatePath", "zoo")
 	unicode := newPaginationURLFactory("новости проекта")
 	fooBar := newPaginationURLFactory("foo", "bar")
@@ -197,12 +197,12 @@ func createTestPages(num int) Pages {
 	for i := 0; i < num; i++ {
 		pages[i] = &Page{
 			Node: Node{
-				UrlPath: UrlPath{
+				URLPath: URLPath{
 					Section: "z",
-					Url:     fmt.Sprintf("http://base/x/y/p%d.html", num),
+					URL:     fmt.Sprintf("http://base/x/y/p%d.html", num),
 				},
 				Site: &SiteInfo{
-					BaseUrl: "http://base/",
+					BaseURL: "http://base/",
 				},
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", num)))},
