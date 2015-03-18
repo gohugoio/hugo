@@ -175,6 +175,10 @@ func Seq(args ...interface{}) ([]int, error) {
 
 	intArgs := cast.ToIntSlice(args)
 
+	if len(intArgs) < 1 || len(intArgs) > 3 {
+		return nil, errors.New("Invalid argument(s) to Seq")
+	}
+
 	var inc int = 1
 	var last int
 	var first = intArgs[0]

@@ -154,7 +154,7 @@ func TestSeq(t *testing.T) {
 		{[]interface{}{2, 1, 1, 1}, false},
 		{[]interface{}{2001}, false},
 		{[]interface{}{}, false},
-		{[]interface{}{t}, []int{}},
+		{[]interface{}{t}, false},
 		{nil, false},
 	} {
 
