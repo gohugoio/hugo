@@ -72,7 +72,7 @@ includes taxonomies, lists and the homepage.
 **.Title**  The title for the content.<br>
 **.Date** The date the content is published on.<br>
 **.Permalink** The Permanent link for this node<br>
-**.Url** The relative URL for this node.<br>
+**.URL** The relative URL for this node.<br>
 **.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RSSLink** Link to the taxonomies' RSS link.<br>
@@ -86,7 +86,7 @@ includes taxonomies, lists and the homepage.
 
 Also available is `.Site` which has the following:
 
-**.Site.BaseUrl** The base URL for the site as defined in the site configuration file.<br>
+**.Site.BaseURL** The base URL for the site as defined in the site configuration file.<br>
 **.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
 **.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>

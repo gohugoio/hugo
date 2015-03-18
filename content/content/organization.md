@@ -67,7 +67,7 @@ This isn't in the front matter, but is the actual name of the file minus the
 extension. This will be the name of the file in the destination.
 
 ### slug
-Defined in the front matter, the slug can take the place of the filename for the
+Defined in the front matter, the `slug` can take the place of the filename for the
 destination.
 
 ### filepath
@@ -75,18 +75,18 @@ The actual path to the file on disk. Destination will create the destination
 with the same path. Includes [section](/content/sections/).
 
 ### section
-section can be provided in the front matter overriding the section derived from
+`section` can be provided in the front matter overriding the section derived from
 the source content location on disk. See [section](/content/sections/).
 
 ### path
-path can be provided in the front matter. This will replace the actual
+`path` can be provided in the front matter. This will replace the actual
 path to the file on disk. Destination will create the destination with the same
 path. Includes [section](/content/sections/).
 
 ### url
 A complete URL can be provided. This will override all the above as it pertains
-to the end destination. This must be the path from the baseurl (starting with a "/").
-When a url is provided, it will be used exactly. Using url will ignore the
+to the end destination. This must be the path from the baseURL (starting with a "/").
+When a `url` is provided, it will be used exactly. Using `url` will ignore the
 `--uglyUrls` setting.
 
 
@@ -116,27 +116,27 @@ When a url is provided, it will be used exactly. Using url will ignore the
     http://spf13.com/projects/hugo
 
 
-       baseUrl       section  slug
+       baseURL       section  slug
     ⊢-----^--------⊣ ⊢--^---⊣ ⊢-^⊣
     http://spf13.com/projects/hugo
 
 
-       baseUrl       section          slug
+       baseURL       section          slug
     ⊢-----^--------⊣ ⊢--^--⊣        ⊢--^--⊣
     http://spf13.com/extras/indexes/example
 
 
-       baseUrl            path       slug
+       baseURL            path       slug
     ⊢-----^--------⊣ ⊢------^-----⊣ ⊢--^--⊣
     http://spf13.com/extras/indexes/example
 
 
-       baseUrl            url
+       baseURL            url
     ⊢-----^--------⊣ ⊢-----^-----⊣
     http://spf13.com/projects/hugo
 
 
-       baseUrl               url
+       baseURL               url
     ⊢-----^--------⊣ ⊢--------^-----------⊣
     http://spf13.com/extras/indexes/example
 
