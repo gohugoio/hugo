@@ -22,6 +22,7 @@ import (
 
 	"github.com/kardianos/osext"
 	"github.com/spf13/cobra"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugolib"
 )
 
@@ -38,9 +39,9 @@ var version = &cobra.Command{
 			formatBuildDate() // format the compile time
 		}
 		if hugolib.CommitHash == "" {
-			fmt.Printf("Hugo Static Site Generator v%s BuildDate: %s\n", hugolib.Version, hugolib.BuildDate)
+			fmt.Printf("Hugo Static Site Generator v%s BuildDate: %s\n", helpers.HugoVersion(), hugolib.BuildDate)
 		} else {
-			fmt.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", hugolib.Version, strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
+			fmt.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
 		}
 	},
 }

@@ -1,10 +1,10 @@
 package hugolib
 
 import (
+	"fmt"
+	"github.com/spf13/hugo/helpers"
 	"html/template"
 )
-
-const Version = "0.14-DEV"
 
 var (
 	CommitHash string
@@ -23,9 +23,9 @@ type HugoInfo struct {
 
 func init() {
 	hugoInfo = &HugoInfo{
-		Version:    Version,
+		Version:    helpers.HugoVersion(),
 		CommitHash: CommitHash,
 		BuildDate:  BuildDate,
-		Generator:  `<meta name="generator" content="Hugo ` + Version + `" />`,
+		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.HugoVersion())),
 	}
 }
