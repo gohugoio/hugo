@@ -14,10 +14,10 @@
 package hugolib
 
 import (
+	"github.com/spf13/hugo/helpers"
 	"html/template"
 	"sync"
 	"time"
-	"github.com/spf13/hugo/helpers"
 )
 
 type Node struct {
@@ -131,6 +131,18 @@ type URLPath struct {
 func (n *Node) Url() string {
 	helpers.Deprecated("Node", ".Url", ".URL")
 	return n.URL
+}
+
+// UrlPath is deprecated. Will be removed in 0.15.
+func (n *Node) UrlPath() URLPath {
+	helpers.Deprecated("Node", ".UrlPath", ".URLPath")
+	return n.URLPath
+}
+
+// Url is deprecated. Will be removed in 0.15.
+func (up URLPath) Url() string {
+	helpers.Deprecated("URLPath", ".Url", ".URL")
+	return up.URL
 }
 
 // Scratch returns the writable context associated with this Node.
