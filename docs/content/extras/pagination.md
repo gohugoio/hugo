@@ -17,16 +17,16 @@ Hugo supports pagination for the home page, sections and taxonomies. It's built 
 
 Pagination can be configured in the site configuration (e.g. `config.toml`):
 
-* `Paginate` (default `10`) 
+* `Paginate` (default `10`)
 * `PaginatePath` (default `page`)
 
 Setting `Paginate` to a positive value will split the list pages for the home page, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and home page is *lazy* --- the pages will not be created if not referenced by a `.Paginator` (see below).
 
- `PaginatePath` is used to adapt the `Url` to the pages in the paginator (the default setting will produce urls on the form `/page/1/`. 
+`PaginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
 
 ## List the pages
 
-**A `.Paginator` is provided to help building a pager menu. This is only relevant for the templates for the home page and the list pages (sections and taxonomies).**  
+**A `.Paginator` is provided to help building a pager menu. This is only relevant for the templates for the home page and the list pages (sections and taxonomies).**
 
 There are two ways to configure and use a `.Paginator`:
 
@@ -37,7 +37,7 @@ For a given **Node**, it's one of the options above. The `.Paginator` is static 
 
 ## Build the navigation
 
-The `.Paginator` contains enough information to build a paginator interface. 
+The `.Paginator` contains enough information to build a paginator interface.
 
 The easiest way to add this to your pages is to include the built-in template (with `Bootstrap`-compatible styles):
 
@@ -67,7 +67,7 @@ Without the where-filter, the above is simpler:
 If you want to build custom navigation, you can do so using the `.Paginator` object:
 
 * `PageNumber`: The current page's number in the pager sequence
-* `Url`: The relative Url to the current pager
+* `URL`: The relative URL to the current pager
 * `Pages`: The pages in the current pager
 * `NumberOfElements`: The number of elements on this page
 * `HasPrev`: Whether there are page(s) before the current

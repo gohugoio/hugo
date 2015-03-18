@@ -40,11 +40,11 @@ The following is an example of a toml config file with some of the default value
     builddrafts = false
     baseurl = "http://yoursite.example.com/"
     canonifyurls = true
-
+    
     [taxonomies]
       category = "categories"
       tag = "tags"
-       
+    
     [params]
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
@@ -74,67 +74,67 @@ Following is a list of Hugo-defined variables that you can configure and their c
     ---
     archetypedir:               "archetype"
     # hostname (and path) to the root eg. http://spf13.com/
-    baseurl:                    "" 
+    baseURL:                    ""
     # include content marked as draft
-    buildDrafts:                false 
+    buildDrafts:                false
     # include content with datePublished in the future
-    buildFuture:                false 
-    canonifyUrls:               false
+    buildFuture:                false
+    canonifyURLs:               false
     # config file (default is path/config.yaml|json|toml)
-    config:                     "config.toml"    
+    config:                     "config.toml"
     contentdir:                 "content"
     dataDir:                    "data"
     defaultExtension:           "html"
     defaultLayout:              "post"
     # filesystem path to write files to
-    destination:                ""    
+    destination:                ""
     disableLiveReload:          false
     # Do not build RSS files
-    disableRSS:                 false 
+    disableRSS:                 false
     # Do not build Sitemap file
-    disableSitemap:             false 
+    disableSitemap:             false
     # edit new content with this editor, if provided
-    editor:                     ""    
+    editor:                     ""
     footnoteAnchorPrefix:       ""
     footnoteReturnLinkContents: ""
     languageCode:               ""
     layoutdir:                  "layouts"
     # Enable Logging
-    log:                        false 
+    log:                        false
     # Log File path (if set, logging enabled automatically)
-    logFile:                    ""    
+    logFile:                    ""
     # "yaml", "toml", "json"
-    metaDataFormat:             "toml" 
+    metaDataFormat:             "toml"
     newContentEditor:           ""
     # Don't sync modification time of files
-    noTimes:                    false 
+    noTimes:                    false
     paginate:                   10
     paginatePath:               "page"
-    permalinks:         
+    permalinks:
     # Pluralize titles in lists using inflect
-    pluralizeListTitles:         true 
+    pluralizeListTitles:         true
     publishdir:                 "public"
     # color-codes for highlighting derived from this style
     pygmentsStyle:              "monokai"
     # true: use pygments-css or false: color-codes directly
-    pygmentsUseClasses:         false 
+    pygmentsUseClasses:         false
     sitemap:                    ""
-    # filesystem path to read files relative from 
-    source:                     ""    
+    # filesystem path to read files relative from
+    source:                     ""
     staticdir:                  "static"
     # display memory and timing of different steps of the program
-    stepAnalysis:               false 
+    stepAnalysis:               false
     # theme to use (located in /themes/THEMENAME/)
-    theme:                      ""    
+    theme:                      ""
     title:                      ""
     # if true, use /filename.html instead of /filename/
-    uglyUrls:                   false 
+    uglyURLs:                   false
     # verbose output
-    verbose:                    false 
+    verbose:                    false
     # verbose logging
-    verboseLog:                 false 
+    verboseLog:                 false
     # watch filesystem for changes and recreate as needed
-    watch:                      false 
+    watch:                      false
     ---
 
 
