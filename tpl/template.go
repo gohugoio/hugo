@@ -289,6 +289,11 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 // First is exposed to templates, to iterate over the first N items in a
 // rangeable list.
 func First(limit interface{}, seq interface{}) (interface{}, error) {
+
+	if limit == nil || seq == nil {
+		return nil, errors.New("both limit and seq must be provided")
+	}
+
 	limitv, err := cast.ToIntE(limit)
 
 	if err != nil {

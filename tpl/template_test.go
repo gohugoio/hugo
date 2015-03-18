@@ -231,6 +231,9 @@ func TestFirst(t *testing.T) {
 		{"1", []int{100, 200, 300}, []int{100}},
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
 	} {
 		results, err := First(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
