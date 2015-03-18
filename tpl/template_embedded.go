@@ -55,13 +55,13 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
     <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
     <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
     <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
-    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHtml }}</lastBuildDate>{{ end }}
-    <atom:link href="{{.Url}}" rel="self" type="application/rss+xml" />
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    <atom:link href="{{.URL}}" rel="self" type="application/rss+xml" />
     {{ range first 15 .Data.Pages }}
     <item>
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
-      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHtml }}</pubDate>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Content | html }}</description>
@@ -74,7 +74,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
   {{ range .Data.Pages }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Date.IsZero }}
-    <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
+    <lastmod>{{ safeHTML ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
     <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
   </url>
@@ -86,24 +86,24 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
     <ul class="pagination">
         {{ with $pag.First }}
         <li>
-            <a href="{{ .Url }}" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+            <a href="{{ .URL }}" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
         </li>
         {{ end }}
         <li
         {{ if not $pag.HasPrev }}class="disabled"{{ end }}>
-        <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.Url }}{{ end }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.URL }}{{ end }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
         </li>
         {{ range $pag.Pagers }}
         <li
-        {{ if eq . $pag }}class="active"{{ end }}><a href="{{ .Url }}">{{ .PageNumber }}</a></li>
+        {{ if eq . $pag }}class="active"{{ end }}><a href="{{ .URL }}">{{ .PageNumber }}</a></li>
         {{ end }}
         <li
         {{ if not $pag.HasNext }}class="disabled"{{ end }}>
-        <a href="{{ if $pag.HasNext }}{{ $pag.Next.Url }}{{ end }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        <a href="{{ if $pag.HasNext }}{{ $pag.Next.URL }}{{ end }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
         </li>
         {{ with $pag.Last }}
         <li>
-            <a href="{{ .Url }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+            <a href="{{ .URL }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
         </li>
         {{ end }}
     </ul>
@@ -134,7 +134,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
   <meta property="og:image" content="{{ . }}" />
 {{ end }}{{ end }}
 
-{{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHtml }}"/>{{ end }}{{ with .Params.audio }}
+{{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
@@ -193,8 +193,8 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
 {{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
-<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHtml }}" />{{ end }}
-{{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHtml }}" />{{ end }}
+<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHTML }}" />{{ end }}
+{{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHTML }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
   <meta itemprop="image" content="{{ . }}">

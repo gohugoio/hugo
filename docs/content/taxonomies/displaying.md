@@ -52,7 +52,7 @@ content.
 
     <ul>
       {{ range .Site.Taxonomies.series.golang }}
-        <li><a href="{{ .Url }}">{{ .Name }}</a></li>
+        <li><a href="{{ .URL }}">{{ .Name }}</a></li>
       {{ end }}
     </ul>
 

@@ -69,7 +69,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	// in issues #157, #622, etc., without forcing
 	// relative URLs to begin with '/'.
 	// Once the fixes are in, let's remove this kludge
-	// and restore SanitizeUrl() to the way it was.
+	// and restore SanitizeURL() to the way it was.
 	//                         -- @anthonyfok, 2015-02-16
 	//
 	// Begin temporary kludge
@@ -87,12 +87,12 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 
 }
 
-// SanitizeUrl sanitizes the input URL string.
+// SanitizeURL sanitizes the input URL string.
 func SanitizeURL(in string) string {
 	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveTrailingSlash|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
-// SanitizeUrlKeepTrailingSlash is the same as SanitizeUrl, but will keep any trailing slash.
+// SanitizeURLKeepTrailingSlash is the same as SanitizeURL, but will keep any trailing slash.
 func SanitizeURLKeepTrailingSlash(in string) string {
 	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
@@ -147,7 +147,7 @@ func MakePermalink(host, plink string) *url.URL {
 
 // AddContextRoot adds the context root to an URL if it's not already set.
 // For relative URL entries on sites with a base url with a context root set (i.e. http://example.com/mysite),
-// relative URLs must not include the context root if canonifyUrls is enabled. But if it's disabled, it must be set.
+// relative URLs must not include the context root if canonifyURLs is enabled. But if it's disabled, it must be set.
 func AddContextRoot(baseURL, relativePath string) string {
 
 	url, err := url.Parse(baseURL)
@@ -185,7 +185,7 @@ func URLPrep(ugly bool, in string) string {
 	return url
 }
 
-// PrettifyUrl takes a URL string and returns a semantic, clean URL.
+// PrettifyURL takes a URL string and returns a semantic, clean URL.
 func PrettifyURL(in string) string {
 	x := PrettifyURLPath(in)
 
@@ -200,7 +200,7 @@ func PrettifyURL(in string) string {
 	return x
 }
 
-// PrettifyUrlPath takes a URL path to a content and converts it
+// PrettifyURLPath takes a URL path to a content and converts it
 // to enable pretty URLs.
 //     /section/name.html       becomes /section/name/index.html
 //     /section/name/           becomes /section/name/index.html
@@ -209,7 +209,7 @@ func PrettifyURLPath(in string) string {
 	return PrettiyPath(in, pathBridge)
 }
 
-// Uglify does the opposite of PrettifyUrlPath().
+// Uglify does the opposite of PrettifyURLPath().
 //     /section/name/index.html becomes /section/name.html
 //     /section/name/           becomes /section/name.html
 //     /section/name.html       becomes /section/name.html

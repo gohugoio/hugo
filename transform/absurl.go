@@ -7,15 +7,15 @@ import (
 var absURLInit sync.Once
 var ar *absURLReplacer
 
-// for performance reasons, we reuse the first baseUrl given
-func initAbsurlReplacer(baseURL string) {
+// for performance reasons, we reuse the first baseURL given
+func initAbsURLReplacer(baseURL string) {
 	absURLInit.Do(func() {
-		ar = newAbsurlReplacer(baseURL)
+		ar = newAbsURLReplacer(baseURL)
 	})
 }
 
 func AbsURL(absURL string) (trs []link, err error) {
-	initAbsurlReplacer(absURL)
+	initAbsURLReplacer(absURL)
 
 	trs = append(trs, func(content []byte) []byte {
 		return ar.replaceInHTML(content)
@@ -24,7 +24,7 @@ func AbsURL(absURL string) (trs []link, err error) {
 }
 
 func AbsURLInXML(absURL string) (trs []link, err error) {
-	initAbsurlReplacer(absURL)
+	initAbsURLReplacer(absURL)
 
 	trs = append(trs, func(content []byte) []byte {
 		return ar.replaceInXML(content)

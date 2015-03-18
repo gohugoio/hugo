@@ -330,7 +330,7 @@ func PathPrep(ugly bool, in string) string {
 	return PrettifyPath(in)
 }
 
-// Same as PrettifyUrlPath() but for file paths.
+// Same as PrettifyURLPath() but for file paths.
 //     /section/name.html       becomes /section/name/index.html
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html

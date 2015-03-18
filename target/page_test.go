@@ -62,7 +62,7 @@ func TestPageTranslatorBase(t *testing.T) {
 	}
 }
 
-func TestTranslateUglyUrls(t *testing.T) {
+func TestTranslateUglyURLs(t *testing.T) {
 	tests := []struct {
 		content  string
 		expected string

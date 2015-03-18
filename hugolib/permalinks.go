@@ -138,7 +138,7 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 // pageToPermalinkTitle returns the URL-safe form of the title
 func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 	// Page contains Node which has Title
-	// (also contains UrlPath which has Slug, sometimes)
+	// (also contains URLPath which has Slug, sometimes)
 	return helpers.URLize(p.Title), nil
 }
 
@@ -166,7 +166,7 @@ func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 }
 
 func pageToPermalinkSection(p *Page, _ string) (string, error) {
-	// Page contains Node contains UrlPath which has Section
+	// Page contains Node contains URLPath which has Section
 	return p.Section(), nil
 }
 
