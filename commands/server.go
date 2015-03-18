@@ -135,7 +135,7 @@ func serve(port int) {
 	}
 }
 
-// fixUrl massages the BaseUrl into a form needed for serving
+// fixURL massages the BaseURL into a form needed for serving
 // all pages correctly.
 func fixURL(s string) (string, error) {
 	useLocalhost := false
@@ -164,7 +164,7 @@ func fixURL(s string) (string, error) {
 		if strings.Contains(host, ":") {
 			host, _, err = net.SplitHostPort(u.Host)
 			if err != nil {
-				return "", fmt.Errorf("Failed to split BaseUrl hostpost: %s", err)
+				return "", fmt.Errorf("Failed to split BaseURL hostpost: %s", err)
 			}
 		}
 		u.Host = fmt.Sprintf("%s:%d", host, serverPort)

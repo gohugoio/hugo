@@ -47,9 +47,15 @@ func (p *pager) PageNumber() int {
 	return p.number
 }
 
-// Url returns the url to the current page.
-func (p *pager) Url() template.HTML {
+// URL returns the URL to the current page.
+func (p *pager) URL() template.HTML {
 	return template.HTML(p.paginationURLFactory(p.PageNumber()))
+}
+
+// Url is deprecated. Will be removed in 0.15.
+func (p *pager) Url() template.HTML {
+    helpers.Deprecated("Paginator", ".Url", ".URL")
+    return p.URL()
 }
 
 // Pages returns the elements on this page.
@@ -142,7 +148,7 @@ func (n *Node) Paginator() (*pager, error) {
 			return
 		}
 
-		pagers, err := paginatePages(n.Data["Pages"], n.Url)
+		pagers, err := paginatePages(n.Data["Pages"], n.URL)
 
 		if err != nil {
 			initError = err
@@ -184,7 +190,7 @@ func (n *Node) Paginate(seq interface{}) (*pager, error) {
 		if n.paginator != nil {
 			return
 		}
-		pagers, err := paginatePages(seq, n.Url)
+		pagers, err := paginatePages(seq, n.URL)
 
 		if err != nil {
 			initError = err

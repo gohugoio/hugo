@@ -341,10 +341,10 @@ func (p *Page) analyzePage() {
 }
 
 func (p *Page) permalink() (*url.URL, error) {
-	baseURL := string(p.Site.BaseUrl)
+	baseURL := string(p.Site.BaseURL)
 	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
 	pSlug := strings.TrimSpace(p.Slug)
-	pURL := strings.TrimSpace(p.Url)
+	pURL := strings.TrimSpace(p.URL)
 	var permalink string
 	var err error
 
@@ -420,9 +420,9 @@ func (p *Page) RelPermalink() (string, error) {
 	}
 
 	if viper.GetBool("CanonifyURLs") {
-		// replacements for relpermalink with baseUrl on the form http://myhost.com/sub/ will fail later on
-		// have to return the Url relative from baseUrl
-		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseUrl))
+		// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
+		// have to return the URL relative from baseURL
+		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
 		if err != nil {
 			return "", err
 		}
@@ -455,9 +455,9 @@ func (p *Page) update(f interface{}) error {
 			p.Slug = helpers.URLize(cast.ToString(v))
 		case "url":
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
-				return fmt.Errorf("Only relative urls are supported, %v provided", url)
+				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
-			p.Url = helpers.URLize(cast.ToString(v))
+			p.URL = helpers.URLize(cast.ToString(v))
 		case "type":
 			p.contentType = cast.ToString(v)
 		case "extension", "ext":
@@ -588,7 +588,7 @@ func (p *Page) Menus() PageMenus {
 		if ms, ok := p.Params["menu"]; ok {
 			link, _ := p.RelPermalink()
 
-			me := MenuEntry{Name: p.LinkTitle(), Weight: p.Weight, Url: link}
+			me := MenuEntry{Name: p.LinkTitle(), Weight: p.Weight, URL: link}
 
 			// Could be the name of the menu to attach it to
 			mname, err := cast.ToStringE(ms)
@@ -618,7 +618,7 @@ func (p *Page) Menus() PageMenus {
 			}
 
 			for name, menu := range menus {
-				menuEntry := MenuEntry{Name: p.LinkTitle(), Url: link, Weight: p.Weight, Menu: name}
+				menuEntry := MenuEntry{Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
 				jww.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
 
 				ime, err := cast.ToStringMapE(menu)
@@ -785,9 +785,9 @@ func (p *Page) FullFilePath() string {
 
 func (p *Page) TargetPath() (outfile string) {
 
-	// Always use Url if it's specified
-	if len(strings.TrimSpace(p.Url)) > 2 {
-		outfile = strings.TrimSpace(p.Url)
+	// Always use URL if it's specified
+	if len(strings.TrimSpace(p.URL)) > 2 {
+		outfile = strings.TrimSpace(p.URL)
 
 		if strings.HasSuffix(outfile, "/") {
 			outfile = outfile + "index.html"
