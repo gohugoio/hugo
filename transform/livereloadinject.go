@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LiveReloadInject(rw ContentReWriter) {
+func LiveReloadInject(rw contentRewriter) {
 	match := []byte("</body>")
 	port := viper.GetString("port")
 	replace := []byte(`<script>document.write('<script src="http://'

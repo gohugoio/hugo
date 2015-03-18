@@ -17,7 +17,7 @@ func initAbsURLReplacer(baseURL string) {
 func AbsURL(absURL string) (trs []link, err error) {
 	initAbsURLReplacer(absURL)
 
-	trs = append(trs, func(rw ContentReWriter) {
+	trs = append(trs, func(rw contentRewriter) {
 		ar.replaceInHTML(rw)
 	})
 	return
@@ -26,7 +26,7 @@ func AbsURL(absURL string) (trs []link, err error) {
 func AbsURLInXML(absURL string) (trs []link, err error) {
 	initAbsURLReplacer(absURL)
 
-	trs = append(trs, func(rw ContentReWriter) {
+	trs = append(trs, func(rw contentRewriter) {
 		ar.replaceInXML(rw)
 	})
 	return

@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-type trans func(rw ContentReWriter)
+type trans func(rw contentRewriter)
 
 type link trans
 
@@ -20,14 +20,14 @@ func NewEmptyTransforms() []link {
 	return make([]link, 0, 20)
 }
 
-// ContentReWriter is an interface that enables rotation
+// contentRewriter is an interface that enables rotation
 // of pooled buffers in the transformer chain.
-type ContentReWriter interface {
+type contentRewriter interface {
 	Content() []byte
 	io.Writer
 }
 
-// Implements ContentReWriter
+// Implements contentRewriter
 // Content is read from the from-buffer,
 // and rewritten to to the to-buffer.
 type fromToBuffer struct {

@@ -176,7 +176,7 @@ func (l *contentlexer) replace() {
 	}
 }
 
-func doReplace(rw ContentReWriter, matchers []absURLMatcher) {
+func doReplace(rw contentRewriter, matchers []absURLMatcher) {
 
 	lexer := &contentlexer{
 		content:      rw.Content(),
@@ -226,10 +226,10 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 
 }
 
-func (au *absURLReplacer) replaceInHTML(rw ContentReWriter) {
+func (au *absURLReplacer) replaceInHTML(rw contentRewriter) {
 	doReplace(rw, au.htmlMatchers)
 }
 
-func (au *absURLReplacer) replaceInXML(rw ContentReWriter) {
+func (au *absURLReplacer) replaceInXML(rw contentRewriter) {
 	doReplace(rw, au.xmlMatchers)
 }
