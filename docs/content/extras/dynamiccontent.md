@@ -19,8 +19,8 @@ any [JSON](http://www.json.org/) or
 [CSV](http://en.wikipedia.org/wiki/Comma-separated_values) file
 from nearly any resource.
 
-"Dynamic Content" currently consists of two functions, `getJson`
-and `getCsv`, which are available in **all template files**.
+"Dynamic Content" currently consists of two functions, `getJSON`
+and `getCSV`, which are available in **all template files**.
 
 ## Implementation details
 
@@ -28,33 +28,33 @@ and `getCsv`, which are available in **all template files**.
 
 In any HTML template or Markdown document, call the functions like this:
 
-	{{ $dataJ := getJson "url" }}
-	{{ $dataC := getCsv "separator" "url" }}
+	{{ $dataJ := getJSON "url" }}
+	{{ $dataC := getCSV "separator" "url" }}
 
 or, if you use a prefix or postfix for the URL, the functions
 accept [variadic arguments](http://en.wikipedia.org/wiki/Variadic_function):
 
-	{{ $dataJ := getJson "url prefix" "arg1" "arg2" "arg n" }}
-	{{ $dataC := getCsv  "separator" "url prefix" "arg1" "arg2" "arg n" }}
+	{{ $dataJ := getJSON "url prefix" "arg1" "arg2" "arg n" }}
+	{{ $dataC := getCSV  "separator" "url prefix" "arg1" "arg2" "arg n" }}
 
-The separator for `getCsv` must be put in the first position and can only
+The separator for `getCSV` must be put in the first position and can only
 be one character long.
 
 All passed arguments will be joined to the final URL; for example:
 
 	{{ $urlPre := "https://api.github.com" }}
-	{{ $gistJ := getJson $urlPre "/users/GITHUB_USERNAME/gists" }}
+	{{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
 
 will resolve internally to:
 
-	{{ $gistJ := getJson "https://api.github.com/users/GITHUB_USERNAME/gists" }}
+	{{ $gistJ := getJSON "https://api.github.com/users/GITHUB_USERNAME/gists" }}
 
 Finally, you can range over an array. This example will output the
 first 5 gists for a GitHub user:
 
 	<ul>
 	  {{ $urlPre := "https://api.github.com" }}
-	  {{ $gistJ := getJson $urlPre "/users/GITHUB_USERNAME/gists" }}
+	  {{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
 	  {{ range first 5 $gistJ }}
 	    {{ if .public }}
 	      <li><a href="{{ .html_url }}" target="_blank">{{ .description }}</a></li>
@@ -65,7 +65,7 @@ first 5 gists for a GitHub user:
 
 ### Example for CSV files
 
-For `getCsv`, the one-character long separator must be placed in the
+For `getCSV`, the one-character long separator must be placed in the
 first position followed by the URL.
 
 	<table>
@@ -79,7 +79,7 @@ first position followed by the URL.
 	  <tbody>
 	  {{ $url := "http://a-big-corp.com/finance/employee-salaries.csv" }}
 	  {{ $sep := "," }}
-	  {{ range $i, $r := getCsv $sep $url }}
+	  {{ range $i, $r := getCSV $sep $url }}
 	    <tr>
 	      <td>{{ index $r 0 }}</td>
 	      <td>{{ index $r 1 }}</td>
@@ -113,7 +113,7 @@ other authentication methods are not implemented.
 
 ### Loading local files
 
-To load local files with the two functions `getJson` and `getCsv`, the
+To load local files with the two functions `getJSON` and `getCSV`, the
 source files must reside within Hugo's working directory. The file
 extension does not matter but the content.
 

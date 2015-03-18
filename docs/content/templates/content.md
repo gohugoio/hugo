@@ -67,7 +67,7 @@ It makes use of [partial templates](/templates/partials/)
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
-    {{ $baseurl := .Site.BaseUrl }}
+    {{ $baseurl := .Site.BaseURL }}
 
     <section id="main">
       <h1 id="title">{{ .Title }}</h1>
@@ -116,7 +116,7 @@ It makes use of [partial templates](/templates/partials/)
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
-    {{ $baseurl := .Site.BaseUrl }}
+    {{ $baseurl := .Site.BaseURL }}
 
     <section id="main">
       <h1 id="title">{{ .Title }}</h1>

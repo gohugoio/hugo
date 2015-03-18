@@ -236,14 +236,14 @@ Could be rewritten as
 
 By default, Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
 
-    {{ "<!--[if lt IE 9]>" | safeHtml }}
+    {{ "<!--[if lt IE 9]>" | safeHTML }}
       <script src="html5shiv.js"></script>
-    {{ "<![endif]-->" | safeHtml }}
+    {{ "<![endif]-->" | safeHTML }}
 
 Alternatively, use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](http://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation, e.g.:
 
 ```
-{{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHtml }}
+{{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHTML }}
 ```
 
 ## Context (a.k.a. the dot)
@@ -355,7 +355,7 @@ January 1st, instead of hunting through your templates.
 
 ```
 {{if .Site.Params.CopyrightHTML}}<footer>
-<div class="text-center">{{.Site.Params.CopyrightHTML | safeHtml}}</div>
+<div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML}}</div>
 </footer>{{end}}
 ```
 

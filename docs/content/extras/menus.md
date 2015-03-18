@@ -27,7 +27,7 @@ access it via `.Site.Menus.main`.
 
 A menu entry has the following properties:
 
-* **Url**        string
+* **URL**        string
 * **Name**       string
 * **Menu**       string
 * **Identifier** string
@@ -112,15 +112,15 @@ And the equivalent example `config.yaml`:
             Pre: "<i class='fa fa-heart'></i>"
             Weight: -110
             Identifier: "about"
-            Url: "/about/"
+            URL: "/about/"
           - Name: "getting started"
             Pre: "<i class='fa fa-road'></i>"
             Weight: -100
-            Url: "/getting-started/"
+            URL: "/getting-started/"
     ---            
 
 
-**NOTE:** The urls must be relative to the context root. If the `BaseUrl` is `http://example.com/mysite/`, then the urls in the menu must not include the context root `mysite`. 
+**NOTE:** The URLs must be relative to the context root. If the `BaseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`.
   
 ## Nesting
 
@@ -164,12 +164,12 @@ The following is an example:
                 </a>
                 <ul class="sub">
                     {{ range .Children }}
-                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
+                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
                     {{ end }}
                 </ul>
               {{else}}
                 <li>
-                <a class="" href="{{.Url}}">
+                <a class="" href="{{.URL}}">
                     {{ .Pre }}
                     <span>{{ .Name }}</span>
                 </a>
