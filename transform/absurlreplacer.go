@@ -122,7 +122,7 @@ func checkCandidate(l *contentlexer) {
 		if bytes.HasPrefix(l.content[l.pos:], m.match) {
 			// check for schemaless URLs
 			posAfter := l.pos + len(m.match)
-			if int(posAfter) >= len(l.content) {
+			if posAfter >= len(l.content) {
 				return
 			}
 			r, _ := utf8.DecodeRune(l.content[posAfter:])
@@ -147,7 +147,7 @@ func (l *contentlexer) replace() {
 	var r rune
 
 	for {
-		if int(l.pos) >= contentLength {
+		if l.pos >= contentLength {
 			l.width = 0
 			break
 		}
