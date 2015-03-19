@@ -20,16 +20,15 @@ func NewEmptyTransforms() []link {
 	return make([]link, 0, 20)
 }
 
-// contentTransformer is an interface that enables rotation
-// of pooled buffers in the transformer chain.
+// contentTransformer is an interface that enables rotation  of pooled buffers
+// in the transformer chain.
 type contentTransformer interface {
 	Content() []byte
 	io.Writer
 }
 
 // Implements contentTransformer
-// Content is read from the from-buffer,
-// and rewritten to to the to-buffer.
+// Content is read from the from-buffer and rewritten to to the to-buffer.
 type fromToBuffer struct {
 	from *bytes.Buffer
 	to   *bytes.Buffer
