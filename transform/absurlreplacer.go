@@ -176,11 +176,11 @@ func (l *contentlexer) replace() {
 	}
 }
 
-func doReplace(rw contentRewriter, matchers []absURLMatcher) {
+func doReplace(ct contentTransformer, matchers []absURLMatcher) {
 
 	lexer := &contentlexer{
-		content:      rw.Content(),
-		w:            rw,
+		content:      ct.Content(),
+		w:            ct,
 		prefixLookup: &prefixes{pr: mainPrefixRunes},
 		matchers:     matchers}
 
@@ -226,10 +226,10 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 
 }
 
-func (au *absURLReplacer) replaceInHTML(rw contentRewriter) {
-	doReplace(rw, au.htmlMatchers)
+func (au *absURLReplacer) replaceInHTML(ct contentTransformer) {
+	doReplace(ct, au.htmlMatchers)
 }
 
-func (au *absURLReplacer) replaceInXML(rw contentRewriter) {
-	doReplace(rw, au.xmlMatchers)
+func (au *absURLReplacer) replaceInXML(ct contentTransformer) {
+	doReplace(ct, au.xmlMatchers)
 }

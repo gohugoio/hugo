@@ -5,19 +5,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LiveReloadInject(rw contentRewriter) {
+func LiveReloadInject(ct contentTransformer) {
 	match := []byte("</body>")
 	port := viper.GetString("port")
 	replace := []byte(`<script>document.write('<script src="http://'
         + (location.host || 'localhost').split(':')[0]
 		+ ':` + port + `/livereload.js?mindelay=10"></'
         + 'script>')</script></body>`)
-	newcontent := bytes.Replace(rw.Content(), match, replace, -1)
+	newcontent := bytes.Replace(ct.Content(), match, replace, -1)
 
-	if len(newcontent) == len(rw.Content()) {
+	if len(newcontent) == len(ct.Content()) {
 		match := []byte("</BODY>")
-		newcontent = bytes.Replace(rw.Content(), match, replace, -1)
+		newcontent = bytes.Replace(ct.Content(), match, replace, -1)
 	}
 
-	rw.Write(newcontent)
+	ct.Write(newcontent)
 }

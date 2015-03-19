@@ -56,18 +56,18 @@ func TestChainZeroTransformers(t *testing.T) {
 }
 
 func TestChaingMultipleTransformers(t *testing.T) {
-	f1 := func(rw contentRewriter) {
-		rw.Write(bytes.Replace(rw.Content(), []byte("f1"), []byte("f1r"), -1))
+	f1 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f1"), []byte("f1r"), -1))
 	}
-	f2 := func(rw contentRewriter) {
-		rw.Write(bytes.Replace(rw.Content(), []byte("f2"), []byte("f2r"), -1))
+	f2 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f2"), []byte("f2r"), -1))
 	}
-	f3 := func(rw contentRewriter) {
-		rw.Write(bytes.Replace(rw.Content(), []byte("f3"), []byte("f3r"), -1))
+	f3 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f3"), []byte("f3r"), -1))
 	}
 
-	f4 := func(rw contentRewriter) {
-		rw.Write(bytes.Replace(rw.Content(), []byte("f4"), []byte("f4r"), -1))
+	f4 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f4"), []byte("f4r"), -1))
 	}
 
 	tr := NewChain(f1, f2, f3, f4)
