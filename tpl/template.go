@@ -188,6 +188,22 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
+func Substr(a interface{}, pos, length int) (string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return "", err
+	}
+	return aStr[pos:length], nil
+}
+
+func Split(a interface{}, delimiter string) ([]string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return []string{}, err
+	}
+	return strings.Split(aStr, delimiter), nil
+}
+
 func Intersect(l1, l2 interface{}) (interface{}, error) {
 	if l1 == nil || l2 == nil {
 		return make([]interface{}, 0), nil
@@ -1308,6 +1324,8 @@ func init() {
 		"lt":          Lt,
 		"le":          Le,
 		"in":          In,
+		"substr":      Substr,
+		"split":       Split,
 		"intersect":   Intersect,
 		"isSet":       IsSet,
 		"isset":       IsSet,
