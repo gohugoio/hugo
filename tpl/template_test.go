@@ -278,59 +278,64 @@ func TestIn(t *testing.T) {
 
 func TestSubstr(t *testing.T) {
 	for i, this := range []struct {
-		v1 interface{}
-		v2 int
-		v3 int
-		expect string
+		v1     interface{}
+		v2     int
+		v3     int
+		expect interface{}
 	}{
 		{"abc", 1, 2, "b"},
 		{"abc", 1, 3, "bc"},
 		{"abc", 0, 1, "a"},
+		{123, 1, 3, "23"},
+		{tstNoStringer{}, 0, 1, false},
 	} {
 		result, err := Substr(this.v1, this.v2, this.v3)
 
-		if err != nil {
-			t.Errorf("[%d] failed: %s", i, err)
-			continue
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Substr didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+			}
 		}
-
-		if result != this.expect {
-			t.Errorf("[%d] Got %v but expected %v", i, result, this.expect)
-		}
-	}
-
-	_, err := Substr(tstNoStringer{}, 0, 1)
-	if err == nil {
-		t.Error("Expected error for non-string-convertable variable")
 	}
 }
 
 func TestSplit(t *testing.T) {
 	for i, this := range []struct {
-		v1 interface{}
-		v2 string
-		expect []string
+		v1     interface{}
+		v2     string
+		expect interface{}
 	}{
 		{"a, b", ", ", []string{"a", "b"}},
 		{"a & b & c", " & ", []string{"a", "b", "c"}},
 		{"http://exmaple.com", "http://", []string{"", "exmaple.com"}},
+		{123, "2", []string{"1", "3"}},
+		{tstNoStringer{}, ",", false},
 	} {
 		result, err := Split(this.v1, this.v2)
 
-		if err != nil {
-			t.Errorf("[%d] failed: %s", i, err)
-			continue
-		}
-
-		if !reflect.DeepEqual(result, this.expect) {
-			t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Split didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+			}
 		}
 	}
 
-	_, err := Split(tstNoStringer{}, ",")
-	if err == nil {
-		t.Error("Expected error for non-string-convertable variable")
-	}
 }
 
 func TestIntersect(t *testing.T) {
