@@ -276,7 +276,7 @@ func TestIn(t *testing.T) {
 	}
 }
 
-func TestSubstr(t *testing.T) {
+func TestSlice(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
 		v2     int
@@ -289,11 +289,11 @@ func TestSubstr(t *testing.T) {
 		{123, 1, 3, "23"},
 		{tstNoStringer{}, 0, 1, false},
 	} {
-		result, err := Substr(this.v1, this.v2, this.v3)
+		result, err := Slice(this.v1, this.v2, this.v3)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] Substr didn't return an expected error", i)
+				t.Errorf("[%d] Slice didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
@@ -335,7 +335,6 @@ func TestSplit(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func TestIntersect(t *testing.T) {
