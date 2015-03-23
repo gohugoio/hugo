@@ -276,7 +276,7 @@ func TestIn(t *testing.T) {
 	}
 }
 
-func TestSlice(t *testing.T) {
+func TestSlicestr(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
 		v2     int
@@ -292,7 +292,7 @@ func TestSlice(t *testing.T) {
 		{123, 1, 3, "23"},
 		{tstNoStringer{}, 0, 1, false},
 	} {
-		result, err := Slice(this.v1, this.v2, this.v3)
+		result, err := Slicestr(this.v1, this.v2, this.v3)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {

@@ -188,11 +188,11 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
-// Slicing in Slice is done by specifying a half-open range with
+// Slicing in Slicestr is done by specifying a half-open range with
 // two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
 // The start and/or end indices can be omitted by setting one or both of them to -1;
 // they default to zero and the slice's length respectively
-func Slice(a interface{}, start, end int) (string, error) {
+func Slicestr(a interface{}, start, end int) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
@@ -1338,7 +1338,7 @@ func init() {
 		"lt":          Lt,
 		"le":          Le,
 		"in":          In,
-		"slice":       Slice,
+		"slicestr":    Slicestr,
 		"split":       Split,
 		"intersect":   Intersect,
 		"isSet":       IsSet,
