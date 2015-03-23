@@ -310,6 +310,46 @@ func TestSlicestr(t *testing.T) {
 	}
 }
 
+func TestSubstr(t *testing.T) {
+	for i, this := range []struct {
+		v1     interface{}
+		v2     int
+		v3     int
+		expect interface{}
+	}{
+		{"abc", 1, 2, "bc"},
+		{"abc", 0, 1, "a"},
+		{"abcdef", -1, 2, "ef"},
+		{"abcdef", -3, 3, "bcd"},
+		{"abcdef", 0, -1, "abcde"},
+		{"abcdef", 2, -1, "cde"},
+		{"abcdef", 4, -4, false},
+		{"abcdef", 7, 1, false},
+		{"abcdef", 1, 100, "bcdef"},
+		{"abcdef", -100, 3, "abc"},
+		{"abcdef", -3, -1, "de"},
+		{123, 1, 3, "23"},
+		{1.2e3, 0, 4, "1200"},
+		{tstNoStringer{}, 0, 1, false},
+	} {
+		result, err := Substr(this.v1, this.v2, this.v3)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Substr didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+			}
+		}
+	}
+}
+
 func TestSplit(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}

@@ -210,6 +210,69 @@ func Slicestr(a interface{}, start, end int) (string, error) {
 
 }
 
+// Substr extracts parts of a string, beginning at the character at the specified
+// position, and returns the specified number of characters.
+//
+// It normally takes two parameters: start and length.
+// It can also take one parameter: start, i.e. length is omitted, in which case
+// the substring starting from start until the end of the string will be returned.
+//
+// To extract characters from the end of the string, use a negative start number.
+//
+// In addition, borrowing from the extended behavior described at http://php.net/substr,
+// if length is given and is negative, then that many characters will be omitted from
+// the end of string.
+func Substr(a interface{}, nums ...int) (string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return "", err
+	}
+
+	var start, length int
+	switch len(nums) {
+	case 1:
+		start = nums[0]
+		length = len(aStr)
+	case 2:
+		start = nums[0]
+		length = nums[1]
+	default:
+		return "", errors.New("too many arguments")
+	}
+
+	if start < -len(aStr) {
+		start = 0
+	}
+	if start > len(aStr) {
+		return "", errors.New(fmt.Sprintf("start position out of bounds for %d-byte string", len(aStr)))
+	}
+
+	var s, e int
+	if start >= 0 && length >= 0 {
+		s = start
+		e = start + length
+	} else if start < 0 && length >= 0 {
+		s = len(aStr) + start - length + 1
+		e = len(aStr) + start + 1
+	} else if start >= 0 && length < 0 {
+		s = start
+		e = len(aStr) + length
+	} else {
+		s = len(aStr) + start
+		e = len(aStr) + length
+	}
+
+	if s > e {
+		return "", errors.New(fmt.Sprintf("calculated start position greater than end position: %d > %d", s, e))
+	}
+	if e > len(aStr) {
+		e = len(aStr)
+	}
+
+	return aStr[s:e], nil
+
+}
+
 func Split(a interface{}, delimiter string) ([]string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
@@ -1339,6 +1402,7 @@ func init() {
 		"le":          Le,
 		"in":          In,
 		"slicestr":    Slicestr,
+		"substr":      Substr,
 		"split":       Split,
 		"intersect":   Intersect,
 		"isSet":       IsSet,
