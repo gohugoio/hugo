@@ -190,22 +190,23 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 
 // Slicing in Slicestr is done by specifying a half-open range with
 // two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
-// The start and/or end indices can be omitted by setting one or both of them to -1;
-// they default to zero and the slice's length respectively
-func Slicestr(a interface{}, start, end int) (string, error) {
+// The end index can be omitted, it defaults to the string's length.
+func Slicestr(a interface{}, startEnd ...int) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
 	}
 
-	if start != -1 && end != -1 {
-		return aStr[start:end], nil
-	} else if start == -1 && end == -1 {
-		return aStr[:], nil
-	} else if start == -1 {
-		return aStr[:end], nil
+	if len(startEnd) > 2 {
+		return "", errors.New("too many arguments")
+	}
+
+	if len(startEnd) == 2 {
+		return aStr[startEnd[0]:startEnd[1]], nil
+	} else if len(startEnd) == 1 {
+		return aStr[startEnd[0]:], nil
 	} else {
-		return aStr[start:], nil
+		return aStr[:], nil
 	}
 
 }

@@ -279,20 +279,21 @@ func TestIn(t *testing.T) {
 func TestSlicestr(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
-		v2     int
-		v3     int
+		v2     []int
 		expect interface{}
 	}{
-		{"abc", 1, 2, "b"},
-		{"abc", 1, 3, "bc"},
-		{"abc", 0, 1, "a"},
-		{"abcdef", -1, -1, "abcdef"},
-		{"abcdef", -1, 2, "ab"},
-		{"abcdef", 2, -1, "cdef"},
-		{123, 1, 3, "23"},
-		{tstNoStringer{}, 0, 1, false},
+		{"abc", []int{1, 2}, "b"},
+		{"abc", []int{1, 3}, "bc"},
+		{"abc", []int{0, 1}, "a"},
+		{"abcdef", []int{}, "abcdef"},
+		{"abcdef", []int{0, 6}, "abcdef"},
+		{"abcdef", []int{0, 2}, "ab"},
+		{"abcdef", []int{2}, "cdef"},
+		{123, []int{1, 3}, "23"},
+		{123, []int{1, 2, 3}, false},
+		{tstNoStringer{}, []int{0, 1}, false},
 	} {
-		result, err := Slicestr(this.v1, this.v2, this.v3)
+		result, err := Slicestr(this.v1, this.v2...)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
