@@ -153,26 +153,37 @@ func ThemeSet() bool {
 	return viper.GetString("theme") != ""
 }
 
-// Avoid spamming the logs with errors
-var deprecatedLogs = struct {
+// DistinctErrorLogger ignores duplicate log statements.
+type DistinctErrorLogger struct {
 	sync.RWMutex
 	m map[string]bool
-}{m: make(map[string]bool)}
+}
 
-func Deprecated(object, item, alternative string) {
-	key := object + item + alternative
-	deprecatedLogs.RLock()
-	logged := deprecatedLogs.m[key]
-	deprecatedLogs.RUnlock()
+func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
+	logStatement := fmt.Sprintf(format, v...)
+	l.RLock()
+	logged := l.m[logStatement]
+	l.RUnlock()
 	if logged {
 		return
 	}
-	deprecatedLogs.Lock()
-	if !deprecatedLogs.m[key] {
-		jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
-		deprecatedLogs.m[key] = true
+	l.Lock()
+	if !l.m[logStatement] {
+		jww.ERROR.Print(logStatement)
+		l.m[logStatement] = true
 	}
-	deprecatedLogs.Unlock()
+	l.Unlock()
+}
+
+func NewDistinctErrorLogger() *DistinctErrorLogger {
+	return &DistinctErrorLogger{m: make(map[string]bool)}
+}
+
+// Avoid spamming the logs with errors
+var deprecatedLogger = NewDistinctErrorLogger()
+
+func Deprecated(object, item, alternative string) {
+	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
 }
 
 // SliceToLower goes through the source slice and lowers all values.
