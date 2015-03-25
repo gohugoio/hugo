@@ -17,6 +17,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/eknkc/amber"
+	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yosssi/ace"
 	"html"
 	"html/template"
 	"io"
@@ -27,13 +34,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/eknkc/amber"
-	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/yosssi/ace"
 )
 
 var localTemplates *template.Template
@@ -1275,7 +1275,7 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	return err
 }
 
-func (t *GoHTMLTemplate) AddTemplateFile(name, path string) error {
+func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {
@@ -1294,9 +1294,21 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, path string) error {
 		if err != nil {
 			return err
 		}
+
+		var base, inner *ace.File
+
 		name = name[:len(name)-len(ext)] + ".html"
-		base := ace.NewFile(path, b)
-		inner := ace.NewFile("", []byte{})
+		if baseTemplatePath != "" {
+			b2, err := ioutil.ReadFile(baseTemplatePath)
+			if err != nil {
+				return err
+			}
+			base = ace.NewFile(baseTemplatePath, b2)
+			inner = ace.NewFile(path, b)
+		} else {
+			base = ace.NewFile(path, b)
+			inner = ace.NewFile("", []byte{})
+		}
 		rslt, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
 		if err != nil {
 			t.errors = append(t.errors, &templateErr{name: name, err: err})
@@ -1333,6 +1345,14 @@ func isBackupFile(path string) bool {
 	return path[len(path)-1] == '~'
 }
 
+// TODO(bep) split this file in two => template_funcs.go + tests.
+
+const baseAceFilename = "baseof.ace"
+
+func isBaseTemplate(path string) bool {
+	return strings.HasSuffix(path, baseAceFilename)
+}
+
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -1357,7 +1377,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if !fi.IsDir() {
-			if isDotFile(path) || isBackupFile(path) {
+			if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
 				return nil
 			}
 
@@ -1367,7 +1387,23 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				tplName = strings.Trim(prefix, "/") + "/" + tplName
 			}
 
-			t.AddTemplateFile(tplName, path)
+			var baseTemplatePath string
+
+			// ACE templates may have both a base and inner template.
+			if filepath.Ext(path) == ".ace" && !strings.HasSuffix(filepath.Dir(path), "partials") {
+				// Look for the base first in the current path, then in _default.
+				p := filepath.Join(filepath.Dir(path), baseAceFilename)
+				if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
+					baseTemplatePath = p
+				} else {
+					p := filepath.Join(absPath, "_default", baseAceFilename)
+					if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
+						baseTemplatePath = p
+					}
+				}
+			}
+
+			t.AddTemplateFile(tplName, baseTemplatePath, path)
 
 		}
 		return nil
