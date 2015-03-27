@@ -15,10 +15,13 @@ package helpers
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"fmt"
+	"io/ioutil"
 	"os/exec"
 	"strings"
 
+	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
@@ -42,6 +45,33 @@ func Highlight(code string, lexer string) string {
 		return code
 	}
 
+	fs := hugofs.OsFs
+
+	// Try to read from cache first
+	hash := sha1.Sum([]byte(code))
+	cachefile := fmt.Sprintf("%s/pygments-%s-%x", viper.GetString("CacheDir"), lexer, hash)
+	exists, err := Exists(cachefile, fs)
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code
+	}
+	if exists {
+		f, err := fs.Open(cachefile)
+		if err != nil {
+			jww.ERROR.Print(err.Error())
+			return code
+		}
+
+		s, err := ioutil.ReadAll(f)
+		if err != nil {
+			jww.ERROR.Print(err.Error())
+			return code
+		}
+
+		return string(s)
+	}
+
+	// No cache file, render and cache it
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	style := viper.GetString("PygmentsStyle")
@@ -60,6 +90,11 @@ func Highlight(code string, lexer string) string {
 	if err := cmd.Run(); err != nil {
 		jww.ERROR.Print(stderr.String())
 		return code
+	}
+
+	// Write cache file
+	if err := WriteToDisk(cachefile, bytes.NewReader(out.Bytes()), fs); err != nil {
+		jww.ERROR.Print(stderr.String())
 	}
 
 	return out.String()
