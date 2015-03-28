@@ -93,7 +93,7 @@ func NewContent(cmd *cobra.Command, args []string) {
 	var kind string
 
 	// assume the first directory is the section (kind)
-	if strings.Contains(createpath[1:], "/") {
+	if strings.Contains(createpath[1:], string(filepath.Separator)) {
 		kind = helpers.GuessSection(createpath)
 	}
 
