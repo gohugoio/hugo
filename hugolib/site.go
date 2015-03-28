@@ -93,15 +93,13 @@ type targetList struct {
 }
 
 type SiteInfo struct {
-	BaseUrl             template.URL
+	BaseURL             template.URL
 	Taxonomies          TaxonomyList
 	Authors             AuthorList
 	Social              SiteSocial
-	Indexes             *TaxonomyList // legacy, should be identical to Taxonomies
 	Sections            Taxonomy
 	Pages               *Pages
 	Files               []*source.File
-	Recent              *Pages // legacy, should be identical to Pages
 	Menus               *Menus
 	Hugo                *HugoInfo
 	Title               string
@@ -133,6 +131,24 @@ type SiteInfo struct {
 // youtube
 // linkedin
 type SiteSocial map[string]string
+
+// BaseUrl is deprecated. Will be removed in 0.15.
+func (s *SiteInfo) BaseUrl() template.URL {
+	helpers.Deprecated("Site", ".BaseUrl", ".BaseURL")
+	return s.BaseURL
+}
+
+// Recent is deprecated. Will be removed in 0.15.
+func (s *SiteInfo) Recent() *Pages {
+	helpers.Deprecated("Site", ".Recent", ".Pages")
+	return s.Pages
+}
+
+// Indexes is deprecated. Will be removed in 0.15.
+func (s *SiteInfo) Indexes() *TaxonomyList {
+	helpers.Deprecated("Site", ".Indexes", ".Taxonomies")
+	return &s.Taxonomies
+}
 
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]
@@ -173,7 +189,8 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 
 	if refURL.Path != "" {
 		for _, page := range []*Page(*s.Pages) {
-			if page.Source.Path() == refURL.Path || page.Source.LogicalName() == refURL.Path {
+			refPath := filepath.FromSlash(refURL.Path)
+			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
 				break
 			}
@@ -446,7 +463,7 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseUrl:         template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
+		BaseURL:         template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
 		Title:           viper.GetString("Title"),
 		Author:          viper.GetStringMap("author"),
 		LanguageCode:    viper.GetString("languagecode"),
@@ -456,7 +473,6 @@ func (s *Site) initializeSiteInfo() {
 		canonifyURLs:    viper.GetBool("CanonifyUrls"),
 		SummaryStrategy: viper.GetString("Summerization"),
 		Pages:           &s.Pages,
-		Recent:          &s.Pages,
 		Menus:           &s.Menus,
 		Params:          params,
 		Permalinks:      permalinks,
@@ -707,14 +723,14 @@ func (s *Site) getMenusFromConfig() Menus {
 
 					menuEntry.MarshallMap(ime)
 
-					if strings.HasPrefix(menuEntry.Url, "/") {
+					if strings.HasPrefix(menuEntry.URL, "/") {
 						// make it match the nodes
-						menuEntryURL := menuEntry.Url
+						menuEntryURL := menuEntry.URL
 						menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
 						if !s.Info.canonifyURLs {
-							menuEntryURL = helpers.AddContextRoot(string(s.Info.BaseUrl), menuEntryURL)
+							menuEntryURL = helpers.AddContextRoot(string(s.Info.BaseURL), menuEntryURL)
 						}
-						menuEntry.Url = menuEntryURL
+						menuEntry.URL = menuEntryURL
 					}
 
 					if ret[name] == nil {
@@ -766,8 +782,8 @@ func (s *Site) assembleMenus() {
 	for p, childmenu := range children {
 		_, ok := flat[twoD{p.MenuName, p.EntryName}]
 		if !ok {
-			// if parent does not exist, create one without a url
-			flat[twoD{p.MenuName, p.EntryName}] = &MenuEntry{Name: p.EntryName, Url: ""}
+			// if parent does not exist, create one without a URL
+			flat[twoD{p.MenuName, p.EntryName}] = &MenuEntry{Name: p.EntryName, URL: ""}
 		}
 		flat[twoD{p.MenuName, p.EntryName}].Children = childmenu
 	}
@@ -820,7 +836,6 @@ func (s *Site) assembleTaxonomies() {
 	}
 
 	s.Info.Taxonomies = s.Taxonomies
-	s.Info.Indexes = &s.Taxonomies
 	s.Info.Sections = s.Sections
 }
 
@@ -1023,7 +1038,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	base := t.plural + "/" + t.key
 	n := s.NewNode()
 	n.Title = strings.Replace(strings.Title(t.key), "-", " ", -1)
-	s.setUrls(n, base)
+	s.setURLs(n, base)
 	if len(t.pages) > 0 {
 		n.Date = t.pages[0].Page.Date
 	}
@@ -1083,7 +1098,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-			n.Url = s.permalinkStr(base + "/index.xml")
+			n.URL = s.permalinkStr(base + "/index.xml")
 			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
@@ -1101,7 +1116,7 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 	for singular, plural := range taxonomies {
 		n := s.NewNode()
 		n.Title = strings.Title(plural)
-		s.setUrls(n, plural)
+		s.setURLs(n, plural)
 		n.Data["Singular"] = singular
 		n.Data["Plural"] = plural
 		n.Data["Terms"] = s.Taxonomies[plural]
@@ -1127,7 +1142,7 @@ func (s *Site) newSectionListNode(section string, data WeightedPages) *Node {
 	} else {
 		n.Title = strings.Title(section)
 	}
-	s.setUrls(n, section)
+	s.setURLs(n, section)
 	n.Date = data[0].Page.Date
 	n.Data["Pages"] = data.Pages()
 
@@ -1177,7 +1192,7 @@ func (s *Site) RenderSectionLists() error {
 
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
-			n.Url = s.permalinkStr(section + "/index.xml")
+			n.URL = s.permalinkStr(section + "/index.xml")
 			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			if err := s.renderAndWriteXML("section "+section+" rss", section+"/index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
@@ -1191,7 +1206,7 @@ func (s *Site) RenderSectionLists() error {
 func (s *Site) newHomeNode() *Node {
 	n := s.NewNode()
 	n.Title = n.Site.Title
-	s.setUrls(n, "/")
+	s.setURLs(n, "/")
 	n.Data["Pages"] = s.Pages
 	return n
 }
@@ -1234,7 +1249,7 @@ func (s *Site) RenderHomePage() error {
 
 	if !viper.GetBool("DisableRSS") {
 		// XML Feed
-		n.Url = s.permalinkStr("index.xml")
+		n.URL = s.permalinkStr("index.xml")
 		n.Title = ""
 		high := 50
 		if len(s.Pages) < high {
@@ -1252,7 +1267,7 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
-	n.Url = helpers.URLize("404.html")
+	n.URL = helpers.URLize("404.html")
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
 
@@ -1279,7 +1294,7 @@ func (s *Site) RenderSitemap() error {
 	page := &Page{}
 	page.Date = s.Info.LastChange
 	page.Site = &s.Info
-	page.Url = "/"
+	page.URL = "/"
 
 	pages = append(pages, page)
 	pages = append(pages, s.Pages...)
@@ -1317,9 +1332,9 @@ func (s *Site) Stats() {
 	}
 }
 
-func (s *Site) setUrls(n *Node, in string) {
-	n.Url = helpers.URLizeAndPrep(in)
-	n.Permalink = s.permalink(n.Url)
+func (s *Site) setURLs(n *Node, in string) {
+	n.URL = helpers.URLizeAndPrep(in)
+	n.Permalink = s.permalink(n.URL)
 	n.RSSLink = s.permalink(in + ".xml")
 }
 
@@ -1351,7 +1366,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 	err := s.render(name, d, renderBuffer, layouts...)
 
-	absURLInXML, err := transform.AbsURLInXML(viper.GetString("BaseURL"))
+	absURLInXML, err := transform.AbsURLInXML()
 	if err != nil {
 		return err
 	}
@@ -1381,7 +1396,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	transformLinks := transform.NewEmptyTransforms()
 
 	if viper.GetBool("CanonifyURLs") {
-		absURL, err := transform.AbsURL(viper.GetString("BaseURL"))
+		absURL, err := transform.AbsURL()
 		if err != nil {
 			return err
 		}

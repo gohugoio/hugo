@@ -38,7 +38,7 @@ type remoteLock struct {
 	m map[string]*sync.Mutex
 }
 
-// resLock locks an URL during download
+// URLLock locks an URL during download
 func (l *remoteLock) URLLock(url string) {
 	l.Lock()
 	if _, ok := l.m[url]; !ok {
@@ -48,7 +48,7 @@ func (l *remoteLock) URLLock(url string) {
 	l.m[url].Lock()
 }
 
-// resUnlock unlocks an URL when the download has been finished. Use only in defer calls.
+// URLUnlock unlocks an URL when the download has been finished. Use only in defer calls.
 func (l *remoteLock) URLUnlock(url string) {
 	l.RLock()
 	defer l.RUnlock()
@@ -57,7 +57,7 @@ func (l *remoteLock) URLUnlock(url string) {
 	}
 }
 
-// getFileID returns the cache ID for a string
+// getCacheFileID returns the cache ID for a string
 func getCacheFileID(id string) string {
 	return viper.GetString("CacheDir") + url.QueryEscape(id)
 }
@@ -173,9 +173,9 @@ func resGetResource(url string) ([]byte, error) {
 	return resGetLocal(url, hugofs.SourceFs)
 }
 
-// GetJson expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
-// GetJson returns nil or parsed JSON to use in a short code.
+// GetJSON returns nil or parsed JSON to use in a short code.
 func GetJSON(urlParts ...string) interface{} {
 	url := strings.Join(urlParts, "")
 	c, err := resGetResource(url)
@@ -193,7 +193,7 @@ func GetJSON(urlParts ...string) interface{} {
 	return v
 }
 
-// parseCsv parses bytes of csv data into a slice slice string or an error
+// parseCSV parses bytes of CSV data into a slice slice string or an error
 func parseCSV(c []byte, sep string) ([][]string, error) {
 	if len(sep) != 1 {
 		return nil, errors.New("Incorrect length of csv separator: " + sep)
@@ -206,11 +206,11 @@ func parseCSV(c []byte, sep string) ([][]string, error) {
 	return r.ReadAll()
 }
 
-// GetCsv expects a data separator and one or n-parts of a URL to a resource which
+// GetCSV expects a data separator and one or n-parts of a URL to a resource which
 // can either be a local or a remote one.
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
-// GetCsv returns nil or a slice slice to use in a short code.
+// GetCSV returns nil or a slice slice to use in a short code.
 func GetCSV(sep string, urlParts ...string) [][]string {
 	url := strings.Join(urlParts, "")
 	c, err := resGetResource(url)

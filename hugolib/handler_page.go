@@ -91,7 +91,7 @@ type asciidocHandler struct {
 	basicPageHandler
 }
 
-func (h asciidocHandler) Extensions() []string { return []string{"asciidoc", "ad"} }
+func (h asciidocHandler) Extensions() []string { return []string{"asciidoc", "adoc", "ad"} }
 func (h asciidocHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	p.ProcessShortcodes(t)
 

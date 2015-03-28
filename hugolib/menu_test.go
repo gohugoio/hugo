@@ -180,8 +180,8 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 	assert.NotNil(t, me1)
 	assert.NotNil(t, me2)
 
-	assert.True(t, strings.Contains(me1.Url, "doc1"))
-	assert.True(t, strings.Contains(me2.Url, "doc2"))
+	assert.True(t, strings.Contains(me1.URL, "doc1"))
+	assert.True(t, strings.Contains(me2.URL, "doc2"))
 
 }
 
@@ -216,8 +216,8 @@ func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.Byte
 	assert.NotNil(t, me1)
 	assert.NotNil(t, me2)
 
-	assert.True(t, strings.Contains(me1.Url, "doc1"))
-	assert.True(t, strings.Contains(me2.Url, "doc2"))
+	assert.True(t, strings.Contains(me1.URL, "doc1"))
+	assert.True(t, strings.Contains(me2.URL, "doc2"))
 
 }
 
@@ -275,7 +275,7 @@ func TestMenuWithHashInURL(t *testing.T) {
 
 	assert.NotNil(t, me)
 
-	assert.Equal(t, "/Zoo/resource/#anchor", me.Url)
+	assert.Equal(t, "/Zoo/resource/#anchor", me.URL)
 }
 
 // issue #719
@@ -309,7 +309,7 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs, uglyURLs bool) {
 		expected = expectedBase + "/"
 	}
 
-	assert.Equal(t, expected, unicodeRussian.Url, "uglyURLs[%t]", uglyURLs)
+	assert.Equal(t, expected, unicodeRussian.URL, "uglyURLs[%t]", uglyURLs)
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {
@@ -329,7 +329,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 		{"tax", taxRenderInfo{key: "key", singular: "one", plural: "two"},
 			ts.findTestMenuEntryByID("tax", "2"), true, false},
 		{"tax", taxRenderInfo{key: "key", singular: "one", plural: "two"},
-			&MenuEntry{Name: "Somewhere else", Url: "/somewhereelse"}, false, false},
+			&MenuEntry{Name: "Somewhere else", URL: "/somewhereelse"}, false, false},
 	} {
 
 		n, _ := ts.site.newTaxonomyNode(this.taxInfo)
@@ -349,7 +349,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 
 	menuEntryXML := ts.findTestMenuEntryByID("tax", "xml")
 
-	if strings.HasSuffix(menuEntryXML.Url, "/") {
+	if strings.HasSuffix(menuEntryXML.URL, "/") {
 		t.Error("RSS menu item should not be padded with trailing slash")
 	}
 }
@@ -359,7 +359,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	defer resetMenuTestState(ts)
 
 	home := ts.site.newHomeNode()
-	homeMenuEntry := &MenuEntry{Name: home.Title, Url: home.Url}
+	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL}
 
 	for i, this := range []struct {
 		menu           string
@@ -369,7 +369,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	}{
 		{"main", homeMenuEntry, true, false},
 		{"doesnotexist", homeMenuEntry, false, false},
-		{"main", &MenuEntry{Name: "Somewhere else", Url: "/somewhereelse"}, false, false},
+		{"main", &MenuEntry{Name: "Somewhere else", URL: "/somewhereelse"}, false, false},
 		{"grandparent", ts.findTestMenuEntryByID("grandparent", "grandparentId"), false, false},
 		{"grandparent", ts.findTestMenuEntryByID("grandparent", "parentId"), false, true},
 		{"grandparent", ts.findTestMenuEntryByID("grandparent", "grandchildId"), true, false},

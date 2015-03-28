@@ -231,6 +231,9 @@ func TestFirst(t *testing.T) {
 		{"1", []int{100, 200, 300}, []int{100}},
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
 	} {
 		results, err := First(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
@@ -271,6 +274,112 @@ func TestIn(t *testing.T) {
 			t.Errorf("[%d] Got %v but expected %v", i, result, this.expect)
 		}
 	}
+}
+
+func TestSlicestr(t *testing.T) {
+	for i, this := range []struct {
+		v1     interface{}
+		v2     []int
+		expect interface{}
+	}{
+		{"abc", []int{1, 2}, "b"},
+		{"abc", []int{1, 3}, "bc"},
+		{"abc", []int{0, 1}, "a"},
+		{"abcdef", []int{}, "abcdef"},
+		{"abcdef", []int{0, 6}, "abcdef"},
+		{"abcdef", []int{0, 2}, "ab"},
+		{"abcdef", []int{2}, "cdef"},
+		{123, []int{1, 3}, "23"},
+		{123, []int{1, 2, 3}, false},
+		{tstNoStringer{}, []int{0, 1}, false},
+	} {
+		result, err := Slicestr(this.v1, this.v2...)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Slice didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+			}
+		}
+	}
+}
+
+func TestSubstr(t *testing.T) {
+	for i, this := range []struct {
+		v1     interface{}
+		v2     int
+		v3     int
+		expect interface{}
+	}{
+		{"abc", 1, 2, "bc"},
+		{"abc", 0, 1, "a"},
+		{"abcdef", -1, 2, "ef"},
+		{"abcdef", -3, 3, "bcd"},
+		{"abcdef", 0, -1, "abcde"},
+		{"abcdef", 2, -1, "cde"},
+		{"abcdef", 4, -4, false},
+		{"abcdef", 7, 1, false},
+		{"abcdef", 1, 100, "bcdef"},
+		{"abcdef", -100, 3, "abc"},
+		{"abcdef", -3, -1, "de"},
+		{123, 1, 3, "23"},
+		{1.2e3, 0, 4, "1200"},
+		{tstNoStringer{}, 0, 1, false},
+	} {
+		result, err := Substr(this.v1, this.v2, this.v3)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Substr didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+			}
+		}
+	}
+}
+
+func TestSplit(t *testing.T) {
+	for i, this := range []struct {
+		v1     interface{}
+		v2     string
+		expect interface{}
+	}{
+		{"a, b", ", ", []string{"a", "b"}},
+		{"a & b & c", " & ", []string{"a", "b", "c"}},
+		{"http://exmaple.com", "http://", []string{"", "exmaple.com"}},
+		{123, "2", []string{"1", "3"}},
+		{tstNoStringer{}, ",", false},
+	} {
+		result, err := Split(this.v1, this.v2)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Split didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+			}
+		}
+	}
+
 }
 
 func TestIntersect(t *testing.T) {
@@ -999,10 +1108,10 @@ func TestSafeHTML(t *testing.T) {
 		buf.Reset()
 		err = tmpl.Execute(buf, SafeHTML(this.str))
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHtml returns unexpected error: %s", i, err)
+			t.Errorf("[%d] execute template with an escaped string value by SafeHTML returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHtml, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by SafeHTML, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -1034,10 +1143,10 @@ func TestSafeHTMLAttr(t *testing.T) {
 		buf.Reset()
 		err = tmpl.Execute(buf, SafeHTMLAttr(this.str))
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHtmlAttr returns unexpected error: %s", i, err)
+			t.Errorf("[%d] execute template with an escaped string value by SafeHTMLAttr returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHtmlAttr, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by SafeHTMLAttr, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -1069,10 +1178,10 @@ func TestSafeCSS(t *testing.T) {
 		buf.Reset()
 		err = tmpl.Execute(buf, SafeCSS(this.str))
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeCss returns unexpected error: %s", i, err)
+			t.Errorf("[%d] execute template with an escaped string value by SafeCSS returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeCss, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by SafeCSS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -1104,10 +1213,10 @@ func TestSafeURL(t *testing.T) {
 		buf.Reset()
 		err = tmpl.Execute(buf, SafeURL(this.str))
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeUrl returns unexpected error: %s", i, err)
+			t.Errorf("[%d] execute template with an escaped string value by SafeURL returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeUrl, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by SafeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }

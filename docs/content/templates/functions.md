@@ -262,7 +262,7 @@ Takes a string and sanitizes it for usage in URLs, converts spaces to "-".
 
 e.g. `<a href="/tags/{{ . | urlize }}">{{ . }}</a>`
 
-### safeHtml
+### safeHTML
 Declares the provided string as a "safe" HTML document fragment
 so Go html/template will not filter it.  It should not be used
 for HTML from a third-party, or HTML with unclosed tags or comments.
@@ -271,11 +271,11 @@ Example: Given a site-wide `config.toml` that contains this line:
 
     copyright = "© 2015 Jane Doe.  <a href=\"http://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
 
-`{{ .Site.Copyright | safeHtml }}` would then output:
+`{{ .Site.Copyright | safeHTML }}` would then output:
 
 > © 2015 Jane Doe.  <a href="http://creativecommons.org/licenses/by/4.0/">Some rights reserved</a>.
 
-However, without the `safeHtml` function, html/template assumes
+However, without the `safeHTML` function, html/template assumes
 `.Site.Copyright` to be unsafe, escaping all HTML tags,
 rendering the whole string as plain-text like this:
 
@@ -284,7 +284,7 @@ rendering the whole string as plain-text like this:
 </blockquote>
 
 <!--
-### safeHtmlAttr
+### safeHTMLAttr
 Declares the provided string as a "safe" HTML attribute
 from a trusted source, for example, ` dir="ltr"`,
 so Go html/template will not filter it.
@@ -295,11 +295,11 @@ Example: Given a site-wide `config.toml` that contains this menu entry:
         name = "IRC: #golang at freenode"
         url = "irc://irc.freenode.net/#golang"
 
-* `<a href="{{ .Url }}">` ⇒ `<a href="#ZgotmplZ">` (Bad!)
-* `<a {{ printf "href=%q" .Url | safeHtmlAttr }}>` ⇒ `<a href="irc://irc.freenode.net/#golang">` (Good!)
+* `<a href="{{ .URL }}">` ⇒ `<a href="#ZgotmplZ">` (Bad!)
+* `<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` ⇒ `<a href="irc://irc.freenode.net/#golang">` (Good!)
 -->
 
-### safeCss
+### safeCSS
 Declares the provided string as a known "safe" CSS string
 so Go html/templates will not filter it.
 "Safe" means CSS content that matches any of:
@@ -311,13 +311,13 @@ so Go html/templates will not filter it.
 
 Example: Given `style = "color: red;"` defined in the front matter of your `.md` file:
 
-* `<p style="{{ .Params.style | safeCss }}">…</p>` ⇒ `<p style="color: red;">…</p>` (Good!)
+* `<p style="{{ .Params.style | safeCSS }}">…</p>` ⇒ `<p style="color: red;">…</p>` (Good!)
 * `<p style="{{ .Params.style }}">…</p>` ⇒ `<p style="ZgotmplZ">…</p>` (Bad!)
 
 Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
 CSS or URL context.
 
-### safeUrl
+### safeURL
 Declares the provided string as a "safe" URL or URL substring (see [RFC 3986][]).
 A URL like `javascript:checkThatFormNotEditedBeforeLeavingPage()` from a trusted
 source should go in the page, but by default dynamic `javascript:` URLs are
@@ -325,7 +325,7 @@ filtered out since they are a frequently exploited injection vector.
 
 [RFC 3986]: http://tools.ietf.org/html/rfc3986
 
-Without `safeUrl`, only the URI schemes `http:`, `https:` and `mailto:`
+Without `safeURL`, only the URI schemes `http:`, `https:` and `mailto:`
 are considered safe by Go.  If any other URI schemes, e.g.&nbsp;`irc:` and
 `javascript:`, are detected, the whole URL would be replaced with
 `#ZgotmplZ`.  This is to "defang" any potential attack in the URL,
@@ -341,16 +341,16 @@ The following template:
 
     <ul class="sidebar-menu">
       {{ range .Site.Menus.main }}
-      <li><a href="{{ .Url }}">{{ .Name }}</a></li>
+      <li><a href="{{ .URL }}">{{ .Name }}</a></li>
       {{ end }}
     </ul>
 
 would produce `<li><a href="#ZgotmplZ">IRC: #golang at freenode</a></li>`
 for the `irc://…` URL.
 
-To fix this, add ` | safeUrl` after `.Url` on the 3rd line, like this:
+To fix this, add ` | safeURL` after `.URL` on the 3rd line, like this:
 
-      <li><a href="{{ .Url | safeUrl }}">{{ .Name }}</a></li>
+      <li><a href="{{ .URL | safeURL }}">{{ .Name }}</a></li>
 
 With this change, we finally get `<li><a href="irc://irc.freenode.net/#golang">IRC: #golang at freenode</a></li>`
 as intended.

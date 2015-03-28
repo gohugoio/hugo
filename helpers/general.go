@@ -133,7 +133,7 @@ func Deprecated(object, item, alternative string) {
 	}
 	deprecatedLogs.Lock()
 	if !deprecatedLogs.m[key] {
-		jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo 0.15. Use %s instead.", object, item, alternative)
+		jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
 		deprecatedLogs.m[key] = true
 	}
 	deprecatedLogs.Unlock()
@@ -174,6 +174,10 @@ func Seq(args ...interface{}) ([]int, error) {
 	}
 
 	intArgs := cast.ToIntSlice(args)
+
+	if len(intArgs) < 1 || len(intArgs) > 3 {
+		return nil, errors.New("Invalid argument(s) to Seq")
+	}
 
 	var inc int = 1
 	var last int

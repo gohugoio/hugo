@@ -17,6 +17,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/eknkc/amber"
+	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yosssi/ace"
 	"html"
 	"html/template"
 	"io"
@@ -27,13 +34,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/eknkc/amber"
-	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/yosssi/ace"
 )
 
 var localTemplates *template.Template
@@ -188,6 +188,100 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
+// Slicing in Slicestr is done by specifying a half-open range with
+// two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
+// The end index can be omitted, it defaults to the string's length.
+func Slicestr(a interface{}, startEnd ...int) (string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return "", err
+	}
+
+	if len(startEnd) > 2 {
+		return "", errors.New("too many arguments")
+	}
+
+	if len(startEnd) == 2 {
+		return aStr[startEnd[0]:startEnd[1]], nil
+	} else if len(startEnd) == 1 {
+		return aStr[startEnd[0]:], nil
+	} else {
+		return aStr[:], nil
+	}
+
+}
+
+// Substr extracts parts of a string, beginning at the character at the specified
+// position, and returns the specified number of characters.
+//
+// It normally takes two parameters: start and length.
+// It can also take one parameter: start, i.e. length is omitted, in which case
+// the substring starting from start until the end of the string will be returned.
+//
+// To extract characters from the end of the string, use a negative start number.
+//
+// In addition, borrowing from the extended behavior described at http://php.net/substr,
+// if length is given and is negative, then that many characters will be omitted from
+// the end of string.
+func Substr(a interface{}, nums ...int) (string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return "", err
+	}
+
+	var start, length int
+	switch len(nums) {
+	case 1:
+		start = nums[0]
+		length = len(aStr)
+	case 2:
+		start = nums[0]
+		length = nums[1]
+	default:
+		return "", errors.New("too many arguments")
+	}
+
+	if start < -len(aStr) {
+		start = 0
+	}
+	if start > len(aStr) {
+		return "", errors.New(fmt.Sprintf("start position out of bounds for %d-byte string", len(aStr)))
+	}
+
+	var s, e int
+	if start >= 0 && length >= 0 {
+		s = start
+		e = start + length
+	} else if start < 0 && length >= 0 {
+		s = len(aStr) + start - length + 1
+		e = len(aStr) + start + 1
+	} else if start >= 0 && length < 0 {
+		s = start
+		e = len(aStr) + length
+	} else {
+		s = len(aStr) + start
+		e = len(aStr) + length
+	}
+
+	if s > e {
+		return "", errors.New(fmt.Sprintf("calculated start position greater than end position: %d > %d", s, e))
+	}
+	if e > len(aStr) {
+		e = len(aStr)
+	}
+
+	return aStr[s:e], nil
+
+}
+
+func Split(a interface{}, delimiter string) ([]string, error) {
+	aStr, err := cast.ToStringE(a)
+	if err != nil {
+		return []string{}, err
+	}
+	return strings.Split(aStr, delimiter), nil
+}
+
 func Intersect(l1, l2 interface{}) (interface{}, error) {
 	if l1 == nil || l2 == nil {
 		return make([]interface{}, 0), nil
@@ -289,6 +383,11 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 // First is exposed to templates, to iterate over the first N items in a
 // rangeable list.
 func First(limit interface{}, seq interface{}) (interface{}, error) {
+
+	if limit == nil || seq == nil {
+		return nil, errors.New("both limit and seq must be provided")
+	}
+
 	limitv, err := cast.ToIntE(limit)
 
 	if err != nil {
@@ -938,7 +1037,7 @@ func SafeHTML(text string) template.HTML {
 	return template.HTML(text)
 }
 
-// "safeHtmlAttr" is currently disabled, pending further discussion
+// "safeHTMLAttr" is currently disabled, pending further discussion
 // on its use case.  2015-01-19
 func SafeHTMLAttr(text string) template.HTMLAttr {
 	return template.HTMLAttr(text)
@@ -1176,7 +1275,7 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	return err
 }
 
-func (t *GoHTMLTemplate) AddTemplateFile(name, path string) error {
+func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {
@@ -1195,9 +1294,21 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, path string) error {
 		if err != nil {
 			return err
 		}
+
+		var base, inner *ace.File
+
 		name = name[:len(name)-len(ext)] + ".html"
-		base := ace.NewFile(path, b)
-		inner := ace.NewFile("", []byte{})
+		if baseTemplatePath != "" {
+			b2, err := ioutil.ReadFile(baseTemplatePath)
+			if err != nil {
+				return err
+			}
+			base = ace.NewFile(baseTemplatePath, b2)
+			inner = ace.NewFile(path, b)
+		} else {
+			base = ace.NewFile(path, b)
+			inner = ace.NewFile("", []byte{})
+		}
 		rslt, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
 		if err != nil {
 			t.errors = append(t.errors, &templateErr{name: name, err: err})
@@ -1234,6 +1345,14 @@ func isBackupFile(path string) bool {
 	return path[len(path)-1] == '~'
 }
 
+// TODO(bep) split this file in two => template_funcs.go + tests.
+
+const baseAceFilename = "baseof.ace"
+
+func isBaseTemplate(path string) bool {
+	return strings.HasSuffix(path, baseAceFilename)
+}
+
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -1258,7 +1377,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 		}
 
 		if !fi.IsDir() {
-			if isDotFile(path) || isBackupFile(path) {
+			if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
 				return nil
 			}
 
@@ -1268,7 +1387,23 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				tplName = strings.Trim(prefix, "/") + "/" + tplName
 			}
 
-			t.AddTemplateFile(tplName, path)
+			var baseTemplatePath string
+
+			// ACE templates may have both a base and inner template.
+			if filepath.Ext(path) == ".ace" && !strings.HasSuffix(filepath.Dir(path), "partials") {
+				// Look for the base first in the current path, then in _default.
+				p := filepath.Join(filepath.Dir(path), baseAceFilename)
+				if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
+					baseTemplatePath = p
+				} else {
+					p := filepath.Join(absPath, "_default", baseAceFilename)
+					if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
+						baseTemplatePath = p
+					}
+				}
+			}
+
+			t.AddTemplateFile(tplName, baseTemplatePath, path)
 
 		}
 		return nil
@@ -1303,16 +1438,16 @@ func init() {
 		"lt":          Lt,
 		"le":          Le,
 		"in":          In,
+		"slicestr":    Slicestr,
+		"substr":      Substr,
+		"split":       Split,
 		"intersect":   Intersect,
 		"isSet":       IsSet,
 		"isset":       IsSet,
 		"echoParam":   ReturnWhenSet,
 		"safeHTML":    SafeHTML,
-		"safeHtml":    SafeHTML,
 		"safeCSS":     SafeCSS,
-		"safeCss":     SafeCSS,
 		"safeURL":     SafeURL,
-		"safeUrl":     SafeURL,
 		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,
@@ -1337,11 +1472,36 @@ func init() {
 		"trim":        Trim,
 		"dateFormat":  DateFormat,
 		"getJSON":     GetJSON,
-		"getJson":     GetJSON,
 		"getCSV":      GetCSV,
-		"getCsv":      GetCSV,
 		"seq":         helpers.Seq,
+		"getenv":      func(varName string) string { return os.Getenv(varName) },
 		"colorize16":  helpers.Colorize16,
+
+		// "getJson" is deprecated. Will be removed in 0.15.
+		"getJson": func(urlParts ...string) interface{} {
+			helpers.Deprecated("Template", "getJson", "getJSON")
+			return GetJSON(urlParts...)
+		},
+		// "getJson" is deprecated. Will be removed in 0.15.
+		"getCsv": func(sep string, urlParts ...string) [][]string {
+			helpers.Deprecated("Template", "getCsv", "getCSV")
+			return GetCSV(sep, urlParts...)
+		},
+		// "safeHtml" is deprecated. Will be removed in 0.15.
+		"safeHtml": func(text string) template.HTML {
+			helpers.Deprecated("Template", "safeHtml", "safeHTML")
+			return SafeHTML(text)
+		},
+		// "safeCss" is deprecated. Will be removed in 0.15.
+		"safeCss": func(text string) template.CSS {
+			helpers.Deprecated("Template", "safeCss", "safeCSS")
+			return SafeCSS(text)
+		},
+		// "safeUrl" is deprecated. Will be removed in 0.15.
+		"safeUrl": func(text string) template.URL {
+			helpers.Deprecated("Template", "safeUrl", "safeURL")
+			return SafeURL(text)
+		},
 	}
 
 }

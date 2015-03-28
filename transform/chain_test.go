@@ -2,6 +2,7 @@ package transform
 
 import (
 	"bytes"
+	"github.com/spf13/hugo/helpers"
 	"strings"
 	"testing"
 )
@@ -54,8 +55,37 @@ func TestChainZeroTransformers(t *testing.T) {
 	}
 }
 
+func TestChaingMultipleTransformers(t *testing.T) {
+	f1 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f1"), []byte("f1r"), -1))
+	}
+	f2 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f2"), []byte("f2r"), -1))
+	}
+	f3 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f3"), []byte("f3r"), -1))
+	}
+
+	f4 := func(ct contentTransformer) {
+		ct.Write(bytes.Replace(ct.Content(), []byte("f4"), []byte("f4r"), -1))
+	}
+
+	tr := NewChain(f1, f2, f3, f4)
+
+	out := new(bytes.Buffer)
+	if err := tr.Apply(out, helpers.StringToReader("Test: f4 f3 f1 f2 f1 The End.")); err != nil {
+		t.Errorf("Multi transformer chain returned an error: %s", err)
+	}
+
+	expected := "Test: f4r f3r f1r f2r f1r The End."
+
+	if string(out.Bytes()) != expected {
+		t.Errorf("Expected %s got %s", expected, string(out.Bytes()))
+	}
+}
+
 func BenchmarkAbsURL(b *testing.B) {
-	absURL, _ := AbsURL("http://base")
+	absURL, _ := absURLFromURL("http://base")
 	tr := NewChain(absURL...)
 
 	b.ResetTimer()
@@ -65,7 +95,7 @@ func BenchmarkAbsURL(b *testing.B) {
 }
 
 func TestAbsURL(t *testing.T) {
-	absURL, _ := AbsURL("http://base")
+	absURL, _ := absURLFromURL("http://base")
 	tr := NewChain(absURL...)
 
 	apply(t.Errorf, tr, abs_url_tests)
@@ -73,7 +103,7 @@ func TestAbsURL(t *testing.T) {
 }
 
 func BenchmarkXMLAbsURL(b *testing.B) {
-	absURLInXML, _ := AbsURLInXML("http://base")
+	absURLInXML, _ := absURLInXMLFromURL("http://base")
 	tr := NewChain(absURLInXML...)
 
 	b.ResetTimer()
@@ -83,7 +113,7 @@ func BenchmarkXMLAbsURL(b *testing.B) {
 }
 
 func TestXMLAbsURL(t *testing.T) {
-	absURLInXML, _ := AbsURLInXML("http://base")
+	absURLInXML, _ := absURLInXMLFromURL("http://base")
 	tr := NewChain(absURLInXML...)
 	apply(t.Errorf, tr, xml_abs_url_tests)
 }

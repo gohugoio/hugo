@@ -35,7 +35,7 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo/", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 
-		// test url overrides
+		// test URL overrides
 		{"x/y/z/boofar.md", "x/y/z", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
 	}
 
@@ -46,12 +46,12 @@ func TestPermalink(t *testing.T) {
 		viper.Set("canonifyurls", test.canonifyURLs)
 		p := &Page{
 			Node: Node{
-				UrlPath: UrlPath{
+				URLPath: URLPath{
 					Section: "z",
-					Url:     test.url,
+					URL:     test.url,
 				},
 				Site: &SiteInfo{
-					BaseUrl: test.base,
+					BaseURL: test.base,
 				},
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},

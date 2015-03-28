@@ -2,7 +2,7 @@ package transform
 
 import (
 	"bytes"
-	bp "github.com/spf13/hugo/bufferpool"
+	"io"
 	"net/url"
 	"strings"
 	"unicode/utf8"
@@ -33,7 +33,7 @@ type contentlexer struct {
 	state        stateFunc
 	prefixLookup *prefixes
 
-	b *bytes.Buffer
+	w io.Writer
 }
 
 type stateFunc func(*contentlexer) stateFunc
@@ -95,7 +95,7 @@ func (l *contentlexer) match(r rune) {
 }
 
 func (l *contentlexer) emit() {
-	l.b.Write(l.content[l.start:l.pos])
+	l.w.Write(l.content[l.start:l.pos])
 	l.start = l.pos
 }
 
@@ -120,9 +120,9 @@ func checkCandidate(l *contentlexer) {
 		}
 
 		if bytes.HasPrefix(l.content[l.pos:], m.match) {
-			// check for schemaless urls
+			// check for schemaless URLs
 			posAfter := l.pos + len(m.match)
-			if int(posAfter) >= len(l.content) {
+			if posAfter >= len(l.content) {
 				return
 			}
 			r, _ := utf8.DecodeRune(l.content[posAfter:])
@@ -134,7 +134,7 @@ func checkCandidate(l *contentlexer) {
 				l.emit()
 			}
 			l.pos += len(m.match)
-			l.b.Write(m.replacement)
+			l.w.Write(m.replacement)
 			l.start = l.pos
 			return
 
@@ -147,7 +147,7 @@ func (l *contentlexer) replace() {
 	var r rune
 
 	for {
-		if int(l.pos) >= contentLength {
+		if l.pos >= contentLength {
 			l.width = 0
 			break
 		}
@@ -159,7 +159,6 @@ func (l *contentlexer) replace() {
 		}
 		l.width = width
 		l.pos += l.width
-
 		if r == ' ' {
 			l.prefixLookup.ms = matchStateWhitespace
 		} else if l.prefixLookup.ms != matchStateNone {
@@ -177,18 +176,16 @@ func (l *contentlexer) replace() {
 	}
 }
 
-func doReplace(content []byte, matchers []absURLMatcher) []byte {
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
+func doReplace(ct contentTransformer, matchers []absURLMatcher) {
 
-	lexer := &contentlexer{content: content,
-		b:            b,
+	lexer := &contentlexer{
+		content:      ct.Content(),
+		w:            ct,
 		prefixLookup: &prefixes{pr: mainPrefixRunes},
 		matchers:     matchers}
 
 	lexer.replace()
 
-	return b.Bytes()
 }
 
 type absURLReplacer struct {
@@ -196,7 +193,7 @@ type absURLReplacer struct {
 	xmlMatchers  []absURLMatcher
 }
 
-func newAbsurlReplacer(baseURL string) *absURLReplacer {
+func newAbsURLReplacer(baseURL string) *absURLReplacer {
 	u, _ := url.Parse(baseURL)
 	base := strings.TrimRight(u.String(), "/")
 
@@ -229,10 +226,10 @@ func newAbsurlReplacer(baseURL string) *absURLReplacer {
 
 }
 
-func (au *absURLReplacer) replaceInHTML(content []byte) []byte {
-	return doReplace(content, au.htmlMatchers)
+func (au *absURLReplacer) replaceInHTML(ct contentTransformer) {
+	doReplace(ct, au.htmlMatchers)
 }
 
-func (au *absURLReplacer) replaceInXML(content []byte) []byte {
-	return doReplace(content, au.xmlMatchers)
+func (au *absURLReplacer) replaceInXML(ct contentTransformer) {
+	doReplace(ct, au.xmlMatchers)
 }
