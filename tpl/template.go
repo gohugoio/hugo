@@ -1349,6 +1349,8 @@ func isBackupFile(path string) bool {
 
 const baseAceFilename = "baseof.ace"
 
+var aceTemplateInnerMarker = []byte("= content")
+
 func isBaseTemplate(path string) bool {
 	return strings.HasSuffix(path, baseAceFilename)
 }
@@ -1391,14 +1393,22 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 
 			// ACE templates may have both a base and inner template.
 			if filepath.Ext(path) == ".ace" && !strings.HasSuffix(filepath.Dir(path), "partials") {
-				// Look for the base first in the current path, then in _default.
-				p := filepath.Join(filepath.Dir(path), baseAceFilename)
-				if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
-					baseTemplatePath = p
-				} else {
-					p := filepath.Join(absPath, "_default", baseAceFilename)
+				// This may be a view that shouldn't have base template
+				// Have to look inside it to make sure
+				needsBase, err := helpers.FileContains(path, aceTemplateInnerMarker, hugofs.OsFs)
+				if err != nil {
+					return err
+				}
+				if needsBase {
+					// Look for the base first in the current path, then in _default.
+					p := filepath.Join(filepath.Dir(path), baseAceFilename)
 					if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
 						baseTemplatePath = p
+					} else {
+						p := filepath.Join(absPath, "_default", baseAceFilename)
+						if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
+							baseTemplatePath = p
+						}
 					}
 				}
 			}

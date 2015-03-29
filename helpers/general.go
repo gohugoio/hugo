@@ -112,6 +112,42 @@ func BytesToReader(in []byte) io.Reader {
 	return bytes.NewReader(in)
 }
 
+// ReaderContains reports whether subslice is within r.
+func ReaderContains(r io.Reader, subslice []byte) bool {
+
+	if len(subslice) == 0 {
+		return false
+	}
+
+	bufflen := len(subslice) * 4
+	halflen := bufflen / 2
+	buff := make([]byte, bufflen)
+	var err error
+	var n, i int
+
+	for {
+		i++
+		if i == 1 {
+			n, err = io.ReadAtLeast(r, buff[:halflen], halflen)
+		} else {
+			if i != 2 {
+				// shift left to catch overlapping matches
+				copy(buff[:], buff[halflen:])
+			}
+			n, err = io.ReadAtLeast(r, buff[halflen:], halflen)
+		}
+
+		if n > 0 && bytes.Contains(buff, subslice) {
+			return true
+		}
+
+		if err != nil {
+			break
+		}
+	}
+	return false
+}
+
 // ThemeSet checks whether a theme is in use or not.
 func ThemeSet() bool {
 	return viper.GetString("theme") != ""
