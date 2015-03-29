@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os/exec"
 	"strings"
@@ -47,9 +48,21 @@ func Highlight(code string, lexer string) string {
 
 	fs := hugofs.OsFs
 
+	style := viper.GetString("PygmentsStyle")
+
+	noclasses := "true"
+	if viper.GetBool("PygmentsUseClasses") {
+		noclasses = "false"
+	}
+
 	// Try to read from cache first
-	hash := sha1.Sum([]byte(code))
-	cachefile := fmt.Sprintf("%s/pygments-%s-%x", viper.GetString("CacheDir"), lexer, hash)
+	hash := sha1.New()
+	io.WriteString(hash, lexer)
+	io.WriteString(hash, code)
+	io.WriteString(hash, style)
+	io.WriteString(hash, noclasses)
+
+	cachefile := fmt.Sprintf("%s/pygments-%x", viper.GetString("CacheDir"), hash.Sum(nil))
 	exists, err := Exists(cachefile, fs)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
@@ -74,12 +87,6 @@ func Highlight(code string, lexer string) string {
 	// No cache file, render and cache it
 	var out bytes.Buffer
 	var stderr bytes.Buffer
-	style := viper.GetString("PygmentsStyle")
-
-	noclasses := "true"
-	if viper.GetBool("PygmentsUseClasses") {
-		noclasses = "false"
-	}
 
 	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O",
 		fmt.Sprintf("style=%s,noclasses=%s,encoding=utf8", style, noclasses))
