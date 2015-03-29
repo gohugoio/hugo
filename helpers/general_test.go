@@ -86,7 +86,7 @@ var containsBenchTestData = []struct {
 	{"abc", []byte("d"), false},
 	{containsTestText, []byte("стремился"), true},
 	{containsTestText, []byte(containsTestText[10:80]), true},
-	{containsTestText, []byte(containsTestText[100:110]), true},
+	{containsTestText, []byte(containsTestText[100:111]), true},
 	{containsTestText, []byte(containsTestText[len(containsTestText)-100 : len(containsTestText)-10]), true},
 	{containsTestText, []byte(containsTestText[len(containsTestText)-20:]), true},
 	{containsTestText, []byte("notfound"), false},
@@ -98,6 +98,7 @@ var containsAdditionalTestData = []struct {
 	v2     []byte
 	expect bool
 }{
+	{"", nil, false},
 	{"", []byte("a"), false},
 	{"a", []byte(""), false},
 	{"", []byte(""), false},
@@ -110,6 +111,9 @@ func TestReaderContains(t *testing.T) {
 			t.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
 		}
 	}
+
+	assert.False(t, ReaderContains(nil, []byte("a")))
+	assert.False(t, ReaderContains(nil, nil))
 }
 
 func BenchmarkReaderContains(b *testing.B) {

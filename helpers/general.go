@@ -115,7 +115,7 @@ func BytesToReader(in []byte) io.Reader {
 // ReaderContains reports whether subslice is within r.
 func ReaderContains(r io.Reader, subslice []byte) bool {
 
-	if len(subslice) == 0 {
+	if r == nil || len(subslice) == 0 {
 		return false
 	}
 
