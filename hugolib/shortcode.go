@@ -434,6 +434,20 @@ Loop:
 
 }
 
+// replaceShortcodeTokensInsources calls replaceShortcodeTokens for every source given.
+func replaceShortcodeTokensInsources(prefix string, wrapped bool, replacements map[string]string, sources ...[]byte) (b [][]byte, err error) {
+	result := make([][]byte, len(sources))
+	for i, s := range sources {
+		b, err := replaceShortcodeTokens(s, prefix, wrapped, replacements)
+
+		if err != nil {
+			return nil, err
+		}
+		result[i] = b
+	}
+	return result, nil
+}
+
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
 // wrapped = true means that the token has been wrapped in {@{@/@}@}
 func replaceShortcodeTokens(source []byte, prefix string, wrapped bool, replacements map[string]string) (b []byte, err error) {
