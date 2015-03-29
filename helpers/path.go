@@ -16,16 +16,15 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
-
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 // FilepathPathBridge is a bridge for common functionality in filepath vs path
@@ -151,6 +150,17 @@ func IsEmpty(path string, fs afero.Fs) (bool, error) {
 		return len(list) == 0, nil
 	}
 	return fi.Size() == 0, nil
+}
+
+// Check if a file contains a specified string.
+func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	return ReaderContains(f, subslice), nil
 }
 
 // Check if a file or directory exists.
