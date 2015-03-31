@@ -1,11 +1,11 @@
 ---
 author: "Michael Henderson"
 date: 2015-02-22
-linktitle: Installing on a Mac
+linktitle: Installing on Mac
 menu:
   main:
     parent: tutorials
-next: /tutorials/mathjax
+next: /tutorials/installing-on-windows
 prev: /tutorials/github-pages-blog
 title: Installing on a Mac
 weight: 10

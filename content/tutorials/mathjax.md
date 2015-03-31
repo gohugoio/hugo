@@ -5,7 +5,7 @@ menu:
   main:
     parent: tutorials
 next: /tutorials/migrate-from-jekyll
-prev: /tutorials/installing-on-mac
+prev: /tutorials/installing-on-windows
 title: MathJax Support
 weight: 10
 ---
