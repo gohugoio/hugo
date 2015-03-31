@@ -44,6 +44,7 @@ func TestPager(t *testing.T) {
 
 	first := paginatorPages[0]
 	assert.Equal(t, "page/1/", first.URL())
+	assert.Equal(t, first.URL(), first.Url())
 	assert.Equal(t, first, first.First())
 	assert.True(t, first.HasNext())
 	assert.Equal(t, paginatorPages[1], first.Next())
@@ -110,14 +111,32 @@ func TestPaginationURLFactory(t *testing.T) {
 }
 
 func TestPaginator(t *testing.T) {
-	viper.Set("paginate", 5)
+	for _, useViper := range []bool{false, true} {
+		doTestPaginator(t, useViper)
+	}
+}
+
+func doTestPaginator(t *testing.T, useViper bool) {
+	pagerSize := 5
+	if useViper {
+		viper.Set("paginate", pagerSize)
+	} else {
+		viper.Set("paginate", -1)
+	}
 	pages := createTestPages(12)
 	s := &Site{}
 	n1 := s.newHomeNode()
 	n2 := s.newHomeNode()
 	n1.Data["Pages"] = pages
 
-	paginator1, err := n1.Paginator()
+	var paginator1 *pager
+	var err error
+
+	if useViper {
+		paginator1, err = n1.Paginator()
+	} else {
+		paginator1, err = n1.Paginator(pagerSize)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, paginator1)
@@ -146,13 +165,33 @@ func TestPaginatorWithNegativePaginate(t *testing.T) {
 }
 
 func TestPaginate(t *testing.T) {
-	viper.Set("paginate", 5)
+	for _, useViper := range []bool{false, true} {
+		doTestPaginate(t, useViper)
+	}
+}
+
+func doTestPaginate(t *testing.T, useViper bool) {
+
+	pagerSize := 5
+	if useViper {
+		viper.Set("paginate", pagerSize)
+	} else {
+		viper.Set("paginate", -1)
+	}
+
 	pages := createTestPages(6)
 	s := &Site{}
 	n1 := s.newHomeNode()
 	n2 := s.newHomeNode()
 
-	paginator1, err := n1.Paginate(pages)
+	var paginator1 *pager
+	var err error
+
+	if useViper {
+		paginator1, err = n1.Paginate(pages)
+	} else {
+		paginator1, err = n1.Paginate(pages, pagerSize)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, paginator1)
@@ -172,6 +211,17 @@ func TestPaginate(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestInvalidOptions(t *testing.T) {
+	s := &Site{}
+	n1 := s.newHomeNode()
+	_, err := n1.Paginate(createTestPages(1), 1, 2)
+	assert.NotNil(t, err)
+	_, err = n1.Paginator(1, 2)
+	assert.NotNil(t, err)
+	_, err = n1.Paginator(-1)
+	assert.NotNil(t, err)
+}
+
 func TestPaginateWithNegativePaginate(t *testing.T) {
 	viper.Set("paginate", -1)
 	s := &Site{}
@@ -180,13 +230,12 @@ func TestPaginateWithNegativePaginate(t *testing.T) {
 }
 
 func TestPaginatePages(t *testing.T) {
-	viper.Set("paginate", 11)
 	for i, seq := range []interface{}{createTestPages(11), WeightedPages{}, PageGroup{}, &Pages{}} {
-		v, err := paginatePages(seq, "t")
+		v, err := paginatePages(seq, 11, "t")
 		assert.NotNil(t, v, "Val %d", i)
 		assert.Nil(t, err, "Err %d", i)
 	}
-	_, err := paginatePages(Site{}, "t")
+	_, err := paginatePages(Site{}, 11, "t")
 	assert.NotNil(t, err)
 
 }

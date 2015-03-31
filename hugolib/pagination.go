@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/viper"
 	"html/template"
@@ -54,8 +55,8 @@ func (p *pager) URL() template.HTML {
 
 // Url is deprecated. Will be removed in 0.15.
 func (p *pager) Url() template.HTML {
-    helpers.Deprecated("Paginator", ".Url", ".URL")
-    return p.URL()
+	helpers.Deprecated("Paginator", ".Url", ".URL")
+	return p.URL()
 }
 
 // Pages returns the elements on this page.
@@ -139,7 +140,13 @@ func splitPages(pages Pages, size int) []Pages {
 
 // Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
-func (n *Node) Paginator() (*pager, error) {
+func (n *Node) Paginator(options ...interface{}) (*pager, error) {
+
+	pagerSize, err := resolvePagerSize(options...)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var initError error
 
@@ -148,7 +155,7 @@ func (n *Node) Paginator() (*pager, error) {
 			return
 		}
 
-		pagers, err := paginatePages(n.Data["Pages"], n.URL)
+		pagers, err := paginatePages(n.Data["Pages"], pagerSize, n.URL)
 
 		if err != nil {
 			initError = err
@@ -170,19 +177,25 @@ func (n *Node) Paginator() (*pager, error) {
 }
 
 // Paginator on Page isn't supported, calling this yields an error.
-func (p *Page) Paginator() (*pager, error) {
+func (p *Page) Paginator(options ...interface{}) (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate on Page isn't supported, calling this yields an error.
-func (p *Page) Paginate(seq interface{}) (*pager, error) {
+func (p *Page) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate gets this Node's paginator if it's already created.
 // If it's not, one will be created with the qiven sequence.
 // Note that repeated calls will return the same result, even if the sequence is different.
-func (n *Node) Paginate(seq interface{}) (*pager, error) {
+func (n *Node) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
+
+	pagerSize, err := resolvePagerSize(options...)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var initError error
 
@@ -190,7 +203,7 @@ func (n *Node) Paginate(seq interface{}) (*pager, error) {
 		if n.paginator != nil {
 			return
 		}
-		pagers, err := paginatePages(seq, n.URL)
+		pagers, err := paginatePages(seq, pagerSize, n.URL)
 
 		if err != nil {
 			initError = err
@@ -211,12 +224,30 @@ func (n *Node) Paginate(seq interface{}) (*pager, error) {
 	return n.paginator, nil
 }
 
-func paginatePages(seq interface{}, section string) (pagers, error) {
-	paginateSize := viper.GetInt("paginate")
+func resolvePagerSize(options ...interface{}) (int, error) {
+	if len(options) == 0 {
+		return viper.GetInt("paginate"), nil
+	}
 
-	if paginateSize <= 0 {
+	if len(options) > 1 {
+		return -1, errors.New("too many arguments, 'pager size' is currently the only option")
+	}
+
+	pas, err := cast.ToIntE(options[0])
+
+	if err != nil || pas <= 0 {
+		return -1, errors.New(("'pager size' must be a positive integer"))
+	}
+
+	return pas, nil
+}
+
+func paginatePages(seq interface{}, pagerSize int, section string) (pagers, error) {
+
+	if pagerSize <= 0 {
 		return nil, errors.New("'paginate' configuration setting must be positive to paginate")
 	}
+
 	var pages Pages
 	switch seq.(type) {
 	case Pages:
@@ -232,7 +263,7 @@ func paginatePages(seq interface{}, section string) (pagers, error) {
 	}
 
 	urlFactory := newPaginationURLFactory(section)
-	paginator, _ := newPaginator(pages, paginateSize, urlFactory)
+	paginator, _ := newPaginator(pages, pagerSize, urlFactory)
 	pagers := paginator.Pagers()
 
 	return pagers, nil
