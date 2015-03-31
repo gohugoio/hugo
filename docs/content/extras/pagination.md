@@ -17,7 +17,7 @@ Hugo supports pagination for the home page, sections and taxonomies. It's built 
 
 Pagination can be configured in the site configuration (e.g. `config.toml`):
 
-* `Paginate` (default `10`)
+* `Paginate` (default `10`) (this setting can be overridden in the template)
 * `PaginatePath` (default `page`)
 
 Setting `Paginate` to a positive value will split the list pages for the home page, sections and taxonomies into chunks of that size. But note that the generation of the pagination pages for sections, taxonomies and home page is *lazy* --- the pages will not be created if not referenced by a `.Paginator` (see below).
@@ -34,6 +34,12 @@ There are two ways to configure and use a `.Paginator`:
 2. Select a sub-set of the pages with the available template functions and ordering options, and pass the slice to `.Paginate`, e.g. `{{ range (.Paginate ( first 50 .Data.Pages.ByTitle )).Pages }}`.
 
 For a given **Node**, it's one of the options above. The `.Paginator` is static and cannot change once created.
+
+
+The global page size setting (`Paginate`) can be overridden by providing a positive integer as the last argument. The examples below will give five items per page:
+
+* `{{ range (.Paginator 5).Pages }}`
+* `{{ $paginator := .Paginate (where .Data.Pages "Type" "post") 5 }}`
 
 ## Build the navigation
 
