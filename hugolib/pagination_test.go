@@ -184,7 +184,7 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	n1 := s.newHomeNode()
 	n2 := s.newHomeNode()
 
-	var paginator1 *pager
+	var paginator1, paginator2 *pager
 	var err error
 
 	if useViper {
@@ -199,12 +199,13 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	assert.Equal(t, 6, paginator1.TotalNumberOfElements())
 
 	n2.paginator = paginator1.Next()
-	paginator2, err := n2.Paginate(pages)
+	if useViper {
+		paginator2, err = n2.Paginate(pages)
+	} else {
+		paginator2, err = n2.Paginate(pages, pagerSize)
+	}
 	assert.Nil(t, err)
 	assert.Equal(t, paginator2, paginator1.Next())
-
-	samePaginator, err := n1.Paginate(createTestPages(2))
-	assert.Equal(t, paginator1, samePaginator)
 
 	p, _ := NewPage("test")
 	_, err = p.Paginate(pages)
@@ -238,6 +239,71 @@ func TestPaginatePages(t *testing.T) {
 	_, err := paginatePages(Site{}, 11, "t")
 	assert.NotNil(t, err)
 
+}
+
+// Issue #993
+func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
+	viper.Set("paginate", 10)
+	s := &Site{}
+	n1 := s.newHomeNode()
+	n2 := s.newHomeNode()
+
+	_, err := n1.Paginator()
+	assert.Nil(t, err)
+	_, err = n1.Paginate(createTestPages(2))
+	assert.NotNil(t, err)
+
+	_, err = n2.Paginate(createTestPages(2))
+	assert.Nil(t, err)
+
+}
+
+func TestPaginateFollowedByDifferentPaginateShouldFail(t *testing.T) {
+
+	viper.Set("paginate", 10)
+	s := &Site{}
+	n1 := s.newHomeNode()
+	n2 := s.newHomeNode()
+
+	p1 := createTestPages(2)
+	p2 := createTestPages(10)
+
+	_, err := n1.Paginate(p1)
+	assert.Nil(t, err)
+
+	_, err = n1.Paginate(p1)
+	assert.Nil(t, err)
+
+	_, err = n1.Paginate(p2)
+	assert.NotNil(t, err)
+
+	_, err = n2.Paginate(p2)
+	assert.Nil(t, err)
+}
+
+func TestProbablyEqualPageLists(t *testing.T) {
+	fivePages := createTestPages(5)
+	zeroPages := createTestPages(0)
+	for i, this := range []struct {
+		v1     interface{}
+		v2     interface{}
+		expect bool
+	}{
+		{nil, nil, true},
+		{"a", "b", true},
+		{"a", fivePages, false},
+		{fivePages, "a", false},
+		{fivePages, createTestPages(2), false},
+		{fivePages, fivePages, true},
+		{zeroPages, zeroPages, true},
+	} {
+		result := probablyEqualPageLists(this.v1, this.v2)
+
+		if result != this.expect {
+			t.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+
+		}
+	}
 }
 
 func createTestPages(num int) Pages {
