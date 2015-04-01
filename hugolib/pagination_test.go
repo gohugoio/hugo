@@ -300,7 +300,7 @@ func TestProbablyEqualPageLists(t *testing.T) {
 		result := probablyEqualPageLists(this.v1, this.v2)
 
 		if result != this.expect {
-			t.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+			t.Errorf("[%d] got %t but expected %t", i, result, this.expect)
 
 		}
 	}

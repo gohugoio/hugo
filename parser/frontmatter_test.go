@@ -19,7 +19,7 @@ func TestFormatToLeadRune(t *testing.T) {
 		result := FormatToLeadRune(this.kind)
 
 		if result != this.expect {
-			t.Errorf("[%d] Got %q but expected %q", i, result, this.expect)
+			t.Errorf("[%d] got %q but expected %q", i, result, this.expect)
 		}
 	}
 }

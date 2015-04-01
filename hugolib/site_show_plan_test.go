@@ -54,7 +54,7 @@ func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
 	diff := DiffStringSlices(gotList, expectedList)
 
 	if len(diff) > 0 {
-		t.Errorf("Got diff in show plan: %s", diff)
+		t.Errorf("got diff in show plan: %s", diff)
 	}
 }
 
