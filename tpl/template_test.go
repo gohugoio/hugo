@@ -956,7 +956,7 @@ func TestMarkdownify(t *testing.T) {
 
 	result := Markdownify("Hello **World!**")
 
-	expect := template.HTML("<p>Hello <strong>World!</strong></p>\n")
+	expect := template.HTML("Hello <strong>World!</strong>")
 
 	if result != expect {
 		t.Errorf("Markdownify: got '%s', expected '%s'", result, expect)

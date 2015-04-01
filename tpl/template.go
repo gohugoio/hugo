@@ -948,8 +948,14 @@ func Highlight(in interface{}, lang string) template.HTML {
 	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang))
 }
 
+var markdownTrimPrefix = []byte("<p>")
+var markdownTrimSuffix = []byte("</p>\n")
+
 func Markdownify(text string) template.HTML {
-	return template.HTML(helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"}))
+	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"})
+	m = bytes.TrimPrefix(m, markdownTrimPrefix)
+	m = bytes.TrimSuffix(m, markdownTrimSuffix)
+	return template.HTML(m)
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
