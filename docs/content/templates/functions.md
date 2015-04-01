@@ -44,6 +44,90 @@ e.g.
 
     {{ if eq .Section "blog" }}current{{ end }}
 
+### inspect
+Return a string containing the default representation of a value.
+Takes one parameter which may be any variable or text/numeric constant.
+
+This function supports debugging templates. The output is similar to `{{ printf "%#v" $variable }}`.
+
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Description</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Value of a numeric constant</td>
+<td><code>{{ inspect 0 }}</code></td>
+<td><code>0</code></td>
+</tr>
+
+<tr>
+<td>Value of a string constant</td>
+<td><code>{{ inspect "Hello, World!" }}</code></td>
+<td><code>&amp;#34;Hello, World!&amp;#34</code></td>
+</tr>
+
+<tr>
+<td>Value of a variable</td>
+<td><code>{{ $foo := "bar" }}</code><br /><code>{{ inspect $foo }}</code></td>
+<td><code>&amp;#34;bar&amp;#34</code></td>
+</tr>
+
+</tbody>
+</table>
+
+
+### typeOf
+Return a string containing the type of a value.
+Takes one parameter which may be any variable or text/numeric constant.
+
+This function supports debugging templates.
+
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Description</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Value of a numeric constant</td>
+<td><code>{{ typeOf 0 }}</code></td>
+<td><code>int</code></td>
+</tr>
+
+<tr>
+<td>Value of a numeric constant</td>
+<td><code>{{ typeOf 0.0 }}</code></td>
+<td><code>float64</code></td>
+</tr>
+
+<tr>
+<td>Value of a string constant</td>
+<td><code>{{ typeOf "bar" }}</code></td>
+<td><code>string</code></td>
+</tr>
+
+<tr>
+<td>Value of a variable</td>
+<td><code>{{ $foo := "bar" }}</code><br /><code>{{ typeOf $foo }}</code></td>
+<td><code>string</code></td>
+</tr>
+
+</tbody>
+</table>
+
+
 ### first
 Slices an array to only the first X elements.
 

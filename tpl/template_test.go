@@ -1220,3 +1220,51 @@ func TestSafeURL(t *testing.T) {
 		}
 	}
 }
+
+func TestInspect(t *testing.T) {
+	for i, this := range []struct {
+		v      interface{}
+		expect interface{}
+	}{
+		{0, "0"},
+		{1, "1"},
+		{-1, "-1"},
+		{0.0, "0"},
+		{1.0, "1"},
+		{-1.0, "-1"},
+		{0.1, "0.1"},
+		{1.1, "1.1"},
+		{-1.1, "-1.1"},
+		{"text", "\"text\""},
+	} {
+		result := Inspect(this.v)
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] inspect got %v but expected %v", i, result, this.expect)
+		}
+	}
+}
+
+func TestInspectTypeOf(t *testing.T) {
+	for i, this := range []struct {
+		v      interface{}
+		expect interface{}
+	}{
+		{0, "int"},
+		{1, "int"},
+		{-1, "int"},
+		{0.0, "float64"},
+		{1.0, "float64"},
+		{-1.0, "float64"},
+		{0.1, "float64"},
+		{1.1, "float64"},
+		{-1.1, "float64"},
+		{"text", "string"},
+		{"$foo", "string"},
+		//{".", "*hugolib.Node"},
+	} {
+		result := InspectTypeOf(this.v)
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] typeOf got %v but expected %v", i, result, this.expect)
+		}
+	}
+}

@@ -901,6 +901,23 @@ func IsSet(a interface{}, key interface{}) bool {
 	return false
 }
 
+func Inspect(v interface{}) string {
+	//return reflect.ValueOf(v).String()
+	av := reflect.ValueOf(v)
+	return fmt.Sprintf("%#v", av.Interface())
+}
+
+func InspectTypeOf(v interface{}) string {
+	var t = reflect.TypeOf(v).Name()
+	if t == "" {
+		t = reflect.TypeOf(v).String() 
+		if t == "" {
+			t = "*no-type*"
+		}
+	}
+	return t
+}
+
 func ReturnWhenSet(a, k interface{}) interface{} {
 	av, isNil := indirect(reflect.ValueOf(a))
 	if isNil {
@@ -1454,6 +1471,8 @@ func init() {
 		"intersect":   Intersect,
 		"isSet":       IsSet,
 		"isset":       IsSet,
+		"inspect":     Inspect,
+		"typeOf":      InspectTypeOf,
 		"echoParam":   ReturnWhenSet,
 		"safeHTML":    SafeHTML,
 		"safeCSS":     SafeCSS,
