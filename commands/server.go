@@ -98,7 +98,14 @@ func server(cmd *cobra.Command, args []string) {
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
-		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
+		watched := getDirList()
+		workingDir := helpers.AbsPathify(viper.GetString("WorkingDir"))
+		for i, dir := range watched {
+			watched[i], _ = helpers.GetRelativePath(dir, workingDir)
+		}
+		unique := strings.Join(helpers.RemoveSubpaths(watched), ",")
+
+		jww.FEEDBACK.Printf("Watching for changes in %s/{%s}\n", workingDir, unique)
 		err := NewWatcher(serverPort)
 		if err != nil {
 			fmt.Println(err)
