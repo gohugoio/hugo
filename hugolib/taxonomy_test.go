@@ -12,7 +12,7 @@ func TestSitePossibleTaxonomies(t *testing.T) {
 	taxonomies := site.possibleTaxonomies()
 	if !compareStringSlice(taxonomies, []string{"tags", "categories"}) {
 		if !compareStringSlice(taxonomies, []string{"categories", "tags"}) {
-			t.Fatalf("possible taxonomies do not match [tags categories].  Got: %s", taxonomies)
+			t.Fatalf("possible taxonomies do not match [tags categories].  got %s", taxonomies)
 		}
 	}
 }

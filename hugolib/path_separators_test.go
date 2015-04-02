@@ -40,7 +40,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 			t.Errorf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)
 		}
 		if p.Section() != el.section {
-			t.Errorf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section())
+			t.Errorf("Section not set to %s for page %s. got %s", el.section, el.input, p.Section())
 		}
 
 		for _, y := range el.layout {
@@ -48,7 +48,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 		}
 
 		if !listEqual(p.Layout(), el.layout) {
-			t.Errorf("Layout incorrect. Expected: '%s', Got: '%s'", el.layout, p.Layout())
+			t.Errorf("Layout incorrect. Expected: '%s', got '%s'", el.layout, p.Layout())
 		}
 	}
 }
