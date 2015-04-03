@@ -425,7 +425,7 @@ func NewWatcher(port int) error {
 				}
 
 				if staticChanged {
-					jww.FEEDBACK.Println("Static file changed, syncing\n")
+					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
