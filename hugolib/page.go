@@ -308,7 +308,7 @@ func NewPageFrom(buf io.Reader, name string) (*Page, error) {
 	if err != nil {
 		return p, err
 	}
-	err = p.ReadFrom(buf)
+	_, err = p.ReadFrom(buf)
 
 	return p, err
 }
@@ -324,14 +324,14 @@ func NewPage(name string) (*Page, error) {
 	return p, nil
 }
 
-func (p *Page) ReadFrom(buf io.Reader) (err error) {
+func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
-	if err = p.parse(buf); err != nil {
+	if err := p.parse(buf); err != nil {
 		jww.ERROR.Print(err)
-		return
+		return 0, err
 	}
 
-	return nil
+	return int64(len(p.rawContent)), nil
 }
 
 func (p *Page) analyzePage() {

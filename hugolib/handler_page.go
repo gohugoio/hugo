@@ -35,7 +35,7 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 		return HandledResult{file: f, err: err}
 	}
 
-	if err := page.ReadFrom(f.Contents); err != nil {
+	if _, err := page.ReadFrom(f.Contents); err != nil {
 		return HandledResult{file: f, err: err}
 	}
 
