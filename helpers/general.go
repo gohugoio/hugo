@@ -162,11 +162,12 @@ type DistinctErrorLogger struct {
 func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.RLock()
-	logged := l.m[logStatement]
-	l.RUnlock()
-	if logged {
+	if l.m[logStatement] {
+		l.RUnlock()
 		return
 	}
+	l.RUnlock()
+
 	l.Lock()
 	if !l.m[logStatement] {
 		jww.ERROR.Print(logStatement)
