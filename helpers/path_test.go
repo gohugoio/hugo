@@ -550,7 +550,7 @@ func TestRemoveSubpaths(t *testing.T) {
 	got := RemoveSubpaths([]string{"hello", "hello/world", "foo/bar", ""})
 	expect := []string{"hello", "foo/bar"}
 	if !reflect.DeepEqual(got, expect) {
-		t.Errorf("Test %d failed. Expected %q but got %q", expect, got)
+		t.Errorf("Expected %q but got %q", expect, got)
 	}
 }
 

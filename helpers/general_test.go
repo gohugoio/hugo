@@ -263,7 +263,7 @@ func TestSeq(t *testing.T) {
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] TestSeq didn't return an expected error %s", i)
+				t.Errorf("[%d] TestSeq didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {
