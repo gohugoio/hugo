@@ -159,6 +159,8 @@ type DistinctErrorLogger struct {
 	m map[string]bool
 }
 
+// Printf will ERROR log the string returned from fmt.Sprintf given the arguments,
+// but not if it has been logged before.
 func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
 	logStatement := fmt.Sprintf(format, v...)
 	l.RLock()
@@ -176,6 +178,7 @@ func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
 	l.Unlock()
 }
 
+// NewDistinctErrorLogger creates a new DistinctErrorLogger
 func NewDistinctErrorLogger() *DistinctErrorLogger {
 	return &DistinctErrorLogger{m: make(map[string]bool)}
 }
@@ -183,6 +186,7 @@ func NewDistinctErrorLogger() *DistinctErrorLogger {
 // Avoid spamming the logs with errors
 var deprecatedLogger = NewDistinctErrorLogger()
 
+// Deprecated logs ERROR logs about a deprecation, but only once for a given set of arguments' values.
 func Deprecated(object, item, alternative string) {
 	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
 }
@@ -227,7 +231,7 @@ func Seq(args ...interface{}) ([]int, error) {
 		return nil, errors.New("Invalid argument(s) to Seq")
 	}
 
-	var inc int = 1
+	var inc = 1
 	var last int
 	var first = intArgs[0]
 
