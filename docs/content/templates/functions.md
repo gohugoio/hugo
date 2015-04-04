@@ -79,9 +79,10 @@ e.g.
 ### getenv
 Returns the value of an environment variable.
 
-Takes a string containing the name of the variable as input.
-Returns an empty string if the variable is not set, otherwise returns the value of the variable.
-Note that in Unix-like environments, the variable must also be *export*ed in order to be seen by `hugo`.
+Takes a string containing the name of the variable as input. Returns
+an empty string if the variable is not set, otherwise returns the
+value of the variable. Note that in Unix-like environments, the
+variable must also be exported in order to be seen by `hugo`.
 
 e.g.
 
