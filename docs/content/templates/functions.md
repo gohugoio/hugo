@@ -76,6 +76,19 @@ e.g.
     {{ end }}
 
 
+### getenv
+Returns the value of an environment variable.
+
+Takes a string containing the name of the variable as input. Returns
+an empty string if the variable is not set, otherwise returns the
+value of the variable. Note that in Unix-like environments, the
+variable must also be exported in order to be seen by `hugo`.
+
+e.g.
+
+    {{ getenv "HOME" }}
+
+
 ### in
 Checks if an element is in an array (or slice) and returns a boolean.  The elements supported are strings, integers and floats (only float64 will match as expected).  In addition, it can also check if a substring exists in a string.
 
