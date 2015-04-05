@@ -271,7 +271,7 @@ func TestIn(t *testing.T) {
 		result := In(this.v1, this.v2)
 
 		if result != this.expect {
-			t.Errorf("[%d] Got %v but expected %v", i, result, this.expect)
+			t.Errorf("[%d] got %v but expected %v", i, result, this.expect)
 		}
 	}
 }
@@ -305,7 +305,7 @@ func TestSlicestr(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
 	}
@@ -345,7 +345,7 @@ func TestSubstr(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
 	}
@@ -375,7 +375,7 @@ func TestSplit(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
 	}
@@ -408,20 +408,20 @@ func TestIntersect(t *testing.T) {
 			continue
 		}
 		if !reflect.DeepEqual(results, this.expect) {
-			t.Errorf("[%d] Got %v but expected %v", i, results, this.expect)
+			t.Errorf("[%d] got %v but expected %v", i, results, this.expect)
 		}
 	}
 
 	_, err1 := Intersect("not an array or slice", []string{"a"})
 
 	if err1 == nil {
-		t.Error("Excpected error for non array as first arg")
+		t.Error("Expected error for non array as first arg")
 	}
 
 	_, err2 := Intersect([]string{"a"}, "not an array or slice")
 
 	if err2 == nil {
-		t.Error("Excpected error for non array as second arg")
+		t.Error("Expected error for non array as second arg")
 	}
 }
 
@@ -1220,3 +1220,4 @@ func TestSafeURL(t *testing.T) {
 		}
 	}
 }
+

@@ -34,13 +34,13 @@ func TestNewPageWithFilePath(t *testing.T) {
 		{filepath.Join("content", "dub", "sub", "foobar.html"), "dub", L("dub/single.html", "_default/single.html")},
 	}
 
-	for _, el := range toCheck {
+	for i, el := range toCheck {
 		p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
 		if err != nil {
-			t.Errorf("Reading from SIMPLE_PAGE_YAML resulted in an error: %s", err)
+			t.Errorf("[%d] Reading from SIMPLE_PAGE_YAML resulted in an error: %s", i, err)
 		}
 		if p.Section() != el.section {
-			t.Errorf("Section not set to %s for page %s. Got: %s", el.section, el.input, p.Section())
+			t.Errorf("[%d] Section incorrect page %s. got %s but expected %s", i, el.input, p.Section(), el.section)
 		}
 
 		for _, y := range el.layout {
@@ -48,7 +48,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 		}
 
 		if !listEqual(p.Layout(), el.layout) {
-			t.Errorf("Layout incorrect. Expected: '%s', Got: '%s'", el.layout, p.Layout())
+			t.Errorf("[%d] Layout incorrect. got '%s' but expected '%s'", i, p.Layout(), el.layout)
 		}
 	}
 }
