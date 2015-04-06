@@ -124,18 +124,6 @@ This will result in `hugo version` output that looks similar to:
 
     Hugo Static Site Generator v0.13-DEV-8042E77 buildDate: 2014-12-25T03:25:57-07:00
 
-The format of the date is configurable via the `Params.DateFormat` setting. `DateFormat` is a string value representing the Go time layout that should be used to format the date output. If `Params.DateFormat` is not set, `time.RFC3339` will be used as the default format. See Go’s ["time" package documentation](http://golang.org/pkg/time/#pkg-constants) for more information.
-
-Configuration setting using config.yaml as example:
-
-    Params:
-       DateFormat: "2006-01-02"
-
-Will result in:
-
-    Hugo Static Site Generator v0.13-DEV buildDate: 2014-10-16
-    Hugo Static Site Generator v0.13-DEV-24BBFE7 buildDate: 2014-10-16
-
 Alternatively, just run `make` &mdash; all the “magic” above is already in the `Makefile`.  :wink:
 
 ### Running Hugo
