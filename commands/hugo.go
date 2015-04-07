@@ -101,6 +101,13 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
+
+	// This messge will be shown to Windows users if Hugo is opened from explorer.exe
+	cobra.MousetrapHelpText = `
+	
+  Hugo is a command line tool
+
+  You need to open cmd.exe and run it from there.`
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
