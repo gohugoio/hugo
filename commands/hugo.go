@@ -102,7 +102,7 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
 
-	// This messge will be shown to Windows users if Hugo is opened from explorer.exe
+	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
 	
   Hugo is a command line tool
