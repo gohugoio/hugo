@@ -343,8 +343,8 @@ func (p *Page) analyzePage() {
 func (p *Page) permalink() (*url.URL, error) {
 	baseURL := string(p.Site.BaseURL)
 	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
-	pSlug := strings.TrimSpace(p.Slug)
-	pURL := strings.TrimSpace(p.URL)
+	pSlug := strings.TrimSpace(helpers.URLize(p.Slug))
+	pURL := strings.TrimSpace(helpers.URLize(p.URL))
 	var permalink string
 	var err error
 
@@ -452,12 +452,12 @@ func (p *Page) update(f interface{}) error {
 		case "description":
 			p.Description = cast.ToString(v)
 		case "slug":
-			p.Slug = helpers.URLize(cast.ToString(v))
+			p.Slug = cast.ToString(v)
 		case "url":
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
-			p.URL = helpers.URLize(cast.ToString(v))
+			p.URL = cast.ToString(v)
 		case "type":
 			p.contentType = cast.ToString(v)
 		case "extension", "ext":
@@ -807,6 +807,7 @@ func (p *Page) TargetPath() (outfile string) {
 		var err error
 		outfile, err = override.Expand(p)
 		if err == nil {
+			outfile, _ = url.QueryUnescape(outfile)
 			if strings.HasSuffix(outfile, "/") {
 				outfile += "index.html"
 			}
