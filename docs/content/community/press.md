@@ -16,6 +16,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title | Author | Date  |
 | ------ | ------ | -----: |
+| [Static Websites with Hugo on Google Cloud Storage](http://www.moxie.io/post/static-websites-with-hugo-on-google-cloud-storage/) | Moxie Input/Output | 2 Apr 2015 |
 | [服务器上 hugo 的安装和配置 <small>(Installing and configuring Hugo on the server)</small>](http://hucsmn.com/post/hugo-tutorial-make-it-work/) | hucsmn | 11 Feb 2015 |
 | [把这个博客静态化了 <small>(Migrate to Hugo)</small>](http://lich-eng.com/2015/01/03/migrate-to-hugo/) | Li Cheng | 3 Jan 2015 |
 | [My Hugo Experiment](http://tilde.club/~jbaty/2014/12/2014-12-31-my-hugo-experiment/) | Jack Baty | 31 Dec 2014 |
