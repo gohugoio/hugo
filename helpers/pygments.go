@@ -20,6 +20,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/hugo/hugofs"
@@ -62,7 +63,7 @@ func Highlight(code string, lexer string) string {
 	io.WriteString(hash, style)
 	io.WriteString(hash, noclasses)
 
-	cachefile := fmt.Sprintf("%s/pygments-%x", viper.GetString("CacheDir"), hash.Sum(nil))
+	cachefile := filepath.Join(viper.GetString("CacheDir"), fmt.Sprintf("pygments-%x", hash.Sum(nil)))
 	exists, err := Exists(cachefile, fs)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
