@@ -44,9 +44,6 @@ Highlighting is carried out via the in-built shortcode `highlight`. `highlight` 
 closing shortcode.
 
 ### Example
-If you want to highlight code, you need to either fence the code with ``` according to GitHub Flavored Markdown or preceed each line with 4 spaces to identify each line as a line of code.
-
-Not doing either will result in the text being rendered as HTML. This will prevent Pygments highlighting from working.
 
 ```
 {{</* highlight html */>}}
@@ -72,15 +69,28 @@ Not doing either will result in the text being rendered as HTML. This will preve
       <span style="color: #f92672">&lt;/div&gt;</span>
     <span style="color: #f92672">&lt;/section&gt;</span>
 
+### Options
+
+Options to control highlighting can be added as a quoted, comma separated key-value list as the second argument in the shortcode. The example below will highlight as language `go` with inline line numbers, with line number 2 and 3 highlighted.
+
+```
+{{</* highlight go "linenos=inline,hl_lines=2 3" */>}}
+var a string
+var b string
+var c string
+var d string
+{{</* / highlight */>}}
+```
+
+Supported keywords:  `style`, `encoding`, `noclasses`, `hl_lines`, `linenos`. Note that `style` and `noclasses` will override the similar setting in the global config.
+
+The keywords are the same you would using with Pygments from the command line, see the [Pygments doc](http://pygments.org/docs/) for more info.
+
 
 ### Disclaimers
 
- * **Warning:** Pygments is relatively slow. Expect much longer build times when using server-side highlighting.
+ * Pygments is relatively slow, but Hugo will cache the results to disk.
  * Languages available depends on your Pygments installation.
- * We have sought to have the simplest interface possible, which consequently
-limits configuration. An ambitious user is encouraged to extend the current
-functionality to offer more customization.
-
 
 ## Client-side
 

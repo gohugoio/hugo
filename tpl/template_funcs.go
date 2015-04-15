@@ -875,7 +875,7 @@ func ReturnWhenSet(a, k interface{}) interface{} {
 	return ""
 }
 
-func Highlight(in interface{}, lang string) template.HTML {
+func Highlight(in interface{}, lang, opts string) template.HTML {
 	var str string
 	av := reflect.ValueOf(in)
 	switch av.Kind() {
@@ -883,7 +883,7 @@ func Highlight(in interface{}, lang string) template.HTML {
 		str = av.String()
 	}
 
-	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang))
+	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts))
 }
 
 var markdownTrimPrefix = []byte("<p>")
