@@ -143,8 +143,7 @@ func TestFigureImgWidth(t *testing.T) {
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
 }
 
-// TODO(bep)
-func _TestHighlight(t *testing.T) {
+func TestHighlight(t *testing.T) {
 	if !helpers.HasPygments() {
 		t.Skip("Skip test as Pygments is not installed")
 	}
