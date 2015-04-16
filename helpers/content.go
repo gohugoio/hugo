@@ -43,6 +43,7 @@ type Blackfriday struct {
 	Fractions      bool
 	PlainIDAnchors bool
 	Extensions     []string
+	ExtensionsMask []string
 }
 
 // NewBlackfriday creates a new Blackfriday with some sane defaults.
@@ -152,6 +153,11 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 	for _, extension := range ctx.getConfig().Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
+		}
+	}
+	for _, extension := range ctx.getConfig().ExtensionsMask {
+		if flag, ok := blackfridayExtensionMap[extension]; ok {
+			flags &= ^flag
 		}
 	}
 	return flags
