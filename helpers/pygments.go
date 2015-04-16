@@ -60,29 +60,34 @@ func Highlight(code, lang, optsStr string) string {
 	io.WriteString(hash, lang)
 	io.WriteString(hash, options)
 
-	cachefile := filepath.Join(viper.GetString("CacheDir"), fmt.Sprintf("pygments-%x", hash.Sum(nil)))
-
 	fs := hugofs.OsFs
 
-	exists, err := Exists(cachefile, fs)
-	if err != nil {
-		jww.ERROR.Print(err.Error())
-		return code
-	}
-	if exists {
-		f, err := fs.Open(cachefile)
+	cacheDir := viper.GetString("CacheDir")
+	var cachefile string
+
+	if cacheDir != "" {
+		cachefile = filepath.Join(cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
+
+		exists, err := Exists(cachefile, fs)
 		if err != nil {
 			jww.ERROR.Print(err.Error())
 			return code
 		}
+		if exists {
+			f, err := fs.Open(cachefile)
+			if err != nil {
+				jww.ERROR.Print(err.Error())
+				return code
+			}
 
-		s, err := ioutil.ReadAll(f)
-		if err != nil {
-			jww.ERROR.Print(err.Error())
-			return code
+			s, err := ioutil.ReadAll(f)
+			if err != nil {
+				jww.ERROR.Print(err.Error())
+				return code
+			}
+
+			return string(s)
 		}
-
-		return string(s)
 	}
 
 	// No cache file, render and cache it
@@ -99,9 +104,11 @@ func Highlight(code, lang, optsStr string) string {
 		return code
 	}
 
-	// Write cache file
-	if err := WriteToDisk(cachefile, bytes.NewReader(out.Bytes()), fs); err != nil {
-		jww.ERROR.Print(stderr.String())
+	if cachefile != "" {
+		// Write cache file
+		if err := WriteToDisk(cachefile, bytes.NewReader(out.Bytes()), fs); err != nil {
+			jww.ERROR.Print(stderr.String())
+		}
 	}
 
 	return out.String()
