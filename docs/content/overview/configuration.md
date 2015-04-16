@@ -198,6 +198,16 @@ but only these three.</small></td>
 <td class="purpose-title">Purpose:</td>
 <td class="purpose-description" colspan="2">Use non-default additional extensions <small>(e.g.&nbsp;Add <code>"hardLineBreak"</code> to use <code>EXTENSION_HARD_LINE_BREAK</code>)</small></td>
 </tr>
+
+<tr>
+<td><code>extensionsmask</code></td>
+<td><code>[]</code></td>
+<td><code>EXTENSION_*</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Extensions in this option won't be loaded. <small>(e.g.&nbsp;Add <code>"autoHeaderIds"</code> to disable <code>EXTENSION_AUTO_HEADER_IDS</code>)</small></td>
+</tr>
 </tbody>
 </table>
 
