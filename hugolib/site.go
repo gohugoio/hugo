@@ -75,7 +75,6 @@ type Site struct {
 	Source         source.Input
 	Sections       Taxonomy
 	Info           SiteInfo
-	Shortcodes     map[string]ShortcodeFunc
 	Menus          Menus
 	timer          *nitro.B
 	Targets        targetList
@@ -450,7 +449,6 @@ func (s *Site) initialize() (err error) {
 
 	s.initializeSiteInfo()
 
-	s.Shortcodes = make(map[string]ShortcodeFunc)
 	return
 }
 

@@ -28,13 +28,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-type ShortcodeFunc func([]string) string
-
-type Shortcode struct {
-	Name string
-	Func ShortcodeFunc
-}
-
 type ShortcodeWithPage struct {
 	Params interface{}
 	Inner  template.HTML
