@@ -118,9 +118,9 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// ShortcodesHandle does all in  one go: extract, render and replace
+// handleShortcodes does all in  one go: extract, render and replace
 // only used for testing
-func ShortcodesHandle(stringToParse string, page *Page, t tpl.Template) string {
+func handleShortcodes(stringToParse string, page *Page, t tpl.Template) string {
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
 
 	if len(tmpShortcodes) > 0 {
@@ -171,7 +171,7 @@ const innerCleanupExpand = "$1"
 
 func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
-	tmpl := GetTemplate(sc.name, t)
+	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
 		jww.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
@@ -229,7 +229,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 
 	}
 
-	return ShortcodeRender(tmpl, data)
+	return renderShortcodeWithPage(tmpl, data)
 }
 
 func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string) {
@@ -320,7 +320,7 @@ Loop:
 			sc.inner = append(sc.inner, currItem.val)
 		case tScName:
 			sc.name = currItem.val
-			tmpl := GetTemplate(sc.name, t)
+			tmpl := getShortcodeTemplate(sc.name, t)
 
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
@@ -481,7 +481,7 @@ func replaceShortcodeTokens(source []byte, prefix string, wrapped bool, replacem
 	return b, err
 }
 
-func GetTemplate(name string, t tpl.Template) *template.Template {
+func getShortcodeTemplate(name string, t tpl.Template) *template.Template {
 	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
 		return x
 	}
@@ -491,7 +491,7 @@ func GetTemplate(name string, t tpl.Template) *template.Template {
 	return t.Lookup("_internal/shortcodes/" + name + ".html")
 }
 
-func ShortcodeRender(tmpl *template.Template, data *ShortcodeWithPage) string {
+func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) string {
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
