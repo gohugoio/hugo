@@ -26,7 +26,7 @@ For template documentation, follow the links from the [Ace project](https://gith
 	* `{{ partial "foo" . }}`
 
 
-One noticable difference between Ace and the others is the inheritance support through [base and inner templates](https://github.com/yosssi/ace/tree/master/examples/base_inner_template).
+One noticeable difference between Ace and the others is the inheritance support through [base and inner templates](https://github.com/yosssi/ace/tree/master/examples/base_inner_template).
 
 In Hugo the base template will be chosen in the following order:
 
@@ -58,7 +58,8 @@ Some examples for the layout files above:
 * Single page in another section: `./_default/single.ace` +  `./_default/single-baseof.ace`
 * Taxonomy page in any section: `./_default/list.ace` +  `./_default/baseof.ace`
 
-**Note:** An Ace template without a reference to a base secion, e.g. `= content`, will be handled as a standalone template.
+**Note:** In most cases one `baseof.ace` in `_default` will suffice.
+**Note:** An Ace template without a reference to a base section, e.g. `= content`, will be handled as a standalone template.
 
 
 [^ace-theme]: Note that the `html` suffix is needed, even if the filename is suffixed `ace`. This does not work from inside a theme, see [issue 763](https://github.com/spf13/hugo/issues/763).
