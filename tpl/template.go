@@ -15,6 +15,7 @@ package tpl
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/eknkc/amber"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
@@ -279,14 +280,26 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					return err
 				}
 				if needsBase {
-					// Look for the base first in the current path, then in _default.
-					p := filepath.Join(filepath.Dir(path), baseAceFilename)
-					if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
-						baseTemplatePath = p
-					} else {
-						p := filepath.Join(absPath, "_default", baseAceFilename)
-						if ok, err := helpers.Exists(p, hugofs.OsFs); err == nil && ok {
-							baseTemplatePath = p
+
+					// Look for base template in the follwing order:
+					//   1. <current-path>/<template-name>-baseof.ace, e.g. list-baseof.ace.
+					//   2. <current-path>/baseof.ace
+					//   3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
+					//   4. _default/baseof.ace
+
+					currBaseAceFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseAceFilename)
+					templateDir := filepath.Dir(path)
+
+					pathsToCheck := []string{
+						filepath.Join(templateDir, currBaseAceFilename),
+						filepath.Join(templateDir, baseAceFilename),
+						filepath.Join(absPath, "_default", currBaseAceFilename),
+						filepath.Join(absPath, "_default", baseAceFilename)}
+
+					for _, pathToCheck := range pathsToCheck {
+						if ok, err := helpers.Exists(pathToCheck, hugofs.OsFs); err == nil && ok {
+							baseTemplatePath = pathToCheck
+							break
 						}
 					}
 				}
