@@ -6,7 +6,7 @@ date: 2013-07-01
 menu:
   main:
     parent: layout
-next: /templates/functions
+next: /templates/ace
 prev: /templates/overview
 title: Go Template Primer
 weight: 15
