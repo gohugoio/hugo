@@ -27,6 +27,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/spf13/hugo/hugosql"
 )
 
 var localTemplates *template.Template
