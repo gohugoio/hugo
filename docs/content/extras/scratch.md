@@ -40,5 +40,6 @@ The usage is best illustrated with some samples:
 ```
 
 **Note:** The examples above uses the special `$` variable, which refers to the top-level node. This is the behavior you most likely want, and will help remove some confusion when using `Scratch` inside page range loops -- and you start inadvertently calling the wrong `Scratch`. But there may be use cases for `{{ .Scratch.Add "key" "some value" }}`.
+**Note:** To use `Scratch` in a `shortcode`, you will have to use the shortcode's Page's `Scratch`:  `{{ .Page.Scratch.Add "a1" 12 }}` or `{{ $.Page.Scratch.Add "a1" 12 }}`.
 
 
