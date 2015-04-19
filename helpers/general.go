@@ -112,31 +112,83 @@ func BytesToReader(in []byte) io.Reader {
 	return bytes.NewReader(in)
 }
 
+// ReaderContains reports whether subslice is within r.
+func ReaderContains(r io.Reader, subslice []byte) bool {
+
+	if r == nil || len(subslice) == 0 {
+		return false
+	}
+
+	bufflen := len(subslice) * 4
+	halflen := bufflen / 2
+	buff := make([]byte, bufflen)
+	var err error
+	var n, i int
+
+	for {
+		i++
+		if i == 1 {
+			n, err = io.ReadAtLeast(r, buff[:halflen], halflen)
+		} else {
+			if i != 2 {
+				// shift left to catch overlapping matches
+				copy(buff[:], buff[halflen:])
+			}
+			n, err = io.ReadAtLeast(r, buff[halflen:], halflen)
+		}
+
+		if n > 0 && bytes.Contains(buff, subslice) {
+			return true
+		}
+
+		if err != nil {
+			break
+		}
+	}
+	return false
+}
+
 // ThemeSet checks whether a theme is in use or not.
 func ThemeSet() bool {
 	return viper.GetString("theme") != ""
 }
 
-// Avoid spamming the logs with errors
-var deprecatedLogs = struct {
+// DistinctErrorLogger ignores duplicate log statements.
+type DistinctErrorLogger struct {
 	sync.RWMutex
 	m map[string]bool
-}{m: make(map[string]bool)}
+}
 
-func Deprecated(object, item, alternative string) {
-	key := object + item + alternative
-	deprecatedLogs.RLock()
-	logged := deprecatedLogs.m[key]
-	deprecatedLogs.RUnlock()
-	if logged {
+// Printf will ERROR log the string returned from fmt.Sprintf given the arguments,
+// but not if it has been logged before.
+func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
+	logStatement := fmt.Sprintf(format, v...)
+	l.RLock()
+	if l.m[logStatement] {
+		l.RUnlock()
 		return
 	}
-	deprecatedLogs.Lock()
-	if !deprecatedLogs.m[key] {
-		jww.ERROR.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
-		deprecatedLogs.m[key] = true
+	l.RUnlock()
+
+	l.Lock()
+	if !l.m[logStatement] {
+		jww.ERROR.Print(logStatement)
+		l.m[logStatement] = true
 	}
-	deprecatedLogs.Unlock()
+	l.Unlock()
+}
+
+// NewDistinctErrorLogger creates a new DistinctErrorLogger
+func NewDistinctErrorLogger() *DistinctErrorLogger {
+	return &DistinctErrorLogger{m: make(map[string]bool)}
+}
+
+// Avoid spamming the logs with errors
+var deprecatedLogger = NewDistinctErrorLogger()
+
+// Deprecated logs ERROR logs about a deprecation, but only once for a given set of arguments' values.
+func Deprecated(object, item, alternative string) {
+	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
 }
 
 // SliceToLower goes through the source slice and lowers all values.
@@ -179,7 +231,7 @@ func Seq(args ...interface{}) ([]int, error) {
 		return nil, errors.New("Invalid argument(s) to Seq")
 	}
 
-	var inc int = 1
+	var inc = 1
 	var last int
 	var first = intArgs[0]
 

@@ -7,7 +7,7 @@ linktitle: Hosting on GitHub
 menu:
   main:
     parent: tutorials
-next: /tutorials/mathjax
+next: /tutorials/installing-on-mac
 prev: /tutorials/creating-a-new-theme
 title: Hosting on GitHub Pages
 weight: 10

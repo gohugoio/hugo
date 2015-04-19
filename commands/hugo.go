@@ -101,6 +101,13 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
+
+	// This message will be shown to Windows users if Hugo is opened from explorer.exe
+	cobra.MousetrapHelpText = `
+	
+  Hugo is a command line tool
+
+  You need to open cmd.exe and run it from there.`
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
@@ -425,7 +432,7 @@ func NewWatcher(port int) error {
 				}
 
 				if staticChanged {
-					jww.FEEDBACK.Println("Static file changed, syncing\n")
+					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {

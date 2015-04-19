@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"bytes"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"reflect"
 	"strings"
 	"testing"
@@ -42,6 +44,105 @@ func TestStringToReader(t *testing.T) {
 	assert.Equal(t, "Hello World!", asString)
 	asReader := StringToReader(asString)
 	assert.Equal(t, asString, ReaderToString(asReader))
+}
+
+var containsTestText = (`На берегу пустынных волн
+Стоял он, дум великих полн,
+И вдаль глядел. Пред ним широко
+Река неслася; бедный чёлн
+По ней стремился одиноко.
+По мшистым, топким берегам
+Чернели избы здесь и там,
+Приют убогого чухонца;
+И лес, неведомый лучам
+В тумане спрятанного солнца,
+Кругом шумел.
+
+Τη γλώσσα μου έδωσαν ελληνική
+το σπίτι φτωχικό στις αμμουδιές του Ομήρου.
+Μονάχη έγνοια η γλώσσα μου στις αμμουδιές του Ομήρου.
+
+από το Άξιον Εστί
+του Οδυσσέα Ελύτη
+
+Sîne klâwen durh die wolken sint geslagen,
+er stîget ûf mit grôzer kraft,
+ich sih in grâwen tägelîch als er wil tagen,
+den tac, der im geselleschaft
+erwenden wil, dem werden man,
+den ich mit sorgen în verliez.
+ich bringe in hinnen, ob ich kan.
+sîn vil manegiu tugent michz leisten hiez.
+`)
+
+var containsBenchTestData = []struct {
+	v1     string
+	v2     []byte
+	expect bool
+}{
+	{"abc", []byte("a"), true},
+	{"abc", []byte("b"), true},
+	{"abcdefg", []byte("efg"), true},
+	{"abc", []byte("d"), false},
+	{containsTestText, []byte("стремился"), true},
+	{containsTestText, []byte(containsTestText[10:80]), true},
+	{containsTestText, []byte(containsTestText[100:111]), true},
+	{containsTestText, []byte(containsTestText[len(containsTestText)-100 : len(containsTestText)-10]), true},
+	{containsTestText, []byte(containsTestText[len(containsTestText)-20:]), true},
+	{containsTestText, []byte("notfound"), false},
+}
+
+// some corner cases
+var containsAdditionalTestData = []struct {
+	v1     string
+	v2     []byte
+	expect bool
+}{
+	{"", nil, false},
+	{"", []byte("a"), false},
+	{"a", []byte(""), false},
+	{"", []byte(""), false},
+}
+
+func TestReaderContains(t *testing.T) {
+	for i, this := range append(containsBenchTestData, containsAdditionalTestData...) {
+		result := ReaderContains(StringToReader(this.v1), this.v2)
+		if result != this.expect {
+			t.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+		}
+	}
+
+	assert.False(t, ReaderContains(nil, []byte("a")))
+	assert.False(t, ReaderContains(nil, nil))
+}
+
+func BenchmarkReaderContains(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for i, this := range containsBenchTestData {
+			result := ReaderContains(StringToReader(this.v1), this.v2)
+			if result != this.expect {
+				b.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+			}
+		}
+	}
+}
+
+// kept to compare the above
+func _BenchmarkReaderContains(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for i, this := range containsBenchTestData {
+			bs, err := ioutil.ReadAll(StringToReader(this.v1))
+			if err != nil {
+				b.Fatalf("Failed %s", err)
+			}
+			result := bytes.Contains(bs, this.v2)
+			if result != this.expect {
+				b.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+			}
+		}
+	}
 }
 
 func TestFindAvailablePort(t *testing.T) {
@@ -162,7 +263,7 @@ func TestSeq(t *testing.T) {
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] TestSeq didn't return an expected error %s", i)
+				t.Errorf("[%d] TestSeq didn't return an expected error", i)
 			}
 		} else {
 			if err != nil {

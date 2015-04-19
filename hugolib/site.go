@@ -48,6 +48,8 @@ var _ = transform.AbsURL
 
 var DefaultTimer *nitro.B
 
+var distinctErrorLogger = helpers.NewDistinctErrorLogger()
+
 // Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
 //
@@ -73,7 +75,6 @@ type Site struct {
 	Source         source.Input
 	Sections       Taxonomy
 	Info           SiteInfo
-	Shortcodes     map[string]ShortcodeFunc
 	Menus          Menus
 	timer          *nitro.B
 	Targets        targetList
@@ -450,7 +451,6 @@ func (s *Site) initialize() (err error) {
 
 	s.initializeSiteInfo()
 
-	s.Shortcodes = make(map[string]ShortcodeFunc)
 	return
 }
 
@@ -1089,7 +1089,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
-				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy_%s_%d", t.singular, pageNumber), htmlBase, taxonomyPagerNode, layouts...); err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy %s", t.singular), htmlBase, taxonomyPagerNode, layouts...); err != nil {
 					results <- err
 					continue
 				}
@@ -1158,7 +1158,7 @@ func (s *Site) RenderSectionLists() error {
 
 		n := s.newSectionListNode(section, data)
 
-		if err := s.renderAndWritePage(fmt.Sprintf("section%s_%d", section, 1), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
+		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
 
@@ -1184,7 +1184,7 @@ func (s *Site) RenderSectionLists() error {
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
-				if err := s.renderAndWritePage(fmt.Sprintf("section_%s_%d", section, pageNumber), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
 					return err
 				}
 			}
@@ -1241,7 +1241,7 @@ func (s *Site) RenderHomePage() error {
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
-			if err := s.renderAndWritePage(fmt.Sprintf("homepage_%d", pageNumber), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
+			if err := s.renderAndWritePage(fmt.Sprintf("homepage"), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
 				return err
 			}
 		}
@@ -1427,7 +1427,7 @@ func (s *Site) render(name string, d interface{}, renderBuffer *bytes.Buffer, la
 
 	if err := s.renderThing(d, layout, renderBuffer); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
-		jww.ERROR.Println(fmt.Errorf("Error while rendering %s: %v", name, err))
+		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
 		if !s.Running() {
 			os.Exit(-1)
 		}

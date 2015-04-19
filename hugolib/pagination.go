@@ -16,11 +16,13 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/viper"
 	"html/template"
 	"math"
 	"path"
+	"reflect"
 )
 
 type pager struct {
@@ -36,8 +38,10 @@ type paginator struct {
 	paginatedPages []Pages
 	pagers
 	paginationURLFactory
-	total int
-	size  int
+	total   int
+	size    int
+	source  interface{}
+	options []interface{}
 }
 
 type paginationURLFactory func(int) string
@@ -54,8 +58,8 @@ func (p *pager) URL() template.HTML {
 
 // Url is deprecated. Will be removed in 0.15.
 func (p *pager) Url() template.HTML {
-    helpers.Deprecated("Paginator", ".Url", ".URL")
-    return p.URL()
+	helpers.Deprecated("Paginator", ".Url", ".URL")
+	return p.URL()
 }
 
 // Pages returns the elements on this page.
@@ -139,7 +143,13 @@ func splitPages(pages Pages, size int) []Pages {
 
 // Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
-func (n *Node) Paginator() (*pager, error) {
+func (n *Node) Paginator(options ...interface{}) (*pager, error) {
+
+	pagerSize, err := resolvePagerSize(options...)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var initError error
 
@@ -148,7 +158,7 @@ func (n *Node) Paginator() (*pager, error) {
 			return
 		}
 
-		pagers, err := paginatePages(n.Data["Pages"], n.URL)
+		pagers, err := paginatePages(n.Data["Pages"], pagerSize, n.URL)
 
 		if err != nil {
 			initError = err
@@ -157,6 +167,8 @@ func (n *Node) Paginator() (*pager, error) {
 		if len(pagers) > 0 {
 			// the rest of the nodes will be created later
 			n.paginator = pagers[0]
+			n.paginator.source = "paginator"
+			n.paginator.options = options
 			n.Site.addToPaginationPageCount(uint64(n.paginator.TotalPages()))
 		}
 
@@ -170,19 +182,25 @@ func (n *Node) Paginator() (*pager, error) {
 }
 
 // Paginator on Page isn't supported, calling this yields an error.
-func (p *Page) Paginator() (*pager, error) {
+func (p *Page) Paginator(options ...interface{}) (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate on Page isn't supported, calling this yields an error.
-func (p *Page) Paginate(seq interface{}) (*pager, error) {
+func (p *Page) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate gets this Node's paginator if it's already created.
 // If it's not, one will be created with the qiven sequence.
 // Note that repeated calls will return the same result, even if the sequence is different.
-func (n *Node) Paginate(seq interface{}) (*pager, error) {
+func (n *Node) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
+
+	pagerSize, err := resolvePagerSize(options...)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var initError error
 
@@ -190,7 +208,7 @@ func (n *Node) Paginate(seq interface{}) (*pager, error) {
 		if n.paginator != nil {
 			return
 		}
-		pagers, err := paginatePages(seq, n.URL)
+		pagers, err := paginatePages(seq, pagerSize, n.URL)
 
 		if err != nil {
 			initError = err
@@ -199,6 +217,8 @@ func (n *Node) Paginate(seq interface{}) (*pager, error) {
 		if len(pagers) > 0 {
 			// the rest of the nodes will be created later
 			n.paginator = pagers[0]
+			n.paginator.source = seq
+			n.paginator.options = options
 			n.Site.addToPaginationPageCount(uint64(n.paginator.TotalPages()))
 		}
 
@@ -208,34 +228,99 @@ func (n *Node) Paginate(seq interface{}) (*pager, error) {
 		return nil, initError
 	}
 
+	if n.paginator.source == "paginator" {
+		return nil, errors.New("a Paginator was previously built for this Node without filters; look for earlier .Paginator usage")
+	} else {
+		if !reflect.DeepEqual(options, n.paginator.options) || !probablyEqualPageLists(n.paginator.source, seq) {
+			return nil, errors.New("invoked multiple times with different arguments")
+		}
+	}
+
 	return n.paginator, nil
 }
 
-func paginatePages(seq interface{}, section string) (pagers, error) {
-	paginateSize := viper.GetInt("paginate")
+func resolvePagerSize(options ...interface{}) (int, error) {
+	if len(options) == 0 {
+		return viper.GetInt("paginate"), nil
+	}
 
-	if paginateSize <= 0 {
+	if len(options) > 1 {
+		return -1, errors.New("too many arguments, 'pager size' is currently the only option")
+	}
+
+	pas, err := cast.ToIntE(options[0])
+
+	if err != nil || pas <= 0 {
+		return -1, errors.New(("'pager size' must be a positive integer"))
+	}
+
+	return pas, nil
+}
+
+func paginatePages(seq interface{}, pagerSize int, section string) (pagers, error) {
+
+	if pagerSize <= 0 {
 		return nil, errors.New("'paginate' configuration setting must be positive to paginate")
 	}
-	var pages Pages
-	switch seq.(type) {
-	case Pages:
-		pages = seq.(Pages)
-	case *Pages:
-		pages = *(seq.(*Pages))
-	case WeightedPages:
-		pages = (seq.(WeightedPages)).Pages()
-	case PageGroup:
-		pages = (seq.(PageGroup)).Pages
-	default:
-		return nil, errors.New(fmt.Sprintf("unsupported type in paginate, got %T", seq))
+
+	pages, err := toPages(seq)
+	if err != nil {
+		return nil, err
 	}
 
 	urlFactory := newPaginationURLFactory(section)
-	paginator, _ := newPaginator(pages, paginateSize, urlFactory)
+	paginator, _ := newPaginator(pages, pagerSize, urlFactory)
 	pagers := paginator.Pagers()
 
 	return pagers, nil
+}
+
+func toPages(seq interface{}) (Pages, error) {
+	switch seq.(type) {
+	case Pages:
+		return seq.(Pages), nil
+	case *Pages:
+		return *(seq.(*Pages)), nil
+	case WeightedPages:
+		return (seq.(WeightedPages)).Pages(), nil
+	case PageGroup:
+		return (seq.(PageGroup)).Pages, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("unsupported type in paginate, got %T", seq))
+	}
+}
+
+// probablyEqual checks page lists for probable equality.
+// It may return false positives.
+// The motivation behind this is to avoid potential costly reflect.DeepEqual
+// when "probably" is good enough.
+func probablyEqualPageLists(a1 interface{}, a2 interface{}) bool {
+
+	if a1 == nil || a2 == nil {
+		return a1 == a2
+	}
+
+	p1, err1 := toPages(a1)
+	p2, err2 := toPages(a2)
+
+	// probably the same wrong type
+	if err1 != nil && err2 != nil {
+		return true
+	}
+
+	if err1 != nil || err2 != nil {
+		return false
+	}
+
+	if len(p1) != len(p2) {
+		return false
+	}
+
+	if len(p1) == 0 {
+		return true
+	}
+
+	return p1[0] == p2[0]
 }
 
 func newPaginator(pages Pages, size int, urlFactory paginationURLFactory) (*paginator, error) {

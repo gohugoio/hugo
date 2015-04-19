@@ -16,16 +16,15 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
-
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 // FilepathPathBridge is a bridge for common functionality in filepath vs path
@@ -151,6 +150,17 @@ func IsEmpty(path string, fs afero.Fs) (bool, error) {
 		return len(list) == 0, nil
 	}
 	return fi.Size() == 0, nil
+}
+
+// Check if a file contains a specified string.
+func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	return ReaderContains(f, subslice), nil
 }
 
 // Check if a file or directory exists.
@@ -353,6 +363,39 @@ func PrettiyPath(in string, b FilepathPathBridge) string {
 	}
 	// /section/name.html -> /section/name/index.html
 	return b.Join(b.Dir(in), name, "index"+ext)
+}
+
+// RemoveSubpaths takes a list of paths and removes everything that
+// contains another path in the list as a prefix. Ignores any empty
+// strings. Used mostly for logging.
+//
+// e.g. ["hello/world", "hello", "foo/bar", ""] -> ["hello", "foo/bar"]
+func RemoveSubpaths(paths []string) []string {
+	a := make([]string, 0)
+	for _, cur := range paths {
+		// ignore trivial case
+		if cur == "" {
+			continue
+		}
+
+		isDupe := false
+		for i, old := range a {
+			if strings.HasPrefix(cur, old) {
+				isDupe = true
+				break
+			} else if strings.HasPrefix(old, cur) {
+				a[i] = cur
+				isDupe = true
+				break
+			}
+		}
+
+		if !isDupe {
+			a = append(a, cur)
+		}
+	}
+
+	return a
 }
 
 // FindCWD returns the current working directory from where the Hugo

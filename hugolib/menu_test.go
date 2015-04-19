@@ -487,7 +487,6 @@ func testSiteSetup(s *Site, t *testing.T) {
 
 	s.Menus = Menus{}
 	s.initializeSiteInfo()
-	s.Shortcodes = make(map[string]ShortcodeFunc)
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
