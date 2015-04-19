@@ -42,6 +42,10 @@ func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
 	return scp.Page.RelRef(ref)
 }
 
+func (scp *ShortcodeWithPage) Scratch() *Scratch {
+	return scp.Page.Scratch()
+}
+
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if reflect.ValueOf(scp.Params).Len() == 0 {
 		return nil
