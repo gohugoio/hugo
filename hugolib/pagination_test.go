@@ -129,7 +129,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 	n2 := s.newHomeNode()
 	n1.Data["Pages"] = pages
 
-	var paginator1 *pager
+	var paginator1 *Pager
 	var err error
 
 	if useViper {
@@ -184,7 +184,7 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	n1 := s.newHomeNode()
 	n2 := s.newHomeNode()
 
-	var paginator1, paginator2 *pager
+	var paginator1, paginator2 *Pager
 	var err error
 
 	if useViper {

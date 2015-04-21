@@ -25,12 +25,12 @@ import (
 	"reflect"
 )
 
-type pager struct {
+type Pager struct {
 	number int
 	*paginator
 }
 
-type pagers []*pager
+type pagers []*Pager
 
 var paginatorEmptyPages Pages
 
@@ -47,23 +47,23 @@ type paginator struct {
 type paginationURLFactory func(int) string
 
 // PageNumber returns the current page's number in the pager sequence.
-func (p *pager) PageNumber() int {
+func (p *Pager) PageNumber() int {
 	return p.number
 }
 
 // URL returns the URL to the current page.
-func (p *pager) URL() template.HTML {
+func (p *Pager) URL() template.HTML {
 	return template.HTML(p.paginationURLFactory(p.PageNumber()))
 }
 
 // Url is deprecated. Will be removed in 0.15.
-func (p *pager) Url() template.HTML {
+func (p *Pager) Url() template.HTML {
 	helpers.Deprecated("Paginator", ".Url", ".URL")
 	return p.URL()
 }
 
 // Pages returns the elements on this page.
-func (p *pager) Pages() Pages {
+func (p *Pager) Pages() Pages {
 	if len(p.paginatedPages) == 0 {
 		return paginatorEmptyPages
 	}
@@ -71,17 +71,17 @@ func (p *pager) Pages() Pages {
 }
 
 // NumberOfElements gets the number of elements on this page.
-func (p *pager) NumberOfElements() int {
+func (p *Pager) NumberOfElements() int {
 	return len(p.Pages())
 }
 
 // HasPrev tests whether there are page(s) before the current.
-func (p *pager) HasPrev() bool {
+func (p *Pager) HasPrev() bool {
 	return p.PageNumber() > 1
 }
 
 // Prev returns the pager for the previous page.
-func (p *pager) Prev() *pager {
+func (p *Pager) Prev() *Pager {
 	if !p.HasPrev() {
 		return nil
 	}
@@ -89,12 +89,12 @@ func (p *pager) Prev() *pager {
 }
 
 // HasNext tests whether there are page(s) after the current.
-func (p *pager) HasNext() bool {
+func (p *Pager) HasNext() bool {
 	return p.PageNumber() < len(p.paginatedPages)
 }
 
 // Next returns the pager for the next page.
-func (p *pager) Next() *pager {
+func (p *Pager) Next() *Pager {
 	if !p.HasNext() {
 		return nil
 	}
@@ -102,12 +102,12 @@ func (p *pager) Next() *pager {
 }
 
 // First returns the pager for the first page.
-func (p *pager) First() *pager {
+func (p *Pager) First() *Pager {
 	return p.pagers[0]
 }
 
 // Last returns the pager for the last page.
-func (p *pager) Last() *pager {
+func (p *Pager) Last() *Pager {
 	return p.pagers[len(p.pagers)-1]
 }
 
@@ -143,7 +143,7 @@ func splitPages(pages Pages, size int) []Pages {
 
 // Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
-func (n *Node) Paginator(options ...interface{}) (*pager, error) {
+func (n *Node) Paginator(options ...interface{}) (*Pager, error) {
 
 	pagerSize, err := resolvePagerSize(options...)
 
@@ -182,19 +182,19 @@ func (n *Node) Paginator(options ...interface{}) (*pager, error) {
 }
 
 // Paginator on Page isn't supported, calling this yields an error.
-func (p *Page) Paginator(options ...interface{}) (*pager, error) {
+func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate on Page isn't supported, calling this yields an error.
-func (p *Page) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
+func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate gets this Node's paginator if it's already created.
 // If it's not, one will be created with the qiven sequence.
 // Note that repeated calls will return the same result, even if the sequence is different.
-func (n *Node) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
+func (n *Node) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 
 	pagerSize, err := resolvePagerSize(options...)
 
@@ -230,10 +230,10 @@ func (n *Node) Paginate(seq interface{}, options ...interface{}) (*pager, error)
 
 	if n.paginator.source == "paginator" {
 		return nil, errors.New("a Paginator was previously built for this Node without filters; look for earlier .Paginator usage")
-	} else {
-		if !reflect.DeepEqual(options, n.paginator.options) || !probablyEqualPageLists(n.paginator.source, seq) {
-			return nil, errors.New("invoked multiple times with different arguments")
-		}
+	}
+
+	if !reflect.DeepEqual(options, n.paginator.options) || !probablyEqualPageLists(n.paginator.source, seq) {
+		return nil, errors.New("invoked multiple times with different arguments")
 	}
 
 	return n.paginator, nil
@@ -338,11 +338,11 @@ func newPaginator(pages Pages, size int, urlFactory paginationURLFactory) (*pagi
 	if len(split) > 0 {
 		ps = make(pagers, len(split))
 		for i := range p.paginatedPages {
-			ps[i] = &pager{number: (i + 1), paginator: p}
+			ps[i] = &Pager{number: (i + 1), paginator: p}
 		}
 	} else {
 		ps = make(pagers, 1)
-		ps[0] = &pager{number: 1, paginator: p}
+		ps[0] = &Pager{number: 1, paginator: p}
 	}
 
 	p.pagers = ps

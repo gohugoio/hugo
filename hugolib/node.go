@@ -32,7 +32,7 @@ type Node struct {
 	Date        time.Time
 	Sitemap     Sitemap
 	URLPath
-	paginator     *pager
+	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch
 }
