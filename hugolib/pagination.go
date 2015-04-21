@@ -286,7 +286,7 @@ func toPages(seq interface{}) (Pages, error) {
 	case PageGroup:
 		return (seq.(PageGroup)).Pages, nil
 	default:
-		return nil, errors.New(fmt.Sprintf("unsupported type in paginate, got %T", seq))
+		return nil, fmt.Errorf("unsupported type in paginate, got %T", seq)
 	}
 }
 
