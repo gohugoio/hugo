@@ -307,6 +307,10 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 				return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
 			}
 
+			if data == nil {
+				continue
+			}
+
 			// Copy content from current to data when needed
 			if _, ok := current[r.BaseFileName()]; ok {
 				data := data.(map[string]interface{})
@@ -340,7 +344,8 @@ func readData(f *source.File) (interface{}, error) {
 	case "toml":
 		return parser.HandleTOMLMetaData(f.Bytes())
 	default:
-		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
+		jww.WARN.Printf("Data not supported for extension '%s'", f.Extension())
+		return nil, nil
 	}
 }
 
