@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"html/template"
 	"path/filepath"
 	"testing"
 )
@@ -43,7 +44,7 @@ func TestPager(t *testing.T) {
 	assert.Equal(t, 5, paginator.TotalPages())
 
 	first := paginatorPages[0]
-	assert.Equal(t, "page/1/", first.URL())
+	assert.Equal(t, template.HTML("page/1/"), first.URL())
 	assert.Equal(t, first.URL(), first.Url())
 	assert.Equal(t, first, first.First())
 	assert.True(t, first.HasNext())
@@ -59,7 +60,7 @@ func TestPager(t *testing.T) {
 	assert.Equal(t, paginatorPages[1], third.Prev())
 
 	last := paginatorPages[4]
-	assert.Equal(t, "page/5/", last.URL())
+	assert.Equal(t, template.HTML("page/5/"), last.URL())
 	assert.Equal(t, last, last.Last())
 	assert.False(t, last.HasNext())
 	assert.Nil(t, last.Next())
