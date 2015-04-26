@@ -2,6 +2,7 @@
 html, body { margin: 0; padding: 0; }
 
 body {
+    padding: 0 20px;
     max-width: 800px;
     margin: 0 auto;
 
