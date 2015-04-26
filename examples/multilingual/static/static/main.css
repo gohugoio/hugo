@@ -77,7 +77,7 @@ header {
     clear: both;
 }
 
-footer {
+body > footer {
     font-family: Georgia;
     background: #eee;
     margin: 0;

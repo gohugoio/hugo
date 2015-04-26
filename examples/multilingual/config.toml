@@ -1,4 +1,4 @@
-baseurl = ""
+baseurl = "http://example.com"
 
 [taxonomies]
 tag = "tags"
