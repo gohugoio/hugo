@@ -1251,7 +1251,7 @@ func (s *Site) RenderHomePage() error {
 
 	if !viper.GetBool("DisableRSS") {
 		// XML Feed
-		n.URL = s.permalinkStr("index.xml")
+		n.URL = s.permalinkStr(viper.GetString("RSSUri"))
 		n.Title = ""
 		high := 50
 		if len(s.Pages) < high {
@@ -1264,7 +1264,7 @@ func (s *Site) RenderHomePage() error {
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
 
-		if err := s.renderAndWriteXML("homepage rss", "index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+		if err := s.renderAndWriteXML("homepage rss", viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}

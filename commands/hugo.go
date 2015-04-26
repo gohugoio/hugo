@@ -152,6 +152,7 @@ func InitializeConfig() {
 	viper.SetDefault("Paginate", 10)
 	viper.SetDefault("PaginatePath", "page")
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
+	viper.SetDefault("RSSUri", "index.xml")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
