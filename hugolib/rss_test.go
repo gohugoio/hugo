@@ -34,6 +34,7 @@ const RSS_TEMPLATE = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom
 
 func TestRSSOutput(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub/")
+	viper.Set("RSSUri", "index.xml")
 
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	s := &Site{
