@@ -251,6 +251,12 @@ func InitializeConfig() {
 	}
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
+
+	themeVersionMismatch, minVersion := helpers.IsThemeVsHugoVersionMismatch()
+	if themeVersionMismatch {
+		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
+			helpers.HugoReleaseVersion(), minVersion)
+	}
 }
 
 func build(watches ...bool) {
