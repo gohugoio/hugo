@@ -76,6 +76,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
 	HugoCmd.AddCommand(undraftCmd)
+	HugoCmd.AddCommand(genautocompleteCmd)
 }
 
 //Initializes flags
@@ -102,6 +103,12 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
+
+	// for Bash autocomplete
+	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
+	annotation := make(map[string][]string)
+	annotation[cobra.BashCompFilenameExt] = validConfigFilenames
+	HugoCmd.PersistentFlags().Lookup("config").Annotations = annotation
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
