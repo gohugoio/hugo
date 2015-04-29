@@ -274,7 +274,7 @@ func TestExtractShortcodes(t *testing.T) {
 		}
 
 		if this.expectShortCodes != "" {
-			shortCodesAsStr := fmt.Sprintf("map%q", collectAndShortShortcodes(shortCodes))
+			shortCodesAsStr := fmt.Sprintf("map%q", collectAndSortShortcodes(shortCodes))
 			if !strings.Contains(shortCodesAsStr, this.expectShortCodes) {
 				t.Fatalf("[%d] %s: Short codes not as expected, got %s - expected to contain %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
 			}
@@ -282,7 +282,7 @@ func TestExtractShortcodes(t *testing.T) {
 	}
 }
 
-func collectAndShortShortcodes(shortcodes map[string]shortcode) []string {
+func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 	var asArray []string
 
 	for key, sc := range shortcodes {
