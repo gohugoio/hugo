@@ -20,7 +20,11 @@ func pageFromString(in, filename string) (*Page, error) {
 func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Template) {
 
 	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
-	output := handleShortcodes(input, p, template)
+	output, err := HandleShortcodes(input, p, template)
+
+	if err != nil {
+		t.Fatalf("Shortcode rendered error %s. Expected: %q, Got: %q", err, expected, output)
+	}
 
 	if output != expected {
 		t.Fatalf("Shortcode render didn't match. Expected: %q, Got: %q", expected, output)

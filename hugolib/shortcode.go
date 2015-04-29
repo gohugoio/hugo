@@ -122,22 +122,22 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// handleShortcodes does all in  one go: extract, render and replace
+// HandleShortcodes does all in  one go: extract, render and replace
 // only used for testing
-func handleShortcodes(stringToParse string, page *Page, t tpl.Template) string {
+func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string, error) {
 	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
 
 	if len(tmpShortcodes) > 0 {
 		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, true, tmpShortcodes)
 
 		if err != nil {
-			jww.ERROR.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
+			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
 		} else {
-			return string(tmpContentWithTokensReplaced)
+			return string(tmpContentWithTokensReplaced), nil
 		}
 	}
 
-	return string(tmpContent)
+	return string(tmpContent), nil
 }
 
 var isInnerShortcodeCache = struct {
