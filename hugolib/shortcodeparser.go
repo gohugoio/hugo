@@ -325,7 +325,7 @@ func lexShortcodeLeftDelim(l *pagelexer) stateFunc {
 
 func lexShortcodeComment(l *pagelexer) stateFunc {
 	posRightComment := strings.Index(l.input[l.pos:], rightComment)
-	if posRightComment < 0 {
+	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
 	}
 	// we emit all as text, except the comment markers

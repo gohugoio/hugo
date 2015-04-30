@@ -125,7 +125,11 @@ func (sc shortcode) String() string {
 // HandleShortcodes does all in  one go: extract, render and replace
 // only used for testing
 func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string, error) {
-	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
+	tmpContent, tmpShortcodes, err := extractAndRenderShortcodes(stringToParse, page, t)
+
+	if err != nil {
+		return "", err
+	}
 
 	if len(tmpShortcodes) > 0 {
 		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, true, tmpShortcodes)
@@ -236,7 +240,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 	return renderShortcodeWithPage(tmpl, data)
 }
 
-func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string) {
+func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string, error) {
 
 	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
 	renderedShortcodes := make(map[string]string)
@@ -255,7 +259,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 		}
 	}
 
-	return content, renderedShortcodes
+	return content, renderedShortcodes, err
 
 }
 

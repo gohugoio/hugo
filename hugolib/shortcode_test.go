@@ -31,6 +31,35 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Temp
 	}
 }
 
+func TestShortcodeGoFuzzReports(t *testing.T) {
+	tem := tpl.New()
+
+	tem.AddInternalShortcode("sc.html", `foo`)
+	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+
+	for i, this := range []struct {
+		data      string
+		expectErr bool
+	}{
+		{"{{</*/", true},
+	} {
+		output, err := HandleShortcodes(this.data, p, tem)
+
+		if this.expectErr && err == nil {
+			t.Errorf("[%d] should have errored", i)
+		}
+
+		if !this.expectErr && err != nil {
+			t.Errorf("[%d] should not have errored: %s", i, err)
+		}
+
+		if !this.expectErr && err == nil && len(output) == 0 {
+			t.Errorf("[%d] empty result", i)
+		}
+	}
+
+}
+
 func TestNonSC(t *testing.T) {
 	tem := tpl.New()
 	// notice the syntax diff from 0.12, now comment delims must be added

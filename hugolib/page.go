@@ -752,7 +752,7 @@ func (p *Page) ProcessShortcodes(t tpl.Template) {
 
 	// these short codes aren't used until after Page render,
 	// but processed here to avoid coupling
-	tmpContent, tmpContentShortCodes := extractAndRenderShortcodes(string(p.rawContent), p, t)
+	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
 	p.rawContent = []byte(tmpContent)
 	p.contentShortCodes = tmpContentShortCodes
 
