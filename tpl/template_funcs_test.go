@@ -291,6 +291,11 @@ func TestSlicestr(t *testing.T) {
 		{"abcdef", []int{2}, "cdef"},
 		{123, []int{1, 3}, "23"},
 		{123, []int{1, 2, 3}, false},
+		{"abcdef", []int{6}, false},
+		{"abcdef", []int{4, 7}, false},
+		{"abcdef", []int{-1}, false},
+		{"abcdef", []int{-1, 7}, false},
+		{"abcdef", []int{1, -1}, false},
 		{tstNoStringer{}, []int{0, 1}, false},
 	} {
 		result, err := Slicestr(this.v1, this.v2...)

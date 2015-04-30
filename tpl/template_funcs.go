@@ -139,7 +139,14 @@ func Slicestr(a interface{}, startEnd ...int) (string, error) {
 		return "", errors.New("too many arguments")
 	}
 
+	if len(startEnd) > 0 && (startEnd[0] < 0 || startEnd[0] >= len(aStr)) {
+		return "", errors.New("slice bounds out of range")
+	}
+
 	if len(startEnd) == 2 {
+		if startEnd[1] < 0 || startEnd[1] > len(aStr) {
+			return "", errors.New("slice bounds out of range")
+		}
 		return aStr[startEnd[0]:startEnd[1]], nil
 	} else if len(startEnd) == 1 {
 		return aStr[startEnd[0]:], nil

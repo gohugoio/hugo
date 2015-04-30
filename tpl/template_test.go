@@ -11,7 +11,11 @@ func TestTplGoFuzzReports(t *testing.T) {
 	for i, this := range []struct {
 		data      string
 		expectErr int
-	}{{"{{apply .C \"first\" }}", 2}} {
+	}{
+		// Issue #1089
+		{"{{apply .C \"first\" }}", 2},
+		// Issue #1090
+		{"{{ slicestr \"000000\" 10}}", 2}} {
 		templ := New()
 
 		d := &Data{
