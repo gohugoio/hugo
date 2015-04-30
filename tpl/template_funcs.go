@@ -668,6 +668,8 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 
 	if len(args) < num {
 		return reflect.ValueOf(nil), errors.New("Too few arguments")
+	} else if len(args) > num {
+		return reflect.ValueOf(nil), errors.New("Too many arguments")
 	}
 
 	res := fn.Call(n)

@@ -15,7 +15,9 @@ func TestTplGoFuzzReports(t *testing.T) {
 		// Issue #1089
 		{"{{apply .C \"first\" }}", 2},
 		// Issue #1090
-		{"{{ slicestr \"000000\" 10}}", 2}} {
+		{"{{ slicestr \"000000\" 10}}", 2},
+		// Issue #1091
+		{"{{apply .C \"first\" 0 0 0}}", 2}} {
 		templ := New()
 
 		d := &Data{
