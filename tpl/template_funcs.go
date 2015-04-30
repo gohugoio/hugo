@@ -653,6 +653,16 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 		}
 	}
 
+	num := fn.Type().NumIn()
+
+	if fn.Type().IsVariadic() {
+		num--
+	}
+
+	if len(args) < num {
+		return reflect.ValueOf(nil), errors.New("Too few arguments")
+	}
+
 	res := fn.Call(n)
 
 	if len(res) == 1 || res[1].IsNil() {
