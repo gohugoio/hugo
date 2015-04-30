@@ -264,10 +264,14 @@ func Seq(args ...interface{}) ([]int, error) {
 		}
 	}
 
+	// sanity check
+	if last < -100000 {
+		return nil, errors.New("size of result exeeds limit")
+	}
 	size := int(((last - first) / inc) + 1)
 
 	// sanity check
-	if size > 2000 {
+	if size <= 0 || size > 2000 {
 		return nil, errors.New("size of result exeeds limit")
 	}
 

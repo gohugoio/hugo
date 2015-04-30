@@ -8,6 +8,11 @@ import (
 
 // Test for bugs discovered by https://github.com/dvyukov/go-fuzz
 func TestTplGoFuzzReports(t *testing.T) {
+
+	// The following test case(s) also fail
+	// See https://github.com/golang/go/issues/10634
+	//{"{{ seq 433937734937734969526500969526500 }}", 2}}
+
 	for i, this := range []struct {
 		data      string
 		expectErr int
@@ -17,7 +22,8 @@ func TestTplGoFuzzReports(t *testing.T) {
 		// Issue #1090
 		{"{{ slicestr \"000000\" 10}}", 2},
 		// Issue #1091
-		{"{{apply .C \"first\" 0 0 0}}", 2}} {
+		{"{{apply .C \"first\" 0 0 0}}", 2},
+		{"{{seq 3e80}}", 2}} {
 		templ := New()
 
 		d := &Data{
@@ -26,6 +32,9 @@ func TestTplGoFuzzReports(t *testing.T) {
 			C: []int{1, 2, 3},
 			D: map[int]string{1: "foo", 2: "bar"},
 			E: Data1{42, "foo"},
+			F: []string{"a", "b", "c"},
+			G: []string{"a", "b", "c", "d", "e"},
+			H: "a,b,c,d,e,f",
 		}
 
 		err := templ.AddTemplate("fuzz", this.data)
@@ -52,6 +61,9 @@ type Data struct {
 	C []int
 	D map[int]string
 	E Data1
+	F []string
+	G []string
+	H string
 }
 
 type Data1 struct {
