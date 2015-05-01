@@ -672,6 +672,12 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 		return reflect.ValueOf(nil), errors.New("Too many arguments")
 	}
 
+	for i := 0; i < num; i++ {
+		if xt, targ := n[i].Type(), fn.Type().In(i); !xt.AssignableTo(targ) {
+			return reflect.ValueOf(nil), errors.New("called apply using " + xt.String() + " as type " + targ.String())
+		}
+	}
+
 	res := fn.Call(n)
 
 	if len(res) == 1 || res[1].IsNil() {
