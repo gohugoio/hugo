@@ -253,7 +253,7 @@ min_version = 0.13
 
 func createConfig(inpath string, kind string) (err error) {
 	in := map[string]string{
-		"baseurl":      "http://yourSiteHere/",
+		"baseurl":      "http://replace-this-with-your-hugo-site.com/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
 	}
