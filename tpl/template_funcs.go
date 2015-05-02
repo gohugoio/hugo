@@ -666,11 +666,12 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 		num--
 	}
 
-	if len(args) < num {
+	// TODO(bep) see #1098 - also see template_tests.go
+	/*if len(args) < num {
 		return reflect.ValueOf(nil), errors.New("Too few arguments")
 	} else if len(args) > num {
 		return reflect.ValueOf(nil), errors.New("Too many arguments")
-	}
+	}*/
 
 	for i := 0; i < num; i++ {
 		if xt, targ := n[i].Type(), fn.Type().In(i); !xt.AssignableTo(targ) {
