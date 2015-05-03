@@ -281,11 +281,8 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 		htmlMatchers: []absURLMatcher{
 			{dqHTMLMatch, dqHTML, base},
 			{sqHTMLMatch, sqHTML, base},
-			{dqHTMLMatch, dqHTML, base},
-			{sqHTMLMatch, sqHTML, base}},
+		},
 		xmlMatchers: []absURLMatcher{
-			{dqXMLMatch, dqXML, base},
-			{sqXMLMatch, sqXML, base},
 			{dqXMLMatch, dqXML, base},
 			{sqXMLMatch, sqXML, base},
 		}}
