@@ -29,22 +29,22 @@ const REPLACE_SCHEMALESS_XML = `Pre. src=&#39;//schemaless&#39; src=&#39;/normal
 const REPLACE_SCHEMALESS_XML_CORRECT = `Pre. src=&#39;//schemaless&#39; src=&#39;http://base/normal&#39;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;http://base/normal&#39;>normal</a>. Post.`
 
 // srcset=
-const SRCSET_BASIC = `Pre. <img srcset="/img/small.jpg 200w /img/big.jpg 700w" alt="text" src="/img/foo.jpg">`
-const SRCSET_BASIC_CORRECT = `Pre. <img srcset="http://base/img/small.jpg 200w http://base/img/big.jpg 700w" alt="text" src="http://base/img/foo.jpg">`
-const SRCSET_SINGLE_QUOTE = `Pre. <img srcset='/img/small.jpg 200w /img/big.jpg 700w' alt="text" src="/img/foo.jpg"> POST.`
-const SRCSET_SINGLE_QUOTE_CORRECT = `Pre. <img srcset='http://base/img/small.jpg 200w http://base/img/big.jpg 700w' alt="text" src="http://base/img/foo.jpg"> POST.`
-const SRCSET_XML_BASIC = `Pre. <img srcset=&#34;/img/small.jpg 200w /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
-const SRCSET_XML_BASIC_CORRECT = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
-const SRCSET_XML_SINGLE_QUOTE = `Pre. <img srcset=&#34;/img/small.jpg 200w /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
-const SRCSET_XML_SINGLE_QUOTE_CORRECT = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
+const SRCSET_BASIC = `Pre. <img srcset="/img/small.jpg 200w, /img/medium.jpg 300w, /img/big.jpg 700w" alt="text" src="/img/foo.jpg">`
+const SRCSET_BASIC_CORRECT = `Pre. <img srcset="http://base/img/small.jpg 200w, http://base/img/medium.jpg 300w, http://base/img/big.jpg 700w" alt="text" src="http://base/img/foo.jpg">`
+const SRCSET_SINGLE_QUOTE = `Pre. <img srcset='/img/small.jpg 200w, /img/big.jpg 700w' alt="text" src="/img/foo.jpg"> POST.`
+const SRCSET_SINGLE_QUOTE_CORRECT = `Pre. <img srcset='http://base/img/small.jpg 200w, http://base/img/big.jpg 700w' alt="text" src="http://base/img/foo.jpg"> POST.`
+const SRCSET_XML_BASIC = `Pre. <img srcset=&#34;/img/small.jpg 200w, /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
+const SRCSET_XML_BASIC_CORRECT = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w, http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
+const SRCSET_XML_SINGLE_QUOTE = `Pre. <img srcset=&#34;/img/small.jpg 200w, /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
+const SRCSET_XML_SINGLE_QUOTE_CORRECT = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w, http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
 const SRCSET_VARIATIONS = `Pre. 
-Missing start quote: <img srcset=/img/small.jpg 200w /img/big.jpg 700w" alt="text"> src='/img/foo.jpg'> FOO. 
+Missing start quote: <img srcset=/img/small.jpg 200w, /img/big.jpg 700w" alt="text"> src='/img/foo.jpg'> FOO. 
 <img srcset='/img.jpg'> 
 schemaless: <img srcset='//img.jpg' src='//basic.jpg'>
 schemaless2: <img srcset="//img.jpg" src="//basic.jpg2> POST
 `
 const SRCSET_VARIATIONS_CORRECT = `Pre. 
-Missing start quote: <img srcset=/img/small.jpg 200w /img/big.jpg 700w" alt="text"> src='http://base/img/foo.jpg'> FOO. 
+Missing start quote: <img srcset=/img/small.jpg 200w, /img/big.jpg 700w" alt="text"> src='http://base/img/foo.jpg'> FOO. 
 <img srcset='http://base/img.jpg'> 
 schemaless: <img srcset='//img.jpg' src='//basic.jpg'>
 schemaless2: <img srcset="//img.jpg" src="//basic.jpg2> POST
