@@ -17,11 +17,6 @@ const (
 	matchStateFull
 )
 
-const (
-	matchPrefixSrc int = iota
-	matchPrefixHref
-)
-
 type contentlexer struct {
 	content []byte
 
@@ -47,12 +42,12 @@ type prefix struct {
 }
 
 var prefixes = []*prefix{
-	&prefix{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateSrc},
+	&prefix{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateBase},
+	&prefix{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateBase},
 	&prefix{r: []rune{'s', 'r', 'c', 's', 'e', 't', '='}, f: checkCandidateSrcset},
-	&prefix{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateHref}}
+}
 
 type absURLMatcher struct {
-	prefix         int
 	match          []byte
 	quote          []byte
 	replacementURL []byte
@@ -128,35 +123,34 @@ func (l *contentlexer) emit() {
 	l.start = l.pos
 }
 
-func (a absURLMatcher) isSourceType() bool {
-	return a.prefix == matchPrefixSrc
-}
-
-func checkCandidateSrc(l *contentlexer) {
+func checkCandidateBase(l *contentlexer) {
 	for _, m := range l.matchers {
-		if !m.isSourceType() {
+		if !bytes.HasPrefix(l.content[l.pos:], m.match) {
 			continue
 		}
-		l.replaceSimple(m)
-	}
-}
-
-func checkCandidateHref(l *contentlexer) {
-	for _, m := range l.matchers {
-		if m.isSourceType() {
-			continue
+		// check for schemaless URLs
+		posAfter := l.pos + len(m.match)
+		if posAfter >= len(l.content) {
+			return
 		}
-		l.replaceSimple(m)
+		r, _ := utf8.DecodeRune(l.content[posAfter:])
+		if r == '/' {
+			// schemaless: skip
+			return
+		}
+		if l.pos > l.start {
+			l.emit()
+		}
+		l.pos += len(m.match)
+		l.w.Write(m.quote)
+		l.w.Write(m.replacementURL)
+		l.start = l.pos
 	}
 }
 
 func checkCandidateSrcset(l *contentlexer) {
 	// special case, not frequent (me think)
 	for _, m := range l.matchers {
-		if m.isSourceType() {
-			continue
-		}
-
 		if !bytes.HasPrefix(l.content[l.pos:], m.match) {
 			continue
 		}
@@ -205,29 +199,6 @@ func checkCandidateSrcset(l *contentlexer) {
 		l.pos += len(section) + (len(m.quote) * 2)
 		l.start = l.pos
 	}
-}
-
-func (l *contentlexer) replaceSimple(m absURLMatcher) {
-	if !bytes.HasPrefix(l.content[l.pos:], m.match) {
-		return
-	}
-	// check for schemaless URLs
-	posAfter := l.pos + len(m.match)
-	if posAfter >= len(l.content) {
-		return
-	}
-	r, _ := utf8.DecodeRune(l.content[posAfter:])
-	if r == '/' {
-		// schemaless: skip
-		return
-	}
-	if l.pos > l.start {
-		l.emit()
-	}
-	l.pos += len(m.match)
-	l.w.Write(m.quote)
-	l.w.Write(m.replacementURL)
-	l.start = l.pos
 }
 
 func (l *contentlexer) replace() {
@@ -308,15 +279,15 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 
 	return &absURLReplacer{
 		htmlMatchers: []absURLMatcher{
-			{matchPrefixSrc, dqHTMLMatch, dqHTML, base},
-			{matchPrefixSrc, sqHTMLMatch, sqHTML, base},
-			{matchPrefixHref, dqHTMLMatch, dqHTML, base},
-			{matchPrefixHref, sqHTMLMatch, sqHTML, base}},
+			{dqHTMLMatch, dqHTML, base},
+			{sqHTMLMatch, sqHTML, base},
+			{dqHTMLMatch, dqHTML, base},
+			{sqHTMLMatch, sqHTML, base}},
 		xmlMatchers: []absURLMatcher{
-			{matchPrefixSrc, dqXMLMatch, dqXML, base},
-			{matchPrefixSrc, sqXMLMatch, sqXML, base},
-			{matchPrefixHref, dqXMLMatch, dqXML, base},
-			{matchPrefixHref, sqXMLMatch, sqXML, base},
+			{dqXMLMatch, dqXML, base},
+			{sqXMLMatch, sqXML, base},
+			{dqXMLMatch, dqXML, base},
+			{sqXMLMatch, sqXML, base},
 		}}
 
 }
