@@ -29,69 +29,98 @@ type contentlexer struct {
 	start int // item start position
 	width int // width of last element
 
-	matchers     []absURLMatcher
-	state        stateFunc
-	prefixLookup *prefixes
+	matchers []absURLMatcher
+	state    stateFunc
+
+	ms      matchState
+	matches [3]bool // track matches of the 3 prefixes
+	i       int     // last index in matches checked
 
 	w io.Writer
 }
 
 type stateFunc func(*contentlexer) stateFunc
 
-type prefixRunes []rune
-
-type prefixes struct {
-	pr   []prefixRunes
-	curr prefixRunes // current prefix lookup table
-	i    int         // current index
-
-	// first rune in potential match
-	first rune
-
-	// match-state:
-	// none, whitespace, partial, full
-	ms matchState
+type prefix struct {
+	r []rune
+	f func(l *contentlexer)
 }
 
-// match returns partial and full match for the prefix in play
-// - it's a full match if all prefix runes has checked out in row
-// - it's a partial match if it's on its way towards a full match
+var prefixes = []*prefix{
+	&prefix{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateSrc},
+	&prefix{r: []rune{'s', 'r', 'c', 's', 'e', 't', '='}, f: checkCandidateSrcset},
+	&prefix{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateHref}}
+
+type absURLMatcher struct {
+	prefix         int
+	match          []byte
+	quote          []byte
+	replacementURL []byte
+}
+
 func (l *contentlexer) match(r rune) {
-	p := l.prefixLookup
-	if p.curr == nil {
-		// assumes prefixes all start off on a different rune
-		// works in this special case: href, src
-		p.i = 0
-		for _, pr := range p.pr {
-			if pr[p.i] == r {
-				fullMatch := len(p.pr) == 1
-				p.first = r
-				if !fullMatch {
-					p.curr = pr
-					l.prefixLookup.ms = matchStatePartial
-				} else {
-					l.prefixLookup.ms = matchStateFull
+
+	var found bool
+
+	// note, the prefixes can start off on the same foot, i.e.
+	// src and srcset.
+	if l.ms == matchStateWhitespace {
+		l.i = 0
+		for j, p := range prefixes {
+			if r == p.r[l.i] {
+				l.matches[j] = true
+				found = true
+				if l.checkMatchState(r, j) {
+					return
 				}
-				return
-			}
-		}
-	} else {
-		p.i++
-		if p.curr[p.i] == r {
-			fullMatch := len(p.curr) == p.i+1
-			if fullMatch {
-				p.curr = nil
-				l.prefixLookup.ms = matchStateFull
 			} else {
-				l.prefixLookup.ms = matchStatePartial
+				l.matches[j] = false
 			}
-			return
 		}
 
-		p.curr = nil
+		if !found {
+			l.ms = matchStateNone
+		}
+
+		return
 	}
 
-	l.prefixLookup.ms = matchStateNone
+	l.i++
+	for j, m := range l.matches {
+		// still a match?
+		if m {
+			if prefixes[j].r[l.i] == r {
+				found = true
+				if l.checkMatchState(r, j) {
+					return
+				}
+			} else {
+				l.matches[j] = false
+			}
+		}
+	}
+
+	if found {
+		return
+	}
+
+	l.ms = matchStateNone
+}
+
+func (l *contentlexer) checkMatchState(r rune, idx int) bool {
+	if r == '=' {
+		l.ms = matchStateFull
+		for k := range l.matches {
+			if k != idx {
+				l.matches[k] = false
+			}
+		}
+		return true
+	}
+
+	l.ms = matchStatePartial
+
+	return false
 }
 
 func (l *contentlexer) emit() {
@@ -99,47 +128,106 @@ func (l *contentlexer) emit() {
 	l.start = l.pos
 }
 
-var mainPrefixRunes = []prefixRunes{{'s', 'r', 'c', '='}, {'h', 'r', 'e', 'f', '='}}
-
-type absURLMatcher struct {
-	prefix      int
-	match       []byte
-	replacement []byte
-}
-
 func (a absURLMatcher) isSourceType() bool {
 	return a.prefix == matchPrefixSrc
 }
 
-func checkCandidate(l *contentlexer) {
-	isSource := l.prefixLookup.first == 's'
+func checkCandidateSrc(l *contentlexer) {
 	for _, m := range l.matchers {
+		if !m.isSourceType() {
+			continue
+		}
+		l.replaceSimple(m)
+	}
+}
 
-		if isSource && !m.isSourceType() || !isSource && m.isSourceType() {
+func checkCandidateHref(l *contentlexer) {
+	for _, m := range l.matchers {
+		if m.isSourceType() {
+			continue
+		}
+		l.replaceSimple(m)
+	}
+}
+
+func checkCandidateSrcset(l *contentlexer) {
+	// special case, not frequent (me think)
+	for _, m := range l.matchers {
+		if m.isSourceType() {
 			continue
 		}
 
-		if bytes.HasPrefix(l.content[l.pos:], m.match) {
-			// check for schemaless URLs
-			posAfter := l.pos + len(m.match)
-			if posAfter >= len(l.content) {
-				return
-			}
-			r, _ := utf8.DecodeRune(l.content[posAfter:])
-			if r == '/' {
-				// schemaless: skip
-				return
-			}
-			if l.pos > l.start {
-				l.emit()
-			}
-			l.pos += len(m.match)
-			l.w.Write(m.replacement)
-			l.start = l.pos
-			return
-
+		if !bytes.HasPrefix(l.content[l.pos:], m.match) {
+			continue
 		}
+
+		// check for schemaless URLs
+		posAfter := l.pos + len(m.match)
+		if posAfter >= len(l.content) {
+			return
+		}
+		r, _ := utf8.DecodeRune(l.content[posAfter:])
+		if r == '/' {
+			// schemaless: skip
+			continue
+		}
+
+		posLastQuote := bytes.Index(l.content[l.pos+1:], m.quote)
+
+		// safe guard
+		if posLastQuote < 0 || posLastQuote > 2000 {
+			return
+		}
+
+		if l.pos > l.start {
+			l.emit()
+		}
+
+		section := l.content[l.pos+len(m.quote) : l.pos+posLastQuote+1]
+
+		fields := bytes.Fields(section)
+		l.w.Write([]byte(m.quote))
+		for i, f := range fields {
+			if f[0] == '/' {
+				l.w.Write(m.replacementURL)
+				l.w.Write(f[1:])
+
+			} else {
+				l.w.Write(f)
+			}
+
+			if i < len(fields)-1 {
+				l.w.Write([]byte(" "))
+			}
+		}
+
+		l.w.Write(m.quote)
+		l.pos += len(section) + (len(m.quote) * 2)
+		l.start = l.pos
 	}
+}
+
+func (l *contentlexer) replaceSimple(m absURLMatcher) {
+	if !bytes.HasPrefix(l.content[l.pos:], m.match) {
+		return
+	}
+	// check for schemaless URLs
+	posAfter := l.pos + len(m.match)
+	if posAfter >= len(l.content) {
+		return
+	}
+	r, _ := utf8.DecodeRune(l.content[posAfter:])
+	if r == '/' {
+		// schemaless: skip
+		return
+	}
+	if l.pos > l.start {
+		l.emit()
+	}
+	l.pos += len(m.match)
+	l.w.Write(m.quote)
+	l.w.Write(m.replacementURL)
+	l.start = l.pos
 }
 
 func (l *contentlexer) replace() {
@@ -152,7 +240,7 @@ func (l *contentlexer) replace() {
 			break
 		}
 
-		var width int = 1
+		var width = 1
 		r = rune(l.content[l.pos])
 		if r >= utf8.RuneSelf {
 			r, width = utf8.DecodeRune(l.content[l.pos:])
@@ -160,14 +248,24 @@ func (l *contentlexer) replace() {
 		l.width = width
 		l.pos += l.width
 		if r == ' ' {
-			l.prefixLookup.ms = matchStateWhitespace
-		} else if l.prefixLookup.ms != matchStateNone {
+			l.ms = matchStateWhitespace
+		} else if l.ms != matchStateNone {
 			l.match(r)
-			if l.prefixLookup.ms == matchStateFull {
-				checkCandidate(l)
+			if l.ms == matchStateFull {
+				var p *prefix
+				for i, m := range l.matches {
+					if m {
+						p = prefixes[i]
+					}
+					l.matches[i] = false
+				}
+				if p == nil {
+					panic("illegal state: curr is nil when state is full")
+				}
+				l.ms = matchStateNone
+				p.f(l)
 			}
 		}
-
 	}
 
 	// Done!
@@ -177,15 +275,12 @@ func (l *contentlexer) replace() {
 }
 
 func doReplace(ct contentTransformer, matchers []absURLMatcher) {
-
 	lexer := &contentlexer{
-		content:      ct.Content(),
-		w:            ct,
-		prefixLookup: &prefixes{pr: mainPrefixRunes},
-		matchers:     matchers}
+		content:  ct.Content(),
+		w:        ct,
+		matchers: matchers}
 
 	lexer.replace()
-
 }
 
 type absURLReplacer struct {
@@ -195,7 +290,7 @@ type absURLReplacer struct {
 
 func newAbsURLReplacer(baseURL string) *absURLReplacer {
 	u, _ := url.Parse(baseURL)
-	base := strings.TrimRight(u.String(), "/")
+	base := []byte(strings.TrimRight(u.String(), "/") + "/")
 
 	// HTML
 	dqHTMLMatch := []byte("\"/")
@@ -205,23 +300,23 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 	dqXMLMatch := []byte("&#34;/")
 	sqXMLMatch := []byte("&#39;/")
 
-	dqHTML := []byte("\"" + base + "/")
-	sqHTML := []byte("'" + base + "/")
+	dqHTML := []byte("\"")
+	sqHTML := []byte("'")
 
-	dqXML := []byte("&#34;" + base + "/")
-	sqXML := []byte("&#39;" + base + "/")
+	dqXML := []byte("&#34;")
+	sqXML := []byte("&#39;")
 
 	return &absURLReplacer{
 		htmlMatchers: []absURLMatcher{
-			{matchPrefixSrc, dqHTMLMatch, dqHTML},
-			{matchPrefixSrc, sqHTMLMatch, sqHTML},
-			{matchPrefixHref, dqHTMLMatch, dqHTML},
-			{matchPrefixHref, sqHTMLMatch, sqHTML}},
+			{matchPrefixSrc, dqHTMLMatch, dqHTML, base},
+			{matchPrefixSrc, sqHTMLMatch, sqHTML, base},
+			{matchPrefixHref, dqHTMLMatch, dqHTML, base},
+			{matchPrefixHref, sqHTMLMatch, sqHTML, base}},
 		xmlMatchers: []absURLMatcher{
-			{matchPrefixSrc, dqXMLMatch, dqXML},
-			{matchPrefixSrc, sqXMLMatch, sqXML},
-			{matchPrefixHref, dqXMLMatch, dqXML},
-			{matchPrefixHref, sqXMLMatch, sqXML},
+			{matchPrefixSrc, dqXMLMatch, dqXML, base},
+			{matchPrefixSrc, sqXMLMatch, sqXML, base},
+			{matchPrefixHref, dqXMLMatch, dqXML, base},
+			{matchPrefixHref, sqXMLMatch, sqXML, base},
 		}}
 
 }

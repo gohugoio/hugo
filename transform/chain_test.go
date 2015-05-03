@@ -25,8 +25,42 @@ const REPLACE_2 = "ᚠᛇᚻ ᛒᛦᚦ ᚠᚱᚩᚠᚢᚱ\nᚠᛁᚱᚪ ᚷᛖ�
 // Issue: 816, schemaless links combined with others
 const REPLACE_SCHEMALESS_HTML = `Pre. src='//schemaless' src='/normal'  <a href="//schemaless">Schemaless</a>. <a href="/normal">normal</a>. Post.`
 const REPLACE_SCHEMALESS_HTML_CORRECT = `Pre. src='//schemaless' src='http://base/normal'  <a href="//schemaless">Schemaless</a>. <a href="http://base/normal">normal</a>. Post.`
-const REPLACE_SCHEMALESS_XML = `Pre. src=&#34;//schemaless&#34; src=&#34;/normal&#34;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;/normal&#39;>normal</a>. Post.`
-const REPLACE_SCHEMALESS_XML_CORRECT = `Pre. src=&#34;//schemaless&#34; src=&#34;http://base/normal&#34;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;http://base/normal&#39;>normal</a>. Post.`
+const REPLACE_SCHEMALESS_XML = `Pre. src=&#39;//schemaless&#39; src=&#39;/normal&#39;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;/normal&#39;>normal</a>. Post.`
+const REPLACE_SCHEMALESS_XML_CORRECT = `Pre. src=&#39;//schemaless&#39; src=&#39;http://base/normal&#39;  <a href=&#39;//schemaless&#39;>Schemaless</a>. <a href=&#39;http://base/normal&#39;>normal</a>. Post.`
+
+// srcset=
+const SRCSET_BASIC = `Pre. <img srcset="/img/small.jpg 200w /img/big.jpg 700w" alt="text" src="/img/foo.jpg">`
+const SRCSET_BASIC_CORRECT = `Pre. <img srcset="http://base/img/small.jpg 200w http://base/img/big.jpg 700w" alt="text" src="http://base/img/foo.jpg">`
+const SRCSET_SINGLE_QUOTE = `Pre. <img srcset='/img/small.jpg 200w /img/big.jpg 700w' alt="text" src="/img/foo.jpg"> POST.`
+const SRCSET_SINGLE_QUOTE_CORRECT = `Pre. <img srcset='http://base/img/small.jpg 200w http://base/img/big.jpg 700w' alt="text" src="http://base/img/foo.jpg"> POST.`
+const SRCSET_XML_BASIC = `Pre. <img srcset=&#34;/img/small.jpg 200w /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
+const SRCSET_XML_BASIC_CORRECT = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
+const SRCSET_XML_SINGLE_QUOTE = `Pre. <img srcset=&#34;/img/small.jpg 200w /img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;/img/foo.jpg&#34;>`
+const SRCSET_XML_SINGLE_QUOTE_CORRECT = `Pre. <img srcset=&#34;http://base/img/small.jpg 200w http://base/img/big.jpg 700w&#34; alt=&#34;text&#34; src=&#34;http://base/img/foo.jpg&#34;>`
+const SRCSET_VARIATIONS = `Pre. 
+Missing start quote: <img srcset=/img/small.jpg 200w /img/big.jpg 700w" alt="text"> src='/img/foo.jpg'> FOO. 
+<img srcset='/img.jpg'> 
+schemaless: <img srcset='//img.jpg' src='//basic.jpg'>
+schemaless2: <img srcset="//img.jpg" src="//basic.jpg2> POST
+`
+const SRCSET_VARIATIONS_CORRECT = `Pre. 
+Missing start quote: <img srcset=/img/small.jpg 200w /img/big.jpg 700w" alt="text"> src='http://base/img/foo.jpg'> FOO. 
+<img srcset='http://base/img.jpg'> 
+schemaless: <img srcset='//img.jpg' src='//basic.jpg'>
+schemaless2: <img srcset="//img.jpg" src="//basic.jpg2> POST
+`
+const SRCSET_XML_VARIATIONS = `Pre. 
+Missing start quote: &lt;img srcset=/img/small.jpg 200w /img/big.jpg 700w&quot; alt=&quot;text&quot;&gt; src=&#39;/img/foo.jpg&#39;&gt; FOO. 
+&lt;img srcset=&#39;/img.jpg&#39;&gt; 
+schemaless: &lt;img srcset=&#39;//img.jpg&#39; src=&#39;//basic.jpg&#39;&gt;
+schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POST
+`
+const SRCSET_XML_VARIATIONS_CORRECT = `Pre. 
+Missing start quote: &lt;img srcset=/img/small.jpg 200w /img/big.jpg 700w&quot; alt=&quot;text&quot;&gt; src=&#39;http://base/img/foo.jpg&#39;&gt; FOO. 
+&lt;img srcset=&#39;http://base/img.jpg&#39;&gt; 
+schemaless: &lt;img srcset=&#39;//img.jpg&#39; src=&#39;//basic.jpg&#39;&gt;
+schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POST
+`
 
 var abs_url_bench_tests = []test{
 	{H5_JS_CONTENT_DOUBLE_QUOTE, CORRECT_OUTPUT_SRC_HREF_DQ},
@@ -45,6 +79,12 @@ var extra_tests_html = []test{{REPLACE_SCHEMALESS_HTML, REPLACE_SCHEMALESS_HTML_
 var abs_url_tests = append(abs_url_bench_tests, append(sanity_tests, extra_tests_html...)...)
 var extra_tests_xml = []test{{REPLACE_SCHEMALESS_XML, REPLACE_SCHEMALESS_XML_CORRECT}}
 var xml_abs_url_tests = append(xml_abs_url_bench_tests, append(sanity_tests, extra_tests_xml...)...)
+
+var srcset_tests = []test{{SRCSET_BASIC, SRCSET_BASIC_CORRECT}, {SRCSET_SINGLE_QUOTE, SRCSET_SINGLE_QUOTE_CORRECT}, {SRCSET_VARIATIONS, SRCSET_VARIATIONS_CORRECT}}
+var srcset_xml_tests = []test{
+	{SRCSET_XML_BASIC, SRCSET_XML_BASIC_CORRECT},
+	{SRCSET_XML_SINGLE_QUOTE, SRCSET_XML_SINGLE_QUOTE_CORRECT},
+	{SRCSET_XML_VARIATIONS, SRCSET_XML_VARIATIONS_CORRECT}}
 
 func TestChainZeroTransformers(t *testing.T) {
 	tr := NewChain()
@@ -99,6 +139,21 @@ func TestAbsURL(t *testing.T) {
 	tr := NewChain(absURL...)
 
 	apply(t.Errorf, tr, abs_url_tests)
+
+}
+
+func TestAbsURLSrcSet(t *testing.T) {
+	absURL, _ := absURLFromURL("http://base")
+	tr := NewChain(absURL...)
+
+	apply(t.Errorf, tr, srcset_tests)
+}
+
+func TestAbsXMLURLSrcSet(t *testing.T) {
+	absURLInXML, _ := absURLInXMLFromURL("http://base")
+	tr := NewChain(absURLInXML...)
+
+	apply(t.Errorf, tr, srcset_xml_tests)
 
 }
 
