@@ -79,7 +79,6 @@ var extra_tests_html = []test{{REPLACE_SCHEMALESS_HTML, REPLACE_SCHEMALESS_HTML_
 var abs_url_tests = append(abs_url_bench_tests, append(sanity_tests, extra_tests_html...)...)
 var extra_tests_xml = []test{{REPLACE_SCHEMALESS_XML, REPLACE_SCHEMALESS_XML_CORRECT}}
 var xml_abs_url_tests = append(xml_abs_url_bench_tests, append(sanity_tests, extra_tests_xml...)...)
-
 var srcset_tests = []test{{SRCSET_BASIC, SRCSET_BASIC_CORRECT}, {SRCSET_SINGLE_QUOTE, SRCSET_SINGLE_QUOTE_CORRECT}, {SRCSET_VARIATIONS, SRCSET_VARIATIONS_CORRECT}}
 var srcset_xml_tests = []test{
 	{SRCSET_XML_BASIC, SRCSET_XML_BASIC_CORRECT},
@@ -131,6 +130,26 @@ func BenchmarkAbsURL(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		apply(b.Errorf, tr, abs_url_bench_tests)
+	}
+}
+
+func BenchmarkAbsURLSrcset(b *testing.B) {
+	absURL, _ := absURLFromURL("http://base")
+	tr := NewChain(absURL...)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		apply(b.Errorf, tr, srcset_tests)
+	}
+}
+
+func BenchmarkXMLAbsURLSrcset(b *testing.B) {
+	absXMLURL, _ := absURLInXMLFromURL("http://base")
+	tr := NewChain(absXMLURL...)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		apply(b.Errorf, tr, srcset_xml_tests)
 	}
 }
 
