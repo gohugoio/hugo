@@ -29,7 +29,7 @@ type contentlexer struct {
 
 	ms      matchState
 	matches [3]bool // track matches of the 3 prefixes
-	i       int     // last index in matches checked
+	idx     int     // last index in matches checked
 
 	w io.Writer
 }
@@ -60,9 +60,9 @@ func (l *contentlexer) match(r rune) {
 	// note, the prefixes can start off on the same foot, i.e.
 	// src and srcset.
 	if l.ms == matchStateWhitespace {
-		l.i = 0
+		l.idx = 0
 		for j, p := range prefixes {
-			if r == p.r[l.i] {
+			if r == p.r[l.idx] {
 				l.matches[j] = true
 				found = true
 				if l.checkMatchState(r, j) {
@@ -80,11 +80,11 @@ func (l *contentlexer) match(r rune) {
 		return
 	}
 
-	l.i++
+	l.idx++
 	for j, m := range l.matches {
 		// still a match?
 		if m {
-			if prefixes[j].r[l.i] == r {
+			if prefixes[j].r[l.idx] == r {
 				found = true
 				if l.checkMatchState(r, j) {
 					return
