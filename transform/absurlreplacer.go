@@ -17,8 +17,11 @@ const (
 	matchStateFull
 )
 
-type contentlexer struct {
+type absurllexer struct {
+	// the source to absurlify
 	content []byte
+	// the target for the new absurlified content
+	w io.Writer
 
 	pos   int // input position
 	start int // item start position
@@ -31,16 +34,19 @@ type contentlexer struct {
 	matches [3]bool // track matches of the 3 prefixes
 	idx     int     // last index in matches checked
 
-	w io.Writer
 }
 
-type stateFunc func(*contentlexer) stateFunc
+type stateFunc func(*absurllexer) stateFunc
 
+// prefix is how to identify and which func to handle the replacement.
 type prefix struct {
 	r []rune
-	f func(l *contentlexer)
+	f func(l *absurllexer)
 }
 
+// new prefixes can be added below, but note:
+// - the matches array above must be expanded.
+// - the prefix must with the current logic end with '='
 var prefixes = []*prefix{
 	&prefix{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateBase},
 	&prefix{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateBase},
@@ -53,7 +59,8 @@ type absURLMatcher struct {
 	replacementURL []byte
 }
 
-func (l *contentlexer) match(r rune) {
+// match check rune inside word. Will be != ' '.
+func (l *absurllexer) match(r rune) {
 
 	var found bool
 
@@ -68,8 +75,6 @@ func (l *contentlexer) match(r rune) {
 				if l.checkMatchState(r, j) {
 					return
 				}
-			} else {
-				l.matches[j] = false
 			}
 		}
 
@@ -95,14 +100,12 @@ func (l *contentlexer) match(r rune) {
 		}
 	}
 
-	if found {
-		return
+	if !found {
+		l.ms = matchStateNone
 	}
-
-	l.ms = matchStateNone
 }
 
-func (l *contentlexer) checkMatchState(r rune, idx int) bool {
+func (l *absurllexer) checkMatchState(r rune, idx int) bool {
 	if r == '=' {
 		l.ms = matchStateFull
 		for k := range l.matches {
@@ -118,12 +121,13 @@ func (l *contentlexer) checkMatchState(r rune, idx int) bool {
 	return false
 }
 
-func (l *contentlexer) emit() {
+func (l *absurllexer) emit() {
 	l.w.Write(l.content[l.start:l.pos])
 	l.start = l.pos
 }
 
-func checkCandidateBase(l *contentlexer) {
+// handle URLs in src and href.
+func checkCandidateBase(l *absurllexer) {
 	for _, m := range l.matchers {
 		if !bytes.HasPrefix(l.content[l.pos:], m.match) {
 			continue
@@ -148,7 +152,8 @@ func checkCandidateBase(l *contentlexer) {
 	}
 }
 
-func checkCandidateSrcset(l *contentlexer) {
+// handle URLs in srcset.
+func checkCandidateSrcset(l *absurllexer) {
 	// special case, not frequent (me think)
 	for _, m := range l.matchers {
 		if !bytes.HasPrefix(l.content[l.pos:], m.match) {
@@ -201,7 +206,8 @@ func checkCandidateSrcset(l *contentlexer) {
 	}
 }
 
-func (l *contentlexer) replace() {
+// main loop
+func (l *absurllexer) replace() {
 	contentLength := len(l.content)
 	var r rune
 
@@ -227,8 +233,8 @@ func (l *contentlexer) replace() {
 				for i, m := range l.matches {
 					if m {
 						p = prefixes[i]
+						l.matches[i] = false
 					}
-					l.matches[i] = false
 				}
 				if p == nil {
 					panic("illegal state: curr is nil when state is full")
@@ -246,7 +252,7 @@ func (l *contentlexer) replace() {
 }
 
 func doReplace(ct contentTransformer, matchers []absURLMatcher) {
-	lexer := &contentlexer{
+	lexer := &absurllexer{
 		content:  ct.Content(),
 		w:        ct,
 		matchers: matchers}
