@@ -1,7 +1,6 @@
 package hugolib
 
 import (
-	"html/template"
 	"path/filepath"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
+	"html/template"
 )
 
 const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
@@ -50,6 +50,29 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 var urlFakeSource = []source.ByteSource{
 	{filepath.FromSlash("content/blue/doc1.md"), []byte(SLUG_DOC_1)},
 	{filepath.FromSlash("content/blue/doc2.md"), []byte(SLUG_DOC_2)},
+}
+
+// Issue #1105
+func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
+
+	for i, this := range []struct {
+		in       string
+		expected string
+	}{
+		{"http://base.com/", "http://base.com/"},
+		{"http://base.com/sub/", "http://base.com/sub/"},
+		{"http://base.com/sub", "http://base.com/sub"},
+		{"http://base.com", "http://base.com"}} {
+
+		viper.Set("BaseURL", this.in)
+		s := &Site{}
+		s.initializeSiteInfo()
+
+		if s.Info.BaseURL != template.URL(this.expected) {
+			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL, this.expected)
+		}
+	}
+
 }
 
 func TestPageCount(t *testing.T) {
