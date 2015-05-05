@@ -1196,6 +1196,7 @@ func init() {
 		"safeHTML":    SafeHTML,
 		"safeCSS":     SafeCSS,
 		"safeURL":     SafeURL,
+		"absURL":      func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
 		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,
