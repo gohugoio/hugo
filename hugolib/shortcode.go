@@ -29,9 +29,10 @@ import (
 )
 
 type ShortcodeWithPage struct {
-	Params interface{}
-	Inner  template.HTML
-	Page   *Page
+	Params  interface{}
+	Inner   template.HTML
+	Page    *Page
+	scratch *Scratch
 }
 
 func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
@@ -83,6 +84,14 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		return x
 	}
 
+}
+
+// Scratch returns the writable context associated with this Node.
+func (scp *ShortcodeWithPage) Scratch() *Scratch {
+	if scp.scratch == nil {
+		scp.scratch = newScratch()
+	}
+	return scp.scratch
 }
 
 // Note - this value must not contain any markup syntax

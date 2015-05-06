@@ -28,6 +28,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/spf13/hugo/hugosql"
 )
 
 var localTemplates *template.Template
@@ -326,4 +327,60 @@ func (t *GoHTMLTemplate) PrintErrors() {
 	for _, e := range t.errors {
 		jww.ERROR.Println(e.err)
 	}
+}
+
+func init() {
+	funcMap = template.FuncMap{
+		"urlize":      helpers.URLize,
+		"sanitizeURL": helpers.SanitizeURL,
+		"sanitizeurl": helpers.SanitizeURL,
+		"eq":          Eq,
+		"ne":          Ne,
+		"gt":          Gt,
+		"ge":          Ge,
+		"lt":          Lt,
+		"le":          Le,
+		"in":          In,
+		"intersect":   Intersect,
+		"isSet":       IsSet,
+		"isset":       IsSet,
+		"echoParam":   ReturnWhenSet,
+		"safeHTML":    SafeHTML,
+		"safeHtml":    SafeHTML,
+		"safeCSS":     SafeCSS,
+		"safeCss":     SafeCSS,
+		"safeURL":     SafeURL,
+		"safeUrl":     SafeURL,
+		"markdownify": Markdownify,
+		"first":       First,
+		"where":       Where,
+		"delimit":     Delimit,
+		"sort":        Sort,
+		"highlight":   Highlight,
+		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"mod":         Mod,
+		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"modBool":     ModBool,
+		"lower":       func(a string) string { return strings.ToLower(a) },
+		"upper":       func(a string) string { return strings.ToUpper(a) },
+		"title":       func(a string) string { return strings.Title(a) },
+		"partial":     Partial,
+		"ref":         Ref,
+		"relref":      RelRef,
+		"apply":       Apply,
+		"chomp":       Chomp,
+		"replace":     Replace,
+		"trim":        Trim,
+		"dateFormat":  DateFormat,
+		"getJSON":     GetJSON,
+		"getJson":     GetJSON,
+		"getCSV":      GetCSV,
+		"getCsv":      GetCSV,
+		"seq":         helpers.Seq,
+		"getSql":      hugosql.GetSQL,
+		"getSQL":      hugosql.GetSQL,
+	}
+
 }
