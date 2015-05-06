@@ -367,3 +367,18 @@ func GetRstContent(content []byte) string {
 	}
 	return strings.Join(rstLines, "\n")
 }
+
+// Reads the Delimiter Settings from configuration
+// Default is DelimiterLeft = "{{" and DelimiterRight = "}}"
+var DLeft string
+var DRight string
+var ReplaceDelimiters bool = (DLeft != "{{")
+
+// Replaces the delimiters in hardcoded internal templates
+func SetDelims(snippet string) string {
+	if ReplaceDelimiters {
+		snippet = strings.Replace(snippet, "{{", DLeft, -1)
+		snippet = strings.Replace(snippet, "}}", DRight, -1)
+	}
+	return snippet
+}

@@ -42,7 +42,7 @@ func TestRSSOutput(t *testing.T) {
 	s.initializeSiteInfo()
 	s.prepTemplates()
 	//  Add an rss.xml template to invoke the rss build.
-	s.addTemplate("rss.xml", RSS_TEMPLATE)
+	s.addTemplate("rss.xml", SetDelims(RSS_TEMPLATE))
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)

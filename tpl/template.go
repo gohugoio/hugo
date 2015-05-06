@@ -75,7 +75,7 @@ func InitializeT() Template {
 // With all the additional features, templates & functions
 func New() Template {
 	var templates = &GoHTMLTemplate{
-		Template: *template.New(""),
+		Template: *template.New("").Delims(helpers.DLeft, helpers.DRight),
 		errors:   make([]*templateErr, 0),
 	}
 
@@ -150,7 +150,7 @@ func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
 }
 
 func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
-	_, err := t.New(name).Parse(tpl)
+	_, err := t.New(name).Delims(helpers.DLeft, helpers.DRight).Parse(tpl)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 	}
@@ -168,7 +168,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return nil
 		}
 
-		if _, err := compiler.CompileWithTemplate(t.New(name)); err != nil {
+		if _, err := compiler.CompileWithTemplate(t.New(name).Delims(helpers.DLeft, helpers.DRight)); err != nil {
 			return err
 		}
 	case ".ace":
@@ -196,7 +196,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			t.errors = append(t.errors, &templateErr{name: name, err: err})
 			return err
 		}
-		_, err = ace.CompileResultWithTemplate(t.New(name), rslt, nil)
+		_, err = ace.CompileResultWithTemplate(t.New(name).Delims(helpers.DLeft, helpers.DRight), rslt, nil)
 		if err != nil {
 			t.errors = append(t.errors, &templateErr{name: name, err: err})
 		}

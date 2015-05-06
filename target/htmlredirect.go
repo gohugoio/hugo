@@ -17,8 +17,8 @@ var DefaultAliasTemplates *template.Template
 
 func init() {
 	DefaultAliasTemplates = template.New("")
-	template.Must(DefaultAliasTemplates.New("alias").Parse(ALIAS))
-	template.Must(DefaultAliasTemplates.New("alias-xhtml").Parse(ALIAS_XHTML))
+	template.Must(DefaultAliasTemplates.New("alias").Parse(helpers.SetDelims(ALIAS)))
+	template.Must(DefaultAliasTemplates.New("alias-xhtml").Parse(helpers.SetDelims(ALIAS_XHTML)))
 }
 
 type AliasPublisher interface {

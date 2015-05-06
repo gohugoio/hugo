@@ -34,7 +34,7 @@ func TestSitemapOutput(t *testing.T) {
 	s.initializeSiteInfo()
 
 	s.prepTemplates()
-	s.addTemplate("sitemap.xml", SITEMAP_TEMPLATE)
+	s.addTemplate("sitemap.xml", SetDelims(SITEMAP_TEMPLATE))
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)

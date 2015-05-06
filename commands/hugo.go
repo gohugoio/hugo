@@ -152,6 +152,10 @@ func InitializeConfig() {
 	viper.SetDefault("Paginate", 10)
 	viper.SetDefault("PaginatePath", "page")
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
+	viper.SetDefault("DelimiterLeft", "{{")
+	viper.SetDefault("DelimiterRight", "}}")
+	helpers.DLeft = viper.GetString("DelimiterLeft")
+	helpers.DRight = viper.GetString("DelimiterRight")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)

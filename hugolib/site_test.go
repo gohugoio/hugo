@@ -90,7 +90,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 func TestAddInvalidTemplate(t *testing.T) {
 	s := new(Site)
 	templatePrep(s)
-	err := s.addTemplate("missing", TEMPLATE_MISSING_FUNC)
+	err := s.addTemplate("missing", SetDelims(TEMPLATE_MISSING_FUNC))
 	if err == nil {
 		t.Fatalf("Expecting the template to return an error")
 	}
@@ -124,10 +124,10 @@ func TestRenderThing(t *testing.T) {
 		template string
 		expected string
 	}{
-		{PAGE_SIMPLE_TITLE, TEMPLATE_TITLE, "simple template"},
-		{PAGE_SIMPLE_TITLE, TEMPLATE_FUNC, "simple-template"},
-		{PAGE_WITH_MD, TEMPLATE_CONTENT, "\n\n<h1 id=\"heading-1:91b5c4a22fc6103c73bb91e4a40568f8\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2:91b5c4a22fc6103c73bb91e4a40568f8\">heading 2</h2>\n\n<p>more text</p>\n"},
-		{SIMPLE_PAGE_RFC3339_DATE, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
+		{PAGE_SIMPLE_TITLE, SetDelims(TEMPLATE_TITLE), "simple template"},
+		{PAGE_SIMPLE_TITLE, SetDelims(TEMPLATE_FUNC), "simple-template"},
+		{PAGE_WITH_MD, SetDelims(TEMPLATE_CONTENT), "\n\n<h1 id=\"heading-1:91b5c4a22fc6103c73bb91e4a40568f8\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2:91b5c4a22fc6103c73bb91e4a40568f8\">heading 2</h2>\n\n<p>more text</p>\n"},
+		{SIMPLE_PAGE_RFC3339_DATE, SetDelims(TEMPLATE_DATE), "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
 	s := new(Site)
@@ -169,10 +169,10 @@ func TestRenderThingOrDefault(t *testing.T) {
 		template string
 		expected string
 	}{
-		{PAGE_SIMPLE_TITLE, true, TEMPLATE_TITLE, HTML("simple template")},
-		{PAGE_SIMPLE_TITLE, true, TEMPLATE_FUNC, HTML("simple-template")},
-		{PAGE_SIMPLE_TITLE, false, TEMPLATE_TITLE, HTML("simple template")},
-		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, HTML("simple-template")},
+		{PAGE_SIMPLE_TITLE, true, SetDelims(TEMPLATE_TITLE), HTML("simple template")},
+		{PAGE_SIMPLE_TITLE, true, SetDelims(TEMPLATE_FUNC), HTML("simple-template")},
+		{PAGE_SIMPLE_TITLE, false, SetDelims(TEMPLATE_TITLE), HTML("simple template")},
+		{PAGE_SIMPLE_TITLE, false, SetDelims(TEMPLATE_FUNC), HTML("simple-template")},
 	}
 
 	hugofs.DestinationFS = new(afero.MemMapFs)
@@ -355,7 +355,7 @@ func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
 	s.initializeSiteInfo()
 	templatePrep(s)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("_default/single.html", SetDelims("{{.Content}}")))
 
 	createAndRenderPages(t, s)
 
@@ -411,7 +411,7 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 	templatePrep(s)
 
 	must(s.addTemplate("index.html", "Home Sweet Home"))
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("_default/single.html", SetDelims("{{.Content}}")))
 	must(s.addTemplate("404.html", "Page Not Found"))
 
 	// make sure the XML files also end up with ugly urls
@@ -462,8 +462,8 @@ func TestSkipRender(t *testing.T) {
 		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
 		{filepath.FromSlash("sect/doc3.md"), []byte("# doc3\n*some* content")},
 		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{filepath.FromSlash("sect/doc5.html"), []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
-		{filepath.FromSlash("sect/doc6.html"), []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
+		{filepath.FromSlash("sect/doc5.html"), []byte(SetDelims("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"))},
+		{filepath.FromSlash("sect/doc6.html"), []byte(SetDelims("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"))},
 		{filepath.FromSlash("doc7.html"), []byte("<html><body>doc7 content</body></html>")},
 		{filepath.FromSlash("sect/doc8.html"), []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
@@ -479,7 +479,7 @@ func TestSkipRender(t *testing.T) {
 	s.initializeSiteInfo()
 	templatePrep(s)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("_default/single.html", SetDelims("{{.Content}}")))
 	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
 	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
 
