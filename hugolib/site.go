@@ -762,8 +762,25 @@ func (s *Site) assembleMenus() {
 		}
 	}
 
+	sectionPagesMenu := viper.GetString("SectionPagesMenu")
+	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
 	for _, p := range s.Pages {
+
+		if sectionPagesMenu != "" {
+			if _, ok := sectionPagesMenus[p.Section()]; !ok {
+				if p.Section() != "" {
+					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(p.Section()), Url: s.permalinkStr(p.Section())}
+					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
+						// menu with same id defined in config, let that one win
+						continue
+					}
+					flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
+					sectionPagesMenus[p.Section()] = true
+				}
+			}
+		}
+
 		for name, me := range p.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
 				jww.ERROR.Printf("Two or more menu items have the same name/identifier in %q Menu. Identified as %q.\n Rename or set a unique identifier. \n", name, me.KeyName())
