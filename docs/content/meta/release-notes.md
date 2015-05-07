@@ -10,6 +10,10 @@ title: Release Notes
 weight: 10
 ---
 
+## **0.14.0** ??
+
+* Add `bind` flag to `hugo server` to set the interface to which the server will bind
+
 ## **0.13.0** Feb 21, 2015
 
 The v0.13.0 release is the largest Hugo release to date. The release introduced
