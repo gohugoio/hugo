@@ -212,39 +212,6 @@ func TestRenderThingOrDefault(t *testing.T) {
 	}
 }
 
-func TestTargetPath(t *testing.T) {
-	tests := []struct {
-		doc             string
-		content         string
-		expectedOutFile string
-		expectedSection string
-	}{
-		{"content/a/file.md", PAGE_URL_SPECIFIED, "mycategory/my-whatever-content/index.html", "a"},
-		{"content/x/y/deepfile.md", SIMPLE_PAGE, "x/y/deepfile.html", "x/y"},
-		{"content/x/y/z/deeperfile.md", SIMPLE_PAGE, "x/y/z/deeperfile.html", "x/y/z"},
-		{"content/b/file.md", SIMPLE_PAGE, "b/file.html", "b"},
-		{"a/file.md", SIMPLE_PAGE, "a/file.html", "a"},
-		{"file.md", SIMPLE_PAGE, "file.html", ""},
-	}
-
-	if true {
-		return
-	}
-
-	for _, test := range tests {
-		p := pageMust(NewPageFrom(strings.NewReader(test.content), helpers.AbsPathify(filepath.FromSlash(test.doc))))
-
-		expected := filepath.FromSlash(test.expectedOutFile)
-
-		if p.TargetPath() != expected {
-			t.Errorf("%s => OutFile  expected: '%s', got: '%s'", test.doc, expected, p.TargetPath())
-		}
-
-		if p.Section() != test.expectedSection {
-			t.Errorf("%s => p.Section expected: %s, got: %s", test.doc, test.expectedSection, p.Section())
-		}
-	}
-}
 
 func TestDraftAndFutureRender(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
