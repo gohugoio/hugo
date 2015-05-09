@@ -223,6 +223,25 @@ second line.
 
 fourth line.
 `
+
+	SIMPLE_PAGE_WITH_URL = `---
+title: Simple
+url: simple/url/
+---
+Simple Page With URL`
+
+	SIMPLE_PAGE_WITH_SLUG = `---
+title: Simple
+slug: simple-slug
+---
+Simple Page With Slug`
+
+	SIMPLE_PAGE_WITH_DATE = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+---
+Simple Page With Date`
+
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -618,6 +637,39 @@ func TestSliceToLower(t *testing.T) {
 			if val != test.expected[i] {
 				t.Errorf("Case mismatch. Expected %s, got %s", test.expected[i], res[i])
 			}
+		}
+	}
+}
+
+func TestTargetPath(t *testing.T) {
+	site_permalinks_setting := PermalinkOverrides{
+		"post": ":year/:month/:day/:title/",
+	}
+
+	tests := []struct {
+		content        string
+		path           string
+		hasPermalink   bool
+		expected       string
+	}{
+		{SIMPLE_PAGE, "content/post/x.md", false, "content/post/x.html"},
+		{SIMPLE_PAGE_WITH_URL, "content/post/x.md", false, "simple/url/index.html"},
+		{SIMPLE_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/simple-slug.html"},
+		{SIMPLE_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/simple/index.html"},
+	}
+
+	for _, test := range tests {
+		p, _ := NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
+		p.Node.Site = &SiteInfo{}
+
+		if test.hasPermalink {
+			p.Node.Site.Permalinks = site_permalinks_setting
+		}
+
+		expected := filepath.FromSlash(test.expected)
+
+		if p.TargetPath() != expected {
+			t.Errorf("%s => TargetPath  expected: '%s', got: '%s'", test.content, expected, p.TargetPath())
 		}
 	}
 }
