@@ -23,6 +23,7 @@ import (
 	"math"
 	"path"
 	"reflect"
+	"strings"
 )
 
 type Pager struct {
@@ -266,6 +267,10 @@ func paginatePages(seq interface{}, pagerSize int, section string) (pagers, erro
 	pages, err := toPages(seq)
 	if err != nil {
 		return nil, err
+	}
+
+	if strings.HasSuffix(section, ".html") {
+		section = section[:len(".html")]
 	}
 
 	urlFactory := newPaginationURLFactory(section)
