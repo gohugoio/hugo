@@ -319,6 +319,52 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs, uglyURLs bool) {
 	assert.Equal(t, expected, unicodeRussian.URL, "uglyURLs[%t]", uglyURLs)
 }
 
+// Issue #1114
+func TestSectionPagesMenu(t *testing.T) {
+	viper.Set("SectionPagesMenu", "spm")
+	defer viper.Set("SectionPagesMenu", "")
+
+	for _, canonify := range []bool{true, false} {
+		doTestSectionPagesMenu(canonify, t)
+	}
+}
+
+func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
+	viper.Set("CanonifyURLs", canonifyUrls)
+	ts := setupMenuTests(t, MENU_PAGE_SECTIONS_SOURCES)
+	defer resetMenuTestState(ts)
+
+	assert.Equal(t, 2, len(ts.site.Sections))
+
+	firstSectionPages := ts.site.Sections["first"]
+	assert.Equal(t, 2, len(firstSectionPages))
+	secondSectionPages := ts.site.Sections["second-section"]
+	assert.Equal(t, 1, len(secondSectionPages))
+
+	nodeFirst := ts.site.newSectionListNode("first", firstSectionPages)
+	nodeSecond := ts.site.newSectionListNode("second-section", secondSectionPages)
+
+	firstSectionMenuEntry := ts.findTestMenuEntryByID("spm", "first")
+	secondSectionMenuEntry := ts.findTestMenuEntryByID("spm", "second-section")
+
+	assert.NotNil(t, firstSectionMenuEntry)
+	assert.NotNil(t, secondSectionMenuEntry)
+	assert.NotNil(t, nodeFirst)
+	assert.NotNil(t, nodeSecond)
+
+	for _, p := range firstSectionPages {
+		assert.True(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
+		assert.False(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+		assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
+		assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
+	}
+
+	for _, p := range secondSectionPages {
+		assert.False(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
+		assert.True(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+	}
+}
+
 func TestTaxonomyNodeMenu(t *testing.T) {
 	viper.Set("CanonifyURLs", true)
 	ts := setupMenuTests(t, MENU_PAGE_SOURCES)

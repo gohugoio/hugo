@@ -724,16 +724,7 @@ func (s *Site) getMenusFromConfig() Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
-
-					if strings.HasPrefix(menuEntry.URL, "/") {
-						// make it match the nodes
-						menuEntryURL := menuEntry.URL
-						menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
-						if !s.Info.canonifyURLs {
-							menuEntryURL = helpers.AddContextRoot(string(s.Info.BaseURL), menuEntryURL)
-						}
-						menuEntry.URL = menuEntryURL
-					}
+					menuEntry.URL = s.Info.createNodeMenuEntryURL(menuEntry.URL)
 
 					if ret[name] == nil {
 						ret[name] = &Menu{}
@@ -745,6 +736,20 @@ func (s *Site) getMenusFromConfig() Menus {
 		return ret
 	}
 	return ret
+}
+
+func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
+
+	if !strings.HasPrefix(in, "/") {
+		return in
+	}
+	// make it match the nodes
+	menuEntryURL := in
+	menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
+	if !s.canonifyURLs {
+		menuEntryURL = helpers.AddContextRoot(string(s.BaseURL), menuEntryURL)
+	}
+	return menuEntryURL
 }
 
 func (s *Site) assembleMenus() {
@@ -770,7 +775,7 @@ func (s *Site) assembleMenus() {
 		if sectionPagesMenu != "" {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {
 				if p.Section() != "" {
-					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(p.Section()), URL: s.permalinkStr(p.Section())}
+					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(p.Section()), URL: s.Info.createNodeMenuEntryURL("/" + p.Section())}
 					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
 						// menu with same id defined in config, let that one win
 						continue

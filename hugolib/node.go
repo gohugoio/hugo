@@ -18,7 +18,6 @@ import (
 	"html/template"
 	"sync"
 	"time"
-    "strings"
 )
 
 type Node struct {
@@ -57,19 +56,8 @@ func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 }
 
 func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
-    s := n.Site
 
-	me := MenuEntry{Name: n.Title, URL: n.URL}
-
-	if strings.HasPrefix(me.URL, "/") {
-		// make it match the nodes
-		menuEntryURL := me.URL
-		menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
-		if !s.canonifyURLs {
-		    menuEntryURL = helpers.AddContextRoot(string(s.BaseURL), menuEntryURL)
-		}
-		me.URL = menuEntryURL
-	}
+	me := MenuEntry{Name: n.Title, URL: n.Site.createNodeMenuEntryURL(n.URL)}
 
 	if !me.IsSameResource(inme) {
 		return false
