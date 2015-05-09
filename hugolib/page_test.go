@@ -242,6 +242,28 @@ date: '2013-10-15T06:16:13'
 ---
 Simple Page With Date`
 
+	UTF8_PAGE = `---
+title: ラーメン
+---
+UTF8 Page`
+
+	UTF8_PAGE_WITH_URL = `---
+title: ラーメン
+url: ラーメン/url/
+---
+UTF8 Page With URL`
+
+	UTF8_PAGE_WITH_SLUG = `---
+title: ラーメン
+slug: ラーメン-slug
+---
+UTF8 Page With Slug`
+
+	UTF8_PAGE_WITH_DATE = `---
+title: ラーメン
+date: '2013-10-15T06:16:13'
+---
+UTF8 Page With Date`
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -656,6 +678,10 @@ func TestTargetPath(t *testing.T) {
 		{SIMPLE_PAGE_WITH_URL, "content/post/x.md", false, "simple/url/index.html"},
 		{SIMPLE_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/simple-slug.html"},
 		{SIMPLE_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/simple/index.html"},
+		{UTF8_PAGE, "content/post/x.md", false, "content/post/x.html"},
+		{UTF8_PAGE_WITH_URL, "content/post/x.md", false, "ラーメン/url/index.html"},
+		{UTF8_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
+		{UTF8_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/ラーメン/index.html"},
 	}
 
 	for _, test := range tests {
