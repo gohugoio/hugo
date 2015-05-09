@@ -134,7 +134,7 @@ func serve(port int) {
 		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
 
-	u.Host = serverInterface
+	u.Host = net.JoinHostPort(serverInterface, strconv.Itoa(serverPort))
 	u.Scheme = "http"
 	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
 	fmt.Println("Press Ctrl+C to stop")
