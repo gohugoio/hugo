@@ -28,14 +28,14 @@ Work In Progress.
   * Fix panic with paginator and zero pages in result set.
   * Fix crossrefs on Windows.
   * Fix `eq` and `ne` template functions when used with a raw number combined with the result of `add`, `sub` etc. 
+  * Fix paginator with uglyurls
 * Add `bind` flag to `hugo server` to set the interface to which the server will bind
 * Configurable RSS output filename
 * New template functions:
   * `getenv`
   * String functions `substr` and `slicestr`
   * Add `seq`, a sequence generator very similar to its Gnu countepart
-
-* Deprecated: These will still work in 0.14, but will be removed in 0.15. What to do should be obvious by the build log.
+* TODO Deprecated: These will still work in 0.14, but will be removed in 0.15. What to do should be obvious by the build log.
 
 ## **0.13.0** Feb 21, 2015
 
