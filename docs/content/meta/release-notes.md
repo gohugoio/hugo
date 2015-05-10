@@ -21,7 +21,7 @@ Work In Progress.
 * Show help information to Windows users who try to double click on `hugo.exe`.
 * Add experimental support for [`Mmark`](https://github.com/miekg/mmark) markdown processor 
 * Add `AsciiDoc` support using external helpers.
-* Add section menu support for _the lazy blogger_
+* Add section menu support for a [Section Menu for "the Lazy Blogger"]({{< relref "extras/menus.md#section-menu-for-the-lazy-blogger" >}})
 * Add shortcode support for HTML files
 * Allow the same `shortcode` to  be used with or without inline content
 * Some important bugfixes:
