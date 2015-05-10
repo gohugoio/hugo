@@ -172,10 +172,14 @@ func (p *Page) setSummary() {
 	// rendered and ready in p.contentShortcodes
 
 	if bytes.Contains(p.rawContent, helpers.SummaryDivider) {
-		// If user defines split:
-		// Split, replace shortcode tokens, then render
-		p.Truncated = true // by definition
-		header := bytes.Split(p.rawContent, helpers.SummaryDivider)[0]
+		sections := bytes.Split(p.rawContent, helpers.SummaryDivider)
+		header := sections[0]
+		p.Truncated = true
+		if len(sections[1]) < 20 {
+			// only whitespace?
+			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
+		}
+
 		renderedHeader := p.renderBytes(header)
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
