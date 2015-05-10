@@ -299,6 +299,22 @@ func GetRelativePath(path, base string) (final string, err error) {
 	return name, nil
 }
 
+func PaginateAliasPath(base string, page int) string {
+	paginatePath := viper.GetString("paginatePath")
+	uglify := viper.GetBool("UglyURLs")
+	var p string
+	if base != "" {
+		p = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))
+	} else {
+		p = filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, page))
+	}
+	if uglify {
+		p += ".html"
+	}
+
+	return p
+}
+
 // GuessSection returns the section given a source path.
 // A section is the part between the root slash and the second slash
 // or before the first slash.

@@ -1096,7 +1096,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.WriteDestAlias(fmt.Sprintf("%s/%s/%d/index.html", base, paginatePath, 1), s.permalink(base))
+			s.WriteDestAlias(helpers.PaginateAliasPath(base, 1), s.permalink(base))
 
 			pagers := n.paginator.Pagers()
 
@@ -1191,7 +1191,7 @@ func (s *Site) RenderSectionLists() error {
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.WriteDestAlias(filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", section, paginatePath, 1)), s.permalink(section))
+			s.WriteDestAlias(helpers.PaginateAliasPath(section, 1), s.permalink(section))
 
 			pagers := n.paginator.Pagers()
 
@@ -1248,7 +1248,7 @@ func (s *Site) RenderHomePage() error {
 		paginatePath := viper.GetString("paginatePath")
 
 		// write alias for page 1
-		s.WriteDestAlias(filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, 1)), s.permalink("/"))
+		s.WriteDestAlias(helpers.PaginateAliasPath("", 1), s.permalink("/"))
 
 		pagers := n.paginator.Pagers()
 
