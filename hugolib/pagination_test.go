@@ -172,7 +172,6 @@ func TestPaginate(t *testing.T) {
 }
 
 func doTestPaginate(t *testing.T, useViper bool) {
-
 	pagerSize := 5
 	if useViper {
 		viper.Set("paginate", pagerSize)
