@@ -307,7 +307,7 @@ func NewPageFrom(buf io.Reader, name string) (*Page, error) {
 	if err != nil {
 		return p, err
 	}
-	err = p.ReadFrom(buf)
+	_, err = p.ReadFrom(buf)
 
 	return p, err
 }
@@ -323,14 +323,14 @@ func NewPage(name string) (*Page, error) {
 	return p, nil
 }
 
-func (p *Page) ReadFrom(buf io.Reader) (err error) {
+func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
-	if err = p.parse(buf); err != nil {
+	if err := p.parse(buf); err != nil {
 		jww.ERROR.Print(err)
-		return
+		return 0, err
 	}
 
-	return nil
+	return int64(len(p.rawContent)), nil
 }
 
 func (p *Page) analyzePage() {
@@ -555,6 +555,12 @@ func (p *Page) GetParam(key string) interface{} {
 
 func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 	menus := p.Menus()
+	sectionPagesMenu := viper.GetString("SectionPagesMenu")
+
+	// page is labeled as "shadow-member" of the menu with the same identifier as the section
+	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menu && p.Section() == me.Identifier {
+		return true
+	}
 
 	if m, ok := menus[menu]; ok {
 		if me.HasChildren() {
@@ -751,7 +757,7 @@ func (p *Page) ProcessShortcodes(t tpl.Template) {
 
 	// these short codes aren't used until after Page render,
 	// but processed here to avoid coupling
-	tmpContent, tmpContentShortCodes := extractAndRenderShortcodes(string(p.rawContent), p, t)
+	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
 	p.rawContent = []byte(tmpContent)
 	p.contentShortCodes = tmpContentShortCodes
 

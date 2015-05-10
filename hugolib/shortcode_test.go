@@ -20,11 +20,44 @@ func pageFromString(in, filename string) (*Page, error) {
 func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Template) {
 
 	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
-	output := ShortcodesHandle(input, p, template)
+	output, err := HandleShortcodes(input, p, template)
+
+	if err != nil {
+		t.Fatalf("Shortcode rendered error %s. Expected: %q, Got: %q", err, expected, output)
+	}
 
 	if output != expected {
-		t.Fatalf("Shortcode render didn't match. Expected: %q, Got: %q", expected, output)
+		t.Fatalf("Shortcode render didn't match. got %q but exxpected %q", output, expected)
 	}
+}
+
+func TestShortcodeGoFuzzReports(t *testing.T) {
+	tem := tpl.New()
+
+	tem.AddInternalShortcode("sc.html", `foo`)
+	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+
+	for i, this := range []struct {
+		data      string
+		expectErr bool
+	}{
+		{"{{</*/", true},
+	} {
+		output, err := HandleShortcodes(this.data, p, tem)
+
+		if this.expectErr && err == nil {
+			t.Errorf("[%d] should have errored", i)
+		}
+
+		if !this.expectErr && err != nil {
+			t.Errorf("[%d] should not have errored: %s", i, err)
+		}
+
+		if !this.expectErr && err == nil && len(output) == 0 {
+			t.Errorf("[%d] empty result", i)
+		}
+	}
+
 }
 
 func TestNonSC(t *testing.T) {
@@ -227,8 +260,8 @@ func TestExtractShortcodes(t *testing.T) {
 			} else {
 				r, _ := regexp.Compile(this.expectErrorMsg)
 				if !r.MatchString(err.Error()) {
-					t.Fatalf("[%d] %s: ExtractShortcodes didn't return an expected error message, expected %s got %s",
-						i, this.name, this.expectErrorMsg, err.Error())
+					t.Fatalf("[%d] %s: ExtractShortcodes didn't return an expected error message, got %s but expected %s",
+						i, this.name, err.Error(), this.expectErrorMsg)
 				}
 			}
 			continue
@@ -256,7 +289,7 @@ func TestExtractShortcodes(t *testing.T) {
 		}
 
 		if !r.MatchString(content) {
-			t.Fatalf("[%d] %s: Shortcode extract didn't match. Expected: %q, Got: %q", i, this.name, expected, content)
+			t.Fatalf("[%d] %s: Shortcode extract didn't match. got %q but expected %q", i, this.name, content, expected)
 		}
 
 		for placeHolder, sc := range shortCodes {
@@ -270,15 +303,15 @@ func TestExtractShortcodes(t *testing.T) {
 		}
 
 		if this.expectShortCodes != "" {
-			shortCodesAsStr := fmt.Sprintf("map%q", collectAndShortShortcodes(shortCodes))
+			shortCodesAsStr := fmt.Sprintf("map%q", collectAndSortShortcodes(shortCodes))
 			if !strings.Contains(shortCodesAsStr, this.expectShortCodes) {
-				t.Fatalf("[%d] %s: Short codes not as expected, got %s - expected to contain %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
+				t.Fatalf("[%d] %s: Short codes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
 			}
 		}
 	}
 }
 
-func collectAndShortShortcodes(shortcodes map[string]shortcode) []string {
+func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 	var asArray []string
 
 	for key, sc := range shortcodes {

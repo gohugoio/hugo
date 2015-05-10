@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"path/filepath"
 )
 
 const (
@@ -90,9 +91,15 @@ weight = 3
 Front Matter with Menu Pages`)
 
 var MENU_PAGE_SOURCES = []source.ByteSource{
-	{"sect/doc1.md", MENU_PAGE_1},
-	{"sect/doc2.md", MENU_PAGE_2},
-	{"sect/doc3.md", MENU_PAGE_3},
+	{filepath.FromSlash("sect/doc1.md"), MENU_PAGE_1},
+	{filepath.FromSlash("sect/doc2.md"), MENU_PAGE_2},
+	{filepath.FromSlash("sect/doc3.md"), MENU_PAGE_3},
+}
+
+var MENU_PAGE_SECTIONS_SOURCES = []source.ByteSource{
+	{filepath.FromSlash("first/doc1.md"), MENU_PAGE_1},
+	{filepath.FromSlash("first/doc2.md"), MENU_PAGE_2},
+	{filepath.FromSlash("second-section/doc3.md"), MENU_PAGE_3},
 }
 
 func tstCreateMenuPageWithNameTOML(title, menu, name string) []byte {
@@ -312,6 +319,52 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs, uglyURLs bool) {
 	assert.Equal(t, expected, unicodeRussian.URL, "uglyURLs[%t]", uglyURLs)
 }
 
+// Issue #1114
+func TestSectionPagesMenu(t *testing.T) {
+	viper.Set("SectionPagesMenu", "spm")
+	defer viper.Set("SectionPagesMenu", "")
+
+	for _, canonify := range []bool{true, false} {
+		doTestSectionPagesMenu(canonify, t)
+	}
+}
+
+func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
+	viper.Set("CanonifyURLs", canonifyUrls)
+	ts := setupMenuTests(t, MENU_PAGE_SECTIONS_SOURCES)
+	defer resetMenuTestState(ts)
+
+	assert.Equal(t, 2, len(ts.site.Sections))
+
+	firstSectionPages := ts.site.Sections["first"]
+	assert.Equal(t, 2, len(firstSectionPages))
+	secondSectionPages := ts.site.Sections["second-section"]
+	assert.Equal(t, 1, len(secondSectionPages))
+
+	nodeFirst := ts.site.newSectionListNode("first", firstSectionPages)
+	nodeSecond := ts.site.newSectionListNode("second-section", secondSectionPages)
+
+	firstSectionMenuEntry := ts.findTestMenuEntryByID("spm", "first")
+	secondSectionMenuEntry := ts.findTestMenuEntryByID("spm", "second-section")
+
+	assert.NotNil(t, firstSectionMenuEntry)
+	assert.NotNil(t, secondSectionMenuEntry)
+	assert.NotNil(t, nodeFirst)
+	assert.NotNil(t, nodeSecond)
+
+	for _, p := range firstSectionPages {
+		assert.True(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
+		assert.False(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+		assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
+		assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
+	}
+
+	for _, p := range secondSectionPages {
+		assert.False(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
+		assert.True(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+	}
+}
+
 func TestTaxonomyNodeMenu(t *testing.T) {
 	viper.Set("CanonifyURLs", true)
 	ts := setupMenuTests(t, MENU_PAGE_SOURCES)
@@ -487,7 +540,6 @@ func testSiteSetup(s *Site, t *testing.T) {
 
 	s.Menus = Menus{}
 	s.initializeSiteInfo()
-	s.Shortcodes = make(map[string]ShortcodeFunc)
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)

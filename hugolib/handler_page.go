@@ -25,6 +25,7 @@ func init() {
 	RegisterHandler(new(htmlHandler))
 	RegisterHandler(new(asciidocHandler))
 	RegisterHandler(new(rstHandler))
+	RegisterHandler(new(mmarkHandler))
 }
 
 type basicPageHandler Handle
@@ -35,7 +36,7 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 		return HandledResult{file: f, err: err}
 	}
 
-	if err := page.ReadFrom(f.Contents); err != nil {
+	if _, err := page.ReadFrom(f.Contents); err != nil {
 		return HandledResult{file: f, err: err}
 	}
 
@@ -60,13 +61,14 @@ func (h markdownHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
-
+		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, true, p.contentShortCodes,
+			tmpContent, tmpTableOfContents)
 		if err != nil {
-			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
 			return HandledResult{err: err}
 		}
-		tmpContent = tmpContentWithTokensReplaced
+		tmpContent = replaced[0]
+		tmpTableOfContents = replaced[1]
 	}
 
 	p.Content = helpers.BytesToHTML(tmpContent)
@@ -81,9 +83,22 @@ type htmlHandler struct {
 
 func (h htmlHandler) Extensions() []string { return []string{"html", "htm"} }
 func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
-	// see #674 - disabled by bjornerik for now
-	// p.ProcessShortcodes(t)
-	p.Content = helpers.BytesToHTML(p.rawContent)
+	p.ProcessShortcodes(t)
+	var content []byte
+	var err error
+
+	if len(p.contentShortCodes) > 0 {
+		content, err = replaceShortcodeTokens(p.rawContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
+
+		if err != nil {
+			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			return HandledResult{err: err}
+		}
+	} else {
+		content = p.rawContent
+	}
+
+	p.Content = helpers.BytesToHTML(content)
 	return HandledResult{err: nil}
 }
 
@@ -99,14 +114,14 @@ func (h asciidocHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
-
+		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, true, p.contentShortCodes,
+			tmpContent, tmpTableOfContents)
 		if err != nil {
-			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
 			return HandledResult{err: err}
-		} else {
-			tmpContent = tmpContentWithTokensReplaced
 		}
+		tmpContent = replaced[0]
+		tmpTableOfContents = replaced[1]
 	}
 
 	p.Content = helpers.BytesToHTML(tmpContent)
@@ -127,13 +142,41 @@ func (h rstHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
+		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, true, p.contentShortCodes,
+			tmpContent, tmpTableOfContents)
+		if err != nil {
+			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			return HandledResult{err: err}
+		}
+		tmpContent = replaced[0]
+		tmpTableOfContents = replaced[1]
+	}
+
+	p.Content = helpers.BytesToHTML(tmpContent)
+	p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+
+	return HandledResult{err: nil}
+}
+
+type mmarkHandler struct {
+	basicPageHandler
+}
+
+func (h mmarkHandler) Extensions() []string { return []string{"mmark"} }
+func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	p.ProcessShortcodes(t)
+
+	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
+
+	if len(p.contentShortCodes) > 0 {
 		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
 
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
 			return HandledResult{err: err}
+		} else {
+			tmpContent = tmpContentWithTokensReplaced
 		}
-		tmpContent = tmpContentWithTokensReplaced
 	}
 
 	p.Content = helpers.BytesToHTML(tmpContent)

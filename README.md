@@ -90,10 +90,17 @@ We welcome contributions to Hugo of any kind including documentation, themes, or
 
 If you have any questions about how to contribute or what to contribute please ask on the [forum](http://discuss.gohugo.io)
 
+## Code Contribution Guideline
 
-## Code Contribution Guide
+We welcome your contributions. To make the process as seamless as possible, we ask for the following:
 
-Contributors should build Hugo and test their changes before submitting a code change.
+* Go ahead and fork the project and make your changes. We encourage pull requests to discuss code changes.
+* When you’re ready to create a pull request, be sure to:
+     * Have test cases for the new code. If you have questions about how to do it, please ask in your pull request.
+     * Run `go fmt`
+     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request.
+     * This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages, the most important part being that each commit message should have a title/subject in imperative mode without trailing period: *"Return error on wrong use of the Paginator"*, **NOT** *"Returning some error."* Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*. Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
+     * Make sure `go test ./...` passes, and `go build` completes. Our [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing. 
 
 ### Building Hugo with Your Changes
 
@@ -117,18 +124,6 @@ This will result in `hugo version` output that looks similar to:
 
     Hugo Static Site Generator v0.13-DEV-8042E77 buildDate: 2014-12-25T03:25:57-07:00
 
-The format of the date is configurable via the `Params.DateFormat` setting. `DateFormat` is a string value representing the Go time layout that should be used to format the date output. If `Params.DateFormat` is not set, `time.RFC3339` will be used as the default format. See Go’s ["time" package documentation](http://golang.org/pkg/time/#pkg-constants) for more information.
-
-Configuration setting using config.yaml as example:
-
-    Params:
-       DateFormat: "2006-01-02"
-
-Will result in:
-
-    Hugo Static Site Generator v0.13-DEV buildDate: 2014-10-16
-    Hugo Static Site Generator v0.13-DEV-24BBFE7 buildDate: 2014-10-16
-
 Alternatively, just run `make` &mdash; all the “magic” above is already in the `Makefile`.  :wink:
 
 ### Running Hugo
@@ -136,17 +131,6 @@ Alternatively, just run `make` &mdash; all the “magic” above is already in t
     cd /path/to/hugo
     go install github.com/spf13/hugo/hugolib
     go run main.go
-
-## Contribution Guidelines
-
-We welcome your contributions. To make the process as seamless as possible, we ask for the following:
-
-* Go ahead and fork the project and make your changes. We encourage pull requests to discuss code changes.
-* When you’re ready to create a pull request, be sure to:
-     * Have test cases for the new code. If you have questions about how to do it, please ask in your pull request.
-     * Run `go fmt`
-     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request.
-     * Make sure `go test ./...` passes, and `go build` completes. Our [Travis CI loop](https://travis-ci.org/spf13/hugo) will catch most things that are missing. The exception: Windows. We run on Windows from time to time, but if you have access, please check on a Windows machine too.
 
 **Complete documentation is available at [Hugo Documentation](http://gohugo.io/).**
 

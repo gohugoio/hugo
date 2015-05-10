@@ -75,6 +75,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
+	HugoCmd.AddCommand(undraftCmd)
 }
 
 //Initializes flags
@@ -101,6 +102,13 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
+
+	// This message will be shown to Windows users if Hugo is opened from explorer.exe
+	cobra.MousetrapHelpText = `
+
+  Hugo is a command line tool
+
+  You need to open cmd.exe and run it from there.`
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
@@ -145,6 +153,8 @@ func InitializeConfig() {
 	viper.SetDefault("Paginate", 10)
 	viper.SetDefault("PaginatePath", "page")
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
+	viper.SetDefault("RSSUri", "index.xml")
+	viper.SetDefault("SectionPagesMenu", "")
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -244,6 +254,12 @@ func InitializeConfig() {
 	}
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
+
+	themeVersionMismatch, minVersion := helpers.IsThemeVsHugoVersionMismatch()
+	if themeVersionMismatch {
+		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
+			helpers.HugoReleaseVersion(), minVersion)
+	}
 }
 
 func build(watches ...bool) {
@@ -425,7 +441,7 @@ func NewWatcher(port int) error {
 				}
 
 				if staticChanged {
-					jww.FEEDBACK.Println("Static file changed, syncing\n")
+					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {

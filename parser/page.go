@@ -30,8 +30,8 @@ var (
 		[]byte(JSON_LEAD),
 	}
 
-	unixEnding = []byte("\n")
-	dosEnding  = []byte("\r\n")
+	UnixEnding = []byte("\n")
+	DosEnding  = []byte("\r\n")
 )
 
 type FrontMatter []byte

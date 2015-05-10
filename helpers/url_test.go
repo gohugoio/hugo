@@ -31,11 +31,12 @@ func TestSanitizeURL(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"http://foo.bar/", "http://foo.bar/"},
+		{"http://foo.bar/", "http://foo.bar"},
+		{"http://foo.bar", "http://foo.bar"},          // issue #1105
 		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		o1 := SanitizeURL(test.input)
 		o2 := SanitizeURLKeepTrailingSlash(test.input)
 
@@ -46,10 +47,10 @@ func TestSanitizeURL(t *testing.T) {
 		}
 
 		if o1 != test.expected {
-			t.Errorf("Expected %#v, got %#v\n", test.expected, o1)
+			t.Errorf("[%d] 1: Expected %#v, got %#v\n", i, test.expected, o1)
 		}
 		if o2 != expected2 {
-			t.Errorf("Expected %#v, got %#v\n", expected2, o2)
+			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
 		}
 	}
 }

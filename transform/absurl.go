@@ -5,6 +5,9 @@ import (
 	"sync"
 )
 
+// to be used in tests; the live site will get its value from Viper.
+var AbsBaseUrl string
+
 var absURLInit sync.Once
 var ar *absURLReplacer
 
@@ -18,8 +21,8 @@ func absURLFromURL(URL string) (trs []link, err error) {
 }
 
 func absURLFromReplacer(ar *absURLReplacer) (trs []link, err error) {
-	trs = append(trs, func(rw contentTransformer) {
-		ar.replaceInHTML(rw)
+	trs = append(trs, func(ct contentTransformer) {
+		ar.replaceInHTML(ct)
 	})
 	return
 }
@@ -34,14 +37,22 @@ func absURLInXMLFromURL(URL string) (trs []link, err error) {
 }
 
 func absURLInXMLFromReplacer(ar *absURLReplacer) (trs []link, err error) {
-	trs = append(trs, func(rw contentTransformer) {
-		ar.replaceInXML(rw)
+	trs = append(trs, func(ct contentTransformer) {
+		ar.replaceInXML(ct)
 	})
 	return
 }
 
 func initAbsURLReplacer() {
 	absURLInit.Do(func() {
-		ar = newAbsURLReplacer(viper.GetString("BaseURL"))
+		var url string
+
+		if AbsBaseUrl != "" {
+			url = AbsBaseUrl
+		} else {
+			url = viper.GetString("BaseURL")
+		}
+
+		ar = newAbsURLReplacer(url)
 	})
 }

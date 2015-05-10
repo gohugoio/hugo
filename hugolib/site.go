@@ -48,6 +48,8 @@ var _ = transform.AbsURL
 
 var DefaultTimer *nitro.B
 
+var distinctErrorLogger = helpers.NewDistinctErrorLogger()
+
 // Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
 //
@@ -73,7 +75,6 @@ type Site struct {
 	Source         source.Input
 	Sections       Taxonomy
 	Info           SiteInfo
-	Shortcodes     map[string]ShortcodeFunc
 	Menus          Menus
 	timer          *nitro.B
 	Targets        targetList
@@ -307,6 +308,10 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 				return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
 			}
 
+			if data == nil {
+				continue
+			}
+
 			// Copy content from current to data when needed
 			if _, ok := current[r.BaseFileName()]; ok {
 				data := data.(map[string]interface{})
@@ -340,7 +345,8 @@ func readData(f *source.File) (interface{}, error) {
 	case "toml":
 		return parser.HandleTOMLMetaData(f.Bytes())
 	default:
-		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
+		jww.WARN.Printf("Data not supported for extension '%s'", f.Extension())
+		return nil, nil
 	}
 }
 
@@ -450,7 +456,6 @@ func (s *Site) initialize() (err error) {
 
 	s.initializeSiteInfo()
 
-	s.Shortcodes = make(map[string]ShortcodeFunc)
 	return
 }
 
@@ -722,16 +727,7 @@ func (s *Site) getMenusFromConfig() Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
-
-					if strings.HasPrefix(menuEntry.URL, "/") {
-						// make it match the nodes
-						menuEntryURL := menuEntry.URL
-						menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
-						if !s.Info.canonifyURLs {
-							menuEntryURL = helpers.AddContextRoot(string(s.Info.BaseURL), menuEntryURL)
-						}
-						menuEntry.URL = menuEntryURL
-					}
+					menuEntry.URL = s.Info.createNodeMenuEntryURL(menuEntry.URL)
 
 					if ret[name] == nil {
 						ret[name] = &Menu{}
@@ -743,6 +739,20 @@ func (s *Site) getMenusFromConfig() Menus {
 		return ret
 	}
 	return ret
+}
+
+func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
+
+	if !strings.HasPrefix(in, "/") {
+		return in
+	}
+	// make it match the nodes
+	menuEntryURL := in
+	menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
+	if !s.canonifyURLs {
+		menuEntryURL = helpers.AddContextRoot(string(s.BaseURL), menuEntryURL)
+	}
+	return menuEntryURL
 }
 
 func (s *Site) assembleMenus() {
@@ -760,8 +770,25 @@ func (s *Site) assembleMenus() {
 		}
 	}
 
+	sectionPagesMenu := viper.GetString("SectionPagesMenu")
+	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
 	for _, p := range s.Pages {
+
+		if sectionPagesMenu != "" {
+			if _, ok := sectionPagesMenus[p.Section()]; !ok {
+				if p.Section() != "" {
+					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(p.Section()), URL: s.Info.createNodeMenuEntryURL("/" + p.Section())}
+					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
+						// menu with same id defined in config, let that one win
+						continue
+					}
+					flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
+					sectionPagesMenus[p.Section()] = true
+				}
+			}
+		}
+
 		for name, me := range p.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
 				jww.ERROR.Printf("Two or more menu items have the same name/identifier in %q Menu. Identified as %q.\n Rename or set a unique identifier. \n", name, me.KeyName())
@@ -1089,7 +1116,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
-				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy_%s_%d", t.singular, pageNumber), htmlBase, taxonomyPagerNode, layouts...); err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy %s", t.singular), htmlBase, taxonomyPagerNode, layouts...); err != nil {
 					results <- err
 					continue
 				}
@@ -1158,7 +1185,7 @@ func (s *Site) RenderSectionLists() error {
 
 		n := s.newSectionListNode(section, data)
 
-		if err := s.renderAndWritePage(fmt.Sprintf("section%s_%d", section, 1), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
+		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
 
@@ -1184,7 +1211,7 @@ func (s *Site) RenderSectionLists() error {
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
-				if err := s.renderAndWritePage(fmt.Sprintf("section_%s_%d", section, pageNumber), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
 					return err
 				}
 			}
@@ -1241,7 +1268,7 @@ func (s *Site) RenderHomePage() error {
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
-			if err := s.renderAndWritePage(fmt.Sprintf("homepage_%d", pageNumber), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
+			if err := s.renderAndWritePage(fmt.Sprintf("homepage"), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
 				return err
 			}
 		}
@@ -1249,7 +1276,7 @@ func (s *Site) RenderHomePage() error {
 
 	if !viper.GetBool("DisableRSS") {
 		// XML Feed
-		n.URL = s.permalinkStr("index.xml")
+		n.URL = s.permalinkStr(viper.GetString("RSSUri"))
 		n.Title = ""
 		high := 50
 		if len(s.Pages) < high {
@@ -1262,7 +1289,7 @@ func (s *Site) RenderHomePage() error {
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
 
-		if err := s.renderAndWriteXML("homepage rss", "index.xml", n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+		if err := s.renderAndWriteXML("homepage rss", viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}
@@ -1427,7 +1454,7 @@ func (s *Site) render(name string, d interface{}, renderBuffer *bytes.Buffer, la
 
 	if err := s.renderThing(d, layout, renderBuffer); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
-		jww.ERROR.Println(fmt.Errorf("Error while rendering %s: %v", name, err))
+		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
 		if !s.Running() {
 			os.Exit(-1)
 		}

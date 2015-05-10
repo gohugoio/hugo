@@ -10,6 +10,33 @@ title: Release Notes
 weight: 10
 ---
 
+## **0.14.0** ??
+
+Work In Progress.
+
+* Highlighting with `Pygments` is now cached to disk -- expect a major speed boost if you use it! 
+* More Pygments highlighting options, including `line numbers`
+* Add support for `canonifyurls` in `srcset`
+* Add support for `Ace` base templates
+* Show help information to Windows users who try to double click on `hugo.exe`.
+* Add experimental support for [`Mmark`](https://github.com/miekg/mmark) markdown processor 
+* Add `AsciiDoc` support using external helpers.
+* Add section menu support for _the lazy blogger_
+* Add shortcode support for HTML files
+* Allow the same `shortcode` to  be used with or without inline content
+* Some important bugfixes:
+  * Fix panic with paginator and zero pages in result set.
+  * Fix crossrefs on Windows.
+  * Fix `eq` and `ne` template functions when used with a raw number combined with the result of `add`, `sub` etc. 
+* Add `bind` flag to `hugo server` to set the interface to which the server will bind
+* Configurable RSS output filename
+* New template functions:
+  * `getenv`
+  * String functions `substr` and `slicestr`
+  * Add `seq`, a sequence generator very similar to its Gnu countepart
+
+* Deprecated: These will still work in 0.14, but will be removed in 0.15. What to do should be obvious by the build log.
+
 ## **0.13.0** Feb 21, 2015
 
 The v0.13.0 release is the largest Hugo release to date. The release introduced

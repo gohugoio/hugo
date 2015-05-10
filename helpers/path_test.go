@@ -2,10 +2,10 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 )
 
 func TestMakePath(t *testing.T) {
@@ -543,6 +544,14 @@ func TestPathPrep(t *testing.T) {
 
 func TestPrettifyPath(t *testing.T) {
 
+}
+
+func TestRemoveSubpaths(t *testing.T) {
+	got := RemoveSubpaths([]string{"hello", "hello/world", "foo/bar", ""})
+	expect := []string{"hello", "foo/bar"}
+	if !reflect.DeepEqual(got, expect) {
+		t.Errorf("Expected %q but got %q", expect, got)
+	}
 }
 
 func TestFindCWD(t *testing.T) {

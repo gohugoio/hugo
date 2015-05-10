@@ -77,7 +77,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	if err != nil {
 		panic(err)
 	}
-	if !strings.HasPrefix(u.Path, "/") {
+	if len(u.Path) > 0 && !strings.HasPrefix(u.Path, "/") {
 		u.Path = "/" + u.Path
 	}
 	return u.String()

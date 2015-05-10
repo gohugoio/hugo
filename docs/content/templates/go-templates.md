@@ -6,7 +6,7 @@ date: 2013-07-01
 menu:
   main:
     parent: layout
-next: /templates/functions
+next: /templates/ace
 prev: /templates/overview
 title: Go Template Primer
 weight: 15
@@ -220,6 +220,10 @@ illustration of how to use the pipes.
 
 Access the page parameter called "disqus_url" and escape the HTML.
 
+The `index` function is a [Go][] built-in, and you can read about it [here][gostdlibpkgtexttemplate]. `index`:
+
+> ...returns the result of indexing its first argument by the following arguments. Thus "index x 1 2 3" is, in Go syntax, `x[1][2][3]`. Each indexed item must be a map, slice, or array.
+
 **Example 3:**
 
     {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
@@ -383,10 +387,6 @@ so, such as in this example:
 </nav>
 ```
 
-
-[go]: http://golang.org/
-[gohtmltemplate]: http://golang.org/pkg/html/template/
-
 # Template example: Show only upcoming events
 
 Go allows you to do more than what's shown here.  Using Hugo's
@@ -406,3 +406,7 @@ the future:
         </li>
       {{ end }}
     {{ end }}
+
+[go]: http://golang.org/
+[gohtmltemplate]: http://golang.org/pkg/html/template/
+[gostdlibpkgtexttemplate]: http://golang.org/pkg/text/template/
