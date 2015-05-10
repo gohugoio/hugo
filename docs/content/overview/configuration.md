@@ -77,7 +77,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     baseURL:                    ""
     # include content marked as draft
     buildDrafts:                false
-    # include content with datePublished in the future
+    # include content with publishdate in the future
     buildFuture:                false
     canonifyURLs:               false
     # config file (default is path/config.yaml|json|toml)
