@@ -39,7 +39,7 @@ Flags:
 Global Flags:
   -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/
   -D, --buildDrafts=false: include content marked as draft
-  -F, --buildFuture=false: include content with datePublished in the future
+  -F, --buildFuture=false: include content with publishdate in the future
       --cacheDir="": filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --config="": config file (default is path/config.yaml|json|toml)
   -d, --destination="": filesystem path to write files to
