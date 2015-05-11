@@ -9,6 +9,7 @@ next: /extras/toc
 prev: /extras/shortcodes
 title: Syntax Highlighting
 weight: 90
+toc: true
 ---
 
 Hugo provides the ability for you to highlight source code in two different

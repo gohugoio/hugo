@@ -9,6 +9,7 @@ next: /extras/highlighting
 prev: /extras/datafiles
 title: Dynamic Content
 weight: 91
+toc: true
 ---
 
 Dynamic content with a static site generator? Yes, it is possible!
