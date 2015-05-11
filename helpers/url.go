@@ -138,11 +138,20 @@ func MakePermalink(host, plink string) *url.URL {
 	base.Path = path.Join(base.Path, p.Path)
 
 	// path.Join will strip off the last /, so put it back if it was there.
-	if strings.HasSuffix(p.Path, "/") && !strings.HasSuffix(base.Path, "/") {
+	hadTrailingSlash := (plink == "" && strings.HasSuffix(host, "/")) || strings.HasSuffix(p.Path, "/")
+	if hadTrailingSlash && !strings.HasSuffix(base.Path, "/") {
 		base.Path = base.Path + "/"
 	}
 
 	return base
+}
+
+// AbsURL creates a absolute URL from the relative path given and the BaseURL set in config.
+func AbsURL(path string) string {
+	if strings.HasPrefix(path, "http") || strings.HasPrefix(path, "//") {
+		return path
+	}
+	return MakePermalink(string(viper.GetString("BaseURL")), path).String()
 }
 
 // AddContextRoot adds the context root to an URL if it's not already set.

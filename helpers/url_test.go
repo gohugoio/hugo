@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -20,6 +21,28 @@ func TestURLize(t *testing.T) {
 
 	for _, test := range tests {
 		output := URLize(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestAbsURL(t *testing.T) {
+	tests := []struct {
+		input    string
+		baseURL  string
+		expected string
+	}{
+		{"/test/foo", "http://base/", "http://base/test/foo"},
+		{"", "http://base/ace/", "http://base/ace/"},
+		{"/test/2/foo/", "http://base", "http://base/test/2/foo/"},
+		{"http://abs", "http://base/", "http://abs"},
+		{"//schemaless", "http://base/", "//schemaless"},
+	}
+
+	for _, test := range tests {
+		viper.Set("BaseURL", test.baseURL)
+		output := AbsURL(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
