@@ -309,12 +309,6 @@ This will run the string through the Markdown processesor. The result will be de
 e.g. `{{ .Title | markdownify }}`
 
 
-### ref, relref
-Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
-
-e.g. {{ ref . "about.md" }}
-
-
 ### replace
 Replace all occurences of the search string with the replacement string.
 
@@ -377,6 +371,42 @@ Example: Given `style = "color: red;"` defined in the front matter of your `.md`
 Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
 CSS or URL context.
 
+### title
+Convert all characters in string to titlecase.
+
+e.g. `{{title "BatMan"}}` → "Batman"
+
+
+### trim
+Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
+
+e.g. `{{ trim "++Batman--" "+-" }}` → "Batman"
+
+
+### upper
+Convert all characters in string to uppercase.
+
+e.g. `{{upper "BatMan"}}` → "BATMAN"
+
+
+
+
+## Urls
+
+### absURL, relURL
+
+Both `absURL` and `relURL` considers the configured value of `baseURL`, so given a `baseURL` set to `http://mysite.com/hugo/`:
+
+* `{{ "mystyle.css" | absURL }}` → "http://mysite.com/hugo/mystyle.css"
+* `{{ "mystyle.css" | relURL }}` → "/hugo/mystyle.css"
+
+**Note:** If `canonifyUrls` is enabled, the last example above will be "/mystyle.css". These functions are smart about missing slashes, but will not add one to the end if not present.
+
+
+### ref, relref
+Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
+
+e.g. {{ ref . "about.md" }}
 
 ### safeURL
 Declares the provided string as a "safe" URL or URL substring (see [RFC 3986][]).
@@ -415,24 +445,6 @@ To fix this, add ` | safeURL` after `.URL` on the 3rd line, like this:
 
 With this change, we finally get `<li><a href="irc://irc.freenode.net/#golang">IRC: #golang at freenode</a></li>`
 as intended.
-
-
-### title
-Convert all characters in string to titlecase.
-
-e.g. `{{title "BatMan"}}` → "Batman"
-
-
-### trim
-Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
-
-e.g. `{{ trim "++Batman--" "+-" }}` → "Batman"
-
-
-### upper
-Convert all characters in string to uppercase.
-
-e.g. `{{upper "BatMan"}}` → "BATMAN"
 
 
 ### urlize
