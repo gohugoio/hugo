@@ -33,8 +33,9 @@ Work In Progress.
 * Configurable RSS output filename
 * New template functions:
   * `getenv`
-  * String functions `substr` and `slicestr`
-  * Add `seq`, a sequence generator very similar to its Gnu countepart
+  * The string functions `substr` and `slicestr`
+  *`seq`, a sequence generator very similar to its Gnu countepart
+  * `absURL` and `relURL`, both of which takes the `BaseURL` setting into account
 * To get variable and function names in line with the rest of the Go community, a set of variable and function names has been deprecated: These will still work in 0.14, but will be removed in 0.15. What to do should be obvious by the build log; `getJson` to `getJSON`, `getCsv` to `getCSV`, `safeHtml` to `safeHTML`, `safeCss` to `safeCSS`, `safeUrl` to `safeURL`, `Url` to `URL`, `UrlPath` to `URLPath`, `BaseUrl` to `BaseURL`, `Recent` to `Pages`, `Indexes` to `Taxonomies`.
 
 ## **0.13.0** Feb 21, 2015
