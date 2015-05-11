@@ -151,7 +151,36 @@ func AbsURL(path string) string {
 	if strings.HasPrefix(path, "http") || strings.HasPrefix(path, "//") {
 		return path
 	}
-	return MakePermalink(string(viper.GetString("BaseURL")), path).String()
+	return MakePermalink(viper.GetString("BaseURL"), path).String()
+}
+
+// RelURL creates a URL relative to the BaseURL root.
+// Note: The result URL will not include the context root if canonifyURLs is enabled.
+func RelURL(path string) string {
+	baseURL := viper.GetString("BaseURL")
+	canonifyURLs := viper.GetBool("canonifyURLs")
+	if (!strings.HasPrefix(path, baseURL) && strings.HasPrefix(path, "http")) || strings.HasPrefix(path, "//") {
+		return path
+	}
+
+	u := path
+
+	if strings.HasPrefix(path, baseURL) {
+		u = strings.TrimPrefix(u, baseURL)
+	}
+
+	if !canonifyURLs {
+		u = AddContextRoot(baseURL, u)
+	}
+	if path == "" && !strings.HasSuffix(u, "/") && strings.HasSuffix(baseURL, "/") {
+		u += "/"
+	}
+
+	if !strings.HasPrefix(u, "/") {
+		u = "/" + u
+	}
+
+	return u
 }
 
 // AddContextRoot adds the context root to an URL if it's not already set.
