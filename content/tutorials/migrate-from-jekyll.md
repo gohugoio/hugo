@@ -1,6 +1,8 @@
 ---
 date: 2014-03-10
 linktitle: Migrating from Jekyll
+toc: true
+tocstyle: compact
 menu:
   main:
     parent: tutorials

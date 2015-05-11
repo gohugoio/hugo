@@ -3,6 +3,7 @@ aliases:
 - /layout/functions/
 date: 2013-07-01
 linktitle: Functions
+toc: true
 menu:
   main:
     parent: layout

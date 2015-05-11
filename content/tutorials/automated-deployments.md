@@ -2,6 +2,7 @@
 author: "Arjen Schwarz"
 date: 2015-01-12
 linktitle: Automated deployments
+toc: true
 menu:
   main:
     parent: tutorials

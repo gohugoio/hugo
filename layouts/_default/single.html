@@ -1,3 +1,12 @@
 {{ partial "header.html" . }}
+{{ if .Params.toc }}
+<div class="col-lg-8 col-md-12">
 {{ .Content }}
+</div>
+<div id="toc" class="col-lg-offset-6 toc {{ with .Params.tocstyle }}{{ . }}{{ end }}">
+{{ .TableOfContents }}
+</div>
+{{ else }}
+{{ .Content }}
+{{ end }}
 {{ partial "footer.html" . }}
