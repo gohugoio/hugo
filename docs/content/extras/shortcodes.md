@@ -10,7 +10,6 @@ prev: /extras/permalinks
 title: Shortcodes
 weight: 80
 toc: true
-tocstyle: compact
 ---
 
 Hugo uses Markdown for its simple content format. However, there are a lot

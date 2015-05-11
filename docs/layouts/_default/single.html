@@ -3,8 +3,8 @@
 <div class="col-lg-8 col-md-12">
 {{ .Content }}
 </div>
-<div id="toc" class="col-lg-offset-6 toc {{ with .Params.tocstyle }}{{ . }}{{ end }}">
-{{ .TableOfContents }}
+<div id="toc" class="col-lg-offset-6 toc {{ if gt (len .TableOfContents) 2500 }}compact{{ end }}">
+    {{ .TableOfContents }}
 </div>
 {{ else }}
 {{ .Content }}

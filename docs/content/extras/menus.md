@@ -1,7 +1,6 @@
 ---
 date: 2014-05-14T02:36:37Z
 toc: true
-tocstyle: compact
 menu:
   main:
     parent: extras
