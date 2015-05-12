@@ -10,26 +10,19 @@ title: Comments in Hugo
 weight: 30
 ---
 
-As Hugo is a static site generator, the content produced is static and
-doesn’t interact with the users. The most common interaction people ask
-for is comment capability.
+As Hugo is a static site generator, the content produced is static and doesn’t interact with the users. The most common interaction people ask for is comment capability.
 
-Hugo ships with support for [Disqus](https://disqus.com/), a third-party
-service that provides comment and community capabilities to website via
-JavaScript.
+Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to website via JavaScript.
 
-Your theme may already support Disqus, but even it if doesn’t, it is easy
-to add.
+Your theme may already support Disqus, but even it if doesn’t, it is easy to add.
 
 # Disqus Support
 
 ## Adding Disqus to a template
 
-Hugo comes with all the code you would need to include load Disqus.
-Simply include the following line where you want your comments to appear:
+Hugo comes with all the code you would need to include load Disqus. Simply include the following line where you want your comments to appear:
 
     {{ template "_internal/disqus.html" . }}
-
 
 ## Configuring Disqus
 
@@ -44,12 +37,11 @@ for a given piece of content:
  * **disqus_title**
  * **disqus_url**
 
-
 ## Conditional Loading of Disqus Comments
 
 Users have noticed that enabling Disqus comments when running the Hugo web server on localhost causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in your `partials` folder that looks like this:
 
-```javascript
+```html
 <div id="disqus_thread"></div>
 <script type="text/javascript">
 
@@ -80,6 +72,7 @@ Now, reference the partial template from your page template:
 
 A few alternatives exist to [Disqus](https://disqus.com/):
 
+* [Discourse](http://www.discourse.org)
 * [IntenseDebate](http://intensedebate.com/)
 * [Livefyre](http://livefyre.com/)
 * [Muut](http://muut.com/)
@@ -87,15 +80,15 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
 * [Kaiju](https://github.com/spf13/kaiju)
 
+## Kaiju 
 
-[Kaiju](https://github.com/spf13/kaiju) is an open-source project started
-by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real
-time discussions to the web.
+[Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
 
-Written using Go, Socket.io and MongoDB, it is very fast and easy to
-deploy.
+Written using Go, Socket.io and MongoDB, it is very fast and easy to deploy.
 
-It is in early development but shows promise. If you have interest,
-please help by contributing whether via a pull request, an issue or even
-just a tweet. Everything helps.
+It is in early development but shows promise. If you have interest, please help by contributing whether via a pull request, an issue or even just a tweet. Everything helps.
+
+## Discourse
+
+Additionally, you may recognize [Discourse](http://www.discourse.org) as the system that powers the [Hugo Discussion Forum](http://discuss.gohugo.io).
 
