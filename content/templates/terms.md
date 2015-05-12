@@ -57,6 +57,8 @@ Taxonomy Terms pages will additionally have:
 * **.Data.Terms.Alphabetical** The Terms alphabetized
 * **.Data.Terms.ByCount** The Terms ordered by popularity
 
+The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
+
 ### Example terms.html files
 
 List pages are of the type "node" and have all the
