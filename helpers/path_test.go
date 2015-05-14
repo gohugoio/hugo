@@ -112,6 +112,45 @@ func TestMakePathRelative(t *testing.T) {
 	}
 }
 
+func TestGetDottedRelativePath(t *testing.T) {
+	// on Windows this will receive both kinds, both country and western ...
+	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
+		doTestGetDottedRelativePath(f, t)
+	}
+
+}
+
+func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
+	type test struct {
+		input, expected string
+	}
+	data := []test{
+		{"", "./"},
+		{urlFixer("/"), "./"},
+		{urlFixer("post"), "../"},
+		{urlFixer("/post"), "../"},
+		{urlFixer("post/"), "../"},
+		{urlFixer("tags/foo.html"), "../"},
+		{urlFixer("/tags/foo.html"), "../"},
+		{urlFixer("/post/"), "../"},
+		{urlFixer("////post/////"), "../"},
+		{urlFixer("/foo/bar/index.html"), "../../"},
+		{urlFixer("/foo/bar/foo/"), "../../../"},
+		{urlFixer("/foo/bar/foo"), "../../../"},
+		{urlFixer("foo/bar/foo/"), "../../../"},
+		{urlFixer("foo/bar/foo/bar"), "../../../../"},
+		{"404.html", "./"},
+		{"404.xml", "./"},
+		{"/404.html", "./"},
+	}
+	for i, d := range data {
+		output := GetDottedRelativePath(d.input)
+		if d.expected != output {
+			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
+		}
+	}
+}
+
 func TestMakeTitle(t *testing.T) {
 	type test struct {
 		input, expected string

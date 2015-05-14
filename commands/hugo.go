@@ -139,6 +139,7 @@ func InitializeConfig() {
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyURLs", false)
+	viper.SetDefault("RelativeURLs", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
