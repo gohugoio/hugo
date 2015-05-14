@@ -1065,6 +1065,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	s.setURLs(n, base)
 	if len(t.pages) > 0 {
 		n.Date = t.pages[0].Page.Date
+		n.Lastmod = t.pages[0].Page.Lastmod
 	}
 	n.Data[t.singular] = t.pages
 	n.Data["Singular"] = t.singular
@@ -1110,6 +1111,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 				taxonomyPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
 					taxonomyPagerNode.Date = pager.Pages()[0].Date
+					taxonomyPagerNode.Lastmod = pager.Pages()[0].Lastmod
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
@@ -1168,6 +1170,7 @@ func (s *Site) newSectionListNode(section string, data WeightedPages) *Node {
 	}
 	s.setURLs(n, section)
 	n.Date = data[0].Page.Date
+	n.Lastmod = data[0].Page.Lastmod
 	n.Data["Pages"] = data.Pages()
 
 	return n
@@ -1205,6 +1208,7 @@ func (s *Site) RenderSectionLists() error {
 				sectionPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
 					sectionPagerNode.Date = pager.Pages()[0].Date
+					sectionPagerNode.Lastmod = pager.Pages()[0].Lastmod
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
@@ -1262,6 +1266,7 @@ func (s *Site) RenderHomePage() error {
 			homePagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
 				homePagerNode.Date = pager.Pages()[0].Date
+				homePagerNode.Lastmod = pager.Pages()[0].Lastmod
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
@@ -1282,6 +1287,7 @@ func (s *Site) RenderHomePage() error {
 		n.Data["Pages"] = s.Pages[:high]
 		if len(s.Pages) > 0 {
 			n.Date = s.Pages[0].Date
+			n.Lastmod = s.Pages[0].Lastmod
 		}
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
@@ -1317,6 +1323,7 @@ func (s *Site) RenderSitemap() error {
 
 	page := &Page{}
 	page.Date = s.Info.LastChange
+	page.Lastmod = s.Info.LastChange
 	page.Site = &s.Info
 	page.URL = "/"
 
