@@ -697,7 +697,7 @@ func (s *Site) BuildSiteMeta() (err error) {
 
 	s.assembleTaxonomies()
 	s.assembleSections()
-	s.Info.LastChange = s.Pages[0].Date
+	s.Info.LastChange = s.Pages[0].Lastmod
 
 	return
 }
