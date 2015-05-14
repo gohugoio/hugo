@@ -473,6 +473,11 @@ func (p *Page) update(f interface{}) error {
 			if err != nil {
 				jww.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
 			}
+		case "lastmod":
+			p.Lastmod, err = cast.ToTimeE(v)
+			if err != nil {
+				jww.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
+			}
 		case "publishdate", "pubdate":
 			p.PublishDate, err = cast.ToTimeE(v)
 			if err != nil {
@@ -524,6 +529,11 @@ func (p *Page) update(f interface{}) error {
 			}
 		}
 	}
+
+	if p.Lastmod.IsZero() {
+		p.Lastmod = p.Date
+	}
+
 	return nil
 
 }

@@ -30,6 +30,7 @@ type Node struct {
 	Keywords    []string
 	Params      map[string]interface{}
 	Date        time.Time
+	Lastmod     time.Time
 	Sitemap     Sitemap
 	URLPath
 	paginator     *Pager
