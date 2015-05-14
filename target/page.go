@@ -40,13 +40,14 @@ func (pp *PagePub) Translate(src string) (dest string, err error) {
 	}
 
 	dir, file := filepath.Split(src)
+	isRoot := dir == ""
 	ext := pp.extension(filepath.Ext(file))
 	name := filename(file)
 	if pp.PublishDir != "" {
 		dir = filepath.Join(pp.PublishDir, dir)
 	}
 
-	if pp.UglyURLs || file == "index.html" || file == "404.html" {
+	if pp.UglyURLs || file == "index.html" || (isRoot && file == "404.html") {
 		return filepath.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil
 	}
 
