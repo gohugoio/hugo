@@ -1,33 +1,47 @@
 package transform
 
 import (
+	"github.com/spf13/viper"
 	"sync"
 )
 
-var absUrlInit sync.Once
-var ar *absurlReplacer
+var absURLInit sync.Once
+var ar *absURLReplacer
 
-// for performance reasons, we reuse the first baseUrl given
-func initAbsurlReplacer(baseURL string) {
-	absUrlInit.Do(func() {
-		ar = newAbsurlReplacer(baseURL)
-	})
+func AbsURL() (trs []link, err error) {
+	initAbsURLReplacer()
+	return absURLFromReplacer(ar)
 }
 
-func AbsURL(absURL string) (trs []link, err error) {
-	initAbsurlReplacer(absURL)
+func absURLFromURL(URL string) (trs []link, err error) {
+	return absURLFromReplacer(newAbsURLReplacer(URL))
+}
 
-	trs = append(trs, func(content []byte) []byte {
-		return ar.replaceInHtml(content)
+func absURLFromReplacer(ar *absURLReplacer) (trs []link, err error) {
+	trs = append(trs, func(ct contentTransformer) {
+		ar.replaceInHTML(ct)
 	})
 	return
 }
 
-func AbsURLInXML(absURL string) (trs []link, err error) {
-	initAbsurlReplacer(absURL)
+func AbsURLInXML() (trs []link, err error) {
+	initAbsURLReplacer()
+	return absURLInXMLFromReplacer(ar)
+}
 
-	trs = append(trs, func(content []byte) []byte {
-		return ar.replaceInXml(content)
+func absURLInXMLFromURL(URL string) (trs []link, err error) {
+	return absURLInXMLFromReplacer(newAbsURLReplacer(URL))
+}
+
+func absURLInXMLFromReplacer(ar *absURLReplacer) (trs []link, err error) {
+	trs = append(trs, func(ct contentTransformer) {
+		ar.replaceInXML(ct)
 	})
 	return
+}
+
+func initAbsURLReplacer() {
+	absURLInit.Do(func() {
+		ar = newAbsURLReplacer(viper.GetString("BaseURL"))
+	})
 }

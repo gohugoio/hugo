@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"github.com/spf13/hugo/helpers"
 	"html/template"
 	"sync"
 	"time"
@@ -30,7 +31,7 @@ type Node struct {
 	Params      map[string]interface{}
 	Date        time.Time
 	Sitemap     Sitemap
-	UrlPath
+	URLPath
 	paginator     *pager
 	paginatorInit sync.Once
 	scratch       *Scratch
@@ -40,9 +41,9 @@ func (n *Node) Now() time.Time {
 	return time.Now()
 }
 
-func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
+func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 	if inme.HasChildren() {
-		me := MenuEntry{Name: n.Title, Url: n.Url}
+		me := MenuEntry{Name: n.Title, URL: n.URL}
 
 		for _, child := range inme.Children {
 			if me.IsSameResource(child) {
@@ -54,16 +55,16 @@ func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 	return false
 }
 
-func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
+func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
-	me := MenuEntry{Name: n.Title, Url: n.Url}
+	me := MenuEntry{Name: n.Title, URL: n.URL}
 	if !me.IsSameResource(inme) {
 		return false
 	}
 
 	// this resource may be included in several menus
 	// search for it to make sure that it is in the menu with the given menuId
-	if menu, ok := (*n.Site.Menus)[menuId]; ok {
+	if menu, ok := (*n.Site.Menus)[menuID]; ok {
 		for _, menuEntry := range *menu {
 			if menuEntry.IsSameResource(inme) {
 				return true
@@ -119,11 +120,29 @@ func (n *Node) RelRef(ref string) (string, error) {
 	return n.Site.RelRef(ref, nil)
 }
 
-type UrlPath struct {
-	Url       string
+type URLPath struct {
+	URL       string
 	Permalink template.HTML
 	Slug      string
 	Section   string
+}
+
+// Url is deprecated. Will be removed in 0.15.
+func (n *Node) Url() string {
+	helpers.Deprecated("Node", ".Url", ".URL")
+	return n.URL
+}
+
+// UrlPath is deprecated. Will be removed in 0.15.
+func (n *Node) UrlPath() URLPath {
+	helpers.Deprecated("Node", ".UrlPath", ".URLPath")
+	return n.URLPath
+}
+
+// Url is deprecated. Will be removed in 0.15.
+func (up URLPath) Url() string {
+	helpers.Deprecated("URLPath", ".Url", ".URL")
+	return up.URL
 }
 
 // Scratch returns the writable context associated with this Node.

@@ -16,8 +16,8 @@ func TestPermalink(t *testing.T) {
 		base         template.URL
 		slug         string
 		url          string
-		uglyUrls     bool
-		canonifyUrls bool
+		uglyURLs     bool
+		canonifyURLs bool
 		expectedAbs  string
 		expectedRel  string
 	}{
@@ -35,23 +35,23 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo/", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 
-		// test url overrides
+		// test URL overrides
 		{"x/y/z/boofar.md", "x/y/z", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
 	}
 
 	viper.Set("DefaultExtension", "html")
 
 	for i, test := range tests {
-		viper.Set("uglyurls", test.uglyUrls)
-		viper.Set("canonifyurls", test.canonifyUrls)
+		viper.Set("uglyurls", test.uglyURLs)
+		viper.Set("canonifyurls", test.canonifyURLs)
 		p := &Page{
 			Node: Node{
-				UrlPath: UrlPath{
+				URLPath: URLPath{
 					Section: "z",
-					Url:     test.url,
+					URL:     test.url,
 				},
 				Site: &SiteInfo{
-					BaseUrl: test.base,
+					BaseURL: test.base,
 				},
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},

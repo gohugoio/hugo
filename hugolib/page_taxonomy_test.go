@@ -51,7 +51,7 @@ func TestParseTaxonomies(t *testing.T) {
 	} {
 
 		p, _ := NewPage("page/with/taxonomy")
-		err := p.ReadFrom(strings.NewReader(test))
+		_, err := p.ReadFrom(strings.NewReader(test))
 		if err != nil {
 			t.Fatalf("Failed parsing %q: %s", test, err)
 		}

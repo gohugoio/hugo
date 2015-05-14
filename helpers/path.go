@@ -16,19 +16,18 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
-
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
-// Bridge for common functionality in filepath vs path
+// FilepathPathBridge is a bridge for common functionality in filepath vs path
 type FilepathPathBridge interface {
 	Base(in string) string
 	Clean(in string) string
@@ -149,9 +148,19 @@ func IsEmpty(path string, fs afero.Fs) (bool, error) {
 		list, err := f.Readdir(-1)
 		// f.Close() - see bug fix above
 		return len(list) == 0, nil
-	} else {
-		return fi.Size() == 0, nil
 	}
+	return fi.Size() == 0, nil
+}
+
+// Check if a file contains a specified string.
+func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	return ReaderContains(f, subslice), nil
 }
 
 // Check if a file or directory exists.
@@ -317,9 +326,8 @@ func GuessSection(in string) string {
 	if parts[0] == "content" {
 		if len(parts) > 2 {
 			return parts[1]
-		} else {
-			return ""
 		}
+		return ""
 	}
 
 	return parts[0]
@@ -328,12 +336,11 @@ func GuessSection(in string) string {
 func PathPrep(ugly bool, in string) string {
 	if ugly {
 		return Uglify(in)
-	} else {
-		return PrettifyPath(in)
 	}
+	return PrettifyPath(in)
 }
 
-// Same as PrettifyUrlPath() but for file paths.
+// Same as PrettifyURLPath() but for file paths.
 //     /section/name.html       becomes /section/name/index.html
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
@@ -348,16 +355,47 @@ func PrettiyPath(in string, b FilepathPathBridge) string {
 			return b.Separator()
 		}
 		return b.Join(b.Clean(in), "index.html")
-	} else {
-		name, ext := FileAndExt(in, b)
-		if name == "index" {
-			// /section/name/index.html -> /section/name/index.html
-			return b.Clean(in)
-		} else {
-			// /section/name.html -> /section/name/index.html
-			return b.Join(b.Dir(in), name, "index"+ext)
+	}
+	name, ext := FileAndExt(in, b)
+	if name == "index" {
+		// /section/name/index.html -> /section/name/index.html
+		return b.Clean(in)
+	}
+	// /section/name.html -> /section/name/index.html
+	return b.Join(b.Dir(in), name, "index"+ext)
+}
+
+// RemoveSubpaths takes a list of paths and removes everything that
+// contains another path in the list as a prefix. Ignores any empty
+// strings. Used mostly for logging.
+//
+// e.g. ["hello/world", "hello", "foo/bar", ""] -> ["hello", "foo/bar"]
+func RemoveSubpaths(paths []string) []string {
+	a := make([]string, 0)
+	for _, cur := range paths {
+		// ignore trivial case
+		if cur == "" {
+			continue
+		}
+
+		isDupe := false
+		for i, old := range a {
+			if strings.HasPrefix(cur, old) {
+				isDupe = true
+				break
+			} else if strings.HasPrefix(old, cur) {
+				a[i] = cur
+				isDupe = true
+				break
+			}
+		}
+
+		if !isDupe {
+			a = append(a, cur)
 		}
 	}
+
+	return a
 }
 
 // FindCWD returns the current working directory from where the Hugo

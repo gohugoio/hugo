@@ -31,15 +31,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-var remoteUrlLock = &remoteLock{m: make(map[string]*sync.Mutex)}
+var remoteURLLock = &remoteLock{m: make(map[string]*sync.Mutex)}
 
 type remoteLock struct {
 	sync.RWMutex
 	m map[string]*sync.Mutex
 }
 
-// resLock locks an URL during download
-func (l *remoteLock) UrlLock(url string) {
+// URLLock locks an URL during download
+func (l *remoteLock) URLLock(url string) {
 	l.Lock()
 	if _, ok := l.m[url]; !ok {
 		l.m[url] = &sync.Mutex{}
@@ -48,8 +48,8 @@ func (l *remoteLock) UrlLock(url string) {
 	l.m[url].Lock()
 }
 
-// resUnlock unlocks an URL when the download has been finished. Use only in defer calls.
-func (l *remoteLock) UrlUnlock(url string) {
+// URLUnlock unlocks an URL when the download has been finished. Use only in defer calls.
+func (l *remoteLock) URLUnlock(url string) {
 	l.RLock()
 	defer l.RUnlock()
 	if um, ok := l.m[url]; ok {
@@ -57,7 +57,7 @@ func (l *remoteLock) UrlUnlock(url string) {
 	}
 }
 
-// getFileID returns the cache ID for a string
+// getCacheFileID returns the cache ID for a string
 func getCacheFileID(id string) string {
 	return viper.GetString("CacheDir") + url.QueryEscape(id)
 }
@@ -111,8 +111,8 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 	}
 
 	// avoid race condition with locks, block other goroutines if the current url is processing
-	remoteUrlLock.UrlLock(url)
-	defer func() { remoteUrlLock.UrlUnlock(url) }()
+	remoteURLLock.URLLock(url)
+	defer func() { remoteURLLock.URLUnlock(url) }()
 
 	// avoid multiple locks due to calling resGetCache twice
 	c, err = resGetCache(url, fs, viper.GetBool("IgnoreCache"))
@@ -173,10 +173,10 @@ func resGetResource(url string) ([]byte, error) {
 	return resGetLocal(url, hugofs.SourceFs)
 }
 
-// GetJson expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
-// GetJson returns nil or parsed JSON to use in a short code.
-func GetJson(urlParts ...string) interface{} {
+// GetJSON returns nil or parsed JSON to use in a short code.
+func GetJSON(urlParts ...string) interface{} {
 	url := strings.Join(urlParts, "")
 	c, err := resGetResource(url)
 	if err != nil {
@@ -193,8 +193,8 @@ func GetJson(urlParts ...string) interface{} {
 	return v
 }
 
-// parseCsv parses bytes of csv data into a slice slice string or an error
-func parseCsv(c []byte, sep string) ([][]string, error) {
+// parseCSV parses bytes of CSV data into a slice slice string or an error
+func parseCSV(c []byte, sep string) ([][]string, error) {
 	if len(sep) != 1 {
 		return nil, errors.New("Incorrect length of csv separator: " + sep)
 	}
@@ -206,19 +206,19 @@ func parseCsv(c []byte, sep string) ([][]string, error) {
 	return r.ReadAll()
 }
 
-// GetCsv expects a data separator and one or n-parts of a URL to a resource which
+// GetCSV expects a data separator and one or n-parts of a URL to a resource which
 // can either be a local or a remote one.
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
-// GetCsv returns nil or a slice slice to use in a short code.
-func GetCsv(sep string, urlParts ...string) [][]string {
+// GetCSV returns nil or a slice slice to use in a short code.
+func GetCSV(sep string, urlParts ...string) [][]string {
 	url := strings.Join(urlParts, "")
 	c, err := resGetResource(url)
 	if err != nil {
 		jww.ERROR.Printf("Failed to get csv resource %s with error message %s", url, err)
 		return nil
 	}
-	d, err := parseCsv(c, sep)
+	d, err := parseCSV(c, sep)
 	if err != nil {
 		jww.ERROR.Printf("Failed to read csv resource %s with error message %s", url, err)
 		return nil

@@ -30,6 +30,7 @@ your:
 
  * static files
  * content
+ * data files
  * layouts
  * current theme
 

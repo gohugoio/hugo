@@ -37,18 +37,20 @@ var SummaryLength = 70
 // Custom divider <!--more--> let's user define where summarization ends.
 var SummaryDivider = []byte("<!--more-->")
 
+// Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
 	AngledQuotes   bool
 	Fractions      bool
-	PlainIdAnchors bool
+	PlainIDAnchors bool
 	Extensions     []string
 }
 
+// NewBlackfriday creates a new Blackfriday with some sane defaults.
 func NewBlackfriday() *Blackfriday {
 	return &Blackfriday{
 		AngledQuotes:   false,
 		Fractions:      true,
-		PlainIdAnchors: false,
+		PlainIDAnchors: false,
 	}
 }
 
@@ -77,28 +79,27 @@ func StripHTML(s string) string {
 	// Shortcut strings with no tags in them
 	if !strings.ContainsAny(s, "<>") {
 		return s
-	} else {
-		s = stripHTMLReplacer.Replace(s)
+	}
+	s = stripHTMLReplacer.Replace(s)
 
-		// Walk through the string removing all tags
-		b := bp.GetBuffer()
-		defer bp.PutBuffer(b)
+	// Walk through the string removing all tags
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
 
-		inTag := false
-		for _, r := range s {
-			switch r {
-			case '<':
-				inTag = true
-			case '>':
-				inTag = false
-			default:
-				if !inTag {
-					b.WriteRune(r)
-				}
+	inTag := false
+	for _, r := range s {
+		switch r {
+		case '<':
+			inTag = true
+		case '>':
+			inTag = false
+		default:
+			if !inTag {
+				b.WriteRune(r)
 			}
 		}
-		return b.String()
 	}
+	return b.String()
 }
 
 // StripEmptyNav strips out empty <nav> tags from content.
@@ -111,17 +112,18 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Renderer {
+// GetHtmlRenderer creates a new Renderer with the given configuration.
+func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	b := len(ctx.DocumentId) != 0
+	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIdAnchors {
-		renderParameters.FootnoteAnchorPrefix = ctx.DocumentId + ":" + renderParameters.FootnoteAnchorPrefix
-		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
+	if b && !ctx.getConfig().PlainIDAnchors {
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
+		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
 
 	htmlFlags := defaultFlags
@@ -141,7 +143,7 @@ func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Rendere
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
 }
 
-func GetMarkdownExtensions(ctx RenderingContext) int {
+func getMarkdownExtensions(ctx *RenderingContext) int {
 	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
 		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
 		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
@@ -155,15 +157,15 @@ func GetMarkdownExtensions(ctx RenderingContext) int {
 	return flags
 }
 
-func MarkdownRender(ctx RenderingContext) []byte {
-	return blackfriday.Markdown(ctx.Content, GetHtmlRenderer(0, ctx),
-		GetMarkdownExtensions(ctx))
+func markdownRender(ctx *RenderingContext) []byte {
+	return blackfriday.Markdown(ctx.Content, GetHTMLRenderer(0, ctx),
+		getMarkdownExtensions(ctx))
 }
 
-func MarkdownRenderWithTOC(ctx RenderingContext) []byte {
+func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 	return blackfriday.Markdown(ctx.Content,
-		GetHtmlRenderer(blackfriday.HTML_TOC, ctx),
-		GetMarkdownExtensions(ctx))
+		GetHTMLRenderer(blackfriday.HTML_TOC, ctx),
+		getMarkdownExtensions(ctx))
 }
 
 // ExtractTOC extracts Table of Contents from content.
@@ -202,10 +204,12 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	return
 }
 
+// RenderingContext holds contextual information, like content and configuration,
+// for a given content renderin.g
 type RenderingContext struct {
 	Content    []byte
 	PageFmt    string
-	DocumentId string
+	DocumentID string
 	Config     *Blackfriday
 	configInit sync.Once
 }
@@ -219,23 +223,29 @@ func (c *RenderingContext) getConfig() *Blackfriday {
 	return c.Config
 }
 
-func RenderBytesWithTOC(ctx RenderingContext) []byte {
+// RenderBytesWithTOC renders a []byte with table of contents included.
+func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
-		return MarkdownRenderWithTOC(ctx)
+		return markdownRenderWithTOC(ctx)
 	case "markdown":
-		return MarkdownRenderWithTOC(ctx)
+		return markdownRenderWithTOC(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
 }
 
-func RenderBytes(ctx RenderingContext) []byte {
+// RenderBytes renders a []byte.
+func RenderBytes(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
-		return MarkdownRender(ctx)
+		return markdownRender(ctx)
 	case "markdown":
-		return MarkdownRender(ctx)
+		return markdownRender(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -250,7 +260,7 @@ func TotalWords(s string) int {
 func WordCount(s string) map[string]int {
 	m := make(map[string]int)
 	for _, f := range strings.Fields(s) {
-		m[f] += 1
+		m[f]++
 	}
 
 	return m
@@ -291,6 +301,39 @@ func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
 	}
 
 	return strings.Join(words[:max], " "), true
+}
+
+// GetAsciidocContent calls asciidoctor or asciidoc as an external helper
+// to convert AsciiDoc content to HTML.
+func GetAsciidocContent(content []byte) string {
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		path, err = exec.LookPath("asciidoc")
+		if err != nil {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return (string(content))
+		}
+	}
+
+	jww.INFO.Println("Rendering with", path, "...")
+	cmd := exec.Command(path, "--safe", "-")
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		jww.ERROR.Println(err)
+	}
+
+	asciidocLines := strings.Split(out.String(), "\n")
+	for i, line := range asciidocLines {
+		if strings.HasPrefix(line, "<body") {
+			asciidocLines = (asciidocLines[i+1 : len(asciidocLines)-3])
+		}
+	}
+	return strings.Join(asciidocLines, "\n")
 }
 
 // GetRstContent calls the Python script rst2html as an external helper

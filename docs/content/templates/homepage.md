@@ -56,7 +56,7 @@ It makes use of [partial templates](/templates/partials/) and uses a similar app
 
         {{ partial "meta.html" . }}
 
-        <base href="{{ .Site.BaseUrl }}">
+        <base href="{{ .Site.BaseURL }}">
         <title>{{ .Site.Title }}</title>
         <link rel="canonical" href="{{ .Permalink }}">
         <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />

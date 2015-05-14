@@ -19,10 +19,11 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
 )
 
 type MenuEntry struct {
-	Url        string
+	URL        string
 	Name       string
 	Menu       string
 	Identifier string
@@ -36,6 +37,12 @@ type MenuEntry struct {
 type Menu []*MenuEntry
 type Menus map[string]*Menu
 type PageMenus map[string]*MenuEntry
+
+// Url is deprecated. Will be removed in 0.15.
+func (me *MenuEntry) Url() string {
+	helpers.Deprecated("MenuEntry", ".Url", ".URL")
+	return me.URL
+}
 
 func (me *MenuEntry) AddChild(child *MenuEntry) {
 	me.Children = append(me.Children, child)
@@ -53,22 +60,22 @@ func (me *MenuEntry) KeyName() string {
 	return me.Name
 }
 
-func (me *MenuEntry) hopefullyUniqueId() string {
+func (me *MenuEntry) hopefullyUniqueID() string {
 	if me.Identifier != "" {
 		return me.Identifier
-	} else if me.Url != "" {
-		return me.Url
+	} else if me.URL != "" {
+		return me.URL
 	} else {
 		return me.Name
 	}
 }
 
 func (me *MenuEntry) IsEqual(inme *MenuEntry) bool {
-	return me.hopefullyUniqueId() == inme.hopefullyUniqueId() && me.Parent == inme.Parent
+	return me.hopefullyUniqueID() == inme.hopefullyUniqueID() && me.Parent == inme.Parent
 }
 
 func (me *MenuEntry) IsSameResource(inme *MenuEntry) bool {
-	return me.Url != "" && inme.Url != "" && me.Url == inme.Url
+	return me.URL != "" && inme.URL != "" && me.URL == inme.URL
 }
 
 func (me *MenuEntry) MarshallMap(ime map[string]interface{}) {
@@ -76,7 +83,7 @@ func (me *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		loki := strings.ToLower(k)
 		switch loki {
 		case "url":
-			me.Url = cast.ToString(v)
+			me.URL = cast.ToString(v)
 		case "weight":
 			me.Weight = cast.ToInt(v)
 		case "name":
@@ -136,12 +143,11 @@ func (by MenuEntryBy) Sort(menu Menu) {
 	sort.Stable(ms)
 }
 
-var DefaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
+var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 	if m1.Weight == m2.Weight {
 		return m1.Name < m2.Name
-	} else {
-		return m1.Weight < m2.Weight
 	}
+	return m1.Weight < m2.Weight
 }
 
 func (ms *MenuSorter) Len() int      { return len(ms.menu) }
@@ -150,30 +156,29 @@ func (ms *MenuSorter) Swap(i, j int) { ms.menu[i], ms.menu[j] = ms.menu[j], ms.m
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
 func (ms *MenuSorter) Less(i, j int) bool { return ms.by(ms.menu[i], ms.menu[j]) }
 
-func (p Menu) Sort() {
-	MenuEntryBy(DefaultMenuEntrySort).Sort(p)
+func (m Menu) Sort() {
+	MenuEntryBy(defaultMenuEntrySort).Sort(m)
 }
 
-func (p Menu) Limit(n int) Menu {
-	if len(p) < n {
-		return p[0:n]
-	} else {
-		return p
+func (m Menu) Limit(n int) Menu {
+	if len(m) < n {
+		return m[0:n]
 	}
+	return m
 }
 
-func (p Menu) ByWeight() Menu {
-	MenuEntryBy(DefaultMenuEntrySort).Sort(p)
-	return p
+func (m Menu) ByWeight() Menu {
+	MenuEntryBy(defaultMenuEntrySort).Sort(m)
+	return m
 }
 
-func (p Menu) ByName() Menu {
+func (m Menu) ByName() Menu {
 	title := func(m1, m2 *MenuEntry) bool {
 		return m1.Name < m2.Name
 	}
 
-	MenuEntryBy(title).Sort(p)
-	return p
+	MenuEntryBy(title).Sort(m)
+	return m
 }
 
 func (m Menu) Reverse() Menu {

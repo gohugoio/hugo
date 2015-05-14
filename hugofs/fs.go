@@ -17,5 +17,6 @@ import "github.com/spf13/afero"
 
 var SourceFs afero.Fs = new(afero.OsFs)
 var DestinationFS afero.Fs = new(afero.OsFs)
+var OsFs afero.Fs = new(afero.OsFs)
 
 //var DestinationFS afero.Fs = new(afero.MemMapFs)

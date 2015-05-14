@@ -2,10 +2,10 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 )
 
 func TestMakePath(t *testing.T) {
@@ -107,7 +108,7 @@ func TestMakePathRelative(t *testing.T) {
 	_, error := MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
 
 	if error == nil {
-		t.Errorf("Test #%d failed. Expected error")
+		t.Errorf("Test failed, expected error")
 	}
 }
 
@@ -497,7 +498,7 @@ func TestFileAndExt(t *testing.T) {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
 		if d.expectedExt != ext {
-			t.Errorf("Test %d failed. Expected extension $q got %q.", i, d.expectedExt, ext)
+			t.Errorf("Test %d failed. Expected extension %q got %q.", i, d.expectedExt, ext)
 		}
 	}
 
@@ -545,6 +546,14 @@ func TestPrettifyPath(t *testing.T) {
 
 }
 
+func TestRemoveSubpaths(t *testing.T) {
+	got := RemoveSubpaths([]string{"hello", "hello/world", "foo/bar", ""})
+	expect := []string{"hello", "foo/bar"}
+	if !reflect.DeepEqual(got, expect) {
+		t.Errorf("Expected %q but got %q", expect, got)
+	}
+}
+
 func TestFindCWD(t *testing.T) {
 	type test struct {
 		expectedDir string
@@ -564,7 +573,7 @@ func TestFindCWD(t *testing.T) {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedDir, dir)
 		}
 		if d.expectedErr != err {
-			t.Error("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
+			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
 		}
 	}
 }
@@ -639,7 +648,7 @@ func TestWriteToDisk(t *testing.T) {
 		}
 		contents, e := ioutil.ReadFile(d.filename)
 		if e != nil {
-			t.Error("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
+			t.Errorf("Test %d failed. Could not read file %s. Reason: %s\n", i, d.filename, e)
 		}
 		if randomString != string(contents) {
 			t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))

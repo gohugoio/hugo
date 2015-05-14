@@ -156,8 +156,8 @@ func generateQuery(fs afero.Fs, queryParts ...string) (string, error) {
 	return qry, nil
 }
 
-// GetSql executes a SELECT query and returns a slice containing columns names and its string values
-func GetSql(queryParts ...string) []*stringEntities {
+// GetSQL executes a SELECT query and returns a slice containing columns names and its string values
+func GetSQL(queryParts ...string) []*stringEntities {
 
 	qry, err := generateQuery(hugofs.SourceFs, queryParts...)
 	if err != nil {

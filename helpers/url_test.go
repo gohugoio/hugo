@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestUrlize(t *testing.T) {
+func TestURLize(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -19,14 +19,14 @@ func TestUrlize(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		output := Urlize(test.input)
+		output := URLize(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
 	}
 }
 
-func TestSanitizeUrl(t *testing.T) {
+func TestSanitizeURL(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -36,8 +36,8 @@ func TestSanitizeUrl(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		o1 := SanitizeUrl(test.input)
-		o2 := SanitizeUrlKeepTrailingSlash(test.input)
+		o1 := SanitizeURL(test.input)
+		o2 := SanitizeURLKeepTrailingSlash(test.input)
 
 		expected2 := test.expected
 
@@ -76,7 +76,7 @@ func TestMakePermalink(t *testing.T) {
 	}
 }
 
-func TestUrlPrep(t *testing.T) {
+func TestURLPrep(t *testing.T) {
 	type test struct {
 		ugly   bool
 		input  string
@@ -88,7 +88,7 @@ func TestUrlPrep(t *testing.T) {
 		{true, "/section/name/index.html", "/section/name.html"},
 	}
 	for i, d := range data {
-		output := UrlPrep(d.ugly, d.input)
+		output := URLPrep(d.ugly, d.input)
 		if d.output != output {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
@@ -98,7 +98,7 @@ func TestUrlPrep(t *testing.T) {
 
 func TestAddContextRoot(t *testing.T) {
 	tests := []struct {
-		baseUrl  string
+		baseURL  string
 		url      string
 		expected string
 	}{
@@ -114,7 +114,7 @@ func TestAddContextRoot(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		output := AddContextRoot(test.baseUrl, test.url)
+		output := AddContextRoot(test.baseURL, test.url)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
@@ -122,22 +122,22 @@ func TestAddContextRoot(t *testing.T) {
 }
 
 func TestPretty(t *testing.T) {
-	assert.Equal(t, PrettifyUrlPath("/section/name.html"), "/section/name/index.html")
-	assert.Equal(t, PrettifyUrlPath("/section/sub/name.html"), "/section/sub/name/index.html")
-	assert.Equal(t, PrettifyUrlPath("/section/name/"), "/section/name/index.html")
-	assert.Equal(t, PrettifyUrlPath("/section/name/index.html"), "/section/name/index.html")
-	assert.Equal(t, PrettifyUrlPath("/index.html"), "/index.html")
-	assert.Equal(t, PrettifyUrlPath("/name.xml"), "/name/index.xml")
-	assert.Equal(t, PrettifyUrlPath("/"), "/")
-	assert.Equal(t, PrettifyUrlPath(""), "/")
-	assert.Equal(t, PrettifyUrl("/section/name.html"), "/section/name")
-	assert.Equal(t, PrettifyUrl("/section/sub/name.html"), "/section/sub/name")
-	assert.Equal(t, PrettifyUrl("/section/name/"), "/section/name")
-	assert.Equal(t, PrettifyUrl("/section/name/index.html"), "/section/name")
-	assert.Equal(t, PrettifyUrl("/index.html"), "/")
-	assert.Equal(t, PrettifyUrl("/name.xml"), "/name/index.xml")
-	assert.Equal(t, PrettifyUrl("/"), "/")
-	assert.Equal(t, PrettifyUrl(""), "/")
+	assert.Equal(t, PrettifyURLPath("/section/name.html"), "/section/name/index.html")
+	assert.Equal(t, PrettifyURLPath("/section/sub/name.html"), "/section/sub/name/index.html")
+	assert.Equal(t, PrettifyURLPath("/section/name/"), "/section/name/index.html")
+	assert.Equal(t, PrettifyURLPath("/section/name/index.html"), "/section/name/index.html")
+	assert.Equal(t, PrettifyURLPath("/index.html"), "/index.html")
+	assert.Equal(t, PrettifyURLPath("/name.xml"), "/name/index.xml")
+	assert.Equal(t, PrettifyURLPath("/"), "/")
+	assert.Equal(t, PrettifyURLPath(""), "/")
+	assert.Equal(t, PrettifyURL("/section/name.html"), "/section/name")
+	assert.Equal(t, PrettifyURL("/section/sub/name.html"), "/section/sub/name")
+	assert.Equal(t, PrettifyURL("/section/name/"), "/section/name")
+	assert.Equal(t, PrettifyURL("/section/name/index.html"), "/section/name")
+	assert.Equal(t, PrettifyURL("/index.html"), "/")
+	assert.Equal(t, PrettifyURL("/name.xml"), "/name/index.xml")
+	assert.Equal(t, PrettifyURL("/"), "/")
+	assert.Equal(t, PrettifyURL(""), "/")
 }
 
 func TestUgly(t *testing.T) {

@@ -157,7 +157,7 @@ func TestScpGetRemote(t *testing.T) {
 	}
 }
 
-func TestParseCsv(t *testing.T) {
+func TestParseCSV(t *testing.T) {
 
 	tests := []struct {
 		csv []byte
@@ -173,7 +173,7 @@ func TestParseCsv(t *testing.T) {
 		{[]byte("z|y|c\nd|e|f"), "|", "zycdef", false},
 	}
 	for _, test := range tests {
-		csv, err := parseCsv(test.csv, test.sep)
+		csv, err := parseCSV(test.csv, test.sep)
 		if test.err && err == nil {
 			t.Error("Expecting an error")
 		}

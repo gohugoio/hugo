@@ -84,6 +84,7 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 * [Livefyre](http://livefyre.com/)
 * [Muut](http://muut.com/)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
+* [isso](http://posativ.org/isso/) (Self-hosted, Python)
 * [Kaiju](https://github.com/spf13/kaiju)
 
 
