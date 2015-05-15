@@ -16,6 +16,11 @@ type Translator interface {
 	Translate(string) (string, error)
 }
 
+// TODO(bep) consider other ways to solve this.
+type OptionalTranslator interface {
+	TranslateRelative(string) (string, error)
+}
+
 type Output interface {
 	Publisher
 	Translator

@@ -1397,16 +1397,21 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 	err := s.render(name, d, renderBuffer, layouts...)
 
-	absURLInXML, err := transform.AbsURLInXML()
-	if err != nil {
-		return err
-	}
-
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
 
-	transformer := transform.NewChain(absURLInXML...)
-	transformer.Apply(outBuffer, renderBuffer)
+	var path []byte
+	if viper.GetBool("RelativeURLs") {
+		path = []byte(helpers.GetDottedRelativePath(dest))
+	} else {
+		s := viper.GetString("BaseURL")
+		if !strings.HasSuffix(s, "/") {
+			s += "/"
+		}
+		path = []byte(s)
+	}
+	transformer := transform.NewChain(transform.AbsURLInXML)
+	transformer.Apply(outBuffer, renderBuffer, path)
 
 	if err == nil {
 		err = s.WriteDestFile(dest, outBuffer)
@@ -1426,20 +1431,32 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	transformLinks := transform.NewEmptyTransforms()
 
-	if viper.GetBool("CanonifyURLs") {
-		absURL, err := transform.AbsURL()
-		if err != nil {
-			return err
-		}
-		transformLinks = append(transformLinks, absURL...)
+	if viper.GetBool("RelativeURLs") || viper.GetBool("CanonifyURLs") {
+		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
 	if viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
 	}
 
+	var path []byte
+
+	if viper.GetBool("RelativeURLs") {
+		translated, err := s.PageTarget().(target.OptionalTranslator).TranslateRelative(dest)
+		if err != nil {
+			return err
+		}
+		path = []byte(helpers.GetDottedRelativePath(translated))
+	} else if viper.GetBool("CanonifyURLs") {
+		s := viper.GetString("BaseURL")
+		if !strings.HasSuffix(s, "/") {
+			s += "/"
+		}
+		path = []byte(s)
+	}
+
 	transformer := transform.NewChain(transformLinks...)
-	transformer.Apply(outBuffer, renderBuffer)
+	transformer.Apply(outBuffer, renderBuffer, path)
 
 	if err == nil {
 		if err = s.WriteDestPage(dest, outBuffer); err != nil {

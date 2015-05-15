@@ -3,8 +3,6 @@ package transform
 import (
 	"bytes"
 	"io"
-	"net/url"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -22,6 +20,9 @@ type absurllexer struct {
 	content []byte
 	// the target for the new absurlified content
 	w io.Writer
+
+	// path may be set to a "." relative path
+	path []byte
 
 	pos   int // input position
 	start int // item start position
@@ -54,9 +55,8 @@ var prefixes = []*prefix{
 }
 
 type absURLMatcher struct {
-	match          []byte
-	quote          []byte
-	replacementURL []byte
+	match []byte
+	quote []byte
 }
 
 // match check rune inside word. Will be != ' '.
@@ -147,7 +147,7 @@ func checkCandidateBase(l *absurllexer) {
 		}
 		l.pos += len(m.match)
 		l.w.Write(m.quote)
-		l.w.Write(m.replacementURL)
+		l.w.Write(l.path)
 		l.start = l.pos
 	}
 }
@@ -188,7 +188,7 @@ func checkCandidateSrcset(l *absurllexer) {
 		l.w.Write([]byte(m.quote))
 		for i, f := range fields {
 			if f[0] == '/' {
-				l.w.Write(m.replacementURL)
+				l.w.Write(l.path)
 				l.w.Write(f[1:])
 
 			} else {
@@ -252,9 +252,11 @@ func (l *absurllexer) replace() {
 }
 
 func doReplace(ct contentTransformer, matchers []absURLMatcher) {
+
 	lexer := &absurllexer{
 		content:  ct.Content(),
 		w:        ct,
+		path:     ct.Path(),
 		matchers: matchers}
 
 	lexer.replace()
@@ -265,9 +267,7 @@ type absURLReplacer struct {
 	xmlMatchers  []absURLMatcher
 }
 
-func newAbsURLReplacer(baseURL string) *absURLReplacer {
-	u, _ := url.Parse(baseURL)
-	base := []byte(strings.TrimRight(u.String(), "/") + "/")
+func newAbsURLReplacer() *absURLReplacer {
 
 	// HTML
 	dqHTMLMatch := []byte("\"/")
@@ -285,14 +285,13 @@ func newAbsURLReplacer(baseURL string) *absURLReplacer {
 
 	return &absURLReplacer{
 		htmlMatchers: []absURLMatcher{
-			{dqHTMLMatch, dqHTML, base},
-			{sqHTMLMatch, sqHTML, base},
+			{dqHTMLMatch, dqHTML},
+			{sqHTMLMatch, sqHTML},
 		},
 		xmlMatchers: []absURLMatcher{
-			{dqXMLMatch, dqXML, base},
-			{sqXMLMatch, sqXML, base},
+			{dqXMLMatch, dqXML},
+			{sqXMLMatch, sqXML},
 		}}
-
 }
 
 func (au *absURLReplacer) replaceInHTML(ct contentTransformer) {

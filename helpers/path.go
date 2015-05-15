@@ -232,6 +232,41 @@ func MakePathRelative(inPath string, possibleDirectories ...string) (string, err
 	return inPath, errors.New("Can't extract relative path, unknown prefix")
 }
 
+// Should be good enough for Hugo.
+var isFileRe = regexp.MustCompile(".*\\..{1,6}$")
+
+// Expects a relative path starting after the content directory.
+func GetDottedRelativePath(inPath string) string {
+	inPath = filepath.Clean(filepath.FromSlash(inPath))
+	if inPath == "." {
+		return "./"
+	}
+	isFile := isFileRe.MatchString(inPath)
+	if !isFile {
+		if !strings.HasSuffix(inPath, FilePathSeparator) {
+			inPath += FilePathSeparator
+		}
+	}
+	if !strings.HasPrefix(inPath, FilePathSeparator) {
+		inPath = FilePathSeparator + inPath
+	}
+	dir, _ := filepath.Split(inPath)
+
+	sectionCount := strings.Count(dir, FilePathSeparator)
+
+	if sectionCount == 0 || dir == FilePathSeparator {
+		return "./"
+	}
+
+	var dottedPath string
+
+	for i := 1; i < sectionCount; i++ {
+		dottedPath += "../"
+	}
+
+	return dottedPath
+}
+
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
