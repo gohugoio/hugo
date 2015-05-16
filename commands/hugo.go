@@ -199,7 +199,7 @@ func InitializeConfig() {
 		viper.Set("BaseURL", BaseURL)
 	}
 
-	if viper.GetString("BaseURL") == "" {
+	if !viper.GetBool("RelativeURLs") && viper.GetString("BaseURL") == "" {
 		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
 	}
 
