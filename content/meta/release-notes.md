@@ -19,6 +19,8 @@ Work In Progress.
 * Add support for `canonifyurls` in `srcset`
 * Add support for `Ace` base templates
 * Show help information to Windows users who try to double click on `hugo.exe`.
+* Add command `genautocomplete` that generates a Bash autocomplete script for the Hugo CLI
+* Adding `RelativeURLs = true` to site config will now make all the relative URLs relative to the content root.
 * Add experimental support for [`Mmark`](https://github.com/miekg/mmark) markdown processor 
 * Add `AsciiDoc` support using external helpers.
 * Add section menu support for a [Section Menu for "the Lazy Blogger"]({{< relref "extras/menus.md#section-menu-for-the-lazy-blogger" >}})
