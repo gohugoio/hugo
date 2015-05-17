@@ -79,6 +79,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     buildDrafts:                false
     # include content with publishdate in the future
     buildFuture:                false
+    # enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+    relativeURLs: 		false
     canonifyURLs:               false
     # config file (default is path/config.yaml|json|toml)
     config:                     "config.toml"
