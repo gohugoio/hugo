@@ -56,19 +56,20 @@ type Page struct {
 	Tmpl            tpl.Template
 	Markup          string
 
-	extension           string
-	contentType         string
-	renderable          bool
-	layout              string
-	linkTitle           string
-	frontmatter         []byte
-	rawContent          []byte
-	contentShortCodes   map[string]string
-	plain               string // TODO should be []byte
-	plainWords          []string
-	plainInit           sync.Once
-	renderingConfig     *helpers.Blackfriday
-	renderingConfigInit sync.Once
+	extension                string
+	contentType              string
+	renderable               bool
+	layout                   string
+	linkTitle                string
+	frontmatter              []byte
+	rawContent               []byte
+	contentShortCodes        map[string]string
+	plain                    string // TODO should be []byte
+	plainWords               []string
+	plainInit                sync.Once
+	renderingConfig          *helpers.Blackfriday
+	renderingConfigInit      sync.Once
+	contentAfterSummaryIndex int
 	PageMeta
 	Source
 	Position
@@ -166,6 +167,20 @@ func (p *Page) lineNumRawContentStart() int {
 	return bytes.Count(p.frontmatter, []byte("\n")) + 1
 }
 
+func (p *Page) renderAndReplaceShortcodes(content []byte) template.HTML {
+	renderedContent := p.renderBytes(content)
+	if len(p.contentShortCodes) > 0 {
+		tmpContentWithTokensReplaced, err :=
+			replaceShortcodeTokens(renderedContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
+		if err != nil {
+			jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
+		} else {
+			renderedContent = tmpContentWithTokensReplaced
+		}
+	}
+	return helpers.BytesToHTML(renderedContent)
+}
+
 func (p *Page) setSummary() {
 
 	// at this point, p.rawContent contains placeholders for the short codes,
@@ -180,17 +195,8 @@ func (p *Page) setSummary() {
 			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
 		}
 
-		renderedHeader := p.renderBytes(header)
-		if len(p.contentShortCodes) > 0 {
-			tmpContentWithTokensReplaced, err :=
-				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, true, p.contentShortCodes)
-			if err != nil {
-				jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
-			} else {
-				renderedHeader = tmpContentWithTokensReplaced
-			}
-		}
-		p.Summary = helpers.BytesToHTML(renderedHeader)
+		p.Summary = p.renderAndReplaceShortcodes(header)
+		p.contentAfterSummaryIndex = len(header) + len(helpers.SummaryDivider)
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
@@ -837,4 +843,13 @@ func (p *Page) TargetPath() (outfile string) {
 	}
 
 	return filepath.Join(p.Source.Dir(), strings.TrimSpace(outfile))
+}
+
+func (p *Page) ContentAfterSummary() template.HTML {
+	if p.contentAfterSummaryIndex == 0 {
+		return ""
+	}
+
+	content := p.rawContent[p.contentAfterSummaryIndex:]
+	return p.renderAndReplaceShortcodes(content)
 }

@@ -287,6 +287,13 @@ func checkPageSummary(t *testing.T, page *Page, summary string) {
 	}
 }
 
+func checkPageContentAfterSummary(t *testing.T, page *Page, content string) {
+	contentAfterSummary := page.ContentAfterSummary()
+	if contentAfterSummary != template.HTML(content) {
+		t.Fatalf("Page content after summary is: %q.\nExpected %q", contentAfterSummary, content)
+	}
+}
+
 func checkPageType(t *testing.T, page *Page, pageType string) {
 	if page.Type() != pageType {
 		t.Fatalf("Page type is: %s.  Expected: %s", page.Type(), pageType)
@@ -344,6 +351,7 @@ func TestPageWithDelimiter(t *testing.T) {
 	checkPageTitle(t, p, "Simple")
 	checkPageContent(t, p, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Summary Next Line</p>\n")
+	checkPageContentAfterSummary(t, p, "<p>Some more text</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	checkTruncation(t, p, true, "page with summary delimiter")
@@ -407,6 +415,7 @@ func TestPageWithMoreTag(t *testing.T) {
 	checkPageTitle(t, p, "Simple")
 	checkPageContent(t, p, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n")
 	checkPageSummary(t, p, "<p>Summary Same Line</p>\n")
+	checkPageContentAfterSummary(t, p, "<p>Some more text</p>\n")
 	checkPageType(t, p, "page")
 	checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 }
