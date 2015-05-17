@@ -31,6 +31,7 @@ Work In Progress.
   * Fix crossrefs on Windows.
   * Fix `eq` and `ne` template functions when used with a raw number combined with the result of `add`, `sub` etc. 
   * Fix paginator with uglyurls
+  * Fix [#998](https://github.com/spf13/hugo/issues/988), supporting UTF8 characters in Permalinks.
 * Add `bind` flag to `hugo server` to set the interface to which the server will bind
 * Configurable RSS output filename
 * New template functions:
