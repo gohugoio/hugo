@@ -1,10 +1,11 @@
 package helpers
 
 import (
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestURLize(t *testing.T) {
@@ -28,6 +29,7 @@ func TestURLize(t *testing.T) {
 }
 
 func TestAbsURL(t *testing.T) {
+	defer viper.Reset()
 	tests := []struct {
 		input    string
 		baseURL  string
@@ -41,6 +43,7 @@ func TestAbsURL(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		viper.Reset()
 		viper.Set("BaseURL", test.baseURL)
 		output := AbsURL(test.input)
 		if output != test.expected {
@@ -50,7 +53,8 @@ func TestAbsURL(t *testing.T) {
 }
 
 func TestRelURL(t *testing.T) {
-	defer viper.Set("canonifyURLs", viper.GetBool("canonifyURLs"))
+	defer viper.Reset()
+	//defer viper.Set("canonifyURLs", viper.GetBool("canonifyURLs"))
 	tests := []struct {
 		input    string
 		baseURL  string
@@ -70,6 +74,7 @@ func TestRelURL(t *testing.T) {
 	}
 
 	for i, test := range tests {
+		viper.Reset()
 		viper.Set("BaseURL", test.baseURL)
 		viper.Set("canonifyURLs", test.canonify)
 

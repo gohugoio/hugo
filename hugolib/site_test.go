@@ -3,6 +3,12 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"html/template"
+	"io"
+	"path/filepath"
+	"strings"
+	"testing"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -10,11 +16,6 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
-	"html/template"
-	"io"
-	"path/filepath"
-	"strings"
-	"testing"
 )
 
 const (
@@ -212,8 +213,10 @@ func TestRenderThingOrDefault(t *testing.T) {
 	}
 }
 
-
 func TestDraftAndFutureRender(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.md"), []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
@@ -281,7 +284,11 @@ func TestCrossrefs(t *testing.T) {
 }
 
 func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
+	viper.Reset()
+	defer viper.Reset()
+
 	baseUrl := "http://foo/bar"
+	viper.Set("DefaultExtension", "html")
 	viper.Set("baseurl", baseUrl)
 	viper.Set("UglyURLs", uglyUrls)
 	viper.Set("verbose", true)
@@ -358,10 +365,15 @@ func Test404ShouldAlwaysHaveUglyUrls(t *testing.T) {
 }
 
 func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
 	viper.Set("verbose", true)
 	viper.Set("baseurl", "http://auth/bub")
 	viper.Set("DisableSitemap", false)
 	viper.Set("DisableRSS", false)
+	viper.Set("RSSUri", "index.xml")
 
 	viper.Set("UglyURLs", uglyURLs)
 
@@ -423,6 +435,9 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 }
 
 func TestSkipRender(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
@@ -435,6 +450,7 @@ func TestSkipRender(t *testing.T) {
 		{filepath.FromSlash("sect/doc8.html"), []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
+	viper.Set("DefaultExtension", "html")
 	viper.Set("verbose", true)
 	viper.Set("CanonifyURLs", true)
 	viper.Set("baseurl", "http://auth/bub")
@@ -481,6 +497,11 @@ func TestSkipRender(t *testing.T) {
 }
 
 func TestAbsUrlify(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
@@ -584,6 +605,9 @@ var WEIGHTED_SOURCES = []source.ByteSource{
 }
 
 func TestOrderedPages(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("baseurl", "http://auth/bub")
@@ -649,6 +673,9 @@ var GROUPED_SOURCES = []source.ByteSource{
 }
 
 func TestGroupedPages(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -832,6 +859,9 @@ date = 2010-05-27T07:32:00Z
 Front Matter with weighted tags and categories`)
 
 func TestWeightedTaxonomies(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_1},

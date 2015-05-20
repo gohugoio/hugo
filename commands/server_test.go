@@ -7,6 +7,8 @@ import (
 )
 
 func TestFixURL(t *testing.T) {
+	defer viper.Reset()
+
 	type data struct {
 		TestName   string
 		CLIBaseURL string
@@ -28,6 +30,7 @@ func TestFixURL(t *testing.T) {
 	}
 
 	for i, test := range tests {
+		viper.Reset()
 		BaseURL = test.CLIBaseURL
 		viper.Set("BaseURL", test.CfgBaseURL)
 		serverAppend = test.AppendPort

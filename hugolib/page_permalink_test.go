@@ -10,6 +10,9 @@ import (
 )
 
 func TestPermalink(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	tests := []struct {
 		file         string
 		dir          string

@@ -2,12 +2,14 @@ package hugolib
 
 import (
 	"bytes"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
+	"github.com/spf13/viper"
 )
 
 const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
@@ -74,6 +76,11 @@ func TestDegenerateNoTarget(t *testing.T) {
 }
 
 func TestFileTarget(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
+
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
@@ -91,6 +98,11 @@ func TestFileTarget(t *testing.T) {
 }
 
 func TestPageTargetUgly(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+	viper.Set("DefaultExtension", "html")
+	viper.Set("UglyURLs", true)
+
 	s := &Site{
 		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
 		Source:  &source.InMemorySource{ByteSource: fakeSource},
@@ -108,6 +120,10 @@ func TestPageTargetUgly(t *testing.T) {
 }
 
 func TestFileTargetPublishDir(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+	viper.Set("DefaultExtension", "html")
+
 	s := &Site{
 
 		Targets: targetList{

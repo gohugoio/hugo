@@ -177,10 +177,12 @@ func TestFigureImgWidth(t *testing.T) {
 }
 
 func TestHighlight(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	if !helpers.HasPygments() {
 		t.Skip("Skip test as Pygments is not installed")
 	}
-	defer viper.Set("PygmentsStyle", viper.Get("PygmentsStyle"))
 	viper.Set("PygmentsStyle", "bw")
 
 	tem := tpl.New()

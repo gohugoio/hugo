@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/viper"
 )
 
 var EMPTY_PAGE = ""
@@ -664,15 +665,19 @@ func TestSliceToLower(t *testing.T) {
 }
 
 func TestTargetPath(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
 	site_permalinks_setting := PermalinkOverrides{
 		"post": ":year/:month/:day/:title/",
 	}
 
 	tests := []struct {
-		content        string
-		path           string
-		hasPermalink   bool
-		expected       string
+		content      string
+		path         string
+		hasPermalink bool
+		expected     string
 	}{
 		{SIMPLE_PAGE, "content/post/x.md", false, "content/post/x.html"},
 		{SIMPLE_PAGE_WITH_URL, "content/post/x.md", false, "simple/url/index.html"},

@@ -23,6 +23,9 @@ const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap
 </urlset>`
 
 func TestSitemapOutput(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("baseurl", "http://auth/bub/")

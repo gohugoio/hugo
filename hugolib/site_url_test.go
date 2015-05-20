@@ -4,12 +4,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"html/template"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
-	"html/template"
 )
 
 const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
@@ -54,6 +55,8 @@ var urlFakeSource = []source.ByteSource{
 
 // Issue #1105
 func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
 
 	for i, this := range []struct {
 		in       string
@@ -76,6 +79,9 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 }
 
 func TestPageCount(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("uglyurls", false)
