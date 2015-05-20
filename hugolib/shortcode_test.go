@@ -325,6 +325,43 @@ func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 
 }
 
+func BenchmarkReplaceShortcodeTokens(b *testing.B) {
+
+	data := []struct {
+		input        string
+		replacements map[string]string
+		expect       interface{}
+	}{
+		{"Hello HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "World"}, "Hello World."},
+		{strings.Repeat("A", 100) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("A", 100) + " Hello World."},
+		{strings.Repeat("A", 500) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("A", 500) + " Hello World."},
+		{strings.Repeat("ABCD ", 500) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("ABCD ", 500) + " Hello World."},
+		{strings.Repeat("A", 500) + " HUGOSHORTCODE-1." + strings.Repeat("BC", 500) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World."},
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for i, this := range data {
+			results, err := replaceShortcodeTokens([]byte(this.input), "HUGOSHORTCODE", false, this.replacements)
+
+			if expectSuccess, ok := this.expect.(bool); ok && !expectSuccess {
+				if err == nil {
+					b.Fatalf("[%d] replaceShortcodeTokens didn't return an expected error", i)
+				}
+			} else {
+				if err != nil {
+					b.Fatalf("[%d] failed: %s", i, err)
+					continue
+				}
+				if !reflect.DeepEqual(results, []byte(this.expect.(string))) {
+					b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", i, results, this.expect)
+				}
+			}
+
+		}
+
+	}
+}
+
 func TestReplaceShortcodeTokens(t *testing.T) {
 	for i, this := range []struct {
 		input        string
