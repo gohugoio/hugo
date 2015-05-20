@@ -119,17 +119,7 @@ func init() {
   You need to open cmd.exe and run it from there.`
 }
 
-// InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig() {
-	viper.SetConfigFile(CfgFile)
-	viper.AddConfigPath(Source)
-	err := viper.ReadInConfig()
-	if err != nil {
-		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
-	}
-
-	viper.RegisterAlias("indexes", "taxonomies")
-
+func LoadDefaultSettings() {
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
@@ -164,6 +154,20 @@ func InitializeConfig() {
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
+}
+
+// InitializeConfig initializes a config file with sensible default configuration flags.
+func InitializeConfig() {
+	viper.SetConfigFile(CfgFile)
+	viper.AddConfigPath(Source)
+	err := viper.ReadInConfig()
+	if err != nil {
+		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+	}
+
+	viper.RegisterAlias("indexes", "taxonomies")
+
+	LoadDefaultSettings()
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
