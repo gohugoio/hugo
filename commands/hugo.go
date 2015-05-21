@@ -42,8 +42,10 @@ import (
 //HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
-	Short: "Hugo is a very fast static site generator",
-	Long: `A Fast and Flexible Static Site Generator built with
+	Short: "hugo builds your site",
+	Long: `hugo is the main command, used to build your Hugo site. 
+	
+	Hugo is a Fast and Flexible Static Site Generator built with
 love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io`,
