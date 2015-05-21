@@ -1241,7 +1241,7 @@ func (s *Site) newHomeNode() *Node {
 
 func (s *Site) RenderHomePage() error {
 	n := s.newHomeNode()
-	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html", "_default/single.html"})
+	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 
 	if err := s.renderAndWritePage("homepage", helpers.FilePathSeparator, n, layouts...); err != nil {
 		return err
