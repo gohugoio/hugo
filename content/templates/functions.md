@@ -128,6 +128,17 @@ Takes either a slice, array or channel and an index or a map and a key as input.
 
 e.g. `{{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}`
 
+### seq
+
+Seq creates a sequence of integers. It's named and used as GNU's seq.
+
+Some examples:
+
+* `3` => `1, 2, 3`
+* `1 2 4` => `1, 3`
+* `-3` => `-1, -2, -3`
+* `1 4` => `1, 2, 3, 4`
+* `1 -2` => `1, 0, -1, -2`
 
 ### sort
 Sorts maps, arrays and slices, returning a sorted slice. A sorted array of map values will be returned, with the keys eliminated. There are two optional arguments, which are `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order.
