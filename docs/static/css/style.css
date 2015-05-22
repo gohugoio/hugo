@@ -109,6 +109,15 @@ h1,h2,h3,h4,h5{
     font-weight: 400;
 }
 
+
+h1[id]:before, h2[id]:before, h3[id]:before, h4[id]:before, h5[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
+}
+
 label{
     font-weight: 300;
 }
