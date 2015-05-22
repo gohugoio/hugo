@@ -82,6 +82,18 @@ includes taxonomies, lists and the homepage.
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 
+### Taxonomy Term Variables
+
+[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables.
+
+* **.Data.Singular** The singular name of the taxonomy
+* **.Data.Plural** The plural name of the taxonomy
+* **.Data.Terms** The taxonomy itself
+* **.Data.Terms.Alphabetical** The Terms alphabetized
+* **.Data.Terms.ByCount** The Terms ordered by popularity
+
+The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
+
 ## Site Variables
 
 Also available is `.Site` which has the following:
