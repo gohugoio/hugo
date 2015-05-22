@@ -10,6 +10,7 @@ next: /templates/list
 prev: /templates/variables
 title: Single Content Template
 weight: 30
+toc: true
 ---
 
 The primary view of content in Hugo is the single view. Hugo, for every
@@ -61,7 +62,7 @@ same as the other types, but the directory must be called "\_default".
           single.html
 
 
-## post/single.html
+### post/single.html
 This content template is used for [spf13.com](http://spf13.com/).
 It makes use of [partial templates](/templates/partials/)
 
@@ -109,7 +110,7 @@ It makes use of [partial templates](/templates/partials/)
     {{ partial "footer.html" . }}
 
 
-## project/single.html
+### project/single.html
 This content template is used for [spf13.com](http://spf13.com/).
 It makes use of [partial templates](/templates/partials/)
 

@@ -12,6 +12,7 @@ next: /templates/go-templates
 prev: /themes/creation
 title: Hugo Templates
 weight: 10
+toc: true
 ---
 
 Hugo uses the excellent Go html/template library for its template engine.

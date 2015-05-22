@@ -11,6 +11,7 @@ notoc: one
 prev: /templates/partials
 title: RSS (feed) Templates
 weight: 90
+toc: true
 ---
 
 Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed. 

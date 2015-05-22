@@ -11,6 +11,7 @@ next: /templates/content
 prev: /templates/functions
 title: Template Variables
 weight: 20
+toc: true
 ---
 
 Hugo makes a set of values available to the templates. Go templates are context based. The following

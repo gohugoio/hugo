@@ -10,6 +10,7 @@ next: /templates/ace
 prev: /templates/overview
 title: Go Template Primer
 weight: 15
+toc: true
 ---
 
 Hugo uses the excellent [Go][] [html/template][gohtmltemplate] library for
