@@ -440,8 +440,26 @@ Both `absURL` and `relURL` considers the configured value of `baseURL`, so given
 
 * `{{ "mystyle.css" | absURL }}` → "http://mysite.com/hugo/mystyle.css"
 * `{{ "mystyle.css" | relURL }}` → "/hugo/mystyle.css"
+* `{{ "http://gohugo.io/" | relURL }}` →  "http://gohugo.io/"
+* `{{ "http://gohugo.io/" | absURL }}` →  "http://gohugo.io/"
 
-**Note:** If `canonifyUrls` is enabled, the last example above will be "/mystyle.css". These functions are smart about missing slashes, but will not add one to the end if not present.
+The last two examples may look funky, but is useful if you, say, have a list of images, some of them hosted externally, some locally:
+
+```
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "image" : {{ apply .Params.images "absURL" "." }}
+}
+</script>
+```
+
+The above also exploits the fact that the Go template parser JSON-encodes objects inside `script` tags.
+
+
+
+**Note:** These functions are smart about missing slashes, but will not add one to the end if not present.
 
 
 ### ref, relref
