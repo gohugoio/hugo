@@ -382,6 +382,16 @@ Example: Given `style = "color: red;"` defined in the front matter of your `.md`
 Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
 CSS or URL context.
 
+### slicestr
+
+Slicing in Slicestr is done by specifying a half-open range with two indices, start and end. 1 and 4 creates a slice including elements 1 through 3. 
+The end index can be omitted, it defaults to the string's length.
+
+e.g. 
+
+* `{{slicestr "BatMan" 3}}` → "Man"
+* `{{slicestr "BatMan" 0 3}}` → "Bat"
+
 ### title
 Convert all characters in string to titlecase.
 
