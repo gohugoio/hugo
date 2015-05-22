@@ -392,6 +392,26 @@ e.g.
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
 
+### substr
+
+ Substr extracts parts of a string, beginning at the character at the specified
+ position, and returns the specified number of characters.
+
+ It normally takes two parameters: `start` and `length`.
+ It can also take one parameter: `start`, i.e. `length` is omitted, in which case
+ the substring starting from start until the end of the string will be returned.
+
+ To extract characters from the end of the string, use a negative start number.
+
+ In addition, borrowing from the extended behavior described at http://php.net/substr,
+ if `length` is given and is negative, then that many characters will be omitted from
+ the end of string.
+
+e.g.
+
+* `{{substr "BatMan" 0 -3}}` → "Bat"
+* `{{substr "BatMan" 3 3}}` → "Man"
+
 ### title
 Convert all characters in string to titlecase.
 
