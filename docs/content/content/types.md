@@ -8,6 +8,7 @@ next: /content/archetypes
 prev: /content/sections
 title: Content Types
 weight: 40
+toc: true
 ---
 
 Hugo has full support for different types of content. A content type can have a

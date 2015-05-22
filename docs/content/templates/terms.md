@@ -12,6 +12,7 @@ next: /templates/views
 prev: /templates/homepage
 title: Taxonomy Terms Template
 weight: 60
+toc: true
 ---
 
 A unique template is needed to create a list of the terms for a given

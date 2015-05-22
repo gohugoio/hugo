@@ -9,6 +9,7 @@ next: /templates/rss
 prev: /templates/views
 title: Partial Templates
 weight: 80
+toc: true
 ---
 
 In practice, it's very convenient to split out common template portions into a

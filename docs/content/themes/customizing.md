@@ -7,6 +7,7 @@ next: /themes/creation
 prev: /themes/usage
 title: Customizing a Theme
 weight: 40
+toc: true
 ---
 
 _The following are key concepts for Hugo site customization. Hugo permits you to **supplement or override** any theme template or static file, with files in your working directory._ 
