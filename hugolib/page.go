@@ -71,7 +71,7 @@ type Page struct {
 	renderingConfigInit sync.Once
 	PageMeta
 	Source
-	Position
+	Position `json:"-"`
 	Node
 	pageMenus     PageMenus
 	pageMenusInit sync.Once

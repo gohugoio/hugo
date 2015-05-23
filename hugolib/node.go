@@ -22,7 +22,7 @@ import (
 
 type Node struct {
 	RSSLink template.HTML
-	Site    *SiteInfo
+	Site    *SiteInfo `json:"-"`
 	//	layout      string
 	Data        map[string]interface{}
 	Title       string
