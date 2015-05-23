@@ -1223,6 +1223,7 @@ func init() {
 		"dateFormat":  DateFormat,
 		"getJSON":     GetJSON,
 		"getCSV":      GetCSV,
+		"getFileList": GetFileList,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
 
@@ -1231,6 +1232,7 @@ func init() {
 			helpers.Deprecated("Template", "getJson", "getJSON")
 			return GetJSON(urlParts...)
 		},
+		
 		// "getJson" is deprecated. Will be removed in 0.15.
 		"getCsv": func(sep string, urlParts ...string) [][]string {
 			helpers.Deprecated("Template", "getCsv", "getCSV")
@@ -1251,6 +1253,7 @@ func init() {
 			helpers.Deprecated("Template", "safeUrl", "safeURL")
 			return SafeURL(text)
 		},
+		
 	}
 
 }

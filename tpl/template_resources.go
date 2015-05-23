@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"os"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -225,3 +226,14 @@ func GetCSV(sep string, urlParts ...string) [][]string {
 	}
 	return d
 }
+
+func GetFileList(urlParts ...string) []os.FileInfo {
+	url := strings.Join(urlParts, "")
+	list, err := ioutil.ReadDir(url)
+	if err != nil {
+		jww.ERROR.Printf("Failed to read Directory %s with error message %s", url, err)
+		return nil
+	}
+	return list
+}
+
