@@ -79,7 +79,6 @@ type Site struct {
 	timer          *nitro.B
 	Targets        targetList
 	targetListInit sync.Once
-	Completed      chan bool `json:"-"`
 	RunMode        runmode
 	params         map[string]interface{}
 	draftCount     int
