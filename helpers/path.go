@@ -27,8 +27,8 @@ import (
 	"unicode"
 )
 
-// FilepathPathBridge is a bridge for common functionality in filepath vs path
-type FilepathPathBridge interface {
+// filepathPathBridge is a bridge for common functionality in filepath vs path
+type filepathPathBridge interface {
 	Base(in string) string
 	Clean(in string) string
 	Dir(in string) string
@@ -37,34 +37,34 @@ type FilepathPathBridge interface {
 	Separator() string
 }
 
-type FilepathBridge struct {
+type filepathBridge struct {
 }
 
-func (FilepathBridge) Base(in string) string {
+func (filepathBridge) Base(in string) string {
 	return filepath.Base(in)
 }
 
-func (FilepathBridge) Clean(in string) string {
+func (filepathBridge) Clean(in string) string {
 	return filepath.Clean(in)
 }
 
-func (FilepathBridge) Dir(in string) string {
+func (filepathBridge) Dir(in string) string {
 	return filepath.Dir(in)
 }
 
-func (FilepathBridge) Ext(in string) string {
+func (filepathBridge) Ext(in string) string {
 	return filepath.Ext(in)
 }
 
-func (FilepathBridge) Join(elem ...string) string {
+func (filepathBridge) Join(elem ...string) string {
 	return filepath.Join(elem...)
 }
 
-func (FilepathBridge) Separator() string {
+func (filepathBridge) Separator() string {
 	return FilePathSeparator
 }
 
-var filepathBridge FilepathBridge
+var fpb filepathBridge
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // MakePath takes a string with any characters and replace it
@@ -103,7 +103,7 @@ func UnicodeSanitize(s string) string {
 // ReplaceExtension takes a path and an extension, strips the old extension
 // and returns the path with the new extension.
 func ReplaceExtension(path string, newExt string) string {
-	f, _ := FileAndExt(path, filepathBridge)
+	f, _ := FileAndExt(path, fpb)
 	return f + "." + newExt
 }
 
@@ -270,7 +270,7 @@ func GetDottedRelativePath(inPath string) string {
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
-	name, _ = FileAndExt(in, filepathBridge)
+	name, _ = FileAndExt(in, fpb)
 	return
 }
 
@@ -290,7 +290,7 @@ func Filename(in string) (name string) {
 // If the path, in, represents a filename with an extension,
 // then name will be the filename minus any extension - including the dot
 // and ext will contain the extension - minus the dot.
-func FileAndExt(in string, b FilepathPathBridge) (name string, ext string) {
+func FileAndExt(in string, b filepathPathBridge) (name string, ext string) {
 	ext = b.Ext(in)
 	base := b.Base(in)
 
@@ -396,10 +396,10 @@ func PathPrep(ugly bool, in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyPath(in string) string {
-	return PrettiyPath(in, filepathBridge)
+	return PrettiyPath(in, fpb)
 }
 
-func PrettiyPath(in string, b FilepathPathBridge) string {
+func PrettiyPath(in string, b filepathPathBridge) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
 		if len(in) < 2 {
