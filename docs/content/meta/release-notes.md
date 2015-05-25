@@ -26,23 +26,24 @@ can detect if it’s being run in Windows Explorer and provide additional
 instructions to run it via the command prompt.
 
 The Hugo community continues to grow. Hugo has over 4000 stars on github, 165
-contributors, 34 themes and 1000s of happy users. It is now the 5th most
+contributors, 35 themes and 1000s of happy users. It is now the 5th most
 popular static site generator (by Stars) and has the 3rd largest contributor
 community.
 
 This release represents over **240 contributions by 36 contributors** to the main
 Hugo codebase.
 
-Big shout out to [@bep](https://github.com/bep),
-[@anthonyfok](https://github.com/anthonyfok),
+Big shout out to [@bep](https://github.com/bep) who led the development of Hugo
+this release, [@anthonyfok](https://github.com/anthonyfok),
 [@eparis](https://github.com/eparis),
 [@SchumacherFM](https://github.com/SchumacherFM),
 [@RickCogley](https://github.com/RickCogley) &
 [@mdhender](https://github.com/mdhender) for their significant contributions
 and [@tatsushid](https://github.com/tatsushid) for his continuous improvements
-to the templates. Also a big thanks to all the theme creators. 10 new themes
+to the templates. Also a big thanks to all the theme creators. 11 new themes
 have been added since last release and the [hugoThemes repo now has previews of
-all of them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
+all of
+them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
 
 Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies inclding:
 [cobra](https://github.com/spf13/cobra),
