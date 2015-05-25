@@ -6,8 +6,13 @@ title: Press, Blogs and Media Coverage
 weight: 20
 ---
 
-Hugo has been featured in the following Blog Posts, Press and Media.
+### Help keep this list up to date
 
+Know of a post, article or tutorial on hugo? [Add it to this list](https://github.com/spf13/hugo/edit/master/docs/content/community/press.md).
+
+## Press and Articles
+
+Hugo has been featured in the following Blog Posts, Press and Media.
 
 
 | Title                                                                                                                                                                     | Author                                                        | Date         |
@@ -96,4 +101,3 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [In Praise Of Hugo](http://sound-guru.com/blog/post/hello-world/)                                                                                                         | sound-guru.com                                                | 19 Oct 2013  |
 | [Hosting a blog on S3 and Cloudfront](http://www.danesparza.net/2013/07/hosting-a-blog-on-s3-and-cloudfront/)                                                             | Dan Esparza                                                   | 24 July 2013 |
 
-Have you written a post, article or tutorial on hugo? Send us a pull request or issue with the addition.
