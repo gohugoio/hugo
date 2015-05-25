@@ -1,12 +1,7 @@
 ---
 date: 2014-03-24T20:00:00Z
 linktitle: Press
-menu:
-  main:
-    parent: community
-next: /community/contributing
 notoc: true
-prev: /community/mailing-list
 title: Press, Blogs and Media Coverage
 weight: 20
 ---
