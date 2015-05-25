@@ -1225,4 +1225,3 @@ func TestSafeURL(t *testing.T) {
 		}
 	}
 }
-

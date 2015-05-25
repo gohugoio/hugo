@@ -49,9 +49,9 @@ type prefix struct {
 // - the matches array above must be expanded.
 // - the prefix must with the current logic end with '='
 var prefixes = []*prefix{
-	&prefix{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateBase},
-	&prefix{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateBase},
-	&prefix{r: []rune{'s', 'r', 'c', 's', 'e', 't', '='}, f: checkCandidateSrcset},
+	{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateBase},
+	{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateBase},
+	{r: []rune{'s', 'r', 'c', 's', 'e', 't', '='}, f: checkCandidateSrcset},
 }
 
 type absURLMatcher struct {
