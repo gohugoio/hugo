@@ -331,6 +331,10 @@ func GetRelativePath(path, base string) (final string, err error) {
 	if err != nil {
 		return "", err
 	}
+
+	if strings.HasSuffix(path, "/") && !strings.HasSuffix(name, "/") {
+		name += "/"
+	}
 	return name, nil
 }
 

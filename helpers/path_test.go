@@ -65,6 +65,7 @@ func TestGetRelativePath(t *testing.T) {
 		expect interface{}
 	}{
 		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
+		{filepath.FromSlash("/a/b/c/"), filepath.FromSlash("/a"), filepath.FromSlash("b/c/")},
 		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
 		{filepath.FromSlash("/c"), "", false},
 	}

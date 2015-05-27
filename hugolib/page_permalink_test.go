@@ -26,6 +26,9 @@ func TestPermalink(t *testing.T) {
 	}{
 		{"x/y/z/boofar.md", "x/y/z", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "x/y/z/", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		// Issue #1174
+		{"x/y/z/boofar.md", "x/y/z", "http://gopher.com/", "", "", false, true, "http://gopher.com/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://gopher.com/", "", "", true, true, "http://gopher.com/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "x/y/z/", "", "boofar", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
