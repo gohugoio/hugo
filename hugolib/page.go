@@ -346,7 +346,7 @@ func (p *Page) analyzePage() {
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseURL := string(p.Site.BaseURL)
-	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
+	dir := strings.TrimSpace(helpers.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
 	pSlug := strings.TrimSpace(helpers.URLize(p.Slug))
 	pURL := strings.TrimSpace(helpers.URLize(p.URL))
 	var permalink string
@@ -837,5 +837,5 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
 	}
 
-	return filepath.Join(p.Source.Dir(), strings.TrimSpace(outfile))
+	return filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile))
 }

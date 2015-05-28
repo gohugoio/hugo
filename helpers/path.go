@@ -92,7 +92,7 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}
@@ -332,8 +332,8 @@ func GetRelativePath(path, base string) (final string, err error) {
 		return "", err
 	}
 
-	if strings.HasSuffix(path, "/") && !strings.HasSuffix(name, "/") {
-		name += "/"
+	if strings.HasSuffix(filepath.FromSlash(path), FilePathSeparator) && !strings.HasSuffix(name, FilePathSeparator) {
+		name += FilePathSeparator
 	}
 	return name, nil
 }

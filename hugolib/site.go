@@ -774,7 +774,7 @@ func (s *Site) assembleMenus() {
 		if sectionPagesMenu != "" {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {
 				if p.Section() != "" {
-					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(p.Section()), URL: s.Info.createNodeMenuEntryURL("/" + p.Section())}
+					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())), URL: s.Info.createNodeMenuEntryURL("/" + p.Section())}
 					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
 						// menu with same id defined in config, let that one win
 						continue
@@ -1160,12 +1160,13 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 	return
 }
 
-func (s *Site) newSectionListNode(section string, data WeightedPages) *Node {
+func (s *Site) newSectionListNode(sectionName, section string, data WeightedPages) *Node {
 	n := s.NewNode()
+	sectionName = helpers.FirstUpper(sectionName)
 	if viper.GetBool("PluralizeListTitles") {
-		n.Title = strings.Title(inflect.Pluralize(section))
+		n.Title = inflect.Pluralize(sectionName)
 	} else {
-		n.Title = strings.Title(section)
+		n.Title = sectionName
 	}
 	s.setURLs(n, section)
 	n.Date = data[0].Page.Date
@@ -1179,12 +1180,17 @@ func (s *Site) newSectionListNode(section string, data WeightedPages) *Node {
 func (s *Site) RenderSectionLists() error {
 	for section, data := range s.Sections {
 
+		// section keys are lower case
+		// extract the original casing from the first page to get sensible titles.
+		sectionName := section
+		if len(data) > 0 {
+			sectionName = data[0].Page.Section()
+		}
 		layouts := s.appendThemeTemplates(
 			[]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 
-		n := s.newSectionListNode(section, data)
-
-		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), fmt.Sprintf("/%s", section), n, s.appendThemeTemplates(layouts)...); err != nil {
+		n := s.newSectionListNode(sectionName, section, data)
+		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), section, n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
 
@@ -1203,7 +1209,7 @@ func (s *Site) RenderSectionLists() error {
 					continue
 				}
 
-				sectionPagerNode := s.newSectionListNode(section, data)
+				sectionPagerNode := s.newSectionListNode(sectionName, section, data)
 				sectionPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
 					sectionPagerNode.Date = pager.Pages()[0].Date

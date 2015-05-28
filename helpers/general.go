@@ -25,6 +25,8 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -76,6 +78,15 @@ func GuessType(in string) string {
 	}
 
 	return "unknown"
+}
+
+// FirstUpper returns a string with the first character as upper case.
+func FirstUpper(s string) string {
+	if s == "" {
+		return ""
+	}
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToUpper(r)) + s[n:]
 }
 
 // ReaderToBytes takes an io.Reader argument, reads from it
