@@ -38,6 +38,8 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "x/y/z", "http://barnew/", "", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/", "boofar", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo/", "boofar", "", true, false, "http://barnew/boo/x/y/z/boofar.html", "/boo/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo/", "boofar", "", false, true, "http://barnew/boo/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo/", "boofar", "", false, false, "http://barnew/boo/x/y/z/boofar/", "/boo/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo/", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "x/y/z/", "http://barnew/boo", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 
