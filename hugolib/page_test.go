@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 var EMPTY_PAGE = ""
@@ -368,6 +369,8 @@ func TestCreateNewPage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
+
+	assert.False(t, p.IsHome)
 	checkPageTitle(t, p, "Simple")
 	checkPageContent(t, p, "<p>Simple Page</p>\n")
 	checkPageSummary(t, p, "Simple Page")

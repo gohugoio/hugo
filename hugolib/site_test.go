@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -417,6 +418,10 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 		{filepath.FromSlash("404.html"), "Page Not Found"},
 		{filepath.FromSlash("index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
 		{filepath.FromSlash("sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
+	}
+
+	for _, p := range s.Pages {
+		assert.False(t, p.IsHome)
 	}
 
 	for _, test := range tests {

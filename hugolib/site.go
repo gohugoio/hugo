@@ -1233,6 +1233,7 @@ func (s *Site) RenderSectionLists() error {
 func (s *Site) newHomeNode() *Node {
 	n := s.NewNode()
 	n.Title = n.Site.Title
+	n.IsHome = true
 	s.setURLs(n, "/")
 	n.Data["Pages"] = s.Pages
 	return n

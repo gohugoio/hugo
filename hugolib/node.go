@@ -33,6 +33,7 @@ type Node struct {
 	Lastmod     time.Time
 	Sitemap     Sitemap
 	URLPath
+	IsHome        bool
 	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch
