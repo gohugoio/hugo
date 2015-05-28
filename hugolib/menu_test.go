@@ -92,6 +92,16 @@ weight = 3
 +++
 Front Matter with Menu Pages`)
 
+var MENU_PAGE_4 = []byte(`+++
+title = "Four"
+weight = 4
+[menu]
+	[menu.p_two]
+		Name = "Four"
+		Parent = "Three"
++++
+Front Matter with Menu Pages`)
+
 var MENU_PAGE_SOURCES = []source.ByteSource{
 	{filepath.FromSlash("sect/doc1.md"), MENU_PAGE_1},
 	{filepath.FromSlash("sect/doc2.md"), MENU_PAGE_2},
@@ -102,6 +112,7 @@ var MENU_PAGE_SECTIONS_SOURCES = []source.ByteSource{
 	{filepath.FromSlash("first/doc1.md"), MENU_PAGE_1},
 	{filepath.FromSlash("first/doc2.md"), MENU_PAGE_2},
 	{filepath.FromSlash("second-section/doc3.md"), MENU_PAGE_3},
+	{filepath.FromSlash("Fish and Chips/doc4.md"), MENU_PAGE_4},
 }
 
 func tstCreateMenuPageWithNameTOML(title, menu, name string) []byte {
@@ -332,47 +343,63 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs, uglyURLs bool) {
 
 // Issue #1114
 func TestSectionPagesMenu(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-
-	viper.Set("SectionPagesMenu", "spm")
 
 	doTestSectionPagesMenu(true, t)
 	doTestSectionPagesMenu(false, t)
 }
 
 func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("SectionPagesMenu", "spm")
+
 	viper.Set("CanonifyURLs", canonifyUrls)
 	s := setupMenuTests(t, MENU_PAGE_SECTIONS_SOURCES)
 
-	assert.Equal(t, 2, len(s.Sections))
+	assert.Equal(t, 3, len(s.Sections))
 
 	firstSectionPages := s.Sections["first"]
 	assert.Equal(t, 2, len(firstSectionPages))
 	secondSectionPages := s.Sections["second-section"]
 	assert.Equal(t, 1, len(secondSectionPages))
+	fishySectionPages := s.Sections["fish-and-chips"]
+	assert.Equal(t, 1, len(fishySectionPages))
 
-	nodeFirst := s.newSectionListNode("first", firstSectionPages)
-	nodeSecond := s.newSectionListNode("second-section", secondSectionPages)
-
+	nodeFirst := s.newSectionListNode("First", "first", firstSectionPages)
+	nodeSecond := s.newSectionListNode("Second Section", "second-section", secondSectionPages)
+	nodeFishy := s.newSectionListNode("Fish and Chips", "fish-and-chips", fishySectionPages)
 	firstSectionMenuEntry := findTestMenuEntryByID(s, "spm", "first")
 	secondSectionMenuEntry := findTestMenuEntryByID(s, "spm", "second-section")
+	fishySectionMenuEntry := findTestMenuEntryByID(s, "spm", "Fish and Chips")
 
 	assert.NotNil(t, firstSectionMenuEntry)
 	assert.NotNil(t, secondSectionMenuEntry)
 	assert.NotNil(t, nodeFirst)
 	assert.NotNil(t, nodeSecond)
+	assert.NotNil(t, fishySectionMenuEntry)
+	assert.NotNil(t, nodeFishy)
+
+	assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
+	assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
+	assert.False(t, nodeFirst.IsMenuCurrent("spm", fishySectionMenuEntry))
+	assert.True(t, nodeFishy.IsMenuCurrent("spm", fishySectionMenuEntry))
+	assert.Equal(t, "Fish and Chips", fishySectionMenuEntry.Name)
 
 	for _, p := range firstSectionPages {
 		assert.True(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
 		assert.False(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
-		assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
-		assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
 	}
 
 	for _, p := range secondSectionPages {
 		assert.False(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
 		assert.True(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+	}
+
+	for _, p := range fishySectionPages {
+		assert.False(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
+		assert.False(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+		assert.True(t, p.Page.HasMenuCurrent("spm", fishySectionMenuEntry))
 	}
 }
 

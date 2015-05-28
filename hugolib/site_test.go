@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -277,6 +278,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 // Issue #957
 func TestCrossrefs(t *testing.T) {
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	for _, uglyUrls := range []bool{true, false} {
 		for _, relative := range []bool{true, false} {
 			doTestCrossrefs(t, relative, uglyUrls)
@@ -360,6 +362,7 @@ func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
 
 // Issue #939
 func Test404ShouldAlwaysHaveUglyUrls(t *testing.T) {
+	hugofs.DestinationFS = new(afero.MemMapFs)
 	for _, uglyURLs := range []bool{true, false} {
 		doTest404ShouldAlwaysHaveUglyUrls(t, uglyURLs)
 	}
@@ -439,6 +442,87 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 
 }
 
+// Issue #1176
+func TestSectionNaming(t *testing.T) {
+
+	for _, canonify := range []bool{true, false} {
+		for _, uglify := range []bool{true, false} {
+			for _, pluralize := range []bool{true, false} {
+				doTestSectionNaming(t, canonify, uglify, pluralize)
+			}
+		}
+	}
+}
+
+func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
+	hugofs.DestinationFS = new(afero.MemMapFs)
+	viper.Reset()
+	defer viper.Reset()
+	viper.Set("baseurl", "http://auth/sub/")
+	viper.Set("DefaultExtension", "html")
+	viper.Set("UglyURLs", uglify)
+	viper.Set("PluralizeListTitles", pluralize)
+	viper.Set("CanonifyURLs", canonify)
+
+	var expectedPathSuffix string
+
+	if uglify {
+		expectedPathSuffix = ".html"
+	} else {
+		expectedPathSuffix = "/index.html"
+	}
+
+	sources := []source.ByteSource{
+		{filepath.FromSlash("sect/doc1.html"), []byte("doc1")},
+		{filepath.FromSlash("Fish and Chips/doc2.html"), []byte("doc2")},
+		{filepath.FromSlash("ラーメン/doc3.html"), []byte("doc3")},
+	}
+
+	s := &Site{
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: uglify}},
+	}
+
+	s.initializeSiteInfo()
+	templatePrep(s)
+
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	must(s.addTemplate("_default/list.html", "{{ .Title }}"))
+
+	createAndRenderPages(t, s)
+	s.RenderSectionLists()
+
+	tests := []struct {
+		doc         string
+		pluralAware bool
+		expected    string
+	}{
+		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix)), false, "doc1"},
+		{filepath.FromSlash(fmt.Sprintf("sect%s", expectedPathSuffix)), true, "Sect"},
+		{filepath.FromSlash(fmt.Sprintf("fish-and-chips/doc2%s", expectedPathSuffix)), false, "doc2"},
+		{filepath.FromSlash(fmt.Sprintf("fish-and-chips%s", expectedPathSuffix)), true, "Fish and Chips"},
+		{filepath.FromSlash(fmt.Sprintf("ラーメン/doc3%s", expectedPathSuffix)), false, "doc3"},
+		{filepath.FromSlash(fmt.Sprintf("ラーメン%s", expectedPathSuffix)), true, "ラーメン"},
+	}
+
+	for _, test := range tests {
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target: %s", test.doc, err)
+		}
+
+		content := helpers.ReaderToString(file)
+
+		if test.pluralAware && pluralize {
+			test.expected = inflect.Pluralize(test.expected)
+		}
+
+		if content != test.expected {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
+		}
+	}
+
+}
 func TestSkipRender(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
