@@ -28,6 +28,8 @@ For template documentation, follow the links from the [Ace project](https://gith
 
 One noticeable difference between Ace and the others is the inheritance support through [base and inner templates](https://github.com/yosssi/ace/tree/master/examples/base_inner_template).
 
+**NOTE:** The base and inner templates doesn't currently work on Windows, see https://github.com/spf13/hugo/issues/1178
+
 In Hugo the base template will be chosen in the following order:
 
 ```
