@@ -57,7 +57,7 @@ a file is cached, a copy of it is temporarily stored on the computer.
 It is much faster for the HTTP server to send that copy the next time
 the page is requested than it is to generate it from scratch.
 
-Hugo takes cacheing a step further. All HTML files are rendered on your
+Hugo takes caching a step further. All HTML files are rendered on your
 computer. You can review the files before you copy them to the computer
 hosting the HTTP server. Since the HTML files aren't generated dynamically,
 we say that Hugo is a "static site generator."
