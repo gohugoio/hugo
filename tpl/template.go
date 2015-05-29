@@ -157,6 +157,28 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	return err
 }
 
+func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	var base, inner *ace.File
+	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
+	if basePath != "" {
+		base = ace.NewFile(basePath, baseContent)
+		inner = ace.NewFile(innerPath, innerContent)
+	} else {
+		base = ace.NewFile(innerPath, innerContent)
+		inner = ace.NewFile("", []byte{})
+	}
+	parsed, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+		return err
+	}
+	_, err = ace.CompileResultWithTemplate(t.New(name), parsed, nil)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+	}
+	return err
+}
+
 func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
@@ -172,35 +194,21 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 	case ".ace":
-		b, err := ioutil.ReadFile(path)
+		var innerContent, baseContent []byte
+		innerContent, err := ioutil.ReadFile(path)
+
 		if err != nil {
 			return err
 		}
 
-		var base, inner *ace.File
-
-		name = name[:len(name)-len(ext)] + ".html"
 		if baseTemplatePath != "" {
-			b2, err := ioutil.ReadFile(baseTemplatePath)
+			baseContent, err = ioutil.ReadFile(baseTemplatePath)
 			if err != nil {
 				return err
 			}
-			base = ace.NewFile(baseTemplatePath, b2)
-			inner = ace.NewFile(path, b)
-		} else {
-			base = ace.NewFile(path, b)
-			inner = ace.NewFile("", []byte{})
 		}
-		rslt, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
-		if err != nil {
-			t.errors = append(t.errors, &templateErr{name: name, err: err})
-			return err
-		}
-		_, err = ace.CompileResultWithTemplate(t.New(name), rslt, nil)
-		if err != nil {
-			t.errors = append(t.errors, &templateErr{name: name, err: err})
-		}
-		return err
+
+		return t.AddAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
 	default:
 		b, err := ioutil.ReadFile(path)
 		if err != nil {
