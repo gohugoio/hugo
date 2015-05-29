@@ -19,6 +19,8 @@ import (
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 	"io"
 	"os"
 	"path/filepath"
@@ -97,7 +99,14 @@ func UnicodeSanitize(s string) string {
 		}
 	}
 
-	return string(target)
+	// remove accents - see https://blog.golang.org/normalization
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	result, _, _ := transform.String(t, string(target))
+	return result
+}
+
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
 // ReplaceExtension takes a path and an extension, strips the old extension
