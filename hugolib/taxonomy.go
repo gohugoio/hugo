@@ -65,8 +65,10 @@ func kp(in string) string {
 
 func (i Taxonomy) Get(key string) WeightedPages { return i[kp(key)] }
 func (i Taxonomy) Count(key string) int         { return len(i[kp(key)]) }
-func (i Taxonomy) Add(key string, w WeightedPage) {
-	key = kp(key)
+func (i Taxonomy) Add(key string, w WeightedPage, pretty bool) {
+	if !pretty {
+		key = kp(key)
+	}
 	i[key] = append(i[key], w)
 }
 
