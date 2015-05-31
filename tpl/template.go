@@ -161,6 +161,11 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
 	var base, inner *ace.File
 	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
+
+	// Fixes issue #1178
+	basePath = strings.Replace(basePath, "\\", "/", -1)
+	innerPath = strings.Replace(innerPath, "\\", "/", -1)
+
 	if basePath != "" {
 		base = ace.NewFile(basePath, baseContent)
 		inner = ace.NewFile(innerPath, innerContent)
