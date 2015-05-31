@@ -27,7 +27,7 @@ func TestMakePath(t *testing.T) {
 		{"FOo/BaR.html", "FOo/BaR.html"},
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
-		{"Банковский кассир", "Банковский-кассир"},
+		{"Банковский кассир", "Банковскии-кассир"},
 	}
 
 	for _, test := range tests {
@@ -65,6 +65,7 @@ func TestGetRelativePath(t *testing.T) {
 		expect interface{}
 	}{
 		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
+		{filepath.FromSlash("/a/b/c/"), filepath.FromSlash("/a"), filepath.FromSlash("b/c/")},
 		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
 		{filepath.FromSlash("/c"), "", false},
 	}
@@ -716,7 +717,7 @@ func TestGetTempDir(t *testing.T) {
 		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
 		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
 		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
-		{testDir + "Банковский кассир", dir + testDir + "Банковский-кассир" + FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковскии-кассир" + FilePathSeparator},
 	}
 
 	for _, test := range tests {

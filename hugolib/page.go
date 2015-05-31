@@ -346,7 +346,7 @@ func (p *Page) analyzePage() {
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseURL := string(p.Site.BaseURL)
-	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
+	dir := strings.TrimSpace(helpers.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
 	pSlug := strings.TrimSpace(helpers.URLize(p.Slug))
 	pURL := strings.TrimSpace(helpers.URLize(p.URL))
 	var permalink string
@@ -539,6 +539,10 @@ func (p *Page) update(f interface{}) error {
 }
 
 func (p *Page) GetParam(key string) interface{} {
+	return p.getParam(key, true)
+}
+
+func (p *Page) getParam(key string, stringToLower bool) interface{} {
 	v := p.Params[strings.ToLower(key)]
 
 	if v == nil {
@@ -549,7 +553,10 @@ func (p *Page) GetParam(key string) interface{} {
 	case bool:
 		return cast.ToBool(v)
 	case string:
-		return strings.ToLower(cast.ToString(v))
+		if stringToLower {
+			return strings.ToLower(cast.ToString(v))
+		}
+		return cast.ToString(v)
 	case int64, int32, int16, int8, int:
 		return cast.ToInt(v)
 	case float64, float32:
@@ -557,7 +564,10 @@ func (p *Page) GetParam(key string) interface{} {
 	case time.Time:
 		return cast.ToTime(v)
 	case []string:
-		return helpers.SliceToLower(v.([]string))
+		if stringToLower {
+			return helpers.SliceToLower(v.([]string))
+		}
+		return v.([]string)
 	case map[string]interface{}: // JSON and TOML
 		return v
 	case map[interface{}]interface{}: // YAML
@@ -800,7 +810,7 @@ func (p *Page) Convert() error {
 }
 
 func (p *Page) FullFilePath() string {
-	return filepath.Join(p.Source.Dir(), p.Source.Path())
+	return filepath.Join(p.Dir(), p.LogicalName())
 }
 
 func (p *Page) TargetPath() (outfile string) {
@@ -837,5 +847,5 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
 	}
 
-	return filepath.Join(p.Source.Dir(), strings.TrimSpace(outfile))
+	return filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile))
 }

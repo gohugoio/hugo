@@ -17,9 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
 	"html"
 	"html/template"
 	"os"
@@ -27,6 +24,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var funcMap template.FuncMap
@@ -364,7 +366,15 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 var (
 	zero      reflect.Value
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
+	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
 )
+
+func timeUnix(v reflect.Value) int64 {
+	if v.Type() != timeType {
+		panic("coding error: argument must be time.Time type reflect Value")
+	}
+	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
+}
 
 func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) {
 	if !obj.IsValid() {
@@ -459,6 +469,14 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			svp = &sv
 			smv := mv.String()
 			smvp = &smv
+		case reflect.Struct:
+			switch v.Type() {
+			case timeType:
+				iv := timeUnix(v)
+				ivp = &iv
+				imv := timeUnix(mv)
+				imvp = &imv
+			}
 		}
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
@@ -479,6 +497,15 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			svp = &sv
 			for i := 0; i < mv.Len(); i++ {
 				sma = append(sma, mv.Index(i).String())
+			}
+		case reflect.Struct:
+			switch v.Type() {
+			case timeType:
+				iv := timeUnix(v)
+				ivp = &iv
+				for i := 0; i < mv.Len(); i++ {
+					ima = append(ima, timeUnix(mv.Index(i)))
+				}
 			}
 		}
 	}

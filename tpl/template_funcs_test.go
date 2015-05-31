@@ -479,6 +479,28 @@ type TstX struct {
 	unexported string
 }
 
+func TestTimeUnix(t *testing.T) {
+	var sec int64 = 1234567890
+	tv := reflect.ValueOf(time.Unix(sec, 0))
+	i := 1
+
+	res := timeUnix(tv)
+	if sec != res {
+		t.Errorf("[%d] timeUnix got %v but expected %v", i, res, sec)
+	}
+
+	i++
+	func(t *testing.T) {
+		defer func() {
+			if err := recover(); err == nil {
+				t.Errorf("[%d] timeUnix didn't return an expected error", i)
+			}
+		}()
+		iv := reflect.ValueOf(sec)
+		timeUnix(iv)
+	}(t)
+}
+
 func TestEvaluateSubElem(t *testing.T) {
 	tstx := TstX{A: "foo", B: "bar"}
 	var inner struct {
@@ -543,20 +565,76 @@ func TestCheckCondition(t *testing.T) {
 	}{
 		{reflect.ValueOf(123), reflect.ValueOf(123), "", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("foo"), "", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "!=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), "!=", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			"!=",
+			expect{true, false},
+		},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">=", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			">=",
+			expect{true, false},
+		},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			">",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "<=", expect{true, false}},
 		{reflect.ValueOf("bar"), reflect.ValueOf("foo"), "<=", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"<=",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "<", expect{true, false}},
 		{reflect.ValueOf("bar"), reflect.ValueOf("foo"), "<", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"<",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{123, 45, 678}), "in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"foo", "bar", "baz"}), "in", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf([]time.Time{
+				time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.June, 26, 19, 18, 56, 12345, time.UTC),
+			}),
+			"in",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"bar", "baz"}), "not in", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf([]time.Time{
+				time.Date(2015, time.February, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.March, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC),
+			}),
+			"not in",
+			expect{true, false},
+		},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar-foo-baz"), "in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar--baz"), "not in", expect{true, false}},
 		{reflect.Value{}, reflect.ValueOf("foo"), "", expect{false, false}},
