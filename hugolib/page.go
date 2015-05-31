@@ -800,7 +800,7 @@ func (p *Page) Convert() error {
 }
 
 func (p *Page) FullFilePath() string {
-	return filepath.Join(p.Source.Dir(), p.Source.Path())
+	return filepath.Join(p.Dir(), p.LogicalName())
 }
 
 func (p *Page) TargetPath() (outfile string) {

@@ -667,7 +667,7 @@ func TestSliceToLower(t *testing.T) {
 	}
 }
 
-func TestTargetPath(t *testing.T) {
+func TestPagePaths(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
@@ -700,10 +700,15 @@ func TestTargetPath(t *testing.T) {
 			p.Node.Site.Permalinks = site_permalinks_setting
 		}
 
-		expected := filepath.FromSlash(test.expected)
+		expectedTargetPath := filepath.FromSlash(test.expected)
+		expectedFullFilePath := filepath.FromSlash(test.path)
 
-		if p.TargetPath() != expected {
-			t.Errorf("%s => TargetPath  expected: '%s', got: '%s'", test.content, expected, p.TargetPath())
+		if p.TargetPath() != expectedTargetPath {
+			t.Errorf("%s => TargetPath  expected: '%s', got: '%s'", test.content, expectedTargetPath, p.TargetPath())
+		}
+
+		if p.FullFilePath() != expectedFullFilePath {
+			t.Errorf("%s => FullFilePath  expected: '%s', got: '%s'", test.content, expectedFullFilePath, p.FullFilePath())
 		}
 	}
 }
