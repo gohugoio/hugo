@@ -41,6 +41,7 @@ type Template interface {
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
 	AddTemplate(name, tpl string) error
+	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
 	PrintErrors()
