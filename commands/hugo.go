@@ -57,7 +57,7 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -102,6 +102,8 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	HugoCmd.PersistentFlags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
+	HugoCmd.PersistentFlags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
+
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
@@ -147,6 +149,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
 	viper.SetDefault("PluralizeListTitles", true)
+	viper.SetDefault("PreserveTaxonomyNames", false)
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
@@ -189,13 +192,17 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("disableSitemap").Changed {
 		viper.Set("DisableSitemap", DisableSitemap)
 	}
-
+	
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("pluralizeListTitles").Changed {
 		viper.Set("PluralizeListTitles", PluralizeListTitles)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("preserveTaxonomyNames").Changed {
+		viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("editor").Changed {
