@@ -1247,6 +1247,7 @@ func (s *Site) RenderSectionLists() error {
 	return nil
 }
 
+// When Paginating, HomePage is a Node
 func (s *Site) newHomeNode() *Node {
 	n := s.NewNode()
 	n.Title = n.Site.Title
@@ -1256,9 +1257,43 @@ func (s *Site) newHomeNode() *Node {
 	return n
 }
 
+func (s *Site) findHomePage() (*Page, error) {
+	for _, y := range s.Pages {
+		if y.Source.BaseFileName() == "index" && y.Source.Dir() == "" && strings.ToLower(y.Source.Ext()) != "xml" {
+			return y, nil
+		}
+	}
+
+	return nil, errors.New("No content file for homepage")
+}
+
+// Homepage is a special page
+// Homepage is only rendered as a page when
+// 1. a content/index.md is found
+// 2. pagination isn't used for the homepage
+func (s *Site) newHomePage() *Page {
+
+	var p *Page
+
+	p, _ = s.findHomePage()
+	if p == nil {
+		p, _ = NewPage("HugoHomePage")
+		p.Site = &s.Info
+	}
+
+	p.Title = p.Site.Title
+	p.URL = helpers.URLizeAndPrep("/")
+	p.URLPath.Permalink = s.permalink(p.URL)
+	p.RSSLink = s.permalink("/" + ".xml")
+	p.Data = make(map[string]interface{})
+	p.Data["Pages"] = s.Pages
+	return p
+}
+
 func (s *Site) RenderHomePage() error {
-	n := s.newHomeNode()
-	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
+	n := s.newHomePage()
+	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html", "_default/single.html"})
+	//layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 
 	if err := s.renderAndWritePage("homepage", helpers.FilePathSeparator, n, layouts...); err != nil {
 		return err
@@ -1279,6 +1314,7 @@ func (s *Site) RenderHomePage() error {
 				continue
 			}
 
+			// When paginating HomePage is a node
 			homePagerNode := s.newHomeNode()
 			homePagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
@@ -1316,7 +1352,8 @@ func (s *Site) RenderHomePage() error {
 
 	n.URL = helpers.URLize("404.html")
 	n.Title = "404 Page not found"
-	n.Permalink = s.permalink("404.html")
+	n.URLPath.Permalink = s.permalink("404.html")
+	//n.Permalink = s.permalink("404.html")
 
 	nfLayouts := []string{"404.html"}
 	if nfErr := s.renderAndWritePage("404 page", "404.html", n, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
