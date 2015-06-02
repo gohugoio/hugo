@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
-	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,35 +48,6 @@ text
 more text
 `
 )
-
-func createAndRenderPages(t *testing.T, s *Site) {
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
-
-	if err := s.RenderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
-	}
-}
-
-func templatePrep(s *Site) {
-	s.Tmpl = tpl.New()
-	s.Tmpl.LoadTemplates(s.absLayoutDir())
-	if s.hasTheme() {
-		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
-	}
-}
-
-func pageMust(p *Page, err error) *Page {
-	if err != nil {
-		panic(err)
-	}
-	return p
-}
 
 func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
@@ -227,30 +197,16 @@ func TestDraftAndFutureRender(t *testing.T) {
 		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
-	siteSetup := func() *Site {
-		s := &Site{
-			Source: &source.InMemorySource{ByteSource: sources},
-		}
-
-		s.initializeSiteInfo()
-
-		if err := s.CreatePages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
-		return s
-	}
-
-	viper.Set("baseurl", "http://auth/bub")
-
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
-	s := siteSetup()
+	s := buildSiteFromByteSources(sources, t)
 	if len(s.Pages) != 1 {
 		t.Fatal("Draft or Future dated content published unexpectedly")
 	}
 
 	// only publishDate in the past should be rendered
 	viper.Set("BuildDrafts", true)
-	s = siteSetup()
+
+	s = buildSiteFromByteSources(sources, t)
 	if len(s.Pages) != 2 {
 		t.Fatal("Future Dated Posts published unexpectedly")
 	}
@@ -258,7 +214,8 @@ func TestDraftAndFutureRender(t *testing.T) {
 	//  drafts should not be rendered, but all dates should
 	viper.Set("BuildDrafts", false)
 	viper.Set("BuildFuture", true)
-	s = siteSetup()
+
+	s = buildSiteFromByteSources(sources, t)
 	if len(s.Pages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
 	}
@@ -266,14 +223,11 @@ func TestDraftAndFutureRender(t *testing.T) {
 	// all 4 should be included
 	viper.Set("BuildDrafts", true)
 	viper.Set("BuildFuture", true)
-	s = siteSetup()
+
+	s = buildSiteFromByteSources(sources, t)
 	if len(s.Pages) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
-
-	//setting defaults back
-	viper.Set("BuildDrafts", false)
-	viper.Set("BuildFuture", false)
 }
 
 // Issue #957
@@ -385,12 +339,8 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
 	}
 
-	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: uglyURLs}},
-	}
+	s := buildSiteFromByteSources(sources, t)
 
-	s.initializeSiteInfo()
 	templatePrep(s)
 
 	must(s.addTemplate("index.html", "Home Sweet Home"))
@@ -401,7 +351,8 @@ func doTest404ShouldAlwaysHaveUglyUrls(t *testing.T, uglyURLs bool) {
 	must(s.addTemplate("rss.xml", "<root>RSS</root>"))
 	must(s.addTemplate("sitemap.xml", "<root>SITEMAP</root>"))
 
-	createAndRenderPages(t, s)
+	testRenderPages(t, s)
+
 	s.RenderHomePage()
 	s.RenderSitemap()
 
@@ -527,7 +478,6 @@ func TestSkipRender(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
 		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
@@ -542,20 +492,17 @@ func TestSkipRender(t *testing.T) {
 	viper.Set("DefaultExtension", "html")
 	viper.Set("verbose", true)
 	viper.Set("CanonifyURLs", true)
-	viper.Set("baseurl", "http://auth/bub")
-	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
-	}
+	viper.Set("UglyURLs", true)
 
-	s.initializeSiteInfo()
+	s := buildSiteFromByteSources(sources, t)
+
 	templatePrep(s)
 
 	must(s.addTemplate("_default/single.html", "{{.Content}}"))
 	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
 	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
 
-	createAndRenderPages(t, s)
+	testRenderPages(t, s)
 
 	tests := []struct {
 		doc      string
@@ -596,25 +543,17 @@ func TestAbsUrlify(t *testing.T) {
 		{filepath.FromSlash("sect/doc1.html"), []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
 		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
+
+	viper.Set("UglyURLs", true)
+
 	for _, canonify := range []bool{true, false} {
+		s := buildSiteFromByteSources(sources, t)
 		viper.Set("CanonifyURLs", canonify)
-		viper.Set("BaseURL", "http://auth/bub")
-		s := &Site{
-			Source:  &source.InMemorySource{ByteSource: sources},
-			Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
-		}
+
 		t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
-		s.initializeSiteInfo()
+
 		templatePrep(s)
 		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
-
-		if err := s.CreatePages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
-
-		if err := s.BuildSiteMeta(); err != nil {
-			t.Fatalf("Unable to build site metadata: %s", err)
-		}
 
 		if err := s.RenderPages(); err != nil {
 			t.Fatalf("Unable to render pages. %s", err)
@@ -697,21 +636,7 @@ func TestOrderedPages(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
-
-	viper.Set("baseurl", "http://auth/bub")
-	s := &Site{
-		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
-	}
-	s.initializeSiteInfo()
-
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	s := buildSiteFromByteSources(WEIGHTED_SOURCES, t)
 
 	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
 		t.Errorf("Pages in unexpected order. First should be '%d', got '%d'", 2, s.Sections["sect"][0].Weight)
@@ -771,21 +696,7 @@ func TestGroupedPages(t *testing.T) {
 		}
 	}()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
-
-	viper.Set("baseurl", "http://auth/bub")
-	s := &Site{
-		Source: &source.InMemorySource{ByteSource: GROUPED_SOURCES},
-	}
-	s.initializeSiteInfo()
-
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	s := buildSiteFromByteSources(GROUPED_SOURCES, t)
 
 	rbysection, err := s.Pages.GroupBy("Section", "desc")
 	if err != nil {
@@ -951,31 +862,15 @@ func TestWeightedTaxonomies(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_1},
 		{filepath.FromSlash("sect/doc2.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_2},
 		{filepath.FromSlash("sect/doc3.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_3},
 	}
-	taxonomies := make(map[string]string)
 
-	taxonomies["tag"] = "tags"
-	taxonomies["category"] = "categories"
+	setHugoDefaultTaxonomies()
 
-	viper.Set("baseurl", "http://auth/bub")
-	viper.Set("taxonomies", taxonomies)
-	s := &Site{
-		Source: &source.InMemorySource{ByteSource: sources},
-	}
-	s.initializeSiteInfo()
-
-	if err := s.CreatePages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.BuildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	s := buildSiteFromByteSources(sources, t)
 
 	if s.Taxonomies["tags"]["a"][0].Page.Title != "foo" {
 		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title)
