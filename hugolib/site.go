@@ -1095,7 +1095,14 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		n, base = s.newTaxonomyNode(t)
 
-		if err := s.renderAndWritePage("taxonomy "+t.singular, base, n, layouts...); err != nil {
+		dest := base
+		if viper.GetBool("UglyURLs") {
+			dest = helpers.Uglify(base + ".html")
+		} else {
+			dest = helpers.PrettifyPath(base + "/index.html")
+		}
+
+		if err := s.renderAndWritePage("taxonomy "+t.singular, dest, n, layouts...); err != nil {
 			results <- err
 			continue
 		}
