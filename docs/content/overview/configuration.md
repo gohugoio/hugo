@@ -139,6 +139,15 @@ Following is a list of Hugo-defined variables that you can configure and their c
     watch:                      false
     ---
 
+## Ignore files on build
+
+The following inside `config.toml` will ignore files ending with `.foo` and `.boo` when building with `hugo`.
+
+```
+ignoreFiles = [ "\\.foo$", "\\.boo$" ]
+```
+
+The above is is a list of Reqular Expressions, but note the escaping of the `\` to make TOML happy.
 
 
 
