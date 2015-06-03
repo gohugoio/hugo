@@ -148,7 +148,7 @@ func isNonProcessablePath(filePath string) bool {
 		return true
 	}
 
-	ignoreFiles := viper.GetStringSlice("WatchIgnoreFiles")
+	ignoreFiles := viper.GetStringSlice("IgnoreFiles")
 	if len(ignoreFiles) > 0 {
 		for _, ignorePattern := range ignoreFiles {
 			match, _ := regexp.MatchString(ignorePattern, filePath)
