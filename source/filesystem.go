@@ -15,10 +15,12 @@ package source
 
 import (
 	"bytes"
+	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/hugo/helpers"
@@ -146,5 +148,14 @@ func isNonProcessablePath(filePath string) bool {
 		return true
 	}
 
+	ignoreFiles := viper.GetStringSlice("WatchIgnoreFiles")
+	if len(ignoreFiles) > 0 {
+		for _, ignorePattern := range ignoreFiles {
+			match, _ := regexp.MatchString(ignorePattern, filePath)
+			if match {
+				return true
+			}
+		}
+	}
 	return false
 }
