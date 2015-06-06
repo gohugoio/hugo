@@ -170,20 +170,45 @@ func Slicestr(a interface{}, startEnd ...int) (string, error) {
 // In addition, borrowing from the extended behavior described at http://php.net/substr,
 // if length is given and is negative, then that many characters will be omitted from
 // the end of string.
-func Substr(a interface{}, nums ...int) (string, error) {
+func Substr(a interface{}, nums ...interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
 	}
 
 	var start, length int
+	toInt := func (v interface{}, message string) (int, error) {
+		switch i := v.(type) {
+		case int:
+			return i, nil
+		case int8:
+			return int(i), nil
+		case int16:
+			return int(i), nil
+		case int32:
+			return int(i), nil
+		case int64:
+			return int(i), nil
+		default:
+			return 0, errors.New(message)
+		}
+	}
+
 	switch len(nums) {
+	case 0:
+		return "", errors.New("too less arguments")
 	case 1:
-		start = nums[0]
+		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
+			return "", err
+		}
 		length = len(aStr)
 	case 2:
-		start = nums[0]
-		length = nums[1]
+		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
+			return "", err
+		}
+		if length, err = toInt(nums[1], "length argument must be integer"); err != nil {
+			return "", err
+		}
 	default:
 		return "", errors.New("too many arguments")
 	}
