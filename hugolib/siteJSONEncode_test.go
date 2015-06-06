@@ -2,7 +2,6 @@ package hugolib
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 )
 
@@ -15,14 +14,11 @@ func TestEncodePage(t *testing.T) {
 	s := createTestSite(MENU_PAGE_SOURCES)
 	testSiteSetup(s, t)
 
-	j, err := json.Marshal(s)
+	_, err := json.Marshal(s)
 	check(t, err)
-	fmt.Println("Site as JSON", string(j))
 
-	p, err := json.Marshal(s.Pages[0])
+	_, err = json.Marshal(s.Pages[0])
 	check(t, err)
-	fmt.Println("Page as JSON", string(p))
-
 }
 
 func check(t *testing.T, err error) {
