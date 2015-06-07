@@ -15,14 +15,15 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/parser"
 	"io/ioutil"
 	"path/filepath"
+
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 )
 
 // this should be the only one
-const hugoVersionMain = 0.14
+const hugoVersionMain = 0.15
 const hugoVersionSuffix = "-DEV" // blank this when doing a release
 
 // HugoVersion returns the current Hugo version. It will include

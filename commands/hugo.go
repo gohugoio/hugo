@@ -42,9 +42,10 @@ import (
 //HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
-	Short: "Hugo is a very fast static site generator",
-	Long: `A Fast and Flexible Static Site Generator built with
-love by spf13 and friends in Go.
+	Short: "hugo builds your site",
+	Long: `hugo is the main command, used to build your Hugo site. 
+	
+Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -56,7 +57,7 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -76,12 +77,14 @@ func AddCommands() {
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
 	HugoCmd.AddCommand(undraftCmd)
+	HugoCmd.AddCommand(genautocompleteCmd)
+	HugoCmd.AddCommand(gendocCmd)
 }
 
 //Initializes flags
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
-	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with datePublished in the future")
+	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
@@ -99,9 +102,17 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
 	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	HugoCmd.PersistentFlags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
+	HugoCmd.PersistentFlags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
+
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
+
+	// for Bash autocomplete
+	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
+	annotation := make(map[string][]string)
+	annotation[cobra.BashCompFilenameExt] = validConfigFilenames
+	HugoCmd.PersistentFlags().Lookup("config").Annotations = annotation
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
@@ -111,17 +122,7 @@ func init() {
   You need to open cmd.exe and run it from there.`
 }
 
-// InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig() {
-	viper.SetConfigFile(CfgFile)
-	viper.AddConfigPath(Source)
-	err := viper.ReadInConfig()
-	if err != nil {
-		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
-	}
-
-	viper.RegisterAlias("indexes", "taxonomies")
-
+func LoadDefaultSettings() {
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
@@ -139,6 +140,7 @@ func InitializeConfig() {
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyURLs", false)
+	viper.SetDefault("RelativeURLs", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
@@ -147,6 +149,7 @@ func InitializeConfig() {
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("DisableLiveReload", false)
 	viper.SetDefault("PluralizeListTitles", true)
+	viper.SetDefault("PreserveTaxonomyNames", false)
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
@@ -155,6 +158,20 @@ func InitializeConfig() {
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
+}
+
+// InitializeConfig initializes a config file with sensible default configuration flags.
+func InitializeConfig() {
+	viper.SetConfigFile(CfgFile)
+	viper.AddConfigPath(Source)
+	err := viper.ReadInConfig()
+	if err != nil {
+		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+	}
+
+	viper.RegisterAlias("indexes", "taxonomies")
+
+	LoadDefaultSettings()
 
 	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
 		viper.Set("BuildDrafts", Draft)
@@ -175,13 +192,17 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("disableSitemap").Changed {
 		viper.Set("DisableSitemap", DisableSitemap)
 	}
-
+	
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("pluralizeListTitles").Changed {
 		viper.Set("PluralizeListTitles", PluralizeListTitles)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("preserveTaxonomyNames").Changed {
+		viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("editor").Changed {
@@ -198,7 +219,7 @@ func InitializeConfig() {
 		viper.Set("BaseURL", BaseURL)
 	}
 
-	if viper.GetString("BaseURL") == "" {
+	if !viper.GetBool("RelativeURLs") && viper.GetString("BaseURL") == "" {
 		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
 	}
 

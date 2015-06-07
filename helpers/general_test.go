@@ -33,6 +33,24 @@ func TestGuessType(t *testing.T) {
 	}
 }
 
+func TestFirstUpper(t *testing.T) {
+	for i, this := range []struct {
+		in     string
+		expect string
+	}{
+		{"foo", "Foo"},
+		{"foo bar", "Foo bar"},
+		{"Foo Bar", "Foo Bar"},
+		{"", ""},
+		{"å", "Å"},
+	} {
+		result := FirstUpper(this.in)
+		if result != this.expect {
+			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
+		}
+	}
+}
+
 func TestBytesToReader(t *testing.T) {
 	asBytes := ReaderToBytes(strings.NewReader("Hello World!"))
 	asReader := BytesToReader(asBytes)

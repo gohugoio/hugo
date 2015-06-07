@@ -22,7 +22,7 @@ import (
 
 type Node struct {
 	RSSLink template.HTML
-	Site    *SiteInfo
+	Site    *SiteInfo `json:"-"`
 	//	layout      string
 	Data        map[string]interface{}
 	Title       string
@@ -30,8 +30,10 @@ type Node struct {
 	Keywords    []string
 	Params      map[string]interface{}
 	Date        time.Time
+	Lastmod     time.Time
 	Sitemap     Sitemap
 	URLPath
+	IsHome        bool
 	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch

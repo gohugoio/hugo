@@ -1,9 +1,11 @@
 package helpers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestURLize(t *testing.T) {
@@ -22,6 +24,63 @@ func TestURLize(t *testing.T) {
 		output := URLize(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestAbsURL(t *testing.T) {
+	defer viper.Reset()
+	tests := []struct {
+		input    string
+		baseURL  string
+		expected string
+	}{
+		{"/test/foo", "http://base/", "http://base/test/foo"},
+		{"", "http://base/ace/", "http://base/ace/"},
+		{"/test/2/foo/", "http://base", "http://base/test/2/foo/"},
+		{"http://abs", "http://base/", "http://abs"},
+		{"//schemaless", "http://base/", "//schemaless"},
+	}
+
+	for _, test := range tests {
+		viper.Reset()
+		viper.Set("BaseURL", test.baseURL)
+		output := AbsURL(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestRelURL(t *testing.T) {
+	defer viper.Reset()
+	//defer viper.Set("canonifyURLs", viper.GetBool("canonifyURLs"))
+	tests := []struct {
+		input    string
+		baseURL  string
+		canonify bool
+		expected string
+	}{
+		{"/test/foo", "http://base/", false, "/test/foo"},
+		{"test.css", "http://base/sub", false, "/sub/test.css"},
+		{"test.css", "http://base/sub", true, "/test.css"},
+		{"/test/", "http://base/", false, "/test/"},
+		{"/test/", "http://base/sub/", false, "/sub/test/"},
+		{"/test/", "http://base/sub/", true, "/test/"},
+		{"", "http://base/ace/", false, "/ace/"},
+		{"", "http://base/ace", false, "/ace"},
+		{"http://abs", "http://base/", false, "http://abs"},
+		{"//schemaless", "http://base/", false, "//schemaless"},
+	}
+
+	for i, test := range tests {
+		viper.Reset()
+		viper.Set("BaseURL", test.baseURL)
+		viper.Set("canonifyURLs", test.canonify)
+
+		output := RelURL(test.input)
+		if output != test.expected {
+			t.Errorf("[%d][%t] Expected %#v, got %#v\n", i, test.canonify, test.expected, output)
 		}
 	}
 }

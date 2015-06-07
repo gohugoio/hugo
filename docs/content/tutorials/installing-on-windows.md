@@ -2,6 +2,7 @@
 author: "Michael Henderson"
 date: 2015-03-30
 linktitle: Installing on Windows
+toc: true
 menu:
   main:
     parent: tutorials

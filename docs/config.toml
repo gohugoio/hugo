@@ -20,6 +20,11 @@ MetaDataFormat = "yaml"
     url = "/showcase/"
     weight = -180
 [[menu.main]]
+    name = "Press & Articles"
+    pre = "<i class='fa fa-bullhorn'></i>"
+    url = "/community/press/"
+    weight = -170
+[[menu.main]]
     name = "Discuss Hugo"
     pre = "<i class='fa fa-comments'></i>"
     url = "http://discuss.gohugo.io/"
@@ -34,6 +39,12 @@ MetaDataFormat = "yaml"
     identifier = "getting started"
     pre = "<i class='fa fa-road'></i>"
     weight = -100
+[[menu.main]]
+    name = "Hugo Commands"
+    identifier = "commands"
+    pre = "<i class='fa fa-space-shuttle'></i>"
+    weight = -95
+    url = "/commands/"
 [[menu.main]]
     name = "Content"
     identifier = "content"

@@ -77,8 +77,10 @@ Following is a list of Hugo-defined variables that you can configure and their c
     baseURL:                    ""
     # include content marked as draft
     buildDrafts:                false
-    # include content with datePublished in the future
+    # include content with publishdate in the future
     buildFuture:                false
+    # enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+    relativeURLs: 		false
     canonifyURLs:               false
     # config file (default is path/config.yaml|json|toml)
     config:                     "config.toml"
@@ -137,6 +139,15 @@ Following is a list of Hugo-defined variables that you can configure and their c
     watch:                      false
     ---
 
+## Ignore files on build
+
+The following inside `config.toml` will ignore files ending with `.foo` and `.boo` when building with `hugo`.
+
+```
+ignoreFiles = [ "\\.foo$", "\\.boo$" ]
+```
+
+The above is is a list of Reqular Expressions, but note the escaping of the `\` to make TOML happy.
 
 
 

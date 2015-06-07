@@ -1,7 +1,7 @@
 ---
 aliases:
 - /layout/rss/
-date: 2013-07-01
+date: 2015-05-19
 linktitle: RSS
 menu:
   main:
@@ -11,28 +11,19 @@ notoc: one
 prev: /templates/partials
 title: RSS (feed) Templates
 weight: 90
+toc: true
 ---
 
-Like all other templates, you can use a single RSS template to generate
-all of your RSS feeds, or you can create a specific template for each
-individual feed. Unlike other templates, *Hugo ships with its own
-[RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320).
-In most cases this will be sufficient, and an RSS
-template will not need to be provided by the user.*
+Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed. 
 
-RSS pages are of the type "node" and have all the [node
-variables](/layout/variables/) available to use in the templates.
+*Unlike other Hugo templates*, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320). In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section. 
 
+RSS pages are of the **type "node"** and have all the [node variables](/layout/variables/) available to use in the templates.
 
 ## Which Template will be rendered?
-Hugo uses a set of rules to figure out which template to use when
-rendering a specific page.
+Hugo uses a set of rules to figure out which template to use when rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present,
-then the next one in the list will be used. This enables you to craft
-specific layouts when you want to without creating more templates
-than necessary. For most sites only the \_default file at the end of
-the list will be needed.
+Hugo will use the following prioritized list. If a file isn’t present, then the next one in the list will be used. This enables you to craft specific layouts when you want to without creating more templates than necessary. For most sites only the `\_default` file at the end of the list will be needed.
 
 ### Main RSS
 
@@ -59,8 +50,7 @@ the list will be needed.
 
 ## Configuring RSS
 
-If the following are provided in the site’s config file, then they
-will be included in the RSS output. Example values are provided.
+If the following values are specified in the site’s config file (`config.toml`), then they will be included in the RSS output. Example values are provided.
 
     languageCode = "en-us"
     copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
@@ -70,8 +60,7 @@ will be included in the RSS output. Example values are provided.
 
 
 ## The Embedded rss.xml
-This is the RSS template that ships with Hugo. It adheres to the
-[RSS 2.0 Specification][RSS 2.0].
+This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
 
     <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
       <channel>
@@ -98,10 +87,31 @@ This is the RSS template that ships with Hugo. It adheres to the
       </channel>
     </rss>
 
-*Important: Hugo will automatically add the following header line to this file
-on render… please don't include this in the template as it's not valid HTML.*
+**Important**: _Hugo will automatically add the following header line to this file on render… please don't include this in the template as it's not valid HTML._
 
-    <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+~~~css
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+~~~
 
+## Referencing your RSS Feed in `<head>`
+
+In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this: 
+
+~~~html
+{{ if .RSSlink }}
+  <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+  <link href="{{ .RSSlink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
+{{ end }}
+~~~
+
+... with the autodiscovery link specified by the line with `rel="alternate"`. 
+
+The `.RSSlink` will render the appropriate RSS feed URL for the section, whether it's everything, posts in a section, or a taxonomy. 
+
+**N.b.**, if you reference your RSS link, be sure to specify the mime type with `type="application/rss+xml"`. 
+
+~~~html
+<a href="{{ .URL }}" type="application/rss+xml" target="_blank">{{ .SomeText }}</a>
+~~~
 
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"

@@ -7,6 +7,7 @@ next: /content/ordering
 prev: /content/types
 title: Archetypes
 weight: 50
+toc: true
 ---
 
 Hugo v0.11 introduced the concept of a content builder. Using the

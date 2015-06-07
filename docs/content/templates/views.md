@@ -9,6 +9,7 @@ next: /templates/partials
 prev: /templates/terms
 title: Content Views
 weight: 70
+toc: true
 ---
 
 In addition to the [single content template](/templates/content/), Hugo can render alternative views of

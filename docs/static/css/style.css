@@ -101,12 +101,21 @@ body {
     font-family: 'Lato', sans-serif;
     padding: 0px !important;
     margin: 0px !important;
-    font-size:16px !important;    
+    font-size:16px !important;
     font-weight: 300;
 }
 
 h1,h2,h3,h4,h5{
     font-weight: 400;
+}
+
+
+h1[id]:before, h2[id]:before, h3[id]:before, h4[id]:before, h5[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
 }
 
 label{
@@ -266,13 +275,13 @@ ul.sidebar-menu li.active a, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:fo
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     -ms-transition: all 0.3s ease;
-    transition: all 0.3s ease;        
+    transition: all 0.3s ease;
 }
 ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
     border-bottom: 1px solid #ff4088;
 }
 /*ul.sidebar-menu li.active a,*/ ul.sidebar-menu .sub-menu li.active a{
-    border-bottom: 1px solid #ff4088;   
+    border-bottom: 1px solid #ff4088;
 }
 
 ul.sidebar-menu li a i {
@@ -290,10 +299,10 @@ ul.sidebar-menu li.active a i {
 }
 
 
-#sidebar ul > li > a .menu-arrow { 
-    float: right;    
+#sidebar ul > li > a .menu-arrow {
+    float: right;
     margin-right: 8px;
-    margin-top: 6px;    
+    margin-top: 6px;
 }
 
 #main-content {
@@ -541,7 +550,7 @@ i.freebsd-19px:before {
     overflow: hidden;
     margin: 20px 0;
 }
- 
+
 .video-container iframe,
 .video-container object,
 .video-container embed {
@@ -549,5 +558,39 @@ i.freebsd-19px:before {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;    
+    height: 100%;
 }
+
+/* Google custom search */
+.cse {
+    margin-top: 20px;
+    padding-right: 20px;
+}
+
+
+/* Table of contents */
+
+.toc ul { list-style: none; margin: 0; padding: 0 5px;  }
+.toc ul li { display: inline; }
+#TableOfContents > ul > li > ul > li > ul li { margin-right: 8px; }
+#TableOfContents > ul > li > ul > li > a, #TableOfContents > ul > li > a   { font-weight: bold; background-color: #eeeeee; padding: 0 10px; margin: 0 2px; }
+#TableOfContents > ul > li > ul > li > a { font-style: italic; }
+.toc.compact ul > li > ul > li > ul  { display: none; }
+
+#toc {
+    position:fixed;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 10px 50px 10px 20px;
+}
+
+
+@media(max-width:1200px) {
+    .toc {
+        display: none;
+    }
+}
+
+
+
+
+

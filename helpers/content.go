@@ -209,7 +209,7 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	return mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
 }
 
-func GetMmarkExtensions(ctx RenderingContext) int {
+func GetMmarkExtensions(ctx *RenderingContext) int {
 	flags := 0
 	flags |= mmark.EXTENSION_TABLES
 	flags |= mmark.EXTENSION_FENCED_CODE
@@ -235,13 +235,13 @@ func GetMmarkExtensions(ctx RenderingContext) int {
 
 func MmarkRender(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content, GetMmarkHtmlRenderer(0, ctx),
-		GetMmarkExtensions(*ctx)).Bytes()
+		GetMmarkExtensions(ctx)).Bytes()
 }
 
 func MmarkRenderWithTOC(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content,
 		GetMmarkHtmlRenderer(0, ctx),
-		GetMmarkExtensions(*ctx)).Bytes()
+		GetMmarkExtensions(ctx)).Bytes()
 }
 
 // ExtractTOC extracts Table of Contents from content.

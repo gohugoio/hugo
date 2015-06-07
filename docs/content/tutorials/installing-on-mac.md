@@ -2,6 +2,7 @@
 author: "Michael Henderson"
 date: 2015-02-22
 linktitle: Installing on Mac
+toc: true
 menu:
   main:
     parent: tutorials
@@ -56,7 +57,7 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 
 When I did this, I had some problems with directory permissions. Searches on Google pointed me to pages that walked me through updating permissions on the `/usr/local` directory. Seemed scary, but it's worked well since.
 
-## Step 2: Run the `brew` command to install `hugo`
+### Step 2: Run the `brew` command to install `hugo`
 
 Replace `brew install hugo` with `brew install hugo --HEAD` if you
 want the absolute latest version—there might be bugs!
@@ -129,7 +130,7 @@ $ tar tvf ~/Downloads/hugo_0.13_darwin_amd64.zip
 
 The `.md` files are documentation. The other file is the executable.
 
-## Step 4: Install into your bin directory
+### Step 4: Install into your bin directory
 
 ```
 $ # create the directory if needed

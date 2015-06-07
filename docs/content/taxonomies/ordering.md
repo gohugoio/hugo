@@ -11,6 +11,7 @@ next: /taxonomies/methods
 prev: /taxonomies/templates
 title: Ordering Taxonomies
 weight: 60
+toc: true
 ---
 
 Hugo provides the ability to both:
@@ -22,7 +23,7 @@ Hugo provides the ability to both:
 ## Ordering Taxonomies
 Taxonomies can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
 
-### Order Alphabetically Example:
+### Order Alphabetically Example
 
     <ul>
     {{ $data := .Data }}
@@ -31,7 +32,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
     {{ end }}
     </ul>
 
-### Order by Popularity Example:
+### Order by Popularity Example
 
     <ul>
     {{ $data := .Data }}

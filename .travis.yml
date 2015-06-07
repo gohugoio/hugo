@@ -1,7 +1,7 @@
 language: go
 go:
   - 1.3
-  - tip
+  - 1.4.2
 script:
   - go test ./...
   - go build

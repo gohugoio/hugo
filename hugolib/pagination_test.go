@@ -2,12 +2,13 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"path/filepath"
 	"testing"
+
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSplitPages(t *testing.T) {
@@ -100,6 +101,9 @@ func TestPagerNoPages(t *testing.T) {
 }
 
 func TestPaginationURLFactory(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("PaginatePath", "zoo")
 	unicode := newPaginationURLFactory("новости проекта")
 	fooBar := newPaginationURLFactory("foo", "bar")
@@ -112,12 +116,18 @@ func TestPaginationURLFactory(t *testing.T) {
 }
 
 func TestPaginator(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	for _, useViper := range []bool{false, true} {
 		doTestPaginator(t, useViper)
 	}
 }
 
 func doTestPaginator(t *testing.T, useViper bool) {
+	viper.Reset()
+	defer viper.Reset()
+
 	pagerSize := 5
 	if useViper {
 		viper.Set("paginate", pagerSize)
@@ -159,6 +169,9 @@ func doTestPaginator(t *testing.T, useViper bool) {
 }
 
 func TestPaginatorWithNegativePaginate(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("paginate", -1)
 	s := &Site{}
 	_, err := s.newHomeNode().Paginator()
@@ -166,13 +179,15 @@ func TestPaginatorWithNegativePaginate(t *testing.T) {
 }
 
 func TestPaginate(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	for _, useViper := range []bool{false, true} {
 		doTestPaginate(t, useViper)
 	}
 }
 
 func doTestPaginate(t *testing.T, useViper bool) {
-
 	pagerSize := 5
 	if useViper {
 		viper.Set("paginate", pagerSize)
@@ -225,6 +240,9 @@ func TestInvalidOptions(t *testing.T) {
 }
 
 func TestPaginateWithNegativePaginate(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("paginate", -1)
 	s := &Site{}
 	_, err := s.newHomeNode().Paginate(createTestPages(2))
@@ -244,6 +262,9 @@ func TestPaginatePages(t *testing.T) {
 
 // Issue #993
 func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("paginate", 10)
 	s := &Site{}
 	n1 := s.newHomeNode()
@@ -260,6 +281,8 @@ func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
 }
 
 func TestPaginateFollowedByDifferentPaginateShouldFail(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
 
 	viper.Set("paginate", 10)
 	s := &Site{}
