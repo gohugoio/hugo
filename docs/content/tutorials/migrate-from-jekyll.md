@@ -6,6 +6,7 @@ menu:
   main:
     parent: tutorials
 prev: /tutorials/mathjax
+next: /tutorials/create-a-multilingual-site
 title: Migrate to Hugo from Jekyll
 weight: 10
 ---
