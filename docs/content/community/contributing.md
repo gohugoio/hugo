@@ -7,7 +7,7 @@ menu:
   main:
     parent: community
 next: /tutorials/automated-deployments
-prev: /community/press
+prev: /community/mailing-list
 title: Contributing to Hugo
 weight: 30
 ---

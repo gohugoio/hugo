@@ -4,6 +4,7 @@ aliases:
 author: Spencer Lyon
 date: 2014-03-21
 linktitle: Hosting on GitHub
+toc: true
 menu:
   main:
     parent: tutorials

@@ -23,6 +23,7 @@ import (
 	"math"
 	"path"
 	"reflect"
+	"strings"
 )
 
 type Pager struct {
@@ -267,6 +268,8 @@ func paginatePages(seq interface{}, pagerSize int, section string) (pagers, erro
 	if err != nil {
 		return nil, err
 	}
+
+	section = strings.TrimSuffix(section, ".html")
 
 	urlFactory := newPaginationURLFactory(section)
 	paginator, _ := newPaginator(pages, pagerSize, urlFactory)

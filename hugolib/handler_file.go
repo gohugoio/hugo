@@ -22,6 +22,7 @@ import (
 
 func init() {
 	RegisterHandler(new(cssHandler))
+	RegisterHandler(new(defaultHandler))
 }
 
 type basicFileHandler Handle
@@ -34,9 +35,15 @@ func (h basicFileHandler) PageConvert(*Page, tpl.Template) HandledResult {
 	return HandledResult{}
 }
 
-type cssHandler struct {
-	basicFileHandler
+type defaultHandler struct{ basicFileHandler }
+
+func (h defaultHandler) Extensions() []string { return []string{"*"} }
+func (h defaultHandler) FileConvert(f *source.File, s *Site) HandledResult {
+	s.WriteDestFile(f.Path(), f.Contents)
+	return HandledResult{file: f}
 }
+
+type cssHandler struct{ basicFileHandler }
 
 func (h cssHandler) Extensions() []string { return []string{"css"} }
 func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {

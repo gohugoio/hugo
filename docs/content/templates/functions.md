@@ -3,6 +3,7 @@ aliases:
 - /layout/functions/
 date: 2013-07-01
 linktitle: Functions
+toc: true
 menu:
   main:
     parent: layout
@@ -127,6 +128,17 @@ Takes either a slice, array or channel and an index or a map and a key as input.
 
 e.g. `{{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}`
 
+### seq
+
+Seq creates a sequence of integers. It's named and used as GNU's seq.
+
+Some examples:
+
+* `3` => `1, 2, 3`
+* `1 2 4` => `1, 3`
+* `-3` => `-1, -2, -3`
+* `1 4` => `1, 2, 3, 4`
+* `1 -2` => `1, 0, -1, -2`
 
 ### sort
 Sorts maps, arrays and slices, returning a sorted slice. A sorted array of map values will be returned, with the keys eliminated. There are two optional arguments, which are `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order.
@@ -308,12 +320,6 @@ This will run the string through the Markdown processesor. The result will be de
 e.g. `{{ .Title | markdownify }}`
 
 
-### ref, relref
-Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
-
-e.g. {{ ref . "about.md" }}
-
-
 ### replace
 Replace all occurences of the search string with the replacement string.
 
@@ -376,6 +382,90 @@ Example: Given `style = "color: red;"` defined in the front matter of your `.md`
 Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
 CSS or URL context.
 
+### slicestr
+
+Slicing in Slicestr is done by specifying a half-open range with two indices, start and end. 1 and 4 creates a slice including elements 1 through 3. 
+The end index can be omitted, it defaults to the string's length.
+
+e.g. 
+
+* `{{slicestr "BatMan" 3}}` → "Man"
+* `{{slicestr "BatMan" 0 3}}` → "Bat"
+
+### substr
+
+ Substr extracts parts of a string, beginning at the character at the specified
+ position, and returns the specified number of characters.
+
+ It normally takes two parameters: `start` and `length`.
+ It can also take one parameter: `start`, i.e. `length` is omitted, in which case
+ the substring starting from start until the end of the string will be returned.
+
+ To extract characters from the end of the string, use a negative start number.
+
+ In addition, borrowing from the extended behavior described at http://php.net/substr,
+ if `length` is given and is negative, then that many characters will be omitted from
+ the end of string.
+
+e.g.
+
+* `{{substr "BatMan" 0 -3}}` → "Bat"
+* `{{substr "BatMan" 3 3}}` → "Man"
+
+### title
+Convert all characters in string to titlecase.
+
+e.g. `{{title "BatMan"}}` → "Batman"
+
+
+### trim
+Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
+
+e.g. `{{ trim "++Batman--" "+-" }}` → "Batman"
+
+
+### upper
+Convert all characters in string to uppercase.
+
+e.g. `{{upper "BatMan"}}` → "BATMAN"
+
+
+
+
+## Urls
+
+### absURL, relURL
+
+Both `absURL` and `relURL` considers the configured value of `baseURL`, so given a `baseURL` set to `http://mysite.com/hugo/`:
+
+* `{{ "mystyle.css" | absURL }}` → "http://mysite.com/hugo/mystyle.css"
+* `{{ "mystyle.css" | relURL }}` → "/hugo/mystyle.css"
+* `{{ "http://gohugo.io/" | relURL }}` →  "http://gohugo.io/"
+* `{{ "http://gohugo.io/" | absURL }}` →  "http://gohugo.io/"
+
+The last two examples may look funky, but is useful if you, say, have a list of images, some of them hosted externally, some locally:
+
+```
+<script type="application/ld+json">
+{
+    "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "image" : {{ apply .Params.images "absURL" "." }}
+}
+</script>
+```
+
+The above also exploits the fact that the Go template parser JSON-encodes objects inside `script` tags.
+
+
+
+**Note:** These functions are smart about missing slashes, but will not add one to the end if not present.
+
+
+### ref, relref
+Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
+
+e.g. {{ ref . "about.md" }}
 
 ### safeURL
 Declares the provided string as a "safe" URL or URL substring (see [RFC 3986][]).
@@ -416,28 +506,26 @@ With this change, we finally get `<li><a href="irc://irc.freenode.net/#golang">I
 as intended.
 
 
-### title
-Convert all characters in string to titlecase.
-
-e.g. `{{title "BatMan"}}` → "Batman"
-
-
-### trim
-Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
-
-e.g. `{{ trim "++Batman--" "+-" }}` → "Batman"
-
-
-### upper
-Convert all characters in string to uppercase.
-
-e.g. `{{upper "BatMan"}}` → "BATMAN"
-
-
 ### urlize
 Takes a string and sanitizes it for usage in URLs, converts spaces to "-".
 
 e.g. `<a href="/tags/{{ . | urlize }}">{{ . }}</a>`
+
+
+
+## Content Views
+
+### Render
+Takes a view to render the content with.  The view is an alternate layout, and should be a file name that points to a template in one of the locations specified in the documentation for [Content Views](/templates/views).
+
+This function is only available on a piece of content, and in list context.
+
+This example could render a piece of content using the content view located at `/layouts/_default/summary.html`:
+
+    {{ range .Data.Pages }}
+        {{ .Render "summary"}}
+    {{ end }}
+
 
 
 ## Advanced

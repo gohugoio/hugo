@@ -17,6 +17,7 @@ import (
 	"errors"
 
 	"fmt"
+
 	"github.com/spf13/hugo/source"
 )
 
@@ -82,6 +83,11 @@ func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 func (mh *MetaHandle) Handler() Handler {
 	if mh.handler == nil {
 		mh.handler = FindHandler(mh.ext)
+
+		// if no handler found, use default handler
+		if mh.handler == nil {
+			mh.handler = FindHandler("*")
+		}
 	}
 	return mh.handler
 }

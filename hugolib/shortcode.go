@@ -122,22 +122,26 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// handleShortcodes does all in  one go: extract, render and replace
+// HandleShortcodes does all in  one go: extract, render and replace
 // only used for testing
-func handleShortcodes(stringToParse string, page *Page, t tpl.Template) string {
-	tmpContent, tmpShortcodes := extractAndRenderShortcodes(stringToParse, page, t)
+func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string, error) {
+	tmpContent, tmpShortcodes, err := extractAndRenderShortcodes(stringToParse, page, t)
+
+	if err != nil {
+		return "", err
+	}
 
 	if len(tmpShortcodes) > 0 {
 		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, true, tmpShortcodes)
 
 		if err != nil {
-			jww.ERROR.Printf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
+			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
 		} else {
-			return string(tmpContentWithTokensReplaced)
+			return string(tmpContentWithTokensReplaced), nil
 		}
 	}
 
-	return string(tmpContent)
+	return string(tmpContent), nil
 }
 
 var isInnerShortcodeCache = struct {
@@ -236,7 +240,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 	return renderShortcodeWithPage(tmpl, data)
 }
 
-func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string) {
+func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string, error) {
 
 	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
 	renderedShortcodes := make(map[string]string)
@@ -255,7 +259,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 		}
 	}
 
-	return content, renderedShortcodes
+	return content, renderedShortcodes, err
 
 }
 

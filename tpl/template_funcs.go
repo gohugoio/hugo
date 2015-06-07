@@ -17,9 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
 	"html"
 	"html/template"
 	"os"
@@ -27,6 +24,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var funcMap template.FuncMap
@@ -139,7 +141,14 @@ func Slicestr(a interface{}, startEnd ...int) (string, error) {
 		return "", errors.New("too many arguments")
 	}
 
+	if len(startEnd) > 0 && (startEnd[0] < 0 || startEnd[0] >= len(aStr)) {
+		return "", errors.New("slice bounds out of range")
+	}
+
 	if len(startEnd) == 2 {
+		if startEnd[1] < 0 || startEnd[1] > len(aStr) {
+			return "", errors.New("slice bounds out of range")
+		}
 		return aStr[startEnd[0]:startEnd[1]], nil
 	} else if len(startEnd) == 1 {
 		return aStr[startEnd[0]:], nil
@@ -161,20 +170,45 @@ func Slicestr(a interface{}, startEnd ...int) (string, error) {
 // In addition, borrowing from the extended behavior described at http://php.net/substr,
 // if length is given and is negative, then that many characters will be omitted from
 // the end of string.
-func Substr(a interface{}, nums ...int) (string, error) {
+func Substr(a interface{}, nums ...interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
 	}
 
 	var start, length int
+	toInt := func (v interface{}, message string) (int, error) {
+		switch i := v.(type) {
+		case int:
+			return i, nil
+		case int8:
+			return int(i), nil
+		case int16:
+			return int(i), nil
+		case int32:
+			return int(i), nil
+		case int64:
+			return int(i), nil
+		default:
+			return 0, errors.New(message)
+		}
+	}
+
 	switch len(nums) {
+	case 0:
+		return "", errors.New("too less arguments")
 	case 1:
-		start = nums[0]
+		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
+			return "", err
+		}
 		length = len(aStr)
 	case 2:
-		start = nums[0]
-		length = nums[1]
+		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
+			return "", err
+		}
+		if length, err = toInt(nums[1], "length argument must be integer"); err != nil {
+			return "", err
+		}
 	default:
 		return "", errors.New("too many arguments")
 	}
@@ -357,7 +391,15 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 var (
 	zero      reflect.Value
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
+	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
 )
+
+func timeUnix(v reflect.Value) int64 {
+	if v.Type() != timeType {
+		panic("coding error: argument must be time.Time type reflect Value")
+	}
+	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
+}
 
 func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) {
 	if !obj.IsValid() {
@@ -452,6 +494,14 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			svp = &sv
 			smv := mv.String()
 			smvp = &smv
+		case reflect.Struct:
+			switch v.Type() {
+			case timeType:
+				iv := timeUnix(v)
+				ivp = &iv
+				imv := timeUnix(mv)
+				imvp = &imv
+			}
 		}
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
@@ -472,6 +522,15 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			svp = &sv
 			for i := 0; i < mv.Len(); i++ {
 				sma = append(sma, mv.Index(i).String())
+			}
+		case reflect.Struct:
+			switch v.Type() {
+			case timeType:
+				iv := timeUnix(v)
+				ivp = &iv
+				for i := 0; i < mv.Len(); i++ {
+					ima = append(ima, timeUnix(mv.Index(i)))
+				}
 			}
 		}
 	}
@@ -650,6 +709,25 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 			n[i] = this
 		} else {
 			n[i] = reflect.ValueOf(arg)
+		}
+	}
+
+	num := fn.Type().NumIn()
+
+	if fn.Type().IsVariadic() {
+		num--
+	}
+
+	// TODO(bep) see #1098 - also see template_tests.go
+	/*if len(args) < num {
+		return reflect.ValueOf(nil), errors.New("Too few arguments")
+	} else if len(args) > num {
+		return reflect.ValueOf(nil), errors.New("Too many arguments")
+	}*/
+
+	for i := 0; i < num; i++ {
+		if xt, targ := n[i].Type(), fn.Type().In(i); !xt.AssignableTo(targ) {
+			return reflect.ValueOf(nil), errors.New("called apply using " + xt.String() + " as type " + targ.String())
 		}
 	}
 
@@ -1170,6 +1248,8 @@ func init() {
 		"safeHTML":    SafeHTML,
 		"safeCSS":     SafeCSS,
 		"safeURL":     SafeURL,
+		"absURL":      func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
+		"relURL":      func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
 		"markdownify": Markdownify,
 		"first":       First,
 		"where":       Where,

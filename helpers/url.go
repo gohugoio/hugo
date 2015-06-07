@@ -23,34 +23,34 @@ import (
 	"github.com/spf13/viper"
 )
 
-type PathBridge struct {
+type pathBridge struct {
 }
 
-func (PathBridge) Base(in string) string {
+func (pathBridge) Base(in string) string {
 	return path.Base(in)
 }
 
-func (PathBridge) Clean(in string) string {
+func (pathBridge) Clean(in string) string {
 	return path.Clean(in)
 }
 
-func (PathBridge) Dir(in string) string {
+func (pathBridge) Dir(in string) string {
 	return path.Dir(in)
 }
 
-func (PathBridge) Ext(in string) string {
+func (pathBridge) Ext(in string) string {
 	return path.Ext(in)
 }
 
-func (PathBridge) Join(elem ...string) string {
+func (pathBridge) Join(elem ...string) string {
 	return path.Join(elem...)
 }
 
-func (PathBridge) Separator() string {
+func (pathBridge) Separator() string {
 	return "/"
 }
 
-var pathBridge PathBridge
+var pb pathBridge
 
 func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	s, err := purell.NormalizeURLString(in, f)
@@ -77,7 +77,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 	if err != nil {
 		panic(err)
 	}
-	if !strings.HasPrefix(u.Path, "/") {
+	if len(u.Path) > 0 && !strings.HasPrefix(u.Path, "/") {
 		u.Path = "/" + u.Path
 	}
 	return u.String()
@@ -138,11 +138,49 @@ func MakePermalink(host, plink string) *url.URL {
 	base.Path = path.Join(base.Path, p.Path)
 
 	// path.Join will strip off the last /, so put it back if it was there.
-	if strings.HasSuffix(p.Path, "/") && !strings.HasSuffix(base.Path, "/") {
+	hadTrailingSlash := (plink == "" && strings.HasSuffix(host, "/")) || strings.HasSuffix(p.Path, "/")
+	if hadTrailingSlash && !strings.HasSuffix(base.Path, "/") {
 		base.Path = base.Path + "/"
 	}
 
 	return base
+}
+
+// AbsURL creates a absolute URL from the relative path given and the BaseURL set in config.
+func AbsURL(path string) string {
+	if strings.HasPrefix(path, "http") || strings.HasPrefix(path, "//") {
+		return path
+	}
+	return MakePermalink(viper.GetString("BaseURL"), path).String()
+}
+
+// RelURL creates a URL relative to the BaseURL root.
+// Note: The result URL will not include the context root if canonifyURLs is enabled.
+func RelURL(path string) string {
+	baseURL := viper.GetString("BaseURL")
+	canonifyURLs := viper.GetBool("canonifyURLs")
+	if (!strings.HasPrefix(path, baseURL) && strings.HasPrefix(path, "http")) || strings.HasPrefix(path, "//") {
+		return path
+	}
+
+	u := path
+
+	if strings.HasPrefix(path, baseURL) {
+		u = strings.TrimPrefix(u, baseURL)
+	}
+
+	if !canonifyURLs {
+		u = AddContextRoot(baseURL, u)
+	}
+	if path == "" && !strings.HasSuffix(u, "/") && strings.HasSuffix(baseURL, "/") {
+		u += "/"
+	}
+
+	if !strings.HasPrefix(u, "/") {
+		u = "/" + u
+	}
+
+	return u
 }
 
 // AddContextRoot adds the context root to an URL if it's not already set.
@@ -206,7 +244,7 @@ func PrettifyURL(in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyURLPath(in string) string {
-	return PrettiyPath(in, pathBridge)
+	return PrettiyPath(in, pb)
 }
 
 // Uglify does the opposite of PrettifyURLPath().
@@ -222,7 +260,7 @@ func Uglify(in string) string {
 		return path.Clean(in) + ".html"
 	}
 
-	name, ext := FileAndExt(in, pathBridge)
+	name, ext := FileAndExt(in, pb)
 	if name == "index" {
 		// /section/name/index.html -> /section/name.html
 		d := path.Dir(in)

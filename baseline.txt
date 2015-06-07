@@ -1,3 +1,0 @@
-PASS
-BenchmarkChain	  500000	      7074 ns/op	    3913 B/op	      15 allocs/op
-ok  	github.com/spf13/hugo/transform	3.669s

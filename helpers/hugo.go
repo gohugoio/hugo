@@ -15,10 +15,15 @@ package helpers
 
 import (
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 )
 
 // this should be the only one
-const hugoVersionMain = 0.14
+const hugoVersionMain = 0.15
 const hugoVersionSuffix = "-DEV" // blank this when doing a release
 
 // HugoVersion returns the current Hugo version. It will include
@@ -43,4 +48,62 @@ func hugoVersion(version float32, suffix string) string {
 
 func hugoVersionNoSuffix(version float32) string {
 	return fmt.Sprintf("%.2g", version)
+}
+
+// IsThemeVsHugoVersionMismatch returns whether the current Hugo version is < theme's min_version
+func IsThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
+	if !ThemeSet() {
+		return
+	}
+
+	themeDir, err := getThemeDirPath("")
+
+	if err != nil {
+		return
+	}
+
+	fs := hugofs.SourceFs
+	path := filepath.Join(themeDir, "theme.toml")
+
+	exists, err := Exists(path, fs)
+
+	if err != nil || !exists {
+		return
+	}
+
+	f, err := fs.Open(path)
+
+	if err != nil {
+		return
+	}
+
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+
+	if err != nil {
+		return
+	}
+
+	c, err := parser.HandleTOMLMetaData(b)
+
+	if err != nil {
+		return
+	}
+
+	config := c.(map[string]interface{})
+
+	if minVersion, ok := config["min_version"]; ok {
+		switch minVersion.(type) {
+		case float32:
+			return hugoVersionMain < minVersion.(float32), fmt.Sprint(minVersion)
+		case float64:
+			return hugoVersionMain < minVersion.(float64), fmt.Sprint(minVersion)
+		default:
+			return
+		}
+
+	}
+
+	return
 }

@@ -27,7 +27,7 @@ func TestMakePath(t *testing.T) {
 		{"FOo/BaR.html", "FOo/BaR.html"},
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
-		{"Банковский кассир", "Банковский-кассир"},
+		{"Банковский кассир", "Банковскии-кассир"},
 	}
 
 	for _, test := range tests {
@@ -65,6 +65,7 @@ func TestGetRelativePath(t *testing.T) {
 		expect interface{}
 	}{
 		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
+		{filepath.FromSlash("/a/b/c/"), filepath.FromSlash("/a"), filepath.FromSlash("b/c/")},
 		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
 		{filepath.FromSlash("/c"), "", false},
 	}
@@ -109,6 +110,45 @@ func TestMakePathRelative(t *testing.T) {
 
 	if error == nil {
 		t.Errorf("Test failed, expected error")
+	}
+}
+
+func TestGetDottedRelativePath(t *testing.T) {
+	// on Windows this will receive both kinds, both country and western ...
+	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
+		doTestGetDottedRelativePath(f, t)
+	}
+
+}
+
+func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
+	type test struct {
+		input, expected string
+	}
+	data := []test{
+		{"", "./"},
+		{urlFixer("/"), "./"},
+		{urlFixer("post"), "../"},
+		{urlFixer("/post"), "../"},
+		{urlFixer("post/"), "../"},
+		{urlFixer("tags/foo.html"), "../"},
+		{urlFixer("/tags/foo.html"), "../"},
+		{urlFixer("/post/"), "../"},
+		{urlFixer("////post/////"), "../"},
+		{urlFixer("/foo/bar/index.html"), "../../"},
+		{urlFixer("/foo/bar/foo/"), "../../../"},
+		{urlFixer("/foo/bar/foo"), "../../../"},
+		{urlFixer("foo/bar/foo/"), "../../../"},
+		{urlFixer("foo/bar/foo/bar"), "../../../../"},
+		{"404.html", "./"},
+		{"404.xml", "./"},
+		{"/404.html", "./"},
+	}
+	for i, d := range data {
+		output := GetDottedRelativePath(d.input)
+		if d.expected != output {
+			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
+		}
 	}
 }
 
@@ -392,6 +432,8 @@ func TestExists(t *testing.T) {
 }
 
 func TestAbsPathify(t *testing.T) {
+	defer viper.Reset()
+
 	type test struct {
 		inPath, workingDir, expected string
 	}
@@ -411,6 +453,7 @@ func TestAbsPathify(t *testing.T) {
 	}
 
 	for i, d := range data {
+		viper.Reset()
 		// todo see comment in AbsPathify
 		viper.Set("WorkingDir", d.workingDir)
 
@@ -493,7 +536,7 @@ func TestFileAndExt(t *testing.T) {
 	}
 
 	for i, d := range data {
-		file, ext := FileAndExt(filepath.FromSlash(d.input), filepathBridge)
+		file, ext := FileAndExt(filepath.FromSlash(d.input), fpb)
 		if d.expectedFile != file {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
@@ -674,7 +717,7 @@ func TestGetTempDir(t *testing.T) {
 		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
 		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
 		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
-		{testDir + "Банковский кассир", dir + testDir + "Банковский-кассир" + FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковскии-кассир" + FilePathSeparator},
 	}
 
 	for _, test := range tests {

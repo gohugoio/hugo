@@ -12,6 +12,7 @@ next: /templates/views
 prev: /templates/homepage
 title: Taxonomy Terms Template
 weight: 60
+toc: true
 ---
 
 A unique template is needed to create a list of the terms for a given
@@ -56,6 +57,8 @@ Taxonomy Terms pages will additionally have:
 * **.Data.Terms** The taxonomy itself
 * **.Data.Terms.Alphabetical** The Terms alphabetized
 * **.Data.Terms.ByCount** The Terms ordered by popularity
+
+The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
 
 ### Example terms.html files
 

@@ -33,6 +33,7 @@ import (
 )
 
 var serverPort int
+var serverInterface string
 var serverWatch bool
 var serverAppend bool
 var disableLiveReload bool
@@ -49,7 +50,8 @@ serve them up.`,
 }
 
 func init() {
-	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port to run the server on")
+	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
+	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
@@ -69,7 +71,7 @@ func server(cmd *cobra.Command, args []string) {
 		viper.Set("Watch", true)
 	}
 
-	l, err := net.Listen("tcp", ":"+strconv.Itoa(serverPort))
+	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
 	if err == nil {
 		l.Close()
 	} else {
@@ -121,6 +123,7 @@ func serve(port int) {
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
 	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
 
+	// We're only interested in the path
 	u, err := url.Parse(viper.GetString("BaseURL"))
 	if err != nil {
 		jww.ERROR.Fatalf("Invalid BaseURL: %s", err)
@@ -131,11 +134,13 @@ func serve(port int) {
 		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
 
+	u.Host = net.JoinHostPort(serverInterface, strconv.Itoa(serverPort))
 	u.Scheme = "http"
 	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
 	fmt.Println("Press Ctrl+C to stop")
 
-	err = http.ListenAndServe(":"+strconv.Itoa(port), nil)
+	endpoint := net.JoinHostPort(serverInterface, strconv.Itoa(port))
+	err = http.ListenAndServe(endpoint, nil)
 	if err != nil {
 		jww.ERROR.Printf("Error: %s\n", err.Error())
 		os.Exit(1)

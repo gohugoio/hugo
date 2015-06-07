@@ -1,10 +1,10 @@
----
-title: "Uudised"
-linktitle: "Uudised"
-url: /uudised
-type: list
++++
+title = "Uudised"
+linktitle = "Uudised"
+url = "/uudised"
 
-lang: "et"
-menu: ["et"]
-menu_weight: 10
----
+listing = true
+lang = "et"
+menu = ["et"]
+menu_weight = 10
++++

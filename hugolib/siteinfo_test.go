@@ -10,6 +10,9 @@ import (
 const SITE_INFO_PARAM_TEMPLATE = `{{ .Site.Params.MyGlobalParam }}`
 
 func TestSiteInfoParams(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("Params", map[string]interface{}{"MyGlobalParam": "FOOBAR_PARAM"})
 	s := &Site{}
 
@@ -32,6 +35,9 @@ func TestSiteInfoParams(t *testing.T) {
 }
 
 func TestSiteInfoPermalinks(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("Permalinks", map[string]interface{}{"section": "/:title"})
 	s := &Site{}
 

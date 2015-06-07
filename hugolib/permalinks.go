@@ -160,7 +160,7 @@ func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 		if strings.HasSuffix(p.Slug, "-") {
 			p.Slug = p.Slug[0 : len(p.Slug)-1]
 		}
-		return p.Slug, nil
+		return helpers.URLize(p.Slug), nil
 	}
 	return pageToPermalinkTitle(p, a)
 }

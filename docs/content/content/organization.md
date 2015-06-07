@@ -10,6 +10,7 @@ next: /content/front-matter
 prev: /overview/source-directory
 title: Content Organization
 weight: 10
+toc: true
 ---
 
 Hugo uses Markdown files with headers commonly called the *front matter*. Hugo

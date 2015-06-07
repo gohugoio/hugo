@@ -22,7 +22,7 @@ import (
 
 type Node struct {
 	RSSLink template.HTML
-	Site    *SiteInfo
+	Site    *SiteInfo `json:"-"`
 	//	layout      string
 	Data        map[string]interface{}
 	Title       string
@@ -30,8 +30,10 @@ type Node struct {
 	Keywords    []string
 	Params      map[string]interface{}
 	Date        time.Time
+	Lastmod     time.Time
 	Sitemap     Sitemap
 	URLPath
+	IsHome        bool
 	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch
@@ -57,7 +59,8 @@ func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
-	me := MenuEntry{Name: n.Title, URL: n.URL}
+	me := MenuEntry{Name: n.Title, URL: n.Site.createNodeMenuEntryURL(n.URL)}
+
 	if !me.IsSameResource(inme) {
 		return false
 	}

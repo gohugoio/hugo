@@ -6,6 +6,7 @@ menu:
 next: /extras/livereload
 prev: /extras/comments
 title: Cross-References
+toc: true
 weight: 40
 ---
 
