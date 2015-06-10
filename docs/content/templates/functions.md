@@ -76,6 +76,16 @@ e.g.
         {{ .Render "summary" }}
     {{ end }}
 
+### after
+Slices an array to only the items after the Xth item. Use this in 
+combination with `first` use both halves of an array split a item
+X.
+
+e.g.
+
+    {{ range after 10 .Data.Pages }}
+        {{ .Render "title" }}
+    {{ end }}
 
 ### getenv
 Returns the value of an environment variable.
