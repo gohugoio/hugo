@@ -390,19 +390,19 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 
 // After is exposed to templates, to iterate over all the items after N in a
 // rangeable list. It's meant to accompany First
-func After(limit interface{}, seq interface{}) (interface{}, error) {
+func After(index interface{}, seq interface{}) (interface{}, error) {
 
-	if limit == nil || seq == nil {
+	if index == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
 
-	limitv, err := cast.ToIntE(limit)
+	indexv, err := cast.ToIntE(index)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if limitv < 1 {
+	if indexv < 1 {
 		return nil, errors.New("can't return negative/empty count of items from sequence")
 	}
 
@@ -418,10 +418,10 @@ func After(limit interface{}, seq interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
 	}
-	if limitv >= seqv.Len() {
+	if indexv >= seqv.Len() {
 		return nil, errors.New("no items left")
 	}
-	return seqv.Slice(limitv, seqv.Len()).Interface(), nil
+	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
 var (
