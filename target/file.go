@@ -40,7 +40,7 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {
-	return filepath.Join(fs.PublishDir, src), nil
+	return filepath.Join(fs.PublishDir, filepath.FromSlash(src)), nil
 }
 
 func (fs *Filesystem) extension(ext string) string {
