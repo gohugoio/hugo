@@ -169,8 +169,6 @@ type testMenuState struct {
 
 // Issue 817 - identifier should trump everything
 func TestPageMenuWithIdentifier(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
 
 	toml := []source.ByteSource{
 		{"sect/doc1.md", tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i1")},
@@ -190,6 +188,9 @@ func TestPageMenuWithIdentifier(t *testing.T) {
 }
 
 func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSource) {
+
+	viper.Reset()
+	defer viper.Reset()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -308,8 +309,6 @@ func TestMenuWithHashInURL(t *testing.T) {
 
 // issue #719
 func TestMenuWithUnicodeURLs(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
 
 	for _, uglyURLs := range []bool{true, false} {
 		for _, canonifyURLs := range []bool{true, false} {
@@ -319,6 +318,9 @@ func TestMenuWithUnicodeURLs(t *testing.T) {
 }
 
 func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs, uglyURLs bool) {
+	viper.Reset()
+	defer viper.Reset()
+
 	viper.Set("CanonifyURLs", canonifyURLs)
 	viper.Set("UglyURLs", uglyURLs)
 
