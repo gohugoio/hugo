@@ -208,8 +208,6 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 
 // Issue 817 contd - name should be second identifier in
 func TestPageMenuWithDuplicateName(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
 
 	toml := []source.ByteSource{
 		{"sect/doc1.md", tstCreateMenuPageWithNameTOML("t1", "m1", "n1")},
@@ -229,6 +227,9 @@ func TestPageMenuWithDuplicateName(t *testing.T) {
 }
 
 func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.ByteSource) {
+	viper.Reset()
+	defer viper.Reset()
+
 	s := setupMenuTests(t, menuPageSources)
 
 	assert.Equal(t, 3, len(s.Pages), "Not enough pages")
