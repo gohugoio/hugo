@@ -202,7 +202,6 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 	assert.NotNil(t, me1)
 	assert.NotNil(t, me2)
 
-	fmt.Println("me1:", me1.URL, "me2:", me2.URL)
 	assert.True(t, strings.Contains(me1.URL, "doc1"))
 	assert.True(t, strings.Contains(me2.URL, "doc2"))
 
