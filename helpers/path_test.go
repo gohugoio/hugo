@@ -17,6 +17,10 @@ import (
 )
 
 func TestMakePath(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+	viper.Set("RemovePathAccents", true)
+
 	tests := []struct {
 		input    string
 		expected string
@@ -717,7 +721,7 @@ func TestGetTempDir(t *testing.T) {
 		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
 		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
 		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
-		{testDir + "Банковский кассир", dir + testDir + "Банковскии-кассир" + FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковский-кассир" + FilePathSeparator},
 	}
 
 	for _, test := range tests {

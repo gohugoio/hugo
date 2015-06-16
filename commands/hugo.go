@@ -141,6 +141,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyURLs", false)
 	viper.SetDefault("RelativeURLs", false)
+	viper.SetDefault("RemovePathAccents", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
@@ -192,7 +193,7 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("disableSitemap").Changed {
 		viper.Set("DisableSitemap", DisableSitemap)
 	}
-	
+
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
 	}
