@@ -110,8 +110,6 @@ func UnicodeSanitize(s string) string {
 	}
 
 	return result
-
-	return string(target)
 }
 
 func isMn(r rune) bool {
