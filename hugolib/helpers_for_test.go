@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -77,4 +78,16 @@ func pageMust(p *Page, err error) *Page {
 		panic(err)
 	}
 	return p
+}
+
+func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected string) {
+	content := new(bytes.Buffer)
+	err := s.renderThing(p, tmplName, NopCloser(content))
+	if err != nil {
+		t.Fatalf("Unable to render template.")
+	}
+
+	if string(content.Bytes()) != expected {
+		t.Fatalf("Content did not match expected: %s. got: %s", expected, content)
+	}
 }
