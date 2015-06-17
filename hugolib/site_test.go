@@ -1,7 +1,6 @@
 package hugolib
 
 import (
-	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -9,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"bitbucket.org/pkg/inflect"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -870,5 +871,46 @@ func TestWeightedTaxonomies(t *testing.T) {
 
 	if s.Taxonomies["categories"]["e"][0].Page.Title != "bza" {
 		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title)
+	}
+}
+
+func TestHomePageContent(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
+
+	sources := []source.ByteSource{
+		{filepath.FromSlash("index.md"), []byte("---\ntitle: homepage\npublishdate: \"2014-05-29\"\n---\n# doc1\n*some content*")},
+		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
+	}
+
+	s := siteFromByteSources(sources)
+
+	templatePrep(s)
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+
+	createAndRenderPages(t, s)
+	s.RenderHomePage()
+
+	tests := []struct {
+		doc      string
+		expected string
+	}{
+		{filepath.FromSlash("index.html"), "\n\n<h1 id=\"doc1:d680e8a854a7cbad6d490c445cba2eba\">doc1</h1>\n\n<p><em>some content</em></p>\n"},
+		{filepath.FromSlash("sect/doc4/index.html"), "\n\n<h1 id=\"doc4:f8e6806123f341b8975509637645a4d3\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
+	}
+
+	for _, test := range tests {
+		file, err := hugofs.DestinationFS.Open(test.doc)
+		if err != nil {
+			t.Fatalf("Did not find %s in target.", test.doc)
+		}
+
+		content := helpers.ReaderToString(file)
+
+		if content != test.expected {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
+		}
 	}
 }
