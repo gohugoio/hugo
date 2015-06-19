@@ -35,6 +35,8 @@ In Hugo the base template will be chosen in the following order:
 2. <current-path>/baseof.ace
 3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
 4. _default/baseof.ace	
+5. <themedir>/layouts/_default/<template-name>-baseof.ace
+6. <themedir>/layouts/_default/baseof.ace
 ```
 
 In the above, `current-path` is where the corresponding inner template lives, `list.ace`, `single.ace`, `index.ace` ...
