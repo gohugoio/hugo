@@ -204,6 +204,15 @@ func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("StaticDir"))
 }
 
+// Get the root directory of the current theme, if there is one.
+// If there is no theme, returns the empty string.
+func GetThemeDir() string {
+	if ThemeSet() {
+		return AbsPathify(filepath.Join("themes", viper.GetString("theme")))
+	}
+	return ""
+}
+
 // GetThemeStaticDirPath returns the theme's static dir path if theme is set.
 // If theme is set and the static dir doesn't exist, an error is returned.
 func GetThemeStaticDirPath() (string, error) {
@@ -219,7 +228,7 @@ func GetThemeDataDirPath() (string, error) {
 func getThemeDirPath(path string) (string, error) {
 	var themeDir string
 	if ThemeSet() {
-		themeDir = AbsPathify("themes/"+viper.GetString("theme")) + FilePathSeparator + path
+		themeDir = filepath.Join(GetThemeDir(), path)
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
 			return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
 		}
@@ -227,8 +236,11 @@ func getThemeDirPath(path string) (string, error) {
 	return themeDir, nil
 }
 
+// Get the 'static' directory of the current theme, if there is one.
+// Ignores underlying errors. Candidate for deprecation?
 func GetThemesDirPath() string {
-	return AbsPathify(filepath.Join("themes", viper.GetString("theme"), "static"))
+	dir, _ := getThemeDirPath("static")
+	return dir
 }
 
 func MakeStaticPathRelative(inPath string) (string, error) {
