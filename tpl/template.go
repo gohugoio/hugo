@@ -21,7 +21,6 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"github.com/yosssi/ace"
 	"html/template"
 	"io"
@@ -306,8 +305,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 
 					currBaseAceFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseAceFilename)
 					templateDir := filepath.Dir(path)
-					themeDir := filepath.Join(
-						viper.GetString("WorkingDir"), "themes", viper.GetString("theme"))
+					themeDir := helpers.GetThemeDir()
 
 					pathsToCheck := []string{
 						filepath.Join(templateDir, currBaseAceFilename),
