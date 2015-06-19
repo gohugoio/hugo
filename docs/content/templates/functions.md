@@ -76,6 +76,29 @@ e.g.
         {{ .Render "summary" }}
     {{ end }}
 
+### last
+Slices an array to only the last X elements.
+
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
+e.g.
+
+    {{ range last 10 .Data.Pages }}
+        {{ .Render "summary" }}
+    {{ end }}
+
+### after
+Slices an array to only the items after the Xth item. Use this in 
+combination with `first` use both halves of an array split a item
+X.
+
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
+e.g.
+
+    {{ range after 10 .Data.Pages }}
+        {{ .Render "title" }}
+    {{ end }}
 
 ### getenv
 Returns the value of an environment variable.

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"path"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -236,6 +237,74 @@ func TestFirst(t *testing.T) {
 		{1, t, false},
 	} {
 		results, err := First(this.count, this.sequence)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] First didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(results, this.expect) {
+				t.Errorf("[%d] First %d items, got %v but expected %v", i, this.count, results, this.expect)
+			}
+		}
+	}
+}
+
+func TestLast(t *testing.T) {
+	for i, this := range []struct {
+		count    interface{}
+		sequence interface{}
+		expect   interface{}
+	}{
+		{int(2), []string{"a", "b", "c"}, []string{"b", "c"}},
+		{int32(3), []string{"a", "b"}, []string{"a", "b"}},
+		{int64(2), []int{100, 200, 300}, []int{200, 300}},
+		{100, []int{100, 200}, []int{100, 200}},
+		{"1", []int{100, 200, 300}, []int{300}},
+		{int64(-1), []int{100, 200, 300}, false},
+		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
+	} {
+		results, err := Last(this.count, this.sequence)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] First didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(results, this.expect) {
+				t.Errorf("[%d] First %d items, got %v but expected %v", i, this.count, results, this.expect)
+			}
+		}
+	}
+}
+
+func TestAfter(t *testing.T) {
+	for i, this := range []struct {
+		count    interface{}
+		sequence interface{}
+		expect   interface{}
+	}{
+		{int(2), []string{"a", "b", "c", "d"}, []string{"c", "d"}},
+		{int32(3), []string{"a", "b"}, false},
+		{int64(2), []int{100, 200, 300}, []int{300}},
+		{100, []int{100, 200}, false},
+		{"1", []int{100, 200, 300}, []int{200, 300}},
+		{int64(-1), []int{100, 200, 300}, false},
+		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
+	} {
+		results, err := After(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] First didn't return an expected error", i)

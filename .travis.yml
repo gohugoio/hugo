@@ -2,6 +2,10 @@ language: go
 go:
   - 1.3
   - 1.4.2
+  - tip
+matrix:
+  allow_failures:
+    - go: tip
 script:
   - go test ./...
   - go build

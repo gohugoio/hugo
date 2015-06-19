@@ -99,12 +99,17 @@ func UnicodeSanitize(s string) string {
 		}
 	}
 
-	// remove accents - see https://blog.golang.org/normalization
-	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-	result, _, _ := transform.String(t, string(target))
-	return result
+	var result string
 
-	return string(target)
+	if viper.GetBool("RemovePathAccents") {
+		// remove accents - see https://blog.golang.org/normalization
+		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+		result, _, _ = transform.String(t, string(target))
+	} else {
+		result = string(target)
+	}
+
+	return result
 }
 
 func isMn(r rune) bool {

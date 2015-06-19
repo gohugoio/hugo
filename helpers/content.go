@@ -71,6 +71,7 @@ var blackfridayExtensionMap = map[string]int{
 	"headerIds":              blackfriday.EXTENSION_HEADER_IDS,
 	"titleblock":             blackfriday.EXTENSION_TITLEBLOCK,
 	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
+	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
 }
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
@@ -163,7 +164,8 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
 		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
 		blackfriday.EXTENSION_SPACE_HEADERS | blackfriday.EXTENSION_FOOTNOTES |
-		blackfriday.EXTENSION_HEADER_IDS | blackfriday.EXTENSION_AUTO_HEADER_IDS
+		blackfriday.EXTENSION_HEADER_IDS | blackfriday.EXTENSION_AUTO_HEADER_IDS |
+		blackfriday.EXTENSION_DEFINITION_LISTS
 	for _, extension := range ctx.getConfig().Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag

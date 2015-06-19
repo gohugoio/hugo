@@ -177,7 +177,7 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 	}
 
 	var start, length int
-	toInt := func (v interface{}, message string) (int, error) {
+	toInt := func(v interface{}, message string) (int, error) {
 		switch i := v.(type) {
 		case int:
 			return i, nil
@@ -386,6 +386,78 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 		limitv = seqv.Len()
 	}
 	return seqv.Slice(0, limitv).Interface(), nil
+}
+
+// Last is exposed to templates, to iterate over the last N items in a
+// rangeable list.
+func Last(limit interface{}, seq interface{}) (interface{}, error) {
+
+	if limit == nil || seq == nil {
+		return nil, errors.New("both limit and seq must be provided")
+	}
+
+	limitv, err := cast.ToIntE(limit)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if limitv < 1 {
+		return nil, errors.New("can't return negative/empty count of items from sequence")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
+	}
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice, reflect.String:
+		// okay
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+	if limitv > seqv.Len() {
+		limitv = seqv.Len()
+	}
+	return seqv.Slice(seqv.Len()-limitv, seqv.Len()).Interface(), nil
+}
+
+// After is exposed to templates, to iterate over all the items after N in a
+// rangeable list. It's meant to accompany First
+func After(index interface{}, seq interface{}) (interface{}, error) {
+
+	if index == nil || seq == nil {
+		return nil, errors.New("both limit and seq must be provided")
+	}
+
+	indexv, err := cast.ToIntE(index)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if indexv < 1 {
+		return nil, errors.New("can't return negative/empty count of items from sequence")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
+	}
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice, reflect.String:
+		// okay
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+	if indexv >= seqv.Len() {
+		return nil, errors.New("no items left")
+	}
+	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
 var (
@@ -1252,6 +1324,8 @@ func init() {
 		"relURL":      func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
 		"markdownify": Markdownify,
 		"first":       First,
+		"last":        Last,
+		"after":       After,
 		"where":       Where,
 		"delimit":     Delimit,
 		"sort":        Sort,
