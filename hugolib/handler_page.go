@@ -61,7 +61,7 @@ func (h markdownHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
-		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, true, p.contentShortCodes,
+		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, p.contentShortCodes,
 			tmpContent, tmpTableOfContents)
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
@@ -88,7 +88,7 @@ func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	var err error
 
 	if len(p.contentShortCodes) > 0 {
-		content, err = replaceShortcodeTokens(p.rawContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
+		content, err = replaceShortcodeTokens(p.rawContent, shortcodePlaceholderPrefix, p.contentShortCodes)
 
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
@@ -114,7 +114,7 @@ func (h asciidocHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
-		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, true, p.contentShortCodes,
+		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, p.contentShortCodes,
 			tmpContent, tmpTableOfContents)
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
@@ -142,7 +142,7 @@ func (h rstHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
-		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, true, p.contentShortCodes,
+		replaced, err := replaceShortcodeTokensInsources(shortcodePlaceholderPrefix, p.contentShortCodes,
 			tmpContent, tmpTableOfContents)
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
@@ -169,7 +169,7 @@ func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.renderContent(helpers.RemoveSummaryDivider(p.rawContent)))
 
 	if len(p.contentShortCodes) > 0 {
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, true, p.contentShortCodes)
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens(tmpContent, shortcodePlaceholderPrefix, p.contentShortCodes)
 
 		if err != nil {
 			jww.FATAL.Printf("Fail to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())

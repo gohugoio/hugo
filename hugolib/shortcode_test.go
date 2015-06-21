@@ -332,16 +332,16 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		replacements map[string]string
 		expect       interface{}
 	}{
-		{"Hello HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "World"}, "Hello World."},
-		{strings.Repeat("A", 100) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("A", 100) + " Hello World."},
-		{strings.Repeat("A", 500) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("A", 500) + " Hello World."},
-		{strings.Repeat("ABCD ", 500) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("ABCD ", 500) + " Hello World."},
-		{strings.Repeat("A", 500) + " HUGOSHORTCODE-1." + strings.Repeat("BC", 500) + " HUGOSHORTCODE-1.", map[string]string{"HUGOSHORTCODE-1": "Hello World"}, strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World."},
+		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, "Hello World."},
+		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 100) + " Hello World."},
+		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 500) + " Hello World."},
+		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("ABCD ", 500) + " Hello World."},
+		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World."},
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for i, this := range data {
-			results, err := replaceShortcodeTokens([]byte(this.input), "HUGOSHORTCODE", false, this.replacements)
+			results, err := replaceShortcodeTokens([]byte(this.input), "HUGOSHORTCODE", this.replacements)
 
 			if expectSuccess, ok := this.expect.(bool); ok && !expectSuccess {
 				if err == nil {
@@ -367,21 +367,30 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		input        string
 		prefix       string
 		replacements map[string]string
-		wrappedInDiv bool
 		expect       interface{}
 	}{
-		{"Hello PREFIX-1.", "PREFIX", map[string]string{"PREFIX-1": "World"}, false, "Hello World."},
-		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, true, "A v1 asdf v2."},
-		{"Hello PREFIX2-1. Go PREFIX2-2, Go, Go PREFIX2-3 Go Go!.", "PREFIX2", map[string]string{"PREFIX2-1": "Europe", "PREFIX2-2": "Jonny", "PREFIX2-3": "Johnny"}, false, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
-		{"A PREFIX-2 PREFIX-1.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "A B A."},
-		{"A PREFIX-1 PREFIX-2", "PREFIX", map[string]string{"PREFIX-1": "A"}, false, false},
-		{"A PREFIX-1 but not the second.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "A A but not the second."},
-		{"An PREFIX-1.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "An A."},
-		{"An PREFIX-1 PREFIX-2.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B"}, false, "An A B."},
-		{"A PREFIX-1 PREFIX-2 PREFIX-3 PREFIX-1 PREFIX-3.", "PREFIX", map[string]string{"PREFIX-1": "A", "PREFIX-2": "B", "PREFIX-3": "C"}, false, "A A B C A C."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, true, "A A B C A C."},
+		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World."},
+		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, "A v1 asdf v2."},
+		{"Hello {@{@PREFIX2-1@}@}. Go {@{@PREFIX2-2@}@}, Go, Go {@{@PREFIX2-3@}@} Go Go!.", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "Europe", "{@{@PREFIX2-2@}@}": "Jonny", "{@{@PREFIX2-3@}@}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
+		{"A {@{@PREFIX-2@}@} {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A B A."},
+		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A"}, false},
+		{"A {@{@PREFIX-1@}@} but not the second.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A A but not the second."},
+		{"An {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "An A."},
+		{"An {@{@PREFIX-1@}@} {@{@PREFIX-2@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "An A B."},
+		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, "A A B C A C."},
+		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, "A A B C A C."},
+		// Issue #1148 remove p-tags 10 =>
+		{"Hello <p>{@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World. END."},
+		{"Hello <p>{@{@PREFIX-1@}@}</p>. <p>{@{@PREFIX-2@}@}</p> END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World", "{@{@PREFIX-2@}@}": "THE"}, "Hello World. THE END."},
+		{"Hello <p>{@{@PREFIX-1@}@}. END</p>.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World. END</p>."},
+		{"<p>Hello {@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "<p>Hello World</p>. END."},
+		{"Hello <p>{@{@PREFIX-1@}@}12", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World12"},
+		// Make sure the buffering expands as needed
+		{"Hello {@{@P-1@}@}. {@{@P-1@}@}-{@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} END", "P", map[string]string{"{@{@P-1@}@}": strings.Repeat("BC", 100)},
+			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
+				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
 	} {
-		results, err := replaceShortcodeTokens([]byte(this.input), this.prefix, this.wrappedInDiv, this.replacements)
+		results, err := replaceShortcodeTokens([]byte(this.input), this.prefix, this.replacements)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -393,7 +402,7 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(results, []byte(this.expect.(string))) {
-				t.Errorf("[%d] replaceShortcodeTokens, got %q but expected %q", i, results, this.expect)
+				t.Errorf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", i, results, this.expect)
 			}
 		}
 
