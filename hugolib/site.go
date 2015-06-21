@@ -1282,7 +1282,6 @@ func (s *Site) newHomePage() *Page {
 	}
 
 	p.Title = p.Site.Title
-	p.IsHome = true
 	p.URL = helpers.URLizeAndPrep("/")
 	p.URLPath.Permalink = s.permalink(p.URL)
 	p.RSSLink = s.permalink("/" + ".xml")
