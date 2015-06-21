@@ -461,7 +461,6 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	var buff bytes.Buffer
 
 	sourceLen := len(source)
-	width := 0
 	start := 0
 
 	pre := []byte("{@{@" + prefix)
@@ -492,16 +491,14 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 		}
 
 		oldVal := source[j:end]
-		w, err := buff.Write(source[start:j])
+		_, err := buff.Write(source[start:j])
 		if err != nil {
 			return nil, errors.New("buff write failed")
 		}
-		width += w
-		w, err = buff.Write(newVal)
+		_, err = buff.Write(newVal)
 		if err != nil {
 			return nil, errors.New("buff write failed")
 		}
-		width += w
 		start = j + len(oldVal)
 
 		k = bytes.Index(source[start:], pre)
