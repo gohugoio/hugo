@@ -202,8 +202,8 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 	assert.NotNil(t, me1)
 	assert.NotNil(t, me2)
 
-	assert.True(t, strings.Contains(me1.URL, "doc1"))
-	assert.True(t, strings.Contains(me2.URL, "doc2"))
+	assert.True(t, strings.Contains(me1.URL, "doc1"), me1.URL)
+	assert.True(t, strings.Contains(me2.URL, "doc2"), me2.URL)
 
 }
 
@@ -241,9 +241,8 @@ func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.Byte
 	assert.NotNil(t, me1)
 	assert.NotNil(t, me2)
 
-	assert.True(t, strings.Contains(me1.URL, "doc1"))
-	// TODO(bep) the below is failing on Travis on 1.3 + 1.5.
-	//	assert.True(t, strings.Contains(me2.URL, "doc2"))
+	assert.True(t, strings.Contains(me1.URL, "doc1"), me1.URL, me1.URL)
+	assert.True(t, strings.Contains(me2.URL, "doc2"), me2.URL, me2.URL)
 
 }
 
