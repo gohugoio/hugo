@@ -79,6 +79,18 @@ func NopCloser(w io.Writer) io.WriteCloser {
 	return nopCloser{w}
 }
 
+func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected string) {
+	content := new(bytes.Buffer)
+	err := s.renderThing(p, tmplName, NopCloser(content))
+	if err != nil {
+		t.Fatalf("Unable to render template.")
+	}
+
+	if string(content.Bytes()) != expected {
+		t.Fatalf("Content did not match expected: %s. got: %s", expected, content)
+	}
+}
+
 func TestRenderThing(t *testing.T) {
 	tests := []struct {
 		content  string
