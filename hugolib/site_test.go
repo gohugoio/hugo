@@ -320,8 +320,13 @@ func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.md"),
 			[]byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode))},
+		// Issue #1148: Make sure that no P-tags is added around shortcodes.
 		{filepath.FromSlash("sect/doc2.md"),
-			[]byte(fmt.Sprintf(`Ref 1: {{< %s "sect/doc1.md" >}}`, refShortcode))},
+			[]byte(fmt.Sprintf(`**Ref 1:** 
+			
+{{< %s "sect/doc1.md" >}}
+			
+THE END.`, refShortcode))},
 	}
 
 	s := &Site{
@@ -341,7 +346,7 @@ func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
 		expected string
 	}{
 		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 2: %s/sect/doc2%s</p>\n", expectedBase, expectedUrlSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 1: %s/sect/doc1%s</p>\n", expectedBase, expectedUrlSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong></p>\n\n%s/sect/doc1%s\n\n<p>THE END.</p>\n", expectedBase, expectedUrlSuffix)},
 	}
 
 	for _, test := range tests {
