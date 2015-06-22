@@ -88,7 +88,7 @@ Assuming you have the following YAML structure to your `User0123.yml` Data File 
 
 ```
 Name: User0123
-"Short Description": "He is a jolly good fellow."
+"Short Description": "He is a **jolly good** fellow."
 Achievements:
   - "Can create a Key, Value list from Data File"
   - "Learns Hugo"
@@ -98,7 +98,7 @@ Achievements:
 To render the `Short Description` in your `layout` File following code is required.
 
 ```
-{{ $.Scratch.Set "ShortDesc" ( index $.Site.Data.User0123 "Short Description" ) }}
-<div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ $.Scratch.Get "ShortDesc" }}</p></div>
-{{ end }}
+<div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
 ```
+
+Note the use of the `markdownify` template function. This will send the description through the Blackfriday Markdown rendering engine.
