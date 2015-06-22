@@ -458,7 +458,8 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 		return source, nil
 	}
 
-	var buff bytes.Buffer
+	buff := bp.GetBuffer()
+	defer bp.PutBuffer(buff)
 
 	sourceLen := len(source)
 	start := 0
@@ -507,7 +508,11 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	if err != nil {
 		return nil, errors.New("buff write failed")
 	}
-	return buff.Bytes(), nil
+
+	bc := make([]byte, buff.Len(), buff.Len())
+	copy(bc, buff.Bytes())
+
+	return bc, nil
 }
 
 func getShortcodeTemplate(name string, t tpl.Template) *template.Template {
