@@ -518,11 +518,21 @@ func (p *Page) update(f interface{}) error {
 			default: // handle array of strings as well
 				switch vvv := vv.(type) {
 				case []interface{}:
-					var a = make([]string, len(vvv))
-					for i, u := range vvv {
-						a[i] = cast.ToString(u)
+					if len(vvv) > 0 {
+						switch vvv[0].(type) {
+						case map[interface{}]interface{}: // Proper parsing structured array from yaml based FrontMatter
+							p.Params[loki] = vvv
+						default:
+							a := make([]string, len(vvv))
+							for i, u := range vvv {
+								a[i] = cast.ToString(u)
+							}
+
+							p.Params[loki] = a
+						}
+					} else {
+						p.Params[loki] = []string{}
 					}
-					p.Params[loki] = a
 				default:
 					p.Params[loki] = vv
 				}
