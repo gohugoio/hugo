@@ -1353,6 +1353,7 @@ func init() {
 		"dateFormat":  DateFormat,
 		"getJSON":     GetJSON,
 		"getCSV":      GetCSV,
+		"ReadDir":     ReadDir,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
 
