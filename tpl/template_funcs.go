@@ -536,17 +536,21 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 }
 
 func checkCondition(v, mv reflect.Value, op string) (bool, error) {
-	if !v.IsValid() || !mv.IsValid() {
-		return false, nil
+	v, vIsNil := indirect(v)
+	if !v.IsValid() {
+		vIsNil = true
 	}
-
-	var isNil bool
-	v, isNil = indirect(v)
-	if isNil {
-		return false, nil
+	mv, mvIsNil := indirect(mv)
+	if !mv.IsValid() {
+		mvIsNil = true
 	}
-	mv, isNil = indirect(mv)
-	if isNil {
+	if vIsNil || mvIsNil {
+		switch op {
+		case "", "=", "==", "eq":
+			return vIsNil == mvIsNil, nil
+		case "!=", "<>", "ne":
+			return vIsNil != mvIsNil, nil
+		}
 		return false, nil
 	}
 
