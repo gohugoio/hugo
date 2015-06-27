@@ -673,6 +673,7 @@ func TestCheckCondition(t *testing.T) {
 			"",
 			expect{true, false},
 		},
+		{reflect.ValueOf(nil), reflect.ValueOf(nil), "", expect{true, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "!=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), "!=", expect{true, false}},
 		{
@@ -681,6 +682,7 @@ func TestCheckCondition(t *testing.T) {
 			"!=",
 			expect{true, false},
 		},
+		{reflect.ValueOf(123), reflect.ValueOf(nil), "!=", expect{true, false}},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">=", expect{true, false}},
 		{
@@ -942,6 +944,31 @@ func TestWhere(t *testing.T) {
 			expect: []TstX{
 				{A: "a", B: "b"}, {A: "e", B: "f"},
 			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "", match: nil,
+			expect: []map[string]int{
+				{"a": 3},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "!=", match: nil,
+			expect: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 5, "b": 6},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: ">", match: nil,
+			expect: []map[string]int{},
 		},
 		{sequence: (*[]TstX)(nil), key: "A", match: "a", expect: false},
 		{sequence: TstX{A: "a", B: "b"}, key: "A", match: "a", expect: false},
