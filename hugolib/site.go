@@ -1315,7 +1315,7 @@ func (s *Site) RenderHomePage() error {
 	}
 
 	n.URL = helpers.URLize("404.html")
-	n.Title = "404 Page not found"
+	n.Title = viper.GetString("title404")
 	n.Permalink = s.permalink("404.html")
 
 	nfLayouts := []string{"404.html"}
