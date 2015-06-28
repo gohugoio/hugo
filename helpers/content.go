@@ -40,21 +40,23 @@ var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
-	AngledQuotes   bool
-	Fractions      bool
-	LatexDashes    bool
-	PlainIDAnchors bool
-	Extensions     []string
-	ExtensionsMask []string
+	AngledQuotes    bool
+	Fractions       bool
+	HrefTargetBlank bool
+	LatexDashes     bool
+	PlainIDAnchors  bool
+	Extensions      []string
+	ExtensionsMask  []string
 }
 
 // NewBlackfriday creates a new Blackfriday with some sane defaults.
 func NewBlackfriday() *Blackfriday {
 	return &Blackfriday{
-		AngledQuotes:   false,
-		Fractions:      true,
-		LatexDashes:    true,
-		PlainIDAnchors: false,
+		AngledQuotes:    false,
+		Fractions:       true,
+		HrefTargetBlank: false,
+		LatexDashes:     true,
+		PlainIDAnchors:  false,
 	}
 }
 
@@ -155,6 +157,10 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 
 	if ctx.getConfig().Fractions {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	}
+
+	if ctx.getConfig().HrefTargetBlank {
+		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
 	}
 
 	if ctx.getConfig().LatexDashes {
