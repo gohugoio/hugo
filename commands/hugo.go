@@ -444,7 +444,7 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || strings.HasPrefix(ev.Name, helpers.GetThemesDirPath())
+					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
 					staticChanged = staticChanged || isstatic
 					dynamicChanged = dynamicChanged || !isstatic
 
