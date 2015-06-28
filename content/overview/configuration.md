@@ -191,6 +191,26 @@ but only these three.</small></td>
 </tr>
 
 <tr>
+<td><code>hrefTargetBlank</code></td>
+<td><code>false</code></td>
+<td><code>HTML_HREF_TARGET_BLANK</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Open external links in a new window/tab.</small></td>
+</tr>
+
+<tr>
+<td><code>latexDashes</code></td>
+<td><code>true</code></td>
+<td><code>HTML_SMARTYPANTS_LATEX_DASHES</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Disable LaTeX style dashes.</small></td>
+</tr>
+
+<tr>
 <td><code>plainIdAnchors</code></td>
 <td><code>false</code></td>
 <td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
