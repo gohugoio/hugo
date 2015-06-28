@@ -1314,7 +1314,9 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
+	// TODO(bep) reusing the Home Node smells trouble
 	n.URL = helpers.URLize("404.html")
+	n.IsHome = false
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
 
