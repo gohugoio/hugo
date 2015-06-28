@@ -42,6 +42,7 @@ var SummaryDivider = []byte("<!--more-->")
 type Blackfriday struct {
 	AngledQuotes   bool
 	Fractions      bool
+	LatexDashes    bool
 	PlainIDAnchors bool
 	Extensions     []string
 	ExtensionsMask []string
@@ -52,6 +53,7 @@ func NewBlackfriday() *Blackfriday {
 	return &Blackfriday{
 		AngledQuotes:   false,
 		Fractions:      true,
+		LatexDashes:    true,
 		PlainIDAnchors: false,
 	}
 }
@@ -145,7 +147,6 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
 	if ctx.getConfig().AngledQuotes {
@@ -154,6 +155,10 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 
 	if ctx.getConfig().Fractions {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	}
+
+	if ctx.getConfig().LatexDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
 	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
