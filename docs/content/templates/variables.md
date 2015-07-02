@@ -49,6 +49,7 @@ matter, content or derived from file location.
 **.WordCount** The number of words in the content.<br>
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
+**.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
