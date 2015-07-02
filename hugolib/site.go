@@ -469,6 +469,7 @@ func (s *Site) initializeSiteInfo() {
 		BaseURL:               template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
 		Title:                 viper.GetString("Title"),
 		Author:                viper.GetStringMap("author"),
+		Social:                viper.GetStringMapString("social"),
 		LanguageCode:          viper.GetString("languagecode"),
 		Copyright:             viper.GetString("copyright"),
 		DisqusShortname:       viper.GetString("DisqusShortname"),
