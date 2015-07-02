@@ -726,6 +726,10 @@ func (p *Page) parse(reader io.Reader) error {
 	return nil
 }
 
+func (p *Page) RawContent() string {
+	return string(p.rawContent)
+}
+
 func (p *Page) SetSourceContent(content []byte) {
 	p.Source.Content = content
 }
