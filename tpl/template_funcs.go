@@ -1428,6 +1428,7 @@ func init() {
 		"lower":        func(a string) string { return strings.ToLower(a) },
 		"upper":        func(a string) string { return strings.ToUpper(a) },
 		"title":        func(a string) string { return strings.Title(a) },
+		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
 		"partial":      Partial,
 		"ref":          Ref,
 		"relref":       RelRef,
