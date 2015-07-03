@@ -167,8 +167,11 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
-	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	return &HugoHtmlRenderer{
+		blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+	}
 }
+
 
 func getMarkdownExtensions(ctx *RenderingContext) int {
 	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
