@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"errors"
-
 	"fmt"
 
 	"github.com/spf13/hugo/source"

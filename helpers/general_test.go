@@ -2,11 +2,12 @@ package helpers
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGuessType(t *testing.T) {

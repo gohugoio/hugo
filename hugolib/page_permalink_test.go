@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/source"
+
 	"github.com/spf13/viper"
 )
 

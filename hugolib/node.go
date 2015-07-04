@@ -14,10 +14,11 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/helpers"
 	"html/template"
 	"sync"
 	"time"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 type Node struct {

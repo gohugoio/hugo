@@ -8,8 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

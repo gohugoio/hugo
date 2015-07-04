@@ -2,8 +2,9 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/helpers"
 	"html/template"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 var (

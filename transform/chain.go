@@ -2,8 +2,9 @@ package transform
 
 import (
 	"bytes"
-	bp "github.com/spf13/hugo/bufferpool"
 	"io"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 type trans func(rw contentTransformer)

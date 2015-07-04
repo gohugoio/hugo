@@ -25,12 +25,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
-	"sync/atomic"
-
-	"bitbucket.org/pkg/inflect"
-	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -39,6 +36,9 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/hugo/transform"
+
+	"bitbucket.org/pkg/inflect"
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"

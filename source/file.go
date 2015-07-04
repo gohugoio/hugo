@@ -14,10 +14,11 @@
 package source
 
 import (
-	"github.com/spf13/hugo/helpers"
 	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 type File struct {

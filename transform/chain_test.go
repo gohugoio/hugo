@@ -2,10 +2,11 @@ package transform
 
 import (
 	"bytes"
-	"github.com/spf13/hugo/helpers"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 const H5_JS_CONTENT_DOUBLE_QUOTE = "<!DOCTYPE html><html><head><script src=\"foobar.js\"></script><script src=\"/barfoo.js\"></script></head><body><nav><h1>title</h1></nav><article>content <a href=\"foobar\">foobar</a>. <a href=\"/foobar\">Follow up</a></article></body></html>"

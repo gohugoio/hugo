@@ -4,11 +4,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
+
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 

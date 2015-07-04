@@ -20,11 +20,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/parser"
+
+	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )

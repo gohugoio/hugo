@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
+
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 
