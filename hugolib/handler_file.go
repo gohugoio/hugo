@@ -14,10 +14,11 @@
 package hugolib
 
 import (
-	"github.com/dchest/cssmin"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
+
+	"github.com/dchest/cssmin"
 )
 
 func init() {

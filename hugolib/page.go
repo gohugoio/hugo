@@ -17,26 +17,25 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"reflect"
-
-	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/parser"
-
 	"html/template"
 	"io"
 	"net/url"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )

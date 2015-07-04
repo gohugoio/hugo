@@ -16,18 +16,20 @@ package tpl
 import (
 	"bytes"
 	"fmt"
-	"github.com/eknkc/amber"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/yosssi/ace"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+
+	"github.com/eknkc/amber"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/yosssi/ace"
 )
 
 var localTemplates *template.Template

@@ -1,11 +1,12 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/parser"
-	"github.com/spf13/hugo/source"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/spf13/hugo/parser"
+	"github.com/spf13/hugo/source"
 )
 
 func TestDataDirJSON(t *testing.T) {

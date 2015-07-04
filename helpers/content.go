@@ -21,15 +21,15 @@ import (
 	"bytes"
 	"html/template"
 	"os/exec"
+	"strings"
+	"sync"
+
+	bp "github.com/spf13/hugo/bufferpool"
 
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-
-	"strings"
-	"sync"
 )
 
 // Length of the summary that Hugo extracts from a content.

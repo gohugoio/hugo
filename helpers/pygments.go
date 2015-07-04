@@ -17,15 +17,17 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/spf13/hugo/hugofs"
+
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 const pygmentsBin = "pygmentize"

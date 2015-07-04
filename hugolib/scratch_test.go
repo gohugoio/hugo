@@ -1,8 +1,9 @@
 package hugolib
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestScratchAdd(t *testing.T) {

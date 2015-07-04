@@ -15,7 +15,6 @@ package source
 
 import (
 	"bytes"
-	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"os"
@@ -24,7 +23,9 @@ import (
 	"strings"
 
 	"github.com/spf13/hugo/helpers"
+
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 type Input interface {

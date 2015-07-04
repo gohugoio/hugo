@@ -1,8 +1,9 @@
 package source
 
 import (
-	"github.com/spf13/viper"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestIgnoreDotFilesAndDirectories(t *testing.T) {

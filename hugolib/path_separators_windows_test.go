@@ -1,8 +1,9 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/tpl"
 	"testing"
+
+	"github.com/spf13/hugo/tpl"
 )
 
 const (

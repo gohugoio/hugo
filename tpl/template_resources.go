@@ -25,9 +25,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+
+	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )

@@ -16,14 +16,16 @@ package hugolib
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 	"html/template"
 	"math"
 	"path"
 	"reflect"
 	"strings"
+
+	"github.com/spf13/hugo/helpers"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/viper"
 )
 
 type Pager struct {

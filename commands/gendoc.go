@@ -2,13 +2,15 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+
+	"github.com/spf13/cobra"
 )
 
 const gendocFrontmatterTemplate = `---
