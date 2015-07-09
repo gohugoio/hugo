@@ -130,6 +130,7 @@ func init() {
 	pygmentsKeywords["hl_lines"] = true
 	pygmentsKeywords["linenos"] = true
 	pygmentsKeywords["classprefix"] = true
+	pygmentsKeywords["startinline"] = true
 }
 
 func parsePygmentsOpts(in string) (string, error) {
