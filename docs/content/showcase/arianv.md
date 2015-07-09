@@ -4,7 +4,7 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://arianv.com
-sourceLink: https://github.com/Secretmapper/arianv
+sourceLink: https://github.com/Secretmapper/arianv/tree/master
 tags:
 - personal
 - blog
