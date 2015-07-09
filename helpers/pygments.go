@@ -139,47 +139,26 @@ func init() {
 	pygmentsKeywords["hl_lines"] = true
 	pygmentsKeywords["linenos"] = true
 	pygmentsKeywords["classprefix"] = true
+	pygmentsKeywords["startinline"] = true
 }
 
-func parsePygmentsOpts(in string) (string, error) {
-
+func parseOptions(options map[string]string, in string) error {
 	in = strings.Trim(in, " ")
-
-	style := viper.GetString("PygmentsStyle")
-
-	noclasses := "true"
-	if viper.GetBool("PygmentsUseClasses") {
-		noclasses = "false"
-	}
-
-	if len(in) == 0 {
-		return fmt.Sprintf("style=%s,noclasses=%s,encoding=utf8", style, noclasses), nil
-	}
-
-	options := make(map[string]string)
-
-	o := strings.Split(in, ",")
-	for _, v := range o {
-		keyVal := strings.Split(v, "=")
-		key := strings.ToLower(strings.Trim(keyVal[0], " "))
-		if len(keyVal) != 2 || !pygmentsKeywords[key] {
-			return "", fmt.Errorf("invalid Pygments option: %s", key)
+	if in != "" {
+		for _, v := range strings.Split(in, ",") {
+			keyVal := strings.Split(v, "=")
+			key := strings.ToLower(strings.Trim(keyVal[0], " "))
+			if len(keyVal) != 2 || !pygmentsKeywords[key] {
+				return fmt.Errorf("invalid Pygments option: %s", key)
+			}
+			options[key] = keyVal[1]
 		}
-		options[key] = keyVal[1]
 	}
 
-	if _, ok := options["style"]; !ok {
-		options["style"] = style
-	}
+	return nil
+}
 
-	if _, ok := options["noclasses"]; !ok {
-		options["noclasses"] = noclasses
-	}
-
-	if _, ok := options["encoding"]; !ok {
-		options["encoding"] = "utf8"
-	}
-
+func createOptionsString(options map[string]string) string {
 	var keys []string
 	for k := range options {
 		keys = append(keys, k)
@@ -193,5 +172,49 @@ func parsePygmentsOpts(in string) (string, error) {
 			optionsStr += ","
 		}
 	}
-	return optionsStr, nil
+
+	return optionsStr
+}
+
+func parseDefaultPygmentsOpts() (map[string]string, error) {
+
+	options := make(map[string]string)
+	err := parseOptions(options, viper.GetString("PygmentsOptions"))
+	if err != nil {
+		return nil, err
+	}
+
+	if viper.IsSet("PygmentsStyle") {
+		options["style"] = viper.GetString("PygmentsStyle")
+	}
+
+	if viper.IsSet("PygmentsUseClasses") {
+		if viper.GetBool("PygmentsUseClasses") {
+			options["noclasses"] = "false"
+		} else {
+			options["noclasses"] = "true"
+		}
+
+	}
+
+	if _, ok := options["encoding"]; !ok {
+		options["encoding"] = "utf8"
+	}
+
+	return options, nil
+}
+
+func parsePygmentsOpts(in string) (string, error) {
+
+	options, err := parseDefaultPygmentsOpts()
+	if err != nil {
+		return "", err
+	}
+
+	err = parseOptions(options, in)
+	if err != nil {
+		return "", err
+	}
+
+	return createOptionsString(options), nil
 }

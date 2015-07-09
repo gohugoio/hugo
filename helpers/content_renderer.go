@@ -17,8 +17,9 @@ type HugoHtmlRenderer struct {
 
 func (renderer *HugoHtmlRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if viper.GetBool("PygmentsCodeFences") {
+		opts := viper.GetString("PygmentsOptions")
 		str := html.UnescapeString(string(text))
-		out.WriteString(Highlight(str, lang, ""))
+		out.WriteString(Highlight(str, lang, opts))
 	} else {
 		renderer.Renderer.BlockCode(out, text, lang)
 	}
