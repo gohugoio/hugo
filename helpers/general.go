@@ -228,6 +228,11 @@ func Md5String(f string) string {
 	return hex.EncodeToString(h.Sum([]byte{}))
 }
 
+// IsWhitespace determines if the given rune is whitespace.
+func IsWhitespace(r rune) bool {
+	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
+}
+
 // Seq creates a sequence of integers.
 // It's named and used as GNU's seq.
 // Examples:

@@ -140,6 +140,16 @@ Summary Same Line<!--more-->
 Some more text
 `
 
+	SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES = `---
+title: Simple
+---
+
+
+€ € € € €
+
+
+`
+
 	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
 title: Simple
 ---
@@ -468,6 +478,21 @@ func TestPageWithDate(t *testing.T) {
 		t.Fatalf("Unable to prase page.")
 	}
 	checkPageDate(t, p, d)
+}
+
+func TestRuneCount(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.RuneCount() != 5 {
+		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 1, p.RuneCount())
+
+	}
 }
 
 func TestWordCount(t *testing.T) {

@@ -66,6 +66,7 @@ type Page struct {
 	contentShortCodes   map[string]string
 	plain               string // TODO should be []byte
 	plainWords          []string
+	plainRuneCount      int
 	plainInit           sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
@@ -108,10 +109,24 @@ func (p *Page) PlainWords() []string {
 	return p.plainWords
 }
 
+// RuneCount returns the rune count, excluding any whitespace, of the plain content.
+func (p *Page) RuneCount() int {
+	p.initPlain()
+	return p.plainRuneCount
+}
+
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
 		p.plain = helpers.StripHTML(string(p.Content))
 		p.plainWords = strings.Fields(p.plain)
+		runeCount := 0
+		for _, r := range p.plain {
+			if !helpers.IsWhitespace(r) {
+				runeCount++
+			}
+		}
+		p.plainRuneCount = runeCount
+		return
 	})
 }
 
