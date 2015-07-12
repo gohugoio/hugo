@@ -47,6 +47,7 @@ matter, content or derived from file location.
 **.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.WordCount** The number of words in the content.<br>
+**.RuneCount** The number of [runes](http://blog.golang.org/strings) in the content, excluding any whitespace. This may be a good alternative to `.WordCount`  for Japanese and other CJK languages where a word-split by spaces makes no sense.
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
