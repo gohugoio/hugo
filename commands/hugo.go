@@ -278,7 +278,16 @@ func InitializeConfig() {
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
+	themeDir := helpers.GetThemeDir()
+	if themeDir != "" {
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Println("Unable to find theme Directory:", themeDir)
+			os.Exit(1)
+		}
+	}
+
 	themeVersionMismatch, minVersion := helpers.IsThemeVsHugoVersionMismatch()
+
 	if themeVersionMismatch {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
 			helpers.HugoReleaseVersion(), minVersion)
