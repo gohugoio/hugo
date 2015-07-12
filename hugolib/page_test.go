@@ -490,7 +490,7 @@ func TestRuneCount(t *testing.T) {
 	}
 
 	if p.RuneCount() != 5 {
-		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 1, p.RuneCount())
+		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 5, p.RuneCount())
 
 	}
 }
