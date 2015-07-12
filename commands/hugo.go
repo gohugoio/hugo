@@ -226,6 +226,11 @@ func InitializeConfig() {
 	}
 
 	if Theme != "" {
+	    themeDir := "themes" + "/" + Theme
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Println("Unable to find theme Directory:", "themes/"+Theme)
+            os.Exit(1)
+		}	
 		viper.Set("theme", Theme)
 	}
 
