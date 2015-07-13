@@ -281,8 +281,7 @@ func InitializeConfig() {
 	themeDir := helpers.GetThemeDir()
 	if themeDir != "" {
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Println("Unable to find theme Directory:", themeDir)
-			os.Exit(1)
+			jww.FATAL.Fatalln("Unable to find theme Directory:", themeDir)
 		}
 	}
 
