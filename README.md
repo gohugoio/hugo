@@ -3,7 +3,7 @@
 A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/spf13/hugo/graphs/contributors) in [Go][].
 
 [Website](http://gohugo.io) |
-[Forum](https://discuss.gohugo.io) |
+[Forum](http://discuss.gohugo.io) |
 [Chat](https://gitter.im/spf13/hugo) |
 [Documentation](http://gohugo.io/overview/introduction/) |
 [Installation Guide](http://gohugo.io/overview/installing/) |
@@ -70,6 +70,10 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
     Go expects all of your libraries to be found in`$GOPATH`.
 
+7. If you are changing files in the `commands` directory, note that `main.go` imports from Github.
+One solution to this is to clone spf13's Hugo (or go get) into $GOPATH/src/github.com, then add 
+your Hugo fork as a remote. 
+
 ### Build and Install the Binaries from Source (Advanced Install)
 
 Add Hugo and its package dependencies to your go `src` directory.
@@ -96,6 +100,7 @@ We welcome your contributions. To make the process as seamless as possible, we a
 
 * Go ahead and fork the project and make your changes. We encourage pull requests to discuss code changes.
 * When you’re ready to create a pull request, be sure to:
+     * Sign the [Forum Release thread](http://discuss.gohugo.io/t/switching-to-apache-2-license/173/26)
      * Have test cases for the new code. If you have questions about how to do it, please ask in your pull request.
      * Run `go fmt`
      * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request.
