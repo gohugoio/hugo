@@ -626,6 +626,9 @@ func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 				if child.IsEqual(m) {
 					return true
 				}
+				if p.HasMenuCurrent(menu, child) {
+					return true
+				}
 			}
 		}
 	}
