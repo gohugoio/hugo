@@ -471,7 +471,7 @@ func TestHomeNodeMenu(t *testing.T) {
 		{"main", homeMenuEntry, true, false},
 		{"doesnotexist", homeMenuEntry, false, false},
 		{"main", &MenuEntry{Name: "Somewhere else", URL: "/somewhereelse"}, false, false},
-		{"grandparent", findTestMenuEntryByID(s, "grandparent", "grandparentId"), false, false},
+		{"grandparent", findTestMenuEntryByID(s, "grandparent", "grandparentId"), false, true},
 		{"grandparent", findTestMenuEntryByID(s, "grandparent", "parentId"), false, true},
 		{"grandparent", findTestMenuEntryByID(s, "grandparent", "grandchildId"), true, false},
 	} {
