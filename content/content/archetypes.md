@@ -16,7 +16,7 @@ you can start a content file with the date and title automatically set.
 While this is a welcome feature, active writers need more.
 
 Hugo presents the concept of archetypes, which are archetypal content files
-with pre-configured [front matter](content/front-matter) which will
+with pre-configured [front matter](/content/front-matter) which will
 populate each new content file whenever you run the `hugo new` command.
 
 
