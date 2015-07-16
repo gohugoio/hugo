@@ -1118,8 +1118,9 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 				taxonomyPagerNode, _ := s.newTaxonomyNode(t)
 				taxonomyPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
-					taxonomyPagerNode.Date = pager.Pages()[0].Date
-					taxonomyPagerNode.Lastmod = pager.Pages()[0].Lastmod
+					first, _ := pager.page(0)
+					taxonomyPagerNode.Date = first.Date
+					taxonomyPagerNode.Lastmod = first.Lastmod
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
@@ -1224,8 +1225,9 @@ func (s *Site) RenderSectionLists() error {
 				sectionPagerNode := s.newSectionListNode(sectionName, section, data)
 				sectionPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
-					sectionPagerNode.Date = pager.Pages()[0].Date
-					sectionPagerNode.Lastmod = pager.Pages()[0].Lastmod
+					first, _ := pager.page(0)
+					sectionPagerNode.Date = first.Date
+					sectionPagerNode.Lastmod = first.Lastmod
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
@@ -1283,8 +1285,9 @@ func (s *Site) RenderHomePage() error {
 			homePagerNode := s.newHomeNode()
 			homePagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
-				homePagerNode.Date = pager.Pages()[0].Date
-				homePagerNode.Lastmod = pager.Pages()[0].Lastmod
+				first, _ := pager.page(0)
+				homePagerNode.Date = first.Date
+				homePagerNode.Lastmod = first.Lastmod
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
