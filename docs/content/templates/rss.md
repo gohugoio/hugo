@@ -29,7 +29,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 
 * /layouts/rss.xml
 * /layouts/\_default/rss.xml
-* \__internal/rss.xml
+* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
 
 ### Section RSS
 
@@ -37,7 +37,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 * /layouts/\_default/rss.xml
 * /themes/`THEME`/layouts/section/`SECTION`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
-* \__internal/rss.xml
+* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
 
 ### Taxonomy RSS
 
@@ -45,7 +45,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 * /layouts/\_default/rss.xml
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
-* \__internal/rss.xml
+* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
 
 
 ## Configuring RSS
