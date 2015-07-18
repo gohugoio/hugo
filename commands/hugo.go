@@ -301,7 +301,7 @@ func build(watches ...bool) {
 	}
 	utils.StopOnErr(buildSite(BuildWatch || watch))
 
-	if BuildWatch {
+	if BuildWatch || viper.GetBool("watch") {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
 		utils.CheckErr(NewWatcher(0))
