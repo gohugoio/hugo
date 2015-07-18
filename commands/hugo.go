@@ -343,10 +343,16 @@ func copyStatic() error {
 func getDirList() []string {
 	var a []string
 	dataDir := helpers.AbsPathify(viper.GetString("DataDir"))
+	layoutDir := helpers.AbsPathify(viper.GetString("LayoutDir"))
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			if path == dataDir && os.IsNotExist(err) {
 				jww.WARN.Println("Skip DataDir:", err)
+				return nil
+
+			}
+			if path == layoutDir && os.IsNotExist(err) {
+				jww.WARN.Println("Skip LayoutDir:", err)
 				return nil
 
 			}
