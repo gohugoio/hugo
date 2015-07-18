@@ -67,6 +67,10 @@ func server(cmd *cobra.Command, args []string) {
 		viper.Set("DisableLiveReload", disableLiveReload)
 	}
 
+	if viper.GetBool("watch") {
+    	serverWatch = true
+    }
+
 	if serverWatch {
 		viper.Set("Watch", true)
 	}
