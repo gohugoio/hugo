@@ -190,13 +190,14 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 	ext := filepath.Ext(path)
 	switch ext {
 	case ".amber":
+		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
 		compiler := amber.New()
 		// Parse the input file
 		if err := compiler.ParseFile(path); err != nil {
 			return nil
 		}
 
-		if _, err := compiler.CompileWithTemplate(t.New(name)); err != nil {
+		if _, err := compiler.CompileWithTemplate(t.New(templateName)); err != nil {
 			return err
 		}
 	case ".ace":
