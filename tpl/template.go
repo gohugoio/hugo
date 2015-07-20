@@ -82,6 +82,9 @@ func New() Template {
 
 	localTemplates = &templates.Template
 
+	for k, v := range funcMap {
+		amber.FuncMap[k] = v
+	}
 	templates.Funcs(funcMap)
 	templates.LoadEmbedded()
 	return templates
