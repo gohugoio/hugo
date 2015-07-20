@@ -14,6 +14,8 @@ title: Amber Templates
 weight: 18
 ---
 
+**Note:** The Amber support is broken in Hugo 0.14, but is fixed in the upcoming release.
+
 Amber templates are another template type which Hugo supports, in addition to [Go templates](/templates/go-templates) and [Ace templates](/templates/ace-templates) templates.
 
 For template documentation, follow the links from the [Amber project](https://github.com/eknkc/amber)
