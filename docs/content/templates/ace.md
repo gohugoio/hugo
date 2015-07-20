@@ -14,7 +14,7 @@ title: Ace Templates
 weight: 17
 ---
 
-In addition to [Go templates](/templates/go-templates) and [Amber](/templates/amber-templates) templates, Hugo supports the powerful Ace templates.
+In addition to [Go templates](/templates/go-templates) and [Amber](/templates/amber) templates, Hugo supports the powerful Ace templates.
 
 For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace). 
 
