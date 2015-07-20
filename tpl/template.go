@@ -194,7 +194,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 		compiler := amber.New()
 		// Parse the input file
 		if err := compiler.ParseFile(path); err != nil {
-			return nil
+			return err
 		}
 
 		if _, err := compiler.CompileWithTemplate(t.New(templateName)); err != nil {
