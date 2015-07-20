@@ -10,11 +10,11 @@ menu:
     parent: layout
 next: /templates/functions
 prev: /templates/go-templates
-title: Hugo Templates
+title: Ace Templates
 weight: 17
 ---
 
-In addition to [Go templates](/templates/go-templates) and Amber[^needs-doc] templates, Hugo supports the powerful Ace templates.
+In addition to [Go templates](/templates/go-templates) and [Amber](/templates/amber-templates) templates, Hugo supports the powerful Ace templates.
 
 For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace). 
 
@@ -65,5 +65,4 @@ Some examples for the layout files above:
 
 
 [^ace-theme]: Note that the `html` suffix is needed, even if the filename is suffixed `ace`. This does not work from inside a theme, see [issue 763](https://github.com/spf13/hugo/issues/763).
-[^needs-doc]: Needs documentation! Contribution welcomed, see [issue 1064](https://github.com/spf13/hugo/issues/1064).
 
