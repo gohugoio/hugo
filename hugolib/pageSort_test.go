@@ -10,12 +10,14 @@ import (
 )
 
 func TestPageSortReverse(t *testing.T) {
-	p := createSortTestPages(10)
-	assert.Equal(t, 0, p[0].FuzzyWordCount)
-	assert.Equal(t, 9, p[9].FuzzyWordCount)
-	p = p.Reverse()
-	assert.Equal(t, 9, p[0].FuzzyWordCount)
-	assert.Equal(t, 0, p[9].FuzzyWordCount)
+	p1 := createSortTestPages(10)
+	assert.Equal(t, 0, p1[0].FuzzyWordCount)
+	assert.Equal(t, 9, p1[9].FuzzyWordCount)
+	p2 := p1.Reverse()
+	assert.Equal(t, 9, p2[0].FuzzyWordCount)
+	assert.Equal(t, 0, p2[9].FuzzyWordCount)
+	// cached
+	assert.True(t, probablyEqualPages(p2, p1.Reverse()))
 }
 
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
@@ -51,6 +53,7 @@ func createSortTestPages(num int) Pages {
 		}
 		pages[i].FuzzyWordCount = i
 		pages[i].Weight = w
+		pages[i].Description = "initial"
 	}
 
 	return pages
