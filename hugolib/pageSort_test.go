@@ -15,7 +15,7 @@ func TestPageSortReverse(t *testing.T) {
 	assert.Equal(t, 9, p[9].FuzzyWordCount)
 	p = p.Reverse()
 	assert.Equal(t, 9, p[0].FuzzyWordCount)
-	assert.Equal(t, 1, p[9].FuzzyWordCount)
+	assert.Equal(t, 0, p[9].FuzzyWordCount)
 }
 
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
