@@ -5,7 +5,7 @@ date: 2015-01-22
 menu:
   main:
     parent: extras
-next: /extras/dynamiccontent
+next: /extras/datadrivencontent
 prev: /extras/scratch
 title: Data Files
 weight: 90
