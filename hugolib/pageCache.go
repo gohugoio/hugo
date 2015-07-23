@@ -59,14 +59,14 @@ func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) 
 
 	pagesCopy := append(Pages(nil), p...)
 
+	if apply != nil {
+		apply(pagesCopy)
+	}
+
 	if v, ok := c.m[key]; ok {
 		c.m[key] = append(v, [2]Pages{p, pagesCopy})
 	} else {
 		c.m[key] = [][2]Pages{[2]Pages{p, pagesCopy}}
-	}
-
-	if apply != nil {
-		apply(pagesCopy)
 	}
 
 	return pagesCopy, false
