@@ -1,26 +1,26 @@
 ---
 aliases:
-- /doc/dynamiccontent/
+- /doc/datadrivencontent/
 date: 2015-02-14
 menu:
   main:
     parent: extras
 next: /extras/highlighting
 prev: /extras/datafiles
-title: Dynamic Content
+title: Data-driven Content
 weight: 91
 toc: true
 ---
 
-Dynamic content with a static site generator? Yes, it is possible!
+Data-driven content with a static site generator? Yes, it is possible!
 
 In addition to the [data files](/extras/datafiles/) feature, we have also
-implemented the feature "Dynamic Content", which lets you load
+implemented the feature "Data-driven Content", which lets you load
 any [JSON](http://www.json.org/) or
 [CSV](http://en.wikipedia.org/wiki/Comma-separated_values) file
 from nearly any resource.
 
-"Dynamic Content" currently consists of two functions, `getJSON`
+"Data-driven Content" currently consists of two functions, `getJSON`
 and `getCSV`, which are available in **all template files**.
 
 ## Implementation details
