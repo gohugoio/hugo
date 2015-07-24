@@ -6,7 +6,7 @@ menu:
   main:
     parent: extras
 next: /extras/toc
-prev: /extras/shortcodes
+prev: /extras/datadrivencontent
 title: Syntax Highlighting
 weight: 90
 toc: true
