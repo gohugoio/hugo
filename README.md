@@ -70,6 +70,10 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
     Go expects all of your libraries to be found in`$GOPATH`.
 
+7. If you are changing files in the `commands` directory, note that `main.go` imports from Github.
+One solution to this is to clone spf13's Hugo (or go get) into $GOPATH/src/github.com, then add 
+your Hugo fork as a remote. 
+
 ### Build and Install the Binaries from Source (Advanced Install)
 
 Add Hugo and its package dependencies to your go `src` directory.
