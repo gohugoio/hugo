@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"sort"
+	"strings"
 )
 
 var spc = newPageCache()
@@ -42,6 +43,9 @@ func (by PageBy) Sort(pages Pages) {
 
 var DefaultPageSort = func(p1, p2 *Page) bool {
 	if p1.Weight == p2.Weight {
+		if p1.Date.Unix() == p2.Date.Unix() {
+			return strings.Compare(p1.LinkTitle(), p2.LinkTitle()) == 1
+		}
 		return p1.Date.Unix() > p2.Date.Unix()
 	}
 	return p1.Weight < p2.Weight
