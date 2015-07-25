@@ -10,16 +10,16 @@ import (
 	"github.com/spf13/hugo/source"
 )
 
-func TesDefaultSort(t *testing.T) {
+func TestDefaultSort(t *testing.T) {
 
 	d1 := time.Now()
-	d2 := d1.Add(1 * time.Hour)
-	d3 := d1.Add(2 * time.Hour)
+	d2 := d1.Add(-1 * time.Hour)
+	d3 := d1.Add(-2 * time.Hour)
 
 	p := createSortTestPages(3)
 
 	// first by weight
-	setSortVals([3]time.Time{d1, d2, d3}, [3]string{"a", "b", "c"}, [3]int{3, 2, 1}, p)
+	setSortVals([3]time.Time{d1, d2, d3}, [3]string{"b", "a", "c"}, [3]int{3, 2, 1}, p)
 	p.Sort()
 	assert.Equal(t, 1, p[0].Weight)
 
@@ -29,7 +29,7 @@ func TesDefaultSort(t *testing.T) {
 	assert.Equal(t, d1, p[0].Date)
 
 	// finally by title
-	setSortVals([3]time.Time{d3, d3, d3}, [3]string{"b", "a", "c"}, [3]int{1, 1, 1}, p)
+	setSortVals([3]time.Time{d3, d3, d3}, [3]string{"b", "c", "a"}, [3]int{1, 1, 1}, p)
 	p.Sort()
 	assert.Equal(t, "a", p[0].Title)
 	assert.Equal(t, "b", p[1].Title)
