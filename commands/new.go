@@ -92,10 +92,7 @@ func NewContent(cmd *cobra.Command, args []string) {
 
 	var kind string
 
-	// assume the first directory is the section (kind)
-	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {
-		kind = helpers.GuessSection(createpath)
-	}
+	createpath, kind = newContentPathSection(createpath)
 
 	if contentType != "" {
 		kind = contentType
@@ -251,9 +248,22 @@ min_version = 0.13
 	return nil
 }
 
+func newContentPathSection(path string) (string, string) {
+	// Forward slashes is used in all examples. Convert if needed.
+	// Issue #1133
+	createpath := strings.Replace(path, "/", helpers.FilePathSeparator, -1)
+	var section string
+	// assume the first directory is the section (kind)
+	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {
+		section = helpers.GuessSection(createpath)
+	}
+
+	return createpath, section
+}
+
 func createConfig(inpath string, kind string) (err error) {
 	in := map[string]string{
-		"baseurl":      "http://yourSiteHere/",
+		"baseurl":      "http://replace-this-with-your-hugo-site.com/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
 	}

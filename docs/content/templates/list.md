@@ -10,6 +10,7 @@ next: /templates/homepage
 prev: /templates/content
 title: Content List Template
 weight: 40
+toc: true
 ---
 
 A list template is any template that will be used to render multiple pieces of

@@ -8,10 +8,11 @@ next: /content/archetypes
 prev: /content/sections
 title: Content Types
 weight: 40
+toc: true
 ---
 
 Hugo has full support for different types of content. A content type can have a
-unique set of meta data, template and can be automatically created by the new
+unique set of meta data, template and can be automatically created by the `hugo new`
 command through using content [archetypes](/content/archetypes/).
 
 A good example of when multiple types are needed is to look at [Tumblr](https://www.tumblr.com/). A piece

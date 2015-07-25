@@ -11,7 +11,7 @@ func TestScratchAdd(t *testing.T) {
 	scratch.Add("int1", 20)
 	scratch.Add("int2", 20)
 
-	assert.Equal(t, 30, scratch.Get("int1"))
+	assert.Equal(t, int64(30), scratch.Get("int1"))
 	assert.Equal(t, 20, scratch.Get("int2"))
 
 	scratch.Add("float1", float64(10.5))

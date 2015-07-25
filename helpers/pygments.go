@@ -94,7 +94,14 @@ func Highlight(code, lang, optsStr string) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 
-	cmd := exec.Command(pygmentsBin, "-l"+lang, "-fhtml", "-O", options)
+	var langOpt string
+	if lang == "" {
+		langOpt = "-g" // Try guessing the language
+	} else {
+		langOpt = "-l"+lang
+	}
+
+	cmd := exec.Command(pygmentsBin, langOpt, "-fhtml", "-O", options)
 	cmd.Stdin = strings.NewReader(code)
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
@@ -122,6 +129,7 @@ func init() {
 	pygmentsKeywords["noclasses"] = true
 	pygmentsKeywords["hl_lines"] = true
 	pygmentsKeywords["linenos"] = true
+	pygmentsKeywords["classprefix"] = true
 }
 
 func parsePygmentsOpts(in string) (string, error) {

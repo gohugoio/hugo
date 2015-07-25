@@ -19,16 +19,19 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"io"
 	"net"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
+	"unicode"
+	"unicode/utf8"
+
+	"github.com/spf13/cast"
+	bp "github.com/spf13/hugo/bufferpool"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 // Filepath separator defined by os.Separator.
@@ -66,6 +69,8 @@ func GuessType(in string) string {
 		return "markdown"
 	case "asciidoc", "adoc", "ad":
 		return "asciidoc"
+	case "mmark":
+		return "mmark"
 	case "rst":
 		return "rst"
 	case "html", "htm":
@@ -73,6 +78,15 @@ func GuessType(in string) string {
 	}
 
 	return "unknown"
+}
+
+// FirstUpper returns a string with the first character as upper case.
+func FirstUpper(s string) string {
+	if s == "" {
+		return ""
+	}
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToUpper(r)) + s[n:]
 }
 
 // ReaderToBytes takes an io.Reader argument, reads from it
@@ -184,11 +198,13 @@ func NewDistinctErrorLogger() *DistinctErrorLogger {
 }
 
 // Avoid spamming the logs with errors
-var deprecatedLogger = NewDistinctErrorLogger()
+var DistinctErrorLog = NewDistinctErrorLogger()
 
 // Deprecated logs ERROR logs about a deprecation, but only once for a given set of arguments' values.
 func Deprecated(object, item, alternative string) {
-	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
+	//	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
+	DistinctErrorLog.Printf("%s's %s is deprecated and will be removed VERY SOON. Use %s instead.", object, item, alternative)
+
 }
 
 // SliceToLower goes through the source slice and lowers all values.
@@ -210,6 +226,11 @@ func Md5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
 	return hex.EncodeToString(h.Sum([]byte{}))
+}
+
+// IsWhitespace determines if the given rune is whitespace.
+func IsWhitespace(r rune) bool {
+	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
 }
 
 // Seq creates a sequence of integers.
@@ -264,10 +285,14 @@ func Seq(args ...interface{}) ([]int, error) {
 		}
 	}
 
+	// sanity check
+	if last < -100000 {
+		return nil, errors.New("size of result exeeds limit")
+	}
 	size := int(((last - first) / inc) + 1)
 
 	// sanity check
-	if size > 2000 {
+	if size <= 0 || size > 2000 {
 		return nil, errors.New("size of result exeeds limit")
 	}
 

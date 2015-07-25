@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"path"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -252,6 +253,74 @@ func TestFirst(t *testing.T) {
 	}
 }
 
+func TestLast(t *testing.T) {
+	for i, this := range []struct {
+		count    interface{}
+		sequence interface{}
+		expect   interface{}
+	}{
+		{int(2), []string{"a", "b", "c"}, []string{"b", "c"}},
+		{int32(3), []string{"a", "b"}, []string{"a", "b"}},
+		{int64(2), []int{100, 200, 300}, []int{200, 300}},
+		{100, []int{100, 200}, []int{100, 200}},
+		{"1", []int{100, 200, 300}, []int{300}},
+		{int64(-1), []int{100, 200, 300}, false},
+		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
+	} {
+		results, err := Last(this.count, this.sequence)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] First didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(results, this.expect) {
+				t.Errorf("[%d] First %d items, got %v but expected %v", i, this.count, results, this.expect)
+			}
+		}
+	}
+}
+
+func TestAfter(t *testing.T) {
+	for i, this := range []struct {
+		count    interface{}
+		sequence interface{}
+		expect   interface{}
+	}{
+		{int(2), []string{"a", "b", "c", "d"}, []string{"c", "d"}},
+		{int32(3), []string{"a", "b"}, false},
+		{int64(2), []int{100, 200, 300}, []int{300}},
+		{100, []int{100, 200}, false},
+		{"1", []int{100, 200, 300}, []int{200, 300}},
+		{int64(-1), []int{100, 200, 300}, false},
+		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
+	} {
+		results, err := After(this.count, this.sequence)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] First didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(results, this.expect) {
+				t.Errorf("[%d] First %d items, got %v but expected %v", i, this.count, results, this.expect)
+			}
+		}
+	}
+}
+
 func TestIn(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
@@ -271,7 +340,7 @@ func TestIn(t *testing.T) {
 		result := In(this.v1, this.v2)
 
 		if result != this.expect {
-			t.Errorf("[%d] Got %v but expected %v", i, result, this.expect)
+			t.Errorf("[%d] got %v but expected %v", i, result, this.expect)
 		}
 	}
 }
@@ -291,6 +360,11 @@ func TestSlicestr(t *testing.T) {
 		{"abcdef", []int{2}, "cdef"},
 		{123, []int{1, 3}, "23"},
 		{123, []int{1, 2, 3}, false},
+		{"abcdef", []int{6}, false},
+		{"abcdef", []int{4, 7}, false},
+		{"abcdef", []int{-1}, false},
+		{"abcdef", []int{-1, 7}, false},
+		{"abcdef", []int{1, -1}, false},
 		{tstNoStringer{}, []int{0, 1}, false},
 	} {
 		result, err := Slicestr(this.v1, this.v2...)
@@ -305,17 +379,19 @@ func TestSlicestr(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
 	}
 }
 
 func TestSubstr(t *testing.T) {
+	var err error
+	var n int
 	for i, this := range []struct {
 		v1     interface{}
-		v2     int
-		v3     int
+		v2     interface{}
+		v3     interface{}
 		expect interface{}
 	}{
 		{"abc", 1, 2, "bc"},
@@ -329,11 +405,30 @@ func TestSubstr(t *testing.T) {
 		{"abcdef", 1, 100, "bcdef"},
 		{"abcdef", -100, 3, "abc"},
 		{"abcdef", -3, -1, "de"},
+		{"abcdef", 2, nil, "cdef"},
+		{"abcdef", int8(2), nil, "cdef"},
+		{"abcdef", int16(2), nil, "cdef"},
+		{"abcdef", int32(2), nil, "cdef"},
+		{"abcdef", int64(2), nil, "cdef"},
+		{"abcdef", 2, int8(3), "cde"},
+		{"abcdef", 2, int16(3), "cde"},
+		{"abcdef", 2, int32(3), "cde"},
+		{"abcdef", 2, int64(3), "cde"},
 		{123, 1, 3, "23"},
 		{1.2e3, 0, 4, "1200"},
 		{tstNoStringer{}, 0, 1, false},
+		{"abcdef", 2.0, nil, false},
+		{"abcdef", 2.0, 2, false},
+		{"abcdef", 2, 2.0, false},
 	} {
-		result, err := Substr(this.v1, this.v2, this.v3)
+		var result string
+		n = i
+
+		if this.v3 == nil {
+			result, err = Substr(this.v1, this.v2)
+		} else {
+			result, err = Substr(this.v1, this.v2, this.v3)
+		}
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -345,9 +440,21 @@ func TestSubstr(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
+	}
+
+	n++
+	_, err = Substr("abcdef")
+	if err == nil {
+		t.Errorf("[%d] Substr didn't return an expected error", n)
+	}
+
+	n++
+	_, err = Substr("abcdef", 1, 2, 3)
+	if err == nil {
+		t.Errorf("[%d] Substr didn't return an expected error", n)
 	}
 }
 
@@ -375,7 +482,7 @@ func TestSplit(t *testing.T) {
 				continue
 			}
 			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] Got %s but expected %s", i, result, this.expect)
+				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
 	}
@@ -408,20 +515,20 @@ func TestIntersect(t *testing.T) {
 			continue
 		}
 		if !reflect.DeepEqual(results, this.expect) {
-			t.Errorf("[%d] Got %v but expected %v", i, results, this.expect)
+			t.Errorf("[%d] got %v but expected %v", i, results, this.expect)
 		}
 	}
 
 	_, err1 := Intersect("not an array or slice", []string{"a"})
 
 	if err1 == nil {
-		t.Error("Excpected error for non array as first arg")
+		t.Error("Expected error for non array as first arg")
 	}
 
 	_, err2 := Intersect([]string{"a"}, "not an array or slice")
 
 	if err2 == nil {
-		t.Error("Excpected error for non array as second arg")
+		t.Error("Expected error for non array as second arg")
 	}
 }
 
@@ -472,6 +579,28 @@ func (x TstX) String() string {
 type TstX struct {
 	A, B       string
 	unexported string
+}
+
+func TestTimeUnix(t *testing.T) {
+	var sec int64 = 1234567890
+	tv := reflect.ValueOf(time.Unix(sec, 0))
+	i := 1
+
+	res := timeUnix(tv)
+	if sec != res {
+		t.Errorf("[%d] timeUnix got %v but expected %v", i, res, sec)
+	}
+
+	i++
+	func(t *testing.T) {
+		defer func() {
+			if err := recover(); err == nil {
+				t.Errorf("[%d] timeUnix didn't return an expected error", i)
+			}
+		}()
+		iv := reflect.ValueOf(sec)
+		timeUnix(iv)
+	}(t)
 }
 
 func TestEvaluateSubElem(t *testing.T) {
@@ -538,20 +667,78 @@ func TestCheckCondition(t *testing.T) {
 	}{
 		{reflect.ValueOf(123), reflect.ValueOf(123), "", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("foo"), "", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"",
+			expect{true, false},
+		},
+		{reflect.ValueOf(nil), reflect.ValueOf(nil), "", expect{true, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "!=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), "!=", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			"!=",
+			expect{true, false},
+		},
+		{reflect.ValueOf(123), reflect.ValueOf(nil), "!=", expect{true, false}},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">=", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			">=",
+			expect{true, false},
+		},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			">",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "<=", expect{true, false}},
 		{reflect.ValueOf("bar"), reflect.ValueOf("foo"), "<=", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"<=",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "<", expect{true, false}},
 		{reflect.ValueOf("bar"), reflect.ValueOf("foo"), "<", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"<",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{123, 45, 678}), "in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"foo", "bar", "baz"}), "in", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf([]time.Time{
+				time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.June, 26, 19, 18, 56, 12345, time.UTC),
+			}),
+			"in",
+			expect{true, false},
+		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"bar", "baz"}), "not in", expect{true, false}},
+		{
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			reflect.ValueOf([]time.Time{
+				time.Date(2015, time.February, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.March, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC),
+			}),
+			"not in",
+			expect{true, false},
+		},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar-foo-baz"), "in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar--baz"), "not in", expect{true, false}},
 		{reflect.Value{}, reflect.ValueOf("foo"), "", expect{false, false}},
@@ -757,6 +944,31 @@ func TestWhere(t *testing.T) {
 			expect: []TstX{
 				{A: "a", B: "b"}, {A: "e", B: "f"},
 			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "", match: nil,
+			expect: []map[string]int{
+				{"a": 3},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "!=", match: nil,
+			expect: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 5, "b": 6},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: ">", match: nil,
+			expect: []map[string]int{},
 		},
 		{sequence: (*[]TstX)(nil), key: "A", match: "a", expect: false},
 		{sequence: TstX{A: "a", B: "b"}, key: "A", match: "a", expect: false},

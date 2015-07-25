@@ -16,6 +16,11 @@ type Translator interface {
 	Translate(string) (string, error)
 }
 
+// TODO(bep) consider other ways to solve this.
+type OptionalTranslator interface {
+	TranslateRelative(string) (string, error)
+}
+
 type Output interface {
 	Publisher
 	Translator
@@ -35,7 +40,7 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {
-	return filepath.Join(fs.PublishDir, src), nil
+	return filepath.Join(fs.PublishDir, filepath.FromSlash(src)), nil
 }
 
 func (fs *Filesystem) extension(ext string) string {

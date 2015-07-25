@@ -23,19 +23,37 @@ import (
 	"math"
 	"path"
 	"reflect"
+	"strings"
 )
 
-type pager struct {
+type Pager struct {
 	number int
 	*paginator
 }
 
-type pagers []*pager
+type paginatedElement interface {
+	Len() int
+}
+
+func (p Pages) Len() int {
+	return len(p)
+}
+
+func (psg PagesGroup) Len() int {
+	l := 0
+	for _, pg := range psg {
+		l += len(pg.Pages)
+	}
+	return l
+}
+
+type pagers []*Pager
 
 var paginatorEmptyPages Pages
+var paginatorEmptyPageGroups PagesGroup
 
 type paginator struct {
-	paginatedPages []Pages
+	paginatedElements []paginatedElement
 	pagers
 	paginationURLFactory
 	total   int
@@ -47,41 +65,95 @@ type paginator struct {
 type paginationURLFactory func(int) string
 
 // PageNumber returns the current page's number in the pager sequence.
-func (p *pager) PageNumber() int {
+func (p *Pager) PageNumber() int {
 	return p.number
 }
 
 // URL returns the URL to the current page.
-func (p *pager) URL() template.HTML {
+func (p *Pager) URL() template.HTML {
 	return template.HTML(p.paginationURLFactory(p.PageNumber()))
 }
 
 // Url is deprecated. Will be removed in 0.15.
-func (p *pager) Url() template.HTML {
+func (p *Pager) Url() template.HTML {
 	helpers.Deprecated("Paginator", ".Url", ".URL")
 	return p.URL()
 }
 
-// Pages returns the elements on this page.
-func (p *pager) Pages() Pages {
-	if len(p.paginatedPages) == 0 {
+// Pages returns the Pages on this page.
+// Note: If this return a non-empty result, then PageGroups() will return empty.
+func (p *Pager) Pages() Pages {
+	if len(p.paginatedElements) == 0 {
 		return paginatorEmptyPages
 	}
-	return p.paginatedPages[p.PageNumber()-1]
+
+	if pages, ok := p.element().(Pages); ok {
+		return pages
+	}
+
+	return paginatorEmptyPages
+}
+
+// PageGroups return Page groups for this page.
+// Note: If this return non-empty result, then Pages() will return empty.
+func (p *Pager) PageGroups() PagesGroup {
+	if len(p.paginatedElements) == 0 {
+		return paginatorEmptyPageGroups
+	}
+
+	if groups, ok := p.element().(PagesGroup); ok {
+		return groups
+	}
+
+	return paginatorEmptyPageGroups
+}
+
+func (p *Pager) element() paginatedElement {
+	if len(p.paginatedElements) == 0 {
+		return paginatorEmptyPages
+	}
+	return p.paginatedElements[p.PageNumber()-1]
+}
+
+// page returns the Page with the given index
+func (p *Pager) page(index int) (*Page, error) {
+
+	if pages, ok := p.element().(Pages); ok {
+		if pages != nil && len(pages) > index {
+			return pages[index], nil
+		}
+		return nil, nil
+	}
+
+	// must be PagesGroup
+	// this construction looks clumsy, but ...
+	// ... it is the difference between 99.5% and 100% test coverage :-)
+	groups := p.element().(PagesGroup)
+
+	i := 0
+	for _, v := range groups {
+		for _, page := range v.Pages {
+			if i == index {
+				return page, nil
+			}
+			i++
+		}
+	}
+	return nil, nil
 }
 
 // NumberOfElements gets the number of elements on this page.
-func (p *pager) NumberOfElements() int {
-	return len(p.Pages())
+func (p *Pager) NumberOfElements() int {
+	return p.element().Len()
 }
 
 // HasPrev tests whether there are page(s) before the current.
-func (p *pager) HasPrev() bool {
+func (p *Pager) HasPrev() bool {
 	return p.PageNumber() > 1
 }
 
 // Prev returns the pager for the previous page.
-func (p *pager) Prev() *pager {
+func (p *Pager) Prev() *Pager {
 	if !p.HasPrev() {
 		return nil
 	}
@@ -89,12 +161,12 @@ func (p *pager) Prev() *pager {
 }
 
 // HasNext tests whether there are page(s) after the current.
-func (p *pager) HasNext() bool {
-	return p.PageNumber() < len(p.paginatedPages)
+func (p *Pager) HasNext() bool {
+	return p.PageNumber() < len(p.paginatedElements)
 }
 
 // Next returns the pager for the next page.
-func (p *pager) Next() *pager {
+func (p *Pager) Next() *Pager {
 	if !p.HasNext() {
 		return nil
 	}
@@ -102,12 +174,12 @@ func (p *pager) Next() *pager {
 }
 
 // First returns the pager for the first page.
-func (p *pager) First() *pager {
+func (p *Pager) First() *Pager {
 	return p.pagers[0]
 }
 
 // Last returns the pager for the last page.
-func (p *pager) Last() *pager {
+func (p *Pager) Last() *Pager {
 	return p.pagers[len(p.pagers)-1]
 }
 
@@ -123,7 +195,7 @@ func (p *paginator) PageSize() int {
 
 // TotalPages returns the number of pages in the paginator.
 func (p *paginator) TotalPages() int {
-	return len(p.paginatedPages)
+	return len(p.paginatedElements)
 }
 
 // TotalNumberOfElements returns the number of elements on all pages in this paginator.
@@ -131,8 +203,8 @@ func (p *paginator) TotalNumberOfElements() int {
 	return p.total
 }
 
-func splitPages(pages Pages, size int) []Pages {
-	var split []Pages
+func splitPages(pages Pages, size int) []paginatedElement {
+	var split []paginatedElement
 	for low, j := 0, len(pages); low < j; low += size {
 		high := int(math.Min(float64(low+size), float64(len(pages))))
 		split = append(split, pages[low:high])
@@ -141,9 +213,47 @@ func splitPages(pages Pages, size int) []Pages {
 	return split
 }
 
+func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
+	var split []paginatedElement
+
+	type keyPage struct {
+		key  interface{}
+		page *Page
+	}
+
+	var flattened []keyPage
+
+	for _, g := range pageGroups {
+		for _, p := range g.Pages {
+			flattened = append(flattened, keyPage{g.Key, p})
+		}
+	}
+
+	numPages := len(flattened)
+
+	for low, j := 0, numPages; low < j; low += size {
+		high := int(math.Min(float64(low+size), float64(numPages)))
+		var pg PagesGroup
+		var key interface{} = nil
+		var groupIndex = -1
+		for k := low; k < high; k++ {
+			kp := flattened[k]
+			if key == nil || key != kp.key {
+				key = kp.key
+				pg = append(pg, PageGroup{Key: key})
+				groupIndex++
+			}
+			pg[groupIndex].Pages = append(pg[groupIndex].Pages, kp.page)
+		}
+		split = append(split, pg)
+	}
+
+	return split
+}
+
 // Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
-func (n *Node) Paginator(options ...interface{}) (*pager, error) {
+func (n *Node) Paginator(options ...interface{}) (*Pager, error) {
 
 	pagerSize, err := resolvePagerSize(options...)
 
@@ -182,19 +292,19 @@ func (n *Node) Paginator(options ...interface{}) (*pager, error) {
 }
 
 // Paginator on Page isn't supported, calling this yields an error.
-func (p *Page) Paginator(options ...interface{}) (*pager, error) {
+func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate on Page isn't supported, calling this yields an error.
-func (p *Page) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
+func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	return nil, errors.New("Paginators not supported for content pages.")
 }
 
 // Paginate gets this Node's paginator if it's already created.
 // If it's not, one will be created with the qiven sequence.
 // Note that repeated calls will return the same result, even if the sequence is different.
-func (n *Node) Paginate(seq interface{}, options ...interface{}) (*pager, error) {
+func (n *Node) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 
 	pagerSize, err := resolvePagerSize(options...)
 
@@ -230,10 +340,10 @@ func (n *Node) Paginate(seq interface{}, options ...interface{}) (*pager, error)
 
 	if n.paginator.source == "paginator" {
 		return nil, errors.New("a Paginator was previously built for this Node without filters; look for earlier .Paginator usage")
-	} else {
-		if !reflect.DeepEqual(options, n.paginator.options) || !probablyEqualPageLists(n.paginator.source, seq) {
-			return nil, errors.New("invoked multiple times with different arguments")
-		}
+	}
+
+	if !reflect.DeepEqual(options, n.paginator.options) || !probablyEqualPageLists(n.paginator.source, seq) {
+		return nil, errors.New("invoked multiple times with different arguments")
 	}
 
 	return n.paginator, nil
@@ -263,13 +373,21 @@ func paginatePages(seq interface{}, pagerSize int, section string) (pagers, erro
 		return nil, errors.New("'paginate' configuration setting must be positive to paginate")
 	}
 
-	pages, err := toPages(seq)
-	if err != nil {
-		return nil, err
+	section = strings.TrimSuffix(section, ".html")
+	urlFactory := newPaginationURLFactory(section)
+
+	var paginator *paginator
+
+	if groups, ok := seq.(PagesGroup); ok {
+		paginator, _ = newPaginatorFromPageGroups(groups, pagerSize, urlFactory)
+	} else {
+		pages, err := toPages(seq)
+		if err != nil {
+			return nil, err
+		}
+		paginator, _ = newPaginatorFromPages(pages, pagerSize, urlFactory)
 	}
 
-	urlFactory := newPaginationURLFactory(section)
-	paginator, _ := newPaginator(pages, pagerSize, urlFactory)
 	pagers := paginator.Pagers()
 
 	return pagers, nil
@@ -286,7 +404,7 @@ func toPages(seq interface{}) (Pages, error) {
 	case PageGroup:
 		return (seq.(PageGroup)).Pages, nil
 	default:
-		return nil, errors.New(fmt.Sprintf("unsupported type in paginate, got %T", seq))
+		return nil, fmt.Errorf("unsupported type in paginate, got %T", seq)
 	}
 }
 
@@ -300,16 +418,34 @@ func probablyEqualPageLists(a1 interface{}, a2 interface{}) bool {
 		return a1 == a2
 	}
 
+	t1 := reflect.TypeOf(a1)
+	t2 := reflect.TypeOf(a2)
+
+	if t1 != t2 {
+		return false
+	}
+
+	if g1, ok := a1.(PagesGroup); ok {
+		g2 := a2.(PagesGroup)
+		if len(g1) != len(g2) {
+			return false
+		}
+		if len(g1) == 0 {
+			return true
+		}
+		if g1.Len() != g2.Len() {
+			return false
+		}
+
+		return g1[0].Pages[0] == g2[0].Pages[0]
+	}
+
 	p1, err1 := toPages(a1)
 	p2, err2 := toPages(a2)
 
 	// probably the same wrong type
 	if err1 != nil && err2 != nil {
 		return true
-	}
-
-	if err1 != nil || err2 != nil {
-		return false
 	}
 
 	if len(p1) != len(p2) {
@@ -323,7 +459,7 @@ func probablyEqualPageLists(a1 interface{}, a2 interface{}) bool {
 	return p1[0] == p2[0]
 }
 
-func newPaginator(pages Pages, size int, urlFactory paginationURLFactory) (*paginator, error) {
+func newPaginatorFromPages(pages Pages, size int, urlFactory paginationURLFactory) (*paginator, error) {
 
 	if size <= 0 {
 		return nil, errors.New("Paginator size must be positive")
@@ -331,18 +467,33 @@ func newPaginator(pages Pages, size int, urlFactory paginationURLFactory) (*pagi
 
 	split := splitPages(pages, size)
 
-	p := &paginator{total: len(pages), paginatedPages: split, size: size, paginationURLFactory: urlFactory}
+	return newPaginator(split, len(pages), size, urlFactory)
+}
+
+func newPaginatorFromPageGroups(pageGroups PagesGroup, size int, urlFactory paginationURLFactory) (*paginator, error) {
+
+	if size <= 0 {
+		return nil, errors.New("Paginator size must be positive")
+	}
+
+	split := splitPageGroups(pageGroups, size)
+
+	return newPaginator(split, pageGroups.Len(), size, urlFactory)
+}
+
+func newPaginator(elements []paginatedElement, total, size int, urlFactory paginationURLFactory) (*paginator, error) {
+	p := &paginator{total: total, paginatedElements: elements, size: size, paginationURLFactory: urlFactory}
 
 	var ps pagers
 
-	if len(split) > 0 {
-		ps = make(pagers, len(split))
-		for i := range p.paginatedPages {
-			ps[i] = &pager{number: (i + 1), paginator: p}
+	if len(elements) > 0 {
+		ps = make(pagers, len(elements))
+		for i := range p.paginatedElements {
+			ps[i] = &Pager{number: (i + 1), paginator: p}
 		}
 	} else {
 		ps = make(pagers, 1)
-		ps[0] = &pager{number: 1, paginator: p}
+		ps[0] = &Pager{number: 1, paginator: p}
 	}
 
 	p.pagers = ps

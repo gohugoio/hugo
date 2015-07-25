@@ -41,6 +41,7 @@ type Template interface {
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
 	AddTemplate(name, tpl string) error
+	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
 	PrintErrors()
@@ -81,6 +82,9 @@ func New() Template {
 
 	localTemplates = &templates.Template
 
+	for k, v := range funcMap {
+		amber.FuncMap[k] = v
+	}
 	templates.Funcs(funcMap)
 	templates.LoadEmbedded()
 	return templates
@@ -157,50 +161,64 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	return err
 }
 
+func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	var base, inner *ace.File
+	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
+
+	// Fixes issue #1178
+	basePath = strings.Replace(basePath, "\\", "/", -1)
+	innerPath = strings.Replace(innerPath, "\\", "/", -1)
+
+	if basePath != "" {
+		base = ace.NewFile(basePath, baseContent)
+		inner = ace.NewFile(innerPath, innerContent)
+	} else {
+		base = ace.NewFile(innerPath, innerContent)
+		inner = ace.NewFile("", []byte{})
+	}
+	parsed, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+		return err
+	}
+	_, err = ace.CompileResultWithTemplate(t.New(name), parsed, nil)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+	}
+	return err
+}
+
 func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {
 	case ".amber":
+		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
 		compiler := amber.New()
 		// Parse the input file
 		if err := compiler.ParseFile(path); err != nil {
-			return nil
+			return err
 		}
 
-		if _, err := compiler.CompileWithTemplate(t.New(name)); err != nil {
+		if _, err := compiler.CompileWithTemplate(t.New(templateName)); err != nil {
 			return err
 		}
 	case ".ace":
-		b, err := ioutil.ReadFile(path)
+		var innerContent, baseContent []byte
+		innerContent, err := ioutil.ReadFile(path)
+
 		if err != nil {
 			return err
 		}
 
-		var base, inner *ace.File
-
-		name = name[:len(name)-len(ext)] + ".html"
 		if baseTemplatePath != "" {
-			b2, err := ioutil.ReadFile(baseTemplatePath)
+			baseContent, err = ioutil.ReadFile(baseTemplatePath)
 			if err != nil {
 				return err
 			}
-			base = ace.NewFile(baseTemplatePath, b2)
-			inner = ace.NewFile(path, b)
-		} else {
-			base = ace.NewFile(path, b)
-			inner = ace.NewFile("", []byte{})
 		}
-		rslt, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
-		if err != nil {
-			t.errors = append(t.errors, &templateErr{name: name, err: err})
-			return err
-		}
-		_, err = ace.CompileResultWithTemplate(t.New(name), rslt, nil)
-		if err != nil {
-			t.errors = append(t.errors, &templateErr{name: name, err: err})
-		}
-		return err
+
+		return t.AddAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
 	default:
 		b, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -286,15 +304,21 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					//   2. <current-path>/baseof.ace
 					//   3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
 					//   4. _default/baseof.ace
+					//   5. <themedir>/layouts/_default/<template-name>-baseof.ace
+					//   6. <themedir>/layouts/_default/baseof.ace
 
 					currBaseAceFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseAceFilename)
 					templateDir := filepath.Dir(path)
+					themeDir := helpers.GetThemeDir()
 
 					pathsToCheck := []string{
 						filepath.Join(templateDir, currBaseAceFilename),
 						filepath.Join(templateDir, baseAceFilename),
 						filepath.Join(absPath, "_default", currBaseAceFilename),
-						filepath.Join(absPath, "_default", baseAceFilename)}
+						filepath.Join(absPath, "_default", baseAceFilename),
+						filepath.Join(themeDir, "layouts", "_default", currBaseAceFilename),
+						filepath.Join(themeDir, "layouts", "_default", baseAceFilename),
+					}
 
 					for _, pathToCheck := range pathsToCheck {
 						if ok, err := helpers.Exists(pathToCheck, hugofs.OsFs); err == nil && ok {

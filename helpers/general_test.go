@@ -21,13 +21,32 @@ func TestGuessType(t *testing.T) {
 		{"adoc", "asciidoc"},
 		{"ad", "asciidoc"},
 		{"rst", "rst"},
+		{"mmark", "mmark"},
 		{"html", "html"},
 		{"htm", "html"},
 		{"excel", "unknown"},
 	} {
 		result := GuessType(this.in)
 		if result != this.expect {
-			t.Errorf("[%d] GuessType guessed wrong, expected %s, got %s", i, this.expect, result)
+			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
+		}
+	}
+}
+
+func TestFirstUpper(t *testing.T) {
+	for i, this := range []struct {
+		in     string
+		expect string
+	}{
+		{"foo", "Foo"},
+		{"foo bar", "Foo bar"},
+		{"Foo Bar", "Foo Bar"},
+		{"", ""},
+		{"å", "Å"},
+	} {
+		result := FirstUpper(this.in)
+		if result != this.expect {
+			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 		}
 	}
 }
@@ -108,7 +127,7 @@ func TestReaderContains(t *testing.T) {
 	for i, this := range append(containsBenchTestData, containsAdditionalTestData...) {
 		result := ReaderContains(StringToReader(this.v1), this.v2)
 		if result != this.expect {
-			t.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+			t.Errorf("[%d] got %t but expected %t", i, result, this.expect)
 		}
 	}
 
@@ -122,7 +141,7 @@ func BenchmarkReaderContains(b *testing.B) {
 		for i, this := range containsBenchTestData {
 			result := ReaderContains(StringToReader(this.v1), this.v2)
 			if result != this.expect {
-				b.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+				b.Errorf("[%d] got %t but expected %t", i, result, this.expect)
 			}
 		}
 	}
@@ -139,7 +158,7 @@ func _BenchmarkReaderContains(b *testing.B) {
 			}
 			result := bytes.Contains(bs, this.v2)
 			if result != this.expect {
-				b.Errorf("[%d] Got %t but expected %t", i, result, this.expect)
+				b.Errorf("[%d] got %t but expected %t", i, result, this.expect)
 			}
 		}
 	}
@@ -166,10 +185,10 @@ func TestInStringArrayCaseSensitive(t *testing.T) {
 		{"Albert", true},
 		{"ALBERT", false},
 	}
-	for _, in := range data {
+	for i, in := range data {
 		output := InStringArray(array, in.input)
 		if output != in.expected {
-			t.Errorf("TestInStringArrayCase failed. Expected %t. Got %t.", in.expected, output)
+			t.Errorf("[%d] got %t but expected %t", i, output, in.expected)
 		}
 	}
 }

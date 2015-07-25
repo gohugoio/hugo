@@ -1,8 +1,9 @@
 package helpers
 
 import (
-	"github.com/spf13/viper"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestParsePygmentsArgs(t *testing.T) {
@@ -20,6 +21,7 @@ func TestParsePygmentsArgs(t *testing.T) {
 		{"boo=invalid", "foo", false, false},
 		{"style", "foo", false, false},
 	} {
+		viper.Reset()
 		viper.Set("PygmentsStyle", this.pygmentsStyle)
 		viper.Set("PygmentsUseClasses", this.pygmentsUseClasses)
 

@@ -19,6 +19,8 @@ import (
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 	"io"
 	"os"
 	"path/filepath"
@@ -27,8 +29,8 @@ import (
 	"unicode"
 )
 
-// FilepathPathBridge is a bridge for common functionality in filepath vs path
-type FilepathPathBridge interface {
+// filepathPathBridge is a bridge for common functionality in filepath vs path
+type filepathPathBridge interface {
 	Base(in string) string
 	Clean(in string) string
 	Dir(in string) string
@@ -37,34 +39,34 @@ type FilepathPathBridge interface {
 	Separator() string
 }
 
-type FilepathBridge struct {
+type filepathBridge struct {
 }
 
-func (FilepathBridge) Base(in string) string {
+func (filepathBridge) Base(in string) string {
 	return filepath.Base(in)
 }
 
-func (FilepathBridge) Clean(in string) string {
+func (filepathBridge) Clean(in string) string {
 	return filepath.Clean(in)
 }
 
-func (FilepathBridge) Dir(in string) string {
+func (filepathBridge) Dir(in string) string {
 	return filepath.Dir(in)
 }
 
-func (FilepathBridge) Ext(in string) string {
+func (filepathBridge) Ext(in string) string {
 	return filepath.Ext(in)
 }
 
-func (FilepathBridge) Join(elem ...string) string {
+func (filepathBridge) Join(elem ...string) string {
 	return filepath.Join(elem...)
 }
 
-func (FilepathBridge) Separator() string {
+func (filepathBridge) Separator() string {
 	return FilePathSeparator
 }
 
-var filepathBridge FilepathBridge
+var fpb filepathBridge
 var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // MakePath takes a string with any characters and replace it
@@ -92,18 +94,32 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}
 
-	return string(target)
+	var result string
+
+	if viper.GetBool("RemovePathAccents") {
+		// remove accents - see https://blog.golang.org/normalization
+		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+		result, _, _ = transform.String(t, string(target))
+	} else {
+		result = string(target)
+	}
+
+	return result
+}
+
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
 // ReplaceExtension takes a path and an extension, strips the old extension
 // and returns the path with the new extension.
 func ReplaceExtension(path string, newExt string) string {
-	f, _ := FileAndExt(path, filepathBridge)
+	f, _ := FileAndExt(path, fpb)
 	return f + "." + newExt
 }
 
@@ -188,6 +204,15 @@ func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("StaticDir"))
 }
 
+// Get the root directory of the current theme, if there is one.
+// If there is no theme, returns the empty string.
+func GetThemeDir() string {
+	if ThemeSet() {
+		return AbsPathify(filepath.Join("themes", viper.GetString("theme")))
+	}
+	return ""
+}
+
 // GetThemeStaticDirPath returns the theme's static dir path if theme is set.
 // If theme is set and the static dir doesn't exist, an error is returned.
 func GetThemeStaticDirPath() (string, error) {
@@ -203,7 +228,7 @@ func GetThemeDataDirPath() (string, error) {
 func getThemeDirPath(path string) (string, error) {
 	var themeDir string
 	if ThemeSet() {
-		themeDir = AbsPathify("themes/"+viper.GetString("theme")) + FilePathSeparator + path
+		themeDir = filepath.Join(GetThemeDir(), path)
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
 			return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
 		}
@@ -211,8 +236,11 @@ func getThemeDirPath(path string) (string, error) {
 	return themeDir, nil
 }
 
+// Get the 'static' directory of the current theme, if there is one.
+// Ignores underlying errors. Candidate for deprecation?
 func GetThemesDirPath() string {
-	return AbsPathify(filepath.Join("themes", viper.GetString("theme"), "static"))
+	dir, _ := getThemeDirPath("static")
+	return dir
 }
 
 func MakeStaticPathRelative(inPath string) (string, error) {
@@ -232,10 +260,45 @@ func MakePathRelative(inPath string, possibleDirectories ...string) (string, err
 	return inPath, errors.New("Can't extract relative path, unknown prefix")
 }
 
+// Should be good enough for Hugo.
+var isFileRe = regexp.MustCompile(".*\\..{1,6}$")
+
+// Expects a relative path starting after the content directory.
+func GetDottedRelativePath(inPath string) string {
+	inPath = filepath.Clean(filepath.FromSlash(inPath))
+	if inPath == "." {
+		return "./"
+	}
+	isFile := isFileRe.MatchString(inPath)
+	if !isFile {
+		if !strings.HasSuffix(inPath, FilePathSeparator) {
+			inPath += FilePathSeparator
+		}
+	}
+	if !strings.HasPrefix(inPath, FilePathSeparator) {
+		inPath = FilePathSeparator + inPath
+	}
+	dir, _ := filepath.Split(inPath)
+
+	sectionCount := strings.Count(dir, FilePathSeparator)
+
+	if sectionCount == 0 || dir == FilePathSeparator {
+		return "./"
+	}
+
+	var dottedPath string
+
+	for i := 1; i < sectionCount; i++ {
+		dottedPath += "../"
+	}
+
+	return dottedPath
+}
+
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
-	name, _ = FileAndExt(in, filepathBridge)
+	name, _ = FileAndExt(in, fpb)
 	return
 }
 
@@ -255,7 +318,7 @@ func Filename(in string) (name string) {
 // If the path, in, represents a filename with an extension,
 // then name will be the filename minus any extension - including the dot
 // and ext will contain the extension - minus the dot.
-func FileAndExt(in string, b FilepathPathBridge) (name string, ext string) {
+func FileAndExt(in string, b filepathPathBridge) (name string, ext string) {
 	ext = b.Ext(in)
 	base := b.Base(in)
 
@@ -296,7 +359,27 @@ func GetRelativePath(path, base string) (final string, err error) {
 	if err != nil {
 		return "", err
 	}
+
+	if strings.HasSuffix(filepath.FromSlash(path), FilePathSeparator) && !strings.HasSuffix(name, FilePathSeparator) {
+		name += FilePathSeparator
+	}
 	return name, nil
+}
+
+func PaginateAliasPath(base string, page int) string {
+	paginatePath := viper.GetString("paginatePath")
+	uglify := viper.GetBool("UglyURLs")
+	var p string
+	if base != "" {
+		p = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))
+	} else {
+		p = filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, page))
+	}
+	if uglify {
+		p += ".html"
+	}
+
+	return p
 }
 
 // GuessSection returns the section given a source path.
@@ -345,10 +428,10 @@ func PathPrep(ugly bool, in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyPath(in string) string {
-	return PrettiyPath(in, filepathBridge)
+	return PrettiyPath(in, fpb)
 }
 
-func PrettiyPath(in string, b FilepathPathBridge) string {
+func PrettiyPath(in string, b filepathPathBridge) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
 		if len(in) < 2 {

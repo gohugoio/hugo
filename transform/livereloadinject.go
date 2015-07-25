@@ -8,7 +8,7 @@ import (
 func LiveReloadInject(ct contentTransformer) {
 	match := []byte("</body>")
 	port := viper.GetString("port")
-	replace := []byte(`<script>document.write('<script src="http://'
+	replace := []byte(`<script data-no-instant>document.write('<script src="http://'
         + (location.host || 'localhost').split(':')[0]
 		+ ':` + port + `/livereload.js?mindelay=10"></'
         + 'script>')</script></body>`)

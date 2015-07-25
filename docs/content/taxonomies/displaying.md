@@ -10,6 +10,7 @@ next: /taxonomies/templates
 prev: /taxonomies/usage
 title: Displaying Taxonomies
 weight: 20
+toc: true
 ---
 
 There are four common ways you can display the data in your

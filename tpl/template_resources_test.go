@@ -15,14 +15,20 @@ package tpl
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestScpCache(t *testing.T) {
@@ -193,5 +199,108 @@ func TestParseCSV(t *testing.T) {
 			t.Errorf("\nExpected: %s\nActual: %s\n%#v\n", test.exp, act, csv)
 		}
 
+	}
+}
+
+// https://twitter.com/francesc/status/603066617124126720
+// for the construct: defer testRetryWhenDone().Reset()
+type wd struct {
+	Reset func()
+}
+
+func testRetryWhenDone() wd {
+	cd := viper.GetString("CacheDir")
+	viper.Set("CacheDir", helpers.GetTempDir("", hugofs.SourceFs))
+	var tmpSleep time.Duration
+	tmpSleep, resSleep = resSleep, time.Millisecond
+	return wd{func() {
+		viper.Set("CacheDir", cd)
+		resSleep = tmpSleep
+	}}
+}
+
+func TestGetJSONFailParse(t *testing.T) {
+	defer testRetryWhenDone().Reset()
+
+	reqCount := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if reqCount > 0 {
+			w.Header().Add("Content-type", "application/json")
+			fmt.Fprintln(w, `{"gomeetup":["Sydney", "San Francisco", "Stockholm"]}`)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, `ERROR 500`)
+		}
+		reqCount++
+	}))
+	defer ts.Close()
+	url := ts.URL + "/test.json"
+	defer os.Remove(getCacheFileID(url))
+
+	want := map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}}
+	have := GetJSON(url)
+	assert.NotNil(t, have)
+	if have != nil {
+		assert.EqualValues(t, want, have)
+	}
+}
+
+func TestGetCSVFailParseSep(t *testing.T) {
+	defer testRetryWhenDone().Reset()
+
+	reqCount := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if reqCount > 0 {
+			w.Header().Add("Content-type", "application/json")
+			fmt.Fprintln(w, `gomeetup,city`)
+			fmt.Fprintln(w, `yes,Sydney`)
+			fmt.Fprintln(w, `yes,San Francisco`)
+			fmt.Fprintln(w, `yes,Stockholm`)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, `ERROR 500`)
+		}
+		reqCount++
+	}))
+	defer ts.Close()
+	url := ts.URL + "/test.csv"
+	defer os.Remove(getCacheFileID(url))
+
+	want := [][]string{[]string{"gomeetup", "city"}, []string{"yes", "Sydney"}, []string{"yes", "San Francisco"}, []string{"yes", "Stockholm"}}
+	have := GetCSV(",", url)
+	assert.NotNil(t, have)
+	if have != nil {
+		assert.EqualValues(t, want, have)
+	}
+}
+
+func TestGetCSVFailParse(t *testing.T) {
+	defer testRetryWhenDone().Reset()
+
+	reqCount := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-type", "application/json")
+		if reqCount > 0 {
+			fmt.Fprintln(w, `gomeetup,city`)
+			fmt.Fprintln(w, `yes,Sydney`)
+			fmt.Fprintln(w, `yes,San Francisco`)
+			fmt.Fprintln(w, `yes,Stockholm`)
+		} else {
+			fmt.Fprintln(w, `gomeetup,city`)
+			fmt.Fprintln(w, `yes,Sydney,Bondi,`) // wrong number of fields in line
+			fmt.Fprintln(w, `yes,San Francisco`)
+			fmt.Fprintln(w, `yes,Stockholm`)
+		}
+		reqCount++
+	}))
+	defer ts.Close()
+	url := ts.URL + "/test.csv"
+	defer os.Remove(getCacheFileID(url))
+
+	want := [][]string{[]string{"gomeetup", "city"}, []string{"yes", "Sydney"}, []string{"yes", "San Francisco"}, []string{"yes", "Stockholm"}}
+	have := GetCSV(",", url)
+	assert.NotNil(t, have)
+	if have != nil {
+		assert.EqualValues(t, want, have)
 	}
 }

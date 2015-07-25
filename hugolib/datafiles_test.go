@@ -75,8 +75,8 @@ func TestDataDirUnknownFormat(t *testing.T) {
 	}
 	s := &Site{}
 	err := s.loadData([]source.Input{&source.InMemorySource{ByteSource: sources}})
-	if err == nil {
-		t.Fatalf("Should return an error")
+	if err != nil {
+		t.Fatalf("Should not return an error")
 	}
 }
 

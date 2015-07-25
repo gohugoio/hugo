@@ -21,8 +21,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -31,7 +34,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-var remoteURLLock = &remoteLock{m: make(map[string]*sync.Mutex)}
+var (
+	remoteURLLock = &remoteLock{m: make(map[string]*sync.Mutex)}
+	resSleep      = time.Second * 2 // if JSON decoding failed sleep for n seconds before retrying
+	resRetries    = 1               // number of retries to load the JSON from URL or local file system
+)
 
 type remoteLock struct {
 	sync.RWMutex
@@ -90,13 +97,21 @@ func resWriteCache(id string, c []byte, fs afero.Fs) error {
 	fID := getCacheFileID(id)
 	f, err := fs.Create(fID)
 	if err != nil {
-		return err
+		return errors.New("Error: " + err.Error() + ". Failed to create file: " + fID)
 	}
+	defer f.Close()
 	n, err := f.Write(c)
 	if n == 0 {
 		return errors.New("No bytes written to file: " + fID)
 	}
-	return err
+	if err != nil {
+		return errors.New("Error: " + err.Error() + ". Failed to write to file: " + fID)
+	}
+	return nil
+}
+
+func resDeleteCache(id string, fs afero.Fs) error {
+	return fs.Remove(getCacheFileID(id))
 }
 
 // resGetRemote loads the content of a remote file. This method is thread safe.
@@ -177,18 +192,25 @@ func resGetResource(url string) ([]byte, error) {
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
 func GetJSON(urlParts ...string) interface{} {
-	url := strings.Join(urlParts, "")
-	c, err := resGetResource(url)
-	if err != nil {
-		jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
-		return nil
-	}
-
 	var v interface{}
-	err = json.Unmarshal(c, &v)
-	if err != nil {
-		jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
-		return nil
+	url := strings.Join(urlParts, "")
+
+	for i := 0; i <= resRetries; i++ {
+		c, err := resGetResource(url)
+		if err != nil {
+			jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
+			return nil
+		}
+
+		err = json.Unmarshal(c, &v)
+		if err != nil {
+			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
+			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
+			time.Sleep(resSleep)
+			resDeleteCache(url, hugofs.SourceFs)
+			continue
+		}
+		break
 	}
 	return v
 }
@@ -212,16 +234,56 @@ func parseCSV(c []byte, sep string) ([][]string, error) {
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
 func GetCSV(sep string, urlParts ...string) [][]string {
+	var d [][]string
 	url := strings.Join(urlParts, "")
-	c, err := resGetResource(url)
-	if err != nil {
-		jww.ERROR.Printf("Failed to get csv resource %s with error message %s", url, err)
-		return nil
+
+	var clearCacheSleep = func(i int, u string) {
+		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
+		time.Sleep(resSleep)
+		resDeleteCache(url, hugofs.SourceFs)
 	}
-	d, err := parseCSV(c, sep)
-	if err != nil {
-		jww.ERROR.Printf("Failed to read csv resource %s with error message %s", url, err)
-		return nil
+
+	for i := 0; i <= resRetries; i++ {
+		c, err := resGetResource(url)
+
+		if err == nil && false == bytes.Contains(c, []byte(sep)) {
+			err = errors.New("Cannot find separator " + sep + " in CSV.")
+		}
+
+		if err != nil {
+			jww.ERROR.Printf("Failed to read csv resource %s with error message %s", url, err)
+			clearCacheSleep(i, url)
+			continue
+		}
+
+		if d, err = parseCSV(c, sep); err != nil {
+			jww.ERROR.Printf("Failed to parse csv file %s with error message %s", url, err)
+			clearCacheSleep(i, url)
+			continue
+		}
+		break
 	}
 	return d
+}
+
+func ReadDir(path string) []os.FileInfo {
+    wd := ""
+    p := ""
+	if viper.GetString("WorkingDir") != "" {
+		wd = viper.GetString("WorkingDir")
+	}
+    if strings.Contains(path, "..") {
+        jww.ERROR.Printf("Path contains parent directory marker ..\n", path)
+		return nil
+    }
+
+	p = filepath.Clean(path)
+	p = filepath.Join(wd, p)
+
+	list, err := ioutil.ReadDir(p)
+	if err != nil {
+		jww.ERROR.Printf("Failed to read Directory %s with error message %s", path, err)
+		return nil
+	}
+	return list
 }

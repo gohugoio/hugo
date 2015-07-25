@@ -66,7 +66,9 @@ type Page struct {
 	contentShortCodes   map[string]string
 	plain               string // TODO should be []byte
 	plainWords          []string
+	plainRuneCount      int
 	plainInit           sync.Once
+	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
 
@@ -75,7 +77,7 @@ type Page struct {
 
 	PageMeta
 	Source
-	Position
+	Position `json:"-"`
 	Node
 	pageMenus     PageMenus
 	pageMenusInit sync.Once
@@ -112,10 +114,31 @@ func (p *Page) PlainWords() []string {
 	return p.plainWords
 }
 
+// RuneCount returns the rune count, excluding any whitespace, of the plain content.
+func (p *Page) RuneCount() int {
+	p.initPlainSecondary()
+	return p.plainRuneCount
+}
+
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
 		p.plain = helpers.StripHTML(string(p.Content))
 		p.plainWords = strings.Fields(p.plain)
+		return
+	})
+}
+
+func (p *Page) initPlainSecondary() {
+	p.plainSecondaryInit.Do(func() {
+		p.initPlain()
+		runeCount := 0
+		for _, r := range p.plain {
+			if !helpers.IsWhitespace(r) {
+				runeCount++
+			}
+		}
+		p.plainRuneCount = runeCount
+		return
 	})
 }
 
@@ -176,14 +199,18 @@ func (p *Page) setSummary() {
 	// rendered and ready in p.contentShortcodes
 
 	if bytes.Contains(p.rawContent, helpers.SummaryDivider) {
-		// If user defines split:
-		// Split, replace shortcode tokens, then render
-		p.Truncated = true // by definition
-		header := bytes.Split(p.rawContent, helpers.SummaryDivider)[0]
+		sections := bytes.Split(p.rawContent, helpers.SummaryDivider)
+		header := sections[0]
+		p.Truncated = true
+		if len(sections[1]) < 20 {
+			// only whitespace?
+			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
+		}
+
 		renderedHeader := p.renderBytes(header)
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
-				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, true, p.contentShortCodes)
+				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, p.contentShortCodes)
 			if err != nil {
 				jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
 			} else {
@@ -341,9 +368,9 @@ func (p *Page) analyzePage() {
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseURL := string(p.Site.BaseURL)
-	dir := strings.TrimSpace(filepath.ToSlash(p.Source.Dir()))
-	pSlug := strings.TrimSpace(p.Slug)
-	pURL := strings.TrimSpace(p.URL)
+	dir := strings.TrimSpace(helpers.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
+	pSlug := strings.TrimSpace(helpers.URLize(p.Slug))
+	pURL := strings.TrimSpace(helpers.URLize(p.URL))
 	var permalink string
 	var err error
 
@@ -451,12 +478,12 @@ func (p *Page) update(f interface{}) error {
 		case "description":
 			p.Description = cast.ToString(v)
 		case "slug":
-			p.Slug = helpers.URLize(cast.ToString(v))
+			p.Slug = cast.ToString(v)
 		case "url":
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
-			p.URL = helpers.URLize(cast.ToString(v))
+			p.URL = cast.ToString(v)
 		case "type":
 			p.contentType = cast.ToString(v)
 		case "extension", "ext":
@@ -467,6 +494,11 @@ func (p *Page) update(f interface{}) error {
 			p.Date, err = cast.ToTimeE(v)
 			if err != nil {
 				jww.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
+			}
+		case "lastmod":
+			p.Lastmod, err = cast.ToTimeE(v)
+			if err != nil {
+				jww.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
 			}
 		case "publishdate", "pubdate":
 			p.PublishDate, err = cast.ToTimeE(v)
@@ -508,22 +540,41 @@ func (p *Page) update(f interface{}) error {
 			default: // handle array of strings as well
 				switch vvv := vv.(type) {
 				case []interface{}:
-					var a = make([]string, len(vvv))
-					for i, u := range vvv {
-						a[i] = cast.ToString(u)
+					if len(vvv) > 0 {
+						switch vvv[0].(type) {
+						case map[interface{}]interface{}: // Proper parsing structured array from yaml based FrontMatter
+							p.Params[loki] = vvv
+						default:
+							a := make([]string, len(vvv))
+							for i, u := range vvv {
+								a[i] = cast.ToString(u)
+							}
+
+							p.Params[loki] = a
+						}
+					} else {
+						p.Params[loki] = []string{}
 					}
-					p.Params[loki] = a
 				default:
 					p.Params[loki] = vv
 				}
 			}
 		}
 	}
+
+	if p.Lastmod.IsZero() {
+		p.Lastmod = p.Date
+	}
+
 	return nil
 
 }
 
 func (p *Page) GetParam(key string) interface{} {
+	return p.getParam(key, true)
+}
+
+func (p *Page) getParam(key string, stringToLower bool) interface{} {
 	v := p.Params[strings.ToLower(key)]
 
 	if v == nil {
@@ -534,7 +585,10 @@ func (p *Page) GetParam(key string) interface{} {
 	case bool:
 		return cast.ToBool(v)
 	case string:
-		return strings.ToLower(cast.ToString(v))
+		if stringToLower {
+			return strings.ToLower(cast.ToString(v))
+		}
+		return cast.ToString(v)
 	case int64, int32, int16, int8, int:
 		return cast.ToInt(v)
 	case float64, float32:
@@ -542,7 +596,10 @@ func (p *Page) GetParam(key string) interface{} {
 	case time.Time:
 		return cast.ToTime(v)
 	case []string:
-		return helpers.SliceToLower(v.([]string))
+		if stringToLower {
+			return helpers.SliceToLower(v.([]string))
+		}
+		return v.([]string)
 	case map[string]interface{}: // JSON and TOML
 		return v
 	case map[interface{}]interface{}: // YAML
@@ -555,11 +612,20 @@ func (p *Page) GetParam(key string) interface{} {
 
 func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 	menus := p.Menus()
+	sectionPagesMenu := viper.GetString("SectionPagesMenu")
+
+	// page is labeled as "shadow-member" of the menu with the same identifier as the section
+	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menu && p.Section() == me.Identifier {
+		return true
+	}
 
 	if m, ok := menus[menu]; ok {
 		if me.HasChildren() {
 			for _, child := range me.Children {
 				if child.IsEqual(m) {
+					return true
+				}
+				if p.HasMenuCurrent(menu, child) {
 					return true
 				}
 			}
@@ -685,6 +751,10 @@ func (p *Page) parse(reader io.Reader) error {
 	return nil
 }
 
+func (p *Page) RawContent() string {
+	return string(p.rawContent)
+}
+
 func (p *Page) SetSourceContent(content []byte) {
 	p.Source.Content = content
 }
@@ -751,7 +821,7 @@ func (p *Page) ProcessShortcodes(t tpl.Template) {
 
 	// these short codes aren't used until after Page render,
 	// but processed here to avoid coupling
-	tmpContent, tmpContentShortCodes := extractAndRenderShortcodes(string(p.rawContent), p, t)
+	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
 	p.rawContent = []byte(tmpContent)
 	p.contentShortCodes = tmpContentShortCodes
 
@@ -779,7 +849,7 @@ func (p *Page) Convert() error {
 }
 
 func (p *Page) FullFilePath() string {
-	return filepath.Join(p.Source.Dir(), p.Source.Path())
+	return filepath.Join(p.Dir(), p.LogicalName())
 }
 
 func (p *Page) TargetPath() (outfile string) {
@@ -800,6 +870,7 @@ func (p *Page) TargetPath() (outfile string) {
 		var err error
 		outfile, err = override.Expand(p)
 		if err == nil {
+			outfile, _ = url.QueryUnescape(outfile)
 			if strings.HasSuffix(outfile, "/") {
 				outfile += "index.html"
 			}
@@ -815,5 +886,5 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
 	}
 
-	return filepath.Join(p.Source.Dir(), strings.TrimSpace(outfile))
+	return filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile))
 }

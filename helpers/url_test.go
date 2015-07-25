@@ -1,9 +1,11 @@
 package helpers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestURLize(t *testing.T) {
@@ -26,16 +28,74 @@ func TestURLize(t *testing.T) {
 	}
 }
 
+func TestAbsURL(t *testing.T) {
+	defer viper.Reset()
+	tests := []struct {
+		input    string
+		baseURL  string
+		expected string
+	}{
+		{"/test/foo", "http://base/", "http://base/test/foo"},
+		{"", "http://base/ace/", "http://base/ace/"},
+		{"/test/2/foo/", "http://base", "http://base/test/2/foo/"},
+		{"http://abs", "http://base/", "http://abs"},
+		{"//schemaless", "http://base/", "//schemaless"},
+	}
+
+	for _, test := range tests {
+		viper.Reset()
+		viper.Set("BaseURL", test.baseURL)
+		output := AbsURL(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestRelURL(t *testing.T) {
+	defer viper.Reset()
+	//defer viper.Set("canonifyURLs", viper.GetBool("canonifyURLs"))
+	tests := []struct {
+		input    string
+		baseURL  string
+		canonify bool
+		expected string
+	}{
+		{"/test/foo", "http://base/", false, "/test/foo"},
+		{"test.css", "http://base/sub", false, "/sub/test.css"},
+		{"test.css", "http://base/sub", true, "/test.css"},
+		{"/test/", "http://base/", false, "/test/"},
+		{"/test/", "http://base/sub/", false, "/sub/test/"},
+		{"/test/", "http://base/sub/", true, "/test/"},
+		{"", "http://base/ace/", false, "/ace/"},
+		{"", "http://base/ace", false, "/ace"},
+		{"http://abs", "http://base/", false, "http://abs"},
+		{"//schemaless", "http://base/", false, "//schemaless"},
+	}
+
+	for i, test := range tests {
+		viper.Reset()
+		viper.Set("BaseURL", test.baseURL)
+		viper.Set("canonifyURLs", test.canonify)
+
+		output := RelURL(test.input)
+		if output != test.expected {
+			t.Errorf("[%d][%t] Expected %#v, got %#v\n", i, test.canonify, test.expected, output)
+		}
+	}
+}
+
 func TestSanitizeURL(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
 	}{
-		{"http://foo.bar/", "http://foo.bar/"},
+		{"http://foo.bar/", "http://foo.bar"},
+		{"http://foo.bar", "http://foo.bar"},          // issue #1105
 		{"http://foo.bar/zoo/", "http://foo.bar/zoo"}, // issue #931
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		o1 := SanitizeURL(test.input)
 		o2 := SanitizeURLKeepTrailingSlash(test.input)
 
@@ -46,10 +106,10 @@ func TestSanitizeURL(t *testing.T) {
 		}
 
 		if o1 != test.expected {
-			t.Errorf("Expected %#v, got %#v\n", test.expected, o1)
+			t.Errorf("[%d] 1: Expected %#v, got %#v\n", i, test.expected, o1)
 		}
 		if o2 != expected2 {
-			t.Errorf("Expected %#v, got %#v\n", expected2, o2)
+			t.Errorf("[%d] 2: Expected %#v, got %#v\n", i, expected2, o2)
 		}
 	}
 }

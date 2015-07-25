@@ -1,9 +1,10 @@
 package hugolib
 
 import (
-	"html/template"
 	"path/filepath"
 	"testing"
+
+	"html/template"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
@@ -52,7 +53,35 @@ var urlFakeSource = []source.ByteSource{
 	{filepath.FromSlash("content/blue/doc2.md"), []byte(SLUG_DOC_2)},
 }
 
+// Issue #1105
+func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	for i, this := range []struct {
+		in       string
+		expected string
+	}{
+		{"http://base.com/", "http://base.com/"},
+		{"http://base.com/sub/", "http://base.com/sub/"},
+		{"http://base.com/sub", "http://base.com/sub"},
+		{"http://base.com", "http://base.com"}} {
+
+		viper.Set("BaseURL", this.in)
+		s := &Site{}
+		s.initializeSiteInfo()
+
+		if s.Info.BaseURL != template.URL(this.expected) {
+			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL, this.expected)
+		}
+	}
+
+}
+
 func TestPageCount(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
 	hugofs.DestinationFS = new(afero.MemMapFs)
 
 	viper.Set("uglyurls", false)

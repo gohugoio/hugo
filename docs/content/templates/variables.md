@@ -11,6 +11,7 @@ next: /templates/content
 prev: /templates/functions
 title: Template Variables
 weight: 20
+toc: true
 ---
 
 Hugo makes a set of values available to the templates. Go templates are context based. The following
@@ -46,8 +47,10 @@ matter, content or derived from file location.
 **.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.WordCount** The number of words in the content.<br>
+**.RuneCount** The number of [runes](http://blog.golang.org/strings) in the content, excluding any whitespace. This may be a good alternative to `.WordCount`  for Japanese and other CJK languages where a word-split by spaces makes no sense.
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
+**.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
@@ -81,6 +84,18 @@ includes taxonomies, lists and the homepage.
 **.IsPage** Always false for nodes.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
+
+### Taxonomy Term Variables
+
+[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables.
+
+* **.Data.Singular** The singular name of the taxonomy
+* **.Data.Plural** The plural name of the taxonomy
+* **.Data.Terms** The taxonomy itself
+* **.Data.Terms.Alphabetical** The Terms alphabetized
+* **.Data.Terms.ByCount** The Terms ordered by popularity
+
+The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
 
 ## Site Variables
 

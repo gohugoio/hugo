@@ -5,7 +5,7 @@ date: 2015-01-22
 menu:
   main:
     parent: extras
-next: /extras/dynamiccontent
+next: /extras/datadrivencontent
 prev: /extras/scratch
 title: Data Files
 weight: 90
@@ -81,3 +81,24 @@ And then in `partial/artist.html`:
 ```
 
 Discover a new favourite bass player? Just add another TOML-file.
+
+## Example: Accessing named values in a Data File
+
+Assuming you have the following YAML structure to your `User0123.yml` Data File located directly in `data/`
+
+```
+Name: User0123
+"Short Description": "He is a **jolly good** fellow."
+Achievements:
+  - "Can create a Key, Value list from Data File"
+  - "Learns Hugo"
+  - "Reads documentation"
+```
+
+To render the `Short Description` in your `layout` File following code is required.
+
+```
+<div>Short Description of {{.Site.Data.User0123.Name}}: <p>{{ index .Site.Data.User0123 "Short Description" | markdownify }}</p></div>
+```
+
+Note the use of the `markdownify` template function. This will send the description through the Blackfriday Markdown rendering engine.

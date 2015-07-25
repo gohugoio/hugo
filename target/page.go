@@ -32,21 +32,27 @@ func (pp *PagePub) Publish(path string, r io.Reader) (err error) {
 }
 
 func (pp *PagePub) Translate(src string) (dest string, err error) {
+	dir, err := pp.TranslateRelative(src)
+	if err != nil {
+		return dir, err
+	}
+	if pp.PublishDir != "" {
+		dir = filepath.Join(pp.PublishDir, dir)
+	}
+	return dir, nil
+}
+
+func (pp *PagePub) TranslateRelative(src string) (dest string, err error) {
 	if src == helpers.FilePathSeparator {
-		if pp.PublishDir != "" {
-			return filepath.Join(pp.PublishDir, "index.html"), nil
-		}
 		return "index.html", nil
 	}
 
 	dir, file := filepath.Split(src)
+	isRoot := dir == ""
 	ext := pp.extension(filepath.Ext(file))
 	name := filename(file)
-	if pp.PublishDir != "" {
-		dir = filepath.Join(pp.PublishDir, dir)
-	}
 
-	if pp.UglyURLs || file == "index.html" || file == "404.html" {
+	if pp.UglyURLs || file == "index.html" || (isRoot && file == "404.html") {
 		return filepath.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil
 	}
 

@@ -7,6 +7,7 @@ menu:
 next: /tutorials/migrate-from-jekyll
 prev: /tutorials/installing-on-windows
 title: MathJax Support
+toc: true
 weight: 10
 ---
 

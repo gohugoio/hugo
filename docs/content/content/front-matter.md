@@ -9,6 +9,7 @@ next: /content/sections
 prev: /content/organization
 title: Front Matter
 weight: 20
+toc: true
 ---
 
 The **front matter** is one of the features that gives Hugo its strength. It enables
@@ -25,7 +26,7 @@ Supported formats:
 [YAML]: http://www.yaml.org/ "YAML Ain't Markup Language"
 [JSON]: http://www.json.org/ "JavaScript Object Notation"
 
-### TOML Example
+## TOML Example
 
     +++
     title = "spf13-vim 3.0 release and new website"
@@ -41,7 +42,7 @@ Supported formats:
     
     Content of the file goes Here
 
-### YAML Example
+## YAML Example
 
     ---
     title: "spf13-vim 3.0 release and new website"
@@ -56,7 +57,7 @@ Supported formats:
     
     Content of the file goes Here
 
-### JSON Example
+## JSON Example
 
     {
         "title": "spf13-vim 3.0 release and new website",

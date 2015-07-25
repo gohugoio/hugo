@@ -10,6 +10,8 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 var EMPTY_PAGE = ""
@@ -138,6 +140,16 @@ Summary Same Line<!--more-->
 Some more text
 `
 
+	SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES = `---
+title: Simple
+---
+
+
+€ € € € €
+
+
+`
+
 	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
 title: Simple
 ---
@@ -223,6 +235,47 @@ second line.
 
 fourth line.
 `
+
+	SIMPLE_PAGE_WITH_URL = `---
+title: Simple
+url: simple/url/
+---
+Simple Page With URL`
+
+	SIMPLE_PAGE_WITH_SLUG = `---
+title: Simple
+slug: simple-slug
+---
+Simple Page With Slug`
+
+	SIMPLE_PAGE_WITH_DATE = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+---
+Simple Page With Date`
+
+	UTF8_PAGE = `---
+title: ラーメン
+---
+UTF8 Page`
+
+	UTF8_PAGE_WITH_URL = `---
+title: ラーメン
+url: ラーメン/url/
+---
+UTF8 Page With URL`
+
+	UTF8_PAGE_WITH_SLUG = `---
+title: ラーメン
+slug: ラーメン-slug
+---
+UTF8 Page With Slug`
+
+	UTF8_PAGE_WITH_DATE = `---
+title: ラーメン
+date: '2013-10-15T06:16:13'
+---
+UTF8 Page With Date`
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -326,6 +379,8 @@ func TestCreateNewPage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
+
+	assert.False(t, p.IsHome)
 	checkPageTitle(t, p, "Simple")
 	checkPageContent(t, p, "<p>Simple Page</p>\n")
 	checkPageSummary(t, p, "Simple Page")
@@ -423,6 +478,21 @@ func TestPageWithDate(t *testing.T) {
 		t.Fatalf("Unable to prase page.")
 	}
 	checkPageDate(t, p, d)
+}
+
+func TestRuneCount(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.RuneCount() != 5 {
+		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 5, p.RuneCount())
+
+	}
 }
 
 func TestWordCount(t *testing.T) {
@@ -618,6 +688,52 @@ func TestSliceToLower(t *testing.T) {
 			if val != test.expected[i] {
 				t.Errorf("Case mismatch. Expected %s, got %s", test.expected[i], res[i])
 			}
+		}
+	}
+}
+
+func TestPagePaths(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
+	site_permalinks_setting := PermalinkOverrides{
+		"post": ":year/:month/:day/:title/",
+	}
+
+	tests := []struct {
+		content      string
+		path         string
+		hasPermalink bool
+		expected     string
+	}{
+		{SIMPLE_PAGE, "content/post/x.md", false, "content/post/x.html"},
+		{SIMPLE_PAGE_WITH_URL, "content/post/x.md", false, "simple/url/index.html"},
+		{SIMPLE_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/simple-slug.html"},
+		{SIMPLE_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/simple/index.html"},
+		{UTF8_PAGE, "content/post/x.md", false, "content/post/x.html"},
+		{UTF8_PAGE_WITH_URL, "content/post/x.md", false, "ラーメン/url/index.html"},
+		{UTF8_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
+		{UTF8_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/ラーメン/index.html"},
+	}
+
+	for _, test := range tests {
+		p, _ := NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
+		p.Node.Site = &SiteInfo{}
+
+		if test.hasPermalink {
+			p.Node.Site.Permalinks = site_permalinks_setting
+		}
+
+		expectedTargetPath := filepath.FromSlash(test.expected)
+		expectedFullFilePath := filepath.FromSlash(test.path)
+
+		if p.TargetPath() != expectedTargetPath {
+			t.Errorf("%s => TargetPath  expected: '%s', got: '%s'", test.content, expectedTargetPath, p.TargetPath())
+		}
+
+		if p.FullFilePath() != expectedFullFilePath {
+			t.Errorf("%s => FullFilePath  expected: '%s', got: '%s'", test.content, expectedFullFilePath, p.FullFilePath())
 		}
 	}
 }
