@@ -543,7 +543,9 @@ func (p *Page) update(f interface{}) error {
 				case []interface{}:
 					if len(vvv) > 0 {
 						switch vvv[0].(type) {
-						case map[interface{}]interface{}: // Proper parsing structured array from yaml based FrontMatter
+						case map[interface{}]interface{}: // Proper parsing structured array from YAML based FrontMatter
+							p.Params[loki] = vvv
+						case map[string]interface{}: // Proper parsing structured array from JSON based FrontMatter
 							p.Params[loki] = vvv
 						default:
 							a := make([]string, len(vvv))
