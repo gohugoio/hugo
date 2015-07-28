@@ -704,13 +704,15 @@ func (p *Page) Menus() PageMenus {
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
-	curLayout := ""
+	var l []string
 
 	if len(layout) > 0 {
-		curLayout = layout[0]
+		l = layouts(p.Type(), layout[0])
+	} else {
+		l = p.Layout()
 	}
 
-	return tpl.ExecuteTemplateToHTML(p, p.Layout(curLayout)...)
+	return tpl.ExecuteTemplateToHTML(p, l...)
 }
 
 func (p *Page) guessMarkupType() string {
