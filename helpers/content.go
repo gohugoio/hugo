@@ -414,7 +414,7 @@ func GetAsciidocContent(content []byte) string {
 	}
 
 	jww.INFO.Println("Rendering with", path, "...")
-	cmd := exec.Command(path, "--safe", "-")
+	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -422,13 +422,7 @@ func GetAsciidocContent(content []byte) string {
 		jww.ERROR.Println(err)
 	}
 
-	asciidocLines := strings.Split(out.String(), "\n")
-	for i, line := range asciidocLines {
-		if strings.HasPrefix(line, "<body") {
-			asciidocLines = (asciidocLines[i+1 : len(asciidocLines)-3])
-		}
-	}
-	return strings.Join(asciidocLines, "\n")
+	return out.String()
 }
 
 // GetRstContent calls the Python script rst2html as an external helper
