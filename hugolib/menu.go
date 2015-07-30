@@ -19,7 +19,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
 )
 
 type MenuEntry struct {
@@ -37,12 +36,6 @@ type MenuEntry struct {
 type Menu []*MenuEntry
 type Menus map[string]*Menu
 type PageMenus map[string]*MenuEntry
-
-// Url is deprecated. Will be removed in 0.15.
-func (me *MenuEntry) Url() string {
-	helpers.Deprecated("MenuEntry", ".Url", ".URL")
-	return me.URL
-}
 
 func (me *MenuEntry) AddChild(child *MenuEntry) {
 	me.Children = append(me.Children, child)

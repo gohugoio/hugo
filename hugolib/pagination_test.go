@@ -107,7 +107,6 @@ func doTestPages(t *testing.T, paginator *paginator) {
 
 	first := paginatorPages[0]
 	assert.Equal(t, template.HTML("page/1/"), first.URL())
-	assert.Equal(t, first.URL(), first.Url())
 	assert.Equal(t, first, first.First())
 	assert.True(t, first.HasNext())
 	assert.Equal(t, paginatorPages[1], first.Next())

@@ -74,12 +74,6 @@ func (p *Pager) URL() template.HTML {
 	return template.HTML(p.paginationURLFactory(p.PageNumber()))
 }
 
-// Url is deprecated. Will be removed in 0.15.
-func (p *Pager) Url() template.HTML {
-	helpers.Deprecated("Paginator", ".Url", ".URL")
-	return p.URL()
-}
-
 // Pages returns the Pages on this page.
 // Note: If this return a non-empty result, then PageGroups() will return empty.
 func (p *Pager) Pages() Pages {
