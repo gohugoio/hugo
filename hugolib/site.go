@@ -132,24 +132,6 @@ type SiteInfo struct {
 // linkedin
 type SiteSocial map[string]string
 
-// BaseUrl is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) BaseUrl() template.URL {
-	helpers.Deprecated("Site", ".BaseUrl", ".BaseURL")
-	return s.BaseURL
-}
-
-// Recent is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) Recent() *Pages {
-	helpers.Deprecated("Site", ".Recent", ".Pages")
-	return s.Pages
-}
-
-// Indexes is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) Indexes() *TaxonomyList {
-	helpers.Deprecated("Site", ".Indexes", ".Taxonomies")
-	return &s.Taxonomies
-}
-
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]
 

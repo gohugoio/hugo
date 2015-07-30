@@ -1356,32 +1356,6 @@ func init() {
 		"ReadDir":     ReadDir,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
-
-		// "getJson" is deprecated. Will be removed in 0.15.
-		"getJson": func(urlParts ...string) interface{} {
-			helpers.Deprecated("Template", "getJson", "getJSON")
-			return GetJSON(urlParts...)
-		},
-		// "getJson" is deprecated. Will be removed in 0.15.
-		"getCsv": func(sep string, urlParts ...string) [][]string {
-			helpers.Deprecated("Template", "getCsv", "getCSV")
-			return GetCSV(sep, urlParts...)
-		},
-		// "safeHtml" is deprecated. Will be removed in 0.15.
-		"safeHtml": func(text string) template.HTML {
-			helpers.Deprecated("Template", "safeHtml", "safeHTML")
-			return SafeHTML(text)
-		},
-		// "safeCss" is deprecated. Will be removed in 0.15.
-		"safeCss": func(text string) template.CSS {
-			helpers.Deprecated("Template", "safeCss", "safeCSS")
-			return SafeCSS(text)
-		},
-		// "safeUrl" is deprecated. Will be removed in 0.15.
-		"safeUrl": func(text string) template.URL {
-			helpers.Deprecated("Template", "safeUrl", "safeURL")
-			return SafeURL(text)
-		},
 	}
 
 }
