@@ -17,6 +17,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title                                                                                                                                                                     | Author                                                        | Date         |
 | ------                                                                                                                                                                    | ------                                                        | -----:       |
+| [Hugo on Netlify — Insanely Fast Deploys](https://www.netlify.com/blog/2015/07/30/hugo-on-netlify-insanely-fast-deploys.html)| Mathias Biilmann | 30 July 2015 |
 | [An Introduction to Static Site Generators](http://davidwalsh.name/introduction-static-site-generators)                                                                   | Eduardo Bouças                                                | 20 May 2015  |
 | [Hugo Still Rules](http://cheekycoder.com/2015/05/hugo-still-rules/)                                                                                                      | Cheeky Coder                                                  | 18 May 2015  |
 | [hugo - Static Site Generator](http://gscacco.github.io/post/hugo/)                                                                                                       | G Scaccoio                                                    | 4 May 2015   |
