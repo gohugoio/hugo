@@ -6,14 +6,14 @@ linktitle: Organization
 menu:
   main:
     parent: content
-next: /content/front-matter
+next: /content/supported-formats
 prev: /overview/source-directory
 title: Content Organization
 weight: 10
 toc: true
 ---
 
-Hugo uses Markdown files with headers commonly called the *front matter*. Hugo
+Hugo uses files (see [supported formats](/content/supported-formats/)) with headers commonly called the *front matter*. Hugo
 respects the organization that you provide for your content to minimize any
 extra configuration, though this can be overridden by additional configuration
 in the front matter.
@@ -30,7 +30,7 @@ in Hugo and is used as the [section](/content/sections/).
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost/
         |   ├── happy
-        |   |   └── ness.md    // <- http://1.com/post/happy/ness/
+        |   |   └── ness.ad  // <- http://1.com/post/happy/ness/
         |   └── secondpost.md  // <- http://1.com/post/secondpost/
         └── quote
             ├── first.md       // <- http://1.com/quote/first/
@@ -43,7 +43,7 @@ in Hugo and is used as the [section](/content/sections/).
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
         |   ├── happy
-        |   |   └── ness.md    // <- http://1.com/post/happy/ness.html
+        |   |   └── ness.ad    // <- http://1.com/post/happy/ness.html
         |   └── secondpost.md  // <- http://1.com/post/secondpost.html
         └── quote
             ├── first.md       // <- http://1.com/quote/first.html
