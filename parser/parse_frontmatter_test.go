@@ -236,8 +236,8 @@ func TestExtractFrontMatter(t *testing.T) {
 		{"---\neof\n---", []byte("---\neof\n---"), true},
 		{"--- \neof\n---", []byte("---\neof\n---"), true},
 		{"---\nminc\n---\ncontent", []byte("---\nminc\n---\n"), true},
-		{"---\nminc\n--- \ncontent", []byte("---\nminc\n---\n"), true},
-		{"--- \nminc\n--- \ncontent", []byte("---\nminc\n---\n"), true},
+		{"---\nminc\n---    \ncontent", []byte("---\nminc\n---\n"), true},
+		{"---  \nminc\n--- \ncontent", []byte("---\nminc\n---\n"), true},
 		{"---\ncnim\n---\ncontent\n", []byte("---\ncnim\n---\n"), true},
 		{"---\ntitle: slug doc 2\nslug: slug-doc-2\n---\ncontent\n", []byte("---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n"), true},
 	}
