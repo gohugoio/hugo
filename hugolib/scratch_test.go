@@ -47,3 +47,21 @@ func TestScratchGet(t *testing.T) {
 		t.Errorf("Should not return anything, but got %v", nothing)
 	}
 }
+
+func TestScratchSetInMap(t *testing.T) {
+	scratch := newScratch()
+	scratch.SetInMap("key", "lux", "Lux")
+	scratch.SetInMap("key", "abc", "Abc")
+	scratch.SetInMap("key", "zyx", "Zyx")
+	scratch.SetInMap("key", "abc", "Abc (updated)")
+	scratch.SetInMap("key", "def", "Def")
+	assert.Equal(t, []interface{}{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"}, scratch.GetSortedMapValues("key"))
+}
+
+func TestScratchGetSortedMapValues(t *testing.T) {
+	scratch := newScratch()
+	nothing := scratch.GetSortedMapValues("nothing")
+	if nothing != nil {
+		t.Errorf("Should not return anything, but got %v", nothing)
+	}
+}
