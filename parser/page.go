@@ -24,7 +24,7 @@ const (
 
 var (
 	delims = regexp.MustCompile(
-		"^(" + regexp.QuoteMeta(YAML_DELIM) + "\\s*\n|" + regexp.QuoteMeta(TOML_DELIM) + "\\s*\n|" + regexp.QuoteMeta(JSON_LEAD) + ")",
+		"^(" + regexp.QuoteMeta(YAML_DELIM) + `\s*\n|` + regexp.QuoteMeta(TOML_DELIM) + `\s*\n|` + regexp.QuoteMeta(JSON_LEAD) + ")",
 	)
 
 	UnixEnding = []byte("\n")
