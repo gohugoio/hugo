@@ -508,6 +508,8 @@ func (p *Page) update(f interface{}) error {
 			}
 		case "draft":
 			p.Draft = cast.ToBool(v)
+		case "published": // Intentionally undocumented
+			p.Draft = !cast.ToBool(v)
 		case "layout":
 			p.layout = cast.ToString(v)
 		case "markup":
