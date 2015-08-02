@@ -854,6 +854,21 @@ func TestPagePaths(t *testing.T) {
 	}
 }
 
+var PAGE_WITH_DRAFT_AND_PUBLISHED = `---
+title: broken
+published: false
+draft: true
+---
+some content
+`
+
+func TestDraftAndPublishedFrontMatterError(t *testing.T) {
+	_, err := NewPageFrom(strings.NewReader(PAGE_WITH_DRAFT_AND_PUBLISHED), "content/post/broken.md")
+	if err != ErrHasDraftAndPublished {
+		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
+	}
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false

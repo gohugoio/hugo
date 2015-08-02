@@ -463,12 +463,15 @@ func (p *Page) RelPermalink() (string, error) {
 	return link.String(), nil
 }
 
+var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
+
 func (p *Page) update(f interface{}) error {
 	if f == nil {
 		return fmt.Errorf("no metadata found")
 	}
 	m := f.(map[string]interface{})
 	var err error
+	draftSeen := 0
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -508,8 +511,10 @@ func (p *Page) update(f interface{}) error {
 			}
 		case "draft":
 			p.Draft = cast.ToBool(v)
+			draftSeen++
 		case "published": // Intentionally undocumented
 			p.Draft = !cast.ToBool(v)
+			draftSeen++
 		case "layout":
 			p.layout = cast.ToString(v)
 		case "markup":
@@ -567,6 +572,9 @@ func (p *Page) update(f interface{}) error {
 		}
 	}
 
+	if draftSeen > 1 {
+		return ErrHasDraftAndPublished
+	}
 	if p.Lastmod.IsZero() {
 		p.Lastmod = p.Date
 	}
