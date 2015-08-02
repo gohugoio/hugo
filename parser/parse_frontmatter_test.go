@@ -202,8 +202,6 @@ func TestPageHasFrontMatter(t *testing.T) {
 		{[]byte("---\n"), true},
 		{[]byte("--- \n"), true},
 		{[]byte("---  \n"), true},
-		{[]byte("--- \r\n"), true},
-		{[]byte("---  \r\n"), true},
 		{[]byte{'a'}, false},
 		{[]byte{'{'}, true},
 		{[]byte("{\n  "), true},
