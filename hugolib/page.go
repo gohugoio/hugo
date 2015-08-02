@@ -463,12 +463,15 @@ func (p *Page) RelPermalink() (string, error) {
 	return link.String(), nil
 }
 
+var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
+
 func (p *Page) update(f interface{}) error {
 	if f == nil {
 		return fmt.Errorf("no metadata found")
 	}
 	m := f.(map[string]interface{})
 	var err error
+	var draft, published *bool
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -507,7 +510,11 @@ func (p *Page) update(f interface{}) error {
 				jww.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
 		case "draft":
-			p.Draft = cast.ToBool(v)
+			draft = new(bool)
+			*draft = cast.ToBool(v)
+		case "published": // Intentionally undocumented
+			published = new(bool)
+			*published = !cast.ToBool(v)
 		case "layout":
 			p.layout = cast.ToString(v)
 		case "markup":
@@ -563,6 +570,16 @@ func (p *Page) update(f interface{}) error {
 				}
 			}
 		}
+	}
+
+	if draft != nil && published != nil {
+		p.Draft = *draft
+		jww.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
+		return ErrHasDraftAndPublished
+	} else if draft != nil {
+		p.Draft = *draft
+	} else if published != nil {
+		p.Draft = !*published
 	}
 
 	if p.Lastmod.IsZero() {
