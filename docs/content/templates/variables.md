@@ -103,7 +103,6 @@ Also available is `.Site` which has the following:
 
 **.Site.BaseURL** The base URL for the site as defined in the site configuration file.<br>
 **.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
-**.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
