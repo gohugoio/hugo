@@ -207,7 +207,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 		switch c {
 		case left[len(left)-1]:
 			if sameDelim { // YAML, TOML case
-				if bytes.HasSuffix(buf.Bytes(), left) {
+				if bytes.HasSuffix(buf.Bytes(), left) && (buf.Len() == len(left) || buf.Bytes()[buf.Len()-len(left)-1] == '\n') {
 				nextByte:
 					c, err = r.ReadByte()
 					if err != nil {
