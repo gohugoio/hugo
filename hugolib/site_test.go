@@ -323,9 +323,9 @@ func doTestCrossrefs(t *testing.T, relative, uglyUrls bool) {
 		// Issue #1148: Make sure that no P-tags is added around shortcodes.
 		{filepath.FromSlash("sect/doc2.md"),
 			[]byte(fmt.Sprintf(`**Ref 1:** 
-			
+
 {{< %s "sect/doc1.md" >}}
-			
+
 THE END.`, refShortcode))},
 	}
 

@@ -1593,9 +1593,9 @@ func (s *Site) futureStats() string {
 
 	switch s.futureCount {
 	case 0:
-		return "0 future content "
+		return "0 future content"
 	case 1:
-		msg = "1 future rendered "
+		msg = "1 future rendered"
 	default:
 		msg = fmt.Sprintf("%d future rendered", s.draftCount)
 	}
