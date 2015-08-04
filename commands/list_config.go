@@ -24,7 +24,7 @@ import (
 var config = &cobra.Command{
 	Use:   "config",
 	Short: "Print the site configuration",
-	Long:  `Print the site configuration, both default and custom settings`,
+	Long:  `Print the site configuration, both default and custom settings.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		allSettings := viper.AllSettings()
