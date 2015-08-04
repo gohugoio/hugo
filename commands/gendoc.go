@@ -24,11 +24,12 @@ var gendocCmd = &cobra.Command{
 	Use:   "gendoc",
 	Short: "Generate Markdown documentation for the Hugo CLI.",
 	Long: `Generate Markdown documentation for the Hugo CLI.
-	
-	This command is, mostly, used to create up-to-date documentation for gohugo.io.
-	
-	It creates one Markdown file per command with front matter suitable for rendering in Hugo.
-	`,
+
+This command is, mostly, used to create up-to-date documentation
+of Hugo's command-line interface for http://gohugo.io/.
+
+It creates one Markdown file per command with front matter suitable
+for rendering in Hugo.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		if !strings.HasSuffix(gendocdir, helpers.FilePathSeparator) {

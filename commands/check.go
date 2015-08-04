@@ -21,8 +21,8 @@ import (
 var check = &cobra.Command{
 	Use:   "check",
 	Short: "Check content in the source directory",
-	Long: `Hugo will perform some basic analysis on the
-    content provided and will give feedback.`,
+	Long: `Hugo will perform some basic analysis on the content provided
+and will give feedback.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		site := hugolib.Site{}
