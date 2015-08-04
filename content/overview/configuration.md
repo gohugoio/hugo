@@ -166,6 +166,16 @@ But Hugo does expose some options---as listed in the table below, matched with t
 
 <tbody>
 <tr>
+<td><code><strong>smartypants</strong></code></td>
+<td><code>true</code></td>
+<td><code>HTML_USE_SMARTYPANTS</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Enable enable smart punctuation substitutions.</td>
+</tr>
+
+<tr>
 <td><code><strong>angledQuotes</strong></code></td>
 <td><code>false</code></td>
 <td><code>HTML_SMARTYPANTS_ANGLED_QUOTES</code></td>
@@ -191,16 +201,6 @@ but only these three.</small></td>
 </tr>
 
 <tr>
-<td><code><strong>hrefTargetBlank</strong></code></td>
-<td><code>false</code></td>
-<td><code>HTML_HREF_TARGET_BLANK</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Open external links in a new window/tab.</small></td>
-</tr>
-
-<tr>
 <td><code><strong>latexDashes</strong></code></td>
 <td><code>true</code></td>
 <td><code>HTML_SMARTYPANTS_LATEX_DASHES</code></td>
@@ -208,6 +208,18 @@ but only these three.</small></td>
 <tr>
 <td class="purpose-title">Purpose:</td>
 <td class="purpose-description" colspan="2">Disable LaTeX style dashes.</small></td>
+</tr>
+
+<tr style="height: 0.3em;"></tr>
+
+<tr>
+<td><code><strong>hrefTargetBlank</strong></code></td>
+<td><code>false</code></td>
+<td><code>HTML_HREF_TARGET_BLANK</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Open external links in a new window/tab.</small></td>
 </tr>
 
 <tr>
@@ -219,6 +231,8 @@ but only these three.</small></td>
 <td class="purpose-title">Purpose:</td>
 <td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID <small>(e.g.&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>)</small></td>
 </tr>
+
+<tr style="height: 0.3em;"></tr>
 
 <tr>
 <td><code><strong>extensions</strong></code></td>
