@@ -15,16 +15,16 @@ weight: 30
 Make sure either `hugo` is in your `PATH` or provide a path to it.
 
 <pre><code class="hljs nohighlight">$ hugo help
-	
+
 Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io
 
-Usage: 
+Usage:
   hugo [flags]
   hugo [command]
 
-Available Commands: 
+Available Commands:
   server          Hugo runs its own webserver to render the files
   version         Print the version number of Hugo
   config          Print the site configuration

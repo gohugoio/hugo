@@ -3,7 +3,7 @@
     <a href="{{ .Params.sitelink }}"><img class="img-responsive img-rounded" style="width:100%;" src="{{ .Params.thumbnail }}" alt="{{ .Description }}"></a>
     <h4>
       <a href="{{ .Params.sitelink }}">{{ .Title }}</a>
-      {{ if (isset .Params "sourcelink") }} 
+      {{ if (isset .Params "sourcelink") }}
       <a href="{{ .Params.sourcelink }}" class="small pull-right">source</a>
       {{ end }}
     </h4>

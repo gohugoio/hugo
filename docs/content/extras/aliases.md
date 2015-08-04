@@ -19,11 +19,11 @@ Luckily, redirects can be handled easily with _aliases_ in Hugo.
 
 ## Example
 
-Given a post on your current Hugo site, with a path of: 
+Given a post on your current Hugo site, with a path of:
 
 ``content/posts/my-awesome-blog-post.md``
 
-... you create an "aliases" section in the frontmatter of your post, and add previous paths to that. 
+... you create an "aliases" section in the frontmatter of your post, and add previous paths to that.
 
 ### TOML frontmatter
 
@@ -50,7 +50,7 @@ aliases:
 ---
 ~~~
 
-Now when you visit any of the locations specified in aliases, _assuming the same site domain_, you'll be redirected to the page they are specified on. 
+Now when you visit any of the locations specified in aliases, _assuming the same site domain_, you'll be redirected to the page they are specified on.
 
 ## Important Behaviors
 
@@ -63,9 +63,9 @@ any content with the same location.*
 
 ## How Hugo Aliases Work
 
-When aliases are specified, Hugo creates a physical folder structure to match the alias entry, and, an html file specifying the canonical URL for the page, and a redirect target. 
+When aliases are specified, Hugo creates a physical folder structure to match the alias entry, and, an html file specifying the canonical URL for the page, and a redirect target.
 
-Assuming a baseurl of `mysite.tld`, the contents of the html file will look something like: 
+Assuming a baseurl of `mysite.tld`, the contents of the html file will look something like:
 
 ~~~html
 <!DOCTYPE html>

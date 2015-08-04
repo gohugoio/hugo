@@ -13,7 +13,7 @@ weight: 50
 ---
 
 The home page of a website is often formatted differently than the other
-pages. In Hugo you can define your own homepage template. 
+pages. In Hugo you can define your own homepage template.
 
 Homepage is of the type "node" and have all the [node
 variables](/templates/variables/) and [site

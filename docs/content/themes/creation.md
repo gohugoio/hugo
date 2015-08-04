@@ -55,7 +55,7 @@ compatibility.
 
 Everything in the static directory will be copied directly into the final site
 when rendered. No structure is provided here to enable complete freedom. It is
-common to organize the static content into 
+common to organize the static content into:
 
     /css
     /js
