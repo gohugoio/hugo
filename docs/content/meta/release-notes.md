@@ -47,7 +47,7 @@ them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
 
 Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies inclding:
 [cobra](https://github.com/spf13/cobra),
-[viper](https://github.com/spf13/viper), 
+[viper](https://github.com/spf13/viper),
 [blackfriday](https://github.com/russross/blackfriday),
 [pflag](https://github.com/spf13/pflag),
 [HugoThemes](https://github.com/spf13/hugothemes),
@@ -55,10 +55,10 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 [goYaml](https://github.com/go-yaml/yaml/tree/v2), and the Go standard library.
 
 ## New features
-* Support for all file types in content directory. 
+* Support for all file types in content directory.
     * If dedicated file type handler isn’t found it will be copied to the destination.
 * Add `AsciiDoc` support using external helpers.
-* Add experimental support for [`Mmark`](https://github.com/miekg/mmark) markdown processor 
+* Add experimental support for [`Mmark`](https://github.com/miekg/mmark) markdown processor
 * Bash autocomplete support via `genautocomplete` command
 * Add section menu support for a [Section Menu for "the Lazy Blogger"]({{< relref "extras/menus.md#section-menu-for-the-lazy-blogger" >}})
 * Add support for `Ace` base templates
@@ -70,7 +70,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
   * `absURL` and `relURL`, both of which takes the `BaseURL` setting into account
 
 ## Improvements
-* Highlighting with `Pygments` is now cached to disk -- expect a major speed boost if you use it! 
+* Highlighting with `Pygments` is now cached to disk -- expect a major speed boost if you use it!
 * More Pygments highlighting options, including `line numbers`
 * Show help information to Windows users who try to double click on `hugo.exe`.
 * Add `bind` flag to `hugo server` to set the interface to which the server will bind
@@ -82,7 +82,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 ## Bugfixes
 * Fix panic with paginator and zero pages in result set.
 * Fix crossrefs on Windows.
-* Fix `eq` and `ne` template functions when used with a raw number combined with the result of `add`, `sub` etc. 
+* Fix `eq` and `ne` template functions when used with a raw number combined with the result of `add`, `sub` etc.
 * Fix paginator with uglyurls
 * Fix [#998](https://github.com/spf13/hugo/issues/988), supporting UTF8 characters in Permalinks.
 
@@ -125,7 +125,7 @@ maintainers and their tremendous contributions this release.
 * `Scratch` -- [a "scratchpad"](/extras/scratch) for your node- and page-scoped
   variables
 * [Cross Reference](/extras/crossreferences/) support to easily link documents
-  together with the ref and relref shortcodes. 
+  together with the ref and relref shortcodes.
 * [Ace](http://ace.yoss.si/) template engine support ([#541][])
 * A new [shortcode](/extras/shortcodes/) token of `{{</* */>}}` (raw HTML)
   alongside the existing `{{%/* */%}}` (Markdown)
@@ -143,7 +143,7 @@ maintainers and their tremendous contributions this release.
 ### Notable enhancements to existing features
 
 * The [shortcode](/extras/shortcodes/) handling is rewritten for speed and
-  better error messages. 
+  better error messages.
 * Several improvements to the [template functions](/templates/functions/):
     * `where` is now even more powerful and accepts SQL-like syntax with the
       operators `==`, `eq`; `!=`, `<>`, `ne`; `>=`, `ge`; `>`, `gt`; `<=`,
@@ -156,7 +156,7 @@ maintainers and their tremendous contributions this release.
     * `delimit`
     * `sort`
     * `markdownify`
-    * `in` and `intersect` 
+    * `in` and `intersect`
     * `trim`
     * `replace`
     * `dateFormat`

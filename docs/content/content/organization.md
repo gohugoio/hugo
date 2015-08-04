@@ -145,12 +145,12 @@ When a `url` is provided, it will be used exactly. Using `url` will ignore the
 
 **section** = which type the content is by default
 
-* based on content location 
+* based on content location
 * front matter overrides
 
 **slug** = name.ext or name/
 
-* based on content-name.md 
+* based on content-name.md
 * front matter overrides
 
 **path** = section + path to file excluding slug

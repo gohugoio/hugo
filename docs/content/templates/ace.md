@@ -16,7 +16,7 @@ weight: 17
 
 In addition to [Go templates](/templates/go-templates) and [Amber](/templates/amber) templates, Hugo supports the powerful Ace templates.
 
-For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace). 
+For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace).
 
 * Ace templates must be named with the ace-suffix, e.g. `list.ace`
 * It's possible to use both Go templates and Ace templates side-by-side, and include one into the other
@@ -55,7 +55,7 @@ baseof.ace  list.ace  single.ace  single-baseof.ace
 
 Some examples for the layout files above:
 
-* Home page: `./index.ace` +  `./_default/baseof.ace` 
+* Home page: `./index.ace` +  `./_default/baseof.ace`
 * Single page in the `blog` section: `./blog/single.ace` +  `./blog/baseof.ace`
 * Single page in another section: `./_default/single.ace` +  `./_default/single-baseof.ace`
 * Taxonomy page in any section: `./_default/list.ace` +  `./_default/baseof.ace`

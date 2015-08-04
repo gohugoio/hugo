@@ -80,7 +80,7 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
 * [Kaiju](https://github.com/spf13/kaiju)
 
-## Kaiju 
+## Kaiju
 
 [Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
 
