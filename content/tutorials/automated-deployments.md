@@ -192,7 +192,7 @@ The application is added now, and Wercker will be offering you the chance to tri
 
 ## Adding steps
 
-And now we're going to add the steps themselves. First, we go to the "Registry" action in the top menu and then search for "hugo build". The first result is the **Hugo-Build** task, which we select. 
+And now we're going to add the steps themselves. First, we go to the "Registry" action in the top menu and then search for "hugo build". The first result is the **Hugo-Build** task, which we select.
 
 ![][13]
 

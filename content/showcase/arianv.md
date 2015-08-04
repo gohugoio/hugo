@@ -9,5 +9,5 @@ tags:
 - personal
 - blog
 thumbnail: /img/arianv-tn.png
-title: Arian's Portfolio 
+title: Arian's Portfolio
 ---
