@@ -32,7 +32,8 @@ The following is an example of a typical yaml config file:
     baseurl: "http://yoursite.example.com/"
     ...
 
-The following is an example of a toml config file with some of the default values. Values under `[params]` will populate the `.Site.Params` variable for use in templates:
+The following is an example of a toml config file with some of the default values.
+Values under `[params]` will populate the `.Site.Params` variable for use in templates:
 
     contentdir = "content"
     layoutdir = "layouts"
@@ -49,7 +50,7 @@ The following is an example of a toml config file with some of the default value
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
 
-Here is a yaml configuration file which sets a few more options
+Here is a yaml configuration file which sets a few more options:
 
     ---
     baseurl: "http://yoursite.example.com/"
@@ -172,7 +173,8 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable enable smart punctuation substitutions.</td>
+<td class="purpose-description" colspan="2">Enable/Disable smart punctuation substitutions such as smart quotes, smart dashes, etc.
+May be fine-tuned with the <code>angledQuotes</code>, <code>fractions</code> and <code>latexDashes</code> flags below.</td>
 </tr>
 
 <tr>
@@ -182,7 +184,8 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable smart angled double quotes <small>(e.g.&nbsp;<code>"Hugo"</code> renders to «Hugo» instead of “Hugo”)</small></td>
+<td class="purpose-description" colspan="2">Enable/Disable smart angled double quotes.<br>
+<small><strong>Example:</strong>&nbsp;<code>"Hugo"</code> renders to «Hugo» instead of “Hugo”.</small></td>
 </tr>
 
 <tr>
@@ -192,8 +195,8 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable smart fractions
-<small>(e.g.&nbsp;<code>5/12</code> renders to <sup>5</sup>&frasl;<sub>12</sub> (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>))<br>
+<td class="purpose-description" colspan="2">Enable/Disable smart fractions.<br>
+<small><strong>Example:</strong>&nbsp;<code>5/12</code> renders to <sup>5</sup>&frasl;<sub>12</sub> (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>)<br>
 <strong>Caveat:</strong> Even with <code>fractions = false</code>,
 Blackfriday would still convert 1/2, 1/4 and 3/4 to ½&nbsp;(<code>&amp;frac12;</code>),
 ¼&nbsp;(<code>&amp;frac14;</code>) and ¾&nbsp;(<code>&amp;frac34;</code>) respectively,
@@ -207,10 +210,12 @@ but only these three.</small></td>
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Disable LaTeX style dashes.</small></td>
+<td class="purpose-description" colspan="2">Choose between LaTeX-style smart dashes and “conventional” smart dashes.<br>
+<strong>If <code>true</code>,</strong> <code>--</code> is translated into “&ndash;” (<code>&amp;ndash;</code>), and <code>---</code> is translated into “&mdash;” (<code>&amp;mdash;</code>).<br>
+<strong>If <code>false</code>,</strong> <code>--</code> is translated into “&mdash;” (<code>&amp;mdash;</code>), whereas a <em>spaced</em> single hyphen between two words is turned into an en&nbsp;dash, e.g.&nbsp;<code>12 June - 3 July</code> becomes <code>12 June &amp;ndash; 3 July</code>.</td>
 </tr>
 
-<tr style="height: 0.3em;"></tr>
+<tr style="height: 0.5em;"></tr>
 
 <tr>
 <td><code><strong>hrefTargetBlank</strong></code></td>
@@ -219,7 +224,7 @@ but only these three.</small></td>
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Open external links in a new window/tab.</small></td>
+<td class="purpose-description" colspan="2">Open external links in a new window/tab.</td>
 </tr>
 
 <tr>
@@ -229,10 +234,11 @@ but only these three.</small></td>
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID <small>(e.g.&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>)</small></td>
+<td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID.<br>
+<small><strong>Example:</strong>&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>.</small></td>
 </tr>
 
-<tr style="height: 0.3em;"></tr>
+<tr style="height: 0.5em;"></tr>
 
 <tr>
 <td><code><strong>extensions</strong></code></td>
@@ -241,7 +247,8 @@ but only these three.</small></td>
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Use non-default additional extensions <small>(e.g.&nbsp;Add <code>"hardLineBreak"</code> to use <code>EXTENSION_HARD_LINE_BREAK</code>)</small></td>
+<td class="purpose-description" colspan="2">Use non-default additional extensions.<br>
+<small><strong>Example:</strong>&nbsp;Add <code>"hardLineBreak"</code> to use <code>EXTENSION_HARD_LINE_BREAK</code>.</small></td>
 </tr>
 
 <tr>
@@ -251,7 +258,8 @@ but only these three.</small></td>
 </tr>
 <tr>
 <td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Extensions in this option won't be loaded. <small>(e.g.&nbsp;Add <code>"autoHeaderIds"</code> to disable <code>EXTENSION_AUTO_HEADER_IDS</code>)</small></td>
+<td class="purpose-description" colspan="2">Extensions in this option won't be loaded.<br>
+<small><strong>Example:</strong>&nbsp;Add <code>"autoHeaderIds"</code> to disable <code>EXTENSION_AUTO_HEADER_IDS</code>.</small></td>
 </tr>
 </tbody>
 </table>
