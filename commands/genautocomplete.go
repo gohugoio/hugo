@@ -38,6 +38,8 @@ or just source them in directly:
 		err := cmd.Root().GenBashCompletionFile(autocompleteTarget)
 		if err != nil {
 			jww.FATAL.Fatalln("Failed to generate shell completion file:", err)
+		} else {
+			jww.FEEDBACK.Println("Bash completion file for Hugo saved to", autocompleteTarget)
 		}
 	},
 }
