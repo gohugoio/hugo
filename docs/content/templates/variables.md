@@ -89,11 +89,12 @@ includes taxonomies, lists and the homepage.
 
 [Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables.
 
-* **.Data.Singular** The singular name of the taxonomy
-* **.Data.Plural** The plural name of the taxonomy
-* **.Data.Terms** The taxonomy itself
-* **.Data.Terms.Alphabetical** The Terms alphabetized
-* **.Data.Terms.ByCount** The Terms ordered by popularity
+**.Data.Singular** The singular name of the taxonomy<br>
+**.Data.Plural** The plural name of the taxonomy<br>
+**.Data.Pages** the list of pages in this taxonomy<br>
+**.Data.Terms** The taxonomy itself<br>
+**.Data.Terms.Alphabetical** The Terms alphabetized<br>
+**.Data.Terms.ByCount** The Terms ordered by popularity<br>
 
 The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
 
@@ -113,7 +114,6 @@ Also available is `.Site` which has the following:
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
 **.Site.Sections** Top level directories of the site.<br>
-**.Site.Pages** All of the content pages of the site.<br>
 **.Site.Files** All of the source files of the site.<br>
 **.Site.Menus** All of the menus in the site.<br>
 **.Site.Title** A string representing the title of the site.<br>
