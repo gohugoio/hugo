@@ -85,6 +85,7 @@ func MakePathToLower(s string) string {
 	return strings.ToLower(MakePath(s))
 }
 
+// MakeTitle trims any space and replaces hypens with a single space.
 func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }

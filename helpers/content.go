@@ -134,7 +134,7 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-// GetHtmlRenderer creates a new Renderer with the given configuration.
+// GetHTMLRenderer creates a new Blackfriday Renderer with the given configuration.
 func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -172,11 +172,10 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
-	return &HugoHtmlRenderer{
+	return &hugoHtmlRenderer{
 		blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
 }
-
 
 func getMarkdownExtensions(ctx *RenderingContext) int {
 	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
@@ -209,7 +208,7 @@ func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 		getMarkdownExtensions(ctx))
 }
 
-// mmark
+// GetMmarkHtmlRenderer creates a new MMark Renderer with the given configuration.
 func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -220,7 +219,6 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 
 	if b && !ctx.getConfig().PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
-		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
 
 	htmlFlags := defaultFlags
