@@ -1085,48 +1085,48 @@ func TestSort(t *testing.T) {
 		sequence    interface{}
 		sortByField interface{}
 		sortAsc     string
-		expect      []interface{}
+		expect      interface{}
 	}{
-		{[]string{"class1", "class2", "class3"}, nil, "asc", []interface{}{"class1", "class2", "class3"}},
-		{[]string{"class3", "class1", "class2"}, nil, "asc", []interface{}{"class1", "class2", "class3"}},
-		{[]int{1, 2, 3, 4, 5}, nil, "asc", []interface{}{1, 2, 3, 4, 5}},
-		{[]int{5, 4, 3, 1, 2}, nil, "asc", []interface{}{1, 2, 3, 4, 5}},
+		{[]string{"class1", "class2", "class3"}, nil, "asc", []string{"class1", "class2", "class3"}},
+		{[]string{"class3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "class3"}},
+		{[]int{1, 2, 3, 4, 5}, nil, "asc", []int{1, 2, 3, 4, 5}},
+		{[]int{5, 4, 3, 1, 2}, nil, "asc", []int{1, 2, 3, 4, 5}},
 		// test map sorting by keys
-		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []interface{}{10, 20, 30, 40, 50}},
-		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, nil, "asc", []interface{}{30, 20, 10, 40, 50}},
-		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, nil, "asc", []interface{}{"10", "20", "30", "40", "50"}},
-		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
-		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, nil, "asc", []interface{}{"50", "40", "10", "30", "20"}},
-		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, nil, "asc", []interface{}{"10", "20", "30", "40", "50"}},
-		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
-		{map[float64]string{3.3: "10", 2.3: "20", 1.3: "30", 4.3: "40", 5.3: "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []int{10, 20, 30, 40, 50}},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, nil, "asc", []int{30, 20, 10, 40, 50}},
+		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, nil, "asc", []string{"10", "20", "30", "40", "50"}},
+		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, nil, "asc", []string{"30", "20", "10", "40", "50"}},
+		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, nil, "asc", []string{"50", "40", "10", "30", "20"}},
+		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, nil, "asc", []string{"10", "20", "30", "40", "50"}},
+		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, nil, "asc", []string{"30", "20", "10", "40", "50"}},
+		{map[float64]string{3.3: "10", 2.3: "20", 1.3: "30", 4.3: "40", 5.3: "50"}, nil, "asc", []string{"30", "20", "10", "40", "50"}},
 		// test map sorting by value
-		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
-		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "value", "asc", []int{10, 20, 30, 40, 50}},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []int{10, 20, 30, 40, 50}},
 		// test map sorting by field value
 		{
 			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyInt",
 			"asc",
-			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
+			[]ts{{10, 10.5, "ten"}, {20, 20.5, "twenty"}, {30, 30.5, "thirty"}, {40, 40.5, "forty"}, {50, 50.5, "fifty"}},
 		},
 		{
 			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyFloat",
 			"asc",
-			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
+			[]ts{{10, 10.5, "ten"}, {20, 20.5, "twenty"}, {30, 30.5, "thirty"}, {40, 40.5, "forty"}, {50, 50.5, "fifty"}},
 		},
 		{
 			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyString",
 			"asc",
-			[]interface{}{ts{50, 50.5, "fifty"}, ts{40, 40.5, "forty"}, ts{10, 10.5, "ten"}, ts{30, 30.5, "thirty"}, ts{20, 20.5, "twenty"}},
+			[]ts{{50, 50.5, "fifty"}, {40, 40.5, "forty"}, {10, 10.5, "ten"}, {30, 30.5, "thirty"}, {20, 20.5, "twenty"}},
 		},
 		// Test sort desc
-		{[]string{"class1", "class2", "class3"}, "value", "desc", []interface{}{"class3", "class2", "class1"}},
-		{[]string{"class3", "class1", "class2"}, "value", "desc", []interface{}{"class3", "class2", "class1"}},
+		{[]string{"class1", "class2", "class3"}, "value", "desc", []string{"class3", "class2", "class1"}},
+		{[]string{"class3", "class1", "class2"}, "value", "desc", []string{"class3", "class2", "class1"}},
 	} {
-		var result []interface{}
+		var result interface{}
 		var err error
 		if this.sortByField == nil {
 			result, err = Sort(this.sequence)

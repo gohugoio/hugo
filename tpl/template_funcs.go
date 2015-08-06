@@ -875,7 +875,7 @@ func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 	return template.HTML(str), nil
 }
 
-func Sort(seq interface{}, args ...interface{}) ([]interface{}, error) {
+func Sort(seq interface{}, args ...interface{}) (interface{}, error) {
 	seqv := reflect.ValueOf(seq)
 	seqv, isNil := indirect(seqv)
 	if isNil {
@@ -883,7 +883,7 @@ func Sort(seq interface{}, args ...interface{}) ([]interface{}, error) {
 	}
 
 	// Create a list of pairs that will be used to do the sort
-	p := pairList{SortAsc: true}
+	p := pairList{SortAsc: true, SliceType: reflect.SliceOf(seqv.Type().Elem())}
 	p.Pairs = make([]pair, seqv.Len())
 
 	for i, l := range args {
@@ -900,7 +900,6 @@ func Sort(seq interface{}, args ...interface{}) ([]interface{}, error) {
 		}
 	}
 
-	var sorted []interface{}
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < seqv.Len(); i++ {
@@ -921,8 +920,7 @@ func Sort(seq interface{}, args ...interface{}) ([]interface{}, error) {
 	default:
 		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
 	}
-	sorted = p.sort()
-	return sorted, nil
+	return p.sort(), nil
 }
 
 // Credit for pair sorting method goes to Andrew Gerrand
@@ -938,6 +936,7 @@ type pairList struct {
 	Pairs       []pair
 	SortByField string
 	SortAsc     bool
+	SliceType   reflect.Type
 }
 
 func (p pairList) Swap(i, j int) { p.Pairs[i], p.Pairs[j] = p.Pairs[j], p.Pairs[i] }
@@ -965,18 +964,18 @@ func (p pairList) Less(i, j int) bool {
 }
 
 // sorts a pairList and returns a slice of sorted values
-func (p pairList) sort() []interface{} {
+func (p pairList) sort() interface{} {
 	if p.SortAsc {
 		sort.Sort(p)
 	} else {
 		sort.Sort(sort.Reverse(p))
 	}
-	sorted := make([]interface{}, len(p.Pairs))
+	sorted := reflect.MakeSlice(p.SliceType, len(p.Pairs), len(p.Pairs))
 	for i, v := range p.Pairs {
-		sorted[i] = v.Value.Interface()
+		sorted.Index(i).Set(v.Value)
 	}
 
-	return sorted
+	return sorted.Interface()
 }
 
 func IsSet(a interface{}, key interface{}) bool {
