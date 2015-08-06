@@ -5,6 +5,6 @@ sitelink: http://www.arqueart.com/
 tags:
 - business
 - corporate
-thumbnail: /img/arqueart.jpg
+thumbnail: /img/arqueart-tn.jpg
 title: arqueart.com
 ---
