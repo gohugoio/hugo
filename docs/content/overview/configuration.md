@@ -121,7 +121,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     pygmentsStyle:              "monokai"
     # true: use pygments-css or false: color-codes directly
     pygmentsUseClasses:         false
-    sitemap:                    ""
+    # default sitemap configuration map
+    sitemap:
     # filesystem path to read files relative from
     source:                     ""
     staticdir:                  "static"
