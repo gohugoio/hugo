@@ -882,32 +882,51 @@ func Sort(seq interface{}, args ...interface{}) (interface{}, error) {
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice, reflect.Map:
+		// ok
+	default:
+		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
+	}
+
 	// Create a list of pairs that will be used to do the sort
 	p := pairList{SortAsc: true, SliceType: reflect.SliceOf(seqv.Type().Elem())}
 	p.Pairs = make([]pair, seqv.Len())
 
+	var sortByField string
 	for i, l := range args {
 		dStr, err := cast.ToStringE(l)
 		switch {
 		case i == 0 && err != nil:
-			p.SortByField = ""
+			sortByField = ""
 		case i == 0 && err == nil:
-			p.SortByField = dStr
+			sortByField = dStr
 		case i == 1 && err == nil && dStr == "desc":
 			p.SortAsc = false
 		case i == 1:
 			p.SortAsc = true
 		}
 	}
+	path := strings.Split(strings.Trim(sortByField, "."), ".")
 
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < seqv.Len(); i++ {
 			p.Pairs[i].Key = reflect.ValueOf(i)
 			p.Pairs[i].Value = seqv.Index(i)
-		}
-		if p.SortByField == "" {
-			p.SortByField = "value"
+			if sortByField == "" || sortByField == "value" {
+				p.Pairs[i].SortByValue = p.Pairs[i].Value
+			} else {
+				v := p.Pairs[i].Value
+				var err error
+				for _, elemName := range path {
+					v, err = evaluateSubElem(v, elemName)
+					if err != nil {
+						return nil, err
+					}
+				}
+				p.Pairs[i].SortByValue = v
+			}
 		}
 
 	case reflect.Map:
@@ -915,10 +934,22 @@ func Sort(seq interface{}, args ...interface{}) (interface{}, error) {
 		for i := 0; i < seqv.Len(); i++ {
 			p.Pairs[i].Key = keys[i]
 			p.Pairs[i].Value = seqv.MapIndex(keys[i])
+			if sortByField == "" {
+				p.Pairs[i].SortByValue = p.Pairs[i].Key
+			} else if sortByField == "value" {
+				p.Pairs[i].SortByValue = p.Pairs[i].Value
+			} else {
+				v := p.Pairs[i].Value
+				var err error
+				for _, elemName := range path {
+					v, err = evaluateSubElem(v, elemName)
+					if err != nil {
+						return nil, err
+					}
+				}
+				p.Pairs[i].SortByValue = v
+			}
 		}
-
-	default:
-		return nil, errors.New("can't sort " + reflect.ValueOf(seq).Type().String())
 	}
 	return p.sort(), nil
 }
@@ -927,40 +958,22 @@ func Sort(seq interface{}, args ...interface{}) (interface{}, error) {
 // https://groups.google.com/forum/#!topic/golang-nuts/FT7cjmcL7gw
 // A data structure to hold a key/value pair.
 type pair struct {
-	Key   reflect.Value
-	Value reflect.Value
+	Key         reflect.Value
+	Value       reflect.Value
+	SortByValue reflect.Value
 }
 
 // A slice of pairs that implements sort.Interface to sort by Value.
 type pairList struct {
-	Pairs       []pair
-	SortByField string
-	SortAsc     bool
-	SliceType   reflect.Type
+	Pairs     []pair
+	SortAsc   bool
+	SliceType reflect.Type
 }
 
 func (p pairList) Swap(i, j int) { p.Pairs[i], p.Pairs[j] = p.Pairs[j], p.Pairs[i] }
 func (p pairList) Len() int      { return len(p.Pairs) }
 func (p pairList) Less(i, j int) bool {
-	var truth bool
-	switch {
-	case p.SortByField == "value":
-		iVal := p.Pairs[i].Value
-		jVal := p.Pairs[j].Value
-		truth = Lt(iVal.Interface(), jVal.Interface())
-
-	case p.SortByField != "":
-		if p.Pairs[i].Value.FieldByName(p.SortByField).IsValid() {
-			iVal := p.Pairs[i].Value.FieldByName(p.SortByField)
-			jVal := p.Pairs[j].Value.FieldByName(p.SortByField)
-			truth = Lt(iVal.Interface(), jVal.Interface())
-		}
-	default:
-		iVal := p.Pairs[i].Key
-		jVal := p.Pairs[j].Key
-		truth = Lt(iVal.Interface(), jVal.Interface())
-	}
-	return truth
+	return Lt(p.Pairs[i].SortByValue.Interface(), p.Pairs[j].SortByValue.Interface())
 }
 
 // sorts a pairList and returns a slice of sorted values
