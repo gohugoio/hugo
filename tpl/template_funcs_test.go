@@ -1081,6 +1081,10 @@ func TestSort(t *testing.T) {
 		MyFloat  float64
 		MyString string
 	}
+	type mid struct {
+		Tst TstX
+	}
+
 	for i, this := range []struct {
 		sequence    interface{}
 		sortByField interface{}
@@ -1091,6 +1095,8 @@ func TestSort(t *testing.T) {
 		{[]string{"class3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "class3"}},
 		{[]int{1, 2, 3, 4, 5}, nil, "asc", []int{1, 2, 3, 4, 5}},
 		{[]int{5, 4, 3, 1, 2}, nil, "asc", []int{1, 2, 3, 4, 5}},
+		// test sort key parameter is focibly set empty
+		{[]string{"class3", "class1", "class2"}, map[int]string{1: "a"}, "asc", []string{"class1", "class2", "class3"}},
 		// test map sorting by keys
 		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []int{10, 20, 30, 40, 50}},
 		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, nil, "asc", []int{30, 20, 10, 40, 50}},
@@ -1122,9 +1128,124 @@ func TestSort(t *testing.T) {
 			"asc",
 			[]ts{{50, 50.5, "fifty"}, {40, 40.5, "forty"}, {10, 10.5, "ten"}, {30, 30.5, "thirty"}, {20, 20.5, "twenty"}},
 		},
-		// Test sort desc
+		// test sort desc
 		{[]string{"class1", "class2", "class3"}, "value", "desc", []string{"class3", "class2", "class1"}},
 		{[]string{"class3", "class1", "class2"}, "value", "desc", []string{"class3", "class2", "class1"}},
+		// test sort by struct's method
+		{
+			[]TstX{{A: "i", B: "j"}, {A: "e", B: "f"}, {A: "c", B: "d"}, {A: "g", B: "h"}, {A: "a", B: "b"}},
+			"TstRv",
+			"asc",
+			[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		{
+			[]*TstX{{A: "i", B: "j"}, {A: "e", B: "f"}, {A: "c", B: "d"}, {A: "g", B: "h"}, {A: "a", B: "b"}},
+			"TstRp",
+			"asc",
+			[]*TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		// test map sorting by struct's method
+		{
+			map[string]TstX{"1": {A: "i", B: "j"}, "2": {A: "e", B: "f"}, "3": {A: "c", B: "d"}, "4": {A: "g", B: "h"}, "5": {A: "a", B: "b"}},
+			"TstRv",
+			"asc",
+			[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		{
+			map[string]*TstX{"1": {A: "i", B: "j"}, "2": {A: "e", B: "f"}, "3": {A: "c", B: "d"}, "4": {A: "g", B: "h"}, "5": {A: "a", B: "b"}},
+			"TstRp",
+			"asc",
+			[]*TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		// test sort by dot chaining key argument
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			".foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			"foo.TstRv",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]*TstX{{"foo": &TstX{A: "e", B: "f"}}, {"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}},
+			"foo.TstRp",
+			"asc",
+			[]map[string]*TstX{{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "e", B: "f"}}}, {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.A",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		{
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "e", B: "f"}}}, {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.TstRv",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		// test map sorting by dot chaining key argument
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			".foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			"foo.TstRv",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]*TstX{"1": {"foo": &TstX{A: "e", B: "f"}}, "2": {"foo": &TstX{A: "a", B: "b"}}, "3": {"foo": &TstX{A: "c", B: "d"}}},
+			"foo.TstRp",
+			"asc",
+			[]map[string]*TstX{{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]mid{"1": {"foo": mid{Tst: TstX{A: "e", B: "f"}}}, "2": {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, "3": {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.A",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		{
+			map[string]map[string]mid{"1": {"foo": mid{Tst: TstX{A: "e", B: "f"}}}, "2": {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, "3": {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.TstRv",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		// test error cases
+		{(*[]TstX)(nil), nil, "asc", false},
+		{TstX{A: "a", B: "b"}, nil, "asc", false},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			"foo.NotAvailable",
+			"asc",
+			false,
+		},
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			"foo.NotAvailable",
+			"asc",
+			false,
+		},
 	} {
 		var result interface{}
 		var err error
@@ -1133,12 +1254,19 @@ func TestSort(t *testing.T) {
 		} else {
 			result, err = Sort(this.sequence, this.sortByField, this.sortAsc)
 		}
-		if err != nil {
-			t.Errorf("[%d] failed: %s", i, err)
-			continue
-		}
-		if !reflect.DeepEqual(result, this.expect) {
-			t.Errorf("[%d] Sort called on sequence: %v | sortByField: `%v` | got %v but expected %v", i, this.sequence, this.sortByField, result, this.expect)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Sort didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Sort called on sequence: %v | sortByField: `%v` | got %v but expected %v", i, this.sequence, this.sortByField, result, this.expect)
+			}
 		}
 	}
 }
