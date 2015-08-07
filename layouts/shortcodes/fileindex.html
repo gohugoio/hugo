@@ -4,7 +4,7 @@
 {{$dir := .Get "dir"}}
 {{ $url := .Get "baseurl" }}
 
-{{ $files := ReadDir $dir }}
+{{ $files := readDir $dir }}
     {{ range $files }}
 			<tr>
                 <td>{{.Size}}</td>
