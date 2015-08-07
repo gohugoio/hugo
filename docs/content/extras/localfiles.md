@@ -15,13 +15,13 @@ weight: 110
 ## Traversing Local Files
 
 Hugo includes a way to traverse local files.
-This is done using the 'ReadDir' function.
+This is done using the 'readDir' function.
 
-## Using ReadDir
+## Using readDir
 
-ReadDir takes a single string input that is relative to the root directory of the site. It returns an array of [os.FileInfo](https://golang.org/pkg/os/#FileInfo)
+readDir takes a single string input that is relative to the root directory of the site. It returns an array of [os.FileInfo](https://golang.org/pkg/os/#FileInfo)
 
-Let's create a shortcode to build a file index with links using ReadDir.
+Let's create a shortcode to build a file index with links using readDir.
 
 'fileindex.html'
 
@@ -31,7 +31,7 @@ Let's create a shortcode to build a file index with links using ReadDir.
     {{$dir := .Get "dir"}}
     {{ $url := .Get "baseurl" }}
     
-    {{ $files := ReadDir $dir }}
+    {{ $files := readDir $dir }}
         {{ range $files }}
     			<tr>
                     <td>{{.Size}}</td>
