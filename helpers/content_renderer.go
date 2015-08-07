@@ -8,12 +8,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// hugoHtmlRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
-type hugoHtmlRenderer struct {
+// Wraps a blackfriday.Renderer, typically a blackfriday.Html
+type HugoHtmlRenderer struct {
 	blackfriday.Renderer
 }
 
-func (renderer *hugoHtmlRenderer) blockCode(out *bytes.Buffer, text []byte, lang string) {
+func (renderer *HugoHtmlRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if viper.GetBool("PygmentsCodeFences") {
 		str := html.UnescapeString(string(text))
 		out.WriteString(Highlight(str, lang, ""))

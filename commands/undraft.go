@@ -26,13 +26,13 @@ import (
 var undraftCmd = &cobra.Command{
 	Use:   "undraft path/to/content",
 	Short: "Undraft changes the content's draft status from 'True' to 'False'",
-	Long: `Undraft changes the content's draft status from 'True' to 'False'
-and updates the date to/ the current date and time.
+	Long:  `Undraft changes the content's draft status from 'True' to 'False'
+and updates the date to the current date and time.
 If the content's draft status is 'False', nothing is done.`,
-	Run: Undraft,
+	Run:   Undraft,
 }
 
-// Undraft publishes the specified content by setting its draft status
+// Publish publishes the specified content by setting its draft status
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
 func Undraft(cmd *cobra.Command, args []string) {
