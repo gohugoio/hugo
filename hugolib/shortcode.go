@@ -60,7 +60,13 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
 			return "error: cannot access named params by position"
 		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
-			x = reflect.ValueOf(scp.Params).Index(int(reflect.ValueOf(key).Int()))
+			idx := int(reflect.ValueOf(key).Int())
+			ln := reflect.ValueOf(scp.Params).Len()
+			if idx > ln-1 {
+				helpers.DistinctErrorLog.Printf("No shortcode param at .Get %d in page %s, have params: %v", idx, scp.Page.FullFilePath(), scp.Params)
+				return fmt.Sprintf("error: index out of range for positional param at position %d", idx)
+			}
+			x = reflect.ValueOf(scp.Params).Index(idx)
 		}
 	case string:
 		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {

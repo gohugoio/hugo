@@ -85,6 +85,12 @@ func TestPositionalParamSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{<   video   47238zzb    >}}", "Playing Video 47238zzb", tem)
 }
 
+func TestPositionalParamIndexOutOfBounds(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", tem)
+}
+
 func TestNamedParamSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
