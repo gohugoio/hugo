@@ -271,6 +271,8 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 
 }
 
+var shortCodeIllegalState = errors.New("Illegal shortcode state")
+
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
@@ -353,8 +355,12 @@ Loop:
 					params[currItem.val] = pt.next().val
 					sc.params = params
 				} else {
-					params := sc.params.(map[string]string)
-					params[currItem.val] = pt.next().val
+					if params, ok := sc.params.(map[string]string); ok {
+						params[currItem.val] = pt.next().val
+					} else {
+						return sc, shortCodeIllegalState
+					}
+
 				}
 			} else {
 				// positional params
@@ -363,9 +369,13 @@ Loop:
 					params = append(params, currItem.val)
 					sc.params = params
 				} else {
-					params := sc.params.([]string)
-					params = append(params, currItem.val)
-					sc.params = params
+					if params, ok := sc.params.([]string); ok {
+						params = append(params, currItem.val)
+						sc.params = params
+					} else {
+						return sc, shortCodeIllegalState
+					}
+
 				}
 			}
 
