@@ -368,6 +368,7 @@ func TestSlicestr(t *testing.T) {
 		{"abcdef", []int{-1, 7}, false},
 		{"abcdef", []int{1, -1}, false},
 		{tstNoStringer{}, []int{0, 1}, false},
+		{"ĀĀĀ", []int{0, 1}, "Ā"}, // issue #1333
 	} {
 		result, err := Slicestr(this.v1, this.v2...)
 
@@ -422,6 +423,7 @@ func TestSubstr(t *testing.T) {
 		{"abcdef", 2.0, nil, false},
 		{"abcdef", 2.0, 2, false},
 		{"abcdef", 2, 2.0, false},
+		{"ĀĀĀ", 1, 2, "ĀĀ"}, // # issue 1333
 	} {
 		var result string
 		n = i

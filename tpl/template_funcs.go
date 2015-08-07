@@ -141,19 +141,21 @@ func Slicestr(a interface{}, startEnd ...int) (string, error) {
 		return "", errors.New("too many arguments")
 	}
 
-	if len(startEnd) > 0 && (startEnd[0] < 0 || startEnd[0] >= len(aStr)) {
+	asRunes := []rune(aStr)
+
+	if len(startEnd) > 0 && (startEnd[0] < 0 || startEnd[0] >= len(asRunes)) {
 		return "", errors.New("slice bounds out of range")
 	}
 
 	if len(startEnd) == 2 {
-		if startEnd[1] < 0 || startEnd[1] > len(aStr) {
+		if startEnd[1] < 0 || startEnd[1] > len(asRunes) {
 			return "", errors.New("slice bounds out of range")
 		}
-		return aStr[startEnd[0]:startEnd[1]], nil
+		return string(asRunes[startEnd[0]:startEnd[1]]), nil
 	} else if len(startEnd) == 1 {
-		return aStr[startEnd[0]:], nil
+		return string(asRunes[startEnd[0]:]), nil
 	} else {
-		return aStr[:], nil
+		return string(asRunes[:]), nil
 	}
 
 }
@@ -194,6 +196,8 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 		}
 	}
 
+	asRunes := []rune(aStr)
+
 	switch len(nums) {
 	case 0:
 		return "", errors.New("too less arguments")
@@ -201,7 +205,7 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
 			return "", err
 		}
-		length = len(aStr)
+		length = len(asRunes)
 	case 2:
 		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
 			return "", err
@@ -213,10 +217,10 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 		return "", errors.New("too many arguments")
 	}
 
-	if start < -len(aStr) {
+	if start < -len(asRunes) {
 		start = 0
 	}
-	if start > len(aStr) {
+	if start > len(asRunes) {
 		return "", errors.New(fmt.Sprintf("start position out of bounds for %d-byte string", len(aStr)))
 	}
 
@@ -225,24 +229,24 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 		s = start
 		e = start + length
 	} else if start < 0 && length >= 0 {
-		s = len(aStr) + start - length + 1
-		e = len(aStr) + start + 1
+		s = len(asRunes) + start - length + 1
+		e = len(asRunes) + start + 1
 	} else if start >= 0 && length < 0 {
 		s = start
-		e = len(aStr) + length
+		e = len(asRunes) + length
 	} else {
-		s = len(aStr) + start
-		e = len(aStr) + length
+		s = len(asRunes) + start
+		e = len(asRunes) + length
 	}
 
 	if s > e {
 		return "", errors.New(fmt.Sprintf("calculated start position greater than end position: %d > %d", s, e))
 	}
-	if e > len(aStr) {
-		e = len(aStr)
+	if e > len(asRunes) {
+		e = len(asRunes)
 	}
 
-	return aStr[s:e], nil
+	return string(asRunes[s:e]), nil
 
 }
 
