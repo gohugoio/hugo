@@ -8,7 +8,7 @@ sourceLink: https://github.com/SamuelDebruyn/sa.muel.be-hugo
 tags:
 - personal
 - blog
-thumbnail: /img/samuelbe.png
+thumbnail: /img/samuelbe-tn.png
 title: sa.muel.be
 ---
 
