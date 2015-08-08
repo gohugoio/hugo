@@ -8,7 +8,7 @@ sourceLink: https://github.com/scottcwilson/hugosite
 tags:
 - personal
 - blog
-thumbnail: /img/scottcwilson.jpg
+thumbnail: /img/scottcwilson-tn.png
 title: scottcwilson.com
 ---
 
