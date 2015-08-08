@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
 	"path"
 	"path/filepath"
 	"strings"
@@ -51,7 +52,9 @@ for rendering in Hugo.`,
 			return "/commands/" + strings.ToLower(base) + "/"
 		}
 
+		jww.FEEDBACK.Println("Generating Hugo command-line documentation in", gendocdir, "...")
 		cobra.GenMarkdownTreeCustom(cmd.Root(), gendocdir, prepender, linkHandler)
+		jww.FEEDBACK.Println("Done.")
 	},
 }
 
