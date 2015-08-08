@@ -9,7 +9,7 @@ tags:
 - community
 - documentation
 - translation
-thumbnail: /img/yslow-rules.png
+thumbnail: /img/yslow-rules-tn.png
 title: YSlow Rules
 ---
 

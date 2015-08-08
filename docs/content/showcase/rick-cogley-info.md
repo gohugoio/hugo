@@ -10,6 +10,6 @@ tags:
 - blog
 - rickcogley
 - japan
-thumbnail: /img/rick_cogley_info_tn.png
+thumbnail: /img/rick_cogley_info-tn.png
 title: rick.cogley.info
 ---
