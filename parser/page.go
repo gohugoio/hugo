@@ -169,7 +169,7 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 }
 
 // extractFrontMatterDelims takes a frontmatter from the content bufio.Reader.
-// Begining white spaces of the bufio.Reader must be trimmed before call this
+// Beginning white spaces of the bufio.Reader must be trimmed before call this
 // function.
 func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatter, err error) {
 	var (
