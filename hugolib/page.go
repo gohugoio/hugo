@@ -471,7 +471,7 @@ func (p *Page) update(f interface{}) error {
 	}
 	m := f.(map[string]interface{})
 	var err error
-	draftSeen := 0
+	var draft, published *bool
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -510,11 +510,11 @@ func (p *Page) update(f interface{}) error {
 				jww.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
 		case "draft":
-			p.Draft = cast.ToBool(v)
-			draftSeen++
+			draft = new(bool)
+			*draft = cast.ToBool(v)
 		case "published": // Intentionally undocumented
-			p.Draft = !cast.ToBool(v)
-			draftSeen++
+			published = new(bool)
+			*published = !cast.ToBool(v)
 		case "layout":
 			p.layout = cast.ToString(v)
 		case "markup":
@@ -572,9 +572,16 @@ func (p *Page) update(f interface{}) error {
 		}
 	}
 
-	if draftSeen > 1 {
+	if draft != nil && published != nil {
+		p.Draft = *draft
+		jww.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
 		return ErrHasDraftAndPublished
+	} else if draft != nil {
+		p.Draft = *draft
+	} else if published != nil {
+		p.Draft = !*published
 	}
+
 	if p.Lastmod.IsZero() {
 		p.Lastmod = p.Date
 	}
