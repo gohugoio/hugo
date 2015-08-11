@@ -265,6 +265,21 @@ Following operators are now available
        {{ .Content }}
     {{ end }}
 
+### Unset field
+Filter only work for set fields. To check whether a field is set or exist, use operand `nil`.
+
+This can be useful to filter a small amount of pages from a large pool. Instead of set field on all pages, you can set field on required pages only.
+
+Only following operators are available for `nil`
+- `=`, `==`, `eq`: True if the given field is not set.
+- `!=`, `<>`, `ne`: True if the given field is set.
+
+e.g.
+
+    {{ range where .Data.Pages ".Params.specialpost" "!=" nil }}
+       {{ .Content }}
+    {{ end }}
+
 
 ## Math
 
