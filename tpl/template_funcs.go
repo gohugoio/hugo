@@ -128,32 +128,65 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
+// Taken out from Substr, to be used by Slicestr too.
+func toInt(v interface{}, message string) (int, error) {
+	switch i := v.(type) {
+	case int:
+		return i, nil
+	case int8:
+		return int(i), nil
+	case int16:
+		return int(i), nil
+	case int32:
+		return int(i), nil
+	case int64:
+		return int(i), nil
+	default:
+		return 0, errors.New(message)
+	}
+}
+
 // Slicing in Slicestr is done by specifying a half-open range with
 // two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
 // The end index can be omitted, it defaults to the string's length.
-func Slicestr(a interface{}, startEnd ...int) (string, error) {
+func Slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
 	}
 
-	if len(startEnd) > 2 {
+	var argStart, argEnd int
+
+	argNum := len(startEnd)
+
+	if argNum > 0 {
+		if argStart, err = toInt(startEnd[0], "start argument must be integer"); err != nil {
+			return "", err
+		}
+	}
+	if argNum > 1 {
+		if argEnd, err = toInt(startEnd[1], "end argument must be integer"); err != nil {
+			return "", err
+		}
+	}
+
+	if argNum > 2 {
 		return "", errors.New("too many arguments")
 	}
 
 	asRunes := []rune(aStr)
 
-	if len(startEnd) > 0 && (startEnd[0] < 0 || startEnd[0] >= len(asRunes)) {
+	if argNum > 0 && (argStart < 0 || argStart >= len(asRunes)) {
 		return "", errors.New("slice bounds out of range")
 	}
 
-	if len(startEnd) == 2 {
-		if startEnd[1] < 0 || startEnd[1] > len(asRunes) {
+	if argNum == 2 {
+		if argEnd < 0 || argEnd > len(asRunes) {
 			return "", errors.New("slice bounds out of range")
 		}
-		return string(asRunes[startEnd[0]:startEnd[1]]), nil
-	} else if len(startEnd) == 1 {
-		return string(asRunes[startEnd[0]:]), nil
+		return string(asRunes[argStart:argEnd]), nil
+	} else if argNum == 1 {
+		return string(asRunes[argStart:]), nil
 	} else {
 		return string(asRunes[:]), nil
 	}
@@ -179,22 +212,6 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 	}
 
 	var start, length int
-	toInt := func(v interface{}, message string) (int, error) {
-		switch i := v.(type) {
-		case int:
-			return i, nil
-		case int8:
-			return int(i), nil
-		case int16:
-			return int(i), nil
-		case int32:
-			return int(i), nil
-		case int64:
-			return int(i), nil
-		default:
-			return 0, errors.New(message)
-		}
-	}
 
 	asRunes := []rune(aStr)
 
