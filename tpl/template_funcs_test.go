@@ -353,22 +353,29 @@ func TestSlicestr(t *testing.T) {
 		v2     []int
 		expect interface{}
 	}{
-		{"abc", []int{1, 2}, "b"},
-		{"abc", []int{1, 3}, "bc"},
-		{"abc", []int{0, 1}, "a"},
-		{"abcdef", []int{}, "abcdef"},
-		{"abcdef", []int{0, 6}, "abcdef"},
-		{"abcdef", []int{0, 2}, "ab"},
-		{"abcdef", []int{2}, "cdef"},
-		{123, []int{1, 3}, "23"},
-		{123, []int{1, 2, 3}, false},
-		{"abcdef", []int{6}, false},
-		{"abcdef", []int{4, 7}, false},
-		{"abcdef", []int{-1}, false},
-		{"abcdef", []int{-1, 7}, false},
-		{"abcdef", []int{1, -1}, false},
-		{tstNoStringer{}, []int{0, 1}, false},
-		{"ĀĀĀ", []int{0, 1}, "Ā"}, // issue #1333
+		{"abc", 1, 2, "b"},
+		{"abc", 1, 3, "bc"},
+		{"abcdef", 1, int8(3), "bc"},
+		{"abcdef", 1, int16(3), "bc"},
+		{"abcdef", 1, int32(3), "bc"},
+		{"abcdef", 1, int64(3), "bc"},
+		{"abc", 0, 1, "a"},
+		{"abcdef", nil, nil, "abcdef"},
+		{"abcdef", 0, 6, "abcdef"},
+		{"abcdef", 0, 2, "ab"},
+		{"abcdef", 2, nil, "cdef"},
+		{"abcdef", int8(2), nil, "cdef"},
+		{"abcdef", int16(2), nil, "cdef"},
+		{"abcdef", int32(2), nil, "cdef"},
+		{"abcdef", int64(2), nil, "cdef"},
+		{123, 1, 3, "23"},
+		{"abcdef", 6, nil, false},
+		{"abcdef", 4, 7, false},
+		{"abcdef", -1, nil, false},
+		{"abcdef", -1, 7, false},
+		{"abcdef", 1, -1, false},
+		{tstNoStringer{}, 0, 1, false},
+		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
 	} {
 		result, err := Slicestr(this.v1, this.v2...)
 
