@@ -378,7 +378,14 @@ func TestSlicestr(t *testing.T) {
 		{tstNoStringer{}, 0, 1, false},
 		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
 	} {
-		result, err := Slicestr(this.v1, this.v2...)
+		var result string
+		if this.v2 == nil {
+			result, err = Slicestr(this.v1)
+		} else if this.v3 == nil {
+			result, err = Slicestr(this.v1, this.v2)
+		} else {
+			result, err = Slicestr(this.v1, this.v2, this.v3)
+		}
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
