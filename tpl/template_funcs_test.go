@@ -350,7 +350,8 @@ func TestIn(t *testing.T) {
 func TestSlicestr(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
-		v2     []int
+		v2     interface{}
+		v3     interface{}
 		expect interface{}
 	}{
 		{"abc", 1, 2, "b"},
