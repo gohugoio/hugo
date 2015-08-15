@@ -437,9 +437,9 @@ func TestSubstr(t *testing.T) {
 		{123, 1, 3, "23"},
 		{1.2e3, 0, 4, "1200"},
 		{tstNoStringer{}, 0, 1, false},
-		{"abcdef", 2.0, nil, false},
-		{"abcdef", 2.0, 2, false},
-		{"abcdef", 2, 2.0, false},
+		{"abcdef", 2.0, nil, "cdef"},
+		{"abcdef", 2.0, 2, "cd"},
+		{"abcdef", 2, 2.0, "cd"},
 		{"ĀĀĀ", 1, 2, "ĀĀ"}, // # issue 1333
 	} {
 		var result string

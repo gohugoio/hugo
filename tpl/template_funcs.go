@@ -128,24 +128,6 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
-// Taken out from Substr, to be used by Slicestr too.
-func toInt(v interface{}, message string) (int, error) {
-	switch i := v.(type) {
-	case int:
-		return i, nil
-	case int8:
-		return int(i), nil
-	case int16:
-		return int(i), nil
-	case int32:
-		return int(i), nil
-	case int64:
-		return int(i), nil
-	default:
-		return 0, errors.New(message)
-	}
-}
-
 // Slicing in Slicestr is done by specifying a half-open range with
 // two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
 // The end index can be omitted, it defaults to the string's length.
@@ -160,13 +142,13 @@ func Slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 	argNum := len(startEnd)
 
 	if argNum > 0 {
-		if argStart, err = toInt(startEnd[0], "start argument must be integer"); err != nil {
-			return "", err
+		if argStart, err = cast.ToIntE(startEnd[0]); err != nil {
+			return "", errors.New("start argument must be integer")
 		}
 	}
 	if argNum > 1 {
-		if argEnd, err = toInt(startEnd[1], "end argument must be integer"); err != nil {
-			return "", err
+		if argEnd, err = cast.ToIntE(startEnd[1]); err != nil {
+			return "", errors.New("end argument must be integer")
 		}
 	}
 
@@ -219,16 +201,16 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 	case 0:
 		return "", errors.New("too less arguments")
 	case 1:
-		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
-			return "", err
+		if start, err = cast.ToIntE(nums[0]); err != nil {
+			return "", errors.New("start argument must be integer")
 		}
 		length = len(asRunes)
 	case 2:
-		if start, err = toInt(nums[0], "start argument must be integer"); err != nil {
-			return "", err
+		if start, err = cast.ToIntE(nums[0]); err != nil {
+			return "", errors.New("start argument must be integer")
 		}
-		if length, err = toInt(nums[1], "length argument must be integer"); err != nil {
-			return "", err
+		if length, err = cast.ToIntE(nums[1]); err != nil {
+			return "", errors.New("length argument must be integer")
 		}
 	default:
 		return "", errors.New("too many arguments")
