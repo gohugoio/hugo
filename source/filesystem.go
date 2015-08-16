@@ -14,10 +14,8 @@
 package source
 
 import (
-	"bytes"
 	"github.com/spf13/viper"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -114,11 +112,11 @@ func (f *Filesystem) captureFiles() {
 		if isNonProcessablePath(filePath) {
 			return nil
 		}
-		data, err := ioutil.ReadFile(filePath)
+		rd, err := NewLazyFileReader(filePath)
 		if err != nil {
 			return err
 		}
-		f.add(filePath, bytes.NewBuffer(data))
+		f.add(filePath, rd)
 		return nil
 	}
 
