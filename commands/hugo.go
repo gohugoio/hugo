@@ -165,7 +165,12 @@ func LoadDefaultSettings() {
 // InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig() {
 	viper.SetConfigFile(CfgFile)
-	viper.AddConfigPath(Source)
+	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
+	if Source == "" {
+		viper.AddConfigPath(".")
+	} else {
+		viper.AddConfigPath(Source)
+	}
 	err := viper.ReadInConfig()
 	if err != nil {
 		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
