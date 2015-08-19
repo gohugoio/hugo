@@ -191,7 +191,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	}
 
 	// Reads a character from Reader one by one and checks it matches the
-	// last character of one of delemiters to find the last character of
+	// last character of one of delimiters to find the last character of
 	// frontmatter. If it matches, makes sure it contains the delimiter
 	// and if so, also checks it is followed by CR+LF or LF when YAML,
 	// TOML case. In JSON case, nested delimiters must be parsed and it
