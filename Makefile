@@ -6,7 +6,7 @@
 
 COMMIT_HASH=`git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE=`date +%FT%T%z`
-LDFLAGS=-ldflags "-X github.com/spf13/hugo/hugolib.CommitHash ${COMMIT_HASH} -X github.com/spf13/hugo/hugolib.BuildDate ${BUILD_DATE}"
+LDFLAGS=-ldflags "-X github.com/spf13/hugo/hugolib.CommitHash=${COMMIT_HASH} -X github.com/spf13/hugo/hugolib.BuildDate=${BUILD_DATE}"
 
 all: gitinfo
 
