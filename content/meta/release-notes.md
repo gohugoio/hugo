@@ -9,6 +9,48 @@ menu:
 title: Release Notes
 weight: 10
 ---
+## **0.15.0** ???
+
+* We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. [1181](https://github.com/spf13/hugo/issues/1181)
+* Hugo is now built with `Go 1.5` which, among many other improvements, have fixed the last known data race in Hugo. [917] (https://github.com/spf13/hugo/issues/917)
+* Lots of fixes and improvements in the template funcs:
+	* The `sort` template func now accepts field/key chaining arguments and pointer values. [1330](https://github.com/spf13/hugo/issues/1330)
+	* Several fixes for `slicestr` and `substr`, most importantly, they now have full `utf-8`-support. [1190](https://github.com/spf13/hugo/issues/1190) [1333](https://github.com/spf13/hugo/issues/1333) [1347](https://github.com/spf13/hugo/issues/1347) 
+	*  The new `last` template function allows the user to select the last `N` items of a slice. [1148](https://github.com/spf13/hugo/issues/1148)
+	* * The new `after` func allows the user to select the items after the `Nth` item. [1200] (https://github.com/spf13/hugo/pull/1200)
+	* Add `time.Time` type support to the `where` func.
+	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
+	* GetJSON/GetCSV: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
+	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
+* Several new Blackfriday options are added:
+	* Option to disable `Blackfriday` `Smartypants`.
+	* Option for Blackfriday's opening links in a new window/tab. [1220](https://github.com/spf13/hugo/issues/1220)
+	* Option to disable Blackfriday LaTeX style dashes [1231](https://github.com/spf13/hugo/issues/1231)
+	* Definition lists extension support.
+* `Scratch` now have built-in `map` support.
+* A lot of fields and methods were deprecated in `0.14`. Thesere are now removed, so the error message isn't as friendly if you still use the old values. So please change:
+	*   `getJson` to `getJSON`, `getCsv` to `getCSV`, `safeHtml` to
+  `safeHTML`, `safeCss` to `safeCSS`, `safeUrl` to `safeURL`, `Url` to `URL`,
+  `UrlPath` to `URLPath`, `BaseUrl` to `BaseURL`, `Recent` to `Pages`.
+* We now fall back to `link title` for the default page sort. [1299](https://github.com/spf13/hugo/issues/1299)
+* Fix data races in page sorting and page reversal. These operations are now also cached. [1293](https://github.com/spf13/hugo/issues/1293)
+* Amber templates now work! In addition, the integration has been upgraded so they can now call Hugo's custom functions.
+* Paginator now also supports page groups. [1274](https://github.com/spf13/hugo/issues/1274)
+* `page.HasMenuCurrent()` and `node.HasMenuCurrent()` now work correctly in multi-level nested menus.
+* Several new information elements have been added to `Page` and `Node`:
+	*  `RuneCount` : This may be a good alternative to `WordCount` for Japanese and other CJK languages where a word-split by spaces makes no sense. [1266](https://github.com/spf13/hugo/issues/1266)
+	* `RawContent`: Raw Markdown as a string. One use case may be of embedding remarkjs.com slides.
+	* The new `IsHome` tells the truth about whether you're on the home page or not.
+* Hugo now supports GitHub-flavoured markdown code fences for highlighting for `md`-files (Blackfriday rendered markdown). [362] (https://github.com/spf13/hugo/issues/362)
+* Ace templates:
+	* Base templates now also works in themes. [1215](https://github.com/spf13/hugo/issues/1215).
+	* And now also on Windows. [1178](https://github.com/spf13/hugo/issues/1178)
+* Hugo now removes superfluous p-tags around shortcodes. [1148](https://github.com/spf13/hugo/issues/1148)
+* Some notable new configuration options:
+	*  `IgnoreFiles` can be set with a list of Regular Expressions that matches files to be ignored during build. [1189](https://github.com/spf13/hugo/issues/1189)
+	* `PreserveTaxonomyNames`, when set to `true`, will preserve what you type as the taxonomy name both in the folders created and the taxonomy `key`, but it will be normalized for the URL.  [1180](https://github.com/spf13/hugo/issues/1180)
+* Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. [1176](https://github.com/spf13/hugo/issues/1176)
+
 
 ## **0.14.0** May 25, 2015
 
