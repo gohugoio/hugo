@@ -17,18 +17,18 @@ weight: 10
 	* The `sort` template func now accepts field/key chaining arguments and pointer values. [1330](https://github.com/spf13/hugo/issues/1330)
 	* Several fixes for `slicestr` and `substr`, most importantly, they now have full `utf-8`-support. [1190](https://github.com/spf13/hugo/issues/1190) [1333](https://github.com/spf13/hugo/issues/1333) [1347](https://github.com/spf13/hugo/issues/1347) 
 	*  The new `last` template function allows the user to select the last `N` items of a slice. [1148](https://github.com/spf13/hugo/issues/1148)
-	* * The new `after` func allows the user to select the items after the `Nth` item. [1200] (https://github.com/spf13/hugo/pull/1200)
+	*  The new `after` func allows the user to select the items after the `Nth` item. [1200] (https://github.com/spf13/hugo/pull/1200)
 	* Add `time.Time` type support to the `where` func.
 	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
-	* GetJSON/GetCSV: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
+	* `getJSON`/`getCSV`: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
 	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
 * Several new Blackfriday options are added:
-	* Option to disable `Blackfriday` `Smartypants`.
-	* Option for Blackfriday's opening links in a new window/tab. [1220](https://github.com/spf13/hugo/issues/1220)
-	* Option to disable Blackfriday LaTeX style dashes [1231](https://github.com/spf13/hugo/issues/1231)
+	* Option to disable Blackfriday's `Smartypants`.
+	* Option for Blackfriday to open links in a new window/tab. [1220](https://github.com/spf13/hugo/issues/1220)
+	* Option to disable Blackfriday's LaTeX style dashes [1231](https://github.com/spf13/hugo/issues/1231)
 	* Definition lists extension support.
 * `Scratch` now have built-in `map` support.
-* A lot of fields and methods were deprecated in `0.14`. Thesere are now removed, so the error message isn't as friendly if you still use the old values. So please change:
+* Some fields and methods were deprecated in `0.14`. These are now removed, so the error message isn't as friendly if you still use the old values. So please change:
 	*   `getJson` to `getJSON`, `getCsv` to `getCSV`, `safeHtml` to
   `safeHTML`, `safeCss` to `safeCSS`, `safeUrl` to `safeURL`, `Url` to `URL`,
   `UrlPath` to `URLPath`, `BaseUrl` to `BaseURL`, `Recent` to `Pages`.
