@@ -260,7 +260,7 @@ func Uglify(in string) string {
 		return path.Clean(in) + ".html"
 	}
 
-	name, ext := FileAndExt(in, pb)
+	name, ext := fileAndExt(in, pb)
 	if name == "index" {
 		// /section/name/index.html -> /section/name.html
 		d := path.Dir(in)

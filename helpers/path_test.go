@@ -540,7 +540,7 @@ func TestFileAndExt(t *testing.T) {
 	}
 
 	for i, d := range data {
-		file, ext := FileAndExt(filepath.FromSlash(d.input), fpb)
+		file, ext := fileAndExt(filepath.FromSlash(d.input), fpb)
 		if d.expectedFile != file {
 			t.Errorf("Test %d failed. Expected filename %q got %q.", i, d.expectedFile, file)
 		}
