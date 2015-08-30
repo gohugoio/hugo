@@ -133,6 +133,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     title:                      ""
     # if true, use /filename.html instead of /filename/
     uglyURLs:                   false
+    # Do not make the url/path to lowercase
+    disablePathToLower:         false
     # verbose output
     verbose:                    false
     # verbose logging

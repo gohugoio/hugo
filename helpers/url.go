@@ -102,7 +102,7 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
 func URLize(uri string) string {
-	sanitized := MakePathToLower(uri)
+	sanitized := MakePathSanitized(uri)
 
 	// escape unicode letters
 	parsedUri, err := url.Parse(sanitized)
