@@ -42,7 +42,11 @@ func TestMakePath(t *testing.T) {
 	}
 }
 
-func TestMakePathToLower(t *testing.T) {
+func TestMakePathSanitized(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+	viper.Set("PathToLower", true)
+
 	tests := []struct {
 		input    string
 		expected string
@@ -54,8 +58,34 @@ func TestMakePathToLower(t *testing.T) {
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
 	}
+
 	for _, test := range tests {
-		output := MakePathToLower(test.input)
+		output := MakePathSanitized(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestMakePathSanitizedNotToLower(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+	viper.Set("PathToLower", false)
+
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"  FOO bar  ", "FOO-bar"},
+		{"Foo.Bar/fOO_bAr-Foo", "Foo.Bar/fOO_bAr-Foo"},
+		{"FOO,bar:Foo%Bar", "FOObarFooBar"},
+		{"foo/BAR.HTML", "foo/BAR.HTML"},
+		{"трям/трям", "трям/трям"},
+		{"은행", "은행"},
+	}
+
+	for _, test := range tests {
+		output := MakePathSanitized(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}

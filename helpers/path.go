@@ -78,11 +78,13 @@ func MakePath(s string) string {
 	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
 }
 
-// MakePathToLower creates a Unicode-sanitized string, with the spaces replaced,
-// and transformed to lower case.
-// E.g. Social Media -> social-media
-func MakePathToLower(s string) string {
-	return strings.ToLower(MakePath(s))
+// MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
+func MakePathSanitized(s string) string {
+	if viper.GetBool("PathToLower") {
+		return strings.ToLower(MakePath(s))
+	} else {
+		return MakePath(s)
+	}
 }
 
 func MakeTitle(inpath string) string {

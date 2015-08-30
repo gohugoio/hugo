@@ -160,6 +160,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
+	viper.SetDefault("PathToLower", true)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
