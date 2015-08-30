@@ -869,6 +869,36 @@ func TestDraftAndPublishedFrontMatterError(t *testing.T) {
 	}
 }
 
+var PAGE_WITH_PUBLISHED_FALSE = `---
+title: okay
+published: false
+---
+some content
+`
+var PAGE_WITH_PUBLISHED_TRUE = `---
+title: okay
+published: true
+---
+some content
+`
+
+func TestPublishedFrontMatter(t *testing.T) {
+	p, err := NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_FALSE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if !p.Draft {
+		t.Errorf("expected true, got %t", p.Draft)
+	}
+	p, err = NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_TRUE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if p.Draft {
+		t.Errorf("expected false, got %t", p.Draft)
+	}
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false
