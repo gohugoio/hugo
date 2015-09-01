@@ -1045,7 +1045,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	key := t.key
 	n := s.NewNode()
 	if s.Info.preserveTaxonomyNames {
-		key = helpers.MakePathToLower(key)
+		key = helpers.MakePathSanitized(key)
 		// keep as is, just make sure the first char is upper
 		n.Title = helpers.FirstUpper(t.key)
 	} else {
@@ -1188,7 +1188,7 @@ func (s *Site) RenderSectionLists() error {
 			[]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 
 		if s.Info.preserveTaxonomyNames {
-			section = helpers.MakePathToLower(section)
+			section = helpers.MakePathSanitized(section)
 		}
 
 		n := s.newSectionListNode(sectionName, section, data)
