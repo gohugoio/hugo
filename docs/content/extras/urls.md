@@ -14,7 +14,7 @@ weight: 110
 
 ## Pretty URLs
 
-By default, Hugo create content with 'pretty' URLs. For example,
+By default, Hugo creates content with 'pretty' URLs. For example,
 content created at `/content/extras/urls.md` will be rendered at
 `/public/extras/urls/index.html`, thus accessible from the browser
 at http://example.com/extras/urls/.  No non-standard server-side
