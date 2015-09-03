@@ -168,6 +168,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
 	viper.SetDefault("DisablePathToLower", false)
+	viper.SetDefault("HasCJKLanguage", false)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
