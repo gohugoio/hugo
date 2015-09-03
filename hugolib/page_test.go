@@ -146,15 +146,66 @@ Summary Same Line<!--more-->
 Some more text
 `
 
-	SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES = `---
+	SIMPLE_PAGE_WITH_ALL_CJK_RUNES = `---
 title: Simple
 ---
 
 
 € € € € €
+你好
+도형이
+カテゴリー
 
 
 `
+
+	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES = `---
+title: Simple
+---
+
+
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+More then 70 words.
+
+
+`
+	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY = "In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good."
+
+	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE = `---
+title: Simple
+isCJKLanguage: false
+---
+
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀呀 means good enough.
+More then 70 words.
+
+
+`
+	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀呀 means good enough."
 
 	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
 title: Simple
@@ -584,18 +635,86 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
-func TestRuneCount(t *testing.T) {
+func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
+	viper.Reset()
+
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 
-	if p.RuneCount() != 5 {
-		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 5, p.RuneCount())
+	if p.WordCount != 8 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 8, p.WordCount)
+	}
+}
 
+func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 15 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 15, p.WordCount)
+	}
+}
+
+func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 74 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 74, p.WordCount)
+	}
+
+	if p.Summary != SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY {
+		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
+			SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY, p.Summary)
+	}
+}
+
+func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 75 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 75, p.WordCount)
+	}
+
+	if p.Summary != SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY {
+		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
+			SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY, p.Summary)
 	}
 }
 

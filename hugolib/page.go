@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -40,6 +41,10 @@ import (
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+)
+
+var (
+	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 )
 
 type Page struct {
@@ -67,7 +72,6 @@ type Page struct {
 	contentShortCodes   map[string]string
 	plain               string // TODO should be []byte
 	plainWords          []string
-	plainRuneCount      int
 	plainInit           sync.Once
 	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
@@ -78,6 +82,7 @@ type Page struct {
 	Node
 	pageMenus     PageMenus
 	pageMenusInit sync.Once
+	isCJKLanguage bool
 }
 
 type Source struct {
@@ -111,30 +116,10 @@ func (p *Page) PlainWords() []string {
 	return p.plainWords
 }
 
-// RuneCount returns the rune count, excluding any whitespace, of the plain content.
-func (p *Page) RuneCount() int {
-	p.initPlainSecondary()
-	return p.plainRuneCount
-}
-
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
 		p.plain = helpers.StripHTML(string(p.Content))
 		p.plainWords = strings.Fields(p.plain)
-		return
-	})
-}
-
-func (p *Page) initPlainSecondary() {
-	p.plainSecondaryInit.Do(func() {
-		p.initPlain()
-		runeCount := 0
-		for _, r := range p.plain {
-			if !helpers.IsWhitespace(r) {
-				runeCount++
-			}
-		}
-		p.plainRuneCount = runeCount
 		return
 	})
 }
@@ -218,7 +203,13 @@ func (p *Page) setSummary() {
 	} else {
 		// If hugo defines split:
 		// render, strip html, then split
-		summary, truncated := helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
+		var summary string
+		var truncated bool
+		if p.isCJKLanguage {
+			summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
+		} else {
+			summary, truncated = helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
+		}
 		p.Summary = template.HTML(summary)
 		p.Truncated = truncated
 
@@ -363,18 +354,27 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 }
 
 func (p *Page) analyzePage() {
-	p.WordCount = 0
-	for _, word := range p.PlainWords() {
-		runeCount := utf8.RuneCountInString(word)
-		if len(word) == runeCount {
-			p.WordCount++	
-		} else {
-			p.WordCount += runeCount
+	if p.isCJKLanguage {
+		p.WordCount = 0
+		for _, word := range p.PlainWords() {
+			runeCount := utf8.RuneCountInString(word)
+			if len(word) == runeCount {
+				p.WordCount++
+			} else {
+				p.WordCount += runeCount
+			}
 		}
+	} else {
+		p.WordCount = len(p.PlainWords())
 	}
-	
+
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
-	p.ReadingTime = int((p.WordCount + 212) / 213)
+
+	if p.isCJKLanguage {
+		p.ReadingTime = int((p.WordCount + 500) / 501)
+	} else {
+		p.ReadingTime = int((p.WordCount + 212) / 213)
+	}
 }
 
 func (p *Page) permalink() (*url.URL, error) {
@@ -481,7 +481,7 @@ func (p *Page) update(f interface{}) error {
 	}
 	m := f.(map[string]interface{})
 	var err error
-	var draft, published *bool
+	var draft, published, isCJKLanguage *bool
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -542,6 +542,9 @@ func (p *Page) update(f interface{}) error {
 			p.Status = cast.ToString(v)
 		case "sitemap":
 			p.Sitemap = parseSitemap(cast.ToStringMap(v))
+		case "iscjklanguage":
+			isCJKLanguage = new(bool)
+			*isCJKLanguage = cast.ToBool(v)
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
@@ -594,6 +597,16 @@ func (p *Page) update(f interface{}) error {
 
 	if p.Lastmod.IsZero() {
 		p.Lastmod = p.Date
+	}
+
+	if isCJKLanguage != nil {
+		p.isCJKLanguage = *isCJKLanguage
+	} else if viper.GetBool("HasCJKLanguage") {
+		if cjk.Match(p.rawContent) {
+			p.isCJKLanguage = true
+		} else {
+			p.isCJKLanguage = false
+		}
 	}
 
 	return nil
@@ -766,6 +779,8 @@ func (p *Page) parse(reader io.Reader) error {
 
 	p.renderable = psr.IsRenderable()
 	p.frontmatter = psr.FrontMatter()
+	p.rawContent = psr.Content()
+
 	meta, err := psr.Metadata()
 	if meta != nil {
 		if err != nil {
@@ -777,8 +792,6 @@ func (p *Page) parse(reader io.Reader) error {
 			return err
 		}
 	}
-
-	p.rawContent = psr.Content()
 
 	return nil
 }
