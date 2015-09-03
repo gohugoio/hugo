@@ -54,6 +54,8 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 		{"a b c", "a b c", 12, false},
 		{"a b c", "a b c", 3, false},
 		{"a", "a", 1, false},
+		{"Hello 中国", "Hello 中", 2, true},
+		{"Hello 中国", "Hello 中国", 3, false},
 		{"This is a sentence.", "This is a sentence.", 5, false},
 		{"This is also a sentence!", "This is also a sentence!", 1, false},
 		{"To be. Or not to be. That's the question.", "To be.", 1, true},

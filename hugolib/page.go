@@ -31,6 +31,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -362,7 +363,16 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 }
 
 func (p *Page) analyzePage() {
-	p.WordCount = len(p.PlainWords())
+	p.WordCount = 0
+	for _, word := range p.PlainWords() {
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			p.WordCount++	
+		} else {
+			p.WordCount += runeCount
+		}
+	}
+	
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
 	p.ReadingTime = int((p.WordCount + 212) / 213)
 }

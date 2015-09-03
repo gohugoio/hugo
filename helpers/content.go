@@ -19,6 +19,7 @@ package helpers
 
 import (
 	"bytes"
+	"unicode/utf8"
 	"html/template"
 	"os/exec"
 
@@ -386,21 +387,57 @@ func TruncateWords(s string, max int) string {
 // and returns entire sentences from content, delimited by the int
 // and whether it's truncated or not.
 func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
-	if max >= len(words) {
-		return strings.Join(words, " "), false
-	}
-
-	for counter, word := range words[max:] {
-		if strings.HasSuffix(word, ".") ||
-			strings.HasSuffix(word, "?") ||
-			strings.HasSuffix(word, ".\"") ||
-			strings.HasSuffix(word, "!") {
-			upper := max + counter + 1
-			return strings.Join(words[:upper], " "), (upper < len(words))
+	count := 0
+	index, word := 0, ""
+	truncated := false
+	
+	for index, word = range words {
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			count++;
+		} else {
+			if count + runeCount <= max {
+				count += runeCount
+			} else {
+				offset := 0
+				for count < max {
+					_, width := utf8.DecodeRuneInString(word[offset:])
+			        offset += width
+					count++
+				}
+				words[index] = word[:offset]
+				truncated = true
+			}
+		}
+		
+		if count >= max {
+			if index < len(words) - 1 {
+				truncated = true	
+			}
+			break
 		}
 	}
-
-	return strings.Join(words[:max], " "), true
+	
+	index += 1
+	
+	if index < len(words) {
+		for counter, word := range words[index:] {
+			if len(word) != utf8.RuneCountInString(word) {
+				break
+			}
+			if strings.HasSuffix(word, ".") ||
+				strings.HasSuffix(word, "?") ||
+				strings.HasSuffix(word, ".\"") ||
+				strings.HasSuffix(word, "!") {
+				upper := index + counter + 1
+				return strings.Join(words[:upper], " "), (upper < len(words))
+			}
+		}
+	} else if index > len(words) {
+		return strings.Join(words, " "), truncated
+	}
+	
+	return strings.Join(words[:index], " "), truncated
 }
 
 // GetAsciidocContent calls asciidoctor or asciidoc as an external helper
