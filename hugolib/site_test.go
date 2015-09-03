@@ -1010,3 +1010,77 @@ func TestWeightedTaxonomies(t *testing.T) {
 		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title)
 	}
 }
+
+func findPage(site *Site, f string) *Page {
+	// TODO: it seems that filepath.FromSlash results in page.Source.Path() returning windows backslash - which means refLinking's string compare is totally busted.
+	// TODO: Not used for non-fragment linking (SVEN thinks this is a bug)
+	currentPath := source.NewFile(filepath.FromSlash(f))
+	//t.Logf("looking for currentPath: %s", currentPath.Path())
+
+	for _, page := range site.Pages {
+		//t.Logf("page: %s", page.Source.Path())
+		if page.Source.Path() == currentPath.Path() {
+			return page
+		}
+	}
+	return nil
+}
+
+func TestRefLinking(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	hugofs.DestinationFS = new(afero.MemMapFs)
+	sources := []source.ByteSource{
+		{filepath.FromSlash("index.md"), []byte("")},
+		{filepath.FromSlash("rootfile.md"), []byte("")},
+
+		{filepath.FromSlash("level2/2-root.md"), []byte("")},
+		{filepath.FromSlash("level2/index.md"), []byte("")},
+		{filepath.FromSlash("level2/common.md"), []byte("")},
+
+		{filepath.FromSlash("level2b/2b-root.md"), []byte("")},
+		{filepath.FromSlash("level2b/index.md"), []byte("")},
+		{filepath.FromSlash("level2b/common.md"), []byte("")},
+
+		{filepath.FromSlash("level2/level3/3-root.md"), []byte("")},
+		{filepath.FromSlash("level2/level3/index.md"), []byte("")},
+		{filepath.FromSlash("level2/level3/common.md"), []byte("")},
+	}
+
+	site := &Site{
+		Source: &source.InMemorySource{ByteSource: sources},
+	}
+
+	site.initializeSiteInfo()
+
+	if err := site.CreatePages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
+	}
+
+	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("DefaultExtension", "html")
+	viper.Set("UglyURLs", false)
+	viper.Set("PluralizeListTitles", false)
+	viper.Set("CanonifyURLs", false)
+
+	// END init mock site
+
+	currentPage := findPage(site, "level2/level3/index.md")
+	if currentPage == nil {
+		t.Fatalf("failed to find current page in site")
+	}
+
+	// refLink doesn't use the location of the current page to work out reflinks
+	okresults := map[string]string{
+		"index.md":  "/",
+		"common.md": "/level2/common/",
+		"3-root.md": "/level2/level3/3-root/",
+	}
+	for link, url := range okresults {
+		if out, err := site.Info.refLink(link, currentPage, true); err != nil || out != url {
+			t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
+		}
+	}
+	// TODO: and then the failure cases.
+}
