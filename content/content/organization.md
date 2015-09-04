@@ -76,8 +76,10 @@ The actual path to the file on disk. Destination will create the destination
 with the same path. Includes [section](/content/sections/).
 
 ### section
-`section` can be provided in the front matter overriding the section derived from
-the source content location on disk. See [section](/content/sections/).
+`section` is determined by its location on disk and can *not* be specified in the front matter. See [section](/content/sections/).
+
+### type
+`type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [type](/content/types/).
 
 ### path
 `path` can be provided in the front matter. This will replace the actual
