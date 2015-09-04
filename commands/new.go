@@ -155,6 +155,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 	mkdir(createpath, "layouts", "partials")
 
 	touchFile(createpath, "layouts", "index.html")
+	touchFile(createpath, "layouts", "404.html")
 	touchFile(createpath, "layouts", "_default", "list.html")
 	touchFile(createpath, "layouts", "_default", "single.html")
 
