@@ -145,6 +145,22 @@ static web hosting services.
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 
 
+### A note about deployment
+
+Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the directory you specified with `-d`/`--destination`) before running the `hugo` command, or you run the risk of the wrong files (e.g. drafts and/or future posts) being left in the generated site.
+
+An easy way to work around this is to use different directories for development and production.
+
+To start a server that builds draft content (helpful for editing), you can specify a different destination: the `dev/` dir.
+
+    hugo server -wDs ~/Code/hugo/docs -d dev
+
+When the content is ready for publishing, use the default `public/` dir:
+
+    hugo -s ~/Code/hugo/docs
+
+This prevents content you're not ready to share yet from accidentally becoming available.
+
 ### Alternatively, serve your web site with Hugo!
 
 Yes, that's right!  Because Hugo is so blazingly fast both in web site creation
