@@ -227,7 +227,9 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
-	return mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	return &HugoMmarkHtmlRenderer{
+		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+	}
 }
 
 func GetMmarkExtensions(ctx *RenderingContext) int {
