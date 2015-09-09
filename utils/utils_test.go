@@ -10,7 +10,7 @@ func TestCutUsageMessage(t *testing.T) {
 		cutMessage string
 	}{
 		{"", ""},
-		{" Usage of hugo: \n  -b, --baseUrl=...", ""},
+		{" Usage of hugo: \n  -b, --baseURL=...", ""},
 		{"Some error Usage of hugo: \n", "Some error"},
 		{"Usage of hugo: \n -b --baseU", ""},
 		{"CRITICAL error for usage of hugo ", "CRITICAL error for usage of hugo"},
