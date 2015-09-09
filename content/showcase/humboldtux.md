@@ -8,7 +8,6 @@ sourceLink: https://github.com/humboldtux/humboldtux.github.io
 tags:
 - personal
 - blog
-thumbnail: /img/humboldtux-tn.jpg
+thumbnail: /img/humboldtux-tn.png
 title: humboldtux.net
 ---
-
