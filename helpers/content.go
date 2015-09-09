@@ -43,27 +43,29 @@ var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
-	Smartypants     bool
-	AngledQuotes    bool
-	Fractions       bool
-	HrefTargetBlank bool
-	SmartDashes     bool
-	LatexDashes     bool
-	PlainIDAnchors  bool
-	Extensions      []string
-	ExtensionsMask  []string
+	Smartypants             bool
+	AngledQuotes            bool
+	Fractions               bool
+	HrefTargetBlank         bool
+	SmartDashes             bool
+	LatexDashes             bool
+	PlainIDAnchors          bool
+	SourceRelativeLinksEval bool
+	Extensions              []string
+	ExtensionsMask          []string
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults
 func NewBlackfriday() *Blackfriday {
 	combinedParam := map[string]interface{}{
-		"smartypants":     true,
-		"angledQuotes":    false,
-		"fractions":       true,
-		"hrefTargetBlank": false,
-		"smartDashes":     true,
-		"latexDashes":     true,
-		"plainIDAnchors":  false,
+		"smartypants":         true,
+		"angledQuotes":        false,
+		"fractions":           true,
+		"hrefTargetBlank":     false,
+		"smartDashes":         true,
+		"latexDashes":         true,
+		"plainIDAnchors":      false,
+		"sourceRelativeLinks": false,
 	}
 
 	siteParam := viper.GetStringMap("blackfriday")
@@ -198,7 +200,9 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 	}
 
 	return &HugoHtmlRenderer{
-		blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		FileResolver: ctx.FileResolver,
+		LinkResolver: ctx.LinkResolver,
+		Renderer:     blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
 }
 
@@ -329,11 +333,13 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content renderin.g
 type RenderingContext struct {
-	Content    []byte
-	PageFmt    string
-	DocumentID string
-	Config     *Blackfriday
-	configInit sync.Once
+	Content      []byte
+	PageFmt      string
+	DocumentID   string
+	Config       *Blackfriday
+	FileResolver FileResolverFunc
+	LinkResolver LinkResolverFunc
+	configInit   sync.Once
 }
 
 func (c *RenderingContext) getConfig() *Blackfriday {
