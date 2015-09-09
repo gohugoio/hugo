@@ -63,6 +63,7 @@ var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor stri
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
+	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlagsFunc)
 	AddCommands()
 	utils.StopOnErr(HugoCmd.Execute())
 }
@@ -94,8 +95,8 @@ func init() {
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
-	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
+	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
@@ -189,7 +190,7 @@ func InitializeConfig() {
 		viper.Set("BuildFuture", Future)
 	}
 
-	if hugoCmdV.PersistentFlags().Lookup("uglyUrls").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("uglyURLs").Changed {
 		viper.Set("UglyURLs", UglyURLs)
 	}
 
