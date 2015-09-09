@@ -24,7 +24,7 @@ If you would like to have what we call "ugly URLs",
 e.g.&nbsp;http://example.com/extras/urls.html, you are in luck.
 Hugo supports the ability to create your entire site with ugly URLs.
 Simply add `uglyurls = true` to your site-wide `config.toml`,
-or use the `--uglyUrls=true` flag on the command line.
+or use the `--uglyURLs=true` flag on the command line.
 
 If you want a specific piece of content to have an exact URL, you can
 specify this in the front matter under the `url` key. See [Content
