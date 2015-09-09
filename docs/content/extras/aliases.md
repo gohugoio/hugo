@@ -55,7 +55,7 @@ Now when you visit any of the locations specified in aliases, _assuming the same
 ## Important Behaviors
 
 1. *Hugo makes no assumptions about aliases. They also don't change based
-on your UglyUrls setting. You need to provide absolute path to your webroot and the
+on your UglyURLs setting. You need to provide absolute path to your webroot and the
 complete filename or directory.*
 
 2. *Aliases are rendered prior to any content and will be overwritten by

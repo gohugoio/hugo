@@ -36,7 +36,7 @@ in Hugo and is used as the [section](/content/sections/).
             ├── first.md       // <- http://1.com/quote/first/
             └── second.md      // <- http://1.com/quote/second/
 
-**Here's the same organization run with `hugo --uglyUrls`**
+**Here's the same organization run with `hugo --uglyURLs`**
 
     .
     └── content
@@ -90,7 +90,7 @@ path. Includes [section](/content/sections/).
 A complete URL can be provided. This will override all the above as it pertains
 to the end destination. This must be the path from the baseURL (starting with a "/").
 When a `url` is provided, it will be used exactly. Using `url` will ignore the
-`--uglyUrls` setting.
+`--uglyURLs` setting.
 
 
 ## Path breakdown in Hugo

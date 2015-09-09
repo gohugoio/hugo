@@ -74,7 +74,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
 
     ---
     archetypedir:               "archetype"
-    # hostname (and path) to the root eg. http://spf13.com/
+    # hostname (and path) to the root, e.g. http://spf13.com/
     baseURL:                    ""
     # include content marked as draft
     buildDrafts:                false

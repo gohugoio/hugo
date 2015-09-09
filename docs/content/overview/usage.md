@@ -37,7 +37,7 @@ Available Commands:
   help            Help about any command
 
 Flags:
-  -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/
+  -b, --baseURL="": hostname (and path) to the root, e.g. http://spf13.com/
   -D, --buildDrafts=false: include content marked as draft
   -F, --buildFuture=false: include content with publishdate in the future
       --cacheDir="": filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
@@ -55,7 +55,7 @@ Flags:
   -s, --source="": filesystem path to read files relative from
       --stepAnalysis=false: display memory and timing of different steps of the program
   -t, --theme="": theme to use (located in /themes/THEMENAME/)
-      --uglyUrls=false: if true, use /filename.html instead of /filename/
+      --uglyURLs=false: if true, use /filename.html instead of /filename/
   -v, --verbose=false: verbose output
       --verboseLog=false: verbose logging
   -w, --watch=false: watch filesystem for changes and recreate as needed
@@ -173,7 +173,7 @@ No other web server software (Apache, nginx, IIS...) is necessary.
 Here is the command:
 
     hugo server --watch \
-                --baseUrl=http://yoursite.org/ --port=80 \
+                --baseURL=http://yoursite.org/ --port=80 \
                 --appendPort=false
 		--bind=87.245.198.50
 
