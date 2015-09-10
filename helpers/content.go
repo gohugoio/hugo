@@ -22,12 +22,14 @@ import (
 	"html/template"
 	"os/exec"
 
+	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
+	bp "github.com/spf13/hugo/bufferpool"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 
-	jww "github.com/spf13/jwalterweatherman"
-
 	"strings"
+	"sync"
 )
 
 // Length of the summary that Hugo extracts from a content.
@@ -36,37 +38,90 @@ var SummaryLength = 70
 // Custom divider <!--more--> let's user define where summarization ends.
 var SummaryDivider = []byte("<!--more-->")
 
+// Blackfriday holds configuration values for Blackfriday rendering.
+type Blackfriday struct {
+	Smartypants     bool
+	AngledQuotes    bool
+	Fractions       bool
+	HrefTargetBlank bool
+	LatexDashes     bool
+	PlainIDAnchors  bool
+	Extensions      []string
+	ExtensionsMask  []string
+}
+
+// NewBlackfriday creates a new Blackfriday with some sane defaults.
+func NewBlackfriday() *Blackfriday {
+	return &Blackfriday{
+		Smartypants:     true,
+		AngledQuotes:    false,
+		Fractions:       true,
+		HrefTargetBlank: false,
+		LatexDashes:     true,
+		PlainIDAnchors:  false,
+	}
+}
+
+var blackfridayExtensionMap = map[string]int{
+	"noIntraEmphasis":        blackfriday.EXTENSION_NO_INTRA_EMPHASIS,
+	"tables":                 blackfriday.EXTENSION_TABLES,
+	"fencedCode":             blackfriday.EXTENSION_FENCED_CODE,
+	"autolink":               blackfriday.EXTENSION_AUTOLINK,
+	"strikethrough":          blackfriday.EXTENSION_STRIKETHROUGH,
+	"laxHtmlBlocks":          blackfriday.EXTENSION_LAX_HTML_BLOCKS,
+	"spaceHeaders":           blackfriday.EXTENSION_SPACE_HEADERS,
+	"hardLineBreak":          blackfriday.EXTENSION_HARD_LINE_BREAK,
+	"tabSizeEight":           blackfriday.EXTENSION_TAB_SIZE_EIGHT,
+	"footnotes":              blackfriday.EXTENSION_FOOTNOTES,
+	"noEmptyLineBeforeBlock": blackfriday.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
+	"headerIds":              blackfriday.EXTENSION_HEADER_IDS,
+	"titleblock":             blackfriday.EXTENSION_TITLEBLOCK,
+	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
+	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
+}
+
+var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
+
+var mmarkExtensionMap = map[string]int{
+	"tables":                 mmark.EXTENSION_TABLES,
+	"fencedCode":             mmark.EXTENSION_FENCED_CODE,
+	"autolink":               mmark.EXTENSION_AUTOLINK,
+	"laxHtmlBlocks":          mmark.EXTENSION_LAX_HTML_BLOCKS,
+	"spaceHeaders":           mmark.EXTENSION_SPACE_HEADERS,
+	"hardLineBreak":          mmark.EXTENSION_HARD_LINE_BREAK,
+	"footnotes":              mmark.EXTENSION_FOOTNOTES,
+	"noEmptyLineBeforeBlock": mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
+	"headerIds":              mmark.EXTENSION_HEADER_IDS,
+	"autoHeaderIds":          mmark.EXTENSION_AUTO_HEADER_IDS,
+}
+
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
-	output := ""
 
 	// Shortcut strings with no tags in them
 	if !strings.ContainsAny(s, "<>") {
-		output = s
-	} else {
-		s = strings.Replace(s, "\n", " ", -1)
-		s = strings.Replace(s, "</p>", "\n", -1)
-		s = strings.Replace(s, "<br>", "\n", -1)
-		s = strings.Replace(s, "<br />", "\n", -1) // <br /> is the xhtml line break tag
+		return s
+	}
+	s = stripHTMLReplacer.Replace(s)
 
-		// Walk through the string removing all tags
-		b := new(bytes.Buffer)
-		inTag := false
-		for _, r := range s {
-			switch r {
-			case '<':
-				inTag = true
-			case '>':
-				inTag = false
-			default:
-				if !inTag {
-					b.WriteRune(r)
-				}
+	// Walk through the string removing all tags
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
+	inTag := false
+	for _, r := range s {
+		switch r {
+		case '<':
+			inTag = true
+		case '>':
+			inTag = false
+		default:
+			if !inTag {
+				b.WriteRune(r)
 			}
 		}
-		output = b.String()
 	}
-	return output
+	return b.String()
 }
 
 // StripEmptyNav strips out empty <nav> tags from content.
@@ -79,56 +134,134 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-func GetHtmlRenderer(defaultFlags int, ctx RenderingContext) blackfriday.Renderer {
+// GetHtmlRenderer creates a new Renderer with the given configuration.
+func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	b := len(ctx.DocumentId) != 0
+	b := len(ctx.DocumentID) != 0
 
-	if m, ok := ctx.ConfigFlags["plainIdAnchors"]; b && ((ok && !m) || !ok) {
-		renderParameters.FootnoteAnchorPrefix = ctx.DocumentId + ":" + renderParameters.FootnoteAnchorPrefix
-		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
+	if b && !ctx.getConfig().PlainIDAnchors {
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
+		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
 
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	var angledQuotes bool
-
-	if m, ok := ctx.ConfigFlags["angledQuotes"]; ok {
-		angledQuotes = m
+	if ctx.getConfig().Smartypants {
+		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	}
 
-	if angledQuotes {
+	if ctx.getConfig().AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	if ctx.getConfig().Fractions {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	}
+
+	if ctx.getConfig().HrefTargetBlank {
+		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
+	}
+
+	if ctx.getConfig().LatexDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	}
+
+	return &HugoHtmlRenderer{
+		blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+	}
 }
 
-func GetMarkdownExtensions() int {
-	return 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
+
+func getMarkdownExtensions(ctx *RenderingContext) int {
+	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
 		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
 		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
 		blackfriday.EXTENSION_SPACE_HEADERS | blackfriday.EXTENSION_FOOTNOTES |
-		blackfriday.EXTENSION_HEADER_IDS | blackfriday.EXTENSION_AUTO_HEADER_IDS
+		blackfriday.EXTENSION_HEADER_IDS | blackfriday.EXTENSION_AUTO_HEADER_IDS |
+		blackfriday.EXTENSION_DEFINITION_LISTS
+	for _, extension := range ctx.getConfig().Extensions {
+		if flag, ok := blackfridayExtensionMap[extension]; ok {
+			flags |= flag
+		}
+	}
+	for _, extension := range ctx.getConfig().ExtensionsMask {
+		if flag, ok := blackfridayExtensionMap[extension]; ok {
+			flags &= ^flag
+		}
+	}
+	return flags
 }
 
-func MarkdownRender(ctx RenderingContext) []byte {
-	return blackfriday.Markdown(ctx.Content, GetHtmlRenderer(0, ctx),
-		GetMarkdownExtensions())
+func markdownRender(ctx *RenderingContext) []byte {
+	return blackfriday.Markdown(ctx.Content, GetHTMLRenderer(0, ctx),
+		getMarkdownExtensions(ctx))
 }
 
-func MarkdownRenderWithTOC(ctx RenderingContext) []byte {
+func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 	return blackfriday.Markdown(ctx.Content,
-		GetHtmlRenderer(blackfriday.HTML_TOC, ctx),
-		GetMarkdownExtensions())
+		GetHTMLRenderer(blackfriday.HTML_TOC, ctx),
+		getMarkdownExtensions(ctx))
+}
+
+// mmark
+func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+	renderParameters := mmark.HtmlRendererParameters{
+		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
+	}
+
+	b := len(ctx.DocumentID) != 0
+
+	if b && !ctx.getConfig().PlainIDAnchors {
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
+		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
+	}
+
+	htmlFlags := defaultFlags
+	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
+
+	return mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+}
+
+func GetMmarkExtensions(ctx *RenderingContext) int {
+	flags := 0
+	flags |= mmark.EXTENSION_TABLES
+	flags |= mmark.EXTENSION_FENCED_CODE
+	flags |= mmark.EXTENSION_AUTOLINK
+	flags |= mmark.EXTENSION_SPACE_HEADERS
+	flags |= mmark.EXTENSION_CITATION
+	flags |= mmark.EXTENSION_TITLEBLOCK_TOML
+	flags |= mmark.EXTENSION_HEADER_IDS
+	flags |= mmark.EXTENSION_AUTO_HEADER_IDS
+	flags |= mmark.EXTENSION_UNIQUE_HEADER_IDS
+	flags |= mmark.EXTENSION_FOOTNOTES
+	flags |= mmark.EXTENSION_SHORT_REF
+	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
+	flags |= mmark.EXTENSION_INCLUDE
+
+	for _, extension := range ctx.getConfig().Extensions {
+		if flag, ok := mmarkExtensionMap[extension]; ok {
+			flags |= flag
+		}
+	}
+	return flags
+}
+
+func MmarkRender(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content, GetMmarkHtmlRenderer(0, ctx),
+		GetMmarkExtensions(ctx)).Bytes()
+}
+
+func MmarkRenderWithTOC(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content,
+		GetMmarkHtmlRenderer(0, ctx),
+		GetMmarkExtensions(ctx)).Bytes()
 }
 
 // ExtractTOC extracts Table of Contents from content.
@@ -167,30 +300,52 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	return
 }
 
+// RenderingContext holds contextual information, like content and configuration,
+// for a given content renderin.g
 type RenderingContext struct {
-	Content     []byte
-	PageFmt     string
-	DocumentId  string
-	ConfigFlags map[string]bool
+	Content    []byte
+	PageFmt    string
+	DocumentID string
+	Config     *Blackfriday
+	configInit sync.Once
 }
 
-func RenderBytesWithTOC(ctx RenderingContext) []byte {
+func (c *RenderingContext) getConfig() *Blackfriday {
+	c.configInit.Do(func() {
+		if c.Config == nil {
+			c.Config = NewBlackfriday()
+		}
+	})
+	return c.Config
+}
+
+// RenderBytesWithTOC renders a []byte with table of contents included.
+func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
-		return MarkdownRenderWithTOC(ctx)
+		return markdownRenderWithTOC(ctx)
 	case "markdown":
-		return MarkdownRenderWithTOC(ctx)
+		return markdownRenderWithTOC(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
+	case "mmark":
+		return MmarkRenderWithTOC(ctx)
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
 }
 
-func RenderBytes(ctx RenderingContext) []byte {
+// RenderBytes renders a []byte.
+func RenderBytes(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
-		return MarkdownRender(ctx)
+		return markdownRender(ctx)
 	case "markdown":
-		return MarkdownRender(ctx)
+		return markdownRender(ctx)
+	case "asciidoc":
+		return []byte(GetAsciidocContent(ctx.Content))
+	case "mmark":
+		return MmarkRender(ctx)
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}
@@ -205,7 +360,7 @@ func TotalWords(s string) int {
 func WordCount(s string) map[string]int {
 	m := make(map[string]int)
 	for _, f := range strings.Fields(s) {
-		m[f] += 1
+		m[f]++
 	}
 
 	return m
@@ -228,11 +383,11 @@ func TruncateWords(s string, max int) string {
 }
 
 // TruncateWordsToWholeSentence takes content and an int
-// and returns entire sentences from content, delimited by the int.
-func TruncateWordsToWholeSentence(s string, max int) string {
-	words := strings.Fields(s)
-	if max > len(words) {
-		return strings.Join(words, " ")
+// and returns entire sentences from content, delimited by the int
+// and whether it's truncated or not.
+func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
+	if max >= len(words) {
+		return strings.Join(words, " "), false
 	}
 
 	for counter, word := range words[max:] {
@@ -240,11 +395,39 @@ func TruncateWordsToWholeSentence(s string, max int) string {
 			strings.HasSuffix(word, "?") ||
 			strings.HasSuffix(word, ".\"") ||
 			strings.HasSuffix(word, "!") {
-			return strings.Join(words[:max+counter+1], " ")
+			upper := max + counter + 1
+			return strings.Join(words[:upper], " "), (upper < len(words))
 		}
 	}
 
-	return strings.Join(words[:max], " ")
+	return strings.Join(words[:max], " "), true
+}
+
+// GetAsciidocContent calls asciidoctor or asciidoc as an external helper
+// to convert AsciiDoc content to HTML.
+func GetAsciidocContent(content []byte) string {
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		path, err = exec.LookPath("asciidoc")
+		if err != nil {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return (string(content))
+		}
+	}
+
+	jww.INFO.Println("Rendering with", path, "...")
+	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		jww.ERROR.Println(err)
+	}
+
+	return out.String()
 }
 
 // GetRstContent calls the Python script rst2html as an external helper
@@ -252,7 +435,17 @@ func TruncateWordsToWholeSentence(s string, max int) string {
 func GetRstContent(content []byte) string {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	cmd := exec.Command("rst2html.py", "--leave-comments")
+	path, err := exec.LookPath("rst2html")
+	if err != nil {
+		path, err = exec.LookPath("rst2html.py")
+		if err != nil {
+			jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
+				"                 Leaving reStructuredText content unrendered.")
+			return (string(content))
+		}
+	}
+
+	cmd := exec.Command(path, "--leave-comments")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out bytes.Buffer
 	cmd.Stdout = &out

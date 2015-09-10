@@ -9,6 +9,7 @@ next: /content/sections
 prev: /content/organization
 title: Front Matter
 weight: 20
+toc: true
 ---
 
 The **front matter** is one of the features that gives Hugo its strength. It enables
@@ -25,7 +26,7 @@ Supported formats:
 [YAML]: http://www.yaml.org/ "YAML Ain't Markup Language"
 [JSON]: http://www.json.org/ "JavaScript Object Notation"
 
-### TOML Example
+## TOML Example
 
     +++
     title = "spf13-vim 3.0 release and new website"
@@ -41,7 +42,7 @@ Supported formats:
     
     Content of the file goes Here
 
-### YAML Example
+## YAML Example
 
     ---
     title: "spf13-vim 3.0 release and new website"
@@ -56,7 +57,7 @@ Supported formats:
     
     Content of the file goes Here
 
-### JSON Example
+## JSON Example
 
     {
         "title": "spf13-vim 3.0 release and new website",
@@ -87,7 +88,10 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 
 ### Optional variables
 
-* **redirect** Mark the post as a redirect post
+* **aliases** An array of one or more aliases
+              (e.g. old published path of a renamed content)
+              that would be created to redirect to this content.
+              See [Aliases]({{< relref "extras/aliases.md" >}}) for details.
 * **draft** If true, the content will not be rendered unless `hugo` is called with `--buildDrafts`
 * **publishdate** If in the future, content will not be rendered unless `hugo` is called with `--buildFuture`
 * **type** The type of the content (will be derived from the directory automatically if unset)

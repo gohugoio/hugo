@@ -15,7 +15,7 @@ Hugo provides you with all the flexibility you need to organize how your content
 By default, content is ordered by weight, then by date with the most
 recent date first, but alternative sorting (by `title` and `linktitle`) is
 also available. The order the content would appear is specified in
-the [list template](/templates/list).
+the [list template](/templates/list/).
 
 _Both the `date` and `weight` fields are optional._
 

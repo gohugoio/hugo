@@ -27,21 +27,23 @@ import (
 	"github.com/spf13/viper"
 )
 
-var OutputDir string
-var Unsafe bool
+var outputDir string
+var unsafe bool
 
 var convertCmd = &cobra.Command{
 	Use:   "convert",
-	Short: "Convert will modify your content to different formats",
-	Long:  `Convert will modify your content to different formats`,
+	Short: "Convert your content to different formats",
+	Long:  `Convert your content (e.g. front matter) to different formats.
+
+See convert's subcommands toJSON, toTOML and toYAML for more information.`,
 	Run:   nil,
 }
 
 var toJSONCmd = &cobra.Command{
 	Use:   "toJSON",
 	Short: "Convert front matter to JSON",
-	Long: `toJSON will convert all front matter in the content
-	directory to use JSON for the front matter`,
+	Long: `toJSON converts all front matter in the content directory
+to use JSON for the front matter.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := convertContents(rune([]byte(parser.JSON_LEAD)[0]))
 		if err != nil {
@@ -53,8 +55,8 @@ var toJSONCmd = &cobra.Command{
 var toTOMLCmd = &cobra.Command{
 	Use:   "toTOML",
 	Short: "Convert front matter to TOML",
-	Long: `toTOML will convert all front matter in the content
-	directory to use TOML for the front matter`,
+	Long: `toTOML converts all front matter in the content directory
+to use TOML for the front matter.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := convertContents(rune([]byte(parser.TOML_LEAD)[0]))
 		if err != nil {
@@ -66,8 +68,8 @@ var toTOMLCmd = &cobra.Command{
 var toYAMLCmd = &cobra.Command{
 	Use:   "toYAML",
 	Short: "Convert front matter to YAML",
-	Long: `toYAML will convert all front matter in the content
-	directory to use YAML for the front matter`,
+	Long: `toYAML converts all front matter in the content directory
+to use YAML for the front matter.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := convertContents(rune([]byte(parser.YAML_LEAD)[0]))
 		if err != nil {
@@ -80,8 +82,8 @@ func init() {
 	convertCmd.AddCommand(toJSONCmd)
 	convertCmd.AddCommand(toTOMLCmd)
 	convertCmd.AddCommand(toYAMLCmd)
-	convertCmd.PersistentFlags().StringVarP(&OutputDir, "output", "o", "", "filesystem path to write files to")
-	convertCmd.PersistentFlags().BoolVar(&Unsafe, "unsafe", false, "enable less safe operations, please backup first")
+	convertCmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
+	convertCmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
 }
 
 func convertContents(mark rune) (err error) {
@@ -134,10 +136,10 @@ func convertContents(mark rune) (err error) {
 		page.SetSourceContent(psr.Content())
 		page.SetSourceMetaData(metadata, mark)
 
-		if OutputDir != "" {
-			page.SaveSourceAs(filepath.Join(OutputDir, page.FullFilePath()))
+		if outputDir != "" {
+			page.SaveSourceAs(filepath.Join(outputDir, page.FullFilePath()))
 		} else {
-			if Unsafe {
+			if unsafe {
 				page.SaveSource()
 			} else {
 				jww.FEEDBACK.Println("Unsafe operation not allowed, use --unsafe or set a different output path")

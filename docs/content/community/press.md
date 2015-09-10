@@ -1,66 +1,109 @@
 ---
 date: 2014-03-24T20:00:00Z
 linktitle: Press
-menu:
-  main:
-    parent: community
-next: /community/contributing
 notoc: true
-prev: /community/mailing-list
 title: Press, Blogs and Media Coverage
 weight: 20
 ---
 
+### Help keep this list up to date
+
+Know of a post, article or tutorial on hugo? [Add it to this list](https://github.com/spf13/hugo/edit/master/docs/content/community/press.md).
+
+## Press and Articles
+
 Hugo has been featured in the following Blog Posts, Press and Media.
 
 
-| Title | Author | Date  |
-| ------ | ------ | -----: |
-| [Travel Blogging Setup](http://www.stou.dk/2014/11/travel-blogging-setup/) | Rasmus Stougaard | 23 Nov 2014 |
-| [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 19 Aug 2014 |
-| [Hello Hugo!](http://commiechink.com/2014/08/hello-hugo/) | Jason Yee | 19 Aug 2014 |
-| [Going with hugo](http://www.markuseliasson.se/article/going-with-hugo/) | Markus Eliasson | 18 Aug 2014 |
-| [Benchmarking Jekyll, Hugo and Wintersmith](http://www.internaldeployment.se/post/2014-08-12-Jekyll-and-its-alternatives-from-a-site-generation-point-of-view/)  | Fredrik Loch | 12 Aug 2014 |
-| [Goodbye Octopress, Hello Hugo!](http://andreimihu.com/blog/2014/08/11/goodbye-octopress-hello-hugo/)  | Andrei Mihu | 11 Aug 2014 |
-| [Beautiful sites for Open Source projects](http://beautifulopen.com/2014/08/09/hugo/)  | Beautiful Open | 9 Aug 2014 |
-| [Hugo: Beyond the Defaults](http://npf.io/2014/08/hugo-beyond-the-defaults/)  | Nate Finch | 8 Aug 2014 |
-| [First Impressions of Hugo](https://peteraba.com/blog/first-impressions-of-hugo/)  | Peter Aba | 6 Aug 2014 |
-| [New Site Workflow](http://vurt.co.uk/post/new_website/) | Giles Paterson | 5 Aug 2014 |
-| [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about-hugo/) |  Joshua McKenty | 4 Aug 2014 |
-| [Hugo over Octopress](http://kennywoo.com/blog/hugo---golang-based-static-site-generator/)  | Kenny Woo | 3 Aug 2014 |
-| [Hugo Is Friggin' Awesome](http://npf.io/2014/08/hugo-is-awesome/)  | Nate Finch | 1 Aug 2014 |
-| [Embedding Gists in Hugo](http://danmux.com/posts/embedded_gists/)  | Dan Mull | 5 July 2014 |
-| [An Introduction To Hugo](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/)  | Dan Silber | 1 July 2014 |
-| [Moving to Hugo](http://danmux.com/posts/hugo_based_blog/) | Dan Mull | 29 May 2014   |
-| [开源之静态站点生成器排行榜](http://code.csdn.net/news/2819909) | csdn.net | 23 May 2014   |
-| [How I deploy this site using Fabric](http://carlorat.me/quote/fabric/) | Carlo Ratam | 21 May 2014   |
-| [Finally, a satisfying and effective blog setup](http://michaelwhatcott.com/now-powered-by-hugo/) | Michael Whatcott | 20 May 2014   |
-| [Hugo from scratch](http://zackofalltrades.com/notes/2014/05/hugo-from-scratch/) | Zack Williams | 18 May 2014   |
-| [Why I switched away from Jekyll](http://www.jakejanuzelli.com/why-I-switched-away-from-jekyll/) | Jake Januzelli | 10 May 2014   |
-| [Welcome our new blog](http://blog.ninya.io/posts/welcome-our-new-blog/) | Ninya.io |  11 Apr 2014   |
-| [Mission Not Accomplished](http://johnsto.co.uk/blog/mission-not-accomplished/) | Dave Johnston |  3 Apr 2014   |
-| [Hugo - A Static Site Builder in Go](http://deepfriedcode.com/post/hugo/) | Deep Fried Code |  30 Mar 2014   |
-| [Adventures in Angular Podcast](http://devchat.tv/adventures-in-angular/003-aia-gdes) | Matias Niemela |  28 Mar 2014   |
-| [Hugo](http://bra.am/post/hugo/) | bra.am |  23 Mar 2014   |
-| [Converting Blogger To Markdown](http://trishagee.github.io/project/atom-to-hugo/) | Trisha Gee |  20 Mar 2014   |
-| [Moving to Hugo Static Web Pages](http://tepid.org/tech/hugo-web/) |  Tobias Weingartner  |  16 Mar 2014   |
-| [Hugo and Github Pages](http://sglyon.com/blog/2014/creating-the-site/) | Spencer Lyon |  15 Mar 2014   |
-| [New Blog Engine: Hugo](https://blog.afoolishmanifesto.com/posts/hugo/) | fREW Schmidt  |  15 Mar 2014   |
-| [Hugo + gulp.js = Huggle](http://ktmud.github.io/huggle/intro/) | Jesse Yang  | 8 Mar 2014   |
-| [Powered by Hugo](http://kieranhealy.org/blog/archives/2014/02/24/powered-by-hugo/) | Kieran Healy  | 24 Feb 2014   |
-| [静的サイトを素早く構築するためにGoLangで作られたジェネレータHugo](http://hamasyou.com/blog/2014/02/21/hugo/) | Shogo Hamada  | 21 Feb 2014   |
-| [Latest Roundup of Useful Tools For Developers](http://codegeekz.com/latest-roundup-of-useful-tools-for-developers/) | CodeGeekz  |  13 Feb 2014   |
-| [Hugo: Static Site Generator written in Go](http://www.braveterry.com/2014/02/06/hugo-static-site-generator-written-in-go/) | Brave Terry  | 6 Feb 2014   |
-| [10 Useful HTML5 Tools for Web Designers and Developers](http://designdizzy.com/10-useful-html5-tools-for-web-designers-and-developers/) | Design Dizzy  | 4 Feb 2014   |
-| [Hugo – Fast, Flexible Static Site Generator](http://cube3x.com/hugo-fast-flexible-static-site-generator/) |  Joby Joseph |  18 Jan 2014   |
-| [Hugo: A new way to build static website](http://www.w3update.com/opensource/hugo-a-new-way-to-build-static-website.html) | w3update | 17 Jan  2014   |
-| [Xaprb now uses Hugo](http://xaprb.com/blog/2014/01/15/using-hugo/) | Baron Schwartz  | 15 Jan 2014   |
-| [New jQuery Plugins And Resources That Web Designers Need](http://www.designyourway.net/blog/resources/new-jquery-plugins-and-resources-that-web-designers-need/) | Design Your Way  |   2014   |
-| [On Blog Construction](http://alexla.sh/post/on-blog-construction/) | Alexander Lash |  27 Dec 2013   |
-| [Hugo](http://onethingwell.org/post/69070926608/hugo) | One Thing Well  |  5 Dec 2013   |
-| [In Praise Of Hugo](http://sound-guru.com/blog/post/hello-world/) | sound-guru.com  |  19 Oct 2013   |
-| [Hosting a blog on S3 and Cloudfront](http://www.danesparza.net/2013/07/hosting-a-blog-on-s3-and-cloudfront/) | Dan Esparza  | 24 July 2013   |
+| Title                                                                                                                                                                     | Author                                                        | Date         |
+| ------                                                                                                                                                                    | ------                                                        | -----:       |
+| [使用hugo搭建个人博客站点 <small>(Using Hugo to build a personal blog site)</small>](http://blog.coderzh.com/2015/08/29/hugo/)                                            | CoderZh                                                       | 29 Aug 2015  |
+| [Static Site E-Commerce: Integrating Snipcart with Hugo](https://snipcart.com/blog/snipcart-hugo-integration)                                                             | Francis Tremblay                                              | 13 Aug 2015  |
+| [Hugo on Netlify — Insanely Fast Deploys](https://www.netlify.com/blog/2015/07/30/hugo-on-netlify-insanely-fast-deploys.html)                                             | Mathias Biilmann                                              | 30 July 2015 |
+| [Générer votre site web statique avec Hugo <small>(Generate your static site with Hugo)<small>](http://www.linux-pratique.com/?p=191)                                     | Benoit Benedetti                                              | 26 June 2015 |
+| [An Introduction to Static Site Generators](http://davidwalsh.name/introduction-static-site-generators)                                                                   | Eduardo Bouças                                                | 20 May 2015  |
+| [Hugo Still Rules](http://cheekycoder.com/2015/05/hugo-still-rules/)                                                                                                      | Cheeky Coder                                                  | 18 May 2015  |
+| [hugo - Static Site Generator](http://gscacco.github.io/post/hugo/)                                                                                                       | G Scaccoio                                                    | 4 May 2015   |
+| [WindowsでHugoを使う](http://ureta.net/2015/05/hugo-on-windows/)                                                                                                          | うれ太郎                                                      | 1 May 2015   |
+| [Hugoのshortcodesを用いてサイトにスライドなどを埋め込む](http://blog.yucchiy.com/2015/04/29/hugo-shortcode/)                                                              | Yucchiy                                                       | 29 Apr 2015  |
+| [HugoとCircleCIでGitHub PagesにBlogを公開してみたら超簡単だった](http://hori-ryota.github.io/blog/create-blog-with-hugo-and-circleci/)                                    | Hori Ryota                                                    | 17 Apr 2015  |
+| [How to build a mobile friendly website Part 2 - Ok to Go](http://jbrodriguez.io/mobile-friendly-website-2/)                                                              | Juan B. Rodriguez                                             | 13 Apr 2015  |
+| [10 Best Static Site Generators](http://beebom.com/2015/04/best-static-site-generators)                                                                                   | Aniruddha Mysore                                              | 6 Apr 2015   |
+| [Goodbye WordPress; Hello Hugo](http://willwarren.com/2015/04/05/goodbye-wordpress-hello-hugo/)                                                                           | Will Warren                                                   | 5 Apr 2015   |
+| [Static Websites with Hugo on Google Cloud Storage](http://www.moxie.io/post/static-websites-with-hugo-on-google-cloud-storage/)                                          | Moxie Input/Output                                            | 2 Apr 2015   |
+| [De nuevo iniciando un blog](http://alvarolizama.net/blog/denuevo-iniciando-un-blog/)                                                                                     | Alvaro Lizama                                                 | 29 Mar 2015  |
+| [We moved our blog from Posthaven to Hugo after only three posts. Why?](http://blog.hypriot.com/post/moved-from-posthaven-to-hugo/)                                       | Hypriot                                                       | 27 Mar 2015  |
+| [Top Static Site Generators in 2015](http://superdevresources.com/static-site-generators-2015/)                                                                           | Kanishk Kunal                                                 | 12 Mar 2015  |
+| [Moving to Hugo](http://abiosoft.com/moving-to-hugo/)                                                                                                                     | Abiola Ibrahim                                                | 8 Mar 2015   |
+| [Hugoで試行錯誤する - log](http://deprode.net/log/logs/first/)                                                                                                            | Deprode                                                       | 28 Feb 2015  |
+| [服务器上 hugo 的安装和配置 <small>(Installing and configuring Hugo on the server)</small>](http://hucsmn.com/post/hugo-tutorial-make-it-work/)                           | hucsmn                                                        | 11 Feb 2015  |
+| [blogをoctopressからHugoに乗り換えたメモ](http://blog.jigyakkuma.org/2015/02/11/hugo/)                                                                                    | jigyakkuma                                                    | 11 Feb 2015  |
+| [Hugoでブログをつくった](http://porgy13.github.io/post/new-hugo-blog/)                                                                                                    | porgy13                                                       | 7 Feb 2015   |
+| [Hugoにブログを移行した](http://keichi.net/post/first/)                                                                                                                   | Keichi Takahashi                                              | 4 Feb 2015   |
+| [Hugo静态网站生成器中文教程](http://nanshu.wang/post/2015-01-31/)                                                                                                         | Nanshu Wang                                                   | 31 Jan 2015  |
+| [Hugo + Github Pages + Wercker CI = ¥0（無料）<br>でコマンド 1 発（自動化）でサイト<br>・ブログを公開・運営・分析・収益化](http://qiita.com/yoheimuta/items/8a619cac356bed89a4c9) | Yohei Yoshimuta                                       | 31 Jan 2015  |
+| [Running Hugo websites on anynines](http://blog.anynines.com/running-hugo-websites-on-anynines/)                                                                          | Julian Weber                                                  | 30 Jan 2015  |
+| [MiddlemanからHugoへ移行した](http://re-dzine.net/2015/01/hugo/)                                                                                                          | Haruki Konishi                                                | 21 Jan 2015  |
+| [WordPress から Hugo に乗り換えました](http://rakuishi.com/archives/wordpress-to-hugo/)                                                                                   | rakuishi                                                      | 20 Jan 2015  |
+| [HUGOを使ってサイトを立ち上げる方法](http://qiita.com/syui/items/869538099551f24acbbf)                                                                                    | Syui                                                          | 17 Jan 2015  |
+| [Jekyllが許されるのは小学生までだよね](http://t32k.me/mol/log/hugo/)                                                                                                      | Ishimoto Koji                                                 | 16 Jan 2015  |
+| [Getting started with Hugo](http://anthonyfok.org/post/getting-started-with-hugo/)                                                                                        | Anthony Fok                                                   | 12 Jan 2015  |
+| [把这个博客静态化了 <small>(Migrate to Hugo)</small>](http://lich-eng.com/2015/01/03/migrate-to-hugo/)                                                                    | Li Cheng                                                      | 3 Jan 2015   |
+| [My Hugo Experiment](http://tilde.club/~jbaty/2014/12/2014-12-31-my-hugo-experiment/)                                                                                     | Jack Baty                                                     | 31 Dec 2014  |
+| [Porting my blog with Hugo](http://blog.srackham.com/posts/porting-my-blog-with-hugo/)                                                                                    | Stuart Rackham                                                | 30 Dec 2014  |
+| [Hugoを使ってみたときのメモ](http://machortz.github.io/posts/usinghugo/)                                                                                                  | Machortz                                                      | 29 Dec 2014  |
+| [OctopressからHugoへ移行した](http://deeeet.com/writing/2014/12/25/hugo/)                                                                                                 | Taichi Nakashima                                              | 25 Dec 2014  |
+| [Hugo로 Github에 블로그 호스팅하기](http://cdpython.github.io/post/go/hugo/hugo-github/)                                                                                  | CD Python                                                     | 25 Dec 2014  |
+| [Migrating to Hugo From Octopress](http://nathanleclaire.com/blog/2014/12/22/migrating-to-hugo-from-octopress/)                                                           | Nathan LeClaire                                               | 22 Dec 2014  |
+| [Dynamic Pages with GoHugo.io](http://cyrillschumacher.com/2014/12/21/dynamic-pages-with-gohugo.io/)                                                                      | Cyrill Schumacher                                             | 21 Dec 2014  |
+| [6 Static Blog Generators That Aren’t Jekyll](http://www.sitepoint.com/6-static-blog-generators-arent-jekyll/)                                                            | David Turnbull                                                | 8 Dec 2014   |
+| [Travel Blogging Setup](http://www.stou.dk/2014/11/travel-blogging-setup/)                                                                                                | Rasmus Stougaard                                              | 23 Nov 2014  |
+| [Hosting A Hugo Website Behind Nginx](http://www.bigbeeconsultants.co.uk/blog/hosting-hugo-website-behind-nginx)                                                          | Rick Beton                                                    | 20 Nov 2014  |
+| [使用Hugo搭建免费个人Blog <small>(How to use Hugo)</small>](http://ulricqin.com/post/how-to-use-hugo/)                                                                    | Ulric Qin 秦晓辉                                              | 11 Nov 2014  |
+| [Built in Speed and Built for Speed by Hugo](http://cheekycoder.com/2014/10/built-for-speed-by-hugo/)                                                                     | Cheeky Coder                                                  | 30 Oct 2014  |
+| [hugo, syncthing](http://fredix.ovh/2014/10/hugo-syncthing/)                                                                                                              | Frédéric Logier                                               | 13 Oct 2014  |
+| [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/)                                                     | Web Bizarro                                                   | 19 Aug 2014  |
+| [Hello Hugo!](http://commiechink.com/2014/08/hello-hugo/)                                                                                                                 | Jason Yee                                                     | 19 Aug 2014  |
+| [Going with hugo](http://www.markuseliasson.se/article/going-with-hugo/)                                                                                                  | Markus Eliasson                                               | 18 Aug 2014  |
+| [Benchmarking Jekyll, Hugo and Wintersmith](http://fredrikloch.me/post/2014-08-12-Jekyll-and-its-alternatives-from-a-site-generation-point-of-view/)                      | Fredrik Loch                                                  | 12 Aug 2014  |
+| [Goodbye Octopress, Hello Hugo!](http://andreimihu.com/blog/2014/08/11/goodbye-octopress-hello-hugo/)                                                                     | Andrei Mihu                                                   | 11 Aug 2014  |
+| [Beautiful sites for Open Source projects](http://beautifulopen.com/2014/08/09/hugo/)                                                                                     | Beautiful Open                                                | 9 Aug 2014   |
+| [Hugo: Beyond the Defaults](http://npf.io/2014/08/hugo-beyond-the-defaults/)                                                                                              | Nate Finch                                                    | 8 Aug 2014   |
+| [First Impressions of Hugo](https://peteraba.com/blog/first-impressions-of-hugo/)                                                                                         | Peter Aba                                                     | 6 Aug 2014   |
+| [New Site Workflow](http://vurt.co.uk/post/new_website/)                                                                                                                  | Giles Paterson                                                | 5 Aug 2014   |
+| [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about-hugo/)                                                                          | Joshua McKenty                                                | 4 Aug 2014   |
+| [Hugo over Octopress](http://kennywoo.com/blog/hugo---golang-based-static-site-generator/)                                                                                | Kenny Woo                                                     | 3 Aug 2014   |
+| [Hugo Is Friggin' Awesome](http://npf.io/2014/08/hugo-is-awesome/)                                                                                                        | Nate Finch                                                    | 1 Aug 2014   |
+| [再次搬家 <small>(Move from WordPress to Hugo)</small>](http://www.chingli.com/misc/move-from-wordpress-to-hugo/)                                                         | 青砾 (chingli)                                                | 12 July 2014 |
+| [Embedding Gists in Hugo](http://danmux.com/posts/embedded_gists/)                                                                                                        | Dan Mull                                                      | 5 July 2014  |
+| [An Introduction To Hugo](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/)                                                                         | Dan Silber                                                    | 1 July 2014  |
+| [Moving to Hugo](http://danmux.com/posts/hugo_based_blog/)                                                                                                                | Dan Mull                                                      | 29 May 2014  |
+| [开源之静态站点生成器排行榜<br><small>(Leaderboard of open-source static website generators)</small>](http://code.csdn.net/news/2819909)                                  | CSDN.net                                                      | 23 May 2014  |
+| [How I deploy this site using Fabric](http://carlorat.me/quote/fabric/)                                                                                                   | Carlo Ratam                                                   | 21 May 2014  |
+| [Finally, a satisfying and effective blog setup](http://michaelwhatcott.com/now-powered-by-hugo/)                                                                         | Michael Whatcott                                              | 20 May 2014  |
+| [Hugo from scratch](http://zackofalltrades.com/notes/2014/05/hugo-from-scratch/)                                                                                          | Zack Williams                                                 | 18 May 2014  |
+| [Why I switched away from Jekyll](http://www.jakejanuzelli.com/why-I-switched-away-from-jekyll/)                                                                          | Jake Januzelli                                                | 10 May 2014  |
+| [Welcome our new blog](http://blog.ninya.io/posts/welcome-our-new-blog/)                                                                                                  | Ninya.io                                                      | 11 Apr 2014  |
+| [Mission Not Accomplished](http://johnsto.co.uk/blog/mission-not-accomplished/)                                                                                           | Dave Johnston                                                 | 3 Apr 2014   |
+| [Hugo - A Static Site Builder in Go](http://deepfriedcode.com/post/hugo/)                                                                                                 | Deep Fried Code                                               | 30 Mar 2014  |
+| [Adventures in Angular Podcast](http://devchat.tv/adventures-in-angular/003-aia-gdes)                                                                                     | Matias Niemela                                                | 28 Mar 2014  |
+| [Hugo](http://bra.am/post/hugo/)                                                                                                                                          | bra.am                                                        | 23 Mar 2014  |
+| [Converting Blogger To Markdown](http://trishagee.github.io/project/atom-to-hugo/)                                                                                        | Trisha Gee                                                    | 20 Mar 2014  |
+| [Moving to Hugo Static Web Pages](http://tepid.org/tech/hugo-web/)                                                                                                        | Tobias Weingartner                                            | 16 Mar 2014  |
+| [Hugo and GitHub Pages](http://sglyon.com/blog/2014/creating-the-site/)                                                                                                   | Spencer Lyon                                                  | 15 Mar 2014  |
+| [New Blog Engine: Hugo](https://blog.afoolishmanifesto.com/posts/hugo/)                                                                                                   | fREW Schmidt                                                  | 15 Mar 2014  |
+| [Hugo + gulp.js = Huggle](http://ktmud.github.io/huggle/en/intro/) ([English](http://ktmud.github.io/huggle/en/intro/), [中文](http://ktmud.github.io/huggle/zh/intro/))  | Jesse Yang 杨建超                                             | 8 Mar 2014   |
+| [Powered by Hugo](http://kieranhealy.org/blog/archives/2014/02/24/powered-by-hugo/)                                                                                       | Kieran Healy                                                  | 24 Feb 2014  |
+| [静的サイトを素早く構築するために<br>GoLangで作られたジェネレータHugo](http://hamasyou.com/blog/2014/02/21/hugo/)                                                         | <div style="line-height: 1.1;">Shogo Hamada<br>濱田章吾</div> | 21 Feb 2014  |
+| [Latest Roundup of Useful Tools For Developers](http://codegeekz.com/latest-roundup-of-useful-tools-for-developers/)                                                      | CodeGeekz                                                     | 13 Feb 2014  |
+| [Hugo: Static Site Generator written in Go](http://www.braveterry.com/2014/02/06/hugo-static-site-generator-written-in-go/)                                               | Brave Terry                                                   | 6 Feb 2014   |
+| [10 Useful HTML5 Tools for Web Designers and Developers](http://designdizzy.com/10-useful-html5-tools-for-web-designers-and-developers/)                                  | Design Dizzy                                                  | 4 Feb 2014   |
+| [Hugo – Fast, Flexible Static Site Generator](http://cube3x.com/hugo-fast-flexible-static-site-generator/)                                                                | Joby Joseph                                                   | 18 Jan 2014  |
+| [Hugo: A new way to build static website](http://www.w3update.com/opensource/hugo-a-new-way-to-build-static-website.html)                                                 | w3update                                                      | 17 Jan  2014 |
+| [Xaprb now uses Hugo](http://xaprb.com/blog/2014/01/15/using-hugo/)                                                                                                       | Baron Schwartz                                                | 15 Jan 2014  |
+| [New jQuery Plugins And Resources That Web Designers Need](http://www.designyourway.net/blog/resources/new-jquery-plugins-and-resources-that-web-designers-need/)         | Design Your Way                                               | 2014         |
+| [On Blog Construction](http://alexla.sh/post/on-blog-construction/)                                                                                                       | Alexander Lash                                                | 27 Dec 2013  |
+| [Hugo](http://onethingwell.org/post/69070926608/hugo)                                                                                                                     | One Thing Well                                                | 5 Dec 2013   |
+| [In Praise Of Hugo](http://sound-guru.com/blog/post/hello-world/)                                                                                                         | sound-guru.com                                                | 19 Oct 2013  |
+| [Hosting a blog on S3 and Cloudfront](http://www.danesparza.net/2013/07/hosting-a-blog-on-s3-and-cloudfront/)                                                             | Dan Esparza                                                   | 24 July 2013 |
 
-### Wrote a post, article or tutorial?
-
-Have you written a post, article or tutorial on hugo? Send us a pull request or issue with the addition.

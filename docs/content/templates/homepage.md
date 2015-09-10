@@ -13,7 +13,7 @@ weight: 50
 ---
 
 The home page of a website is often formatted differently than the other
-pages. In Hugo you can define your own homepage template. 
+pages. In Hugo you can define your own homepage template.
 
 Homepage is of the type "node" and have all the [node
 variables](/templates/variables/) and [site
@@ -45,9 +45,9 @@ the list will be needed.
 * /themes/`THEME`/layouts/\_default/single.html
 
 ## Example index.html
-This content template is used for [spf13.com](http://spf13.com).
+This content template is used for [spf13.com](http://spf13.com/).
 
-It makes use of [partial templates](/templates/partials) and uses a similar approach as a [List](/templates/list/).
+It makes use of [partial templates](/templates/partials/) and uses a similar approach as a [List](/templates/list/).
 
     <!DOCTYPE html>
     <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -56,7 +56,7 @@ It makes use of [partial templates](/templates/partials) and uses a similar appr
 
         {{ partial "meta.html" . }}
 
-        <base href="{{ .Site.BaseUrl }}">
+        <base href="{{ .Site.BaseURL }}">
         <title>{{ .Site.Title }}</title>
         <link rel="canonical" href="{{ .Permalink }}">
         <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
@@ -75,4 +75,4 @@ It makes use of [partial templates](/templates/partials) and uses a similar appr
       </div>
     </section>
 
-    {{ partial "footer.html" }}
+    {{ partial "footer.html" . }}

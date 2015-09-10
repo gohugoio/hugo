@@ -6,11 +6,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestFixUrl(t *testing.T) {
+func TestFixURL(t *testing.T) {
+	defer viper.Reset()
+
 	type data struct {
 		TestName   string
-		CliBaseUrl string
-		CfgBaseUrl string
+		CLIBaseURL string
+		CfgBaseURL string
 		AppendPort bool
 		Port       int
 		Result     string
@@ -28,13 +30,14 @@ func TestFixUrl(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		BaseUrl = test.CliBaseUrl
-		viper.Set("BaseUrl", test.CfgBaseUrl)
+		viper.Reset()
+		BaseURL = test.CLIBaseURL
+		viper.Set("BaseURL", test.CfgBaseURL)
 		serverAppend = test.AppendPort
 		serverPort = test.Port
-		result, err := fixUrl(BaseUrl)
+		result, err := fixURL(BaseURL)
 		if err != nil {
-			t.Errorf("Test #%d %s: unexpected error %s", err)
+			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
 		}
 		if result != test.Result {
 			t.Errorf("Test #%d %s: expected %q, got %q", i, test.TestName, test.Result, result)

@@ -15,12 +15,13 @@ package hugolib
 
 import (
 	"html/template"
+	"sync"
 	"time"
 )
 
 type Node struct {
 	RSSLink template.HTML
-	Site    *SiteInfo
+	Site    *SiteInfo `json:"-"`
 	//	layout      string
 	Data        map[string]interface{}
 	Title       string
@@ -28,20 +29,28 @@ type Node struct {
 	Keywords    []string
 	Params      map[string]interface{}
 	Date        time.Time
+	Lastmod     time.Time
 	Sitemap     Sitemap
-	UrlPath
+	URLPath
+	IsHome        bool
+	paginator     *Pager
+	paginatorInit sync.Once
+	scratch       *Scratch
 }
 
 func (n *Node) Now() time.Time {
 	return time.Now()
 }
 
-func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
+func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 	if inme.HasChildren() {
-		me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
+		me := MenuEntry{Name: n.Title, URL: n.URL}
 
 		for _, child := range inme.Children {
 			if me.IsSameResource(child) {
+				return true
+			}
+			if n.HasMenuCurrent(menuID, child) {
 				return true
 			}
 		}
@@ -50,9 +59,9 @@ func (n *Node) HasMenuCurrent(menuId string, inme *MenuEntry) bool {
 	return false
 }
 
-func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
+func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
-	me := MenuEntry{Name: n.Title, Url: string(n.Permalink)}
+	me := MenuEntry{Name: n.Title, URL: n.Site.createNodeMenuEntryURL(n.URL)}
 
 	if !me.IsSameResource(inme) {
 		return false
@@ -60,7 +69,7 @@ func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 
 	// this resource may be included in several menus
 	// search for it to make sure that it is in the menu with the given menuId
-	if menu, ok := (*n.Site.Menus)[menuId]; ok {
+	if menu, ok := (*n.Site.Menus)[menuID]; ok {
 		for _, menuEntry := range *menu {
 			if menuEntry.IsSameResource(inme) {
 				return true
@@ -75,6 +84,10 @@ func (n *Node) IsMenuCurrent(menuId string, inme *MenuEntry) bool {
 	}
 
 	return false
+}
+
+func (n *Node) Hugo() *HugoInfo {
+	return hugoInfo
 }
 
 func (n *Node) isSameAsDescendantMenu(inme *MenuEntry, parent *MenuEntry) bool {
@@ -112,9 +125,17 @@ func (n *Node) RelRef(ref string) (string, error) {
 	return n.Site.RelRef(ref, nil)
 }
 
-type UrlPath struct {
-	Url       string
+type URLPath struct {
+	URL       string
 	Permalink template.HTML
 	Slug      string
 	Section   string
+}
+
+// Scratch returns the writable context associated with this Node.
+func (n *Node) Scratch() *Scratch {
+	if n.scratch == nil {
+		n.scratch = newScratch()
+	}
+	return n.scratch
 }

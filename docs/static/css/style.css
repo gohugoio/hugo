@@ -1,5 +1,5 @@
 /* Import fonts */
-@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic);
+@import url(//fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic);
 
 /* ******************************
  For the github btn
@@ -101,12 +101,21 @@ body {
     font-family: 'Lato', sans-serif;
     padding: 0px !important;
     margin: 0px !important;
-    font-size:16px !important;    
+    font-size:16px !important;
     font-weight: 300;
 }
 
 h1,h2,h3,h4,h5{
     font-weight: 400;
+}
+
+
+h1[id]:before, h2[id]:before, h3[id]:before, h4[id]:before, h5[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
 }
 
 label{
@@ -164,7 +173,7 @@ input:focus, textarea:focus { outline: none; }
 /*sidebar navigation*/
 
 #sidebar {
-    width: 200px;
+    width: 214px;
     height: 100%;
     position: fixed;
     background: #ffffff;
@@ -227,7 +236,6 @@ ul.sidebar-menu li ul.sub li a:hover, ul.sidebar-menu li ul.sub li.active a {
 
 ul.sidebar-menu li{
     line-height: 20px !important;
-    text-transform: capitalize;
 }
 
 ul.sidebar-menu li.sub-menu{
@@ -254,7 +262,7 @@ ul.sidebar-menu li a{
     transition: all 0.3s ease;
     border-right: 1px solid #D7D7D7;
     border-bottom: 1px solid #D7D7D7;
-    overflow:hidden;
+    white-space: nowrap;
 }
 
 ul.sidebar-menu li.active a, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
@@ -267,13 +275,13 @@ ul.sidebar-menu li.active a, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:fo
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     -ms-transition: all 0.3s ease;
-    transition: all 0.3s ease;        
+    transition: all 0.3s ease;
 }
 ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
     border-bottom: 1px solid #ff4088;
 }
 /*ul.sidebar-menu li.active a,*/ ul.sidebar-menu .sub-menu li.active a{
-    border-bottom: 1px solid #ff4088;   
+    border-bottom: 1px solid #ff4088;
 }
 
 ul.sidebar-menu li a i {
@@ -291,10 +299,10 @@ ul.sidebar-menu li.active a i {
 }
 
 
-#sidebar ul > li > a .menu-arrow { 
-    float: right;    
+#sidebar ul > li > a .menu-arrow {
+    float: right;
     margin-right: 8px;
-    margin-top: 6px;    
+    margin-top: 6px;
 }
 
 #main-content {
@@ -500,4 +508,109 @@ td.purpose-title {
 
 td.purpose-description {
   border-left: 0;
+}
+
+/* For definitions of variables */
+
+dl {
+    margin: 1em;
+    border-bottom: 1px solid #ccc;
+}
+
+dt {
+    float: left;
+    clear: left;
+    width: 9.5em;
+    margin: 0.125em;
+    padding: 2px 4px;
+}
+
+dd {
+    padding: 0.2em 0 0.2em 10em;
+    border-top: 1px solid #ccc;
+}
+
+/* Prevent linebreak right after an icon */
+#main-content .fa {
+  display: inline;
+}
+
+/* Logo for FreeBSD until Font Awesome adds it, see https://github.com/FortAwesome/Font-Awesome/issues/1116 */
+i.freebsd-19px:before {
+  content: url(/img/freebsd-19px.svg);
+  vertical-align: -7%;
+}
+
+/* Responsive videos */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Google custom search */
+.cse {
+    margin-top: 20px;
+    padding-right: 20px;
+}
+
+
+/* Table of contents */
+
+.toc ul { list-style: none; margin: 0; padding: 0 5px;  }
+.toc ul li { display: inline; }
+#TableOfContents > ul > li > ul > li > ul li { margin-right: 8px; }
+#TableOfContents > ul > li > ul > li > a, #TableOfContents > ul > li > a   { font-weight: bold; background-color: #eeeeee; padding: 0 10px; margin: 0 2px; }
+#TableOfContents > ul > li > ul > li > a { font-style: italic; }
+.toc.compact ul > li > ul > li > ul  { display: none; }
+
+#toc {
+    position:fixed;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 10px 50px 10px 20px;
+}
+
+.showcase-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+}
+
+.showcase-container img {
+  border: 1px solid #555;
+}
+
+.showcase-container h4 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.dummy {
+    padding-top: 90%; /* Making rows line up even if img proportions off */
+}
+
+.thumbnail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+@media(max-width:1200px) {
+    .toc {
+        display: none;
+    }
 }

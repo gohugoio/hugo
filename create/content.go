@@ -63,7 +63,7 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	for k, _ := range newmetadata {
+	for k := range newmetadata {
 		switch strings.ToLower(k) {
 		case "date":
 			newmetadata[k] = time.Now()
@@ -73,12 +73,16 @@ func NewContent(kind, name string) (err error) {
 	}
 
 	caseimatch := func(m map[string]interface{}, key string) bool {
-		for k, _ := range m {
+		for k := range m {
 			if strings.ToLower(k) == strings.ToLower(key) {
 				return true
 			}
 		}
 		return false
+	}
+
+	if newmetadata == nil {
+		newmetadata = make(map[string]interface{})
 	}
 
 	if !caseimatch(newmetadata, "date") {
@@ -94,7 +98,7 @@ func NewContent(kind, name string) (err error) {
 		return err
 	}
 
-	if x := viper.GetString("MetaDataFormat"); x == "json" || x == "yaml" || x == "toml" {
+	if x := parser.FormatSanitize(viper.GetString("MetaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
 		newmetadata["date"] = time.Now().Format(time.RFC3339)
 	}
 

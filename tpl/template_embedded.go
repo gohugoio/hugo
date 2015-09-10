@@ -18,10 +18,10 @@ type Tmpl struct {
 	Data string
 }
 
-func (t *GoHtmlTemplate) EmbedShortcodes() {
+func (t *GoHTMLTemplate) EmbedShortcodes() {
 	t.AddInternalShortcode("ref.html", `{{ .Get 0 | ref .Page }}`)
 	t.AddInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
-	t.AddInternalShortcode("highlight.html", `{{ .Get 0 | highlight .Inner  }}`)
+	t.AddInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight .Inner (.Get 0) (.Get 1) }}{{ else }}{{ highlight .Inner (.Get 0) "" }}{{ end }}`)
 	t.AddInternalShortcode("test.html", `This is a simple Test`)
 	t.AddInternalShortcode("figure.html", `<!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
@@ -43,25 +43,25 @@ func (t *GoHtmlTemplate) EmbedShortcodes() {
 <!-- image -->`)
 }
 
-func (t *GoHtmlTemplate) EmbedTemplates() {
+func (t *GoHTMLTemplate) EmbedTemplates() {
 
 	t.AddInternalTemplate("_default", "rss.xml", `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}</title>
     <link>{{ .Permalink }}</link>
     <description>Recent content {{ with .Title }}in {{.}} {{ end }}on {{ .Site.Title }}</description>
-    <generator>Hugo -- gohugo.io</generator>
-    {{ with .Site.LanguageCode }}<language>{{.}}</language>{{end}}
-    {{ with .Site.Author.email }}<managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}
-    {{ with .Site.Author.email }}<webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}
-    {{ with .Site.Copyright }}<copyright>{{.}}</copyright>{{end}}
-    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05" }} {{ with .Date.Format "MST" }}{{ if eq . "UTC" }}UT{{else}}{{.}}{{end}}{{end}}</lastBuildDate>
-    <atom:link href="{{.Url}}" rel="self" type="application/rss+xml" />
+    <generator>Hugo -- gohugo.io</generator>{{ with .Site.LanguageCode }}
+    <language>{{.}}</language>{{end}}{{ with .Site.Author.email }}
+    <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
+    <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
+    <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    <atom:link href="{{.URL}}" rel="self" type="application/rss+xml" />
     {{ range first 15 .Data.Pages }}
     <item>
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
-      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05" }} {{ with .Date.Format "MST" }}{{ if eq . "UTC" }}UT{{else}}{{.}}{{end}}{{end}}</pubDate>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Content | html }}</description>
@@ -73,13 +73,41 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 	t.AddInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
   <url>
-    <loc>{{ .Permalink }}</loc>
-    <lastmod>{{ safeHtml ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
+    <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
+    <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
     <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
   </url>
   {{ end }}
 </urlset>`)
+
+	t.AddInternalTemplate("", "pagination.html", `{{ $pag := $.Paginator }}
+    {{ if gt $pag.TotalPages 1 }}
+    <ul class="pagination">
+        {{ with $pag.First }}
+        <li>
+            <a href="{{ .URL }}" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+        </li>
+        {{ end }}
+        <li
+        {{ if not $pag.HasPrev }}class="disabled"{{ end }}>
+        <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.URL }}{{ end }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        </li>
+        {{ range $pag.Pagers }}
+        <li
+        {{ if eq . $pag }}class="active"{{ end }}><a href="{{ .URL }}">{{ .PageNumber }}</a></li>
+        {{ end }}
+        <li
+        {{ if not $pag.HasNext }}class="disabled"{{ end }}>
+        <a href="{{ if $pag.HasNext }}{{ $pag.Next.URL }}{{ end }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        </li>
+        {{ with $pag.Last }}
+        <li>
+            <a href="{{ .URL }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        </li>
+        {{ end }}
+    </ul>
+    {{ end }}`)
 
 	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -98,21 +126,21 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`)
 
 	// Add SEO & Social metadata
-	t.AddInternalTemplate("_default", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
-<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}" />
+	t.AddInternalTemplate("", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
+<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
 {{ with .Params.images }}{{ range first 6 . }}
   <meta property="og:image" content="{{ . }}" />
 {{ end }}{{ end }}
 
-<meta property="og:updated_time" content="{{ .Date }}"/>{{ with .Params.audio }}
+{{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
 {{ range .Params.videos }}
   <meta property="og:video" content="{{ . }}" />
-{{ end }}
+{{ end }}{{ end }}
 
 <!-- If it is part of a series, link to related articles -->
 {{ $permalink := .Permalink }}
@@ -133,12 +161,12 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 <meta property="article:section" content="{{ .Section }}" />
 {{ with .Params.tags }}{{ range first 6 . }}
   <meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
-{{ end }}
+{{ end }}{{ end }}
 
 <!-- Facebook Page Admin ID for Domain Insights -->
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`)
 
-	t.AddInternalTemplate("_default", "twitter_cards.html", `{{ if .IsPage }}
+	t.AddInternalTemplate("", "twitter_cards.html", `{{ if .IsPage }}
 {{ with .Params.images }}
 <!-- Twitter summary card with large image must be at least 280x150px -->
   <meta name="twitter:card" content="summary_large_image"/>
@@ -149,24 +177,24 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 <!-- Twitter Card data -->
 <meta name="twitter:title" content="{{ .Title }}"/>
-<meta name="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}"/>
+<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}"/>
 {{ with .Site.Social.twitter }}<meta name="twitter:site" content="@{{ . }}"/>{{ end }}
 {{ with .Site.Social.twitter_domain }}<meta name="twitter:domain" content="{{ . }}"/>{{ end }}
 {{ range .Site.Authors }}
   {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
 {{ end }}{{ end }}`)
 
-	t.AddInternalTemplate("_default", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
+	t.AddInternalTemplate("", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`)
 
-	t.AddInternalTemplate("_default", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
+	t.AddInternalTemplate("", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
 <meta itemprop="name" content="{{ .Title }}">
-<meta itemprop="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}">
+<meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
-{{if .IsPage}}
-<meta itemprop="datePublished" content="{{ .PublishDate }}" />
-<meta itemprop="dateModified" content="{{ .Date }}" />
+{{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
+<meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHTML }}" />{{ end }}
+{{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHTML }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
   <meta itemprop="image" content="{{ . }}">
@@ -174,6 +202,6 @@ func (t *GoHtmlTemplate) EmbedTemplates() {
 
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
-{{ end }}{{ end }}`)
+{{ end }}`)
 
 }

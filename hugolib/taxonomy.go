@@ -60,13 +60,15 @@ type OrderedTaxonomyEntry struct {
 
 // KeyPrep... Taxonomies should be case insensitive. Can make it easily conditional later.
 func kp(in string) string {
-	return helpers.MakePathToLower(in)
+	return helpers.MakePathSanitized(in)
 }
 
 func (i Taxonomy) Get(key string) WeightedPages { return i[kp(key)] }
 func (i Taxonomy) Count(key string) int         { return len(i[kp(key)]) }
-func (i Taxonomy) Add(key string, w WeightedPage) {
-	key = kp(key)
+func (i Taxonomy) Add(key string, w WeightedPage, pretty bool) {
+	if !pretty {
+		key = kp(key)
+	}
 	i[key] = append(i[key], w)
 }
 
@@ -116,6 +118,14 @@ func (ie OrderedTaxonomyEntry) Term() string {
 	return ie.Name
 }
 
+func (t OrderedTaxonomy) Reverse() OrderedTaxonomy {
+	for i, j := 0, len(t)-1; i < j; i, j = i+1, j-1 {
+		t[i], t[j] = t[j], t[i]
+	}
+
+	return t
+}
+
 /*
  * Implementation of a custom sorter for OrderedTaxonomies
  */
@@ -162,7 +172,7 @@ func (wp WeightedPages) Pages() Pages {
 
 func (wp WeightedPages) Prev(cur *Page) *Page {
 	for x, c := range wp {
-		if c.Page.UniqueId() == cur.UniqueId() {
+		if c.Page.UniqueID() == cur.UniqueID() {
 			if x == 0 {
 				return wp[len(wp)-1].Page
 			}
@@ -174,7 +184,7 @@ func (wp WeightedPages) Prev(cur *Page) *Page {
 
 func (wp WeightedPages) Next(cur *Page) *Page {
 	for x, c := range wp {
-		if c.Page.UniqueId() == cur.UniqueId() {
+		if c.Page.UniqueID() == cur.UniqueID() {
 			if x < len(wp)-1 {
 				return wp[x+1].Page
 			}
@@ -184,18 +194,18 @@ func (wp WeightedPages) Next(cur *Page) *Page {
 	return nil
 }
 
-func (p WeightedPages) Len() int      { return len(p) }
-func (p WeightedPages) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p WeightedPages) Sort()         { sort.Stable(p) }
-func (p WeightedPages) Count() int    { return len(p) }
-func (p WeightedPages) Less(i, j int) bool {
-	if p[i].Weight == p[j].Weight {
-		if p[i].Page.Date.Equal(p[j].Page.Date) {
-			return p[i].Page.Title < p[j].Page.Title
+func (wp WeightedPages) Len() int      { return len(wp) }
+func (wp WeightedPages) Swap(i, j int) { wp[i], wp[j] = wp[j], wp[i] }
+func (wp WeightedPages) Sort()         { sort.Stable(wp) }
+func (wp WeightedPages) Count() int    { return len(wp) }
+func (wp WeightedPages) Less(i, j int) bool {
+	if wp[i].Weight == wp[j].Weight {
+		if wp[i].Page.Date.Equal(wp[j].Page.Date) {
+			return wp[i].Page.Title < wp[j].Page.Title
 		}
-		return p[i].Page.Date.After(p[i].Page.Date)
+		return wp[i].Page.Date.After(wp[i].Page.Date)
 	}
-	return p[i].Weight < p[j].Weight
+	return wp[i].Weight < wp[j].Weight
 }
 
 // TODO mimic PagesSorter for WeightedPages

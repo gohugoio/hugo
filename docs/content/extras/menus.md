@@ -1,5 +1,6 @@
 ---
 date: 2014-05-14T02:36:37Z
+toc: true
 menu:
   main:
     parent: extras
@@ -10,7 +11,10 @@ weight: 60
 ---
 
 Hugo has a simple yet powerful menu system that permits content to be
-placed in menus with a good degree of control without a lot of work. 
+placed in menus with a good degree of control without a lot of work.
+
+
+*TIP:* If all you want is a simple menu for your sections, see [Section Menu for "the Lazy Blogger"]({{< relref "#section-menu-for-the-lazy-blogger" >}}).
 
 Some of the features of Hugo Menus:
 
@@ -27,7 +31,7 @@ access it via `.Site.Menus.main`.
 
 A menu entry has the following properties:
 
-* **Url**        string
+* **URL**        string
 * **Name**       string
 * **Menu**       string
 * **Identifier** string
@@ -87,7 +91,7 @@ available.
 ## Adding (non-content) entries to a menu
 
 You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the sitewide [config file](/overview/configuration).
+content. This takes place in the sitewide [config file](/overview/configuration/).
 
 Here’s an example `config.toml`:
 
@@ -96,10 +100,12 @@ Here’s an example `config.toml`:
         pre = "<i class='fa fa-heart'></i>"
         weight = -110
         identifier = "about"
+        url = "/about/"
     [[menu.main]]
         name = "getting started"
         pre = "<i class='fa fa-road'></i>"
         weight = -100
+        url = "/getting-started/"
 
 And the equivalent example `config.yaml`:
 
@@ -110,10 +116,15 @@ And the equivalent example `config.yaml`:
             Pre: "<i class='fa fa-heart'></i>"
             Weight: -110
             Identifier: "about"
+            URL: "/about/"
           - Name: "getting started"
             Pre: "<i class='fa fa-road'></i>"
             Weight: -100
-    ---            
+            URL: "/getting-started/"
+    ---
+
+
+**NOTE:** The URLs must be relative to the context root. If the `BaseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`.
 
 ## Nesting
 
@@ -135,7 +146,7 @@ and all content entries are attached to one of these entries via the
 
 Hugo makes no assumptions about how your rendered HTML will be
 structured. Instead, it provides all of the functions you will need to be
-able to build your menu however you want. 
+able to build your menu however you want.
 
 
 The following is an example:
@@ -157,12 +168,12 @@ The following is an example:
                 </a>
                 <ul class="sub">
                     {{ range .Children }}
-                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.Url}}"> {{ .Name }} </a> </li>
+                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
                     {{ end }}
                 </ul>
               {{else}}
                 <li>
-                <a class="" href="{{.Url}}">
+                <a class="" href="{{.URL}}">
                     {{ .Pre }}
                     <span>{{ .Name }}</span>
                 </a>
@@ -176,3 +187,42 @@ The following is an example:
         </div>
     </aside>
     <!--sidebar end-->
+
+
+## Section Menu for "the Lazy Blogger"
+
+To enable this menu, add this to your site config, i.e. `config.toml`:
+
+```
+SectionPagesMenu = "main"
+```
+
+The menu name can be anything, but take a note of what it is.
+
+This will create a menu with all the sections as menu items and all the sections' pages as "shadow-members". The _shadow_ implies that the pages isn't represented by a menu-item themselves, but this enables you to create a top-level menu like this:
+
+```
+  <nav class="sidebar-nav">
+        {{ $currentNode := . }}
+        {{ range .Site.Menus.main }}
+        <a class="sidebar-nav-item{{if or ($currentNode.IsMenuCurrent "main" .) ($currentNode.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}">{{ .Name }}</a>
+        {{ end }}
+    </nav>
+
+```
+
+In the above, the menu item is marked as active if on the current section's list page or on a page in that section.
+
+The above is all that's needed. But if you want custom menu items, e.g. changing weight or name, you can define them manually in the site config, i.e. `config.toml`:
+
+```
+ [[menu.main]]
+        name = "This is the blog section"
+        weight = -110
+        identifier = "blog"
+        url = "/blog/"
+
+```
+
+**Note** that the `identifier` must match the section name.
+

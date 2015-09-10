@@ -1,3 +1,5 @@
+// Copyright © 2014-2015 Steve Francia <spf@spf13.com>.
+//
 // Licensed under the Simple Public License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
@@ -45,9 +48,11 @@ var newCmd = &cobra.Command{
 	Short: "Create new content for your site",
 	Long: `Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
-You can also specify the kind with -k KIND
-If archetypes are provided in your theme or site, they will be used.
-`,
+
+You can also specify the kind with ` + "`-k KIND`" + `.
+
+If archetypes are provided in your theme or site, they will be used.`,
+
 	Run: NewContent,
 }
 
@@ -56,8 +61,7 @@ var newSiteCmd = &cobra.Command{
 	Short: "Create a new site (skeleton)",
 	Long: `Create a new site in the provided directory.
 The new site will have the correct structure, but no content or theme yet.
-Use 'hugo new [contentPath]' to create new content.
-	`,
+Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 	Run: NewSite,
 }
 
@@ -67,12 +71,11 @@ var newThemeCmd = &cobra.Command{
 	Long: `Create a new theme (skeleton) called [name] in the current directory.
 New theme is a skeleton. Please add content to the touched files. Add your
 name to the copyright line in the license and adjust the theme.toml file
-as you see fit.
-	`,
+as you see fit.`,
 	Run: NewTheme,
 }
 
-//NewContent adds new content to a Hugo site.
+// NewContent adds new content to a Hugo site.
 func NewContent(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
@@ -89,10 +92,7 @@ func NewContent(cmd *cobra.Command, args []string) {
 
 	var kind string
 
-	// assume the first directory is the section (kind)
-	if strings.Contains(createpath[1:], "/") {
-		kind = helpers.GuessSection(createpath)
-	}
+	createpath, kind = newContentPathSection(createpath)
 
 	if contentType != "" {
 		kind = contentType
@@ -130,11 +130,12 @@ func NewSite(cmd *cobra.Command, args []string) {
 	mkdir(createpath, "content")
 	mkdir(createpath, "archetypes")
 	mkdir(createpath, "static")
+	mkdir(createpath, "data")
 
 	createConfig(createpath, configFormat)
 }
 
-//NewTheme creates a new Hugo theme.
+// NewTheme creates a new Hugo theme.
 func NewTheme(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
@@ -154,6 +155,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 	mkdir(createpath, "layouts", "partials")
 
 	touchFile(createpath, "layouts", "index.html")
+	touchFile(createpath, "layouts", "404.html")
 	touchFile(createpath, "layouts", "_default", "list.html")
 	touchFile(createpath, "layouts", "_default", "single.html")
 
@@ -168,7 +170,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 
 	by := []byte(`The MIT License (MIT)
 
-Copyright (c) 2014 YOUR_NAME_HERE
+Copyright (c) ` + time.Now().Format("2006") + ` YOUR_NAME_HERE
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -199,7 +201,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 func mkdir(x ...string) {
 	p := filepath.Join(x...)
 
-	err := os.MkdirAll(p, 0777) // rwx, rw, r
+	err := os.MkdirAll(p, 0777) // before umask
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
@@ -216,19 +218,28 @@ func touchFile(x ...string) {
 
 func createThemeMD(inpath string) (err error) {
 
-	in := map[string]interface{}{
-		"name":        helpers.MakeTitle(filepath.Base(inpath)),
-		"license":     "MIT",
-		"source_repo": "",
-		"author":      "",
-		"description": "",
-		"tags":        []string{"", ""},
-	}
+	by := []byte(`# theme.toml template for a Hugo theme
+# See https://github.com/spf13/hugoThemes#themetoml for an example
 
-	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune("toml"))
-	if err != nil {
-		return err
-	}
+name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
+license = "MIT"
+licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE.md"
+description = ""
+homepage = "http://siteforthistheme.com/"
+tags = ["", ""]
+features = ["", ""]
+min_version = 0.14
+
+[author]
+  name = ""
+  homepage = ""
+
+# If porting an existing theme
+[original]
+  name = ""
+  homepage = ""
+  repo = ""
+`)
 
 	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
@@ -238,8 +249,25 @@ func createThemeMD(inpath string) (err error) {
 	return nil
 }
 
+func newContentPathSection(path string) (string, string) {
+	// Forward slashes is used in all examples. Convert if needed.
+	// Issue #1133
+	createpath := strings.Replace(path, "/", helpers.FilePathSeparator, -1)
+	var section string
+	// assume the first directory is the section (kind)
+	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {
+		section = helpers.GuessSection(createpath)
+	}
+
+	return createpath, section
+}
+
 func createConfig(inpath string, kind string) (err error) {
-	in := map[string]string{"baseurl": "http://yourSiteHere", "title": "my new hugo site", "languageCode": "en-us"}
+	in := map[string]string{
+		"baseurl":      "http://replace-this-with-your-hugo-site.com/",
+		"title":        "My New Hugo Site",
+		"languageCode": "en-us",
+	}
 	kind = parser.FormatSanitize(kind)
 
 	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))

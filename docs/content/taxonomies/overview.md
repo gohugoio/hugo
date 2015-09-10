@@ -16,15 +16,17 @@ weight: 10
 ---
 
 Hugo includes support for user-defined groupings of content called
-taxonomies. Taxonomies give us a way to classify our content so we can
+taxonomies.[^1] Taxonomies give us a way to classify our content so we can
 demonstrate relationships in a variety of logical ways.
 
-The default taxonomies for Hugo are tags and categories. These
+[^1]: Taxonomies were called *indexes* in Hugo prior to v0.11.
+
+The default taxonomies for Hugo are *tags* and *categories*. These
 taxonomies are common to many website systems (e.g. WordPress, Drupal,
 Jekyll). Unlike all of those systems, Hugo makes it trivial to customize
 the taxonomies you will be using for your site however you wish. Another
 good use for taxonomies is to group a set of posts into a series. Other
-common uses would include categories, tags, groups, series and many
+common uses would include *categories*, *tags*, *groups*, *series* and many
 more.
 
 When taxonomies are used (and templates are provided), Hugo will
@@ -35,7 +37,7 @@ and all of the content attached to those terms.
 
 **Taxonomy:** A categorization that can be used to classify content
 
-**Term:** A key within that taxonomy 
+**Term:** A key within that taxonomy
 
 **Value:** A piece of content assigned to that Term
 

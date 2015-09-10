@@ -15,12 +15,17 @@ package helpers
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"fmt"
-	"os/exec"
-	"strings"
-
+	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"io"
+	"io/ioutil"
+	"os/exec"
+	"path/filepath"
+	"sort"
+	"strings"
 )
 
 const pygmentsBin = "pygmentize"
@@ -35,24 +40,68 @@ func HasPygments() bool {
 }
 
 // Highlight takes some code and returns highlighted code.
-func Highlight(code string, lexer string) string {
+func Highlight(code, lang, optsStr string) string {
 
 	if !HasPygments() {
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
 	}
 
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	style := viper.GetString("PygmentsStyle")
+	options, err := parsePygmentsOpts(optsStr)
 
-	noclasses := "true"
-	if viper.GetBool("PygmentsUseClasses") {
-		noclasses = "false"
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code
 	}
 
-	cmd := exec.Command(pygmentsBin, "-l"+lexer, "-fhtml", "-O",
-		fmt.Sprintf("style=%s,noclasses=%s,encoding=utf8", style, noclasses))
+	// Try to read from cache first
+	hash := sha1.New()
+	io.WriteString(hash, code)
+	io.WriteString(hash, lang)
+	io.WriteString(hash, options)
+
+	fs := hugofs.OsFs
+
+	cacheDir := viper.GetString("CacheDir")
+	var cachefile string
+
+	if cacheDir != "" {
+		cachefile = filepath.Join(cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
+
+		exists, err := Exists(cachefile, fs)
+		if err != nil {
+			jww.ERROR.Print(err.Error())
+			return code
+		}
+		if exists {
+			f, err := fs.Open(cachefile)
+			if err != nil {
+				jww.ERROR.Print(err.Error())
+				return code
+			}
+
+			s, err := ioutil.ReadAll(f)
+			if err != nil {
+				jww.ERROR.Print(err.Error())
+				return code
+			}
+
+			return string(s)
+		}
+	}
+
+	// No cache file, render and cache it
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+
+	var langOpt string
+	if lang == "" {
+		langOpt = "-g" // Try guessing the language
+	} else {
+		langOpt = "-l"+lang
+	}
+
+	cmd := exec.Command(pygmentsBin, langOpt, "-fhtml", "-O", options)
 	cmd.Stdin = strings.NewReader(code)
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
@@ -62,5 +111,78 @@ func Highlight(code string, lexer string) string {
 		return code
 	}
 
+	if cachefile != "" {
+		// Write cache file
+		if err := WriteToDisk(cachefile, bytes.NewReader(out.Bytes()), fs); err != nil {
+			jww.ERROR.Print(stderr.String())
+		}
+	}
+
 	return out.String()
+}
+
+var pygmentsKeywords = make(map[string]bool)
+
+func init() {
+	pygmentsKeywords["style"] = true
+	pygmentsKeywords["encoding"] = true
+	pygmentsKeywords["noclasses"] = true
+	pygmentsKeywords["hl_lines"] = true
+	pygmentsKeywords["linenos"] = true
+	pygmentsKeywords["classprefix"] = true
+}
+
+func parsePygmentsOpts(in string) (string, error) {
+
+	in = strings.Trim(in, " ")
+
+	style := viper.GetString("PygmentsStyle")
+
+	noclasses := "true"
+	if viper.GetBool("PygmentsUseClasses") {
+		noclasses = "false"
+	}
+
+	if len(in) == 0 {
+		return fmt.Sprintf("style=%s,noclasses=%s,encoding=utf8", style, noclasses), nil
+	}
+
+	options := make(map[string]string)
+
+	o := strings.Split(in, ",")
+	for _, v := range o {
+		keyVal := strings.Split(v, "=")
+		key := strings.ToLower(strings.Trim(keyVal[0], " "))
+		if len(keyVal) != 2 || !pygmentsKeywords[key] {
+			return "", fmt.Errorf("invalid Pygments option: %s", key)
+		}
+		options[key] = keyVal[1]
+	}
+
+	if _, ok := options["style"]; !ok {
+		options["style"] = style
+	}
+
+	if _, ok := options["noclasses"]; !ok {
+		options["noclasses"] = noclasses
+	}
+
+	if _, ok := options["encoding"]; !ok {
+		options["encoding"] = "utf8"
+	}
+
+	var keys []string
+	for k := range options {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var optionsStr string
+	for i, k := range keys {
+		optionsStr += fmt.Sprintf("%s=%s", k, options[k])
+		if i < len(options)-1 {
+			optionsStr += ","
+		}
+	}
+	return optionsStr, nil
 }

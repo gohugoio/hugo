@@ -7,6 +7,7 @@ next: /content/ordering
 prev: /content/types
 title: Archetypes
 weight: 50
+toc: true
 ---
 
 Hugo v0.11 introduced the concept of a content builder. Using the
@@ -15,7 +16,7 @@ you can start a content file with the date and title automatically set.
 While this is a welcome feature, active writers need more.
 
 Hugo presents the concept of archetypes, which are archetypal content files
-with pre-configured [front matter](content/front-matter) which will
+with pre-configured [front matter](/content/front-matter) which will
 populate each new content file whenever you run the `hugo new` command.
 
 
@@ -33,7 +34,7 @@ We will use ‘tags’ and ‘categories’ for our taxonomies, so let's create 
     categories = ["x", "y"]
     +++
 
-__CAVEAT:__  Some editors (e.g. Sublime, Emacs) do not insert an EOL (end-of-line) character at the end of the file (i.e. EOF).  If you get a [strange EOF error](/troubleshooting/strange-eof-error/) when using `hugo new`, please open each archetype file (i.e. `archetypes/*.md`) and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` as necessary.
+> __CAVEAT:__  Some editors (e.g. Sublime, Emacs) do not insert an EOL (end-of-line) character at the end of the file (i.e. EOF).  If you get a [strange EOF error](/troubleshooting/strange-eof-error/) when using `hugo new`, please open each archetype file (i.e.&nbsp;`archetypes/*.md`) and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` as necessary.
 
 
 ### Step 2. Using the archetype
@@ -55,8 +56,35 @@ Hugo would create the file with the following contents:
 
 We see that the `title` and `date` variables have been added, in addition to the `tags` and `categories` variables which were carried over from `archetype/default.md`.
 
-Congratulations!  We have successfully created an archetype and used it for our new contents.  That's all there is to it!
+Congratulations!  We have successfully created an archetype and used it for our new contents. But wait, what if I want to have different variables for another content type, like musicians? No problem.
 
+### Creating custom archetypes
+
+Earlier you created a new content type by adding a new subfolder to the content directory. In our case it's name would be `content/musician`. To use the corresponding archetype you just need to create a file named after the content type called `musician.md` in the `archetypes` directory, similar to the one below.
+
+#### archetypes/musician.md
+
+    +++
+    name = ""
+    bio = ""
+    genre = ""
+    +++
+
+Now let's create a new musician.
+
+    $ hugo new musician/mozart.md
+
+This time, Hugo recognizes the custom archetype and uses it instead of the default one. So the generated file's frontmatter now includes the variables `name`, `bio` and `genre`.
+
+#### content/musician/mozart.md
+
+    +++
+    title = "mozart"
+    date = "2015-08-24T13:04:37+02:00"
+    name = ""
+    bio = ""
+    genre = ""
+    +++
 
 ## Using a different front matter format
 
@@ -80,8 +108,13 @@ The following rules apply:
 * If no archetype files are present, then the one that ships with Hugo will be used.
 
 Hugo provides a simple archetype which sets the `title` (based on the
-file name) and the `date` based on `now()`.
+file name) and the `date` in RFC&nbsp;3339 format based on
+[`now()`](http://golang.org/pkg/time/#Now), which returns the current time.
 
-Content type is automatically detected based on the path. You are welcome to declare which 
-type to create using the `--kind` flag during creation.
+> *Note: `hugo new` does not automatically add `draft = true` when the user
+> provides an archetype.  This is by design, rationale being that
+> the archetype should set its own value for all fields.
+> `title` and `date`, which are dynamic and unique for each piece of content,
+> are the sole exceptions.*
 
+Content type is automatically detected based on the path. You are welcome to declare which type to create using the `--kind` flag during creation.

@@ -15,7 +15,7 @@ package hugolib
 
 func (p Pages) Prev(cur *Page) *Page {
 	for x, c := range p {
-		if c.UniqueId() == cur.UniqueId() {
+		if c.UniqueID() == cur.UniqueID() {
 			if x == 0 {
 				return p[len(p)-1]
 			}
@@ -27,7 +27,7 @@ func (p Pages) Prev(cur *Page) *Page {
 
 func (p Pages) Next(cur *Page) *Page {
 	for x, c := range p {
-		if c.UniqueId() == cur.UniqueId() {
+		if c.UniqueID() == cur.UniqueID() {
 			if x < len(p)-1 {
 				return p[x+1]
 			}

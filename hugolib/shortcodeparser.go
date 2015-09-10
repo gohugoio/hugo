@@ -325,7 +325,7 @@ func lexShortcodeLeftDelim(l *pagelexer) stateFunc {
 
 func lexShortcodeComment(l *pagelexer) stateFunc {
 	posRightComment := strings.Index(l.input[l.pos:], rightComment)
-	if posRightComment < 0 {
+	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
 	}
 	// we emit all as text, except the comment markers
@@ -382,7 +382,7 @@ func lexShortcodeParam(l *pagelexer, escapedQuoteStart bool) stateFunc {
 			break
 		}
 
-		if !isValidParamRune(r) {
+		if !isAlphaNumericOrHyphen(r) {
 			l.backup()
 			break
 		}
@@ -477,7 +477,7 @@ func lexIdentifierInShortcode(l *pagelexer) stateFunc {
 Loop:
 	for {
 		switch r := l.next(); {
-		case isAlphaNumeric(r):
+		case isAlphaNumericOrHyphen(r):
 		default:
 			l.backup()
 			word := l.input[l.start:l.pos]
@@ -541,7 +541,7 @@ func lexInsideShortcode(l *pagelexer) stateFunc {
 		if l.peek() == '"' {
 			return lexShortcodeParam(l, true)
 		}
-	case l.elementStepNum > 0 && (isValidParamRune(r) || r == '"'): // positional params can have quotes
+	case l.elementStepNum > 0 && (isAlphaNumericOrHyphen(r) || r == '"'): // positional params can have quotes
 		l.backup()
 		return lexShortcodeParam(l, false)
 	case isAlphaNumeric(r):
@@ -584,7 +584,7 @@ func isSpace(r rune) bool {
 	return r == ' ' || r == '\t'
 }
 
-func isValidParamRune(r rune) bool {
+func isAlphaNumericOrHyphen(r rune) bool {
 	// let unquoted YouTube ids as positional params slip through (they contain hyphens)
 	return isAlphaNumeric(r) || r == '-'
 }

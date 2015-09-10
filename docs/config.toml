@@ -1,7 +1,13 @@
-baseurl = "http://gohugo.io"
+title = "gohugo.io"
+baseurl = "http://gohugo.io/"
 MetaDataFormat = "yaml"
+pluralizeListTitles = false
 
-[indexes]
+[params]
+  description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13 and friends in Go"
+  author = "Steve Francia (spf13) and friends"
+
+[taxonomies]
   tag = "tags"
   group = "groups"
 
@@ -16,43 +22,59 @@ MetaDataFormat = "yaml"
     url = "/showcase/"
     weight = -180
 [[menu.main]]
+    name = "Press & Articles"
+    pre = "<i class='fa fa-bullhorn'></i>"
+    url = "/community/press/"
+    weight = -170
+[[menu.main]]
     name = "Discuss Hugo"
     pre = "<i class='fa fa-comments'></i>"
-    url = "http://discuss.gohugo.io"
+    url = "http://discuss.gohugo.io/"
     weight = -150
 [[menu.main]]
-    name = "about hugo"
+    name = "About Hugo"
+    identifier = "about"
     pre = "<i class='fa fa-heart'></i>"
     weight = -110
-    identifier = "about"
 [[menu.main]]
-    name = "getting started"
+    name = "Getting Started"
+    identifier = "getting started"
     pre = "<i class='fa fa-road'></i>"
     weight = -100
 [[menu.main]]
-    name = "content"
+    name = "Hugo Commands"
+    identifier = "commands"
+    pre = "<i class='fa fa-space-shuttle'></i>"
+    weight = -95
+    url = "/commands/"
+[[menu.main]]
+    name = "Content"
+    identifier = "content"
     pre = "<i class='fa fa-file-text'></i>"
     weight = -90
 [[menu.main]]
-    name = "themes"
+    name = "Themes"
+    identifier = "themes"
     pre = "<i class='fa fa-desktop'></i>"
     weight = -85
 [[menu.main]]
-    name = "templates"
+    name = "Templates"
     identifier = "layout"
     pre = "<i class='fa fa-columns'></i>"
     weight = -80
 [[menu.main]]
-    name = "taxonomies"
+    name = "Taxonomies"
     identifier = "taxonomy"
     pre = "<i class='fa fa-tags'></i>"
     weight = -70
 [[menu.main]]
-    name = "extras"
+    name = "Extras"
+    identifier = "extras"
     pre = "<i class='fa fa-gift'></i>"
     weight = -60
 [[menu.main]]
-    name = "community"
+    name = "Community"
+    identifier = "community"
     pre = "<i class='fa fa-group'></i>"
     weight = -50
 [[menu.main]]
@@ -61,10 +83,12 @@ MetaDataFormat = "yaml"
     url = "http://discuss.gohugo.io"
     weight = 150
 [[menu.main]]
-    name = "tutorials"
+    name = "Tutorials"
+    identifier = "tutorials"
     pre = "<i class='fa fa-book'></i>"
     weight = -40
 [[menu.main]]
-    name = "troubleshooting"
+    name = "Troubleshooting"
+    identifier = "troubleshooting"
     pre = "<i class='fa fa-wrench'></i>"
     weight = -30

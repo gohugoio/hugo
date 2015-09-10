@@ -5,13 +5,14 @@ date: 2013-07-01
 menu:
   main:
     parent: extras
-next: /extras/highlighting
+next: /extras/pagination
 prev: /extras/permalinks
 title: Shortcodes
 weight: 80
+toc: true
 ---
 
-Hugo uses Markdown for its simple content format. However, there’s a lot
+Hugo uses Markdown for its simple content format. However, there are a lot
 of things that Markdown doesn’t support well.
 
 We are unwilling to accept being constrained by our simple format. Also
@@ -25,7 +26,7 @@ To avoid both of these limitations, Hugo created shortcodes.
 A shortcode is a simple snippet inside a content file that Hugo will render
 using a predefined template. Note that shortcodes will not work in template
 files---if you need a functionality like that in a template, you most likely
-want a [partial template](/templates/partials) instead.
+want a [partial template](/templates/partials/) instead.
 
 ## Using a shortcode
 
@@ -69,7 +70,7 @@ Hugo ships with a set of predefined shortcodes.
 ### highlight
 
 This shortcode will convert the source code provided into syntax highlighted
-HTML. Read more on [highlighting](/extras/highlighting).
+HTML. Read more on [highlighting](/extras/highlighting/).
 
 #### Usage
 `highlight` takes exactly one required parameter of _language_ and requires a
@@ -112,6 +113,7 @@ closing shortcode.
  * link
  * title
  * caption
+ * class
  * attr (attribution)
  * attrlink
  * alt
@@ -192,9 +194,13 @@ of the content between the opening and closing shortcodes. If a closing
 shortcode is required, you can check the length of `.Inner` and provide a warning
 to the user.
 
+A shortcode with `.Inner` content can be used wihout the inline content, and without the closing shortcode, by using the self-closing syntax:
+
+    {{</* innershortcode /*/>}}
+
 The variable `.Params` contains the list of parameters in case you need to do more complicated things than `.Get`.
 
-You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/). 
+You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/).
 
 ## Single Positional Example: youtube
 

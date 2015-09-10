@@ -1,10 +1,10 @@
----
-title: "News"
-linktitle: "News"
-url: /news
-type: list
++++
+title = "News"
+linktitle = "News"
+url = "/news"
 
-lang: "en"
-menu: ["en"]
-menu_weight: 10
----
+listing = true
+lang = "en"
+menu = ["en"]
+menu_weight = 10
++++

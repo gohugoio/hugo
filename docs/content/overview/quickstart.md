@@ -12,6 +12,8 @@ weight: 10
 
 > _Note: This quickstart depends on features introduced in Hugo v0.11.  If you have an earlier version of Hugo, you will need to [upgrade](/overview/installing/) before proceeding._
 
+{{% youtube w7Ft2ymGmfc %}}
+
 ## Step 1. Install Hugo
 
 Go to [Hugo Releases](https://github.com/spf13/hugo/releases) and download the
@@ -80,7 +82,8 @@ We still lack any templates to tell us how to display the content.
 
 ## Step 4. Install some themes
 
-Hugo has rich theme support and a growing set of themes to choose from:
+Hugo has rich theme support and a growing set of themes to choose from.
+To install all of the available Hugo themes, simply clone the entire **hugoThemes** repository from within your working directory:
 
 ```bash
 $ git clone --recursive https://github.com/spf13/hugoThemes themes
@@ -99,7 +102,7 @@ your content:
     in 5 ms
     Serving pages from exampleHugoSite/public
     Web Server is available at http://localhost:1313
-    Press ctrl+c to stop
+    Press Ctrl+C to stop
 
 We specified two options here:
 
@@ -131,9 +134,9 @@ Stop the Hugo process by hitting <kbd>Ctrl</kbd>+<kbd>C</kbd>. Then run the foll
     Watching for changes in exampleHugoSite/content
     Serving pages from exampleHugoSite/public
     Web Server is available at http://localhost:1313
-    Press ctrl+c to stop
+    Press Ctrl+C to stop
 
-Open your [favorite editor](http://vim.spf13.com), edit and save your content, and watch as Hugo rebuilds and reloads automatically.
+Open your [favorite editor](http://vim.spf13.com/), edit and save your content, and watch as Hugo rebuilds and reloads automatically.
 
 It’s especially productive to leave a browser open on a second monitor
 and just glance at it whenever you save. You don’t even need to tab to

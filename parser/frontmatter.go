@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v2"
 )
 
 type FrontmatterType struct {
@@ -128,8 +128,6 @@ func FormatToLeadRune(kind string) rune {
 	switch FormatSanitize(kind) {
 	case "yaml":
 		return rune([]byte(YAML_LEAD)[0])
-	case "toml":
-		return rune([]byte(TOML_LEAD)[0])
 	case "json":
 		return rune([]byte(JSON_LEAD)[0])
 	default:
@@ -153,30 +151,30 @@ func FormatSanitize(kind string) string {
 func DetectFrontMatter(mark rune) (f *FrontmatterType) {
 	switch mark {
 	case '-':
-		return &FrontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), HandleYamlMetaData, false}
+		return &FrontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), HandleYAMLMetaData, false}
 	case '+':
-		return &FrontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), HandleTomlMetaData, false}
+		return &FrontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), HandleTOMLMetaData, false}
 	case '{':
-		return &FrontmatterType{[]byte{'{'}, []byte{'}'}, HandleJsonMetaData, true}
+		return &FrontmatterType{[]byte{'{'}, []byte{'}'}, HandleJSONMetaData, true}
 	default:
 		return nil
 	}
 }
 
-func HandleTomlMetaData(datum []byte) (interface{}, error) {
+func HandleTOMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
-	datum = removeTomlIdentifier(datum)
+	datum = removeTOMLIdentifier(datum)
 	if _, err := toml.Decode(string(datum), &m); err != nil {
 		return m, err
 	}
 	return m, nil
 }
 
-func removeTomlIdentifier(datum []byte) []byte {
+func removeTOMLIdentifier(datum []byte) []byte {
 	return bytes.Replace(datum, []byte(TOML_DELIM), []byte(""), -1)
 }
 
-func HandleYamlMetaData(datum []byte) (interface{}, error) {
+func HandleYAMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	if err := yaml.Unmarshal(datum, &m); err != nil {
 		return m, err
@@ -184,7 +182,7 @@ func HandleYamlMetaData(datum []byte) (interface{}, error) {
 	return m, nil
 }
 
-func HandleJsonMetaData(datum []byte) (interface{}, error) {
+func HandleJSONMetaData(datum []byte) (interface{}, error) {
 	var f interface{}
 	if err := json.Unmarshal(datum, &f); err != nil {
 		return f, err

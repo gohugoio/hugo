@@ -9,11 +9,12 @@ next: /templates/rss
 prev: /templates/views
 title: Partial Templates
 weight: 80
+toc: true
 ---
 
 In practice, it's very convenient to split out common template portions into a
 partial template that can be included anywhere. As you create the rest of your
-templates, you will include templates from the /layout/partials directory.
+templates, you will include templates from the /layout/partials directory, or from arbitrary subdirectories like /layout/partials/post/tag.
 
 Partials are especially important for themes as it gives users an opportunity
 to overwrite just a small part of your theme, while maintaining future compatibility.
@@ -35,7 +36,7 @@ like good names to use for inclusion in your other templates.
 By ensuring that we only reference [variables](/layout/variables/)
 used for both nodes and pages, we can use the same partials for both.
 
-## Partial vs Template 
+## Partial vs Template
 
 Version v0.12 of Hugo introduced the `partial` call inside the template system.
 This is a change to the way partials were handled previously inside the
@@ -51,7 +52,7 @@ the “partial/” path). The old approach would still work, but wouldn’t bene
 the ability to have users override the partial theme file with local layouts.
 
 ## Example header.html
-This header template is used for [spf13.com](http://spf13.com):
+This header template is used for [spf13.com](http://spf13.com/):
 
     <!DOCTYPE html>
     <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -60,7 +61,7 @@ This header template is used for [spf13.com](http://spf13.com):
 
         {{ partial "meta.html" . }}
 
-        <base href="{{ .Site.BaseUrl }}">
+        <base href="{{ .Site.BaseURL }}">
         <title> {{ .Title }} : spf13.com </title>
         <link rel="canonical" href="{{ .Permalink }}">
         {{ if .RSSlink }}<link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
@@ -70,13 +71,13 @@ This header template is used for [spf13.com](http://spf13.com):
     <body lang="en">
 
 ## Example footer.html
-This footer template is used for [spf13.com](http://spf13.com):
+This footer template is used for [spf13.com](http://spf13.com/):
 
     <footer>
       <div>
         <p>
         &copy; 2013-14 Steve Francia.
-        <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>; 
+        <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
         please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
         </p>
       </div>
@@ -89,7 +90,7 @@ This footer template is used for [spf13.com](http://spf13.com):
 
       (function() {
         var ga = document.createElement('script');
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
             'http://www') + '.google-analytics.com/ga.js';
         ga.setAttribute('async', 'true');
         document.documentElement.firstChild.appendChild(ga);
@@ -99,5 +100,11 @@ This footer template is used for [spf13.com](http://spf13.com):
     </body>
     </html>
 
-**For examples of referencing these templates, see [single content
-templates](/templates/content), [list templates](/templates/list) and [homepage templates](/templates/homepage).**
+To reference a partial template stored in a subfolder, e.g. `/layout/partials/post/tag/list.html`, call it this way:
+
+     {{ partial "post/tag/list" . }}
+
+Note that the subdirectories you create under /layout/partials can be named whatever you like.
+
+**For more examples of referencing these templates, see [single content
+templates](/templates/content/), [list templates](/templates/list/) and [homepage templates](/templates/homepage/).**

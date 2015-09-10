@@ -138,15 +138,15 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 // pageToPermalinkTitle returns the URL-safe form of the title
 func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 	// Page contains Node which has Title
-	// (also contains UrlPath which has Slug, sometimes)
-	return helpers.Urlize(p.Title), nil
+	// (also contains URLPath which has Slug, sometimes)
+	return helpers.URLize(p.Title), nil
 }
 
 // pageToPermalinkFilename returns the URL-safe form of the filename
 func pageToPermalinkFilename(p *Page, _ string) (string, error) {
 	//var extension = p.Source.Ext
 	//var name = p.Source.Path()[0 : len(p.Source.Path())-len(extension)]
-	return helpers.Urlize(p.Source.BaseFileName()), nil
+	return helpers.URLize(p.Source.BaseFileName()), nil
 }
 
 // if the page has a slug, return the slug, else return the title
@@ -160,13 +160,13 @@ func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 		if strings.HasSuffix(p.Slug, "-") {
 			p.Slug = p.Slug[0 : len(p.Slug)-1]
 		}
-		return p.Slug, nil
+		return helpers.URLize(p.Slug), nil
 	}
 	return pageToPermalinkTitle(p, a)
 }
 
 func pageToPermalinkSection(p *Page, _ string) (string, error) {
-	// Page contains Node contains UrlPath which has Section
+	// Page contains Node contains URLPath which has Section
 	return p.Section(), nil
 }
 

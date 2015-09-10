@@ -8,11 +8,12 @@ next: /content/archetypes
 prev: /content/sections
 title: Content Types
 weight: 40
+toc: true
 ---
 
 Hugo has full support for different types of content. A content type can have a
-unique set of meta data, template and can be automatically created by the new
-command through using content [archetypes](/content/archetypes).
+unique set of meta data, template and can be automatically created by the `hugo new`
+command through using content [archetypes](/content/archetypes/).
 
 A good example of when multiple types are needed is to look at [Tumblr](https://www.tumblr.com/). A piece
 of content could be a photo, quote or post, each with different meta data and
@@ -20,7 +21,7 @@ rendered differently.
 
 ## Assigning a content type
 
-Hugo assumes that your site will be organized into [sections](/content/sections)
+Hugo assumes that your site will be organized into [sections](/content/sections/)
 and each section will use the corresponding type. If you are taking advantage of
 this, then each new piece of content you place into a section will automatically
 inherit the type.
@@ -32,7 +33,7 @@ Alternatively, you can set the type in the meta data under the key "`type`".
 
 Hugo has the ability to create a new content file and populate the front matter
 with the data set corresponding to that type. Hugo does this by utilizing
-[archetypes](/content/archetypes).
+[archetypes](/content/archetypes/).
 
 To create a new piece of content, use:
 
@@ -73,4 +74,4 @@ that a template exists in each layouts/`TYPE` directory with the same name.
 
 Create a file called <code><em>type</em>.md</code> in the `/archetypes` directory. *E.g. `/archetypes/post.md`*.
 
-More details about archetypes can be found at the [archetypes docs](/content/archetypes).
+More details about archetypes can be found at the [archetypes docs](/content/archetypes/).

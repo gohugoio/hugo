@@ -1,13 +1,19 @@
 package hugolib
 
 import (
+	"fmt"
 	"html/template"
 	"path/filepath"
+	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 var EMPTY_PAGE = ""
@@ -136,6 +142,16 @@ Summary Same Line<!--more-->
 Some more text
 `
 
+	SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES = `---
+title: Simple
+---
+
+
+€ € € € €
+
+
+`
+
 	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
 title: Simple
 ---
@@ -211,6 +227,57 @@ the cylinder and strike me down. ## BB
 
 "You're a great Granser," he cried delightedly, "always making believe them little marks mean something."
 `
+
+	SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION = `+++
+[blackfriday]
+  extensions = ["hardLineBreak"]
++++
+first line.
+second line.
+
+fourth line.
+`
+
+	SIMPLE_PAGE_WITH_URL = `---
+title: Simple
+url: simple/url/
+---
+Simple Page With URL`
+
+	SIMPLE_PAGE_WITH_SLUG = `---
+title: Simple
+slug: simple-slug
+---
+Simple Page With Slug`
+
+	SIMPLE_PAGE_WITH_DATE = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+---
+Simple Page With Date`
+
+	UTF8_PAGE = `---
+title: ラーメン
+---
+UTF8 Page`
+
+	UTF8_PAGE_WITH_URL = `---
+title: ラーメン
+url: ラーメン/url/
+---
+UTF8 Page With URL`
+
+	UTF8_PAGE_WITH_SLUG = `---
+title: ラーメン
+slug: ラーメン-slug
+---
+UTF8 Page With Slug`
+
+	UTF8_PAGE_WITH_DATE = `---
+title: ラーメン
+date: '2013-10-15T06:16:13'
+---
+UTF8 Page With Date`
 )
 
 var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
@@ -219,8 +286,109 @@ an_integer = 1
 a_float = 1.3
 a_bool = false
 a_date = 1979-05-27T07:32:00Z
+
+[a_table]
+a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
+
+var PAGE_WITH_CALENDAR_YAML_FRONTMATTER = `---
+type: calendar
+weeks:
+  -
+    start: "Jan 5"
+    days:
+      - activity: class
+        room: EN1000
+      - activity: lab
+      - activity: class
+      - activity: lab
+      - activity: class
+  -
+    start: "Jan 12"
+    days:
+      - activity: class
+      - activity: lab
+      - activity: class
+      - activity: lab
+      - activity: exam
+---
+
+Hi.
+`
+
+var PAGE_WITH_CALENDAR_JSON_FRONTMATTER = `{
+  "type": "calendar",
+  "weeks": [
+    {
+      "start": "Jan 5",
+      "days": [
+        { "activity": "class", "room": "EN1000" },
+        { "activity": "lab" },
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "class" }
+      ]
+    },
+    {
+      "start": "Jan 12",
+      "days": [
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "exam" }
+      ]
+    }
+  ]
+}
+
+Hi.
+`
+
+var PAGE_WITH_CALENDAR_TOML_FRONTMATTER = `+++
+type = "calendar"
+
+[[weeks]]
+start = "Jan 5"
+
+[[weeks.days]]
+activity = "class"
+room = "EN1000"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks]]
+start = "Jan 12"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "exam"
++++
+
+Hi.
+`
 
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
@@ -305,12 +473,14 @@ func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
 
 func TestCreateNewPage(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE))
 	p.Convert()
 
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
+
+	assert.False(t, p.IsHome)
 	checkPageTitle(t, p, "Simple")
 	checkPageContent(t, p, "<p>Simple Page</p>\n")
 	checkPageSummary(t, p, "Simple Page")
@@ -321,7 +491,7 @@ func TestCreateNewPage(t *testing.T) {
 
 func TestPageWithDelimiter(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -338,7 +508,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	s := new(Site)
 	s.prepTemplates()
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY))
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -353,7 +523,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 
 func TestPageWithEmbeddedScriptTag(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_EMBEDDED_SCRIPT))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_EMBEDDED_SCRIPT))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -361,9 +531,19 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 	checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n")
 }
 
+func TestPageWithAdditionalExtension(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION))
+	p.Convert()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
+}
+
 func TestTableOfContents(t *testing.T) {
 	p, _ := NewPage("tocpage.md")
-	err := p.ReadFrom(strings.NewReader(PAGE_WITH_TOC))
+	_, err := p.ReadFrom(strings.NewReader(PAGE_WITH_TOC))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -374,7 +554,7 @@ func TestTableOfContents(t *testing.T) {
 
 func TestPageWithMoreTag(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -388,7 +568,7 @@ func TestPageWithMoreTag(t *testing.T) {
 
 func TestPageWithDate(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -400,9 +580,24 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
+func TestRuneCount(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.RuneCount() != 5 {
+		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 5, p.RuneCount())
+
+	}
+}
+
 func TestWordCount(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -436,7 +631,7 @@ func TestCreatePage(t *testing.T) {
 
 	for _, test := range tests {
 		p, _ := NewPage("page")
-		if err := p.ReadFrom(strings.NewReader(test.r)); err != nil {
+		if _, err := p.ReadFrom(strings.NewReader(test.r)); err != nil {
 			t.Errorf("Unable to parse page: %s", err)
 		}
 	}
@@ -452,7 +647,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 	for _, test := range tests {
 
 		p, _ := NewPage("invalid/front/matter/short/delim")
-		err := p.ReadFrom(strings.NewReader(test.r))
+		_, err := p.ReadFrom(strings.NewReader(test.r))
 		checkError(t, err, test.err)
 	}
 }
@@ -471,7 +666,7 @@ func TestShouldRenderContent(t *testing.T) {
 	for _, test := range tests {
 
 		p, _ := NewPage("render/front/matter")
-		err := p.ReadFrom(strings.NewReader(test.text))
+		_, err := p.ReadFrom(strings.NewReader(test.text))
 		p = pageMust(p, err)
 		if p.IsRenderable() != test.render {
 			t.Errorf("expected p.IsRenderable() == %t, got %t", test.render, p.IsRenderable())
@@ -479,9 +674,25 @@ func TestShouldRenderContent(t *testing.T) {
 	}
 }
 
+// Issue #768
+func TestCalendarParamsVariants(t *testing.T) {
+	pageJSON, _ := NewPage("test/fileJSON.md")
+	_, _ = pageJSON.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_JSON_FRONTMATTER))
+
+	pageYAML, _ := NewPage("test/fileYAML.md")
+	_, _ = pageYAML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_YAML_FRONTMATTER))
+
+	pageTOML, _ := NewPage("test/fileTOML.md")
+	_, _ = pageTOML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_TOML_FRONTMATTER))
+
+	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
+	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
+
+}
+
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	page, _ := NewPage("test/file1.md")
-	_ = page.ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES))
+	_, _ = page.ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
 	if page.GetParam("a_string") != "bar" {
@@ -499,11 +710,18 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	if page.GetParam("a_date") != dateval {
 		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
 	}
+	param := page.GetParam("a_table")
+	if param == nil {
+		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
+	}
+	if cast.ToStringMap(param)["a_key"] != "a_value" {
+		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.Params["a_table"])["a_key"])
+	}
 }
 
 func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 	p, _ := NewPage("invalid/front/matter/leading/ws")
-	err := p.ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS))
+	_, err := p.ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS))
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
 	}
@@ -556,7 +774,7 @@ func TestLayoutOverride(t *testing.T) {
 	}
 	for _, test := range tests {
 		p, _ := NewPage(test.path)
-		err := p.ReadFrom(strings.NewReader(test.content))
+		_, err := p.ReadFrom(strings.NewReader(test.content))
 		if err != nil {
 			t.Fatalf("Unable to parse content:\n%s\n", test.content)
 		}
@@ -590,6 +808,97 @@ func TestSliceToLower(t *testing.T) {
 	}
 }
 
+func TestPagePaths(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
+	site_permalinks_setting := PermalinkOverrides{
+		"post": ":year/:month/:day/:title/",
+	}
+
+	tests := []struct {
+		content      string
+		path         string
+		hasPermalink bool
+		expected     string
+	}{
+		{SIMPLE_PAGE, "content/post/x.md", false, "content/post/x.html"},
+		{SIMPLE_PAGE_WITH_URL, "content/post/x.md", false, "simple/url/index.html"},
+		{SIMPLE_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/simple-slug.html"},
+		{SIMPLE_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/simple/index.html"},
+		{UTF8_PAGE, "content/post/x.md", false, "content/post/x.html"},
+		{UTF8_PAGE_WITH_URL, "content/post/x.md", false, "ラーメン/url/index.html"},
+		{UTF8_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
+		{UTF8_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/ラーメン/index.html"},
+	}
+
+	for _, test := range tests {
+		p, _ := NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
+		p.Node.Site = &SiteInfo{}
+
+		if test.hasPermalink {
+			p.Node.Site.Permalinks = site_permalinks_setting
+		}
+
+		expectedTargetPath := filepath.FromSlash(test.expected)
+		expectedFullFilePath := filepath.FromSlash(test.path)
+
+		if p.TargetPath() != expectedTargetPath {
+			t.Errorf("%s => TargetPath  expected: '%s', got: '%s'", test.content, expectedTargetPath, p.TargetPath())
+		}
+
+		if p.FullFilePath() != expectedFullFilePath {
+			t.Errorf("%s => FullFilePath  expected: '%s', got: '%s'", test.content, expectedFullFilePath, p.FullFilePath())
+		}
+	}
+}
+
+var PAGE_WITH_DRAFT_AND_PUBLISHED = `---
+title: broken
+published: false
+draft: true
+---
+some content
+`
+
+func TestDraftAndPublishedFrontMatterError(t *testing.T) {
+	_, err := NewPageFrom(strings.NewReader(PAGE_WITH_DRAFT_AND_PUBLISHED), "content/post/broken.md")
+	if err != ErrHasDraftAndPublished {
+		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
+	}
+}
+
+var PAGE_WITH_PUBLISHED_FALSE = `---
+title: okay
+published: false
+---
+some content
+`
+var PAGE_WITH_PUBLISHED_TRUE = `---
+title: okay
+published: true
+---
+some content
+`
+
+func TestPublishedFrontMatter(t *testing.T) {
+	p, err := NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_FALSE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if !p.Draft {
+		t.Errorf("expected true, got %t", p.Draft)
+	}
+	p, err = NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_TRUE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if p.Draft {
+		t.Errorf("expected false, got %t", p.Draft)
+	}
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false
@@ -602,4 +911,15 @@ func listEqual(left, right []string) bool {
 	}
 
 	return true
+}
+
+// TODO(bep) this may be useful for other tests.
+func compareObjects(a interface{}, b interface{}) bool {
+	aStr := strings.Split(fmt.Sprintf("%v", a), "")
+	sort.Strings(aStr)
+
+	bStr := strings.Split(fmt.Sprintf("%v", b), "")
+	sort.Strings(bStr)
+
+	return strings.Join(aStr, "") == strings.Join(bStr, "")
 }
