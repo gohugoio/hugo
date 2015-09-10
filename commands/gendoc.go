@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
 	"path"
 	"path/filepath"
 	"strings"
@@ -24,11 +25,12 @@ var gendocCmd = &cobra.Command{
 	Use:   "gendoc",
 	Short: "Generate Markdown documentation for the Hugo CLI.",
 	Long: `Generate Markdown documentation for the Hugo CLI.
-	
-	This command is, mostly, used to create up-to-date documentation for gohugo.io.
-	
-	It creates one Markdown file per command with front matter suitable for rendering in Hugo.
-	`,
+
+This command is, mostly, used to create up-to-date documentation
+of Hugo's command-line interface for http://gohugo.io/.
+
+It creates one Markdown file per command with front matter suitable
+for rendering in Hugo.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		if !strings.HasSuffix(gendocdir, helpers.FilePathSeparator) {
@@ -50,7 +52,9 @@ var gendocCmd = &cobra.Command{
 			return "/commands/" + strings.ToLower(base) + "/"
 		}
 
+		jww.FEEDBACK.Println("Generating Hugo command-line documentation in", gendocdir, "...")
 		cobra.GenMarkdownTreeCustom(cmd.Root(), gendocdir, prepender, linkHandler)
+		jww.FEEDBACK.Println("Done.")
 	},
 }
 

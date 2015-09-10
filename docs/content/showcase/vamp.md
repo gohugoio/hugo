@@ -9,7 +9,7 @@ tags:
 - documentation
 - company
 - api
-thumbnail: /img/vamp_landingpage.png
+thumbnail: /img/vamp_landingpage-tn.png
 title: Vamp.io
 ---
 

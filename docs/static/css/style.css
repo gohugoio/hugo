@@ -583,14 +583,34 @@ i.freebsd-19px:before {
     padding: 10px 50px 10px 20px;
 }
 
+.showcase-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+}
+
+.showcase-container img {
+  border: 1px solid #555;
+}
+
+.showcase-container h4 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.dummy {
+    padding-top: 90%; /* Making rows line up even if img proportions off */
+}
+
+.thumbnail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
 
 @media(max-width:1200px) {
     .toc {
         display: none;
     }
 }
-
-
-
-
-

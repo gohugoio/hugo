@@ -462,12 +462,15 @@ func (p *Page) RelPermalink() (string, error) {
 	return link.String(), nil
 }
 
+var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
+
 func (p *Page) update(f interface{}) error {
 	if f == nil {
 		return fmt.Errorf("no metadata found")
 	}
 	m := f.(map[string]interface{})
 	var err error
+	var draft, published *bool
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -506,7 +509,11 @@ func (p *Page) update(f interface{}) error {
 				jww.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
 		case "draft":
-			p.Draft = cast.ToBool(v)
+			draft = new(bool)
+			*draft = cast.ToBool(v)
+		case "published": // Intentionally undocumented
+			published = new(bool)
+			*published = cast.ToBool(v)
 		case "layout":
 			p.layout = cast.ToString(v)
 		case "markup":
@@ -542,7 +549,9 @@ func (p *Page) update(f interface{}) error {
 				case []interface{}:
 					if len(vvv) > 0 {
 						switch vvv[0].(type) {
-						case map[interface{}]interface{}: // Proper parsing structured array from yaml based FrontMatter
+						case map[interface{}]interface{}: // Proper parsing structured array from YAML based FrontMatter
+							p.Params[loki] = vvv
+						case map[string]interface{}: // Proper parsing structured array from JSON based FrontMatter
 							p.Params[loki] = vvv
 						default:
 							a := make([]string, len(vvv))
@@ -560,6 +569,16 @@ func (p *Page) update(f interface{}) error {
 				}
 			}
 		}
+	}
+
+	if draft != nil && published != nil {
+		p.Draft = *draft
+		jww.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
+		return ErrHasDraftAndPublished
+	} else if draft != nil {
+		p.Draft = *draft
+	} else if published != nil {
+		p.Draft = !*published
 	}
 
 	if p.Lastmod.IsZero() {
@@ -701,13 +720,15 @@ func (p *Page) Menus() PageMenus {
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
-	curLayout := ""
+	var l []string
 
 	if len(layout) > 0 {
-		curLayout = layout[0]
+		l = layouts(p.Type(), layout[0])
+	} else {
+		l = p.Layout()
 	}
 
-	return tpl.ExecuteTemplateToHTML(p, p.Layout(curLayout)...)
+	return tpl.ExecuteTemplateToHTML(p, l...)
 }
 
 func (p *Page) guessMarkupType() string {

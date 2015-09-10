@@ -1,5 +1,7 @@
+title = "gohugo.io"
 baseurl = "http://gohugo.io/"
 MetaDataFormat = "yaml"
+pluralizeListTitles = false
 
 [params]
   description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13 and friends in Go"

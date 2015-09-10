@@ -41,6 +41,7 @@ var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
+	Smartypants     bool
 	AngledQuotes    bool
 	Fractions       bool
 	HrefTargetBlank bool
@@ -53,6 +54,7 @@ type Blackfriday struct {
 // NewBlackfriday creates a new Blackfriday with some sane defaults.
 func NewBlackfriday() *Blackfriday {
 	return &Blackfriday{
+		Smartypants:     true,
 		AngledQuotes:    false,
 		Fractions:       true,
 		HrefTargetBlank: false,
@@ -149,8 +151,11 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
+
+	if ctx.getConfig().Smartypants {
+		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+	}
 
 	if ctx.getConfig().AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
@@ -421,7 +426,7 @@ func GetAsciidocContent(content []byte) string {
 	}
 
 	jww.INFO.Println("Rendering with", path, "...")
-	cmd := exec.Command(path, "--safe", "-")
+	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -429,13 +434,7 @@ func GetAsciidocContent(content []byte) string {
 		jww.ERROR.Println(err)
 	}
 
-	asciidocLines := strings.Split(out.String(), "\n")
-	for i, line := range asciidocLines {
-		if strings.HasPrefix(line, "<body") {
-			asciidocLines = (asciidocLines[i+1 : len(asciidocLines)-3])
-		}
-	}
-	return strings.Join(asciidocLines, "\n")
+	return out.String()
 }
 
 // GetRstContent calls the Python script rst2html as an external helper

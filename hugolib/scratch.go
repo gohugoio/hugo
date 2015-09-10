@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"github.com/spf13/hugo/helpers"
+	"sort"
 )
 
 // Scratch is a writable context used for stateful operations in Page/Node rendering.
@@ -50,6 +51,41 @@ func (c *Scratch) Set(key string, value interface{}) string {
 // Get returns a value previously set by Add or Set
 func (c *Scratch) Get(key string) interface{} {
 	return c.values[key]
+}
+
+// SetInMap stores a value to a map with the given key in the Node context.
+// This map can later be retrieved with GetSortedMapValues.
+func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string {
+	_, found := c.values[key]
+	if !found {
+		c.values[key] = make(map[string]interface{})
+	}
+
+	c.values[key].(map[string]interface{})[mapKey] = value
+	return ""
+}
+
+// GetSortedMapValues returns a sorted map previously filled with SetInMap
+func (c *Scratch) GetSortedMapValues(key string) interface{} {
+	if c.values[key] == nil {
+		return nil
+	}
+
+	unsortedMap := c.values[key].(map[string]interface{})
+
+	var keys []string
+	for mapKey, _ := range unsortedMap {
+		keys = append(keys, mapKey)
+	}
+
+	sort.Strings(keys)
+
+	sortedArray := make([]interface{}, len(unsortedMap))
+	for i, mapKey := range keys {
+		sortedArray[i] = unsortedMap[mapKey]
+	}
+
+	return sortedArray
 }
 
 func newScratch() *Scratch {

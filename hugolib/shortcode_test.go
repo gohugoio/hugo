@@ -18,12 +18,20 @@ func pageFromString(in, filename string) (*Page, error) {
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Template) {
+	CheckShortCodeMatchAndError(t, input, expected, template, false)
+}
+
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template tpl.Template, expectError bool) {
 
 	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
 	output, err := HandleShortcodes(input, p, template)
 
-	if err != nil {
+	if err != nil && !expectError {
 		t.Fatalf("Shortcode rendered error %s. Expected: %q, Got: %q", err, expected, output)
+	}
+
+	if err == nil && expectError {
+		t.Fatalf("No error from shortcode")
 	}
 
 	if output != expected {
@@ -83,6 +91,20 @@ func TestPositionalParamSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{<video 47238zzb>}}", "Playing Video 47238zzb", tem)
 	CheckShortCodeMatch(t, "{{<video 47238zzb    >}}", "Playing Video 47238zzb", tem)
 	CheckShortCodeMatch(t, "{{<   video   47238zzb    >}}", "Playing Video 47238zzb", tem)
+}
+
+func TestPositionalParamIndexOutOfBounds(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", tem)
+}
+
+// some repro issues for panics in Go Fuzz testing
+func TestShortcodeGoFuzzRepros(t *testing.T) {
+	tt := tpl.New()
+	tt.AddInternalShortcode("inner.html", `Shortcode... {{ with .Get 0 }}{{ . }}{{ end }}-- {{ with .Get 1 }}{{ . }}{{ end }}- {{ with .Inner }}{{ . }}{{ end }}`)
+	// Issue #1337
+	CheckShortCodeMatchAndError(t, "{{%inner\"\"\"\"=\"\"", "", tt, true)
 }
 
 func TestNamedParamSC(t *testing.T) {

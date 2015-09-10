@@ -60,7 +60,13 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
 			return "error: cannot access named params by position"
 		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
-			x = reflect.ValueOf(scp.Params).Index(int(reflect.ValueOf(key).Int()))
+			idx := int(reflect.ValueOf(key).Int())
+			ln := reflect.ValueOf(scp.Params).Len()
+			if idx > ln-1 {
+				helpers.DistinctErrorLog.Printf("No shortcode param at .Get %d in page %s, have params: %v", idx, scp.Page.FullFilePath(), scp.Params)
+				return fmt.Sprintf("error: index out of range for positional param at position %d", idx)
+			}
+			x = reflect.ValueOf(scp.Params).Index(idx)
 		}
 	case string:
 		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
@@ -265,6 +271,8 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 
 }
 
+var shortCodeIllegalState = errors.New("Illegal shortcode state")
+
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
@@ -347,8 +355,12 @@ Loop:
 					params[currItem.val] = pt.next().val
 					sc.params = params
 				} else {
-					params := sc.params.(map[string]string)
-					params[currItem.val] = pt.next().val
+					if params, ok := sc.params.(map[string]string); ok {
+						params[currItem.val] = pt.next().val
+					} else {
+						return sc, shortCodeIllegalState
+					}
+
 				}
 			} else {
 				// positional params
@@ -357,9 +369,13 @@ Loop:
 					params = append(params, currItem.val)
 					sc.params = params
 				} else {
-					params := sc.params.([]string)
-					params = append(params, currItem.val)
-					sc.params = params
+					if params, ok := sc.params.([]string); ok {
+						params = append(params, currItem.val)
+						sc.params = params
+					} else {
+						return sc, shortCodeIllegalState
+					}
+
 				}
 			}
 

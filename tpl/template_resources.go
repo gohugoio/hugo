@@ -267,15 +267,15 @@ func GetCSV(sep string, urlParts ...string) [][]string {
 }
 
 func ReadDir(path string) []os.FileInfo {
-    wd := ""
-    p := ""
+	wd := ""
+	p := ""
 	if viper.GetString("WorkingDir") != "" {
 		wd = viper.GetString("WorkingDir")
 	}
-    if strings.Contains(path, "..") {
-        jww.ERROR.Printf("Path contains parent directory marker ..\n", path)
+	if strings.Contains(path, "..") {
+		jww.ERROR.Printf("Path %s contains parent directory marker", path)
 		return nil
-    }
+	}
 
 	p = filepath.Clean(path)
 	p = filepath.Join(wd, p)

@@ -133,24 +133,6 @@ type SiteInfo struct {
 // linkedin
 type SiteSocial map[string]string
 
-// BaseUrl is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) BaseUrl() template.URL {
-	helpers.Deprecated("Site", ".BaseUrl", ".BaseURL")
-	return s.BaseURL
-}
-
-// Recent is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) Recent() *Pages {
-	helpers.Deprecated("Site", ".Recent", ".Pages")
-	return s.Pages
-}
-
-// Indexes is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) Indexes() *TaxonomyList {
-	helpers.Deprecated("Site", ".Indexes", ".Taxonomies")
-	return &s.Taxonomies
-}
-
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]
 
@@ -1066,7 +1048,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	key := t.key
 	n := s.NewNode()
 	if s.Info.preserveTaxonomyNames {
-		key = helpers.MakePathToLower(key)
+		key = helpers.MakePathSanitized(key)
 		// keep as is, just make sure the first char is upper
 		n.Title = helpers.FirstUpper(t.key)
 	} else {
@@ -1209,7 +1191,7 @@ func (s *Site) RenderSectionLists() error {
 			[]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 
 		if s.Info.preserveTaxonomyNames {
-			section = helpers.MakePathToLower(section)
+			section = helpers.MakePathSanitized(section)
 		}
 
 		n := s.newSectionListNode(sectionName, section, data)
@@ -1333,6 +1315,7 @@ func (s *Site) RenderHomePage() error {
 	n.IsHome = false
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
+	n.scratch = newScratch()
 
 	nfLayouts := []string{"404.html"}
 	if nfErr := s.renderAndWritePage("404 page", "404.html", n, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
@@ -1614,9 +1597,9 @@ func (s *Site) futureStats() string {
 
 	switch s.futureCount {
 	case 0:
-		return "0 future content "
+		return "0 future content"
 	case 1:
-		msg = "1 future rendered "
+		msg = "1 future rendered"
 	default:
 		msg = fmt.Sprintf("%d future rendered", s.draftCount)
 	}

@@ -89,11 +89,12 @@ includes taxonomies, lists and the homepage.
 
 [Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables.
 
-* **.Data.Singular** The singular name of the taxonomy
-* **.Data.Plural** The plural name of the taxonomy
-* **.Data.Terms** The taxonomy itself
-* **.Data.Terms.Alphabetical** The Terms alphabetized
-* **.Data.Terms.ByCount** The Terms ordered by popularity
+**.Data.Singular** The singular name of the taxonomy<br>
+**.Data.Plural** The plural name of the taxonomy<br>
+**.Data.Pages** the list of pages in this taxonomy<br>
+**.Data.Terms** The taxonomy itself<br>
+**.Data.Terms.Alphabetical** The Terms alphabetized<br>
+**.Data.Terms.ByCount** The Terms ordered by popularity<br>
 
 The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
 
@@ -103,7 +104,6 @@ Also available is `.Site` which has the following:
 
 **.Site.BaseURL** The base URL for the site as defined in the site configuration file.<br>
 **.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
-**.Site.LastChange** The date of the last change of the most recent content.<br>
 **.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
@@ -113,7 +113,6 @@ Also available is `.Site` which has the following:
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
 **.Site.Sections** Top level directories of the site.<br>
-**.Site.Pages** All of the content pages of the site.<br>
 **.Site.Files** All of the source files of the site.<br>
 **.Site.Menus** All of the menus in the site.<br>
 **.Site.Title** A string representing the title of the site.<br>
@@ -121,7 +120,7 @@ Also available is `.Site` which has the following:
 **.Site.LanguageCode** A string representing the language as defined in the site configuration.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
 **.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
-**.Site.LastChange** A string representing the last time content has been updated.<br>
+**.Site.LastChange** A string representing the date/time of the most recent change to your site, based on the [`date` variable]({{< ref "content/front-matter.md#required-variables" >}}) in the front matter of your content pages.<br>
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
 **.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
 **.Site.Data**  Custom data, see [Data Files](/extras/datafiles/).<br>

@@ -52,13 +52,13 @@ e.g.
 
 
 ### echoParam
-If parameter is set, then echo it.
+Prints a parameter if it is set.
 
-e.g. `{{echoParam .Params "project_url" }}`
+e.g. `{{ echoParam .Params "project_url" }}`
 
 
 ### eq
-Return true if the parameters are equal.
+Returns true if the parameters are equal.
 
 e.g.
 
@@ -66,7 +66,7 @@ e.g.
 
 
 ### first
-Slices an array to only the first X elements.
+Slices an array to only the first _N_ elements.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
@@ -77,7 +77,7 @@ e.g.
     {{ end }}
 
 ### last
-Slices an array to only the last X elements.
+Slices an array to only the last _N_ elements.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
@@ -88,9 +88,8 @@ e.g.
     {{ end }}
 
 ### after
-Slices an array to only the items after the Xth item. Use this in 
-combination with `first` use both halves of an array split a item
-X.
+Slices an array to only the items after the <em>N</em>th item. Use this in combination
+with `first` to use both halves of an array split at item _N_.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
@@ -114,7 +113,9 @@ e.g.
 
 
 ### in
-Checks if an element is in an array (or slice) and returns a boolean.  The elements supported are strings, integers and floats (only float64 will match as expected).  In addition, it can also check if a substring exists in a string.
+Checks if an element is in an array (or slice) and returns a boolean.
+The elements supported are strings, integers and floats (only float64 will match as expected).
+In addition, it can also check if a substring exists in a string.
 
 e.g.
 
@@ -126,9 +127,11 @@ or
 
 
 ### intersect
-Given two arrays (or slices), this function will return the common elements in the arrays.  The elements supported are strings, integers and floats (only float64).
+Given two arrays (or slices), this function will return the common elements in the arrays.
+The elements supported are strings, integers and floats (only float64).
 
-A useful example of this functionality is a 'similar posts' block.  Create a list of links to posts where any of the tags in the current post match any tags in other posts.
+A useful example of this functionality is a 'similar posts' block.
+Create a list of links to posts where any of the tags in the current post match any tags in other posts.
 
 e.g.
 
@@ -146,14 +149,14 @@ e.g.
 
 
 ### isset
-Return true if the parameter is set.
+Returns true if the parameter is set.
 Takes either a slice, array or channel and an index or a map and a key as input.
 
 e.g. `{{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}`
 
 ### seq
 
-Seq creates a sequence of integers. It's named and used as GNU's seq.
+Creates a sequence of integers. It's named and used as GNU's seq.
 
 Some examples:
 
@@ -164,7 +167,10 @@ Some examples:
 * `1 -2` => `1, 0, -1, -2`
 
 ### sort
-Sorts maps, arrays and slices, returning a sorted slice. A sorted array of map values will be returned, with the keys eliminated. There are two optional arguments, which are `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order.
+Sorts maps, arrays and slices, returning a sorted slice.
+A sorted array of map values will be returned, with the keys eliminated.
+There are two optional arguments, which are `sortByField` and `sortAsc`.
+If left blank, sort will sort by keys (for maps) in ascending order.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
@@ -259,6 +265,22 @@ Following operators are now available
        {{ .Content }}
     {{ end }}
 
+### Unset field
+Filter only work for set fields. To check whether a field is set or exist, use operand `nil`.
+
+This can be useful to filter a small amount of pages from a large pool. Instead of set field on all pages, you can set field on required pages only.
+
+Only following operators are available for `nil`
+
+- `=`, `==`, `eq`: True if the given field is not set.
+- `!=`, `<>`, `ne`: True if the given field is set.
+
+e.g.
+
+    {{ range where .Data.Pages ".Params.specialpost" "!=" nil }}
+       {{ .Content }}
+    {{ end }}
+
 
 ## Math
 
@@ -321,30 +343,32 @@ e.g., `{{chomp "<p>Blockhead</p>\n"` → `"<p>Blockhead</p>"`
 
 
 ### dateFormat
-Converts the textual representation of the datetime into the other form or returns it of Go `time.Time` type value. These are formatted with the layout string.
+Converts the textual representation of the datetime into the other form or returns it of Go `time.Time` type value.
+These are formatted with the layout string.
 
 e.g. `{{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}` →"Wednesday, Jan 21, 2015"
 
 
 ### highlight
-Take a string of code and a language, uses Pygments to return the syntax highlighted code in HTML. Used in the [highlight shortcode](/extras/highlighting/).
+Takes a string of code and a language, uses Pygments to return the syntax highlighted code in HTML.
+Used in the [highlight shortcode](/extras/highlighting/).
 
 
 ### lower
-Convert all characters in string to lowercase.
+Converts all characters in string to lowercase.
 
 e.g. `{{lower "BatMan"}}` → "batman"
 
 
 ### markdownify
 
-This will run the string through the Markdown processesor. The result will be declared as "safe" so Go templates will not filter it.
+Runs the string through the Markdown processesor. The result will be declared as "safe" so Go templates will not filter it.
 
 e.g. `{{ .Title | markdownify }}`
 
 
 ### replace
-Replace all occurences of the search string with the replacement string.
+Replaces all occurrences of the search string with the replacement string.
 
 e.g. `{{ replace "Batman and Robin" "Robin" "Catwoman" }}` → "Batman and Catwoman"
 
@@ -407,28 +431,29 @@ CSS or URL context.
 
 ### slicestr
 
-Slicing in Slicestr is done by specifying a half-open range with two indices, start and end. 1 and 4 creates a slice including elements 1 through 3. 
-The end index can be omitted, it defaults to the string's length.
+Slicing in `slicestr` is done by specifying a half-open range with two indices, `start` and `end`.
+For example, 1 and 4 creates a slice including elements 1 through 3.
+The `end` index can be omitted; it defaults to the string's length.
 
-e.g. 
+e.g.
 
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
 
 ### substr
 
- Substr extracts parts of a string, beginning at the character at the specified
- position, and returns the specified number of characters.
+Extracts parts of a string, beginning at the character at the specified
+position, and returns the specified number of characters.
 
- It normally takes two parameters: `start` and `length`.
- It can also take one parameter: `start`, i.e. `length` is omitted, in which case
- the substring starting from start until the end of the string will be returned.
+It normally takes two parameters: `start` and `length`.
+It can also take one parameter: `start`, i.e. `length` is omitted, in which case
+the substring starting from start until the end of the string will be returned.
 
- To extract characters from the end of the string, use a negative start number.
+To extract characters from the end of the string, use a negative start number.
 
- In addition, borrowing from the extended behavior described at http://php.net/substr,
- if `length` is given and is negative, then that many characters will be omitted from
- the end of string.
+In addition, borrowing from the extended behavior described at http://php.net/substr,
+if `length` is given and is negative, then that many characters will be omitted from
+the end of string.
 
 e.g.
 
@@ -436,26 +461,26 @@ e.g.
 * `{{substr "BatMan" 3 3}}` → "Man"
 
 ### title
-Convert all characters in string to titlecase.
+Converts all characters in string to titlecase.
 
 e.g. `{{title "BatMan"}}` → "Batman"
 
 
 ### trim
-Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
+Returns a slice of the string with all leading and trailing characters contained in cutset removed.
 
 e.g. `{{ trim "++Batman--" "+-" }}` → "Batman"
 
 
 ### upper
-Convert all characters in string to uppercase.
+Converts all characters in string to uppercase.
 
 e.g. `{{upper "BatMan"}}` → "BATMAN"
 
 
 
 
-## Urls
+## URLs
 
 ### absURL, relURL
 

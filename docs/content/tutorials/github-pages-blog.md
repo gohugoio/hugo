@@ -102,7 +102,7 @@ The final step in creating the blog is to add some actual blog posts. To do this
     title: "Just another sample post"
     date: "2014-03-29"
     description: "This should be a more useful description"
-    categories: 
+    categories:
         - "hugo"
         - "fun"
         - "test"
@@ -131,7 +131,7 @@ To get this properly set up, we will execute a series of commands at the termina
     git add .
     git commit -m "INIT: initial commit on gh-pages branch"
 
-    # Push to remote gh-pages branch 
+    # Push to remote gh-pages branch
     git push origin gh-pages
 
     # Return to master branch
@@ -159,12 +159,12 @@ To get this properly set up, we will execute a series of commands at the termina
     # Push the public subtree to the gh-pages branch
     git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
 
-After executing these commands and waiting for the GitHub servers to update, the website we just created was live at [http://spencerlyon2.github.io/hugo_gh_blog](http://spencerlyon2.github.io/hugo_gh_blog). 
+After executing these commands and waiting for the GitHub servers to update, the website we just created was live at [http://spencerlyon2.github.io/hugo_gh_blog](http://spencerlyon2.github.io/hugo_gh_blog).
 
 ### `deploy.sh`
 
 Now, as you add new posts to your blog, you will follow steps that look something like the following:
- 
+
 * Create the Markdown source for the new post within the `content/posts` directory
 * Preview your work by running Hugo in server mode with `hugo server --watch`
 * Run Hugo not in server mode so that the generated urls will be correct for the website
@@ -176,7 +176,7 @@ The first two items in the previous list are simply a way to conveniently previe
 
 **Note:**
 
-The first command `hugo` assumes you are running with all the default settings. 
+The first command `hugo` assumes you are running with all the default settings.
 
 To use a theme, make sure to specify it with `-t ThemeName` instead (or include the theme in the config file).
 
@@ -189,22 +189,22 @@ To build all draft posts *(If you only have drafts, no site will be generated)*
 **Deploy.sh:**
 
     #!/bin/bash
-
+    
     echo -e "\033[0;32mDeploying updates to GitHub...\033[0m"
-
-    # Build the project. 
+    
+    # Build the project.
     hugo
     
     # Add changes to git.
     git add -A
-
+    
     # Commit changes.
     msg="rebuilding site `date`"
     if [ $# -eq 1 ]
       then msg="$1"
     fi
     git commit -m "$msg"
-
+    
     # Push source and build repos.
     git push origin master
     git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages
@@ -220,7 +220,7 @@ There's another approach:
 2. Create an orphaned `gh-pages` branch. (See [here](https://help.github.com/articles/creating-project-pages-manually/) for more information.)
 3. Follow the instructions below.
 
-So, assuming you have your `gh-pages` set up, and `master` has a commit with some content you want to publish: 
+So, assuming you have your `gh-pages` set up, and `master` has a commit with some content you want to publish:
 
 ```
 # Fetch the deployment script into the root of your source tree, make it executable.
@@ -262,7 +262,7 @@ Step by step:
 
 echo -e "\033[0;32mDeploying updates to GitHub...\033[0m"
 
-# Build the project. 
+# Build the project.
 hugo # if using a theme, replace by `hugo -t <yourtheme>`
 
 # Go To Public folder

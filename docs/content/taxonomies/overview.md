@@ -37,7 +37,7 @@ and all of the content attached to those terms.
 
 **Taxonomy:** A categorization that can be used to classify content
 
-**Term:** A key within that taxonomy 
+**Term:** A key within that taxonomy
 
 **Value:** A piece of content assigned to that Term
 

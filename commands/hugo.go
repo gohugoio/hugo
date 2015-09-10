@@ -43,11 +43,12 @@ import (
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
-	Long: `hugo is the main command, used to build your Hugo site. 
-	
-Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
+	Long: `hugo is the main command, used to build your Hugo site.
 
-Complete documentation is available at http://gohugo.io`,
+Hugo is a Fast and Flexible Static Site Generator
+built with love by spf13 and friends in Go.
+
+Complete documentation is available at http://gohugo.io/.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		build()
@@ -110,9 +111,8 @@ func init() {
 
 	// for Bash autocomplete
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
-	annotation := make(map[string][]string)
-	annotation[cobra.BashCompFilenameExt] = validConfigFilenames
-	HugoCmd.PersistentFlags().Lookup("config").Annotations = annotation
+	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+	HugoCmd.PersistentFlags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
@@ -160,12 +160,18 @@ func LoadDefaultSettings() {
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
+	viper.SetDefault("DisablePathToLower", false)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig() {
 	viper.SetConfigFile(CfgFile)
-	viper.AddConfigPath(Source)
+	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
+	if Source == "" {
+		viper.AddConfigPath(".")
+	} else {
+		viper.AddConfigPath(Source)
+	}
 	err := viper.ReadInConfig()
 	if err != nil {
 		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")

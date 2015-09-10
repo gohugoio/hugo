@@ -15,16 +15,16 @@ weight: 30
 Make sure either `hugo` is in your `PATH` or provide a path to it.
 
 <pre><code class="hljs nohighlight">$ hugo help
-	
+
 Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io
 
-Usage: 
+Usage:
   hugo [flags]
   hugo [command]
 
-Available Commands: 
+Available Commands:
   server          Hugo runs its own webserver to render the files
   version         Print the version number of Hugo
   config          Print the site configuration
@@ -144,6 +144,22 @@ static web hosting services.
 [Amazon S3]: http://aws.amazon.com/s3/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 
+
+### A note about deployment
+
+Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the directory you specified with `-d`/`--destination`) before running the `hugo` command, or you run the risk of the wrong files (e.g. drafts and/or future posts) being left in the generated site.
+
+An easy way to work around this is to use different directories for development and production.
+
+To start a server that builds draft content (helpful for editing), you can specify a different destination: the `dev/` dir.
+
+    hugo server -wDs ~/Code/hugo/docs -d dev
+
+When the content is ready for publishing, use the default `public/` dir:
+
+    hugo -s ~/Code/hugo/docs
+
+This prevents content you're not ready to share yet from accidentally becoming available.
 
 ### Alternatively, serve your web site with Hugo!
 

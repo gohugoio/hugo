@@ -78,11 +78,13 @@ func MakePath(s string) string {
 	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
 }
 
-// MakePathToLower creates a Unicode-sanitized string, with the spaces replaced,
-// and transformed to lower case.
-// E.g. Social Media -> social-media
-func MakePathToLower(s string) string {
-	return strings.ToLower(MakePath(s))
+// MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
+func MakePathSanitized(s string) string {
+	if viper.GetBool("DisablePathToLower") {
+		return MakePath(s)
+	} else {
+		return strings.ToLower(MakePath(s))
+	}
 }
 
 func MakeTitle(inpath string) string {
@@ -119,7 +121,7 @@ func isMn(r rune) bool {
 // ReplaceExtension takes a path and an extension, strips the old extension
 // and returns the path with the new extension.
 func ReplaceExtension(path string, newExt string) string {
-	f, _ := FileAndExt(path, fpb)
+	f, _ := fileAndExt(path, fpb)
 	return f + "." + newExt
 }
 
@@ -298,7 +300,7 @@ func GetDottedRelativePath(inPath string) string {
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
-	name, _ = FileAndExt(in, fpb)
+	name, _ = fileAndExt(in, fpb)
 	return
 }
 
@@ -318,7 +320,7 @@ func Filename(in string) (name string) {
 // If the path, in, represents a filename with an extension,
 // then name will be the filename minus any extension - including the dot
 // and ext will contain the extension - minus the dot.
-func FileAndExt(in string, b filepathPathBridge) (name string, ext string) {
+func fileAndExt(in string, b filepathPathBridge) (name string, ext string) {
 	ext = b.Ext(in)
 	base := b.Base(in)
 
@@ -439,7 +441,7 @@ func PrettiyPath(in string, b filepathPathBridge) string {
 		}
 		return b.Join(b.Clean(in), "index.html")
 	}
-	name, ext := FileAndExt(in, b)
+	name, ext := fileAndExt(in, b)
 	if name == "index" {
 		// /section/name/index.html -> /section/name/index.html
 		return b.Clean(in)

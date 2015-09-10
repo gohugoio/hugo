@@ -200,6 +200,8 @@ func TestPageHasFrontMatter(t *testing.T) {
 		{[]byte("---"), false},
 		{[]byte("---\n"), true},
 		{[]byte("---\n"), true},
+		{[]byte("--- \n"), true},
+		{[]byte("---  \n"), true},
 		{[]byte{'a'}, false},
 		{[]byte{'{'}, true},
 		{[]byte("{\n  "), true},
@@ -230,9 +232,13 @@ func TestExtractFrontMatter(t *testing.T) {
 		{"---\nblar\n-\n", nil, false},
 		{"---\nralb\n---\n", []byte("---\nralb\n---\n"), true},
 		{"---\neof\n---", []byte("---\neof\n---"), true},
+		{"--- \neof\n---", []byte("---\neof\n---"), true},
 		{"---\nminc\n---\ncontent", []byte("---\nminc\n---\n"), true},
+		{"---\nminc\n---    \ncontent", []byte("---\nminc\n---\n"), true},
+		{"---  \nminc\n--- \ncontent", []byte("---\nminc\n---\n"), true},
 		{"---\ncnim\n---\ncontent\n", []byte("---\ncnim\n---\n"), true},
 		{"---\ntitle: slug doc 2\nslug: slug-doc-2\n---\ncontent\n", []byte("---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n"), true},
+		{"---\npermalink: '/blog/title---subtitle.html'\n---\ncontent\n", []byte("---\npermalink: '/blog/title---subtitle.html'\n---\n"), true},
 	}
 
 	for _, test := range tests {

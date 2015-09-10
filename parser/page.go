@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"regexp"
 	"unicode"
 )
 
@@ -22,13 +23,9 @@ const (
 )
 
 var (
-	delims = [][]byte{
-		[]byte(YAML_DELIM_UNIX),
-		[]byte(YAML_DELIM_DOS),
-		[]byte(TOML_DELIM_UNIX),
-		[]byte(TOML_DELIM_DOS),
-		[]byte(JSON_LEAD),
-	}
+	delims = regexp.MustCompile(
+		"^(" + regexp.QuoteMeta(YAML_DELIM) + `\s*\n|` + regexp.QuoteMeta(TOML_DELIM) + `\s*\n|` + regexp.QuoteMeta(JSON_LEAD) + ")",
+	)
 
 	UnixEnding = []byte("\n")
 	DosEnding  = []byte("\r\n")
@@ -148,13 +145,7 @@ func shouldRender(lead []byte) (frontmatter bool) {
 }
 
 func isFrontMatterDelim(data []byte) bool {
-	for _, d := range delims {
-		if bytes.HasPrefix(data, d) {
-			return true
-		}
-	}
-
-	return false
+	return delims.Match(data)
 }
 
 func determineDelims(firstLine []byte) (left, right []byte) {
@@ -200,7 +191,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	}
 
 	// Reads a character from Reader one by one and checks it matches the
-	// last character of one of delemiters to find the last character of
+	// last character of one of delimiters to find the last character of
 	// frontmatter. If it matches, makes sure it contains the delimiter
 	// and if so, also checks it is followed by CR+LF or LF when YAML,
 	// TOML case. In JSON case, nested delimiters must be parsed and it
@@ -216,7 +207,8 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 		switch c {
 		case left[len(left)-1]:
 			if sameDelim { // YAML, TOML case
-				if bytes.HasSuffix(buf.Bytes(), left) {
+				if bytes.HasSuffix(buf.Bytes(), left) && (buf.Len() == len(left) || buf.Bytes()[buf.Len()-len(left)-1] == '\n') {
+				nextByte:
 					c, err = r.ReadByte()
 					if err != nil {
 						// It is ok that the end delimiter ends with EOF
@@ -227,6 +219,9 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 						switch c {
 						case '\n':
 							// ok
+						case ' ':
+							// Consume this byte and try to match again
+							goto nextByte
 						case '\r':
 							if err = buf.WriteByte(c); err != nil {
 								return nil, err

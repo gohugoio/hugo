@@ -1,9 +1,11 @@
 package hugolib
 
 import (
+	"fmt"
 	"html/template"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -290,6 +292,104 @@ a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
 
+var PAGE_WITH_CALENDAR_YAML_FRONTMATTER = `---
+type: calendar
+weeks:
+  -
+    start: "Jan 5"
+    days:
+      - activity: class
+        room: EN1000
+      - activity: lab
+      - activity: class
+      - activity: lab
+      - activity: class
+  -
+    start: "Jan 12"
+    days:
+      - activity: class
+      - activity: lab
+      - activity: class
+      - activity: lab
+      - activity: exam
+---
+
+Hi.
+`
+
+var PAGE_WITH_CALENDAR_JSON_FRONTMATTER = `{
+  "type": "calendar",
+  "weeks": [
+    {
+      "start": "Jan 5",
+      "days": [
+        { "activity": "class", "room": "EN1000" },
+        { "activity": "lab" },
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "class" }
+      ]
+    },
+    {
+      "start": "Jan 12",
+      "days": [
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "exam" }
+      ]
+    }
+  ]
+}
+
+Hi.
+`
+
+var PAGE_WITH_CALENDAR_TOML_FRONTMATTER = `+++
+type = "calendar"
+
+[[weeks]]
+start = "Jan 5"
+
+[[weeks.days]]
+activity = "class"
+room = "EN1000"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks]]
+start = "Jan 12"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "exam"
++++
+
+Hi.
+`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
@@ -574,6 +674,22 @@ func TestShouldRenderContent(t *testing.T) {
 	}
 }
 
+// Issue #768
+func TestCalendarParamsVariants(t *testing.T) {
+	pageJSON, _ := NewPage("test/fileJSON.md")
+	_, _ = pageJSON.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_JSON_FRONTMATTER))
+
+	pageYAML, _ := NewPage("test/fileYAML.md")
+	_, _ = pageYAML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_YAML_FRONTMATTER))
+
+	pageTOML, _ := NewPage("test/fileTOML.md")
+	_, _ = pageTOML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_TOML_FRONTMATTER))
+
+	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
+	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
+
+}
+
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	page, _ := NewPage("test/file1.md")
 	_, _ = page.ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES))
@@ -738,6 +854,51 @@ func TestPagePaths(t *testing.T) {
 	}
 }
 
+var PAGE_WITH_DRAFT_AND_PUBLISHED = `---
+title: broken
+published: false
+draft: true
+---
+some content
+`
+
+func TestDraftAndPublishedFrontMatterError(t *testing.T) {
+	_, err := NewPageFrom(strings.NewReader(PAGE_WITH_DRAFT_AND_PUBLISHED), "content/post/broken.md")
+	if err != ErrHasDraftAndPublished {
+		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
+	}
+}
+
+var PAGE_WITH_PUBLISHED_FALSE = `---
+title: okay
+published: false
+---
+some content
+`
+var PAGE_WITH_PUBLISHED_TRUE = `---
+title: okay
+published: true
+---
+some content
+`
+
+func TestPublishedFrontMatter(t *testing.T) {
+	p, err := NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_FALSE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if !p.Draft {
+		t.Errorf("expected true, got %t", p.Draft)
+	}
+	p, err = NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_TRUE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if p.Draft {
+		t.Errorf("expected false, got %t", p.Draft)
+	}
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false
@@ -750,4 +911,15 @@ func listEqual(left, right []string) bool {
 	}
 
 	return true
+}
+
+// TODO(bep) this may be useful for other tests.
+func compareObjects(a interface{}, b interface{}) bool {
+	aStr := strings.Split(fmt.Sprintf("%v", a), "")
+	sort.Strings(aStr)
+
+	bStr := strings.Split(fmt.Sprintf("%v", b), "")
+	sort.Strings(bStr)
+
+	return strings.Join(aStr, "") == strings.Join(bStr, "")
 }

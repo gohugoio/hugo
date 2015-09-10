@@ -102,7 +102,7 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
 func URLize(uri string) string {
-	sanitized := MakePathToLower(uri)
+	sanitized := MakePathSanitized(uri)
 
 	// escape unicode letters
 	parsedUri, err := url.Parse(sanitized)
@@ -260,7 +260,7 @@ func Uglify(in string) string {
 		return path.Clean(in) + ".html"
 	}
 
-	name, ext := FileAndExt(in, pb)
+	name, ext := fileAndExt(in, pb)
 	if name == "index" {
 		// /section/name/index.html -> /section/name.html
 		d := path.Dir(in)

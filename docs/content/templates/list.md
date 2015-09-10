@@ -92,9 +92,8 @@ can have different RSS files for each section and taxonomy.
 
 ## Variables
 
-List pages are of the type "node" and have all the [node
-variables](/templates/variables/) and [site
-variables](/templates/variables/) available to use in the templates. 
+List pages are of the type "node" and have all the [node variables](/templates/variables/)
+and [site variables](/templates/variables/) available to use in the templates.
 
 Taxonomy pages will additionally have:
 
@@ -146,7 +145,7 @@ defined.
 
 ## Ordering Content
 
-In the case of Hugo each list will render the content based on metadata provided in the [front
+In the case of Hugo, each list will render the content based on metadata provided in the [front
 matter](/content/front-matter/). See [ordering content](/content/ordering/) for more information.
 
 Here are a variety of different ways you can order the content items in
@@ -306,11 +305,11 @@ your list templates:
 
 ### Reversing Key Order
 
-The ordering of the groups is performed by keys in alpha-numeric order (A–Z,
+The ordering of the groups is performed by keys in alphanumeric order (A–Z,
 1–100) and in reverse chronological order (newest first) for dates.
 
 While these are logical defaults, they are not always the desired order. There
-are two different syntaxes to change the order, they both work the same way, so
+are two different syntaxes to change the order; they both work the same way, so
 it’s really just a matter of preference.
 
 #### Reverse method
@@ -334,7 +333,7 @@ it’s really just a matter of preference.
 
 Because Grouping returns a key and a slice of pages, all of the ordering methods listed above are available.
 
-In this example I’ve ordered the groups in chronological order and the content
+In this example, I’ve ordered the groups in chronological order and the content
 within each group in alphabetical order by title.
 
     {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
@@ -352,38 +351,39 @@ within each group in alphabetical order by title.
 ## Filtering & Limiting Content
 
 Sometimes you only want to list a subset of the available content. A common
-request is to only display “Posts” on the homepage. Using the `where` function
+request is to only display “Posts” on the homepage. Using the `where` function,
 you can do just that.
 
-### First 
+### `first`
 
 `first` works like the `limit` keyword in SQL. It reduces the array to only the
-first X elements. It takes the array and number of elements as input.
+first _N_ elements. It takes the array and number of elements as input.
 
     {{ range first 10 .Data.Pages }}
-        {{ .Render "summary"}}
+        {{ .Render "summary" }}
     {{ end }}
 
-### Where
+### `where`
 
 `where` works in a similar manner to the `where` keyword in SQL. It selects all
 elements of the slice that match the provided field and value. It takes three
-arguments 'array or slice of maps or structs', 'key or field name' and 'match
-value'
+arguments: 'array or slice of maps or structs', 'key or field name' and 'match
+value'.
 
     {{ range where .Data.Pages "Section" "post" }}
-       {{ .Content}}
+       {{ .Content }}
     {{ end }}
 
-### First & Where Together
+### `first` & `where` Together
 
 Using both together can be very powerful.
 
     {{ range first 5 (where .Data.Pages "Section" "post") }}
-       {{ .Content}}
+       {{ .Content }}
     {{ end }}
 
-If `where` or `first` receives invalid input or a field name that doesn’t exist they will provide an error and stop site generation.
+If `where` or `first` receives invalid input or a field name that doesn’t exist,
+it will return an error and stop site generation.
 
 These are both template functions and work on not only
 [lists](/templates/list/), but [taxonomies](/taxonomies/displaying/),
