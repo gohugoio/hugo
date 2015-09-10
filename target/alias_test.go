@@ -16,11 +16,11 @@ func TestHTMLRedirectAlias(t *testing.T) {
 		{"", ""},
 		{"s", filepath.FromSlash("s/index.html")},
 		{"/", filepath.FromSlash("/index.html")},
-		{"alias 1", filepath.FromSlash("alias-1/index.html")},
-		{"alias 2/", filepath.FromSlash("alias-2/index.html")},
-		{"alias 3.html", "alias-3.html"},
+		{"alias 1", filepath.FromSlash("alias 1/index.html")},
+		{"alias 2/", filepath.FromSlash("alias 2/index.html")},
+		{"alias 3.html", "alias 3.html"},
 		{"alias4.html", "alias4.html"},
-		{"/alias 5.html", filepath.FromSlash("/alias-5.html")},
+		{"/alias 5.html", filepath.FromSlash("/alias 5.html")},
 		{"/трям.html", filepath.FromSlash("/трям.html")},
 	}
 
