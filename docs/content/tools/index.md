@@ -21,6 +21,9 @@ Alternatively you can follow the manual [migration guide]({{< relref "tutorials/
 - [JekyllToHugo](https://github.com/SenjinDarashiva/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
 - [ConvertToHugo](https://github.com/coderzh/ConvertToHugo) - Convert your blog from Jekyll to Hugo.
 
+### Ghost
+
+- [ghostToHugo](https://github.com/jbarone/ghostToHugo) - Convert Ghost blog posts and export them to Hugo.
 
 ### Octopress
 
