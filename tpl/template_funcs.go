@@ -16,6 +16,7 @@ package tpl
 import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"html"
@@ -1318,60 +1319,88 @@ func ModBool(a, b interface{}) (bool, error) {
 	return res == int64(0), nil
 }
 
+func Base64Decode(content interface{}) (string, error) {
+	conv, err := cast.ToStringE(content)
+
+	if err != nil {
+		return "", err
+	}
+
+	dec, err := base64.StdEncoding.DecodeString(conv)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(dec), nil
+}
+
+func Base64Encode(content interface{}) (string, error) {
+	conv, err := cast.ToStringE(content)
+
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
-		"urlize":      helpers.URLize,
-		"sanitizeURL": helpers.SanitizeURL,
-		"sanitizeurl": helpers.SanitizeURL,
-		"eq":          Eq,
-		"ne":          Ne,
-		"gt":          Gt,
-		"ge":          Ge,
-		"lt":          Lt,
-		"le":          Le,
-		"in":          In,
-		"slicestr":    Slicestr,
-		"substr":      Substr,
-		"split":       Split,
-		"intersect":   Intersect,
-		"isSet":       IsSet,
-		"isset":       IsSet,
-		"echoParam":   ReturnWhenSet,
-		"safeHTML":    SafeHTML,
-		"safeCSS":     SafeCSS,
-		"safeURL":     SafeURL,
-		"absURL":      func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
-		"relURL":      func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
-		"markdownify": Markdownify,
-		"first":       First,
-		"last":        Last,
-		"after":       After,
-		"where":       Where,
-		"delimit":     Delimit,
-		"sort":        Sort,
-		"highlight":   Highlight,
-		"add":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":         Mod,
-		"mul":         func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":     ModBool,
-		"lower":       func(a string) string { return strings.ToLower(a) },
-		"upper":       func(a string) string { return strings.ToUpper(a) },
-		"title":       func(a string) string { return strings.Title(a) },
-		"partial":     Partial,
-		"ref":         Ref,
-		"relref":      RelRef,
-		"apply":       Apply,
-		"chomp":       Chomp,
-		"replace":     Replace,
-		"trim":        Trim,
-		"dateFormat":  DateFormat,
-		"getJSON":     GetJSON,
-		"getCSV":      GetCSV,
-		"readDir":     ReadDir,
-		"seq":         helpers.Seq,
-		"getenv":      func(varName string) string { return os.Getenv(varName) },
+		"urlize":       helpers.URLize,
+		"sanitizeURL":  helpers.SanitizeURL,
+		"sanitizeurl":  helpers.SanitizeURL,
+		"eq":           Eq,
+		"ne":           Ne,
+		"gt":           Gt,
+		"ge":           Ge,
+		"lt":           Lt,
+		"le":           Le,
+		"in":           In,
+		"slicestr":     Slicestr,
+		"substr":       Substr,
+		"split":        Split,
+		"intersect":    Intersect,
+		"isSet":        IsSet,
+		"isset":        IsSet,
+		"echoParam":    ReturnWhenSet,
+		"safeHTML":     SafeHTML,
+		"safeCSS":      SafeCSS,
+		"safeURL":      SafeURL,
+		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
+		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
+		"markdownify":  Markdownify,
+		"first":        First,
+		"last":         Last,
+		"after":        After,
+		"where":        Where,
+		"delimit":      Delimit,
+		"sort":         Sort,
+		"highlight":    Highlight,
+		"add":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"sub":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"mod":          Mod,
+		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"modBool":      ModBool,
+		"lower":        func(a string) string { return strings.ToLower(a) },
+		"upper":        func(a string) string { return strings.ToUpper(a) },
+		"title":        func(a string) string { return strings.Title(a) },
+		"partial":      Partial,
+		"ref":          Ref,
+		"relref":       RelRef,
+		"apply":        Apply,
+		"chomp":        Chomp,
+		"replace":      Replace,
+		"trim":         Trim,
+		"dateFormat":   DateFormat,
+		"getJSON":      GetJSON,
+		"getCSV":       GetCSV,
+		"readDir":      ReadDir,
+		"seq":          helpers.Seq,
+		"getenv":       func(varName string) string { return os.Getenv(varName) },
+		"base64Decode": Base64Decode,
+		"base64Encode": Base64Encode,
 		"pluralize": func(in interface{}) (string, error) {
 			word, err := cast.ToStringE(in)
 			if err != nil {
@@ -1387,5 +1416,4 @@ func init() {
 			return inflect.Singularize(word), nil
 		},
 	}
-
 }
