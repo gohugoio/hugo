@@ -73,6 +73,11 @@ pluralizeListTitles = false
     pre = "<i class='fa fa-gift'></i>"
     weight = -60
 [[menu.main]]
+    name = "Tools"
+    url = "/tools/"
+    pre = "<i class='fa fa-cogs'></i>"
+    weight = -55
+[[menu.main]]
     name = "Community"
     identifier = "community"
     pre = "<i class='fa fa-group'></i>"
