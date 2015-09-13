@@ -27,6 +27,12 @@ func renderWithMmark(input string) string {
 
 
 func TestCodeFence(t *testing.T) {
+
+	if !HasPygments() {
+		t.Skip("Skipping Pygments test as Pygments is not installed or available.")
+		return
+	}
+
 	type test struct {
 		enabled         bool
 		input, expected string
@@ -36,17 +42,23 @@ func TestCodeFence(t *testing.T) {
 		{false, "<html></html>", "<pre><code class=\"language-html\">&lt;html&gt;&lt;/html&gt;</code></pre>\n"},
 	}
 
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("PygmentsStyle", "monokai")
+	viper.Set("PygmentsUseClasses", true)
+
 	for i, d := range data {
 		viper.Set("PygmentsCodeFences", d.enabled)
 
 		result := render(d.input)
 		if result != d.expected {
-			t.Errorf("Test %d failed. BlackFriday %t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
+			t.Errorf("Test %d failed. BlackFriday enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
 		}
 
 		result = renderWithMmark(d.input)
 		if result != d.expected {
-			t.Errorf("Test %d failed. Mmark %t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
+			t.Errorf("Test %d failed. Mmark enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
 		}
 	}
 }
