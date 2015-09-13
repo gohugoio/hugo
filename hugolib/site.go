@@ -242,6 +242,7 @@ func (s *Site) Build() (err error) {
 		return
 	}
 	if err = s.Render(); err != nil {
+		// Better reporting when the template is missing (commit 2bbecc7b)
 		jww.ERROR.Printf("Error rendering site: %s\nAvailable templates:\n", err)
 		for _, template := range s.Tmpl.Templates() {
 			jww.ERROR.Printf("\t%s\n", template.Name())
@@ -1566,7 +1567,7 @@ func (s *Site) WriteDestPage(path string, reader io.Reader) (err error) {
 }
 
 func (s *Site) WriteDestAlias(path string, permalink template.HTML) (err error) {
-	jww.DEBUG.Println("alias created at:", path)
+	jww.DEBUG.Println("creating alias:", path)
 	return s.AliasTarget().Publish(path, permalink)
 }
 

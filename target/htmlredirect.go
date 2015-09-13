@@ -2,12 +2,15 @@ package target
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 const ALIAS = "<!DOCTYPE html><html><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
@@ -32,16 +35,67 @@ type HTMLRedirectAlias struct {
 }
 
 func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error) {
+	originalAlias := alias
 	if len(alias) <= 0 {
-		return
+		return "", fmt.Errorf("Alias \"\" is an empty string")
 	}
 
-	if strings.HasSuffix(alias, "/") {
+	alias = filepath.Clean(alias)
+	components := strings.Split(alias, helpers.FilePathSeparator)
+
+	if alias == helpers.FilePathSeparator {
+		return "", fmt.Errorf("Alias \"%s\" resolves to website root directory", originalAlias)
+	}
+
+	// Validate against directory traversal
+	if components[0] == ".." {
+		return "", fmt.Errorf("Alias \"%s\" traverses outside the website root directory", originalAlias)
+	}
+
+	// Handle Windows filename restrictions
+	msgs := []string{}
+	reservedNames := []string{"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}
+
+	if strings.ContainsAny(alias, ":*?\"<>|") {
+		msgs = append(msgs, fmt.Sprintf("Alias \"%s\" contains invalid characters in a filename on Windows: : * ? \" < > |", originalAlias))
+	}
+	for _, c := range components {
+		if strings.HasSuffix(c, ".") {
+			msgs = append(msgs, fmt.Sprintf("Alias \"%s\" contains component with trailing period, invalid on Windows", originalAlias))
+		}
+		for _, r := range reservedNames {
+			if c == r {
+				msgs = append(msgs, fmt.Sprintf("Alias \"%s\" contains component with reserved name \"%s\" on Windows", originalAlias, r))
+			}
+		}
+	}
+	if len(msgs) > 0 {
+		if runtime.GOOS == "windows" {
+			for _, m := range msgs {
+				jww.ERROR.Println(m)
+			}
+			return "", fmt.Errorf("Cannot create \"%s\": Windows filename restriction", originalAlias)
+		} else {
+			for _, m := range msgs {
+				jww.WARN.Println(m)
+			}
+		}
+	}
+
+	// Add the final touch
+	if strings.HasPrefix(alias, helpers.FilePathSeparator) {
+		alias = alias[1:]
+	}
+	if strings.HasSuffix(alias, helpers.FilePathSeparator) {
 		alias = alias + "index.html"
 	} else if !strings.HasSuffix(alias, ".html") {
-		alias = alias + "/index.html"
+		alias = alias + helpers.FilePathSeparator + "index.html"
 	}
-	return filepath.Join(h.PublishDir, helpers.MakePath(alias)), nil
+	if originalAlias != alias {
+		jww.INFO.Printf("Alias \"%s\" translated to \"%s\"\n", originalAlias, alias)
+	}
+
+	return filepath.Join(h.PublishDir, alias), nil
 }
 
 type AliasNode struct {
@@ -50,7 +104,8 @@ type AliasNode struct {
 
 func (h *HTMLRedirectAlias) Publish(path string, permalink template.HTML) (err error) {
 	if path, err = h.Translate(path); err != nil {
-		return
+		jww.ERROR.Printf("%s, skipping.", err)
+		return nil
 	}
 
 	t := "alias"
