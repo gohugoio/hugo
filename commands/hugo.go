@@ -17,6 +17,8 @@ package commands
 
 import (
 	"fmt"
+	"github.com/spf13/hugo/parser"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -292,7 +294,7 @@ func InitializeConfig() {
 		}
 	}
 
-	themeVersionMismatch, minVersion := helpers.IsThemeVsHugoVersionMismatch()
+	themeVersionMismatch, minVersion := isThemeVsHugoVersionMismatch()
 
 	if themeVersionMismatch {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
@@ -534,4 +536,58 @@ func NewWatcher(port int) error {
 
 	wg.Wait()
 	return nil
+}
+
+// isThemeVsHugoVersionMismatch returns whether the current Hugo version is < theme's min_version
+func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
+	if !helpers.ThemeSet() {
+		return
+	}
+
+	themeDir := helpers.GetThemeDir()
+
+	fs := hugofs.SourceFs
+	path := filepath.Join(themeDir, "theme.toml")
+
+	exists, err := helpers.Exists(path, fs)
+
+	if err != nil || !exists {
+		return
+	}
+
+	f, err := fs.Open(path)
+
+	if err != nil {
+		return
+	}
+
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+
+	if err != nil {
+		return
+	}
+
+	c, err := parser.HandleTOMLMetaData(b)
+
+	if err != nil {
+		return
+	}
+
+	config := c.(map[string]interface{})
+
+	if minVersion, ok := config["min_version"]; ok {
+		switch minVersion.(type) {
+		case float32:
+			return helpers.HugoVersionNumber < minVersion.(float32), fmt.Sprint(minVersion)
+		case float64:
+			return helpers.HugoVersionNumber < minVersion.(float64), fmt.Sprint(minVersion)
+		default:
+			return
+		}
+
+	}
+
+	return
 }
