@@ -5,7 +5,7 @@ sitelink: http://www.greenitglobe.com/
 tags:
 - company
 - website
-thumbnail: /img/gig.png
+thumbnail: /img/gig.jpg
 title: greenitglobe.com
 ---
 
