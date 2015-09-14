@@ -418,6 +418,8 @@ func build(watches ...bool) error {
 		return fmt.Errorf("Error building site: %s", err)
 	}
 
+	parser.ParseCSSFiles()
+
 	if BuildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
