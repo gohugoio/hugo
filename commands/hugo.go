@@ -152,7 +152,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("DefaultExtension", "html")
 	viper.SetDefault("PygmentsUseClasses", false)
 	viper.SetDefault("PygmentsCodeFences", false)
-	viper.SetDefault("DisableLiveReload", false)
+	viper.SetDefault("DisableLiveReload", true)
 	viper.SetDefault("PluralizeListTitles", true)
 	viper.SetDefault("PreserveTaxonomyNames", false)
 	viper.SetDefault("FootnoteAnchorPrefix", "")
@@ -490,7 +490,7 @@ func NewWatcher(port int) error {
 					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
 					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 
-					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
+					if !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 
 						// force refresh when more than one file
@@ -511,7 +511,7 @@ func NewWatcher(port int) error {
 					fmt.Println(time.Now().Format(layout))
 					utils.CheckErr(buildSite(true))
 
-					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
+					if !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 						livereload.ForceRefresh()
 					}

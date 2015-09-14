@@ -1449,7 +1449,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
-	if viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
+	if !viper.GetBool("DisableLiveReload") {
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
 	}
 

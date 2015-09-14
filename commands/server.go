@@ -63,10 +63,6 @@ func init() {
 func server(cmd *cobra.Command, args []string) {
 	InitializeConfig()
 
-	if cmd.Flags().Lookup("disableLiveReload").Changed {
-		viper.Set("DisableLiveReload", disableLiveReload)
-	}
-
 	if serverWatch {
 		viper.Set("Watch", true)
 	}
@@ -74,6 +70,8 @@ func server(cmd *cobra.Command, args []string) {
 	if viper.GetBool("watch") {
 		serverWatch = true
 	}
+
+	viper.Set("DisableLiveReload", !serverWatch || disableLiveReload)
 
 	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
 	if err == nil {
@@ -123,6 +121,12 @@ func server(cmd *cobra.Command, args []string) {
 
 func serve(port int) {
 	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
+
+	if viper.GetBool("DisableLiveReload") {
+		jww.FEEDBACK.Println("Live reload is disabled")
+	} else {
+		jww.FEEDBACK.Println("Live reload is enabled")
+	}
 
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
 	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
