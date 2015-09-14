@@ -30,6 +30,9 @@ func TestHTMLRedirectAlias(t *testing.T) {
 		{"/foo/../../../../tmp/passwd", filepath.FromSlash("tmp/passwd/index.html"), true},
 		{"foo/../../../../tmp/passwd", "", false},
 		{"C:\\Windows", filepath.FromSlash("C:\\Windows/index.html"), errIsNilForThisOS},
+		{"/trailing-space /", filepath.FromSlash("trailing-space /index.html"), errIsNilForThisOS},
+		{"/trailing-period./", filepath.FromSlash("trailing-period./index.html"), errIsNilForThisOS},
+		{"/tab\tseparated/", filepath.FromSlash("tab\tseparated/index.html"), errIsNilForThisOS},
 		{"/chrome/?p=help&ctx=keyboard#topic=3227046", filepath.FromSlash("chrome/?p=help&ctx=keyboard#topic=3227046/index.html"), errIsNilForThisOS},
 		{"/LPT1/Printer/", filepath.FromSlash("LPT1/Printer/index.html"), errIsNilForThisOS},
 	}
