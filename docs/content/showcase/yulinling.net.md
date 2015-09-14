@@ -4,11 +4,11 @@
 +license: ""
 +licenseLink: ""
 +sitelink: https://yulinling.net/
-+sourceLink: https://bitbucket.org/lynxiayel/yulinling_source
++sourceLink: https://bitbucket.org/lynxiayel/yulinling_source_public
 +tags:
 +- blog
 +- documentation
-+thumbnail: /img/fxsitecompat-tn.png
++thumbnail: /img/yulinling-tn.png
 +title: Yulinling
 +---
 +
