@@ -3,6 +3,9 @@ go:
   - 1.4.2
   - 1.5
   - tip
+os:
+  - linux
+  - osx
 matrix:
   allow_failures:
     - go: tip
