@@ -1371,6 +1371,6 @@ func init() {
 		"readDir":     ReadDir,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
+		"join":        func(data []string, seperator string) string { return strings.Join(data, seperator) },
 	}
-
 }
