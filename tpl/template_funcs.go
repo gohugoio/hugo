@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
@@ -1317,6 +1318,43 @@ func ModBool(a, b interface{}) (bool, error) {
 	return res == int64(0), nil
 }
 
+func CountWords(content interface{}) (int, error) {
+	conv, err := cast.ToStringE(content)
+
+	if err != nil {
+		return 0, errors.New("Failed to convert content to string: " + err.Error())
+	}
+
+	counter := 0
+	for _, word := range strings.Fields(helpers.StripHTML(conv)) {
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			counter++
+		} else {
+			counter += runeCount
+		}
+	}
+
+	return counter, nil
+}
+
+func CountRunes(content interface{}) (int, error) {
+	conv, err := cast.ToStringE(content)
+
+	if err != nil {
+		return 0, errors.New("Failed to convert content to string: " + err.Error())
+	}
+
+	counter := 0
+	for _, r := range helpers.StripHTML(conv) {
+		if !helpers.IsWhitespace(r) {
+			counter++
+		}
+	}
+
+	return counter, nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"urlize":      helpers.URLize,
@@ -1371,6 +1409,8 @@ func init() {
 		"readDir":     ReadDir,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
+		"countwords":  CountWords,
+		"countrunes":  CountRunes,
 	}
 
 }
