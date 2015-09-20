@@ -525,6 +525,26 @@ Converts all characters in string to uppercase.
 e.g. `{{upper "BatMan"}}` → "BATMAN"
 
 
+### countwords
+
+`countwords` tries to convert the passed content to a string and counts each word
+in it. The template functions works similar to [.WordCount]({{< relref "templates/variables.md#page-variables" >}}).
+
+```html
+{{ "Hugo is a static site generator." | countwords }}
+<!-- outputs a content length of 6 words.  -->
+```
+
+
+### countrunes
+
+Alternatively to counting all words , `countrunes` determines the number  of runes in the content and excludes any whitespace. This can become useful if you have to deal with
+CJK-like languages.
+
+```html
+{{ "Hello, 世界" | countrunes }}
+<!-- outputs a content length of 8 runes. -->
+```
 
 
 ## URLs
