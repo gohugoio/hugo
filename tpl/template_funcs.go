@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"bitbucket.org/pkg/inflect"
 
@@ -1385,6 +1386,43 @@ func Base64Encode(content interface{}) (string, error) {
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
 }
 
+func CountWords(content interface{}) (int, error) {
+	conv, err := cast.ToStringE(content)
+
+	if err != nil {
+		return 0, errors.New("Failed to convert content to string: " + err.Error())
+	}
+
+	counter := 0
+	for _, word := range strings.Fields(helpers.StripHTML(conv)) {
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			counter++
+		} else {
+			counter += runeCount
+		}
+	}
+
+	return counter, nil
+}
+
+func CountRunes(content interface{}) (int, error) {
+	conv, err := cast.ToStringE(content)
+
+	if err != nil {
+		return 0, errors.New("Failed to convert content to string: " + err.Error())
+	}
+
+	counter := 0
+	for _, r := range helpers.StripHTML(conv) {
+		if !helpers.IsWhitespace(r) {
+			counter++
+		}
+	}
+
+	return counter, nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"urlize":       helpers.URLize,
@@ -1444,6 +1482,8 @@ func init() {
 		"getenv":       func(varName string) string { return os.Getenv(varName) },
 		"base64Decode": Base64Decode,
 		"base64Encode": Base64Encode,
+		"countwords":   CountWords,
+		"countrunes":   CountRunes,
 		"pluralize": func(in interface{}) (string, error) {
 			word, err := cast.ToStringE(in)
 			if err != nil {
