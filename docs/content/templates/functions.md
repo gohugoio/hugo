@@ -641,3 +641,33 @@ In this version, we are now sorting the tags, converting them to links with "pos
     {{ end }}
 
 `apply` does not work when receiving the sequence as an argument through a pipeline.
+
+***
+
+### base64Encode and base64Decode
+
+`base64Encode` and `base64Decode` let you easily decode content with a base64 enconding and vice versa through pipes. Let's take a look at an example:
+
+
+    {{ "Hello world" | base64Encode }}
+    <!-- will output "SGVsbG8gd29ybGQ=" and -->
+
+    {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
+    <!-- becomes "Hello world" again. -->
+
+You can also pass other datatypes as argument to the template function which tries
+to convert them. Now we use an integer instead of a string:
+
+
+    {{ 42 | base64Encode | base64Decode }}
+    <!-- will output "42". Both functions always return a string. -->
+
+**Tip:** Using base64 to decode and encode becomes really powerful if we have to handle
+responses of APIs.
+
+    {{ $resp := getJSON "https://api.github.com/repos/spf13/hugo/readme"  }}
+    {{ $resp.content | base64Decode | markdownify }}
+
+ The response of the Github API contains the base64-encoded version of the [README.md](https://github.com/spf13/hugo/blob/master/README.md) in the Hugo repository.
+Now we can decode it and parse the Markdown. The final output will look similar to the
+rendered version in Github.

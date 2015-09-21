@@ -2,6 +2,7 @@ package tpl
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"html/template"
@@ -1579,5 +1580,38 @@ func TestSafeURL(t *testing.T) {
 		if buf.String() != this.expectWithEscape {
 			t.Errorf("[%d] execute template with an escaped string value by SafeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
+	}
+}
+
+func TestBase64Decode(t *testing.T) {
+	testStr := "abc123!?$*&()'-=@~"
+	enc := base64.StdEncoding.EncodeToString([]byte(testStr))
+	result, err := Base64Decode(enc)
+
+	if err != nil {
+		t.Error("Base64Decode:", err)
+	}
+
+	if result != testStr {
+		t.Errorf("Base64Decode: got '%s', expected '%s'", result, testStr)
+	}
+}
+
+func TestBase64Encode(t *testing.T) {
+	testStr := "YWJjMTIzIT8kKiYoKSctPUB+"
+	dec, err := base64.StdEncoding.DecodeString(testStr)
+
+	if err != nil {
+		t.Error("Base64Encode: the DecodeString function of the base64 package returned an error.", err)
+	}
+
+	result, err := Base64Encode(string(dec))
+
+	if err != nil {
+		t.Errorf("Base64Encode: Can't cast arg '%s' into a string.", testStr)
+	}
+
+	if result != testStr {
+		t.Errorf("Base64Encode: got '%s', expected '%s'", result, testStr)
 	}
 }
