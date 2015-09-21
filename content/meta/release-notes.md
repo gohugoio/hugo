@@ -87,7 +87,7 @@ have been added since last release and the [hugoThemes repo now has previews of
 all of
 them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
 
-Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies inclding:
+Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies including:
 [cobra](https://github.com/spf13/cobra),
 [viper](https://github.com/spf13/viper),
 [blackfriday](https://github.com/russross/blackfriday),
@@ -108,7 +108,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 * New template functions:
   * `getenv`
   * The string functions `substr` and `slicestr`
-  *`seq`, a sequence generator very similar to its Gnu countepart
+  *`seq`, a sequence generator very similar to its Gnu counterpart
   * `absURL` and `relURL`, both of which takes the `BaseURL` setting into account
 
 ## Improvements
