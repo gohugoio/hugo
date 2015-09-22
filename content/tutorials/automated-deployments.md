@@ -63,7 +63,7 @@ Once completed it's a good idea to do a quick check if everything is working by 
 hugo server --theme=herring-cove
 ```
 
-If everything is fine, you should be able to see something similar to the image below when you go to localhost:1414 in your browser.
+If everything is fine, you should be able to see something similar to the image below when you go to localhost:1313 in your browser.
 
 ![][1]
 
