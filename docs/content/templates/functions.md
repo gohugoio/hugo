@@ -433,6 +433,11 @@ Example: Given `style = "color: red;"` defined in the front matter of your `.md`
 Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
 CSS or URL context.
 
+### singularize
+Singularize the given word with a set of common English pluralization rules.
+
+e.g. `{{ "cats" | singularize }}` → "cat"
+
 ### slicestr
 
 Slicing in `slicestr` is done by specifying a half-open range with two indices, `start` and `end`.

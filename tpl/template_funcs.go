@@ -1379,6 +1379,13 @@ func init() {
 			}
 			return inflect.Pluralize(word), nil
 		},
+		"singularize": func(in interface{}) (string, error) {
+			word, err := cast.ToStringE(in)
+			if err != nil {
+				return "", err
+			}
+			return inflect.Singularize(word), nil
+		},
 	}
 
 }
