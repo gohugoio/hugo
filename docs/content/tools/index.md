@@ -8,7 +8,7 @@ This section highlights some projects around Hugo that are independently develop
 Those tools try to extend the functionality of our static site generator or help you to get started.
 
 
-## Migration tools
+## Migration
 
 Take a look a this list of migration tools if you currently use other blogging tools
 like Jekyll or Wordpress but you intend to switch to Hugo instead. They'll take care to export
@@ -44,12 +44,23 @@ Alternatively you can follow the manual [migration guide]({{< relref "tutorials/
 
 ***
 
+## Deployment
+
+If you don't want to use [Wercker for automated deployments]({{< relref "tutorials/automated-deployments.md" >}}) give this tools a try to
+get your content to the public.
+
+- [hugomac](https://github.com/nickoneill/hugomac) - Hugomac is an OSX menubar app to publish your blog directly to Amazon S3. No command line is needed.
+
+
+***
+
 ## Frontends
 
 Do you prefer an graphical user interface over a text editor? Then give this frontends a try.
 
 - [rango](https://github.com/stayradiated/rango) - A web frontend for Hugo. It's designed to make it easy to manage a small site, even for people with little computer experience.
 - [enwrite](https://github.com/zzamboni/enwrite) - Evernote-powered statically-generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
+- [caddy-hugo](https://github.com/hacdias/caddy-hugo) - This is an add-on for [Caddy](https://caddyserver.com/) which wants to deliver a good UI to edit the content of the website. 
 
 ***
 
@@ -67,6 +78,7 @@ A static site with a dynamic search function? Yes. Alternatively to embeddable s
 And for all the other small things around Hugo:
 
 - [hugo-gallery](https://github.com/icecreammatt/hugo-gallery) lets you create an image gallery for Hugo sites.
+- [flickr-hugo-embed](https://github.com/nikhilm/flickr-hugo-embed) prints shortcodes to embed a set of images from an album on Flickr into Hugo.
 
 ***
 
