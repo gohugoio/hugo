@@ -1,4 +1,4 @@
----
+g---
 aliases:
 - /layout/functions/
 date: 2013-07-01
@@ -366,6 +366,10 @@ Runs the string through the Markdown processesor. The result will be declared as
 
 e.g. `{{ .Title | markdownify }}`
 
+### pluralize
+Pluralize the given word with a set of common English pluralization rules.
+
+e.g. `{{ "cat" | pluralize }}` → "cats"
 
 ### replace
 Replaces all occurrences of the search string with the replacement string.

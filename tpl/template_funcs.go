@@ -14,6 +14,7 @@
 package tpl
 
 import (
+	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"errors"
 	"fmt"
@@ -1371,6 +1372,13 @@ func init() {
 		"readDir":     ReadDir,
 		"seq":         helpers.Seq,
 		"getenv":      func(varName string) string { return os.Getenv(varName) },
+		"pluralize": func(in interface{}) (string, error) {
+			word, err := cast.ToStringE(in)
+			if err != nil {
+				return "", err
+			}
+			return inflect.Pluralize(word), nil
+		},
 	}
 
 }
