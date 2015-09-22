@@ -434,7 +434,7 @@ Note: "ZgotmplZ" is a special value that indicates that unsafe content reached a
 CSS or URL context.
 
 ### singularize
-Singularize the given word with a set of common English pluralization rules.
+Singularize the given word with a set of common English singularization rules.
 
 e.g. `{{ "cats" | singularize }}` → "cat"
 
