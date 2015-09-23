@@ -1,4 +1,4 @@
-g---
+---
 aliases:
 - /layout/functions/
 date: 2013-07-01
