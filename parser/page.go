@@ -6,20 +6,23 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"unicode"
 )
 
 const (
-	HTML_LEAD       = "<"
-	YAML_LEAD       = "-"
-	YAML_DELIM_UNIX = "---\n"
-	YAML_DELIM_DOS  = "---\r\n"
-	YAML_DELIM      = "---"
-	TOML_LEAD       = "+"
-	TOML_DELIM_UNIX = "+++\n"
-	TOML_DELIM_DOS  = "+++\r\n"
-	TOML_DELIM      = "+++"
-	JSON_LEAD       = "{"
+	HTML_LEAD          = "<"
+	YAML_LEAD          = "-"
+	YAML_DELIM_UNIX    = "---\n"
+	YAML_DELIM_DOS     = "---\r\n"
+	YAML_DELIM         = "---"
+	TOML_LEAD          = "+"
+	TOML_DELIM_UNIX    = "+++\n"
+	TOML_DELIM_DOS     = "+++\r\n"
+	TOML_DELIM         = "+++"
+	JSON_LEAD          = "{"
+	HTML_COMMENT_START = "<!--"
+	HTML_COMMENT_END   = "-->"
 )
 
 var (
@@ -79,6 +82,9 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 	if err = chompWhitespace(reader); err != nil && err != io.EOF {
 		return
 	}
+	if err = chompFrontmatterStartComment(reader); err != nil && err != io.EOF {
+		return
+	}
 
 	firstLine, err := peekLine(reader)
 	if err != nil && err != io.EOF {
@@ -118,6 +124,65 @@ func chompWhitespace(r io.RuneScanner) (err error) {
 			return nil
 		}
 	}
+}
+
+func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
+	candidate, err := r.Peek(32)
+	if err != nil {
+		return err
+	}
+
+	str := string(candidate)
+	if strings.HasPrefix(str, HTML_COMMENT_START) {
+		lineEnd := strings.IndexAny(str, "\n")
+		if lineEnd == -1 {
+			//TODO: if we can't find it, Peek more?
+			return nil
+		}
+		testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
+		if strings.Index(testStr, HTML_COMMENT_END) != -1 {
+			return nil
+		}
+		buf := make([]byte, lineEnd)
+		if _, err = r.Read(buf); err != nil {
+			return
+		}
+		if err = chompWhitespace(r); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func chompFrontmatterEndComment(r *bufio.Reader) (err error) {
+	candidate, err := r.Peek(32)
+	if err != nil {
+		return err
+	}
+
+	str := string(candidate)
+	lineEnd := strings.IndexAny(str, "\n")
+	if lineEnd == -1 {
+		return nil
+	}
+	testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
+	if strings.Index(testStr, HTML_COMMENT_START) != -1 {
+		return nil
+	}
+
+	//TODO: if we can't find it, Peek more?
+	if strings.HasSuffix(testStr, HTML_COMMENT_END) {
+		buf := make([]byte, lineEnd)
+		if _, err = r.Read(buf); err != nil {
+			return
+		}
+		if err = chompWhitespace(r); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func peekLine(r *bufio.Reader) (line []byte, err error) {
@@ -254,11 +319,13 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 
 		if level == 0 {
 			// Consumes white spaces immediately behind frontmatter
-			if err = chompWhitespace(r); err != nil {
-				if err != io.EOF {
-					return nil, err
-				}
+			if err = chompWhitespace(r); err != nil && err != io.EOF {
+				return nil, err
 			}
+			if err = chompFrontmatterEndComment(r); err != nil && err != io.EOF {
+				return nil, err
+			}
+
 			return buf.Bytes(), nil
 		}
 	}
