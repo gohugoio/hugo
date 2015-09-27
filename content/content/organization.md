@@ -30,7 +30,7 @@ in Hugo and is used as the [section](/content/sections/).
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost/
         |   ├── happy
-        |   |   └── ness.ad  // <- http://1.com/post/happy/ness/
+        |   |   └── ness.md  // <- http://1.com/post/happy/ness/
         |   └── secondpost.md  // <- http://1.com/post/secondpost/
         └── quote
             ├── first.md       // <- http://1.com/quote/first/
@@ -43,7 +43,7 @@ in Hugo and is used as the [section](/content/sections/).
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
         |   ├── happy
-        |   |   └── ness.ad    // <- http://1.com/post/happy/ness.html
+        |   |   └── ness.md    // <- http://1.com/post/happy/ness.html
         |   └── secondpost.md  // <- http://1.com/post/secondpost.html
         └── quote
             ├── first.md       // <- http://1.com/quote/first.html
