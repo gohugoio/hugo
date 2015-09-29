@@ -79,6 +79,7 @@ And for all the other small things around Hugo:
 
 - [hugo-gallery](https://github.com/icecreammatt/hugo-gallery) lets you create an image gallery for Hugo sites.
 - [flickr-hugo-embed](https://github.com/nikhilm/flickr-hugo-embed) prints shortcodes to embed a set of images from an album on Flickr into Hugo.
+- [Eager](https://eager.io) allows you to install various widgets onto your static Hugo site.
 
 ***
 
