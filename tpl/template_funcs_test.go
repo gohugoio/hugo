@@ -324,6 +324,30 @@ func TestAfter(t *testing.T) {
 	}
 }
 
+func TestDictionary(t *testing.T) {
+	for i, this := range []struct {
+		v1     []interface{}
+		expecterr bool
+		expectedValue map[string] interface{}
+	}{
+		{[]interface{}{"a", "b"}, false, map[string]interface{}{"a":"b"}},
+		{[]interface{}{5, "b"}, true,nil},
+		{[]interface{}{"a", 12,"b",[]int{4}}, false,map[string]interface{}{"a":12,"b":[]int{4}}},
+		{[]interface{}{"a", "b", "c"}, true,nil},
+	} {
+		r,e := Dictionary(this.v1...)
+
+		if (this.expecterr && e==nil) || (!this.expecterr && e!=nil)  {
+			t.Errorf("[%d] got an unexpected error", i, e, this.expecterr)
+		} else if !this.expecterr {
+			if !reflect.DeepEqual(r, this.expectedValue) {
+				t.Errorf("[%d] got %v but expected %v", i, r, this.expectedValue)
+			}
+		}
+	}
+}
+
+
 func TestIn(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
