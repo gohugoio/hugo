@@ -432,7 +432,7 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 
 // NormalizeHugoFlagsFunc facilitates transitions of Hugo command-line flags,
 // e.g. --baseUrl to --baseURL, --uglyUrls to --uglyURLs
-func NormalizeHugoFlagsFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
+func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	switch name {
 	case "baseUrl":
 		name = "baseURL"

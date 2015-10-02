@@ -65,7 +65,7 @@ var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor stri
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
-	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlagsFunc)
+	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 	AddCommands()
 	utils.StopOnErr(HugoCmd.Execute())
 }
