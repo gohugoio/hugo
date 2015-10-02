@@ -78,6 +78,21 @@ func Lt(a, b interface{}) bool {
 	return left < right
 }
 
+func Dictionary(values ...interface{}) (map[string]interface{}, error) {
+	if len(values)%2 != 0 {
+		return nil, errors.New("invalid dict call")
+	}
+	dict := make(map[string]interface{}, len(values)/2)
+	for i := 0; i < len(values); i+=2 {
+		key, ok := values[i].(string)
+		if !ok {
+			return nil, errors.New("dict keys must be strings")
+		}
+	dict[key] = values[i+1]
+	}
+	return dict, nil
+}
+
 func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
 	var leftStr, rightStr *string
@@ -1356,6 +1371,7 @@ func init() {
 		"ge":           Ge,
 		"lt":           Lt,
 		"le":           Le,
+		"dict":         Dictionary,
 		"in":           In,
 		"slicestr":     Slicestr,
 		"substr":       Substr,
