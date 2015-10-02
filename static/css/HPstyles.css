@@ -167,6 +167,7 @@ a:hover {
 .callout {
     color: #ffffff;
     display: table;
+    table-layout: fixed;
     height: 420px;
     width: 100%;
     background-color: rgb(118,156,172);
