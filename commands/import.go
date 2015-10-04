@@ -42,7 +42,7 @@ func init() {
 var importCmd = &cobra.Command{
 	Use:   "import",
 	Short: "import from others",
-	Long: `import from others like jekyll.
+	Long: `import from others like Jekyll.
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
 	Run: nil,
@@ -50,10 +50,10 @@ Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path tar
 
 var importJekyllCmd = &cobra.Command{
 	Use:   "jekyll",
-	Short: "hugo import from jekyll",
-	Long: `hugo import from jekyll.
+	Short: "hugo import from Jekyll",
+	Long: `hugo import from Jekyll.
 
-Import jekyll requires two path, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
+Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
 	Run: importFromJekyll,
 }
 
@@ -62,7 +62,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 	jww.SetStdoutThreshold(jww.LevelWarn)
 
 	if len(args) < 2 {
-		jww.ERROR.Println(`Import jekyll requires two path, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
+		jww.ERROR.Println(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
 		return
 	}
 
@@ -80,7 +80,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 
 	createSiteFromJekyll(jekyllRoot, targetDir)
 
-	jww.INFO.Println("Import jekyll from:", jekyllRoot, "to:", targetDir)
+	jww.INFO.Println("Import Jekyll from:", jekyllRoot, "to:", targetDir)
 	fmt.Println("Importing...")
 
 	fileCount := 0
@@ -122,7 +122,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 		fmt.Println(err)
 	} else {
 		fmt.Println("Congratulations!", fileCount, "posts imported!")
-		fmt.Println("Now, start hugo by yourself: \n" +
+		fmt.Println("Now, start Hugo by yourself: \n" +
 			"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
 		fmt.Println("$ cd " + args[1] + "\n$ hugo server -w --theme=herring-cove")
 	}
