@@ -41,8 +41,8 @@ func init() {
 
 var importCmd = &cobra.Command{
 	Use:   "import",
-	Short: "import from others",
-	Long: `import from others like Jekyll.
+	Short: "Import your site from others.",
+	Long: `Import your site from other web site generators like Jekyll.
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
 	Run: nil,
