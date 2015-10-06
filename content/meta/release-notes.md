@@ -44,7 +44,7 @@ weight: 10
 	*  `RuneCount` : This may be a good alternative to `WordCount` for Japanese and other CJK languages where a word-split by spaces makes no sense. [1266](https://github.com/spf13/hugo/issues/1266)
 	* `RawContent`: Raw Markdown as a string. One use case may be of embedding remarkjs.com slides.
 	* The new `IsHome` tells the truth about whether you're on the home page or not.
-* Hugo now supports GitHub-flavoured markdown code fences for highlighting for `md`-files (Blackfriday rendered markdown). [362] (https://github.com/spf13/hugo/issues/362)
+* Hugo now supports GitHub-flavoured markdown code fences for highlighting for `md`-files (Blackfriday rendered markdown) and `mmark` files (MMark rendered markdown). [362] (https://github.com/spf13/hugo/issues/362)[1258](https://github.com/spf13/hugo/issues/1258)
 * Ace templates:
 	* Base templates now also works in themes. [1215](https://github.com/spf13/hugo/issues/1215).
 	* And now also on Windows. [1178](https://github.com/spf13/hugo/issues/1178)
