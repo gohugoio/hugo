@@ -47,7 +47,7 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
     * [Git](http://git-scm.com/)
     * [Mercurial](http://mercurial.selenic.com/)
-    * [Go][] 1.3+ (Go 1.4+ on Windows, see Go [Issue #8090](https://code.google.com/p/go/issues/detail?id=8090))
+    * [Go][] 1.4+
 
 2. Fork the [Hugo project on GitHub](https://github.com/spf13/hugo).
 
