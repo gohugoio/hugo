@@ -15,6 +15,7 @@ weight: 10
 * We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. [1181](https://github.com/spf13/hugo/issues/1181)
 * Hugo is now built with `Go 1.5` which, among many other improvements, have fixed the last known data race in Hugo. [917] (https://github.com/spf13/hugo/issues/917)
 * Lots of fixes and improvements in the template funcs:
+	* The new `dict` function that could be used to pass maps into a template.[1463](https://github.com/spf13/hugo/pull/1463) 
 	* The new `pluralize` and `singularize` template funcs. 
 	* The new `base64Decode` and `base64Encode` template funcs.
 	* The `sort` template func now accepts field/key chaining arguments and pointer values. [1330](https://github.com/spf13/hugo/issues/1330)
