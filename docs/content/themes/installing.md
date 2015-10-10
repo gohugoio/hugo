@@ -9,9 +9,11 @@ title: Installing Themes
 weight: 20
 ---
 
-Hugo themes are located in a centralized GitHub repository. The [Hugo Themes
-Repo](https://github.com/spf13/hugoThemes) itself is really a meta
-repository which contains pointers to set of contributed themes.
+Community-contributed [Hugo themes](http://themes.gohugo.io/), showcased
+at [themes.gohugo.io](//themes.gohugo.io/), are hosted in a centralized
+GitHub repository.  The [Hugo Themes Repo](https://github.com/spf13/hugoThemes)
+itself at [github.com/spf13/hugoThemes](https://github.com/spf13/hugoThemes) is
+really a meta repository which contains pointers to set of contributed themes.
 
 ## Installing all themes
 
