@@ -60,7 +60,7 @@ Complete documentation is available at http://gohugo.io/.`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -102,6 +102,7 @@ func init() {
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
+	HugoCmd.PersistentFlags().BoolVar(&CanonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
@@ -199,6 +200,10 @@ func InitializeConfig() {
 
 	if hugoCmdV.PersistentFlags().Lookup("uglyURLs").Changed {
 		viper.Set("UglyURLs", UglyURLs)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("canonifyURLs").Changed {
+		viper.Set("CanonifyURLs", CanonifyURLs)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("disableRSS").Changed {
