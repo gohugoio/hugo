@@ -26,6 +26,6 @@ func init() {
 		Version:    helpers.HugoVersion(),
 		CommitHash: CommitHash,
 		BuildDate:  BuildDate,
-		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.HugoVersion())),
+		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s">`, helpers.HugoVersion())),
 	}
 }
