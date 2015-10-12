@@ -98,7 +98,7 @@ func Highlight(code, lang, optsStr string) string {
 	if lang == "" {
 		langOpt = "-g" // Try guessing the language
 	} else {
-		langOpt = "-l"+lang
+		langOpt = "-l" + lang
 	}
 
 	cmd := exec.Command(pygmentsBin, langOpt, "-fhtml", "-O", options)

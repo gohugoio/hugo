@@ -26,10 +26,10 @@ import (
 var undraftCmd = &cobra.Command{
 	Use:   "undraft path/to/content",
 	Short: "Undraft changes the content's draft status from 'True' to 'False'",
-	Long:  `Undraft changes the content's draft status from 'True' to 'False'
+	Long: `Undraft changes the content's draft status from 'True' to 'False'
 and updates the date to the current date and time.
 If the content's draft status is 'False', nothing is done.`,
-	Run:   Undraft,
+	Run: Undraft,
 }
 
 // Publish publishes the specified content by setting its draft status

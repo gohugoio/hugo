@@ -1,14 +1,15 @@
 package helpers
+
 import (
-	"testing"
-	"github.com/spf13/viper"
 	"bytes"
+	"github.com/spf13/viper"
+	"testing"
 )
 
 // Renders a codeblock using Blackfriday
 func render(input string) string {
-	ctx := &RenderingContext{};
-	render := GetHTMLRenderer(0, ctx);
+	ctx := &RenderingContext{}
+	render := GetHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html")
@@ -17,14 +18,13 @@ func render(input string) string {
 
 // Renders a codeblock using Mmark
 func renderWithMmark(input string) string {
-	ctx := &RenderingContext{};
-	render := GetMmarkHtmlRenderer(0, ctx);
+	ctx := &RenderingContext{}
+	render := GetMmarkHtmlRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html", []byte(""), false, false)
 	return buf.String()
 }
-
 
 func TestCodeFence(t *testing.T) {
 
@@ -38,7 +38,7 @@ func TestCodeFence(t *testing.T) {
 		input, expected string
 	}
 	data := []test{
-		{true,  "<html></html>", "<div class=\"highlight\"><pre><span class=\"nt\">&lt;html&gt;&lt;/html&gt;</span>\n</pre></div>\n"},
+		{true, "<html></html>", "<div class=\"highlight\"><pre><span class=\"nt\">&lt;html&gt;&lt;/html&gt;</span>\n</pre></div>\n"},
 		{false, "<html></html>", "<pre><code class=\"language-html\">&lt;html&gt;&lt;/html&gt;</code></pre>\n"},
 	}
 
