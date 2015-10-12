@@ -354,9 +354,14 @@ func TestIn(t *testing.T) {
 		expect bool
 	}{
 		{[]string{"a", "b", "c"}, "b", true},
+		{[]interface{}{"a", "b", "c"}, "b", true},
+		{[]interface{}{"a", "b", "c"}, "d", false},
 		{[]string{"a", "b", "c"}, "d", false},
 		{[]string{"a", "12", "c"}, 12, false},
 		{[]int{1, 2, 4}, 2, true},
+		{[]interface{}{1, 2, 4}, 2, true},
+		{[]interface{}{1, 2, 4}, nil, false},
+		{[]interface{}{nil}, nil, false},
 		{[]int{1, 2, 4}, 3, false},
 		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
 		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},

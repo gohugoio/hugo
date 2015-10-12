@@ -330,6 +330,10 @@ func In(l interface{}, v interface{}) bool {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < lv.Len(); i++ {
 			lvv := lv.Index(i)
+			lvv, isNil := indirect(lvv)
+			if isNil {
+				continue
+			}
 			switch lvv.Kind() {
 			case reflect.String:
 				if vv.Type() == lvv.Type() && vv.String() == lvv.String() {
