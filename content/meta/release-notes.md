@@ -26,6 +26,7 @@ weight: 10
 	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
 	* `getJSON`/`getCSV`: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
 	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
+* The new `Param` convenience method on `Page` and `Node` can be used to get the most specific parameter value for a given key. [1462](https://github.com/spf13/hugo/issues/1462) 
 * Several new Blackfriday options are added:
 	* Option to disable Blackfriday's `Smartypants`.
 	* Option for Blackfriday to open links in a new window/tab. [1220](https://github.com/spf13/hugo/issues/1220)
