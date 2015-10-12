@@ -338,7 +338,7 @@ func TestDictionary(t *testing.T) {
 		r, e := Dictionary(this.v1...)
 
 		if (this.expecterr && e == nil) || (!this.expecterr && e != nil) {
-			t.Errorf("[%d] got an unexpected error", i, e, this.expecterr)
+			t.Errorf("[%d] got an unexpected error: %s", i, e)
 		} else if !this.expecterr {
 			if !reflect.DeepEqual(r, this.expectedValue) {
 				t.Errorf("[%d] got %v but expected %v", i, r, this.expectedValue)
