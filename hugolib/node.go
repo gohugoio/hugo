@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"github.com/spf13/cast"
 	"html/template"
 	"sync"
 	"time"
@@ -84,6 +85,17 @@ func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 	}
 
 	return false
+}
+
+// Param is a convenience method to do lookups in Site's Params map.
+//
+// This method is also implemented on Page.
+func (n *Node) Param(key interface{}) (interface{}, error) {
+	keyStr, err := cast.ToStringE(key)
+	if err != nil {
+		return nil, err
+	}
+	return n.Site.Params[keyStr], err
 }
 
 func (n *Node) Hugo() *HugoInfo {

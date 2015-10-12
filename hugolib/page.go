@@ -132,6 +132,21 @@ func (p *Page) IsPage() bool {
 	return true
 }
 
+// Param is a convenience method to do lookups in Page's and Site's Params map,
+// in that order.
+//
+// This method is also implemented on Node.
+func (p *Page) Param(key interface{}) (interface{}, error) {
+	keyStr, err := cast.ToStringE(key)
+	if err != nil {
+		return nil, err
+	}
+	if val, ok := p.Params[keyStr]; ok {
+		return val, nil
+	}
+	return p.Site.Params[keyStr], nil
+}
+
 func (p *Page) Author() Author {
 	authors := p.Authors()
 
