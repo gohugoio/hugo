@@ -65,6 +65,15 @@ Take for example I'm using *tags* and *categories* as my taxonomies. The followi
 
 **All Params are only accessible using all lowercase characters.**
 
+### Param method
+In Hugo you can declare params both for the site and the individual page.  A common use case is to have a general value for the site and a more specificy value for some of the pages (i.e. an image). 
+
+With the `Param` method the most specific value will be selected for you, and it is safe to use it in any template (it's defined on both Page and Node):
+
+```
+$.Param("image")
+```
+
 ## Node Variables
 In Hugo, a node is any page not rendered directly by a content file. This
 includes taxonomies, lists and the homepage.
