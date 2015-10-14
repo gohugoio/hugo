@@ -163,7 +163,14 @@ func NewTheme(cmd *cobra.Command, args []string) {
 	touchFile(createpath, "layouts", "partials", "footer.html")
 
 	mkdir(createpath, "archetypes")
-	touchFile(createpath, "archetypes", "default.md")
+
+	archDefault := []byte("+++\n+++\n")
+
+	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.SourceFs)
+	if err != nil {
+
+		jww.FATAL.Fatalln(err)
+	}
 
 	mkdir(createpath, "static", "js")
 	mkdir(createpath, "static", "css")
@@ -190,7 +197,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `)
 
-	err := helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
