@@ -38,7 +38,7 @@ func TestCodeFence(t *testing.T) {
 		input, expected string
 	}
 	data := []test{
-		{true, "<html></html>", "<div class=\"highlight\"><pre><span class=\"nt\">&lt;html&gt;&lt;/html&gt;</span>\n</pre></div>\n"},
+		{true, "<html></html>", "<div class=\"highlight\"><pre><code class=\"language-html\" data-lang=\"html\"><span class=\"nt\">&lt;html&gt;&lt;/html&gt;</span>\n</code></pre></div>\n"},
 		{false, "<html></html>", "<pre><code class=\"language-html\">&lt;html&gt;&lt;/html&gt;</code></pre>\n"},
 	}
 
