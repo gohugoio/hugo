@@ -111,14 +111,23 @@ func Highlight(code, lang, optsStr string) string {
 		return code
 	}
 
+	str := out.String()
+
+	// inject code tag into Pygments output
+	if lang != "" && strings.Contains(str, "<pre>") {
+		codeTag := fmt.Sprintf(`<pre><code class="language-%s" data-lang="%s">`, lang, lang)
+		str = strings.Replace(str, "<pre>", codeTag, 1)
+		str = strings.Replace(str, "</pre>", "</code></pre>", 1)
+	}
+
 	if cachefile != "" {
 		// Write cache file
-		if err := WriteToDisk(cachefile, bytes.NewReader(out.Bytes()), fs); err != nil {
+		if err := WriteToDisk(cachefile, strings.NewReader(str), fs); err != nil {
 			jww.ERROR.Print(stderr.String())
 		}
 	}
 
-	return out.String()
+	return str
 }
 
 var pygmentsKeywords = make(map[string]bool)
