@@ -244,7 +244,7 @@ func PrettifyURL(in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyURLPath(in string) string {
-	return PrettiyPath(in, pb)
+	return prettiyPath(in, pb)
 }
 
 // Uglify does the opposite of PrettifyURLPath().
