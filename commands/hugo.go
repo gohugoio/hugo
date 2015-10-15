@@ -328,12 +328,6 @@ func build(watches ...bool) {
 }
 
 func copyStatic() error {
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
-	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-		jww.ERROR.Println("Unable to find Static Directory:", staticDir)
-		return nil
-	}
-
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
 
 	syncer := fsync.NewSyncer()
@@ -347,15 +341,21 @@ func copyStatic() error {
 		return nil
 	}
 
+	// Copy the theme's static directory
 	if themeDir != "" {
-		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
 		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
 	}
 
-	// Copy Static to Destination
-	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-	return syncer.Sync(publishDir, staticDir)
+	// Copy the site's own static directory
+	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
+	if _, err := os.Stat(staticDir); err == nil {
+		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
+		return syncer.Sync(publishDir, staticDir)
+	} else if os.IsNotExist(err) {
+		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+	}
+	return nil
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
