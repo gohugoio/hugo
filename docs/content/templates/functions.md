@@ -385,7 +385,7 @@ e.g. `{{lower "BatMan"}}` → "batman"
 
 ### markdownify
 
-Runs the string through the Markdown processesor. The result will be declared as "safe" so Go templates will not filter it.
+Runs the string through the Markdown processor. The result will be declared as "safe" so Go templates will not filter it.
 
 e.g. `{{ .Title | markdownify }}`
 
@@ -678,7 +678,7 @@ In this version, we are now sorting the tags, converting them to links with "pos
 
 ### base64Encode and base64Decode
 
-`base64Encode` and `base64Decode` let you easily decode content with a base64 enconding and vice versa through pipes. Let's take a look at an example:
+`base64Encode` and `base64Decode` let you easily decode content with a base64 encoding and vice versa through pipes. Let's take a look at an example:
 
 
     {{ "Hello world" | base64Encode }}
