@@ -109,7 +109,7 @@ We welcome your contributions. To make the process as seamless as possible, we a
     go build -o hugo main.go
     mv hugo /usr/local/bin/
 
-### Adding compile information to Hugo
+### Adding Compile Information to Hugo
 
 When Hugo is built using the above steps, the `version` sub-command will include the `mdate` of the Hugo executable, similar to the following:
 
