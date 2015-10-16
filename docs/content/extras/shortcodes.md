@@ -194,7 +194,7 @@ of the content between the opening and closing shortcodes. If a closing
 shortcode is required, you can check the length of `.Inner` and provide a warning
 to the user.
 
-A shortcode with `.Inner` content can be used wihout the inline content, and without the closing shortcode, by using the self-closing syntax:
+A shortcode with `.Inner` content can be used without the inline content, and without the closing shortcode, by using the self-closing syntax:
 
     {{</* innershortcode /*/>}}
 
