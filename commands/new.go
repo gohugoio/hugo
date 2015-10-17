@@ -124,7 +124,7 @@ func doNewSite(basepath string, force bool) error {
 
 		switch {
 		case !isEmpty && !force:
-			return errors.New(basepath + " already exists")
+			return errors.New(basepath + " already exists and is not empty")
 
 		case !isEmpty && force:
 			all := append(dirs, filepath.Join(basepath, "config."+configFormat))
