@@ -160,6 +160,7 @@ func NewSite(cmd *cobra.Command, args []string) {
 
 	forceNew, _ := cmd.Flags().GetBool("force")
 	if err := doNewSite(createpath, forceNew); err != nil {
+		cmd.Usage()
 		jww.FATAL.Fatalln(err)
 	}
 }
