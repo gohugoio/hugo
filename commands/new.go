@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
@@ -37,6 +38,7 @@ var contentFrontMatter string
 
 func init() {
 	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
+	newSiteCmd.Flags().Bool("force", false, "Init inside non-empty directory")
 	newCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
 	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
 	newCmd.AddCommand(newSiteCmd)
@@ -104,6 +106,45 @@ func NewContent(cmd *cobra.Command, args []string) {
 	}
 }
 
+func doNewSite(basepath string, force bool) error {
+	dirs := []string{
+		filepath.Join(basepath, "layouts"),
+		filepath.Join(basepath, "content"),
+		filepath.Join(basepath, "archetypes"),
+		filepath.Join(basepath, "static"),
+		filepath.Join(basepath, "data"),
+	}
+
+	if exists, _ := helpers.Exists(basepath, hugofs.SourceFs); exists {
+		if isDir, _ := helpers.IsDir(basepath, hugofs.SourceFs); !isDir {
+			return errors.New(basepath + " already exists but not a directory")
+		}
+
+		isEmpty, _ := helpers.IsEmpty(basepath, hugofs.SourceFs)
+
+		switch {
+		case !isEmpty && !force:
+			return errors.New(basepath + " already exists")
+
+		case !isEmpty && force:
+			all := append(dirs, filepath.Join(basepath, "config."+configFormat))
+			for _, path := range all {
+				if exists, _ := helpers.Exists(path, hugofs.SourceFs); exists {
+					return errors.New(path + " already exists")
+				}
+			}
+		}
+	}
+
+	for _, dir := range dirs {
+		hugofs.SourceFs.MkdirAll(dir, 0777)
+	}
+
+	createConfig(basepath, configFormat)
+
+	return nil
+}
+
 // NewSite creates a new hugo site and initializes a structured Hugo directory.
 func NewSite(cmd *cobra.Command, args []string) {
 	if len(args) < 1 {
@@ -117,22 +158,10 @@ func NewSite(cmd *cobra.Command, args []string) {
 		jww.FATAL.Fatalln(err)
 	}
 
-	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
-		y, _ := helpers.IsDir(createpath, hugofs.SourceFs)
-		if z, _ := helpers.IsEmpty(createpath, hugofs.SourceFs); y && z {
-			jww.INFO.Println(createpath, "already exists and is empty")
-		} else {
-			jww.FATAL.Fatalln(createpath, "already exists and is not empty")
-		}
+	forceNew, _ := cmd.Flags().GetBool("force")
+	if err := doNewSite(createpath, forceNew); err != nil {
+		jww.FATAL.Fatalln(err)
 	}
-
-	mkdir(createpath, "layouts")
-	mkdir(createpath, "content")
-	mkdir(createpath, "archetypes")
-	mkdir(createpath, "static")
-	mkdir(createpath, "data")
-
-	createConfig(createpath, configFormat)
 }
 
 // NewTheme creates a new Hugo theme.
