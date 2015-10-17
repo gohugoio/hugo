@@ -139,7 +139,7 @@ func (n *Node) RelRef(ref string) (string, error) {
 
 type URLPath struct {
 	URL       string
-	Permalink template.HTML
+	Permalink string
 	Slug      string
 	Section   string
 }

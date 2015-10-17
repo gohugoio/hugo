@@ -26,7 +26,7 @@ func init() {
 
 type AliasPublisher interface {
 	Translator
-	Publish(string, template.HTML) error
+	Publish(string, string) error
 }
 
 type HTMLRedirectAlias struct {
@@ -107,10 +107,10 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 }
 
 type AliasNode struct {
-	Permalink template.HTML
+	Permalink string
 }
 
-func (h *HTMLRedirectAlias) Publish(path string, permalink template.HTML) (err error) {
+func (h *HTMLRedirectAlias) Publish(path string, permalink string) (err error) {
 	if path, err = h.Translate(path); err != nil {
 		jww.ERROR.Printf("%s, skipping.", err)
 		return nil
