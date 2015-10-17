@@ -889,7 +889,7 @@ func (s *Site) RenderAliases() error {
 			if err != nil {
 				return err
 			}
-			if err := s.WriteDestAlias(a, template.HTML(plink)); err != nil {
+			if err := s.WriteDestAlias(a, plink); err != nil {
 				return err
 			}
 		}
@@ -1386,11 +1386,11 @@ func (s *Site) Stats() {
 func (s *Site) setURLs(n *Node, in string) {
 	n.URL = helpers.URLizeAndPrep(in)
 	n.Permalink = s.permalink(n.URL)
-	n.RSSLink = s.permalink(in + ".xml")
+	n.RSSLink = template.HTML(s.permalink(in + ".xml"))
 }
 
-func (s *Site) permalink(plink string) template.HTML {
-	return template.HTML(s.permalinkStr(plink))
+func (s *Site) permalink(plink string) string {
+	return s.permalinkStr(plink)
 }
 
 func (s *Site) permalinkStr(plink string) string {
@@ -1572,7 +1572,7 @@ func (s *Site) WriteDestPage(path string, reader io.Reader) (err error) {
 	return s.PageTarget().Publish(path, reader)
 }
 
-func (s *Site) WriteDestAlias(path string, permalink template.HTML) (err error) {
+func (s *Site) WriteDestAlias(path string, permalink string) (err error) {
 	jww.DEBUG.Println("creating alias:", path)
 	return s.AliasTarget().Publish(path, permalink)
 }
