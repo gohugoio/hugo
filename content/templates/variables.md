@@ -127,6 +127,7 @@ Also available is `.Site` which has the following:
 **.Site.Author** A map of the authors as defined in the site configuration.<br>
 **.Site.LanguageCode** A string representing the language as defined in the site configuration.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
+**.Site.GoogleAnalytics** A string representing your tracking code for Google Analytics as defined in the site configuration.<br>
 **.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
 **.Site.LastChange** A string representing the date/time of the most recent change to your site, based on the [`date` variable]({{< ref "content/front-matter.md#required-variables" >}}) in the front matter of your content pages.<br>
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
