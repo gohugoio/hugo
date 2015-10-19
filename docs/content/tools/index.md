@@ -83,4 +83,4 @@ And for all the other small things around Hugo:
 ***
 
 > Do you know or maintain a similar project around Hugo? Feel free to open a
-[pull request](https://github.com/spf13/hugo/pulls) on Github if you think it should to be added.
+[pull request](https://github.com/spf13/hugo/pulls) on Github if you think it should be added.
