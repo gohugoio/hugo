@@ -106,6 +106,7 @@ type SiteInfo struct {
 	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
+	GoogleAnalytics       string
 	Copyright             string
 	LastChange            time.Time
 	Permalinks            PermalinkOverrides
@@ -456,6 +457,7 @@ func (s *Site) initializeSiteInfo() {
 		LanguageCode:          viper.GetString("languagecode"),
 		Copyright:             viper.GetString("copyright"),
 		DisqusShortname:       viper.GetString("DisqusShortname"),
+		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
