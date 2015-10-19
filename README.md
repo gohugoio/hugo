@@ -9,15 +9,23 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
-[![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo) [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) [![Build status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true)](https://ci.appveyor.com/project/spf13/hugo/branch/master) [![Join the chat at https://gitter.im/spf13/hugo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo) 
+[![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) 
+[![Build status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true)](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
+[![Join the chat at https://gitter.im/spf13/hugo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Overview
 
-Hugo is a static site generator written in [Go][]. It is optimized for speed, easy use and configurability. Hugo takes a directory with content and templates and renders them into a full HTML website.
+Hugo is a static site generator written in [Go][].
+It is optimized for speed, easy use and configurability.
+Hugo takes a directory with content and templates and renders them into a full HTML website.
 
-Hugo relies on Markdown files with front matter for meta data. And you can run Hugo from any directory. This works well for shared hosts and other systems where you don’t have a privileged account.
+Hugo relies on Markdown files with front matter for meta data.
+And you can run Hugo from any directory.
+This works well for shared hosts and other systems where you don’t have a privileged account.
 
-Hugo renders a typical website of moderate size in a fraction of a second. A good rule of thumb is that each piece of content renders in around 1 millisecond.
+Hugo renders a typical website of moderate size in a fraction of a second.
+A good rule of thumb is that each piece of content renders in around 1 millisecond.
 
 Hugo is meant to work well for any kind of website including blogs, tumbles and docs.
 
@@ -27,15 +35,17 @@ Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBS
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for other operating systems including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris.
 
-**Complete documentation is available at [Hugo Documentation](http://gohugo.io/).**
+**Complete documentation is available at [Hugo Documentation][].**
 
 ## Choose How to Install
 
-If you want to use Hugo as your site generator, simply install the Hugo binaries. The Hugo binaries have no external dependencies.
+If you want to use Hugo as your site generator, simply install the Hugo binaries.
+The Hugo binaries have no external dependencies.
 
-To contribute to the Hugo source code or documentation, you should fork the Hugo GitHub project and clone it to your local machine.
+To contribute to the Hugo source code or documentation, you should [fork the Hugo GitHub project](https://github.com/spf13/hugo#fork-destination-box) and clone it to your local machine.
 
-Finally, you can install the Hugo source code with `go`, build the binaries yourself, and run Hugo that way. Building the binaries is an easy task for an experienced `go` getter.
+Finally, you can install the Hugo source code with `go`, build the binaries yourself, and run Hugo that way. 
+Building the binaries is an easy task for an experienced `go` getter.
 
 ### Install Hugo as Your Site Generator (Binary Install)
 
@@ -45,11 +55,11 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
 1. Make sure your local environment has the following software installed:
 
-    * [Git](http://git-scm.com/)
-    * [Mercurial](http://mercurial.selenic.com/)
+    * [Git](https://git-scm.com/)
+    * [Mercurial](https://www.mercurial-scm.org/)
     * [Go][] 1.4+
 
-2. Fork the [Hugo project on GitHub](https://github.com/spf13/hugo).
+2. [Fork the Hugo project on GitHub](https://github.com/spf13/hugo#fork-destination-box).
 
 3. Clone your fork:
 
@@ -65,8 +75,10 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
 6. Use a symbolic link to add your locally cloned Hugo repository to your `$GOPATH`, assuming you prefer doing development work outside of `$GOPATH`:
 
-        rm -rf "$GOPATH/src/github.com/spf13/hugo"
-        ln -s `pwd` "$GOPATH/src/github.com/spf13/hugo"
+    ``` bash
+    rm -rf "$GOPATH/src/github.com/spf13/hugo"
+    ln -s `pwd` "$GOPATH/src/github.com/spf13/hugo"
+    ```
 
     Go expects all of your libraries to be found in`$GOPATH`.
 
@@ -84,15 +96,17 @@ To update Hugo’s dependencies, use `go get` with the `-u` option.
 
 ## Contributing to Hugo
 
-We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc. The Hugo community and maintainers are very active and helpful and the project benefits greatly from this activity.
+We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc. 
+The Hugo community and maintainers are very active and helpful and the project benefits greatly from this activity.
 
 [![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
 
-If you have any questions about how to contribute or what to contribute please ask on the [forum](http://discuss.gohugo.io)
+If you have any questions about how to contribute or what to contribute please ask on the [forum](http://discuss.gohugo.io).
 
 ## Code Contribution Guideline
 
-We welcome your contributions. To make the process as seamless as possible, we ask for the following:
+We welcome your contributions. 
+To make the process as seamless as possible, we ask for the following:
 
 * Go ahead and fork the project and make your changes. We encourage pull requests to discuss code changes.
 * When you’re ready to create a pull request, be sure to:
@@ -105,9 +119,11 @@ We welcome your contributions. To make the process as seamless as possible, we a
 
 ### Building Hugo with Your Changes
 
-    cd /path/to/hugo
-    go build -o hugo main.go
-    mv hugo /usr/local/bin/
+``` bash
+cd /path/to/hugo
+go build -o hugo main.go
+mv hugo /usr/local/bin/
+```
 
 ### Adding Compile Information to Hugo
 
@@ -129,13 +145,16 @@ Alternatively, just run `make` &mdash; all the “magic” above is already in t
 
 ### Running Hugo
 
-    cd /path/to/hugo
-    go install github.com/spf13/hugo/hugolib
-    go run main.go
+``` bash
+cd /path/to/hugo
+go install github.com/spf13/hugo/hugolib
+go run main.go
+```
 
-**Complete documentation is available at [Hugo Documentation](http://gohugo.io/).**
+**Complete documentation is available at [Hugo Documentation][].**
 
 [![Analytics](https://ga-beacon.appspot.com/UA-7131036-6/hugo/readme)](https://github.com/igrigorik/ga-beacon)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/hugo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
-[Go]: http://golang.org/
+[Go]: https://golang.org/
+[Hugo Documentation]: https://gohugo.io/
