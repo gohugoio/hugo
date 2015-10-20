@@ -405,6 +405,14 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		expect       interface{}
 	}{
 		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World."},
+		{"Hello {@{@PREFIX-1@}@.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, false},
+		{"{@{@PREFIX2-1@}@}", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "World"}, "World"},
+		{"Hello World!", "PREFIX2", map[string]string{}, "Hello World!"},
+		{"!{@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World"},
+		{"{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "World!"},
+		{"!{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World!"},
+		{"@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "@{@PREFIX-1@}@}"},
+		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
 		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, "A v1 asdf v2."},
 		{"Hello {@{@PREFIX2-1@}@}. Go {@{@PREFIX2-2@}@}, Go, Go {@{@PREFIX2-3@}@} Go Go!.", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "Europe", "{@{@PREFIX2-2@}@}": "Jonny", "{@{@PREFIX2-3@}@}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
 		{"A {@{@PREFIX-2@}@} {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A B A."},
@@ -420,11 +428,11 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		{"Hello <p>{@{@PREFIX-1@}@}. END</p>.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World. END</p>."},
 		{"<p>Hello {@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "<p>Hello World</p>. END."},
 		{"Hello <p>{@{@PREFIX-1@}@}12", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World12"},
-		// Make sure the buffering expands as needed
 		{"Hello {@{@P-1@}@}. {@{@P-1@}@}-{@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} END", "P", map[string]string{"{@{@P-1@}@}": strings.Repeat("BC", 100)},
 			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
 				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
 	} {
+
 		results, err := replaceShortcodeTokens([]byte(this.input), this.prefix, this.replacements)
 
 		if b, ok := this.expect.(bool); ok && !b {

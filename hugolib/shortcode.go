@@ -453,29 +453,13 @@ Loop:
 
 }
 
-// replaceShortcodeTokensInsources calls replaceShortcodeTokens for every source given.
-func replaceShortcodeTokensInsources(prefix string, replacements map[string]string, sources ...[]byte) (b [][]byte, err error) {
-	result := make([][]byte, len(sources))
-	for i, s := range sources {
-		b, err := replaceShortcodeTokens(s, prefix, replacements)
-
-		if err != nil {
-			return nil, err
-		}
-		result[i] = b
-	}
-	return result, nil
-}
-
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
+// Note: This function will rewrite the input slice.
 func replaceShortcodeTokens(source []byte, prefix string, replacements map[string]string) ([]byte, error) {
 
 	if len(replacements) == 0 {
 		return source, nil
 	}
-
-	buff := bp.GetBuffer()
-	defer bp.PutBuffer(buff)
 
 	sourceLen := len(source)
 	start := 0
@@ -507,28 +491,14 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 			}
 		}
 
-		oldVal := source[j:end]
-		_, err := buff.Write(source[start:j])
-		if err != nil {
-			return nil, errors.New("buff write failed")
-		}
-		_, err = buff.Write(newVal)
-		if err != nil {
-			return nil, errors.New("buff write failed")
-		}
-		start = j + len(oldVal)
+		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
+		source = append(source[:j], append(newVal, source[end:]...)...)
 
 		k = bytes.Index(source[start:], pre)
-	}
-	_, err := buff.Write(source[start:])
-	if err != nil {
-		return nil, errors.New("buff write failed")
+
 	}
 
-	bc := make([]byte, buff.Len(), buff.Len())
-	copy(bc, buff.Bytes())
-
-	return bc, nil
+	return source, nil
 }
 
 func getShortcodeTemplate(name string, t tpl.Template) *template.Template {
