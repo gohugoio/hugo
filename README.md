@@ -94,7 +94,7 @@ To update Hugo’s dependencies, use `go get` with the `-u` option.
 
     go get -u -v github.com/spf13/hugo
 
-## Contributing to Hugo
+## Contribute to Hugo
 
 We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc. 
 The Hugo community and maintainers are very active and helpful and the project benefits greatly from this activity.
@@ -117,7 +117,7 @@ To make the process as seamless as possible, we ask for the following:
      * This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages, the most important part being that each commit message should have a title/subject in imperative mode without trailing period: *"Return error on wrong use of the Paginator"*, **NOT** *"Returning some error."* Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*. Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
      * Make sure `go test ./...` passes, and `go build` completes. Our [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
 
-### Building Hugo with Your Changes
+### Build Hugo with Your Changes
 
 ``` bash
 cd /path/to/hugo
@@ -125,7 +125,7 @@ go build -o hugo main.go
 mv hugo /usr/local/bin/
 ```
 
-### Adding Compile Information to Hugo
+### Add Compile Information to Hugo
 
 To add compile information to Hugo, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
 
@@ -137,7 +137,7 @@ This will result in `hugo version` output that looks similar to:
 
 Alternatively, just run `make` &mdash; all the “magic” above is already in the `Makefile`.  :wink:
 
-### Running Hugo
+### Run Hugo
 
 ``` bash
 cd /path/to/hugo
