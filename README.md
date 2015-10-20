@@ -127,13 +127,7 @@ mv hugo /usr/local/bin/
 
 ### Adding Compile Information to Hugo
 
-When Hugo is built using the above steps, the `version` sub-command will include the `mdate` of the Hugo executable, similar to the following:
-
-    Hugo Static Site Generator v0.13-DEV buildDate: 2014-12-24T04:46:03-07:00
-
-Instead, it is possible to have the `version` sub-command return information about the git commit used and time of compilation using `build` flags.
-
-To do this, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
+To add compile information to Hugo, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
 
     go build -ldflags "-X /path/to/hugo/hugolib.CommitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate `date +%FT%T%z`"
 
