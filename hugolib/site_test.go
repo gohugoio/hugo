@@ -1,7 +1,6 @@
 package hugolib
 
 import (
-	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -10,7 +9,10 @@ import (
 	"strings"
 	"testing"
 
+	"bitbucket.org/pkg/inflect"
+
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -993,4 +995,47 @@ func TestWeightedTaxonomies(t *testing.T) {
 	if s.Taxonomies["categories"]["e"][0].Page.Title != "bza" {
 		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title)
 	}
+}
+
+type sectionPNTestObject struct {
+	path   string
+	weight int
+	date   string
+}
+
+var sectionPNTestSources = []sectionPNTestObject{
+	{"/section1/testpage1.md", 5, "2012-04-06"},
+	{"/section1/testpage2.md", 4, "2012-01-01"},
+	{"/section1/testpage3.md", 3, "2012-04-06"},
+	{"/section2/testpage4.md", 2, "2012-03-02"},
+	{"/section2/testpage5.md", 1, "2012-04-06"},
+}
+
+func preparePNInSectionTestPages(t *testing.T) *Site {
+	site := new(Site)
+	for _, s := range sectionPNTestSources {
+		p, err := NewPage(s.path)
+		if err != nil {
+			t.Fatalf("failed to prepare test page %s", s.path)
+		}
+		p.Weight, p.Date, p.PublishDate = s.weight, cast.ToTime(s.date), cast.ToTime(s.date)
+		site.Pages = append(site.Pages, p)
+	}
+	site.assembleTaxonomies()
+	site.assembleSections()
+	return site
+}
+
+func TestPrevInSection(t *testing.T) {
+	s := preparePNInSectionTestPages(t)
+	assert.Equal(t, s.Pages[1].PrevInSection, s.Pages[0])
+	assert.Equal(t, s.Pages[2].PrevInSection, s.Pages[1])
+	assert.Equal(t, s.Pages[4].PrevInSection, s.Pages[3])
+}
+
+func TestNextInSection(t *testing.T) {
+	s := preparePNInSectionTestPages(t)
+	assert.Equal(t, s.Pages[0].NextInSection, s.Pages[1])
+	assert.Equal(t, s.Pages[1].NextInSection, s.Pages[2])
+	assert.Equal(t, s.Pages[3].NextInSection, s.Pages[4])
 }
