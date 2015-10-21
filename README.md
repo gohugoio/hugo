@@ -59,7 +59,7 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
     * [Mercurial](https://www.mercurial-scm.org/)
     * [Go][] 1.4+
 
-2. [Fork the Hugo project on GitHub](https://github.com/spf13/hugo#fork-destination-box).
+2. [Fork the Hugo project on GitHub](https://github.com/spf13/hugo).
 
 3. Clone your fork:
 
