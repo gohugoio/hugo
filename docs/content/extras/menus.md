@@ -226,3 +226,32 @@ The above is all that's needed. But if you want custom menu items, e.g. changing
 
 **Note** that the `identifier` must match the section name.
 
+
+## Previous-Next navigation for multi-level menus
+
+Pages can belong to multiple menus.<br>
+
+     <!-- .Menus assumes we are on page scope page.Menus; not on site.Menus -->
+     {{range $mnuKey, $entry :=  .Menus }}
+         This page belongs to <i>menu</i> {{$mnuKey}}<br>        
+         Accessing menu {{$mnuKey}}: 
+            {{ $mnu  :=  index $.Site.Menus $mnuKey }}... it has {{len $mnu}} top level entries.<br>
+         This page has the menu <i>entry</i> "{{$entry.Name}}"   ID "{{$entry.Identifier}}" 
+     {{end}}
+
+Having obtained menu and menu entry as shown above,<br>
+we can now create navigations for the menu
+traversing it like a word processor outline  <br> 1. <br>1.1<br>1.2<br> 2.
+
+    {{ $prev := $mnObj.Prev $entry }}   {{if $prev }}  Prev {{ $prev.URL }} {{end}}  
+    {{ $next := $mnObj.Next $entry }}   {{if $next }}  Next {{ $next.URL }} {{end}}
+
+or remain on the same outline level 1.   2.  3...  with these Methods:
+
+    Prev {{ $prev := $mnObj.PrevSameLevel $entry }}
+    Next {{ $next := $mnObj.NextSameLevel $entry }}
+    Up   {{ $up   := $mnObj.Up $entry }}
+
+
+
+

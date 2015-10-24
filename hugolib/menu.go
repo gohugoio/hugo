@@ -181,3 +181,150 @@ func (m Menu) Reverse() Menu {
 
 	return m
 }
+
+// Minimal implementation of recursive searching for
+// a menu entry inside a hierarchy of nested menus.
+// Useful for finding a parent by identifier,
+// since menu entries have no "uplink" reference.
+func (m Menu) searchRecursive(argIdentifier string) *MenuEntry {
+	for _, mel := range m {
+		if mel.Identifier == argIdentifier {
+			return mel
+		}
+		if mel.HasChildren() {
+			if found := mel.Children.searchRecursive(argIdentifier); found != nil {
+				return found
+			}
+		}
+	}
+	return nil
+}
+
+// Returns precursor and successor for a given slice of
+// MenuEntries with a particular MenuEntry "me" as starting point.
+// Prev/next are returned from the *same* level only.
+// Otherwise, nil is returned.
+func (m Menu) sameLevelPrevNext(me *MenuEntry) (*MenuEntry, *MenuEntry) {
+	iPrev, iNext := -1, -1
+	for i, mel := range m {
+		if mel.Identifier == me.Identifier {
+			iPrev = i - 1
+			iNext = i + 1
+			break
+		}
+	}
+	var prev, next *MenuEntry
+	if iPrev >= 0 && iPrev < len(m) {
+		prev = m[iPrev]
+	}
+	if iNext >= 0 && iNext < len(m) {
+		next = m[iNext]
+	}
+	return prev, next
+}
+
+// When searching for prev, we have to look into deeper levels.
+// Taking same level prev, and searching for its last child,
+// returning it, unless it has itself a latest child... recurse.
+//
+// We could also draw a closure over a "global previous" menu entry,
+// but this would cost O(n), whereas our lookup function costs O(somelog(n)).
+func (me *MenuEntry) closestRecentDeeper() *MenuEntry {
+	if me == nil {
+		return nil
+	}
+	if me.HasChildren() {
+		maxIdx := len(me.Children) - 1
+		crd := (me.Children[maxIdx]).closestRecentDeeper()
+		if crd != nil {
+			return crd
+		}
+		return me.Children[maxIdx]
+	}
+	return nil
+}
+
+// Pulling it all together - we traverse a menu tree, searching for a
+// specific entry "me". When we find "me", we look for its
+// predecessor and successor in *multilevel* terms, meaning
+// first looking for prev/next on deeper levels, then on same level,
+// finally on upper level.
+// The resulting prev/next menu menu entries are suitable for
+// traversing a menu hierarchy exactly like a word-processing software would:
+// 1.
+// 1.1
+// 1.2
+// 2.1
+// 2.1.1
+// 2.2
+//
+func (m Menu) hasMenuCurrentPrevNext(me *MenuEntry) (bool, *MenuEntry, *MenuEntry) {
+	for _, mel := range m {
+		if mel.IsEqual(me) {
+			prev, next := m.sameLevelPrevNext(me)
+			if mel.HasChildren() {
+				next = mel.Children[0] // deeper level next overrides same level next
+			}
+			if crd := prev.closestRecentDeeper(); crd != nil {
+				prev = crd // deeper level prev overrides same level prev
+			}
+			return true, prev, next
+		}
+		if mel.HasChildren() {
+			found, prev, next := mel.Children.hasMenuCurrentPrevNext(me)
+			if found {
+				if prev == nil {
+					prev = mel // deeper levels yielded no prev => upper preceding node becomes prev
+				}
+				if next == nil {
+					_, nextUp := m.sameLevelPrevNext(mel) // looped menu entry
+					next = nextUp                         // deeper levels yielded no next => upper node-next becomes next
+				}
+				return true, prev, next
+			}
+		}
+	}
+	return false, nil, nil
+}
+
+// Exported methods for template usage
+//     {{ $mePrev :=  $myMenu.Prev $pageMenuEntry }}
+func (m Menu) Prev(me MenuEntry) *MenuEntry {
+	ok, prev, _ := m.hasMenuCurrentPrevNext(&me)
+	if ok {
+		return prev
+	}
+	return nil
+}
+func (m Menu) Next(me MenuEntry) *MenuEntry {
+	ok, _, next := m.hasMenuCurrentPrevNext(&me)
+	if ok {
+		return next
+	}
+	return nil
+}
+
+// Apart from traversing the complete menu tree,
+// some websites might want a "prev chapter" "level up" "next chapter"
+// navigation. Level down is already provided by MenuEntry.Children.
+// But "Up" is almost impossible to code with template functions.
+func (m Menu) Up(me MenuEntry) *MenuEntry {
+	if me.Parent == "" {
+		return nil
+	}
+	return m.searchRecursive(me.Parent)
+}
+
+// Next menu entry is also template-accessible
+// by ranging over the menu entries.
+// But following func is much more concise for template usage.
+func (m Menu) PrevSameLevel(me MenuEntry) *MenuEntry {
+	prev, _ := m.sameLevelPrevNext(&me)
+	return prev
+}
+
+// See PrevSameLevel
+func (m Menu) NextSameLevel(me MenuEntry) *MenuEntry {
+	_, next := m.sameLevelPrevNext(&me)
+	return next
+}
