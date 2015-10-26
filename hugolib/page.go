@@ -506,6 +506,7 @@ func (p *Page) update(f interface{}) error {
 			p.linkTitle = cast.ToString(v)
 		case "description":
 			p.Description = cast.ToString(v)
+			p.Params["description"] = p.Description
 		case "slug":
 			p.Slug = cast.ToString(v)
 		case "url":
