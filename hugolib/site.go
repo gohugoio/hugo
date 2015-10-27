@@ -1269,7 +1269,6 @@ func (s *Site) assembleMenus() {
 
 func (s *Site) assembleTaxonomies() {
 	s.Taxonomies = make(TaxonomyList)
-	s.Sections = make(Taxonomy)
 
 	taxonomies := viper.GetStringMapString("Taxonomies")
 	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
@@ -1302,7 +1301,6 @@ func (s *Site) assembleTaxonomies() {
 	}
 
 	s.Info.Taxonomies = s.Taxonomies
-	s.Info.Sections = s.Sections
 }
 
 // Prepare pages for a new full build.
@@ -1317,6 +1315,9 @@ func (s *Site) resetPageBuildState() {
 }
 
 func (s *Site) assembleSections() {
+	s.Sections = make(Taxonomy)
+	s.Info.Sections = s.Sections
+
 	for i, p := range s.Pages {
 		s.Sections.Add(p.Section(), WeightedPage{s.Pages[i].Weight, s.Pages[i]}, s.Info.preserveTaxonomyNames)
 	}
