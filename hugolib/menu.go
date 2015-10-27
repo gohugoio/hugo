@@ -257,7 +257,6 @@ func (me *MenuEntry) closestRecentDeeper() *MenuEntry {
 // 2.1
 // 2.1.1
 // 2.2
-//
 func (m Menu) hasMenuCurrentPrevNext(me *MenuEntry) (bool, *MenuEntry, *MenuEntry) {
 	for _, mel := range m {
 		if mel.IsEqual(me) {
@@ -319,12 +318,28 @@ func (m Menu) Up(me MenuEntry) *MenuEntry {
 // by ranging over the menu entries.
 // But following func is much more concise for template usage.
 func (m Menu) PrevSameLevel(me MenuEntry) *MenuEntry {
-	prev, _ := m.sameLevelPrevNext(&me)
+	if me.Parent == "" {
+		prev, _ := m.sameLevelPrevNext(&me)
+		return prev
+	}
+	mePar := m.searchRecursive(me.Parent)
+	if mePar == nil || mePar.Children == nil {
+		return nil
+	}
+	prev, _ := mePar.Children.sameLevelPrevNext(&me)
 	return prev
 }
 
 // See PrevSameLevel
 func (m Menu) NextSameLevel(me MenuEntry) *MenuEntry {
-	_, next := m.sameLevelPrevNext(&me)
+	if me.Parent == "" {
+		_, next := m.sameLevelPrevNext(&me)
+		return next
+	}
+	mePar := m.searchRecursive(me.Parent)
+	if mePar == nil || mePar.Children == nil {
+		return nil
+	}
+	_, next := mePar.Children.sameLevelPrevNext(&me)
 	return next
 }
