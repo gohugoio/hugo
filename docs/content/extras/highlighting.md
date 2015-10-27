@@ -175,6 +175,6 @@ Please see individual libraries' documentation for how to implement each of the 
 [Highlight.js]: http://highlightjs.org/
 [Rainbow]: http://craig.is/making/rainbows
 [Syntax Highlighter]: http://alexgorbatchev.com/SyntaxHighlighter/
-[Google Prettify]: https://code.google.com/p/google-code-prettify/
+[Google Prettify]: https://github.com/google/code-prettify
 [Yandex]: http://yandex.ru/
 
