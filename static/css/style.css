@@ -305,6 +305,14 @@ ul.sidebar-menu li.active a i {
     margin-top: 6px;
 }
 
+@-moz-document url-prefix() {
+  #sidebar ul > li > a .menu-arrow {
+      float: right;
+      margin-right: 8px;
+      margin-top: 25px;
+  }
+}
+
 #main-content {
     margin-left: 200px;
     line-height: 1.8;
