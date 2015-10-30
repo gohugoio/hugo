@@ -9,9 +9,10 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
-[![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo) 
+[![Travis CI status](https://travis-ci.org/spf13/hugo.png "Travis CI status")](https://travis-ci.org/spf13/hugo) 
 [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) 
-[![Build status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true)](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
+[![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
+[![CircleCI status](https://circleci.com/gh/spf13/hugo.png?circle-token=:circle-token "CircleCI status")(https://circleci.com/gh/spf13/hugo) 
 [![Join the chat at https://gitter.im/spf13/hugo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Overview
