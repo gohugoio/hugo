@@ -127,6 +127,7 @@ Hugo boasts the following features:
 ### Additional Features
 
   * Integrated [Disqus](https://disqus.com/) comment support
+  * Integrated [Google Analytics](https://google-analytics.com/) support
   * Automatic [RSS](/layout/rss/) creation
   * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](http://ace.yoss.si/) HTML templates
   * Syntax [highlighting](/extras/highlighting/) powered by [Pygments](http://pygments.org/)
@@ -183,4 +184,3 @@ as I have writing it.
  * [Join the Mailing List](/community/mailing-list/)
  * [Star us on GitHub](https://github.com/spf13/hugo)
  * [Discussion Forum](http://discuss.gohugo.io/)
-

@@ -204,4 +204,16 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
 {{ end }}`)
 
+	t.AddInternalTemplate("", "google_analytics.html", `{{ with .Site.GoogleAnalytics }}
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '{{ . }}', 'auto');
+ga('send', 'pageview');
+</script>
+{{ end }}`)
+
 }
