@@ -22,6 +22,7 @@ import (
 	"html/template"
 	"os/exec"
 	"regexp"
+	"unicode/utf8"
 
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
@@ -45,6 +46,7 @@ type Blackfriday struct {
 	AngledQuotes    bool
 	Fractions       bool
 	HrefTargetBlank bool
+	SmartDashes     bool
 	LatexDashes     bool
 	PlainIDAnchors  bool
 	Extensions      []string
@@ -58,6 +60,7 @@ func NewBlackfriday() *Blackfriday {
 		AngledQuotes:    false,
 		Fractions:       true,
 		HrefTargetBlank: false,
+		SmartDashes:     true,
 		LatexDashes:     true,
 		PlainIDAnchors:  false,
 	}
@@ -169,6 +172,10 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
 	}
 
+	if ctx.getConfig().SmartDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
+	}
+
 	if ctx.getConfig().LatexDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
@@ -177,7 +184,6 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
 }
-
 
 func getMarkdownExtensions(ctx *RenderingContext) int {
 	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
@@ -227,7 +233,9 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
-	return mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	return &HugoMmarkHtmlRenderer{
+		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+	}
 }
 
 func GetMmarkExtensions(ctx *RenderingContext) int {
@@ -381,6 +389,32 @@ func TruncateWords(s string, max int) string {
 	}
 
 	return strings.Join(words[:max], " ")
+}
+
+func TruncateWordsByRune(words []string, max int) (string, bool) {
+	count := 0
+	for index, word := range words {
+		if count >= max {
+			return strings.Join(words[:index], " "), true
+		}
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			count++
+		} else if count+runeCount < max {
+			count += runeCount
+		} else {
+			for ri, _ := range word {
+				if count >= max {
+					truncatedWords := append(words[:index], word[:ri])
+					return strings.Join(truncatedWords, " "), true
+				} else {
+					count++
+				}
+			}
+		}
+	}
+
+	return strings.Join(words, " "), false
 }
 
 // TruncateWordsToWholeSentence takes content and an int

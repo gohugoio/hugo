@@ -17,6 +17,8 @@ package commands
 
 import (
 	"fmt"
+	"github.com/spf13/hugo/parser"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -58,13 +60,17 @@ Complete documentation is available at http://gohugo.io/.`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
+	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 	AddCommands()
-	utils.StopOnErr(HugoCmd.Execute())
+	if err := HugoCmd.Execute(); err != nil {
+		// the err is already logged by Cobra
+		os.Exit(-1)
+	}
 }
 
 //AddCommands adds child commands to the root command HugoCmd.
@@ -80,6 +86,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(undraftCmd)
 	HugoCmd.AddCommand(genautocompleteCmd)
 	HugoCmd.AddCommand(gendocCmd)
+	HugoCmd.AddCommand(importCmd)
 }
 
 //Initializes flags
@@ -94,8 +101,9 @@ func init() {
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
-	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
+	HugoCmd.PersistentFlags().BoolVar(&CanonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
+	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
@@ -161,6 +169,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
 	viper.SetDefault("DisablePathToLower", false)
+	viper.SetDefault("HasCJKLanguage", false)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
@@ -189,8 +198,12 @@ func InitializeConfig() {
 		viper.Set("BuildFuture", Future)
 	}
 
-	if hugoCmdV.PersistentFlags().Lookup("uglyUrls").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("uglyURLs").Changed {
 		viper.Set("UglyURLs", UglyURLs)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("canonifyURLs").Changed {
+		viper.Set("CanonifyURLs", CanonifyURLs)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("disableRSS").Changed {
@@ -291,7 +304,7 @@ func InitializeConfig() {
 		}
 	}
 
-	themeVersionMismatch, minVersion := helpers.IsThemeVsHugoVersionMismatch()
+	themeVersionMismatch, minVersion := isThemeVsHugoVersionMismatch()
 
 	if themeVersionMismatch {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
@@ -315,12 +328,6 @@ func build(watches ...bool) {
 }
 
 func copyStatic() error {
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
-	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-		jww.ERROR.Println("Unable to find Static Directory:", staticDir)
-		return nil
-	}
-
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
 
 	syncer := fsync.NewSyncer()
@@ -334,15 +341,21 @@ func copyStatic() error {
 		return nil
 	}
 
+	// Copy the theme's static directory
 	if themeDir != "" {
-		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
 		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
 	}
 
-	// Copy Static to Destination
-	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-	return syncer.Sync(publishDir, staticDir)
+	// Copy the site's own static directory
+	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
+	if _, err := os.Stat(staticDir); err == nil {
+		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
+		return syncer.Sync(publishDir, staticDir)
+	} else if os.IsNotExist(err) {
+		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+	}
+	return nil
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
@@ -533,4 +546,58 @@ func NewWatcher(port int) error {
 
 	wg.Wait()
 	return nil
+}
+
+// isThemeVsHugoVersionMismatch returns whether the current Hugo version is < theme's min_version
+func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
+	if !helpers.ThemeSet() {
+		return
+	}
+
+	themeDir := helpers.GetThemeDir()
+
+	fs := hugofs.SourceFs
+	path := filepath.Join(themeDir, "theme.toml")
+
+	exists, err := helpers.Exists(path, fs)
+
+	if err != nil || !exists {
+		return
+	}
+
+	f, err := fs.Open(path)
+
+	if err != nil {
+		return
+	}
+
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+
+	if err != nil {
+		return
+	}
+
+	c, err := parser.HandleTOMLMetaData(b)
+
+	if err != nil {
+		return
+	}
+
+	config := c.(map[string]interface{})
+
+	if minVersion, ok := config["min_version"]; ok {
+		switch minVersion.(type) {
+		case float32:
+			return helpers.HugoVersionNumber < minVersion.(float32), fmt.Sprint(minVersion)
+		case float64:
+			return helpers.HugoVersionNumber < minVersion.(float64), fmt.Sprint(minVersion)
+		default:
+			return
+		}
+
+	}
+
+	return
 }

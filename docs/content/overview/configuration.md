@@ -74,7 +74,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
 
     ---
     archetypedir:               "archetype"
-    # hostname (and path) to the root eg. http://spf13.com/
+    # hostname (and path) to the root, e.g. http://spf13.com/
     baseURL:                    ""
     # include content marked as draft
     buildDrafts:                false
@@ -135,6 +135,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     uglyURLs:                   false
     # Do not make the url/path to lowercase
     disablePathToLower:         false
+    # if true, auto-detect Chinese/Janapese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
+    hasCJKLanguage              false
     # verbose output
     verbose:                    false
     # verbose logging
@@ -177,7 +179,7 @@ But Hugo does expose some options---as listed in the table below, matched with t
 <tr>
 <td class="purpose-title">Purpose:</td>
 <td class="purpose-description" colspan="2">Enable/Disable smart punctuation substitutions such as smart quotes, smart dashes, etc.
-May be fine-tuned with the <code>angledQuotes</code>, <code>fractions</code> and <code>latexDashes</code> flags below.</td>
+May be fine-tuned with the <code>angledQuotes</code>, <code>fractions</code>, <code>smartDashes</code> and <code>latexDashes</code> flags below.</td>
 </tr>
 
 <tr>
@@ -204,6 +206,17 @@ May be fine-tuned with the <code>angledQuotes</code>, <code>fractions</code> and
 Blackfriday would still convert 1/2, 1/4 and 3/4 to ½&nbsp;(<code>&amp;frac12;</code>),
 ¼&nbsp;(<code>&amp;frac14;</code>) and ¾&nbsp;(<code>&amp;frac34;</code>) respectively,
 but only these three.</small></td>
+</tr>
+
+<tr>
+<td><code><strong>smartDashes</strong></code></td>
+<td><code>true</code></td>
+<td><code>HTML_SMARTYPANTS_DASHES</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Enable/Disable smart dashes, i.e. turning hyphens into en&nbsp;dash or em&nbsp;dash.<br>
+Its behavior can be modified with the <code>latexDashes</code> flag listed below.</td>
 </tr>
 
 <tr>

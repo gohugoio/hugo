@@ -49,6 +49,26 @@ serve them up.`,
 	//Run: server,
 }
 
+type filesOnlyFs struct {
+	fs http.FileSystem
+}
+
+type noDirFile struct {
+	http.File
+}
+
+func (fs filesOnlyFs) Open(name string) (http.File, error) {
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return noDirFile{f}, nil
+}
+
+func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
+	return nil, nil
+}
+
 func init() {
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
@@ -125,7 +145,8 @@ func serve(port int) {
 	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
 
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
-	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
+	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))}
+	fileserver := http.FileServer(fs)
 
 	// We're only interested in the path
 	u, err := url.Parse(viper.GetString("BaseURL"))
@@ -138,9 +159,8 @@ func serve(port int) {
 		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
 
-	u.Host = net.JoinHostPort(serverInterface, strconv.Itoa(serverPort))
 	u.Scheme = "http"
-	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
+	jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
 	fmt.Println("Press Ctrl+C to stop")
 
 	endpoint := net.JoinHostPort(serverInterface, strconv.Itoa(port))

@@ -31,7 +31,7 @@ baseurl = "http://acme.com/"
 title = "Acme Inc."
 contentdir = "content/en"
 publishdir = "public/en"
-...
+
 [params]
     locale = "en-US"
 ~~~
@@ -43,7 +43,7 @@ baseurl = "http://acme.jp/"
 title = "有限会社アクミー"
 contentdir = "content/ja"
 publishdir = "public/ja"
-...
+
 [params]
     locale = "ja-JP"
 ~~~

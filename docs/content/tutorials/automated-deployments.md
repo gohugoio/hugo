@@ -63,7 +63,7 @@ Once completed it's a good idea to do a quick check if everything is working by 
 hugo server --theme=herring-cove
 ```
 
-If everything is fine, you should be able to see something similar to the image below when you go to localhost:1414 in your browser.
+If everything is fine, you should be able to see something similar to the image below when you go to localhost:1313 in your browser.
 
 ![][1]
 
@@ -267,4 +267,4 @@ Simply fill in the name, and make sure you enable **auto deploy** from the **mas
 
 From now on, any time you want to put a new post on your blog all you need to do is push your new page to GitHub and the rest will happen automatically. The source code for the example site used here is available on [GitHub](https://github.com/ArjenSchwarz/hugo-wercker-example), as is the [Hugo Build step](https://github.com/ArjenSchwarz/wercker-step-hugo-build) itself.
 
-If you want to see an example of how you can deploy to S3 instead of GitHub pages, take a look at [Wercker's blogpost](http://blog.wercker.com/2013/06/10/Streamlining-Middleman-Deploys-to-s3.html) about how to set that up for Middleman.
+If you want to see an example of how you can deploy to S3 instead of GitHub pages, take a look at [Wercker's documentation](http://devcenter.wercker.com/docs/deploy/s3.html) about how to set that up.

@@ -45,6 +45,9 @@ Currently the site doesn’t have any content, nor is it configured.
 
 ## Step 3. Create Some Content
 
+> If you used a different blogging platform such as Jekyll, Ghost or Wordpress and you
+want convert your content, take a look at this list of [ migration tools]({{< relref "tools/index.md#migration-tools" >}}).
+
 Hugo also has the ability to create a skeleton content page:
 
     $ hugo new about.md

@@ -33,10 +33,10 @@ var unsafe bool
 var convertCmd = &cobra.Command{
 	Use:   "convert",
 	Short: "Convert your content to different formats",
-	Long:  `Convert your content (e.g. front matter) to different formats.
+	Long: `Convert your content (e.g. front matter) to different formats.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.`,
-	Run:   nil,
+	Run: nil,
 }
 
 var toJSONCmd = &cobra.Command{

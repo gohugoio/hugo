@@ -19,22 +19,25 @@ import (
 func TestMakePath(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
-	viper.Set("RemovePathAccents", true)
 
 	tests := []struct {
-		input    string
-		expected string
+		input         string
+		expected      string
+		removeAccents bool
 	}{
-		{"  Foo bar  ", "Foo-bar"},
-		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo"},
-		{"fOO,bar:foo%bAR", "fOObarfoobAR"},
-		{"FOo/BaR.html", "FOo/BaR.html"},
-		{"трям/трям", "трям/трям"},
-		{"은행", "은행"},
-		{"Банковский кассир", "Банковскии-кассир"},
+		{"  Foo bar  ", "Foo-bar", true},
+		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
+		{"fOO,bar:foo%bAR", "fOObarfoobAR", true},
+		{"FOo/BaR.html", "FOo/BaR.html", true},
+		{"трям/трям", "трям/трям", true},
+		{"은행", "은행", true},
+		{"Банковский кассир", "Банковскии-кассир", true},
+		// Issue #1488
+		{"संस्कृत", "संस्कृत", false},
 	}
 
 	for _, test := range tests {
+		viper.Set("RemovePathAccents", test.removeAccents)
 		output := MakePath(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)

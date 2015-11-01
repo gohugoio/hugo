@@ -35,7 +35,7 @@ func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template 
 	}
 
 	if output != expected {
-		t.Fatalf("Shortcode render didn't match. got %q but exxpected %q", output, expected)
+		t.Fatalf("Shortcode render didn't match. got %q but expected %q", output, expected)
 	}
 }
 

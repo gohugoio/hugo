@@ -11,9 +11,13 @@ weight: 10
 ---
 ## **0.15.0** ???
 
+* Have Jekyll site, but dreaming of porting it to Hugo? This release introduces a new `hugo import jekyll`command that makes this easier than ever. [1469](https://github.com/spf13/hugo/pull/1469)
 * We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. [1181](https://github.com/spf13/hugo/issues/1181)
 * Hugo is now built with `Go 1.5` which, among many other improvements, have fixed the last known data race in Hugo. [917] (https://github.com/spf13/hugo/issues/917)
 * Lots of fixes and improvements in the template funcs:
+	* The new `dict` function that could be used to pass maps into a template.[1463](https://github.com/spf13/hugo/pull/1463) 
+	* The new `pluralize` and `singularize` template funcs. 
+	* The new `base64Decode` and `base64Encode` template funcs.
 	* The `sort` template func now accepts field/key chaining arguments and pointer values. [1330](https://github.com/spf13/hugo/issues/1330)
 	* Several fixes for `slicestr` and `substr`, most importantly, they now have full `utf-8`-support. [1190](https://github.com/spf13/hugo/issues/1190) [1333](https://github.com/spf13/hugo/issues/1333) [1347](https://github.com/spf13/hugo/issues/1347) 
 	*  The new `last` template function allows the user to select the last `N` items of a slice. [1148](https://github.com/spf13/hugo/issues/1148)
@@ -22,6 +26,7 @@ weight: 10
 	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
 	* `getJSON`/`getCSV`: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
 	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
+* The new `Param` convenience method on `Page` and `Node` can be used to get the most specific parameter value for a given key. [1462](https://github.com/spf13/hugo/issues/1462) 
 * Several new Blackfriday options are added:
 	* Option to disable Blackfriday's `Smartypants`.
 	* Option for Blackfriday to open links in a new window/tab. [1220](https://github.com/spf13/hugo/issues/1220)
@@ -38,10 +43,10 @@ weight: 10
 * Paginator now also supports page groups. [1274](https://github.com/spf13/hugo/issues/1274)
 * `page.HasMenuCurrent()` and `node.HasMenuCurrent()` now work correctly in multi-level nested menus.
 * Several new information elements have been added to `Page` and `Node`:
-	*  `RuneCount` : This may be a good alternative to `WordCount` for Japanese and other CJK languages where a word-split by spaces makes no sense. [1266](https://github.com/spf13/hugo/issues/1266)
+sense. [1266](https://github.com/spf13/hugo/issues/1266)
 	* `RawContent`: Raw Markdown as a string. One use case may be of embedding remarkjs.com slides.
 	* The new `IsHome` tells the truth about whether you're on the home page or not.
-* Hugo now supports GitHub-flavoured markdown code fences for highlighting for `md`-files (Blackfriday rendered markdown). [362] (https://github.com/spf13/hugo/issues/362)
+* Hugo now supports GitHub-flavoured markdown code fences for highlighting for `md`-files (Blackfriday rendered markdown) and `mmark` files (MMark rendered markdown). [362] (https://github.com/spf13/hugo/issues/362)[1258](https://github.com/spf13/hugo/issues/1258)
 * Ace templates:
 	* Base templates now also works in themes. [1215](https://github.com/spf13/hugo/issues/1215).
 	* And now also on Windows. [1178](https://github.com/spf13/hugo/issues/1178)
@@ -87,7 +92,7 @@ have been added since last release and the [hugoThemes repo now has previews of
 all of
 them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
 
-Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies inclding:
+Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies including:
 [cobra](https://github.com/spf13/cobra),
 [viper](https://github.com/spf13/viper),
 [blackfriday](https://github.com/russross/blackfriday),
@@ -108,7 +113,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 * New template functions:
   * `getenv`
   * The string functions `substr` and `slicestr`
-  *`seq`, a sequence generator very similar to its Gnu countepart
+  *`seq`, a sequence generator very similar to its Gnu counterpart
   * `absURL` and `relURL`, both of which takes the `BaseURL` setting into account
 
 ## Improvements

@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -427,4 +428,18 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 	default:
 		return nil, errors.New("There is no such an operation")
 	}
+}
+
+// NormalizeHugoFlags facilitates transitions of Hugo command-line flags,
+// e.g. --baseUrl to --baseURL, --uglyUrls to --uglyURLs
+func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
+	switch name {
+	case "baseUrl":
+		name = "baseURL"
+		break
+	case "uglyUrls":
+		name = "uglyURLs"
+		break
+	}
+	return pflag.NormalizedName(name)
 }

@@ -2,6 +2,7 @@ package tpl
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"html/template"
@@ -323,6 +324,29 @@ func TestAfter(t *testing.T) {
 	}
 }
 
+func TestDictionary(t *testing.T) {
+	for i, this := range []struct {
+		v1            []interface{}
+		expecterr     bool
+		expectedValue map[string]interface{}
+	}{
+		{[]interface{}{"a", "b"}, false, map[string]interface{}{"a": "b"}},
+		{[]interface{}{5, "b"}, true, nil},
+		{[]interface{}{"a", 12, "b", []int{4}}, false, map[string]interface{}{"a": 12, "b": []int{4}}},
+		{[]interface{}{"a", "b", "c"}, true, nil},
+	} {
+		r, e := Dictionary(this.v1...)
+
+		if (this.expecterr && e == nil) || (!this.expecterr && e != nil) {
+			t.Errorf("[%d] got an unexpected error: %s", i, e)
+		} else if !this.expecterr {
+			if !reflect.DeepEqual(r, this.expectedValue) {
+				t.Errorf("[%d] got %v but expected %v", i, r, this.expectedValue)
+			}
+		}
+	}
+}
+
 func TestIn(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
@@ -330,9 +354,14 @@ func TestIn(t *testing.T) {
 		expect bool
 	}{
 		{[]string{"a", "b", "c"}, "b", true},
+		{[]interface{}{"a", "b", "c"}, "b", true},
+		{[]interface{}{"a", "b", "c"}, "d", false},
 		{[]string{"a", "b", "c"}, "d", false},
 		{[]string{"a", "12", "c"}, 12, false},
 		{[]int{1, 2, 4}, 2, true},
+		{[]interface{}{1, 2, 4}, 2, true},
+		{[]interface{}{1, 2, 4}, nil, false},
+		{[]interface{}{nil}, nil, false},
 		{[]int{1, 2, 4}, 3, false},
 		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
 		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},
@@ -1579,5 +1608,38 @@ func TestSafeURL(t *testing.T) {
 		if buf.String() != this.expectWithEscape {
 			t.Errorf("[%d] execute template with an escaped string value by SafeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
+	}
+}
+
+func TestBase64Decode(t *testing.T) {
+	testStr := "abc123!?$*&()'-=@~"
+	enc := base64.StdEncoding.EncodeToString([]byte(testStr))
+	result, err := Base64Decode(enc)
+
+	if err != nil {
+		t.Error("Base64Decode:", err)
+	}
+
+	if result != testStr {
+		t.Errorf("Base64Decode: got '%s', expected '%s'", result, testStr)
+	}
+}
+
+func TestBase64Encode(t *testing.T) {
+	testStr := "YWJjMTIzIT8kKiYoKSctPUB+"
+	dec, err := base64.StdEncoding.DecodeString(testStr)
+
+	if err != nil {
+		t.Error("Base64Encode: the DecodeString function of the base64 package returned an error.", err)
+	}
+
+	result, err := Base64Encode(string(dec))
+
+	if err != nil {
+		t.Errorf("Base64Encode: Can't cast arg '%s' into a string.", testStr)
+	}
+
+	if result != testStr {
+		t.Errorf("Base64Encode: got '%s', expected '%s'", result, testStr)
 	}
 }
