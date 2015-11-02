@@ -502,8 +502,8 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 }
 
 func checkPageLayout(t *testing.T, page *Page, layout ...string) {
-	if !listEqual(page.Layout(), layout) {
-		t.Fatalf("Page layout is: %s.  Expected: %s", page.Layout(), layout)
+	if !listEqual(page.layouts(), layout) {
+		t.Fatalf("Page layout is: %s.  Expected: %s", page.layouts(), layout)
 	}
 }
 
@@ -909,8 +909,8 @@ func TestLayoutOverride(t *testing.T) {
 		for _, y := range test.expectedLayout {
 			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
 		}
-		if !listEqual(p.Layout(), test.expectedLayout) {
-			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
+		if !listEqual(p.layouts(), test.expectedLayout) {
+			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.layouts())
 		}
 	}
 }

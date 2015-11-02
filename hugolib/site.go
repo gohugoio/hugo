@@ -943,7 +943,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			}
 			layouts = append(layouts, self)
 		} else {
-			layouts = append(layouts, p.Layout()...)
+			layouts = append(layouts, p.layouts()...)
 			layouts = append(layouts, "_default/single.html")
 		}
 

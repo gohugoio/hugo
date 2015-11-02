@@ -18,7 +18,7 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 			fmt.Fprintf(out, " (renderer: n/a)")
 		}
 		if s.Tmpl != nil {
-			for _, l := range p.Layout() {
+			for _, l := range p.layouts() {
 				fmt.Fprintf(out, " (layout: %s, exists: %t)", l, s.Tmpl.Lookup(l) != nil)
 			}
 		}
