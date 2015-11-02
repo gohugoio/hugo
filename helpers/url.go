@@ -151,7 +151,17 @@ func AbsURL(path string) string {
 	if strings.HasPrefix(path, "http") || strings.HasPrefix(path, "//") {
 		return path
 	}
-	return MakePermalink(viper.GetString("BaseURL"), path).String()
+
+	baseURL := viper.GetString("BaseURL")
+	if strings.HasPrefix(path, "/") {
+		p, err := url.Parse(baseURL)
+		if err != nil {
+			panic(err)
+		}
+		p.Path = ""
+		baseURL = p.String()
+	}
+	return MakePermalink(baseURL, path).String()
 }
 
 // RelURL creates a URL relative to the BaseURL root.
