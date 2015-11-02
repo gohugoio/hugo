@@ -131,7 +131,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
 {{ with .Params.images }}{{ range first 6 . }}
-  <meta property="og:image" content="{{ . }}" />
+  <meta property="og:image" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
 {{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}{{ with .Params.audio }}
@@ -139,7 +139,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
 {{ range .Params.videos }}
-  <meta property="og:video" content="{{ . }}" />
+  <meta property="og:video" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
 <!-- If it is part of a series, link to related articles -->
@@ -170,7 +170,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ with .Params.images }}
 <!-- Twitter summary card with large image must be at least 280x150px -->
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:image:src" content="{{ index . 0 }}"/>
+  <meta name="twitter:image:src" content="{{ index . 0 | absURL }}"/>
 {{ else }}
   <meta name="twitter:card" content="summary"/>
 {{ end }}
@@ -197,7 +197,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHTML }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
-  <meta itemprop="image" content="{{ . }}">
+  <meta itemprop="image" content="{{ . | absURL }}">
 {{ end }}{{ end }}
 
 <!-- Output all taxonomies as schema.org keywords -->
