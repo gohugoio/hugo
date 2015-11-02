@@ -53,6 +53,8 @@ func TestAbsURL(t *testing.T) {
 		{"/test/2/foo/", "http://base", "http://base/test/2/foo/"},
 		{"http://abs", "http://base/", "http://abs"},
 		{"//schemaless", "http://base/", "//schemaless"},
+		{"test/2/foo/", "http://base/path", "http://base/path/test/2/foo/"},
+		{"/test/2/foo/", "http://base/path", "http://base/test/2/foo/"},
 	}
 
 	for _, test := range tests {
