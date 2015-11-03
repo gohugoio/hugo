@@ -27,7 +27,7 @@ A Taxonomy Terms List will be rendered at /`PLURAL`/
 (e.g. http://spf13.com/topics/)
 from the following prioritized list:
 
-* /layouts/taxonomy/`SINGULAR`.terms.html (e.g. `/layouts/taxonomy/topic.terms.html`)
+* /layouts/taxonomy/`PLURAL`.terms.html (e.g. `/layouts/taxonomy/topics.terms.html`)
 * /layouts/\_default/terms.html
 
 If a file isn’t present,

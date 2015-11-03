@@ -61,10 +61,10 @@ An example directory may look like:
     |   |   ├── header.html
     |   |   └── footer.html
     |   ├── taxonomies
-    |   |   ├── category.html
-    |   |   ├── post.html
-    |   |   ├── quote.html
-    |   |   └── tag.html
+    |   |   ├── categories.html
+    |   |   ├── categories.terms.html
+    |   |   ├── tags.html
+    |   |   └── tags.terms.html
     |   ├── post
     |   |   ├── li.html
     |   |   ├── single.html
