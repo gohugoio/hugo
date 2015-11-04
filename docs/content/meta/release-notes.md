@@ -98,7 +98,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 [blackfriday](https://github.com/russross/blackfriday),
 [pflag](https://github.com/spf13/pflag),
 [HugoThemes](https://github.com/spf13/hugothemes),
-[BurntSushi](github.com/BurntSushi/toml),
+[BurntSushi](https://github.com/BurntSushi/toml),
 [goYaml](https://github.com/go-yaml/yaml/tree/v2), and the Go standard library.
 
 ## New features
