@@ -17,7 +17,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/parser"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -26,6 +25,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/hugo/parser"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
@@ -53,6 +54,7 @@ built with love by spf13 and friends in Go.
 Complete documentation is available at http://gohugo.io/.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
+		watchConfig()
 		build()
 	},
 }
@@ -310,6 +312,18 @@ func InitializeConfig() {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
 			helpers.HugoReleaseVersion(), minVersion)
 	}
+}
+
+func watchConfig() {
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		utils.CheckErr(buildSite(true))
+		if !viper.GetBool("DisableLiveReload") {
+			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+			livereload.ForceRefresh()
+		}
+	})
 }
 
 func build(watches ...bool) {

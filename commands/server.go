@@ -93,6 +93,7 @@ func server(cmd *cobra.Command, args []string) {
 
 	if viper.GetBool("watch") {
 		serverWatch = true
+		watchConfig()
 	}
 
 	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
