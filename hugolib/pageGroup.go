@@ -171,7 +171,7 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 	}
 
 	for _, e := range p {
-		param := e.GetParam(key)
+		param := e.getParam(key, false)
 		if param == nil || reflect.TypeOf(param) != keyt {
 			continue
 		}
