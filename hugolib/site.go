@@ -103,6 +103,7 @@ type SiteInfo struct {
 	Menus                 *Menus
 	Hugo                  *HugoInfo
 	Title                 string
+	RSSLink               string
 	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
@@ -458,6 +459,7 @@ func (s *Site) initializeSiteInfo() {
 		Copyright:             viper.GetString("copyright"),
 		DisqusShortname:       viper.GetString("DisqusShortname"),
 		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
+		RSSLink:               s.permalinkStr(viper.GetString("RSSUri")),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
