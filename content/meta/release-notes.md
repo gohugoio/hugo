@@ -56,6 +56,7 @@ sense. [1266](https://github.com/spf13/hugo/issues/1266)
 	*  `IgnoreFiles` can be set with a list of Regular Expressions that matches files to be ignored during build. [1189](https://github.com/spf13/hugo/issues/1189)
 	* `PreserveTaxonomyNames`, when set to `true`, will preserve what you type as the taxonomy name both in the folders created and the taxonomy `key`, but it will be normalized for the URL.  [1180](https://github.com/spf13/hugo/issues/1180)
 * Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. [1176](https://github.com/spf13/hugo/issues/1176)
+* A built-in template for Google Analytics. [1505](https://github.com/spf13/hugo/pull/1505)
 
 
 ## **0.14.0** May 25, 2015
