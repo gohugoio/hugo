@@ -185,7 +185,11 @@ func InitializeConfig() {
 	}
 	err := viper.ReadInConfig()
 	if err != nil {
-		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+		if _, ok := err.(viper.ConfigParseError); ok {
+			jww.ERROR.Println(err)
+		} else {
+			jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details", err)
+		}
 	}
 
 	viper.RegisterAlias("indexes", "taxonomies")
