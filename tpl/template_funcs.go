@@ -1167,10 +1167,6 @@ func DateFormat(layout string, v interface{}) (string, error) {
 	return t.Format(layout), nil
 }
 
-func SafeHTML(text string) template.HTML {
-	return template.HTML(text)
-}
-
 // "safeHTMLAttr" is currently disabled, pending further discussion
 // on its use case.  2015-01-19
 func SafeHTMLAttr(text string) template.HTMLAttr {
@@ -1384,7 +1380,7 @@ func init() {
 		"isSet":        IsSet,
 		"isset":        IsSet,
 		"echoParam":    ReturnWhenSet,
-		"safeHTML":     SafeHTML,
+		"safeHTML":     func(a string) template.HTML { return template.HTML(a) },
 		"safeCSS":      SafeCSS,
 		"safeURL":      SafeURL,
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
