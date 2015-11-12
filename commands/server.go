@@ -42,10 +42,14 @@ var disableLiveReload bool
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Hugo runs its own webserver to render the files",
-	Long: `Hugo is able to run its own high performance web server.
-Hugo will render all the files defined in the source directory and
-serve them up.`,
+	Short: "A high performance webserver",
+	Long: `Hugo provides it's own webserver which builds and serves the site.
+While hugo server is high performance, it is a webserver with limited options.
+Many run it in production, but the standard behavior is for people to use it in development
+and use a more full featured server such as Nginx or Caddy.
+
+Often server is paired with '--watch' which Hugo will look for changes to the source and
+continously rebuild and serve the website.`,
 	//Run: server,
 }
 
