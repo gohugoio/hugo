@@ -349,34 +349,47 @@ func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 
+	type input struct {
+		in           []byte
+		replacements map[string]string
+		expect       []byte
+	}
+
 	data := []struct {
 		input        string
 		replacements map[string]string
-		expect       interface{}
+		expect       []byte
 	}{
-		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, "Hello World."},
-		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 100) + " Hello World."},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 500) + " Hello World."},
-		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("ABCD ", 500) + " Hello World."},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World."},
+		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, []byte("Hello World.")},
+		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
+		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
+		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
+		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World.")},
 	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for i, this := range data {
-			results, err := replaceShortcodeTokens([]byte(this.input), "HUGOSHORTCODE", this.replacements)
 
-			if expectSuccess, ok := this.expect.(bool); ok && !expectSuccess {
-				if err == nil {
-					b.Fatalf("[%d] replaceShortcodeTokens didn't return an expected error", i)
-				}
-			} else {
-				if err != nil {
-					b.Fatalf("[%d] failed: %s", i, err)
-					continue
-				}
-				if !reflect.DeepEqual(results, []byte(this.expect.(string))) {
-					b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", i, results, this.expect)
-				}
+	var in []input = make([]input, b.N*len(data))
+	var cnt = 0
+	for i := 0; i < b.N; i++ {
+		for _, this := range data {
+			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
+			cnt++
+		}
+	}
+
+	b.ResetTimer()
+	cnt = 0
+	for i := 0; i < b.N; i++ {
+		for j := range data {
+			currIn := in[cnt]
+			cnt++
+			results, err := replaceShortcodeTokens(currIn.in, "HUGOSHORTCODE", currIn.replacements)
+
+			if err != nil {
+				b.Fatalf("[%d] failed: %s", i, err)
+				continue
+			}
+			if len(results) != len(currIn.expect) {
+				b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", j, results, currIn.expect)
 			}
 
 		}
