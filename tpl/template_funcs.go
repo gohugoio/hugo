@@ -1181,6 +1181,8 @@ func SafeURL(text string) template.URL {
 	return template.URL(text)
 }
 
+func SafeHTML(a string) template.HTML { return template.HTML(a) }
+
 func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
@@ -1380,7 +1382,7 @@ func init() {
 		"isSet":        IsSet,
 		"isset":        IsSet,
 		"echoParam":    ReturnWhenSet,
-		"safeHTML":     func(a string) template.HTML { return template.HTML(a) },
+		"safeHTML":     SafeHTML,
 		"safeCSS":      SafeCSS,
 		"safeURL":      SafeURL,
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
