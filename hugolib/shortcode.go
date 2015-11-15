@@ -343,6 +343,9 @@ Loop:
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 			}
+			if tmpl.Tree == nil {
+				return sc, fmt.Errorf("Template for shortcode '%s' failed to compile for page '%s'", sc.name, p.BaseFileName())
+			}
 			isInner = isInnerShortcode(tmpl)
 
 		case tScParam:
