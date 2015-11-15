@@ -14,7 +14,6 @@
 package tpl
 
 import (
-	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"encoding/base64"
 	"errors"
@@ -27,6 +26,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"bitbucket.org/pkg/inflect"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
@@ -1183,6 +1184,9 @@ func SafeURL(text string) template.URL {
 
 func SafeHTML(a string) template.HTML { return template.HTML(a) }
 
+// SafeJS returns the given string as a template.JS type from html/template.
+func SafeJS(a string) template.JS { return template.JS(a) }
+
 func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
@@ -1384,6 +1388,7 @@ func init() {
 		"echoParam":    ReturnWhenSet,
 		"safeHTML":     SafeHTML,
 		"safeCSS":      SafeCSS,
+		"safeJS":       SafeJS,
 		"safeURL":      SafeURL,
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
 		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
