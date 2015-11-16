@@ -78,7 +78,7 @@ func Undraft(cmd *cobra.Command, args []string) {
 	return
 }
 
-// undraftContent: if the content is a draft, change it's draft status to
+// undraftContent: if the content is a draft, change its draft status to
 // 'false' and set the date to time.Now(). If the draft status is already
 // 'false', don't do anything.
 func undraftContent(p parser.Page) (bytes.Buffer, error) {
