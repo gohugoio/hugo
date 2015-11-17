@@ -352,6 +352,11 @@ func build(watches ...bool) {
 func copyStatic() error {
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
 
+	// If root, remove the second '/'
+	if publishDir == "//" {
+		publishDir = "/"
+	}
+
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
 	syncer.SrcFs = hugofs.SourceFs
