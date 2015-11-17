@@ -331,7 +331,11 @@ func watchConfig() {
 }
 
 func build(watches ...bool) {
-	utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+	err := copyStatic()
+	if err != nil {
+		fmt.Println(err)
+		utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
 		watch = true
@@ -516,7 +520,11 @@ func NewWatcher(port int) error {
 
 				if staticChanged {
 					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
-					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					err := copyStatic()
+					if err != nil {
+						fmt.Println(err)
+						utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					}
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
