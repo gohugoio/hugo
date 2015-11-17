@@ -79,6 +79,7 @@ func init() {
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	serverCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.Run = server
