@@ -37,16 +37,21 @@ var serverInterface string
 var serverWatch bool
 var serverAppend bool
 var disableLiveReload bool
+var renderToDisk bool
 
 //var serverCmdV *cobra.Command
 
 var serverCmd = &cobra.Command{
-	Use:   "server",
-	Short: "A high performance webserver",
-	Long: `Hugo provides its own webserver which builds and serves the site.
+	Use:     "server",
+	Aliases: []string{"serve"},
+	Short:   "A high performance webserver",
+	Long: `Hugo provides it's own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
 Many run it in production, but the standard behavior is for people to use it in development
 and use a more full featured server such as Nginx or Caddy.
+
+'hugo server' will avoid writing the rendered and served content to disk,
+preferring to store it in memory.
 
 Often server is paired with '--watch' which Hugo will look for changes to the source and
 continously rebuild and serve the website.`,
@@ -79,6 +84,7 @@ func init() {
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
 	serverCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
@@ -126,6 +132,18 @@ func server(cmd *cobra.Command, args []string) {
 		jww.ERROR.Println("memstats error:", err)
 	}
 
+	// If a Destination is provided via flag write to disk
+	if Destination != "" {
+		renderToDisk = true
+	}
+
+	// Hugo writes the output to memory instead of the disk
+	if !renderToDisk {
+		hugofs.DestinationFS = new(afero.MemMapFs)
+		// Rendering to memoryFS, publish to Root regardless of publishDir.
+		viper.Set("PublishDir", "/")
+	}
+
 	build(serverWatch)
 
 	// Watch runs its own server as part of the routine
@@ -148,7 +166,11 @@ func server(cmd *cobra.Command, args []string) {
 }
 
 func serve(port int) {
-	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
+	if renderToDisk {
+		jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
+	} else {
+		jww.FEEDBACK.Println("Serving pages from memory")
+	}
 
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
 	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))}
