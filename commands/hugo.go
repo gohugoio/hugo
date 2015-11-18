@@ -505,6 +505,18 @@ func NewWatcher(port int) error {
 						continue
 					}
 
+					// Write and rename operations are often followed by CHMOD.
+					// There may be valid use cases for rebuilding the site on CHMOD,
+					// but that will require more complex logic than this simple conditional.
+					// On OS X this seems to be related to Spotlight, see:
+					// https://github.com/go-fsnotify/fsnotify/issues/15
+					// A workaround is to put your site(s) on the Spotlight exception list,
+					// but that may be a little mysterious for most end users.
+					// So, for now, we skip reload on CHMOD.
+					if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+						continue
+					}
+
 					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
 					staticChanged = staticChanged || isstatic
 					dynamicChanged = dynamicChanged || !isstatic
