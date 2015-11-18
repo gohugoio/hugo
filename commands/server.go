@@ -137,6 +137,11 @@ func server(cmd *cobra.Command, args []string) {
 		renderToDisk = true
 	}
 
+	if !renderToDisk && runtime.GOOS == "windows" {
+		jww.ERROR.Println("Render to memory currently not supported in Windows, see https://github.com/spf13/hugo/issues/1586")
+		renderToDisk = true
+	}
+
 	// Hugo writes the output to memory instead of the disk
 	if !renderToDisk {
 		hugofs.DestinationFS = new(afero.MemMapFs)
