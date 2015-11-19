@@ -153,4 +153,4 @@ go run main.go
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/hugo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 [Go]: https://golang.org/
-[Hugo Documentation]: https://gohugo.io/
+[Hugo Documentation]: https://gohugo.io/overview/introduction/
