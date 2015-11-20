@@ -53,8 +53,10 @@ and use a more full featured server such as Nginx or Caddy.
 'hugo server' will avoid writing the rendered and served content to disk,
 preferring to store it in memory.
 
-Often server is paired with '--watch' which Hugo will look for changes to the source and
-continously rebuild and serve the website.`,
+By default hugo will also watch your files for any changes you make and
+automatically rebuild the site. It will then live reload any open browser pages
+and push the latest content to them. As most hugo sites are built in a fraction
+of a second you will be able to save and see your changes nearly instantly.`,
 	//Run: server,
 }
 
@@ -81,7 +83,7 @@ func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
 func init() {
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
-	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
