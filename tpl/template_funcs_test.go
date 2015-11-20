@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	"html/template"
 	"path"
 	"reflect"
@@ -81,6 +82,9 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		{"8", "5", 1},
 		{"5", "0001", 1},
 		{[]int{100, 99}, []int{1, 2, 3, 4}, -1},
+		{cast.ToTime("2015-11-20"), cast.ToTime("2015-11-20"), 0},
+		{cast.ToTime("2015-11-19"), cast.ToTime("2015-11-20"), -1},
+		{cast.ToTime("2015-11-20"), cast.ToTime("2015-11-19"), 1},
 	} {
 		result := funcUnderTest(this.left, this.right)
 		success := false

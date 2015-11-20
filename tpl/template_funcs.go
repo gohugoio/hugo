@@ -112,6 +112,11 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 			str := av.String()
 			leftStr = &str
 		}
+	case reflect.Struct:
+		switch av.Type() {
+		case timeType:
+			left = float64(timeUnix(av))
+		}
 	}
 
 	bv := reflect.ValueOf(b)
@@ -129,7 +134,11 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 			str := bv.String()
 			rightStr = &str
 		}
-
+	case reflect.Struct:
+		switch bv.Type() {
+		case timeType:
+			right = float64(timeUnix(bv))
+		}
 	}
 
 	switch {
