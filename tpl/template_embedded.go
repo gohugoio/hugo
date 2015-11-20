@@ -41,6 +41,7 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
     {{ end }}
 </figure>
 <!-- image -->`)
+	t.AddInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='https://speakerdeck.com/assets/embed.js'></script>")
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
@@ -215,5 +216,4 @@ ga('create', '{{ . }}', 'auto');
 ga('send', 'pageview');
 </script>
 {{ end }}`)
-
 }
