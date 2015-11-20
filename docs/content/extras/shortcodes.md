@@ -9,7 +9,7 @@ next: /extras/pagination
 prev: /extras/permalinks
 title: Shortcodes
 weight: 80
-toc: true
+toc: false
 ---
 
 Hugo uses Markdown for its simple content format. However, there are a lot
@@ -63,7 +63,8 @@ The `<` character indicates that the shortcode's inner content doesn't need any 
 
     {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 
-## Hugo Shortcodes
+
+## Built-in Shortcodes
 
 Hugo ships with a set of predefined shortcodes.
 
@@ -102,6 +103,8 @@ closing shortcode.
       <span style="color: #f92672">&lt;/div&gt;</span>
     <span style="color: #f92672">&lt;/section&gt;</span>
 
+***
+
 ### figure
 
 `figure` is simply an extension of the image capabilities present with Markdown.
@@ -133,6 +136,8 @@ closing shortcode.
         </figcaption>
     </figure>
 
+***
+
 ### ref, relref
 
 These shortcodes will look up the pages by their relative path (e.g.,
@@ -159,6 +164,71 @@ Assuming that standard Hugo pretty URLs are turned on.
 
     <a href="/blog/neat">Neat</a>
     <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
+
+***
+
+### Twitter
+
+You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
+    
+    https://twitter.com/spf13/status/666616452582129664
+
+Pass the tweet's author the id from the URL as parameters to the shortcode as shown below:
+
+    {{</* tweet spf13 666616452582129664 */>}}
+
+***   
+
+### Youtube
+
+This shortcode embeds a responsive video player for Youtube videos. Only the id of the video is required:
+
+    https://www.youtube.com/watch?v=w7Ft2ymGmfc
+
+Copy the id from behind `v=` and pass it the shortcode:
+
+    {{</* youtube w7Ft2ymGmfc */>}} 
+
+
+***
+
+### Vimeo
+
+Adding a video from Vimeo is equivalent to the Youtube shortcode above. Extract the id from the URL
+
+    https://vimeo.com/channels/staffpicks/146022717
+
+and pass it to the shortcode:
+
+    {{</* vimeo 146022717 */>}}
+
+***
+
+### Github gists
+
+Including code snippets with Github gists while writing a tutorial is common situation bloggers face. With a given URL of the gist
+
+    https://gist.github.com/spf13/7896402
+
+pass the owner and the id of the gist to the shortcode:
+
+
+{{</* gist spf13 7896402 */>}}
+
+***
+
+### Speakerdeck
+
+To embed slides from Speakerdeck copy the URL of the slide look for 'Embed' right next to the template on Speakerdeck an copy the URL:
+
+    <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
+Extract the value from the field `id` and pass it to the shortcode:
+
+    {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
+
+
+***
 
 ## Creating your own shortcodes
 
