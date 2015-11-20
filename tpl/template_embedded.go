@@ -43,6 +43,9 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
 <!-- image -->`)
 	t.AddInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='https://speakerdeck.com/assets/embed.js'></script>")
 	t.AddInternalShortcode("youtube.html", `<div style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"><iframe class="youtube-player" type="text/html" src="https://www.youtube.com/embed/{{ index .Params 0 }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" allowfullscreen frameborder="0"></iframe></div>`)
+	t.AddInternalShortcode("vimeo.html", `<div style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;">
+  <iframe src="//player.vimeo.com/video/{{ index .Params 0 }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
