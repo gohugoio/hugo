@@ -25,7 +25,7 @@ weight: 10
 	* Several fixes for `slicestr` and `substr`, most importantly, they now have full `utf-8`-support. [1190](https://github.com/spf13/hugo/issues/1190) [1333](https://github.com/spf13/hugo/issues/1333) [1347](https://github.com/spf13/hugo/issues/1347)
 	*  The new `last` template function allows the user to select the last `N` items of a slice. [1148](https://github.com/spf13/hugo/issues/1148)
 	*  The new `after` func allows the user to select the items after the `Nth` item. [1200] (https://github.com/spf13/hugo/pull/1200)
-	* Add `time.Time` type support to the `where` func.
+	* Add `time.Time` type support to the `where`, `ge`, `gt`, `le`, and `lt` template functions.
 	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
 	* `getJSON`/`getCSV`: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
 	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
