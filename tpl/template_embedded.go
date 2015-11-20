@@ -47,6 +47,9 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
   <iframe src="//player.vimeo.com/video/{{ index .Params 0 }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 </div>`)
 	t.AddInternalShortcode("gist.html", `<script src="https://gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js"></script>`)
+	t.AddInternalShortcode("tweet.html", `{{ $user  := index .Params 0 }}
+{{ $tweet := index .Params 1 }}
+{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?url=https://twitter.com/" $user "/status/" $tweet).html | safeHTML }}`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
