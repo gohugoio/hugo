@@ -700,6 +700,4 @@ responses of APIs.
     {{ $resp := getJSON "https://api.github.com/repos/spf13/hugo/readme"  }}
     {{ $resp.content | base64Decode | markdownify }}
 
- The response of the Github API contains the base64-encoded version of the [README.md](https://github.com/spf13/hugo/blob/master/README.md) in the Hugo repository.
-Now we can decode it and parse the Markdown. The final output will look similar to the
-rendered version in Github.
+The response of the Github API contains the base64-encoded version of the [README.md](https://github.com/spf13/hugo/blob/master/README.md) in the Hugo repository. Now we can decode it and parse the Markdown. The final output will look similar to the rendered version on Github.
