@@ -138,6 +138,9 @@ func (by MenuEntryBy) Sort(menu Menu) {
 
 var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 	if m1.Weight == m2.Weight {
+		if m1.Name == m2.Name {
+			return m1.Identifier < m2.Identifier
+		}
 		return m1.Name < m2.Name
 	}
 	return m1.Weight < m2.Weight

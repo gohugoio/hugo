@@ -200,14 +200,16 @@ And now we're going to add the steps themselves. First, we go to the "Registry" 
 
 ## Using Hugo-Build
 
-Inside the details of this step you will see how to use it. At the top is a summary for the very basic usage, but when scrolling down you go through the README of the step which will usually contain more details about how to use it including a full example of using the step. So we return to our project, and while making it fit our project better we add these details to our wercker.yml file so it looks like this. Wercker also has a [page](http://devcenter.wercker.com/articles/werckeryml/validate.html) for validating wercker.yml files, and it's usually a good idea to do so before committing changes.
+Inside the details of this step you will see how to use it. At the top is a summary for the very basic usage, but when scrolling down you go through the README of the step which will usually contain more details about the advanced options available and a full example of using the step.
+
+We're not going to use any of the advanced features in this tutorial, so we'll return to our project and add the details we need to our wercker.yml file so that it looks like the below. Wercker also has a [page](http://devcenter.wercker.com/articles/werckeryml/validate.html) for validating wercker.yml files, and it's usually a good idea to do so before committing changes as minor typos might cause it to fail.
 
 ```yaml
 box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: 0.14
+        version: "0.14"
         theme: herring-cove
         flags: --buildDrafts=true
 ```
@@ -227,25 +229,27 @@ Once completed a nice tick should have appeared in front of your first build, an
 
 ## Adding a GitHub Pages step
 
-In order to deploy to GitHub Pages we need to add a deploy step. Once again searching through the Steps repository we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file, which then becomes this:
+In order to deploy to GitHub Pages we need to add a deploy step. Once again searching through the Steps repository we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
 
 ```yaml
 box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: 0.14
+        version: "0.14"
         theme: herring-cove
         flags: --buildDrafts=true
 deploy:
   steps:
+    - install-packages:
+        packages: git ssh-client
     - lukevivier/gh-pages@0.2.1:
         token: $GIT_TOKEN
         domain: hugo-wercker.ig.nore.me
         basedir: public
 ```
 
-How does this configuration work? We've selected a couple of things, first the domain we want to use for the site. Configuring this here will ensure that GitHub Pages is aware of the domain you want to use.
+How does the GitHub Pages configuration work? We've selected a couple of things, first the domain we want to use for the site. Configuring this here will ensure that GitHub Pages is aware of the domain you want to use.
 
 Secondly we've configured the basedir to **public**, this is the directory that will be used as the website on GitHub Pages.
 
@@ -267,4 +271,4 @@ Simply fill in the name, and make sure you enable **auto deploy** from the **mas
 
 From now on, any time you want to put a new post on your blog all you need to do is push your new page to GitHub and the rest will happen automatically. The source code for the example site used here is available on [GitHub](https://github.com/ArjenSchwarz/hugo-wercker-example), as is the [Hugo Build step](https://github.com/ArjenSchwarz/wercker-step-hugo-build) itself.
 
-If you want to see an example of how you can deploy to S3 instead of GitHub pages, take a look at [Wercker's blogpost](http://blog.wercker.com/2013/06/10/Streamlining-Middleman-Deploys-to-s3.html) about how to set that up for Middleman.
+If you want to see an example of how you can deploy to S3 instead of GitHub pages, take a look at [Wercker's documentation](http://devcenter.wercker.com/docs/deploy/s3.html) about how to set that up.

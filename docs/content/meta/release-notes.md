@@ -11,22 +11,24 @@ weight: 10
 ---
 ## **0.15.0** ???
 
+* `hugo server` now builds ~30%+ faster by rendering to memory instead of disk
 * Have Jekyll site, but dreaming of porting it to Hugo? This release introduces a new `hugo import jekyll`command that makes this easier than ever. [1469](https://github.com/spf13/hugo/pull/1469)
 * We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. [1181](https://github.com/spf13/hugo/issues/1181)
 * Hugo is now built with `Go 1.5` which, among many other improvements, have fixed the last known data race in Hugo. [917] (https://github.com/spf13/hugo/issues/917)
+* Hugo now supports dynamic reloading of the config file when watching.
 * Lots of fixes and improvements in the template funcs:
-	* The new `dict` function that could be used to pass maps into a template.[1463](https://github.com/spf13/hugo/pull/1463) 
-	* The new `pluralize` and `singularize` template funcs. 
+	* The new `dict` function that could be used to pass maps into a template.[1463](https://github.com/spf13/hugo/pull/1463)
+	* The new `pluralize` and `singularize` template funcs.
 	* The new `base64Decode` and `base64Encode` template funcs.
 	* The `sort` template func now accepts field/key chaining arguments and pointer values. [1330](https://github.com/spf13/hugo/issues/1330)
-	* Several fixes for `slicestr` and `substr`, most importantly, they now have full `utf-8`-support. [1190](https://github.com/spf13/hugo/issues/1190) [1333](https://github.com/spf13/hugo/issues/1333) [1347](https://github.com/spf13/hugo/issues/1347) 
+	* Several fixes for `slicestr` and `substr`, most importantly, they now have full `utf-8`-support. [1190](https://github.com/spf13/hugo/issues/1190) [1333](https://github.com/spf13/hugo/issues/1333) [1347](https://github.com/spf13/hugo/issues/1347)
 	*  The new `last` template function allows the user to select the last `N` items of a slice. [1148](https://github.com/spf13/hugo/issues/1148)
 	*  The new `after` func allows the user to select the items after the `Nth` item. [1200] (https://github.com/spf13/hugo/pull/1200)
 	* Add `time.Time` type support to the `where` func.
 	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
 	* `getJSON`/`getCSV`: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
 	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
-* The new `Param` convenience method on `Page` and `Node` can be used to get the most specific parameter value for a given key. [1462](https://github.com/spf13/hugo/issues/1462) 
+* The new `Param` convenience method on `Page` and `Node` can be used to get the most specific parameter value for a given key. [1462](https://github.com/spf13/hugo/issues/1462)
 * Several new Blackfriday options are added:
 	* Option to disable Blackfriday's `Smartypants`.
 	* Option for Blackfriday to open links in a new window/tab. [1220](https://github.com/spf13/hugo/issues/1220)
@@ -55,6 +57,7 @@ sense. [1266](https://github.com/spf13/hugo/issues/1266)
 	*  `IgnoreFiles` can be set with a list of Regular Expressions that matches files to be ignored during build. [1189](https://github.com/spf13/hugo/issues/1189)
 	* `PreserveTaxonomyNames`, when set to `true`, will preserve what you type as the taxonomy name both in the folders created and the taxonomy `key`, but it will be normalized for the URL.  [1180](https://github.com/spf13/hugo/issues/1180)
 * Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. [1176](https://github.com/spf13/hugo/issues/1176)
+* A built-in template for Google Analytics. [1505](https://github.com/spf13/hugo/pull/1505)
 
 
 ## **0.14.0** May 25, 2015
@@ -98,7 +101,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 [blackfriday](https://github.com/russross/blackfriday),
 [pflag](https://github.com/spf13/pflag),
 [HugoThemes](https://github.com/spf13/hugothemes),
-[BurntSushi](github.com/BurntSushi/toml),
+[BurntSushi](https://github.com/BurntSushi/toml),
 [goYaml](https://github.com/go-yaml/yaml/tree/v2), and the Go standard library.
 
 ## New features
@@ -372,4 +375,3 @@ This release represents over 65 code commits from 6 different contributors.
 
 ## **0.5.0** June 25, 2013
   * Hugo is quite usable and able to build spf13.com
-

@@ -17,7 +17,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/parser"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -26,6 +25,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/hugo/parser"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
@@ -53,6 +54,7 @@ built with love by spf13 and friends in Go.
 Complete documentation is available at http://gohugo.io/.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
+		watchConfig()
 		build()
 	},
 }
@@ -183,7 +185,11 @@ func InitializeConfig() {
 	}
 	err := viper.ReadInConfig()
 	if err != nil {
-		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+		if _, ok := err.(viper.ConfigParseError); ok {
+			jww.ERROR.Println(err)
+		} else {
+			jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details", err)
+		}
 	}
 
 	viper.RegisterAlias("indexes", "taxonomies")
@@ -312,8 +318,24 @@ func InitializeConfig() {
 	}
 }
 
+func watchConfig() {
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		utils.CheckErr(buildSite(true))
+		if !viper.GetBool("DisableLiveReload") {
+			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+			livereload.ForceRefresh()
+		}
+	})
+}
+
 func build(watches ...bool) {
-	utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+	err := copyStatic()
+	if err != nil {
+		fmt.Println(err)
+		utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
 		watch = true
@@ -329,6 +351,11 @@ func build(watches ...bool) {
 
 func copyStatic() error {
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+
+	// If root, remove the second '/'
+	if publishDir == "//" {
+		publishDir = "/"
+	}
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
@@ -478,6 +505,18 @@ func NewWatcher(port int) error {
 						continue
 					}
 
+					// Write and rename operations are often followed by CHMOD.
+					// There may be valid use cases for rebuilding the site on CHMOD,
+					// but that will require more complex logic than this simple conditional.
+					// On OS X this seems to be related to Spotlight, see:
+					// https://github.com/go-fsnotify/fsnotify/issues/15
+					// A workaround is to put your site(s) on the Spotlight exception list,
+					// but that may be a little mysterious for most end users.
+					// So, for now, we skip reload on CHMOD.
+					if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+						continue
+					}
+
 					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
 					staticChanged = staticChanged || isstatic
 					dynamicChanged = dynamicChanged || !isstatic
@@ -498,7 +537,11 @@ func NewWatcher(port int) error {
 
 				if staticChanged {
 					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
-					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					err := copyStatic()
+					if err != nil {
+						fmt.Println(err)
+						utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					}
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized

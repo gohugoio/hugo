@@ -220,6 +220,25 @@ func TestGroupByParamInReverseOrder(t *testing.T) {
 	}
 }
 
+func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
+	testStr := "TestString"
+	f := "/section1/test_capital.md"
+	p, err := NewPage(filepath.FromSlash(f))
+	if err != nil {
+		t.Fatalf("failed to prepare test page %s", f)
+	}
+	p.Params["custom_param"] = testStr
+	pages := Pages{p}
+
+	groups, err := pages.GroupByParam("custom_param")
+	if err != nil {
+		t.Fatalf("Unable to make PagesGroup array: %s", err)
+	}
+	if groups[0].Key != testStr {
+		t.Errorf("PagesGroup key is converted to a lower character string. It should be %#v, got %#v", testStr, groups[0].Key)
+	}
+}
+
 func TestGroupByParamCalledWithSomeUnavailableParams(t *testing.T) {
 	pages := preparePageGroupTestPages(t)
 	delete(pages[1].Params, "custom_param")

@@ -106,6 +106,7 @@ type SiteInfo struct {
 	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
+	GoogleAnalytics       string
 	Copyright             string
 	LastChange            time.Time
 	Permalinks            PermalinkOverrides
@@ -456,6 +457,7 @@ func (s *Site) initializeSiteInfo() {
 		LanguageCode:          viper.GetString("languagecode"),
 		Copyright:             viper.GetString("copyright"),
 		DisqusShortname:       viper.GetString("DisqusShortname"),
+		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
@@ -943,7 +945,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			}
 			layouts = append(layouts, self)
 		} else {
-			layouts = append(layouts, p.Layout()...)
+			layouts = append(layouts, p.layouts()...)
 			layouts = append(layouts, "_default/single.html")
 		}
 
@@ -1123,11 +1125,12 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-			n.URL = s.permalinkStr(base + "/" + viper.GetString("RSSUri"))
+            rssuri := viper.GetString("RSSUri")
+			n.URL = s.permalinkStr(base + "/" + rssuri )
 			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
-			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/"+viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				results <- err
 				continue
 			}
@@ -1229,10 +1232,11 @@ func (s *Site) RenderSectionLists() error {
 
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
-			n.URL = s.permalinkStr(section + "/" + viper.GetString("RSSUri"))
+            rssuri := viper.GetString("RSSUri")
+			n.URL = s.permalinkStr(section + "/" + rssuri)
 			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			if err := s.renderAndWriteXML("section "+section+" rss", section+"/"+viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", section+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}

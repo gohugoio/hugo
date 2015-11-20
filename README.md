@@ -9,14 +9,15 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
-[![Build Status](https://travis-ci.org/spf13/hugo.png)](https://travis-ci.org/spf13/hugo) 
+[![Travis CI status](https://travis-ci.org/spf13/hugo.png "Travis CI status")](https://travis-ci.org/spf13/hugo) 
 [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) 
-[![Build status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true)](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
+[![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
+[![CircleCI status](https://circleci.com/gh/spf13/hugo.png?circle-token=:circle-token "CircleCI status")](https://circleci.com/gh/spf13/hugo) 
 [![Join the chat at https://gitter.im/spf13/hugo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Overview
 
-Hugo is a static site generator written in [Go][].
+Hugo is a static HTML and CSS website generator written in [Go][].
 It is optimized for speed, easy use and configurability.
 Hugo takes a directory with content and templates and renders them into a full HTML website.
 
@@ -27,7 +28,7 @@ This works well for shared hosts and other systems where you don’t have a priv
 Hugo renders a typical website of moderate size in a fraction of a second.
 A good rule of thumb is that each piece of content renders in around 1 millisecond.
 
-Hugo is meant to work well for any kind of website including blogs, tumbles and docs.
+Hugo is designed to work well for any kind of website including blogs, tumbles and docs.
 
 #### Supported Architectures
 
@@ -97,6 +98,7 @@ To update Hugo’s dependencies, use `go get` with the `-u` option.
 ## Contribute to Hugo
 
 We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc. 
+
 The Hugo community and maintainers are very active and helpful and the project benefits greatly from this activity.
 
 [![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
@@ -114,7 +116,7 @@ To make the process as seamless as possible, we ask for the following:
      * Have test cases for the new code. If you have questions about how to do it, please ask in your pull request.
      * Run `go fmt`
      * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request.
-     * This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages, the most important part being that each commit message should have a title/subject in imperative mode without trailing period: *"Return error on wrong use of the Paginator"*, **NOT** *"Returning some error."* Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*. Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
+     * This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages, the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period: *"Return error on wrong use of the Paginator"*, **NOT** *"returning some error."* Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*. Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
      * Make sure `go test ./...` passes, and `go build` completes. Our [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
 
 ### Build Hugo with Your Changes

@@ -45,6 +45,7 @@ type Blackfriday struct {
 	AngledQuotes    bool
 	Fractions       bool
 	HrefTargetBlank bool
+	SmartDashes     bool
 	LatexDashes     bool
 	PlainIDAnchors  bool
 	Extensions      []string
@@ -58,6 +59,7 @@ func NewBlackfriday() *Blackfriday {
 		AngledQuotes:    false,
 		Fractions:       true,
 		HrefTargetBlank: false,
+		SmartDashes:     true,
 		LatexDashes:     true,
 		PlainIDAnchors:  false,
 	}
@@ -167,6 +169,10 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 
 	if ctx.getConfig().HrefTargetBlank {
 		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
+	}
+
+	if ctx.getConfig().SmartDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
 	}
 
 	if ctx.getConfig().LatexDashes {

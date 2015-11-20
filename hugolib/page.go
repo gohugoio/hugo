@@ -65,7 +65,7 @@ type Page struct {
 	extension           string
 	contentType         string
 	renderable          bool
-	layout              string
+	Layout              string
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
@@ -204,6 +204,7 @@ func (p *Page) setSummary() {
 			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
 		}
 
+		// TODO(bep) consider doing this once only
 		renderedHeader := p.renderBytes(header)
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
@@ -302,9 +303,9 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-func (p *Page) Layout(l ...string) []string {
-	if p.layout != "" {
-		return layouts(p.Type(), p.layout)
+func (p *Page) layouts(l ...string) []string {
+	if p.Layout != "" {
+		return layouts(p.Type(), p.Layout)
 	}
 
 	layout := ""
@@ -541,7 +542,7 @@ func (p *Page) update(f interface{}) error {
 			published = new(bool)
 			*published = cast.ToBool(v)
 		case "layout":
-			p.layout = cast.ToString(v)
+			p.Layout = cast.ToString(v)
 		case "markup":
 			p.Markup = cast.ToString(v)
 		case "weight":
@@ -764,7 +765,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 	if len(layout) > 0 {
 		l = layouts(p.Type(), layout[0])
 	} else {
-		l = p.Layout()
+		l = p.layouts()
 	}
 
 	return tpl.ExecuteTemplateToHTML(p, l...)
