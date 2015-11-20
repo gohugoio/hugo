@@ -8,6 +8,6 @@ sourceLink: https://github.com/arresteddevops/ado-hugo
 tags:
 - podcast
 - bootstrap
-thumbnail: /img/arresteddevops.png
+thumbnail: /img/arresteddevops-tn.png
 title: arresteddevops
 ---
