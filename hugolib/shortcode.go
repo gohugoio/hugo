@@ -343,9 +343,14 @@ Loop:
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 			}
+
+			// TODO(bep) Refactor/rename this lock strategy
+			isInnerShortcodeCache.Lock()
 			if tmpl.Tree == nil {
+				isInnerShortcodeCache.Unlock()
 				return sc, fmt.Errorf("Template for shortcode '%s' failed to compile for page '%s'", sc.name, p.BaseFileName())
 			}
+			isInnerShortcodeCache.Unlock()
 			isInner = isInnerShortcode(tmpl)
 
 		case tScParam:
