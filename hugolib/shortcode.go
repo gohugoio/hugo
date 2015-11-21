@@ -160,21 +160,24 @@ var isInnerShortcodeCache = struct {
 // to avoid potential costly look-aheads for closing tags we look inside the template itself
 // we could change the syntax to self-closing tags, but that would make users cry
 // the value found is cached
-func isInnerShortcode(t *template.Template) bool {
+func isInnerShortcode(t *template.Template) (bool, error) {
 	isInnerShortcodeCache.RLock()
 	m, ok := isInnerShortcodeCache.m[t.Name()]
 	isInnerShortcodeCache.RUnlock()
 
 	if ok {
-		return m
+		return m, nil
 	}
 
 	isInnerShortcodeCache.Lock()
 	defer isInnerShortcodeCache.Unlock()
+	if t.Tree == nil {
+		return false, errors.New("Template failed to compile")
+	}
 	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
 	isInnerShortcodeCache.m[t.Name()] = match
 
-	return match
+	return match, nil
 }
 
 func createShortcodePlaceholder(id int) string {
@@ -344,14 +347,11 @@ Loop:
 				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 			}
 
-			// TODO(bep) Refactor/rename this lock strategy
-			isInnerShortcodeCache.RLock()
-			if tmpl.Tree == nil {
-				isInnerShortcodeCache.RUnlock()
-				return sc, fmt.Errorf("Template for shortcode '%s' failed to compile for page '%s'", sc.name, p.BaseFileName())
+			var err error
+			isInner, err = isInnerShortcode(tmpl)
+			if err != nil {
+				return sc, fmt.Errorf("Failed to handle template for shortcode '%s' for page '%s': %s", sc.name, p.BaseFileName(), err)
 			}
-			isInnerShortcodeCache.RUnlock()
-			isInner = isInnerShortcode(tmpl)
 
 		case tScParam:
 			if !pt.isValueNext() {
@@ -523,9 +523,6 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
-	// TODO(bep) Refactor/rename this lock strategy
-	isInnerShortcodeCache.Lock()
-	defer isInnerShortcodeCache.Unlock()
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
