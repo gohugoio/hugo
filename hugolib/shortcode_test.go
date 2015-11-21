@@ -119,6 +119,20 @@ func TestNamedParamSC(t *testing.T) {
 	CheckShortCodeMatch(t, `{{< img src = "one" class = "aspen grove" >}}`, `<img src="one" class="aspen grove">`, tem)
 }
 
+func TestIsNamedParamsSC(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
+	tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
+	tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
+
+	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, tem)
+	CheckShortCodeMatch(t, `{{< ifnamedparams position >}}`, `<div id="position">`, tem)
+	CheckShortCodeMatch(t, `{{< byname id="name" >}}`, `<div id="name">`, tem)
+	CheckShortCodeMatch(t, `{{< byname position >}}`, `<div id="error: cannot access positional params by string name">`, tem)
+	CheckShortCodeMatch(t, `{{< byposition position >}}`, `<div id="position">`, tem)
+	CheckShortCodeMatch(t, `{{< byposition id="name" >}}`, `<div id="error: cannot access named params by position">`, tem)
+}
+
 func TestInnerSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
