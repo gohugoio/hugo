@@ -31,9 +31,10 @@ import (
 )
 
 type ShortcodeWithPage struct {
-	Params interface{}
-	Inner  template.HTML
-	Page   *Page
+	Params        interface{}
+	Inner         template.HTML
+	Page          *Page
+	IsNamedParams bool
 }
 
 func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
@@ -189,12 +190,16 @@ const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
 
 func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
-	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
 	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
 		jww.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 		return ""
+	}
+
+	data := &ShortcodeWithPage{Params: sc.params, Page: p}
+	if sc.params != nil {
+		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
 
 	if len(sc.inner) > 0 {
