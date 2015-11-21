@@ -345,12 +345,12 @@ Loop:
 			}
 
 			// TODO(bep) Refactor/rename this lock strategy
-			isInnerShortcodeCache.Lock()
+			isInnerShortcodeCache.RLock()
 			if tmpl.Tree == nil {
-				isInnerShortcodeCache.Unlock()
+				isInnerShortcodeCache.RUnlock()
 				return sc, fmt.Errorf("Template for shortcode '%s' failed to compile for page '%s'", sc.name, p.BaseFileName())
 			}
-			isInnerShortcodeCache.Unlock()
+			isInnerShortcodeCache.RUnlock()
 			isInner = isInnerShortcode(tmpl)
 
 		case tScParam:
@@ -523,6 +523,9 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
+	// TODO(bep) Refactor/rename this lock strategy
+	isInnerShortcodeCache.Lock()
+	defer isInnerShortcodeCache.Unlock()
 	err := tmpl.Execute(buffer, data)
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
