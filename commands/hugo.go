@@ -88,6 +88,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(undraftCmd)
 	HugoCmd.AddCommand(genautocompleteCmd)
 	HugoCmd.AddCommand(gendocCmd)
+	HugoCmd.AddCommand(genmanCmd)
 	HugoCmd.AddCommand(importCmd)
 }
 
