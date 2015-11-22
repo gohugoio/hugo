@@ -60,7 +60,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 
 	// Temporary workaround for the bug fix and resulting
 	// behavioral change in purell.NormalizeURLString():
-	// a leading '/' was inadvertently to relative links,
+	// a leading '/' was inadvertently added to relative links,
 	// but no longer, see #878.
 	//
 	// I think the real solution is to allow Hugo to
