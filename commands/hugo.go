@@ -210,6 +210,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("ArchetypeDir", "archetypes")
 	viper.SetDefault("PublishDir", "public")
 	viper.SetDefault("DataDir", "data")
+	viper.SetDefault("ThemesDir", "themes")
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
@@ -514,7 +515,7 @@ func getDirList() []string {
 	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
 	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
 	if helpers.ThemeSet() {
-		filepath.Walk(helpers.AbsPathify("themes/"+viper.GetString("theme")), walker)
+		filepath.Walk(helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), walker)
 	}
 
 	return a

@@ -495,7 +495,7 @@ func (s *Site) absDataDir() string {
 }
 
 func (s *Site) absThemeDir() string {
-	return helpers.AbsPathify("themes/" + viper.GetString("theme"))
+	return helpers.AbsPathify(viper.GetString("themesDir") + "/" + viper.GetString("theme"))
 }
 
 func (s *Site) absLayoutDir() string {
