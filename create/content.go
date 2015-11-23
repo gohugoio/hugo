@@ -132,7 +132,7 @@ func FindArchetype(kind string) (outpath string) {
 	search := []string{helpers.AbsPathify(viper.GetString("archetypeDir"))}
 
 	if viper.GetString("theme") != "" {
-		themeDir := filepath.Join(helpers.AbsPathify("themes/"+viper.GetString("theme")), "/archetypes/")
+		themeDir := filepath.Join(helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), "/archetypes/")
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
 			jww.ERROR.Println("Unable to find archetypes directory for theme :", viper.GetString("theme"), "in", themeDir)
 		} else {

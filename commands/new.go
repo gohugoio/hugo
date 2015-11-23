@@ -174,7 +174,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 		jww.FATAL.Fatalln("theme name needs to be provided")
 	}
 
-	createpath := helpers.AbsPathify(filepath.Join("themes", args[0]))
+	createpath := helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
