@@ -164,6 +164,15 @@ func _BenchmarkReaderContains(b *testing.B) {
 	}
 }
 
+func TestUniqueStrings(t *testing.T) {
+	in := []string{"a", "b", "a", "b", "c", "", "a", "", "d"}
+	output := UniqueStrings(in)
+	expected := []string{"a", "b", "c", "", "d"}
+	if !reflect.DeepEqual(output, expected) {
+		t.Errorf("Expected %#v, got %#v\n", expected, output)
+	}
+}
+
 func TestFindAvailablePort(t *testing.T) {
 	addr, err := FindAvailablePort()
 	assert.Nil(t, err)

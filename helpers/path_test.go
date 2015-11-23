@@ -625,11 +625,19 @@ func TestPrettifyPath(t *testing.T) {
 
 }
 
-func TestRemoveSubpaths(t *testing.T) {
-	got := RemoveSubpaths([]string{"hello", "hello/world", "foo/bar", ""})
-	expect := []string{"hello", "foo/bar"}
-	if !reflect.DeepEqual(got, expect) {
-		t.Errorf("Expected %q but got %q", expect, got)
+func TestExtractRootPaths(t *testing.T) {
+	tests := []struct {
+		input    []string
+		expected []string
+	}{{[]string{filepath.FromSlash("a/b"), filepath.FromSlash("a/b/c/"), "b",
+		filepath.FromSlash("/c/d"), filepath.FromSlash("d/"), filepath.FromSlash("//e//")},
+		[]string{"a", "a", "b", "c", "d", "e"}}}
+
+	for _, test := range tests {
+		output := ExtractRootPaths(test.input)
+		if !reflect.DeepEqual(output, test.expected) {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
 	}
 }
 

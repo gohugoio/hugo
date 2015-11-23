@@ -90,6 +90,19 @@ func FirstUpper(s string) string {
 	return string(unicode.ToUpper(r)) + s[n:]
 }
 
+// UniqueStrings returns a new slice with any duplicates removed.
+func UniqueStrings(s []string) []string {
+	unique := make([]string, 0)
+	set := map[string]interface{}{}
+	for _, val := range s {
+		if _, ok := set[val]; !ok {
+			unique = append(unique, val)
+			set[val] = val
+		}
+	}
+	return unique
+}
+
 // ReaderToBytes takes an io.Reader argument, reads from it
 // and returns bytes.
 func ReaderToBytes(lines io.Reader) []byte {
