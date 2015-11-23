@@ -86,10 +86,13 @@ func AddCommands() {
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
 	HugoCmd.AddCommand(undraftCmd)
-	HugoCmd.AddCommand(genautocompleteCmd)
-	HugoCmd.AddCommand(gendocCmd)
-	HugoCmd.AddCommand(genmanCmd)
 	HugoCmd.AddCommand(importCmd)
+
+	HugoCmd.AddCommand(genCmd)
+	genCmd.AddCommand(genautocompleteCmd)
+	genCmd.AddCommand(gendocCmd)
+	genCmd.AddCommand(genmanCmd)
+
 }
 
 //Initializes flags

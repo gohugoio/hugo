@@ -11,7 +11,7 @@ var autocompleteTarget string
 var autocompleteType string
 
 var genautocompleteCmd = &cobra.Command{
-	Use:   "genautocomplete",
+	Use:   "autocomplete",
 	Short: "Generate shell autocompletion script for Hugo",
 	Long: `Generates a shell autocompletion script for Hugo.
 

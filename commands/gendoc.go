@@ -22,7 +22,7 @@ url: %s
 
 var gendocdir string
 var gendocCmd = &cobra.Command{
-	Use:   "gendoc",
+	Use:   "doc",
 	Short: "Generate Markdown documentation for the Hugo CLI.",
 	Long: `Generate Markdown documentation for the Hugo CLI.
 

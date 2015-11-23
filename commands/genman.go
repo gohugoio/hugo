@@ -9,7 +9,7 @@ import (
 )
 
 var genmanCmd = &cobra.Command{
-	Use:   "genman",
+	Use:   "man",
 	Short: "Generate man pages for the Hugo CLI",
 	Long: `This command automatically generates up-to-date man pages of Hugo's
 command-line interface.  By default, it creates the man page files
