@@ -458,13 +458,11 @@ func ExtractRootPaths(paths []string) []string {
 	r := make([]string, len(paths))
 	for i, p := range paths {
 		root := filepath.ToSlash(p)
-		if strings.Contains(root, "/") {
-			sections := strings.Split(root, "/")
-			for _, section := range sections {
-				if section != "" {
-					root = section
-					break
-				}
+		sections := strings.Split(root, "/")
+		for _, section := range sections {
+			if section != "" {
+				root = section
+				break
 			}
 		}
 		r[i] = root
