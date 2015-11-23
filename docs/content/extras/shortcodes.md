@@ -171,9 +171,9 @@ You want to include a single tweet into your blog post? Everything you need is t
     
     https://twitter.com/spf13/status/666616452582129664
 
-Pass the tweet's author the id from the URL as parameters to the shortcode as shown below:
+Pass the tweet's id from the URL as parameter to the shortcode as shown below:
 
-    {{</* tweet spf13 666616452582129664 */>}}
+    {{</* tweet 666616452582129664 */>}}
 
 ***   
 

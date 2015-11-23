@@ -41,15 +41,24 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
     {{ end }}
 </figure>
 <!-- image -->`)
-	t.AddInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='https://speakerdeck.com/assets/embed.js'></script>")
-	t.AddInternalShortcode("youtube.html", `<div style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"><iframe class="youtube-player" type="text/html" src="https://www.youtube.com/embed/{{ index .Params 0 }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" allowfullscreen frameborder="0"></iframe></div>`)
-	t.AddInternalShortcode("vimeo.html", `<div style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;">
-  <iframe src="//player.vimeo.com/video/{{ index .Params 0 }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-</div>`)
-	t.AddInternalShortcode("gist.html", `<script src="https://gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js"></script>`)
-	t.AddInternalShortcode("tweet.html", `{{ $user  := index .Params 0 }}
-{{ $tweet := index .Params 1 }}
-{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?url=https://twitter.com/" $user "/status/" $tweet).html | safeHTML }}`)
+	t.AddInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>")
+	t.AddInternalShortcode("youtube.html", `{{ if .IsNamedParams }}
+<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//www.youtube.com/embed/{{ .Get "id" }}" {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0"></iframe>
+</div>{{ else }}
+<div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//www.youtube.com/embed/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0"></iframe>
+ </div>
+{{ end }}`)
+	t.AddInternalShortcode("vimeo.html", `{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+ </div>{{ else }}
+<div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+ </div>
+{{ end }}`)
+	t.AddInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js"></script>`)
+	t.AddInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
