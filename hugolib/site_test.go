@@ -1,7 +1,6 @@
 package hugolib
 
 import (
-	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -9,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"bitbucket.org/pkg/inflect"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -322,7 +323,7 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 			[]byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode))},
 		// Issue #1148: Make sure that no P-tags is added around shortcodes.
 		{filepath.FromSlash("sect/doc2.md"),
-			[]byte(fmt.Sprintf(`**Ref 1:** 
+			[]byte(fmt.Sprintf(`**Ref 1:**
 
 {{< %s "sect/doc1.md" >}}
 
@@ -548,6 +549,8 @@ func TestSkipRender(t *testing.T) {
 	viper.Set("verbose", true)
 	viper.Set("CanonifyURLs", true)
 	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("DisableGeneratorTag", true)
+
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
 		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
@@ -595,6 +598,7 @@ func TestAbsURLify(t *testing.T) {
 	defer viper.Reset()
 
 	viper.Set("DefaultExtension", "html")
+	viper.Set("DisableGeneratorTag", true)
 
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	sources := []source.ByteSource{

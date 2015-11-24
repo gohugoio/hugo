@@ -101,6 +101,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
 	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
+	HugoCmd.PersistentFlags().Bool("disableGeneratorTag", false, "Do not add Generator meta tag to rendered site")
 	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	HugoCmd.PersistentFlags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
@@ -134,6 +135,8 @@ func init() {
   Hugo is a command line tool
 
   You need to open cmd.exe and run it from there.`
+
+	viper.BindPFlag("DisableGeneratorTag", HugoCmd.PersistentFlags().Lookup("disableGeneratorTag"))
 }
 
 func LoadDefaultSettings() {
