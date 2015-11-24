@@ -11,7 +11,7 @@ weight: 10
 ---
 ## **0.15.0** ???
 
-* `hugo server` now builds ~30%+ faster by rendering to memory instead of disk. This replaces the need of the `public` folder for serving a site with the built-in server. Use the command `--renderToDisk` and define a path if you want to serve from disk instead.
+* `hugo server` now builds ~30%+ faster by rendering to memory instead of disk. To get the old behavior, start the server with `--renderToDisk=true`.
 * `hugo server` will watch by default now.
 * Have Jekyll site, but dreaming of porting it to Hugo? This release introduces a new `hugo import jekyll`command that makes this easier than ever. [1469](https://github.com/spf13/hugo/pull/1469)
 * We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. [1181](https://github.com/spf13/hugo/issues/1181)
