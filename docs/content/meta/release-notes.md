@@ -11,7 +11,7 @@ weight: 10
 ---
 ## **0.15.0** ???
 
-* `hugo server` now builds ~30%+ faster by rendering to memory instead of disk
+* `hugo server` now builds ~30%+ faster by rendering to memory instead of disk. This replaces the need of the `public` folder for serving a site with the built-in server. Use the command `--renderToDisk` and define a path if you want to serve from disk instead.
 * `hugo server` will watch by default now.
 * Have Jekyll site, but dreaming of porting it to Hugo? This release introduces a new `hugo import jekyll`command that makes this easier than ever. [1469](https://github.com/spf13/hugo/pull/1469)
 * We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. [1181](https://github.com/spf13/hugo/issues/1181)
@@ -59,6 +59,12 @@ sense. [1266](https://github.com/spf13/hugo/issues/1266)
 	* `PreserveTaxonomyNames`, when set to `true`, will preserve what you type as the taxonomy name both in the folders created and the taxonomy `key`, but it will be normalized for the URL.  [1180](https://github.com/spf13/hugo/issues/1180)
 * Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. [1176](https://github.com/spf13/hugo/issues/1176)
 * A built-in template for Google Analytics. [1505](https://github.com/spf13/hugo/pull/1505)
+* Hugo is now shipped with new built-in shortcodes: [1576](https://github.com/spf13/hugo/issues/1576)
+  * `youtube` for YouTube videos
+  * `vimeo` for Vimeo videos
+  * `gist` for GitHub gists
+  * `tweet` for Twitter Tweets
+  * `speakerdeck` for Speakerdeck slides
 
 
 ## **0.14.0** May 25, 2015
