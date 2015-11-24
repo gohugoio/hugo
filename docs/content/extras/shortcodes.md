@@ -103,8 +103,6 @@ closing shortcode.
       <span style="color: #f92672">&lt;/div&gt;</span>
     <span style="color: #f92672">&lt;/section&gt;</span>
 
-***
-
 ### figure
 
 `figure` is simply an extension of the image capabilities present with Markdown.
@@ -136,8 +134,6 @@ closing shortcode.
         </figcaption>
     </figure>
 
-***
-
 ### ref, relref
 
 These shortcodes will look up the pages by their relative path (e.g.,
@@ -165,57 +161,45 @@ Assuming that standard Hugo pretty URLs are turned on.
     <a href="/blog/neat">Neat</a>
     <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 
-***
-
 ### Twitter
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
     
-    https://twitter.com/spf13/status/666616452582129664
+https://twitter.com/spf13/status/666616452582129664
 
 Pass the tweet's id from the URL as parameter to the shortcode as shown below:
 
     {{</* tweet 666616452582129664 */>}}
 
-***   
-
 ### Youtube
 
 This shortcode embeds a responsive video player for Youtube videos. Only the id of the video is required:
 
-    https://www.youtube.com/watch?v=w7Ft2ymGmfc
+https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
 Copy the id from behind `v=` and pass it the shortcode:
 
     {{</* youtube w7Ft2ymGmfc */>}} 
 
-
-***
-
 ### Vimeo
 
 Adding a video from Vimeo is equivalent to the Youtube shortcode above. Extract the id from the URL
 
-    https://vimeo.com/channels/staffpicks/146022717
+https://vimeo.com/channels/staffpicks/146022717
 
 and pass it to the shortcode:
 
     {{</* vimeo 146022717 */>}}
 
-***
-
 ### Github gists
 
 Including code snippets with Github gists while writing a tutorial is common situation bloggers face. With a given URL of the gist
 
-    https://gist.github.com/spf13/7896402
+https://gist.github.com/spf13/7896402
 
 pass the owner and the id of the gist to the shortcode:
 
-
-{{</* gist spf13 7896402 */>}}
-
-***
+    {{</* gist spf13 7896402 */>}}
 
 ### Speakerdeck
 
@@ -227,8 +211,6 @@ Extract the value from the field `id` and pass it to the shortcode:
 
     {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 
-
-***
 
 ## Creating your own shortcodes
 
