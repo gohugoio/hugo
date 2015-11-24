@@ -30,11 +30,13 @@ want a [partial template](/templates/partials/) instead.
 
 ## Using a shortcode
 
-In your content files, a shortcode can be called by using '`{{%/* name parameters
-*/%}}`' respectively. Shortcodes are space delimited (parameters with spaces
-can be quoted).
+In your content files, a shortcode can be called by using the `{{%/* name parameters
+*/%}}` form. Shortcode parameters are space delimited.  Parameters with spaces
+can be quoted.
 
 The first word is always the name of the shortcode. Parameters follow the name.
+Depending upon how the shortcode is defined, the parameters may be named,
+positional or both (although you can't mixed parameter types in a single call).
 The format for named parameters models that of HTML with the format
 `name="value"`.
 
@@ -51,17 +53,15 @@ The examples above use two different delimiters, the difference being the `%` an
 
 The `%` characters indicates that the shortcode's inner content needs further processing by the page's rendering processor (i.e. Markdown), needed to get the **bold** text in the example below:
 
- ```
-{{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
-```
+
+    {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
+
 
 ### Shortcodes without Markdown
 
 The `<` character indicates that the shortcode's inner content doesn't need any further rendering, this will typically be pure HTML:
 
- ```
-{{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
-```
+    {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 
 ## Hugo Shortcodes
 
@@ -73,6 +73,7 @@ This shortcode will convert the source code provided into syntax highlighted
 HTML. Read more on [highlighting](/extras/highlighting/).
 
 #### Usage
+
 `highlight` takes exactly one required parameter of _language_ and requires a
 closing shortcode.
 
@@ -102,12 +103,13 @@ closing shortcode.
     <span style="color: #f92672">&lt;/section&gt;</span>
 
 ### figure
+
 `figure` is simply an extension of the image capabilities present with Markdown.
 `figure` provides the ability to add captions, CSS classes, alt text, links etc.
 
 #### Usage
 
-`figure` can use the following parameters:
+`figure` can use the following named parameters:
 
  * src
  * link
@@ -164,10 +166,12 @@ To create a shortcode, place a template in the layouts/shortcodes directory. The
 template name will be the name of the shortcode.
 
 In creating a shortcode, you can choose if the shortcode will use _positional
-parameters_ or _named parameters_ (but not both). A good rule of thumb is that if a
+parameters_ or _named parameters_ or _both_. A good rule of thumb is that if a
 shortcode has a single required value in the case of the `youtube` example below,
 then positional works very well. For more complex layouts with optional
-parameters, named parameters work best.
+parameters, named parameters work best.  Allowing both types of parameters is
+useful for complex layouts where you want to set default values that can be
+overridden.
 
 **Inside the template**
 
@@ -198,7 +202,12 @@ A shortcode with `.Inner` content can be used without the inline content, and wi
 
     {{</* innershortcode /*/>}}
 
-The variable `.Params` contains the list of parameters in case you need to do more complicated things than `.Get`.
+The variable `.Params` contains the list of parameters in case you need to do
+more complicated things than `.Get`.  It is sometimes useful to provide a
+flexible shortcode that can take named or positional parameters.  To meet this
+need, Hugo shortcodes have a `.IsNamedParams` boolean available that can be used
+such as `{{ if .IsNamedParams }}...{{ else }}...{{ end }}`.  See the
+`Single Flexible Example` below for an example.
 
 You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/).
 
@@ -256,6 +265,32 @@ Would be rendered as:
             <h4>Steve Francia</h4>
         </figcaption>
     </figure>
+
+## Single Flexible Example: vimeo with defaults
+
+    {{</* vimeo 49718712 */>}}
+    {{</* vimeo id="49718712" class="flex-video" */>}}
+
+Would load the template /layouts/shortcodes/vimeo.html
+
+    {{ if .IsNamedParams }}
+      <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
+        <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
+      </div>
+    {{ else }}
+      <div class="{{ if len .Params | eq 2 }}{{ .Get 1 }}{{ else }}vimeo-container{{ end }}">
+        <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
+      </div>
+    {{ end }}
+
+Would be rendered as:
+
+    <div class="vimeo-container">
+      <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+    </div>
+    <div class="flex-video">
+      <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+    </div>
 
 ## Paired Example: Highlight
 *Hugo already ships with the `highlight` shortcode*
