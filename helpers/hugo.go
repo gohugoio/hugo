@@ -19,7 +19,7 @@ import (
 
 // this should be the only one
 const HugoVersionNumber = 0.15
-const HugoVersionSuffix = "-DEV" // blank this when doing a release
+const HugoVersionSuffix = "" // blank this when doing a release
 
 // HugoVersion returns the current Hugo version. It will include
 // a suffix, typically '-DEV', if it's development version.
