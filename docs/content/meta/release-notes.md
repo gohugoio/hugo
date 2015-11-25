@@ -46,7 +46,7 @@ Huge thanks to all who participated in this release. A special thanks to
 [@bep](https://github.com/bep) who led the development of Hugo this release again,
 [@anthonyfok](https://github.com/anthonyfok),
 [@eparis](https://github.com/eparis),
-[@tatsushid](https://github.com/tatsushid) and 
+[@tatsushid](https://github.com/tatsushid) and
 [@DigitalCraftsman](https://github.com/digitalcraftsman/)
 
 
@@ -113,6 +113,7 @@ Huge thanks to all who participated in this release. A special thanks to
 * `page.HasMenuCurrent()` and `node.HasMenuCurrent()` now work correctly in multi-level nested menus.
 * Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. [1176](https://github.com/spf13/hugo/issues/1176)
 * Hugo now removes superfluous p-tags around shortcodes. [1148](https://github.com/spf13/hugo/issues/1148)
+* Fix  % characters are stripped out of URLs. [#1292](https://github.com/spf13/hugo/issues/1292)
 
 ## Notices
 * `hugo server` will watch by default now.
