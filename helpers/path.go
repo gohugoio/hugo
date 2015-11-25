@@ -16,17 +16,18 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/spf13/afero"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -96,7 +97,7 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '%' || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}

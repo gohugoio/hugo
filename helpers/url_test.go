@@ -15,9 +15,10 @@ func TestURLize(t *testing.T) {
 	}{
 		{"  foo bar  ", "foo-bar"},
 		{"foo.bar/foo_bar-foo", "foo.bar/foo_bar-foo"},
-		{"foo,bar:foo%bar", "foobarfoobar"},
+		{"foo,bar:foobar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},
 		{"трям/трям", "%D1%82%D1%80%D1%8F%D0%BC/%D1%82%D1%80%D1%8F%D0%BC"},
+		{"a%C3%B1ame", "a%c3%b1ame"}, // Issue #1292
 	}
 
 	for _, test := range tests {
