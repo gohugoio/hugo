@@ -11,7 +11,7 @@ weight: 60
 ---
 
 Hugo has a simple yet powerful menu system that permits content to be
-placed in menus with a good degree of control without a lot of work. 
+placed in menus with a good degree of control without a lot of work.
 
 
 *TIP:* If all you want is a simple menu for your sections, see [Section Menu for "the Lazy Blogger"]({{< relref "#section-menu-for-the-lazy-blogger" >}}).
@@ -121,11 +121,11 @@ And the equivalent example `config.yaml`:
             Pre: "<i class='fa fa-road'></i>"
             Weight: -100
             URL: "/getting-started/"
-    ---            
+    ---
 
 
 **NOTE:** The URLs must be relative to the context root. If the `BaseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`.
-  
+
 ## Nesting
 
 All nesting of content is done via the `parent` field.
@@ -146,7 +146,7 @@ and all content entries are attached to one of these entries via the
 
 Hugo makes no assumptions about how your rendered HTML will be
 structured. Instead, it provides all of the functions you will need to be
-able to build your menu however you want. 
+able to build your menu however you want.
 
 
 The following is an example:
@@ -213,7 +213,7 @@ This will create a menu with all the sections as menu items and all the sections
 
 In the above, the menu item is marked as active if on the current section's list page or on a page in that section.
 
-The above is all that's needed. But if you want custom menu items, e.g. changing weight or name, you can define them manually in the site config, i.e. `config.toml`: 
+The above is all that's needed. But if you want custom menu items, e.g. changing weight or name, you can define them manually in the site config, i.e. `config.toml`:
 
 ```
  [[menu.main]]

@@ -18,25 +18,86 @@ func TestSplitPages(t *testing.T) {
 	assert.Equal(t, 5, len(chunks))
 
 	for i := 0; i < 4; i++ {
-		assert.Equal(t, 5, len(chunks[i]))
+		assert.Equal(t, 5, chunks[i].Len())
 	}
 
 	lastChunk := chunks[4]
-	assert.Equal(t, 1, len(lastChunk))
+	assert.Equal(t, 1, lastChunk.Len())
+
+}
+
+func TestSplitPageGroups(t *testing.T) {
+
+	pages := createTestPages(21)
+	groups, _ := pages.GroupBy("Weight", "desc")
+	chunks := splitPageGroups(groups, 5)
+	assert.Equal(t, 5, len(chunks))
+
+	firstChunk := chunks[0]
+
+	// alternate weight 5 and 10
+	if groups, ok := firstChunk.(PagesGroup); ok {
+		assert.Equal(t, 5, groups.Len())
+		for _, pg := range groups {
+			// first group 10 in weight
+			assert.Equal(t, 10, pg.Key)
+			for _, p := range pg.Pages {
+				assert.True(t, p.FuzzyWordCount%2 == 0) // magic test
+			}
+		}
+	} else {
+		t.Fatal("Excepted PageGroup")
+	}
+
+	lastChunk := chunks[4]
+
+	if groups, ok := lastChunk.(PagesGroup); ok {
+		assert.Equal(t, 1, groups.Len())
+		for _, pg := range groups {
+			// last should have 5 in weight
+			assert.Equal(t, 5, pg.Key)
+			for _, p := range pg.Pages {
+				assert.True(t, p.FuzzyWordCount%2 != 0) // magic test
+			}
+		}
+	} else {
+		t.Fatal("Excepted PageGroup")
+	}
 
 }
 
 func TestPager(t *testing.T) {
-
 	pages := createTestPages(21)
+	groups, _ := pages.GroupBy("Weight", "desc")
+
 	urlFactory := func(page int) string {
 		return fmt.Sprintf("page/%d/", page)
 	}
 
-	_, err := newPaginator(pages, -1, urlFactory)
+	_, err := newPaginatorFromPages(pages, -1, urlFactory)
 	assert.NotNil(t, err)
 
-	paginator, _ := newPaginator(pages, 5, urlFactory)
+	_, err = newPaginatorFromPageGroups(groups, -1, urlFactory)
+	assert.NotNil(t, err)
+
+	pag, err := newPaginatorFromPages(pages, 5, urlFactory)
+	assert.Nil(t, err)
+	doTestPages(t, pag)
+	first := pag.Pagers()[0].First()
+	assert.NotEmpty(t, first.Pages())
+	assert.Empty(t, first.PageGroups())
+
+	pag, err = newPaginatorFromPageGroups(groups, 5, urlFactory)
+	assert.Nil(t, err)
+	doTestPages(t, pag)
+	first = pag.Pagers()[0].First()
+	assert.NotEmpty(t, first.PageGroups())
+	assert.Empty(t, first.Pages())
+
+}
+
+func doTestPages(t *testing.T, paginator *paginator) {
+
 	paginatorPages := paginator.Pagers()
 
 	assert.Equal(t, 5, len(paginatorPages))
@@ -46,7 +107,6 @@ func TestPager(t *testing.T) {
 
 	first := paginatorPages[0]
 	assert.Equal(t, template.HTML("page/1/"), first.URL())
-	assert.Equal(t, first.URL(), first.Url())
 	assert.Equal(t, first, first.First())
 	assert.True(t, first.HasNext())
 	assert.Equal(t, paginatorPages[1], first.Next())
@@ -72,11 +132,29 @@ func TestPager(t *testing.T) {
 
 func TestPagerNoPages(t *testing.T) {
 	pages := createTestPages(0)
+	groups, _ := pages.GroupBy("Weight", "desc")
+
 	urlFactory := func(page int) string {
 		return fmt.Sprintf("page/%d/", page)
 	}
 
-	paginator, _ := newPaginator(pages, 5, urlFactory)
+	paginator, _ := newPaginatorFromPages(pages, 5, urlFactory)
+	doTestPagerNoPages(t, paginator)
+
+	first := paginator.Pagers()[0].First()
+	assert.Empty(t, first.PageGroups())
+	assert.Empty(t, first.Pages())
+
+	paginator, _ = newPaginatorFromPageGroups(groups, 5, urlFactory)
+	doTestPagerNoPages(t, paginator)
+
+	first = paginator.Pagers()[0].First()
+	assert.Empty(t, first.PageGroups())
+	assert.Empty(t, first.Pages())
+
+}
+
+func doTestPagerNoPages(t *testing.T, paginator *paginator) {
 	paginatorPages := paginator.Pagers()
 
 	assert.Equal(t, 1, len(paginatorPages))
@@ -91,7 +169,7 @@ func TestPagerNoPages(t *testing.T) {
 	assert.False(t, pageOne.HasPrev())
 	assert.Nil(t, pageOne.Next())
 	assert.Equal(t, 1, len(pageOne.Pagers()))
-	assert.Equal(t, 0, len(pageOne.Pages()))
+	assert.Equal(t, 0, pageOne.Pages().Len())
 	assert.Equal(t, 0, pageOne.NumberOfElements())
 	assert.Equal(t, 0, pageOne.TotalNumberOfElements())
 	assert.Equal(t, 0, pageOne.TotalPages())
@@ -250,7 +328,8 @@ func TestPaginateWithNegativePaginate(t *testing.T) {
 }
 
 func TestPaginatePages(t *testing.T) {
-	for i, seq := range []interface{}{createTestPages(11), WeightedPages{}, PageGroup{}, &Pages{}} {
+	groups, _ := createTestPages(31).GroupBy("Weight", "desc")
+	for i, seq := range []interface{}{createTestPages(11), groups, WeightedPages{}, PageGroup{}, &Pages{}} {
 		v, err := paginatePages(seq, 11, "t")
 		assert.NotNil(t, v, "Val %d", i)
 		assert.Nil(t, err, "Err %d", i)
@@ -308,6 +387,10 @@ func TestPaginateFollowedByDifferentPaginateShouldFail(t *testing.T) {
 func TestProbablyEqualPageLists(t *testing.T) {
 	fivePages := createTestPages(5)
 	zeroPages := createTestPages(0)
+	zeroPagesByWeight, _ := createTestPages(0).GroupBy("Weight", "asc")
+	fivePagesByWeight, _ := createTestPages(5).GroupBy("Weight", "asc")
+	ninePagesByWeight, _ := createTestPages(9).GroupBy("Weight", "asc")
+
 	for i, this := range []struct {
 		v1     interface{}
 		v2     interface{}
@@ -320,6 +403,11 @@ func TestProbablyEqualPageLists(t *testing.T) {
 		{fivePages, createTestPages(2), false},
 		{fivePages, fivePages, true},
 		{zeroPages, zeroPages, true},
+		{fivePagesByWeight, fivePagesByWeight, true},
+		{zeroPagesByWeight, fivePagesByWeight, false},
+		{zeroPagesByWeight, zeroPagesByWeight, true},
+		{fivePagesByWeight, fivePages, false},
+		{fivePagesByWeight, ninePagesByWeight, false},
 	} {
 		result := probablyEqualPageLists(this.v1, this.v2)
 
@@ -330,6 +418,33 @@ func TestProbablyEqualPageLists(t *testing.T) {
 	}
 }
 
+func TestPage(t *testing.T) {
+	urlFactory := func(page int) string {
+		return fmt.Sprintf("page/%d/", page)
+	}
+
+	fivePages := createTestPages(7)
+	fivePagesFuzzyWordCount, _ := createTestPages(7).GroupBy("FuzzyWordCount", "asc")
+
+	p1, _ := newPaginatorFromPages(fivePages, 2, urlFactory)
+	p2, _ := newPaginatorFromPageGroups(fivePagesFuzzyWordCount, 2, urlFactory)
+
+	f1 := p1.pagers[0].First()
+	f2 := p2.pagers[0].First()
+
+	page11, _ := f1.page(1)
+	page1Nil, _ := f1.page(3)
+
+	page21, _ := f2.page(1)
+	page2Nil, _ := f2.page(3)
+
+	assert.Equal(t, 1, page11.FuzzyWordCount)
+	assert.Nil(t, page1Nil)
+
+	assert.Equal(t, 1, page21.FuzzyWordCount)
+	assert.Nil(t, page2Nil)
+}
+
 func createTestPages(num int) Pages {
 	pages := make(Pages, num)
 
@@ -338,14 +453,20 @@ func createTestPages(num int) Pages {
 			Node: Node{
 				URLPath: URLPath{
 					Section: "z",
-					URL:     fmt.Sprintf("http://base/x/y/p%d.html", num),
+					URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
 				},
 				Site: &SiteInfo{
 					BaseURL: "http://base/",
 				},
 			},
-			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", num)))},
+			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
 		}
+		w := 5
+		if i%2 == 0 {
+			w = 10
+		}
+		pages[i].FuzzyWordCount = i
+		pages[i].Weight = w
 	}
 
 	return pages

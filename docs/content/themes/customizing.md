@@ -10,13 +10,13 @@ weight: 40
 toc: true
 ---
 
-_The following are key concepts for Hugo site customization. Hugo permits you to **supplement or override** any theme template or static file, with files in your working directory._ 
+_The following are key concepts for Hugo site customization. Hugo permits you to **supplement or override** any theme template or static file, with files in your working directory._
 
 _When you use a theme cloned from its git repository, you do not edit the theme's files directly. Rather, you override them as per the following:_
 
 ## Replace Static Files
 
-For including a different file than what the theme ships with. For example, if you would like to use a more recent version of jQuery than what the theme happens to include, simply place an identically-named file in the same relative location but in your working directory. 
+For including a different file than what the theme ships with. For example, if you would like to use a more recent version of jQuery than what the theme happens to include, simply place an identically-named file in the same relative location but in your working directory.
 
 For example, if the theme has jQuery 1.6 in:
 
@@ -28,17 +28,17 @@ For example, if the theme has jQuery 1.6 in:
 
 ## Replace a single template file
 
-Anytime Hugo looks for a matching template, it will first check the working directory before looking in the theme directory. If you would like to modify a template, simply create that template in your local `layouts` directory. 
+Anytime Hugo looks for a matching template, it will first check the working directory before looking in the theme directory. If you would like to modify a template, simply create that template in your local `layouts` directory.
 
-In the [template documentation](/templates/overview/) _each different template type explains the rules it uses to determine which template to use_. Read and understand these rules carefully. 
+In the [template documentation](/templates/overview/) _each different template type explains the rules it uses to determine which template to use_. Read and understand these rules carefully.
 
 This is especially helpful when the theme creator used [partial templates](/templates/partials/). These partial templates are perfect for easy injection into the theme with minimal maintenance to ensure future compatibility.
 
-For example: 
+For example:
 
     /themes/themename/layouts/_default/single.html
 
-... would be overridden by: 
+... would be overridden by:
 
     /layouts/_default/single.html
 
@@ -50,6 +50,6 @@ If the archetype that ships with the theme for a given content type (or all cont
 
 ## Beware of the default
 
-**Default** is a very powerful force in Hugo... Especially as it pertains to overwriting theme files. If a default is located in the local archetype directory or `/layouts/_default/` directory, it will be used instead of any of the similar files in the theme.  
+**Default** is a very powerful force in Hugo, especially as it pertains to overwriting theme files. If a default is located in the local archetype directory or `/layouts/_default/` directory, it will be used instead of any of the similar files in the theme.
 
 It is usually better to override specific files rather than using the default in your working directory.

@@ -1,6 +1,6 @@
 ---
 author: "Rick Cogley"
-date: 2015-06-07
+date: 2015-07-08
 linktitle: Multilingual Site
 menu:
   main:
@@ -31,7 +31,7 @@ baseurl = "http://acme.com/"
 title = "Acme Inc."
 contentdir = "content/en"
 publishdir = "public/en"
-...
+
 [params]
     locale = "en-US"
 ~~~
@@ -43,7 +43,7 @@ baseurl = "http://acme.jp/"
 title = "有限会社アクミー"
 contentdir = "content/ja"
 publishdir = "public/ja"
-...
+
 [params]
     locale = "ja-JP"
 ~~~
@@ -95,6 +95,35 @@ Now you can reference the strings in your templates. One way is to do it like in
 ~~~
 
 The above shows both techniques, using an `if eq` and `else if eq` to check the locale, and using `index` to pull strings from the data file that matches the locale set in the site's config file.
+
+## Customize Dates
+
+At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
+
+~~~toml
+1: "janvier"
+2: "février"
+3: "mars"
+4: "avril"
+5: "mai"
+6: "juin"
+7: "juillet"
+8: "août"
+9: "septembre"
+10: "octobre"
+11: "novembre"
+12: "décembre"
+~~~
+
+... then index the non-English date names in your templates like so:
+
+~~~html
+<time class="post-date" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}">
+  Article publié le {{ .Date.Day }} {{ index $.Site.Data.mois (printf "%d" .Date.Month) }} {{ .Date.Year }} (dernière modification le {{ .Lastmod.Day }} {{ index $.Site.Data.mois (printf "%d" .Lastmod.Month) }} {{ .Lastmod.Year }})
+</time>
+~~~
+
+This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.  
 
 ## Create Multilingual Content
 

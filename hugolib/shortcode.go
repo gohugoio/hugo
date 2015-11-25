@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,9 +31,10 @@ import (
 )
 
 type ShortcodeWithPage struct {
-	Params interface{}
-	Inner  template.HTML
-	Page   *Page
+	Params        interface{}
+	Inner         template.HTML
+	Page          *Page
+	IsNamedParams bool
 }
 
 func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
@@ -60,7 +61,13 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
 			return "error: cannot access named params by position"
 		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
-			x = reflect.ValueOf(scp.Params).Index(int(reflect.ValueOf(key).Int()))
+			idx := int(reflect.ValueOf(key).Int())
+			ln := reflect.ValueOf(scp.Params).Len()
+			if idx > ln-1 {
+				helpers.DistinctErrorLog.Printf("No shortcode param at .Get %d in page %s, have params: %v", idx, scp.Page.FullFilePath(), scp.Params)
+				return fmt.Sprintf("error: index out of range for positional param at position %d", idx)
+			}
+			x = reflect.ValueOf(scp.Params).Index(idx)
 		}
 	case string:
 		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
@@ -154,21 +161,24 @@ var isInnerShortcodeCache = struct {
 // to avoid potential costly look-aheads for closing tags we look inside the template itself
 // we could change the syntax to self-closing tags, but that would make users cry
 // the value found is cached
-func isInnerShortcode(t *template.Template) bool {
+func isInnerShortcode(t *template.Template) (bool, error) {
 	isInnerShortcodeCache.RLock()
 	m, ok := isInnerShortcodeCache.m[t.Name()]
 	isInnerShortcodeCache.RUnlock()
 
 	if ok {
-		return m
+		return m, nil
 	}
 
 	isInnerShortcodeCache.Lock()
 	defer isInnerShortcodeCache.Unlock()
+	if t.Tree == nil {
+		return false, errors.New("Template failed to compile")
+	}
 	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
 	isInnerShortcodeCache.m[t.Name()] = match
 
-	return match
+	return match, nil
 }
 
 func createShortcodePlaceholder(id int) string {
@@ -180,12 +190,16 @@ const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
 
 func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
-	var data = &ShortcodeWithPage{Params: sc.params, Page: p}
 	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
 		jww.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 		return ""
+	}
+
+	data := &ShortcodeWithPage{Params: sc.params, Page: p}
+	if sc.params != nil {
+		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
 
 	if len(sc.inner) > 0 {
@@ -265,6 +279,8 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 
 }
 
+var shortCodeIllegalState = errors.New("Illegal shortcode state")
+
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
@@ -335,7 +351,12 @@ Loop:
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 			}
-			isInner = isInnerShortcode(tmpl)
+
+			var err error
+			isInner, err = isInnerShortcode(tmpl)
+			if err != nil {
+				return sc, fmt.Errorf("Failed to handle template for shortcode '%s' for page '%s': %s", sc.name, p.BaseFileName(), err)
+			}
 
 		case tScParam:
 			if !pt.isValueNext() {
@@ -347,8 +368,12 @@ Loop:
 					params[currItem.val] = pt.next().val
 					sc.params = params
 				} else {
-					params := sc.params.(map[string]string)
-					params[currItem.val] = pt.next().val
+					if params, ok := sc.params.(map[string]string); ok {
+						params[currItem.val] = pt.next().val
+					} else {
+						return sc, shortCodeIllegalState
+					}
+
 				}
 			} else {
 				// positional params
@@ -357,9 +382,13 @@ Loop:
 					params = append(params, currItem.val)
 					sc.params = params
 				} else {
-					params := sc.params.([]string)
-					params = append(params, currItem.val)
-					sc.params = params
+					if params, ok := sc.params.([]string); ok {
+						params = append(params, currItem.val)
+						sc.params = params
+					} else {
+						return sc, shortCodeIllegalState
+					}
+
 				}
 			}
 
@@ -437,29 +466,13 @@ Loop:
 
 }
 
-// replaceShortcodeTokensInsources calls replaceShortcodeTokens for every source given.
-func replaceShortcodeTokensInsources(prefix string, replacements map[string]string, sources ...[]byte) (b [][]byte, err error) {
-	result := make([][]byte, len(sources))
-	for i, s := range sources {
-		b, err := replaceShortcodeTokens(s, prefix, replacements)
-
-		if err != nil {
-			return nil, err
-		}
-		result[i] = b
-	}
-	return result, nil
-}
-
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
+// Note: This function will rewrite the input slice.
 func replaceShortcodeTokens(source []byte, prefix string, replacements map[string]string) ([]byte, error) {
 
 	if len(replacements) == 0 {
 		return source, nil
 	}
-
-	buff := bp.GetBuffer()
-	defer bp.PutBuffer(buff)
 
 	sourceLen := len(source)
 	start := 0
@@ -491,28 +504,14 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 			}
 		}
 
-		oldVal := source[j:end]
-		_, err := buff.Write(source[start:j])
-		if err != nil {
-			return nil, errors.New("buff write failed")
-		}
-		_, err = buff.Write(newVal)
-		if err != nil {
-			return nil, errors.New("buff write failed")
-		}
-		start = j + len(oldVal)
+		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
+		source = append(source[:j], append(newVal, source[end:]...)...)
 
 		k = bytes.Index(source[start:], pre)
-	}
-	_, err := buff.Write(source[start:])
-	if err != nil {
-		return nil, errors.New("buff write failed")
+
 	}
 
-	bc := make([]byte, buff.Len(), buff.Len())
-	copy(bc, buff.Bytes())
-
-	return bc, nil
+	return source, nil
 }
 
 func getShortcodeTemplate(name string, t tpl.Template) *template.Template {

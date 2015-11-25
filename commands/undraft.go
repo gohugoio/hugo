@@ -1,9 +1,9 @@
 // Copyright © 2013 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,10 @@ import (
 var undraftCmd = &cobra.Command{
 	Use:   "undraft path/to/content",
 	Short: "Undraft changes the content's draft status from 'True' to 'False'",
-	Long:  `Undraft changes the content's draft status from 'True' to 'False' and updates the date to the current date and time. If the content's draft status is 'False', nothing is done`,
-	Run:   Undraft,
+	Long: `Undraft changes the content's draft status from 'True' to 'False'
+and updates the date to the current date and time.
+If the content's draft status is 'False', nothing is done.`,
+	Run: Undraft,
 }
 
 // Publish publishes the specified content by setting its draft status
@@ -76,7 +78,7 @@ func Undraft(cmd *cobra.Command, args []string) {
 	return
 }
 
-// undraftContent: if the content is a draft, change it's draft status to
+// undraftContent: if the content is a draft, change its draft status to
 // 'false' and set the date to time.Now(). If the draft status is already
 // 'false', don't do anything.
 func undraftContent(p parser.Page) (bytes.Buffer, error) {

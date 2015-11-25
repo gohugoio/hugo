@@ -18,16 +18,24 @@ func pageFromString(in, filename string) (*Page, error) {
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Template) {
+	CheckShortCodeMatchAndError(t, input, expected, template, false)
+}
+
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template tpl.Template, expectError bool) {
 
 	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
 	output, err := HandleShortcodes(input, p, template)
 
-	if err != nil {
+	if err != nil && !expectError {
 		t.Fatalf("Shortcode rendered error %s. Expected: %q, Got: %q", err, expected, output)
 	}
 
+	if err == nil && expectError {
+		t.Fatalf("No error from shortcode")
+	}
+
 	if output != expected {
-		t.Fatalf("Shortcode render didn't match. got %q but exxpected %q", output, expected)
+		t.Fatalf("Shortcode render didn't match. got %q but expected %q", output, expected)
 	}
 }
 
@@ -85,6 +93,20 @@ func TestPositionalParamSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{<   video   47238zzb    >}}", "Playing Video 47238zzb", tem)
 }
 
+func TestPositionalParamIndexOutOfBounds(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", tem)
+}
+
+// some repro issues for panics in Go Fuzz testing
+func TestShortcodeGoFuzzRepros(t *testing.T) {
+	tt := tpl.New()
+	tt.AddInternalShortcode("inner.html", `Shortcode... {{ with .Get 0 }}{{ . }}{{ end }}-- {{ with .Get 1 }}{{ . }}{{ end }}- {{ with .Inner }}{{ . }}{{ end }}`)
+	// Issue #1337
+	CheckShortCodeMatchAndError(t, "{{%inner\"\"\"\"=\"\"", "", tt, true)
+}
+
 func TestNamedParamSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
@@ -95,6 +117,20 @@ func TestNamedParamSC(t *testing.T) {
 	CheckShortCodeMatch(t, `{{< img src ="one" >}}`, `<img src="one">`, tem)
 	CheckShortCodeMatch(t, `{{< img src = "one" >}}`, `<img src="one">`, tem)
 	CheckShortCodeMatch(t, `{{< img src = "one" class = "aspen grove" >}}`, `<img src="one" class="aspen grove">`, tem)
+}
+
+func TestIsNamedParamsSC(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
+	tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
+	tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
+
+	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, tem)
+	CheckShortCodeMatch(t, `{{< ifnamedparams position >}}`, `<div id="position">`, tem)
+	CheckShortCodeMatch(t, `{{< byname id="name" >}}`, `<div id="name">`, tem)
+	CheckShortCodeMatch(t, `{{< byname position >}}`, `<div id="error: cannot access positional params by string name">`, tem)
+	CheckShortCodeMatch(t, `{{< byposition position >}}`, `<div id="position">`, tem)
+	CheckShortCodeMatch(t, `{{< byposition id="name" >}}`, `<div id="error: cannot access named params by position">`, tem)
 }
 
 func TestInnerSC(t *testing.T) {
@@ -327,34 +363,47 @@ func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 
+	type input struct {
+		in           []byte
+		replacements map[string]string
+		expect       []byte
+	}
+
 	data := []struct {
 		input        string
 		replacements map[string]string
-		expect       interface{}
+		expect       []byte
 	}{
-		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, "Hello World."},
-		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 100) + " Hello World."},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 500) + " Hello World."},
-		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("ABCD ", 500) + " Hello World."},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World."},
+		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, []byte("Hello World.")},
+		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
+		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
+		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
+		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World.")},
 	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for i, this := range data {
-			results, err := replaceShortcodeTokens([]byte(this.input), "HUGOSHORTCODE", this.replacements)
 
-			if expectSuccess, ok := this.expect.(bool); ok && !expectSuccess {
-				if err == nil {
-					b.Fatalf("[%d] replaceShortcodeTokens didn't return an expected error", i)
-				}
-			} else {
-				if err != nil {
-					b.Fatalf("[%d] failed: %s", i, err)
-					continue
-				}
-				if !reflect.DeepEqual(results, []byte(this.expect.(string))) {
-					b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", i, results, this.expect)
-				}
+	var in []input = make([]input, b.N*len(data))
+	var cnt = 0
+	for i := 0; i < b.N; i++ {
+		for _, this := range data {
+			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
+			cnt++
+		}
+	}
+
+	b.ResetTimer()
+	cnt = 0
+	for i := 0; i < b.N; i++ {
+		for j := range data {
+			currIn := in[cnt]
+			cnt++
+			results, err := replaceShortcodeTokens(currIn.in, "HUGOSHORTCODE", currIn.replacements)
+
+			if err != nil {
+				b.Fatalf("[%d] failed: %s", i, err)
+				continue
+			}
+			if len(results) != len(currIn.expect) {
+				b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", j, results, currIn.expect)
 			}
 
 		}
@@ -370,6 +419,14 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		expect       interface{}
 	}{
 		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World."},
+		{"Hello {@{@PREFIX-1@}@.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, false},
+		{"{@{@PREFIX2-1@}@}", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "World"}, "World"},
+		{"Hello World!", "PREFIX2", map[string]string{}, "Hello World!"},
+		{"!{@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World"},
+		{"{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "World!"},
+		{"!{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World!"},
+		{"@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "@{@PREFIX-1@}@}"},
+		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
 		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, "A v1 asdf v2."},
 		{"Hello {@{@PREFIX2-1@}@}. Go {@{@PREFIX2-2@}@}, Go, Go {@{@PREFIX2-3@}@} Go Go!.", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "Europe", "{@{@PREFIX2-2@}@}": "Jonny", "{@{@PREFIX2-3@}@}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
 		{"A {@{@PREFIX-2@}@} {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A B A."},
@@ -385,11 +442,11 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		{"Hello <p>{@{@PREFIX-1@}@}. END</p>.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World. END</p>."},
 		{"<p>Hello {@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "<p>Hello World</p>. END."},
 		{"Hello <p>{@{@PREFIX-1@}@}12", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World12"},
-		// Make sure the buffering expands as needed
 		{"Hello {@{@P-1@}@}. {@{@P-1@}@}-{@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} END", "P", map[string]string{"{@{@P-1@}@}": strings.Repeat("BC", 100)},
 			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
 				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
 	} {
+
 		results, err := replaceShortcodeTokens([]byte(this.input), this.prefix, this.replacements)
 
 		if b, ok := this.expect.(bool); ok && !b {

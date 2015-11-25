@@ -13,7 +13,7 @@ func TestParsePygmentsArgs(t *testing.T) {
 		pygmentsUseClasses bool
 		expect1            interface{}
 	}{
-		{"", "foo", true, "style=foo,noclasses=false,encoding=utf8"},
+		{"", "foo", true, "encoding=utf8,noclasses=false,style=foo"},
 		{"style=boo,noclasses=true", "foo", true, "encoding=utf8,noclasses=true,style=boo"},
 		{"Style=boo, noClasses=true", "foo", true, "encoding=utf8,noclasses=true,style=boo"},
 		{"noclasses=true", "foo", true, "encoding=utf8,noclasses=true,style=foo"},
@@ -39,6 +39,44 @@ func TestParsePygmentsArgs(t *testing.T) {
 				t.Errorf("[%d] parsePygmentArgs got %v but expected %v", i, result1, this.expect1)
 			}
 
+		}
+	}
+}
+
+func TestParseDefaultPygmentsArgs(t *testing.T) {
+	expect := "encoding=utf8,noclasses=false,style=foo"
+
+	for i, this := range []struct {
+		in                 string
+		pygmentsStyle      interface{}
+		pygmentsUseClasses interface{}
+		pygmentsOptions    string
+	}{
+		{"", "foo", true, "style=override,noclasses=override"},
+		{"", nil, nil, "style=foo,noclasses=false"},
+		{"style=foo,noclasses=false", nil, nil, "style=override,noclasses=override"},
+		{"style=foo,noclasses=false", "override", false, "style=override,noclasses=override"},
+
+	} {
+		viper.Reset()
+
+		viper.Set("PygmentsOptions", this.pygmentsOptions)
+
+		if s, ok := this.pygmentsStyle.(string); ok {
+			viper.Set("PygmentsStyle", s)
+		}
+
+		if b, ok := this.pygmentsUseClasses.(bool); ok {
+			viper.Set("PygmentsUseClasses", b)
+		}
+
+		result, err := parsePygmentsOpts(this.in)
+		if err != nil {
+			t.Errorf("[%d] parsePygmentArgs failed: %s", i, err)
+			continue
+		}
+		if result != expect {
+			t.Errorf("[%d] parsePygmentArgs got %v but expected %v", i, result, expect)
 		}
 	}
 }

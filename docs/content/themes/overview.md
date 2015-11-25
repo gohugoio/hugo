@@ -12,8 +12,8 @@ weight: 10
 Hugo provides a robust theming system which is simple, yet capable of producing
 even the most complicated websites.
 
-The Hugo community has created a set of themes ready for using in your own
-site.
+The Hugo community has created [a wide variety of beautiful themes](//themes.gohugo.io/), as demoed at [themes.gohugo.io](//themes.gohugo.io/),
+ready for using in your own site.
 
 Hugo themes have been designed to be the perfect balance between
 simplicity and functionality. Hugo themes are powered by the excellent

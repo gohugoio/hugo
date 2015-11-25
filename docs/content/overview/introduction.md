@@ -85,7 +85,7 @@ links work properly with most hosting companies.
 
 ## What does Hugo do?
 
-In technical terms, Hugo takes a source directory of Markdown files and
+In technical terms, Hugo takes a source directory of files and
 templates and uses these as input to create a complete website.
 
 Hugo boasts the following features:
@@ -114,7 +114,8 @@ Hugo boasts the following features:
 
 ### Content
 
-  * Content written in [Markdown](/content/example/)
+  * Native support for content written in [Markdown](/content/example/)
+    * Support for other languages through _external helpers_, see [supported formats](/content/supported-formats)
   * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter/)
   * Completely [customizable homepage](/layout/homepage/)
   * Support for multiple [content types](/content/types/)
@@ -126,6 +127,7 @@ Hugo boasts the following features:
 ### Additional Features
 
   * Integrated [Disqus](https://disqus.com/) comment support
+  * Integrated [Google Analytics](https://google-analytics.com/) support
   * Automatic [RSS](/layout/rss/) creation
   * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](http://ace.yoss.si/) HTML templates
   * Syntax [highlighting](/extras/highlighting/) powered by [Pygments](http://pygments.org/)
@@ -182,4 +184,3 @@ as I have writing it.
  * [Join the Mailing List](/community/mailing-list/)
  * [Star us on GitHub](https://github.com/spf13/hugo)
  * [Discussion Forum](http://discuss.gohugo.io/)
-

@@ -5,30 +5,30 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"regexp"
+	"strings"
 	"unicode"
 )
 
 const (
-	HTML_LEAD       = "<"
-	YAML_LEAD       = "-"
-	YAML_DELIM_UNIX = "---\n"
-	YAML_DELIM_DOS  = "---\r\n"
-	YAML_DELIM      = "---"
-	TOML_LEAD       = "+"
-	TOML_DELIM_UNIX = "+++\n"
-	TOML_DELIM_DOS  = "+++\r\n"
-	TOML_DELIM      = "+++"
-	JSON_LEAD       = "{"
+	HTML_LEAD          = "<"
+	YAML_LEAD          = "-"
+	YAML_DELIM_UNIX    = "---\n"
+	YAML_DELIM_DOS     = "---\r\n"
+	YAML_DELIM         = "---"
+	TOML_LEAD          = "+"
+	TOML_DELIM_UNIX    = "+++\n"
+	TOML_DELIM_DOS     = "+++\r\n"
+	TOML_DELIM         = "+++"
+	JSON_LEAD          = "{"
+	HTML_COMMENT_START = "<!--"
+	HTML_COMMENT_END   = "-->"
 )
 
 var (
-	delims = [][]byte{
-		[]byte(YAML_DELIM_UNIX),
-		[]byte(YAML_DELIM_DOS),
-		[]byte(TOML_DELIM_UNIX),
-		[]byte(TOML_DELIM_DOS),
-		[]byte(JSON_LEAD),
-	}
+	delims = regexp.MustCompile(
+		"^(" + regexp.QuoteMeta(YAML_DELIM) + `\s*\n|` + regexp.QuoteMeta(TOML_DELIM) + `\s*\n|` + regexp.QuoteMeta(JSON_LEAD) + ")",
+	)
 
 	UnixEnding = []byte("\n")
 	DosEnding  = []byte("\r\n")
@@ -82,6 +82,9 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 	if err = chompWhitespace(reader); err != nil && err != io.EOF {
 		return
 	}
+	if err = chompFrontmatterStartComment(reader); err != nil && err != io.EOF {
+		return
+	}
 
 	firstLine, err := peekLine(reader)
 	if err != nil && err != io.EOF {
@@ -123,6 +126,65 @@ func chompWhitespace(r io.RuneScanner) (err error) {
 	}
 }
 
+func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
+	candidate, err := r.Peek(32)
+	if err != nil {
+		return err
+	}
+
+	str := string(candidate)
+	if strings.HasPrefix(str, HTML_COMMENT_START) {
+		lineEnd := strings.IndexAny(str, "\n")
+		if lineEnd == -1 {
+			//TODO: if we can't find it, Peek more?
+			return nil
+		}
+		testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
+		if strings.Index(testStr, HTML_COMMENT_END) != -1 {
+			return nil
+		}
+		buf := make([]byte, lineEnd)
+		if _, err = r.Read(buf); err != nil {
+			return
+		}
+		if err = chompWhitespace(r); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func chompFrontmatterEndComment(r *bufio.Reader) (err error) {
+	candidate, err := r.Peek(32)
+	if err != nil {
+		return err
+	}
+
+	str := string(candidate)
+	lineEnd := strings.IndexAny(str, "\n")
+	if lineEnd == -1 {
+		return nil
+	}
+	testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
+	if strings.Index(testStr, HTML_COMMENT_START) != -1 {
+		return nil
+	}
+
+	//TODO: if we can't find it, Peek more?
+	if strings.HasSuffix(testStr, HTML_COMMENT_END) {
+		buf := make([]byte, lineEnd)
+		if _, err = r.Read(buf); err != nil {
+			return
+		}
+		if err = chompWhitespace(r); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func peekLine(r *bufio.Reader) (line []byte, err error) {
 	firstFive, err := r.Peek(5)
 	if err != nil {
@@ -148,13 +210,7 @@ func shouldRender(lead []byte) (frontmatter bool) {
 }
 
 func isFrontMatterDelim(data []byte) bool {
-	for _, d := range delims {
-		if bytes.HasPrefix(data, d) {
-			return true
-		}
-	}
-
-	return false
+	return delims.Match(data)
 }
 
 func determineDelims(firstLine []byte) (left, right []byte) {
@@ -200,7 +256,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	}
 
 	// Reads a character from Reader one by one and checks it matches the
-	// last character of one of delemiters to find the last character of
+	// last character of one of delimiters to find the last character of
 	// frontmatter. If it matches, makes sure it contains the delimiter
 	// and if so, also checks it is followed by CR+LF or LF when YAML,
 	// TOML case. In JSON case, nested delimiters must be parsed and it
@@ -216,7 +272,8 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 		switch c {
 		case left[len(left)-1]:
 			if sameDelim { // YAML, TOML case
-				if bytes.HasSuffix(buf.Bytes(), left) {
+				if bytes.HasSuffix(buf.Bytes(), left) && (buf.Len() == len(left) || buf.Bytes()[buf.Len()-len(left)-1] == '\n') {
+				nextByte:
 					c, err = r.ReadByte()
 					if err != nil {
 						// It is ok that the end delimiter ends with EOF
@@ -227,6 +284,9 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 						switch c {
 						case '\n':
 							// ok
+						case ' ':
+							// Consume this byte and try to match again
+							goto nextByte
 						case '\r':
 							if err = buf.WriteByte(c); err != nil {
 								return nil, err
@@ -259,11 +319,13 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 
 		if level == 0 {
 			// Consumes white spaces immediately behind frontmatter
-			if err = chompWhitespace(r); err != nil {
-				if err != io.EOF {
-					return nil, err
-				}
+			if err = chompWhitespace(r); err != nil && err != io.EOF {
+				return nil, err
 			}
+			if err = chompFrontmatterEndComment(r); err != nil && err != io.EOF {
+				return nil, err
+			}
+
 			return buf.Bytes(), nil
 		}
 	}

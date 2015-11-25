@@ -1,9 +1,9 @@
 // Copyright © 2013 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,9 +25,9 @@ var benchmarkTimes int
 
 var benchmark = &cobra.Command{
 	Use:   "benchmark",
-	Short: "Benchmark hugo by building a site a number of times",
-	Long: `Hugo can build a site many times over and analyze the
-running process creating a benchmark.`,
+	Short: "Benchmark hugo by building a site a number of times.",
+	Long: `Hugo can build a site many times over and analyze the running process
+creating a benchmark.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
 		bench(cmd, args)

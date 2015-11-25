@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
 )
 
 type MenuEntry struct {
@@ -37,12 +36,6 @@ type MenuEntry struct {
 type Menu []*MenuEntry
 type Menus map[string]*Menu
 type PageMenus map[string]*MenuEntry
-
-// Url is deprecated. Will be removed in 0.15.
-func (me *MenuEntry) Url() string {
-	helpers.Deprecated("MenuEntry", ".Url", ".URL")
-	return me.URL
-}
 
 func (me *MenuEntry) AddChild(child *MenuEntry) {
 	me.Children = append(me.Children, child)
@@ -145,6 +138,9 @@ func (by MenuEntryBy) Sort(menu Menu) {
 
 var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 	if m1.Weight == m2.Weight {
+		if m1.Name == m2.Name {
+			return m1.Identifier < m2.Identifier
+		}
 		return m1.Name < m2.Name
 	}
 	return m1.Weight < m2.Weight

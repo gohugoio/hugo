@@ -1,9 +1,9 @@
 // Copyright © 2014 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -87,6 +88,19 @@ func FirstUpper(s string) string {
 	}
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToUpper(r)) + s[n:]
+}
+
+// UniqueStrings returns a new slice with any duplicates removed.
+func UniqueStrings(s []string) []string {
+	unique := make([]string, 0)
+	set := map[string]interface{}{}
+	for _, val := range s {
+		if _, ok := set[val]; !ok {
+			unique = append(unique, val)
+			set[val] = val
+		}
+	}
+	return unique
 }
 
 // ReaderToBytes takes an io.Reader argument, reads from it
@@ -226,6 +240,11 @@ func Md5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
 	return hex.EncodeToString(h.Sum([]byte{}))
+}
+
+// IsWhitespace determines if the given rune is whitespace.
+func IsWhitespace(r rune) bool {
+	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
 }
 
 // Seq creates a sequence of integers.
@@ -422,4 +441,18 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 	default:
 		return nil, errors.New("There is no such an operation")
 	}
+}
+
+// NormalizeHugoFlags facilitates transitions of Hugo command-line flags,
+// e.g. --baseUrl to --baseURL, --uglyUrls to --uglyURLs
+func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
+	switch name {
+	case "baseUrl":
+		name = "baseURL"
+		break
+	case "uglyUrls":
+		name = "uglyURLs"
+		break
+	}
+	return pflag.NormalizedName(name)
 }

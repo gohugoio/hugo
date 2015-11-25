@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -262,4 +264,26 @@ func GetCSV(sep string, urlParts ...string) [][]string {
 		break
 	}
 	return d
+}
+
+func ReadDir(path string) []os.FileInfo {
+	wd := ""
+	p := ""
+	if viper.GetString("WorkingDir") != "" {
+		wd = viper.GetString("WorkingDir")
+	}
+	if strings.Contains(path, "..") {
+		jww.ERROR.Printf("Path %s contains parent directory marker", path)
+		return nil
+	}
+
+	p = filepath.Clean(path)
+	p = filepath.Join(wd, p)
+
+	list, err := ioutil.ReadDir(p)
+	if err != nil {
+		jww.ERROR.Printf("Failed to read Directory %s with error message %s", path, err)
+		return nil
+	}
+	return list
 }

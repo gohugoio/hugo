@@ -2,8 +2,10 @@ package tpl
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	"html/template"
 	"path"
 	"reflect"
@@ -80,6 +82,9 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		{"8", "5", 1},
 		{"5", "0001", 1},
 		{[]int{100, 99}, []int{1, 2, 3, 4}, -1},
+		{cast.ToTime("2015-11-20"), cast.ToTime("2015-11-20"), 0},
+		{cast.ToTime("2015-11-19"), cast.ToTime("2015-11-20"), -1},
+		{cast.ToTime("2015-11-20"), cast.ToTime("2015-11-19"), 1},
 	} {
 		result := funcUnderTest(this.left, this.right)
 		success := false
@@ -125,6 +130,8 @@ func TestArethmic(t *testing.T) {
 		{uint16(4), uint8(2), '/', uint64(2)},
 		{4, 2, '¤', false},
 		{4, 0, '/', false},
+		{float64(2.3), float64(2.3), '+', float64(4.6)},
+		{float64(2.3), int(2), '*', float64(4.6)},
 	} {
 		// TODO(bep): Take precision into account.
 		result, err := doArithmetic(this.a, this.b, this.op)
@@ -321,6 +328,29 @@ func TestAfter(t *testing.T) {
 	}
 }
 
+func TestDictionary(t *testing.T) {
+	for i, this := range []struct {
+		v1            []interface{}
+		expecterr     bool
+		expectedValue map[string]interface{}
+	}{
+		{[]interface{}{"a", "b"}, false, map[string]interface{}{"a": "b"}},
+		{[]interface{}{5, "b"}, true, nil},
+		{[]interface{}{"a", 12, "b", []int{4}}, false, map[string]interface{}{"a": 12, "b": []int{4}}},
+		{[]interface{}{"a", "b", "c"}, true, nil},
+	} {
+		r, e := Dictionary(this.v1...)
+
+		if (this.expecterr && e == nil) || (!this.expecterr && e != nil) {
+			t.Errorf("[%d] got an unexpected error: %s", i, e)
+		} else if !this.expecterr {
+			if !reflect.DeepEqual(r, this.expectedValue) {
+				t.Errorf("[%d] got %v but expected %v", i, r, this.expectedValue)
+			}
+		}
+	}
+}
+
 func TestIn(t *testing.T) {
 	for i, this := range []struct {
 		v1     interface{}
@@ -328,9 +358,14 @@ func TestIn(t *testing.T) {
 		expect bool
 	}{
 		{[]string{"a", "b", "c"}, "b", true},
+		{[]interface{}{"a", "b", "c"}, "b", true},
+		{[]interface{}{"a", "b", "c"}, "d", false},
 		{[]string{"a", "b", "c"}, "d", false},
 		{[]string{"a", "12", "c"}, 12, false},
 		{[]int{1, 2, 4}, 2, true},
+		{[]interface{}{1, 2, 4}, 2, true},
+		{[]interface{}{1, 2, 4}, nil, false},
+		{[]interface{}{nil}, nil, false},
 		{[]int{1, 2, 4}, 3, false},
 		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
 		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},
@@ -346,28 +381,46 @@ func TestIn(t *testing.T) {
 }
 
 func TestSlicestr(t *testing.T) {
+	var err error
 	for i, this := range []struct {
 		v1     interface{}
-		v2     []int
+		v2     interface{}
+		v3     interface{}
 		expect interface{}
 	}{
-		{"abc", []int{1, 2}, "b"},
-		{"abc", []int{1, 3}, "bc"},
-		{"abc", []int{0, 1}, "a"},
-		{"abcdef", []int{}, "abcdef"},
-		{"abcdef", []int{0, 6}, "abcdef"},
-		{"abcdef", []int{0, 2}, "ab"},
-		{"abcdef", []int{2}, "cdef"},
-		{123, []int{1, 3}, "23"},
-		{123, []int{1, 2, 3}, false},
-		{"abcdef", []int{6}, false},
-		{"abcdef", []int{4, 7}, false},
-		{"abcdef", []int{-1}, false},
-		{"abcdef", []int{-1, 7}, false},
-		{"abcdef", []int{1, -1}, false},
-		{tstNoStringer{}, []int{0, 1}, false},
+		{"abc", 1, 2, "b"},
+		{"abc", 1, 3, "bc"},
+		{"abcdef", 1, int8(3), "bc"},
+		{"abcdef", 1, int16(3), "bc"},
+		{"abcdef", 1, int32(3), "bc"},
+		{"abcdef", 1, int64(3), "bc"},
+		{"abc", 0, 1, "a"},
+		{"abcdef", nil, nil, "abcdef"},
+		{"abcdef", 0, 6, "abcdef"},
+		{"abcdef", 0, 2, "ab"},
+		{"abcdef", 2, nil, "cdef"},
+		{"abcdef", int8(2), nil, "cdef"},
+		{"abcdef", int16(2), nil, "cdef"},
+		{"abcdef", int32(2), nil, "cdef"},
+		{"abcdef", int64(2), nil, "cdef"},
+		{123, 1, 3, "23"},
+		{"abcdef", 6, nil, false},
+		{"abcdef", 4, 7, false},
+		{"abcdef", -1, nil, false},
+		{"abcdef", -1, 7, false},
+		{"abcdef", 1, -1, false},
+		{tstNoStringer{}, 0, 1, false},
+		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
 	} {
-		result, err := Slicestr(this.v1, this.v2...)
+
+		var result string
+		if this.v2 == nil {
+			result, err = Slicestr(this.v1)
+		} else if this.v3 == nil {
+			result, err = Slicestr(this.v1, this.v2)
+		} else {
+			result, err = Slicestr(this.v1, this.v2, this.v3)
+		}
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -417,9 +470,10 @@ func TestSubstr(t *testing.T) {
 		{123, 1, 3, "23"},
 		{1.2e3, 0, 4, "1200"},
 		{tstNoStringer{}, 0, 1, false},
-		{"abcdef", 2.0, nil, false},
-		{"abcdef", 2.0, 2, false},
-		{"abcdef", 2, 2.0, false},
+		{"abcdef", 2.0, nil, "cdef"},
+		{"abcdef", 2.0, 2, "cd"},
+		{"abcdef", 2, 2.0, "cd"},
+		{"ĀĀĀ", 1, 2, "ĀĀ"}, // # issue 1333
 	} {
 		var result string
 		n = i
@@ -673,6 +727,7 @@ func TestCheckCondition(t *testing.T) {
 			"",
 			expect{true, false},
 		},
+		{reflect.ValueOf(nil), reflect.ValueOf(nil), "", expect{true, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "!=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), "!=", expect{true, false}},
 		{
@@ -681,6 +736,7 @@ func TestCheckCondition(t *testing.T) {
 			"!=",
 			expect{true, false},
 		},
+		{reflect.ValueOf(123), reflect.ValueOf(nil), "!=", expect{true, false}},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">=", expect{true, false}},
 		{
@@ -943,6 +999,31 @@ func TestWhere(t *testing.T) {
 				{A: "a", B: "b"}, {A: "e", B: "f"},
 			},
 		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "", match: nil,
+			expect: []map[string]int{
+				{"a": 3},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "!=", match: nil,
+			expect: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 5, "b": 6},
+			},
+		},
+		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3}, {"a": 5, "b": 6},
+			},
+			key: "b", op: ">", match: nil,
+			expect: []map[string]int{},
+		},
 		{sequence: (*[]TstX)(nil), key: "A", match: "a", expect: false},
 		{sequence: TstX{A: "a", B: "b"}, key: "A", match: "a", expect: false},
 		{sequence: []map[string]*TstX{{"foo": nil}}, key: "foo.B", match: "d", expect: false},
@@ -1050,64 +1131,192 @@ func TestSort(t *testing.T) {
 		MyFloat  float64
 		MyString string
 	}
+	type mid struct {
+		Tst TstX
+	}
+
 	for i, this := range []struct {
 		sequence    interface{}
 		sortByField interface{}
 		sortAsc     string
-		expect      []interface{}
+		expect      interface{}
 	}{
-		{[]string{"class1", "class2", "class3"}, nil, "asc", []interface{}{"class1", "class2", "class3"}},
-		{[]string{"class3", "class1", "class2"}, nil, "asc", []interface{}{"class1", "class2", "class3"}},
-		{[]int{1, 2, 3, 4, 5}, nil, "asc", []interface{}{1, 2, 3, 4, 5}},
-		{[]int{5, 4, 3, 1, 2}, nil, "asc", []interface{}{1, 2, 3, 4, 5}},
+		{[]string{"class1", "class2", "class3"}, nil, "asc", []string{"class1", "class2", "class3"}},
+		{[]string{"class3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "class3"}},
+		{[]int{1, 2, 3, 4, 5}, nil, "asc", []int{1, 2, 3, 4, 5}},
+		{[]int{5, 4, 3, 1, 2}, nil, "asc", []int{1, 2, 3, 4, 5}},
+		// test sort key parameter is focibly set empty
+		{[]string{"class3", "class1", "class2"}, map[int]string{1: "a"}, "asc", []string{"class1", "class2", "class3"}},
 		// test map sorting by keys
-		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []interface{}{10, 20, 30, 40, 50}},
-		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, nil, "asc", []interface{}{30, 20, 10, 40, 50}},
-		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, nil, "asc", []interface{}{"10", "20", "30", "40", "50"}},
-		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
-		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, nil, "asc", []interface{}{"50", "40", "10", "30", "20"}},
-		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, nil, "asc", []interface{}{"10", "20", "30", "40", "50"}},
-		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
-		{map[float64]string{3.3: "10", 2.3: "20", 1.3: "30", 4.3: "40", 5.3: "50"}, nil, "asc", []interface{}{"30", "20", "10", "40", "50"}},
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, nil, "asc", []int{10, 20, 30, 40, 50}},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, nil, "asc", []int{30, 20, 10, 40, 50}},
+		{map[string]string{"1": "10", "2": "20", "3": "30", "4": "40", "5": "50"}, nil, "asc", []string{"10", "20", "30", "40", "50"}},
+		{map[string]string{"3": "10", "2": "20", "1": "30", "4": "40", "5": "50"}, nil, "asc", []string{"30", "20", "10", "40", "50"}},
+		{map[string]string{"one": "10", "two": "20", "three": "30", "four": "40", "five": "50"}, nil, "asc", []string{"50", "40", "10", "30", "20"}},
+		{map[int]string{1: "10", 2: "20", 3: "30", 4: "40", 5: "50"}, nil, "asc", []string{"10", "20", "30", "40", "50"}},
+		{map[int]string{3: "10", 2: "20", 1: "30", 4: "40", 5: "50"}, nil, "asc", []string{"30", "20", "10", "40", "50"}},
+		{map[float64]string{3.3: "10", 2.3: "20", 1.3: "30", 4.3: "40", 5.3: "50"}, nil, "asc", []string{"30", "20", "10", "40", "50"}},
 		// test map sorting by value
-		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
-		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []interface{}{10, 20, 30, 40, 50}},
+		{map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}, "value", "asc", []int{10, 20, 30, 40, 50}},
+		{map[string]int{"3": 10, "2": 20, "1": 30, "4": 40, "5": 50}, "value", "asc", []int{10, 20, 30, 40, 50}},
 		// test map sorting by field value
 		{
 			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyInt",
 			"asc",
-			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
+			[]ts{{10, 10.5, "ten"}, {20, 20.5, "twenty"}, {30, 30.5, "thirty"}, {40, 40.5, "forty"}, {50, 50.5, "fifty"}},
 		},
 		{
 			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyFloat",
 			"asc",
-			[]interface{}{ts{10, 10.5, "ten"}, ts{20, 20.5, "twenty"}, ts{30, 30.5, "thirty"}, ts{40, 40.5, "forty"}, ts{50, 50.5, "fifty"}},
+			[]ts{{10, 10.5, "ten"}, {20, 20.5, "twenty"}, {30, 30.5, "thirty"}, {40, 40.5, "forty"}, {50, 50.5, "fifty"}},
 		},
 		{
 			map[string]ts{"1": {10, 10.5, "ten"}, "2": {20, 20.5, "twenty"}, "3": {30, 30.5, "thirty"}, "4": {40, 40.5, "forty"}, "5": {50, 50.5, "fifty"}},
 			"MyString",
 			"asc",
-			[]interface{}{ts{50, 50.5, "fifty"}, ts{40, 40.5, "forty"}, ts{10, 10.5, "ten"}, ts{30, 30.5, "thirty"}, ts{20, 20.5, "twenty"}},
+			[]ts{{50, 50.5, "fifty"}, {40, 40.5, "forty"}, {10, 10.5, "ten"}, {30, 30.5, "thirty"}, {20, 20.5, "twenty"}},
 		},
-		// Test sort desc
-		{[]string{"class1", "class2", "class3"}, "value", "desc", []interface{}{"class3", "class2", "class1"}},
-		{[]string{"class3", "class1", "class2"}, "value", "desc", []interface{}{"class3", "class2", "class1"}},
+		// test sort desc
+		{[]string{"class1", "class2", "class3"}, "value", "desc", []string{"class3", "class2", "class1"}},
+		{[]string{"class3", "class1", "class2"}, "value", "desc", []string{"class3", "class2", "class1"}},
+		// test sort by struct's method
+		{
+			[]TstX{{A: "i", B: "j"}, {A: "e", B: "f"}, {A: "c", B: "d"}, {A: "g", B: "h"}, {A: "a", B: "b"}},
+			"TstRv",
+			"asc",
+			[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		{
+			[]*TstX{{A: "i", B: "j"}, {A: "e", B: "f"}, {A: "c", B: "d"}, {A: "g", B: "h"}, {A: "a", B: "b"}},
+			"TstRp",
+			"asc",
+			[]*TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		// test map sorting by struct's method
+		{
+			map[string]TstX{"1": {A: "i", B: "j"}, "2": {A: "e", B: "f"}, "3": {A: "c", B: "d"}, "4": {A: "g", B: "h"}, "5": {A: "a", B: "b"}},
+			"TstRv",
+			"asc",
+			[]TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		{
+			map[string]*TstX{"1": {A: "i", B: "j"}, "2": {A: "e", B: "f"}, "3": {A: "c", B: "d"}, "4": {A: "g", B: "h"}, "5": {A: "a", B: "b"}},
+			"TstRp",
+			"asc",
+			[]*TstX{{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"}, {A: "g", B: "h"}, {A: "i", B: "j"}},
+		},
+		// test sort by dot chaining key argument
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			".foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			"foo.TstRv",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]*TstX{{"foo": &TstX{A: "e", B: "f"}}, {"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}},
+			"foo.TstRp",
+			"asc",
+			[]map[string]*TstX{{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}}},
+		},
+		{
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "e", B: "f"}}}, {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.A",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		{
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "e", B: "f"}}}, {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.TstRv",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		// test map sorting by dot chaining key argument
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			"foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			".foo.A",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			"foo.TstRv",
+			"asc",
+			[]map[string]TstX{{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]*TstX{"1": {"foo": &TstX{A: "e", B: "f"}}, "2": {"foo": &TstX{A: "a", B: "b"}}, "3": {"foo": &TstX{A: "c", B: "d"}}},
+			"foo.TstRp",
+			"asc",
+			[]map[string]*TstX{{"foo": &TstX{A: "a", B: "b"}}, {"foo": &TstX{A: "c", B: "d"}}, {"foo": &TstX{A: "e", B: "f"}}},
+		},
+		{
+			map[string]map[string]mid{"1": {"foo": mid{Tst: TstX{A: "e", B: "f"}}}, "2": {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, "3": {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.A",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		{
+			map[string]map[string]mid{"1": {"foo": mid{Tst: TstX{A: "e", B: "f"}}}, "2": {"foo": mid{Tst: TstX{A: "a", B: "b"}}}, "3": {"foo": mid{Tst: TstX{A: "c", B: "d"}}}},
+			"foo.Tst.TstRv",
+			"asc",
+			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
+		},
+		// test error cases
+		{(*[]TstX)(nil), nil, "asc", false},
+		{TstX{A: "a", B: "b"}, nil, "asc", false},
+		{
+			[]map[string]TstX{{"foo": TstX{A: "e", B: "f"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}},
+			"foo.NotAvailable",
+			"asc",
+			false,
+		},
+		{
+			map[string]map[string]TstX{"1": {"foo": TstX{A: "e", B: "f"}}, "2": {"foo": TstX{A: "a", B: "b"}}, "3": {"foo": TstX{A: "c", B: "d"}}},
+			"foo.NotAvailable",
+			"asc",
+			false,
+		},
 	} {
-		var result []interface{}
+		var result interface{}
 		var err error
 		if this.sortByField == nil {
 			result, err = Sort(this.sequence)
 		} else {
 			result, err = Sort(this.sequence, this.sortByField, this.sortAsc)
 		}
-		if err != nil {
-			t.Errorf("[%d] failed: %s", i, err)
-			continue
-		}
-		if !reflect.DeepEqual(result, this.expect) {
-			t.Errorf("[%d] Sort called on sequence: %v | sortByField: `%v` | got %v but expected %v", i, this.sequence, this.sortByField, result, this.expect)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Sort didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] Sort called on sequence: %v | sortByField: `%v` | got %v but expected %v", i, this.sequence, this.sortByField, result, this.expect)
+			}
 		}
 	}
 }
@@ -1371,6 +1580,41 @@ func TestSafeCSS(t *testing.T) {
 	}
 }
 
+func TestSafeJS(t *testing.T) {
+	for i, this := range []struct {
+		str                 string
+		tmplStr             string
+		expectWithoutEscape string
+		expectWithEscape    string
+	}{
+		{`619c16f`, `<script>var x{{ . }};</script>`, `<script>var x"619c16f";</script>`, `<script>var x619c16f;</script>`},
+	} {
+		tmpl, err := template.New("test").Parse(this.tmplStr)
+		if err != nil {
+			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
+			continue
+		}
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, this.str)
+		if err != nil {
+			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithoutEscape {
+			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		}
+
+		buf.Reset()
+		err = tmpl.Execute(buf, SafeJS(this.str))
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by SafeJS returns unexpected error: %s", i, err)
+		}
+		if buf.String() != this.expectWithEscape {
+			t.Errorf("[%d] execute template with an escaped string value by SafeJS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		}
+	}
+}
+
 func TestSafeURL(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
@@ -1403,5 +1647,38 @@ func TestSafeURL(t *testing.T) {
 		if buf.String() != this.expectWithEscape {
 			t.Errorf("[%d] execute template with an escaped string value by SafeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
+	}
+}
+
+func TestBase64Decode(t *testing.T) {
+	testStr := "abc123!?$*&()'-=@~"
+	enc := base64.StdEncoding.EncodeToString([]byte(testStr))
+	result, err := Base64Decode(enc)
+
+	if err != nil {
+		t.Error("Base64Decode:", err)
+	}
+
+	if result != testStr {
+		t.Errorf("Base64Decode: got '%s', expected '%s'", result, testStr)
+	}
+}
+
+func TestBase64Encode(t *testing.T) {
+	testStr := "YWJjMTIzIT8kKiYoKSctPUB+"
+	dec, err := base64.StdEncoding.DecodeString(testStr)
+
+	if err != nil {
+		t.Error("Base64Encode: the DecodeString function of the base64 package returned an error.", err)
+	}
+
+	result, err := Base64Encode(string(dec))
+
+	if err != nil {
+		t.Errorf("Base64Encode: Can't cast arg '%s' into a string.", testStr)
+	}
+
+	if result != testStr {
+		t.Errorf("Base64Encode: got '%s', expected '%s'", result, testStr)
 	}
 }

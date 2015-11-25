@@ -1,9 +1,9 @@
 // Copyright © 2014 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,9 +31,6 @@ type File struct {
 }
 
 func (f *File) UniqueID() string {
-	if f.uniqueID == "" {
-		f.uniqueID = helpers.Md5String(f.LogicalName())
-	}
 	return f.uniqueID
 }
 
@@ -51,18 +48,10 @@ func (f *File) BaseFileName() string {
 }
 
 func (f *File) Section() string {
-	if f.section != "" {
-		return f.section
-	}
-	f.section = helpers.GuessSection(f.Dir())
 	return f.section
 }
 
 func (f *File) LogicalName() string {
-	if f.logicalName != "" {
-		return f.logicalName
-	}
-	_, f.logicalName = filepath.Split(f.relpath)
 	return f.logicalName
 }
 
@@ -71,18 +60,10 @@ func (f *File) SetDir(dir string) {
 }
 
 func (f *File) Dir() string {
-	if f.dir != "" {
-		return f.dir
-	}
-	f.dir, _ = filepath.Split(f.relpath)
 	return f.dir
 }
 
 func (f *File) Extension() string {
-	if f.ext != "" {
-		return f.ext
-	}
-	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
 	return f.ext
 }
 
@@ -101,9 +82,17 @@ func NewFileWithContents(relpath string, content io.Reader) *File {
 }
 
 func NewFile(relpath string) *File {
-	return &File{
+	f := &File{
 		relpath: relpath,
 	}
+
+	f.dir, _ = filepath.Split(f.relpath)
+	_, f.logicalName = filepath.Split(f.relpath)
+	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
+	f.section = helpers.GuessSection(f.Dir())
+	f.uniqueID = helpers.Md5String(f.LogicalName())
+
+	return f
 }
 
 func NewFileFromAbs(base, fullpath string, content io.Reader) (f *File, err error) {

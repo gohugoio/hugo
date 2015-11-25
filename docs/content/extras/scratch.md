@@ -14,9 +14,13 @@ weight: 80
 `Scratch` -- a "scratchpad" for your node- or page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
 
 
-`Scratch` is added to both `Node` and `Page` -- with the three methods `Set`, `Get` and `Add`. `Set` and `Add` takes a `key` and the `value` to add. Get returns the `value` for the `key` given.
+`Scratch` is added to both `Node` and `Page` -- with following methods:
+* `Set` and `Add` takes a `key` and the `value` to add.
+* `Get` returns the `value` for the `key` given.
+* `SetInMap` takes a `key`, `mapKey` and `value`
+* `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
 
-`Set` can store values of any type. `Add` accepts values that support Go's `+` operator.
+`Set` and `SetInMap` can store values of any type. `Add` accepts values that support Go's `+` operator.
 
 The scope of the backing data is global for the given `Node` or `Page`, and spans partial and shortcode includes.
 
@@ -37,6 +41,12 @@ The usage is best illustrated with some samples:
 
 {{ $.Scratch.Set "v1" 123 }}
 {{ $.Scratch.Get "v1" }}  {{/* => 123 */}}
+
+{{ $.Scratch.SetInMap "a3" "b" "XX" }}
+{{ $.Scratch.SetInMap "a3" "a" "AA" }}
+{{ $.Scratch.SetInMap "a3" "c" "CC" }}
+{{ $.Scratch.SetInMap "a3" "b" "BB" }}
+{{ $.Scratch.GetSortedMapValues "a3" }} {{/* => []interface {}{"AA", "BB", "CC"} */}}
 ```
 
 **Note:** The examples above uses the special `$` variable, which refers to the top-level node. This is the behavior you most likely want, and will help remove some confusion when using `Scratch` inside page range loops -- and you start inadvertently calling the wrong `Scratch`. But there may be use cases for `{{ .Scratch.Add "key" "some value" }}`.

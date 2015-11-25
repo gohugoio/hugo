@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/cast"
 	"html/template"
 	"sync"
 	"time"
@@ -51,6 +51,9 @@ func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 			if me.IsSameResource(child) {
 				return true
 			}
+			if n.HasMenuCurrent(menuID, child) {
+				return true
+			}
 		}
 	}
 
@@ -82,6 +85,17 @@ func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 	}
 
 	return false
+}
+
+// Param is a convenience method to do lookups in Site's Params map.
+//
+// This method is also implemented on Page.
+func (n *Node) Param(key interface{}) (interface{}, error) {
+	keyStr, err := cast.ToStringE(key)
+	if err != nil {
+		return nil, err
+	}
+	return n.Site.Params[keyStr], err
 }
 
 func (n *Node) Hugo() *HugoInfo {
@@ -125,27 +139,9 @@ func (n *Node) RelRef(ref string) (string, error) {
 
 type URLPath struct {
 	URL       string
-	Permalink template.HTML
+	Permalink string
 	Slug      string
 	Section   string
-}
-
-// Url is deprecated. Will be removed in 0.15.
-func (n *Node) Url() string {
-	helpers.Deprecated("Node", ".Url", ".URL")
-	return n.URL
-}
-
-// UrlPath is deprecated. Will be removed in 0.15.
-func (n *Node) UrlPath() URLPath {
-	helpers.Deprecated("Node", ".UrlPath", ".URLPath")
-	return n.URLPath
-}
-
-// Url is deprecated. Will be removed in 0.15.
-func (up URLPath) Url() string {
-	helpers.Deprecated("URLPath", ".Url", ".URL")
-	return up.URL
 }
 
 // Scratch returns the writable context associated with this Node.

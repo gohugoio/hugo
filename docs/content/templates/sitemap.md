@@ -50,3 +50,13 @@ Protocol](http://www.sitemaps.org/protocol.html).
 on render. Please don't include this in the template as it's not valid HTML.*
 
     <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+## Configuring sitemap.xml
+
+Defaults for `<changefreq>` and `<priority>` values can be set in the site's config file, e.g.:
+
+    [sitemap]
+      changefreq = "monthly"
+      priority = 0.5
+
+The same fields can be specified in an individual page's front matter in order to override the value for that page.

@@ -5,7 +5,7 @@ date: 2015-01-22
 menu:
   main:
     parent: extras
-next: /extras/dynamiccontent
+next: /extras/datadrivencontent
 prev: /extras/scratch
 title: Data Files
 weight: 90
@@ -23,7 +23,7 @@ Data Files can also be used in [themes](/themes/overview/), but note: If the sam
 
 As explained in [Source Organization](/overview/source-directory/), the `data` folder is where you can store additional data for Hugo to use when generating your site. These files must be YAML, JSON or TOML files (using either the `.yml`, `.yaml`, `.json` or `toml` extension) and the data will be accessible as a `map` in `.Site.Data`.
 
-**The keys in this map will be a dot chained set of _path_, _filename_ and _key_ in file (if applicable).** 
+**The keys in this map will be a dot chained set of _path_, _filename_ and _key_ in file (if applicable).**
 
 This is best explained with an example:
 
@@ -56,7 +56,7 @@ discography = [
 "1991 - Live In New York City, Volumes 1-7.",
 "1999 - Rare Collection (compilation)",
 "2003 - Punk Jazz: The Jaco Pastorius Anthology (compilation)",
-"2007 - The Essential Jaco Pastorius (compilation)" 
+"2007 - The Essential Jaco Pastorius (compilation)"
 ]
 ```
 

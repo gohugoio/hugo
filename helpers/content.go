@@ -1,9 +1,9 @@
 // Copyright © 2014 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,9 +21,12 @@ import (
 	"bytes"
 	"html/template"
 	"os/exec"
+	"unicode/utf8"
 
 	"github.com/miekg/mmark"
+	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
+	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
@@ -40,20 +43,44 @@ var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
-	AngledQuotes   bool
-	Fractions      bool
-	PlainIDAnchors bool
-	Extensions     []string
-	ExtensionsMask []string
+	Smartypants     bool
+	AngledQuotes    bool
+	Fractions       bool
+	HrefTargetBlank bool
+	SmartDashes     bool
+	LatexDashes     bool
+	PlainIDAnchors  bool
+	Extensions      []string
+	ExtensionsMask  []string
 }
 
-// NewBlackfriday creates a new Blackfriday with some sane defaults.
+// NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults
 func NewBlackfriday() *Blackfriday {
-	return &Blackfriday{
-		AngledQuotes:   false,
-		Fractions:      true,
-		PlainIDAnchors: false,
+	combinedParam := map[string]interface{}{
+		"smartypants":     true,
+		"angledQuotes":    false,
+		"fractions":       true,
+		"hrefTargetBlank": false,
+		"smartDashes":     true,
+		"latexDashes":     true,
+		"plainIDAnchors":  false,
 	}
+
+	siteParam := viper.GetStringMap("blackfriday")
+	if siteParam != nil {
+		siteConfig := cast.ToStringMap(siteParam)
+
+		for key, value := range siteConfig {
+			combinedParam[key] = value
+		}
+	}
+
+	combinedConfig := &Blackfriday{}
+	if err := mapstructure.Decode(combinedParam, combinedConfig); err != nil {
+		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
+	}
+
+	return combinedConfig
 }
 
 var blackfridayExtensionMap = map[string]int{
@@ -144,9 +171,11 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 
 	htmlFlags := defaultFlags
 	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
-	htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
+
+	if ctx.getConfig().Smartypants {
+		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+	}
 
 	if ctx.getConfig().AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
@@ -156,7 +185,21 @@ func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
-	return blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	if ctx.getConfig().HrefTargetBlank {
+		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
+	}
+
+	if ctx.getConfig().SmartDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
+	}
+
+	if ctx.getConfig().LatexDashes {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	}
+
+	return &HugoHtmlRenderer{
+		blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+	}
 }
 
 func getMarkdownExtensions(ctx *RenderingContext) int {
@@ -207,7 +250,9 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
-	return mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters)
+	return &HugoMmarkHtmlRenderer{
+		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+	}
 }
 
 func GetMmarkExtensions(ctx *RenderingContext) int {
@@ -363,6 +408,32 @@ func TruncateWords(s string, max int) string {
 	return strings.Join(words[:max], " ")
 }
 
+func TruncateWordsByRune(words []string, max int) (string, bool) {
+	count := 0
+	for index, word := range words {
+		if count >= max {
+			return strings.Join(words[:index], " "), true
+		}
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			count++
+		} else if count+runeCount < max {
+			count += runeCount
+		} else {
+			for ri, _ := range word {
+				if count >= max {
+					truncatedWords := append(words[:index], word[:ri])
+					return strings.Join(truncatedWords, " "), true
+				} else {
+					count++
+				}
+			}
+		}
+	}
+
+	return strings.Join(words, " "), false
+}
+
 // TruncateWordsToWholeSentence takes content and an int
 // and returns entire sentences from content, delimited by the int
 // and whether it's truncated or not.
@@ -400,7 +471,7 @@ func GetAsciidocContent(content []byte) string {
 	}
 
 	jww.INFO.Println("Rendering with", path, "...")
-	cmd := exec.Command(path, "--safe", "-")
+	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -408,13 +479,7 @@ func GetAsciidocContent(content []byte) string {
 		jww.ERROR.Println(err)
 	}
 
-	asciidocLines := strings.Split(out.String(), "\n")
-	for i, line := range asciidocLines {
-		if strings.HasPrefix(line, "<body") {
-			asciidocLines = (asciidocLines[i+1 : len(asciidocLines)-3])
-		}
-	}
-	return strings.Join(asciidocLines, "\n")
+	return out.String()
 }
 
 // GetRstContent calls the Python script rst2html as an external helper

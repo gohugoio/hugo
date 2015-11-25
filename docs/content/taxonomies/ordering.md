@@ -42,7 +42,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
     </ul>
 
 
-[See Also Taxonomy Lists](/taxonomies/lists/)
+[See Also Taxonomy Lists]({{< relref "templates/list.md" >}})
 
 ## Ordering Content within Taxonomies
 

@@ -1,9 +1,11 @@
 package hugolib
 
 import (
+	"fmt"
 	"html/template"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -20,6 +22,10 @@ const (
 	SIMPLE_PAGE                      = "---\ntitle: Simple\n---\nSimple Page\n"
 	INVALID_FRONT_MATTER_MISSING     = "This is a test"
 	RENDER_NO_FRONT_MATTER           = "<!doctype><html><head></head><body>This is a test</body></html>"
+	CONTENT_WITH_COMMENTED_FM        = "<!--\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n-->\n\n# Network configuration\n\n##\nSummary"
+	CONTENT_WITH_COMMENTED_TEXT_FM   = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
+	CONTENT_WITH_COMMENTED_LONG_FM   = "<!--[metaData123456789012345678901234567890]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
+	CONTENT_WITH_COMMENTED_LONG2_FM  = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata123456789012345678901234567890]-->\n\n# Network configuration\n\n##\nSummary"
 	INVALID_FRONT_MATTER_SHORT_DELIM = `
 --
 title: Short delim start
@@ -139,6 +145,67 @@ Summary Same Line<!--more-->
 
 Some more text
 `
+
+	SIMPLE_PAGE_WITH_ALL_CJK_RUNES = `---
+title: Simple
+---
+
+
+€ € € € €
+你好
+도형이
+カテゴリー
+
+
+`
+
+	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES = `---
+title: Simple
+---
+
+
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+More then 70 words.
+
+
+`
+	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY = "In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good."
+
+	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE = `---
+title: Simple
+isCJKLanguage: false
+---
+
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀呀 means good enough.
+More then 70 words.
+
+
+`
+	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀呀 means good enough."
 
 	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
 title: Simple
@@ -280,6 +347,104 @@ a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
 
+var PAGE_WITH_CALENDAR_YAML_FRONTMATTER = `---
+type: calendar
+weeks:
+  -
+    start: "Jan 5"
+    days:
+      - activity: class
+        room: EN1000
+      - activity: lab
+      - activity: class
+      - activity: lab
+      - activity: class
+  -
+    start: "Jan 12"
+    days:
+      - activity: class
+      - activity: lab
+      - activity: class
+      - activity: lab
+      - activity: exam
+---
+
+Hi.
+`
+
+var PAGE_WITH_CALENDAR_JSON_FRONTMATTER = `{
+  "type": "calendar",
+  "weeks": [
+    {
+      "start": "Jan 5",
+      "days": [
+        { "activity": "class", "room": "EN1000" },
+        { "activity": "lab" },
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "class" }
+      ]
+    },
+    {
+      "start": "Jan 12",
+      "days": [
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "class" },
+        { "activity": "lab" },
+        { "activity": "exam" }
+      ]
+    }
+  ]
+}
+
+Hi.
+`
+
+var PAGE_WITH_CALENDAR_TOML_FRONTMATTER = `+++
+type = "calendar"
+
+[[weeks]]
+start = "Jan 5"
+
+[[weeks.days]]
+activity = "class"
+room = "EN1000"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks]]
+start = "Jan 12"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "class"
+
+[[weeks.days]]
+activity = "lab"
+
+[[weeks.days]]
+activity = "exam"
++++
+
+Hi.
+`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
@@ -337,8 +502,8 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 }
 
 func checkPageLayout(t *testing.T, page *Page, layout ...string) {
-	if !listEqual(page.Layout(), layout) {
-		t.Fatalf("Page layout is: %s.  Expected: %s", page.Layout(), layout)
+	if !listEqual(page.layouts(), layout) {
+		t.Fatalf("Page layout is: %s.  Expected: %s", page.layouts(), layout)
 	}
 }
 
@@ -470,6 +635,89 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
+func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
+	viper.Reset()
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 8 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 8, p.WordCount)
+	}
+}
+
+func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 15 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 15, p.WordCount)
+	}
+}
+
+func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 74 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 74, p.WordCount)
+	}
+
+	if p.Summary != SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY {
+		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
+			SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY, p.Summary)
+	}
+}
+
+func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 75 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 75, p.WordCount)
+	}
+
+	if p.Summary != SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY {
+		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
+			SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY, p.Summary)
+	}
+}
+
 func TestWordCount(t *testing.T) {
 	p, _ := NewPage("simple.md")
 	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT))
@@ -536,6 +784,10 @@ func TestShouldRenderContent(t *testing.T) {
 		// TODO how to deal with malformed frontmatter.  In this case it'll be rendered as markdown.
 		{INVALID_FRONT_MATTER_SHORT_DELIM, true},
 		{RENDER_NO_FRONT_MATTER, false},
+		{CONTENT_WITH_COMMENTED_FM, true},
+		{CONTENT_WITH_COMMENTED_TEXT_FM, true},
+		{CONTENT_WITH_COMMENTED_LONG_FM, false},
+		{CONTENT_WITH_COMMENTED_LONG2_FM, true},
 	}
 
 	for _, test := range tests {
@@ -547,6 +799,22 @@ func TestShouldRenderContent(t *testing.T) {
 			t.Errorf("expected p.IsRenderable() == %t, got %t", test.render, p.IsRenderable())
 		}
 	}
+}
+
+// Issue #768
+func TestCalendarParamsVariants(t *testing.T) {
+	pageJSON, _ := NewPage("test/fileJSON.md")
+	_, _ = pageJSON.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_JSON_FRONTMATTER))
+
+	pageYAML, _ := NewPage("test/fileYAML.md")
+	_, _ = pageYAML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_YAML_FRONTMATTER))
+
+	pageTOML, _ := NewPage("test/fileTOML.md")
+	_, _ = pageTOML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_TOML_FRONTMATTER))
+
+	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
+	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
+
 }
 
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
@@ -641,8 +909,8 @@ func TestLayoutOverride(t *testing.T) {
 		for _, y := range test.expectedLayout {
 			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
 		}
-		if !listEqual(p.Layout(), test.expectedLayout) {
-			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
+		if !listEqual(p.layouts(), test.expectedLayout) {
+			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.layouts())
 		}
 	}
 }
@@ -713,6 +981,51 @@ func TestPagePaths(t *testing.T) {
 	}
 }
 
+var PAGE_WITH_DRAFT_AND_PUBLISHED = `---
+title: broken
+published: false
+draft: true
+---
+some content
+`
+
+func TestDraftAndPublishedFrontMatterError(t *testing.T) {
+	_, err := NewPageFrom(strings.NewReader(PAGE_WITH_DRAFT_AND_PUBLISHED), "content/post/broken.md")
+	if err != ErrHasDraftAndPublished {
+		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
+	}
+}
+
+var PAGE_WITH_PUBLISHED_FALSE = `---
+title: okay
+published: false
+---
+some content
+`
+var PAGE_WITH_PUBLISHED_TRUE = `---
+title: okay
+published: true
+---
+some content
+`
+
+func TestPublishedFrontMatter(t *testing.T) {
+	p, err := NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_FALSE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if !p.Draft {
+		t.Errorf("expected true, got %t", p.Draft)
+	}
+	p, err = NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_TRUE), "content/post/broken.md")
+	if err != nil {
+		t.Fatalf("err during parse: %s", err)
+	}
+	if p.Draft {
+		t.Errorf("expected false, got %t", p.Draft)
+	}
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false
@@ -725,4 +1038,15 @@ func listEqual(left, right []string) bool {
 	}
 
 	return true
+}
+
+// TODO(bep) this may be useful for other tests.
+func compareObjects(a interface{}, b interface{}) bool {
+	aStr := strings.Split(fmt.Sprintf("%v", a), "")
+	sort.Strings(aStr)
+
+	bStr := strings.Split(fmt.Sprintf("%v", b), "")
+	sort.Strings(bStr)
+
+	return strings.Join(aStr, "") == strings.Join(bStr, "")
 }

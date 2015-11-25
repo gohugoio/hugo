@@ -1,9 +1,9 @@
 // Copyright © 2014 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,14 +30,16 @@ func init() {
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Listing out various types of content",
-	Long:  `Listing out various types of content. List requires a subcommand, eg. hugo list drafts`,
-	Run:   nil,
+	Long: `Listing out various types of content.
+
+List requires a subcommand, e.g. ` + "`hugo list drafts`.",
+	Run: nil,
 }
 
 var listDraftsCmd = &cobra.Command{
 	Use:   "drafts",
 	Short: "List all drafts",
-	Long:  `List all of the drafts in your content directory`,
+	Long:  `List all of the drafts in your content directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		InitializeConfig()
@@ -62,7 +64,8 @@ var listDraftsCmd = &cobra.Command{
 var listFutureCmd = &cobra.Command{
 	Use:   "future",
 	Short: "List all posts dated in the future",
-	Long:  `List all of the posts in your content directory who will be posted in the future`,
+	Long: `List all of the posts in your content directory which will be
+posted in the future.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		InitializeConfig()

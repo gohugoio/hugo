@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,14 +66,14 @@ func T() Template {
 	return tmpl
 }
 
-// Resets the internal template state to it's initial state
+// InitializeT resets the internal template state to its initial state
 func InitializeT() Template {
 	tmpl = New()
 	return tmpl
 }
 
-// Return a new Hugo Template System
-// With all the additional features, templates & functions
+// New returns a new Hugo Template System
+// with all the additional features, templates & functions
 func New() Template {
 	var templates = &GoHTMLTemplate{
 		Template: *template.New(""),
@@ -82,6 +82,9 @@ func New() Template {
 
 	localTemplates = &templates.Template
 
+	for k, v := range funcMap {
+		amber.FuncMap[k] = v
+	}
 	templates.Funcs(funcMap)
 	templates.LoadEmbedded()
 	return templates
@@ -190,13 +193,14 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 	ext := filepath.Ext(path)
 	switch ext {
 	case ".amber":
+		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
 		compiler := amber.New()
 		// Parse the input file
 		if err := compiler.ParseFile(path); err != nil {
-			return nil
+			return err
 		}
 
-		if _, err := compiler.CompileWithTemplate(t.New(name)); err != nil {
+		if _, err := compiler.CompileWithTemplate(t.New(templateName)); err != nil {
 			return err
 		}
 	case ".ace":
@@ -300,15 +304,21 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					//   2. <current-path>/baseof.ace
 					//   3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
 					//   4. _default/baseof.ace
+					//   5. <themedir>/layouts/_default/<template-name>-baseof.ace
+					//   6. <themedir>/layouts/_default/baseof.ace
 
 					currBaseAceFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseAceFilename)
 					templateDir := filepath.Dir(path)
+					themeDir := helpers.GetThemeDir()
 
 					pathsToCheck := []string{
 						filepath.Join(templateDir, currBaseAceFilename),
 						filepath.Join(templateDir, baseAceFilename),
 						filepath.Join(absPath, "_default", currBaseAceFilename),
-						filepath.Join(absPath, "_default", baseAceFilename)}
+						filepath.Join(absPath, "_default", baseAceFilename),
+						filepath.Join(themeDir, "layouts", "_default", currBaseAceFilename),
+						filepath.Join(themeDir, "layouts", "_default", baseAceFilename),
+					}
 
 					for _, pathToCheck := range pathsToCheck {
 						if ok, err := helpers.Exists(pathToCheck, hugofs.OsFs); err == nil && ok {

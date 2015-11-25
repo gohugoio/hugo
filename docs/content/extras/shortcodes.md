@@ -9,7 +9,7 @@ next: /extras/pagination
 prev: /extras/permalinks
 title: Shortcodes
 weight: 80
-toc: true
+toc: false
 ---
 
 Hugo uses Markdown for its simple content format. However, there are a lot
@@ -30,11 +30,13 @@ want a [partial template](/templates/partials/) instead.
 
 ## Using a shortcode
 
-In your content files, a shortcode can be called by using '`{{%/* name parameters
-*/%}}`' respectively. Shortcodes are space delimited (parameters with spaces
-can be quoted).
+In your content files, a shortcode can be called by using the `{{%/* name parameters
+*/%}}` form. Shortcode parameters are space delimited.  Parameters with spaces
+can be quoted.
 
 The first word is always the name of the shortcode. Parameters follow the name.
+Depending upon how the shortcode is defined, the parameters may be named,
+positional or both (although you can't mixed parameter types in a single call).
 The format for named parameters models that of HTML with the format
 `name="value"`.
 
@@ -51,19 +53,18 @@ The examples above use two different delimiters, the difference being the `%` an
 
 The `%` characters indicates that the shortcode's inner content needs further processing by the page's rendering processor (i.e. Markdown), needed to get the **bold** text in the example below:
 
- ```
-{{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
-```
+
+    {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
+
 
 ### Shortcodes without Markdown
 
 The `<` character indicates that the shortcode's inner content doesn't need any further rendering, this will typically be pure HTML:
 
- ```
-{{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
-```
+    {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 
-## Hugo Shortcodes
+
+## Built-in Shortcodes
 
 Hugo ships with a set of predefined shortcodes.
 
@@ -73,6 +74,7 @@ This shortcode will convert the source code provided into syntax highlighted
 HTML. Read more on [highlighting](/extras/highlighting/).
 
 #### Usage
+
 `highlight` takes exactly one required parameter of _language_ and requires a
 closing shortcode.
 
@@ -101,13 +103,16 @@ closing shortcode.
       <span style="color: #f92672">&lt;/div&gt;</span>
     <span style="color: #f92672">&lt;/section&gt;</span>
 
+***
+
 ### figure
+
 `figure` is simply an extension of the image capabilities present with Markdown.
 `figure` provides the ability to add captions, CSS classes, alt text, links etc.
 
 #### Usage
 
-`figure` can use the following parameters:
+`figure` can use the following named parameters:
 
  * src
  * link
@@ -130,6 +135,8 @@ closing shortcode.
             <h4>Steve Francia</h4>
         </figcaption>
     </figure>
+
+***
 
 ### ref, relref
 
@@ -158,16 +165,83 @@ Assuming that standard Hugo pretty URLs are turned on.
     <a href="/blog/neat">Neat</a>
     <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 
+***
+
+### Twitter
+
+You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
+    
+    https://twitter.com/spf13/status/666616452582129664
+
+Pass the tweet's id from the URL as parameter to the shortcode as shown below:
+
+    {{</* tweet 666616452582129664 */>}}
+
+***   
+
+### Youtube
+
+This shortcode embeds a responsive video player for Youtube videos. Only the id of the video is required:
+
+    https://www.youtube.com/watch?v=w7Ft2ymGmfc
+
+Copy the id from behind `v=` and pass it the shortcode:
+
+    {{</* youtube w7Ft2ymGmfc */>}} 
+
+
+***
+
+### Vimeo
+
+Adding a video from Vimeo is equivalent to the Youtube shortcode above. Extract the id from the URL
+
+    https://vimeo.com/channels/staffpicks/146022717
+
+and pass it to the shortcode:
+
+    {{</* vimeo 146022717 */>}}
+
+***
+
+### Github gists
+
+Including code snippets with Github gists while writing a tutorial is common situation bloggers face. With a given URL of the gist
+
+    https://gist.github.com/spf13/7896402
+
+pass the owner and the id of the gist to the shortcode:
+
+
+{{</* gist spf13 7896402 */>}}
+
+***
+
+### Speakerdeck
+
+To embed slides from Speakerdeck copy the URL of the slide look for 'Embed' right next to the template on Speakerdeck an copy the URL:
+
+    <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
+Extract the value from the field `id` and pass it to the shortcode:
+
+    {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
+
+
+***
+
 ## Creating your own shortcodes
 
 To create a shortcode, place a template in the layouts/shortcodes directory. The
 template name will be the name of the shortcode.
 
 In creating a shortcode, you can choose if the shortcode will use _positional
-parameters_ or _named parameters_ (but not both). A good rule of thumb is that if a
+parameters_ or _named parameters_ or _both_. A good rule of thumb is that if a
 shortcode has a single required value in the case of the `youtube` example below,
 then positional works very well. For more complex layouts with optional
-parameters, named parameters work best.
+parameters, named parameters work best.  Allowing both types of parameters is
+useful for complex layouts where you want to set default values that can be
+overridden.
 
 **Inside the template**
 
@@ -194,13 +268,18 @@ of the content between the opening and closing shortcodes. If a closing
 shortcode is required, you can check the length of `.Inner` and provide a warning
 to the user.
 
-A shortcode with `.Inner` content can be used wihout the inline content, and without the closing shortcode, by using the self-closing syntax:
+A shortcode with `.Inner` content can be used without the inline content, and without the closing shortcode, by using the self-closing syntax:
 
     {{</* innershortcode /*/>}}
 
-The variable `.Params` contains the list of parameters in case you need to do more complicated things than `.Get`.
+The variable `.Params` contains the list of parameters in case you need to do
+more complicated things than `.Get`.  It is sometimes useful to provide a
+flexible shortcode that can take named or positional parameters.  To meet this
+need, Hugo shortcodes have a `.IsNamedParams` boolean available that can be used
+such as `{{ if .IsNamedParams }}...{{ else }}...{{ end }}`.  See the
+`Single Flexible Example` below for an example.
 
-You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/). 
+You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/).
 
 ## Single Positional Example: youtube
 
@@ -256,6 +335,32 @@ Would be rendered as:
             <h4>Steve Francia</h4>
         </figcaption>
     </figure>
+
+## Single Flexible Example: vimeo with defaults
+
+    {{</* vimeo 49718712 */>}}
+    {{</* vimeo id="49718712" class="flex-video" */>}}
+
+Would load the template /layouts/shortcodes/vimeo.html
+
+    {{ if .IsNamedParams }}
+      <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
+        <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
+      </div>
+    {{ else }}
+      <div class="{{ if len .Params | eq 2 }}{{ .Get 1 }}{{ else }}vimeo-container{{ end }}">
+        <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
+      </div>
+    {{ end }}
+
+Would be rendered as:
+
+    <div class="vimeo-container">
+      <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+    </div>
+    <div class="flex-video">
+      <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+    </div>
 
 ## Paired Example: Highlight
 *Hugo already ships with the `highlight` shortcode*

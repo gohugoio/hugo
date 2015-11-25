@@ -88,10 +88,14 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 
 ### Optional variables
 
-* **redirect** Mark the post as a redirect post
+* **aliases** An array of one or more aliases
+              (e.g. old published path of a renamed content)
+              that would be created to redirect to this content.
+              See [Aliases]({{< relref "extras/aliases.md" >}}) for details.
 * **draft** If true, the content will not be rendered unless `hugo` is called with `--buildDrafts`
 * **publishdate** If in the future, content will not be rendered unless `hugo` is called with `--buildFuture`
 * **type** The type of the content (will be derived from the directory automatically if unset)
+* **isCJKLanguage** If true, explicitly treat the content as CJKLanguage (.Summary and .WordCount can work properly in CJKLanguage)
 * **weight** Used for sorting
 * **markup** *(Experimental)* Specify `"rst"` for reStructuredText (requires
             `rst2html`) or `"md"` (default) for Markdown

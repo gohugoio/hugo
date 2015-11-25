@@ -1,9 +1,9 @@
 // Copyright © 2014 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -78,11 +78,13 @@ func MakePath(s string) string {
 	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
 }
 
-// MakePathToLower creates a Unicode-sanitized string, with the spaces replaced,
-// and transformed to lower case.
-// E.g. Social Media -> social-media
-func MakePathToLower(s string) string {
-	return strings.ToLower(MakePath(s))
+// MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
+func MakePathSanitized(s string) string {
+	if viper.GetBool("DisablePathToLower") {
+		return MakePath(s)
+	} else {
+		return strings.ToLower(MakePath(s))
+	}
 }
 
 func MakeTitle(inpath string) string {
@@ -94,7 +96,7 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}
@@ -119,7 +121,7 @@ func isMn(r rune) bool {
 // ReplaceExtension takes a path and an extension, strips the old extension
 // and returns the path with the new extension.
 func ReplaceExtension(path string, newExt string) string {
-	f, _ := FileAndExt(path, fpb)
+	f, _ := fileAndExt(path, fpb)
 	return f + "." + newExt
 }
 
@@ -204,6 +206,15 @@ func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("StaticDir"))
 }
 
+// Get the root directory of the current theme, if there is one.
+// If there is no theme, returns the empty string.
+func GetThemeDir() string {
+	if ThemeSet() {
+		return AbsPathify(filepath.Join("themes", viper.GetString("theme")))
+	}
+	return ""
+}
+
 // GetThemeStaticDirPath returns the theme's static dir path if theme is set.
 // If theme is set and the static dir doesn't exist, an error is returned.
 func GetThemeStaticDirPath() (string, error) {
@@ -219,7 +230,7 @@ func GetThemeDataDirPath() (string, error) {
 func getThemeDirPath(path string) (string, error) {
 	var themeDir string
 	if ThemeSet() {
-		themeDir = AbsPathify("themes/"+viper.GetString("theme")) + FilePathSeparator + path
+		themeDir = filepath.Join(GetThemeDir(), path)
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
 			return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
 		}
@@ -227,8 +238,11 @@ func getThemeDirPath(path string) (string, error) {
 	return themeDir, nil
 }
 
+// Get the 'static' directory of the current theme, if there is one.
+// Ignores underlying errors. Candidate for deprecation?
 func GetThemesDirPath() string {
-	return AbsPathify(filepath.Join("themes", viper.GetString("theme"), "static"))
+	dir, _ := getThemeDirPath("static")
+	return dir
 }
 
 func MakeStaticPathRelative(inPath string) (string, error) {
@@ -286,7 +300,7 @@ func GetDottedRelativePath(inPath string) string {
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
-	name, _ = FileAndExt(in, fpb)
+	name, _ = fileAndExt(in, fpb)
 	return
 }
 
@@ -306,7 +320,7 @@ func Filename(in string) (name string) {
 // If the path, in, represents a filename with an extension,
 // then name will be the filename minus any extension - including the dot
 // and ext will contain the extension - minus the dot.
-func FileAndExt(in string, b filepathPathBridge) (name string, ext string) {
+func fileAndExt(in string, b filepathPathBridge) (name string, ext string) {
 	ext = b.Ext(in)
 	base := b.Base(in)
 
@@ -416,10 +430,10 @@ func PathPrep(ugly bool, in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyPath(in string) string {
-	return PrettiyPath(in, fpb)
+	return prettifyPath(in, fpb)
 }
 
-func PrettiyPath(in string, b filepathPathBridge) string {
+func prettifyPath(in string, b filepathPathBridge) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
 		if len(in) < 2 {
@@ -427,7 +441,7 @@ func PrettiyPath(in string, b filepathPathBridge) string {
 		}
 		return b.Join(b.Clean(in), "index.html")
 	}
-	name, ext := FileAndExt(in, b)
+	name, ext := fileAndExt(in, b)
 	if name == "index" {
 		// /section/name/index.html -> /section/name/index.html
 		return b.Clean(in)
@@ -436,37 +450,25 @@ func PrettiyPath(in string, b filepathPathBridge) string {
 	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
-// RemoveSubpaths takes a list of paths and removes everything that
-// contains another path in the list as a prefix. Ignores any empty
-// strings. Used mostly for logging.
-//
-// e.g. ["hello/world", "hello", "foo/bar", ""] -> ["hello", "foo/bar"]
-func RemoveSubpaths(paths []string) []string {
-	a := make([]string, 0)
-	for _, cur := range paths {
-		// ignore trivial case
-		if cur == "" {
-			continue
-		}
-
-		isDupe := false
-		for i, old := range a {
-			if strings.HasPrefix(cur, old) {
-				isDupe = true
-				break
-			} else if strings.HasPrefix(old, cur) {
-				a[i] = cur
-				isDupe = true
+// Extract the root paths from the supplied list of paths.
+// The resulting root path will not contain any file separators, but there
+// may be duplicates.
+// So "/content/section/" becomes "content"
+func ExtractRootPaths(paths []string) []string {
+	r := make([]string, len(paths))
+	for i, p := range paths {
+		root := filepath.ToSlash(p)
+		sections := strings.Split(root, "/")
+		for _, section := range sections {
+			if section != "" {
+				root = section
 				break
 			}
 		}
-
-		if !isDupe {
-			a = append(a, cur)
-		}
+		r[i] = root
 	}
+	return r
 
-	return a
 }
 
 // FindCWD returns the current working directory from where the Hugo

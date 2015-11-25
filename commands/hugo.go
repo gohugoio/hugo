@@ -1,9 +1,9 @@
 // Copyright © 2013-2015 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,6 +25,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/hugo/parser"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
@@ -43,13 +46,15 @@ import (
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
-	Long: `hugo is the main command, used to build your Hugo site. 
-	
-Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
+	Long: `hugo is the main command, used to build your Hugo site.
 
-Complete documentation is available at http://gohugo.io`,
+Hugo is a Fast and Flexible Static Site Generator
+built with love by spf13 and friends in Go.
+
+Complete documentation is available at http://gohugo.io/.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		InitializeConfig()
+		watchConfig()
 		build()
 	},
 }
@@ -57,13 +62,17 @@ Complete documentation is available at http://gohugo.io`,
 var hugoCmdV *cobra.Command
 
 //Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
+	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 	AddCommands()
-	utils.StopOnErr(HugoCmd.Execute())
+	if err := HugoCmd.Execute(); err != nil {
+		// the err is already logged by Cobra
+		os.Exit(-1)
+	}
 }
 
 //AddCommands adds child commands to the root command HugoCmd.
@@ -77,8 +86,13 @@ func AddCommands() {
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
 	HugoCmd.AddCommand(undraftCmd)
-	HugoCmd.AddCommand(genautocompleteCmd)
-	HugoCmd.AddCommand(gendocCmd)
+	HugoCmd.AddCommand(importCmd)
+
+	HugoCmd.AddCommand(genCmd)
+	genCmd.AddCommand(genautocompleteCmd)
+	genCmd.AddCommand(gendocCmd)
+	genCmd.AddCommand(genmanCmd)
+
 }
 
 //Initializes flags
@@ -93,8 +107,9 @@ func init() {
 	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
 	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyUrls", false, "if true, use /filename.html instead of /filename/")
-	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseUrl", "b", "", "hostname (and path) to the root eg. http://spf13.com/")
+	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
+	HugoCmd.PersistentFlags().BoolVar(&CanonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
+	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
@@ -110,9 +125,8 @@ func init() {
 
 	// for Bash autocomplete
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
-	annotation := make(map[string][]string)
-	annotation[cobra.BashCompFilenameExt] = validConfigFilenames
-	HugoCmd.PersistentFlags().Lookup("config").Annotations = annotation
+	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+	HugoCmd.PersistentFlags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
@@ -145,9 +159,11 @@ func LoadDefaultSettings() {
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
 	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
-	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("DefaultExtension", "html")
+	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("PygmentsUseClasses", false)
+	viper.SetDefault("PygmentsCodeFences", false)
+	viper.SetDefault("PygmentsOptions", "")
 	viper.SetDefault("DisableLiveReload", false)
 	viper.SetDefault("PluralizeListTitles", true)
 	viper.SetDefault("PreserveTaxonomyNames", false)
@@ -159,15 +175,26 @@ func LoadDefaultSettings() {
 	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
+	viper.SetDefault("DisablePathToLower", false)
+	viper.SetDefault("HasCJKLanguage", false)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig() {
 	viper.SetConfigFile(CfgFile)
-	viper.AddConfigPath(Source)
+	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
+	if Source == "" {
+		viper.AddConfigPath(".")
+	} else {
+		viper.AddConfigPath(Source)
+	}
 	err := viper.ReadInConfig()
 	if err != nil {
-		jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details")
+		if _, ok := err.(viper.ConfigParseError); ok {
+			jww.ERROR.Println(err)
+		} else {
+			jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details", err)
+		}
 	}
 
 	viper.RegisterAlias("indexes", "taxonomies")
@@ -182,8 +209,12 @@ func InitializeConfig() {
 		viper.Set("BuildFuture", Future)
 	}
 
-	if hugoCmdV.PersistentFlags().Lookup("uglyUrls").Changed {
+	if hugoCmdV.PersistentFlags().Lookup("uglyURLs").Changed {
 		viper.Set("UglyURLs", UglyURLs)
+	}
+
+	if hugoCmdV.PersistentFlags().Lookup("canonifyURLs").Changed {
+		viper.Set("CanonifyURLs", CanonifyURLs)
 	}
 
 	if hugoCmdV.PersistentFlags().Lookup("disableRSS").Changed {
@@ -277,15 +308,39 @@ func InitializeConfig() {
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
-	themeVersionMismatch, minVersion := helpers.IsThemeVsHugoVersionMismatch()
+	themeDir := helpers.GetThemeDir()
+	if themeDir != "" {
+		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+			jww.FATAL.Fatalln("Unable to find theme Directory:", themeDir)
+		}
+	}
+
+	themeVersionMismatch, minVersion := isThemeVsHugoVersionMismatch()
+
 	if themeVersionMismatch {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
 			helpers.HugoReleaseVersion(), minVersion)
 	}
 }
 
+func watchConfig() {
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		utils.CheckErr(buildSite(true))
+		if !viper.GetBool("DisableLiveReload") {
+			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+			livereload.ForceRefresh()
+		}
+	})
+}
+
 func build(watches ...bool) {
-	utils.CheckErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+	err := copyStatic()
+	if err != nil {
+		fmt.Println(err)
+		utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
 		watch = true
@@ -300,13 +355,12 @@ func build(watches ...bool) {
 }
 
 func copyStatic() error {
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
-	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
-		jww.ERROR.Println("Unable to find Static Directory:", staticDir)
-		return nil
-	}
-
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+
+	// If root, remove the second '/'
+	if publishDir == "//" {
+		publishDir = "/"
+	}
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
@@ -319,25 +373,37 @@ func copyStatic() error {
 		return nil
 	}
 
+	// Copy the theme's static directory
 	if themeDir != "" {
-		// Copy Static to Destination
 		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
 		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
 	}
 
-	// Copy Static to Destination
-	jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-	return syncer.Sync(publishDir, staticDir)
+	// Copy the site's own static directory
+	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
+	if _, err := os.Stat(staticDir); err == nil {
+		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
+		return syncer.Sync(publishDir, staticDir)
+	} else if os.IsNotExist(err) {
+		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+	}
+	return nil
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
 func getDirList() []string {
 	var a []string
 	dataDir := helpers.AbsPathify(viper.GetString("DataDir"))
+	layoutDir := helpers.AbsPathify(viper.GetString("LayoutDir"))
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			if path == dataDir && os.IsNotExist(err) {
 				jww.WARN.Println("Skip DataDir:", err)
+				return nil
+
+			}
+			if path == layoutDir && os.IsNotExist(err) {
+				jww.WARN.Println("Skip LayoutDir:", err)
 				return nil
 
 			}
@@ -444,7 +510,19 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || strings.HasPrefix(ev.Name, helpers.GetThemesDirPath())
+					// Write and rename operations are often followed by CHMOD.
+					// There may be valid use cases for rebuilding the site on CHMOD,
+					// but that will require more complex logic than this simple conditional.
+					// On OS X this seems to be related to Spotlight, see:
+					// https://github.com/go-fsnotify/fsnotify/issues/15
+					// A workaround is to put your site(s) on the Spotlight exception list,
+					// but that may be a little mysterious for most end users.
+					// So, for now, we skip reload on CHMOD.
+					if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+						continue
+					}
+
+					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
 					staticChanged = staticChanged || isstatic
 					dynamicChanged = dynamicChanged || !isstatic
 
@@ -464,7 +542,11 @@ func NewWatcher(port int) error {
 
 				if staticChanged {
 					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
-					utils.StopOnErr(copyStatic(), fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					err := copyStatic()
+					if err != nil {
+						fmt.Println(err)
+						utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					}
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
@@ -512,4 +594,58 @@ func NewWatcher(port int) error {
 
 	wg.Wait()
 	return nil
+}
+
+// isThemeVsHugoVersionMismatch returns whether the current Hugo version is < theme's min_version
+func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
+	if !helpers.ThemeSet() {
+		return
+	}
+
+	themeDir := helpers.GetThemeDir()
+
+	fs := hugofs.SourceFs
+	path := filepath.Join(themeDir, "theme.toml")
+
+	exists, err := helpers.Exists(path, fs)
+
+	if err != nil || !exists {
+		return
+	}
+
+	f, err := fs.Open(path)
+
+	if err != nil {
+		return
+	}
+
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+
+	if err != nil {
+		return
+	}
+
+	c, err := parser.HandleTOMLMetaData(b)
+
+	if err != nil {
+		return
+	}
+
+	config := c.(map[string]interface{})
+
+	if minVersion, ok := config["min_version"]; ok {
+		switch minVersion.(type) {
+		case float32:
+			return helpers.HugoVersionNumber < minVersion.(float32), fmt.Sprint(minVersion)
+		case float64:
+			return helpers.HugoVersionNumber < minVersion.(float64), fmt.Sprint(minVersion)
+		default:
+			return
+		}
+
+	}
+
+	return
 }

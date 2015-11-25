@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -103,9 +103,11 @@ type SiteInfo struct {
 	Menus                 *Menus
 	Hugo                  *HugoInfo
 	Title                 string
+	RSSLink               string
 	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
+	GoogleAnalytics       string
 	Copyright             string
 	LastChange            time.Time
 	Permalinks            PermalinkOverrides
@@ -131,24 +133,6 @@ type SiteInfo struct {
 // youtube
 // linkedin
 type SiteSocial map[string]string
-
-// BaseUrl is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) BaseUrl() template.URL {
-	helpers.Deprecated("Site", ".BaseUrl", ".BaseURL")
-	return s.BaseURL
-}
-
-// Recent is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) Recent() *Pages {
-	helpers.Deprecated("Site", ".Recent", ".Pages")
-	return s.Pages
-}
-
-// Indexes is deprecated. Will be removed in 0.15.
-func (s *SiteInfo) Indexes() *TaxonomyList {
-	helpers.Deprecated("Site", ".Indexes", ".Taxonomies")
-	return &s.Taxonomies
-}
 
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]
@@ -260,6 +244,7 @@ func (s *Site) Build() (err error) {
 		return
 	}
 	if err = s.Render(); err != nil {
+		// Better reporting when the template is missing (commit 2bbecc7b)
 		jww.ERROR.Printf("Error rendering site: %s\nAvailable templates:\n", err)
 		for _, template := range s.Tmpl.Templates() {
 			jww.ERROR.Printf("\t%s\n", template.Name())
@@ -469,9 +454,12 @@ func (s *Site) initializeSiteInfo() {
 		BaseURL:               template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
 		Title:                 viper.GetString("Title"),
 		Author:                viper.GetStringMap("author"),
+		Social:                viper.GetStringMapString("social"),
 		LanguageCode:          viper.GetString("languagecode"),
 		Copyright:             viper.GetString("copyright"),
 		DisqusShortname:       viper.GetString("DisqusShortname"),
+		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
+		RSSLink:               s.permalinkStr(viper.GetString("RSSUri")),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
@@ -901,7 +889,7 @@ func (s *Site) RenderAliases() error {
 			if err != nil {
 				return err
 			}
-			if err := s.WriteDestAlias(a, template.HTML(plink)); err != nil {
+			if err := s.WriteDestAlias(a, plink); err != nil {
 				return err
 			}
 		}
@@ -959,7 +947,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			}
 			layouts = append(layouts, self)
 		} else {
-			layouts = append(layouts, p.Layout()...)
+			layouts = append(layouts, p.layouts()...)
 			layouts = append(layouts, "_default/single.html")
 		}
 
@@ -1062,7 +1050,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	key := t.key
 	n := s.NewNode()
 	if s.Info.preserveTaxonomyNames {
-		key = helpers.MakePathToLower(key)
+		key = helpers.MakePathSanitized(key)
 		// keep as is, just make sure the first char is upper
 		n.Title = helpers.FirstUpper(t.key)
 	} else {
@@ -1094,7 +1082,14 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		n, base = s.newTaxonomyNode(t)
 
-		if err := s.renderAndWritePage("taxononomy "+t.singular, base, n, layouts...); err != nil {
+		dest := base
+		if viper.GetBool("UglyURLs") {
+			dest = helpers.Uglify(base + ".html")
+		} else {
+			dest = helpers.PrettifyPath(base + "/index.html")
+		}
+
+		if err := s.renderAndWritePage("taxonomy "+t.singular, dest, n, layouts...); err != nil {
 			results <- err
 			continue
 		}
@@ -1117,12 +1112,13 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 				taxonomyPagerNode, _ := s.newTaxonomyNode(t)
 				taxonomyPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
-					taxonomyPagerNode.Date = pager.Pages()[0].Date
-					taxonomyPagerNode.Lastmod = pager.Pages()[0].Lastmod
+					first, _ := pager.page(0)
+					taxonomyPagerNode.Date = first.Date
+					taxonomyPagerNode.Lastmod = first.Lastmod
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
-				if err := s.renderAndWritePage(fmt.Sprintf("taxononomy %s", t.singular), htmlBase, taxonomyPagerNode, layouts...); err != nil {
+				if err := s.renderAndWritePage(fmt.Sprintf("taxonomy %s", t.singular), htmlBase, taxonomyPagerNode, layouts...); err != nil {
 					results <- err
 					continue
 				}
@@ -1131,11 +1127,12 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-			n.URL = s.permalinkStr(base + "/" + viper.GetString("RSSUri"))
+            rssuri := viper.GetString("RSSUri")
+			n.URL = s.permalinkStr(base + "/" + rssuri )
 			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
-			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/"+viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				results <- err
 				continue
 			}
@@ -1197,7 +1194,7 @@ func (s *Site) RenderSectionLists() error {
 			[]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 
 		if s.Info.preserveTaxonomyNames {
-			section = helpers.MakePathToLower(section)
+			section = helpers.MakePathSanitized(section)
 		}
 
 		n := s.newSectionListNode(sectionName, section, data)
@@ -1223,8 +1220,9 @@ func (s *Site) RenderSectionLists() error {
 				sectionPagerNode := s.newSectionListNode(sectionName, section, data)
 				sectionPagerNode.paginator = pager
 				if pager.TotalPages() > 0 {
-					sectionPagerNode.Date = pager.Pages()[0].Date
-					sectionPagerNode.Lastmod = pager.Pages()[0].Lastmod
+					first, _ := pager.page(0)
+					sectionPagerNode.Date = first.Date
+					sectionPagerNode.Lastmod = first.Lastmod
 				}
 				pageNumber := i + 1
 				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
@@ -1236,10 +1234,11 @@ func (s *Site) RenderSectionLists() error {
 
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
-			n.URL = s.permalinkStr(section + "/" + viper.GetString("RSSUri"))
+            rssuri := viper.GetString("RSSUri")
+			n.URL = s.permalinkStr(section + "/" + rssuri)
 			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			if err := s.renderAndWriteXML("section "+section+" rss", section+"/"+viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", section+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
@@ -1282,8 +1281,9 @@ func (s *Site) RenderHomePage() error {
 			homePagerNode := s.newHomeNode()
 			homePagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
-				homePagerNode.Date = pager.Pages()[0].Date
-				homePagerNode.Lastmod = pager.Pages()[0].Lastmod
+				first, _ := pager.page(0)
+				homePagerNode.Date = first.Date
+				homePagerNode.Lastmod = first.Lastmod
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
@@ -1314,9 +1314,12 @@ func (s *Site) RenderHomePage() error {
 		}
 	}
 
+	// TODO(bep) reusing the Home Node smells trouble
 	n.URL = helpers.URLize("404.html")
+	n.IsHome = false
 	n.Title = "404 Page not found"
 	n.Permalink = s.permalink("404.html")
+	n.scratch = newScratch()
 
 	nfLayouts := []string{"404.html"}
 	if nfErr := s.renderAndWritePage("404 page", "404.html", n, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
@@ -1383,11 +1386,11 @@ func (s *Site) Stats() {
 func (s *Site) setURLs(n *Node, in string) {
 	n.URL = helpers.URLizeAndPrep(in)
 	n.Permalink = s.permalink(n.URL)
-	n.RSSLink = s.permalink(in + ".xml")
+	n.RSSLink = template.HTML(s.permalink(in + ".xml"))
 }
 
-func (s *Site) permalink(plink string) template.HTML {
-	return template.HTML(s.permalinkStr(plink))
+func (s *Site) permalink(plink string) string {
+	return s.permalinkStr(plink)
 }
 
 func (s *Site) permalinkStr(plink string) string {
@@ -1452,7 +1455,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
-	if viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
+	if s.Running() && viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
 	}
 
@@ -1569,8 +1572,8 @@ func (s *Site) WriteDestPage(path string, reader io.Reader) (err error) {
 	return s.PageTarget().Publish(path, reader)
 }
 
-func (s *Site) WriteDestAlias(path string, permalink template.HTML) (err error) {
-	jww.DEBUG.Println("alias created at:", path)
+func (s *Site) WriteDestAlias(path string, permalink string) (err error) {
+	jww.DEBUG.Println("creating alias:", path)
 	return s.AliasTarget().Publish(path, permalink)
 }
 
@@ -1598,9 +1601,9 @@ func (s *Site) futureStats() string {
 
 	switch s.futureCount {
 	case 0:
-		return "0 future content "
+		return "0 future content"
 	case 1:
-		msg = "1 future rendered "
+		msg = "1 future rendered"
 	default:
 		msg = fmt.Sprintf("%d future rendered", s.draftCount)
 	}

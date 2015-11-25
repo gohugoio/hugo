@@ -14,9 +14,9 @@ weight: 90
 toc: true
 ---
 
-Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed. 
+Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed.
 
-*Unlike other Hugo templates*, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320). In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section. 
+*Unlike other Hugo templates*, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320). In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section.
 
 RSS pages are of the **type "node"** and have all the [node variables](/layout/variables/) available to use in the templates.
 
@@ -29,7 +29,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 
 * /layouts/rss.xml
 * /layouts/\_default/rss.xml
-* \__internal/rss.xml
+* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
 
 ### Section RSS
 
@@ -37,7 +37,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 * /layouts/\_default/rss.xml
 * /themes/`THEME`/layouts/section/`SECTION`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
-* \__internal/rss.xml
+* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
 
 ### Taxonomy RSS
 
@@ -45,7 +45,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 * /layouts/\_default/rss.xml
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
-* \__internal/rss.xml
+* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
 
 
 ## Configuring RSS
@@ -95,7 +95,7 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
 
 ## Referencing your RSS Feed in `<head>`
 
-In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this: 
+In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this:
 
 ~~~html
 {{ if .RSSlink }}
@@ -104,11 +104,11 @@ In your `header.html` template, you can specify your RSS feed in your `<head></h
 {{ end }}
 ~~~
 
-... with the autodiscovery link specified by the line with `rel="alternate"`. 
+... with the autodiscovery link specified by the line with `rel="alternate"`.
 
-The `.RSSlink` will render the appropriate RSS feed URL for the section, whether it's everything, posts in a section, or a taxonomy. 
+The `.RSSlink` will render the appropriate RSS feed URL for the section, whether it's everything, posts in a section, or a taxonomy.
 
-**N.b.**, if you reference your RSS link, be sure to specify the mime type with `type="application/rss+xml"`. 
+**N.b.**, if you reference your RSS link, be sure to specify the mime type with `type="application/rss+xml"`.
 
 ~~~html
 <a href="{{ .URL }}" type="application/rss+xml" target="_blank">{{ .SomeText }}</a>

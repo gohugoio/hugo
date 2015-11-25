@@ -15,16 +15,16 @@ weight: 30
 Make sure either `hugo` is in your `PATH` or provide a path to it.
 
 <pre><code class="hljs nohighlight">$ hugo help
-	
+
 Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io
 
-Usage: 
+Usage:
   hugo [flags]
   hugo [command]
 
-Available Commands: 
+Available Commands:
   server          Hugo runs its own webserver to render the files
   version         Print the version number of Hugo
   config          Print the site configuration
@@ -37,7 +37,7 @@ Available Commands:
   help            Help about any command
 
 Flags:
-  -b, --baseUrl="": hostname (and path) to the root eg. http://spf13.com/
+  -b, --baseURL="": hostname (and path) to the root, e.g. http://spf13.com/
   -D, --buildDrafts=false: include content marked as draft
   -F, --buildFuture=false: include content with publishdate in the future
       --cacheDir="": filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
@@ -55,7 +55,7 @@ Flags:
   -s, --source="": filesystem path to read files relative from
       --stepAnalysis=false: display memory and timing of different steps of the program
   -t, --theme="": theme to use (located in /themes/THEMENAME/)
-      --uglyUrls=false: if true, use /filename.html instead of /filename/
+      --uglyURLs=false: if true, use /filename.html instead of /filename/
   -v, --verbose=false: verbose output
       --verboseLog=false: verbose logging
   -w, --watch=false: watch filesystem for changes and recreate as needed
@@ -145,6 +145,22 @@ static web hosting services.
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 
 
+### A note about deployment
+
+Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the directory you specified with `-d`/`--destination`) before running the `hugo` command, or you run the risk of the wrong files (e.g. drafts and/or future posts) being left in the generated site.
+
+An easy way to work around this is to use different directories for development and production.
+
+To start a server that builds draft content (helpful for editing), you can specify a different destination: the `dev/` dir.
+
+    hugo server -wDs ~/Code/hugo/docs -d dev
+
+When the content is ready for publishing, use the default `public/` dir:
+
+    hugo -s ~/Code/hugo/docs
+
+This prevents content you're not ready to share yet from accidentally becoming available.
+
 ### Alternatively, serve your web site with Hugo!
 
 Yes, that's right!  Because Hugo is so blazingly fast both in web site creation
@@ -157,9 +173,9 @@ No other web server software (Apache, nginx, IIS...) is necessary.
 Here is the command:
 
     hugo server --watch \
-                --baseUrl=http://yoursite.org/ --port=80 \
-                --appendPort=false
-		--bind=87.245.198.50
+                --baseURL=http://yoursite.org/ --port=80 \
+                --appendPort=false \
+                --bind=87.245.198.50
 
 Note the `bind` option, which is the interface to which the server will bind (defaults to `127.0.0.1`, which is fine for most development use cases). Some hosts, like Amazon WS, runs network address translation and it can sometimes be hard to figure out the actual IP address. Using `--bind=0.0.0.0` will bind to all interfaces.
 

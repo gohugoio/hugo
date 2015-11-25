@@ -1,9 +1,9 @@
 // Copyright © 2013 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,7 @@ var timeLayout string // the layout for time.Time
 var version = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of Hugo",
-	Long:  `All software has versions. This is Hugo's`,
+	Long:  `All software has versions. This is Hugo's.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if hugolib.BuildDate == "" {
 			setBuildDate() // set the build date from executable's mdate

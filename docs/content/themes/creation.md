@@ -55,7 +55,7 @@ compatibility.
 
 Everything in the static directory will be copied directly into the final site
 when rendered. No structure is provided here to enable complete freedom. It is
-common to organize the static content into 
+common to organize the static content into:
 
     /css
     /js
@@ -69,4 +69,9 @@ The actual structure is entirely up to you, the theme creator, on how you would 
 If your theme makes use of specific keys in the front matter, it is a good idea
 to provide an archetype for each content type you have. Archetypes follow the
 [guidelines provided](/content/archetypes/).
+
+
+### Generator meta tag
+
+With a growing community around Hugo we recommend theme creators to include the [Generator meta tag]({{< relref "templates/variables.md#hugo-variables" >}}) with `.Hugo.Generator` in the `<head>` of your HTML code. The output  might looks like `<meta name="generator" content="Hugo 0.13" />` and helps us to analyse the usage and popularity of Hugo.
 

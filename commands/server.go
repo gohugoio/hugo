@@ -1,9 +1,9 @@
 // Copyright © 2013-14 Steve Francia <spf@spf13.com>.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,24 +37,57 @@ var serverInterface string
 var serverWatch bool
 var serverAppend bool
 var disableLiveReload bool
+var renderToDisk bool
 
 //var serverCmdV *cobra.Command
 
 var serverCmd = &cobra.Command{
-	Use:   "server",
-	Short: "Hugo runs its own webserver to render the files",
-	Long: `Hugo is able to run its own high performance web server.
-Hugo will render all the files defined in the source directory and
-serve them up.`,
+	Use:     "server",
+	Aliases: []string{"serve"},
+	Short:   "A high performance webserver",
+	Long: `Hugo provides its own webserver which builds and serves the site.
+While hugo server is high performance, it is a webserver with limited options.
+Many run it in production, but the standard behavior is for people to use it
+in development and use a more full featured server such as Nginx or Caddy.
+
+'hugo server' will avoid writing the rendered and served content to disk,
+preferring to store it in memory.
+
+By default hugo will also watch your files for any changes you make and
+automatically rebuild the site. It will then live reload any open browser pages
+and push the latest content to them. As most Hugo sites are built in a fraction
+of a second, you will be able to save and see your changes nearly instantly.`,
 	//Run: server,
+}
+
+type filesOnlyFs struct {
+	fs http.FileSystem
+}
+
+type noDirFile struct {
+	http.File
+}
+
+func (fs filesOnlyFs) Open(name string) (http.File, error) {
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return noDirFile{f}, nil
+}
+
+func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
+	return nil, nil
 }
 
 func init() {
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
-	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
+	serverCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.Run = server
@@ -69,6 +102,11 @@ func server(cmd *cobra.Command, args []string) {
 
 	if serverWatch {
 		viper.Set("Watch", true)
+	}
+
+	if viper.GetBool("watch") {
+		serverWatch = true
+		watchConfig()
 	}
 
 	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
@@ -96,18 +134,31 @@ func server(cmd *cobra.Command, args []string) {
 		jww.ERROR.Println("memstats error:", err)
 	}
 
+	// If a Destination is provided via flag write to disk
+	if Destination != "" {
+		renderToDisk = true
+	}
+
+	// Hugo writes the output to memory instead of the disk
+	if !renderToDisk {
+		hugofs.DestinationFS = new(afero.MemMapFs)
+		// Rendering to memoryFS, publish to Root regardless of publishDir.
+		viper.Set("PublishDir", "/")
+	}
+
 	build(serverWatch)
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
-		watched := getDirList()
-		workingDir := helpers.AbsPathify(viper.GetString("WorkingDir"))
-		for i, dir := range watched {
-			watched[i], _ = helpers.GetRelativePath(dir, workingDir)
+		watchDirs := getDirList()
+		baseWatchDir := helpers.AbsPathify(viper.GetString("WorkingDir"))
+		for i, dir := range watchDirs {
+			watchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
 		}
-		unique := strings.Join(helpers.RemoveSubpaths(watched), ",")
 
-		jww.FEEDBACK.Printf("Watching for changes in %s/{%s}\n", workingDir, unique)
+		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(watchDirs)), ",")
+
+		jww.FEEDBACK.Printf("Watching for changes in %s/{%s}\n", baseWatchDir, rootWatchDirs)
 		err := NewWatcher(serverPort)
 		if err != nil {
 			fmt.Println(err)
@@ -118,10 +169,15 @@ func server(cmd *cobra.Command, args []string) {
 }
 
 func serve(port int) {
-	jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
+	if renderToDisk {
+		jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("PublishDir")))
+	} else {
+		jww.FEEDBACK.Println("Serving pages from memory")
+	}
 
 	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
-	fileserver := http.FileServer(httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir"))))
+	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))}
+	fileserver := http.FileServer(fs)
 
 	// We're only interested in the path
 	u, err := url.Parse(viper.GetString("BaseURL"))
@@ -134,9 +190,8 @@ func serve(port int) {
 		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
 
-	u.Host = net.JoinHostPort(serverInterface, strconv.Itoa(serverPort))
 	u.Scheme = "http"
-	jww.FEEDBACK.Printf("Web Server is available at %s\n", u.String())
+	jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
 	fmt.Println("Press Ctrl+C to stop")
 
 	endpoint := net.JoinHostPort(serverInterface, strconv.Itoa(port))

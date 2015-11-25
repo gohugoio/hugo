@@ -47,8 +47,8 @@ func TestNewPageWithFilePath(t *testing.T) {
 			el.layout = append(el.layout, "theme/"+y)
 		}
 
-		if !listEqual(p.Layout(), el.layout) {
-			t.Errorf("[%d] Layout incorrect. got '%s' but expected '%s'", i, p.Layout(), el.layout)
+		if !listEqual(p.layouts(), el.layout) {
+			t.Errorf("[%d] Layout incorrect. got '%s' but expected '%s'", i, p.layouts(), el.layout)
 		}
 	}
 }
