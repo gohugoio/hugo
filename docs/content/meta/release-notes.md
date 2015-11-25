@@ -78,6 +78,7 @@ Huge thanks to all who participated in this release. A special thanks to
 	* `PreserveTaxonomyNames`, when set to `true`, will preserve what you type as the taxonomy name both in the folders created and the taxonomy `key`, but it will be normalized for the URL.  [1180](https://github.com/spf13/hugo/issues/1180)
 * `hugo gen` can now generate man files, bash auto complete and markdown documentation
 * Hugo will now make suggestions when a command is mistyped
+* Shortcodes now have a boolean `.IsNamedParams` property. [1597](https://github.com/spf13/hugo/pull/1597)
 
 ## New Template Features
 * All template engines:
@@ -92,6 +93,8 @@ Huge thanks to all who participated in this release. A special thanks to
 	* It is now possible to use constructs like `where Values ".Param.key" nil` to filter pages that doesn't have a particular parameter. [1232](https://github.com/spf13/hugo/issues/1232)
 	* `getJSON`/`getCSV`: Add retry on invalid content. [1166](https://github.com/spf13/hugo/issues/1166)
 	* 	The new `readDir` func lists local files. [1204](https://github.com/spf13/hugo/pull/1204)
+    * The new `safeJS` function allows the embedding of content into JavaScript contexts in Go templates.
+    * Get the main site RSS link from any page by accessing the `.Site.RSSLink` property. [1566](https://github.com/spf13/hugo/pull/1566)
 * Ace templates:
 	* Base templates now also works in themes. [1215](https://github.com/spf13/hugo/issues/1215).
 	* And now also on Windows. [1178](https://github.com/spf13/hugo/issues/1178)
