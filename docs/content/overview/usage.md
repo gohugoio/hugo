@@ -89,7 +89,7 @@ ready to be deployed to your web server.
 If you are working on things and want to see the changes immediately, tell Hugo to watch for changes.
 Hugo will watch the filesystem for changes, and rebuild your site as soon as a file is saved:
 
-    $ hugo -s ~/Code/hugo/docs --watch
+    $ hugo -s ~/Code/hugo/docs
     0 draft content
     0 future content
     99 pages created
@@ -122,9 +122,7 @@ This is the easiest and most common way to develop a Hugo web site:
 ## Deploying your web site
 
 After running `hugo server` for local web development,
-you need to do a final `hugo` run **without the `server` command**
-and **without `--watch` or `-w`** to rebuild your site.
-You may then **deploy your site** by copying the `public/` directory
+you need to do a final `hugo` run **without the `server` command** to rebuild your site. You may then **deploy your site** by copying the `public/` directory
 (by FTP, SFTP, WebDAV, Rsync, git push, etc.) to your production web server.
 
 Since Hugo generates a static website, your site can be hosted anywhere,
@@ -153,11 +151,11 @@ An easy way to work around this is to use different directories for development 
 
 To start a server that builds draft content (helpful for editing), you can specify a different destination: the `dev/` dir.
 
-    hugo server -wDs ~/Code/hugo/docs -d dev
+    $ hugo server -wDs ~/Code/hugo/docs -d dev
 
 When the content is ready for publishing, use the default `public/` dir:
 
-    hugo -s ~/Code/hugo/docs
+    $ hugo -s ~/Code/hugo/docs
 
 This prevents content you're not ready to share yet from accidentally becoming available.
 
@@ -172,8 +170,7 @@ No other web server software (Apache, nginx, IIS...) is necessary.
 
 Here is the command:
 
-    hugo server --watch \
-                --baseURL=http://yoursite.org/ --port=80 \
+    $ hugo server --baseURL=http://yoursite.org/ --port=80 \
                 --appendPort=false \
                 --bind=87.245.198.50
 
