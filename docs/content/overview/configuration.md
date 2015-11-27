@@ -307,9 +307,3 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 </tr>
 </tbody>
 </table>
-
-## Notes
-
-Config changes are not reflected with [LiveReload](/extras/livereload/).
-
-Please restart `hugo server --watch` whenever you make a config change.
