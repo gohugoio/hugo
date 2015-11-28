@@ -50,7 +50,8 @@ for rendering in Hugo.`,
 			gendocdir += helpers.FilePathSeparator
 		}
 		if found, _ := helpers.Exists(gendocdir, hugofs.OsFs); !found {
-			hugofs.OsFs.Mkdir(gendocdir, 0777)
+			jww.FEEDBACK.Println("Directory", gendocdir, "does not exist, creating...")
+			hugofs.OsFs.MkdirAll(gendocdir, 0777)
 		}
 		now := time.Now().Format(time.RFC3339)
 		prepender := func(filename string) string {
