@@ -161,7 +161,7 @@ e.g.
     <ul>
     {{ $page_link := .Permalink }}
     {{ $tags := .Params.tags }}
-    {{ range .Site.Recent }}
+    {{ range .Site.Pages }}
         {{ $page := . }}
         {{ $has_common_tags := intersect $tags .Params.tags | len | lt 0 }}
         {{ if and $has_common_tags (ne $page_link $page.Permalink) }}
@@ -259,7 +259,7 @@ e.g.
     series: golang
     +++
 
-    {{ range where .Site.Recent "Params.series" "golang" }}
+    {{ range where .Site.Pages "Params.series" "golang" }}
        {{ .Content }}
     {{ end }}
 
