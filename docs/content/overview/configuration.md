@@ -244,7 +244,7 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 </tr>
 
 <tr>
-<td><code><strong>plainIdAnchors</strong></code></td>
+<td><code><strong>plainIDAnchors</strong></code></td>
 <td><code>false</code></td>
 <td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
 </tr>
@@ -281,7 +281,10 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 </table>
 
 
-**Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
+**Notes**
+
+1. These flags are **very case-sensitive** (as of Hugo v0.15)!
+2. These flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
 
 <table class="table">
 <thead>
@@ -294,13 +297,13 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 <td style="width: 50%;"><pre><code>[blackfriday]
   angledQuotes = true
   fractions = false
-  plainIdAnchors = true
+  plainIDAnchors = true
   extensions = ["hardLineBreak"]
 </code></pre></td>
 <td><pre><code>blackfriday:
   angledQuotes: true
   fractions: false
-  plainIdAnchors: true
+  plainIDAnchors: true
   extensions:
     - hardLineBreak
 </code></pre></td>
