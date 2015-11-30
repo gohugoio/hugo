@@ -153,7 +153,7 @@ you can look at the browser in most cases.
 
 Change and save this file. Notice what happened in your terminal:
 
-    $ Change detected, rebuilding site
+    Change detected, rebuilding site
     2015-11-27 15:13 +0100
     2 of 2 drafts rendered
     0 future content
