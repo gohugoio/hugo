@@ -8,7 +8,7 @@ sourceLink: https://github.com/camunda/blog.camunda.org
 tags:
 - company
 - blog
-thumbnail: /img/camunda-blog.jpg
+thumbnail: /img/camunda-blog.png
 title: Camunda Blog
 ---
 
