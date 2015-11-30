@@ -18,7 +18,7 @@ of things that Markdown doesn’t support well.
 We are unwilling to accept being constrained by our simple format. Also
 unacceptable is writing raw HTML in our Markdown every time we want to include
 unsupported content such as a video. To do so is in complete opposition to the
-intent of using a bare bones format for our content and utilizing templates to
+intent of using a bare-bones format for our content and utilizing templates to
 apply styling for display.
 
 To avoid both of these limitations, Hugo created shortcodes.
@@ -163,51 +163,51 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 ### Twitter
 
-You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
+You want to include a single tweet into your blog post? Everything you need is the URL of the tweet, e.g.:
     
-https://twitter.com/spf13/status/666616452582129664
+* https://twitter.com/spf13/status/666616452582129664
 
-Pass the tweet's id from the URL as parameter to the shortcode as shown below:
+Pass the tweet's ID from the URL as parameter to the shortcode as shown below:
 
     {{</* tweet 666616452582129664 */>}}
 
-### Youtube
+### YouTube
 
-This shortcode embeds a responsive video player for Youtube videos. Only the id of the video is required:
+This shortcode embeds a responsive video player for [YouTube](https://www.youtube.com/) videos. Only the ID of the video is required, e.g.:
 
-https://www.youtube.com/watch?v=w7Ft2ymGmfc
+* https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
-Copy the id from behind `v=` and pass it the shortcode:
+Copy the ID from behind `v=` and pass it the shortcode:
 
     {{</* youtube w7Ft2ymGmfc */>}} 
 
 ### Vimeo
 
-Adding a video from Vimeo is equivalent to the Youtube shortcode above. Extract the id from the URL
+Adding a video from [Vimeo](https://vimeo.com/) is equivalent to the YouTube shortcode above. Extract the ID from the URL, e.g.:
 
-https://vimeo.com/channels/staffpicks/146022717
+* https://vimeo.com/channels/staffpicks/146022717
 
 and pass it to the shortcode:
 
     {{</* vimeo 146022717 */>}}
 
-### Github gists
+### GitHub gists
 
-Including code snippets with Github gists while writing a tutorial is common situation bloggers face. With a given URL of the gist
+Including code snippets with GitHub gists while writing a tutorial is common situation bloggers face. With a given URL of the gist, e.g.:
 
-https://gist.github.com/spf13/7896402
+* https://gist.github.com/spf13/7896402
 
-pass the owner and the id of the gist to the shortcode:
+pass the owner and the ID of the gist to the shortcode:
 
     {{</* gist spf13 7896402 */>}}
 
-### Speakerdeck
+### Speaker Deck
 
-To embed slides from Speakerdeck copy the URL of the slide look for 'Embed' right next to the template on Speakerdeck an copy the URL:
+To embed slides from [Speaker Deck](https://speakerdeck.com/), click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL, e.g.:
 
     <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
 
-Extract the value from the field `id` and pass it to the shortcode:
+Extract the value from the field `data-id` and pass it to the shortcode:
 
     {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 
@@ -218,7 +218,7 @@ To create a shortcode, place a template in the layouts/shortcodes directory. The
 template name will be the name of the shortcode.
 
 In creating a shortcode, you can choose if the shortcode will use _positional
-parameters_ or _named parameters_ or _both_. A good rule of thumb is that if a
+parameters_, or _named parameters_, or _both_. A good rule of thumb is that if a
 shortcode has a single required value in the case of the `youtube` example below,
 then positional works very well. For more complex layouts with optional
 parameters, named parameters work best.  Allowing both types of parameters is
@@ -353,7 +353,7 @@ Would be rendered as:
     </html>
     {{</* /highlight */>}}
 
-The template for this utilizes the following code (already include in Hugo)
+The template for this utilizes the following code (already included in Hugo)
 
     {{ .Get 0 | highlight .Inner  }}
 
