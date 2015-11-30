@@ -99,7 +99,8 @@ Hugo contains its own high-performance web server. Simply run `hugo
 server` and Hugo will find an available port and run a server with
 your content:
 
-    $ 2 of 2 drafts rendered
+    $ hugo server --theme=hyde --buildDrafts
+    2 of 2 drafts rendered
     0 future content
     2 pages created
     0 paginator pages created
