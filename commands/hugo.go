@@ -244,6 +244,11 @@ func InitializeConfig() {
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
 		viper.Set("LogFile", LogFile)
 	}
+
+	if hugoCmdV.Flags().Lookup("noTimes").Changed {
+		viper.Set("noTimes", NoTimes)
+	}
+
 	if BaseURL != "" {
 		if !strings.HasSuffix(BaseURL, "/") {
 			BaseURL = BaseURL + "/"
