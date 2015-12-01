@@ -281,7 +281,7 @@ The skeleton includes templates (the files ending in `.html`), license file, a d
 
 When you're creating a real theme, please remember to fill out the `theme.toml` and `LICENSE.md` files. They're optional, but if you're going to be distributing your theme, it tells the world who to praise (or blame). It's also nice to declare the license so that people will know how they can use the theme.
 
-Note that the the skeleton's template files are empty. Don't worry, we'll be changing that shortly.
+Note that the theme skeleton's template files are empty. Don't worry, we'll be changing that shortly.
 
 ```bash
 $ find themes/zafta -name '*.html' | xargs ls -l
