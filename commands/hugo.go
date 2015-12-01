@@ -369,8 +369,7 @@ func copyStatic() error {
 
 	themeDir, err := helpers.GetThemeStaticDirPath()
 	if err != nil {
-		jww.ERROR.Println(err)
-		return nil
+		jww.WARN.Println(err)
 	}
 
 	// Copy the theme's static directory
