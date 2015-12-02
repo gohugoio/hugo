@@ -176,7 +176,7 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 	jww.INFO.Println("creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
-		jww.FATAL.Fatalln(createpath, "already exists")
+		return newUserError(createpath, "already exists")
 	}
 
 	mkdir(createpath, "layouts", "_default")
@@ -196,8 +196,7 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 
 	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.SourceFs)
 	if err != nil {
-
-		jww.FATAL.Fatalln(err)
+		return err
 	}
 
 	mkdir(createpath, "static", "js")
@@ -227,7 +226,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	createThemeMD(createpath)
