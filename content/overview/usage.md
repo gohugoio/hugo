@@ -185,5 +185,5 @@ the JavaScript code for LiveReload to be added to your web pages.
 
 Interested? Here are some great tutorials contributed by Hugo users:
 
-* [hugo, syncthing](http://fredix.ovh/2014/10/hugo-syncthing/) (French) by Frédéric Logier (@fredix)
-* [服务器上 hugo 的安装和配置 <small>(Installing and configuring Hugo on the server)</small>](http://hucsmn.com/post/hugo-tutorial-make-it-work/) (Chinese) by hucsmn
+* [hugo, syncthing](http://fredix.xyz/2014/10/hugo-syncthing/) (French) by Frédéric Logier (@fredix)
+
