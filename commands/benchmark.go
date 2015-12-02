@@ -23,7 +23,7 @@ var cpuProfilefile string
 var memProfilefile string
 var benchmarkTimes int
 
-var benchmark = &cobra.Command{
+var benchmarkCmd = &cobra.Command{
 	Use:   "benchmark",
 	Short: "Benchmark hugo by building a site a number of times.",
 	Long: `Hugo can build a site many times over and analyze the running process
@@ -38,10 +38,10 @@ creating a benchmark.`,
 }
 
 func init() {
-	benchmark.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
-	benchmark.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
+	benchmarkCmd.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
+	benchmarkCmd.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
 
-	benchmark.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
+	benchmarkCmd.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
 }
 
 func bench(cmd *cobra.Command, args []string) error {

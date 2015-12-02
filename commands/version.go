@@ -28,7 +28,7 @@ import (
 
 var timeLayout string // the layout for time.Time
 
-var version = &cobra.Command{
+var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of Hugo",
 	Long:  `All software has versions. This is Hugo's.`,

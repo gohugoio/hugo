@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/hugo/hugolib"
 )
 
-var check = &cobra.Command{
+var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "Check content in the source directory",
 	Long: `Hugo will perform some basic analysis on the content provided

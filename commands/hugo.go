@@ -102,11 +102,11 @@ Complete documentation is available at http://gohugo.io/.`,
 
 var hugoCmdV *cobra.Command
 
-//Flags that are to be added to commands.
+// Flags that are to be added to commands.
 var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
-//Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
+// Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
 	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 
@@ -124,13 +124,13 @@ func Execute() {
 	}
 }
 
-//AddCommands adds child commands to the root command HugoCmd.
+// AddCommands adds child commands to the root command HugoCmd.
 func AddCommands() {
 	HugoCmd.AddCommand(serverCmd)
-	HugoCmd.AddCommand(version)
-	HugoCmd.AddCommand(config)
-	HugoCmd.AddCommand(check)
-	HugoCmd.AddCommand(benchmark)
+	HugoCmd.AddCommand(versionCmd)
+	HugoCmd.AddCommand(configCmd)
+	HugoCmd.AddCommand(checkCmd)
+	HugoCmd.AddCommand(benchmarkCmd)
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
@@ -144,7 +144,7 @@ func AddCommands() {
 
 }
 
-//Initializes flags
+// init initializes flags.
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
 	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
@@ -184,7 +184,7 @@ func init() {
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
 
-  Hugo is a command line tool
+  Hugo is a command-line tool
 
   You need to open cmd.exe and run it from there.`
 }
@@ -657,7 +657,8 @@ func NewWatcher(port int) error {
 	return nil
 }
 
-// isThemeVsHugoVersionMismatch returns whether the current Hugo version is < theme's min_version
+// isThemeVsHugoVersionMismatch returns whether the current Hugo version is
+// less than the theme's min_version.
 func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
 	if !helpers.ThemeSet() {
 		return

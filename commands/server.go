@@ -1,4 +1,4 @@
-// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
+// Copyright © 2013-2015 Steve Francia <spf@spf13.com>.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -94,7 +94,9 @@ func init() {
 }
 
 func server(cmd *cobra.Command, args []string) error {
-	InitializeConfig()
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if cmd.Flags().Lookup("disableLiveReload").Changed {
 		viper.Set("DisableLiveReload", disableLiveReload)
