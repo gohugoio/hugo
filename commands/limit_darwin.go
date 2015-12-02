@@ -30,12 +30,13 @@ var limit = &cobra.Command{
 	Short: "Check system ulimit settings",
 	Long: `Hugo will inspect the current ulimit settings on the system.
     This is primarily to ensure that Hugo can watch enough files on some OSs`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var rLimit syscall.Rlimit
 		err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			jww.ERROR.Println("Error Getting Rlimit ", err)
+			return newSystemError("Error Getting Rlimit ", err)
 		}
+
 		jww.FEEDBACK.Println("Current rLimit:", rLimit)
 
 		jww.FEEDBACK.Println("Attempting to increase limit")
@@ -43,13 +44,15 @@ var limit = &cobra.Command{
 		rLimit.Cur = 999999
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			jww.ERROR.Println("Error Setting rLimit ", err)
+			return newSystemError("Error Setting rLimit ", err)
 		}
 		err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			jww.ERROR.Println("Error Getting rLimit ", err)
+			return newSystemError("Error Getting rLimit ", err)
 		}
 		jww.FEEDBACK.Println("rLimit after change:", rLimit)
+
+		return nil
 	},
 }
 

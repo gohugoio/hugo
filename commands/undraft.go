@@ -20,7 +20,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/parser"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var undraftCmd = &cobra.Command{
@@ -29,53 +28,50 @@ var undraftCmd = &cobra.Command{
 	Long: `Undraft changes the content's draft status from 'True' to 'False'
 and updates the date to the current date and time.
 If the content's draft status is 'False', nothing is done.`,
-	Run: Undraft,
+	RunE: Undraft,
 }
 
 // Publish publishes the specified content by setting its draft status
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
-func Undraft(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func Undraft(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("a piece of content needs to be specified")
+		return newUserError("a piece of content needs to be specified")
 	}
 
 	location := args[0]
 	// open the file
 	f, err := os.Open(location)
 	if err != nil {
-		jww.ERROR.Print(err)
-		return
+		return err
 	}
 
 	// get the page from file
 	p, err := parser.ReadFrom(f)
 	f.Close()
 	if err != nil {
-		jww.ERROR.Print(err)
-		return
+		return err
 	}
 
 	w, err := undraftContent(p)
 	if err != nil {
-		jww.ERROR.Printf("an error occurred while undrafting %q: %s", location, err)
-		return
+		return newSystemError("an error occurred while undrafting %q: %s", location, err)
 	}
 
 	f, err = os.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		jww.ERROR.Printf("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
-		return
+		return newSystemError("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
 	}
 	defer f.Close()
 	_, err = w.WriteTo(f)
 	if err != nil {
-		jww.ERROR.Printf("%q not be undrafted due to save error: %q\n", location, err)
+		return newSystemError("%q not be undrafted due to save error: %q\n", location, err)
 	}
-	return
+	return nil
 }
 
 // undraftContent: if the content is a draft, change its draft status to

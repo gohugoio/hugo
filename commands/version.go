@@ -32,7 +32,7 @@ var version = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of Hugo",
 	Long:  `All software has versions. This is Hugo's.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if hugolib.BuildDate == "" {
 			setBuildDate() // set the build date from executable's mdate
 		} else {
@@ -43,6 +43,8 @@ var version = &cobra.Command{
 		} else {
 			fmt.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
 		}
+
+		return nil
 	},
 }
 

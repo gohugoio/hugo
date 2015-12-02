@@ -32,7 +32,7 @@ of Hugo's command-line interface for http://gohugo.io/.
 It creates one Markdown file per command with front matter suitable
 for rendering in Hugo.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if !strings.HasSuffix(gendocdir, helpers.FilePathSeparator) {
 			gendocdir += helpers.FilePathSeparator
 		}
@@ -55,6 +55,8 @@ for rendering in Hugo.`,
 		jww.FEEDBACK.Println("Generating Hugo command-line documentation in", gendocdir, "...")
 		cobra.GenMarkdownTreeCustom(cmd.Root(), gendocdir, prepender, linkHandler)
 		jww.FEEDBACK.Println("Done.")
+
+		return nil
 	},
 }
 

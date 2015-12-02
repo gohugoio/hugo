@@ -40,7 +40,43 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
+	"regexp"
 )
+
+// userError is an error used to signal different error situations in command handling.
+type commandError struct {
+	s         string
+	userError bool
+}
+
+func (u commandError) Error() string {
+	return u.s
+}
+
+func (u commandError) isUserError() bool {
+	return u.userError
+}
+
+func newUserError(messages ...interface{}) commandError {
+	return commandError{s: fmt.Sprintln(messages...), userError: true}
+}
+
+func newSystemError(messages ...interface{}) commandError {
+	return commandError{s: fmt.Sprintln(messages...), userError: false}
+}
+
+// catch some of the obvious user errors from Cobra.
+// We don't want to show the usage message for every error.
+// The below may be to generic. Time will show.
+var userErrorRegexp = regexp.MustCompile("argument|flag|shorthand")
+
+func isUserError(err error) bool {
+	if cErr, ok := err.(commandError); ok && cErr.isUserError() {
+		return true
+	}
+
+	return userErrorRegexp.MatchString(err.Error())
+}
 
 //HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
 var HugoCmd = &cobra.Command{
@@ -52,10 +88,15 @@ Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
 		watchConfig()
-		build()
+
+		return build()
+
 	},
 }
 
@@ -68,9 +109,17 @@ var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor stri
 //Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
 	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+
+	HugoCmd.SilenceUsage = true
+
 	AddCommands()
-	if err := HugoCmd.Execute(); err != nil {
-		// the err is already logged by Cobra
+
+	if c, err := HugoCmd.ExecuteC(); err != nil {
+		if isUserError(err) {
+			c.Println("")
+			c.Println(c.UsageString())
+		}
+
 		os.Exit(-1)
 	}
 }
@@ -184,7 +233,7 @@ func LoadDefaultSettings() {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig() {
+func InitializeConfig() error {
 	viper.SetConfigFile(CfgFile)
 	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
 	if Source == "" {
@@ -195,9 +244,9 @@ func InitializeConfig() {
 	err := viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
-			jww.ERROR.Println(err)
+			return newSystemError(err)
 		} else {
-			jww.ERROR.Println("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details", err)
+			return newSystemError("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details", err)
 		}
 	}
 
@@ -320,7 +369,7 @@ func InitializeConfig() {
 	themeDir := helpers.GetThemeDir()
 	if themeDir != "" {
 		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			jww.FATAL.Fatalln("Unable to find theme Directory:", themeDir)
+			return newSystemError("Unable to find theme Directory:", themeDir)
 		}
 	}
 
@@ -330,6 +379,8 @@ func InitializeConfig() {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
 			helpers.HugoReleaseVersion(), minVersion)
 	}
+
+	return nil
 }
 
 func watchConfig() {
@@ -344,23 +395,26 @@ func watchConfig() {
 	})
 }
 
-func build(watches ...bool) {
-	err := copyStatic()
-	if err != nil {
-		fmt.Println(err)
-		utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+func build(watches ...bool) error {
+
+	if err := copyStatic(); err != nil {
+		return fmt.Errorf("Error copying static files to %s: %s", helpers.AbsPathify(viper.GetString("PublishDir")), err)
 	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
 		watch = true
 	}
-	utils.StopOnErr(buildSite(BuildWatch || watch))
+	if err := buildSite(BuildWatch || watch); err != nil {
+		return fmt.Errorf("Error building site: %s", err)
+	}
 
 	if BuildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
 		utils.CheckErr(NewWatcher(0))
 	}
+
+	return nil
 }
 
 func copyStatic() error {
@@ -483,7 +537,6 @@ func NewWatcher(port int) error {
 	var wg sync.WaitGroup
 
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

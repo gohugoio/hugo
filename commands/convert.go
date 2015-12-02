@@ -36,7 +36,7 @@ var convertCmd = &cobra.Command{
 	Long: `Convert your content (e.g. front matter) to different formats.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.`,
-	Run: nil,
+	RunE: nil,
 }
 
 var toJSONCmd = &cobra.Command{
@@ -44,11 +44,8 @@ var toJSONCmd = &cobra.Command{
 	Short: "Convert front matter to JSON",
 	Long: `toJSON converts all front matter in the content directory
 to use JSON for the front matter.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		err := convertContents(rune([]byte(parser.JSON_LEAD)[0]))
-		if err != nil {
-			jww.ERROR.Println(err)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return convertContents(rune([]byte(parser.JSON_LEAD)[0]))
 	},
 }
 
@@ -57,11 +54,8 @@ var toTOMLCmd = &cobra.Command{
 	Short: "Convert front matter to TOML",
 	Long: `toTOML converts all front matter in the content directory
 to use TOML for the front matter.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		err := convertContents(rune([]byte(parser.TOML_LEAD)[0]))
-		if err != nil {
-			jww.ERROR.Println(err)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return convertContents(rune([]byte(parser.TOML_LEAD)[0]))
 	},
 }
 
@@ -70,11 +64,8 @@ var toYAMLCmd = &cobra.Command{
 	Short: "Convert front matter to YAML",
 	Long: `toYAML converts all front matter in the content directory
 to use YAML for the front matter.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		err := convertContents(rune([]byte(parser.YAML_LEAD)[0]))
-		if err != nil {
-			jww.ERROR.Println(err)
-		}
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return convertContents(rune([]byte(parser.YAML_LEAD)[0]))
 	},
 }
 
@@ -87,7 +78,9 @@ func init() {
 }
 
 func convertContents(mark rune) (err error) {
-	InitializeConfig()
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 	site := &hugolib.Site{}
 
 	if err := site.Initialise(); err != nil {

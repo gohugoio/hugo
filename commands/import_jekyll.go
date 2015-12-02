@@ -35,34 +35,44 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+func init() {
+	importCmd.AddCommand(importJekyllCmd)
+}
+
+var importCmd = &cobra.Command{
+	Use:   "import",
+	Short: "Import your site from others.",
+	Long: `Import your site from other web site generators like Jekyll.
+
+Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
+	RunE: nil,
+}
+
 var importJekyllCmd = &cobra.Command{
 	Use:   "jekyll",
 	Short: "hugo import from Jekyll",
 	Long: `hugo import from Jekyll.
 
 Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
-	Run: importFromJekyll,
+	RunE: importFromJekyll,
 }
 
-func importFromJekyll(cmd *cobra.Command, args []string) {
+func importFromJekyll(cmd *cobra.Command, args []string) error {
 	jww.SetLogThreshold(jww.LevelTrace)
 	jww.SetStdoutThreshold(jww.LevelWarn)
 
 	if len(args) < 2 {
-		jww.ERROR.Println(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
-		return
+		return newUserError(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
 	}
 
 	jekyllRoot, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
-		jww.ERROR.Println("Path error:", args[0])
-		return
+		return newUserError("Path error:", args[0])
 	}
 
 	targetDir, err := filepath.Abs(filepath.Clean(args[1]))
 	if err != nil {
-		jww.ERROR.Println("Path error:", args[1])
-		return
+		return newUserError("Path error:", args[1])
 	}
 
 	createSiteFromJekyll(jekyllRoot, targetDir)
@@ -82,8 +92,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 
 		relPath, err := filepath.Rel(jekyllRoot, path)
 		if err != nil {
-			jww.ERROR.Println("Get rel path error:", path)
-			return err
+			return newUserError("Get rel path error:", path)
 		}
 
 		relPath = filepath.ToSlash(relPath)
@@ -106,13 +115,15 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 	err = filepath.Walk(jekyllRoot, callback)
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	} else {
 		fmt.Println("Congratulations!", fileCount, "posts imported!")
 		fmt.Println("Now, start Hugo by yourself: \n" +
 			"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
 		fmt.Println("$ cd " + args[1] + "\n$ hugo server -w --theme=herring-cove")
 	}
+
+	return nil
 }
 
 func createSiteFromJekyll(jekyllRoot, targetDir string) {

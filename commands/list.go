@@ -33,22 +33,25 @@ var listCmd = &cobra.Command{
 	Long: `Listing out various types of content.
 
 List requires a subcommand, e.g. ` + "`hugo list drafts`.",
-	Run: nil,
+	RunE: nil,
 }
 
 var listDraftsCmd = &cobra.Command{
 	Use:   "drafts",
 	Short: "List all drafts",
 	Long:  `List all of the drafts in your content directory.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
-		InitializeConfig()
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
 		viper.Set("BuildDrafts", true)
 
 		site := &hugolib.Site{}
 
 		if err := site.Process(); err != nil {
-			fmt.Println("Error Processing Source Content", err)
+			return newSystemError("Error Processing Source Content", err)
 		}
 
 		for _, p := range site.Pages {
@@ -58,6 +61,8 @@ var listDraftsCmd = &cobra.Command{
 
 		}
 
+		return nil
+
 	},
 }
 
@@ -66,15 +71,18 @@ var listFutureCmd = &cobra.Command{
 	Short: "List all posts dated in the future",
 	Long: `List all of the posts in your content directory which will be
 posted in the future.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
-		InitializeConfig()
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
 		viper.Set("BuildFuture", true)
 
 		site := &hugolib.Site{}
 
 		if err := site.Process(); err != nil {
-			fmt.Println("Error Processing Source Content", err)
+			return newSystemError("Error Processing Source Content", err)
 		}
 
 		for _, p := range site.Pages {
@@ -83,6 +91,8 @@ posted in the future.`,
 			}
 
 		}
+
+		return nil
 
 	},
 }

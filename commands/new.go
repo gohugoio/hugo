@@ -55,7 +55,7 @@ You can also specify the kind with ` + "`-k KIND`" + `.
 
 If archetypes are provided in your theme or site, they will be used.`,
 
-	Run: NewContent,
+	RunE: NewContent,
 }
 
 var newSiteCmd = &cobra.Command{
@@ -64,7 +64,7 @@ var newSiteCmd = &cobra.Command{
 	Long: `Create a new site in the provided directory.
 The new site will have the correct structure, but no content or theme yet.
 Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
-	Run: NewSite,
+	RunE: NewSite,
 }
 
 var newThemeCmd = &cobra.Command{
@@ -74,20 +74,21 @@ var newThemeCmd = &cobra.Command{
 New theme is a skeleton. Please add content to the touched files. Add your
 name to the copyright line in the license and adjust the theme.toml file
 as you see fit.`,
-	Run: NewTheme,
+	RunE: NewTheme,
 }
 
 // NewContent adds new content to a Hugo site.
-func NewContent(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func NewContent(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if cmd.Flags().Lookup("format").Changed {
 		viper.Set("MetaDataFormat", configFormat)
 	}
 
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("path needs to be provided")
+		return newUserError("path needs to be provided")
 	}
 
 	createpath := args[0]
@@ -100,10 +101,8 @@ func NewContent(cmd *cobra.Command, args []string) {
 		kind = contentType
 	}
 
-	err := create.NewContent(kind, createpath)
-	if err != nil {
-		jww.ERROR.Println(err)
-	}
+	return create.NewContent(kind, createpath)
+
 }
 
 func doNewSite(basepath string, force bool) error {
@@ -146,32 +145,31 @@ func doNewSite(basepath string, force bool) error {
 }
 
 // NewSite creates a new hugo site and initializes a structured Hugo directory.
-func NewSite(cmd *cobra.Command, args []string) {
+func NewSite(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("path needs to be provided")
+		return newUserError("path needs to be provided")
 	}
 
 	createpath, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
-		cmd.Usage()
-		jww.FATAL.Fatalln(err)
+		return newUserError(err)
 	}
 
 	forceNew, _ := cmd.Flags().GetBool("force")
-	if err := doNewSite(createpath, forceNew); err != nil {
-		cmd.Usage()
-		jww.FATAL.Fatalln(err)
-	}
+
+	return doNewSite(createpath, forceNew)
+
 }
 
 // NewTheme creates a new Hugo theme.
-func NewTheme(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func NewTheme(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("theme name needs to be provided")
+
+		return newUserError("theme name needs to be provided")
 	}
 
 	createpath := helpers.AbsPathify(filepath.Join("themes", args[0]))
@@ -229,10 +227,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
-		jww.FATAL.Fatalln(err)
+		return nil
 	}
 
 	createThemeMD(createpath)
+
+	return nil
 }
 
 func mkdir(x ...string) {

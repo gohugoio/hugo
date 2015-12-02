@@ -31,16 +31,19 @@ or just source them in directly:
 
 	$ . /etc/bash_completion`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if autocompleteType != "bash" {
-			jww.FATAL.Fatalln("Only Bash is supported for now")
+			return newUserError("Only Bash is supported for now")
 		}
+
 		err := cmd.Root().GenBashCompletionFile(autocompleteTarget)
+
 		if err != nil {
-			jww.FATAL.Fatalln("Failed to generate shell completion file:", err)
+			return err
 		} else {
 			jww.FEEDBACK.Println("Bash completion file for Hugo saved to", autocompleteTarget)
 		}
+		return nil
 	},
 }
 
