@@ -57,12 +57,20 @@ func (u commandError) isUserError() bool {
 	return u.userError
 }
 
-func newUserError(messages ...interface{}) commandError {
-	return commandError{s: fmt.Sprintln(messages...), userError: true}
+func newUserError(a ...interface{}) commandError {
+	return commandError{s: fmt.Sprintln(a...), userError: true}
 }
 
-func newSystemError(messages ...interface{}) commandError {
-	return commandError{s: fmt.Sprintln(messages...), userError: false}
+func newUserErrorF(format string, a ...interface{}) commandError {
+	return commandError{s: fmt.Sprintf(format, a...), userError: true}
+}
+
+func newSystemError(a ...interface{}) commandError {
+	return commandError{s: fmt.Sprintln(a...), userError: false}
+}
+
+func newSystemErrorF(format string, a ...interface{}) commandError {
+	return commandError{s: fmt.Sprintf(format, a...), userError: false}
 }
 
 // catch some of the obvious user errors from Cobra.

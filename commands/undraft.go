@@ -59,17 +59,17 @@ func Undraft(cmd *cobra.Command, args []string) error {
 
 	w, err := undraftContent(p)
 	if err != nil {
-		return newSystemError("an error occurred while undrafting %q: %s", location, err)
+		return newSystemErrorF("an error occurred while undrafting %q: %s", location, err)
 	}
 
 	f, err = os.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		return newSystemError("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
+		return newSystemErrorF("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
 	}
 	defer f.Close()
 	_, err = w.WriteTo(f)
 	if err != nil {
-		return newSystemError("%q not be undrafted due to save error: %q\n", location, err)
+		return newSystemErrorF("%q not be undrafted due to save error: %q\n", location, err)
 	}
 	return nil
 }
