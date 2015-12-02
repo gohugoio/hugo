@@ -25,8 +25,11 @@ var config = &cobra.Command{
 	Use:   "config",
 	Short: "Print the site configuration",
 	Long:  `Print the site configuration, both default and custom settings.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
 		allSettings := viper.AllSettings()
 
 		var separator string
@@ -49,5 +52,7 @@ var config = &cobra.Command{
 				fmt.Printf("%s%s%+v\n", k, separator, allSettings[k])
 			}
 		}
+
+		return nil
 	},
 }

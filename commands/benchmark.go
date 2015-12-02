@@ -28,9 +28,12 @@ var benchmark = &cobra.Command{
 	Short: "Benchmark hugo by building a site a number of times.",
 	Long: `Hugo can build a site many times over and analyze the running process
 creating a benchmark.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
-		bench(cmd, args)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
+		return bench(cmd, args)
 	},
 }
 
@@ -41,13 +44,13 @@ func init() {
 	benchmark.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
 }
 
-func bench(cmd *cobra.Command, args []string) {
+func bench(cmd *cobra.Command, args []string) error {
 
 	if memProfilefile != "" {
 		f, err := os.Create(memProfilefile)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 		for i := 0; i < benchmarkTimes; i++ {
 			_ = buildSite()
@@ -62,7 +65,7 @@ func bench(cmd *cobra.Command, args []string) {
 		f, err := os.Create(cpuProfilefile)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		pprof.StartCPUProfile(f)
@@ -71,5 +74,7 @@ func bench(cmd *cobra.Command, args []string) {
 			_ = buildSite()
 		}
 	}
+
+	return nil
 
 }

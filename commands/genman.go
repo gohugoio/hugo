@@ -18,7 +18,7 @@ var genmanCmd = &cobra.Command{
 command-line interface.  By default, it creates the man page files
 in the "man" directory under the current directory.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		header := &cobra.GenManHeader{
 			Section: "1",
 			Manual:  "Hugo Manual",
@@ -37,6 +37,8 @@ in the "man" directory under the current directory.`,
 		cmd.Root().GenManTree(header, genmandir)
 
 		jww.FEEDBACK.Println("Done.")
+
+		return nil
 	},
 }
 

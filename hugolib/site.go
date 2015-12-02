@@ -254,9 +254,11 @@ func (s *Site) Build() (err error) {
 	return nil
 }
 
-func (s *Site) Analyze() {
-	s.Process()
-	s.ShowPlan(os.Stdout)
+func (s *Site) Analyze() error {
+	if err := s.Process(); err != nil {
+		return err
+	}
+	return s.ShowPlan(os.Stdout)
 }
 
 func (s *Site) prepTemplates() {

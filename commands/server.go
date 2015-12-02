@@ -57,7 +57,7 @@ By default hugo will also watch your files for any changes you make and
 automatically rebuild the site. It will then live reload any open browser pages
 and push the latest content to them. As most Hugo sites are built in a fraction
 of a second, you will be able to save and see your changes nearly instantly.`,
-	//Run: server,
+	//RunE: server,
 }
 
 type filesOnlyFs struct {
@@ -90,10 +90,10 @@ func init() {
 	serverCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
-	serverCmd.Run = server
+	serverCmd.RunE = server
 }
 
-func server(cmd *cobra.Command, args []string) {
+func server(cmd *cobra.Command, args []string) error {
 	InitializeConfig()
 
 	if cmd.Flags().Lookup("disableLiveReload").Changed {
@@ -116,8 +116,7 @@ func server(cmd *cobra.Command, args []string) {
 		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
 		sp, err := helpers.FindAvailablePort()
 		if err != nil {
-			jww.ERROR.Println("Unable to find alternative port to use")
-			jww.ERROR.Fatalln(err)
+			return newSystemError("Unable to find alternative port to use:", err)
 		}
 		serverPort = sp.Port
 	}
@@ -126,7 +125,7 @@ func server(cmd *cobra.Command, args []string) {
 
 	BaseURL, err := fixURL(BaseURL)
 	if err != nil {
-		jww.ERROR.Fatal(err)
+		return err
 	}
 	viper.Set("BaseURL", BaseURL)
 
@@ -146,7 +145,9 @@ func server(cmd *cobra.Command, args []string) {
 		viper.Set("PublishDir", "/")
 	}
 
-	build(serverWatch)
+	if err := build(serverWatch); err != nil {
+		return err
+	}
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
@@ -160,12 +161,15 @@ func server(cmd *cobra.Command, args []string) {
 
 		jww.FEEDBACK.Printf("Watching for changes in %s/{%s}\n", baseWatchDir, rootWatchDirs)
 		err := NewWatcher(serverPort)
+
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 	}
 
 	serve(serverPort)
+
+	return nil
 }
 
 func serve(port int) {
