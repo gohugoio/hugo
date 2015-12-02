@@ -736,7 +736,7 @@ func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
 	}
 	// make it match the nodes
 	menuEntryURL := in
-	menuEntryURL = helpers.URLizeAndPrep(menuEntryURL)
+	menuEntryURL = helpers.SanitizeURLKeepTrailingSlash(helpers.URLize(menuEntryURL))
 	if !s.canonifyURLs {
 		menuEntryURL = helpers.AddContextRoot(string(s.BaseURL), menuEntryURL)
 	}
