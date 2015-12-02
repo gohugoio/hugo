@@ -1127,8 +1127,8 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-            rssuri := viper.GetString("RSSUri")
-			n.URL = s.permalinkStr(base + "/" + rssuri )
+			rssuri := viper.GetString("RSSUri")
+			n.URL = s.permalinkStr(base + "/" + rssuri)
 			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
@@ -1234,7 +1234,7 @@ func (s *Site) RenderSectionLists() error {
 
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
-            rssuri := viper.GetString("RSSUri")
+			rssuri := viper.GetString("RSSUri")
 			n.URL = s.permalinkStr(section + "/" + rssuri)
 			n.Permalink = s.permalink(section)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
