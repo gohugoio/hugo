@@ -149,44 +149,52 @@ func AddCommands() {
 	genCmd.AddCommand(genautocompleteCmd)
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
+}
 
+// initCoreCommonFlags initializes common flags used by Hugo core commands
+// such as hugo itself, server, check, config and benchmark.
+func initCoreCommonFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
+	cmd.Flags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
+	cmd.Flags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
+	cmd.Flags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
+	cmd.Flags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.Flags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
+	cmd.Flags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
+	cmd.Flags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
+	cmd.Flags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
+	cmd.Flags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
+	cmd.Flags().BoolVar(&CanonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
+	cmd.Flags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
+	cmd.Flags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	cmd.Flags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
+	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
+	cmd.Flags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
+	cmd.Flags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
+
+	// For bash-completion
+	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
+	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+	cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
 // init initializes flags.
 func init() {
-	HugoCmd.PersistentFlags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
-	HugoCmd.PersistentFlags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
-	HugoCmd.PersistentFlags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
-	HugoCmd.PersistentFlags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
-	HugoCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
-	HugoCmd.PersistentFlags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
-	HugoCmd.PersistentFlags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
-	HugoCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
-	HugoCmd.PersistentFlags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
-	HugoCmd.PersistentFlags().BoolVar(&CanonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
-	HugoCmd.PersistentFlags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
-	HugoCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
-	HugoCmd.PersistentFlags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
 	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
 	HugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
-	HugoCmd.PersistentFlags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
-	HugoCmd.PersistentFlags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
-	HugoCmd.PersistentFlags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
+
+	initCoreCommonFlags(HugoCmd)
 
 	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
 
 	// For bash-completion
-	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
-	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
-	HugoCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
-	HugoCmd.PersistentFlags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
-	HugoCmd.PersistentFlags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
-	HugoCmd.PersistentFlags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
@@ -241,7 +249,9 @@ func LoadDefaultSettings() {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig() error {
+// A Hugo command that calls initCoreCommonFlags() can pass itself
+// as an argument to have its command-line flags processed here.
+func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	viper.SetConfigFile(CfgFile)
 	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
 	if Source == "" {
@@ -262,52 +272,47 @@ func InitializeConfig() error {
 
 	LoadDefaultSettings()
 
-	if hugoCmdV.PersistentFlags().Lookup("buildDrafts").Changed {
-		viper.Set("BuildDrafts", Draft)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("buildFuture").Changed {
-		viper.Set("BuildFuture", Future)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("uglyURLs").Changed {
-		viper.Set("UglyURLs", UglyURLs)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("canonifyURLs").Changed {
-		viper.Set("CanonifyURLs", CanonifyURLs)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("disableRSS").Changed {
-		viper.Set("DisableRSS", DisableRSS)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("disableSitemap").Changed {
-		viper.Set("DisableSitemap", DisableSitemap)
-	}
-
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
 		viper.Set("Verbose", Verbose)
 	}
-
-	if hugoCmdV.PersistentFlags().Lookup("pluralizeListTitles").Changed {
-		viper.Set("PluralizeListTitles", PluralizeListTitles)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("preserveTaxonomyNames").Changed {
-		viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("editor").Changed {
-		viper.Set("NewContentEditor", Editor)
-	}
-
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
 		viper.Set("LogFile", LogFile)
 	}
 
-	if hugoCmdV.Flags().Lookup("noTimes").Changed {
-		viper.Set("noTimes", NoTimes)
+	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
+		if cmdV.Flags().Lookup("buildDrafts").Changed {
+			viper.Set("BuildDrafts", Draft)
+		}
+		if cmdV.Flags().Lookup("buildFuture").Changed {
+			viper.Set("BuildFuture", Future)
+		}
+		if cmdV.Flags().Lookup("uglyURLs").Changed {
+			viper.Set("UglyURLs", UglyURLs)
+		}
+		if cmdV.Flags().Lookup("canonifyURLs").Changed {
+			viper.Set("CanonifyURLs", CanonifyURLs)
+		}
+		if cmdV.Flags().Lookup("disableRSS").Changed {
+			viper.Set("DisableRSS", DisableRSS)
+		}
+		if cmdV.Flags().Lookup("disableSitemap").Changed {
+			viper.Set("DisableSitemap", DisableSitemap)
+		}
+		if cmdV.Flags().Lookup("pluralizeListTitles").Changed {
+			viper.Set("PluralizeListTitles", PluralizeListTitles)
+		}
+		if cmdV.Flags().Lookup("preserveTaxonomyNames").Changed {
+			viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
+		}
+		if cmdV.Flags().Lookup("editor").Changed {
+			viper.Set("NewContentEditor", Editor)
+		}
+		if cmdV.Flags().Lookup("ignoreCache").Changed {
+			viper.Set("IgnoreCache", IgnoreCache)
+		}
+		if cmdV.Flags().Lookup("noTimes").Changed {
+			viper.Set("NoTimes", NoTimes)
+		}
 	}
 
 	if BaseURL != "" {
@@ -334,10 +339,6 @@ func InitializeConfig() error {
 	} else {
 		dir, _ := os.Getwd()
 		viper.Set("WorkingDir", dir)
-	}
-
-	if hugoCmdV.PersistentFlags().Lookup("ignoreCache").Changed {
-		viper.Set("IgnoreCache", IgnoreCache)
 	}
 
 	if CacheDir != "" {

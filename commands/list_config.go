@@ -25,34 +25,40 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Print the site configuration",
 	Long:  `Print the site configuration, both default and custom settings.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := InitializeConfig(); err != nil {
-			return err
-		}
+}
 
-		allSettings := viper.AllSettings()
+func init() {
+	initCoreCommonFlags(configCmd)
+	configCmd.RunE = config
+}
 
-		var separator string
-		if allSettings["metadataformat"] == "toml" {
-			separator = " = "
+func config(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(configCmd); err != nil {
+		return err
+	}
+
+	allSettings := viper.AllSettings()
+
+	var separator string
+	if allSettings["metadataformat"] == "toml" {
+		separator = " = "
+	} else {
+		separator = ": "
+	}
+
+	var keys []string
+	for k := range allSettings {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		kv := reflect.ValueOf(allSettings[k])
+		if kv.Kind() == reflect.String {
+			fmt.Printf("%s%s\"%+v\"\n", k, separator, allSettings[k])
 		} else {
-			separator = ": "
+			fmt.Printf("%s%s%+v\n", k, separator, allSettings[k])
 		}
+	}
 
-		var keys []string
-		for k := range allSettings {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			kv := reflect.ValueOf(allSettings[k])
-			if kv.Kind() == reflect.String {
-				fmt.Printf("%s%s\"%+v\"\n", k, separator, allSettings[k])
-			} else {
-				fmt.Printf("%s%s%+v\n", k, separator, allSettings[k])
-			}
-		}
-
-		return nil
-	},
+	return nil
 }

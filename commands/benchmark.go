@@ -28,23 +28,23 @@ var benchmarkCmd = &cobra.Command{
 	Short: "Benchmark hugo by building a site a number of times.",
 	Long: `Hugo can build a site many times over and analyze the running process
 creating a benchmark.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := InitializeConfig(); err != nil {
-			return err
-		}
-
-		return bench(cmd, args)
-	},
 }
 
 func init() {
+	initCoreCommonFlags(benchmarkCmd)
+
 	benchmarkCmd.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
 	benchmarkCmd.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
 
 	benchmarkCmd.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
+
+	benchmarkCmd.RunE = benchmark
 }
 
-func bench(cmd *cobra.Command, args []string) error {
+func benchmark(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(benchmarkCmd); err != nil {
+		return err
+	}
 
 	if memProfilefile != "" {
 		f, err := os.Create(memProfilefile)

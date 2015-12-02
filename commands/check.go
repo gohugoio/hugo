@@ -23,13 +23,18 @@ var checkCmd = &cobra.Command{
 	Short: "Check content in the source directory",
 	Long: `Hugo will perform some basic analysis on the content provided
 and will give feedback.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := InitializeConfig(); err != nil {
-			return err
-		}
-		site := hugolib.Site{}
+}
 
-		return site.Analyze()
+func init() {
+	initCoreCommonFlags(checkCmd)
+	checkCmd.RunE = check
+}
 
-	},
+func check(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(checkCmd); err != nil {
+		return err
+	}
+	site := hugolib.Site{}
+
+	return site.Analyze()
 }

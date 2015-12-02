@@ -81,6 +81,7 @@ func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
 }
 
 func init() {
+	initCoreCommonFlags(serverCmd)
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
@@ -94,7 +95,7 @@ func init() {
 }
 
 func server(cmd *cobra.Command, args []string) error {
-	if err := InitializeConfig(); err != nil {
+	if err := InitializeConfig(serverCmd); err != nil {
 		return err
 	}
 

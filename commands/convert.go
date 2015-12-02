@@ -74,6 +74,7 @@ func init() {
 	convertCmd.AddCommand(toTOMLCmd)
 	convertCmd.AddCommand(toYAMLCmd)
 	convertCmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
+	convertCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	convertCmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
 }
 
