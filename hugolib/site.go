@@ -1478,6 +1478,20 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	transformer := transform.NewChain(transformLinks...)
 	transformer.Apply(outBuffer, renderBuffer, path)
 
+	if outBuffer.Len() == 0 {
+		jww.WARN.Printf("%q is rendered empty\n", dest)
+		if dest == "/" {
+			jww.ERROR.Println("=============================================================")
+			jww.ERROR.Println("Your rendered home page is blank: /index.html is zero-length")
+			jww.ERROR.Println(" * Did you specify a theme on the command-line or in your")
+			jww.ERROR.Printf("   %q file?  (Current theme: %q)\n", filepath.Base(viper.ConfigFileUsed()), viper.GetString("Theme"))
+			if !viper.GetBool("Verbose") {
+				jww.ERROR.Println(" * For more debugging information, run \"hugo -v\"")
+			}
+			jww.ERROR.Println("=============================================================")
+		}
+	}
+
 	if err == nil {
 		if err = s.WriteDestPage(dest, outBuffer); err != nil {
 			return err
