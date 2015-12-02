@@ -48,4 +48,6 @@ func init() {
 	genautocompleteCmd.PersistentFlags().StringVarP(&autocompleteTarget, "completionfile", "", "/etc/bash_completion.d/hugo.sh", "Autocompletion file")
 	genautocompleteCmd.PersistentFlags().StringVarP(&autocompleteType, "type", "", "bash", "Autocompletion type (currently only bash supported)")
 
+	// For bash-completion
+	genautocompleteCmd.PersistentFlags().SetAnnotation("completionfile", cobra.BashCompFilenameExt, []string{})
 }

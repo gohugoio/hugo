@@ -42,4 +42,7 @@ in the "man" directory under the current directory.`,
 
 func init() {
 	genmanCmd.PersistentFlags().StringVar(&genmandir, "dir", "man/", "the directory to write the man pages.")
+
+	// For bash-completion
+	genmanCmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
 }

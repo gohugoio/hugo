@@ -60,4 +60,7 @@ for rendering in Hugo.`,
 
 func init() {
 	gendocCmd.PersistentFlags().StringVar(&gendocdir, "dir", "/tmp/hugodoc/", "the directory to write the doc.")
+
+	// For bash-completion
+	gendocCmd.PersistentFlags().SetAnnotation("dir", cobra.BashCompSubdirsInDir, []string{})
 }

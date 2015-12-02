@@ -123,10 +123,14 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	hugoCmdV = HugoCmd
 
-	// for Bash autocomplete
+	// For bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+	HugoCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	HugoCmd.PersistentFlags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
+	HugoCmd.PersistentFlags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
 	HugoCmd.PersistentFlags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
+	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
 	// This message will be shown to Windows users if Hugo is opened from explorer.exe
 	cobra.MousetrapHelpText = `
