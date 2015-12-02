@@ -20,7 +20,7 @@ many users to contribute.  This release represents over **377 contributions by
 87 contributors** to the main Hugo repo and hundreds of improvements to the
 libraries Hugo uses. Hugo also launched a [new theme
 showcase](http://themes.gohugo.io) and participated in
-[hacktoberfest](https://hacktoberfest.digitalocean.com).
+[Hacktoberfest](https://hacktoberfest.digitalocean.com).
 
 Hugo now has:
 
@@ -82,7 +82,7 @@ Huge thanks to all who participated in this release. A special thanks to
 
 ## New Template Features
 * All template engines:
-	* The new `dict` function that could be used to pass maps into a template.{{< gh 1463 >}}
+	* The new `dict` function that could be used to pass maps into a template. {{< gh 1463 >}}
 	* The new `pluralize` and `singularize` template funcs.
 	* The new `base64Decode` and `base64Encode` template funcs.
 	* The `sort` template func now accepts field/key chaining arguments and pointer values. {{< gh 1330 >}}
