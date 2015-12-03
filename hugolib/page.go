@@ -196,8 +196,12 @@ func (p *Page) setSummary() {
 	// rendered and ready in p.contentShortcodes
 
 	if bytes.Contains(p.rawContent, helpers.SummaryDivider) {
-		sections := bytes.Split(p.rawContent, helpers.SummaryDivider)
-		header := sections[0]
+		// If markdown is in use, then we need to render the whole page
+		// prior to splitting because key bits of information (such as
+		// reference links) might be at the bottom of the file and will
+		// result in links not rendering correctly.
+		renderedPage := p.renderBytes(p.rawContent)
+		sections := bytes.Split(renderedPage, helpers.SummaryDivider)
 		p.Truncated = true
 		if len(sections[1]) < 20 {
 			// only whitespace?
@@ -205,7 +209,7 @@ func (p *Page) setSummary() {
 		}
 
 		// TODO(bep) consider doing this once only
-		renderedHeader := p.renderBytes(header)
+		renderedHeader := sections[0]
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
 				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, p.contentShortCodes)
