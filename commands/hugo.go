@@ -254,7 +254,7 @@ func InitializeConfig() error {
 		if _, ok := err.(viper.ConfigParseError); ok {
 			return newSystemError(err)
 		} else {
-			return newSystemError("Unable to locate Config file. Perhaps you need to create a new site. Run `hugo help new` for details", err)
+			return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 		}
 	}
 
