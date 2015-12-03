@@ -310,9 +310,10 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		if cmdV.Flags().Lookup("ignoreCache").Changed {
 			viper.Set("IgnoreCache", IgnoreCache)
 		}
-		if cmdV.Flags().Lookup("noTimes").Changed {
-			viper.Set("NoTimes", NoTimes)
-		}
+	}
+
+	if hugoCmdV.Flags().Lookup("noTimes").Changed {
+		viper.Set("NoTimes", NoTimes)
 	}
 
 	if BaseURL != "" {

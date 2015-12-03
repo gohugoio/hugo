@@ -148,6 +148,10 @@ func server(cmd *cobra.Command, args []string) error {
 		viper.Set("PublishDir", "/")
 	}
 
+	if serverCmd.Flags().Lookup("noTimes").Changed {
+		viper.Set("NoTimes", NoTimes)
+	}
+
 	if err := build(serverWatch); err != nil {
 		return err
 	}
