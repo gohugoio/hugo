@@ -220,6 +220,7 @@ func TestHighlight(t *testing.T) {
 		t.Skip("Skip test as Pygments is not installed")
 	}
 	viper.Set("PygmentsStyle", "bw")
+	viper.Set("PygmentsUseClasses", false)
 
 	tem := tpl.New()
 
