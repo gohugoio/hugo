@@ -28,6 +28,8 @@ import (
 
 	"github.com/spf13/hugo/parser"
 
+	"regexp"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	"github.com/spf13/hugo/helpers"
@@ -40,7 +42,6 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
-	"regexp"
 )
 
 // userError is an error used to signal different error situations in command handling.
@@ -111,7 +112,7 @@ Complete documentation is available at http://gohugo.io/.`,
 var hugoCmdV *cobra.Command
 
 // Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -171,7 +172,7 @@ func initCoreCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
 	cmd.Flags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
-
+	cmd.Flags().BoolVarP(&ForceSync, "forceSyncStatic", "", false, "Copy all files when static is changed.")
 	// For bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
@@ -236,6 +237,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("DisableLiveReload", false)
 	viper.SetDefault("PluralizeListTitles", true)
 	viper.SetDefault("PreserveTaxonomyNames", false)
+	viper.SetDefault("ForceSyncStatic", false)
 	viper.SetDefault("FootnoteAnchorPrefix", "")
 	viper.SetDefault("FootnoteReturnLinkContents", "")
 	viper.SetDefault("NewContentEditor", "")
@@ -303,6 +305,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if cmdV.Flags().Lookup("preserveTaxonomyNames").Changed {
 			viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
+		}
+		if cmdV.Flags().Lookup("forceSyncStatic").Changed {
+			viper.Set("ForceSyncStatic", ForceSync)
 		}
 		if cmdV.Flags().Lookup("editor").Changed {
 			viper.Set("NewContentEditor", Editor)
@@ -612,11 +617,39 @@ func NewWatcher(port int) error {
 				}
 
 				if staticChanged {
-					jww.FEEDBACK.Printf("Static file changed, syncing\n\n")
-					err := copyStatic()
-					if err != nil {
-						fmt.Println(err)
-						utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+					jww.FEEDBACK.Printf("Static file changed, syncing\n")
+					if viper.GetBool("ForceSyncStatic") {
+						jww.FEEDBACK.Printf("Syncing all static files\n")
+						err := copyStatic()
+						if err != nil {
+							fmt.Println(err)
+							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+						}
+					} else {
+
+						syncer := fsync.NewSyncer()
+						syncer.NoTimes = viper.GetBool("notimes")
+						syncer.SrcFs = hugofs.SourceFs
+						syncer.DestFs = hugofs.DestinationFS
+
+						publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+
+						if publishDir == "//" || publishDir == "/" {
+							publishDir = ""
+						}
+
+						for path := range staticFilesChanged {
+							staticPath := helpers.AbsPathify(viper.GetString("StaticDir")) + path
+							jww.FEEDBACK.Printf("Syncing file '%s'\n", staticPath)
+
+							if _, err := os.Stat(staticPath); err == nil {
+								jww.INFO.Println("syncing from", staticPath, "to", publishDir+path)
+								err := syncer.Sync(publishDir+path, staticPath)
+								if err != nil {
+									jww.FEEDBACK.Printf("Error on syncing file '%s'\n", staticPath)
+								}
+							}
+						}
 					}
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
