@@ -112,6 +112,7 @@ func doNewSite(basepath string, force bool) error {
 		filepath.Join(basepath, "archetypes"),
 		filepath.Join(basepath, "static"),
 		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "themes"),
 	}
 
 	if exists, _ := helpers.Exists(basepath, hugofs.SourceFs); exists {
