@@ -172,7 +172,7 @@ func initCoreCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
 	cmd.Flags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
-	cmd.Flags().BoolVarP(&ForceSync, "forceSyncStatic", "", true, "Copy all files when static is changed.")
+	cmd.Flags().BoolVarP(&ForceSync, "forceSyncStatic", "", false, "Copy all files when static is changed.")
 	// For bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
@@ -639,12 +639,13 @@ func NewWatcher(port int) error {
 						}
 
 						for path := range staticFilesChanged {
-							staticPath := helpers.AbsPathify(viper.GetString("StaticDir")) + path
+							staticPath := filepath.Join(helpers.AbsPathify(viper.GetString("StaticDir")), path)
 							jww.FEEDBACK.Printf("Syncing file '%s'\n", staticPath)
 
 							if _, err := os.Stat(staticPath); err == nil {
-								jww.INFO.Println("syncing from", staticPath, "to", publishDir+path)
-								err := syncer.Sync(publishDir+path, staticPath)
+								publishPath := filepath.Join(publishDir, path)
+								jww.INFO.Println("syncing from", staticPath, "to", publishPath)
+								err := syncer.Sync(publishPath, staticPath)
 								if err != nil {
 									jww.FEEDBACK.Printf("Error on syncing file '%s'\n", staticPath)
 								}
