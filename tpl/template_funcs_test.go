@@ -328,6 +328,43 @@ func TestAfter(t *testing.T) {
 	}
 }
 
+func TestRandom(t *testing.T) {
+	for i, this := range []struct {
+		count    interface{}
+		sequence interface{}
+		expect   interface{}
+	}{
+		{int(2), []string{"a", "b", "c", "d"}, 2},
+		{int64(2), []int{100, 200, 300}, 2},
+		{"1", []int{100, 200, 300}, 1},
+		{100, []int{100, 200}, 2},
+		{int32(3), []string{"a", "b"}, 2},
+		{int64(-1), []int{100, 200, 300}, false},
+		{"noint", []int{100, 200, 300}, false},
+		{1, nil, false},
+		{nil, []int{100}, false},
+		{1, t, false},
+	} {
+		results, err := Random(this.count, this.sequence)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] First didn't return an expected error", i)
+			}
+		} else {
+			resultsv := reflect.ValueOf(results)
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+
+			if resultsv.Len() != this.expect {
+				t.Errorf("[%d] requested %d random items, got %v but expected %v",
+					i, this.count, resultsv.Len(), this.expect)
+			}
+		}
+	}
+}
+
 func TestDictionary(t *testing.T) {
 	for i, this := range []struct {
 		v1            []interface{}
