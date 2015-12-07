@@ -25,6 +25,7 @@ import (
 	"runtime"
 	"testing"
 	"time"
+	"math/rand"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -341,42 +342,70 @@ func TestAfter(t *testing.T) {
 	}
 }
 
-func TestRandom(t *testing.T) {
+func TestShuffleInputAndOutputFormat(t *testing.T) {
 	for i, this := range []struct {
-		count    interface{}
 		sequence interface{}
-		expect   interface{}
+		success bool
 	}{
-		{int(2), []string{"a", "b", "c", "d"}, 2},
-		{int64(2), []int{100, 200, 300}, 2},
-		{"1", []int{100, 200, 300}, 1},
-		{100, []int{100, 200}, 2},
-		{int32(3), []string{"a", "b"}, 2},
-		{int64(-1), []int{100, 200, 300}, false},
-		{"noint", []int{100, 200, 300}, false},
-		{1, nil, false},
-		{nil, []int{100}, false},
-		{1, t, false},
+		{[]string{"a", "b", "c", "d"}, true},
+		{[]int{100, 200, 300}, true},
+		{[]int{100, 200, 300}, true},
+		{[]int{100, 200}, true},
+		{[]string{"a", "b"}, true},
+		{[]int{100, 200, 300}, true},
+		{[]int{100, 200, 300}, true},
+		{[]int{100}, true},
+		{nil, false},
+		{t, false},
 	} {
-		results, err := Random(this.count, this.sequence)
-		if b, ok := this.expect.(bool); ok && !b {
+		results, err := Shuffle(this.sequence)
+		if !this.success {
 			if err == nil {
 				t.Errorf("[%d] First didn't return an expected error", i)
 			}
 		} else {
 			resultsv := reflect.ValueOf(results)
+			sequencev := reflect.ValueOf(this.sequence)
+
 			if err != nil {
 				t.Errorf("[%d] failed: %s", i, err)
 				continue
 			}
 
-			if resultsv.Len() != this.expect {
-				t.Errorf("[%d] requested %d random items, got %v but expected %v",
-					i, this.count, resultsv.Len(), this.expect)
+			if resultsv.Len() != sequencev.Len() {
+				t.Errorf("Expected %d items, got %d items", sequencev.Len(), resultsv.Len())
 			}
 		}
 	}
 }
+
+func TestShuffleRandomising(t *testing.T) {
+	// Note that this test can fail with false negative result if the shuffle
+	// of the sequence happens to be the same as the original sequence. However
+	// the propability of the event is 10^-158 which is negligible.
+	sequenceLength := 100
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	for _, this := range []struct {
+		sequence []int
+	}{
+		{rand.Perm(sequenceLength)},
+	} {
+		results, _ := Shuffle(this.sequence)
+
+		resultsv := reflect.ValueOf(results)
+
+		allSame := true
+		for index, value := range this.sequence {
+			allSame = allSame && (resultsv.Index(index).Interface() == value)
+		}
+
+		if allSame {
+			t.Error("Expected sequence to be shuffled but was in the same order")
+		}
+	}
+}
+
 
 func TestDictionary(t *testing.T) {
 	for i, this := range []struct {
