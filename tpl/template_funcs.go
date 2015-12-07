@@ -588,6 +588,16 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 		return false, nil
 	}
 
+	if v.Kind() == reflect.Bool && mv.Kind() == reflect.Bool {
+		switch op {
+		case "", "=", "==", "eq":
+			return v.Bool() == mv.Bool(), nil
+		case "!=", "<>", "ne":
+			return v.Bool() != mv.Bool(), nil
+		}
+		return false, nil
+	}
+
 	var ivp, imvp *int64
 	var svp, smvp *string
 	var ima []int64

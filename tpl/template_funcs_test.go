@@ -727,6 +727,7 @@ func TestCheckCondition(t *testing.T) {
 			"",
 			expect{true, false},
 		},
+		{reflect.ValueOf(true), reflect.ValueOf(true), "", expect{true, false}},
 		{reflect.ValueOf(nil), reflect.ValueOf(nil), "", expect{true, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(456), "!=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), "!=", expect{true, false}},
@@ -736,6 +737,7 @@ func TestCheckCondition(t *testing.T) {
 			"!=",
 			expect{true, false},
 		},
+		{reflect.ValueOf(true), reflect.ValueOf(false), "!=", expect{true, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(nil), "!=", expect{true, false}},
 		{reflect.ValueOf(456), reflect.ValueOf(123), ">=", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar"), ">=", expect{true, false}},
@@ -799,8 +801,12 @@ func TestCheckCondition(t *testing.T) {
 		{reflect.ValueOf("foo"), reflect.Value{}, "", expect{false, false}},
 		{reflect.ValueOf((*TstX)(nil)), reflect.ValueOf("foo"), "", expect{false, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf((*TstX)(nil)), "", expect{false, false}},
+		{reflect.ValueOf(true), reflect.ValueOf("foo"), "", expect{false, false}},
+		{reflect.ValueOf("foo"), reflect.ValueOf(true), "", expect{false, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf(map[int]string{}), "", expect{false, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]int{1, 2}), "", expect{false, false}},
+		{reflect.ValueOf((*TstX)(nil)), reflect.ValueOf((*TstX)(nil)), ">", expect{false, false}},
+		{reflect.ValueOf(true), reflect.ValueOf(false), ">", expect{false, false}},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "in", expect{false, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(123), "op", expect{false, true}},
 	} {
@@ -1023,6 +1029,31 @@ func TestWhere(t *testing.T) {
 			},
 			key: "b", op: ">", match: nil,
 			expect: []map[string]int{},
+		},
+		{
+			sequence: []map[string]bool{
+				{"a": true, "b": false}, {"c": true, "b": true}, {"d": true, "b": false},
+			},
+			key: "b", op: "", match: true,
+			expect: []map[string]bool{
+				{"c": true, "b": true},
+			},
+		},
+		{
+			sequence: []map[string]bool{
+				{"a": true, "b": false}, {"c": true, "b": true}, {"d": true, "b": false},
+			},
+			key: "b", op: "!=", match: true,
+			expect: []map[string]bool{
+				{"a": true, "b": false}, {"d": true, "b": false},
+			},
+		},
+		{
+			sequence: []map[string]bool{
+				{"a": true, "b": false}, {"c": true, "b": true}, {"d": true, "b": false},
+			},
+			key: "b", op: ">", match: false,
+			expect: []map[string]bool{},
 		},
 		{sequence: (*[]TstX)(nil), key: "A", match: "a", expect: false},
 		{sequence: TstX{A: "a", B: "b"}, key: "A", match: "a", expect: false},
