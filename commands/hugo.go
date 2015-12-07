@@ -433,11 +433,11 @@ func build(watches ...bool) error {
 }
 
 func copyStatic() error {
-	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
 
 	// If root, remove the second '/'
 	if publishDir == "//" {
-		publishDir = "/"
+		publishDir = helpers.FilePathSeparator
 	}
 
 	syncer := fsync.NewSyncer()
@@ -457,7 +457,7 @@ func copyStatic() error {
 	}
 
 	// Copy the site's own static directory
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + "/"
+	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + helpers.FilePathSeparator
 	if _, err := os.Stat(staticDir); err == nil {
 		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
 		return syncer.Sync(publishDir, staticDir)
@@ -632,9 +632,9 @@ func NewWatcher(port int) error {
 						syncer.SrcFs = hugofs.SourceFs
 						syncer.DestFs = hugofs.DestinationFS
 
-						publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + "/"
+						publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
 
-						if publishDir == "//" || publishDir == "/" {
+						if publishDir == "//" || publishDir == helpers.FilePathSeparator {
 							publishDir = ""
 						}
 
