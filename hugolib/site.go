@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -243,14 +244,26 @@ func (s *Site) Build() (err error) {
 	if err = s.Process(); err != nil {
 		return
 	}
+
 	if err = s.Render(); err != nil {
 		// Better reporting when the template is missing (commit 2bbecc7b)
-		jww.ERROR.Printf("Error rendering site: %s\nAvailable templates:\n", err)
+		jww.ERROR.Printf("Error rendering site: %s", err)
+
+		jww.ERROR.Printf("Available templates:")
+		var keys []string
 		for _, template := range s.Tmpl.Templates() {
-			jww.ERROR.Printf("\t%s\n", template.Name())
+			if name := template.Name(); name != "" {
+				keys = append(keys, name)
+			}
 		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			jww.ERROR.Printf("\t%s\n", k)
+		}
+
 		return
 	}
+
 	return nil
 }
 
