@@ -495,22 +495,12 @@ func After(index interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
-// Random is exposed to templates, to iterate over N random items in a
-// rangeable list.
-func Random(count interface{}, seq interface{}) (interface{}, error) {
+// Shuffle is exposed to templates, to iterate over items in rangeable list in
+// a randomised order.
+func Shuffle(seq interface{}) (interface{}, error) {
 
-	if count == nil || seq == nil {
+	if seq == nil {
 		return nil, errors.New("both count and seq must be provided")
-	}
-
-	countv, err := cast.ToIntE(count)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if countv < 1 {
-		return nil, errors.New("can't return negative/empty count of items from sequence")
 	}
 
 	seqv := reflect.ValueOf(seq)
@@ -526,20 +516,16 @@ func Random(count interface{}, seq interface{}) (interface{}, error) {
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
 	}
 
-	if countv >= seqv.Len() {
-		countv = seqv.Len()
-	}
-	
-	suffled := reflect.MakeSlice(reflect.TypeOf(seq), seqv.Len(), seqv.Len())
+	shuffled := reflect.MakeSlice(reflect.TypeOf(seq), seqv.Len(), seqv.Len())
 
 	rand.Seed(time.Now().UTC().UnixNano())
 	randomIndices := rand.Perm(seqv.Len())
 
 	for index, value := range randomIndices {
-		suffled.Index(value).Set(seqv.Index(index))
+		shuffled.Index(value).Set(seqv.Index(index))
 	}
 
-	return suffled.Slice(0, countv).Interface(), nil
+	return shuffled.Interface(), nil
 }
 
 var (
@@ -1453,7 +1439,7 @@ func init() {
 		"first":        First,
 		"last":         Last,
 		"after":        After,
-		"random":		Random,
+		"shuffle":		Shuffle,
 		"where":        Where,
 		"delimit":      Delimit,
 		"sort":         Sort,
