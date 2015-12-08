@@ -89,6 +89,7 @@ includes taxonomies, lists and the homepage.
 **.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RSSLink** Link to the taxonomies' RSS link.<br>
 **.Data** The data specific to this type of node.<br>
+**.IsHome** True if the node is the site home page.<br>
 **.IsNode** Always true for nodes.<br>
 **.IsPage** Always false for nodes.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
