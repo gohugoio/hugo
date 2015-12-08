@@ -68,6 +68,10 @@ func TestSitemapOutput(t *testing.T) {
 		t.Fatalf("Unable to RenderSitemap: %s", err)
 	}
 
+	if err := s.RenderRobotsTXT(); err != nil {
+		t.Fatalf("Unable to RenderRobotsTXT :%s", err)
+	}
+
 	sitemapFile, err := hugofs.DestinationFS.Open("sitemap.xml")
 
 	if err != nil {

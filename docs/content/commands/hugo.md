@@ -34,6 +34,7 @@ hugo
   -d, --destination="": filesystem path to write files to
       --disableRSS[=false]: Do not build RSS files
       --disableSitemap[=false]: Do not build Sitemap file
+      --disableRobotsTXT[=false]: Do not build robots TXT file
       --editor="": edit new content with this editor, if provided
       --ignoreCache[=false]: Ignores the cache directory for reading but still writes to it
       --log[=false]: Enable Logging
