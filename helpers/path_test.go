@@ -755,13 +755,13 @@ func TestGetTempDir(t *testing.T) {
 		expected string
 	}{
 		{"", dir},
-		{testDir + "  Foo bar  ", dir + testDir + "--Foo-bar" + FilePathSeparator},
+		{testDir + "  Foo bar  ", dir + testDir + "  Foo bar  " + FilePathSeparator},
 		{testDir + "Foo.Bar/foo_Bar-Foo", dir + testDir + "Foo.Bar/foo_Bar-Foo" + FilePathSeparator},
-		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoobAR" + FilePathSeparator},
+		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoo%bAR" + FilePathSeparator},
 		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
 		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
 		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
-		{testDir + "Банковский кассир", dir + testDir + "Банковский-кассир" + FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковский кассир" + FilePathSeparator},
 	}
 
 	for _, test := range tests {

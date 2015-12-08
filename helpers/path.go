@@ -16,17 +16,17 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/viper"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -123,74 +123,6 @@ func isMn(r rune) bool {
 func ReplaceExtension(path string, newExt string) string {
 	f, _ := fileAndExt(path, fpb)
 	return f + "." + newExt
-}
-
-// DirExists checks if a path exists and is a directory.
-func DirExists(path string, fs afero.Fs) (bool, error) {
-	fi, err := fs.Stat(path)
-	if err == nil && fi.IsDir() {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
-
-// IsDir checks if a given path is a directory.
-func IsDir(path string, fs afero.Fs) (bool, error) {
-	fi, err := fs.Stat(path)
-	if err != nil {
-		return false, err
-	}
-	return fi.IsDir(), nil
-}
-
-// IsEmpty checks if a given path is empty.
-func IsEmpty(path string, fs afero.Fs) (bool, error) {
-	if b, _ := Exists(path, fs); !b {
-		return false, fmt.Errorf("%q path does not exist", path)
-	}
-	fi, err := fs.Stat(path)
-	if err != nil {
-		return false, err
-	}
-	if fi.IsDir() {
-		f, err := os.Open(path)
-		// FIX: Resource leak - f.close() should be called here by defer or is missed
-		// if the err != nil branch is taken.
-		defer f.Close()
-		if err != nil {
-			return false, err
-		}
-		list, err := f.Readdir(-1)
-		// f.Close() - see bug fix above
-		return len(list) == 0, nil
-	}
-	return fi.Size() == 0, nil
-}
-
-// Check if a file contains a specified string.
-func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-
-	return ReaderContains(f, subslice), nil
-}
-
-// Check if a file or directory exists.
-func Exists(path string, fs afero.Fs) (bool, error) {
-	_, err := fs.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
 }
 
 func AbsPathify(inPath string) string {
@@ -498,88 +430,39 @@ func FindCWD() (string, error) {
 
 // Same as WriteToDisk but checks to see if file/directory already exists.
 func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
-	dir, _ := filepath.Split(inpath)
-	ospath := filepath.FromSlash(dir)
-
-	if ospath != "" {
-		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
-		if err != nil {
-			return
-		}
-	}
-
-	exists, err := Exists(inpath, fs)
-	if err != nil {
-		return
-	}
-	if exists {
-		return fmt.Errorf("%v already exists", inpath)
-	}
-
-	file, err := fs.Create(inpath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, r)
-	return
+	return afero.SafeWriteReader(fs, inpath, r)
 }
 
 // Writes content to disk.
 func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
-	dir, _ := filepath.Split(inpath)
-	ospath := filepath.FromSlash(dir)
-
-	if ospath != "" {
-		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
-		if err != nil {
-			if err != os.ErrExist {
-				jww.FATAL.Fatalln(err)
-			}
-		}
-	}
-
-	file, err := fs.Create(inpath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, r)
-	return
+	return afero.WriteReader(fs, inpath, r)
 }
 
-// GetTempDir returns the OS default temp directory with trailing slash
-// if subPath is not empty then it will be created recursively with mode 777 rwx rwx rwx
 func GetTempDir(subPath string, fs afero.Fs) string {
-	addSlash := func(p string) string {
-		if FilePathSeparator != p[len(p)-1:] {
-			p = p + FilePathSeparator
-		}
-		return p
-	}
-	dir := addSlash(os.TempDir())
+	return afero.GetTempDir(fs, subPath)
+}
 
-	if subPath != "" {
-		// preserve windows backslash :-(
-		if FilePathSeparator == "\\" {
-			subPath = strings.Replace(subPath, "\\", "____", -1)
-		}
-		dir = dir + MakePath(subPath)
-		if FilePathSeparator == "\\" {
-			dir = strings.Replace(dir, "____", "\\", -1)
-		}
+// DirExists checks if a path exists and is a directory.
+func DirExists(path string, fs afero.Fs) (bool, error) {
+	return afero.DirExists(fs, path)
+}
 
-		if exists, _ := Exists(dir, fs); exists {
-			return addSlash(dir)
-		}
+// IsDir checks if a given path is a directory.
+func IsDir(path string, fs afero.Fs) (bool, error) {
+	return afero.IsDir(fs, path)
+}
 
-		err := fs.MkdirAll(dir, 0777)
-		if err != nil {
-			panic(err)
-		}
-		dir = addSlash(dir)
-	}
-	return dir
+// IsEmpty checks if a given path is empty.
+func IsEmpty(path string, fs afero.Fs) (bool, error) {
+	return afero.IsEmpty(fs, path)
+}
+
+// Check if a file contains a specified string.
+func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
+	return afero.FileContainsBytes(fs, filename, subslice)
+}
+
+// Check if a file or directory exists.
+func Exists(path string, fs afero.Fs) (bool, error) {
+	return afero.Exists(fs, path)
 }
