@@ -1,12 +1,13 @@
 package commands
 
 import (
-	"github.com/spf13/afero"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/stretchr/testify/assert"
 )
 
 // Issue #1133
@@ -41,10 +42,20 @@ func TestDoNewSite(t *testing.T) {
 	checkNewSiteInited(basepath, t)
 }
 
+func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
+	basepath := filepath.Join(os.TempDir(), "blog")
+	hugofs.SourceFs = new(afero.MemMapFs)
+	hugofs.SourceFs.MkdirAll(basepath, 777)
+	err := doNewSite(basepath, false)
+	assert.Nil(t, err)
+}
+
 func TestDoNewSite_error_base_exists(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
 	hugofs.SourceFs = new(afero.MemMapFs)
 	hugofs.SourceFs.MkdirAll(basepath, 777)
+	hugofs.SourceFs.Create(filepath.Join(basepath, "foo"))
+	// Since the directory already exists and isn't empty, expect an error
 	err := doNewSite(basepath, false)
 	assert.NotNil(t, err)
 }
@@ -59,8 +70,7 @@ func TestDoNewSite_force_empty_dir(t *testing.T) {
 	checkNewSiteInited(basepath, t)
 }
 
-// TODO(spf13): Fix and re-enable this.
-func _TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
+func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
 	contentPath := filepath.Join(basepath, "content")
 	hugofs.SourceFs = new(afero.MemMapFs)
