@@ -112,7 +112,7 @@ Complete documentation is available at http://gohugo.io/.`,
 var hugoCmdV *cobra.Command
 
 // Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, DisableRobotsTXT, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -159,6 +159,7 @@ func initCoreCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
+	cmd.Flags().BoolVar(&DisableRobotsTXT, "disableRobotsTXT", false, "Do not build Robots TXT file")
 	cmd.Flags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
@@ -204,6 +205,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("MetaDataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("DisableSitemap", false)
+	viper.SetDefault("DisableRobotsTXT", false)
 	viper.SetDefault("ContentDir", "content")
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("StaticDir", "static")
@@ -293,6 +295,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if cmdV.Flags().Lookup("disableSitemap").Changed {
 			viper.Set("DisableSitemap", DisableSitemap)
+		}
+		if cmdV.Flags().Lookup("disableRobotsTXT").Changed {
+			viper.Set("DisableRobotsTXT", DisableRobotsTXT)
 		}
 		if cmdV.Flags().Lookup("pluralizeListTitles").Changed {
 			viper.Set("PluralizeListTitles", PluralizeListTitles)

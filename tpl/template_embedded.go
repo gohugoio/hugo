@@ -242,4 +242,6 @@ ga('send', 'pageview');
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
 {{ end }}`)
+
+	t.AddInternalTemplate("_default", "robots.txt", "User-agent: *")
 }
