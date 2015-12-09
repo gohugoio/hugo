@@ -12,8 +12,7 @@ weight: 5
 ## What is Hugo?
 
 Hugo is a general-purpose website framework. Technically speaking, Hugo is
-a static site generator. This means that, unlike systems like WordPress,
-Ghost and Drupal, which run on your web server expensively building a page
+a static site generator. Unlike other systems which dynamically build a page
 every time a visitor requests one, Hugo does the building when you create
 your content. Since websites are viewed far more often than they are
 edited, Hugo is optimized for website viewing while providing a great
