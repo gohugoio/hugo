@@ -74,16 +74,6 @@ If you still want to use an editor, look at these plugins to automate your workf
 
 ***
 
-## Editor plugins
-
-If you still want to use an editor, look at these plugins to automate your workflow.
-
-### Sublime Text
-
-- [Hugofy](https://github.com/akmittal/Hugofy) - Hugofy is a plugin for Sublime Text 3 to make life easier to use Hugo static site generator.
-
-***
-
 ## Search
 
 A static site with a dynamic search function? Yes. Alternatively to embeddable scripts from Google or other search engines you can provide your visitors a custom search by indexing your content files directly.
