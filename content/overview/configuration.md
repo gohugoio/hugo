@@ -115,7 +115,9 @@ Following is a list of Hugo-defined variables that you can configure and their c
     paginatePath:               "page"
     permalinks:
     # Pluralize titles in lists using inflect
-    pluralizeListTitles:         true
+    pluralizeListTitles:        true
+    # Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
+    preserveTaxonomyNames:      false
     publishdir:                 "public"
     # color-codes for highlighting derived from this style
     pygmentsStyle:              "monokai"
