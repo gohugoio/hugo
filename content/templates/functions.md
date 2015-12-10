@@ -362,7 +362,7 @@ e.g.
 ### chomp
 Removes any trailing newline characters. Useful in a pipeline to remove newlines added by other processing (including `markdownify`).
 
-e.g., `{{chomp "<p>Blockhead</p>\n"` → `"<p>Blockhead</p>"`
+e.g., `{{chomp "<p>Blockhead</p>\n"}}` → `"<p>Blockhead</p>"`
 
 
 ### dateFormat
