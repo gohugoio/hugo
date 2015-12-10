@@ -1375,11 +1375,15 @@ func (s *Site) RenderSitemap() error {
 		if page.Sitemap.Priority == -1 {
 			page.Sitemap.Priority = sitemapDefault.Priority
 		}
+
+		if page.Sitemap.Filename == "" {
+			page.Sitemap.Filename = sitemapDefault.Filename
+		}
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
 
-	if err := s.renderAndWriteXML("sitemap", "sitemap.xml", n, s.appendThemeTemplates(smLayouts)...); err != nil {
+	if err := s.renderAndWriteXML("sitemap", page.Sitemap.Filename, n, s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
 	}
 

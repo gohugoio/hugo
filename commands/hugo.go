@@ -227,7 +227,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("RemovePathAccents", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
-	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
+	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1, Filename: "sitemap.xml"})
 	viper.SetDefault("DefaultExtension", "html")
 	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("PygmentsUseClasses", false)
