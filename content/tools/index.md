@@ -41,6 +41,10 @@ Alternatively, you can follow the manual [migration guide]({{< relref "tutorials
 
 - [blogimport](https://github.com/natefinch/blogimport) - A tool to import from Blogger posts to Hugo.
 
+### Contentful
+
+- [contentful2hugo](https://github.com/ArnoNuyts/contentful2hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
+
 ----
 
 ## Deployment
