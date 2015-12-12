@@ -16,7 +16,7 @@ your content into Hugo-friendly formats.
 
 ### Jekyll
 
-Alternatively, you can follow the manual [migration guide]({{< relref "tutorials/migrate-from-jekyll.md" >}}).
+Alternatively, you can follow the manual [migration guide]({{< relref "tutorials/migrate-from-jekyll.md" >}}) or use the new [Jekyll import command]({{< relref "commands/hugo_import_jekyll.md" >}}).
 
 - [JekyllToHugo](https://github.com/SenjinDarashiva/JekyllToHugo) - A Small script for converting Jekyll blog posts to a Hugo site.
 - [ConvertToHugo](https://github.com/coderzh/ConvertToHugo) - Convert your blog from Jekyll to Hugo.
