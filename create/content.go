@@ -115,7 +115,7 @@ func NewContent(kind, name string) (err error) {
 	if editor != "" {
 		jww.FEEDBACK.Printf("Editing %s in %s.\n", name, editor)
 
-		cmd := exec.Command(editor, path.Join(viper.GetString("contentDir"), name))
+		cmd := exec.Command(editor, helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)))
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
