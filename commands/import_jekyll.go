@@ -385,8 +385,8 @@ func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	filename := filepath.Base(path)
 	postDate, postName, err := parseJekyllFilename(filename)
 	if err != nil {
-		jww.ERROR.Println("Parse filename error:", filename)
-		return err
+		jww.WARN.Printf("Failed to parse filename '%s': %s. Skipping.", filename, err)
+		return nil
 	}
 
 	jww.TRACE.Println(filename, postDate, postName)
