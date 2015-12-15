@@ -14,6 +14,12 @@
 package hugolib
 
 import (
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+
+	"log"
+
 	"github.com/dchest/cssmin"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
@@ -22,6 +28,7 @@ import (
 
 func init() {
 	RegisterHandler(new(cssHandler))
+	RegisterHandler(new(imageHandler))
 	RegisterHandler(new(defaultHandler))
 }
 
@@ -49,5 +56,15 @@ func (h cssHandler) Extensions() []string { return []string{"css"} }
 func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
 	x := cssmin.Minify(f.Bytes())
 	s.WriteDestFile(f.Path(), helpers.BytesToReader(x))
+	return HandledResult{file: f}
+}
+
+type imageHandler struct{ basicFileHandler }
+
+func (h imageHandler) Extensions() []string { return []string{"jpg", "jpeg", "png", "gif"} }
+func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
+	_, ext, err := image.Decode(f.Contents)
+	log.Println(ext, err)
+	s.WriteDestFile(f.Path(), f.Contents)
 	return HandledResult{file: f}
 }
