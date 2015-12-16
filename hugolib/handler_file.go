@@ -63,6 +63,8 @@ type imageHandler struct{ basicFileHandler }
 
 func (h imageHandler) Extensions() []string { return []string{"jpg", "jpeg", "png", "gif"} }
 func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
+	resizeProps := helpers.ParseImageResize(f.BaseFileName())
+	log.Println(resizeProps)
 	_, ext, err := image.Decode(f.Contents)
 	log.Println(ext, err)
 	s.WriteDestFile(f.Path(), f.Contents)
