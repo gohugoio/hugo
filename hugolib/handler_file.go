@@ -14,12 +14,14 @@
 package hugolib
 
 import (
+	"bytes"
 	"image"
-	_ "image/jpeg"
-	_ "image/png"
+	"image/jpeg"
+	"image/png"
 
 	"log"
 
+	"github.com/bamiaux/rez"
 	"github.com/dchest/cssmin"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
@@ -61,12 +63,40 @@ func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
 
 type imageHandler struct{ basicFileHandler }
 
-func (h imageHandler) Extensions() []string { return []string{"jpg", "jpeg", "png", "gif"} }
+func (h imageHandler) Extensions() []string { return []string{"jpg", "jpeg", "png"} }
 func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
-	resizeProps := helpers.ParseImageResize(f.BaseFileName())
-	log.Println(resizeProps)
-	_, ext, err := image.Decode(f.Contents)
-	log.Println(ext, err)
-	s.WriteDestFile(f.Path(), f.Contents)
-	return HandledResult{file: f}
+	props := helpers.ParseImageResize(f.BaseFileName())
+	file := f
+
+	if props.Width != 0 && props.Height != 0 {
+		input, ext, _ := image.Decode(f.Contents)
+		inputRect := input.Bounds()
+
+		width := inputRect.Max.X
+		height := inputRect.Max.Y
+		if props.Width > 0 {
+			width = props.Width
+		}
+		if props.Height > 0 {
+			height = props.Height
+		}
+
+		output := image.NewRGBA(image.Rect(0, 0, width, height))
+		err := rez.Convert(output, input, rez.NewBicubicFilter())
+		if err != nil {
+			log.Println("Error converting image", err)
+		}
+
+		buf := new(bytes.Buffer)
+		switch ext {
+		case "jpg", "jpeg":
+			_ = jpeg.Encode(buf, output, nil)
+		case "png":
+			_ = png.Encode(buf, output)
+		}
+
+		file = source.NewFileWithContents(f.Path(), bytes.NewReader(buf.Bytes()))
+	}
+	s.WriteDestFile(file.Path(), file.Contents)
+	return HandledResult{file: file}
 }
