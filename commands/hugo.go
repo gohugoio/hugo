@@ -127,13 +127,6 @@ func init() {
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
 	HugoCmd.PersistentFlags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
-
-	// This message will be shown to Windows users if Hugo is opened from explorer.exe
-	cobra.MousetrapHelpText = `
-
-  Hugo is a command line tool
-
-  You need to open cmd.exe and run it from there.`
 }
 
 func LoadDefaultSettings() {
