@@ -53,6 +53,7 @@ If you don't want to use [Wercker for automated deployments]({{< relref "tutoria
 get your content to the public:
 
 - [hugomac](https://github.com/nickoneill/hugomac) - Hugomac is an OS&nbsp;X menubar app to publish your blog directly to Amazon S3. No command line is needed.
+- [hugo-lambda](https://github.com/ryansb/hugo-lambda) - A wrapper around the Hugo static site generator to have it run in AWS Lambda whenever new (Markdown or other) content is uploaded.
 
 ----
 
