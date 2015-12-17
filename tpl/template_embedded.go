@@ -233,4 +233,13 @@ ga('create', '{{ . }}', 'auto');
 ga('send', 'pageview');
 </script>
 {{ end }}`)
+
+	t.AddInternalTemplate("", "google_analytics_async.html", `{{ with .Site.GoogleAnalytics }}
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', '{{ . }}', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+{{ end }}`)
 }
