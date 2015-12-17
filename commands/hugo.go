@@ -196,13 +196,6 @@ func init() {
 
 	// For bash-completion
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
-
-	// This message will be shown to Windows users if Hugo is opened from explorer.exe
-	cobra.MousetrapHelpText = `
-
-  Hugo is a command-line tool
-
-  You need to open cmd.exe and run it from there.`
 }
 
 func LoadDefaultSettings() {
