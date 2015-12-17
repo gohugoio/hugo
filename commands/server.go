@@ -166,7 +166,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(watchDirs)), ",")
 
-		jww.FEEDBACK.Printf("Watching for changes in %s/{%s}\n", baseWatchDir, rootWatchDirs)
+		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
 		err := NewWatcher(serverPort)
 
 		if err != nil {

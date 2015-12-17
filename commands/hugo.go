@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//Package commands defines and implements command-line commands and flags used by Hugo. Commands and flags are implemented using
-//cobra.
+// Package commands defines and implements command-line commands and flags
+// used by Hugo. Commands and flags are implemented using Cobra.
 package commands
 
 import (

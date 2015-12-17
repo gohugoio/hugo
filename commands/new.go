@@ -144,10 +144,12 @@ func doNewSite(basepath string, force bool) error {
 
 	createConfig(basepath, configFormat)
 
+	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %q.\n", basepath)
+
 	return nil
 }
 
-// NewSite creates a new hugo site and initializes a structured Hugo directory.
+// NewSite creates a new Hugo site and initializes a structured Hugo directory.
 func NewSite(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return newUserError("path needs to be provided")
@@ -161,7 +163,6 @@ func NewSite(cmd *cobra.Command, args []string) error {
 	forceNew, _ := cmd.Flags().GetBool("force")
 
 	return doNewSite(createpath, forceNew)
-
 }
 
 // NewTheme creates a new Hugo theme.
@@ -176,7 +177,7 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 	}
 
 	createpath := helpers.AbsPathify(filepath.Join("themes", args[0]))
-	jww.INFO.Println("creating theme at", createpath)
+	jww.INFO.Println("Creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
 		return newUserError(createpath, "already exists")
