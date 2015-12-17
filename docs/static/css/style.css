@@ -91,8 +91,8 @@ h1, h2, h3 {
 }
 
 pre code {
-    font-size: 18px !important;
-    font-family: 'Courier New', monospace;
+    font-size: 15px !important;
+    font-family: Menlo, Consolas, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', Monaco, 'Droid Sans Mono', monospace;
 }
 
 body {
@@ -101,12 +101,12 @@ body {
     font-family: 'Lato', sans-serif;
     padding: 0px !important;
     margin: 0px !important;
-    font-size:16px !important;
-    font-weight: 300;
+    font-size: 16px !important;
+    font-weight: 400;
 }
 
-h1,h2,h3,h4,h5{
-    font-weight: 400;
+h2,h3,h4,h5{
+    font-weight: 700;
 }
 
 
@@ -119,7 +119,7 @@ h1[id]:before, h2[id]:before, h3[id]:before, h4[id]:before, h5[id]:before {
 }
 
 label{
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .sidebar-menu .fa {
@@ -220,7 +220,7 @@ ul.sidebar-menu li ul.sub li a {
     -o-transition: all 0.3s ease;
     -ms-transition: all 0.3s ease;
     transition: all 0.3s ease;
-    color: #737B83;
+    color: #656C73;
     font-size: 14px;
 }
 
@@ -248,12 +248,12 @@ ul.sidebar-menu li a span{
 }
 
 ul.sidebar-menu li a{
-    color: #8b9199;
+    color: #72767D;
     text-decoration: none;
     display: block;
     padding: 10px 0 10px 10px;
     font-size: 16px;
-    font-weight: 300;
+    font-weight: 400;
     outline: none;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
@@ -316,7 +316,7 @@ ul.sidebar-menu li.active a i {
 #main-content {
     margin-left: 200px;
     line-height: 1.8;
-    font-size: 19px;
+    font-size: 18px;
 }
 
 .header {
@@ -346,7 +346,7 @@ ul.sidebar-menu li.active a i {
 
 a.logo {
     font-size: 22px;
-    font-weight: 300;
+    font-weight: 400;
     color: #8E8E93;
     float: left;
     margin-top: 10px;

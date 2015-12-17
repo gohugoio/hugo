@@ -66,7 +66,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: monospace, serif;
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', Monaco, 'Droid Sans Mono', monospace;
   font-size: 1em;
 }
 pre {
@@ -360,10 +360,6 @@ address {
   margin-bottom: 20px;
   font-style: normal;
   line-height: 1.428571429;
-}
-code,
-pre {
-  font-family: Lato;
 }
 code {
   padding: 2px 4px;
