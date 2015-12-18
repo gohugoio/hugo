@@ -68,7 +68,7 @@ func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
 	props := helpers.ParseImageResize(f.BaseFileName())
 	file := f
 
-	if props.Width != 0 && props.Height != 0 {
+	if props.Width != 0 || props.Height != 0 {
 		input, ext, _ := image.Decode(f.Contents)
 		inputRect := input.Bounds()
 
