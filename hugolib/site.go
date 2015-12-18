@@ -920,6 +920,26 @@ func (s *Site) RenderPages() error {
 
 	procs := getGoMaxProcs()
 
+	// this cannot be fanned out to multiple Go routines
+	// See issue #1601
+	// TODO(bep): Check the IsRenderable logic.
+	for _, p := range s.Pages {
+		var layouts []string
+		if !p.IsRenderable() {
+			self := "__" + p.TargetPath()
+			_, err := s.Tmpl.New(self).Parse(string(p.Content))
+			if err != nil {
+				results <- err
+				continue
+			}
+			layouts = append(layouts, self)
+		} else {
+			layouts = append(layouts, p.layouts()...)
+			layouts = append(layouts, "_default/single.html")
+		}
+		p.layoutsCalculated = layouts
+	}
+
 	wg := &sync.WaitGroup{}
 
 	for i := 0; i < procs*4; i++ {
@@ -951,22 +971,7 @@ func (s *Site) RenderPages() error {
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for p := range pages {
-		var layouts []string
-
-		if !p.IsRenderable() {
-			self := "__" + p.TargetPath()
-			_, err := s.Tmpl.New(self).Parse(string(p.Content))
-			if err != nil {
-				results <- err
-				continue
-			}
-			layouts = append(layouts, self)
-		} else {
-			layouts = append(layouts, p.layouts()...)
-			layouts = append(layouts, "_default/single.html")
-		}
-
-		err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(layouts)...)
+		err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(p.layouts())...)
 		if err != nil {
 			results <- err
 		}

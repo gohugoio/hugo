@@ -66,6 +66,7 @@ type Page struct {
 	contentType         string
 	renderable          bool
 	Layout              string
+	layoutsCalculated   []string
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
@@ -288,6 +289,10 @@ func (p *Page) Section() string {
 }
 
 func (p *Page) layouts(l ...string) []string {
+	if len(p.layoutsCalculated) > 0 {
+		return p.layoutsCalculated
+	}
+
 	if p.Layout != "" {
 		return layouts(p.Type(), p.Layout)
 	}
