@@ -158,7 +158,7 @@ func TestRenderThing(t *testing.T) {
 		templateName := fmt.Sprintf("foobar%d", i)
 		err = s.addTemplate(templateName, test.template)
 		if err != nil {
-			t.Fatalf("Unable to add template")
+			t.Fatalf("Unable to add template: %s", err)
 		}
 
 		p.Content = template.HTML(p.Content)
@@ -203,7 +203,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 		templateName := fmt.Sprintf("default%d", i)
 		err = s.addTemplate(templateName, test.template)
 		if err != nil {
-			t.Fatalf("Unable to add template")
+			t.Fatalf("Unable to add template: %s", err)
 		}
 
 		var err2 error
