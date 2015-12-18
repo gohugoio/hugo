@@ -146,10 +146,11 @@ func TestRenderThing(t *testing.T) {
 		{SIMPLE_PAGE_RFC3339_DATE, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
-	s := new(Site)
-	templatePrep(s)
-
 	for i, test := range tests {
+
+		s := new(Site)
+		templatePrep(s)
+
 		p, err := NewPageFrom(strings.NewReader(test.content), "content/a/file.md")
 		p.Convert()
 		if err != nil {
@@ -192,10 +193,12 @@ func TestRenderThingOrDefault(t *testing.T) {
 	}
 
 	hugofs.DestinationFS = new(afero.MemMapFs)
-	s := &Site{}
-	templatePrep(s)
 
 	for i, test := range tests {
+
+		s := &Site{}
+		templatePrep(s)
+
 		p, err := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
