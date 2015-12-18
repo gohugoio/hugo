@@ -116,11 +116,7 @@ func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httpt
 	testServer := httptest.NewServer(http.HandlerFunc(handler))
 	client := &http.Client{
 		Transport: &http.Transport{Proxy: func(r *http.Request) (*url.URL, error) {
-
-			if !strings.Contains(runtime.Version(), "go1.4") {
-				r.Host = "Host: gohugo.io"
-			}
-
+			r.Host = "gohugo.io"
 			return url.Parse(testServer.URL)
 		}},
 	}
