@@ -20,7 +20,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -116,6 +115,7 @@ func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httpt
 	testServer := httptest.NewServer(http.HandlerFunc(handler))
 	client := &http.Client{
 		Transport: &http.Transport{Proxy: func(r *http.Request) (*url.URL, error) {
+			// Remove when https://github.com/golang/go/issues/13686 is fixed
 			r.Host = "gohugo.io"
 			return url.Parse(testServer.URL)
 		}},
