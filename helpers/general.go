@@ -473,16 +473,18 @@ func ParseImageResize(filename string) (props ImageResizeProps) {
 	params := strings.Split(splits[len(splits)-1], "-")
 	re := regexp.MustCompile(`([a-zA-Z])(\d+)`)
 	for _, p := range params {
+		if p == "c" {
+			props.Crop = true
+			break
+		}
+
 		matches := re.FindStringSubmatch(p)
-		key := matches[1]
 		val, _ := strconv.Atoi(matches[2])
-		switch key {
+		switch matches[1] {
 		case "w":
 			props.Width = val
 		case "h":
 			props.Height = val
-		case "c":
-			props.Crop = true
 		}
 	}
 
