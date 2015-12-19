@@ -23,6 +23,7 @@ import (
 
 	"github.com/bamiaux/rez"
 	"github.com/dchest/cssmin"
+	"github.com/oliamb/cutter"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
@@ -64,12 +65,11 @@ func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
 type imageHandler struct{ basicFileHandler }
 
 func (h imageHandler) Extensions() []string { return []string{"jpg", "jpeg", "png"} }
-func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
-	props := helpers.ParseImageResize(f.BaseFileName())
-	file := f
+func (h imageHandler) FileConvert(file *source.File, s *Site) HandledResult {
+	props := helpers.ParseImageProps(file.BaseFileName())
 
 	if props.Width != 0 || props.Height != 0 {
-		input, ext, _ := image.Decode(f.Contents)
+		input, ext, _ := image.Decode(file.Contents)
 		inputRect := input.Bounds()
 
 		width := inputRect.Max.X
@@ -81,10 +81,20 @@ func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
 			height = props.Height
 		}
 
-		output := image.NewRGBA(image.Rect(0, 0, width, height))
-		err := rez.Convert(output, input, rez.NewBicubicFilter())
+		var output image.Image
+		var err error
+		if props.Crop {
+			output, err = cutter.Crop(input, cutter.Config{
+				Width:  width,
+				Height: height,
+			})
+		} else {
+			output = image.NewRGBA(image.Rect(0, 0, width, height))
+			err = rez.Convert(output, input, rez.NewBicubicFilter())
+		}
+
 		if err != nil {
-			log.Println("Error converting image", err)
+			log.Println("Error converting/cropping image", err)
 		}
 
 		buf := new(bytes.Buffer)
@@ -95,7 +105,7 @@ func (h imageHandler) FileConvert(f *source.File, s *Site) HandledResult {
 			_ = png.Encode(buf, output)
 		}
 
-		file = source.NewFileWithContents(f.Path(), bytes.NewReader(buf.Bytes()))
+		file = source.NewFileWithContents(file.Path(), bytes.NewReader(buf.Bytes()))
 	}
 	s.WriteDestFile(file.Path(), file.Contents)
 	return HandledResult{file: file}

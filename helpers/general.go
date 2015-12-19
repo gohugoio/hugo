@@ -465,7 +465,7 @@ type ImageResizeProps struct {
 	Crop   bool
 }
 
-func ParseImageResize(filename string) (props ImageResizeProps) {
+func ParseImageProps(filename string) (props ImageResizeProps) {
 	splits := strings.Split(filename, ".")
 	if len(splits) == 1 {
 		return
