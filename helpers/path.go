@@ -130,7 +130,7 @@ func AbsPathify(inPath string) string {
 		return filepath.Clean(inPath)
 	}
 
-	// todo consider move workingDir to argument list
+	// TODO(bep): Consider moving workingDir to argument list
 	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
 }
 

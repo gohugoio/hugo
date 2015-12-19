@@ -329,7 +329,8 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	if Source != "" {
-		viper.Set("WorkingDir", Source)
+		dir, _ := filepath.Abs(Source)
+		viper.Set("WorkingDir", dir)
 	} else {
 		dir, _ := os.Getwd()
 		viper.Set("WorkingDir", dir)
