@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -104,8 +105,8 @@ func (h imageHandler) FileConvert(file *source.File, s *Site) HandledResult {
 		case "png":
 			_ = png.Encode(buf, output)
 		}
-
-		file = source.NewFileWithContents(file.Path(), bytes.NewReader(buf.Bytes()))
+		path := fmt.Sprintf("images/%s.%s", file.UniqueID(), file.Extension())
+		file = source.NewFileWithContents(path, bytes.NewReader(buf.Bytes()))
 	}
 	s.WriteDestFile(file.Path(), file.Contents)
 	return HandledResult{file: file}
