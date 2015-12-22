@@ -509,6 +509,7 @@ func readData(f *source.File) (interface{}, error) {
 }
 
 func (s *Site) Process() (err error) {
+	s.timerStep("Go initialization")
 	if err = s.initialize(); err != nil {
 		return
 	}
@@ -535,7 +536,6 @@ func (s *Site) Process() (err error) {
 		return
 	}
 	s.setupPrevNext()
-	s.timerStep("import pages")
 	if err = s.BuildSiteMeta(); err != nil {
 		return
 	}
@@ -688,21 +688,19 @@ type pageResult struct {
 	err  error
 }
 
-func (s *Site) CreatePages() error {
+func (s *Site) ReadPagesFromSource() chan error {
 	if s.Source == nil {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
+
 	if len(s.Source.Files()) < 1 {
 		return nil
 	}
 
 	files := s.Source.Files()
-
 	results := make(chan HandledResult)
 	filechan := make(chan *source.File)
-
 	procs := getGoMaxProcs()
-
 	wg := &sync.WaitGroup{}
 
 	wg.Add(procs * 4)
@@ -721,18 +719,19 @@ func (s *Site) CreatePages() error {
 	}
 
 	close(filechan)
-
 	wg.Wait()
-
 	close(results)
 
-	readErrs := <-errs
+	return errs
+}
 
-	results = make(chan HandledResult)
+func (s *Site) ConvertSource() chan error {
+	errs := make(chan error)
+	results := make(chan HandledResult)
 	pageChan := make(chan *Page)
 	fileConvChan := make(chan *source.File)
-
-	wg = &sync.WaitGroup{}
+	procs := getGoMaxProcs()
+	wg := &sync.WaitGroup{}
 
 	wg.Add(2 * procs * 4)
 	for i := 0; i < procs*4; i++ {
@@ -752,12 +751,18 @@ func (s *Site) CreatePages() error {
 
 	close(pageChan)
 	close(fileConvChan)
-
 	wg.Wait()
-
 	close(results)
 
-	renderErrs := <-errs
+	return errs
+}
+
+func (s *Site) CreatePages() error {
+	readErrs := <-s.ReadPagesFromSource()
+	s.timerStep("read pages from source")
+
+	renderErrs := <-s.ConvertSource()
+	s.timerStep("convert source")
 
 	if renderErrs == nil && readErrs == nil {
 		return nil
@@ -768,6 +773,7 @@ func (s *Site) CreatePages() error {
 	if readErrs == nil {
 		return renderErrs
 	}
+
 	return fmt.Errorf("%s\n%s", readErrs, renderErrs)
 }
 
