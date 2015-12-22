@@ -426,6 +426,78 @@ func (s *Site) Build() (err error) {
 	return nil
 }
 
+func (s *Site) ReBuild(changed map[string]bool) error {
+	s.timerStep("initialize rebuild")
+	// First we need to determine what changed
+
+	sourceChanged := []string{}
+	tmplChanged := []string{}
+	dataChanged := []string{}
+	var err error
+
+	for f := range changed {
+		// Need to re-read source
+		if strings.HasPrefix(f, s.absContentDir()) {
+			fmt.Println("Source changed", f)
+			sourceChanged = append(sourceChanged, f)
+		}
+		if strings.HasPrefix(f, s.absLayoutDir()) || strings.HasPrefix(f, s.absThemeDir()) {
+			fmt.Println("Template changed", f)
+			tmplChanged = append(tmplChanged, f)
+		}
+		if strings.HasPrefix(f, s.absDataDir()) {
+			fmt.Println("Data changed", f)
+			dataChanged = append(dataChanged, f)
+		}
+	}
+
+
+	if len(tmplChanged) > 0 {
+		s.prepTemplates()
+		s.Tmpl.PrintErrors()
+		s.timerStep("template prep")
+	}
+
+	if len(dataChanged) > 0 {
+		s.ReadDataFromSourceFS()
+	}
+
+	if len (sourceChanged) > 0 {
+		if err = s.CreatePages(); err != nil {
+			return err
+		}
+		s.setupPrevNext()
+		if err = s.BuildSiteMeta(); err != nil {
+			return err
+		}
+		s.timerStep("build taxonomies")
+	}
+
+	if err = s.Render(); err != nil {
+		// Better reporting when the template is missing (commit 2bbecc7b)
+		jww.ERROR.Printf("Error rendering site: %s", err)
+
+		jww.ERROR.Printf("Available templates:")
+		var keys []string
+		for _, template := range s.Tmpl.Templates() {
+			if name := template.Name(); name != "" {
+				keys = append(keys, name)
+			}
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			jww.ERROR.Printf("\t%s\n", k)
+		}
+
+		return nil
+	} else {
+		return err
+	}
+
+	return nil
+}
+
+
 func (s *Site) Analyze() error {
 	if err := s.Process(); err != nil {
 		return err
@@ -508,6 +580,21 @@ func readData(f *source.File) (interface{}, error) {
 	}
 }
 
+func (s *Site) ReadDataFromSourceFS() error {
+	dataSources := make([]source.Input, 0, 2)
+	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
+
+	// have to be last - duplicate keys in earlier entries will win
+	themeStaticDir, err := helpers.GetThemeDataDirPath()
+	if err == nil {
+		dataSources = append(dataSources, &source.Filesystem{Base: themeStaticDir})
+	}
+
+	err = s.loadData(dataSources)
+	s.timerStep("load data")
+	return err
+}
+
 func (s *Site) Process() (err error) {
 	s.timerStep("Go initialization")
 	if err = s.initialize(); err != nil {
@@ -517,20 +604,9 @@ func (s *Site) Process() (err error) {
 	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 
-	dataSources := make([]source.Input, 0, 2)
-
-	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
-
-	// have to be last - duplicate keys in earlier entries will win
-	themeStaticDir, err := helpers.GetThemeDataDirPath()
-	if err == nil {
-		dataSources = append(dataSources, &source.Filesystem{Base: themeStaticDir})
-	}
-
-	if err = s.loadData(dataSources); err != nil {
+	if err = s.ReadDataFromSourceFS(); err != nil {
 		return
 	}
-	s.timerStep("load data")
 
 	if err = s.CreatePages(); err != nil {
 		return
@@ -864,7 +940,6 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 }
 
 func (s *Site) BuildSiteMeta() (err error) {
-
 	s.assembleMenus()
 
 	if len(s.Pages) == 0 {
@@ -929,6 +1004,7 @@ func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
 }
 
 func (s *Site) assembleMenus() {
+	s.Menus = Menus{}
 
 	type twoD struct {
 		MenuName, EntryName string
