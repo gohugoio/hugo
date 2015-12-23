@@ -54,31 +54,29 @@ Run a few commands to verify that the executable is ready to run and then build 
 
 2. At the prompt, type `hugo help` and press the Enter key. You should see output that starts with:
 
-    <pre><code class="hljs no-highlight">A Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://gohugo.io
-</code></pre>
+    {{< nohighlight >}}A Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://gohugo.io
+{{< /nohighlight >}}
 
     If you do, then the installation is complete. If you don't, double-check the path that you placed the `hugo.exe` file in and that you typed that path correctly when you added it to your PATH variable. If you're still not getting the output, post a note on the Hugo discussion list (in the `Support` topic) with your command and the output.
 
 3. At the prompt, change your directory to the `Sites` directory.
 
-    ```
-C:\Program Files> cd D:\Hugo\Sites
+    {{< nohighlight >}}C:\Program Files> cd D:\Hugo\Sites
 C:\Program Files> D:
 D:\Hugo\Sites>
-```
+{{< /nohighlight >}}
 
 4. Run the command to generate a new site. I'm using `example.com` as the name of the site.
 
-    ```
-D:\Hugo\Sites> hugo new site example.com
-```
+    {{< nohighlight >}}D:\Hugo\Sites> hugo new site example.com
+{{< /nohighlight >}}
 
 5. You should now have a directory at `D:\Hugo\Sites\example.com`.  Change into that directory and list the contents. You should get output similar to the following:
 
-    <pre><code class="hljs no-highlight">D:\Hugo\Sites&gt;cd example.com
+    {{< nohighlight >}}D:\Hugo\Sites&gt;cd example.com
 D:\Hugo\Sites\example.com&gt;dir
 &nbsp;Directory of D:\hugo\sites\example.com
-&nbsp; 
+&nbsp;
 04/13/2015  10:44 PM    &lt;DIR&gt;          .
 04/13/2015  10:44 PM    &lt;DIR&gt;          ..
 04/13/2015  10:44 PM    &lt;DIR&gt;          archetypes
@@ -89,7 +87,7 @@ D:\Hugo\Sites\example.com&gt;dir
 04/13/2015  10:44 PM    &lt;DIR&gt;          static
                1 File(s)             83 bytes
                7 Dir(s)   6,273,331,200 bytes free
-</code></pre>
+{{< /nohighlight >}}
 
 You now have Hugo installed and a site to work with. You need to add a layout (or theme), then create some content. Go to http://gohugo.io/overview/quickstart/ for steps on doing that.
 
