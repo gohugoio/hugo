@@ -14,12 +14,14 @@ Hugo makes it easy to link documents together with the `ref` and `relref` shortc
 
 ## Using `ref` and `relref`
 
-    {{</* ref "document" */>}}
-    {{</* ref "#anchor" */>}}
-    {{</* ref "document#anchor" */>}}
-    {{</* relref "document" */>}}
-    {{</* relref "#anchor" */>}}
-    {{</* relref "document#anchor" */>}}
+```django
+{{</* ref "document" */>}}
+{{</* ref "#anchor" */>}}
+{{</* ref "document#anchor" */>}}
+{{</* relref "document" */>}}
+{{</* relref "#anchor" */>}}
+{{</* relref "document#anchor" */>}}
+```
 
 The single parameter to `ref` is a string with a content _document name_ (`about.md`), an in-document _anchor_ (`#who`), or both (`about.md#who`).
 

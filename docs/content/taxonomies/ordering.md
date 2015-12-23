@@ -57,15 +57,16 @@ When iterating over content within taxonomies the default sort is first by weigh
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-    +++
-    tags = [ "a", "b", "c" ]
-    tags_weight = 22
-    categories = ["d"]
-    title = "foo"
-    categories_weight = 44
-    +++
-    Front Matter with weighted tags and categories
-
+```toml
++++
+tags = [ "a", "b", "c" ]
+tags_weight = 22
+categories = ["d"]
+title = "foo"
+categories_weight = 44
++++
+Front Matter with weighted tags and categories
+```
 
 The convention is `taxonomyname_weight`.
 
