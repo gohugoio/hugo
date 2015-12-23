@@ -17,17 +17,17 @@ uses the top level of your content organization as **the Section**.
 
 The following example site uses two sections, "post" and "quote".
 
-    .
-    └── content
-        ├── post
-        |   ├── firstpost.md       // <- http://1.com/post/firstpost/
-        |   ├── happy
-        |   |   └── ness.md   // <- http://1.com/post/happy/ness/
-        |   └── secondpost.md      // <- http://1.com/post/secondpost/
-        └── quote
-            ├── first.md           // <- http://1.com/quote/first/
-            └── second.md          // <- http://1.com/quote/second/
-
+{{< nohighlight >}}.
+└── content
+    ├── post
+    |   ├── firstpost.md       // <- http://1.com/post/firstpost/
+    |   ├── happy
+    |   |   └── ness.md        // <- http://1.com/post/happy/ness/
+    |   └── secondpost.md      // <- http://1.com/post/secondpost/
+    └── quote
+        ├── first.md           // <- http://1.com/quote/first/
+        └── second.md          // <- http://1.com/quote/second/
+{{< /nohighlight >}}
 
 ## Section Lists
 

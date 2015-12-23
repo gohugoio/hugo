@@ -26,13 +26,14 @@ guaranteed.
 
 ## Assigning weight to content
 
-    +++
-    weight = 4
-    title = "Three"
-    date = "2012-04-06"
-    +++
-    Front Matter with Ordered Pages 3
-
+```toml
++++
+weight = 4
+title = "Three"
+date = "2012-04-06"
++++
+Front Matter with Ordered Pages 3
+```
 
 ## Ordering Content Within Taxonomies
 
