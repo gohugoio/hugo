@@ -12,8 +12,7 @@ weight: 5
 ## What is Hugo?
 
 Hugo is a general-purpose website framework. Technically speaking, Hugo is
-a static site generator. This means that, unlike systems like WordPress,
-Ghost and Drupal, which run on your web server expensively building a page
+a static site generator. Unlike other systems which dynamically build a page
 every time a visitor requests one, Hugo does the building when you create
 your content. Since websites are viewed far more often than they are
 edited, Hugo is optimized for website viewing while providing a great
@@ -127,6 +126,7 @@ Hugo boasts the following features:
 ### Additional Features
 
   * Integrated [Disqus](https://disqus.com/) comment support
+  * Integrated [Google Analytics](https://google-analytics.com/) support
   * Automatic [RSS](/layout/rss/) creation
   * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](http://ace.yoss.si/) HTML templates
   * Syntax [highlighting](/extras/highlighting/) powered by [Pygments](http://pygments.org/)
@@ -183,4 +183,3 @@ as I have writing it.
  * [Join the Mailing List](/community/mailing-list/)
  * [Star us on GitHub](https://github.com/spf13/hugo)
  * [Discussion Forum](http://discuss.gohugo.io/)
-

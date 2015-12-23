@@ -1,3 +1,16 @@
+// Copyright 2015 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package hugolib
 
 import (
@@ -502,8 +515,8 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 }
 
 func checkPageLayout(t *testing.T, page *Page, layout ...string) {
-	if !listEqual(page.Layout(), layout) {
-		t.Fatalf("Page layout is: %s.  Expected: %s", page.Layout(), layout)
+	if !listEqual(page.layouts(), layout) {
+		t.Fatalf("Page layout is: %s.  Expected: %s", page.layouts(), layout)
 	}
 }
 
@@ -909,8 +922,8 @@ func TestLayoutOverride(t *testing.T) {
 		for _, y := range test.expectedLayout {
 			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
 		}
-		if !listEqual(p.Layout(), test.expectedLayout) {
-			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
+		if !listEqual(p.layouts(), test.expectedLayout) {
+			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.layouts())
 		}
 	}
 }

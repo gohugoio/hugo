@@ -1,3 +1,16 @@
+// Copyright 2015 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package hugolib
 
 import (
@@ -47,7 +60,7 @@ const (
 	identifier="1"
 [[menu.tax]]
 	name = "Tax2"
-    url = "/two/key"
+    url = "/two/key/"
 	identifier="2"
 [[menu.tax]]
 	name = "Tax RSS"
@@ -304,44 +317,34 @@ func TestMenuWithHashInURL(t *testing.T) {
 
 	assert.NotNil(t, me)
 
-	assert.Equal(t, "/Zoo/resource/#anchor", me.URL)
+	assert.Equal(t, "/Zoo/resource#anchor", me.URL)
 }
 
 // issue #719
 func TestMenuWithUnicodeURLs(t *testing.T) {
 
-	for _, uglyURLs := range []bool{true, false} {
-		for _, canonifyURLs := range []bool{true, false} {
-			doTestMenuWithUnicodeURLs(t, canonifyURLs, uglyURLs)
-		}
+	for _, canonifyURLs := range []bool{true, false} {
+		doTestMenuWithUnicodeURLs(t, canonifyURLs)
 	}
 }
 
-func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs, uglyURLs bool) {
+func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
 	viper.Reset()
 	defer viper.Reset()
 
 	viper.Set("CanonifyURLs", canonifyURLs)
-	viper.Set("UglyURLs", uglyURLs)
 
 	s := setupMenuTests(t, MENU_PAGE_SOURCES)
 
 	unicodeRussian := findTestMenuEntryByID(s, "unicode", "unicode-russian")
 
-	expectedBase := "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0"
+	expected := "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0"
 
 	if !canonifyURLs {
-		expectedBase = "/Zoo" + expectedBase
+		expected = "/Zoo" + expected
 	}
 
-	var expected string
-	if uglyURLs {
-		expected = expectedBase + ".html"
-	} else {
-		expected = expectedBase + "/"
-	}
-
-	assert.Equal(t, expected, unicodeRussian.URL, "uglyURLs[%t]", uglyURLs)
+	assert.Equal(t, expected, unicodeRussian.URL)
 }
 
 // Issue #1114
@@ -383,6 +386,9 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 	assert.NotNil(t, fishySectionMenuEntry)
 	assert.NotNil(t, nodeFishy)
 
+	firstSectionMenuEntry.URL = firstSectionMenuEntry.URL + "/"
+	secondSectionMenuEntry.URL = secondSectionMenuEntry.URL + "/"
+	fishySectionMenuEntry.URL = fishySectionMenuEntry.URL + "/"
 	assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
 	assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
 	assert.False(t, nodeFirst.IsMenuCurrent("spm", fishySectionMenuEntry))

@@ -6,6 +6,6 @@ tags:
 - personal
 - blog
 thumbnail: /img/chingli-tn.jpg
-title: 青砾 (chingli)
+title: <span lang="zh-CN">青砾</span> (chingli)
 ---
 

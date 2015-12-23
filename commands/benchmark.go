@@ -1,9 +1,9 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,31 +23,34 @@ var cpuProfilefile string
 var memProfilefile string
 var benchmarkTimes int
 
-var benchmark = &cobra.Command{
+var benchmarkCmd = &cobra.Command{
 	Use:   "benchmark",
 	Short: "Benchmark hugo by building a site a number of times.",
 	Long: `Hugo can build a site many times over and analyze the running process
 creating a benchmark.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		InitializeConfig()
-		bench(cmd, args)
-	},
 }
 
 func init() {
-	benchmark.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
-	benchmark.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
+	initCoreCommonFlags(benchmarkCmd)
 
-	benchmark.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
+	benchmarkCmd.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
+	benchmarkCmd.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
+
+	benchmarkCmd.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
+
+	benchmarkCmd.RunE = benchmark
 }
 
-func bench(cmd *cobra.Command, args []string) {
+func benchmark(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(benchmarkCmd); err != nil {
+		return err
+	}
 
 	if memProfilefile != "" {
 		f, err := os.Create(memProfilefile)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 		for i := 0; i < benchmarkTimes; i++ {
 			_ = buildSite()
@@ -62,7 +65,7 @@ func bench(cmd *cobra.Command, args []string) {
 		f, err := os.Create(cpuProfilefile)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		pprof.StartCPUProfile(f)
@@ -71,5 +74,7 @@ func bench(cmd *cobra.Command, args []string) {
 			_ = buildSite()
 		}
 	}
+
+	return nil
 
 }

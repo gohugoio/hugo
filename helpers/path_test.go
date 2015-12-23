@@ -1,3 +1,16 @@
+// Copyright 2015 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package helpers
 
 import (
@@ -625,11 +638,19 @@ func TestPrettifyPath(t *testing.T) {
 
 }
 
-func TestRemoveSubpaths(t *testing.T) {
-	got := RemoveSubpaths([]string{"hello", "hello/world", "foo/bar", ""})
-	expect := []string{"hello", "foo/bar"}
-	if !reflect.DeepEqual(got, expect) {
-		t.Errorf("Expected %q but got %q", expect, got)
+func TestExtractRootPaths(t *testing.T) {
+	tests := []struct {
+		input    []string
+		expected []string
+	}{{[]string{filepath.FromSlash("a/b"), filepath.FromSlash("a/b/c/"), "b",
+		filepath.FromSlash("/c/d"), filepath.FromSlash("d/"), filepath.FromSlash("//e//")},
+		[]string{"a", "a", "b", "c", "d", "e"}}}
+
+	for _, test := range tests {
+		output := ExtractRootPaths(test.input)
+		if !reflect.DeepEqual(output, test.expected) {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
 	}
 }
 
@@ -747,13 +768,13 @@ func TestGetTempDir(t *testing.T) {
 		expected string
 	}{
 		{"", dir},
-		{testDir + "  Foo bar  ", dir + testDir + "--Foo-bar" + FilePathSeparator},
+		{testDir + "  Foo bar  ", dir + testDir + "  Foo bar  " + FilePathSeparator},
 		{testDir + "Foo.Bar/foo_Bar-Foo", dir + testDir + "Foo.Bar/foo_Bar-Foo" + FilePathSeparator},
-		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoobAR" + FilePathSeparator},
+		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoo%bAR" + FilePathSeparator},
 		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
 		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
 		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},
-		{testDir + "Банковский кассир", dir + testDir + "Банковский-кассир" + FilePathSeparator},
+		{testDir + "Банковский кассир", dir + testDir + "Банковский кассир" + FilePathSeparator},
 	}
 
 	for _, test := range tests {

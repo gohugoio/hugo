@@ -1,9 +1,9 @@
-// Copyright © 2014 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -113,9 +113,9 @@ func NewContent(kind, name string) (err error) {
 	editor := viper.GetString("NewContentEditor")
 
 	if editor != "" {
-		jww.FEEDBACK.Printf("Editing %s in %s.\n", name, editor)
+		jww.FEEDBACK.Printf("Editing %s with %q ...\n", name, editor)
 
-		cmd := exec.Command(editor, path.Join(viper.GetString("contentDir"), name))
+		cmd := exec.Command(editor, helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)))
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr

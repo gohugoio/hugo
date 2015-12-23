@@ -1,9 +1,9 @@
-// Copyright © 2014 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,8 @@ import (
 func init() {
 	listCmd.AddCommand(listDraftsCmd)
 	listCmd.AddCommand(listFutureCmd)
+	listCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	listCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 }
 
 var listCmd = &cobra.Command{
@@ -33,22 +35,25 @@ var listCmd = &cobra.Command{
 	Long: `Listing out various types of content.
 
 List requires a subcommand, e.g. ` + "`hugo list drafts`.",
-	Run: nil,
+	RunE: nil,
 }
 
 var listDraftsCmd = &cobra.Command{
 	Use:   "drafts",
 	Short: "List all drafts",
 	Long:  `List all of the drafts in your content directory.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
-		InitializeConfig()
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
 		viper.Set("BuildDrafts", true)
 
 		site := &hugolib.Site{}
 
 		if err := site.Process(); err != nil {
-			fmt.Println("Error Processing Source Content", err)
+			return newSystemError("Error Processing Source Content", err)
 		}
 
 		for _, p := range site.Pages {
@@ -58,6 +63,8 @@ var listDraftsCmd = &cobra.Command{
 
 		}
 
+		return nil
+
 	},
 }
 
@@ -66,15 +73,18 @@ var listFutureCmd = &cobra.Command{
 	Short: "List all posts dated in the future",
 	Long: `List all of the posts in your content directory which will be
 posted in the future.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
-		InitializeConfig()
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
 		viper.Set("BuildFuture", true)
 
 		site := &hugolib.Site{}
 
 		if err := site.Process(); err != nil {
-			fmt.Println("Error Processing Source Content", err)
+			return newSystemError("Error Processing Source Content", err)
 		}
 
 		for _, p := range site.Pages {
@@ -83,6 +93,8 @@ posted in the future.`,
 			}
 
 		}
+
+		return nil
 
 	},
 }

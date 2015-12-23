@@ -115,7 +115,9 @@ Following is a list of Hugo-defined variables that you can configure and their c
     paginatePath:               "page"
     permalinks:
     # Pluralize titles in lists using inflect
-    pluralizeListTitles:         true
+    pluralizeListTitles:        true
+    # Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
+    preserveTaxonomyNames:      false
     publishdir:                 "public"
     # color-codes for highlighting derived from this style
     pygmentsStyle:              "monokai"
@@ -244,7 +246,7 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 </tr>
 
 <tr>
-<td><code><strong>plainIdAnchors</strong></code></td>
+<td><code><strong>plainIDAnchors</strong></code></td>
 <td><code>false</code></td>
 <td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
 </tr>
@@ -281,7 +283,10 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 </table>
 
 
-**Note** that these flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
+**Notes**
+
+1. These flags are **very case-sensitive** (as of Hugo v0.15)!
+2. These flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
 
 <table class="table">
 <thead>
@@ -294,22 +299,16 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 <td style="width: 50%;"><pre><code>[blackfriday]
   angledQuotes = true
   fractions = false
-  plainIdAnchors = true
+  plainIDAnchors = true
   extensions = ["hardLineBreak"]
 </code></pre></td>
 <td><pre><code>blackfriday:
   angledQuotes: true
   fractions: false
-  plainIdAnchors: true
+  plainIDAnchors: true
   extensions:
     - hardLineBreak
 </code></pre></td>
 </tr>
 </tbody>
 </table>
-
-## Notes
-
-Config changes are not reflected with [LiveReload](/extras/livereload/).
-
-Please restart `hugo server --watch` whenever you make a config change.

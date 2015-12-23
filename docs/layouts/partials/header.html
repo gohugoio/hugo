@@ -7,14 +7,14 @@
     {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
     {{ .Hugo.Generator }}
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+{{ .Scratch.Add "title" "" }}{{ if isset .Site.Data.titles .Title }}{{ .Scratch.Set "title" (index .Site.Data.titles .Title).title }}{{ else }}{{ .Scratch.Set "title" .Title}}{{end}}
+    <title>Hugo - {{ .Scratch.Get "title" }}</title>
 
-    <title>{{.Title}}</title>
-
-    <link href="/css/bootstrap-theme.css" rel="stylesheet">
+    <link href="/css/bootstrap-gohugo.css" rel="stylesheet">
     <link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/style-responsive.css" rel="stylesheet" />
-    <link href="/css/monokai_sublime.css" rel="stylesheet" />
+    <link href="/css/monokai-sublime.css" rel="stylesheet" />
 
   </head>
 
@@ -42,7 +42,7 @@
             </div>
 
             <div class="nav title-row" id="top_menu">
-                <h1 class="nav top-menu">{{.Title}}</h1>
+                <h1 class="nav top-menu">{{ .Scratch.Get "title" }}</h1>
             </div>
       </header>
       <!--header end-->
@@ -78,7 +78,7 @@
                 <div class="col-md-10">
                     <section class="panel">
                           <!--<header class="panel-heading">-->
-                              <!--<h3>{{.Title}}</h3>-->
+                              <!--<h3>{{ .Scratch.Get "title" }}</h3>-->
                           <!--</header>-->
                     <div class="panel-body">
                         <div class="row">

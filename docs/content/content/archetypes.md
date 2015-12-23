@@ -29,10 +29,12 @@ We will use ‘tags’ and ‘categories’ for our taxonomies, so let's create 
 
 #### archetypes/default.md
 
-    +++
-    tags = ["x", "y"]
-    categories = ["x", "y"]
-    +++
+```toml
++++
+tags = ["x", "y"]
+categories = ["x", "y"]
++++
+```
 
 > __CAVEAT:__  Some editors (e.g. Sublime, Emacs) do not insert an EOL (end-of-line) character at the end of the file (i.e. EOF).  If you get a [strange EOF error](/troubleshooting/strange-eof-error/) when using `hugo new`, please open each archetype file (i.e.&nbsp;`archetypes/*.md`) and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` as necessary.
 
@@ -47,12 +49,14 @@ Hugo would create the file with the following contents:
 
 #### content/post/my-new-post.md
 
-    +++
-    title = "my new post"
-    date = "2015-01-12T19:20:04-07:00"
-    tags = ["x", "y"]
-    categories = ["x", "y"]
-    +++
+```toml
++++
+title = "my new post"
+date = "2015-01-12T19:20:04-07:00"
+tags = ["x", "y"]
+categories = ["x", "y"]
++++
+```
 
 We see that the `title` and `date` variables have been added, in addition to the `tags` and `categories` variables which were carried over from `archetype/default.md`.
 
@@ -64,11 +68,13 @@ Earlier you created a new content type by adding a new subfolder to the content 
 
 #### archetypes/musician.md
 
-    +++
-    name = ""
-    bio = ""
-    genre = ""
-    +++
+```toml
++++
+name = ""
+bio = ""
+genre = ""
++++
+```
 
 Now let's create a new musician.
 
@@ -78,13 +84,15 @@ This time, Hugo recognizes the custom archetype and uses it instead of the defau
 
 #### content/musician/mozart.md
 
-    +++
-    title = "mozart"
-    date = "2015-08-24T13:04:37+02:00"
-    name = ""
-    bio = ""
-    genre = ""
-    +++
+```toml
++++
+title = "mozart"
+date = "2015-08-24T13:04:37+02:00"
+name = ""
+bio = ""
+genre = ""
++++
+```
 
 ## Using a different front matter format
 

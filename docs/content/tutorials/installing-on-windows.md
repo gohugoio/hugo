@@ -38,7 +38,7 @@ You will need a place to store the Hugo executable, your content (the files that
 One advantage of building Hugo in go is that there is just a single binary file to use. You don't need to run an installer to use it. Instead, you need to copy the binary to your hard drive. I'm assuming that you'll put it in `D:\Hugo\bin`. If you chose to place it somewhere else, you'll need to substitute that path in the commands.
 
 1. Open https://github.com/spf13/hugo/releases in your browser.
-2. The current version is hugo_0.13_windows_amd64.zip.
+2. The current version is hugo_0.15_windows_amd64.zip.
 3. Download that ZIP file and save it in your `D:\Hugo\bin` folder.
 4. Find that ZIP file in Windows Explorer and extract all the files from it.
 5. You should see a `hugo_0.13_windows_amd64.exe` file.
@@ -51,40 +51,43 @@ One advantage of building Hugo in go is that there is just a single binary file 
 Run a few commands to verify that the executable is ready to run and then build a sample site to get started.
 
 1. Open a command prompt window.
+
 2. At the prompt, type `hugo help` and press the Enter key. You should see output that starts with:
-```
-A Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://gohugo.io
-```
-If you do, then the installation is complete. If you don't, double-check the path that you placed the `hugo.exe` file in and that you typed that path correctly when you added it to your PATH variable. If you're still not getting the output, post a note on the Hugo discussion list (in the `Support` topic) with your command and the output.
+
+    {{< nohighlight >}}A Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://gohugo.io
+{{< /nohighlight >}}
+
+    If you do, then the installation is complete. If you don't, double-check the path that you placed the `hugo.exe` file in and that you typed that path correctly when you added it to your PATH variable. If you're still not getting the output, post a note on the Hugo discussion list (in the `Support` topic) with your command and the output.
+
 3. At the prompt, change your directory to the `Sites` directory.
-```
-C:\Program Files> cd D:\Hugo\Sites
+
+    {{< nohighlight >}}C:\Program Files> cd D:\Hugo\Sites
 C:\Program Files> D:
 D:\Hugo\Sites>
-```
+{{< /nohighlight >}}
+
 4. Run the command to generate a new site. I'm using `example.com` as the name of the site.
-```
-D:\Hugo\Sites> hugo new site example.com
-```
 
-5. You should now have a directory at D:\Hugo\Sites\example.com.  Change into that directory and list the contents. You should get output similar to the following:
-```
-D:\Hugo\Sites>cd example.com
-D:\Hugo\Sites\example.com>dir
- Directory of D:\hugo\sites\example.com
+    {{< nohighlight >}}D:\Hugo\Sites> hugo new site example.com
+{{< /nohighlight >}}
 
-04/13/2015  10:44 PM    <DIR>          .
-04/13/2015  10:44 PM    <DIR>          ..
-04/13/2015  10:44 PM    <DIR>          archetypes
+5. You should now have a directory at `D:\Hugo\Sites\example.com`.  Change into that directory and list the contents. You should get output similar to the following:
+
+    {{< nohighlight >}}D:\Hugo\Sites&gt;cd example.com
+D:\Hugo\Sites\example.com&gt;dir
+&nbsp;Directory of D:\hugo\sites\example.com
+&nbsp;
+04/13/2015  10:44 PM    &lt;DIR&gt;          .
+04/13/2015  10:44 PM    &lt;DIR&gt;          ..
+04/13/2015  10:44 PM    &lt;DIR&gt;          archetypes
 04/13/2015  10:44 PM                83 config.toml
-04/13/2015  10:44 PM    <DIR>          content
-04/13/2015  10:44 PM    <DIR>          data
-04/13/2015  10:44 PM    <DIR>          layouts
-04/13/2015  10:44 PM    <DIR>          static
+04/13/2015  10:44 PM    &lt;DIR&gt;          content
+04/13/2015  10:44 PM    &lt;DIR&gt;          data
+04/13/2015  10:44 PM    &lt;DIR&gt;          layouts
+04/13/2015  10:44 PM    &lt;DIR&gt;          static
                1 File(s)             83 bytes
                7 Dir(s)   6,273,331,200 bytes free
-
-```
+{{< /nohighlight >}}
 
 You now have Hugo installed and a site to work with. You need to add a layout (or theme), then create some content. Go to http://gohugo.io/overview/quickstart/ for steps on doing that.
 

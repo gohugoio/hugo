@@ -1,3 +1,16 @@
+// Copyright 2015 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package hugolib
 
 import (
@@ -133,10 +146,11 @@ func TestRenderThing(t *testing.T) {
 		{SIMPLE_PAGE_RFC3339_DATE, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
-	s := new(Site)
-	templatePrep(s)
-
 	for i, test := range tests {
+
+		s := new(Site)
+		templatePrep(s)
+
 		p, err := NewPageFrom(strings.NewReader(test.content), "content/a/file.md")
 		p.Convert()
 		if err != nil {
@@ -145,7 +159,7 @@ func TestRenderThing(t *testing.T) {
 		templateName := fmt.Sprintf("foobar%d", i)
 		err = s.addTemplate(templateName, test.template)
 		if err != nil {
-			t.Fatalf("Unable to add template")
+			t.Fatalf("Unable to add template: %s", err)
 		}
 
 		p.Content = template.HTML(p.Content)
@@ -179,10 +193,12 @@ func TestRenderThingOrDefault(t *testing.T) {
 	}
 
 	hugofs.DestinationFS = new(afero.MemMapFs)
-	s := &Site{}
-	templatePrep(s)
 
 	for i, test := range tests {
+
+		s := &Site{}
+		templatePrep(s)
+
 		p, err := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
@@ -190,7 +206,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 		templateName := fmt.Sprintf("default%d", i)
 		err = s.addTemplate(templateName, test.template)
 		if err != nil {
-			t.Fatalf("Unable to add template")
+			t.Fatalf("Unable to add template: %s", err)
 		}
 
 		var err2 error

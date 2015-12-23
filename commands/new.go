@@ -1,9 +1,9 @@
-// Copyright © 2014-2015 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +15,12 @@ package commands
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
@@ -41,6 +41,8 @@ func init() {
 	newSiteCmd.Flags().Bool("force", false, "Init inside non-empty directory")
 	newCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
 	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
+	newCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	newCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	newCmd.AddCommand(newSiteCmd)
 	newCmd.AddCommand(newThemeCmd)
 }
@@ -55,7 +57,7 @@ You can also specify the kind with ` + "`-k KIND`" + `.
 
 If archetypes are provided in your theme or site, they will be used.`,
 
-	Run: NewContent,
+	RunE: NewContent,
 }
 
 var newSiteCmd = &cobra.Command{
@@ -64,7 +66,7 @@ var newSiteCmd = &cobra.Command{
 	Long: `Create a new site in the provided directory.
 The new site will have the correct structure, but no content or theme yet.
 Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
-	Run: NewSite,
+	RunE: NewSite,
 }
 
 var newThemeCmd = &cobra.Command{
@@ -74,20 +76,21 @@ var newThemeCmd = &cobra.Command{
 New theme is a skeleton. Please add content to the touched files. Add your
 name to the copyright line in the license and adjust the theme.toml file
 as you see fit.`,
-	Run: NewTheme,
+	RunE: NewTheme,
 }
 
 // NewContent adds new content to a Hugo site.
-func NewContent(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func NewContent(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if cmd.Flags().Lookup("format").Changed {
 		viper.Set("MetaDataFormat", configFormat)
 	}
 
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("path needs to be provided")
+		return newUserError("path needs to be provided")
 	}
 
 	createpath := args[0]
@@ -100,10 +103,8 @@ func NewContent(cmd *cobra.Command, args []string) {
 		kind = contentType
 	}
 
-	err := create.NewContent(kind, createpath)
-	if err != nil {
-		jww.ERROR.Println(err)
-	}
+	return create.NewContent(kind, createpath)
+
 }
 
 func doNewSite(basepath string, force bool) error {
@@ -113,6 +114,7 @@ func doNewSite(basepath string, force bool) error {
 		filepath.Join(basepath, "archetypes"),
 		filepath.Join(basepath, "static"),
 		filepath.Join(basepath, "data"),
+		filepath.Join(basepath, "themes"),
 	}
 
 	if exists, _ := helpers.Exists(basepath, hugofs.SourceFs); exists {
@@ -142,43 +144,43 @@ func doNewSite(basepath string, force bool) error {
 
 	createConfig(basepath, configFormat)
 
+	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %q.\n", basepath)
+
 	return nil
 }
 
-// NewSite creates a new hugo site and initializes a structured Hugo directory.
-func NewSite(cmd *cobra.Command, args []string) {
+// NewSite creates a new Hugo site and initializes a structured Hugo directory.
+func NewSite(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("path needs to be provided")
+		return newUserError("path needs to be provided")
 	}
 
 	createpath, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
-		cmd.Usage()
-		jww.FATAL.Fatalln(err)
+		return newUserError(err)
 	}
 
 	forceNew, _ := cmd.Flags().GetBool("force")
-	if err := doNewSite(createpath, forceNew); err != nil {
-		cmd.Usage()
-		jww.FATAL.Fatalln(err)
-	}
+
+	return doNewSite(createpath, forceNew)
 }
 
 // NewTheme creates a new Hugo theme.
-func NewTheme(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func NewTheme(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("theme name needs to be provided")
+
+		return newUserError("theme name needs to be provided")
 	}
 
 	createpath := helpers.AbsPathify(filepath.Join("themes", args[0]))
-	jww.INFO.Println("creating theme at", createpath)
+	jww.INFO.Println("Creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
-		jww.FATAL.Fatalln(createpath, "already exists")
+		return newUserError(createpath, "already exists")
 	}
 
 	mkdir(createpath, "layouts", "_default")
@@ -198,8 +200,7 @@ func NewTheme(cmd *cobra.Command, args []string) {
 
 	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.SourceFs)
 	if err != nil {
-
-		jww.FATAL.Fatalln(err)
+		return err
 	}
 
 	mkdir(createpath, "static", "js")
@@ -229,10 +230,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
 	if err != nil {
-		jww.FATAL.Fatalln(err)
+		return err
 	}
 
 	createThemeMD(createpath)
+
+	return nil
 }
 
 func mkdir(x ...string) {
@@ -265,7 +268,7 @@ description = ""
 homepage = "http://siteforthistheme.com/"
 tags = ["", ""]
 features = ["", ""]
-min_version = 0.14
+min_version = 0.15
 
 [author]
   name = ""

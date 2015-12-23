@@ -1,9 +1,9 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,7 +65,8 @@ type Page struct {
 	extension           string
 	contentType         string
 	renderable          bool
-	layout              string
+	Layout              string
+	layoutsCalculated   []string
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
@@ -208,6 +209,7 @@ func (p *Page) setSummary() {
 			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
 		}
 
+		// TODO(bep) consider doing this once only
 		renderedHeader := p.renderBytes(header)
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
@@ -238,26 +240,10 @@ func (p *Page) renderContent(content []byte) []byte {
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 	p.renderingConfigInit.Do(func() {
-		pageParam := p.GetParam("blackfriday")
-		siteParam := viper.GetStringMap("blackfriday")
+		pageParam := cast.ToStringMap(p.GetParam("blackfriday"))
 
-		combinedParam := siteParam
-
-		if pageParam != nil {
-			combinedParam = make(map[string]interface{})
-
-			for k, v := range siteParam {
-				combinedParam[k] = v
-			}
-
-			pageConfig := cast.ToStringMap(pageParam)
-
-			for key, value := range pageConfig {
-				combinedParam[key] = value
-			}
-		}
 		p.renderingConfig = helpers.NewBlackfriday()
-		if err := mapstructure.Decode(combinedParam, p.renderingConfig); err != nil {
+		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	})
@@ -295,9 +281,13 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-func (p *Page) Layout(l ...string) []string {
-	if p.layout != "" {
-		return layouts(p.Type(), p.layout)
+func (p *Page) layouts(l ...string) []string {
+	if len(p.layoutsCalculated) > 0 {
+		return p.layoutsCalculated
+	}
+
+	if p.Layout != "" {
+		return layouts(p.Type(), p.Layout)
 	}
 
 	layout := ""
@@ -499,6 +489,7 @@ func (p *Page) update(f interface{}) error {
 			p.linkTitle = cast.ToString(v)
 		case "description":
 			p.Description = cast.ToString(v)
+			p.Params["description"] = p.Description
 		case "slug":
 			p.Slug = cast.ToString(v)
 		case "url":
@@ -534,7 +525,7 @@ func (p *Page) update(f interface{}) error {
 			published = new(bool)
 			*published = cast.ToBool(v)
 		case "layout":
-			p.layout = cast.ToString(v)
+			p.Layout = cast.ToString(v)
 		case "markup":
 			p.Markup = cast.ToString(v)
 		case "weight":
@@ -757,7 +748,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 	if len(layout) > 0 {
 		l = layouts(p.Type(), layout[0])
 	} else {
-		l = p.Layout()
+		l = p.layouts()
 	}
 
 	return tpl.ExecuteTemplateToHTML(p, l...)

@@ -382,7 +382,7 @@ so, such as in this example:
 ```
 <nav class="recent">
   <h1>Recent Posts</h1>
-  <ul>{{range first .Site.Params.SidebarRecentLimit .Site.Recent}}
+  <ul>{{range first .Site.Params.SidebarRecentLimit .Site.Pages}}
     <li><a href="{{.RelPermalink}}">{{.Title}}</a></li>
   {{end}}</ul>
 </nav>

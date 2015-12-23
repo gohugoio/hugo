@@ -1,0 +1,7 @@
+{{ range .Params }}
+{{   if eq (substr . 0 1) "@" }}
+<a href="//github.com/{{ substr . 1 }}">{{ . }}</a>
+{{   else }}
+<a href="//github.com/spf13/hugo/issues/{{ . }}">#{{ . }}</a>
+{{   end }}
+{{ end }}

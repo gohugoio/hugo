@@ -1,9 +1,9 @@
-// Copyright © 2015 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +45,7 @@ var importCmd = &cobra.Command{
 	Long: `Import your site from other web site generators like Jekyll.
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
-	Run: nil,
+	RunE: nil,
 }
 
 var importJekyllCmd = &cobra.Command{
@@ -54,33 +54,42 @@ var importJekyllCmd = &cobra.Command{
 	Long: `hugo import from Jekyll.
 
 Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
-	Run: importFromJekyll,
+	RunE: importFromJekyll,
 }
 
-func importFromJekyll(cmd *cobra.Command, args []string) {
+func init() {
+	importJekyllCmd.Flags().Bool("force", false, "Allow import into non-empty target directory")
+}
+
+func importFromJekyll(cmd *cobra.Command, args []string) error {
 	jww.SetLogThreshold(jww.LevelTrace)
 	jww.SetStdoutThreshold(jww.LevelWarn)
 
 	if len(args) < 2 {
-		jww.ERROR.Println(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
-		return
+		return newUserError(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
 	}
 
 	jekyllRoot, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
-		jww.ERROR.Println("Path error:", args[0])
-		return
+		return newUserError("Path error:", args[0])
 	}
 
 	targetDir, err := filepath.Abs(filepath.Clean(args[1]))
 	if err != nil {
-		jww.ERROR.Println("Path error:", args[1])
-		return
+		return newUserError("Path error:", args[1])
 	}
 
-	createSiteFromJekyll(jekyllRoot, targetDir)
-
 	jww.INFO.Println("Import Jekyll from:", jekyllRoot, "to:", targetDir)
+
+	if strings.HasPrefix(targetDir, jekyllRoot) {
+		return newUserError("Target path should not be inside the Jekyll root, aborting.")
+	}
+
+	forceImport, _ := cmd.Flags().GetBool("force")
+	if err := createSiteFromJekyll(jekyllRoot, targetDir, forceImport); err != nil {
+		return newUserError(err)
+	}
+
 	fmt.Println("Importing...")
 
 	fileCount := 0
@@ -95,8 +104,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 
 		relPath, err := filepath.Rel(jekyllRoot, path)
 		if err != nil {
-			jww.ERROR.Println("Get rel path error:", path)
-			return err
+			return newUserError("Get rel path error:", path)
 		}
 
 		relPath = filepath.ToSlash(relPath)
@@ -119,16 +127,52 @@ func importFromJekyll(cmd *cobra.Command, args []string) {
 	err = filepath.Walk(jekyllRoot, callback)
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	} else {
-		fmt.Println("Congratulations!", fileCount, "posts imported!")
-		fmt.Println("Now, start Hugo by yourself: \n" +
+		fmt.Println("Congratulations!", fileCount, "post(s) imported!")
+		fmt.Println("Now, start Hugo by yourself:\n" +
 			"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-		fmt.Println("$ cd " + args[1] + "\n$ hugo server -w --theme=herring-cove")
+		fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 	}
+
+	return nil
 }
 
-func createSiteFromJekyll(jekyllRoot, targetDir string) {
+// TODO: Consider calling doNewSite() instead?
+func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
+	fs := hugofs.SourceFs
+	if exists, _ := helpers.Exists(targetDir, fs); exists {
+		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
+			return errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
+		}
+
+		isEmpty, _ := helpers.IsEmpty(targetDir, fs)
+
+		if !isEmpty && !force {
+			return errors.New("Target path \"" + targetDir + "\" already exists and is not empty")
+		}
+	}
+
+	jekyllConfig := loadJekyllConfig(jekyllRoot)
+
+	// Crude test to make sure at least one of _drafts/ and _posts/ exists
+	// and is not empty.
+	hasPostsOrDrafts := false
+	postsDir := filepath.Join(jekyllRoot, "_posts")
+	draftsDir := filepath.Join(jekyllRoot, "_drafts")
+	for _, d := range []string{postsDir, draftsDir} {
+		if exists, _ := helpers.Exists(d, fs); exists {
+			if isDir, _ := helpers.IsDir(d, fs); isDir {
+				if isEmpty, _ := helpers.IsEmpty(d, fs); !isEmpty {
+					hasPostsOrDrafts = true
+				}
+			}
+		}
+	}
+	if !hasPostsOrDrafts {
+		return errors.New("Your Jekyll root contains neither posts nor drafts, aborting.")
+	}
+
 	mkdir(targetDir, "layouts")
 	mkdir(targetDir, "content")
 	mkdir(targetDir, "archetypes")
@@ -136,10 +180,11 @@ func createSiteFromJekyll(jekyllRoot, targetDir string) {
 	mkdir(targetDir, "data")
 	mkdir(targetDir, "themes")
 
-	jekyllConfig := loadJekyllConfig(jekyllRoot)
 	createConfigFromJekyll(targetDir, "yaml", jekyllConfig)
 
 	copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"))
+
+	return nil
 }
 
 func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
@@ -149,6 +194,7 @@ func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
 	exists, err := helpers.Exists(path, fs)
 
 	if err != nil || !exists {
+		jww.WARN.Println("_config.yaml not found: Is the specified Jekyll root correct?")
 		return nil
 	}
 
@@ -339,8 +385,8 @@ func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	filename := filepath.Base(path)
 	postDate, postName, err := parseJekyllFilename(filename)
 	if err != nil {
-		jww.ERROR.Println("Parse filename error:", filename)
-		return err
+		jww.WARN.Printf("Failed to parse filename '%s': %s. Skipping.", filename, err)
+		return nil
 	}
 
 	jww.TRACE.Println(filename, postDate, postName)
