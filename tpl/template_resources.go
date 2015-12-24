@@ -18,6 +18,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -286,4 +287,8 @@ func ReadDir(path string) []os.FileInfo {
 		return nil
 	}
 	return list
+}
+
+func ResizedImage(img string) string {
+	return fmt.Sprintf("../%s", img)
 }

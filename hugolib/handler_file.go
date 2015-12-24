@@ -15,10 +15,10 @@ package hugolib
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
+	"regexp"
 
 	"log"
 
@@ -105,7 +105,10 @@ func (h imageHandler) FileConvert(file *source.File, s *Site) HandledResult {
 		case "png":
 			_ = png.Encode(buf, output)
 		}
-		path := fmt.Sprintf("images/%s.%s", file.UniqueID(), file.Extension())
+
+		re := regexp.MustCompile(`\.(w|h)\d(-)?.+\.`)
+		path := file.Path()
+		path = re.ReplaceAllString(path, ".")
 		file = source.NewFileWithContents(path, bytes.NewReader(buf.Bytes()))
 	}
 	s.WriteDestFile(file.Path(), file.Contents)
