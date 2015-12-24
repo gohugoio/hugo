@@ -138,11 +138,11 @@ Once you have things set up, you can run `hugo server` or `hugo` before deployin
 ~~~shell
 function hugoserver-com {
   cd /Users/me/dev/mainsite
-  hugo server --buildDrafts --watch --verbose --source="/Users/me/dev/mainsite" --config="/Users/me/dev/mainsite/config_en.toml" --port=1377
+  hugo server --buildDrafts --verbose --source="/Users/me/dev/mainsite" --config="/Users/me/dev/mainsite/config_en.toml" --port=1377
 }
 function hugoserver-jp {
   cd /Users/me/dev/mainsite
-  hugo server --buildDrafts --watch --verbose --source="/Users/me/dev/mainsite" --config="/Users/me/dev/mainsite/config_ja.toml" --port=1399
+  hugo server --buildDrafts --verbose --source="/Users/me/dev/mainsite" --config="/Users/me/dev/mainsite/config_ja.toml" --port=1399
 }
 ~~~
 
