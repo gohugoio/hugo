@@ -37,6 +37,11 @@ Ideally, you should install it somewhere in your `PATH` for easy use.
 On OS&nbsp;X, if you have [Homebrew](http://brew.sh/), installation is even
 easier: just run `brew install hugo`.
 
+For a more detailed explanation follow the corresponding installation guides:
+
+- [Installation on OS X]({{< relref "tutorials/installing-on-mac.md" >}})
+- [Installation on Windows]({{< relref "tutorials/installing-on-windows.md" >}})
+
 ### Installing Pygments (optional)
 
 The Hugo executable has one *optional* external dependency for source code highlighting (Pygments).
