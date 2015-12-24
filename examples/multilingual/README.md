@@ -10,4 +10,6 @@ Please see relevant discussions below:
 * https://github.com/spf13/hugo/issues/129 Multiple languages
 * https://github.com/spf13/hugo/issues/134 Example of a multilingual site
 
+Alternatively follow our [multilingual site tutorial](http://gohugo.io/tutorials/create-a-multilingual-site/).
+
 All contributions are welcome!
