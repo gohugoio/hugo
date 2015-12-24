@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
@@ -32,7 +33,7 @@ command-line interface.  By default, it creates the man page files
 in the "man" directory under the current directory.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		header := &cobra.GenManHeader{
+		header := &doc.GenManHeader{
 			Section: "1",
 			Manual:  "Hugo Manual",
 			Source:  fmt.Sprintf("Hugo %s", helpers.HugoVersion()),
@@ -47,7 +48,7 @@ in the "man" directory under the current directory.`,
 		cmd.Root().DisableAutoGenTag = true
 
 		jww.FEEDBACK.Println("Generating Hugo man pages in", genmandir, "...")
-		cmd.Root().GenManTree(header, genmandir)
+		doc.GenManTree(cmd.Root(), header, genmandir)
 
 		jww.FEEDBACK.Println("Done.")
 
