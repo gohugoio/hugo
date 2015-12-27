@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"math/rand"
 
 	"bitbucket.org/pkg/inflect"
 
@@ -492,6 +493,39 @@ func After(index interface{}, seq interface{}) (interface{}, error) {
 		return nil, errors.New("no items left")
 	}
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
+}
+
+// Shuffle is exposed to templates, to iterate over items in rangeable list in
+// a randomised order.
+func Shuffle(seq interface{}) (interface{}, error) {
+
+	if seq == nil {
+		return nil, errors.New("both count and seq must be provided")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
+	}
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice, reflect.String:
+		// okay
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+
+	shuffled := reflect.MakeSlice(reflect.TypeOf(seq), seqv.Len(), seqv.Len())
+
+	rand.Seed(time.Now().UTC().UnixNano())
+	randomIndices := rand.Perm(seqv.Len())
+
+	for index, value := range randomIndices {
+		shuffled.Index(value).Set(seqv.Index(index))
+	}
+
+	return shuffled.Interface(), nil
 }
 
 var (
@@ -1415,6 +1449,7 @@ func init() {
 		"first":        First,
 		"last":         Last,
 		"after":        After,
+		"shuffle":		Shuffle,
 		"where":        Where,
 		"delimit":      Delimit,
 		"sort":         Sort,
