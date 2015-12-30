@@ -1060,11 +1060,16 @@ func (s *Site) possibleTaxonomies() (taxonomies []string) {
 // RenderAliases renders shell pages that simply have a redirect in the header
 func (s *Site) RenderAliases() error {
 	for _, p := range s.Pages {
+		if len(p.Aliases) == 0 {
+			continue
+		}
+
+		plink, err := p.Permalink()
+		if err != nil {
+			return err
+		}
+
 		for _, a := range p.Aliases {
-			plink, err := p.Permalink()
-			if err != nil {
-				return err
-			}
 			if err := s.WriteDestAlias(a, plink); err != nil {
 				return err
 			}
