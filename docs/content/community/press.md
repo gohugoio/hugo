@@ -16,6 +16,8 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 
 | Title                                                                                                                                                                     | Author                                                        | Date         |
+| ------                                                                                                                                                                    | ------                                                        | -----:       |
+| [Good-Bye Wordpress, Hello Hugo! (German)](http://blog.arminhanisch.de/2015/08/blog-migration-zu-hugo/)                                                                   | Armin Hanisch                                                 | 18 Aug 2015  |
 | [Ein Blog mit Hugo erstellen - Tutorial (Deutsch/German)](http://privat.albicker.org/blog/tags/hugo/)                                                                     | Bernhard Albicker                                             | 30 Dec 2015  |
 | [Migrating from Pelican to Hugo](http://gadgetplayboy.com/post/migrating-from-pelican-to-hugo/)                                                                           | Salar Rahmanian                                               | 29 Nov 2015  |
 | [Hugo + Uberspace + Git = Hubergit &mdash; eine Anleitung (German)](https://harms-ensink.name/post/hubergit/)                                                             | Christoph Harms-Ensink                                        | 24 Nov 2015  |
