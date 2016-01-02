@@ -29,15 +29,7 @@ func parse(path string) {
 		return
 	}
 
-	params := viper.GetStringMap("params.css")
-
-	if len(params) == 0 {
-		jww.ERROR.Println("Can't find variables to insert them into", path)
-	}
-
-	err = t.Execute(f, viper.GetStringMap("params.css"))
-
-	if err != nil {
+	if err := t.Execute(f, viper.GetStringMap("params.css")); err != nil {
 		jww.WARN.Println("Can't interpret the CSS file [%s]:", path, err)
 		return
 	}
