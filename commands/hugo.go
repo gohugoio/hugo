@@ -452,7 +452,7 @@ func copyStatic() error {
 	}
 
 	// Copy the site's own static directory
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + helpers.FilePathSeparator
+	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
 	if _, err := os.Stat(staticDir); err == nil {
 		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
 		return syncer.Sync(publishDir, staticDir)
@@ -572,7 +572,7 @@ func NewWatcher(port int) error {
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
-					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || strings.HasPrefix(ext, ".goutputstream") || strings.HasSuffix(ext, "jb_old___")|| strings.HasSuffix(ext, "jb_bak___")
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || strings.HasPrefix(ext, ".goutputstream") || strings.HasSuffix(ext, "jb_old___") || strings.HasSuffix(ext, "jb_bak___")
 					if istemp {
 						continue
 					}
@@ -598,9 +598,7 @@ func NewWatcher(port int) error {
 					dynamicChanged = dynamicChanged || !isstatic
 
 					if isstatic {
-						if staticPath, err := helpers.MakeStaticPathRelative(ev.Name); err == nil {
-							staticFilesChanged[staticPath] = true
-						}
+						staticFilesChanged[ev.Name] = true
 					}
 
 					// add new directory to watch list
@@ -633,16 +631,26 @@ func NewWatcher(port int) error {
 							publishDir = ""
 						}
 
-						for path := range staticFilesChanged {
-							staticPath := filepath.Join(helpers.AbsPathify(viper.GetString("StaticDir")), path)
-							jww.FEEDBACK.Printf("Syncing file '%s'\n", staticPath)
+						staticDir := helpers.GetStaticDirPath()
+						themeStaticDir := helpers.GetThemesDirPath()
 
-							if _, err := os.Stat(staticPath); err == nil {
-								publishPath := filepath.Join(publishDir, path)
-								jww.INFO.Println("syncing from", staticPath, "to", publishPath)
-								err := syncer.Sync(publishPath, staticPath)
+						jww.FEEDBACK.Printf("StaticDir '%s'\nThemeStaticDir '%s'\n", staticDir, themeStaticDir)
+
+						for path := range staticFilesChanged {
+							var publishPath string
+
+							if strings.HasPrefix(path, staticDir) {
+								publishPath = filepath.Join(publishDir, strings.TrimPrefix(path, staticDir))
+							} else if strings.HasPrefix(path, themeStaticDir) {
+								publishPath = filepath.Join(publishDir, strings.TrimPrefix(path, themeStaticDir))
+							}
+							jww.FEEDBACK.Printf("Syncing file '%s'", path)
+
+							if _, err := os.Stat(path); err == nil {
+								jww.INFO.Println("syncing from ", path, " to ", publishPath)
+								err := syncer.Sync(publishPath, path)
 								if err != nil {
-									jww.FEEDBACK.Printf("Error on syncing file '%s'\n", staticPath)
+									jww.FEEDBACK.Printf("Error on syncing file '%s'\n", path)
 								}
 							}
 						}
