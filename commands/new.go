@@ -176,8 +176,8 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 		return newUserError("theme name needs to be provided")
 	}
 
-	createpath := helpers.AbsPathify(filepath.Join("themes", args[0]))
-	jww.INFO.Println("Creating theme at", createpath)
+	createpath := helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), args[0]))
+	jww.INFO.Println("creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
 		return newUserError(createpath, "already exists")

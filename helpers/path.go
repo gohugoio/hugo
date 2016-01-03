@@ -96,7 +96,7 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '%' || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}
@@ -142,7 +142,7 @@ func GetStaticDirPath() string {
 // If there is no theme, returns the empty string.
 func GetThemeDir() string {
 	if ThemeSet() {
-		return AbsPathify(filepath.Join("themes", viper.GetString("theme")))
+		return AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")))
 	}
 	return ""
 }

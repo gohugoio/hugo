@@ -15,14 +15,16 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 const gendocFrontmatterTemplate = `---
@@ -67,7 +69,7 @@ for rendering in Hugo.`,
 		}
 
 		jww.FEEDBACK.Println("Generating Hugo command-line documentation in", gendocdir, "...")
-		cobra.GenMarkdownTreeCustom(cmd.Root(), gendocdir, prepender, linkHandler)
+		doc.GenMarkdownTreeCustom(cmd.Root(), gendocdir, prepender, linkHandler)
 		jww.FEEDBACK.Println("Done.")
 
 		return nil

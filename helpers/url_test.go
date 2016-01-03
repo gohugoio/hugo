@@ -28,7 +28,7 @@ func TestURLize(t *testing.T) {
 	}{
 		{"  foo bar  ", "foo-bar"},
 		{"foo.bar/foo_bar-foo", "foo.bar/foo_bar-foo"},
-		{"foo,bar:foo%bar", "foobarfoobar"},
+		{"foo,bar:foobar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},
 		{"трям/трям", "%D1%82%D1%80%D1%8F%D0%BC/%D1%82%D1%80%D1%8F%D0%BC"},
 	}
