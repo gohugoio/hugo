@@ -16,6 +16,7 @@ package tpl
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html"
@@ -1050,6 +1051,14 @@ func IsSet(a interface{}, key interface{}) bool {
 	return false
 }
 
+func DumpVar(v interface{}) string {
+	j, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return ""
+	}
+	return string(j)
+}
+
 func ReturnWhenSet(a, k interface{}) interface{} {
 	av, isNil := indirect(reflect.ValueOf(a))
 	if isNil {
@@ -1442,6 +1451,7 @@ func init() {
 		"intersect":    Intersect,
 		"isSet":        IsSet,
 		"isset":        IsSet,
+		"dumpvar":      DumpVar,
 		"echoParam":    ReturnWhenSet,
 		"safeHTML":     SafeHTML,
 		"safeCSS":      SafeCSS,
