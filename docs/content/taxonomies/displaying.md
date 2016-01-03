@@ -38,7 +38,7 @@ each content piece are located in the usual place
 
     <ul id="tags">
       {{ range .Params.tags }}
-        <li><a href="tags/{{ . | urlize }}">{{ . }}</a> </li>
+        <li><a href="{{.Site.LanguagePrefix}}/tags/{{ . | urlize }}">{{ . }}</a> </li>
       {{ end }}
     </ul>
 
@@ -93,7 +93,7 @@ The following example displays all tag keys:
 
     <ul id="all-tags">
       {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-        <li><a href="/tags/{{ $name | urlize }}">{{ $name }}</a></li>
+        <li><a href="{{.Site.LanguagePrefix}}/tags/{{ $name | urlize }}">{{ $name }}</a></li>
       {{ end }}
     </ul>
 
@@ -103,7 +103,7 @@ This example will list all taxonomies, each of their keys and all the content as
     <section>
       <ul>
         {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-          <li><a href="/{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
+          <li><a href="{{.Site.LanguagePrefix}}/{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
             <ul>
               {{ range $key, $value := $taxonomy }}
               <li> {{ $key }} </li>
@@ -118,4 +118,3 @@ This example will list all taxonomies, each of their keys and all the content as
         {{ end }}
       </ul>
     </section>
-

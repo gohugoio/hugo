@@ -61,9 +61,11 @@ type Page struct {
 	PublishDate     time.Time
 	Tmpl            tpl.Template
 	Markup          string
+	Translations    Translations
 
 	extension           string
 	contentType         string
+	lang                string
 	renderable          bool
 	Layout              string
 	layoutsCalculated   []string
@@ -280,9 +282,11 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
-		Source: Source{File: *source.NewFile(filename)},
-		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
-		Params: make(map[string]interface{})}
+		Source:       Source{File: *source.NewFile(filename)},
+		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
+		Params:       make(map[string]interface{}),
+		Translations: make(Translations),
+	}
 
 	jww.DEBUG.Println("Reading from", page.File.Path())
 	return &page
@@ -425,10 +429,12 @@ func (p *Page) permalink() (*url.URL, error) {
 		if len(pSlug) > 0 {
 			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
-			_, t := filepath.Split(p.Source.LogicalName())
+			t := p.Source.TranslationBaseName()
 			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
+
+	permalink = p.addMultilingualWebPrefix(permalink)
 
 	return helpers.MakePermalink(baseURL, permalink), nil
 }
@@ -438,6 +444,10 @@ func (p *Page) Extension() string {
 		return p.extension
 	}
 	return viper.GetString("DefaultExtension")
+}
+
+func (p *Page) Lang() string {
+	return p.lang
 }
 
 func (p *Page) LinkTitle() string {
@@ -806,6 +816,7 @@ func (p *Page) parse(reader io.Reader) error {
 	p.renderable = psr.IsRenderable()
 	p.frontmatter = psr.FrontMatter()
 	p.rawContent = psr.Content()
+	p.lang = p.Source.File.Lang()
 
 	meta, err := psr.Metadata()
 	if meta != nil {
@@ -946,6 +957,7 @@ func (p *Page) TargetPath() (outfile string) {
 				outfile += "index.html"
 			}
 			outfile = filepath.FromSlash(outfile)
+			outfile = p.addMultilingualFilesystemPrefix(outfile)
 			return
 		}
 	}
@@ -957,5 +969,19 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
 	}
 
-	return filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile))
+	return p.addMultilingualFilesystemPrefix(filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
+}
+
+func (p *Page) addMultilingualWebPrefix(outfile string) string {
+	if p.Lang() == "" {
+		return outfile
+	}
+	return "/" + path.Join(p.Lang(), outfile)
+}
+
+func (p *Page) addMultilingualFilesystemPrefix(outfile string) string {
+	if p.Lang() == "" {
+		return outfile
+	}
+	return string(filepath.Separator) + filepath.Join(p.Lang(), outfile)
 }

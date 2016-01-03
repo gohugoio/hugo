@@ -56,6 +56,8 @@ matter, content or derived from file location.
 **.IsPage** Always true for page.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
+**.Translations** A map to other pages with the same filename, but with a different language-extension (like `post.fr.md`).  Populated only if `Multilingual` is enabled in your site config.
+**.Lang** Taken from the language extension notation.  Populated only if `Multilingual` is enabled for your site config.
 
 ## Page Params
 
@@ -96,9 +98,9 @@ includes taxonomies, lists and the homepage.
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 
-### Taxonomy Term Variables
+### Taxonomy Terms Node Variables
 
-[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables.
+[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables. These are available in `layouts/_defaults/terms.html` for example.
 
 **.Data.Singular** The singular name of the taxonomy<br>
 **.Data.Plural** The plural name of the taxonomy<br>
@@ -109,13 +111,23 @@ includes taxonomies, lists and the homepage.
 
 The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
 
+### Taxonomies elsewhere
+
+The **.Site.Taxonomies** variable holds all taxonomies defines site-wide.  It is a map of the taxonomy name to a list of its values. For example: "tags" -> ["tag1", "tag2", "tag3"]. Each value, though, is not a string but rather a [Taxonomy variable](#the-taxonomy-variable).
+
+#### The Taxonomy variable
+
+The Taxonomy variable, available as **.Site.Taxonomies.tags** for example, contains the list of tags (values) and, for each of those, their corresponding content pages.
+
+
+
 ## Site Variables
 
 Also available is `.Site` which has the following:
 
 **.Site.BaseURL** The base URL for the site as defined in the site configuration file.<br>
 **.Site.RSSLink** The URL for the site RSS.<br>
-**.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
+**.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
 **.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
@@ -129,7 +141,7 @@ Also available is `.Site` which has the following:
 **.Site.Menus** All of the menus in the site.<br>
 **.Site.Title** A string representing the title of the site.<br>
 **.Site.Author** A map of the authors as defined in the site configuration.<br>
-**.Site.LanguageCode** A string representing the language as defined in the site configuration.<br>
+**.Site.LanguageCode** A string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
 **.Site.GoogleAnalytics** A string representing your tracking code for Google Analytics as defined in the site configuration.<br>
 **.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
@@ -137,6 +149,15 @@ Also available is `.Site` which has the following:
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
 **.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
 **.Site.Data**  Custom data, see [Data Files](/extras/datafiles/).<br>
+**.Site.Multilingual** Whether the site supports internationalization of the content. With this mode enabled, all your posts' URLs will be prefixed with the language (ex: `/en/2016/01/01/my-post`)<br>
+**.Site.RenderLanguage** When using `Multilingual` mode, will render the site in this language. You can then run `hugo` again with a second `config` file, with the other languages.<br>
+**.Site.LanguagePrefix** When `Multilingual` is enabled, this will hold `/{{ .Site.RenderLanguage}}`, otherwise will be an empty string.  Using this to prefix taxonomies or other hard-coded links ensures your keep your theme compatible with Multilingual configurations.
+**.Site.LinkLanguages** A list of languages. Used in your templates to iterate through and create links to different languages.<br>
+**.Site.DefaultContentLang** When `Multilingual` is `true`, this would
+  be the default language for files without language-extensions (like
+  `post.md` vs the spanish translation `post.es.md`). It defaults to
+  `en`. You shouldn't need to worry about this if all your content has
+  a language extension like `post.es.md`.<br>
 
 ## Hugo Variables
 

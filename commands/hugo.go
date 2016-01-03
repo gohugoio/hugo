@@ -244,6 +244,8 @@ func LoadDefaultSettings() {
 	viper.SetDefault("SectionPagesMenu", "")
 	viper.SetDefault("DisablePathToLower", false)
 	viper.SetDefault("HasCJKLanguage", false)
+	viper.SetDefault("Multilingual", false)
+	viper.SetDefault("DefaultContentLang", "en")
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.

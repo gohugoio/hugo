@@ -29,7 +29,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
     <ul>
     {{ $data := .Data }}
     {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
-    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
     {{ end }}
     </ul>
 
@@ -38,7 +38,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
     <ul>
     {{ $data := .Data }}
     {{ range $key, $value := .Data.Taxonomy.ByCount }}
-    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
     {{ end }}
     </ul>
 
