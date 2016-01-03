@@ -41,11 +41,11 @@ Values under `[params]` will populate the `.Site.Params` variable for use in tem
     builddrafts = false
     baseurl = "http://yoursite.example.com/"
     canonifyurls = true
-    
+
     [taxonomies]
       category = "categories"
       tag = "tags"
-    
+
     [params]
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
@@ -145,7 +145,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # verbose logging
     verboseLog:                 false
     # watch filesystem for changes and recreate as needed
-    watch:                      false
+    watch:                      true
     ---
 
 ## Ignore files on build
