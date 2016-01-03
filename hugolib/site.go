@@ -1682,14 +1682,14 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	return err
 }
 
-func (s *Site) render(name string, d interface{}, renderBuffer *bytes.Buffer, layouts ...string) error {
+func (s *Site) render(name string, d interface{}, w io.Writer, layouts ...string) error {
 	layout, found := s.findFirstLayout(layouts...)
 	if found == false {
 		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
 		return nil
 	}
 
-	if err := s.renderThing(d, layout, renderBuffer); err != nil {
+	if err := s.renderThing(d, layout, w); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
 		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
 		if !s.Running() {
