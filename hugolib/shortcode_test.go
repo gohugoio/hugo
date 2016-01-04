@@ -95,6 +95,14 @@ func TestHyphenatedSC(t *testing.T) {
 	CheckShortCodeMatch(t, "{{< hyphenated-video 47238zzb >}}", "Playing Video 47238zzb", tem)
 }
 
+// Issue #1753
+func TestNoTrailingNewline(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
+
+	CheckShortCodeMatch(t, "ab{{< a c >}}d", "abcd", tem)
+}
+
 func TestPositionalParamSC(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)

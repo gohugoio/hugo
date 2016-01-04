@@ -344,6 +344,9 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 {{< %s "sect/doc1.md" >}}
 
 THE END.`, refShortcode))},
+		// Issue #1753: Should not add a trailing newline after shortcode.
+		{filepath.FromSlash("sect/doc3.md"),
+			[]byte(fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode))},
 	}
 
 	s := &Site{
@@ -364,6 +367,7 @@ THE END.`, refShortcode))},
 	}{
 		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 2: %s/sect/doc2%s</p>\n", expectedBase, expectedURLSuffix)},
 		{filepath.FromSlash(fmt.Sprintf("sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong></p>\n\n%s/sect/doc1%s\n\n<p>THE END.</p>\n", expectedBase, expectedURLSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("sect/doc3%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong>%s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
 	}
 
 	for _, test := range tests {
@@ -1038,10 +1042,9 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{filepath.FromSlash("level2/index.md"), []byte("")},
 		{filepath.FromSlash("level2/common.md"), []byte("")},
 
-
-//		{filepath.FromSlash("level2b/2b-root.md"), []byte("")},
-//		{filepath.FromSlash("level2b/index.md"), []byte("")},
-//		{filepath.FromSlash("level2b/common.md"), []byte("")},
+		//		{filepath.FromSlash("level2b/2b-root.md"), []byte("")},
+		//		{filepath.FromSlash("level2b/index.md"), []byte("")},
+		//		{filepath.FromSlash("level2b/common.md"), []byte("")},
 
 		{filepath.FromSlash("level2/2-image.png"), []byte("")},
 		{filepath.FromSlash("level2/common.png"), []byte("")},
