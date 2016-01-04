@@ -1271,7 +1271,7 @@ label {
           box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 .panel-body {
-  padding: 15px;
+  padding: 15px 15px 0px 15px;
 }
 .carousel {
   position: relative;

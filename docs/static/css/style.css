@@ -622,3 +622,23 @@ i.freebsd-19px:before {
         display: none;
     }
 }
+
+
+/* Footer panel */
+.footer-panel {
+    width: 100%;
+    border-top:1px #efefef solid;
+    line-height: 30px;
+    padding: 25px 0px 15px;
+    margin-top: 15px;
+    background: #f9f9f9;
+    display: inline-block;
+    float: left;
+}
+
+.footer-panel p {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: medium;
+    font-style: italic;
+}
