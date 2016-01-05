@@ -583,6 +583,12 @@ func (s *Site) Render() (err error) {
 		return
 	}
 	s.timerStep("render and write Sitemap")
+
+	if err = s.RenderRobotsTXT(); err != nil {
+		return
+	}
+	s.timerStep("render and write robots.txt")
+
 	return
 }
 
@@ -1559,6 +1565,26 @@ func (s *Site) RenderSitemap() error {
 	}
 
 	return nil
+}
+
+func (s *Site) RenderRobotsTXT() error {
+	if viper.GetBool("DisableRobotsTXT") {
+		return nil
+	}
+
+	n := s.NewNode()
+	n.Data["Pages"] = s.Pages
+
+	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
+	err := s.render("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
+
+	if err == nil {
+		err = s.WriteDestFile("robots.txt", outBuffer)
+	}
+
+	return err
 }
 
 func (s *Site) Stats() {
