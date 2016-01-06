@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/source-directory/
+lastmod: 2015-02-09
 date: 2013-07-01
 menu:
   main:

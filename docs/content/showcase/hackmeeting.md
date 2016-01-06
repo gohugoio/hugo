@@ -1,4 +1,5 @@
 ---
+lastmod: 2014-08-26
 date: 2014-08-25T18:30:40-04:00
 description: the website developed for the Hackmeeting 2014, the italian meeting of the digital countercultures held this year in Bologna
 license: Unknown

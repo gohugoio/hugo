@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/functions/
+lastmod: 2015-09-20
 date: 2013-07-01
 linktitle: Functions
 toc: true
