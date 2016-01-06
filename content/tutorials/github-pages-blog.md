@@ -2,6 +2,7 @@
 aliases:
     - /tutorials/github_pages_blog/
 author: Spencer Lyon
+lastmod: 2015-12-24
 date: 2014-03-21
 linktitle: Hosting on GitHub
 toc: true

@@ -2,6 +2,7 @@
 aliases:
 - /doc/release-notes/
 - /meta/release-notes/
+lastmod: 2015-12-19
 date: 2013-07-01
 menu:
   main:

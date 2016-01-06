@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/sitemap/
+lastmod: 2015-12-10
 date: 2014-05-07
 linktitle: Sitemap
 menu:

@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/indexes/
+lastmod: 2015-08-04
 date: 2013-07-01
 linktitle: List of Content
 menu:

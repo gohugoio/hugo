@@ -3,6 +3,7 @@ aliases:
 - /doc/redirects/
 - /doc/alias/
 - /doc/aliases/
+lastmod: 2015-12-23
 date: 2013-07-09
 menu:
   main:
