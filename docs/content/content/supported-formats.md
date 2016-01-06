@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/supported-formats/
+lastmod: 2015-08-01
 date: 2015-08-01
 menu:
   main:

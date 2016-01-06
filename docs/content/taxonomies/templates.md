@@ -1,6 +1,7 @@
 ---
 aliases:
 - /indexes/templates/
+lastmod: 2014-05-29
 date: 2013-07-01
 linktitle: Templates
 menu:

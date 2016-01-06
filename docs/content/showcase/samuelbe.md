@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-08-08
 date: 2015-07-08T14:02:16+02:00
 description: "personal blog of Samuel Debruyn"
 license: ""

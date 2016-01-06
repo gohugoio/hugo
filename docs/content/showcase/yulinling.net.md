@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-12-19
 date: 2015-09-09T21:42:00-04:00
 description: Multilingual, blog
 license: ""

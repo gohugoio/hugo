@@ -2,6 +2,7 @@
 aliases:
 - /layout/go-templates/
 - /layouts/go-templates/
+lastmod: 2015-11-30
 date: 2013-07-01
 menu:
   main:
@@ -320,6 +321,7 @@ Here is the example front matter:
 ```
 ---
 title: "Permalinks"
+lastmod: 2015-11-30
 date: "2013-11-18"
 aliases:
   - "/doc/permalinks/"

@@ -3,6 +3,7 @@ aliases:
 - /doc/templates/ace
 - /layout/templates/ace
 - /layout/ace/
+lastmod: 2015-08-04
 date: 2014-04-20
 linktitle: Ace templates
 menu:

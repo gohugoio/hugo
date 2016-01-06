@@ -1,5 +1,6 @@
 ---
 author: "Rick Cogley"
+lastmod: 2015-12-24
 date: 2015-07-08
 linktitle: Multilingual Site
 menu:
