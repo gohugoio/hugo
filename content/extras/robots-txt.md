@@ -1,35 +1,38 @@
 ---
-lastmod: 2015-12-08
-date: 2013-07-09
+lastmod: 2016-01-06
+date: 2015-12-08
 menu:
   main:
     parent: extras
 next: /community/mailing-list
 prev: /extras/urls
-title: Table of Contents
+title: Custom robots.txt
 weight: 120
 ---
 
-Hugo can generated customized [robots.txt](http://www.robotstxt.org/) in the
-[same way than any other template]({{< ref "templates/go-templates.md" >}}).
+Hugo can generated a customized [robots.txt](http://www.robotstxt.org/) in the
+[same way as any other templates]({{< ref "templates/go-templates.md" >}}).
 
-By default it generates a robots.txt which allows everything, it looks exactly
+By default, it generates a robots.txt, which allows everything, with the following content:
 
-  User-agent: *
+```http
+User-agent: *
+```
 
-To disable it just set `disableRobotsTXT` option to false in the [command line]({{< ref "commands/hugo.md" >}}) or [configuration file]({{< ref "overview/configuration.md" >}}).
+To disable it, just set `disableRobotsTXT` option to `false` in the [command line]({{< ref "commands/hugo.md" >}}) or [configuration file]({{< ref "overview/configuration.md" >}}).
 
-Hugo will use the template `robots.txt` following the list starting with the one with more priority
+Hugo will use the template `robots.txt` according to the following list in descending precedence:
 
 * /layouts/robots.txt
 * /themes/`THEME`/layout/robots.txt
 
 An example of a robots.txt layout is:
 
-    User-agent: *
+```http
+User-agent: *
 
-    {{range .Data.Pages}}
-    Disallow: {{.RelPermalink}}{{end}}
-
+{{range .Data.Pages}}
+Disallow: {{.RelPermalink}}{{end}}
+```
 
 This template disallows and all the pages of the site creating one `Disallow` entry for each one.
