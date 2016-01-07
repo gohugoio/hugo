@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-07-10
 date: 2015-07-10T16:15:00+01:00
 description: Szymon Katra
 license: ""

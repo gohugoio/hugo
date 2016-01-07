@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/configuration/
+lastmod: 2016-01-02
 date: 2013-07-01
 linktitle: Configuration
 menu:

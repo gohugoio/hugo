@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/rss/
+lastmod: 2015-08-04
 date: 2015-05-19
 linktitle: RSS
 menu:

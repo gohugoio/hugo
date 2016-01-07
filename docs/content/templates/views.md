@@ -1,6 +1,7 @@
 ---
 aliases:
 - /templates/views/
+lastmod: 2015-05-22
 date: 2013-07-01
 menu:
   main:

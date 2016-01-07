@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-08-08
 date: 2015-05-20T04:32:00Z
 description: Rick Cogley's personal site, powered by Hugo.
 license: MIT

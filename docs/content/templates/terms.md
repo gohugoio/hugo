@@ -3,6 +3,7 @@ aliases:
 - /indexes/lists/
 - /doc/indexes/
 - /extras/indexes
+lastmod: 2015-09-15
 date: 2014-05-21
 linktitle: Taxonomy Terms
 menu:

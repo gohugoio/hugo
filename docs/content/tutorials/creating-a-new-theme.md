@@ -1,5 +1,6 @@
 ---
 author: "Michael Henderson"
+lastmod: 2015-12-01
 date: 2015-11-26
 linktitle: Creating a New Theme
 toc: true

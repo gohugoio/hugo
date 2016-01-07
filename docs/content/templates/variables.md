@@ -2,6 +2,7 @@
 aliases:
 - /doc/variables/
 - /layout/variables/
+lastmod: 2015-12-08
 date: 2013-07-01
 linktitle: Variables
 menu:
