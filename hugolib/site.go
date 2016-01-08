@@ -461,19 +461,41 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 		s.ReadDataFromSourceFS()
 	}
 
+	// If a content file changes, we need to reload only it and re-render the entire site.
 	if len(sourceChanged) > 0 {
 
-		results := make(chan HandledResult)
-		filechan := make(chan *source.File)
-		errs := make(chan error)
-		wg := &sync.WaitGroup{}
+		// First step is to read the changed files and (re)place them in site.Pages
+		// This includes processing any meta-data for that content
 
+		// The second step is to convert the content into HTML
+		// This includes processing any shortcodes that may be present.
+
+		// We do this in parallel... even though it's likely only one file at a time.
+		// We need to process the reading prior to the conversion for each file, but
+		// we can convert one file while another one is still reading.
+		errs := make(chan error)
+		readResults := make(chan HandledResult)
+		filechan := make(chan *source.File)
+		convertResults := make(chan HandledResult)
+		pageChan := make(chan *Page)
+		fileConvChan := make(chan *source.File)
+		coordinator := make(chan bool)
+
+		wg := &sync.WaitGroup{}
 		wg.Add(2)
 		for i := 0; i < 2; i++ {
-			go sourceReader(s, filechan, results, wg)
+			go sourceReader(s, filechan, readResults, wg)
 		}
 
-		go incrementalReadCollator(s, results, errs)
+		wg2 := &sync.WaitGroup{}
+		wg2.Add(4)
+		for i := 0; i < 2; i++ {
+			go fileConverter(s, fileConvChan, convertResults, wg2)
+			go pageConverter(s, pageChan, convertResults, wg2)
+		}
+
+		go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
+		go converterCollator(s, convertResults, errs)
 
 		for _, x := range sourceChanged {
 			file, err := s.ReReadFile(x)
@@ -483,16 +505,27 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 
 			filechan <- file
 		}
-
+		// we close the filechan as we have sent everything we want to send to it.
+		// this will tell the sourceReaders to stop iterating on that channel
 		close(filechan)
+
+		// waiting for the sourceReaders to all finish
 		wg.Wait()
-		close(results)
+		// Now closing readResults as this will tell the incrementalReadCollator to
+		// stop iterating over that.
+		close(readResults)
 
-		s.timerStep("read pages from source")
+		// once readResults is finished it will close coordinator and move along
+		<-coordinator
+		// allow that routine to finish, then close page & fileconvchan as we've sent
+		// everthing to them we need to.
+		close(pageChan)
+		close(fileConvChan)
 
-		//renderErrs := <-s.ConvertSource()
-		s.timerStep("convert source")
-		// TODO(spf13) port this
+		wg2.Wait()
+		close(convertResults)
+
+		s.timerStep("read & convert pages from source")
 
 		fmt.Errorf("%s", errs)
 
@@ -795,42 +828,20 @@ type pageResult struct {
 
 // ReReadFile resets file to be read from disk again
 func (s *Site) ReReadFile(absFilePath string) (*source.File, error) {
-	fmt.Println("rereading", absFilePath)
+	jww.INFO.Println("rereading", absFilePath)
 	var file *source.File
 
 	reader, err := source.NewLazyFileReader(absFilePath)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(s.absDataDir())
 
 	file, err = source.NewFileFromAbs(s.absContentDir(), absFilePath, reader)
-
-	fmt.Println("file created", file.Path())
 
 	if err != nil {
 		return nil, err
 	}
 
-	// maybe none of this rest needs to be here.
-	// replaced := false
-
-	// fmt.Println(len(s.Files))
-
-	// for i, x := range s.Files {
-	// 	fmt.Println(x)
-	// 	fmt.Println("*** COMPARING:")
-	// 	fmt.Println("   ", x.LogicalName())
-	// 	fmt.Println("   ", absFilePath)
-	// 	if x.LogicalName() == absFilePath {
-	// 		s.Files[i] = file
-	// 		replaced = true
-	// 	}
-	// }
-
-	// if !replaced {
-	// 	s.Files = append(s.Files, file)
-	// }
 	return file, nil
 }
 
@@ -926,7 +937,6 @@ func (s *Site) CreatePages() error {
 func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		fmt.Println("reading", file.Path())
 		readSourceFile(s, file, results)
 	}
 }
@@ -1014,7 +1024,7 @@ func (s *Site) ReplacePage(page *Page) {
 	s.AddPage(page)
 }
 
-func incrementalReadCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
+func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan chan *Page, fileConvChan chan *source.File, coordinator chan bool, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
@@ -1022,16 +1032,19 @@ func incrementalReadCollator(s *Site, results <-chan HandledResult, errs chan<- 
 			continue
 		}
 
-		// !page == file
 		if r.page == nil {
 			// TODO(spf13): Make this incremental as well
 			s.Files = append(s.Files, r.file)
+			fileConvChan <- r.file
 		} else {
 			s.ReplacePage(r.page)
+			pageChan <- r.page
 		}
 	}
 
 	s.Pages.Sort()
+	close(coordinator)
+
 	if len(errMsgs) == 0 {
 		errs <- nil
 		return
