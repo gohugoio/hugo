@@ -48,20 +48,19 @@ var (
 )
 
 type Page struct {
-	Params          map[string]interface{}
-	Content         template.HTML
-	Summary         template.HTML
-	Aliases         []string
-	Status          string
-	Images          []Image
-	Videos          []Video
-	TableOfContents template.HTML
-	Truncated       bool
-	Draft           bool
-	PublishDate     time.Time
-	Tmpl            tpl.Template
-	Markup          string
-
+	Params              map[string]interface{}
+	Content             template.HTML
+	Summary             template.HTML
+	Aliases             []string
+	Status              string
+	Images              []Image
+	Videos              []Video
+	TableOfContents     template.HTML
+	Truncated           bool
+	Draft               bool
+	PublishDate         time.Time
+	Tmpl                tpl.Template
+	Markup              string
 	extension           string
 	contentType         string
 	renderable          bool
@@ -77,13 +76,13 @@ type Page struct {
 	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
+	pageMenus           PageMenus
+	pageMenusInit       sync.Once
+	isCJKLanguage       bool
 	PageMeta
 	Source
 	Position `json:"-"`
 	Node
-	pageMenus     PageMenus
-	pageMenusInit sync.Once
-	isCJKLanguage bool
 }
 
 type Source struct {
@@ -106,6 +105,42 @@ type Position struct {
 }
 
 type Pages []*Page
+//
+//func (ps Pages) Replace(page *Page) {
+//	if i := ps.FindPagePos(page); i >= 0 {
+//		ps[i] = page
+//	}
+//}
+
+//func (ps Pages) FindPageByFilePath(inPath string) *Page {
+//	for _, x := range ps {
+//		if x.Source.LogicalName() == inPath {
+//			return x
+//		}
+//	}
+//	return nil
+//}
+
+// FindPagePos Given a page, it will find the position in Pages
+// will return -1 if not found
+func (ps Pages) FindPagePos(page *Page) int {
+	for i, x := range ps {
+		if x.Source.LogicalName() == page.Source.LogicalName() {
+			return i
+		}
+	}
+	return -1
+}
+
+// FindPage Given a page, it will return the page in Pages
+// will return nil if not found
+//func (ps Pages) FindPage(page *Page) *Page {
+//	if i := ps.FindPagePos(page); i >= 0 {
+//		return ps[i]
+//	}
+//
+//	return nil
+//}
 
 func (p *Page) Plain() string {
 	p.initPlain()

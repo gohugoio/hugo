@@ -451,7 +451,6 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 		}
 	}
 
-
 	if len(tmplChanged) > 0 {
 		s.prepTemplates()
 		s.Tmpl.PrintErrors()
@@ -462,10 +461,41 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 		s.ReadDataFromSourceFS()
 	}
 
-	if len (sourceChanged) > 0 {
-		if err = s.CreatePages(); err != nil {
-			return err
+	if len(sourceChanged) > 0 {
+
+		results := make(chan HandledResult)
+		filechan := make(chan *source.File)
+		errs := make(chan error)
+		wg := &sync.WaitGroup{}
+
+		wg.Add(2)
+		for i := 0; i < 2; i++ {
+			go sourceReader(s, filechan, results, wg)
 		}
+
+		go incrementalReadCollator(s, results, errs)
+
+		for _, x := range sourceChanged {
+			file, err := s.ReReadFile(x)
+			if err != nil {
+				errs <- err
+			}
+
+			filechan <- file
+		}
+
+		close(filechan)
+		wg.Wait()
+		close(results)
+
+		s.timerStep("read pages from source")
+
+		//renderErrs := <-s.ConvertSource()
+		s.timerStep("convert source")
+		// TODO(spf13) port this
+
+		fmt.Errorf("%s", errs)
+
 		s.setupPrevNext()
 		if err = s.BuildSiteMeta(); err != nil {
 			return err
@@ -496,7 +526,6 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 
 	return nil
 }
-
 
 func (s *Site) Analyze() error {
 	if err := s.Process(); err != nil {
@@ -764,6 +793,47 @@ type pageResult struct {
 	err  error
 }
 
+// ReReadFile resets file to be read from disk again
+func (s *Site) ReReadFile(absFilePath string) (*source.File, error) {
+	fmt.Println("rereading", absFilePath)
+	var file *source.File
+
+	reader, err := source.NewLazyFileReader(absFilePath)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(s.absDataDir())
+
+	file, err = source.NewFileFromAbs(s.absContentDir(), absFilePath, reader)
+
+	fmt.Println("file created", file.Path())
+
+	if err != nil {
+		return nil, err
+	}
+
+	// maybe none of this rest needs to be here.
+	// replaced := false
+
+	// fmt.Println(len(s.Files))
+
+	// for i, x := range s.Files {
+	// 	fmt.Println(x)
+	// 	fmt.Println("*** COMPARING:")
+	// 	fmt.Println("   ", x.LogicalName())
+	// 	fmt.Println("   ", absFilePath)
+	// 	if x.LogicalName() == absFilePath {
+	// 		s.Files[i] = file
+	// 		replaced = true
+	// 	}
+	// }
+
+	// if !replaced {
+	// 	s.Files = append(s.Files, file)
+	// }
+	return file, nil
+}
+
 func (s *Site) ReadPagesFromSource() chan error {
 	if s.Source == nil {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
@@ -856,12 +926,17 @@ func (s *Site) CreatePages() error {
 func sourceReader(s *Site, files <-chan *source.File, results chan<- HandledResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		h := NewMetaHandler(file.Extension())
-		if h != nil {
-			h.Read(file, s, results)
-		} else {
-			jww.ERROR.Println("Unsupported File Type", file.Path())
-		}
+		fmt.Println("reading", file.Path())
+		readSourceFile(s, file, results)
+	}
+}
+
+func readSourceFile(s *Site, file *source.File, results chan<- HandledResult) {
+	h := NewMetaHandler(file.Extension())
+	if h != nil {
+		h.Read(file, s, results)
+	} else {
+		jww.ERROR.Println("Unsupported File Type", file.Path())
 	}
 }
 
@@ -905,6 +980,65 @@ func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error)
 	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
 }
 
+func (s *Site) AddPage(page *Page) {
+	if page.ShouldBuild() {
+		s.Pages = append(s.Pages, page)
+	}
+
+	if page.IsDraft() {
+		s.draftCount++
+	}
+
+	if page.IsFuture() {
+		s.futureCount++
+	}
+}
+
+func (s *Site) RemovePage(page *Page) {
+	if i := s.Pages.FindPagePos(page); i >= 0 {
+		if page.IsDraft() {
+			s.draftCount--
+		}
+
+		if page.IsFuture() {
+			s.futureCount--
+		}
+
+		s.Pages = append(s.Pages[:i], s.Pages[i+1:]...)
+	}
+}
+
+func (s *Site) ReplacePage(page *Page) {
+	// will find existing page that matches filepath and remove it
+	s.RemovePage(page)
+	s.AddPage(page)
+}
+
+func incrementalReadCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
+	errMsgs := []string{}
+	for r := range results {
+		if r.err != nil {
+			errMsgs = append(errMsgs, r.Error())
+			continue
+		}
+
+		// !page == file
+		if r.page == nil {
+			// TODO(spf13): Make this incremental as well
+			s.Files = append(s.Files, r.file)
+		} else {
+			s.ReplacePage(r.page)
+		}
+	}
+
+	s.Pages.Sort()
+	if len(errMsgs) == 0 {
+		errs <- nil
+		return
+	}
+	errs <- fmt.Errorf("Errors reading pages: %s", strings.Join(errMsgs, "\n"))
+}
+
 func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
@@ -917,17 +1051,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 		if r.page == nil {
 			s.Files = append(s.Files, r.file)
 		} else {
-			if r.page.ShouldBuild() {
-				s.Pages = append(s.Pages, r.page)
-			}
-
-			if r.page.IsDraft() {
-				s.draftCount++
-			}
-
-			if r.page.IsFuture() {
-				s.futureCount++
-			}
+			s.AddPage(r.page)
 		}
 	}
 
