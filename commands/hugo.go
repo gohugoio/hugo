@@ -252,14 +252,8 @@ func LoadDefaultSettings() {
 // A Hugo command that calls initCoreCommonFlags() can pass itself
 // as an argument to have its command-line flags processed here.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
-	viper.SetConfigFile(CfgFile)
-	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
-	if Source == "" {
-		viper.AddConfigPath(".")
-	} else {
-		viper.AddConfigPath(Source)
-	}
-	err := viper.ReadInConfig()
+
+	err := readInMultilingualConfig(CfgFile, Source)
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
 			return newSystemError(err)
@@ -268,65 +262,61 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 	}
 
-	viper.RegisterAlias("indexes", "taxonomies")
-
-	LoadDefaultSettings()
-
 	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
-		viper.Set("Verbose", Verbose)
+		viperSetAll("Verbose", Verbose)
 	}
 	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
-		viper.Set("LogFile", LogFile)
+		viperSetAll("LogFile", LogFile)
 	}
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 		if cmdV.Flags().Lookup("buildDrafts").Changed {
-			viper.Set("BuildDrafts", Draft)
+			viperSetAll("BuildDrafts", Draft)
 		}
 		if cmdV.Flags().Lookup("buildFuture").Changed {
-			viper.Set("BuildFuture", Future)
+			viperSetAll("BuildFuture", Future)
 		}
 		if cmdV.Flags().Lookup("uglyURLs").Changed {
-			viper.Set("UglyURLs", UglyURLs)
+			viperSetAll("UglyURLs", UglyURLs)
 		}
 		if cmdV.Flags().Lookup("canonifyURLs").Changed {
-			viper.Set("CanonifyURLs", CanonifyURLs)
+			viperSetAll("CanonifyURLs", CanonifyURLs)
 		}
 		if cmdV.Flags().Lookup("disableRSS").Changed {
-			viper.Set("DisableRSS", DisableRSS)
+			viperSetAll("DisableRSS", DisableRSS)
 		}
 		if cmdV.Flags().Lookup("disableSitemap").Changed {
-			viper.Set("DisableSitemap", DisableSitemap)
+			viperSetAll("DisableSitemap", DisableSitemap)
 		}
 		if cmdV.Flags().Lookup("disableRobotsTXT").Changed {
-			viper.Set("DisableRobotsTXT", DisableRobotsTXT)
+			viperSetAll("DisableRobotsTXT", DisableRobotsTXT)
 		}
 		if cmdV.Flags().Lookup("pluralizeListTitles").Changed {
-			viper.Set("PluralizeListTitles", PluralizeListTitles)
+			viperSetAll("PluralizeListTitles", PluralizeListTitles)
 		}
 		if cmdV.Flags().Lookup("preserveTaxonomyNames").Changed {
-			viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
+			viperSetAll("PreserveTaxonomyNames", PreserveTaxonomyNames)
 		}
 		if cmdV.Flags().Lookup("forceSyncStatic").Changed {
-			viper.Set("ForceSyncStatic", ForceSync)
+			viperSetAll("ForceSyncStatic", ForceSync)
 		}
 		if cmdV.Flags().Lookup("editor").Changed {
-			viper.Set("NewContentEditor", Editor)
+			viperSetAll("NewContentEditor", Editor)
 		}
 		if cmdV.Flags().Lookup("ignoreCache").Changed {
-			viper.Set("IgnoreCache", IgnoreCache)
+			viperSetAll("IgnoreCache", IgnoreCache)
 		}
 	}
 
 	if hugoCmdV.Flags().Lookup("noTimes").Changed {
-		viper.Set("NoTimes", NoTimes)
+		viperSetAll("NoTimes", NoTimes)
 	}
 
 	if BaseURL != "" {
 		if !strings.HasSuffix(BaseURL, "/") {
 			BaseURL = BaseURL + "/"
 		}
-		viper.Set("BaseURL", BaseURL)
+		viperSetAll("BaseURL", BaseURL)
 	}
 
 	if !viper.GetBool("RelativeURLs") && viper.GetString("BaseURL") == "" {
@@ -334,19 +324,19 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	if Theme != "" {
-		viper.Set("theme", Theme)
+		viperSetAll("theme", Theme)
 	}
 
 	if Destination != "" {
-		viper.Set("PublishDir", Destination)
+		viperSetAll("PublishDir", Destination)
 	}
 
 	if Source != "" {
 		dir, _ := filepath.Abs(Source)
-		viper.Set("WorkingDir", dir)
+		viperSetAll("WorkingDir", dir)
 	} else {
 		dir, _ := os.Getwd()
-		viper.Set("WorkingDir", dir)
+		viperSetAll("WorkingDir", dir)
 	}
 
 	if CacheDir != "" {
@@ -358,9 +348,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		if isDir == false {
 			mkdir(CacheDir)
 		}
-		viper.Set("CacheDir", CacheDir)
+		viperSetAll("CacheDir", CacheDir)
 	} else {
-		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
+		viperSetAll("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
 	}
 
 	if VerboseLog || Logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
@@ -530,16 +520,24 @@ func getDirList() []string {
 
 func buildSite(watching ...bool) (err error) {
 	startTime := time.Now()
-	site := &hugolib.Site{}
-	if len(watching) > 0 && watching[0] {
-		site.RunMode.Watching = true
+
+	for _, langConfig := range translationsConfigs {
+		viper.SetDefaultConfig(langConfig)
+
+		site := &hugolib.Site{}
+		if len(watching) > 0 && watching[0] {
+			site.RunMode.Watching = true
+		}
+		err = site.Build()
+		if err != nil {
+			return err
+		}
+		site.Stats()
+		if len(translationsConfigs) > 1 {
+			jww.FEEDBACK.Printf("translation %q rendered", viper.GetString("RenderLanguage"))
+		}
+		jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 	}
-	err = site.Build()
-	if err != nil {
-		return err
-	}
-	site.Stats()
-	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 
 	return nil
 }
