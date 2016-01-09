@@ -15,6 +15,10 @@ package hugolib
 
 import (
 	"fmt"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"sort"
@@ -369,6 +373,103 @@ func TestExtractShortcodes(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestShortcodesInSite(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	baseURL := "http://foo/bar"
+	viper.Set("DefaultExtension", "html")
+	viper.Set("baseurl", baseURL)
+	viper.Set("UglyURLs", false)
+	viper.Set("verbose", true)
+
+	tests := []struct {
+		contentPath string
+		content     string
+		outFile     string
+		expected    string
+	}{
+		{"sect/doc1.md", `a{{< b >}}c`,
+			filepath.FromSlash("sect/doc1/index.html"), "<p>abc</p>\n"},
+		// Issue #1642: Multiple shortcodes wrapped in P
+		// Deliberately forced to pass even if they maybe shouldn't.
+		{"sect/doc2.md", `a
+
+{{< b >}}		
+{{< c >}}
+{{< d >}}
+
+e`,
+			filepath.FromSlash("sect/doc2/index.html"),
+			"<p>a</p>\n\n<p>b<br />\nc\nd</p>\n\n<p>e</p>\n"},
+		{"sect/doc3.md", `a
+
+{{< b >}}		
+{{< c >}}
+
+{{< d >}}
+
+e`,
+			filepath.FromSlash("sect/doc3/index.html"),
+			"<p>a</p>\n\n<p>b<br />\nc</p>\n\nd\n\n<p>e</p>\n"},
+		{"sect/doc4.md", `a
+{{< b >}}
+{{< b >}}
+{{< b >}}
+{{< b >}}
+{{< b >}}
+
+
+
+
+
+
+
+
+
+
+`,
+			filepath.FromSlash("sect/doc4/index.html"),
+			"<p>a\nb\nb\nb\nb\nb</p>\n"},
+	}
+
+	sources := make([]source.ByteSource, len(tests))
+
+	for i, test := range tests {
+		sources[i] = source.ByteSource{filepath.FromSlash(test.contentPath), []byte(test.content)}
+	}
+
+	s := &Site{
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: false}},
+	}
+
+	s.initializeSiteInfo()
+	templatePrep(s)
+	s.Tmpl.AddInternalShortcode("b.html", `b`)
+	s.Tmpl.AddInternalShortcode("c.html", `c`)
+	s.Tmpl.AddInternalShortcode("d.html", `d`)
+
+	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+
+	createAndRenderPages(t, s)
+
+	for _, test := range tests {
+		file, err := hugofs.DestinationFS.Open(test.outFile)
+
+		if err != nil {
+			t.Fatalf("Did not find %s in target: %s", test.outFile, err)
+		}
+
+		content := helpers.ReaderToString(file)
+
+		if content != test.expected {
+			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.outFile, test.expected, content)
+		}
+	}
+
 }
 
 func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
