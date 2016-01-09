@@ -521,8 +521,8 @@ func getDirList() []string {
 func buildSite(watching ...bool) (err error) {
 	defer viper.SetDefaultConfig(translationsConfigs[0])
 
-	startTime := time.Now()
 	for _, langConfig := range translationsConfigs {
+		startTime := time.Now()
 		viper.SetDefaultConfig(langConfig)
 
 		site := &hugolib.Site{}
