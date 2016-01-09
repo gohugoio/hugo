@@ -100,11 +100,11 @@ func server(cmd *cobra.Command, args []string) error {
 	}
 
 	if cmd.Flags().Lookup("disableLiveReload").Changed {
-		viper.Set("DisableLiveReload", disableLiveReload)
+		viperSetAll("DisableLiveReload", disableLiveReload)
 	}
 
 	if serverWatch {
-		viper.Set("Watch", true)
+		viperSetAll("Watch", true)
 	}
 
 	if viper.GetBool("watch") {
@@ -130,7 +130,7 @@ func server(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	viper.Set("BaseURL", BaseURL)
+	viperSetAll("BaseURL", BaseURL)
 
 	if err := memStats(); err != nil {
 		jww.ERROR.Println("memstats error:", err)
@@ -145,11 +145,11 @@ func server(cmd *cobra.Command, args []string) error {
 	if !renderToDisk {
 		hugofs.DestinationFS = new(afero.MemMapFs)
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
-		viper.Set("PublishDir", "/")
+		viperSetAll("PublishDir", "/")
 	}
 
 	if serverCmd.Flags().Lookup("noTimes").Changed {
-		viper.Set("NoTimes", NoTimes)
+		viperSetAll("NoTimes", NoTimes)
 	}
 
 	if err := build(serverWatch); err != nil {

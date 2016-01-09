@@ -519,8 +519,9 @@ func getDirList() []string {
 }
 
 func buildSite(watching ...bool) (err error) {
-	startTime := time.Now()
+	defer viper.SetDefaultConfig(translationsConfigs[0])
 
+	startTime := time.Now()
 	for _, langConfig := range translationsConfigs {
 		viper.SetDefaultConfig(langConfig)
 
@@ -534,7 +535,7 @@ func buildSite(watching ...bool) (err error) {
 		}
 		site.Stats()
 		if len(translationsConfigs) > 1 {
-			jww.FEEDBACK.Printf("translation %q rendered", viper.GetString("RenderLanguage"))
+			jww.FEEDBACK.Printf("translation %q rendered ", viper.GetString("RenderLanguage"))
 		}
 		jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 	}

@@ -56,6 +56,7 @@ func readInMultilingualConfig(cfgFile, source string) error {
 		return fmt.Errorf("found 0 config blocks in %q", filename)
 	}
 
+	// Reset config to base language.
 	viper.SetDefaultConfig(translationsConfigs[0])
 
 	return nil
@@ -76,14 +77,5 @@ func viperSetAll(key string, value interface{}) {
 	viper.Set(key, value)
 	for _, conf := range translationsConfigs {
 		conf.Set(key, value)
-	}
-}
-
-// viperSetDefaultAll calls `viper.SetDefault` on all translations'
-// configs.
-func viperSetDefaultAll(key string, value interface{}) {
-	viper.SetDefault(key, value)
-	for _, conf := range translationsConfigs {
-		conf.SetDefault(key, value)
 	}
 }
