@@ -1,5 +1,5 @@
 ---
-lastmod: 2015-11-29
+lastmod: 2016-01-09
 date: 2013-07-01
 linktitle: Quickstart
 menu:
@@ -28,20 +28,23 @@ More complete instructions are available at [Installing Hugo](/overview/installi
 
 Hugo has the ability to create a skeleton site:
 
-    $ hugo new site /path/to/site
+{{< nohighlight >}}$ hugo new site <i>path/to/site</i>
+{{< /nohighlight >}}
 
 For the rest of the operations, we will be executing all commands from within the site directory.
 
-    $ cd /path/to/site
+{{< nohighlight >}}$ cd <i>path/to/site</i>
+{{< /nohighlight >}}
 
 The new site will have the following structure
 
-      ▸ archetypes/
-      ▸ content/
-      ▸ data/
-      ▸ layouts/
-      ▸ static/
-        config.toml
+{{< nohighlight >}}  ▸ archetypes/
+  ▸ content/
+  ▸ data/
+  ▸ layouts/
+  ▸ static/
+    config.toml
+{{< /nohighlight >}}
 
 Currently the site doesn’t have any content, nor is it configured.
 

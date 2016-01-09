@@ -19,7 +19,8 @@ started.
 
 Want to get a site built quickly?
 
-    $ hugo new site /path/to/site
+{{< nohighlight >}}$ hugo new site <i>path/to/site</i>
+{{< /nohighlight >}}
 
 Hugo will create all the needed directories and files to get started
 quickly.
