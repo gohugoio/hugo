@@ -536,6 +536,7 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 		s.timerStep("build taxonomies")
 	}
 
+	// Once the appropriate prep step is done we render the entire site
 	if err = s.Render(); err != nil {
 		// Better reporting when the template is missing (commit 2bbecc7b)
 		jww.ERROR.Printf("Error rendering site: %s", err)
@@ -1024,6 +1025,18 @@ func (s *Site) ReplacePage(page *Page) {
 	s.AddPage(page)
 }
 
+func (s *Site) ReplaceFile(sf *source.File) {
+	for i, f := range s.Files {
+		if f.Path() == sf.Path() {
+			s.Files[i] = sf
+			return
+		}
+	}
+
+	// If a match isn't found, then append it
+	s.Files = append(s.Files, sf)
+}
+
 func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan chan *Page, fileConvChan chan *source.File, coordinator chan bool, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
@@ -1033,8 +1046,7 @@ func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan cha
 		}
 
 		if r.page == nil {
-			// TODO(spf13): Make this incremental as well
-			s.Files = append(s.Files, r.file)
+			s.ReplaceFile(r.file)
 			fileConvChan <- r.file
 		} else {
 			s.ReplacePage(r.page)
