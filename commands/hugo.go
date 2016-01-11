@@ -546,9 +546,9 @@ func buildSite(watching ...bool) (err error) {
 	return nil
 }
 
-func rebuildSite(changes map[string]bool) error {
+func rebuildSite(events []fsnotify.Event) error {
 	startTime := time.Now()
-	err := mainSite.ReBuild(changes)
+	err := mainSite.ReBuild(events)
 	if err != nil {
 		return err
 	}
@@ -585,21 +585,15 @@ func NewWatcher(port int) error {
 		for {
 			select {
 			case evs := <-watcher.Events:
-				jww.INFO.Println("File System Event:", evs)
+				jww.INFO.Println("Recieved System Events:", evs)
 
-				staticChanged := false
-				dynamicChanged := false
-				staticFilesChanged := make(map[string]bool)
-				dynamicFilesChanged := make(map[string]bool)
+				staticEvents := []fsnotify.Event{} //ev make(map[string]bool)
+				dynamicEvents := []fsnotify.Event{} //make(map[string]bool)
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
 					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || strings.HasPrefix(ext, ".goutputstream") || strings.HasSuffix(ext, "jb_old___") || strings.HasSuffix(ext, "jb_bak___")
 					if istemp {
-						continue
-					}
-					// renames are always followed with Create/Modify
-					if ev.Op&fsnotify.Rename == fsnotify.Rename {
 						continue
 					}
 
@@ -615,27 +609,24 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
-					staticChanged = staticChanged || isstatic
-					dynamicChanged = dynamicChanged || !isstatic
-
-					if isstatic {
-						if staticPath, err := helpers.MakeStaticPathRelative(ev.Name); err == nil {
-							staticFilesChanged[staticPath] = true
-						}
-					} else {
-						dynamicFilesChanged[ev.Name] = true
-					}
-
 					// add new directory to watch list
 					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
 						if ev.Op&fsnotify.Create == fsnotify.Create {
 							watcher.Add(ev.Name)
 						}
 					}
+
+					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
+
+					if isstatic {
+						staticEvents = append(staticEvents, ev)
+//						}
+					} else {
+						dynamicEvents = append(dynamicEvents, ev)
+					}
 				}
 
-				if staticChanged {
+				if len(staticEvents) > 0 {
 					jww.FEEDBACK.Printf("Static file changed, syncing\n")
 					if viper.GetBool("ForceSyncStatic") {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
@@ -645,7 +636,6 @@ func NewWatcher(port int) error {
 							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 						}
 					} else {
-
 						syncer := fsync.NewSyncer()
 						syncer.NoTimes = viper.GetBool("notimes")
 						syncer.SrcFs = hugofs.SourceFs
@@ -660,24 +650,40 @@ func NewWatcher(port int) error {
 						staticDir := helpers.GetStaticDirPath()
 						themeStaticDir := helpers.GetThemesDirPath()
 
-						jww.FEEDBACK.Printf("StaticDir '%s'\nThemeStaticDir '%s'\n", staticDir, themeStaticDir)
+						jww.FEEDBACK.Printf("Syncing from: \n \tStaticDir: '%s'\n\tThemeStaticDir: '%s'\n", staticDir, themeStaticDir)
 
-						for path := range staticFilesChanged {
+						for _, ev := range staticEvents {
+							fmt.Println(ev)
+							fromPath := ev.Name
 							var publishPath string
 
-							if strings.HasPrefix(path, staticDir) {
-								publishPath = filepath.Join(publishDir, strings.TrimPrefix(path, staticDir))
-							} else if strings.HasPrefix(path, themeStaticDir) {
-								publishPath = filepath.Join(publishDir, strings.TrimPrefix(path, themeStaticDir))
+							// If we are here we already know the event took place in a static dir
+							relPath, err := helpers.MakeStaticPathRelative(fromPath)
+							if err != nil {
+								fmt.Println(err)
+								continue
 							}
-							jww.FEEDBACK.Printf("Syncing file '%s'", path)
 
-							if _, err := os.Stat(path); err == nil {
-								jww.INFO.Println("syncing from ", path, " to ", publishPath)
-								err := syncer.Sync(publishPath, path)
-								if err != nil {
-									jww.FEEDBACK.Printf("Error on syncing file '%s'\n", path)
-								}
+							if strings.HasPrefix(fromPath, staticDir) {
+								publishPath = filepath.Join(publishDir, strings.TrimPrefix(fromPath, staticDir))
+							} else if strings.HasPrefix(relPath, themeStaticDir) {
+								publishPath = filepath.Join(publishDir, strings.TrimPrefix(fromPath, themeStaticDir))
+							}
+							jww.FEEDBACK.Println("Syncing file", relPath)
+
+							// Due to our approach of layering many directories onto one we can't accurately
+							// remove file not in one of the source directories.
+							// If a file is in the local static dir and also in the theme static dir and we remove
+							// it from one of those locations we expect it to still exist in the destination
+
+							 // if remove or rename ignore
+							if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
+								continue
+							}
+
+							jww.INFO.Println("syncing from ", fromPath, " to ", publishPath)
+							if er := syncer.Sync(publishPath, fromPath); er != nil {
+								jww.ERROR.Printf("Error on syncing file '%s'\n %s\n", relPath, er)
 							}
 						}
 					}
@@ -686,8 +692,9 @@ func NewWatcher(port int) error {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 
 						// force refresh when more than one file
-						if len(staticFilesChanged) == 1 {
-							for path := range staticFilesChanged {
+						if len(staticEvents) == 1 {
+							for _, ev := range staticEvents {
+								path, _ := helpers.MakeStaticPathRelative(ev.Name)
 								livereload.RefreshPath(path)
 							}
 
@@ -697,14 +704,12 @@ func NewWatcher(port int) error {
 					}
 				}
 
-				if dynamicChanged {
+				if len(dynamicEvents) >0 {
 					fmt.Print("\nChange detected, rebuilding site\n")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
-					//TODO here
 
-					//	utils.CheckErr(buildSite(true))
-					rebuildSite(dynamicFilesChanged)
+					rebuildSite(dynamicEvents)
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized

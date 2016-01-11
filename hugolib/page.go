@@ -112,20 +112,20 @@ type Pages []*Page
 //	}
 //}
 
-//func (ps Pages) FindPageByFilePath(inPath string) *Page {
-//	for _, x := range ps {
-//		if x.Source.LogicalName() == inPath {
-//			return x
-//		}
-//	}
-//	return nil
-//}
+func (ps Pages) FindPagePosByFilePath(inPath string) int {
+	for i, x := range ps {
+		if x.Source.Path() == inPath {
+			return i
+		}
+	}
+	return -1
+}
 
 // FindPagePos Given a page, it will find the position in Pages
 // will return -1 if not found
 func (ps Pages) FindPagePos(page *Page) int {
 	for i, x := range ps {
-		if x.Source.LogicalName() == page.Source.LogicalName() {
+		if x.Source.Path() == page.Source.Path() {
 			return i
 		}
 	}

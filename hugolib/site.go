@@ -43,6 +43,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
+	"gopkg.in/fsnotify.v1"
 )
 
 var _ = transform.AbsURL
@@ -426,28 +427,29 @@ func (s *Site) Build() (err error) {
 	return nil
 }
 
-func (s *Site) ReBuild(changed map[string]bool) error {
+func (s *Site) ReBuild(events []fsnotify.Event) error {
 	s.timerStep("initialize rebuild")
 	// First we need to determine what changed
 
-	sourceChanged := []string{}
-	tmplChanged := []string{}
-	dataChanged := []string{}
+	sourceChanged := []fsnotify.Event{}
+	tmplChanged := []fsnotify.Event{}
+	dataChanged := []fsnotify.Event{}
+
 	var err error
 
-	for f := range changed {
+	for _, ev := range events {
 		// Need to re-read source
-		if strings.HasPrefix(f, s.absContentDir()) {
-			fmt.Println("Source changed", f)
-			sourceChanged = append(sourceChanged, f)
+		if strings.HasPrefix(ev.Name, s.absContentDir()) {
+			fmt.Println("Source changed", ev)
+			sourceChanged = append(sourceChanged, ev)
 		}
-		if strings.HasPrefix(f, s.absLayoutDir()) || strings.HasPrefix(f, s.absThemeDir()) {
-			fmt.Println("Template changed", f)
-			tmplChanged = append(tmplChanged, f)
+		if strings.HasPrefix(ev.Name, s.absLayoutDir()) || strings.HasPrefix(ev.Name, s.absThemeDir()) {
+			fmt.Println("Template changed", ev)
+			tmplChanged = append(tmplChanged, ev)
 		}
-		if strings.HasPrefix(f, s.absDataDir()) {
-			fmt.Println("Data changed", f)
-			dataChanged = append(dataChanged, f)
+		if strings.HasPrefix(ev.Name, s.absDataDir()) {
+			fmt.Println("Data changed", ev)
+			dataChanged = append(dataChanged,ev)
 		}
 	}
 
@@ -497,8 +499,15 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 		go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
 		go converterCollator(s, convertResults, errs)
 
-		for _, x := range sourceChanged {
-			file, err := s.ReReadFile(x)
+		for _, ev := range sourceChanged {
+			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
+				//remove the file & a create will follow
+				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
+				s.RemovePageByPath(path)
+				continue
+			}
+
+			file, err := s.ReReadFile(ev.Name)
 			if err != nil {
 				errs <- err
 			}
@@ -540,7 +549,6 @@ func (s *Site) ReBuild(changed map[string]bool) error {
 	if err = s.Render(); err != nil {
 		// Better reporting when the template is missing (commit 2bbecc7b)
 		jww.ERROR.Printf("Error rendering site: %s", err)
-
 		jww.ERROR.Printf("Available templates:")
 		var keys []string
 		for _, template := range s.Tmpl.Templates() {
@@ -1002,6 +1010,23 @@ func (s *Site) AddPage(page *Page) {
 
 	if page.IsFuture() {
 		s.futureCount++
+	}
+}
+
+
+func (s *Site) RemovePageByPath(path string) {
+	if i := s.Pages.FindPagePosByFilePath(path); i >= 0 {
+		page := s.Pages[i]
+
+		if page.IsDraft() {
+			s.draftCount--
+		}
+
+		if page.IsFuture() {
+			s.futureCount--
+		}
+
+		s.Pages = append(s.Pages[:i], s.Pages[i+1:]...)
 	}
 }
 
