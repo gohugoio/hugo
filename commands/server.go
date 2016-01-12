@@ -186,7 +186,7 @@ func serve(port int) {
 		jww.FEEDBACK.Println("Serving pages from memory")
 	}
 
-	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
+	httpFs := afero.NewHttpFs(hugofs.DestinationFS)
 	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))}
 	fileserver := http.FileServer(fs)
 
