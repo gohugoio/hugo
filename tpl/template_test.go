@@ -94,7 +94,7 @@ html lang=en
 
 // A Go stdlib test for linux/arm. Will remove later.
 // See #1771
-func TestBigInteger(t *testing.T) {
+func TestBigIntegerFunc(t *testing.T) {
 	var func1 = func(v int64) error {
 		return nil
 	}
@@ -107,6 +107,32 @@ func TestBigInteger(t *testing.T) {
 		t.Fatal("Parse failed:", err)
 	}
 	err = tpl.Execute(ioutil.Discard, "foo")
+
+	if err == nil {
+		t.Fatal("Execute should have failed")
+	}
+
+	t.Log("Got expected error:", err)
+
+}
+
+// A Go stdlib test for linux/arm. Will remove later.
+// See #1771
+type BI struct {
+}
+
+func (b BI) A(v int64) error {
+	return nil
+}
+func TestBigIntegerMethod(t *testing.T) {
+
+	data := &BI{}
+
+	tpl, err := template.New("foo2").Parse("{{ .A 3e80 }}")
+	if err != nil {
+		t.Fatal("Parse failed:", err)
+	}
+	err = tpl.ExecuteTemplate(ioutil.Discard, "foo2", data)
 
 	if err == nil {
 		t.Fatal("Execute should have failed")
