@@ -42,6 +42,7 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
+	"github.com/spf13/afero"
 )
 
 var mainSite *hugolib.Site
@@ -434,6 +435,46 @@ func build(watches ...bool) error {
 	return nil
 }
 
+func getStaticSourceFs() afero.Fs {
+	source := hugofs.SourceFs
+	themeDir, err := helpers.GetThemeStaticDirPath()
+	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
+
+	useTheme := true
+	useStatic := true
+
+	if err != nil {
+		jww.WARN.Println(err)
+		useTheme = false
+	} else {
+		if _, err := source.Stat(themeDir); os.IsNotExist(err) {
+			jww.WARN.Println("Unable to find Theme Static Directory:", themeDir)
+			useTheme = false
+		}
+	}
+
+	if _, err := source.Stat(staticDir); os.IsNotExist(err) {
+		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+		useStatic = false
+	}
+
+	if !useStatic && !useTheme {
+		return nil
+	}
+
+	if !useStatic {
+		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, themeDir))
+	}
+
+	if !useTheme {
+		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, staticDir))
+	}
+
+	base := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, themeDir))
+	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, staticDir))
+	return afero.NewCopyOnWriteFs(base, overlay)
+}
+
 func copyStatic() error {
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
 
@@ -442,31 +483,51 @@ func copyStatic() error {
 		publishDir = helpers.FilePathSeparator
 	}
 
+	staticSourceFs := getStaticSourceFs()
+
+	if staticSourceFs == nil {
+		jww.WARN.Println("No static directories found to sync")
+		return nil
+	}
+
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
-	syncer.SrcFs = hugofs.SourceFs
+	syncer.SrcFs = staticSourceFs
 	syncer.DestFs = hugofs.DestinationFS
+	// Now that we are using a unionFs for the static directories
+	// We can effectively clean the publishDir on initial sync
+	syncer.Delete = true
+	jww.INFO.Println("syncing static files to", publishDir)
 
-	themeDir, err := helpers.GetThemeStaticDirPath()
-	if err != nil {
-		jww.WARN.Println(err)
-	}
-
-	// Copy the theme's static directory
-	if themeDir != "" {
-		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
-		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
-	}
-
-	// Copy the site's own static directory
-	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
-	if _, err := os.Stat(staticDir); err == nil {
-		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-		return syncer.Sync(publishDir, staticDir)
-	} else if os.IsNotExist(err) {
-		jww.WARN.Println("Unable to find Static Directory:", staticDir)
-	}
+	// because we are using a baseFs (to get the union right). Sync from the root
+	syncer.Sync(publishDir, helpers.FilePathSeparator)
 	return nil
+//
+//	themeDir, err := helpers.GetThemeStaticDirPath()
+//	if err != nil {
+//		jww.WARN.Println(err)
+//	}
+//
+//	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
+//	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
+//		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+//	}
+//
+//	// Copy the theme's static directory
+//	if themeDir != "" {
+//		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
+//		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
+//	}
+//
+//	// Copy the site's own static directory
+//	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
+//	if _, err := os.Stat(staticDir); err == nil {
+//		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
+//		return syncer.Sync(publishDir, staticDir)
+//	} else if os.IsNotExist(err) {
+//		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+//	}
+//	return nil
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
@@ -597,6 +658,11 @@ func NewWatcher(port int) error {
 						continue
 					}
 
+					// Sometimes during rm -rf operations a '"": REMOVE' is triggered. Just ignore these
+					if ev.Name == "" {
+						continue
+					}
+
 					// Write and rename operations are often followed by CHMOD.
 					// There may be valid use cases for rebuilding the site on CHMOD,
 					// but that will require more complex logic than this simple conditional.
@@ -609,10 +675,19 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					// add new directory to watch list
-					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-						if ev.Op&fsnotify.Create == fsnotify.Create {
-							watcher.Add(ev.Name)
+					walkAdder := func (path string, f os.FileInfo, err error) error {
+						if f.IsDir() {
+							jww.FEEDBACK.Println("adding created directory to watchlist", path)
+							watcher.Add(path)
+						}
+						return nil
+					}
+
+					// recursively add new directories to watch list
+					// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
+					if ev.Op&fsnotify.Create == fsnotify.Create {
+						if s, err := hugofs.SourceFs.Stat(ev.Name); err == nil && s.Mode().IsDir() {
+							afero.Walk(hugofs.SourceFs, ev.Name, walkAdder)
 						}
 					}
 
@@ -627,7 +702,18 @@ func NewWatcher(port int) error {
 				}
 
 				if len(staticEvents) > 0 {
-					jww.FEEDBACK.Printf("Static file changed, syncing\n")
+					publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
+
+					// If root, remove the second '/'
+					if publishDir == "//" {
+						publishDir = helpers.FilePathSeparator
+					}
+
+					jww.FEEDBACK.Println("\n Static file changes detected")
+					jww.FEEDBACK.Println("syncing to", publishDir)
+					const layout = "2006-01-02 15:04 -0700"
+					fmt.Println(time.Now().Format(layout))
+
 					if viper.GetBool("ForceSyncStatic") {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
 						err := copyStatic()
@@ -636,26 +722,38 @@ func NewWatcher(port int) error {
 							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 						}
 					} else {
-						syncer := fsync.NewSyncer()
-						syncer.NoTimes = viper.GetBool("notimes")
-						syncer.SrcFs = hugofs.SourceFs
-						syncer.DestFs = hugofs.DestinationFS
+						staticSourceFs := getStaticSourceFs()
 
-						publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
-
-						if publishDir == "//" || publishDir == helpers.FilePathSeparator {
-							publishDir = ""
+						if staticSourceFs == nil {
+							jww.WARN.Println("No static directories found to sync")
+							return
 						}
 
-						staticDir := helpers.GetStaticDirPath()
-						themeStaticDir := helpers.GetThemesDirPath()
+						syncer := fsync.NewSyncer()
+						syncer.NoTimes = viper.GetBool("notimes")
+						syncer.SrcFs = staticSourceFs
+						syncer.DestFs = hugofs.DestinationFS
 
-						jww.FEEDBACK.Printf("Syncing from: \n \tStaticDir: '%s'\n\tThemeStaticDir: '%s'\n", staticDir, themeStaticDir)
 
 						for _, ev := range staticEvents {
+							// Due to our approach of layering both directories and the content's rendered output
+							// into one we can't accurately remove a file not in one of the source directories.
+							// If a file is in the local static dir and also in the theme static dir and we remove
+							// it from one of those locations we expect it to still exist in the destination
+							// If a file is generated by the content over a static file we expect it to remain as well.
+							// Because we are never certain if the file was overwritten by the content generation
+							// We can't effectively remove anything.
+							//
+							// This leads to two approaches:
+							// 1. Not overwrite anything
+							// 2. Assume these cases are rare and overwrite anyway. If things get out of sync
+							// a clean sync will be needed.
+							// There is an alternative which is quite heavy. We would have to track every single file
+							// placed into the publishedPath and which pipeline put it there.
+							// We have chosen to take the 2nd approach
 							fmt.Println(ev)
+
 							fromPath := ev.Name
-							var publishPath string
 
 							// If we are here we already know the event took place in a static dir
 							relPath, err := helpers.MakeStaticPathRelative(fromPath)
@@ -663,28 +761,42 @@ func NewWatcher(port int) error {
 								fmt.Println(err)
 								continue
 							}
+							fmt.Println("relpath", relPath)
 
-							if strings.HasPrefix(fromPath, staticDir) {
-								publishPath = filepath.Join(publishDir, strings.TrimPrefix(fromPath, staticDir))
-							} else if strings.HasPrefix(relPath, themeStaticDir) {
-								publishPath = filepath.Join(publishDir, strings.TrimPrefix(fromPath, themeStaticDir))
-							}
-							jww.FEEDBACK.Println("Syncing file", relPath)
 
-							// Due to our approach of layering many directories onto one we can't accurately
-							// remove file not in one of the source directories.
-							// If a file is in the local static dir and also in the theme static dir and we remove
-							// it from one of those locations we expect it to still exist in the destination
-
-							 // if remove or rename ignore
+							// if remove or rename ignore.. as in leave the old file in the publishDir
 							if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
+								// What about the case where a file in the theme is moved so the local static file can
+								// take it's place.
+								if _, err := staticSourceFs.Stat(relPath); os.IsNotExist(err) {
+									// If file doesn't exist in any static dir, remove it
+									toRemove :=filepath.Join(publishDir, relPath)
+									jww.FEEDBACK.Println("File no longer exists in static dir, removing", toRemove)
+									hugofs.DestinationFS.Remove(toRemove)
+								} else if err == nil {
+									// If file still exists, sync it
+									jww.FEEDBACK.Println("Syncing", relPath, "to", publishDir)
+									syncer.Sync(filepath.Join(publishDir, relPath), relPath)
+								} else {
+									jww.ERROR.Println(err)
+								}
+
 								continue
 							}
 
-							jww.INFO.Println("syncing from ", fromPath, " to ", publishPath)
-							if er := syncer.Sync(publishPath, fromPath); er != nil {
-								jww.ERROR.Printf("Error on syncing file '%s'\n %s\n", relPath, er)
-							}
+//							if strings.HasPrefix(fromPath, staticDir) {
+//								publishPath = filepath.Join(publishDir, strings.TrimPrefix(fromPath, staticDir))
+//							} else if strings.HasPrefix(relPath, themeStaticDir) {
+//								publishPath = filepath.Join(publishDir, strings.TrimPrefix(fromPath, themeStaticDir))
+//							}
+							jww.FEEDBACK.Println("Syncing", relPath, "to", publishDir)
+							syncer.Sync(filepath.Join(publishDir, relPath), relPath)
+
+
+//							jww.INFO.Println("syncing from ", fromPath, " to ", publishPath)
+//							if er := syncer.Sync(publishPath, fromPath); er != nil {
+//								jww.ERROR.Printf("Error on syncing file '%s'\n %s\n", relPath, er)
+//							}
 						}
 					}
 
@@ -692,7 +804,7 @@ func NewWatcher(port int) error {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
 
 						// force refresh when more than one file
-						if len(staticEvents) == 1 {
+						if len(staticEvents) > 0 {
 							for _, ev := range staticEvents {
 								path, _ := helpers.MakeStaticPathRelative(ev.Name)
 								livereload.RefreshPath(path)
@@ -704,7 +816,7 @@ func NewWatcher(port int) error {
 					}
 				}
 
-				if len(dynamicEvents) >0 {
+				if len(dynamicEvents) > 0 {
 					fmt.Print("\nChange detected, rebuilding site\n")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
