@@ -87,7 +87,8 @@ func isUserError(err error) bool {
 	return userErrorRegexp.MatchString(err.Error())
 }
 
-//HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
+// HugoCmd is Hugo's root command.
+// Every other command attached to HugoCmd is a child command to it.
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
@@ -102,10 +103,12 @@ Complete documentation is available at http://gohugo.io/.`,
 			return err
 		}
 
-		watchConfig()
+		if BuildWatch {
+			viper.Set("DisableLiveReload", true)
+			watchConfig()
+		}
 
 		return build()
-
 	},
 }
 
@@ -404,7 +407,7 @@ func watchConfig() {
 		fmt.Println("Config file changed:", e.Name)
 		utils.CheckErr(buildSite(true))
 		if !viper.GetBool("DisableLiveReload") {
-			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
 		}
 	})
@@ -662,7 +665,7 @@ func NewWatcher(port int) error {
 					}
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
-						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
 						// force refresh when more than one file
 						if len(staticFilesChanged) == 1 {
@@ -683,7 +686,7 @@ func NewWatcher(port int) error {
 					utils.CheckErr(buildSite(true))
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
-						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 						livereload.ForceRefresh()
 					}
 				}
