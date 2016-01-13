@@ -80,6 +80,7 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
 * [Kaiju](https://github.com/spf13/kaiju)
+* [Hypothesis](https://hypothes.is/)
 
 ## Kaiju
 
@@ -88,6 +89,12 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 Written using Go, Socket.io and MongoDB, it is very fast and easy to deploy.
 
 It is in early development but shows promise. If you have interest, please help by contributing whether via a pull request, an issue or even just a tweet. Everything helps.
+
+## Hypothesis
+
+[Hypothesis](https://hypothes.is/) is a [non-profit](https://hypothes.is/about/) organization that aims to build an open platform for discussion on the web.
+
+People already can load Hypothesis on your website -- if they use the browser extension -- to comment or annotate on your writings, but you can encourage this by including a script that will automatically load Hypothesis for everyone.
 
 ## Discourse
 
