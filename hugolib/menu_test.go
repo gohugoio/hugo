@@ -40,6 +40,10 @@ const (
 [[menu.main]]
     name = "Blog"
     url = "/posts"
+[[menu.main]]
+    name = "ext"
+    url = "http://gohugo.io"
+	identifier = "ext"
 [[menu.grandparent]]
 	name = "grandparent"
 	url = "/grandparent"
@@ -306,18 +310,32 @@ func TestPageMenu(t *testing.T) {
 
 }
 
-// issue #888
-func TestMenuWithHashInURL(t *testing.T) {
+func TestMenuURL(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
-
 	s := setupMenuTests(t, MENU_PAGE_SOURCES)
 
-	me := findTestMenuEntryByID(s, "hash", "hash")
+	for i, this := range []struct {
+		me          *MenuEntry
+		expectedURL string
+	}{
+		// issue #888
+		{findTestMenuEntryByID(s, "hash", "hash"), "/Zoo/resource#anchor"},
+		// issue #1774
+		{findTestMenuEntryByID(s, "main", "ext"), "http://gohugo.io"},
+	} {
 
-	assert.NotNil(t, me)
+		if this.me == nil {
+			t.Errorf("[%d] MenuEntry not found", i)
+			continue
+		}
 
-	assert.Equal(t, "/Zoo/resource#anchor", me.URL)
+		if this.me.URL != this.expectedURL {
+			t.Errorf("[%d] Got URL %s expected %s", i, this.me.URL, this.expectedURL)
+		}
+
+	}
+
 }
 
 // issue #719
