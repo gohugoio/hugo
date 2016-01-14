@@ -612,6 +612,19 @@ func NewWatcher(port int) error {
 							watcher.Add(ev.Name)
 						}
 					}
+
+					// Temporary workaround to get reloading to work in OS X with TextMate etc.
+					// See https://github.com/spf13/hugo/issues/1053
+					if runtime.GOOS == "darwin" {
+						if ev.Op&fsnotify.Remove == fsnotify.Remove {
+							if s, err := os.Stat(ev.Name); err == nil && !s.Mode().IsDir() {
+								err = watcher.Add(ev.Name)
+								if err != nil {
+									jww.WARN.Printf("Failed to re-add file %q to watcher: %q", ev.Name, err)
+								}
+							}
+						}
+					}
 				}
 
 				if staticChanged {
