@@ -44,6 +44,10 @@ const (
     name = "ext"
     url = "http://gohugo.io"
 	identifier = "ext"
+[[menu.main]]
+    name = "ext2"
+    url = "http://foo.local/Zoo/foo"
+	identifier = "ext2"
 [[menu.grandparent]]
 	name = "grandparent"
 	url = "/grandparent"
@@ -313,6 +317,7 @@ func TestPageMenu(t *testing.T) {
 func TestMenuURL(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
+
 	s := setupMenuTests(t, MENU_PAGE_SOURCES)
 
 	for i, this := range []struct {
@@ -323,6 +328,7 @@ func TestMenuURL(t *testing.T) {
 		{findTestMenuEntryByID(s, "hash", "hash"), "/Zoo/resource#anchor"},
 		// issue #1774
 		{findTestMenuEntryByID(s, "main", "ext"), "http://gohugo.io"},
+		{findTestMenuEntryByID(s, "main", "ext2"), "http://foo.local/Zoo/foo"},
 	} {
 
 		if this.me == nil {
