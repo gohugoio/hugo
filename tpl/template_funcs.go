@@ -1507,6 +1507,8 @@ func init() {
 		"relref":       RelRef,
 		"apply":        Apply,
 		"chomp":        Chomp,
+		"int":          func(v interface{}) int { return cast.ToInt(v) },
+		"string":       func(v interface{}) string { return cast.ToString(v) },
 		"replace":      Replace,
 		"trim":         Trim,
 		"dateFormat":   DateFormat,
