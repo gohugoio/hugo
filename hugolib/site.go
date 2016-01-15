@@ -135,6 +135,7 @@ type SiteInfo struct {
 // linkedin
 type SiteSocial map[string]string
 
+// GetParam gets a site parameter value if found, nil if not.
 func (s *SiteInfo) GetParam(key string) interface{} {
 	v := s.Params[strings.ToLower(key)]
 
@@ -209,14 +210,17 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	return link, nil
 }
 
+// Ref will give an absolute URL to ref in the given Page.
 func (s *SiteInfo) Ref(ref string, page *Page) (string, error) {
 	return s.refLink(ref, page, false)
 }
 
+// RelRef will give an relative URL to ref in the given Page.
 func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
 	return s.refLink(ref, page, true)
 }
 
+//  TODO(sven): Document
 func (s *SiteInfo) GitHub(ref string, page *Page) (string, error) {
 	return s.githubLink(ref, page, true)
 }
@@ -308,6 +312,7 @@ func (s *SiteInfo) githubLink(ref string, currentPage *Page, relative bool) (str
 	return link, nil
 }
 
+// TODO(sven): Document
 func (s *SiteInfo) GitHubFileLink(ref string, page *Page) (string, error) {
 	return s.githubFileLink(ref, page, false)
 }
@@ -366,12 +371,6 @@ func (s *SiteInfo) githubFileLink(ref string, currentPage *Page, relative bool) 
 		} else {
 			return "/" + filepath.ToSlash(link), nil
 		}
-
-		if err != nil {
-			return "", err
-		}
-
-		return link, nil
 	}
 
 	return "", fmt.Errorf("failed to find a file to match \"%s\" on page \"%s\"", ref, currentPage.Source.Path())
