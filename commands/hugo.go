@@ -483,6 +483,7 @@ func copyStatic() error {
 		publishDir = helpers.FilePathSeparator
 	}
 
+	// Includes both theme/static & /static
 	staticSourceFs := getStaticSourceFs()
 
 	if staticSourceFs == nil {
@@ -499,8 +500,12 @@ func copyStatic() error {
 	syncer.Delete = true
 	jww.INFO.Println("syncing static files to", publishDir)
 
-	// because we are using a baseFs (to get the union right). Sync from the root
-	syncer.Sync(publishDir, helpers.FilePathSeparator)
+	// because we are using a baseFs (to get the union right).
+	// set sync src to root
+	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
+	if err != nil {
+		return err
+	}
 	return nil
 //
 //	themeDir, err := helpers.GetThemeStaticDirPath()
@@ -718,7 +723,6 @@ func NewWatcher(port int) error {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
 						err := copyStatic()
 						if err != nil {
-							fmt.Println(err)
 							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 						}
 					} else {

@@ -44,6 +44,7 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
+	"github.com/spf13/afero"
 )
 
 var _ = transform.AbsURL
@@ -500,11 +501,24 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		go converterCollator(s, convertResults, errs)
 
 		for _, ev := range sourceChanged {
-			if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
+
+			if  ev.Op&fsnotify.Remove == fsnotify.Remove {
 				//remove the file & a create will follow
 				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
 				s.RemovePageByPath(path)
 				continue
+			}
+
+			// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
+			// Sometimes a rename operation means that file has been renamed other times it means
+			// it's been updated
+			if ev.Op&fsnotify.Rename == fsnotify.Rename {
+				// If the file is still on disk, it's only been updated, if it's not, it's been moved
+				if ex, err := afero.Exists(hugofs.SourceFs, ev.Name); !ex || err != nil {
+					path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
+					s.RemovePageByPath(path)
+					continue
+				}
 			}
 
 			file, err := s.ReReadFile(ev.Name)
