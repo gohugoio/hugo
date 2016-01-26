@@ -105,12 +105,6 @@ type Position struct {
 }
 
 type Pages []*Page
-//
-//func (ps Pages) Replace(page *Page) {
-//	if i := ps.FindPagePos(page); i >= 0 {
-//		ps[i] = page
-//	}
-//}
 
 func (ps Pages) FindPagePosByFilePath(inPath string) int {
 	for i, x := range ps {
@@ -131,16 +125,6 @@ func (ps Pages) FindPagePos(page *Page) int {
 	}
 	return -1
 }
-
-// FindPage Given a page, it will return the page in Pages
-// will return nil if not found
-//func (ps Pages) FindPage(page *Page) *Page {
-//	if i := ps.FindPagePos(page); i >= 0 {
-//		return ps[i]
-//	}
-//
-//	return nil
-//}
 
 func (p *Page) Plain() string {
 	p.initPlain()
