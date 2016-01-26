@@ -776,7 +776,7 @@ func NewWatcher(port int) error {
 									// If file doesn't exist in any static dir, remove it
 									toRemove :=filepath.Join(publishDir, relPath)
 									jww.FEEDBACK.Println("File no longer exists in static dir, removing", toRemove)
-									hugofs.DestinationFS.Remove(toRemove)
+									hugofs.DestinationFS.RemoveAll(toRemove)
 								} else if err == nil {
 									// If file still exists, sync it
 									jww.FEEDBACK.Println("Syncing", relPath, "to", publishDir)
