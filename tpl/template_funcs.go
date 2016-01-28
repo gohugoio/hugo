@@ -588,7 +588,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	case reflect.Struct:
 		ft, ok := obj.Type().FieldByName(elemName)
 		if ok {
-			if ft.PkgPath != "" {
+			if ft.PkgPath != "" && !ft.Anonymous {
 				return zero, fmt.Errorf("%s is an unexported field of struct type %s", elemName, typ)
 			}
 			return obj.FieldByIndex(ft.Index), nil
