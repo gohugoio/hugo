@@ -30,6 +30,7 @@ import (
 
 	"regexp"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	"github.com/spf13/hugo/helpers"
@@ -42,7 +43,6 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
-	"github.com/spf13/afero"
 )
 
 var mainSite *hugolib.Site
@@ -654,7 +654,7 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					walkAdder := func (path string, f os.FileInfo, err error) error {
+					walkAdder := func(path string, f os.FileInfo, err error) error {
 						if f.IsDir() {
 							jww.FEEDBACK.Println("adding created directory to watchlist", path)
 							watcher.Add(path)
@@ -687,7 +687,7 @@ func NewWatcher(port int) error {
 						publishDir = helpers.FilePathSeparator
 					}
 
-					jww.FEEDBACK.Println("\n Static file changes detected")
+					jww.FEEDBACK.Println("\nStatic file changes detected")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
 
@@ -710,6 +710,8 @@ func NewWatcher(port int) error {
 						syncer.SrcFs = staticSourceFs
 						syncer.DestFs = hugofs.DestinationFS
 
+						// prevent spamming the log on changes
+						logger := helpers.NewDistinctFeedbackLogger()
 
 						for _, ev := range staticEvents {
 							// Due to our approach of layering both directories and the content's rendered output
@@ -727,7 +729,6 @@ func NewWatcher(port int) error {
 							// Hugo assumes that these cases are very rare and will permit this bad behavior
 							// The alternative is to track every single file and which pipeline rendered it
 							// and then to handle conflict resolution on every event.
-							fmt.Println(ev)
 
 							fromPath := ev.Name
 
@@ -750,12 +751,12 @@ func NewWatcher(port int) error {
 							if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
 								if _, err := staticSourceFs.Stat(relPath); os.IsNotExist(err) {
 									// If file doesn't exist in any static dir, remove it
-									toRemove :=filepath.Join(publishDir, relPath)
-									jww.FEEDBACK.Println("File no longer exists in static dir, removing", toRemove)
+									toRemove := filepath.Join(publishDir, relPath)
+									logger.Println("File no longer exists in static dir, removing", toRemove)
 									hugofs.DestinationFS.RemoveAll(toRemove)
 								} else if err == nil {
 									// If file still exists, sync it
-									jww.FEEDBACK.Println("Syncing", relPath, "to", publishDir)
+									logger.Println("Syncing", relPath, "to", publishDir)
 									syncer.Sync(filepath.Join(publishDir, relPath), relPath)
 								} else {
 									jww.ERROR.Println(err)
@@ -765,7 +766,7 @@ func NewWatcher(port int) error {
 							}
 
 							// For all other event operations Hugo will sync static.
-							jww.FEEDBACK.Println("Syncing", relPath, "to", publishDir)
+							logger.Println("Syncing", relPath, "to", publishDir)
 							syncer.Sync(filepath.Join(publishDir, relPath), relPath)
 						}
 					}

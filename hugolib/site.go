@@ -31,6 +31,7 @@ import (
 	"sync/atomic"
 
 	"bitbucket.org/pkg/inflect"
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
@@ -44,7 +45,6 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
-	"github.com/spf13/afero"
 )
 
 var _ = transform.AbsURL
@@ -438,19 +438,22 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 	var err error
 
+	// prevent spamming the log on changes
+	logger := helpers.NewDistinctFeedbackLogger()
+
 	for _, ev := range events {
 		// Need to re-read source
 		if strings.HasPrefix(ev.Name, s.absContentDir()) {
-			fmt.Println("Source changed", ev)
+			logger.Println("Source changed", ev.Name)
 			sourceChanged = append(sourceChanged, ev)
 		}
 		if strings.HasPrefix(ev.Name, s.absLayoutDir()) || strings.HasPrefix(ev.Name, s.absThemeDir()) {
-			fmt.Println("Template changed", ev)
+			logger.Println("Template changed", ev.Name)
 			tmplChanged = append(tmplChanged, ev)
 		}
 		if strings.HasPrefix(ev.Name, s.absDataDir()) {
-			fmt.Println("Data changed", ev)
-			dataChanged = append(dataChanged,ev)
+			logger.Println("Data changed", ev.Name)
+			dataChanged = append(dataChanged, ev)
 		}
 	}
 
@@ -502,7 +505,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 		for _, ev := range sourceChanged {
 
-			if  ev.Op&fsnotify.Remove == fsnotify.Remove {
+			if ev.Op&fsnotify.Remove == fsnotify.Remove {
 				//remove the file & a create will follow
 				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
 				s.RemovePageByPath(path)
@@ -1026,7 +1029,6 @@ func (s *Site) AddPage(page *Page) {
 		s.futureCount++
 	}
 }
-
 
 func (s *Site) RemovePageByPath(path string) {
 	if i := s.Pages.FindPagePosByFilePath(path); i >= 0 {

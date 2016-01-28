@@ -182,6 +182,7 @@ func ThemeSet() bool {
 }
 
 type logPrinter interface {
+	// Println is the only common method that works in all of JWWs loggers.
 	Println(a ...interface{})
 }
 
@@ -192,10 +193,23 @@ type DistinctLogger struct {
 	m      map[string]bool
 }
 
+// Println will log the string returned from fmt.Sprintln given the arguments,
+// but not if it has been logged before.
+func (l *DistinctLogger) Println(v ...interface{}) {
+	// fmt.Sprint doesn't add space between string arguments
+	logStatement := strings.TrimSpace(fmt.Sprintln(v...))
+	l.print(logStatement)
+}
+
 // Printf will log the string returned from fmt.Sprintf given the arguments,
 // but not if it has been logged before.
+// Note: A newline is appended.
 func (l *DistinctLogger) Printf(format string, v ...interface{}) {
 	logStatement := fmt.Sprintf(format, v...)
+	l.print(logStatement)
+}
+
+func (l *DistinctLogger) print(logStatement string) {
 	l.RLock()
 	if l.m[logStatement] {
 		l.RUnlock()
@@ -207,7 +221,6 @@ func (l *DistinctLogger) Printf(format string, v ...interface{}) {
 	if !l.m[logStatement] {
 		l.logger.Println(logStatement)
 		l.m[logStatement] = true
-		fmt.Println()
 	}
 	l.Unlock()
 }
@@ -215,6 +228,12 @@ func (l *DistinctLogger) Printf(format string, v ...interface{}) {
 // NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
 func NewDistinctErrorLogger() *DistinctLogger {
 	return &DistinctLogger{m: make(map[string]bool), logger: jww.ERROR}
+}
+
+// NewDistinctErrorLogger creates a new DistinctLogger that can be used
+// to give feedback to the user while not spamming with duplicates.
+func NewDistinctFeedbackLogger() *DistinctLogger {
+	return &DistinctLogger{m: make(map[string]bool), logger: &jww.FEEDBACK}
 }
 
 // Avoid spamming the logs with errors
