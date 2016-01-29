@@ -115,7 +115,7 @@ Complete documentation is available at http://gohugo.io/.`,
 var hugoCmdV *cobra.Command
 
 // Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, DisableRobotsTXT, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, DisableRobotsTXT, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync, CleanDestination bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -158,6 +158,7 @@ func AddCommands() {
 // initCoreCommonFlags initializes common flags used by Hugo core commands
 // such as hugo itself, server, check, config and benchmark.
 func initCoreCommonFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVar(&CleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
 	cmd.Flags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
@@ -204,6 +205,7 @@ func init() {
 }
 
 func LoadDefaultSettings() {
+	viper.SetDefault("cleanDestinationDir", false)
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
@@ -281,6 +283,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
+		if cmdV.Flags().Lookup("cleanDestinationDir").Changed {
+			viper.Set("cleanDestinationDir", CleanDestination)
+		}
 		if cmdV.Flags().Lookup("buildDrafts").Changed {
 			viper.Set("BuildDrafts", Draft)
 		}
@@ -497,7 +502,7 @@ func copyStatic() error {
 	syncer.DestFs = hugofs.DestinationFS
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
-	syncer.Delete = true
+	syncer.Delete = viper.GetBool("cleanDestinationDir")
 	jww.INFO.Println("syncing static files to", publishDir)
 
 	// because we are using a baseFs (to get the union right).
