@@ -276,6 +276,10 @@ func ReadDir(path string) []os.FileInfo {
 		jww.ERROR.Printf("Path %s contains parent directory marker", path)
 		return nil
 	}
+	if filepath.IsAbs(path) {
+		jww.ERROR.Printf("Path %s is an absolute path", path)
+		return nil
+	}
 
 	p = filepath.Clean(path)
 	p = filepath.Join(wd, p)
