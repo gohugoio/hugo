@@ -471,13 +471,18 @@ func getStaticSourceFs() afero.Fs {
 	}
 
 	if !useStatic {
+		jww.INFO.Println(themeDir, "is the only static directory available to sync from")
 		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, themeDir))
 	}
 
 	if !useTheme {
+		jww.INFO.Println(staticDir, "is the only static directory available to sync from")
 		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, staticDir))
 	}
 
+	jww.INFO.Println("using a UnionFS for static directory comprised of:")
+	jww.INFO.Println("Base:", themeDir)
+	jww.INFO.Println("Overlay:", staticDir)
 	base := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, themeDir))
 	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, staticDir))
 	return afero.NewCopyOnWriteFs(base, overlay)
@@ -506,6 +511,9 @@ func copyStatic() error {
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
 	syncer.Delete = viper.GetBool("cleanDestinationDir")
+	if syncer.Delete {
+		jww.INFO.Println("removing all files from destination that don't exist in static dirs")
+	}
 	jww.INFO.Println("syncing static files to", publishDir)
 
 	// because we are using a baseFs (to get the union right).
