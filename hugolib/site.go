@@ -1969,14 +1969,14 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	if outBuffer.Len() == 0 {
 		jww.WARN.Printf("%q is rendered empty\n", dest)
 		if dest == "/" {
-			jww.ERROR.Println("=============================================================")
-			jww.ERROR.Println("Your rendered home page is blank: /index.html is zero-length")
-			jww.ERROR.Println(" * Did you specify a theme on the command-line or in your")
-			jww.ERROR.Printf("   %q file?  (Current theme: %q)\n", filepath.Base(viper.ConfigFileUsed()), viper.GetString("Theme"))
+			jww.FEEDBACK.Println("=============================================================")
+			jww.FEEDBACK.Println("Your rendered home page is blank: /index.html is zero-length")
+			jww.FEEDBACK.Println(" * Did you specify a theme on the command-line or in your")
+			jww.FEEDBACK.Printf("   %q file?  (Current theme: %q)\n", filepath.Base(viper.ConfigFileUsed()), viper.GetString("Theme"))
 			if !viper.GetBool("Verbose") {
-				jww.ERROR.Println(" * For more debugging information, run \"hugo -v\"")
+				jww.FEEDBACK.Println(" * For more debugging information, run \"hugo -v\"")
 			}
-			jww.ERROR.Println("=============================================================")
+			jww.FEEDBACK.Println("=============================================================")
 		}
 	}
 
