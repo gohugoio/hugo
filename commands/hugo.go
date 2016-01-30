@@ -641,7 +641,7 @@ func NewWatcher(port int) error {
 		for {
 			select {
 			case evs := <-watcher.Events:
-				jww.INFO.Println("Recieved System Events:", evs)
+				jww.INFO.Println("Received System Events:", evs)
 
 				staticEvents := []fsnotify.Event{}
 				dynamicEvents := []fsnotify.Event{}
