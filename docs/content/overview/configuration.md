@@ -90,8 +90,6 @@ Following is a list of Hugo-defined variables that you can configure and their c
     dataDir:                    "data"
     defaultExtension:           "html"
     defaultLayout:              "post"
-    # filesystem path to write files to
-    destination:                ""
     disableLiveReload:          false
     # Do not build RSS files
     disableRSS:                 false
@@ -119,6 +117,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     pluralizeListTitles:        true
     # Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
     preserveTaxonomyNames:      false
+    # filesystem path to write files to
     publishdir:                 "public"
     # color-codes for highlighting derived from this style
     pygmentsStyle:              "monokai"
