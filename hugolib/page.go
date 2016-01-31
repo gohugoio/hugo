@@ -48,24 +48,24 @@ var (
 )
 
 type Page struct {
-	Params          map[string]interface{}
-	Content         template.HTML
-	Summary         template.HTML
-	Aliases         []string
-	Status          string
-	Images          []Image
-	Videos          []Video
-	TableOfContents template.HTML
-	Truncated       bool
-	Draft           bool
-	PublishDate     time.Time
-	Tmpl            tpl.Template
-	Markup          string
-
+	Params              map[string]interface{}
+	Content             template.HTML
+	Summary             template.HTML
+	Aliases             []string
+	Status              string
+	Images              []Image
+	Videos              []Video
+	TableOfContents     template.HTML
+	Truncated           bool
+	Draft               bool
+	PublishDate         time.Time
+	Tmpl                tpl.Template
+	Markup              string
 	extension           string
 	contentType         string
 	renderable          bool
 	Layout              string
+	layoutsCalculated   []string
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
@@ -76,13 +76,13 @@ type Page struct {
 	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
+	pageMenus           PageMenus
+	pageMenusInit       sync.Once
+	isCJKLanguage       bool
 	PageMeta
 	Source
 	Position `json:"-"`
 	Node
-	pageMenus     PageMenus
-	pageMenusInit sync.Once
-	isCJKLanguage bool
 }
 
 type Source struct {
@@ -105,6 +105,26 @@ type Position struct {
 }
 
 type Pages []*Page
+
+func (ps Pages) FindPagePosByFilePath(inPath string) int {
+	for i, x := range ps {
+		if x.Source.Path() == inPath {
+			return i
+		}
+	}
+	return -1
+}
+
+// FindPagePos Given a page, it will find the position in Pages
+// will return -1 if not found
+func (ps Pages) FindPagePos(page *Page) int {
+	for i, x := range ps {
+		if x.Source.Path() == page.Source.Path() {
+			return i
+		}
+	}
+	return -1
+}
 
 func (p *Page) Plain() string {
 	p.initPlain()
@@ -233,14 +253,34 @@ func (p *Page) setSummary() {
 }
 
 func (p *Page) renderBytes(content []byte) []byte {
+	var fn helpers.LinkResolverFunc
+	var fileFn helpers.FileResolverFunc
+	if p.getRenderingConfig().SourceRelativeLinksEval {
+		fn = func(ref string) (string, error) {
+			return p.Node.Site.GitHub(ref, p)
+		}
+		fileFn = func(ref string) (string, error) {
+			return p.Node.Site.GitHubFileLink(ref, p)
+		}
+	}
 	return helpers.RenderBytes(
 		&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-			DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
+			DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
+	var fn helpers.LinkResolverFunc
+	var fileFn helpers.FileResolverFunc
+	if p.getRenderingConfig().SourceRelativeLinksEval {
+		fn = func(ref string) (string, error) {
+			return p.Node.Site.GitHub(ref, p)
+		}
+		fileFn = func(ref string) (string, error) {
+			return p.Node.Site.GitHubFileLink(ref, p)
+		}
+	}
 	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-		DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
+		DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
@@ -288,6 +328,10 @@ func (p *Page) Section() string {
 }
 
 func (p *Page) layouts(l ...string) []string {
+	if len(p.layoutsCalculated) > 0 {
+		return p.layoutsCalculated
+	}
+
 	if p.Layout != "" {
 		return layouts(p.Type(), p.Layout)
 	}

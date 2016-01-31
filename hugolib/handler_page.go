@@ -32,6 +32,7 @@ type basicPageHandler Handle
 
 func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 	page, err := NewPage(f.Path())
+
 	if err != nil {
 		return HandledResult{file: f, err: err}
 	}

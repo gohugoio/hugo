@@ -181,16 +181,35 @@ func ThemeSet() bool {
 	return viper.GetString("theme") != ""
 }
 
-// DistinctErrorLogger ignores duplicate log statements.
-type DistinctErrorLogger struct {
-	sync.RWMutex
-	m map[string]bool
+type logPrinter interface {
+	// Println is the only common method that works in all of JWWs loggers.
+	Println(a ...interface{})
 }
 
-// Printf will ERROR log the string returned from fmt.Sprintf given the arguments,
+// DistinctLogger ignores duplicate log statements.
+type DistinctLogger struct {
+	sync.RWMutex
+	logger logPrinter
+	m      map[string]bool
+}
+
+// Println will log the string returned from fmt.Sprintln given the arguments,
 // but not if it has been logged before.
-func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
+func (l *DistinctLogger) Println(v ...interface{}) {
+	// fmt.Sprint doesn't add space between string arguments
+	logStatement := strings.TrimSpace(fmt.Sprintln(v...))
+	l.print(logStatement)
+}
+
+// Printf will log the string returned from fmt.Sprintf given the arguments,
+// but not if it has been logged before.
+// Note: A newline is appended.
+func (l *DistinctLogger) Printf(format string, v ...interface{}) {
 	logStatement := fmt.Sprintf(format, v...)
+	l.print(logStatement)
+}
+
+func (l *DistinctLogger) print(logStatement string) {
 	l.RLock()
 	if l.m[logStatement] {
 		l.RUnlock()
@@ -200,15 +219,21 @@ func (l *DistinctErrorLogger) Printf(format string, v ...interface{}) {
 
 	l.Lock()
 	if !l.m[logStatement] {
-		jww.ERROR.Print(logStatement)
+		l.logger.Println(logStatement)
 		l.m[logStatement] = true
 	}
 	l.Unlock()
 }
 
-// NewDistinctErrorLogger creates a new DistinctErrorLogger
-func NewDistinctErrorLogger() *DistinctErrorLogger {
-	return &DistinctErrorLogger{m: make(map[string]bool)}
+// NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
+func NewDistinctErrorLogger() *DistinctLogger {
+	return &DistinctLogger{m: make(map[string]bool), logger: jww.ERROR}
+}
+
+// NewDistinctErrorLogger creates a new DistinctLogger that can be used
+// to give feedback to the user while not spamming with duplicates.
+func NewDistinctFeedbackLogger() *DistinctLogger {
+	return &DistinctLogger{m: make(map[string]bool), logger: &jww.FEEDBACK}
 }
 
 // Avoid spamming the logs with errors

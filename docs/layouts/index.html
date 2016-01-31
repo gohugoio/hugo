@@ -9,14 +9,14 @@
     <title>Hugo :: A fast and modern static website engine</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap-theme.css" rel="stylesheet">
+    <link href="/css/bootstrap-gohugo.css" rel="stylesheet">
 
     <link href='//fonts.googleapis.com/css?family=Arbutus+Slab%7CCabin:600%7CSource+Code+Pro' rel='stylesheet' type='text/css'>
     <!-- Add custom CSS here -->
     <link href="/css/HPstyles.css" rel="stylesheet">
     <link href="/css/hugofont.css" rel="stylesheet">
-    <link href="/css/owl.carousel.css" rel="stylesheet">
-    <link href="/css/owl.theme.default.css" rel="stylesheet">
+    <link href="/css/owl.carousel.min.css" rel="stylesheet">
+    <link href="/css/owl.theme.default.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <style type="text/css">
@@ -223,7 +223,7 @@
                 <a href="/overview/quickstart/" style="color:white;font-weight:300;">Quickstart Guide</a>
                 <p>&nbsp;</p>
                 <h4>Using Homebrew?</h4>
-                <pre><code>brew install hugo</code></pre>
+                <pre><code>brew update &amp;&amp; brew install hugo</code></pre>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@
                     <li><a href="https://github.com/spf13/hugo" class="icon-octocat icon-2x"></a></li>
                 </ul>
                 <hr>
-                <p>Copyright &copy; Steve Francia 2013&ndash;2015</p>
+                <p>Copyright &copy; Steve Francia 2013&ndash;{{ .Now.Format "2006" }}</p>
               </div>
             </div>
           </div>
@@ -249,7 +249,7 @@
 
   <!-- Bootstrap core JavaScript -->
   <!-- Placed at the end of the document so the pages load faster -->
-  <script src="/js/jquery-2.1.1.min.js"></script>
+  <script src="/js/jquery-2.1.4.min.js"></script>
   <script src="/js/owl.carousel.min.js"></script>
   <!--<script src="/js/bootstrap.min.js"></script>-->
   <script>

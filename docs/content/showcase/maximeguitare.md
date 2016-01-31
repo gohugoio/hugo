@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-10-05
 date: 2015-10-05T17:15:00Z
 description: Quality resource for guitarists.
 sitelink: http://www.maximeguitare.com/

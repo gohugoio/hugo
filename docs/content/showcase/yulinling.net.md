@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-12-19
 date: 2015-09-09T21:42:00-04:00
 description: Multilingual, blog
 license: ""
@@ -9,5 +10,5 @@ tags:
 - blog
 - documentation
 thumbnail: /img/yulinling-tn.jpg
-title: 语林灵 (Yulinling)
+title: <span lang="zh-CN">语林灵</span> (Yulinling)
 ---

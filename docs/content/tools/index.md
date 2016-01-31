@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-12-30
 date: 2015-09-12T10:40:31+02:00
 title: Tools
 weight: 120
@@ -53,6 +54,8 @@ If you don't want to use [Wercker for automated deployments]({{< relref "tutoria
 get your content to the public:
 
 - [hugomac](https://github.com/nickoneill/hugomac) - Hugomac is an OS&nbsp;X menubar app to publish your blog directly to Amazon S3. No command line is needed.
+- [hugo-lambda](https://github.com/ryansb/hugo-lambda) - A wrapper around the Hugo static site generator to have it run in AWS Lambda whenever new (Markdown or other) content is uploaded.
+- [hugodeploy](https://github.com/mindok/hugodeploy) - Simple SFTP deployment tool for static websites (e.g. created by Hugo) with optional minification.
 
 ----
 
@@ -63,6 +66,7 @@ Do you prefer an graphical user interface over a text editor? Then give these fr
 - [rango](https://github.com/stayradiated/rango) - A web frontend for Hugo. It's designed to make it easy to manage a small site, even for people with little computer experience.
 - [enwrite](https://github.com/zzamboni/enwrite) - Evernote-powered statically-generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 - [caddy-hugo](https://github.com/hacdias/caddy-hugo) - This is an add-on for [Caddy](https://caddyserver.com/) which wants to deliver a good UI to edit the content of the website. 
+- [Hugopit](https://github.com/sjardim/Hugopit) - A web-based editor for Hugo build on top of [Cockpit CMS](http://www.getcockpit.com/).
 
 ----
 

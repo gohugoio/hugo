@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/functions/
+lastmod: 2015-09-20
 date: 2013-07-01
 linktitle: Functions
 toc: true
@@ -51,8 +52,8 @@ e.g.
     // Outputs Tags: tag1, tag2 and tag3
 
 ### dict
-Creates a dictionary (map[string, interface{}), expects parameters added in value:object fasion.
-Invalid combinations like keys that are not strings or uneven number of parameters, will result in an exception thrown
+Creates a dictionary `(map[string, interface{})`, expects parameters added in value:object fasion.
+Invalid combinations like keys that are not strings or uneven number of parameters, will result in an exception thrown.
 Useful for passing maps to partials when adding to a template.
 
 e.g. Pass into "foo.html" a map with the keys "important, content" 
@@ -356,6 +357,15 @@ e.g.
 </tbody>
 </table>
 
+## Numbers
+
+### int
+
+Creates a `int`.
+
+e.g.
+
+* `{{int "123" }}` → 123
 
 ## Strings
 
@@ -369,7 +379,7 @@ e.g., `{{chomp "<p>Blockhead</p>\n"}}` → `"<p>Blockhead</p>"`
 Converts the textual representation of the datetime into the other form or returns it of Go `time.Time` type value.
 These are formatted with the layout string.
 
-e.g. `{{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}` →"Wednesday, Jan 21, 2015"
+e.g. `{{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}` → "Wednesday, Jan 21, 2015"
 
 
 ### highlight
@@ -487,6 +497,14 @@ e.g.
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
 
+### string
+
+Creates a `string`.
+
+e.g.
+
+* `{{string "BatMan"}}` → "BatMan"
+
 ### substr
 
 Extracts parts of a string, beginning at the character at the specified
@@ -525,6 +543,26 @@ Converts all characters in string to uppercase.
 e.g. `{{upper "BatMan"}}` → "BATMAN"
 
 
+### countwords
+
+`countwords` tries to convert the passed content to a string and counts each word
+in it. The template functions works similar to [.WordCount]({{< relref "templates/variables.md#page-variables" >}}).
+
+```html
+{{ "Hugo is a static site generator." | countwords }}
+<!-- outputs a content length of 6 words.  -->
+```
+
+
+### countrunes
+
+Alternatively to counting all words , `countrunes` determines the number  of runes in the content and excludes any whitespace. This can become useful if you have to deal with
+CJK-like languages.
+
+```html
+{{ "Hello, 世界" | countrunes }}
+<!-- outputs a content length of 8 runes. -->
+```
 
 
 ## URLs

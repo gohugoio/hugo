@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/organization/
+lastmod: 2015-09-27
 date: 2013-07-01
 linktitle: Organization
 menu:

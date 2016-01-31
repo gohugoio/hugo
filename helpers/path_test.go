@@ -40,13 +40,14 @@ func TestMakePath(t *testing.T) {
 	}{
 		{"  Foo bar  ", "Foo-bar", true},
 		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
-		{"fOO,bar:foo%bAR", "fOObarfoobAR", true},
+		{"fOO,bar:foobAR", "fOObarfoobAR", true},
 		{"FOo/BaR.html", "FOo/BaR.html", true},
 		{"трям/трям", "трям/трям", true},
 		{"은행", "은행", true},
 		{"Банковский кассир", "Банковскии-кассир", true},
 		// Issue #1488
 		{"संस्कृत", "संस्कृत", false},
+		{"a%C3%B1ame", "a%C3%B1ame", false}, // Issue #1292
 	}
 
 	for _, test := range tests {
@@ -68,7 +69,7 @@ func TestMakePathSanitized(t *testing.T) {
 	}{
 		{"  FOO bar  ", "foo-bar"},
 		{"Foo.Bar/fOO_bAr-Foo", "foo.bar/foo_bar-foo"},
-		{"FOO,bar:Foo%Bar", "foobarfoobar"},
+		{"FOO,bar:FooBar", "foobarfoobar"},
 		{"foo/BAR.HTML", "foo/bar.html"},
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
@@ -93,7 +94,7 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	}{
 		{"  FOO bar  ", "FOO-bar"},
 		{"Foo.Bar/fOO_bAr-Foo", "Foo.Bar/fOO_bAr-Foo"},
-		{"FOO,bar:Foo%Bar", "FOObarFooBar"},
+		{"FOO,bar:FooBar", "FOObarFooBar"},
 		{"foo/BAR.HTML", "foo/BAR.HTML"},
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
@@ -771,6 +772,7 @@ func TestGetTempDir(t *testing.T) {
 		{testDir + "  Foo bar  ", dir + testDir + "  Foo bar  " + FilePathSeparator},
 		{testDir + "Foo.Bar/foo_Bar-Foo", dir + testDir + "Foo.Bar/foo_Bar-Foo" + FilePathSeparator},
 		{testDir + "fOO,bar:foo%bAR", dir + testDir + "fOObarfoo%bAR" + FilePathSeparator},
+		{testDir + "fOO,bar:foobAR", dir + testDir + "fOObarfoobAR" + FilePathSeparator},
 		{testDir + "FOo/BaR.html", dir + testDir + "FOo/BaR.html" + FilePathSeparator},
 		{testDir + "трям/трям", dir + testDir + "трям/трям" + FilePathSeparator},
 		{testDir + "은행", dir + testDir + "은행" + FilePathSeparator},

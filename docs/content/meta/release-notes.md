@@ -2,6 +2,7 @@
 aliases:
 - /doc/release-notes/
 - /meta/release-notes/
+lastmod: 2015-12-19
 date: 2013-07-01
 menu:
   main:
@@ -24,7 +25,7 @@ showcase](http://themes.gohugo.io) and participated in
 
 Hugo now has:
 
-* 6700 (+2700) stars on github
+* 6700 (+2700) stars on GitHub
 * 235 (+75) contributors
 * 65 (+30) themes
 
@@ -47,10 +48,10 @@ Huge thanks to all who participated in this release. A special thanks to
 {{< gh "@anthonyfok" >}},
 {{< gh "@eparis" >}},
 {{< gh "@tatsushid" >}} and
-{{< gh "@DigitalCraftsman" >}}
+{{< gh "@DigitalCraftsman" >}}.
 
 
-## New features
+### New features
 * new `hugo import jekyll` command. {{< gh 1469 >}}
 * The new `Param` convenience method on `Page` and `Node` can be used to get the most specific parameter value for a given key. {{< gh 1462 >}}
 * Several new information elements have been added to `Page` and `Node`:
@@ -58,7 +59,7 @@ Huge thanks to all who participated in this release. A special thanks to
 	* `RawContent`: Raw Markdown as a string. One use case may be of embedding remarkjs.com slides.
 	* `IsHome`: tells the truth about whether you're on the home page or not.
 
-## Improvements
+### Improvements
 * `hugo server` now builds ~30%+ faster by rendering to memory instead of disk. To get the old behavior, start the server with `--renderToDisk=true`.
 * Hugo now supports dynamic reloading of the config file when watching.
 * We now use a custom-built `LazyFileReader` for reading file contents, which means we don't read media files in `/content` into memory anymore -- and file reading is now performed in parallel on multicore PCs. {{< gh 1181 >}}
@@ -80,7 +81,7 @@ Huge thanks to all who participated in this release. A special thanks to
 * Hugo will now make suggestions when a command is mistyped
 * Shortcodes now have a boolean `.IsNamedParams` property. {{< gh 1597 >}}
 
-## New Template Features
+### New Template Features
 * All template engines:
 	* The new `dict` function that could be used to pass maps into a template. {{< gh 1463 >}}
 	* The new `pluralize` and `singularize` template funcs.
@@ -108,18 +109,27 @@ Huge thanks to all who participated in this release. A special thanks to
   * `speakerdeck` for Speakerdeck slides
 
 
-## Bugfixes
+### Bugfixes
 * Fix data races in page sorting and page reversal. These operations are now also cached. {{< gh 1293 >}}
 * `page.HasMenuCurrent()` and `node.HasMenuCurrent()` now work correctly in multi-level nested menus.
 * Support `Fish and Chips` style section titles. Previously, this would end up as  `Fish And Chips`. Now, the first character is made toupper, but the rest are preserved as-is. {{< gh 1176 >}}
 * Hugo now removes superfluous p-tags around shortcodes. {{< gh 1148 >}}
 
-## Notices
+### Notices
 * `hugo server` will watch by default now.
 * Some fields and methods were deprecated in `0.14`. These are now removed, so the error message isn't as friendly if you still use the old values. So please change:
 	*   `getJson` to `getJSON`, `getCsv` to `getCSV`, `safeHtml` to
   `safeHTML`, `safeCss` to `safeCSS`, `safeUrl` to `safeURL`, `Url` to `URL`,
   `UrlPath` to `URLPath`, `BaseUrl` to `BaseURL`, `Recent` to `Pages`.
+
+### Known Issues
+
+Using the Hugo v0.15 32-bit Windows or ARM binary, running `hugo server` would crash or hang due to a [memory alignment issue](https://golang.org/pkg/sync/atomic/#pkg-note-BUG) in [Afero](https://github.com/spf13/afero).  The bug was discovered shortly after the v0.15.0 release and has since been [fixed](https://github.com/spf13/afero/pull/23) by {{< gh "@tpng" >}}.  If you encounter this bug, you may either compile Hugo v0.16-DEV from source, or use the following solution/workaround:
+
+* **64-bit Windows users: Please use [hugo_0.15_windows_amd64.zip](https://github.com/spf13/hugo/releases/download/v0.15/hugo_0.15_windows_amd64.zip)** (amd64 == x86-64).  It is only the 32-bit hugo_0.15_windows_386.zip that crashes/hangs (see {{< gh 1621 >}} and {{< gh 1628 >}}).
+* **32-bit Windows and ARM users: Please run `hugo server --renderToDisk` as a workaround** until Hugo v0.16 is released (see [“hugo server” returns runtime error on armhf](https://discuss.gohugo.io/t/hugo-server-returns-runtime-error-on-armhf/2293) and {{< gh 1716 >}}).
+
+----
 
 ## **0.14.0** May 25, 2015
 
@@ -205,6 +215,9 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
   `safeHTML`, `safeCss` to `safeCSS`, `safeUrl` to `safeURL`, `Url` to `URL`,
   `UrlPath` to `URLPath`, `BaseUrl` to `BaseURL`, `Recent` to `Pages`,
   `Indexes` to `Taxonomies`.
+
+
+----
 
 ## **0.13.0** Feb 21, 2015
 
@@ -299,6 +312,7 @@ maintainers and their tremendous contributions this release.
 * `HasMenuCurrent` and `IsMenuCurrent` is now supported on Nodes
 * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
 
+----
 
 ## **0.12.0** Sept 1, 2014
 
@@ -325,6 +339,8 @@ This release represents over 90 code commits from 28 different contributors.
   * Better feedback about draft & future post rendering
   * A variety of improvements to [the website](http://gohugo.io/)
 
+----
+
 ## **0.11.0** May 28, 2014
 
 This release represents over 110 code commits from 29 different contributors.
@@ -346,6 +362,8 @@ This release represents over 110 code commits from 29 different contributors.
   * Renamed Indexes > [Taxonomies](/taxonomies/overview/)
   * Renamed Chrome > [Partials](/templates/partials/)
 
+----
+
 ## **0.10.0** March 1, 2014
 
 This release represents over 110 code commits from 29 different contributors.
@@ -364,6 +382,8 @@ This release represents over 110 code commits from 29 different contributors.
   * Boolean params now supported in [frontmatter](/content/front-matter/)
   * Launched website [showcase](/showcase/). Show off your own hugo site!
   * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
+
+----
 
 ## **0.9.0** November 15, 2013
 
@@ -400,6 +420,8 @@ This release represents over 220 code commits from 22 different contributors.
   * Support for go 1.2
   * Support for `first` in templates
 
+----
+
 ## **0.8.0** August 2, 2013
 
 This release represents over 65 code commits from 6 different contributors.
@@ -417,12 +439,18 @@ This release represents over 65 code commits from 6 different contributors.
   * Adding verbose output
   * Loads of bugfixes
 
+----
+
 ## **0.7.0** July 4, 2013
   * Hugo now includes a simple server
   * First public release
 
+----
+
 ## **0.6.0** July 2, 2013
   * Hugo includes an example documentation site which it builds
+
+----
 
 ## **0.5.0** June 25, 2013
   * Hugo is quite usable and able to build spf13.com

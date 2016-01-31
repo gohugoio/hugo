@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/configuration/
+lastmod: 2015-12-08
 date: 2013-07-01
 linktitle: Configuration
 menu:
@@ -41,11 +42,11 @@ Values under `[params]` will populate the `.Site.Params` variable for use in tem
     builddrafts = false
     baseurl = "http://yoursite.example.com/"
     canonifyurls = true
-    
+
     [taxonomies]
       category = "categories"
       tag = "tags"
-    
+
     [params]
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
@@ -89,13 +90,13 @@ Following is a list of Hugo-defined variables that you can configure and their c
     dataDir:                    "data"
     defaultExtension:           "html"
     defaultLayout:              "post"
-    # filesystem path to write files to
-    destination:                ""
     disableLiveReload:          false
     # Do not build RSS files
     disableRSS:                 false
     # Do not build Sitemap file
     disableSitemap:             false
+    # Do not build robots.txt file
+    disableRobotsTXT:           false
     # edit new content with this editor, if provided
     editor:                     ""
     footnoteAnchorPrefix:       ""
@@ -118,6 +119,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     pluralizeListTitles:        true
     # Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
     preserveTaxonomyNames:      false
+    # filesystem path to write files to
     publishdir:                 "public"
     # color-codes for highlighting derived from this style
     pygmentsStyle:              "monokai"
@@ -130,7 +132,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     staticdir:                  "static"
     # display memory and timing of different steps of the program
     stepAnalysis:               false
-    # theme to use (located in /themes/THEMENAME/)
+    # theme to use (located by default in /themes/THEMENAME/)
+    themesdir = "themes"
     theme:                      ""
     title:                      ""
     # if true, use /filename.html instead of /filename/
@@ -144,7 +147,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # verbose logging
     verboseLog:                 false
     # watch filesystem for changes and recreate as needed
-    watch:                      false
+    watch:                      true
     ---
 
 ## Ignore files on build

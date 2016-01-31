@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/usage/
+lastmod: 2015-12-23
 date: 2013-07-01
 menu:
   main:
@@ -14,7 +15,7 @@ weight: 30
 
 Make sure either `hugo` is in your `PATH` or provide a path to it.
 
-<pre><code class="hljs nohighlight">$ hugo help
+{{< nohighlight >}}$ hugo help
 
 Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
 
@@ -65,20 +66,21 @@ Additional help topics:
  hugo convert         Convert will modify your content to different formats hugo list            Listing out various types of content
 
 Use "hugo help [command]" for more information about a command.
-</code></pre>
+{{< /nohighlight >}}
 
 ## Common Usage Example
 
 The most common use is probably to run `hugo` with your current directory being the input directory:
 
-    $ hugo
-    0 draft content
-    0 future content
-    99 pages created
-    0 paginator pages created
-    16 tags created
-    0 groups created
-    in 120 ms
+{{< nohighlight >}}$ hugo
+0 draft content
+0 future content
+99 pages created
+0 paginator pages created
+16 tags created
+0 groups created
+in 120 ms
+{{< /nohighlight >}}
 
 This generates your web site to the `public/` directory,
 ready to be deployed to your web server.
@@ -89,34 +91,36 @@ ready to be deployed to your web server.
 If you are working on things and want to see the changes immediately, tell Hugo to watch for changes.
 Hugo will watch the filesystem for changes, and rebuild your site as soon as a file is saved:
 
-    $ hugo -s ~/Code/hugo/docs
-    0 draft content
-    0 future content
-    99 pages created
-    0 paginator pages created
-    16 tags created
-    0 groups created
-    in 120 ms
-    Watching for changes in /Users/spf13/Code/hugo/docs/content
-    Press Ctrl+C to stop
+{{< nohighlight >}}$ hugo -s ~/Code/hugo/docs
+0 draft content
+0 future content
+99 pages created
+0 paginator pages created
+16 tags created
+0 groups created
+in 120 ms
+Watching for changes in /Users/spf13/Code/hugo/docs/content
+Press Ctrl+C to stop
+{{< /nohighlight >}}
 
 Hugo can even run a server and create a site preview at the same time!
 Hugo implements [LiveReload](/extras/livereload/) technology to automatically
 reload any open pages in all JavaScript-enabled browsers, including mobile.
 This is the easiest and most common way to develop a Hugo web site:
 
-    $ hugo server -ws ~/Code/hugo/docs
-    0 draft content
-    0 future content
-    99 pages created
-    0 paginator pages created
-    16 tags created
-    0 groups created
-    in 120 ms
-    Watching for changes in /Users/spf13/Code/hugo/docs/content
-    Serving pages from /Users/spf13/Code/hugo/docs/public
-    Web Server is available at http://localhost:1313/
-    Press Ctrl+C to stop
+{{< nohighlight >}}$ hugo server -ws ~/Code/hugo/docs
+0 draft content
+0 future content
+99 pages created
+0 paginator pages created
+16 tags created
+0 groups created
+in 120 ms
+Watching for changes in /Users/spf13/Code/hugo/docs/content
+Serving pages from /Users/spf13/Code/hugo/docs/public
+Web Server is available at http://localhost:1313/
+Press Ctrl+C to stop
+{{< /nohighlight >}}
 
 
 ## Deploying your web site
@@ -151,11 +155,13 @@ An easy way to work around this is to use different directories for development 
 
 To start a server that builds draft content (helpful for editing), you can specify a different destination: the `dev/` dir.
 
-    $ hugo server -wDs ~/Code/hugo/docs -d dev
+{{< nohighlight >}}$ hugo server -wDs ~/Code/hugo/docs -d dev
+{{< /nohighlight >}}
 
 When the content is ready for publishing, use the default `public/` dir:
 
-    $ hugo -s ~/Code/hugo/docs
+{{< nohighlight >}}$ hugo -s ~/Code/hugo/docs
+{{< /nohighlight >}}
 
 This prevents content you're not ready to share yet from accidentally becoming available.
 
@@ -170,9 +176,11 @@ No other web server software (Apache, nginx, IIS...) is necessary.
 
 Here is the command:
 
-    $ hugo server --baseURL=http://yoursite.org/ --port=80 \
-                --appendPort=false \
-                --bind=87.245.198.50
+{{< nohighlight >}}$ hugo server --baseURL=http://yoursite.org/ \
+              --port=80 \
+              --appendPort=false \
+              --bind=87.245.198.50
+{{< /nohighlight >}}
 
 Note the `bind` option, which is the interface to which the server will bind (defaults to `127.0.0.1`, which is fine for most development use cases). Some hosts, like Amazon WS, runs network address translation and it can sometimes be hard to figure out the actual IP address. Using `--bind=0.0.0.0` will bind to all interfaces.
 

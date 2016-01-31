@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-12-23
 date: 2014-05-26
 linktitle: Usage
 menu:
@@ -30,10 +31,10 @@ or <code><strong>singular key</strong>: &quot;<em>plural value</em>&quot;</code>
 </thead>
 <tbody>
 <tr valign="top">
-<td><pre><code>[taxonomies]
-  tag = "tags"
-  category = "categories"
-  series = "series"
+<td><pre><code class="language-toml">[taxonomies]
+tag = "tags"
+category = "categories"
+series = "series"
 </code></pre></td>
 <td><pre><code class="language-yaml">taxonomies:
   tag: "tags"
@@ -69,31 +70,35 @@ you will need to pass the taxonomy values through the `urlize` template function
 
 ### Front Matter Example (in TOML)
 
-    +++
-    title = "Hugo: A fast and flexible static site generator"
-    tags = [ "Development", "Go", "fast", "Blogging" ]
-    categories = [ "Development" ]
-    series = [ "Go Web Dev" ]
-    slug = "hugo"
-    project_url = "https://github.com/spf13/hugo"
-    +++
+```toml
++++
+title = "Hugo: A fast and flexible static site generator"
+tags = [ "Development", "Go", "fast", "Blogging" ]
+categories = [ "Development" ]
+series = [ "Go Web Dev" ]
+slug = "hugo"
+project_url = "https://github.com/spf13/hugo"
++++
+```
 
 ### Front Matter Example (in JSON)
 
-    {
-        "title": "Hugo: A fast and flexible static site generator",
-        "tags": [
-            "Development",
-            "Go",
-            "fast",
-            "Blogging"
-        ],
-        "categories" : [
-            "Development"
-        ],
-        "series" : [
-            "Go Web Dev"
-        ],
-        "slug": "hugo",
-        "project_url": "https://github.com/spf13/hugo"
-    }
+```json
+{
+    "title": "Hugo: A fast and flexible static site generator",
+    "tags": [
+        "Development",
+        "Go",
+        "fast",
+        "Blogging"
+    ],
+    "categories" : [
+        "Development"
+    ],
+    "series" : [
+        "Go Web Dev"
+    ],
+    "slug": "hugo",
+    "project_url": "https://github.com/spf13/hugo"
+}
+```

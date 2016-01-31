@@ -269,6 +269,10 @@ func Uglify(in string) string {
 		}
 		return in
 	}
+	// /.xml -> /index.xml
+	if name == "" {
+		return path.Dir(in) + "index" + ext
+	}
 	// /section/name.html -> /section/name.html
 	return path.Clean(in)
 }

@@ -14,7 +14,6 @@
 package tpl
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/eknkc/amber"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -104,7 +103,7 @@ func Partial(name string, context_list ...interface{}) template.HTML {
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func ExecuteTemplate(context interface{}, buffer *bytes.Buffer, layouts ...string) {
+func ExecuteTemplate(context interface{}, w io.Writer, layouts ...string) {
 	worked := false
 	for _, layout := range layouts {
 
@@ -115,7 +114,7 @@ func ExecuteTemplate(context interface{}, buffer *bytes.Buffer, layouts ...strin
 		}
 
 		if localTemplates.Lookup(name) != nil {
-			err := localTemplates.ExecuteTemplate(buffer, name, context)
+			err := localTemplates.ExecuteTemplate(w, name, context)
 			if err != nil {
 				jww.ERROR.Println(err, "in", name)
 			}

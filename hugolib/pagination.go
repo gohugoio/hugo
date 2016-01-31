@@ -49,8 +49,10 @@ func (psg PagesGroup) Len() int {
 
 type pagers []*Pager
 
-var paginatorEmptyPages Pages
-var paginatorEmptyPageGroups PagesGroup
+var (
+	paginatorEmptyPages      Pages
+	paginatorEmptyPageGroups PagesGroup
+)
 
 type paginator struct {
 	paginatedElements []paginatedElement
@@ -208,14 +210,16 @@ func splitPages(pages Pages, size int) []paginatedElement {
 }
 
 func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
-	var split []paginatedElement
 
 	type keyPage struct {
 		key  interface{}
 		page *Page
 	}
 
-	var flattened []keyPage
+	var (
+		split     []paginatedElement
+		flattened []keyPage
+	)
 
 	for _, g := range pageGroups {
 		for _, p := range g.Pages {
@@ -227,9 +231,13 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 	for low, j := 0, numPages; low < j; low += size {
 		high := int(math.Min(float64(low+size), float64(numPages)))
-		var pg PagesGroup
-		var key interface{} = nil
-		var groupIndex = -1
+
+		var (
+			pg         PagesGroup
+			key        interface{} = nil
+			groupIndex             = -1
+		)
+
 		for k := low; k < high; k++ {
 			kp := flattened[k]
 			if key == nil || key != kp.key {

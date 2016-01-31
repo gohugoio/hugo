@@ -114,7 +114,11 @@ func TestScpGetLocal(t *testing.T) {
 func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httptest.Server, *http.Client) {
 	testServer := httptest.NewServer(http.HandlerFunc(handler))
 	client := &http.Client{
-		Transport: &http.Transport{Proxy: func(*http.Request) (*url.URL, error) { return url.Parse(testServer.URL) }},
+		Transport: &http.Transport{Proxy: func(r *http.Request) (*url.URL, error) {
+			// Remove when https://github.com/golang/go/issues/13686 is fixed
+			r.Host = "gohugo.io"
+			return url.Parse(testServer.URL)
+		}},
 	}
 	return testServer, client
 }

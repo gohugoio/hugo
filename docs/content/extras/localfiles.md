@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/localfiles/
+lastmod: 2015-08-07
 date: 2015-06-12
 menu:
   main:

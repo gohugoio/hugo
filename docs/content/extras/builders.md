@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-12-24
 date: 2014-05-26
 linktitle: Builders
 menu:
@@ -18,7 +19,8 @@ started.
 
 Want to get a site built quickly?
 
-    $ hugo new site /path/to/site
+{{< nohighlight >}}$ hugo new site <i>path/to/site</i>
+{{< /nohighlight >}}
 
 Hugo will create all the needed directories and files to get started
 quickly.
@@ -52,7 +54,4 @@ will pre-populate values based on the content type.
     $ hugo new relative/path/to/content
 
 This assumes it is being run from your working directory and the content
-path starts from your content directory.
-
-I typically keep two different terminals open, one to run `hugo server
---watch`, and another to use the builders to create new content.
+path starts from your content directory. Now, Hugo watches your content directory by default and rebuilds your entire website if any change occurs.

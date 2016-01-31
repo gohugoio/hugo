@@ -25,3 +25,9 @@ install-gitinfo:
 no-git-info:
 	go build -o hugo main.go
 
+docker:
+	docker build -t hugo .
+	docker rm -f hugo-build || true
+	docker run --name hugo-build hugo ls /go/bin
+	docker cp hugo-build:/go/bin/hugo .
+	docker rm hugo-build

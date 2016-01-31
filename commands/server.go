@@ -159,7 +159,7 @@ func server(cmd *cobra.Command, args []string) error {
 	// Watch runs its own server as part of the routine
 	if serverWatch {
 		watchDirs := getDirList()
-		baseWatchDir := helpers.AbsPathify(viper.GetString("WorkingDir"))
+		baseWatchDir := viper.GetString("WorkingDir")
 		for i, dir := range watchDirs {
 			watchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
 		}
@@ -186,7 +186,7 @@ func serve(port int) {
 		jww.FEEDBACK.Println("Serving pages from memory")
 	}
 
-	httpFs := &afero.HttpFs{SourceFs: hugofs.DestinationFS}
+	httpFs := afero.NewHttpFs(hugofs.DestinationFS)
 	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))}
 	fileserver := http.FileServer(fs)
 

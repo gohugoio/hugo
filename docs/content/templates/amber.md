@@ -3,6 +3,7 @@ aliases:
 - /doc/templates/amber
 - /layout/templates/amber
 - /layout/amber/
+lastmod: 2015-11-05
 date: 2015-07-20
 linktitle: Amber templates
 menu:

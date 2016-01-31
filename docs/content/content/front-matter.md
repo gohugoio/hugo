@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/front-matter/
+lastmod: 2015-12-23
 date: 2013-07-01
 menu:
   main:
@@ -28,50 +29,55 @@ Supported formats:
 
 ## TOML Example
 
-    +++
-    title = "spf13-vim 3.0 release and new website"
-    description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-    tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    date = "2012-04-06"
-    categories = [
-      "Development",
-      "VIM"
-    ]
-    slug = "spf13-vim-3-0-release-and-new-website"
-    +++
-    
-    Content of the file goes Here
+<pre><code class="language-toml">+++
+title = "spf13-vim 3.0 release and new website"
+description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+date = "2012-04-06"
+categories = [
+  "Development",
+  "VIM"
+]
+slug = "spf13-vim-3-0-release-and-new-website"
++++
+</code><code class="language-markdown">Content of the file goes Here
+</code></pre>
 
 ## YAML Example
 
-    ---
-    title: "spf13-vim 3.0 release and new website"
-    description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-    tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    date: "2012-04-06"
-    categories:
-      - "Development"
-      - "VIM"
-    slug: "spf13-vim-3-0-release-and-new-website"
-    ---
-    
-    Content of the file goes Here
+```yaml
+---
+title: "spf13-vim 3.0 release and new website"
+description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+lastmod: 2015-12-23
+date: "2012-04-06"
+categories:
+  - "Development"
+  - "VIM"
+slug: "spf13-vim-3-0-release-and-new-website"
+---
+
+Content of the file goes Here
+```
 
 ## JSON Example
 
-    {
-        "title": "spf13-vim 3.0 release and new website",
-        "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
-        "tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
-        "date": "2012-04-06",
-        "categories": [
-            "Development",
-            "VIM"
-        ],
-        "slug": "spf13-vim-3-0-release-and-new-website",
-    }
-    
-    Content of the file goes Here
+```json
+{
+    "title": "spf13-vim 3.0 release and new website",
+    "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
+    "tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
+    "date": "2012-04-06",
+    "categories": [
+        "Development",
+        "VIM"
+    ],
+    "slug": "spf13-vim-3-0-release-and-new-website",
+}
+
+Content of the file goes Here
+```
 
 ## Variables
 

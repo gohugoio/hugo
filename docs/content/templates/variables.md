@@ -2,6 +2,7 @@
 aliases:
 - /doc/variables/
 - /layout/variables/
+lastmod: 2015-12-08
 date: 2013-07-01
 linktitle: Variables
 menu:
@@ -65,6 +66,26 @@ For example, the *tags* and *categories* taxonomies are accessed with:
 * **.Params.categories**
 
 **All Params are only accessible using all lowercase characters.**
+
+This is particularly useful for the introduction of user defined fields in content files. For example, a Hugo website on book reviews could have in the front matter of <code>/content/review/book01.md</code>
+
+    ---
+	...
+    affiliatelink: "http://www.my-book-link.here"
+	recommendedby: "my Mother"
+    ---
+
+Which would then be accessible to a template at `/theme/yourtheme/review/single.html`, for example, through `.Params.affiliatelink` and `.Params.recommendedby`, respectively. Two common situations where these could be introduced are as a value of a certain attribute (like `href=""` below) or by itself if it will be displayed. Sample syntaxes include:
+
+    <h3><a href="{{ printf "%s" $.Params.affiliatelink }}">Buy this book</a></h3>
+	<p>It was recommended by {{ .Params.recommendedby }}.</p>
+
+which would render
+
+    <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
+	<p>It was recommended by my Mother.</p>
+
+**See also:** [cross-references]({{% ref "content/archetypes.md" %}}) for consistency of `Params` across pieces of content.
 
 ### Param method
 In Hugo you can declare params both for the site and the individual page.  A common use case is to have a general value for the site and a more specific value for some of the pages (i.e. an image).

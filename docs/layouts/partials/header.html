@@ -10,11 +10,11 @@
 {{ .Scratch.Add "title" "" }}{{ if isset .Site.Data.titles .Title }}{{ .Scratch.Set "title" (index .Site.Data.titles .Title).title }}{{ else }}{{ .Scratch.Set "title" .Title}}{{end}}
     <title>Hugo - {{ .Scratch.Get "title" }}</title>
 
-    <link href="/css/bootstrap-theme.css" rel="stylesheet">
+    <link href="/css/bootstrap-gohugo.css" rel="stylesheet">
     <link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/style-responsive.css" rel="stylesheet" />
-    <link href="/css/monokai_sublime.css" rel="stylesheet" />
+    <link href="/css/monokai-sublime.css" rel="stylesheet" />
 
   </head>
 
