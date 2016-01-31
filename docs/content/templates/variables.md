@@ -75,9 +75,9 @@ This is particularly useful for the introduction of user defined fields in conte
 	recommendedby: "my Mother"
     ---
 
-Which would then be accessible to a template at <code>/theme/yourtheme/review/single.html</code>, for example, through <code>.Params.affiliatelnk</code> and <code>.Params.recommendedby</code>, respectively. Two common situations where these could be introduced are as a value of a certain attribute (like <code>href=""</code> below) or by itself if it will be displayed. Sample syntaxes include:
+Which would then be accessible to a template at <code>/themes/yourtheme/layouts/review/single.html</code> through <code>.Params.affiliatelnk</code> and <code>.Params.recommendedby</code>, respectively. Two common situations where these could be introduced are as a value of a certain attribute (like <code>href=""</code> below) or by itself to be displayed. Sample syntaxes include:
 
-    <h3><a href="{{ printf "%s" $.Params.affiliatelnk }}">Buy this book</a></h3>
+    <h3><a href={{ printf "%s" $.Params.affiliatelnk }}>Buy this book</a></h3>
 	<p>It was recommended by {{ .Params.recommendedby }}.</p>
 
 which would render
@@ -85,7 +85,7 @@ which would render
     <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
 	<p>It was recommended by my Mother.</p>
 
-**See also:** [cross-references]({{% ref "content/archetypes.md" %}}) for consistency of `Params` accross pieces of content.
+**See also:** [Archetypes]({{% ref "content/archetypes.md" %}}) for consistency of `Params` accross pieces of content.
 
 ### Param method
 In Hugo you can declare params both for the site and the individual page.  A common use case is to have a general value for the site and a more specific value for some of the pages (i.e. an image).
