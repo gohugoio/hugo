@@ -35,10 +35,10 @@ import (
 	"sync"
 )
 
-//SummaryLength Length of the summary that Hugo extracts from a content.
+// Length of the summary that Hugo extracts from a content.
 var SummaryLength = 70
 
-//SummaryDivider Custom divider <!--more--> let's user define where summarization ends.
+// Custom divider <!--more--> let's user define where summarization ends.
 var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
@@ -157,7 +157,7 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-//GetHTMLRenderer creates a new Renderer with the given configuration
+// GetHtmlRenderer creates a new Renderer with the given configuration.
 func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -237,7 +237,7 @@ func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 		getMarkdownExtensions(ctx))
 }
 
-//GetMmarkHtmlRenderer mmark
+// mmark
 func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -259,7 +259,6 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	}
 }
 
-//GetMmarkExtensions retrieve markdown extentions
 func GetMmarkExtensions(ctx *RenderingContext) int {
 	flags := 0
 	flags |= mmark.EXTENSION_TABLES
@@ -284,13 +283,11 @@ func GetMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-//MmarkRender Render markdown
 func MmarkRender(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content, GetMmarkHtmlRenderer(0, ctx),
 		GetMmarkExtensions(ctx)).Bytes()
 }
 
-//MmarkRenderWithTOC render Markdown with TOC
 func MmarkRenderWithTOC(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content,
 		GetMmarkHtmlRenderer(0, ctx),
@@ -417,7 +414,6 @@ func TruncateWords(s string, max int) string {
 	return strings.Join(words[:max], " ")
 }
 
-//TruncateWordsByRune Trunkate words by Rune
 func TruncateWordsByRune(words []string, max int) (string, bool) {
 	count := 0
 	for index, word := range words {
@@ -430,13 +426,13 @@ func TruncateWordsByRune(words []string, max int) (string, bool) {
 		} else if count+runeCount < max {
 			count += runeCount
 		} else {
-			for ri := range word {
+			for ri, _ := range word {
 				if count >= max {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true
+				} else {
+					count++
 				}
-				count++
-
 			}
 		}
 	}
