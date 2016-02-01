@@ -14,6 +14,7 @@
 package helpers
 
 import (
+	"fmt"
 	"html/template"
 	"strings"
 	"testing"
@@ -141,5 +142,74 @@ func TestGetHTMLRendererFlags(t *testing.T) {
 		if flags&d.testFlag != d.testFlag {
 			t.Errorf("Test flag: %d was not found amongs set flags:%d; Result: %d", d.testFlag, flags, flags&d.testFlag)
 		}
+	}
+}
+
+func TestGetHTMLRendererAllFlags(t *testing.T) {
+	type data struct {
+		testFlag int
+	}
+
+	allFlags := []data{
+		{blackfriday.HTML_USE_XHTML},
+		{blackfriday.HTML_FOOTNOTE_RETURN_LINKS},
+		{blackfriday.HTML_USE_SMARTYPANTS},
+		{blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES},
+		{blackfriday.HTML_SMARTYPANTS_FRACTIONS},
+		{blackfriday.HTML_HREF_TARGET_BLANK},
+		{blackfriday.HTML_SMARTYPANTS_DASHES},
+		{blackfriday.HTML_SMARTYPANTS_LATEX_DASHES},
+	}
+	defaultFlags := blackfriday.HTML_USE_XHTML
+	ctx := &RenderingContext{}
+	ctx.Config = ctx.getConfig()
+	ctx.Config.AngledQuotes = true
+	ctx.Config.Fractions = true
+	ctx.Config.HrefTargetBlank = true
+	ctx.Config.LatexDashes = true
+	ctx.Config.PlainIDAnchors = true
+	ctx.Config.SmartDashes = true
+	ctx.Config.Smartypants = true
+	ctx.Config.SourceRelativeLinksEval = true
+	renderer := GetHTMLRenderer(defaultFlags, ctx)
+	actualFlags := renderer.GetFlags()
+	var expectedFlags int
+	//OR-ing flags together...
+	for _, d := range allFlags {
+		expectedFlags |= d.testFlag
+	}
+	if expectedFlags != actualFlags {
+		t.Errorf("Expected flags (%d) did not equal actual (%d) flags.", expectedFlags, actualFlags)
+	}
+}
+
+func TestGetHTMLRendererAnchors(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.DocumentID = "testid"
+	ctx.Config = ctx.getConfig()
+	ctx.Config.PlainIDAnchors = false
+	containData := []string{
+		"FootnoteAnchorPrefix:\"testid:\",",
+		"HeaderIDSuffix:\":testid\"},",
+	}
+	actualRenderer := GetHTMLRenderer(0, ctx)
+	renderedText := strings.Split(fmt.Sprintf("%#v", actualRenderer.(*HugoHtmlRenderer).Renderer), " ")
+	foundFooter := false
+	foundHeader := false
+	for _, v := range renderedText {
+		if v == containData[0] {
+			foundFooter = true
+		}
+		if v == containData[1] {
+			foundHeader = true
+		}
+	}
+
+	if !foundFooter {
+		t.Error("Could not find Footer information in renderedText.")
+	}
+
+	if !foundHeader {
+		t.Error("Could not find Header postfix information in renderedText.")
 	}
 }
