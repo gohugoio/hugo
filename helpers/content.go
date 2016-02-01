@@ -35,10 +35,10 @@ import (
 	"sync"
 )
 
-// Length of the summary that Hugo extracts from a content.
+// SummaryLength of the summary that Hugo extracts from a content.
 var SummaryLength = 70
 
-// Custom divider <!--more--> let's user define where summarization ends.
+// SummaryDivider Custom divider <!--more--> let's user define where summarization ends.
 var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
@@ -157,7 +157,7 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-// GetHtmlRenderer creates a new Renderer with the given configuration.
+//GetHTMLRenderer creates a new Renderer with the given configuration.
 func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -237,7 +237,7 @@ func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 		getMarkdownExtensions(ctx))
 }
 
-// mmark
+//GetMmarkHtmlRenderer returns markdown html renderer.
 func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -259,6 +259,7 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	}
 }
 
+//GetMmarkExtensions returns markdown extensions.
 func GetMmarkExtensions(ctx *RenderingContext) int {
 	flags := 0
 	flags |= mmark.EXTENSION_TABLES
@@ -283,11 +284,13 @@ func GetMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
+//MmarkRender renders markdowns.
 func MmarkRender(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content, GetMmarkHtmlRenderer(0, ctx),
 		GetMmarkExtensions(ctx)).Bytes()
 }
 
+//MmarkRenderWithTOC renders markdowns with TOC.
 func MmarkRenderWithTOC(ctx *RenderingContext) []byte {
 	return mmark.Parse(ctx.Content,
 		GetMmarkHtmlRenderer(0, ctx),
@@ -331,7 +334,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 }
 
 // RenderingContext holds contextual information, like content and configuration,
-// for a given content renderin.g
+// for a given content renderin.
 type RenderingContext struct {
 	Content      []byte
 	PageFmt      string
@@ -414,6 +417,7 @@ func TruncateWords(s string, max int) string {
 	return strings.Join(words[:max], " ")
 }
 
+//TruncateWordsByRune truncates words by runes.
 func TruncateWordsByRune(words []string, max int) (string, bool) {
 	count := 0
 	for index, word := range words {
@@ -426,13 +430,12 @@ func TruncateWordsByRune(words []string, max int) (string, bool) {
 		} else if count+runeCount < max {
 			count += runeCount
 		} else {
-			for ri, _ := range word {
+			for ri := range word {
 				if count >= max {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true
-				} else {
-					count++
 				}
+				count++
 			}
 		}
 	}

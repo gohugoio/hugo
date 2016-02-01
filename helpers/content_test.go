@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/russross/blackfriday"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,6 +115,31 @@ func TestTruncateWordsByRune(t *testing.T) {
 
 		if d.truncated != truncated {
 			t.Errorf("Test %d failed. Expected truncated=%t got %t", i, d.truncated, truncated)
+		}
+	}
+}
+
+func TestGetHTMLRendererFlags(t *testing.T) {
+	type data struct {
+		testFlag int
+	}
+
+	tests := []data{
+		{blackfriday.HTML_USE_XHTML},
+		{blackfriday.HTML_FOOTNOTE_RETURN_LINKS},
+		{blackfriday.HTML_USE_SMARTYPANTS},
+		{blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES},
+		{blackfriday.HTML_SMARTYPANTS_FRACTIONS},
+		{blackfriday.HTML_HREF_TARGET_BLANK},
+		{blackfriday.HTML_SMARTYPANTS_DASHES},
+		{blackfriday.HTML_SMARTYPANTS_LATEX_DASHES},
+	}
+	ctx := &RenderingContext{}
+	for _, d := range tests {
+		renderer := GetHTMLRenderer(d.testFlag, ctx)
+		flags := renderer.GetFlags()
+		if flags&d.testFlag != d.testFlag {
+			t.Errorf("Test flag: %d was not found amongs set flags:%d; Result: %d", d.testFlag, flags, flags&d.testFlag)
 		}
 	}
 }
