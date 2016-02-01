@@ -28,6 +28,8 @@ in Hugo and is used as the [section](/content/sections/).
 
     .
     └── content
+        └── about
+        |   └── index.md  // <- http://1.com/about/
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost/
         |   ├── happy
@@ -41,6 +43,8 @@ in Hugo and is used as the [section](/content/sections/).
 
     .
     └── content
+        └── about
+        |   └── index.md  // <- http://1.com/about/
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
         |   ├── happy
@@ -56,6 +60,9 @@ Hugo believes that you organize your content with a purpose. The same structure
 that works to organize your source content is used to organize the rendered
 site. As displayed above, the organization of the source content will be
 mirrored in the destination.
+
+Notice that the first level `about/` page URL was created using a directory
+named "about" with a single `index.md` file inside.  
 
 There are times when one would need more control over their content. In these
 cases, there are a variety of things that can be specified in the front matter
