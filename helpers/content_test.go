@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
 	"github.com/stretchr/testify/assert"
 )
@@ -303,6 +304,63 @@ func TestGetMarkdownRendererWithTOC(t *testing.T) {
 	ctx.Content = []byte("testContent")
 	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := markdownRenderWithTOC(ctx)
+	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
+	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
+		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
+	}
+}
+
+func TestGetMmarkExtensions(t *testing.T) {
+	//TODO: This is doing the same just with different marks...
+	type data struct {
+		testFlag int
+	}
+	ctx := &RenderingContext{}
+	ctx.Config = ctx.getConfig()
+	ctx.Config.Extensions = []string{""}
+	ctx.Config.ExtensionsMask = []string{""}
+	allExtensions := []data{
+		{mmark.EXTENSION_TABLES},
+		{mmark.EXTENSION_FENCED_CODE},
+		{mmark.EXTENSION_AUTOLINK},
+		{mmark.EXTENSION_SPACE_HEADERS},
+		{mmark.EXTENSION_CITATION},
+		{mmark.EXTENSION_TITLEBLOCK_TOML},
+		{mmark.EXTENSION_HEADER_IDS},
+		{mmark.EXTENSION_AUTO_HEADER_IDS},
+		{mmark.EXTENSION_UNIQUE_HEADER_IDS},
+		{mmark.EXTENSION_FOOTNOTES},
+		{mmark.EXTENSION_SHORT_REF},
+		{mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK},
+		{mmark.EXTENSION_INCLUDE},
+	}
+
+	actualFlags := GetMmarkExtensions(ctx)
+	for _, e := range allExtensions {
+		if actualFlags&e.testFlag != e.testFlag {
+			t.Errorf("Flag %v was not found in the list of extensions.", e)
+		}
+	}
+}
+
+func TestMmarkRender(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("testContent")
+	ctx.Config = ctx.getConfig()
+	actualRenderedMarkdown := MmarkRender(ctx)
+	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
+	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
+		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
+	}
+}
+
+func TestMmarkRenderWithTOC(t *testing.T) {
+	//Skip until this issue has been dealt with -> https://github.com/spf13/hugo/issues/1808
+	t.SkipNow()
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("testContent")
+	ctx.Config = ctx.getConfig()
+	actualRenderedMarkdown := MmarkRenderWithTOC(ctx)
 	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
