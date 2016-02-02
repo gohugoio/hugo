@@ -290,13 +290,6 @@ func MmarkRender(ctx *RenderingContext) []byte {
 		GetMmarkExtensions(ctx)).Bytes()
 }
 
-//MmarkRenderWithTOC renders markdowns with TOC.
-func MmarkRenderWithTOC(ctx *RenderingContext) []byte {
-	return mmark.Parse(ctx.Content,
-		GetMmarkHtmlRenderer(0, ctx),
-		GetMmarkExtensions(ctx)).Bytes()
-}
-
 // ExtractTOC extracts Table of Contents from content.
 func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	origContent := make([]byte, len(content))
@@ -364,7 +357,7 @@ func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 	case "asciidoc":
 		return []byte(GetAsciidocContent(ctx.Content))
 	case "mmark":
-		return MmarkRenderWithTOC(ctx)
+		return MmarkRender(ctx)
 	case "rst":
 		return []byte(GetRstContent(ctx.Content))
 	}

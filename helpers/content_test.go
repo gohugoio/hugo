@@ -354,16 +354,3 @@ func TestMmarkRender(t *testing.T) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
 	}
 }
-
-func TestMmarkRenderWithTOC(t *testing.T) {
-	//Skip until this issue has been dealt with -> https://github.com/spf13/hugo/issues/1808
-	t.SkipNow()
-	ctx := &RenderingContext{}
-	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
-	actualRenderedMarkdown := MmarkRenderWithTOC(ctx)
-	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
-	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
-		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
-	}
-}
