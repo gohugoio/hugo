@@ -36,6 +36,7 @@ func TestStripHTML(t *testing.T) {
 		{"</br> strip br<br>", " strip br\n"},
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
+		{"No Tags", "No Tags"},
 	}
 	for i, d := range data {
 		output := StripHTML(d.input)
@@ -317,7 +318,7 @@ func TestGetMmarkExtensions(t *testing.T) {
 	}
 	ctx := &RenderingContext{}
 	ctx.Config = ctx.getConfig()
-	ctx.Config.Extensions = []string{""}
+	ctx.Config.Extensions = []string{"tables"}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
 		{mmark.EXTENSION_TABLES},
