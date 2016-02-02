@@ -14,7 +14,7 @@
 package helpers
 
 import (
-	"fmt"
+	"bytes"
 	"html/template"
 	"strings"
 	"testing"
@@ -188,28 +188,123 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 	ctx.DocumentID = "testid"
 	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
-	containData := []string{
-		"FootnoteAnchorPrefix:\"testid:\",",
-		"HeaderIDSuffix:\":testid\"},",
-	}
+
 	actualRenderer := GetHTMLRenderer(0, ctx)
-	renderedText := strings.Split(fmt.Sprintf("%#v", actualRenderer.(*HugoHtmlRenderer).Renderer), " ")
-	foundFooter := false
-	foundHeader := false
-	for _, v := range renderedText {
-		if v == containData[0] {
-			foundFooter = true
-		}
-		if v == containData[1] {
-			foundHeader = true
-		}
+	headerBuffer := &bytes.Buffer{}
+	footnoteBuffer := &bytes.Buffer{}
+	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
+	expectedHeaderID := []byte("<h1 id=\"id:testid\"></h1>\n")
+
+	actualRenderer.Header(headerBuffer, func() bool { return true }, 1, "id")
+	actualRenderer.FootnoteRef(footnoteBuffer, []byte("href"), 1)
+
+	if !bytes.Contains(footnoteBuffer.Bytes(), expectedFootnoteHref) {
+		t.Errorf("Footnote anchor prefix not applied. Actual:%s Expected:%s", footnoteBuffer.Bytes(), expectedFootnoteHref)
 	}
 
-	if !foundFooter {
-		t.Error("Could not find Footer information in renderedText.")
+	if !bytes.Equal(headerBuffer.Bytes(), expectedHeaderID) {
+		t.Errorf("Header Id Postfix not applied. Actual:%s Expected:%s", headerBuffer.Bytes(), expectedHeaderID)
+	}
+}
+
+func TestGetMmarkHtmlRenderer(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.DocumentID = "testid"
+	ctx.Config = ctx.getConfig()
+	ctx.Config.PlainIDAnchors = false
+	actualRenderer := GetMmarkHtmlRenderer(0, ctx)
+
+	headerBuffer := &bytes.Buffer{}
+	footnoteBuffer := &bytes.Buffer{}
+	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
+	expectedHeaderID := []byte("<h1 id=\"id\"></h1>")
+
+	actualRenderer.FootnoteRef(footnoteBuffer, []byte("href"), 1)
+	actualRenderer.Header(headerBuffer, func() bool { return true }, 1, "id")
+
+	if !bytes.Contains(footnoteBuffer.Bytes(), expectedFootnoteHref) {
+		t.Errorf("Footnote anchor prefix not applied. Actual:%s Expected:%s", footnoteBuffer.Bytes(), expectedFootnoteHref)
 	}
 
-	if !foundHeader {
-		t.Error("Could not find Header postfix information in renderedText.")
+	if bytes.Equal(headerBuffer.Bytes(), expectedHeaderID) {
+		t.Errorf("Header Id Postfix applied. Actual:%s Expected:%s", headerBuffer.Bytes(), expectedHeaderID)
+	}
+}
+
+func TestGetMarkdownExtensionsMasksAreRemovedFromExtensions(t *testing.T) {
+	type data struct {
+		testFlag int
+	}
+	ctx := &RenderingContext{}
+	ctx.Config = ctx.getConfig()
+	ctx.Config.Extensions = []string{"headerId"}
+	ctx.Config.ExtensionsMask = []string{"noIntraEmphasis"}
+
+	actualFlags := getMarkdownExtensions(ctx)
+	if actualFlags&blackfriday.EXTENSION_NO_INTRA_EMPHASIS == blackfriday.EXTENSION_NO_INTRA_EMPHASIS {
+		t.Errorf("Masked out flag {%v} found amongts returned extensions.", blackfriday.EXTENSION_NO_INTRA_EMPHASIS)
+	}
+}
+
+func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
+	type data struct {
+		testFlag int
+	}
+	ctx := &RenderingContext{}
+	ctx.Config = ctx.getConfig()
+	ctx.Config.Extensions = []string{""}
+	ctx.Config.ExtensionsMask = []string{""}
+	allExtensions := []data{
+		{blackfriday.EXTENSION_NO_INTRA_EMPHASIS},
+		{blackfriday.EXTENSION_TABLES},
+		{blackfriday.EXTENSION_FENCED_CODE},
+		{blackfriday.EXTENSION_AUTOLINK},
+		{blackfriday.EXTENSION_STRIKETHROUGH},
+		{blackfriday.EXTENSION_SPACE_HEADERS},
+		{blackfriday.EXTENSION_FOOTNOTES},
+		{blackfriday.EXTENSION_HEADER_IDS},
+		{blackfriday.EXTENSION_AUTO_HEADER_IDS},
+		{blackfriday.EXTENSION_DEFINITION_LISTS},
+	}
+
+	actualFlags := getMarkdownExtensions(ctx)
+	for _, e := range allExtensions {
+		if actualFlags&e.testFlag != e.testFlag {
+			t.Errorf("Flag %v was not found in the list of extensions.", e)
+		}
+	}
+}
+
+func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Config = ctx.getConfig()
+	ctx.Config.Extensions = []string{"definitionLists"}
+	ctx.Config.ExtensionsMask = []string{""}
+
+	actualFlags := getMarkdownExtensions(ctx)
+	if actualFlags&blackfriday.EXTENSION_DEFINITION_LISTS != blackfriday.EXTENSION_DEFINITION_LISTS {
+		t.Errorf("Masked out flag {%v} found amongts returned extensions.", blackfriday.EXTENSION_DEFINITION_LISTS)
+	}
+}
+
+func TestGetMarkdownRenderer(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("testContent")
+	ctx.Config = ctx.getConfig()
+	actualRenderedMarkdown := markdownRender(ctx)
+	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
+	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
+		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
+	}
+}
+
+func TestGetMarkdownRendererWithTOC(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("testContent")
+	ctx.Config = ctx.getConfig()
+	actualRenderedMarkdown := markdownRenderWithTOC(ctx)
+	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
+	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
+		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
 	}
 }
