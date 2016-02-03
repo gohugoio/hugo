@@ -16,6 +16,7 @@ package helpers
 import (
 	"bytes"
 	"html/template"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -399,5 +400,72 @@ func TestExtractNoTOC(t *testing.T) {
 
 	if !bytes.Equal(actualToc, expectedToc) {
 		t.Errorf("Actual toc (%s) did not equal expected (%s) toc content", actualToc, expectedToc)
+	}
+}
+
+func TestRenderBytesWithTOC(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("Test Content")
+	ctx.Config = ctx.getConfig()
+	var testcase = []struct {
+		pageFmt  string
+		expected []byte
+	}{
+		{"markdown", []byte("<nav>\n</nav>\n\n<p>Test Content</p>\n")},
+		{"asciidoc", []byte("<div class=\"paragraph\">\n<p>Test Content</p>\n</div>\n")},
+		{"mmark", []byte("<p>Test Content</p>\n")},
+		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
+	}
+
+	for _, test := range testcase {
+		ctx.PageFmt = test.pageFmt
+		actualToc := RenderBytesWithTOC(ctx)
+		if !bytes.Equal(actualToc, test.expected) {
+			t.Errorf("Actual (%s) did not match expected (%s)", actualToc, test.expected)
+		}
+	}
+}
+
+func TestRenderBytes(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("Test Content")
+	ctx.Config = ctx.getConfig()
+	var testcase = []struct {
+		pageFmt  string
+		expected []byte
+	}{
+		{"markdown", []byte("<p>Test Content</p>\n")},
+		{"asciidoc", []byte("<div class=\"paragraph\">\n<p>Test Content</p>\n</div>\n")},
+		{"mmark", []byte("<p>Test Content</p>\n")},
+		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
+	}
+
+	for _, test := range testcase {
+		ctx.PageFmt = test.pageFmt
+		actualToc := RenderBytes(ctx)
+		if !bytes.Equal(actualToc, test.expected) {
+			t.Errorf("Actual (%s) did not match expected (%s)", actualToc, test.expected)
+		}
+	}
+}
+
+func TestTotalWords(t *testing.T) {
+	t.SkipNow()
+	testString := "Two , Words!"
+	actualWordCount := TotalWords(testString)
+
+	if actualWordCount != 2 {
+		t.Errorf("Actual word count (%d) for test string (%s) did not match 2.", actualWordCount, testString)
+	}
+}
+
+func TestWordCount(t *testing.T) {
+	t.SkipNow()
+	testString := "Two , Words!"
+	expectedMap := map[string]int{"Two": 1, "Words": 1}
+	actualMap := WordCount(testString)
+
+	if !reflect.DeepEqual(expectedMap, actualMap) {
+		t.Errorf("Actual Map (%v) does not equal expected (%v)", actualMap, expectedMap)
 	}
 }
