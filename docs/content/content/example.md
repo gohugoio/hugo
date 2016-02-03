@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/example/
+lastmod: 2015-12-23
 date: 2013-07-01
 linktitle: Example
 menu:
@@ -52,6 +53,7 @@ You may also use the equivalent YAML front matter:
 
 ```yaml
 ---
+lastmod: 2015-12-23
 date:        "2013-06-21T11:27:27-04:00"
 title:       "Nitro: A quick and simple profiler for Go"
 description: "Nitro is a simple profiler for your Go lang applications"

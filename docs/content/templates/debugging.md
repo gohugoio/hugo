@@ -2,6 +2,7 @@
 aliases:
 - /doc/debugging/
 - /layout/debugging/
+lastmod: 2015-05-25
 date: 2015-05-22
 linktitle: Debugging
 menu:

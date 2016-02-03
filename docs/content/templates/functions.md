@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/functions/
+lastmod: 2015-09-20
 date: 2013-07-01
 linktitle: Functions
 toc: true
@@ -356,6 +357,15 @@ e.g.
 </tbody>
 </table>
 
+## Numbers
+
+### int
+
+Creates a `int`.
+
+e.g.
+
+* `{{int "123" }}` → 123
 
 ## Strings
 
@@ -486,6 +496,14 @@ e.g.
 
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
+
+### string
+
+Creates a `string`.
+
+e.g.
+
+* `{{string "BatMan"}}` → "BatMan"
 
 ### substr
 

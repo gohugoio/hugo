@@ -133,13 +133,27 @@ func Highlight(code, lang, optsStr string) string {
 var pygmentsKeywords = make(map[string]bool)
 
 func init() {
-	pygmentsKeywords["style"] = true
 	pygmentsKeywords["encoding"] = true
+	pygmentsKeywords["outencoding"] = true
+	pygmentsKeywords["nowrap"] = true
+	pygmentsKeywords["full"] = true
+	pygmentsKeywords["title"] = true
+	pygmentsKeywords["style"] = true
 	pygmentsKeywords["noclasses"] = true
-	pygmentsKeywords["hl_lines"] = true
-	pygmentsKeywords["linenos"] = true
 	pygmentsKeywords["classprefix"] = true
-	pygmentsKeywords["startinline"] = true
+	pygmentsKeywords["cssclass"] = true
+	pygmentsKeywords["cssstyles"] = true
+	pygmentsKeywords["prestyles"] = true
+	pygmentsKeywords["linenos"] = true
+	pygmentsKeywords["hl_lines"] = true
+	pygmentsKeywords["linenostart"] = true
+	pygmentsKeywords["linenostep"] = true
+	pygmentsKeywords["linenospecial"] = true
+	pygmentsKeywords["nobackground"] = true
+	pygmentsKeywords["lineseparator"] = true
+	pygmentsKeywords["lineanchors"] = true
+	pygmentsKeywords["linespans"] = true
+	pygmentsKeywords["anchorlinenos"] = true
 }
 
 func parseOptions(options map[string]string, in string) error {

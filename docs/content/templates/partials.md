@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/chrome/
+lastmod: 2016-01-01
 date: 2013-07-01
 menu:
   main:
@@ -106,5 +107,21 @@ To reference a partial template stored in a subfolder, e.g. `/layout/partials/po
 
 Note that the subdirectories you create under /layout/partials can be named whatever you like.
 
-**For more examples of referencing these templates, see [single content
-templates](/templates/content/), [list templates](/templates/list/) and [homepage templates](/templates/homepage/).**
+For more examples of referencing these templates, see
+[single content templates](/templates/content/),
+[list templates](/templates/list/) and
+[homepage templates](/templates/homepage/).
+
+
+Variable scoping
+----------------
+
+As you might have noticed, `partial` calls receive two paramters.
+
+1. The first is the name of the partial and determines the file
+location to be read.
+2. The second is the variables to be passed down to the partial.
+
+This means the partial _only_ be able to access those variables. It is
+isolated and has no access to the outer scope. From within the
+partial, `$.Var` is equivalent to `.Var`

@@ -2,6 +2,7 @@
 aliases:
 - /doc/contributing/
 - /meta/contributing/
+lastmod: 2015-05-25
 date: 2013-07-01
 menu:
   main:

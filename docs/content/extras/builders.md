@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-12-24
 date: 2014-05-26
 linktitle: Builders
 menu:
@@ -18,7 +19,8 @@ started.
 
 Want to get a site built quickly?
 
-    $ hugo new site /path/to/site
+{{< nohighlight >}}$ hugo new site <i>path/to/site</i>
+{{< /nohighlight >}}
 
 Hugo will create all the needed directories and files to get started
 quickly.

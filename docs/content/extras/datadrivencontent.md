@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/datadrivencontent/
+lastmod: 2015-07-23
 date: 2015-02-14
 menu:
   main:

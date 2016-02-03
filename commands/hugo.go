@@ -30,6 +30,7 @@ import (
 
 	"regexp"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	"github.com/spf13/hugo/helpers"
@@ -43,6 +44,8 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
 )
+
+var mainSite *hugolib.Site
 
 // userError is an error used to signal different error situations in command handling.
 type commandError struct {
@@ -87,7 +90,8 @@ func isUserError(err error) bool {
 	return userErrorRegexp.MatchString(err.Error())
 }
 
-//HugoCmd is Hugo's root command. Every other command attached to HugoCmd is a child command to it.
+// HugoCmd is Hugo's root command.
+// Every other command attached to HugoCmd is a child command to it.
 var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
@@ -102,17 +106,19 @@ Complete documentation is available at http://gohugo.io/.`,
 			return err
 		}
 
-		watchConfig()
+		if BuildWatch {
+			viper.Set("DisableLiveReload", true)
+			watchConfig()
+		}
 
 		return build()
-
 	},
 }
 
 var hugoCmdV *cobra.Command
 
 // Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync bool
+var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, DisableRobotsTXT, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync, CleanDestination bool
 var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -155,10 +161,12 @@ func AddCommands() {
 // initCoreCommonFlags initializes common flags used by Hugo core commands
 // such as hugo itself, server, check, config and benchmark.
 func initCoreCommonFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVar(&CleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
 	cmd.Flags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
+	cmd.Flags().BoolVar(&DisableRobotsTXT, "disableRobotsTXT", false, "Do not build Robots TXT file")
 	cmd.Flags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
@@ -200,10 +208,12 @@ func init() {
 }
 
 func LoadDefaultSettings() {
+	viper.SetDefault("cleanDestinationDir", false)
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
 	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("DisableSitemap", false)
+	viper.SetDefault("DisableRobotsTXT", false)
 	viper.SetDefault("ContentDir", "content")
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("StaticDir", "static")
@@ -222,7 +232,7 @@ func LoadDefaultSettings() {
 	viper.SetDefault("RemovePathAccents", false)
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
-	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1})
+	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1, Filename: "sitemap.xml"})
 	viper.SetDefault("DefaultExtension", "html")
 	viper.SetDefault("PygmentsStyle", "monokai")
 	viper.SetDefault("PygmentsUseClasses", false)
@@ -276,6 +286,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
+		if cmdV.Flags().Lookup("cleanDestinationDir").Changed {
+			viper.Set("cleanDestinationDir", CleanDestination)
+		}
 		if cmdV.Flags().Lookup("buildDrafts").Changed {
 			viper.Set("BuildDrafts", Draft)
 		}
@@ -293,6 +306,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if cmdV.Flags().Lookup("disableSitemap").Changed {
 			viper.Set("DisableSitemap", DisableSitemap)
+		}
+		if cmdV.Flags().Lookup("disableRobotsTXT").Changed {
+			viper.Set("DisableRobotsTXT", DisableRobotsTXT)
 		}
 		if cmdV.Flags().Lookup("pluralizeListTitles").Changed {
 			viper.Set("PluralizeListTitles", PluralizeListTitles)
@@ -399,7 +415,7 @@ func watchConfig() {
 		fmt.Println("Config file changed:", e.Name)
 		utils.CheckErr(buildSite(true))
 		if !viper.GetBool("DisableLiveReload") {
-			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
 		}
 	})
@@ -427,6 +443,51 @@ func build(watches ...bool) error {
 	return nil
 }
 
+func getStaticSourceFs() afero.Fs {
+	source := hugofs.SourceFs
+	themeDir, err := helpers.GetThemeStaticDirPath()
+	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
+
+	useTheme := true
+	useStatic := true
+
+	if err != nil {
+		jww.WARN.Println(err)
+		useTheme = false
+	} else {
+		if _, err := source.Stat(themeDir); os.IsNotExist(err) {
+			jww.WARN.Println("Unable to find Theme Static Directory:", themeDir)
+			useTheme = false
+		}
+	}
+
+	if _, err := source.Stat(staticDir); os.IsNotExist(err) {
+		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+		useStatic = false
+	}
+
+	if !useStatic && !useTheme {
+		return nil
+	}
+
+	if !useStatic {
+		jww.INFO.Println(themeDir, "is the only static directory available to sync from")
+		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, themeDir))
+	}
+
+	if !useTheme {
+		jww.INFO.Println(staticDir, "is the only static directory available to sync from")
+		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, staticDir))
+	}
+
+	jww.INFO.Println("using a UnionFS for static directory comprised of:")
+	jww.INFO.Println("Base:", themeDir)
+	jww.INFO.Println("Overlay:", staticDir)
+	base := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, themeDir))
+	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, staticDir))
+	return afero.NewCopyOnWriteFs(base, overlay)
+}
+
 func copyStatic() error {
 	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
 
@@ -435,29 +496,31 @@ func copyStatic() error {
 		publishDir = helpers.FilePathSeparator
 	}
 
+	// Includes both theme/static & /static
+	staticSourceFs := getStaticSourceFs()
+
+	if staticSourceFs == nil {
+		jww.WARN.Println("No static directories found to sync")
+		return nil
+	}
+
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
-	syncer.SrcFs = hugofs.SourceFs
+	syncer.SrcFs = staticSourceFs
 	syncer.DestFs = hugofs.DestinationFS
+	// Now that we are using a unionFs for the static directories
+	// We can effectively clean the publishDir on initial sync
+	syncer.Delete = viper.GetBool("cleanDestinationDir")
+	if syncer.Delete {
+		jww.INFO.Println("removing all files from destination that don't exist in static dirs")
+	}
+	jww.INFO.Println("syncing static files to", publishDir)
 
-	themeDir, err := helpers.GetThemeStaticDirPath()
+	// because we are using a baseFs (to get the union right).
+	// set sync src to root
+	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
 	if err != nil {
-		jww.WARN.Println(err)
-	}
-
-	// Copy the theme's static directory
-	if themeDir != "" {
-		jww.INFO.Println("syncing from", themeDir, "to", publishDir)
-		utils.CheckErr(syncer.Sync(publishDir, themeDir), fmt.Sprintf("Error copying static files of theme to %s", publishDir))
-	}
-
-	// Copy the site's own static directory
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir")) + helpers.FilePathSeparator
-	if _, err := os.Stat(staticDir); err == nil {
-		jww.INFO.Println("syncing from", staticDir, "to", publishDir)
-		return syncer.Sync(publishDir, staticDir)
-	} else if os.IsNotExist(err) {
-		jww.WARN.Println("Unable to find Static Directory:", staticDir)
+		return err
 	}
 	return nil
 }
@@ -523,15 +586,29 @@ func getDirList() []string {
 
 func buildSite(watching ...bool) (err error) {
 	startTime := time.Now()
-	site := &hugolib.Site{}
-	if len(watching) > 0 && watching[0] {
-		site.RunMode.Watching = true
+	if mainSite == nil {
+		mainSite = new(hugolib.Site)
 	}
-	err = site.Build()
+	if len(watching) > 0 && watching[0] {
+		mainSite.RunMode.Watching = true
+	}
+	err = mainSite.Build()
 	if err != nil {
 		return err
 	}
-	site.Stats()
+	mainSite.Stats()
+	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
+
+	return nil
+}
+
+func rebuildSite(events []fsnotify.Event) error {
+	startTime := time.Now()
+	err := mainSite.ReBuild(events)
+	if err != nil {
+		return err
+	}
+	mainSite.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 
 	return nil
@@ -564,20 +641,20 @@ func NewWatcher(port int) error {
 		for {
 			select {
 			case evs := <-watcher.Events:
-				jww.INFO.Println("File System Event:", evs)
+				jww.INFO.Println("Received System Events:", evs)
 
-				staticChanged := false
-				dynamicChanged := false
-				staticFilesChanged := make(map[string]bool)
+				staticEvents := []fsnotify.Event{}
+				dynamicEvents := []fsnotify.Event{}
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
-					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || strings.HasPrefix(ext, ".goutputstream") || strings.HasSuffix(ext, "jb_old___")|| strings.HasSuffix(ext, "jb_bak___")
+					istemp := strings.HasSuffix(ext, "~") || (ext == ".swp") || (ext == ".swx") || (ext == ".tmp") || strings.HasPrefix(ext, ".goutputstream") || strings.HasSuffix(ext, "jb_old___") || strings.HasSuffix(ext, "jb_bak___") || (ext == ".DS_Store")
 					if istemp {
 						continue
 					}
-					// renames are always followed with Create/Modify
-					if ev.Op&fsnotify.Rename == fsnotify.Rename {
+
+					// Sometimes during rm -rf operations a '"": REMOVE' is triggered. Just ignore these
+					if ev.Name == "" {
 						continue
 					}
 
@@ -593,67 +670,130 @@ func NewWatcher(port int) error {
 						continue
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
-					staticChanged = staticChanged || isstatic
-					dynamicChanged = dynamicChanged || !isstatic
+					walkAdder := func(path string, f os.FileInfo, err error) error {
+						if f.IsDir() {
+							jww.FEEDBACK.Println("adding created directory to watchlist", path)
+							watcher.Add(path)
+						}
+						return nil
+					}
 
-					if isstatic {
-						if staticPath, err := helpers.MakeStaticPathRelative(ev.Name); err == nil {
-							staticFilesChanged[staticPath] = true
+					// recursively add new directories to watch list
+					// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
+					if ev.Op&fsnotify.Create == fsnotify.Create {
+						if s, err := hugofs.SourceFs.Stat(ev.Name); err == nil && s.Mode().IsDir() {
+							afero.Walk(hugofs.SourceFs, ev.Name, walkAdder)
 						}
 					}
 
-					// add new directory to watch list
-					if s, err := os.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-						if ev.Op&fsnotify.Create == fsnotify.Create {
-							watcher.Add(ev.Name)
-						}
+					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
+
+					if isstatic {
+						staticEvents = append(staticEvents, ev)
+					} else {
+						dynamicEvents = append(dynamicEvents, ev)
 					}
 				}
 
-				if staticChanged {
-					jww.FEEDBACK.Printf("Static file changed, syncing\n")
+				if len(staticEvents) > 0 {
+					publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
+
+					// If root, remove the second '/'
+					if publishDir == "//" {
+						publishDir = helpers.FilePathSeparator
+					}
+
+					jww.FEEDBACK.Println("\nStatic file changes detected")
+					const layout = "2006-01-02 15:04 -0700"
+					fmt.Println(time.Now().Format(layout))
+
 					if viper.GetBool("ForceSyncStatic") {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
 						err := copyStatic()
 						if err != nil {
-							fmt.Println(err)
 							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
 						}
 					} else {
+						staticSourceFs := getStaticSourceFs()
+
+						if staticSourceFs == nil {
+							jww.WARN.Println("No static directories found to sync")
+							return
+						}
 
 						syncer := fsync.NewSyncer()
 						syncer.NoTimes = viper.GetBool("notimes")
-						syncer.SrcFs = hugofs.SourceFs
+						syncer.SrcFs = staticSourceFs
 						syncer.DestFs = hugofs.DestinationFS
 
-						publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
+						// prevent spamming the log on changes
+						logger := helpers.NewDistinctFeedbackLogger()
 
-						if publishDir == "//" || publishDir == helpers.FilePathSeparator {
-							publishDir = ""
-						}
+						for _, ev := range staticEvents {
+							// Due to our approach of layering both directories and the content's rendered output
+							// into one we can't accurately remove a file not in one of the source directories.
+							// If a file is in the local static dir and also in the theme static dir and we remove
+							// it from one of those locations we expect it to still exist in the destination
+							//
+							// If Hugo generates a file (from the content dir) over a static file
+							// the content generated file should take precedence.
+							//
+							// Because we are now watching and handling individual events it is possible that a static
+							// event that occupies the same path as a content generated file will take precedence
+							// until a regeneration of the content takes places.
+							//
+							// Hugo assumes that these cases are very rare and will permit this bad behavior
+							// The alternative is to track every single file and which pipeline rendered it
+							// and then to handle conflict resolution on every event.
 
-						for path := range staticFilesChanged {
-							staticPath := filepath.Join(helpers.AbsPathify(viper.GetString("StaticDir")), path)
-							jww.FEEDBACK.Printf("Syncing file '%s'\n", staticPath)
+							fromPath := ev.Name
 
-							if _, err := os.Stat(staticPath); err == nil {
-								publishPath := filepath.Join(publishDir, path)
-								jww.INFO.Println("syncing from", staticPath, "to", publishPath)
-								err := syncer.Sync(publishPath, staticPath)
-								if err != nil {
-									jww.FEEDBACK.Printf("Error on syncing file '%s'\n", staticPath)
-								}
+							// If we are here we already know the event took place in a static dir
+							relPath, err := helpers.MakeStaticPathRelative(fromPath)
+							if err != nil {
+								fmt.Println(err)
+								continue
 							}
+
+							// Remove || rename is harder and will require an assumption.
+							// Hugo takes the following approach:
+							// If the static file exists in any of the static source directories after this event
+							// Hugo will re-sync it.
+							// If it does not exist in all of the static directories Hugo will remove it.
+							//
+							// This assumes that Hugo has not generated content on top of a static file and then removed
+							// the source of that static file. In this case Hugo will incorrectly remove that file
+							// from the published directory.
+							if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
+								if _, err := staticSourceFs.Stat(relPath); os.IsNotExist(err) {
+									// If file doesn't exist in any static dir, remove it
+									toRemove := filepath.Join(publishDir, relPath)
+									logger.Println("File no longer exists in static dir, removing", toRemove)
+									hugofs.DestinationFS.RemoveAll(toRemove)
+								} else if err == nil {
+									// If file still exists, sync it
+									logger.Println("Syncing", relPath, "to", publishDir)
+									syncer.Sync(filepath.Join(publishDir, relPath), relPath)
+								} else {
+									jww.ERROR.Println(err)
+								}
+
+								continue
+							}
+
+							// For all other event operations Hugo will sync static.
+							logger.Println("Syncing", relPath, "to", publishDir)
+							syncer.Sync(filepath.Join(publishDir, relPath), relPath)
 						}
 					}
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
-						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
 						// force refresh when more than one file
-						if len(staticFilesChanged) == 1 {
-							for path := range staticFilesChanged {
+						if len(staticEvents) > 0 {
+							for _, ev := range staticEvents {
+								path, _ := helpers.MakeStaticPathRelative(ev.Name)
 								livereload.RefreshPath(path)
 							}
 
@@ -663,14 +803,15 @@ func NewWatcher(port int) error {
 					}
 				}
 
-				if dynamicChanged {
+				if len(dynamicEvents) > 0 {
 					fmt.Print("\nChange detected, rebuilding site\n")
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
-					utils.CheckErr(buildSite(true))
+
+					rebuildSite(dynamicEvents)
 
 					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
-						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initalized
+						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 						livereload.ForceRefresh()
 					}
 				}

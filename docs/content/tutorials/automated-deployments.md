@@ -2,6 +2,7 @@
 authors:
 - Arjen Schwarz
 - Samuel Debruyn
+lastmod: 2015-11-01
 date: 2015-01-12
 linktitle: Automated deployments
 toc: true

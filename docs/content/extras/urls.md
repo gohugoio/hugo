@@ -1,11 +1,12 @@
 ---
 aliases:
 - /doc/urls/
+lastmod: 2015-12-08
 date: 2014-01-03
 menu:
   main:
     parent: extras
-next: /community/mailing-list
+next: /extras/robots-txt
 notoc: true
 prev: /extras/toc
 title: URLs

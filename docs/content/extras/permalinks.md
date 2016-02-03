@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/permalinks/
+lastmod: 2015-01-19
 date: 2013-11-18
 menu:
   main:

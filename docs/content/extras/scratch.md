@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/scratch/
+lastmod: 2015-08-02
 date: 2015-01-22
 menu:
   main:

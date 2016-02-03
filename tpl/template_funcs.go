@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"math/rand"
 	"os"
 	"reflect"
 	"sort"
@@ -495,6 +496,39 @@ func After(index interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
+// Shuffle is exposed to templates, to iterate over items in rangeable list in
+// a randomised order.
+func Shuffle(seq interface{}) (interface{}, error) {
+
+	if seq == nil {
+		return nil, errors.New("both count and seq must be provided")
+	}
+
+	seqv := reflect.ValueOf(seq)
+	seqv, isNil := indirect(seqv)
+	if isNil {
+		return nil, errors.New("can't iterate over a nil value")
+	}
+
+	switch seqv.Kind() {
+	case reflect.Array, reflect.Slice, reflect.String:
+		// okay
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+	}
+
+	shuffled := reflect.MakeSlice(reflect.TypeOf(seq), seqv.Len(), seqv.Len())
+
+	rand.Seed(time.Now().UTC().UnixNano())
+	randomIndices := rand.Perm(seqv.Len())
+
+	for index, value := range randomIndices {
+		shuffled.Index(value).Set(seqv.Index(index))
+	}
+
+	return shuffled.Interface(), nil
+}
+
 var (
 	zero      reflect.Value
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
@@ -554,7 +588,7 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	case reflect.Struct:
 		ft, ok := obj.Type().FieldByName(elemName)
 		if ok {
-			if ft.PkgPath != "" {
+			if ft.PkgPath != "" && !ft.Anonymous {
 				return zero, fmt.Errorf("%s is an unexported field of struct type %s", elemName, typ)
 			}
 			return obj.FieldByIndex(ft.Index), nil
@@ -1453,6 +1487,7 @@ func init() {
 		"first":        First,
 		"last":         Last,
 		"after":        After,
+		"shuffle":      Shuffle,
 		"where":        Where,
 		"delimit":      Delimit,
 		"sort":         Sort,
@@ -1472,6 +1507,8 @@ func init() {
 		"relref":       RelRef,
 		"apply":        Apply,
 		"chomp":        Chomp,
+		"int":          func(v interface{}) int { return cast.ToInt(v) },
+		"string":       func(v interface{}) string { return cast.ToString(v) },
 		"replace":      Replace,
 		"trim":         Trim,
 		"dateFormat":   DateFormat,

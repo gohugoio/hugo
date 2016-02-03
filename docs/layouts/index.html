@@ -223,7 +223,7 @@
                 <a href="/overview/quickstart/" style="color:white;font-weight:300;">Quickstart Guide</a>
                 <p>&nbsp;</p>
                 <h4>Using Homebrew?</h4>
-                <pre><code>brew install hugo</code></pre>
+                <pre><code>brew update &amp;&amp; brew install hugo</code></pre>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@
                     <li><a href="https://github.com/spf13/hugo" class="icon-octocat icon-2x"></a></li>
                 </ul>
                 <hr>
-                <p>Copyright &copy; Steve Francia 2013&ndash;2015</p>
+                <p>Copyright &copy; Steve Francia 2013&ndash;{{ .Now.Format "2006" }}</p>
               </div>
             </div>
           </div>
