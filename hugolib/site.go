@@ -876,8 +876,11 @@ func (s *Site) ReadPagesFromSource() chan error {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
 
+	errs := make(chan error)
+
 	if len(s.Source.Files()) < 1 {
-		return nil
+		close(errs)
+		return errs
 	}
 
 	files := s.Source.Files()
@@ -890,8 +893,6 @@ func (s *Site) ReadPagesFromSource() chan error {
 	for i := 0; i < procs*4; i++ {
 		go sourceReader(s, filechan, results, wg)
 	}
-
-	errs := make(chan error)
 
 	// we can only have exactly one result collator, since it makes changes that
 	// must be synchronized.
