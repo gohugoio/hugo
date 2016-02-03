@@ -2,6 +2,7 @@
 aliases:
 - /doc/variables/
 - /layout/variables/
+lastmod: 2015-12-08
 date: 2013-07-01
 linktitle: Variables
 menu:
@@ -47,10 +48,10 @@ matter, content or derived from file location.
 **.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.WordCount** The number of words in the content.<br>
-**.RuneCount** The number of [runes](http://blog.golang.org/strings) in the content, excluding any whitespace. This may be a good alternative to `.WordCount`  for Japanese and other CJK languages where a word-split by spaces makes no sense.
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
+**.Draft** A boolean, `true` if the content is marked as a draft in the front matter.<br>
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
@@ -59,12 +60,41 @@ matter, content or derived from file location.
 ## Page Params
 
 Any other value defined in the front matter, including taxonomies, will be made available under `.Params`.
-Take for example I'm using *tags* and *categories* as my taxonomies. The following would be how I would access them:
+For example, the *tags* and *categories* taxonomies are accessed with:
 
 * **.Params.tags**
 * **.Params.categories**
 
 **All Params are only accessible using all lowercase characters.**
+
+This is particularly useful for the introduction of user defined fields in content files. For example, a Hugo website on book reviews could have in the front matter of <code>/content/review/book01.md</code>
+
+    ---
+	...
+    affiliatelink: "http://www.my-book-link.here"
+	recommendedby: "my Mother"
+    ---
+
+Which would then be accessible to a template at `/theme/yourtheme/review/single.html`, for example, through `.Params.affiliatelink` and `.Params.recommendedby`, respectively. Two common situations where these could be introduced are as a value of a certain attribute (like `href=""` below) or by itself if it will be displayed. Sample syntaxes include:
+
+    <h3><a href="{{ printf "%s" $.Params.affiliatelink }}">Buy this book</a></h3>
+	<p>It was recommended by {{ .Params.recommendedby }}.</p>
+
+which would render
+
+    <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
+	<p>It was recommended by my Mother.</p>
+
+**See also:** [cross-references]({{% ref "content/archetypes.md" %}}) for consistency of `Params` across pieces of content.
+
+### Param method
+In Hugo you can declare params both for the site and the individual page.  A common use case is to have a general value for the site and a more specific value for some of the pages (i.e. an image).
+
+With the `Param` method the most specific value will be selected for you, and it is safe to use it in any template (it's defined on both Page and Node):
+
+```
+$.Param("image")
+```
 
 ## Node Variables
 In Hugo, a node is any page not rendered directly by a content file. This
@@ -80,6 +110,7 @@ includes taxonomies, lists and the homepage.
 **.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RSSLink** Link to the taxonomies' RSS link.<br>
 **.Data** The data specific to this type of node.<br>
+**.IsHome** True if the node is the site home page.<br>
 **.IsNode** Always true for nodes.<br>
 **.IsPage** Always false for nodes.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
@@ -103,6 +134,7 @@ The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data
 Also available is `.Site` which has the following:
 
 **.Site.BaseURL** The base URL for the site as defined in the site configuration file.<br>
+**.Site.RSSLink** The URL for the site RSS.<br>
 **.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11.<br>
 **.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
@@ -119,6 +151,7 @@ Also available is `.Site` which has the following:
 **.Site.Author** A map of the authors as defined in the site configuration.<br>
 **.Site.LanguageCode** A string representing the language as defined in the site configuration.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
+**.Site.GoogleAnalytics** A string representing your tracking code for Google Analytics as defined in the site configuration.<br>
 **.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
 **.Site.LastChange** A string representing the date/time of the most recent change to your site, based on the [`date` variable]({{< ref "content/front-matter.md#required-variables" >}}) in the front matter of your content pages.<br>
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>

@@ -1,8 +1,12 @@
 language: go
+sudo: false
 go:
-  - 1.4.2
-  - 1.5
+  - 1.4.3
+  - 1.5.3
   - tip
+os:
+  - linux
+  - osx
 matrix:
   allow_failures:
     - go: tip

@@ -1,6 +1,7 @@
 ---
 aliases:
 - /layout/sitemap/
+lastmod: 2015-12-10
 date: 2014-05-07
 linktitle: Sitemap
 menu:
@@ -23,6 +24,7 @@ along with Sitemap-specific ones:
 
 **.Sitemap.ChangeFreq** The page change frequency<br>
 **.Sitemap.Priority** The priority of the page<br>
+**.Sitemap.Filename** The sitemap filename<br>
 
 In addition to the standard node variables, the homepage has access to all
 site pages through `.Data.Pages`.
@@ -53,10 +55,11 @@ on render. Please don't include this in the template as it's not valid HTML.*
 
 ## Configuring sitemap.xml
 
-Defaults for `<changefreq>` and `<priority>` values can be set in the site's config file, e.g.:
+Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in the site's config file, e.g.:
 
     [sitemap]
       changefreq = "monthly"
       priority = 0.5
+      filename = "sitemap.xml"
 
 The same fields can be specified in an individual page's front matter in order to override the value for that page.

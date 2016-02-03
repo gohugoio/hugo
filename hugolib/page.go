@@ -1,9 +1,9 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,9 +28,11 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -41,44 +43,48 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Page struct {
-	Params          map[string]interface{}
-	Content         template.HTML
-	Summary         template.HTML
-	Aliases         []string
-	Status          string
-	Images          []Image
-	Videos          []Video
-	TableOfContents template.HTML
-	Truncated       bool
-	Draft           bool
-	PublishDate     time.Time
-	Tmpl            tpl.Template
-	Markup          string
+var (
+	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
+)
 
+type Page struct {
+	Params              map[string]interface{}
+	Content             template.HTML
+	Summary             template.HTML
+	Aliases             []string
+	Status              string
+	Images              []Image
+	Videos              []Video
+	TableOfContents     template.HTML
+	Truncated           bool
+	Draft               bool
+	PublishDate         time.Time
+	Tmpl                tpl.Template
+	Markup              string
 	extension           string
 	contentType         string
 	renderable          bool
-	layout              string
+	Layout              string
+	layoutsCalculated   []string
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
 	contentShortCodes   map[string]string
 	plain               string // TODO should be []byte
 	plainWords          []string
-	plainRuneCount      int
 	plainInit           sync.Once
 	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
 	RelatedPages        Pages
 	relevance           Relevance
+	pageMenus           PageMenus
+	pageMenusInit       sync.Once
+	isCJKLanguage       bool
 	PageMeta
 	Source
 	Position `json:"-"`
 	Node
-	pageMenus     PageMenus
-	pageMenusInit sync.Once
 }
 
 type Source struct {
@@ -102,6 +108,26 @@ type Position struct {
 
 type Pages []*Page
 
+func (ps Pages) FindPagePosByFilePath(inPath string) int {
+	for i, x := range ps {
+		if x.Source.Path() == inPath {
+			return i
+		}
+	}
+	return -1
+}
+
+// FindPagePos Given a page, it will find the position in Pages
+// will return -1 if not found
+func (ps Pages) FindPagePos(page *Page) int {
+	for i, x := range ps {
+		if x.Source.Path() == page.Source.Path() {
+			return i
+		}
+	}
+	return -1
+}
+
 func (p *Page) Plain() string {
 	p.initPlain()
 	return p.plain
@@ -112,30 +138,10 @@ func (p *Page) PlainWords() []string {
 	return p.plainWords
 }
 
-// RuneCount returns the rune count, excluding any whitespace, of the plain content.
-func (p *Page) RuneCount() int {
-	p.initPlainSecondary()
-	return p.plainRuneCount
-}
-
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
 		p.plain = helpers.StripHTML(string(p.Content))
 		p.plainWords = strings.Fields(p.plain)
-		return
-	})
-}
-
-func (p *Page) initPlainSecondary() {
-	p.plainSecondaryInit.Do(func() {
-		p.initPlain()
-		runeCount := 0
-		for _, r := range p.plain {
-			if !helpers.IsWhitespace(r) {
-				runeCount++
-			}
-		}
-		p.plainRuneCount = runeCount
 		return
 	})
 }
@@ -146,6 +152,21 @@ func (p *Page) IsNode() bool {
 
 func (p *Page) IsPage() bool {
 	return true
+}
+
+// Param is a convenience method to do lookups in Page's and Site's Params map,
+// in that order.
+//
+// This method is also implemented on Node.
+func (p *Page) Param(key interface{}) (interface{}, error) {
+	keyStr, err := cast.ToStringE(key)
+	if err != nil {
+		return nil, err
+	}
+	if val, ok := p.Params[keyStr]; ok {
+		return val, nil
+	}
+	return p.Site.Params[keyStr], nil
 }
 
 func (p *Page) Author() Author {
@@ -205,6 +226,7 @@ func (p *Page) setSummary() {
 			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
 		}
 
+		// TODO(bep) consider doing this once only
 		renderedHeader := p.renderBytes(header)
 		if len(p.contentShortCodes) > 0 {
 			tmpContentWithTokensReplaced, err :=
@@ -217,49 +239,48 @@ func (p *Page) setSummary() {
 		}
 		p.Summary = helpers.BytesToHTML(renderedHeader)
 	} else {
-		// If hugo defines split:
-		// render, strip html, then split
-		summary, truncated := helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
-		p.Summary = template.HTML(summary)
-		p.Truncated = truncated
-
+		Summarize(p)
 	}
 }
 
 func (p *Page) renderBytes(content []byte) []byte {
+	var fn helpers.LinkResolverFunc
+	var fileFn helpers.FileResolverFunc
+	if p.getRenderingConfig().SourceRelativeLinksEval {
+		fn = func(ref string) (string, error) {
+			return p.Node.Site.GitHub(ref, p)
+		}
+		fileFn = func(ref string) (string, error) {
+			return p.Node.Site.GitHubFileLink(ref, p)
+		}
+	}
 	return helpers.RenderBytes(
 		&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-			DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
+			DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
+	var fn helpers.LinkResolverFunc
+	var fileFn helpers.FileResolverFunc
+	if p.getRenderingConfig().SourceRelativeLinksEval {
+		fn = func(ref string) (string, error) {
+			return p.Node.Site.GitHub(ref, p)
+		}
+		fileFn = func(ref string) (string, error) {
+			return p.Node.Site.GitHubFileLink(ref, p)
+		}
+	}
 	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
-		DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
+		DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 	p.renderingConfigInit.Do(func() {
-		pageParam := p.GetParam("blackfriday")
-		siteParam := viper.GetStringMap("blackfriday")
+		pageParam := cast.ToStringMap(p.GetParam("blackfriday"))
 
-		combinedParam := siteParam
-
-		if pageParam != nil {
-			combinedParam = make(map[string]interface{})
-
-			for k, v := range siteParam {
-				combinedParam[k] = v
-			}
-
-			pageConfig := cast.ToStringMap(pageParam)
-
-			for key, value := range pageConfig {
-				combinedParam[key] = value
-			}
-		}
 		p.renderingConfig = helpers.NewBlackfriday()
-		if err := mapstructure.Decode(combinedParam, p.renderingConfig); err != nil {
+		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	})
@@ -297,9 +318,13 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-func (p *Page) Layout(l ...string) []string {
-	if p.layout != "" {
-		return layouts(p.Type(), p.layout)
+func (p *Page) layouts(l ...string) []string {
+	if len(p.layoutsCalculated) > 0 {
+		return p.layoutsCalculated
+	}
+
+	if p.Layout != "" {
+		return layouts(p.Type(), p.Layout)
 	}
 
 	layout := ""
@@ -364,9 +389,27 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 }
 
 func (p *Page) analyzePage() {
-	p.WordCount = len(p.PlainWords())
+	if p.isCJKLanguage {
+		p.WordCount = 0
+		for _, word := range p.PlainWords() {
+			runeCount := utf8.RuneCountInString(word)
+			if len(word) == runeCount {
+				p.WordCount++
+			} else {
+				p.WordCount += runeCount
+			}
+		}
+	} else {
+		p.WordCount = len(p.PlainWords())
+	}
+
 	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
-	p.ReadingTime = int((p.WordCount + 212) / 213)
+
+	if p.isCJKLanguage {
+		p.ReadingTime = int((p.WordCount + 500) / 501)
+	} else {
+		p.ReadingTime = int((p.WordCount + 212) / 213)
+	}
 }
 
 func (p *Page) permalink() (*url.URL, error) {
@@ -473,7 +516,7 @@ func (p *Page) update(f interface{}) error {
 	}
 	m := f.(map[string]interface{})
 	var err error
-	var draft, published *bool
+	var draft, published, isCJKLanguage *bool
 	for k, v := range m {
 		loki := strings.ToLower(k)
 		switch loki {
@@ -483,6 +526,7 @@ func (p *Page) update(f interface{}) error {
 			p.linkTitle = cast.ToString(v)
 		case "description":
 			p.Description = cast.ToString(v)
+			p.Params["description"] = p.Description
 		case "slug":
 			p.Slug = cast.ToString(v)
 		case "url":
@@ -518,7 +562,7 @@ func (p *Page) update(f interface{}) error {
 			published = new(bool)
 			*published = cast.ToBool(v)
 		case "layout":
-			p.layout = cast.ToString(v)
+			p.Layout = cast.ToString(v)
 		case "markup":
 			p.Markup = cast.ToString(v)
 		case "weight":
@@ -534,6 +578,9 @@ func (p *Page) update(f interface{}) error {
 			p.Status = cast.ToString(v)
 		case "sitemap":
 			p.Sitemap = parseSitemap(cast.ToStringMap(v))
+		case "iscjklanguage":
+			isCJKLanguage = new(bool)
+			*isCJKLanguage = cast.ToBool(v)
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
@@ -586,6 +633,16 @@ func (p *Page) update(f interface{}) error {
 
 	if p.Lastmod.IsZero() {
 		p.Lastmod = p.Date
+	}
+
+	if isCJKLanguage != nil {
+		p.isCJKLanguage = *isCJKLanguage
+	} else if viper.GetBool("HasCJKLanguage") {
+		if cjk.Match(p.rawContent) {
+			p.isCJKLanguage = true
+		} else {
+			p.isCJKLanguage = false
+		}
 	}
 
 	return nil
@@ -728,7 +785,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 	if len(layout) > 0 {
 		l = layouts(p.Type(), layout[0])
 	} else {
-		l = p.Layout()
+		l = p.layouts()
 	}
 
 	return tpl.ExecuteTemplateToHTML(p, l...)
@@ -758,6 +815,8 @@ func (p *Page) parse(reader io.Reader) error {
 
 	p.renderable = psr.IsRenderable()
 	p.frontmatter = psr.FrontMatter()
+	p.rawContent = psr.Content()
+
 	meta, err := psr.Metadata()
 	if meta != nil {
 		if err != nil {
@@ -769,8 +828,6 @@ func (p *Page) parse(reader io.Reader) error {
 			return err
 		}
 	}
-
-	p.rawContent = psr.Content()
 
 	return nil
 }

@@ -1,9 +1,9 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,65 +20,61 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/parser"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var undraftCmd = &cobra.Command{
 	Use:   "undraft path/to/content",
 	Short: "Undraft changes the content's draft status from 'True' to 'False'",
-	Long:  `Undraft changes the content's draft status from 'True' to 'False'
+	Long: `Undraft changes the content's draft status from 'True' to 'False'
 and updates the date to the current date and time.
 If the content's draft status is 'False', nothing is done.`,
-	Run:   Undraft,
+	RunE: Undraft,
 }
 
 // Publish publishes the specified content by setting its draft status
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
-func Undraft(cmd *cobra.Command, args []string) {
-	InitializeConfig()
+func Undraft(cmd *cobra.Command, args []string) error {
+	if err := InitializeConfig(); err != nil {
+		return err
+	}
 
 	if len(args) < 1 {
-		cmd.Usage()
-		jww.FATAL.Fatalln("a piece of content needs to be specified")
+		return newUserError("a piece of content needs to be specified")
 	}
 
 	location := args[0]
 	// open the file
 	f, err := os.Open(location)
 	if err != nil {
-		jww.ERROR.Print(err)
-		return
+		return err
 	}
 
 	// get the page from file
 	p, err := parser.ReadFrom(f)
 	f.Close()
 	if err != nil {
-		jww.ERROR.Print(err)
-		return
+		return err
 	}
 
 	w, err := undraftContent(p)
 	if err != nil {
-		jww.ERROR.Printf("an error occurred while undrafting %q: %s", location, err)
-		return
+		return newSystemErrorF("an error occurred while undrafting %q: %s", location, err)
 	}
 
 	f, err = os.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		jww.ERROR.Printf("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
-		return
+		return newSystemErrorF("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
 	}
 	defer f.Close()
 	_, err = w.WriteTo(f)
 	if err != nil {
-		jww.ERROR.Printf("%q not be undrafted due to save error: %q\n", location, err)
+		return newSystemErrorF("%q not be undrafted due to save error: %q\n", location, err)
 	}
-	return
+	return nil
 }
 
-// undraftContent: if the content is a draft, change it's draft status to
+// undraftContent: if the content is a draft, change its draft status to
 // 'false' and set the date to time.Now(). If the draft status is already
 // 'false', don't do anything.
 func undraftContent(p parser.Page) (bytes.Buffer, error) {

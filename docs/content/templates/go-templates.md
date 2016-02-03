@@ -2,6 +2,7 @@
 aliases:
 - /layout/go-templates/
 - /layouts/go-templates/
+lastmod: 2015-11-30
 date: 2013-07-01
 menu:
   main:
@@ -320,6 +321,7 @@ Here is the example front matter:
 ```
 ---
 title: "Permalinks"
+lastmod: 2015-11-30
 date: "2013-11-18"
 aliases:
   - "/doc/permalinks/"
@@ -382,7 +384,7 @@ so, such as in this example:
 ```
 <nav class="recent">
   <h1>Recent Posts</h1>
-  <ul>{{range first .Site.Params.SidebarRecentLimit .Site.Recent}}
+  <ul>{{range first .Site.Params.SidebarRecentLimit .Site.Pages}}
     <li><a href="{{.RelPermalink}}">{{.Title}}</a></li>
   {{end}}</ul>
 </nav>

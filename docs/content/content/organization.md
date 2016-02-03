@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/organization/
+lastmod: 2015-09-27
 date: 2013-07-01
 linktitle: Organization
 menu:
@@ -30,20 +31,20 @@ in Hugo and is used as the [section](/content/sections/).
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost/
         |   ├── happy
-        |   |   └── ness.ad  // <- http://1.com/post/happy/ness/
+        |   |   └── ness.md  // <- http://1.com/post/happy/ness/
         |   └── secondpost.md  // <- http://1.com/post/secondpost/
         └── quote
             ├── first.md       // <- http://1.com/quote/first/
             └── second.md      // <- http://1.com/quote/second/
 
-**Here's the same organization run with `hugo --uglyUrls`**
+**Here's the same organization run with `hugo --uglyURLs`**
 
     .
     └── content
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
         |   ├── happy
-        |   |   └── ness.ad    // <- http://1.com/post/happy/ness.html
+        |   |   └── ness.md    // <- http://1.com/post/happy/ness.html
         |   └── secondpost.md  // <- http://1.com/post/secondpost.html
         └── quote
             ├── first.md       // <- http://1.com/quote/first.html
@@ -90,7 +91,7 @@ path. Includes [section](/content/sections/).
 A complete URL can be provided. This will override all the above as it pertains
 to the end destination. This must be the path from the baseURL (starting with a "/").
 When a `url` is provided, it will be used exactly. Using `url` will ignore the
-`--uglyUrls` setting.
+`--uglyURLs` setting.
 
 
 ## Path breakdown in Hugo

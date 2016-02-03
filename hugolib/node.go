@@ -1,9 +1,9 @@
-// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"github.com/spf13/cast"
 	"html/template"
 	"sync"
 	"time"
@@ -86,6 +87,17 @@ func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 	return false
 }
 
+// Param is a convenience method to do lookups in Site's Params map.
+//
+// This method is also implemented on Page.
+func (n *Node) Param(key interface{}) (interface{}, error) {
+	keyStr, err := cast.ToStringE(key)
+	if err != nil {
+		return nil, err
+	}
+	return n.Site.Params[keyStr], err
+}
+
 func (n *Node) Hugo() *HugoInfo {
 	return hugoInfo
 }
@@ -127,7 +139,7 @@ func (n *Node) RelRef(ref string) (string, error) {
 
 type URLPath struct {
 	URL       string
-	Permalink template.HTML
+	Permalink string
 	Slug      string
 	Section   string
 }

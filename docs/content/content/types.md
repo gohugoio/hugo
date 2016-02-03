@@ -1,4 +1,5 @@
 ---
+lastmod: 2015-09-28
 date: 2013-07-01
 linktitle: Types
 menu:
@@ -54,7 +55,7 @@ whenever a specific file is not present.
 *Remember, all of the following are optional:*
 
 ### Create Type Directory
-Create a directory with the name of the type in `layouts`. Type is always singular.  *E.g. `/layouts/post`*.
+Create a directory with the name of the type in `/layouts`. Type is always singular.  *E.g. `/layouts/post`*.
 
 ### Create single template
 Create a file called `single.html` inside your directory. *E.g. `/layouts/post/single.html`*.
@@ -68,7 +69,7 @@ a single page view and a summary view to be used when displaying a list
 of contents on a single page. Hugo makes no assumptions here about how you want
 to display your content, and will support as many different views of a content
 type as your site requires. All that is required for these additional views is
-that a template exists in each layouts/`TYPE` directory with the same name.
+that a template exists in each `/layouts/TYPE` directory with the same name.
 
 ### Create a corresponding archetype
 

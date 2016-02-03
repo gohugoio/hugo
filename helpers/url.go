@@ -1,9 +1,9 @@
-// Copyright © 2013-2015 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,7 @@ func sanitizeURLWithFlags(in string, f purell.NormalizationFlags) string {
 
 	// Temporary workaround for the bug fix and resulting
 	// behavioral change in purell.NormalizeURLString():
-	// a leading '/' was inadvertently to relative links,
+	// a leading '/' was inadvertently added to relative links,
 	// but no longer, see #878.
 	//
 	// I think the real solution is to allow Hugo to
@@ -244,7 +244,7 @@ func PrettifyURL(in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyURLPath(in string) string {
-	return PrettiyPath(in, pb)
+	return prettifyPath(in, pb)
 }
 
 // Uglify does the opposite of PrettifyURLPath().
@@ -268,6 +268,10 @@ func Uglify(in string) string {
 			return d + ext
 		}
 		return in
+	}
+	// /.xml -> /index.xml
+	if name == "" {
+		return path.Dir(in) + "index" + ext
 	}
 	// /section/name.html -> /section/name.html
 	return path.Clean(in)

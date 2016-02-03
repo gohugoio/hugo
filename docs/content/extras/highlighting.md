@@ -1,6 +1,7 @@
 ---
 aliases:
 - /extras/highlight/
+lastmod: 2015-10-27
 date: 2013-07-01
 menu:
   main:
@@ -175,6 +176,6 @@ Please see individual libraries' documentation for how to implement each of the 
 [Highlight.js]: http://highlightjs.org/
 [Rainbow]: http://craig.is/making/rainbows
 [Syntax Highlighter]: http://alexgorbatchev.com/SyntaxHighlighter/
-[Google Prettify]: https://code.google.com/p/google-code-prettify/
+[Google Prettify]: https://github.com/google/code-prettify
 [Yandex]: http://yandex.ru/
 

@@ -1,9 +1,9 @@
-// Copyright © 2014 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,16 @@
 package source
 
 import (
-	"github.com/spf13/hugo/helpers"
 	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/hugo/helpers"
 )
 
+// All paths are relative from the source directory base
 type File struct {
-	relpath     string // Original Full Path eg. /Users/Home/Hugo/foo.txt
+	relpath     string // Original Full Path eg. content/foo.txt
 	logicalName string // foo.txt
 	Contents    io.Reader
 	section     string // The first directory
@@ -30,6 +32,7 @@ type File struct {
 	uniqueID    string // MD5 of the filename
 }
 
+// UniqueID: MD5 of the filename
 func (f *File) UniqueID() string {
 	return f.uniqueID
 }
@@ -42,15 +45,17 @@ func (f *File) Bytes() []byte {
 	return helpers.ReaderToBytes(f.Contents)
 }
 
-// Filename without extension
+// BaseFileName Filename without extension
 func (f *File) BaseFileName() string {
 	return helpers.Filename(f.LogicalName())
 }
 
+// Section The first directory
 func (f *File) Section() string {
 	return f.section
 }
 
+// LogicalName The filename and extension of the file
 func (f *File) LogicalName() string {
 	return f.logicalName
 }
@@ -71,6 +76,7 @@ func (f *File) Ext() string {
 	return f.Extension()
 }
 
+// Path the relative path including file name and extension from the base of the source directory
 func (f *File) Path() string {
 	return f.relpath
 }

@@ -1,3 +1,16 @@
+// Copyright 2015 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package hugolib
 
 import (
@@ -22,6 +35,10 @@ const (
 	SIMPLE_PAGE                      = "---\ntitle: Simple\n---\nSimple Page\n"
 	INVALID_FRONT_MATTER_MISSING     = "This is a test"
 	RENDER_NO_FRONT_MATTER           = "<!doctype><html><head></head><body>This is a test</body></html>"
+	CONTENT_WITH_COMMENTED_FM        = "<!--\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n-->\n\n# Network configuration\n\n##\nSummary"
+	CONTENT_WITH_COMMENTED_TEXT_FM   = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
+	CONTENT_WITH_COMMENTED_LONG_FM   = "<!--[metaData123456789012345678901234567890]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
+	CONTENT_WITH_COMMENTED_LONG2_FM  = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata123456789012345678901234567890]-->\n\n# Network configuration\n\n##\nSummary"
 	INVALID_FRONT_MATTER_SHORT_DELIM = `
 --
 title: Short delim start
@@ -142,15 +159,66 @@ Summary Same Line<!--more-->
 Some more text
 `
 
-	SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES = `---
+	SIMPLE_PAGE_WITH_ALL_CJK_RUNES = `---
 title: Simple
 ---
 
 
 € € € € €
+你好
+도형이
+カテゴリー
 
 
 `
+
+	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES = `---
+title: Simple
+---
+
+
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+In Chinese, 好 means good.  In Chinese, 好 means good.
+More then 70 words.
+
+
+`
+	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY = "In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good. " +
+		"In Chinese, 好 means good. In Chinese, 好 means good."
+
+	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE = `---
+title: Simple
+isCJKLanguage: false
+---
+
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
+In Chinese, 好的啊 means good.  In Chinese, 好的呀呀 means good enough.
+More then 70 words.
+
+
+`
+	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+		"In Chinese, 好的啊 means good. In Chinese, 好的呀呀 means good enough."
 
 	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
 title: Simple
@@ -447,8 +515,8 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 }
 
 func checkPageLayout(t *testing.T, page *Page, layout ...string) {
-	if !listEqual(page.Layout(), layout) {
-		t.Fatalf("Page layout is: %s.  Expected: %s", page.Layout(), layout)
+	if !listEqual(page.layouts(), layout) {
+		t.Fatalf("Page layout is: %s.  Expected: %s", page.layouts(), layout)
 	}
 }
 
@@ -580,18 +648,86 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
-func TestRuneCount(t *testing.T) {
+func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
+	viper.Reset()
+
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_FIVE_MULTIBYTE_UFT8_RUNES))
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 
-	if p.RuneCount() != 5 {
-		t.Fatalf("incorrect rune count for content '%s'. expected %v, got %v", p.plain, 5, p.RuneCount())
+	if p.WordCount != 8 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 8, p.WordCount)
+	}
+}
 
+func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 15 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 15, p.WordCount)
+	}
+}
+
+func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 74 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 74, p.WordCount)
+	}
+
+	if p.Summary != SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY {
+		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
+			SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY, p.Summary)
+	}
+}
+
+func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("HasCJKLanguage", true)
+
+	p, _ := NewPage("simple.md")
+	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE))
+	p.Convert()
+	p.analyzePage()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+
+	if p.WordCount != 75 {
+		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 75, p.WordCount)
+	}
+
+	if p.Summary != SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY {
+		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
+			SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY, p.Summary)
 	}
 }
 
@@ -661,6 +797,10 @@ func TestShouldRenderContent(t *testing.T) {
 		// TODO how to deal with malformed frontmatter.  In this case it'll be rendered as markdown.
 		{INVALID_FRONT_MATTER_SHORT_DELIM, true},
 		{RENDER_NO_FRONT_MATTER, false},
+		{CONTENT_WITH_COMMENTED_FM, true},
+		{CONTENT_WITH_COMMENTED_TEXT_FM, true},
+		{CONTENT_WITH_COMMENTED_LONG_FM, false},
+		{CONTENT_WITH_COMMENTED_LONG2_FM, true},
 	}
 
 	for _, test := range tests {
@@ -782,8 +922,8 @@ func TestLayoutOverride(t *testing.T) {
 		for _, y := range test.expectedLayout {
 			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
 		}
-		if !listEqual(p.Layout(), test.expectedLayout) {
-			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.Layout())
+		if !listEqual(p.layouts(), test.expectedLayout) {
+			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.layouts())
 		}
 	}
 }

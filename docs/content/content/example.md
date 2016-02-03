@@ -1,14 +1,15 @@
 ---
 aliases:
 - /doc/example/
+lastmod: 2015-12-23
 date: 2013-07-01
 linktitle: Example
 menu:
   main:
     parent: content
+prev: /content/summaries
 next: /themes/overview
 notoc: true
-prev: /content/summaries
 title: Example Content File
 weight: 70
 ---
@@ -19,8 +20,7 @@ Some things are better shown than explained. The following is a very basic examp
 
 With TOML front matter:
 
-```markdown
-+++
+<pre><code class="language-toml">+++
 date        = "2013-06-21T11:27:27-04:00"
 title       = "Nitro: A quick and simple profiler for Go"
 description = "Nitro is a simple profiler for your Golang applications"
@@ -29,8 +29,7 @@ topics      = [ "Development", "Go" ]
 slug        = "nitro"
 project_url = "https://github.com/spf13/nitro"
 +++
-
-# Nitro
+</code><code class="language-markdown"># Nitro
 
 Quick and easy performance analyzer library for [Go](http://golang.org/).
 
@@ -48,12 +47,13 @@ of the library.
     $ go get github.com/spf13/nitro
 
 Next, include nitro in your application.
-```
+</code></pre>
 
 You may also use the equivalent YAML front matter:
 
-```markdown
+```yaml
 ---
+lastmod: 2015-12-23
 date:        "2013-06-21T11:27:27-04:00"
 title:       "Nitro: A quick and simple profiler for Go"
 description: "Nitro is a simple profiler for your Go lang applications"

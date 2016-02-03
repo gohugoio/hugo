@@ -1,9 +1,9 @@
-// Copyright © 2013 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,6 +41,25 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
     {{ end }}
 </figure>
 <!-- image -->`)
+	t.AddInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>")
+	t.AddInternalShortcode("youtube.html", `{{ if .IsNamedParams }}
+<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//www.youtube.com/embed/{{ .Get "id" }}?{{ with .Get "autoplay" }}{{ if eq . "true" }}autoplay=1{{ end }}{{ end }}" 
+  {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0"></iframe>
+</div>{{ else }}
+<div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//www.youtube.com/embed/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0"></iframe>
+ </div>
+{{ end }}`)
+	t.AddInternalShortcode("vimeo.html", `{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+ </div>{{ else }}
+<div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+ </div>
+{{ end }}`)
+	t.AddInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js"></script>`)
+	t.AddInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
@@ -131,7 +150,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
 {{ with .Params.images }}{{ range first 6 . }}
-  <meta property="og:image" content="{{ . }}" />
+  <meta property="og:image" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
 {{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}{{ with .Params.audio }}
@@ -139,7 +158,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
 {{ range .Params.videos }}
-  <meta property="og:video" content="{{ . }}" />
+  <meta property="og:video" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
 <!-- If it is part of a series, link to related articles -->
@@ -170,7 +189,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ with .Params.images }}
 <!-- Twitter summary card with large image must be at least 280x150px -->
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:image:src" content="{{ index . 0 }}"/>
+  <meta name="twitter:image:src" content="{{ index . 0 | absURL }}"/>
 {{ else }}
   <meta name="twitter:card" content="summary"/>
 {{ end }}
@@ -197,11 +216,33 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHTML }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
-  <meta itemprop="image" content="{{ . }}">
+  <meta itemprop="image" content="{{ . | absURL }}">
 {{ end }}{{ end }}
 
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
 {{ end }}`)
 
+	t.AddInternalTemplate("", "google_analytics.html", `{{ with .Site.GoogleAnalytics }}
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '{{ . }}', 'auto');
+ga('send', 'pageview');
+</script>
+{{ end }}`)
+
+	t.AddInternalTemplate("", "google_analytics_async.html", `{{ with .Site.GoogleAnalytics }}
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', '{{ . }}', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+{{ end }}`)
+
+	t.AddInternalTemplate("_default", "robots.txt", "User-agent: *")
 }

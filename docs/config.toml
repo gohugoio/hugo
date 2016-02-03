@@ -1,10 +1,13 @@
-title = "gohugo.io"
+title = "Hugo: A Fast and Flexible Website Generator"
 baseurl = "http://gohugo.io/"
 MetaDataFormat = "yaml"
 pluralizeListTitles = false
 
+[blackfriday]
+  plainIDAnchors = true
+
 [params]
-  description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13 and friends in Go"
+  description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13, bep and friends in Go"
   author = "Steve Francia (spf13) and friends"
 
 [taxonomies]
@@ -17,15 +20,20 @@ pluralizeListTitles = false
     url = "https://github.com/spf13/hugo/releases"
     weight = -200
 [[menu.main]]
-    name = "Showcase"
+    name = "Site Showcase"
     pre = "<i class='fa fa-cubes'></i>"
     url = "/showcase/"
     weight = -180
 [[menu.main]]
+    name = "Theme Showcase"
+    pre = "<i class='fa fa-puzzle-piece'></i>"
+    url = "http://themes.gohugo.io"
+    weight = -170
+[[menu.main]]
     name = "Press & Articles"
     pre = "<i class='fa fa-bullhorn'></i>"
     url = "/community/press/"
-    weight = -170
+    weight = -160
 [[menu.main]]
     name = "Discuss Hugo"
     pre = "<i class='fa fa-comments'></i>"
@@ -42,12 +50,6 @@ pluralizeListTitles = false
     pre = "<i class='fa fa-road'></i>"
     weight = -100
 [[menu.main]]
-    name = "Hugo Commands"
-    identifier = "commands"
-    pre = "<i class='fa fa-space-shuttle'></i>"
-    weight = -95
-    url = "/commands/"
-[[menu.main]]
     name = "Content"
     identifier = "content"
     pre = "<i class='fa fa-file-text'></i>"
@@ -57,6 +59,11 @@ pluralizeListTitles = false
     identifier = "themes"
     pre = "<i class='fa fa-desktop'></i>"
     weight = -85
+[[menu.main]]
+    parent = "themes"
+    name = "Theme Showcase"
+    url = "http://themes.gohugo.io"
+    weight = -170
 [[menu.main]]
     name = "Templates"
     identifier = "layout"
@@ -92,3 +99,14 @@ pluralizeListTitles = false
     identifier = "troubleshooting"
     pre = "<i class='fa fa-wrench'></i>"
     weight = -30
+[[menu.main]]
+    name = "Tools"
+    url = "/tools/"
+    pre = "<i class='fa fa-cogs'></i>"
+    weight = -25
+[[menu.main]]
+    name = "Hugo Cmd Reference"
+    identifier = "commands"
+    pre = "<i class='fa fa-space-shuttle'></i>"
+    weight = -20
+    url = "/commands/"

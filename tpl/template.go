@@ -1,9 +1,9 @@
-// Copyright © 2013-14 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,6 @@
 package tpl
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/eknkc/amber"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -66,14 +65,14 @@ func T() Template {
 	return tmpl
 }
 
-// Resets the internal template state to it's initial state
+// InitializeT resets the internal template state to its initial state
 func InitializeT() Template {
 	tmpl = New()
 	return tmpl
 }
 
-// Return a new Hugo Template System
-// With all the additional features, templates & functions
+// New returns a new Hugo Template System
+// with all the additional features, templates & functions
 func New() Template {
 	var templates = &GoHTMLTemplate{
 		Template: *template.New(""),
@@ -104,7 +103,7 @@ func Partial(name string, context_list ...interface{}) template.HTML {
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func ExecuteTemplate(context interface{}, buffer *bytes.Buffer, layouts ...string) {
+func ExecuteTemplate(context interface{}, w io.Writer, layouts ...string) {
 	worked := false
 	for _, layout := range layouts {
 
@@ -115,7 +114,7 @@ func ExecuteTemplate(context interface{}, buffer *bytes.Buffer, layouts ...strin
 		}
 
 		if localTemplates.Lookup(name) != nil {
-			err := localTemplates.ExecuteTemplate(buffer, name, context)
+			err := localTemplates.ExecuteTemplate(w, name, context)
 			if err != nil {
 				jww.ERROR.Println(err, "in", name)
 			}

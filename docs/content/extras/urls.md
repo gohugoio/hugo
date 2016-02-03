@@ -1,11 +1,12 @@
 ---
 aliases:
 - /doc/urls/
+lastmod: 2015-12-08
 date: 2014-01-03
 menu:
   main:
     parent: extras
-next: /community/mailing-list
+next: /extras/robots-txt
 notoc: true
 prev: /extras/toc
 title: URLs
@@ -14,7 +15,7 @@ weight: 110
 
 ## Pretty URLs
 
-By default, Hugo create content with 'pretty' URLs. For example,
+By default, Hugo creates content with 'pretty' URLs. For example,
 content created at `/content/extras/urls.md` will be rendered at
 `/public/extras/urls/index.html`, thus accessible from the browser
 at http://example.com/extras/urls/.  No non-standard server-side
@@ -24,7 +25,7 @@ If you would like to have what we call "ugly URLs",
 e.g.&nbsp;http://example.com/extras/urls.html, you are in luck.
 Hugo supports the ability to create your entire site with ugly URLs.
 Simply add `uglyurls = true` to your site-wide `config.toml`,
-or use the `--uglyUrls=true` flag on the command line.
+or use the `--uglyURLs=true` flag on the command line.
 
 If you want a specific piece of content to have an exact URL, you can
 specify this in the front matter under the `url` key. See [Content

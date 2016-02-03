@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/installing/
+lastmod: 2016-01-04
 date: 2013-07-01
 menu:
   main:
@@ -35,7 +36,12 @@ Ideally, you should install it somewhere in your `PATH` for easy use.
 `/usr/local/bin` is the most probable location.
 
 On OS&nbsp;X, if you have [Homebrew](http://brew.sh/), installation is even
-easier: just run `brew install hugo`.
+easier: just run `brew update && brew install hugo`.
+
+For a more detailed explanation follow the corresponding installation guides:
+
+- [Installation on OS X]({{< relref "tutorials/installing-on-mac.md" >}})
+- [Installation on Windows]({{< relref "tutorials/installing-on-windows.md" >}})
 
 ### Installing Pygments (optional)
 

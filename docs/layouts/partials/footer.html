@@ -1,7 +1,13 @@
+                    <div class="row">
+                        <div class="footer-panel">
+                        <p>Last revision: {{ .Lastmod.Format "January 2, 2006" }}
+                          <span style="float: right;">Hugo v{{ .Hugo.Version }} documentation</span>
+                        </p>
+                        </div>
+                    </div>
 
                     </div>
                     </section>
-                    <div style="font-size: medium; font-style: italic; text-align: right;">Hugo v{{ .Hugo.Version }} documentation</div>
 
                     </div>
 
@@ -22,14 +28,13 @@
   </section>
   <!-- container section end -->
     <!-- javascripts -->
-    <script src="/js/jquery-2.1.1.min.js"></script>
+    <script src="/js/jquery-2.1.4.min.js"></script>
     <script src="/js/jquery.scrollTo.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <!--custom script for all page-->
     <script src="/js/highlight.pack.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
     <script src="/js/scripts.js"></script>
-    <script async defer id="github-bjs" src="/js/buttons.js"></script>
     {{ template "partials/analytics.html" . }}
   </body>
 </html>

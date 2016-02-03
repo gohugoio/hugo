@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/front-matter/
+lastmod: 2015-12-23
 date: 2013-07-01
 menu:
   main:
@@ -28,50 +29,55 @@ Supported formats:
 
 ## TOML Example
 
-    +++
-    title = "spf13-vim 3.0 release and new website"
-    description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-    tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    date = "2012-04-06"
-    categories = [
-      "Development",
-      "VIM"
-    ]
-    slug = "spf13-vim-3-0-release-and-new-website"
-    +++
-    
-    Content of the file goes Here
+<pre><code class="language-toml">+++
+title = "spf13-vim 3.0 release and new website"
+description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+tags = [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+date = "2012-04-06"
+categories = [
+  "Development",
+  "VIM"
+]
+slug = "spf13-vim-3-0-release-and-new-website"
++++
+</code><code class="language-markdown">Content of the file goes Here
+</code></pre>
 
 ## YAML Example
 
-    ---
-    title: "spf13-vim 3.0 release and new website"
-    description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-    tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-    date: "2012-04-06"
-    categories:
-      - "Development"
-      - "VIM"
-    slug: "spf13-vim-3-0-release-and-new-website"
-    ---
-    
-    Content of the file goes Here
+```yaml
+---
+title: "spf13-vim 3.0 release and new website"
+description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
+tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+lastmod: 2015-12-23
+date: "2012-04-06"
+categories:
+  - "Development"
+  - "VIM"
+slug: "spf13-vim-3-0-release-and-new-website"
+---
+
+Content of the file goes Here
+```
 
 ## JSON Example
 
-    {
-        "title": "spf13-vim 3.0 release and new website",
-        "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
-        "tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
-        "date": "2012-04-06",
-        "categories": [
-            "Development",
-            "VIM"
-        ],
-        "slug": "spf13-vim-3-0-release-and-new-website",
-    }
-    
-    Content of the file goes Here
+```json
+{
+    "title": "spf13-vim 3.0 release and new website",
+    "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
+    "tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
+    "date": "2012-04-06",
+    "categories": [
+        "Development",
+        "VIM"
+    ],
+    "slug": "spf13-vim-3-0-release-and-new-website",
+}
+
+Content of the file goes Here
+```
 
 ## Variables
 
@@ -95,6 +101,7 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 * **draft** If true, the content will not be rendered unless `hugo` is called with `--buildDrafts`
 * **publishdate** If in the future, content will not be rendered unless `hugo` is called with `--buildFuture`
 * **type** The type of the content (will be derived from the directory automatically if unset)
+* **isCJKLanguage** If true, explicitly treat the content as CJKLanguage (.Summary and .WordCount can work properly in CJKLanguage)
 * **weight** Used for sorting
 * **markup** *(Experimental)* Specify `"rst"` for reStructuredText (requires
             `rst2html`) or `"md"` (default) for Markdown

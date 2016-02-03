@@ -3,6 +3,7 @@ aliases:
 - /indexes/lists/
 - /doc/indexes/
 - /extras/indexes
+lastmod: 2015-09-15
 date: 2014-05-21
 linktitle: Taxonomy Terms
 menu:
@@ -76,7 +77,7 @@ This particular template lists all of the Tags used on
 [spf13.com](http://spf13.com/) and provides a count for the number of pieces of
 content tagged with each tag.
 
-`.Data.Terms` is an map of terms ⇒ [contents]
+`.Data.Terms` is a map of terms ⇒ [contents]
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}

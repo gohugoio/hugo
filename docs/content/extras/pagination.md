@@ -1,6 +1,7 @@
 ---
 aliases:
 - /doc/pagination/
+lastmod: 2015-07-16
 date: 2014-01-01
 menu:
   main:

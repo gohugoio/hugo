@@ -1,9 +1,9 @@
-// Copyright © 2014 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,6 +43,9 @@ func (by PageBy) Sort(pages Pages) {
 var DefaultPageSort = func(p1, p2 *Page) bool {
 	if p1.Weight == p2.Weight {
 		if p1.Date.Unix() == p2.Date.Unix() {
+			if p1.LinkTitle() == p2.LinkTitle() {
+				return (p1.FullFilePath() < p2.FullFilePath())
+			}
 			return (p1.LinkTitle() < p2.LinkTitle())
 		}
 		return p1.Date.Unix() > p2.Date.Unix()

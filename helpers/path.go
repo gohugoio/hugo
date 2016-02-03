@@ -1,9 +1,9 @@
-// Copyright © 2014 Steve Francia <spf@spf13.com>.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
-// Licensed under the Simple Public License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// http://opensource.org/licenses/Simple-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,17 @@ package helpers
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/viper"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -96,7 +96,7 @@ func UnicodeSanitize(s string) string {
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '%' || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
 			target = append(target, r)
 		}
 	}
@@ -125,80 +125,12 @@ func ReplaceExtension(path string, newExt string) string {
 	return f + "." + newExt
 }
 
-// DirExists checks if a path exists and is a directory.
-func DirExists(path string, fs afero.Fs) (bool, error) {
-	fi, err := fs.Stat(path)
-	if err == nil && fi.IsDir() {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
-
-// IsDir checks if a given path is a directory.
-func IsDir(path string, fs afero.Fs) (bool, error) {
-	fi, err := fs.Stat(path)
-	if err != nil {
-		return false, err
-	}
-	return fi.IsDir(), nil
-}
-
-// IsEmpty checks if a given path is empty.
-func IsEmpty(path string, fs afero.Fs) (bool, error) {
-	if b, _ := Exists(path, fs); !b {
-		return false, fmt.Errorf("%q path does not exist", path)
-	}
-	fi, err := fs.Stat(path)
-	if err != nil {
-		return false, err
-	}
-	if fi.IsDir() {
-		f, err := os.Open(path)
-		// FIX: Resource leak - f.close() should be called here by defer or is missed
-		// if the err != nil branch is taken.
-		defer f.Close()
-		if err != nil {
-			return false, err
-		}
-		list, err := f.Readdir(-1)
-		// f.Close() - see bug fix above
-		return len(list) == 0, nil
-	}
-	return fi.Size() == 0, nil
-}
-
-// Check if a file contains a specified string.
-func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-
-	return ReaderContains(f, subslice), nil
-}
-
-// Check if a file or directory exists.
-func Exists(path string, fs afero.Fs) (bool, error) {
-	_, err := fs.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
-
 func AbsPathify(inPath string) string {
 	if filepath.IsAbs(inPath) {
 		return filepath.Clean(inPath)
 	}
 
-	// todo consider move workingDir to argument list
+	// TODO(bep): Consider moving workingDir to argument list
 	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
 }
 
@@ -210,7 +142,7 @@ func GetStaticDirPath() string {
 // If there is no theme, returns the empty string.
 func GetThemeDir() string {
 	if ThemeSet() {
-		return AbsPathify(filepath.Join("themes", viper.GetString("theme")))
+		return AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")))
 	}
 	return ""
 }
@@ -430,10 +362,10 @@ func PathPrep(ugly bool, in string) string {
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
 func PrettifyPath(in string) string {
-	return PrettiyPath(in, fpb)
+	return prettifyPath(in, fpb)
 }
 
-func PrettiyPath(in string, b filepathPathBridge) string {
+func prettifyPath(in string, b filepathPathBridge) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
 		if len(in) < 2 {
@@ -450,37 +382,25 @@ func PrettiyPath(in string, b filepathPathBridge) string {
 	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
-// RemoveSubpaths takes a list of paths and removes everything that
-// contains another path in the list as a prefix. Ignores any empty
-// strings. Used mostly for logging.
-//
-// e.g. ["hello/world", "hello", "foo/bar", ""] -> ["hello", "foo/bar"]
-func RemoveSubpaths(paths []string) []string {
-	a := make([]string, 0)
-	for _, cur := range paths {
-		// ignore trivial case
-		if cur == "" {
-			continue
-		}
-
-		isDupe := false
-		for i, old := range a {
-			if strings.HasPrefix(cur, old) {
-				isDupe = true
-				break
-			} else if strings.HasPrefix(old, cur) {
-				a[i] = cur
-				isDupe = true
+// Extract the root paths from the supplied list of paths.
+// The resulting root path will not contain any file separators, but there
+// may be duplicates.
+// So "/content/section/" becomes "content"
+func ExtractRootPaths(paths []string) []string {
+	r := make([]string, len(paths))
+	for i, p := range paths {
+		root := filepath.ToSlash(p)
+		sections := strings.Split(root, "/")
+		for _, section := range sections {
+			if section != "" {
+				root = section
 				break
 			}
 		}
-
-		if !isDupe {
-			a = append(a, cur)
-		}
+		r[i] = root
 	}
+	return r
 
-	return a
 }
 
 // FindCWD returns the current working directory from where the Hugo
@@ -510,88 +430,39 @@ func FindCWD() (string, error) {
 
 // Same as WriteToDisk but checks to see if file/directory already exists.
 func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
-	dir, _ := filepath.Split(inpath)
-	ospath := filepath.FromSlash(dir)
-
-	if ospath != "" {
-		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
-		if err != nil {
-			return
-		}
-	}
-
-	exists, err := Exists(inpath, fs)
-	if err != nil {
-		return
-	}
-	if exists {
-		return fmt.Errorf("%v already exists", inpath)
-	}
-
-	file, err := fs.Create(inpath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, r)
-	return
+	return afero.SafeWriteReader(fs, inpath, r)
 }
 
 // Writes content to disk.
 func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
-	dir, _ := filepath.Split(inpath)
-	ospath := filepath.FromSlash(dir)
-
-	if ospath != "" {
-		err = fs.MkdirAll(ospath, 0777) // rwx, rw, r
-		if err != nil {
-			if err != os.ErrExist {
-				jww.FATAL.Fatalln(err)
-			}
-		}
-	}
-
-	file, err := fs.Create(inpath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, r)
-	return
+	return afero.WriteReader(fs, inpath, r)
 }
 
-// GetTempDir returns the OS default temp directory with trailing slash
-// if subPath is not empty then it will be created recursively with mode 777 rwx rwx rwx
 func GetTempDir(subPath string, fs afero.Fs) string {
-	addSlash := func(p string) string {
-		if FilePathSeparator != p[len(p)-1:] {
-			p = p + FilePathSeparator
-		}
-		return p
-	}
-	dir := addSlash(os.TempDir())
+	return afero.GetTempDir(fs, subPath)
+}
 
-	if subPath != "" {
-		// preserve windows backslash :-(
-		if FilePathSeparator == "\\" {
-			subPath = strings.Replace(subPath, "\\", "____", -1)
-		}
-		dir = dir + MakePath(subPath)
-		if FilePathSeparator == "\\" {
-			dir = strings.Replace(dir, "____", "\\", -1)
-		}
+// DirExists checks if a path exists and is a directory.
+func DirExists(path string, fs afero.Fs) (bool, error) {
+	return afero.DirExists(fs, path)
+}
 
-		if exists, _ := Exists(dir, fs); exists {
-			return addSlash(dir)
-		}
+// IsDir checks if a given path is a directory.
+func IsDir(path string, fs afero.Fs) (bool, error) {
+	return afero.IsDir(fs, path)
+}
 
-		err := fs.MkdirAll(dir, 0777)
-		if err != nil {
-			panic(err)
-		}
-		dir = addSlash(dir)
-	}
-	return dir
+// IsEmpty checks if a given path is empty.
+func IsEmpty(path string, fs afero.Fs) (bool, error) {
+	return afero.IsEmpty(fs, path)
+}
+
+// Check if a file contains a specified string.
+func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
+	return afero.FileContainsBytes(fs, filename, subslice)
+}
+
+// Check if a file or directory exists.
+func Exists(path string, fs afero.Fs) (bool, error) {
+	return afero.Exists(fs, path)
 }
