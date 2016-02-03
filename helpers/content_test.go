@@ -354,3 +354,50 @@ func TestMmarkRender(t *testing.T) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
 	}
 }
+
+func TestExtractTOCNormalContent(t *testing.T) {
+	content := []byte("<nav>\n<ul>\nTOC<li><a href=\"#")
+
+	actualTocLessContent, actualToc := ExtractTOC(content)
+	expectedTocLess := []byte("TOC<li><a href=\"#")
+	expectedToc := []byte("<nav id=\"TableOfContents\">\n<ul>\n")
+
+	if !bytes.Equal(actualTocLessContent, expectedTocLess) {
+		t.Errorf("Actual tocless (%s) did not equal expected (%s) tocless content", actualTocLessContent, expectedTocLess)
+	}
+
+	if !bytes.Equal(actualToc, expectedToc) {
+		t.Errorf("Actual toc (%s) did not equal expected (%s) toc content", actualToc, expectedToc)
+	}
+}
+
+func TestExtractTOCGreaterThanSeventy(t *testing.T) {
+	content := []byte("<nav>\n<ul>\nTOC This is a very long content which will definitly be greater than seventy, I promise you that.<li><a href=\"#")
+
+	actualTocLessContent, actualToc := ExtractTOC(content)
+	//Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
+	expectedToc := []byte("")
+
+	if !bytes.Equal(actualTocLessContent, content) {
+		t.Errorf("Actual tocless (%s) did not equal expected (%s) tocless content", actualTocLessContent, content)
+	}
+
+	if !bytes.Equal(actualToc, expectedToc) {
+		t.Errorf("Actual toc (%s) did not equal expected (%s) toc content", actualToc, expectedToc)
+	}
+}
+
+func TestExtractNoTOC(t *testing.T) {
+	content := []byte("TOC")
+
+	actualTocLessContent, actualToc := ExtractTOC(content)
+	expectedToc := []byte("")
+
+	if !bytes.Equal(actualTocLessContent, content) {
+		t.Errorf("Actual tocless (%s) did not equal expected (%s) tocless content", actualTocLessContent, content)
+	}
+
+	if !bytes.Equal(actualToc, expectedToc) {
+		t.Errorf("Actual toc (%s) did not equal expected (%s) toc content", actualToc, expectedToc)
+	}
+}
