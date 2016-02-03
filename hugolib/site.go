@@ -116,6 +116,7 @@ type SiteInfo struct {
 	Permalinks            PermalinkOverrides
 	Params                map[string]interface{}
 	BuildDrafts           bool
+	SummaryStrategy       string
 	canonifyURLs          bool
 	preserveTaxonomyNames bool
 	paginationPageCount   uint64
@@ -704,6 +705,7 @@ func (s *Site) Process() (err error) {
 		return
 	}
 	s.timerStep("build taxonomies")
+	BuildRelatedGraph(s)
 	return
 }
 
@@ -806,6 +808,7 @@ func (s *Site) initializeSiteInfo() {
 		RSSLink:               s.permalinkStr(viper.GetString("RSSUri")),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
+		SummaryStrategy:       viper.GetString("Summerization"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
 		Pages:      &s.Pages,
 		Files:      &s.Files,

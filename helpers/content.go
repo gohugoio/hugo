@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"html/template"
 	"os/exec"
+	"regexp"
 	"unicode/utf8"
 
 	"github.com/miekg/mmark"
@@ -459,6 +460,12 @@ func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
 	}
 
 	return strings.Join(words[:max], " "), true
+}
+
+// ExtractFirstParagraph takes the content
+// and returns the first paragraph of the html content.
+func ExtractFirstParagraph(content string) string {
+	return regexp.MustCompile("<h[123456]").Split(content, 2)[0]
 }
 
 // GetAsciidocContent calls asciidoctor or asciidoc as an external helper

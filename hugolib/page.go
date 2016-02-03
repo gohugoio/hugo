@@ -76,6 +76,8 @@ type Page struct {
 	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
+	RelatedPages        Pages
+	relevance           Relevance
 	pageMenus           PageMenus
 	pageMenusInit       sync.Once
 	isCJKLanguage       bool
@@ -237,18 +239,7 @@ func (p *Page) setSummary() {
 		}
 		p.Summary = helpers.BytesToHTML(renderedHeader)
 	} else {
-		// If hugo defines split:
-		// render, strip html, then split
-		var summary string
-		var truncated bool
-		if p.isCJKLanguage {
-			summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
-		} else {
-			summary, truncated = helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
-		}
-		p.Summary = template.HTML(summary)
-		p.Truncated = truncated
-
+		Summarize(p)
 	}
 }
 
