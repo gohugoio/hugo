@@ -387,62 +387,6 @@ func TestExtractNoTOC(t *testing.T) {
 	}
 }
 
-func TestRenderBytesWithTOC(t *testing.T) {
-	//Since these tests require an envionment to be set up with various
-	//third party components, I have to disable them for now.
-	t.SkipNow()
-	ctx := &RenderingContext{}
-	ctx.Content = []byte("Test Content")
-	ctx.Config = ctx.getConfig()
-	var testcase = []struct {
-		pageFmt  string
-		expected []byte
-	}{
-		{"markdown", []byte("<nav>\n</nav>\n\n<p>Test Content</p>\n")},
-		{"asciidoc", []byte(`<div class="paragraph"><p>Test Content</p></div>
-
-		`)},
-		{"mmark", []byte("<p>Test Content</p>\n")},
-		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
-	}
-
-	for _, test := range testcase {
-		ctx.PageFmt = test.pageFmt
-		actualToc := RenderBytesWithTOC(ctx)
-		if !bytes.Equal(actualToc, test.expected) {
-			t.Errorf("Actual (%s) did not match expected (%s)", actualToc, test.expected)
-		}
-	}
-}
-
-func TestRenderBytes(t *testing.T) {
-	//Since these tests require an envionment to be set up with various
-	//third party components, I have to disable them for now.
-	t.SkipNow()
-	ctx := &RenderingContext{}
-	ctx.Content = []byte("Test Content")
-	ctx.Config = ctx.getConfig()
-	var testcase = []struct {
-		pageFmt  string
-		expected []byte
-	}{
-		{"markdown", []byte("<p>Test Content</p>\n")},
-		{"asciidoc", []byte(`<div class="paragraph"><p>Test Content</p></div>
-
-		`)},
-		{"mmark", []byte("<p>Test Content</p>\n")},
-		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
-	}
-
-	for _, test := range testcase {
-		ctx.PageFmt = test.pageFmt
-		actualToc := RenderBytes(ctx)
-		if !bytes.Equal(actualToc, test.expected) {
-			t.Errorf("Actual (%s) did not match expected (%s)", actualToc, test.expected)
-		}
-	}
-}
-
 func TestTotalWords(t *testing.T) {
 	testString := "Two, Words!"
 	actualWordCount := TotalWords(testString)
