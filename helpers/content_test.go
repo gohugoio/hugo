@@ -412,7 +412,9 @@ func TestRenderBytesWithTOC(t *testing.T) {
 		expected []byte
 	}{
 		{"markdown", []byte("<nav>\n</nav>\n\n<p>Test Content</p>\n")},
-		{"asciidoc", []byte("<div class=\"paragraph\"><p>Test Content</p></div>\n\n")},
+		{"asciidoc", []byte(`<div class="paragraph"><p>Test Content</p></div>
+
+		`)},
 		{"mmark", []byte("<p>Test Content</p>\n")},
 		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
 	}
@@ -435,7 +437,9 @@ func TestRenderBytes(t *testing.T) {
 		expected []byte
 	}{
 		{"markdown", []byte("<p>Test Content</p>\n")},
-		{"asciidoc", []byte("<div class=\"paragraph\"><p>Test Content</p></div>\n\n")},
+		{"asciidoc", []byte(`<div class="paragraph"><p>Test Content</p></div>
+
+		`)},
 		{"mmark", []byte("<p>Test Content</p>\n")},
 		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
 	}
