@@ -9,10 +9,10 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
-[![Travis CI status](https://travis-ci.org/spf13/hugo.png "Travis CI status")](https://travis-ci.org/spf13/hugo) 
-[![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) 
-[![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
-[![CircleCI status](https://circleci.com/gh/spf13/hugo.png?circle-token=:circle-token "CircleCI status")](https://circleci.com/gh/spf13/hugo) 
+[![Travis CI status](https://travis-ci.org/spf13/hugo.png "Travis CI status")](https://travis-ci.org/spf13/hugo)
+[![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32)
+[![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master)
+[![CircleCI status](https://circleci.com/gh/spf13/hugo.png?circle-token=:circle-token "CircleCI status")](https://circleci.com/gh/spf13/hugo)
 [![Dev chat at https://gitter.im/spf13/hugo](https://img.shields.io/badge/gitter-dev_chat-46bc99.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Overview
@@ -45,7 +45,7 @@ The Hugo binaries have no external dependencies.
 
 To contribute to the Hugo source code or documentation, you should [fork the Hugo GitHub project](https://github.com/spf13/hugo#fork-destination-box) and clone it to your local machine.
 
-Finally, you can install the Hugo source code with `go`, build the binaries yourself, and run Hugo that way. 
+Finally, you can install the Hugo source code with `go`, build the binaries yourself, and run Hugo that way.
 Building the binaries is an easy task for an experienced `go` getter.
 
 ### Install Hugo as Your Site Generator (Binary Install)
@@ -97,7 +97,7 @@ To update Hugo’s dependencies, use `go get` with the `-u` option.
 
 ## Contribute to Hugo
 
-We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc. 
+We welcome contributions to Hugo of any kind including documentation, themes, organization, tutorials, blog posts, bug reports, issues, feature requests, feature implementation, pull requests, answering questions on the forum, helping to manage issues, etc.
 
 The Hugo community and maintainers are very active and helpful and the project benefits greatly from this activity.
 
@@ -107,7 +107,7 @@ If you have any questions about how to contribute or what to contribute please a
 
 ## Code Contribution Guideline
 
-We welcome your contributions. 
+We welcome your contributions.
 To make the process as seamless as possible, we ask for the following:
 
 * Go ahead and fork the project and make your changes. We encourage pull requests to discuss code changes.
@@ -131,7 +131,7 @@ mv hugo /usr/local/bin/
 
 To add compile information to Hugo, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
 
-    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash `git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate `date +%FT%T%z`"
+    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash=`git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate=`date +%FT%T%z`"
 
 This will result in `hugo version` output that looks similar to:
 
