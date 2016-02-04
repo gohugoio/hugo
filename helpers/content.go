@@ -399,17 +399,6 @@ func RemoveSummaryDivider(content []byte) []byte {
 	return bytes.Replace(content, SummaryDivider, []byte(""), -1)
 }
 
-// TruncateWords takes content and an int and shortens down the number
-// of words in the content down to the number of int.
-func TruncateWords(s string, max int) string {
-	words := strings.Fields(s)
-	if max > len(words) {
-		return strings.Join(words, " ")
-	}
-
-	return strings.Join(words[:max], " ")
-}
-
 //TruncateWordsByRune truncates words by runes.
 func TruncateWordsByRune(words []string, max int) (string, bool) {
 	count := 0
