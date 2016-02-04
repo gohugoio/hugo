@@ -196,7 +196,8 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
 	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
-	expectedHeaderID := []byte("<h1 id=\"id:testid\"></h1>\n")
+	expectedHeaderID := []byte(`<h1 id=\"id:testid\"></h1>
+		`)
 
 	actualRenderer.Header(headerBuffer, func() bool { return true }, 1, "id")
 	actualRenderer.FootnoteRef(footnoteBuffer, []byte("href"), 1)
@@ -295,7 +296,8 @@ func TestGetMarkdownRenderer(t *testing.T) {
 	ctx.Content = []byte("testContent")
 	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := markdownRender(ctx)
-	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
+	expectedRenderedMarkdown := []byte(`<p>testContent</p>
+		`)
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
 	}
@@ -306,7 +308,11 @@ func TestGetMarkdownRendererWithTOC(t *testing.T) {
 	ctx.Content = []byte("testContent")
 	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := markdownRenderWithTOC(ctx)
-	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
+	expectedRenderedMarkdown := []byte(`<nav>
+		</nav>
+
+		<p>testContent</p>
+		`)
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
 	}
@@ -350,18 +356,23 @@ func TestMmarkRender(t *testing.T) {
 	ctx.Content = []byte("testContent")
 	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := MmarkRender(ctx)
-	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
+	expectedRenderedMarkdown := []byte(`<p>testContent</p>
+		`)
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
 	}
 }
 
 func TestExtractTOCNormalContent(t *testing.T) {
-	content := []byte("<nav>\n<ul>\nTOC<li><a href=\"#")
+	content := []byte(`<nav>
+		<ul>
+		TOC<li><a href="#`)
 
 	actualTocLessContent, actualToc := ExtractTOC(content)
 	expectedTocLess := []byte("TOC<li><a href=\"#")
-	expectedToc := []byte("<nav id=\"TableOfContents\">\n<ul>\n")
+	expectedToc := []byte(`<nav id="TableOfContents">
+		<ul>
+		`)
 
 	if !bytes.Equal(actualTocLessContent, expectedTocLess) {
 		t.Errorf("Actual tocless (%s) did not equal expected (%s) tocless content", actualTocLessContent, expectedTocLess)
@@ -373,7 +384,9 @@ func TestExtractTOCNormalContent(t *testing.T) {
 }
 
 func TestExtractTOCGreaterThanSeventy(t *testing.T) {
-	content := []byte("<nav>\n<ul>\nTOC This is a very long content which will definitly be greater than seventy, I promise you that.<li><a href=\"#")
+	content := []byte(`<nav>
+		<ul>
+		TOC This is a very long content which will definitly be greater than seventy, I promise you that.<li><a href="#`)
 
 	actualTocLessContent, actualToc := ExtractTOC(content)
 	//Because the start of Toc is greater than 70+startpoint of <li> content and empty TOC will be returned
@@ -411,10 +424,22 @@ func TestRenderBytesWithTOC(t *testing.T) {
 		pageFmt  string
 		expected []byte
 	}{
-		{"markdown", []byte("<nav>\n</nav>\n\n<p>Test Content</p>\n")},
-		{"asciidoc", []byte("<div class=\"paragraph\">\n<p>Test Content</p>\n</div>\n")},
-		{"mmark", []byte("<p>Test Content</p>\n")},
-		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
+		{"markdown", []byte(`<nav>
+			</nav>
+
+			<p>Test Content</p>
+			`)},
+		{"asciidoc", []byte(`<div class="paragraph">
+			<p>Test Content</p>
+			</div>
+			`)},
+		{"mmark", []byte(`<p>Test Content</p>
+			`)},
+		{"rst", []byte(`<div class="document">
+
+
+			<p>Test Content</p>
+			</div>`)},
 	}
 
 	for _, test := range testcase {
@@ -434,10 +459,19 @@ func TestRenderBytes(t *testing.T) {
 		pageFmt  string
 		expected []byte
 	}{
-		{"markdown", []byte("<p>Test Content</p>\n")},
-		{"asciidoc", []byte("<div class=\"paragraph\">\n<p>Test Content</p>\n</div>\n")},
-		{"mmark", []byte("<p>Test Content</p>\n")},
-		{"rst", []byte("<div class=\"document\">\n\n\n<p>Test Content</p>\n</div>")},
+		{"markdown", []byte(`<p>Test Content</p>
+			`)},
+		{"asciidoc", []byte(`<div class="paragraph">
+			<p>Test Content</p>
+			</div>
+			`)},
+		{"mmark", []byte(`<p>Test Content</p>
+			`)},
+		{"rst", []byte(`<div class="document">
+
+
+			<p>Test Content</p>
+			</div>`)},
 	}
 
 	for _, test := range testcase {
