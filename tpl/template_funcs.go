@@ -38,6 +38,7 @@ import (
 
 var funcMap template.FuncMap
 
+// Eq returns the boolean truth of arg1 == arg2.
 func Eq(x, y interface{}) bool {
 	normalize := func(v interface{}) interface{} {
 		vv := reflect.ValueOf(v)
@@ -57,30 +58,38 @@ func Eq(x, y interface{}) bool {
 	return reflect.DeepEqual(x, y)
 }
 
+// Ne returns the boolean truth of arg1 != arg2.
 func Ne(x, y interface{}) bool {
 	return !Eq(x, y)
 }
 
+// Ge returns the boolean truth of arg1 >= arg2.
 func Ge(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left >= right
 }
 
+// Gt returns the boolean truth of arg1 > arg2.
 func Gt(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left > right
 }
 
+// Le returns the boolean truth of arg1 <= arg2.
 func Le(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left <= right
 }
 
+// Lt returns the boolean truth of arg1 < arg2.
 func Lt(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left < right
 }
 
+// Dictionary creates a map[string]interface{} from the given parameters by
+// walking the parameters and treating them as key-value pairs.  The number
+// of parameters must be even.
 func Dictionary(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
 		return nil, errors.New("invalid dict call")
@@ -99,7 +108,6 @@ func Dictionary(values ...interface{}) (map[string]interface{}, error) {
 func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
 	var leftStr, rightStr *string
-	var err error
 	av := reflect.ValueOf(a)
 
 	switch av.Kind() {
@@ -110,6 +118,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Float32, reflect.Float64:
 		left = av.Float()
 	case reflect.String:
+		var err error
 		left, err = strconv.ParseFloat(av.String(), 64)
 		if err != nil {
 			str := av.String()
@@ -132,6 +141,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Float32, reflect.Float64:
 		right = bv.Float()
 	case reflect.String:
+		var err error
 		right, err = strconv.ParseFloat(bv.String(), 64)
 		if err != nil {
 			str := bv.String()
@@ -157,7 +167,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
-// Slicing in Slicestr is done by specifying a half-open range with
+// Slicestr slices a string by specifying a half-open range with
 // two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
 // The end index can be omitted, it defaults to the string's length.
 func Slicestr(a interface{}, startEnd ...interface{}) (string, error) {
@@ -249,7 +259,7 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 		start = 0
 	}
 	if start > len(asRunes) {
-		return "", errors.New(fmt.Sprintf("start position out of bounds for %d-byte string", len(aStr)))
+		return "", fmt.Errorf("start position out of bounds for %d-byte string", len(aStr))
 	}
 
 	var s, e int
@@ -268,16 +278,16 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 	}
 
 	if s > e {
-		return "", errors.New(fmt.Sprintf("calculated start position greater than end position: %d > %d", s, e))
+		return "", fmt.Errorf("calculated start position greater than end position: %d > %d", s, e)
 	}
 	if e > len(asRunes) {
 		e = len(asRunes)
 	}
 
 	return string(asRunes[s:e]), nil
-
 }
 
+// Split slices an input string into all substrings separated by delimiter.
 func Split(a interface{}, delimiter string) ([]string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
@@ -286,6 +296,8 @@ func Split(a interface{}, delimiter string) ([]string, error) {
 	return strings.Split(aStr, delimiter), nil
 }
 
+// Intersect returns the common elements in the given sets, l1 and l2.  l1 and
+// l2 must be of the same type and may be either arrays or slices.
 func Intersect(l1, l2 interface{}) (interface{}, error) {
 	if l1 == nil || l2 == nil {
 		return make([]interface{}, 0), nil
@@ -334,6 +346,7 @@ func Intersect(l1, l2 interface{}) (interface{}, error) {
 	}
 }
 
+// In returns whether v is in the set l.  l may be an array or slice.
 func In(l interface{}, v interface{}) bool {
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
@@ -388,10 +401,8 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 	return v, false
 }
 
-// First is exposed to templates, to iterate over the first N items in a
-// rangeable list.
+// First returns the first N items in a rangeable list.
 func First(limit interface{}, seq interface{}) (interface{}, error) {
-
 	if limit == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -424,10 +435,8 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(0, limitv).Interface(), nil
 }
 
-// Last is exposed to templates, to iterate over the last N items in a
-// rangeable list.
+// Last returns the last N items in a rangeable list.
 func Last(limit interface{}, seq interface{}) (interface{}, error) {
-
 	if limit == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -460,10 +469,8 @@ func Last(limit interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(seqv.Len()-limitv, seqv.Len()).Interface(), nil
 }
 
-// After is exposed to templates, to iterate over all the items after N in a
-// rangeable list. It's meant to accompany First
+// After returns all the items after the first N in a rangeable list.
 func After(index interface{}, seq interface{}) (interface{}, error) {
-
 	if index == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -496,10 +503,8 @@ func After(index interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
-// Shuffle is exposed to templates, to iterate over items in rangeable list in
-// a randomised order.
+// Shuffle returns the given rangeable list in a randomised order.
 func Shuffle(seq interface{}) (interface{}, error) {
-
 	if seq == nil {
 		return nil, errors.New("both count and seq must be provided")
 	}
@@ -742,15 +747,15 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 		}
 		if op == "not in" {
 			return !r, nil
-		} else {
-			return r, nil
 		}
+		return r, nil
 	default:
 		return false, errors.New("no such an operator")
 	}
 	return false, nil
 }
 
+// Where returns a filtered subset of a given data type.
 func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error) {
 	seqv := reflect.ValueOf(seq)
 	kv := reflect.ValueOf(key)
@@ -813,7 +818,7 @@ func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error)
 	}
 }
 
-// Apply, given a map, array, or slice, returns a new slice with the function fname applied over it.
+// Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
 func Apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
 	if seq == nil {
 		return make([]interface{}, 0), nil
@@ -890,11 +895,12 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 
 	if len(res) == 1 || res[1].IsNil() {
 		return res[0], nil
-	} else {
-		return reflect.ValueOf(nil), res[1].Interface().(error)
 	}
+	return reflect.ValueOf(nil), res[1].Interface().(error)
 }
 
+// Delimit takes a given sequence and returns a delimited HTML string.
+// If last is passed to the function, it will be used as the final delimiter.
 func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
 	d, err := cast.ToStringE(delimiter)
 	if err != nil {
@@ -950,6 +956,7 @@ func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 	return template.HTML(str), nil
 }
 
+// Sort returns a sorted sequence.
 func Sort(seq interface{}, args ...interface{}) (interface{}, error) {
 	seqv := reflect.ValueOf(seq)
 	seqv, isNil := indirect(seqv)
@@ -1066,6 +1073,8 @@ func (p pairList) sort() interface{} {
 	return sorted.Interface()
 }
 
+// IsSet returns whether a given array, channel, slice, or map has a key
+// defined.
 func IsSet(a interface{}, key interface{}) bool {
 	av := reflect.ValueOf(a)
 	kv := reflect.ValueOf(key)
@@ -1084,6 +1093,8 @@ func IsSet(a interface{}, key interface{}) bool {
 	return false
 }
 
+// ReturnWhenSet returns a given value if it set.  Otherwise, it returns an
+// empty string.
 func ReturnWhenSet(a, k interface{}) interface{} {
 	av, isNil := indirect(reflect.ValueOf(a))
 	if isNil {
@@ -1120,6 +1131,7 @@ func ReturnWhenSet(a, k interface{}) interface{} {
 	return ""
 }
 
+// Highlight returns an HTML string with syntax highlighting applied.
 func Highlight(in interface{}, lang, opts string) template.HTML {
 	var str string
 	av := reflect.ValueOf(in)
@@ -1134,6 +1146,7 @@ func Highlight(in interface{}, lang, opts string) template.HTML {
 var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
+// Markdownify renders a given string from Markdown to HTML.
 func Markdownify(text string) template.HTML {
 	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
@@ -1168,14 +1181,17 @@ func refPage(page interface{}, ref, methodName string) template.HTML {
 	return template.HTML(ref)
 }
 
+// Ref returns the absolute URL path to a given content item.
 func Ref(page interface{}, ref string) template.HTML {
 	return refPage(page, ref, "Ref")
 }
 
+// RelRef returns the relative URL path to a given content item.
 func RelRef(page interface{}, ref string) template.HTML {
 	return refPage(page, ref, "RelRef")
 }
 
+// Chomp removes trailing newline characters from a string.
 func Chomp(text interface{}) (string, error) {
 	s, err := cast.ToStringE(text)
 	if err != nil {
@@ -1222,23 +1238,28 @@ func DateFormat(layout string, v interface{}) (string, error) {
 	return t.Format(layout), nil
 }
 
-// "safeHTMLAttr" is currently disabled, pending further discussion
+// SafeHTMLAttr returns a given string as html/template HTMLAttr content.
+//
+// SafeHTMLAttr is currently disabled, pending further discussion
 // on its use case.  2015-01-19
 func SafeHTMLAttr(text string) template.HTMLAttr {
 	return template.HTMLAttr(text)
 }
 
+// SafeCSS returns a given string as html/template CSS content.
 func SafeCSS(text string) template.CSS {
 	return template.CSS(text)
 }
 
+// SafeURL returns a given string as html/template URL content.
 func SafeURL(text string) template.URL {
 	return template.URL(text)
 }
 
+// SafeHTML returns a given string as html/template HTML content.
 func SafeHTML(a string) template.HTML { return template.HTML(a) }
 
-// SafeJS returns the given string as a template.JS type from html/template.
+// SafeJS returns the given string as a html/template JS content.
 func SafeJS(a string) template.JS { return template.JS(a) }
 
 func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
@@ -1307,9 +1328,8 @@ func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 		if bv.Kind() == reflect.String && op == '+' {
 			bs := bv.String()
 			return as + bs, nil
-		} else {
-			return nil, errors.New("Can't apply the operator to the values")
 		}
+		return nil, errors.New("Can't apply the operator to the values")
 	default:
 		return nil, errors.New("Can't apply the operator to the values")
 	}
@@ -1322,9 +1342,8 @@ func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 			return af + bf, nil
 		} else if au != 0 || bu != 0 {
 			return au + bu, nil
-		} else {
-			return 0, nil
 		}
+		return 0, nil
 	case '-':
 		if ai != 0 || bi != 0 {
 			return ai - bi, nil
@@ -1332,9 +1351,8 @@ func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 			return af - bf, nil
 		} else if au != 0 || bu != 0 {
 			return au - bu, nil
-		} else {
-			return 0, nil
 		}
+		return 0, nil
 	case '*':
 		if ai != 0 || bi != 0 {
 			return ai * bi, nil
@@ -1342,9 +1360,8 @@ func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 			return af * bf, nil
 		} else if au != 0 || bu != 0 {
 			return au * bu, nil
-		} else {
-			return 0, nil
 		}
+		return 0, nil
 	case '/':
 		if bi != 0 {
 			return ai / bi, nil
@@ -1352,14 +1369,14 @@ func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 			return af / bf, nil
 		} else if bu != 0 {
 			return au / bu, nil
-		} else {
-			return nil, errors.New("Can't divide the value by 0")
 		}
+		return nil, errors.New("Can't divide the value by 0")
 	default:
 		return nil, errors.New("There is no such an operation")
 	}
 }
 
+// Mod returns a % b.
 func Mod(a, b interface{}) (int64, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
@@ -1386,6 +1403,7 @@ func Mod(a, b interface{}) (int64, error) {
 	return ai % bi, nil
 }
 
+// ModBool returns the boolean of a % b.  If a % b == 0, return true.
 func ModBool(a, b interface{}) (bool, error) {
 	res, err := Mod(a, b)
 	if err != nil {
@@ -1394,6 +1412,7 @@ func ModBool(a, b interface{}) (bool, error) {
 	return res == int64(0), nil
 }
 
+// Base64Decode returns the base64 decoding of the given content.
 func Base64Decode(content interface{}) (string, error) {
 	conv, err := cast.ToStringE(content)
 
@@ -1410,6 +1429,7 @@ func Base64Decode(content interface{}) (string, error) {
 	return string(dec), nil
 }
 
+// Base64Encode returns the base64 encoding of the given content.
 func Base64Encode(content interface{}) (string, error) {
 	conv, err := cast.ToStringE(content)
 
@@ -1420,6 +1440,7 @@ func Base64Encode(content interface{}) (string, error) {
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
 }
 
+// CountWords returns the approximate word count of the given content.
 func CountWords(content interface{}) (int, error) {
 	conv, err := cast.ToStringE(content)
 
@@ -1440,6 +1461,7 @@ func CountWords(content interface{}) (int, error) {
 	return counter, nil
 }
 
+// CountRunes returns the approximate rune count of the given content.
 func CountRunes(content interface{}) (int, error) {
 	conv, err := cast.ToStringE(content)
 
@@ -1457,83 +1479,100 @@ func CountRunes(content interface{}) (int, error) {
 	return counter, nil
 }
 
+// Humanize returns the humanized form of a single word.
+// Example:  "my-first-post" -> "My first post"
+func Humanize(in interface{}) (string, error) {
+	word, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return inflect.Humanize(word), nil
+}
+
+// Pluralize returns the plural form of a single word.
+func Pluralize(in interface{}) (string, error) {
+	word, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return inflect.Pluralize(word), nil
+}
+
+// Singularize returns the singular form of a single word.
+func Singularize(in interface{}) (string, error) {
+	word, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return inflect.Singularize(word), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
-		"urlize":       helpers.URLize,
-		"sanitizeURL":  helpers.SanitizeURL,
-		"sanitizeurl":  helpers.SanitizeURL,
-		"eq":           Eq,
-		"ne":           Ne,
-		"gt":           Gt,
-		"ge":           Ge,
-		"lt":           Lt,
-		"le":           Le,
+		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
+		"add":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"after":        After,
+		"apply":        Apply,
+		"base64Decode": Base64Decode,
+		"base64Encode": Base64Encode,
+		"chomp":        Chomp,
+		"countrunes":   CountRunes,
+		"countwords":   CountWords,
+		"dateFormat":   DateFormat,
+		"delimit":      Delimit,
 		"dict":         Dictionary,
+		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"echoParam":    ReturnWhenSet,
+		"eq":           Eq,
+		"first":        First,
+		"ge":           Ge,
+		"getCSV":       GetCSV,
+		"getJSON":      GetJSON,
+		"getenv":       func(varName string) string { return os.Getenv(varName) },
+		"gt":           Gt,
+		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
+		"highlight":    Highlight,
+		"humanize":     Humanize,
 		"in":           In,
-		"slicestr":     Slicestr,
-		"substr":       Substr,
-		"split":        Split,
+		"int":          func(v interface{}) int { return cast.ToInt(v) },
 		"intersect":    Intersect,
 		"isSet":        IsSet,
 		"isset":        IsSet,
-		"echoParam":    ReturnWhenSet,
-		"safeHTML":     SafeHTML,
+		"last":         Last,
+		"le":           Le,
+		"lower":        func(a string) string { return strings.ToLower(a) },
+		"lt":           Lt,
+		"markdownify":  Markdownify,
+		"mod":          Mod,
+		"modBool":      ModBool,
+		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"ne":           Ne,
+		"partial":      Partial,
+		"pluralize":    Pluralize,
+		"readDir":      ReadDir,
+		"ref":          Ref,
+		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
+		"relref":       RelRef,
+		"replace":      Replace,
 		"safeCSS":      SafeCSS,
+		"safeHTML":     SafeHTML,
 		"safeJS":       SafeJS,
 		"safeURL":      SafeURL,
-		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
-		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
-		"markdownify":  Markdownify,
-		"first":        First,
-		"last":         Last,
-		"after":        After,
-		"shuffle":      Shuffle,
-		"where":        Where,
-		"delimit":      Delimit,
-		"sort":         Sort,
-		"highlight":    Highlight,
-		"add":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":          Mod,
-		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":      ModBool,
-		"lower":        func(a string) string { return strings.ToLower(a) },
-		"upper":        func(a string) string { return strings.ToUpper(a) },
-		"title":        func(a string) string { return strings.Title(a) },
-		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
-		"partial":      Partial,
-		"ref":          Ref,
-		"relref":       RelRef,
-		"apply":        Apply,
-		"chomp":        Chomp,
-		"int":          func(v interface{}) int { return cast.ToInt(v) },
-		"string":       func(v interface{}) string { return cast.ToString(v) },
-		"replace":      Replace,
-		"trim":         Trim,
-		"dateFormat":   DateFormat,
-		"getJSON":      GetJSON,
-		"getCSV":       GetCSV,
-		"readDir":      ReadDir,
+		"sanitizeURL":  helpers.SanitizeURL,
+		"sanitizeurl":  helpers.SanitizeURL,
 		"seq":          helpers.Seq,
-		"getenv":       func(varName string) string { return os.Getenv(varName) },
-		"base64Decode": Base64Decode,
-		"base64Encode": Base64Encode,
-		"countwords":   CountWords,
-		"countrunes":   CountRunes,
-		"pluralize": func(in interface{}) (string, error) {
-			word, err := cast.ToStringE(in)
-			if err != nil {
-				return "", err
-			}
-			return inflect.Pluralize(word), nil
-		},
-		"singularize": func(in interface{}) (string, error) {
-			word, err := cast.ToStringE(in)
-			if err != nil {
-				return "", err
-			}
-			return inflect.Singularize(word), nil
-		},
+		"shuffle":      Shuffle,
+		"singularize":  Singularize,
+		"slicestr":     Slicestr,
+		"sort":         Sort,
+		"split":        Split,
+		"string":       func(v interface{}) string { return cast.ToString(v) },
+		"sub":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"substr":       Substr,
+		"title":        func(a string) string { return strings.Title(a) },
+		"trim":         Trim,
+		"upper":        func(a string) string { return strings.ToUpper(a) },
+		"urlize":       helpers.URLize,
+		"where":        Where,
 	}
 }
