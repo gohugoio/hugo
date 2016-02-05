@@ -25,7 +25,7 @@ import (
 func init() {
 	listCmd.AddCommand(listDraftsCmd)
 	listCmd.AddCommand(listFutureCmd)
-	listCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	listCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	listCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 }
 

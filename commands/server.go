@@ -128,7 +128,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 	viper.Set("port", serverPort)
 
-	BaseURL, err := fixURL(viper.GetString("BaseURL"))
+	BaseURL, err := fixURL(baseURL)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func server(cmd *cobra.Command, args []string) error {
 	}
 
 	// If a Destination is provided via flag write to disk
-	if Destination != "" {
+	if destination != "" {
 		renderToDisk = true
 	}
 

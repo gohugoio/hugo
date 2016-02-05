@@ -137,10 +137,18 @@ var (
 	verbose               bool
 	verboseLog            bool
 	buildWatch            bool
+	forceSync             bool
 )
 
-var forceSync bool
-var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile string
+var (
+	baseURL     string
+	cacheDir    string
+	cfgFile     string
+	destination string
+	logFile     string
+	theme       string
+	source      string
+)
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
@@ -189,7 +197,7 @@ func initHugoBuilderFlags(cmd *cobra.Command) {
 // initCoreCommonFlags initializes common flags used by Hugo core commands
 // such as hugo itself, server, check, config and benchmark.
 func initCoreCommonFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	cmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 	// For bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
@@ -207,14 +215,14 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&disableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&disableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	cmd.Flags().BoolVar(&disableRobotsTXT, "disableRobotsTXT", false, "Do not build Robots TXT file")
-	cmd.Flags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.Flags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
+	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.Flags().StringVarP(&cacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolVarP(&ignoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
-	cmd.Flags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
-	cmd.Flags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
+	cmd.Flags().StringVarP(&destination, "destination", "d", "", "filesystem path to write files to")
+	cmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	cmd.Flags().BoolVar(&uglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
 	cmd.Flags().BoolVar(&canonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
-	cmd.Flags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
+	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().BoolVar(&pluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
@@ -232,7 +240,7 @@ func initBenchmarkBuildingFlags(cmd *cobra.Command) {
 func init() {
 	hugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	hugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
-	hugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
+	hugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	hugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
 	initHugoBuilderFlags(hugoCmd)
@@ -296,12 +304,12 @@ func LoadDefaultSettings() {
 // A Hugo command that calls initCoreCommonFlags() can pass itself
 // as an argument to have its command-line flags processed here.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
-	viper.SetConfigFile(CfgFile)
+	viper.SetConfigFile(cfgFile)
 	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
-	if Source == "" {
+	if source == "" {
 		viper.AddConfigPath(".")
 	} else {
-		viper.AddConfigPath(Source)
+		viper.AddConfigPath(source)
 	}
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -322,7 +330,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 			viper.Set("Verbose", verbose)
 		}
 		if flagChanged(cmdV.PersistentFlags(), "logFile") {
-			viper.Set("LogFile", LogFile)
+			viper.Set("LogFile", logFile)
 		}
 		if flagChanged(cmdV.Flags(), "cleanDestinationDir") {
 			viper.Set("cleanDestinationDir", cleanDestination)
@@ -366,43 +374,43 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 	}
 
-	if BaseURL != "" {
-		if !strings.HasSuffix(BaseURL, "/") {
-			BaseURL = BaseURL + "/"
+	if baseURL != "" {
+		if !strings.HasSuffix(baseURL, "/") {
+			baseURL = baseURL + "/"
 		}
-		viper.Set("BaseURL", BaseURL)
+		viper.Set("BaseURL", baseURL)
 	}
 
 	if !viper.GetBool("RelativeURLs") && viper.GetString("BaseURL") == "" {
 		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
 	}
 
-	if Theme != "" {
-		viper.Set("theme", Theme)
+	if theme != "" {
+		viper.Set("theme", theme)
 	}
 
-	if Destination != "" {
-		viper.Set("PublishDir", Destination)
+	if destination != "" {
+		viper.Set("PublishDir", destination)
 	}
 
-	if Source != "" {
-		dir, _ := filepath.Abs(Source)
+	if source != "" {
+		dir, _ := filepath.Abs(source)
 		viper.Set("WorkingDir", dir)
 	} else {
 		dir, _ := os.Getwd()
 		viper.Set("WorkingDir", dir)
 	}
 
-	if CacheDir != "" {
-		if helpers.FilePathSeparator != CacheDir[len(CacheDir)-1:] {
-			CacheDir = CacheDir + helpers.FilePathSeparator
+	if cacheDir != "" {
+		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
+			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
-		isDir, err := helpers.DirExists(CacheDir, hugofs.SourceFs)
+		isDir, err := helpers.DirExists(cacheDir, hugofs.SourceFs)
 		utils.CheckErr(err)
 		if isDir == false {
-			mkdir(CacheDir)
+			mkdir(cacheDir)
 		}
-		viper.Set("CacheDir", CacheDir)
+		viper.Set("CacheDir", cacheDir)
 	} else {
 		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
 	}
