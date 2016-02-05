@@ -9,7 +9,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
-[![Travis CI status](https://travis-ci.org/spf13/hugo.png "Travis CI status")](https://travis-ci.org/spf13/hugo) 
+[![Travis CI status](https://api.travis-ci.org/spf13/hugo.svg?branch=master "Travis CI status")](https://travis-ci.org/spf13/hugo) 
 [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) 
 [![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
 [![CircleCI status](https://circleci.com/gh/spf13/hugo.png?circle-token=:circle-token "CircleCI status")](https://circleci.com/gh/spf13/hugo) 
@@ -76,7 +76,7 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
 6. Use a symbolic link to add your locally cloned Hugo repository to your `$GOPATH`, assuming you prefer doing development work outside of `$GOPATH`:
 
-    ``` bash
+    ```bash
     rm -rf "$GOPATH/src/github.com/spf13/hugo"
     ln -s `pwd` "$GOPATH/src/github.com/spf13/hugo"
     ```
@@ -103,7 +103,7 @@ The Hugo community and maintainers are very active and helpful and the project b
 
 [![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
 
-If you have any questions about how to contribute or what to contribute please ask on the [forum](http://discuss.gohugo.io).
+If you have any questions about how to contribute or what to contribute, please ask on the [forum](http://discuss.gohugo.io).
 
 ## Code Contribution Guideline
 
@@ -116,12 +116,12 @@ To make the process as seamless as possible, we ask for the following:
      * Have test cases for the new code. If you have questions about how to do it, please ask in your pull request.
      * Run `go fmt`
      * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request.
-     * This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages, the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period: *"Return error on wrong use of the Paginator"*, **NOT** *"returning some error."* Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*. Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
-     * Make sure `go test ./...` passes, and `go build` completes. Our [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
+     * **Write a good commit message.** This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages, the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period: *"Return error on wrong use of the Paginator"*, **NOT** *"returning some error."* Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*. Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
+     * Make sure `go test ./...` passes, and `go build` completes. Our [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
 
 ### Build Hugo with Your Changes
 
-``` bash
+```bash
 cd /path/to/hugo
 go build -o hugo main.go
 mv hugo /usr/local/bin/
@@ -141,7 +141,7 @@ Alternatively, just run `make` &mdash; all the “magic” above is already in t
 
 ### Run Hugo
 
-``` bash
+```bash
 cd /path/to/hugo
 go install github.com/spf13/hugo/hugolib
 go run main.go
