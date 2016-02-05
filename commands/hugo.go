@@ -120,24 +120,24 @@ var hugoCmdV *cobra.Command
 
 // Flags that are to be added to commands.
 var (
+	buildWatch            bool
 	canonifyURLs          bool
 	cleanDestination      bool
 	disableRobotsTXT      bool
 	disableRSS            bool
 	disableSitemap        bool
 	draft                 bool
+	forceSync             bool
 	future                bool
 	ignoreCache           bool
 	logging               bool
 	noTimes               bool
 	pluralizeListTitles   bool
-	renderToMemory        bool // for benchmark testing
 	preserveTaxonomyNames bool
+	renderToMemory        bool // for benchmark testing
 	uglyURLs              bool
 	verbose               bool
 	verboseLog            bool
-	buildWatch            bool
-	forceSync             bool
 )
 
 var (
