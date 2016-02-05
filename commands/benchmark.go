@@ -19,9 +19,11 @@ import (
 	"runtime/pprof"
 )
 
-var cpuProfilefile string
-var memProfilefile string
-var benchmarkTimes int
+var (
+	benchmarkTimes int
+	cpuProfilefile string
+	memProfilefile string
+)
 
 var benchmarkCmd = &cobra.Command{
 	Use:   "benchmark",
@@ -31,7 +33,7 @@ creating a benchmark.`,
 }
 
 func init() {
-	initCoreCommonFlags(benchmarkCmd)
+	initHugoBuilderFlags(benchmarkCmd)
 
 	benchmarkCmd.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
 	benchmarkCmd.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")

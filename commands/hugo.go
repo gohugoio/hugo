@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/spf13/hugo/parser"
+	flag "github.com/spf13/pflag"
 
 	"regexp"
 
@@ -92,7 +93,7 @@ func isUserError(err error) bool {
 
 // HugoCmd is Hugo's root command.
 // Every other command attached to HugoCmd is a child command to it.
-var HugoCmd = &cobra.Command{
+var hugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
 	Long: `hugo is the main command, used to build your Hugo site.
@@ -106,7 +107,7 @@ Complete documentation is available at http://gohugo.io/.`,
 			return err
 		}
 
-		if BuildWatch {
+		if buildWatch {
 			viper.Set("DisableLiveReload", true)
 			watchConfig()
 		}
@@ -118,18 +119,37 @@ Complete documentation is available at http://gohugo.io/.`,
 var hugoCmdV *cobra.Command
 
 // Flags that are to be added to commands.
-var BuildWatch, IgnoreCache, Draft, Future, UglyURLs, CanonifyURLs, Verbose, Logging, VerboseLog, DisableRSS, DisableSitemap, DisableRobotsTXT, PluralizeListTitles, PreserveTaxonomyNames, NoTimes, ForceSync, CleanDestination bool
-var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile, Editor string
+var (
+	canonifyURLs          bool
+	cleanDestination      bool
+	disableRobotsTXT      bool
+	disableRSS            bool
+	disableSitemap        bool
+	draft                 bool
+	future                bool
+	ignoreCache           bool
+	logging               bool
+	noTimes               bool
+	pluralizeListTitles   bool
+	preserveTaxonomyNames bool
+	uglyURLs              bool
+	verbose               bool
+	verboseLog            bool
+	buildWatch            bool
+)
+
+var forceSync bool
+var Source, CacheDir, Destination, Theme, BaseURL, CfgFile, LogFile string
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
-	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+	hugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 
-	HugoCmd.SilenceUsage = true
+	hugoCmd.SilenceUsage = true
 
 	AddCommands()
 
-	if c, err := HugoCmd.ExecuteC(); err != nil {
+	if c, err := hugoCmd.ExecuteC(); err != nil {
 		if isUserError(err) {
 			c.Println("")
 			c.Println(c.UsageString())
@@ -141,46 +161,34 @@ func Execute() {
 
 // AddCommands adds child commands to the root command HugoCmd.
 func AddCommands() {
-	HugoCmd.AddCommand(serverCmd)
-	HugoCmd.AddCommand(versionCmd)
-	HugoCmd.AddCommand(configCmd)
-	HugoCmd.AddCommand(checkCmd)
-	HugoCmd.AddCommand(benchmarkCmd)
-	HugoCmd.AddCommand(convertCmd)
-	HugoCmd.AddCommand(newCmd)
-	HugoCmd.AddCommand(listCmd)
-	HugoCmd.AddCommand(undraftCmd)
-	HugoCmd.AddCommand(importCmd)
+	hugoCmd.AddCommand(serverCmd)
+	hugoCmd.AddCommand(versionCmd)
+	hugoCmd.AddCommand(configCmd)
+	hugoCmd.AddCommand(checkCmd)
+	hugoCmd.AddCommand(benchmarkCmd)
+	hugoCmd.AddCommand(convertCmd)
+	hugoCmd.AddCommand(newCmd)
+	hugoCmd.AddCommand(listCmd)
+	hugoCmd.AddCommand(undraftCmd)
+	hugoCmd.AddCommand(importCmd)
 
-	HugoCmd.AddCommand(genCmd)
+	hugoCmd.AddCommand(genCmd)
 	genCmd.AddCommand(genautocompleteCmd)
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
 }
 
+// initHugoBuilderFlags initializes all common flags, typically used by the
+// core build commands.
+func initHugoBuilderFlags(cmd *cobra.Command) {
+	initCoreCommonFlags(cmd)
+	initHugoBuildCommonFlags(cmd)
+}
+
 // initCoreCommonFlags initializes common flags used by Hugo core commands
 // such as hugo itself, server, check, config and benchmark.
 func initCoreCommonFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolVar(&CleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
-	cmd.Flags().BoolVarP(&Draft, "buildDrafts", "D", false, "include content marked as draft")
-	cmd.Flags().BoolVarP(&Future, "buildFuture", "F", false, "include content with publishdate in the future")
-	cmd.Flags().BoolVar(&DisableRSS, "disableRSS", false, "Do not build RSS files")
-	cmd.Flags().BoolVar(&DisableSitemap, "disableSitemap", false, "Do not build Sitemap file")
-	cmd.Flags().BoolVar(&DisableRobotsTXT, "disableRobotsTXT", false, "Do not build Robots TXT file")
-	cmd.Flags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.Flags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
-	cmd.Flags().BoolVarP(&IgnoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
-	cmd.Flags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
-	cmd.Flags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
-	cmd.Flags().BoolVar(&UglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
-	cmd.Flags().BoolVar(&CanonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
-	cmd.Flags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().StringVar(&CfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
-	cmd.Flags().StringVar(&Editor, "editor", "", "edit new content with this editor, if provided")
-	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
-	cmd.Flags().BoolVar(&PluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
-	cmd.Flags().BoolVar(&PreserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
-	cmd.Flags().BoolVarP(&ForceSync, "forceSyncStatic", "", false, "Copy all files when static is changed.")
 	// For bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
@@ -190,21 +198,45 @@ func initCoreCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
+// initial flags related to the Hugo build
+func initHugoBuildCommonFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVar(&cleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
+	cmd.Flags().BoolVarP(&draft, "buildDrafts", "D", false, "include content marked as draft")
+	cmd.Flags().BoolVarP(&future, "buildFuture", "F", false, "include content with publishdate in the future")
+	cmd.Flags().BoolVar(&disableRSS, "disableRSS", false, "Do not build RSS files")
+	cmd.Flags().BoolVar(&disableSitemap, "disableSitemap", false, "Do not build Sitemap file")
+	cmd.Flags().BoolVar(&disableRobotsTXT, "disableRobotsTXT", false, "Do not build Robots TXT file")
+	cmd.Flags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.Flags().StringVarP(&CacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
+	cmd.Flags().BoolVarP(&ignoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
+	cmd.Flags().StringVarP(&Destination, "destination", "d", "", "filesystem path to write files to")
+	cmd.Flags().StringVarP(&Theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
+	cmd.Flags().BoolVar(&uglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
+	cmd.Flags().BoolVar(&canonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
+	cmd.Flags().StringVarP(&BaseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
+
+	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
+	cmd.Flags().BoolVar(&pluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
+	cmd.Flags().BoolVar(&preserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
+	cmd.Flags().BoolVarP(&forceSync, "forceSyncStatic", "", false, "Copy all files when static is changed.")
+	cmd.Flags().BoolVarP(&noTimes, "noTimes", "", false, "Don't sync modification time of files")
+
+}
+
 // init initializes flags.
 func init() {
-	HugoCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&Logging, "log", false, "Enable Logging")
-	HugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
-	HugoCmd.PersistentFlags().BoolVar(&VerboseLog, "verboseLog", false, "verbose logging")
+	hugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	hugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
+	hugoCmd.PersistentFlags().StringVar(&LogFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
+	hugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
-	initCoreCommonFlags(HugoCmd)
+	initHugoBuilderFlags(hugoCmd)
 
-	HugoCmd.Flags().BoolVarP(&BuildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
-	HugoCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
-	hugoCmdV = HugoCmd
+	hugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	hugoCmdV = hugoCmd
 
 	// For bash-completion
-	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+	hugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
 func LoadDefaultSettings() {
@@ -278,57 +310,54 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 	LoadDefaultSettings()
 
-	if hugoCmdV.PersistentFlags().Lookup("verbose").Changed {
-		viper.Set("Verbose", Verbose)
-	}
-	if hugoCmdV.PersistentFlags().Lookup("logFile").Changed {
-		viper.Set("LogFile", LogFile)
-	}
-
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
-		if cmdV.Flags().Lookup("cleanDestinationDir").Changed {
-			viper.Set("cleanDestinationDir", CleanDestination)
-		}
-		if cmdV.Flags().Lookup("buildDrafts").Changed {
-			viper.Set("BuildDrafts", Draft)
-		}
-		if cmdV.Flags().Lookup("buildFuture").Changed {
-			viper.Set("BuildFuture", Future)
-		}
-		if cmdV.Flags().Lookup("uglyURLs").Changed {
-			viper.Set("UglyURLs", UglyURLs)
-		}
-		if cmdV.Flags().Lookup("canonifyURLs").Changed {
-			viper.Set("CanonifyURLs", CanonifyURLs)
-		}
-		if cmdV.Flags().Lookup("disableRSS").Changed {
-			viper.Set("DisableRSS", DisableRSS)
-		}
-		if cmdV.Flags().Lookup("disableSitemap").Changed {
-			viper.Set("DisableSitemap", DisableSitemap)
-		}
-		if cmdV.Flags().Lookup("disableRobotsTXT").Changed {
-			viper.Set("DisableRobotsTXT", DisableRobotsTXT)
-		}
-		if cmdV.Flags().Lookup("pluralizeListTitles").Changed {
-			viper.Set("PluralizeListTitles", PluralizeListTitles)
-		}
-		if cmdV.Flags().Lookup("preserveTaxonomyNames").Changed {
-			viper.Set("PreserveTaxonomyNames", PreserveTaxonomyNames)
-		}
-		if cmdV.Flags().Lookup("forceSyncStatic").Changed {
-			viper.Set("ForceSyncStatic", ForceSync)
-		}
-		if cmdV.Flags().Lookup("editor").Changed {
-			viper.Set("NewContentEditor", Editor)
-		}
-		if cmdV.Flags().Lookup("ignoreCache").Changed {
-			viper.Set("IgnoreCache", IgnoreCache)
-		}
-	}
 
-	if hugoCmdV.Flags().Lookup("noTimes").Changed {
-		viper.Set("NoTimes", NoTimes)
+		if flagChanged(cmdV.PersistentFlags(), "verbose") {
+			viper.Set("Verbose", verbose)
+		}
+		if flagChanged(cmdV.PersistentFlags(), "logFile") {
+			viper.Set("LogFile", LogFile)
+		}
+		if flagChanged(cmdV.Flags(), "cleanDestinationDir") {
+			viper.Set("cleanDestinationDir", cleanDestination)
+		}
+		if flagChanged(cmdV.Flags(), "buildDrafts") {
+			viper.Set("BuildDrafts", draft)
+		}
+		if flagChanged(cmdV.Flags(), "buildFuture") {
+			viper.Set("BuildFuture", future)
+		}
+		if flagChanged(cmdV.Flags(), "uglyURLs") {
+			viper.Set("UglyURLs", uglyURLs)
+		}
+		if flagChanged(cmdV.Flags(), "canonifyURLs") {
+			viper.Set("CanonifyURLs", canonifyURLs)
+		}
+		if flagChanged(cmdV.Flags(), "disableRSS") {
+			viper.Set("DisableRSS", disableRSS)
+		}
+		if flagChanged(cmdV.Flags(), "disableSitemap") {
+			viper.Set("DisableSitemap", disableSitemap)
+		}
+		if flagChanged(cmdV.Flags(), "disableRobotsTXT") {
+			viper.Set("DisableRobotsTXT", disableRobotsTXT)
+		}
+		if flagChanged(cmdV.Flags(), "pluralizeListTitles") {
+			viper.Set("PluralizeListTitles", pluralizeListTitles)
+		}
+		if flagChanged(cmdV.Flags(), "preserveTaxonomyNames") {
+			viper.Set("PreserveTaxonomyNames", preserveTaxonomyNames)
+		}
+		if flagChanged(cmdV.Flags(), "ignoreCache") {
+			viper.Set("IgnoreCache", ignoreCache)
+		}
+		if flagChanged(cmdV.Flags(), "forceSyncStatic") {
+			viper.Set("ForceSyncStatic", forceSync)
+		}
+		if flagChanged(cmdV.Flags(), "noTimes") {
+			viper.Set("NoTimes", noTimes)
+		}
+
 	}
 
 	if BaseURL != "" {
@@ -372,7 +401,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
 	}
 
-	if VerboseLog || Logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
+	if verboseLog || logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
 		if viper.IsSet("LogFile") && viper.GetString("LogFile") != "" {
 			jww.SetLogFile(viper.GetString("LogFile"))
 		} else {
@@ -386,7 +415,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		jww.SetStdoutThreshold(jww.LevelInfo)
 	}
 
-	if VerboseLog {
+	if verboseLog {
 		jww.SetLogThreshold(jww.LevelInfo)
 	}
 
@@ -407,6 +436,14 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	return nil
+}
+
+func flagChanged(flags *flag.FlagSet, key string) bool {
+	flag := flags.Lookup(key)
+	if flag == nil {
+		return false
+	}
+	return flag.Changed
 }
 
 func watchConfig() {
@@ -430,11 +467,11 @@ func build(watches ...bool) error {
 	if len(watches) > 0 && watches[0] {
 		watch = true
 	}
-	if err := buildSite(BuildWatch || watch); err != nil {
+	if err := buildSite(buildWatch || watch); err != nil {
 		return fmt.Errorf("Error building site: %s", err)
 	}
 
-	if BuildWatch {
+	if buildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
 		utils.CheckErr(NewWatcher(0))
@@ -787,7 +824,7 @@ func NewWatcher(port int) error {
 						}
 					}
 
-					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
+					if !buildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
 						// force refresh when more than one file
@@ -810,7 +847,7 @@ func NewWatcher(port int) error {
 
 					rebuildSite(dynamicEvents)
 
-					if !BuildWatch && !viper.GetBool("DisableLiveReload") {
+					if !buildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 						livereload.ForceRefresh()
 					}
