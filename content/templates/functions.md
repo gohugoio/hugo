@@ -387,6 +387,16 @@ Takes a string of code and a language, uses Pygments to return the syntax highli
 Used in the [highlight shortcode](/extras/highlighting/).
 
 
+### humanize
+Humanize returns the humanized version of a string with the first letter capitalized.
+
+e.g.
+```
+{{humanize "my-first-post"}} → "My first post"
+{{humanize "myCamelPost"}} → "My camel post"
+```
+
+
 ### lower
 Converts all characters in string to lowercase.
 
