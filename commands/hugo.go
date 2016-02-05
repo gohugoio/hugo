@@ -131,6 +131,7 @@ var (
 	logging               bool
 	noTimes               bool
 	pluralizeListTitles   bool
+	renderToMemory        bool // for benchmark testing
 	preserveTaxonomyNames bool
 	uglyURLs              bool
 	verbose               bool
@@ -223,6 +224,10 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 
 }
 
+func initBenchmarkBuildingFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVar(&renderToMemory, "renderToMemory", false, "render to memory (only useful for benchmark testing)")
+}
+
 // init initializes flags.
 func init() {
 	hugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
@@ -231,6 +236,7 @@ func init() {
 	hugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
 	initHugoBuilderFlags(hugoCmd)
+	initBenchmarkBuildingFlags(hugoCmd)
 
 	hugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	hugoCmdV = hugoCmd
@@ -459,6 +465,15 @@ func watchConfig() {
 }
 
 func build(watches ...bool) error {
+
+	// Hugo writes the output to memory instead of the disk
+	// This is only used for benchmark testing. Cause the content is only visible
+	// in memory
+	if renderToMemory {
+		hugofs.DestinationFS = new(afero.MemMapFs)
+		// Rendering to memoryFS, publish to Root regardless of publishDir.
+		viper.Set("PublishDir", "/")
+	}
 
 	if err := copyStatic(); err != nil {
 		return fmt.Errorf("Error copying static files to %s: %s", helpers.AbsPathify(viper.GetString("PublishDir")), err)

@@ -34,6 +34,7 @@ creating a benchmark.`,
 
 func init() {
 	initHugoBuilderFlags(benchmarkCmd)
+	initBenchmarkBuildingFlags(benchmarkCmd)
 
 	benchmarkCmd.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
 	benchmarkCmd.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
