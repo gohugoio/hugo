@@ -9,7 +9,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
-[![Travis CI status](https://travis-ci.org/spf13/hugo.png "Travis CI status")](https://travis-ci.org/spf13/hugo) 
+[![Travis CI status](https://api.travis-ci.org/spf13/hugo.svg?branch=master "Travis CI status")](https://travis-ci.org/spf13/hugo) 
 [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32 "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32) 
 [![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master) 
 [![CircleCI status](https://circleci.com/gh/spf13/hugo.png?circle-token=:circle-token "CircleCI status")](https://circleci.com/gh/spf13/hugo) 
