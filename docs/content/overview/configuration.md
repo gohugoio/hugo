@@ -99,6 +99,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     editor:                     ""
     footnoteAnchorPrefix:       ""
     footnoteReturnLinkContents: ""
+    # google analytics tracking id
+    googleAnalytics:            ""
     languageCode:               ""
     layoutdir:                  "layouts"
     # Enable Logging
