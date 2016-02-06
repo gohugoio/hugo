@@ -24,12 +24,12 @@ func LiveReloadInject(ct contentTransformer) {
 	replaceTemplate := `<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script>%s`
 	replace := []byte(fmt.Sprintf(replaceTemplate, endBodyTag))
 
-	newcontent := bytes.Replace(ct.Content(), match, replace, -1)
+	newcontent := bytes.Replace(ct.Content(), match, replace, 1)
 	if len(newcontent) == len(ct.Content()) {
 		endBodyTag = "</BODY>"
 		replace := []byte(fmt.Sprintf(replaceTemplate, endBodyTag))
 		match := []byte(endBodyTag)
-		newcontent = bytes.Replace(ct.Content(), match, replace, -1)
+		newcontent = bytes.Replace(ct.Content(), match, replace, 1)
 	}
 
 	ct.Write(newcontent)
