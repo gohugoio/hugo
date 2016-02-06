@@ -93,7 +93,7 @@ func isUserError(err error) bool {
 
 // HugoCmd is Hugo's root command.
 // Every other command attached to HugoCmd is a child command to it.
-var hugoCmd = &cobra.Command{
+var HugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
 	Long: `hugo is the main command, used to build your Hugo site.
@@ -152,13 +152,13 @@ var (
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
-	hugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 
-	hugoCmd.SilenceUsage = true
+	HugoCmd.SilenceUsage = true
 
 	AddCommands()
 
-	if c, err := hugoCmd.ExecuteC(); err != nil {
+	if c, err := HugoCmd.ExecuteC(); err != nil {
 		if isUserError(err) {
 			c.Println("")
 			c.Println(c.UsageString())
@@ -170,18 +170,18 @@ func Execute() {
 
 // AddCommands adds child commands to the root command HugoCmd.
 func AddCommands() {
-	hugoCmd.AddCommand(serverCmd)
-	hugoCmd.AddCommand(versionCmd)
-	hugoCmd.AddCommand(configCmd)
-	hugoCmd.AddCommand(checkCmd)
-	hugoCmd.AddCommand(benchmarkCmd)
-	hugoCmd.AddCommand(convertCmd)
-	hugoCmd.AddCommand(newCmd)
-	hugoCmd.AddCommand(listCmd)
-	hugoCmd.AddCommand(undraftCmd)
-	hugoCmd.AddCommand(importCmd)
+	HugoCmd.AddCommand(serverCmd)
+	HugoCmd.AddCommand(versionCmd)
+	HugoCmd.AddCommand(configCmd)
+	HugoCmd.AddCommand(checkCmd)
+	HugoCmd.AddCommand(benchmarkCmd)
+	HugoCmd.AddCommand(convertCmd)
+	HugoCmd.AddCommand(newCmd)
+	HugoCmd.AddCommand(listCmd)
+	HugoCmd.AddCommand(undraftCmd)
+	HugoCmd.AddCommand(importCmd)
 
-	hugoCmd.AddCommand(genCmd)
+	HugoCmd.AddCommand(genCmd)
 	genCmd.AddCommand(genautocompleteCmd)
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
@@ -238,19 +238,19 @@ func initBenchmarkBuildingFlags(cmd *cobra.Command) {
 
 // init initializes flags.
 func init() {
-	hugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	hugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
-	hugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
-	hugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
+	HugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
+	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
+	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
-	initHugoBuilderFlags(hugoCmd)
-	initBenchmarkBuildingFlags(hugoCmd)
+	initHugoBuilderFlags(HugoCmd)
+	initBenchmarkBuildingFlags(HugoCmd)
 
-	hugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
-	hugoCmdV = hugoCmd
+	HugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	hugoCmdV = HugoCmd
 
 	// For bash-completion
-	hugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
 func LoadDefaultSettings() {
