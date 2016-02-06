@@ -16,6 +16,7 @@ package transform
 import (
 	"bytes"
 	"github.com/spf13/hugo/helpers"
+	"github.com/stretchr/testify/assert"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -209,6 +210,11 @@ func BenchmarkXMLAbsURL(b *testing.B) {
 func TestXMLAbsURL(t *testing.T) {
 	tr := NewChain(AbsURLInXML)
 	apply(t.Errorf, tr, xml_abs_url_tests)
+}
+
+func TestNewEmptyTransforms(t *testing.T) {
+	transforms := NewEmptyTransforms()
+	assert.Equal(t, 20, cap(transforms))
 }
 
 type errorf func(string, ...interface{})
