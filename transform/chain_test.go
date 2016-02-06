@@ -36,6 +36,9 @@ const H5_XML_CONTENT_GUARDED = "<?xml version=\"1.0\" encoding=\"utf-8\" standal
 // additional sanity tests for replacements testing
 const REPLACE_1 = "No replacements."
 const REPLACE_2 = "ᚠᛇᚻ ᛒᛦᚦ ᚠᚱᚩᚠᚢᚱ\nᚠᛁᚱᚪ ᚷᛖᚻᚹᛦᛚᚳᚢᛗ"
+const REPLACE_3 = `End of file: src="/`
+const REPLACE_4 = `End of file: srcset="/`
+const REPLACE_5 = `Srcsett with no closing quote: srcset="/img/small.jpg do be do be do.`
 
 // Issue: 816, schemaless links combined with others
 const REPLACE_SCHEMALESS_HTML = `Pre. src='//schemaless' src='/normal'  <a href="//schemaless">Schemaless</a>. <a href="/normal">normal</a>. Post.`
@@ -94,7 +97,7 @@ var xml_abs_url_bench_tests = []test{
 	{H5_XML_CONTENT_GUARDED, H5_XML_CONTENT_GUARDED},
 }
 
-var sanity_tests = []test{{REPLACE_1, REPLACE_1}, {REPLACE_2, REPLACE_2}}
+var sanity_tests = []test{{REPLACE_1, REPLACE_1}, {REPLACE_2, REPLACE_2}, {REPLACE_3, REPLACE_3}, {REPLACE_4, REPLACE_4}, {REPLACE_5, REPLACE_5}}
 var extra_tests_html = []test{{REPLACE_SCHEMALESS_HTML, REPLACE_SCHEMALESS_HTML_CORRECT}}
 var abs_url_tests = append(abs_url_bench_tests, append(sanity_tests, extra_tests_html...)...)
 var extra_tests_xml = []test{{REPLACE_SCHEMALESS_XML, REPLACE_SCHEMALESS_XML_CORRECT}}
