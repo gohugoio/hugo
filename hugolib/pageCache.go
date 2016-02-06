@@ -66,7 +66,7 @@ func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) 
 	if v, ok := c.m[key]; ok {
 		c.m[key] = append(v, [2]Pages{p, pagesCopy})
 	} else {
-		c.m[key] = [][2]Pages{[2]Pages{p, pagesCopy}}
+		c.m[key] = [][2]Pages{{p, pagesCopy}}
 	}
 
 	return pagesCopy, false
