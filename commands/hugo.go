@@ -188,26 +188,23 @@ func AddCommands() {
 }
 
 // initHugoBuilderFlags initializes all common flags, typically used by the
-// core build commands.
+// core build commands, namely hugo itself, server, check and benchmark.
 func initHugoBuilderFlags(cmd *cobra.Command) {
 	initCoreCommonFlags(cmd)
 	initHugoBuildCommonFlags(cmd)
 }
 
-// initCoreCommonFlags initializes common flags used by Hugo core commands
-// such as hugo itself, server, check, config and benchmark.
+// initCoreCommonFlags initializes common flags used by Hugo core commands.
 func initCoreCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
-	// For bash-completion
+
+	// Set bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
 	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
-	cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
-// initial flags related to the Hugo build
+// initHugoBuildCommonFlags initialize common flags related to the Hugo build.
+// Called by initHugoBuilderFlags.
 func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&cleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
 	cmd.Flags().BoolVarP(&draft, "buildDrafts", "D", false, "include content marked as draft")
@@ -230,6 +227,12 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&forceSync, "forceSyncStatic", "", false, "Copy all files when static is changed.")
 	cmd.Flags().BoolVarP(&noTimes, "noTimes", "", false, "Don't sync modification time of files")
 
+	// Set bash-completion.
+	// Each flag must first be defined before using the SetAnnotation() call.
+	cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
 func initBenchmarkBuildingFlags(cmd *cobra.Command) {
@@ -249,7 +252,7 @@ func init() {
 	HugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 	hugoCmdV = HugoCmd
 
-	// For bash-completion
+	// Set bash-completion
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
