@@ -23,6 +23,8 @@ import (
 	"net"
 	"path/filepath"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"unicode"
@@ -480,4 +482,36 @@ func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 		break
 	}
 	return pflag.NormalizedName(name)
+}
+
+type ImageResizeProps struct {
+	Width  int
+	Height int
+	Crop   bool
+}
+
+func ParseImageProps(filename string) (props ImageResizeProps) {
+	splits := strings.Split(filename, ".")
+	if len(splits) == 1 {
+		return
+	}
+	params := strings.Split(splits[len(splits)-1], "-")
+	re := regexp.MustCompile(`([a-zA-Z])(\d+)`)
+	for _, p := range params {
+		if p == "c" {
+			props.Crop = true
+			break
+		}
+
+		matches := re.FindStringSubmatch(p)
+		val, _ := strconv.Atoi(matches[2])
+		switch matches[1] {
+		case "w":
+			props.Width = val
+		case "h":
+			props.Height = val
+		}
+	}
+
+	return
 }

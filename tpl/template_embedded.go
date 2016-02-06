@@ -60,6 +60,7 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
 {{ end }}`)
 	t.AddInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js"></script>`)
 	t.AddInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
+	t.AddInternalShortcode("resizedImage.html", `<image src="{{ (resizedImage (.Get 0) ) }}" />`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {

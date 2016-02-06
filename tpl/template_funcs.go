@@ -1535,5 +1535,6 @@ func init() {
 			}
 			return inflect.Singularize(word), nil
 		},
+		"resizedImage": ResizedImage,
 	}
 }
