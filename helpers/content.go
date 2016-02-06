@@ -426,7 +426,7 @@ func TruncateWordsByRune(words []string, max int) (string, bool) {
 		} else if count+runeCount < max {
 			count += runeCount
 		} else {
-			for ri, _ := range word {
+			for ri := range word {
 				if count >= max {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true

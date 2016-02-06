@@ -20,12 +20,12 @@ import (
 	"fmt"
 	"github.com/spf13/cast"
 	"html/template"
+	"math/rand"
 	"path"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
-	"math/rand"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -345,7 +345,7 @@ func TestAfter(t *testing.T) {
 func TestShuffleInputAndOutputFormat(t *testing.T) {
 	for i, this := range []struct {
 		sequence interface{}
-		success bool
+		success  bool
 	}{
 		{[]string{"a", "b", "c", "d"}, true},
 		{[]int{100, 200, 300}, true},
@@ -405,7 +405,6 @@ func TestShuffleRandomising(t *testing.T) {
 		}
 	}
 }
-
 
 func TestDictionary(t *testing.T) {
 	for i, this := range []struct {
