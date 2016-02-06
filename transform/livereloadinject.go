@@ -15,15 +15,20 @@ package transform
 
 import (
 	"bytes"
+	"fmt"
 )
 
 func LiveReloadInject(ct contentTransformer) {
-	match := []byte("</body>")
-	replace := []byte(`<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script></body>`)
+	endBodyTag := "</body>"
+	match := []byte(endBodyTag)
+	replaceTemplate := `<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script>%s`
+	replace := []byte(fmt.Sprintf(replaceTemplate, endBodyTag))
 
 	newcontent := bytes.Replace(ct.Content(), match, replace, -1)
 	if len(newcontent) == len(ct.Content()) {
-		match := []byte("</BODY>")
+		endBodyTag = "</BODY>"
+		replace := []byte(fmt.Sprintf(replaceTemplate, endBodyTag))
+		match := []byte(endBodyTag)
 		newcontent = bytes.Replace(ct.Content(), match, replace, -1)
 	}
 

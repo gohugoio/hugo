@@ -15,18 +15,24 @@ package transform
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/spf13/hugo/helpers"
 	"testing"
 )
 
 func TestLiveReloadInject(t *testing.T) {
+	doTestLiveReloadInject(t, "</body>")
+	doTestLiveReloadInject(t, "</BODY>")
+}
+
+func doTestLiveReloadInject(t *testing.T, bodyEndTag string) {
 	out := new(bytes.Buffer)
-	in := helpers.StringToReader("</body>")
+	in := helpers.StringToReader(bodyEndTag)
 
 	tr := NewChain(LiveReloadInject)
 	tr.Apply(out, in, []byte("path"))
 
-	expected := `<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script></body>`
+	expected := fmt.Sprintf(`<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script>%s`, bodyEndTag)
 	if string(out.Bytes()) != expected {
 		t.Errorf("Expected %s got %s", expected, string(out.Bytes()))
 	}
