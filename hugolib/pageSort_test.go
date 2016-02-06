@@ -71,7 +71,6 @@ func TestSortByN(t *testing.T) {
 	} {
 		setSortVals([3]time.Time{d1, d2, d3}, [3]string{"b", "ab", "cde"}, [3]int{3, 2, 1}, p)
 
-		fmt.Printf("Pages %v", p)
 		sorted := this.sortFunc(p)
 		if !this.assertFunc(sorted) {
 			t.Errorf("[%d] sort error", i)
