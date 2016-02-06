@@ -18,14 +18,15 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
 	"html/template"
+	"math/rand"
 	"path"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
-	"math/rand"
+
+	"github.com/spf13/cast"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -70,7 +71,6 @@ func TestCompare(t *testing.T) {
 	} {
 		doTestCompare(t, this.tstCompareType, this.funcUnderTest)
 	}
-
 }
 
 func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b interface{}) bool) {
@@ -345,7 +345,7 @@ func TestAfter(t *testing.T) {
 func TestShuffleInputAndOutputFormat(t *testing.T) {
 	for i, this := range []struct {
 		sequence interface{}
-		success bool
+		success  bool
 	}{
 		{[]string{"a", "b", "c", "d"}, true},
 		{[]int{100, 200, 300}, true},
@@ -405,7 +405,6 @@ func TestShuffleRandomising(t *testing.T) {
 		}
 	}
 }
-
 
 func TestDictionary(t *testing.T) {
 	for i, this := range []struct {
@@ -491,7 +490,6 @@ func TestSlicestr(t *testing.T) {
 		{tstNoStringer{}, 0, 1, false},
 		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
 	} {
-
 		var result string
 		if this.v2 == nil {
 			result, err = Slicestr(this.v1)
@@ -619,7 +617,6 @@ func TestSplit(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func TestIntersect(t *testing.T) {
@@ -1457,7 +1454,6 @@ func TestReturnWhenSet(t *testing.T) {
 }
 
 func TestMarkdownify(t *testing.T) {
-
 	result := Markdownify("Hello **World!**")
 
 	expect := template.HTML("Hello <strong>World!</strong>")
@@ -1470,8 +1466,6 @@ func TestMarkdownify(t *testing.T) {
 func TestApply(t *testing.T) {
 	strings := []interface{}{"a\n", "b\n"}
 	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
-
-	var nilErr *error = nil
 
 	chomped, _ := Apply(strings, "chomp", ".")
 	assert.Equal(t, []interface{}{"a", "b"}, chomped)
@@ -1487,6 +1481,7 @@ func TestApply(t *testing.T) {
 		t.Errorf("apply with apply should fail")
 	}
 
+	var nilErr *error
 	_, err = Apply(nilErr, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with nil in seq should fail")
@@ -1506,7 +1501,6 @@ func TestApply(t *testing.T) {
 	if err == nil {
 		t.Errorf("apply with non-sequence should fail")
 	}
-
 }
 
 func TestChomp(t *testing.T) {
@@ -1527,6 +1521,22 @@ func TestChomp(t *testing.T) {
 		if err == nil {
 			t.Errorf("Chomp should fail")
 		}
+	}
+}
+
+func TestHumanize(t *testing.T) {
+	for _, e := range []struct {
+		in, exp string
+	}{
+		{"MyCamelPost", "My camel post"},
+		{"myLowerCamelPost", "My lower camel post"},
+		{"my-dash-post", "My dash post"},
+		{"my_underscore_post", "My underscore post"},
+		{"posts/my-first-post", "Posts/my first post"},
+	} {
+		res, err := Humanize(e.in)
+		assert.Nil(t, err)
+		assert.Equal(t, e.exp, res)
 	}
 }
 
