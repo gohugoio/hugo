@@ -561,6 +561,9 @@ func TestSubstr(t *testing.T) {
 		{"abcdef", 2.0, 2, "cd"},
 		{"abcdef", 2, 2.0, "cd"},
 		{"ĀĀĀ", 1, 2, "ĀĀ"}, // # issue 1333
+		{"abcdef", "doo", nil, false},
+		{"abcdef", "doo", "doo", false},
+		{"abcdef", 1, "doo", false},
 	} {
 		var result string
 		n = i
