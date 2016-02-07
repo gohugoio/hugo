@@ -1559,6 +1559,32 @@ func TestInflect(t *testing.T) {
 	}
 }
 
+func TestCounterFuncs(t *testing.T) {
+	for i, this := range []struct {
+		countFunc func(i interface{}) (int, error)
+		in        string
+		expected  int
+	}{
+		{countWords, "Do Be Do Be Do", 5},
+		{countWords, "旁边", 2},
+		{countRunes, "旁边", 2},
+	} {
+
+		result, err := this.countFunc(this.in)
+
+		if err != nil {
+			t.Errorf("[%d] Unexpected counter error: %s", i, err)
+		} else if result != this.expected {
+			t.Errorf("[%d] Count method error, got %v expected %v", i, result, this.expected)
+		}
+
+		_, err = this.countFunc(t)
+		if err == nil {
+			t.Errorf("[%d] Expected Count error", i)
+		}
+	}
+}
+
 func TestReplace(t *testing.T) {
 	v, _ := replace("aab", "a", "b")
 	assert.Equal(t, "bbb", v)

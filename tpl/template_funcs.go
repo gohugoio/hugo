@@ -1445,7 +1445,7 @@ func countWords(content interface{}) (int, error) {
 	conv, err := cast.ToStringE(content)
 
 	if err != nil {
-		return 0, errors.New("Failed to convert content to string: " + err.Error())
+		return 0, fmt.Errorf("Failed to convert content to string: %s", err.Error())
 	}
 
 	counter := 0
@@ -1466,7 +1466,7 @@ func countRunes(content interface{}) (int, error) {
 	conv, err := cast.ToStringE(content)
 
 	if err != nil {
-		return 0, errors.New("Failed to convert content to string: " + err.Error())
+		return 0, fmt.Errorf("Failed to convert content to string: %s", err.Error())
 	}
 
 	counter := 0
