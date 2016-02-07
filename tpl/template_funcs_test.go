@@ -1523,18 +1523,33 @@ func TestChomp(t *testing.T) {
 }
 
 func TestHumanize(t *testing.T) {
-	for _, e := range []struct {
-		in, exp string
+	for i, this := range []struct {
+		in, expect interface{}
 	}{
 		{"MyCamelPost", "My camel post"},
 		{"myLowerCamelPost", "My lower camel post"},
 		{"my-dash-post", "My dash post"},
 		{"my_underscore_post", "My underscore post"},
 		{"posts/my-first-post", "Posts/my first post"},
+		{tstNoStringer{}, false},
 	} {
-		res, err := Humanize(e.in)
-		assert.Nil(t, err)
-		assert.Equal(t, e.exp, res)
+
+		result, err := Humanize(this.in)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Humanize didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if result != this.expect {
+				t.Errorf("[%d] Humanize got %v but expected %v", i, result, this.expect)
+			}
+		}
+
 	}
 }
 
