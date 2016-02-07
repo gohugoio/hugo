@@ -266,6 +266,7 @@ func TestFirst(t *testing.T) {
 		{1, nil, false},
 		{nil, []int{100}, false},
 		{1, t, false},
+		{1, (*string)(nil), false},
 	} {
 		results, err := first(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
@@ -300,6 +301,7 @@ func TestLast(t *testing.T) {
 		{1, nil, false},
 		{nil, []int{100}, false},
 		{1, t, false},
+		{1, (*string)(nil), false},
 	} {
 		results, err := last(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
@@ -334,6 +336,7 @@ func TestAfter(t *testing.T) {
 		{1, nil, false},
 		{nil, []int{100}, false},
 		{1, t, false},
+		{1, (*string)(nil), false},
 	} {
 		results, err := after(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
@@ -367,6 +370,7 @@ func TestShuffleInputAndOutputFormat(t *testing.T) {
 		{[]int{100}, true},
 		{nil, false},
 		{t, false},
+		{(*string)(nil), false},
 	} {
 		results, err := shuffle(this.sequence)
 		if !this.success {
