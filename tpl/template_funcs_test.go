@@ -499,6 +499,8 @@ func TestSlicestr(t *testing.T) {
 		{"abcdef", 1, -1, false},
 		{tstNoStringer{}, 0, 1, false},
 		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
+		{"a", t, nil, false},
+		{"a", 1, t, false},
 	} {
 		var result string
 		if this.v2 == nil {
@@ -522,6 +524,12 @@ func TestSlicestr(t *testing.T) {
 				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
+	}
+
+	// Too many arguments
+	_, err = slicestr("a", 1, 2, 3)
+	if err == nil {
+		t.Errorf("Should have errored")
 	}
 }
 
