@@ -1533,32 +1533,28 @@ func TestChomp(t *testing.T) {
 	}
 }
 
-func TestHumanize(t *testing.T) {
+func TestInflect(t *testing.T) {
 	for i, this := range []struct {
-		in, expect interface{}
+		inflectFunc func(i interface{}) (string, error)
+		in          string
+		expected    string
 	}{
-		{"MyCamelPost", "My camel post"},
-		{"myLowerCamelPost", "My lower camel post"},
-		{"my-dash-post", "My dash post"},
-		{"my_underscore_post", "My underscore post"},
-		{"posts/my-first-post", "Posts/my first post"},
-		{tstNoStringer{}, false},
+		{humanize, "MyCamel", "My camel"},
+		{pluralize, "cat", "cats"},
+		{singularize, "cats", "cat"},
 	} {
 
-		result, err := humanize(this.in)
+		result, err := this.inflectFunc(this.in)
 
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] Humanize didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if result != this.expect {
-				t.Errorf("[%d] Humanize got %v but expected %v", i, result, this.expect)
-			}
+		if err != nil {
+			t.Errorf("[%d] Unexpected Inflect error: %s", i, err)
+		} else if result != this.expected {
+			t.Errorf("[%d] Inflect method error, got %v expected %v", i, result, this.expected)
+		}
+
+		_, err = this.inflectFunc(t)
+		if err == nil {
+			t.Errorf("[%d] Expected Inflect error", i)
 		}
 	}
 }
