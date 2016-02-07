@@ -497,6 +497,32 @@ func TestMenuLimit(t *testing.T) {
 	assert.Equal(t, m, m.Limit(5))
 }
 
+func TestMenuSortByN(t *testing.T) {
+
+	for i, this := range []struct {
+		sortFunc   func(p Menu) Menu
+		assertFunc func(p Menu) bool
+	}{
+		{(Menu).Sort, func(p Menu) bool { return p[0].Weight == 1 && p[1].Name == "nx" && p[2].Identifier == "ib" }},
+		{(Menu).ByWeight, func(p Menu) bool { return p[0].Weight == 1 && p[1].Name == "nx" && p[2].Identifier == "ib" }},
+		{(Menu).ByName, func(p Menu) bool { return p[0].Name == "na" }},
+		{(Menu).Reverse, func(p Menu) bool { return p[0].Identifier == "ib" && p[len(p)-1].Identifier == "ia" }},
+	} {
+		menu := Menu{&MenuEntry{Weight: 3, Name: "nb", Identifier: "ia"},
+			&MenuEntry{Weight: 1, Name: "na", Identifier: "ic"},
+			&MenuEntry{Weight: 1, Name: "nx", Identifier: "ic"},
+			&MenuEntry{Weight: 2, Name: "nb", Identifier: "ix"},
+			&MenuEntry{Weight: 2, Name: "nb", Identifier: "ib"}}
+
+		sorted := this.sortFunc(menu)
+
+		if !this.assertFunc(sorted) {
+			t.Errorf("[%d] sort error", i)
+		}
+	}
+
+}
+
 func TestHomeNodeMenu(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
