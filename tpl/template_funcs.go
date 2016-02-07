@@ -1132,15 +1132,14 @@ func returnWhenSet(a, k interface{}) interface{} {
 }
 
 // highlight returns an HTML string with syntax highlighting applied.
-func highlight(in interface{}, lang, opts string) template.HTML {
-	var str string
-	av := reflect.ValueOf(in)
-	switch av.Kind() {
-	case reflect.String:
-		str = av.String()
+func highlight(in interface{}, lang, opts string) (template.HTML, error) {
+	str, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
 	}
 
-	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts))
+	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts)), nil
 }
 
 var markdownTrimPrefix = []byte("<p>")

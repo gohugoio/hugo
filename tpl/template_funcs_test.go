@@ -25,6 +25,7 @@ import (
 	"path"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -1530,6 +1531,26 @@ func TestChomp(t *testing.T) {
 		if err == nil {
 			t.Errorf("Chomp should fail")
 		}
+	}
+}
+
+func TestHighlight(t *testing.T) {
+	code := "func boo() {}"
+	highlighted, err := highlight(code, "go", "")
+
+	if err != nil {
+		t.Fatal("Highlight returned error:", err)
+	}
+
+	// this depends on a Pygments installation, but will always contain the function name.
+	if !strings.Contains(string(highlighted), "boo") {
+		t.Errorf("Highlight mismatch,  got %v", highlighted)
+	}
+
+	_, err = highlight(t, "go", "")
+
+	if err == nil {
+		t.Error("Expected highlight error")
 	}
 }
 
