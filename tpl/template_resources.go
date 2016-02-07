@@ -158,15 +158,7 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 
 // resGetLocal loads the content of a local file
 func resGetLocal(url string, fs afero.Fs) ([]byte, error) {
-	p := ""
-	workingDir := viper.GetString("WorkingDir")
-	if workingDir != "" {
-		p = workingDir
-		if !strings.HasSuffix(p, helpers.FilePathSeparator) {
-			p = p + helpers.FilePathSeparator
-		}
-	}
-	filename := p + url
+	filename := filepath.Join(viper.GetString("WorkingDir"), url)
 	if e, err := helpers.Exists(filename, fs); !e {
 		return nil, err
 	}
