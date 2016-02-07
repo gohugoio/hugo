@@ -1422,11 +1422,7 @@ func base64Decode(content interface{}) (string, error) {
 
 	dec, err := base64.StdEncoding.DecodeString(conv)
 
-	if err != nil {
-		return "", err
-	}
-
-	return string(dec), nil
+	return string(dec), err
 }
 
 // base64Encode returns the base64 encoding of the given content.

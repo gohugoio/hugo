@@ -1821,11 +1821,16 @@ func TestBase64Decode(t *testing.T) {
 	result, err := base64Decode(enc)
 
 	if err != nil {
-		t.Error("Base64Decode:", err)
+		t.Error("base64Decode returned error:", err)
 	}
 
 	if result != testStr {
-		t.Errorf("Base64Decode: got '%s', expected '%s'", result, testStr)
+		t.Errorf("base64Decode: got '%s', expected '%s'", result, testStr)
+	}
+
+	_, err = base64Decode(t)
+	if err == nil {
+		t.Error("Expected error from base64Decode")
 	}
 }
 
@@ -1834,16 +1839,21 @@ func TestBase64Encode(t *testing.T) {
 	dec, err := base64.StdEncoding.DecodeString(testStr)
 
 	if err != nil {
-		t.Error("Base64Encode: the DecodeString function of the base64 package returned an error.", err)
+		t.Error("base64Encode: the DecodeString function of the base64 package returned an error:", err)
 	}
 
 	result, err := base64Encode(string(dec))
 
 	if err != nil {
-		t.Errorf("Base64Encode: Can't cast arg '%s' into a string.", testStr)
+		t.Errorf("base64Encode: Can't cast arg '%s' into a string:", testStr)
 	}
 
 	if result != testStr {
-		t.Errorf("Base64Encode: got '%s', expected '%s'", result, testStr)
+		t.Errorf("base64Encode: got '%s', expected '%s'", result, testStr)
+	}
+
+	_, err = base64Encode(t)
+	if err == nil {
+		t.Error("Expected error from base64Encode")
 	}
 }
