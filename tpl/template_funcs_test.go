@@ -151,6 +151,8 @@ func TestArethmic(t *testing.T) {
 		{float64(1), uint(2), '+', float64(3)},
 		{float64(1), "do", '+', false},
 		{uint(1), int(2), '+', uint64(3)},
+		{uint(1), int(-2), '+', int64(-1)},
+		{int(-1), uint(2), '+', int64(1)},
 		{uint(1), float64(2), '+', float64(3)},
 		{uint(1), "do", '+', false},
 		{"do ", "be", '+', "do be"},
