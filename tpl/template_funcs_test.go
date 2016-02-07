@@ -144,6 +144,17 @@ func TestArethmic(t *testing.T) {
 		{4, 0, '/', false},
 		{float64(2.3), float64(2.3), '+', float64(4.6)},
 		{float64(2.3), int(2), '*', float64(4.6)},
+		{int(1), float64(2), '+', float64(3)},
+		{int(1), uint(2), '+', uint64(3)},
+		{1, "do", '+', false},
+		{float64(1), uint(2), '+', float64(3)},
+		{float64(1), "do", '+', false},
+		{uint(1), int(2), '+', uint64(3)},
+		{uint(1), float64(2), '+', float64(3)},
+		{uint(1), "do", '+', false},
+		{"do ", "be", '+', "do be"},
+		{"do ", "be", '*', false},
+		{t, t, '+', false},
 	} {
 		// TODO(bep): Take precision into account.
 		result, err := doArithmetic(this.a, this.b, this.op)
