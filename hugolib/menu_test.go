@@ -566,6 +566,20 @@ func TestHomeNodeMenu(t *testing.T) {
 	}
 }
 
+func TestHopefullyUniqueID(t *testing.T) {
+	assert.Equal(t, "i", (&MenuEntry{Identifier: "i", URL: "u", Name: "n"}).hopefullyUniqueID())
+	assert.Equal(t, "u", (&MenuEntry{Identifier: "", URL: "u", Name: "n"}).hopefullyUniqueID())
+	assert.Equal(t, "n", (&MenuEntry{Identifier: "", URL: "", Name: "n"}).hopefullyUniqueID())
+}
+
+func TestAddMenuEntryChild(t *testing.T) {
+	root := &MenuEntry{Weight: 1}
+	root.AddChild(&MenuEntry{Weight: 2})
+	root.AddChild(&MenuEntry{Weight: 1})
+	assert.Equal(t, 2, len(root.Children))
+	assert.Equal(t, 1, root.Children[0].Weight)
+}
+
 var testMenuIdentityMatcher = func(me *MenuEntry, id string) bool { return me.Identifier == id }
 var testMenuNameMatcher = func(me *MenuEntry, id string) bool { return me.Name == id }
 
