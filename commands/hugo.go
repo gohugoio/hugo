@@ -256,6 +256,7 @@ func init() {
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
+// LoadDefaultSettings will load the default settings using viper.
 func LoadDefaultSettings() {
 	viper.SetDefault("cleanDestinationDir", false)
 	viper.SetDefault("Watch", false)
@@ -318,9 +319,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
 			return newSystemError(err)
-		} else {
-			return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 		}
+
+		return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 	}
 
 	viper.RegisterAlias("indexes", "taxonomies")
