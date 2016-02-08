@@ -25,6 +25,7 @@ import (
 	"path"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -60,12 +61,12 @@ func TestCompare(t *testing.T) {
 		tstCompareType
 		funcUnderTest func(a, b interface{}) bool
 	}{
-		{tstGt, Gt},
-		{tstLt, Lt},
-		{tstGe, Ge},
-		{tstLe, Le},
-		{tstEq, Eq},
-		{tstNe, Ne},
+		{tstGt, gt},
+		{tstLt, lt},
+		{tstGe, ge},
+		{tstLe, le},
+		{tstEq, eq},
+		{tstNe, ne},
 	} {
 		doTestCompare(t, this.tstCompareType, this.funcUnderTest)
 	}
@@ -144,6 +145,19 @@ func TestArethmic(t *testing.T) {
 		{4, 0, '/', false},
 		{float64(2.3), float64(2.3), '+', float64(4.6)},
 		{float64(2.3), int(2), '*', float64(4.6)},
+		{int(1), float64(2), '+', float64(3)},
+		{int(1), uint(2), '+', uint64(3)},
+		{1, "do", '+', false},
+		{float64(1), uint(2), '+', float64(3)},
+		{float64(1), "do", '+', false},
+		{uint(1), int(2), '+', uint64(3)},
+		{uint(1), int(-2), '+', int64(-1)},
+		{int(-1), uint(2), '+', int64(1)},
+		{uint(1), float64(2), '+', float64(3)},
+		{uint(1), "do", '+', false},
+		{"do ", "be", '+', "do be"},
+		{"do ", "be", '*', false},
+		{t, t, '+', false},
 	} {
 		// TODO(bep): Take precision into account.
 		result, err := doArithmetic(this.a, this.b, this.op)
@@ -181,7 +195,7 @@ func TestMod(t *testing.T) {
 		{int32(3), int32(2), int64(1)},
 		{int64(3), int64(2), int64(1)},
 	} {
-		result, err := Mod(this.a, this.b)
+		result, err := mod(this.a, this.b)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] modulo didn't return an expected error", i)
@@ -221,7 +235,7 @@ func TestModBool(t *testing.T) {
 		{int64(3), int64(3), true},
 		{int64(3), int64(2), false},
 	} {
-		result, err := ModBool(this.a, this.b)
+		result, err := modBool(this.a, this.b)
 		if this.expect == nil {
 			if err == nil {
 				t.Errorf("[%d] modulo didn't return an expected error", i)
@@ -254,8 +268,9 @@ func TestFirst(t *testing.T) {
 		{1, nil, false},
 		{nil, []int{100}, false},
 		{1, t, false},
+		{1, (*string)(nil), false},
 	} {
-		results, err := First(this.count, this.sequence)
+		results, err := first(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] First didn't return an expected error", i)
@@ -288,8 +303,9 @@ func TestLast(t *testing.T) {
 		{1, nil, false},
 		{nil, []int{100}, false},
 		{1, t, false},
+		{1, (*string)(nil), false},
 	} {
-		results, err := Last(this.count, this.sequence)
+		results, err := last(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] First didn't return an expected error", i)
@@ -322,8 +338,9 @@ func TestAfter(t *testing.T) {
 		{1, nil, false},
 		{nil, []int{100}, false},
 		{1, t, false},
+		{1, (*string)(nil), false},
 	} {
-		results, err := After(this.count, this.sequence)
+		results, err := after(this.count, this.sequence)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] First didn't return an expected error", i)
@@ -355,8 +372,9 @@ func TestShuffleInputAndOutputFormat(t *testing.T) {
 		{[]int{100}, true},
 		{nil, false},
 		{t, false},
+		{(*string)(nil), false},
 	} {
-		results, err := Shuffle(this.sequence)
+		results, err := shuffle(this.sequence)
 		if !this.success {
 			if err == nil {
 				t.Errorf("[%d] First didn't return an expected error", i)
@@ -389,7 +407,7 @@ func TestShuffleRandomising(t *testing.T) {
 	}{
 		{rand.Perm(sequenceLength)},
 	} {
-		results, _ := Shuffle(this.sequence)
+		results, _ := shuffle(this.sequence)
 
 		resultsv := reflect.ValueOf(results)
 
@@ -415,7 +433,7 @@ func TestDictionary(t *testing.T) {
 		{[]interface{}{"a", 12, "b", []int{4}}, false, map[string]interface{}{"a": 12, "b": []int{4}}},
 		{[]interface{}{"a", "b", "c"}, true, nil},
 	} {
-		r, e := Dictionary(this.v1...)
+		r, e := dictionary(this.v1...)
 
 		if (this.expecterr && e == nil) || (!this.expecterr && e != nil) {
 			t.Errorf("[%d] got an unexpected error: %s", i, e)
@@ -448,7 +466,7 @@ func TestIn(t *testing.T) {
 		{"this substring should be found", "substring", true},
 		{"this substring should not be found", "subseastring", false},
 	} {
-		result := In(this.v1, this.v2)
+		result := in(this.v1, this.v2)
 
 		if result != this.expect {
 			t.Errorf("[%d] got %v but expected %v", i, result, this.expect)
@@ -487,14 +505,16 @@ func TestSlicestr(t *testing.T) {
 		{"abcdef", 1, -1, false},
 		{tstNoStringer{}, 0, 1, false},
 		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
+		{"a", t, nil, false},
+		{"a", 1, t, false},
 	} {
 		var result string
 		if this.v2 == nil {
-			result, err = Slicestr(this.v1)
+			result, err = slicestr(this.v1)
 		} else if this.v3 == nil {
-			result, err = Slicestr(this.v1, this.v2)
+			result, err = slicestr(this.v1, this.v2)
 		} else {
-			result, err = Slicestr(this.v1, this.v2, this.v3)
+			result, err = slicestr(this.v1, this.v2, this.v3)
 		}
 
 		if b, ok := this.expect.(bool); ok && !b {
@@ -510,6 +530,12 @@ func TestSlicestr(t *testing.T) {
 				t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 			}
 		}
+	}
+
+	// Too many arguments
+	_, err = slicestr("a", 1, 2, 3)
+	if err == nil {
+		t.Errorf("Should have errored")
 	}
 }
 
@@ -549,14 +575,17 @@ func TestSubstr(t *testing.T) {
 		{"abcdef", 2.0, 2, "cd"},
 		{"abcdef", 2, 2.0, "cd"},
 		{"ĀĀĀ", 1, 2, "ĀĀ"}, // # issue 1333
+		{"abcdef", "doo", nil, false},
+		{"abcdef", "doo", "doo", false},
+		{"abcdef", 1, "doo", false},
 	} {
 		var result string
 		n = i
 
 		if this.v3 == nil {
-			result, err = Substr(this.v1, this.v2)
+			result, err = substr(this.v1, this.v2)
 		} else {
-			result, err = Substr(this.v1, this.v2, this.v3)
+			result, err = substr(this.v1, this.v2, this.v3)
 		}
 
 		if b, ok := this.expect.(bool); ok && !b {
@@ -575,13 +604,13 @@ func TestSubstr(t *testing.T) {
 	}
 
 	n++
-	_, err = Substr("abcdef")
+	_, err = substr("abcdef")
 	if err == nil {
 		t.Errorf("[%d] Substr didn't return an expected error", n)
 	}
 
 	n++
-	_, err = Substr("abcdef", 1, 2, 3)
+	_, err = substr("abcdef", 1, 2, 3)
 	if err == nil {
 		t.Errorf("[%d] Substr didn't return an expected error", n)
 	}
@@ -599,7 +628,7 @@ func TestSplit(t *testing.T) {
 		{123, "2", []string{"1", "3"}},
 		{tstNoStringer{}, ",", false},
 	} {
-		result, err := Split(this.v1, this.v2)
+		result, err := split(this.v1, this.v2)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -637,7 +666,7 @@ func TestIntersect(t *testing.T) {
 		{[]int{1, 2, 4}, []int{3, 6}, []int{}},
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4}},
 	} {
-		results, err := Intersect(this.sequence1, this.sequence2)
+		results, err := intersect(this.sequence1, this.sequence2)
 		if err != nil {
 			t.Errorf("[%d] failed: %s", i, err)
 			continue
@@ -647,13 +676,13 @@ func TestIntersect(t *testing.T) {
 		}
 	}
 
-	_, err1 := Intersect("not an array or slice", []string{"a"})
+	_, err1 := intersect("not an array or slice", []string{"a"})
 
 	if err1 == nil {
 		t.Error("Expected error for non array as first arg")
 	}
 
-	_, err2 := Intersect([]string{"a"}, "not an array or slice")
+	_, err2 := intersect([]string{"a"}, "not an array or slice")
 
 	if err2 == nil {
 		t.Error("Expected error for non array as second arg")
@@ -664,10 +693,10 @@ func TestIsSet(t *testing.T) {
 	aSlice := []interface{}{1, 2, 3, 5}
 	aMap := map[string]interface{}{"a": 1, "b": 2}
 
-	assert.True(t, IsSet(aSlice, 2))
-	assert.True(t, IsSet(aMap, "b"))
-	assert.False(t, IsSet(aSlice, 22))
-	assert.False(t, IsSet(aMap, "bc"))
+	assert.True(t, isSet(aSlice, 2))
+	assert.True(t, isSet(aMap, "b"))
+	assert.False(t, isSet(aSlice, 22))
+	assert.False(t, isSet(aMap, "bc"))
 }
 
 func (x *TstX) TstRp() string {
@@ -1145,9 +1174,9 @@ func TestWhere(t *testing.T) {
 		var results interface{}
 		var err error
 		if len(this.op) > 0 {
-			results, err = Where(this.sequence, this.key, this.op, this.match)
+			results, err = where(this.sequence, this.key, this.op, this.match)
 		} else {
-			results, err = Where(this.sequence, this.key, this.match)
+			results, err = where(this.sequence, this.key, this.match)
 		}
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -1165,17 +1194,17 @@ func TestWhere(t *testing.T) {
 	}
 
 	var err error
-	_, err = Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
+	_, err = where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1)
 	if err == nil {
 		t.Errorf("Where called with none string op value didn't return an expected error")
 	}
 
-	_, err = Where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
+	_, err = where(map[string]int{"a": 1, "b": 2}, "a", []byte("="), 1, 2)
 	if err == nil {
 		t.Errorf("Where called with more than two variable arguments didn't return an expected error")
 	}
 
-	_, err = Where(map[string]int{"a": 1, "b": 2}, "a")
+	_, err = where(map[string]int{"a": 1, "b": 2}, "a")
 	if err == nil {
 		t.Errorf("Where called with no variable arguments didn't return an expected error")
 	}
@@ -1216,9 +1245,9 @@ func TestDelimit(t *testing.T) {
 		var result template.HTML
 		var err error
 		if this.last == nil {
-			result, err = Delimit(this.sequence, this.delimiter)
+			result, err = delimit(this.sequence, this.delimiter)
 		} else {
-			result, err = Delimit(this.sequence, this.delimiter, this.last)
+			result, err = delimit(this.sequence, this.delimiter, this.last)
 		}
 		if err != nil {
 			t.Errorf("[%d] failed: %s", i, err)
@@ -1405,9 +1434,9 @@ func TestSort(t *testing.T) {
 		var result interface{}
 		var err error
 		if this.sortByField == nil {
-			result, err = Sort(this.sequence)
+			result, err = sortSeq(this.sequence)
 		} else {
-			result, err = Sort(this.sequence, this.sortByField, this.sortAsc)
+			result, err = sortSeq(this.sequence, this.sortByField, this.sortAsc)
 		}
 
 		if b, ok := this.expect.(bool); ok && !b {
@@ -1444,7 +1473,7 @@ func TestReturnWhenSet(t *testing.T) {
 		{map[string]TstX{"foo": {A: "a", B: "b"}, "bar": {A: "c", B: "d"}, "baz": {A: "e", B: "f"}}, "bar", ""},
 		{(*[]string)(nil), "bar", ""},
 	} {
-		result := ReturnWhenSet(this.data, this.key)
+		result := returnWhenSet(this.data, this.key)
 		if !reflect.DeepEqual(result, this.expect) {
 			t.Errorf("[%d] ReturnWhenSet got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
 		}
@@ -1452,7 +1481,7 @@ func TestReturnWhenSet(t *testing.T) {
 }
 
 func TestMarkdownify(t *testing.T) {
-	result := Markdownify("Hello **World!**")
+	result := markdownify("Hello **World!**")
 
 	expect := template.HTML("Hello <strong>World!</strong>")
 
@@ -1465,37 +1494,37 @@ func TestApply(t *testing.T) {
 	strings := []interface{}{"a\n", "b\n"}
 	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
 
-	chomped, _ := Apply(strings, "chomp", ".")
+	chomped, _ := apply(strings, "chomp", ".")
 	assert.Equal(t, []interface{}{"a", "b"}, chomped)
 
-	chomped, _ = Apply(strings, "chomp", "c\n")
+	chomped, _ = apply(strings, "chomp", "c\n")
 	assert.Equal(t, []interface{}{"c", "c"}, chomped)
 
-	chomped, _ = Apply(nil, "chomp", ".")
+	chomped, _ = apply(nil, "chomp", ".")
 	assert.Equal(t, []interface{}{}, chomped)
 
-	_, err := Apply(strings, "apply", ".")
+	_, err := apply(strings, "apply", ".")
 	if err == nil {
 		t.Errorf("apply with apply should fail")
 	}
 
 	var nilErr *error
-	_, err = Apply(nilErr, "chomp", ".")
+	_, err = apply(nilErr, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with nil in seq should fail")
 	}
 
-	_, err = Apply(strings, "dobedobedo", ".")
+	_, err = apply(strings, "dobedobedo", ".")
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
 
-	_, err = Apply(noStringers, "chomp", ".")
+	_, err = apply(noStringers, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply when func fails should fail")
 	}
 
-	_, err = Apply(tstNoStringer{}, "chomp", ".")
+	_, err = apply(tstNoStringer{}, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with non-sequence should fail")
 	}
@@ -1508,13 +1537,13 @@ func TestChomp(t *testing.T) {
 		"\r", "\r\r",
 		"\r\n", "\r\n\r\n",
 	} {
-		chomped, _ := Chomp(base + item)
+		chomped, _ := chomp(base + item)
 
 		if chomped != base {
 			t.Errorf("[%d] Chomp failed, got '%v'", i, chomped)
 		}
 
-		_, err := Chomp(tstNoStringer{})
+		_, err := chomp(tstNoStringer{})
 
 		if err == nil {
 			t.Errorf("Chomp should fail")
@@ -1522,60 +1551,101 @@ func TestChomp(t *testing.T) {
 	}
 }
 
-func TestHumanize(t *testing.T) {
+func TestHighlight(t *testing.T) {
+	code := "func boo() {}"
+	highlighted, err := highlight(code, "go", "")
+
+	if err != nil {
+		t.Fatal("Highlight returned error:", err)
+	}
+
+	// this depends on a Pygments installation, but will always contain the function name.
+	if !strings.Contains(string(highlighted), "boo") {
+		t.Errorf("Highlight mismatch,  got %v", highlighted)
+	}
+
+	_, err = highlight(t, "go", "")
+
+	if err == nil {
+		t.Error("Expected highlight error")
+	}
+}
+
+func TestInflect(t *testing.T) {
 	for i, this := range []struct {
-		in, expect interface{}
+		inflectFunc func(i interface{}) (string, error)
+		in          string
+		expected    string
 	}{
-		{"MyCamelPost", "My camel post"},
-		{"myLowerCamelPost", "My lower camel post"},
-		{"my-dash-post", "My dash post"},
-		{"my_underscore_post", "My underscore post"},
-		{"posts/my-first-post", "Posts/my first post"},
-		{tstNoStringer{}, false},
+		{humanize, "MyCamel", "My camel"},
+		{pluralize, "cat", "cats"},
+		{singularize, "cats", "cat"},
 	} {
 
-		result, err := Humanize(this.in)
+		result, err := this.inflectFunc(this.in)
 
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] Humanize didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if result != this.expect {
-				t.Errorf("[%d] Humanize got %v but expected %v", i, result, this.expect)
-			}
+		if err != nil {
+			t.Errorf("[%d] Unexpected Inflect error: %s", i, err)
+		} else if result != this.expected {
+			t.Errorf("[%d] Inflect method error, got %v expected %v", i, result, this.expected)
 		}
 
+		_, err = this.inflectFunc(t)
+		if err == nil {
+			t.Errorf("[%d] Expected Inflect error", i)
+		}
+	}
+}
+
+func TestCounterFuncs(t *testing.T) {
+	for i, this := range []struct {
+		countFunc func(i interface{}) (int, error)
+		in        string
+		expected  int
+	}{
+		{countWords, "Do Be Do Be Do", 5},
+		{countWords, "旁边", 2},
+		{countRunes, "旁边", 2},
+	} {
+
+		result, err := this.countFunc(this.in)
+
+		if err != nil {
+			t.Errorf("[%d] Unexpected counter error: %s", i, err)
+		} else if result != this.expected {
+			t.Errorf("[%d] Count method error, got %v expected %v", i, result, this.expected)
+		}
+
+		_, err = this.countFunc(t)
+		if err == nil {
+			t.Errorf("[%d] Expected Count error", i)
+		}
 	}
 }
 
 func TestReplace(t *testing.T) {
-	v, _ := Replace("aab", "a", "b")
+	v, _ := replace("aab", "a", "b")
 	assert.Equal(t, "bbb", v)
-	v, _ = Replace("11a11", 1, 2)
+	v, _ = replace("11a11", 1, 2)
 	assert.Equal(t, "22a22", v)
-	v, _ = Replace(12345, 1, 2)
+	v, _ = replace(12345, 1, 2)
 	assert.Equal(t, "22345", v)
-	_, e := Replace(tstNoStringer{}, "a", "b")
+	_, e := replace(tstNoStringer{}, "a", "b")
 	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
-	_, e = Replace("a", tstNoStringer{}, "b")
+	_, e = replace("a", tstNoStringer{}, "b")
 	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
-	_, e = Replace("a", "b", tstNoStringer{})
+	_, e = replace("a", "b", tstNoStringer{})
 	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
 }
 
 func TestTrim(t *testing.T) {
-	v, _ := Trim("1234 my way 13", "123")
+	v, _ := trim("1234 my way 13", "123")
 	assert.Equal(t, "4 my way ", v)
-	v, _ = Trim("   my way    ", " ")
+	v, _ = trim("   my way    ", " ")
 	assert.Equal(t, "my way", v)
-	v, _ = Trim(1234, "14")
+	v, _ = trim(1234, "14")
 	assert.Equal(t, "23", v)
-	_, e := Trim(tstNoStringer{}, " ")
+	_, e := trim(tstNoStringer{}, " ")
 	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
 }
 
@@ -1591,7 +1661,7 @@ func TestDateFormat(t *testing.T) {
 		{"Monday, Jan 2, 2006", 1421733600, false},
 		{"Monday, Jan 2, 2006", 1421733600.123, false},
 	} {
-		result, err := DateFormat(this.layout, this.value)
+		result, err := dateFormat(this.layout, this.value)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] DateFormat didn't return an expected error", i)
@@ -1633,7 +1703,7 @@ func TestSafeHTML(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeHTML(this.str))
+		err = tmpl.Execute(buf, safeHTML(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeHTML returns unexpected error: %s", i, err)
 		}
@@ -1668,7 +1738,7 @@ func TestSafeHTMLAttr(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeHTMLAttr(this.str))
+		err = tmpl.Execute(buf, safeHTMLAttr(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeHTMLAttr returns unexpected error: %s", i, err)
 		}
@@ -1703,7 +1773,7 @@ func TestSafeCSS(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeCSS(this.str))
+		err = tmpl.Execute(buf, safeCSS(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeCSS returns unexpected error: %s", i, err)
 		}
@@ -1738,7 +1808,7 @@ func TestSafeJS(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeJS(this.str))
+		err = tmpl.Execute(buf, safeJS(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeJS returns unexpected error: %s", i, err)
 		}
@@ -1773,7 +1843,7 @@ func TestSafeURL(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, SafeURL(this.str))
+		err = tmpl.Execute(buf, safeURL(this.str))
 		if err != nil {
 			t.Errorf("[%d] execute template with an escaped string value by SafeURL returns unexpected error: %s", i, err)
 		}
@@ -1786,14 +1856,19 @@ func TestSafeURL(t *testing.T) {
 func TestBase64Decode(t *testing.T) {
 	testStr := "abc123!?$*&()'-=@~"
 	enc := base64.StdEncoding.EncodeToString([]byte(testStr))
-	result, err := Base64Decode(enc)
+	result, err := base64Decode(enc)
 
 	if err != nil {
-		t.Error("Base64Decode:", err)
+		t.Error("base64Decode returned error:", err)
 	}
 
 	if result != testStr {
-		t.Errorf("Base64Decode: got '%s', expected '%s'", result, testStr)
+		t.Errorf("base64Decode: got '%s', expected '%s'", result, testStr)
+	}
+
+	_, err = base64Decode(t)
+	if err == nil {
+		t.Error("Expected error from base64Decode")
 	}
 }
 
@@ -1802,16 +1877,21 @@ func TestBase64Encode(t *testing.T) {
 	dec, err := base64.StdEncoding.DecodeString(testStr)
 
 	if err != nil {
-		t.Error("Base64Encode: the DecodeString function of the base64 package returned an error.", err)
+		t.Error("base64Encode: the DecodeString function of the base64 package returned an error:", err)
 	}
 
-	result, err := Base64Encode(string(dec))
+	result, err := base64Encode(string(dec))
 
 	if err != nil {
-		t.Errorf("Base64Encode: Can't cast arg '%s' into a string.", testStr)
+		t.Errorf("base64Encode: Can't cast arg '%s' into a string:", testStr)
 	}
 
 	if result != testStr {
-		t.Errorf("Base64Encode: got '%s', expected '%s'", result, testStr)
+		t.Errorf("base64Encode: got '%s', expected '%s'", result, testStr)
+	}
+
+	_, err = base64Encode(t)
+	if err == nil {
+		t.Error("Expected error from base64Encode")
 	}
 }

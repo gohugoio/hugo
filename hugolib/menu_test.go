@@ -497,6 +497,32 @@ func TestMenuLimit(t *testing.T) {
 	assert.Equal(t, m, m.Limit(5))
 }
 
+func TestMenuSortByN(t *testing.T) {
+
+	for i, this := range []struct {
+		sortFunc   func(p Menu) Menu
+		assertFunc func(p Menu) bool
+	}{
+		{(Menu).Sort, func(p Menu) bool { return p[0].Weight == 1 && p[1].Name == "nx" && p[2].Identifier == "ib" }},
+		{(Menu).ByWeight, func(p Menu) bool { return p[0].Weight == 1 && p[1].Name == "nx" && p[2].Identifier == "ib" }},
+		{(Menu).ByName, func(p Menu) bool { return p[0].Name == "na" }},
+		{(Menu).Reverse, func(p Menu) bool { return p[0].Identifier == "ib" && p[len(p)-1].Identifier == "ia" }},
+	} {
+		menu := Menu{&MenuEntry{Weight: 3, Name: "nb", Identifier: "ia"},
+			&MenuEntry{Weight: 1, Name: "na", Identifier: "ic"},
+			&MenuEntry{Weight: 1, Name: "nx", Identifier: "ic"},
+			&MenuEntry{Weight: 2, Name: "nb", Identifier: "ix"},
+			&MenuEntry{Weight: 2, Name: "nb", Identifier: "ib"}}
+
+		sorted := this.sortFunc(menu)
+
+		if !this.assertFunc(sorted) {
+			t.Errorf("[%d] sort error", i)
+		}
+	}
+
+}
+
 func TestHomeNodeMenu(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
@@ -538,6 +564,20 @@ func TestHomeNodeMenu(t *testing.T) {
 			t.Errorf("[%d] Wrong result for menu %q menuItem %v for HasMenuCurrent: %v", i, this.menu, this.menuItem, hasMenuCurrent)
 		}
 	}
+}
+
+func TestHopefullyUniqueID(t *testing.T) {
+	assert.Equal(t, "i", (&MenuEntry{Identifier: "i", URL: "u", Name: "n"}).hopefullyUniqueID())
+	assert.Equal(t, "u", (&MenuEntry{Identifier: "", URL: "u", Name: "n"}).hopefullyUniqueID())
+	assert.Equal(t, "n", (&MenuEntry{Identifier: "", URL: "", Name: "n"}).hopefullyUniqueID())
+}
+
+func TestAddMenuEntryChild(t *testing.T) {
+	root := &MenuEntry{Weight: 1}
+	root.AddChild(&MenuEntry{Weight: 2})
+	root.AddChild(&MenuEntry{Weight: 1})
+	assert.Equal(t, 2, len(root.Children))
+	assert.Equal(t, 1, root.Children[0].Weight)
 }
 
 var testMenuIdentityMatcher = func(me *MenuEntry, id string) bool { return me.Identifier == id }

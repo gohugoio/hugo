@@ -1039,6 +1039,24 @@ func TestPublishedFrontMatter(t *testing.T) {
 	}
 }
 
+func TestPageSimpleMethods(t *testing.T) {
+	for i, this := range []struct {
+		assertFunc func(p *Page) bool
+	}{
+		{func(p *Page) bool { return !p.IsNode() }},
+		{func(p *Page) bool { return p.IsPage() }},
+		{func(p *Page) bool { return p.Plain() == "Do Be Do Be Do" }},
+		{func(p *Page) bool { return strings.Join(p.PlainWords(), " ") == "Do Be Do Be Do" }},
+	} {
+
+		p, _ := NewPage("Test")
+		p.Content = "<h1>Do Be Do Be Do</h1>"
+		if !this.assertFunc(p) {
+			t.Errorf("[%d] Page method error", i)
+		}
+	}
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false
