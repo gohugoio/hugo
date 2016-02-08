@@ -1781,6 +1781,27 @@ func TestReplace(t *testing.T) {
 	assert.NotNil(t, e, "tstNoStringer cannot be converted to string")
 }
 
+func TestReplaceRE(t *testing.T) {
+	for i, val := range []struct {
+		pattern string
+		repl    string
+		src     string
+		expect  string
+		ok      bool
+	}{
+		{"^https?://([^/]+).*", "$1", "http://gohugo.io/docs", "gohugo.io", true},
+		{"^https?://([^/]+).*", "$2", "http://gohugo.io/docs", "", true},
+		{"(ab)", "AB", "aabbaab", "aABbaAB", true},
+		{"(ab", "AB", "aabb", "", false}, // invalid re
+	} {
+		v, err := replaceRE(val.pattern, val.repl, val.src)
+		if (err == nil) != val.ok {
+			t.Errorf("[%d] %s", i, err)
+		}
+		assert.Equal(t, val.expect, v)
+	}
+}
+
 func TestTrim(t *testing.T) {
 
 	for i, this := range []struct {
