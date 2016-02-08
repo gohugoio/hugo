@@ -157,7 +157,7 @@ func (m Menu) Sort() {
 }
 
 func (m Menu) Limit(n int) Menu {
-	if len(m) < n {
+	if len(m) > n {
 		return m[0:n]
 	}
 	return m

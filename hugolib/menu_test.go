@@ -480,6 +480,23 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 	}
 }
 
+func TestMenuLimit(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	m := *s.Menus["main"]
+
+	// main menu has 4 entries
+	firstTwo := m.Limit(2)
+	assert.Equal(t, 2, len(firstTwo))
+	for i := 0; i < 2; i++ {
+		assert.Equal(t, m[i], firstTwo[i])
+	}
+	assert.Equal(t, m, m.Limit(4))
+	assert.Equal(t, m, m.Limit(5))
+}
+
 func TestHomeNodeMenu(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()

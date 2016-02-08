@@ -85,9 +85,9 @@ func (l *absurllexer) match(r rune) {
 			if r == p.r[l.idx] {
 				l.matches[j] = true
 				found = true
-				if l.checkMatchState(r, j) {
-					return
-				}
+				// checkMatchState will only return true when r=='=', so
+				// we can safely ignore the return value here.
+				l.checkMatchState(r, j)
 			}
 		}
 
@@ -248,9 +248,6 @@ func (l *absurllexer) replace() {
 						p = prefixes[i]
 						l.matches[i] = false
 					}
-				}
-				if p == nil {
-					panic("illegal state: curr is nil when state is full")
 				}
 				l.ms = matchStateNone
 				p.f(l)

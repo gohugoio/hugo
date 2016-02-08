@@ -14,6 +14,7 @@ script:
   - go test ./...
   - go build
   - ./hugo -s docs/
+  - ./hugo --renderToMemory -s docs/
 install:
   - go get github.com/stretchr/testify
   - go get -v ./...

@@ -15,12 +15,12 @@ package hugolib
 
 import (
 	"fmt"
+	"github.com/spf13/hugo/source"
 	"github.com/stretchr/testify/assert"
+	"html/template"
 	"path/filepath"
 	"testing"
 	"time"
-
-	"github.com/spf13/hugo/source"
 )
 
 func TestDefaultSort(t *testing.T) {
@@ -34,6 +34,7 @@ func TestDefaultSort(t *testing.T) {
 	// first by weight
 	setSortVals([3]time.Time{d1, d2, d3}, [3]string{"b", "a", "c"}, [3]int{3, 2, 1}, p)
 	p.Sort()
+
 	assert.Equal(t, 1, p[0].Weight)
 
 	// next by date
@@ -41,12 +42,52 @@ func TestDefaultSort(t *testing.T) {
 	p.Sort()
 	assert.Equal(t, d1, p[0].Date)
 
-	// finally by title
+	// finally by link title
 	setSortVals([3]time.Time{d3, d3, d3}, [3]string{"b", "c", "a"}, [3]int{1, 1, 1}, p)
 	p.Sort()
-	assert.Equal(t, "a", p[0].Title)
-	assert.Equal(t, "b", p[1].Title)
-	assert.Equal(t, "c", p[2].Title)
+	assert.Equal(t, "al", p[0].LinkTitle())
+	assert.Equal(t, "bl", p[1].LinkTitle())
+	assert.Equal(t, "cl", p[2].LinkTitle())
+}
+
+func TestSortByN(t *testing.T) {
+
+	d1 := time.Now()
+	d2 := d1.Add(-2 * time.Hour)
+	d3 := d1.Add(-10 * time.Hour)
+
+	p := createSortTestPages(3)
+
+	for i, this := range []struct {
+		sortFunc   func(p Pages) Pages
+		assertFunc func(p Pages) bool
+	}{
+		{(Pages).ByWeight, func(p Pages) bool { return p[0].Weight == 1 }},
+		{(Pages).ByTitle, func(p Pages) bool { return p[0].Title == "ab" }},
+		{(Pages).ByLinkTitle, func(p Pages) bool { return p[0].LinkTitle() == "abl" }},
+		{(Pages).ByDate, func(p Pages) bool { return p[0].Date == d3 }},
+		{(Pages).ByPublishDate, func(p Pages) bool { return p[0].PublishDate == d3 }},
+		{(Pages).ByLength, func(p Pages) bool { return p[0].Content == "b_content" }},
+	} {
+		setSortVals([3]time.Time{d1, d2, d3}, [3]string{"b", "ab", "cde"}, [3]int{3, 2, 1}, p)
+
+		sorted := this.sortFunc(p)
+		if !this.assertFunc(sorted) {
+			t.Errorf("[%d] sort error", i)
+		}
+	}
+
+}
+
+func TestLimit(t *testing.T) {
+	p := createSortTestPages(10)
+	firstFive := p.Limit(5)
+	assert.Equal(t, 5, len(firstFive))
+	for i := 0; i < 5; i++ {
+		assert.Equal(t, p[i], firstFive[i])
+	}
+	assert.Equal(t, p, p.Limit(10))
+	assert.Equal(t, p, p.Limit(11))
 }
 
 func TestPageSortReverse(t *testing.T) {
@@ -75,6 +116,10 @@ func setSortVals(dates [3]time.Time, titles [3]string, weights [3]int, pages Pag
 		pages[i].Date = dates[i]
 		pages[i].Weight = weights[i]
 		pages[i].Title = titles[i]
+		// make sure we compare apples and ... apples ...
+		pages[len(dates)-1-i].linkTitle = pages[i].Title + "l"
+		pages[len(dates)-1-i].PublishDate = dates[i]
+		pages[len(dates)-1-i].Content = template.HTML(titles[i] + "_content")
 	}
 
 }

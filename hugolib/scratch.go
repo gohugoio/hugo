@@ -74,7 +74,7 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	unsortedMap := c.values[key].(map[string]interface{})
 
 	var keys []string
-	for mapKey, _ := range unsortedMap {
+	for mapKey := range unsortedMap {
 		keys = append(keys, mapKey)
 	}
 

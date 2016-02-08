@@ -64,7 +64,7 @@ func (p Pages) Sort() {
 }
 
 func (p Pages) Limit(n int) Pages {
-	if len(p) < n {
+	if len(p) > n {
 		return p[0:n]
 	}
 	return p
