@@ -451,6 +451,13 @@ Replaces all occurrences of the search string with the replacement string.
 e.g. `{{ replace "Batman and Robin" "Robin" "Catwoman" }}` → "Batman and Catwoman"
 
 
+### replaceRE
+Replaces all occurrences of a regular expression with the replacement pattern.
+
+e.g. `{{ replaceRE "^https?://([^/]+).*" "$1" "http://gohugo.io/docs" }}` → "gohugo.io"
+e.g. `{{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}` → "gohugo.io"
+
+
 ### safeHTML
 Declares the provided string as a "safe" HTML document fragment
 so Go html/template will not filter it.  It should not be used
