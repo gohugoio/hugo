@@ -27,6 +27,7 @@ import (
 	"math/rand"
 	"os"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -1228,6 +1229,37 @@ func replace(a, b, c interface{}) (string, error) {
 	return strings.Replace(aStr, bStr, cStr, -1), nil
 }
 
+var regexpCache = make(map[string]*regexp.Regexp)
+
+// replaceRE exposes a regular expression replacement function to the templates.
+func replaceRE(pattern, repl, src interface{}) (_ string, err error) {
+	patternStr, err := cast.ToStringE(pattern)
+	if err != nil {
+		return
+	}
+
+	replStr, err := cast.ToStringE(repl)
+	if err != nil {
+		return
+	}
+
+	srcStr, err := cast.ToStringE(src)
+	if err != nil {
+		return
+	}
+
+	if _, ok := regexpCache[patternStr]; !ok {
+		re, err2 := regexp.Compile(patternStr)
+		if err2 != nil {
+			return "", err2
+		}
+
+		regexpCache[patternStr] = re
+	}
+
+	return regexpCache[patternStr].ReplaceAllString(srcStr, replStr), err
+}
+
 // dateFormat converts the textual representation of the datetime string into
 // the other form or returns it of the time.Time value. These are formatted
 // with the layout string
@@ -1714,6 +1746,7 @@ func init() {
 		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
 		"relref":       relRef,
 		"replace":      replace,
+		"replaceRE":    replaceRE,
 		"safeCSS":      safeCSS,
 		"safeHTML":     safeHTML,
 		"safeJS":       safeJS,
