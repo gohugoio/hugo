@@ -16,10 +16,14 @@ package tpl
 import (
 	"bytes"
 	"errors"
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
 	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -88,6 +92,83 @@ html lang=en
 				}
 			}
 		}
+	}
+
+}
+
+func isAtLeastGo16() bool {
+	version := runtime.Version()
+	return strings.Contains(version, "1.6") || strings.Contains(version, "1.7")
+}
+
+func TestAddTemplateFileWithMaster(t *testing.T) {
+
+	if !isAtLeastGo16() {
+		t.Skip("This test only runs on Go >= 1.6")
+	}
+
+	for i, this := range []struct {
+		masterTplContent  string
+		overlayTplContent string
+		writeSkipper      int
+		expect            interface{}
+	}{
+		{`A{{block "main" .}}C{{end}}C`, `{{define "main"}}B{{end}}`, 0, "ABC"},
+		{`A{{block "main" .}}C{{end}}C{{block "sub" .}}D{{end}}E`, `{{define "main"}}B{{end}}`, 0, "ABCDE"},
+		{`A{{block "main" .}}C{{end}}C{{block "sub" .}}D{{end}}E`, `{{define "main"}}B{{end}}{{define "sub"}}Z{{end}}`, 0, "ABCZE"},
+		{`tpl`, `tpl`, 1, false},
+		{`tpl`, `tpl`, 2, false},
+		{`{{.0.E}}`, `tpl`, 0, false},
+		{`tpl`, `{{.0.E}}`, 0, false},
+	} {
+
+		hugofs.SourceFs = afero.NewMemMapFs()
+		templ := New()
+		overlayTplName := "ot"
+		masterTplName := "mt"
+		finalTplName := "tp"
+
+		if this.writeSkipper != 1 {
+			afero.WriteFile(hugofs.SourceFs, masterTplName, []byte(this.masterTplContent), 0644)
+		}
+		if this.writeSkipper != 2 {
+			afero.WriteFile(hugofs.SourceFs, overlayTplName, []byte(this.overlayTplContent), 0644)
+		}
+
+		err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] AddTemplateFileWithMaster didn't return an expected error", i)
+			}
+		} else {
+
+			if err != nil {
+				t.Errorf("[%d] AddTemplateFileWithMaster failed: %s", i, err)
+				continue
+			}
+
+			resultTpl := templ.Lookup(finalTplName)
+
+			if resultTpl == nil {
+				t.Errorf("[%d] AddTemplateFileWithMaster: Result teamplate not found")
+				continue
+			}
+
+			var b bytes.Buffer
+			err := resultTpl.Execute(&b, nil)
+
+			if err != nil {
+				t.Errorf("[%d] AddTemplateFileWithMaster execute failed: %s", i, err)
+				continue
+			}
+			resultContent := b.String()
+
+			if resultContent != this.expect {
+				t.Errorf("[%d] AddTemplateFileWithMaster got \n%s but expected \n%v", i, resultContent, this.expect)
+			}
+		}
+
 	}
 
 }
