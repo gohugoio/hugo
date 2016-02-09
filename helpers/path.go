@@ -462,6 +462,11 @@ func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
 	return afero.FileContainsBytes(fs, filename, subslice)
 }
 
+// Check if a file contains any of the specified strings.
+func FileContainsAny(filename string, subslices [][]byte, fs afero.Fs) (bool, error) {
+	return afero.FileContainsAnyBytes(fs, filename, subslices)
+}
+
 // Check if a file or directory exists.
 func Exists(path string, fs afero.Fs) (bool, error) {
 	return afero.Exists(fs, path)
