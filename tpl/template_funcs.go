@@ -814,7 +814,7 @@ func where(seq, key interface{}, args ...interface{}) (r interface{}, err error)
 		}
 		return rv.Interface(), nil
 	default:
-		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return nil, fmt.Errorf("can't iterate over %v", seq)
 	}
 }
 
@@ -858,7 +858,7 @@ func apply(seq interface{}, fname string, args ...interface{}) (interface{}, err
 
 		return r, nil
 	default:
-		return nil, errors.New("can't apply over " + reflect.ValueOf(seq).Type().String())
+		return nil, fmt.Errorf("can't apply over %v", seq)
 	}
 }
 
@@ -950,7 +950,7 @@ func delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 		}
 
 	default:
-		return "", errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return "", fmt.Errorf("can't iterate over %v", seq)
 	}
 
 	return template.HTML(str), nil
