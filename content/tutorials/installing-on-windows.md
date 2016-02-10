@@ -1,6 +1,6 @@
 ---
 author: "Michael Henderson"
-lastmod: 2015-12-23
+lastmod: 2016-02-10
 date: 2015-03-30
 linktitle: Installing on Windows
 toc: true
@@ -19,33 +19,51 @@ This tutorial aims to be a complete guide to installing Hugo on your Windows com
 
 ## Assumptions
 
-1. You know how to open a command prompt window.
-2. You're running a 64-bit version of Windows.
-3. Your website is `example.com`.
-4. You will use `D:\Hugo\Sites` as the starting point for your site.
-5. You will use `D:\Hugo\bin` to store executable files.
+1. We'll call your website `example.com` for the purpose of this tutorial.
+2. You will use `C:\Hugo\Sites` as the starting point for your site.
+3. You will use `C:\Hugo\bin` to store executable files.
 
 ## Setup Your Directories
 
-You will need a place to store the Hugo executable, your content (the files that you build), and the generated files (the HTML that Hugo builds for you).
+You'll need a place to store the Hugo executable, your content (the files that you build), and the generated files (the HTML that Hugo builds for you).
 
-1. Open up Windows Explorer.
-2. Create a new folder, `D:\Hugo`.
-3. Create a new folder, `D:\Hugo\bin`.
-4. Create a new folder, `D:\Hugo\Sites`.
+1. Open Windows Explorer.
+2. Create a new folder: `C:\Hugo` (assuming you want Hugo on your C drive – it can go anywhere.)
+3. Create a subfolder in the Hugo folder: `C:\Hugo\bin`.
+4. Create another subfolder in Hugo: `C:\Hugo\Sites`.
 
-## Download the pre-built Hugo executable for Windows
+## Technical users
 
-One advantage of building Hugo in go is that there is just a single binary file to use. You don't need to run an installer to use it. Instead, you need to copy the binary to your hard drive. I'm assuming that you'll put it in `D:\Hugo\bin`. If you chose to place it somewhere else, you'll need to substitute that path in the commands.
+1. Download the latest zipped Hugo executable from the [Hugo Releases](https://github.com/spf13/hugo/releases) page.
+2. Extract all contents to your `..Hugo\bin` folder.
+3. You'll probably want to rename the Hugo executable to something short like `hugo.exe`.
+4. In Powershell or your preferred CLI, add the `hugo.exe` executable to your PATH with: `C:\Hugo\bin>set PATH=%PATH%;D:\Hugo\bin`
 
-1. Open https://github.com/spf13/hugo/releases in your browser.
-2. The current version is hugo_0.15_windows_amd64.zip.
-3. Download that ZIP file and save it in your `D:\Hugo\bin` folder.
-4. Find that ZIP file in Windows Explorer and extract all the files from it.
-5. You should see a `hugo_0.13_windows_amd64.exe` file.
-6. Rename that file to `hugo.exe`.
-7. Verify that the `hugo.exe` file is in the `D:\Hugo\bin` folder. (It's possible that the extract put it in a sub-directory. If it did, use Windows Explorer to move it to `D:\Hugo\bin`.)
-8. Add the hugo.exe executable to your PATH with: `D:\Hugo\bin>set PATH=%PATH%;D:\Hugo\bin`
+## Less technical users
+
+1. Go the [Hugo Releases](https://github.com/spf13/hugo/releases) page.
+2. The latest release is announced on top. Scroll to the bottom of the release announcement to see the downloads. They're all ZIP files.
+3. Find the Windows files near the bottom (they're in alphabetical order, so Windows is last) – download either the 32-bit or 64-bit file depending on whether you have 32-bit or 64-bit Windows. (If you don't know, [see here](https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx).)
+4. Move the ZIP file into your `C:\Hugo\bin` folder.
+5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder – Windows will do this by default unless you tell it to extract somewhere else.
+6. You should now have three new files: an .exe file, license.md, and readme.md. (you can delete the ZIP download now.)
+7. Rename the .exe file to `hugo.exe`.
+8. Now add Hugo to your Windows PATH settings:
+
+#### For Windows 10 users:
+- Right click on the **Start** button
+- Click on **System**
+- Click on **Advanced System Settings** on the left
+- Click on the **Environment Variables** button on the bottom
+- In the User variables section, find the row that starts with PATH (PATH will be all caps)
+- Double-click on **PATH**
+- Click the **New** button.
+- Type in Hugo's path, which is `C:\Hugo\bin\hugo.exe` if you went by the instructions above. Press Enter when you're done typing.
+- Click OK at every window to exit.
+
+(Note that the path editor in Windows 10 was added in the large [November 2015 Update](https://blogs.windows.com/windowsexperience/2015/11/12/first-major-update-for-windows-10-available-today/). You'll need to have that or a later update installed for the above steps to work. You can see what Windows 10 build you have by going to Start--> Settings--> About. See [here](http://www.howtogeek.com/236195/how-to-find-out-which-build-and-version-of-windows-10-you-have/) for more.)
+
+Windows 7 and 8.1 do not include an easy path editor, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor](http://eveditor.com/) or [Path Editor](https://patheditor2.codeplex.com/).
 
 ## Verify the executable
 
@@ -62,21 +80,20 @@ Run a few commands to verify that the executable is ready to run and then build 
 
 3. At the prompt, change your directory to the `Sites` directory.
 
-    {{< nohighlight >}}C:\Program Files> cd D:\Hugo\Sites
-C:\Program Files> D:
-D:\Hugo\Sites>
+    {{< nohighlight >}}C:\Program Files> cd C:\Hugo\Sites
+C:\Hugo\Sites>
 {{< /nohighlight >}}
 
 4. Run the command to generate a new site. I'm using `example.com` as the name of the site.
 
-    {{< nohighlight >}}D:\Hugo\Sites> hugo new site example.com
+    {{< nohighlight >}}C:\Hugo\Sites> hugo new site example.com
 {{< /nohighlight >}}
 
-5. You should now have a directory at `D:\Hugo\Sites\example.com`.  Change into that directory and list the contents. You should get output similar to the following:
+5. You should now have a directory at `C:\Hugo\Sites\example.com`.  Change into that directory and list the contents. You should get output similar to the following:
 
-    {{< nohighlight >}}D:\Hugo\Sites&gt;cd example.com
-D:\Hugo\Sites\example.com&gt;dir
-&nbsp;Directory of D:\hugo\sites\example.com
+    {{< nohighlight >}}C:\Hugo\Sites&gt;cd example.com
+C:\Hugo\Sites\example.com&gt;dir
+&nbsp;Directory of C:\hugo\sites\example.com
 &nbsp;
 04/13/2015  10:44 PM    &lt;DIR&gt;          .
 04/13/2015  10:44 PM    &lt;DIR&gt;          ..
