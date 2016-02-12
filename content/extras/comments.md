@@ -53,7 +53,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
         return;
 
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = '{{ .Site.Params.disqusShortname }}';
+    var disqus_shortname = '{{ .Site.DisqusShortname }}';
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
