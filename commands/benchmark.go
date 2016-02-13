@@ -14,9 +14,10 @@
 package commands
 
 import (
-	"github.com/spf13/cobra"
 	"os"
 	"runtime/pprof"
+
+	"github.com/spf13/cobra"
 )
 
 var (
