@@ -4,7 +4,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 
 [Website](http://gohugo.io) |
 [Forum](http://discuss.gohugo.io) |
-[Chat](https://gitter.im/spf13/hugo) |
+[Dev Chat](https://gitter.im/spf13/hugo) |
 [Documentation](http://gohugo.io/overview/introduction/) |
 [Installation Guide](http://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
