@@ -46,7 +46,7 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-var mainSite *hugolib.Site
+var MainSite *hugolib.Site
 
 // userError is an error used to signal different error situations in command handling.
 type commandError struct {
@@ -648,18 +648,19 @@ func getDirList() []string {
 }
 
 func buildSite(watching ...bool) (err error) {
+	fmt.Println("Started building site")
 	startTime := time.Now()
-	if mainSite == nil {
-		mainSite = new(hugolib.Site)
+	if MainSite == nil {
+		MainSite = new(hugolib.Site)
 	}
 	if len(watching) > 0 && watching[0] {
-		mainSite.RunMode.Watching = true
+		MainSite.RunMode.Watching = true
 	}
-	err = mainSite.Build()
+	err = MainSite.Build()
 	if err != nil {
 		return err
 	}
-	mainSite.Stats()
+	MainSite.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 
 	return nil
@@ -667,11 +668,11 @@ func buildSite(watching ...bool) (err error) {
 
 func rebuildSite(events []fsnotify.Event) error {
 	startTime := time.Now()
-	err := mainSite.ReBuild(events)
+	err := MainSite.ReBuild(events)
 	if err != nil {
 		return err
 	}
-	mainSite.Stats()
+	MainSite.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 
 	return nil
