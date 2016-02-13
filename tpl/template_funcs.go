@@ -1209,7 +1209,7 @@ func trim(a interface{}, b string) (string, error) {
 	return strings.Trim(aStr, b), nil
 }
 
-// replace all occurences of b with c in a
+// replace all occurrences of b with c in a
 func replace(a, b, c interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
