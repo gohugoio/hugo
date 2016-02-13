@@ -182,7 +182,7 @@ This shortcode embeds a responsive video player for [YouTube](https://www.youtub
 
 * https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
-Copy the ID from behind `v=` and pass it the shortcode:
+Copy the ID from behind `v=` and pass it to the shortcode:
 
     {{</* youtube w7Ft2ymGmfc */>}}
 
