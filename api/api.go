@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Run(flags []string) {
+func Build(flags []string) {
 	commands.Execute(flags)
 }
 
