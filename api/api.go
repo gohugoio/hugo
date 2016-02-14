@@ -37,7 +37,8 @@ func NewSite(path string, force bool, format string) {
 }
 
 func Build(flags []string) error {
-	return commands.Execute(flags)
+	_, err := commands.Execute(flags)
+	return err
 }
 
 func Reset() {

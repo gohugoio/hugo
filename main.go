@@ -14,6 +14,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 
@@ -22,7 +23,8 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	if err := commands.Execute(nil); err != nil {
+	if message, err := commands.Execute(nil); err != nil {
+		fmt.Println(message)
 		os.Exit(-1)
 	}
 }
