@@ -19,48 +19,79 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Reset resets the current website and sets all settings to default. It can
+// be useful if your application needs to run Hugo in different paths
+func Reset() {
+	commands.ClearSite()
+	viper.Reset()
+}
+
+func NewBuild() *build {
+	return new(build)
+}
+
 // Build is the type that handles Building methods
-type Build struct {
+type build struct {
 	flags []string
 }
 
 // Run regenerates the website
-func (b *Build) Run() error {
+func (b *build) Run() error {
 	_, err := commands.Execute(b.flags)
 	return err
 }
 
 // Set adds a value to the flags array
-func (b *Build) Set(key string, value interface{}) {
-	b.flags = preppendFlag(b.flags, key, value.(string))
-}
-
-// NewSite generates a new site
-func NewSite(path string, force bool, format string) {
-	cmd := &cobra.Command{}
-
-	if &force == nil {
-		force = false
+func (b *build) Set(key string, value interface{}) {
+	// If the key doesn't begin with "-"
+	if key[0] != '-' {
+		key = "--" + key
 	}
 
-	cmd.Flags().Bool("force", true, "")
-
-	if &format == nil {
-		format = "toml"
-	}
-
-	cmd.Flags().String("format", format, "")
-	commands.NewSite(cmd, []string{path})
+	b.flags = append([]string{key, value.(string)}, b.flags...)
 }
 
-// NewContent is used to create new contents
-type NewContent struct {
+func NewSite() *newSite {
+	n := new(newSite)
+	*n.cmd = *commands.NewSiteCmd
+	return n
+}
+
+// NewSite creates new sites
+type newSite struct {
 	cmd  *cobra.Command
 	path string
 }
 
 // Set adds a value to the flags array
-func (n *NewContent) Set(key string, value interface{}) {
+func (n *newSite) Set(key string, value interface{}) {
+	if key == "path" {
+		n.path = key
+		return
+	}
+
+	n.cmd.Flags().Set(key, value.(string))
+}
+
+// Make generates a new site
+func (n *newSite) Make() error {
+	return n.cmd.RunE(n.cmd, []string{n.path})
+}
+
+func NewContent() *newContent {
+	n := new(newContent)
+	*n.cmd = *commands.NewCmd
+	return n
+}
+
+// NewContent is used to create new contents
+type newContent struct {
+	cmd  *cobra.Command
+	path string
+}
+
+// Set adds a value to the flags array
+func (n *newContent) Set(key string, value interface{}) {
 	if key == "path" {
 		n.path = key
 		return
@@ -70,22 +101,6 @@ func (n *NewContent) Set(key string, value interface{}) {
 }
 
 // Make generates a new content
-func (n *NewContent) Make(path string) {
-	commands.NewSite(n.cmd, []string{n.path})
-}
-
-// Reset resets the current website and sets all settings to default. It can
-// be useful if your application needs to run Hugo in different paths
-func Reset() {
-	commands.ClearSite()
-	viper.Reset()
-}
-
-func preppendFlag(flags []string, key string, value string) []string {
-	// If the key doesn't begin with "-"
-	if key[0] != '-' {
-		key = "--" + key
-	}
-
-	return append([]string{key, value}, flags...)
+func (n *newContent) Make() error {
+	return n.cmd.RunE(n.cmd, []string{n.path})
 }

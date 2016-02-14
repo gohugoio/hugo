@@ -40,20 +40,20 @@ var (
 )
 
 func init() {
-	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
-	newSiteCmd.Flags().Bool("force", false, "Init inside non-empty directory")
-	newCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
-	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
-	newCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
-	newCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
-	newCmd.Flags().StringVar(&contentEditor, "editor", "", "edit new content with this editor, if provided")
+	NewSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
+	NewSiteCmd.Flags().Bool("force", false, "Init inside non-empty directory")
+	NewCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
+	NewCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
+	NewCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	NewCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	NewCmd.Flags().StringVar(&contentEditor, "editor", "", "edit new content with this editor, if provided")
 
-	newCmd.AddCommand(newSiteCmd)
-	newCmd.AddCommand(newThemeCmd)
+	NewCmd.AddCommand(NewSiteCmd)
+	NewCmd.AddCommand(NewThemeCmd)
 
 }
 
-var newCmd = &cobra.Command{
+var NewCmd = &cobra.Command{
 	Use:   "new [path]",
 	Short: "Create new content for your site",
 	Long: `Create a new content file and automatically set the date and title.
@@ -66,7 +66,7 @@ If archetypes are provided in your theme or site, they will be used.`,
 	RunE: NewContent,
 }
 
-var newSiteCmd = &cobra.Command{
+var NewSiteCmd = &cobra.Command{
 	Use:   "site [path]",
 	Short: "Create a new site (skeleton)",
 	Long: `Create a new site in the provided directory.
@@ -75,7 +75,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 	RunE: NewSite,
 }
 
-var newThemeCmd = &cobra.Command{
+var NewThemeCmd = &cobra.Command{
 	Use:   "theme [name]",
 	Short: "Create a new theme",
 	Long: `Create a new theme (skeleton) called [name] in the current directory.

@@ -190,7 +190,7 @@ func AddCommands() {
 	hugoCmd.AddCommand(checkCmd)
 	hugoCmd.AddCommand(benchmarkCmd)
 	hugoCmd.AddCommand(convertCmd)
-	hugoCmd.AddCommand(newCmd)
+	hugoCmd.AddCommand(NewCmd)
 	hugoCmd.AddCommand(listCmd)
 	hugoCmd.AddCommand(undraftCmd)
 	hugoCmd.AddCommand(importCmd)
