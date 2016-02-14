@@ -19,6 +19,28 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Build is the type that handles Building methods
+type Build struct {
+	flags []string
+}
+
+// Run regenerates the website
+func (b *Build) Run() error {
+	_, err := commands.Execute(b.flags)
+	return err
+}
+
+// Set adds a value to the flags array
+func (b *Build) Set(key string, value interface{}) {
+	// If the key is something like '-b' or '--config'
+	if key[0] != '-' {
+		key = "--" + key
+	}
+
+	b.flags = append([]string{key, value.(string)}, b.flags...)
+}
+
+// NewSite generates a new site
 func NewSite(path string, force bool, format string) {
 	cmd := &cobra.Command{}
 
@@ -36,11 +58,8 @@ func NewSite(path string, force bool, format string) {
 	commands.NewSite(cmd, []string{path})
 }
 
-func Build(flags []string) error {
-	_, err := commands.Execute(flags)
-	return err
-}
-
+// Reset resets the current website and sets all settings to default. It can
+// be useful if your application needs to run Hugo in different paths
 func Reset() {
 	commands.ClearSite()
 	viper.Reset()
