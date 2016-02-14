@@ -32,12 +32,7 @@ func (b *Build) Run() error {
 
 // Set adds a value to the flags array
 func (b *Build) Set(key string, value interface{}) {
-	// If the key is something like '-b' or '--config'
-	if key[0] != '-' {
-		key = "--" + key
-	}
-
-	b.flags = append([]string{key, value.(string)}, b.flags...)
+	b.flags = preppendFlag(b.flags, key, value.(string))
 }
 
 // NewSite generates a new site
@@ -58,9 +53,39 @@ func NewSite(path string, force bool, format string) {
 	commands.NewSite(cmd, []string{path})
 }
 
+// NewContent is used to create new contents
+type NewContent struct {
+	cmd  *cobra.Command
+	path string
+}
+
+// Set adds a value to the flags array
+func (n *NewContent) Set(key string, value interface{}) {
+	if key == "path" {
+		n.path = key
+		return
+	}
+
+	n.cmd.Flags().Set(key, value.(string))
+}
+
+// Make generates a new content
+func (n *NewContent) Make(path string) {
+	commands.NewSite(n.cmd, []string{n.path})
+}
+
 // Reset resets the current website and sets all settings to default. It can
 // be useful if your application needs to run Hugo in different paths
 func Reset() {
 	commands.ClearSite()
 	viper.Reset()
+}
+
+func preppendFlag(flags []string, key string, value string) []string {
+	// If the key doesn't begin with "-"
+	if key[0] != '-' {
+		key = "--" + key
+	}
+
+	return append([]string{key, value}, flags...)
 }
