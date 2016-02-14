@@ -17,6 +17,7 @@ package commands
 
 import (
 	"fmt"
+	"github.com/spf13/hugo/hugofs"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -35,7 +36,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/livereload"
 	"github.com/spf13/hugo/utils"
@@ -636,12 +636,12 @@ func getDirList() []string {
 		return nil
 	}
 
-	filepath.Walk(dataDir, walker)
-	filepath.Walk(helpers.AbsPathify(viper.GetString("ContentDir")), walker)
-	filepath.Walk(helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
-	filepath.Walk(helpers.AbsPathify(viper.GetString("StaticDir")), walker)
+	helpers.SymbolicWalk(hugofs.SourceFs, dataDir, walker)
+	helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("ContentDir")), walker)
+	helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
+	helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("StaticDir")), walker)
 	if helpers.ThemeSet() {
-		filepath.Walk(helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), walker)
+		helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), walker)
 	}
 
 	return a
@@ -745,7 +745,7 @@ func NewWatcher(port int) error {
 					// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
 					if ev.Op&fsnotify.Create == fsnotify.Create {
 						if s, err := hugofs.SourceFs.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-							afero.Walk(hugofs.SourceFs, ev.Name, walkAdder)
+							helpers.SymbolicWalk(hugofs.SourceFs, ev.Name, walkAdder)
 						}
 					}
 

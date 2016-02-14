@@ -14,6 +14,7 @@
 package source
 
 import (
+	"github.com/spf13/hugo/hugofs"
 	"io"
 	"os"
 	"path/filepath"
@@ -96,7 +97,12 @@ func (f *Filesystem) captureFiles() {
 		return err
 	}
 
-	filepath.Walk(f.Base, walker)
+	err := helpers.SymbolicWalk(hugofs.SourceFs, f.Base, walker)
+
+	if err != nil {
+		jww.ERROR.Println(err)
+	}
+
 }
 
 func (f *Filesystem) shouldRead(filePath string, fi os.FileInfo) (bool, error) {

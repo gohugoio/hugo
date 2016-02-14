@@ -124,7 +124,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		return convertJekyllPost(path, relPath, targetDir, draft)
 	}
 
-	err = filepath.Walk(jekyllRoot, callback)
+	err = helpers.SymbolicWalk(hugofs.OsFs, jekyllRoot, callback)
 
 	if err != nil {
 		return err
