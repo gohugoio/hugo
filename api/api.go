@@ -36,8 +36,8 @@ func NewSite(path string, force bool, format string) {
 	commands.NewSite(cmd, []string{path})
 }
 
-func Build(flags []string) {
-	commands.Execute(flags)
+func Build(flags []string) error {
+	return commands.Execute(flags)
 }
 
 func Reset() {

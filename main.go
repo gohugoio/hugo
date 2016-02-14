@@ -14,6 +14,7 @@
 package main
 
 import (
+	"os"
 	"runtime"
 
 	"github.com/spf13/hugo/commands"
@@ -21,5 +22,7 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	commands.Execute(nil)
+	if err := commands.Execute(nil); err != nil {
+		os.Exit(-1)
+	}
 }

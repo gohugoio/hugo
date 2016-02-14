@@ -156,7 +156,7 @@ func ClearSite() {
 }
 
 // Execute adds all child commands to the root command hugoCmd and sets flags appropriately.
-func Execute(flags []string) {
+func Execute(flags []string) error {
 	hugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 
 	hugoCmd.SilenceUsage = true
@@ -175,8 +175,10 @@ func Execute(flags []string) {
 			c.Println(c.UsageString())
 		}
 
-		os.Exit(-1)
+		return err
 	}
+
+	return nil
 }
 
 // AddCommands adds child commands to the root command hugoCmd.
