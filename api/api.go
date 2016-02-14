@@ -26,23 +26,19 @@ func Reset() {
 	viper.Reset()
 }
 
-func NewBuild() *build {
-	return new(build)
-}
-
 // Build is the type that handles Building methods
-type build struct {
+type Build struct {
 	flags []string
 }
 
 // Run regenerates the website
-func (b *build) Run() error {
+func (b *Build) Run() error {
 	_, err := commands.Execute(b.flags)
 	return err
 }
 
 // Set adds a value to the flags array
-func (b *build) Set(key string, value interface{}) {
+func (b *Build) Set(key string, value interface{}) {
 	// If the key doesn't begin with "-"
 	if key[0] != '-' {
 		key = "--" + key
