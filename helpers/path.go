@@ -428,6 +428,24 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
+// SymbolicWalk is like filepath.Walk, but it supports the root being a
+// symbolic link. It will still not follow symbolic links deeper down in
+// the file structure
+func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
+	rootContent, err := afero.ReadDir(fs, root)
+
+	if err != nil {
+		return walker(root, nil, err)
+	}
+
+	for _, fi := range rootContent {
+		afero.Walk(fs, filepath.Join(root, fi.Name()), walker)
+	}
+
+	return nil
+
+}
+
 // Same as WriteToDisk but checks to see if file/directory already exists.
 func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.SafeWriteReader(fs, inpath, r)
