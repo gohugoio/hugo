@@ -467,6 +467,8 @@ func watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
+		// Force a full rebuild
+		MainSite = nil
 		utils.CheckErr(buildSite(true))
 		if !viper.GetBool("DisableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
