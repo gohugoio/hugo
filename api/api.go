@@ -59,7 +59,7 @@ type NewSite struct {
 // Set adds a value to the flags array
 func (n *NewSite) Set(key, value string) {
 	if key == "path" {
-		n.path = key
+		n.path = value
 		return
 	}
 
@@ -80,7 +80,7 @@ type NewContent struct {
 // Set adds a value to the flags array
 func (n *NewContent) Set(key, value string) {
 	if key == "path" {
-		n.path = key
+		n.path = value
 		return
 	}
 
