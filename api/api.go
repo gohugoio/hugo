@@ -14,9 +14,27 @@
 package api
 
 import (
+	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/commands"
 	"github.com/spf13/viper"
 )
+
+func NewSite(path string, force bool, format string) {
+	cmd := &cobra.Command{}
+
+	if &force == nil {
+		force = false
+	}
+
+	cmd.Flags().Bool("force", true, "")
+
+	if &format == nil {
+		format = "toml"
+	}
+
+	cmd.Flags().String("format", format, "")
+	commands.NewSite(cmd, []string{path})
+}
 
 func Build(flags []string) {
 	commands.Execute(flags)
