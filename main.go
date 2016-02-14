@@ -21,5 +21,5 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	commands.Execute()
+	commands.Execute(nil)
 }
