@@ -51,56 +51,43 @@ func (b *build) Set(key string, value interface{}) {
 	b.flags = append([]string{key, value.(string)}, b.flags...)
 }
 
-func NewSite() *newSite {
-	n := new(newSite)
-	*n.cmd = *commands.NewSiteCmd
-	return n
-}
-
 // NewSite creates new sites
-type newSite struct {
-	cmd  *cobra.Command
+type NewSite struct {
 	path string
 }
 
 // Set adds a value to the flags array
-func (n *newSite) Set(key string, value interface{}) {
+func (n *NewSite) Set(key, value string) {
 	if key == "path" {
 		n.path = key
 		return
 	}
 
-	n.cmd.Flags().Set(key, value.(string))
+	commands.NewSiteCmd.Flags().Set(key, value)
 }
 
 // Make generates a new site
-func (n *newSite) Make() error {
-	return n.cmd.RunE(n.cmd, []string{n.path})
-}
-
-func NewContent() *newContent {
-	n := new(newContent)
-	*n.cmd = *commands.NewCmd
-	return n
+func (n *NewSite) Make() error {
+	return commands.NewSiteCmd.RunE(commands.NewSiteCmd, []string{n.path})
 }
 
 // NewContent is used to create new contents
-type newContent struct {
+type NewContent struct {
 	cmd  *cobra.Command
 	path string
 }
 
 // Set adds a value to the flags array
-func (n *newContent) Set(key string, value interface{}) {
+func (n *NewContent) Set(key, value string) {
 	if key == "path" {
 		n.path = key
 		return
 	}
 
-	n.cmd.Flags().Set(key, value.(string))
+	commands.NewCmd.Flags().Set(key, value)
 }
 
 // Make generates a new content
-func (n *newContent) Make() error {
-	return n.cmd.RunE(n.cmd, []string{n.path})
+func (n *NewContent) Make() error {
+	return commands.NewCmd.RunE(commands.NewCmd, []string{n.path})
 }
