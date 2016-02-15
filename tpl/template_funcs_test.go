@@ -1639,14 +1639,33 @@ func TestReplace(t *testing.T) {
 }
 
 func TestTrim(t *testing.T) {
-	v, _ := trim("1234 my way 13", "123")
-	assert.Equal(t, "4 my way ", v)
-	v, _ = trim("   my way    ", " ")
-	assert.Equal(t, "my way", v)
-	v, _ = trim(1234, "14")
-	assert.Equal(t, "23", v)
-	_, e := trim(tstNoStringer{}, " ")
-	assert.NotNil(t, e, "tstNoStringer isn't trimmable")
+
+	for i, this := range []struct {
+		v1     interface{}
+		v2     string
+		expect interface{}
+	}{
+		{"1234 my way 13", "123 ", "4 my way"},
+		{"      my way  ", " ", "my way"},
+		{1234, "14", "23"},
+		{tstNoStringer{}, " ", false},
+	} {
+		result, err := trim(this.v1, this.v2)
+
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] trim didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] failed: %s", i, err)
+				continue
+			}
+			if !reflect.DeepEqual(result, this.expect) {
+				t.Errorf("[%d] got '%s' but expected %s", i, result, this.expect)
+			}
+		}
+	}
 }
 
 func TestDateFormat(t *testing.T) {
