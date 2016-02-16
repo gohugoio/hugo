@@ -553,8 +553,6 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 		s.timerStep("read & convert pages from source")
 
-		fmt.Errorf("%v", errs)
-
 		s.setupPrevNext()
 		if err = s.BuildSiteMeta(); err != nil {
 			return err
