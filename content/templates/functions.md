@@ -715,7 +715,7 @@ This works, but the complexity of "post/tag/list.html" is fairly high; the Hugo 
 This is Hugo. We have a better way. If this were your "post/tag/list.html" instead, all of those problems are fixed automatically (this first version separates all of the operations for ease of reading; the combined version will be shown after the explanation).
 
     <!-- post/tag/list.html -->
-    {{ with.Params.tags }}
+    {{ with .Params.tags }}
     <div class="tags-list">
       Tags:
       {{ $sort := sort . }}
@@ -728,7 +728,7 @@ This is Hugo. We have a better way. If this were your "post/tag/list.html" inste
 In this version, we are now sorting the tags, converting them to links with "post/tag/link.html", cleaning off stray newlines, and joining them together in a delimited list for presentation. That can also be written as:
 
     <!-- post/tag/list.html -->
-    {{ with.Params.tags }}
+    {{ with .Params.tags }}
     <div class="tags-list">
       Tags:
       {{ delimit (apply (apply (sort .) "partial" "post/tag/link" ".") "chomp" ".") ", " }}
