@@ -39,7 +39,6 @@ matter, content or derived from file location.
 **.Permalink** The Permanent link for this page.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
 **.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
-**.Taxonomies** These will use the field name of the plural form of the taxonomy (see tags and categories below).<br>
 **.RSSLink** Link to the taxonomies' RSS link.<br>
 **.TableOfContents** The rendered table of contents for this content.<br>
 **.Prev** Pointer to the previous content (based on pub date).<br>
