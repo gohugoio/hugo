@@ -58,7 +58,7 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
     * [Git](https://git-scm.com/)
     * [Mercurial](https://www.mercurial-scm.org/)
-    * [Go][] 1.4+
+    * [Go][] 1.5+
 
 2. [Fork the Hugo project on GitHub](https://github.com/spf13/hugo).
 
