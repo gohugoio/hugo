@@ -88,7 +88,7 @@ func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	defer f.Close()
 	return ioutil.ReadAll(f)
 }
 
@@ -167,6 +167,7 @@ func resGetLocal(url string, fs afero.Fs) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	return ioutil.ReadAll(f)
 }
 
