@@ -1,4 +1,4 @@
-FROM golang:1.5
+FROM golang:1.6
 MAINTAINER Sven Dowideit <SvenDowideit@home.org.au>
 
 ENV GOPATH /go
