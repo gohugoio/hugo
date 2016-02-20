@@ -1357,6 +1357,9 @@ func (s *Site) RenderPages() error {
 
 	results := make(chan error)
 	pages := make(chan *Page)
+	errs := make(chan error)
+
+	go errorCollator(results, errs)
 
 	procs := getGoMaxProcs()
 
@@ -1386,10 +1389,6 @@ func (s *Site) RenderPages() error {
 		wg.Add(1)
 		go pageRenderer(s, pages, results, wg)
 	}
-
-	errs := make(chan error)
-
-	go errorCollator(results, errs)
 
 	for _, page := range s.Pages {
 		pages <- page
