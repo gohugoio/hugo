@@ -1,5 +1,5 @@
 ---
-lastmod: 2015-12-09
+lastmod: 2016-02-20
 date: 2013-07-01
 linktitle: Introduction
 menu:
@@ -70,7 +70,7 @@ of pages with a fraction of the memory and CPU needed for a dynamic site.
 Hugo has two components to help you build and test your web site. The
 one that you'll probably use most often is the built-in HTTP server.
 When you run `hugo server`, Hugo renders all of your content into
-HTML files and then runs a HTTP server on your computer so that you
+HTML files and then runs an HTTP server on your computer so that you
 can see what the pages look like.
 
 The second component is used when you're ready to publish your web
@@ -92,7 +92,7 @@ Hugo boasts the following features:
 
 ### General
 
-  * Extremely fast build times (~1&nbsp;ms per page)
+  * Extremely fast build times (~1 ms per page)
   * Completely cross platform: Runs on <i class="fa fa-apple"></i>&nbsp;Mac OS&nbsp;X, <i class="fa fa-linux"></i>&nbsp;Linux, <i class="fa fa-windows"></i>&nbsp;Windows, and more!
   * Easy [installation](/overview/installing/)
   * Render changes [on the fly](/overview/usage/) with [LiveReload](/extras/livereload/) as you develop
