@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Portions Copyright The Go Authors.
 
@@ -1156,6 +1156,19 @@ func jsonify(v interface{}) (template.HTML, error) {
 		return "", err
 	}
 	return template.HTML(b), nil
+
+}
+
+// emojify "emojifies" the given string.
+//
+// See http://www.emoji-cheat-sheet.com/
+func emojify(in interface{}) (template.HTML, error) {
+	str, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
+	}
+	return template.HTML(helpers.Emojify([]byte(str))), nil
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
@@ -1715,6 +1728,7 @@ func init() {
 		"dict":         dictionary,
 		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
 		"echoParam":    returnWhenSet,
+		"emojify":      emojify,
 		"eq":           eq,
 		"first":        first,
 		"ge":           ge,

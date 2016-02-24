@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 func init() {
@@ -113,6 +114,10 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 	p.ProcessShortcodes(t)
 
 	var err error
+
+	if viper.GetBool("EnableEmoji") {
+		p.rawContent = helpers.Emojify(p.rawContent)
+	}
 
 	renderedContent := p.renderContent(helpers.RemoveSummaryDivider(p.rawContent))
 
