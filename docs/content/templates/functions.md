@@ -413,6 +413,14 @@ These are formatted with the layout string.
 e.g. `{{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}` → "Wednesday, Jan 21, 2015"
 
 
+### emojify
+
+Runs the string through the Emoji emoticons processor. The result will be declared as "safe" so Go templates will not filter it.
+
+See the [Emoji cheat sheet](http://www.emoji-cheat-sheet.com/) for available emoticons.
+
+e.g. `{{ "I :heart: Hugo" | emojify }}`
+
 ### highlight
 Takes a string of code and a language, uses Pygments to return the syntax highlighted code in HTML.
 Used in the [highlight shortcode](/extras/highlighting/).
