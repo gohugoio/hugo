@@ -575,6 +575,16 @@ CJK-like languages.
 ```
 
 
+### cat
+
+Like the eponymous UNIX-command, `cat` con**cat**enates multiple strings to a single one. The first parameter is always a separator that delimits the strings. The separator is followed by all strings that should be concatenated.
+
+```html
+{{ cat ", " "foo" "bar" "buzz" }}
+<!-- returns the string "foo, bar, buzz" -->
+```
+
+
 ## URLs
 
 ### absURL, relURL

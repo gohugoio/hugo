@@ -1502,6 +1502,12 @@ func singularize(in interface{}) (string, error) {
 	return inflect.Singularize(word), nil
 }
 
+// cat returns the concatenated version of strings that are
+// delimited by a separator.
+func cat(separator string, args ...string) (string, error) {
+	return strings.Join(args, separator), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
@@ -1510,6 +1516,7 @@ func init() {
 		"apply":        apply,
 		"base64Decode": base64Decode,
 		"base64Encode": base64Encode,
+		"cat":          cat,
 		"chomp":        chomp,
 		"countrunes":   countRunes,
 		"countwords":   countWords,
