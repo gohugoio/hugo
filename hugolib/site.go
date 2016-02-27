@@ -1711,8 +1711,10 @@ func (s *Site) newHomeNode() *Node {
 	n.IsHome = true
 	s.setURLs(n, "/")
 	n.Data["Pages"] = s.Pages
-	n.Date = s.Pages[0].Date
-	n.Lastmod = s.Pages[0].Lastmod
+	if len(s.Pages) != 0 {
+		n.Date = s.Pages[0].Date
+		n.Lastmod = s.Pages[0].Lastmod
+	}
 	return n
 }
 
