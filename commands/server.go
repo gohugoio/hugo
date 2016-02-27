@@ -101,7 +101,7 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if cmd.Flags().Lookup("disableLiveReload").Changed {
+	if flagChanged(cmd.Flags(), "disableLiveReload") {
 		viper.Set("DisableLiveReload", disableLiveReload)
 	}
 
