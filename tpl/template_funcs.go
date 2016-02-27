@@ -105,6 +105,11 @@ func dictionary(values ...interface{}) (map[string]interface{}, error) {
 	return dict, nil
 }
 
+// slice returns a slice of all passed arguments
+func slice(args ...interface{}) []interface{} {
+	return args
+}
+
 func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
 	var leftStr, rightStr *string
@@ -1558,6 +1563,7 @@ func init() {
 		"seq":          helpers.Seq,
 		"shuffle":      shuffle,
 		"singularize":  singularize,
+		"slice":        slice,
 		"slicestr":     slicestr,
 		"sort":         sortSeq,
 		"split":        split,

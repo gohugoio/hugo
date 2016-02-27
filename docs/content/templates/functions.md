@@ -75,6 +75,18 @@ or Create a map on the fly to pass into
     
 
 
+### slice
+
+`slice` allows you to create an array (`[]interface{}`) of all arguments that you pass to this function.
+
+One use case is the concatenation of elements in combination with `delimit`:
+
+```html
+{{ delimit (slice "foo" "bar" "buzz") ", " }}
+<!-- returns the string "foo, bar, buzz" -->
+```
+
+
 ### echoParam
 Prints a parameter if it is set.
 
