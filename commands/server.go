@@ -118,6 +118,10 @@ func server(cmd *cobra.Command, args []string) error {
 	if err == nil {
 		l.Close()
 	} else {
+		if flagChanged(serverCmd.Flags(), "port") {
+			// port set explicitly by user -- he/she probably meant it!
+			return newSystemErrorF("Port %d already in use", serverPort)
+		}
 		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
 		sp, err := helpers.FindAvailablePort()
 		if err != nil {
