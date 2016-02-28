@@ -453,7 +453,7 @@ e`,
 	s.Tmpl.AddInternalShortcode("d.html", `d`)
 
 	must(s.addTemplate("_default/single.html", "{{.Content}}"))
-
+	s.Tmpl.MarkReady()
 	createAndRenderPages(t, s)
 
 	for _, test := range tests {

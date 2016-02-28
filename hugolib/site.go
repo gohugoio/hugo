@@ -459,6 +459,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 	if len(tmplChanged) > 0 {
 		s.prepTemplates()
+		s.Tmpl.MarkReady()
 		s.Tmpl.PrintErrors()
 		s.timerStep("template prep")
 	}
@@ -1366,11 +1367,18 @@ func (s *Site) RenderPages() error {
 	// this cannot be fanned out to multiple Go routines
 	// See issue #1601
 	// TODO(bep): Check the IsRenderable logic.
+
+	var templ *template.Template
+
 	for _, p := range s.Pages {
 		var layouts []string
 		if !p.IsRenderable() {
+			if templ == nil {
+				// Issue #1879
+				templ = s.Tmpl.Clone()
+			}
 			self := "__" + p.TargetPath()
-			_, err := s.Tmpl.New(self).Parse(string(p.Content))
+			_, err := templ.New(self).Parse(string(p.Content))
 			if err != nil {
 				results <- err
 				continue

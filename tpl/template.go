@@ -37,6 +37,8 @@ type Template interface {
 	Lookup(name string) *template.Template
 	Templates() []*template.Template
 	New(name string) *template.Template
+	Clone() *template.Template
+	MarkReady()
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
 	AddTemplate(name, tpl string) error
@@ -53,6 +55,7 @@ type templateErr struct {
 
 type GoHTMLTemplate struct {
 	template.Template
+	clone  *template.Template
 	errors []*templateErr
 }
 
@@ -140,6 +143,31 @@ func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedTemplates()
 }
 
+// MarkReady marks the template as "ready for execution". No changes allowed
+// after this is set.
+func (t *GoHTMLTemplate) MarkReady() {
+	if t.clone == nil {
+		t.clone = template.Must(t.Template.Clone())
+	}
+}
+
+// Since Go 1.6, the template cannot change once executed. So we have to create
+// a clone and work with that in some rare cases.
+func (t *GoHTMLTemplate) Clone() *template.Template {
+	if t.clone == nil {
+		t.clone = template.Must(t.Template.Clone())
+	}
+
+	return template.Must(t.clone.Clone())
+}
+
+func (t *GoHTMLTemplate) checkState() {
+	if t.clone != nil {
+		panic("template is cloned and cannot be modfified")
+	}
+
+}
+
 func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
 	if prefix != "" {
 		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
@@ -153,6 +181,7 @@ func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
 }
 
 func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
+	t.checkState()
 	_, err := t.New(name).Parse(tpl)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
@@ -161,6 +190,8 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 }
 
 func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	t.checkState()
+
 	var base, inner *ace.File
 	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
 
@@ -188,6 +219,7 @@ func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseCo
 }
 
 func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
+	t.checkState()
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {
