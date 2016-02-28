@@ -40,6 +40,14 @@ const (
 [[menu.main]]
     name = "Blog"
     url = "/posts"
+[[menu.main]]
+    name = "ext"
+    url = "http://gohugo.io"
+	identifier = "ext"
+[[menu.main]]
+    name = "ext2"
+    url = "http://foo.local/Zoo/foo"
+	identifier = "ext2"
 [[menu.grandparent]]
 	name = "grandparent"
 	url = "/grandparent"
@@ -306,18 +314,34 @@ func TestPageMenu(t *testing.T) {
 
 }
 
-// issue #888
-func TestMenuWithHashInURL(t *testing.T) {
+func TestMenuURL(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
 	s := setupMenuTests(t, MENU_PAGE_SOURCES)
 
-	me := findTestMenuEntryByID(s, "hash", "hash")
+	for i, this := range []struct {
+		me          *MenuEntry
+		expectedURL string
+	}{
+		// issue #888
+		{findTestMenuEntryByID(s, "hash", "hash"), "/Zoo/resource#anchor"},
+		// issue #1774
+		{findTestMenuEntryByID(s, "main", "ext"), "http://gohugo.io"},
+		{findTestMenuEntryByID(s, "main", "ext2"), "http://foo.local/Zoo/foo"},
+	} {
 
-	assert.NotNil(t, me)
+		if this.me == nil {
+			t.Errorf("[%d] MenuEntry not found", i)
+			continue
+		}
 
-	assert.Equal(t, "/Zoo/resource#anchor", me.URL)
+		if this.me.URL != this.expectedURL {
+			t.Errorf("[%d] Got URL %s expected %s", i, this.me.URL, this.expectedURL)
+		}
+
+	}
+
 }
 
 // issue #719
@@ -456,6 +480,49 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 	}
 }
 
+func TestMenuLimit(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	m := *s.Menus["main"]
+
+	// main menu has 4 entries
+	firstTwo := m.Limit(2)
+	assert.Equal(t, 2, len(firstTwo))
+	for i := 0; i < 2; i++ {
+		assert.Equal(t, m[i], firstTwo[i])
+	}
+	assert.Equal(t, m, m.Limit(4))
+	assert.Equal(t, m, m.Limit(5))
+}
+
+func TestMenuSortByN(t *testing.T) {
+
+	for i, this := range []struct {
+		sortFunc   func(p Menu) Menu
+		assertFunc func(p Menu) bool
+	}{
+		{(Menu).Sort, func(p Menu) bool { return p[0].Weight == 1 && p[1].Name == "nx" && p[2].Identifier == "ib" }},
+		{(Menu).ByWeight, func(p Menu) bool { return p[0].Weight == 1 && p[1].Name == "nx" && p[2].Identifier == "ib" }},
+		{(Menu).ByName, func(p Menu) bool { return p[0].Name == "na" }},
+		{(Menu).Reverse, func(p Menu) bool { return p[0].Identifier == "ib" && p[len(p)-1].Identifier == "ia" }},
+	} {
+		menu := Menu{&MenuEntry{Weight: 3, Name: "nb", Identifier: "ia"},
+			&MenuEntry{Weight: 1, Name: "na", Identifier: "ic"},
+			&MenuEntry{Weight: 1, Name: "nx", Identifier: "ic"},
+			&MenuEntry{Weight: 2, Name: "nb", Identifier: "ix"},
+			&MenuEntry{Weight: 2, Name: "nb", Identifier: "ib"}}
+
+		sorted := this.sortFunc(menu)
+
+		if !this.assertFunc(sorted) {
+			t.Errorf("[%d] sort error", i)
+		}
+	}
+
+}
+
 func TestHomeNodeMenu(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
@@ -497,6 +564,20 @@ func TestHomeNodeMenu(t *testing.T) {
 			t.Errorf("[%d] Wrong result for menu %q menuItem %v for HasMenuCurrent: %v", i, this.menu, this.menuItem, hasMenuCurrent)
 		}
 	}
+}
+
+func TestHopefullyUniqueID(t *testing.T) {
+	assert.Equal(t, "i", (&MenuEntry{Identifier: "i", URL: "u", Name: "n"}).hopefullyUniqueID())
+	assert.Equal(t, "u", (&MenuEntry{Identifier: "", URL: "u", Name: "n"}).hopefullyUniqueID())
+	assert.Equal(t, "n", (&MenuEntry{Identifier: "", URL: "", Name: "n"}).hopefullyUniqueID())
+}
+
+func TestAddMenuEntryChild(t *testing.T) {
+	root := &MenuEntry{Weight: 1}
+	root.AddChild(&MenuEntry{Weight: 2})
+	root.AddChild(&MenuEntry{Weight: 1})
+	assert.Equal(t, 2, len(root.Children))
+	assert.Equal(t, 1, root.Children[0].Weight)
 }
 
 var testMenuIdentityMatcher = func(me *MenuEntry, id string) bool { return me.Identifier == id }

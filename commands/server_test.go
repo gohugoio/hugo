@@ -44,11 +44,11 @@ func TestFixURL(t *testing.T) {
 
 	for i, test := range tests {
 		viper.Reset()
-		BaseURL = test.CLIBaseURL
+		baseURL = test.CLIBaseURL
 		viper.Set("BaseURL", test.CfgBaseURL)
 		serverAppend = test.AppendPort
 		serverPort = test.Port
-		result, err := fixURL(BaseURL)
+		result, err := fixURL(baseURL)
 		if err != nil {
 			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
 		}

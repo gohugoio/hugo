@@ -152,12 +152,13 @@ func (ms *MenuSorter) Swap(i, j int) { ms.menu[i], ms.menu[j] = ms.menu[j], ms.m
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
 func (ms *MenuSorter) Less(i, j int) bool { return ms.by(ms.menu[i], ms.menu[j]) }
 
-func (m Menu) Sort() {
+func (m Menu) Sort() Menu {
 	MenuEntryBy(defaultMenuEntrySort).Sort(m)
+	return m
 }
 
 func (m Menu) Limit(n int) Menu {
-	if len(m) < n {
+	if len(m) > n {
 		return m[0:n]
 	}
 	return m

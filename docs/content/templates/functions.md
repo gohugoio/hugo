@@ -75,6 +75,18 @@ or Create a map on the fly to pass into
     
 
 
+### slice
+
+`slice` allows you to create an array (`[]interface{}`) of all arguments that you pass to this function.
+
+One use case is the concatenation of elements in combination with `delimit`:
+
+```html
+{{ delimit (slice "foo" "bar" "buzz") ", " }}
+<!-- returns the string "foo, bar, buzz" -->
+```
+
+
 ### echoParam
 Prints a parameter if it is set.
 
@@ -357,6 +369,15 @@ e.g.
 </tbody>
 </table>
 
+## Numbers
+
+### int
+
+Creates a `int`.
+
+e.g.
+
+* `{{int "123" }}` → 123
 
 ## Strings
 
@@ -376,6 +397,16 @@ e.g. `{{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}` → "Wednesday, Jan 2
 ### highlight
 Takes a string of code and a language, uses Pygments to return the syntax highlighted code in HTML.
 Used in the [highlight shortcode](/extras/highlighting/).
+
+
+### humanize
+Humanize returns the humanized version of a string with the first letter capitalized.
+
+e.g.
+```
+{{humanize "my-first-post"}} → "My first post"
+{{humanize "myCamelPost"}} → "My camel post"
+```
 
 
 ### lower
@@ -487,6 +518,14 @@ e.g.
 
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
+
+### string
+
+Creates a `string`.
+
+e.g.
+
+* `{{string "BatMan"}}` → "BatMan"
 
 ### substr
 
@@ -688,7 +727,7 @@ This works, but the complexity of "post/tag/list.html" is fairly high; the Hugo 
 This is Hugo. We have a better way. If this were your "post/tag/list.html" instead, all of those problems are fixed automatically (this first version separates all of the operations for ease of reading; the combined version will be shown after the explanation).
 
     <!-- post/tag/list.html -->
-    {{ with.Params.tags }}
+    {{ with .Params.tags }}
     <div class="tags-list">
       Tags:
       {{ $sort := sort . }}
@@ -701,7 +740,7 @@ This is Hugo. We have a better way. If this were your "post/tag/list.html" inste
 In this version, we are now sorting the tags, converting them to links with "post/tag/link.html", cleaning off stray newlines, and joining them together in a delimited list for presentation. That can also be written as:
 
     <!-- post/tag/list.html -->
-    {{ with.Params.tags }}
+    {{ with .Params.tags }}
     <div class="tags-list">
       Tags:
       {{ delimit (apply (apply (sort .) "partial" "post/tag/link" ".") "chomp" ".") ", " }}

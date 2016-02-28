@@ -26,7 +26,7 @@ and will give feedback.`,
 }
 
 func init() {
-	initCoreCommonFlags(checkCmd)
+	initHugoBuilderFlags(checkCmd)
 	checkCmd.RunE = check
 }
 

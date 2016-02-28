@@ -5,14 +5,12 @@ title: Tools
 weight: 120
 ---
 
-This section highlights some projects around Hugo that are independently developed.
-These tools try to extend the functionality of our static site generator or help you to get started.
+This section highlights some projects around Hugo that are independently developed. These tools try to extend the functionality of our static site generator or help you to get started.
 
 
 ## Migration
 
-Take a look at this list of migration tools if you currently use other blogging tools
-like Jekyll or WordPress but intend to switch to Hugo instead. They'll take care to export
+Take a look at this list of migration tools if you currently use other blogging tools like Jekyll or WordPress but intend to switch to Hugo instead. They'll take care to export
 your content into Hugo-friendly formats.
 
 ### Jekyll
@@ -66,6 +64,7 @@ Do you prefer an graphical user interface over a text editor? Then give these fr
 - [rango](https://github.com/stayradiated/rango) - A web frontend for Hugo. It's designed to make it easy to manage a small site, even for people with little computer experience.
 - [enwrite](https://github.com/zzamboni/enwrite) - Evernote-powered statically-generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 - [caddy-hugo](https://github.com/hacdias/caddy-hugo) - This is an add-on for [Caddy](https://caddyserver.com/) which wants to deliver a good UI to edit the content of the website. 
+- [Hugopit](https://github.com/sjardim/Hugopit) - A web-based editor for Hugo build on top of [Cockpit CMS](http://www.getcockpit.com/).
 
 ----
 
@@ -85,6 +84,7 @@ A static site with a dynamic search function? Yes. Alternatively to embeddable s
 
 - [Hugoidx](https://github.com/blevesearch/hugoidx) is an experimental application to create a search index. It's build on top of [Bleve](http://www.blevesearch.com/).
 - This [GitHub Gist](https://gist.github.com/sebz/efddfc8fdcb6b480f567) contains simple workflow to create a search index for your static site. It uses a simple Grunt script to index all your content files and [lunr.js](http://lunrjs.com/) to serve the search results.
+- [hugo-lunr](https://www.npmjs.com/package/hugo-lunr) - A simple way to add site search to your static Hugo site using [lunr.js](http://lunrjs.com/). Hugo-lunr will create an index file of any html and markdown documents in your Hugo project.
 
 ----
 

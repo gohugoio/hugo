@@ -270,7 +270,7 @@ func TestGetCSVFailParseSep(t *testing.T) {
 	url := ts.URL + "/test.csv"
 	defer os.Remove(getCacheFileID(url))
 
-	want := [][]string{[]string{"gomeetup", "city"}, []string{"yes", "Sydney"}, []string{"yes", "San Francisco"}, []string{"yes", "Stockholm"}}
+	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
 	have := GetCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
@@ -301,7 +301,7 @@ func TestGetCSVFailParse(t *testing.T) {
 	url := ts.URL + "/test.csv"
 	defer os.Remove(getCacheFileID(url))
 
-	want := [][]string{[]string{"gomeetup", "city"}, []string{"yes", "Sydney"}, []string{"yes", "San Francisco"}, []string{"yes", "Stockholm"}}
+	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
 	have := GetCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {

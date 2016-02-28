@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"bitbucket.org/pkg/inflect"
 
@@ -63,6 +64,37 @@ text
 more text
 `
 )
+
+// Issue #1797
+func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("DefaultExtension", "html")
+	viper.Set("verbose", true)
+	viper.Set("baseurl", "http://auth/bub")
+
+	sources := []source.ByteSource{}
+
+	s := &Site{
+		Source:  &source.InMemorySource{ByteSource: sources},
+		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+	}
+
+	var err error
+	d := time.Second * 2
+	ticker := time.NewTicker(d)
+	select {
+	case err = <-s.ReadPagesFromSource():
+		break
+	case <-ticker.C:
+		err = fmt.Errorf("ReadPagesFromSource() never returns in %s", d.String())
+	}
+	ticker.Stop()
+	if err != nil {
+		t.Fatalf("Unable to read source: %s", err)
+	}
+}
 
 func createAndRenderPages(t *testing.T, s *Site) {
 	if err := s.CreatePages(); err != nil {

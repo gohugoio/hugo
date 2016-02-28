@@ -48,20 +48,19 @@ var (
 )
 
 type Page struct {
-	Params          map[string]interface{}
-	Content         template.HTML
-	Summary         template.HTML
-	Aliases         []string
-	Status          string
-	Images          []Image
-	Videos          []Video
-	TableOfContents template.HTML
-	Truncated       bool
-	Draft           bool
-	PublishDate     time.Time
-	Tmpl            tpl.Template
-	Markup          string
-
+	Params              map[string]interface{}
+	Content             template.HTML
+	Summary             template.HTML
+	Aliases             []string
+	Status              string
+	Images              []Image
+	Videos              []Video
+	TableOfContents     template.HTML
+	Truncated           bool
+	Draft               bool
+	PublishDate         time.Time
+	Tmpl                tpl.Template
+	Markup              string
 	extension           string
 	contentType         string
 	renderable          bool
@@ -77,13 +76,13 @@ type Page struct {
 	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
+	pageMenus           PageMenus
+	pageMenusInit       sync.Once
+	isCJKLanguage       bool
 	PageMeta
 	Source
 	Position `json:"-"`
 	Node
-	pageMenus     PageMenus
-	pageMenusInit sync.Once
-	isCJKLanguage bool
 }
 
 type Source struct {
@@ -106,6 +105,26 @@ type Position struct {
 }
 
 type Pages []*Page
+
+func (ps Pages) FindPagePosByFilePath(inPath string) int {
+	for i, x := range ps {
+		if x.Source.Path() == inPath {
+			return i
+		}
+	}
+	return -1
+}
+
+// FindPagePos Given a page, it will find the position in Pages
+// will return -1 if not found
+func (ps Pages) FindPagePos(page *Page) int {
+	for i, x := range ps {
+		if x.Source.Path() == page.Source.Path() {
+			return i
+		}
+	}
+	return -1
+}
 
 func (p *Page) Plain() string {
 	p.initPlain()

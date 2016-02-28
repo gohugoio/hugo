@@ -69,7 +69,6 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 		{"", nil, nil, "style=foo,noclasses=false"},
 		{"style=foo,noclasses=false", nil, nil, "style=override,noclasses=override"},
 		{"style=foo,noclasses=false", "override", false, "style=override,noclasses=override"},
-
 	} {
 		viper.Reset()
 

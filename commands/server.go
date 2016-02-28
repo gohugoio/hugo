@@ -32,12 +32,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var serverPort int
-var serverInterface string
-var serverWatch bool
-var serverAppend bool
-var disableLiveReload bool
-var renderToDisk bool
+var (
+	disableLiveReload bool
+	renderToDisk      bool
+	serverAppend      bool
+	serverInterface   string
+	serverPort        int
+	serverWatch       bool
+)
 
 //var serverCmdV *cobra.Command
 
@@ -81,14 +83,14 @@ func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
 }
 
 func init() {
-	initCoreCommonFlags(serverCmd)
+	initHugoBuilderFlags(serverCmd)
+
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseurl")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
-	serverCmd.Flags().BoolVarP(&NoTimes, "noTimes", "", false, "Don't sync modification time of files")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.RunE = server
@@ -99,7 +101,7 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if cmd.Flags().Lookup("disableLiveReload").Changed {
+	if flagChanged(cmd.Flags(), "disableLiveReload") {
 		viper.Set("DisableLiveReload", disableLiveReload)
 	}
 
@@ -116,6 +118,10 @@ func server(cmd *cobra.Command, args []string) error {
 	if err == nil {
 		l.Close()
 	} else {
+		if flagChanged(serverCmd.Flags(), "port") {
+			// port set explicitly by user -- he/she probably meant it!
+			return newSystemErrorF("Port %d already in use", serverPort)
+		}
 		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
 		sp, err := helpers.FindAvailablePort()
 		if err != nil {
@@ -126,7 +132,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 	viper.Set("port", serverPort)
 
-	BaseURL, err := fixURL(BaseURL)
+	BaseURL, err := fixURL(baseURL)
 	if err != nil {
 		return err
 	}
@@ -137,7 +143,7 @@ func server(cmd *cobra.Command, args []string) error {
 	}
 
 	// If a Destination is provided via flag write to disk
-	if Destination != "" {
+	if destination != "" {
 		renderToDisk = true
 	}
 
@@ -146,10 +152,6 @@ func server(cmd *cobra.Command, args []string) error {
 		hugofs.DestinationFS = new(afero.MemMapFs)
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		viper.Set("PublishDir", "/")
-	}
-
-	if serverCmd.Flags().Lookup("noTimes").Changed {
-		viper.Set("NoTimes", NoTimes)
 	}
 
 	if err := build(serverWatch); err != nil {

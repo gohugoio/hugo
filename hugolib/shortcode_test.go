@@ -501,7 +501,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
 		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
 		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World.")},
+		{strings.Repeat("A ", 3000) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC ", 1000) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
 	var in []input = make([]input, b.N*len(data))

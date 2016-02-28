@@ -506,7 +506,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 
 		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
 		source = append(source[:j], append(newVal, source[end:]...)...)
-
+		start = j
 		k = bytes.Index(source[start:], pre)
 
 	}
