@@ -37,14 +37,12 @@ type Template interface {
 	Lookup(name string) *template.Template
 	Templates() []*template.Template
 	New(name string) *template.Template
-	Clone() *template.Template
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
 	AddTemplate(name, tpl string) error
 	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
-	MarkReady()
 	PrintErrors()
 }
 
@@ -55,8 +53,6 @@ type templateErr struct {
 
 type GoHTMLTemplate struct {
 	template.Template
-	clone  *template.Template
-	ready  bool
 	errors []*templateErr
 }
 
@@ -142,22 +138,6 @@ func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML
 func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedShortcodes()
 	t.EmbedTemplates()
-}
-
-// MarkReady marks the template as "ready for execution". No changes allowed
-// after this is set.
-func (t *GoHTMLTemplate) MarkReady() {
-	t.clone = template.Must(t.Template.Clone())
-	t.ready = true
-}
-
-// Since Go 1.6, the template cannot change once executed. So we have to create
-// a clone and work with that in some rare cases.
-func (t *GoHTMLTemplate) Clone() *template.Template {
-	if !t.ready {
-		panic("template clone called too early")
-	}
-	return template.Must(t.clone.Clone())
 }
 
 func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
