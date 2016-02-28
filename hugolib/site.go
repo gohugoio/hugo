@@ -595,6 +595,7 @@ func (s *Site) prepTemplates() {
 	if s.hasTheme() {
 		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
 	}
+	s.Tmpl.MarkReady()
 }
 
 func (s *Site) addTemplate(name, data string) error {
@@ -1366,11 +1367,15 @@ func (s *Site) RenderPages() error {
 	// this cannot be fanned out to multiple Go routines
 	// See issue #1601
 	// TODO(bep): Check the IsRenderable logic.
+
+	// Issue #1879
+	templ := s.Tmpl.Clone()
+
 	for _, p := range s.Pages {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
-			_, err := s.Tmpl.New(self).Parse(string(p.Content))
+			_, err := templ.New(self).Parse(string(p.Content))
 			if err != nil {
 				results <- err
 				continue
