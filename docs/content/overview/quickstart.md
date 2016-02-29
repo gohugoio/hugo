@@ -235,7 +235,7 @@ FATAL: 2016/02/14 Unable to find theme Directory: /Users/shekhargulati/bookshelf
 
 To view your website, you can go to http://localhost:1313/. You will see as shown below.
 
-<img src="images/bookshelf-robust-theme.png" width="600">
+![](/img/quickstart/bookshelf-robust-theme.png)
 
 Let's understand the layout of the theme. A theme consists of following:
 
@@ -263,7 +263,7 @@ $ hugo server --theme=hugo-theme-bleak --buildDrafts
 
 Now, website will use `bleak` theme and will be rendered differently as shown below.
 
-<img src="images/bookshelf-bleak-theme.png" width="600">
+![](/img/quickstart/bookshelf-bleak-theme.png)
 
 ## Step 7. Update config.toml and live reloading in action
 
@@ -286,7 +286,7 @@ title = "Shekhar Gulati Book Reviews"
 
 Hugo has inbuilt support for live reloading. So, as soon as you save your changes it will apply the change and reload the web page. You will see changes as shown below.
 
-<img src="images/bookshelf-updated-config.png" width="600">
+![](/img/quickstart/bookshelf-updated-config.png)
 
 The same is reflected in the Hugo server logs as well. As soon as the configuration is changed, it applied the changes.
 
@@ -309,11 +309,11 @@ The first change that we have to make is to use a different default image instea
 
 Create images directory inside the static directory and copy an image with name `default.jpg` inside it. We will use the default image shown below.
 
-<img src="images/default.jpg" width="600">
+![](/img/quickstart/default.jpg)
 
 Hugo will sync the changes and reload the website to use new image as shown below.
 
-<img src="images/bookshelf-new-default-image.png" width="600">
+![](/img/quickstart/bookshelf-new-default-image.png)
 
 Now, we need to change the layout of the index page so that only images are shown instead of the text. The index.html inside the layouts directory of the theme refer to partial `li` that renders the list view shown below.
 
@@ -342,8 +342,7 @@ Create a new file li.html inside the `bookshelf/layouts/_default` directory. Cop
 
 Now, the website will be rendered as shown below.
 
-<img src="images/bookshelf-only-picture.png" width="600">
-
+![](/img/quickstart/bookshelf-only-picture.png)
 
 Next, we want to remove information related to theme from the footer. So, create a new file inside the `partials/default_foot.html` with the content copied from the theme `partials/default_foot.html`. Replace the footer section with the one shown below.
 
@@ -378,7 +377,7 @@ I read **Good to Great in January 2016**. An awesome read sharing detailed analy
 
 After adding few more books to our shelf, the shelf looks like as shown below. These are few books that I have read within last one year.
 
-<img src="images/bookshelf.png" width="600">
+![](/img/quickstart/bookshelf.png)
 
 
 ## Step 9. Make posts public
@@ -407,7 +406,7 @@ Disqus allows you to integrate comments in your static blog. To enable Disqus, y
 
 Now, commenting will be enabled in your blog.
 
-<img src="images/bookshelf-disqus.png" width="600">
+![](/img/quickstart/bookshelf-disqus.png)
 
 ## Step 11. Generate website
 
