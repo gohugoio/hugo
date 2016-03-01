@@ -256,7 +256,7 @@ void do();
 	CheckShortCodeMatch(t, code, "\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\"><span style=\"font-weight: bold\">void</span> do();\n</pre></div>\n", tem)
 }
 
-const testScPlaceholderRegexp = "{@{@HUGOSHORTCODE-\\d+@}@}"
+const testScPlaceholderRegexp = "{#{#HUGOSHORTCODE-\\d+#}#}"
 
 func TestExtractShortcodes(t *testing.T) {
 	for i, this := range []struct {
@@ -292,18 +292,18 @@ func TestExtractShortcodes(t *testing.T) {
 			`inner([], false){[inner2-> inner2([\"param1\"], true){[inner2txt->inner3 inner3(%!q(<nil>), false){[inner3txt]}]} final close->`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
 		{"two inner", `Some text. {{% inner %}}First **Inner** Content{{% / inner %}} {{< inner >}}Inner **Content**{{< / inner >}}. Some more text.`,
-			`map["{@{@HUGOSHORTCODE-1@}@}:inner([], true){[First **Inner** Content]}" "{@{@HUGOSHORTCODE-2@}@}:inner([], false){[Inner **Content**]}"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:inner([], true){[First **Inner** Content]}" "{#{#HUGOSHORTCODE-2#}#}:inner([], false){[Inner **Content**]}"]`,
 			fmt.Sprintf("Some text. %s %s. Some more text.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"closed without content", `Some text. {{< inner param1 >}}{{< / inner >}}. Some more text.`, `inner([\"param1\"], false){[]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
 		{"two shortcodes", "{{< sc1 >}}{{< sc2 >}}",
-			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([], false){[]}"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:sc1([], false){[]}" "{#{#HUGOSHORTCODE-2#}#}:sc2([], false){[]}"]`,
 			testScPlaceholderRegexp + testScPlaceholderRegexp, ""},
 		{"mix of shortcodes", `Hello {{< sc1 >}}world{{% sc2 p2="2"%}}. And that's it.`,
-			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([\"p2:2\"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:sc1([], false){[]}" "{#{#HUGOSHORTCODE-2#}#}:sc2([\"p2:2\"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"mix with inner", `Hello {{< sc1 >}}world{{% inner p2="2"%}}Inner{{%/ inner %}}. And that's it.`,
-			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:inner([\"p2:2\"], true){[Inner]}"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:sc1([], false){[]}" "{#{#HUGOSHORTCODE-2#}#}:inner([\"p2:2\"], true){[Inner]}"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
@@ -497,11 +497,11 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		replacements map[string]string
 		expect       []byte
 	}{
-		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, []byte("Hello World.")},
-		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
-		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
-		{strings.Repeat("A ", 3000) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC ", 1000) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
+		{"Hello {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "World"}, []byte("Hello World.")},
+		{strings.Repeat("A", 100) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
+		{strings.Repeat("A", 500) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
+		{strings.Repeat("ABCD ", 500) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
+		{strings.Repeat("A ", 3000) + " {#{#HUGOSHORTCODE-1#}#}." + strings.Repeat("BC ", 1000) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
 	var in []input = make([]input, b.N*len(data))
@@ -541,31 +541,31 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		replacements map[string]string
 		expect       interface{}
 	}{
-		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World."},
-		{"Hello {@{@PREFIX-1@}@.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, false},
-		{"{@{@PREFIX2-1@}@}", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "World"}, "World"},
+		{"Hello {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello World."},
+		{"Hello {#{#PREFIX-1@}@.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, false},
+		{"{#{#PREFIX2-1#}#}", "PREFIX2", map[string]string{"{#{#PREFIX2-1#}#}": "World"}, "World"},
 		{"Hello World!", "PREFIX2", map[string]string{}, "Hello World!"},
-		{"!{@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World"},
-		{"{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "World!"},
-		{"!{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World!"},
-		{"@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "@{@PREFIX-1@}@}"},
-		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
-		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, "A v1 asdf v2."},
-		{"Hello {@{@PREFIX2-1@}@}. Go {@{@PREFIX2-2@}@}, Go, Go {@{@PREFIX2-3@}@} Go Go!.", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "Europe", "{@{@PREFIX2-2@}@}": "Jonny", "{@{@PREFIX2-3@}@}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
-		{"A {@{@PREFIX-2@}@} {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A B A."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A"}, false},
-		{"A {@{@PREFIX-1@}@} but not the second.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A A but not the second."},
-		{"An {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "An A."},
-		{"An {@{@PREFIX-1@}@} {@{@PREFIX-2@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "An A B."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, "A A B C A C."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, "A A B C A C."},
+		{"!{#{#PREFIX-1#}#}", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "!World"},
+		{"{#{#PREFIX-1#}#}!", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "World!"},
+		{"!{#{#PREFIX-1#}#}!", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "!World!"},
+		{"#{#PREFIX-1#}#}", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "#{#PREFIX-1#}#}"},
+		{"Hello {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
+		{"A {#{#A-1#}#} asdf {#{#A-2#}#}.", "A", map[string]string{"{#{#A-1#}#}": "v1", "{#{#A-2#}#}": "v2"}, "A v1 asdf v2."},
+		{"Hello {#{#PREFIX2-1#}#}. Go {#{#PREFIX2-2#}#}, Go, Go {#{#PREFIX2-3#}#} Go Go!.", "PREFIX2", map[string]string{"{#{#PREFIX2-1#}#}": "Europe", "{#{#PREFIX2-2#}#}": "Jonny", "{#{#PREFIX2-3#}#}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
+		{"A {#{#PREFIX-2#}#} {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "A B A."},
+		{"A {#{#PREFIX-1#}#} {#{#PREFIX-2", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A"}, false},
+		{"A {#{#PREFIX-1#}#} but not the second.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "A A but not the second."},
+		{"An {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "An A."},
+		{"An {#{#PREFIX-1#}#} {#{#PREFIX-2#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "An A B."},
+		{"A {#{#PREFIX-1#}#} {#{#PREFIX-2#}#} {#{#PREFIX-3#}#} {#{#PREFIX-1#}#} {#{#PREFIX-3#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B", "{#{#PREFIX-3#}#}": "C"}, "A A B C A C."},
+		{"A {#{#PREFIX-1#}#} {#{#PREFIX-2#}#} {#{#PREFIX-3#}#} {#{#PREFIX-1#}#} {#{#PREFIX-3#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B", "{#{#PREFIX-3#}#}": "C"}, "A A B C A C."},
 		// Issue #1148 remove p-tags 10 =>
-		{"Hello <p>{@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World. END."},
-		{"Hello <p>{@{@PREFIX-1@}@}</p>. <p>{@{@PREFIX-2@}@}</p> END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World", "{@{@PREFIX-2@}@}": "THE"}, "Hello World. THE END."},
-		{"Hello <p>{@{@PREFIX-1@}@}. END</p>.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World. END</p>."},
-		{"<p>Hello {@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "<p>Hello World</p>. END."},
-		{"Hello <p>{@{@PREFIX-1@}@}12", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World12"},
-		{"Hello {@{@P-1@}@}. {@{@P-1@}@}-{@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} END", "P", map[string]string{"{@{@P-1@}@}": strings.Repeat("BC", 100)},
+		{"Hello <p>{#{#PREFIX-1#}#}</p>. END.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello World. END."},
+		{"Hello <p>{#{#PREFIX-1#}#}</p>. <p>{#{#PREFIX-2#}#}</p> END.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World", "{#{#PREFIX-2#}#}": "THE"}, "Hello World. THE END."},
+		{"Hello <p>{#{#PREFIX-1#}#}. END</p>.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello <p>World. END</p>."},
+		{"<p>Hello {#{#PREFIX-1#}#}</p>. END.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "<p>Hello World</p>. END."},
+		{"Hello <p>{#{#PREFIX-1#}#}12", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello <p>World12"},
+		{"Hello {#{#P-1#}#}. {#{#P-1#}#}-{#{#P-1#}#} {#{#P-1#}#} {#{#P-1#}#} {#{#P-1#}#} END", "P", map[string]string{"{#{#P-1#}#}": strings.Repeat("BC", 100)},
 			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
 				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
 	} {
