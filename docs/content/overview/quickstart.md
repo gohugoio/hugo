@@ -27,7 +27,7 @@ appropriate version for your OS and architecture.
 
 Save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH` as we will be using it in the next step.
 
-More complete instructions are available at [Installing Hugo](/overview/installing/).
+More complete instructions are available at [Installing Hugo]({{< relref "overview/installing.md" >}})
 
 Once `hugo` is installed, make sure to run the `help` command to verify `hugo` installation. Below you can see part of the `help` command output for brevity.
 
@@ -79,7 +79,7 @@ $ tree -a
 
 As mentioned in the command output, `bookshelf` directory has 5 sub-directories and 1 file. Let's look at each of them one by one.
 
-* **archetypes**: You can create new content files in Hugo using the `hugo new` command. When you run that command, it adds few configuration properties to the post like date and title. [Archetype](https://gohugo.io/content/archetypes/) allows you to define your own configuration properties that will be added to the post front matter whenever `hugo new` command is used.
+* **archetypes**: You can create new content files in Hugo using the `hugo new` command. When you run that command, it adds few configuration properties to the post like date and title. [Archetype]({{< relref "content/archetypes.md" >}}) allows you to define your own configuration properties that will be added to the post front matter whenever `hugo new` command is used.
 
 * **config.toml**: Every website should have a configuration file at the root. By default, the configuration file uses `TOML` format but you can also use `YAML` or `JSON` formats as well. [TOML](https://github.com/toml-lang/toml) is minimal configuration file format that's easy to read due to obvious semantics. The configuration settings mentioned in the `config.toml` are applied to the full site. These configuration settings include `baseurl` and `title` of the website.
 
@@ -303,7 +303,7 @@ in 11 ms
 
 ## Step 8. Customize robust theme
 
-Robust theme is a good start towards our online bookshelf but we to customize it a bit to meet the look and feel required for the bookshelf. Hugo makes it very easy to customize themes. You can also create your themes but we will not do that today. If you want to create your own theme, then you should refer to the [Hugo documentation](https://gohugo.io/themes/creation/).
+Robust theme is a good start towards our online bookshelf but we to customize it a bit to meet the look and feel required for the bookshelf. Hugo makes it very easy to customize themes. You can also create your themes but we will not do that today. If you want to create your own theme, then you should refer to the [Hugo documentation]({{< relref "themes/creation.md" >}}).
 
 The first change that we have to make is to use a different default image instead of the one used in the theme. The default image used in both the list and single view page resides inside the `themes/hugo_theme_robust/static/images/default.jpg`. We can easily replace it by creating a simple directory structure inside the `static` directory inside the `bookshelf` directory.
 
