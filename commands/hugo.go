@@ -847,7 +847,9 @@ func NewWatcher(port int) error {
 								} else if err == nil {
 									// If file still exists, sync it
 									logger.Println("Syncing", relPath, "to", publishDir)
-									syncer.Sync(filepath.Join(publishDir, relPath), relPath)
+									if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+										jww.ERROR.Println(err)
+									}
 								} else {
 									jww.ERROR.Println(err)
 								}
@@ -857,7 +859,9 @@ func NewWatcher(port int) error {
 
 							// For all other event operations Hugo will sync static.
 							logger.Println("Syncing", relPath, "to", publishDir)
-							syncer.Sync(filepath.Join(publishDir, relPath), relPath)
+							if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+								jww.ERROR.Println(err)
+							}
 						}
 					}
 
