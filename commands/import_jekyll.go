@@ -86,7 +86,13 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 	}
 
 	forceImport, _ := cmd.Flags().GetBool("force")
-	if err := createSiteFromJekyll(jekyllRoot, targetDir, forceImport); err != nil {
+
+	jekyllPostDirs, hasAnyPost := getJekyllDirInfo(jekyllRoot)
+	if !hasAnyPost {
+		return errors.New("Your Jekyll root contains neither posts nor drafts, aborting.")
+	}
+
+	if err := createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport); err != nil {
 		return newUserError(err)
 	}
 
@@ -111,10 +117,10 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		var draft bool = false
 
 		switch {
-		case strings.HasPrefix(relPath, "_posts/"):
-			relPath = "content/post" + relPath[len("_posts"):]
-		case strings.HasPrefix(relPath, "_drafts/"):
-			relPath = "content/draft" + relPath[len("_drafts"):]
+		case strings.Contains(relPath, "_posts/"):
+			relPath = filepath.Join("content/post", strings.Replace(relPath, "_posts/", "", -1))
+		case strings.Contains(relPath, "_drafts/"):
+			relPath = filepath.Join("content/draft", strings.Replace(relPath, "_drafts/", "", -1))
 			draft = true
 		default:
 			return nil
@@ -124,22 +130,63 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		return convertJekyllPost(path, relPath, targetDir, draft)
 	}
 
-	err = filepath.Walk(jekyllRoot, callback)
-
-	if err != nil {
-		return err
-	} else {
-		fmt.Println("Congratulations!", fileCount, "post(s) imported!")
-		fmt.Println("Now, start Hugo by yourself:\n" +
-			"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-		fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
+	for jekyllPostDir, hasAnyPostInDir := range jekyllPostDirs {
+		if hasAnyPostInDir {
+			if err = filepath.Walk(filepath.Join(jekyllRoot, jekyllPostDir), callback); err != nil {
+				return err
+			}
+		}
 	}
+
+	fmt.Println("Congratulations!", fileCount, "post(s) imported!")
+	fmt.Println("Now, start Hugo by yourself:\n" +
+	"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
+	fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 
 	return nil
 }
 
+func getJekyllDirInfo(jekyllRoot string) (map[string]bool, bool) {
+	postDirs := make(map[string]bool)
+	hasAnyPost := false
+	if entries, err := ioutil.ReadDir(jekyllRoot); err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				subDir := filepath.Join(jekyllRoot, entry.Name())
+				if isPostDir, hasAnyPostInDir := retrieveJekyllPostDir(subDir); isPostDir {
+					postDirs[entry.Name()] = hasAnyPostInDir
+					if hasAnyPostInDir {
+						hasAnyPost = true
+					}
+				}
+			}
+		}
+	}
+	return postDirs, hasAnyPost
+}
+
+func retrieveJekyllPostDir(dir string) (bool, bool) {
+	if strings.HasSuffix(dir, "_posts") || strings.HasSuffix(dir, "_drafts") {
+		isEmpty, _ := helpers.IsEmpty(dir, hugofs.SourceFs)
+		return true, !isEmpty
+	}
+
+	if entries, err := ioutil.ReadDir(dir); err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				subDir := filepath.Join(dir, entry.Name())
+				if isPostDir, hasAnyPost := retrieveJekyllPostDir(subDir); isPostDir {
+					return isPostDir, hasAnyPost
+				}
+			}
+		}
+	}
+
+	return false, true
+}
+
 // TODO: Consider calling doNewSite() instead?
-func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
+func createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool, force bool) error {
 	fs := hugofs.SourceFs
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
@@ -155,24 +202,6 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
 
 	jekyllConfig := loadJekyllConfig(jekyllRoot)
 
-	// Crude test to make sure at least one of _drafts/ and _posts/ exists
-	// and is not empty.
-	hasPostsOrDrafts := false
-	postsDir := filepath.Join(jekyllRoot, "_posts")
-	draftsDir := filepath.Join(jekyllRoot, "_drafts")
-	for _, d := range []string{postsDir, draftsDir} {
-		if exists, _ := helpers.Exists(d, fs); exists {
-			if isDir, _ := helpers.IsDir(d, fs); isDir {
-				if isEmpty, _ := helpers.IsEmpty(d, fs); !isEmpty {
-					hasPostsOrDrafts = true
-				}
-			}
-		}
-	}
-	if !hasPostsOrDrafts {
-		return errors.New("Your Jekyll root contains neither posts nor drafts, aborting.")
-	}
-
 	mkdir(targetDir, "layouts")
 	mkdir(targetDir, "content")
 	mkdir(targetDir, "archetypes")
@@ -182,7 +211,7 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
 
 	createConfigFromJekyll(targetDir, "yaml", jekyllConfig)
 
-	copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"))
+	copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"), jekyllPostDirs)
 
 	return nil
 }
@@ -315,7 +344,7 @@ func copyDir(source string, dest string) (err error) {
 	return nil
 }
 
-func copyJekyllFilesAndFolders(jekyllRoot string, dest string) (err error) {
+func copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPostDirs map[string]bool) (err error) {
 	fi, err := os.Stat(jekyllRoot)
 	if err != nil {
 		return err
@@ -333,9 +362,11 @@ func copyJekyllFilesAndFolders(jekyllRoot string, dest string) (err error) {
 		dfp := filepath.Join(dest, entry.Name())
 		if entry.IsDir() {
 			if entry.Name()[0] != '_' && entry.Name()[0] != '.' {
-				err = copyDir(sfp, dfp)
-				if err != nil {
-					jww.ERROR.Println(err)
+				if _, ok := jekyllPostDirs[entry.Name()]; !ok {
+					err = copyDir(sfp, dfp)
+					if err != nil {
+						jww.ERROR.Println(err)
+					}
 				}
 			}
 		} else {
