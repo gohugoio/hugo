@@ -2,11 +2,11 @@
 
 A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/spf13/hugo/graphs/contributors) in [Go][].
 
-[Website](http://gohugo.io) |
-[Forum](http://discuss.gohugo.io) |
+[Website](https://gohugo.io) |
+[Forum](https://discuss.gohugo.io) |
 [Dev Chat](https://gitter.im/spf13/hugo) |
-[Documentation](http://gohugo.io/overview/introduction/) |
-[Installation Guide](http://gohugo.io/overview/installing/) |
+[Documentation](https://gohugo.io/overview/introduction/) |
+[Installation Guide](https://gohugo.io/overview/installing/) |
 [Twitter](http://twitter.com/spf13)
 
 [![Travis CI status](https://api.travis-ci.org/spf13/hugo.svg?branch=master "Travis CI status")](https://travis-ci.org/spf13/hugo)
@@ -50,7 +50,7 @@ Building the binaries is an easy task for an experienced `go` getter.
 
 ### Install Hugo as Your Site Generator (Binary Install)
 
-Use the [installation instructions in the Hugo documentation](http://gohugo.io/overview/installing/).
+Use the [installation instructions in the Hugo documentation](https://gohugo.io/overview/installing/).
 
 ### Clone the Hugo Project (Contributor)
 
@@ -103,7 +103,7 @@ The Hugo community and maintainers are very active and helpful and the project b
 
 [![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
 
-If you have any questions about how to contribute or what to contribute, please ask on the [forum](http://discuss.gohugo.io).
+If you have any questions about how to contribute or what to contribute, please ask on the [forum](https://discuss.gohugo.io).
 
 ## Code Contribution Guideline
 
