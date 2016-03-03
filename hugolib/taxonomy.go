@@ -63,8 +63,14 @@ func kp(in string) string {
 	return helpers.MakePathSanitized(in)
 }
 
-func (i Taxonomy) Get(key string) WeightedPages { return i[kp(key)] }
-func (i Taxonomy) Count(key string) int         { return len(i[kp(key)]) }
+func (i Taxonomy) Get(key string) WeightedPages {
+	if val, ok := i[key]; ok {
+		return val
+	}
+	return i[kp(key)]
+}
+
+func (i Taxonomy) Count(key string) int { return len(i[kp(key)]) }
 func (i Taxonomy) Add(key string, w WeightedPage, pretty bool) {
 	if !pretty {
 		key = kp(key)
