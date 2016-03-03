@@ -1168,7 +1168,19 @@ func emojify(in interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return template.HTML(helpers.Emojify([]byte(str))), nil
+}
+
+// plainify strips any HTML and returns the plain text version.
+func plainify(in interface{}) (string, error) {
+	s, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
+	}
+
+	return helpers.StripHTML(s), nil
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
@@ -1757,6 +1769,7 @@ func init() {
 		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
 		"ne":           ne,
 		"partial":      partial,
+		"plainify":     plainify,
 		"pluralize":    pluralize,
 		"readDir":      readDir,
 		"ref":          ref,

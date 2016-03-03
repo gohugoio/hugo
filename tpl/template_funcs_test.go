@@ -102,6 +102,7 @@ delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
 md5: {{ md5 "Hello world, gophers!" }}
 sha1: {{ sha1 "Hello world, gophers!" }}
+plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -139,6 +140,7 @@ delimit: A, B and C
 jsonify: ["A","B","C"]
 md5: b3029f756f98f79e7f1b7f1d1f0dd53b
 sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
+plainify: Hello world, gophers!
 `
 
 	var b bytes.Buffer
