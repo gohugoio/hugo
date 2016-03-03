@@ -63,10 +63,9 @@ func TestFuncsInTemplate(t *testing.T) {
 	defer viper.Reset()
 
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
-	// TODO(bep): Look at the use of safeHTML below; these should maybe return template.HTML
 	// TODO(bep): docs: fix title example
 	in :=
-		`chomp: {{chomp "<p>Blockhead</p>\n" | safeHTML }}
+		`chomp: {{chomp "<p>Blockhead</p>\n" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 lower: {{lower "BatMan"}}
 markdownify: {{ .Title | markdownify}}
@@ -1643,7 +1642,8 @@ func TestChomp(t *testing.T) {
 		"\r", "\r\r",
 		"\r\n", "\r\n\r\n",
 	} {
-		chomped, _ := chomp(base + item)
+		c, _ := chomp(base + item)
+		chomped := string(c)
 
 		if chomped != base {
 			t.Errorf("[%d] Chomp failed, got '%v'", i, chomped)

@@ -1196,13 +1196,13 @@ func relRef(page interface{}, ref string) template.HTML {
 }
 
 // chomp removes trailing newline characters from a string.
-func chomp(text interface{}) (string, error) {
+func chomp(text interface{}) (template.HTML, error) {
 	s, err := cast.ToStringE(text)
 	if err != nil {
 		return "", err
 	}
 
-	return strings.TrimRight(s, "\r\n"), nil
+	return template.HTML(strings.TrimRight(s, "\r\n")), nil
 }
 
 // trim leading/trailing characters defined by b from a
