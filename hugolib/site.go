@@ -1510,8 +1510,8 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	n := s.NewNode()
 	if s.Info.preserveTaxonomyNames {
 		key = helpers.MakePathSanitized(key)
-		// keep as is, just make sure the first char is upper
-		n.Title = helpers.FirstUpper(t.key)
+		// keep as is in the title
+		n.Title = t.key
 	} else {
 		n.Title = strings.Replace(strings.Title(t.key), "-", " ", -1)
 	}
