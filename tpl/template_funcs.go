@@ -1459,25 +1459,25 @@ func index(item interface{}, indices ...interface{}) (interface{}, error) {
 //
 // safeHTMLAttr is currently disabled, pending further discussion
 // on its use case.  2015-01-19
-func safeHTMLAttr(text string) template.HTMLAttr {
-	return template.HTMLAttr(text)
+func safeHTMLAttr(a interface{}) template.HTMLAttr {
+	return template.HTMLAttr(cast.ToString(a))
 }
 
 // safeCSS returns a given string as html/template CSS content.
-func safeCSS(text string) template.CSS {
-	return template.CSS(text)
+func safeCSS(a interface{}) template.CSS {
+	return template.CSS(cast.ToString(a))
 }
 
 // safeURL returns a given string as html/template URL content.
-func safeURL(text string) template.URL {
-	return template.URL(text)
+func safeURL(a interface{}) template.URL {
+	return template.URL(cast.ToString(a))
 }
 
 // safeHTML returns a given string as html/template HTML content.
-func safeHTML(a string) template.HTML { return template.HTML(a) }
+func safeHTML(a interface{}) template.HTML { return template.HTML(cast.ToString(a)) }
 
 // safeJS returns the given string as a html/template JS content.
-func safeJS(a string) template.JS { return template.JS(a) }
+func safeJS(a interface{}) template.JS { return template.JS(cast.ToString(a)) }
 
 func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
 	av := reflect.ValueOf(a)

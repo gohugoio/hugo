@@ -103,6 +103,11 @@ jsonify: {{ (slice "A" "B" "C") | jsonify }}
 md5: {{ md5 "Hello world, gophers!" }}
 sha1: {{ sha1 "Hello world, gophers!" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
+safeHTML: {{ "Bat&Man" | safeHTML }}
+safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
+safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
+safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
+safeJS: {{ "(1*2)" | safeJS | safeJS }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -141,6 +146,11 @@ jsonify: ["A","B","C"]
 md5: b3029f756f98f79e7f1b7f1d1f0dd53b
 sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
 emojify: I ❤️  Hugo
+safeHTML: Bat&Man
+safeHTML: Bat&Man
+safeCSS: Bat&amp;Man
+safeURL: http://gohugo.io
+safeJS: (1*2)
 `
 
 	var b bytes.Buffer
@@ -166,7 +176,7 @@ emojify: I ❤️  Hugo
 	}
 
 	if b.String() != expected {
-		t.Errorf("Got\n%q\nExpected\n>%q<", b.String(), expected)
+		t.Errorf("Got\n%q\nExpected\n%q", b.String(), expected)
 	}
 }
 
