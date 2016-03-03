@@ -108,6 +108,7 @@ safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
 safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
 safeJS: {{ "(1*2)" | safeJS | safeJS }}
+plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -151,6 +152,7 @@ safeHTML: Bat&Man
 safeCSS: Bat&amp;Man
 safeURL: http://gohugo.io
 safeJS: (1*2)
+plainify: Hello world, gophers!
 `
 
 	var b bytes.Buffer
