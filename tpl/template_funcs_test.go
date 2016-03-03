@@ -1600,10 +1600,10 @@ func TestApply(t *testing.T) {
 	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
 
 	chomped, _ := apply(strings, "chomp", ".")
-	assert.Equal(t, []interface{}{"a", "b"}, chomped)
+	assert.Equal(t, []interface{}{template.HTML("a"), template.HTML("b")}, chomped)
 
 	chomped, _ = apply(strings, "chomp", "c\n")
-	assert.Equal(t, []interface{}{"c", "c"}, chomped)
+	assert.Equal(t, []interface{}{template.HTML("c"), template.HTML("c")}, chomped)
 
 	chomped, _ = apply(nil, "chomp", ".")
 	assert.Equal(t, []interface{}{}, chomped)
