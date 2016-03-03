@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cast"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"html/template"
 	"math/rand"
@@ -54,6 +55,111 @@ func tstIsGt(tp tstCompareType) bool {
 
 func tstIsLt(tp tstCompareType) bool {
 	return tp == tstLt || tp == tstLe
+}
+
+func TestFuncsInTemplate(t *testing.T) {
+
+	viper.Reset()
+	defer viper.Reset()
+
+	// Add the examples from the docs: As a smoke test and to make sure the examples work.
+	// TODO(bep): Look at the use of safeHTML below; these should maybe return template.HTML
+	// TODO(bep): docs: fix title example
+	in :=
+		`chomp: {{chomp "<p>Blockhead</p>\n" | safeHTML }}
+dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
+lower: {{lower "BatMan"}}
+markdownify: {{ .Title | markdownify}}
+pluralize: {{ "cat" | pluralize }}
+replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
+singularize: {{ "cats" | singularize }}
+slicestr: {{slicestr "BatMan" 3}}
+slicestr: {{slicestr "BatMan" 0 3}}
+substr: {{substr "BatMan" 0 -3}}
+substr: {{substr "BatMan" 3 3}}
+title: {{title "Bat man"}}
+trim: {{ trim "++Batman--" "+-" }}
+upper: {{upper "BatMan"}}
+absURL: {{ "mystyle.css" | absURL }}
+relURL: {{ "mystyle.css" | relURL }}
+relURL: {{ "http://gohugo.io/" | relURL }}
+absURL: {{ "http://gohugo.io/" | absURL }}
+urlize: {{ "Bat Man" | urlize }}
+base64Encode: {{ "Hello world" | base64Encode }}
+base64Decode: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
+base64Decode: {{ 42 | base64Encode | base64Decode }}
+add: {{add 1 2}}
+div: {{div 6 3}}
+mod: {{mod 15 3}}
+modBool: {{modBool 15 3}}
+mul: {{mul 2 3}}
+sub: {{sub 3 2}}
+eq: {{ if eq .Section "blog" }}current{{ end }}
+in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
+seq: {{ seq 3 }}
+sort: {{ slice "B" "C" "A" | sort }}
+delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
+`
+	expected := `chomp: <p>Blockhead</p>
+dateFormat: Wednesday, Jan 21, 2015
+lower: batman
+markdownify: <strong>BatMan</strong>
+pluralize: cats
+replace: Batman and Catwoman
+singularize: cat
+slicestr: Man
+slicestr: Bat
+substr: Bat
+substr: Man
+title: Bat Man
+trim: Batman
+upper: BATMAN
+absURL: http://mysite.com/hugo/mystyle.css
+relURL: /hugo/mystyle.css
+relURL: http://gohugo.io/
+absURL: http://gohugo.io/
+urlize: bat-man
+base64Encode: SGVsbG8gd29ybGQ=
+base64Decode: Hello world
+base64Decode: 42
+add: 3
+div: 2
+mod: 0
+modBool: true
+mul: 6
+sub: 1
+eq: current
+in: Substring found!
+seq: [1 2 3]
+sort: [A B C]
+delimit: A, B and C
+`
+
+	var b bytes.Buffer
+	templ, err := New().New("test").Parse(in)
+	var data struct {
+		Title   string
+		Section string
+	}
+
+	data.Title = "**BatMan**"
+	data.Section = "blog"
+
+	viper.Set("baseURL", "http://mysite.com/hugo/")
+
+	if err != nil {
+		t.Fatal("Got error on parse", err)
+	}
+
+	err = templ.Execute(&b, &data)
+
+	if err != nil {
+		t.Fatal("Gott error on execute", err)
+	}
+
+	if b.String() != expected {
+		t.Errorf("Got\n%q\nExpected\n>%q<", b.String(), expected)
+	}
 }
 
 func TestCompare(t *testing.T) {
