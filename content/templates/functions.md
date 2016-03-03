@@ -448,6 +448,12 @@ Runs the string through the Markdown processor. The result will be declared as "
 
 e.g. `{{ .Title | markdownify }}`
 
+### plainify
+
+Strips any HTML and returns the plain text version.
+
+e.g. `{{ "<b>BatMan</b>" | plainify }}` → "BatMan"
+
 ### pluralize
 Pluralize the given word with a set of common English pluralization rules.
 
