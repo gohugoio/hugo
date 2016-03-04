@@ -242,7 +242,7 @@ func TestGetJSONFailParse(t *testing.T) {
 	defer os.Remove(getCacheFileID(url))
 
 	want := map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}}
-	have := GetJSON(url)
+	have := getJSON(url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
@@ -271,7 +271,7 @@ func TestGetCSVFailParseSep(t *testing.T) {
 	defer os.Remove(getCacheFileID(url))
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := GetCSV(",", url)
+	have := getCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
@@ -302,7 +302,7 @@ func TestGetCSVFailParse(t *testing.T) {
 	defer os.Remove(getCacheFileID(url))
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := GetCSV(",", url)
+	have := getCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)

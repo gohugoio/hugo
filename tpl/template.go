@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ func New() Template {
 	return templates
 }
 
-func Partial(name string, context_list ...interface{}) template.HTML {
+func partial(name string, context_list ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
@@ -103,7 +103,7 @@ func Partial(name string, context_list ...interface{}) template.HTML {
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func ExecuteTemplate(context interface{}, w io.Writer, layouts ...string) {
+func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 	worked := false
 	for _, layout := range layouts {
 
@@ -131,7 +131,7 @@ func ExecuteTemplate(context interface{}, w io.Writer, layouts ...string) {
 func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	ExecuteTemplate(context, b, layouts...)
+	executeTemplate(context, b, layouts...)
 	return template.HTML(b.String())
 }
 
