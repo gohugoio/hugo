@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/datadrivencontent/
-lastmod: 2015-07-23
+lastmod: 2016-03-03
 date: 2015-02-14
 menu:
   main:
@@ -117,7 +117,7 @@ other authentication methods are not implemented.
 
 To load local files with the two functions `getJSON` and `getCSV`, the
 source files must reside within Hugo's working directory. The file
-extension does not matter but the content.
+extension does not matter but the content does.
 
 It applies the same output logic as in the topic: *Calling the functions with an URL*.
 
@@ -125,14 +125,14 @@ It applies the same output logic as in the topic: *Calling the functions with an
 
 There is no chance to trigger a [LiveReload](/extras/livereload/) when
 the content of an URL changes. However, when a local JSON/CSV file changes,
-then a LiveReload will be triggered of course. Symlinks not supported.
+then a LiveReload will be triggered of course. Symlinks are not supported.
 
 **URLs and LiveReload**: If you change any local file and the LiveReload
-got triggered, Hugo will either read the URL content from the cache or, if
+is triggered, Hugo will either read the URL content from the cache or, if
 you have disabled the cache, Hugo will re-download the content.
 This can create huge traffic and you may also reach API limits quickly.
 
-As downloading of content takes a while, Hugo stops with processing
+As downloading of content takes a while, Hugo stops processing
 your Markdown files until the content has been downloaded.
 
 ## Examples
