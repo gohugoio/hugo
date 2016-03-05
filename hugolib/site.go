@@ -45,6 +45,7 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
+	"path"
 )
 
 var _ = transform.AbsURL
@@ -90,9 +91,10 @@ type Site struct {
 }
 
 type targetList struct {
-	Page  target.Output
-	File  target.Output
-	Alias target.AliasPublisher
+	Page     target.Output
+	PageUgly target.Output
+	File     target.Output
+	Alias    target.AliasPublisher
 }
 
 type SiteInfo struct {
@@ -1937,6 +1939,16 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
 
+	var pageTarget target.Output
+
+	if p, ok := d.(*Page); ok && path.Ext(p.URL) != "" {
+		// user has explicitly set a URL with extension for this page
+		// make sure it sticks even if "ugly URLs" are turned off.
+		pageTarget = s.PageUglyTarget()
+	} else {
+		pageTarget = s.PageTarget()
+	}
+
 	transformLinks := transform.NewEmptyTransforms()
 
 	if viper.GetBool("RelativeURLs") || viper.GetBool("CanonifyURLs") {
@@ -1950,7 +1962,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	var path []byte
 
 	if viper.GetBool("RelativeURLs") {
-		translated, err := s.PageTarget().(target.OptionalTranslator).TranslateRelative(dest)
+		translated, err := pageTarget.(target.OptionalTranslator).TranslateRelative(dest)
 		if err != nil {
 			return err
 		}
@@ -1981,7 +1993,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	if err == nil {
-		if err = s.WriteDestPage(dest, outBuffer); err != nil {
+		if err = s.WriteDestPage(dest, pageTarget, outBuffer); err != nil {
 			return err
 		}
 	}
@@ -2033,6 +2045,11 @@ func (s *Site) PageTarget() target.Output {
 	return s.Targets.Page
 }
 
+func (s *Site) PageUglyTarget() target.Output {
+	s.initTargetList()
+	return s.Targets.PageUgly
+}
+
 func (s *Site) FileTarget() target.Output {
 	s.initTargetList()
 	return s.Targets.File
@@ -2049,6 +2066,12 @@ func (s *Site) initTargetList() {
 			s.Targets.Page = &target.PagePub{
 				PublishDir: s.absPublishDir(),
 				UglyURLs:   viper.GetBool("UglyURLs"),
+			}
+		}
+		if s.Targets.PageUgly == nil {
+			s.Targets.PageUgly = &target.PagePub{
+				PublishDir: s.absPublishDir(),
+				UglyURLs:   true,
 			}
 		}
 		if s.Targets.File == nil {
@@ -2069,9 +2092,9 @@ func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
 	return s.FileTarget().Publish(path, reader)
 }
 
-func (s *Site) WriteDestPage(path string, reader io.Reader) (err error) {
+func (s *Site) WriteDestPage(path string, target target.Output, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating page:", path)
-	return s.PageTarget().Publish(path, reader)
+	return target.Publish(path, reader)
 }
 
 func (s *Site) WriteDestAlias(path string, permalink string) (err error) {

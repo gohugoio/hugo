@@ -419,14 +419,15 @@ THE END.`, refShortcode))},
 }
 
 // Issue #939
-func Test404ShouldAlwaysHaveUglyURLs(t *testing.T) {
+// Issue #1923
+func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
 	hugofs.DestinationFS = new(afero.MemMapFs)
 	for _, uglyURLs := range []bool{true, false} {
-		doTest404ShouldAlwaysHaveUglyURLs(t, uglyURLs)
+		doTestShouldAlwaysHaveUglyURLs(t, uglyURLs)
 	}
 }
 
-func doTest404ShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
+func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	viper.Reset()
 	defer viper.Reset()
 
@@ -436,11 +437,15 @@ func doTest404ShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	viper.Set("DisableSitemap", false)
 	viper.Set("DisableRSS", false)
 	viper.Set("RSSUri", "index.xml")
+	viper.Set("blackfriday",
+		map[string]interface{}{
+			"plainIDAnchors": true})
 
 	viper.Set("UglyURLs", uglyURLs)
 
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{filepath.FromSlash("sect/doc1.md"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{filepath.FromSlash("sect/doc2.md"), []byte("---\nurl: /ugly.html\nmarkup: markdown\n---\n# title\ndoc2 *content*")},
 	}
 
 	s := &Site{
@@ -475,10 +480,12 @@ func doTest404ShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		expected string
 	}{
 		{filepath.FromSlash("index.html"), "Home Sweet Home. IsHome=true"},
-		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n IsHome=false"},
+		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n IsHome=false"},
 		{filepath.FromSlash("404.html"), "Page Not Found. IsHome=false"},
 		{filepath.FromSlash("index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
 		{filepath.FromSlash("sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
+		// Issue #1923
+		{filepath.FromSlash("ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n IsHome=false"},
 	}
 
 	for _, p := range s.Pages {
