@@ -132,7 +132,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Struct:
 		switch av.Type() {
 		case timeType:
-			left = float64(timeUnix(av))
+			left = float64(toTimeUnix(av))
 		}
 	}
 
@@ -155,7 +155,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Struct:
 		switch bv.Type() {
 		case timeType:
-			right = float64(timeUnix(bv))
+			right = float64(toTimeUnix(bv))
 		}
 	}
 
@@ -393,19 +393,6 @@ func in(l interface{}, v interface{}) bool {
 	return false
 }
 
-// indirect is taken from 'text/template/exec.go'
-func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
-		if v.IsNil() {
-			return v, true
-		}
-		if v.Kind() == reflect.Interface && v.NumMethod() > 0 {
-			break
-		}
-	}
-	return v, false
-}
-
 // first returns the first N items in a rangeable list.
 func first(limit interface{}, seq interface{}) (interface{}, error) {
 	if limit == nil || seq == nil {
@@ -539,19 +526,6 @@ func shuffle(seq interface{}) (interface{}, error) {
 	return shuffled.Interface(), nil
 }
 
-var (
-	zero      reflect.Value
-	errorType = reflect.TypeOf((*error)(nil)).Elem()
-	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
-)
-
-func timeUnix(v reflect.Value) int64 {
-	if v.Type() != timeType {
-		panic("coding error: argument must be time.Time type reflect Value")
-	}
-	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
-}
-
 func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) {
 	if !obj.IsValid() {
 		return zero, errors.New("can't evaluate an invalid value")
@@ -662,9 +636,9 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 		case reflect.Struct:
 			switch v.Type() {
 			case timeType:
-				iv := timeUnix(v)
+				iv := toTimeUnix(v)
 				ivp = &iv
-				imv := timeUnix(mv)
+				imv := toTimeUnix(mv)
 				imvp = &imv
 			}
 		}
@@ -672,7 +646,12 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
 			return false, nil
 		}
-		if mv.Type().Elem() != v.Type() {
+
+		if mv.Len() == 0 {
+			return false, nil
+		}
+
+		if v.Kind() != reflect.Interface && mv.Type().Elem().Kind() != reflect.Interface && mv.Type().Elem() != v.Type() {
 			return false, nil
 		}
 		switch v.Kind() {
@@ -680,21 +659,26 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			iv := v.Int()
 			ivp = &iv
 			for i := 0; i < mv.Len(); i++ {
-				ima = append(ima, mv.Index(i).Int())
+				if anInt := toInt(mv.Index(i)); anInt != -1 {
+					ima = append(ima, anInt)
+				}
+
 			}
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
 			for i := 0; i < mv.Len(); i++ {
-				sma = append(sma, mv.Index(i).String())
+				if aString := toString(mv.Index(i)); aString != "" {
+					sma = append(sma, aString)
+				}
 			}
 		case reflect.Struct:
 			switch v.Type() {
 			case timeType:
-				iv := timeUnix(v)
+				iv := toTimeUnix(v)
 				ivp = &iv
 				for i := 0; i < mv.Len(); i++ {
-					ima = append(ima, timeUnix(mv.Index(i)))
+					ima = append(ima, toTimeUnix(mv.Index(i)))
 				}
 			}
 		}

@@ -848,7 +848,7 @@ func TestTimeUnix(t *testing.T) {
 	tv := reflect.ValueOf(time.Unix(sec, 0))
 	i := 1
 
-	res := timeUnix(tv)
+	res := toTimeUnix(tv)
 	if sec != res {
 		t.Errorf("[%d] timeUnix got %v but expected %v", i, res, sec)
 	}
@@ -861,7 +861,7 @@ func TestTimeUnix(t *testing.T) {
 			}
 		}()
 		iv := reflect.ValueOf(sec)
-		timeUnix(iv)
+		toTimeUnix(iv)
 	}(t)
 }
 
@@ -1036,13 +1036,17 @@ func TestCheckCondition(t *testing.T) {
 }
 
 func TestWhere(t *testing.T) {
-	// TODO(spf): Put these page tests back in
-	//page1 := &Page{contentType: "v", Source: Source{File: *source.NewFile("/x/y/z/source.md")}}
-	//page2 := &Page{contentType: "w", Source: Source{File: *source.NewFile("/y/z/a/source.md")}}
 
 	type Mid struct {
 		Tst TstX
 	}
+
+	d1 := time.Now()
+	d2 := d1.Add(1 * time.Hour)
+	d3 := d2.Add(1 * time.Hour)
+	d4 := d3.Add(1 * time.Hour)
+	d5 := d4.Add(1 * time.Hour)
+	d6 := d5.Add(1 * time.Hour)
 
 	for i, this := range []struct {
 		sequence interface{}
@@ -1205,10 +1209,37 @@ func TestWhere(t *testing.T) {
 			},
 		},
 		{
+			sequence: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "b": 6},
+			},
+			key: "b", op: "in", match: slice(3, 4, 5),
+			expect: []map[string]int{
+				{"a": 3, "b": 4},
+			},
+		},
+		{
+			sequence: []map[string]time.Time{
+				{"a": d1, "b": d2}, {"a": d3, "b": d4}, {"a": d5, "b": d6},
+			},
+			key: "b", op: "in", match: slice(d3, d4, d5),
+			expect: []map[string]time.Time{
+				{"a": d3, "b": d4},
+			},
+		},
+		{
 			sequence: []TstX{
 				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
 			},
 			key: "B", op: "not in", match: []string{"c", "d", "e"},
+			expect: []TstX{
+				{A: "a", B: "b"}, {A: "e", B: "f"},
+			},
+		},
+		{
+			sequence: []TstX{
+				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
+			},
+			key: "B", op: "not in", match: slice("c", t, "d", "e"),
 			expect: []TstX{
 				{A: "a", B: "b"}, {A: "e", B: "f"},
 			},
@@ -1273,11 +1304,10 @@ func TestWhere(t *testing.T) {
 			key: "B", op: "op", match: "f",
 			expect: false,
 		},
-		//{[]*Page{page1, page2}, "Type", "v", []*Page{page1}},
-		//{[]*Page{page1, page2}, "Section", "y", []*Page{page2}},
 	} {
 		var results interface{}
 		var err error
+
 		if len(this.op) > 0 {
 			results, err = where(this.sequence, this.key, this.op, this.match)
 		} else {
