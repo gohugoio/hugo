@@ -81,7 +81,7 @@ type Site struct {
 	Info           SiteInfo
 	Menus          Menus
 	timer          *nitro.B
-	Targets        targetList
+	targets        targetList
 	targetListInit sync.Once
 	RunMode        runmode
 	params         map[string]interface{}
@@ -91,10 +91,10 @@ type Site struct {
 }
 
 type targetList struct {
-	Page     target.Output
-	PageUgly target.Output
-	File     target.Output
-	Alias    target.AliasPublisher
+	page     target.Output
+	pageUgly target.Output
+	file     target.Output
+	alias    target.AliasPublisher
 }
 
 type SiteInfo struct {
@@ -1944,9 +1944,9 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	if p, ok := d.(*Page); ok && path.Ext(p.URL) != "" {
 		// user has explicitly set a URL with extension for this page
 		// make sure it sticks even if "ugly URLs" are turned off.
-		pageTarget = s.PageUglyTarget()
+		pageTarget = s.pageUglyTarget()
 	} else {
-		pageTarget = s.PageTarget()
+		pageTarget = s.pageTarget()
 	}
 
 	transformLinks := transform.NewEmptyTransforms()
@@ -2040,47 +2040,47 @@ func (s *Site) NewXMLBuffer() *bytes.Buffer {
 	return bytes.NewBufferString(header)
 }
 
-func (s *Site) PageTarget() target.Output {
+func (s *Site) pageTarget() target.Output {
 	s.initTargetList()
-	return s.Targets.Page
+	return s.targets.page
 }
 
-func (s *Site) PageUglyTarget() target.Output {
+func (s *Site) pageUglyTarget() target.Output {
 	s.initTargetList()
-	return s.Targets.PageUgly
+	return s.targets.pageUgly
 }
 
-func (s *Site) FileTarget() target.Output {
+func (s *Site) fileTarget() target.Output {
 	s.initTargetList()
-	return s.Targets.File
+	return s.targets.file
 }
 
-func (s *Site) AliasTarget() target.AliasPublisher {
+func (s *Site) aliasTarget() target.AliasPublisher {
 	s.initTargetList()
-	return s.Targets.Alias
+	return s.targets.alias
 }
 
 func (s *Site) initTargetList() {
 	s.targetListInit.Do(func() {
-		if s.Targets.Page == nil {
-			s.Targets.Page = &target.PagePub{
+		if s.targets.page == nil {
+			s.targets.page = &target.PagePub{
 				PublishDir: s.absPublishDir(),
 				UglyURLs:   viper.GetBool("UglyURLs"),
 			}
 		}
-		if s.Targets.PageUgly == nil {
-			s.Targets.PageUgly = &target.PagePub{
+		if s.targets.pageUgly == nil {
+			s.targets.pageUgly = &target.PagePub{
 				PublishDir: s.absPublishDir(),
 				UglyURLs:   true,
 			}
 		}
-		if s.Targets.File == nil {
-			s.Targets.File = &target.Filesystem{
+		if s.targets.file == nil {
+			s.targets.file = &target.Filesystem{
 				PublishDir: s.absPublishDir(),
 			}
 		}
-		if s.Targets.Alias == nil {
-			s.Targets.Alias = &target.HTMLRedirectAlias{
+		if s.targets.alias == nil {
+			s.targets.alias = &target.HTMLRedirectAlias{
 				PublishDir: s.absPublishDir(),
 			}
 		}
@@ -2089,7 +2089,7 @@ func (s *Site) initTargetList() {
 
 func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating file:", path)
-	return s.FileTarget().Publish(path, reader)
+	return s.fileTarget().Publish(path, reader)
 }
 
 func (s *Site) WriteDestPage(path string, target target.Output, reader io.Reader) (err error) {
@@ -2099,7 +2099,7 @@ func (s *Site) WriteDestPage(path string, target target.Output, reader io.Reader
 
 func (s *Site) WriteDestAlias(path string, permalink string) (err error) {
 	jww.DEBUG.Println("creating alias:", path)
-	return s.AliasTarget().Publish(path, permalink)
+	return s.aliasTarget().Publish(path, permalink)
 }
 
 func (s *Site) draftStats() string {

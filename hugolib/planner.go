@@ -37,23 +37,23 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 		}
 		fmt.Fprintf(out, "\n")
 		fmt.Fprintf(out, " canonical => ")
-		if s.Targets.Page == nil {
+		if s.targets.page == nil {
 			fmt.Fprintf(out, "%s\n\n", "!no target specified!")
 			continue
 		}
 
-		trns, err := s.PageTarget().Translate(p.TargetPath())
+		trns, err := s.pageTarget().Translate(p.TargetPath())
 		if err != nil {
 			return err
 		}
 		fmt.Fprintf(out, "%s\n", trns)
 
-		if s.Targets.Alias == nil {
+		if s.targets.alias == nil {
 			continue
 		}
 
 		for _, alias := range p.Aliases {
-			aliasTrans, err := s.AliasTarget().Translate(alias)
+			aliasTrans, err := s.aliasTarget().Translate(alias)
 			if err != nil {
 				return err
 			}

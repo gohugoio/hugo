@@ -78,7 +78,7 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 	}
 
 	var err error
@@ -383,7 +383,7 @@ THE END.`, refShortcode))},
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: uglyURLs}},
+		targets: targetList{page: &target.PagePub{UglyURLs: uglyURLs}},
 	}
 
 	s.initializeSiteInfo()
@@ -450,7 +450,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: uglyURLs}},
+		targets: targetList{page: &target.PagePub{UglyURLs: uglyURLs}},
 	}
 
 	s.initializeSiteInfo()
@@ -545,7 +545,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: uglify}},
+		targets: targetList{page: &target.PagePub{UglyURLs: uglify}},
 	}
 
 	s.initializeSiteInfo()
@@ -610,7 +610,7 @@ func TestSkipRender(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 	}
 
 	s.initializeSiteInfo()
@@ -666,7 +666,7 @@ func TestAbsURLify(t *testing.T) {
 		viper.Set("BaseURL", "http://auth/bub")
 		s := &Site{
 			Source:  &source.InMemorySource{ByteSource: sources},
-			Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+			targets: targetList{page: &target.PagePub{UglyURLs: true}},
 		}
 		t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
 		s.initializeSiteInfo()

@@ -47,7 +47,7 @@ func TestDefaultHandler(t *testing.T) {
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 	}
 
 	s.initializeSiteInfo()

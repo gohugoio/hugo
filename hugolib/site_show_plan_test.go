@@ -97,8 +97,8 @@ func TestFileTarget(t *testing.T) {
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
-	s.AliasTarget()
-	s.PageTarget()
+	s.aliasTarget()
+	s.pageTarget()
 	must(s.CreatePages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
@@ -117,10 +117,10 @@ func TestPageTargetUgly(t *testing.T) {
 	viper.Set("UglyURLs", true)
 
 	s := &Site{
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 		Source:  &source.InMemorySource{ByteSource: fakeSource},
 	}
-	s.AliasTarget()
+	s.aliasTarget()
 
 	s.CreatePages()
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file.html\n\n" +
@@ -139,9 +139,9 @@ func TestFileTargetPublishDir(t *testing.T) {
 
 	s := &Site{
 
-		Targets: targetList{
-			Page:  &target.PagePub{PublishDir: "../public"},
-			Alias: &target.HTMLRedirectAlias{PublishDir: "../public"},
+		targets: targetList{
+			page:  &target.PagePub{PublishDir: "../public"},
+			alias: &target.HTMLRedirectAlias{PublishDir: "../public"},
 		},
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}

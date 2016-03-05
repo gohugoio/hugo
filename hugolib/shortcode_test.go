@@ -443,7 +443,7 @@ e`,
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: false}},
+		targets: targetList{page: &target.PagePub{UglyURLs: false}},
 	}
 
 	s.initializeSiteInfo()
