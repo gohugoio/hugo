@@ -456,9 +456,9 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	s.initializeSiteInfo()
 	templatePrep(s)
 
-	must(s.addTemplate("index.html", "Home Sweet Home. IsHome={{ .IsHome  }}"))
-	must(s.addTemplate("_default/single.html", "{{.Content}} IsHome={{ .IsHome  }}"))
-	must(s.addTemplate("404.html", "Page Not Found. IsHome={{ .IsHome  }}"))
+	must(s.addTemplate("index.html", "Home Sweet {{ if.IsHome  }}Home{{ end }}."))
+	must(s.addTemplate("_default/single.html", "{{.Content}}{{ if.IsHome  }}This is not home!{{ end }}"))
+	must(s.addTemplate("404.html", "Page Not Found.{{ if.IsHome  }}This is not home!{{ end }}"))
 
 	// make sure the XML files also end up with ugly urls
 	must(s.addTemplate("rss.xml", "<root>RSS</root>"))
@@ -479,13 +479,13 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("index.html"), "Home Sweet Home. IsHome=true"},
-		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n IsHome=false"},
-		{filepath.FromSlash("404.html"), "Page Not Found. IsHome=false"},
+		{filepath.FromSlash("index.html"), "Home Sweet Home."},
+		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("404.html"), "Page Not Found."},
 		{filepath.FromSlash("index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
 		{filepath.FromSlash("sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
 		// Issue #1923
-		{filepath.FromSlash("ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n IsHome=false"},
+		{filepath.FromSlash("ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n"},
 	}
 
 	for _, p := range s.Pages {
