@@ -16,6 +16,7 @@ package tpl
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html"
@@ -1142,6 +1143,15 @@ func markdownify(text string) template.HTML {
 	return template.HTML(m)
 }
 
+// jsonify encodes a given object to JSON.
+func jsonify(v interface{}) (template.HTML, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	return template.HTML(b), nil
+}
+
 func refPage(page interface{}, ref, methodName string) template.HTML {
 	value := reflect.ValueOf(page)
 
@@ -1522,6 +1532,7 @@ func init() {
 		"intersect":    intersect,
 		"isSet":        isSet,
 		"isset":        isSet,
+		"jsonify":      jsonify,
 		"last":         last,
 		"le":           le,
 		"lower":        func(a string) string { return strings.ToLower(a) },

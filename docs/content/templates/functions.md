@@ -112,6 +112,14 @@ e.g.
         {{ .Render "summary" }}
     {{ end }}
 
+
+### jsonify
+Encodes a given object to JSON.
+
+e.g.
+
+   {{ dict "title" .Title "content" .Plain | jsonify }}
+
 ### last
 Slices an array to only the last _N_ elements.
 

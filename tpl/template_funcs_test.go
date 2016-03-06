@@ -98,6 +98,7 @@ in: {{ if in "this string contains a substring" "substring" }}Substring found!{{
 seq: {{ seq 3 }}
 sort: {{ slice "B" "C" "A" | sort }}
 delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
+jsonify: {{ (slice "A" "B" "C") | jsonify }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -132,6 +133,7 @@ in: Substring found!
 seq: [1 2 3]
 sort: [A B C]
 delimit: A, B and C
+jsonify: ["A","B","C"]
 `
 
 	var b bytes.Buffer
