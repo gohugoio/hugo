@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"github.com/spf13/hugo/helpers"
+	"reflect"
 	"sort"
 )
 
@@ -23,16 +24,30 @@ type Scratch struct {
 	values map[string]interface{}
 }
 
-// Add will add (using the + operator) the addend to the existing addend (if found).
+// For single values, Add will add (using the + operator) the addend to the existing addend (if found).
 // Supports numeric values and strings.
+//
+// If the first add for a key is an array or slice, then the next value(s) will be appended.
 func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 	var newVal interface{}
 	existingAddend, found := c.values[key]
 	if found {
 		var err error
-		newVal, err = helpers.DoArithmetic(existingAddend, newAddend, '+')
-		if err != nil {
-			return "", err
+
+		addendV := reflect.ValueOf(existingAddend)
+
+		if addendV.Kind() == reflect.Slice || addendV.Kind() == reflect.Array {
+			nav := reflect.ValueOf(newAddend)
+			if nav.Kind() == reflect.Slice || nav.Kind() == reflect.Array {
+				newVal = reflect.AppendSlice(addendV, nav).Interface()
+			} else {
+				newVal = reflect.Append(addendV, nav).Interface()
+			}
+		} else {
+			newVal, err = helpers.DoArithmetic(existingAddend, newAddend, '+')
+			if err != nil {
+				return "", err
+			}
 		}
 	} else {
 		newVal = newAddend
