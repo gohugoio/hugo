@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"mime"
 )
 
 var (
@@ -94,6 +95,8 @@ func init() {
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.RunE = server
+
+	mime.AddExtensionType(".json", "application/json; charset=utf8")
 }
 
 func server(cmd *cobra.Command, args []string) error {
