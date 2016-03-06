@@ -469,6 +469,9 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		s.ReadDataFromSourceFS()
 	}
 
+	// we reuse the state, so have to do some cleanup before we can rebuild.
+	s.resetPageBuildState()
+
 	// If a content file changes, we need to reload only it and re-render the entire site.
 	if len(sourceChanged) > 0 {
 
@@ -1301,6 +1304,17 @@ func (s *Site) assembleTaxonomies() {
 
 	s.Info.Taxonomies = s.Taxonomies
 	s.Info.Sections = s.Sections
+}
+
+// Prepare pages for a new full build.
+func (s *Site) resetPageBuildState() {
+
+	s.Info.paginationPageCount = 0
+
+	for _, p := range s.Pages {
+		p.scratch = newScratch()
+
+	}
 }
 
 func (s *Site) assembleSections() {
