@@ -21,7 +21,9 @@ weight: 80
 * `SetInMap` takes a `key`, `mapKey` and `value`
 * `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
 
-`Set` and `SetInMap` can store values of any type. `Add` accepts values that support Go's `+` operator.
+`Set` and `SetInMap` can store values of any type. 
+
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the follwing adds will be appended to that list.
 
 The scope of the backing data is global for the given `Node` or `Page`, and spans partial and shortcode includes.
 
