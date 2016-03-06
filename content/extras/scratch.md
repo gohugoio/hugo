@@ -42,6 +42,11 @@ The usage is best illustrated with some samples:
 {{ $.Scratch.Add "a2" "CD" }}
 {{ $.Scratch.Get "a2" }} {{/* => ABCD */}}
 
+{{ $.Scratch.Add "l1" (slice "A" "B") }}
+{{ $.Scratch.Get "l1" }} {{/* => [A B]  */}}
+{{ $.Scratch.Add "l1" (slice "C" "D") }}
+{{ $.Scratch.Get "l1" }} {{/* => [[A B C D] ] */}}
+
 {{ $.Scratch.Set "v1" 123 }}
 {{ $.Scratch.Get "v1" }}  {{/* => 123 */}}
 
