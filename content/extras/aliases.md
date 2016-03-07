@@ -72,9 +72,10 @@ Assuming a baseurl of `mysite.tld`, the contents of the html file will look some
 <!DOCTYPE html>
 <html>
   <head>
+    <title>http://mysite.tld/posts/my-original-url</title>
     <link rel="canonical" href="http://mysite.tld/posts/my-original-url"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="refresh" content="0;url=http://mysite.tld/posts/my-original-url"/>
+    <meta http-equiv="refresh" content="0; url=http://mysite.tld/posts/my-original-url"/>
   </head>
 </html>
 ```
