@@ -390,7 +390,7 @@ THE END.`, refShortcode))},
 	templatePrep(s)
 
 	must(s.addTemplate("_default/single.html", "{{.Content}}"))
-
+	s.Tmpl.MarkReady()
 	createAndRenderPages(t, s)
 
 	tests := []struct {
@@ -553,7 +553,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 	must(s.addTemplate("_default/single.html", "{{.Content}}"))
 	must(s.addTemplate("_default/list.html", "{{ .Title }}"))
-
+	s.Tmpl.MarkReady()
 	createAndRenderPages(t, s)
 	s.RenderSectionLists()
 
@@ -672,6 +672,7 @@ func TestAbsURLify(t *testing.T) {
 		s.initializeSiteInfo()
 		templatePrep(s)
 		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
+		s.Tmpl.MarkReady()
 
 		if err := s.CreatePages(); err != nil {
 			t.Fatalf("Unable to create pages: %s", err)
