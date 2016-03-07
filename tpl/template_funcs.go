@@ -15,7 +15,10 @@ package tpl
 
 import (
 	"bytes"
+	_md5 "crypto/md5"
+	_sha1 "crypto/sha1"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -1501,6 +1504,28 @@ func singularize(in interface{}) (string, error) {
 	return inflect.Singularize(word), nil
 }
 
+// md5 hashes the given input and returns its MD5 checksum
+func md5(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+
+	hash := _md5.Sum([]byte(conv))
+	return hex.EncodeToString(hash[:]), nil
+}
+
+// sha1 hashes the given input and returns its SHA1 checksum
+func sha1(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+
+	hash := _sha1.Sum([]byte(conv))
+	return hex.EncodeToString(hash[:]), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
@@ -1538,6 +1563,7 @@ func init() {
 		"lower":        func(a string) string { return strings.ToLower(a) },
 		"lt":           lt,
 		"markdownify":  markdownify,
+		"md5":          md5,
 		"mod":          mod,
 		"modBool":      modBool,
 		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
@@ -1556,6 +1582,7 @@ func init() {
 		"sanitizeURL":  helpers.SanitizeURL,
 		"sanitizeurl":  helpers.SanitizeURL,
 		"seq":          helpers.Seq,
+		"sha1":         sha1,
 		"shuffle":      shuffle,
 		"singularize":  singularize,
 		"slice":        slice,

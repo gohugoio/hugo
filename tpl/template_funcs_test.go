@@ -99,6 +99,8 @@ seq: {{ seq 3 }}
 sort: {{ slice "B" "C" "A" | sort }}
 delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
+md5: {{ md5 "Hello world, gophers!" }}
+sha1: {{ sha1 "Hello world, gophers!" }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -134,6 +136,8 @@ seq: [1 2 3]
 sort: [A B C]
 delimit: A, B and C
 jsonify: ["A","B","C"]
+md5: b3029f756f98f79e7f1b7f1d1f0dd53b
+sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
 `
 
 	var b bytes.Buffer
@@ -155,7 +159,7 @@ jsonify: ["A","B","C"]
 	err = templ.Execute(&b, &data)
 
 	if err != nil {
-		t.Fatal("Gott error on execute", err)
+		t.Fatal("Got error on execute", err)
 	}
 
 	if b.String() != expected {
@@ -2054,5 +2058,53 @@ func TestBase64Encode(t *testing.T) {
 	_, err = base64Encode(t)
 	if err == nil {
 		t.Error("Expected error from base64Encode")
+	}
+}
+
+func TestMD5(t *testing.T) {
+	for i, this := range []struct {
+		input        string
+		expectedHash string
+	}{
+		{"Hello world, gophers!", "b3029f756f98f79e7f1b7f1d1f0dd53b"},
+		{"Lorem ipsum dolor", "06ce65ac476fc656bea3fca5d02cfd81"},
+	} {
+		result, err := md5(this.input)
+		if err != nil {
+			t.Errorf("md5 returned error: %s", err)
+		}
+
+		if result != this.expectedHash {
+			t.Errorf("[%d] md5: expected '%s', got '%s'", i, this.expectedHash, result)
+		}
+
+		_, err = md5(t)
+		if err == nil {
+			t.Error("Expected error from md5")
+		}
+	}
+}
+
+func TestSHA1(t *testing.T) {
+	for i, this := range []struct {
+		input        string
+		expectedHash string
+	}{
+		{"Hello world, gophers!", "c8b5b0e33d408246e30f53e32b8f7627a7a649d4"},
+		{"Lorem ipsum dolor", "45f75b844be4d17b3394c6701768daf39419c99b"},
+	} {
+		result, err := sha1(this.input)
+		if err != nil {
+			t.Errorf("sha1 returned error: %s", err)
+		}
+
+		if result != this.expectedHash {
+			t.Errorf("[%d] sha1: expected '%s', got '%s'", i, this.expectedHash, result)
+		}
+
+		_, err = sha1(t)
+		if err == nil {
+			t.Error("Expected error from sha1")
+		}
 	}
 }

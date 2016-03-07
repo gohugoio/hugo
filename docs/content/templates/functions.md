@@ -595,6 +595,33 @@ CJK-like languages.
 ```
 
 
+### md5
+
+`md5` hashes the given input and returns its MD5 checksum.
+
+```html
+{{ md5 "Hello world, gophers!" }}
+<!-- returns the string "b3029f756f98f79e7f1b7f1d1f0dd53b" -->
+```
+
+This can be useful if you want to use Gravatar for generating a unique avatar:
+
+```html
+<img src="https://www.gravatar.com/avatar/{{ md5 "your@email.com" }}?s=100&d=identicon">
+```
+
+
+### sha1
+
+`sha1` hashes the given input and returns its SHA1 checksum.
+
+```html
+{{ sha1 "Hello world, gophers!" }}
+<!-- returns the string "c8b5b0e33d408246e30f53e32b8f7627a7a649d4" -->
+```
+
+
+
 ## URLs
 
 ### absURL, relURL
