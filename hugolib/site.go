@@ -1825,6 +1825,8 @@ func (s *Site) RenderSitemap() error {
 	page.Lastmod = s.Info.LastChange
 	page.Site = &s.Info
 	page.URL = "/"
+	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
+	page.Sitemap.Priority = sitemapDefault.Priority
 
 	pages = append(pages, page)
 	pages = append(pages, s.Pages...)
