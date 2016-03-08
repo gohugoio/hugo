@@ -273,6 +273,8 @@ such as `{{ if .IsNamedParams }}...{{ else }}...{{ end }}`.  See the
 
 You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/).
 
+A shortcodes can be nested. In a nested shortcode you can access the parent shortcode context with `.Parent`. This can be very useful for inheritance of common shortcode parameters from the root.
+
 ## Single Positional Example: youtube
 
     {{</* youtube 09jf3ow9jfw */>}}
