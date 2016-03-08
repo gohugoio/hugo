@@ -34,6 +34,7 @@ type ShortcodeWithPage struct {
 	Params        interface{}
 	Inner         template.HTML
 	Page          *Page
+	Parent        *ShortcodeWithPage
 	IsNamedParams bool
 }
 
@@ -189,7 +190,7 @@ const innerNewlineRegexp = "\n"
 const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
 
-func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
+func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Template) string {
 	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
@@ -197,7 +198,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 		return ""
 	}
 
-	data := &ShortcodeWithPage{Params: sc.params, Page: p}
+	data := &ShortcodeWithPage{Params: sc.params, Page: p, Parent: parent}
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
@@ -209,7 +210,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 			case string:
 				inner += innerData.(string)
 			case shortcode:
-				inner += renderShortcode(innerData.(shortcode), p, t)
+				inner += renderShortcode(innerData.(shortcode), data, p, t)
 			default:
 				jww.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
 					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
@@ -271,7 +272,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 			// need to have something to replace with
 			renderedShortcodes[key] = ""
 		} else {
-			renderedShortcodes[key] = renderShortcode(sc, p, t)
+			renderedShortcodes[key] = renderShortcode(sc, nil, p, t)
 		}
 	}
 
