@@ -1241,8 +1241,8 @@ func dateFormat(layout string, v interface{}) (string, error) {
 
 // dfault checks whether a given value is set and returns a default value if it
 // is not.  "Set" in this context means true for booleans; non-zero for numeric
-// types; non-zero length for strings, arrays, slices, and maps; any struct
-// value; or non-nil for any other types.
+// types and times; non-zero length for strings, arrays, slices, and maps; any
+// struct value; or non-nil for any other types.
 func dfault(dflt interface{}, given ...interface{}) (interface{}, error) {
 	// given is variadic because the following construct will not pass a piped
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
