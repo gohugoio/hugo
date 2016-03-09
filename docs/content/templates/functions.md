@@ -28,6 +28,17 @@ and other basic tools; these are listed in the
 
 ## General
 
+### default
+Checks whether a given value is set and returns a default value if it is not.
+"Set" in this context means true for booleans; non-zero for numeric types;
+non-zero length for strings, arrays, slices, and maps; any struct value; or
+non-nil for any other types.
+
+e.g.
+
+    {{ .Params.font | default "Roboto" }} → default is "Roboto"
+    {{ default "Roboto" .Params.font }} → default is "Roboto"
+
 ### delimit
 Loops through any array, slice or map and returns a string of all the values separated by the delimiter. There is an optional third parameter that lets you choose a different delimiter to go between the last two values.
 Maps will be sorted by the keys, and only a slice of the values will be returned, keeping a consistent output order.
