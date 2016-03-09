@@ -50,6 +50,9 @@ import (
 
 var _ = transform.AbsURL
 
+// used to indicate if run as a test.
+var testMode bool
+
 var DefaultTimer *nitro.B
 
 var distinctErrorLogger = helpers.NewDistinctErrorLogger()
@@ -594,7 +597,7 @@ func (s *Site) Analyze() error {
 	return s.ShowPlan(os.Stdout)
 }
 
-func (s *Site) prepTemplates() {
+func (s *Site) loadTemplates() {
 	s.Tmpl = tpl.InitializeT()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
 	if s.hasTheme() {
@@ -602,8 +605,18 @@ func (s *Site) prepTemplates() {
 	}
 }
 
-func (s *Site) addTemplate(name, data string) error {
-	return s.Tmpl.AddTemplate(name, data)
+func (s *Site) prepTemplates(additionalNameValues ...string) error {
+	s.loadTemplates()
+
+	for i := 0; i < len(additionalNameValues); i += 2 {
+		err := s.Tmpl.AddTemplate(additionalNameValues[i], additionalNameValues[i+1])
+		if err != nil {
+			return err
+		}
+	}
+	s.Tmpl.MarkReady()
+
+	return nil
 }
 
 func (s *Site) loadData(sources []source.Input) (err error) {
@@ -1386,7 +1399,7 @@ func (s *Site) RenderPages() error {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
-			_, err := s.Tmpl.New(self).Parse(string(p.Content))
+			_, err := s.Tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				results <- err
 				continue
@@ -2024,8 +2037,11 @@ func (s *Site) render(name string, d interface{}, w io.Writer, layouts ...string
 	if err := s.renderThing(d, layout, w); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
 		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
-		if !s.Running() {
+		if !s.Running() && !testMode {
+			// TODO(bep) check if this can be propagated
 			os.Exit(-1)
+		} else if testMode {
+			return err
 		}
 	}
 
@@ -2043,10 +2059,11 @@ func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
 
 func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 	// If the template doesn't exist, then return, but leave the Writer open
-	if s.Tmpl.Lookup(layout) == nil {
-		return fmt.Errorf("Layout not found: %s", layout)
+	if templ := s.Tmpl.Lookup(layout); templ != nil {
+		return templ.Execute(w, d)
 	}
-	return s.Tmpl.ExecuteTemplate(w, layout, d)
+	return fmt.Errorf("Layout not found: %s", layout)
+
 }
 
 func (s *Site) NewXMLBuffer() *bytes.Buffer {

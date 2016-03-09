@@ -30,7 +30,6 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
-	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -64,6 +63,10 @@ text
 more text
 `
 )
+
+func init() {
+	testMode = true
+}
 
 // Issue #1797
 func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
@@ -110,14 +113,6 @@ func createAndRenderPages(t *testing.T, s *Site) {
 	}
 }
 
-func templatePrep(s *Site) {
-	s.Tmpl = tpl.New()
-	s.Tmpl.LoadTemplates(s.absLayoutDir())
-	if s.hasTheme() {
-		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
-	}
-}
-
 func pageMust(p *Page, err error) *Page {
 	if err != nil {
 		panic(err)
@@ -129,7 +124,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 	p.Convert()
 	s := new(Site)
-	templatePrep(s)
+	s.prepTemplates()
 	err := s.renderThing(p, "foobar", nil)
 	if err == nil {
 		t.Errorf("Expected err to be returned when missing the template.")
@@ -138,8 +133,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 
 func TestAddInvalidTemplate(t *testing.T) {
 	s := new(Site)
-	templatePrep(s)
-	err := s.addTemplate("missing", TEMPLATE_MISSING_FUNC)
+	err := s.prepTemplates("missing", TEMPLATE_MISSING_FUNC)
 	if err == nil {
 		t.Fatalf("Expecting the template to return an error")
 	}
@@ -182,7 +176,6 @@ func TestRenderThing(t *testing.T) {
 	for i, test := range tests {
 
 		s := new(Site)
-		templatePrep(s)
 
 		p, err := NewPageFrom(strings.NewReader(test.content), "content/a/file.md")
 		p.Convert()
@@ -190,7 +183,9 @@ func TestRenderThing(t *testing.T) {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
 		templateName := fmt.Sprintf("foobar%d", i)
-		err = s.addTemplate(templateName, test.template)
+
+		s.prepTemplates(templateName, test.template)
+
 		if err != nil {
 			t.Fatalf("Unable to add template: %s", err)
 		}
@@ -230,17 +225,14 @@ func TestRenderThingOrDefault(t *testing.T) {
 	for i, test := range tests {
 
 		s := &Site{}
-		templatePrep(s)
 
 		p, err := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
 		templateName := fmt.Sprintf("default%d", i)
-		err = s.addTemplate(templateName, test.template)
-		if err != nil {
-			t.Fatalf("Unable to add template: %s", err)
-		}
+
+		s.prepTemplates(templateName, test.template)
 
 		var err2 error
 
@@ -387,9 +379,8 @@ THE END.`, refShortcode))},
 	}
 
 	s.initializeSiteInfo()
-	templatePrep(s)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	s.prepTemplates("_default/single.html", "{{.Content}}")
 
 	createAndRenderPages(t, s)
 
@@ -454,15 +445,13 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	s.initializeSiteInfo()
-	templatePrep(s)
 
-	must(s.addTemplate("index.html", "Home Sweet {{ if.IsHome  }}Home{{ end }}."))
-	must(s.addTemplate("_default/single.html", "{{.Content}}{{ if.IsHome  }}This is not home!{{ end }}"))
-	must(s.addTemplate("404.html", "Page Not Found.{{ if.IsHome  }}This is not home!{{ end }}"))
-
-	// make sure the XML files also end up with ugly urls
-	must(s.addTemplate("rss.xml", "<root>RSS</root>"))
-	must(s.addTemplate("sitemap.xml", "<root>SITEMAP</root>"))
+	s.prepTemplates(
+		"index.html", "Home Sweet {{ if.IsHome  }}Home{{ end }}.",
+		"_default/single.html", "{{.Content}}{{ if.IsHome  }}This is not home!{{ end }}",
+		"404.html", "Page Not Found.{{ if.IsHome  }}This is not home!{{ end }}",
+		"rss.xml", "<root>RSS</root>",
+		"sitemap.xml", "<root>SITEMAP</root>")
 
 	createAndRenderPages(t, s)
 	s.RenderHomePage()
@@ -549,10 +538,9 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 
 	s.initializeSiteInfo()
-	templatePrep(s)
-
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
-	must(s.addTemplate("_default/list.html", "{{ .Title }}"))
+	s.prepTemplates(
+		"_default/single.html", "{{.Content}}",
+		"_default/list.html", "{{ .Title }}")
 
 	createAndRenderPages(t, s)
 	s.RenderSectionLists()
@@ -614,11 +602,11 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	s.initializeSiteInfo()
-	templatePrep(s)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
-	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
-	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
+	s.prepTemplates(
+		"_default/single.html", "{{.Content}}",
+		"head", "<head><script src=\"script.js\"></script></head>",
+		"head_abs", "<head><script src=\"/script.js\"></script></head>")
 
 	createAndRenderPages(t, s)
 
@@ -670,8 +658,8 @@ func TestAbsURLify(t *testing.T) {
 		}
 		t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
 		s.initializeSiteInfo()
-		templatePrep(s)
-		must(s.addTemplate("blue/single.html", TEMPLATE_WITH_URL_ABS))
+
+		s.prepTemplates("blue/single.html", TEMPLATE_WITH_URL_ABS)
 
 		if err := s.CreatePages(); err != nil {
 			t.Fatalf("Unable to create pages: %s", err)

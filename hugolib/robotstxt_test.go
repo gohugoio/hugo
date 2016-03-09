@@ -31,8 +31,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	s.initializeSiteInfo()
 
-	s.prepTemplates()
-	s.addTemplate("robots.txt", ROBOTSTXT_TEMPLATE)
+	s.prepTemplates("robots.txt", ROBOTSTXT_TEMPLATE)
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)

@@ -103,8 +103,7 @@ func TestPageCount(t *testing.T) {
 		Source: &source.InMemorySource{ByteSource: urlFakeSource},
 	}
 	s.initializeSiteInfo()
-	s.prepTemplates()
-	must(s.addTemplate("indexes/blue.html", INDEX_TEMPLATE))
+	s.prepTemplates("indexes/blue.html", INDEX_TEMPLATE)
 
 	if err := s.CreatePages(); err != nil {
 		t.Errorf("Unable to create pages: %s", err)
