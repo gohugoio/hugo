@@ -1240,10 +1240,21 @@ func dateFormat(layout string, v interface{}) (string, error) {
 // is not.  "Set" in this context means true for booleans; non-zero for numeric
 // types; non-zero length for strings, arrays, slices, and maps; any struct
 // value; or non-nil for any other types.
-func dfault(dflt, given interface{}) interface{} {
-	g := reflect.ValueOf(given)
+func dfault(dflt interface{}, given ...interface{}) (interface{}, error) {
+	// given is variadic because the following construct will not pass a piped
+	// argument when the key is missing:  {{ index . "key" | default "foo" }}
+	// The Go template will complain that we got 1 argument when we expectd 2.
+
+	if given == nil || len(given) == 0 {
+		return dflt, nil
+	}
+	if len(given) != 1 {
+		return nil, fmt.Errorf("wrong number of args for default: want 2 got %d", len(given)+1)
+	}
+
+	g := reflect.ValueOf(given[0])
 	if !g.IsValid() {
-		return dflt
+		return dflt, nil
 	}
 
 	set := false
@@ -1262,16 +1273,21 @@ func dfault(dflt, given interface{}) interface{} {
 	case reflect.Complex64, reflect.Complex128:
 		set = g.Complex() != 0
 	case reflect.Struct:
-		set = true
+		switch actual := given[0].(type) {
+		case time.Time:
+			set = !actual.IsZero()
+		default:
+			set = true
+		}
 	default:
 		set = !g.IsNil()
 	}
 
 	if set {
-		return given
+		return given[0], nil
 	}
 
-	return dflt
+	return dflt, nil
 }
 
 // safeHTMLAttr returns a given string as html/template HTMLAttr content.
