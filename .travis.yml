@@ -12,7 +12,8 @@ matrix:
   allow_failures:
     - go: tip
 script:
-  - time go build
+  - time go build -v
 install:
+  - rm -rf $GOPATH/pkg
   - go get github.com/stretchr/testify
   - go get -v ./...
