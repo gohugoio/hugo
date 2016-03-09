@@ -37,8 +37,10 @@ type Template interface {
 	Lookup(name string) *template.Template
 	Templates() []*template.Template
 	New(name string) *template.Template
+	GetClone() *template.Template
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
+	MarkReady()
 	AddTemplate(name, tpl string) error
 	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
 	AddInternalTemplate(prefix, name, tpl string) error
@@ -53,6 +55,7 @@ type templateErr struct {
 
 type GoHTMLTemplate struct {
 	template.Template
+	clone  *template.Template
 	errors []*templateErr
 }
 
@@ -109,12 +112,12 @@ func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 
 		name := layout
 
-		if localTemplates.Lookup(name) == nil {
+		if Lookup(name) == nil {
 			name = layout + ".html"
 		}
 
-		if localTemplates.Lookup(name) != nil {
-			err := localTemplates.ExecuteTemplate(w, name, context)
+		if templ := Lookup(name); templ != nil {
+			err := templ.Execute(w, context)
 			if err != nil {
 				jww.ERROR.Println(err, "in", name)
 			}
@@ -135,9 +138,47 @@ func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML
 	return template.HTML(b.String())
 }
 
+func Lookup(name string) *template.Template {
+	return (tmpl.(*GoHTMLTemplate)).Lookup(name)
+}
+
+func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
+
+	templ := localTemplates.Lookup(name)
+
+	if templ != nil {
+		return templ
+	}
+
+	if t.clone != nil {
+		return t.clone.Lookup(name)
+	}
+
+	return nil
+
+}
+
+func (t *GoHTMLTemplate) GetClone() *template.Template {
+	return t.clone
+}
+
 func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedShortcodes()
 	t.EmbedTemplates()
+}
+
+// MarkReady marks the template as "ready for execution". No changes allowed
+// after this is set.
+func (t *GoHTMLTemplate) MarkReady() {
+	if t.clone == nil {
+		t.clone = template.Must(t.Template.Clone())
+	}
+}
+
+func (t *GoHTMLTemplate) checkState() {
+	if t.clone != nil {
+		panic("template is cloned and cannot be modfified")
+	}
 }
 
 func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
@@ -153,6 +194,7 @@ func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
 }
 
 func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
+	t.checkState()
 	_, err := t.New(name).Parse(tpl)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
@@ -161,6 +203,7 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 }
 
 func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	t.checkState()
 	var base, inner *ace.File
 	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
 
@@ -188,6 +231,7 @@ func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseCo
 }
 
 func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
+	t.checkState()
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {

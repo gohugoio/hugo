@@ -458,12 +458,16 @@ e`,
 	}
 
 	s.initializeSiteInfo()
-	templatePrep(s)
+
+	s.loadTemplates()
+
+	s.Tmpl.AddTemplate("_default/single.html", "{{.Content}}")
+
 	s.Tmpl.AddInternalShortcode("b.html", `b`)
 	s.Tmpl.AddInternalShortcode("c.html", `c`)
 	s.Tmpl.AddInternalShortcode("d.html", `d`)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	s.Tmpl.MarkReady()
 
 	createAndRenderPages(t, s)
 

@@ -33,8 +33,9 @@ func TestSiteInfoParams(t *testing.T) {
 	if s.Info.Params["MyGlobalParam"] != "FOOBAR_PARAM" {
 		t.Errorf("Unable to set site.Info.Param")
 	}
-	s.prepTemplates()
-	s.addTemplate("template", SITE_INFO_PARAM_TEMPLATE)
+
+	s.prepTemplates("template", SITE_INFO_PARAM_TEMPLATE)
+
 	buf := new(bytes.Buffer)
 
 	err := s.renderThing(s.NewNode(), "template", buf)
