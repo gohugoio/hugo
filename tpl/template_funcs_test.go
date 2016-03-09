@@ -18,9 +18,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"math/rand"
 	"path"
@@ -29,6 +26,10 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -1839,6 +1840,44 @@ func TestDateFormat(t *testing.T) {
 			if result != this.expect {
 				t.Errorf("[%d] DateFormat got %v but expected %v", i, result, this.expect)
 			}
+		}
+	}
+}
+
+func TestDefault(t *testing.T) {
+	for i, this := range []struct {
+		dflt     interface{}
+		given    interface{}
+		expected interface{}
+	}{
+		{"5", 0, "5"},
+
+		{"test1", "set", "set"},
+		{"test2", "", "test2"},
+
+		{[2]int{10, 20}, [2]int{1, 2}, [2]int{1, 2}},
+		{[2]int{10, 20}, [0]int{}, [2]int{10, 20}},
+
+		{[]string{"one"}, []string{"uno"}, []string{"uno"}},
+		{[]string{"one"}, []string{}, []string{"one"}},
+
+		{map[string]int{"one": 1}, map[string]int{"uno": 1}, map[string]int{"uno": 1}},
+		{map[string]int{"one": 1}, map[string]int{}, map[string]int{"one": 1}},
+
+		{10, 1, 1},
+		{10, 0, 10},
+
+		{float32(10), float32(1), float32(1)},
+		{float32(10), 0, float32(10)},
+
+		{complex(2, -2), complex(1, -1), complex(1, -1)},
+		{complex(2, -2), complex(0, 0), complex(2, -2)},
+
+		{struct{ f string }{f: "one"}, struct{ f string }{}, struct{ f string }{}},
+	} {
+		res := dfault(this.dflt, this.given)
+		if !reflect.DeepEqual(this.expected, res) {
+			t.Errorf("[%d] default returned %v, but expected %v", i, res, this.expected)
 		}
 	}
 }

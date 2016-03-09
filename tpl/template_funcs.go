@@ -1239,6 +1239,44 @@ func dateFormat(layout string, v interface{}) (string, error) {
 	return t.Format(layout), nil
 }
 
+// dfault checks whether a given value is set and returns a default value if it
+// is not.  "Set" in this context means true for booleans; non-zero for numeric
+// types; non-zero length for strings, arrays, slices, and maps; any struct
+// value; or non-nil for any other types.
+func dfault(dflt, given interface{}) interface{} {
+	g := reflect.ValueOf(given)
+	if !g.IsValid() {
+		return dflt
+	}
+
+	set := false
+
+	switch g.Kind() {
+	case reflect.Bool:
+		set = g.Bool()
+	case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
+		set = g.Len() != 0
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		set = g.Int() != 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		set = g.Uint() != 0
+	case reflect.Float32, reflect.Float64:
+		set = g.Float() != 0
+	case reflect.Complex64, reflect.Complex128:
+		set = g.Complex() != 0
+	case reflect.Struct:
+		set = true
+	default:
+		set = !g.IsNil()
+	}
+
+	if set {
+		return given
+	}
+
+	return dflt
+}
+
 // safeHTMLAttr returns a given string as html/template HTMLAttr content.
 //
 // safeHTMLAttr is currently disabled, pending further discussion
@@ -1537,6 +1575,7 @@ func init() {
 		"chomp":        chomp,
 		"countrunes":   countRunes,
 		"countwords":   countWords,
+		"default":      dfault,
 		"dateFormat":   dateFormat,
 		"delimit":      delimit,
 		"dict":         dictionary,
