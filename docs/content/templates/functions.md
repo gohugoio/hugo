@@ -37,7 +37,7 @@ non-nil for any other types.
 e.g.
 
     {{ index .Params "font" | default "Roboto" }} → default is "Roboto"
-    {{ default "Roboto" .Params.font }} → default is "Roboto"
+    {{ default "Roboto" (index .Params "font") }} → default is "Roboto"
 
 ### delimit
 Loops through any array, slice or map and returns a string of all the values separated by the delimiter. There is an optional third parameter that lets you choose a different delimiter to go between the last two values.
