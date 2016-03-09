@@ -36,7 +36,7 @@ non-nil for any other types.
 
 e.g.
 
-    {{ .Params.font | default "Roboto" }} → default is "Roboto"
+    {{ index .Params "font" | default "Roboto" }} → default is "Roboto"
     {{ default "Roboto" .Params.font }} → default is "Roboto"
 
 ### delimit
