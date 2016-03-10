@@ -759,8 +759,8 @@ func (p *Page) Menus() PageMenus {
 				for _, mname := range mnames {
 					me.Menu = mname
 					p.pageMenus[mname] = &me
-					return
 				}
+				return
 			}
 
 			// Could be a structured menu entry
@@ -772,14 +772,15 @@ func (p *Page) Menus() PageMenus {
 
 			for name, menu := range menus {
 				menuEntry := MenuEntry{Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
-				jww.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
+				if menu != nil {
+					jww.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
+					ime, err := cast.ToStringMapE(menu)
+					if err != nil {
+						jww.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
+					}
 
-				ime, err := cast.ToStringMapE(menu)
-				if err != nil {
-					jww.ERROR.Printf("unable to process menus for %q\n", p.Title)
+					menuEntry.MarshallMap(ime)
 				}
-
-				menuEntry.MarshallMap(ime)
 				p.pageMenus[name] = &menuEntry
 			}
 		}

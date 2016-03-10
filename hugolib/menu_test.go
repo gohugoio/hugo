@@ -344,6 +344,38 @@ func TestMenuURL(t *testing.T) {
 
 }
 
+// Issue #1934
+func TestYAMLMenuWithMultipleEntries(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	ps1 := []byte(`---
+title: "Yaml 1"
+weight: 5
+menu: ["p_one", "p_two"]
+---
+Yaml Front Matter with Menu Pages`)
+
+	ps2 := []byte(`---
+title: "Yaml 2"
+weight: 5
+menu:
+    p_three:
+    p_four:
+---
+Yaml Front Matter with Menu Pages`)
+
+	s := setupMenuTests(t, []source.ByteSource{
+		{filepath.FromSlash("sect/yaml1.md"), ps1},
+		{filepath.FromSlash("sect/yaml2.md"), ps2}})
+
+	p1 := s.Pages[0]
+	assert.Len(t, p1.Menus(), 2, "List YAML")
+	p2 := s.Pages[1]
+	assert.Len(t, p2.Menus(), 2, "Map YAML")
+
+}
+
 // issue #719
 func TestMenuWithUnicodeURLs(t *testing.T) {
 
