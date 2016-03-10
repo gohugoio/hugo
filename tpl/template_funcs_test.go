@@ -1911,6 +1911,7 @@ func TestDefault(t *testing.T) {
 		{map[string]string{"foo": "pop"}, `{{ index . "bar" | default "nada" }}`, `nada`, true},
 		{map[string]string{"foo": "cat"}, `{{ default "nope" .foo }}`, `cat`, true},
 		{map[string]string{"foo": "dog"}, `{{ default "nope" .foo "extra" }}`, ``, false},
+		{map[string]interface{}{"images": []string{}}, `{{ default "default.jpg" (index .images 0) }}`, `default.jpg`, true},
 	} {
 		tmpl, err := New().New("test").Parse(this.tpl)
 		if err != nil {
