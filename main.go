@@ -14,6 +14,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 
 	"github.com/spf13/hugo/commands"
@@ -21,5 +23,8 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	commands.Execute()
+	if message, err := commands.Execute(nil); err != nil {
+		fmt.Println(message)
+		os.Exit(-1)
+	}
 }

@@ -46,7 +46,7 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-var MainSite *hugolib.Site
+var mainSite *hugolib.Site
 
 // userError is an error used to signal different error situations in command handling.
 type commandError struct {
@@ -91,9 +91,9 @@ func isUserError(err error) bool {
 	return userErrorRegexp.MatchString(err.Error())
 }
 
-// HugoCmd is Hugo's root command.
-// Every other command attached to HugoCmd is a child command to it.
-var HugoCmd = &cobra.Command{
+// hugoCmd is Hugo's root command.
+// Every other command attached to hugoCmd is a child command to it.
+var hugoCmd = &cobra.Command{
 	Use:   "hugo",
 	Short: "hugo builds your site",
 	Long: `hugo is the main command, used to build your Hugo site.
@@ -150,38 +150,52 @@ var (
 	source      string
 )
 
-// Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
-func Execute() {
-	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+// ClearSite sets mainSite to nil
+func ClearSite() {
+	mainSite = nil
+}
 
-	HugoCmd.SilenceUsage = true
+// Execute adds all child commands to the root command hugoCmd and sets flags appropriately.
+func Execute(flags []string) (string, error) {
+	hugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+
+	hugoCmd.SilenceUsage = true
 
 	AddCommands()
 
-	if c, err := HugoCmd.ExecuteC(); err != nil {
+	if flags != nil {
+		if err := hugoCmd.ParseFlags(flags); err != nil {
+			return "", err
+		}
+	}
+
+	if c, err := hugoCmd.ExecuteC(); err != nil {
+		message := "\n"
+
 		if isUserError(err) {
-			c.Println("")
-			c.Println(c.UsageString())
+			message += c.UsageString()
 		}
 
-		os.Exit(-1)
+		return message, err
 	}
+
+	return "", nil
 }
 
-// AddCommands adds child commands to the root command HugoCmd.
+// AddCommands adds child commands to the root command hugoCmd.
 func AddCommands() {
-	HugoCmd.AddCommand(serverCmd)
-	HugoCmd.AddCommand(versionCmd)
-	HugoCmd.AddCommand(configCmd)
-	HugoCmd.AddCommand(checkCmd)
-	HugoCmd.AddCommand(benchmarkCmd)
-	HugoCmd.AddCommand(convertCmd)
-	HugoCmd.AddCommand(newCmd)
-	HugoCmd.AddCommand(listCmd)
-	HugoCmd.AddCommand(undraftCmd)
-	HugoCmd.AddCommand(importCmd)
+	hugoCmd.AddCommand(serverCmd)
+	hugoCmd.AddCommand(versionCmd)
+	hugoCmd.AddCommand(configCmd)
+	hugoCmd.AddCommand(checkCmd)
+	hugoCmd.AddCommand(benchmarkCmd)
+	hugoCmd.AddCommand(convertCmd)
+	hugoCmd.AddCommand(NewCmd)
+	hugoCmd.AddCommand(listCmd)
+	hugoCmd.AddCommand(undraftCmd)
+	hugoCmd.AddCommand(importCmd)
 
-	HugoCmd.AddCommand(genCmd)
+	hugoCmd.AddCommand(genCmd)
 	genCmd.AddCommand(genautocompleteCmd)
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
@@ -241,19 +255,19 @@ func initBenchmarkBuildingFlags(cmd *cobra.Command) {
 
 // init initializes flags.
 func init() {
-	HugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
-	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
-	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
+	hugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	hugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
+	hugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
+	hugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
-	initHugoBuilderFlags(HugoCmd)
-	initBenchmarkBuildingFlags(HugoCmd)
+	initHugoBuilderFlags(hugoCmd)
+	initBenchmarkBuildingFlags(hugoCmd)
 
-	HugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
-	hugoCmdV = HugoCmd
+	hugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+	hugoCmdV = hugoCmd
 
 	// Set bash-completion
-	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+	hugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
 func LoadDefaultSettings() {
@@ -318,9 +332,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
 			return newSystemError(err)
-		} else {
-			return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 		}
+
+		return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 	}
 
 	viper.RegisterAlias("indexes", "taxonomies")
@@ -467,8 +481,6 @@ func watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
-		// Force a full rebuild
-		MainSite = nil
 		utils.CheckErr(buildSite(true))
 		if !viper.GetBool("DisableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
@@ -652,17 +664,17 @@ func getDirList() []string {
 func buildSite(watching ...bool) (err error) {
 	fmt.Println("Started building site")
 	startTime := time.Now()
-	if MainSite == nil {
-		MainSite = new(hugolib.Site)
+	if mainSite == nil {
+		mainSite = new(hugolib.Site)
 	}
 	if len(watching) > 0 && watching[0] {
-		MainSite.RunMode.Watching = true
+		mainSite.RunMode.Watching = true
 	}
-	err = MainSite.Build()
+	err = mainSite.Build()
 	if err != nil {
 		return err
 	}
-	MainSite.Stats()
+	mainSite.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 
 	return nil
@@ -670,11 +682,11 @@ func buildSite(watching ...bool) (err error) {
 
 func rebuildSite(events []fsnotify.Event) error {
 	startTime := time.Now()
-	err := MainSite.ReBuild(events)
+	err := mainSite.ReBuild(events)
 	if err != nil {
 		return err
 	}
-	MainSite.Stats()
+	mainSite.Stats()
 	jww.FEEDBACK.Printf("in %v ms\n", int(1000*time.Since(startTime).Seconds()))
 
 	return nil
