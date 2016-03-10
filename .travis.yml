@@ -14,6 +14,6 @@ matrix:
 script:
   - time go build -v
 install:
-  - rm -rf $GOPATH/pkg
   - go get github.com/stretchr/testify
   - go get -v ./...
+  - go clean
