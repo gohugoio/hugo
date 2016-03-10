@@ -1,5 +1,7 @@
 // Copyright 2015 The Hugo Authors. All rights reserved.
 //
+// Portions Copyright The Go Authors.
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -1326,6 +1328,7 @@ func prepareArg(value reflect.Value, argType reflect.Type) (reflect.Value, error
 // indexed item must be a map, slice, or array.
 //
 // Copied from Go stdlib src/text/template/funcs.go.
+// Can hopefully be removed in Go 1.7, see https://github.com/golang/go/issues/14751
 func index(item interface{}, indices ...interface{}) (interface{}, error) {
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
