@@ -822,3 +822,15 @@ responses of APIs.
     {{ $resp.content | base64Decode | markdownify }}
 
 The response of the GitHub API contains the base64-encoded version of the [README.md](https://github.com/spf13/hugo/blob/master/README.md) in the Hugo repository. Now we can decode it and parse the Markdown. The final output will look similar to the rendered version on GitHub.
+
+### exec
+
+Executes an external command and include its standard output as content. The
+actual commands that can be executed need to be given using the `execWhitelist`
+configuration settings.
+
+    {{ echo 42 }}
+    <!-- will output 42 -->
+
+This assumes that `echo` is listed within the `execWhitelist`, which is not the
+case by default.

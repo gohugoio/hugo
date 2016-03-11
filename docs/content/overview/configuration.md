@@ -150,6 +150,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     verboseLog:                 false
     # watch filesystem for changes and recreate as needed
     watch:                      true
+    # commands that can be executed via the exec command
+    execWhitelist:              []
     ---
 
 ## Ignore files on build
