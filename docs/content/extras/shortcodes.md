@@ -211,6 +211,10 @@ pass the owner and the ID of the gist to the shortcode:
 
     {{</* gist spf13 7896402 */>}}
 
+If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
+
+    {{</* gist spf13 7896402 "img.html" */>}}
+
 ### Speaker Deck
 
 To embed slides from [Speaker Deck](https://speakerdeck.com/), click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL, e.g.:
