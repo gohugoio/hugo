@@ -58,6 +58,56 @@ func tstIsLt(tp tstCompareType) bool {
 	return tp == tstLt || tp == tstLe
 }
 
+func TestExecFuncInTemplate(t *testing.T) {
+
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("ExecWhitelist", []string{"echo"})
+
+	in := "{{exec \"echo\" \"test\"}}"
+	expected := "test\n"
+
+	templ, err := New().New("test").Parse(in)
+	if err != nil {
+		t.Fatal("Got error on parse", err)
+	}
+
+	var b bytes.Buffer
+	err = templ.Execute(&b, nil)
+
+	if err != nil {
+		t.Fatal("Got error on execute", err)
+	}
+
+	if b.String() != expected {
+		t.Errorf("Got\n%q\nExpected\n>%q<", b.String(), expected)
+	}
+}
+
+func TestExecFuncInTemplateCmdNotInWhitelist(t *testing.T) {
+
+	viper.Reset()
+	defer viper.Reset()
+
+	viper.Set("ExecWhitelist", []string{})
+
+	in := "{{exec \"echo\" \"test\"}}"
+	expectedErrSuffix := "Executing echo is not allowed. Check execWhiteList settings."
+
+	templ, err := New().New("test").Parse(in)
+	if err != nil {
+		t.Fatal("Got error on parse", err)
+	}
+
+	var b bytes.Buffer
+	err = templ.Execute(&b, nil)
+
+	if !strings.HasSuffix(err.Error(), expectedErrSuffix) {
+		t.Errorf("Expected suffix %q in %q", expectedErrSuffix, err.Error())
+	}
+}
+
 func TestFuncsInTemplate(t *testing.T) {
 
 	viper.Reset()

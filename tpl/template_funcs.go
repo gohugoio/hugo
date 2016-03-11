@@ -28,6 +28,7 @@ import (
 	"html/template"
 	"math/rand"
 	"os"
+	_exec "os/exec"
 	"reflect"
 	"regexp"
 	"sort"
@@ -41,6 +42,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 var funcMap template.FuncMap
@@ -1138,6 +1140,35 @@ func highlight(in interface{}, lang, opts string) (template.HTML, error) {
 	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts)), nil
 }
 
+// exec executes a command and returns its output as string.
+func exec(in interface{}, args ...string) (string, error) {
+	str, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
+	}
+
+	// Check if command is accepted (in white list)
+	commandAccepted := false
+	for _, validCommand := range viper.GetStringSlice("ExecWhiteList") {
+		if str == validCommand {
+			commandAccepted = true
+			break
+		}
+	}
+
+	if !commandAccepted {
+		return "", fmt.Errorf("Executing %s is not allowed. Check execWhiteList settings.", str)
+	}
+
+	out, err := _exec.Command(strings.TrimSpace(str), args...).Output()
+	if err != nil {
+		return "", err
+	}
+
+	return string(out[:]), nil
+}
+
 var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
@@ -1716,6 +1747,7 @@ func init() {
 		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
 		"echoParam":    returnWhenSet,
 		"eq":           eq,
+		"exec":         exec,
 		"first":        first,
 		"ge":           ge,
 		"getCSV":       getCSV,
