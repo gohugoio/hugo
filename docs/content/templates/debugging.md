@@ -54,3 +54,17 @@ you're looping through look like?
     {{ printf "%#v" . }}
 {{ end }}
 ```
+
+### Why do I have no variables defined?
+
+Check that you are passing variables in the `partial` function. For example
+
+```
+{{ partial "header" }}
+```
+
+will render the header partial, but the header partial will not have access to any variables. You need to pass variables explicitly. For example:
+
+```
+{{ partial "header" . }}
+```
