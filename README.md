@@ -74,7 +74,11 @@ Use the [installation instructions in the Hugo documentation](http://gohugo.io/o
 
         go get -u -v github.com/spf13/hugo
 
-6. Use a symbolic link to add your locally cloned Hugo repository to your `$GOPATH`, assuming you prefer doing development work outside of `$GOPATH`:
+6. Install the test dependencies (needed if you want to run tests):
+
+        go get -v -t -d ./...
+
+7. Use a symbolic link to add your locally cloned Hugo repository to your `$GOPATH`, assuming you prefer doing development work outside of `$GOPATH`:
 
     ```bash
     rm -rf "$GOPATH/src/github.com/spf13/hugo"
