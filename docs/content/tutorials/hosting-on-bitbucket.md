@@ -20,7 +20,7 @@ weight: 10
 
 In this tutorial, we will use [Bitbucket](https://bitbucket.org/) and [Aerobatic](https://www.aerobatic.com) to build, deploy, and host a Hugo site. Aerobatic is a static hosting service that is installed as an add-on to Bitbucket and provides a free hosting tier with custom domain and wildcard SSL certificate.
 
-It is assumed that you know how to use git for version control and have a Bitbucket account. It is also assumed that you have gone through the [quickstart guide](overview/quickstart/) and already have a Hugo site on your local machine.
+It is assumed that you know how to use git for version control and have a Bitbucket account. It is also assumed that you have gone through the [quickstart guide]({{< relref "overview/quickstart.md" >}}) and already have a Hugo site on your local machine.
 
 ## Create package.json
 
@@ -64,7 +64,7 @@ Clicking [this link](https://aerobatic.io/bb) will automatically install the Aer
 
 ![][1]
 
-[1]: /img/tutorials/bitbucket-grant-access.png
+[1]: /img/tutorials/hosting-on-bitbucket/bitbucket-grant-access.png
 
 ## Setup hosting
 
@@ -72,7 +72,7 @@ Select your repository from the dropdown menu and click **Setup hosting**
 
 ![][2]
 
-[2]: /img/tutorials/bitbucket-setup-hosting.png
+[2]: /img/tutorials/hosting-on-bitbucket/bitbucket-setup-hosting.png
 
 You will then be directed to the **Create Website** screen. This is a one-time step. With each subsequent `git push` to Bitbucket, Aerobatic will automatically build and deploy a new version of your site instantly.
 
@@ -84,19 +84,19 @@ Click the **Create website** button:
 
 ![][3]
 
-[3]: /img/tutorials/bitbucket-create-website.png
+[3]: /img/tutorials/hosting-on-bitbucket/bitbucket-create-website.png
 
 
 In less than 30 seconds, your Hugo site will be built and live on the Internet at http://your-hugo-site.aerobatic.io
 
 ![][4]
 
-[4]: /img/tutorials/bitbucket-site-built.png
+[4]: /img/tutorials/hosting-on-bitbucket/bitbucket-site-built.png
 
 
 ![][5]
 
-[5]: /img/tutorials/bitbucket-site-live.png
+[5]: /img/tutorials/hosting-on-bitbucket/bitbucket-site-live.png
 
 ## Suggested next steps
 
