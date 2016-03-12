@@ -2,7 +2,7 @@
 aliases:
 - /doc/release-notes/
 - /meta/release-notes/
-lastmod: 2015-12-19
+lastmod: 2016-03-12
 date: 2013-07-01
 menu:
   main:
@@ -10,6 +10,67 @@ menu:
 title: Release Notes
 weight: 10
 ---
+
+## **0.16.0** TBD
+
+Hugo now has:
+
+* 8700 (+2000) stars on GitHub
+* 284 (+50) contributors
+* 77 (+10) themes
+
+### New Features
+
+* Add emoji support {{<gh 1892>}}
+* Add `themesDir` option to configuration {{<gh 1556>}}
+* Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
+* Partial static sync {{<gh 1644>}}
+* Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
+* Templates functions:
+    * Add `countwords` and `countrunes` template funcs {{<gh 1440>}}
+    * Add `default` template function {{<gh 1943>}}
+    * Add `hasPrefix` template function {{<gh 1243>}}
+    * Add `humanize` template function {{<gh 1450>}}
+    * Add `jsonify` template function {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
+    * Add `md5` and `sha1` template functions {{<gh 1932>}}
+    * Add `replaceRE` template function {{<gh 1845>}}
+    * Add `shuffle` template function {{<gh 1942>}}
+    * Add `slice` template function {{<gh 1902>}}
+
+### Enhancements
+
+* Print error when `/index.html` is zero-length {{<gh 947>}}
+* Enable dirname and filename bash autocompletion for more flags {{<gh 0x666ddd237791b56fd048992dca9a27d1af50a10e>}}
+* Improve error handling in commands {{<gh 1502>}}
+* Add sanity checks for `hugo import jekyll` {{<gh 1625 >}}
+* Add description to `Page.Params` {{<gh 1484>}}
+* Add async version of Google Analytics internal template {{<gh 1711>}}
+* Add autostart option to YouTube shortcode {{<gh 1784>}}
+* Set Date and Lastmod for main home page {{<gh 1903>}}
+* Allow URL with extension in frontmatter {{<gh 1923>}}
+* Add list support in Scratch {{<gh 0xeaba04e82bdfc5d4c29e970f11b4aab9cc0efeaa>}}
+* Add file option to gist shortcode {{<gh 1955>}}
+* Add config layout and content directory CLI options {{<gh 1698>}}
+* Add boolean value comparison to `where` template function {{<gh 0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
+
+### Fixes
+
+* Win32 and ARM builds fixed {{<gh 1716>}}
+* Copy static dir files without theme's static dir {{<gh 1656>}}
+* Make `noTimes` command flag work {{<gh 1657>}}
+* Change most global CLI flags into local ones {{<gh 1624>}}
+* Remove transformation of menu URLs {{<gh 1239>}}
+* Do not fail on unknown Jekyll file {{<gh 1705>}}
+* Use absolute path when editing with editor {{<gh 1589>}}
+* Fix hugo server "Watching for changes" path display {{<gh 1721>}}
+* Do not strip special characters out of URLs {{<gh 1292>}}
+* Fix `RSSLink` when uglyurls are enabled {{<gh 175>}}
+* Do not call `watchConfig` when not in watch mode {{<gh 1772>}}
+* Get BaseURL from viper in server mode {{<gh 1821>}}
+* Fix shortcode handling in RST {{<gh 1904>}}
+* Use default sitemap configuration for homepage {{<gh 1304>}}
+* Exit if specific port is unavailable in server mode {{<gh 1901>}}
+
 
 ## **0.15.0**  November 25, 2015
 
