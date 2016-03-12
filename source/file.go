@@ -92,8 +92,7 @@ func NewFile(relpath string) *File {
 		relpath: relpath,
 	}
 
-	f.dir, _ = filepath.Split(f.relpath)
-	_, f.logicalName = filepath.Split(f.relpath)
+	f.dir, f.logicalName = filepath.Split(f.relpath)
 	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
 	f.section = helpers.GuessSection(f.Dir())
 	f.uniqueID = helpers.Md5String(f.LogicalName())
