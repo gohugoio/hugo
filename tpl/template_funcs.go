@@ -329,20 +329,20 @@ func intersect(l1, l2 interface{}) (interface{}, error) {
 					l2vv := l2v.Index(j)
 					switch l1vv.Kind() {
 					case reflect.String:
-						if l1vv.Type() == l2vv.Type() && l1vv.String() == l2vv.String() && !in(r, l2vv) {
+						if l1vv.Type() == l2vv.Type() && l1vv.String() == l2vv.String() && !in(r.Interface(), l2vv.Interface()) {
 							r = reflect.Append(r, l2vv)
 						}
 					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 						switch l2vv.Kind() {
 						case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-							if l1vv.Int() == l2vv.Int() && !in(r, l2vv) {
+							if l1vv.Int() == l2vv.Int() && !in(r.Interface(), l2vv.Interface()) {
 								r = reflect.Append(r, l2vv)
 							}
 						}
 					case reflect.Float32, reflect.Float64:
 						switch l2vv.Kind() {
 						case reflect.Float32, reflect.Float64:
-							if l1vv.Float() == l2vv.Float() && !in(r, l2vv) {
+							if l1vv.Float() == l2vv.Float() && !in(r.Interface(), l2vv.Interface()) {
 								r = reflect.Append(r, l2vv)
 							}
 						}

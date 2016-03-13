@@ -766,7 +766,7 @@ func TestIntersect(t *testing.T) {
 		sequence2 interface{}
 		expect    interface{}
 	}{
-		{[]string{"a", "b", "c"}, []string{"a", "b"}, []string{"a", "b"}},
+		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b"}},
 		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b"}},
 		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{}},
 		{[]string{}, []string{}, []string{}},
