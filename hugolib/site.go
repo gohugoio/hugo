@@ -713,6 +713,11 @@ func (s *Site) Process() (err error) {
 	if err = s.CreatePages(); err != nil {
 		return
 	}
+
+	if err = s.CheckPermalinks(); err != nil {
+		return
+	}
+
 	s.setupPrevNext()
 	if err = s.BuildSiteMeta(); err != nil {
 		return
@@ -953,6 +958,29 @@ func (s *Site) ConvertSource() chan error {
 	close(results)
 
 	return errs
+}
+
+func (s *Site) CheckPermalinks() error {
+	permalinks := make(map[string]string)
+	for _, page := range s.Pages {
+		permalink, err := page.Permalink()
+
+		if err != nil {
+			return err
+		}
+
+		// the ending slash shouldn't matter
+		if permalink[len(permalink)-1] == '/' {
+			permalink = permalink[0 : len(permalink)-1]
+		}
+
+		if otherPage, exists := permalinks[permalink]; exists {
+			jww.ERROR.Printf("Pages %s and %s use the same permalink: %s", page.FullFilePath(), otherPage, permalink)
+		}
+
+		permalinks[permalink] = page.FullFilePath()
+	}
+	return nil
 }
 
 func (s *Site) CreatePages() error {
