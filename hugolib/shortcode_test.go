@@ -52,7 +52,7 @@ func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template 
 	}
 
 	if output != expected {
-		t.Fatalf("Shortcode render didn't match. got %q but expected %q", output, expected)
+		t.Fatalf("Shortcode render didn't match. got \n%q but expected \n%q", output, expected)
 	}
 }
 
@@ -258,13 +258,28 @@ func TestHighlight(t *testing.T) {
 	viper.Set("PygmentsStyle", "bw")
 	viper.Set("PygmentsUseClasses", false)
 
-	tem := tpl.New()
+	templ := tpl.New()
 
 	code := `
 {{< highlight java >}}
 void do();
 {{< /highlight >}}`
-	CheckShortCodeMatch(t, code, "\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\"><span style=\"font-weight: bold\">void</span> do();\n</pre></div>\n", tem)
+
+	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+	output, err := HandleShortcodes(code, p, templ)
+
+	if err != nil {
+		t.Fatal("Handle shortcode error", err)
+	}
+	matched, err := regexp.MatchString("(?s)^\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\">.*?void</span> do().*?</pre></div>\n$", output)
+
+	if err != nil {
+		t.Fatal("Regexp error", err)
+	}
+
+	if !matched {
+		t.Error("Hightlight mismatch, got\n", output)
+	}
 }
 
 const testScPlaceholderRegexp = "{#{#HUGOSHORTCODE-\\d+#}#}"
