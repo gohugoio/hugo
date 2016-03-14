@@ -38,6 +38,10 @@ type ShortcodeWithPage struct {
 	IsNamedParams bool
 }
 
+func (scp *ShortcodeWithPage) Site() *SiteInfo {
+	return scp.Page.Site
+}
+
 func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
 	return scp.Page.Ref(ref)
 }
