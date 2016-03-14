@@ -155,7 +155,7 @@ func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string,
 		}
 	}
 
-	return string(tmpContent), nil
+	return tmpContent, nil
 }
 
 var isInnerShortcodeCache = struct {

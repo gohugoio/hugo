@@ -411,12 +411,12 @@ func (p *Page) analyzePage() {
 		p.WordCount = len(p.PlainWords())
 	}
 
-	p.FuzzyWordCount = int((p.WordCount+100)/100) * 100
+	p.FuzzyWordCount = (p.WordCount + 100) / 100 * 100
 
 	if p.isCJKLanguage {
-		p.ReadingTime = int((p.WordCount + 500) / 501)
+		p.ReadingTime = (p.WordCount + 500) / 501
 	} else {
-		p.ReadingTime = int((p.WordCount + 212) / 213)
+		p.ReadingTime = (p.WordCount + 212) / 213
 	}
 }
 

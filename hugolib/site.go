@@ -358,7 +358,7 @@ func (s *SiteInfo) githubFileLink(ref string, currentPage *Page, relative bool) 
 			}
 		}
 
-		for _, file := range []*source.File(*s.Files) {
+		for _, file := range *s.Files {
 			if file.Path() == refPath {
 				target = file
 				break
@@ -1899,7 +1899,7 @@ func (s *Site) permalink(plink string) string {
 }
 
 func (s *Site) permalinkStr(plink string) string {
-	return helpers.MakePermalink(string(viper.GetString("BaseURL")), helpers.URLizeAndPrep(plink)).String()
+	return helpers.MakePermalink(viper.GetString("BaseURL"), helpers.URLizeAndPrep(plink)).String()
 }
 
 func (s *Site) NewNode() *Node {

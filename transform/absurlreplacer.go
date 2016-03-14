@@ -197,7 +197,7 @@ func checkCandidateSrcset(l *absurllexer) {
 		section := l.content[l.pos+len(m.quote) : l.pos+posLastQuote+1]
 
 		fields := bytes.Fields(section)
-		l.w.Write([]byte(m.quote))
+		l.w.Write(m.quote)
 		for i, f := range fields {
 			if f[0] == '/' {
 				l.w.Write(l.path)

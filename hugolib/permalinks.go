@@ -135,7 +135,7 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 	case "monthname":
 		return p.Date.Month().String(), nil
 	case "day":
-		return fmt.Sprintf("%02d", int(p.Date.Day())), nil
+		return fmt.Sprintf("%02d", p.Date.Day()), nil
 	case "weekday":
 		return strconv.Itoa(int(p.Date.Weekday())), nil
 	case "weekdayname":

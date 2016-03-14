@@ -328,7 +328,7 @@ func Seq(args ...interface{}) ([]int, error) {
 	if last < -100000 {
 		return nil, errors.New("size of result exeeds limit")
 	}
-	size := int(((last - first) / inc) + 1)
+	size := ((last - first) / inc) + 1
 
 	// sanity check
 	if size <= 0 || size > 2000 {
