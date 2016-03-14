@@ -42,15 +42,6 @@ var fakeSource = []source.ByteSource{
 	},
 }
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
 
 	out := new(bytes.Buffer)

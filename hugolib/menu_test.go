@@ -182,12 +182,6 @@ menu:
 Front Matter with Menu with Identifier`, title, menu, identifier))
 }
 
-type testMenuState struct {
-	site       *Site
-	oldMenu    interface{}
-	oldBaseURL interface{}
-}
-
 // Issue 817 - identifier should trump everything
 func TestPageMenuWithIdentifier(t *testing.T) {
 

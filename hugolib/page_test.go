@@ -101,11 +101,6 @@ Content of the file goes Here
 Some text
 `
 
-	SIMPLE_PAGE_JSON_COMPACT = `
-{"title":"foobar","customData":{"foo":"bar"},"date":"2012-08-06"}
-Text
-`
-
 	SIMPLE_PAGE_NOLAYOUT = `---
 title: simple_no_layout
 ---

@@ -41,18 +41,11 @@ title: simple template
 ---
 content`
 
-	TEMPLATE_MISSING_FUNC        = "{{ .Title | funcdoesnotexists }}"
-	TEMPLATE_FUNC                = "{{ .Title | urlize }}"
-	TEMPLATE_CONTENT             = "{{ .Content }}"
-	TEMPLATE_DATE                = "{{ .Date }}"
-	INVALID_TEMPLATE_FORMAT_DATE = "{{ .Date.Format time.RFC3339 }}"
-	TEMPLATE_WITH_URL_REL        = "<a href=\"foobar.jpg\">Going</a>"
-	TEMPLATE_WITH_URL_ABS        = "<a href=\"/foobar.jpg\">Going</a>"
-	PAGE_URL_SPECIFIED           = `---
-title: simple template
-url: "mycategory/my-whatever-content/"
----
-content`
+	TEMPLATE_MISSING_FUNC = "{{ .Title | funcdoesnotexists }}"
+	TEMPLATE_FUNC         = "{{ .Title | urlize }}"
+	TEMPLATE_CONTENT      = "{{ .Content }}"
+	TEMPLATE_DATE         = "{{ .Date }}"
+	TEMPLATE_WITH_URL_ABS = "<a href=\"/foobar.jpg\">Going</a>"
 
 	PAGE_WITH_MD = `---
 title: page with md
@@ -149,18 +142,6 @@ func NopCloser(w io.Writer) io.WriteCloser {
 	return nopCloser{w}
 }
 
-func matchRender(t *testing.T, s *Site, p *Page, tmplName string, expected string) {
-	content := new(bytes.Buffer)
-	err := s.renderThing(p, tmplName, NopCloser(content))
-	if err != nil {
-		t.Fatalf("Unable to render template.")
-	}
-
-	if string(content.Bytes()) != expected {
-		t.Fatalf("Content did not match expected: %s. got: %s", expected, content)
-	}
-}
-
 func TestRenderThing(t *testing.T) {
 	tests := []struct {
 		content  string
@@ -209,15 +190,14 @@ func HTML(in string) string {
 
 func TestRenderThingOrDefault(t *testing.T) {
 	tests := []struct {
-		content  string
 		missing  bool
 		template string
 		expected string
 	}{
-		{PAGE_SIMPLE_TITLE, true, TEMPLATE_TITLE, HTML("simple template")},
-		{PAGE_SIMPLE_TITLE, true, TEMPLATE_FUNC, HTML("simple-template")},
-		{PAGE_SIMPLE_TITLE, false, TEMPLATE_TITLE, HTML("simple template")},
-		{PAGE_SIMPLE_TITLE, false, TEMPLATE_FUNC, HTML("simple-template")},
+		{true, TEMPLATE_TITLE, HTML("simple template")},
+		{true, TEMPLATE_FUNC, HTML("simple-template")},
+		{false, TEMPLATE_TITLE, HTML("simple template")},
+		{false, TEMPLATE_FUNC, HTML("simple-template")},
 	}
 
 	hugofs.DestinationFS = new(afero.MemMapFs)

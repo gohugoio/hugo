@@ -43,13 +43,6 @@ func must(err error) {
 	}
 }
 
-func mustReturn(ret *Page, err error) *Page {
-	if err != nil {
-		panic(err)
-	}
-	return ret
-}
-
 type InMemoryAliasTarget struct {
 	target.HTMLRedirectAlias
 	files map[string][]byte

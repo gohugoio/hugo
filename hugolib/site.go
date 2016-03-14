@@ -87,7 +87,6 @@ type Site struct {
 	targets        targetList
 	targetListInit sync.Once
 	RunMode        runmode
-	params         map[string]interface{}
 	draftCount     int
 	futureCount    int
 	Data           map[string]interface{}
@@ -769,14 +768,6 @@ func (s *Site) Render() (err error) {
 	return
 }
 
-func (s *Site) checkDescriptions() {
-	for _, p := range s.Pages {
-		if len(p.Description) < 60 {
-			jww.FEEDBACK.Println(p.Source.Path() + " ")
-		}
-	}
-}
-
 func (s *Site) Initialise() (err error) {
 	return s.initialize()
 }
@@ -859,11 +850,6 @@ func (s *Site) checkDirectories() (err error) {
 		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
 	}
 	return
-}
-
-type pageResult struct {
-	page *Page
-	err  error
 }
 
 // ReReadFile resets file to be read from disk again

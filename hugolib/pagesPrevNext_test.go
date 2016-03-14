@@ -34,21 +34,6 @@ var pagePNTestSources = []pagePNTestObject{
 	{"/section2/testpage5.md", 1, "2012-04-06"},
 }
 
-func preparePagePNTestPages(t *testing.T) Pages {
-	var pages Pages
-	for _, s := range pagePNTestSources {
-		p, err := NewPage(s.path)
-		if err != nil {
-			t.Fatalf("failed to prepare test page %s", s.path)
-		}
-		p.Weight = s.weight
-		p.Date = cast.ToTime(s.date)
-		p.PublishDate = cast.ToTime(s.date)
-		pages = append(pages, p)
-	}
-	return pages
-}
-
 func TestPrev(t *testing.T) {
 	pages := preparePageGroupTestPages(t)
 	assert.Equal(t, pages.Prev(pages[0]), pages[4])

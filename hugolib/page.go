@@ -73,7 +73,6 @@ type Page struct {
 	plain               string // TODO should be []byte
 	plainWords          []string
 	plainInit           sync.Once
-	plainSecondaryInit  sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
 	pageMenus           PageMenus
@@ -811,10 +810,6 @@ func (p *Page) guessMarkupType() string {
 	}
 
 	return helpers.GuessType(p.Source.Ext())
-}
-
-func (p *Page) detectFrontMatter() (f *parser.FrontmatterType) {
-	return parser.DetectFrontMatter(rune(p.frontmatter[0]))
 }
 
 func (p *Page) parse(reader io.Reader) error {
