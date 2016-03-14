@@ -147,8 +147,8 @@ func StripHTML(s string) string {
 	return b.String()
 }
 
-// StripEmptyNav strips out empty <nav> tags from content.
-func StripEmptyNav(in []byte) []byte {
+// stripEmptyNav strips out empty <nav> tags from content.
+func stripEmptyNav(in []byte) []byte {
 	return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
 }
 
@@ -157,8 +157,8 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-// GetHTMLRenderer creates a new Renderer with the given configuration.
-func GetHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
+// getHTMLRenderer creates a new Renderer with the given configuration.
+func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
@@ -227,18 +227,18 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 }
 
 func markdownRender(ctx *RenderingContext) []byte {
-	return blackfriday.Markdown(ctx.Content, GetHTMLRenderer(0, ctx),
+	return blackfriday.Markdown(ctx.Content, getHTMLRenderer(0, ctx),
 		getMarkdownExtensions(ctx))
 }
 
 func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 	return blackfriday.Markdown(ctx.Content,
-		GetHTMLRenderer(blackfriday.HTML_TOC, ctx),
+		getHTMLRenderer(blackfriday.HTML_TOC, ctx),
 		getMarkdownExtensions(ctx))
 }
 
-// GetMmarkHtmlRenderer returns markdown html renderer.
-func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+// getMmarkHtmlRenderer returns markdown html renderer.
+func getMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
@@ -259,8 +259,8 @@ func GetMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	}
 }
 
-// GetMmarkExtensions returns markdown extensions.
-func GetMmarkExtensions(ctx *RenderingContext) int {
+// getMmarkExtensions returns markdown extensions.
+func getMmarkExtensions(ctx *RenderingContext) int {
 	flags := 0
 	flags |= mmark.EXTENSION_TABLES
 	flags |= mmark.EXTENSION_FENCED_CODE
@@ -284,10 +284,10 @@ func GetMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-// MmarkRender renders markdowns.
-func MmarkRender(ctx *RenderingContext) []byte {
-	return mmark.Parse(ctx.Content, GetMmarkHtmlRenderer(0, ctx),
-		GetMmarkExtensions(ctx)).Bytes()
+// mmarkRender renders markdowns.
+func mmarkRender(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content, getMmarkHtmlRenderer(0, ctx),
+		getMmarkExtensions(ctx)).Bytes()
 }
 
 // ExtractTOC extracts Table of Contents from content.
@@ -311,7 +311,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	}
 
 	if startOfTOC < 0 {
-		return StripEmptyNav(content), toc
+		return stripEmptyNav(content), toc
 	}
 	// Need to peek ahead to see if this nav element is actually the right one.
 	correctNav := bytes.Index(content[startOfTOC:peekEnd], []byte(`<li><a href="#`))
@@ -355,11 +355,11 @@ func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 	case "markdown":
 		return markdownRenderWithTOC(ctx)
 	case "asciidoc":
-		return []byte(GetAsciidocContent(ctx.Content))
+		return []byte(getAsciidocContent(ctx.Content))
 	case "mmark":
-		return MmarkRender(ctx)
+		return mmarkRender(ctx)
 	case "rst":
-		return []byte(GetRstContent(ctx.Content))
+		return []byte(getRstContent(ctx.Content))
 	}
 }
 
@@ -371,11 +371,11 @@ func RenderBytes(ctx *RenderingContext) []byte {
 	case "markdown":
 		return markdownRender(ctx)
 	case "asciidoc":
-		return []byte(GetAsciidocContent(ctx.Content))
+		return []byte(getAsciidocContent(ctx.Content))
 	case "mmark":
-		return MmarkRender(ctx)
+		return mmarkRender(ctx)
 	case "rst":
-		return []byte(GetRstContent(ctx.Content))
+		return []byte(getRstContent(ctx.Content))
 	}
 }
 
@@ -446,9 +446,9 @@ func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
 	return strings.Join(words[:max], " "), true
 }
 
-// GetAsciidocContent calls asciidoctor or asciidoc as an external helper
+// getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
-func GetAsciidocContent(content []byte) string {
+func getAsciidocContent(content []byte) string {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	path, err := exec.LookPath("asciidoctor")
@@ -473,9 +473,9 @@ func GetAsciidocContent(content []byte) string {
 	return out.String()
 }
 
-// GetRstContent calls the Python script rst2html as an external helper
+// getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
-func GetRstContent(content []byte) string {
+func getRstContent(content []byte) string {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	path, err := exec.LookPath("rst2html")

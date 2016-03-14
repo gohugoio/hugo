@@ -23,7 +23,7 @@ import (
 // Renders a codeblock using Blackfriday
 func render(input string) string {
 	ctx := &RenderingContext{}
-	render := GetHTMLRenderer(0, ctx)
+	render := getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html")
@@ -33,7 +33,7 @@ func render(input string) string {
 // Renders a codeblock using Mmark
 func renderWithMmark(input string) string {
 	ctx := &RenderingContext{}
-	render := GetMmarkHtmlRenderer(0, ctx)
+	render := getMmarkHtmlRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html", []byte(""), false, false)
@@ -72,7 +72,7 @@ func TestCodeFence(t *testing.T) {
 		expectedRe, err := regexp.Compile(d.expected)
 
 		if err != nil {
-			t.Fatalf("Invalid regexp", err)
+			t.Fatal("Invalid regexp", err)
 		}
 		matched := expectedRe.MatchString(result)
 

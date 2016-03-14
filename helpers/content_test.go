@@ -55,7 +55,7 @@ func BenchmarkStripHTML(b *testing.B) {
 }
 
 func TestStripEmptyNav(t *testing.T) {
-	cleaned := StripEmptyNav([]byte("do<nav>\n</nav>\n\nbedobedo"))
+	cleaned := stripEmptyNav([]byte("do<nav>\n</nav>\n\nbedobedo"))
 	assert.Equal(t, []byte("dobedobedo"), cleaned)
 }
 
@@ -125,7 +125,7 @@ func TestTruncateWordsByRune(t *testing.T) {
 
 func TestGetHTMLRendererFlags(t *testing.T) {
 	ctx := &RenderingContext{}
-	renderer := GetHTMLRenderer(blackfriday.HTML_USE_XHTML, ctx)
+	renderer := getHTMLRenderer(blackfriday.HTML_USE_XHTML, ctx)
 	flags := renderer.GetFlags()
 	if flags&blackfriday.HTML_USE_XHTML != blackfriday.HTML_USE_XHTML {
 		t.Errorf("Test flag: %d was not found amongs set flags:%d; Result: %d", blackfriday.HTML_USE_XHTML, flags, flags&blackfriday.HTML_USE_XHTML)
@@ -158,7 +158,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 	ctx.Config.SmartDashes = true
 	ctx.Config.Smartypants = true
 	ctx.Config.SourceRelativeLinksEval = true
-	renderer := GetHTMLRenderer(defaultFlags, ctx)
+	renderer := getHTMLRenderer(defaultFlags, ctx)
 	actualFlags := renderer.GetFlags()
 	var expectedFlags int
 	//OR-ing flags together...
@@ -176,7 +176,7 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 
-	actualRenderer := GetHTMLRenderer(0, ctx)
+	actualRenderer := getHTMLRenderer(0, ctx)
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
 	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
@@ -199,7 +199,7 @@ func TestGetMmarkHtmlRenderer(t *testing.T) {
 	ctx.DocumentID = "testid"
 	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
-	actualRenderer := GetMmarkHtmlRenderer(0, ctx)
+	actualRenderer := getMmarkHtmlRenderer(0, ctx)
 
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
@@ -318,7 +318,7 @@ func TestGetMmarkExtensions(t *testing.T) {
 		{mmark.EXTENSION_INCLUDE},
 	}
 
-	actualFlags := GetMmarkExtensions(ctx)
+	actualFlags := getMmarkExtensions(ctx)
 	for _, e := range allExtensions {
 		if actualFlags&e.testFlag != e.testFlag {
 			t.Errorf("Flag %v was not found in the list of extensions.", e)
@@ -330,7 +330,7 @@ func TestMmarkRender(t *testing.T) {
 	ctx := &RenderingContext{}
 	ctx.Content = []byte("testContent")
 	ctx.Config = ctx.getConfig()
-	actualRenderedMarkdown := MmarkRender(ctx)
+	actualRenderedMarkdown := mmarkRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
