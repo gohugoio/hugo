@@ -67,7 +67,6 @@ func (filepathBridge) Separator() string {
 }
 
 var fpb filepathBridge
-var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
