@@ -42,7 +42,6 @@ type absurllexer struct {
 	width int // width of last element
 
 	matchers []absURLMatcher
-	state    stateFunc
 
 	ms      matchState
 	matches [3]bool // track matches of the 3 prefixes
