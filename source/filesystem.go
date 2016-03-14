@@ -72,10 +72,6 @@ func (f *Filesystem) add(name string, reader io.Reader) (err error) {
 	return err
 }
 
-func (f *Filesystem) getRelativePath(name string) (final string, err error) {
-	return helpers.GetRelativePath(name, f.Base)
-}
-
 func (f *Filesystem) captureFiles() {
 	walker := func(filePath string, fi os.FileInfo, err error) error {
 		if err != nil {
