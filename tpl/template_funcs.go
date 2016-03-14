@@ -33,6 +33,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -1244,7 +1245,42 @@ func replace(a, b, c interface{}) (string, error) {
 	return strings.Replace(aStr, bStr, cStr, -1), nil
 }
 
-var regexpCache = make(map[string]*regexp.Regexp)
+// regexpCache represents a cache of regexp objects protected by a mutex.
+type regexpCache struct {
+	mu sync.RWMutex
+	re map[string]*regexp.Regexp
+}
+
+// Get retrieves a regexp object from the cache based upon the pattern.
+// If the pattern is not found in the cache, create one
+func (rc *regexpCache) Get(pattern string) (re *regexp.Regexp, err error) {
+	var ok bool
+
+	if re, ok = rc.get(pattern); !ok {
+		re, err = regexp.Compile(pattern)
+		if err != nil {
+			return nil, err
+		}
+		rc.set(pattern, re)
+	}
+
+	return re, nil
+}
+
+func (rc *regexpCache) get(key string) (re *regexp.Regexp, ok bool) {
+	rc.mu.RLock()
+	re, ok = rc.re[key]
+	rc.mu.RUnlock()
+	return
+}
+
+func (rc *regexpCache) set(key string, re *regexp.Regexp) {
+	rc.mu.Lock()
+	rc.re[key] = re
+	rc.mu.Unlock()
+}
+
+var reCache = regexpCache{re: make(map[string]*regexp.Regexp)}
 
 // replaceRE exposes a regular expression replacement function to the templates.
 func replaceRE(pattern, repl, src interface{}) (_ string, err error) {
@@ -1263,16 +1299,11 @@ func replaceRE(pattern, repl, src interface{}) (_ string, err error) {
 		return
 	}
 
-	if _, ok := regexpCache[patternStr]; !ok {
-		re, err2 := regexp.Compile(patternStr)
-		if err2 != nil {
-			return "", err2
-		}
-
-		regexpCache[patternStr] = re
+	re, err := reCache.Get(patternStr)
+	if err != nil {
+		return "", err
 	}
-
-	return regexpCache[patternStr].ReplaceAllString(srcStr, replStr), err
+	return re.ReplaceAllString(srcStr, replStr), nil
 }
 
 // dateFormat converts the textual representation of the datetime string into
