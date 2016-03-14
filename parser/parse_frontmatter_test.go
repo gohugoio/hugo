@@ -26,7 +26,6 @@ import (
 )
 
 var (
-	CONTENT_EMPTY                   = ""
 	CONTENT_NO_FRONTMATTER          = "a page with no front matter"
 	CONTENT_WITH_FRONTMATTER        = "---\ntitle: front matter\n---\nContent with front matter"
 	CONTENT_HTML_NODOCTYPE          = "<html>\n\t<body>\n\t</body>\n</html>"
@@ -34,13 +33,11 @@ var (
 	CONTENT_HTML_WITH_FRONTMATTER   = "---\ntitle: front matter\n---\n<!doctype><html><body></body></html>"
 	CONTENT_LWS_HTML                = "    <html><body></body></html>"
 	CONTENT_LWS_LF_HTML             = "\n<html><body></body></html>"
-	CONTENT_INCOMPLETE_BEG_FM_DELIM = "--\ntitle: incomplete beg fm delim\n---\nincomplete frontmatter delim"
 	CONTENT_INCOMPLETE_END_FM_DELIM = "---\ntitle: incomplete end fm delim\n--\nincomplete frontmatter delim"
 	CONTENT_MISSING_END_FM_DELIM    = "---\ntitle: incomplete end fm delim\nincomplete frontmatter delim"
 	CONTENT_SLUG_WORKING            = "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\nslug doc 2 content"
 	CONTENT_SLUG_WORKING_VARIATION  = "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\nslug doc 3 content"
 	CONTENT_SLUG_BUG                = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
-	CONTENT_FM_NO_DOC               = "---\ntitle: no doc\n---"
 	CONTENT_WITH_JS_FM              = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
 	CONTENT_WITH_JS_LOOSE_FM        = "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
 )
@@ -53,12 +50,6 @@ func pageMust(p Page, err error) *page {
 		panic(err)
 	}
 	return p.(*page)
-}
-
-func pageRecoverAndLog(t *testing.T) {
-	if err := recover(); err != nil {
-		t.Errorf("panic/recover: %s\n", err)
-	}
 }
 
 func TestDegenerateCreatePageFrom(t *testing.T) {
