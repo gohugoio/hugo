@@ -23,7 +23,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type FrontmatterType struct {
+type frontmatterType struct {
 	markstart, markend []byte
 	Parse              func([]byte) (interface{}, error)
 	includeMark        bool
@@ -135,6 +135,7 @@ func FormatToLeadRune(kind string) rune {
 	}
 }
 
+// TODO(bep) move to helpers
 func FormatSanitize(kind string) string {
 	switch strings.ToLower(kind) {
 	case "yaml", "yml":
@@ -148,14 +149,14 @@ func FormatSanitize(kind string) string {
 	}
 }
 
-func DetectFrontMatter(mark rune) (f *FrontmatterType) {
+func detectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {
 	case '-':
-		return &FrontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), HandleYAMLMetaData, false}
+		return &frontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), HandleYAMLMetaData, false}
 	case '+':
-		return &FrontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), HandleTOMLMetaData, false}
+		return &frontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), HandleTOMLMetaData, false}
 	case '{':
-		return &FrontmatterType{[]byte{'{'}, []byte{'}'}, HandleJSONMetaData, true}
+		return &frontmatterType{[]byte{'{'}, []byte{'}'}, HandleJSONMetaData, true}
 	default:
 		return nil
 	}

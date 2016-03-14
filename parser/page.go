@@ -79,7 +79,7 @@ func (p *page) Metadata() (meta interface{}, err error) {
 	frontmatter := p.FrontMatter()
 
 	if len(frontmatter) != 0 {
-		fm := DetectFrontMatter(rune(frontmatter[0]))
+		fm := detectFrontMatter(rune(frontmatter[0]))
 		meta, err = fm.Parse(frontmatter)
 		if err != nil {
 			return
