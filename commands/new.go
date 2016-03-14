@@ -31,12 +31,9 @@ import (
 )
 
 var (
-	configFormat       string
-	contentEditor      string
-	contentFormat      string
-	contentFrontMatter string
-	contentType        string
-	siteType           string
+	configFormat  string
+	contentEditor string
+	contentType   string
 )
 
 func init() {
