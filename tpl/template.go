@@ -402,7 +402,8 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 			var baseTemplatePath string
 
 			// Ace and Go templates may have both a base and inner template.
-			if filepath.Ext(path) != ".amber" && !strings.HasSuffix(filepath.Dir(path), "partials") {
+			pathDir := filepath.Dir(path)
+			if filepath.Ext(path) != ".amber" && !strings.HasSuffix(pathDir, "partials") && !strings.HasSuffix(pathDir, "shortcodes") {
 
 				innerMarkers := goTemplateInnerMarkers
 				baseFileName := fmt.Sprintf("%s.html", baseFileBase)
