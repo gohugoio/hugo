@@ -1023,8 +1023,6 @@ func TestWeightedTaxonomies(t *testing.T) {
 }
 
 func findPage(site *Site, f string) *Page {
-	// TODO: it seems that filepath.FromSlash results in page.Source.Path() returning windows backslash - which means refLinking's string compare is totally busted.
-	// TODO: Not used for non-fragment linking (SVEN thinks this is a bug)
 	currentPath := source.NewFile(filepath.FromSlash(f))
 	//t.Logf("looking for currentPath: %s", currentPath.Path())
 
@@ -1062,6 +1060,15 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{filepath.FromSlash("level2/level3/common.png"), []byte("")},
 	}
 
+	viper.Set("baseurl", "http://auth/")
+	viper.Set("DefaultExtension", "html")
+	viper.Set("UglyURLs", false)
+	viper.Set("PluralizeListTitles", false)
+	viper.Set("CanonifyURLs", false)
+	viper.Set("blackfriday",
+		map[string]interface{}{
+			"sourceRelativeLinksProjectFolder": "/docs"})
+
 	site := &Site{
 		Source: &source.InMemorySource{ByteSource: sources},
 	}
@@ -1071,12 +1078,6 @@ func setupLinkingMockSite(t *testing.T) *Site {
 	if err := site.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
-
-	viper.Set("baseurl", "http://auth/bub")
-	viper.Set("DefaultExtension", "html")
-	viper.Set("UglyURLs", false)
-	viper.Set("PluralizeListTitles", false)
-	viper.Set("CanonifyURLs", false)
 
 	return site
 }
@@ -1228,7 +1229,7 @@ func TestSourceRelativeLinksing(t *testing.T) {
 			t.Fatalf("failed to find current page in site")
 		}
 		for link, url := range results {
-			if out, err := site.Info.githubLink(link, currentPage, true); err != nil || out != url {
+			if out, err := site.Info.SourceRelativeLink(link, currentPage); err != nil || out != url {
 				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
 			} else {
 				//t.Logf("tested ok %s maps to %s", link, out)
@@ -1241,7 +1242,7 @@ func TestSourceRelativeLinksing(t *testing.T) {
 
 }
 
-func TestGitHubFileLinking(t *testing.T) {
+func TestSourceRelativeLinkFileing(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 	site := setupLinkingMockSite(t)
@@ -1278,15 +1279,11 @@ func TestGitHubFileLinking(t *testing.T) {
 			t.Fatalf("failed to find current page in site")
 		}
 		for link, url := range results {
-			if out, err := site.Info.githubFileLink(link, currentPage, false); err != nil || out != url {
+			if out, err := site.Info.SourceRelativeLinkFile(link, currentPage); err != nil || out != url {
 				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
 			} else {
 				//t.Logf("tested ok %s maps to %s", link, out)
 			}
 		}
 	}
-	// TODO: and then the failure cases.
-	// 			"https://docker.com":           "",
-	// site_test.go:1094: Expected https://docker.com to resolve to (), got () - error: Not a plain filepath link (https://docker.com)
-
 }

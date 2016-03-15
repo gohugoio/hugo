@@ -225,28 +225,18 @@ func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
 	return s.refLink(ref, page, true)
 }
 
-//  TODO(sven): Document
-func (s *SiteInfo) GitHub(ref string, page *Page) (string, error) {
-	return s.githubLink(ref, page, true)
-}
-
-func (s *SiteInfo) githubLink(ref string, currentPage *Page, relative bool) (string, error) {
+// SourceRelativeLink attempts to convert any source page relative links (like [../another.md]) into absolute links
+func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, error) {
 	var refURL *url.URL
 	var err error
 
-	// TODO can I make this a param to `hugo --use-github-links=/docs`?
-	// SVEN: add more tests - the prefix might be a real dir inside tho - add some pages that have it as a legitimate path
-	repositoryPathPrefix := "/docs"
-
-	refURL, err = url.Parse(strings.TrimPrefix(ref, repositoryPathPrefix))
+	refURL, err = url.Parse(strings.TrimPrefix(ref, currentPage.getRenderingConfig().SourceRelativeLinksProjectFolder))
 	if err != nil {
 		return "", err
 	}
 
 	if refURL.Scheme != "" {
-		// TODO: consider looking for http(s?)://github.com/user/project/prefix and replacing it - tho this may be intentional, so idk
-		//return "", fmt.Errorf("Not a plain filepath link (%s)", ref)
-		// Treat this as not an error, as the link is used as-is
+		// Not a relative source level path
 		return ref, nil
 	}
 
@@ -291,19 +281,13 @@ func (s *SiteInfo) githubLink(ref string, currentPage *Page, relative bool) (str
 			return "", fmt.Errorf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
-		// SVEN: look at filepath.Rel() it might help, got the rel/non-rel url's (dangerous tho)
-		if relative {
-			link, err = target.RelPermalink()
-		} else {
-			link, err = target.Permalink()
-		}
+		link, err = target.RelPermalink()
 
 		if err != nil {
 			return "", err
 		}
 	}
 
-	// SVEN: add tests for github style relative fragments
 	if refURL.Fragment != "" {
 		link = link + "#" + refURL.Fragment
 
@@ -317,29 +301,18 @@ func (s *SiteInfo) githubLink(ref string, currentPage *Page, relative bool) (str
 	return link, nil
 }
 
-// TODO(sven): Document
-func (s *SiteInfo) GitHubFileLink(ref string, page *Page) (string, error) {
-	return s.githubFileLink(ref, page, false)
-}
-
-// for non-pages in the site tree
-func (s *SiteInfo) githubFileLink(ref string, currentPage *Page, relative bool) (string, error) {
+// SourceRelativeLinkFile attempts to convert any non-md source relative links (like [../another.gif]) into absolute links
+func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string, error) {
 	var refURL *url.URL
 	var err error
 
-	// TODO can I make this a param to `hugo --use-github-links=/docs`?
-	// SVEN: add more tests - the prefix might be a real dir inside tho - add some pages that have it as a legitimate path
-	repositoryPathPrefix := "/docs"
-
-	refURL, err = url.Parse(strings.TrimPrefix(ref, repositoryPathPrefix))
+	refURL, err = url.Parse(strings.TrimPrefix(ref, currentPage.getRenderingConfig().SourceRelativeLinksProjectFolder))
 	if err != nil {
 		return "", err
 	}
 
 	if refURL.Scheme != "" {
-		// TODO: consider looking for http(s?)://github.com/user/project/prefix and replacing it - tho this may be intentional, so idk
-		//return "", fmt.Errorf("Not a plain filepath link (%s)", ref)
-		// Treat this as not an error, as the link is used as-is
+		// Not a relative source level path
 		return ref, nil
 	}
 
@@ -369,13 +342,7 @@ func (s *SiteInfo) githubFileLink(ref string, currentPage *Page, relative bool) 
 		}
 
 		link = target.Path()
-		// SVEN: look at filepath.Rel() it might help, got the rel/non-rel url's (dangerous tho)
-		// SVEN: reconsider the fact I hardcoded the `relative` bool in both github resolvers
-		if relative {
-			return "./" + filepath.ToSlash(link), nil
-		} else {
-			return "/" + filepath.ToSlash(link), nil
-		}
+		return "/" + filepath.ToSlash(link), nil
 	}
 
 	return "", fmt.Errorf("failed to find a file to match \"%s\" on page \"%s\"", ref, currentPage.Source.Path())
