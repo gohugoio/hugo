@@ -289,6 +289,38 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 <td class="purpose-description" colspan="2">Extensions in this option won't be loaded.<br>
 <small><strong>Example:</strong>&nbsp;Add <code>"autoHeaderIds"</code> to disable <code>EXTENSION_AUTO_HEADER_IDS</code>.</small></td>
 </tr>
+
+<tr>
+<td><code><strong>sourceRelativeLinksEval</strong></code></td>
+<td><code>false</code></td>
+<td><code>none</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Source file based relative linking (a la Github).<br>
+Relative links to markdown and static files within a page will be evaluated relative to the
+location of that page, and then converted to html links during rendering. For example,
+`[example](../other/page.md)` in `content/total/overview.md` will be linked to
+`content/other/overview.md`, and then rendered to `/other/overview/` in the HTML output.
+</td>
+</tr>
+
+<tr>
+<td><code><strong>sourceRelativeLinksProjectFolder</strong></code></td>
+<td><code>"/docs/content"</code></td>
+<td><code>none</code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Source file based relative linking Hugo Project sub-folder.<br>
+When `sourceRelativeLinksEval` is enabled, source level paths may contain an absolute respository path to the
+markdown or static file which needs to be removed before trying to match it with the intended link.
+ For example, if your documentation is in `/docs/content`, then
+`[example](/docs/content/other/page.md)` in `/docs/content/total/overview.md` will be linked to
+`/docs/content/other/overview.md`, and then rendered to `/other/overview/` in the HTML output.
+</td>
+</tr>
+
 </tbody>
 </table>
 

@@ -257,10 +257,10 @@ func (p *Page) renderBytes(content []byte) []byte {
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
 		fn = func(ref string) (string, error) {
-			return p.Node.Site.GitHub(ref, p)
+			return p.Node.Site.SourceRelativeLink(ref, p)
 		}
 		fileFn = func(ref string) (string, error) {
-			return p.Node.Site.GitHubFileLink(ref, p)
+			return p.Node.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
 	return helpers.RenderBytes(
@@ -273,10 +273,10 @@ func (p *Page) renderContent(content []byte) []byte {
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
 		fn = func(ref string) (string, error) {
-			return p.Node.Site.GitHub(ref, p)
+			return p.Node.Site.SourceRelativeLink(ref, p)
 		}
 		fileFn = func(ref string) (string, error) {
-			return p.Node.Site.GitHubFileLink(ref, p)
+			return p.Node.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
 	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),

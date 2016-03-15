@@ -43,29 +43,31 @@ var SummaryDivider = []byte("<!--more-->")
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
-	Smartypants             bool
-	AngledQuotes            bool
-	Fractions               bool
-	HrefTargetBlank         bool
-	SmartDashes             bool
-	LatexDashes             bool
-	PlainIDAnchors          bool
-	SourceRelativeLinksEval bool
-	Extensions              []string
-	ExtensionsMask          []string
+	Smartypants                      bool
+	AngledQuotes                     bool
+	Fractions                        bool
+	HrefTargetBlank                  bool
+	SmartDashes                      bool
+	LatexDashes                      bool
+	PlainIDAnchors                   bool
+	SourceRelativeLinksEval          bool
+	SourceRelativeLinksProjectFolder string
+	Extensions                       []string
+	ExtensionsMask                   []string
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
 func NewBlackfriday() *Blackfriday {
 	combinedParam := map[string]interface{}{
-		"smartypants":         true,
-		"angledQuotes":        false,
-		"fractions":           true,
-		"hrefTargetBlank":     false,
-		"smartDashes":         true,
-		"latexDashes":         true,
-		"plainIDAnchors":      false,
-		"sourceRelativeLinks": false,
+		"smartypants":                      true,
+		"angledQuotes":                     false,
+		"fractions":                        true,
+		"hrefTargetBlank":                  false,
+		"smartDashes":                      true,
+		"latexDashes":                      true,
+		"plainIDAnchors":                   false,
+		"sourceRelativeLinks":              false,
+		"sourceRelativeLinksProjectFolder": "/docs/content",
 	}
 
 	siteParam := viper.GetStringMap("blackfriday")
