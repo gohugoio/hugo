@@ -1,4 +1,4 @@
-// Copyright 2016-present The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
 package bufferpool
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBufferPool(t *testing.T) {
+	v := "do be do be do"
+
 	buff := GetBuffer()
-	buff.WriteString("do be do be do")
-	assert.Equal(t, "do be do be do", buff.String())
+	_, err := buff.WriteString(v)
+	if assert.NoError(t, err) {
+		assert.Equal(t, v, buff.String())
+
+	}
+
 	PutBuffer(buff)
 	assert.Equal(t, 0, buff.Len())
 }
