@@ -111,6 +111,16 @@ func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 }
 
 func commonConvert(p *Page, t tpl.Template) HandledResult {
+
+	if p.Site.running {
+		//  prepare grounds for partial reloads
+		if len(p.rawOrigContent) > 0 {
+			p.rawContent = append([]byte(nil), p.rawOrigContent...)
+		} else {
+			p.rawOrigContent = append([]byte(nil), p.rawContent...)
+		}
+	}
+
 	p.ProcessShortcodes(t)
 
 	var err error
