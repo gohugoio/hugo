@@ -16,8 +16,6 @@ package tpl
 import (
 	"bytes"
 	"errors"
-	"github.com/spf13/afero"
-	"github.com/spf13/hugo/hugofs"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -25,6 +23,9 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
 )
 
 // Some tests for Issue #1178 -- Ace
@@ -151,7 +152,7 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 			resultTpl := templ.Lookup(finalTplName)
 
 			if resultTpl == nil {
-				t.Errorf("[%d] AddTemplateFileWithMaster: Result teamplate not found")
+				t.Errorf("[%d] AddTemplateFileWithMaster: Result template not found", i)
 				continue
 			}
 
