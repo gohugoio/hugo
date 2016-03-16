@@ -30,9 +30,9 @@ and other basic tools; these are listed in the
 
 ### default
 Checks whether a given value is set and returns a default value if it is not.
-"Set" in this context means true for booleans; non-zero for numeric types and
-times; non-zero length for strings, arrays, slices, and maps; any struct value;
-or non-nil for any other types.
+"Set" in this context means non-zero for numeric types and times;
+non-zero length for strings, arrays, slices, and maps;
+any boolean or struct value; or non-nil for any other types.
 
 e.g.
 

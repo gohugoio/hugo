@@ -1886,6 +1886,7 @@ func TestDefaultFunc(t *testing.T) {
 		given    interface{}
 		expected interface{}
 	}{
+		{true, false, false},
 		{"5", 0, "5"},
 
 		{"test1", "set", "set"},
