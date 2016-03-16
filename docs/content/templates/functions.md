@@ -69,7 +69,7 @@ e.g. Pass into "foo.html" a map with the keys "important, content"
     {{.content}}
     
 
-or Create a map on the fly to pass into 
+or create a map on the fly to pass into 
 
     {{partial "foo" (dict "important" "Smiles" "content" "You should do more")}}
     
