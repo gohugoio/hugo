@@ -110,8 +110,7 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		kind = contentType
 	}
 
-	return create.NewContent(kind, createpath)
-
+	return create.NewContent(hugofs.SourceFs, kind, createpath)
 }
 
 func doNewSite(basepath string, force bool) error {
