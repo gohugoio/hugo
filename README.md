@@ -13,6 +13,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [![wercker status](https://app.wercker.com/status/1a0de7d703ce3b80527f00f675e1eb32/s/master "wercker status")](https://app.wercker.com/project/bykey/1a0de7d703ce3b80527f00f675e1eb32)
 [![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master)
 [![Dev chat at https://gitter.im/spf13/hugo](https://img.shields.io/badge/gitter-dev_chat-46bc99.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![codebeat](https://codebeat.co/badges/b2600d2e-bc76-4ff7-bd3b-7fd75d568697)](https://codebeat.co/projects/github-com-spf13-hugo)
 
 ## Overview
 
