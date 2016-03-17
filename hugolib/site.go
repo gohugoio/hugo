@@ -1448,31 +1448,33 @@ func errorCollator(results <-chan error, errs chan<- error) {
 }
 
 func (s *Site) appendThemeTemplates(in []string) []string {
-	if s.hasTheme() {
-		out := []string{}
-		// First place all non internal templates
-		for _, t := range in {
-			if !strings.HasPrefix(t, "_internal/") {
-				out = append(out, t)
-			}
-		}
-
-		// Then place theme templates with the same names
-		for _, t := range in {
-			if !strings.HasPrefix(t, "_internal/") {
-				out = append(out, "theme/"+t)
-			}
-		}
-
-		// Lastly place internal templates
-		for _, t := range in {
-			if strings.HasPrefix(t, "_internal/") {
-				out = append(out, t)
-			}
-		}
-		return out
+	if !s.hasTheme() {
+		return in
 	}
-	return in
+
+	out := []string{}
+	// First place all non internal templates
+	for _, t := range in {
+		if !strings.HasPrefix(t, "_internal/") {
+			out = append(out, t)
+		}
+	}
+
+	// Then place theme templates with the same names
+	for _, t := range in {
+		if !strings.HasPrefix(t, "_internal/") {
+			out = append(out, "theme/"+t)
+		}
+	}
+
+	// Lastly place internal templates
+	for _, t := range in {
+		if strings.HasPrefix(t, "_internal/") {
+			out = append(out, t)
+		}
+	}
+	return out
+
 }
 
 type taxRenderInfo struct {
