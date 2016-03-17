@@ -475,91 +475,99 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 	s.resetPageBuildState()
 
 	// If a content file changes, we need to reload only it and re-render the entire site.
-	if len(sourceChanged) > 0 {
 
-		// First step is to read the changed files and (re)place them in site.Pages
-		// This includes processing any meta-data for that content
+	// First step is to read the changed files and (re)place them in site.Pages
+	// This includes processing any meta-data for that content
 
-		// The second step is to convert the content into HTML
-		// This includes processing any shortcodes that may be present.
+	// The second step is to convert the content into HTML
+	// This includes processing any shortcodes that may be present.
 
-		// We do this in parallel... even though it's likely only one file at a time.
-		// We need to process the reading prior to the conversion for each file, but
-		// we can convert one file while another one is still reading.
-		errs := make(chan error)
-		readResults := make(chan HandledResult)
-		filechan := make(chan *source.File)
-		convertResults := make(chan HandledResult)
-		pageChan := make(chan *Page)
-		fileConvChan := make(chan *source.File)
-		coordinator := make(chan bool)
+	// We do this in parallel... even though it's likely only one file at a time.
+	// We need to process the reading prior to the conversion for each file, but
+	// we can convert one file while another one is still reading.
+	errs := make(chan error)
+	readResults := make(chan HandledResult)
+	filechan := make(chan *source.File)
+	convertResults := make(chan HandledResult)
+	pageChan := make(chan *Page)
+	fileConvChan := make(chan *source.File)
+	coordinator := make(chan bool)
 
-		wg := &sync.WaitGroup{}
-		wg.Add(2)
-		for i := 0; i < 2; i++ {
-			go sourceReader(s, filechan, readResults, wg)
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	for i := 0; i < 2; i++ {
+		go sourceReader(s, filechan, readResults, wg)
+	}
+
+	wg2 := &sync.WaitGroup{}
+	wg2.Add(4)
+	for i := 0; i < 2; i++ {
+		go fileConverter(s, fileConvChan, convertResults, wg2)
+		go pageConverter(s, pageChan, convertResults, wg2)
+	}
+
+	go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
+	go converterCollator(s, convertResults, errs)
+
+	if len(tmplChanged) > 0 || len(dataChanged) > 0 {
+		// Do not need to read the files again, but they need conversion
+		// for shortocde re-rendering.
+		for _, p := range s.Pages {
+			pageChan <- p
+		}
+	}
+
+	for _, ev := range sourceChanged {
+
+		if ev.Op&fsnotify.Remove == fsnotify.Remove {
+			//remove the file & a create will follow
+			path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
+			s.RemovePageByPath(path)
+			continue
 		}
 
-		wg2 := &sync.WaitGroup{}
-		wg2.Add(4)
-		for i := 0; i < 2; i++ {
-			go fileConverter(s, fileConvChan, convertResults, wg2)
-			go pageConverter(s, pageChan, convertResults, wg2)
-		}
-
-		go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
-		go converterCollator(s, convertResults, errs)
-
-		for _, ev := range sourceChanged {
-
-			if ev.Op&fsnotify.Remove == fsnotify.Remove {
-				//remove the file & a create will follow
+		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
+		// Sometimes a rename operation means that file has been renamed other times it means
+		// it's been updated
+		if ev.Op&fsnotify.Rename == fsnotify.Rename {
+			// If the file is still on disk, it's only been updated, if it's not, it's been moved
+			if ex, err := afero.Exists(hugofs.SourceFs, ev.Name); !ex || err != nil {
 				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
 				s.RemovePageByPath(path)
 				continue
 			}
-
-			// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
-			// Sometimes a rename operation means that file has been renamed other times it means
-			// it's been updated
-			if ev.Op&fsnotify.Rename == fsnotify.Rename {
-				// If the file is still on disk, it's only been updated, if it's not, it's been moved
-				if ex, err := afero.Exists(hugofs.SourceFs, ev.Name); !ex || err != nil {
-					path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
-					s.RemovePageByPath(path)
-					continue
-				}
-			}
-
-			file, err := s.ReReadFile(ev.Name)
-			if err != nil {
-				errs <- err
-			}
-
-			filechan <- file
 		}
-		// we close the filechan as we have sent everything we want to send to it.
-		// this will tell the sourceReaders to stop iterating on that channel
-		close(filechan)
 
-		// waiting for the sourceReaders to all finish
-		wg.Wait()
-		// Now closing readResults as this will tell the incrementalReadCollator to
-		// stop iterating over that.
-		close(readResults)
+		file, err := s.ReReadFile(ev.Name)
+		if err != nil {
+			errs <- err
+		}
 
-		// once readResults is finished it will close coordinator and move along
-		<-coordinator
-		// allow that routine to finish, then close page & fileconvchan as we've sent
-		// everything to them we need to.
-		close(pageChan)
-		close(fileConvChan)
+		filechan <- file
+	}
+	// we close the filechan as we have sent everything we want to send to it.
+	// this will tell the sourceReaders to stop iterating on that channel
+	close(filechan)
 
-		wg2.Wait()
-		close(convertResults)
+	// waiting for the sourceReaders to all finish
+	wg.Wait()
+	// Now closing readResults as this will tell the incrementalReadCollator to
+	// stop iterating over that.
+	close(readResults)
 
-		s.timerStep("read & convert pages from source")
+	// once readResults is finished it will close coordinator and move along
+	<-coordinator
+	// allow that routine to finish, then close page & fileconvchan as we've sent
+	// everything to them we need to.
+	close(pageChan)
+	close(fileConvChan)
 
+	wg2.Wait()
+	close(convertResults)
+
+	s.timerStep("read & convert pages from source")
+
+	if len(sourceChanged) > 0 {
 		s.setupPrevNext()
 		if err = s.BuildSiteMeta(); err != nil {
 			return err

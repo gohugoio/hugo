@@ -263,13 +263,29 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 
 func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string, error) {
 
+	if p.rendered {
+		panic("Illegal state: Page already marked as rendered, please reuse the shortcodes")
+	}
+
 	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
-	renderedShortcodes := make(map[string]string)
 
 	if err != nil {
 		//  try to render what we have whilst logging the error
 		jww.ERROR.Println(err.Error())
 	}
+
+	// Save for reuse
+	// TODO(bep) refactor this
+	p.shortcodes = shortcodes
+
+	renderedShortcodes := renderShortcodes(shortcodes, p, t)
+
+	return content, renderedShortcodes, err
+
+}
+
+func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) map[string]string {
+	renderedShortcodes := make(map[string]string)
 
 	for key, sc := range shortcodes {
 		if sc.err != nil {
@@ -280,8 +296,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 		}
 	}
 
-	return content, renderedShortcodes, err
-
+	return renderedShortcodes
 }
 
 var shortCodeIllegalState = errors.New("Illegal shortcode state")

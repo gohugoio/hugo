@@ -134,6 +134,6 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 
 	p.Content = helpers.BytesToHTML(tmpContent)
 	p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-
+	p.rendered = true
 	return HandledResult{err: nil}
 }
