@@ -69,6 +69,7 @@ type Page struct {
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
+	rawOrigContent      []byte // needed for partial rebuilding
 	contentShortCodes   map[string]string
 	plain               string // TODO should be []byte
 	plainWords          []string
@@ -299,7 +300,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		Source: Source{File: *source.NewFile(filename)},
-		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
+		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}, Site: &SiteInfo{}},
 		Params: make(map[string]interface{})}
 
 	jww.DEBUG.Println("Reading from", page.File.Path())
