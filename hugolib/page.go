@@ -69,7 +69,8 @@ type Page struct {
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
-	contentShortCodes   map[string]string
+	contentShortCodes   map[string]string // TODO(bep) this shouldn't be needed.
+	shortcodes          map[string]shortcode
 	plain               string // TODO should be []byte
 	plainWords          []string
 	plainInit           sync.Once
@@ -82,6 +83,7 @@ type Page struct {
 	Source
 	Position `json:"-"`
 	Node
+	rendered bool
 }
 
 type Source struct {
@@ -907,9 +909,15 @@ func (p *Page) ProcessShortcodes(t tpl.Template) {
 
 	// these short codes aren't used until after Page render,
 	// but processed here to avoid coupling
-	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
-	p.rawContent = []byte(tmpContent)
-	p.contentShortCodes = tmpContentShortCodes
+	// TODO(bep) Move this and remove p.contentShortCodes
+	if !p.rendered {
+		tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
+		p.rawContent = []byte(tmpContent)
+		p.contentShortCodes = tmpContentShortCodes
+	} else {
+		// shortcode template may have changed, rerender
+		p.contentShortCodes = renderShortcodes(p.shortcodes, p, t)
+	}
 
 }
 
