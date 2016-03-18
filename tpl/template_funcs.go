@@ -1479,120 +1479,6 @@ func safeHTML(a interface{}) template.HTML { return template.HTML(cast.ToString(
 // safeJS returns the given string as a html/template JS content.
 func safeJS(a interface{}) template.JS { return template.JS(cast.ToString(a)) }
 
-func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
-	av := reflect.ValueOf(a)
-	bv := reflect.ValueOf(b)
-	var ai, bi int64
-	var af, bf float64
-	var au, bu uint64
-	switch av.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		ai = av.Int()
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			bi = bv.Int()
-		case reflect.Float32, reflect.Float64:
-			af = float64(ai) // may overflow
-			ai = 0
-			bf = bv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			bu = bv.Uint()
-			if ai >= 0 {
-				au = uint64(ai)
-				ai = 0
-			} else {
-				bi = int64(bu) // may overflow
-				bu = 0
-			}
-		default:
-			return nil, errors.New("Can't apply the operator to the values")
-		}
-	case reflect.Float32, reflect.Float64:
-		af = av.Float()
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			bf = float64(bv.Int()) // may overflow
-		case reflect.Float32, reflect.Float64:
-			bf = bv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			bf = float64(bv.Uint()) // may overflow
-		default:
-			return nil, errors.New("Can't apply the operator to the values")
-		}
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		au = av.Uint()
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			bi = bv.Int()
-			if bi >= 0 {
-				bu = uint64(bi)
-				bi = 0
-			} else {
-				ai = int64(au) // may overflow
-				au = 0
-			}
-		case reflect.Float32, reflect.Float64:
-			af = float64(au) // may overflow
-			au = 0
-			bf = bv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			bu = bv.Uint()
-		default:
-			return nil, errors.New("Can't apply the operator to the values")
-		}
-	case reflect.String:
-		as := av.String()
-		if bv.Kind() == reflect.String && op == '+' {
-			bs := bv.String()
-			return as + bs, nil
-		}
-		return nil, errors.New("Can't apply the operator to the values")
-	default:
-		return nil, errors.New("Can't apply the operator to the values")
-	}
-
-	switch op {
-	case '+':
-		if ai != 0 || bi != 0 {
-			return ai + bi, nil
-		} else if af != 0 || bf != 0 {
-			return af + bf, nil
-		} else if au != 0 || bu != 0 {
-			return au + bu, nil
-		}
-		return 0, nil
-	case '-':
-		if ai != 0 || bi != 0 {
-			return ai - bi, nil
-		} else if af != 0 || bf != 0 {
-			return af - bf, nil
-		} else if au != 0 || bu != 0 {
-			return au - bu, nil
-		}
-		return 0, nil
-	case '*':
-		if ai != 0 || bi != 0 {
-			return ai * bi, nil
-		} else if af != 0 || bf != 0 {
-			return af * bf, nil
-		} else if au != 0 || bu != 0 {
-			return au * bu, nil
-		}
-		return 0, nil
-	case '/':
-		if bi != 0 {
-			return ai / bi, nil
-		} else if bf != 0 {
-			return af / bf, nil
-		} else if bu != 0 {
-			return au / bu, nil
-		}
-		return nil, errors.New("Can't divide the value by 0")
-	default:
-		return nil, errors.New("There is no such an operation")
-	}
-}
-
 // mod returns a % b.
 func mod(a, b interface{}) (int64, error) {
 	av := reflect.ValueOf(a)
@@ -1745,7 +1631,7 @@ func sha1(in interface{}) (string, error) {
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
-		"add":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
+		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
 		"apply":        apply,
 		"base64Decode": base64Decode,
@@ -1757,7 +1643,7 @@ func init() {
 		"dateFormat":   dateFormat,
 		"delimit":      delimit,
 		"dict":         dictionary,
-		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
+		"div":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '/') },
 		"echoParam":    returnWhenSet,
 		"emojify":      emojify,
 		"eq":           eq,
@@ -1785,7 +1671,7 @@ func init() {
 		"md5":          md5,
 		"mod":          mod,
 		"modBool":      modBool,
-		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
+		"mul":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
 		"ne":           ne,
 		"partial":      partial,
 		"pluralize":    pluralize,
@@ -1810,7 +1696,7 @@ func init() {
 		"sort":         sortSeq,
 		"split":        split,
 		"string":       func(v interface{}) string { return cast.ToString(v) },
-		"sub":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
+		"sub":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '-') },
 		"substr":       substr,
 		"title":        func(a string) string { return strings.Title(a) },
 		"trim":         trim,

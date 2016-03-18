@@ -250,57 +250,6 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 	}
 }
 
-func TestArethmic(t *testing.T) {
-	for i, this := range []struct {
-		a      interface{}
-		b      interface{}
-		op     rune
-		expect interface{}
-	}{
-		{1, 2, '+', int64(3)},
-		{1, 2, '-', int64(-1)},
-		{2, 2, '*', int64(4)},
-		{4, 2, '/', int64(2)},
-		{uint8(1), uint8(3), '+', uint64(4)},
-		{uint8(3), uint8(2), '-', uint64(1)},
-		{uint8(2), uint8(2), '*', uint64(4)},
-		{uint16(4), uint8(2), '/', uint64(2)},
-		{4, 2, '¤', false},
-		{4, 0, '/', false},
-		{float64(2.3), float64(2.3), '+', float64(4.6)},
-		{float64(2.3), int(2), '*', float64(4.6)},
-		{int(1), float64(2), '+', float64(3)},
-		{int(1), uint(2), '+', uint64(3)},
-		{1, "do", '+', false},
-		{float64(1), uint(2), '+', float64(3)},
-		{float64(1), "do", '+', false},
-		{uint(1), int(2), '+', uint64(3)},
-		{uint(1), int(-2), '+', int64(-1)},
-		{int(-1), uint(2), '+', int64(1)},
-		{uint(1), float64(2), '+', float64(3)},
-		{uint(1), "do", '+', false},
-		{"do ", "be", '+', "do be"},
-		{"do ", "be", '*', false},
-		{t, t, '+', false},
-	} {
-		// TODO(bep): Take precision into account.
-		result, err := doArithmetic(this.a, this.b, this.op)
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] doArethmic didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] doArethmic got %v (%T) but expected %v (%T)", i, result, result, this.expect, this.expect)
-			}
-		}
-	}
-}
-
 func TestMod(t *testing.T) {
 	for i, this := range []struct {
 		a      interface{}
