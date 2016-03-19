@@ -55,7 +55,7 @@ type Blackfriday struct {
 	ExtensionsMask          []string
 }
 
-// NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults
+// NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
 func NewBlackfriday() *Blackfriday {
 	combinedParam := map[string]interface{}{
 		"smartypants":         true,
@@ -100,6 +100,7 @@ var blackfridayExtensionMap = map[string]int{
 	"headerIds":              blackfriday.EXTENSION_HEADER_IDS,
 	"titleblock":             blackfriday.EXTENSION_TITLEBLOCK,
 	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
+	"backslashLineBreak":     blackfriday.EXTENSION_BACKSLASH_LINE_BREAK,
 	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
 }
 
@@ -157,7 +158,7 @@ func BytesToHTML(b []byte) template.HTML {
 	return template.HTML(string(b))
 }
 
-// getHTMLRenderer creates a new Renderer with the given configuration.
+// getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
 func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
@@ -207,12 +208,23 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 }
 
 func getMarkdownExtensions(ctx *RenderingContext) int {
-	flags := 0 | blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
-		blackfriday.EXTENSION_TABLES | blackfriday.EXTENSION_FENCED_CODE |
-		blackfriday.EXTENSION_AUTOLINK | blackfriday.EXTENSION_STRIKETHROUGH |
-		blackfriday.EXTENSION_SPACE_HEADERS | blackfriday.EXTENSION_FOOTNOTES |
-		blackfriday.EXTENSION_HEADER_IDS | blackfriday.EXTENSION_AUTO_HEADER_IDS |
+	// Default Blackfriday common extensions
+	commonExtensions := 0 |
+		blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
+		blackfriday.EXTENSION_TABLES |
+		blackfriday.EXTENSION_FENCED_CODE |
+		blackfriday.EXTENSION_AUTOLINK |
+		blackfriday.EXTENSION_STRIKETHROUGH |
+		blackfriday.EXTENSION_SPACE_HEADERS |
+		blackfriday.EXTENSION_HEADER_IDS |
+		blackfriday.EXTENSION_BACKSLASH_LINE_BREAK |
 		blackfriday.EXTENSION_DEFINITION_LISTS
+
+	// Extra Blackfriday extensions that Hugo enables by default
+	flags := commonExtensions |
+		blackfriday.EXTENSION_AUTO_HEADER_IDS |
+		blackfriday.EXTENSION_FOOTNOTES
+
 	for _, extension := range ctx.getConfig().Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
