@@ -199,18 +199,19 @@ var isFileRe = regexp.MustCompile(".*\\..{1,6}$")
 // Expects a relative path starting after the content directory.
 func GetDottedRelativePath(inPath string) string {
 	inPath = filepath.Clean(filepath.FromSlash(inPath))
+
 	if inPath == "." {
 		return "./"
 	}
-	isFile := isFileRe.MatchString(inPath)
-	if !isFile {
-		if !strings.HasSuffix(inPath, FilePathSeparator) {
-			inPath += FilePathSeparator
-		}
+
+	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, FilePathSeparator) {
+		inPath += FilePathSeparator
 	}
+
 	if !strings.HasPrefix(inPath, FilePathSeparator) {
 		inPath = FilePathSeparator + inPath
 	}
+
 	dir, _ := filepath.Split(inPath)
 
 	sectionCount := strings.Count(dir, FilePathSeparator)
