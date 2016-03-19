@@ -158,15 +158,18 @@ func init() {
 
 func parseOptions(options map[string]string, in string) error {
 	in = strings.Trim(in, " ")
-	if in != "" {
-		for _, v := range strings.Split(in, ",") {
-			keyVal := strings.Split(v, "=")
-			key := strings.ToLower(strings.Trim(keyVal[0], " "))
-			if len(keyVal) != 2 || !pygmentsKeywords[key] {
-				return fmt.Errorf("invalid Pygments option: %s", key)
-			}
-			options[key] = keyVal[1]
+
+	if in == "" {
+		return nil
+	}
+
+	for _, v := range strings.Split(in, ",") {
+		keyVal := strings.Split(v, "=")
+		key := strings.ToLower(strings.Trim(keyVal[0], " "))
+		if len(keyVal) != 2 || !pygmentsKeywords[key] {
+			return fmt.Errorf("invalid Pygments option: %s", key)
 		}
+		options[key] = keyVal[1]
 	}
 
 	return nil
