@@ -33,8 +33,7 @@ func (c *connection) reader() {
 		if err != nil {
 			break
 		}
-		switch true {
-		case bytes.Contains(message, []byte(`"command":"hello"`)):
+		if  bytes.Contains(message, []byte(`"command":"hello"`)){
 			c.send <- []byte(`{
 				"command": "hello",
 				"protocols": [ "http://livereload.com/protocols/official-7" ],
