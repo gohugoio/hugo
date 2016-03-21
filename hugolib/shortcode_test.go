@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -26,6 +23,9 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 )
@@ -464,7 +464,7 @@ e`,
 	sources := make([]source.ByteSource, len(tests))
 
 	for i, test := range tests {
-		sources[i] = source.ByteSource{filepath.FromSlash(test.contentPath), []byte(test.content)}
+		sources[i] = source.ByteSource{Name: filepath.FromSlash(test.contentPath), Content: []byte(test.content)}
 	}
 
 	s := &Site{
