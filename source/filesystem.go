@@ -137,18 +137,11 @@ func (f *Filesystem) avoid(filePath string) bool {
 
 func isNonProcessablePath(filePath string) bool {
 	base := filepath.Base(filePath)
-	if base[0] == '.' {
+	if strings.HasPrefix(base, ".") ||
+		strings.HasPrefix(base, "#") ||
+		strings.HasSuffix(base, "~") {
 		return true
 	}
-
-	if base[0] == '#' {
-		return true
-	}
-
-	if base[len(base)-1] == '~' {
-		return true
-	}
-
 	ignoreFiles := viper.GetStringSlice("IgnoreFiles")
 	if len(ignoreFiles) > 0 {
 		for _, ignorePattern := range ignoreFiles {
