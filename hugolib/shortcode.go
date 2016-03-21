@@ -36,6 +36,7 @@ type ShortcodeWithPage struct {
 	Page          *Page
 	Parent        *ShortcodeWithPage
 	IsNamedParams bool
+	scratch       *Scratch
 }
 
 func (scp *ShortcodeWithPage) Site() *SiteInfo {
@@ -51,7 +52,10 @@ func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
 }
 
 func (scp *ShortcodeWithPage) Scratch() *Scratch {
-	return scp.Page.Scratch()
+	if scp.scratch == nil {
+		scp.scratch = newScratch()
+	}
+	return scp.scratch
 }
 
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
