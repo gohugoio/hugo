@@ -15,9 +15,10 @@ package helpers
 
 import (
 	"bytes"
-	"github.com/spf13/viper"
 	"regexp"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 // Renders a codeblock using Blackfriday
@@ -33,7 +34,7 @@ func render(input string) string {
 // Renders a codeblock using Mmark
 func renderWithMmark(input string) string {
 	ctx := &RenderingContext{}
-	render := getMmarkHtmlRenderer(0, ctx)
+	render := getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html", []byte(""), false, false)

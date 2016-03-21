@@ -249,8 +249,8 @@ func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 		getMarkdownExtensions(ctx))
 }
 
-// getMmarkHtmlRenderer returns markdown html renderer.
-func getMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+// getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
+func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
@@ -271,7 +271,6 @@ func getMmarkHtmlRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	}
 }
 
-// getMmarkExtensions returns markdown extensions.
 func getMmarkExtensions(ctx *RenderingContext) int {
 	flags := 0
 	flags |= mmark.EXTENSION_TABLES
@@ -296,9 +295,8 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-// mmarkRender renders markdowns.
 func mmarkRender(ctx *RenderingContext) []byte {
-	return mmark.Parse(ctx.Content, getMmarkHtmlRenderer(0, ctx),
+	return mmark.Parse(ctx.Content, getMmarkHTMLRenderer(0, ctx),
 		getMmarkExtensions(ctx)).Bytes()
 }
 

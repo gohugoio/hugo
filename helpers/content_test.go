@@ -194,12 +194,12 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 	}
 }
 
-func TestGetMmarkHtmlRenderer(t *testing.T) {
+func TestGetMmarkHTMLRenderer(t *testing.T) {
 	ctx := &RenderingContext{}
 	ctx.DocumentID = "testid"
 	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
-	actualRenderer := getMmarkHtmlRenderer(0, ctx)
+	actualRenderer := getMmarkHTMLRenderer(0, ctx)
 
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
