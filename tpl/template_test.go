@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -123,17 +123,17 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 		{`tpl`, `{{.0.E}}`, 0, false},
 	} {
 
-		hugofs.SourceFs = afero.NewMemMapFs()
+		hugofs.InitMemFs()
 		templ := New()
 		overlayTplName := "ot"
 		masterTplName := "mt"
 		finalTplName := "tp"
 
 		if this.writeSkipper != 1 {
-			afero.WriteFile(hugofs.SourceFs, masterTplName, []byte(this.masterTplContent), 0644)
+			afero.WriteFile(hugofs.Source(), masterTplName, []byte(this.masterTplContent), 0644)
 		}
 		if this.writeSkipper != 2 {
-			afero.WriteFile(hugofs.SourceFs, overlayTplName, []byte(this.overlayTplContent), 0644)
+			afero.WriteFile(hugofs.Source(), overlayTplName, []byte(this.overlayTplContent), 0644)
 		}
 
 		err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)

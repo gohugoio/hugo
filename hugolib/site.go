@@ -529,7 +529,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		// it's been updated
 		if ev.Op&fsnotify.Rename == fsnotify.Rename {
 			// If the file is still on disk, it's only been updated, if it's not, it's been moved
-			if ex, err := afero.Exists(hugofs.SourceFs, ev.Name); !ex || err != nil {
+			if ex, err := afero.Exists(hugofs.Source(), ev.Name); !ex || err != nil {
 				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
 				s.RemovePageByPath(path)
 				continue
@@ -852,7 +852,7 @@ func (s *Site) absPublishDir() string {
 }
 
 func (s *Site) checkDirectories() (err error) {
-	if b, _ := helpers.DirExists(s.absContentDir(), hugofs.SourceFs); !b {
+	if b, _ := helpers.DirExists(s.absContentDir(), hugofs.Source()); !b {
 		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
 	}
 	return

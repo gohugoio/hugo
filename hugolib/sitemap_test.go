@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -40,7 +39,7 @@ func TestSitemapOutput(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	viper.Set("baseurl", "http://auth/bub/")
 
@@ -72,7 +71,7 @@ func TestSitemapOutput(t *testing.T) {
 		t.Fatalf("Unable to RenderRobotsTXT :%s", err)
 	}
 
-	sitemapFile, err := hugofs.DestinationFS.Open("sitemap.xml")
+	sitemapFile, err := hugofs.Destination().Open("sitemap.xml")
 
 	if err != nil {
 		t.Fatalf("Unable to locate: sitemap.xml")

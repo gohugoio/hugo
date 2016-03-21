@@ -487,7 +487,7 @@ e`,
 	createAndRenderPages(t, s)
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.outFile)
+		file, err := hugofs.Destination().Open(test.outFile)
 
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.outFile, err)

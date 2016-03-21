@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ func (pp *PagePub) Publish(path string, r io.Reader) (err error) {
 		return
 	}
 
-	return helpers.WriteToDisk(translated, r, hugofs.DestinationFS)
+	return helpers.WriteToDisk(translated, r, hugofs.Destination())
 }
 
 func (pp *PagePub) Translate(src string) (dest string, err error) {

@@ -17,7 +17,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -29,7 +28,7 @@ func TestDefaultHandler(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
 		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
@@ -75,7 +74,7 @@ func TestDefaultHandler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.doc)
+		file, err := hugofs.Destination().Open(test.doc)
 		if err != nil {
 			t.Fatalf("Did not find %s in target.", test.doc)
 		}

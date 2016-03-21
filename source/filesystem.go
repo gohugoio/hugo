@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ func (f *Filesystem) captureFiles() {
 		return err
 	}
 
-	err := helpers.SymbolicWalk(hugofs.SourceFs, f.Base, walker)
+	err := helpers.SymbolicWalk(hugofs.Source(), f.Base, walker)
 
 	if err != nil {
 		jww.ERROR.Println(err)
