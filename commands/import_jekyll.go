@@ -128,12 +128,11 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 
 	if err != nil {
 		return err
-	} else {
-		fmt.Println("Congratulations!", fileCount, "post(s) imported!")
-		fmt.Println("Now, start Hugo by yourself:\n" +
-			"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-		fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 	}
+	fmt.Println("Congratulations!", fileCount, "post(s) imported!")
+	fmt.Println("Now, start Hugo by yourself:\n" +
+		"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
+	fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 
 	return nil
 }
