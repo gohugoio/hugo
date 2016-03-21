@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -200,7 +199,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 		{false, TEMPLATE_FUNC, HTML("simple-template")},
 	}
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	for i, test := range tests {
 
@@ -226,7 +225,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 			t.Errorf("Unable to render html: %s", err)
 		}
 
-		file, err := hugofs.DestinationFS.Open(filepath.FromSlash("out/index.html"))
+		file, err := hugofs.Destination().Open(filepath.FromSlash("out/index.html"))
 		if err != nil {
 			t.Errorf("Unable to open html: %s", err)
 		}
@@ -240,7 +239,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.md"), []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
 		{filepath.FromSlash("sect/doc2.md"), []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
@@ -299,7 +298,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 // Issue #957
 func TestCrossrefs(t *testing.T) {
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	for _, uglyURLs := range []bool{true, false} {
 		for _, relative := range []bool{true, false} {
 			doTestCrossrefs(t, relative, uglyURLs)
@@ -374,7 +373,7 @@ THE END.`, refShortcode))},
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.doc)
+		file, err := hugofs.Destination().Open(test.doc)
 
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.doc, err)
@@ -392,7 +391,7 @@ THE END.`, refShortcode))},
 // Issue #939
 // Issue #1923
 func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	for _, uglyURLs := range []bool{true, false} {
 		doTestShouldAlwaysHaveUglyURLs(t, uglyURLs)
 	}
@@ -462,7 +461,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.doc)
+		file, err := hugofs.Destination().Open(test.doc)
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.doc, err)
 		}
@@ -489,7 +488,7 @@ func TestSectionNaming(t *testing.T) {
 }
 
 func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	viper.Reset()
 	defer viper.Reset()
 	viper.Set("baseurl", "http://auth/sub/")
@@ -539,7 +538,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.doc)
+		file, err := hugofs.Destination().Open(test.doc)
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.doc, err)
 		}
@@ -560,7 +559,7 @@ func TestSkipRender(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
 		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
@@ -605,7 +604,7 @@ func TestSkipRender(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.doc)
+		file, err := hugofs.Destination().Open(test.doc)
 		if err != nil {
 			t.Fatalf("Did not find %s in target.", test.doc)
 		}
@@ -624,7 +623,7 @@ func TestAbsURLify(t *testing.T) {
 
 	viper.Set("DefaultExtension", "html")
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
 		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
@@ -662,7 +661,7 @@ func TestAbsURLify(t *testing.T) {
 
 		for _, test := range tests {
 
-			file, err := hugofs.DestinationFS.Open(filepath.FromSlash(test.file))
+			file, err := hugofs.Destination().Open(filepath.FromSlash(test.file))
 			if err != nil {
 				t.Fatalf("Unable to locate rendered content: %s", test.file)
 			}
@@ -730,7 +729,7 @@ func TestOrderedPages(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
@@ -804,7 +803,7 @@ func TestGroupedPages(t *testing.T) {
 		}
 	}()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
@@ -984,7 +983,7 @@ func TestWeightedTaxonomies(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_1},
 		{filepath.FromSlash("sect/doc2.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_2},
@@ -1039,7 +1038,7 @@ func findPage(site *Site, f string) *Page {
 }
 
 func setupLinkingMockSite(t *testing.T) *Site {
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("index.md"), []byte("")},
 		{filepath.FromSlash("rootfile.md"), []byte("")},

@@ -83,7 +83,7 @@ e.g. Pass into "foo.html" a map with the keys "important, content"
 or create a map on the fly to pass into 
 
     {{partial "foo" (dict "important" "Smiles" "content" "You should do more")}}
-    
+
 
 
 ### slice
@@ -336,6 +336,12 @@ e.g.
        {{ .Content }}
     {{ end }}
 
+## Files    
+### readFile
+Reads a file from disk and converts it into a string. Note that the filename must be relative to the current project working dir.
+ So, if you have a file with the name `README.txt` in the root of your project with the content `Hugo Rocks!`:
+ 
+ `{{readFile "README.txt"}}` → `"Hugo Rocks!"`
 
 ## Math
 

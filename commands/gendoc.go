@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,9 +51,9 @@ for rendering in Hugo.`,
 		if !strings.HasSuffix(gendocdir, helpers.FilePathSeparator) {
 			gendocdir += helpers.FilePathSeparator
 		}
-		if found, _ := helpers.Exists(gendocdir, hugofs.OsFs); !found {
+		if found, _ := helpers.Exists(gendocdir, hugofs.Os()); !found {
 			jww.FEEDBACK.Println("Directory", gendocdir, "does not exist, creating...")
-			hugofs.OsFs.MkdirAll(gendocdir, 0777)
+			hugofs.Os().MkdirAll(gendocdir, 0777)
 		}
 		now := time.Now().Format(time.RFC3339)
 		prepender := func(filename string) string {

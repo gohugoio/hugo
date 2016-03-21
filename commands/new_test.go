@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/stretchr/testify/assert"
 )
@@ -41,14 +40,14 @@ func checkNewSiteInited(basepath string, t *testing.T) {
 	}
 
 	for _, path := range paths {
-		_, err := hugofs.SourceFs.Stat(path)
+		_, err := hugofs.Source().Stat(path)
 		assert.Nil(t, err)
 	}
 }
 
 func TestDoNewSite(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.SourceFs = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	err := doNewSite(basepath, false)
 	assert.Nil(t, err)
 
@@ -57,17 +56,17 @@ func TestDoNewSite(t *testing.T) {
 
 func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.SourceFs = new(afero.MemMapFs)
-	hugofs.SourceFs.MkdirAll(basepath, 777)
+	hugofs.InitMemFs()
+	hugofs.Source().MkdirAll(basepath, 777)
 	err := doNewSite(basepath, false)
 	assert.Nil(t, err)
 }
 
 func TestDoNewSite_error_base_exists(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.SourceFs = new(afero.MemMapFs)
-	hugofs.SourceFs.MkdirAll(basepath, 777)
-	hugofs.SourceFs.Create(filepath.Join(basepath, "foo"))
+	hugofs.InitMemFs()
+	hugofs.Source().MkdirAll(basepath, 777)
+	hugofs.Source().Create(filepath.Join(basepath, "foo"))
 	// Since the directory already exists and isn't empty, expect an error
 	err := doNewSite(basepath, false)
 	assert.NotNil(t, err)
@@ -75,8 +74,8 @@ func TestDoNewSite_error_base_exists(t *testing.T) {
 
 func TestDoNewSite_force_empty_dir(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.SourceFs = new(afero.MemMapFs)
-	hugofs.SourceFs.MkdirAll(basepath, 777)
+	hugofs.InitMemFs()
+	hugofs.Source().MkdirAll(basepath, 777)
 	err := doNewSite(basepath, true)
 	assert.Nil(t, err)
 
@@ -86,8 +85,8 @@ func TestDoNewSite_force_empty_dir(t *testing.T) {
 func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
 	contentPath := filepath.Join(basepath, "content")
-	hugofs.SourceFs = new(afero.MemMapFs)
-	hugofs.SourceFs.MkdirAll(contentPath, 777)
+	hugofs.InitMemFs()
+	hugofs.Source().MkdirAll(contentPath, 777)
 	err := doNewSite(basepath, true)
 	assert.NotNil(t, err)
 }
@@ -95,9 +94,9 @@ func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 	basepath := filepath.Join(os.TempDir(), "blog")
 	configPath := filepath.Join(basepath, "config.toml")
-	hugofs.SourceFs = new(afero.MemMapFs)
-	hugofs.SourceFs.MkdirAll(basepath, 777)
-	hugofs.SourceFs.Create(configPath)
+	hugofs.InitMemFs()
+	hugofs.Source().MkdirAll(basepath, 777)
+	hugofs.Source().Create(configPath)
 	err := doNewSite(basepath, true)
 	assert.NotNil(t, err)
 }

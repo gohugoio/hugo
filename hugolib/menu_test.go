@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/kr/pretty"
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
@@ -684,7 +683,7 @@ func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *Site {
 }
 
 func createTestSite(pageSources []source.ByteSource) *Site {
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: pageSources},

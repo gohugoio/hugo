@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		return convertJekyllPost(path, relPath, targetDir, draft)
 	}
 
-	err = helpers.SymbolicWalk(hugofs.OsFs, jekyllRoot, callback)
+	err = helpers.SymbolicWalk(hugofs.Os(), jekyllRoot, callback)
 
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 
 // TODO: Consider calling doNewSite() instead?
 func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
-	fs := hugofs.SourceFs
+	fs := hugofs.Source()
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
 			return errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
@@ -187,7 +187,7 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
 }
 
 func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
-	fs := hugofs.SourceFs
+	fs := hugofs.Source()
 	path := filepath.Join(jekyllRoot, "_config.yml")
 
 	exists, err := helpers.Exists(path, fs)
@@ -252,7 +252,7 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
 	if err != nil {
 		return
 	}

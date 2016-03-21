@@ -423,14 +423,14 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
 			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
-		isDir, err := helpers.DirExists(cacheDir, hugofs.SourceFs)
+		isDir, err := helpers.DirExists(cacheDir, hugofs.Source())
 		utils.CheckErr(err)
 		if isDir == false {
 			mkdir(cacheDir)
 		}
 		viper.Set("CacheDir", cacheDir)
 	} else {
-		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.SourceFs))
+		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
 	}
 
 	if verboseLog || logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
@@ -452,6 +452,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
+
+	// Init file systems. This may be changed at a later point.
+	hugofs.InitDefaultFs()
 
 	themeDir := helpers.GetThemeDir()
 	if themeDir != "" {
@@ -498,7 +501,7 @@ func build(watches ...bool) error {
 	// This is only used for benchmark testing. Cause the content is only visible
 	// in memory
 	if renderToMemory {
-		hugofs.DestinationFS = new(afero.MemMapFs)
+		hugofs.SetDestination(new(afero.MemMapFs))
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		viper.Set("PublishDir", "/")
 	}
@@ -524,7 +527,7 @@ func build(watches ...bool) error {
 }
 
 func getStaticSourceFs() afero.Fs {
-	source := hugofs.SourceFs
+	source := hugofs.Source()
 	themeDir, err := helpers.GetThemeStaticDirPath()
 	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
 
@@ -563,8 +566,8 @@ func getStaticSourceFs() afero.Fs {
 	jww.INFO.Println("using a UnionFS for static directory comprised of:")
 	jww.INFO.Println("Base:", themeDir)
 	jww.INFO.Println("Overlay:", staticDir)
-	base := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, themeDir))
-	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.SourceFs, staticDir))
+	base := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.Source(), themeDir))
+	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.Source(), staticDir))
 	return afero.NewCopyOnWriteFs(base, overlay)
 }
 
@@ -587,7 +590,7 @@ func copyStatic() error {
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("notimes")
 	syncer.SrcFs = staticSourceFs
-	syncer.DestFs = hugofs.DestinationFS
+	syncer.DestFs = hugofs.Destination()
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
 	syncer.Delete = viper.GetBool("cleanDestinationDir")
@@ -653,12 +656,12 @@ func getDirList() []string {
 		return nil
 	}
 
-	helpers.SymbolicWalk(hugofs.SourceFs, dataDir, walker)
-	helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("ContentDir")), walker)
-	helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
-	helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("StaticDir")), walker)
+	helpers.SymbolicWalk(hugofs.Source(), dataDir, walker)
+	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("ContentDir")), walker)
+	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
+	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("StaticDir")), walker)
 	if helpers.ThemeSet() {
-		helpers.SymbolicWalk(hugofs.SourceFs, helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), walker)
+		helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), walker)
 	}
 
 	return a
@@ -770,8 +773,8 @@ func NewWatcher(port int) error {
 					// recursively add new directories to watch list
 					// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
 					if ev.Op&fsnotify.Create == fsnotify.Create {
-						if s, err := hugofs.SourceFs.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-							helpers.SymbolicWalk(hugofs.SourceFs, ev.Name, walkAdder)
+						if s, err := hugofs.Source().Stat(ev.Name); err == nil && s.Mode().IsDir() {
+							helpers.SymbolicWalk(hugofs.Source(), ev.Name, walkAdder)
 						}
 					}
 
@@ -813,7 +816,7 @@ func NewWatcher(port int) error {
 						syncer := fsync.NewSyncer()
 						syncer.NoTimes = viper.GetBool("notimes")
 						syncer.SrcFs = staticSourceFs
-						syncer.DestFs = hugofs.DestinationFS
+						syncer.DestFs = hugofs.Destination()
 
 						// prevent spamming the log on changes
 						logger := helpers.NewDistinctFeedbackLogger()
@@ -858,7 +861,7 @@ func NewWatcher(port int) error {
 									// If file doesn't exist in any static dir, remove it
 									toRemove := filepath.Join(publishDir, relPath)
 									logger.Println("File no longer exists in static dir, removing", toRemove)
-									hugofs.DestinationFS.RemoveAll(toRemove)
+									hugofs.Destination().RemoveAll(toRemove)
 								} else if err == nil {
 									// If file still exists, sync it
 									logger.Println("Syncing", relPath, "to", publishDir)
@@ -939,7 +942,7 @@ func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
 
 	themeDir := helpers.GetThemeDir()
 
-	fs := hugofs.SourceFs
+	fs := hugofs.Source()
 	path := filepath.Join(themeDir, "theme.toml")
 
 	exists, err := helpers.Exists(path, fs)

@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -53,7 +52,7 @@ func TestRSSOutput(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub/")
 	viper.Set("RSSUri", rssURI)
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
 	}
@@ -72,7 +71,7 @@ func TestRSSOutput(t *testing.T) {
 		t.Fatalf("Unable to RenderHomePage: %s", err)
 	}
 
-	file, err := hugofs.DestinationFS.Open(rssURI)
+	file, err := hugofs.Destination().Open(rssURI)
 
 	if err != nil {
 		t.Fatalf("Unable to locate: %s", rssURI)

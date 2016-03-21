@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ in the "man" directory under the current directory.`,
 		if !strings.HasSuffix(genmandir, helpers.FilePathSeparator) {
 			genmandir += helpers.FilePathSeparator
 		}
-		if found, _ := helpers.Exists(genmandir, hugofs.OsFs); !found {
+		if found, _ := helpers.Exists(genmandir, hugofs.Os()); !found {
 			jww.FEEDBACK.Println("Directory", genmandir, "does not exist, creating...")
-			hugofs.OsFs.MkdirAll(genmandir, 0777)
+			hugofs.Os().MkdirAll(genmandir, 0777)
 		}
 		cmd.Root().DisableAutoGenTag = true
 

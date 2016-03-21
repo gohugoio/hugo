@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -890,9 +890,9 @@ func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 	jww.INFO.Println("creating", inpath)
 
 	if safe {
-		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), hugofs.SourceFs)
+		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), hugofs.Source())
 	} else {
-		err = helpers.WriteToDisk(inpath, bytes.NewReader(by), hugofs.SourceFs)
+		err = helpers.WriteToDisk(inpath, bytes.NewReader(by), hugofs.Source())
 	}
 	if err != nil {
 		return

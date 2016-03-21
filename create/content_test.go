@@ -44,19 +44,19 @@ func TestNewContent(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		err = create.NewContent(hugofs.SourceFs, c.kind, c.path)
+		err = create.NewContent(hugofs.Source(), c.kind, c.path)
 		if err != nil {
 			t.Errorf("[%d] NewContent: %s", i, err)
 		}
 
 		fname := filepath.Join(os.TempDir(), "content", filepath.FromSlash(c.path))
-		_, err = hugofs.SourceFs.Stat(fname)
+		_, err = hugofs.Source().Stat(fname)
 		if err != nil {
 			t.Errorf("[%d] Stat: %s", i, err)
 		}
 
 		for _, v := range c.resultStrings {
-			found, err := afero.FileContainsBytes(hugofs.SourceFs, fname, []byte(v))
+			found, err := afero.FileContainsBytes(hugofs.Source(), fname, []byte(v))
 			if err != nil {
 				t.Errorf("[%d] FileContainsBytes: %s", i, err)
 			}
@@ -77,7 +77,7 @@ func initViper() {
 }
 
 func initFs() error {
-	hugofs.SourceFs = new(afero.MemMapFs)
+	hugofs.SetSource(new(afero.MemMapFs))
 	perm := os.FileMode(0755)
 	var err error
 
@@ -89,7 +89,7 @@ func initFs() error {
 	}
 	for _, dir := range dirs {
 		dir = filepath.Join(os.TempDir(), dir)
-		err = hugofs.SourceFs.Mkdir(dir, perm)
+		err = hugofs.Source().Mkdir(dir, perm)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ func initFs() error {
 			content: "+++\n+++\n",
 		},
 	} {
-		f, err := hugofs.SourceFs.Create(v.path)
+		f, err := hugofs.Source().Create(v.path)
 		if err != nil {
 			return err
 		}
