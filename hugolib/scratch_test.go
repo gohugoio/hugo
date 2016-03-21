@@ -16,6 +16,7 @@ package hugolib
 import (
 	"github.com/stretchr/testify/assert"
 	"reflect"
+	"sync"
 	"testing"
 )
 
@@ -78,6 +79,41 @@ func TestScratchSet(t *testing.T) {
 	scratch := newScratch()
 	scratch.Set("key", "val")
 	assert.Equal(t, "val", scratch.Get("key"))
+}
+
+// Issue #2005
+func TestScratchInParallel(t *testing.T) {
+	var wg sync.WaitGroup
+	scratch := newScratch()
+	key := "counter"
+	scratch.Set(key, 1)
+	for i := 1; i <= 10; i++ {
+		wg.Add(1)
+		go func(j int) {
+			for k := 0; k < 10; k++ {
+				newVal := k + j
+
+				_, err := scratch.Add(key, newVal)
+				if err != nil {
+					t.Errorf("Got err %s", err)
+				}
+
+				scratch.Set(key, newVal)
+
+				val := scratch.Get(key)
+
+				if counter, ok := val.(int); ok {
+					if counter < 1 {
+						t.Errorf("Got %d", counter)
+					}
+				} else {
+					t.Errorf("Got %T", val)
+				}
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
 }
 
 func TestScratchGet(t *testing.T) {

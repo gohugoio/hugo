@@ -17,11 +17,13 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"reflect"
 	"sort"
+	"sync"
 )
 
 // Scratch is a writable context used for stateful operations in Page/Node rendering.
 type Scratch struct {
 	values map[string]interface{}
+	mu     sync.RWMutex
 }
 
 // For single values, Add will add (using the + operator) the addend to the existing addend (if found).
@@ -29,6 +31,9 @@ type Scratch struct {
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.
 func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	var newVal interface{}
 	existingAddend, found := c.values[key]
 	if found {
@@ -59,18 +64,27 @@ func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 // Set stores a value with the given key in the Node context.
 // This value can later be retrieved with Get.
 func (c *Scratch) Set(key string, value interface{}) string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	c.values[key] = value
 	return ""
 }
 
 // Get returns a value previously set by Add or Set
 func (c *Scratch) Get(key string) interface{} {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	return c.values[key]
 }
 
 // SetInMap stores a value to a map with the given key in the Node context.
 // This map can later be retrieved with GetSortedMapValues.
 func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	_, found := c.values[key]
 	if !found {
 		c.values[key] = make(map[string]interface{})
@@ -82,6 +96,9 @@ func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string 
 
 // GetSortedMapValues returns a sorted map previously filled with SetInMap
 func (c *Scratch) GetSortedMapValues(key string) interface{} {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	if c.values[key] == nil {
 		return nil
 	}
