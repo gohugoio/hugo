@@ -26,15 +26,15 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-const ALIAS = "<!DOCTYPE html><html><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
-const ALIAS_XHTML = "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
+const alias = "<!DOCTYPE html><html><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
+const aliasXHtml = "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0;url={{ .Permalink }}\" /></head></html>"
 
-var DefaultAliasTemplates *template.Template
+var defaultAliasTemplates *template.Template
 
 func init() {
-	DefaultAliasTemplates = template.New("")
-	template.Must(DefaultAliasTemplates.New("alias").Parse(ALIAS))
-	template.Must(DefaultAliasTemplates.New("alias-xhtml").Parse(ALIAS_XHTML))
+	defaultAliasTemplates = template.New("")
+	template.Must(defaultAliasTemplates.New("alias").Parse(alias))
+	template.Must(defaultAliasTemplates.New("alias-xhtml").Parse(aliasXHtml))
 }
 
 type AliasPublisher interface {
@@ -96,10 +96,9 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 				jww.ERROR.Println(m)
 			}
 			return "", fmt.Errorf("Cannot create \"%s\": Windows filename restriction", originalAlias)
-		} else {
-			for _, m := range msgs {
-				jww.WARN.Println(m)
-			}
+		}
+		for _, m := range msgs {
+			jww.WARN.Println(m)
 		}
 	}
 
@@ -134,7 +133,7 @@ func (h *HTMLRedirectAlias) Publish(path string, permalink string) (err error) {
 		t = "alias-xhtml"
 	}
 
-	template := DefaultAliasTemplates
+	template := defaultAliasTemplates
 	if h.Templates != nil {
 		template = h.Templates
 	}
