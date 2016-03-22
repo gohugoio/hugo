@@ -1173,13 +1173,13 @@ func (s *Site) getMenusFromConfig() Menus {
 						jww.ERROR.Println(err)
 					}
 
-					menuEntry.MarshallMap(ime)
+					menuEntry.marshallMap(ime)
 					menuEntry.URL = s.Info.createNodeMenuEntryURL(menuEntry.URL)
 
 					if ret[name] == nil {
 						ret[name] = &Menu{}
 					}
-					*ret[name] = ret[name].Add(&menuEntry)
+					*ret[name] = ret[name].add(&menuEntry)
 				}
 			}
 		}
@@ -1249,7 +1249,7 @@ func (s *Site) assembleMenus() {
 	// Create Children Menus First
 	for _, e := range flat {
 		if e.Parent != "" {
-			children[twoD{e.Menu, e.Parent}] = children[twoD{e.Menu, e.Parent}].Add(e)
+			children[twoD{e.Menu, e.Parent}] = children[twoD{e.Menu, e.Parent}].add(e)
 		}
 	}
 
@@ -1270,7 +1270,7 @@ func (s *Site) assembleMenus() {
 			if !ok {
 				s.Menus[menu.MenuName] = &Menu{}
 			}
-			*s.Menus[menu.MenuName] = s.Menus[menu.MenuName].Add(e)
+			*s.Menus[menu.MenuName] = s.Menus[menu.MenuName].add(e)
 		}
 	}
 }

@@ -780,7 +780,7 @@ func (p *Page) Menus() PageMenus {
 						jww.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
 					}
 
-					menuEntry.MarshallMap(ime)
+					menuEntry.marshallMap(ime)
 				}
 				p.pageMenus[name] = &menuEntry
 			}

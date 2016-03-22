@@ -600,8 +600,8 @@ func TestHopefullyUniqueID(t *testing.T) {
 
 func TestAddMenuEntryChild(t *testing.T) {
 	root := &MenuEntry{Weight: 1}
-	root.AddChild(&MenuEntry{Weight: 2})
-	root.AddChild(&MenuEntry{Weight: 1})
+	root.addChild(&MenuEntry{Weight: 2})
+	root.addChild(&MenuEntry{Weight: 1})
 	assert.Equal(t, 2, len(root.Children))
 	assert.Equal(t, 1, root.Children[0].Weight)
 }
