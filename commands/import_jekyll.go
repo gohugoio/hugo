@@ -260,7 +260,7 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 	return nil
 }
 
-func copyFile(source string, dest string) (err error) {
+func copyFile(source string, dest string) error {
 	sf, err := os.Open(source)
 	if err != nil {
 		return err
@@ -276,13 +276,17 @@ func copyFile(source string, dest string) (err error) {
 		si, err := os.Stat(source)
 		if err != nil {
 			err = os.Chmod(dest, si.Mode())
+
+			if err != nil {
+				return err
+			}
 		}
 
 	}
-	return
+	return nil
 }
 
-func copyDir(source string, dest string) (err error) {
+func copyDir(source string, dest string) error {
 	fi, err := os.Stat(source)
 	if err != nil {
 		return err
@@ -314,7 +318,7 @@ func copyDir(source string, dest string) (err error) {
 	return nil
 }
 
-func copyJekyllFilesAndFolders(jekyllRoot string, dest string) (err error) {
+func copyJekyllFilesAndFolders(jekyllRoot string, dest string) error {
 	fi, err := os.Stat(jekyllRoot)
 	if err != nil {
 		return err
