@@ -11,7 +11,7 @@ matrix:
   allow_failures:
     - go: tip
 script:
-  - go test ./...
+  - make check
   - go build
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
