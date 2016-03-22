@@ -47,7 +47,7 @@ func TestMakePath(t *testing.T) {
 		{"Банковский кассир", "Банковскии-кассир", true},
 		// Issue #1488
 		{"संस्कृत", "संस्कृत", false},
-		{"a%C3%B1ame", "a%C3%B1ame", false}, // Issue #1292
+		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
 		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
 	}
 
