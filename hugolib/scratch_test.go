@@ -66,6 +66,8 @@ func TestScratchAddSlice(t *testing.T) {
 
 	_, err = scratch.Add("intSlice", []int{4, 5})
 
+	assert.Nil(t, err)
+
 	sl = scratch.Get("intSlice")
 	expected = []int{1, 2, 3, 4, 5}
 
