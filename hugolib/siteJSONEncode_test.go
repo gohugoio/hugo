@@ -24,7 +24,7 @@ import (
 func TestEncodePage(t *testing.T) {
 
 	// borrowed from menu_test.go
-	s := createTestSite(MENU_PAGE_SOURCES)
+	s := createTestSite(menuPageSources)
 	testSiteSetup(s, t)
 
 	_, err := json.Marshal(s)

@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	CONF_MENU1 = `
+	confMenu1 = `
 [[menu.main]]
     name = "Go Home"
     url = "/"
@@ -84,7 +84,7 @@ const (
    url = "/новости-проекта"` // Russian => "news-project"
 )
 
-var MENU_PAGE_1 = []byte(`+++
+var menuPage1 = []byte(`+++
 title = "One"
 [menu]
 	[menu.p_one]
@@ -92,7 +92,7 @@ weight = 1
 +++
 Front Matter with Menu Pages`)
 
-var MENU_PAGE_2 = []byte(`+++
+var menuPage2 = []byte(`+++
 title = "Two"
 weight = 2
 [menu]
@@ -103,7 +103,7 @@ weight = 2
 +++
 Front Matter with Menu Pages`)
 
-var MENU_PAGE_3 = []byte(`+++
+var menuPage3 = []byte(`+++
 title = "Three"
 weight = 3
 [menu]
@@ -113,7 +113,7 @@ weight = 3
 +++
 Front Matter with Menu Pages`)
 
-var MENU_PAGE_4 = []byte(`+++
+var menuPage4 = []byte(`+++
 title = "Four"
 weight = 4
 [menu]
@@ -123,17 +123,17 @@ weight = 4
 +++
 Front Matter with Menu Pages`)
 
-var MENU_PAGE_SOURCES = []source.ByteSource{
-	{filepath.FromSlash("sect/doc1.md"), MENU_PAGE_1},
-	{filepath.FromSlash("sect/doc2.md"), MENU_PAGE_2},
-	{filepath.FromSlash("sect/doc3.md"), MENU_PAGE_3},
+var menuPageSources = []source.ByteSource{
+	{filepath.FromSlash("sect/doc1.md"), menuPage1},
+	{filepath.FromSlash("sect/doc2.md"), menuPage2},
+	{filepath.FromSlash("sect/doc3.md"), menuPage3},
 }
 
-var MENU_PAGE_SECTIONS_SOURCES = []source.ByteSource{
-	{filepath.FromSlash("first/doc1.md"), MENU_PAGE_1},
-	{filepath.FromSlash("first/doc2.md"), MENU_PAGE_2},
-	{filepath.FromSlash("second-section/doc3.md"), MENU_PAGE_3},
-	{filepath.FromSlash("Fish and Chips/doc4.md"), MENU_PAGE_4},
+var menuPageSectionsSources = []source.ByteSource{
+	{filepath.FromSlash("first/doc1.md"), menuPage1},
+	{filepath.FromSlash("first/doc2.md"), menuPage2},
+	{filepath.FromSlash("second-section/doc3.md"), menuPage3},
+	{filepath.FromSlash("Fish and Chips/doc4.md"), menuPage4},
 }
 
 func tstCreateMenuPageWithNameTOML(title, menu, name string) []byte {
@@ -265,7 +265,7 @@ func TestPageMenu(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	s := setupMenuTests(t, menuPageSources)
 
 	if len(s.Pages) != 3 {
 		t.Fatalf("Posts not created, expected 3 got %d", len(s.Pages))
@@ -312,7 +312,7 @@ func TestMenuURL(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	s := setupMenuTests(t, menuPageSources)
 
 	for i, this := range []struct {
 		me          *MenuEntry
@@ -384,7 +384,7 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
 
 	viper.Set("CanonifyURLs", canonifyURLs)
 
-	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	s := setupMenuTests(t, menuPageSources)
 
 	unicodeRussian := findTestMenuEntryByID(s, "unicode", "unicode-russian")
 
@@ -411,7 +411,7 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 	viper.Set("SectionPagesMenu", "spm")
 
 	viper.Set("CanonifyURLs", canonifyUrls)
-	s := setupMenuTests(t, MENU_PAGE_SECTIONS_SOURCES)
+	s := setupMenuTests(t, menuPageSectionsSources)
 
 	assert.Equal(t, 3, len(s.Sections))
 
@@ -467,7 +467,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 	defer viper.Reset()
 
 	viper.Set("CanonifyURLs", true)
-	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	s := setupMenuTests(t, menuPageSources)
 
 	for i, this := range []struct {
 		menu           string
@@ -510,7 +510,7 @@ func TestMenuLimit(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	s := setupMenuTests(t, menuPageSources)
 	m := *s.Menus["main"]
 
 	// main menu has 4 entries
@@ -556,7 +556,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	viper.Set("CanonifyURLs", true)
 	viper.Set("UglyURLs", true)
 
-	s := setupMenuTests(t, MENU_PAGE_SOURCES)
+	s := setupMenuTests(t, menuPageSources)
 
 	home := s.newHomeNode()
 	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL}
@@ -665,7 +665,7 @@ func findDescendantTestMenuEntry(parent *MenuEntry, id string, matcher func(me *
 }
 
 func setupTestMenuState(s *Site, t *testing.T) {
-	menus, err := tomlToMap(CONF_MENU1)
+	menus, err := tomlToMap(confMenu1)
 
 	if err != nil {
 		t.Fatalf("Unable to Read menus: %v", err)

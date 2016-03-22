@@ -26,16 +26,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
+const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
 
-const SLUG_DOC_2 = `---
+const slugDoc2 = `---
 title: slug doc 2
 slug: slug-doc-2
 ---
 slug doc 2 content
 `
 
-const INDEX_TEMPLATE = "{{ range .Data.Pages }}.{{ end }}"
+const indexTemplate = "{{ range .Data.Pages }}.{{ end }}"
 
 func must(err error) {
 	if err != nil {
@@ -55,8 +55,8 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 }
 
 var urlFakeSource = []source.ByteSource{
-	{filepath.FromSlash("content/blue/doc1.md"), []byte(SLUG_DOC_1)},
-	{filepath.FromSlash("content/blue/doc2.md"), []byte(SLUG_DOC_2)},
+	{filepath.FromSlash("content/blue/doc1.md"), []byte(slugDoc1)},
+	{filepath.FromSlash("content/blue/doc2.md"), []byte(slugDoc2)},
 }
 
 // Issue #1105
@@ -96,7 +96,7 @@ func TestPageCount(t *testing.T) {
 		Source: &source.InMemorySource{ByteSource: urlFakeSource},
 	}
 	s.initializeSiteInfo()
-	s.prepTemplates("indexes/blue.html", INDEX_TEMPLATE)
+	s.prepTemplates("indexes/blue.html", indexTemplate)
 
 	if err := s.CreatePages(); err != nil {
 		t.Errorf("Unable to create pages: %s", err)
