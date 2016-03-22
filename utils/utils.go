@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// CheckErr logs the messages given and then the error.
+// TODO(bep) Remove this package.
 func CheckErr(err error, s ...string) {
 	if err == nil {
 		return
@@ -33,6 +35,7 @@ func CheckErr(err error, s ...string) {
 	jww.ERROR.Println(err)
 }
 
+// StopOnErr exits on any error after logging it.
 func StopOnErr(err error, s ...string) {
 	if err == nil {
 		return
