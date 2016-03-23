@@ -32,6 +32,7 @@ type PageSorter struct {
 // PageBy is a closure used in the Sort.Less method.
 type PageBy func(p1, p2 *Page) bool
 
+// Sort stable sorts the pages given the receiver's sort oder.
 func (by PageBy) Sort(pages Pages) {
 	ps := &PageSorter{
 		pages: pages,
@@ -40,6 +41,8 @@ func (by PageBy) Sort(pages Pages) {
 	sort.Stable(ps)
 }
 
+// DefaultPageSort is the default sort for pages in Hugo:
+// Order by Weight, Date, LinkTitle and then full file path.
 var DefaultPageSort = func(p1, p2 *Page) bool {
 	if p1.Weight == p2.Weight {
 		if p1.Date.Unix() == p2.Date.Unix() {
@@ -59,10 +62,13 @@ func (ps *PageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], p
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
 func (ps *PageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j]) }
 
+// Sort sorts the pages by the default sort order defined:
+// Order by Weight, Date, LinkTitle and then full file path.
 func (p Pages) Sort() {
 	PageBy(DefaultPageSort).Sort(p)
 }
 
+// Limit limits the number of pages returned to n.
 func (p Pages) Limit(n int) Pages {
 	if len(p) > n {
 		return p[0:n]
