@@ -81,9 +81,8 @@ func MakePath(s string) string {
 func MakePathSanitized(s string) string {
 	if viper.GetBool("DisablePathToLower") {
 		return MakePath(s)
-	} else {
-		return strings.ToLower(MakePath(s))
 	}
+	return strings.ToLower(MakePath(s))
 }
 
 func MakeTitle(inpath string) string {
