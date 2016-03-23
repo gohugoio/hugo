@@ -152,12 +152,12 @@ func TestMakePathRelative(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output, _ := MakePathRelative(d.inPath, d.path1, d.path2)
+		output, _ := makePathRelative(d.inPath, d.path1, d.path2)
 		if d.output != output {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
 	}
-	_, error := MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
+	_, error := makePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
 
 	if error == nil {
 		t.Errorf("Test failed, expected error")
