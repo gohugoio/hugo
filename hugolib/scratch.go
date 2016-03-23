@@ -26,7 +26,7 @@ type Scratch struct {
 	mu     sync.RWMutex
 }
 
-// For single values, Add will add (using the + operator) the addend to the existing addend (if found).
+// Add will, for single values, add (using the + operator) the addend to the existing addend (if found).
 // Supports numeric values and strings.
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.

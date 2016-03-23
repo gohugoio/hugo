@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const ROBOTSTXT_TEMPLATE = `User-agent: Googlebot
+const robotTxtTemplate = `User-agent: Googlebot
   {{ range .Data.Pages }}
 	Disallow: {{.RelPermalink}}
 	{{ end }}
@@ -31,7 +31,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	s.initializeSiteInfo()
 
-	s.prepTemplates("robots.txt", ROBOTSTXT_TEMPLATE)
+	s.prepTemplates("robots.txt", robotTxtTemplate)
 
 	if err := s.CreatePages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
