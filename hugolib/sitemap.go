@@ -18,6 +18,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// Sitemap configures the sitemap to be generated.
 type Sitemap struct {
 	ChangeFreq string
 	Priority   float64

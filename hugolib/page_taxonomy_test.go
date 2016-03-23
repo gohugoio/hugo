@@ -18,13 +18,13 @@ import (
 	"testing"
 )
 
-var PAGE_YAML_WITH_TAXONOMIES_A = `---
+var pageYamlWithTaxonomiesA = `---
 tags: ['a', 'B', 'c']
 categories: 'd'
 ---
 YAML frontmatter with tags and categories taxonomy.`
 
-var PAGE_YAML_WITH_TAXONOMIES_B = `---
+var pageYamlWithTaxonomiesB = `---
 tags:
  - "a"
  - "B"
@@ -33,13 +33,13 @@ categories: 'd'
 ---
 YAML frontmatter with tags and categories taxonomy.`
 
-var PAGE_YAML_WITH_TAXONOMIES_C = `---
+var pageYamlWithTaxonomiesC = `---
 tags: 'E'
 categories: 'd'
 ---
 YAML frontmatter with tags and categories taxonomy.`
 
-var PAGE_JSON_WITH_TAXONOMIES = `{
+var pageJSONWithTaxonomies = `{
   "categories": "D",
   "tags": [
     "a",
@@ -49,18 +49,18 @@ var PAGE_JSON_WITH_TAXONOMIES = `{
 }
 JSON Front Matter with tags and categories`
 
-var PAGE_TOML_WITH_TAXONOMIES = `+++
+var pageTomlWithTaxonomies = `+++
 tags = [ "a", "B", "c" ]
 categories = "d"
 +++
 TOML Front Matter with tags and categories`
 
 func TestParseTaxonomies(t *testing.T) {
-	for _, test := range []string{PAGE_TOML_WITH_TAXONOMIES,
-		PAGE_JSON_WITH_TAXONOMIES,
-		PAGE_YAML_WITH_TAXONOMIES_A,
-		PAGE_YAML_WITH_TAXONOMIES_B,
-		PAGE_YAML_WITH_TAXONOMIES_C,
+	for _, test := range []string{pageTomlWithTaxonomies,
+		pageJSONWithTaxonomies,
+		pageYamlWithTaxonomiesA,
+		pageYamlWithTaxonomiesB,
+		pageYamlWithTaxonomiesC,
 	} {
 
 		p, _ := NewPage("page/with/taxonomy")

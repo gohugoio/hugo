@@ -534,7 +534,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		{strings.Repeat("A ", 3000) + " {#{#HUGOSHORTCODE-1#}#}." + strings.Repeat("BC ", 1000) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
-	var in []input = make([]input, b.N*len(data))
+	var in = make([]input, b.N*len(data))
 	var cnt = 0
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {
