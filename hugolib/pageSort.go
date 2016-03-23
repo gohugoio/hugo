@@ -32,7 +32,7 @@ type PageSorter struct {
 // PageBy is a closure used in the Sort.Less method.
 type PageBy func(p1, p2 *Page) bool
 
-// Sort stable sorts the pages given the receiver's sort oder.
+// Sort stable sorts the pages given the receiver's sort order.
 func (by PageBy) Sort(pages Pages) {
 	ps := &PageSorter{
 		pages: pages,
