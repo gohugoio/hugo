@@ -121,15 +121,15 @@ L:
 
 	// get the front matter as bytes and split it into lines
 	var lineEnding []byte
-	fmLines := bytes.Split(fm, parser.UnixEnding)
+	fmLines := bytes.Split(fm, []byte("\n"))
 	if len(fmLines) == 1 { // if the result is only 1 element, try to split on dos line endings
-		fmLines = bytes.Split(fm, parser.DosEnding)
+		fmLines = bytes.Split(fm, []byte("\r\n"))
 		if len(fmLines) == 1 {
 			return buff, fmt.Errorf("unable to split FrontMatter into lines")
 		}
-		lineEnding = append(lineEnding, parser.DosEnding...)
+		lineEnding = append(lineEnding, []byte("\r\n")...)
 	} else {
-		lineEnding = append(lineEnding, parser.UnixEnding...)
+		lineEnding = append(lineEnding, []byte("\n")...)
 	}
 
 	// Write the front matter lines to the buffer, replacing as necessary

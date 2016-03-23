@@ -37,7 +37,7 @@ func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
 	b := new(bytes.Buffer)
 
 	switch mark {
-	case rune(YAML_LEAD[0]):
+	case rune(YAMLLead[0]):
 		by, err := yaml.Marshal(in)
 		if err != nil {
 			return nil, err
@@ -48,13 +48,13 @@ func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
 			return nil, err
 		}
 		return b.Bytes(), nil
-	case rune(TOML_LEAD[0]):
+	case rune(TOMLLead[0]):
 		err := toml.NewEncoder(b).Encode(in)
 		if err != nil {
 			return nil, err
 		}
 		return b.Bytes(), nil
-	case rune(JSON_LEAD[0]):
+	case rune(JSONLead[0]):
 		by, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
 			return nil, err
@@ -78,8 +78,8 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 	b := new(bytes.Buffer)
 
 	switch mark {
-	case rune(YAML_LEAD[0]):
-		_, err := b.Write([]byte(YAML_DELIM_UNIX))
+	case rune(YAMLLead[0]):
+		_, err := b.Write([]byte(YAMLDelimUnix))
 		if err != nil {
 			return nil, err
 		}
@@ -88,13 +88,13 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 			return nil, err
 		}
 		b.Write(by)
-		_, err = b.Write([]byte(YAML_DELIM_UNIX))
+		_, err = b.Write([]byte(YAMLDelimUnix))
 		if err != nil {
 			return nil, err
 		}
 		return b.Bytes(), nil
-	case rune(TOML_LEAD[0]):
-		_, err := b.Write([]byte(TOML_DELIM_UNIX))
+	case rune(TOMLLead[0]):
+		_, err := b.Write([]byte(TOMLDelimUnix))
 		if err != nil {
 			return nil, err
 		}
@@ -103,12 +103,12 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		_, err = b.Write([]byte("\n" + TOML_DELIM_UNIX))
+		_, err = b.Write([]byte("\n" + TOMLDelimUnix))
 		if err != nil {
 			return nil, err
 		}
 		return b.Bytes(), nil
-	case rune(JSON_LEAD[0]):
+	case rune(JSONLead[0]):
 		by, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
 			return nil, err
@@ -127,11 +127,11 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 func FormatToLeadRune(kind string) rune {
 	switch FormatSanitize(kind) {
 	case "yaml":
-		return rune([]byte(YAML_LEAD)[0])
+		return rune([]byte(YAMLLead)[0])
 	case "json":
-		return rune([]byte(JSON_LEAD)[0])
+		return rune([]byte(JSONLead)[0])
 	default:
-		return rune([]byte(TOML_LEAD)[0])
+		return rune([]byte(TOMLLead)[0])
 	}
 }
 
@@ -152,9 +152,9 @@ func FormatSanitize(kind string) string {
 func detectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {
 	case '-':
-		return &frontmatterType{[]byte(YAML_DELIM), []byte(YAML_DELIM), HandleYAMLMetaData, false}
+		return &frontmatterType{[]byte(YAMLDelim), []byte(YAMLDelim), HandleYAMLMetaData, false}
 	case '+':
-		return &frontmatterType{[]byte(TOML_DELIM), []byte(TOML_DELIM), HandleTOMLMetaData, false}
+		return &frontmatterType{[]byte(TOMLDelim), []byte(TOMLDelim), HandleTOMLMetaData, false}
 	case '{':
 		return &frontmatterType{[]byte{'{'}, []byte{'}'}, HandleJSONMetaData, true}
 	default:
@@ -172,7 +172,7 @@ func HandleTOMLMetaData(datum []byte) (interface{}, error) {
 }
 
 func removeTOMLIdentifier(datum []byte) []byte {
-	return bytes.Replace(datum, []byte(TOML_DELIM), []byte(""), -1)
+	return bytes.Replace(datum, []byte(TOMLDelim), []byte(""), -1)
 }
 
 func HandleYAMLMetaData(datum []byte) (interface{}, error) {

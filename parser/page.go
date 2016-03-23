@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016n The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,50 +24,61 @@ import (
 )
 
 const (
-	HTML_LEAD          = "<"
-	YAML_LEAD          = "-"
-	YAML_DELIM_UNIX    = "---\n"
-	YAML_DELIM_DOS     = "---\r\n"
-	YAML_DELIM         = "---"
-	TOML_LEAD          = "+"
-	TOML_DELIM_UNIX    = "+++\n"
-	TOML_DELIM_DOS     = "+++\r\n"
-	TOML_DELIM         = "+++"
-	JSON_LEAD          = "{"
-	HTML_COMMENT_START = "<!--"
-	HTML_COMMENT_END   = "-->"
+	// TODO(bep) Do we really have to export these?
+
+	// HTMLLead identifies the start of HTML documents.
+	HTMLLead = "<"
+	// YAMLLead identifies the start of YAML frontmatter.
+	YAMLLead = "-"
+	// YAMLDelimUnix identifies the end of YAML front matter on Unix.
+	YAMLDelimUnix = "---\n"
+	// YAMLDelimDOS identifies the end of YAML front matter on Windows.
+	YAMLDelimDOS = "---\r\n"
+	// YAMLDelim identifies the YAML front matter delimiter.
+	YAMLDelim = "---"
+	// TOMLLead identifies the start of TOML front matter.
+	TOMLLead = "+"
+	// TOMLDelimUnix identifies the end of TOML front matter on Unix.
+	TOMLDelimUnix = "+++\n"
+	// TOMLDelimDOS identifies the end of TOML front matter on Windows.
+	TOMLDelimDOS = "+++\r\n"
+	// TOMLDelim identifies the TOML front matter delimiter.
+	TOMLDelim = "+++"
+	// JSONLead identifies the start of JSON frontmatter.
+	JSONLead = "{"
+	// HTMLCommentStart identifies the start of HTML comment.
+	HTMLCommentStart = "<!--"
+	// HTMLCommentEnd identifies the end of HTML comment.
+	HTMLCommentEnd = "-->"
 )
 
 var (
 	delims = regexp.MustCompile(
-		"^(" + regexp.QuoteMeta(YAML_DELIM) + `\s*\n|` + regexp.QuoteMeta(TOML_DELIM) + `\s*\n|` + regexp.QuoteMeta(JSON_LEAD) + ")",
+		"^(" + regexp.QuoteMeta(YAMLDelim) + `\s*\n|` + regexp.QuoteMeta(TOMLDelim) + `\s*\n|` + regexp.QuoteMeta(JSONLead) + ")",
 	)
-
-	UnixEnding = []byte("\n")
-	DosEnding  = []byte("\r\n")
+	unixEnding = []byte("\n")
+	dosEnding  = []byte("\r\n")
 )
 
-type FrontMatter []byte
-type Content []byte
-
+// Page represents a parsed content page.
 type Page interface {
-	FrontMatter() FrontMatter
-	Content() Content
+	FrontMatter() []byte
+	Content() []byte
 	IsRenderable() bool
 	Metadata() (interface{}, error)
 }
 
 type page struct {
 	render      bool
-	frontmatter FrontMatter
-	content     Content
+	frontmatter []byte
+	content     []byte
 }
 
-func (p *page) Content() Content {
+func (p *page) Content() []byte {
 	return p.content
 }
 
-func (p *page) FrontMatter() FrontMatter {
+func (p *page) FrontMatter() []byte {
 	return p.frontmatter
 }
 
@@ -146,14 +157,14 @@ func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
 	}
 
 	str := string(candidate)
-	if strings.HasPrefix(str, HTML_COMMENT_START) {
+	if strings.HasPrefix(str, HTMLCommentStart) {
 		lineEnd := strings.IndexAny(str, "\n")
 		if lineEnd == -1 {
 			//TODO: if we can't find it, Peek more?
 			return nil
 		}
 		testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
-		if strings.Index(testStr, HTML_COMMENT_END) != -1 {
+		if strings.Index(testStr, HTMLCommentEnd) != -1 {
 			return nil
 		}
 		buf := make([]byte, lineEnd)
@@ -180,12 +191,12 @@ func chompFrontmatterEndComment(r *bufio.Reader) (err error) {
 		return nil
 	}
 	testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
-	if strings.Index(testStr, HTML_COMMENT_START) != -1 {
+	if strings.Index(testStr, HTMLCommentStart) != -1 {
 		return nil
 	}
 
 	//TODO: if we can't find it, Peek more?
-	if strings.HasSuffix(testStr, HTML_COMMENT_END) {
+	if strings.HasSuffix(testStr, HTMLCommentEnd) {
 		buf := make([]byte, lineEnd)
 		if _, err = r.Read(buf); err != nil {
 			return
@@ -216,7 +227,7 @@ func shouldRender(lead []byte) (frontmatter bool) {
 		return
 	}
 
-	if bytes.Equal(lead[:1], []byte(HTML_LEAD)) {
+	if bytes.Equal(lead[:1], []byte(HTMLLead)) {
 		return
 	}
 	return true
@@ -231,16 +242,16 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 	case 5:
 		fallthrough
 	case 4:
-		if firstLine[0] == YAML_LEAD[0] {
-			return []byte(YAML_DELIM), []byte(YAML_DELIM)
+		if firstLine[0] == YAMLLead[0] {
+			return []byte(YAMLDelim), []byte(YAMLDelim)
 		}
-		return []byte(TOML_DELIM), []byte(TOML_DELIM)
+		return []byte(TOMLDelim), []byte(TOMLDelim)
 	case 3:
 		fallthrough
 	case 2:
 		fallthrough
 	case 1:
-		return []byte(JSON_LEAD), []byte("}")
+		return []byte(JSONLead), []byte("}")
 	default:
 		panic(fmt.Sprintf("Unable to determine delims from %q", firstLine))
 	}
@@ -249,7 +260,7 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 // extractFrontMatterDelims takes a frontmatter from the content bufio.Reader.
 // Beginning white spaces of the bufio.Reader must be trimmed before call this
 // function.
-func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatter, err error) {
+func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, err error) {
 	var (
 		c         byte
 		buf       bytes.Buffer
@@ -344,7 +355,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm FrontMatt
 	}
 }
 
-func extractContent(r io.Reader) (content Content, err error) {
+func extractContent(r io.Reader) (content []byte, err error) {
 	wr := new(bytes.Buffer)
 	if _, err = wr.ReadFrom(r); err != nil {
 		return
