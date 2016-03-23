@@ -25,7 +25,7 @@ import (
 	"testing"
 )
 
-var (
+const (
 	contentNoFrontmatter                 = "a page with no front matter"
 	contentWithFrontmatter               = "---\ntitle: front matter\n---\nContent with front matter"
 	contentHTMLNoDoctype                 = "<html>\n\t<body>\n\t</body>\n</html>"
