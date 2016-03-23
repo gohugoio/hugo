@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"html/template"
@@ -53,7 +52,7 @@ var _ = transform.AbsURL
 // used to indicate if run as a test.
 var testMode bool
 
-var DefaultTimer *nitro.B
+var defaultTimer *nitro.B
 
 var distinctErrorLogger = helpers.NewDistinctErrorLogger()
 
@@ -395,12 +394,12 @@ func (s *Site) Running() bool {
 }
 
 func init() {
-	DefaultTimer = nitro.Initalize()
+	defaultTimer = nitro.Initalize()
 }
 
 func (s *Site) timerStep(step string) {
 	if s.timer == nil {
-		s.timer = DefaultTimer
+		s.timer = defaultTimer
 	}
 	s.timer.Step(step)
 }
@@ -592,9 +591,9 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		}
 
 		return nil
-	} else {
-		return err
 	}
+	return err
+
 }
 
 func (s *Site) Analyze() error {
@@ -1885,6 +1884,8 @@ func (s *Site) RenderRobotsTXT() error {
 	return err
 }
 
+// Stats prints Hugo builds stats to the console.
+// This is what you see after a successful hugo build.
 func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
@@ -2062,11 +2063,6 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 	}
 	return fmt.Errorf("Layout not found: %s", layout)
 
-}
-
-func (s *Site) NewXMLBuffer() *bytes.Buffer {
-	header := "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n"
-	return bytes.NewBufferString(header)
 }
 
 func (s *Site) pageTarget() target.Output {
