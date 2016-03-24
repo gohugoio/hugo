@@ -103,7 +103,7 @@ func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
 		{"No smiles for you or " + strings.Repeat("you ", 1000), "No smiles for you or " + strings.Repeat("you ", 1000)},
 	}
 
-	var in []input = make([]input, b.N*len(data))
+	var in = make([]input, b.N*len(data))
 	var cnt = 0
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {

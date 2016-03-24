@@ -26,15 +26,15 @@ import (
 type LinkResolverFunc func(ref string) (string, error)
 type FileResolverFunc func(ref string) (string, error)
 
-// Wraps a blackfriday.Renderer, typically a blackfriday.Html
+// HugoHTMLRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
 // Enabling Hugo to customise the rendering experience
-type HugoHtmlRenderer struct {
+type HugoHTMLRenderer struct {
 	FileResolver FileResolverFunc
 	LinkResolver LinkResolverFunc
 	blackfriday.Renderer
 }
 
-func (renderer *HugoHtmlRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
+func (renderer *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if viper.GetBool("PygmentsCodeFences") {
 		opts := viper.GetString("PygmentsOptions")
 		str := html.UnescapeString(string(text))
@@ -44,7 +44,7 @@ func (renderer *HugoHtmlRenderer) BlockCode(out *bytes.Buffer, text []byte, lang
 	}
 }
 
-func (renderer *HugoHtmlRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
+func (renderer *HugoHTMLRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
 	if renderer.LinkResolver == nil || bytes.HasPrefix(link, []byte("{#{#HUGOSHORTCODE")) {
 		// Use the blackfriday built in Link handler
 		renderer.Renderer.Link(out, link, title, content)
@@ -57,7 +57,7 @@ func (renderer *HugoHtmlRenderer) Link(out *bytes.Buffer, link []byte, title []b
 		renderer.Renderer.Link(out, []byte(newLink), title, content)
 	}
 }
-func (renderer *HugoHtmlRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
+func (renderer *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
 	if renderer.FileResolver == nil || bytes.HasPrefix(link, []byte("{#{#HUGOSHORTCODE")) {
 		// Use the blackfriday built in Image handler
 		renderer.Renderer.Image(out, link, title, alt)
@@ -71,13 +71,13 @@ func (renderer *HugoHtmlRenderer) Image(out *bytes.Buffer, link []byte, title []
 	}
 }
 
-// Wraps a mmark.Renderer, typically a mmark.html
+// HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html
 // Enabling Hugo to customise the rendering experience
-type HugoMmarkHtmlRenderer struct {
+type HugoMmarkHTMLRenderer struct {
 	mmark.Renderer
 }
 
-func (renderer *HugoMmarkHtmlRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
+func (renderer *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
 	if viper.GetBool("PygmentsCodeFences") {
 		str := html.UnescapeString(string(text))
 		out.WriteString(Highlight(str, lang, ""))

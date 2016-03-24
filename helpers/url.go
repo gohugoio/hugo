@@ -97,7 +97,7 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 	return sanitizeURLWithFlags(in, purell.FlagsSafe|purell.FlagRemoveDotSegments|purell.FlagRemoveDuplicateSlashes|purell.FlagRemoveUnnecessaryHostDots|purell.FlagRemoveEmptyPortSeparator)
 }
 
-// Similar to MakePath, but with Unicode handling
+// URLize is similar to MakePath, but with Unicode handling
 // Example:
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
@@ -105,16 +105,16 @@ func URLize(uri string) string {
 	sanitized := MakePathSanitized(uri)
 
 	// escape unicode letters
-	parsedUri, err := url.Parse(sanitized)
+	parsedURI, err := url.Parse(sanitized)
 	if err != nil {
 		// if net/url can not parse URL it's meaning Sanitize works incorrect
 		panic(err)
 	}
-	x := parsedUri.String()
+	x := parsedURI.String()
 	return x
 }
 
-// Combines base URL with content path to create full URL paths.
+// MakePermalink combines base URL with content path to create full URL paths.
 // Example
 //    base:   http://spf13.com/
 //    path:   post/how-i-blog

@@ -17,12 +17,12 @@ import (
 	"fmt"
 )
 
-// The Hugo version number.
+// HugoVersionNumber represents the current build version.
 // This should be the only one
 const HugoVersionNumber = 0.16
 
-// This is the suffix used in the Hugo version string.
-// This will be blank for release versions.
+// HugoVersionSuffix is the suffix used in the Hugo version string.
+// It will be blank for release versions.
 const HugoVersionSuffix = "-DEV" // blank this when doing a release
 
 // HugoVersion returns the current Hugo version. It will include

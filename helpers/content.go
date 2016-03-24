@@ -200,7 +200,7 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
-	return &HugoHtmlRenderer{
+	return &HugoHTMLRenderer{
 		FileResolver: ctx.FileResolver,
 		LinkResolver: ctx.LinkResolver,
 		Renderer:     blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
@@ -266,7 +266,7 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 	htmlFlags := defaultFlags
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
-	return &HugoMmarkHtmlRenderer{
+	return &HugoMmarkHTMLRenderer{
 		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
 }
