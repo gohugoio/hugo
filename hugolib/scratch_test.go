@@ -143,3 +143,12 @@ func TestScratchGetSortedMapValues(t *testing.T) {
 		t.Errorf("Should not return anything, but got %v", nothing)
 	}
 }
+
+func BenchmarkScratchGet(b *testing.B) {
+	scratch := newScratch()
+	scratch.Add("A", 1)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		scratch.Get("A")
+	}
+}
