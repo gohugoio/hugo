@@ -88,12 +88,12 @@ func TestScratchInParallel(t *testing.T) {
 	var wg sync.WaitGroup
 	scratch := newScratch()
 	key := "counter"
-	scratch.Set(key, 1)
+	scratch.Set(key, int64(1))
 	for i := 1; i <= 10; i++ {
 		wg.Add(1)
 		go func(j int) {
 			for k := 0; k < 10; k++ {
-				newVal := k + j
+				newVal := int64(k + j)
 
 				_, err := scratch.Add(key, newVal)
 				if err != nil {
@@ -104,7 +104,7 @@ func TestScratchInParallel(t *testing.T) {
 
 				val := scratch.Get(key)
 
-				if counter, ok := val.(int); ok {
+				if counter, ok := val.(int64); ok {
 					if counter < 1 {
 						t.Errorf("Got %d", counter)
 					}
