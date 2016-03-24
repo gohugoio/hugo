@@ -101,16 +101,16 @@ func New() Template {
 	return templates
 }
 
-func partial(name string, context_list ...interface{}) template.HTML {
+func partial(name string, contextList ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
 	var context interface{}
 
-	if len(context_list) == 0 {
+	if len(contextList) == 0 {
 		context = nil
 	} else {
-		context = context_list[0]
+		context = contextList[0]
 	}
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
@@ -199,9 +199,8 @@ func (t *GoHTMLTemplate) checkState() {
 func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
 	if prefix != "" {
 		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
-	} else {
-		return t.AddTemplate("_internal/"+name, tpl)
 	}
+	return t.AddTemplate("_internal/"+name, tpl)
 }
 
 func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
