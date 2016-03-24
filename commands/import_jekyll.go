@@ -108,7 +108,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		}
 
 		relPath = filepath.ToSlash(relPath)
-		var draft bool = false
+		draft := false
 
 		switch {
 		case strings.HasPrefix(relPath, "_posts/"):

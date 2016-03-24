@@ -10,6 +10,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package commands
 
 import (
@@ -31,7 +32,7 @@ If the content's draft status is 'False', nothing is done.`,
 	RunE: Undraft,
 }
 
-// Publish publishes the specified content by setting its draft status
+// Undraft publishes the specified content by setting its draft status
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
 func Undraft(cmd *cobra.Command, args []string) error {
