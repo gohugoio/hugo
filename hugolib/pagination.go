@@ -26,6 +26,8 @@ import (
 	"strings"
 )
 
+// Pager represents one of the elements in a paginator.
+// The number, starting on 1, represents its place.
 type Pager struct {
 	number int
 	*paginator
@@ -35,10 +37,12 @@ type paginatedElement interface {
 	Len() int
 }
 
+// Len returns the number of pages in the list.
 func (p Pages) Len() int {
 	return len(p)
 }
 
+// Len returns the number of pages in the page group.
 func (psg PagesGroup) Len() int {
 	l := 0
 	for _, pg := range psg {
@@ -234,8 +238,8 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 		var (
 			pg         PagesGroup
-			key        interface{} = nil
-			groupIndex             = -1
+			key        interface{}
+			groupIndex = -1
 		)
 
 		for k := low; k < high; k++ {
