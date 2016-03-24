@@ -46,6 +46,9 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
+// MainSite represents the Hugo site to build. This variable is exported as it
+// is used by at least one external library (the Hugo caddy plugin). We should
+// provide a cleaner external API, but until then, this is it.
 var MainSite *hugolib.Site
 
 // userError is an error used to signal different error situations in command handling.
@@ -260,7 +263,7 @@ func init() {
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
-func LoadDefaultSettings() {
+func loadDefaultSettings() {
 	viper.SetDefault("cleanDestinationDir", false)
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
@@ -323,14 +326,13 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
 			return newSystemError(err)
-		} else {
-			return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 		}
+		return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 	}
 
 	viper.RegisterAlias("indexes", "taxonomies")
 
-	LoadDefaultSettings()
+	loadDefaultSettings()
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 
