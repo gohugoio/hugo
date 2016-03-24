@@ -56,8 +56,6 @@ var (
 	delims = regexp.MustCompile(
 		"^(" + regexp.QuoteMeta(YAMLDelim) + `\s*\n|` + regexp.QuoteMeta(TOMLDelim) + `\s*\n|` + regexp.QuoteMeta(JSONLead) + ")",
 	)
-	unixEnding = []byte("\n")
-	dosEnding  = []byte("\r\n")
 )
 
 // Page represents a parsed content page.
