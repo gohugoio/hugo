@@ -151,7 +151,7 @@ func TestRenderThing(t *testing.T) {
 		{PAGE_SIMPLE_TITLE, TEMPLATE_TITLE, "simple template"},
 		{PAGE_SIMPLE_TITLE, TEMPLATE_FUNC, "simple-template"},
 		{PAGE_WITH_MD, TEMPLATE_CONTENT, "\n\n<h1 id=\"heading-1:91b5c4a22fc6103c73bb91e4a40568f8\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2:91b5c4a22fc6103c73bb91e4a40568f8\">heading 2</h2>\n\n<p>more text</p>\n"},
-		{SIMPLE_PAGE_RFC3339_DATE, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
+		{simplePageRFC3339Date, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
 	for i, test := range tests {

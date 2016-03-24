@@ -30,7 +30,7 @@ const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"ali
 var fakeSource = []source.ByteSource{
 	{
 		Name:    filepath.FromSlash("foo/bar/file.md"),
-		Content: []byte(SIMPLE_PAGE),
+		Content: []byte(simplePage),
 	},
 	{
 		Name:    filepath.FromSlash("alias/test/file1.md"),
@@ -38,7 +38,7 @@ var fakeSource = []source.ByteSource{
 	},
 	{
 		Name:    filepath.FromSlash("section/somecontent.html"),
-		Content: []byte(RENDER_NO_FRONT_MATTER),
+		Content: []byte(renderNoFrontmatter),
 	},
 }
 

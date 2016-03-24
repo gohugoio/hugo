@@ -40,7 +40,7 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Temp
 
 func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template tpl.Template, expectError bool) {
 
-	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+	p, _ := pageFromString(simplePage, "simple.md")
 	output, err := HandleShortcodes(input, p, template)
 
 	if err != nil && !expectError {
@@ -60,7 +60,7 @@ func TestShortcodeGoFuzzReports(t *testing.T) {
 	tem := tpl.New()
 
 	tem.AddInternalShortcode("sc.html", `foo`)
-	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+	p, _ := pageFromString(simplePage, "simple.md")
 
 	for i, this := range []struct {
 		data      string
@@ -265,7 +265,7 @@ func TestHighlight(t *testing.T) {
 void do();
 {{< /highlight >}}`
 
-	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+	p, _ := pageFromString(simplePage, "simple.md")
 	output, err := HandleShortcodes(code, p, templ)
 
 	if err != nil {
@@ -333,7 +333,7 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+		p, _ := pageFromString(simplePage, "simple.md")
 		tem := tpl.New()
 		tem.AddInternalShortcode("tag.html", `tag`)
 		tem.AddInternalShortcode("sc1.html", `sc1`)
