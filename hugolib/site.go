@@ -1293,11 +1293,11 @@ func (s *Site) assembleTaxonomies() {
 				if v, ok := vals.([]string); ok {
 					for _, idx := range v {
 						x := WeightedPage{weight.(int), p}
-						s.Taxonomies[plural].Add(idx, x, s.Info.preserveTaxonomyNames)
+						s.Taxonomies[plural].add(idx, x, s.Info.preserveTaxonomyNames)
 					}
 				} else if v, ok := vals.(string); ok {
 					x := WeightedPage{weight.(int), p}
-					s.Taxonomies[plural].Add(v, x, s.Info.preserveTaxonomyNames)
+					s.Taxonomies[plural].add(v, x, s.Info.preserveTaxonomyNames)
 				} else {
 					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
 				}
@@ -1325,7 +1325,7 @@ func (s *Site) resetPageBuildState() {
 
 func (s *Site) assembleSections() {
 	for i, p := range s.Pages {
-		s.Sections.Add(p.Section(), WeightedPage{s.Pages[i].Weight, s.Pages[i]}, s.Info.preserveTaxonomyNames)
+		s.Sections.add(p.Section(), WeightedPage{s.Pages[i].Weight, s.Pages[i]}, s.Info.preserveTaxonomyNames)
 	}
 
 	for k := range s.Sections {
