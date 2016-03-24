@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const SITE_INFO_PARAM_TEMPLATE = `{{ .Site.Params.MyGlobalParam }}`
+const siteInfoParamTemplate = `{{ .Site.Params.MyGlobalParam }}`
 
 func TestSiteInfoParams(t *testing.T) {
 	viper.Reset()
@@ -34,7 +34,7 @@ func TestSiteInfoParams(t *testing.T) {
 		t.Errorf("Unable to set site.Info.Param")
 	}
 
-	s.prepTemplates("template", SITE_INFO_PARAM_TEMPLATE)
+	s.prepTemplates("template", siteInfoParamTemplate)
 
 	buf := new(bytes.Buffer)
 

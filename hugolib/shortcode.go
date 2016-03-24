@@ -30,6 +30,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// ShortcodeWithPage is the "." context in a shortcode template.
 type ShortcodeWithPage struct {
 	Params        interface{}
 	Inner         template.HTML
@@ -39,18 +40,23 @@ type ShortcodeWithPage struct {
 	scratch       *Scratch
 }
 
+// Site returns information about the current site.
 func (scp *ShortcodeWithPage) Site() *SiteInfo {
 	return scp.Page.Site
 }
 
+// Ref is a shortcut to the Ref method on Page.
 func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
 	return scp.Page.Ref(ref)
 }
 
+// RelRef is a shortcut to the RelRef method on Page.
 func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
 	return scp.Page.RelRef(ref)
 }
 
+// Scratch returns a scratch-pad scoped for this shortcode. This can be used
+// as a temporary storage for variables, counters etc.
 func (scp *ShortcodeWithPage) Scratch() *Scratch {
 	if scp.scratch == nil {
 		scp.scratch = newScratch()
@@ -58,6 +64,7 @@ func (scp *ShortcodeWithPage) Scratch() *Scratch {
 	return scp.scratch
 }
 
+// Get is a convenience method to look up shortcode parameters by its key.
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if reflect.ValueOf(scp.Params).Len() == 0 {
 		return nil
@@ -154,9 +161,8 @@ func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string,
 
 		if err != nil {
 			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
-		} else {
-			return string(tmpContentWithTokensReplaced), nil
 		}
+		return string(tmpContentWithTokensReplaced), nil
 	}
 
 	return tmpContent, nil
@@ -303,7 +309,7 @@ func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) 
 	return renderedShortcodes
 }
 
-var shortCodeIllegalState = errors.New("Illegal shortcode state")
+var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 
 // pageTokens state:
 // - before: positioned just before the shortcode start
@@ -395,7 +401,7 @@ Loop:
 					if params, ok := sc.params.(map[string]string); ok {
 						params[currItem.val] = pt.next().val
 					} else {
-						return sc, shortCodeIllegalState
+						return sc, errShortCodeIllegalState
 					}
 
 				}
@@ -410,7 +416,7 @@ Loop:
 						params = append(params, currItem.val)
 						sc.params = params
 					} else {
-						return sc, shortCodeIllegalState
+						return sc, errShortCodeIllegalState
 					}
 
 				}
