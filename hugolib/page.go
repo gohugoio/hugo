@@ -59,7 +59,6 @@ type Page struct {
 	Truncated           bool
 	Draft               bool
 	PublishDate         time.Time
-	Tmpl                tpl.Template
 	Markup              string
 	extension           string
 	contentType         string

@@ -43,7 +43,6 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 	}
 
 	page.Site = &s.Info
-	page.Tmpl = s.Tmpl
 
 	return HandledResult{file: f, page: page, err: err}
 }
