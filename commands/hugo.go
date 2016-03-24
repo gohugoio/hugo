@@ -137,6 +137,7 @@ var (
 	noTimes               bool
 	pluralizeListTitles   bool
 	preserveTaxonomyNames bool
+	quiet                 bool
 	renderToMemory        bool // for benchmark testing
 	uglyURLs              bool
 	verbose               bool
@@ -252,6 +253,7 @@ func init() {
 	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
 	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
+	HugoCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "quiet mode")
 
 	initHugoBuilderFlags(HugoCmd)
 	initBenchmarkBuildingFlags(HugoCmd)
@@ -282,6 +284,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("BuildFuture", false)
 	viper.SetDefault("UglyURLs", false)
 	viper.SetDefault("Verbose", false)
+	viper.SetDefault("Quiet", false)
 	viper.SetDefault("IgnoreCache", false)
 	viper.SetDefault("CanonifyURLs", false)
 	viper.SetDefault("RelativeURLs", false)
@@ -338,6 +341,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 		if flagChanged(cmdV.PersistentFlags(), "verbose") {
 			viper.Set("Verbose", verbose)
+		}
+		if flagChanged(cmdV.PersistentFlags(), "quiet") {
+			viper.Set("Quiet", quiet)
 		}
 		if flagChanged(cmdV.PersistentFlags(), "logFile") {
 			viper.Set("LogFile", logFile)
@@ -449,6 +455,10 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 	if verboseLog {
 		jww.SetLogThreshold(jww.LevelInfo)
+	}
+
+	if viper.GetBool("quiet") {
+		jww.SetStdoutThreshold(jww.LevelFatal)
 	}
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
