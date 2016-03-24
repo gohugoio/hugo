@@ -31,11 +31,11 @@ type Scratch struct {
 //
 // If the first add for a key is an array or slice, then the next value(s) will be appended.
 func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	var newVal interface{}
+	c.mu.RLock()
 	existingAddend, found := c.values[key]
+	c.mu.RUnlock()
 	if found {
 		var err error
 
@@ -57,7 +57,9 @@ func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 	} else {
 		newVal = newAddend
 	}
+	c.mu.Lock()
 	c.values[key] = newVal
+	c.mu.Unlock()
 	return "", nil // have to return something to make it work with the Go templates
 }
 
@@ -65,46 +67,45 @@ func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 // This value can later be retrieved with Get.
 func (c *Scratch) Set(key string, value interface{}) string {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	c.values[key] = value
+	c.mu.Unlock()
 	return ""
 }
 
 // Get returns a value previously set by Add or Set
 func (c *Scratch) Get(key string) interface{} {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
+	val := c.values[key]
+	c.mu.RUnlock()
 
-	return c.values[key]
+	return val
 }
 
 // SetInMap stores a value to a map with the given key in the Node context.
 // This map can later be retrieved with GetSortedMapValues.
 func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	_, found := c.values[key]
 	if !found {
 		c.values[key] = make(map[string]interface{})
 	}
 
 	c.values[key].(map[string]interface{})[mapKey] = value
+	c.mu.Unlock()
 	return ""
 }
 
 // GetSortedMapValues returns a sorted map previously filled with SetInMap
 func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
 
 	if c.values[key] == nil {
+		c.mu.RUnlock()
 		return nil
 	}
 
 	unsortedMap := c.values[key].(map[string]interface{})
-
+	c.mu.RUnlock()
 	var keys []string
 	for mapKey := range unsortedMap {
 		keys = append(keys, mapKey)
