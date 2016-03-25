@@ -453,12 +453,12 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 	// Handle the root first
 	fileInfo, err := lstatIfOs(fs, root)
 
-	if err != nil || !fileInfo.IsDir() {
-		return nil
-	}
-
 	if err != nil {
 		return walker(root, nil, err)
+	}
+
+	if !fileInfo.IsDir() {
+		return nil
 	}
 
 	if err := walker(root, fileInfo, err); err != nil && err != filepath.SkipDir {
