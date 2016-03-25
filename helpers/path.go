@@ -449,6 +449,22 @@ func FindCWD() (string, error) {
 // symbolic link. It will still not follow symbolic links deeper down in
 // the file structure
 func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
+
+	// Handle the root first
+	fileInfo, err := lstatIfOs(fs, root)
+
+	if err != nil || !fileInfo.IsDir() {
+		return nil
+	}
+
+	if err != nil {
+		return walker(root, nil, err)
+	}
+
+	if err := walker(root, fileInfo, err); err != nil && err != filepath.SkipDir {
+		return err
+	}
+
 	rootContent, err := afero.ReadDir(fs, root)
 
 	if err != nil {
@@ -461,6 +477,18 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	return nil
 
+}
+
+// Code copied from Afero's path.go
+// if the filesystem is OsFs use Lstat, else use fs.Stat
+func lstatIfOs(fs afero.Fs, path string) (info os.FileInfo, err error) {
+	_, ok := fs.(*afero.OsFs)
+	if ok {
+		info, err = os.Lstat(path)
+	} else {
+		info, err = fs.Stat(path)
+	}
+	return
 }
 
 // SafeWriteToDisk is the same as WriteToDisk
