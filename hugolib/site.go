@@ -447,7 +447,6 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 	for _, ev := range events {
 		// Need to re-read source
 		if strings.HasPrefix(ev.Name, s.absContentDir()) {
-			logger.Println("Source changed", ev.Name)
 			sourceChanged = append(sourceChanged, ev)
 		}
 		if strings.HasPrefix(ev.Name, s.absLayoutDir()) || strings.HasPrefix(ev.Name, s.absThemeDir()) {
@@ -803,7 +802,7 @@ func (s *Site) initializeSiteInfo() {
 
 	permalinks := make(PermalinkOverrides)
 	for k, v := range viper.GetStringMapString("Permalinks") {
-		permalinks[k] = PathPattern(v)
+		permalinks[k] = pathPattern(v)
 	}
 
 	s.Info = SiteInfo{

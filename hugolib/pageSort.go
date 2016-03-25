@@ -23,27 +23,27 @@ var spc = newPageCache()
  * Implementation of a custom sorter for Pages
  */
 
-// A PageSorter implements the sort interface for Pages
-type PageSorter struct {
+// A pageSorter implements the sort interface for Pages
+type pageSorter struct {
 	pages Pages
-	by    PageBy
+	by    pageBy
 }
 
-// PageBy is a closure used in the Sort.Less method.
-type PageBy func(p1, p2 *Page) bool
+// pageBy is a closure used in the Sort.Less method.
+type pageBy func(p1, p2 *Page) bool
 
 // Sort stable sorts the pages given the receiver's sort order.
-func (by PageBy) Sort(pages Pages) {
-	ps := &PageSorter{
+func (by pageBy) Sort(pages Pages) {
+	ps := &pageSorter{
 		pages: pages,
 		by:    by, // The Sort method's receiver is the function (closure) that defines the sort order.
 	}
 	sort.Stable(ps)
 }
 
-// DefaultPageSort is the default sort for pages in Hugo:
+// defaultPageSort is the default sort for pages in Hugo:
 // Order by Weight, Date, LinkTitle and then full file path.
-var DefaultPageSort = func(p1, p2 *Page) bool {
+var defaultPageSort = func(p1, p2 *Page) bool {
 	if p1.Weight == p2.Weight {
 		if p1.Date.Unix() == p2.Date.Unix() {
 			if p1.LinkTitle() == p2.LinkTitle() {
@@ -56,16 +56,16 @@ var DefaultPageSort = func(p1, p2 *Page) bool {
 	return p1.Weight < p2.Weight
 }
 
-func (ps *PageSorter) Len() int      { return len(ps.pages) }
-func (ps *PageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
+func (ps *pageSorter) Len() int      { return len(ps.pages) }
+func (ps *pageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
 
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
-func (ps *PageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j]) }
+func (ps *pageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j]) }
 
 // Sort sorts the pages by the default sort order defined:
 // Order by Weight, Date, LinkTitle and then full file path.
 func (p Pages) Sort() {
-	PageBy(DefaultPageSort).Sort(p)
+	pageBy(defaultPageSort).Sort(p)
 }
 
 // Limit limits the number of pages returned to n.
@@ -83,7 +83,7 @@ func (p Pages) Limit(n int) Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByWeight() Pages {
 	key := "pageSort.ByWeight"
-	pages, _ := spc.get(key, p, PageBy(DefaultPageSort).Sort)
+	pages, _ := spc.get(key, p, pageBy(defaultPageSort).Sort)
 	return pages
 }
 
@@ -100,7 +100,7 @@ func (p Pages) ByTitle() Pages {
 		return p1.Title < p2.Title
 	}
 
-	pages, _ := spc.get(key, p, PageBy(title).Sort)
+	pages, _ := spc.get(key, p, pageBy(title).Sort)
 	return pages
 }
 
@@ -117,7 +117,7 @@ func (p Pages) ByLinkTitle() Pages {
 		return p1.linkTitle < p2.linkTitle
 	}
 
-	pages, _ := spc.get(key, p, PageBy(linkTitle).Sort)
+	pages, _ := spc.get(key, p, pageBy(linkTitle).Sort)
 
 	return pages
 }
@@ -135,7 +135,7 @@ func (p Pages) ByDate() Pages {
 		return p1.Date.Unix() < p2.Date.Unix()
 	}
 
-	pages, _ := spc.get(key, p, PageBy(date).Sort)
+	pages, _ := spc.get(key, p, pageBy(date).Sort)
 
 	return pages
 }
@@ -153,7 +153,7 @@ func (p Pages) ByPublishDate() Pages {
 		return p1.PublishDate.Unix() < p2.PublishDate.Unix()
 	}
 
-	pages, _ := spc.get(key, p, PageBy(pubDate).Sort)
+	pages, _ := spc.get(key, p, pageBy(pubDate).Sort)
 
 	return pages
 }
@@ -171,7 +171,7 @@ func (p Pages) ByLength() Pages {
 		return len(p1.Content) < len(p2.Content)
 	}
 
-	pages, _ := spc.get(key, p, PageBy(length).Sort)
+	pages, _ := spc.get(key, p, pageBy(length).Sort)
 
 	return pages
 }

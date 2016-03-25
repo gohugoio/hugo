@@ -252,7 +252,7 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 		pdate := func(p1, p2 *Page) bool {
 			return p1.GetParam(key).(time.Time).Unix() < p2.GetParam(key).(time.Time).Unix()
 		}
-		PageBy(pdate).Sort(r)
+		pageBy(pdate).Sort(r)
 		return r
 	}
 	formatter := func(p *Page) string {

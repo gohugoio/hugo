@@ -53,7 +53,7 @@ var testdataPermalinks = []struct {
 
 func TestPermalinkValidation(t *testing.T) {
 	for _, item := range testdataPermalinks {
-		pp := PathPattern(item.spec)
+		pp := pathPattern(item.spec)
 		have := pp.validate()
 		if have == item.valid {
 			continue
@@ -77,7 +77,7 @@ func TestPermalinkExpansion(t *testing.T) {
 		if !item.valid {
 			continue
 		}
-		pp := PathPattern(item.spec)
+		pp := pathPattern(item.spec)
 		result, err := pp.Expand(page)
 		if err != nil {
 			t.Errorf("failed to expand page: %s", err)

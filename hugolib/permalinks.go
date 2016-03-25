@@ -23,25 +23,25 @@ import (
 	"github.com/spf13/hugo/helpers"
 )
 
-// PathPattern represents a string which builds up a URL from attributes
-type PathPattern string
+// pathPattern represents a string which builds up a URL from attributes
+type pathPattern string
 
-// PageToPermaAttribute is the type of a function which, given a page and a tag
+// pageToPermaAttribute is the type of a function which, given a page and a tag
 // can return a string to go in that position in the page (or an error)
-type PageToPermaAttribute func(*Page, string) (string, error)
+type pageToPermaAttribute func(*Page, string) (string, error)
 
 // PermalinkOverrides maps a section name to a PathPattern
-type PermalinkOverrides map[string]PathPattern
+type PermalinkOverrides map[string]pathPattern
 
 // knownPermalinkAttributes maps :tags in a permalink specification to a
 // function which, given a page and the tag, returns the resulting string
 // to be used to replace that tag.
-var knownPermalinkAttributes map[string]PageToPermaAttribute
+var knownPermalinkAttributes map[string]pageToPermaAttribute
 
 var attributeRegexp *regexp.Regexp
 
 // validate determines if a PathPattern is well-formed
-func (pp PathPattern) validate() bool {
+func (pp pathPattern) validate() bool {
 	fragments := strings.Split(string(pp[1:]), "/")
 	var bail = false
 	for i := range fragments {
@@ -69,7 +69,7 @@ func (pp PathPattern) validate() bool {
 }
 
 type permalinkExpandError struct {
-	pattern PathPattern
+	pattern pathPattern
 	section string
 	err     error
 }
@@ -85,7 +85,7 @@ var (
 
 // Expand on a PathPattern takes a Page and returns the fully expanded Permalink
 // or an error explaining the failure.
-func (pp PathPattern) Expand(p *Page) (string, error) {
+func (pp pathPattern) Expand(p *Page) (string, error) {
 	if !pp.validate() {
 		return "", &permalinkExpandError{pattern: pp, section: "<all>", err: errPermalinkIllFormed}
 	}
@@ -184,7 +184,7 @@ func pageToPermalinkSection(p *Page, _ string) (string, error) {
 }
 
 func init() {
-	knownPermalinkAttributes = map[string]PageToPermaAttribute{
+	knownPermalinkAttributes = map[string]pageToPermaAttribute{
 		"year":        pageToPermalinkDate,
 		"month":       pageToPermalinkDate,
 		"monthname":   pageToPermalinkDate,
