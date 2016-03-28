@@ -392,11 +392,11 @@ e.g.
 
 ### int
 
-Creates a `int`.
+Creates an `int`.
 
 e.g.
 
-* `{{int "123" }}` → 123
+* `{{ int "123" }}` → 123
 
 ## Strings
 
