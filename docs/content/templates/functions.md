@@ -559,6 +559,14 @@ e.g.
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
 
+### split
+
+Split a string into substrings separated by a delimiter.
+
+e.g.
+
+* `{{split "tag1,tag2,tag3" "," }}` → ["tag1" "tag2" "tag3"]
+
 ### string
 
 Creates a `string`.
