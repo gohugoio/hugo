@@ -33,6 +33,7 @@ matter, content or derived from file location.
 **.Description** The description for the content.<br>
 **.Keywords** The meta keywords for this content.<br>
 **.Date** The date the content is associated with.<br>
+**.Lastmod** The date the content was last modified.<br>
 **.PublishDate** The date the content is published on.<br>
 **.Type** The content [type](/content/types/) (e.g. post).<br>
 **.Section** The [section](/content/sections/) this content belongs to.<br>
@@ -103,6 +104,7 @@ includes taxonomies, lists and the homepage.
 
 **.Title**  The title for the content.<br>
 **.Date** The date the content is published on.<br>
+**.Lastmod** The date the content was last modified.<br>
 **.Permalink** The Permanent link for this node<br>
 **.URL** The relative URL for this node.<br>
 **.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
