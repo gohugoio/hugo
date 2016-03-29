@@ -957,6 +957,10 @@ func delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 
 // sortSeq returns a sorted sequence.
 func sortSeq(seq interface{}, args ...interface{}) (interface{}, error) {
+	if seq == nil {
+		return nil, errors.New("sequence must be provided")
+	}
+
 	seqv := reflect.ValueOf(seq)
 	seqv, isNil := indirect(seqv)
 	if isNil {
