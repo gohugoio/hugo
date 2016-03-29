@@ -1535,6 +1535,7 @@ func TestSort(t *testing.T) {
 			"asc",
 			false,
 		},
+		{nil, nil, "asc", false},
 	} {
 		var result interface{}
 		var err error
