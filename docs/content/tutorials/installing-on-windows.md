@@ -35,9 +35,9 @@ You'll need a place to store the Hugo executable, your content (the files that y
 ## Technical users
 
 1. Download the latest zipped Hugo executable from the [Hugo Releases](https://github.com/spf13/hugo/releases) page.
-2. Extract all contents to your `..Hugo\bin` folder.
+2. Extract all contents to your `..\Hugo\bin` folder.
 3. You'll probably want to rename the Hugo executable to something short like `hugo.exe`.
-4. In Powershell or your preferred CLI, add the `hugo.exe` executable to your PATH with: `C:\Hugo\bin>set PATH=%PATH%;D:\Hugo\bin`
+4. In Powershell or your preferred CLI, add the `hugo.exe` executable to your PATH by navigating to `C:\Hugo\bin` (or the location of your hugo.exe file) and use the command `set PATH=%PATH%;C:\Hugo\bin`. If the `hugo` command does not work after a reboot, you may have to run the command prompt as administrator.
 
 ## Less technical users
 
