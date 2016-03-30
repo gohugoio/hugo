@@ -1052,7 +1052,24 @@ type pairList struct {
 func (p pairList) Swap(i, j int) { p.Pairs[i], p.Pairs[j] = p.Pairs[j], p.Pairs[i] }
 func (p pairList) Len() int      { return len(p.Pairs) }
 func (p pairList) Less(i, j int) bool {
-	return lt(p.Pairs[i].SortByValue.Interface(), p.Pairs[j].SortByValue.Interface())
+	iv := p.Pairs[i].SortByValue
+	jv := p.Pairs[j].SortByValue
+
+	if iv.IsValid() {
+		if jv.IsValid() {
+			// can only call Interface() on valid reflect Values
+			return lt(iv.Interface(), jv.Interface())
+		}
+		// if j is invalid, test i against i's zero value
+		return lt(iv.Interface(), reflect.Zero(iv.Type()))
+	}
+
+	if jv.IsValid() {
+		// if i is invalid, test j against j's zero value
+		return lt(reflect.Zero(jv.Type()), jv.Interface())
+	}
+
+	return false
 }
 
 // sorts a pairList and returns a slice of sorted values

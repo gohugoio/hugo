@@ -1520,6 +1520,21 @@ func TestSort(t *testing.T) {
 			"asc",
 			[]map[string]mid{{"foo": mid{Tst: TstX{A: "a", B: "b"}}}, {"foo": mid{Tst: TstX{A: "c", B: "d"}}}, {"foo": mid{Tst: TstX{A: "e", B: "f"}}}},
 		},
+		// interface slice with missing elements
+		{
+			[]interface{}{
+				map[interface{}]interface{}{"Title": "Foo", "Weight": 10},
+				map[interface{}]interface{}{"Title": "Bar"},
+				map[interface{}]interface{}{"Title": "Zap", "Weight": 5},
+			},
+			"Weight",
+			"asc",
+			[]interface{}{
+				map[interface{}]interface{}{"Title": "Bar"},
+				map[interface{}]interface{}{"Title": "Zap", "Weight": 5},
+				map[interface{}]interface{}{"Title": "Foo", "Weight": 10},
+			},
+		},
 		// test error cases
 		{(*[]TstX)(nil), nil, "asc", false},
 		{TstX{A: "a", B: "b"}, nil, "asc", false},
