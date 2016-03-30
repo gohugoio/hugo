@@ -115,6 +115,6 @@ If everything looks fine, we are ready to commit your additions. For the sake of
 
     git commit -m"docs: Add example.com to the showcase"
 
-Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare).
+Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare). 
 
-
+Don't forget to accept the contributor license agreement. Click on the yellow badge in the automatically added comment in the pull request.
