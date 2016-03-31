@@ -35,7 +35,7 @@ type HugoHTMLRenderer struct {
 }
 
 func (renderer *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
-	if viper.GetBool("PygmentsCodeFences") {
+	if viper.GetBool("PygmentsCodeFences") && (lang != "" || viper.GetBool("PygmentsCodeFencesGuessSyntax")) {
 		opts := viper.GetString("PygmentsOptions")
 		str := html.UnescapeString(string(text))
 		out.WriteString(Highlight(str, lang, opts))
@@ -78,7 +78,7 @@ type HugoMmarkHTMLRenderer struct {
 }
 
 func (renderer *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
-	if viper.GetBool("PygmentsCodeFences") {
+	if viper.GetBool("PygmentsCodeFences") && (lang != "" || viper.GetBool("PygmentsCodeFencesGuessSyntax")) {
 		str := html.UnescapeString(string(text))
 		out.WriteString(Highlight(str, lang, ""))
 	} else {

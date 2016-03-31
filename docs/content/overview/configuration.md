@@ -126,6 +126,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     preserveTaxonomyNames:      false
     # filesystem path to write files to
     publishdir:                 "public"
+    # enables syntax guessing for code fences without specified language
+    pygmentsCodeFencesGuessSyntax: false
     # color-codes for highlighting derived from this style
     pygmentsStyle:              "monokai"
     # true: use pygments-css or false: color-codes directly

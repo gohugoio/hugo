@@ -309,6 +309,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("DisablePathToLower", false)
 	viper.SetDefault("HasCJKLanguage", false)
 	viper.SetDefault("EnableEmoji", false)
+	viper.SetDefault("PygmentsCodeFencesGuessSyntax", false)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
