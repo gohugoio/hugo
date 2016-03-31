@@ -121,6 +121,7 @@ safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
 safeJS: {{ "(1*2)" | safeJS | safeJS }}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 readFile: {{ readFile "README.txt" }}
+readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -166,6 +167,7 @@ safeURL: http://gohugo.io
 safeJS: (1*2)
 plainify: Hello world, gophers!
 readFile: Hugo Rocks!
+readDir: README.txt
 `
 
 	var b bytes.Buffer
