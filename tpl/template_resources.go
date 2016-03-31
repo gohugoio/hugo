@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -258,26 +257,4 @@ func getCSV(sep string, urlParts ...string) [][]string {
 		break
 	}
 	return d
-}
-
-func readDir(path string) []os.FileInfo {
-	wd := ""
-	p := ""
-	if viper.GetString("WorkingDir") != "" {
-		wd = viper.GetString("WorkingDir")
-	}
-	if strings.Contains(path, "..") {
-		jww.ERROR.Printf("Path %s contains parent directory marker", path)
-		return nil
-	}
-
-	p = filepath.Clean(path)
-	p = filepath.Join(wd, p)
-
-	list, err := ioutil.ReadDir(p)
-	if err != nil {
-		jww.ERROR.Printf("Failed to read Directory %s with error message %s", path, err)
-		return nil
-	}
-	return list
 }

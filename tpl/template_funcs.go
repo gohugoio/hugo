@@ -1501,6 +1501,21 @@ func readFileFromWorkingDir(i interface{}) (string, error) {
 	return readFile(hugofs.WorkingDir(), cast.ToString(i))
 }
 
+// readDirFromWorkingDir listst the directory content relative to the
+// configured WorkingDir.
+func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
+
+	path := cast.ToString(i)
+
+	list, err := afero.ReadDir(hugofs.WorkingDir(), path)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read Directory %s with error message %s", path, err)
+	}
+
+	return list, nil
+}
+
 // safeHTMLAttr returns a given string as html/template HTMLAttr content.
 //
 // safeHTMLAttr is currently disabled, pending further discussion
@@ -1722,7 +1737,7 @@ func init() {
 		"partial":      partial,
 		"plainify":     plainify,
 		"pluralize":    pluralize,
-		"readDir":      readDir,
+		"readDir":      readDirFromWorkingDir,
 		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
 		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
