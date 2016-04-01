@@ -96,9 +96,16 @@ func (i Taxonomy) Alphabetical() OrderedTaxonomy {
 }
 
 // ByCount returns an ordered taxonomy sorted by # of pages per key.
+// If taxonomies have the same # of pages, sort them alphabetical
 func (i Taxonomy) ByCount() OrderedTaxonomy {
 	count := func(i1, i2 *OrderedTaxonomyEntry) bool {
-		return len(i1.WeightedPages) > len(i2.WeightedPages)
+		li1 := len(i1.WeightedPages)
+		li2 := len(i2.WeightedPages)
+
+		if li1 == li2 {
+			return i1.Name < i2.Name
+		}
+		return li1 > li2
 	}
 
 	ia := i.TaxonomyArray()
