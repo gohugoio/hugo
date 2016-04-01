@@ -26,8 +26,11 @@ func TestInitDefault(t *testing.T) {
 
 	InitDefaultFs()
 
+	assert.NotNil(t, Source())
 	assert.IsType(t, new(afero.OsFs), Source())
+	assert.NotNil(t, Destination())
 	assert.IsType(t, new(afero.OsFs), Destination())
+	assert.NotNil(t, Os())
 	assert.IsType(t, new(afero.OsFs), Os())
 	assert.Nil(t, WorkingDir())
 }
@@ -38,7 +41,9 @@ func TestInitMemFs(t *testing.T) {
 
 	InitMemFs()
 
+	assert.NotNil(t, Source())
 	assert.IsType(t, new(afero.MemMapFs), Source())
+	assert.NotNil(t, Destination())
 	assert.IsType(t, new(afero.MemMapFs), Destination())
 	assert.IsType(t, new(afero.OsFs), Os())
 	assert.Nil(t, WorkingDir())
@@ -49,6 +54,7 @@ func TestSetSource(t *testing.T) {
 	InitMemFs()
 
 	SetSource(new(afero.OsFs))
+	assert.NotNil(t, Source())
 	assert.IsType(t, new(afero.OsFs), Source())
 }
 
@@ -57,6 +63,7 @@ func TestSetDestination(t *testing.T) {
 	InitMemFs()
 
 	SetDestination(new(afero.OsFs))
+	assert.NotNil(t, Destination())
 	assert.IsType(t, new(afero.OsFs), Destination())
 }
 
@@ -68,5 +75,6 @@ func TestWorkingDir(t *testing.T) {
 
 	InitMemFs()
 
+	assert.NotNil(t, WorkingDir())
 	assert.IsType(t, new(afero.BasePathFs), WorkingDir())
 }
