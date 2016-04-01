@@ -2116,9 +2116,9 @@ func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
 	return s.fileTarget().Publish(path, reader)
 }
 
-func (s *Site) WriteDestPage(path string, target target.Output, reader io.Reader) (err error) {
+func (s *Site) WriteDestPage(path string, publisher target.Publisher, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating page:", path)
-	return target.Publish(path, reader)
+	return publisher.Publish(path, reader)
 }
 
 func (s *Site) WriteDestAlias(path string, permalink string) (err error) {
