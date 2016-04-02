@@ -7,7 +7,7 @@ menu:
   main:
     parent: layout
 next: /templates/rss
-prev: /templates/views
+prev: /templates/blocks/
 title: Partial Templates
 weight: 80
 toc: true
