@@ -96,7 +96,9 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # Do not build Sitemap file
     disableSitemap:             false
     # Build robots.txt file
-    enableRobotsTXT:           false
+    enableRobotsTXT:            false
+    # Do not render 404 page
+    disable404:                 false
     # edit new content with this editor, if provided
     editor:                     ""
     # Enable Emoji emoticons support for page content.

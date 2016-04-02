@@ -1768,6 +1768,10 @@ func (s *Site) renderHomePage() error {
 		}
 	}
 
+	if viper.GetBool("Disable404") {
+		return nil
+	}
+
 	// TODO(bep) reusing the Home Node smells trouble
 	n.URL = helpers.URLize("404.html")
 	n.IsHome = false
