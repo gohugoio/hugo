@@ -89,6 +89,7 @@ slicestr: {{slicestr "BatMan" 0 3}}
 substr: {{substr "BatMan" 0 -3}}
 substr: {{substr "BatMan" 3 3}}
 title: {{title "Bat man"}}
+hasPrefix: {{ hasPrefix "Hugo" "Hu" }}
 trim: {{ trim "++Batman--" "+-" }}
 upper: {{upper "BatMan"}}
 absURL: {{ "mystyle.css" | absURL }}
@@ -135,6 +136,7 @@ slicestr: Bat
 substr: Bat
 substr: Man
 title: Bat Man
+hasPrefix: true
 trim: Batman
 upper: BATMAN
 absURL: http://mysite.com/hugo/mystyle.css
