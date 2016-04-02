@@ -60,6 +60,9 @@ Create a directory with the name of the type in `/layouts`. Type is always singu
 ### Create single template
 Create a file called `single.html` inside your directory. *E.g. `/layouts/post/single.html`*.
 
+### Create list template
+Create a file called `post.html` inside the section lists template directory, `/layouts/section`. *E.g. `/layouts/section/post.html`*.
+
 ### Create views
 Many sites support rendering content in a few different ways, for
 instance, a single page view and a summary view to be used when
