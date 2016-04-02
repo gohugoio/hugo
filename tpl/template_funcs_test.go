@@ -77,99 +77,100 @@ func TestFuncsInTemplate(t *testing.T) {
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
 	// TODO(bep): docs: fix title example
 	in :=
-		`chomp: {{chomp "<p>Blockhead</p>\n" }}
+		`absURL: {{ "http://gohugo.io/" | absURL }}
+absURL: {{ "mystyle.css" | absURL }}
+add: {{add 1 2}}
+base64Decode 1: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
+base64Decode 2: {{ 42 | base64Encode | base64Decode }}
+base64Encode: {{ "Hello world" | base64Encode }}
+chomp: {{chomp "<p>Blockhead</p>\n" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
+delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
+div: {{div 6 3}}
+emojify: {{ "I :heart: Hugo" | emojify }}
+eq: {{ if eq .Section "blog" }}current{{ end }}
+hasPrefix: {{ hasPrefix "Hugo" "Hu" }}
+in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
+jsonify: {{ (slice "A" "B" "C") | jsonify }}
 lower: {{lower "BatMan"}}
 markdownify: {{ .Title | markdownify}}
-pluralize: {{ "cat" | pluralize }}
-replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
-singularize: {{ "cats" | singularize }}
-slicestr: {{slicestr "BatMan" 3}}
-slicestr: {{slicestr "BatMan" 0 3}}
-substr: {{substr "BatMan" 0 -3}}
-substr: {{substr "BatMan" 3 3}}
-title: {{title "Bat man"}}
-hasPrefix: {{ hasPrefix "Hugo" "Hu" }}
-trim: {{ trim "++Batman--" "+-" }}
-upper: {{upper "BatMan"}}
-absURL: {{ "mystyle.css" | absURL }}
-relURL: {{ "mystyle.css" | relURL }}
-relURL: {{ "http://gohugo.io/" | relURL }}
-absURL: {{ "http://gohugo.io/" | absURL }}
-urlize: {{ "Bat Man" | urlize }}
-base64Encode: {{ "Hello world" | base64Encode }}
-base64Decode: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
-base64Decode: {{ 42 | base64Encode | base64Decode }}
-add: {{add 1 2}}
-div: {{div 6 3}}
+md5: {{ md5 "Hello world, gophers!" }}
 mod: {{mod 15 3}}
 modBool: {{modBool 15 3}}
 mul: {{mul 2 3}}
-sub: {{sub 3 2}}
-eq: {{ if eq .Section "blog" }}current{{ end }}
-in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
-seq: {{ seq 3 }}
-sort: {{ slice "B" "C" "A" | sort }}
-delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
-jsonify: {{ (slice "A" "B" "C") | jsonify }}
-md5: {{ md5 "Hello world, gophers!" }}
-sha1: {{ sha1 "Hello world, gophers!" }}
-emojify: {{ "I :heart: Hugo" | emojify }}
-safeHTML: {{ "Bat&Man" | safeHTML }}
-safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
-safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
-safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
-safeJS: {{ "(1*2)" | safeJS | safeJS }}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
-readFile: {{ readFile "README.txt" }}
+pluralize: {{ "cat" | pluralize }}
 readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
+readFile: {{ readFile "README.txt" }}
+relURL 1: {{ "http://gohugo.io/" | relURL }}
+relURL 2: {{ "mystyle.css" | relURL }}
+replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
+safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
+safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
+safeHTML: {{ "Bat&Man" | safeHTML }}
+safeJS: {{ "(1*2)" | safeJS | safeJS }}
+safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
+seq: {{ seq 3 }}
+sha1: {{ sha1 "Hello world, gophers!" }}
+singularize: {{ "cats" | singularize }}
+slicestr: {{slicestr "BatMan" 0 3}}
+slicestr: {{slicestr "BatMan" 3}}
+sort: {{ slice "B" "C" "A" | sort }}
+sub: {{sub 3 2}}
+substr: {{substr "BatMan" 0 -3}}
+substr: {{substr "BatMan" 3 3}}
+title: {{title "Bat man"}}
+trim: {{ trim "++Batman--" "+-" }}
+upper: {{upper "BatMan"}}
+urlize: {{ "Bat Man" | urlize }}
 `
-	expected := `chomp: <p>Blockhead</p>
+
+	expected := `absURL: http://gohugo.io/
+absURL: http://mysite.com/hugo/mystyle.css
+add: 3
+base64Decode 1: Hello world
+base64Decode 2: 42
+base64Encode: SGVsbG8gd29ybGQ=
+chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
+delimit: A, B and C
+div: 2
+emojify: I ❤️  Hugo
+eq: current
+hasPrefix: true
+in: Substring found!
+jsonify: ["A","B","C"]
 lower: batman
 markdownify: <strong>BatMan</strong>
-pluralize: cats
-replace: Batman and Catwoman
-singularize: cat
-slicestr: Man
-slicestr: Bat
-substr: Bat
-substr: Man
-title: Bat Man
-hasPrefix: true
-trim: Batman
-upper: BATMAN
-absURL: http://mysite.com/hugo/mystyle.css
-relURL: /hugo/mystyle.css
-relURL: http://gohugo.io/
-absURL: http://gohugo.io/
-urlize: bat-man
-base64Encode: SGVsbG8gd29ybGQ=
-base64Decode: Hello world
-base64Decode: 42
-add: 3
-div: 2
+md5: b3029f756f98f79e7f1b7f1d1f0dd53b
 mod: 0
 modBool: true
 mul: 6
-sub: 1
-eq: current
-in: Substring found!
-seq: [1 2 3]
-sort: [A B C]
-delimit: A, B and C
-jsonify: ["A","B","C"]
-md5: b3029f756f98f79e7f1b7f1d1f0dd53b
-sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
-emojify: I ❤️  Hugo
-safeHTML: Bat&Man
-safeHTML: Bat&Man
-safeCSS: Bat&amp;Man
-safeURL: http://gohugo.io
-safeJS: (1*2)
 plainify: Hello world, gophers!
-readFile: Hugo Rocks!
+pluralize: cats
 readDir: README.txt
+readFile: Hugo Rocks!
+relURL 1: http://gohugo.io/
+relURL 2: /hugo/mystyle.css
+replace: Batman and Catwoman
+safeCSS: Bat&amp;Man
+safeHTML: Bat&Man
+safeHTML: Bat&Man
+safeJS: (1*2)
+safeURL: http://gohugo.io
+seq: [1 2 3]
+sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
+singularize: cat
+slicestr: Bat
+slicestr: Man
+sort: [A B C]
+sub: 1
+substr: Bat
+substr: Man
+title: Bat Man
+trim: Batman
+upper: BATMAN
+urlize: bat-man
 `
 
 	var b bytes.Buffer
