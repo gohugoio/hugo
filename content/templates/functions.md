@@ -610,6 +610,12 @@ e.g.
 * `{{substr "BatMan" 0 -3}}` → "Bat"
 * `{{substr "BatMan" 3 3}}` → "Man"
 
+### hasPrefix
+
+HasPrefix tests whether a string begins with prefix.
+
+* `{{ hasPrefix "Hugo" "Hu" }}` → true
+
 ### title
 Converts all characters in string to titlecase.
 
