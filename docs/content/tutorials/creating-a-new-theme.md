@@ -864,7 +864,7 @@ $ find themes/zafta -name list.html | xargs ls -l
 -rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/_default/list.html
 ```
 
-As with the single article, we have to decide to update `_default/list.html` or create `article/list.html`. We still don't have multiple content types, so let's stay consistent and update the default list template.
+As with the single article, we have to decide to update `_default/list.html` or create `section/article.html`. We still don't have multiple content types, so let's stay consistent and update the default list template.
 
 ```bash
 $ vi themes/zafta/layouts/_default/list.html
