@@ -390,6 +390,12 @@ so, such as in this example:
 </nav>
 ```
 
+## Blocks
+
+Go 1.6 includes a new keyword, `block`, which provides templates with a nice way to share common code and override only the parts that need changing.
+
+This also provides a means for templates to inherit from other more generic templates by means of a base template. To find this base template, Hugo searches the same paths and file names as it does for [Ace templates](/templates/ace). For Go templates, simply suffix your files with `.html` rather than `.ace`.
+
 # Template example: Show only upcoming events
 
 Go allows you to do more than what's shown here.  Using Hugo's
