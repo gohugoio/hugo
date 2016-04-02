@@ -181,6 +181,8 @@ Also available is `.Site` which has the following:
 **.Site.Language** This indicates which language you are currently rendering the website for.  This is an object with the attributes set in your language definition in your site config. For the language code, use `.Site.Language.Lang`.<br>
 **.Site.LanguagePrefix** This can be used to prefix  theURLs with whats needed to point to the correct language. It will even work when only one language defined. See also the functions [absLangURL and relLangURL]({{< relref "templates/functions.md#abslangurl-rellangurl" >}}).<br>
 **.Site.Languages** An ordered list (ordered by defined weight) of languages.<br>
+**.Site.DisableSearchJSON**  A boolean (by default false) to indicate whether to build a content index. Defined in the site configuration. Read more about the [search]({{< relref "templates/search.md" >}}) feature.<br>
+
 
 ## File Variables
 

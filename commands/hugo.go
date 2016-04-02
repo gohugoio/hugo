@@ -140,6 +140,7 @@ var (
 	disable404            bool
 	disableRSS            bool
 	disableSitemap        bool
+	disableSearchJSON     bool
 	draft                 bool
 	forceSync             bool
 	future                bool
@@ -228,6 +229,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&disable404, "disable404", false, "Do not render 404 page")
 	cmd.Flags().BoolVar(&disableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&disableSitemap, "disableSitemap", false, "Do not build Sitemap file")
+	cmd.Flags().BoolVar(&disableSearchJSON, "disableSearchJSON", false, "Do not build Search JSON file")
 	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
@@ -319,6 +321,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if flagChanged(cmdV.Flags(), "enableRobotsTXT") {
 			viper.Set("EnableRobotsTXT", enableRobotsTXT)
+		}
+		if flagChanged(cmdV.Flags(), "disableSearchJSON") {
+			viper.Set("DisableSearchJSON", disableSearchJSON)
 		}
 		if flagChanged(cmdV.Flags(), "pluralizeListTitles") {
 			viper.Set("PluralizeListTitles", pluralizeListTitles)

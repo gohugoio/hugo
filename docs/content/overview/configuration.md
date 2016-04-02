@@ -101,6 +101,10 @@ Following is a list of Hugo-defined variables that you can configure and their c
     disableLiveReload:          false
     # Do not build RSS files
     disableRSS:                 false
+    # Do not build search.json file
+    disableSearchJSON:          false
+    # Change the destination of the search index
+    searchURI:                  "search.json"
     # Do not build Sitemap file
     disableSitemap:             false
     # Build robots.txt file

@@ -7,7 +7,7 @@ linktitle: RSS
 menu:
   main:
     parent: layout
-next: /templates/sitemap
+next: /templates/search
 notoc: one
 prev: /templates/partials
 title: RSS (feed) Templates
