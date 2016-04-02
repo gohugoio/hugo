@@ -6,7 +6,7 @@ date: 2013-07-01
 menu:
   main:
     parent: layout
-next: /templates/partials
+next: /templates/blocks
 prev: /templates/terms
 title: Content Views
 weight: 70
