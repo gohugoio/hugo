@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import (
 
 	"html/template"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
@@ -88,7 +87,7 @@ func TestPageCount(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	viper.Set("uglyurls", false)
 	viper.Set("paginate", 10)
@@ -113,7 +112,7 @@ func TestPageCount(t *testing.T) {
 		t.Errorf("Unable to render site lists: %s", err)
 	}
 
-	_, err := hugofs.DestinationFS.Open("blue")
+	_, err := hugofs.Destination().Open("blue")
 	if err != nil {
 		t.Errorf("No indexed rendered.")
 	}
@@ -129,7 +128,7 @@ func TestPageCount(t *testing.T) {
 		"sd3/index.html",
 		"sd4.html",
 	} {
-		if _, err := hugofs.DestinationFS.Open(filepath.FromSlash(s)); err != nil {
+		if _, err := hugofs.Destination().Open(filepath.FromSlash(s)); err != nil {
 			t.Errorf("No alias rendered: %s", s)
 		}
 	}

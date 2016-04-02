@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,5 +144,5 @@ func (h *HTMLRedirectAlias) Publish(path string, permalink string) (err error) {
 		return
 	}
 
-	return helpers.WriteToDisk(path, buffer, hugofs.DestinationFS)
+	return helpers.WriteToDisk(path, buffer, hugofs.Destination())
 }

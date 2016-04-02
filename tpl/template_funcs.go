@@ -24,6 +24,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
 	"html"
 	"html/template"
 	"math/rand"
@@ -1467,6 +1469,53 @@ func index(item interface{}, indices ...interface{}) (interface{}, error) {
 	return v.Interface(), nil
 }
 
+// readFile reads the file named by filename relative to the given basepath
+// and returns the contents as a string.
+// There is a upper size limit set at 1 megabytes.
+func readFile(fs *afero.BasePathFs, filename string) (string, error) {
+	if filename == "" {
+		return "", errors.New("readFile needs a filename")
+	}
+
+	if info, err := fs.Stat(filename); err == nil {
+		if info.Size() > 1000000 {
+			return "", fmt.Errorf("File %q is too big", filename)
+		}
+	} else {
+		return "", err
+	}
+	b, err := afero.ReadFile(fs, filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}
+
+// readFileFromWorkingDir reads the file named by filename relative to the
+// configured WorkingDir.
+// It returns the contents as a string.
+// There is a upper size limit set at 1 megabytes.
+func readFileFromWorkingDir(i interface{}) (string, error) {
+	return readFile(hugofs.WorkingDir(), cast.ToString(i))
+}
+
+// readDirFromWorkingDir listst the directory content relative to the
+// configured WorkingDir.
+func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
+
+	path := cast.ToString(i)
+
+	list, err := afero.ReadDir(hugofs.WorkingDir(), path)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read Directory %s with error message %s", path, err)
+	}
+
+	return list, nil
+}
+
 // safeHTMLAttr returns a given string as html/template HTMLAttr content.
 //
 // safeHTMLAttr is currently disabled, pending further discussion
@@ -1688,7 +1737,8 @@ func init() {
 		"partial":      partial,
 		"plainify":     plainify,
 		"pluralize":    pluralize,
-		"readDir":      readDir,
+		"readDir":      readDirFromWorkingDir,
+		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
 		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
 		"relref":       relRef,

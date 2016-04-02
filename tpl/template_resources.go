@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -177,9 +176,9 @@ func resGetResource(url string) ([]byte, error) {
 		return nil, nil
 	}
 	if strings.Contains(url, "://") {
-		return resGetRemote(url, hugofs.SourceFs, http.DefaultClient)
+		return resGetRemote(url, hugofs.Source(), http.DefaultClient)
 	}
-	return resGetLocal(url, hugofs.SourceFs)
+	return resGetLocal(url, hugofs.Source())
 }
 
 // getJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
@@ -201,7 +200,7 @@ func getJSON(urlParts ...string) interface{} {
 			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
 			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
-			resDeleteCache(url, hugofs.SourceFs)
+			resDeleteCache(url, hugofs.Source())
 			continue
 		}
 		break
@@ -234,7 +233,7 @@ func getCSV(sep string, urlParts ...string) [][]string {
 	var clearCacheSleep = func(i int, u string) {
 		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
-		resDeleteCache(url, hugofs.SourceFs)
+		resDeleteCache(url, hugofs.Source())
 	}
 
 	for i := 0; i <= resRetries; i++ {
@@ -258,26 +257,4 @@ func getCSV(sep string, urlParts ...string) [][]string {
 		break
 	}
 	return d
-}
-
-func readDir(path string) []os.FileInfo {
-	wd := ""
-	p := ""
-	if viper.GetString("WorkingDir") != "" {
-		wd = viper.GetString("WorkingDir")
-	}
-	if strings.Contains(path, "..") {
-		jww.ERROR.Printf("Path %s contains parent directory marker", path)
-		return nil
-	}
-
-	p = filepath.Clean(path)
-	p = filepath.Join(wd, p)
-
-	list, err := ioutil.ReadDir(p)
-	if err != nil {
-		jww.ERROR.Printf("Failed to read Directory %s with error message %s", path, err)
-		return nil
-	}
-	return list
 }

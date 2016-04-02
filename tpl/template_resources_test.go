@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -214,7 +214,7 @@ type wd struct {
 
 func testRetryWhenDone() wd {
 	cd := viper.GetString("CacheDir")
-	viper.Set("CacheDir", helpers.GetTempDir("", hugofs.SourceFs))
+	viper.Set("CacheDir", helpers.GetTempDir("", hugofs.Source()))
 	var tmpSleep time.Duration
 	tmpSleep, resSleep = resSleep, time.Millisecond
 	return wd{func() {

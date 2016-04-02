@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 	// Hugo writes the output to memory instead of the disk
 	if !renderToDisk {
-		hugofs.DestinationFS = new(afero.MemMapFs)
+		hugofs.SetDestination(new(afero.MemMapFs))
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		viper.Set("PublishDir", "/")
 	}
@@ -191,7 +191,7 @@ func serve(port int) {
 		jww.FEEDBACK.Println("Serving pages from memory")
 	}
 
-	httpFs := afero.NewHttpFs(hugofs.DestinationFS)
+	httpFs := afero.NewHttpFs(hugofs.Destination())
 	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("PublishDir")))}
 	fileserver := http.FileServer(fs)
 

@@ -235,7 +235,7 @@ func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, master
 	masterTpl := t.Lookup(masterFilename)
 
 	if masterTpl == nil {
-		b, err := afero.ReadFile(hugofs.SourceFs, masterFilename)
+		b, err := afero.ReadFile(hugofs.Source(), masterFilename)
 		if err != nil {
 			return err
 		}
@@ -248,7 +248,7 @@ func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, master
 		}
 	}
 
-	b, err := afero.ReadFile(hugofs.SourceFs, overlayFilename)
+	b, err := afero.ReadFile(hugofs.Source(), overlayFilename)
 	if err != nil {
 		return err
 	}
@@ -309,14 +309,14 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 		}
 	case ".ace":
 		var innerContent, baseContent []byte
-		innerContent, err := afero.ReadFile(hugofs.SourceFs, path)
+		innerContent, err := afero.ReadFile(hugofs.Source(), path)
 
 		if err != nil {
 			return err
 		}
 
 		if baseTemplatePath != "" {
-			baseContent, err = afero.ReadFile(hugofs.SourceFs, baseTemplatePath)
+			baseContent, err = afero.ReadFile(hugofs.Source(), baseTemplatePath)
 			if err != nil {
 				return err
 			}
@@ -329,7 +329,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return t.AddTemplateFileWithMaster(name, path, baseTemplatePath)
 		}
 
-		b, err := afero.ReadFile(hugofs.SourceFs, path)
+		b, err := afero.ReadFile(hugofs.Source(), path)
 
 		if err != nil {
 			return err
@@ -414,7 +414,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 
 				// This may be a view that shouldn't have base template
 				// Have to look inside it to make sure
-				needsBase, err := helpers.FileContainsAny(path, innerMarkers, hugofs.OsFs)
+				needsBase, err := helpers.FileContainsAny(path, innerMarkers, hugofs.Os())
 				if err != nil {
 					return err
 				}
@@ -442,7 +442,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					}
 
 					for _, pathToCheck := range pathsToCheck {
-						if ok, err := helpers.Exists(pathToCheck, hugofs.OsFs); err == nil && ok {
+						if ok, err := helpers.Exists(pathToCheck, hugofs.Os()); err == nil && ok {
 							baseTemplatePath = pathToCheck
 							break
 						}

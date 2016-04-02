@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,18 +18,20 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 	"html/template"
 	"math/rand"
 	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/spf13/cast"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -62,6 +64,15 @@ func TestFuncsInTemplate(t *testing.T) {
 
 	viper.Reset()
 	defer viper.Reset()
+
+	workingDir := "/home/hugo"
+
+	viper.Set("WorkingDir", workingDir)
+
+	fs := &afero.MemMapFs{}
+	hugofs.InitFs(fs)
+
+	afero.WriteFile(fs, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
 
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
 	// TODO(bep): docs: fix title example
@@ -109,6 +120,8 @@ safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
 safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
 safeJS: {{ "(1*2)" | safeJS | safeJS }}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
+readFile: {{ readFile "README.txt" }}
+readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 `
 	expected := `chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
@@ -153,6 +166,8 @@ safeCSS: Bat&amp;Man
 safeURL: http://gohugo.io
 safeJS: (1*2)
 plainify: Hello world, gophers!
+readFile: Hugo Rocks!
+readDir: README.txt
 `
 
 	var b bytes.Buffer
@@ -2179,6 +2194,47 @@ func TestSHA1(t *testing.T) {
 		_, err = sha1(t)
 		if err == nil {
 			t.Error("Expected error from sha1")
+		}
+	}
+}
+
+func TestReadFile(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	workingDir := "/home/hugo"
+
+	viper.Set("WorkingDir", workingDir)
+
+	fs := &afero.MemMapFs{}
+	hugofs.InitFs(fs)
+
+	afero.WriteFile(fs, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
+	afero.WriteFile(fs, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
+
+	for i, this := range []struct {
+		filename string
+		expect   interface{}
+	}{
+		{"", false},
+		{"b", false},
+		{filepath.FromSlash("/f/f1.txt"), "f1-content"},
+		{filepath.FromSlash("f/f1.txt"), "f1-content"},
+		{filepath.FromSlash("../f2.txt"), false},
+	} {
+		result, err := readFileFromWorkingDir(this.filename)
+		if b, ok := this.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] readFile didn't return an expected error", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] readFile failed: %s", i, err)
+				continue
+			}
+			if result != this.expect {
+				t.Errorf("[%d] readFile got %q but expected %q", i, result, this.expect)
+			}
 		}
 	}
 }
