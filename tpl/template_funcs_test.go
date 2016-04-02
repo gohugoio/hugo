@@ -89,7 +89,8 @@ delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 div: {{div 6 3}}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
-hasPrefix: {{ hasPrefix "Hugo" "Hu" }}
+hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
+hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
 lower: {{lower "BatMan"}}
@@ -137,7 +138,8 @@ delimit: A, B and C
 div: 2
 emojify: I ❤️  Hugo
 eq: current
-hasPrefix: true
+hasPrefix 1: true
+hasPrefix 2: false
 in: Substring found!
 jsonify: ["A","B","C"]
 lower: batman
