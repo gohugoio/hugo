@@ -13,9 +13,7 @@ title: Contributing to Hugo
 weight: 30
 ---
 
-All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project, feel free to pick something from the roadmap
-or contact [spf13](http://spf13.com/) about what may make sense
-to do next.
+All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact [spf13](http://spf13.com/) about what may make sense to do next.
 
 You should fork the project and make your changes.  *We encourage pull requests to discuss code changes.*
 
@@ -29,15 +27,7 @@ When you're ready to create a pull request, be sure to:
 
 ## Contribution Overview
 
-1. Fork Hugo from https://github.com/spf13/hugo
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Commit passing tests to validate changes.
-5. Run `go fmt`
-6. Squash commits into a single (or logically grouped) commits (`git rebase -i`)
-7. Push to the branch (`git push origin my-new-feature`)
-8. Create new Pull Request
-
+We wrote a [detailed guide]({{< relref "tutorials/how-to-contribute-to-hugo.md" >}}) for newcomers that guides you step by step to your first contribution. If you are more experienced read on. You probably know what to do.
 
 # Building from source
 
