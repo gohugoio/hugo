@@ -8,7 +8,7 @@ menu:
   main:
     parent: tutorials
 next: /tutorials/installing-on-windows
-prev: /tutorials/github-pages-blog
+prev: /tutorials/how-to-contribute-to-hugo/
 title: Installing on a Mac
 weight: 10
 ---
