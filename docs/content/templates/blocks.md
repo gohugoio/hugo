@@ -3,15 +3,15 @@ date: 2016-03-29T21:26:20-05:00
 menu:
   main:
     parent: x
-title: Blocks
+title: Block Templates
 weight: 5
 ---
 
-Go 1.6 includes a powerful new keyword, `block`, which provides templates with a nice way to share common code and override only the parts that need changing. This construct allows you to define the outer shell of your pages in a single base template.
+Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages in a single "base" template, filling in or overriding portions as necessary.
 
-## Base
+## Define the base template
 
-Let's define a very simple base template:
+Let's define a simple base template, a shell from which all our pages will start. To find a base template, Hugo searches the same paths and file names as it does for [Ace templates](/templates/ace), just with files suffixed `.html` rather than `.ace`.
 
 ```html
 <!DOCTYPE html>
@@ -37,7 +37,7 @@ Let's define a very simple base template:
 
 ## Overriding the base
 
-Your [default list template](/templates/list) (`_default/list.html`) could implement its own _main_ block from the base template above like so:
+Your [default list template](/templates/list) (`_default/list.html`) will inherit all of the code defined in the base template. It could then implement its own "main" block from the base template above like so:
 
 ```html
 <!-- Note the lack of Go's context "dot" when defining blocks -->
@@ -52,11 +52,9 @@ Your [default list template](/templates/list) (`_default/list.html`) could imple
 {{ end }}
 ```
 
-This replaces the contents of our (basically empty) _main_ block with something useful for the list template.
+This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a "title" block so the contents from our base template remain unchanged in lists.
 
-Since we didn't define a _title_ block, the contents from our base template remain unchanged.
-
-In our [the default single template](/templates/content) (`_default/single.html`), let's implement both block:
+In our [default single template](/templates/content) (`_default/single.html`), let's implement both blocks:
 
 ```html
 {{ define "title" }}
@@ -69,5 +67,3 @@ In our [the default single template](/templates/content) (`_default/single.html`
 ```
 
 This overrides both block areas from the base template with code unique to our single template.
-
-To find a base Go template, Hugo searches the same paths and file names as it does for [Ace templates](/templates/ace), just with files with `.html` rather than `.ace`.
