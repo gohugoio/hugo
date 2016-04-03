@@ -111,4 +111,6 @@ You now have Hugo installed and a site to work with. You need to add a layout (o
 
 ## Troubleshooting
 
-@dhersam has a nice video on common issues at https://www.youtube.com/watch?v=c8fJIRNChmU
+@dhersam has created a nice video on common issues:
+
+{{< youtube c8fJIRNChmU >}}
