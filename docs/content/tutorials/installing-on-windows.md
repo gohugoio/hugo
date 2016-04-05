@@ -61,7 +61,7 @@ You'll need a place to store the Hugo executable, your content (the files that y
 - Type in Hugo's path, which is `C:\Hugo\bin\hugo.exe` if you went by the instructions above. Press Enter when you're done typing.
 - Click OK at every window to exit.
 
-(Note that the path editor in Windows 10 was added in the large [November 2015 Update](https://blogs.windows.com/windowsexperience/2015/11/12/first-major-update-for-windows-10-available-today/). You'll need to have that or a later update installed for the above steps to work. You can see what Windows 10 build you have by going to Start--> Settings--> About. See [here](http://www.howtogeek.com/236195/how-to-find-out-which-build-and-version-of-windows-10-you-have/) for more.)
+(Note that the path editor in Windows 10 was added in the large [November 2015 Update](https://blogs.windows.com/windowsexperience/2015/11/12/first-major-update-for-windows-10-available-today/). You'll need to have that or a later update installed for the above steps to work. You can see what Windows 10 build you have by clicking on the Start button → Settings → System → About. See [here](http://www.howtogeek.com/236195/how-to-find-out-which-build-and-version-of-windows-10-you-have/) for more.)
 
 Windows 7 and 8.1 do not include an easy path editor, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor](http://eveditor.com/) or [Path Editor](https://patheditor2.codeplex.com/).
 
