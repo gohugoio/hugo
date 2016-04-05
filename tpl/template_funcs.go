@@ -437,6 +437,22 @@ func first(limit interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(0, limitv).Interface(), nil
 }
 
+// findRE returns a list of strings that match the regular expression. By default all matches
+// will be included. The number of matches can be limitted with an optional third parameter.
+func findRE(expr string, content interface{}, limit ...int) ([]string, error) {
+	re, err := reCache.Get(expr)
+	if err != nil {
+		return nil, err
+	}
+
+	conv := cast.ToString(content)
+	if len(limit) > 0 {
+		return re.FindAllString(conv, limit[0]), nil
+	}
+
+	return re.FindAllString(conv, -1), nil
+}
+
 // last returns the last N items in a rangeable list.
 func last(limit interface{}, seq interface{}) (interface{}, error) {
 	if limit == nil || seq == nil {
@@ -1729,6 +1745,7 @@ func init() {
 		"echoParam":    returnWhenSet,
 		"emojify":      emojify,
 		"eq":           eq,
+		"findRE":       findRE,
 		"first":        first,
 		"ge":           ge,
 		"getCSV":       getCSV,
