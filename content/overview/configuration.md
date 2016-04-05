@@ -95,8 +95,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     disableRSS:                 false
     # Do not build Sitemap file
     disableSitemap:             false
-    # Do not build robots.txt file
-    disableRobotsTXT:           false
+    # Build robots.txt file
+    enableRobotsTXT:           false
     # edit new content with this editor, if provided
     editor:                     ""
     # Enable Emoji emoticons support for page content.
