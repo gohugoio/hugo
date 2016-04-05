@@ -474,6 +474,36 @@ Pluralize the given word with a set of common English pluralization rules.
 
 e.g. `{{ "cat" | pluralize }}` → "cats"
 
+### findRE
+Returns a list of strings that match the regular expression. By default all matches will be included. The number of matches can be limitted with an optional third parameter.
+
+The example below returns a list of all second level headers (`<h2>`) in the content:
+
+    {{ findRE "<h2.*?>(.|\n)*?</h2>" .Content }}
+
+We can limit the number of matches in that list with a third parameter. Let's say we want to have at most one match (or none if no substring matched):
+
+    {{ findRE "<h2.*?>(.|\n)*?</h2>" .Content 1 }}
+    <!-- returns ["<h2 id="#foo">Foo</h2>"] -->
+
+`findRe` allows us to build an automatically generated table of contents that could be used for a simple scrollspy:
+
+    {{ $headers := findRE "<h2.*?>(.|\n)*?</h2>" .Content }}
+
+    {{ if ge (len $headers) 1 }}
+        <ul>
+        {{ range $headers }}
+            <li>
+                <a href="#{{ . | plainify | urlize }}">
+                    {{ . | plainify }}
+                </a>
+            </li>
+        {{ end }}
+        </ul>
+    {{ end }}
+
+First, we try to find all second-level headers and generate a list if at least one header was found. `plainify` strips the HTML and `urlize` converts the header into an a valid URL.
+
 ### replace
 Replaces all occurrences of the search string with the replacement string.
 
