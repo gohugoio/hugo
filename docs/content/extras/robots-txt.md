@@ -13,13 +13,12 @@ weight: 120
 Hugo can generated a customized [robots.txt](http://www.robotstxt.org/) in the
 [same way as any other templates]({{< ref "templates/go-templates.md" >}}).
 
-By default, it generates a robots.txt, which allows everything, with the following content:
+To enable it, just set `enableRobotsTXT` option to `true` in the [configuration file]({{< ref "overview/configuration.md" >}}). By default, it generates a robots.txt, which allows everything, with the following content:
 
 ```http
 User-agent: *
 ```
 
-To disable it, just set `disableRobotsTXT` option to `false` in the [command line]({{< ref "commands/hugo.md" >}}) or [configuration file]({{< ref "overview/configuration.md" >}}).
 
 Hugo will use the template `robots.txt` according to the following list in descending precedence:
 

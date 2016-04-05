@@ -1864,7 +1864,7 @@ func (s *Site) RenderSitemap() error {
 }
 
 func (s *Site) RenderRobotsTXT() error {
-	if viper.GetBool("DisableRobotsTXT") {
+	if !viper.GetBool("EnableRobotsTXT") {
 		return nil
 	}
 

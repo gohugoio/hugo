@@ -126,7 +126,7 @@ var (
 	buildWatch            bool
 	canonifyURLs          bool
 	cleanDestination      bool
-	disableRobotsTXT      bool
+	enableRobotsTXT       bool
 	disableRSS            bool
 	disableSitemap        bool
 	draft                 bool
@@ -216,7 +216,6 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&future, "buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolVar(&disableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&disableSitemap, "disableSitemap", false, "Do not build Sitemap file")
-	cmd.Flags().BoolVar(&disableRobotsTXT, "disableRobotsTXT", false, "Do not build Robots TXT file")
 	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
@@ -364,8 +363,8 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		if flagChanged(cmdV.Flags(), "disableSitemap") {
 			viper.Set("DisableSitemap", disableSitemap)
 		}
-		if flagChanged(cmdV.Flags(), "disableRobotsTXT") {
-			viper.Set("DisableRobotsTXT", disableRobotsTXT)
+		if flagChanged(cmdV.Flags(), "enableRobotsTXT") {
+			viper.Set("EnableRobotsTXT", enableRobotsTXT)
 		}
 		if flagChanged(cmdV.Flags(), "pluralizeListTitles") {
 			viper.Set("PluralizeListTitles", pluralizeListTitles)

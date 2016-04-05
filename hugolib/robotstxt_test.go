@@ -36,6 +36,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 	hugofs.InitMemFs()
 
 	viper.Set("baseurl", "http://auth/bub/")
+	viper.Set("enableRobotsTXT", true)
 
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
