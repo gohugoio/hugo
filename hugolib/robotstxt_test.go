@@ -39,7 +39,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 	viper.Set("enableRobotsTXT", true)
 
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
+		Source: &source.InMemorySource{ByteSource: weightedSources},
 	}
 
 	s.initializeSiteInfo()
