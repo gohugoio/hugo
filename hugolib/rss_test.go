@@ -59,15 +59,15 @@ func TestRSSOutput(t *testing.T) {
 	s.initializeSiteInfo()
 	s.prepTemplates("rss.xml", rssTemplate)
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if err := s.RenderHomePage(); err != nil {
+	if err := s.renderHomePage(); err != nil {
 		t.Fatalf("Unable to RenderHomePage: %s", err)
 	}
 

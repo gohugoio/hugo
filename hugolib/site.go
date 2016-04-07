@@ -29,6 +29,8 @@ import (
 
 	"sync/atomic"
 
+	"path"
+
 	"bitbucket.org/pkg/inflect"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
@@ -44,7 +46,6 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 	"gopkg.in/fsnotify.v1"
-	"path"
 )
 
 var _ = transform.AbsURL
@@ -389,7 +390,7 @@ type runmode struct {
 	Watching bool
 }
 
-func (s *Site) Running() bool {
+func (s *Site) running() bool {
 	return s.RunMode.Watching
 }
 
@@ -466,7 +467,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 	}
 
 	if len(dataChanged) > 0 {
-		s.ReadDataFromSourceFS()
+		s.readDataFromSourceFS()
 	}
 
 	// we reuse the state, so have to do some cleanup before we can rebuild.
@@ -520,7 +521,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		if ev.Op&fsnotify.Remove == fsnotify.Remove {
 			//remove the file & a create will follow
 			path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
-			s.RemovePageByPath(path)
+			s.removePageByPath(path)
 			continue
 		}
 
@@ -531,12 +532,12 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 			// If the file is still on disk, it's only been updated, if it's not, it's been moved
 			if ex, err := afero.Exists(hugofs.Source(), ev.Name); !ex || err != nil {
 				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
-				s.RemovePageByPath(path)
+				s.removePageByPath(path)
 				continue
 			}
 		}
 
-		file, err := s.ReReadFile(ev.Name)
+		file, err := s.reReadFile(ev.Name)
 		if err != nil {
 			errs <- err
 		}
@@ -567,7 +568,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 	if len(sourceChanged) > 0 {
 		s.setupPrevNext()
-		if err = s.BuildSiteMeta(); err != nil {
+		if err = s.buildSiteMeta(); err != nil {
 			return err
 		}
 		s.timerStep("build taxonomies")
@@ -687,7 +688,7 @@ func readData(f *source.File) (interface{}, error) {
 	}
 }
 
-func (s *Site) ReadDataFromSourceFS() error {
+func (s *Site) readDataFromSourceFS() error {
 	dataSources := make([]source.Input, 0, 2)
 	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
 
@@ -711,15 +712,15 @@ func (s *Site) Process() (err error) {
 	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 
-	if err = s.ReadDataFromSourceFS(); err != nil {
+	if err = s.readDataFromSourceFS(); err != nil {
 		return
 	}
 
-	if err = s.CreatePages(); err != nil {
+	if err = s.createPages(); err != nil {
 		return
 	}
 	s.setupPrevNext()
-	if err = s.BuildSiteMeta(); err != nil {
+	if err = s.buildSiteMeta(); err != nil {
 		return
 	}
 	s.timerStep("build taxonomies")
@@ -739,34 +740,34 @@ func (s *Site) setupPrevNext() {
 }
 
 func (s *Site) Render() (err error) {
-	if err = s.RenderAliases(); err != nil {
+	if err = s.renderAliases(); err != nil {
 		return
 	}
 	s.timerStep("render and write aliases")
-	if err = s.RenderTaxonomiesLists(); err != nil {
+	if err = s.renderTaxonomiesLists(); err != nil {
 		return
 	}
 	s.timerStep("render and write taxonomies")
-	s.RenderListsOfTaxonomyTerms()
+	s.renderListsOfTaxonomyTerms()
 	s.timerStep("render & write taxonomy lists")
-	if err = s.RenderSectionLists(); err != nil {
+	if err = s.renderSectionLists(); err != nil {
 		return
 	}
 	s.timerStep("render and write lists")
-	if err = s.RenderPages(); err != nil {
+	if err = s.renderPages(); err != nil {
 		return
 	}
 	s.timerStep("render and write pages")
-	if err = s.RenderHomePage(); err != nil {
+	if err = s.renderHomePage(); err != nil {
 		return
 	}
 	s.timerStep("render and write homepage")
-	if err = s.RenderSitemap(); err != nil {
+	if err = s.renderSitemap(); err != nil {
 		return
 	}
 	s.timerStep("render and write Sitemap")
 
-	if err = s.RenderRobotsTXT(); err != nil {
+	if err = s.renderRobotsTXT(); err != nil {
 		return
 	}
 	s.timerStep("render and write robots.txt")
@@ -858,8 +859,8 @@ func (s *Site) checkDirectories() (err error) {
 	return
 }
 
-// ReReadFile resets file to be read from disk again
-func (s *Site) ReReadFile(absFilePath string) (*source.File, error) {
+// reReadFile resets file to be read from disk again
+func (s *Site) reReadFile(absFilePath string) (*source.File, error) {
 	jww.INFO.Println("rereading", absFilePath)
 	var file *source.File
 
@@ -877,7 +878,7 @@ func (s *Site) ReReadFile(absFilePath string) (*source.File, error) {
 	return file, nil
 }
 
-func (s *Site) ReadPagesFromSource() chan error {
+func (s *Site) readPagesFromSource() chan error {
 	if s.Source == nil {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
@@ -915,7 +916,7 @@ func (s *Site) ReadPagesFromSource() chan error {
 	return errs
 }
 
-func (s *Site) ConvertSource() chan error {
+func (s *Site) convertSource() chan error {
 	errs := make(chan error)
 	results := make(chan HandledResult)
 	pageChan := make(chan *Page)
@@ -947,11 +948,11 @@ func (s *Site) ConvertSource() chan error {
 	return errs
 }
 
-func (s *Site) CreatePages() error {
-	readErrs := <-s.ReadPagesFromSource()
+func (s *Site) createPages() error {
+	readErrs := <-s.readPagesFromSource()
 	s.timerStep("read pages from source")
 
-	renderErrs := <-s.ConvertSource()
+	renderErrs := <-s.convertSource()
 	s.timerStep("convert source")
 
 	if renderErrs == nil && readErrs == nil {
@@ -1023,7 +1024,7 @@ func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error)
 	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
 }
 
-func (s *Site) AddPage(page *Page) {
+func (s *Site) addPage(page *Page) {
 	if page.ShouldBuild() {
 		s.Pages = append(s.Pages, page)
 	}
@@ -1037,7 +1038,7 @@ func (s *Site) AddPage(page *Page) {
 	}
 }
 
-func (s *Site) RemovePageByPath(path string) {
+func (s *Site) removePageByPath(path string) {
 	if i := s.Pages.FindPagePosByFilePath(path); i >= 0 {
 		page := s.Pages[i]
 
@@ -1053,7 +1054,7 @@ func (s *Site) RemovePageByPath(path string) {
 	}
 }
 
-func (s *Site) RemovePage(page *Page) {
+func (s *Site) removePage(page *Page) {
 	if i := s.Pages.FindPagePos(page); i >= 0 {
 		if page.IsDraft() {
 			s.draftCount--
@@ -1067,13 +1068,13 @@ func (s *Site) RemovePage(page *Page) {
 	}
 }
 
-func (s *Site) ReplacePage(page *Page) {
+func (s *Site) replacePage(page *Page) {
 	// will find existing page that matches filepath and remove it
-	s.RemovePage(page)
-	s.AddPage(page)
+	s.removePage(page)
+	s.addPage(page)
 }
 
-func (s *Site) ReplaceFile(sf *source.File) {
+func (s *Site) replaceFile(sf *source.File) {
 	for i, f := range s.Files {
 		if f.Path() == sf.Path() {
 			s.Files[i] = sf
@@ -1094,10 +1095,10 @@ func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan cha
 		}
 
 		if r.page == nil {
-			s.ReplaceFile(r.file)
+			s.replaceFile(r.file)
 			fileConvChan <- r.file
 		} else {
-			s.ReplacePage(r.page)
+			s.replacePage(r.page)
 			pageChan <- r.page
 		}
 	}
@@ -1124,7 +1125,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 		if r.page == nil {
 			s.Files = append(s.Files, r.file)
 		} else {
-			s.AddPage(r.page)
+			s.addPage(r.page)
 		}
 	}
 
@@ -1136,7 +1137,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 	errs <- fmt.Errorf("Errors reading pages: %s", strings.Join(errMsgs, "\n"))
 }
 
-func (s *Site) BuildSiteMeta() (err error) {
+func (s *Site) buildSiteMeta() (err error) {
 	s.assembleMenus()
 
 	if len(s.Pages) == 0 {
@@ -1352,8 +1353,8 @@ func (s *Site) possibleTaxonomies() (taxonomies []string) {
 	return
 }
 
-// RenderAliases renders shell pages that simply have a redirect in the header
-func (s *Site) RenderAliases() error {
+// renderAliases renders shell pages that simply have a redirect in the header.
+func (s *Site) renderAliases() error {
 	for _, p := range s.Pages {
 		if len(p.Aliases) == 0 {
 			continue
@@ -1365,7 +1366,7 @@ func (s *Site) RenderAliases() error {
 		}
 
 		for _, a := range p.Aliases {
-			if err := s.WriteDestAlias(a, plink); err != nil {
+			if err := s.writeDestAlias(a, plink); err != nil {
 				return err
 			}
 		}
@@ -1373,8 +1374,8 @@ func (s *Site) RenderAliases() error {
 	return nil
 }
 
-// RenderPages renders pages each corresponding to a markdown file
-func (s *Site) RenderPages() error {
+// renderPages renders pages each corresponding to a markdown file.
+func (s *Site) renderPages() error {
 
 	results := make(chan error)
 	pages := make(chan *Page)
@@ -1490,9 +1491,9 @@ type taxRenderInfo struct {
 	plural   string
 }
 
-// RenderTaxonomiesLists renders the listing pages based on the meta data
+// renderTaxonomiesLists renders the listing pages based on the meta data
 // each unique term within a taxonomy will have a page created
-func (s *Site) RenderTaxonomiesLists() error {
+func (s *Site) renderTaxonomiesLists() error {
 	wg := &sync.WaitGroup{}
 
 	taxes := make(chan taxRenderInfo)
@@ -1530,7 +1531,7 @@ func (s *Site) RenderTaxonomiesLists() error {
 
 func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	key := t.key
-	n := s.NewNode()
+	n := s.newNode()
 	if s.Info.preserveTaxonomyNames {
 		key = helpers.MakePathSanitized(key)
 		// keep as is in the title
@@ -1581,7 +1582,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.WriteDestAlias(helpers.PaginateAliasPath(base, 1), s.permalink(base))
+			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), s.permalink(base))
 
 			pagers := n.paginator.Pagers()
 
@@ -1622,11 +1623,11 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 	}
 }
 
-// RenderListsOfTaxonomyTerms renders a page per taxonomy that lists the terms for that taxonomy
-func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
+// renderListsOfTaxonomyTerms renders a page per taxonomy that lists the terms for that taxonomy
+func (s *Site) renderListsOfTaxonomyTerms() (err error) {
 	taxonomies := viper.GetStringMapString("Taxonomies")
 	for singular, plural := range taxonomies {
-		n := s.NewNode()
+		n := s.newNode()
 		n.Title = strings.Title(plural)
 		s.setURLs(n, plural)
 		n.Data["Singular"] = singular
@@ -1648,7 +1649,7 @@ func (s *Site) RenderListsOfTaxonomyTerms() (err error) {
 }
 
 func (s *Site) newSectionListNode(sectionName, section string, data WeightedPages) *Node {
-	n := s.NewNode()
+	n := s.newNode()
 	sectionName = helpers.FirstUpper(sectionName)
 	if viper.GetBool("PluralizeListTitles") {
 		n.Title = inflect.Pluralize(sectionName)
@@ -1663,8 +1664,8 @@ func (s *Site) newSectionListNode(sectionName, section string, data WeightedPage
 	return n
 }
 
-// RenderSectionLists renders a page for each section
-func (s *Site) RenderSectionLists() error {
+// renderSectionLists renders a page for each section
+func (s *Site) renderSectionLists() error {
 	for section, data := range s.Sections {
 		// section keys can be lower case (depending on site.pathifyTaxonomyKeys)
 		// extract the original casing from the first page to get sensible titles.
@@ -1689,7 +1690,7 @@ func (s *Site) RenderSectionLists() error {
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.WriteDestAlias(helpers.PaginateAliasPath(section, 1), s.permalink(section))
+			s.writeDestAlias(helpers.PaginateAliasPath(section, 1), s.permalink(section))
 
 			pagers := n.paginator.Pagers()
 
@@ -1729,7 +1730,7 @@ func (s *Site) RenderSectionLists() error {
 }
 
 func (s *Site) newHomeNode() *Node {
-	n := s.NewNode()
+	n := s.newNode()
 	n.Title = n.Site.Title
 	n.IsHome = true
 	s.setURLs(n, "/")
@@ -1741,7 +1742,7 @@ func (s *Site) newHomeNode() *Node {
 	return n
 }
 
-func (s *Site) RenderHomePage() error {
+func (s *Site) renderHomePage() error {
 	n := s.newHomeNode()
 	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 
@@ -1754,7 +1755,7 @@ func (s *Site) RenderHomePage() error {
 		paginatePath := viper.GetString("paginatePath")
 
 		// write alias for page 1
-		s.WriteDestAlias(helpers.PaginateAliasPath("", 1), s.permalink("/"))
+		s.writeDestAlias(helpers.PaginateAliasPath("", 1), s.permalink("/"))
 
 		pagers := n.paginator.Pagers()
 
@@ -1815,14 +1816,14 @@ func (s *Site) RenderHomePage() error {
 	return nil
 }
 
-func (s *Site) RenderSitemap() error {
+func (s *Site) renderSitemap() error {
 	if viper.GetBool("DisableSitemap") {
 		return nil
 	}
 
 	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
 
-	n := s.NewNode()
+	n := s.newNode()
 
 	// Prepend homepage to the list of pages
 	pages := make(Pages, 0)
@@ -1863,12 +1864,12 @@ func (s *Site) RenderSitemap() error {
 	return nil
 }
 
-func (s *Site) RenderRobotsTXT() error {
+func (s *Site) renderRobotsTXT() error {
 	if !viper.GetBool("EnableRobotsTXT") {
 		return nil
 	}
 
-	n := s.NewNode()
+	n := s.newNode()
 	n.Data["Pages"] = s.Pages
 
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
@@ -1877,7 +1878,7 @@ func (s *Site) RenderRobotsTXT() error {
 	err := s.render("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
 
 	if err == nil {
-		err = s.WriteDestFile("robots.txt", outBuffer)
+		err = s.writeDestFile("robots.txt", outBuffer)
 	}
 
 	return err
@@ -1912,7 +1913,7 @@ func (s *Site) permalinkStr(plink string) string {
 	return helpers.MakePermalink(viper.GetString("BaseURL"), helpers.URLizeAndPrep(plink)).String()
 }
 
-func (s *Site) NewNode() *Node {
+func (s *Site) newNode() *Node {
 	return &Node{
 		Data: make(map[string]interface{}),
 		Site: &s.Info,
@@ -1949,7 +1950,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	transformer.Apply(outBuffer, renderBuffer, path)
 
 	if err == nil {
-		err = s.WriteDestFile(dest, outBuffer)
+		err = s.writeDestFile(dest, outBuffer)
 	}
 
 	return err
@@ -1980,7 +1981,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
-	if s.Running() && viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
+	if s.running() && viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
 	}
 
@@ -2018,7 +2019,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	if err == nil {
-		if err = s.WriteDestPage(dest, pageTarget, outBuffer); err != nil {
+		if err = s.writeDestPage(dest, pageTarget, outBuffer); err != nil {
 			return err
 		}
 	}
@@ -2035,7 +2036,7 @@ func (s *Site) render(name string, d interface{}, w io.Writer, layouts ...string
 	if err := s.renderThing(d, layout, w); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
 		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
-		if !s.Running() && !testMode {
+		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
 			os.Exit(-1)
 		} else if testMode {
@@ -2111,17 +2112,17 @@ func (s *Site) initTargetList() {
 	})
 }
 
-func (s *Site) WriteDestFile(path string, reader io.Reader) (err error) {
+func (s *Site) writeDestFile(path string, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating file:", path)
 	return s.fileTarget().Publish(path, reader)
 }
 
-func (s *Site) WriteDestPage(path string, publisher target.Publisher, reader io.Reader) (err error) {
+func (s *Site) writeDestPage(path string, publisher target.Publisher, reader io.Reader) (err error) {
 	jww.DEBUG.Println("creating page:", path)
 	return publisher.Publish(path, reader)
 }
 
-func (s *Site) WriteDestAlias(path string, permalink string) (err error) {
+func (s *Site) writeDestAlias(path string, permalink string) (err error) {
 	jww.DEBUG.Println("creating alias:", path)
 	return s.aliasTarget().Publish(path, permalink)
 }
