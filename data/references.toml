@@ -62,6 +62,13 @@ link = "https://twitter.com/hugoroyd/status/501704796727173120"
 date = 2014-08-19T00:00:00Z
 
 [[quotes]]
+name = "Daniel Miessler"
+twitter_handle = "@DanielMiessler"
+quote = "Websites for named vulnerabilities should run on static site generator platforms like Hugo. Read-only + burst traffic = static."
+link = "https://twitter.com/DanielMiessler/status/704703841673957376"
+date = 2016-03-01T00:00:00Z
+
+[[quotes]]
 name = "Javier Segura"
 twitter_handle = "@jsegura"
 quote = "Another site generated with Hugo here! I'm getting in love with it."
