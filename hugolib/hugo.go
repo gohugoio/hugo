@@ -15,13 +15,18 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/helpers"
 	"html/template"
+
+	"github.com/spf13/hugo/helpers"
 )
 
 var (
+	// CommitHash contains the current Git revision. Use make to build to make
+	// sure this gets set.
 	CommitHash string
-	BuildDate  string
+
+	// BuildDate contains the date of the current build.
+	BuildDate string
 )
 
 var hugoInfo *HugoInfo
