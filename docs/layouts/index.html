@@ -140,7 +140,7 @@
               <div class="col-md-12 text-center">
                   <!-- Wrapper for slides -->
                   <div class="carousel-inner owl-carousel">
-                      {{ partial "quotes.html" ($.Site.Data.references.quotes) }}
+                      {{ partial "quotes.html" ((where $.Site.Data.references.quotes "date" "ge" ($.Now.AddDate -2 0 0) | shuffle )) }}
                   </div>
               </div>
             </div>
