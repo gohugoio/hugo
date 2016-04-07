@@ -450,6 +450,207 @@ e.g.
 {{humanize "myCamelPost"}} → "My camel post"
 ```
 
+### localizeDate
+Converts the textual representation of the datetime into the localized form using the locale set by `languageCode`.
+
+These are the supported format directives. They're loosely based on [The Open Group Base Specifications Issue 7](http://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html).
+
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Format directive</th>
+<th>Output</th>
+</thead>
+
+<tbody>
+<tr>
+<td>`%a`</td>
+<td>locale's abbreviated weekday name</td>
+</tr>
+
+<tr>
+<td>`%A`</td>
+<td>locale's full weekday name</td>
+</tr>
+
+<tr>
+<td>`%b`</td>
+<td>locale's abbreviated month name</td>
+</tr>
+
+<tr>
+<td>`%B`</td>
+<td>locale's full month name</td>
+</tr>
+
+<tr>
+<td>`%c`</td>
+<td>locale's appropriate date and time representation</td>
+</tr>
+
+<tr>
+<td>`%C`</td>
+<td>year divided by 100 and truncated to an integer</td>
+</tr>
+
+<tr>
+<td>`%d`</td>
+<td>day of the month as a decimal number [01,31]</td>
+</tr>
+
+<tr>
+<td>`%D`</td>
+<td>%m/%d/%y</td>
+</tr>
+
+<tr>
+<td>`%e`</td>
+<td>day of the month as a decimal number [1,31]</td>
+</tr>
+
+<tr>
+<td>`%F`</td>
+<td>%Y/%m/%d</td>
+</tr>
+
+<tr>
+<td>`%g`</td>
+<td>last 2 digits of the week-based year as a decimal number</td>
+</tr>
+
+<tr>
+<td>`%G`</td>
+<td>week-based year as a decimal number (for example, 1977)</td>
+</tr>
+
+<tr>
+<td>`%H`</td>
+<td>hour (24-hour clock) as a decimal number [00,23]</td>
+</tr>
+
+<tr>
+<td>`%I`</td>
+<td>hour (12-hour clock) as a decimal number [01,12]</td>
+</tr>
+
+<tr>
+<td>`%j`</td>
+<td>day of the year as a decimal number [001,366]</td>
+</tr>
+
+<tr>
+<td>`%m`</td>
+<td>month as a decimal number [01,12]</td>
+</tr>
+
+<tr>
+<td>`%M`</td>
+<td>minute as a decimal number [00,59]</td>
+</tr>
+
+<tr>
+<td>`%n`</td>
+<td>returns a newline</td>
+</tr>
+
+<tr>
+<td>`%p`</td>
+<td>locale's equivalent of either a.m. or p.m.</td>
+</tr>
+
+<tr>
+<td>`%r`</td>
+<td>time in a.m. and p.m. notation.</td>
+</tr>
+
+<tr>
+<td>`%R`</td>
+<td>time in 24-hour notation %H:%M</td>
+</tr>
+
+<tr>
+<td>`%S`</td>
+<td>second as a decimal number [00,60]</td>
+</tr>
+
+<tr>
+<td>`%t`</td>
+<td>returns a tab</td>
+</tr>
+
+<tr>
+<td>`%T`</td>
+<td>%H:%M:%S</td>
+</tr>
+
+<tr>
+<td>`%u`</td>
+<td>weekday as a decimal number [1,7]</td>
+</tr>
+
+<tr>
+<td>`%U`</td>
+<td>week number of the year as a decimal number [00,53]</td>
+</tr>
+
+<tr>
+<td>`%V`</td>
+<td>week number of the year</td>
+</tr>
+
+<tr>
+<td>`%w`</td>
+<td>weekday as a decimal number [0,6]</td>
+</tr>
+
+<tr>
+<td>`%W`</td>
+<td>week number of the year as a decimal number [00,53]</td>
+</tr>
+
+<tr>
+<td>`%x`</td>
+<td>locale's appropriate date representation</td>
+</tr>
+
+<tr>
+<td>`%X`</td>
+<td>locale's appropriate time representation</td>
+</tr>
+
+<tr>
+<td>`%y`</td>
+<td>last two digits of the year as a decimal number [00,99]</td>
+</tr>
+
+<tr>
+<td>%Y</td>
+<td>year as a decimal number (for example, 1997)</td>
+</tr>
+
+<tr>
+<td>`%z`</td>
+<td>offset from UTC in the ISO 8601:2000 standard format</td>
+</tr>
+
+<tr>
+<td>`%Z`</td>
+<td>timezone name or abbreviation</td>
+</tr>
+
+<tr>
+<td>`%%`</td>
+<td>%</td>
+</tr>
+
+</tbody>
+</table>
+
+e.g.
+```
+given languageCode = "ru-RU": {{ localizeDate "%A, %d %B %Y" "2015-01-21" }} → "Среда, 21 Январь 2015"
+given languageCode = "es-MX": {{ localizeDate "%A, %d %B %Y" "2015-01-21" }} → "miércoles, 21 enero 2015"
+```
 
 ### lower
 Converts all characters in string to lowercase.

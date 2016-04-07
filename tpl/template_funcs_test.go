@@ -18,11 +18,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"math/rand"
 	"path"
@@ -32,6 +27,12 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -76,6 +77,8 @@ func TestFuncsInTemplate(t *testing.T) {
 
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
 	// TODO(bep): docs: fix title example
+	// Set locale for localizeDate test
+	viper.Set("languageCode", "es-MX")
 	in :=
 		`absURL: {{ "http://gohugo.io/" | absURL }}
 absURL: {{ "mystyle.css" | absURL }}
@@ -94,6 +97,7 @@ hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
 hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
+localizeDate: {{ localizeDate "%d %B %Y" "2015-01-21" }}
 lower: {{lower "BatMan"}}
 markdownify: {{ .Title | markdownify}}
 md5: {{ md5 "Hello world, gophers!" }}
@@ -144,6 +148,7 @@ hasPrefix 1: true
 hasPrefix 2: false
 in: Substring found!
 jsonify: ["A","B","C"]
+localizeDate: 21 enero 2015
 lower: batman
 markdownify: <strong>BatMan</strong>
 md5: b3029f756f98f79e7f1b7f1d1f0dd53b

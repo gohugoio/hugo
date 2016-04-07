@@ -24,8 +24,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/spf13/hugo/hugofs"
 	"html"
 	"html/template"
 	"math/rand"
@@ -38,6 +36,11 @@ import (
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
+	"github.com/variadico/lctime"
 
 	"bitbucket.org/pkg/inflect"
 
@@ -1368,6 +1371,39 @@ func dateFormat(layout string, v interface{}) (string, error) {
 	return t.Format(layout), nil
 }
 
+// localizeDate converts the textual representation of the datetime string
+// into the other form respecting languageCode setting.
+// More info can be found here: https://github.com/variadico/lctime
+// It converts languageCode to locale based on the following rules:
+// ru will be converted to ru_RU
+// ru-ru will be converted to ru_RU
+// ru-RU will be converted to ru-RU
+// ru-by-other will be converted to ru-BY
+// ru_ru will be converted to RU_RU, which is invalid locale, so beware!
+func localizeDate(format string, v interface{}) (string, error) {
+	t, err := cast.ToTimeE(v)
+	if err != nil {
+		return "", err
+	}
+
+	// Try to convert languageCode to locale format that lctime understands
+	var country string
+	localeParts := strings.Split(viper.GetString("languagecode"), "-")
+	lang := localeParts[0]
+	if len(localeParts) > 1 {
+		country = strings.ToUpper(localeParts[1])
+	} else {
+		country = strings.ToUpper(localeParts[0])
+	}
+	localeParts = []string{lang, country}
+	locale := strings.Join(localeParts, "_")
+	err = lctime.SetLocale(locale)
+	if err != nil {
+		return "", err
+	}
+	return lctime.Strftime(format, t), nil
+}
+
 // dfault checks whether a given value is set and returns a default value if it
 // is not.  "Set" in this context means non-zero for numeric types and times;
 // non-zero length for strings, arrays, slices, and maps;
@@ -1764,6 +1800,7 @@ func init() {
 		"jsonify":      jsonify,
 		"last":         last,
 		"le":           le,
+		"localizeDate": localizeDate,
 		"lower":        func(a string) string { return strings.ToLower(a) },
 		"lt":           lt,
 		"markdownify":  markdownify,
