@@ -12,7 +12,7 @@ matrix:
     - go: tip
 script:
   - make check
-  - go build
+  - go build -race
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 install:
