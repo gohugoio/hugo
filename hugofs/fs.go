@@ -58,7 +58,7 @@ func WorkingDir() *afero.BasePathFs {
 	return workingDirFs
 }
 
-// InitFs initializes with the OS file system
+// InitDefaultFs initializes with the OS file system
 // as source and destination file systems.
 func InitDefaultFs() {
 	InitFs(&afero.OsFs{})
