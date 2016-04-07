@@ -80,7 +80,7 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 	d := time.Second * 2
 	ticker := time.NewTicker(d)
 	select {
-	case err = <-s.ReadPagesFromSource():
+	case err = <-s.readPagesFromSource():
 		break
 	case <-ticker.C:
 		err = fmt.Errorf("ReadPagesFromSource() never returns in %s", d.String())
@@ -92,15 +92,15 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 }
 
 func createAndRenderPages(t *testing.T, s *Site) {
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if err := s.RenderPages(); err != nil {
+	if err := s.renderPages(); err != nil {
 		t.Fatalf("Unable to render pages. %s", err)
 	}
 }
@@ -254,7 +254,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 		s.initializeSiteInfo()
 
-		if err := s.CreatePages(); err != nil {
+		if err := s.createPages(); err != nil {
 			t.Fatalf("Unable to create pages: %s", err)
 		}
 		return s
@@ -433,8 +433,8 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		"sitemap.xml", "<root>SITEMAP</root>")
 
 	createAndRenderPages(t, s)
-	s.RenderHomePage()
-	s.RenderSitemap()
+	s.renderHomePage()
+	s.renderSitemap()
 
 	var expectedPagePath string
 	if uglyURLs {
@@ -522,7 +522,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		"_default/list.html", "{{ .Title }}")
 
 	createAndRenderPages(t, s)
-	s.RenderSectionLists()
+	s.renderSectionLists()
 
 	tests := []struct {
 		doc         string
@@ -640,15 +640,15 @@ func TestAbsURLify(t *testing.T) {
 
 		s.prepTemplates("blue/single.html", templateWithURLAbs)
 
-		if err := s.CreatePages(); err != nil {
+		if err := s.createPages(); err != nil {
 			t.Fatalf("Unable to create pages: %s", err)
 		}
 
-		if err := s.BuildSiteMeta(); err != nil {
+		if err := s.buildSiteMeta(); err != nil {
 			t.Fatalf("Unable to build site metadata: %s", err)
 		}
 
-		if err := s.RenderPages(); err != nil {
+		if err := s.renderPages(); err != nil {
 			t.Fatalf("Unable to render pages. %s", err)
 		}
 
@@ -737,11 +737,11 @@ func TestOrderedPages(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
@@ -811,11 +811,11 @@ func TestGroupedPages(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
@@ -1001,11 +1001,11 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
@@ -1075,7 +1075,7 @@ func setupLinkingMockSite(t *testing.T) *Site {
 
 	site.initializeSiteInfo()
 
-	if err := site.CreatePages(); err != nil {
+	if err := site.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
