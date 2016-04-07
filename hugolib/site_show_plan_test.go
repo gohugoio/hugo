@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
+const aliasDoc1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
 
 var fakeSource = []source.ByteSource{
 	{
@@ -34,7 +34,7 @@ var fakeSource = []source.ByteSource{
 	},
 	{
 		Name:    filepath.FromSlash("alias/test/file1.md"),
-		Content: []byte(ALIAS_DOC_1),
+		Content: []byte(aliasDoc1),
 	},
 	{
 		Name:    filepath.FromSlash("section/somecontent.html"),
