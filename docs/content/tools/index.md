@@ -62,7 +62,7 @@ Do you prefer an graphical user interface over a text editor? Then give these fr
 
 - [rango](https://github.com/stayradiated/rango) - A web frontend for Hugo. It's designed to make it easy to manage a small site, even for people with little computer experience.
 - [enwrite](https://github.com/zzamboni/enwrite) - Evernote-powered statically-generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
-- [caddy-hugo](https://github.com/hacdias/caddy-hugo) - This is an add-on for [Caddy](https://caddyserver.com/) which wants to deliver a good UI to edit the content of the website. 
+- [caddy-hugo](https://github.com/hacdias/caddy-hugo) - This is an add-on for [Caddy](https://caddyserver.com/) which wants to deliver a good UI to edit the content of the website.
 - [Hugopit](https://github.com/sjardim/Hugopit) - A web-based editor for Hugo build on top of [Cockpit CMS](http://www.getcockpit.com/).
 
 ----
@@ -84,6 +84,16 @@ A static site with a dynamic search function? Yes. Alternatively to embeddable s
 - [Hugoidx](https://github.com/blevesearch/hugoidx) is an experimental application to create a search index. It's build on top of [Bleve](http://www.blevesearch.com/).
 - This [GitHub Gist](https://gist.github.com/sebz/efddfc8fdcb6b480f567) contains simple workflow to create a search index for your static site. It uses a simple Grunt script to index all your content files and [lunr.js](http://lunrjs.com/) to serve the search results.
 - [hugo-lunr](https://www.npmjs.com/package/hugo-lunr) - A simple way to add site search to your static Hugo site using [lunr.js](http://lunrjs.com/). Hugo-lunr will create an index file of any html and markdown documents in your Hugo project.
+
+----
+
+## Commercial Services
+
+- [Appernetic.io](https://appernetic.io) is a Hugo Static Site Generator as a Service that is easy to use for non-technical users.
+Features: inline PageDown editor, visual tree view, image upload and digital asset management with Cloudinary, site preview, continuous integration with GitHub, atomic deploy and hosting, Git and Hugo integration, autosave, custom domain, project syncing, theme cloning and management. Developers have complete control over the source code and can manage it with GitHub’s deceptively simple workflow.
+
+- [Netlify.com](https://www.netlify.com), builds, deploy & hosts your static site or app (Hugo, Jekyll etc). Build, deploy and host your static site or app with a drag and drop interface and automatic deploys from GitHub or Bitbucket.
+Features: global CDN, atomic deploys, ultra fast DNS, instant cache invalidation, high availability, automated hosting, Git integration, form submission hooks, authentication providers, custom domain. Developers have complete control over the source code and can manage it with GitHub’s or Bitbuckets deceptively simple workflow.
 
 ----
 
