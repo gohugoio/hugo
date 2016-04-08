@@ -28,10 +28,9 @@ weight: 10
 
 Hugo is an open source project and lives by the work of its [contributors](https://github.com/spf13/hugo/graphs/contributors). Help to make Hugo even more awesome. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub and we need your help.
 
-This tutorial is	 intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do. 
+This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do. 
 
 For any kind of questions please take a look at our [forum](https://discuss.gohugo.io/).
-
 
 ## Install Go
 
@@ -47,14 +46,6 @@ More experienced users can use the [Go Version Manager](https://github.com/moovw
 
 This is handy if you follow the developement of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later you have to upgrade if you want to keep up.
 
-### Install Mercurial
-
-Skip this section if you don't plan to work on the codebase of Hugo.
-
-Like Git, which will be introduced in the next section, Mercurial is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality of Hugo. We use them because we don't want to reinvent the wheel. 
-
-Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of some packages are tracked with Git, others with Mercurial.  `get` needs to interact with both version control systems in order to fetch all dependencies.
-
 
 ## Create an account on GitHub
 
@@ -63,9 +54,13 @@ If you're going to contribute code, you'll need to have an account on GitHub. Go
 
 ## Install Git on your system
 
-You will need to install Git and learn how to use it. This tutorial assumes basic knowledge about Git. Refer to this excellent [Git book](https://git-scm.com/) if you are not sure what to do. The used terminology will be explained with annotations.
+You will need to install Git. This tutorial assumes basic knowledge about Git. Refer to this excellent [Git book](https://git-scm.com/) if you are not sure where to begin. The used terminology will be explained with annotations.
 
-Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip this section if this command returned a version number. Otherwise [download](https://git-scm.com/downloads) the lastest version of Git and follow this excellent [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel. 
+
+Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
+
+Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip the rest of this section if the command returned a version number. Otherwise [download](https://git-scm.com/downloads) the lastest version of Git and follow this [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
 Finally, check again with `git version` if Git was installed successfully.
 
