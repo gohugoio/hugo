@@ -107,6 +107,7 @@ readFile: {{ readFile "README.txt" }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
 replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
+replaceRE: {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}
 safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
 safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeHTML: {{ "Bat&Man" | safeHTML }}
@@ -157,6 +158,7 @@ readFile: Hugo Rocks!
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
 replace: Batman and Catwoman
+replaceRE: gohugo.io
 safeCSS: Bat&amp;Man
 safeHTML: Bat&Man
 safeHTML: Bat&Man
