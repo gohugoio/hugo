@@ -24,8 +24,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/spf13/hugo/hugofs"
 	"html"
 	"html/template"
 	"math/rand"
@@ -39,7 +37,10 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
+
+	"github.com/bep/inflect"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"

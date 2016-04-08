@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/bep/inflect"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"

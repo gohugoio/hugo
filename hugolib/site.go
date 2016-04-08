@@ -31,7 +31,7 @@ import (
 
 	"path"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/bep/inflect"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
