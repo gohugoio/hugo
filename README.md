@@ -56,7 +56,6 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 1. Make sure your local environment has the following software installed:
 
     * [Git](https://git-scm.com/)
-    * [Mercurial](https://www.mercurial-scm.org/)
     * [Go][] 1.5+
 
 2. [Fork the Hugo project on GitHub](https://github.com/spf13/hugo).
