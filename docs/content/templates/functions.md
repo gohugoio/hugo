@@ -413,6 +413,29 @@ e.g.
 
 * `{{ int "123" }}` → 123
 
+### numFormat
+
+`numFormat` allows you to format integers and floats with a custom thousands seperator and a
+decimal mark. Furthermore, you can define the precision after the comma, but **only** up to 9 digits! Required are the expected format of the output and the number itself. Let's look at some examples:
+
+```
+<!-- "" is the default format -->
+{{ numFormat "" 12345.6789 }}
+<!-- outputs 12,345.68 -->
+
+{{ numFormat "#,###.##" 12345.6789 }}
+<!-- outputs 12,345.68 -->
+
+{{ numFormat "#,###." 12345.6789 }}
+<!-- outputs 12,346 -->
+
+{{ numFormat "#,###" 12345.6789 }}
+<!-- outputs 12345,679 -->
+
+{{ numFormat "#.###,######" 12345.6789 }}
+<!-- outputs 12.345,678900 -->
+```
+
 ## Strings
 
 ### chomp
