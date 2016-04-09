@@ -558,7 +558,9 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
+	isInnerShortcodeCache.RLock()
 	err := tmpl.Execute(buffer, data)
+	isInnerShortcodeCache.RUnlock()
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
 		jww.WARN.Println(data)
