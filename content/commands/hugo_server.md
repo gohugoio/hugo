@@ -1,5 +1,5 @@
 ---
-date: 2015-12-16T09:24:56-07:00
+date: 2016-04-09T23:00:06+02:00
 title: "hugo server"
 slug: hugo_server
 url: /commands/hugo_server/
@@ -31,44 +31,47 @@ hugo server
 ### Options
 
 ```
-      --appendPort[=true]: append port to baseurl
-  -b, --baseURL="": hostname (and path) to the root, e.g. http://spf13.com/
-      --bind="127.0.0.1": interface to which the server will bind
-  -D, --buildDrafts[=false]: include content marked as draft
-  -F, --buildFuture[=false]: include content with publishdate in the future
-      --cacheDir="": filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs[=false]: if true, all relative URLs will be canonicalized using baseURL
-      --config="": config file (default is path/config.yaml|json|toml)
-  -d, --destination="": filesystem path to write files to
-      --disableLiveReload[=false]: watch without enabling live browser reload on rebuild
-      --disableRSS[=false]: Do not build RSS files
-      --disableSitemap[=false]: Do not build Sitemap file
-      --editor="": edit new content with this editor, if provided
-      --ignoreCache[=false]: Ignores the cache directory for reading but still writes to it
-      --meminterval=100: interval to poll memory usage (requires --memstats)
-      --memstats="": log memory usage to this file
-      --noTimes[=false]: Don't sync modification time of files
-      --pluralizeListTitles[=true]: Pluralize titles in lists using inflect
-  -p, --port=1313: port on which the server will listen
-      --preserveTaxonomyNames[=false]: Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
-      --renderToDisk[=false]: render to Destination path (default is render to memory & serve from there)
-  -s, --source="": filesystem path to read files relative from
-      --stepAnalysis[=false]: display memory and timing of different steps of the program
-  -t, --theme="": theme to use (located in /themes/THEMENAME/)
-      --uglyURLs[=false]: if true, use /filename.html instead of /filename/
-  -w, --watch[=true]: watch filesystem for changes and recreate as needed
+      --appendPort              append port to baseurl (default true)
+  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
+      --bind string             interface to which the server will bind (default "127.0.0.1")
+  -D, --buildDrafts             include content marked as draft
+  -F, --buildFuture             include content with publishdate in the future
+      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir     Remove files from destination not found in static directories
+      --config string           config file (default is path/config.yaml|json|toml)
+  -c, --contentDir string       filesystem path to content directory
+  -d, --destination string      filesystem path to write files to
+      --disableLiveReload       watch without enabling live browser reload on rebuild
+      --disableRSS              Do not build RSS files
+      --disableSitemap          Do not build Sitemap file
+      --forceSyncStatic         Copy all files when static is changed.
+      --ignoreCache             Ignores the cache directory for reading but still writes to it
+  -l, --layoutDir string        filesystem path to layout directory
+      --meminterval int         interval to poll memory usage (requires --memstats) (default 100)
+      --memstats string         log memory usage to this file
+      --noTimes                 Don't sync modification time of files
+      --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
+  -p, --port int                port on which the server will listen (default 1313)
+      --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --renderToDisk            render to Destination path (default is render to memory & serve from there)
+  -s, --source string           filesystem path to read files relative from
+      --stepAnalysis            display memory and timing of different steps of the program
+  -t, --theme string            theme to use (located in /themes/THEMENAME/)
+      --uglyURLs                if true, use /filename.html instead of /filename/
+  -w, --watch                   watch filesystem for changes and recreate as needed (default true)
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --log[=false]: Enable Logging
-      --logFile="": Log File path (if set, logging enabled automatically)
-  -v, --verbose[=false]: verbose output
-      --verboseLog[=false]: verbose logging
+      --log              Enable Logging
+      --logFile string   Log File path (if set, logging enabled automatically)
+  -v, --verbose          verbose output
+      --verboseLog       verbose logging
 ```
 
 ### SEE ALSO
 * [hugo](/commands/hugo/)	 - hugo builds your site
 
-###### Auto generated by spf13/cobra on 16-Dec-2015
+###### Auto generated by spf13/cobra on 9-Apr-2016
