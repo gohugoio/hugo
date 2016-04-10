@@ -106,6 +106,7 @@ It is also possible to add syntax highlighting with GitHub flavoured code fences
 ### Disclaimers
 
  * Pygments is relatively slow and _causes a performance hit when building your site_, but Hugo has been designed to cache the results to disk.
+ * The caching can be turned off by setting the `--ignoreCache` flag to `true`.
  * Languages available depends on your Pygments installation.
 
 ## Client-side
