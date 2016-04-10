@@ -62,10 +62,11 @@ func Highlight(code, lang, optsStr string) string {
 
 	fs := hugofs.Os()
 
+	ignoreCache := viper.GetBool("IgnoreCache")
 	cacheDir := viper.GetString("CacheDir")
 	var cachefile string
 
-	if cacheDir != "" {
+	if !ignoreCache && cacheDir != "" {
 		cachefile = filepath.Join(cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
 
 		exists, err := Exists(cachefile, fs)
@@ -120,7 +121,7 @@ func Highlight(code, lang, optsStr string) string {
 		str = strings.Replace(str, "</pre>", "</code></pre>", 1)
 	}
 
-	if cachefile != "" {
+	if !ignoreCache && cachefile != "" {
 		// Write cache file
 		if err := WriteToDisk(cachefile, strings.NewReader(str), fs); err != nil {
 			jww.ERROR.Print(stderr.String())
