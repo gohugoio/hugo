@@ -92,7 +92,10 @@ func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
 }
 
 // resWriteCache writes bytes to an ID into the file cache
-func resWriteCache(id string, c []byte, fs afero.Fs) error {
+func resWriteCache(id string, c []byte, fs afero.Fs, ignoreCache bool) error {
+	if ignoreCache {
+		return nil
+	}
 	fID := getCacheFileID(id)
 	f, err := fs.Create(fID)
 	if err != nil {
@@ -147,7 +150,7 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = resWriteCache(url, c, fs)
+	err = resWriteCache(url, c, fs, viper.GetBool("IgnoreCache"))
 	if err != nil {
 		return nil, err
 	}
