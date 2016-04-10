@@ -222,7 +222,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringVarP(&cacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
-	cmd.Flags().BoolVarP(&ignoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
+	cmd.Flags().BoolVarP(&ignoreCache, "ignoreCache", "", false, "Ignores the cache directory")
 	cmd.Flags().StringVarP(&destination, "destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	cmd.Flags().BoolVar(&uglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")

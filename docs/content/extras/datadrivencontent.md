@@ -103,9 +103,8 @@ temporary directory.
 With the command-line flag `--cacheDir`, you can specify any folder on
 your system as a caching directory.
 
-If you don't like caching at all, you can fully disable to read from the
-cache with the command line flag `--ignoreCache`. However, Hugo will always
-write, on each build of the site, to the cache folder (silent backup).
+If you don't like caching at all, you can fully disable caching with the
+command line flag `--ignoreCache`.
 
 ### Authentication when using REST URLs
 
