@@ -435,9 +435,6 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 	assert.NotNil(t, fishySectionMenuEntry)
 	assert.NotNil(t, nodeFishy)
 
-	firstSectionMenuEntry.URL = firstSectionMenuEntry.URL + "/"
-	secondSectionMenuEntry.URL = secondSectionMenuEntry.URL + "/"
-	fishySectionMenuEntry.URL = fishySectionMenuEntry.URL + "/"
 	assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
 	assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
 	assert.False(t, nodeFirst.IsMenuCurrent("spm", fishySectionMenuEntry))

@@ -1192,7 +1192,7 @@ func (s *Site) assembleMenus() {
 		if sectionPagesMenu != "" {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {
 				if p.Section() != "" {
-					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())), URL: s.Info.createNodeMenuEntryURL("/" + p.Section())}
+					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())), URL: s.Info.createNodeMenuEntryURL("/" + p.Section() + "/")}
 					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
 						// menu with same id defined in config, let that one win
 						continue
