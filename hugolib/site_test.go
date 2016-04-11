@@ -142,6 +142,9 @@ func NopCloser(w io.Writer) io.WriteCloser {
 }
 
 func TestRenderThing(t *testing.T) {
+	setUp()
+	defer tearDown()
+
 	tests := []struct {
 		content  string
 		template string
@@ -149,7 +152,7 @@ func TestRenderThing(t *testing.T) {
 	}{
 		{pageSimpleTitle, templateTitle, "simple template"},
 		{pageSimpleTitle, templateFunc, "simple-template"},
-		{pageWithMd, templateContent, "\n\n<h1 id=\"heading-1:91b5c4a22fc6103c73bb91e4a40568f8\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2:91b5c4a22fc6103c73bb91e4a40568f8\">heading 2</h2>\n\n<p>more text</p>\n"},
+		{pageWithMd, templateContent, "\n\n<h1 id=\"heading-1:42\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2:42\">heading 2</h2>\n\n<p>more text</p>\n"},
 		{simplePageRFC3339Date, templateDate, "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
@@ -556,8 +559,8 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 }
 func TestSkipRender(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	setUp()
+	defer tearDown()
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -593,14 +596,14 @@ func TestSkipRender(t *testing.T) {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title:42\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3:28c75a9e2162b8eccda73a1ab9ce80b4\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
-		{filepath.FromSlash("sect/doc4.html"), "\n\n<h1 id=\"doc4:f8e6806123f341b8975509637645a4d3\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
+		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3:42\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
+		{filepath.FromSlash("sect/doc4.html"), "\n\n<h1 id=\"doc4:42\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
 		{filepath.FromSlash("sect/doc5.html"), "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("sect/doc6.html"), "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title:0ae308ad73e2f37bd09874105281b5d8\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title:42\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {

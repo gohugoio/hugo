@@ -47,6 +47,15 @@ type Node struct {
 // but that would lead to massive changes; do it simple for now.
 var nodeIDCounter uint64
 
+type nodeIDProviderFunc func(n *Node) int
+
+var defaultNodeIDProvider nodeIDProviderFunc = func(n *Node) int {
+	n.idInit.Do(func() { n.id = nextNodeID() })
+	return n.id
+}
+
+var nodeIDProvider nodeIDProviderFunc = defaultNodeIDProvider
+
 func nextNodeID() int {
 	return int(atomic.AddUint64(&nodeIDCounter, 1))
 }
@@ -55,8 +64,7 @@ func nextNodeID() int {
 // This is unique for a given Hugo build, but must not be considered stable.
 // See UniqueID on Page for an identify that is stable for repeated builds.
 func (n *Node) ID() int {
-	n.idInit.Do(func() { n.id = nextNodeID() })
-	return n.id
+	return nodeIDProvider(n)
 }
 
 func (n *Node) Now() time.Time {
