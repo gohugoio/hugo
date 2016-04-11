@@ -93,7 +93,7 @@ In Hugo you can declare params both for the site and the individual page.  A com
 With the `Param` method the most specific value will be selected for you, and it is safe to use it in any template (it's defined on both Page and Node):
 
 ```
-$.Param("image")
+$.Param "image"
 ```
 
 ## Node Variables
