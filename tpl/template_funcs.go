@@ -646,6 +646,7 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 
 	var ivp, imvp *int64
 	var svp, smvp *string
+	var slv, slmv interface{}
 	var ima []int64
 	var sma []string
 	if mv.Type() == v.Type() {
@@ -668,6 +669,9 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 				imv := toTimeUnix(mv)
 				imvp = &imv
 			}
+		case reflect.Array, reflect.Slice:
+			slv = v.Interface()
+			slmv = mv.Interface()
 		}
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
@@ -765,8 +769,24 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			return !r, nil
 		}
 		return r, nil
+	case "intersect":
+		r, err := intersect(slv, slmv)
+		if err != nil {
+			return false, err
+		}
+
+		if reflect.TypeOf(r).Kind() == reflect.Slice {
+			s := reflect.ValueOf(r)
+
+			if s.Len() > 0 {
+				return true, nil
+			}
+			return false, nil
+		} else {
+			return false, errors.New("invalid intersect values")
+		}
 	default:
-		return false, errors.New("no such an operator")
+		return false, errors.New("no such operator")
 	}
 	return false, nil
 }

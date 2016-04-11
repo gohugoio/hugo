@@ -67,7 +67,7 @@ Creates a dictionary `(map[string, interface{})`, expects parameters added in va
 Invalid combinations like keys that are not strings or uneven number of parameters, will result in an exception thrown.
 Useful for passing maps to partials when adding to a template.
 
-e.g. Pass into "foo.html" a map with the keys "important, content" 
+e.g. Pass into "foo.html" a map with the keys "important, content"
 
     {{$important := .Site.Params.SomethingImportant }}
     {{range .Site.Params.Bar}}
@@ -78,9 +78,8 @@ e.g. Pass into "foo.html" a map with the keys "important, content"
 
     Important {{.important}}
     {{.content}}
-    
 
-or create a map on the fly to pass into 
+or create a map on the fly to pass into
 
     {{partial "foo" (dict "important" "Smiles" "content" "You should do more")}}
 
@@ -313,6 +312,15 @@ Following operators are now available
 - `<`, `lt`: True if a given field value is lesser than a matching value
 - `in`: True if a given field value is included in a matching value. A matching value must be an array or a slice
 - `not in`: True if a given field value isn't included in a matching value. A matching value must be an array or a slice
+- `intersect`: True if a given field value that is a slice / array of strings or integers contains elements in common with the matching value. It follows the same rules as the intersect function.
+
+*`intersect` operator, e.g.:*
+
+    {{ range where .Site.Pages ".Params.tags" "intersect" .Params.tags }}
+      {{ if ne .Permalink $.Permalink }}
+        {{ .Render "summary" }}
+      {{ end }}
+    {{ end }}
 
 *`where` and `first` can be stacked, e.g.:*
 
@@ -340,7 +348,7 @@ e.g.
 
 ### readDir
 
-Gets a directory listing from a directory relative to the current project working dir. 
+Gets a directory listing from a directory relative to the current project working dir.
 
 So, If the project working dir has a single file named `README.txt`:
 
@@ -349,7 +357,7 @@ So, If the project working dir has a single file named `README.txt`:
 ### readFile
 Reads a file from disk and converts it into a string. Note that the filename must be relative to the current project working dir.
  So, if you have a file with the name `README.txt` in the root of your project with the content `Hugo Rocks!`:
- 
+
  `{{readFile "README.txt"}}` → `"Hugo Rocks!"`
 
 ## Math

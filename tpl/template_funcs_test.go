@@ -18,11 +18,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"math/rand"
 	"path"
@@ -32,6 +27,12 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -1200,6 +1201,78 @@ func TestWhere(t *testing.T) {
 			key: "b", op: "in", match: []int{3, 4, 5},
 			expect: []map[string]int{
 				{"a": 3, "b": 4},
+			},
+		},
+		{
+			sequence: []map[string][]string{
+				{"a": []string{"A", "B", "C"}, "b": []string{"D", "E", "F"}}, {"a": []string{"G", "H", "I"}, "b": []string{"J", "K", "L"}}, {"a": []string{"M", "N", "O"}, "b": []string{"P", "Q", "R"}},
+			},
+			key: "b", op: "intersect", match: []string{"D", "P", "Q"},
+			expect: []map[string][]string{
+				{"a": []string{"A", "B", "C"}, "b": []string{"D", "E", "F"}}, {"a": []string{"M", "N", "O"}, "b": []string{"P", "Q", "R"}},
+			},
+		},
+		{
+			sequence: []map[string][]int{
+				{"a": []int{1, 2, 3}, "b": []int{4, 5, 6}}, {"a": []int{7, 8, 9}, "b": []int{10, 11, 12}}, {"a": []int{13, 14, 15}, "b": []int{16, 17, 18}},
+			},
+			key: "b", op: "intersect", match: []int{4, 10, 12},
+			expect: []map[string][]int{
+				{"a": []int{1, 2, 3}, "b": []int{4, 5, 6}}, {"a": []int{7, 8, 9}, "b": []int{10, 11, 12}},
+			},
+		},
+		{
+			sequence: []map[string][]int8{
+				{"a": []int8{1, 2, 3}, "b": []int8{4, 5, 6}}, {"a": []int8{7, 8, 9}, "b": []int8{10, 11, 12}}, {"a": []int8{13, 14, 15}, "b": []int8{16, 17, 18}},
+			},
+			key: "b", op: "intersect", match: []int8{4, 10, 12},
+			expect: []map[string][]int8{
+				{"a": []int8{1, 2, 3}, "b": []int8{4, 5, 6}}, {"a": []int8{7, 8, 9}, "b": []int8{10, 11, 12}},
+			},
+		},
+		{
+			sequence: []map[string][]int16{
+				{"a": []int16{1, 2, 3}, "b": []int16{4, 5, 6}}, {"a": []int16{7, 8, 9}, "b": []int16{10, 11, 12}}, {"a": []int16{13, 14, 15}, "b": []int16{16, 17, 18}},
+			},
+			key: "b", op: "intersect", match: []int16{4, 10, 12},
+			expect: []map[string][]int16{
+				{"a": []int16{1, 2, 3}, "b": []int16{4, 5, 6}}, {"a": []int16{7, 8, 9}, "b": []int16{10, 11, 12}},
+			},
+		},
+		{
+			sequence: []map[string][]int32{
+				{"a": []int32{1, 2, 3}, "b": []int32{4, 5, 6}}, {"a": []int32{7, 8, 9}, "b": []int32{10, 11, 12}}, {"a": []int32{13, 14, 15}, "b": []int32{16, 17, 18}},
+			},
+			key: "b", op: "intersect", match: []int32{4, 10, 12},
+			expect: []map[string][]int32{
+				{"a": []int32{1, 2, 3}, "b": []int32{4, 5, 6}}, {"a": []int32{7, 8, 9}, "b": []int32{10, 11, 12}},
+			},
+		},
+		{
+			sequence: []map[string][]int64{
+				{"a": []int64{1, 2, 3}, "b": []int64{4, 5, 6}}, {"a": []int64{7, 8, 9}, "b": []int64{10, 11, 12}}, {"a": []int64{13, 14, 15}, "b": []int64{16, 17, 18}},
+			},
+			key: "b", op: "intersect", match: []int64{4, 10, 12},
+			expect: []map[string][]int64{
+				{"a": []int64{1, 2, 3}, "b": []int64{4, 5, 6}}, {"a": []int64{7, 8, 9}, "b": []int64{10, 11, 12}},
+			},
+		},
+		{
+			sequence: []map[string][]float32{
+				{"a": []float32{1.0, 2.0, 3.0}, "b": []float32{4.0, 5.0, 6.0}}, {"a": []float32{7.0, 8.0, 9.0}, "b": []float32{10.0, 11.0, 12.0}}, {"a": []float32{13.0, 14.0, 15.0}, "b": []float32{16.0, 17.0, 18.0}},
+			},
+			key: "b", op: "intersect", match: []float32{4, 10, 12},
+			expect: []map[string][]float32{
+				{"a": []float32{1.0, 2.0, 3.0}, "b": []float32{4.0, 5.0, 6.0}}, {"a": []float32{7.0, 8.0, 9.0}, "b": []float32{10.0, 11.0, 12.0}},
+			},
+		},
+		{
+			sequence: []map[string][]float64{
+				{"a": []float64{1.0, 2.0, 3.0}, "b": []float64{4.0, 5.0, 6.0}}, {"a": []float64{7.0, 8.0, 9.0}, "b": []float64{10.0, 11.0, 12.0}}, {"a": []float64{13.0, 14.0, 15.0}, "b": []float64{16.0, 17.0, 18.0}},
+			},
+			key: "b", op: "intersect", match: []float64{4, 10, 12},
+			expect: []map[string][]float64{
+				{"a": []float64{1.0, 2.0, 3.0}, "b": []float64{4.0, 5.0, 6.0}}, {"a": []float64{7.0, 8.0, 9.0}, "b": []float64{10.0, 11.0, 12.0}},
 			},
 		},
 		{
