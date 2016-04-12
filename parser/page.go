@@ -50,6 +50,8 @@ const (
 	HTMLCommentStart = "<!--"
 	// HTMLCommentEnd identifies the end of HTML comment.
 	HTMLCommentEnd = "-->"
+	// BOM Unicode byte order marker
+	BOM = '\ufeff'
 )
 
 var (
@@ -101,6 +103,10 @@ func (p *page) Metadata() (meta interface{}, err error) {
 func ReadFrom(r io.Reader) (p Page, err error) {
 	reader := bufio.NewReader(r)
 
+	// chomp BOM and assume UTF-8
+	if err = chompBOM(reader); err != nil && err != io.EOF {
+		return
+	}
 	if err = chompWhitespace(reader); err != nil && err != io.EOF {
 		return
 	}
@@ -133,6 +139,19 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 	newp.content = content
 
 	return newp, nil
+}
+
+func chompBOM(r io.RuneScanner) (err error) {
+	for {
+		c, _, err := r.ReadRune()
+		if err != nil {
+			return err
+		}
+		if c != BOM {
+			r.UnreadRune()
+			return nil
+		}
+	}
 }
 
 func chompWhitespace(r io.RuneScanner) (err error) {
