@@ -265,7 +265,7 @@ func (p *Page) renderBytes(content []byte) []byte {
 	}
 	return helpers.RenderBytes(
 		&helpers.RenderingContext{Content: content, PageFmt: p.determineMarkupType(),
-			DocumentID: p.ID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+			DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
@@ -280,7 +280,7 @@ func (p *Page) renderContent(content []byte) []byte {
 		}
 	}
 	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.determineMarkupType(),
-		DocumentID: p.ID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {

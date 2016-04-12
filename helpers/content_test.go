@@ -172,15 +172,15 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 
 func TestGetHTMLRendererAnchors(t *testing.T) {
 	ctx := &RenderingContext{}
-	ctx.DocumentID = 123
+	ctx.DocumentID = "testid"
 	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 
 	actualRenderer := getHTMLRenderer(0, ctx)
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
-	expectedFootnoteHref := []byte("href=\"#fn:123:href\"")
-	expectedHeaderID := []byte("<h1 id=\"id:123\"></h1>\n")
+	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
+	expectedHeaderID := []byte("<h1 id=\"id:testid\"></h1>\n")
 
 	actualRenderer.Header(headerBuffer, func() bool { return true }, 1, "id")
 	actualRenderer.FootnoteRef(footnoteBuffer, []byte("href"), 1)
@@ -196,14 +196,14 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 
 func TestGetMmarkHTMLRenderer(t *testing.T) {
 	ctx := &RenderingContext{}
-	ctx.DocumentID = 321
+	ctx.DocumentID = "testid"
 	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 	actualRenderer := getMmarkHTMLRenderer(0, ctx)
 
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
-	expectedFootnoteHref := []byte("href=\"#fn:321:href\"")
+	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
 	expectedHeaderID := []byte("<h1 id=\"id\"></h1>")
 
 	actualRenderer.FootnoteRef(footnoteBuffer, []byte("href"), 1)

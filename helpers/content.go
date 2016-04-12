@@ -23,10 +23,6 @@ import (
 	"os/exec"
 	"unicode/utf8"
 
-	"fmt"
-	"strings"
-	"sync"
-
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
@@ -34,6 +30,9 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+
+	"strings"
+	"sync"
 )
 
 // SummaryLength is the length of the summary that Hugo extracts from a content.
@@ -168,11 +167,11 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	b := ctx.DocumentID != 0
+	b := len(ctx.DocumentID) != 0
 
 	if b && !ctx.getConfig().PlainIDAnchors {
-		renderParameters.FootnoteAnchorPrefix = fmt.Sprintf("%d:%s", ctx.DocumentID, renderParameters.FootnoteAnchorPrefix)
-		renderParameters.HeaderIDSuffix = fmt.Sprintf(":%d", ctx.DocumentID)
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
+		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
 
 	htmlFlags := defaultFlags
@@ -259,10 +258,10 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
 	}
 
-	b := ctx.DocumentID != 0
+	b := len(ctx.DocumentID) != 0
 
 	if b && !ctx.getConfig().PlainIDAnchors {
-		renderParameters.FootnoteAnchorPrefix = fmt.Sprintf("%d:%s", ctx.DocumentID, renderParameters.FootnoteAnchorPrefix)
+		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
 
@@ -344,7 +343,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 type RenderingContext struct {
 	Content      []byte
 	PageFmt      string
-	DocumentID   int
+	DocumentID   string
 	Config       *Blackfriday
 	FileResolver FileResolverFunc
 	LinkResolver LinkResolverFunc

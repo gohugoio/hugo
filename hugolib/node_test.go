@@ -43,6 +43,14 @@ func TestNodeSimpleMethods(t *testing.T) {
 }
 
 func TestNodeID(t *testing.T) {
+	t.Parallel()
+
+	n1 := &Node{}
+	n2 := &Node{}
+
+	assert.True(t, n1.ID() > 0)
+	assert.Equal(t, n1.ID(), n1.ID())
+	assert.True(t, n2.ID() > n1.ID())
 
 	var wg sync.WaitGroup
 
@@ -50,13 +58,8 @@ func TestNodeID(t *testing.T) {
 		wg.Add(1)
 		go func(j int) {
 			for k := 0; k < 10; k++ {
-				n1 := &Node{}
-				n2 := &Node{}
-
-				assert.True(t, n1.ID() > 0)
-				assert.Equal(t, n1.ID(), n1.ID())
-				assert.True(t, n2.ID() > n1.ID())
-
+				n := &Node{}
+				assert.True(t, n.ID() > 0)
 			}
 			wg.Done()
 		}(i)
