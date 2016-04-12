@@ -14,12 +14,10 @@
 package hugolib
 
 import (
+	"github.com/spf13/cast"
 	"html/template"
 	"sync"
-	"sync/atomic"
 	"time"
-
-	"github.com/spf13/cast"
 )
 
 type Node struct {
@@ -39,24 +37,6 @@ type Node struct {
 	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch
-	id            int
-	idInit        sync.Once
-}
-
-// This should probably be owned by Site and new ids assigned on creation,
-// but that would lead to massive changes; do it simple for now.
-var nodeIDCounter uint64
-
-func nextNodeID() int {
-	return int(atomic.AddUint64(&nodeIDCounter, 1))
-}
-
-// ID returns an integer that identifies this Node.
-// This is unique for a given Hugo build, but must not be considered stable.
-// See UniqueID on Page for an identify that is stable for repeated builds.
-func (n *Node) ID() int {
-	n.idInit.Do(func() { n.id = nextNodeID() })
-	return n.id
 }
 
 func (n *Node) Now() time.Time {

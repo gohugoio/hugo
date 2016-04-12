@@ -14,11 +14,8 @@
 package hugolib
 
 import (
-	"sync"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNodeSimpleMethods(t *testing.T) {
@@ -40,29 +37,4 @@ func TestNodeSimpleMethods(t *testing.T) {
 			t.Errorf("[%d] Node method error", i)
 		}
 	}
-}
-
-func TestNodeID(t *testing.T) {
-	t.Parallel()
-
-	n1 := &Node{}
-	n2 := &Node{}
-
-	assert.True(t, n1.ID() > 0)
-	assert.Equal(t, n1.ID(), n1.ID())
-	assert.True(t, n2.ID() > n1.ID())
-
-	var wg sync.WaitGroup
-
-	for i := 1; i <= 10; i++ {
-		wg.Add(1)
-		go func(j int) {
-			for k := 0; k < 10; k++ {
-				n := &Node{}
-				assert.True(t, n.ID() > 0)
-			}
-			wg.Done()
-		}(i)
-	}
-	wg.Wait()
 }
