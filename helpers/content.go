@@ -65,7 +65,7 @@ func NewBlackfriday() *Blackfriday {
 		"hrefTargetBlank":                  false,
 		"smartDashes":                      true,
 		"latexDashes":                      true,
-		"plainIDAnchors":                   false,
+		"plainIDAnchors":                   true,
 		"sourceRelativeLinks":              false,
 		"sourceRelativeLinksProjectFolder": "/docs/content",
 	}
