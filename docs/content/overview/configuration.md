@@ -259,7 +259,7 @@ Its behavior can be modified with the <code>latexDashes</code> flag listed below
 
 <tr>
 <td><code><strong>plainIDAnchors</strong></code></td>
-<td><code>false</code></td>
+<td><code>true</code></td>
 <td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
 </tr>
 <tr>
