@@ -1052,6 +1052,19 @@ func TestPageSimpleMethods(t *testing.T) {
 	}
 }
 
+func TestChompBOM(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	const utf8BOM = "\xef\xbb\xbf"
+	_, err := p.ReadFrom(strings.NewReader(utf8BOM + simplePage))
+	p.Convert()
+
+	if err != nil {
+		t.Fatalf("Unable to create a page with BOM prefixed frontmatter and body content: %s", err)
+	}
+
+	checkPageTitle(t, p, "Simple")
+}
+
 func listEqual(left, right []string) bool {
 	if len(left) != len(right) {
 		return false
