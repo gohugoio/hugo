@@ -54,7 +54,7 @@ Hugo now has:
 * Add boolean value comparison to `where` template function {{<gh 0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
 
 ### Fixes
-
+* `plainIDAnchors` now defaults to `true`  {{<gh 2057>}}
 * Win32 and ARM builds fixed {{<gh 1716>}}
 * Copy static dir files without theme's static dir {{<gh 1656>}}
 * Make `noTimes` command flag work {{<gh 1657>}}
