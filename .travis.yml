@@ -1,8 +1,8 @@
 language: go
 sudo: false
 go:
-  - 1.5.3
-  - 1.6
+  - 1.5.4
+  - 1.6.1
   - tip
 os:
   - linux
