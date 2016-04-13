@@ -1415,6 +1415,29 @@ func TestWhere(t *testing.T) {
 			key: "B", op: "op", match: "f",
 			expect: false,
 		},
+		{
+			sequence: map[string]interface{}{
+				"foo": []interface{}{map[interface{}]interface{}{"a": 1, "b": 2}},
+				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			},
+			key: "b", op: "in", match: slice(3, 4, 5),
+			expect: map[string]interface{}{
+				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+			},
+		},
+		{
+			sequence: map[string]interface{}{
+				"foo": []interface{}{map[interface{}]interface{}{"a": 1, "b": 2}},
+				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			},
+			key: "b", op: ">", match: 3,
+			expect: map[string]interface{}{
+				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			},
+		},
 	} {
 		var results interface{}
 		var err error
