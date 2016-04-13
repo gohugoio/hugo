@@ -18,11 +18,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"math/rand"
 	"path"
@@ -32,6 +27,12 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 type tstNoStringer struct {
@@ -1297,6 +1298,17 @@ func TestWhere(t *testing.T) {
 			},
 			key: "B", op: "op", match: "f",
 			expect: false,
+		},
+		{
+			sequence: map[string]interface{}{
+				"foo": []interface{}{map[interface{}]interface{}{"a": 1, "b": 2}},
+				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+				"zap": []interface{}{map[interface{}]interface{}{"a": 5, "b": 6}},
+			},
+			key: "b", op: "in", match: slice(3, 4, 5),
+			expect: map[string]interface{}{
+				"bar": []interface{}{map[interface{}]interface{}{"a": 3, "b": 4}},
+			},
 		},
 	} {
 		var results interface{}
