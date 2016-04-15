@@ -10,8 +10,8 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Twitter](http://twitter.com/spf13)
 
 [![GoDoc](https://godoc.org/github.com/spf13/hugo?status.svg)](https://godoc.org/github.com/spf13/hugo)
-[![Travis CI status](https://api.travis-ci.org/spf13/hugo.svg?branch=master "Travis CI status")](https://travis-ci.org/spf13/hugo)
-[![Appveyor status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true "Appveyor status")](https://ci.appveyor.com/project/spf13/hugo/branch/master)
+[![Linux and OS X Build Status](https://api.travis-ci.org/spf13/hugo.svg?branch=master&label=Linux+and+OS+X+build "Linux and OS X Build Status")](https://travis-ci.org/spf13/hugo)
+[![Windows Build Status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true&label=Windows+build "Windows Build Status")](https://ci.appveyor.com/project/spf13/hugo/branch/master)
 [![Dev chat at https://gitter.im/spf13/hugo](https://img.shields.io/badge/gitter-dev_chat-46bc99.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spf13/hugo)](https://goreportcard.com/report/github.com/spf13/hugo)
 
