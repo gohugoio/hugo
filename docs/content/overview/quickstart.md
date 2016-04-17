@@ -225,6 +225,13 @@ Now, you can clone one or more themes inside the `themes` directory. We will use
 $ git clone git@github.com:dim0627/hugo_theme_robust.git
 ```
 
+Leave the themes folder
+
+```bash
+$ cd ..
+```
+
+
 Start the server again
 
 ```bash
