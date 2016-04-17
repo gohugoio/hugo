@@ -42,7 +42,7 @@ You can print the `GOPATH` with `echo $GOPATH`. You should a non-empty string co
 
 ### GVM as alternative
 
-More experienced users can use the [Go Version Manager](https://github.com/moovweb/gvm), or GVM for short. It allows you to switch between different Go versions *on the same machine*. Probably you don't need this feature. But you can easily upgrade to a new released Go with a few commands.
+More experienced users can use the [Go Version Manager](https://github.com/moovweb/gvm), or GVM for short. It allows you to switch between different Go versions *on the same machine*. Probably you don't need this feature. But you can easily upgrade to a new released Go version with a few commands.
 
 This is handy if you follow the developement of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later you have to upgrade if you want to keep up.
 
