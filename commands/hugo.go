@@ -17,7 +17,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -26,6 +25,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/hugo/hugofs"
 
 	"github.com/spf13/hugo/parser"
 	flag "github.com/spf13/pflag"
@@ -318,6 +319,8 @@ func loadDefaultSettings() {
 // A Hugo command that calls initCoreCommonFlags() can pass itself
 // as an argument to have its command-line flags processed here.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("hugo")
 	viper.SetConfigFile(cfgFile)
 	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
 	if source == "" {
