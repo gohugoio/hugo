@@ -25,6 +25,12 @@ then look for a `config.yaml` file, followed by a `config.json` file.
 The config file is a site-wide config. The config file provides directions to
 hugo on how to build the site as well as site-wide parameters and menus.
 
+Site configuration can also be set as environment variables in your operating system. The command below will work on *nix systems and overrides the site title. Note that all the variable names must be prefixed with "HUGO_".
+
+```bash
+env HUGO_TITLE="Some Title" hugo
+```
+
 ## Examples
 
 The following is an example of a typical yaml config file:
