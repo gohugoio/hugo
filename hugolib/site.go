@@ -2095,7 +2095,19 @@ func (s *Site) writeDestPage(path string, publisher target.Publisher, reader io.
 }
 
 func (s *Site) writeDestAlias(path string, permalink string) (err error) {
-	jww.DEBUG.Println("creating alias:", path)
+	if viper.GetBool("RelativeURLs") {
+		// convert `permalink` into URI relative to location of `path`
+		baseURL := helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))
+		if strings.HasPrefix(permalink, baseURL) {
+			permalink = "/" + strings.TrimPrefix(permalink, baseURL)
+		}
+		permalink, err = helpers.GetRelativePath(permalink, path)
+		if err != nil {
+			jww.ERROR.Println("Failed to make a RelativeURL alias:", path, "redirecting to", permalink)
+		}
+		permalink = filepath.ToSlash(permalink)
+	}
+	jww.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
 	return s.aliasTarget().Publish(path, permalink)
 }
 
