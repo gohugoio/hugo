@@ -20,7 +20,7 @@ Hugo now has:
 * 77 (+10) themes
 
 ### New Features
-
+* Support reading configuration variables from the OS environment {{<gh 2090 >}}
 * Add emoji support {{<gh 1892>}}
 * Add `themesDir` option to configuration {{<gh 1556>}}
 * Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
