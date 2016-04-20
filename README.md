@@ -86,7 +86,7 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 
     Go expects all of your libraries to be found in`$GOPATH`.
 
-You can also find a [detailed guide](https://www.gohugo.io/tutorials/how-to-contribute-to-hugo/) in our documentation.
+You can also find a [detailed guide](http://gohugo.io/community/contributing/) in our documentation.
 
 ### Build and Install the Binaries from Source (Advanced Install)
 
