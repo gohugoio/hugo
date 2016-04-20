@@ -34,7 +34,7 @@ RUN go get github.com/stretchr/testify/assert \
 	&& go get golang.org/x/text/unicode/norm \
 	&& go get github.com/yosssi/ace \
 	&& go get github.com/spf13/nitro \
-	&& go get gopkg.in/fsnotify.v1
+	&& go get github.com/fsnotify/fsnotify
 
 COPY . /go/src/github.com/spf13/hugo
 RUN go get -d -v github.com/spf13/hugo
