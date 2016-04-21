@@ -486,7 +486,7 @@ We can limit the number of matches in that list with a third parameter. Let's sa
     {{ findRE "<h2.*?>(.|\n)*?</h2>" .Content 1 }}
     <!-- returns ["<h2 id="#foo">Foo</h2>"] -->
 
-`findRe` allows us to build an automatically generated table of contents that could be used for a simple scrollspy:
+`findRE` allows us to build an automatically generated table of contents that could be used for a simple scrollspy:
 
     {{ $headers := findRE "<h2.*?>(.|\n)*?</h2>" .Content }}
 
