@@ -20,6 +20,7 @@ Hugo now has:
 * 77 (+10) themes
 
 ### New Features
+* Add `readFile` template func {{<gh 1551 >}}
 * Support reading configuration variables from the OS environment {{<gh 2090 >}}
 * Add emoji support {{<gh 1892>}}
 * Add `themesDir` option to configuration {{<gh 1556>}}
@@ -36,6 +37,8 @@ Hugo now has:
     * Add `replaceRE` template function {{<gh 1845>}}
     * Add `shuffle` template function {{<gh 1942>}}
     * Add `slice` template function {{<gh 1902>}}
+    * Add `findRE` template func {{<gh 2048>}}
+    * Add `plainify` template func to strip away any HTML {{<gh 1915>}}
 
 ### Enhancements
 
@@ -52,6 +55,15 @@ Hugo now has:
 * Add file option to gist shortcode {{<gh 1955>}}
 * Add config layout and content directory CLI options {{<gh 1698>}}
 * Add boolean value comparison to `where` template function {{<gh 0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
+*  Do not write to to cache when `ignoreCache` is set  {{<gh 2067>}}
+* Add option to disable rendering of 404 page  {{<gh 2037>}}
+* Mercurial is no longer needed to build Hugo {{<gh 2062 >}}
+* Do not create `robots.txt by default {{<gh 2049>}}
+* Disable syntax guessing for PygmentsCodeFences by default.  To enable syntax guessing again, add the following to your config file: `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
+* Make `ByCount` sort consistently {{<gh 1930>}}
+* Add `Scratch` to shortcode {{<gh 2000>}}
+* Add support for symbolic links for content, layout, static, theme  {{<gh 1855 >}}
+* Add '+' as one of the valid characters in URLs specified in the front matter {{<gh 1290 >}}
 
 ### Fixes
 * `plainIDAnchors` now defaults to `true`  {{<gh 2057>}}
@@ -70,6 +82,7 @@ Hugo now has:
 * Fix shortcode handling in RST {{<gh 1904>}}
 * Use default sitemap configuration for homepage {{<gh 1304>}}
 * Exit if specific port is unavailable in server mode {{<gh 1901>}}
+* Fix regression in "section menus for lazy blogger" {{<gh 2065>}}
 
 
 ## **0.15.0**  November 25, 2015
