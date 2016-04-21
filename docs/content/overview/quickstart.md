@@ -244,7 +244,7 @@ Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
 
-> ** If Hugo will not find a specific theme in the `themes` directory then it will throw an exception as shown below.**
+> ** If Hugo doesn't find a specific theme in the `themes` directory, it will throw an exception as shown below.**
 ```
 FATAL: 2016/02/14 Unable to find theme Directory: /Users/shekhargulati/bookshelf/themes/robust
 ```
