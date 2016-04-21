@@ -55,10 +55,10 @@ Hugo now has:
 * Add file option to gist shortcode {{<gh 1955>}}
 * Add config layout and content directory CLI options {{<gh 1698>}}
 * Add boolean value comparison to `where` template function {{<gh 0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
-*  Do not write to to cache when `ignoreCache` is set  {{<gh 2067>}}
+* Do not write to to cache when `ignoreCache` is set  {{<gh 2067>}}
 * Add option to disable rendering of 404 page  {{<gh 2037>}}
 * Mercurial is no longer needed to build Hugo {{<gh 2062 >}}
-* Do not create `robots.txt by default {{<gh 2049>}}
+* Do not create `robots.txt` by default {{<gh 2049>}}
 * Disable syntax guessing for PygmentsCodeFences by default.  To enable syntax guessing again, add the following to your config file: `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
 * Make `ByCount` sort consistently {{<gh 1930>}}
 * Add `Scratch` to shortcode {{<gh 2000>}}
