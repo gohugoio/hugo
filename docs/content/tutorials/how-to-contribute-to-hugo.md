@@ -9,20 +9,6 @@ prev: /tutorials/github-pages-blog/
 title: How to contribute to Hugo
 weight: 10
 ---
-<!-- 
-  This only a temporary fix!
-
-  Cloudflare doesn't automatically updates the cache with a
-  new version of the stylesheet.
-
-  See #2045
--->
-<style type="text/css">
-  img {
-    max-width: 100%;
-    height: auto;
-  } 
-</style>
 
 ## Introduction
 
