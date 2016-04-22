@@ -43,6 +43,7 @@ Hugo now has:
 
 ### Enhancements
 
+* Hugo now exits with error code on any error. This is a big thing for automated deployments. {{<gh 740 >}}
 * Print error when `/index.html` is zero-length {{<gh 947>}}
 * Enable dirname and filename bash autocompletion for more flags {{<gh 0x666ddd237791b56fd048992dca9a27d1af50a10e>}}
 * Improve error handling in commands {{<gh 1502>}}
