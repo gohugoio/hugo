@@ -133,6 +133,10 @@ a, a:hover, a:focus {
     outline: 0;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+}
 
 .panel-body a {
     line-height: 1.1;

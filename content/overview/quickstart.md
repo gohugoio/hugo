@@ -11,22 +11,6 @@ title: Hugo Quickstart Guide
 weight: 10
 ---
 
-<!-- 
-  This only a temporary fix!
-
-  Cloudflare doesn't automatically updates the cache with a
-  new version of the stylesheet.
-
-  See #1888
--->
-<style type="text/css">
-  img {
-    max-width: 100%;
-    height: auto;
-  } 
-</style>
-
-
 Building a bookshelf
 ---
 
