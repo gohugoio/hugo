@@ -20,26 +20,26 @@ Hugo now has:
 * 77 (+10) themes
 
 ### New Features
-* Add `readFile` template func {{<gh 1551 >}}
 * Support reading configuration variables from the OS environment {{<gh 2090 >}}
 * Add emoji support {{<gh 1892>}}
 * Add `themesDir` option to configuration {{<gh 1556>}}
 * Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
 * Partial static sync {{<gh 1644>}}
 * Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
-*  Add `ByLastmod` sort function to pages.
-* Templates functions:
-    * Add `countwords` and `countrunes` template funcs {{<gh 1440>}}
-    * Add `default` template function {{<gh 1943>}}
-    * Add `hasPrefix` template function {{<gh 1243>}}
-    * Add `humanize` template function {{<gh 1450>}}
-    * Add `jsonify` template function {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
-    * Add `md5` and `sha1` template functions {{<gh 1932>}}
-    * Add `replaceRE` template function {{<gh 1845>}}
-    * Add `shuffle` template function {{<gh 1942>}}
-    * Add `slice` template function {{<gh 1902>}}
-    * Add `findRE` template func {{<gh 2048>}}
-    * Add `plainify` template func to strip away any HTML {{<gh 1915>}}
+*  Add `ByLastmod` sort function to pages. {{<gh eb627ca16de6fb5e8646279edd295a8bf0f72bf1 >}}
+* New templates functions:
+	* `readFile` {{<gh 1551 >}} 
+    * `countwords` and `countrunes` {{<gh 1440>}}
+    * `default` {{<gh 1943>}}
+    * `hasPrefix` {{<gh 1243>}}
+    * `humanize` {{<gh 1450>}}
+    * `jsonify` {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
+    * `md5` and `sha1` {{<gh 1932>}}
+    * `replaceRE` {{<gh 1845>}}
+    * `findRE` {{<gh 2048>}}
+    * `shuffle` {{<gh 1942>}}
+    * `slice` {{<gh 1902>}}
+    * `plainify` {{<gh 1915>}}
 
 ### Enhancements
 
@@ -65,6 +65,7 @@ Hugo now has:
 * Add `Scratch` to shortcode {{<gh 2000>}}
 * Add support for symbolic links for content, layout, static, theme  {{<gh 1855 >}}
 * Add '+' as one of the valid characters in URLs specified in the front matter {{<gh 1290 >}}
+* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh 2093 >}}
 
 ### Fixes
 * Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
