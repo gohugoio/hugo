@@ -66,6 +66,9 @@ Hugo now has:
 * Add '+' as one of the valid characters in URLs specified in the front matter {{<gh 1290 >}}
 
 ### Fixes
+* Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
+* Make dynamic reloading of config file reliable on all platform {{<gh 1684 >}}
+* Hugo now works on Linux/arm64 {{<gh 1772 >}}
 * `plainIDAnchors` now defaults to `true`  {{<gh 2057>}}
 * Win32 and ARM builds fixed {{<gh 1716>}}
 * Copy static dir files without theme's static dir {{<gh 1656>}}
@@ -77,7 +80,6 @@ Hugo now has:
 * Fix hugo server "Watching for changes" path display {{<gh 1721>}}
 * Do not strip special characters out of URLs {{<gh 1292>}}
 * Fix `RSSLink` when uglyurls are enabled {{<gh 175>}}
-* Do not call `watchConfig` when not in watch mode {{<gh 1772>}}
 * Get BaseURL from viper in server mode {{<gh 1821>}}
 * Fix shortcode handling in RST {{<gh 1904>}}
 * Use default sitemap configuration for homepage {{<gh 1304>}}
