@@ -27,6 +27,7 @@ Hugo now has:
 * Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
 * Partial static sync {{<gh 1644>}}
 * Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
+*  Add `ByLastmod` sort function to pages.
 * Templates functions:
     * Add `countwords` and `countrunes` template funcs {{<gh 1440>}}
     * Add `default` template function {{<gh 1943>}}
