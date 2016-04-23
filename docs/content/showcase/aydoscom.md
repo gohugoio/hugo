@@ -4,7 +4,6 @@ description: "web applications"
 license: ""
 licenseLink: ""
 sitelink: https://aydos.com/
-sourceLink: ""
 tags:
 - web applications
 thumbnail: /img/aydoscom.png
