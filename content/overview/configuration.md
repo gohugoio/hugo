@@ -156,7 +156,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # Do not make the url/path to lowercase
     disablePathToLower:         false
     # if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
-    hasCJKLanguage              false
+    hasCJKLanguage:             false
     # verbose output
     verbose:                    false
     # verbose logging
