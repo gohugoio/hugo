@@ -39,7 +39,7 @@ type defaultHandler struct{ basicFileHandler }
 
 func (h defaultHandler) Extensions() []string { return []string{"*"} }
 func (h defaultHandler) FileConvert(f *source.File, s *Site) HandledResult {
-	s.WriteDestFile(f.Path(), f.Contents)
+	s.writeDestFile(f.Path(), f.Contents)
 	return HandledResult{file: f}
 }
 
@@ -48,6 +48,6 @@ type cssHandler struct{ basicFileHandler }
 func (h cssHandler) Extensions() []string { return []string{"css"} }
 func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
 	x := cssmin.Minify(f.Bytes())
-	s.WriteDestFile(f.Path(), helpers.BytesToReader(x))
+	s.writeDestFile(f.Path(), helpers.BytesToReader(x))
 	return HandledResult{file: f}
 }

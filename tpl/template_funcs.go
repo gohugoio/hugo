@@ -24,8 +24,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/spf13/hugo/hugofs"
 	"html"
 	"html/template"
 	"math/rand"
@@ -39,7 +37,10 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
+
+	"github.com/bep/inflect"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
@@ -435,6 +436,22 @@ func first(limit interface{}, seq interface{}) (interface{}, error) {
 		limitv = seqv.Len()
 	}
 	return seqv.Slice(0, limitv).Interface(), nil
+}
+
+// findRE returns a list of strings that match the regular expression. By default all matches
+// will be included. The number of matches can be limitted with an optional third parameter.
+func findRE(expr string, content interface{}, limit ...int) ([]string, error) {
+	re, err := reCache.Get(expr)
+	if err != nil {
+		return nil, err
+	}
+
+	conv := cast.ToString(content)
+	if len(limit) > 0 {
+		return re.FindAllString(conv, limit[0]), nil
+	}
+
+	return re.FindAllString(conv, -1), nil
 }
 
 // last returns the last N items in a rangeable list.
@@ -1729,6 +1746,7 @@ func init() {
 		"echoParam":    returnWhenSet,
 		"emojify":      emojify,
 		"eq":           eq,
+		"findRE":       findRE,
 		"first":        first,
 		"ge":           ge,
 		"getCSV":       getCSV,

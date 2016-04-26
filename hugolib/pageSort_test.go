@@ -15,12 +15,13 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/source"
-	"github.com/stretchr/testify/assert"
 	"html/template"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/spf13/hugo/source"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDefaultSort(t *testing.T) {
@@ -67,6 +68,7 @@ func TestSortByN(t *testing.T) {
 		{(Pages).ByLinkTitle, func(p Pages) bool { return p[0].LinkTitle() == "abl" }},
 		{(Pages).ByDate, func(p Pages) bool { return p[0].Date == d3 }},
 		{(Pages).ByPublishDate, func(p Pages) bool { return p[0].PublishDate == d3 }},
+		{(Pages).ByLastmod, func(p Pages) bool { return p[1].Lastmod == d2 }},
 		{(Pages).ByLength, func(p Pages) bool { return p[0].Content == "b_content" }},
 	} {
 		setSortVals([3]time.Time{d1, d2, d3}, [3]string{"b", "ab", "cde"}, [3]int{3, 2, 1}, p)
@@ -114,6 +116,7 @@ func BenchmarkSortByWeightAndReverse(b *testing.B) {
 func setSortVals(dates [3]time.Time, titles [3]string, weights [3]int, pages Pages) {
 	for i := range dates {
 		pages[i].Date = dates[i]
+		pages[i].Lastmod = dates[i]
 		pages[i].Weight = weights[i]
 		pages[i].Title = titles[i]
 		// make sure we compare apples and ... apples ...
@@ -121,7 +124,9 @@ func setSortVals(dates [3]time.Time, titles [3]string, weights [3]int, pages Pag
 		pages[len(dates)-1-i].PublishDate = dates[i]
 		pages[len(dates)-1-i].Content = template.HTML(titles[i] + "_content")
 	}
-
+	lastLastMod := pages[2].Lastmod
+	pages[2].Lastmod = pages[1].Lastmod
+	pages[1].Lastmod = lastLastMod
 }
 
 func createSortTestPages(num int) Pages {

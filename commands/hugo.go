@@ -17,7 +17,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -27,11 +26,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/spf13/hugo/hugofs"
+
 	"github.com/spf13/hugo/parser"
 	flag "github.com/spf13/pflag"
 
 	"regexp"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
@@ -43,7 +45,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
-	"gopkg.in/fsnotify.v1"
 )
 
 // MainSite represents the Hugo site to build. This variable is exported as it
@@ -127,6 +128,7 @@ var (
 	canonifyURLs          bool
 	cleanDestination      bool
 	enableRobotsTXT       bool
+	disable404            bool
 	disableRSS            bool
 	disableSitemap        bool
 	draft                 bool
@@ -214,13 +216,14 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&cleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
 	cmd.Flags().BoolVarP(&draft, "buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolVarP(&future, "buildFuture", "F", false, "include content with publishdate in the future")
+	cmd.Flags().BoolVar(&disable404, "disable404", false, "Do not render 404 page")
 	cmd.Flags().BoolVar(&disableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&disableSitemap, "disableSitemap", false, "Do not build Sitemap file")
 	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringVarP(&cacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
-	cmd.Flags().BoolVarP(&ignoreCache, "ignoreCache", "", false, "Ignores the cache directory for reading but still writes to it")
+	cmd.Flags().BoolVarP(&ignoreCache, "ignoreCache", "", false, "Ignores the cache directory")
 	cmd.Flags().StringVarP(&destination, "destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	cmd.Flags().BoolVar(&uglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
@@ -266,6 +269,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("cleanDestinationDir", false)
 	viper.SetDefault("Watch", false)
 	viper.SetDefault("MetaDataFormat", "toml")
+	viper.SetDefault("Disable404", false)
 	viper.SetDefault("DisableRSS", false)
 	viper.SetDefault("DisableSitemap", false)
 	viper.SetDefault("DisableRobotsTXT", false)
@@ -315,6 +319,8 @@ func loadDefaultSettings() {
 // A Hugo command that calls initCoreCommonFlags() can pass itself
 // as an argument to have its command-line flags processed here.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("hugo")
 	viper.SetConfigFile(cfgFile)
 	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
 	if source == "" {
@@ -356,6 +362,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if flagChanged(cmdV.Flags(), "canonifyURLs") {
 			viper.Set("CanonifyURLs", canonifyURLs)
+		}
+		if flagChanged(cmdV.Flags(), "disable404") {
+			viper.Set("Disable404", disable404)
 		}
 		if flagChanged(cmdV.Flags(), "disableRSS") {
 			viper.Set("DisableRSS", disableRSS)

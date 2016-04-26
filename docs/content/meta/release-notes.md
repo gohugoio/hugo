@@ -20,25 +20,30 @@ Hugo now has:
 * 77 (+10) themes
 
 ### New Features
-
+* Support reading configuration variables from the OS environment {{<gh 2090 >}}
 * Add emoji support {{<gh 1892>}}
 * Add `themesDir` option to configuration {{<gh 1556>}}
 * Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
 * Partial static sync {{<gh 1644>}}
 * Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
-* Templates functions:
-    * Add `countwords` and `countrunes` template funcs {{<gh 1440>}}
-    * Add `default` template function {{<gh 1943>}}
-    * Add `hasPrefix` template function {{<gh 1243>}}
-    * Add `humanize` template function {{<gh 1450>}}
-    * Add `jsonify` template function {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
-    * Add `md5` and `sha1` template functions {{<gh 1932>}}
-    * Add `replaceRE` template function {{<gh 1845>}}
-    * Add `shuffle` template function {{<gh 1942>}}
-    * Add `slice` template function {{<gh 1902>}}
+*  Add `ByLastmod` sort function to pages. {{<gh eb627ca16de6fb5e8646279edd295a8bf0f72bf1 >}}
+* New templates functions:
+	* `readFile` {{<gh 1551 >}} 
+    * `countwords` and `countrunes` {{<gh 1440>}}
+    * `default` {{<gh 1943>}}
+    * `hasPrefix` {{<gh 1243>}}
+    * `humanize` {{<gh 1450>}}
+    * `jsonify` {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
+    * `md5` and `sha1` {{<gh 1932>}}
+    * `replaceRE` {{<gh 1845>}}
+    * `findRE` {{<gh 2048>}}
+    * `shuffle` {{<gh 1942>}}
+    * `slice` {{<gh 1902>}}
+    * `plainify` {{<gh 1915>}}
 
 ### Enhancements
 
+* Hugo now exits with error code on any error. This is a big thing for automated deployments. {{<gh 740 >}}
 * Print error when `/index.html` is zero-length {{<gh 947>}}
 * Enable dirname and filename bash autocompletion for more flags {{<gh 0x666ddd237791b56fd048992dca9a27d1af50a10e>}}
 * Improve error handling in commands {{<gh 1502>}}
@@ -52,9 +57,22 @@ Hugo now has:
 * Add file option to gist shortcode {{<gh 1955>}}
 * Add config layout and content directory CLI options {{<gh 1698>}}
 * Add boolean value comparison to `where` template function {{<gh 0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
+* Do not write to to cache when `ignoreCache` is set  {{<gh 2067>}}
+* Add option to disable rendering of 404 page  {{<gh 2037>}}
+* Mercurial is no longer needed to build Hugo {{<gh 2062 >}}
+* Do not create `robots.txt` by default {{<gh 2049>}}
+* Disable syntax guessing for PygmentsCodeFences by default.  To enable syntax guessing again, add the following to your config file: `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
+* Make `ByCount` sort consistently {{<gh 1930>}}
+* Add `Scratch` to shortcode {{<gh 2000>}}
+* Add support for symbolic links for content, layout, static, theme  {{<gh 1855 >}}
+* Add '+' as one of the valid characters in URLs specified in the front matter {{<gh 1290 >}}
+* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh 2093 >}}
 
 ### Fixes
-
+* Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
+* Make dynamic reloading of config file reliable on all platform {{<gh 1684 >}}
+* Hugo now works on Linux/arm64 {{<gh 1772 >}}
+* `plainIDAnchors` now defaults to `true`  {{<gh 2057>}}
 * Win32 and ARM builds fixed {{<gh 1716>}}
 * Copy static dir files without theme's static dir {{<gh 1656>}}
 * Make `noTimes` command flag work {{<gh 1657>}}
@@ -65,11 +83,11 @@ Hugo now has:
 * Fix hugo server "Watching for changes" path display {{<gh 1721>}}
 * Do not strip special characters out of URLs {{<gh 1292>}}
 * Fix `RSSLink` when uglyurls are enabled {{<gh 175>}}
-* Do not call `watchConfig` when not in watch mode {{<gh 1772>}}
 * Get BaseURL from viper in server mode {{<gh 1821>}}
 * Fix shortcode handling in RST {{<gh 1904>}}
 * Use default sitemap configuration for homepage {{<gh 1304>}}
 * Exit if specific port is unavailable in server mode {{<gh 1901>}}
+* Fix regression in "section menus for lazy blogger" {{<gh 2065>}}
 
 
 ## **0.15.0**  November 25, 2015

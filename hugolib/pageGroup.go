@@ -21,6 +21,8 @@ import (
 	"time"
 )
 
+// PageGroup represents a group of pages, grouped by the key.
+// The key is typically a year or similar.
 type PageGroup struct {
 	Key   interface{}
 	Pages Pages
@@ -63,8 +65,11 @@ func sortKeys(v []reflect.Value, order string) []reflect.Value {
 	return v
 }
 
+// PagesGroup represents a list of page groups.
+// This is what you get when doing page grouping in the templates.
 type PagesGroup []PageGroup
 
+// Reverse reverses the order of this list of page groups.
 func (p PagesGroup) Reverse() PagesGroup {
 	for i, j := 0, len(p)-1; i < j; i, j = i+1, j-1 {
 		p[i], p[j] = p[j], p[i]
@@ -78,6 +83,8 @@ var (
 	pagePtrType = reflect.TypeOf((*Page)(nil))
 )
 
+// GroupBy groups by the value in the given field or method name and with the given order.
+// Valid values for order is asc, desc, rev and reverse.
 func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
@@ -143,6 +150,8 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 	return r, nil
 }
 
+// GroupByParam groups by the given page parameter key's value and with the given order.
+// Valid values for order is asc, desc, rev and reverse.
 func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 	if len(p) < 1 {
 		return nil, nil
@@ -218,6 +227,9 @@ func (p Pages) groupByDateField(sorter func(p Pages) Pages, formatter func(p *Pa
 	return r, nil
 }
 
+// GroupByDate groups by the given page's Date value in the given format and with the given order.
+// Valid values for order is asc, desc, rev and reverse.
+// For valid format strings, see https://golang.org/pkg/time/#Time.Format
 func (p Pages) GroupByDate(format string, order ...string) (PagesGroup, error) {
 	sorter := func(p Pages) Pages {
 		return p.ByDate()
@@ -228,6 +240,9 @@ func (p Pages) GroupByDate(format string, order ...string) (PagesGroup, error) {
 	return p.groupByDateField(sorter, formatter, order...)
 }
 
+// GroupByPublishDate groups by the given page's PublishDate value in the given format and with the given order.
+// Valid values for order is asc, desc, rev and reverse.
+// For valid format strings, see https://golang.org/pkg/time/#Time.Format
 func (p Pages) GroupByPublishDate(format string, order ...string) (PagesGroup, error) {
 	sorter := func(p Pages) Pages {
 		return p.ByPublishDate()
@@ -238,6 +253,9 @@ func (p Pages) GroupByPublishDate(format string, order ...string) (PagesGroup, e
 	return p.groupByDateField(sorter, formatter, order...)
 }
 
+// GroupByParamDate groups by a date set as a param on the page in the given format and with the given order.
+// Valid values for order is asc, desc, rev and reverse.
+// For valid format strings, see https://golang.org/pkg/time/#Time.Format
 func (p Pages) GroupByParamDate(key string, format string, order ...string) (PagesGroup, error) {
 	sorter := func(p Pages) Pages {
 		var r Pages

@@ -158,6 +158,24 @@ func (p Pages) ByPublishDate() Pages {
 	return pages
 }
 
+// ByLastmod sorts the Pages by the last modification date and returns a copy.
+//
+// Adjacent invocactions on the same receiver will return a cached result.
+//
+// This may safely be executed  in parallel.
+func (p Pages) ByLastmod() Pages {
+
+	key := "pageSort.ByLastmod"
+
+	date := func(p1, p2 *Page) bool {
+		return p1.Lastmod.Unix() < p2.Lastmod.Unix()
+	}
+
+	pages, _ := spc.get(key, p, pageBy(date).Sort)
+
+	return pages
+}
+
 // ByLength sorts the Pages by length and returns a copy.
 //
 // Adjacent invocactions on the same receiver will return a cached result.

@@ -38,7 +38,7 @@ func TestSiteInfoParams(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 
-	err := s.renderThing(s.NewNode(), "template", buf)
+	err := s.renderThing(s.newNode(), "template", buf)
 	if err != nil {
 		t.Errorf("Unable to render template: %s", err)
 	}

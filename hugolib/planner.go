@@ -18,6 +18,8 @@ import (
 	"io"
 )
 
+// ShowPlan prints a build plan to the given Writer.
+// Useful for debugging.
 func (s *Site) ShowPlan(out io.Writer) (err error) {
 	if s.Source == nil || len(s.Source.Files()) <= 0 {
 		fmt.Fprintf(out, "No source files provided.\n")

@@ -1,8 +1,8 @@
 language: go
 sudo: false
 go:
-  - 1.5.3
-  - 1.6
+  - 1.5.4
+  - 1.6.1
   - tip
 os:
   - linux
@@ -12,7 +12,7 @@ matrix:
     - go: tip
 script:
   - make check
-  - go build
+  - go build -race
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 install:

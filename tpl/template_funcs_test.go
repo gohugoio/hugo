@@ -89,6 +89,7 @@ delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 div: {{div 6 3}}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
+findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}
 hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
 hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
@@ -106,6 +107,7 @@ readFile: {{ readFile "README.txt" }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
 replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
+replaceRE: {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}
 safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
 safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeHTML: {{ "Bat&Man" | safeHTML }}
@@ -138,6 +140,7 @@ delimit: A, B and C
 div: 2
 emojify: I ❤️  Hugo
 eq: current
+findRE: [go]
 hasPrefix 1: true
 hasPrefix 2: false
 in: Substring found!
@@ -155,6 +158,7 @@ readFile: Hugo Rocks!
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
 replace: Batman and Catwoman
+replaceRE: gohugo.io
 safeCSS: Bat&amp;Man
 safeHTML: Bat&Man
 safeHTML: Bat&Man
@@ -1798,6 +1802,30 @@ func TestReplaceRE(t *testing.T) {
 			t.Errorf("[%d] %s", i, err)
 		}
 		assert.Equal(t, val.expect, v)
+	}
+}
+
+func TestFindRE(t *testing.T) {
+	for i, this := range []struct {
+		expr    string
+		content string
+		limit   int
+		expect  []string
+		ok      bool
+	}{
+		{"[G|g]o", "Hugo is a static side generator written in Go.", 2, []string{"go", "Go"}, true},
+		{"[G|g]o", "Hugo is a static side generator written in Go.", -1, []string{"go", "Go"}, true},
+		{"[G|g]o", "Hugo is a static side generator written in Go.", 1, []string{"go"}, true},
+		{"[G|g]o", "Hugo is a static side generator written in Go.", 0, []string(nil), true},
+		{"[G|go", "Hugo is a static side generator written in Go.", 0, []string(nil), false},
+	} {
+		res, err := findRE(this.expr, this.content, this.limit)
+
+		if err != nil && this.ok {
+			t.Errorf("[%d] returned an unexpected error: %s", i, err)
+		}
+
+		assert.Equal(t, this.expect, res)
 	}
 }
 

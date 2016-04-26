@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
+const aliasDoc1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
 
 var fakeSource = []source.ByteSource{
 	{
@@ -34,7 +34,7 @@ var fakeSource = []source.ByteSource{
 	},
 	{
 		Name:    filepath.FromSlash("alias/test/file1.md"),
-		Content: []byte(ALIAS_DOC_1),
+		Content: []byte(aliasDoc1),
 	},
 	{
 		Name:    filepath.FromSlash("section/somecontent.html"),
@@ -72,7 +72,7 @@ func TestDegenerateNoTarget(t *testing.T) {
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
-	must(s.CreatePages())
+	must(s.createPages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
 		"section/somecontent.html (renderer: n/a)\n canonical => !no target specified!\n\n"
@@ -90,7 +90,7 @@ func TestFileTarget(t *testing.T) {
 	}
 	s.aliasTarget()
 	s.pageTarget()
-	must(s.CreatePages())
+	must(s.createPages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => alias/test/file1/index.html\n" +
@@ -113,7 +113,7 @@ func TestPageTargetUgly(t *testing.T) {
 	}
 	s.aliasTarget()
 
-	s.CreatePages()
+	s.createPages()
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => alias/test/file1.html\n" +
@@ -137,7 +137,7 @@ func TestFileTargetPublishDir(t *testing.T) {
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
 
-	must(s.CreatePages())
+	must(s.createPages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => ../public/foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => ../public/alias/test/file1/index.html\n" +

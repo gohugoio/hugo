@@ -48,7 +48,7 @@ Flags:
       --disableSitemap=false: Do not build Sitemap file
       --editor="": edit new content with this editor, if provided
   -h, --help=false: help for hugo
-      --ignoreCache=false: Ignores the cache directory for reading but still writes to it
+      --ignoreCache=false: Ignores the cache directory
       --log=false: Enable Logging
       --logFile="": Log File path (if set, logging enabled automatically)
       --noTimes=false: Don't sync modification time of files

@@ -1,0 +1,12 @@
+{{ range . }}
+<div class="item">
+    <blockquote>
+        <p>
+        {{ .quote | safeHTML }}
+        </p>
+        &mdash; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
+            {{ dateFormat "January 2, 2006" .date }}
+        </a>
+    </blockquote>
+</div>
+{{ end }}

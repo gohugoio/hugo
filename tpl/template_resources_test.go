@@ -58,7 +58,7 @@ func TestScpCache(t *testing.T) {
 			t.Errorf("There is content where there should not be anything: %s", string(c))
 		}
 
-		err = resWriteCache(test.path, test.content, fs)
+		err = resWriteCache(test.path, test.content, fs, test.ignore)
 		if err != nil {
 			t.Errorf("Error writing cache: %s", err)
 		}

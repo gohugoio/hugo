@@ -435,9 +435,6 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 	assert.NotNil(t, fishySectionMenuEntry)
 	assert.NotNil(t, nodeFishy)
 
-	firstSectionMenuEntry.URL = firstSectionMenuEntry.URL + "/"
-	secondSectionMenuEntry.URL = secondSectionMenuEntry.URL + "/"
-	fishySectionMenuEntry.URL = fishySectionMenuEntry.URL + "/"
 	assert.True(t, nodeFirst.IsMenuCurrent("spm", firstSectionMenuEntry))
 	assert.False(t, nodeFirst.IsMenuCurrent("spm", secondSectionMenuEntry))
 	assert.False(t, nodeFirst.IsMenuCurrent("spm", fishySectionMenuEntry))
@@ -695,11 +692,11 @@ func testSiteSetup(s *Site, t *testing.T) {
 	s.Menus = Menus{}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 }

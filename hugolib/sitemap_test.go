@@ -44,30 +44,30 @@ func TestSitemapOutput(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub/")
 
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
+		Source: &source.InMemorySource{ByteSource: weightedSources},
 	}
 
 	s.initializeSiteInfo()
 
 	s.prepTemplates("sitemap.xml", SITEMAP_TEMPLATE)
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if err := s.RenderHomePage(); err != nil {
+	if err := s.renderHomePage(); err != nil {
 		t.Fatalf("Unable to RenderHomePage: %s", err)
 	}
 
-	if err := s.RenderSitemap(); err != nil {
+	if err := s.renderSitemap(); err != nil {
 		t.Fatalf("Unable to RenderSitemap: %s", err)
 	}
 
-	if err := s.RenderRobotsTXT(); err != nil {
+	if err := s.renderRobotsTXT(); err != nil {
 		t.Fatalf("Unable to RenderRobotsTXT :%s", err)
 	}
 

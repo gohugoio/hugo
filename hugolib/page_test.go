@@ -487,7 +487,7 @@ func checkPageTitle(t *testing.T, page *Page, title string) {
 
 func checkPageContent(t *testing.T, page *Page, content string) {
 	if page.Content != template.HTML(content) {
-		t.Fatalf("Page content is: %q\nExpected: %q", page.Content, content)
+		t.Fatalf("Page content is:\n%q\nExpected:\n%q", page.Content, content)
 	}
 }
 
@@ -611,8 +611,8 @@ func TestTableOfContents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
-	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa:90b9174a5bdb091a9625b04adac96ca6\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa:90b9174a5bdb091a9625b04adac96ca6\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb:90b9174a5bdb091a9625b04adac96ca6\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
-	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa:90b9174a5bdb091a9625b04adac96ca6\">AA</a>\n<ul>\n<li><a href=\"#aaa:90b9174a5bdb091a9625b04adac96ca6\">AAA</a></li>\n<li><a href=\"#bbb:90b9174a5bdb091a9625b04adac96ca6\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
+	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
@@ -1050,6 +1050,19 @@ func TestPageSimpleMethods(t *testing.T) {
 			t.Errorf("[%d] Page method error", i)
 		}
 	}
+}
+
+func TestChompBOM(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	const utf8BOM = "\xef\xbb\xbf"
+	_, err := p.ReadFrom(strings.NewReader(utf8BOM + simplePage))
+	p.Convert()
+
+	if err != nil {
+		t.Fatalf("Unable to create a page with BOM prefixed frontmatter and body content: %s", err)
+	}
+
+	checkPageTitle(t, p, "Simple")
 }
 
 func listEqual(left, right []string) bool {

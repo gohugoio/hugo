@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/bep/inflect"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -34,19 +34,19 @@ import (
 )
 
 const (
-	TEMPLATE_TITLE    = "{{ .Title }}"
-	PAGE_SIMPLE_TITLE = `---
+	templateTitle   = "{{ .Title }}"
+	pageSimpleTitle = `---
 title: simple template
 ---
 content`
 
-	TEMPLATE_MISSING_FUNC = "{{ .Title | funcdoesnotexists }}"
-	TEMPLATE_FUNC         = "{{ .Title | urlize }}"
-	TEMPLATE_CONTENT      = "{{ .Content }}"
-	TEMPLATE_DATE         = "{{ .Date }}"
-	TEMPLATE_WITH_URL_ABS = "<a href=\"/foobar.jpg\">Going</a>"
+	templateMissingFunc = "{{ .Title | funcdoesnotexists }}"
+	templateFunc        = "{{ .Title | urlize }}"
+	templateContent     = "{{ .Content }}"
+	templateDate        = "{{ .Date }}"
+	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
 
-	PAGE_WITH_MD = `---
+	pageWithMd = `---
 title: page with md
 ---
 # heading 1
@@ -80,7 +80,7 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 	d := time.Second * 2
 	ticker := time.NewTicker(d)
 	select {
-	case err = <-s.ReadPagesFromSource():
+	case err = <-s.readPagesFromSource():
 		break
 	case <-ticker.C:
 		err = fmt.Errorf("ReadPagesFromSource() never returns in %s", d.String())
@@ -92,15 +92,15 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 }
 
 func createAndRenderPages(t *testing.T, s *Site) {
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
-	if err := s.RenderPages(); err != nil {
+	if err := s.renderPages(); err != nil {
 		t.Fatalf("Unable to render pages. %s", err)
 	}
 }
@@ -113,7 +113,7 @@ func pageMust(p *Page, err error) *Page {
 }
 
 func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
-	p, _ := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+	p, _ := NewPageFrom(strings.NewReader(pageSimpleTitle), "content/a/file.md")
 	p.Convert()
 	s := new(Site)
 	s.prepTemplates()
@@ -125,7 +125,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 
 func TestAddInvalidTemplate(t *testing.T) {
 	s := new(Site)
-	err := s.prepTemplates("missing", TEMPLATE_MISSING_FUNC)
+	err := s.prepTemplates("missing", templateMissingFunc)
 	if err == nil {
 		t.Fatalf("Expecting the template to return an error")
 	}
@@ -147,10 +147,10 @@ func TestRenderThing(t *testing.T) {
 		template string
 		expected string
 	}{
-		{PAGE_SIMPLE_TITLE, TEMPLATE_TITLE, "simple template"},
-		{PAGE_SIMPLE_TITLE, TEMPLATE_FUNC, "simple-template"},
-		{PAGE_WITH_MD, TEMPLATE_CONTENT, "\n\n<h1 id=\"heading-1:91b5c4a22fc6103c73bb91e4a40568f8\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2:91b5c4a22fc6103c73bb91e4a40568f8\">heading 2</h2>\n\n<p>more text</p>\n"},
-		{simplePageRFC3339Date, TEMPLATE_DATE, "2013-05-17 16:59:30 &#43;0000 UTC"},
+		{pageSimpleTitle, templateTitle, "simple template"},
+		{pageSimpleTitle, templateFunc, "simple-template"},
+		{pageWithMd, templateContent, "\n\n<h1 id=\"heading-1\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2\">heading 2</h2>\n\n<p>more text</p>\n"},
+		{simplePageRFC3339Date, templateDate, "2013-05-17 16:59:30 &#43;0000 UTC"},
 	}
 
 	for i, test := range tests {
@@ -193,10 +193,10 @@ func TestRenderThingOrDefault(t *testing.T) {
 		template string
 		expected string
 	}{
-		{true, TEMPLATE_TITLE, HTML("simple template")},
-		{true, TEMPLATE_FUNC, HTML("simple-template")},
-		{false, TEMPLATE_TITLE, HTML("simple template")},
-		{false, TEMPLATE_FUNC, HTML("simple-template")},
+		{true, templateTitle, HTML("simple template")},
+		{true, templateFunc, HTML("simple-template")},
+		{false, templateTitle, HTML("simple template")},
+		{false, templateFunc, HTML("simple-template")},
 	}
 
 	hugofs.InitMemFs()
@@ -205,7 +205,7 @@ func TestRenderThingOrDefault(t *testing.T) {
 
 		s := &Site{}
 
-		p, err := NewPageFrom(strings.NewReader(PAGE_SIMPLE_TITLE), "content/a/file.md")
+		p, err := NewPageFrom(strings.NewReader(pageSimpleTitle), "content/a/file.md")
 		if err != nil {
 			t.Fatalf("Error parsing buffer: %s", err)
 		}
@@ -254,7 +254,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 		s.initializeSiteInfo()
 
-		if err := s.CreatePages(); err != nil {
+		if err := s.createPages(); err != nil {
 			t.Fatalf("Unable to create pages: %s", err)
 		}
 		return s
@@ -433,8 +433,8 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		"sitemap.xml", "<root>SITEMAP</root>")
 
 	createAndRenderPages(t, s)
-	s.RenderHomePage()
-	s.RenderSitemap()
+	s.renderHomePage()
+	s.renderSitemap()
 
 	var expectedPagePath string
 	if uglyURLs {
@@ -522,7 +522,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		"_default/list.html", "{{ .Title }}")
 
 	createAndRenderPages(t, s)
-	s.RenderSectionLists()
+	s.renderSectionLists()
 
 	tests := []struct {
 		doc         string
@@ -593,14 +593,14 @@ func TestSkipRender(t *testing.T) {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3:28c75a9e2162b8eccda73a1ab9ce80b4\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
-		{filepath.FromSlash("sect/doc4.html"), "\n\n<h1 id=\"doc4:f8e6806123f341b8975509637645a4d3\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
+		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
+		{filepath.FromSlash("sect/doc4.html"), "\n\n<h1 id=\"doc4\">doc4</h1>\n\n<p><em>some content</em></p>\n"},
 		{filepath.FromSlash("sect/doc5.html"), "<!doctype html><html><head><script src=\"script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("sect/doc6.html"), "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title:0ae308ad73e2f37bd09874105281b5d8\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {
@@ -628,60 +628,66 @@ func TestAbsURLify(t *testing.T) {
 		{filepath.FromSlash("sect/doc1.html"), []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
 		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
-	for _, canonify := range []bool{true, false} {
-		viper.Set("CanonifyURLs", canonify)
-		viper.Set("BaseURL", "http://auth/bub")
-		s := &Site{
-			Source:  &source.InMemorySource{ByteSource: sources},
-			targets: targetList{page: &target.PagePub{UglyURLs: true}},
-		}
-		t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
-		s.initializeSiteInfo()
+	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
+		for _, canonify := range []bool{true, false} {
+			viper.Set("CanonifyURLs", canonify)
+			viper.Set("BaseURL", baseURL)
+			s := &Site{
+				Source:  &source.InMemorySource{ByteSource: sources},
+				targets: targetList{page: &target.PagePub{UglyURLs: true}},
+			}
+			t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
+			s.initializeSiteInfo()
 
-		s.prepTemplates("blue/single.html", TEMPLATE_WITH_URL_ABS)
+			s.prepTemplates("blue/single.html", templateWithURLAbs)
 
-		if err := s.CreatePages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
-
-		if err := s.BuildSiteMeta(); err != nil {
-			t.Fatalf("Unable to build site metadata: %s", err)
-		}
-
-		if err := s.RenderPages(); err != nil {
-			t.Fatalf("Unable to render pages. %s", err)
-		}
-
-		tests := []struct {
-			file, expected string
-		}{
-			{"content/blue/doc2.html", "<a href=\"http://auth/bub/foobar.jpg\">Going</a>"},
-			{"sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
-		}
-
-		for _, test := range tests {
-
-			file, err := hugofs.Destination().Open(filepath.FromSlash(test.file))
-			if err != nil {
-				t.Fatalf("Unable to locate rendered content: %s", test.file)
+			if err := s.createPages(); err != nil {
+				t.Fatalf("Unable to create pages: %s", err)
 			}
 
-			content := helpers.ReaderToString(file)
-
-			expected := test.expected
-
-			if !canonify {
-				expected = strings.Replace(expected, viper.GetString("baseurl"), "", -1)
+			if err := s.buildSiteMeta(); err != nil {
+				t.Fatalf("Unable to build site metadata: %s", err)
 			}
 
-			if content != expected {
-				t.Errorf("AbsURLify content expected:\n%q\ngot\n%q", expected, content)
+			if err := s.renderPages(); err != nil {
+				t.Fatalf("Unable to render pages. %s", err)
+			}
+
+			tests := []struct {
+				file, expected string
+			}{
+				{"content/blue/doc2.html", "<a href=\"%s/foobar.jpg\">Going</a>"},
+				{"sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
+			}
+
+			for _, test := range tests {
+
+				file, err := hugofs.Destination().Open(filepath.FromSlash(test.file))
+				if err != nil {
+					t.Fatalf("Unable to locate rendered content: %s", test.file)
+				}
+
+				content := helpers.ReaderToString(file)
+
+				expected := test.expected
+
+				if strings.Contains(expected, "%s") {
+					expected = fmt.Sprintf(expected, baseURL)
+				}
+
+				if !canonify {
+					expected = strings.Replace(expected, baseURL, "", -1)
+				}
+
+				if content != expected {
+					t.Errorf("AbsURLify with baseURL %q content expected:\n%q\ngot\n%q", baseURL, expected, content)
+				}
 			}
 		}
 	}
 }
 
-var WEIGHTED_PAGE_1 = []byte(`+++
+var weightedPage1 = []byte(`+++
 weight = "2"
 title = "One"
 my_param = "foo"
@@ -689,7 +695,7 @@ my_date = 1979-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages`)
 
-var WEIGHTED_PAGE_2 = []byte(`+++
+var weightedPage2 = []byte(`+++
 weight = "6"
 title = "Two"
 publishdate = "2012-03-05"
@@ -697,7 +703,7 @@ my_param = "foo"
 +++
 Front Matter with Ordered Pages 2`)
 
-var WEIGHTED_PAGE_3 = []byte(`+++
+var weightedPage3 = []byte(`+++
 weight = "4"
 title = "Three"
 date = "2012-04-06"
@@ -708,7 +714,7 @@ my_date = 2010-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages 3`)
 
-var WEIGHTED_PAGE_4 = []byte(`+++
+var weightedPage4 = []byte(`+++
 weight = "4"
 title = "Four"
 date = "2012-01-01"
@@ -718,11 +724,11 @@ my_date = 2010-05-27T07:32:00Z
 +++
 Front Matter with Ordered Pages 4. This is longer content`)
 
-var WEIGHTED_SOURCES = []source.ByteSource{
-	{filepath.FromSlash("sect/doc1.md"), WEIGHTED_PAGE_1},
-	{filepath.FromSlash("sect/doc2.md"), WEIGHTED_PAGE_2},
-	{filepath.FromSlash("sect/doc3.md"), WEIGHTED_PAGE_3},
-	{filepath.FromSlash("sect/doc4.md"), WEIGHTED_PAGE_4},
+var weightedSources = []source.ByteSource{
+	{filepath.FromSlash("sect/doc1.md"), weightedPage1},
+	{filepath.FromSlash("sect/doc2.md"), weightedPage2},
+	{filepath.FromSlash("sect/doc3.md"), weightedPage3},
+	{filepath.FromSlash("sect/doc4.md"), weightedPage4},
 }
 
 func TestOrderedPages(t *testing.T) {
@@ -733,15 +739,15 @@ func TestOrderedPages(t *testing.T) {
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: WEIGHTED_SOURCES},
+		Source: &source.InMemorySource{ByteSource: weightedSources},
 	}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
@@ -786,11 +792,11 @@ func TestOrderedPages(t *testing.T) {
 	}
 }
 
-var GROUPED_SOURCES = []source.ByteSource{
-	{filepath.FromSlash("sect1/doc1.md"), WEIGHTED_PAGE_1},
-	{filepath.FromSlash("sect1/doc2.md"), WEIGHTED_PAGE_2},
-	{filepath.FromSlash("sect2/doc3.md"), WEIGHTED_PAGE_3},
-	{filepath.FromSlash("sect3/doc4.md"), WEIGHTED_PAGE_4},
+var groupedSources = []source.ByteSource{
+	{filepath.FromSlash("sect1/doc1.md"), weightedPage1},
+	{filepath.FromSlash("sect1/doc2.md"), weightedPage2},
+	{filepath.FromSlash("sect2/doc3.md"), weightedPage3},
+	{filepath.FromSlash("sect3/doc4.md"), weightedPage4},
 }
 
 func TestGroupedPages(t *testing.T) {
@@ -807,15 +813,15 @@ func TestGroupedPages(t *testing.T) {
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: GROUPED_SOURCES},
+		Source: &source.InMemorySource{ByteSource: groupedSources},
 	}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
@@ -950,7 +956,7 @@ func TestGroupedPages(t *testing.T) {
 	}
 }
 
-var PAGE_WITH_WEIGHTED_TAXONOMIES_2 = []byte(`+++
+var pageWithWeightedTaxonomies1 = []byte(`+++
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
@@ -959,7 +965,7 @@ categories_weight = 44
 +++
 Front Matter with weighted tags and categories`)
 
-var PAGE_WITH_WEIGHTED_TAXONOMIES_1 = []byte(`+++
+var pageWithWeightedTaxonomies2 = []byte(`+++
 tags = "a"
 tags_weight = 33
 title = "bar"
@@ -970,7 +976,7 @@ date = 1979-05-27T07:32:00Z
 +++
 Front Matter with weighted tags and categories`)
 
-var PAGE_WITH_WEIGHTED_TAXONOMIES_3 = []byte(`+++
+var pageWithWeightedTaxonomies3 = []byte(`+++
 title = "bza"
 categories = [ "e" ]
 categories_weight = 11
@@ -985,9 +991,9 @@ func TestWeightedTaxonomies(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_1},
-		{filepath.FromSlash("sect/doc2.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_2},
-		{filepath.FromSlash("sect/doc3.md"), PAGE_WITH_WEIGHTED_TAXONOMIES_3},
+		{filepath.FromSlash("sect/doc1.md"), pageWithWeightedTaxonomies2},
+		{filepath.FromSlash("sect/doc2.md"), pageWithWeightedTaxonomies1},
+		{filepath.FromSlash("sect/doc3.md"), pageWithWeightedTaxonomies3},
 	}
 	taxonomies := make(map[string]string)
 
@@ -1001,11 +1007,11 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
 
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
 
@@ -1023,8 +1029,6 @@ func TestWeightedTaxonomies(t *testing.T) {
 }
 
 func findPage(site *Site, f string) *Page {
-	// TODO: it seems that filepath.FromSlash results in page.Source.Path() returning windows backslash - which means refLinking's string compare is totally busted.
-	// TODO: Not used for non-fragment linking (SVEN thinks this is a bug)
 	currentPath := source.NewFile(filepath.FromSlash(f))
 	//t.Logf("looking for currentPath: %s", currentPath.Path())
 
@@ -1062,21 +1066,24 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{filepath.FromSlash("level2/level3/common.png"), []byte("")},
 	}
 
+	viper.Set("baseurl", "http://auth/")
+	viper.Set("DefaultExtension", "html")
+	viper.Set("UglyURLs", false)
+	viper.Set("PluralizeListTitles", false)
+	viper.Set("CanonifyURLs", false)
+	viper.Set("blackfriday",
+		map[string]interface{}{
+			"sourceRelativeLinksProjectFolder": "/docs"})
+
 	site := &Site{
 		Source: &source.InMemorySource{ByteSource: sources},
 	}
 
 	site.initializeSiteInfo()
 
-	if err := site.CreatePages(); err != nil {
+	if err := site.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
-
-	viper.Set("baseurl", "http://auth/bub")
-	viper.Set("DefaultExtension", "html")
-	viper.Set("UglyURLs", false)
-	viper.Set("PluralizeListTitles", false)
-	viper.Set("CanonifyURLs", false)
 
 	return site
 }
@@ -1228,7 +1235,7 @@ func TestSourceRelativeLinksing(t *testing.T) {
 			t.Fatalf("failed to find current page in site")
 		}
 		for link, url := range results {
-			if out, err := site.Info.githubLink(link, currentPage, true); err != nil || out != url {
+			if out, err := site.Info.SourceRelativeLink(link, currentPage); err != nil || out != url {
 				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
 			} else {
 				//t.Logf("tested ok %s maps to %s", link, out)
@@ -1241,7 +1248,7 @@ func TestSourceRelativeLinksing(t *testing.T) {
 
 }
 
-func TestGitHubFileLinking(t *testing.T) {
+func TestSourceRelativeLinkFileing(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 	site := setupLinkingMockSite(t)
@@ -1278,15 +1285,11 @@ func TestGitHubFileLinking(t *testing.T) {
 			t.Fatalf("failed to find current page in site")
 		}
 		for link, url := range results {
-			if out, err := site.Info.githubFileLink(link, currentPage, false); err != nil || out != url {
+			if out, err := site.Info.SourceRelativeLinkFile(link, currentPage); err != nil || out != url {
 				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
 			} else {
 				//t.Logf("tested ok %s maps to %s", link, out)
 			}
 		}
 	}
-	// TODO: and then the failure cases.
-	// 			"https://docker.com":           "",
-	// site_test.go:1094: Expected https://docker.com to resolve to (), got () - error: Not a plain filepath link (https://docker.com)
-
 }

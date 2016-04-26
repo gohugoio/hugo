@@ -176,7 +176,7 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 
 [link](http://spf13.com) and text
 
-{{% /inside %}}`, "<div><h1 id=\"more-here:bec3ed8ba720b9073ab75abcf3ba5d97\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
+{{% /inside %}}`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
@@ -198,7 +198,7 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1 id=\"more-here:bec3ed8ba720b9073ab75abcf3ba5d97\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
+`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
 }
 
 func TestEmbeddedSC(t *testing.T) {

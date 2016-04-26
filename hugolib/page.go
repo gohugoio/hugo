@@ -257,14 +257,14 @@ func (p *Page) renderBytes(content []byte) []byte {
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
 		fn = func(ref string) (string, error) {
-			return p.Node.Site.GitHub(ref, p)
+			return p.Node.Site.SourceRelativeLink(ref, p)
 		}
 		fileFn = func(ref string) (string, error) {
-			return p.Node.Site.GitHubFileLink(ref, p)
+			return p.Node.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
 	return helpers.RenderBytes(
-		&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
+		&helpers.RenderingContext{Content: content, PageFmt: p.determineMarkupType(),
 			DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
@@ -273,13 +273,13 @@ func (p *Page) renderContent(content []byte) []byte {
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
 		fn = func(ref string) (string, error) {
-			return p.Node.Site.GitHub(ref, p)
+			return p.Node.Site.SourceRelativeLink(ref, p)
 		}
 		fileFn = func(ref string) (string, error) {
-			return p.Node.Site.GitHubFileLink(ref, p)
+			return p.Node.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
-	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.guessMarkupType(),
+	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.determineMarkupType(),
 		DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
@@ -801,16 +801,15 @@ func (p *Page) Render(layout ...string) template.HTML {
 	return tpl.ExecuteTemplateToHTML(p, l...)
 }
 
-func (p *Page) guessMarkupType() string {
-	// First try the explicitly set markup from the frontmatter
-	if p.Markup != "" {
-		format := helpers.GuessType(p.Markup)
-		if format != "unknown" {
-			return format
-		}
+func (p *Page) determineMarkupType() string {
+	// Try markup explicitly set in the frontmatter
+	p.Markup = helpers.GuessType(p.Markup)
+	if p.Markup == "unknown" {
+		// Fall back to file extension (might also return "unknown")
+		p.Markup = helpers.GuessType(p.Source.Ext())
 	}
 
-	return helpers.GuessType(p.Source.Ext())
+	return p.Markup
 }
 
 func (p *Page) parse(reader io.Reader) error {
