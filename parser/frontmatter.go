@@ -149,7 +149,7 @@ func FormatSanitize(kind string) string {
 	}
 }
 
-func detectFrontMatter(mark rune) (f *frontmatterType) {
+func DetectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {
 	case '-':
 		return &frontmatterType{[]byte(YAMLDelim), []byte(YAMLDelim), HandleYAMLMetaData, false}
