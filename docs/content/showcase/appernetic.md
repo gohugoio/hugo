@@ -11,5 +11,5 @@ tags:
 - blog
 - bootstrap
 thumbnail: /img/apperneticioblog.png
-title: Appernetic.io
+title: Appernetic
 ---
