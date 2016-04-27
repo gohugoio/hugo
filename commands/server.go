@@ -24,13 +24,14 @@ import (
 	"strings"
 	"time"
 
+	"mime"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"mime"
 )
 
 var (
@@ -97,6 +98,8 @@ func init() {
 	serverCmd.RunE = server
 
 	mime.AddExtensionType(".json", "application/json; charset=utf8")
+	mime.AddExtensionType(".css", "text/css; charset=utf8")
+
 }
 
 func server(cmd *cobra.Command, args []string) error {
