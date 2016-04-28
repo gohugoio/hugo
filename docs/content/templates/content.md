@@ -12,7 +12,7 @@ prev: /templates/variables
 title: Single Content Template
 weight: 30
 toc: true
----p
+---
 
 The primary view of content in Hugo is the single view. Hugo, for every
 Markdown file provided, will render it with a single template.
