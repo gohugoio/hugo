@@ -12,7 +12,7 @@ prev: /templates/variables
 title: Single Content Template
 weight: 30
 toc: true
----
+---p
 
 The primary view of content in Hugo is the single view. Hugo, for every
 Markdown file provided, will render it with a single template.
@@ -29,7 +29,7 @@ than necessary. For most sites, only the `_default` file at the end of
 the list will be needed.
 
 Users can specify the `type` and `layout` in the [front-matter](/content/front-matter/). `Section`
-is determined based on the content file’s location. If `type` is provide,
+is determined based on the content file’s location. If `type` is provided,
 it will be used instead of `section`.
 
 ### Single
