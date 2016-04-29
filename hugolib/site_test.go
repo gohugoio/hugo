@@ -25,6 +25,7 @@ import (
 
 	"github.com/bep/inflect"
 
+	"github.com/fortytw2/leaktest"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -92,6 +93,9 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 }
 
 func createAndRenderPages(t *testing.T, s *Site) {
+
+	defer leaktest.Check(t)()
+
 	if err := s.createPages(); err != nil {
 		t.Fatalf("Unable to create pages: %s", err)
 	}
