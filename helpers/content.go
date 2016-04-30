@@ -289,11 +289,15 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 	for _, extension := range ctx.getConfig().Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
+		} else {
+			jww.ERROR.Printf("blackfriday.extensions: %q is not a valid extension", extension)
 		}
 	}
 	for _, extension := range ctx.getConfig().ExtensionsMask {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags &= ^flag
+		} else {
+			jww.ERROR.Printf("blackfriday.extensionsmask: %q is not a valid extension", extension)
 		}
 	}
 	return flags
@@ -360,11 +364,15 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	for _, extension := range ctx.getMmarkConfig().Extensions {
 		if flag, ok := mmarkExtensionMap[extension]; ok {
 			flags |= flag
+		} else {
+			jww.ERROR.Printf("mmark.extensions: %q is not a valid extension", extension)
 		}
 	}
 	for _, extension := range ctx.getMmarkConfig().ExtensionsMask {
 		if flag, ok := mmarkExtensionMap[extension]; ok {
 			flags &= ^flag
+		} else {
+			jww.ERROR.Printf("mmark.extensionsmask: %q is not a valid extension", extension)
 		}
 	}
 	return flags
