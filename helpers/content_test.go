@@ -226,7 +226,7 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 func TestGetMmarkHTMLRenderer(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
+	ctx.Config = ctx.getMmarkConfig()
 	ctx.Config.PlainIDAnchors = false
 	actualRenderer := getMmarkHTMLRenderer(0, ctx)
 
@@ -338,19 +338,30 @@ func TestGetMmarkExtensions(t *testing.T) {
 	ctx.Config.Extensions = []string{"tables"}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
-		{mmark.EXTENSION_TABLES},
-		{mmark.EXTENSION_FENCED_CODE},
-		{mmark.EXTENSION_AUTOLINK},
-		{mmark.EXTENSION_SPACE_HEADERS},
-		{mmark.EXTENSION_CITATION},
-		{mmark.EXTENSION_TITLEBLOCK_TOML},
-		{mmark.EXTENSION_HEADER_IDS},
+		{mmark.EXTENSION_ABBREVIATIONS},
 		{mmark.EXTENSION_AUTO_HEADER_IDS},
-		{mmark.EXTENSION_UNIQUE_HEADER_IDS},
+		{mmark.EXTENSION_AUTOLINK},
+		{mmark.EXTENSION_CITATION},
+		{mmark.EXTENSION_EXAMPLE_LISTS},
+		{mmark.EXTENSION_FENCED_CODE},
 		{mmark.EXTENSION_FOOTNOTES},
-		{mmark.EXTENSION_SHORT_REF},
+		// {mmark.EXTENSION_HARD_LINE_BREAK},
+		{mmark.EXTENSION_HEADER_IDS},
+		// {mmark.EXTENSION_INCLUDE},
+		{mmark.EXTENSION_INLINE_ATTR},
+		// {mmark.EXTENSION_LAX_HTML_BLOCKS},
+		// {mmark.EXTENSION_MATH},
+		{mmark.EXTENSION_MATTER},
 		{mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK},
-		{mmark.EXTENSION_INCLUDE},
+		// {mmark.EXTENSION_PARTS},
+		{mmark.EXTENSION_QUOTES},
+		{mmark.EXTENSION_SHORT_REF},
+		{mmark.EXTENSION_SPACE_HEADERS},
+		{mmark.EXTENSION_TABLES},
+		// {mmark.EXTENSION_TITLEBLOCK_TOML},
+		{mmark.EXTENSION_UNIQUE_HEADER_IDS},
+		{mmark.EXTENSION_BACKSLASH_LINE_BREAK},
+		// {mmark.EXTENSION_RFC7328},
 	}
 
 	actualFlags := getMmarkExtensions(ctx)
@@ -364,7 +375,7 @@ func TestGetMmarkExtensions(t *testing.T) {
 func TestMmarkRender(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
+	ctx.Config = ctx.getMmarkConfig()
 	actualRenderedMarkdown := mmarkRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {

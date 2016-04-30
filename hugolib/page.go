@@ -84,17 +84,19 @@ type Page struct {
 	// state telling if this is a "new page" or if we have rendered it previously.
 	rendered bool
 
-	contentShortCodes   map[string]func() (string, error)
-	shortcodes          map[string]shortcode
-	plain               string // TODO should be []byte
-	plainWords          []string
-	plainInit           sync.Once
-	plainWordsInit      sync.Once
-	renderingConfig     *helpers.Blackfriday
-	renderingConfigInit sync.Once
-	pageMenus           PageMenus
-	pageMenusInit       sync.Once
-	isCJKLanguage       bool
+	contentShortCodes        map[string]func() (string, error)
+	shortcodes               map[string]shortcode
+	plain                    string // TODO should be []byte
+	plainWords               []string
+	plainInit                sync.Once
+	plainWordsInit           sync.Once
+	renderingConfig          *helpers.Blackfriday
+	renderingConfigInit      sync.Once
+	renderingMmarkConfig     *helpers.Mmark // TODO(anthonyfok) Refactor
+	renderingMmarkConfigInit sync.Once      // TODO(anthonyfok) Refactor
+	pageMenus                PageMenus
+	pageMenusInit            sync.Once
+	isCJKLanguage            bool
 	PageMeta
 	Source
 	Position `json:"-"`
@@ -365,7 +367,9 @@ func (p *Page) renderContent(content []byte) []byte {
 	return helpers.RenderBytes(&helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
 		ConfigProvider: p.Language(),
-		DocumentID:     p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		DocumentID:     p.UniqueID(), Config: p.getRenderingConfig(),
+		MmarkConfig:  p.getRenderingMmarkConfig(), // TODO(anthony) Refactor
+		LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
@@ -382,6 +386,20 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 	})
 
 	return p.renderingConfig
+}
+
+func (p *Page) getRenderingMmarkConfig() *helpers.Mmark {
+
+	p.renderingMmarkConfigInit.Do(func() {
+		pageParam := cast.ToStringMap(p.GetParam("mmark"))
+
+		p.renderingMmarkConfig = helpers.NewMmark()
+		if err := mapstructure.Decode(pageParam, p.renderingMmarkConfig); err != nil {
+			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
+		}
+	})
+
+	return p.renderingMmarkConfig
 }
 
 func newPage(filename string) *Page {
