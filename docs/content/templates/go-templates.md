@@ -425,7 +425,7 @@ so, such as in this example:
 # Template example: Show only upcoming events
 
 Go allows you to do more than what's shown here.  Using Hugo's
-[`where`](/templates/functions/#toc_4) function and Go built-ins, we can list
+[`where`](/templates/functions/#where) function and Go built-ins, we can list
 only the items from `content/events/` whose date (set in the front matter) is in
 the future:
 
