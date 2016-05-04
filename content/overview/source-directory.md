@@ -34,7 +34,7 @@ Learn more about the different directories and what their purpose is:
 * [archetypes](/content/archetypes/)
 * [content](/content/organization/)
 * [layouts](/layout/overview/)
-* [static](/themes/creation#toc_4)
+* [static](/themes/creation#static)
 * [themes](/themes/overview/)
 
 
