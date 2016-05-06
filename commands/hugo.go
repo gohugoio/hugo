@@ -749,11 +749,11 @@ func NewWatcher(port int) error {
 						filepath.Base(ev.Name) == "4913" ||
 						strings.HasPrefix(ext, ".goutputstream") ||
 						strings.HasSuffix(ext, "jb_old___") ||
-						strings.HasSuffix(ext, "jb_bak___")
+						strings.HasSuffix(ext, "jb_bak___") ||
+						strings.HasPrefix(ext, ".sb-")
 					if istemp {
 						continue
 					}
-
 					// Sometimes during rm -rf operations a '"": REMOVE' is triggered. Just ignore these
 					if ev.Name == "" {
 						continue
