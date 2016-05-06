@@ -1203,7 +1203,8 @@ var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
 // markdownify renders a given string from Markdown to HTML.
-func markdownify(text string) template.HTML {
+func markdownify(in interface{}) template.HTML {
+	text := cast.ToString(in)
 	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)

@@ -1699,13 +1699,19 @@ func TestReturnWhenSet(t *testing.T) {
 }
 
 func TestMarkdownify(t *testing.T) {
-	result := markdownify("Hello **World!**")
-
-	expect := template.HTML("Hello <strong>World!</strong>")
-
-	if result != expect {
-		t.Errorf("Markdownify: got '%s', expected '%s'", result, expect)
+	for i, this := range []struct {
+		in     interface{}
+		expect interface{}
+	}{
+		{"Hello **World!**", template.HTML("Hello <strong>World!</strong>")},
+		{[]byte("Hello Bytes **World!**"), template.HTML("Hello Bytes <strong>World!</strong>")},
+	} {
+		result := markdownify(this.in)
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] markdownify got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
+		}
 	}
+
 }
 
 func TestApply(t *testing.T) {
