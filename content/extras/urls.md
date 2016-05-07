@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/urls/
-lastmod: 2015-12-08
+lastmod: 2016-05-07
 date: 2014-01-03
 menu:
   main:
@@ -61,3 +61,11 @@ Or, if you are on Windows and do not have `grep` installed:
 
     hugo config | FINDSTR /I canon
 
+## Relative URLs
+
+By default, all relative URLs are left unchanged by Hugo,
+which can be problematic when you want to make your site browsable from a local file system.
+
+Setting `relativeURLs` to `true` in the site configuration will cause Hugo to rewrite all relative URLs to be relative to the current content.
+
+For example, if the `/post/first/` page contained a link with a relative URL of `/about/`, Hugo would rewrite that URL to `../../about/`.
