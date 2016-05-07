@@ -14,10 +14,11 @@
 package helpers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGuessType(t *testing.T) {
@@ -60,20 +61,6 @@ func TestFirstUpper(t *testing.T) {
 			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
 		}
 	}
-}
-
-func TestBytesToReader(t *testing.T) {
-	asBytes := ReaderToBytes(strings.NewReader("Hello World!"))
-	asReader := BytesToReader(asBytes)
-	assert.Equal(t, []byte("Hello World!"), asBytes)
-	assert.Equal(t, asBytes, ReaderToBytes(asReader))
-}
-
-func TestStringToReader(t *testing.T) {
-	asString := ReaderToString(strings.NewReader("Hello World!"))
-	assert.Equal(t, "Hello World!", asString)
-	asReader := StringToReader(asString)
-	assert.Equal(t, asString, ReaderToString(asReader))
 }
 
 var containsTestText = (`На берегу пустынных волн
@@ -136,7 +123,7 @@ var containsAdditionalTestData = []struct {
 
 func TestReaderContains(t *testing.T) {
 	for i, this := range append(containsBenchTestData, containsAdditionalTestData...) {
-		result := ReaderContains(StringToReader(this.v1), this.v2)
+		result := ReaderContains(strings.NewReader(this.v1), this.v2)
 		if result != this.expect {
 			t.Errorf("[%d] got %t but expected %t", i, result, this.expect)
 		}
@@ -150,7 +137,7 @@ func BenchmarkReaderContains(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for i, this := range containsBenchTestData {
-			result := ReaderContains(StringToReader(this.v1), this.v2)
+			result := ReaderContains(strings.NewReader(this.v1), this.v2)
 			if result != this.expect {
 				b.Errorf("[%d] got %t but expected %t", i, result, this.expect)
 			}

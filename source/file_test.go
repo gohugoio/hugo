@@ -14,9 +14,10 @@
 package source
 
 import (
-	"github.com/spf13/hugo/helpers"
-	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFileUniqueID(t *testing.T) {
@@ -28,11 +29,11 @@ func TestFileUniqueID(t *testing.T) {
 }
 
 func TestFileString(t *testing.T) {
-	assert.Equal(t, "abc", NewFileWithContents("a", helpers.StringToReader("abc")).String())
+	assert.Equal(t, "abc", NewFileWithContents("a", strings.NewReader("abc")).String())
 	assert.Equal(t, "", NewFile("a").String())
 }
 
 func TestFileBytes(t *testing.T) {
-	assert.Equal(t, []byte("abc"), NewFileWithContents("a", helpers.StringToReader("abc")).Bytes())
+	assert.Equal(t, []byte("abc"), NewFileWithContents("a", strings.NewReader("abc")).Bytes())
 	assert.Equal(t, []byte(""), NewFile("a").Bytes())
 }

@@ -16,7 +16,7 @@ package transform
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/hugo/helpers"
+	"strings"
 	"testing"
 )
 
@@ -27,7 +27,7 @@ func TestLiveReloadInject(t *testing.T) {
 
 func doTestLiveReloadInject(t *testing.T, bodyEndTag string) {
 	out := new(bytes.Buffer)
-	in := helpers.StringToReader(bodyEndTag)
+	in := strings.NewReader(bodyEndTag)
 
 	tr := NewChain(LiveReloadInject)
 	tr.Apply(out, in, []byte("path"))

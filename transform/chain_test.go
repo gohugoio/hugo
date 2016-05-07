@@ -15,11 +15,12 @@ package transform
 
 import (
 	"bytes"
-	"github.com/spf13/hugo/helpers"
-	"github.com/stretchr/testify/assert"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/spf13/hugo/helpers"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -148,7 +149,7 @@ func TestChaingMultipleTransformers(t *testing.T) {
 	tr := NewChain(f1, f2, f3, f4)
 
 	out := new(bytes.Buffer)
-	if err := tr.Apply(out, helpers.StringToReader("Test: f4 f3 f1 f2 f1 The End."), []byte("")); err != nil {
+	if err := tr.Apply(out, strings.NewReader("Test: f4 f3 f1 f2 f1 The End."), []byte("")); err != nil {
 		t.Errorf("Multi transformer chain returned an error: %s", err)
 	}
 
