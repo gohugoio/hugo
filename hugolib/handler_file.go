@@ -14,8 +14,9 @@
 package hugolib
 
 import (
+	"bytes"
+
 	"github.com/dchest/cssmin"
-	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
 )
@@ -48,6 +49,6 @@ type cssHandler struct{ basicFileHandler }
 func (h cssHandler) Extensions() []string { return []string{"css"} }
 func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
 	x := cssmin.Minify(f.Bytes())
-	s.writeDestFile(f.Path(), helpers.BytesToReader(x))
+	s.writeDestFile(f.Path(), bytes.NewReader(x))
 	return HandledResult{file: f}
 }

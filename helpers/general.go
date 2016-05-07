@@ -130,16 +130,6 @@ func ReaderToString(lines io.Reader) string {
 	return b.String()
 }
 
-// StringToReader does the opposite of ReaderToString.
-func StringToReader(in string) io.Reader {
-	return strings.NewReader(in)
-}
-
-// BytesToReader does the opposite of ReaderToBytes.
-func BytesToReader(in []byte) io.Reader {
-	return bytes.NewReader(in)
-}
-
 // ReaderContains reports whether subslice is within r.
 func ReaderContains(r io.Reader, subslice []byte) bool {
 
