@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/kr/pretty"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
@@ -576,13 +575,13 @@ func TestHomeNodeMenu(t *testing.T) {
 
 		if isMenuCurrent != this.isMenuCurrent {
 			fmt.Println("isMenuCurrent", isMenuCurrent)
-			pretty.Println("this:", this)
+			fmt.Printf("this: %#v\n", this)
 			t.Errorf("[%d] Wrong result from IsMenuCurrent: %v for %q", i, isMenuCurrent, this.menu)
 		}
 
 		if hasMenuCurrent != this.hasMenuCurrent {
 			fmt.Println("hasMenuCurrent", hasMenuCurrent)
-			pretty.Println("this:", this)
+			fmt.Printf("this: %#v\n", this)
 			t.Errorf("[%d] Wrong result for menu %q menuItem %v for HasMenuCurrent: %v", i, this.menu, this.menuItem, hasMenuCurrent)
 		}
 	}
