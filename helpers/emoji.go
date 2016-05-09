@@ -15,8 +15,9 @@ package helpers
 
 import (
 	"bytes"
-	"github.com/kyokomi/emoji"
 	"sync"
+
+	"github.com/kyokomi/emoji"
 )
 
 var (
@@ -85,7 +86,7 @@ func initEmoji() {
 	emojiMap := emoji.CodeMap()
 
 	for k, v := range emojiMap {
-		emojis[k] = []byte(v + emoji.ReplacePadding)
+		emojis[k] = []byte(v)
 
 		if len(k) > emojiMaxSize {
 			emojiMaxSize = len(k)

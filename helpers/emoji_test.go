@@ -13,11 +13,12 @@
 package helpers
 
 import (
-	"github.com/kyokomi/emoji"
-	"github.com/spf13/hugo/bufferpool"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/kyokomi/emoji"
+	"github.com/spf13/hugo/bufferpool"
 )
 
 func TestEmojiCustom(t *testing.T) {
@@ -25,24 +26,24 @@ func TestEmojiCustom(t *testing.T) {
 		input  string
 		expect []byte
 	}{
-		{"A :smile: a day", []byte(emoji.Sprint("A :smile: a day"))},
-		{"A few :smile:s a day", []byte(emoji.Sprint("A few :smile:s a day"))},
-		{"A :smile: and a :beer: makes the day for sure.", []byte(emoji.Sprint("A :smile: and a :beer: makes the day for sure."))},
-		{"A :smile: and: a :beer:", []byte(emoji.Sprint("A :smile: and: a :beer:"))},
-		{"A :diamond_shape_with_a_dot_inside: and then some.", []byte(emoji.Sprint("A :diamond_shape_with_a_dot_inside: and then some."))},
-		{":smile:", []byte(emoji.Sprint(":smile:"))},
+		{"A :smile: a day", []byte("A 😄 a day")},
+		{"A few :smile:s a day", []byte("A few 😄s a day")},
+		{"A :smile: and a :beer: makes the day for sure.", []byte("A 😄 and a 🍺 makes the day for sure.")},
+		{"A :smile: and: a :beer:", []byte("A 😄 and: a 🍺")},
+		{"A :diamond_shape_with_a_dot_inside: and then some.", []byte("A 💠 and then some.")},
+		{":smile:", []byte("😄")},
 		{":smi", []byte(":smi")},
-		{"A :smile:", []byte(emoji.Sprint("A :smile:"))},
-		{":beer:!", []byte(emoji.Sprint(":beer:!"))},
-		{"::smile:", []byte(emoji.Sprint("::smile:"))},
-		{":beer::", []byte(emoji.Sprint(":beer::"))},
-		{" :beer: :", []byte(emoji.Sprint(" :beer: :"))},
-		{":beer: and :smile: and another :beer:!", []byte(emoji.Sprint(":beer: and :smile: and another :beer:!"))},
-		{" :beer: : ", []byte(emoji.Sprint(" :beer: : "))},
+		{"A :smile:", []byte("A 😄")},
+		{":beer:!", []byte("🍺!")},
+		{"::smile:", []byte(":😄")},
+		{":beer::", []byte("🍺:")},
+		{" :beer: :", []byte(" 🍺 :")},
+		{":beer: and :smile: and another :beer:!", []byte("🍺 and 😄 and another 🍺!")},
+		{" :beer: : ", []byte(" 🍺 : ")},
 		{"No smilies for you!", []byte("No smilies for you!")},
 		{" The motto: no smiles! ", []byte(" The motto: no smiles! ")},
 		{":hugo_is_the_best_static_gen:", []byte(":hugo_is_the_best_static_gen:")},
-		{"은행 :smile: 은행", []byte(emoji.Sprint("은행 :smile: 은행"))},
+		{"은행 :smile: 은행", []byte("은행 😄 은행")},
 	} {
 		result := Emojify([]byte(this.input))
 
