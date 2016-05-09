@@ -139,7 +139,7 @@ chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
 delimit: A, B and C
 div: 2
-emojify: I ❤️  Hugo
+emojify: I ❤️ Hugo
 eq: current
 findRE: [go]
 hasPrefix 1: true
