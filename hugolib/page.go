@@ -468,13 +468,22 @@ func (p *Page) LinkTitle() string {
 }
 
 func (p *Page) ShouldBuild() bool {
-	if (viper.GetBool("BuildFuture") || p.PublishDate.IsZero() || p.PublishDate.Before(time.Now())) &&
-		(viper.GetBool("BuildExpired") || p.ExpiryDate.IsZero() || p.ExpiryDate.After(time.Now())) {
-		if viper.GetBool("BuildDrafts") || !p.Draft {
-			return true
-		}
+	return AssertShouldBuild(viper.GetBool("BuildFuture"), viper.GetBool("BuildExpired"),
+		viper.GetBool("BuildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
+}
+
+func AssertShouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
+	publishDate time.Time, expiryDate time.Time) bool {
+	if !(buildDrafts || !Draft) {
+		return false
 	}
-	return false
+	if !buildFuture && !publishDate.IsZero() && publishDate.After(time.Now()) {
+		return false
+	}
+	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(time.Now()) {
+		return false
+	}
+	return true
 }
 
 func (p *Page) IsDraft() bool {
