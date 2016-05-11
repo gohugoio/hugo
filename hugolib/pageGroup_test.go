@@ -47,6 +47,7 @@ func preparePageGroupTestPages(t *testing.T) Pages {
 		p.Weight = s.weight
 		p.Date = cast.ToTime(s.date)
 		p.PublishDate = cast.ToTime(s.date)
+		p.ExpiryDate = cast.ToTime(s.date)
 		p.Params["custom_param"] = s.param
 		p.Params["custom_date"] = cast.ToTime(s.date)
 		pages = append(pages, p)
@@ -366,6 +367,23 @@ func TestGroupByPublishDateWithEmptyPages(t *testing.T) {
 	}
 	if groups != nil {
 		t.Errorf("PagesGroup isn't empty. It should be %#v, got %#v", nil, groups)
+	}
+}
+
+func TestGroupByExpiryDate(t *testing.T) {
+	pages := preparePageGroupTestPages(t)
+	expect := PagesGroup{
+		{Key: "2012-04", Pages: Pages{pages[4], pages[2], pages[0]}},
+		{Key: "2012-03", Pages: Pages{pages[3]}},
+		{Key: "2012-01", Pages: Pages{pages[1]}},
+	}
+
+	groups, err := pages.GroupByExpiryDate("2006-01")
+	if err != nil {
+		t.Fatalf("Unable to make PagesGroup array: %s", err)
+	}
+	if !reflect.DeepEqual(groups, expect) {
+		t.Errorf("PagesGroup has unexpected groups. It should be %#v, got %#v", expect, groups)
 	}
 }
 
