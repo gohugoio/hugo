@@ -158,6 +158,24 @@ func (p Pages) ByPublishDate() Pages {
 	return pages
 }
 
+// ByExpiryDate sorts the Pages by publish date and returns a copy.
+//
+// Adjacent invocactions on the same receiver will return a cached result.
+//
+// This may safely be executed  in parallel.
+func (p Pages) ByExpiryDate() Pages {
+
+	key := "pageSort.ByExpiryDate"
+
+	expDate := func(p1, p2 *Page) bool {
+		return p1.ExpiryDate.Unix() < p2.ExpiryDate.Unix()
+	}
+
+	pages, _ := spc.get(key, p, pageBy(expDate).Sort)
+
+	return pages
+}
+
 // ByLastmod sorts the Pages by the last modification date and returns a copy.
 //
 // Adjacent invocactions on the same receiver will return a cached result.
