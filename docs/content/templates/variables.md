@@ -35,6 +35,7 @@ matter, content or derived from file location.
 **.Date** The date the content is associated with.<br>
 **.Lastmod** The date the content was last modified.<br>
 **.PublishDate** The date the content is published on.<br>
+**.ExpiryDate** The date where the content is scheduled to expire on.<br>
 **.Type** The content [type](/content/types/) (e.g. post).<br>
 **.Section** The [section](/content/sections/) this content belongs to.<br>
 **.Permalink** The Permanent link for this page.<br>
