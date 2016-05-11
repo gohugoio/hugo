@@ -25,6 +25,7 @@ import (
 func init() {
 	listCmd.AddCommand(listDraftsCmd)
 	listCmd.AddCommand(listFutureCmd)
+	listCmd.AddCommand(listExpiredCmd)
 	listCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	listCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 }
@@ -89,6 +90,37 @@ posted in the future.`,
 
 		for _, p := range site.Pages {
 			if p.IsFuture() {
+				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+			}
+
+		}
+
+		return nil
+
+	},
+}
+
+var listExpiredCmd = &cobra.Command{
+	Use:   "expired",
+	Short: "List all posts already expired",
+	Long: `List all of the posts in your content directory which has already
+expired.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+
+		if err := InitializeConfig(); err != nil {
+			return err
+		}
+
+		viper.Set("BuildExpired", true)
+
+		site := &hugolib.Site{}
+
+		if err := site.Process(); err != nil {
+			return newSystemError("Error Processing Source Content", err)
+		}
+
+		for _, p := range site.Pages {
+			if p.IsExpired() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
 
