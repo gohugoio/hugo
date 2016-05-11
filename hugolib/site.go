@@ -89,6 +89,7 @@ type Site struct {
 	RunMode        runmode
 	draftCount     int
 	futureCount    int
+	expiredCount   int
 	Data           map[string]interface{}
 }
 
@@ -1006,6 +1007,10 @@ func (s *Site) addPage(page *Page) {
 	if page.IsFuture() {
 		s.futureCount++
 	}
+
+	if page.IsExpired() {
+		s.expiredCount++
+	}
 }
 
 func (s *Site) removePageByPath(path string) {
@@ -1020,6 +1025,10 @@ func (s *Site) removePageByPath(path string) {
 			s.futureCount--
 		}
 
+		if page.IsExpired() {
+			s.expiredCount--
+		}
+
 		s.Pages = append(s.Pages[:i], s.Pages[i+1:]...)
 	}
 }
@@ -1032,6 +1041,10 @@ func (s *Site) removePage(page *Page) {
 
 		if page.IsFuture() {
 			s.futureCount--
+		}
+
+		if page.IsExpired() {
+			s.expiredCount--
 		}
 
 		s.Pages = append(s.Pages[:i], s.Pages[i+1:]...)
