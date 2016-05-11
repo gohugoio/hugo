@@ -296,6 +296,48 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildFuture", false)
 }
 
+func TestFutureExpirationRender(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	hugofs.InitMemFs()
+	sources := []source.ByteSource{
+		{filepath.FromSlash("sect/doc3.md"), []byte("---\ntitle: doc1\nexpirydate: \"2400-05-29\"\n---\n# doc1\n*some content*")},
+		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*")},
+	}
+
+	siteSetup := func() *Site {
+		s := &Site{
+			Source: &source.InMemorySource{ByteSource: sources},
+		}
+
+		s.initializeSiteInfo()
+
+		if err := s.createPages(); err != nil {
+			t.Fatalf("Unable to create pages: %s", err)
+		}
+		return s
+	}
+
+	viper.Set("baseurl", "http://auth/bub")
+
+	s := siteSetup()
+
+	if len(s.Pages) != 1 {
+		if len(s.Pages) > 1 {
+			t.Fatal("Expired content published unexpectedly")
+		}
+
+		if len(s.Pages) < 1 {
+			t.Fatal("Valid content expired unexpectedly")
+		}
+	}
+
+	if s.Pages[0].Title == "doc2" {
+		t.Fatal("Expired content published unexpectedly")
+	}
+}
+
 // Issue #957
 func TestCrossrefs(t *testing.T) {
 	hugofs.InitMemFs()

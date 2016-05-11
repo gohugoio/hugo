@@ -59,6 +59,7 @@ type Page struct {
 	Truncated           bool
 	Draft               bool
 	PublishDate         time.Time
+	ExpiryDate          time.Time
 	Markup              string
 	extension           string
 	contentType         string
@@ -467,7 +468,8 @@ func (p *Page) LinkTitle() string {
 }
 
 func (p *Page) ShouldBuild() bool {
-	if viper.GetBool("BuildFuture") || p.PublishDate.IsZero() || p.PublishDate.Before(time.Now()) {
+	if (viper.GetBool("BuildFuture") || p.PublishDate.IsZero() || p.PublishDate.Before(time.Now())) &&
+		(viper.GetBool("BuildExpired") || p.ExpiryDate.IsZero() || p.ExpiryDate.After(time.Now())) {
 		if viper.GetBool("BuildDrafts") || !p.Draft {
 			return true
 		}
@@ -480,10 +482,11 @@ func (p *Page) IsDraft() bool {
 }
 
 func (p *Page) IsFuture() bool {
-	if p.PublishDate.Before(time.Now()) {
-		return false
-	}
-	return true
+	return p.PublishDate.After(time.Now())
+}
+
+func (p *Page) IsExpired() bool {
+	return p.ExpiryDate.Before(time.Now())
 }
 
 func (p *Page) Permalink() (string, error) {
@@ -563,6 +566,11 @@ func (p *Page) update(f interface{}) error {
 			p.PublishDate, err = cast.ToTimeE(v)
 			if err != nil {
 				jww.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
+			}
+		case "expirydate", "unpublishdate":
+			p.ExpiryDate, err = cast.ToTimeE(v)
+			if err != nil {
+				jww.ERROR.Printf("Failed to parse expirydate '%v' in page %s", v, p.File.Path())
 			}
 		case "draft":
 			draft = new(bool)
