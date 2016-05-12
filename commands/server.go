@@ -209,7 +209,6 @@ func serve(port int) {
 		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
 
-	u.Scheme = "http"
 	jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
 	fmt.Println("Press Ctrl+C to stop")
 
@@ -229,37 +228,45 @@ func fixURL(s string) (string, error) {
 		s = viper.GetString("BaseURL")
 		useLocalhost = true
 	}
-	if !strings.HasPrefix(s, "http://") && !strings.HasPrefix(s, "https://") {
-		s = "http://" + s
-	}
+
 	if !strings.HasSuffix(s, "/") {
 		s = s + "/"
 	}
+
+	// do an initial parse of the input string
 	u, err := url.Parse(s)
 	if err != nil {
 		return "", err
 	}
 
-	if serverAppend {
-		if useLocalhost {
-			u.Host = fmt.Sprintf("localhost:%d", serverPort)
-			u.Scheme = "http"
-			return u.String(), nil
+	// if no Host is defined, then assume that no schema or double-slash were
+	// present in the url.  Add a double-slash and make a best effort attempt.
+	if u.Host == "" && s != "/" {
+		s = "//" + s
+
+		u, err = url.Parse(s)
+		if err != nil {
+			return "", err
 		}
-		host := u.Host
-		if strings.Contains(host, ":") {
-			host, _, err = net.SplitHostPort(u.Host)
+	}
+
+	if useLocalhost {
+		if u.Scheme == "https" {
+			u.Scheme = "http"
+		}
+		u.Host = "localhost"
+	}
+
+	if serverAppend {
+		if strings.Contains(u.Host, ":") {
+			u.Host, _, err = net.SplitHostPort(u.Host)
 			if err != nil {
 				return "", fmt.Errorf("Failed to split BaseURL hostpost: %s", err)
 			}
 		}
-		u.Host = fmt.Sprintf("%s:%d", host, serverPort)
-		return u.String(), nil
+		u.Host += fmt.Sprintf(":%d", serverPort)
 	}
 
-	if useLocalhost {
-		u.Host = "localhost"
-	}
 	return u.String(), nil
 }
 
