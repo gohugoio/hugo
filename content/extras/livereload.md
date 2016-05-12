@@ -45,6 +45,9 @@ This means that keeping the site open on a second monitor (or another
 half of your current monitor) allows you to see exactly what your
 content looks like without even leaving your text editor.
 
+It's worth noting that "--watch" is enabled by default when "hugo server"
+is run.
+
 ## Disabling LiveReload
 
 LiveReload works by injecting JavaScript into the pages it
