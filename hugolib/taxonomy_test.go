@@ -20,18 +20,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestSitePossibleTaxonomies(t *testing.T) {
-	site := new(Site)
-	page, _ := NewPageFrom(strings.NewReader(pageYamlWithTaxonomiesA), "path/to/page")
-	site.Pages = append(site.Pages, page)
-	taxonomies := site.possibleTaxonomies()
-	if !compareStringSlice(taxonomies, []string{"tags", "categories"}) {
-		if !compareStringSlice(taxonomies, []string{"categories", "tags"}) {
-			t.Fatalf("possible taxonomies do not match [tags categories].  Got: %s", taxonomies)
-		}
-	}
-}
-
 func TestByCountOrderOfTaxonomies(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()

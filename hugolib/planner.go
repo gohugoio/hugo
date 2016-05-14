@@ -25,7 +25,7 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 		fmt.Fprintf(out, "No source files provided.\n")
 	}
 
-	for _, p := range s.Pages {
+	for _, p := range s.AllPages {
 		fmt.Fprintf(out, "%s", p.Source.Path())
 		if p.IsRenderable() {
 			fmt.Fprintf(out, " (renderer: markdown)")

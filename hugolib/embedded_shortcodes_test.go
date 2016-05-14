@@ -56,8 +56,8 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 	templ := tpl.New()
 	p, _ := pageFromString(simplePageWithURL, path)
 	p.Node.Site = &SiteInfo{
-		Pages:   &(Pages{p}),
-		BaseURL: template.URL(helpers.SanitizeURLKeepTrailingSlash(baseURL)),
+		AllPages: &(Pages{p}),
+		BaseURL:  template.URL(helpers.SanitizeURLKeepTrailingSlash(baseURL)),
 	}
 
 	output, err := HandleShortcodes(in, p, templ)
