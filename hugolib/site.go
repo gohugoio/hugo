@@ -20,6 +20,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -28,8 +29,6 @@ import (
 	"time"
 
 	"sync/atomic"
-
-	"path"
 
 	"github.com/bep/inflect"
 	"github.com/fsnotify/fsnotify"
@@ -75,22 +74,24 @@ var distinctErrorLogger = helpers.NewDistinctErrorLogger()
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Pages          Pages
-	Files          []*source.File
-	Tmpl           tpl.Template
-	Taxonomies     TaxonomyList
-	Source         source.Input
-	Sections       Taxonomy
-	Info           SiteInfo
-	Menus          Menus
-	timer          *nitro.B
-	targets        targetList
-	targetListInit sync.Once
-	RunMode        runmode
-	draftCount     int
-	futureCount    int
-	expiredCount   int
-	Data           map[string]interface{}
+	Pages           Pages
+	TranslatedPages Pages
+	Files           []*source.File
+	Tmpl            tpl.Template
+	Taxonomies      TaxonomyList
+	Source          source.Input
+	Sections        Taxonomy
+	Info            SiteInfo
+	Menus           Menus
+	timer           *nitro.B
+	targets         targetList
+	targetListInit  sync.Once
+	RunMode         runmode
+	Multilingual    *Multilingual
+	draftCount      int
+	futureCount     int
+	expiredCount    int
+	Data            map[string]interface{}
 }
 
 type targetList struct {
@@ -106,7 +107,8 @@ type SiteInfo struct {
 	Authors               AuthorList
 	Social                SiteSocial
 	Sections              Taxonomy
-	Pages                 *Pages
+	Pages                 *Pages // Includes only pages in this language
+	TranslatedPages       *Pages // Includes other translated pages, excluding those in this language.
 	Files                 *[]*source.File
 	Menus                 *Menus
 	Hugo                  *HugoInfo
@@ -125,6 +127,11 @@ type SiteInfo struct {
 	preserveTaxonomyNames bool
 	paginationPageCount   uint64
 	Data                  *map[string]interface{}
+
+	Multilingual    bool
+	CurrentLanguage string
+	LanguagePrefix  string
+	Languages       []string
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -150,17 +157,17 @@ func (s *SiteInfo) GetParam(key string) interface{} {
 		return nil
 	}
 
-	switch v.(type) {
+	switch val := v.(type) {
 	case bool:
-		return cast.ToBool(v)
+		return val
 	case string:
-		return cast.ToString(v)
+		return val
 	case int64, int32, int16, int8, int:
 		return cast.ToInt(v)
 	case float64, float32:
 		return cast.ToFloat64(v)
 	case time.Time:
-		return cast.ToTime(v)
+		return val
 	case []string:
 		return v
 	}
@@ -538,6 +545,9 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 	s.timerStep("read & convert pages from source")
 
+	// FIXME: does this go inside the next `if` statement ?
+	s.setupTranslations()
+
 	if len(sourceChanged) > 0 {
 		s.setupPrevNext()
 		if err = s.buildSiteMeta(); err != nil {
@@ -665,9 +675,9 @@ func (s *Site) readDataFromSourceFS() error {
 	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
 
 	// have to be last - duplicate keys in earlier entries will win
-	themeStaticDir, err := helpers.GetThemeDataDirPath()
+	themeDataDir, err := helpers.GetThemeDataDirPath()
 	if err == nil {
-		dataSources = append(dataSources, &source.Filesystem{Base: themeStaticDir})
+		dataSources = append(dataSources, &source.Filesystem{Base: themeDataDir})
 	}
 
 	err = s.loadData(dataSources)
@@ -688,9 +698,22 @@ func (s *Site) Process() (err error) {
 		return
 	}
 
+	i18nSources := []source.Input{&source.Filesystem{Base: s.absI18nDir()}}
+
+	themeI18nDir, err := helpers.GetThemeI18nDirPath()
+	if err == nil {
+		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
+	}
+
+	if err = loadI18n(i18nSources, s.Multilingual.GetString("CurrentLanguage")); err != nil {
+		return
+	}
+	s.timerStep("load i18n")
+
 	if err = s.createPages(); err != nil {
 		return
 	}
+	s.setupTranslations()
 	s.setupPrevNext()
 	if err = s.buildSiteMeta(); err != nil {
 		return
@@ -709,6 +732,30 @@ func (s *Site) setupPrevNext() {
 			page.Prev = s.Pages[i-1]
 		}
 	}
+}
+
+func (s *Site) setupTranslations() {
+	if !s.multilingualEnabled() {
+		return
+	}
+
+	currentLang := s.Multilingual.GetString("CurrentLanguage")
+
+	allTranslations := pagesToTranslationsMap(s.Pages)
+	assignTranslationsToPages(allTranslations, s.Pages)
+
+	var currentLangPages []*Page
+	var otherTranslationsPages []*Page
+	for _, p := range s.Pages {
+		if p.Lang() == "" || strings.HasPrefix(currentLang, p.lang) {
+			currentLangPages = append(currentLangPages, p)
+		} else {
+			otherTranslationsPages = append(otherTranslationsPages, p)
+		}
+	}
+
+	s.TranslatedPages = otherTranslationsPages
+	s.Pages = currentLangPages
 }
 
 func (s *Site) Render() (err error) {
@@ -771,21 +818,35 @@ func (s *Site) initialize() (err error) {
 }
 
 func (s *Site) initializeSiteInfo() {
-	params := viper.GetStringMap("Params")
+	params := s.Multilingual.GetStringMap("Params")
 
 	permalinks := make(PermalinkOverrides)
 	for k, v := range viper.GetStringMapString("Permalinks") {
 		permalinks[k] = pathPattern(v)
 	}
 
+	languagePrefix := ""
+	if s.multilingualEnabled() {
+		languagePrefix = "/" + s.Multilingual.GetString("CurrentLanguage")
+	}
+
+	languages := []string{}
+	if s.Multilingual != nil {
+		languages = s.Multilingual.Languages
+	}
+
 	s.Info = SiteInfo{
 		BaseURL:               template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
-		Title:                 viper.GetString("Title"),
-		Author:                viper.GetStringMap("author"),
-		Social:                viper.GetStringMapString("social"),
-		LanguageCode:          viper.GetString("languagecode"),
-		Copyright:             viper.GetString("copyright"),
-		DisqusShortname:       viper.GetString("DisqusShortname"),
+		Title:                 s.Multilingual.GetString("Title"),
+		Author:                s.Multilingual.GetStringMap("author"),
+		Social:                s.Multilingual.GetStringMapString("social"),
+		LanguageCode:          s.Multilingual.GetString("languagecode"),
+		Copyright:             s.Multilingual.GetString("copyright"),
+		DisqusShortname:       s.Multilingual.GetString("DisqusShortname"),
+		Multilingual:          s.multilingualEnabled(),
+		CurrentLanguage:       s.Multilingual.GetString("CurrentLanguage"),
+		LanguagePrefix:        languagePrefix,
+		Languages:             languages,
 		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
 		RSSLink:               s.permalinkStr(viper.GetString("RSSUri")),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
@@ -806,6 +867,10 @@ func (s *Site) hasTheme() bool {
 
 func (s *Site) absDataDir() string {
 	return helpers.AbsPathify(viper.GetString("DataDir"))
+}
+
+func (s *Site) absI18nDir() string {
+	return helpers.AbsPathify(viper.GetString("I18nDir"))
 }
 
 func (s *Site) absThemeDir() string {
@@ -1536,6 +1601,19 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	return n, base
 }
 
+// addMultilingualPrefix adds the `en/` prefix to the path passed as parameter.
+// `basePath` must not start with http://
+func (s *Site) addMultilingualPrefix(basePath string) string {
+	hadPrefix := strings.HasPrefix(basePath, "/")
+	if s.multilingualEnabled() {
+		basePath = path.Join(s.Multilingual.GetString("CurrentLanguage"), basePath)
+		if hadPrefix {
+			basePath = "/" + basePath
+		}
+	}
+	return basePath
+}
+
 func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -1548,6 +1626,8 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			[]string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"})
 
 		n, base = s.newTaxonomyNode(t)
+
+		base = s.addMultilingualPrefix(base)
 
 		dest := base
 		if viper.GetBool("UglyURLs") {
@@ -1623,7 +1703,7 @@ func (s *Site) renderListsOfTaxonomyTerms() (err error) {
 		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 		layouts = s.appendThemeTemplates(layouts)
 		if s.layoutExists(layouts...) {
-			if err := s.renderAndWritePage("taxonomy terms for "+singular, plural+"/index.html", n, layouts...); err != nil {
+			if err := s.renderAndWritePage("taxonomy terms for "+singular, s.addMultilingualPrefix(plural+"/index.html"), n, layouts...); err != nil {
 				return err
 			}
 		}
@@ -1664,8 +1744,10 @@ func (s *Site) renderSectionLists() error {
 			section = helpers.MakePathSanitized(section)
 		}
 
+		base := s.addMultilingualPrefix(section)
+
 		n := s.newSectionListNode(sectionName, section, data)
-		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), section, n, s.appendThemeTemplates(layouts)...); err != nil {
+		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), base, n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
 
@@ -1674,7 +1756,7 @@ func (s *Site) renderSectionLists() error {
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(section, 1), s.permalink(section))
+			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), s.permalink(base))
 
 			pagers := n.paginator.Pagers()
 
@@ -1692,7 +1774,7 @@ func (s *Site) renderSectionLists() error {
 					sectionPagerNode.Lastmod = first.Lastmod
 				}
 				pageNumber := i + 1
-				htmlBase := fmt.Sprintf("/%s/%s/%d", section, paginatePath, pageNumber)
+				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
 				if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), filepath.FromSlash(htmlBase), sectionPagerNode, layouts...); err != nil {
 					return err
 				}
@@ -1702,10 +1784,10 @@ func (s *Site) renderSectionLists() error {
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			n.URL = s.permalinkStr(section + "/" + rssuri)
-			n.Permalink = s.permalink(section)
+			n.URL = s.permalinkStr(base + "/" + rssuri)
+			n.Permalink = s.permalink(base)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			if err := s.renderAndWriteXML("section "+section+" rss", section+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
@@ -1730,7 +1812,7 @@ func (s *Site) renderHomePage() error {
 	n := s.newHomeNode()
 	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 
-	if err := s.renderAndWritePage("homepage", helpers.FilePathSeparator, n, layouts...); err != nil {
+	if err := s.renderAndWritePage("homepage", s.addMultilingualPrefix(helpers.FilePathSeparator), n, layouts...); err != nil {
 		return err
 	}
 
@@ -1739,7 +1821,7 @@ func (s *Site) renderHomePage() error {
 		paginatePath := viper.GetString("paginatePath")
 
 		// write alias for page 1
-		s.writeDestAlias(helpers.PaginateAliasPath("", 1), s.permalink("/"))
+		s.writeDestAlias(s.addMultilingualPrefix(helpers.PaginateAliasPath("", 1)), s.permalink("/"))
 
 		pagers := n.paginator.Pagers()
 
@@ -1758,6 +1840,7 @@ func (s *Site) renderHomePage() error {
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
+			htmlBase = s.addMultilingualPrefix(htmlBase)
 			if err := s.renderAndWritePage(fmt.Sprintf("homepage"), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
 				return err
 			}
@@ -1780,7 +1863,7 @@ func (s *Site) renderHomePage() error {
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
 
-		if err := s.renderAndWriteXML("homepage rss", viper.GetString("RSSUri"), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+		if err := s.renderAndWriteXML("homepage rss", s.addMultilingualPrefix(viper.GetString("RSSUri")), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}
@@ -1845,7 +1928,7 @@ func (s *Site) renderSitemap() error {
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
 
-	if err := s.renderAndWriteXML("sitemap", page.Sitemap.Filename, n, s.appendThemeTemplates(smLayouts)...); err != nil {
+	if err := s.renderAndWriteXML("sitemap", s.addMultilingualPrefix(page.Sitemap.Filename), n, s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
 	}
 
@@ -1874,7 +1957,7 @@ func (s *Site) renderRobotsTXT() error {
 
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
-func (s *Site) Stats() {
+func (s *Site) Stats(lang string, t0 time.Time) {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
 	jww.FEEDBACK.Println(s.expiredStats())
@@ -1886,9 +1969,14 @@ func (s *Site) Stats() {
 	for _, pl := range taxonomies {
 		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
 	}
+
+	if lang != "" {
+		jww.FEEDBACK.Printf("rendered lang %q in %v ms\n", lang, int(1000*time.Since(t0).Seconds()))
+	}
 }
 
 func (s *Site) setURLs(n *Node, in string) {
+	in = s.addMultilingualPrefix(in)
 	n.URL = helpers.URLizeAndPrep(in)
 	n.Permalink = s.permalink(n.URL)
 	n.RSSLink = template.HTML(s.permalink(in + ".xml"))
