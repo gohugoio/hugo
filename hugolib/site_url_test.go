@@ -97,12 +97,7 @@ func TestPageCount(t *testing.T) {
 	s.initializeSiteInfo()
 	s.prepTemplates("indexes/blue.html", indexTemplate)
 
-	if err := s.createPages(); err != nil {
-		t.Errorf("Unable to create pages: %s", err)
-	}
-	if err := s.buildSiteMeta(); err != nil {
-		t.Errorf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	if err := s.renderSectionLists(); err != nil {
 		t.Errorf("Unable to render section lists: %s", err)

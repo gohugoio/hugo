@@ -691,13 +691,7 @@ func testSiteSetup(s *Site, t *testing.T) {
 	s.Menus = Menus{}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 }
 
 func tomlToMap(s string) (map[string]interface{}, error) {
