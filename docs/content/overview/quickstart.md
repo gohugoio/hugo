@@ -206,7 +206,7 @@ $ mkdir themes && cd themes
 Now, you can clone one or more themes inside the `themes` directory. We will use robust theme.
 
 ```bash
-$ git clone git@github.com:dim0627/hugo_theme_robust.git
+$ git clone https://github.com/dim0627/hugo_theme_robust.git
 ```
 
 Leave the themes folder
