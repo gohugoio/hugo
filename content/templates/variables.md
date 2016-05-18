@@ -44,7 +44,7 @@ matter, content or derived from file location.
 **.TableOfContents** The rendered table of contents for this content.<br>
 **.Prev** Pointer to the previous content (based on pub date).<br>
 **.Next** Pointer to the following content (based on pub date).<br>
-**.PrevInSection** Pointer to the previous content within the same section (based on pub date)<br>
+**.PrevInSection** Pointer to the previous content within the same section (based on pub date). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.<br>
 **.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.WordCount** The number of words in the content.<br>
