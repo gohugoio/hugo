@@ -1877,6 +1877,7 @@ func (s *Site) renderRobotsTXT() error {
 func (s *Site) Stats() {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
+	jww.FEEDBACK.Println(s.expiredStats())
 	jww.FEEDBACK.Printf("%d pages created\n", len(s.Pages))
 	jww.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
 	jww.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
@@ -2167,6 +2168,25 @@ func (s *Site) futureStats() string {
 
 	if viper.GetBool("BuildFuture") {
 		return fmt.Sprintf("%d of ", s.futureCount) + msg
+	}
+
+	return "0 of " + msg
+}
+
+func (s *Site) expiredStats() string {
+	var msg string
+
+	switch s.expiredCount {
+	case 0:
+		return "0 expired content"
+	case 1:
+		msg = "1 expired rendered"
+	default:
+		msg = fmt.Sprintf("%d expired rendered", s.expiredCount)
+	}
+
+	if viper.GetBool("BuildExpired") {
+		return fmt.Sprintf("%d of ", s.expiredCount) + msg
 	}
 
 	return "0 of " + msg
