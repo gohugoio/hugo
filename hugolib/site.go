@@ -2152,7 +2152,7 @@ func (s *Site) futureStats() string {
 	case 1:
 		msg = "1 future rendered"
 	default:
-		msg = fmt.Sprintf("%d future rendered", s.draftCount)
+		msg = fmt.Sprintf("%d future rendered", s.futureCount)
 	}
 
 	if viper.GetBool("BuildFuture") {
