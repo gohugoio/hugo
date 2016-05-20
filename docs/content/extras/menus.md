@@ -134,8 +134,11 @@ All nesting of content is done via the `parent` field.
 The parent of an entry should be the identifier of another entry.
 Identifier should be unique (within a menu).
 
-The following order is used to determine identity Identifier > Name >
-LinkTitle > Title. This means that the title will be used unless
+The following order is used to determine an Identifier:   
+
+> Name > LinkTitle > Title. 
+
+This means that the title will be used unless
 linktitle is present, etc. In practice Name and Identifier are never
 displayed and only used to structure relationships.
 
