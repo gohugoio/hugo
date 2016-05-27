@@ -256,7 +256,7 @@ Let's understand the layout of the theme. A theme consists of following:
 
 ## Step 6. Use multiple themes
 
-You can very easy test different layouts by switching between different themes. Let's suppose we want to try out `bleak` theme. We clone `bleak` theme inside the `themes` directory.
+You can very easily test different layouts by switching between different themes. Let's suppose we want to try out `bleak` theme. We clone `bleak` theme inside the `themes` directory.
 
 ```bash
 $ git clone git@github.com:Zenithar/hugo-theme-bleak.git
