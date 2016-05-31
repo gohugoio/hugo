@@ -314,7 +314,7 @@ Robust theme is a good start towards our online bookshelf but we to customize it
 
 The first change that we have to make is to use a different default image instead of the one used in the theme. The default image used in both the list and single view page resides inside the `themes/hugo_theme_robust/static/images/default.jpg`. We can easily replace it by creating a simple directory structure inside the `static` directory inside the `bookshelf` directory.
 
-Create images directory inside the static directory and copy an image with name `default.jpg` inside it. We will use the default image shown below.
+Create an images directory inside the static directory and copy an image with name `default.jpg` inside it. We will use the default image shown below.
 
 ![](/img/quickstart/default.jpg)
 
