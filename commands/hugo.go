@@ -749,6 +749,7 @@ func NewWatcher(port int) error {
 						filepath.Base(ev.Name) == "4913" || // vim
 						strings.HasPrefix(ext, ".goutputstream") || // gnome
 						strings.HasSuffix(ext, "jb_old___") || // intelliJ
+						strings.HasSuffix(ext, "jb_tmp___") || // intelliJ
 						strings.HasSuffix(ext, "jb_bak___") || // intelliJ
 						strings.HasPrefix(ext, ".sb-") // byword
 					if istemp {
