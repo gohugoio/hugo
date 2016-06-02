@@ -11,13 +11,46 @@ title: Release Notes
 weight: 10
 ---
 
-## **0.16.0** TBD
+## **0.16.0** June 3nd 2016
 
-Hugo now has:
+Hugo 0.16 is our best and biggest release ever. The Hugo community has
+outdone itself with continued performance improvements,
+[beautiful themes](http://themes.gohugo.io) for all types of sites from project
+sites to documentation to blogs to portfolios, and increased stability.
 
-* 8700 (+2000) stars on GitHub
-* 284 (+50) contributors
-* 77 (+10) themes
+This release represents **over 550 contributions by over 110 contributors** to
+the main Hugo codebase. Since last release Hugo has **gained 3500 stars, 90
+contributors and 23 additional themes.**
+
+This release celebrates 3 years since  {{< gh "@spf13" >}} wrote the first lines
+of Hugo. During those 3 years Hugo has accomplished some major milestones
+including...
+
+* 10,000+ stars on GitHub
+* 320+ contributors
+* 90+ themes
+* 1000s of happy websites
+* Many subprojects like {{< gh "@spf13/cobra">}}, {{< gh "@spf13/viper">}} and
+  {{< gh "@spf13/afero">}} which have experienced broad usage across the Go
+  ecosystem.
+
+### Highlights
+
+**Partial Builds:** Prior to this release Hugo would always reread and rebuild
+the entire site. This release introduces support for reactive site building
+while watching (`hugo serve`). Hugo will watch the filesystem for changes and
+only re-read the changed files. Depending on the files change Hugo will
+intelligently re-render only the needed portion of the site. Performance gains
+depend on the operation performed and size of the site. In our testing build
+times decreased anywhere from 10% to 99%.
+
+**Template Improvements:** Template improvements continue to be a mainstay of
+each Hugo release. Hugo 0.16 adds support for the new `block` keyword
+introduced in Go 1.6 as well as many new template functions.
+
+**Polish:** As Hugo matures releases will inevitably contain fewer huge new
+features. This release represents hundreds of small improvements across ever
+facet of Hugo which will make for a much better experience for all of our users.
 
 ### New Features
 * Support reading configuration variables from the OS environment {{<gh 2090 >}}
@@ -43,9 +76,11 @@ Hugo now has:
 
 ### Enhancements
 
-* Hugo now exits with error code on any error. This is a big thing for automated deployments. {{<gh 740 >}}
+* Hugo now exits with error code on any error. This is a big thing for
+  automated deployments. {{<gh 740 >}}
 * Print error when `/index.html` is zero-length {{<gh 947>}}
-* Enable dirname and filename bash autocompletion for more flags {{<gh 0x666ddd237791b56fd048992dca9a27d1af50a10e>}}
+* Enable dirname and filename bash autocompletion for more flags {{<gh
+  0x666ddd237791b56fd048992dca9a27d1af50a10e>}}
 * Improve error handling in commands {{<gh 1502>}}
 * Add sanity checks for `hugo import jekyll` {{<gh 1625 >}}
 * Add description to `Page.Params` {{<gh 1484>}}
@@ -53,20 +88,27 @@ Hugo now has:
 * Add autostart option to YouTube shortcode {{<gh 1784>}}
 * Set Date and Lastmod for main home page {{<gh 1903>}}
 * Allow URL with extension in frontmatter {{<gh 1923>}}
-* Add list support in Scratch {{<gh 0xeaba04e82bdfc5d4c29e970f11b4aab9cc0efeaa>}}
+* Add list support in Scratch {{<gh
+  0xeaba04e82bdfc5d4c29e970f11b4aab9cc0efeaa>}}
 * Add file option to gist shortcode {{<gh 1955>}}
 * Add config layout and content directory CLI options {{<gh 1698>}}
-* Add boolean value comparison to `where` template function {{<gh 0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
+* Add boolean value comparison to `where` template function {{<gh
+  0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
 * Do not write to to cache when `ignoreCache` is set  {{<gh 2067>}}
 * Add option to disable rendering of 404 page  {{<gh 2037>}}
 * Mercurial is no longer needed to build Hugo {{<gh 2062 >}}
 * Do not create `robots.txt` by default {{<gh 2049>}}
-* Disable syntax guessing for PygmentsCodeFences by default.  To enable syntax guessing again, add the following to your config file: `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
+* Disable syntax guessing for PygmentsCodeFences by default.  To enable syntax
+  guessing again, add the following to your config file:
+  `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
 * Make `ByCount` sort consistently {{<gh 1930>}}
 * Add `Scratch` to shortcode {{<gh 2000>}}
-* Add support for symbolic links for content, layout, static, theme  {{<gh 1855 >}}
-* Add '+' as one of the valid characters in URLs specified in the front matter {{<gh 1290 >}}
-* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh 2093 >}}
+* Add support for symbolic links for content, layout, static, theme  {{<gh 1855
+  >}}
+* Add '+' as one of the valid characters in URLs specified in the front matter
+  {{<gh 1290 >}}
+* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh
+  2093 >}}
 
 ### Fixes
 * Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
@@ -89,6 +131,18 @@ Hugo now has:
 * Exit if specific port is unavailable in server mode {{<gh 1901>}}
 * Fix regression in "section menus for lazy blogger" {{<gh 2065>}}
 
+
+### Shoutouts
+
+{{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
+with nearly half of the contributions to 0.16 in addition to his considerable
+contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
+"@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
+contributions. A special thanks to {{< gh "@abourget " >}} for his considerable
+work on multilingual support. Due to it's broad impact we wanted to spend more
+time testing it and it will be included in Hugo's next release.
+
+****
 
 ## **0.15.0**  November 25, 2015
 
