@@ -505,11 +505,15 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		}
 
 		file, err := s.reReadFile(ev.Name)
+
 		if err != nil {
-			errs <- err
+			jww.ERROR.Println("Error reading file", ev.Name, ";", err)
 		}
 
-		filechan <- file
+		if file != nil {
+			filechan <- file
+		}
+
 	}
 	// we close the filechan as we have sent everything we want to send to it.
 	// this will tell the sourceReaders to stop iterating on that channel
@@ -559,8 +563,8 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 		return nil
 	}
-	return err
 
+	return err
 }
 
 func (s *Site) Analyze() error {
@@ -835,7 +839,6 @@ func (s *Site) reReadFile(absFilePath string) (*source.File, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	file, err = source.NewFileFromAbs(s.absContentDir(), absFilePath, reader)
 
 	if err != nil {
