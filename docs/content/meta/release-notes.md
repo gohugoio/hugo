@@ -39,7 +39,7 @@ with nearly half of the contributions to 0.16 in addition to his considerable
 contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
 "@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
 contributions. A special thanks to {{< gh "@abourget " >}} for his considerable
-work on multilingual support. Due to it's broad impact we wanted to spend more
+work on multilingual support. Due to its broad impact we wanted to spend more
 time testing it and it will be included in Hugo's next release.
 
 ### Highlights
@@ -52,13 +52,9 @@ intelligently re-render only the needed portion of the site. Performance gains
 depend on the operation performed and size of the site. In our testing build
 times decreased anywhere from 10% to 99%.
 
-**Template Improvements:** Template improvements continue to be a mainstay of
-each Hugo release. Hugo 0.16 adds support for the new `block` keyword
-introduced in Go 1.6 as well as many new template functions.
+**Template Improvements:** Template improvements continue to be a mainstay of each Hugo release. Hugo 0.16 adds support for the new `block` keyword introduced in Go 1.6 -- think base templates with default sections -- as well as many new template functions.
 
-**Polish:** As Hugo matures releases will inevitably contain fewer huge new
-features. This release represents hundreds of small improvements across ever
-facet of Hugo which will make for a much better experience for all of our users.
+**Polish:** As Hugo matures releases will inevitably contain fewer huge new features. This release represents hundreds of small improvements across ever facet of Hugo which will make for a much better experience for all of our users. Worth mentioning here is the curious bug where live reloading didn't work in some editors on OS X, including the popular TextMate 2. This is now fixed.
 
 ### New Features
 * Support reading configuration variables from the OS environment {{<gh 2090 >}}
