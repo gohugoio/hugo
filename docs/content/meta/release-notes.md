@@ -33,6 +33,14 @@ including...
 * Many subprojects like {{< gh "@spf13/cobra">}}, {{< gh "@spf13/viper">}} and
   {{< gh "@spf13/afero">}} which have experienced broad usage across the Go
   ecosystem.
+  
+  {{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
+with nearly half of the contributions to 0.16 in addition to his considerable
+contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
+"@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
+contributions. A special thanks to {{< gh "@abourget " >}} for his considerable
+work on multilingual support. Due to it's broad impact we wanted to spend more
+time testing it and it will be included in Hugo's next release.
 
 ### Highlights
 
@@ -130,17 +138,6 @@ facet of Hugo which will make for a much better experience for all of our users.
 * Use default sitemap configuration for homepage {{<gh 1304>}}
 * Exit if specific port is unavailable in server mode {{<gh 1901>}}
 * Fix regression in "section menus for lazy blogger" {{<gh 2065>}}
-
-
-### Shoutouts
-
-{{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
-with nearly half of the contributions to 0.16 in addition to his considerable
-contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
-"@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
-contributions. A special thanks to {{< gh "@abourget " >}} for his considerable
-work on multilingual support. Due to it's broad impact we wanted to spend more
-time testing it and it will be included in Hugo's next release.
 
 ****
 
