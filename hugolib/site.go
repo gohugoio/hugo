@@ -1960,6 +1960,13 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
 	}
 
+	// For performance reasons we only inject the Hugo generator tag on the home page.
+	if n, ok := d.(*Node); ok && n.IsHome {
+		if !viper.GetBool("DisableHugoGeneratorInject") {
+			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
+		}
+	}
+
 	var path []byte
 
 	if viper.GetBool("RelativeURLs") {
