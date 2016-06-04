@@ -46,7 +46,7 @@ time testing it and it will be included in Hugo's next release.
 
 **Partial Builds:** Prior to this release Hugo would always reread and rebuild
 the entire site. This release introduces support for reactive site building
-while watching (`hugo serve`). Hugo will watch the filesystem for changes and
+while watching (`hugo server`). Hugo will watch the filesystem for changes and
 only re-read the changed files. Depending on the files change Hugo will
 intelligently re-render only the needed portion of the site. Performance gains
 depend on the operation performed and size of the site. In our testing build
