@@ -1,4 +1,4 @@
-FROM golang:1.6
+FROM golang:1.6.2
 MAINTAINER Sven Dowideit <SvenDowideit@home.org.au>
 
 ENV GOPATH /go
@@ -6,7 +6,8 @@ ENV USER root
 
 # pre-install known dependencies before the source, so we don't redownload them whenever the source changes
 RUN go get github.com/stretchr/testify/assert \
-	&& go get bitbucket.org/pkg/inflect \
+	&& go get github.com/kyokomi/emoji \
+	&& go get github.com/bep/inflect \
 	&& go get github.com/BurntSushi/toml \
 	&& go get github.com/PuerkitoBio/purell \
 	&& go get github.com/opennota/urlesc \
