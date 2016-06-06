@@ -9,6 +9,6 @@ tags:
 - personal
 - blog
 thumbnail: /img/jamescampbell-tn.png
-title: example
+title: jamescampbell.us
 ---
 
