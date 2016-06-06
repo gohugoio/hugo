@@ -11,7 +11,7 @@ title: Release Notes
 weight: 10
 ---
 
-## **0.16.0** June 3nd 2016
+## **0.16.0** June 6th 2016
 
 Hugo 0.16 is our best and biggest release ever. The Hugo community has
 outdone itself with continued performance improvements,
@@ -34,7 +34,7 @@ including...
   {{< gh "@spf13/afero">}} which have experienced broad usage across the Go
   ecosystem.
   
-  {{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
+{{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
 with nearly half of the contributions to 0.16 in addition to his considerable
 contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
 "@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
@@ -113,6 +113,8 @@ times decreased anywhere from 10% to 99%.
   {{<gh 1290 >}}
 * Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh
   2093 >}}
+* Hugo injects meta generator tag on homepage if missing {{<gh
+  2182 >}}
 
 ### Fixes
 * Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
