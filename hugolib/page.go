@@ -671,26 +671,26 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 
 	switch v.(type) {
 	case bool:
-		return cast.ToBool(v)
-	case string:
-		if stringToLower {
-			return strings.ToLower(cast.ToString(v))
-		}
-		return cast.ToString(v)
+		return v
+	case time.Time:
+		return v
 	case int64, int32, int16, int8, int:
 		return cast.ToInt(v)
 	case float64, float32:
 		return cast.ToFloat64(v)
-	case time.Time:
-		return cast.ToTime(v)
+	case map[string]interface{}: // JSON and TOML
+		return v
+	case map[interface{}]interface{}: // YAML
+		return v
+	case string:
+		if stringToLower {
+			return strings.ToLower(v.(string))
+		}
+		return v
 	case []string:
 		if stringToLower {
 			return helpers.SliceToLower(v.([]string))
 		}
-		return v.([]string)
-	case map[string]interface{}: // JSON and TOML
-		return v
-	case map[interface{}]interface{}: // YAML
 		return v
 	}
 
