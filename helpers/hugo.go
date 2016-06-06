@@ -19,11 +19,11 @@ import (
 
 // HugoVersionNumber represents the current build version.
 // This should be the only one
-const HugoVersionNumber = 0.16
+const HugoVersionNumber = 0.17
 
 // HugoVersionSuffix is the suffix used in the Hugo version string.
 // It will be blank for release versions.
-const HugoVersionSuffix = "" // blank this when doing a release
+const HugoVersionSuffix = "-DEV" // blank this when doing a release
 
 // HugoVersion returns the current Hugo version. It will include
 // a suffix, typically '-DEV', if it's development version.
