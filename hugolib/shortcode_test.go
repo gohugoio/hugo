@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -26,6 +23,9 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 )
@@ -40,7 +40,7 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Temp
 
 func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template tpl.Template, expectError bool) {
 
-	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+	p, _ := pageFromString(simplePage, "simple.md")
 	output, err := HandleShortcodes(input, p, template)
 
 	if err != nil && !expectError {
@@ -52,7 +52,7 @@ func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template 
 	}
 
 	if output != expected {
-		t.Fatalf("Shortcode render didn't match. got %q but expected %q", output, expected)
+		t.Fatalf("Shortcode render didn't match. got \n%q but expected \n%q", output, expected)
 	}
 }
 
@@ -60,7 +60,7 @@ func TestShortcodeGoFuzzReports(t *testing.T) {
 	tem := tpl.New()
 
 	tem.AddInternalShortcode("sc.html", `foo`)
-	p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+	p, _ := pageFromString(simplePage, "simple.md")
 
 	for i, this := range []struct {
 		data      string
@@ -176,7 +176,7 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 
 [link](http://spf13.com) and text
 
-{{% /inside %}}`, "<div><h1 id=\"more-here:bec3ed8ba720b9073ab75abcf3ba5d97\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
+{{% /inside %}}`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
@@ -198,7 +198,7 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1 id=\"more-here:bec3ed8ba720b9073ab75abcf3ba5d97\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
+`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
 }
 
 func TestEmbeddedSC(t *testing.T) {
@@ -232,6 +232,17 @@ func TestNestedComplexSC(t *testing.T) {
 		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
 }
 
+func TestParentShortcode(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
+	tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
+	tem.AddInternalShortcode("r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
+
+	CheckShortCodeMatch(t, `{{< r1 pr1="p1" >}}1: {{< r2 pr2="p2" >}}2: {{< r3 pr3="p3" >}}{{< /r3 >}}{{< /r2 >}}{{< /r1 >}}`,
+		"1: p1 1: 2: p1p2 2: 3: p1p2p3 ", tem)
+
+}
+
 func TestFigureImgWidth(t *testing.T) {
 	tem := tpl.New()
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
@@ -247,16 +258,31 @@ func TestHighlight(t *testing.T) {
 	viper.Set("PygmentsStyle", "bw")
 	viper.Set("PygmentsUseClasses", false)
 
-	tem := tpl.New()
+	templ := tpl.New()
 
 	code := `
 {{< highlight java >}}
 void do();
 {{< /highlight >}}`
-	CheckShortCodeMatch(t, code, "\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\"><span style=\"font-weight: bold\">void</span> do();\n</pre></div>\n", tem)
+
+	p, _ := pageFromString(simplePage, "simple.md")
+	output, err := HandleShortcodes(code, p, templ)
+
+	if err != nil {
+		t.Fatal("Handle shortcode error", err)
+	}
+	matched, err := regexp.MatchString("(?s)^\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\">.*?void</span> do().*?</pre></div>\n$", output)
+
+	if err != nil {
+		t.Fatal("Regexp error", err)
+	}
+
+	if !matched {
+		t.Error("Hightlight mismatch, got\n", output)
+	}
 }
 
-const testScPlaceholderRegexp = "{@{@HUGOSHORTCODE-\\d+@}@}"
+const testScPlaceholderRegexp = "{#{#HUGOSHORTCODE-\\d+#}#}"
 
 func TestExtractShortcodes(t *testing.T) {
 	for i, this := range []struct {
@@ -292,22 +318,22 @@ func TestExtractShortcodes(t *testing.T) {
 			`inner([], false){[inner2-> inner2([\"param1\"], true){[inner2txt->inner3 inner3(%!q(<nil>), false){[inner3txt]}]} final close->`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
 		{"two inner", `Some text. {{% inner %}}First **Inner** Content{{% / inner %}} {{< inner >}}Inner **Content**{{< / inner >}}. Some more text.`,
-			`map["{@{@HUGOSHORTCODE-1@}@}:inner([], true){[First **Inner** Content]}" "{@{@HUGOSHORTCODE-2@}@}:inner([], false){[Inner **Content**]}"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:inner([], true){[First **Inner** Content]}" "{#{#HUGOSHORTCODE-2#}#}:inner([], false){[Inner **Content**]}"]`,
 			fmt.Sprintf("Some text. %s %s. Some more text.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"closed without content", `Some text. {{< inner param1 >}}{{< / inner >}}. Some more text.`, `inner([\"param1\"], false){[]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
 		{"two shortcodes", "{{< sc1 >}}{{< sc2 >}}",
-			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([], false){[]}"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:sc1([], false){[]}" "{#{#HUGOSHORTCODE-2#}#}:sc2([], false){[]}"]`,
 			testScPlaceholderRegexp + testScPlaceholderRegexp, ""},
 		{"mix of shortcodes", `Hello {{< sc1 >}}world{{% sc2 p2="2"%}}. And that's it.`,
-			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:sc2([\"p2:2\"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:sc1([], false){[]}" "{#{#HUGOSHORTCODE-2#}#}:sc2([\"p2:2\"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 		{"mix with inner", `Hello {{< sc1 >}}world{{% inner p2="2"%}}Inner{{%/ inner %}}. And that's it.`,
-			`map["{@{@HUGOSHORTCODE-1@}@}:sc1([], false){[]}" "{@{@HUGOSHORTCODE-2@}@}:inner([\"p2:2\"], true){[Inner]}"]`,
+			`map["{#{#HUGOSHORTCODE-1#}#}:sc1([], false){[]}" "{#{#HUGOSHORTCODE-2#}#}:inner([\"p2:2\"], true){[Inner]}"]`,
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(SIMPLE_PAGE, "simple.md")
+		p, _ := pageFromString(simplePage, "simple.md")
 		tem := tpl.New()
 		tem.AddInternalShortcode("tag.html", `tag`)
 		tem.AddInternalShortcode("sc1.html", `sc1`)
@@ -438,26 +464,30 @@ e`,
 	sources := make([]source.ByteSource, len(tests))
 
 	for i, test := range tests {
-		sources[i] = source.ByteSource{filepath.FromSlash(test.contentPath), []byte(test.content)}
+		sources[i] = source.ByteSource{Name: filepath.FromSlash(test.contentPath), Content: []byte(test.content)}
 	}
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: false}},
+		targets: targetList{page: &target.PagePub{UglyURLs: false}},
 	}
 
 	s.initializeSiteInfo()
-	templatePrep(s)
+
+	s.loadTemplates()
+
+	s.Tmpl.AddTemplate("_default/single.html", "{{.Content}}")
+
 	s.Tmpl.AddInternalShortcode("b.html", `b`)
 	s.Tmpl.AddInternalShortcode("c.html", `c`)
 	s.Tmpl.AddInternalShortcode("d.html", `d`)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
+	s.Tmpl.MarkReady()
 
 	createAndRenderPages(t, s)
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.outFile)
+		file, err := hugofs.Destination().Open(test.outFile)
 
 		if err != nil {
 			t.Fatalf("Did not find %s in target: %s", test.outFile, err)
@@ -497,14 +527,14 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		replacements map[string]string
 		expect       []byte
 	}{
-		{"Hello {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "World"}, []byte("Hello World.")},
-		{strings.Repeat("A", 100) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
-		{strings.Repeat("ABCD ", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
-		{strings.Repeat("A", 500) + " {@{@HUGOSHORTCODE-1@}@}." + strings.Repeat("BC", 500) + " {@{@HUGOSHORTCODE-1@}@}.", map[string]string{"{@{@HUGOSHORTCODE-1@}@}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World." + strings.Repeat("BC", 500) + " Hello World.")},
+		{"Hello {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "World"}, []byte("Hello World.")},
+		{strings.Repeat("A", 100) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
+		{strings.Repeat("A", 500) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
+		{strings.Repeat("ABCD ", 500) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
+		{strings.Repeat("A ", 3000) + " {#{#HUGOSHORTCODE-1#}#}." + strings.Repeat("BC ", 1000) + " {#{#HUGOSHORTCODE-1#}#}.", map[string]string{"{#{#HUGOSHORTCODE-1#}#}": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
-	var in []input = make([]input, b.N*len(data))
+	var in = make([]input, b.N*len(data))
 	var cnt = 0
 	for i := 0; i < b.N; i++ {
 		for _, this := range data {
@@ -541,31 +571,31 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		replacements map[string]string
 		expect       interface{}
 	}{
-		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World."},
-		{"Hello {@{@PREFIX-1@}@.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, false},
-		{"{@{@PREFIX2-1@}@}", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "World"}, "World"},
+		{"Hello {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello World."},
+		{"Hello {#{#PREFIX-1@}@.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, false},
+		{"{#{#PREFIX2-1#}#}", "PREFIX2", map[string]string{"{#{#PREFIX2-1#}#}": "World"}, "World"},
 		{"Hello World!", "PREFIX2", map[string]string{}, "Hello World!"},
-		{"!{@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World"},
-		{"{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "World!"},
-		{"!{@{@PREFIX-1@}@}!", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "!World!"},
-		{"@{@PREFIX-1@}@}", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "@{@PREFIX-1@}@}"},
-		{"Hello {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
-		{"A {@{@A-1@}@} asdf {@{@A-2@}@}.", "A", map[string]string{"{@{@A-1@}@}": "v1", "{@{@A-2@}@}": "v2"}, "A v1 asdf v2."},
-		{"Hello {@{@PREFIX2-1@}@}. Go {@{@PREFIX2-2@}@}, Go, Go {@{@PREFIX2-3@}@} Go Go!.", "PREFIX2", map[string]string{"{@{@PREFIX2-1@}@}": "Europe", "{@{@PREFIX2-2@}@}": "Jonny", "{@{@PREFIX2-3@}@}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
-		{"A {@{@PREFIX-2@}@} {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A B A."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A"}, false},
-		{"A {@{@PREFIX-1@}@} but not the second.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "A A but not the second."},
-		{"An {@{@PREFIX-1@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "An A."},
-		{"An {@{@PREFIX-1@}@} {@{@PREFIX-2@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B"}, "An A B."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, "A A B C A C."},
-		{"A {@{@PREFIX-1@}@} {@{@PREFIX-2@}@} {@{@PREFIX-3@}@} {@{@PREFIX-1@}@} {@{@PREFIX-3@}@}.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "A", "{@{@PREFIX-2@}@}": "B", "{@{@PREFIX-3@}@}": "C"}, "A A B C A C."},
+		{"!{#{#PREFIX-1#}#}", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "!World"},
+		{"{#{#PREFIX-1#}#}!", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "World!"},
+		{"!{#{#PREFIX-1#}#}!", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "!World!"},
+		{"#{#PREFIX-1#}#}", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "#{#PREFIX-1#}#}"},
+		{"Hello {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
+		{"A {#{#A-1#}#} asdf {#{#A-2#}#}.", "A", map[string]string{"{#{#A-1#}#}": "v1", "{#{#A-2#}#}": "v2"}, "A v1 asdf v2."},
+		{"Hello {#{#PREFIX2-1#}#}. Go {#{#PREFIX2-2#}#}, Go, Go {#{#PREFIX2-3#}#} Go Go!.", "PREFIX2", map[string]string{"{#{#PREFIX2-1#}#}": "Europe", "{#{#PREFIX2-2#}#}": "Jonny", "{#{#PREFIX2-3#}#}": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
+		{"A {#{#PREFIX-2#}#} {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "A B A."},
+		{"A {#{#PREFIX-1#}#} {#{#PREFIX-2", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A"}, false},
+		{"A {#{#PREFIX-1#}#} but not the second.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "A A but not the second."},
+		{"An {#{#PREFIX-1#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "An A."},
+		{"An {#{#PREFIX-1#}#} {#{#PREFIX-2#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B"}, "An A B."},
+		{"A {#{#PREFIX-1#}#} {#{#PREFIX-2#}#} {#{#PREFIX-3#}#} {#{#PREFIX-1#}#} {#{#PREFIX-3#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B", "{#{#PREFIX-3#}#}": "C"}, "A A B C A C."},
+		{"A {#{#PREFIX-1#}#} {#{#PREFIX-2#}#} {#{#PREFIX-3#}#} {#{#PREFIX-1#}#} {#{#PREFIX-3#}#}.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "A", "{#{#PREFIX-2#}#}": "B", "{#{#PREFIX-3#}#}": "C"}, "A A B C A C."},
 		// Issue #1148 remove p-tags 10 =>
-		{"Hello <p>{@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello World. END."},
-		{"Hello <p>{@{@PREFIX-1@}@}</p>. <p>{@{@PREFIX-2@}@}</p> END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World", "{@{@PREFIX-2@}@}": "THE"}, "Hello World. THE END."},
-		{"Hello <p>{@{@PREFIX-1@}@}. END</p>.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World. END</p>."},
-		{"<p>Hello {@{@PREFIX-1@}@}</p>. END.", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "<p>Hello World</p>. END."},
-		{"Hello <p>{@{@PREFIX-1@}@}12", "PREFIX", map[string]string{"{@{@PREFIX-1@}@}": "World"}, "Hello <p>World12"},
-		{"Hello {@{@P-1@}@}. {@{@P-1@}@}-{@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} {@{@P-1@}@} END", "P", map[string]string{"{@{@P-1@}@}": strings.Repeat("BC", 100)},
+		{"Hello <p>{#{#PREFIX-1#}#}</p>. END.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello World. END."},
+		{"Hello <p>{#{#PREFIX-1#}#}</p>. <p>{#{#PREFIX-2#}#}</p> END.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World", "{#{#PREFIX-2#}#}": "THE"}, "Hello World. THE END."},
+		{"Hello <p>{#{#PREFIX-1#}#}. END</p>.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello <p>World. END</p>."},
+		{"<p>Hello {#{#PREFIX-1#}#}</p>. END.", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "<p>Hello World</p>. END."},
+		{"Hello <p>{#{#PREFIX-1#}#}12", "PREFIX", map[string]string{"{#{#PREFIX-1#}#}": "World"}, "Hello <p>World12"},
+		{"Hello {#{#P-1#}#}. {#{#P-1#}#}-{#{#P-1#}#} {#{#P-1#}#} {#{#P-1#}#} {#{#P-1#}#} END", "P", map[string]string{"{#{#P-1#}#}": strings.Repeat("BC", 100)},
 			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
 				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
 	} {

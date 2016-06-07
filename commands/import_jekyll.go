@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		}
 
 		relPath = filepath.ToSlash(relPath)
-		var draft bool = false
+		draft := false
 
 		switch {
 		case strings.HasPrefix(relPath, "_posts/"):
@@ -124,23 +124,22 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		return convertJekyllPost(path, relPath, targetDir, draft)
 	}
 
-	err = filepath.Walk(jekyllRoot, callback)
+	err = helpers.SymbolicWalk(hugofs.Os(), jekyllRoot, callback)
 
 	if err != nil {
 		return err
-	} else {
-		fmt.Println("Congratulations!", fileCount, "post(s) imported!")
-		fmt.Println("Now, start Hugo by yourself:\n" +
-			"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-		fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 	}
+	fmt.Println("Congratulations!", fileCount, "post(s) imported!")
+	fmt.Println("Now, start Hugo by yourself:\n" +
+		"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
+	fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 
 	return nil
 }
 
 // TODO: Consider calling doNewSite() instead?
 func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
-	fs := hugofs.SourceFs
+	fs := hugofs.Source()
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
 			return errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
@@ -188,7 +187,7 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
 }
 
 func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
-	fs := hugofs.SourceFs
+	fs := hugofs.Source()
 	path := filepath.Join(jekyllRoot, "_config.yml")
 
 	exists, err := helpers.Exists(path, fs)
@@ -253,7 +252,7 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
 	if err != nil {
 		return
 	}
@@ -261,7 +260,7 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 	return nil
 }
 
-func copyFile(source string, dest string) (err error) {
+func copyFile(source string, dest string) error {
 	sf, err := os.Open(source)
 	if err != nil {
 		return err
@@ -277,13 +276,17 @@ func copyFile(source string, dest string) (err error) {
 		si, err := os.Stat(source)
 		if err != nil {
 			err = os.Chmod(dest, si.Mode())
+
+			if err != nil {
+				return err
+			}
 		}
 
 	}
-	return
+	return nil
 }
 
-func copyDir(source string, dest string) (err error) {
+func copyDir(source string, dest string) error {
 	fi, err := os.Stat(source)
 	if err != nil {
 		return err
@@ -315,7 +318,7 @@ func copyDir(source string, dest string) (err error) {
 	return nil
 }
 
-func copyJekyllFilesAndFolders(jekyllRoot string, dest string) (err error) {
+func copyJekyllFilesAndFolders(jekyllRoot string, dest string) error {
 	fi, err := os.Stat(jekyllRoot)
 	if err != nil {
 		return err

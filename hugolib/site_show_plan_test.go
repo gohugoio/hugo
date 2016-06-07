@@ -25,30 +25,21 @@ import (
 	"github.com/spf13/viper"
 )
 
-const ALIAS_DOC_1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
+const aliasDoc1 = "---\ntitle: alias doc\naliases:\n  - \"alias1/\"\n  - \"alias-2/\"\n---\naliases\n"
 
 var fakeSource = []source.ByteSource{
 	{
 		Name:    filepath.FromSlash("foo/bar/file.md"),
-		Content: []byte(SIMPLE_PAGE),
+		Content: []byte(simplePage),
 	},
 	{
 		Name:    filepath.FromSlash("alias/test/file1.md"),
-		Content: []byte(ALIAS_DOC_1),
+		Content: []byte(aliasDoc1),
 	},
 	{
 		Name:    filepath.FromSlash("section/somecontent.html"),
-		Content: []byte(RENDER_NO_FRONT_MATTER),
+		Content: []byte(renderNoFrontmatter),
 	},
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }
 
 func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
@@ -81,7 +72,7 @@ func TestDegenerateNoTarget(t *testing.T) {
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
-	must(s.CreatePages())
+	must(s.createPages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n canonical => !no target specified!\n\n" +
 		"section/somecontent.html (renderer: n/a)\n canonical => !no target specified!\n\n"
@@ -97,9 +88,9 @@ func TestFileTarget(t *testing.T) {
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
-	s.AliasTarget()
-	s.PageTarget()
-	must(s.CreatePages())
+	s.aliasTarget()
+	s.pageTarget()
+	must(s.createPages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => alias/test/file1/index.html\n" +
@@ -117,12 +108,12 @@ func TestPageTargetUgly(t *testing.T) {
 	viper.Set("UglyURLs", true)
 
 	s := &Site{
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 		Source:  &source.InMemorySource{ByteSource: fakeSource},
 	}
-	s.AliasTarget()
+	s.aliasTarget()
 
-	s.CreatePages()
+	s.createPages()
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => foo/bar/file.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => alias/test/file1.html\n" +
@@ -139,14 +130,14 @@ func TestFileTargetPublishDir(t *testing.T) {
 
 	s := &Site{
 
-		Targets: targetList{
-			Page:  &target.PagePub{PublishDir: "../public"},
-			Alias: &target.HTMLRedirectAlias{PublishDir: "../public"},
+		targets: targetList{
+			page:  &target.PagePub{PublishDir: "../public"},
+			alias: &target.HTMLRedirectAlias{PublishDir: "../public"},
 		},
 		Source: &source.InMemorySource{ByteSource: fakeSource},
 	}
 
-	must(s.CreatePages())
+	must(s.createPages())
 	expected := "foo/bar/file.md (renderer: markdown)\n canonical => ../public/foo/bar/file/index.html\n\n" +
 		"alias/test/file1.md (renderer: markdown)\n" +
 		" canonical => ../public/alias/test/file1/index.html\n" +

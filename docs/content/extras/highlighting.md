@@ -86,10 +86,27 @@ Supported keywords:  `style`, `encoding`, `noclasses`, `hl_lines`, `linenos`. No
 
 The keywords are the same you would using with Pygments from the command line, see the [Pygments doc](http://pygments.org/docs/) for more info.
 
+### Code fences
+
+It is also possible to add syntax highlighting with GitHub flavoured code fences. To enable this, set the `PygmentsCodeFences` to `true` in Hugo's configuration file.
+
+````
+``` html
+<section id="main">
+  <div>
+    <h1 id="title">{{ .Title }}</h1>
+    {{ range .Data.Pages }}
+      {{ .Render "summary"}}
+    {{ end }}
+  </div>
+</section>
+```
+````
 
 ### Disclaimers
 
  * Pygments is relatively slow and _causes a performance hit when building your site_, but Hugo has been designed to cache the results to disk.
+ * The caching can be turned off by setting the `--ignoreCache` flag to `true`.
  * Languages available depends on your Pygments installation.
 
 ## Client-side

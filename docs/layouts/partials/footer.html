@@ -35,6 +35,19 @@
     <script src="/js/highlight.pack.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
     <script src="/js/scripts.js"></script>
+    <!-- Algolia search -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script> 
+    <script type="text/javascript"> 
+    docsearch({
+      apiKey: '167e7998590aebda7f9fedcf86bc4a55',
+      indexName: 'hugodocs',
+      inputSelector: '#search-input',
+      algoliaOptions: {
+        hitsPerPage: 5
+      }
+    }); 
+    </script>
+    <!-- Google Analytics -->
     {{ template "partials/analytics.html" . }}
   </body>
 </html>

@@ -7,7 +7,7 @@ menu:
   main:
     parent: layout
 next: /templates/rss
-prev: /templates/views
+prev: /templates/blocks/
 title: Partial Templates
 weight: 80
 toc: true
@@ -122,6 +122,6 @@ As you might have noticed, `partial` calls receive two paramters.
 location to be read.
 2. The second is the variables to be passed down to the partial.
 
-This means the partial _only_ be able to access those variables. It is
+This means that the partial will _only_ be able to access those variables. It is
 isolated and has no access to the outer scope. From within the
 partial, `$.Var` is equivalent to `.Var`

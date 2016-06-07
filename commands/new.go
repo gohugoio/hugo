@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,21 +30,24 @@ import (
 	"github.com/spf13/viper"
 )
 
-var siteType string
-var configFormat string
-var contentType string
-var contentFormat string
-var contentFrontMatter string
+var (
+	configFormat  string
+	contentEditor string
+	contentType   string
+)
 
 func init() {
 	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
 	newSiteCmd.Flags().Bool("force", false, "Init inside non-empty directory")
 	newCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
 	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
-	newCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	newCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	newCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	newCmd.Flags().StringVar(&contentEditor, "editor", "", "edit new content with this editor, if provided")
+
 	newCmd.AddCommand(newSiteCmd)
 	newCmd.AddCommand(newThemeCmd)
+
 }
 
 var newCmd = &cobra.Command{
@@ -85,8 +88,12 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if cmd.Flags().Lookup("format").Changed {
+	if flagChanged(cmd.Flags(), "format") {
 		viper.Set("MetaDataFormat", configFormat)
+	}
+
+	if flagChanged(cmd.Flags(), "editor") {
+		viper.Set("NewContentEditor", contentEditor)
 	}
 
 	if len(args) < 1 {
@@ -103,8 +110,7 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		kind = contentType
 	}
 
-	return create.NewContent(kind, createpath)
-
+	return create.NewContent(hugofs.Source(), kind, createpath)
 }
 
 func doNewSite(basepath string, force bool) error {
@@ -117,12 +123,12 @@ func doNewSite(basepath string, force bool) error {
 		filepath.Join(basepath, "themes"),
 	}
 
-	if exists, _ := helpers.Exists(basepath, hugofs.SourceFs); exists {
-		if isDir, _ := helpers.IsDir(basepath, hugofs.SourceFs); !isDir {
+	if exists, _ := helpers.Exists(basepath, hugofs.Source()); exists {
+		if isDir, _ := helpers.IsDir(basepath, hugofs.Source()); !isDir {
 			return errors.New(basepath + " already exists but not a directory")
 		}
 
-		isEmpty, _ := helpers.IsEmpty(basepath, hugofs.SourceFs)
+		isEmpty, _ := helpers.IsEmpty(basepath, hugofs.Source())
 
 		switch {
 		case !isEmpty && !force:
@@ -131,7 +137,7 @@ func doNewSite(basepath string, force bool) error {
 		case !isEmpty && force:
 			all := append(dirs, filepath.Join(basepath, "config."+configFormat))
 			for _, path := range all {
-				if exists, _ := helpers.Exists(path, hugofs.SourceFs); exists {
+				if exists, _ := helpers.Exists(path, hugofs.Source()); exists {
 					return errors.New(path + " already exists")
 				}
 			}
@@ -139,12 +145,20 @@ func doNewSite(basepath string, force bool) error {
 	}
 
 	for _, dir := range dirs {
-		hugofs.SourceFs.MkdirAll(dir, 0777)
+		hugofs.Source().MkdirAll(dir, 0777)
 	}
 
 	createConfig(basepath, configFormat)
 
-	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %q.\n", basepath)
+	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %q.\n\n", basepath)
+	jww.FEEDBACK.Println(`Just a few more steps and you're ready to go:
+
+1. Download a theme into the same-named folder. Choose a theme from https://themes.gohugo.io or
+   create your own with the "hugo new theme <THEMENAME>" command
+2. Perhaps you want to add some content. You can add single files with "hugo new <SECTIONNAME>/<FILENAME>.<FORMAT>"
+3. Start the built-in live server via "hugo server"
+
+For more information read the documentation at https://gohugo.io.`)
 
 	return nil
 }
@@ -179,7 +193,7 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 	createpath := helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
-	if x, _ := helpers.Exists(createpath, hugofs.SourceFs); x {
+	if x, _ := helpers.Exists(createpath, hugofs.Source()); x {
 		return newUserError(createpath, "already exists")
 	}
 
@@ -198,7 +212,7 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 
 	archDefault := []byte("+++\n+++\n")
 
-	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.SourceFs)
+	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.Source())
 	if err != nil {
 		return err
 	}
@@ -228,7 +242,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `)
 
-	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.Source())
 	if err != nil {
 		return err
 	}
@@ -250,7 +264,7 @@ func mkdir(x ...string) {
 func touchFile(x ...string) {
 	inpath := filepath.Join(x...)
 	mkdir(filepath.Dir(inpath))
-	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), hugofs.SourceFs)
+	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), hugofs.Source())
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
@@ -281,7 +295,7 @@ min_version = 0.15
   repo = ""
 `)
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.Source())
 	if err != nil {
 		return
 	}
@@ -315,7 +329,7 @@ func createConfig(inpath string, kind string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.SourceFs)
+	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
 	if err != nil {
 		return
 	}

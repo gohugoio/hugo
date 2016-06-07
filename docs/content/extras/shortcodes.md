@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/shortcodes/
-lastmod: 2015-11-29
+lastmod: 2016-02-03
 date: 2013-07-01
 menu:
   main:
@@ -28,6 +28,10 @@ A shortcode is a simple snippet inside a content file that Hugo will render
 using a predefined template. Note that shortcodes will not work in template
 files---if you need a functionality like that in a template, you most likely
 want a [partial template](/templates/partials/) instead.
+
+Another benefit is, you can update your shortcode with any related new classes or
+techniques, and upon generation, Hugo will easily merge in your changes. You
+avoid a possibly complicated search and replace operation.
 
 ## Using a shortcode
 
@@ -165,7 +169,7 @@ Assuming that standard Hugo pretty URLs are turned on.
 ### Twitter
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet, e.g.:
-    
+
 * https://twitter.com/spf13/status/666616452582129664
 
 Pass the tweet's ID from the URL as parameter to the shortcode as shown below:
@@ -178,9 +182,9 @@ This shortcode embeds a responsive video player for [YouTube](https://www.youtub
 
 * https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
-Copy the ID from behind `v=` and pass it the shortcode:
+Copy the ID from behind `v=` and pass it to the shortcode:
 
-    {{</* youtube w7Ft2ymGmfc */>}} 
+    {{</* youtube w7Ft2ymGmfc */>}}
 
 Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
 
@@ -206,6 +210,10 @@ Including code snippets with GitHub gists while writing a tutorial is common sit
 pass the owner and the ID of the gist to the shortcode:
 
     {{</* gist spf13 7896402 */>}}
+
+If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
+
+    {{</* gist spf13 7896402 "img.html" */>}}
 
 ### Speaker Deck
 
@@ -268,6 +276,8 @@ such as `{{ if .IsNamedParams }}...{{ else }}...{{ end }}`.  See the
 `Single Flexible Example` below for an example.
 
 You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/).
+
+A shortcodes can be nested. In a nested shortcode you can access the parent shortcode context with `.Parent`. This can be very useful for inheritance of common shortcode parameters from the root.
 
 ## Single Positional Example: youtube
 
@@ -372,5 +382,15 @@ And will be rendered as:
 
 Please notice that this template makes use of a Hugo-specific template function
 called `highlight` which uses Pygments to add the highlighting code.
+
+## Simple Single-word Example: Year
+
+Let's assume you would like to have a shortcode to be replaced by the current year in your Markdown content files, for a license or copyright statement. Calling a shortcode like this:
+
+    {{</* year */>}}
+
+... would load your one-line template ``/layouts/shortcodes/year.html``, which contains:
+
+    {{ .Page.Now.Year }}
 
 More shortcode examples can be found at [spf13.com](https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes).

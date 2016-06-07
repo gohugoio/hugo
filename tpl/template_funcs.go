@@ -1,5 +1,7 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
+// Portions Copyright The Go Authors.
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,7 +17,11 @@ package tpl
 
 import (
 	"bytes"
+	_md5 "crypto/md5"
+	_sha1 "crypto/sha1"
 	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html"
@@ -23,13 +29,18 @@ import (
 	"math/rand"
 	"os"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
+
+	"github.com/bep/inflect"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
@@ -38,7 +49,8 @@ import (
 
 var funcMap template.FuncMap
 
-func Eq(x, y interface{}) bool {
+// eq returns the boolean truth of arg1 == arg2.
+func eq(x, y interface{}) bool {
 	normalize := func(v interface{}) interface{} {
 		vv := reflect.ValueOf(v)
 		switch vv.Kind() {
@@ -57,31 +69,39 @@ func Eq(x, y interface{}) bool {
 	return reflect.DeepEqual(x, y)
 }
 
-func Ne(x, y interface{}) bool {
-	return !Eq(x, y)
+// ne returns the boolean truth of arg1 != arg2.
+func ne(x, y interface{}) bool {
+	return !eq(x, y)
 }
 
-func Ge(a, b interface{}) bool {
+// ge returns the boolean truth of arg1 >= arg2.
+func ge(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left >= right
 }
 
-func Gt(a, b interface{}) bool {
+// gt returns the boolean truth of arg1 > arg2.
+func gt(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left > right
 }
 
-func Le(a, b interface{}) bool {
+// le returns the boolean truth of arg1 <= arg2.
+func le(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left <= right
 }
 
-func Lt(a, b interface{}) bool {
+// lt returns the boolean truth of arg1 < arg2.
+func lt(a, b interface{}) bool {
 	left, right := compareGetFloat(a, b)
 	return left < right
 }
 
-func Dictionary(values ...interface{}) (map[string]interface{}, error) {
+// dictionary creates a map[string]interface{} from the given parameters by
+// walking the parameters and treating them as key-value pairs.  The number
+// of parameters must be even.
+func dictionary(values ...interface{}) (map[string]interface{}, error) {
 	if len(values)%2 != 0 {
 		return nil, errors.New("invalid dict call")
 	}
@@ -96,10 +116,14 @@ func Dictionary(values ...interface{}) (map[string]interface{}, error) {
 	return dict, nil
 }
 
+// slice returns a slice of all passed arguments
+func slice(args ...interface{}) []interface{} {
+	return args
+}
+
 func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
 	var leftStr, rightStr *string
-	var err error
 	av := reflect.ValueOf(a)
 
 	switch av.Kind() {
@@ -110,6 +134,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Float32, reflect.Float64:
 		left = av.Float()
 	case reflect.String:
+		var err error
 		left, err = strconv.ParseFloat(av.String(), 64)
 		if err != nil {
 			str := av.String()
@@ -118,7 +143,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Struct:
 		switch av.Type() {
 		case timeType:
-			left = float64(timeUnix(av))
+			left = float64(toTimeUnix(av))
 		}
 	}
 
@@ -132,6 +157,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Float32, reflect.Float64:
 		right = bv.Float()
 	case reflect.String:
+		var err error
 		right, err = strconv.ParseFloat(bv.String(), 64)
 		if err != nil {
 			str := bv.String()
@@ -140,7 +166,7 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	case reflect.Struct:
 		switch bv.Type() {
 		case timeType:
-			right = float64(timeUnix(bv))
+			right = float64(toTimeUnix(bv))
 		}
 	}
 
@@ -157,10 +183,10 @@ func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	return left, right
 }
 
-// Slicing in Slicestr is done by specifying a half-open range with
+// slicestr slices a string by specifying a half-open range with
 // two indices, start and end. 1 and 4 creates a slice including elements 1 through 3.
 // The end index can be omitted, it defaults to the string's length.
-func Slicestr(a interface{}, startEnd ...interface{}) (string, error) {
+func slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
@@ -204,7 +230,7 @@ func Slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 
 }
 
-// Substr extracts parts of a string, beginning at the character at the specified
+// substr extracts parts of a string, beginning at the character at the specified
 // position, and returns the specified number of characters.
 //
 // It normally takes two parameters: start and length.
@@ -216,7 +242,7 @@ func Slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 // In addition, borrowing from the extended behavior described at http://php.net/substr,
 // if length is given and is negative, then that many characters will be omitted from
 // the end of string.
-func Substr(a interface{}, nums ...interface{}) (string, error) {
+func substr(a interface{}, nums ...interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
@@ -249,7 +275,7 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 		start = 0
 	}
 	if start > len(asRunes) {
-		return "", errors.New(fmt.Sprintf("start position out of bounds for %d-byte string", len(aStr)))
+		return "", fmt.Errorf("start position out of bounds for %d-byte string", len(aStr))
 	}
 
 	var s, e int
@@ -268,17 +294,17 @@ func Substr(a interface{}, nums ...interface{}) (string, error) {
 	}
 
 	if s > e {
-		return "", errors.New(fmt.Sprintf("calculated start position greater than end position: %d > %d", s, e))
+		return "", fmt.Errorf("calculated start position greater than end position: %d > %d", s, e)
 	}
 	if e > len(asRunes) {
 		e = len(asRunes)
 	}
 
 	return string(asRunes[s:e]), nil
-
 }
 
-func Split(a interface{}, delimiter string) ([]string, error) {
+// split slices an input string into all substrings separated by delimiter.
+func split(a interface{}, delimiter string) ([]string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return []string{}, err
@@ -286,7 +312,9 @@ func Split(a interface{}, delimiter string) ([]string, error) {
 	return strings.Split(aStr, delimiter), nil
 }
 
-func Intersect(l1, l2 interface{}) (interface{}, error) {
+// intersect returns the common elements in the given sets, l1 and l2.  l1 and
+// l2 must be of the same type and may be either arrays or slices.
+func intersect(l1, l2 interface{}) (interface{}, error) {
 	if l1 == nil || l2 == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -305,20 +333,20 @@ func Intersect(l1, l2 interface{}) (interface{}, error) {
 					l2vv := l2v.Index(j)
 					switch l1vv.Kind() {
 					case reflect.String:
-						if l1vv.Type() == l2vv.Type() && l1vv.String() == l2vv.String() && !In(r, l2vv) {
+						if l1vv.Type() == l2vv.Type() && l1vv.String() == l2vv.String() && !in(r.Interface(), l2vv.Interface()) {
 							r = reflect.Append(r, l2vv)
 						}
 					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 						switch l2vv.Kind() {
 						case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-							if l1vv.Int() == l2vv.Int() && !In(r, l2vv) {
+							if l1vv.Int() == l2vv.Int() && !in(r.Interface(), l2vv.Interface()) {
 								r = reflect.Append(r, l2vv)
 							}
 						}
 					case reflect.Float32, reflect.Float64:
 						switch l2vv.Kind() {
 						case reflect.Float32, reflect.Float64:
-							if l1vv.Float() == l2vv.Float() && !In(r, l2vv) {
+							if l1vv.Float() == l2vv.Float() && !in(r.Interface(), l2vv.Interface()) {
 								r = reflect.Append(r, l2vv)
 							}
 						}
@@ -334,7 +362,8 @@ func Intersect(l1, l2 interface{}) (interface{}, error) {
 	}
 }
 
-func In(l interface{}, v interface{}) bool {
+// in returns whether v is in the set l.  l may be an array or slice.
+func in(l interface{}, v interface{}) bool {
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
 
@@ -375,23 +404,8 @@ func In(l interface{}, v interface{}) bool {
 	return false
 }
 
-// indirect is taken from 'text/template/exec.go'
-func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
-		if v.IsNil() {
-			return v, true
-		}
-		if v.Kind() == reflect.Interface && v.NumMethod() > 0 {
-			break
-		}
-	}
-	return v, false
-}
-
-// First is exposed to templates, to iterate over the first N items in a
-// rangeable list.
-func First(limit interface{}, seq interface{}) (interface{}, error) {
-
+// first returns the first N items in a rangeable list.
+func first(limit interface{}, seq interface{}) (interface{}, error) {
 	if limit == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -424,10 +438,24 @@ func First(limit interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(0, limitv).Interface(), nil
 }
 
-// Last is exposed to templates, to iterate over the last N items in a
-// rangeable list.
-func Last(limit interface{}, seq interface{}) (interface{}, error) {
+// findRE returns a list of strings that match the regular expression. By default all matches
+// will be included. The number of matches can be limitted with an optional third parameter.
+func findRE(expr string, content interface{}, limit ...int) ([]string, error) {
+	re, err := reCache.Get(expr)
+	if err != nil {
+		return nil, err
+	}
 
+	conv := cast.ToString(content)
+	if len(limit) > 0 {
+		return re.FindAllString(conv, limit[0]), nil
+	}
+
+	return re.FindAllString(conv, -1), nil
+}
+
+// last returns the last N items in a rangeable list.
+func last(limit interface{}, seq interface{}) (interface{}, error) {
 	if limit == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -460,10 +488,8 @@ func Last(limit interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(seqv.Len()-limitv, seqv.Len()).Interface(), nil
 }
 
-// After is exposed to templates, to iterate over all the items after N in a
-// rangeable list. It's meant to accompany First
-func After(index interface{}, seq interface{}) (interface{}, error) {
-
+// after returns all the items after the first N in a rangeable list.
+func after(index interface{}, seq interface{}) (interface{}, error) {
 	if index == nil || seq == nil {
 		return nil, errors.New("both limit and seq must be provided")
 	}
@@ -496,10 +522,8 @@ func After(index interface{}, seq interface{}) (interface{}, error) {
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
 }
 
-// Shuffle is exposed to templates, to iterate over items in rangeable list in
-// a randomised order.
-func Shuffle(seq interface{}) (interface{}, error) {
-
+// shuffle returns the given rangeable list in a randomised order.
+func shuffle(seq interface{}) (interface{}, error) {
 	if seq == nil {
 		return nil, errors.New("both count and seq must be provided")
 	}
@@ -527,19 +551,6 @@ func Shuffle(seq interface{}) (interface{}, error) {
 	}
 
 	return shuffled.Interface(), nil
-}
-
-var (
-	zero      reflect.Value
-	errorType = reflect.TypeOf((*error)(nil)).Elem()
-	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
-)
-
-func timeUnix(v reflect.Value) int64 {
-	if v.Type() != timeType {
-		panic("coding error: argument must be time.Time type reflect Value")
-	}
-	return v.MethodByName("Unix").Call([]reflect.Value{})[0].Int()
 }
 
 func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) {
@@ -635,6 +646,7 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 
 	var ivp, imvp *int64
 	var svp, smvp *string
+	var slv, slmv interface{}
 	var ima []int64
 	var sma []string
 	if mv.Type() == v.Type() {
@@ -652,17 +664,25 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 		case reflect.Struct:
 			switch v.Type() {
 			case timeType:
-				iv := timeUnix(v)
+				iv := toTimeUnix(v)
 				ivp = &iv
-				imv := timeUnix(mv)
+				imv := toTimeUnix(mv)
 				imvp = &imv
 			}
+		case reflect.Array, reflect.Slice:
+			slv = v.Interface()
+			slmv = mv.Interface()
 		}
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
 			return false, nil
 		}
-		if mv.Type().Elem() != v.Type() {
+
+		if mv.Len() == 0 {
+			return false, nil
+		}
+
+		if v.Kind() != reflect.Interface && mv.Type().Elem().Kind() != reflect.Interface && mv.Type().Elem() != v.Type() {
 			return false, nil
 		}
 		switch v.Kind() {
@@ -670,21 +690,26 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 			iv := v.Int()
 			ivp = &iv
 			for i := 0; i < mv.Len(); i++ {
-				ima = append(ima, mv.Index(i).Int())
+				if anInt := toInt(mv.Index(i)); anInt != -1 {
+					ima = append(ima, anInt)
+				}
+
 			}
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
 			for i := 0; i < mv.Len(); i++ {
-				sma = append(sma, mv.Index(i).String())
+				if aString := toString(mv.Index(i)); aString != "" {
+					sma = append(sma, aString)
+				}
 			}
 		case reflect.Struct:
 			switch v.Type() {
 			case timeType:
-				iv := timeUnix(v)
+				iv := toTimeUnix(v)
 				ivp = &iv
 				for i := 0; i < mv.Len(); i++ {
-					ima = append(ima, timeUnix(mv.Index(i)))
+					ima = append(ima, toTimeUnix(mv.Index(i)))
 				}
 			}
 		}
@@ -730,28 +755,44 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 	case "in", "not in":
 		var r bool
 		if ivp != nil && len(ima) > 0 {
-			r = In(ima, *ivp)
+			r = in(ima, *ivp)
 		} else if svp != nil {
 			if len(sma) > 0 {
-				r = In(sma, *svp)
+				r = in(sma, *svp)
 			} else if smvp != nil {
-				r = In(*smvp, *svp)
+				r = in(*smvp, *svp)
 			}
 		} else {
 			return false, nil
 		}
 		if op == "not in" {
 			return !r, nil
+		}
+		return r, nil
+	case "intersect":
+		r, err := intersect(slv, slmv)
+		if err != nil {
+			return false, err
+		}
+
+		if reflect.TypeOf(r).Kind() == reflect.Slice {
+			s := reflect.ValueOf(r)
+
+			if s.Len() > 0 {
+				return true, nil
+			}
+			return false, nil
 		} else {
-			return r, nil
+			return false, errors.New("invalid intersect values")
 		}
 	default:
-		return false, errors.New("no such an operator")
+		return false, errors.New("no such operator")
 	}
 	return false, nil
 }
 
-func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error) {
+// where returns a filtered subset of a given data type.
+func where(seq, key interface{}, args ...interface{}) (r interface{}, err error) {
 	seqv := reflect.ValueOf(seq)
 	kv := reflect.ValueOf(key)
 
@@ -809,12 +850,12 @@ func Where(seq, key interface{}, args ...interface{}) (r interface{}, err error)
 		}
 		return rv.Interface(), nil
 	default:
-		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return nil, fmt.Errorf("can't iterate over %v", seq)
 	}
 }
 
-// Apply, given a map, array, or slice, returns a new slice with the function fname applied over it.
-func Apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+// apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
+func apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
 	if seq == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -853,7 +894,7 @@ func Apply(seq interface{}, fname string, args ...interface{}) (interface{}, err
 
 		return r, nil
 	default:
-		return nil, errors.New("can't apply over " + reflect.ValueOf(seq).Type().String())
+		return nil, fmt.Errorf("can't apply over %v", seq)
 	}
 }
 
@@ -890,12 +931,13 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 
 	if len(res) == 1 || res[1].IsNil() {
 		return res[0], nil
-	} else {
-		return reflect.ValueOf(nil), res[1].Interface().(error)
 	}
+	return reflect.ValueOf(nil), res[1].Interface().(error)
 }
 
-func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
+// delimit takes a given sequence and returns a delimited HTML string.
+// If last is passed to the function, it will be used as the final delimiter.
+func delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, error) {
 	d, err := cast.ToStringE(delimiter)
 	if err != nil {
 		return "", err
@@ -920,7 +962,7 @@ func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 	var str string
 	switch seqv.Kind() {
 	case reflect.Map:
-		sortSeq, err := Sort(seq)
+		sortSeq, err := sortSeq(seq)
 		if err != nil {
 			return "", err
 		}
@@ -944,13 +986,18 @@ func Delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 		}
 
 	default:
-		return "", errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
+		return "", fmt.Errorf("can't iterate over %v", seq)
 	}
 
 	return template.HTML(str), nil
 }
 
-func Sort(seq interface{}, args ...interface{}) (interface{}, error) {
+// sortSeq returns a sorted sequence.
+func sortSeq(seq interface{}, args ...interface{}) (interface{}, error) {
+	if seq == nil {
+		return nil, errors.New("sequence must be provided")
+	}
+
 	seqv := reflect.ValueOf(seq)
 	seqv, isNil := indirect(seqv)
 	if isNil {
@@ -1048,7 +1095,24 @@ type pairList struct {
 func (p pairList) Swap(i, j int) { p.Pairs[i], p.Pairs[j] = p.Pairs[j], p.Pairs[i] }
 func (p pairList) Len() int      { return len(p.Pairs) }
 func (p pairList) Less(i, j int) bool {
-	return Lt(p.Pairs[i].SortByValue.Interface(), p.Pairs[j].SortByValue.Interface())
+	iv := p.Pairs[i].SortByValue
+	jv := p.Pairs[j].SortByValue
+
+	if iv.IsValid() {
+		if jv.IsValid() {
+			// can only call Interface() on valid reflect Values
+			return lt(iv.Interface(), jv.Interface())
+		}
+		// if j is invalid, test i against i's zero value
+		return lt(iv.Interface(), reflect.Zero(iv.Type()))
+	}
+
+	if jv.IsValid() {
+		// if i is invalid, test j against j's zero value
+		return lt(reflect.Zero(jv.Type()), jv.Interface())
+	}
+
+	return false
 }
 
 // sorts a pairList and returns a slice of sorted values
@@ -1066,7 +1130,9 @@ func (p pairList) sort() interface{} {
 	return sorted.Interface()
 }
 
-func IsSet(a interface{}, key interface{}) bool {
+// isSet returns whether a given array, channel, slice, or map has a key
+// defined.
+func isSet(a interface{}, key interface{}) bool {
 	av := reflect.ValueOf(a)
 	kv := reflect.ValueOf(key)
 
@@ -1084,7 +1150,9 @@ func IsSet(a interface{}, key interface{}) bool {
 	return false
 }
 
-func ReturnWhenSet(a, k interface{}) interface{} {
+// returnWhenSet returns a given value if it set.  Otherwise, it returns an
+// empty string.
+func returnWhenSet(a, k interface{}) interface{} {
 	av, isNil := indirect(reflect.ValueOf(a))
 	if isNil {
 		return ""
@@ -1120,25 +1188,61 @@ func ReturnWhenSet(a, k interface{}) interface{} {
 	return ""
 }
 
-func Highlight(in interface{}, lang, opts string) template.HTML {
-	var str string
-	av := reflect.ValueOf(in)
-	switch av.Kind() {
-	case reflect.String:
-		str = av.String()
+// highlight returns an HTML string with syntax highlighting applied.
+func highlight(in interface{}, lang, opts string) (template.HTML, error) {
+	str, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
 	}
 
-	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts))
+	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts)), nil
 }
 
 var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
-func Markdownify(text string) template.HTML {
+// markdownify renders a given string from Markdown to HTML.
+func markdownify(in interface{}) template.HTML {
+	text := cast.ToString(in)
 	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
 	return template.HTML(m)
+}
+
+// jsonify encodes a given object to JSON.
+func jsonify(v interface{}) (template.HTML, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	return template.HTML(b), nil
+
+}
+
+// emojify "emojifies" the given string.
+//
+// See http://www.emoji-cheat-sheet.com/
+func emojify(in interface{}) (template.HTML, error) {
+	str, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
+	}
+
+	return template.HTML(helpers.Emojify([]byte(str))), nil
+}
+
+// plainify strips any HTML and returns the plain text version.
+func plainify(in interface{}) (string, error) {
+	s, err := cast.ToStringE(in)
+
+	if err != nil {
+		return "", err
+	}
+
+	return helpers.StripHTML(s), nil
 }
 
 func refPage(page interface{}, ref, methodName string) template.HTML {
@@ -1168,25 +1272,28 @@ func refPage(page interface{}, ref, methodName string) template.HTML {
 	return template.HTML(ref)
 }
 
-func Ref(page interface{}, ref string) template.HTML {
+// ref returns the absolute URL path to a given content item.
+func ref(page interface{}, ref string) template.HTML {
 	return refPage(page, ref, "Ref")
 }
 
-func RelRef(page interface{}, ref string) template.HTML {
+// relRef returns the relative URL path to a given content item.
+func relRef(page interface{}, ref string) template.HTML {
 	return refPage(page, ref, "RelRef")
 }
 
-func Chomp(text interface{}) (string, error) {
+// chomp removes trailing newline characters from a string.
+func chomp(text interface{}) (template.HTML, error) {
 	s, err := cast.ToStringE(text)
 	if err != nil {
 		return "", err
 	}
 
-	return strings.TrimRight(s, "\r\n"), nil
+	return template.HTML(strings.TrimRight(s, "\r\n")), nil
 }
 
-// Trim leading/trailing characters defined by b from a
-func Trim(a interface{}, b string) (string, error) {
+// trim leading/trailing characters defined by b from a
+func trim(a interface{}, b string) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
@@ -1194,8 +1301,8 @@ func Trim(a interface{}, b string) (string, error) {
 	return strings.Trim(aStr, b), nil
 }
 
-// Replace all occurences of b with c in a
-func Replace(a, b, c interface{}) (string, error) {
+// replace all occurrences of b with c in a
+func replace(a, b, c interface{}) (string, error) {
 	aStr, err := cast.ToStringE(a)
 	if err != nil {
 		return "", err
@@ -1211,10 +1318,71 @@ func Replace(a, b, c interface{}) (string, error) {
 	return strings.Replace(aStr, bStr, cStr, -1), nil
 }
 
-// DateFormat converts the textual representation of the datetime string into
+// regexpCache represents a cache of regexp objects protected by a mutex.
+type regexpCache struct {
+	mu sync.RWMutex
+	re map[string]*regexp.Regexp
+}
+
+// Get retrieves a regexp object from the cache based upon the pattern.
+// If the pattern is not found in the cache, create one
+func (rc *regexpCache) Get(pattern string) (re *regexp.Regexp, err error) {
+	var ok bool
+
+	if re, ok = rc.get(pattern); !ok {
+		re, err = regexp.Compile(pattern)
+		if err != nil {
+			return nil, err
+		}
+		rc.set(pattern, re)
+	}
+
+	return re, nil
+}
+
+func (rc *regexpCache) get(key string) (re *regexp.Regexp, ok bool) {
+	rc.mu.RLock()
+	re, ok = rc.re[key]
+	rc.mu.RUnlock()
+	return
+}
+
+func (rc *regexpCache) set(key string, re *regexp.Regexp) {
+	rc.mu.Lock()
+	rc.re[key] = re
+	rc.mu.Unlock()
+}
+
+var reCache = regexpCache{re: make(map[string]*regexp.Regexp)}
+
+// replaceRE exposes a regular expression replacement function to the templates.
+func replaceRE(pattern, repl, src interface{}) (_ string, err error) {
+	patternStr, err := cast.ToStringE(pattern)
+	if err != nil {
+		return
+	}
+
+	replStr, err := cast.ToStringE(repl)
+	if err != nil {
+		return
+	}
+
+	srcStr, err := cast.ToStringE(src)
+	if err != nil {
+		return
+	}
+
+	re, err := reCache.Get(patternStr)
+	if err != nil {
+		return "", err
+	}
+	return re.ReplaceAllString(srcStr, replStr), nil
+}
+
+// dateFormat converts the textual representation of the datetime string into
 // the other form or returns it of the time.Time value. These are formatted
 // with the layout string
-func DateFormat(layout string, v interface{}) (string, error) {
+func dateFormat(layout string, v interface{}) (string, error) {
 	t, err := cast.ToTimeE(v)
 	if err != nil {
 		return "", err
@@ -1222,145 +1390,217 @@ func DateFormat(layout string, v interface{}) (string, error) {
 	return t.Format(layout), nil
 }
 
-// "safeHTMLAttr" is currently disabled, pending further discussion
-// on its use case.  2015-01-19
-func SafeHTMLAttr(text string) template.HTMLAttr {
-	return template.HTMLAttr(text)
-}
+// dfault checks whether a given value is set and returns a default value if it
+// is not.  "Set" in this context means non-zero for numeric types and times;
+// non-zero length for strings, arrays, slices, and maps;
+// any boolean or struct value; or non-nil for any other types.
+func dfault(dflt interface{}, given ...interface{}) (interface{}, error) {
+	// given is variadic because the following construct will not pass a piped
+	// argument when the key is missing:  {{ index . "key" | default "foo" }}
+	// The Go template will complain that we got 1 argument when we expectd 2.
 
-func SafeCSS(text string) template.CSS {
-	return template.CSS(text)
-}
+	if given == nil || len(given) == 0 {
+		return dflt, nil
+	}
+	if len(given) != 1 {
+		return nil, fmt.Errorf("wrong number of args for default: want 2 got %d", len(given)+1)
+	}
 
-func SafeURL(text string) template.URL {
-	return template.URL(text)
-}
+	g := reflect.ValueOf(given[0])
+	if !g.IsValid() {
+		return dflt, nil
+	}
 
-func SafeHTML(a string) template.HTML { return template.HTML(a) }
+	set := false
 
-// SafeJS returns the given string as a template.JS type from html/template.
-func SafeJS(a string) template.JS { return template.JS(a) }
-
-func doArithmetic(a, b interface{}, op rune) (interface{}, error) {
-	av := reflect.ValueOf(a)
-	bv := reflect.ValueOf(b)
-	var ai, bi int64
-	var af, bf float64
-	var au, bu uint64
-	switch av.Kind() {
+	switch g.Kind() {
+	case reflect.Bool:
+		set = true
+	case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
+		set = g.Len() != 0
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		ai = av.Int()
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			bi = bv.Int()
-		case reflect.Float32, reflect.Float64:
-			af = float64(ai) // may overflow
-			ai = 0
-			bf = bv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			bu = bv.Uint()
-			if ai >= 0 {
-				au = uint64(ai)
-				ai = 0
-			} else {
-				bi = int64(bu) // may overflow
-				bu = 0
-			}
-		default:
-			return nil, errors.New("Can't apply the operator to the values")
-		}
+		set = g.Int() != 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		set = g.Uint() != 0
 	case reflect.Float32, reflect.Float64:
-		af = av.Float()
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			bf = float64(bv.Int()) // may overflow
-		case reflect.Float32, reflect.Float64:
-			bf = bv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			bf = float64(bv.Uint()) // may overflow
+		set = g.Float() != 0
+	case reflect.Complex64, reflect.Complex128:
+		set = g.Complex() != 0
+	case reflect.Struct:
+		switch actual := given[0].(type) {
+		case time.Time:
+			set = !actual.IsZero()
 		default:
-			return nil, errors.New("Can't apply the operator to the values")
-		}
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		au = av.Uint()
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			bi = bv.Int()
-			if bi >= 0 {
-				bu = uint64(bi)
-				bi = 0
-			} else {
-				ai = int64(au) // may overflow
-				au = 0
-			}
-		case reflect.Float32, reflect.Float64:
-			af = float64(au) // may overflow
-			au = 0
-			bf = bv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			bu = bv.Uint()
-		default:
-			return nil, errors.New("Can't apply the operator to the values")
-		}
-	case reflect.String:
-		as := av.String()
-		if bv.Kind() == reflect.String && op == '+' {
-			bs := bv.String()
-			return as + bs, nil
-		} else {
-			return nil, errors.New("Can't apply the operator to the values")
+			set = true
 		}
 	default:
-		return nil, errors.New("Can't apply the operator to the values")
+		set = !g.IsNil()
 	}
 
-	switch op {
-	case '+':
-		if ai != 0 || bi != 0 {
-			return ai + bi, nil
-		} else if af != 0 || bf != 0 {
-			return af + bf, nil
-		} else if au != 0 || bu != 0 {
-			return au + bu, nil
-		} else {
-			return 0, nil
-		}
-	case '-':
-		if ai != 0 || bi != 0 {
-			return ai - bi, nil
-		} else if af != 0 || bf != 0 {
-			return af - bf, nil
-		} else if au != 0 || bu != 0 {
-			return au - bu, nil
-		} else {
-			return 0, nil
-		}
-	case '*':
-		if ai != 0 || bi != 0 {
-			return ai * bi, nil
-		} else if af != 0 || bf != 0 {
-			return af * bf, nil
-		} else if au != 0 || bu != 0 {
-			return au * bu, nil
-		} else {
-			return 0, nil
-		}
-	case '/':
-		if bi != 0 {
-			return ai / bi, nil
-		} else if bf != 0 {
-			return af / bf, nil
-		} else if bu != 0 {
-			return au / bu, nil
-		} else {
-			return nil, errors.New("Can't divide the value by 0")
-		}
-	default:
-		return nil, errors.New("There is no such an operation")
+	if set {
+		return given[0], nil
 	}
+
+	return dflt, nil
 }
 
-func Mod(a, b interface{}) (int64, error) {
+// canBeNil reports whether an untyped nil can be assigned to the type. See reflect.Zero.
+//
+// Copied from Go stdlib src/text/template/exec.go.
+func canBeNil(typ reflect.Type) bool {
+	switch typ.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+		return true
+	}
+	return false
+}
+
+// prepareArg checks if value can be used as an argument of type argType, and
+// converts an invalid value to appropriate zero if possible.
+//
+// Copied from Go stdlib src/text/template/funcs.go.
+func prepareArg(value reflect.Value, argType reflect.Type) (reflect.Value, error) {
+	if !value.IsValid() {
+		if !canBeNil(argType) {
+			return reflect.Value{}, fmt.Errorf("value is nil; should be of type %s", argType)
+		}
+		value = reflect.Zero(argType)
+	}
+	if !value.Type().AssignableTo(argType) {
+		return reflect.Value{}, fmt.Errorf("value has type %s; should be %s", value.Type(), argType)
+	}
+	return value, nil
+}
+
+// index returns the result of indexing its first argument by the following
+// arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each
+// indexed item must be a map, slice, or array.
+//
+// Copied from Go stdlib src/text/template/funcs.go.
+// Can hopefully be removed in Go 1.7, see https://github.com/golang/go/issues/14751
+func index(item interface{}, indices ...interface{}) (interface{}, error) {
+	v := reflect.ValueOf(item)
+	if !v.IsValid() {
+		return nil, fmt.Errorf("index of untyped nil")
+	}
+	for _, i := range indices {
+		index := reflect.ValueOf(i)
+		var isNil bool
+		if v, isNil = indirect(v); isNil {
+			return nil, fmt.Errorf("index of nil pointer")
+		}
+		switch v.Kind() {
+		case reflect.Array, reflect.Slice, reflect.String:
+			var x int64
+			switch index.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				x = index.Int()
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+				x = int64(index.Uint())
+			case reflect.Invalid:
+				return nil, fmt.Errorf("cannot index slice/array with nil")
+			default:
+				return nil, fmt.Errorf("cannot index slice/array with type %s", index.Type())
+			}
+			if x < 0 || x >= int64(v.Len()) {
+				// We deviate from stdlib here.  Don't return an error if the
+				// index is out of range.
+				return nil, nil
+			}
+			v = v.Index(int(x))
+		case reflect.Map:
+			index, err := prepareArg(index, v.Type().Key())
+			if err != nil {
+				return nil, err
+			}
+			if x := v.MapIndex(index); x.IsValid() {
+				v = x
+			} else {
+				v = reflect.Zero(v.Type().Elem())
+			}
+		case reflect.Invalid:
+			// the loop holds invariant: v.IsValid()
+			panic("unreachable")
+		default:
+			return nil, fmt.Errorf("can't index item of type %s", v.Type())
+		}
+	}
+	return v.Interface(), nil
+}
+
+// readFile reads the file named by filename relative to the given basepath
+// and returns the contents as a string.
+// There is a upper size limit set at 1 megabytes.
+func readFile(fs *afero.BasePathFs, filename string) (string, error) {
+	if filename == "" {
+		return "", errors.New("readFile needs a filename")
+	}
+
+	if info, err := fs.Stat(filename); err == nil {
+		if info.Size() > 1000000 {
+			return "", fmt.Errorf("File %q is too big", filename)
+		}
+	} else {
+		return "", err
+	}
+	b, err := afero.ReadFile(fs, filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}
+
+// readFileFromWorkingDir reads the file named by filename relative to the
+// configured WorkingDir.
+// It returns the contents as a string.
+// There is a upper size limit set at 1 megabytes.
+func readFileFromWorkingDir(i interface{}) (string, error) {
+	return readFile(hugofs.WorkingDir(), cast.ToString(i))
+}
+
+// readDirFromWorkingDir listst the directory content relative to the
+// configured WorkingDir.
+func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
+
+	path := cast.ToString(i)
+
+	list, err := afero.ReadDir(hugofs.WorkingDir(), path)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read Directory %s with error message %s", path, err)
+	}
+
+	return list, nil
+}
+
+// safeHTMLAttr returns a given string as html/template HTMLAttr content.
+//
+// safeHTMLAttr is currently disabled, pending further discussion
+// on its use case.  2015-01-19
+func safeHTMLAttr(a interface{}) template.HTMLAttr {
+	return template.HTMLAttr(cast.ToString(a))
+}
+
+// safeCSS returns a given string as html/template CSS content.
+func safeCSS(a interface{}) template.CSS {
+	return template.CSS(cast.ToString(a))
+}
+
+// safeURL returns a given string as html/template URL content.
+func safeURL(a interface{}) template.URL {
+	return template.URL(cast.ToString(a))
+}
+
+// safeHTML returns a given string as html/template HTML content.
+func safeHTML(a interface{}) template.HTML { return template.HTML(cast.ToString(a)) }
+
+// safeJS returns the given string as a html/template JS content.
+func safeJS(a interface{}) template.JS { return template.JS(cast.ToString(a)) }
+
+// mod returns a % b.
+func mod(a, b interface{}) (int64, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
 	var ai, bi int64
@@ -1386,15 +1626,17 @@ func Mod(a, b interface{}) (int64, error) {
 	return ai % bi, nil
 }
 
-func ModBool(a, b interface{}) (bool, error) {
-	res, err := Mod(a, b)
+// modBool returns the boolean of a % b.  If a % b == 0, return true.
+func modBool(a, b interface{}) (bool, error) {
+	res, err := mod(a, b)
 	if err != nil {
 		return false, err
 	}
 	return res == int64(0), nil
 }
 
-func Base64Decode(content interface{}) (string, error) {
+// base64Decode returns the base64 decoding of the given content.
+func base64Decode(content interface{}) (string, error) {
 	conv, err := cast.ToStringE(content)
 
 	if err != nil {
@@ -1403,14 +1645,11 @@ func Base64Decode(content interface{}) (string, error) {
 
 	dec, err := base64.StdEncoding.DecodeString(conv)
 
-	if err != nil {
-		return "", err
-	}
-
-	return string(dec), nil
+	return string(dec), err
 }
 
-func Base64Encode(content interface{}) (string, error) {
+// base64Encode returns the base64 encoding of the given content.
+func base64Encode(content interface{}) (string, error) {
 	conv, err := cast.ToStringE(content)
 
 	if err != nil {
@@ -1420,11 +1659,12 @@ func Base64Encode(content interface{}) (string, error) {
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
 }
 
-func CountWords(content interface{}) (int, error) {
+// countWords returns the approximate word count of the given content.
+func countWords(content interface{}) (int, error) {
 	conv, err := cast.ToStringE(content)
 
 	if err != nil {
-		return 0, errors.New("Failed to convert content to string: " + err.Error())
+		return 0, fmt.Errorf("Failed to convert content to string: %s", err.Error())
 	}
 
 	counter := 0
@@ -1440,11 +1680,12 @@ func CountWords(content interface{}) (int, error) {
 	return counter, nil
 }
 
-func CountRunes(content interface{}) (int, error) {
+// countRunes returns the approximate rune count of the given content.
+func countRunes(content interface{}) (int, error) {
 	conv, err := cast.ToStringE(content)
 
 	if err != nil {
-		return 0, errors.New("Failed to convert content to string: " + err.Error())
+		return 0, fmt.Errorf("Failed to convert content to string: %s", err.Error())
 	}
 
 	counter := 0
@@ -1457,83 +1698,133 @@ func CountRunes(content interface{}) (int, error) {
 	return counter, nil
 }
 
+// humanize returns the humanized form of a single word.
+// Example:  "my-first-post" -> "My first post"
+func humanize(in interface{}) (string, error) {
+	word, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return inflect.Humanize(word), nil
+}
+
+// pluralize returns the plural form of a single word.
+func pluralize(in interface{}) (string, error) {
+	word, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return inflect.Pluralize(word), nil
+}
+
+// singularize returns the singular form of a single word.
+func singularize(in interface{}) (string, error) {
+	word, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return inflect.Singularize(word), nil
+}
+
+// md5 hashes the given input and returns its MD5 checksum
+func md5(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+
+	hash := _md5.Sum([]byte(conv))
+	return hex.EncodeToString(hash[:]), nil
+}
+
+// sha1 hashes the given input and returns its SHA1 checksum
+func sha1(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+
+	hash := _sha1.Sum([]byte(conv))
+	return hex.EncodeToString(hash[:]), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
-		"urlize":       helpers.URLize,
+		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
+		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
+		"after":        after,
+		"apply":        apply,
+		"base64Decode": base64Decode,
+		"base64Encode": base64Encode,
+		"chomp":        chomp,
+		"countrunes":   countRunes,
+		"countwords":   countWords,
+		"default":      dfault,
+		"dateFormat":   dateFormat,
+		"delimit":      delimit,
+		"dict":         dictionary,
+		"div":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '/') },
+		"echoParam":    returnWhenSet,
+		"emojify":      emojify,
+		"eq":           eq,
+		"findRE":       findRE,
+		"first":        first,
+		"ge":           ge,
+		"getCSV":       getCSV,
+		"getJSON":      getJSON,
+		"getenv":       func(varName string) string { return os.Getenv(varName) },
+		"gt":           gt,
+		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
+		"highlight":    highlight,
+		"humanize":     humanize,
+		"in":           in,
+		"index":        index,
+		"int":          func(v interface{}) int { return cast.ToInt(v) },
+		"intersect":    intersect,
+		"isSet":        isSet,
+		"isset":        isSet,
+		"jsonify":      jsonify,
+		"last":         last,
+		"le":           le,
+		"lower":        func(a string) string { return strings.ToLower(a) },
+		"lt":           lt,
+		"markdownify":  markdownify,
+		"md5":          md5,
+		"mod":          mod,
+		"modBool":      modBool,
+		"mul":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
+		"ne":           ne,
+		"partial":      partial,
+		"plainify":     plainify,
+		"pluralize":    pluralize,
+		"readDir":      readDirFromWorkingDir,
+		"readFile":     readFileFromWorkingDir,
+		"ref":          ref,
+		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
+		"relref":       relRef,
+		"replace":      replace,
+		"replaceRE":    replaceRE,
+		"safeCSS":      safeCSS,
+		"safeHTML":     safeHTML,
+		"safeJS":       safeJS,
+		"safeURL":      safeURL,
 		"sanitizeURL":  helpers.SanitizeURL,
 		"sanitizeurl":  helpers.SanitizeURL,
-		"eq":           Eq,
-		"ne":           Ne,
-		"gt":           Gt,
-		"ge":           Ge,
-		"lt":           Lt,
-		"le":           Le,
-		"dict":         Dictionary,
-		"in":           In,
-		"slicestr":     Slicestr,
-		"substr":       Substr,
-		"split":        Split,
-		"intersect":    Intersect,
-		"isSet":        IsSet,
-		"isset":        IsSet,
-		"echoParam":    ReturnWhenSet,
-		"safeHTML":     SafeHTML,
-		"safeCSS":      SafeCSS,
-		"safeJS":       SafeJS,
-		"safeURL":      SafeURL,
-		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
-		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
-		"markdownify":  Markdownify,
-		"first":        First,
-		"last":         Last,
-		"after":        After,
-		"shuffle":      Shuffle,
-		"where":        Where,
-		"delimit":      Delimit,
-		"sort":         Sort,
-		"highlight":    Highlight,
-		"add":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '+') },
-		"sub":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '-') },
-		"div":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '/') },
-		"mod":          Mod,
-		"mul":          func(a, b interface{}) (interface{}, error) { return doArithmetic(a, b, '*') },
-		"modBool":      ModBool,
-		"lower":        func(a string) string { return strings.ToLower(a) },
-		"upper":        func(a string) string { return strings.ToUpper(a) },
-		"title":        func(a string) string { return strings.Title(a) },
-		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
-		"partial":      Partial,
-		"ref":          Ref,
-		"relref":       RelRef,
-		"apply":        Apply,
-		"chomp":        Chomp,
-		"int":          func(v interface{}) int { return cast.ToInt(v) },
-		"string":       func(v interface{}) string { return cast.ToString(v) },
-		"replace":      Replace,
-		"trim":         Trim,
-		"dateFormat":   DateFormat,
-		"getJSON":      GetJSON,
-		"getCSV":       GetCSV,
-		"readDir":      ReadDir,
 		"seq":          helpers.Seq,
-		"getenv":       func(varName string) string { return os.Getenv(varName) },
-		"base64Decode": Base64Decode,
-		"base64Encode": Base64Encode,
-		"countwords":   CountWords,
-		"countrunes":   CountRunes,
-		"pluralize": func(in interface{}) (string, error) {
-			word, err := cast.ToStringE(in)
-			if err != nil {
-				return "", err
-			}
-			return inflect.Pluralize(word), nil
-		},
-		"singularize": func(in interface{}) (string, error) {
-			word, err := cast.ToStringE(in)
-			if err != nil {
-				return "", err
-			}
-			return inflect.Singularize(word), nil
-		},
+		"sha1":         sha1,
+		"shuffle":      shuffle,
+		"singularize":  singularize,
+		"slice":        slice,
+		"slicestr":     slicestr,
+		"sort":         sortSeq,
+		"split":        split,
+		"string":       func(v interface{}) string { return cast.ToString(v) },
+		"sub":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '-') },
+		"substr":       substr,
+		"title":        func(a string) string { return strings.Title(a) },
+		"trim":         trim,
+		"upper":        func(a string) string { return strings.ToUpper(a) },
+		"urlize":       helpers.URLize,
+		"where":        where,
 	}
 }

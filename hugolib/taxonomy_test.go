@@ -16,16 +16,44 @@ package hugolib
 import (
 	"strings"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestSitePossibleTaxonomies(t *testing.T) {
 	site := new(Site)
-	page, _ := NewPageFrom(strings.NewReader(PAGE_YAML_WITH_TAXONOMIES_A), "path/to/page")
+	page, _ := NewPageFrom(strings.NewReader(pageYamlWithTaxonomiesA), "path/to/page")
 	site.Pages = append(site.Pages, page)
 	taxonomies := site.possibleTaxonomies()
 	if !compareStringSlice(taxonomies, []string{"tags", "categories"}) {
 		if !compareStringSlice(taxonomies, []string{"categories", "tags"}) {
 			t.Fatalf("possible taxonomies do not match [tags categories].  Got: %s", taxonomies)
 		}
+	}
+}
+
+func TestByCountOrderOfTaxonomies(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	taxonomies := make(map[string]string)
+
+	taxonomies["tag"] = "tags"
+	taxonomies["category"] = "categories"
+
+	viper.Set("taxonomies", taxonomies)
+
+	site := new(Site)
+	page, _ := NewPageFrom(strings.NewReader(pageYamlWithTaxonomiesA), "path/to/page")
+	site.Pages = append(site.Pages, page)
+	site.assembleTaxonomies()
+
+	st := make([]string, 0)
+	for _, t := range site.Taxonomies["tags"].ByCount() {
+		st = append(st, t.Name)
+	}
+
+	if !compareStringSlice(st, []string{"a", "b", "c"}) {
+		t.Fatalf("ordered taxonomies do not match [a, b, c].  Got: %s", st)
 	}
 }

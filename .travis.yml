@@ -1,8 +1,8 @@
 language: go
 sudo: false
 go:
-  - 1.4.3
-  - 1.5.3
+  - 1.5.4
+  - 1.6.1
   - tip
 os:
   - linux
@@ -11,9 +11,10 @@ matrix:
   allow_failures:
     - go: tip
 script:
-  - go test ./...
-  - go build
+  - make check
+  - go build -race
   - ./hugo -s docs/
+  - ./hugo --renderToMemory -s docs/
 install:
   - go get github.com/stretchr/testify
   - go get -v ./...

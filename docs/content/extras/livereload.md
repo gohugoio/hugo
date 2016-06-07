@@ -57,3 +57,9 @@ LiveReload functionality.
 
     $ hugo server --watch --disableLiveReload
 
+## Notes
+
+The `--watch` flag is enabled by default when `hugo server` is run.
+
+You must have a closing `</body>` tag for LiveReload to work.
+Hugo injects the LiveReload `<script>` before this tag.

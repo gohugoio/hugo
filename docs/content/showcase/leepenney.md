@@ -8,7 +8,7 @@ sitelink: http://leepenney.com/
 tags:
 - personal
 - website
-thumbnail: /img/leepenney-tn.png
+thumbnail: /img/leepenney-tn.jpg
 title: Lee Penney
 ---
 

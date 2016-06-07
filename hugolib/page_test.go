@@ -29,31 +29,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var EMPTY_PAGE = ""
+var emptyPage = ""
 
 const (
-	SIMPLE_PAGE                      = "---\ntitle: Simple\n---\nSimple Page\n"
-	INVALID_FRONT_MATTER_MISSING     = "This is a test"
-	RENDER_NO_FRONT_MATTER           = "<!doctype><html><head></head><body>This is a test</body></html>"
-	CONTENT_WITH_COMMENTED_FM        = "<!--\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n-->\n\n# Network configuration\n\n##\nSummary"
-	CONTENT_WITH_COMMENTED_TEXT_FM   = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
-	CONTENT_WITH_COMMENTED_LONG_FM   = "<!--[metaData123456789012345678901234567890]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
-	CONTENT_WITH_COMMENTED_LONG2_FM  = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata123456789012345678901234567890]-->\n\n# Network configuration\n\n##\nSummary"
-	INVALID_FRONT_MATTER_SHORT_DELIM = `
+	simplePage                           = "---\ntitle: Simple\n---\nSimple Page\n"
+	invalidFrontMatterMissing            = "This is a test"
+	renderNoFrontmatter                  = "<!doctype><html><head></head><body>This is a test</body></html>"
+	contentWithCommentedFrontmatter      = "<!--\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n-->\n\n# Network configuration\n\n##\nSummary"
+	contentWithCommentedTextFrontmatter  = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
+	contentWithCommentedLongFrontmatter  = "<!--[metaData123456789012345678901234567890]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
+	contentWithCommentedLong2Frontmatter = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata123456789012345678901234567890]-->\n\n# Network configuration\n\n##\nSummary"
+	invalidFrontmatterShortDelim         = `
 --
 title: Short delim start
 ---
 Short Delim
 `
 
-	INVALID_FRONT_MATTER_SHORT_DELIM_ENDING = `
+	invalidFrontmatterShortDelimEnding = `
 ---
 title: Short delim ending
 --
 Short Delim
 `
 
-	INVALID_FRONT_MATTER_LEADING_WS = `
+	invalidFrontmatterLadingWs = `
 
  ---
 title: Leading WS
@@ -61,7 +61,7 @@ title: Leading WS
 Leading
 `
 
-	SIMPLE_PAGE_JSON = `
+	simplePageJSON = `
 {
 "title": "spf13-vim 3.0 release and new website",
 "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
@@ -76,7 +76,7 @@ Leading
 
 Content of the file goes Here
 `
-	SIMPLE_PAGE_JSON_LOOSE = `
+	simplePageJSONLoose = `
 {
 "title": "spf13-vim 3.0 release and new website"
 "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
@@ -91,8 +91,8 @@ Content of the file goes Here
 
 Content of the file goes Here
 `
-	SIMPLE_PAGE_RFC3339_DATE  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
-	SIMPLE_PAGE_JSON_MULTIPLE = `
+	simplePageRFC3339Date  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
+	simplePageJSONMultiple = `
 {
 	"title": "foobar",
 	"customData": { "foo": "bar" },
@@ -101,34 +101,29 @@ Content of the file goes Here
 Some text
 `
 
-	SIMPLE_PAGE_JSON_COMPACT = `
-{"title":"foobar","customData":{"foo":"bar"},"date":"2012-08-06"}
-Text
-`
-
-	SIMPLE_PAGE_NOLAYOUT = `---
+	simplePageNoLayout = `---
 title: simple_no_layout
 ---
 No Layout called out`
 
-	SIMPLE_PAGE_LAYOUT_FOOBAR = `---
+	simplePageLayoutFoobar = `---
 title: simple layout foobar
 layout: foobar
 ---
 Layout foobar`
 
-	SIMPLE_PAGE_TYPE_FOOBAR = `---
+	simplePageTypeFoobar = `---
 type: foobar
 ---
 type foobar`
 
-	SIMPLE_PAGE_TYPE_LAYOUT = `---
+	simplePageTypeLayout = `---
 type: barfoo
 layout: buzfoo
 ---
 type and layout set`
 
-	SIMPLE_PAGE_WITH_SUMMARY_DELIMITER = `---
+	simplePageWithSummaryDelimiter = `---
 title: Simple
 ---
 Summary Next Line
@@ -136,7 +131,7 @@ Summary Next Line
 <!--more-->
 Some more text
 `
-	SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY = `---
+	simplePageWithShortcodeInSummary = `---
 title: Simple
 ---
 Summary Next Line. {{<figure src="/not/real" >}}.
@@ -145,13 +140,13 @@ More text here.
 Some more text
 `
 
-	SIMPLE_PAGE_WITH_EMBEDDED_SCRIPT = `---
+	simplePageWithEmbeddedScript = `---
 title: Simple
 ---
 <script type='text/javascript'>alert('the script tags are still there, right?');</script>
 `
 
-	SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE = `---
+	simplePageWithSummaryDelimiterSameLine = `---
 title: Simple
 ---
 Summary Same Line<!--more-->
@@ -159,7 +154,7 @@ Summary Same Line<!--more-->
 Some more text
 `
 
-	SIMPLE_PAGE_WITH_ALL_CJK_RUNES = `---
+	simplePageWithAllCJKRunes = `---
 title: Simple
 ---
 
@@ -172,7 +167,7 @@ title: Simple
 
 `
 
-	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES = `---
+	simplePageWithMainEnglishWithCJKRunes = `---
 title: Simple
 ---
 
@@ -188,7 +183,7 @@ More then 70 words.
 
 
 `
-	SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY = "In Chinese, 好 means good. In Chinese, 好 means good. " +
+	simplePageWithMainEnglishWithCJKRunesSummary = "In Chinese, 好 means good. In Chinese, 好 means good. " +
 		"In Chinese, 好 means good. In Chinese, 好 means good. " +
 		"In Chinese, 好 means good. In Chinese, 好 means good. " +
 		"In Chinese, 好 means good. In Chinese, 好 means good. " +
@@ -196,7 +191,7 @@ More then 70 words.
 		"In Chinese, 好 means good. In Chinese, 好 means good. " +
 		"In Chinese, 好 means good. In Chinese, 好 means good."
 
-	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE = `---
+	simplePageWithIsCJKLanguageFalse = `---
 title: Simple
 isCJKLanguage: false
 ---
@@ -212,7 +207,7 @@ More then 70 words.
 
 
 `
-	SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
+	simplePageWithIsCJKLanguageFalseSummary = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
 		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
 		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
 		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
@@ -220,7 +215,7 @@ More then 70 words.
 		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
 		"In Chinese, 好的啊 means good. In Chinese, 好的呀呀 means good enough."
 
-	SIMPLE_PAGE_WITH_LONG_CONTENT = `---
+	simplePageWithLongContent = `---
 title: Simple
 ---
 
@@ -266,7 +261,7 @@ in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
 pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
 officia deserunt mollit anim id est laborum.`
 
-	PAGE_WITH_TOC = `---
+	pageWithToC = `---
 title: TOC
 ---
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
@@ -296,7 +291,7 @@ the cylinder and strike me down. ## BB
 "You're a great Granser," he cried delightedly, "always making believe them little marks mean something."
 `
 
-	SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION = `+++
+	simplePageWithAdditionalExtension = `+++
 [blackfriday]
   extensions = ["hardLineBreak"]
 +++
@@ -306,49 +301,49 @@ second line.
 fourth line.
 `
 
-	SIMPLE_PAGE_WITH_URL = `---
+	simplePageWithURL = `---
 title: Simple
 url: simple/url/
 ---
 Simple Page With URL`
 
-	SIMPLE_PAGE_WITH_SLUG = `---
+	simplePageWithSlug = `---
 title: Simple
 slug: simple-slug
 ---
 Simple Page With Slug`
 
-	SIMPLE_PAGE_WITH_DATE = `---
+	simplePageWithDate = `---
 title: Simple
 date: '2013-10-15T06:16:13'
 ---
 Simple Page With Date`
 
-	UTF8_PAGE = `---
+	UTF8Page = `---
 title: ラーメン
 ---
 UTF8 Page`
 
-	UTF8_PAGE_WITH_URL = `---
+	UTF8PageWithURL = `---
 title: ラーメン
 url: ラーメン/url/
 ---
 UTF8 Page With URL`
 
-	UTF8_PAGE_WITH_SLUG = `---
+	UTF8PageWithSlug = `---
 title: ラーメン
 slug: ラーメン-slug
 ---
 UTF8 Page With Slug`
 
-	UTF8_PAGE_WITH_DATE = `---
+	UTF8PageWithDate = `---
 title: ラーメン
 date: '2013-10-15T06:16:13'
 ---
 UTF8 Page With Date`
 )
 
-var PAGE_WITH_VARIOUS_FRONTMATTER_TYPES = `+++
+var pageWithVariousFrontmatterTypes = `+++
 a_string = "bar"
 an_integer = 1
 a_float = 1.3
@@ -360,7 +355,7 @@ a_key = "a_value"
 +++
 Front Matter with various frontmatter types`
 
-var PAGE_WITH_CALENDAR_YAML_FRONTMATTER = `---
+var pageWithCalendarYAMLFrontmatter = `---
 type: calendar
 weeks:
   -
@@ -385,7 +380,7 @@ weeks:
 Hi.
 `
 
-var PAGE_WITH_CALENDAR_JSON_FRONTMATTER = `{
+var pageWithCalendarJSONFrontmatter = `{
   "type": "calendar",
   "weeks": [
     {
@@ -414,7 +409,7 @@ var PAGE_WITH_CALENDAR_JSON_FRONTMATTER = `{
 Hi.
 `
 
-var PAGE_WITH_CALENDAR_TOML_FRONTMATTER = `+++
+var pageWithCalendarTOMLFrontmatter = `+++
 type = "calendar"
 
 [[weeks]]
@@ -478,7 +473,7 @@ func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
 }
 
 func TestDegenerateEmptyPage(t *testing.T) {
-	_, err := NewPageFrom(strings.NewReader(EMPTY_PAGE), "test")
+	_, err := NewPageFrom(strings.NewReader(emptyPage), "test")
 	if err != nil {
 		t.Fatalf("Empty files should not trigger an error. Should be able to touch a file while watching without erroring out.")
 	}
@@ -492,7 +487,7 @@ func checkPageTitle(t *testing.T, page *Page, title string) {
 
 func checkPageContent(t *testing.T, page *Page, content string) {
 	if page.Content != template.HTML(content) {
-		t.Fatalf("Page content is: %q\nExpected: %q", page.Content, content)
+		t.Fatalf("Page content is:\n%q\nExpected:\n%q", page.Content, content)
 	}
 }
 
@@ -541,7 +536,7 @@ func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
 
 func TestCreateNewPage(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE))
+	_, err := p.ReadFrom(strings.NewReader(simplePage))
 	p.Convert()
 
 	if err != nil {
@@ -559,7 +554,7 @@ func TestCreateNewPage(t *testing.T) {
 
 func TestPageWithDelimiter(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithSummaryDelimiter))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -576,7 +571,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	s := new(Site)
 	s.prepTemplates()
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SHORTCODE_IN_SUMMARY))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithShortcodeInSummary))
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
@@ -591,7 +586,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 
 func TestPageWithEmbeddedScriptTag(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_EMBEDDED_SCRIPT))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithEmbeddedScript))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -601,7 +596,7 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 
 func TestPageWithAdditionalExtension(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ADDITIONAL_EXTENSION))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithAdditionalExtension))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -611,18 +606,18 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 
 func TestTableOfContents(t *testing.T) {
 	p, _ := NewPage("tocpage.md")
-	_, err := p.ReadFrom(strings.NewReader(PAGE_WITH_TOC))
+	_, err := p.ReadFrom(strings.NewReader(pageWithToC))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
-	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa:90b9174a5bdb091a9625b04adac96ca6\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa:90b9174a5bdb091a9625b04adac96ca6\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb:90b9174a5bdb091a9625b04adac96ca6\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
-	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa:90b9174a5bdb091a9625b04adac96ca6\">AA</a>\n<ul>\n<li><a href=\"#aaa:90b9174a5bdb091a9625b04adac96ca6\">AAA</a></li>\n<li><a href=\"#bbb:90b9174a5bdb091a9625b04adac96ca6\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
+	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_SUMMARY_DELIMITER_SAME_LINE))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithSummaryDelimiterSameLine))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -636,7 +631,7 @@ func TestPageWithMoreTag(t *testing.T) {
 
 func TestPageWithDate(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_RFC3339_DATE))
+	_, err := p.ReadFrom(strings.NewReader(simplePageRFC3339Date))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
@@ -652,7 +647,7 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	viper.Reset()
 
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithAllCJKRunes))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -671,7 +666,7 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	viper.Set("HasCJKLanguage", true)
 
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ALL_CJK_RUNES))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithAllCJKRunes))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -690,7 +685,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	viper.Set("HasCJKLanguage", true)
 
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithMainEnglishWithCJKRunes))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -701,9 +696,9 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 74, p.WordCount)
 	}
 
-	if p.Summary != SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY {
+	if p.Summary != simplePageWithMainEnglishWithCJKRunesSummary {
 		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
-			SIMPLE_PAGE_WITH_MAIN_ENGLISH_WITH_CJK_RUNES_SUMMARY, p.Summary)
+			simplePageWithMainEnglishWithCJKRunesSummary, p.Summary)
 	}
 }
 
@@ -714,7 +709,7 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	viper.Set("HasCJKLanguage", true)
 
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithIsCJKLanguageFalse))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -725,15 +720,15 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 		t.Fatalf("incorrect word count for content '%s'. expected %v, got %v", p.plain, 75, p.WordCount)
 	}
 
-	if p.Summary != SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY {
+	if p.Summary != simplePageWithIsCJKLanguageFalseSummary {
 		t.Fatalf("incorrect Summary for content '%s'. expected %v, got %v", p.plain,
-			SIMPLE_PAGE_WITH_ISCJKLANGUAGE_FALSE_SUMMARY, p.Summary)
+			simplePageWithIsCJKLanguageFalseSummary, p.Summary)
 	}
 }
 
 func TestWordCount(t *testing.T) {
 	p, _ := NewPage("simple.md")
-	_, err := p.ReadFrom(strings.NewReader(SIMPLE_PAGE_WITH_LONG_CONTENT))
+	_, err := p.ReadFrom(strings.NewReader(simplePageWithLongContent))
 	p.Convert()
 	p.analyzePage()
 	if err != nil {
@@ -759,9 +754,9 @@ func TestCreatePage(t *testing.T) {
 	var tests = []struct {
 		r string
 	}{
-		{SIMPLE_PAGE_JSON},
-		{SIMPLE_PAGE_JSON_LOOSE},
-		{SIMPLE_PAGE_JSON_MULTIPLE},
+		{simplePageJSON},
+		{simplePageJSONLoose},
+		{simplePageJSONMultiple},
 		//{strings.NewReader(SIMPLE_PAGE_JSON_COMPACT)},
 	}
 
@@ -778,7 +773,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		r   string
 		err string
 	}{
-		{INVALID_FRONT_MATTER_SHORT_DELIM_ENDING, "unable to read frontmatter at filepos 45: EOF"},
+		{invalidFrontmatterShortDelimEnding, "unable to read frontmatter at filepos 45: EOF"},
 	}
 	for _, test := range tests {
 
@@ -793,14 +788,14 @@ func TestShouldRenderContent(t *testing.T) {
 		text   string
 		render bool
 	}{
-		{INVALID_FRONT_MATTER_MISSING, true},
+		{invalidFrontMatterMissing, true},
 		// TODO how to deal with malformed frontmatter.  In this case it'll be rendered as markdown.
-		{INVALID_FRONT_MATTER_SHORT_DELIM, true},
-		{RENDER_NO_FRONT_MATTER, false},
-		{CONTENT_WITH_COMMENTED_FM, true},
-		{CONTENT_WITH_COMMENTED_TEXT_FM, true},
-		{CONTENT_WITH_COMMENTED_LONG_FM, false},
-		{CONTENT_WITH_COMMENTED_LONG2_FM, true},
+		{invalidFrontmatterShortDelim, true},
+		{renderNoFrontmatter, false},
+		{contentWithCommentedFrontmatter, true},
+		{contentWithCommentedTextFrontmatter, true},
+		{contentWithCommentedLongFrontmatter, false},
+		{contentWithCommentedLong2Frontmatter, true},
 	}
 
 	for _, test := range tests {
@@ -817,13 +812,13 @@ func TestShouldRenderContent(t *testing.T) {
 // Issue #768
 func TestCalendarParamsVariants(t *testing.T) {
 	pageJSON, _ := NewPage("test/fileJSON.md")
-	_, _ = pageJSON.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_JSON_FRONTMATTER))
+	_, _ = pageJSON.ReadFrom(strings.NewReader(pageWithCalendarJSONFrontmatter))
 
 	pageYAML, _ := NewPage("test/fileYAML.md")
-	_, _ = pageYAML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_YAML_FRONTMATTER))
+	_, _ = pageYAML.ReadFrom(strings.NewReader(pageWithCalendarYAMLFrontmatter))
 
 	pageTOML, _ := NewPage("test/fileTOML.md")
-	_, _ = pageTOML.ReadFrom(strings.NewReader(PAGE_WITH_CALENDAR_TOML_FRONTMATTER))
+	_, _ = pageTOML.ReadFrom(strings.NewReader(pageWithCalendarTOMLFrontmatter))
 
 	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
 	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
@@ -832,7 +827,7 @@ func TestCalendarParamsVariants(t *testing.T) {
 
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	page, _ := NewPage("test/file1.md")
-	_, _ = page.ReadFrom(strings.NewReader(PAGE_WITH_VARIOUS_FRONTMATTER_TYPES))
+	_, _ = page.ReadFrom(strings.NewReader(pageWithVariousFrontmatterTypes))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
 	if page.GetParam("a_string") != "bar" {
@@ -861,7 +856,7 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 
 func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 	p, _ := NewPage("invalid/front/matter/leading/ws")
-	_, err := p.ReadFrom(strings.NewReader(INVALID_FRONT_MATTER_LEADING_WS))
+	_, err := p.ReadFrom(strings.NewReader(invalidFrontmatterLadingWs))
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
 	}
@@ -869,7 +864,7 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 
 func TestSectionEvaluation(t *testing.T) {
 	page, _ := NewPage(filepath.FromSlash("blue/file1.md"))
-	page.ReadFrom(strings.NewReader(SIMPLE_PAGE))
+	page.ReadFrom(strings.NewReader(simplePage))
 	if page.Section() != "blue" {
 		t.Errorf("Section should be %s, got: %s", "blue", page.Section())
 	}
@@ -881,36 +876,36 @@ func L(s ...string) []string {
 
 func TestLayoutOverride(t *testing.T) {
 	var (
-		path_content_two_dir = filepath.Join("content", "dub", "sub", "file1.md")
-		path_content_one_dir = filepath.Join("content", "gub", "file1.md")
-		path_content_no_dir  = filepath.Join("content", "file1")
-		path_one_directory   = filepath.Join("fub", "file1.md")
-		path_no_directory    = filepath.Join("file1.md")
+		pathContentTwoDir = filepath.Join("content", "dub", "sub", "file1.md")
+		pathContentOneDir = filepath.Join("content", "gub", "file1.md")
+		pathContentNoDir  = filepath.Join("content", "file1")
+		pathOneDirectory  = filepath.Join("fub", "file1.md")
+		pathNoDirectory   = filepath.Join("file1.md")
 	)
 	tests := []struct {
 		content        string
 		path           string
 		expectedLayout []string
 	}{
-		{SIMPLE_PAGE_NOLAYOUT, path_content_two_dir, L("dub/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_content_one_dir, L("gub/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_content_no_dir, L("page/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_one_directory, L("fub/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_NOLAYOUT, path_no_directory, L("page/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_two_dir, L("dub/foobar.html", "_default/foobar.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_content_one_dir, L("gub/foobar.html", "_default/foobar.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_one_directory, L("fub/foobar.html", "_default/foobar.html")},
-		{SIMPLE_PAGE_LAYOUT_FOOBAR, path_no_directory, L("page/foobar.html", "_default/foobar.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_two_dir, L("foobar/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_one_dir, L("foobar/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_content_no_dir, L("foobar/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_one_directory, L("foobar/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_TYPE_FOOBAR, path_no_directory, L("foobar/single.html", "_default/single.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_two_dir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_one_dir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_content_no_dir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_one_directory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{SIMPLE_PAGE_TYPE_LAYOUT, path_no_directory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{simplePageNoLayout, pathContentTwoDir, L("dub/single.html", "_default/single.html")},
+		{simplePageNoLayout, pathContentOneDir, L("gub/single.html", "_default/single.html")},
+		{simplePageNoLayout, pathContentNoDir, L("page/single.html", "_default/single.html")},
+		{simplePageNoLayout, pathOneDirectory, L("fub/single.html", "_default/single.html")},
+		{simplePageNoLayout, pathNoDirectory, L("page/single.html", "_default/single.html")},
+		{simplePageLayoutFoobar, pathContentTwoDir, L("dub/foobar.html", "_default/foobar.html")},
+		{simplePageLayoutFoobar, pathContentOneDir, L("gub/foobar.html", "_default/foobar.html")},
+		{simplePageLayoutFoobar, pathOneDirectory, L("fub/foobar.html", "_default/foobar.html")},
+		{simplePageLayoutFoobar, pathNoDirectory, L("page/foobar.html", "_default/foobar.html")},
+		{simplePageTypeFoobar, pathContentTwoDir, L("foobar/single.html", "_default/single.html")},
+		{simplePageTypeFoobar, pathContentOneDir, L("foobar/single.html", "_default/single.html")},
+		{simplePageTypeFoobar, pathContentNoDir, L("foobar/single.html", "_default/single.html")},
+		{simplePageTypeFoobar, pathOneDirectory, L("foobar/single.html", "_default/single.html")},
+		{simplePageTypeFoobar, pathNoDirectory, L("foobar/single.html", "_default/single.html")},
+		{simplePageTypeLayout, pathContentTwoDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{simplePageTypeLayout, pathContentOneDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{simplePageTypeLayout, pathContentNoDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{simplePageTypeLayout, pathOneDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
+		{simplePageTypeLayout, pathNoDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
 	}
 	for _, test := range tests {
 		p, _ := NewPage(test.path)
@@ -953,7 +948,7 @@ func TestPagePaths(t *testing.T) {
 	defer viper.Reset()
 
 	viper.Set("DefaultExtension", "html")
-	site_permalinks_setting := PermalinkOverrides{
+	siteParmalinksSetting := PermalinkOverrides{
 		"post": ":year/:month/:day/:title/",
 	}
 
@@ -963,14 +958,14 @@ func TestPagePaths(t *testing.T) {
 		hasPermalink bool
 		expected     string
 	}{
-		{SIMPLE_PAGE, "content/post/x.md", false, "content/post/x.html"},
-		{SIMPLE_PAGE_WITH_URL, "content/post/x.md", false, "simple/url/index.html"},
-		{SIMPLE_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/simple-slug.html"},
-		{SIMPLE_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/simple/index.html"},
-		{UTF8_PAGE, "content/post/x.md", false, "content/post/x.html"},
-		{UTF8_PAGE_WITH_URL, "content/post/x.md", false, "ラーメン/url/index.html"},
-		{UTF8_PAGE_WITH_SLUG, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
-		{UTF8_PAGE_WITH_DATE, "content/post/x.md", true, "2013/10/15/ラーメン/index.html"},
+		{simplePage, "content/post/x.md", false, "content/post/x.html"},
+		{simplePageWithURL, "content/post/x.md", false, "simple/url/index.html"},
+		{simplePageWithSlug, "content/post/x.md", false, "content/post/simple-slug.html"},
+		{simplePageWithDate, "content/post/x.md", true, "2013/10/15/simple/index.html"},
+		{UTF8Page, "content/post/x.md", false, "content/post/x.html"},
+		{UTF8PageWithURL, "content/post/x.md", false, "ラーメン/url/index.html"},
+		{UTF8PageWithSlug, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
+		{UTF8PageWithDate, "content/post/x.md", true, "2013/10/15/ラーメン/index.html"},
 	}
 
 	for _, test := range tests {
@@ -978,7 +973,7 @@ func TestPagePaths(t *testing.T) {
 		p.Node.Site = &SiteInfo{}
 
 		if test.hasPermalink {
-			p.Node.Site.Permalinks = site_permalinks_setting
+			p.Node.Site.Permalinks = siteParmalinksSetting
 		}
 
 		expectedTargetPath := filepath.FromSlash(test.expected)
@@ -994,7 +989,7 @@ func TestPagePaths(t *testing.T) {
 	}
 }
 
-var PAGE_WITH_DRAFT_AND_PUBLISHED = `---
+var pageWithDraftAndPublished = `---
 title: broken
 published: false
 draft: true
@@ -1003,19 +998,19 @@ some content
 `
 
 func TestDraftAndPublishedFrontMatterError(t *testing.T) {
-	_, err := NewPageFrom(strings.NewReader(PAGE_WITH_DRAFT_AND_PUBLISHED), "content/post/broken.md")
+	_, err := NewPageFrom(strings.NewReader(pageWithDraftAndPublished), "content/post/broken.md")
 	if err != ErrHasDraftAndPublished {
 		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
 	}
 }
 
-var PAGE_WITH_PUBLISHED_FALSE = `---
+var pageWithPublishedFalse = `---
 title: okay
 published: false
 ---
 some content
 `
-var PAGE_WITH_PUBLISHED_TRUE = `---
+var pageWithPublishedTrue = `---
 title: okay
 published: true
 ---
@@ -1023,20 +1018,51 @@ some content
 `
 
 func TestPublishedFrontMatter(t *testing.T) {
-	p, err := NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_FALSE), "content/post/broken.md")
+	p, err := NewPageFrom(strings.NewReader(pageWithPublishedFalse), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
 	if !p.Draft {
 		t.Errorf("expected true, got %t", p.Draft)
 	}
-	p, err = NewPageFrom(strings.NewReader(PAGE_WITH_PUBLISHED_TRUE), "content/post/broken.md")
+	p, err = NewPageFrom(strings.NewReader(pageWithPublishedTrue), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
 	if p.Draft {
 		t.Errorf("expected false, got %t", p.Draft)
 	}
+}
+
+func TestPageSimpleMethods(t *testing.T) {
+	for i, this := range []struct {
+		assertFunc func(p *Page) bool
+	}{
+		{func(p *Page) bool { return !p.IsNode() }},
+		{func(p *Page) bool { return p.IsPage() }},
+		{func(p *Page) bool { return p.Plain() == "Do Be Do Be Do" }},
+		{func(p *Page) bool { return strings.Join(p.PlainWords(), " ") == "Do Be Do Be Do" }},
+	} {
+
+		p, _ := NewPage("Test")
+		p.Content = "<h1>Do Be Do Be Do</h1>"
+		if !this.assertFunc(p) {
+			t.Errorf("[%d] Page method error", i)
+		}
+	}
+}
+
+func TestChompBOM(t *testing.T) {
+	p, _ := NewPage("simple.md")
+	const utf8BOM = "\xef\xbb\xbf"
+	_, err := p.ReadFrom(strings.NewReader(utf8BOM + simplePage))
+	p.Convert()
+
+	if err != nil {
+		t.Fatalf("Unable to create a page with BOM prefixed frontmatter and body content: %s", err)
+	}
+
+	checkPageTitle(t, p, "Simple")
 }
 
 func listEqual(left, right []string) bool {

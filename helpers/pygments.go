@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,12 +60,13 @@ func Highlight(code, lang, optsStr string) string {
 	io.WriteString(hash, lang)
 	io.WriteString(hash, options)
 
-	fs := hugofs.OsFs
+	fs := hugofs.Os()
 
+	ignoreCache := viper.GetBool("IgnoreCache")
 	cacheDir := viper.GetString("CacheDir")
 	var cachefile string
 
-	if cacheDir != "" {
+	if !ignoreCache && cacheDir != "" {
 		cachefile = filepath.Join(cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
 
 		exists, err := Exists(cachefile, fs)
@@ -120,7 +121,7 @@ func Highlight(code, lang, optsStr string) string {
 		str = strings.Replace(str, "</pre>", "</code></pre>", 1)
 	}
 
-	if cachefile != "" {
+	if !ignoreCache && cachefile != "" {
 		// Write cache file
 		if err := WriteToDisk(cachefile, strings.NewReader(str), fs); err != nil {
 			jww.ERROR.Print(stderr.String())
@@ -158,15 +159,18 @@ func init() {
 
 func parseOptions(options map[string]string, in string) error {
 	in = strings.Trim(in, " ")
-	if in != "" {
-		for _, v := range strings.Split(in, ",") {
-			keyVal := strings.Split(v, "=")
-			key := strings.ToLower(strings.Trim(keyVal[0], " "))
-			if len(keyVal) != 2 || !pygmentsKeywords[key] {
-				return fmt.Errorf("invalid Pygments option: %s", key)
-			}
-			options[key] = keyVal[1]
+
+	if in == "" {
+		return nil
+	}
+
+	for _, v := range strings.Split(in, ",") {
+		keyVal := strings.Split(v, "=")
+		key := strings.ToLower(strings.Trim(keyVal[0], " "))
+		if len(keyVal) != 2 || !pygmentsKeywords[key] {
+			return fmt.Errorf("invalid Pygments option: %s", key)
 		}
+		options[key] = keyVal[1]
 	}
 
 	return nil

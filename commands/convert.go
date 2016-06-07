@@ -45,7 +45,7 @@ var toJSONCmd = &cobra.Command{
 	Long: `toJSON converts all front matter in the content directory
 to use JSON for the front matter.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return convertContents(rune([]byte(parser.JSON_LEAD)[0]))
+		return convertContents(rune([]byte(parser.JSONLead)[0]))
 	},
 }
 
@@ -55,7 +55,7 @@ var toTOMLCmd = &cobra.Command{
 	Long: `toTOML converts all front matter in the content directory
 to use TOML for the front matter.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return convertContents(rune([]byte(parser.TOML_LEAD)[0]))
+		return convertContents(rune([]byte(parser.TOMLLead)[0]))
 	},
 }
 
@@ -65,7 +65,7 @@ var toYAMLCmd = &cobra.Command{
 	Long: `toYAML converts all front matter in the content directory
 to use YAML for the front matter.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return convertContents(rune([]byte(parser.YAML_LEAD)[0]))
+		return convertContents(rune([]byte(parser.YAMLLead)[0]))
 	},
 }
 
@@ -74,7 +74,7 @@ func init() {
 	convertCmd.AddCommand(toTOMLCmd)
 	convertCmd.AddCommand(toYAMLCmd)
 	convertCmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
-	convertCmd.PersistentFlags().StringVarP(&Source, "source", "s", "", "filesystem path to read files relative from")
+	convertCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	convertCmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
 	convertCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 }

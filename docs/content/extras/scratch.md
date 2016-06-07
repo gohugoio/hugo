@@ -14,16 +14,19 @@ weight: 80
 
 `Scratch` -- a "scratchpad" for your node- or page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
 
-
-`Scratch` is added to both `Node` and `Page` -- with following methods:
+`Scratch` is added to both `Node` and `Page` and `Shortcode` -- with following methods:
 * `Set` and `Add` takes a `key` and the `value` to add.
 * `Get` returns the `value` for the `key` given.
 * `SetInMap` takes a `key`, `mapKey` and `value`
 * `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
 
-`Set` and `SetInMap` can store values of any type. `Add` accepts values that support Go's `+` operator.
+`Set` and `SetInMap` can store values of any type. 
 
-The scope of the backing data is global for the given `Node` or `Page`, and spans partial and shortcode includes.
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the follwing adds will be appended to that list.
+
+The scope of the backing data is global for the given `Node`, `Page` or `Shortcode`, and spans partial and shortcode includes.
+
+Note that `.Scratch` from a shortcode will return the shortcode's `Scratch`, which in most casses is what you want. If you want to store it in the page scroped Scratch, then use `.Page.Scratch`.
 
 ## Sample usage
 
@@ -39,6 +42,11 @@ The usage is best illustrated with some samples:
 {{ $.Scratch.Get "a2" }} {{/* => AB */}}
 {{ $.Scratch.Add "a2" "CD" }}
 {{ $.Scratch.Get "a2" }} {{/* => ABCD */}}
+
+{{ $.Scratch.Add "l1" (slice "A" "B") }}
+{{ $.Scratch.Get "l1" }} {{/* => [A B]  */}}
+{{ $.Scratch.Add "l1" (slice "C" "D") }}
+{{ $.Scratch.Get "l1" }} {{/* => [A B C D] */}}
 
 {{ $.Scratch.Set "v1" 123 }}
 {{ $.Scratch.Get "v1" }}  {{/* => 123 */}}

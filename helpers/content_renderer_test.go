@@ -15,14 +15,16 @@ package helpers
 
 import (
 	"bytes"
-	"github.com/spf13/viper"
+	"regexp"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 // Renders a codeblock using Blackfriday
 func render(input string) string {
 	ctx := &RenderingContext{}
-	render := GetHTMLRenderer(0, ctx)
+	render := getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html")
@@ -32,7 +34,7 @@ func render(input string) string {
 // Renders a codeblock using Mmark
 func renderWithMmark(input string) string {
 	ctx := &RenderingContext{}
-	render := GetMmarkHtmlRenderer(0, ctx)
+	render := getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html", []byte(""), false, false)
@@ -50,9 +52,11 @@ func TestCodeFence(t *testing.T) {
 		enabled         bool
 		input, expected string
 	}
+
+	// Pygments 2.0 and 2.1 have slightly different outputs so only do partial matching
 	data := []test{
-		{true, "<html></html>", "<div class=\"highlight\"><pre><code class=\"language-html\" data-lang=\"html\"><span class=\"nt\">&lt;html&gt;&lt;/html&gt;</span>\n</code></pre></div>\n"},
-		{false, "<html></html>", "<pre><code class=\"language-html\">&lt;html&gt;&lt;/html&gt;</code></pre>\n"},
+		{true, "<html></html>", `(?s)^<div class="highlight"><pre><code class="language-html" data-lang="html">.*?</code></pre></div>\n$`},
+		{false, "<html></html>", `(?s)^<pre><code class="language-html">.*?</code></pre>\n$`},
 	}
 
 	viper.Reset()
@@ -65,12 +69,21 @@ func TestCodeFence(t *testing.T) {
 		viper.Set("PygmentsCodeFences", d.enabled)
 
 		result := render(d.input)
-		if result != d.expected {
+
+		expectedRe, err := regexp.Compile(d.expected)
+
+		if err != nil {
+			t.Fatal("Invalid regexp", err)
+		}
+		matched := expectedRe.MatchString(result)
+
+		if !matched {
 			t.Errorf("Test %d failed. BlackFriday enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
 		}
 
 		result = renderWithMmark(d.input)
-		if result != d.expected {
+		matched = expectedRe.MatchString(result)
+		if !matched {
 			t.Errorf("Test %d failed. Mmark enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
 		}
 	}

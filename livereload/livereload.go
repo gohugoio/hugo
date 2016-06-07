@@ -45,6 +45,8 @@ import (
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
 
+// Handler is a HandlerFunc handling the livereload
+// Websocket interaction.
 func Handler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -57,21 +59,26 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	c.reader()
 }
 
+// Initialize starts the Websocket Hub handling live reloads.
 func Initialize() {
 	go wsHub.run()
 }
 
+// ForceRefresh tells livereload to force a hard refresh.
 func ForceRefresh() {
-	// Tell livereload a js file changed to force a hard refresh
 	RefreshPath("/x.js")
 }
 
+// RefreshPath tells livereload to refresh only the given path.
+// If that path points to a CSS stylesheet or an image, only the changes
+// will be updated in the browser, not the entire page.
 func RefreshPath(s string) {
 	// Tell livereload a file has changed - will force a hard refresh if not CSS or an image
 	urlPath := strings.Replace(s, "\\", "/", -1) // If path has backslashes on Windows, make path work for URL
 	wsHub.broadcast <- []byte(`{"command":"reload","path":"` + urlPath + "\"" + `,"originalPath":"","liveCSS":true,"liveImg":true}`)
 }
 
+// ServeJS serves the liverreload.js who's reference is injected into the page.
 func ServeJS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 	w.Write(livereloadJS)

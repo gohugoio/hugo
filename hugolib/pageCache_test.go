@@ -27,8 +27,8 @@ func TestPageCache(t *testing.T) {
 		p[0].Description = "changed"
 	}
 
-	var o1 uint64 = 0
-	var o2 uint64 = 0
+	var o1 uint64
+	var o2 uint64
 
 	var wg sync.WaitGroup
 

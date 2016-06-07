@@ -13,6 +13,7 @@
 
 package hugolib
 
+// Prev returns the previous page reletive to the given page.
 func (p Pages) Prev(cur *Page) *Page {
 	for x, c := range p {
 		if c.UniqueID() == cur.UniqueID() {
@@ -25,6 +26,7 @@ func (p Pages) Prev(cur *Page) *Page {
 	return nil
 }
 
+// Next returns the next page reletive to the given page.
 func (p Pages) Next(cur *Page) *Page {
 	for x, c := range p {
 		if c.UniqueID() == cur.UniqueID() {

@@ -139,15 +139,15 @@ func TestGroupByCalledWithUnavailableKey(t *testing.T) {
 	}
 }
 
-func (page *Page) dummyPageMethodWithArgForTest(s string) string {
+func (page *Page) DummyPageMethodWithArgForTest(s string) string {
 	return s
 }
 
-func (page *Page) dummyPageMethodReturnThreeValueForTest() (string, string, string) {
+func (page *Page) DummyPageMethodReturnThreeValueForTest() (string, string, string) {
 	return "foo", "bar", "baz"
 }
 
-func (page *Page) dummyPageMethodReturnErrorOnlyForTest() error {
+func (page *Page) DummyPageMethodReturnErrorOnlyForTest() error {
 	return errors.New("something error occured")
 }
 
@@ -159,22 +159,22 @@ func TestGroupByCalledWithInvalidMethod(t *testing.T) {
 	var err error
 	pages := preparePageGroupTestPages(t)
 
-	_, err = pages.GroupBy("dummyPageMethodWithArgForTest")
+	_, err = pages.GroupBy("DummyPageMethodWithArgForTest")
 	if err == nil {
 		t.Errorf("GroupByParam should return an error but didn't")
 	}
 
-	_, err = pages.GroupBy("dummyPageMethodReturnThreeValueForTest")
+	_, err = pages.GroupBy("DummyPageMethodReturnThreeValueForTest")
 	if err == nil {
 		t.Errorf("GroupByParam should return an error but didn't")
 	}
 
-	_, err = pages.GroupBy("dummyPageMethodReturnErrorOnlyForTest")
+	_, err = pages.GroupBy("DummyPageMethodReturnErrorOnlyForTest")
 	if err == nil {
 		t.Errorf("GroupByParam should return an error but didn't")
 	}
 
-	_, err = pages.GroupBy("dummyPageMethodReturnTwoValueForTest")
+	_, err = pages.GroupBy("DummyPageMethodReturnTwoValueForTest")
 	if err == nil {
 		t.Errorf("GroupByParam should return an error but didn't")
 	}

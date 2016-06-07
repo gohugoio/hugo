@@ -187,6 +187,15 @@ your list templates:
     <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
     {{ end }}
+    
+### Order by Lastmod
+
+    {{ range .Data.Pages.ByLastmod }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
 
 ### Order by Length
 

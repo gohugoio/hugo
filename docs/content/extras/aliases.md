@@ -8,7 +8,7 @@ date: 2013-07-09
 menu:
   main:
     parent: extras
-next: /extras/builders
+next: /extras/analytics
 prev: /taxonomies/ordering
 title: Aliases
 weight: 10

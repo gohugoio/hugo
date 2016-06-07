@@ -53,9 +53,10 @@ or just source them in directly:
 
 		if err != nil {
 			return err
-		} else {
-			jww.FEEDBACK.Println("Bash completion file for Hugo saved to", autocompleteTarget)
 		}
+
+		jww.FEEDBACK.Println("Bash completion file for Hugo saved to", autocompleteTarget)
+
 		return nil
 	},
 }

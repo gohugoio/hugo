@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 package source
 
 import (
+	"github.com/spf13/hugo/hugofs"
 	"io"
 	"os"
 	"path/filepath"
@@ -72,10 +73,6 @@ func (f *Filesystem) add(name string, reader io.Reader) (err error) {
 	return err
 }
 
-func (f *Filesystem) getRelativePath(name string) (final string, err error) {
-	return helpers.GetRelativePath(name, f.Base)
-}
-
 func (f *Filesystem) captureFiles() {
 	walker := func(filePath string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -96,7 +93,12 @@ func (f *Filesystem) captureFiles() {
 		return err
 	}
 
-	filepath.Walk(f.Base, walker)
+	err := helpers.SymbolicWalk(hugofs.Source(), f.Base, walker)
+
+	if err != nil {
+		jww.ERROR.Println(err)
+	}
+
 }
 
 func (f *Filesystem) shouldRead(filePath string, fi os.FileInfo) (bool, error) {
@@ -141,18 +143,11 @@ func (f *Filesystem) avoid(filePath string) bool {
 
 func isNonProcessablePath(filePath string) bool {
 	base := filepath.Base(filePath)
-	if base[0] == '.' {
+	if strings.HasPrefix(base, ".") ||
+		strings.HasPrefix(base, "#") ||
+		strings.HasSuffix(base, "~") {
 		return true
 	}
-
-	if base[0] == '#' {
-		return true
-	}
-
-	if base[len(base)-1] == '~' {
-		return true
-	}
-
 	ignoreFiles := viper.GetStringSlice("IgnoreFiles")
 	if len(ignoreFiles) > 0 {
 		for _, ignorePattern := range ignoreFiles {

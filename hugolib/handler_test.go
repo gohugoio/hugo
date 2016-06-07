@@ -17,7 +17,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
@@ -29,7 +28,7 @@ func TestDefaultHandler(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
 		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
@@ -47,16 +46,15 @@ func TestDefaultHandler(t *testing.T) {
 
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
-		Targets: targetList{Page: &target.PagePub{UglyURLs: true}},
+		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 	}
 
 	s.initializeSiteInfo()
-	// From site_test.go
-	templatePrep(s)
 
-	must(s.addTemplate("_default/single.html", "{{.Content}}"))
-	must(s.addTemplate("head", "<head><script src=\"script.js\"></script></head>"))
-	must(s.addTemplate("head_abs", "<head><script src=\"/script.js\"></script></head>"))
+	s.prepTemplates(
+		"_default/single.html", "{{.Content}}",
+		"head", "<head><script src=\"script.js\"></script></head>",
+		"head_abs", "<head><script src=\"/script.js\"></script></head>")
 
 	// From site_test.go
 	createAndRenderPages(t, s)
@@ -65,18 +63,18 @@ func TestDefaultHandler(t *testing.T) {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title:5d74edbb89ef198cd37882b687940cda\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3:28c75a9e2162b8eccda73a1ab9ce80b4\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
+		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
 		{filepath.FromSlash("sect/doc3/img1.png"), string([]byte("‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚"))},
 		{filepath.FromSlash("sect/img2.gif"), string([]byte("GIF89a��€��ÿÿÿ���,�������D�;"))},
 		{filepath.FromSlash("sect/img2.spf"), string([]byte("****FAKE-FILETYPE****"))},
 		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title:0ae308ad73e2f37bd09874105281b5d8\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.DestinationFS.Open(test.doc)
+		file, err := hugofs.Destination().Open(test.doc)
 		if err != nil {
 			t.Fatalf("Did not find %s in target.", test.doc)
 		}

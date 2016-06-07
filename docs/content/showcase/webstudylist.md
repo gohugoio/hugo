@@ -11,6 +11,6 @@ tags:
 - education
 - courses
 - resources
-thumbnail: /img/webstudylist-tn.jpg
+thumbnail: /img/webstudylist-tn.png
 title: Web Study List
 ---

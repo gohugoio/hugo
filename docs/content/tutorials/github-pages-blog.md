@@ -9,7 +9,7 @@ toc: true
 menu:
   main:
     parent: tutorials
-next: /tutorials/installing-on-mac
+next: /tutorials/how-to-contribute-to-hugo/
 prev: /tutorials/creating-a-new-theme
 title: Hosting on GitHub Pages
 weight: 10

@@ -17,9 +17,15 @@ import (
 	"runtime"
 
 	"github.com/spf13/hugo/commands"
+	jww "github.com/spf13/jwalterweatherman"
+	"os"
 )
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	commands.Execute()
+
+	if jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) > 0 {
+		os.Exit(-1)
+	}
 }

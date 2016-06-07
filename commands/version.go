@@ -26,8 +26,6 @@ import (
 	"github.com/spf13/hugo/hugolib"
 )
 
-var timeLayout string // the layout for time.Time
-
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of Hugo",

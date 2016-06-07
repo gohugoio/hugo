@@ -30,25 +30,41 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// ShortcodeWithPage is the "." context in a shortcode template.
 type ShortcodeWithPage struct {
 	Params        interface{}
 	Inner         template.HTML
 	Page          *Page
+	Parent        *ShortcodeWithPage
 	IsNamedParams bool
+	scratch       *Scratch
 }
 
+// Site returns information about the current site.
+func (scp *ShortcodeWithPage) Site() *SiteInfo {
+	return scp.Page.Site
+}
+
+// Ref is a shortcut to the Ref method on Page.
 func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
 	return scp.Page.Ref(ref)
 }
 
+// RelRef is a shortcut to the RelRef method on Page.
 func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
 	return scp.Page.RelRef(ref)
 }
 
+// Scratch returns a scratch-pad scoped for this shortcode. This can be used
+// as a temporary storage for variables, counters etc.
 func (scp *ShortcodeWithPage) Scratch() *Scratch {
-	return scp.Page.Scratch()
+	if scp.scratch == nil {
+		scp.scratch = newScratch()
+	}
+	return scp.scratch
 }
 
+// Get is a convenience method to look up shortcode parameters by its key.
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if reflect.ValueOf(scp.Params).Len() == 0 {
 		return nil
@@ -145,12 +161,11 @@ func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string,
 
 		if err != nil {
 			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
-		} else {
-			return string(tmpContentWithTokensReplaced), nil
 		}
+		return string(tmpContentWithTokensReplaced), nil
 	}
 
-	return string(tmpContent), nil
+	return tmpContent, nil
 }
 
 var isInnerShortcodeCache = struct {
@@ -182,14 +197,14 @@ func isInnerShortcode(t *template.Template) (bool, error) {
 }
 
 func createShortcodePlaceholder(id int) string {
-	return fmt.Sprintf("{@{@%s-%d@}@}", shortcodePlaceholderPrefix, id)
+	return fmt.Sprintf("{#{#%s-%d#}#}", shortcodePlaceholderPrefix, id)
 }
 
 const innerNewlineRegexp = "\n"
 const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
 
-func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
+func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Template) string {
 	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
@@ -197,7 +212,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 		return ""
 	}
 
-	data := &ShortcodeWithPage{Params: sc.params, Page: p}
+	data := &ShortcodeWithPage{Params: sc.params, Page: p, Parent: parent}
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
@@ -209,7 +224,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 			case string:
 				inner += innerData.(string)
 			case shortcode:
-				inner += renderShortcode(innerData.(shortcode), p, t)
+				inner += renderShortcode(innerData.(shortcode), data, p, t)
 			default:
 				jww.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
 					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
@@ -219,7 +234,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 
 		if sc.doMarkup {
 			newInner := helpers.RenderBytes(&helpers.RenderingContext{
-				Content: []byte(inner), PageFmt: p.guessMarkupType(),
+				Content: []byte(inner), PageFmt: p.determineMarkupType(),
 				DocumentID: p.UniqueID(), Config: p.getRenderingConfig()})
 
 			// If the type is “unknown” or “markdown”, we assume the markdown
@@ -235,7 +250,7 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 			//     substitutions in <div>HUGOSHORTCODE-1</div> which prevents the
 			//     generation, but means that you can’t use shortcodes inside of
 			//     markdown structures itself (e.g., `[foo]({{% ref foo.md %}})`).
-			switch p.guessMarkupType() {
+			switch p.determineMarkupType() {
 			case "unknown", "markdown":
 				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)
@@ -258,28 +273,43 @@ func renderShortcode(sc shortcode, p *Page, t tpl.Template) string {
 
 func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string, error) {
 
+	if p.rendered {
+		panic("Illegal state: Page already marked as rendered, please reuse the shortcodes")
+	}
+
 	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
-	renderedShortcodes := make(map[string]string)
 
 	if err != nil {
 		//  try to render what we have whilst logging the error
 		jww.ERROR.Println(err.Error())
 	}
 
-	for key, sc := range shortcodes {
-		if sc.err != nil {
-			// need to have something to replace with
-			renderedShortcodes[key] = ""
-		} else {
-			renderedShortcodes[key] = renderShortcode(sc, p, t)
-		}
-	}
+	// Save for reuse
+	// TODO(bep) refactor this
+	p.shortcodes = shortcodes
+
+	renderedShortcodes := renderShortcodes(shortcodes, p, t)
 
 	return content, renderedShortcodes, err
 
 }
 
-var shortCodeIllegalState = errors.New("Illegal shortcode state")
+func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) map[string]string {
+	renderedShortcodes := make(map[string]string)
+
+	for key, sc := range shortcodes {
+		if sc.err != nil {
+			// need to have something to replace with
+			renderedShortcodes[key] = ""
+		} else {
+			renderedShortcodes[key] = renderShortcode(sc, nil, p, t)
+		}
+	}
+
+	return renderedShortcodes
+}
+
+var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 
 // pageTokens state:
 // - before: positioned just before the shortcode start
@@ -371,7 +401,7 @@ Loop:
 					if params, ok := sc.params.(map[string]string); ok {
 						params[currItem.val] = pt.next().val
 					} else {
-						return sc, shortCodeIllegalState
+						return sc, errShortCodeIllegalState
 					}
 
 				}
@@ -386,7 +416,7 @@ Loop:
 						params = append(params, currItem.val)
 						sc.params = params
 					} else {
-						return sc, shortCodeIllegalState
+						return sc, errShortCodeIllegalState
 					}
 
 				}
@@ -477,8 +507,8 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	sourceLen := len(source)
 	start := 0
 
-	pre := []byte("{@{@" + prefix)
-	post := []byte("@}@}")
+	pre := []byte("{#{#" + prefix)
+	post := []byte("#}#}")
 	pStart := []byte("<p>")
 	pEnd := []byte("</p>")
 
@@ -506,7 +536,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 
 		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
 		source = append(source[:j], append(newVal, source[end:]...)...)
-
+		start = j
 		k = bytes.Index(source[start:], pre)
 
 	}
@@ -528,7 +558,9 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
+	isInnerShortcodeCache.RLock()
 	err := tmpl.Execute(buffer, data)
+	isInnerShortcodeCache.RUnlock()
 	if err != nil {
 		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
 		jww.WARN.Println(data)

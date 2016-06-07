@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,35 +19,27 @@ import (
 
 	"html/template"
 
-	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 )
 
-const SLUG_DOC_1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
+const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
 
-const SLUG_DOC_2 = `---
+const slugDoc2 = `---
 title: slug doc 2
 slug: slug-doc-2
 ---
 slug doc 2 content
 `
 
-const INDEX_TEMPLATE = "{{ range .Data.Pages }}.{{ end }}"
+const indexTemplate = "{{ range .Data.Pages }}.{{ end }}"
 
 func must(err error) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func mustReturn(ret *Page, err error) *Page {
-	if err != nil {
-		panic(err)
-	}
-	return ret
 }
 
 type InMemoryAliasTarget struct {
@@ -62,8 +54,8 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 }
 
 var urlFakeSource = []source.ByteSource{
-	{filepath.FromSlash("content/blue/doc1.md"), []byte(SLUG_DOC_1)},
-	{filepath.FromSlash("content/blue/doc2.md"), []byte(SLUG_DOC_2)},
+	{filepath.FromSlash("content/blue/doc1.md"), []byte(slugDoc1)},
+	{filepath.FromSlash("content/blue/doc2.md"), []byte(slugDoc2)},
 }
 
 // Issue #1105
@@ -95,7 +87,7 @@ func TestPageCount(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	hugofs.DestinationFS = new(afero.MemMapFs)
+	hugofs.InitMemFs()
 
 	viper.Set("uglyurls", false)
 	viper.Set("paginate", 10)
@@ -103,25 +95,24 @@ func TestPageCount(t *testing.T) {
 		Source: &source.InMemorySource{ByteSource: urlFakeSource},
 	}
 	s.initializeSiteInfo()
-	s.prepTemplates()
-	must(s.addTemplate("indexes/blue.html", INDEX_TEMPLATE))
+	s.prepTemplates("indexes/blue.html", indexTemplate)
 
-	if err := s.CreatePages(); err != nil {
+	if err := s.createPages(); err != nil {
 		t.Errorf("Unable to create pages: %s", err)
 	}
-	if err := s.BuildSiteMeta(); err != nil {
+	if err := s.buildSiteMeta(); err != nil {
 		t.Errorf("Unable to build site metadata: %s", err)
 	}
 
-	if err := s.RenderSectionLists(); err != nil {
+	if err := s.renderSectionLists(); err != nil {
 		t.Errorf("Unable to render section lists: %s", err)
 	}
 
-	if err := s.RenderAliases(); err != nil {
+	if err := s.renderAliases(); err != nil {
 		t.Errorf("Unable to render site lists: %s", err)
 	}
 
-	_, err := hugofs.DestinationFS.Open("blue")
+	_, err := hugofs.Destination().Open("blue")
 	if err != nil {
 		t.Errorf("No indexed rendered.")
 	}
@@ -137,7 +128,7 @@ func TestPageCount(t *testing.T) {
 		"sd3/index.html",
 		"sd4.html",
 	} {
-		if _, err := hugofs.DestinationFS.Open(filepath.FromSlash(s)); err != nil {
+		if _, err := hugofs.Destination().Open(filepath.FromSlash(s)); err != nil {
 			t.Errorf("No alias rendered: %s", s)
 		}
 	}

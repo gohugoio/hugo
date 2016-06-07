@@ -297,6 +297,38 @@ access this from within the loop, you will likely want to do one of the followin
     > You may, of course, recover from this mischief by using `{{ $ := . }}`
     > in a global context to reset `$` to its default value.
 
+## Whitespace
+
+Go 1.6 includes the ability to trim the whitespace from either side of a Go tag by including a hyphen (`-`) and space immediately beside the corresponding `{{` or `}}` delimiter.
+
+For instance, the following Go template:
+
+```html
+<div>
+  {{ .Title }}
+</div>
+```
+
+will include the newlines and horizontal tab in its HTML output:
+
+```html
+<div>
+  Hello, World!
+</div>
+```
+
+whereas using
+
+```html
+<div>
+  {{- .Title -}}
+</div>
+```
+
+in that case will output simply `<div>Hello, World!</div>`.
+
+Go considers the following characters as whitespace: space, horizontal tab, carriage return and newline.
+
 # Hugo Parameters
 
 Hugo provides the option of passing values to the template language
@@ -393,7 +425,7 @@ so, such as in this example:
 # Template example: Show only upcoming events
 
 Go allows you to do more than what's shown here.  Using Hugo's
-[`where`](/templates/functions/#toc_4) function and Go built-ins, we can list
+[`where`](/templates/functions/#where) function and Go built-ins, we can list
 only the items from `content/events/` whose date (set in the front matter) is in
 the future:
 

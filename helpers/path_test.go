@@ -47,7 +47,8 @@ func TestMakePath(t *testing.T) {
 		{"Банковский кассир", "Банковскии-кассир", true},
 		// Issue #1488
 		{"संस्कृत", "संस्कृत", false},
-		{"a%C3%B1ame", "a%C3%B1ame", false}, // Issue #1292
+		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
+		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
 	}
 
 	for _, test := range tests {
@@ -151,12 +152,12 @@ func TestMakePathRelative(t *testing.T) {
 	}
 
 	for i, d := range data {
-		output, _ := MakePathRelative(d.inPath, d.path1, d.path2)
+		output, _ := makePathRelative(d.inPath, d.path1, d.path2)
 		if d.output != output {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
 	}
-	_, error := MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
+	_, error := makePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
 
 	if error == nil {
 		t.Errorf("Test failed, expected error")

@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -88,12 +87,15 @@ func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	defer f.Close()
 	return ioutil.ReadAll(f)
 }
 
 // resWriteCache writes bytes to an ID into the file cache
-func resWriteCache(id string, c []byte, fs afero.Fs) error {
+func resWriteCache(id string, c []byte, fs afero.Fs, ignoreCache bool) error {
+	if ignoreCache {
+		return nil
+	}
 	fID := getCacheFileID(id)
 	f, err := fs.Create(fID)
 	if err != nil {
@@ -148,7 +150,7 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = resWriteCache(url, c, fs)
+	err = resWriteCache(url, c, fs, viper.GetBool("IgnoreCache"))
 	if err != nil {
 		return nil, err
 	}
@@ -158,22 +160,16 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 
 // resGetLocal loads the content of a local file
 func resGetLocal(url string, fs afero.Fs) ([]byte, error) {
-	p := ""
-	if viper.GetString("WorkingDir") != "" {
-		p = viper.GetString("WorkingDir")
-		if helpers.FilePathSeparator != p[len(p)-1:] {
-			p = p + helpers.FilePathSeparator
-		}
-	}
-	jFile := p + url
-	if e, err := helpers.Exists(jFile, fs); !e {
+	filename := filepath.Join(viper.GetString("WorkingDir"), url)
+	if e, err := helpers.Exists(filename, fs); !e {
 		return nil, err
 	}
 
-	f, err := fs.Open(jFile)
+	f, err := fs.Open(filename)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	return ioutil.ReadAll(f)
 }
 
@@ -183,15 +179,15 @@ func resGetResource(url string) ([]byte, error) {
 		return nil, nil
 	}
 	if strings.Contains(url, "://") {
-		return resGetRemote(url, hugofs.SourceFs, http.DefaultClient)
+		return resGetRemote(url, hugofs.Source(), http.DefaultClient)
 	}
-	return resGetLocal(url, hugofs.SourceFs)
+	return resGetLocal(url, hugofs.Source())
 }
 
-// GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
+// getJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
-func GetJSON(urlParts ...string) interface{} {
+func getJSON(urlParts ...string) interface{} {
 	var v interface{}
 	url := strings.Join(urlParts, "")
 
@@ -207,7 +203,7 @@ func GetJSON(urlParts ...string) interface{} {
 			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
 			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
-			resDeleteCache(url, hugofs.SourceFs)
+			resDeleteCache(url, hugofs.Source())
 			continue
 		}
 		break
@@ -228,19 +224,19 @@ func parseCSV(c []byte, sep string) ([][]string, error) {
 	return r.ReadAll()
 }
 
-// GetCSV expects a data separator and one or n-parts of a URL to a resource which
+// getCSV expects a data separator and one or n-parts of a URL to a resource which
 // can either be a local or a remote one.
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
-func GetCSV(sep string, urlParts ...string) [][]string {
+func getCSV(sep string, urlParts ...string) [][]string {
 	var d [][]string
 	url := strings.Join(urlParts, "")
 
 	var clearCacheSleep = func(i int, u string) {
 		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
-		resDeleteCache(url, hugofs.SourceFs)
+		resDeleteCache(url, hugofs.Source())
 	}
 
 	for i := 0; i <= resRetries; i++ {
@@ -264,26 +260,4 @@ func GetCSV(sep string, urlParts ...string) [][]string {
 		break
 	}
 	return d
-}
-
-func ReadDir(path string) []os.FileInfo {
-	wd := ""
-	p := ""
-	if viper.GetString("WorkingDir") != "" {
-		wd = viper.GetString("WorkingDir")
-	}
-	if strings.Contains(path, "..") {
-		jww.ERROR.Printf("Path %s contains parent directory marker", path)
-		return nil
-	}
-
-	p = filepath.Clean(path)
-	p = filepath.Join(wd, p)
-
-	list, err := ioutil.ReadDir(p)
-	if err != nil {
-		jww.ERROR.Printf("Failed to read Directory %s with error message %s", path, err)
-		return nil
-	}
-	return list
 }

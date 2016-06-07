@@ -15,6 +15,8 @@ package hugolib
 
 import (
 	"github.com/stretchr/testify/assert"
+	"reflect"
+	"sync"
 	"testing"
 )
 
@@ -47,10 +49,73 @@ func TestScratchAdd(t *testing.T) {
 
 }
 
+func TestScratchAddSlice(t *testing.T) {
+	scratch := newScratch()
+
+	_, err := scratch.Add("intSlice", []int{1, 2})
+	assert.Nil(t, err)
+	_, err = scratch.Add("intSlice", 3)
+	assert.Nil(t, err)
+
+	sl := scratch.Get("intSlice")
+	expected := []int{1, 2, 3}
+
+	if !reflect.DeepEqual(expected, sl) {
+		t.Errorf("Slice difference, go %q expected %q", sl, expected)
+	}
+
+	_, err = scratch.Add("intSlice", []int{4, 5})
+
+	assert.Nil(t, err)
+
+	sl = scratch.Get("intSlice")
+	expected = []int{1, 2, 3, 4, 5}
+
+	if !reflect.DeepEqual(expected, sl) {
+		t.Errorf("Slice difference, go %q expected %q", sl, expected)
+	}
+
+}
+
 func TestScratchSet(t *testing.T) {
 	scratch := newScratch()
 	scratch.Set("key", "val")
 	assert.Equal(t, "val", scratch.Get("key"))
+}
+
+// Issue #2005
+func TestScratchInParallel(t *testing.T) {
+	var wg sync.WaitGroup
+	scratch := newScratch()
+	key := "counter"
+	scratch.Set(key, int64(1))
+	for i := 1; i <= 10; i++ {
+		wg.Add(1)
+		go func(j int) {
+			for k := 0; k < 10; k++ {
+				newVal := int64(k + j)
+
+				_, err := scratch.Add(key, newVal)
+				if err != nil {
+					t.Errorf("Got err %s", err)
+				}
+
+				scratch.Set(key, newVal)
+
+				val := scratch.Get(key)
+
+				if counter, ok := val.(int64); ok {
+					if counter < 1 {
+						t.Errorf("Got %d", counter)
+					}
+				} else {
+					t.Errorf("Got %T", val)
+				}
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
 }
 
 func TestScratchGet(t *testing.T) {
@@ -76,5 +141,14 @@ func TestScratchGetSortedMapValues(t *testing.T) {
 	nothing := scratch.GetSortedMapValues("nothing")
 	if nothing != nil {
 		t.Errorf("Should not return anything, but got %v", nothing)
+	}
+}
+
+func BenchmarkScratchGet(b *testing.B) {
+	scratch := newScratch()
+	scratch.Add("A", 1)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		scratch.Get("A")
 	}
 }

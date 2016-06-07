@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package tpl
 import (
 	"fmt"
 	"github.com/eknkc/amber"
+	"github.com/spf13/afero"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -23,7 +24,6 @@ import (
 	"github.com/yosssi/ace"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,14 +32,19 @@ import (
 var localTemplates *template.Template
 var tmpl Template
 
+// TODO(bep) an interface with hundreds of methods ... remove it.
+// And unexport most of these methods.
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
 	Lookup(name string) *template.Template
 	Templates() []*template.Template
 	New(name string) *template.Template
+	GetClone() *template.Template
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
+	MarkReady()
 	AddTemplate(name, tpl string) error
+	AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error
 	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
@@ -53,6 +58,12 @@ type templateErr struct {
 
 type GoHTMLTemplate struct {
 	template.Template
+	clone *template.Template
+
+	// a separate storage for the overlays created from cloned master templates.
+	// note: No mutex protection, so we add these in one Go routine, then just read.
+	overlays map[string]*template.Template
+
 	errors []*templateErr
 }
 
@@ -76,6 +87,7 @@ func InitializeT() Template {
 func New() Template {
 	var templates = &GoHTMLTemplate{
 		Template: *template.New(""),
+		overlays: make(map[string]*template.Template),
 		errors:   make([]*templateErr, 0),
 	}
 
@@ -89,32 +101,32 @@ func New() Template {
 	return templates
 }
 
-func Partial(name string, context_list ...interface{}) template.HTML {
+func partial(name string, contextList ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
 	var context interface{}
 
-	if len(context_list) == 0 {
+	if len(contextList) == 0 {
 		context = nil
 	} else {
-		context = context_list[0]
+		context = contextList[0]
 	}
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func ExecuteTemplate(context interface{}, w io.Writer, layouts ...string) {
+func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 	worked := false
 	for _, layout := range layouts {
 
 		name := layout
 
-		if localTemplates.Lookup(name) == nil {
+		if Lookup(name) == nil {
 			name = layout + ".html"
 		}
 
-		if localTemplates.Lookup(name) != nil {
-			err := localTemplates.ExecuteTemplate(w, name, context)
+		if templ := Lookup(name); templ != nil {
+			err := templ.Execute(w, context)
 			if err != nil {
 				jww.ERROR.Println(err, "in", name)
 			}
@@ -131,8 +143,38 @@ func ExecuteTemplate(context interface{}, w io.Writer, layouts ...string) {
 func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	ExecuteTemplate(context, b, layouts...)
+	executeTemplate(context, b, layouts...)
 	return template.HTML(b.String())
+}
+
+func Lookup(name string) *template.Template {
+	return (tmpl.(*GoHTMLTemplate)).Lookup(name)
+}
+
+func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
+
+	if templ := localTemplates.Lookup(name); templ != nil {
+		return templ
+	}
+
+	if t.overlays != nil {
+		if templ, ok := t.overlays[name]; ok {
+			return templ
+		}
+	}
+
+	if t.clone != nil {
+		if templ := t.clone.Lookup(name); templ != nil {
+			return templ
+		}
+	}
+
+	return nil
+
+}
+
+func (t *GoHTMLTemplate) GetClone() *template.Template {
+	return t.clone
 }
 
 func (t *GoHTMLTemplate) LoadEmbedded() {
@@ -140,12 +182,25 @@ func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedTemplates()
 }
 
+// MarkReady marks the template as "ready for execution". No changes allowed
+// after this is set.
+func (t *GoHTMLTemplate) MarkReady() {
+	if t.clone == nil {
+		t.clone = template.Must(t.Template.Clone())
+	}
+}
+
+func (t *GoHTMLTemplate) checkState() {
+	if t.clone != nil {
+		panic("template is cloned and cannot be modfified")
+	}
+}
+
 func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
 	if prefix != "" {
 		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
-	} else {
-		return t.AddTemplate("_internal/"+name, tpl)
 	}
+	return t.AddTemplate("_internal/"+name, tpl)
 }
 
 func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
@@ -153,6 +208,7 @@ func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
 }
 
 func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
+	t.checkState()
 	_, err := t.New(name).Parse(tpl)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
@@ -160,7 +216,55 @@ func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	return err
 }
 
+func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error {
+
+	// There is currently no known way to associate a cloned template with an existing one.
+	// This funky master/overlay design will hopefully improve in a future version of Go.
+	//
+	// Simplicity is hard.
+	//
+	// Until then we'll have to live with this hackery.
+	//
+	// See https://github.com/golang/go/issues/14285
+	//
+	// So, to do minimum amount of changes to get this to work:
+	//
+	// 1. Lookup or Parse the master
+	// 2. Parse and store the overlay in a separate map
+
+	masterTpl := t.Lookup(masterFilename)
+
+	if masterTpl == nil {
+		b, err := afero.ReadFile(hugofs.Source(), masterFilename)
+		if err != nil {
+			return err
+		}
+		masterTpl, err = t.New(masterFilename).Parse(string(b))
+
+		if err != nil {
+			// TODO(bep) Add a method that does this
+			t.errors = append(t.errors, &templateErr{name: name, err: err})
+			return err
+		}
+	}
+
+	b, err := afero.ReadFile(hugofs.Source(), overlayFilename)
+	if err != nil {
+		return err
+	}
+
+	overlayTpl, err := template.Must(masterTpl.Clone()).Parse(string(b))
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+	} else {
+		t.overlays[name] = overlayTpl
+	}
+
+	return err
+}
+
 func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	t.checkState()
 	var base, inner *ace.File
 	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
 
@@ -188,6 +292,7 @@ func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseCo
 }
 
 func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
+	t.checkState()
 	// get the suffix and switch on that
 	ext := filepath.Ext(path)
 	switch ext {
@@ -204,14 +309,14 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 		}
 	case ".ace":
 		var innerContent, baseContent []byte
-		innerContent, err := ioutil.ReadFile(path)
+		innerContent, err := afero.ReadFile(hugofs.Source(), path)
 
 		if err != nil {
 			return err
 		}
 
 		if baseTemplatePath != "" {
-			baseContent, err = ioutil.ReadFile(baseTemplatePath)
+			baseContent, err = afero.ReadFile(hugofs.Source(), baseTemplatePath)
 			if err != nil {
 				return err
 			}
@@ -219,7 +324,13 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 
 		return t.AddAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
 	default:
-		b, err := ioutil.ReadFile(path)
+
+		if baseTemplatePath != "" {
+			return t.AddTemplateFileWithMaster(name, path, baseTemplatePath)
+		}
+
+		b, err := afero.ReadFile(hugofs.Source(), path)
+
 		if err != nil {
 			return err
 		}
@@ -244,12 +355,13 @@ func isBackupFile(path string) bool {
 	return path[len(path)-1] == '~'
 }
 
-const baseAceFilename = "baseof.ace"
+const baseFileBase = "baseof"
 
-var aceTemplateInnerMarker = []byte("= content")
+var aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
+var goTemplateInnerMarkers = [][]byte{[]byte("{{define"), []byte("{{ define")}
 
 func isBaseTemplate(path string) bool {
-	return strings.HasSuffix(path, baseAceFilename)
+	return strings.Contains(path, baseFileBase)
 }
 
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
@@ -288,39 +400,49 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 
 			var baseTemplatePath string
 
-			// ACE templates may have both a base and inner template.
-			if filepath.Ext(path) == ".ace" && !strings.HasSuffix(filepath.Dir(path), "partials") {
+			// Ace and Go templates may have both a base and inner template.
+			pathDir := filepath.Dir(path)
+			if filepath.Ext(path) != ".amber" && !strings.HasSuffix(pathDir, "partials") && !strings.HasSuffix(pathDir, "shortcodes") {
+
+				innerMarkers := goTemplateInnerMarkers
+				baseFileName := fmt.Sprintf("%s.html", baseFileBase)
+
+				if filepath.Ext(path) == ".ace" {
+					innerMarkers = aceTemplateInnerMarkers
+					baseFileName = fmt.Sprintf("%s.ace", baseFileBase)
+				}
+
 				// This may be a view that shouldn't have base template
 				// Have to look inside it to make sure
-				needsBase, err := helpers.FileContains(path, aceTemplateInnerMarker, hugofs.OsFs)
+				needsBase, err := helpers.FileContainsAny(path, innerMarkers, hugofs.Os())
 				if err != nil {
 					return err
 				}
 				if needsBase {
 
 					// Look for base template in the follwing order:
-					//   1. <current-path>/<template-name>-baseof.ace, e.g. list-baseof.ace.
-					//   2. <current-path>/baseof.ace
-					//   3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
-					//   4. _default/baseof.ace
-					//   5. <themedir>/layouts/_default/<template-name>-baseof.ace
-					//   6. <themedir>/layouts/_default/baseof.ace
+					//   1. <current-path>/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
+					//   2. <current-path>/baseof.<suffix>
+					//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
+					//   4. _default/baseof.<suffix>
+					//   5. <themedir>/layouts/_default/<template-name>-baseof.<suffix>
+					//   6. <themedir>/layouts/_default/baseof.<suffix>
 
-					currBaseAceFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseAceFilename)
+					currBaseFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseFileName)
 					templateDir := filepath.Dir(path)
 					themeDir := helpers.GetThemeDir()
 
 					pathsToCheck := []string{
-						filepath.Join(templateDir, currBaseAceFilename),
-						filepath.Join(templateDir, baseAceFilename),
-						filepath.Join(absPath, "_default", currBaseAceFilename),
-						filepath.Join(absPath, "_default", baseAceFilename),
-						filepath.Join(themeDir, "layouts", "_default", currBaseAceFilename),
-						filepath.Join(themeDir, "layouts", "_default", baseAceFilename),
+						filepath.Join(templateDir, currBaseFilename),
+						filepath.Join(templateDir, baseFileName),
+						filepath.Join(absPath, "_default", currBaseFilename),
+						filepath.Join(absPath, "_default", baseFileName),
+						filepath.Join(themeDir, "layouts", "_default", currBaseFilename),
+						filepath.Join(themeDir, "layouts", "_default", baseFileName),
 					}
 
 					for _, pathToCheck := range pathsToCheck {
-						if ok, err := helpers.Exists(pathToCheck, hugofs.OsFs); err == nil && ok {
+						if ok, err := helpers.Exists(pathToCheck, hugofs.Os()); err == nil && ok {
 							baseTemplatePath = pathToCheck
 							break
 						}

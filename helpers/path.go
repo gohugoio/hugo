@@ -67,7 +67,6 @@ func (filepathBridge) Separator() string {
 }
 
 var fpb filepathBridge
-var sanitizeRegexp = regexp.MustCompile("[^a-zA-Z0-9./_-]")
 
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
@@ -82,21 +81,26 @@ func MakePath(s string) string {
 func MakePathSanitized(s string) string {
 	if viper.GetBool("DisablePathToLower") {
 		return MakePath(s)
-	} else {
-		return strings.ToLower(MakePath(s))
 	}
+	return strings.ToLower(MakePath(s))
 }
 
+// MakeTitle converts the path given to a suitable title, trimming whitespace
+// and replacing hyphens with whitespace.
 func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }
 
+// UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
+// a predefined set of special Unicode characters.
+// If RemovePathAccents configuration flag is enabled, Uniccode accents
+// are also removed.
 func UnicodeSanitize(s string) string {
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
 
 	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '%' || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '%' || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' {
 			target = append(target, r)
 		}
 	}
@@ -125,6 +129,8 @@ func ReplaceExtension(path string, newExt string) string {
 	return f + "." + newExt
 }
 
+// AbsPathify creates an absolute path if given a relative path. If already
+// absolute, the path is just cleaned.
 func AbsPathify(inPath string) string {
 	if filepath.IsAbs(inPath) {
 		return filepath.Clean(inPath)
@@ -134,11 +140,13 @@ func AbsPathify(inPath string) string {
 	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
 }
 
+// GetStaticDirPath returns the absolute path to the static file dir
+// for the current Hugo project.
 func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("StaticDir"))
 }
 
-// Get the root directory of the current theme, if there is one.
+// GetThemeDir gets the root directory of the current theme, if there is one.
 // If there is no theme, returns the empty string.
 func GetThemeDir() string {
 	if ThemeSet() {
@@ -153,7 +161,7 @@ func GetThemeStaticDirPath() (string, error) {
 	return getThemeDirPath("static")
 }
 
-// GetThemeStaticDirPath returns the theme's data dir path if theme is set.
+// GetThemeDataDirPath returns the theme's data dir path if theme is set.
 // If theme is set and the data dir doesn't exist, an error is returned.
 func GetThemeDataDirPath() (string, error) {
 	return getThemeDirPath("data")
@@ -170,21 +178,25 @@ func getThemeDirPath(path string) (string, error) {
 	return themeDir, nil
 }
 
-// Get the 'static' directory of the current theme, if there is one.
-// Ignores underlying errors. Candidate for deprecation?
+// GetThemesDirPath gets the static files directory of the current theme, if there is one.
+// Ignores underlying errors.
+// TODO(bep) Candidate for deprecation?
 func GetThemesDirPath() string {
 	dir, _ := getThemeDirPath("static")
 	return dir
 }
 
+// MakeStaticPathRelative makes a relative path to the static files directory.
+// It does so by taking either the project's static path or the theme's static
+// path into consideration.
 func MakeStaticPathRelative(inPath string) (string, error) {
 	staticDir := GetStaticDirPath()
 	themeStaticDir := GetThemesDirPath()
 
-	return MakePathRelative(inPath, staticDir, themeStaticDir)
+	return makePathRelative(inPath, staticDir, themeStaticDir)
 }
 
-func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
+func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 
 	for _, currentPath := range possibleDirectories {
 		if strings.HasPrefix(inPath, currentPath) {
@@ -197,21 +209,23 @@ func MakePathRelative(inPath string, possibleDirectories ...string) (string, err
 // Should be good enough for Hugo.
 var isFileRe = regexp.MustCompile(".*\\..{1,6}$")
 
-// Expects a relative path starting after the content directory.
+// GetDottedRelativePath expects a relative path starting after the content directory.
+// It returns a relative path with dots ("..") navigating up the path structure.
 func GetDottedRelativePath(inPath string) string {
 	inPath = filepath.Clean(filepath.FromSlash(inPath))
+
 	if inPath == "." {
 		return "./"
 	}
-	isFile := isFileRe.MatchString(inPath)
-	if !isFile {
-		if !strings.HasSuffix(inPath, FilePathSeparator) {
-			inPath += FilePathSeparator
-		}
+
+	if !isFileRe.MatchString(inPath) && !strings.HasSuffix(inPath, FilePathSeparator) {
+		inPath += FilePathSeparator
 	}
+
 	if !strings.HasPrefix(inPath, FilePathSeparator) {
 		inPath = FilePathSeparator + inPath
 	}
+
 	dir, _ := filepath.Split(inPath)
 
 	sectionCount := strings.Count(dir, FilePathSeparator)
@@ -300,6 +314,7 @@ func GetRelativePath(path, base string) (final string, err error) {
 	return name, nil
 }
 
+// PaginateAliasPath creates a path used to access the aliases in the paginator.
 func PaginateAliasPath(base string, page int) string {
 	paginatePath := viper.GetString("paginatePath")
 	uglify := viper.GetBool("UglyURLs")
@@ -350,6 +365,8 @@ func GuessSection(in string) string {
 	return parts[0]
 }
 
+// PathPrep prepares the path using the uglify setting to create paths on
+// either the form /section/name/index.html or /section/name.html.
 func PathPrep(ugly bool, in string) string {
 	if ugly {
 		return Uglify(in)
@@ -357,7 +374,7 @@ func PathPrep(ugly bool, in string) string {
 	return PrettifyPath(in)
 }
 
-// Same as PrettifyURLPath() but for file paths.
+// PrettifyPath is the same as PrettifyURLPath but for file paths.
 //     /section/name.html       becomes /section/name/index.html
 //     /section/name/           becomes /section/name/index.html
 //     /section/name/index.html becomes /section/name/index.html
@@ -382,7 +399,7 @@ func prettifyPath(in string, b filepathPathBridge) string {
 	return b.Join(b.Dir(in), name, "index"+ext)
 }
 
-// Extract the root paths from the supplied list of paths.
+// ExtractRootPaths extracts the root paths from the supplied list of paths.
 // The resulting root path will not contain any file separators, but there
 // may be duplicates.
 // So "/content/section/" becomes "content"
@@ -428,16 +445,64 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
-// Same as WriteToDisk but checks to see if file/directory already exists.
+// SymbolicWalk is like filepath.Walk, but it supports the root being a
+// symbolic link. It will still not follow symbolic links deeper down in
+// the file structure
+func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
+
+	// Handle the root first
+	fileInfo, err := lstatIfOs(fs, root)
+
+	if err != nil {
+		return walker(root, nil, err)
+	}
+
+	if !fileInfo.IsDir() {
+		return nil
+	}
+
+	if err := walker(root, fileInfo, err); err != nil && err != filepath.SkipDir {
+		return err
+	}
+
+	rootContent, err := afero.ReadDir(fs, root)
+
+	if err != nil {
+		return walker(root, nil, err)
+	}
+
+	for _, fi := range rootContent {
+		afero.Walk(fs, filepath.Join(root, fi.Name()), walker)
+	}
+
+	return nil
+
+}
+
+// Code copied from Afero's path.go
+// if the filesystem is OsFs use Lstat, else use fs.Stat
+func lstatIfOs(fs afero.Fs, path string) (info os.FileInfo, err error) {
+	_, ok := fs.(*afero.OsFs)
+	if ok {
+		info, err = os.Lstat(path)
+	} else {
+		info, err = fs.Stat(path)
+	}
+	return
+}
+
+// SafeWriteToDisk is the same as WriteToDisk
+// but it also checks to see if file/directory already exists.
 func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.SafeWriteReader(fs, inpath, r)
 }
 
-// Writes content to disk.
+// WriteToDisk writes content to disk.
 func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.WriteReader(fs, inpath, r)
 }
 
+// GetTempDir returns a temporary directory with the given sub path.
 func GetTempDir(subPath string, fs afero.Fs) string {
 	return afero.GetTempDir(fs, subPath)
 }
@@ -457,12 +522,17 @@ func IsEmpty(path string, fs afero.Fs) (bool, error) {
 	return afero.IsEmpty(fs, path)
 }
 
-// Check if a file contains a specified string.
+// FileContains checks if a file contains a specified string.
 func FileContains(filename string, subslice []byte, fs afero.Fs) (bool, error) {
 	return afero.FileContainsBytes(fs, filename, subslice)
 }
 
-// Check if a file or directory exists.
+// FileContainsAny checks if a file contains any of the specified strings.
+func FileContainsAny(filename string, subslices [][]byte, fs afero.Fs) (bool, error) {
+	return afero.FileContainsAnyBytes(fs, filename, subslices)
+}
+
+// Exists checks if a file or directory exists.
 func Exists(path string, fs afero.Fs) (bool, error) {
 	return afero.Exists(fs, path)
 }

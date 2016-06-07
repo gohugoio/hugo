@@ -2,7 +2,7 @@
 aliases:
 - /doc/release-notes/
 - /meta/release-notes/
-lastmod: 2015-12-19
+lastmod: 2016-03-12
 date: 2013-07-01
 menu:
   main:
@@ -10,6 +10,134 @@ menu:
 title: Release Notes
 weight: 10
 ---
+
+## **0.16.0** June 6th 2016
+
+Hugo 0.16 is our best and biggest release ever. The Hugo community has
+outdone itself with continued performance improvements,
+[beautiful themes](http://themes.gohugo.io) for all types of sites from project
+sites to documentation to blogs to portfolios, and increased stability.
+
+This release represents **over 550 contributions by over 110 contributors** to
+the main Hugo codebase. Since last release Hugo has **gained 3500 stars, 90
+contributors and 23 additional themes.**
+
+This release celebrates 3 years since  {{< gh "@spf13" >}} wrote the first lines
+of Hugo. During those 3 years Hugo has accomplished some major milestones
+including...
+
+* 10,000+ stars on GitHub
+* 320+ contributors
+* 90+ themes
+* 1000s of happy websites
+* Many subprojects like {{< gh "@spf13/cobra">}}, {{< gh "@spf13/viper">}} and
+  {{< gh "@spf13/afero">}} which have experienced broad usage across the Go
+  ecosystem.
+  
+{{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
+with nearly half of the contributions to 0.16 in addition to his considerable
+contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
+"@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
+contributions. A special thanks to {{< gh "@abourget " >}} for his considerable
+work on multilingual support. Due to its broad impact we wanted to spend more
+time testing it and it will be included in Hugo's next release.
+
+### Highlights
+
+**Partial Builds:** Prior to this release Hugo would always reread and rebuild
+the entire site. This release introduces support for reactive site building
+while watching (`hugo server`). Hugo will watch the filesystem for changes and
+only re-read the changed files. Depending on the files change Hugo will
+intelligently re-render only the needed portion of the site. Performance gains
+depend on the operation performed and size of the site. In our testing build
+times decreased anywhere from 10% to 99%.
+
+**Template Improvements:** Template improvements continue to be a mainstay of each Hugo release. Hugo 0.16 adds support for the new `block` keyword introduced in Go 1.6 -- think base templates with default sections -- as well as many new template functions.
+
+**Polish:** As Hugo matures releases will inevitably contain fewer huge new features. This release represents hundreds of small improvements across ever facet of Hugo which will make for a much better experience for all of our users. Worth mentioning here is the curious bug where live reloading didn't work in some editors on OS X, including the popular TextMate 2. This is now fixed. Oh, and now any error will exit with an error code, a big thing for automated deployments.
+
+### New Features
+* Support reading configuration variables from the OS environment {{<gh 2090 >}}
+* Add emoji support {{<gh 1892>}}
+* Add `themesDir` option to configuration {{<gh 1556>}}
+* Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
+* Partial static sync {{<gh 1644>}}
+* Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
+*  Add `ByLastmod` sort function to pages. {{<gh eb627ca16de6fb5e8646279edd295a8bf0f72bf1 >}}
+* New templates functions:
+	* `readFile` {{<gh 1551 >}} 
+    * `countwords` and `countrunes` {{<gh 1440>}}
+    * `default` {{<gh 1943>}}
+    * `hasPrefix` {{<gh 1243>}}
+    * `humanize` {{<gh 1450>}}
+    * `jsonify` {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
+    * `md5` and `sha1` {{<gh 1932>}}
+    * `replaceRE` {{<gh 1845>}}
+    * `findRE` {{<gh 2048>}}
+    * `shuffle` {{<gh 1942>}}
+    * `slice` {{<gh 1902>}}
+    * `plainify` {{<gh 1915>}}
+
+### Enhancements
+
+* Hugo now exits with error code on any error. This is a big thing for
+  automated deployments. {{<gh 740 >}}
+* Print error when `/index.html` is zero-length {{<gh 947>}}
+* Enable dirname and filename bash autocompletion for more flags {{<gh
+  0x666ddd237791b56fd048992dca9a27d1af50a10e>}}
+* Improve error handling in commands {{<gh 1502>}}
+* Add sanity checks for `hugo import jekyll` {{<gh 1625 >}}
+* Add description to `Page.Params` {{<gh 1484>}}
+* Add async version of Google Analytics internal template {{<gh 1711>}}
+* Add autostart option to YouTube shortcode {{<gh 1784>}}
+* Set Date and Lastmod for main home page {{<gh 1903>}}
+* Allow URL with extension in frontmatter {{<gh 1923>}}
+* Add list support in Scratch {{<gh
+  0xeaba04e82bdfc5d4c29e970f11b4aab9cc0efeaa>}}
+* Add file option to gist shortcode {{<gh 1955>}}
+* Add config layout and content directory CLI options {{<gh 1698>}}
+* Add boolean value comparison to `where` template function {{<gh
+  0xf3c74c9db484c8961e70cb3458f9e41e7832fa12>}}
+* Do not write to to cache when `ignoreCache` is set  {{<gh 2067>}}
+* Add option to disable rendering of 404 page  {{<gh 2037>}}
+* Mercurial is no longer needed to build Hugo {{<gh 2062 >}}
+* Do not create `robots.txt` by default {{<gh 2049>}}
+* Disable syntax guessing for PygmentsCodeFences by default.  To enable syntax
+  guessing again, add the following to your config file:
+  `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
+* Make `ByCount` sort consistently {{<gh 1930>}}
+* Add `Scratch` to shortcode {{<gh 2000>}}
+* Add support for symbolic links for content, layout, static, theme  {{<gh 1855
+  >}}
+* Add '+' as one of the valid characters in URLs specified in the front matter
+  {{<gh 1290 >}}
+* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh
+  2093 >}}
+* Hugo injects meta generator tag on homepage if missing {{<gh
+  2182 >}}
+
+### Fixes
+* Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
+* Make dynamic reloading of config file reliable on all platform {{<gh 1684 >}}
+* Hugo now works on Linux/arm64 {{<gh 1772 >}}
+* `plainIDAnchors` now defaults to `true`  {{<gh 2057>}}
+* Win32 and ARM builds fixed {{<gh 1716>}}
+* Copy static dir files without theme's static dir {{<gh 1656>}}
+* Make `noTimes` command flag work {{<gh 1657>}}
+* Change most global CLI flags into local ones {{<gh 1624>}}
+* Remove transformation of menu URLs {{<gh 1239>}}
+* Do not fail on unknown Jekyll file {{<gh 1705>}}
+* Use absolute path when editing with editor {{<gh 1589>}}
+* Fix hugo server "Watching for changes" path display {{<gh 1721>}}
+* Do not strip special characters out of URLs {{<gh 1292>}}
+* Fix `RSSLink` when uglyurls are enabled {{<gh 175>}}
+* Get BaseURL from viper in server mode {{<gh 1821>}}
+* Fix shortcode handling in RST {{<gh 1904>}}
+* Use default sitemap configuration for homepage {{<gh 1304>}}
+* Exit if specific port is unavailable in server mode {{<gh 1901>}}
+* Fix regression in "section menus for lazy blogger" {{<gh 2065>}}
+
+****
 
 ## **0.15.0**  November 25, 2015
 
