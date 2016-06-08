@@ -10,7 +10,7 @@ RUN go get github.com/stretchr/testify/assert \
 	&& go get github.com/bep/inflect \
 	&& go get github.com/BurntSushi/toml \
 	&& go get github.com/PuerkitoBio/purell \
-	&& go get github.com/opennota/urlesc \
+	&& go get github.com/PuerkitoBio/urlesc \
 	&& go get github.com/dchest/cssmin \
 	&& go get github.com/eknkc/amber \
 	&& go get github.com/gorilla/websocket \
