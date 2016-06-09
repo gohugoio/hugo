@@ -28,7 +28,7 @@ var (
 
 var benchmarkCmd = &cobra.Command{
 	Use:   "benchmark",
-	Short: "Benchmark hugo by building a site a number of times.",
+	Short: "Benchmark Hugo by building a site a number of times.",
 	Long: `Hugo can build a site many times over and analyze the running process
 creating a benchmark.`,
 }
