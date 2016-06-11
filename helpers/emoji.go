@@ -51,14 +51,11 @@ func Emojify(source []byte) []byte {
 		}
 
 		endEmoji := bytes.Index(source[j+1:upper], emojiDelim)
-
-		if endEmoji < 0 {
-			break
-		}
-
 		nextWordDelim := bytes.Index(source[j:upper], emojiWordDelim)
 
-		if endEmoji == 0 || (nextWordDelim != -1 && nextWordDelim < endEmoji) {
+		if endEmoji < 0 {
+			start += upper + 1
+		} else if endEmoji == 0 || (nextWordDelim != -1 && nextWordDelim < endEmoji) {
 			start += endEmoji + 1
 		} else {
 			endKey := endEmoji + j + 2

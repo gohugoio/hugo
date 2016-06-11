@@ -44,7 +44,15 @@ func TestEmojiCustom(t *testing.T) {
 		{" The motto: no smiles! ", []byte(" The motto: no smiles! ")},
 		{":hugo_is_the_best_static_gen:", []byte(":hugo_is_the_best_static_gen:")},
 		{"은행 :smile: 은행", []byte("은행 😄 은행")},
+		// #2198
+		{"See: A :beer:!", []byte("See: A 🍺!")},
+		{`Aaaaaaaaaa: aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa.
+
+:beer:`, []byte(`Aaaaaaaaaa: aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa.
+
+🍺`)},
 	} {
+
 		result := Emojify([]byte(this.input))
 
 		if !reflect.DeepEqual(result, this.expect) {
