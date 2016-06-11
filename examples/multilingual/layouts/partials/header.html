@@ -4,11 +4,7 @@
 		<a href="/kodu">Eesti</a>
 	</nav>
 
-	{{ if (eq .Params.lang "et") }}
-	<h1 id="title">Minu mitmekeelne leht</h1>
-	{{ else }}
-	<h1 id="title">My multilingual site</h1>
-	{{ end }}
+	<h1 id="title">{{ (index .Site.Data.translations .Params.lang).title }}</h1>
 
 	<nav id="main-menu">
 		{{ range (index .Site.Taxonomies.menu .Params.lang).Pages }}
