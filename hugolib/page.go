@@ -491,10 +491,16 @@ func (p *Page) IsDraft() bool {
 }
 
 func (p *Page) IsFuture() bool {
+	if p.PublishDate.IsZero() {
+		return false
+	}
 	return p.PublishDate.After(time.Now())
 }
 
 func (p *Page) IsExpired() bool {
+	if p.ExpiryDate.IsZero() {
+		return false
+	}
 	return p.ExpiryDate.Before(time.Now())
 }
 
