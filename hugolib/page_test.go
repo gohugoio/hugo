@@ -1089,3 +1089,49 @@ func compareObjects(a interface{}, b interface{}) bool {
 
 	return strings.Join(aStr, "") == strings.Join(bStr, "")
 }
+
+func TestAssertShouldBuild(t *testing.T) {
+	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
+	var zero = time.Time{}
+
+	var publishSettings = []struct {
+		buildFuture  bool
+		buildExpired bool
+		buildDrafts  bool
+		draft        bool
+		publishDate  time.Time
+		expiryDate   time.Time
+		out          bool
+	}{
+		// publishDate and expiryDate
+		{false, false, false, false, zero, zero, true},
+		{false, false, false, false, zero, future, true},
+		{false, false, false, false, past, zero, true},
+		{false, false, false, false, past, future, true},
+		{false, false, false, false, past, past, false},
+		{false, false, false, false, future, future, false},
+		{false, false, false, false, future, past, false},
+
+		// buildFuture and buildExpired
+		{false, true, false, false, past, past, true},
+		{true, true, false, false, past, past, true},
+		{true, false, false, false, past, past, false},
+		{true, false, false, false, future, future, true},
+		{true, true, false, false, future, future, true},
+		{false, true, false, false, future, past, false},
+
+		// buildDrafts and draft
+		{true, true, false, true, past, future, false},
+		{true, true, true, true, past, future, true},
+		{true, true, true, true, past, future, true},
+	}
+
+	for _, ps := range publishSettings {
+		s := AssertShouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
+			ps.publishDate, ps.expiryDate)
+		if s != ps.out {
+			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)
+		}
+	}
+}
