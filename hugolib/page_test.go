@@ -1090,7 +1090,7 @@ func compareObjects(a interface{}, b interface{}) bool {
 	return strings.Join(aStr, "") == strings.Join(bStr, "")
 }
 
-func TestAssertShouldBuild(t *testing.T) {
+func TestShouldBuild(t *testing.T) {
 	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	var zero = time.Time{}
@@ -1128,7 +1128,7 @@ func TestAssertShouldBuild(t *testing.T) {
 	}
 
 	for _, ps := range publishSettings {
-		s := AssertShouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
+		s := shouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
 			ps.publishDate, ps.expiryDate)
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)

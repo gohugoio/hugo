@@ -467,12 +467,12 @@ func (p *Page) LinkTitle() string {
 	return p.Title
 }
 
-func (p *Page) ShouldBuild() bool {
-	return AssertShouldBuild(viper.GetBool("BuildFuture"), viper.GetBool("BuildExpired"),
+func (p *Page) shouldBuild() bool {
+	return shouldBuild(viper.GetBool("BuildFuture"), viper.GetBool("BuildExpired"),
 		viper.GetBool("BuildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
 }
 
-func AssertShouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
+func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
 	publishDate time.Time, expiryDate time.Time) bool {
 	if !(buildDrafts || !Draft) {
 		return false

@@ -996,7 +996,7 @@ func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error)
 }
 
 func (s *Site) addPage(page *Page) {
-	if page.ShouldBuild() {
+	if page.shouldBuild() {
 		s.Pages = append(s.Pages, page)
 	}
 
