@@ -126,6 +126,9 @@ func server(cmd *cobra.Command, args []string) error {
 	} else {
 		if flagChanged(serverCmd.Flags(), "port") {
 			// port set explicitly by user -- he/she probably meant it!
+			if serverPort < 1024 && os.Geteuid() != 0 {
+				return newSystemErrorF("Port under 1024 can be opened only by root")
+			}
 			return newSystemErrorF("Port %d already in use", serverPort)
 		}
 		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
