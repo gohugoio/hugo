@@ -97,8 +97,8 @@ func init() {
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.RunE = server
 
-	mime.AddExtensionType(".json", "application/json; charset=utf8")
-	mime.AddExtensionType(".css", "text/css; charset=utf8")
+	mime.AddExtensionType(".json", "application/json; charset=utf-8")
+	mime.AddExtensionType(".css", "text/css; charset=utf-8")
 
 }
 
