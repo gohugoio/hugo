@@ -58,22 +58,14 @@ To make the contribution process as seamless as possible, we ask for the followi
 
 ### Git Commit Message Guidelines
 
-Quality Git commit messages are important in a large project to keep everyone informed;
-therefore, we've established the following guidelines:
-
-1. Prefix the subject with the primary affected **package**.
-1. After the package prefix, **capitalize** the subject.
-1. End the subject **without punctuation**.
-1. Use the **imperative** mood in the subject.
-1. Limit the subject line to **50** characters.
-1. Separate subject from body with a **blank line**.
-1. Use the body to explain **what** and **why** instead of **how**.
-1. If there is a helpful **reference** like a Github issue, mention it in the body
-   (ie. "Fixes #123" or "See #123").
-1. A message **body** is often desirable unless the code changes are trivial.
-
-To understand the rationales for many of these guidelines,
-read [How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit) by Chris Beams.
+This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages,
+the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period:
+*"Return error on wrong use of the Paginator"*, **NOT** *"returning some error."*
+Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*.
+Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
+Sometimes it makes sense to prefix the commit message with the packagename (or docs folder) all lowercased ending with a colon.
+That is fine, but the rest of the rules above apply.
+So it is "tpl: Add emojify template func", not "tpl: add emojify template func.", and "docs: Document emoji", not "doc: document emoji."
 
 An example:
 
