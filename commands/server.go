@@ -97,8 +97,8 @@ func init() {
 	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
 	serverCmd.RunE = server
 
-	mime.AddExtensionType(".json", "application/json; charset=utf8")
-	mime.AddExtensionType(".css", "text/css; charset=utf8")
+	mime.AddExtensionType(".json", "application/json; charset=utf-8")
+	mime.AddExtensionType(".css", "text/css; charset=utf-8")
 
 }
 
@@ -126,7 +126,7 @@ func server(cmd *cobra.Command, args []string) error {
 	} else {
 		if flagChanged(serverCmd.Flags(), "port") {
 			// port set explicitly by user -- he/she probably meant it!
-			return newSystemErrorF("Port %d already in use", serverPort)
+			return newSystemErrorF("Server startup failed: %s", err)
 		}
 		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
 		sp, err := helpers.FindAvailablePort()

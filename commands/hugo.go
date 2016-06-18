@@ -134,6 +134,7 @@ var (
 	draft                 bool
 	forceSync             bool
 	future                bool
+	expired               bool
 	ignoreCache           bool
 	logging               bool
 	noTimes               bool
@@ -216,6 +217,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&cleanDestination, "cleanDestinationDir", false, "Remove files from destination not found in static directories")
 	cmd.Flags().BoolVarP(&draft, "buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolVarP(&future, "buildFuture", "F", false, "include content with publishdate in the future")
+	cmd.Flags().BoolVarP(&expired, "buildExpired", "E", false, "include expired content")
 	cmd.Flags().BoolVar(&disable404, "disable404", false, "Do not render 404 page")
 	cmd.Flags().BoolVar(&disableRSS, "disableRSS", false, "Do not build RSS files")
 	cmd.Flags().BoolVar(&disableSitemap, "disableSitemap", false, "Do not build Sitemap file")
@@ -283,6 +285,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("DefaultLayout", "post")
 	viper.SetDefault("BuildDrafts", false)
 	viper.SetDefault("BuildFuture", false)
+	viper.SetDefault("BuildExpired", false)
 	viper.SetDefault("UglyURLs", false)
 	viper.SetDefault("Verbose", false)
 	viper.SetDefault("IgnoreCache", false)
@@ -356,6 +359,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if flagChanged(cmdV.Flags(), "buildFuture") {
 			viper.Set("BuildFuture", future)
+		}
+		if flagChanged(cmdV.Flags(), "buildExpired") {
+			viper.Set("BuildExpired", expired)
 		}
 		if flagChanged(cmdV.Flags(), "uglyURLs") {
 			viper.Set("UglyURLs", uglyURLs)

@@ -197,7 +197,7 @@ func isInnerShortcode(t *template.Template) (bool, error) {
 }
 
 func createShortcodePlaceholder(id int) string {
-	return fmt.Sprintf("{#{#%s-%d#}#}", shortcodePlaceholderPrefix, id)
+	return fmt.Sprintf("{-{-%s-%d-}-}", shortcodePlaceholderPrefix, id)
 }
 
 const innerNewlineRegexp = "\n"
@@ -507,8 +507,8 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	sourceLen := len(source)
 	start := 0
 
-	pre := []byte("{#{#" + prefix)
-	post := []byte("#}#}")
+	pre := []byte("{-{-" + prefix)
+	post := []byte("-}-}")
 	pStart := []byte("<p>")
 	pEnd := []byte("</p>")
 
