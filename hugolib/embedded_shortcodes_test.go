@@ -18,6 +18,7 @@ import (
 	"html/template"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -48,7 +49,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 		expectedBase = baseURL
 	}
 
-	path := "blog/post.md"
+	path := filepath.FromSlash("blog/post.md")
 	in := fmt.Sprintf(`{{< %s "%s" >}}`, refShortcode, path)
 	expected := fmt.Sprintf(`%s/simple/url/`, expectedBase)
 
