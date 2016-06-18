@@ -48,7 +48,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 		expectedBase = baseURL
 	}
 
-	path := "blog/post.md"
+	path := "post.md"
 	in := fmt.Sprintf(`{{< %s "%s" >}}`, refShortcode, path)
 	expected := fmt.Sprintf(`%s/simple/url/`, expectedBase)
 
