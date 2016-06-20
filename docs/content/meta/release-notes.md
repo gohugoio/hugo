@@ -69,7 +69,7 @@ times decreased anywhere from 10% to 99%.
     * `countwords` and `countrunes` {{<gh 1440>}}
     * `default` {{<gh 1943>}}
     * `hasPrefix` {{<gh 1243>}}
-    * `humanize` {{<gh 1450>}}
+    * `humanize` {{<gh 1818>}}
     * `jsonify` {{<gh 0x435e996c4fd48e9009ffa9f83a19fb55f0777dbd>}}
     * `md5` and `sha1` {{<gh 1932>}}
     * `replaceRE` {{<gh 1845>}}
