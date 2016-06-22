@@ -1,5 +1,5 @@
 ---
-date: 2016-06-22T14:03:03+02:00
+date: 2016-06-22T21:21:34+02:00
 title: "hugo server"
 slug: hugo_server
 url: /commands/hugo_server/
@@ -35,7 +35,6 @@ hugo server
   -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
       --bind string             interface to which the server will bind (default "127.0.0.1")
   -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
   -F, --buildFuture             include content with publishdate in the future
       --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL

@@ -1,5 +1,5 @@
 ---
-date: 2016-06-22T14:03:03+02:00
+date: 2016-06-22T21:21:34+02:00
 title: "hugo convert toYAML"
 slug: hugo_convert_toYAML
 url: /commands/hugo_convert_toyaml/

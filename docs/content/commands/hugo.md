@@ -1,5 +1,5 @@
 ---
-date: 2016-06-22T14:03:03+02:00
+date: 2016-06-22T21:21:34+02:00
 title: "hugo"
 slug: hugo
 url: /commands/hugo/
@@ -27,7 +27,6 @@ hugo
 ```
   -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
   -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
   -F, --buildFuture             include content with publishdate in the future
       --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
@@ -57,7 +56,7 @@ hugo
 ```
 
 ### SEE ALSO
-* [hugo benchmark](/commands/hugo_benchmark/)	 - Benchmark Hugo by building a site a number of times.
+* [hugo benchmark](/commands/hugo_benchmark/)	 - Benchmark hugo by building a site a number of times.
 * [hugo check](/commands/hugo_check/)	 - Check content in the source directory
 * [hugo config](/commands/hugo_config/)	 - Print the site configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats

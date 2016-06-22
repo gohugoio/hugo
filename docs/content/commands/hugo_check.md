@@ -1,5 +1,5 @@
 ---
-date: 2016-06-22T14:03:03+02:00
+date: 2016-06-22T21:21:34+02:00
 title: "hugo check"
 slug: hugo_check
 url: /commands/hugo_check/
@@ -23,7 +23,6 @@ hugo check
 ```
   -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
   -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
   -F, --buildFuture             include content with publishdate in the future
       --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL

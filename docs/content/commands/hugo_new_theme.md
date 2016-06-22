@@ -1,5 +1,5 @@
 ---
-date: 2016-06-22T14:03:03+02:00
+date: 2016-06-22T21:21:34+02:00
 title: "hugo new theme"
 slug: hugo_new_theme
 url: /commands/hugo_new_theme/
