@@ -1576,9 +1576,6 @@ func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
 }
 
 // safeHTMLAttr returns a given string as html/template HTMLAttr content.
-//
-// safeHTMLAttr is currently disabled, pending further discussion
-// on its use case.  2015-01-19
 func safeHTMLAttr(a interface{}) template.HTMLAttr {
 	return template.HTMLAttr(cast.ToString(a))
 }
@@ -1806,6 +1803,7 @@ func init() {
 		"replaceRE":    replaceRE,
 		"safeCSS":      safeCSS,
 		"safeHTML":     safeHTML,
+		"safeHTMLAttr": safeHTMLAttr,
 		"safeJS":       safeJS,
 		"safeURL":      safeURL,
 		"sanitizeURL":  helpers.SanitizeURL,
