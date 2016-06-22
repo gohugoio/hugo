@@ -546,7 +546,6 @@ rendering the whole string as plain-text like this:
 <p>© 2015 Jane Doe.  &lt;a href=&#34;http://creativecommons.org/licenses/by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
 </blockquote>
 
-<!--
 ### safeHTMLAttr
 Declares the provided string as a "safe" HTML attribute
 from a trusted source, for example, ` dir="ltr"`,
@@ -560,8 +559,6 @@ Example: Given a site-wide `config.toml` that contains this menu entry:
 
 * `<a href="{{ .URL }}">` ⇒ `<a href="#ZgotmplZ">` (Bad!)
 * `<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` ⇒ `<a href="irc://irc.freenode.net/#golang">` (Good!)
--->
-
 
 ### safeCSS
 Declares the provided string as a known "safe" CSS string
