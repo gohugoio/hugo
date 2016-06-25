@@ -15,9 +15,8 @@ package transform
 
 import (
 	"bytes"
+	"strings"
 	"testing"
-
-	"github.com/spf13/hugo/helpers"
 )
 
 func TestHugoGeneratorInject(t *testing.T) {
@@ -46,7 +45,7 @@ func TestHugoGeneratorInject(t *testing.T) {
 		{"</head>", "</head>"},
 		{"<head>", "<head>\n\tMETA"},
 	} {
-		in := helpers.StringToReader(this.in)
+		in := strings.NewReader(this.in)
 		out := new(bytes.Buffer)
 
 		tr := NewChain(HugoGeneratorInject)
