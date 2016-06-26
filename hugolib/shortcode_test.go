@@ -463,6 +463,9 @@ e`,
 		{"sect/doc5.md", `# {{< b >}}	
 ## {{% c %}}`,
 			filepath.FromSlash("sect/doc5/index.html"), "\n\n<h1 id=\"hugoshortcode-1\">b</h1>\n\n<h2 id=\"hugoshortcode-2\">c</h2>\n"},
+		{"sect/doc6.md", "\n```bash\n{{< b >}}\n{{% c %}}\n```\n",
+			filepath.FromSlash("sect/doc6/index.html"),
+			"<pre><code class=\"language-bash\">b\nc\n</code></pre>\n"},
 	}
 
 	sources := make([]source.ByteSource, len(tests))
