@@ -663,6 +663,13 @@ func (p *Page) update(f interface{}) error {
 		p.Draft = !*published
 	}
 
+	if p.Date.IsZero() {
+		fi, err := hugofs.Source().Stat(filepath.Join(helpers.AbsPathify(viper.GetString("ContentDir")), p.File.Path()))
+		if err == nil {
+			p.Date = fi.ModTime()
+		}
+	}
+
 	if p.Lastmod.IsZero() {
 		p.Lastmod = p.Date
 	}
