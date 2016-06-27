@@ -113,6 +113,7 @@ var blackfridayExtensionMap = map[string]int{
 
 // Mmark holds configuration values for Mmark rendering.
 type Mmark struct {
+	Smartypants     bool
 	HrefTargetBlank bool
 	PlainIDAnchors  bool
 	Extensions      []string
@@ -122,6 +123,7 @@ type Mmark struct {
 // NewMmark creates a new Mmark filled with site config or some sane defaults.
 func NewMmark() *Mmark {
 	combinedParam := map[string]interface{}{
+		"smartypants":     false,
 		"hrefTargetBlank": false,
 		"plainIDAnchors":  true,
 	}
@@ -328,6 +330,10 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 
 	htmlFlags := defaultFlags
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
+
+	if ctx.getMmarkConfig().Smartypants {
+		htmlFlags |= mmark.HTML_USE_SMARTYPANTS
+	}
 
 	return &HugoMmarkHTMLRenderer{
 		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
