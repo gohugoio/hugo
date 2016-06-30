@@ -1,7 +1,7 @@
 ---
 aliases:
 - /indexes/displaying/
-lastmod: 2016-05-13
+lastmod: 2016-06-29
 date: 2013-07-01
 linktitle: Displaying
 menu:
@@ -54,6 +54,10 @@ To list such taxonomy use the following:
       <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
       {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="directors/{{ . | urlize }}">{{ . }}</a>{{ end }}
     {{ end }}
+
+Alternatively, you may use the [delimit]({{< relref "templates/functions.md#delimit" >}})
+template function as a shortcut if the taxonomies should just be listed
+with a separator.  See {{< gh 2143 >}} on GitHub for discussion.
 
 ## 2. Listing content with the same taxonomy term
 
