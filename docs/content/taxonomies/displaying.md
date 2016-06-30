@@ -42,6 +42,19 @@ each content piece are located in the usual place
       {{ end }}
     </ul>
 
+If you want to list taxonomies inline, you will have to take
+care of optional plural ending in the title (if multiple taxonomies),
+as well as commas. Let's say we have a taxonomy "directors" such as
+`directors: [ "Joel Coen", "Ethan Coen" ]` in the TOML-format front matter.
+To list such taxonomy use the following:
+
+### Example
+
+    {{ if .Params.directors }}
+      <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
+      {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="directors/{{ . | urlize }}">{{ . }}</a>{{ end }}
+    {{ end }}
+
 ## 2. Listing content with the same taxonomy term
 
 First, you may be asking why you would use this. If you are using a
