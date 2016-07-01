@@ -13,6 +13,7 @@
 package helpers
 
 import (
+	"math"
 	"reflect"
 	"strings"
 	"testing"
@@ -129,7 +130,10 @@ func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
 			currIn := in[cnt]
 			cnt++
 			result := f(currIn.in)
-			if len(result) != len(currIn.expect) {
+			// The Emoji implementations gives slightly different output.
+			diffLen := len(result) - len(currIn.expect)
+			diffLen = int(math.Abs(float64(diffLen)))
+			if diffLen > 30 {
 				b.Fatalf("[%d] emoji std, got \n%q but expected \n%q", j, result, currIn.expect)
 			}
 		}
