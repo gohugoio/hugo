@@ -51,6 +51,7 @@ func TestEmojiCustom(t *testing.T) {
 :beer:`, []byte(`Aaaaaaaaaa: aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa.
 
 🍺`)},
+		{"test :\n```bash\nthis is a test\n```\n\ntest\n\n:cool::blush:::pizza:\\:blush : : blush: :pizza:", []byte("test :\n```bash\nthis is a test\n```\n\ntest\n\n🆒😊:🍕\\:blush : : blush: 🍕")},
 	} {
 
 		result := Emojify([]byte(this.input))
