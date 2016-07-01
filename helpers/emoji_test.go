@@ -46,6 +46,7 @@ func TestEmojiCustom(t *testing.T) {
 		{"은행 :smile: 은행", []byte("은행 😄 은행")},
 		// #2198
 		{"See: A :beer:!", []byte("See: A 🍺!")},
+		{"test :\n```bash\nthis is a test\n```\n\ntest\n\n:cool::blush:::pizza:\\:blush : : blush: :pizza:", []byte("test :\n```bash\nthis is a test\n```\n\ntest\n\n🆒😊:🍕\\:blush : : blush: 🍕")},
 		{`Aaaaaaaaaa: aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa.
 
 :beer:`, []byte(`Aaaaaaaaaa: aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa.
