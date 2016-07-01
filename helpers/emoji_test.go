@@ -13,13 +13,19 @@
 package helpers
 
 import (
+	"math"
 	"reflect"
 	"strings"
 	"testing"
 
+	"regexp"
+
 	"github.com/kyokomi/emoji"
 	"github.com/spf13/hugo/bufferpool"
 )
+
+// For benchmark compare.
+var regEmoji *regexp.Regexp = regexp.MustCompile(":[a-zA-Z0-9_-]+:")
 
 func TestEmojiCustom(t *testing.T) {
 	for i, this := range []struct {
@@ -66,6 +72,15 @@ func TestEmojiCustom(t *testing.T) {
 // The Emoji benchmarks below are heavily skewed in Hugo's direction:
 //
 // Hugo have a byte slice, wants a byte slice and doesn't mind if the original is modified.
+
+func BenchmarkEmojiRegxp(b *testing.B) {
+
+	f := func(in []byte) []byte {
+		return []byte(regEmoji.ReplaceAllStringFunc(string(in), emojiTranslateFunc))
+	}
+
+	doBenchmarkEmoji(b, f)
+}
 
 func BenchmarkEmojiKyokomiFprint(b *testing.B) {
 
@@ -129,10 +144,24 @@ func doBenchmarkEmoji(b *testing.B, f func(in []byte) []byte) {
 			currIn := in[cnt]
 			cnt++
 			result := f(currIn.in)
-			if len(result) != len(currIn.expect) {
+
+			// The Emoji implementations gives slightly different output.
+			diffLen := len(result) - len(currIn.expect)
+			diffLen = int(math.Abs(float64(diffLen)))
+			if diffLen > 30 {
 				b.Fatalf("[%d] emoji std, got \n%q but expected \n%q", j, result, currIn.expect)
 			}
 		}
 
 	}
+
+}
+
+// For benchmark compare
+func emojiTranslateFunc(str string) string {
+	emoji, ok := emojis[str]
+	if ok {
+		return string(emoji)
+	}
+	return str
 }
