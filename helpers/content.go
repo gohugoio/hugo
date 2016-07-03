@@ -458,19 +458,31 @@ func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
 	return strings.Join(words[:max], " "), true
 }
 
+func getAsciidocExecPath() string {
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		path, err = exec.LookPath("asciidoc")
+		if err != nil {
+			return ""
+		}
+	}
+	return path
+}
+
+func HasAsciidoc() bool {
+	return getAsciidocExecPath() != ""
+}
+
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
 func getAsciidocContent(content []byte) string {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path, err := exec.LookPath("asciidoctor")
-	if err != nil {
-		path, err = exec.LookPath("asciidoc")
-		if err != nil {
-			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
-				"                 Leaving AsciiDoc content unrendered.")
-			return (string(content))
-		}
+	path := getAsciidocExecPath()
+	if path == "" {
+		jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+			"                 Leaving AsciiDoc content unrendered.")
+		return (string(content))
 	}
 
 	jww.INFO.Println("Rendering with", path, "...")

@@ -466,6 +466,10 @@ e`,
 		{"sect/doc6.md", "\n```bash\n{{< b >}}\n{{% c %}}\n```\n",
 			filepath.FromSlash("sect/doc6/index.html"),
 			"<pre><code class=\"language-bash\">b\nc\n</code></pre>\n"},
+		// #2249
+		{"sect/doc7.ad", `_Shortcodes:_ *b: {{< b >}} c: {{% c %}}*`,
+			filepath.FromSlash("sect/doc7/index.html"),
+			"<div class=\"paragraph\">\n<p><em>Shortcodes:</em> <strong>b: b c: c</strong></p>\n</div>\n"},
 	}
 
 	sources := make([]source.ByteSource, len(tests))
@@ -494,6 +498,10 @@ e`,
 	createAndRenderPages(t, s)
 
 	for _, test := range tests {
+		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
+			fmt.Println("Skip Asciidoc test case as no Asciidoc present.")
+			continue
+		}
 		file, err := hugofs.Destination().Open(test.outFile)
 
 		if err != nil {
