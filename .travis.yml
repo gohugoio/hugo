@@ -1,5 +1,5 @@
 language: go
-sudo: false
+sudo: required
 go:
   - 1.5.4
   - 1.6.2
@@ -17,6 +17,7 @@ script:
   - ./hugo --renderToMemory -s docs/
 before_install:
   - gem install asciidoctor
+  - sudo pip install docutils
 install:
   - go get github.com/stretchr/testify
   - go get -v ./...
