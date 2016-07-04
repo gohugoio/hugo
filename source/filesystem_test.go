@@ -16,6 +16,8 @@ package source
 import (
 	"bytes"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -81,4 +83,29 @@ func TestAddFile(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestUnicodeNorm(t *testing.T) {
+	if runtime.GOOS != "darwin" {
+		// Normalization code is only for Mac OS, since it is not necessary for other OSes.
+		return
+	}
+
+	paths := []struct {
+		NFC string
+		NFD string
+	}{
+		{NFC: "å", NFD: "\x61\xcc\x8a"},
+		{NFC: "é", NFD: "\x65\xcc\x81"},
+	}
+
+	for _, path := range paths {
+		src := new(Filesystem)
+		_ = src.add(path.NFD, strings.NewReader(""))
+		f := src.Files()[0]
+		if f.BaseFileName() != path.NFC {
+			t.Fatalf("file name in NFD form should be normalized (%s)", path.NFC)
+		}
+	}
+
 }
