@@ -469,6 +469,7 @@ func getAsciidocExecPath() string {
 	return path
 }
 
+// HasAsciidoc returns whether Asciidoctor or Asciidoc is installed on this computer.
 func HasAsciidoc() bool {
 	return getAsciidocExecPath() != ""
 }
@@ -497,19 +498,34 @@ func getAsciidocContent(content []byte) string {
 	return out.String()
 }
 
+// HasRst returns whether rst2html is installed on this computer.
+func HasRst() bool {
+	return getRstExecPath() != ""
+}
+
+func getRstExecPath() string {
+	path, err := exec.LookPath("rst2html")
+	if err != nil {
+		path, err = exec.LookPath("rst2html.py")
+		if err != nil {
+			return ""
+		}
+	}
+	return path
+}
+
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
 func getRstContent(content []byte) string {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path, err := exec.LookPath("rst2html")
-	if err != nil {
-		path, err = exec.LookPath("rst2html.py")
-		if err != nil {
-			jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
-				"                 Leaving reStructuredText content unrendered.")
-			return (string(content))
-		}
+	path := getRstExecPath()
+
+	if path == "" {
+		jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
+			"                 Leaving reStructuredText content unrendered.")
+		return (string(content))
+
 	}
 
 	cmd := exec.Command(path, "--leave-comments")

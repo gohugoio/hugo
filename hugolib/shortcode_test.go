@@ -470,6 +470,9 @@ e`,
 		{"sect/doc7.ad", `_Shortcodes:_ *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("sect/doc7/index.html"),
 			"<div class=\"paragraph\">\n<p><em>Shortcodes:</em> <strong>b: b c: c</strong></p>\n</div>\n"},
+		{"sect/doc8.rst", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
+			filepath.FromSlash("sect/doc8/index.html"),
+			"<div class=\"document\">\n\n\n<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n</div>"},
 	}
 
 	sources := make([]source.ByteSource, len(tests))
@@ -501,7 +504,11 @@ e`,
 		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
 			fmt.Println("Skip Asciidoc test case as no Asciidoc present.")
 			continue
+		} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
+			fmt.Println("Skip Rst test case as no rst2html present.")
+			continue
 		}
+
 		file, err := hugofs.Destination().Open(test.outFile)
 
 		if err != nil {
