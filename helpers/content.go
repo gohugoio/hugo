@@ -335,6 +335,15 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 
 	newcontent = append(content[:startOfTOC], content[endOfTOC:]...)
 	toc = append(replacement, origContent[startOfTOC+len(first):endOfTOC]...)
+
+	emptyTop := []byte(`<ul>
+<li>
+`)
+	emptyBottom := []byte(`</ul></li>
+`)
+	// Replace empty toc list items with empty strings
+	toc = []byte(bytes.Replace(toc, emptyTop, []byte(""), -1))
+	toc = []byte(bytes.Replace(toc, emptyBottom, []byte(""), -1))
 	return
 }
 

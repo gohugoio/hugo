@@ -261,9 +261,39 @@ in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
 pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
 officia deserunt mollit anim id est laborum.`
 
-	pageWithToC = `---
+	pageWithPartialToC = `---
 title: TOC
 ---
+For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
+
+## AA
+
+I have no idea, of course, how long it took me to reach the limit of the plain,
+but at last I entered the foothills, following a pretty little canyon upward
+toward the mountains. Beside me frolicked a laughing brooklet, hurrying upon
+its noisy way down to the silent sea. In its quieter pools I discovered many
+small fish, of four-or five-pound weight I should imagine. In appearance,
+except as to size and color, they were not unlike the whale of our own seas. As
+I watched them playing about I discovered, not only that they suckled their
+young, but that at intervals they rose to the surface to breathe as well as to
+feed upon certain grasses and a strange, scarlet lichen which grew upon the
+rocks just above the water line.
+
+### AAA
+
+I remember I felt an extraordinary persuasion that I was being played with,
+that presently, when I was upon the very verge of safety, this mysterious
+death--as swift as the passage of light--would leap after me from the pit about
+the cylinder and strike me down. ## BB
+
+### BBB
+
+"You're a great Granser," he cried delightedly, "always making believe them little marks mean something."
+`
+	pageWithFullToC = `---
+title: TOC
+---
+# A
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
 
 ## AA
@@ -604,15 +634,27 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
 }
 
-func TestTableOfContents(t *testing.T) {
+func TestTableOfContentsPartialHeadings(t *testing.T) {
 	p, _ := NewPage("tocpage.md")
-	_, err := p.ReadFrom(strings.NewReader(pageWithToC))
+	_, err := p.ReadFrom(strings.NewReader(pageWithPartialToC))
 	p.Convert()
 	if err != nil {
 		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
 	}
 	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
-	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul>\n</nav>")
+}
+
+
+func TestTableOfContentsAllHeadings(t *testing.T) {
+	p, _ := NewPage("tocpage.md")
+	_, err := p.ReadFrom(strings.NewReader(pageWithFullToC))
+	p.Convert()
+	if err != nil {
+		t.Fatalf("Unable to create a page with frontmatter and body content: %s", err)
+	}
+	checkPageContent(t, p, "\n\n<h1 id=\"a\">A</h1>\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
+	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li><a href=\"#a\">A</a>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul>\n</nav>")
 }
 
 func TestPageWithMoreTag(t *testing.T) {
