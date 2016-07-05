@@ -27,6 +27,7 @@ import (
 	"html"
 	"html/template"
 	"math/rand"
+	"net/url"
 	"os"
 	"reflect"
 	"regexp"
@@ -1748,6 +1749,21 @@ func sha1(in interface{}) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
+// querify converts the given parameters into a url.Values object
+func querify(params ...interface{}) (url.Values, error) {
+	qs := url.Values{}
+	vals, err := dictionary(params...)
+	if err != nil {
+		return url.Values{}, fmt.Errorf("querify keys must be strings")
+	}
+
+	for name, value := range vals {
+		qs.Add(name, url.QueryEscape(fmt.Sprintf("%v", value)))
+	}
+
+	return qs, nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
@@ -1797,6 +1813,7 @@ func init() {
 		"partial":      partial,
 		"plainify":     plainify,
 		"pluralize":    pluralize,
+		"querify":      querify,
 		"readDir":      readDirFromWorkingDir,
 		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
