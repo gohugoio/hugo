@@ -24,12 +24,9 @@ RUN go get github.com/stretchr/testify/assert \
 	&& go get github.com/spf13/jwalterweatherman \
 	&& go get github.com/spf13/cobra \
 	&& go get github.com/cpuguy83/go-md2man \
-	&& go get github.com/inconshreveable/mousetrap \
 	&& go get github.com/spf13/pflag \
 	&& go get github.com/spf13/fsync \
 	&& go get github.com/spf13/viper \
-	&& go get github.com/kr/pretty \
-	&& go get github.com/kr/text \
 	&& go get github.com/magiconair/properties \
 	&& go get golang.org/x/text/transform \
 	&& go get golang.org/x/text/unicode/norm \
@@ -45,4 +42,3 @@ WORKDIR /go/src/github.com/spf13/hugo
 RUN go get -d -v
 RUN go build -o hugo main.go
 RUN go test github.com/spf13/hugo/...
-
