@@ -91,6 +91,7 @@ div: {{div 6 3}}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
 findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}
+numFormat: {{ numFormat "#,###" 12345.6789 }}
 hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
 hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
@@ -142,6 +143,7 @@ div: 2
 emojify: I ❤️ Hugo
 eq: current
 findRE: [go]
+numFormat: 12345,679
 hasPrefix 1: true
 hasPrefix 2: false
 in: Substring found!
@@ -2363,6 +2365,33 @@ func TestReadFile(t *testing.T) {
 			if result != this.expect {
 				t.Errorf("[%d] readFile got %q but expected %q", i, result, this.expect)
 			}
+		}
+	}
+}
+
+func TestNumFormat(t *testing.T) {
+	testNum := 12345.6789
+
+	for _, this := range []struct {
+		format string
+		expect string
+	}{
+		{"", "12,345.68"},
+		{"#,###.##", "12,345.68"},
+		{"#,###.", "12,346"},
+		{"#,###", "12345,679"},
+		{"#.###,######", "12.345,678900"},
+	} {
+		formNum, err := numFormat(this.format, testNum)
+
+		if err != nil {
+			t.Errorf("Formating %v with [%s] as format caused an error: %s",
+				testNum, this.format, err)
+		}
+
+		if formNum != this.expect {
+			t.Errorf("Tried to format %v with [%s]: got %s - expected %v",
+				testNum, this.format, formNum, this.expect)
 		}
 	}
 }

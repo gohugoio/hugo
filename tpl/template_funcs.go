@@ -1745,6 +1745,17 @@ func sha1(in interface{}) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
+// numFormat can format floats and integers with custom thousands seperators
+// and decimal seperators.
+func numFormat(format string, num interface{}) (string, error) {
+	switch conv := num.(type) {
+	case int, int8, int16, int32, int64, float32, float64:
+		return renderNumber(format, conv.(float64))
+	default:
+		return "", fmt.Errorf("%T is an invalid type and can't be formatted.", num)
+	}
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
@@ -1766,6 +1777,7 @@ func init() {
 		"eq":           eq,
 		"findRE":       findRE,
 		"first":        first,
+		"numFormat":    numFormat,
 		"ge":           ge,
 		"getCSV":       getCSV,
 		"getJSON":      getJSON,
