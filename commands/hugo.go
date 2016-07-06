@@ -316,6 +316,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("HasCJKLanguage", false)
 	viper.SetDefault("EnableEmoji", false)
 	viper.SetDefault("PygmentsCodeFencesGuessSyntax", false)
+	viper.SetDefault("UseModTimeAsFallback", false)
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.

@@ -663,7 +663,7 @@ func (p *Page) update(f interface{}) error {
 		p.Draft = !*published
 	}
 
-	if p.Date.IsZero() {
+	if p.Date.IsZero() && viper.GetBool("UseModTimeAsFallback") {
 		fi, err := hugofs.Source().Stat(filepath.Join(helpers.AbsPathify(viper.GetString("ContentDir")), p.File.Path()))
 		if err == nil {
 			p.Date = fi.ModTime()
