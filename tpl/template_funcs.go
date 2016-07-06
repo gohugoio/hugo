@@ -1746,19 +1746,19 @@ func sha1(in interface{}) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-// querify converts the given parameters into a url.Values object
-func querify(params ...interface{}) (url.Values, error) {
+// querify encodes the given parameters  “URL encoded” form ("bar=baz&foo=quux") sorted by key.
+func querify(params ...interface{}) (string, error) {
 	qs := url.Values{}
 	vals, err := dictionary(params...)
 	if err != nil {
-		return url.Values{}, fmt.Errorf("querify keys must be strings")
+		return "", fmt.Errorf("querify keys must be strings")
 	}
 
 	for name, value := range vals {
 		qs.Add(name, url.QueryEscape(fmt.Sprintf("%v", value)))
 	}
 
-	return qs, nil
+	return qs.Encode(), nil
 }
 
 func init() {

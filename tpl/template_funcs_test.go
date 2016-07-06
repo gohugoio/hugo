@@ -103,7 +103,7 @@ modBool: {{modBool 15 3}}
 mul: {{mul 2 3}}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 pluralize: {{ "cat" | pluralize }}
-querify: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces").Encode | safeHTML }}
+querify: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces") | safeHTML }}
 readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
