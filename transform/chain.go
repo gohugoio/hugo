@@ -15,8 +15,9 @@ package transform
 
 import (
 	"bytes"
-	bp "github.com/spf13/hugo/bufferpool"
 	"io"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 type trans func(rw contentTransformer)
@@ -25,10 +26,12 @@ type link trans
 
 type chain []link
 
+// NewChain creates a chained content transformer given the provided transforms.
 func NewChain(trs ...link) chain {
 	return trs
 }
 
+// NewEmptyTransforms creates a new slice of transforms with a capacity of 20.
 func NewEmptyTransforms() []link {
 	return make([]link, 0, 20)
 }
