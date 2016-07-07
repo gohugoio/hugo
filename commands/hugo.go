@@ -198,17 +198,15 @@ func AddCommands() {
 // initHugoBuilderFlags initializes all common flags, typically used by the
 // core build commands, namely hugo itself, server, check and benchmark.
 func initHugoBuilderFlags(cmd *cobra.Command) {
-	initCoreCommonFlags(cmd)
 	initHugoBuildCommonFlags(cmd)
 }
 
-// initCoreCommonFlags initializes common flags used by Hugo core commands.
-func initCoreCommonFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+func initRootPersistentFlags() {
+	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
 
 	// Set bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
-	cmd.Flags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
 }
 
 // initHugoBuildCommonFlags initialize common flags related to the Hugo build.
@@ -257,6 +255,7 @@ func init() {
 	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
+	initRootPersistentFlags()
 	initHugoBuilderFlags(HugoCmd)
 	initBenchmarkBuildingFlags(HugoCmd)
 
@@ -319,8 +318,6 @@ func loadDefaultSettings() {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-// A Hugo command that calls initCoreCommonFlags() can pass itself
-// as an argument to have its command-line flags processed here.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("hugo")

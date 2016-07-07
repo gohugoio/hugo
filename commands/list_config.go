@@ -15,10 +15,11 @@ package commands
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"reflect"
 	"sort"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var configCmd = &cobra.Command{
@@ -28,7 +29,6 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
-	initCoreCommonFlags(configCmd)
 	configCmd.RunE = config
 }
 
