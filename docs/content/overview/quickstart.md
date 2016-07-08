@@ -283,7 +283,7 @@ $ hugo server --theme=hugo_theme_robust --buildDrafts
 The website uses the dummy values specified in the `config.toml`. Let's update the configuration.
 
 ```toml
-baseurl = "http://replace-this-with-your-hugo-site.com/"
+baseurl = "http://example.org/"
 languageCode = "en-us"
 title = "Shekhar Gulati Book Reviews"
 
