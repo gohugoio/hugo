@@ -304,7 +304,7 @@ Edit the file to add the named theme.
 ```bash
 $ vi config.toml
 theme = "zafta"
-baseurl = "http://replace-this-with-your-hugo-site.com/"
+baseurl = "http://example.org/"
 languageCode = "en-us"
 title = "My New Hugo Site"
 :wq
@@ -719,9 +719,9 @@ $ cat public/index.html
 <html>
 <body>
   
-    <h1><a href="http://replace-this-with-your-hugo-site.com/article/second/">second</a></h1>
+    <h1><a href="http://example.org/article/second/">second</a></h1>
   
-    <h1><a href="http://replace-this-with-your-hugo-site.com/article/first/">first</a></h1>
+    <h1><a href="http://example.org/article/first/">first</a></h1>
   
 </body>
 </html>
@@ -823,7 +823,7 @@ Nulla facilisi.</p>
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.</p>
 
-  <p><a href="http://replace-this-with-your-hugo-site.com/">Home</a></p>
+  <p><a href="http://example.org/">Home</a></p>
 </body>
 </html>
 
@@ -845,7 +845,7 @@ varius sagittis turpis.</p>
 pulvinar. Ut mattis gravida venenatis. Vivamus
 lobortis risus id nisi rutrum, at iaculis.</p>
 
-  <p><a href="http://replace-this-with-your-hugo-site.com/">Home</a></p>
+  <p><a href="http://example.org/">Home</a></p>
 </body>
 </html>
 $ 
@@ -985,7 +985,7 @@ $ cat public/about/index.html
 ipsum quia dolor sit amet consectetur
 adipisci velit.</p>
 
-  <p><a href="http://replace-this-with-your-hugo-site.com/">Home</a></p>
+  <p><a href="http://example.org/">Home</a></p>
 </body>
 </html>
 $ 
@@ -1001,11 +1001,11 @@ $ cat public/index.html
 <html>
 <body>
   
-    <h1><a href="http://replace-this-with-your-hugo-site.com/about/">about</a></h1>
+    <h1><a href="http://example.org/about/">about</a></h1>
   
-    <h1><a href="http://replace-this-with-your-hugo-site.com/article/second/">second</a></h1>
+    <h1><a href="http://example.org/article/second/">second</a></h1>
   
-    <h1><a href="http://replace-this-with-your-hugo-site.com/article/first/">first</a></h1>
+    <h1><a href="http://example.org/article/first/">first</a></h1>
   
 </body>
 </html>
@@ -1060,10 +1060,10 @@ $ cat public/index.html
 <html>
 <body>
   <h1>Articles</h1>
-      <h2><a href="http://replace-this-with-your-hugo-site.com/article/second/">second</a></h2>
-      <h2><a href="http://replace-this-with-your-hugo-site.com/article/first/">first</a></h2>
+      <h2><a href="http://example.org/article/second/">second</a></h2>
+      <h2><a href="http://example.org/article/first/">first</a></h2>
   <h1>Pages</h1>
-      <h2><a href="http://replace-this-with-your-hugo-site.com/about/">about</a></h2>
+      <h2><a href="http://example.org/about/">about</a></h2>
 </body>
 </html>
 ```
@@ -1251,7 +1251,7 @@ $ cat public/about/index.html
 ipsum quia dolor sit amet consectetur
 adipisci velit.</p>
 
-  <p><a href="http://replace-this-with-your-hugo-site.com/">Home</a></p>
+  <p><a href="http://example.org/">Home</a></p>
 </body>
 </html>
 
@@ -1273,7 +1273,7 @@ Nulla facilisi.</p>
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.</p>
 
-  <p><a href="http://replace-this-with-your-hugo-site.com/">Home</a></p>
+  <p><a href="http://example.org/">Home</a></p>
 </body>
 </html>
 
