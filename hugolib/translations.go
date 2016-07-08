@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,6 +50,9 @@ func assignTranslationsToPages(allTranslations map[string]Translations, pages []
 		}
 
 		for lang, translatedPage := range trans {
+			if translatedPage == page {
+				continue
+			}
 			page.Translations[lang] = translatedPage
 		}
 	}

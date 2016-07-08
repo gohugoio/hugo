@@ -71,30 +71,44 @@ translated pieces.
 
 ### Language switching links
 
-A full example of the language-switching links would be:
+Here is a simple example if all your pages are translated:
 
 ```
-        {{if .Site.Multilingual}}
-          {{if .IsPage}}
-            {{ range $txLang := .Site.Languages }}
-              {{if ne $lang $txLang}}
-                {{if isset $.Translations $txLang}}
-                  <a href="{{ (index $.Translations $txLang).Permalink }}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
-                {{else}}
-                  <a href="/{{$txLang}}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
-                {{end}}
-              {{end}}
-            {{end}}
-          {{end}}
+{{if .IsPage}}
+  {{ range $txLang := .Site.Languages }}
+    {{if isset $.Translations $txLang}}
+      <a href="{{ (index $.Translations $txLang).Permalink }}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
+    {{end}}
+  {{end}}
+{{end}}
 
-          {{if .IsNode}}
-            {{ range $txLang := .Site.Languages }}
-              {{if ne $lang $txLang}}
-                <a href="/{{$txLang}}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
-              {{end}}
-            {{end}}
-          {{end}}
-        {{end}}
+{{if .IsNode}}
+  {{ range $txLang := .Site.Languages }}
+    <a href="/{{$txLang}}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
+  {{end}}
+{{end}}
+```
+
+This is a more complete example. It handles missing translations and will support non-multilingual sites. Better for theme authors:
+
+```
+{{if .Site.Multilingual}}
+  {{if .IsPage}}
+    {{ range $txLang := .Site.Languages }}
+      {{if isset $.Translations $txLang}}
+        <a href="{{ (index $.Translations $txLang).Permalink }}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
+      {{else}}
+        <a href="/{{$txLang}}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
+      {{end}}
+    {{end}}
+  {{end}}
+
+  {{if .IsNode}}
+    {{ range $txLang := .Site.Languages }}
+      <a href="/{{$txLang}}">{{ i18n ( printf "language_switcher_%s" $txLang ) }}</a>
+    {{end}}
+  {{end}}
+{{end}}
 ```
 
 This makes use of the **.Site.Languages** variable to create links to
@@ -102,7 +116,8 @@ the other available languages.  The order in which the languages are
 listed is defined by the `weight` attribute in each language under
 `Multilingual`.
 
-This will also require you to have some content in your `i18n/` files that would look like:
+This will also require you to have some content in your `i18n/` files
+(see below) that would look like:
 
 ```
 - id: language_switcher_en
@@ -118,10 +133,10 @@ available translations (`/en`), as those pages do not necessarily have
 a translated counterpart.
 
 Taxonomies (tags, categories) are completely segregated between
-translations, will have their own tag clouds and list views.
+translations and will have their own tag clouds and list views.
 
 
-### Translations of strings
+### Translation of strings
 
 Hugo uses [go-i18n](https://github.com/nicksnyder/go-i18n) to support
 string translations.  Follow the link to find tools to manage your
@@ -150,6 +165,6 @@ To support Multilingual mode in your themes, you only need to make
 sure URLs defined manually (those not using `.Permalink` or `.URL`
 variables) in your templates are prefixed with `{{
 .Site.LanguagePrefix }}`. If `Multilingual` mode is enabled, the
-`LanguagePrefix` variable will be rendered as `/en` (based on
-`CurrentLanguage`). If not enabled, it will be an empty string, so it
-is harmless for non-multilingual sites.
+`LanguagePrefix` variable will equal `"/en"` (or whatever your
+`CurrentLanguage` is). If not enabled, it will be an empty string, so
+it is harmless for non-multilingual sites.

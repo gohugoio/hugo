@@ -1449,7 +1449,7 @@ NOTE: should use the "permalinks" configuration with :filename
 	permalink, err := doc1en.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug", permalink, "invalid doc1.en permalink")
-	assert.Len(t, doc1en.Translations, 2, "doc1-en should have two translations, including itself")
+	assert.Len(t, doc1en.Translations, 1, "doc1-en should have one translation, excluding itself")
 
 	doc2 := s.Pages[1]
 	permalink, err = doc2.Permalink()
@@ -1476,7 +1476,7 @@ NOTE: should use the "permalinks" configuration with :filename
 	permalink, err = doc4.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc4", permalink, "invalid doc4 permalink")
-	assert.Len(t, doc4.Translations, 1, "found translations for doc4")
+	assert.Len(t, doc4.Translations, 0, "found translations for doc4")
 
 	doc5 := s.TranslatedPages[2]
 	permalink, err = doc5.Permalink()
