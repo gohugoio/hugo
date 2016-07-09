@@ -10,8 +10,9 @@ weight: 68
 toc: true
 ---
 
-Since version 0.16, Hugo supports a native Multilingual mode. You
-define the languages to render as such:
+Since version 0.17, Hugo supports a native Multilingual mode. In your
+top-level `config.yaml` (or equivalent), you define the available
+languages in a `Multilingual` section such as:
 
 ```
 Multilingual:
@@ -32,7 +33,8 @@ copyright: "Everything is mine"
 ```
 
 Anything not defined in a `[lang]:` block will fall back to the global
-value for that key (like `copyright` in this example).
+value for that key (like `copyright` for the `en` lang in this
+example).
 
 With the config above, all content, sitemap, RSS feeds, paginations
 and taxonomy pages will be rendered under `/en` in English, and under
