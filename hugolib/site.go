@@ -74,24 +74,24 @@ var distinctErrorLogger = helpers.NewDistinctErrorLogger()
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
-	Pages           Pages
-	TranslatedPages Pages
-	Files           []*source.File
-	Tmpl            tpl.Template
-	Taxonomies      TaxonomyList
-	Source          source.Input
-	Sections        Taxonomy
-	Info            SiteInfo
-	Menus           Menus
-	timer           *nitro.B
-	targets         targetList
-	targetListInit  sync.Once
-	RunMode         runmode
-	Multilingual    *Multilingual
-	draftCount      int
-	futureCount     int
-	expiredCount    int
-	Data            map[string]interface{}
+	Pages          Pages
+	AllPages       Pages
+	Files          []*source.File
+	Tmpl           tpl.Template
+	Taxonomies     TaxonomyList
+	Source         source.Input
+	Sections       Taxonomy
+	Info           SiteInfo
+	Menus          Menus
+	timer          *nitro.B
+	targets        targetList
+	targetListInit sync.Once
+	RunMode        runmode
+	Multilingual   *Multilingual
+	draftCount     int
+	futureCount    int
+	expiredCount   int
+	Data           map[string]interface{}
 }
 
 type targetList struct {
@@ -108,7 +108,7 @@ type SiteInfo struct {
 	Social                SiteSocial
 	Sections              Taxonomy
 	Pages                 *Pages // Includes only pages in this language
-	TranslatedPages       *Pages // Includes other translated pages, excluding those in this language.
+	AllPages              *Pages // Includes other translated pages, excluding those in this language.
 	Files                 *[]*source.File
 	Menus                 *Menus
 	Hugo                  *HugoInfo
@@ -188,7 +188,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string
 
 	if refURL.Path != "" {
-		for _, page := range []*Page(*s.Pages) {
+		for _, page := range []*Page(*s.AllPages) {
 			refPath := filepath.FromSlash(refURL.Path)
 			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
@@ -263,7 +263,7 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			}
 		}
 
-		for _, page := range []*Page(*s.Pages) {
+		for _, page := range []*Page(*s.AllPages) {
 			if page.Source.Path() == refPath {
 				target = page
 				break
@@ -272,14 +272,14 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 		// need to exhaust the test, then try with the others :/
 		// if the refPath doesn't end in a filename with extension `.md`, then try with `.md` , and then `/index.md`
 		mdPath := strings.TrimSuffix(refPath, string(os.PathSeparator)) + ".md"
-		for _, page := range []*Page(*s.Pages) {
+		for _, page := range []*Page(*s.AllPages) {
 			if page.Source.Path() == mdPath {
 				target = page
 				break
 			}
 		}
 		indexPath := filepath.Join(refPath, "index.md")
-		for _, page := range []*Page(*s.Pages) {
+		for _, page := range []*Page(*s.AllPages) {
 			if page.Source.Path() == indexPath {
 				target = page
 				break
@@ -450,7 +450,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 	// If a content file changes, we need to reload only it and re-render the entire site.
 
-	// First step is to read the changed files and (re)place them in site.Pages
+	// First step is to read the changed files and (re)place them in site.AllPages
 	// This includes processing any meta-data for that content
 
 	// The second step is to convert the content into HTML
@@ -486,7 +486,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 	if len(tmplChanged) > 0 || len(dataChanged) > 0 {
 		// Do not need to read the files again, but they need conversion
 		// for shortocde re-rendering.
-		for _, p := range s.Pages {
+		for _, p := range s.AllPages {
 			pageChan <- p
 		}
 	}
@@ -713,8 +713,10 @@ func (s *Site) Process() (err error) {
 	if err = s.createPages(); err != nil {
 		return
 	}
+
 	s.setupTranslations()
 	s.setupPrevNext()
+
 	if err = s.buildSiteMeta(); err != nil {
 		return
 	}
@@ -736,25 +738,22 @@ func (s *Site) setupPrevNext() {
 
 func (s *Site) setupTranslations() {
 	if !s.multilingualEnabled() {
+		s.Pages = s.AllPages
 		return
 	}
 
 	currentLang := s.Multilingual.GetString("CurrentLanguage")
 
-	allTranslations := pagesToTranslationsMap(s.Pages)
-	assignTranslationsToPages(allTranslations, s.Pages)
+	allTranslations := pagesToTranslationsMap(s.AllPages)
+	assignTranslationsToPages(allTranslations, s.AllPages)
 
 	var currentLangPages []*Page
-	var otherTranslationsPages []*Page
-	for _, p := range s.Pages {
+	for _, p := range s.AllPages {
 		if p.Lang() == "" || strings.HasPrefix(currentLang, p.lang) {
 			currentLangPages = append(currentLangPages, p)
-		} else {
-			otherTranslationsPages = append(otherTranslationsPages, p)
 		}
 	}
 
-	s.TranslatedPages = otherTranslationsPages
 	s.Pages = currentLangPages
 }
 
@@ -852,12 +851,13 @@ func (s *Site) initializeSiteInfo() {
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
-		Pages:      &s.Pages,
-		Files:      &s.Files,
-		Menus:      &s.Menus,
-		Params:     params,
-		Permalinks: permalinks,
-		Data:       &s.Data,
+		AllPages:              &s.AllPages,
+		Pages:                 &s.Pages,
+		Files:                 &s.Files,
+		Menus:                 &s.Menus,
+		Params:                params,
+		Permalinks:            permalinks,
+		Data:                  &s.Data,
 	}
 }
 
@@ -968,7 +968,7 @@ func (s *Site) convertSource() chan error {
 
 	go converterCollator(s, results, errs)
 
-	for _, p := range s.Pages {
+	for _, p := range s.AllPages {
 		pageChan <- p
 	}
 
@@ -1062,7 +1062,7 @@ func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error)
 
 func (s *Site) addPage(page *Page) {
 	if page.shouldBuild() {
-		s.Pages = append(s.Pages, page)
+		s.AllPages = append(s.AllPages, page)
 	}
 
 	if page.IsDraft() {
@@ -1079,8 +1079,8 @@ func (s *Site) addPage(page *Page) {
 }
 
 func (s *Site) removePageByPath(path string) {
-	if i := s.Pages.FindPagePosByFilePath(path); i >= 0 {
-		page := s.Pages[i]
+	if i := s.AllPages.FindPagePosByFilePath(path); i >= 0 {
+		page := s.AllPages[i]
 
 		if page.IsDraft() {
 			s.draftCount--
@@ -1094,12 +1094,12 @@ func (s *Site) removePageByPath(path string) {
 			s.expiredCount--
 		}
 
-		s.Pages = append(s.Pages[:i], s.Pages[i+1:]...)
+		s.AllPages = append(s.AllPages[:i], s.AllPages[i+1:]...)
 	}
 }
 
 func (s *Site) removePage(page *Page) {
-	if i := s.Pages.FindPagePos(page); i >= 0 {
+	if i := s.AllPages.FindPagePos(page); i >= 0 {
 		if page.IsDraft() {
 			s.draftCount--
 		}
@@ -1112,7 +1112,7 @@ func (s *Site) removePage(page *Page) {
 			s.expiredCount--
 		}
 
-		s.Pages = append(s.Pages[:i], s.Pages[i+1:]...)
+		s.AllPages = append(s.AllPages[:i], s.AllPages[i+1:]...)
 	}
 }
 
@@ -1151,7 +1151,7 @@ func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan cha
 		}
 	}
 
-	s.Pages.Sort()
+	s.AllPages.Sort()
 	close(coordinator)
 
 	if len(errMsgs) == 0 {
@@ -1177,7 +1177,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 		}
 	}
 
-	s.Pages.Sort()
+	s.AllPages.Sort()
 	if len(errMsgs) == 0 {
 		errs <- nil
 		return
@@ -1363,9 +1363,8 @@ func (s *Site) resetPageBuildState() {
 
 	s.Info.paginationPageCount = 0
 
-	for _, p := range s.Pages {
+	for _, p := range s.AllPages {
 		p.scratch = newScratch()
-
 	}
 }
 
@@ -1389,17 +1388,6 @@ func (s *Site) assembleSections() {
 			}
 		}
 	}
-}
-
-func (s *Site) possibleTaxonomies() (taxonomies []string) {
-	for _, p := range s.Pages {
-		for k := range p.Params {
-			if !helpers.InStringArray(taxonomies, k) {
-				taxonomies = append(taxonomies, k)
-			}
-		}
-	}
-	return
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
@@ -1795,19 +1783,6 @@ func (s *Site) renderSectionLists() error {
 	return nil
 }
 
-func (s *Site) newHomeNode() *Node {
-	n := s.newNode()
-	n.Title = n.Site.Title
-	n.IsHome = true
-	s.setURLs(n, "/")
-	n.Data["Pages"] = s.Pages
-	if len(s.Pages) != 0 {
-		n.Date = s.Pages[0].Date
-		n.Lastmod = s.Pages[0].Lastmod
-	}
-	return n
-}
-
 func (s *Site) renderHomePage() error {
 	n := s.newHomeNode()
 	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
@@ -1885,6 +1860,19 @@ func (s *Site) renderHomePage() error {
 	}
 
 	return nil
+}
+
+func (s *Site) newHomeNode() *Node {
+	n := s.newNode()
+	n.Title = n.Site.Title
+	n.IsHome = true
+	s.setURLs(n, "/")
+	n.Data["Pages"] = s.Pages
+	if len(s.Pages) != 0 {
+		n.Date = s.Pages[0].Date
+		n.Lastmod = s.Pages[0].Lastmod
+	}
+	return n
 }
 
 func (s *Site) renderSitemap() error {

@@ -93,16 +93,27 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 }
 
 func createAndRenderPages(t *testing.T, s *Site) {
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
+	createPagesAndMeta(t, s)
+
+	if err := s.renderPages(); err != nil {
+		t.Fatalf("Unable to render pages. %s", err)
 	}
+}
+
+func createPagesAndMeta(t *testing.T, s *Site) {
+	createPages(t, s)
+
+	s.setupTranslations()
+	s.setupPrevNext()
 
 	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
+}
 
-	if err := s.renderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
+func createPages(t *testing.T, s *Site) {
+	if err := s.createPages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
 	}
 }
 
@@ -255,9 +266,8 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 		s.initializeSiteInfo()
 
-		if err := s.createPages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
+		createPages(t, s)
+
 		return s
 	}
 
@@ -265,14 +275,14 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
 	s := siteSetup()
-	if len(s.Pages) != 1 {
+	if len(s.AllPages) != 1 {
 		t.Fatal("Draft or Future dated content published unexpectedly")
 	}
 
 	// only publishDate in the past should be rendered
 	viper.Set("BuildDrafts", true)
 	s = siteSetup()
-	if len(s.Pages) != 2 {
+	if len(s.AllPages) != 2 {
 		t.Fatal("Future Dated Posts published unexpectedly")
 	}
 
@@ -280,7 +290,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildDrafts", false)
 	viper.Set("BuildFuture", true)
 	s = siteSetup()
-	if len(s.Pages) != 2 {
+	if len(s.AllPages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
 	}
 
@@ -288,7 +298,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildDrafts", true)
 	viper.Set("BuildFuture", true)
 	s = siteSetup()
-	if len(s.Pages) != 4 {
+	if len(s.AllPages) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
 
@@ -314,9 +324,8 @@ func TestFutureExpirationRender(t *testing.T) {
 
 		s.initializeSiteInfo()
 
-		if err := s.createPages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
+		createPages(t, s)
+
 		return s
 	}
 
@@ -324,17 +333,17 @@ func TestFutureExpirationRender(t *testing.T) {
 
 	s := siteSetup()
 
-	if len(s.Pages) != 1 {
-		if len(s.Pages) > 1 {
+	if len(s.AllPages) != 1 {
+		if len(s.AllPages) > 1 {
 			t.Fatal("Expired content published unexpectedly")
 		}
 
-		if len(s.Pages) < 1 {
+		if len(s.AllPages) < 1 {
 			t.Fatal("Valid content expired unexpectedly")
 		}
 	}
 
-	if s.Pages[0].Title == "doc2" {
+	if s.AllPages[0].Title == "doc2" {
 		t.Fatal("Expired content published unexpectedly")
 	}
 }
@@ -684,17 +693,7 @@ func TestAbsURLify(t *testing.T) {
 
 			s.prepTemplates("blue/single.html", templateWithURLAbs)
 
-			if err := s.createPages(); err != nil {
-				t.Fatalf("Unable to create pages: %s", err)
-			}
-
-			if err := s.buildSiteMeta(); err != nil {
-				t.Fatalf("Unable to build site metadata: %s", err)
-			}
-
-			if err := s.renderPages(); err != nil {
-				t.Fatalf("Unable to render pages. %s", err)
-			}
+			createAndRenderPages(t, s)
 
 			tests := []struct {
 				file, expected string
@@ -786,13 +785,7 @@ func TestOrderedPages(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
 		t.Errorf("Pages in unexpected order. First should be '%d', got '%d'", 2, s.Sections["sect"][0].Weight)
@@ -860,13 +853,7 @@ func TestGroupedPages(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	rbysection, err := s.Pages.GroupBy("Section", "desc")
 	if err != nil {
@@ -1050,13 +1037,7 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	if s.Taxonomies["tags"]["a"][0].Page.Title != "foo" {
 		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title)
@@ -1124,9 +1105,7 @@ func setupLinkingMockSite(t *testing.T) *Site {
 
 	site.initializeSiteInfo()
 
-	if err := site.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
+	createPagesAndMeta(t, site)
 
 	return site
 }
@@ -1430,20 +1409,11 @@ NOTE: should use the "permalinks" configuration with :filename
 	s.prepTemplates()
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	s.setupTranslations()
-	s.setupPrevNext()
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	assert.Len(t, s.Source.Files(), 6, "should have 6 source files")
 	assert.Len(t, s.Pages, 3, "should have 3 pages")
-	assert.Len(t, s.TranslatedPages, 3, "should have 3 translated pages")
+	assert.Len(t, s.AllPages, 6, "should have 6 total pages (including translations)")
 
 	doc1en := s.Pages[0]
 	permalink, err := doc1en.Permalink()
@@ -1464,7 +1434,7 @@ NOTE: should use the "permalinks" configuration with :filename
 
 	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
-	doc1fr := s.TranslatedPages[0]
+	doc1fr := doc1en.Translations["fr"]
 	permalink, err = doc1fr.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc1", permalink, "invalid doc1fr permalink")
@@ -1472,13 +1442,13 @@ NOTE: should use the "permalinks" configuration with :filename
 	assert.Equal(t, doc1en.Translations["fr"], doc1fr, "doc1-en should have doc1-fr as translation")
 	assert.Equal(t, doc1fr.Translations["en"], doc1en, "doc1-fr should have doc1-en as translation")
 
-	doc4 := s.TranslatedPages[1]
+	doc4 := s.AllPages[4]
 	permalink, err = doc4.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc4", permalink, "invalid doc4 permalink")
 	assert.Len(t, doc4.Translations, 0, "found translations for doc4")
 
-	doc5 := s.TranslatedPages[2]
+	doc5 := s.AllPages[5]
 	permalink, err = doc5.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/somewhere/else/doc5", permalink, "invalid doc5 permalink")

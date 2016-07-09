@@ -31,12 +31,16 @@ Multilingual:
 copyright: "Everything is mine"
 ```
 
-Anything not defined in a `lang:` block will fall back to the global
+Anything not defined in a `[lang]:` block will fall back to the global
 value for that key (like `copyright` in this example).
 
 With the config above, all content, sitemap, RSS feeds, paginations
 and taxonomy pages will be rendered under `/en` in English, and under
 `/fr` in French.
+
+Only those keys are read under `Multilingual`: `weight`, `title`,
+`author`, `social`, `languageCode`, `copyright`, `disqusShortname`,
+`params` (which can contain a map of several other keys).
 
 
 ### Translating your content
@@ -168,3 +172,61 @@ variables) in your templates are prefixed with `{{
 `LanguagePrefix` variable will equal `"/en"` (or whatever your
 `CurrentLanguage` is). If not enabled, it will be an empty string, so
 it is harmless for non-multilingual sites.
+
+
+### Multilingual index.html and 404.html
+
+To redirect your users to their closest language, drop an `index.html`
+in `/static` of your site, with the following content (tailored to
+your needs) to redirect based on their browser's language:
+
+```
+<html><head>
+<meta http-equiv="refresh" content="1;url=/en" /><!-- just in case JS doesn't work -->
+<script>
+lang = window.navigator.language.substr(0, 2);
+if (lang == "fr") {
+    window.location = "/fr";
+} else {
+    window.location = "/en";
+}
+
+/* or simply:
+window.location = "/en";
+*/
+</script></head><body></body></html>
+```
+
+An even simpler version will always redirect your users to a given language:
+
+```
+<html><head>
+<meta http-equiv="refresh" content="0;url=/en" />
+</head><body></body></html>
+```
+
+You can do something similar with your `404.html` page, as you don't
+know the language of someone arriving at a non-existing page.  You
+could inspect the prefix of the navigator path in Javascript or use
+the browser's language detection like above.
+
+
+### Sitemaps
+
+As sitemaps are generated once per language and live in
+`[lang]/sitemap.xml`. Write this content in `static/sitemap.xml` to
+link all your sitemaps together:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <sitemap>
+      <loc>https://example.com/en/sitemap.xml</loc>
+   </sitemap>
+   <sitemap>
+      <loc>https://example.com/fr/sitemap.xml</loc>
+   </sitemap>
+</sitemapindex>
+```
+
+and explicitly list all the languages you want referenced.
