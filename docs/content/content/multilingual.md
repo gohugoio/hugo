@@ -148,8 +148,12 @@ Hugo uses [go-i18n](https://github.com/nicksnyder/go-i18n) to support
 string translations.  Follow the link to find tools to manage your
 translation workflows.
 
-Translations are collected from the `themes/[name]/i18n/` folder, in
-addition to the files present in `i18n/` at the root of your project.
+Translations are collected from the `themes/[name]/i18n/` folder
+(built into the theme), as well as translations present in `i18n/` at
+the root of your project.  In the `i18n`, the translations will be
+merged and take precedence over what is in the theme folder.  Files in
+there follow RFC 5646 and should be named something like `en-US.yaml`,
+`fr.yaml`, etc..
 
 From within your templates, use the `i18n` function as such:
 
