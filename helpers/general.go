@@ -76,6 +76,8 @@ func GuessType(in string) string {
 		return "rst"
 	case "html", "htm":
 		return "html"
+	case "github":
+		return "github"
 	}
 
 	return "unknown"

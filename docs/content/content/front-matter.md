@@ -105,7 +105,7 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 * **isCJKLanguage** If true, explicitly treat the content as CJKLanguage (.Summary and .WordCount can work properly in CJKLanguage)
 * **weight** Used for sorting
 * **markup** *(Experimental)* Specify `"rst"` for reStructuredText (requires
-            `rst2html`) or `"md"` (default) for Markdown
+            `rst2html`), `"github"` for Github-flavored Markdown, or `"md"` (default) for Markdown
 * **slug** The token to appear in the tail of the URL,
    *or*<br>
 * **url** The full path to the content from the web root.<br>

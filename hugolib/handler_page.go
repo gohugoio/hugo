@@ -27,6 +27,7 @@ func init() {
 	RegisterHandler(new(asciidocHandler))
 	RegisterHandler(new(rstHandler))
 	RegisterHandler(new(mmarkHandler))
+	RegisterHandler(new(githubHandler))
 }
 
 type basicPageHandler Handle
@@ -97,6 +98,15 @@ type rstHandler struct {
 
 func (h rstHandler) Extensions() []string { return []string{"rest", "rst"} }
 func (h rstHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	return commonConvert(p, t)
+}
+
+type githubHandler struct {
+	basicPageHandler
+}
+
+func (h githubHandler) Extensions() []string { return []string{"github_flavored_markdown", "github"} }
+func (h githubHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	return commonConvert(p, t)
 }
 

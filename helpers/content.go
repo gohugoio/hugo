@@ -26,6 +26,7 @@ import (
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
+	"github.com/shurcooL/github_flavored_markdown"
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
@@ -251,6 +252,10 @@ func markdownRenderWithTOC(ctx *RenderingContext) []byte {
 		getMarkdownExtensions(ctx))
 }
 
+func githubRender(ctx *RenderingContext) []byte {
+	return github_flavored_markdown.Markdown(ctx.Content)
+}
+
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
 func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
@@ -372,6 +377,8 @@ func RenderBytesWithTOC(ctx *RenderingContext) []byte {
 		return mmarkRender(ctx)
 	case "rst":
 		return []byte(getRstContent(ctx.Content))
+	case "github":
+		return githubRender(ctx)
 	}
 }
 
@@ -388,6 +395,8 @@ func RenderBytes(ctx *RenderingContext) []byte {
 		return mmarkRender(ctx)
 	case "rst":
 		return []byte(getRstContent(ctx.Content))
+	case "github":
+		return githubRender(ctx)
 	}
 }
 

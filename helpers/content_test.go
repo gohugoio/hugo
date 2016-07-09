@@ -299,6 +299,21 @@ func TestGetMarkdownRendererWithTOC(t *testing.T) {
 	}
 }
 
+func TestGithubRenderer(t *testing.T) {
+	ctx := &RenderingContext{}
+	ctx.Content = []byte("- [x] done\n- [ ] to do")
+	ctx.Config = ctx.getConfig()
+	actualRenderedMarkdown := githubRender(ctx)
+	expectedRenderedMarkdown := []byte(`<ul>
+<li><input type="checkbox" checked="" disabled=""> done</li>
+<li><input type="checkbox" disabled=""> to do</li>
+</ul>
+`)
+	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
+		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
+	}
+}
+
 func TestGetMmarkExtensions(t *testing.T) {
 	//TODO: This is doing the same just with different marks...
 	type data struct {
