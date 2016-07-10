@@ -25,6 +25,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
@@ -139,6 +141,29 @@ func TestGetRelativePath(t *testing.T) {
 		}
 
 	}
+}
+
+func TestGetRealPath(t *testing.T) {
+	d1, err := ioutil.TempDir("", "d1")
+	defer os.Remove(d1)
+	fs := afero.NewOsFs()
+
+	rp1, err := GetRealPath(fs, d1)
+	assert.NoError(t, err)
+	assert.Equal(t, d1, rp1)
+
+	sym := filepath.Join(os.TempDir(), "d1sym")
+	err = os.Symlink(d1, sym)
+	defer os.Remove(sym)
+	assert.NoError(t, err)
+
+	rp2, err := GetRealPath(fs, sym)
+	assert.NoError(t, err)
+
+	// On OS X, the temp folder is itself a symbolic link (to /private...)
+	// This has to do for now.
+	assert.True(t, strings.HasSuffix(rp2, d1))
+
 }
 
 func TestMakePathRelative(t *testing.T) {

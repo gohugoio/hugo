@@ -476,16 +476,15 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 	logger := helpers.NewDistinctFeedbackLogger()
 
 	for _, ev := range events {
-		// Need to re-read source
-		if strings.HasPrefix(ev.Name, s.absContentDir()) {
+		if s.isContentDirEvent(ev) {
 			logger.Println("Source changed", ev.Name)
 			sourceChanged = append(sourceChanged, ev)
 		}
-		if strings.HasPrefix(ev.Name, s.absLayoutDir()) || strings.HasPrefix(ev.Name, s.absThemeDir()) {
+		if s.isLayoutDirEvent(ev) || s.isThemeDirEvent(ev) {
 			logger.Println("Template changed", ev.Name)
 			tmplChanged = append(tmplChanged, ev)
 		}
-		if strings.HasPrefix(ev.Name, s.absDataDir()) {
+		if s.isDataDirEvent(ev) {
 			logger.Println("Data changed", ev.Name)
 			dataChanged = append(dataChanged, ev)
 		}
@@ -546,7 +545,7 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 		// so we do this first to prevent races.
 		if ev.Op&fsnotify.Remove == fsnotify.Remove {
 			//remove the file & a create will follow
-			path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
+			path, _ := helpers.GetRelativePath(ev.Name, s.getContentDir(ev.Name))
 			s.removePageByPath(path)
 			continue
 		}
@@ -557,7 +556,7 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 		if ev.Op&fsnotify.Rename == fsnotify.Rename {
 			// If the file is still on disk, it's only been updated, if it's not, it's been moved
 			if ex, err := afero.Exists(hugofs.Source(), ev.Name); !ex || err != nil {
-				path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
+				path, _ := helpers.GetRelativePath(ev.Name, s.getContentDir(ev.Name))
 				s.removePageByPath(path)
 				continue
 			}
@@ -941,16 +940,72 @@ func (s *Site) absI18nDir() string {
 	return helpers.AbsPathify(viper.GetString("I18nDir"))
 }
 
+func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
+	return s.getDataDir(e.Name) != ""
+}
+
+func (s *Site) getDataDir(path string) string {
+	return getRealDir(s.absDataDir(), path)
+}
+
 func (s *Site) absThemeDir() string {
 	return helpers.AbsPathify(viper.GetString("themesDir") + "/" + viper.GetString("theme"))
+}
+
+func (s *Site) isThemeDirEvent(e fsnotify.Event) bool {
+	return s.getThemeDir(e.Name) != ""
+}
+
+func (s *Site) getThemeDir(path string) string {
+	return getRealDir(s.absThemeDir(), path)
 }
 
 func (s *Site) absLayoutDir() string {
 	return helpers.AbsPathify(viper.GetString("LayoutDir"))
 }
 
+func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
+	return s.getLayoutDir(e.Name) != ""
+}
+
+func (s *Site) getLayoutDir(path string) string {
+	return getRealDir(s.absLayoutDir(), path)
+}
+
 func (s *Site) absContentDir() string {
 	return helpers.AbsPathify(viper.GetString("ContentDir"))
+}
+
+func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
+	return s.getContentDir(e.Name) != ""
+}
+
+func (s *Site) getContentDir(path string) string {
+	return getRealDir(s.absContentDir(), path)
+}
+
+// getRealDir gets the base path of the given path, also handling the case where
+// base is a symlinked folder.
+func getRealDir(base, path string) string {
+
+	if strings.HasPrefix(path, base) {
+		return base
+	}
+
+	realDir, err := helpers.GetRealPath(hugofs.Source(), base)
+
+	if err != nil {
+		if !os.IsNotExist(err) {
+			jww.ERROR.Printf("Failed to get real path for %s: %s", path, err)
+		}
+		return ""
+	}
+
+	if strings.HasPrefix(path, realDir) {
+		return realDir
+	}
+
+	return ""
 }
 
 func (s *Site) absPublishDir() string {
@@ -973,7 +1028,7 @@ func (s *Site) reReadFile(absFilePath string) (*source.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	file, err = source.NewFileFromAbs(s.absContentDir(), absFilePath, reader)
+	file, err = source.NewFileFromAbs(s.getContentDir(absFilePath), absFilePath, reader)
 
 	if err != nil {
 		return nil, err
