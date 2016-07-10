@@ -367,7 +367,7 @@ func RenderBytes(ctx *RenderingContext) []byte {
 	case "markdown":
 		return markdownRender(ctx)
 	case "asciidoc":
-		return []byte(getAsciidocContent(ctx.Content))
+		return getAsciidocContent(ctx.Content)
 	case "mmark":
 		return mmarkRender(ctx)
 	case "rst":
@@ -460,14 +460,14 @@ func HasAsciidoc() bool {
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
-func getAsciidocContent(content []byte) string {
+func getAsciidocContent(content []byte) []byte {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	path := getAsciidocExecPath()
 	if path == "" {
 		jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
 			"                 Leaving AsciiDoc content unrendered.")
-		return (string(content))
+		return content
 	}
 
 	jww.INFO.Println("Rendering with", path, "...")
@@ -479,7 +479,7 @@ func getAsciidocContent(content []byte) string {
 		jww.ERROR.Println(err)
 	}
 
-	return out.String()
+	return out.Bytes()
 }
 
 // HasRst returns whether rst2html is installed on this computer.
