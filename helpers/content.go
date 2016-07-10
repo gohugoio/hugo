@@ -517,9 +517,8 @@ func getRstContent(content []byte) []byte {
 
 	cmd := exec.Command(path, "--leave-comments")
 	cmd.Stdin = bytes.NewReader(cleanContent)
-	out := bufferpool.GetBuffer()
-	defer bufferpool.PutBuffer(out)
-	cmd.Stdout = out
+	var out bytes.Buffer
+	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
 		jww.ERROR.Println(err)
 	}
