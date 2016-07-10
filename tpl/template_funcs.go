@@ -1703,6 +1703,11 @@ func humanize(in interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	if word == "" {
+		return "", nil
+	}
+
 	return inflect.Humanize(word), nil
 }
 

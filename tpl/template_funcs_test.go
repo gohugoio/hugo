@@ -1805,8 +1805,11 @@ func TestInflect(t *testing.T) {
 		expected    string
 	}{
 		{humanize, "MyCamel", "My camel"},
+		{humanize, "", ""},
 		{pluralize, "cat", "cats"},
+		{pluralize, "", ""},
 		{singularize, "cats", "cat"},
+		{singularize, "", ""},
 	} {
 
 		result, err := this.inflectFunc(this.in)
