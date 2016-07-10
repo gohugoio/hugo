@@ -373,7 +373,7 @@ func RenderBytes(ctx *RenderingContext) []byte {
 	case "mmark":
 		return mmarkRender(ctx)
 	case "rst":
-		return []byte(getRstContent(ctx.Content))
+		return getRstContent(ctx.Content)
 	}
 }
 
@@ -503,7 +503,7 @@ func getRstExecPath() string {
 
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
-func getRstContent(content []byte) string {
+func getRstContent(content []byte) []byte {
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	path := getRstExecPath()
@@ -511,7 +511,7 @@ func getRstContent(content []byte) string {
 	if path == "" {
 		jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
 			"                 Leaving reStructuredText content unrendered.")
-		return (string(content))
+		return content
 
 	}
 
@@ -523,11 +523,11 @@ func getRstContent(content []byte) string {
 		jww.ERROR.Println(err)
 	}
 
-	rstLines := strings.Split(out.String(), "\n")
-	for i, line := range rstLines {
-		if strings.HasPrefix(line, "<body>") {
-			rstLines = (rstLines[i+1 : len(rstLines)-3])
-		}
-	}
-	return strings.Join(rstLines, "\n")
+	result := out.Bytes()
+
+	// TODO(bep) check if rst2html has a body only option.
+	bodyStart := bytes.Index(result, []byte("<body>\n"))
+	bodyEnd := bytes.Index(result, []byte("\n</body>"))
+
+	return result[bodyStart+7 : bodyEnd]
 }
