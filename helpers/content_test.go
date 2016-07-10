@@ -289,10 +289,10 @@ func TestGetMarkdownRenderer(t *testing.T) {
 }
 
 func TestGetMarkdownRendererWithTOC(t *testing.T) {
-	ctx := &RenderingContext{}
+	ctx := &RenderingContext{RenderTOC: true}
 	ctx.Content = []byte("testContent")
 	ctx.Config = ctx.getConfig()
-	actualRenderedMarkdown := markdownRenderWithTOC(ctx)
+	actualRenderedMarkdown := markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)

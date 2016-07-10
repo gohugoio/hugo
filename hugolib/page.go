@@ -280,7 +280,7 @@ func (p *Page) renderContent(content []byte) []byte {
 			return p.Node.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
-	return helpers.RenderBytesWithTOC(&helpers.RenderingContext{Content: content, PageFmt: p.determineMarkupType(),
+	return helpers.RenderBytes(&helpers.RenderingContext{Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
 		DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 

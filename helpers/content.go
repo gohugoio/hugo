@@ -241,13 +241,12 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 }
 
 func markdownRender(ctx *RenderingContext) []byte {
+	if ctx.RenderTOC {
+		return blackfriday.Markdown(ctx.Content,
+			getHTMLRenderer(blackfriday.HTML_TOC, ctx),
+			getMarkdownExtensions(ctx))
+	}
 	return blackfriday.Markdown(ctx.Content, getHTMLRenderer(0, ctx),
-		getMarkdownExtensions(ctx))
-}
-
-func markdownRenderWithTOC(ctx *RenderingContext) []byte {
-	return blackfriday.Markdown(ctx.Content,
-		getHTMLRenderer(blackfriday.HTML_TOC, ctx),
 		getMarkdownExtensions(ctx))
 }
 
@@ -345,6 +344,7 @@ type RenderingContext struct {
 	PageFmt      string
 	DocumentID   string
 	Config       *Blackfriday
+	RenderTOC    bool
 	FileResolver FileResolverFunc
 	LinkResolver LinkResolverFunc
 	configInit   sync.Once
@@ -357,22 +357,6 @@ func (c *RenderingContext) getConfig() *Blackfriday {
 		}
 	})
 	return c.Config
-}
-
-// RenderBytesWithTOC renders a []byte with table of contents included.
-func RenderBytesWithTOC(ctx *RenderingContext) []byte {
-	switch ctx.PageFmt {
-	default:
-		return markdownRenderWithTOC(ctx)
-	case "markdown":
-		return markdownRenderWithTOC(ctx)
-	case "asciidoc":
-		return []byte(getAsciidocContent(ctx.Content))
-	case "mmark":
-		return mmarkRender(ctx)
-	case "rst":
-		return []byte(getRstContent(ctx.Content))
-	}
 }
 
 // RenderBytes renders a []byte.
