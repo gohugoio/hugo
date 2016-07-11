@@ -43,6 +43,8 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 		{"foobar/foo.html", false, []string{"\\.md$", "\\.boo$"}},
 		{"foobar/foo.md", true, []string{"^foo"}},
 		{"foobar/foo.md", false, []string{"*", "\\.md$", "\\.boo$"}},
+		{"foobar/.#content.md", true, []string{"/\\.#"}},
+		{".#foobar.md", true, []string{"^\\.#"}},
 	}
 
 	for _, test := range tests {

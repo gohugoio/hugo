@@ -745,17 +745,20 @@ func NewWatcher(port int) error {
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
+					baseName := filepath.Base(ev.Name)
 					istemp := strings.HasSuffix(ext, "~") ||
 						(ext == ".swp") || // vim
 						(ext == ".swx") || // vim
 						(ext == ".tmp") || // generic temp file
 						(ext == ".DS_Store") || // OSX Thumbnail
-						filepath.Base(ev.Name) == "4913" || // vim
+						baseName == "4913" || // vim
 						strings.HasPrefix(ext, ".goutputstream") || // gnome
 						strings.HasSuffix(ext, "jb_old___") || // intelliJ
 						strings.HasSuffix(ext, "jb_tmp___") || // intelliJ
 						strings.HasSuffix(ext, "jb_bak___") || // intelliJ
-						strings.HasPrefix(ext, ".sb-") // byword
+						strings.HasPrefix(ext, ".sb-") || // byword
+						strings.HasPrefix(baseName, ".#") || // emacs
+						strings.HasPrefix(baseName, "#") // emacs
 					if istemp {
 						continue
 					}
