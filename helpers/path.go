@@ -91,6 +91,19 @@ func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }
 
+// From https://golang.org/src/net/url/url.go
+func ishex(c rune) bool {
+	switch {
+	case '0' <= c && c <= '9':
+		return true
+	case 'a' <= c && c <= 'f':
+		return true
+	case 'A' <= c && c <= 'F':
+		return true
+	}
+	return false
+}
+
 // UnicodeSanitize sanitizes string to be used in Hugo URL's, allowing only
 // a predefined set of special Unicode characters.
 // If RemovePathAccents configuration flag is enabled, Uniccode accents
@@ -99,8 +112,10 @@ func UnicodeSanitize(s string) string {
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
 
-	for _, r := range source {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '%' || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' {
+	for i, r := range source {
+		if r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]) {
+			target = append(target, r)
+		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' {
 			target = append(target, r)
 		}
 	}

@@ -31,6 +31,7 @@ func TestURLize(t *testing.T) {
 		{"foo,bar:foobar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},
 		{"трям/трям", "%D1%82%D1%80%D1%8F%D0%BC/%D1%82%D1%80%D1%8F%D0%BC"},
+		{"100%-google", "100-google"},
 	}
 
 	for _, test := range tests {
