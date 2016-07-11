@@ -44,7 +44,7 @@ func (renderer *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang
 }
 
 func (renderer *HugoHTMLRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
-	if renderer.LinkResolver == nil || bytes.HasPrefix(link, []byte("{-{-HUGOSHORTCODE")) {
+	if renderer.LinkResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
 		// Use the blackfriday built in Link handler
 		renderer.Renderer.Link(out, link, title, content)
 	} else {
@@ -58,7 +58,7 @@ func (renderer *HugoHTMLRenderer) Link(out *bytes.Buffer, link []byte, title []b
 	}
 }
 func (renderer *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-	if renderer.FileResolver == nil || bytes.HasPrefix(link, []byte("{-{-HUGOSHORTCODE")) {
+	if renderer.FileResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
 		// Use the blackfriday built in Image handler
 		renderer.Renderer.Image(out, link, title, alt)
 	} else {
