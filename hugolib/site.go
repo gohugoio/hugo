@@ -283,11 +283,23 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			return "", fmt.Errorf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
-		link, err = target.RelPermalink()
-
+		permalink, err := target.permalink()
 		if err != nil {
 			return "", err
 		}
+
+		// Need to remove the baseUrl path at this point.
+		relpath, err := helpers.GetRelativePath(permalink.String(), string(currentPage.Site.BaseURL))
+		if err != nil {
+			return "", err
+		}
+		// Can't compare permalink to BaseUrl, as there may be a port, or a scheme change
+		if relpath == "./" {
+			link = "/"
+		} else {
+			link = "/" + filepath.ToSlash(relpath)
+		}
+		// fmt.Printf("SVEN SourceRelativeLink %s -> %s -> %s-> %s\n", ref, target.Path(), permalink.String(), link)
 	}
 
 	if refURL.Fragment != "" {
@@ -319,7 +331,6 @@ func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string
 	}
 
 	var target *source.File
-	var link string
 
 	if refURL.Path != "" {
 		refPath := filepath.Clean(filepath.FromSlash(refURL.Path))
@@ -343,8 +354,7 @@ func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string
 			return "", fmt.Errorf("No file found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
-		link = target.Path()
-		return "/" + filepath.ToSlash(link), nil
+		return "/" + filepath.ToSlash(target.Path()), nil
 	}
 
 	return "", fmt.Errorf("failed to find a file to match \"%s\" on page \"%s\"", ref, currentPage.Source.Path())
