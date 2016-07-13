@@ -450,12 +450,15 @@ Used in the [highlight shortcode](/extras/highlighting/).
 
 
 ### humanize
-Humanize returns the humanized version of a string with the first letter capitalized.
+Humanize returns the humanized version of an argument with the first letter capitalized.
+If the input is either an int64 value or the string representation of an integer, humanize returns the number with the proper ordinal appended.
 
 e.g.
 ```
 {{humanize "my-first-post"}} → "My first post"
 {{humanize "myCamelPost"}} → "My camel post"
+{{humanize "52"}} → "52nd"
+{{humanize 103}} → "103rd"
 ```
 
 

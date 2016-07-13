@@ -1696,8 +1696,12 @@ func countRunes(content interface{}) (int, error) {
 	return counter, nil
 }
 
-// humanize returns the humanized form of a single word.
+// humanize returns the humanized form of a single parameter.
+// If the parameter is either an integer or a string containing an integer
+// value, the behavior is to add the appropriate ordinal.
 // Example:  "my-first-post" -> "My first post"
+// Example:  "103" -> "103rd"
+// Example:  52 -> "52nd"
 func humanize(in interface{}) (string, error) {
 	word, err := cast.ToStringE(in)
 	if err != nil {
@@ -1708,6 +1712,11 @@ func humanize(in interface{}) (string, error) {
 		return "", nil
 	}
 
+	_, ok := in.(int)           // original param was literal int value
+	_, err = strconv.Atoi(word) // original param was string containing an int value
+	if ok == true || err == nil {
+		return inflect.Ordinalize(word), nil
+	}
 	return inflect.Humanize(word), nil
 }
 

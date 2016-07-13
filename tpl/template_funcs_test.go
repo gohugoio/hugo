@@ -1801,11 +1801,16 @@ func TestHighlight(t *testing.T) {
 func TestInflect(t *testing.T) {
 	for i, this := range []struct {
 		inflectFunc func(i interface{}) (string, error)
-		in          string
+		in          interface{}
 		expected    string
 	}{
 		{humanize, "MyCamel", "My camel"},
 		{humanize, "", ""},
+		{humanize, "103", "103rd"},
+		{humanize, "41", "41st"},
+		{humanize, 103, "103rd"},
+		{humanize, int64(92), "92nd"},
+		{humanize, "5.5", "5.5"},
 		{pluralize, "cat", "cats"},
 		{pluralize, "", ""},
 		{singularize, "cats", "cat"},
