@@ -149,6 +149,7 @@ func FormatSanitize(kind string) string {
 	}
 }
 
+// DetectFrontMatter detects the type of frontmatter analysing its first character.
 func DetectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {
 	case '-':
