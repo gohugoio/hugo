@@ -2025,7 +2025,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 func (s *Site) render(name string, d interface{}, w io.Writer, layouts ...string) error {
 	layout, found := s.findFirstLayout(layouts...)
 	if found == false {
-		jww.ERROR.Printf("Unable to locate layout for %s: %s\n", name, layouts)
+		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
 		return nil
 	}
 
