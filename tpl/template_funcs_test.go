@@ -93,6 +93,10 @@ eq: {{ if eq .Section "blog" }}current{{ end }}
 findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}
 hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
 hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
+humanize 1: {{ humanize "my-first-post" }}
+humanize 2: {{ humanize "myCamelPost" }}
+humanize 3: {{ humanize "52" }}
+humanize 4: {{ humanize 103 }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
 lower: {{lower "BatMan"}}
@@ -145,6 +149,10 @@ eq: current
 findRE: [go]
 hasPrefix 1: true
 hasPrefix 2: false
+humanize 1: My first post
+humanize 2: My camel post
+humanize 3: 52nd
+humanize 4: 103rd
 in: Substring found!
 jsonify: ["A","B","C"]
 lower: batman
