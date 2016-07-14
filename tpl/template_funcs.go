@@ -1769,7 +1769,7 @@ func querify(params ...interface{}) (string, error) {
 	}
 
 	for name, value := range vals {
-		qs.Add(name, url.QueryEscape(fmt.Sprintf("%v", value)))
+		qs.Add(name, fmt.Sprintf("%v", value))
 	}
 
 	return qs.Encode(), nil
