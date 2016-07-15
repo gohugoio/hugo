@@ -89,6 +89,7 @@ A static site with a dynamic search function? Yes. Alternatively to embeddable s
 
 ## Commercial Services
 
+- [Algolia](https://www.algolia.com/)'s Search API makes it easy to deliver a great search experience in your apps &amp; websites. Algolia Search provides hosted full-text, numerical, faceted and geolocalized search.
 - [Appernetic.io](https://appernetic.io) is a Hugo Static Site Generator as a Service that is easy to use for non-technical users.
 Features: inline PageDown editor, visual tree view, image upload and digital asset management with Cloudinary, site preview, continuous integration with GitHub, atomic deploy and hosting, Git and Hugo integration, autosave, custom domain, project syncing, theme cloning and management. Developers have complete control over the source code and can manage it with GitHub’s deceptively simple workflow.
 
