@@ -52,7 +52,7 @@ matter, content or derived from file location.
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
-**.UniqueID** The MD5-checksum of the page's filename
+**.UniqueID** The MD5-checksum of the page's filename<br>
 **.Draft** A boolean, `true` if the content is marked as a draft in the front matter.<br>
 **.IsNode** Always false for pages.<br>
 **.IsPage** Always true for page.<br>
