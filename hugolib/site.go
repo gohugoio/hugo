@@ -294,7 +294,7 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			return "", err
 		}
 		// Can't compare permalink to BaseUrl, as there may be a port, or a scheme change
-		if relpath == "./" {
+		if filepath.ToSlash(relpath) == "./" {
 			link = "/"
 		} else {
 			link = "/" + filepath.ToSlash(relpath)
