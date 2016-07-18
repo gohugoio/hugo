@@ -93,6 +93,13 @@ eq: {{ if eq .Section "blog" }}current{{ end }}
 findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}
 hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
 hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
+htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
+htmlEscape 2: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}
+htmlUnescape 1: {{htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}
+htmlUnescape 2: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape | safeHTML}}
+htmlUnescape 3: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}
+htmlUnescape 4: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | htmlUnescape | safeHTML }}
+htmlUnescape 5: {{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | htmlEscape | safeHTML }}
 humanize 1: {{ humanize "my-first-post" }}
 humanize 2: {{ humanize "myCamelPost" }}
 humanize 3: {{ humanize "52" }}
@@ -149,6 +156,13 @@ eq: current
 findRE: [go]
 hasPrefix 1: true
 hasPrefix 2: false
+htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
+htmlEscape 2: Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
+htmlUnescape 1: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
+htmlUnescape 2: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
+htmlUnescape 3: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
+htmlUnescape 4: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
+htmlUnescape 5: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 humanize 1: My first post
 humanize 2: My camel post
 humanize 3: 52nd

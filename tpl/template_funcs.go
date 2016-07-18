@@ -1775,6 +1775,22 @@ func querify(params ...interface{}) (string, error) {
 	return qs.Encode(), nil
 }
 
+func htmlEscape(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return html.EscapeString(conv), nil
+}
+
+func htmlUnescape(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	return html.UnescapeString(conv), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
@@ -1803,6 +1819,8 @@ func init() {
 		"gt":           gt,
 		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
 		"highlight":    highlight,
+		"htmlEscape":   htmlEscape,
+		"htmlUnescape": htmlUnescape,
 		"humanize":     humanize,
 		"in":           in,
 		"index":        index,

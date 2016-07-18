@@ -448,6 +448,27 @@ e.g. `{{ "I :heart: Hugo" | emojify }}`
 Takes a string of code and a language, uses Pygments to return the syntax highlighted code in HTML.
 Used in the [highlight shortcode](/extras/highlighting/).
 
+### htmlEscape
+HtmlEscape returns the given string with the critical reserved HTML codes escaped,
+such that `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.
+
+Bear in mind that, unless content is passed to `safeHTML`, output strings are escaped
+usually by the processor anyway.
+
+e.g.
+`{{ htmlEscape "Hugo & Caddy > Wordpress & Apache" }} → "Hugo &amp; Caddy &gt; Wordpress &amp; Apache"`
+
+### htmlUnescape
+HtmlUnescape returns the given string with html escape codes un-escaped. This
+un-escapes more codes than `htmlEscape` escapes, including `#` codes and pre-UTF8
+escapes for accented characters. It defers completely to the Go `html.UnescapeString`
+function, so functionality is consistent with that codebase.
+
+Remember to pass the output of this to `safeHTML` if fully unescaped characters
+are desired, or the output will be escaped again as normal.
+
+e.g.
+`{{ htmlUnescape "Hugo &amp; Caddy &gt; Wordpress &amp; Apache" }} → "Hugo & Caddy > Wordpress & Apache"`
 
 ### humanize
 Humanize returns the humanized version of an argument with the first letter capitalized.
