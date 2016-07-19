@@ -473,6 +473,9 @@ e`,
 		{"sect/doc8.rst", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("sect/doc8/index.html"),
 			"<div class=\"document\">\n\n\n<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n</div>"},
+		{"sect/doc9.mmark", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
+			filepath.FromSlash("sect/doc9/index.html"),
+			"<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n"},
 	}
 
 	sources := make([]source.ByteSource, len(tests))
