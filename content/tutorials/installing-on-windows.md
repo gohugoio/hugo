@@ -1,6 +1,6 @@
 ---
 author: "Michael Henderson"
-lastmod: 2016-02-10
+lastmod: 2016-07-18
 date: 2015-03-30
 linktitle: Installing on Windows
 toc: true
