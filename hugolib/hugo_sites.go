@@ -216,6 +216,9 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		}
 	}
 
+	// TODO(bep) make a more logical grouping of these.
+	h.assembleGitInfo()
+
 	for _, s := range h.Sites {
 		if err := s.postProcess(); err != nil {
 			return err
@@ -288,6 +291,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	h.setupTranslations(firstSite)
 
 	if changed.source {
+		h.assembleGitInfo()
 		for _, s := range h.Sites {
 			if err := s.postProcess(); err != nil {
 				return err

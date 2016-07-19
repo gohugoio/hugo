@@ -133,6 +133,7 @@ var (
 	canonifyURLs          bool
 	cleanDestination      bool
 	enableRobotsTXT       bool
+	enableGitInfo         bool
 	disable404            bool
 	disableRSS            bool
 	disableSitemap        bool
@@ -237,6 +238,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&uglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
 	cmd.Flags().BoolVar(&canonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
+	cmd.Flags().BoolVar(&enableGitInfo, "enableGitInfo", false, "Add Git revision, date and author info to the pages")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().BoolVar(&pluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
@@ -318,6 +320,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if flagChanged(cmdV.Flags(), "enableRobotsTXT") {
 			viper.Set("enableRobotsTXT", enableRobotsTXT)
+		}
+		if flagChanged(cmdV.Flags(), "enableGitInfo") {
+			viper.Set("enableGitInfo", enableGitInfo)
 		}
 		if flagChanged(cmdV.Flags(), "pluralizeListTitles") {
 			viper.Set("pluralizeListTitles", pluralizeListTitles)

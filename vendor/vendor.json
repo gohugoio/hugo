@@ -21,6 +21,12 @@
 			"revisionTime": "2016-07-26T15:08:25Z"
 		},
 		{
+			"checksumSHA1": "dIidE/pUkqulIvTkuMBTpH3/lnU=",
+			"path": "github.com/bep/gitmap",
+			"revision": "a1a71abe12823e27ae7507189fe2e914ba9626ac",
+			"revisionTime": "2016-10-29T14:53:16Z"
+		},
+		{
 			"checksumSHA1": "K8wTIgrK5sl+LmQs8CD/orvKsAM=",
 			"path": "github.com/bep/inflect",
 			"revision": "b896c45f5af983b1f416bdf3bb89c4f1f0926f69",

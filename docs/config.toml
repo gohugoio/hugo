@@ -2,6 +2,7 @@ title = "Hugo: A Fast and Flexible Website Generator"
 baseurl = "http://gohugo.io/"
 MetaDataFormat = "yaml"
 pluralizeListTitles = false
+enableGitInfo = true
 
 [blackfriday]
   plainIDAnchors = true
