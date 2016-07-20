@@ -81,7 +81,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 
 	jww.INFO.Println("Import Jekyll from:", jekyllRoot, "to:", targetDir)
 
-	if strings.HasPrefix(targetDir, jekyllRoot) {
+	if strings.HasPrefix(filepath.Dir(targetDir), jekyllRoot) {
 		return newUserError("Target path should not be inside the Jekyll root, aborting.")
 	}
 
