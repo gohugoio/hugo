@@ -72,6 +72,18 @@ func (renderer *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []
 	}
 }
 
+// Task List support.
+func (renderer *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
+	switch {
+	case bytes.HasPrefix(text, []byte("[ ] ")):
+		text = append([]byte(`<input type="checkbox" disabled="">`), text[3:]...)
+	case bytes.HasPrefix(text, []byte("[x] ")) || bytes.HasPrefix(text, []byte("[X] ")):
+		text = append([]byte(`<input type="checkbox" checked="" disabled="">`), text[3:]...)
+	}
+
+	renderer.Renderer.ListItem(out, text, flags)
+}
+
 // HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html
 // Enabling Hugo to customise the rendering experience
 type HugoMmarkHTMLRenderer struct {
