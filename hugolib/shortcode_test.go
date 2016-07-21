@@ -153,7 +153,7 @@ func TestNestedNamedMissingParam(t *testing.T) {
 
 	CheckShortCodeMatch(t,
 		`{{% acc %}}{{% div %}}d1{{% /div %}}{{% div2 %}}d2{{% /div2 %}}{{% /acc %}}`,
-		"<div class=\"acc1\"><div></div>\n</div>", tem)
+		"<div class=\"acc\"><div >d1</div><div >d2</div>\n</div>", tem)
 }
 
 func TestIsNamedParamsSC(t *testing.T) {
