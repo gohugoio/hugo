@@ -124,13 +124,6 @@ func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", tem)
 }
 
-// Issue #2294
-func TestPositionalParamNil(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("div.html", `<div data='{{ .Get 0 }}'>{{ .Inner }}</div>`)
-	CheckShortCodeMatch(t, "{{% div %}}**foo**{{% /div %}}", "<div data=''><strong>foo</strong></div>", tem)
-}
-
 // some repro issues for panics in Go Fuzz testing
 func TestShortcodeGoFuzzRepros(t *testing.T) {
 	tt := tpl.New()
@@ -149,6 +142,16 @@ func TestNamedParamSC(t *testing.T) {
 	CheckShortCodeMatch(t, `{{< img src ="one" >}}`, `<img src="one">`, tem)
 	CheckShortCodeMatch(t, `{{< img src = "one" >}}`, `<img src="one">`, tem)
 	CheckShortCodeMatch(t, `{{< img src = "one" class = "aspen grove" >}}`, `<img src="one" class="aspen grove">`, tem)
+}
+
+// Issue #2294
+func TestNestedNamedMissingParam(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
+	tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+	CheckShortCodeMatch(t,
+		`{{% acc %}}{{% div %}}{{% /div %}}{{% /acc %}}`,
+		"<div class=\"acc\"><div ></div>\n</div>", tem)
 }
 
 func TestIsNamedParamsSC(t *testing.T) {

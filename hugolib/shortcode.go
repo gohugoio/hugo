@@ -66,6 +66,9 @@ func (scp *ShortcodeWithPage) Scratch() *Scratch {
 
 // Get is a convenience method to look up shortcode parameters by its key.
 func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
+	if scp.Params == nil {
+		return nil
+	}
 	if reflect.ValueOf(scp.Params).Len() == 0 {
 		return nil
 	}
