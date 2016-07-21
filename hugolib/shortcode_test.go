@@ -124,6 +124,13 @@ func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", tem)
 }
 
+// Issue #2294
+func TestPositionalParamNil(t *testing.T) {
+	tem := tpl.New()
+	tem.AddInternalShortcode("div.html", `<div data='{{ .Get 0 }}'>{{ .Inner }}</div>`)
+	CheckShortCodeMatch(t, "{{% div %}}**foo**{{% /div %}}", "<div data=''><strong>foo</strong></div>", tem)
+}
+
 // some repro issues for panics in Go Fuzz testing
 func TestShortcodeGoFuzzRepros(t *testing.T) {
 	tt := tpl.New()
