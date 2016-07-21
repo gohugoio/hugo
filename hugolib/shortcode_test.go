@@ -149,9 +149,11 @@ func TestNestedNamedMissingParam(t *testing.T) {
 	tem := tpl.New()
 	tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
 	tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+	tem.AddInternalShortcode("div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+
 	CheckShortCodeMatch(t,
-		`{{% acc %}}{{% div %}}{{% /div %}}{{% /acc %}}`,
-		"<div class=\"acc\"><div ></div>\n</div>", tem)
+		`{{% acc %}}{{% div %}}d1{{% /div %}}{{% div2 %}}d2{{% /div2 %}}{{% /acc %}}`,
+		"<div class=\"acc1\"><div></div>\n</div>", tem)
 }
 
 func TestIsNamedParamsSC(t *testing.T) {
