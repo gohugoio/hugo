@@ -4,9 +4,9 @@ date: 2013-07-01
 menu:
   main:
     parent: content
-next: /content/example
 notoc: true
 prev: /content/ordering
+next: /content/markdown-extras
 title: Summaries
 weight: 65
 ---

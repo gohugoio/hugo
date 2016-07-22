@@ -1,14 +1,14 @@
 ---
 aliases:
 - /doc/configuration/
-lastmod: 2015-12-08
+lastmod: 2016-07-22
 date: 2013-07-01
 linktitle: Configuration
 menu:
   main:
     parent: getting started
 next: /overview/source-directory
-notoc: true
+toc: true
 prev: /overview/usage
 title: Configuring Hugo
 weight: 40
@@ -195,6 +195,18 @@ But Hugo does expose some options---as listed in the table below, matched with t
 </thead>
 
 <tbody>
+
+<tr>
+<td><code><strong>taskLists</strong></code></td>
+<td><code>true</code></td>
+<td><code></code></td>
+</tr>
+<tr>
+<td class="purpose-title">Purpose:</td>
+<td class="purpose-description" colspan="2">Turn off GitHub styled automatic task/TODO list generation.
+</td>
+</tr>
+
 <tr>
 <td><code><strong>smartypants</strong></code></td>
 <td><code>true</code></td>
