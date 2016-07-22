@@ -74,6 +74,11 @@ func (renderer *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []
 
 // ListItem adds task list support to the Blackfriday renderer.
 func (renderer *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
+	if !renderer.Config.TaskLists {
+		renderer.Renderer.ListItem(out, text, flags)
+		return
+	}
+
 	switch {
 	case bytes.HasPrefix(text, []byte("[ ] ")):
 		text = append([]byte(`<input type="checkbox" disabled="" class="task-list-item">`), text[3:]...)
@@ -87,6 +92,10 @@ func (renderer *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags
 
 // List adds task list support to the Blackfriday renderer.
 func (renderer *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) {
+	if !renderer.Config.TaskLists {
+		renderer.Renderer.List(out, text, flags)
+		return
+	}
 	marker := out.Len()
 	renderer.Renderer.List(out, text, flags)
 	if out.Len() > marker {

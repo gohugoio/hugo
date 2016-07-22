@@ -51,6 +51,7 @@ type Blackfriday struct {
 	HrefTargetBlank                  bool
 	SmartDashes                      bool
 	LatexDashes                      bool
+	TaskLists                        bool
 	PlainIDAnchors                   bool
 	SourceRelativeLinksEval          bool
 	SourceRelativeLinksProjectFolder string
@@ -68,6 +69,7 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 		"smartDashes":                      true,
 		"latexDashes":                      true,
 		"plainIDAnchors":                   true,
+		"taskLists":                        true,
 		"sourceRelativeLinks":              false,
 		"sourceRelativeLinksProjectFolder": "/docs/content",
 	}
