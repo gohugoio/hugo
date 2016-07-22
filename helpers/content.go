@@ -203,9 +203,8 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 	}
 
 	return &HugoHTMLRenderer{
-		FileResolver: ctx.FileResolver,
-		LinkResolver: ctx.LinkResolver,
-		Renderer:     blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		RenderingContext: ctx,
+		Renderer:         blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
 }
 

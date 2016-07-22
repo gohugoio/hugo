@@ -29,8 +29,7 @@ type FileResolverFunc func(ref string) (string, error)
 // HugoHTMLRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
 // Enabling Hugo to customise the rendering experience
 type HugoHTMLRenderer struct {
-	FileResolver FileResolverFunc
-	LinkResolver LinkResolverFunc
+	*RenderingContext
 	blackfriday.Renderer
 }
 
