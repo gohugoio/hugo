@@ -33,6 +33,15 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
     {{ end }}
     </ul>
 
+It is possible to strip diacritics such as Č when ordered. Displayed key names are still same.
+
+    <ul>
+    {{ $data := .Data }}
+    {{ range $key, $value := .Data.Taxonomy.AlphabeticalAndDiacriticsStripped }}
+    <li><a href="{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ end }}
+    </ul>
+
 ### Order by Popularity Example
 
     <ul>
