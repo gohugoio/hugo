@@ -493,9 +493,8 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 			helpers.HugoReleaseVersion(), minVersion)
 	}
 
-	readMultilingualConfiguration()
+	return readMultilingualConfiguration()
 
-	return nil
 }
 
 func flagChanged(flags *flag.FlagSet, key string) bool {
@@ -715,11 +714,11 @@ func buildSite(watching ...bool) (err error) {
 
 	for _, lang := range langConfigsList {
 		t1 := time.Now()
-		mainSite, present := MainSites[lang]
+		mainSite, present := MainSites[lang.Lang]
 		if !present {
 			mainSite = new(hugolib.Site)
-			MainSites[lang] = mainSite
-			mainSite.SetMultilingualConfig(lang, langConfigsList, langConfigs)
+			MainSites[lang.Lang] = mainSite
+			mainSite.SetMultilingualConfig(lang, langConfigsList)
 		}
 
 		if len(watching) > 0 && watching[0] {
@@ -730,7 +729,7 @@ func buildSite(watching ...bool) (err error) {
 			return err
 		}
 
-		mainSite.Stats(lang, t1)
+		mainSite.Stats(lang.Lang, t1)
 	}
 
 	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
@@ -743,13 +742,13 @@ func rebuildSite(events []fsnotify.Event) error {
 
 	for _, lang := range langConfigsList {
 		t1 := time.Now()
-		mainSite := MainSites[lang]
+		mainSite := MainSites[lang.Lang]
 
 		if err := mainSite.ReBuild(events); err != nil {
 			return err
 		}
 
-		mainSite.Stats(lang, t1)
+		mainSite.Stats(lang.Lang, t1)
 	}
 
 	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))

@@ -1402,13 +1402,13 @@ NOTE: should use the "permalinks" configuration with :filename
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: sources},
 		Multilingual: &Multilingual{
-			config:  viper.New(),
 			enabled: true,
 		},
 	}
 	// Multilingual settings
 	viper.Set("Multilingual", true)
-	s.Multilingual.config.Set("CurrentLanguage", "en")
+	en := NewLanguage("en")
+	viper.Set("CurrentLanguage", en)
 	viper.Set("DefaultContentLanguage", "fr")
 	viper.Set("paginate", "2")
 
