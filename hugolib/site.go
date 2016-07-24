@@ -131,7 +131,7 @@ type SiteInfo struct {
 	Multilingual    bool
 	CurrentLanguage string
 	LanguagePrefix  string
-	Languages       []string
+	Languages       Languages
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -705,7 +705,7 @@ func (s *Site) Process() (err error) {
 		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
 	}
 
-	if err = loadI18n(i18nSources, s.Multilingual.GetString("CurrentLanguage")); err != nil {
+	if err = loadI18n(i18nSources, currentLanguageString()); err != nil {
 		return
 	}
 	s.timerStep("load i18n")
@@ -742,7 +742,7 @@ func (s *Site) setupTranslations() {
 		return
 	}
 
-	currentLang := s.Multilingual.GetString("CurrentLanguage")
+	currentLang := currentLanguageString()
 
 	allTranslations := pagesToTranslationsMap(s.AllPages)
 	assignTranslationsToPages(allTranslations, s.AllPages)
@@ -817,7 +817,27 @@ func (s *Site) initialize() (err error) {
 }
 
 func (s *Site) initializeSiteInfo() {
-	params := s.Multilingual.GetStringMap("Params")
+
+	var (
+		lang      *Language
+		languages Languages
+	)
+
+	cl := viper.Get("CurrentLanguage")
+	if cl == nil {
+		// Set default to english
+		// TODO(bep) multilingo this looks clumsy
+		lang = NewLanguage("en")
+		viper.Set("CurrentLanguage", lang)
+	} else {
+		lang = cl.(*Language)
+	}
+
+	if s.Multilingual != nil {
+		languages = s.Multilingual.Languages
+	}
+
+	params := lang.Params()
 
 	permalinks := make(PermalinkOverrides)
 	for k, v := range viper.GetStringMapString("Permalinks") {
@@ -826,24 +846,20 @@ func (s *Site) initializeSiteInfo() {
 
 	languagePrefix := ""
 	if s.multilingualEnabled() {
-		languagePrefix = "/" + s.Multilingual.GetString("CurrentLanguage")
-	}
-
-	languages := []string{}
-	if s.Multilingual != nil {
-		languages = s.Multilingual.Languages
+		languagePrefix = "/" + lang.Lang
 	}
 
 	s.Info = SiteInfo{
-		BaseURL:               template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
-		Title:                 s.Multilingual.GetString("Title"),
-		Author:                s.Multilingual.GetStringMap("author"),
-		Social:                s.Multilingual.GetStringMapString("social"),
-		LanguageCode:          s.Multilingual.GetString("languagecode"),
-		Copyright:             s.Multilingual.GetString("copyright"),
-		DisqusShortname:       s.Multilingual.GetString("DisqusShortname"),
+		BaseURL:         template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
+		Title:           lang.GetString("Title"),
+		Author:          lang.GetStringMap("author"),
+		Social:          lang.GetStringMapString("social"),
+		LanguageCode:    lang.GetString("languagecode"),
+		Copyright:       lang.GetString("copyright"),
+		DisqusShortname: lang.GetString("DisqusShortname"),
+		// TODO(bep) multilang, consolidate the below (make into methods etc.)
 		Multilingual:          s.multilingualEnabled(),
-		CurrentLanguage:       s.Multilingual.GetString("CurrentLanguage"),
+		CurrentLanguage:       lang.Lang,
 		LanguagePrefix:        languagePrefix,
 		Languages:             languages,
 		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
@@ -1594,7 +1610,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 func (s *Site) addMultilingualPrefix(basePath string) string {
 	hadPrefix := strings.HasPrefix(basePath, "/")
 	if s.multilingualEnabled() {
-		basePath = path.Join(s.Multilingual.GetString("CurrentLanguage"), basePath)
+		basePath = path.Join(currentLanguageString(), basePath)
 		if hadPrefix {
 			basePath = "/" + basePath
 		}
