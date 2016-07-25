@@ -61,10 +61,11 @@ type Page struct {
 	PublishDate         time.Time
 	ExpiryDate          time.Time
 	Markup              string
-	Translations        Translations
+	translations        Pages
 	extension           string
 	contentType         string
 	lang                string
+	language            *Language
 	renderable          bool
 	Layout              string
 	layoutsCalculated   []string
@@ -305,7 +306,7 @@ func newPage(filename string) *Page {
 		Source:       Source{File: *source.NewFile(filename)},
 		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params:       make(map[string]interface{}),
-		Translations: make(Translations),
+		translations: make(Pages, 0),
 	}
 
 	jww.DEBUG.Println("Reading from", page.File.Path())
@@ -466,8 +467,28 @@ func (p *Page) Extension() string {
 	return viper.GetString("DefaultExtension")
 }
 
+// TODO(bep) multilingo consolidate
+func (p *Page) Language() *Language {
+	return p.language
+}
 func (p *Page) Lang() string {
 	return p.lang
+}
+
+// AllTranslations returns all translations, including the current Page.
+func (p *Page) AllTranslations() Pages {
+	return p.translations
+}
+
+// Translations returns the translations excluding the current Page.
+func (p *Page) Translations() Pages {
+	translations := make(Pages, 0)
+	for _, t := range p.translations {
+		if t != p {
+			translations = append(translations, t)
+		}
+	}
+	return translations
 }
 
 func (p *Page) LinkTitle() string {

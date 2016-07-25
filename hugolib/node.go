@@ -14,10 +14,11 @@
 package hugolib
 
 import (
-	"github.com/spf13/cast"
 	"html/template"
 	"sync"
 	"time"
+
+	"github.com/spf13/cast"
 )
 
 type Node struct {

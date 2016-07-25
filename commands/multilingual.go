@@ -33,6 +33,7 @@ func readMultilingualConfiguration() error {
 
 func toSortedLanguages(l map[string]interface{}) (hugolib.Languages, error) {
 	langs := make(hugolib.Languages, len(l))
+	i := 0
 
 	for lang, langConf := range l {
 		langsMap, ok := langConf.(map[string]interface{})
@@ -57,7 +58,8 @@ func toSortedLanguages(l map[string]interface{}) (hugolib.Languages, error) {
 			language.SetParam(loki, v)
 		}
 
-		langs = append(langs, language)
+		langs[i] = language
+		i++
 	}
 
 	sort.Sort(langs)

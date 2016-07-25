@@ -56,6 +56,19 @@ var defaultPageSort = func(p1, p2 *Page) bool {
 	return p1.Weight < p2.Weight
 }
 
+var languagePageSort = func(p1, p2 *Page) bool {
+	if p1.language.Weight == p2.language.Weight {
+		if p1.Date.Unix() == p2.Date.Unix() {
+			if p1.LinkTitle() == p2.LinkTitle() {
+				return (p1.FullFilePath() < p2.FullFilePath())
+			}
+			return (p1.LinkTitle() < p2.LinkTitle())
+		}
+		return p1.Date.Unix() > p2.Date.Unix()
+	}
+	return p1.language.Weight < p2.language.Weight
+}
+
 func (ps *pageSorter) Len() int      { return len(ps.pages) }
 func (ps *pageSorter) Swap(i, j int) { ps.pages[i], ps.pages[j] = ps.pages[j], ps.pages[i] }
 
@@ -208,6 +221,20 @@ func (p Pages) ByLength() Pages {
 	}
 
 	pages, _ := spc.get(key, p, pageBy(length).Sort)
+
+	return pages
+}
+
+// ByLanguage sorts the Pages by the language's Weight.
+//
+// Adjacent invocactions on the same receiver will return a cached result.
+//
+// This may safely be executed  in parallel.
+func (p Pages) ByLanguage() Pages {
+
+	key := "pageSort.ByLanguage"
+
+	pages, _ := spc.get(key, p, pageBy(languagePageSort).Sort)
 
 	return pages
 }

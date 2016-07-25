@@ -13,12 +13,16 @@
 
 package hugolib
 
+import (
+	"fmt"
+)
+
 // Translations represent the other translations for a given page. The
 // string here is the language code, as affected by the `post.LANG.md`
 // filename.
 type Translations map[string]*Page
 
-func pagesToTranslationsMap(pages []*Page) map[string]Translations {
+func pagesToTranslationsMap(ml *Multilingual, pages []*Page) map[string]Translations {
 	out := make(map[string]Translations)
 
 	for _, page := range pages {
@@ -33,6 +37,14 @@ func pagesToTranslationsMap(pages []*Page) map[string]Translations {
 		if pageLang == "" {
 			continue
 		}
+
+		language := ml.Language(pageLang)
+
+		if language == nil {
+			panic(fmt.Sprintf("Page language not found in multilang setup: %s", pageLang))
+		}
+
+		page.language = language
 
 		pageTranslation[pageLang] = page
 		out[base] = pageTranslation
@@ -49,11 +61,14 @@ func assignTranslationsToPages(allTranslations map[string]Translations, pages []
 			continue
 		}
 
-		for lang, translatedPage := range trans {
+		// TODO(bep) multilingo remove lang
+		for _, translatedPage := range trans {
 			if translatedPage == page {
 				continue
 			}
-			page.Translations[lang] = translatedPage
+			page.translations = append(page.translations, translatedPage)
 		}
+
+		pageBy(languagePageSort).Sort(page.translations)
 	}
 }

@@ -3,6 +3,7 @@ package hugolib
 import (
 	"sync"
 
+	"sort"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -23,14 +24,38 @@ func NewLanguage(lang string) *Language {
 
 type Languages []*Language
 
+func NewLanguages(l ...*Language) Languages {
+	languages := make(Languages, len(l))
+	for i := 0; i < len(l); i++ {
+		languages[i] = l[i]
+	}
+	sort.Sort(languages)
+	return languages
+}
+
 func (l Languages) Len() int           { return len(l) }
 func (l Languages) Less(i, j int) bool { return l[i].Weight < l[j].Weight }
 func (l Languages) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 type Multilingual struct {
-	enabled bool
-
 	Languages Languages
+
+	langMap     map[string]*Language
+	langMapInit sync.Once
+}
+
+func (ml *Multilingual) Language(lang string) *Language {
+	ml.langMapInit.Do(func() {
+		ml.langMap = make(map[string]*Language)
+		for _, l := range ml.Languages {
+			ml.langMap[l.Lang] = l
+		}
+	})
+	return ml.langMap[lang]
+}
+
+func (ml *Multilingual) enabled() bool {
+	return len(ml.Languages) > 0
 }
 
 func (l *Language) Params() map[string]interface{} {
@@ -73,15 +98,14 @@ func (s *Site) SetMultilingualConfig(currentLang *Language, languages Languages)
 	// TODO(bep) multilingo evaluate
 	viper.Set("CurrentLanguage", currentLang)
 	ml := &Multilingual{
-		enabled:   len(languages) > 0,
 		Languages: languages,
 	}
-	viper.Set("Multilingual", ml.enabled)
+	viper.Set("Multilingual", ml.enabled())
 	s.Multilingual = ml
 }
 
 func (s *Site) multilingualEnabled() bool {
-	return s.Multilingual != nil && s.Multilingual.enabled
+	return s.Multilingual != nil && s.Multilingual.enabled()
 }
 
 func currentLanguageString() string {
