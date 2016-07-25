@@ -55,6 +55,7 @@ func pagesToTranslationsMap(ml *Multilingual, pages []*Page) map[string]Translat
 
 func assignTranslationsToPages(allTranslations map[string]Translations, pages []*Page) {
 	for _, page := range pages {
+		page.translations = page.translations[:0]
 		base := page.TranslationBaseName()
 		trans, exist := allTranslations[base]
 		if !exist {
@@ -63,9 +64,6 @@ func assignTranslationsToPages(allTranslations map[string]Translations, pages []
 
 		// TODO(bep) multilingo remove lang
 		for _, translatedPage := range trans {
-			if translatedPage == page {
-				continue
-			}
 			page.translations = append(page.translations, translatedPage)
 		}
 
