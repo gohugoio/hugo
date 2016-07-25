@@ -744,10 +744,10 @@ func (s *Site) setupTranslations() {
 
 	currentLang := currentLanguageString()
 
-	allTranslations := pagesToTranslationsMap(s.AllPages)
+	allTranslations := pagesToTranslationsMap(s.Multilingual, s.AllPages)
 	assignTranslationsToPages(allTranslations, s.AllPages)
 
-	var currentLangPages []*Page
+	var currentLangPages Pages
 	for _, p := range s.AllPages {
 		if p.Lang() == "" || strings.HasPrefix(currentLang, p.lang) {
 			currentLangPages = append(currentLangPages, p)
@@ -2014,6 +2014,10 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 	err := s.render(name, d, renderBuffer, layouts...)
 
+	if err != nil {
+		return err
+	}
+
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
 
@@ -2030,11 +2034,8 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	transformer := transform.NewChain(transform.AbsURLInXML)
 	transformer.Apply(outBuffer, renderBuffer, path)
 
-	if err == nil {
-		err = s.writeDestFile(dest, outBuffer)
-	}
+	return s.writeDestFile(dest, outBuffer)
 
-	return err
 }
 
 func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layouts ...string) error {
@@ -2042,6 +2043,16 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	defer bp.PutBuffer(renderBuffer)
 
 	err := s.render(name, d, renderBuffer, layouts...)
+
+	if err != nil {
+		return err
+	}
+
+	if renderBuffer.Len() == 0 {
+		if p, ok := d.(*Page); ok {
+			fmt.Println(">>>>", p.Lang(), len(p.Content))
+		}
+	}
 
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
@@ -2107,6 +2118,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	if err == nil {
+
 		if err = s.writeDestPage(dest, pageTarget, outBuffer); err != nil {
 			return err
 		}
@@ -2122,6 +2134,7 @@ func (s *Site) render(name string, d interface{}, w io.Writer, layouts ...string
 	}
 
 	if err := s.renderThing(d, layout, w); err != nil {
+
 		// Behavior here should be dependent on if running in server or watch mode.
 		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
 		if !s.running() && !testMode {
@@ -2145,6 +2158,7 @@ func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
 }
 
 func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
+
 	// If the template doesn't exist, then return, but leave the Writer open
 	if templ := s.Tmpl.Lookup(layout); templ != nil {
 		return templ.Execute(w, d)

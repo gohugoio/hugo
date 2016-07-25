@@ -1399,18 +1399,20 @@ NOTE: should use the "permalinks" configuration with :filename
 
 	hugofs.InitMemFs()
 
-	s := &Site{
-		Source: &source.InMemorySource{ByteSource: sources},
-		Multilingual: &Multilingual{
-			enabled: true,
-		},
-	}
 	// Multilingual settings
 	viper.Set("Multilingual", true)
 	en := NewLanguage("en")
 	viper.Set("CurrentLanguage", en)
 	viper.Set("DefaultContentLanguage", "fr")
 	viper.Set("paginate", "2")
+
+	languages := NewLanguages(en, NewLanguage("fr"))
+	s := &Site{
+		Source: &source.InMemorySource{ByteSource: sources},
+		Multilingual: &Multilingual{
+			Languages: languages,
+		},
+	}
 
 	s.prepTemplates()
 	s.initializeSiteInfo()
@@ -1425,7 +1427,7 @@ NOTE: should use the "permalinks" configuration with :filename
 	permalink, err := doc1en.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug", permalink, "invalid doc1.en permalink")
-	assert.Len(t, doc1en.Translations, 1, "doc1-en should have one translation, excluding itself")
+	assert.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
 
 	doc2 := s.Pages[1]
 	permalink, err = doc2.Permalink()
@@ -1440,19 +1442,20 @@ NOTE: should use the "permalinks" configuration with :filename
 
 	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
-	doc1fr := doc1en.Translations["fr"]
+	doc1fr := doc1en.Translations()[0]
 	permalink, err = doc1fr.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc1", permalink, "invalid doc1fr permalink")
 
-	assert.Equal(t, doc1en.Translations["fr"], doc1fr, "doc1-en should have doc1-fr as translation")
-	assert.Equal(t, doc1fr.Translations["en"], doc1en, "doc1-fr should have doc1-en as translation")
+	assert.Equal(t, doc1en.Translations()[0], doc1fr, "doc1-en should have doc1-fr as translation")
+	assert.Equal(t, doc1fr.Translations()[0], doc1en, "doc1-fr should have doc1-en as translation")
+	assert.Equal(t, "fr", doc1fr.Language().Lang)
 
 	doc4 := s.AllPages[4]
 	permalink, err = doc4.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc4", permalink, "invalid doc4 permalink")
-	assert.Len(t, doc4.Translations, 0, "found translations for doc4")
+	assert.Len(t, doc4.Translations(), 0, "found translations for doc4")
 
 	doc5 := s.AllPages[5]
 	permalink, err = doc5.Permalink()
