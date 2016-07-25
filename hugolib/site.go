@@ -2048,12 +2048,6 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		return err
 	}
 
-	if renderBuffer.Len() == 0 {
-		if p, ok := d.(*Page); ok {
-			fmt.Println(">>>>", p.Lang(), len(p.Content))
-		}
-	}
-
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
 
