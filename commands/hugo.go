@@ -46,10 +46,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-// MainSites represents the Hugo sites to build. This variable is exported as it
+// Sites represents the Hugo sites to build. This variable is exported as it
 // is used by at least one external library (the Hugo caddy plugin). We should
 // provide a cleaner external API, but until then, this is it.
-var MainSites map[string]*hugolib.Site
+var Sites map[string]*hugolib.Site
 
 // Reset resets Hugo ready for a new full build. This is mainly only useful
 // for benchmark testing etc. via the CLI commands.
@@ -510,7 +510,7 @@ func watchConfig() {
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		MainSites = nil
+		Sites = nil
 		utils.CheckErr(buildSite(true))
 		if !viper.GetBool("DisableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
@@ -708,16 +708,16 @@ func buildSite(watching ...bool) (err error) {
 	fmt.Println("Started building site")
 	t0 := time.Now()
 
-	if MainSites == nil {
-		MainSites = make(map[string]*hugolib.Site)
+	if Sites == nil {
+		Sites = make(map[string]*hugolib.Site)
 	}
 
 	for _, lang := range langConfigsList {
 		t1 := time.Now()
-		mainSite, present := MainSites[lang.Lang]
+		mainSite, present := Sites[lang.Lang]
 		if !present {
 			mainSite = new(hugolib.Site)
-			MainSites[lang.Lang] = mainSite
+			Sites[lang.Lang] = mainSite
 			mainSite.SetMultilingualConfig(lang, langConfigsList)
 		}
 
@@ -742,13 +742,13 @@ func rebuildSite(events []fsnotify.Event) error {
 
 	for _, lang := range langConfigsList {
 		t1 := time.Now()
-		mainSite := MainSites[lang.Lang]
+		site := Sites[lang.Lang]
 
-		if err := mainSite.ReBuild(events); err != nil {
+		if err := site.ReBuild(events); err != nil {
 			return err
 		}
 
-		mainSite.Stats(lang.Lang, t1)
+		site.Stats(lang.Lang, t1)
 	}
 
 	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
