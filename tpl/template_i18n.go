@@ -20,28 +20,46 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var i18nTfunc bundle.TranslateFunc
+type translate struct {
+	translateFuncs map[string]bundle.TranslateFunc
 
-func SetI18nTfunc(lang string, bndl *bundle.Bundle) {
-	tFunc, err := bndl.Tfunc(lang)
-	if err == nil {
-		i18nTfunc = tFunc
-		return
+	current bundle.TranslateFunc
+}
+
+var translater *translate = &translate{translateFuncs: make(map[string]bundle.TranslateFunc)}
+
+// SetTranslateLang sets the translations language to use during template processing.
+// This construction is unfortunate, but the template system is currently global.
+func SetTranslateLang(lang string) error {
+	if f, ok := translater.translateFuncs[lang]; ok {
+		translater.current = f
+		return nil
+	}
+	return fmt.Errorf("Translation func for language %v not found", lang)
+}
+
+func SetI18nTfuncs(bndl *bundle.Bundle) {
+	for _, lang := range bndl.LanguageTags() {
+		tFunc, err := bndl.Tfunc(lang)
+		if err == nil {
+			translater.translateFuncs[lang] = tFunc
+			continue
+		}
+		jww.WARN.Printf("could not load translations for language %q (%s), will not translate!\n", lang, err.Error())
+		translater.translateFuncs[lang] = bundle.TranslateFunc(func(id string, args ...interface{}) string {
+			// TODO: depending on the site mode, we might want to fall back on the default
+			// language's translation.
+			// TODO: eventually, we could add --i18n-warnings and print something when
+			// such things happen.
+			return fmt.Sprintf("[i18n: %s]", id)
+		})
 	}
 
-	jww.WARN.Printf("could not load translations for language %q (%s), will not translate!\n", lang, err.Error())
-	i18nTfunc = bundle.TranslateFunc(func(id string, args ...interface{}) string {
-		// TODO: depending on the site mode, we might want to fall back on the default
-		// language's translation.
-		// TODO: eventually, we could add --i18n-warnings and print something when
-		// such things happen.
-		return fmt.Sprintf("[i18n: %s]", id)
-	})
 }
 
 func I18nTranslate(id string, args ...interface{}) (string, error) {
-	if i18nTfunc == nil {
+	if translater == nil {
 		return "", fmt.Errorf("i18n not initialized, have you configured everything properly?")
 	}
-	return i18nTfunc(id, args...), nil
+	return translater.current(id, args...), nil
 }

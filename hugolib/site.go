@@ -395,8 +395,17 @@ func (s *Site) timerStep(step string) {
 	s.timer.Step(step)
 }
 
+func (s *Site) preRender() error {
+	return tpl.SetTranslateLang(s.Lang.Lang)
+}
+
 func (s *Site) Build() (err error) {
+
 	if err = s.Process(); err != nil {
+		return
+	}
+
+	if err = s.preRender(); err != nil {
 		return
 	}
 
@@ -423,7 +432,10 @@ func (s *Site) Build() (err error) {
 }
 
 func (s *Site) ReBuild(events []fsnotify.Event) error {
+	// TODO(bep) multilingual this needs some rethinking with multiple sites
+
 	s.timerStep("initialize rebuild")
+
 	// First we need to determine what changed
 
 	sourceChanged := []fsnotify.Event{}
@@ -569,6 +581,10 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 			return err
 		}
 		s.timerStep("build taxonomies")
+	}
+
+	if err := s.preRender(); err != nil {
+		return err
 	}
 
 	// Once the appropriate prep step is done we render the entire site
@@ -717,10 +733,11 @@ func (s *Site) Process() (err error) {
 
 	themeI18nDir, err := helpers.GetThemeI18nDirPath()
 	if err == nil {
+		// TODO(bep) multilingo what is this?
 		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
 	}
 
-	if err = loadI18n(i18nSources, s.currentLanguageString()); err != nil {
+	if err = loadI18n(i18nSources); err != nil {
 		return
 	}
 	s.timerStep("load i18n")
