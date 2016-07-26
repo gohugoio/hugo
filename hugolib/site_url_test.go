@@ -73,7 +73,7 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com", "http://base.com"}} {
 
 		viper.Set("BaseURL", this.in)
-		s := &Site{}
+		s := newSiteDefaultLang()
 		s.initializeSiteInfo()
 
 		if s.Info.BaseURL != template.URL(this.expected) {
@@ -93,6 +93,7 @@ func TestPageCount(t *testing.T) {
 	viper.Set("paginate", 10)
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: urlFakeSource},
+		Lang:   newDefaultLanguage(),
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates("indexes/blue.html", indexTemplate)

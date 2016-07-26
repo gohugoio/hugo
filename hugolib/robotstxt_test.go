@@ -40,6 +40,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: weightedSources},
+		Lang:   newDefaultLanguage(),
 	}
 
 	s.initializeSiteInfo()

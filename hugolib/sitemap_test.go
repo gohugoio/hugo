@@ -17,11 +17,12 @@ import (
 	"bytes"
 	"testing"
 
+	"reflect"
+
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
-	"reflect"
 )
 
 const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -45,6 +46,7 @@ func TestSitemapOutput(t *testing.T) {
 
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: weightedSources},
+		Lang:   newDefaultLanguage(),
 	}
 
 	s.initializeSiteInfo()

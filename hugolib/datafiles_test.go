@@ -87,7 +87,7 @@ func TestDataDirUnknownFormat(t *testing.T) {
 	sources := []source.ByteSource{
 		{Name: filepath.FromSlash("test.roml"), Content: []byte("boo")},
 	}
-	s := &Site{}
+	s := newSiteDefaultLang()
 	err := s.loadData([]source.Input{&source.InMemorySource{ByteSource: sources}})
 	if err != nil {
 		t.Fatalf("Should not return an error")
@@ -95,7 +95,7 @@ func TestDataDirUnknownFormat(t *testing.T) {
 }
 
 func doTestDataDir(t *testing.T, expected interface{}, sources []source.Input) {
-	s := &Site{}
+	s := newSiteDefaultLang()
 	err := s.loadData(sources)
 	if err != nil {
 		t.Fatalf("Error loading data: %s", err)

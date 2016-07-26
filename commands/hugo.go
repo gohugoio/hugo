@@ -46,10 +46,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Sites represents the Hugo sites to build. This variable is exported as it
+type HugoSites []*hugolib.Site
+
+// Reset resets the sites, making it ready for a full rebuild.
+// TODO(bep) multilingo
+func (h HugoSites) Reset() {
+	for i, s := range h {
+		h[i] = s.Reset()
+	}
+}
+
+// Hugo represents the Hugo sites to build. This variable is exported as it
 // is used by at least one external library (the Hugo caddy plugin). We should
 // provide a cleaner external API, but until then, this is it.
-var Sites map[string]*hugolib.Site
+var Hugo HugoSites
 
 // Reset resets Hugo ready for a new full build. This is mainly only useful
 // for benchmark testing etc. via the CLI commands.
@@ -493,7 +503,15 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 			helpers.HugoReleaseVersion(), minVersion)
 	}
 
-	return readMultilingualConfiguration()
+	h, err := readMultilingualConfiguration()
+
+	if err != nil {
+		return err
+	}
+	//TODO(bep) refactor ...
+	Hugo = h
+
+	return nil
 
 }
 
@@ -510,8 +528,8 @@ func watchConfig() {
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		Sites = nil
-		utils.CheckErr(buildSite(true))
+		Hugo.Reset()
+		utils.CheckErr(buildSites(true))
 		if !viper.GetBool("DisableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
@@ -537,7 +555,7 @@ func build(watches ...bool) error {
 	if len(watches) > 0 && watches[0] {
 		watch = true
 	}
-	if err := buildSite(buildWatch || watch); err != nil {
+	if err := buildSites(buildWatch || watch); err != nil {
 		return fmt.Errorf("Error building site: %s", err)
 	}
 
@@ -704,32 +722,21 @@ func getDirList() []string {
 	return a
 }
 
-func buildSite(watching ...bool) (err error) {
+func buildSites(watching ...bool) (err error) {
 	fmt.Println("Started building site")
 	t0 := time.Now()
 
-	if Sites == nil {
-		Sites = make(map[string]*hugolib.Site)
-	}
-
-	for _, lang := range langConfigsList {
+	for _, site := range Hugo {
 		t1 := time.Now()
-		mainSite, present := Sites[lang.Lang]
-		if !present {
-			mainSite = new(hugolib.Site)
-			Sites[lang.Lang] = mainSite
-			mainSite.SetMultilingualConfig(lang, langConfigsList)
-		}
-
 		if len(watching) > 0 && watching[0] {
-			mainSite.RunMode.Watching = true
+			site.RunMode.Watching = true
 		}
 
-		if err := mainSite.Build(); err != nil {
+		if err := site.Build(); err != nil {
 			return err
 		}
 
-		mainSite.Stats(lang.Lang, t1)
+		site.Stats(t1)
 	}
 
 	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
@@ -737,18 +744,17 @@ func buildSite(watching ...bool) (err error) {
 	return nil
 }
 
-func rebuildSite(events []fsnotify.Event) error {
+func rebuildSites(events []fsnotify.Event) error {
 	t0 := time.Now()
 
-	for _, lang := range langConfigsList {
+	for _, site := range Hugo {
 		t1 := time.Now()
-		site := Sites[lang.Lang]
 
 		if err := site.ReBuild(events); err != nil {
 			return err
 		}
 
-		site.Stats(lang.Lang, t1)
+		site.Stats(t1)
 	}
 
 	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
@@ -969,7 +975,7 @@ func NewWatcher(port int) error {
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
 
-					rebuildSite(dynamicEvents)
+					rebuildSites(dynamicEvents)
 
 					if !buildWatch && !viper.GetBool("DisableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized

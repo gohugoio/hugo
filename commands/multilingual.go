@@ -11,24 +11,30 @@ import (
 	"github.com/spf13/viper"
 )
 
-var langConfigsList hugolib.Languages
-
-func readMultilingualConfiguration() error {
+func readMultilingualConfiguration() (HugoSites, error) {
+	h := make(HugoSites, 0)
 	multilingual := viper.GetStringMap("Multilingual")
 	if len(multilingual) == 0 {
 		// TODO(bep) multilingo langConfigsList = append(langConfigsList, hugolib.NewLanguage("en"))
-		return nil
+		h = append(h, hugolib.NewSite(hugolib.NewLanguage("en")))
+		return h, nil
 	}
 
 	var err error
 
-	langConfigsList, err = toSortedLanguages(multilingual)
+	langConfigsList, err := toSortedLanguages(multilingual)
 
 	if err != nil {
-		return fmt.Errorf("Failed to parse multilingual config: %s", err)
+		return nil, fmt.Errorf("Failed to parse multilingual config: %s", err)
 	}
 
-	return nil
+	for _, lang := range langConfigsList {
+		s := hugolib.NewSite(lang)
+		s.SetMultilingualConfig(lang, langConfigsList)
+		h = append(h, s)
+	}
+
+	return h, nil
 }
 
 func toSortedLanguages(l map[string]interface{}) (hugolib.Languages, error) {

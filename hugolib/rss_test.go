@@ -55,6 +55,7 @@ func TestRSSOutput(t *testing.T) {
 	hugofs.InitMemFs()
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: weightedSources},
+		Lang:   newDefaultLanguage(),
 	}
 	s.initializeSiteInfo()
 	s.prepTemplates("rss.xml", rssTemplate)

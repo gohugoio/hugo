@@ -92,6 +92,21 @@ type Site struct {
 	futureCount    int
 	expiredCount   int
 	Data           map[string]interface{}
+	Lang           *Language
+}
+
+// TODO(bep) multilingo
+// Reset returns a new Site prepared for rebuild.
+func (s *Site) Reset() *Site {
+	return &Site{Lang: s.Lang, Multilingual: s.Multilingual}
+}
+
+func NewSite(lang *Language) *Site {
+	return &Site{Lang: lang}
+}
+
+func newSiteDefaultLang() *Site {
+	return NewSite(newDefaultLanguage())
 }
 
 type targetList struct {
@@ -705,7 +720,7 @@ func (s *Site) Process() (err error) {
 		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
 	}
 
-	if err = loadI18n(i18nSources, currentLanguageString()); err != nil {
+	if err = loadI18n(i18nSources, s.currentLanguageString()); err != nil {
 		return
 	}
 	s.timerStep("load i18n")
@@ -742,7 +757,7 @@ func (s *Site) setupTranslations() {
 		return
 	}
 
-	currentLang := currentLanguageString()
+	currentLang := s.currentLanguageString()
 
 	allTranslations := pagesToTranslationsMap(s.Multilingual, s.AllPages)
 	assignTranslationsToPages(allTranslations, s.AllPages)
@@ -819,19 +834,9 @@ func (s *Site) initialize() (err error) {
 func (s *Site) initializeSiteInfo() {
 
 	var (
-		lang      *Language
+		lang      *Language = s.Lang
 		languages Languages
 	)
-
-	cl := viper.Get("CurrentLanguage")
-	if cl == nil {
-		// Set default to english
-		// TODO(bep) multilingo this looks clumsy
-		lang = NewLanguage("en")
-		viper.Set("CurrentLanguage", lang)
-	} else {
-		lang = cl.(*Language)
-	}
 
 	if s.Multilingual != nil {
 		languages = s.Multilingual.Languages
@@ -1610,7 +1615,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 func (s *Site) addMultilingualPrefix(basePath string) string {
 	hadPrefix := strings.HasPrefix(basePath, "/")
 	if s.multilingualEnabled() {
-		basePath = path.Join(currentLanguageString(), basePath)
+		basePath = path.Join(s.currentLanguageString(), basePath)
 		if hadPrefix {
 			basePath = "/" + basePath
 		}
@@ -1961,7 +1966,7 @@ func (s *Site) renderRobotsTXT() error {
 
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
-func (s *Site) Stats(lang string, t0 time.Time) {
+func (s *Site) Stats(t0 time.Time) {
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
 	jww.FEEDBACK.Println(s.expiredStats())
@@ -1974,9 +1979,9 @@ func (s *Site) Stats(lang string, t0 time.Time) {
 		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
 	}
 
-	if lang != "" {
-		jww.FEEDBACK.Printf("rendered lang %q in %v ms\n", lang, int(1000*time.Since(t0).Seconds()))
-	}
+	// TODO(bep) will always have lang. Not sure this should always be printed.
+	jww.FEEDBACK.Printf("rendered lang %q in %v ms\n", s.Lang.Lang, int(1000*time.Since(t0).Seconds()))
+
 }
 
 func (s *Site) setURLs(n *Node, in string) {

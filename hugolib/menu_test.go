@@ -683,6 +683,7 @@ func createTestSite(pageSources []source.ByteSource) *Site {
 
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: pageSources},
+		Lang:   newDefaultLanguage(),
 	}
 	return s
 }
