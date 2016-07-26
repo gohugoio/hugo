@@ -27,7 +27,7 @@ func TestSiteInfoParams(t *testing.T) {
 	defer viper.Reset()
 
 	viper.Set("Params", map[string]interface{}{"MyGlobalParam": "FOOBAR_PARAM"})
-	s := &Site{}
+	s := newSiteDefaultLang()
 
 	s.initialize()
 	if s.Info.Params["MyGlobalParam"] != "FOOBAR_PARAM" {
@@ -53,7 +53,7 @@ func TestSiteInfoPermalinks(t *testing.T) {
 	defer viper.Reset()
 
 	viper.Set("Permalinks", map[string]interface{}{"section": "/:title"})
-	s := &Site{}
+	s := newSiteDefaultLang()
 
 	s.initialize()
 	permalink := s.Info.Permalinks["section"]

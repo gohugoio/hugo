@@ -499,6 +499,7 @@ e`,
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
 		targets: targetList{page: &target.PagePub{UglyURLs: false}},
+		Lang:    newDefaultLanguage(),
 	}
 
 	s.initializeSiteInfo()

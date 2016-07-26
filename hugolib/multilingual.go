@@ -22,6 +22,11 @@ func NewLanguage(lang string) *Language {
 	return &Language{Lang: lang, params: make(map[string]interface{})}
 }
 
+// TODO(bep) multilingo
+func newDefaultLanguage() *Language {
+	return NewLanguage("en")
+}
+
 type Languages []*Language
 
 func NewLanguages(l ...*Language) Languages {
@@ -93,10 +98,9 @@ func (l *Language) Get(key string) interface{} {
 	return viper.Get(key)
 }
 
+// TODO(bep) multilingo move this to a constructor.
 func (s *Site) SetMultilingualConfig(currentLang *Language, languages Languages) {
 
-	// TODO(bep) multilingo evaluate
-	viper.Set("CurrentLanguage", currentLang)
 	ml := &Multilingual{
 		Languages: languages,
 	}
@@ -108,14 +112,11 @@ func (s *Site) multilingualEnabled() bool {
 	return s.Multilingual != nil && s.Multilingual.enabled()
 }
 
-func currentLanguageString() string {
-	return currentLanguage().Lang
+// TODO(bep) multilingo remove these
+func (s *Site) currentLanguageString() string {
+	return s.currentLanguage().Lang
 }
 
-func currentLanguage() *Language {
-	l := viper.Get("CurrentLanguage")
-	if l == nil {
-		panic("CurrentLanguage not set")
-	}
-	return l.(*Language)
+func (s *Site) currentLanguage() *Language {
+	return s.Lang
 }

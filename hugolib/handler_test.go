@@ -47,6 +47,7 @@ func TestDefaultHandler(t *testing.T) {
 	s := &Site{
 		Source:  &source.InMemorySource{ByteSource: sources},
 		targets: targetList{page: &target.PagePub{UglyURLs: true}},
+		Lang:    NewLanguage("en"),
 	}
 
 	s.initializeSiteInfo()

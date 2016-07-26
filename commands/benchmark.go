@@ -57,8 +57,8 @@ func benchmark(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		for i := 0; i < benchmarkTimes; i++ {
-			Sites = nil
-			_ = buildSite()
+			_ = buildSites()
+			Hugo.Reset()
 		}
 		pprof.WriteHeapProfile(f)
 		f.Close()
@@ -76,8 +76,8 @@ func benchmark(cmd *cobra.Command, args []string) error {
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 		for i := 0; i < benchmarkTimes; i++ {
-			Sites = nil
-			_ = buildSite()
+			_ = buildSites()
+			Hugo.Reset()
 		}
 	}
 
