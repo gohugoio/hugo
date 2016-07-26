@@ -775,7 +775,10 @@ func NewWatcher(port int) error {
 					// A workaround is to put your site(s) on the Spotlight exception list,
 					// but that may be a little mysterious for most end users.
 					// So, for now, we skip reload on CHMOD.
-					if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+					// We do have to check for WRITE though. On slower laptops a Chmod
+					// could be aggregated with other important events, and we still want
+					// to rebuild on those
+					if ev.Op&(fsnotify.Chmod|fsnotify.Write|fsnotify.Create) == fsnotify.Chmod {
 						continue
 					}
 
