@@ -554,7 +554,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	s := setupMenuTests(t, menuPageSources)
 
 	home := s.newHomeNode()
-	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL}
+	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL()}
 
 	for i, this := range []struct {
 		menu           string

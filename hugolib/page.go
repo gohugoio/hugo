@@ -64,8 +64,6 @@ type Page struct {
 	translations        Pages
 	extension           string
 	contentType         string
-	lang                string
-	language            *Language
 	renderable          bool
 	Layout              string
 	layoutsCalculated   []string
@@ -431,7 +429,7 @@ func (p *Page) permalink() (*url.URL, error) {
 	baseURL := string(p.Site.BaseURL)
 	dir := strings.TrimSpace(helpers.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
 	pSlug := strings.TrimSpace(helpers.URLize(p.Slug))
-	pURL := strings.TrimSpace(helpers.URLize(p.URL))
+	pURL := strings.TrimSpace(helpers.URLize(p.URLPath.URL))
 	var permalink string
 	var err error
 
@@ -465,14 +463,6 @@ func (p *Page) Extension() string {
 		return p.extension
 	}
 	return viper.GetString("DefaultExtension")
-}
-
-// TODO(bep) multilingo consolidate
-func (p *Page) Language() *Language {
-	return p.language
-}
-func (p *Page) Lang() string {
-	return p.lang
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -591,7 +581,7 @@ func (p *Page) update(f interface{}) error {
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
-			p.URL = cast.ToString(v)
+			p.URLPath.URL = cast.ToString(v)
 		case "type":
 			p.contentType = cast.ToString(v)
 		case "extension", "ext":
@@ -1008,8 +998,8 @@ func (p *Page) FullFilePath() string {
 
 func (p *Page) TargetPath() (outfile string) {
 	// Always use URL if it's specified
-	if len(strings.TrimSpace(p.URL)) > 2 {
-		outfile = strings.TrimSpace(p.URL)
+	if len(strings.TrimSpace(p.URLPath.URL)) > 2 {
+		outfile = strings.TrimSpace(p.URLPath.URL)
 
 		if strings.HasSuffix(outfile, "/") {
 			outfile = outfile + "index.html"
@@ -1041,18 +1031,4 @@ func (p *Page) TargetPath() (outfile string) {
 	}
 
 	return p.addMultilingualFilesystemPrefix(filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
-}
-
-func (p *Page) addMultilingualWebPrefix(outfile string) string {
-	if p.Lang() == "" {
-		return outfile
-	}
-	return "/" + path.Join(p.Lang(), outfile)
-}
-
-func (p *Page) addMultilingualFilesystemPrefix(outfile string) string {
-	if p.Lang() == "" {
-		return outfile
-	}
-	return string(filepath.Separator) + filepath.Join(p.Lang(), outfile)
 }

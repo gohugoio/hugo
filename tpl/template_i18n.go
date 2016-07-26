@@ -35,7 +35,8 @@ func SetTranslateLang(lang string) error {
 		translater.current = f
 		return nil
 	}
-	return fmt.Errorf("Translation func for language %v not found", lang)
+	jww.WARN.Printf("Translation func for language %v not found", lang)
+	return nil
 }
 
 func SetI18nTfuncs(bndl *bundle.Bundle) {
@@ -58,7 +59,7 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 }
 
 func I18nTranslate(id string, args ...interface{}) (string, error) {
-	if translater == nil {
+	if translater == nil || translater.current == nil {
 		return "", fmt.Errorf("i18n not initialized, have you configured everything properly?")
 	}
 	return translater.current(id, args...), nil

@@ -117,19 +117,20 @@ type targetList struct {
 }
 
 type SiteInfo struct {
-	BaseURL               template.URL
-	Taxonomies            TaxonomyList
-	Authors               AuthorList
-	Social                SiteSocial
-	Sections              Taxonomy
-	Pages                 *Pages // Includes only pages in this language
-	AllPages              *Pages // Includes other translated pages, excluding those in this language.
-	Files                 *[]*source.File
-	Menus                 *Menus
-	Hugo                  *HugoInfo
-	Title                 string
-	RSSLink               string
-	Author                map[string]interface{}
+	BaseURL    template.URL
+	Taxonomies TaxonomyList
+	Authors    AuthorList
+	Social     SiteSocial
+	Sections   Taxonomy
+	Pages      *Pages // Includes only pages in this language
+	AllPages   *Pages // Includes other translated pages, excluding those in this language.
+	Files      *[]*source.File
+	Menus      *Menus
+	Hugo       *HugoInfo
+	Title      string
+	RSSLink    string
+	Author     map[string]interface{}
+	// TODO(bep) multilingo
 	LanguageCode          string
 	DisqusShortname       string
 	GoogleAnalytics       string
@@ -885,7 +886,7 @@ func (s *Site) initializeSiteInfo() {
 		LanguagePrefix:        languagePrefix,
 		Languages:             languages,
 		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
-		RSSLink:               s.permalinkStr(viper.GetString("RSSUri")),
+		RSSLink:               permalinkStr(viper.GetString("RSSUri")),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
@@ -1672,7 +1673,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), s.permalink(base))
+			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base))
 
 			pagers := n.paginator.Pagers()
 
@@ -1701,8 +1702,8 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			n.URL = s.permalinkStr(base + "/" + rssuri)
-			n.Permalink = s.permalink(base)
+			n.URLPath.URL = permalinkStr(base + "/" + rssuri)
+			n.URLPath.Permalink = permalink(base)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
 			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
@@ -1782,7 +1783,7 @@ func (s *Site) renderSectionLists() error {
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), s.permalink(base))
+			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base))
 
 			pagers := n.paginator.Pagers()
 
@@ -1810,8 +1811,8 @@ func (s *Site) renderSectionLists() error {
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			n.URL = s.permalinkStr(base + "/" + rssuri)
-			n.Permalink = s.permalink(base)
+			n.URLPath.URL = permalinkStr(base + "/" + rssuri)
+			n.URLPath.Permalink = permalink(base)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			if err := s.renderAndWriteXML("section "+section+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
@@ -1834,7 +1835,7 @@ func (s *Site) renderHomePage() error {
 		paginatePath := viper.GetString("paginatePath")
 
 		// write alias for page 1
-		s.writeDestAlias(s.addMultilingualPrefix(helpers.PaginateAliasPath("", 1)), s.permalink("/"))
+		s.writeDestAlias(s.addMultilingualPrefix(helpers.PaginateAliasPath("", 1)), permalink("/"))
 
 		pagers := n.paginator.Pagers()
 
@@ -1862,7 +1863,7 @@ func (s *Site) renderHomePage() error {
 
 	if !viper.GetBool("DisableRSS") {
 		// XML Feed
-		n.URL = s.permalinkStr(viper.GetString("RSSUri"))
+		n.URLPath.URL = permalinkStr(viper.GetString("RSSUri"))
 		n.Title = ""
 		high := 50
 		if len(s.Pages) < high {
@@ -1886,10 +1887,10 @@ func (s *Site) renderHomePage() error {
 	}
 
 	// TODO(bep) reusing the Home Node smells trouble
-	n.URL = helpers.URLize("404.html")
+	n.URLPath.URL = helpers.URLize("404.html")
 	n.IsHome = false
 	n.Title = "404 Page not found"
-	n.Permalink = s.permalink("404.html")
+	n.URLPath.Permalink = permalink("404.html")
 	n.scratch = newScratch()
 
 	nfLayouts := []string{"404.html"}
@@ -1929,7 +1930,7 @@ func (s *Site) renderSitemap() error {
 	page.Date = s.Info.LastChange
 	page.Lastmod = s.Info.LastChange
 	page.Site = &s.Info
-	page.URL = "/"
+	page.URLPath.URL = "/"
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
 
@@ -2002,24 +2003,25 @@ func (s *Site) Stats(t0 time.Time) {
 }
 
 func (s *Site) setURLs(n *Node, in string) {
-	in = s.addMultilingualPrefix(in)
-	n.URL = helpers.URLizeAndPrep(in)
-	n.Permalink = s.permalink(n.URL)
-	n.RSSLink = template.HTML(s.permalink(in + ".xml"))
+	n.URLPath.URL = helpers.URLizeAndPrep(in)
+	n.URLPath.Permalink = permalink(n.URLPath.URL)
+	// TODO(bep) multilingo
+	n.RSSLink = template.HTML(permalink(in + ".xml"))
 }
 
-func (s *Site) permalink(plink string) string {
-	return s.permalinkStr(plink)
+func permalink(plink string) string {
+	return permalinkStr(plink)
 }
 
-func (s *Site) permalinkStr(plink string) string {
+func permalinkStr(plink string) string {
 	return helpers.MakePermalink(viper.GetString("BaseURL"), helpers.URLizeAndPrep(plink)).String()
 }
 
 func (s *Site) newNode() *Node {
 	return &Node{
-		Data: make(map[string]interface{}),
-		Site: &s.Info,
+		Data:     make(map[string]interface{}),
+		Site:     &s.Info,
+		language: s.Lang,
 	}
 }
 
@@ -2075,7 +2077,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	var pageTarget target.Output
 
-	if p, ok := d.(*Page); ok && path.Ext(p.URL) != "" {
+	if p, ok := d.(*Page); ok && path.Ext(p.URLPath.URL) != "" {
 		// user has explicitly set a URL with extension for this page
 		// make sure it sticks even if "ugly URLs" are turned off.
 		pageTarget = s.pageUglyTarget()

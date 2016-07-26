@@ -16,14 +16,15 @@ package hugolib
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 	"html/template"
 	"math"
 	"path"
 	"reflect"
 	"strings"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/viper"
 )
 
 // Pager represents one of the elements in a paginator.
@@ -274,7 +275,7 @@ func (n *Node) Paginator(options ...interface{}) (*Pager, error) {
 			return
 		}
 
-		pagers, err := paginatePages(n.Data["Pages"], pagerSize, n.URL)
+		pagers, err := paginatePages(n.Data["Pages"], pagerSize, n.URL())
 
 		if err != nil {
 			initError = err
@@ -324,7 +325,7 @@ func (n *Node) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 		if n.paginator != nil {
 			return
 		}
-		pagers, err := paginatePages(seq, pagerSize, n.URL)
+		pagers, err := paginatePages(seq, pagerSize, n.URL())
 
 		if err != nil {
 			initError = err
