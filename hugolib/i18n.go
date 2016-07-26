@@ -19,18 +19,20 @@ import (
 	"github.com/spf13/hugo/tpl"
 )
 
-func loadI18n(sources []source.Input, lang string) (err error) {
+func loadI18n(sources []source.Input) error {
 	i18nBundle := bundle.New()
+
 	for _, currentSource := range sources {
 		for _, r := range currentSource.Files() {
-			err = i18nBundle.ParseTranslationFileBytes(r.LogicalName(), r.Bytes())
+			err := i18nBundle.ParseTranslationFileBytes(r.LogicalName(), r.Bytes())
 			if err != nil {
-				return
+				return err
 			}
 		}
 	}
 
-	tpl.SetI18nTfunc(lang, i18nBundle)
+	tpl.SetI18nTfuncs(i18nBundle)
 
 	return nil
+
 }
