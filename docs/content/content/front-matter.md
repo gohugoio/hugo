@@ -73,7 +73,7 @@ Content of the file goes Here
         "Development",
         "VIM"
     ],
-    "slug": "spf13-vim-3-0-release-and-new-website",
+    "slug": "spf13-vim-3-0-release-and-new-website"
 }
 
 Content of the file goes Here
