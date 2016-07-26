@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"html/template"
+	"path"
+	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 
@@ -38,6 +41,27 @@ type Node struct {
 	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch
+
+	language *Language
+	lang     string // TODO(bep) multilingo
+
+	translations     Nodes
+	translationsInit sync.Once
+}
+
+// The Nodes type is temporary until we get https://github.com/spf13/hugo/issues/2297 fixed.
+type Nodes []*Node
+
+func (n Nodes) Len() int {
+	return len(n)
+}
+
+func (n Nodes) Less(i, j int) bool {
+	return n[i].language.Weight < n[j].language.Weight
+}
+
+func (n Nodes) Swap(i, j int) {
+	n[i], n[j] = n[j], n[i]
 }
 
 func (n *Node) Now() time.Time {
@@ -46,7 +70,7 @@ func (n *Node) Now() time.Time {
 
 func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 	if inme.HasChildren() {
-		me := MenuEntry{Name: n.Title, URL: n.URL}
+		me := MenuEntry{Name: n.Title, URL: n.URL()}
 
 		for _, child := range inme.Children {
 			if me.IsSameResource(child) {
@@ -63,7 +87,7 @@ func (n *Node) HasMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
-	me := MenuEntry{Name: n.Title, URL: n.Site.createNodeMenuEntryURL(n.URL)}
+	me := MenuEntry{Name: n.Title, URL: n.Site.createNodeMenuEntryURL(n.URL())}
 
 	if !me.IsSameResource(inme) {
 		return false
@@ -138,11 +162,20 @@ func (n *Node) RelRef(ref string) (string, error) {
 	return n.Site.RelRef(ref, nil)
 }
 
+// TODO(bep) multilingo some of these are now hidden. Consider unexport.
 type URLPath struct {
 	URL       string
 	Permalink string
 	Slug      string
 	Section   string
+}
+
+func (n *Node) URL() string {
+	return n.addMultilingualWebPrefix(n.URLPath.URL)
+}
+
+func (n *Node) Permalink() string {
+	return permalink(n.URL())
 }
 
 // Scratch returns the writable context associated with this Node.
@@ -151,4 +184,76 @@ func (n *Node) Scratch() *Scratch {
 		n.scratch = newScratch()
 	}
 	return n.scratch
+}
+
+// TODO(bep) multilingo consolidate. See Page.
+func (n *Node) Language() *Language {
+	return n.language
+}
+
+func (n *Node) Lang() string {
+	if n.Language() != nil {
+		return n.Language().Lang
+	}
+	return n.lang
+}
+
+// AllTranslations returns all translations, including the current Node.
+// Note that this and the one below is kind of a temporary hack before #2297 is solved.
+func (n *Node) AllTranslations() Nodes {
+	n.initTranslations()
+	return n.translations
+}
+
+// Translations returns the translations excluding the current Node.
+func (n *Node) Translations() Nodes {
+	n.initTranslations()
+	translations := make(Nodes, 0)
+
+	for _, t := range n.translations {
+
+		if t != n {
+			translations = append(translations, t)
+		}
+	}
+
+	return translations
+}
+
+func (n *Node) initTranslations() {
+	n.translationsInit.Do(func() {
+		if n.translations != nil {
+			return
+		}
+		n.translations = make(Nodes, 0)
+		for _, l := range n.Site.Languages {
+			if l == n.language {
+				n.translations = append(n.translations, n)
+				continue
+			}
+
+			translation := *n
+			translation.language = l
+			translation.translations = n.translations
+			n.translations = append(n.translations, &translation)
+		}
+
+		sort.Sort(n.translations)
+	})
+}
+
+func (n *Node) addMultilingualWebPrefix(outfile string) string {
+	lang := n.Lang()
+	if lang == "" || !n.Site.Multilingual {
+		return outfile
+	}
+	return "/" + path.Join(lang, outfile)
+}
+
+func (n *Node) addMultilingualFilesystemPrefix(outfile string) string {
+	lang := n.Lang()
+	if lang == "" || !n.Site.Multilingual {
+		return outfile
+	}
+	return string(filepath.Separator) + filepath.Join(lang, outfile)
 }
