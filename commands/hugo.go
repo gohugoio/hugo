@@ -46,20 +46,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-type HugoSites []*hugolib.Site
-
-// Reset resets the sites, making it ready for a full rebuild.
-// TODO(bep) multilingo
-func (h HugoSites) Reset() {
-	for i, s := range h {
-		h[i] = s.Reset()
-	}
-}
-
 // Hugo represents the Hugo sites to build. This variable is exported as it
 // is used by at least one external library (the Hugo caddy plugin). We should
 // provide a cleaner external API, but until then, this is it.
-var Hugo HugoSites
+var Hugo hugolib.HugoSites
 
 // Reset resets Hugo ready for a new full build. This is mainly only useful
 // for benchmark testing etc. via the CLI commands.

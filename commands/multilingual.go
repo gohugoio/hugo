@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-func readMultilingualConfiguration() (HugoSites, error) {
-	h := make(HugoSites, 0)
+func readMultilingualConfiguration() (hugolib.HugoSites, error) {
+	h := make(hugolib.HugoSites, 0)
 	multilingual := viper.GetStringMap("Multilingual")
 	if len(multilingual) == 0 {
 		// TODO(bep) multilingo langConfigsList = append(langConfigsList, hugolib.NewLanguage("en"))
