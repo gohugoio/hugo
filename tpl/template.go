@@ -26,6 +26,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 )
 
@@ -112,6 +113,27 @@ func partial(name string, contextList ...interface{}) template.HTML {
 	} else {
 		context = contextList[0]
 	}
+
+	// Get type of page being rendered, so that we can also search for TYPE/partials/NAME.
+	// This allows type-based overriding of partials, which allows theme designers to put a lot of
+	// customizable things into partials, without having the user copy-pasting a lot of stuff around.
+	// For example, the sidebar shown on different content types can be different if needed.
+	//
+	// Generally, `context` will be of type hugolib.Page. In cases of XML, it will not. We test that
+	// by checking if the method "Type" is present in the context.
+	// We cannot directly try casting it to hugolib.Page, since importing hugolib leads to cyclic imports.
+	value := reflect.ValueOf(context)
+
+	if value.IsValid() {
+		method := value.MethodByName("Type")
+
+		if method.IsValid() {
+			contentType := method.Call(make([]reflect.Value, 0))[0].String()
+
+			return ExecuteTemplateToHTML(context, contentType+"/partials/"+name, "partials/"+name, "theme/partials/"+name)
+		}
+	}
+
 	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
