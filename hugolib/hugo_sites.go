@@ -13,6 +13,14 @@
 
 package hugolib
 
+import (
+	"time"
+
+	"github.com/fsnotify/fsnotify"
+
+	jww "github.com/spf13/jwalterweatherman"
+)
+
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites []*Site
 
@@ -22,4 +30,53 @@ func (h HugoSites) Reset() {
 	for i, s := range h {
 		h[i] = s.Reset()
 	}
+}
+
+// Build builds all sites.
+func (h HugoSites) Build(watching, printStats bool) error {
+	t0 := time.Now()
+
+	for _, site := range h {
+		t1 := time.Now()
+
+		site.RunMode.Watching = watching
+
+		if err := site.Build(); err != nil {
+			return err
+		}
+		if printStats {
+			site.Stats(t1)
+		}
+	}
+
+	if printStats {
+		jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
+	}
+
+	return nil
+
+}
+
+// Rebuild rebuilds all sites.
+func (h HugoSites) Rebuild(events []fsnotify.Event, printStats bool) error {
+	t0 := time.Now()
+
+	for _, site := range h {
+		t1 := time.Now()
+
+		if err := site.ReBuild(events); err != nil {
+			return err
+		}
+
+		if printStats {
+			site.Stats(t1)
+		}
+	}
+
+	if printStats {
+		jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
+	}
+
+	return nil
+
 }

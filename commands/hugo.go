@@ -713,43 +713,13 @@ func getDirList() []string {
 }
 
 func buildSites(watching ...bool) (err error) {
-	fmt.Println("Started building site")
-	t0 := time.Now()
-
-	for _, site := range Hugo {
-		t1 := time.Now()
-		if len(watching) > 0 && watching[0] {
-			site.RunMode.Watching = true
-		}
-
-		if err := site.Build(); err != nil {
-			return err
-		}
-
-		site.Stats(t1)
-	}
-
-	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
-
-	return nil
+	fmt.Println("Started building sites ...")
+	w := len(watching) > 0 && watching[0]
+	return Hugo.Build(w, true)
 }
 
 func rebuildSites(events []fsnotify.Event) error {
-	t0 := time.Now()
-
-	for _, site := range Hugo {
-		t1 := time.Now()
-
-		if err := site.ReBuild(events); err != nil {
-			return err
-		}
-
-		site.Stats(t1)
-	}
-
-	jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
-
-	return nil
+	return Hugo.Rebuild(events, true)
 }
 
 // NewWatcher creates a new watcher to watch filesystem events.
