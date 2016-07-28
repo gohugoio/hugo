@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"path/filepath"
 	"testing"
 
 	"github.com/spf13/hugo/helpers"
@@ -45,28 +46,23 @@ const rssTemplate = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
 </rss>`
 
 func TestRSSOutput(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
-	rssURI := "customrss.xml"
+	rssURI := "public/customrss.xml"
 	viper.Set("baseurl", "http://auth/bub/")
 	viper.Set("RSSUri", rssURI)
 
 	hugofs.InitMemFs()
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: weightedSources},
-		Lang:   newDefaultLanguage(),
-	}
-	s.initializeSiteInfo()
-	s.prepTemplates("rss.xml", rssTemplate)
-
-	createPagesAndMeta(t, s)
-
-	if err := s.renderHomePage(); err != nil {
-		t.Fatalf("Unable to RenderHomePage: %s", err)
+		Source:   &source.InMemorySource{ByteSource: weightedSources},
+		Language: newDefaultLanguage(),
 	}
 
-	file, err := hugofs.Destination().Open(rssURI)
+	if err := buildAndRenderSite(s, "rss.xml", rssTemplate); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	file, err := hugofs.Destination().Open(filepath.Join("public", rssURI))
 
 	if err != nil {
 		t.Fatalf("Unable to locate: %s", rssURI)

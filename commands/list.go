@@ -53,7 +53,7 @@ var listDraftsCmd = &cobra.Command{
 
 		site := &hugolib.Site{}
 
-		if err := site.Process(); err != nil {
+		if err := site.PreProcess(hugolib.BuildCfg{}); err != nil {
 			return newSystemError("Error Processing Source Content", err)
 		}
 
@@ -84,7 +84,7 @@ posted in the future.`,
 
 		site := &hugolib.Site{}
 
-		if err := site.Process(); err != nil {
+		if err := site.PreProcess(hugolib.BuildCfg{}); err != nil {
 			return newSystemError("Error Processing Source Content", err)
 		}
 
@@ -115,7 +115,7 @@ expired.`,
 
 		site := &hugolib.Site{}
 
-		if err := site.Process(); err != nil {
+		if err := site.PreProcess(hugolib.BuildCfg{}); err != nil {
 			return newSystemError("Error Processing Source Content", err)
 		}
 

@@ -336,6 +336,8 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 
+		jww.DEBUG.Printf("Add template file from path %s", path)
+
 		return t.AddTemplate(name, string(b))
 	}
 
@@ -366,11 +368,12 @@ func isBaseTemplate(path string) bool {
 }
 
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
+	jww.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
-
+		jww.DEBUG.Println("Template path", path)
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(absPath)
 			if err != nil {

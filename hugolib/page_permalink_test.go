@@ -23,8 +23,7 @@ import (
 )
 
 func TestPermalink(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	tests := []struct {
 		file         string

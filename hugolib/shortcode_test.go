@@ -261,8 +261,7 @@ func TestFigureImgWidth(t *testing.T) {
 }
 
 func TestHighlight(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	if !helpers.HasPygments() {
 		t.Skip("Skip test as Pygments is not installed")
@@ -414,11 +413,11 @@ func TestExtractShortcodes(t *testing.T) {
 }
 
 func TestShortcodesInSite(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	baseURL := "http://foo/bar"
 	viper.Set("DefaultExtension", "html")
+	viper.Set("DefaultContentLanguage", "en")
 	viper.Set("baseurl", baseURL)
 	viper.Set("UglyURLs", false)
 	viper.Set("verbose", true)
@@ -497,24 +496,31 @@ e`,
 	}
 
 	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		targets: targetList{page: &target.PagePub{UglyURLs: false}},
-		Lang:    newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		targets:  targetList{page: &target.PagePub{UglyURLs: false}},
+		Language: newDefaultLanguage(),
 	}
 
-	s.initializeSiteInfo()
+	addTemplates := func(templ tpl.Template) error {
+		templ.AddTemplate("_default/single.html", "{{.Content}}")
 
-	s.loadTemplates()
+		templ.AddInternalShortcode("b.html", `b`)
+		templ.AddInternalShortcode("c.html", `c`)
+		templ.AddInternalShortcode("d.html", `d`)
 
-	s.Tmpl.AddTemplate("_default/single.html", "{{.Content}}")
+		return nil
 
-	s.Tmpl.AddInternalShortcode("b.html", `b`)
-	s.Tmpl.AddInternalShortcode("c.html", `c`)
-	s.Tmpl.AddInternalShortcode("d.html", `d`)
+	}
 
-	s.Tmpl.MarkReady()
+	sites, err := NewHugoSites(s)
 
-	createAndRenderPages(t, s)
+	if err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	if err = sites.Build(BuildCfg{withTemplate: addTemplates}); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	for _, test := range tests {
 		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {

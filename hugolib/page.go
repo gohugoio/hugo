@@ -833,6 +833,7 @@ func (p *Page) Menus() PageMenus {
 					menuEntry.marshallMap(ime)
 				}
 				p.pageMenus[name] = &menuEntry
+
 			}
 		}
 	})

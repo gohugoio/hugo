@@ -17,9 +17,12 @@ import (
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func loadI18n(sources []source.Input) error {
+	jww.DEBUG.Printf("Load I18n from %q", sources)
+
 	i18nBundle := bundle.New()
 
 	for _, currentSource := range sources {

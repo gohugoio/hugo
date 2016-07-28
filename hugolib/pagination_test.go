@@ -192,8 +192,7 @@ func doTestPagerNoPages(t *testing.T, paginator *paginator) {
 }
 
 func TestPaginationURLFactory(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("PaginatePath", "zoo")
 	unicode := newPaginationURLFactory("новости проекта")
@@ -207,8 +206,7 @@ func TestPaginationURLFactory(t *testing.T) {
 }
 
 func TestPaginator(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	for _, useViper := range []bool{false, true} {
 		doTestPaginator(t, useViper)
@@ -216,8 +214,7 @@ func TestPaginator(t *testing.T) {
 }
 
 func doTestPaginator(t *testing.T, useViper bool) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	pagerSize := 5
 	if useViper {
@@ -260,8 +257,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 }
 
 func TestPaginatorWithNegativePaginate(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("paginate", -1)
 	s := newSiteDefaultLang()
@@ -270,8 +266,7 @@ func TestPaginatorWithNegativePaginate(t *testing.T) {
 }
 
 func TestPaginate(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	for _, useViper := range []bool{false, true} {
 		doTestPaginate(t, useViper)
@@ -331,8 +326,7 @@ func TestInvalidOptions(t *testing.T) {
 }
 
 func TestPaginateWithNegativePaginate(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("paginate", -1)
 	s := newSiteDefaultLang()
@@ -354,8 +348,7 @@ func TestPaginatePages(t *testing.T) {
 
 // Issue #993
 func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("paginate", 10)
 	s := newSiteDefaultLang()
@@ -373,8 +366,7 @@ func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
 }
 
 func TestPaginateFollowedByDifferentPaginateShouldFail(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("paginate", 10)
 	s := newSiteDefaultLang()

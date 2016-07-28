@@ -22,7 +22,7 @@ import (
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
-	src := new(Filesystem)
+	src := &Filesystem{Base: "Empty"}
 	if len(src.Files()) != 0 {
 		t.Errorf("new filesystem should contain 0 files.")
 	}

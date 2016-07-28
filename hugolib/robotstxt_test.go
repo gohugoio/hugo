@@ -30,8 +30,7 @@ const robotTxtTemplate = `User-agent: Googlebot
 `
 
 func TestRobotsTXTOutput(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 
@@ -39,29 +38,15 @@ func TestRobotsTXTOutput(t *testing.T) {
 	viper.Set("enableRobotsTXT", true)
 
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: weightedSources},
-		Lang:   newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: weightedSources},
+		Language: newDefaultLanguage(),
 	}
 
-	s.initializeSiteInfo()
-
-	s.prepTemplates("robots.txt", robotTxtTemplate)
-
-	createPagesAndMeta(t, s)
-
-	if err := s.renderHomePage(); err != nil {
-		t.Fatalf("Unable to RenderHomePage: %s", err)
+	if err := buildAndRenderSite(s, "robots.txt", robotTxtTemplate); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	if err := s.renderSitemap(); err != nil {
-		t.Fatalf("Unable to RenderSitemap: %s", err)
-	}
-
-	if err := s.renderRobotsTXT(); err != nil {
-		t.Fatalf("Unable to RenderRobotsTXT :%s", err)
-	}
-
-	robotsFile, err := hugofs.Destination().Open("robots.txt")
+	robotsFile, err := hugofs.Destination().Open("public/robots.txt")
 
 	if err != nil {
 		t.Fatalf("Unable to locate: robots.txt")

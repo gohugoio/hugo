@@ -45,6 +45,8 @@ func (l Languages) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 type Multilingual struct {
 	Languages Languages
 
+	DefaultLang *Language
+
 	langMap     map[string]*Language
 	langMapInit sync.Once
 }
@@ -60,7 +62,7 @@ func (ml *Multilingual) Language(lang string) *Language {
 }
 
 func (ml *Multilingual) enabled() bool {
-	return len(ml.Languages) > 0
+	return len(ml.Languages) > 1
 }
 
 func (l *Language) Params() map[string]interface{} {
@@ -98,16 +100,6 @@ func (l *Language) Get(key string) interface{} {
 	return viper.Get(key)
 }
 
-// TODO(bep) multilingo move this to a constructor.
-func (s *Site) SetMultilingualConfig(currentLang *Language, languages Languages) {
-
-	ml := &Multilingual{
-		Languages: languages,
-	}
-	viper.Set("Multilingual", ml.enabled())
-	s.Multilingual = ml
-}
-
 func (s *Site) multilingualEnabled() bool {
 	return s.Multilingual != nil && s.Multilingual.enabled()
 }
@@ -118,5 +110,5 @@ func (s *Site) currentLanguageString() string {
 }
 
 func (s *Site) currentLanguage() *Language {
-	return s.Lang
+	return s.Language
 }
