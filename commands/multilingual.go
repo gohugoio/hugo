@@ -11,30 +11,31 @@ import (
 	"github.com/spf13/viper"
 )
 
-func readMultilingualConfiguration() (hugolib.HugoSites, error) {
-	h := make(hugolib.HugoSites, 0)
+func readMultilingualConfiguration() (*hugolib.HugoSites, error) {
+	sites := make([]*hugolib.Site, 0)
 	multilingual := viper.GetStringMap("Multilingual")
 	if len(multilingual) == 0 {
 		// TODO(bep) multilingo langConfigsList = append(langConfigsList, hugolib.NewLanguage("en"))
-		h = append(h, hugolib.NewSite(hugolib.NewLanguage("en")))
-		return h, nil
+		sites = append(sites, hugolib.NewSite(hugolib.NewLanguage("en")))
 	}
 
-	var err error
+	if len(multilingual) > 0 {
+		var err error
 
-	langConfigsList, err := toSortedLanguages(multilingual)
+		languages, err := toSortedLanguages(multilingual)
 
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse multilingual config: %s", err)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse multilingual config: %s", err)
+		}
+
+		for _, lang := range languages {
+			sites = append(sites, hugolib.NewSite(lang))
+		}
+
 	}
 
-	for _, lang := range langConfigsList {
-		s := hugolib.NewSite(lang)
-		s.SetMultilingualConfig(lang, langConfigsList)
-		h = append(h, s)
-	}
+	return hugolib.NewHugoSites(sites...)
 
-	return h, nil
 }
 
 func toSortedLanguages(l map[string]interface{}) (hugolib.Languages, error) {

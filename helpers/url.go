@@ -169,6 +169,17 @@ func AbsURL(path string) string {
 	return MakePermalink(baseURL, path).String()
 }
 
+// IsAbsURL determines whether the given path points to an absolute URL.
+// TODO(bep) ml tests
+func IsAbsURL(path string) bool {
+	url, err := url.Parse(path)
+	if err != nil {
+		return false
+	}
+
+	return url.IsAbs() || strings.HasPrefix(path, "//")
+}
+
 // RelURL creates a URL relative to the BaseURL root.
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
 func RelURL(path string) string {

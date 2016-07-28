@@ -21,8 +21,7 @@ import (
 )
 
 func TestByCountOrderOfTaxonomies(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	defer testCommonResetState()
 
 	taxonomies := make(map[string]string)
 

@@ -201,9 +201,7 @@ func TestPageMenuWithIdentifier(t *testing.T) {
 }
 
 func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSource) {
-
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -241,8 +239,7 @@ func TestPageMenuWithDuplicateName(t *testing.T) {
 }
 
 func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.ByteSource) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -260,8 +257,7 @@ func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.Byte
 }
 
 func TestPageMenu(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -307,8 +303,7 @@ func TestPageMenu(t *testing.T) {
 }
 
 func TestMenuURL(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -338,8 +333,7 @@ func TestMenuURL(t *testing.T) {
 
 // Issue #1934
 func TestYAMLMenuWithMultipleEntries(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	ps1 := []byte(`---
 title: "Yaml 1"
@@ -377,8 +371,7 @@ func TestMenuWithUnicodeURLs(t *testing.T) {
 }
 
 func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("CanonifyURLs", canonifyURLs)
 
@@ -403,8 +396,7 @@ func TestSectionPagesMenu(t *testing.T) {
 }
 
 func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("SectionPagesMenu", "spm")
 
@@ -458,8 +450,7 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("CanonifyURLs", true)
 	s := setupMenuTests(t, menuPageSources)
@@ -502,8 +493,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 }
 
 func TestMenuLimit(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 	m := *s.Menus["main"]
@@ -545,8 +535,7 @@ func TestMenuSortByN(t *testing.T) {
 }
 
 func TestHomeNodeMenu(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("CanonifyURLs", true)
 	viper.Set("UglyURLs", true)
@@ -659,7 +648,7 @@ func findDescendantTestMenuEntry(parent *MenuEntry, id string, matcher func(me *
 	return found
 }
 
-func setupTestMenuState(s *Site, t *testing.T) {
+func setupTestMenuState(t *testing.T) {
 	menus, err := tomlToMap(confMenu1)
 
 	if err != nil {
@@ -672,7 +661,8 @@ func setupTestMenuState(s *Site, t *testing.T) {
 
 func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *Site {
 	s := createTestSite(pageSources)
-	setupTestMenuState(s, t)
+
+	setupTestMenuState(t)
 	testSiteSetup(s, t)
 
 	return s
@@ -681,18 +671,17 @@ func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *Site {
 func createTestSite(pageSources []source.ByteSource) *Site {
 	hugofs.InitMemFs()
 
-	s := &Site{
-		Source: &source.InMemorySource{ByteSource: pageSources},
-		Lang:   newDefaultLanguage(),
+	return &Site{
+		Source:   &source.InMemorySource{ByteSource: pageSources},
+		Language: newDefaultLanguage(),
 	}
-	return s
+
 }
 
 func testSiteSetup(s *Site, t *testing.T) {
-	s.Menus = Menus{}
-	s.initializeSiteInfo()
-
-	createPagesAndMeta(t, s)
+	if err := buildSiteSkipRender(s); err != nil {
+		t.Fatalf("Sites build failed: %s", err)
+	}
 }
 
 func tomlToMap(s string) (map[string]interface{}, error) {

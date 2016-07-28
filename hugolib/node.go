@@ -18,8 +18,11 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/hugo/helpers"
 
 	"github.com/spf13/cast"
 )
@@ -243,11 +246,22 @@ func (n *Node) initTranslations() {
 }
 
 func (n *Node) addMultilingualWebPrefix(outfile string) string {
+
+	if helpers.IsAbsURL(outfile) {
+		return outfile
+	}
+
+	hadSlashSuffix := strings.HasSuffix(outfile, "/")
+
 	lang := n.Lang()
 	if lang == "" || !n.Site.Multilingual {
 		return outfile
 	}
-	return "/" + path.Join(lang, outfile)
+	outfile = "/" + path.Join(lang, outfile)
+	if hadSlashSuffix {
+		outfile += "/"
+	}
+	return outfile
 }
 
 func (n *Node) addMultilingualFilesystemPrefix(outfile string) string {

@@ -108,10 +108,11 @@ func (f *File) Path() string {
 }
 
 // NewFileWithContents creates a new File pointer with the given relative path and
-// content.
+// content. The language defaults to "en".
 func NewFileWithContents(relpath string, content io.Reader) *File {
 	file := NewFile(relpath)
 	file.Contents = content
+	file.lang = "en"
 	return file
 }
 
@@ -124,15 +125,16 @@ func NewFile(relpath string) *File {
 	f.dir, f.logicalName = filepath.Split(f.relpath)
 	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
 	f.baseName = helpers.Filename(f.LogicalName())
-	if viper.GetBool("Multilingual") {
-		f.lang = strings.TrimPrefix(filepath.Ext(f.baseName), ".")
+
+	f.lang = strings.TrimPrefix(filepath.Ext(f.baseName), ".")
+	if f.lang == "" {
+		f.lang = viper.GetString("DefaultContentLanguage")
 		if f.lang == "" {
-			f.lang = viper.GetString("DefaultContentLanguage")
+			// TODO(bep) ml
+			f.lang = "en"
 		}
-		f.translationBaseName = helpers.Filename(f.baseName)
-	} else {
-		f.translationBaseName = f.baseName
 	}
+	f.translationBaseName = helpers.Filename(f.baseName)
 
 	f.section = helpers.GuessSection(f.Dir())
 	f.uniqueID = helpers.Md5String(f.LogicalName())

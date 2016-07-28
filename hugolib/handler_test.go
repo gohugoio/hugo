@@ -25,8 +25,7 @@ import (
 )
 
 func TestDefaultHandler(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -45,33 +44,30 @@ func TestDefaultHandler(t *testing.T) {
 	viper.Set("verbose", true)
 
 	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		targets: targetList{page: &target.PagePub{UglyURLs: true}},
-		Lang:    NewLanguage("en"),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		targets:  targetList{page: &target.PagePub{UglyURLs: true, PublishDir: "public"}},
+		Language: NewLanguage("en"),
 	}
 
-	s.initializeSiteInfo()
-
-	s.prepTemplates(
+	if err := buildAndRenderSite(s,
 		"_default/single.html", "{{.Content}}",
 		"head", "<head><script src=\"script.js\"></script></head>",
-		"head_abs", "<head><script src=\"/script.js\"></script></head>")
-
-	// From site_test.go
-	createAndRenderPages(t, s)
+		"head_abs", "<head><script src=\"/script.js\"></script></head>"); err != nil {
+		t.Fatalf("Failed to render site: %s", err)
+	}
 
 	tests := []struct {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("sect/doc1.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
-		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
-		{filepath.FromSlash("sect/doc3.html"), "\n\n<h1 id=\"doc3\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
-		{filepath.FromSlash("sect/doc3/img1.png"), string([]byte("‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚"))},
-		{filepath.FromSlash("sect/img2.gif"), string([]byte("GIF89a��€��ÿÿÿ���,�������D�;"))},
-		{filepath.FromSlash("sect/img2.spf"), string([]byte("****FAKE-FILETYPE****"))},
-		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
-		{filepath.FromSlash("sect/doc8.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("public/sect/doc1.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("public/sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
+		{filepath.FromSlash("public/sect/doc3.html"), "\n\n<h1 id=\"doc3\">doc3</h1>\n\n<p><em>some</em> content</p>\n"},
+		{filepath.FromSlash("public/sect/doc3/img1.png"), string([]byte("‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚"))},
+		{filepath.FromSlash("public/sect/img2.gif"), string([]byte("GIF89a��€��ÿÿÿ���,�������D�;"))},
+		{filepath.FromSlash("public/sect/img2.spf"), string([]byte("****FAKE-FILETYPE****"))},
+		{filepath.FromSlash("public/doc7.html"), "<html><body>doc7 content</body></html>"},
+		{filepath.FromSlash("public/sect/doc8.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
 	}
 
 	for _, test := range tests {

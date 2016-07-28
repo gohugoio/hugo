@@ -60,8 +60,7 @@ var urlFakeSource = []source.ByteSource{
 
 // Issue #1105
 func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	for i, this := range []struct {
 		in       string
@@ -84,45 +83,29 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 }
 
 func TestPageCount(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-
+	testCommonResetState()
 	hugofs.InitMemFs()
 
 	viper.Set("uglyurls", false)
 	viper.Set("paginate", 10)
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: urlFakeSource},
-		Lang:   newDefaultLanguage(),
-	}
-	s.initializeSiteInfo()
-	s.prepTemplates("indexes/blue.html", indexTemplate)
-
-	createPagesAndMeta(t, s)
-
-	if err := s.renderSectionLists(); err != nil {
-		t.Errorf("Unable to render section lists: %s", err)
+		Source:   &source.InMemorySource{ByteSource: urlFakeSource},
+		Language: newDefaultLanguage(),
 	}
 
-	if err := s.renderAliases(); err != nil {
-		t.Errorf("Unable to render site lists: %s", err)
+	if err := buildAndRenderSite(s, "indexes/blue.html", indexTemplate); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
 	}
-
-	_, err := hugofs.Destination().Open("blue")
+	_, err := hugofs.Destination().Open("public/blue")
 	if err != nil {
 		t.Errorf("No indexed rendered.")
 	}
 
-	//expected := ".."
-	//if string(blueIndex) != expected {
-	//t.Errorf("Index template does not match expected: %q, got: %q", expected, string(blueIndex))
-	//}
-
 	for _, s := range []string{
-		"sd1/foo/index.html",
-		"sd2/index.html",
-		"sd3/index.html",
-		"sd4.html",
+		"public/sd1/foo/index.html",
+		"public/sd2/index.html",
+		"public/sd3/index.html",
+		"public/sd4.html",
 	} {
 		if _, err := hugofs.Destination().Open(filepath.FromSlash(s)); err != nil {
 			t.Errorf("No alias rendered: %s", s)

@@ -56,8 +56,8 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 	templ := tpl.New()
 	p, _ := pageFromString(simplePageWithURL, path)
 	p.Node.Site = &SiteInfo{
-		AllPages: &(Pages{p}),
-		BaseURL:  template.URL(helpers.SanitizeURLKeepTrailingSlash(baseURL)),
+		rawAllPages: &(Pages{p}),
+		BaseURL:     template.URL(helpers.SanitizeURLKeepTrailingSlash(baseURL)),
 	}
 
 	output, err := HandleShortcodes(in, p, templ)
@@ -72,8 +72,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 }
 
 func TestShortcodeHighlight(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	if !helpers.HasPygments() {
 		t.Skip("Skip test as Pygments is not installed")

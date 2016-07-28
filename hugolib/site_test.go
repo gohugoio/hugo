@@ -14,47 +14,32 @@
 package hugolib
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
-	"io"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/bep/inflect"
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
+
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	templateTitle   = "{{ .Title }}"
 	pageSimpleTitle = `---
 title: simple template
 ---
 content`
 
 	templateMissingFunc = "{{ .Title | funcdoesnotexists }}"
-	templateFunc        = "{{ .Title | urlize }}"
-	templateContent     = "{{ .Content }}"
-	templateDate        = "{{ .Date }}"
 	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
-
-	pageWithMd = `---
-title: page with md
----
-# heading 1
-text
-## heading 2
-more text
-`
 )
 
 func init() {
@@ -63,8 +48,7 @@ func init() {
 
 // Issue #1797
 func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("DefaultExtension", "html")
 	viper.Set("verbose", true)
@@ -92,31 +76,6 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 	}
 }
 
-func createAndRenderPages(t *testing.T, s *Site) {
-	createPagesAndMeta(t, s)
-
-	if err := s.renderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
-	}
-}
-
-func createPagesAndMeta(t *testing.T, s *Site) {
-	createPages(t, s)
-
-	s.setupTranslations()
-	s.setupPrevNext()
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
-}
-
-func createPages(t *testing.T, s *Site) {
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-}
-
 func pageMust(p *Page, err error) *Page {
 	if err != nil {
 		panic(err)
@@ -128,128 +87,28 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 	p, _ := NewPageFrom(strings.NewReader(pageSimpleTitle), "content/a/file.md")
 	p.Convert()
 	s := new(Site)
-	s.prepTemplates()
+	s.prepTemplates(nil)
 	err := s.renderThing(p, "foobar", nil)
 	if err == nil {
 		t.Errorf("Expected err to be returned when missing the template.")
 	}
 }
 
-func TestAddInvalidTemplate(t *testing.T) {
-	s := new(Site)
-	err := s.prepTemplates("missing", templateMissingFunc)
-	if err == nil {
-		t.Fatalf("Expecting the template to return an error")
-	}
-}
+func TestRenderWithInvalidTemplate(t *testing.T) {
+	jww.ResetLogCounters()
 
-type nopCloser struct {
-	io.Writer
-}
-
-func (nopCloser) Close() error { return nil }
-
-func NopCloser(w io.Writer) io.WriteCloser {
-	return nopCloser{w}
-}
-
-func TestRenderThing(t *testing.T) {
-	tests := []struct {
-		content  string
-		template string
-		expected string
-	}{
-		{pageSimpleTitle, templateTitle, "simple template"},
-		{pageSimpleTitle, templateFunc, "simple-template"},
-		{pageWithMd, templateContent, "\n\n<h1 id=\"heading-1\">heading 1</h1>\n\n<p>text</p>\n\n<h2 id=\"heading-2\">heading 2</h2>\n\n<p>more text</p>\n"},
-		{simplePageRFC3339Date, templateDate, "2013-05-17 16:59:30 &#43;0000 UTC"},
+	s := newSiteDefaultLang()
+	if err := buildAndRenderSite(s, "missing", templateMissingFunc); err != nil {
+		t.Fatalf("Got build error: %s", err)
 	}
 
-	for i, test := range tests {
-
-		s := new(Site)
-
-		p, err := NewPageFrom(strings.NewReader(test.content), "content/a/file.md")
-		p.Convert()
-		if err != nil {
-			t.Fatalf("Error parsing buffer: %s", err)
-		}
-		templateName := fmt.Sprintf("foobar%d", i)
-
-		s.prepTemplates(templateName, test.template)
-
-		if err != nil {
-			t.Fatalf("Unable to add template: %s", err)
-		}
-
-		p.Content = template.HTML(p.Content)
-		html := new(bytes.Buffer)
-		err = s.renderThing(p, templateName, NopCloser(html))
-		if err != nil {
-			t.Errorf("Unable to render html: %s", err)
-		}
-
-		if string(html.Bytes()) != test.expected {
-			t.Errorf("Content does not match.\nExpected\n\t'%q'\ngot\n\t'%q'", test.expected, html)
-		}
-	}
-}
-
-func HTML(in string) string {
-	return in
-}
-
-func TestRenderThingOrDefault(t *testing.T) {
-	tests := []struct {
-		missing  bool
-		template string
-		expected string
-	}{
-		{true, templateTitle, HTML("simple template")},
-		{true, templateFunc, HTML("simple-template")},
-		{false, templateTitle, HTML("simple template")},
-		{false, templateFunc, HTML("simple-template")},
-	}
-
-	hugofs.InitMemFs()
-
-	for i, test := range tests {
-
-		s := newSiteDefaultLang()
-
-		p, err := NewPageFrom(strings.NewReader(pageSimpleTitle), "content/a/file.md")
-		if err != nil {
-			t.Fatalf("Error parsing buffer: %s", err)
-		}
-		templateName := fmt.Sprintf("default%d", i)
-
-		s.prepTemplates(templateName, test.template)
-
-		var err2 error
-
-		if test.missing {
-			err2 = s.renderAndWritePage("name", "out", p, "missing", templateName)
-		} else {
-			err2 = s.renderAndWritePage("name", "out", p, templateName, "missing_default")
-		}
-
-		if err2 != nil {
-			t.Errorf("Unable to render html: %s", err)
-		}
-
-		file, err := hugofs.Destination().Open(filepath.FromSlash("out/index.html"))
-		if err != nil {
-			t.Errorf("Unable to open html: %s", err)
-		}
-		if helpers.ReaderToString(file) != test.expected {
-			t.Errorf("Content does not match. Expected '%s', got '%s'", test.expected, helpers.ReaderToString(file))
-		}
+	if jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) != 1 {
+		t.Fatalf("Expecting the template to log an ERROR")
 	}
 }
 
 func TestDraftAndFutureRender(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -259,15 +118,15 @@ func TestDraftAndFutureRender(t *testing.T) {
 		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
-	siteSetup := func() *Site {
+	siteSetup := func(t *testing.T) *Site {
 		s := &Site{
-			Source: &source.InMemorySource{ByteSource: sources},
-			Lang:   newDefaultLanguage(),
+			Source:   &source.InMemorySource{ByteSource: sources},
+			Language: newDefaultLanguage(),
 		}
 
-		s.initializeSiteInfo()
-
-		createPages(t, s)
+		if err := buildSiteSkipRender(s); err != nil {
+			t.Fatalf("Failed to build site: %s", err)
+		}
 
 		return s
 	}
@@ -275,14 +134,14 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub")
 
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
-	s := siteSetup()
+	s := siteSetup(t)
 	if len(s.AllPages) != 1 {
 		t.Fatal("Draft or Future dated content published unexpectedly")
 	}
 
 	// only publishDate in the past should be rendered
 	viper.Set("BuildDrafts", true)
-	s = siteSetup()
+	s = siteSetup(t)
 	if len(s.AllPages) != 2 {
 		t.Fatal("Future Dated Posts published unexpectedly")
 	}
@@ -290,7 +149,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	//  drafts should not be rendered, but all dates should
 	viper.Set("BuildDrafts", false)
 	viper.Set("BuildFuture", true)
-	s = siteSetup()
+	s = siteSetup(t)
 	if len(s.AllPages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
 	}
@@ -298,7 +157,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	// all 4 should be included
 	viper.Set("BuildDrafts", true)
 	viper.Set("BuildFuture", true)
-	s = siteSetup()
+	s = siteSetup(t)
 	if len(s.AllPages) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
@@ -309,8 +168,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 }
 
 func TestFutureExpirationRender(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -318,22 +176,22 @@ func TestFutureExpirationRender(t *testing.T) {
 		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*")},
 	}
 
-	siteSetup := func() *Site {
+	siteSetup := func(t *testing.T) *Site {
 		s := &Site{
-			Source: &source.InMemorySource{ByteSource: sources},
-			Lang:   newDefaultLanguage(),
+			Source:   &source.InMemorySource{ByteSource: sources},
+			Language: newDefaultLanguage(),
 		}
 
-		s.initializeSiteInfo()
-
-		createPages(t, s)
+		if err := buildSiteSkipRender(s); err != nil {
+			t.Fatalf("Failed to build site: %s", err)
+		}
 
 		return s
 	}
 
 	viper.Set("baseurl", "http://auth/bub")
 
-	s := siteSetup()
+	s := siteSetup(t)
 
 	if len(s.AllPages) != 1 {
 		if len(s.AllPages) > 1 {
@@ -351,6 +209,7 @@ func TestFutureExpirationRender(t *testing.T) {
 }
 
 // Issue #957
+// TODO(bep) ml
 func TestCrossrefs(t *testing.T) {
 	hugofs.InitMemFs()
 	for _, uglyURLs := range []bool{true, false} {
@@ -361,8 +220,7 @@ func TestCrossrefs(t *testing.T) {
 }
 
 func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	baseURL := "http://foo/bar"
 	viper.Set("DefaultExtension", "html")
@@ -413,16 +271,18 @@ THE END.`, refShortcode)),
 	}
 
 	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		targets: targetList{page: &target.PagePub{UglyURLs: uglyURLs}},
-		Lang:    newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		targets:  targetList{page: &target.PagePub{UglyURLs: uglyURLs}},
+		Language: newDefaultLanguage(),
 	}
 
-	s.initializeSiteInfo()
+	if err := buildAndRenderSite(s, "_default/single.html", "{{.Content}}"); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
-	s.prepTemplates("_default/single.html", "{{.Content}}")
-
-	createAndRenderPages(t, s)
+	if len(s.AllPages) != 3 {
+		t.Fatalf("Expected 3 got %d pages", len(s.AllPages))
+	}
 
 	tests := []struct {
 		doc      string
@@ -443,7 +303,7 @@ THE END.`, refShortcode)),
 		content := helpers.ReaderToString(file)
 
 		if content != test.expected {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
+			t.Fatalf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
 		}
 	}
 
@@ -459,8 +319,7 @@ func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
 }
 
 func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("DefaultExtension", "html")
 	viper.Set("verbose", true)
@@ -480,42 +339,38 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		targets: targetList{page: &target.PagePub{UglyURLs: uglyURLs}},
-		Lang:    newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		targets:  targetList{page: &target.PagePub{UglyURLs: uglyURLs, PublishDir: "public"}},
+		Language: newDefaultLanguage(),
 	}
 
-	s.initializeSiteInfo()
-
-	s.prepTemplates(
+	if err := buildAndRenderSite(s,
 		"index.html", "Home Sweet {{ if.IsHome  }}Home{{ end }}.",
 		"_default/single.html", "{{.Content}}{{ if.IsHome  }}This is not home!{{ end }}",
 		"404.html", "Page Not Found.{{ if.IsHome  }}This is not home!{{ end }}",
 		"rss.xml", "<root>RSS</root>",
-		"sitemap.xml", "<root>SITEMAP</root>")
-
-	createAndRenderPages(t, s)
-	s.renderHomePage()
-	s.renderSitemap()
+		"sitemap.xml", "<root>SITEMAP</root>"); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	var expectedPagePath string
 	if uglyURLs {
-		expectedPagePath = "sect/doc1.html"
+		expectedPagePath = "public/sect/doc1.html"
 	} else {
-		expectedPagePath = "sect/doc1/index.html"
+		expectedPagePath = "public/sect/doc1/index.html"
 	}
 
 	tests := []struct {
 		doc      string
 		expected string
 	}{
-		{filepath.FromSlash("index.html"), "Home Sweet Home."},
+		{filepath.FromSlash("public/index.html"), "Home Sweet Home."},
 		{filepath.FromSlash(expectedPagePath), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
-		{filepath.FromSlash("404.html"), "Page Not Found."},
-		{filepath.FromSlash("index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
-		{filepath.FromSlash("sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
+		{filepath.FromSlash("public/404.html"), "Page Not Found."},
+		{filepath.FromSlash("public/index.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>RSS</root>"},
+		{filepath.FromSlash("public/sitemap.xml"), "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<root>SITEMAP</root>"},
 		// Issue #1923
-		{filepath.FromSlash("ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n"},
+		{filepath.FromSlash("public/ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n"},
 	}
 
 	for _, p := range s.Pages {
@@ -551,8 +406,8 @@ func TestSectionNaming(t *testing.T) {
 
 func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	hugofs.InitMemFs()
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
+
 	viper.Set("baseurl", "http://auth/sub/")
 	viper.Set("DefaultExtension", "html")
 	viper.Set("UglyURLs", uglify)
@@ -574,18 +429,16 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 
 	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		targets: targetList{page: &target.PagePub{UglyURLs: uglify}},
-		Lang:    newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		targets:  targetList{page: &target.PagePub{UglyURLs: uglify}},
+		Language: newDefaultLanguage(),
 	}
 
-	s.initializeSiteInfo()
-	s.prepTemplates(
+	if err := buildAndRenderSite(s,
 		"_default/single.html", "{{.Content}}",
-		"_default/list.html", "{{ .Title }}")
-
-	createAndRenderPages(t, s)
-	s.renderSectionLists()
+		"_default/list.html", "{{ .Title }}"); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	tests := []struct {
 		doc         string
@@ -619,8 +472,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 }
 func TestSkipRender(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -639,19 +491,17 @@ func TestSkipRender(t *testing.T) {
 	viper.Set("CanonifyURLs", true)
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Source:  &source.InMemorySource{ByteSource: sources},
-		targets: targetList{page: &target.PagePub{UglyURLs: true}},
-		Lang:    newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		targets:  targetList{page: &target.PagePub{UglyURLs: true}},
+		Language: newDefaultLanguage(),
 	}
 
-	s.initializeSiteInfo()
-
-	s.prepTemplates(
+	if err := buildAndRenderSite(s,
 		"_default/single.html", "{{.Content}}",
 		"head", "<head><script src=\"script.js\"></script></head>",
-		"head_abs", "<head><script src=\"/script.js\"></script></head>")
-
-	createAndRenderPages(t, s)
+		"head_abs", "<head><script src=\"/script.js\"></script></head>"); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	tests := []struct {
 		doc      string
@@ -682,36 +532,34 @@ func TestSkipRender(t *testing.T) {
 }
 
 func TestAbsURLify(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("DefaultExtension", "html")
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
 		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
-		{Name: filepath.FromSlash("content/blue/doc2.html"), Content: []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
+		{Name: filepath.FromSlash("blue/doc2.html"), Content: []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
 		for _, canonify := range []bool{true, false} {
 			viper.Set("CanonifyURLs", canonify)
 			viper.Set("BaseURL", baseURL)
 			s := &Site{
-				Source:  &source.InMemorySource{ByteSource: sources},
-				targets: targetList{page: &target.PagePub{UglyURLs: true}},
-				Lang:    newDefaultLanguage(),
+				Source:   &source.InMemorySource{ByteSource: sources},
+				targets:  targetList{page: &target.PagePub{UglyURLs: true}},
+				Language: newDefaultLanguage(),
 			}
 			t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
-			s.initializeSiteInfo()
 
-			s.prepTemplates("blue/single.html", templateWithURLAbs)
-
-			createAndRenderPages(t, s)
+			if err := buildAndRenderSite(s, "blue/single.html", templateWithURLAbs); err != nil {
+				t.Fatalf("Failed to build site: %s", err)
+			}
 
 			tests := []struct {
 				file, expected string
 			}{
-				{"content/blue/doc2.html", "<a href=\"%s/foobar.jpg\">Going</a>"},
+				{"blue/doc2.html", "<a href=\"%s/foobar.jpg\">Going</a>"},
 				{"sect/doc1.html", "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
 			}
 
@@ -787,19 +635,19 @@ var weightedSources = []source.ByteSource{
 }
 
 func TestOrderedPages(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: weightedSources},
-		Lang:   newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: weightedSources},
+		Language: newDefaultLanguage(),
 	}
-	s.initializeSiteInfo()
 
-	createPagesAndMeta(t, s)
+	if err := buildSiteSkipRender(s); err != nil {
+		t.Fatalf("Failed to process site: %s", err)
+	}
 
 	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
 		t.Errorf("Pages in unexpected order. First should be '%d', got '%d'", 2, s.Sections["sect"][0].Weight)
@@ -850,8 +698,7 @@ var groupedSources = []source.ByteSource{
 }
 
 func TestGroupedPages(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -863,11 +710,13 @@ func TestGroupedPages(t *testing.T) {
 
 	viper.Set("baseurl", "http://auth/bub")
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: groupedSources},
+		Source:   &source.InMemorySource{ByteSource: groupedSources},
+		Language: newDefaultLanguage(),
 	}
-	s.initializeSiteInfo()
 
-	createPagesAndMeta(t, s)
+	if err := buildSiteSkipRender(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	rbysection, err := s.Pages.GroupBy("Section", "desc")
 	if err != nil {
@@ -1030,8 +879,7 @@ date = 2010-05-27T07:32:00Z
 Front Matter with weighted tags and categories`)
 
 func TestWeightedTaxonomies(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -1047,12 +895,13 @@ func TestWeightedTaxonomies(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub")
 	viper.Set("taxonomies", taxonomies)
 	s := &Site{
-		Source: &source.InMemorySource{ByteSource: sources},
-		Lang:   newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		Language: newDefaultLanguage(),
 	}
-	s.initializeSiteInfo()
 
-	createPagesAndMeta(t, s)
+	if err := buildSiteSkipRender(s); err != nil {
+		t.Fatalf("Failed to process site: %s", err)
+	}
 
 	if s.Taxonomies["tags"]["a"][0].Page.Title != "foo" {
 		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title)
@@ -1115,20 +964,20 @@ func setupLinkingMockSite(t *testing.T) *Site {
 			"sourceRelativeLinksProjectFolder": "/docs"})
 
 	site := &Site{
-		Source: &source.InMemorySource{ByteSource: sources},
-		Lang:   newDefaultLanguage(),
+		Source:   &source.InMemorySource{ByteSource: sources},
+		Language: newDefaultLanguage(),
 	}
 
-	site.initializeSiteInfo()
-
-	createPagesAndMeta(t, site)
+	if err := buildSiteSkipRender(site); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	return site
 }
 
 func TestRefLinking(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
+
 	site := setupLinkingMockSite(t)
 
 	currentPage := findPage(site, "level2/level3/index.md")
@@ -1151,8 +1000,8 @@ func TestRefLinking(t *testing.T) {
 }
 
 func TestSourceRelativeLinksing(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
+
 	site := setupLinkingMockSite(t)
 
 	type resultMap map[string]string
@@ -1287,8 +1136,8 @@ func TestSourceRelativeLinksing(t *testing.T) {
 }
 
 func TestSourceRelativeLinkFileing(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
+
 	site := setupLinkingMockSite(t)
 
 	type resultMap map[string]string
@@ -1330,166 +1179,4 @@ func TestSourceRelativeLinkFileing(t *testing.T) {
 			}
 		}
 	}
-}
-
-func TestMultilingualSwitch(t *testing.T) {
-	// General settings
-	viper.Set("DefaultExtension", "html")
-	viper.Set("baseurl", "http://example.com/blog")
-	viper.Set("DisableSitemap", false)
-	viper.Set("DisableRSS", false)
-	viper.Set("RSSUri", "index.xml")
-	viper.Set("Taxonomies", map[string]string{"tag": "tags"})
-	viper.Set("Permalinks", map[string]string{"other": "/somewhere/else/:filename"})
-
-	// Sources
-	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.en.md"), []byte(`---
-title: doc1
-slug: doc1-slug
-tags:
- - tag1
-publishdate: "2000-01-01"
----
-# doc1
-*some content*
-NOTE: slug should be used as URL
-`)},
-		{filepath.FromSlash("sect/doc1.fr.md"), []byte(`---
-title: doc1
-tags:
- - tag1
- - tag2
-publishdate: "2000-01-04"
----
-# doc1
-*quelque contenu*
-NOTE: should be in the 'en' Page's 'Translations' field.
-NOTE: date is after "doc3"
-`)},
-		{filepath.FromSlash("sect/doc2.en.md"), []byte(`---
-title: doc2
-publishdate: "2000-01-02"
----
-# doc2
-*some content*
-NOTE: without slug, "doc2" should be used, without ".en" as URL
-`)},
-		{filepath.FromSlash("sect/doc3.en.md"), []byte(`---
-title: doc3
-publishdate: "2000-01-03"
-tags:
- - tag2
-url: /superbob
----
-# doc3
-*some content*
-NOTE: third 'en' doc, should trigger pagination on home page.
-`)},
-		{filepath.FromSlash("sect/doc4.md"), []byte(`---
-title: doc4
-tags:
- - tag1
-publishdate: "2000-01-05"
----
-# doc4
-*du contenu francophone*
-NOTE: should use the DefaultContentLanguage and mark this doc as 'fr'.
-NOTE: doesn't have any corresponding translation in 'en'
-`)},
-		{filepath.FromSlash("other/doc5.fr.md"), []byte(`---
-title: doc5
-publishdate: "2000-01-06"
----
-# doc5
-*autre contenu francophone*
-NOTE: should use the "permalinks" configuration with :filename
-`)},
-	}
-
-	hugofs.InitMemFs()
-
-	// Multilingual settings
-	viper.Set("Multilingual", true)
-	en := NewLanguage("en")
-	viper.Set("DefaultContentLanguage", "fr")
-	viper.Set("paginate", "2")
-
-	languages := NewLanguages(en, NewLanguage("fr"))
-	s := &Site{
-		Source: &source.InMemorySource{ByteSource: sources},
-		Lang:   en,
-		Multilingual: &Multilingual{
-			Languages: languages,
-		},
-	}
-
-	s.prepTemplates()
-	s.initializeSiteInfo()
-
-	createPagesAndMeta(t, s)
-
-	assert.Len(t, s.Source.Files(), 6, "should have 6 source files")
-	assert.Len(t, s.Pages, 3, "should have 3 pages")
-	assert.Len(t, s.AllPages, 6, "should have 6 total pages (including translations)")
-
-	doc1en := s.Pages[0]
-	permalink, err := doc1en.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug", permalink, "invalid doc1.en permalink")
-	assert.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
-
-	doc2 := s.Pages[1]
-	permalink, err = doc2.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/en/sect/doc2", permalink, "invalid doc2 permalink")
-
-	doc3 := s.Pages[2]
-	permalink, err = doc3.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
-
-	// TODO(bep) multilingo. Check this case. This has url set in frontmatter, but we must split into lang folders
-	// The assertion below was missing the /en prefix.
-	assert.Equal(t, "/en/superbob", doc3.URL(), "invalid url, was specified on doc3 TODO(bep)")
-
-	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
-
-	doc1fr := doc1en.Translations()[0]
-	permalink, err = doc1fr.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/fr/sect/doc1", permalink, "invalid doc1fr permalink")
-
-	assert.Equal(t, doc1en.Translations()[0], doc1fr, "doc1-en should have doc1-fr as translation")
-	assert.Equal(t, doc1fr.Translations()[0], doc1en, "doc1-fr should have doc1-en as translation")
-	assert.Equal(t, "fr", doc1fr.Language().Lang)
-
-	doc4 := s.AllPages[4]
-	permalink, err = doc4.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/fr/sect/doc4", permalink, "invalid doc4 permalink")
-	assert.Len(t, doc4.Translations(), 0, "found translations for doc4")
-
-	doc5 := s.AllPages[5]
-	permalink, err = doc5.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/fr/somewhere/else/doc5", permalink, "invalid doc5 permalink")
-
-	// Taxonomies and their URLs
-	assert.Len(t, s.Taxonomies, 1, "should have 1 taxonomy")
-	tags := s.Taxonomies["tags"]
-	assert.Len(t, tags, 2, "should have 2 different tags")
-	assert.Equal(t, tags["tag1"][0].Page, doc1en, "first tag1 page should be doc1")
-
-	// Expect the tags locations to be in certain places, with the /en/ prefixes, etc..
-}
-
-func assertFileContent(t *testing.T, path string, content string) {
-	fl, err := hugofs.Destination().Open(path)
-	assert.NoError(t, err, "file content not found when asserting on content of %s", path)
-
-	cnt, err := ioutil.ReadAll(fl)
-	assert.NoError(t, err, "cannot read file content when asserting on content of %s", path)
-
-	assert.Equal(t, content, string(cnt))
 }

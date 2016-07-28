@@ -569,7 +569,7 @@ func TestPageWithDelimiter(t *testing.T) {
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
 	s := new(Site)
-	s.prepTemplates()
+	s.prepTemplates(nil)
 	p, _ := NewPage("simple.md")
 	_, err := p.ReadFrom(strings.NewReader(simplePageWithShortcodeInSummary))
 	if err != nil {
@@ -644,7 +644,7 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
-	viper.Reset()
+	testCommonResetState()
 
 	p, _ := NewPage("simple.md")
 	_, err := p.ReadFrom(strings.NewReader(simplePageWithAllCJKRunes))
@@ -660,8 +660,7 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 }
 
 func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("HasCJKLanguage", true)
 
@@ -679,8 +678,7 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 }
 
 func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("HasCJKLanguage", true)
 
@@ -703,8 +701,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 }
 
 func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("HasCJKLanguage", true)
 
@@ -944,8 +941,7 @@ func TestSliceToLower(t *testing.T) {
 }
 
 func TestPagePaths(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testCommonResetState()
 
 	viper.Set("DefaultExtension", "html")
 	siteParmalinksSetting := PermalinkOverrides{

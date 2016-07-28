@@ -22,7 +22,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -54,7 +53,10 @@ var testMode bool
 
 var defaultTimer *nitro.B
 
-var distinctErrorLogger = helpers.NewDistinctErrorLogger()
+var (
+	distinctErrorLogger    = helpers.NewDistinctErrorLogger()
+	distinctFeedbackLogger = helpers.NewDistinctFeedbackLogger()
+)
 
 // Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
@@ -76,6 +78,7 @@ var distinctErrorLogger = helpers.NewDistinctErrorLogger()
 type Site struct {
 	Pages          Pages
 	AllPages       Pages
+	rawAllPages    Pages
 	Files          []*source.File
 	Tmpl           tpl.Template
 	Taxonomies     TaxonomyList
@@ -87,22 +90,23 @@ type Site struct {
 	targets        targetList
 	targetListInit sync.Once
 	RunMode        runmode
-	Multilingual   *Multilingual
-	draftCount     int
-	futureCount    int
-	expiredCount   int
-	Data           map[string]interface{}
-	Lang           *Language
+	// TODO(bep ml remove
+	Multilingual *Multilingual
+	draftCount   int
+	futureCount  int
+	expiredCount int
+	Data         map[string]interface{}
+	Language     *Language
 }
 
 // TODO(bep) multilingo
 // Reset returns a new Site prepared for rebuild.
 func (s *Site) Reset() *Site {
-	return &Site{Lang: s.Lang, Multilingual: s.Multilingual}
+	return &Site{Language: s.Language, Multilingual: s.Multilingual}
 }
 
 func NewSite(lang *Language) *Site {
-	return &Site{Lang: lang}
+	return &Site{Language: lang}
 }
 
 func newSiteDefaultLang() *Site {
@@ -117,19 +121,20 @@ type targetList struct {
 }
 
 type SiteInfo struct {
-	BaseURL    template.URL
-	Taxonomies TaxonomyList
-	Authors    AuthorList
-	Social     SiteSocial
-	Sections   Taxonomy
-	Pages      *Pages // Includes only pages in this language
-	AllPages   *Pages // Includes other translated pages, excluding those in this language.
-	Files      *[]*source.File
-	Menus      *Menus
-	Hugo       *HugoInfo
-	Title      string
-	RSSLink    string
-	Author     map[string]interface{}
+	BaseURL     template.URL
+	Taxonomies  TaxonomyList
+	Authors     AuthorList
+	Social      SiteSocial
+	Sections    Taxonomy
+	Pages       *Pages // Includes only pages in this language
+	AllPages    *Pages // Includes other translated pages, excluding those in this language.
+	rawAllPages *Pages // Includes absolute all pages, including drafts etc.
+	Files       *[]*source.File
+	Menus       *Menus
+	Hugo        *HugoInfo
+	Title       string
+	RSSLink     string
+	Author      map[string]interface{}
 	// TODO(bep) multilingo
 	LanguageCode          string
 	DisqusShortname       string
@@ -204,7 +209,16 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string
 
 	if refURL.Path != "" {
-		for _, page := range []*Page(*s.AllPages) {
+		// We may be in a shortcode and a not finished site, so look it the
+		// "raw page" collection.
+		// This works, but it also means AllPages and Pages will be empty for other
+		// shortcode use, which may be a slap in the face for many.
+		// TODO(bep) ml move shortcode handling to a "pre-render" handler, which also
+		// will fix a few other problems.
+		for _, page := range []*Page(*s.rawAllPages) {
+			if !page.shouldBuild() {
+				continue
+			}
 			refPath := filepath.FromSlash(refURL.Path)
 			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
@@ -396,54 +410,21 @@ func (s *Site) timerStep(step string) {
 	s.timer.Step(step)
 }
 
-func (s *Site) preRender() error {
-	return tpl.SetTranslateLang(s.Lang.Lang)
-}
+// ReBuild partially rebuilds a site given the filesystem events.
+// It returns whetever the content source was changed.
+func (s *Site) ReBuild(events []fsnotify.Event) (bool, error) {
 
-func (s *Site) Build() (err error) {
-
-	if err = s.Process(); err != nil {
-		return
-	}
-
-	if err = s.preRender(); err != nil {
-		return
-	}
-
-	if err = s.Render(); err != nil {
-		// Better reporting when the template is missing (commit 2bbecc7b)
-		jww.ERROR.Printf("Error rendering site: %s", err)
-
-		jww.ERROR.Printf("Available templates:")
-		var keys []string
-		for _, template := range s.Tmpl.Templates() {
-			if name := template.Name(); name != "" {
-				keys = append(keys, name)
-			}
-		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			jww.ERROR.Printf("\t%s\n", k)
-		}
-
-		return
-	}
-
-	return nil
-}
-
-func (s *Site) ReBuild(events []fsnotify.Event) error {
-	// TODO(bep) multilingual this needs some rethinking with multiple sites
+	jww.DEBUG.Printf("Rebuild for events %q", events)
 
 	s.timerStep("initialize rebuild")
 
 	// First we need to determine what changed
 
 	sourceChanged := []fsnotify.Event{}
+	sourceReallyChanged := []fsnotify.Event{}
 	tmplChanged := []fsnotify.Event{}
 	dataChanged := []fsnotify.Event{}
-
-	var err error
+	i18nChanged := []fsnotify.Event{}
 
 	// prevent spamming the log on changes
 	logger := helpers.NewDistinctFeedbackLogger()
@@ -451,6 +432,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 	for _, ev := range events {
 		// Need to re-read source
 		if strings.HasPrefix(ev.Name, s.absContentDir()) {
+			logger.Println("Source changed", ev.Name)
 			sourceChanged = append(sourceChanged, ev)
 		}
 		if strings.HasPrefix(ev.Name, s.absLayoutDir()) || strings.HasPrefix(ev.Name, s.absThemeDir()) {
@@ -461,10 +443,14 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 			logger.Println("Data changed", ev.Name)
 			dataChanged = append(dataChanged, ev)
 		}
+		if strings.HasPrefix(ev.Name, s.absI18nDir()) {
+			logger.Println("i18n changed", ev.Name)
+			i18nChanged = append(dataChanged, ev)
+		}
 	}
 
 	if len(tmplChanged) > 0 {
-		s.prepTemplates()
+		s.prepTemplates(nil)
 		s.Tmpl.PrintErrors()
 		s.timerStep("template prep")
 	}
@@ -473,8 +459,10 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		s.readDataFromSourceFS()
 	}
 
-	// we reuse the state, so have to do some cleanup before we can rebuild.
-	s.resetPageBuildState()
+	if len(i18nChanged) > 0 {
+		// TODO(bep ml
+		s.readI18nSources()
+	}
 
 	// If a content file changes, we need to reload only it and re-render the entire site.
 
@@ -508,19 +496,9 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		go pageConverter(s, pageChan, convertResults, wg2)
 	}
 
-	go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
-	go converterCollator(s, convertResults, errs)
-
-	if len(tmplChanged) > 0 || len(dataChanged) > 0 {
-		// Do not need to read the files again, but they need conversion
-		// for shortocde re-rendering.
-		for _, p := range s.AllPages {
-			pageChan <- p
-		}
-	}
-
 	for _, ev := range sourceChanged {
-
+		// The incrementalReadCollator below will also make changes to the site's pages,
+		// so we do this first to prevent races.
 		if ev.Op&fsnotify.Remove == fsnotify.Remove {
 			//remove the file & a create will follow
 			path, _ := helpers.GetRelativePath(ev.Name, s.absContentDir())
@@ -540,6 +518,22 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 			}
 		}
 
+		sourceReallyChanged = append(sourceReallyChanged, ev)
+	}
+
+	go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
+	go converterCollator(s, convertResults, errs)
+
+	if len(tmplChanged) > 0 || len(dataChanged) > 0 {
+		// Do not need to read the files again, but they need conversion
+		// for shortocde re-rendering.
+		for _, p := range s.rawAllPages {
+			pageChan <- p
+		}
+	}
+
+	for _, ev := range sourceReallyChanged {
+
 		file, err := s.reReadFile(ev.Name)
 
 		if err != nil {
@@ -551,6 +545,7 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 		}
 
 	}
+
 	// we close the filechan as we have sent everything we want to send to it.
 	// this will tell the sourceReaders to stop iterating on that channel
 	close(filechan)
@@ -573,45 +568,12 @@ func (s *Site) ReBuild(events []fsnotify.Event) error {
 
 	s.timerStep("read & convert pages from source")
 
-	// FIXME: does this go inside the next `if` statement ?
-	s.setupTranslations()
+	return len(sourceChanged) > 0, nil
 
-	if len(sourceChanged) > 0 {
-		s.setupPrevNext()
-		if err = s.buildSiteMeta(); err != nil {
-			return err
-		}
-		s.timerStep("build taxonomies")
-	}
-
-	if err := s.preRender(); err != nil {
-		return err
-	}
-
-	// Once the appropriate prep step is done we render the entire site
-	if err = s.Render(); err != nil {
-		// Better reporting when the template is missing (commit 2bbecc7b)
-		jww.ERROR.Printf("Error rendering site: %s", err)
-		jww.ERROR.Printf("Available templates:")
-		var keys []string
-		for _, template := range s.Tmpl.Templates() {
-			if name := template.Name(); name != "" {
-				keys = append(keys, name)
-			}
-		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			jww.ERROR.Printf("\t%s\n", k)
-		}
-
-		return nil
-	}
-
-	return err
 }
 
 func (s *Site) Analyze() error {
-	if err := s.Process(); err != nil {
+	if err := s.PreProcess(BuildCfg{}); err != nil {
 		return err
 	}
 	return s.ShowPlan(os.Stdout)
@@ -625,21 +587,22 @@ func (s *Site) loadTemplates() {
 	}
 }
 
-func (s *Site) prepTemplates(additionalNameValues ...string) error {
+func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error {
 	s.loadTemplates()
 
-	for i := 0; i < len(additionalNameValues); i += 2 {
-		err := s.Tmpl.AddTemplate(additionalNameValues[i], additionalNameValues[i+1])
-		if err != nil {
+	if withTemplate != nil {
+		if err := withTemplate(s.Tmpl); err != nil {
 			return err
 		}
 	}
+
 	s.Tmpl.MarkReady()
 
 	return nil
 }
 
 func (s *Site) loadData(sources []source.Input) (err error) {
+	jww.DEBUG.Printf("Load Data from %q", sources)
 	s.Data = make(map[string]interface{})
 	var current map[string]interface{}
 	for _, currentSource := range sources {
@@ -702,6 +665,23 @@ func readData(f *source.File) (interface{}, error) {
 	}
 }
 
+func (s *Site) readI18nSources() error {
+
+	i18nSources := []source.Input{&source.Filesystem{Base: s.absI18nDir()}}
+
+	themeI18nDir, err := helpers.GetThemeI18nDirPath()
+	if err == nil {
+		// TODO(bep) multilingo what is this?
+		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
+	}
+
+	if err = loadI18n(i18nSources); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Site) readDataFromSourceFS() error {
 	dataSources := make([]source.Input, 0, 2)
 	dataSources = append(dataSources, &source.Filesystem{Base: s.absDataDir()})
@@ -717,12 +697,12 @@ func (s *Site) readDataFromSourceFS() error {
 	return err
 }
 
-func (s *Site) Process() (err error) {
+func (s *Site) PreProcess(config BuildCfg) (err error) {
 	s.timerStep("Go initialization")
 	if err = s.initialize(); err != nil {
 		return
 	}
-	s.prepTemplates()
+	s.prepTemplates(config.withTemplate)
 	s.Tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 
@@ -730,24 +710,17 @@ func (s *Site) Process() (err error) {
 		return
 	}
 
-	i18nSources := []source.Input{&source.Filesystem{Base: s.absI18nDir()}}
-
-	themeI18nDir, err := helpers.GetThemeI18nDirPath()
-	if err == nil {
-		// TODO(bep) multilingo what is this?
-		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
-	}
-
-	if err = loadI18n(i18nSources); err != nil {
+	if err = s.readI18nSources(); err != nil {
 		return
 	}
+
 	s.timerStep("load i18n")
+	return s.createPages()
 
-	if err = s.createPages(); err != nil {
-		return
-	}
+}
 
-	s.setupTranslations()
+func (s *Site) PostProcess() (err error) {
+
 	s.setupPrevNext()
 
 	if err = s.buildSiteMeta(); err != nil {
@@ -769,28 +742,11 @@ func (s *Site) setupPrevNext() {
 	}
 }
 
-func (s *Site) setupTranslations() {
-	if !s.multilingualEnabled() {
-		s.Pages = s.AllPages
+func (s *Site) Render() (err error) {
+	if err = tpl.SetTranslateLang(s.Language.Lang); err != nil {
 		return
 	}
 
-	currentLang := s.currentLanguageString()
-
-	allTranslations := pagesToTranslationsMap(s.Multilingual, s.AllPages)
-	assignTranslationsToPages(allTranslations, s.AllPages)
-
-	var currentLangPages Pages
-	for _, p := range s.AllPages {
-		if p.Lang() == "" || strings.HasPrefix(currentLang, p.lang) {
-			currentLangPages = append(currentLangPages, p)
-		}
-	}
-
-	s.Pages = currentLangPages
-}
-
-func (s *Site) Render() (err error) {
 	if err = s.renderAliases(); err != nil {
 		return
 	}
@@ -831,6 +787,15 @@ func (s *Site) Initialise() (err error) {
 }
 
 func (s *Site) initialize() (err error) {
+	defer s.initializeSiteInfo()
+	s.Menus = Menus{}
+
+	// May be supplied in tests.
+	if s.Source != nil && len(s.Source.Files()) > 0 {
+		jww.DEBUG.Println("initialize: Source is already set")
+		return
+	}
+
 	if err = s.checkDirectories(); err != nil {
 		return err
 	}
@@ -842,17 +807,13 @@ func (s *Site) initialize() (err error) {
 		Base:       s.absContentDir(),
 	}
 
-	s.Menus = Menus{}
-
-	s.initializeSiteInfo()
-
 	return
 }
 
 func (s *Site) initializeSiteInfo() {
 
 	var (
-		lang      *Language = s.Lang
+		lang      *Language = s.Language
 		languages Languages
 	)
 
@@ -892,6 +853,7 @@ func (s *Site) initializeSiteInfo() {
 		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
 		AllPages:              &s.AllPages,
 		Pages:                 &s.Pages,
+		rawAllPages:           &s.rawAllPages,
 		Files:                 &s.Files,
 		Menus:                 &s.Menus,
 		Params:                params,
@@ -958,8 +920,9 @@ func (s *Site) readPagesFromSource() chan error {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
 
-	errs := make(chan error)
+	jww.DEBUG.Printf("Read %d pages from source", len(s.Source.Files()))
 
+	errs := make(chan error)
 	if len(s.Source.Files()) < 1 {
 		close(errs)
 		return errs
@@ -1007,7 +970,7 @@ func (s *Site) convertSource() chan error {
 
 	go converterCollator(s, results, errs)
 
-	for _, p := range s.AllPages {
+	for _, p := range s.rawAllPages {
 		pageChan <- p
 	}
 
@@ -1100,58 +1063,18 @@ func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error)
 }
 
 func (s *Site) addPage(page *Page) {
-	if page.shouldBuild() {
-		s.AllPages = append(s.AllPages, page)
-	}
-
-	if page.IsDraft() {
-		s.draftCount++
-	}
-
-	if page.IsFuture() {
-		s.futureCount++
-	}
-
-	if page.IsExpired() {
-		s.expiredCount++
-	}
+	s.rawAllPages = append(s.rawAllPages, page)
 }
 
 func (s *Site) removePageByPath(path string) {
-	if i := s.AllPages.FindPagePosByFilePath(path); i >= 0 {
-		page := s.AllPages[i]
-
-		if page.IsDraft() {
-			s.draftCount--
-		}
-
-		if page.IsFuture() {
-			s.futureCount--
-		}
-
-		if page.IsExpired() {
-			s.expiredCount--
-		}
-
-		s.AllPages = append(s.AllPages[:i], s.AllPages[i+1:]...)
+	if i := s.rawAllPages.FindPagePosByFilePath(path); i >= 0 {
+		s.rawAllPages = append(s.rawAllPages[:i], s.rawAllPages[i+1:]...)
 	}
 }
 
 func (s *Site) removePage(page *Page) {
-	if i := s.AllPages.FindPagePos(page); i >= 0 {
-		if page.IsDraft() {
-			s.draftCount--
-		}
-
-		if page.IsFuture() {
-			s.futureCount--
-		}
-
-		if page.IsExpired() {
-			s.expiredCount--
-		}
-
-		s.AllPages = append(s.AllPages[:i], s.AllPages[i+1:]...)
+	if i := s.rawAllPages.FindPagePos(page); i >= 0 {
+		s.rawAllPages = append(s.rawAllPages[:i], s.rawAllPages[i+1:]...)
 	}
 }
 
@@ -1190,7 +1113,7 @@ func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan cha
 		}
 	}
 
-	s.AllPages.Sort()
+	s.rawAllPages.Sort()
 	close(coordinator)
 
 	if len(errMsgs) == 0 {
@@ -1216,7 +1139,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 		}
 	}
 
-	s.AllPages.Sort()
+	s.rawAllPages.Sort()
 	if len(errMsgs) == 0 {
 		errs <- nil
 		return
@@ -1312,7 +1235,9 @@ func (s *Site) assembleMenus() {
 		if sectionPagesMenu != "" {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {
 				if p.Section() != "" {
-					me := MenuEntry{Identifier: p.Section(), Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())), URL: s.Info.createNodeMenuEntryURL("/" + p.Section() + "/")}
+					me := MenuEntry{Identifier: p.Section(),
+						Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())),
+						URL:  s.Info.createNodeMenuEntryURL(p.addMultilingualWebPrefix("/"+p.Section()) + "/")}
 					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
 						// menu with same id defined in config, let that one win
 						continue
@@ -1397,12 +1322,18 @@ func (s *Site) assembleTaxonomies() {
 	s.Info.Taxonomies = s.Taxonomies
 }
 
-// Prepare pages for a new full build.
-func (s *Site) resetPageBuildState() {
+// Prepare site for a new full build.
+func (s *Site) resetBuildState() {
+
+	s.Pages = make(Pages, 0)
+	s.AllPages = make(Pages, 0)
 
 	s.Info.paginationPageCount = 0
+	s.draftCount = 0
+	s.futureCount = 0
+	s.expiredCount = 0
 
-	for _, p := range s.AllPages {
+	for _, p := range s.rawAllPages {
 		p.scratch = newScratch()
 	}
 }
@@ -1984,7 +1915,8 @@ func (s *Site) renderRobotsTXT() error {
 
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
-func (s *Site) Stats(t0 time.Time) {
+func (s *Site) Stats() {
+	jww.FEEDBACK.Printf("Built site for language %s:\n", s.Language.Lang)
 	jww.FEEDBACK.Println(s.draftStats())
 	jww.FEEDBACK.Println(s.futureStats())
 	jww.FEEDBACK.Println(s.expiredStats())
@@ -1996,9 +1928,6 @@ func (s *Site) Stats(t0 time.Time) {
 	for _, pl := range taxonomies {
 		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
 	}
-
-	// TODO(bep) will always have lang. Not sure this should always be printed.
-	jww.FEEDBACK.Printf("rendered lang %q in %v ms\n", s.Lang.Lang, int(1000*time.Since(t0).Seconds()))
 
 }
 
@@ -2021,7 +1950,7 @@ func (s *Site) newNode() *Node {
 	return &Node{
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
-		language: s.Lang,
+		language: s.Language,
 	}
 }
 
@@ -2122,17 +2051,24 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	transformer.Apply(outBuffer, renderBuffer, path)
 
 	if outBuffer.Len() == 0 {
+
 		jww.WARN.Printf("%q is rendered empty\n", dest)
 		if dest == "/" {
-			jww.FEEDBACK.Println("=============================================================")
-			jww.FEEDBACK.Println("Your rendered home page is blank: /index.html is zero-length")
-			jww.FEEDBACK.Println(" * Did you specify a theme on the command-line or in your")
-			jww.FEEDBACK.Printf("   %q file?  (Current theme: %q)\n", filepath.Base(viper.ConfigFileUsed()), viper.GetString("Theme"))
+			debugAddend := ""
 			if !viper.GetBool("Verbose") {
-				jww.FEEDBACK.Println(" * For more debugging information, run \"hugo -v\"")
+				debugAddend = "* For more debugging information, run \"hugo -v\""
 			}
-			jww.FEEDBACK.Println("=============================================================")
+			distinctFeedbackLogger.Printf(`=============================================================
+Your rendered home page is blank: /index.html is zero-length
+ * Did you specify a theme on the command-line or in your
+   %q file?  (Current theme: %q)
+ %s
+=============================================================`,
+				filepath.Base(viper.ConfigFileUsed()),
+				viper.GetString("Theme"),
+				debugAddend)
 		}
+
 	}
 
 	if err == nil {
