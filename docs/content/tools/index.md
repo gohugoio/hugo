@@ -35,6 +35,7 @@ Alternatively, you can follow the manual [migration guide]({{< relref "tutorials
 ### Tumblr 
 
 - [tumblr-importr](https://github.com/carlmjohnson/tumblr-importr) - An importer that uses the Tumblr API to create a Hugo static site.
+- [tumblr2hugomarkdown](https://github.com/Wysie/tumblr2hugomarkdown) - Export all your Tumblr content to Hugo Markdown files with preserved original formatting.
 
 ### Drupal
 
