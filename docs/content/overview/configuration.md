@@ -107,6 +107,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     enableRobotsTXT:            false
     # Do not render 404 page
     disable404:                 false
+    # Do not inject generator meta tag on homepage
+    disableHugoGeneratorInject: false
     # edit new content with this editor, if provided
     editor:                     ""
     # Enable Emoji emoticons support for page content.
