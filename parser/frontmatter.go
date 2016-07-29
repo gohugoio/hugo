@@ -103,7 +103,7 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		_, err = b.Write([]byte("\n" + TOMLDelimUnix))
+		_, err = b.Write([]byte(TOMLDelimUnix))
 		if err != nil {
 			return nil, err
 		}
