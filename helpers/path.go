@@ -183,13 +183,15 @@ func GetThemeDataDirPath() (string, error) {
 }
 
 func getThemeDirPath(path string) (string, error) {
-	var themeDir string
-	if ThemeSet() {
-		themeDir = filepath.Join(GetThemeDir(), path)
-		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
-			return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
-		}
+	if !ThemeSet() {
+		return "", errors.New("No theme set")
 	}
+
+	themeDir := filepath.Join(GetThemeDir(), path)
+	if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
+	}
+
 	return themeDir, nil
 }
 
