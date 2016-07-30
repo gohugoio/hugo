@@ -456,8 +456,9 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 		}
 		return nil
 	}
-
-	filepath.Walk(absPath, walker)
+	if err := helpers.SymbolicWalk(hugofs.Source(), absPath, walker); err != nil {
+		jww.ERROR.Printf("Failed to load templates: %s", err)
+	}
 }
 
 func (t *GoHTMLTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
