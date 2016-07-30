@@ -487,7 +487,9 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 	}
 
 	for _, fi := range rootContent {
-		afero.Walk(fs, filepath.Join(root, fi.Name()), walker)
+		if err := afero.Walk(fs, filepath.Join(root, fi.Name()), walker); err != nil {
+			return err
+		}
 	}
 
 	return nil
