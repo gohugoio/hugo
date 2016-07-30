@@ -462,6 +462,8 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
+var WalkRootTooShortError = errors.New("Path too short. Stop walking.")
+
 // SymbolicWalk is like filepath.Walk, but it supports the root being a
 // symbolic link. It will still not follow symbolic links deeper down in
 // the file structure
@@ -469,7 +471,7 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	// Sanity check
 	if len(root) < 4 {
-		return fmt.Errorf("Path to short, cannot walk the root: %s", root)
+		return WalkRootTooShortError
 	}
 
 	// Handle the root first
