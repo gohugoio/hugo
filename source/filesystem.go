@@ -14,12 +14,13 @@
 package source
 
 import (
-	"github.com/spf13/hugo/hugofs"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/spf13/hugo/hugofs"
 
 	"github.com/spf13/viper"
 
@@ -84,7 +85,7 @@ func (f *Filesystem) captureFiles() {
 			return err
 		}
 		if b {
-			rd, err := NewLazyFileReader(filePath)
+			rd, err := NewLazyFileReader(hugofs.Source(), filePath)
 			if err != nil {
 				return err
 			}

@@ -19,25 +19,29 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/spf13/afero"
 )
 
 func TestNewLazyFileReader(t *testing.T) {
+	fs := afero.NewOsFs()
 	filename := "itdoesnotexistfile"
-	_, err := NewLazyFileReader(filename)
+	_, err := NewLazyFileReader(fs, filename)
 	if err == nil {
 		t.Errorf("NewLazyFileReader %s: error expected but no error is returned", filename)
 	}
 
 	filename = "lazy_file_reader_test.go"
-	_, err = NewLazyFileReader(filename)
+	_, err = NewLazyFileReader(fs, filename)
 	if err != nil {
 		t.Errorf("NewLazyFileReader %s: %v", filename, err)
 	}
 }
 
 func TestFilename(t *testing.T) {
+	fs := afero.NewOsFs()
 	filename := "lazy_file_reader_test.go"
-	rd, err := NewLazyFileReader(filename)
+	rd, err := NewLazyFileReader(fs, filename)
 	if err != nil {
 		t.Fatalf("NewLazyFileReader %s: %v", filename, err)
 	}
@@ -47,18 +51,19 @@ func TestFilename(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
+	fs := afero.NewOsFs()
 	filename := "lazy_file_reader_test.go"
-	fi, err := os.Stat(filename)
+	fi, err := fs.Stat(filename)
 	if err != nil {
 		t.Fatalf("os.Stat: %v", err)
 	}
 
-	b, err := ioutil.ReadFile(filename)
+	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		t.Fatalf("ioutil.ReadFile: %v", err)
 	}
 
-	rd, err := NewLazyFileReader(filename)
+	rd, err := NewLazyFileReader(fs, filename)
 	if err != nil {
 		t.Fatalf("NewLazyFileReader %s: %v", filename, err)
 	}
@@ -92,9 +97,9 @@ func TestSeek(t *testing.T) {
 		moveto   int64
 		expected []byte
 	}
-
+	fs := afero.NewOsFs()
 	filename := "lazy_file_reader_test.go"
-	b, err := ioutil.ReadFile(filename)
+	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		t.Fatalf("ioutil.ReadFile: %v", err)
 	}
@@ -108,7 +113,7 @@ func TestSeek(t *testing.T) {
 		{seek: 3, expected: nil},
 		{seek: os.SEEK_SET, offset: -1, expected: nil},
 	} {
-		rd, err := NewLazyFileReader(filename)
+		rd, err := NewLazyFileReader(fs, filename)
 		if err != nil {
 			t.Errorf("[%d] NewLazyFileReader %s: %v", i, filename, err)
 			continue
@@ -140,7 +145,7 @@ func TestSeek(t *testing.T) {
 	}
 
 	// cache case
-	rd, err := NewLazyFileReader(filename)
+	rd, err := NewLazyFileReader(fs, filename)
 	if err != nil {
 		t.Fatalf("NewLazyFileReader %s: %v", filename, err)
 	}
@@ -185,6 +190,7 @@ func TestSeek(t *testing.T) {
 }
 
 func TestWriteTo(t *testing.T) {
+	fs := afero.NewOsFs()
 	filename := "lazy_file_reader_test.go"
 	fi, err := os.Stat(filename)
 	if err != nil {
@@ -196,7 +202,7 @@ func TestWriteTo(t *testing.T) {
 		t.Fatalf("ioutil.ReadFile: %v", err)
 	}
 
-	rd, err := NewLazyFileReader(filename)
+	rd, err := NewLazyFileReader(fs, filename)
 	if err != nil {
 		t.Fatalf("NewLazyFileReader %s: %v", filename, err)
 	}

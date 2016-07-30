@@ -836,7 +836,7 @@ func (s *Site) reReadFile(absFilePath string) (*source.File, error) {
 	jww.INFO.Println("rereading", absFilePath)
 	var file *source.File
 
-	reader, err := source.NewLazyFileReader(absFilePath)
+	reader, err := source.NewLazyFileReader(hugofs.Source(), absFilePath)
 	if err != nil {
 		return nil, err
 	}
