@@ -15,6 +15,12 @@ package tpl
 
 import (
 	"fmt"
+	"html/template"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/eknkc/amber"
 	"github.com/spf13/afero"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -22,11 +28,6 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/yosssi/ace"
-	"html/template"
-	"io"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 var localTemplates *template.Template
@@ -376,7 +377,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
 				return nil
 			}
-			linkfi, err := os.Stat(link)
+			linkfi, err := hugofs.Source().Stat(link)
 			if err != nil {
 				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
@@ -414,7 +415,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 
 				// This may be a view that shouldn't have base template
 				// Have to look inside it to make sure
-				needsBase, err := helpers.FileContainsAny(path, innerMarkers, hugofs.Os())
+				needsBase, err := helpers.FileContainsAny(path, innerMarkers, hugofs.Source())
 				if err != nil {
 					return err
 				}
@@ -442,7 +443,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					}
 
 					for _, pathToCheck := range pathsToCheck {
-						if ok, err := helpers.Exists(pathToCheck, hugofs.Os()); err == nil && ok {
+						if ok, err := helpers.Exists(pathToCheck, hugofs.Source()); err == nil && ok {
 							baseTemplatePath = pathToCheck
 							break
 						}
