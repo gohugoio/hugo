@@ -467,6 +467,11 @@ func FindCWD() (string, error) {
 // the file structure
 func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
+	// Sanity check
+	if len(root) < 5 {
+		return fmt.Errorf("Path to short, cannot walk the root: %s", root)
+	}
+
 	// Handle the root first
 	fileInfo, err := lstatIfOs(fs, root)
 
