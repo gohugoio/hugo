@@ -17,7 +17,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -971,19 +970,7 @@ func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
 		return
 	}
 
-	f, err := fs.Open(path)
-
-	if err != nil {
-		return
-	}
-
-	defer f.Close()
-
-	b, err := ioutil.ReadAll(f)
-
-	if err != nil {
-		return
-	}
+	b, err := afero.ReadFile(fs, path)
 
 	c, err := parser.HandleTOMLMetaData(b)
 

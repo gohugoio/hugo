@@ -16,7 +16,6 @@ package source
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -60,7 +59,7 @@ func TestRead(t *testing.T) {
 
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
-		t.Fatalf("ioutil.ReadFile: %v", err)
+		t.Fatalf("afero.ReadFile: %v", err)
 	}
 
 	rd, err := NewLazyFileReader(fs, filename)
@@ -101,7 +100,7 @@ func TestSeek(t *testing.T) {
 	filename := "lazy_file_reader_test.go"
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
-		t.Fatalf("ioutil.ReadFile: %v", err)
+		t.Fatalf("afero.ReadFile: %v", err)
 	}
 
 	// no cache case
@@ -192,14 +191,14 @@ func TestSeek(t *testing.T) {
 func TestWriteTo(t *testing.T) {
 	fs := afero.NewOsFs()
 	filename := "lazy_file_reader_test.go"
-	fi, err := os.Stat(filename)
+	fi, err := fs.Stat(filename)
 	if err != nil {
 		t.Fatalf("os.Stat: %v", err)
 	}
 
-	b, err := ioutil.ReadFile(filename)
+	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
-		t.Fatalf("ioutil.ReadFile: %v", err)
+		t.Fatalf("afero.ReadFile: %v", err)
 	}
 
 	rd, err := NewLazyFileReader(fs, filename)

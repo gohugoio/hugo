@@ -83,12 +83,8 @@ func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
 		return nil, nil
 	}
 
-	f, err := fs.Open(fID)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return ioutil.ReadAll(f)
+	return afero.ReadFile(fs, fID)
+
 }
 
 // resWriteCache writes bytes to an ID into the file cache
@@ -165,12 +161,8 @@ func resGetLocal(url string, fs afero.Fs) ([]byte, error) {
 		return nil, err
 	}
 
-	f, err := fs.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return ioutil.ReadAll(f)
+	return afero.ReadFile(fs, filename)
+
 }
 
 // resGetResource loads the content of a local or remote file
