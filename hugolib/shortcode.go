@@ -160,7 +160,11 @@ func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string,
 	}
 
 	if len(tmpShortcodes) > 0 {
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, tmpShortcodes)
+		shortcodes, err := executeShortcodeFuncMap(tmpShortcodes)
+		if err != nil {
+			return "", err
+		}
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
 			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
@@ -274,7 +278,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 	return renderShortcodeWithPage(tmpl, data)
 }
 
-func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]string, error) {
+func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]func() (string, error), error) {
 
 	if p.rendered {
 		panic("Illegal state: Page already marked as rendered, please reuse the shortcodes")
@@ -297,15 +301,32 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 
 }
 
-func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) map[string]string {
-	renderedShortcodes := make(map[string]string)
+var emptyShortcodeFn = func() (string, error) { return "", nil }
+
+func executeShortcodeFuncMap(funcs map[string]func() (string, error)) (map[string]string, error) {
+	result := make(map[string]string)
+
+	for k, v := range funcs {
+		s, err := v()
+		if err != nil {
+			return nil, fmt.Errorf("Failed to execute shortcode with key %s: %s", k, err)
+		}
+		result[k] = s
+	}
+
+	return result, nil
+}
+
+func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) map[string]func() (string, error) {
+	renderedShortcodes := make(map[string]func() (string, error))
 
 	for key, sc := range shortcodes {
 		if sc.err != nil {
 			// need to have something to replace with
-			renderedShortcodes[key] = ""
+			renderedShortcodes[key] = emptyShortcodeFn
 		} else {
-			renderedShortcodes[key] = renderShortcode(sc, nil, p, t)
+			shorctode := sc
+			renderedShortcodes[key] = func() (string, error) { return renderShortcode(shorctode, nil, p, t), nil }
 		}
 	}
 

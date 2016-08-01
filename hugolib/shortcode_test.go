@@ -484,9 +484,34 @@ e`,
 		{"sect/doc8.rst", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("sect/doc8/index.html"),
 			"<div class=\"document\">\n\n\n<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n</div>"},
-		{"sect/doc9.mmark", `**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
+		{"sect/doc9.mmark", `
+---
+menu:
+  main:
+    parent: 'parent'
+---
+**Shortcodes:** *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("sect/doc9/index.html"),
 			"<p><strong>Shortcodes:</strong> <em>b: b c: c</em></p>\n"},
+		// Issue #1229: Menus not available in shortcode.
+		{"sect/doc10.md", `---
+menu:
+  main:
+    identifier: 'parent'
+tags:
+- Menu
+---
+**Menus:** {{< menu >}}`,
+			filepath.FromSlash("sect/doc10/index.html"),
+			"<p><strong>Menus:</strong> 1</p>\n"},
+		// Issue #2323: Taxonomies not available in shortcode.
+		{"sect/doc11.md", `---
+tags:
+- Bugs
+---
+**Tags:** {{< tags >}}`,
+			filepath.FromSlash("sect/doc11/index.html"),
+			"<p><strong>Tags:</strong> 2</p>\n"},
 	}
 
 	sources := make([]source.ByteSource, len(tests))
@@ -507,6 +532,8 @@ e`,
 		templ.AddInternalShortcode("b.html", `b`)
 		templ.AddInternalShortcode("c.html", `c`)
 		templ.AddInternalShortcode("d.html", `d`)
+		templ.AddInternalShortcode("menu.html", `{{ len (index .Page.Menus "main").Children }}`)
+		templ.AddInternalShortcode("tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
 
 		return nil
 
@@ -540,7 +567,7 @@ e`,
 		content := helpers.ReaderToString(file)
 
 		if content != test.expected {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.outFile, test.expected, content)
+			t.Fatalf("%s content expected:\n%q\ngot:\n%q", test.outFile, test.expected, content)
 		}
 	}
 
