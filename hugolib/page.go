@@ -61,8 +61,10 @@ type Page struct {
 	PublishDate         time.Time
 	ExpiryDate          time.Time
 	Markup              string
+	Translations        Translations
 	extension           string
 	contentType         string
+	lang                string
 	renderable          bool
 	Layout              string
 	layoutsCalculated   []string
@@ -300,9 +302,11 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
-		Source: Source{File: *source.NewFile(filename)},
-		Node:   Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
-		Params: make(map[string]interface{})}
+		Source:       Source{File: *source.NewFile(filename)},
+		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
+		Params:       make(map[string]interface{}),
+		Translations: make(Translations),
+	}
 
 	jww.DEBUG.Println("Reading from", page.File.Path())
 	return &page
@@ -445,10 +449,12 @@ func (p *Page) permalink() (*url.URL, error) {
 		if len(pSlug) > 0 {
 			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
-			_, t := filepath.Split(p.Source.LogicalName())
+			t := p.Source.TranslationBaseName()
 			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
+
+	permalink = p.addMultilingualWebPrefix(permalink)
 
 	return helpers.MakePermalink(baseURL, permalink), nil
 }
@@ -458,6 +464,10 @@ func (p *Page) Extension() string {
 		return p.extension
 	}
 	return viper.GetString("DefaultExtension")
+}
+
+func (p *Page) Lang() string {
+	return p.lang
 }
 
 func (p *Page) LinkTitle() string {
@@ -699,28 +709,28 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 		return nil
 	}
 
-	switch v.(type) {
+	switch val := v.(type) {
 	case bool:
-		return v
-	case time.Time:
-		return v
+		return val
+	case string:
+		if stringToLower {
+			return strings.ToLower(val)
+		}
+		return val
 	case int64, int32, int16, int8, int:
 		return cast.ToInt(v)
 	case float64, float32:
 		return cast.ToFloat64(v)
+	case time.Time:
+		return val
+	case []string:
+		if stringToLower {
+			return helpers.SliceToLower(val)
+		}
+		return v
 	case map[string]interface{}: // JSON and TOML
 		return v
 	case map[interface{}]interface{}: // YAML
-		return v
-	case string:
-		if stringToLower {
-			return strings.ToLower(v.(string))
-		}
-		return v
-	case []string:
-		if stringToLower {
-			return helpers.SliceToLower(v.([]string))
-		}
 		return v
 	}
 
@@ -851,6 +861,7 @@ func (p *Page) parse(reader io.Reader) error {
 	p.renderable = psr.IsRenderable()
 	p.frontmatter = psr.FrontMatter()
 	p.rawContent = psr.Content()
+	p.lang = p.Source.File.Lang()
 
 	meta, err := psr.Metadata()
 	if meta != nil {
@@ -975,7 +986,6 @@ func (p *Page) FullFilePath() string {
 }
 
 func (p *Page) TargetPath() (outfile string) {
-
 	// Always use URL if it's specified
 	if len(strings.TrimSpace(p.URL)) > 2 {
 		outfile = strings.TrimSpace(p.URL)
@@ -997,6 +1007,7 @@ func (p *Page) TargetPath() (outfile string) {
 				outfile += "index.html"
 			}
 			outfile = filepath.FromSlash(outfile)
+			outfile = p.addMultilingualFilesystemPrefix(outfile)
 			return
 		}
 	}
@@ -1005,8 +1016,22 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension()
 	} else {
 		// Fall back to filename
-		outfile = helpers.ReplaceExtension(p.Source.LogicalName(), p.Extension())
+		outfile = helpers.ReplaceExtension(p.Source.TranslationBaseName(), p.Extension())
 	}
 
-	return filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile))
+	return p.addMultilingualFilesystemPrefix(filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
+}
+
+func (p *Page) addMultilingualWebPrefix(outfile string) string {
+	if p.Lang() == "" {
+		return outfile
+	}
+	return "/" + path.Join(p.Lang(), outfile)
+}
+
+func (p *Page) addMultilingualFilesystemPrefix(outfile string) string {
+	if p.Lang() == "" {
+		return outfile
+	}
+	return string(filepath.Separator) + filepath.Join(p.Lang(), outfile)
 }

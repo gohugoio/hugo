@@ -159,7 +159,7 @@ func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 func pageToPermalinkFilename(p *Page, _ string) (string, error) {
 	//var extension = p.Source.Ext
 	//var name = p.Source.Path()[0 : len(p.Source.Path())-len(extension)]
-	return helpers.URLize(p.Source.BaseFileName()), nil
+	return helpers.URLize(p.Source.TranslationBaseName()), nil
 }
 
 // if the page has a slug, return the slug, else return the title

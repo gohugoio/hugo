@@ -423,6 +423,13 @@ e.g.
 
 ## Strings
 
+### printf
+
+Format a string using the standard `fmt.Sprintf` function. See [the go
+doc](https://golang.org/pkg/fmt/) for reference.
+
+e.g., `{{ i18n ( printf "combined_%s" $var ) }}` or `{{ printf "formatted %.2f" 3.1416 }}`
+
 ### chomp
 Removes any trailing newline characters. Useful in a pipeline to remove newlines added by other processing (including `markdownify`).
 
@@ -714,7 +721,6 @@ CJK-like languages.
 <!-- outputs a content length of 8 runes. -->
 ```
 
-
 ### md5
 
 `md5` hashes the given input and returns its MD5 checksum.
@@ -740,6 +746,23 @@ This can be useful if you want to use Gravatar for generating a unique avatar:
 <!-- returns the string "c8b5b0e33d408246e30f53e32b8f7627a7a649d4" -->
 ```
 
+
+## Internationalization
+
+### i18n
+
+This translates a piece of content based on your `i18n/en-US.yaml`
+(and friends) files. You can use the
+[go-i18n](https://github.com/nicksnyder/go-i18n) tools to manage your
+translations.  The translations can exist in both the theme and at the
+root of your repository.
+
+e.g.: `{{ i18n "translation_id" }}`
+
+
+### T
+
+`T` is an alias to `i18n`. E.g. `{{ T "translation_id" }}`.
 
 
 ## URLs

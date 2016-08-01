@@ -57,7 +57,7 @@ var listDraftsCmd = &cobra.Command{
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for _, p := range site.Pages {
+		for _, p := range site.AllPages {
 			if p.IsDraft() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
@@ -88,7 +88,7 @@ posted in the future.`,
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for _, p := range site.Pages {
+		for _, p := range site.AllPages {
 			if p.IsFuture() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
@@ -119,7 +119,7 @@ expired.`,
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for _, p := range site.Pages {
+		for _, p := range site.AllPages {
 			if p.IsExpired() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}

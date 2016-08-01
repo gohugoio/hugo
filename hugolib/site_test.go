@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -92,16 +93,27 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 }
 
 func createAndRenderPages(t *testing.T, s *Site) {
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
+	createPagesAndMeta(t, s)
+
+	if err := s.renderPages(); err != nil {
+		t.Fatalf("Unable to render pages. %s", err)
 	}
+}
+
+func createPagesAndMeta(t *testing.T, s *Site) {
+	createPages(t, s)
+
+	s.setupTranslations()
+	s.setupPrevNext()
 
 	if err := s.buildSiteMeta(); err != nil {
 		t.Fatalf("Unable to build site metadata: %s", err)
 	}
+}
 
-	if err := s.renderPages(); err != nil {
-		t.Fatalf("Unable to render pages. %s", err)
+func createPages(t *testing.T, s *Site) {
+	if err := s.createPages(); err != nil {
+		t.Fatalf("Unable to create pages: %s", err)
 	}
 }
 
@@ -254,9 +266,8 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 		s.initializeSiteInfo()
 
-		if err := s.createPages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
+		createPages(t, s)
+
 		return s
 	}
 
@@ -264,14 +275,14 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
 	s := siteSetup()
-	if len(s.Pages) != 1 {
+	if len(s.AllPages) != 1 {
 		t.Fatal("Draft or Future dated content published unexpectedly")
 	}
 
 	// only publishDate in the past should be rendered
 	viper.Set("BuildDrafts", true)
 	s = siteSetup()
-	if len(s.Pages) != 2 {
+	if len(s.AllPages) != 2 {
 		t.Fatal("Future Dated Posts published unexpectedly")
 	}
 
@@ -279,7 +290,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildDrafts", false)
 	viper.Set("BuildFuture", true)
 	s = siteSetup()
-	if len(s.Pages) != 2 {
+	if len(s.AllPages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
 	}
 
@@ -287,7 +298,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("BuildDrafts", true)
 	viper.Set("BuildFuture", true)
 	s = siteSetup()
-	if len(s.Pages) != 4 {
+	if len(s.AllPages) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
 
@@ -313,9 +324,8 @@ func TestFutureExpirationRender(t *testing.T) {
 
 		s.initializeSiteInfo()
 
-		if err := s.createPages(); err != nil {
-			t.Fatalf("Unable to create pages: %s", err)
-		}
+		createPages(t, s)
+
 		return s
 	}
 
@@ -323,17 +333,17 @@ func TestFutureExpirationRender(t *testing.T) {
 
 	s := siteSetup()
 
-	if len(s.Pages) != 1 {
-		if len(s.Pages) > 1 {
+	if len(s.AllPages) != 1 {
+		if len(s.AllPages) > 1 {
 			t.Fatal("Expired content published unexpectedly")
 		}
 
-		if len(s.Pages) < 1 {
+		if len(s.AllPages) < 1 {
 			t.Fatal("Valid content expired unexpectedly")
 		}
 	}
 
-	if s.Pages[0].Title == "doc2" {
+	if s.AllPages[0].Title == "doc2" {
 		t.Fatal("Expired content published unexpectedly")
 	}
 }
@@ -384,7 +394,7 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 			[]byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode))},
 		// Issue #1148: Make sure that no P-tags is added around shortcodes.
 		{filepath.FromSlash("sect/doc2.md"),
-			[]byte(fmt.Sprintf(`**Ref 1:** 
+			[]byte(fmt.Sprintf(`**Ref 1:**
 
 {{< %s "sect/doc1.md" >}}
 
@@ -683,17 +693,7 @@ func TestAbsURLify(t *testing.T) {
 
 			s.prepTemplates("blue/single.html", templateWithURLAbs)
 
-			if err := s.createPages(); err != nil {
-				t.Fatalf("Unable to create pages: %s", err)
-			}
-
-			if err := s.buildSiteMeta(); err != nil {
-				t.Fatalf("Unable to build site metadata: %s", err)
-			}
-
-			if err := s.renderPages(); err != nil {
-				t.Fatalf("Unable to render pages. %s", err)
-			}
+			createAndRenderPages(t, s)
 
 			tests := []struct {
 				file, expected string
@@ -785,13 +785,7 @@ func TestOrderedPages(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
 		t.Errorf("Pages in unexpected order. First should be '%d', got '%d'", 2, s.Sections["sect"][0].Weight)
@@ -859,13 +853,7 @@ func TestGroupedPages(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	rbysection, err := s.Pages.GroupBy("Section", "desc")
 	if err != nil {
@@ -1049,13 +1037,7 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 	s.initializeSiteInfo()
 
-	if err := s.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
-
-	if err := s.buildSiteMeta(); err != nil {
-		t.Fatalf("Unable to build site metadata: %s", err)
-	}
+	createPagesAndMeta(t, s)
 
 	if s.Taxonomies["tags"]["a"][0].Page.Title != "foo" {
 		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title)
@@ -1123,9 +1105,7 @@ func setupLinkingMockSite(t *testing.T) *Site {
 
 	site.initializeSiteInfo()
 
-	if err := site.createPages(); err != nil {
-		t.Fatalf("Unable to create pages: %s", err)
-	}
+	createPagesAndMeta(t, site)
 
 	return site
 }
@@ -1334,4 +1314,160 @@ func TestSourceRelativeLinkFileing(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestMultilingualSwitch(t *testing.T) {
+	// General settings
+	viper.Set("DefaultExtension", "html")
+	viper.Set("baseurl", "http://example.com/blog")
+	viper.Set("DisableSitemap", false)
+	viper.Set("DisableRSS", false)
+	viper.Set("RSSUri", "index.xml")
+	viper.Set("Taxonomies", map[string]string{"tag": "tags"})
+	viper.Set("Permalinks", map[string]string{"other": "/somewhere/else/:filename"})
+
+	// Sources
+	sources := []source.ByteSource{
+		{filepath.FromSlash("sect/doc1.en.md"), []byte(`---
+title: doc1
+slug: doc1-slug
+tags:
+ - tag1
+publishdate: "2000-01-01"
+---
+# doc1
+*some content*
+NOTE: slug should be used as URL
+`)},
+		{filepath.FromSlash("sect/doc1.fr.md"), []byte(`---
+title: doc1
+tags:
+ - tag1
+ - tag2
+publishdate: "2000-01-04"
+---
+# doc1
+*quelque contenu*
+NOTE: should be in the 'en' Page's 'Translations' field.
+NOTE: date is after "doc3"
+`)},
+		{filepath.FromSlash("sect/doc2.en.md"), []byte(`---
+title: doc2
+publishdate: "2000-01-02"
+---
+# doc2
+*some content*
+NOTE: without slug, "doc2" should be used, without ".en" as URL
+`)},
+		{filepath.FromSlash("sect/doc3.en.md"), []byte(`---
+title: doc3
+publishdate: "2000-01-03"
+tags:
+ - tag2
+url: /superbob
+---
+# doc3
+*some content*
+NOTE: third 'en' doc, should trigger pagination on home page.
+`)},
+		{filepath.FromSlash("sect/doc4.md"), []byte(`---
+title: doc4
+tags:
+ - tag1
+publishdate: "2000-01-05"
+---
+# doc4
+*du contenu francophone*
+NOTE: should use the DefaultContentLanguage and mark this doc as 'fr'.
+NOTE: doesn't have any corresponding translation in 'en'
+`)},
+		{filepath.FromSlash("other/doc5.fr.md"), []byte(`---
+title: doc5
+publishdate: "2000-01-06"
+---
+# doc5
+*autre contenu francophone*
+NOTE: should use the "permalinks" configuration with :filename
+`)},
+	}
+
+	hugofs.InitMemFs()
+
+	s := &Site{
+		Source: &source.InMemorySource{ByteSource: sources},
+		Multilingual: &Multilingual{
+			config:  viper.New(),
+			enabled: true,
+		},
+	}
+	// Multilingual settings
+	viper.Set("Multilingual", true)
+	s.Multilingual.config.Set("CurrentLanguage", "en")
+	viper.Set("DefaultContentLanguage", "fr")
+	viper.Set("paginate", "2")
+
+	s.prepTemplates()
+	s.initializeSiteInfo()
+
+	createPagesAndMeta(t, s)
+
+	assert.Len(t, s.Source.Files(), 6, "should have 6 source files")
+	assert.Len(t, s.Pages, 3, "should have 3 pages")
+	assert.Len(t, s.AllPages, 6, "should have 6 total pages (including translations)")
+
+	doc1en := s.Pages[0]
+	permalink, err := doc1en.Permalink()
+	assert.NoError(t, err, "permalink call failed")
+	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug", permalink, "invalid doc1.en permalink")
+	assert.Len(t, doc1en.Translations, 1, "doc1-en should have one translation, excluding itself")
+
+	doc2 := s.Pages[1]
+	permalink, err = doc2.Permalink()
+	assert.NoError(t, err, "permalink call failed")
+	assert.Equal(t, "http://example.com/blog/en/sect/doc2", permalink, "invalid doc2 permalink")
+
+	doc3 := s.Pages[2]
+	permalink, err = doc3.Permalink()
+	assert.NoError(t, err, "permalink call failed")
+	assert.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
+	assert.Equal(t, "/superbob", doc3.URL, "invalid url, was specified on doc3")
+
+	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
+
+	doc1fr := doc1en.Translations["fr"]
+	permalink, err = doc1fr.Permalink()
+	assert.NoError(t, err, "permalink call failed")
+	assert.Equal(t, "http://example.com/blog/fr/sect/doc1", permalink, "invalid doc1fr permalink")
+
+	assert.Equal(t, doc1en.Translations["fr"], doc1fr, "doc1-en should have doc1-fr as translation")
+	assert.Equal(t, doc1fr.Translations["en"], doc1en, "doc1-fr should have doc1-en as translation")
+
+	doc4 := s.AllPages[4]
+	permalink, err = doc4.Permalink()
+	assert.NoError(t, err, "permalink call failed")
+	assert.Equal(t, "http://example.com/blog/fr/sect/doc4", permalink, "invalid doc4 permalink")
+	assert.Len(t, doc4.Translations, 0, "found translations for doc4")
+
+	doc5 := s.AllPages[5]
+	permalink, err = doc5.Permalink()
+	assert.NoError(t, err, "permalink call failed")
+	assert.Equal(t, "http://example.com/blog/fr/somewhere/else/doc5", permalink, "invalid doc5 permalink")
+
+	// Taxonomies and their URLs
+	assert.Len(t, s.Taxonomies, 1, "should have 1 taxonomy")
+	tags := s.Taxonomies["tags"]
+	assert.Len(t, tags, 2, "should have 2 different tags")
+	assert.Equal(t, tags["tag1"][0].Page, doc1en, "first tag1 page should be doc1")
+
+	// Expect the tags locations to be in certain places, with the /en/ prefixes, etc..
+}
+
+func assertFileContent(t *testing.T, path string, content string) {
+	fl, err := hugofs.Destination().Open(path)
+	assert.NoError(t, err, "file content not found when asserting on content of %s", path)
+
+	cnt, err := ioutil.ReadAll(fl)
+	assert.NoError(t, err, "cannot read file content when asserting on content of %s", path)
+
+	assert.Equal(t, content, string(cnt))
 }
