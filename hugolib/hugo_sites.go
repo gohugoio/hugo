@@ -16,7 +16,10 @@ package hugolib
 import (
 	"errors"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/spf13/hugo/helpers"
 
 	"github.com/spf13/viper"
 
@@ -106,24 +109,27 @@ func (h HugoSites) Build(config BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
-
 		if err := s.PostProcess(); err != nil {
 			return err
 		}
+	}
+
+	if err := h.preRender(); err != nil {
+		return err
+	}
+
+	for _, s := range h.Sites {
 
 		if !config.skipRender {
 			if err := s.Render(); err != nil {
 				return err
 			}
 
+			if config.PrintStats {
+				s.Stats()
+			}
 		}
-
-		if config.PrintStats {
-			s.Stats()
-		}
-
 		// TODO(bep) ml lang in site.Info?
-		// TODO(bep) ml Page sorting?
 	}
 
 	if config.PrintStats {
@@ -153,22 +159,26 @@ func (h HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	// Assign pages to sites per translation.
 	h.setupTranslations(firstSite)
 
-	for _, s := range h.Sites {
-
-		if sourceChanged {
+	if sourceChanged {
+		for _, s := range h.Sites {
 			if err := s.PostProcess(); err != nil {
 				return err
 			}
 		}
+	}
 
-		if !config.skipRender {
+	if err := h.preRender(); err != nil {
+		return err
+	}
+
+	if !config.skipRender {
+		for _, s := range h.Sites {
 			if err := s.Render(); err != nil {
 				return err
 			}
-		}
-
-		if config.PrintStats {
-			s.Stats()
+			if config.PrintStats {
+				s.Stats()
+			}
 		}
 	}
 
@@ -217,6 +227,87 @@ func (s *HugoSites) setupTranslations(master *Site) {
 		allTranslations := pagesToTranslationsMap(s.Multilingual, pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
+}
+
+// preRender performs build tasks that needs to be done as late as possible.
+// Shortcode handling is the main task in here.
+// TODO(bep) We need to look at the whole handler-chain construct witht he below in mind.
+func (h *HugoSites) preRender() error {
+	pageChan := make(chan *Page)
+
+	wg := &sync.WaitGroup{}
+
+	// We want all the pages, so just pick one.
+	s := h.Sites[0]
+
+	for i := 0; i < getGoMaxProcs()*4; i++ {
+		wg.Add(1)
+		go func(pages <-chan *Page, wg *sync.WaitGroup) {
+			defer wg.Done()
+			for p := range pages {
+				if err := handleShortcodes(p, s.Tmpl); err != nil {
+					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
+				}
+
+				if p.Markup == "markdown" {
+					tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.rawContent)
+					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+					p.rawContent = tmpContent
+				}
+
+				if p.Markup != "html" {
+
+					// Now we know enough to create a summary of the page and count some words
+					summaryContent, err := p.setUserDefinedSummaryIfProvided()
+
+					if err != nil {
+						jww.ERROR.Printf("Failed to set use defined summary: %s", err)
+					} else if summaryContent != nil {
+						p.rawContent = summaryContent.content
+					}
+
+					p.Content = helpers.BytesToHTML(p.rawContent)
+					p.rendered = true
+
+					if summaryContent == nil {
+						p.setAutoSummary()
+					}
+				}
+
+				//analyze for raw stats
+				p.analyzePage()
+			}
+		}(pageChan, wg)
+	}
+
+	for _, p := range s.AllPages {
+		pageChan <- p
+	}
+
+	close(pageChan)
+
+	wg.Wait()
+
+	return nil
+}
+
+func handleShortcodes(p *Page, t tpl.Template) error {
+	if len(p.contentShortCodes) > 0 {
+		jww.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
+		shortcodes, err := executeShortcodeFuncMap(p.contentShortCodes)
+
+		if err != nil {
+			return err
+		}
+
+		p.rawContent, err = replaceShortcodeTokens(p.rawContent, shortcodePlaceholderPrefix, shortcodes)
+
+		if err != nil {
+			jww.FATAL.Printf("Failed to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+		}
+	}
+
+	return nil
 }
 
 func (s *Site) updateBuildStats(page *Page) {

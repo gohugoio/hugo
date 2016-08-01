@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -84,10 +85,16 @@ func pageMust(p *Page, err error) *Page {
 }
 
 func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
-	p, _ := NewPageFrom(strings.NewReader(pageSimpleTitle), "content/a/file.md")
-	p.Convert()
-	s := new(Site)
-	s.prepTemplates(nil)
+	s := newSiteFromSources("content/a/file.md", pageSimpleTitle)
+
+	if err := buildSiteSkipRender(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	require.Len(t, s.Pages, 1)
+
+	p := s.Pages[0]
+
 	err := s.renderThing(p, "foobar", nil)
 	if err == nil {
 		t.Errorf("Expected err to be returned when missing the template.")

@@ -70,7 +70,7 @@ type Page struct {
 	linkTitle           string
 	frontmatter         []byte
 	rawContent          []byte
-	contentShortCodes   map[string]string // TODO(bep) this shouldn't be needed.
+	contentShortCodes   map[string]func() (string, error)
 	shortcodes          map[string]shortcode
 	plain               string // TODO should be []byte
 	plainWords          []string
@@ -212,46 +212,111 @@ func (p *Page) lineNumRawContentStart() int {
 	return bytes.Count(p.frontmatter, []byte("\n")) + 1
 }
 
-func (p *Page) setSummary() {
+var (
+	internalSummaryDivider            = []byte("HUGOMORE42")
+	internalSummaryDividerAndNewLines = []byte("HUGOMORE42\n\n")
+)
 
-	// at this point, p.rawContent contains placeholders for the short codes,
-	// rendered and ready in p.contentShortcodes
+// Returns the page as summary and main if a user defined split is provided.
+func (p *Page) setUserDefinedSummaryIfProvided() (*summaryContent, error) {
 
-	if bytes.Contains(p.rawContent, helpers.SummaryDivider) {
-		sections := bytes.Split(p.rawContent, helpers.SummaryDivider)
-		header := sections[0]
-		p.Truncated = true
-		if len(sections[1]) < 20 {
-			// only whitespace?
-			p.Truncated = len(bytes.Trim(sections[1], " \n\r")) > 0
-		}
+	sc := splitUserDefinedSummaryAndContent(p.Markup, p.rawContent)
 
-		// TODO(bep) consider doing this once only
-		renderedHeader := p.renderBytes(header)
-		if len(p.contentShortCodes) > 0 {
-			tmpContentWithTokensReplaced, err :=
-				replaceShortcodeTokens(renderedHeader, shortcodePlaceholderPrefix, p.contentShortCodes)
-			if err != nil {
-				jww.FATAL.Printf("Failed to replace short code tokens in Summary for %s:\n%s", p.BaseFileName(), err.Error())
-			} else {
-				renderedHeader = tmpContentWithTokensReplaced
-			}
-		}
-		p.Summary = helpers.BytesToHTML(renderedHeader)
-	} else {
-		// If hugo defines split:
-		// render, strip html, then split
-		var summary string
-		var truncated bool
-		if p.isCJKLanguage {
-			summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
-		} else {
-			summary, truncated = helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
-		}
-		p.Summary = template.HTML(summary)
-		p.Truncated = truncated
-
+	if sc == nil {
+		// No divider found
+		return nil, nil
 	}
+
+	p.Truncated = true
+	if len(sc.content) < 20 {
+		// only whitespace?
+		p.Truncated = len(bytes.Trim(sc.content, " \n\r")) > 0
+	}
+
+	p.Summary = helpers.BytesToHTML(sc.summary)
+
+	return sc, nil
+}
+
+// Make this explicit so there is no doubt about what is what.
+type summaryContent struct {
+	summary               []byte
+	content               []byte
+	contentWithoutSummary []byte
+}
+
+func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent {
+	startDivider := bytes.Index(c, internalSummaryDivider)
+
+	if startDivider == -1 {
+		return nil
+	}
+
+	endDivider := startDivider + len(internalSummaryDivider)
+	endSummary := startDivider
+
+	var (
+		startMarkup []byte
+		endMarkup   []byte
+		addDiv      bool
+		divStart    = []byte("<div class=\"document\">")
+	)
+
+	switch markup {
+	default:
+		startMarkup = []byte("<p>")
+		endMarkup = []byte("</p>")
+	case "asciidoc":
+		startMarkup = []byte("<div class=\"paragraph\">")
+		endMarkup = []byte("</div>")
+	case "rst":
+		startMarkup = []byte("<p>")
+		endMarkup = []byte("</p>")
+		addDiv = true
+	}
+
+	// Find the closest end/start markup string to the divider
+	//firstStart := bytes.Index(c[:startDivider], startMarkup)
+	fromIdx := bytes.LastIndex(c[:startDivider], startMarkup)
+	fromStart := startDivider - fromIdx - len(startMarkup)
+	fromEnd := bytes.Index(c[endDivider:], endMarkup)
+
+	if fromEnd != -1 && fromEnd <= fromStart {
+		endSummary = startDivider + fromEnd + len(endMarkup)
+	} else if fromStart != -1 {
+		endSummary = startDivider - fromStart - len(startMarkup)
+	}
+
+	withoutDivider := bytes.TrimSpace(append(c[:startDivider], c[endDivider:]...))
+	contentWithoutSummary := bytes.TrimSpace(withoutDivider[endSummary:])
+	summary := bytes.TrimSpace(withoutDivider[:endSummary])
+
+	if addDiv {
+		// For the rst
+		summary = append(append([]byte(nil), summary...), []byte("</div>")...)
+		// TODO(bep) include the document class, maybe
+		contentWithoutSummary = append(divStart, contentWithoutSummary...)
+	}
+
+	return &summaryContent{
+		summary:               summary,
+		content:               withoutDivider,
+		contentWithoutSummary: contentWithoutSummary,
+	}
+}
+
+func (p *Page) setAutoSummary() error {
+	var summary string
+	var truncated bool
+	if p.isCJKLanguage {
+		summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
+	} else {
+		summary, truncated = helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
+	}
+	p.Summary = template.HTML(summary)
+	p.Truncated = truncated
+
+	return nil
 }
 
 func (p *Page) renderBytes(content []byte) []byte {
@@ -970,27 +1035,6 @@ func (p *Page) ProcessShortcodes(t tpl.Template) {
 		p.contentShortCodes = renderShortcodes(p.shortcodes, p, t)
 	}
 
-}
-
-// TODO(spf13): Remove this entirely
-// Here for backwards compatibility & testing. Only works in isolation
-func (p *Page) Convert() error {
-	var h Handler
-	if p.Markup != "" {
-		h = FindHandler(p.Markup)
-	} else {
-		h = FindHandler(p.File.Extension())
-	}
-	if h != nil {
-		h.PageConvert(p, tpl.T())
-	}
-
-	//// now we know enough to create a summary of the page and count some words
-	p.setSummary()
-	//analyze for raw stats
-	p.analyzePage()
-
-	return nil
 }
 
 func (p *Page) FullFilePath() string {

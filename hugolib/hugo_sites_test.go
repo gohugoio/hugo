@@ -37,6 +37,11 @@ func testCommonResetState() {
 	viper.Set("PublishDir", "public")
 	viper.Set("RSSUri", "rss")
 
+	viper.Set("Taxonomies", map[string]interface{}{
+		"tag":      "tags",
+		"category": "categories",
+	})
+
 	if err := hugofs.Source().Mkdir("content", 0755); err != nil {
 		panic("Content folder creation failed.")
 	}

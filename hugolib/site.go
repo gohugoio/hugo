@@ -113,6 +113,26 @@ func newSiteDefaultLang() *Site {
 	return NewSite(newDefaultLanguage())
 }
 
+// Convenience func used in tests.
+func newSiteFromSources(pathContentPairs ...string) *Site {
+	if len(pathContentPairs)%2 != 0 {
+		panic("pathContentPairs must come in pairs")
+	}
+
+	sources := make([]source.ByteSource, 0)
+
+	for i := 0; i < len(pathContentPairs); i += 2 {
+		path := pathContentPairs[i]
+		content := pathContentPairs[i+1]
+		sources = append(sources, source.ByteSource{Name: filepath.FromSlash(path), Content: []byte(content)})
+	}
+
+	return &Site{
+		Source:   &source.InMemorySource{ByteSource: sources},
+		Language: newDefaultLanguage(),
+	}
+}
+
 type targetList struct {
 	page     target.Output
 	pageUgly target.Output
