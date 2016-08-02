@@ -94,7 +94,8 @@ func init() {
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
-	serverCmd.Flags().Int("meminterval", 100, "interval to poll memory usage (requires --memstats)")
+	serverCmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
+
 	serverCmd.RunE = server
 
 	mime.AddExtensionType(".json", "application/json; charset=utf-8")
