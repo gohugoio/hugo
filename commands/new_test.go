@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/parser"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -99,4 +100,25 @@ func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 	hugofs.Source().Create(configPath)
 	err := doNewSite(basepath, true)
 	assert.NotNil(t, err)
+}
+
+func TestDoNewSite_basename_func_called(t *testing.T) {
+	var configBasenameSave = parser.ConfigBasename
+	actual_count := 0
+	parser.ConfigBasename = func(string) string {
+		actual_count++
+		return "anything"
+	}
+	basepath := filepath.Join(os.TempDir(), "blog")
+	hugofs.InitMemFs()
+
+	hugofs.Source().MkdirAll(basepath, 777)
+	doNewSite(basepath, true)
+
+	hugofs.Source().RemoveAll(basepath)
+	doNewSite(basepath, false)
+
+	expected_count := 2
+	assert.Equal(t, expected_count, actual_count)
+	parser.ConfigBasename = configBasenameSave
 }

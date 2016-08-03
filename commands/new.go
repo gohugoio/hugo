@@ -135,7 +135,7 @@ func doNewSite(basepath string, force bool) error {
 			return errors.New(basepath + " already exists and is not empty")
 
 		case !isEmpty && force:
-			all := append(dirs, filepath.Join(basepath, "config."+configFormat))
+			all := append(dirs, filepath.Join(basepath, parser.ConfigBasename(configFormat)))
 			for _, path := range all {
 				if exists, _ := helpers.Exists(path, hugofs.Source()); exists {
 					return errors.New(path + " already exists")
@@ -148,7 +148,12 @@ func doNewSite(basepath string, force bool) error {
 		hugofs.Source().MkdirAll(dir, 0777)
 	}
 
-	createConfig(basepath, configFormat)
+	in := map[string]interface{}{
+		"baseurl":      "http://replace-this-with-your-hugo-site.com/",
+		"title":        "My New Hugo Site",
+		"languageCode": "en-us",
+	}
+	createConfig(basepath, configFormat, in)
 
 	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %q.\n\n", basepath)
 	jww.FEEDBACK.Println(`Just a few more steps and you're ready to go:
@@ -316,12 +321,7 @@ func newContentPathSection(path string) (string, string) {
 	return createpath, section
 }
 
-func createConfig(inpath string, kind string) (err error) {
-	in := map[string]string{
-		"baseurl":      "http://replace-this-with-your-hugo-site.com/",
-		"title":        "My New Hugo Site",
-		"languageCode": "en-us",
-	}
+func createConfig(inpath string, kind string, in map[string]interface{}) (err error) {
 	kind = parser.FormatSanitize(kind)
 
 	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))
@@ -329,7 +329,7 @@ func createConfig(inpath string, kind string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(inpath, parser.ConfigBasename(kind)), bytes.NewReader(by), hugofs.Source())
 	if err != nil {
 		return
 	}

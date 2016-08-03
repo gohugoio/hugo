@@ -14,8 +14,24 @@
 package parser
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestConfigBasename(t *testing.T) {
+	for _, this := range []struct {
+		kind   string
+		expect string
+	}{
+		{"toml", "config.toml"},
+		{"json", "config.json"},
+		{"yaml", "config.yml"},
+		{"other", "config.other"},
+	} {
+		result := ConfigBasename(this.kind)
+		assert.Equal(t, this.expect, result)
+	}
+}
 
 func TestFormatToLeadRune(t *testing.T) {
 	for i, this := range []struct {

@@ -54,10 +54,10 @@ func TestDataDirToml(t *testing.T) {
 func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 	sources := []source.ByteSource{
 		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
-		{Name: filepath.FromSlash("a.yaml"), Content: []byte("a: 1")},
-		{Name: filepath.FromSlash("test/v1.yaml"), Content: []byte("v1-2: 2")},
-		{Name: filepath.FromSlash("test/v2.yaml"), Content: []byte("v2:\n- 2\n- 3")},
-		{Name: filepath.FromSlash("test.yaml"), Content: []byte("v1: 1")},
+		{Name: filepath.FromSlash("a.yml"), Content: []byte("a: 1")},
+		{Name: filepath.FromSlash("test/v1.yml"), Content: []byte("v1-2: 2")},
+		{Name: filepath.FromSlash("test/v2.yml"), Content: []byte("v2:\n- 2\n- 3")},
+		{Name: filepath.FromSlash("test.yml"), Content: []byte("v1: 1")},
 	}
 
 	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1},

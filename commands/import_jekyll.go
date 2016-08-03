@@ -193,7 +193,7 @@ func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
 	exists, err := helpers.Exists(path, fs)
 
 	if err != nil || !exists {
-		jww.WARN.Println("_config.yaml not found: Is the specified Jekyll root correct?")
+		jww.WARN.Println("_config.yml not found: Is the specified Jekyll root correct?")
 		return nil
 	}
 
@@ -245,18 +245,8 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 		"languageCode":       "en-us",
 		"disablePathToLower": true,
 	}
-	kind = parser.FormatSanitize(kind)
 
-	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))
-	if err != nil {
-		return err
-	}
-
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
-	if err != nil {
-		return
-	}
-
+	createConfig(inpath, kind, in)
 	return nil
 }
 

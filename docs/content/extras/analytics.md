@@ -14,7 +14,7 @@ Hugo ships with prebuilt internal templates for Google Analytics tracking, inclu
 
 ## Configuring Google Analytics
 
-Provide your tracking id in your configuration file, e.g. config.yaml.
+Provide your tracking id in your configuration file, e.g. config.yml.
 
     googleAnalytics = "UA-123-45"
 
