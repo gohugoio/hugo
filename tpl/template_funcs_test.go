@@ -136,6 +136,7 @@ sub: {{sub 3 2}}
 substr: {{substr "BatMan" 0 -3}}
 substr: {{substr "BatMan" 3 3}}
 title: {{title "Bat man"}}
+time: {{ time "2015-01-21" }}
 trim: {{ trim "++Batman--" "+-" }}
 upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
@@ -199,6 +200,7 @@ sub: 1
 substr: Bat
 substr: Man
 title: Bat Man
+time: 2015-01-21T00:00:00Z
 trim: Batman
 upper: BATMAN
 urlize: bat-man

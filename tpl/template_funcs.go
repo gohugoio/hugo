@@ -1380,6 +1380,16 @@ func replaceRE(pattern, repl, src interface{}) (_ string, err error) {
 	return re.ReplaceAllString(srcStr, replStr), nil
 }
 
+// asTime converts the textual representation of the datetime string into
+// a time.Time interface.
+func asTime(v interface{}) (interface{}, error) {
+	t, err := cast.ToTimeE(v)
+	if err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
 // dateFormat converts the textual representation of the datetime string into
 // the other form or returns it of the time.Time value. These are formatted
 // with the layout string
@@ -1869,6 +1879,7 @@ func init() {
 		"sub":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '-') },
 		"substr":       substr,
 		"title":        func(a string) string { return strings.Title(a) },
+		"time":         asTime,
 		"trim":         trim,
 		"upper":        func(a string) string { return strings.ToUpper(a) },
 		"urlize":       helpers.URLize,
