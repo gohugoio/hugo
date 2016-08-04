@@ -45,6 +45,7 @@ type AliasPublisher interface {
 type HTMLRedirectAlias struct {
 	PublishDir string
 	Templates  *template.Template
+	AllowRoot  bool // for the language redirects
 }
 
 func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error) {
@@ -56,7 +57,7 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 	alias = filepath.Clean(alias)
 	components := strings.Split(alias, helpers.FilePathSeparator)
 
-	if alias == helpers.FilePathSeparator {
+	if !h.AllowRoot && alias == helpers.FilePathSeparator {
 		return "", fmt.Errorf("Alias \"%s\" resolves to website root directory", originalAlias)
 	}
 

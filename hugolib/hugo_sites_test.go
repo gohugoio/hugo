@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/stretchr/testify/require"
 )
 
 func init() {
@@ -52,7 +52,7 @@ func TestMultiSites(t *testing.T) {
 
 	sites := createMultiTestSites(t)
 
-	err := sites.Build(BuildCfg{skipRender: true})
+	err := sites.Build(BuildCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to build sites: %s", err)
@@ -125,6 +125,11 @@ func TestMultiSites(t *testing.T) {
 	for _, frenchPage := range frSite.Pages {
 		assert.Equal(t, "fr", frenchPage.Lang())
 	}
+
+	languageRedirect := readDestination(t, "public/index.html")
+
+	// French is the main content language
+	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
 
 }
 
@@ -498,7 +503,7 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 		// Print some debug info
 		root := strings.Split(filename, helpers.FilePathSeparator)[0]
 		afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
-			if !info.IsDir() {
+			if info != nil && !info.IsDir() {
 				fmt.Println("    ", path)
 			}
 
