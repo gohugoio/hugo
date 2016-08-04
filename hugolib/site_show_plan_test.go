@@ -57,7 +57,7 @@ func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
 	gotList := strings.Split(got, "\n")
 	expectedList := strings.Split(expected, "\n")
 
-	diff := DiffStringSlices(gotList, expectedList)
+	diff := helpers.DiffStringSlices(gotList, expectedList)
 
 	if len(diff) > 0 {
 		t.Errorf("Got diff in show plan: %s", diff)
@@ -145,27 +145,4 @@ func TestFileTargetPublishDir(t *testing.T) {
 		" alias-2/ => ../public/alias-2/index.html\n\n" +
 		"section/somecontent.html (renderer: n/a)\n canonical => ../public/section/somecontent/index.html\n\n"
 	checkShowPlanExpected(t, s, expected)
-}
-
-// DiffStringSlices returns the difference between two string slices.
-// See:
-// http://stackoverflow.com/questions/19374219/how-to-find-the-difference-between-two-slices-of-strings-in-golang
-func DiffStringSlices(slice1 []string, slice2 []string) []string {
-	diffStr := []string{}
-	m := map[string]int{}
-
-	for _, s1Val := range slice1 {
-		m[s1Val] = 1
-	}
-	for _, s2Val := range slice2 {
-		m[s2Val] = m[s2Val] + 1
-	}
-
-	for mKey, mVal := range m {
-		if mVal == 1 {
-			diffStr = append(diffStr, mKey)
-		}
-	}
-
-	return diffStr
 }

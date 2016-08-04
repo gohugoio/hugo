@@ -28,6 +28,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/hugo/helpers"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/hugofs"
@@ -136,7 +138,7 @@ sub: {{sub 3 2}}
 substr: {{substr "BatMan" 0 -3}}
 substr: {{substr "BatMan" 3 3}}
 title: {{title "Bat man"}}
-time: {{ time "2015-01-21" }}
+time: {{ (time "2015-01-21").Year }}
 trim: {{ trim "++Batman--" "+-" }}
 upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
@@ -200,7 +202,7 @@ sub: 1
 substr: Bat
 substr: Man
 title: Bat Man
-time: 2015-01-21T00:00:00Z
+time: 2015
 trim: Batman
 upper: BATMAN
 urlize: bat-man
@@ -229,7 +231,9 @@ urlize: bat-man
 	}
 
 	if b.String() != expected {
-		t.Errorf("Got\n%q\nExpected\n%q", b.String(), expected)
+		sl1 := strings.Split(b.String(), "\n")
+		sl2 := strings.Split(expected, "\n")
+		t.Errorf("Diff:\n%q", helpers.DiffStringSlices(sl1, sl2))
 	}
 }
 
