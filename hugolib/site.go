@@ -866,7 +866,7 @@ func (s *Site) initializeSiteInfo() {
 		CurrentLanguage:       lang.Lang,
 		LanguagePrefix:        languagePrefix,
 		Languages:             languages,
-		GoogleAnalytics:       viper.GetString("GoogleAnalytics"),
+		GoogleAnalytics:       lang.GetString("GoogleAnalytics"),
 		RSSLink:               permalinkStr(viper.GetString("RSSUri")),
 		BuildDrafts:           viper.GetBool("BuildDrafts"),
 		canonifyURLs:          viper.GetBool("CanonifyURLs"),

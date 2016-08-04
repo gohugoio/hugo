@@ -48,7 +48,7 @@ func testCommonResetState() {
 
 }
 
-func _TestMultiSites(t *testing.T) {
+func TestMultiSites(t *testing.T) {
 
 	sites := createMultiTestSites(t)
 
@@ -65,7 +65,7 @@ func _TestMultiSites(t *testing.T) {
 	if len(enSite.Pages) != 3 {
 		t.Fatal("Expected 3 english pages")
 	}
-	assert.Len(t, enSite.Source.Files(), 6, "should have 6 source files")
+	assert.Len(t, enSite.Source.Files(), 11, "should have 11 source files")
 	assert.Len(t, enSite.AllPages, 6, "should have 6 total pages (including translations)")
 
 	doc1en := enSite.Pages[0]

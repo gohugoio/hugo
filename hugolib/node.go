@@ -201,6 +201,10 @@ func (n *Node) Lang() string {
 	return n.lang
 }
 
+func (n *Node) LanguagePrefix() string {
+	return n.Site.LanguagePrefix
+}
+
 // AllTranslations returns all translations, including the current Node.
 // Note that this and the one below is kind of a temporary hack before #2297 is solved.
 func (n *Node) AllTranslations() Nodes {

@@ -13,7 +13,7 @@ import (
 
 func readMultilingualConfiguration() (*hugolib.HugoSites, error) {
 	sites := make([]*hugolib.Site, 0)
-	multilingual := viper.GetStringMap("Multilingual")
+	multilingual := viper.GetStringMap("Languages")
 	if len(multilingual) == 0 {
 		// TODO(bep) multilingo langConfigsList = append(langConfigsList, hugolib.NewLanguage("en"))
 		sites = append(sites, hugolib.NewSite(hugolib.NewLanguage("en")))
