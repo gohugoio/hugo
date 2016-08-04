@@ -1930,11 +1930,11 @@ func TestFindRE(t *testing.T) {
 		expect  []string
 		ok      bool
 	}{
-		{"[G|g]o", "Hugo is a static side generator written in Go.", 2, []string{"go", "Go"}, true},
-		{"[G|g]o", "Hugo is a static side generator written in Go.", -1, []string{"go", "Go"}, true},
-		{"[G|g]o", "Hugo is a static side generator written in Go.", 1, []string{"go"}, true},
-		{"[G|g]o", "Hugo is a static side generator written in Go.", 0, []string(nil), true},
-		{"[G|go", "Hugo is a static side generator written in Go.", 0, []string(nil), false},
+		{"[G|g]o", "Hugo is a static site generator written in Go.", 2, []string{"go", "Go"}, true},
+		{"[G|g]o", "Hugo is a static site generator written in Go.", -1, []string{"go", "Go"}, true},
+		{"[G|g]o", "Hugo is a static site generator written in Go.", 1, []string{"go"}, true},
+		{"[G|g]o", "Hugo is a static site generator written in Go.", 0, []string(nil), true},
+		{"[G|go", "Hugo is a static site generator written in Go.", 0, []string(nil), false},
 	} {
 		res, err := findRE(this.expr, this.content, this.limit)
 
