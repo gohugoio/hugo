@@ -61,6 +61,14 @@ func (h HugoSites) Reset() {
 	}
 }
 
+func (h HugoSites) siteInfos() []*SiteInfo {
+	infos := make([]*SiteInfo, len(h.Sites))
+	for i, s := range h.Sites {
+		infos[i] = &s.Info
+	}
+	return infos
+}
+
 type BuildCfg struct {
 	// Whether we are in watch (server) mode
 	Watching bool
@@ -118,9 +126,9 @@ func (h HugoSites) Build(config BuildCfg) error {
 		return err
 	}
 
-	for _, s := range h.Sites {
+	if !config.skipRender {
+		for _, s := range h.Sites {
 
-		if !config.skipRender {
 			if err := s.Render(); err != nil {
 				return err
 			}
@@ -129,7 +137,10 @@ func (h HugoSites) Build(config BuildCfg) error {
 				s.Stats()
 			}
 		}
-		// TODO(bep) ml lang in site.Info?
+
+		if err := h.render(); err != nil {
+			return err
+		}
 	}
 
 	if config.PrintStats {
@@ -180,6 +191,10 @@ func (h HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 				s.Stats()
 			}
 		}
+
+		if err := h.render(); err != nil {
+			return err
+		}
 	}
 
 	if config.PrintStats {
@@ -188,6 +203,28 @@ func (h HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 
 	return nil
 
+}
+
+// Render the cross-site artifacts.
+func (h *HugoSites) render() error {
+
+	if !h.Multilingual.enabled() {
+		return nil
+	}
+
+	// TODO(bep) DRY
+	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
+
+	s := h.Sites[0]
+
+	smLayouts := []string{"sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml"}
+
+	if err := s.renderAndWriteXML("sitemapindex", sitemapDefault.Filename,
+		h.siteInfos(), s.appendThemeTemplates(smLayouts)...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *HugoSites) setupTranslations(master *Site) {

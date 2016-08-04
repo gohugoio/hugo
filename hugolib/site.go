@@ -170,10 +170,10 @@ type SiteInfo struct {
 	paginationPageCount   uint64
 	Data                  *map[string]interface{}
 
-	Multilingual    bool
-	CurrentLanguage string
-	LanguagePrefix  string
-	Languages       Languages
+	Multilingual   bool
+	Language       *Language
+	LanguagePrefix string
+	Languages      Languages
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -831,6 +831,21 @@ func (s *Site) initialize() (err error) {
 	return
 }
 
+// HomeURL is a convenience method giving the absolute URL to the home page.
+func (s *SiteInfo) HomeAbsURL() string {
+	base := "/"
+	if s.Multilingual {
+		base = s.Language.Lang
+	}
+	return helpers.AbsURL(base)
+}
+
+// SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
+func (s *SiteInfo) SitemapAbsURL() string {
+	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
+	return path.Join(s.HomeAbsURL(), sitemapDefault.Filename)
+}
+
 func (s *Site) initializeSiteInfo() {
 
 	var (
@@ -864,7 +879,7 @@ func (s *Site) initializeSiteInfo() {
 		DisqusShortname: lang.GetString("DisqusShortname"),
 		// TODO(bep) multilang, consolidate the below (make into methods etc.)
 		Multilingual:          s.multilingualEnabled(),
-		CurrentLanguage:       lang.Lang,
+		Language:              lang,
 		LanguagePrefix:        languagePrefix,
 		Languages:             languages,
 		GoogleAnalytics:       lang.GetString("GoogleAnalytics"),
