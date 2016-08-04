@@ -134,10 +134,11 @@ func newSiteFromSources(pathContentPairs ...string) *Site {
 }
 
 type targetList struct {
-	page     target.Output
-	pageUgly target.Output
-	file     target.Output
-	alias    target.AliasPublisher
+	page          target.Output
+	pageUgly      target.Output
+	file          target.Output
+	alias         target.AliasPublisher
+	languageAlias target.AliasPublisher
 }
 
 type SiteInfo struct {
@@ -1398,6 +1399,16 @@ func (s *Site) renderAliases() error {
 			}
 		}
 	}
+
+	if s.Multilingual.enabled() {
+		mainLang := s.Multilingual.DefaultLang.Lang
+		mainLangURL := helpers.AbsURL(mainLang)
+		jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+		if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2161,6 +2172,11 @@ func (s *Site) aliasTarget() target.AliasPublisher {
 	return s.targets.alias
 }
 
+func (s *Site) languageAliasTarget() target.AliasPublisher {
+	s.initTargetList()
+	return s.targets.languageAlias
+}
+
 func (s *Site) initTargetList() {
 	s.targetListInit.Do(func() {
 		if s.targets.page == nil {
@@ -2185,6 +2201,12 @@ func (s *Site) initTargetList() {
 				PublishDir: s.absPublishDir(),
 			}
 		}
+		if s.targets.languageAlias == nil {
+			s.targets.languageAlias = &target.HTMLRedirectAlias{
+				PublishDir: s.absPublishDir(),
+				AllowRoot:  true,
+			}
+		}
 	})
 }
 
@@ -2198,7 +2220,12 @@ func (s *Site) writeDestPage(path string, publisher target.Publisher, reader io.
 	return publisher.Publish(path, reader)
 }
 
+// AliasPublisher
 func (s *Site) writeDestAlias(path string, permalink string) (err error) {
+	return s.publishDestAlias(s.aliasTarget(), path, permalink)
+}
+
+func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path string, permalink string) (err error) {
 	if viper.GetBool("RelativeURLs") {
 		// convert `permalink` into URI relative to location of `path`
 		baseURL := helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))
@@ -2212,7 +2239,7 @@ func (s *Site) writeDestAlias(path string, permalink string) (err error) {
 		permalink = filepath.ToSlash(permalink)
 	}
 	jww.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
-	return s.aliasTarget().Publish(path, permalink)
+	return aliasPublisher.Publish(path, permalink)
 }
 
 func (s *Site) draftStats() string {
