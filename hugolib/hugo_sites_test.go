@@ -126,11 +126,18 @@ func TestMultiSites(t *testing.T) {
 		assert.Equal(t, "fr", frenchPage.Lang())
 	}
 
+	// Check redirect to main language, French
 	languageRedirect := readDestination(t, "public/index.html")
-
-	// French is the main content language
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
 
+	// Check sitemap(s)
+	sitemapIndex := readDestination(t, "public/sitemap.xml")
+	require.True(t, strings.Contains(sitemapIndex, "<loc>http:/example.com/blog/en/sitemap.xml</loc>"), sitemapIndex)
+	require.True(t, strings.Contains(sitemapIndex, "<loc>http:/example.com/blog/fr/sitemap.xml</loc>"), sitemapIndex)
+	sitemapEn := readDestination(t, "public/en/sitemap.xml")
+	sitemapFr := readDestination(t, "public/fr/sitemap.xml")
+	require.True(t, strings.Contains(sitemapEn, "http://example.com/blog/en/sect/doc2/"), sitemapEn)
+	require.True(t, strings.Contains(sitemapFr, "http://example.com/blog/fr/sect/doc1/"), sitemapFr)
 }
 
 func TestMultiSitesRebuild(t *testing.T) {

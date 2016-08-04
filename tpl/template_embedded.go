@@ -100,6 +100,19 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
   {{ end }}
 </urlset>`)
 
+	// For multilanguage sites
+	t.AddInternalTemplate("_default", "sitemapindex.xml", `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	{{ range . }}
+	<sitemap>
+	   	<loc>{{ .SitemapAbsURL }}</loc>
+		{{ if not .LastChange.IsZero }}
+	   	<lastmod>{{ .LastChange.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</lastmod>
+		{{ end }}
+	</sitemap>
+	{{ end }}
+</sitemapindex>
+`)
+
 	t.AddInternalTemplate("", "pagination.html", `{{ $pag := $.Paginator }}
     {{ if gt $pag.TotalPages 1 }}
     <ul class="pagination">
