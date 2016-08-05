@@ -22,8 +22,7 @@ import (
 
 func init() {
 	testCommonResetState()
-	jww.SetStdoutThreshold(jww.LevelError)
-
+	jww.SetStdoutThreshold(jww.LevelCritical)
 }
 
 func testCommonResetState() {
@@ -38,8 +37,8 @@ func testCommonResetState() {
 
 }
 
-func TestMultiSites(t *testing.T) {
-
+func TestMultiSitesBuild(t *testing.T) {
+	testCommonResetState()
 	sites := createMultiTestSites(t)
 
 	err := sites.Build(BuildCfg{})
@@ -128,10 +127,20 @@ func TestMultiSites(t *testing.T) {
 	sitemapFr := readDestination(t, "public/fr/sitemap.xml")
 	require.True(t, strings.Contains(sitemapEn, "http://example.com/blog/en/sect/doc2/"), sitemapEn)
 	require.True(t, strings.Contains(sitemapFr, "http://example.com/blog/fr/sect/doc1/"), sitemapFr)
+
+	// Check taxonomies
+	enTags := enSite.Taxonomies["tags"]
+	frTags := frSite.Taxonomies["plaques"]
+	require.Len(t, enTags, 2, fmt.Sprintf("Tags in en: %=v", enTags))
+	require.Len(t, frTags, 2, fmt.Sprintf("Tags in fr: %=v", frTags))
+	require.NotNil(t, enTags["tag1"])
+	require.NotNil(t, frTags["frtag1"])
+	readDestination(t, "public/fr/plaques/frtag1/index.html")
+	readDestination(t, "public/en/tags/tag1/index.html")
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
-
+	testCommonResetState()
 	sites := createMultiTestSites(t)
 	cfg := BuildCfg{}
 
@@ -294,16 +303,6 @@ func TestMultiSitesRebuild(t *testing.T) {
 }
 
 func createMultiTestSites(t *testing.T) *HugoSites {
-	// General settings
-	hugofs.InitMemFs()
-
-	viper.Set("DefaultExtension", "html")
-	viper.Set("baseurl", "http://example.com/blog")
-	viper.Set("DisableSitemap", false)
-	viper.Set("DisableRSS", false)
-	viper.Set("RSSUri", "index.xml")
-	viper.Set("Taxonomies", map[string]string{"tag": "tags"})
-	viper.Set("Permalinks", map[string]string{"other": "/somewhere/else/:filename"})
 
 	// Add some layouts
 	if err := afero.WriteFile(hugofs.Source(),
@@ -362,9 +361,9 @@ NOTE: slug should be used as URL
 `)},
 		{filepath.FromSlash("sect/doc1.fr.md"), []byte(`---
 title: doc1
-tags:
- - tag1
- - tag2
+plaques:
+ - frtag1
+ - frtag2
 publishdate: "2000-01-04"
 ---
 # doc1
@@ -393,8 +392,8 @@ NOTE: third 'en' doc, should trigger pagination on home page.
 `)},
 		{filepath.FromSlash("sect/doc4.md"), []byte(`---
 title: doc4
-tags:
- - tag1
+plaques:
+ - frtag1
 publishdate: "2000-01-05"
 ---
 # doc4
@@ -446,13 +445,39 @@ draft: true
 `)},
 	}
 
-	// Multilingual settings
-	viper.Set("Multilingual", true)
-	en := NewLanguage("en")
-	viper.Set("DefaultContentLanguage", "fr")
-	viper.Set("paginate", "2")
+	tomlConfig := `
+DefaultExtension = "html"
+baseurl = "http://example.com/blog"
+DisableSitemap = false
+DisableRSS = false
+RSSUri = "index.xml"
 
-	languages := NewLanguages(en, NewLanguage("fr"))
+paginate = 2
+DefaultContentLanguage = "fr"
+
+
+[permalinks]
+  other = "/somewhere/else/:filename"
+
+[Taxonomies]
+tag = "tags"
+
+[Languages]
+[Languages.en]
+weight = 1
+title = "English"
+
+[Languages.fr]
+weight = 2
+title = "Français"
+[Languages.fr.Taxonomies]
+plaque = "plaques"
+`
+
+	writeSource(t, "multilangconfig.toml", tomlConfig)
+	if err := LoadGlobalConfig("", "multilangconfig.toml"); err != nil {
+		t.Fatalf("Failed to load config: %s", err)
+	}
 
 	// Hugo support using ByteSource's directly (for testing),
 	// but to make it more real, we write them to the mem file system.
@@ -466,7 +491,8 @@ draft: true
 	if err != nil {
 		t.Fatalf("Unable to locate file")
 	}
-	sites, err := newHugoSitesFromLanguages(languages)
+
+	sites, err := NewHugoSitesFromConfiguration()
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)

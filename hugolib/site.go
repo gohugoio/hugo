@@ -1325,7 +1325,7 @@ func (s *Site) assembleMenus() {
 func (s *Site) assembleTaxonomies() {
 	s.Taxonomies = make(TaxonomyList)
 
-	taxonomies := viper.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("Taxonomies")
 	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
 	for _, plural := range taxonomies {
@@ -1563,7 +1563,7 @@ func (s *Site) renderTaxonomiesLists() error {
 
 	go errorCollator(results, errs)
 
-	taxonomies := viper.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("Taxonomies")
 	for singular, plural := range taxonomies {
 		for key, pages := range s.Taxonomies[plural] {
 			taxes <- taxRenderInfo{key, pages, singular, plural}
@@ -1693,7 +1693,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 
 // renderListsOfTaxonomyTerms renders a page per taxonomy that lists the terms for that taxonomy
 func (s *Site) renderListsOfTaxonomyTerms() (err error) {
-	taxonomies := viper.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("Taxonomies")
 	for singular, plural := range taxonomies {
 		n := s.newNode()
 		n.Title = strings.Title(plural)
@@ -1969,7 +1969,7 @@ func (s *Site) Stats() {
 	jww.FEEDBACK.Printf("%d pages created\n", len(s.Pages))
 	jww.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
 	jww.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
-	taxonomies := viper.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("Taxonomies")
 
 	for _, pl := range taxonomies {
 		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
