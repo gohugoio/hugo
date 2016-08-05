@@ -51,13 +51,17 @@ var listDraftsCmd = &cobra.Command{
 
 		viper.Set("BuildDrafts", true)
 
-		site := &hugolib.Site{}
+		sites, err := hugolib.NewHugoSitesFromConfiguration()
 
-		if err := site.PreProcess(hugolib.BuildCfg{}); err != nil {
+		if err != nil {
+			return newSystemError("Error creating sites", err)
+		}
+
+		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for _, p := range site.AllPages {
+		for _, p := range sites.Pages() {
 			if p.IsDraft() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
@@ -82,13 +86,17 @@ posted in the future.`,
 
 		viper.Set("BuildFuture", true)
 
-		site := &hugolib.Site{}
+		sites, err := hugolib.NewHugoSitesFromConfiguration()
 
-		if err := site.PreProcess(hugolib.BuildCfg{}); err != nil {
+		if err != nil {
+			return newSystemError("Error creating sites", err)
+		}
+
+		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for _, p := range site.AllPages {
+		for _, p := range sites.Pages() {
 			if p.IsFuture() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
@@ -113,13 +121,17 @@ expired.`,
 
 		viper.Set("BuildExpired", true)
 
-		site := &hugolib.Site{}
+		sites, err := hugolib.NewHugoSitesFromConfiguration()
 
-		if err := site.PreProcess(hugolib.BuildCfg{}); err != nil {
+		if err != nil {
+			return newSystemError("Error creating sites", err)
+		}
+
+		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for _, p := range site.AllPages {
+		for _, p := range sites.Pages() {
 			if p.IsExpired() {
 				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}

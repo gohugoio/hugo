@@ -131,8 +131,8 @@ func TestMultiSitesBuild(t *testing.T) {
 	// Check taxonomies
 	enTags := enSite.Taxonomies["tags"]
 	frTags := frSite.Taxonomies["plaques"]
-	require.Len(t, enTags, 2, fmt.Sprintf("Tags in en: %=v", enTags))
-	require.Len(t, frTags, 2, fmt.Sprintf("Tags in fr: %=v", frTags))
+	require.Len(t, enTags, 2, fmt.Sprintf("Tags in en: %v", enTags))
+	require.Len(t, frTags, 2, fmt.Sprintf("Tags in fr: %v", frTags))
 	require.NotNil(t, enTags["tag1"])
 	require.NotNil(t, frTags["frtag1"])
 	readDestination(t, "public/fr/plaques/frtag1/index.html")
