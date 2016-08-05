@@ -38,6 +38,25 @@ and taxonomy pages will be rendered below `/en` in English, and below `/fr` in F
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
 
+Taxonomies configuration can also be set per language, example:
+
+```
+[Taxonomies]
+tag = "tags"
+
+[Languages]
+[Languages.en]
+weight = 1
+title = "English"
+
+[Languages.fr]
+weight = 2
+title = "Français"
+[Languages.fr.Taxonomies]
+plaque = "plaques"
+```
+
+
 ### Translating your content
 
 Translated articles are identified by the name of the content file.
