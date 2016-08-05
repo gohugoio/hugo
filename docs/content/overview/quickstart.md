@@ -168,8 +168,8 @@ Press Ctrl+C to stop
 
 This will start the server on port `1313`. You can view your blog at http://localhost:1313/. When you will go to the link, you will see nothing. There are couple of reasons for that:
 
-1. As you can see in the `hugo server` command output, Hugo didn't rendered the draft. Hugo will only render drafts if you pass `buildDrafts` flag to the `hugo server` command.
-2. We have not specified how Markdown content should be rendered. We have to specify a theme that Hugo can use. We will do that in next step.
+1. As you can see in the `hugo server` command output, Hugo didn't render the draft. Hugo will only render drafts if you pass the `buildDrafts` flag to the `hugo server` command.
+2. We have not specified how Markdown content should be rendered. We have to specify a theme that Hugo can use. We will do that in the next step.
 
 To render drafts, re-run the server with command shown below.
 
