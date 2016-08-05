@@ -29,18 +29,8 @@ func init() {
 func testCommonResetState() {
 	hugofs.InitMemFs()
 	viper.Reset()
-	viper.Set("ContentDir", "content")
-	viper.Set("DataDir", "data")
-	viper.Set("I18nDir", "i18n")
-	viper.Set("themesDir", "themes")
-	viper.Set("LayoutDir", "layouts")
-	viper.Set("PublishDir", "public")
-	viper.Set("RSSUri", "rss")
-
-	viper.Set("Taxonomies", map[string]interface{}{
-		"tag":      "tags",
-		"category": "categories",
-	})
+	viper.SetFs(hugofs.Source())
+	loadDefaultSettings()
 
 	if err := hugofs.Source().Mkdir("content", 0755); err != nil {
 		panic("Content folder creation failed.")
