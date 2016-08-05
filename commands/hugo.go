@@ -273,83 +273,9 @@ func init() {
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
-func loadDefaultSettings() {
-	viper.SetDefault("cleanDestinationDir", false)
-	viper.SetDefault("Watch", false)
-	viper.SetDefault("MetaDataFormat", "toml")
-	viper.SetDefault("Disable404", false)
-	viper.SetDefault("DisableRSS", false)
-	viper.SetDefault("DisableSitemap", false)
-	viper.SetDefault("DisableRobotsTXT", false)
-	viper.SetDefault("ContentDir", "content")
-	viper.SetDefault("LayoutDir", "layouts")
-	viper.SetDefault("StaticDir", "static")
-	viper.SetDefault("ArchetypeDir", "archetypes")
-	viper.SetDefault("PublishDir", "public")
-	viper.SetDefault("DataDir", "data")
-	viper.SetDefault("I18nDir", "i18n")
-	viper.SetDefault("ThemesDir", "themes")
-	viper.SetDefault("DefaultLayout", "post")
-	viper.SetDefault("BuildDrafts", false)
-	viper.SetDefault("BuildFuture", false)
-	viper.SetDefault("BuildExpired", false)
-	viper.SetDefault("UglyURLs", false)
-	viper.SetDefault("Verbose", false)
-	viper.SetDefault("IgnoreCache", false)
-	viper.SetDefault("CanonifyURLs", false)
-	viper.SetDefault("RelativeURLs", false)
-	viper.SetDefault("RemovePathAccents", false)
-	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
-	viper.SetDefault("Permalinks", make(hugolib.PermalinkOverrides, 0))
-	viper.SetDefault("Sitemap", hugolib.Sitemap{Priority: -1, Filename: "sitemap.xml"})
-	viper.SetDefault("DefaultExtension", "html")
-	viper.SetDefault("PygmentsStyle", "monokai")
-	viper.SetDefault("PygmentsUseClasses", false)
-	viper.SetDefault("PygmentsCodeFences", false)
-	viper.SetDefault("PygmentsOptions", "")
-	viper.SetDefault("DisableLiveReload", false)
-	viper.SetDefault("PluralizeListTitles", true)
-	viper.SetDefault("PreserveTaxonomyNames", false)
-	viper.SetDefault("ForceSyncStatic", false)
-	viper.SetDefault("FootnoteAnchorPrefix", "")
-	viper.SetDefault("FootnoteReturnLinkContents", "")
-	viper.SetDefault("NewContentEditor", "")
-	viper.SetDefault("Paginate", 10)
-	viper.SetDefault("PaginatePath", "page")
-	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
-	viper.SetDefault("RSSUri", "index.xml")
-	viper.SetDefault("SectionPagesMenu", "")
-	viper.SetDefault("DisablePathToLower", false)
-	viper.SetDefault("HasCJKLanguage", false)
-	viper.SetDefault("EnableEmoji", false)
-	viper.SetDefault("PygmentsCodeFencesGuessSyntax", false)
-	viper.SetDefault("UseModTimeAsFallback", false)
-	viper.SetDefault("Multilingual", false)
-	viper.SetDefault("DefaultContentLanguage", "en")
-}
-
 // InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix("hugo")
-	viper.SetConfigFile(cfgFile)
-	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
-	if source == "" {
-		viper.AddConfigPath(".")
-	} else {
-		viper.AddConfigPath(source)
-	}
-	err := viper.ReadInConfig()
-	if err != nil {
-		if _, ok := err.(viper.ConfigParseError); ok {
-			return newSystemError(err)
-		}
-		return newSystemErrorF("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
-	}
-
-	viper.RegisterAlias("indexes", "taxonomies")
-
-	loadDefaultSettings()
+	hugolib.LoadGlobalConfig(source, cfgFile)
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 
