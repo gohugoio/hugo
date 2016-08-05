@@ -1,5 +1,5 @@
 ---
-lastmod: 2016-02-22
+lastmod: 2016-08-19
 date: 2013-07-01
 linktitle: Quickstart
 menu:
@@ -27,7 +27,13 @@ appropriate version for your OS and architecture.
 
 Save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH` as we will be using it in the next step.
 
-More complete instructions are available at [Installing Hugo]({{< relref "overview/installing.md" >}})
+More complete instructions are available
+at [Installing Hugo]({{< relref "overview/installing.md" >}}).
+
+If you're on Windows, this quickstart will assume
+you're using [Git Bash](https://git-for-windows.github.io/)
+(also known as Git for Windows).
+Thus all commands will begin with the Bash prompt character (which is `$`).
 
 Once `hugo` is installed, make sure to run the `help` command to verify `hugo` installation. Below you can see part of the `help` command output for brevity.
 
@@ -85,7 +91,9 @@ As mentioned in the command output, `bookshelf` directory has 5 sub-directories 
 
 * **content**: This is where you will store content of the website. Inside content, you will create sub-directories for different sections. Let's suppose your website has three actions -- `blog`, `article`, and `tutorial` then you will have three different directories for each of them inside the `content` directory. The name of the section i.e. `blog`, `article`, or `tutorial` will be used by Hugo to apply a specific layout applicable to that section.
 
-* **data**: This directory is used to store configuration files that can be used by Hugo when generating your website. You can write these files in YAML, JSON,or TOML format.
+* **data**: This directory is used to store configuration files that can be
+used by Hugo when generating your website.
+You can write these files in YAML, JSON, or TOML format.
 
 * **layouts**: The content inside this directory is used to specify how your content will be converted into the static website.
 
@@ -102,7 +110,9 @@ $ hugo new post/good-to-great.md
 /Users/shekhargulati/bookshelf/content/post/good-to-great.md created
 ```
 
-The above command will create a new directory `post` inside the `content` directory and create `good-to-great.md` file inside it.
+The above command will create a new directory `post`
+inside the `bookshelf/content` directory
+and create `good-to-great.md` file inside it.
 
 ```bash
 $ tree -a content
@@ -115,7 +125,7 @@ content
 1 directory, 1 file
 ```
 
-The content inside the `good-to-great.md` looks like as shown below.
+The content inside the `good-to-great.md` file looks as shown below.
 
 ```
 +++
@@ -126,7 +136,10 @@ title = "good to great"
 +++
 ```
 
-The content inside `+++` is the TOML configuration for the post. This configuration is called **front matter**. It enables you to define post configuration along with its content. By default, each post will have three configuration properties shown above.
+The content inside `+++` is the TOML configuration for the post.
+This configuration is called **front matter**.
+It enables you to define post configuration along with its content.
+By default, each post will have the three configuration properties shown above.
 
 * **date** specifies the date and time at which post was created.
 * **draft** specifies that post is not ready for publication yet so it will not be in the generated site.
@@ -166,7 +179,10 @@ Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
 
-This will start the server on port `1313`. You can view your blog at http://localhost:1313/. When you will go to the link, you will see nothing. There are couple of reasons for that:
+This will start the server on port `1313`.
+You can view your blog at http://localhost:1313/.
+When you go to the link, you will see nothing.
+There are couple of reasons for that:
 
 1. As you can see in the `hugo server` command output, Hugo didn't render the draft. Hugo will only render drafts if you pass the `buildDrafts` flag to the `hugo server` command.
 2. We have not specified how Markdown content should be rendered. We have to specify a theme that Hugo can use. We will do that in the next step.
@@ -190,7 +206,8 @@ Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
 
-If you go to [http://localhost:1313/](http://localhost:1313/), you will still not view anything as we have not specified theme that Hugo should use.
+If you go to [http://localhost:1313/](http://localhost:1313/),
+you still will not see anything as we have not specified a theme that Hugo should use.
 
 ## Step 5. Add theme
 
@@ -198,25 +215,29 @@ Themes provide the layout and templates that will be used by Hugo to render your
 
 > **Hugo currently doesn’t ship with a `default` theme, allowing the user to pick whichever theme best suits their project.**
 
-Themes should be added in the `themes` directory inside the website root. Create new directory themes and change directory to it.
+Themes should be added in the `themes` directory inside the repository root.
+Create new directory `bookshelf/themes` and change directory to it.
 
 ```bash
 $ mkdir themes && cd themes
 ```
-Now, you can clone one or more themes inside the `themes` directory. We will use robust theme.
+Now, you can clone one or more themes inside the `themes` directory.
+We will use the `robust` theme,
+but at a commit (in its history) that works with this quickstart.
 
 ```bash
 $ git clone https://github.com/dim0627/hugo_theme_robust.git
+$ (cd hugo_theme_robust; git checkout b8ce466)
 ```
 
-Leave the themes folder
+Leave the themes folder.
 
 ```bash
 $ cd ..
 ```
 
 
-Start the server again
+Start the server again.
 
 ```bash
 $ hugo server --theme=hugo_theme_robust --buildDrafts
@@ -235,7 +256,8 @@ Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
 
-> ** If Hugo doesn't find a specific theme in the `themes` directory, it will throw an exception as shown below.**
+> *Note: If Hugo doesn't find the specified theme in the `themes` directory,
+it will throw an exception as shown below.*
 ```
 FATAL: 2016/02/14 Unable to find theme Directory: /Users/shekhargulati/bookshelf/themes/robust
 ```
@@ -244,19 +266,31 @@ To view your website, you can go to http://localhost:1313/. You will see as show
 
 ![](/img/quickstart/bookshelf-robust-theme.png)
 
-Let's understand the layout of the theme. A theme consists of following:
+Let's understand the layout of the theme. A theme consists of the following:
 
-* **theme.toml** is the theme configuration file that gives information about the theme like name and description of theme, author details, theme license.
+* **theme.toml** is the theme configuration file that gives information
+about the theme like name and description of theme,
+author details, and theme license.
 
 * **images** directory contains two images -- `screenshot.png` and `tn.png`. `screenshot.png` is the image of the list view and `tn.png` is the single post view.
 
-* **layouts** directory contains different views for different content types. Every content type should have two files `single.html` and `list.html`. `single.html` is used for rendering single piece of content. `list.html` is used to view a list of content items. For example, you will use `list.html` to view  all the posts with `programming` tag.
+* **layouts** directory contains different views for different content types.
+Every content type should have two files `single.html` and `list.html`.
+`single.html` is used for rendering a single piece of content.
+`list.html` is used to view a list of content items.
+For example, you will use `list.html` to view all the posts
+that have the `programming` tag.
 
-* **static** directory stores all the static assets used by the template. Static assets could be JavaScript libraries like jQuery or CSS styles or images or any other static content. This directory will be copied into the final site when rendered.
+* **static** directory stores all the static assets used by the template.
+Static assets could be JavaScript libraries like jQuery or CSS styles or images,
+or any other static content.
+This directory will be copied into the final site when rendered.
 
 ## Step 6. Use multiple themes
 
-You can very easily test different layouts by switching between different themes. Let's suppose we want to try out `bleak` theme. We clone `bleak` theme inside the `themes` directory.
+You can very easily test different layouts by switching between different themes.
+Let's suppose we want to try out the `bleak` theme.
+We clone the `bleak` theme inside the `bookshelf/themes` directory.
 
 ```bash
 $ git clone git@github.com:Zenithar/hugo-theme-bleak.git
@@ -268,19 +302,21 @@ Restart the server using `hugo-theme-bleak` as shown below.
 $ hugo server --theme=hugo-theme-bleak --buildDrafts
 ```
 
-Now, website will use `bleak` theme and will be rendered differently as shown below.
+Now, the website will use the `bleak` theme
+and will be rendered differently as shown below.
 
 ![](/img/quickstart/bookshelf-bleak-theme.png)
 
 ## Step 7. Update config.toml and live reloading in action
 
-Restart the server with `robust` theme as we will use it in this quickstart.
+Restart the server with the `robust` theme, as we will use it in this quickstart.
 
 ```bash
 $ hugo server --theme=hugo_theme_robust --buildDrafts
 ```
 
-The website uses the dummy values specified in the `config.toml`. Let's update the configuration.
+The website uses the dummy values specified in `bookshelf/config.toml`.
+Let's update the configuration.
 
 ```toml
 baseurl = "http://example.org/"
@@ -291,11 +327,15 @@ title = "Shekhar Gulati Book Reviews"
   Author = "Shekhar Gulati"
 ```
 
-Hugo has inbuilt support for live reloading. So, as soon as you save your changes it will apply the change and reload the web page. You will see changes as shown below.
+Hugo has inbuilt support for live reloading.
+So, as soon as you save your changes it will apply the change
+and reload the web page. You will see the changes shown below.
 
 ![](/img/quickstart/bookshelf-updated-config.png)
 
-The same is reflected in the Hugo server logs as well. As soon as the configuration is changed, it applied the changes.
+The same is reflected in the Hugo server logs as well.
+As soon as you changed the configuration file,
+Hugo applied those changes to the affected pages.
 
 ```
 Config file changed: /Users/shekhargulati/bookshelf/config.toml
@@ -310,11 +350,23 @@ in 11 ms
 
 ## Step 8. Customize robust theme
 
-Robust theme is a good start towards our online bookshelf but we to customize it a bit to meet the look and feel required for the bookshelf. Hugo makes it very easy to customize themes. You can also create your themes but we will not do that today. If you want to create your own theme, then you should refer to the [Hugo documentation]({{< relref "themes/creation.md" >}}).
+The `robust` theme is a good start towards our online bookshelf but we want to
+customize it a bit to meet the look and feel required for the bookshelf.
+Hugo makes it very easy to customize themes.
+You can also create your themes but we will not do that today.
+If you want to create your own theme, then you should refer to
+the [Hugo documentation]({{< relref "themes/creation.md" >}}).
 
-The first change that we have to make is to use a different default image instead of the one used in the theme. The default image used in both the list and single view page resides inside the `themes/hugo_theme_robust/static/images/default.jpg`. We can easily replace it by creating a simple directory structure inside the `static` directory inside the `bookshelf` directory.
+The first change that we have to make is to use a different default image
+instead of the one used in the theme.
+The theme's default image used in both the list and single view page resides
+inside `themes/hugo_theme_robust/static/images/default.jpg`.
+We can easily override it by creating a simple directory structure
+inside the repository's `static` directory.
 
-Create an images directory inside the static directory and copy an image with name `default.jpg` inside it. We will use the default image shown below.
+Create an images directory inside the `bookshelf/static` directory
+and copy an image with name `default.jpg` inside it.
+We will use the default image shown below.
 
 ![](/img/quickstart/default.jpg)
 
@@ -351,7 +403,11 @@ Now, the website will be rendered as shown below.
 
 ![](/img/quickstart/bookshelf-only-picture.png)
 
-Next, we want to remove information related to theme from the footer. So, create a new file inside the `partials/default_foot.html` with the content copied from the theme `partials/default_foot.html`. Replace the footer section with the one shown below.
+Next, we want to remove information related to theme from the footer.
+So, create a new directory `partials` inside `bookshelf/layouts`.
+There, create a new file `default_foot.html` with the content copied
+from the theme's `layouts/partials/default_foot.html`.
+Replace the footer section with the one shown below.
 
 ```html
 <footer class="site">
@@ -360,7 +416,10 @@ Next, we want to remove information related to theme from the footer. So, create
 </footer>
 ```
 
-We also have to remove the sidebar on the right. Copy the index.html from the themes layout directory to the bookshelf layouts directory. Remove the section related to sidebar from the html.
+We also have to remove the sidebar on the right.
+Copy the `index.html` from the theme's `layouts` directory to
+the `bookshelf/layouts` directory.
+Remove the section related to the sidebar from the HTML:
 
 ```html
 <div class="col-sm-3">
@@ -382,20 +441,27 @@ image = "good-to-great.jpg"
 I read **Good to Great in January 2016**. An awesome read sharing detailed analysis on how good companies became great. Although this book is about how companies became great but we could apply a lot of the learnings on ourselves. Concepts like level 5 leader, hedgehog concept, the stockdale paradox are equally applicable to individuals.
 ```
 
-After adding few more books to our shelf, the shelf looks like as shown below. These are few books that I have read within last one year.
+Grab a (legal) image from somewhere, name it `good-to-great.jpg`,
+and place it in the `bookshelf/static/images` directory.
+
+
+After adding few more books to our shelf, the shelf appears as shown below.
+These are a few of the books that I have read within the last year.
 
 ![](/img/quickstart/bookshelf.png)
 
 
 ## Step 9. Make posts public
 
-So far all the posts that we have written are in draft status. To make a draft public, you can either run a command or manually change the draft status in the post to True.
+So far all the posts that we have written are in draft status.
+To make a draft public, you can either run a command
+or manually change the draft status in the post to `true`.
 
 ```bash
 $ hugo undraft content/post/good-to-great.md
 ```
 
-Now, you can start the server without `buildDrafts` option.
+Now, you can start the server without the `buildDrafts` option.
 
 ```
 $ hugo server --theme=hugo_theme_robust
@@ -417,10 +483,20 @@ Now, commenting will be enabled in your blog.
 
 ## Step 11. Generate website
 
-To generate Hugo website source that you can use to deploy your website, type the following command.
+To generate Hugo website source you can use
+to deploy your website on GitHub pages,
+first edit `bookshelf/config.toml`, changing the `baseurl` line to:
+
+```
+baseurl = "https://<your GitHub username>.github.io/bookshelf/"
+```
+
+Then type the following command.
 
 ```bash
 $ hugo --theme=hugo_theme_robust
+```
+```
 0 draft content
 0 future content
 5 pages created
@@ -430,42 +506,65 @@ $ hugo --theme=hugo_theme_robust
 in 17 ms
 ```
 
-After you run the `hugo` command, a public directory will be created with the generated website source.
+After you run the `hugo` command, a `bookshelf/public` directory
+will be created containing the generated website source.
 
+BTW (in case you tried),
+the website isn't properly accessible via the `file:///` protocol.
 
-## Step 12. Deploy bookshelf on Github pages
+## Step 12. Deploy bookshelf on GitHub pages
 
-Create a new repository with name `bookshelf` on Github. Once created, create a new Git repo on local system and add remote.
+Let's version control your bookshelf:
 
 ```bash
-$ mkdir bookshelf-public
-$ cd bookshelf-public
+$ git init
+$ echo "/public/" >> .gitignore
+$ echo "/themes/" >> .gitignore
+$ git add --all
+$ git commit -m "Initial commit"
+```
+
+Now the Git repositories under `bookshelf/themes`
+won't conflict with your `bookshelf` repository,
+and neither will a Git repository in `bookshelf/public`.
+
+Create a new repository on GitHub named `bookshelf` (without a README).
+Once that's done, create a new Git repository on your local system
+in `bookshelf/public` and add remote:
+
+```bash
+$ cd public
 $ git init
 $ git remote add origin git@github.com:<github-username>/bookshelf.git
 ```
 
-Copy the content of the `public` directory to the `bookshelf-public` directory. Run this command from with in the `bookshelf-public` directory.
-
-```bash
-$ cp -r ../bookshelf/public/ .
-```
-
-Create new branch `gh-pages` and checkout it.
+There, create and check out a new branch `gh-pages`.
 
 ```bash
 $ git checkout -b gh-pages
 Switched to a new branch 'gh-pages'
 ```
 
-Add all the files to the index, commit them, and push the changes to Github.
+Add all the files (within `bookshelf/public`) to the index,
+commit them, and push the changes to GitHub.
 
 ```bash
 $ git add --all
-$ git commit -am "bookshelf added"
-$ git push origin gh-pages
+$ git commit -m "bookshelf added"
+$ git push -f origin gh-pages
 ```
 
-In couple of minutes, your website will be live `https://<github-username>.github.io/bookshelf/`.
+In couple of minutes, your website will be live
+at `https://<github-username>.github.io/bookshelf/`.
+
+Anytime, you can regenerate your site with:
+
+```bash
+$ (cd ..; hugo --theme=hugo_theme_robust)
+$ git add --all
+$ git commit -m "<some change message>"
+$ git push -f origin gh-pages
+```
 
 ----
 
