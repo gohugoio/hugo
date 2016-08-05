@@ -99,18 +99,20 @@ type Site struct {
 	Language     *Language
 }
 
-// TODO(bep) multilingo
 // Reset returns a new Site prepared for rebuild.
+// TODO(bep) multilingo
 func (s *Site) Reset() *Site {
 	return &Site{Language: s.Language, Multilingual: s.Multilingual}
 }
 
-func NewSite(lang *Language) *Site {
+// newSite creates a new site in the given language.
+func newSite(lang *Language) *Site {
 	return &Site{Language: lang}
 }
 
+// newSite creates a new site in the default language.
 func newSiteDefaultLang() *Site {
-	return NewSite(newDefaultLanguage())
+	return newSite(newDefaultLanguage())
 }
 
 // Convenience func used in tests.
@@ -593,8 +595,9 @@ func (s *Site) ReBuild(events []fsnotify.Event) (bool, error) {
 
 }
 
+// TODO(bep) ml
 func (s *Site) Analyze() error {
-	if err := s.PreProcess(BuildCfg{}); err != nil {
+	if err := s.preProcess(BuildCfg{}); err != nil {
 		return err
 	}
 	return s.ShowPlan(os.Stdout)
@@ -718,7 +721,7 @@ func (s *Site) readDataFromSourceFS() error {
 	return err
 }
 
-func (s *Site) PreProcess(config BuildCfg) (err error) {
+func (s *Site) preProcess(config BuildCfg) (err error) {
 	s.timerStep("Go initialization")
 	if err = s.initialize(); err != nil {
 		return
@@ -740,7 +743,7 @@ func (s *Site) PreProcess(config BuildCfg) (err error) {
 
 }
 
-func (s *Site) PostProcess() (err error) {
+func (s *Site) postProcess() (err error) {
 
 	s.setupPrevNext()
 
@@ -763,7 +766,7 @@ func (s *Site) setupPrevNext() {
 	}
 }
 
-func (s *Site) Render() (err error) {
+func (s *Site) render() (err error) {
 	if err = tpl.SetTranslateLang(s.Language.Lang); err != nil {
 		return
 	}
@@ -831,7 +834,7 @@ func (s *Site) initialize() (err error) {
 	return
 }
 
-// HomeURL is a convenience method giving the absolute URL to the home page.
+// HomeAbsURL is a convenience method giving the absolute URL to the home page.
 func (s *SiteInfo) HomeAbsURL() string {
 	base := "/"
 	if s.Multilingual {
@@ -1950,7 +1953,7 @@ func (s *Site) renderRobotsTXT() error {
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
-	err := s.render("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
+	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
 
 	if err == nil {
 		err = s.writeDestFile("robots.txt", outBuffer)
@@ -2011,7 +2014,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	defer bp.PutBuffer(renderBuffer)
 	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
 
-	err := s.render(name, d, renderBuffer, layouts...)
+	err := s.renderForLayouts(name, d, renderBuffer, layouts...)
 
 	if err != nil {
 		return err
@@ -2041,7 +2044,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	err := s.render(name, d, renderBuffer, layouts...)
+	err := s.renderForLayouts(name, d, renderBuffer, layouts...)
 
 	if err != nil {
 		return err
@@ -2126,7 +2129,7 @@ Your rendered home page is blank: /index.html is zero-length
 	return err
 }
 
-func (s *Site) render(name string, d interface{}, w io.Writer, layouts ...string) error {
+func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
 	layout, found := s.findFirstLayout(layouts...)
 	if found == false {
 		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)

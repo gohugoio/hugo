@@ -37,6 +37,8 @@ type HugoSites struct {
 	Multilingual *Multilingual
 }
 
+// NewHugoSites creates a new collection of sites given the input sites, building
+// a language configuration based on those.
 func NewHugoSites(sites ...*Site) (*HugoSites, error) {
 	languages := make(Languages, len(sites))
 	for i, s := range sites {
@@ -56,11 +58,11 @@ func NewHugoSites(sites ...*Site) (*HugoSites, error) {
 
 // NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
 func NewHugoSitesFromConfiguration() (*HugoSites, error) {
-	sites := make([]*Site, 0)
+	var sites []*Site
 	multilingual := viper.GetStringMap("Languages")
 	if len(multilingual) == 0 {
 		// TODO(bep) multilingo langConfigsList = append(langConfigsList, NewLanguage("en"))
-		sites = append(sites, NewSite(NewLanguage("en")))
+		sites = append(sites, newSite(NewLanguage("en")))
 	}
 
 	if len(multilingual) > 0 {
@@ -73,7 +75,7 @@ func NewHugoSitesFromConfiguration() (*HugoSites, error) {
 		}
 
 		for _, lang := range languages {
-			sites = append(sites, NewSite(lang))
+			sites = append(sites, newSite(lang))
 		}
 
 	}
@@ -98,13 +100,14 @@ func (h HugoSites) toSiteInfos() []*SiteInfo {
 	return infos
 }
 
+// BuildCfg holds build options used to, as an example, skip the render step.
 type BuildCfg struct {
 	// Whether we are in watch (server) mode
 	Watching bool
 	// Print build stats at the end of a build
 	PrintStats bool
 	// Skip rendering. Useful for testing.
-	skipRender bool
+	SkipRender bool
 	// Use this to add templates to use for rendering.
 	// Useful for testing.
 	withTemplate func(templ tpl.Template) error
@@ -131,7 +134,7 @@ func (h HugoSites) Build(config BuildCfg) error {
 		s.RunMode.Watching = config.Watching
 	}
 
-	if err := firstSite.PreProcess(config); err != nil {
+	if err := firstSite.preProcess(config); err != nil {
 		return err
 	}
 
@@ -146,7 +149,7 @@ func (h HugoSites) Build(config BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
-		if err := s.PostProcess(); err != nil {
+		if err := s.postProcess(); err != nil {
 			return err
 		}
 	}
@@ -155,10 +158,10 @@ func (h HugoSites) Build(config BuildCfg) error {
 		return err
 	}
 
-	if !config.skipRender {
+	if !config.SkipRender {
 		for _, s := range h.Sites {
 
-			if err := s.Render(); err != nil {
+			if err := s.render(); err != nil {
 				return err
 			}
 
@@ -201,7 +204,7 @@ func (h HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 
 	if sourceChanged {
 		for _, s := range h.Sites {
-			if err := s.PostProcess(); err != nil {
+			if err := s.postProcess(); err != nil {
 				return err
 			}
 		}
@@ -211,9 +214,9 @@ func (h HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		return err
 	}
 
-	if !config.skipRender {
+	if !config.SkipRender {
 		for _, s := range h.Sites {
-			if err := s.Render(); err != nil {
+			if err := s.render(); err != nil {
 				return err
 			}
 			if config.PrintStats {
@@ -256,7 +259,7 @@ func (h *HugoSites) render() error {
 	return nil
 }
 
-func (s *HugoSites) setupTranslations(master *Site) {
+func (h *HugoSites) setupTranslations(master *Site) {
 
 	for _, p := range master.rawAllPages {
 		if p.Lang() == "" {
@@ -265,7 +268,7 @@ func (s *HugoSites) setupTranslations(master *Site) {
 
 		shouldBuild := p.shouldBuild()
 
-		for i, site := range s.Sites {
+		for i, site := range h.Sites {
 			if strings.HasPrefix(site.Language.Lang, p.Lang()) {
 				site.updateBuildStats(p)
 				if shouldBuild {
@@ -283,14 +286,14 @@ func (s *HugoSites) setupTranslations(master *Site) {
 			}
 		}
 
-		for i := 1; i < len(s.Sites); i++ {
-			s.Sites[i].AllPages = s.Sites[0].AllPages
+		for i := 1; i < len(h.Sites); i++ {
+			h.Sites[i].AllPages = h.Sites[0].AllPages
 		}
 	}
 
-	if len(s.Sites) > 1 {
-		pages := s.Sites[0].AllPages
-		allTranslations := pagesToTranslationsMap(s.Multilingual, pages)
+	if len(h.Sites) > 1 {
+		pages := h.Sites[0].AllPages
+		allTranslations := pagesToTranslationsMap(h.Multilingual, pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
 }
@@ -357,6 +360,11 @@ func (h *HugoSites) preRender() error {
 	return nil
 }
 
+// Pages returns all pages for all sites.
+func (h HugoSites) Pages() Pages {
+	return h.Sites[0].AllPages
+}
+
 func handleShortcodes(p *Page, t tpl.Template) error {
 	if len(p.contentShortCodes) > 0 {
 		jww.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
@@ -417,7 +425,7 @@ func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
 		return nil
 	}
 
-	config := BuildCfg{skipRender: !render, withTemplate: addTemplates}
+	config := BuildCfg{SkipRender: !render, withTemplate: addTemplates}
 	return sites.Build(config)
 }
 
