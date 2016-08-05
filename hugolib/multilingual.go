@@ -6,6 +6,8 @@ import (
 	"sort"
 	"strings"
 
+	"fmt"
+
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
@@ -111,4 +113,40 @@ func (s *Site) currentLanguageString() string {
 
 func (s *Site) currentLanguage() *Language {
 	return s.Language
+}
+
+func toSortedLanguages(l map[string]interface{}) (Languages, error) {
+	langs := make(Languages, len(l))
+	i := 0
+
+	for lang, langConf := range l {
+		langsMap, ok := langConf.(map[string]interface{})
+
+		if !ok {
+			return nil, fmt.Errorf("Language config is not a map: %v", langsMap)
+		}
+
+		language := NewLanguage(lang)
+
+		for k, v := range langsMap {
+			loki := strings.ToLower(k)
+			switch loki {
+			case "title":
+				language.Title = cast.ToString(v)
+			case "weight":
+				language.Weight = cast.ToInt(v)
+			}
+
+			// Put all into the Params map
+			// TODO(bep) reconsile with the type handling etc. from other params handlers.
+			language.SetParam(loki, v)
+		}
+
+		langs[i] = language
+		i++
+	}
+
+	sort.Sort(langs)
+
+	return langs, nil
 }

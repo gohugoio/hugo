@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -53,6 +54,34 @@ func NewHugoSites(sites ...*Site) (*HugoSites, error) {
 	return &HugoSites{Multilingual: langConfig, Sites: sites}, nil
 }
 
+// NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
+func NewHugoSitesFromConfiguration() (*HugoSites, error) {
+	sites := make([]*Site, 0)
+	multilingual := viper.GetStringMap("Languages")
+	if len(multilingual) == 0 {
+		// TODO(bep) multilingo langConfigsList = append(langConfigsList, NewLanguage("en"))
+		sites = append(sites, NewSite(NewLanguage("en")))
+	}
+
+	if len(multilingual) > 0 {
+		var err error
+
+		languages, err := toSortedLanguages(multilingual)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse multilingual config: %s", err)
+		}
+
+		for _, lang := range languages {
+			sites = append(sites, NewSite(lang))
+		}
+
+	}
+
+	return NewHugoSites(sites...)
+
+}
+
 // Reset resets the sites, making it ready for a full rebuild.
 // TODO(bep) multilingo
 func (h HugoSites) Reset() {
@@ -61,7 +90,7 @@ func (h HugoSites) Reset() {
 	}
 }
 
-func (h HugoSites) siteInfos() []*SiteInfo {
+func (h HugoSites) toSiteInfos() []*SiteInfo {
 	infos := make([]*SiteInfo, len(h.Sites))
 	for i, s := range h.Sites {
 		infos[i] = &s.Info
@@ -220,7 +249,7 @@ func (h *HugoSites) render() error {
 	smLayouts := []string{"sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml"}
 
 	if err := s.renderAndWriteXML("sitemapindex", sitemapDefault.Filename,
-		h.siteInfos(), s.appendThemeTemplates(smLayouts)...); err != nil {
+		h.toSiteInfos(), s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
 	}
 

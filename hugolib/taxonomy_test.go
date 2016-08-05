@@ -30,7 +30,7 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 
 	viper.Set("taxonomies", taxonomies)
 
-	site := new(Site)
+	site := newSiteDefaultLang()
 	page, _ := NewPageFrom(strings.NewReader(pageYamlWithTaxonomiesA), "path/to/page")
 	site.Pages = append(site.Pages, page)
 	site.assembleTaxonomies()
