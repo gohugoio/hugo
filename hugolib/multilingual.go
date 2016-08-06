@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cast"
@@ -61,6 +62,26 @@ func (ml *Multilingual) Language(lang string) *Language {
 		}
 	})
 	return ml.langMap[lang]
+}
+
+func newMultiLingualFromSites(sites ...*Site) (*Multilingual, error) {
+	languages := make(Languages, len(sites))
+
+	for i, s := range sites {
+		if s.Language == nil {
+			return nil, errors.New("Missing language for site")
+		}
+		languages[i] = s.Language
+	}
+
+	defaultLang := viper.GetString("DefaultContentLanguage")
+
+	if defaultLang == "" {
+		defaultLang = "en"
+	}
+
+	return &Multilingual{Languages: languages, DefaultLang: NewLanguage(defaultLang)}, nil
+
 }
 
 func (ml *Multilingual) enabled() bool {

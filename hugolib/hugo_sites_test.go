@@ -39,7 +39,7 @@ func testCommonResetState() {
 
 func TestMultiSitesBuild(t *testing.T) {
 	testCommonResetState()
-	sites := createMultiTestSites(t)
+	sites := createMultiTestSites(t, multiSiteTomlConfig)
 
 	err := sites.Build(BuildCfg{})
 
@@ -141,7 +141,7 @@ func TestMultiSitesBuild(t *testing.T) {
 
 func TestMultiSitesRebuild(t *testing.T) {
 	testCommonResetState()
-	sites := createMultiTestSites(t)
+	sites := createMultiTestSites(t, multiSiteTomlConfig)
 	cfg := BuildCfg{}
 
 	err := sites.Build(cfg)
@@ -299,10 +299,95 @@ func TestMultiSitesRebuild(t *testing.T) {
 
 		this.assertFunc(t)
 	}
+}
+
+func TestAddNewLanguage(t *testing.T) {
+	testCommonResetState()
+
+	sites := createMultiTestSites(t, multiSiteTomlConfig)
+	cfg := BuildCfg{}
+
+	err := sites.Build(cfg)
+
+	if err != nil {
+		t.Fatalf("Failed to build sites: %s", err)
+	}
+
+	newConfig := multiSiteTomlConfig + `
+
+[Languages.no]
+weight = 15
+title = "Norsk"
+`
+
+	writeNewContentFile(t, "Norwegian Contentfile", "2016-01-01", "content/sect/doc1.no.md", 10)
+	// replace the config
+	writeSource(t, "multilangconfig.toml", newConfig)
+
+	// Watching does not work with in-memory fs, so we trigger a reload manually
+	require.NoError(t, viper.ReadInConfig())
+
+	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
+
+	if err != nil {
+		t.Fatalf("Failed to rebuild sites: %s", err)
+	}
+
+	require.Len(t, sites.Sites, 3, fmt.Sprintf("Len %d", len(sites.Sites)))
+
+	// The Norwegian site should be put in the middle (language weight=15)
+	enSite := sites.Sites[0]
+	noSite := sites.Sites[1]
+	frSite := sites.Sites[2]
+	require.True(t, enSite.Language.Lang == "en", enSite.Language.Lang)
+	require.True(t, noSite.Language.Lang == "no", noSite.Language.Lang)
+	require.True(t, frSite.Language.Lang == "fr", frSite.Language.Lang)
+
+	require.Len(t, enSite.Pages, 3)
+	require.Len(t, frSite.Pages, 3)
+
+	// Veriy Norwegian site
+	require.Len(t, noSite.Pages, 1)
+	noPage := noSite.Pages[0]
+	require.Equal(t, "Norwegian Contentfile", noPage.Title)
+	require.Equal(t, "no", noPage.Lang())
+	require.Len(t, noPage.Translations(), 2)
+	require.Len(t, noPage.AllTranslations(), 3)
+	require.Equal(t, "en", noPage.Translations()[0].Lang())
+	//noFile := readDestination(t, "/public/no/doc1/index.html")
+	//require.True(t, strings.Contains("foo", noFile), noFile)
 
 }
 
-func createMultiTestSites(t *testing.T) *HugoSites {
+var multiSiteTomlConfig = `
+DefaultExtension = "html"
+baseurl = "http://example.com/blog"
+DisableSitemap = false
+DisableRSS = false
+RSSUri = "index.xml"
+
+paginate = 2
+DefaultContentLanguage = "fr"
+
+[permalinks]
+  other = "/somewhere/else/:filename"
+
+[Taxonomies]
+tag = "tags"
+
+[Languages]
+[Languages.en]
+weight = 10
+title = "English"
+
+[Languages.fr]
+weight = 20
+title = "Français"
+[Languages.fr.Taxonomies]
+plaque = "plaques"
+`
+
+func createMultiTestSites(t *testing.T, tomlConfig string) *HugoSites {
 
 	// Add some layouts
 	if err := afero.WriteFile(hugofs.Source(),
@@ -444,35 +529,6 @@ draft: true
 # Draft
 `)},
 	}
-
-	tomlConfig := `
-DefaultExtension = "html"
-baseurl = "http://example.com/blog"
-DisableSitemap = false
-DisableRSS = false
-RSSUri = "index.xml"
-
-paginate = 2
-DefaultContentLanguage = "fr"
-
-
-[permalinks]
-  other = "/somewhere/else/:filename"
-
-[Taxonomies]
-tag = "tags"
-
-[Languages]
-[Languages.en]
-weight = 1
-title = "English"
-
-[Languages.fr]
-weight = 2
-title = "Français"
-[Languages.fr.Taxonomies]
-plaque = "plaques"
-`
 
 	writeSource(t, "multilangconfig.toml", tomlConfig)
 	if err := LoadGlobalConfig("", "multilangconfig.toml"); err != nil {

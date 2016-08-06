@@ -195,6 +195,9 @@ func (n *Node) Language() *Language {
 }
 
 func (n *Node) Lang() string {
+	// When set, Language can be different from lang in the case where there is a
+	// content file (doc.sv.md) with language indicator, but there is no language
+	// config for that language. Then the language will fall back on the site default.
 	if n.Language() != nil {
 		return n.Language().Lang
 	}
