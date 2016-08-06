@@ -40,24 +40,25 @@ type HugoSites struct {
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
 func NewHugoSites(sites ...*Site) (*HugoSites, error) {
-	languages := make(Languages, len(sites))
-	for i, s := range sites {
-		if s.Language == nil {
-			return nil, errors.New("Missing language for site")
-		}
-		languages[i] = s.Language
+	langConfig, err := newMultiLingualFromSites(sites...)
+
+	if err != nil {
+		return nil, err
 	}
-	defaultLang := viper.GetString("DefaultContentLanguage")
-	if defaultLang == "" {
-		defaultLang = "en"
-	}
-	langConfig := &Multilingual{Languages: languages, DefaultLang: NewLanguage(defaultLang)}
 
 	return &HugoSites{Multilingual: langConfig, Sites: sites}, nil
 }
 
 // NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
 func NewHugoSitesFromConfiguration() (*HugoSites, error) {
+	sites, err := createSitesFromConfig()
+	if err != nil {
+		return nil, err
+	}
+	return NewHugoSites(sites...)
+}
+
+func createSitesFromConfig() ([]*Site, error) {
 	var sites []*Site
 	multilingual := viper.GetStringMap("Languages")
 	if len(multilingual) == 0 {
@@ -80,19 +81,43 @@ func NewHugoSitesFromConfiguration() (*HugoSites, error) {
 
 	}
 
-	return NewHugoSites(sites...)
-
+	return sites, nil
 }
 
 // Reset resets the sites, making it ready for a full rebuild.
 // TODO(bep) multilingo
-func (h HugoSites) Reset() {
+func (h *HugoSites) reset() {
 	for i, s := range h.Sites {
 		h.Sites[i] = s.Reset()
 	}
 }
 
-func (h HugoSites) toSiteInfos() []*SiteInfo {
+func (h *HugoSites) reCreateFromConfig() error {
+	oldSite := h.Sites[0]
+	sites, err := createSitesFromConfig()
+
+	if err != nil {
+		return err
+	}
+
+	langConfig, err := newMultiLingualFromSites(sites...)
+
+	if err != nil {
+		return err
+	}
+
+	h.Sites = sites
+	h.Multilingual = langConfig
+
+	for _, s := range h.Sites {
+		// TODO(bep) ml Tmpl
+		s.Tmpl = oldSite.Tmpl
+	}
+
+	return nil
+}
+
+func (h *HugoSites) toSiteInfos() []*SiteInfo {
 	infos := make([]*SiteInfo, len(h.Sites))
 	for i, s := range h.Sites {
 		infos[i] = &s.Info
@@ -106,6 +131,11 @@ type BuildCfg struct {
 	Watching bool
 	// Print build stats at the end of a build
 	PrintStats bool
+	// Reset site state before build. Use to force full rebuilds.
+	ResetState bool
+	// Re-creates the sites from configuration before a build.
+	// This is needed if new languages are added.
+	CreateSitesFromConfig bool
 	// Skip rendering. Useful for testing.
 	SkipRender bool
 	// Use this to add templates to use for rendering.
@@ -114,13 +144,19 @@ type BuildCfg struct {
 }
 
 // Build builds all sites.
-func (h HugoSites) Build(config BuildCfg) error {
-
-	if h.Sites == nil || len(h.Sites) == 0 {
-		return errors.New("No site(s) to build")
-	}
+func (h *HugoSites) Build(config BuildCfg) error {
 
 	t0 := time.Now()
+
+	if config.ResetState {
+		h.reset()
+	}
+
+	if config.CreateSitesFromConfig {
+		if err := h.reCreateFromConfig(); err != nil {
+			return err
+		}
+	}
 
 	// We should probably refactor the Site and pull up most of the logic from there to here,
 	// but that seems like a daunting task.
@@ -143,6 +179,7 @@ func (h HugoSites) Build(config BuildCfg) error {
 	if len(h.Sites) > 1 {
 		// Initialize the rest
 		for _, site := range h.Sites[1:] {
+			// TODO(bep) ml Tmpl
 			site.Tmpl = firstSite.Tmpl
 			site.initializeSiteInfo()
 		}
@@ -184,8 +221,22 @@ func (h HugoSites) Build(config BuildCfg) error {
 }
 
 // Rebuild rebuilds all sites.
-func (h HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
+func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	t0 := time.Now()
+
+	if config.CreateSitesFromConfig {
+		return errors.New("Rebuild does not support 'CreateSitesFromConfig'. Use Build.")
+	}
+
+	if config.ResetState {
+		return errors.New("Rebuild does not support 'ResetState'. Use Build.")
+	}
+
+	for _, s := range h.Sites {
+		// TODO(bep) ml
+		s.Multilingual = h.Multilingual
+		s.RunMode.Watching = config.Watching
+	}
 
 	firstSite := h.Sites[0]
 

@@ -419,14 +419,6 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 			helpers.HugoReleaseVersion(), minVersion)
 	}
 
-	h, err := hugolib.NewHugoSitesFromConfiguration()
-
-	if err != nil {
-		return err
-	}
-	//TODO(bep) ml refactor ...
-	Hugo = h
-
 	return nil
 
 }
@@ -444,8 +436,7 @@ func watchConfig() {
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		Hugo.Reset()
-		utils.CheckErr(buildSites(true))
+		utils.CheckErr(reCreateAndbuildSites(true))
 		if !viper.GetBool("DisableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
@@ -638,13 +629,39 @@ func getDirList() []string {
 	return a
 }
 
-func buildSites(watching ...bool) (err error) {
+func reCreateAndbuildSites(watching bool) (err error) {
 	fmt.Println("Started building sites ...")
-	w := len(watching) > 0 && watching[0]
-	return Hugo.Build(hugolib.BuildCfg{Watching: w, PrintStats: true})
+	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: true})
+}
+
+func resetAndbuildSites(watching bool) (err error) {
+	fmt.Println("Started building sites ...")
+	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: true})
+}
+
+func initSites() error {
+	if Hugo != nil {
+		return nil
+	}
+
+	h, err := hugolib.NewHugoSitesFromConfiguration()
+
+	if err != nil {
+		return err
+	}
+	Hugo = h
+
+	return nil
+}
+
+func buildSites(watching bool) (err error) {
+	initSites()
+	fmt.Println("Started building sites ...")
+	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: true})
 }
 
 func rebuildSites(events []fsnotify.Event) error {
+	initSites()
 	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: true}, events...)
 }
 
