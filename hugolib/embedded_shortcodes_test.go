@@ -19,11 +19,13 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -37,6 +39,9 @@ func TestShortcodeCrossrefs(t *testing.T) {
 }
 
 func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
+	testCommonResetState()
+	viper.Set("baseURL", baseURL)
+
 	var refShortcode string
 	var expectedBase string
 
@@ -50,21 +55,20 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	path := filepath.FromSlash("blog/post.md")
 	in := fmt.Sprintf(`{{< %s "%s" >}}`, refShortcode, path)
+
+	writeSource(t, "content/"+path, simplePageWithURL+": "+in)
+
 	expected := fmt.Sprintf(`%s/simple/url/`, expectedBase)
 
-	templ := tpl.New()
-	p, _ := pageFromString(simplePageWithURL, path)
-	p.Node.Site = newSiteInfoDefaultLanguage(
-		helpers.SanitizeURLKeepTrailingSlash(baseURL),
-		p)
+	sites, err := newHugoSitesDefaultLanguage()
+	require.NoError(t, err)
 
-	output, err := HandleShortcodes(in, p, templ)
+	require.NoError(t, sites.Build(BuildCfg{}))
+	require.Len(t, sites.Sites[0].Pages, 1)
 
-	if err != nil {
-		t.Fatal("Handle shortcode error", err)
-	}
+	output := string(sites.Sites[0].Pages[0].Content)
 
-	if output != expected {
+	if !strings.Contains(output, expected) {
 		t.Errorf("Got\n%q\nExpected\n%q", output, expected)
 	}
 }
