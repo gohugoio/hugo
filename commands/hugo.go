@@ -662,7 +662,7 @@ func buildSites(watching bool) (err error) {
 
 func rebuildSites(events []fsnotify.Event) error {
 	initSites()
-	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: true}, events...)
+	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: true, Watching: true}, events...)
 }
 
 // NewWatcher creates a new watcher to watch filesystem events.
