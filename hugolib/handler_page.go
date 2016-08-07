@@ -104,15 +104,10 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
 	// process a page in isolation. See the new preRender func.
-	// TODO(bep) ml not so raw anymore, but do we need to keep it raw?
 	if viper.GetBool("EnableEmoji") {
 		p.rawContent = helpers.Emojify(p.rawContent)
 	}
 
-	// TODO(bep) ml we let the summary divider survive the rendering. Must check if
-	// it actually survives, replace it with something more robus, or maybe
-	// rethink this fragile concept.
-	//p.rawContent = p.renderContent(helpers.RemoveSummaryDivider(p.rawContent))
 	// We have to replace the <!--more--> with something that survives all the
 	// rendering engines.
 	// TODO(bep) inline replace

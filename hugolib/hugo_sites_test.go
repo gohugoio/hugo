@@ -73,9 +73,7 @@ func TestMultiSitesBuild(t *testing.T) {
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
 
-	// TODO(bep) multilingo. Check this case. This has url set in frontmatter, but we must split into lang folders
-	// The assertion below was missing the /en prefix.
-	assert.Equal(t, "/en/superbob", doc3.URL(), "invalid url, was specified on doc3 TODO(bep)")
+	assert.Equal(t, "/en/superbob", doc3.URL(), "invalid url, was specified on doc3")
 
 	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 

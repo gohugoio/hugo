@@ -186,7 +186,6 @@ func getLanguagePrefix() string {
 }
 
 // IsAbsURL determines whether the given path points to an absolute URL.
-// TODO(bep) ml tests
 func IsAbsURL(path string) bool {
 	url, err := url.Parse(path)
 	if err != nil {

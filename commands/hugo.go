@@ -630,11 +630,17 @@ func getDirList() []string {
 }
 
 func reCreateAndbuildSites(watching bool) (err error) {
+	if err := initSites(); err != nil {
+		return err
+	}
 	fmt.Println("Started building sites ...")
 	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: true})
 }
 
 func resetAndbuildSites(watching bool) (err error) {
+	if err := initSites(); err != nil {
+		return err
+	}
 	fmt.Println("Started building sites ...")
 	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: true})
 }
@@ -655,13 +661,17 @@ func initSites() error {
 }
 
 func buildSites(watching bool) (err error) {
-	initSites()
+	if err := initSites(); err != nil {
+		return err
+	}
 	fmt.Println("Started building sites ...")
 	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: true})
 }
 
 func rebuildSites(events []fsnotify.Event) error {
-	initSites()
+	if err := initSites(); err != nil {
+		return err
+	}
 	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: true, Watching: true}, events...)
 }
 

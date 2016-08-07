@@ -49,7 +49,7 @@ type Node struct {
 
 	language     *helpers.Language
 	languageInit sync.Once
-	lang         string // TODO(bep) multilingo
+	lang         string
 
 	translations     Nodes
 	translationsInit sync.Once
@@ -168,7 +168,6 @@ func (n *Node) RelRef(ref string) (string, error) {
 	return n.Site.RelRef(ref, nil)
 }
 
-// TODO(bep) multilingo some of these are now hidden. Consider unexport.
 type URLPath struct {
 	URL       string
 	Permalink string
@@ -192,7 +191,6 @@ func (n *Node) Scratch() *Scratch {
 	return n.scratch
 }
 
-// TODO(bep) multilingo consolidate. See Page.
 func (n *Node) Language() *helpers.Language {
 	n.initLanguage()
 	return n.language
@@ -223,8 +221,7 @@ func (n *Node) initLanguage() {
 		language := ml.Language(pageLang)
 
 		if language == nil {
-			// TODO(bep) ml
-			// This may or may not be serious. It can be a file named stefano.chiodino.md.
+			// It can be a file named stefano.chiodino.md.
 			jww.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
 			language = ml.DefaultLang
 		}

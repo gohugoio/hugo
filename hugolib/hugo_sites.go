@@ -62,8 +62,7 @@ func createSitesFromConfig() ([]*Site, error) {
 	var sites []*Site
 	multilingual := viper.GetStringMap("Languages")
 	if len(multilingual) == 0 {
-		// TODO(bep) multilingo langConfigsList = append(langConfigsList, NewLanguage("en"))
-		sites = append(sites, newSite(helpers.NewLanguage("en")))
+		sites = append(sites, newSite(helpers.NewDefaultLanguage()))
 	}
 
 	if len(multilingual) > 0 {
@@ -85,10 +84,9 @@ func createSitesFromConfig() ([]*Site, error) {
 }
 
 // Reset resets the sites, making it ready for a full rebuild.
-// TODO(bep) multilingo
 func (h *HugoSites) reset() {
 	for i, s := range h.Sites {
-		h.Sites[i] = s.Reset()
+		h.Sites[i] = s.reset()
 	}
 }
 

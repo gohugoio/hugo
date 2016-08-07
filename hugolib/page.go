@@ -327,25 +327,6 @@ func (p *Page) setAutoSummary() error {
 	return nil
 }
 
-// TODO(bep) ml not used???
-func (p *Page) _renderBytes(content []byte) []byte {
-	var fn helpers.LinkResolverFunc
-	var fileFn helpers.FileResolverFunc
-	if p.getRenderingConfig().SourceRelativeLinksEval {
-		fn = func(ref string) (string, error) {
-			return p.Node.Site.SourceRelativeLink(ref, p)
-		}
-		fileFn = func(ref string) (string, error) {
-			return p.Node.Site.SourceRelativeLinkFile(ref, p)
-		}
-	}
-	return helpers.RenderBytes(
-		&helpers.RenderingContext{
-			Content: content, PageFmt: p.determineMarkupType(),
-			ConfigProvider: p.Language(),
-			DocumentID:     p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
-}
-
 func (p *Page) renderContent(content []byte) []byte {
 	var fn helpers.LinkResolverFunc
 	var fileFn helpers.FileResolverFunc

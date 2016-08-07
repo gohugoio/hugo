@@ -396,24 +396,6 @@ func WordCount(s string) map[string]int {
 	return m
 }
 
-// RemoveSummaryDivider removes summary-divider <!--more--> from content.
-// TODO(bep) ml remove
-func RemoveSummaryDivider(content []byte) []byte {
-	b := bytes.Replace(content, summaryDividerAndNewLines, []byte(""), 1)
-	if len(b) != len(content) {
-		return b
-	}
-	return bytes.Replace(content, SummaryDivider, []byte(""), 1)
-}
-
-func removeInternalSummaryDivider(content []byte) []byte {
-	b := bytes.Replace(content, summaryDividerAndNewLines, []byte(""), 1)
-	if len(b) != len(content) {
-		return b
-	}
-	return bytes.Replace(content, SummaryDivider, []byte(""), 1)
-}
-
 // TruncateWordsByRune truncates words by runes.
 func TruncateWordsByRune(words []string, max int) (string, bool) {
 	count := 0
