@@ -1214,9 +1214,11 @@ func markdownify(in interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", err
 	}
-	// TODO(bep) ml language
+
+	language := viper.Get("CurrentContentLanguage").(*helpers.Language)
+
 	m := helpers.RenderBytes(&helpers.RenderingContext{
-		ConfigProvider: viper.GetViper(),
+		ConfigProvider: language,
 		Content:        []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
@@ -1831,7 +1833,7 @@ func absURL(a interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", nil
 	}
-	return template.HTML(helpers.AbsURL(s)), nil
+	return template.HTML(helpers.AbsURL(s, false)), nil
 }
 
 func relURL(a interface{}) (template.HTML, error) {
@@ -1839,12 +1841,13 @@ func relURL(a interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", nil
 	}
-	return template.HTML(helpers.RelURL(s)), nil
+	return template.HTML(helpers.RelURL(s, false)), nil
 }
 
 func init() {
 	funcMap = template.FuncMap{
 		"absURL":       absURL,
+		"absLangURL":   func(a string) template.HTML { return template.HTML(helpers.AbsURL(a, true)) },
 		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
 		"apply":        apply,
@@ -1898,6 +1901,7 @@ func init() {
 		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
 		"relURL":       relURL,
+		"relLangURL":   func(a string) template.HTML { return template.HTML(helpers.RelURL(a, true)) },
 		"relref":       relRef,
 		"replace":      replace,
 		"replaceRE":    replaceRE,

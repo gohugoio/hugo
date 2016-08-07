@@ -39,7 +39,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: newDefaultLanguage(),
+		Language: helpers.NewDefaultLanguage(),
 	}
 
 	if err := buildAndRenderSite(s, "robots.txt", robotTxtTemplate); err != nil {

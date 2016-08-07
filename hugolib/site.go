@@ -96,7 +96,7 @@ type Site struct {
 	futureCount  int
 	expiredCount int
 	Data         map[string]interface{}
-	Language     *Language
+	Language     *helpers.Language
 }
 
 // Reset returns a new Site prepared for rebuild.
@@ -106,13 +106,13 @@ func (s *Site) Reset() *Site {
 }
 
 // newSite creates a new site in the given language.
-func newSite(lang *Language) *Site {
+func newSite(lang *helpers.Language) *Site {
 	return &Site{Language: lang, Info: SiteInfo{multilingual: newMultiLingualForLanguage(lang)}}
 }
 
 // newSite creates a new site in the default language.
 func newSiteDefaultLang() *Site {
-	return newSite(newDefaultLanguage())
+	return newSite(helpers.NewDefaultLanguage())
 }
 
 // Convenience func used in tests.
@@ -131,7 +131,7 @@ func newSiteFromSources(pathContentPairs ...string) *Site {
 
 	return &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},
-		Language: newDefaultLanguage(),
+		Language: helpers.NewDefaultLanguage(),
 	}
 }
 
@@ -173,9 +173,9 @@ type SiteInfo struct {
 	Data                  *map[string]interface{}
 
 	multilingual   *Multilingual
-	Language       *Language
+	Language       *helpers.Language
 	LanguagePrefix string
-	Languages      Languages
+	Languages      helpers.Languages
 }
 
 // Used in tests.
@@ -782,6 +782,9 @@ func (s *Site) setupPrevNext() {
 }
 
 func (s *Site) render() (err error) {
+	// There are sadly some global template funcs etc. that needs the language information.
+	viper.Set("Multilingual", s.multilingualEnabled())
+	viper.Set("CurrentContentLanguage", s.Language)
 	if err = tpl.SetTranslateLang(s.Language.Lang); err != nil {
 		return
 	}
@@ -851,11 +854,11 @@ func (s *Site) initialize() (err error) {
 
 // HomeAbsURL is a convenience method giving the absolute URL to the home page.
 func (s *SiteInfo) HomeAbsURL() string {
-	base := "/"
+	base := ""
 	if s.IsMultiLingual() {
 		base = s.Language.Lang
 	}
-	return helpers.AbsURL(base)
+	return helpers.AbsURL(base, false)
 }
 
 // SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
@@ -867,8 +870,8 @@ func (s *SiteInfo) SitemapAbsURL() string {
 func (s *Site) initializeSiteInfo() {
 
 	var (
-		lang      *Language = s.Language
-		languages Languages
+		lang      *helpers.Language = s.Language
+		languages helpers.Languages
 	)
 
 	if s.Multilingual != nil {
@@ -1435,7 +1438,7 @@ func (s *Site) renderAliases() error {
 
 	if s.Multilingual.enabled() {
 		mainLang := s.Multilingual.DefaultLang.Lang
-		mainLangURL := helpers.AbsURL(mainLang)
+		mainLangURL := helpers.AbsURL(mainLang, false)
 		jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 		if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL); err != nil {
 			return err

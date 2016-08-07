@@ -14,11 +14,13 @@
 package helpers
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestURLize(t *testing.T) {
@@ -43,62 +45,114 @@ func TestURLize(t *testing.T) {
 }
 
 func TestAbsURL(t *testing.T) {
-	defer viper.Reset()
+	for _, addLanguage := range []bool{true, false} {
+		for _, m := range []bool{true, false} {
+			for _, l := range []string{"en", "fr"} {
+				doTestAbsURL(t, addLanguage, m, l)
+			}
+		}
+	}
+}
+
+func doTestAbsURL(t *testing.T, addLanguage, multilingual bool, lang string) {
+	viper.Reset()
+	viper.Set("Multilingual", multilingual)
+	viper.Set("CurrentContentLanguage", NewLanguage(lang))
 	tests := []struct {
 		input    string
 		baseURL  string
 		expected string
 	}{
-		{"/test/foo", "http://base/", "http://base/test/foo"},
-		{"", "http://base/ace/", "http://base/ace/"},
-		{"/test/2/foo/", "http://base", "http://base/test/2/foo/"},
+		{"/test/foo", "http://base/", "http://base/MULTItest/foo"},
+		{"", "http://base/ace/", "http://base/ace/MULTI"},
+		{"/test/2/foo/", "http://base", "http://base/MULTItest/2/foo/"},
 		{"http://abs", "http://base/", "http://abs"},
 		{"schema://abs", "http://base/", "schema://abs"},
 		{"//schemaless", "http://base/", "//schemaless"},
-		{"test/2/foo/", "http://base/path", "http://base/path/test/2/foo/"},
-		{"/test/2/foo/", "http://base/path", "http://base/test/2/foo/"},
-		{"http//foo", "http://base/path", "http://base/path/http/foo"},
+		{"test/2/foo/", "http://base/path", "http://base/path/MULTItest/2/foo/"},
+		{"/test/2/foo/", "http://base/path", "http://base/MULTItest/2/foo/"},
+		{"http//foo", "http://base/path", "http://base/path/MULTIhttp/foo"},
 	}
 
 	for _, test := range tests {
-		viper.Reset()
 		viper.Set("BaseURL", test.baseURL)
-		output := AbsURL(test.input)
-		if output != test.expected {
-			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		output := AbsURL(test.input, addLanguage)
+		expected := test.expected
+		if multilingual && addLanguage {
+			expected = strings.Replace(expected, "MULTI", lang+"/", 1)
+		} else {
+			expected = strings.Replace(expected, "MULTI", "", 1)
+		}
+		if output != expected {
+			t.Errorf("Expected %#v, got %#v\n", expected, output)
 		}
 	}
 }
 
+func TestIsAbsURL(t *testing.T) {
+	for i, this := range []struct {
+		a string
+		b bool
+	}{
+		{"http://gohugo.io", true},
+		{"https://gohugo.io", true},
+		{"//gohugo.io", true},
+		{"http//gohugo.io", false},
+		{"/content", false},
+		{"content", false},
+	} {
+		require.True(t, IsAbsURL(this.a) == this.b, fmt.Sprintf("Test %d", i))
+	}
+}
+
 func TestRelURL(t *testing.T) {
-	defer viper.Reset()
-	//defer viper.Set("canonifyURLs", viper.GetBool("canonifyURLs"))
+	for _, addLanguage := range []bool{true, false} {
+		for _, m := range []bool{true, false} {
+			for _, l := range []string{"en", "fr"} {
+				doTestRelURL(t, addLanguage, m, l)
+			}
+		}
+	}
+}
+
+func doTestRelURL(t *testing.T, addLanguage, multilingual bool, lang string) {
+	viper.Reset()
+	viper.Set("Multilingual", multilingual)
+	viper.Set("CurrentContentLanguage", NewLanguage(lang))
+
 	tests := []struct {
 		input    string
 		baseURL  string
 		canonify bool
 		expected string
 	}{
-		{"/test/foo", "http://base/", false, "/test/foo"},
-		{"test.css", "http://base/sub", false, "/sub/test.css"},
-		{"test.css", "http://base/sub", true, "/test.css"},
-		{"/test/", "http://base/", false, "/test/"},
-		{"/test/", "http://base/sub/", false, "/sub/test/"},
-		{"/test/", "http://base/sub/", true, "/test/"},
-		{"", "http://base/ace/", false, "/ace/"},
-		{"", "http://base/ace", false, "/ace"},
+		{"/test/foo", "http://base/", false, "MULTI/test/foo"},
+		{"test.css", "http://base/sub", false, "/subMULTI/test.css"},
+		{"test.css", "http://base/sub", true, "MULTI/test.css"},
+		{"/test/", "http://base/", false, "MULTI/test/"},
+		{"/test/", "http://base/sub/", false, "/subMULTI/test/"},
+		{"/test/", "http://base/sub/", true, "MULTI/test/"},
+		{"", "http://base/ace/", false, "/aceMULTI/"},
+		{"", "http://base/ace", false, "/aceMULTI"},
 		{"http://abs", "http://base/", false, "http://abs"},
 		{"//schemaless", "http://base/", false, "//schemaless"},
 	}
 
 	for i, test := range tests {
-		viper.Reset()
 		viper.Set("BaseURL", test.baseURL)
 		viper.Set("canonifyURLs", test.canonify)
 
-		output := RelURL(test.input)
-		if output != test.expected {
-			t.Errorf("[%d][%t] Expected %#v, got %#v\n", i, test.canonify, test.expected, output)
+		output := RelURL(test.input, addLanguage)
+
+		expected := test.expected
+		if multilingual && addLanguage {
+			expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
+		} else {
+			expected = strings.Replace(expected, "MULTI", "", 1)
+		}
+
+		if output != expected {
+			t.Errorf("[%d][%t] Expected %#v, got %#v\n", i, test.canonify, expected, output)
 		}
 	}
 }

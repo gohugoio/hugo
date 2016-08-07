@@ -562,7 +562,7 @@ tags:
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},
 		targets:  targetList{page: &target.PagePub{UglyURLs: false}},
-		Language: newDefaultLanguage(),
+		Language: helpers.NewDefaultLanguage(),
 	}
 
 	addTemplates := func(templ tpl.Template) error {
