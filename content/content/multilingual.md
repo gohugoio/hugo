@@ -135,7 +135,7 @@ This uses a definition like this one in `i18n/en-US.yaml`:
 
 ### Multilingual Themes support
 
-To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there are more than one language, URLs  must either  come from the built-in `.Permalink` or `.URL`, be constructed with `relURL` or `absURL` -- or prefixed with `{{.LanguagePrefix }}`.
+To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there are more than one language, URLs  must either  come from the built-in `.Permalink` or `.URL`, be constructed with `relLangURL` or `absLangURL` template funcs -- or prefixed with `{{.LanguagePrefix }}`.
 
 If there are more than one language defined, the`LanguagePrefix` variable will equal `"/en"` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string, so it is harmless for single-language sites.
 
