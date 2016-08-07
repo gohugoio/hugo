@@ -247,16 +247,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string
 
 	if refURL.Path != "" {
-		// We may be in a shortcode and a not finished site, so look it the
-		// "raw page" collection.
-		// This works, but it also means AllPages and Pages will be empty for other
-		// shortcode use, which may be a slap in the face for many.
-		// TODO(bep) ml move shortcode handling to a "pre-render" handler, which also
-		// will fix a few other problems.
-		for _, page := range []*Page(*s.rawAllPages) {
-			if !page.shouldBuild() {
-				continue
-			}
+		for _, page := range []*Page(*s.AllPages) {
 			refPath := filepath.FromSlash(refURL.Path)
 			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
