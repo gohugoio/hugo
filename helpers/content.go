@@ -59,7 +59,7 @@ type Blackfriday struct {
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
-func NewBlackfriday() *Blackfriday {
+func NewBlackfriday(c ConfigProvider) *Blackfriday {
 	combinedParam := map[string]interface{}{
 		"smartypants":                      true,
 		"angledQuotes":                     false,
@@ -72,7 +72,7 @@ func NewBlackfriday() *Blackfriday {
 		"sourceRelativeLinksProjectFolder": "/docs/content",
 	}
 
-	siteParam := viper.GetStringMap("blackfriday")
+	siteParam := c.GetStringMap("blackfriday")
 	if siteParam != nil {
 		siteConfig := cast.ToStringMap(siteParam)
 
@@ -341,20 +341,25 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content rendering.
 type RenderingContext struct {
-	Content      []byte
-	PageFmt      string
-	DocumentID   string
-	Config       *Blackfriday
-	RenderTOC    bool
-	FileResolver FileResolverFunc
-	LinkResolver LinkResolverFunc
-	configInit   sync.Once
+	Content        []byte
+	PageFmt        string
+	DocumentID     string
+	Config         *Blackfriday
+	RenderTOC      bool
+	FileResolver   FileResolverFunc
+	LinkResolver   LinkResolverFunc
+	ConfigProvider ConfigProvider
+	configInit     sync.Once
+}
+
+func newViperProvidedRenderingContext() *RenderingContext {
+	return &RenderingContext{ConfigProvider: viper.GetViper()}
 }
 
 func (c *RenderingContext) getConfig() *Blackfriday {
 	c.configInit.Do(func() {
 		if c.Config == nil {
-			c.Config = NewBlackfriday()
+			c.Config = NewBlackfriday(c.ConfigProvider)
 		}
 	})
 	return c.Config

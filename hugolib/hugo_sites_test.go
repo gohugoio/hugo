@@ -137,6 +137,12 @@ func TestMultiSitesBuild(t *testing.T) {
 	require.NotNil(t, frTags["frtag1"])
 	readDestination(t, "public/fr/plaques/frtag1/index.html")
 	readDestination(t, "public/en/tags/tag1/index.html")
+
+	// Check Blackfriday config
+	assert.True(t, strings.Contains(string(doc1fr.Content), "&laquo;"), string(doc1fr.Content))
+	assert.False(t, strings.Contains(string(doc1en.Content), "&laquo;"), string(doc1en.Content))
+	assert.True(t, strings.Contains(string(doc1en.Content), "&ldquo;"), string(doc1en.Content))
+
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
@@ -326,7 +332,6 @@ title = "Norsk"
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
 	require.NoError(t, viper.ReadInConfig())
-
 	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
 
 	if err != nil {
@@ -370,7 +375,10 @@ paginate = 2
 DefaultContentLanguage = "fr"
 
 [permalinks]
-  other = "/somewhere/else/:filename"
+other = "/somewhere/else/:filename"
+
+[blackfriday]
+angledQuotes = true
 
 [Taxonomies]
 tag = "tags"
@@ -379,6 +387,8 @@ tag = "tags"
 [Languages.en]
 weight = 10
 title = "English"
+[Languages.en.blackfriday]
+angledQuotes = false
 
 [Languages.fr]
 weight = 20
@@ -441,7 +451,7 @@ tags:
 publishdate: "2000-01-01"
 ---
 # doc1
-*some content*
+*some "content"*
 NOTE: slug should be used as URL
 `)},
 		{filepath.FromSlash("sect/doc1.fr.md"), []byte(`---
@@ -452,7 +462,7 @@ plaques:
 publishdate: "2000-01-04"
 ---
 # doc1
-*quelque contenu*
+*quelque "contenu"*
 NOTE: should be in the 'en' Page's 'Translations' field.
 NOTE: date is after "doc3"
 `)},

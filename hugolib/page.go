@@ -319,7 +319,8 @@ func (p *Page) setAutoSummary() error {
 	return nil
 }
 
-func (p *Page) renderBytes(content []byte) []byte {
+// TODO(bep) ml not used???
+func (p *Page) _renderBytes(content []byte) []byte {
 	var fn helpers.LinkResolverFunc
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
@@ -331,8 +332,10 @@ func (p *Page) renderBytes(content []byte) []byte {
 		}
 	}
 	return helpers.RenderBytes(
-		&helpers.RenderingContext{Content: content, PageFmt: p.determineMarkupType(),
-			DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		&helpers.RenderingContext{
+			Content: content, PageFmt: p.determineMarkupType(),
+			ConfigProvider: p.Language(),
+			DocumentID:     p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) renderContent(content []byte) []byte {
@@ -346,16 +349,20 @@ func (p *Page) renderContent(content []byte) []byte {
 			return p.Node.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
-	return helpers.RenderBytes(&helpers.RenderingContext{Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
-		DocumentID: p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+	return helpers.RenderBytes(&helpers.RenderingContext{
+		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
+		ConfigProvider: p.Language(),
+		DocumentID:     p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 	p.renderingConfigInit.Do(func() {
 		pageParam := cast.ToStringMap(p.GetParam("blackfriday"))
-
-		p.renderingConfig = helpers.NewBlackfriday()
+		if p.Language() == nil {
+			panic(fmt.Sprintf("nil language for %s with source lang %s", p.BaseFileName(), p.lang))
+		}
+		p.renderingConfig = helpers.NewBlackfriday(p.Language())
 		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}

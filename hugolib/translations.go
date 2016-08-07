@@ -13,10 +13,6 @@
 
 package hugolib
 
-import (
-	jww "github.com/spf13/jwalterweatherman"
-)
-
 // Translations represent the other translations for a given page. The
 // string here is the language code, as affected by the `post.LANG.md`
 // filename.
@@ -37,17 +33,6 @@ func pagesToTranslationsMap(ml *Multilingual, pages []*Page) map[string]Translat
 		if pageLang == "" {
 			continue
 		}
-
-		language := ml.Language(pageLang)
-
-		if language == nil {
-			// TODO(bep) ml
-			// This may or may not be serious. It can be a file named stefano.chiodino.md.
-			jww.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
-			language = ml.DefaultLang
-		}
-
-		page.language = language
 
 		pageTranslation[pageLang] = page
 		out[base] = pageTranslation

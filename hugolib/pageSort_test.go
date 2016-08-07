@@ -141,9 +141,7 @@ func createSortTestPages(num int) Pages {
 					Section: "z",
 					URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
 				},
-				Site: &SiteInfo{
-					BaseURL: "http://base/",
-				},
+				Site: newSiteInfoDefaultLanguage("http://base/"),
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
 		}

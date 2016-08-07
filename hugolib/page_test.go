@@ -1117,7 +1117,7 @@ func TestPagePaths(t *testing.T) {
 
 	for _, test := range tests {
 		p, _ := NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
-		p.Node.Site = &SiteInfo{}
+		p.Node.Site = newSiteInfoDefaultLanguage("")
 
 		if test.hasPermalink {
 			p.Node.Site.Permalinks = siteParmalinksSetting

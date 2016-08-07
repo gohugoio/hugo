@@ -107,7 +107,7 @@ func (s *Site) Reset() *Site {
 
 // newSite creates a new site in the given language.
 func newSite(lang *Language) *Site {
-	return &Site{Language: lang}
+	return &Site{Language: lang, Info: SiteInfo{multilingual: newMultiLingualForLanguage(lang)}}
 }
 
 // newSite creates a new site in the default language.
@@ -172,10 +172,21 @@ type SiteInfo struct {
 	paginationPageCount   uint64
 	Data                  *map[string]interface{}
 
-	Multilingual   bool
+	multilingual   *Multilingual
 	Language       *Language
 	LanguagePrefix string
 	Languages      Languages
+}
+
+// Used in tests.
+func newSiteInfoDefaultLanguage(baseURL string, pages ...*Page) *SiteInfo {
+	ps := Pages(pages)
+
+	return &SiteInfo{
+		BaseURL:      template.URL(baseURL),
+		rawAllPages:  &ps,
+		multilingual: newMultiLingualDefaultLanguage(),
+	}
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -216,6 +227,10 @@ func (s *SiteInfo) GetParam(key string) interface{} {
 		return v
 	}
 	return nil
+}
+
+func (s *SiteInfo) IsMultiLingual() bool {
+	return len(s.Languages) > 1
 }
 
 func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error) {
@@ -837,7 +852,7 @@ func (s *Site) initialize() (err error) {
 // HomeAbsURL is a convenience method giving the absolute URL to the home page.
 func (s *SiteInfo) HomeAbsURL() string {
 	base := "/"
-	if s.Multilingual {
+	if s.IsMultiLingual() {
 		base = s.Language.Lang
 	}
 	return helpers.AbsURL(base)
@@ -880,8 +895,8 @@ func (s *Site) initializeSiteInfo() {
 		LanguageCode:    lang.GetString("languagecode"),
 		Copyright:       lang.GetString("copyright"),
 		DisqusShortname: lang.GetString("DisqusShortname"),
-		// TODO(bep) multilang, consolidate the below (make into methods etc.)
-		Multilingual:          s.multilingualEnabled(),
+		// TODO(bep) ml consolidate the below (make into methods etc.)
+		multilingual:          s.Multilingual,
 		Language:              lang,
 		LanguagePrefix:        languagePrefix,
 		Languages:             languages,

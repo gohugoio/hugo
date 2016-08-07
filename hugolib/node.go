@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	jww "github.com/spf13/jwalterweatherman"
+
 	"github.com/spf13/hugo/helpers"
 
 	"github.com/spf13/cast"
@@ -45,8 +47,9 @@ type Node struct {
 	paginatorInit sync.Once
 	scratch       *Scratch
 
-	language *Language
-	lang     string // TODO(bep) multilingo
+	language     *Language
+	languageInit sync.Once
+	lang         string // TODO(bep) multilingo
 
 	translations     Nodes
 	translationsInit sync.Once
@@ -191,6 +194,7 @@ func (n *Node) Scratch() *Scratch {
 
 // TODO(bep) multilingo consolidate. See Page.
 func (n *Node) Language() *Language {
+	n.initLanguage()
 	return n.language
 }
 
@@ -202,6 +206,31 @@ func (n *Node) Lang() string {
 		return n.Language().Lang
 	}
 	return n.lang
+}
+
+func (n *Node) initLanguage() {
+	n.languageInit.Do(func() {
+		pageLang := n.lang
+		ml := n.Site.multilingual
+		if ml == nil {
+			panic("Multilanguage not set")
+		}
+		if pageLang == "" {
+			n.language = ml.DefaultLang
+			return
+		}
+
+		language := ml.Language(pageLang)
+
+		if language == nil {
+			// TODO(bep) ml
+			// This may or may not be serious. It can be a file named stefano.chiodino.md.
+			jww.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
+			language = ml.DefaultLang
+		}
+
+		n.language = language
+	})
 }
 
 func (n *Node) LanguagePrefix() string {
@@ -261,7 +290,7 @@ func (n *Node) addMultilingualWebPrefix(outfile string) string {
 	hadSlashSuffix := strings.HasSuffix(outfile, "/")
 
 	lang := n.Lang()
-	if lang == "" || !n.Site.Multilingual {
+	if lang == "" || !n.Site.IsMultiLingual() {
 		return outfile
 	}
 	outfile = "/" + path.Join(lang, outfile)
@@ -273,7 +302,7 @@ func (n *Node) addMultilingualWebPrefix(outfile string) string {
 
 func (n *Node) addMultilingualFilesystemPrefix(outfile string) string {
 	lang := n.Lang()
-	if lang == "" || !n.Site.Multilingual {
+	if lang == "" || !n.Site.IsMultiLingual() {
 		return outfile
 	}
 	return string(filepath.Separator) + filepath.Join(lang, outfile)

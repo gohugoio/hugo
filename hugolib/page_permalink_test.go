@@ -69,9 +69,7 @@ func TestPermalink(t *testing.T) {
 					Section: "z",
 					URL:     test.url,
 				},
-				Site: &SiteInfo{
-					BaseURL: test.base,
-				},
+				Site: newSiteInfoDefaultLanguage(string(test.base)),
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},
 		}
