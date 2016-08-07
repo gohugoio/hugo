@@ -246,6 +246,7 @@ type summaryContent struct {
 }
 
 func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent {
+	c = bytes.TrimSpace(c)
 	startDivider := bytes.Index(c, internalSummaryDivider)
 
 	if startDivider == -1 {
@@ -276,20 +277,27 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent 
 	}
 
 	// Find the closest end/start markup string to the divider
-	//firstStart := bytes.Index(c[:startDivider], startMarkup)
 	fromIdx := bytes.LastIndex(c[:startDivider], startMarkup)
 	fromStart := startDivider - fromIdx - len(startMarkup)
 	fromEnd := bytes.Index(c[endDivider:], endMarkup)
 
 	if fromEnd != -1 && fromEnd <= fromStart {
 		endSummary = startDivider + fromEnd + len(endMarkup)
-	} else if fromStart != -1 {
+	} else if fromStart != -1 && fromEnd != -1 {
 		endSummary = startDivider - fromStart - len(startMarkup)
 	}
 
 	withoutDivider := bytes.TrimSpace(append(c[:startDivider], c[endDivider:]...))
-	contentWithoutSummary := bytes.TrimSpace(withoutDivider[endSummary:])
-	summary := bytes.TrimSpace(withoutDivider[:endSummary])
+
+	var (
+		contentWithoutSummary []byte
+		summary               []byte
+	)
+
+	if len(withoutDivider) > 0 {
+		contentWithoutSummary = bytes.TrimSpace(withoutDivider[endSummary:])
+		summary = bytes.TrimSpace(withoutDivider[:endSummary])
+	}
 
 	if addDiv {
 		// For the rst

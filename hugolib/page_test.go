@@ -655,6 +655,11 @@ func TestSplitSummaryAndContent(t *testing.T) {
 		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>", ""},
 		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>", "<p>c</p>"},
 		{"markdown", "<p>aHUGOMORE42</p><p>b</p><p>c</p>", "<p>a</p>", "<p>a</p><p>b</p><p>c</p>", "<p>b</p><p>c</p>"},
+		{"markdown", "  HUGOMORE42 ", "", "", ""},
+		{"markdown", "HUGOMORE42", "", "", ""},
+		{"markdown", "<p>HUGOMORE42", "<p>", "<p>", ""},
+		{"markdown", "HUGOMORE42<p>", "", "<p>", "<p>"},
+		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>", ""},
 	} {
 
 		sc := splitUserDefinedSummaryAndContent(this.markup, []byte(this.content))
@@ -664,34 +669,6 @@ func TestSplitSummaryAndContent(t *testing.T) {
 		require.Equal(t, this.expectedContent, string(sc.content), fmt.Sprintf("[%d] Content markup %s", i, this.markup))
 		require.Equal(t, this.expectedContentWithoutSummary, string(sc.contentWithoutSummary), fmt.Sprintf("[%d] Content without summary, markup %s", i, this.markup))
 	}
-
-	if true {
-		return
-	}
-
-	ad := `<div class="paragraph"><p>sn</p></div>
-<div class="paragraph">
-<p>HUGOMORE42 
-Some more text</p>
-</div>
-`
-
-	md := `<p>Summary Same LineHUGOMORE42</p>
-
-<p>Some more text</p>`
-
-	sc := splitUserDefinedSummaryAndContent("markdown", []byte(md))
-
-	require.Equal(t, "adf", string(sc.summary))
-	require.Equal(t, "asdf", string(sc.content))
-
-	if true {
-		return
-	}
-	sc = splitUserDefinedSummaryAndContent("asciidoc", []byte(ad))
-	require.Equal(t, "<div class=\"paragraph\"><p>sn</p></div>", string(sc.summary))
-	require.Equal(t, "\n<div class=\"paragraph\">\n<p> \nSome more text</p>\n</div>\n", string(sc.summary))
-
 }
 
 func TestPageWithDelimiter(t *testing.T) {
