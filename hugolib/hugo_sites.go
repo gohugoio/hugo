@@ -39,7 +39,7 @@ type HugoSites struct {
 
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
-func NewHugoSites(sites ...*Site) (*HugoSites, error) {
+func newHugoSites(sites ...*Site) (*HugoSites, error) {
 	langConfig, err := newMultiLingualFromSites(sites...)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func NewHugoSitesFromConfiguration() (*HugoSites, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewHugoSites(sites...)
+	return newHugoSites(sites...)
 }
 
 func createSitesFromConfig() ([]*Site, error) {
@@ -461,7 +461,7 @@ func buildAndRenderSite(s *Site, additionalTemplates ...string) error {
 
 // Convenience func used in tests to build a single site/language.
 func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
-	sites, err := NewHugoSites(s)
+	sites, err := newHugoSites(s)
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages Lan
 		Language: languages[0],
 	}
 	if len(languages) == 1 {
-		return NewHugoSites(first)
+		return newHugoSites(first)
 	}
 
 	sites := make([]*Site, len(languages))
@@ -499,11 +499,15 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages Lan
 		sites[i] = &Site{Language: languages[i]}
 	}
 
-	return NewHugoSites(sites...)
+	return newHugoSites(sites...)
 
 }
 
 // Convenience func used in tests.
 func newHugoSitesFromLanguages(languages Languages) (*HugoSites, error) {
 	return newHugoSitesFromSourceAndLanguages(nil, languages)
+}
+
+func newHugoSitesDefaultLanguage() (*HugoSites, error) {
+	return newHugoSitesFromSourceAndLanguages(nil, Languages{newDefaultLanguage()})
 }

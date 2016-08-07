@@ -94,7 +94,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("NewContentEditor", "")
 	viper.SetDefault("Paginate", 10)
 	viper.SetDefault("PaginatePath", "page")
-	viper.SetDefault("Blackfriday", helpers.NewBlackfriday())
+	viper.SetDefault("Blackfriday", helpers.NewBlackfriday(viper.GetViper()))
 	viper.SetDefault("RSSUri", "index.xml")
 	viper.SetDefault("SectionPagesMenu", "")
 	viper.SetDefault("DisablePathToLower", false)

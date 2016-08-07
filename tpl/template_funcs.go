@@ -38,6 +38,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/spf13/viper"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/hugofs"
 
@@ -1212,7 +1214,10 @@ func markdownify(in interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", err
 	}
-	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"})
+	// TODO(bep) ml language
+	m := helpers.RenderBytes(&helpers.RenderingContext{
+		ConfigProvider: viper.GetViper(),
+		Content:        []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
 	return template.HTML(m), nil

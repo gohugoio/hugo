@@ -25,9 +25,14 @@ func NewLanguage(lang string) *Language {
 	return &Language{Lang: lang, params: make(map[string]interface{})}
 }
 
-// TODO(bep) multilingo
 func newDefaultLanguage() *Language {
-	return NewLanguage("en")
+	defaultLang := viper.GetString("DefaultContentLanguage")
+
+	if defaultLang == "" {
+		defaultLang = "en"
+	}
+
+	return NewLanguage(defaultLang)
 }
 
 type Languages []*Language
@@ -74,16 +79,18 @@ func newMultiLingualFromSites(sites ...*Site) (*Multilingual, error) {
 		languages[i] = s.Language
 	}
 
-	defaultLang := viper.GetString("DefaultContentLanguage")
-
-	if defaultLang == "" {
-		defaultLang = "en"
-	}
-
-	return &Multilingual{Languages: languages, DefaultLang: NewLanguage(defaultLang)}, nil
+	return &Multilingual{Languages: languages, DefaultLang: newDefaultLanguage()}, nil
 
 }
 
+func newMultiLingualDefaultLanguage() *Multilingual {
+	return newMultiLingualForLanguage(newDefaultLanguage())
+}
+
+func newMultiLingualForLanguage(language *Language) *Multilingual {
+	languages := Languages{language}
+	return &Multilingual{Languages: languages, DefaultLang: language}
+}
 func (ml *Multilingual) enabled() bool {
 	return len(ml.Languages) > 1
 }
@@ -92,6 +99,7 @@ func (l *Language) Params() map[string]interface{} {
 	l.paramsInit.Do(func() {
 		// Merge with global config.
 		// TODO(bep) consider making this part of a constructor func.
+
 		globalParams := viper.GetStringMap("Params")
 		for k, v := range globalParams {
 			if _, ok := l.params[k]; !ok {
@@ -116,6 +124,9 @@ func (l *Language) GetStringMapString(key string) map[string]string {
 }
 
 func (l *Language) Get(key string) interface{} {
+	if l == nil {
+		panic("language not set")
+	}
 	key = strings.ToLower(key)
 	if v, ok := l.params[key]; ok {
 		return v
@@ -159,7 +170,7 @@ func toSortedLanguages(l map[string]interface{}) (Languages, error) {
 			}
 
 			// Put all into the Params map
-			// TODO(bep) reconsile with the type handling etc. from other params handlers.
+			// TODO(bep) ml reconsile with the type handling etc. from other params handlers.
 			language.SetParam(loki, v)
 		}
 

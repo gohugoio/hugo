@@ -23,7 +23,7 @@ import (
 
 // Renders a codeblock using Blackfriday
 func render(input string) string {
-	ctx := &RenderingContext{}
+	ctx := newViperProvidedRenderingContext()
 	render := getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
@@ -33,7 +33,7 @@ func render(input string) string {
 
 // Renders a codeblock using Mmark
 func renderWithMmark(input string) string {
-	ctx := &RenderingContext{}
+	ctx := newViperProvidedRenderingContext()
 	render := getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}

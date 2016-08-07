@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -55,10 +54,9 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	templ := tpl.New()
 	p, _ := pageFromString(simplePageWithURL, path)
-	p.Node.Site = &SiteInfo{
-		rawAllPages: &(Pages{p}),
-		BaseURL:     template.URL(helpers.SanitizeURLKeepTrailingSlash(baseURL)),
-	}
+	p.Node.Site = newSiteInfoDefaultLanguage(
+		helpers.SanitizeURLKeepTrailingSlash(baseURL),
+		p)
 
 	output, err := HandleShortcodes(in, p, templ)
 

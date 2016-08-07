@@ -28,28 +28,58 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
+// TODO(bep) remove
 func pageFromString(in, filename string) (*Page, error) {
 	return NewPageFrom(strings.NewReader(in), filename)
 }
 
-func CheckShortCodeMatch(t *testing.T, input, expected string, template tpl.Template) {
-	CheckShortCodeMatchAndError(t, input, expected, template, false)
+func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {
+	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
 }
 
-func CheckShortCodeMatchAndError(t *testing.T, input, expected string, template tpl.Template, expectError bool) {
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error, expectError bool) {
+	testCommonResetState()
 
-	p, _ := pageFromString(simplePage, "simple.md")
-	output, err := HandleShortcodes(input, p, template)
+	// Need some front matter, see https://github.com/spf13/hugo/issues/2337
+	contentFile := `---
+title: "Title"
+---
+` + input
+
+	writeSource(t, "content/simple.md", contentFile)
+
+	h, err := newHugoSitesDefaultLanguage()
+
+	if err != nil {
+		t.Fatalf("Failed to create sites: %s", err)
+	}
+
+	cfg := BuildCfg{SkipRender: true, withTemplate: withTemplate}
+
+	err = h.Build(cfg)
 
 	if err != nil && !expectError {
-		t.Fatalf("Shortcode rendered error %s. Expected: %q, Got: %q", err, expected, output)
+		t.Fatalf("Shortcode rendered error %s.", err)
 	}
 
 	if err == nil && expectError {
 		t.Fatalf("No error from shortcode")
 	}
+
+	require.Len(t, h.Sites[0].Pages, 1)
+
+	output := strings.TrimSpace(string(h.Sites[0].Pages[0].Content))
+	if strings.HasPrefix(output, "<p>") {
+		output = output[3:]
+	}
+	if strings.HasSuffix(output, "</p>") {
+		output = output[:len(output)-4]
+	}
+
+	expected = strings.TrimSpace(expected)
 
 	if output != expected {
 		t.Fatalf("Shortcode render didn't match. got \n%q but expected \n%q", output, expected)
@@ -86,115 +116,123 @@ func TestShortcodeGoFuzzReports(t *testing.T) {
 }
 
 func TestNonSC(t *testing.T) {
-	tem := tpl.New()
+
 	// notice the syntax diff from 0.12, now comment delims must be added
-	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", tem)
+	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", nil)
 }
 
 // Issue #929
 func TestHyphenatedSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+		return nil
+	}
 
-	CheckShortCodeMatch(t, "{{< hyphenated-video 47238zzb >}}", "Playing Video 47238zzb", tem)
+	CheckShortCodeMatch(t, "{{< hyphenated-video 47238zzb >}}", "Playing Video 47238zzb", wt)
 }
 
 // Issue #1753
 func TestNoTrailingNewline(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
+		return nil
+	}
 
-	CheckShortCodeMatch(t, "ab{{< a c >}}d", "abcd", tem)
+	CheckShortCodeMatch(t, "ab{{< a c >}}d", "abcd", wt)
 }
 
 func TestPositionalParamSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
+		return nil
+	}
 
-	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video 47238zzb", tem)
-	CheckShortCodeMatch(t, "{{< video 47238zzb 132 >}}", "Playing Video 47238zzb", tem)
-	CheckShortCodeMatch(t, "{{<video 47238zzb>}}", "Playing Video 47238zzb", tem)
-	CheckShortCodeMatch(t, "{{<video 47238zzb    >}}", "Playing Video 47238zzb", tem)
-	CheckShortCodeMatch(t, "{{<   video   47238zzb    >}}", "Playing Video 47238zzb", tem)
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video 47238zzb", wt)
+	CheckShortCodeMatch(t, "{{< video 47238zzb 132 >}}", "Playing Video 47238zzb", wt)
+	CheckShortCodeMatch(t, "{{<video 47238zzb>}}", "Playing Video 47238zzb", wt)
+	CheckShortCodeMatch(t, "{{<video 47238zzb    >}}", "Playing Video 47238zzb", wt)
+	CheckShortCodeMatch(t, "{{<   video   47238zzb    >}}", "Playing Video 47238zzb", wt)
 }
 
 func TestPositionalParamIndexOutOfBounds(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
-	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", tem)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
+		return nil
+	}
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", wt)
 }
 
 // some repro issues for panics in Go Fuzz testing
-func TestShortcodeGoFuzzRepros(t *testing.T) {
-	tt := tpl.New()
-	tt.AddInternalShortcode("inner.html", `Shortcode... {{ with .Get 0 }}{{ . }}{{ end }}-- {{ with .Get 1 }}{{ . }}{{ end }}- {{ with .Inner }}{{ . }}{{ end }}`)
-	// Issue #1337
-	CheckShortCodeMatchAndError(t, "{{%inner\"\"\"\"=\"\"", "", tt, true)
-}
 
 func TestNamedParamSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
-
-	CheckShortCodeMatch(t, `{{< img src="one" >}}`, `<img src="one">`, tem)
-	CheckShortCodeMatch(t, `{{< img class="aspen" >}}`, `<img class="aspen">`, tem)
-	CheckShortCodeMatch(t, `{{< img src= "one" >}}`, `<img src="one">`, tem)
-	CheckShortCodeMatch(t, `{{< img src ="one" >}}`, `<img src="one">`, tem)
-	CheckShortCodeMatch(t, `{{< img src = "one" >}}`, `<img src="one">`, tem)
-	CheckShortCodeMatch(t, `{{< img src = "one" class = "aspen grove" >}}`, `<img src="one" class="aspen grove">`, tem)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
+		return nil
+	}
+	CheckShortCodeMatch(t, `{{< img src="one" >}}`, `<img src="one">`, wt)
+	CheckShortCodeMatch(t, `{{< img class="aspen" >}}`, `<img class="aspen">`, wt)
+	CheckShortCodeMatch(t, `{{< img src= "one" >}}`, `<img src="one">`, wt)
+	CheckShortCodeMatch(t, `{{< img src ="one" >}}`, `<img src="one">`, wt)
+	CheckShortCodeMatch(t, `{{< img src = "one" >}}`, `<img src="one">`, wt)
+	CheckShortCodeMatch(t, `{{< img src = "one" class = "aspen grove" >}}`, `<img src="one" class="aspen grove">`, wt)
 }
 
 // Issue #2294
 func TestNestedNamedMissingParam(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
-	tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
-	tem.AddInternalShortcode("div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
-
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
+		tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+		tem.AddInternalShortcode("div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+		return nil
+	}
 	CheckShortCodeMatch(t,
 		`{{% acc %}}{{% div %}}d1{{% /div %}}{{% div2 %}}d2{{% /div2 %}}{{% /acc %}}`,
-		"<div class=\"acc\"><div >d1</div><div >d2</div>\n</div>", tem)
+		"<div class=\"acc\"><div >d1</div><div >d2</div>\n</div>", wt)
 }
 
 func TestIsNamedParamsSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
-	tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
-	tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
-
-	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, tem)
-	CheckShortCodeMatch(t, `{{< ifnamedparams position >}}`, `<div id="position">`, tem)
-	CheckShortCodeMatch(t, `{{< byname id="name" >}}`, `<div id="name">`, tem)
-	CheckShortCodeMatch(t, `{{< byname position >}}`, `<div id="error: cannot access positional params by string name">`, tem)
-	CheckShortCodeMatch(t, `{{< byposition position >}}`, `<div id="position">`, tem)
-	CheckShortCodeMatch(t, `{{< byposition id="name" >}}`, `<div id="error: cannot access named params by position">`, tem)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
+		tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
+		tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
+		return nil
+	}
+	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, wt)
+	CheckShortCodeMatch(t, `{{< ifnamedparams position >}}`, `<div id="position">`, wt)
+	CheckShortCodeMatch(t, `{{< byname id="name" >}}`, `<div id="name">`, wt)
+	CheckShortCodeMatch(t, `{{< byname position >}}`, `<div id="error: cannot access positional params by string name">`, wt)
+	CheckShortCodeMatch(t, `{{< byposition position >}}`, `<div id="position">`, wt)
+	CheckShortCodeMatch(t, `{{< byposition id="name" >}}`, `<div id="error: cannot access named params by position">`, wt)
 }
 
 func TestInnerSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
-
-	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}`, `<div class="aspen"></div>`, tem)
-	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}More Here{{< /inside >}}`, "<div class=\"aspen\">More Here</div>", tem)
-	CheckShortCodeMatch(t, `{{< inside >}}More Here{{< /inside >}}`, "<div>More Here</div>", tem)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+		return nil
+	}
+	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}`, `<div class="aspen"></div>`, wt)
+	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}More Here{{< /inside >}}`, "<div class=\"aspen\">More Here</div>", wt)
+	CheckShortCodeMatch(t, `{{< inside >}}More Here{{< /inside >}}`, "<div>More Here</div>", wt)
 }
 
 func TestInnerSCWithMarkdown(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
-
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+		return nil
+	}
 	CheckShortCodeMatch(t, `{{% inside %}}
 # More Here
 
 [link](http://spf13.com) and text
 
-{{% /inside %}}`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", tem)
+{{% /inside %}}`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>", wt)
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
-
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+		return nil
+	}
 	CheckShortCodeMatch(t, `{{% inside %}}
 # More Here
 
@@ -210,54 +248,55 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\nAnd then:\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>\n", tem)
+`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<p><div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
 }
 
 func TestEmbeddedSC(t *testing.T) {
-	tem := tpl.New()
-	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", tem)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", tem)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", tem)
+	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
 }
 
 func TestNestedSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
-	tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
+		tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
+		return nil
+	}
+	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", wt)
 
-	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", tem)
-
-	CheckShortCodeMatch(t, `{{< scn1 >}}{{% scn2 %}}{{< /scn1 >}}`, "<div>Outer, inner is <div>SC2</div></div>", tem)
+	CheckShortCodeMatch(t, `{{< scn1 >}}{{% scn2 %}}{{< /scn1 >}}`, "<div>Outer, inner is <div>SC2</div></div>", wt)
 }
 
 func TestNestedComplexSC(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
-	tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
-	tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
-
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
+		tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
+		tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
+		return nil
+	}
 	CheckShortCodeMatch(t, `{{< row >}}1-s{{% column %}}2-**s**{{< aside >}}3-**s**{{< /aside >}}4-s{{% /column %}}5-s{{< /row >}}6-s`,
-		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", wt)
 
 	// turn around the markup flag
 	CheckShortCodeMatch(t, `{{% row %}}1-s{{< column >}}2-**s**{{% aside %}}3-**s**{{% /aside %}}4-s{{< /column >}}5-s{{% /row %}}6-s`,
-		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", tem)
+		"-row-1-s-col-2-<strong>s</strong>-aside-3-<strong>s</strong>-asideStop-4-s-colStop-5-s-rowStop-6-s", wt)
 }
 
 func TestParentShortcode(t *testing.T) {
-	tem := tpl.New()
-	tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
-	tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
-	tem.AddInternalShortcode("r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
-
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
+		tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
+		tem.AddInternalShortcode("r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
+		return nil
+	}
 	CheckShortCodeMatch(t, `{{< r1 pr1="p1" >}}1: {{< r2 pr2="p2" >}}2: {{< r3 pr3="p3" >}}{{< /r3 >}}{{< /r2 >}}{{< /r1 >}}`,
-		"1: p1 1: 2: p1p2 2: 3: p1p2p3 ", tem)
+		"1: p1 1: 2: p1p2 2: 3: p1p2p3 ", wt)
 
 }
 
 func TestFigureImgWidth(t *testing.T) {
-	tem := tpl.New()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", tem)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
 }
 
 func TestHighlight(t *testing.T) {
@@ -539,7 +578,7 @@ tags:
 
 	}
 
-	sites, err := NewHugoSites(s)
+	sites, err := newHugoSites(s)
 
 	if err != nil {
 		t.Fatalf("Failed to build site: %s", err)
