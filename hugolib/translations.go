@@ -50,7 +50,6 @@ func assignTranslationsToPages(allTranslations map[string]Translations, pages []
 			continue
 		}
 
-		// TODO(bep) multilingo remove lang
 		for _, translatedPage := range trans {
 			page.translations = append(page.translations, translatedPage)
 		}

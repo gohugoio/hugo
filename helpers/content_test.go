@@ -409,13 +409,3 @@ func TestWordCount(t *testing.T) {
 		t.Errorf("Actual Map (%v) does not equal expected (%v)", actualMap, expectedMap)
 	}
 }
-
-func TestRemoveSummaryDivider(t *testing.T) {
-	content := []byte("This is before. <!--more-->This is after.")
-	actualRemovedContent := RemoveSummaryDivider(content)
-	expectedRemovedContent := []byte("This is before. This is after.")
-
-	if !bytes.Equal(actualRemovedContent, expectedRemovedContent) {
-		t.Errorf("Actual removed content (%s) did not equal expected removed content (%s)", actualRemovedContent, expectedRemovedContent)
-	}
-}

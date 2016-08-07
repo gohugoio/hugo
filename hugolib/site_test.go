@@ -216,9 +216,7 @@ func TestFutureExpirationRender(t *testing.T) {
 }
 
 // Issue #957
-// TODO(bep) ml
 func TestCrossrefs(t *testing.T) {
-	hugofs.InitMemFs()
 	for _, uglyURLs := range []bool{true, false} {
 		for _, relative := range []bool{true, false} {
 			doTestCrossrefs(t, relative, uglyURLs)

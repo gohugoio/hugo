@@ -99,9 +99,8 @@ type Site struct {
 	Language     *helpers.Language
 }
 
-// Reset returns a new Site prepared for rebuild.
-// TODO(bep) multilingo
-func (s *Site) Reset() *Site {
+// reset returns a new Site prepared for rebuild.
+func (s *Site) reset() *Site {
 	return &Site{Language: s.Language, Multilingual: s.Multilingual}
 }
 
@@ -144,21 +143,20 @@ type targetList struct {
 }
 
 type SiteInfo struct {
-	BaseURL     template.URL
-	Taxonomies  TaxonomyList
-	Authors     AuthorList
-	Social      SiteSocial
-	Sections    Taxonomy
-	Pages       *Pages // Includes only pages in this language
-	AllPages    *Pages // Includes other translated pages, excluding those in this language.
-	rawAllPages *Pages // Includes absolute all pages, including drafts etc.
-	Files       *[]*source.File
-	Menus       *Menus
-	Hugo        *HugoInfo
-	Title       string
-	RSSLink     string
-	Author      map[string]interface{}
-	// TODO(bep) multilingo
+	BaseURL               template.URL
+	Taxonomies            TaxonomyList
+	Authors               AuthorList
+	Social                SiteSocial
+	Sections              Taxonomy
+	Pages                 *Pages // Includes only pages in this language
+	AllPages              *Pages // Includes other translated pages, excluding those in this language.
+	rawAllPages           *Pages // Includes absolute all pages, including drafts etc.
+	Files                 *[]*source.File
+	Menus                 *Menus
+	Hugo                  *HugoInfo
+	Title                 string
+	RSSLink               string
+	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
 	GoogleAnalytics       string
@@ -701,7 +699,6 @@ func (s *Site) readI18nSources() error {
 
 	themeI18nDir, err := helpers.GetThemeI18nDirPath()
 	if err == nil {
-		// TODO(bep) multilingo what is this?
 		i18nSources = []source.Input{&source.Filesystem{Base: themeI18nDir}, i18nSources[0]}
 	}
 
@@ -1622,7 +1619,7 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 func (s *Site) addMultilingualPrefix(basePath string) string {
 	hadPrefix := strings.HasPrefix(basePath, "/")
 	if s.multilingualEnabled() {
-		basePath = path.Join(s.currentLanguageString(), basePath)
+		basePath = path.Join(s.Language.Lang, basePath)
 		if hadPrefix {
 			basePath = "/" + basePath
 		}
@@ -1992,7 +1989,6 @@ func (s *Site) Stats() {
 func (s *Site) setURLs(n *Node, in string) {
 	n.URLPath.URL = helpers.URLizeAndPrep(in)
 	n.URLPath.Permalink = permalink(n.URLPath.URL)
-	// TODO(bep) multilingo
 	n.RSSLink = template.HTML(permalink(in + ".xml"))
 }
 

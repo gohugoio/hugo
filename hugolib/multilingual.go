@@ -75,15 +75,6 @@ func (s *Site) multilingualEnabled() bool {
 	return s.Multilingual != nil && s.Multilingual.enabled()
 }
 
-// TODO(bep) multilingo remove these
-func (s *Site) currentLanguageString() string {
-	return s.currentLanguage().Lang
-}
-
-func (s *Site) currentLanguage() *helpers.Language {
-	return s.Language
-}
-
 func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 	langs := make(helpers.Languages, len(l))
 	i := 0
@@ -107,7 +98,6 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 			}
 
 			// Put all into the Params map
-			// TODO(bep) ml reconsile with the type handling etc. from other params handlers.
 			language.SetParam(loki, v)
 		}
 
