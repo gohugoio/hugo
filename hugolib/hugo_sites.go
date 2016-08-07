@@ -63,7 +63,7 @@ func createSitesFromConfig() ([]*Site, error) {
 	multilingual := viper.GetStringMap("Languages")
 	if len(multilingual) == 0 {
 		// TODO(bep) multilingo langConfigsList = append(langConfigsList, NewLanguage("en"))
-		sites = append(sites, newSite(NewLanguage("en")))
+		sites = append(sites, newSite(helpers.NewLanguage("en")))
 	}
 
 	if len(multilingual) > 0 {
@@ -481,7 +481,7 @@ func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
 }
 
 // Convenience func used in tests.
-func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages Languages) (*HugoSites, error) {
+func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages helpers.Languages) (*HugoSites, error) {
 	if len(languages) == 0 {
 		panic("Must provide at least one language")
 	}
@@ -504,10 +504,10 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages Lan
 }
 
 // Convenience func used in tests.
-func newHugoSitesFromLanguages(languages Languages) (*HugoSites, error) {
+func newHugoSitesFromLanguages(languages helpers.Languages) (*HugoSites, error) {
 	return newHugoSitesFromSourceAndLanguages(nil, languages)
 }
 
 func newHugoSitesDefaultLanguage() (*HugoSites, error) {
-	return newHugoSitesFromSourceAndLanguages(nil, Languages{newDefaultLanguage()})
+	return newHugoSitesFromSourceAndLanguages(nil, helpers.Languages{helpers.NewDefaultLanguage()})
 }

@@ -46,7 +46,7 @@ func TestDefaultHandler(t *testing.T) {
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},
 		targets:  targetList{page: &target.PagePub{UglyURLs: true, PublishDir: "public"}},
-		Language: NewLanguage("en"),
+		Language: helpers.NewLanguage("en"),
 	}
 
 	if err := buildAndRenderSite(s,

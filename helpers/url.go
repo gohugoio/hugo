@@ -147,18 +147,18 @@ func MakePermalink(host, plink string) *url.URL {
 }
 
 // AbsURL creates a absolute URL from the relative path given and the BaseURL set in config.
-func AbsURL(path string) string {
-	url, err := url.Parse(path)
+func AbsURL(in string, addLanguage bool) string {
+	url, err := url.Parse(in)
 	if err != nil {
-		return path
+		return in
 	}
 
-	if url.IsAbs() || strings.HasPrefix(path, "//") {
-		return path
+	if url.IsAbs() || strings.HasPrefix(in, "//") {
+		return in
 	}
 
 	baseURL := viper.GetString("BaseURL")
-	if strings.HasPrefix(path, "/") {
+	if strings.HasPrefix(in, "/") {
 		p, err := url.Parse(baseURL)
 		if err != nil {
 			panic(err)
@@ -166,7 +166,23 @@ func AbsURL(path string) string {
 		p.Path = ""
 		baseURL = p.String()
 	}
-	return MakePermalink(baseURL, path).String()
+
+	if addLanguage {
+		addSlash := in == "" || strings.HasSuffix(in, "/")
+		in = path.Join(getLanguagePrefix(), in)
+
+		if addSlash {
+			in += "/"
+		}
+	}
+	return MakePermalink(baseURL, in).String()
+}
+
+func getLanguagePrefix() string {
+	if !viper.GetBool("Multilingual") {
+		return ""
+	}
+	return viper.Get("CurrentContentLanguage").(*Language).Lang
 }
 
 // IsAbsURL determines whether the given path points to an absolute URL.
@@ -182,23 +198,34 @@ func IsAbsURL(path string) bool {
 
 // RelURL creates a URL relative to the BaseURL root.
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
-func RelURL(path string) string {
+func RelURL(in string, addLanguage bool) string {
 	baseURL := viper.GetString("BaseURL")
 	canonifyURLs := viper.GetBool("canonifyURLs")
-	if (!strings.HasPrefix(path, baseURL) && strings.HasPrefix(path, "http")) || strings.HasPrefix(path, "//") {
-		return path
+	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
+		return in
 	}
 
-	u := path
+	u := in
 
-	if strings.HasPrefix(path, baseURL) {
+	if strings.HasPrefix(in, baseURL) {
 		u = strings.TrimPrefix(u, baseURL)
+	}
+
+	if addLanguage {
+		hadSlash := strings.HasSuffix(u, "/")
+
+		u = path.Join(getLanguagePrefix(), u)
+
+		if hadSlash {
+			u += "/"
+		}
 	}
 
 	if !canonifyURLs {
 		u = AddContextRoot(baseURL, u)
 	}
-	if path == "" && !strings.HasSuffix(u, "/") && strings.HasSuffix(baseURL, "/") {
+
+	if in == "" && !strings.HasSuffix(u, "/") && strings.HasSuffix(baseURL, "/") {
 		u += "/"
 	}
 

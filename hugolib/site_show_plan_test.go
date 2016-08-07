@@ -112,7 +112,7 @@ func _TestPageTargetUgly(t *testing.T) {
 	s := &Site{
 		targets:  targetList{page: &target.PagePub{UglyURLs: true, PublishDir: "public"}},
 		Source:   &source.InMemorySource{ByteSource: fakeSource},
-		Language: newDefaultLanguage(),
+		Language: helpers.NewDefaultLanguage(),
 	}
 
 	if err := buildAndRenderSite(s); err != nil {

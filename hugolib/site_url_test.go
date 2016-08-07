@@ -17,6 +17,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/hugo/helpers"
+
 	"html/template"
 
 	"github.com/spf13/hugo/hugofs"
@@ -90,7 +92,7 @@ func TestPageCount(t *testing.T) {
 	viper.Set("paginate", 10)
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: urlFakeSource},
-		Language: newDefaultLanguage(),
+		Language: helpers.NewDefaultLanguage(),
 	}
 
 	if err := buildAndRenderSite(s, "indexes/blue.html", indexTemplate); err != nil {

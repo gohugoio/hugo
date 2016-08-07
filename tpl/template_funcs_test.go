@@ -71,6 +71,8 @@ func TestFuncsInTemplate(t *testing.T) {
 	workingDir := "/home/hugo"
 
 	viper.Set("WorkingDir", workingDir)
+	viper.Set("CurrentContentLanguage", helpers.NewDefaultLanguage())
+	viper.Set("Multilingual", true)
 
 	fs := &afero.MemMapFs{}
 	hugofs.InitFs(fs)
@@ -80,7 +82,8 @@ func TestFuncsInTemplate(t *testing.T) {
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
 	// TODO(bep): docs: fix title example
 	in :=
-		`absURL: {{ "http://gohugo.io/" | absURL }}
+		`absLangURL: {{ "index.html" | absLangURL }}
+absURL: {{ "http://gohugo.io/" | absURL }}
 absURL: {{ "mystyle.css" | absURL }}
 absURL: {{ 42 | absURL }}
 add: {{add 1 2}}
@@ -120,6 +123,7 @@ pluralize: {{ "cat" | pluralize }}
 querify: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}
 readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
+relLangURL: {{ "index.html" | relLangURL }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
 relURL 3: {{ mul 2 21 | relURL }}
@@ -146,7 +150,8 @@ upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
 `
 
-	expected := `absURL: http://gohugo.io/
+	expected := `absLangURL: http://mysite.com/hugo/en/index.html
+absURL: http://gohugo.io/
 absURL: http://mysite.com/hugo/mystyle.css
 absURL: http://mysite.com/hugo/42
 add: 3
@@ -186,6 +191,7 @@ pluralize: cats
 querify: bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose
 readDir: README.txt
 readFile: Hugo Rocks!
+relLangURL: /hugo/en/index.html
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
 relURL 3: /hugo/42
@@ -1733,6 +1739,8 @@ func TestReturnWhenSet(t *testing.T) {
 }
 
 func TestMarkdownify(t *testing.T) {
+	viper.Set("CurrentContentLanguage", helpers.NewDefaultLanguage())
+
 	for i, this := range []struct {
 		in     interface{}
 		expect interface{}

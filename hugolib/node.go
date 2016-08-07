@@ -47,7 +47,7 @@ type Node struct {
 	paginatorInit sync.Once
 	scratch       *Scratch
 
-	language     *Language
+	language     *helpers.Language
 	languageInit sync.Once
 	lang         string // TODO(bep) multilingo
 
@@ -193,7 +193,7 @@ func (n *Node) Scratch() *Scratch {
 }
 
 // TODO(bep) multilingo consolidate. See Page.
-func (n *Node) Language() *Language {
+func (n *Node) Language() *helpers.Language {
 	n.initLanguage()
 	return n.language
 }

@@ -43,7 +43,7 @@ func TestSitemapOutput(t *testing.T) {
 
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: newDefaultLanguage(),
+		Language: helpers.NewDefaultLanguage(),
 	}
 
 	if err := buildAndRenderSite(s, "sitemap.xml", SITEMAP_TEMPLATE); err != nil {
