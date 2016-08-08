@@ -720,6 +720,17 @@ This can be useful if you want to use Gravatar for generating a unique avatar:
 ```
 
 
+## Times
+
+### time
+
+`time` converts a timestamp string into a `time.Time` structure so you can access its fields.
+
+e.g.
+* `{{ time "2016-05-28" }}` → "2016-05-28T00:00:00Z"
+* `{{ (time "2016-05-28").YearDay }}` → 149
+* `{{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }}` → 1464395400000 (Unix time in milliseconds)
+
 
 ## URLs
 
