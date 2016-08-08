@@ -14,6 +14,8 @@ Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the
 Example:
 
 ```
+DefaultContentLanguage = "en"
+
 Languages:
   en:
     weight: 1
@@ -34,7 +36,9 @@ Anything not defined in a `[lang]:` block will fall back to the global
 value for that key (like `copyright` for the English (`en`) language in this example).
 
 With the config above, all content, sitemap, RSS feeds, paginations
-and taxonomy pages will be rendered below `/en` in English, and below `/fr` in French.
+and taxonomy pages will be rendered below `/` in English (your default content language), and below `/fr` in French.
+
+If you want all of the languages to be put below their respective language code, enable `DefaultContentLanguageInSubdir: true` in your configuration.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
 
