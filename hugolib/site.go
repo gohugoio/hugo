@@ -601,14 +601,6 @@ func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 
 }
 
-// TODO(bep) ml
-func (s *Site) Analyze() error {
-	if err := s.preProcess(BuildCfg{}); err != nil {
-		return err
-	}
-	return s.ShowPlan(os.Stdout)
-}
-
 func (s *Site) loadTemplates() {
 	s.Tmpl = tpl.InitializeT()
 	s.Tmpl.LoadTemplates(s.absLayoutDir())
