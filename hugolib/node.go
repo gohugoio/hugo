@@ -176,7 +176,7 @@ type URLPath struct {
 }
 
 func (n *Node) URL() string {
-	return n.addMultilingualWebPrefix(n.URLPath.URL)
+	return n.addLangPathPrefix(n.URLPath.URL)
 }
 
 func (n *Node) Permalink() string {
@@ -206,8 +206,27 @@ func (n *Node) Lang() string {
 	return n.lang
 }
 
+func (n *Node) shouldAddLanguagePrefix() bool {
+	if !n.Site.IsMultiLingual() {
+		return false
+	}
+
+	if n.Lang() == "" {
+		return false
+	}
+
+	if !n.Site.defaultContentLanguageInSubdir && n.Lang() == n.Site.multilingual.DefaultLang.Lang {
+		return false
+	}
+
+	return true
+}
+
 func (n *Node) initLanguage() {
 	n.languageInit.Do(func() {
+		if n.language != nil {
+			return
+		}
 		pageLang := n.lang
 		ml := n.Site.multilingual
 		if ml == nil {
@@ -278,29 +297,34 @@ func (n *Node) initTranslations() {
 	})
 }
 
-func (n *Node) addMultilingualWebPrefix(outfile string) string {
+func (n *Node) addLangPathPrefix(outfile string) string {
+	return n.addLangPathPrefixIfFlagSet(outfile, n.shouldAddLanguagePrefix())
+}
 
+func (n *Node) addLangPathPrefixIfFlagSet(outfile string, should bool) string {
 	if helpers.IsAbsURL(outfile) {
+		return outfile
+	}
+
+	if !should {
 		return outfile
 	}
 
 	hadSlashSuffix := strings.HasSuffix(outfile, "/")
 
-	lang := n.Lang()
-	if lang == "" || !n.Site.IsMultiLingual() {
-		return outfile
-	}
-	outfile = "/" + path.Join(lang, outfile)
+	outfile = "/" + path.Join(n.Lang(), outfile)
 	if hadSlashSuffix {
 		outfile += "/"
 	}
 	return outfile
 }
 
-func (n *Node) addMultilingualFilesystemPrefix(outfile string) string {
-	lang := n.Lang()
-	if lang == "" || !n.Site.IsMultiLingual() {
+func (n *Node) addLangFilepathPrefix(outfile string) string {
+	if outfile == "" {
+		outfile = helpers.FilePathSeparator
+	}
+	if !n.shouldAddLanguagePrefix() {
 		return outfile
 	}
-	return string(filepath.Separator) + filepath.Join(lang, outfile)
+	return helpers.FilePathSeparator + filepath.Join(n.Lang(), outfile)
 }

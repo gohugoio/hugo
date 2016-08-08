@@ -45,19 +45,24 @@ func TestURLize(t *testing.T) {
 }
 
 func TestAbsURL(t *testing.T) {
-	for _, addLanguage := range []bool{true, false} {
-		for _, m := range []bool{true, false} {
-			for _, l := range []string{"en", "fr"} {
-				doTestAbsURL(t, addLanguage, m, l)
+	for _, defaultInSubDir := range []bool{true, false} {
+		for _, addLanguage := range []bool{true, false} {
+			for _, m := range []bool{true, false} {
+				for _, l := range []string{"en", "fr"} {
+					doTestAbsURL(t, defaultInSubDir, addLanguage, m, l)
+				}
 			}
 		}
 	}
 }
 
-func doTestAbsURL(t *testing.T, addLanguage, multilingual bool, lang string) {
+func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	viper.Reset()
 	viper.Set("Multilingual", multilingual)
 	viper.Set("CurrentContentLanguage", NewLanguage(lang))
+	viper.Set("DefaultContentLanguage", "en")
+	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
+
 	tests := []struct {
 		input    string
 		baseURL  string
@@ -79,12 +84,17 @@ func doTestAbsURL(t *testing.T, addLanguage, multilingual bool, lang string) {
 		output := AbsURL(test.input, addLanguage)
 		expected := test.expected
 		if multilingual && addLanguage {
-			expected = strings.Replace(expected, "MULTI", lang+"/", 1)
+			if !defaultInSubDir && lang == "en" {
+				expected = strings.Replace(expected, "MULTI", "", 1)
+			} else {
+				expected = strings.Replace(expected, "MULTI", lang+"/", 1)
+			}
+
 		} else {
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}
 		if output != expected {
-			t.Errorf("Expected %#v, got %#v\n", expected, output)
+			t.Fatalf("Expected %#v, got %#v\n", expected, output)
 		}
 	}
 }
@@ -106,19 +116,23 @@ func TestIsAbsURL(t *testing.T) {
 }
 
 func TestRelURL(t *testing.T) {
-	for _, addLanguage := range []bool{true, false} {
-		for _, m := range []bool{true, false} {
-			for _, l := range []string{"en", "fr"} {
-				doTestRelURL(t, addLanguage, m, l)
+	for _, defaultInSubDir := range []bool{true, false} {
+		for _, addLanguage := range []bool{true, false} {
+			for _, m := range []bool{true, false} {
+				for _, l := range []string{"en", "fr"} {
+					doTestRelURL(t, defaultInSubDir, addLanguage, m, l)
+				}
 			}
 		}
 	}
 }
 
-func doTestRelURL(t *testing.T, addLanguage, multilingual bool, lang string) {
+func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	viper.Reset()
 	viper.Set("Multilingual", multilingual)
 	viper.Set("CurrentContentLanguage", NewLanguage(lang))
+	viper.Set("DefaultContentLanguage", "en")
+	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -146,7 +160,11 @@ func doTestRelURL(t *testing.T, addLanguage, multilingual bool, lang string) {
 
 		expected := test.expected
 		if multilingual && addLanguage {
-			expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
+			if !defaultInSubDir && lang == "en" {
+				expected = strings.Replace(expected, "MULTI", "", 1)
+			} else {
+				expected = strings.Replace(expected, "MULTI", "/"+lang, 1)
+			}
 		} else {
 			expected = strings.Replace(expected, "MULTI", "", 1)
 		}

@@ -14,13 +14,12 @@
 package hugolib
 
 import (
-	"bytes"
 	"testing"
 
 	"reflect"
+	"strings"
 
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 )
@@ -50,15 +49,10 @@ func TestSitemapOutput(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	sitemapFile, err := hugofs.Destination().Open("public/sitemap.xml")
+	sitemapContent := readDestination(t, "public/sitemap.xml")
 
-	if err != nil {
-		t.Fatalf("Unable to locate: sitemap.xml")
-	}
-
-	sitemap := helpers.ReaderToBytes(sitemapFile)
-	if !bytes.HasPrefix(sitemap, []byte("<?xml")) {
-		t.Errorf("Sitemap file should start with <?xml. %s", sitemap)
+	if !strings.HasPrefix(sitemapContent, "<?xml") {
+		t.Errorf("Sitemap file should start with <?xml. %s", sitemapContent)
 	}
 }
 

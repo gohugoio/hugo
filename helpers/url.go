@@ -168,21 +168,32 @@ func AbsURL(in string, addLanguage bool) string {
 	}
 
 	if addLanguage {
-		addSlash := in == "" || strings.HasSuffix(in, "/")
-		in = path.Join(getLanguagePrefix(), in)
+		prefix := getLanguagePrefix()
 
-		if addSlash {
-			in += "/"
+		if prefix != "" {
+			addSlash := in == "" || strings.HasSuffix(in, "/")
+			in = path.Join(prefix, in)
+
+			if addSlash {
+				in += "/"
+			}
 		}
 	}
 	return MakePermalink(baseURL, in).String()
 }
 
 func getLanguagePrefix() string {
+	defaultLang := viper.GetString("DefaultContentLanguage")
+	defaultInSubDir := viper.GetBool("DefaultContentLanguageInSubdir")
+
 	if !viper.GetBool("Multilingual") {
 		return ""
 	}
-	return viper.Get("CurrentContentLanguage").(*Language).Lang
+	currentLang := viper.Get("CurrentContentLanguage").(*Language).Lang
+	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
+		return ""
+	}
+	return currentLang
 }
 
 // IsAbsURL determines whether the given path points to an absolute URL.
@@ -211,12 +222,15 @@ func RelURL(in string, addLanguage bool) string {
 	}
 
 	if addLanguage {
-		hadSlash := strings.HasSuffix(u, "/")
+		prefix := getLanguagePrefix()
+		if prefix != "" {
+			hadSlash := strings.HasSuffix(u, "/")
 
-		u = path.Join(getLanguagePrefix(), u)
+			u = path.Join(prefix, u)
 
-		if hadSlash {
-			u += "/"
+			if hadSlash {
+				u += "/"
+			}
 		}
 	}
 

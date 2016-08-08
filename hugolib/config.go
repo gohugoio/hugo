@@ -104,4 +104,5 @@ func loadDefaultSettings() {
 	viper.SetDefault("UseModTimeAsFallback", false)
 	viper.SetDefault("Multilingual", false)
 	viper.SetDefault("DefaultContentLanguage", "en")
+	viper.SetDefault("DefaultContentLanguageInSubdir", false)
 }

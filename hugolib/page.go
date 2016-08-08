@@ -514,7 +514,7 @@ func (p *Page) permalink() (*url.URL, error) {
 		}
 	}
 
-	permalink = p.addMultilingualWebPrefix(permalink)
+	permalink = p.addLangPathPrefix(permalink)
 
 	return helpers.MakePermalink(baseURL, permalink), nil
 }
@@ -1059,7 +1059,7 @@ func (p *Page) TargetPath() (outfile string) {
 				outfile += "index.html"
 			}
 			outfile = filepath.FromSlash(outfile)
-			outfile = p.addMultilingualFilesystemPrefix(outfile)
+			outfile = p.addLangFilepathPrefix(outfile)
 			return
 		}
 	}
@@ -1071,5 +1071,5 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.TranslationBaseName(), p.Extension())
 	}
 
-	return p.addMultilingualFilesystemPrefix(filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
+	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
 }

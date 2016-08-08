@@ -167,10 +167,11 @@ type SiteInfo struct {
 	paginationPageCount   uint64
 	Data                  *map[string]interface{}
 
-	multilingual   *Multilingual
-	Language       *helpers.Language
-	LanguagePrefix string
-	Languages      helpers.Languages
+	multilingual                   *Multilingual
+	Language                       *helpers.Language
+	LanguagePrefix                 string
+	Languages                      helpers.Languages
+	defaultContentLanguageInSubdir bool
 }
 
 // Used in tests.
@@ -864,42 +865,45 @@ func (s *Site) initializeSiteInfo() {
 		permalinks[k] = pathPattern(v)
 	}
 
+	defaultContentInSubDir := viper.GetBool("DefaultContentLanguageInSubdir")
+	defaultContentLanguage := viper.GetString("DefaultContentLanguage")
+
 	languagePrefix := ""
-	if s.multilingualEnabled() {
+	if s.multilingualEnabled() && (defaultContentInSubDir || lang.Lang != defaultContentLanguage) {
 		languagePrefix = "/" + lang.Lang
 	}
 
 	var multilingual *Multilingual
-
 	if s.owner != nil {
 		multilingual = s.owner.multilingual
 	}
 
 	s.Info = SiteInfo{
-		BaseURL:               template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
-		Title:                 lang.GetString("Title"),
-		Author:                lang.GetStringMap("author"),
-		Social:                lang.GetStringMapString("social"),
-		LanguageCode:          lang.GetString("languagecode"),
-		Copyright:             lang.GetString("copyright"),
-		DisqusShortname:       lang.GetString("DisqusShortname"),
-		multilingual:          multilingual,
-		Language:              lang,
-		LanguagePrefix:        languagePrefix,
-		Languages:             languages,
-		GoogleAnalytics:       lang.GetString("GoogleAnalytics"),
-		RSSLink:               permalinkStr(viper.GetString("RSSUri")),
-		BuildDrafts:           viper.GetBool("BuildDrafts"),
-		canonifyURLs:          viper.GetBool("CanonifyURLs"),
-		preserveTaxonomyNames: viper.GetBool("PreserveTaxonomyNames"),
-		AllPages:              &s.AllPages,
-		Pages:                 &s.Pages,
-		rawAllPages:           &s.rawAllPages,
-		Files:                 &s.Files,
-		Menus:                 &s.Menus,
-		Params:                params,
-		Permalinks:            permalinks,
-		Data:                  &s.Data,
+		BaseURL:                        template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
+		Title:                          lang.GetString("Title"),
+		Author:                         lang.GetStringMap("author"),
+		Social:                         lang.GetStringMapString("social"),
+		LanguageCode:                   lang.GetString("languagecode"),
+		Copyright:                      lang.GetString("copyright"),
+		DisqusShortname:                lang.GetString("DisqusShortname"),
+		multilingual:                   multilingual,
+		Language:                       lang,
+		LanguagePrefix:                 languagePrefix,
+		Languages:                      languages,
+		defaultContentLanguageInSubdir: defaultContentInSubDir,
+		GoogleAnalytics:                lang.GetString("GoogleAnalytics"),
+		RSSLink:                        permalinkStr(viper.GetString("RSSUri")),
+		BuildDrafts:                    viper.GetBool("BuildDrafts"),
+		canonifyURLs:                   viper.GetBool("CanonifyURLs"),
+		preserveTaxonomyNames:          viper.GetBool("PreserveTaxonomyNames"),
+		AllPages:                       &s.AllPages,
+		Pages:                          &s.Pages,
+		rawAllPages:                    &s.rawAllPages,
+		Files:                          &s.Files,
+		Menus:                          &s.Menus,
+		Params:                         params,
+		Permalinks:                     permalinks,
+		Data:                           &s.Data,
 	}
 }
 
@@ -1280,7 +1284,7 @@ func (s *Site) assembleMenus() {
 				if p.Section() != "" {
 					me := MenuEntry{Identifier: p.Section(),
 						Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())),
-						URL:  s.Info.createNodeMenuEntryURL(p.addMultilingualWebPrefix("/"+p.Section()) + "/")}
+						URL:  s.Info.createNodeMenuEntryURL(p.addLangPathPrefix("/"+p.Section()) + "/")}
 					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
 						// menu with same id defined in config, let that one win
 						continue
@@ -1422,7 +1426,7 @@ func (s *Site) renderAliases() error {
 		}
 	}
 
-	if s.owner.multilingual.enabled() {
+	if s.owner.multilingual.enabled() && s.Info.defaultContentLanguageInSubdir {
 		mainLang := s.owner.multilingual.DefaultLang.Lang
 		mainLangURL := helpers.AbsURL(mainLang, false)
 		jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
@@ -1612,19 +1616,6 @@ func (s *Site) newTaxonomyNode(t taxRenderInfo) (*Node, string) {
 	return n, base
 }
 
-// addMultilingualPrefix adds the `en/` prefix to the path passed as parameter.
-// `basePath` must not start with http://
-func (s *Site) addMultilingualPrefix(basePath string) string {
-	hadPrefix := strings.HasPrefix(basePath, "/")
-	if s.multilingualEnabled() {
-		basePath = path.Join(s.Language.Lang, basePath)
-		if hadPrefix {
-			basePath = "/" + basePath
-		}
-	}
-	return basePath
-}
-
 func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -1637,14 +1628,13 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			[]string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"})
 
 		n, base = s.newTaxonomyNode(t)
-
-		base = s.addMultilingualPrefix(base)
+		baseWithLanguagePrefix := n.addLangPathPrefix(base)
 
 		dest := base
 		if viper.GetBool("UglyURLs") {
-			dest = helpers.Uglify(base + ".html")
+			dest = helpers.Uglify(baseWithLanguagePrefix + ".html")
 		} else {
-			dest = helpers.PrettifyPath(base + "/index.html")
+			dest = helpers.PrettifyPath(baseWithLanguagePrefix + "/index.html")
 		}
 
 		if err := s.renderAndWritePage("taxonomy "+t.singular, dest, n, layouts...); err != nil {
@@ -1657,7 +1647,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 			paginatePath := viper.GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base))
+			s.writeDestAlias(helpers.PaginateAliasPath(baseWithLanguagePrefix, 1), n.Permalink())
 
 			pagers := n.paginator.Pagers()
 
@@ -1675,7 +1665,7 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 					taxonomyPagerNode.Lastmod = first.Lastmod
 				}
 				pageNumber := i + 1
-				htmlBase := fmt.Sprintf("/%s/%s/%d", base, paginatePath, pageNumber)
+				htmlBase := fmt.Sprintf("/%s/%s/%d", baseWithLanguagePrefix, paginatePath, pageNumber)
 				if err := s.renderAndWritePage(fmt.Sprintf("taxonomy %s", t.singular), htmlBase, taxonomyPagerNode, layouts...); err != nil {
 					results <- err
 					continue
@@ -1686,11 +1676,10 @@ func taxonomyRenderer(s *Site, taxes <-chan taxRenderInfo, results chan<- error,
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			n.URLPath.URL = permalinkStr(base + "/" + rssuri)
-			n.URLPath.Permalink = permalink(base)
+			s.setURLs(n, base+"/"+rssuri)
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
-			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", baseWithLanguagePrefix+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				results <- err
 				continue
 			}
@@ -1714,7 +1703,7 @@ func (s *Site) renderListsOfTaxonomyTerms() (err error) {
 		layouts := []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 		layouts = s.appendThemeTemplates(layouts)
 		if s.layoutExists(layouts...) {
-			if err := s.renderAndWritePage("taxonomy terms for "+singular, s.addMultilingualPrefix(plural+"/index.html"), n, layouts...); err != nil {
+			if err := s.renderAndWritePage("taxonomy terms for "+singular, n.addLangPathPrefix(plural+"/index.html"), n, layouts...); err != nil {
 				return err
 			}
 		}
@@ -1755,9 +1744,9 @@ func (s *Site) renderSectionLists() error {
 			section = helpers.MakePathSanitized(section)
 		}
 
-		base := s.addMultilingualPrefix(section)
-
 		n := s.newSectionListNode(sectionName, section, data)
+		base := n.addLangPathPrefix(section)
+
 		if err := s.renderAndWritePage(fmt.Sprintf("section %s", section), base, n, s.appendThemeTemplates(layouts)...); err != nil {
 			return err
 		}
@@ -1795,10 +1784,9 @@ func (s *Site) renderSectionLists() error {
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			n.URLPath.URL = permalinkStr(base + "/" + rssuri)
-			n.URLPath.Permalink = permalink(base)
+			s.setURLs(n, section+"/"+rssuri)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			if err := s.renderAndWriteXML("section "+section+" rss", base+"/"+rssuri, n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", n.addLangPathPrefix(section+"/"+rssuri), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
@@ -1807,19 +1795,21 @@ func (s *Site) renderSectionLists() error {
 }
 
 func (s *Site) renderHomePage() error {
-	n := s.newHomeNode()
-	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 
-	if err := s.renderAndWritePage("homepage", s.addMultilingualPrefix(helpers.FilePathSeparator), n, layouts...); err != nil {
+	n := s.newHomeNode()
+
+	layouts := s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
+	base := n.addLangFilepathPrefix("")
+	if err := s.renderAndWritePage("homepage", base, n, layouts...); err != nil {
 		return err
 	}
 
 	if n.paginator != nil {
-
 		paginatePath := viper.GetString("paginatePath")
 
 		// write alias for page 1
-		s.writeDestAlias(s.addMultilingualPrefix(helpers.PaginateAliasPath("", 1)), permalink("/"))
+		// TODO(bep) ml all of these n.addLang ... fix.
+		s.writeDestAlias(n.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), n.Permalink())
 
 		pagers := n.paginator.Pagers()
 
@@ -1838,7 +1828,7 @@ func (s *Site) renderHomePage() error {
 			}
 			pageNumber := i + 1
 			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
-			htmlBase = s.addMultilingualPrefix(htmlBase)
+			htmlBase = n.addLangPathPrefix(htmlBase)
 			if err := s.renderAndWritePage(fmt.Sprintf("homepage"), filepath.FromSlash(htmlBase), homePagerNode, layouts...); err != nil {
 				return err
 			}
@@ -1847,7 +1837,7 @@ func (s *Site) renderHomePage() error {
 
 	if !viper.GetBool("DisableRSS") {
 		// XML Feed
-		n.URLPath.URL = permalinkStr(viper.GetString("RSSUri"))
+		s.setURLs(n, viper.GetString("RSSUri"))
 		n.Title = ""
 		high := 50
 		if len(s.Pages) < high {
@@ -1861,7 +1851,7 @@ func (s *Site) renderHomePage() error {
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
 
-		if err := s.renderAndWriteXML("homepage rss", s.addMultilingualPrefix(viper.GetString("RSSUri")), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+		if err := s.renderAndWriteXML("homepage rss", n.addLangPathPrefix(viper.GetString("RSSUri")), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}
@@ -1911,10 +1901,11 @@ func (s *Site) renderSitemap() error {
 	pages := make(Pages, 0)
 
 	page := &Page{}
+	page.language = s.Language
 	page.Date = s.Info.LastChange
 	page.Lastmod = s.Info.LastChange
 	page.Site = &s.Info
-	page.URLPath.URL = "/"
+	page.URLPath.URL = ""
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
 
@@ -1938,8 +1929,8 @@ func (s *Site) renderSitemap() error {
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
-
-	if err := s.renderAndWriteXML("sitemap", s.addMultilingualPrefix(page.Sitemap.Filename), n, s.appendThemeTemplates(smLayouts)...); err != nil {
+	addLanguagePrefix := n.Site.IsMultiLingual()
+	if err := s.renderAndWriteXML("sitemap", n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...); err != nil {
 		return err
 	}
 
