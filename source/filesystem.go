@@ -18,9 +18,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/spf13/hugo/hugofs"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/spf13/viper"
 
@@ -65,6 +67,11 @@ func (f *Filesystem) Files() []*File {
 // add populates a file in the Filesystem.files
 func (f *Filesystem) add(name string, reader io.Reader) (err error) {
 	var file *File
+
+	if runtime.GOOS == "darwin" {
+		// When a file system is HFS+, its filepath is in NFD form.
+		name = norm.NFC.String(name)
+	}
 
 	file, err = NewFileFromAbs(f.Base, name, reader)
 
