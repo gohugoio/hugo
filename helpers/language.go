@@ -31,6 +31,10 @@ type Language struct {
 	paramsInit sync.Once
 }
 
+func (l *Language) String() string {
+	return l.Lang
+}
+
 func NewLanguage(lang string) *Language {
 	return &Language{Lang: lang, params: make(map[string]interface{})}
 }

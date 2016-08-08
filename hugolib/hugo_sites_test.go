@@ -32,10 +32,132 @@ func testCommonResetState() {
 	viper.SetFs(hugofs.Source())
 	loadDefaultSettings()
 
+	// Default is false, but true is easier to use as default in tests
+	viper.Set("DefaultContentLanguageInSubdir", true)
+
 	if err := hugofs.Source().Mkdir("content", 0755); err != nil {
 		panic("Content folder creation failed.")
 	}
 
+}
+
+func TestMultiSitesMainLangInRoot(t *testing.T) {
+	for _, b := range []bool{false, true} {
+		doTestMultiSitesMainLangInRoot(t, b)
+	}
+}
+
+func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
+	testCommonResetState()
+	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
+
+	sites := createMultiTestSites(t, multiSiteTomlConfig)
+
+	err := sites.Build(BuildCfg{})
+
+	if err != nil {
+		t.Fatalf("Failed to build sites: %s", err)
+	}
+
+	require.Len(t, sites.Sites, 2)
+
+	enSite := sites.Sites[0]
+	frSite := sites.Sites[1]
+
+	require.Equal(t, "/en", enSite.Info.LanguagePrefix)
+
+	if defaultInSubDir {
+		require.Equal(t, "/fr", frSite.Info.LanguagePrefix)
+	} else {
+		require.Equal(t, "", frSite.Info.LanguagePrefix)
+	}
+
+	doc1en := enSite.Pages[0]
+	doc1fr := frSite.Pages[0]
+
+	enPerm, _ := doc1en.Permalink()
+	enRelPerm, _ := doc1en.RelPermalink()
+	require.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", enPerm)
+	require.Equal(t, "/blog/en/sect/doc1-slug/", enRelPerm)
+
+	frPerm, _ := doc1fr.Permalink()
+	frRelPerm, _ := doc1fr.RelPermalink()
+	// Main language in root
+	require.Equal(t, replaceDefaultContentLanguageValue("http://example.com/blog/fr/sect/doc1/", defaultInSubDir), frPerm)
+	require.Equal(t, replaceDefaultContentLanguageValue("/blog/fr/sect/doc1/", defaultInSubDir), frRelPerm)
+
+	assertFileContent(t, "public/fr/sect/doc1/index.html", defaultInSubDir, "Single", "Bonjour")
+	assertFileContent(t, "public/en/sect/doc1-slug/index.html", defaultInSubDir, "Single", "Hello")
+
+	// Check home
+	if defaultInSubDir {
+		// should have a redirect on top level.
+		assertFileContent(t, "public/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+	}
+	assertFileContent(t, "public/fr/index.html", defaultInSubDir, "Home", "Bonjour")
+	assertFileContent(t, "public/en/index.html", defaultInSubDir, "Home", "Hello")
+
+	// Check list pages
+	assertFileContent(t, "public/fr/sect/index.html", defaultInSubDir, "List", "Bonjour")
+	assertFileContent(t, "public/en/sect/index.html", defaultInSubDir, "List", "Hello")
+	assertFileContent(t, "public/fr/plaques/frtag1/index.html", defaultInSubDir, "List", "Bonjour")
+	assertFileContent(t, "public/en/tags/tag1/index.html", defaultInSubDir, "List", "Hello")
+
+	// Check sitemaps
+	// Sitemaps behaves different: In a multilanguage setup there will always be a index file and
+	// one sitemap in each lang folder.
+	assertFileContent(t, "public/sitemap.xml", true,
+		"<loc>http:/example.com/blog/en/sitemap.xml</loc>",
+		"<loc>http:/example.com/blog/fr/sitemap.xml</loc>")
+
+	if defaultInSubDir {
+		assertFileContent(t, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/fr/</loc>")
+	} else {
+		assertFileContent(t, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/</loc>")
+	}
+	assertFileContent(t, "public/en/sitemap.xml", true, "<loc>http://example.com/blog/en/</loc>")
+
+	// Check rss
+	assertFileContent(t, "public/fr/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/index.xml"`)
+	assertFileContent(t, "public/en/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/index.xml"`)
+	assertFileContent(t, "public/fr/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
+	assertFileContent(t, "public/en/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
+	assertFileContent(t, "public/fr/plaques/frtag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
+	assertFileContent(t, "public/en/tags/tag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
+
+	// Check paginators
+	assertFileContent(t, "public/fr/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/"`)
+	assertFileContent(t, "public/en/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/"`)
+	assertFileContent(t, "public/fr/page/2/index.html", defaultInSubDir, "Home Page 2", "Bonjour", "http://example.com/blog/fr/")
+	assertFileContent(t, "public/en/page/2/index.html", defaultInSubDir, "Home Page 2", "Hello", "http://example.com/blog/en/")
+	assertFileContent(t, "public/fr/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/sect/"`)
+	assertFileContent(t, "public/en/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/sect/"`)
+	assertFileContent(t, "public/fr/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/sect/")
+	assertFileContent(t, "public/en/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/sect/")
+	assertFileContent(t, "public/fr/plaques/frtag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`)
+	assertFileContent(t, "public/en/tags/tag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
+	assertFileContent(t, "public/fr/plaques/frtag1/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
+	assertFileContent(t, "public/en/tags/tag1/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
+
+}
+
+func replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) string {
+	replace := viper.GetString("DefaultContentLanguage") + "/"
+	if !defaultInSubDir {
+		value = strings.Replace(value, replace, "", 1)
+
+	}
+	return value
+
+}
+
+func assertFileContent(t *testing.T, filename string, defaultInSubDir bool, matches ...string) {
+	filename = replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+	content := readDestination(t, filename)
+	for _, match := range matches {
+		match = replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		require.True(t, strings.Contains(content, match), fmt.Sprintf("File no match for %q in %q: %s", match, filename, content))
+	}
 }
 
 func TestMultiSitesBuild(t *testing.T) {
@@ -397,7 +519,7 @@ DisableSitemap = false
 DisableRSS = false
 RSSUri = "index.xml"
 
-paginate = 2
+paginate = 1
 DefaultContentLanguage = "fr"
 
 [permalinks]
@@ -435,14 +557,14 @@ func createMultiTestSites(t *testing.T, tomlConfig string) *HugoSites {
 
 	if err := afero.WriteFile(hugofs.Source(),
 		filepath.Join("layouts", "_default/list.html"),
-		[]byte("List: {{ .Title }}"),
+		[]byte("{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
 
 	if err := afero.WriteFile(hugofs.Source(),
 		filepath.Join("layouts", "index.html"),
-		[]byte("Home: {{ .Title }}|{{ .IsHome }}"),
+		[]byte("{{ $p := .Paginator }}Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
@@ -505,6 +627,7 @@ title: doc3
 publishdate: "2000-01-03"
 tags:
  - tag2
+ - tag1
 url: /superbob
 ---
 # doc3
