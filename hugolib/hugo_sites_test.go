@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -140,6 +141,9 @@ func TestMultiSitesBuild(t *testing.T) {
 	assert.True(t, strings.Contains(string(doc1fr.Content), "&laquo;"), string(doc1fr.Content))
 	assert.False(t, strings.Contains(string(doc1en.Content), "&laquo;"), string(doc1en.Content))
 	assert.True(t, strings.Contains(string(doc1en.Content), "&ldquo;"), string(doc1en.Content))
+
+	// Check that the drafts etc. are not built/processed/rendered.
+	assertShouldNotBuild(t, sites)
 
 }
 
@@ -302,6 +306,30 @@ func TestMultiSitesRebuild(t *testing.T) {
 		}
 
 		this.assertFunc(t)
+	}
+
+	// Check that the drafts etc. are not built/processed/rendered.
+	assertShouldNotBuild(t, sites)
+
+}
+
+func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
+	s := sites.Sites[0]
+
+	for _, p := range s.rawAllPages {
+		// No HTML when not processed
+		require.Equal(t, p.shouldBuild(), bytes.Contains(p.rawContent, []byte("</")), p.BaseFileName()+": "+string(p.rawContent))
+		require.Equal(t, p.shouldBuild(), p.Content != "", p.BaseFileName())
+
+		require.Equal(t, p.shouldBuild(), p.Content != "", p.BaseFileName())
+
+		filename := filepath.Join("public", p.TargetPath())
+		if strings.HasSuffix(filename, ".html") {
+			// TODO(bep) the end result is correct, but it is weird that we cannot use targetPath directly here.
+			filename = strings.Replace(filename, ".html", "/index.html", 1)
+		}
+
+		require.Equal(t, p.shouldBuild(), destinationExists(filename), filename)
 	}
 }
 
@@ -577,6 +605,14 @@ func writeSource(t *testing.T, filename, content string) {
 
 func readDestination(t *testing.T, filename string) string {
 	return readFileFromFs(t, hugofs.Destination(), filename)
+}
+
+func destinationExists(filename string) bool {
+	b, err := helpers.Exists(filename, hugofs.Destination())
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
 
 func readSource(t *testing.T, filename string) string {
