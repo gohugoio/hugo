@@ -242,7 +242,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		s.resetBuildState()
 	}
 
-	sourceChanged, err := firstSite.ReBuild(events)
+	sourceChanged, err := firstSite.reBuild(events)
 
 	if err != nil {
 		return err

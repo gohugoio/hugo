@@ -437,9 +437,9 @@ func (s *Site) timerStep(step string) {
 	s.timer.Step(step)
 }
 
-// ReBuild partially rebuilds a site given the filesystem events.
+// reBuild partially rebuilds a site given the filesystem events.
 // It returns whetever the content source was changed.
-func (s *Site) ReBuild(events []fsnotify.Event) (bool, error) {
+func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 
 	jww.DEBUG.Printf("Rebuild for events %q", events)
 
@@ -555,7 +555,9 @@ func (s *Site) ReBuild(events []fsnotify.Event) (bool, error) {
 		// Do not need to read the files again, but they need conversion
 		// for shortocde re-rendering.
 		for _, p := range s.rawAllPages {
-			pageChan <- p
+			if p.shouldBuild() {
+				pageChan <- p
+			}
 		}
 	}
 
@@ -1016,7 +1018,9 @@ func (s *Site) convertSource() chan error {
 	go converterCollator(s, results, errs)
 
 	for _, p := range s.rawAllPages {
-		pageChan <- p
+		if p.shouldBuild() {
+			pageChan <- p
+		}
 	}
 
 	for _, f := range s.Files {
