@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -284,6 +285,16 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 
 	return nil
 
+}
+
+// Analyze prints a build report to Stdout.
+// Useful for debugging.
+func (h *HugoSites) Analyze() error {
+	if err := h.Build(BuildCfg{SkipRender: true}); err != nil {
+		return err
+	}
+	s := h.Sites[0]
+	return s.ShowPlan(os.Stdout)
 }
 
 // Render the cross-site artifacts.

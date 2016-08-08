@@ -15,7 +15,6 @@ package commands
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/hugolib"
 )
 
 var checkCmd = &cobra.Command{
@@ -34,7 +33,10 @@ func check(cmd *cobra.Command, args []string) error {
 	if err := InitializeConfig(checkCmd); err != nil {
 		return err
 	}
-	site := hugolib.Site{}
 
-	return site.Analyze()
+	if err := initSites(); err != nil {
+		return err
+	}
+
+	return Hugo.Analyze()
 }
