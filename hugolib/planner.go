@@ -32,9 +32,9 @@ func (s *Site) ShowPlan(out io.Writer) (err error) {
 		} else {
 			fmt.Fprintf(out, " (renderer: n/a)")
 		}
-		if s.Tmpl != nil {
+		if s.owner.tmpl != nil {
 			for _, l := range p.layouts() {
-				fmt.Fprintf(out, " (layout: %s, exists: %t)", l, s.Tmpl.Lookup(l) != nil)
+				fmt.Fprintf(out, " (layout: %s, exists: %t)", l, s.owner.tmpl.Lookup(l) != nil)
 			}
 		}
 		fmt.Fprintf(out, "\n")

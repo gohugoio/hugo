@@ -35,7 +35,10 @@ import (
 type HugoSites struct {
 	Sites []*Site
 
-	Multilingual *Multilingual
+	tmpl    tpl.Template
+	runMode runmode
+
+	multilingual *Multilingual
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
@@ -47,7 +50,12 @@ func newHugoSites(sites ...*Site) (*HugoSites, error) {
 		return nil, err
 	}
 
-	return &HugoSites{Multilingual: langConfig, Sites: sites}, nil
+	h := &HugoSites{multilingual: langConfig, Sites: sites}
+
+	for _, s := range sites {
+		s.owner = h
+	}
+	return h, nil
 }
 
 // NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
@@ -92,7 +100,6 @@ func (h *HugoSites) reset() {
 }
 
 func (h *HugoSites) reCreateFromConfig() error {
-	oldSite := h.Sites[0]
 	sites, err := createSitesFromConfig()
 
 	if err != nil {
@@ -106,12 +113,12 @@ func (h *HugoSites) reCreateFromConfig() error {
 	}
 
 	h.Sites = sites
-	h.Multilingual = langConfig
 
-	for _, s := range h.Sites {
-		// TODO(bep) ml Tmpl
-		s.Tmpl = oldSite.Tmpl
+	for _, s := range sites {
+		s.owner = h
 	}
+
+	h.multilingual = langConfig
 
 	return nil
 }
@@ -157,17 +164,13 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		}
 	}
 
+	h.runMode.Watching = config.Watching
+
 	// We should probably refactor the Site and pull up most of the logic from there to here,
 	// but that seems like a daunting task.
 	// So for now, if there are more than one site (language),
 	// we pre-process the first one, then configure all the sites based on that.
 	firstSite := h.Sites[0]
-
-	for _, s := range h.Sites {
-		// TODO(bep) ml
-		s.Multilingual = h.Multilingual
-		s.RunMode.Watching = config.Watching
-	}
 
 	if err := firstSite.preProcess(config); err != nil {
 		return err
@@ -178,8 +181,6 @@ func (h *HugoSites) Build(config BuildCfg) error {
 	if len(h.Sites) > 1 {
 		// Initialize the rest
 		for _, site := range h.Sites[1:] {
-			// TODO(bep) ml Tmpl
-			site.Tmpl = firstSite.Tmpl
 			site.initializeSiteInfo()
 		}
 	}
@@ -231,11 +232,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		return errors.New("Rebuild does not support 'ResetState'. Use Build.")
 	}
 
-	for _, s := range h.Sites {
-		// TODO(bep) ml
-		s.Multilingual = h.Multilingual
-		s.RunMode.Watching = config.Watching
-	}
+	h.runMode.Watching = config.Watching
 
 	firstSite := h.Sites[0]
 
@@ -300,7 +297,7 @@ func (h *HugoSites) Analyze() error {
 // Render the cross-site artifacts.
 func (h *HugoSites) render() error {
 
-	if !h.Multilingual.enabled() {
+	if !h.multilingual.enabled() {
 		return nil
 	}
 
@@ -353,7 +350,7 @@ func (h *HugoSites) setupTranslations(master *Site) {
 
 	if len(h.Sites) > 1 {
 		pages := h.Sites[0].AllPages
-		allTranslations := pagesToTranslationsMap(h.Multilingual, pages)
+		allTranslations := pagesToTranslationsMap(h.multilingual, pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
 }
@@ -374,7 +371,7 @@ func (h *HugoSites) preRender() error {
 		go func(pages <-chan *Page, wg *sync.WaitGroup) {
 			defer wg.Done()
 			for p := range pages {
-				if err := handleShortcodes(p, s.Tmpl); err != nil {
+				if err := handleShortcodes(p, s.owner.tmpl); err != nil {
 					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 

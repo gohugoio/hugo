@@ -76,11 +76,11 @@ var (
 //
 // 5. The entire collection of files is written to disk.
 type Site struct {
+	owner          *HugoSites
 	Pages          Pages
 	AllPages       Pages
 	rawAllPages    Pages
 	Files          []*source.File
-	Tmpl           tpl.Template
 	Taxonomies     TaxonomyList
 	Source         source.Input
 	Sections       Taxonomy
@@ -89,19 +89,16 @@ type Site struct {
 	timer          *nitro.B
 	targets        targetList
 	targetListInit sync.Once
-	RunMode        runmode
-	// TODO(bep ml remove
-	Multilingual *Multilingual
-	draftCount   int
-	futureCount  int
-	expiredCount int
-	Data         map[string]interface{}
-	Language     *helpers.Language
+	draftCount     int
+	futureCount    int
+	expiredCount   int
+	Data           map[string]interface{}
+	Language       *helpers.Language
 }
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Language: s.Language, Multilingual: s.Multilingual}
+	return &Site{Language: s.Language}
 }
 
 // newSite creates a new site in the given language.
@@ -423,7 +420,7 @@ type runmode struct {
 }
 
 func (s *Site) running() bool {
-	return s.RunMode.Watching
+	return s.owner.runMode.Watching
 }
 
 func init() {
@@ -478,7 +475,7 @@ func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 
 	if len(tmplChanged) > 0 {
 		s.prepTemplates(nil)
-		s.Tmpl.PrintErrors()
+		s.owner.tmpl.PrintErrors()
 		s.timerStep("template prep")
 	}
 
@@ -602,10 +599,10 @@ func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 }
 
 func (s *Site) loadTemplates() {
-	s.Tmpl = tpl.InitializeT()
-	s.Tmpl.LoadTemplates(s.absLayoutDir())
+	s.owner.tmpl = tpl.InitializeT()
+	s.owner.tmpl.LoadTemplates(s.absLayoutDir())
 	if s.hasTheme() {
-		s.Tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
+		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
 	}
 }
 
@@ -613,12 +610,12 @@ func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error 
 	s.loadTemplates()
 
 	if withTemplate != nil {
-		if err := withTemplate(s.Tmpl); err != nil {
+		if err := withTemplate(s.owner.tmpl); err != nil {
 			return err
 		}
 	}
 
-	s.Tmpl.MarkReady()
+	s.owner.tmpl.MarkReady()
 
 	return nil
 }
@@ -724,7 +721,7 @@ func (s *Site) preProcess(config BuildCfg) (err error) {
 		return
 	}
 	s.prepTemplates(config.withTemplate)
-	s.Tmpl.PrintErrors()
+	s.owner.tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")
 
 	if err = s.readDataFromSourceFS(); err != nil {
@@ -856,8 +853,8 @@ func (s *Site) initializeSiteInfo() {
 		languages helpers.Languages
 	)
 
-	if s.Multilingual != nil {
-		languages = s.Multilingual.Languages
+	if s.owner != nil && s.owner.multilingual != nil {
+		languages = s.owner.multilingual.Languages
 	}
 
 	params := lang.Params()
@@ -872,16 +869,21 @@ func (s *Site) initializeSiteInfo() {
 		languagePrefix = "/" + lang.Lang
 	}
 
+	var multilingual *Multilingual
+
+	if s.owner != nil {
+		multilingual = s.owner.multilingual
+	}
+
 	s.Info = SiteInfo{
-		BaseURL:         template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
-		Title:           lang.GetString("Title"),
-		Author:          lang.GetStringMap("author"),
-		Social:          lang.GetStringMapString("social"),
-		LanguageCode:    lang.GetString("languagecode"),
-		Copyright:       lang.GetString("copyright"),
-		DisqusShortname: lang.GetString("DisqusShortname"),
-		// TODO(bep) ml consolidate the below (make into methods etc.)
-		multilingual:          s.Multilingual,
+		BaseURL:               template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
+		Title:                 lang.GetString("Title"),
+		Author:                lang.GetStringMap("author"),
+		Social:                lang.GetStringMapString("social"),
+		LanguageCode:          lang.GetString("languagecode"),
+		Copyright:             lang.GetString("copyright"),
+		DisqusShortname:       lang.GetString("DisqusShortname"),
+		multilingual:          multilingual,
 		Language:              lang,
 		LanguagePrefix:        languagePrefix,
 		Languages:             languages,
@@ -1420,8 +1422,8 @@ func (s *Site) renderAliases() error {
 		}
 	}
 
-	if s.Multilingual.enabled() {
-		mainLang := s.Multilingual.DefaultLang.Lang
+	if s.owner.multilingual.enabled() {
+		mainLang := s.owner.multilingual.DefaultLang.Lang
 		mainLangURL := helpers.AbsURL(mainLang, false)
 		jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 		if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL); err != nil {
@@ -1450,7 +1452,7 @@ func (s *Site) renderPages() error {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
-			_, err := s.Tmpl.GetClone().New(self).Parse(string(p.Content))
+			_, err := s.owner.tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				results <- err
 				continue
@@ -2154,7 +2156,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 
 func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
 	for _, layout := range layouts {
-		if s.Tmpl.Lookup(layout) != nil {
+		if s.owner.tmpl.Lookup(layout) != nil {
 			return layout, true
 		}
 	}
@@ -2164,7 +2166,7 @@ func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
 func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 
 	// If the template doesn't exist, then return, but leave the Writer open
-	if templ := s.Tmpl.Lookup(layout); templ != nil {
+	if templ := s.owner.tmpl.Lookup(layout); templ != nil {
 		return templ.Execute(w, d)
 	}
 	return fmt.Errorf("Layout not found: %s", layout)

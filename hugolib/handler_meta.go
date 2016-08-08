@@ -74,7 +74,7 @@ func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 			return
 		}
 
-		results <- h.PageConvert(p, s.Tmpl)
+		results <- h.PageConvert(p, s.owner.tmpl)
 	}
 }
 

@@ -72,7 +72,10 @@ func (ml *Multilingual) enabled() bool {
 }
 
 func (s *Site) multilingualEnabled() bool {
-	return s.Multilingual != nil && s.Multilingual.enabled()
+	if s.owner == nil {
+		return false
+	}
+	return s.owner.multilingual != nil && s.owner.multilingual.enabled()
 }
 
 func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
