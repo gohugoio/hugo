@@ -39,6 +39,10 @@ type HugoSites struct {
 	runMode runmode
 
 	multilingual *Multilingual
+
+	// Maps internalID to a set of nodes.
+	nodeMap   map[string]Nodes
+	nodeMapMu sync.Mutex
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
@@ -50,7 +54,7 @@ func newHugoSites(sites ...*Site) (*HugoSites, error) {
 		return nil, err
 	}
 
-	h := &HugoSites{multilingual: langConfig, Sites: sites}
+	h := &HugoSites{multilingual: langConfig, Sites: sites, nodeMap: make(map[string]Nodes)}
 
 	for _, s := range sites {
 		s.owner = h
@@ -92,14 +96,39 @@ func createSitesFromConfig() ([]*Site, error) {
 	return sites, nil
 }
 
+func (h *HugoSites) addNode(nodeID string, node *Node) {
+	h.nodeMapMu.Lock()
+
+	if nodes, ok := h.nodeMap[nodeID]; ok {
+		h.nodeMap[nodeID] = append(nodes, node)
+	} else {
+		h.nodeMap[nodeID] = Nodes{node}
+	}
+	h.nodeMapMu.Unlock()
+}
+
+func (h *HugoSites) getNodes(nodeID string) Nodes {
+	// At this point it is read only, so no need to lock.
+	if nodeID != "" {
+		if nodes, ok := h.nodeMap[nodeID]; ok {
+			return nodes
+		}
+	}
+	// Paginator pages will not have related nodes.
+	return Nodes{}
+}
+
 // Reset resets the sites, making it ready for a full rebuild.
 func (h *HugoSites) reset() {
+	h.nodeMap = make(map[string]Nodes)
 	for i, s := range h.Sites {
 		h.Sites[i] = s.reset()
 	}
 }
 
 func (h *HugoSites) reCreateFromConfig() error {
+	h.nodeMap = make(map[string]Nodes)
+
 	sites, err := createSitesFromConfig()
 
 	if err != nil {
@@ -236,6 +265,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 
 	firstSite := h.Sites[0]
 
+	h.nodeMap = make(map[string]Nodes)
 	for _, s := range h.Sites {
 		s.resetBuildState()
 	}
@@ -359,6 +389,23 @@ func (h *HugoSites) setupTranslations(master *Site) {
 // Shortcode handling is the main task in here.
 // TODO(bep) We need to look at the whole handler-chain construct witht he below in mind.
 func (h *HugoSites) preRender() error {
+
+	for _, s := range h.Sites {
+		// Run "render prepare"
+		if err := s.renderHomePage(true); err != nil {
+			return err
+		}
+		if err := s.renderTaxonomiesLists(true); err != nil {
+			return err
+		}
+		if err := s.renderListsOfTaxonomyTerms(true); err != nil {
+			return err
+		}
+		if err := s.renderSectionLists(true); err != nil {
+			return err
+		}
+	}
+
 	pageChan := make(chan *Page)
 
 	wg := &sync.WaitGroup{}
@@ -418,7 +465,7 @@ func (h *HugoSites) preRender() error {
 }
 
 // Pages returns all pages for all sites.
-func (h HugoSites) Pages() Pages {
+func (h *HugoSites) Pages() Pages {
 	return h.Sites[0].AllPages
 }
 
