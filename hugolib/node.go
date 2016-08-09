@@ -271,8 +271,14 @@ func (n *Node) Translations() Nodes {
 			translations = append(translations, t)
 		}
 	}
-
 	return translations
+}
+
+// IsTranslated returns whether this node is translated to
+// other language(s).
+func (n *Node) IsTranslated() bool {
+	n.initTranslations()
+	return len(n.translations) > 1
 }
 
 func (n *Node) initTranslations() {
