@@ -9,7 +9,7 @@ title: Multilingual Mode
 weight: 68
 toc: true
 ---
-Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the available languages in a `Languages` section in your top-level `config.yaml` (or equivalent).
+Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the available languages in a `Languages` section in your top-level `config.toml` (or equivalent).
 
 Example:
 
