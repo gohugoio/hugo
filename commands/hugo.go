@@ -25,6 +25,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/spf13/hugo/tpl"
+
 	"github.com/spf13/hugo/hugofs"
 
 	"github.com/spf13/hugo/parser"
@@ -242,6 +244,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&preserveTaxonomyNames, "preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
 	cmd.Flags().BoolVarP(&forceSync, "forceSyncStatic", "", false, "Copy all files when static is changed.")
 	cmd.Flags().BoolVarP(&noTimes, "noTimes", "", false, "Don't sync modification time of files")
+	cmd.Flags().BoolVarP(&tpl.Logi18nWarnings, "i18n-warnings", "", false, "Print missing translations")
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
