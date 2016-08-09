@@ -136,6 +136,12 @@ This uses a definition like this one in `i18n/en-US.yaml`:
 - id: wordCount
   translation: "This article has {{ .WordCount }} words."
 ```
+To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
+
+```bash
+ hugo --i18n-warnings | grep i18n
+i18n|MISSING_TRANSLATION|en|wordCount
+```
 
 ### Multilingual Themes support
 

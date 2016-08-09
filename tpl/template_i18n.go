@@ -17,7 +17,14 @@ import (
 	"fmt"
 
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
+)
+
+var (
+	Logi18nWarnings   bool
+	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
 )
 
 type translate struct {
@@ -33,29 +40,48 @@ var translater *translate = &translate{translateFuncs: make(map[string]bundle.Tr
 func SetTranslateLang(lang string) error {
 	if f, ok := translater.translateFuncs[lang]; ok {
 		translater.current = f
-		return nil
+	} else {
+		jww.WARN.Printf("Translation func for language %v not found, use default.", lang)
+		translater.current = translater.translateFuncs[viper.GetString("DefaultContentLanguage")]
 	}
-	jww.WARN.Printf("Translation func for language %v not found", lang)
 	return nil
 }
 
 func SetI18nTfuncs(bndl *bundle.Bundle) {
-	for _, lang := range bndl.LanguageTags() {
-		tFunc, err := bndl.Tfunc(lang)
-		if err == nil {
-			translater.translateFuncs[lang] = tFunc
-			continue
-		}
-		jww.WARN.Printf("could not load translations for language %q (%s), will not translate!\n", lang, err.Error())
-		translater.translateFuncs[lang] = bundle.TranslateFunc(func(id string, args ...interface{}) string {
-			// TODO: depending on the site mode, we might want to fall back on the default
-			// language's translation.
-			// TODO: eventually, we could add --i18n-warnings and print something when
-			// such things happen.
-			return fmt.Sprintf("[i18n: %s]", id)
-		})
+	defaultContentLanguage := viper.GetString("DefaultContentLanguage")
+	var (
+		defaultT bundle.TranslateFunc
+		err      error
+	)
+
+	defaultT, err = bndl.Tfunc(defaultContentLanguage)
+
+	if err != nil {
+		jww.WARN.Printf("No translation bundle found for default language %q", defaultContentLanguage)
 	}
 
+	for _, lang := range bndl.LanguageTags() {
+		currentLang := lang
+		tFunc, err := bndl.Tfunc(currentLang)
+
+		if err != nil {
+			jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
+			translater.translateFuncs[currentLang] = defaultT
+			continue
+		}
+		translater.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
+			if translated := tFunc(translationID, args...); translated != translationID {
+				return translated
+			}
+			if Logi18nWarnings {
+				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
+			}
+			if defaultT != nil {
+				return defaultT(translationID, args...)
+			}
+			return fmt.Sprintf("[i18n] %s", translationID)
+		}
+	}
 }
 
 func I18nTranslate(id string, args ...interface{}) (string, error) {
