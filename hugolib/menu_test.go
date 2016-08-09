@@ -27,6 +27,7 @@ import (
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -414,9 +415,13 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 	fishySectionPages := s.Sections["fish-and-chips"]
 	assert.Equal(t, 1, len(fishySectionPages))
 
-	nodeFirst := s.newSectionListNode("First", "first", firstSectionPages)
-	nodeSecond := s.newSectionListNode("Second Section", "second-section", secondSectionPages)
-	nodeFishy := s.newSectionListNode("Fish and Chips", "fish-and-chips", fishySectionPages)
+	nodeFirst := s.getNode("sect-first-0")
+	require.NotNil(t, nodeFirst)
+	nodeSecond := s.getNode("sect-second-section-0")
+	require.NotNil(t, nodeSecond)
+	nodeFishy := s.getNode("sect-Fish and Chips-0")
+	require.NotNil(t, nodeFishy)
+
 	firstSectionMenuEntry := findTestMenuEntryByID(s, "spm", "first")
 	secondSectionMenuEntry := findTestMenuEntryByID(s, "spm", "second-section")
 	fishySectionMenuEntry := findTestMenuEntryByID(s, "spm", "Fish and Chips")
@@ -472,7 +477,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 			&MenuEntry{Name: "Somewhere else", URL: "/somewhereelse"}, false, false},
 	} {
 
-		n, _ := s.newTaxonomyNode(this.taxInfo)
+		n, _ := s.newTaxonomyNode(true, this.taxInfo, i)
 
 		isMenuCurrent := n.IsMenuCurrent(this.menu, this.menuItem)
 		hasMenuCurrent := n.HasMenuCurrent(this.menu, this.menuItem)
@@ -544,7 +549,8 @@ func TestHomeNodeMenu(t *testing.T) {
 
 	s := setupMenuTests(t, menuPageSources)
 
-	home := s.newHomeNode()
+	home := s.getNode("home-0")
+
 	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL()}
 
 	for i, this := range []struct {

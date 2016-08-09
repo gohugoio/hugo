@@ -59,7 +59,7 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	require.Len(t, sites.Sites, 2)
+	require.Len(t, sites.Sites, 4)
 
 	enSite := sites.Sites[0]
 	frSite := sites.Sites[1]
@@ -177,8 +177,8 @@ func TestMultiSitesBuild(t *testing.T) {
 	if len(enSite.Pages) != 3 {
 		t.Fatal("Expected 3 english pages")
 	}
-	assert.Len(t, enSite.Source.Files(), 11, "should have 11 source files")
-	assert.Len(t, enSite.AllPages, 6, "should have 6 total pages (including translations)")
+	assert.Len(t, enSite.Source.Files(), 13, "should have 13 source files")
+	assert.Len(t, enSite.AllPages, 8, "should have 8 total pages (including translations)")
 
 	doc1en := enSite.Pages[0]
 	permalink, err := doc1en.Permalink()
@@ -230,7 +230,7 @@ func TestMultiSitesBuild(t *testing.T) {
 
 	assert.Equal(t, "fr", frSite.Language.Lang)
 	assert.Len(t, frSite.Pages, 3, "should have 3 pages")
-	assert.Len(t, frSite.AllPages, 6, "should have 6 total pages (including translations)")
+	assert.Len(t, frSite.AllPages, 8, "should have 8 total pages (including translations)")
 
 	for _, frenchPage := range frSite.Pages {
 		assert.Equal(t, "fr", frenchPage.Lang())
@@ -239,6 +239,36 @@ func TestMultiSitesBuild(t *testing.T) {
 	// Check redirect to main language, French
 	languageRedirect := readDestination(t, "public/index.html")
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
+
+	// Check node translations
+	homeEn := enSite.getNode("home-0")
+	require.NotNil(t, homeEn)
+	require.Len(t, homeEn.Translations(), 3)
+	require.Equal(t, "fr", homeEn.Translations()[0].Lang())
+	require.Equal(t, "nn", homeEn.Translations()[1].Lang())
+	require.Equal(t, "Nynorsk", homeEn.Translations()[1].Title)
+	require.Equal(t, "nb", homeEn.Translations()[2].Lang())
+	require.Equal(t, "Bokmål", homeEn.Translations()[2].Title)
+
+	sectFr := frSite.getNode("sect-sect-0")
+	require.NotNil(t, sectFr)
+
+	require.Equal(t, "fr", sectFr.Lang())
+	require.Len(t, sectFr.Translations(), 1)
+	require.Equal(t, "en", sectFr.Translations()[0].Lang())
+	require.Equal(t, "Sects", sectFr.Translations()[0].Title)
+
+	nnSite := sites.Sites[2]
+	require.Equal(t, "nn", nnSite.Language.Lang)
+	taxNn := nnSite.getNode("taxlist-lag-0")
+	require.NotNil(t, taxNn)
+	require.Len(t, taxNn.Translations(), 1)
+	require.Equal(t, "nb", taxNn.Translations()[0].Lang())
+
+	taxTermNn := nnSite.getNode("tax-lag-sogndal-0")
+	require.NotNil(t, taxTermNn)
+	require.Len(t, taxTermNn.Translations(), 1)
+	require.Equal(t, "nb", taxTermNn.Translations()[0].Lang())
 
 	// Check sitemap(s)
 	sitemapIndex := readDestination(t, "public/sitemap.xml")
@@ -338,7 +368,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			func(t *testing.T) {
 				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 8)
+				assert.Len(t, enSite.AllPages, 10)
 				assert.Len(t, frSite.Pages, 4)
 				assert.Equal(t, "new_fr_1", frSite.Pages[3].Title)
 				assert.Equal(t, "new_en_2", enSite.Pages[0].Title)
@@ -391,7 +421,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			[]fsnotify.Event{{Name: "layouts/_default/single.html", Op: fsnotify.Write}},
 			func(t *testing.T) {
 				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 8)
+				assert.Len(t, enSite.AllPages, 10)
 				assert.Len(t, frSite.Pages, 4)
 				doc1 := readDestination(t, "public/en/sect/doc1-slug/index.html")
 				assert.True(t, strings.Contains(doc1, "Template Changed"), doc1)
@@ -408,12 +438,18 @@ func TestMultiSitesRebuild(t *testing.T) {
 			[]fsnotify.Event{{Name: "i18n/fr.yaml", Op: fsnotify.Write}},
 			func(t *testing.T) {
 				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 8)
+				assert.Len(t, enSite.AllPages, 10)
 				assert.Len(t, frSite.Pages, 4)
 				docEn := readDestination(t, "public/en/sect/doc1-slug/index.html")
 				assert.True(t, strings.Contains(docEn, "Hello"), "No Hello")
 				docFr := readDestination(t, "public/fr/sect/doc1/index.html")
 				assert.True(t, strings.Contains(docFr, "Salut"), "No Salut")
+
+				homeEn := enSite.getNode("home-0")
+				require.NotNil(t, homeEn)
+				require.Len(t, homeEn.Translations(), 3)
+				require.Equal(t, "fr", homeEn.Translations()[0].Lang())
+
 			},
 		},
 	} {
@@ -469,12 +505,12 @@ func TestAddNewLanguage(t *testing.T) {
 
 	newConfig := multiSiteTomlConfig + `
 
-[Languages.no]
+[Languages.sv]
 weight = 15
-title = "Norsk"
+title = "Svenska"
 `
 
-	writeNewContentFile(t, "Norwegian Contentfile", "2016-01-01", "content/sect/doc1.no.md", 10)
+	writeNewContentFile(t, "Swedish Contentfile", "2016-01-01", "content/sect/doc1.sv.md", 10)
 	// replace the config
 	writeSource(t, "multilangconfig.toml", newConfig)
 
@@ -486,27 +522,32 @@ title = "Norsk"
 		t.Fatalf("Failed to rebuild sites: %s", err)
 	}
 
-	require.Len(t, sites.Sites, 3, fmt.Sprintf("Len %d", len(sites.Sites)))
+	require.Len(t, sites.Sites, 5, fmt.Sprintf("Len %d", len(sites.Sites)))
 
-	// The Norwegian site should be put in the middle (language weight=15)
+	// The Swedish site should be put in the middle (language weight=15)
 	enSite := sites.Sites[0]
-	noSite := sites.Sites[1]
+	svSite := sites.Sites[1]
 	frSite := sites.Sites[2]
 	require.True(t, enSite.Language.Lang == "en", enSite.Language.Lang)
-	require.True(t, noSite.Language.Lang == "no", noSite.Language.Lang)
+	require.True(t, svSite.Language.Lang == "sv", svSite.Language.Lang)
 	require.True(t, frSite.Language.Lang == "fr", frSite.Language.Lang)
+
+	homeEn := enSite.getNode("home-0")
+	require.NotNil(t, homeEn)
+	require.Len(t, homeEn.Translations(), 4)
+	require.Equal(t, "sv", homeEn.Translations()[0].Lang())
 
 	require.Len(t, enSite.Pages, 3)
 	require.Len(t, frSite.Pages, 3)
 
-	// Veriy Norwegian site
-	require.Len(t, noSite.Pages, 1)
-	noPage := noSite.Pages[0]
-	require.Equal(t, "Norwegian Contentfile", noPage.Title)
-	require.Equal(t, "no", noPage.Lang())
-	require.Len(t, noPage.Translations(), 2)
-	require.Len(t, noPage.AllTranslations(), 3)
-	require.Equal(t, "en", noPage.Translations()[0].Lang())
+	// Veriy Swedish site
+	require.Len(t, svSite.Pages, 1)
+	svPage := svSite.Pages[0]
+	require.Equal(t, "Swedish Contentfile", svPage.Title)
+	require.Equal(t, "sv", svPage.Lang())
+	require.Len(t, svPage.Translations(), 2)
+	require.Len(t, svPage.AllTranslations(), 3)
+	require.Equal(t, "en", svPage.Translations()[0].Lang())
 	//noFile := readDestination(t, "/public/no/doc1/index.html")
 	//require.True(t, strings.Contains("foo", noFile), noFile)
 
@@ -543,6 +584,18 @@ weight = 20
 title = "Français"
 [Languages.fr.Taxonomies]
 plaque = "plaques"
+
+[Languages.nn]
+weight = 30
+title = "Nynorsk"
+[Languages.nn.Taxonomies]
+lag = "lag"
+
+[Languages.nb]
+weight = 40
+title = "Bokmål"
+[Languages.nb.Taxonomies]
+lag = "lag"
 `
 
 func createMultiTestSites(t *testing.T, tomlConfig string) *HugoSites {
@@ -687,6 +740,24 @@ draft: true
 ---
 # Draft
 `)},
+		{filepath.FromSlash("stats/tax.nn.md"), []byte(`---
+title: Tax NN
+publishdate: "2000-01-06"
+weight: 1001
+lag:
+- Sogndal
+---
+# Tax NN
+`)},
+		{filepath.FromSlash("stats/tax.nb.md"), []byte(`---
+title: Tax NB
+publishdate: "2000-01-06"
+weight: 1002
+lag:
+- Sogndal
+---
+# Tax NB
+`)},
 	}
 
 	writeSource(t, "multilangconfig.toml", tomlConfig)
@@ -713,7 +784,7 @@ draft: true
 		t.Fatalf("Failed to create sites: %s", err)
 	}
 
-	if len(sites.Sites) != 2 {
+	if len(sites.Sites) != 4 {
 		t.Fatalf("Got %d sites", len(sites.Sites))
 	}
 

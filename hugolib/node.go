@@ -17,7 +17,7 @@ import (
 	"html/template"
 	"path"
 	"path/filepath"
-	"sort"
+	//"sort"
 	"strings"
 	"sync"
 	"time"
@@ -30,6 +30,11 @@ import (
 )
 
 type Node struct {
+	// a natural key that should be unique for this site
+	// for the home page this will typically be "home", but it can anything
+	// as long as it is the same for repeated builds.
+	nodeID string
+
 	RSSLink template.HTML
 	Site    *SiteInfo `json:"-"`
 	//	layout      string
@@ -283,23 +288,8 @@ func (n *Node) IsTranslated() bool {
 
 func (n *Node) initTranslations() {
 	n.translationsInit.Do(func() {
-		if n.translations != nil {
-			return
-		}
-		n.translations = make(Nodes, 0)
-		for _, l := range n.Site.Languages {
-			if l == n.language {
-				n.translations = append(n.translations, n)
-				continue
-			}
-
-			translation := *n
-			translation.language = l
-			translation.translations = n.translations
-			n.translations = append(n.translations, &translation)
-		}
-
-		sort.Sort(n.translations)
+		n.translations = n.Site.owner.getNodes(n.nodeID)
+		//sort.Sort(n.translations)
 	})
 }
 
