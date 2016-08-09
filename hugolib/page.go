@@ -531,6 +531,12 @@ func (p *Page) AllTranslations() Pages {
 	return p.translations
 }
 
+// IsTranslated returns whether this content file is translated to
+// other language(s).
+func (p *Page) IsTranslated() bool {
+	return len(p.translations) > 1
+}
+
 // Translations returns the translations excluding the current Page.
 func (p *Page) Translations() Pages {
 	translations := make(Pages, 0)

@@ -93,13 +93,12 @@ By having the same _base file name_, the content pieces are linked together as t
 To create a list of links to translated content, use a template similar to this:
 
 ```
-{{ $translations := .Translations }} 
-{{ if gt (len $translations) 0 }}
+{{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
-    {{ range $translations }}
+    {{ range .Translations }}
     <li>
-        <a href="{{ .Permalink }}">{{ .Lang }}: {{ .Title }}</a>
+        <a href="{{ .Permalink }}">{{ .Lang }}: {{ .Title }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
     </li>
     {{ end}}
 </ul>
