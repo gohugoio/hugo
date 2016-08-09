@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/usage/
-lastmod: 2015-12-23
+lastmod: 2016-08-09
 date: 2013-07-01
 menu:
   main:
@@ -13,7 +13,7 @@ title: Using Hugo
 weight: 30
 ---
 
-Make sure either `hugo` is in your `PATH` or provide a path to it.
+Make sure Hugo is in your `PATH` (or provide a path to it). Test it with:
 
 {{< nohighlight >}}$ hugo help
 
@@ -88,7 +88,7 @@ ready to be deployed to your web server.
 
 ## Instant feedback as you develop your web site
 
-If you are working on things and want to see the changes immediately, tell Hugo to watch for changes.
+If you are working on things and want to see the changes immediately, by default
 Hugo will watch the filesystem for changes, and rebuild your site as soon as a file is saved:
 
 {{< nohighlight >}}$ hugo -s ~/Code/hugo/docs

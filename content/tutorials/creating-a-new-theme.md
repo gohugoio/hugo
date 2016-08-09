@@ -1,6 +1,6 @@
 ---
 author: "Michael Henderson"
-lastmod: 2015-12-01
+lastmod: 2016-08-10
 date: 2015-11-26
 linktitle: Creating a New Theme
 toc: true
@@ -416,9 +416,25 @@ When rendering the site, Hugo will create new files and update existing ones in 
 
 As of version 0.15, Hugo doesn't write files when running in server mode. Instead, it keeps all the rendered files in memory. You can "clean" up files by stopping and restarting the server.
 
-### Hugo's Watch Option
+### Watching with Hugo
 
-Hugo's "`--watch`" option will monitor the content/ and your theme directories for changes and rebuild the site automatically. Since version 0.15, this has been the default option for `hugo server`.
+Hugo's watch functionality monitors the relevant site and theme directories
+for file changes,
+and rebuilds the site automatically when changes are detected.
+
+By default, watching is
+enabled when in web server mode (`hugo server`),
+but disabled for the web site generator (`hugo`).
+
+In some use cases,
+Hugo's web site generator should watch&mdash;simply
+type `hugo --watch` on the command line.
+
+Sometimes with Docker containers (and Heroku slugs),
+the site sources may live on a read-only filesystem.
+In that scenario, it makes no sense
+for Hugo's web server to watch for file changes&mdash;so
+use `hugo server --watch=false`.
 
 ### Live Reload
 
