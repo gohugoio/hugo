@@ -278,7 +278,9 @@ func init() {
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig(subCmdVs ...*cobra.Command) error {
-	hugolib.LoadGlobalConfig(source, cfgFile)
+	if err := hugolib.LoadGlobalConfig(source, cfgFile); err != nil {
+		return err
+	}
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 
