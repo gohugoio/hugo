@@ -160,9 +160,22 @@ func assertFileContent(t *testing.T, filename string, defaultInSubDir bool, matc
 	}
 }
 
+//
 func TestMultiSitesBuild(t *testing.T) {
+	for _, config := range []struct {
+		content string
+		suffix  string
+	}{
+		{multiSiteTomlConfig, "toml"},
+		{multiSiteYAMLConfig, "yml"},
+	} {
+		doTestMultiSitesBuild(t, config.content, config.suffix)
+	}
+}
+
+func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	testCommonResetState()
-	sites := createMultiTestSites(t, multiSiteTomlConfig)
+	sites := createMultiTestSitesForConfig(t, configContent, configSuffix)
 
 	err := sites.Build(BuildCfg{})
 
@@ -598,7 +611,54 @@ title = "Bokmål"
 lag = "lag"
 `
 
+var multiSiteYAMLConfig = `
+DefaultExtension: "html"
+baseurl: "http://example.com/blog"
+DisableSitemap: false
+DisableRSS: false
+RSSUri: "index.xml"
+
+paginate: 1
+DefaultContentLanguage: "fr"
+
+permalinks:
+    other: "/somewhere/else/:filename"
+
+blackfriday:
+    angledQuotes: true
+
+Taxonomies:
+    tag: "tags"
+
+Languages:
+    en:
+        weight: 10
+        title: "English"
+        blackfriday:
+            angledQuotes: false
+    fr:
+        weight: 20
+        title: "Français"
+        Taxonomies:
+            plaque: "plaques"
+    nn:
+        weight: 30
+        title: "Nynorsk"
+        Taxonomies:
+            lag: "lag"
+    nb:
+        weight: 40
+        title: "Bokmål"
+        Taxonomies:
+            lag: "lag"
+
+`
+
 func createMultiTestSites(t *testing.T, tomlConfig string) *HugoSites {
+	return createMultiTestSitesForConfig(t, tomlConfig, "toml")
+}
+
+func createMultiTestSitesForConfig(t *testing.T, configContent, configSuffix string) *HugoSites {
 
 	// Add some layouts
 	if err := afero.WriteFile(hugofs.Source(),
@@ -760,8 +820,9 @@ lag:
 `)},
 	}
 
-	writeSource(t, "multilangconfig.toml", tomlConfig)
-	if err := LoadGlobalConfig("", "multilangconfig.toml"); err != nil {
+	configFile := "multilangconfig." + configSuffix
+	writeSource(t, configFile, configContent)
+	if err := LoadGlobalConfig("", configFile); err != nil {
 		t.Fatalf("Failed to load config: %s", err)
 	}
 
