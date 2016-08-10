@@ -1,9 +1,8 @@
 ---
 author: "Michael Henderson"
-lastmod: 2016-08-10
+lastmod: 2016-09-01
 date: 2015-11-26
 linktitle: Creating a New Theme
-toc: true
 menu:
   main:
     parent: tutorials
@@ -12,18 +11,33 @@ prev: /tutorials/automated-deployments
 title: Creating a New Theme
 weight: 10
 ---
-
-
 ## Introduction
 
-This tutorial will show you how to create a simple theme in Hugo. I assume that you are familiar with HTML, the bash command line, and that you are comfortable using Markdown to format content. I'll explain how Hugo uses templates and how you can organize your templates to create a theme. I won't cover using CSS to style your theme.
+This tutorial will show you how to create a simple theme in Hugo.
 
-We'll start with creating a new site with a very basic template. Then we'll add in a few articles and an about page. With small variations on that, you will be able to create many different types of web sites.
+I'll introduce Hugo's use of templates,
+and explain how to organize them into a theme.
+The theme will grow, minimizing effort while meeting evolving needs.
+To promote this focus, and to keep everything simple, I'll omit CSS styling.
 
-In this tutorial, commands that you enter will start with the `$` prompt. The output will follow. Lines that start with `#` are comments that I've added to explain a point. When I show updates to a file, the `:wq` on the last line means to save the file.
+We'll start by creating a tiny, blog-like web site.
+We'll implement this blog with just one &mdash; quite basic &mdash; template.
+Then we'll add an About page, and a few articles.
+Overall, this web site (along with what you learn here)
+will provide a good basis for you to continue working with Hugo in the future.
+By making small variations,
+you'll be able to create many different kinds of web sites.
 
-Here's an example:
+I will assume you're comfortable with HTML, Markdown formatting,
+and the Bash command line (possibly using [Git for
+Windows](https://git-for-windows.github.io/)).
 
+A few symbols might call for explanation: in this tutorial,
+the commands you'll enter will be preceded by a `$` prompt &mdash;
+and their output will follow.
+`vi` means to open your editor; then `:wq` means to save the file.
+Sometimes I'll add comments to explain a point &mdash; these start with `#`.
+So, for example:
 ```bash
 # this is a comment
 $ echo this is a command
@@ -32,566 +46,799 @@ this is a command
 # edit the file
 $ vi foo.md
 +++
-date = "2015-11-26"
+date = "2040-01-18"
 title = "creating a new theme"
-+++
 
-bah and humbug
++++
+Bah! Humbug!
 :wq
 
 # show it
 $ cat foo.md
 +++
-date = "2015-11-26"
+date = "2040-01-18"
 title = "creating a new theme"
+
 +++
-
-bah and humbug
-$
+Bah! Humbug!
 ```
+## Definitions
 
+Three concepts:
 
-## Some Definitions
+1. _Non-content_ files;
+1. _Templates_ (as Hugo defines them); and
+1. _Front-matter_
 
-There are a few concepts that you need to understand before creating a theme.
+are essential for creating your first Hugo theme,
+as well as your first Hugo website.
+### Non-Content
 
-### Skins
+The source files of a web site (destined to be rendered by Hugo)
+are divided into two kinds:
 
-Skins are the files responsible for the look and feel of your site. It’s the CSS that controls colors and fonts, it’s the Javascript that determines actions and reactions. It’s also the rules that Hugo uses to transform your content into the HTML that the site will serve to visitors.
+1. The files containing its textual content (and nothing else &mdash;
+except Hugo front-matter: see below, and Markdown styling); and
+1. All other files. (These contain ***no*** textual content &mdash; ideally.)
 
-You have two ways to create a skin. The simplest way is to create it in the `layouts/` directory. If you do, then you don’t have to worry about configuring Hugo to recognize it. The first place that Hugo will look for rules and files is in the `layouts/` directory so it will always find the skin.
+Temporarily, let's affix the adjective _non-content_
+to the latter kind of source files.
 
-Your second choice is to create it in a sub-directory of the `themes/` directory. If you do, then you must always tell Hugo where to search for the skin. It’s extra work, though, so why bother with it?
+Non-content files are responsible for your web site's look and feel.
+(Follow these article links from [Bop
+Design](https://www.bopdesign.com/bop-blog/2013/11/what-is-the-look-and-feel-of-a-website-and-why-its-important/)
+and
+[Wikipedia](https://en.wikipedia.org/w/index.php?title=Look_and_feel&oldid=731052704)
+if you wish for more information.)
+They comprise its images, its CSS (for the sizes, colors and fonts),
+its JavaScript (for the actions and reactions), and its Hugo templates
+(which contain the rules Hugo uses to transform your content into HTML).
 
-The difference between creating a skin in `layouts/` and creating it in `themes/` is very subtle. A skin in `layouts/` can’t be customized without updating the templates and static files that it is built from. A skin created in `themes/`, on the other hand, can be and that makes it easier for other people to use it.
+Given these files, Hugo will render a static web site &mdash;
+informed by your content &mdash;
+which contains the above images, HTML, CSS and JavaScript,
+ready to be served to visitors.
 
-The rest of this tutorial will call a skin created in the `themes/` directory a theme.
+Actually, a few of your invariant textual snippets
+could reside in non-content files as well.
+However, because someone might reuse your theme (eventually),
+preferably you should keep those textual snippets in their own content files.
+#### Where
 
-Note that you can use this tutorial to create a skin in the `layouts/` directory if you wish to. The main difference will be that you won’t need to update the site’s configuration file to use a theme.
+Regarding where to create your non-content files, you have two options.
+The simplest is the `./layouts/` and `./static/` filesystem trees.
+If you choose this way,
+then you needn't worry about configuring Hugo to find them.
+Invariably, these are the first two places Hugo seeks for templates
+(as well as images, CSS and JavaScript);
+so in that case, it's guaranteed to find all your non-content files.
 
-### The Home Page
+The second option is to create them in a filesystem tree
+located somewhere under the `./themes/` directory.
+If you choose that way,
+then you must always tell Hugo where to search for them &mdash;
+that's extra work, though. So, why bother?
+#### Theme
 
-The home page, or landing page, is the first page that many visitors to a site see. It is the `index.html` file in the root directory of the web site. Since Hugo writes files to the `public/` directory, our home page is `public/index.html`.
+Well &mdash; the difference between creating your non-content files under
+`./layouts/` and `./static/` and creating them under `./themes/`
+is admittedly very subtle.
+Non-content files created under `./layouts/` and `./static/`
+cannot be customized without editing them directly.
+On the other hand, non-content files created under `./themes/`
+can be customized, in another way. That way is both conventional
+(for Hugo web sites) and non-destructive. Therefore,
+creating your non-content files under `./themes/`
+makes it easier for other people to use them.
 
-### Site Configuration File
+The rest of this tutorial will call a set of non-content files a ***theme***
+if they comprise a filesystem tree rooted anywhere under the
+`./themes/` directory.
 
-When Hugo runs, it looks for a configuration file that contains settings that override default values for the entire site. The file can use TOML, YAML, or JSON. I prefer to use TOML for my configuration files. If you prefer to use JSON or YAML, you’ll need to translate my examples. You’ll also need to change the name of the file since Hugo uses the extension to determine how to process it.
+Note that you can use this tutorial to create your set of non-content files
+under `./layouts/` and `./static/` if you wish. The only difference is that
+you wouldn't need to edit your web site's configuration file
+in order to select a theme.
+### Home
 
-Hugo translates Markdown files into HTML. By default, Hugo expects to find Markdown files in your `content/` directory and template files in your `themes/` directory. It will create HTML files in your `public/` directory. You can change this by specifying alternate locations in the configuration file.
+The home page, or landing page,
+is the first page that many visitors to a web site will see.
+Often this is `/index.html`, located at the root URL of the web site.
+Since Hugo writes files into the `./public/` tree,
+your home page will reside in file `./public/index.html`.
+### Configure
 
+When Hugo runs, it first looks for an overall configuration file,
+in order to read its settings, and applies them to the entire web site.
+These settings override Hugo's default values.
+
+The file can be in TOML, YAML, or JSON format.
+I prefer TOML for my configuration files.
+If you prefer JSON or YAML, you'll need to translate my examples.
+You'll also need to change the basename, since Hugo uses its extension
+to determine how to process it.
+
+Hugo translates Markdown files into HTML.
+By default, Hugo searches for Markdown files in the `./content/` tree
+and template files under the `./themes/` directory.
+It will render HTML files to the `./public/` tree.
+You can override any of these defaults by specifying alternative locations
+in the configuration file.
+### Template
+
+_Templates_ direct Hugo in rendering content into HTML;
+they bridge content and presentation.
+
+Rules in template files determine which content is published and where,
+and precisely how it will be rendered into HTML files.
+Templates also guide your web site's presentation
+by specifying the CSS styling to use.
+
+Hugo uses its knowledge of each piece of content
+to seek a template file to use in rendering it.
+If it can't find a template that matches the content, it will zoom out,
+one conceptual level; it will then resume the search from there.
+It will continue to do so, till it finds a matching template,
+or runs out of templates to try.
+Its last resort is your web site's default template,
+which could conceivably be missing. If it finds no suitable template,
+it simply forgoes rendering that piece of content.
+
+It's important to note that _front-matter_ (see next)
+can influence Hugo's template file selection process.
 ### Content
 
-Content is stored in text files that contain two sections. The first section is the "front matter," which is the meta-information on the content. The second section contains Markdown that will be converted to HTML.
+Content is stored in text files which contain two sections.
+The first is called _front-matter_: this is information about the content.
+The second contains Markdown-formatted text,
+destined for conversion to HTML format.
+#### Front-Matter
 
-#### Front Matter
+The _front-matter_ is meta-information describing the content.
+Like the web site's configuration file, it can be written in the
+TOML, YAML, or JSON formats.
+Unlike the configuration file, Hugo doesn't use the file's extension
+to determine the format.
+Instead, it looks for markers in the file which signal this.
+TOML is surrounded by "`+++`" and YAML by "`---`", but
+JSON is enclosed in curly braces. I prefer to use TOML.
+You'll need to translate my examples if you prefer YAML or JSON.
 
-The front matter is information about the content. Like the configuration file, it can be written in TOML, YAML, or JSON. Unlike the configuration file, Hugo doesn’t use the file’s extension to know the format. It looks for markers to signal the type. TOML is surrounded by "`+++`", YAML by "`---`", and JSON is enclosed in curly braces. I prefer to use TOML, so you’ll need to translate my examples if you prefer YAML or JSON.
-
-The information in the front matter is passed into the template before the content is rendered into HTML.
-
+Hugo informs its chosen template files with the front-matter information
+before rendering the content in HTML.
 #### Markdown
 
-Content is written in Markdown which makes it easier to create the content. Hugo runs the content through a Markdown engine to create the HTML which will be written to the output file.
+Content is written in Markdown format, which makes it easy to create.
+Hugo runs the content through a Markdown engine to transform it into HTML,
+which it then renders to the output file.
+### Template Kinds
 
-### Template Files
+Here I'll discuss three kinds of Hugo templates:
+_Single_, _List_, and _Partial_.
+All these kinds take one or more pieces of content as input,
+and transform the pieces, based on commands in the template.
+#### Single
 
-Hugo uses template files to render content into HTML. Template files are a bridge between the content and presentation. Rules in the template define what content is published, where it's published to, and how it will rendered to the HTML file. The template guides the presentation by specifying the style to use.
+A _Single_ template is used to render one piece of content.
+For example, an article or a post is a single piece of content;
+thus, it uses a Single template.
+#### List
 
-There are three types of templates: single, list, and partial. Each type takes a bit of content as input and transforms it based on the commands in the template.
+A _List_ template renders a group of related content items.
+This could be a summary of recent postings,
+or all of the articles in a category.
+List templates can contain multiple groups (or categories).
 
-Hugo uses its knowledge of the content to find the template file used to render the content. If it can’t find a template that is an exact match for the content, it will shift up a level and search from there. It will continue to do so until it finds a matching template or runs out of templates to try. If it can’t find a template, it will use the default template for the site.
+The home page template is a special kind of List template.
+This is because Hugo assumes that your home page will act as a portal
+to all of the remaining content on your web site.
+#### Partial
 
-Please note that you can use the front matter to influence Hugo’s choice of templates.
+A _Partial_ template is a template that's incapable of producing a web page,
+by itself. To include a Partial template in your web site,
+another template must call it, using the `partial` command.
 
-#### Single Template
+Partial templates are very handy for rolling up common behavior.
+For example, you might want the same banner to appear on all
+of your web site's pages &mdash; so, rather than copy your banner's text
+into multiple content files,
+as well as the other information relevant to your banner
+into multiple template files (both Single and List),
+you can instead create just one content file and one Partial template.
+That way, whenever you decide to change the banner, you can do so
+by editing one file only (or maybe two).
+## Site
 
-A single template is used to render a single piece of content. For example, an article or post would be a single piece of content and use a single template.
-
-#### List Template
-
-A list template renders a group of related content. That could be a summary of recent postings or all articles in a category. List templates can contain multiple groups.
-
-The homepage template is a special type of list template. Hugo assumes that the home page of your site will act as the portal for the rest of the content in the site.
-
-#### Partial Template
-
-A partial template is a template that can be included in other templates. Partial templates must be called using the "partial" template command. They are very handy for rolling up common behavior. For example, your site may have a banner that all pages use. Instead of copying the text of the banner into every single and list template, you could create a partial with the banner in it. That way if you decide to change the banner, you only have to change the partial template.
-
-## Create a New Site
-
-Let's use Hugo to create a new web site. The `hugo new site` command will create a skeleton of a site. It will give you the basic directory structure and a useable configuration file.
-
+Let's let Hugo help you create your new web site.
+The `hugo new site` command will generate a skeleton &mdash;
+it will give you a basic directory structure, along with
+a usable configuration file:
 ```bash
-$ hugo new site hugo-0.16
-$ ls -l hugo-0.16
+$ cd /tmp/
+
+$ hugo new site mySite
+
+$ cd mySite/
+
+$ ls -l
 total 8
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 archetypes
--rw-r--r--  1 mdhender  wheel  107 Nov 27 20:27 config.toml
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 content
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 data
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 layouts
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 static
-$ 
+drwxr-xr-x  2 {user} {group}   68 {date} archetypes
+-rw-r--r--  1 {user} {group}  107 {date} config.toml
+drwxr-xr-x  2 {user} {group}   68 {date} content
+drwxr-xr-x  2 {user} {group}   68 {date} data
+drwxr-xr-x  2 {user} {group}   68 {date} layouts
+drwxr-xr-x  2 {user} {group}   68 {date} static
+drwxr-xr-x  2 {user} {group}   68 {date} themes
 ```
+Take a look in the `./content/` and `./themes/` directories to confirm
+they are empty.
 
-Take a look in the `content/` directory to confirm that it is empty.
+The other directories
+(`./archetypes/`, `./data/`, `./layouts/` and `./static/`)
+are used for customizing a named theme.
+That's a topic for a different tutorial, so please ignore them for now.
+### Render
 
-The other directories (`archetypes/`, `data/`, `layouts/`, and `static/`) are used when customizing a named theme. That's a topic for a different tutorial, so please ignore them for now.
-
-### Generate the HTML For the New Site
-
-Running the `hugo` command with no options will read all the available content and generate the HTML files. It will also copy all static files (that's everything that's not content). Since we have an empty site, it won't do much, but it will do it very quickly.
-
+Running the `hugo` command with no options will read
+all of the available content and render the HTML files. Also, it will copy
+all the static files (that's everything besides content).
+Since we have an empty web site, Hugo won't be doing much.
+However, generally speaking, Hugo does this very quickly:
 ```bash
-$ cd hugo-0.16
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-WARN: 2015/11/27 Unable to locate layout for homepage: [index.html _default/list.html]
-WARN: 2015/11/27 Unable to locate layout for 404 page: [404.html]
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+WARN: {date} {source} No theme set
+INFO: {date} {source} /tmp/mySite/static/ is the only static directory available to sync from
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
+WARN: {date} {source} "/" is rendered empty
+=============================================================
+Your rendered home page is blank: /index.html is zero-length
+ * Did you specify a theme on the command-line or in your
+   "config.toml" file?  (Current theme: "")
+=============================================================
+WARN: {date} {source} Unable to locate layout for 404 page: [404.html]
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 0 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 4 ms
-$ 
 ```
+The "`--verbose`" flag gives extra information that will be helpful
+whenever we are developing a template.
+Every line of the output starting with "INFO:" or "WARN:" is present
+because we used that flag. The lines that start with "WARN:"
+are warning messages. We'll go over them later.
 
-The "`--verbose`" flag gives extra information that will be helpful when we build the template. Every line of the output that starts with "INFO:" or "WARN:" is present because we used that flag. The lines that start with "WARN:" are warning messages. We'll go over them later.
-
-We can verify that the command worked by looking at the directory again.
-
+We can verify that the command worked by looking at the directory again:
 ```bash
 $ ls -l
 total 8
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 archetypes
--rw-r--r--  1 mdhender  wheel  107 Nov 27 20:27 config.toml
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 content
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 data
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 layouts
-drwxr-xr-x  6 mdhender  wheel  204 Nov 27 20:29 public
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 static
-$
+drwxr-xr-x  2 {user} {group}   68 {date} archetypes
+-rw-r--r--  1 {user} {group}  107 {date} config.toml
+drwxr-xr-x  2 {user} {group}   68 {date} content
+drwxr-xr-x  2 {user} {group}   68 {date} data
+drwxr-xr-x  2 {user} {group}   68 {date} layouts
+drwxr-xr-x  6 {user} {group}  204 {date} public
+drwxr-xr-x  2 {user} {group}   68 {date} static
+drwxr-xr-x  2 {user} {group}   68 {date} themes
 ```
-
-See that new `public/` directory? Hugo placed all generated content there. When you're ready to publish your web site, that's the place to start. For now, though, let's just confirm that we have what we'd expect from a site with no content.
-
+See that new `./public/` directory?
+Hugo placed all its rendered content there.
+When you're ready to publish your web site, that's the place to start.
+For now, though, let's just confirm we have the files we expect
+for a web site with no content:
 ```bash
 $ ls -l public/
 total 16
--rw-r--r--  1 mdhender  wheel    0 Nov 27 20:29 404.html
--rw-r--r--  1 mdhender  wheel    0 Nov 27 20:29 index.html
--rw-r--r--  1 mdhender  wheel  511 Nov 27 20:29 index.xml
--rw-r--r--  1 mdhender  wheel  237 Nov 27 20:29 sitemap.xml
-$ 
+-rw-r--r--  1 {user} {group}    0 {date} 404.html
+-rw-r--r--  1 {user} {group}    0 {date} index.html
+-rw-r--r--  1 {user} {group}  511 {date} index.xml
+-rw-r--r--  1 {user} {group}  210 {date} sitemap.xml
 ```
+Hugo rendered two XML files and some empty HTML files.
+The XML files are used for RSS feeds. Hugo has an opinion about what
+those feeds should contain, so it populated those files.
+Hugo has no opinion on the look or content of your web site,
+so it left those files empty.
 
-Hugo created two XML files, which is standard, and empty HTML files. The XML files are used for RSS feeds. Hugo has an opinion on what those feeds should contain, so it populates those files. Hugo has no opinion on what your web site looks like (or contains), so it leaves those files empty.
-
-If you look back over the output from the `hugo server` command, you will notice that Hugo said:
-
+If you look back at the output from the `hugo server` command,
+you'll notice that Hugo said:
 ```bash
 0 pages created
 ```
+That's because Hugo doesn't count the home page, the 404 error page,
+or the RSS feed files as pages.
+### Serve
 
-That's because Hugo doesn't count the homepage, the 404 error page, or the RSS feed files as pages.
-
-### Test the New Site
-
-Verify that you can run the built-in web server. It will dramatically shorten your development cycle if you do. Start it by running the `hugo server` command. If it is successful, you will see output similar to the following:
-
+Let's verify you can run the built-in web server &mdash;
+that'll shorten your development cycle, dramatically.
+Start it, by running the `hugo server` command.
+If successful, you'll see output similar to the following:
 ```bash
 $ hugo server --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /
-WARN: 2015/11/27 Unable to locate layout for homepage: [index.html _default/list.html]
-WARN: 2015/11/27 Unable to locate layout for 404 page: [404.html]
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+WARN: {date} {source} No theme set
+INFO: {date} {source} /tmp/mySite/static/ is the only static directory available to sync from
+INFO: {date} {source} syncing static files to /
+WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
+WARN: {date} {source} "/" is rendered empty
+=============================================================
+Your rendered home page is blank: /index.html is zero-length
+ * Did you specify a theme on the command-line or in your
+   "config.toml" file?  (Current theme: "")
+=============================================================
+WARN: {date} {source} Unable to locate layout for 404 page: [404.html]
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 0 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 3 ms
-Watching for changes in /tmp/hugo-0.16/{data,content,layouts,static}
+Watching for changes in /tmp/mySite/{data,content,layouts,static}
 Serving pages from memory
 Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
+Connect to the listed URL (it's on the line that begins with
+`Web Server is available`). If everything's working correctly,
+you should get a page that shows nothing.
+### Warnings
 
-Connect to the listed URL (it's on the line that starts with `Web Server is available`.). If everything is working correctly, you should get a page that shows nothing.
-
-Let’s go back and look at those warnings again.
-
+Let's go back and look at some of those warnings again:
 ```bash
-WARN: 2015/11/27 Unable to locate layout for homepage: [index.html _default/list.html]
-WARN: 2015/11/27 Unable to locate layout for 404 page: [404.html]
+WARN: {date} {source} Unable to locate layout for 404 page: [404.html]
+WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
 ```
+The 404 warning is easy to explain &mdash; it's because we haven't created
+the template file `layouts/404.html`. Hugo uses this to render an HTML file
+which serves "page not found" errors. However,
+the 404 page is a topic for a separate tutorial.
 
-That second warning is easier to explain. We haven’t created a template to be used to generate "page not found errors." The 404 message is a topic for a separate tutorial.
+Regarding the home page warning: the first layout Hugo looked for was
+`layouts/index.html`. Note that Hugo uses this file for the home page only.
 
-Now for the first warning. It is for the home page. You can tell because the first layout that it looked for was `index.html`. That’s only used by the home page.
+It's good that Hugo lists the files it seeks, when
+we give it the verbose flag. For the home page, these files are
+`layouts/index.html` and `layouts/_default/list.html`.
+Later, we'll cover some rules which explain these paths
+(including their basenames). For now, just remember that
+Hugo couldn't find a template to use for the home page, and it said so.
 
-I like that the verbose flag causes Hugo to list the files that it's searching for. For the home page, they are `index.html` and `_default/list.html`. There are some rules that we'll cover later that explain the names and paths. For now, just remember that Hugo couldn't find a template for the home page and it told you so.
+All right! So, now &mdash; after these few steps &mdash; you have a working
+installation, and a web site foundation you can build upon.
+All that's left is to add some content, as well as a theme to display it.
+## Theme
 
-At this point, you've got a working installation and site that we can build upon. All that’s left is to add some content and a theme to display it.
+Hugo doesn't ship with a default theme. However, a large number of themes
+are easily available: for example, at
+[hugoThemes](https://github.com/spf13/hugoThemes).
+Also, Hugo comes with a command to generate them.
 
-## Create a New Theme
+We're going to generate a new theme called Zafta.
+The goal of this tutorial is simply to show you how to create
+(in a theme) the minimal files Hugo needs in order to display your content.
+Therefore, the theme will exclude CSS &mdash;
+it'll be functional, not beautiful.
 
-Hugo doesn't ship with a default theme. There are a few available (I counted a dozen when I first installed Hugo) and Hugo comes with a command to create new themes.
+Every theme has its own opinions on content and layout. For example, this
+Zafta theme prefers the Type "article" over the Types "blog" or "post."
+Strong opinions make for simpler templates, but unconventional opinions
+make themes tougher for other users. So when you develop a theme, you should
+consider the value of adopting the terms used by themes similar to yours.
+### Skeleton
 
-We're going to create a new theme called "zafta." Since the goal of this tutorial is to show you how to fill out the files to pull in your content, the theme will not contain any CSS. In other words, ugly but functional.
-
-All themes have opinions on content and layout. For example, Zafta uses "article" over "blog" or "post." Strong opinions make for simpler templates but differing opinions make it tougher to use themes. When you build a theme, consider using the terms that other themes do.
-
-### Create a Skeleton
-
-Use the `hugo new theme` command to create the skeleton of a theme. This creates the directory structure and places empty files for you to fill out.
-
+Let's press Ctrl+C and use the `hugo new theme` command
+to generate the skeleton of a theme. The result is a directory structure
+containing empty files for you to fill out:
 ```bash
 $ hugo new theme zafta
 
-$ ls -l
-total 8
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 archetypes
--rw-r--r--  1 mdhender  wheel  107 Nov 27 20:27 config.toml
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 content
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 data
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 layouts
-drwxr-xr-x  6 mdhender  wheel  204 Nov 27 20:29 public
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:27 static
-drwxr-xr-x  3 mdhender  wheel  102 Nov 27 20:35 themes
-
-
 $ find themes -type f | xargs ls -l
--rw-r--r--  1 mdhender  wheel  1081 Nov 27 20:35 themes/zafta/LICENSE.md
--rw-r--r--  1 mdhender  wheel     8 Nov 27 20:35 themes/zafta/archetypes/default.md
--rw-r--r--  1 mdhender  wheel     0 Nov 27 20:35 themes/zafta/layouts/404.html
--rw-r--r--  1 mdhender  wheel     0 Nov 27 20:35 themes/zafta/layouts/_default/list.html
--rw-r--r--  1 mdhender  wheel     0 Nov 27 20:35 themes/zafta/layouts/_default/single.html
--rw-r--r--  1 mdhender  wheel     0 Nov 27 20:35 themes/zafta/layouts/index.html
--rw-r--r--  1 mdhender  wheel     0 Nov 27 20:35 themes/zafta/layouts/partials/footer.html
--rw-r--r--  1 mdhender  wheel     0 Nov 27 20:35 themes/zafta/layouts/partials/header.html
--rw-r--r--  1 mdhender  wheel   450 Nov 27 20:35 themes/zafta/theme.toml
-$ 
+-rw-r--r--  1 {user} {group}     8 {date} themes/zafta/archetypes/default.md
+-rw-r--r--  1 {user} {group}     0 {date} themes/zafta/layouts/404.html
+-rw-r--r--  1 {user} {group}     0 {date} themes/zafta/layouts/_default/list.html
+-rw-r--r--  1 {user} {group}     0 {date} themes/zafta/layouts/_default/single.html
+-rw-r--r--  1 {user} {group}     0 {date} themes/zafta/layouts/index.html
+-rw-r--r--  1 {user} {group}     0 {date} themes/zafta/layouts/partials/footer.html
+-rw-r--r--  1 {user} {group}     0 {date} themes/zafta/layouts/partials/header.html
+-rw-r--r--  1 {user} {group}  1081 {date} themes/zafta/LICENSE.md
+-rw-r--r--  1 {user} {group}   450 {date} themes/zafta/theme.toml
 ```
+The skeleton includes templates (files ending in `.html`), a license file,
+a description of your theme (`theme.toml`), and a default archetype file.
 
-The skeleton includes templates (the files ending in `.html`), license file, a description of your theme (the `theme.toml` file), and a default archetype file.
+When you're developing a real theme, please remember to fill out files
+`theme.toml` and `LICENSE.md`. They're optional, but if you're going to
+distribute your theme, it tells the world who to praise (or blame).
+It's also important to declare your choice of license, so people will know
+whether (or where) they can use your theme.
 
-When you're creating a real theme, please remember to fill out the `theme.toml` and `LICENSE.md` files. They're optional, but if you're going to be distributing your theme, it tells the world who to praise (or blame). It's also nice to declare the license so that people will know how they can use the theme.
-
-Note that the theme skeleton's template files are empty. Don't worry, we'll be changing that shortly.
-
+Note that the skeleton theme's template files are empty. Don't worry;
+we'll change that shortly:
 ```bash
 $ find themes/zafta -name '*.html' | xargs ls -l
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/404.html
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/_default/list.html
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/_default/single.html
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/index.html
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/partials/footer.html
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/partials/header.html
-$
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/404.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/_default/list.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/_default/single.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/index.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/partials/footer.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/partials/header.html
 ```
+### Select
 
-### Update the Configuration File to Use the Theme
+Now that we've created a theme we can work with, it's a good idea
+to add its name to the configuration file. This is optional, because
+it's possible to add "-t zafta" to all your commands.
+I like to put it in the configuration file because I like
+shorter command lines. If you don't put it in the configuration file,
+or specify it on the command line, sometimes you won't get the template
+you're expecting.
 
-Now that we've got a theme to work with, it's a good idea to add the theme name to the configuration file. This is optional, because you can always add "-t zafta" on all your commands. I like to put it the configuration file because I like shorter command lines. If you don't put it in the configuration file or specify it on the command line, you won't use the template that you're expecting to.
-
-Edit the file to add the named theme.
-
-```bash
+So, let's edit your configuration file to add the theme name:
+```toml
 $ vi config.toml
 theme = "zafta"
-baseurl = "http://example.org/"
-languageCode = "en-us"
+baseurl = "http://replace-this-with-your-hugo-site.com/"
 title = "My New Hugo Site"
+languageCode = "en-us"
 :wq
-
-$
 ```
+### Themed Render
 
-### Generate the Site
-
-Now that we have an empty theme, let's generate the site again.
-
+Now that we have a theme (albeit empty), let's render the web site again:
 ```bash
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+WARN: {date} {source} "/" is rendered empty
+=============================================================
+Your rendered home page is blank: /index.html is zero-length
+ * Did you specify a theme on the command-line or in your
+   "config.toml" file?  (Current theme: "zafta")
+=============================================================
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 0 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 4 ms
-$
 ```
+Did you notice the output is different?
+Two previous warning messages have disappeared, which contained the words
+"Unable to locate layout" for your home page and the 404 page.
+And, a new informational message tells us Hugo is accessing your theme's tree
+(`./themes/zafta/`).
 
-Did you notice that the output is different? The warning message for the home page has disappeared and we have an additional information line saying that Hugo is syncing from the theme's directory (`themes/zafta/`).
-
-Let's check the `public/` directory to see what Hugo's created.
-
+Let's check the `./public/` directory to see what Hugo rendered:
 ```bash
-$ ls -l public
+$ ls -l public/
 total 16
--rw-r--r--  1 mdhender  wheel    0 Nov 27 20:42 404.html
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:35 css
--rw-r--r--  1 mdhender  wheel    0 Nov 27 20:42 index.html
--rw-r--r--  1 mdhender  wheel  511 Nov 27 20:42 index.xml
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:35 js
--rw-r--r--  1 mdhender  wheel  237 Nov 27 20:42 sitemap.xml
-$
+-rw-r--r--  1 {user} {group}    0 {date} 404.html
+drwxr-xr-x  2 {user} {group}   68 {date} css
+-rw-r--r--  1 {user} {group}    0 {date} index.html
+-rw-r--r--  1 {user} {group}  511 {date} index.xml
+drwxr-xr-x  2 {user} {group}   68 {date} js
+-rw-r--r--  1 {user} {group}  210 {date} sitemap.xml
 ```
-
-It's similar to what we had without a theme. We'd expect that since our theme has only empty templates. But notice that Hugo created `css/` and `js/` directories. That's due to our template having those in its `static/` directory:
-
+It's similar to what we had before, without a theme.
+We'd expect so, since all your theme's templates are empty. But notice:
+in `./public/`, Hugo created the `css/` and `js/` directories.
+That's because Hugo found them in your theme's `static/` directory:
 ```bash
 $ ls -l themes/zafta/static/
 total 0
-drwxr-xr-x  2 mdhender  wheel  68 Nov 27 20:35 css
-drwxr-xr-x  2 mdhender  wheel  68 Nov 27 20:35 js
-$ 
+drwxr-xr-x  2 {user} {group}  68 {date} css
+drwxr-xr-x  2 {user} {group}  68 {date} js
 ```
+#### Home
 
-The rule with static files is simple: Hugo copies them over without any changes.
+In a Hugo web site, each kind of page is informed (primarily) by just one
+of the many different kinds of templates available;
+yet the home page is special, because it gets its own kind of template,
+and its own template file.
 
-#### The Home Page
-
-Hugo supports many different types of templates. The home page is special because it gets its own type of template and its own template file. The file `layouts/index.html` is used to generate the HTML for the home page. The Hugo documentation says that this is the only required template, but that depends. Hugo's warning message shows that it looks for two different templates:
-
+Hugo uses template file `layouts/index.html` to render the home page's HTML.
+Although Hugo's documentation may state that this file is the home page's
+only required template, Hugo's earlier warning message showed it actually
+looks for two different templates:
 ```bash
-WARN: 2015/11/27 Unable to locate layout for homepage: [index.html _default/list.html]
+WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
 ```
+#### Empty
 
-When Hugo created our theme, it created an empty home page template. Now, when we build the site, Hugo finds the template and uses it to generate the HTML for the home page. Since the template file is empty, the HTML file is empty, too. If the template had any rules in it, then Hugo would have used them to generate the home page.
-
+When Hugo generated your theme, it included an empty home page template.
+Whenever Hugo renders your web site, it seeks that same template and uses it
+to render the HTML for the home page. Currently, the template file is empty,
+so the output HTML file is empty, too. Whenever we add rules to that template,
+Hugo will use them in rendering the home page:
 ```bash
-$ find . -name index.html | xargs ls -l
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:42 ./public/index.html
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 ./themes/zafta/layouts/index.html
-$ 
+$ find * -name index.html | xargs ls -l
+-rw-r--r--  1 {user} {group}  0 {date} public/index.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/index.html
 ```
+As we'll see later, Hugo follows this same pattern for all its templates.
+## Static Files
 
-#### The Magic of Static
+Hugo does two things when it renders your web site.
+Besides using templates to transform your content into HTML,
+it also incorporates your static files. Hugo's rule is simple:
+unlike with templates and content, static files aren't transformed.
+Hugo copies them over, exactly as they are.
 
-Hugo does two things when generating the site. It uses templates to transform content into HTML and it copies static files into the site. Unlike content, static files are not transformed. They are copied exactly as they are.
-
-Hugo assumes that your site will use both CSS and JavaScript, so it creates directories in your theme to hold them. Remember opinions? Well, Hugo's opinion is that you'll store your CSS in a directory named `css/` and your JavaScript in a directory named `js/`. If you don't like that, you can change the directory names in your theme's `static/` directory or even delete them completely. Hugo's nice enough to offer its opinion, then behave nicely if you disagree.
-
+Hugo assumes that your web site will use both CSS and JavaScript,
+so it generates some directories in your theme to hold them.
+Remember opinions? Well, Hugo's opinion is that you'll store your CSS
+in directory `static/css/`, and your JavaScript in directory `static/js/`.
+If you don't like that, you can relocate these directories
+or change their names (as long as they remain in your theme's `static/` tree),
+or delete them completely.
+Hugo is nice enough to offer its opinion; yet it still behaves nicely,
+if you disagree:
 ```bash
-$ find themes/zafta -type d | xargs ls -ld
-drwxr-xr-x  7 mdhender  wheel  238 Nov 27 20:35 themes/zafta
-drwxr-xr-x  3 mdhender  wheel  102 Nov 27 20:35 themes/zafta/archetypes
-drwxr-xr-x  6 mdhender  wheel  204 Nov 27 20:35 themes/zafta/layouts
-drwxr-xr-x  4 mdhender  wheel  136 Nov 27 20:35 themes/zafta/layouts/_default
-drwxr-xr-x  4 mdhender  wheel  136 Nov 27 20:35 themes/zafta/layouts/partials
-drwxr-xr-x  4 mdhender  wheel  136 Nov 27 20:35 themes/zafta/static
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:35 themes/zafta/static/css
-drwxr-xr-x  2 mdhender  wheel   68 Nov 27 20:35 themes/zafta/static/js
-$ 
+$ find themes/zafta/* -type d | xargs ls -dl
+drwxr-xr-x  3 {user} {group}  102 {date} themes/zafta/archetypes
+drwxr-xr-x  6 {user} {group}  204 {date} themes/zafta/layouts
+drwxr-xr-x  4 {user} {group}  136 {date} themes/zafta/layouts/_default
+drwxr-xr-x  4 {user} {group}  136 {date} themes/zafta/layouts/partials
+drwxr-xr-x  4 {user} {group}  136 {date} themes/zafta/static
+drwxr-xr-x  2 {user} {group}   68 {date} themes/zafta/static/css
+drwxr-xr-x  2 {user} {group}   68 {date} themes/zafta/static/js
 ```
+## Theme Development
 
-## The Theme Development Cycle
+Generally (using any kind of software), working on a theme means
+changing your files, serving your web site again, and then verifying
+the resulting improvements in your browser.
+With Hugo, this way of working is quite easy:
 
-When you're working on a theme, you will make changes in the theme's directory, rebuild the site, and check your changes in the browser. Hugo makes this very easy:
+- First purge the `./public/` tree. (This is optional but useful,
+if you want to start with a clean slate.)
+- Run the built-in Hugo web server.
+- Open your web site in a browser &mdash; and then:
 
-1. Purge the `public/` directory (optional, but useful if you want to start with a clean slate).
-2. Run the built in web server.
-3. Open your site in a browser.
-4. Update the theme.
-5. Glance at your browser window to see changes.
-6. Return to step 4.
+1. Edit your theme;
+1. Glance at your browser window to see your changes; and
+1. Repeat.
 
-I’ll throw in one more opinion: never work on a theme on a live site. Always work on a copy of your site. Make changes to your theme, test them, then copy them up to your site. For added safety, use a tool like Git to keep a revision history of your content and your theme. Believe me when I say that it is too easy to lose both your mind and your changes.
+I'll throw in one more opinion: ***never*** directly edit a theme on a live
+web site. Instead, always develop ***using a copy***. First, make some changes
+to your theme and test them. Afterwards, **when you've got them working,**
+copy them to your web site. For added safety, use a tool like Git to keep
+some revision history of your content, and of your theme. Believe me:
+it's too easy to lose your changes, and your mind!
 
-Check the main Hugo site for information on using Git with Hugo.
+Check out the main Hugo web site for information about using Git with Hugo.
+### Purge
 
-### Purge the public/ Directory
+When rendering your web site, Hugo will create new files in the `./public/`
+tree and update existing ones. But it won't delete files that are
+no longer used. For example, files previously rendered with
+(what is now) the wrong basename, or in the wrong directory, will remain.
+Later, if you leave them, they'll likely confuse you.
+Cleaning out your `./public/` files prior to rendering can help.
 
-When rendering the site, Hugo will create new files and update existing ones in the `public/` directory. It will not delete files that are no longer used. For example, files that were created in the wrong directory or with the wrong title will remain. If you leave them, you might get confused by them later. Cleaning out your public files prior to rendering can help.
+When Hugo is running in web server mode (as of version 0.15),
+it doesn't actually write the files. Instead,
+it keeps all the rendered files in memory. So, you can "clean" up
+your files simply by stopping and restarting the web server.
+### Serve
+#### Watch
 
-As of version 0.15, Hugo doesn't write files when running in server mode. Instead, it keeps all the rendered files in memory. You can "clean" up files by stopping and restarting the server.
+Hugo's watch functionality monitors the relevant content, theme and
+(overriding) site trees for filesystem changes,
+and renders your web site again automatically, when changes are detected.
 
-### Watching with Hugo
-
-Hugo's watch functionality monitors the relevant site and theme directories
-for file changes,
-and rebuilds the site automatically when changes are detected.
-
-By default, watching is
+By default, watch is
 enabled when in web server mode (`hugo server`),
-but disabled for the web site generator (`hugo`).
+but disabled for the web site renderer (`hugo`).
 
 In some use cases,
-Hugo's web site generator should watch&mdash;simply
+Hugo's web site renderer should continue running and watch &mdash; simply
 type `hugo --watch` on the command line.
 
 Sometimes with Docker containers (and Heroku slugs),
 the site sources may live on a read-only filesystem.
 In that scenario, it makes no sense
-for Hugo's web server to watch for file changes&mdash;so
+for Hugo's web server to watch for file changes &mdash; so
 use `hugo server --watch=false`.
+#### Reload
 
-### Live Reload
+Hugo's built in web server includes
+[LiveReload](/extras/livereload/) functionality. When any page is updated
+in the filesystem, the web browser is told to refresh its currently-open tabs
+from your web site. Usually, this happens faster than you can say,
+"Wow, that's totally amazing!"
+### Workflow
 
-Hugo's built in web server supports live reload. As pages are saved on the server, the browser is told to refresh the page. Usually, this happens faster than you can say, "Wow, that's totally amazing."
-
-### Development Commands
-
-Use the following commands as the basis for your workflow.
-
+Again,
+I recommend you use the following commands as the basis for your workflow:
 ```bash
-# purge old files. hugo will recreate the public directory.
-#
-$ rm -rf public
-#
-# run hugo in watch mode with live reload
-#
+# purge old files. Hugo will recreate the public directory
+$ rm -rf public/
+
+# run Hugo in watch mode with LiveReload;
+# when you're done, stop the web server
 $ hugo server --verbose
-#
-# hit Control+C to kill the server when you're done
-#
+Press Ctrl+C to stop
 ```
+Below is some sample output showing Hugo detecting a change in the home page
+template. (Actually, the change is the edit we're about to do.) Once it's
+rendered again, the web browser automatically reloads the page.
 
-Here's sample output showing Hugo detecting a change to the template for the home page. Once generated, the web browser automatically reloaded the page. I've said this before, it's amazing.
-
-
+(As I said above &mdash; it's amazing:)
 ```bash
+$ rm -rf public/
+
 $ hugo server --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /
+Started building site
+WARN: {date} {source} "/" is rendered empty
+=============================================================
+Your rendered home page is blank: /index.html is zero-length
+ * Did you specify a theme on the command-line or in your
+   "config.toml" file?  (Current theme: "")
+=============================================================
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 0 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 4 ms
-Watching for changes in /tmp/hugo-0.16/{data,content,layouts,static,themes}
+Watching for changes in /tmp/mySite/{data,content,layouts,static,themes}
 Serving pages from memory
 Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
-
-INFO: 2015/11/27 File System Event: ["/tmp/hugo-0.16/themes/zafta/layouts/index.html": CHMOD "/tmp/hugo-0.16/themes/zafta/layouts/index.html": WRITE]
+INFO: {date} {source} Received System Events: ["/tmp/mySite/themes/zafta/layouts/index.html": WRITE]
 
 Change detected, rebuilding site
-2015-11-27 20:57 -0600
+{date}
+Template changed /tmp/mySite/themes/zafta/layouts/index.html
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 0 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 3 ms
 ```
+## Home Template
 
-## Update the Home Page Template
-
-The home page is one of a few special pages that Hugo creates automatically. As mentioned earlier, it looks for one of two files in the theme's `layout/` directory:
+The home page is one of the few special pages Hugo renders automatically.
+As mentioned earlier, it looks in your theme's `layouts/` tree for one
+of two files:
 
 1. `index.html`
-2. `_default/list.html`
+1. `_default/list.html`
 
-We could update the default templates, but a good design decision is to update the most specific template available. That's not a hard and fast rule (in fact, we'll break it a few times in this tutorial), but it is a good generalization.
+We could edit the default template, but a good design principle is to edit
+the most specific template available. That's not a hard-and-fast rule
+(in fact, in this tutorial, we'll break it a few times),
+but it's a good generalization.
+### Static
 
-### Make a Static Home Page
-
-Right now, that page is empty because we don't have any content and we don't have any logic in the template. Let's change that by adding some text to the template.
-
-```bash
+Right now, your home page is empty because you've added no content,
+and because its template includes no logic. Let's change that by adding
+some text to your home page template (`layouts/index.html`):
+```html
 $ vi themes/zafta/layouts/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  <p>hugo says hello!</p>
+  <p>Hugo says hello!</p>
 </body>
 </html>
 :wq
-
-$
 ```
+Let's press Ctrl+C and render the web site, and then verify the results:
+```html
+$ rm -rf public/
 
-Build the web site and then verify the results.
-
-```bash
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 0 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 4 ms
 
-$ ls -l public/index.html 
--rw-r--r--  1 mdhender  wheel  72 Nov 27 21:03 public/index.html
-$ cat public/index.html 
+$ ls -l public/index.html
+-rw-r--r--  1 {user} {group}  72 {date} public/index.html
+
+$ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  <p>hugo says hello!</p>
+  <p>Hugo says hello!</p>
 </body>
 </html>
-
-$ 
 ```
+### Dynamic
 
-### Build a "Dynamic" Home Page
+A ***dynamic*** home page? Because Hugo is a _static web site_ generator,
+the word _dynamic_ seems odd, doesn't it? But this means arranging for your
+home page to reflect the content in your web site automatically,
+each time Hugo renders it.
 
-"Dynamic home page?" Hugo's a static web site generator, so this seems an odd thing to say. I mean let's have the home page automatically reflect the content in the site every time Hugo builds it. We'll use iteration in the template to do that.
+To accomplish that, later we'll add an iterator to your home page template.
+## Article
 
-#### Create New Articles
+Now that Hugo is successfully rendering your home page with static content,
+let's add more pages to your web site. We'll display some new articles
+as a list on your home page; and we'll display each article
+on its own page, too.
 
-Now that we have the home page generating static content, let's add some content to the site. We'll display these articles as a list on the home page and on their own page, too.
-
-Hugo has a command to generate a skeleton entry for new content, just like it does for sites and themes.
-
+Hugo has a command to generate an entry skeleton for new content,
+just as it does for web sites and themes:
 ```bash
- hugo --verbose new article/first.md
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 attempting to create  article/first.md of article
-INFO: 2015/11/27 curpath: /tmp/hugo-0.16/themes/zafta/archetypes/default.md
-INFO: 2015/11/27 creating /tmp/hugo-0.16/content/article/first.md
-/tmp/hugo-0.16/content/article/first.md created
+$ hugo --verbose new article/First.md
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} attempting to create  article/First.md of article
+INFO: {date} {source} curpath: /tmp/mySite/themes/zafta/archetypes/default.md
+INFO: {date} {source} creating /tmp/mySite/content/article/First.md
+/tmp/mySite/content/article/First.md created
 
 $ ls -l content/article/
 total 8
--rw-r--r--  1 mdhender  wheel  61 Nov 27 21:06 first.md
-$ 
+-rw-r--r--  1 {user} {group}  61 {date} First.md
 ```
-
-Let's create a second article while we're here.
-
+Let's generate a second article, while we're here:
 ```bash
-$ hugo --verbose new article/second.md
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 attempting to create  article/second.md of article
-INFO: 2015/11/27 curpath: /tmp/hugo-0.16/themes/zafta/archetypes/default.md
-INFO: 2015/11/27 creating /tmp/hugo-0.16/content/article/second.md
-/tmp/hugo-0.16/content/article/second.md created
+$ hugo --verbose new article/Second.md
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} attempting to create  article/Second.md of article
+INFO: {date} {source} curpath: /tmp/mySite/themes/zafta/archetypes/default.md
+INFO: {date} {source} creating /tmp/mySite/content/article/Second.md
+/tmp/mySite/content/article/Second.md created
 
 $ ls -l content/article/
 total 16
--rw-r--r--  1 mdhender  wheel  61 Nov 27 21:06 first.md
--rw-r--r--  1 mdhender  wheel  62 Nov 27 21:08 second.md
+-rw-r--r--  1 {user} {group}  61 {date} First.md
+-rw-r--r--  1 {user} {group}  62 {date} Second.md
 ```
-
-Edit both of those articles to put some text into the body.
-
+Let's edit both those articles. Be careful to preserve their front-matter,
+but append some text to their bodies, as follows:
 ```bash
-$ cat content/article/first.md 
-+++
-date = "2015-11-27T21:06:38-06:00"
-title = "first"
-+++
+$ vi content/article/First.md
 In vel ligula tortor. Aliquam erat volutpat.
 Pellentesque at felis eu quam tincidunt dignissim.
 Nulla facilisi.
@@ -599,11 +846,26 @@ Nulla facilisi.
 Pellentesque tempus nisi et interdum convallis.
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.
+:wq
 
-$ cat content/article/second.md 
+$ vi content/article/Second.md
+Fusce lacus magna, maximus nec sapien eu,
+porta efficitur neque. Aliquam erat volutpat.
+Vestibulum enim nibh, posuere eu diam nec,
+varius sagittis turpis.
+
+Praesent quis sapien egestas mauris accumsan
+pulvinar. Ut mattis gravida venenatis. Vivamus
+lobortis risus id nisi rutrum, at iaculis.
+:wq
+```
+So, for example, `./content/article/Second.md` becomes:
+```toml
+$ cat content/article/Second.md
 +++
-date = "2015-11-27T21:08:08-06:00"
-title = "second"
+date = "2040-01-18T21:08:08-06:00"
+title = "Second"
+
 +++
 Fusce lacus magna, maximus nec sapien eu,
 porta efficitur neque. Aliquam erat volutpat.
@@ -613,169 +875,275 @@ varius sagittis turpis.
 Praesent quis sapien egestas mauris accumsan
 pulvinar. Ut mattis gravida venenatis. Vivamus
 lobortis risus id nisi rutrum, at iaculis.
-$ 
 ```
-
-Build the web site and then verify the results.
-
+Let's render the web site, and then verify the results:
 ```bash
 $ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "article" is rendered empty
+WARN: {date} {source} "article/Second.html" is rendered empty
+WARN: {date} {source} "article/First.html" is rendered empty
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 2 pages created
+0 non-page files copied
 0 paginator pages created
-0 categories created
 0 tags created
+0 categories created
 in 7 ms
-$
 ```
-
-The output says that it created 2 pages. Those are our new articles:
-
+The output says Hugo rendered ("created") two pages.
+Those pages are your new articles:
 ```bash
 $ find public -type f -name '*.html' | xargs ls -l
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:12 public/404.html
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:12 public/article/first/index.html
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:12 public/article/index.html
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:12 public/article/second/index.html
--rw-r--r--  1 mdhender  wheel  72 Nov 27 21:12 public/index.html
-$ 
+-rw-r--r--  1 {user} {group}   0 {date} public/404.html
+-rw-r--r--  1 {user} {group}   0 {date} public/article/First/index.html
+-rw-r--r--  1 {user} {group}   0 {date} public/article/index.html
+-rw-r--r--  1 {user} {group}   0 {date} public/article/Second/index.html
+-rw-r--r--  1 {user} {group}  72 {date} public/index.html
 ```
-
-The new files are empty because because the templates used to generate the content are empty. The homepage doesn't show the new content, either.
-
-```bash
-$ cat public/index.html 
+The new pages are empty, because Hugo rendered their HTML from empty
+template files. The home page doesn't show us the new content, either:
+```html
+$ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  <p>hugo says hello!</p>
+  <p>Hugo says hello!</p>
 </body>
 </html>
-$ 
 ```
+So, we have to edit the templates, in order to pick up the articles.
+### Single & List
 
-We have to update the templates to add the articles.
+Here again I'll discuss three kinds of Hugo templates. One kind is
+the home page template we edited previously; it's applicable only to
+the home page. Another kind is Single templates, which render output for
+just one content file. The third kind are List templates, which group
+multiple pieces of content before rendering output.
 
-### List and Single Templates
+It's important to note that, generally, List templates
+(except the home page template) are named `list.html`;
+and Single templates are named `single.html`.
 
-In Hugo, we have three major kinds of templates. There's the home page template that we updated previously. It is used only by the home page. We also have "single" templates which are used to generate output for a single content file. We also have "list" templates that are used to group multiple pieces of content before generating output.
+Hugo also has three other kinds of templates:
+Partials, _Content Views_, and _Terms_.
+We'll give examples of some Partial templates; but otherwise,
+we won't go into much detail about these.
+### Home
 
-Generally speaking, list templates are named "list.html" and single templates are named "single.html."
-
-There are three other types of templates: partials, content views, and terms. We will give an example of some partials, but really won't go into much detail on these.
-
-### Add Content to the Homepage
-
-The home page will contain a list of articles. Let's update its template to add the articles that we just created. The logic in the template will run every time we build the site.
-
-```bash
+You'll want your home page to list the articles you just created.
+So, let's alter its template file (`layouts/index.html`) to show them.
+Hugo runs each template's logic whenever it renders that template's web page
+(of course):
+```html
 $ vi themes/zafta/layouts/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  {{ range first 10 .Data.Pages }}
-    <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
-  {{ end }}
+  {{- range first 10 .Data.Pages }}
+    <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+  {{- end }}
 </body>
 </html>
 :wq
-
-$
 ```
+#### Engine
 
-Hugo uses the Go template engine. That engine scans the template files for commands which are enclosed between "{{" and "}}" (affectionately called "moustaches").
+Hugo uses the [Go language's template
+engine](https://gohugo.io/templates/go-templates/).
+That engine scans your template files for commands enclosed between
+"{{" and "}}" (these are doubled, curly braces &mdash; affectionately
+known as "mustaches").
 
-In our template, the commands are:
+BTW, a hyphen, if placed immediately after an opening mustache, or
+immediately before a closing one, will prevent extraneous newlines.
+(This can make Hugo's output look better, when viewed as text.)
 
-1. range
-2. .Permalink
-3. .Title
-4. end
+So, the mustache commands in your newly-altered template are:
 
-The `range` command is an iterator. We use it to go through the first ten pages. Every HTML file that Hugo creates is treated as a page, so looping through the list of pages will look at every file that will be created.
+1. &nbsp;`range ...`
+1. &nbsp;`.Permalink`
+1. &nbsp;`.Title`
+1. &nbsp;`end`
 
-`.Permalink` prints the URL to link to an article and `.Title` prints the value of the "title" variable. Hugo pulls it from the front matter in the Markdown file.
+The `range` command is an iterator. We're using it to go through the latest
+ten pages. (Hugo characterizes some of its HTML output files as "pages,"
+but not all &mdash; see above.)
 
-The `end` command signals the end of the range iterator. The engine loops back to the top of the iteration when it finds `end.` Everything between `range` and `end` is evaluated each time the engine goes through the iteration. In this template, that would cause the title from the first ten pages to be output as heading level one tags along. Because of the permalink, the heading will link to the actual article.
+Looping through the list of data pages will consider each such HTML file
+that Hugo renders (or rather &mdash; to speak more precisely &mdash; each
+such HTML file that Hugo currently calculates it _will_ render).
 
-It's helpful to remember that some variables, like `.Data`, are created before any output files. Hugo loads every content file into the variable and then gives the template a chance to process before creating the HTML files.
+It's helpful to remember that Hugo sets some variables, such as `.Data`, quite
+early in its overall processing. Hugo loads information from every content
+file into that variable, and gives all the templates a chance to process that
+variable's contents, before actually rendering any HTML output files.
 
-Build the web site and then verify the results.
+`.Permalink` supplies the URL which links to that article's page, and
+`.Title` supplies the value of its "title" variable. Hugo obtains this
+from the front-matter in the article's Markdown file.
 
-```bash
+Automatically, the pages are considered in descending order of the generation
+times of their Markdown files (actually, based on the value of the "date"
+variable in their front-matter) so that the latest is first (naturally).
+
+The `end` command signals the end of the range iterator. The engine
+loops back to the top of the iterator, whenever it finds `end.`
+Everything between `range` and `end` is reevaluated,
+each time the engine goes through the iterator.
+
+For the present template, this means that the titles of your latest
+ten pages (or however many exist, if that's less) become the
+[textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent)
+of an equivalent number of copies Hugo makes, of your level-four
+subheading tags (and anchor tags). `.Permalink` enables these to link
+to the actual articles.
+
+Let's render your web site, and then verify the results:
+```html
 $ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "article" is rendered empty
+WARN: {date} {source} "article/Second.html" is rendered empty
+WARN: {date} {source} "article/First.html" is rendered empty
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 2 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 7 ms
 
 $ find public -type f -name '*.html' | xargs ls -l
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:18 public/404.html
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:18 public/article/first/index.html
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:18 public/article/index.html
--rw-r--r--  1 mdhender  wheel   0 Nov 27 21:18 public/article/second/index.html
--rw-r--r--  1 mdhender  wheel  94 Nov 27 21:18 public/index.html
+-rw-r--r--  1 {user} {group}   0 {date} public/404.html
+-rw-r--r--  1 {user} {group}   0 {date} public/article/First/index.html
+-rw-r--r--  1 {user} {group}   0 {date} public/article/index.html
+-rw-r--r--  1 {user} {group}   0 {date} public/article/Second/index.html
+-rw-r--r--  1 {user} {group} 232 {date} public/index.html
 
-$ cat public/index.html 
+$ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  
-    <h1><a href="http://example.org/article/second/">second</a></h1>
-  
-    <h1><a href="http://example.org/article/first/">first</a></h1>
-  
+    <h4><a href="http://replace-this-with-your-hugo-site.com/article/Second/">Second</a></h4>
+    <h4><a href="http://replace-this-with-your-hugo-site.com/article/First/">First</a></h4>
 </body>
 </html>
-$ 
 ```
+### All Done
 
-Congratulations, the home page shows the title of the two articles and the links to them. The articles themselves are still empty, but let's take a moment to appreciate what we've done. Your template now generates output dynamically. Believe it or not, by inserting the range command inside of those curly braces, you've learned everything you need to know to build a theme. All that's really left is understanding which template will be used to generate each content file and becoming familiar with the commands for the template engine.
+Congratulations! Your home page shows the titles of your two articles, along
+with the links to them. The articles themselves are still empty. But,
+let's take a moment to appreciate what we've done, so far!
 
-Well, if that were entirely true, this tutorial would be much shorter. There are a few things to know that will make creating a new template much easier. Don't worry, though, that's all to come.
+Your home page template (`layouts/index.html`) now renders output dynamically.
+Believe it or not, by inserting the range command inside those doubled
+curly braces, you've learned everything you need to know &mdash;
+essentially &mdash; about developing a theme.
 
-There's also a few things to understand about developing and testing your theme. Notice that the links in the `public/index.html` file use the full `baseurl` from the `config.toml` file. That's because the rendered files are intended to be deployed to your web server. If you're testing your them, you'd run `hugo server` and connect to your browser. That command is smart enough to replace the `baseurl` with `http://localhost:1313` on the fly so that links automatically work for you. That's another reason we recommend testing with the built in server.
+All that's left is understanding which of your templates renders each content
+file, and becoming more familiar with the commands for the template engine.
+## More
 
-### Add Content to the Articles
+Well &mdash; if things were so simple, this tutorial would be much shorter!
 
-We're working with articles, which are in the `content/article/` directory. That means that their section (as far as templates are concerned) is "article." If we don't do something weird, their type is also "article."
+Some things are still useful to learn, because they'll make creating new
+templates _much_ easier &mdash; so, I'll cover them, now.
+### Base URL
 
-Hugo uses the section and type to find the template file for every piece of content that it renders. Hugo will first look for a template file that matches the section or type name. If it can't find one, then it will look in the `_default/` directory. There are some twists that we'll cover when we get to categories and tags, but for now we can assume that Hugo will try `article/single.html`, then `_default/single.html`.
+While developing and testing your theme, did you notice that the links in the
+rendered `./public/index.html` file use the full "baseurl" from your
+`./config.toml` file? That's because those files are intended to be deployed
+to your web server.
 
-Now that we know the search rule, let's see what we actually have available:
+Whenever you test your theme, you start Hugo in web server mode
+(with `hugo server`) and connect to it with your web browser.
+That command is smart enough to replace the "baseurl" with
+`http://localhost:1313` on the fly, so that the links automatically
+work for you.
 
+That's another reason why we recommend testing with the built-in web server.
+### Content
+
+The articles you've been working with are in your `./content/article/`
+directory. That means their _Section_ (as far as templates are concerned)
+is "article". Unless we do something unusual in their front-matter, their
+_Type_ is also "article".
+#### Search
+
+Hugo uses the Section and Type to find a template file for every piece of
+content it renders. Hugo first will seek a template file in subdirectories of
+`layouts/` that match its Section or Type name (i.e., in `layouts/SECTION/`
+or `layouts/TYPE/`). If it can't find a file there, then it will look in the
+`layouts/_default/` directory. Other documentation covers some twists about
+categories and tags, but we won't use those in this tutorial. Therefore,
+we can assume that Hugo will try first `layouts/article/single.html`, then
+`layouts/_default/single.html`.
+
+Now that we know the search rule, let's see what's available:
 ```bash
 $ find themes/zafta -name single.html | xargs ls -l
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/_default/single.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/_default/single.html
 ```
+If you look back at the articles Hugo has rendered, you can see that
+they were empty. Now we can see that this is because Hugo sought
+`layouts/article/single.html` but couldn't find it, and template
+`layouts/_default/single.html` was empty. Therefore, the rendered article
+file was empty, too.
 
-If you look back at the articles that we've rendered, you can see that they're empty because Hugo looked for `article/single.html` but couldn't find it. The `_default/single.html` template is empty, so the rendered article file was empty, too.
+So, we could either create a new template, `layouts/article/single.html`,
+or edit the default one.
+#### Default Single
 
-We could create a new template, `article/single.html`, or change the default, `_default/single.html`. Since we don't know of any other content types, let's start with updating the default.
+Since we know of no other content Types, let's start by editing the default
+template file, `layouts/_default/single.html`.
 
-We mentioned earlier that you should always change the most specific template first to avoid accidentally change other content. We're breaking that rule intentionally just to explore how the default is used.
+As we mentioned earlier, you always should edit (or create) the most
+specific template first, in order to avoid accidentally changing how other
+content is displayed. However, we're breaking that rule intentionally,
+just so we can explore how the default is used.
 
-Remember, any content that we haven't created a template for will end up using this template. That can be good or bad. Bad because I know that we're going to be adding different types of content and we're going to end up undoing some of the changes we've made. It's good because we'll be able to see immediate results. It's also good to start here because we can start to build the basic layout for the site. As we add more content types, we'll refactor this file and move logic around. Hugo makes that fairly painless, so we'll accept the cost and proceed.
+Remember, any content &mdash; for which we don't create a specific template
+&mdash; will end up using this default template. That can be good or bad.
+Bad, because I know we'll be adding different Types of content, and we'll
+eventually undo some of the changes we've made. Good, because then we'll be
+able to see some results immediately. It's also good to create the default
+template first, because with it, we can start to develop the basic layout
+for the web site.
 
-Please see the Hugo documentation on template rendering for all the details on determining which template to use. And, as the docs mention, if you're building a single page application (SPA) web site, you can delete all of the other templates and work with just the default single page. That's a refreshing amount of joy right there.
+As we add more content Types, we'll refactor this file and move its logic
+around. Hugo makes this fairly painless, so we'll accept the cost and proceed.
 
-#### Update the Template File
+Please see Hugo's documentation on template rendering, for all the details on
+determining which template to use. And, as the documentation mentions, if
+your web site is a single-page application (SPA), you can delete all the
+other templates and work with just the default Single one. By itself,
+that fact provides a refreshing amount of joy.
 
-```bash
+Let's edit the default template file (`layouts/_default/single.html`):
+```html
 $ vi themes/zafta/layouts/_default/single.html
 <!DOCTYPE html>
 <html>
@@ -784,53 +1152,60 @@ $ vi themes/zafta/layouts/_default/single.html
 </head>
 <body>
   <h1>{{ .Title }}</h1>
-  <h2>{{ .Date.Format "Mon, Jan 2, 2006" }}</h2>
+  <h6>{{ .Date.Format "Mon, Jan 2, 2006" }}</h6>
   {{ .Content }}
-  <p><a href="{{ .Site.BaseURL }}">Home</a></p>
+  <h4><a href="{{ .Site.BaseURL }}">Home</a></h4>
 </body>
 </html>
 :wq
-
-$
 ```
+#### Verify
 
-Build the web site and verify the results.
-
+Let's render the web site, and verify the results:
 ```bash
 $ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "article" is rendered empty
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 2 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 7 ms
 
 $ find public -type f -name '*.html' | xargs ls -l
--rw-r--r--  1 mdhender  wheel    0 Nov 27 21:39 public/404.html
--rw-r--r--  1 mdhender  wheel  472 Nov 27 21:39 public/article/first/index.html
--rw-r--r--  1 mdhender  wheel    0 Nov 27 21:39 public/article/index.html
--rw-r--r--  1 mdhender  wheel  513 Nov 27 21:39 public/article/second/index.html
--rw-r--r--  1 mdhender  wheel  241 Nov 27 21:39 public/index.html
+-rw-r--r--  1 {user} {group}    0 {date} public/404.html
+-rw-r--r--  1 {user} {group}  473 {date} public/article/First/index.html
+-rw-r--r--  1 {user} {group}    0 {date} public/article/index.html
+-rw-r--r--  1 {user} {group}  514 {date} public/article/Second/index.html
+-rw-r--r--  1 {user} {group}  232 {date} public/index.html
 ```
-
-Note that the we have a "list" file for our articles, `public/article/index.html`. The file is empty because we don't have a template for it, but the other files contain our HTML.
-
-```bash
-$ cat public/article/first/index.html
+Note that although Hugo rendered a file, to list your articles:
+`./public/article/index.html`, the file is empty, because we don't have
+a template for it. (However: see next.) The other HTML files contain your
+content, as we can see below:
+```html
+$ cat public/article/First/index.html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>first</title>
+  <title>First</title>
 </head>
 <body>
-  <h1>first</h1>
-  <h2>Fri, Nov 27, 2015</h2>
+  <h1>First</h1>
+  <h6>Wed, Jan 18, 2040</h6>
   <p>In vel ligula tortor. Aliquam erat volutpat.
 Pellentesque at felis eu quam tincidunt dignissim.
 Nulla facilisi.</p>
@@ -839,19 +1214,19 @@ Nulla facilisi.</p>
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.</p>
 
-  <p><a href="http://example.org/">Home</a></p>
+  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
 </body>
 </html>
 
-$ cat public/article/second/index.html
+$ cat public/article/Second/index.html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>second</title>
+  <title>Second</title>
 </head>
 <body>
-  <h1>second</h1>
-  <h2>Fri, Nov 27, 2015</h2>
+  <h1>Second</h1>
+  <h6>Wed, Jan 18, 2040</h6>
   <p>Fusce lacus magna, maximus nec sapien eu,
 porta efficitur neque. Aliquam erat volutpat.
 Vestibulum enim nibh, posuere eu diam nec,
@@ -861,113 +1236,139 @@ varius sagittis turpis.</p>
 pulvinar. Ut mattis gravida venenatis. Vivamus
 lobortis risus id nisi rutrum, at iaculis.</p>
 
-  <p><a href="http://example.org/">Home</a></p>
+  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
 </body>
 </html>
-$ 
 ```
+Again, notice that your rendered article files have content.
+You can run `hugo server` and use your browser to confirm this.
+You should see your home page, and it should contain the titles of both
+articles. Each title should be a link to its respective article.
 
-Notice that the articles now have content. You can run `hugo server` and use your browser to confirm. You should see a home page with the title of both articles. Each title should link you to the article. There should be a link at the bottom of the article to take you back to the home page.
+Each article should be displayed fully on its own page. And at the bottom of
+each article, you should see a link which takes you back to your home page.
+### Article List
 
-### Create a List of Articles
+Your home page still lists your most recent articles. However &mdash;
+remember, from above, that I mentioned an empty file,
+`./public/article/index.html`?
+Let's make that show a list of ***all*** of your articles
+(not just the latest ten).
 
-We have the articles displaying on the home page and on their own page. We also have the empty file `public/article/index.html` file. Let's make it show a list of all articles (not just the first ten). Key to this is that individual pages use "single" templates. Pages that show collections (or lists) of other pages use "list" templates.
+We need to decide which template to edit. Key to this, is that
+individual pages always come from Single templates. On the other hand,
+only List templates are capable of rendering pages which display collections
+(or lists) of other pages.
 
-We need to decide which template to update. This will be a listing, so it should be a list template. Let's take a quick look and see which list templates are available.
-
+Because the new page will show a listing, we should select a List template.
+Let's take a quick look to see which List templates are available already:
 ```bash
 $ find themes/zafta -name list.html | xargs ls -l
--rw-r--r--  1 mdhender  wheel  0 Nov 27 20:35 themes/zafta/layouts/_default/list.html
+-rw-r--r--  1 {user} {group}  0 {date} themes/zafta/layouts/_default/list.html
 ```
+So, just as before with the single articles, so again now with the list of
+articles, we must decide: whether to edit `layouts/_default/list.html`,
+or to create `layouts/article/list.html`.
+#### Default List
 
-As with the single article, we have to decide to update `_default/list.html` or create `section/article.html`. We still don't have multiple content types, so let's stay consistent and update the default list template.
-
-```bash
+We still don't have multiple content Types &mdash; so, remaining consistent,
+let's edit the default List template:
+```html
 $ vi themes/zafta/layouts/_default/list.html
 <!DOCTYPE html>
 <html>
 <body>
-  {{ range first 10 .Data.Pages }}
-    <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
-  {{ end }}
-  <p><a href="{{ .Site.BaseURL }}">Home</a></p>
+  <h1>Articles</h1>
+  {{- range first 10 .Data.Pages }}
+    <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+  {{- end }}
+  <h4><a href="{{ .Site.BaseURL }}">Home</a></h4>
 </body>
 </html>
 :wq
-
-$
 ```
-
-Go ahead and render everything again.
-
+Let's render everything again:
 ```bash
-$ rm -rf public
+$ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 2 pages created
+0 non-page files copied
 0 paginator pages created
-0 tags created
 0 categories created
+0 tags created
 in 7 ms
 
 $ find public -type f -name '*.html' | xargs ls -l
--rw-r--r--  1 mdhender  wheel    0 Nov 27 21:56 public/404.html
--rw-r--r--  1 mdhender  wheel  472 Nov 27 21:56 public/article/first/index.html
--rw-r--r--  1 mdhender  wheel  241 Nov 27 21:56 public/article/index.html
--rw-r--r--  1 mdhender  wheel  513 Nov 27 21:56 public/article/second/index.html
--rw-r--r--  1 mdhender  wheel  241 Nov 27 21:56 public/index.html
-
-$ 
+-rw-r--r--  1 {user} {group}    0 {date} public/404.html
+-rw-r--r--  1 {user} {group}  473 {date} public/article/First/index.html
+-rw-r--r--  1 {user} {group}  327 {date} public/article/index.html
+-rw-r--r--  1 {user} {group}  514 {date} public/article/Second/index.html
+-rw-r--r--  1 {user} {group}  232 {date} public/index.html
 ```
+Now (as you can see), we have a list of articles. To confirm it,
+type `hugo server`; then, in your browser, navigate to `/article/`.
+(Later, we'll link to it.)
+## About
 
-We now have a list of articles. You can start `hugo server` and use your browser to confirm.
+Let's add an About page, and try to display it at the top level
+(as opposed to the next level down, where we placed your articles).
+### Guide
 
+Hugo's default goal is to let the directory structure of the `./content/`
+tree guide the location of the HTML it renders to the `./public/` tree.
+Let's check this, by generating an About page at the content's top level:
+```toml
+$ hugo new About.md
+/tmp/mySite/content/About.md created
 
-## Creating Top Level Pages
-
-Let's add an "about" page and display it at the top level (as opposed to a sub-level like we did with articles).
-
-The default in Hugo is to use the directory structure of the `content/` directory to guide the location of the generated html in the `public/` directory. Let's verify that by creating an "about" page at the top level:
-
-```bash
-$ hugo new about.md
-/tmp/hugo-0.16/content/about.md created
 $ ls -l content/
 total 8
-drwxr-xr-x   4 mdhender  wheel  136 Nov 27 22:01 .
-drwxr-xr-x  10 mdhender  wheel  340 Nov 27 21:56 ..
--rw-r--r--   1 mdhender  wheel   61 Nov 27 22:01 about.md
-drwxr-xr-x   4 mdhender  wheel  136 Nov 27 21:11 article
+-rw-r--r--   1 {user} {group}   61 {date} About.md
+drwxr-xr-x   4 {user} {group}  136 {date} article
 
-$ vi content/about.md
+$ vi content/About.md
 +++
-date = "2015-11-27T22:01:00-06:00"
-title = "about"
+date = "2040-01-18T22:01:00-06:00"
+title = "About"
+
 +++
 Neque porro quisquam est qui dolorem
 ipsum quia dolor sit amet consectetur
 adipisci velit.
-$ 
 :wq
 ```
+### Check
 
-Render the web site and verify the results.
-
-```bash
+Let's render your web site, and check the results:
+```html
 $ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 3 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
@@ -975,128 +1376,134 @@ in 9 ms
 
 $ ls -l public/
 total 24
--rw-r--r--  1 mdhender  wheel     0 Nov 27 22:04 404.html
-drwxr-xr-x  3 mdhender  wheel   102 Nov 27 22:04 about
-drwxr-xr-x  6 mdhender  wheel   204 Nov 27 22:04 article
-drwxr-xr-x  2 mdhender  wheel    68 Nov 27 20:35 css
--rw-r--r--  1 mdhender  wheel   328 Nov 27 22:04 index.html
--rw-r--r--  1 mdhender  wheel  2221 Nov 27 22:04 index.xml
-drwxr-xr-x  2 mdhender  wheel    68 Nov 27 20:35 js
--rw-r--r--  1 mdhender  wheel   708 Nov 27 22:04 sitemap.xml
+-rw-r--r--  1 {user} {group}     0 {date} 404.html
+drwxr-xr-x  3 {user} {group}   102 {date} About
+drwxr-xr-x  6 {user} {group}   204 {date} article
+drwxr-xr-x  2 {user} {group}    68 {date} css
+-rw-r--r--  1 {user} {group}   316 {date} index.html
+-rw-r--r--  1 {user} {group}  2221 {date} index.xml
+drwxr-xr-x  2 {user} {group}    68 {date} js
+-rw-r--r--  1 {user} {group}   681 {date} sitemap.xml
 
-$ ls -l public/about/
+$ ls -l public/About/
 total 8
--rw-r--r--  1 mdhender  wheel  304 Nov 27 22:04 index.html
+-rw-r--r--  1 {user} {group}  305 {date} index.html
 
-$ cat public/about/index.html 
+$ cat public/About/index.html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>about</title>
+  <title>About</title>
 </head>
 <body>
-  <h1>about</h1>
-  <h2>Fri, Nov 27, 2015</h2>
+  <h1>About</h1>
+  <h6>Wed, Jan 18, 2040</h6>
   <p>Neque porro quisquam est qui dolorem
 ipsum quia dolor sit amet consectetur
 adipisci velit.</p>
 
-  <p><a href="http://example.org/">Home</a></p>
+  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
 </body>
 </html>
-$ 
 ```
+Oh, well. &mdash; Did you notice that your page wasn't rendered at the
+top level? It was rendered to a subdirectory named `./public/About/`.
+That name came from the basename of your Markdown file `./content/About.md`.
+Interesting &mdash; but, we'll let that go, for now.
+### Home
 
-Notice that the page wasn't created at the top level. It was created in a sub-directory named 'about/'. That name came from the name of our Markdown file, `about.md`.
-
-One other thing. Take a look at the home page.
-
-```bash
-$ cat public/index.html 
+One other thing &mdash; let's take a look at your home page:
+```html
+$ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  
-    <h1><a href="http://example.org/about/">about</a></h1>
-  
-    <h1><a href="http://example.org/article/second/">second</a></h1>
-  
-    <h1><a href="http://example.org/article/first/">first</a></h1>
-  
+    <h4><a href="http://replace-this-with-your-hugo-site.com/About/">About</a></h4>
+    <h4><a href="http://replace-this-with-your-hugo-site.com/article/Second/">Second</a></h4>
+    <h4><a href="http://replace-this-with-your-hugo-site.com/article/First/">First</a></h4>
 </body>
 </html>
-$ 
 ```
-
-Notice that the "about" link is listed with the articles? That's not desirable, so let's change that first.
-
-```bash
+Did you notice that the About link is listed with your articles?
+That's not exactly where we want it; so, let's edit your home page template
+(`layouts/index.html`):
+```html
 $ vi themes/zafta/layouts/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  <h1>Articles</h1>
-  {{ range first 10 .Data.Pages }}
-    {{ if eq .Type "article"}}
-      <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-    {{ end }}
-  {{ end }}
-
-  <h1>Pages</h1>
-  {{ range .Data.Pages }}
-    {{ if eq .Type "page" }}
-      <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-    {{ end }}
-  {{ end }}
-
+  <h2>Articles</h2>
+  {{- range first 10 .Data.Pages -}}
+    {{- if eq .Type "article"}}
+      <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+    {{- end -}}
+  {{- end }}
+  <h2>Pages</h2>
+  {{- range first 10 .Data.Pages -}}
+    {{- if eq .Type "page" }}
+      <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+    {{- end -}}
+  {{- end }}
 </body>
 </html>
 :wq
 ```
-
-Render the web site and verify the results.
-
-```bash
+Let's render your web site, and verify the results:
+```html
 $ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 3 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 9 ms
 
-$ cat public/index.html 
+$ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-  <h1>Articles</h1>
-      <h2><a href="http://example.org/article/second/">second</a></h2>
-      <h2><a href="http://example.org/article/first/">first</a></h2>
-  <h1>Pages</h1>
-      <h2><a href="http://example.org/about/">about</a></h2>
+  <h2>Articles</h2>
+      <h4><a href="http://replace-this-with-your-hugo-site.com/article/Second/">Second</a></h4>
+      <h4><a href="http://replace-this-with-your-hugo-site.com/article/First/">First</a></h4>
+  <h2>Pages</h2>
+      <h4><a href="http://replace-this-with-your-hugo-site.com/About/">About</a></h4>
 </body>
 </html>
 ```
+Good! This time, your home page has two Sections: "article" and "page", and
+each Section contains the correct set of headings and links.
+## Template Sharing
 
-The home page has two sections, Articles and Pages, and each section has the right set of headings and links in it.
+If you've been following along on your computer, you might've noticed that
+your home page doesn't show its title in your browser, although both of your
+article pages do. That's because we didn't add your home page's title to its
+template (`layouts/index.html`). That would be easy to do &mdash; but instead,
+let's look at a better option.
 
-## Sharing Templates
+We can put the common information into a shared template.
+These reside in the `layouts/partials/` directory.
+### Header & Footer
 
-If you've been following along, you probably noticed that articles have titles in the browser and the home page doesn't. That's because we didn't put the title in the homepage's template (`layouts/index.html`). That's an easy thing to do, but let's look at a better option.
-
-We can put the common bits into a shared template that's stored in the `themes/zafta/layouts/partials/` directory.
-
-### Create the Header and Footer Partials
-
-In Hugo, a partial is a template that's intended to be used within other templates. We're going to use partials to create a single header template that other templates will use. That gives us one place to maintain the header information, which makes maintenance much easier. So much easier, in fact, that we'll jump in and do the same for the footer, too.
-
-```bash
+In Hugo (as elsewhere), a Partial is a template that's intended to be used
+within other templates. We're going to create a Partial template that will
+contain a header, for all of your page templates to use. That Partial will
+enable us to maintain the header information in a single place, thus easing
+our maintenance. Let's create both the header (`layouts/partials/header.html`)
+and the footer (`layouts/partials/footer.html`):
+```html
 $ vi themes/zafta/layouts/partials/header.html
 <!DOCTYPE html>
 <html>
@@ -1107,180 +1514,176 @@ $ vi themes/zafta/layouts/partials/header.html
 :wq
 
 $ vi themes/zafta/layouts/partials/footer.html
+  <h4><a href="{{ .Site.BaseURL }}">Home</a></h4>
 </body>
 </html>
 :wq
 ```
+### Calling
 
-### Update the Home Page Template to Use the Partials
-
-The most noticeable difference between a template call and a partials call is the lack of path:
-
-```bash
-{{ template "theme/partials/header.html" . }}
-```
-
-versus
-
+Any `partial` is called relative to its conventional location
+`layouts/partials/`. So, you pass just the basename, followed by the context
+(the period before the closing mustache). For example:
 ```bash
 {{ partial "header.html" . }}
 ```
+#### From Home
 
-Both pass in the context (that's the period just before the closing moustache).
-
-Let's change the home page template to use these new partials we just created.
-
-```bash
+Let's change your home page template (`layouts/index.html`)
+in order to use the new header Partial we just created:
+```html
 $ vi themes/zafta/layouts/index.html
 {{ partial "header.html" . }}
-
-  <h1>Articles</h1>
-  {{ range first 10 .Data.Pages }}
-    {{ if eq .Type "article"}}
-      <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-    {{ end }}
-  {{ end }}
-
-  <h1>Pages</h1>
-  {{ range .Data.Pages }}
-    {{ if eq .Type "page" }}
-      <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-    {{ end }}
-  {{ end }}
-
-{{ partial "footer.html" . }}
+  <h2>Articles</h2>
+  {{- range first 10 .Data.Pages -}}
+    {{- if eq .Type "article"}}
+      <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+    {{- end -}}
+  {{- end }}
+  <h2>Pages</h2>
+  {{- range first 10 .Data.Pages -}}
+    {{- if eq .Type "page" }}
+      <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+    {{- end -}}
+  {{- end }}
+</body>
+</html>
 :wq
 ```
+Render your web site and verify the results. Now, the title on your home page
+should be "My New Hugo Site". This comes from the "title" variable
+in the `./config.toml` file.
+#### From Default
 
-Render the web site and verify the results. The title on the home page is now "My New Hugo Site", which comes from the "title" variable in the `config.toml` file.
-
-### Update the Default Templates to Use the Partials
-
-```bash
+Let's also edit the default templates (`layouts/_default/single.html` and
+`layouts/_default/list.html`) to use your new Partials:
+```html
 $ vi themes/zafta/layouts/_default/single.html
 {{ partial "header.html" . }}
   <h1>{{ .Title }}</h1>
-  <h2>{{ .Date.Format "Mon, Jan 2, 2006" }}</h2>
+  <h6>{{ .Date.Format "Mon, Jan 2, 2006" }}</h6>
   {{ .Content }}
-  <p><a href="{{ .Site.BaseURL }}">Home</a></p>
-{{ partial "footer.html" . }}
+{{ partial "footer.html" . -}}
 :wq
 
 $ vi themes/zafta/layouts/_default/list.html
-{{ partial "header.html" . }}
-  {{ range first 10 .Data.Pages }}
-    <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
-  {{ end }}
-  <p><a href="{{ .Site.BaseURL }}">Home</a></p>
-{{ partial "footer.html" . }}
+{{ partial "header.html" . -}}
+  <h1>Articles</h1>
+  {{- range first 10 .Data.Pages }}
+    <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+  {{- end }}
+{{ partial "footer.html" . -}}
 :wq
 ```
+Render your web site and verify the results.
+Now, the title of your About page should reflect the value of the "title"
+variable in its corresponding Markdown file (`./content/About.md`).
+The same should be true for each of your article pages as well (i.e.,
+`./content/article/First.md` and `./content/article/Second.md`).
+### DRY
 
-Generate the web site and verify the results. The title on the articles and the about page should both reflect the value in the markdown file.
+Don't Repeat Yourself (also known as DRY) is a desirable goal,
+in any kind of source code development &mdash;
+and Hugo's partials do a fine job to help with that.
 
-## Addressing the "Date Published" on the About page
+Part of the art of good templates is knowing when to add new ones, and when
+to edit existing ones. While you're still figuring out the art of templates,
+you should accept that you'll do some refactoring &mdash; Hugo makes this
+easy and fast. And it's okay to delay splitting your templates into Partials.
+## Section
+### Date
 
-It's common to have articles display the date that they were written or published, so let's add that. The front matter of our articles has a variable named "date." It's usually the date the content was created, but let's pretend that's the value we want to display.
+Articles commonly display the date they were published
+(or finalized) &mdash; so, here, let's do the same.
 
-We display it by printing the formatted date in the template.
+The front-matter of your articles contains a "date" variable
+(as discussed above). Hugo sets this, when it creates each content file.
+Now, sometimes an article requires many days to prepare, so its actual
+publishing date might be later than the front-matter's "date". However, for
+simplicity's sake, let's pretend this is the date we want to display, each time.
 
+In Hugo, in order to format a variable date (or time),
+we must do it by formatting the Go language [reference
+time](https://golang.org/pkg/time/); for example:
 ```bash
 {{ .Date.Format "Mon, Jan 2, 2006" }}
 ```
+Now, your articles use the `layouts/_default/single.html` template (see above).
+Because that template includes a date-formatting snippet, they show a
+nice looking date. However, your About page uses the same default template.
+Unfortunately, now it too shows its creation date (which makes no sense)!
 
-Articles use the `_default/single.html` template, which includes this, so they show a nice looking date. Unfortunately, the "about" page uses the same default template, so it shows the date, too.
+There are a couple of ways to make the date display only for articles.
+We could use an "if" statement, to display the date only when the Type equals
+"article." That is workable, and acceptable for web sites with only a couple
+of content Types. It aligns with the principle of "code for today," too.
+### Template
 
-There are a couple of ways to make the date display only for articles. We could do an "if" statement to only display the date when the type equals "article." That would work, and is acceptable for sites that have just a couple of content types. It aligns with the principle of "code for today," too.
+Let's assume, though (for didactic purposes), that you've made your web site so
+complex that you feel you must create a new template Type. In Hugo-speak, this
+will be a new Section. It will contain your new, "article" Single template.
 
-Let's assume, though, that we've made our site so complex that we feel we have to create a new template type. In Hugo-speak, we're going to create a section template for our articles.
-
-Let's restore the default single template before we forget.
-
-```bash
-$ vi themes/zafta/layouts/_default/single.html
-{{ partial "header.html" . }}
-
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-
-{{ partial "footer.html" . }}
-:wq
-```
-
-Now we'll update the articles's version of the single template. If you remember Hugo's rules, the template engine will use this version over the default.
-
-```bash
+Let's restore your default Single template (`layouts/_default/single.html`)
+to its earlier state (before we forget):
+```html
 $ vi themes/zafta/layouts/_default/single.html
 {{ partial "header.html" . }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
-  <p><a href="{{ .Site.BaseURL }}">Home</a></p>
-{{ partial "footer.html" . }}
+{{ partial "footer.html" . -}}
 :wq
 ```
-
-Now let's create the section template. First step is to create the directory for the new section. Then we just create a "single" template in it.
-
-```bash
+Now, let's create your new template. If you remember Hugo's rules,
+the template engine will prefer this version over the default. The first step
+is to create (within your theme) its Section's directory: `layouts/article/`.
+Then, create a Single template (`layouts/article/single.html`) within it:
+```html
 $ mkdir themes/zafta/layouts/article
+
 $ vi themes/zafta/layouts/article/single.html
 {{ partial "header.html" . }}
   <h1>{{ .Title }}</h1>
-  <h2>{{ .Date.Format "Mon, Jan 2, 2006" }}</h2>
+  <h6>{{ .Date.Format "Mon, Jan 2, 2006" }}</h6>
   {{ .Content }}
-  <p><a href="{{ .Site.BaseURL }}">Home</a></p>
-{{ partial "footer.html" . }}
-$ 
+{{ partial "footer.html" . -}}
 :wq
-
 ```
+Basically, we moved the date logic &mdash; from the default template, to the
+new "article" Section, Single template: `layouts/article/single.html`.
 
-Note that we removed the date logic from the default template and put it in the "single" template for `layouts/article/`.
-
-Render the site and verify the results. Articles have dates and the about page doesn't.
-
-```bash
+Let's render your web site and verify the results:
+```html
 $ rm -rf public/
+
 $ hugo --verbose
-INFO: 2015/11/27 Using config file: /tmp/hugo-0.16/config.toml
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/themes/zafta/static to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 syncing from /tmp/hugo-0.16/static/ to /tmp/hugo-0.16/public/
-INFO: 2015/11/27 found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+INFO: {date} {source} Using config file: /tmp/mySite/config.toml
+INFO: {date} {source} using a UnionFS for static directory comprised of:
+INFO: {date} {source} Base: /tmp/mySite/themes/zafta/static
+INFO: {date} {source} Overlay: /tmp/mySite/static/
+INFO: {date} {source} syncing static files to /tmp/mySite/public/
+Started building site
+INFO: {date} {source} found taxonomies: map[string]string{"tag":"tags", "category":"categories"}
+WARN: {date} {source} "404.html" is rendered empty
 0 draft content
 0 future content
+0 expired content
 3 pages created
+0 non-page files copied
 0 paginator pages created
 0 tags created
 0 categories created
 in 10 ms
 
-$ cat public/about/index.html 
+$ cat public/article/First/index.html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>about</title>
+  <title>First</title>
 </head>
 <body>
 
-  <h1>about</h1>
-  <p>Neque porro quisquam est qui dolorem
-ipsum quia dolor sit amet consectetur
-adipisci velit.</p>
-
-  <p><a href="http://example.org/">Home</a></p>
-</body>
-</html>
-
-$ cat public/article/first/index.html 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>first</title>
-</head>
-<body>
-
-  <h1>first</h1>
-  <h2>Fri, Nov 27, 2015</h2>
+  <h1>First</h1>
+  <h6>Wed, Jan 18, 2040</h6>
   <p>In vel ligula tortor. Aliquam erat volutpat.
 Pellentesque at felis eu quam tincidunt dignissim.
 Nulla facilisi.</p>
@@ -1289,13 +1692,26 @@ Nulla facilisi.</p>
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.</p>
 
-  <p><a href="http://example.org/">Home</a></p>
+  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
 </body>
 </html>
 
-$ 
+$ cat public/About/index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>About</title>
+</head>
+<body>
+
+  <h1>About</h1>
+  <p>Neque porro quisquam est qui dolorem
+ipsum quia dolor sit amet consectetur
+adipisci velit.</p>
+
+  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
+</body>
+</html>
 ```
-
-### Don't Repeat Yourself
-
-DRY is a good design goal and Hugo does a great job supporting it. Part of the art of a good template is knowing when to add a new template and when to update an existing one. While you're figuring that out, accept that you'll be doing some refactoring. Hugo makes that easy and fast, so it's okay to delay splitting up a template.
+Now, as you can see, your articles show their dates,
+and your About page (sensibly) doesn't.
