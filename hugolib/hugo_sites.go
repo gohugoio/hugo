@@ -385,9 +385,9 @@ func (h *HugoSites) setupTranslations(master *Site) {
 	}
 }
 
-// preRender performs build tasks that needs to be done as late as possible.
+// preRender performs build tasks that need to be done as late as possible.
 // Shortcode handling is the main task in here.
-// TODO(bep) We need to look at the whole handler-chain construct witht he below in mind.
+// TODO(bep) We need to look at the whole handler-chain construct with he below in mind.
 func (h *HugoSites) preRender() error {
 
 	for _, s := range h.Sites {

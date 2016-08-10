@@ -777,7 +777,7 @@ func (s *Site) setupPrevNext() {
 }
 
 func (s *Site) render() (err error) {
-	// There are sadly some global template funcs etc. that needs the language information.
+	// There are sadly some global template funcs etc. that need the language information.
 	viper.Set("Multilingual", s.multilingualEnabled())
 	viper.Set("CurrentContentLanguage", s.Language)
 	if err = tpl.SetTranslateLang(s.Language.Lang); err != nil {

@@ -183,12 +183,13 @@ func AbsURL(in string, addLanguage bool) string {
 }
 
 func getLanguagePrefix() string {
-	defaultLang := viper.GetString("DefaultContentLanguage")
-	defaultInSubDir := viper.GetBool("DefaultContentLanguageInSubdir")
-
 	if !viper.GetBool("Multilingual") {
 		return ""
 	}
+
+	defaultLang := viper.GetString("DefaultContentLanguage")
+	defaultInSubDir := viper.GetBool("DefaultContentLanguageInSubdir")
+
 	currentLang := viper.Get("CurrentContentLanguage").(*Language).Lang
 	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
 		return ""

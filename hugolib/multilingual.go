@@ -83,10 +83,10 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 	i := 0
 
 	for lang, langConf := range l {
-		langsMap, ok := langConf.(map[string]interface{})
+		langsMap, err := cast.ToStringMapE(langConf)
 
-		if !ok {
-			return nil, fmt.Errorf("Language config is not a map: %v", langsMap)
+		if err != nil {
+			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
 		}
 
 		language := helpers.NewLanguage(lang)
