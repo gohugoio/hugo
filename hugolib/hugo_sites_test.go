@@ -168,6 +168,7 @@ func TestMultiSitesBuild(t *testing.T) {
 	}{
 		{multiSiteTomlConfig, "toml"},
 		{multiSiteYAMLConfig, "yml"},
+		{multiSiteJSONConfig, "json"},
 	} {
 		doTestMultiSitesBuild(t, config.content, config.suffix)
 	}
@@ -652,6 +653,57 @@ Languages:
         Taxonomies:
             lag: "lag"
 
+`
+
+var multiSiteJSONConfig = `
+{
+  "DefaultExtension": "html",
+  "baseurl": "http://example.com/blog",
+  "DisableSitemap": false,
+  "DisableRSS": false,
+  "RSSUri": "index.xml",
+  "paginate": 1,
+  "DefaultContentLanguage": "fr",
+  "permalinks": {
+    "other": "/somewhere/else/:filename"
+  },
+  "blackfriday": {
+    "angledQuotes": true
+  },
+  "Taxonomies": {
+    "tag": "tags"
+  },
+  "Languages": {
+    "en": {
+      "weight": 10,
+      "title": "English",
+      "blackfriday": {
+        "angledQuotes": false
+      }
+    },
+    "fr": {
+      "weight": 20,
+      "title": "Français",
+      "Taxonomies": {
+        "plaque": "plaques"
+      }
+    },
+    "nn": {
+      "weight": 30,
+      "title": "Nynorsk",
+      "Taxonomies": {
+        "lag": "lag"
+      }
+    },
+    "nb": {
+      "weight": 40,
+      "title": "Bokmål",
+      "Taxonomies": {
+        "lag": "lag"
+      }
+    }
+  }
+}
 `
 
 func createMultiTestSites(t *testing.T, tomlConfig string) *HugoSites {
