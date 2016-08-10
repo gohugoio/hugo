@@ -124,7 +124,7 @@ All three locations will work for you. I'm going to document the second option, 
 
 2. Find the current release by scrolling down and looking for the green tag that reads "Latest Release."
 
-3. Download the current tarball for the Mac. The name will be something like `hugo_X.YY_darwin_amd64.zip`, where `X.YY` is the release number.
+3. Download the current tarball for the Mac. The name will be something like `hugo_X.Y_osx-64bit.tgz`, where `X.YY` is the release number.
 
 4. By default, the tarball will be saved to your `~/Downloads` directory. If you chose to use a different location, you'll need to change that in the following steps.
 
@@ -133,10 +133,10 @@ All three locations will work for you. I'm going to document the second option, 
 Verify that the tarball wasn't corrupted during the download:
 
 ```
-$ tar tvf ~/Downloads/hugo_0.13_darwin_amd64.zip
--rwxrwxrwx  0 0      0           0 Feb 22 04:02 hugo_0.13_darwin_amd64/hugo_0.13_darwin_amd64
--rwxrwxrwx  0 0      0           0 Feb 22 03:24 hugo_0.13_darwin_amd64/README.md
--rwxrwxrwx  0 0      0           0 Jan 30 18:48 hugo_0.13_darwin_amd64/LICENSE.md
+$ tar tvf ~/Downloads/hugo_X.Y_osx-64bit.tgz
+-rwxrwxrwx  0 0      0           0 Feb 22 04:02 hugo_X.Y_osx-64bit/hugo_X.Y_osx-64bit.tgz
+-rwxrwxrwx  0 0      0           0 Feb 22 03:24 hugo_X.Y_osx-64bit/README.md
+-rwxrwxrwx  0 0      0           0 Jan 30 18:48 hugo_X.Y_osx-64bit/LICENSE.md
 ```
 
 The `.md` files are documentation. The other file is the executable.
@@ -151,37 +151,12 @@ $ # make it the working directory
 $ cd ~/bin
 
 $ # extract the tarball
-$ unzip ~/Downloads/hugo_0.13_darwin_amd64.zip
-Archive:  hugo_0.13_darwin_amd64.zip
-  inflating: hugo_0.13_darwin_amd64/hugo_0.13_darwin_amd64
-  inflating: hugo_0.13_darwin_amd64/README.md
-  inflating: hugo_0.13_darwin_amd64/LICENSE.md
-
-$ ls -l
-total 7704
-lrwxr-xr-x  1 mdhender  staff       22 Sep 29 13:34 hugo -> hugo_0.12_darwin_amd/hugo_0.12_darwin_amd64
-drwxr-xr-x@ 1 mdhender  staff      102 Sep  1 14:17 hugo_0.12_darwin_amd64
-drwxrwxr-x@ 5 mdhender  staff      170 Mar 28 22:46 hugo_0.13_darwin_amd64
--rw-r-----@ 1 mdhender  staff  3942651 Mar 28 22:45 hugo_0.13_darwin_amd64.zip
-
-$ ls -l hugo_0.13_darwin_amd64
-total 27560
--rw-r--r--@ 1 mdhender  staff      2707 Jan 30 18:48 LICENSE.md
--rw-r--r--@ 1 mdhender  staff      6748 Feb 22 03:24 README.md
--rwxr-xr-x@ 1 mdhender  staff  14095060 Feb 22 04:02 hugo_0.13_darwin_amd64
-```
-
-I was already running Hugo v0.12, so you can see how that was set up. It'll be identical for v0.13 when we're done.
-
-```
-$ # create the link to the real executable
-$ rm -f hugo
-$ ln -s hugo_0.13_darwin_amd64/hugo_0.13_darwin_amd64 hugo
-$ ls -l
-total 7704
-lrwxr-xr-x  1 mdhender  staff       22 Mar 28 22:49 hugo -> hugo_0.13_darwin_amd/hugo_0.12_darwin_amd64
-drwxr-xr-x@ 1 mdhender  staff      102 Sep  1 14:17 hugo_0.12_darwin_amd64
-drwxrwxr-x@ 5 mdhender  staff      170 Mar 28 22:46 hugo_0.13_darwin_amd64
+$ tar -xvzf ~/Downloads/hugo_X.Y_osx-64bit.tgz
+Archive:  hugo_X.Y_osx-64bit.tgz
+  x ./
+  x ./hugo
+  x ./LICENSE.md
+  x ./README.md
 
 $ # verify that it runs
 $ ./hugo version
@@ -193,7 +168,7 @@ You may need to add your bin directory to your `PATH` variable. The `which` comm
 ```
 $ # check if hugo is in the path
 $ which hugo
-/Users/mdhender/bin/hugo
+/Users/USERNAME/bin/hugo
 ```
 
 If `hugo` is not in your `PATH`, add it by updating your `~/.bash_profile` file. First, start up an editor:
