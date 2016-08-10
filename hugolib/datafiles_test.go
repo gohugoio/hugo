@@ -16,10 +16,12 @@ package hugolib
 import (
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDataDirJSON(t *testing.T) {
@@ -103,4 +105,26 @@ func doTestDataDir(t *testing.T, expected interface{}, sources []source.Input) {
 	if !reflect.DeepEqual(expected, s.Data) {
 		t.Errorf("Expected structure\n%#v got\n%#v", expected, s.Data)
 	}
+}
+
+func TestDataFromShortcode(t *testing.T) {
+	testCommonResetState()
+	writeSource(t, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
+	writeSource(t, "layouts/_default/single.html", `
+* Slogan from template: {{  .Site.Data.hugo.slogan }}
+* {{ .Content }}`)
+	writeSource(t, "layouts/shortcodes/d.html", `{{  .Page.Site.Data.hugo.slogan }}`)
+	writeSource(t, "content/c.md", `---
+---
+Slogan from shortcode: {{< d >}}
+`)
+
+	h, err := newHugoSitesDefaultLanguage()
+	require.NoError(t, err)
+	require.NoError(t, h.Build(BuildCfg{}))
+
+	content := readSource(t, "public/c/index.html")
+	require.True(t, strings.Contains(content, "Slogan from template: Hugo Rocks!"), content)
+	require.True(t, strings.Contains(content, "Slogan from shortcode: Hugo Rocks!"), content)
+
 }
