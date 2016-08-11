@@ -1,6 +1,6 @@
 ---
 author: "Michael Henderson"
-lastmod: 2016-01-04
+lastmod: 2016-08-10
 date: 2015-02-22
 linktitle: Installing on Mac
 toc: true
