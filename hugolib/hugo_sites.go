@@ -373,9 +373,12 @@ func (h *HugoSites) setupTranslations(master *Site) {
 			}
 		}
 
-		for i := 1; i < len(h.Sites); i++ {
-			h.Sites[i].AllPages = h.Sites[0].AllPages
-		}
+	}
+
+	// Pull over the collections from the master site
+	for i := 1; i < len(h.Sites); i++ {
+		h.Sites[i].AllPages = h.Sites[0].AllPages
+		h.Sites[i].Data = h.Sites[0].Data
 	}
 
 	if len(h.Sites) > 1 {
