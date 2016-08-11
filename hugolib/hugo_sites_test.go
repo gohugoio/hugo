@@ -254,6 +254,10 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	languageRedirect := readDestination(t, "public/index.html")
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
 
+	// check home page content (including data files rendering)
+	assertFileContent(t, "public/en/index.html", true, "Home Page 1", "Hello", "Hugo Rocks!")
+	assertFileContent(t, "public/fr/index.html", true, "Home Page 1", "Bonjour", "Hugo Rocks!")
+
 	// Check node translations
 	homeEn := enSite.getNode("home-0")
 	require.NotNil(t, homeEn)
@@ -729,7 +733,7 @@ func createMultiTestSitesForConfig(t *testing.T, configContent, configSuffix str
 
 	if err := afero.WriteFile(hugofs.Source(),
 		filepath.Join("layouts", "index.html"),
-		[]byte("{{ $p := .Paginator }}Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}"),
+		[]byte("{{ $p := .Paginator }}Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
@@ -885,11 +889,9 @@ lag:
 			t.Fatalf("Failed to write file: %s", err)
 		}
 	}
-	_, err := hugofs.Source().Open("content/other/doc5.fr.md")
 
-	if err != nil {
-		t.Fatalf("Unable to locate file")
-	}
+	// Add some data
+	writeSource(t, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
 
 	sites, err := NewHugoSitesFromConfiguration()
 
