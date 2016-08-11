@@ -58,8 +58,9 @@ matter, content or derived from file location.
 **.IsPage** Always true for page.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
-**.Translations** A map to other pages with the same filename, but with a different language-extension (like `post.fr.md`).  Populated only if `Multilingual` is enabled in your site config.
-**.Lang** Taken from the language extension notation.  Populated only if `Multilingual` is enabled for your site config.
+**.Translations** A list of translated versions of the current page. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. Note that the `Translation` variable is also available on node, e.g. home page etc. <br>
+**.HasTranslations** Whether there are any translations to display.<br>
+**.Lang** Language taken from the language extension notation.  <br>
 
 ## Page Params
 
@@ -120,6 +121,9 @@ includes taxonomies, lists and the homepage.
 **.IsPage** Always false for nodes.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
+**.Translations** A list of translated versions of the current node. All nodes (except the pager nodes) can have translated counter parts. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. <br>
+**.HasTranslations** Whether there are any translations to display.<br>
+**.Lang** The language code of this node.<br>
 
 ### Taxonomy Terms Node Variables
 
@@ -173,10 +177,10 @@ Also available is `.Site` which has the following:
 **.Site.Permalinks** A string to override the default permalink format. Defined in the site configuration.<br>
 **.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
 **.Site.Data**  Custom data, see [Data Files](/extras/datafiles/).<br>
-**.Site.Multilingual** Whether the site supports internationalization of the content. With this mode enabled, all your posts' URLs will be prefixed with the language (ex: `/en/2016/01/01/my-post`)<br>
-**.Site.CurrentLanguage** This indicates which language you are currently rendering the website for.  When using `Multilingual` mode, will render the site in this language. You can then run `hugo` again with a second `config` file, with the other languages. When using `i18n` and `T` template functions, it will use the `i18n/*.yaml` files (in either `/themes/[yourtheme]/i18n` or the `/i18n`, translations in the latter having precedence).<br>
-**.Site.LanguagePrefix** When `Multilingual` is enabled, this will hold `/{{ .Site.CurrentLanguage}}`, otherwise will be an empty string.  Using this to prefix taxonomies or other hard-coded links ensures your keep your theme compatible with Multilingual configurations.
-**.Site.Languages** An ordered list of languages when Multilingual is enabled. Used in your templates to iterate through and create links to different languages.<br>
+**.Site.IsMultiLingual** Whether there are more than one language in this site.<br> See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info.<br>
+**.Site.Language** This indicates which language you are currently rendering the website for.  This is an object with the attributes set in your language definition in your site config. For the language code, use `.Site.Language.Lang`.<br>
+**.Site.LanguagePrefix** This can be used to prefix  theURLs with whats needed to point to the correct language. It will even work when only one language defined. See also the functions [absLangURL and relLangURL]({{< relref "templates/functions.md#abslangurl-rellangurl" >}}).<br>
+**.Site.Languages** An ordered list (ordered by defined weight) of languages.<br>
 
 ## File Variables
 

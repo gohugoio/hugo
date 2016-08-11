@@ -427,7 +427,7 @@ e.g.
 
 Format a string using the standard `fmt.Sprintf` function. See [the go
 doc](https://golang.org/pkg/fmt/) for reference.
-
+A
 e.g., `{{ i18n ( printf "combined_%s" $var ) }}` or `{{ printf "formatted %.2f" 3.1416 }}`
 
 ### chomp
@@ -751,18 +751,15 @@ This can be useful if you want to use Gravatar for generating a unique avatar:
 ### i18n
 
 This translates a piece of content based on your `i18n/en-US.yaml`
-(and friends) files. You can use the
-[go-i18n](https://github.com/nicksnyder/go-i18n) tools to manage your
-translations.  The translations can exist in both the theme and at the
-root of your repository.
+(and friends) files. You can use the [go-i18n](https://github.com/nicksnyder/go-i18n) tools to manage your translations.  The translations can exist in both the theme and at the root of your repository.
 
 e.g.: `{{ i18n "translation_id" }}`
 
+For more information about string translations, see [Translation of strings]({{< relref "content/multilingual.md#translation-of-strings">}}).
 
 ### T
 
 `T` is an alias to `i18n`. E.g. `{{ T "translation_id" }}`.
->>>>>>> Add multilingual support in Hugo
 
 ## Times
 
