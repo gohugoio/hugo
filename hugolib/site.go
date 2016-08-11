@@ -1855,9 +1855,11 @@ func (s *Site) renderSectionLists(prepare bool) error {
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			s.setURLs(n, section+"/"+rssuri)
+			c := *n
+			rssNode := &c
+			s.setURLs(rssNode, section+"/"+rssuri)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			if err := s.renderAndWriteXML("section "+section+" rss", n.addLangPathPrefix(section+"/"+rssuri), n, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", rssNode.addLangPathPrefix(section+"/"+rssuri), rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
