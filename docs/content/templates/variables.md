@@ -59,7 +59,7 @@ matter, content or derived from file location.
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 **.Translations** A list of translated versions of the current page. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. Note that the `Translation` variable is also available on node, e.g. home page etc. <br>
-**.HasTranslations** Whether there are any translations to display.<br>
+**.IsTranslated** Whether there are any translations to display.<br>
 **.Lang** Language taken from the language extension notation.  <br>
 
 ## Page Params
@@ -122,7 +122,7 @@ includes taxonomies, lists and the homepage.
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 **.Translations** A list of translated versions of the current node. All nodes (except the pager nodes) can have translated counter parts. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. <br>
-**.HasTranslations** Whether there are any translations to display.<br>
+**.IsTranslated** Whether there are any translations to display.<br>
 **.Lang** The language code of this node.<br>
 
 ### Taxonomy Terms Node Variables
