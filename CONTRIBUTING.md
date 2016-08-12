@@ -89,7 +89,7 @@ started:
 1. Get the latest Hugo sources:
 
     ```
-    go get -u -t github.com/spf13/hugo
+    go get -u -t github.com/spf13/hugo/...
     ```
 
 1. Change to the Hugo source directory:
