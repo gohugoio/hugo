@@ -92,6 +92,12 @@ started:
     go get -u -t github.com/spf13/hugo
     ```
 
+1. For running the test suite via `make test` you should also run:
+
+    ```
+    go get github.com/stretchr/testify
+    ```
+
 1. Change to the Hugo source directory:
 
     ```
