@@ -447,7 +447,10 @@ func findRE(expr string, content interface{}, limit ...int) ([]string, error) {
 		return nil, err
 	}
 
-	conv := cast.ToString(content)
+	conv, err := cast.ToStringE(content)
+	if err != nil {
+		return nil, err
+	}
 	if len(limit) > 0 {
 		return re.FindAllString(conv, limit[0]), nil
 	}
@@ -1204,12 +1207,15 @@ var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
 // markdownify renders a given string from Markdown to HTML.
-func markdownify(in interface{}) template.HTML {
-	text := cast.ToString(in)
+func markdownify(in interface{}) (template.HTML, error) {
+	text, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
 	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
-	return template.HTML(m)
+	return template.HTML(m), nil
 }
 
 // jsonify encodes a given object to JSON.
@@ -1219,7 +1225,6 @@ func jsonify(v interface{}) (template.HTML, error) {
 		return "", err
 	}
 	return template.HTML(b), nil
-
 }
 
 // emojify "emojifies" the given string.
@@ -1568,14 +1573,20 @@ func readFile(fs *afero.BasePathFs, filename string) (string, error) {
 // It returns the contents as a string.
 // There is a upper size limit set at 1 megabytes.
 func readFileFromWorkingDir(i interface{}) (string, error) {
-	return readFile(hugofs.WorkingDir(), cast.ToString(i))
+	s, err := cast.ToStringE(i)
+	if err != nil {
+		return "", err
+	}
+	return readFile(hugofs.WorkingDir(), s)
 }
 
 // readDirFromWorkingDir listst the directory content relative to the
 // configured WorkingDir.
 func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
-
-	path := cast.ToString(i)
+	path, err := cast.ToStringE(i)
+	if err != nil {
+		return nil, err
+	}
 
 	list, err := afero.ReadDir(hugofs.WorkingDir(), path)
 
@@ -1587,25 +1598,34 @@ func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
 }
 
 // safeHTMLAttr returns a given string as html/template HTMLAttr content.
-func safeHTMLAttr(a interface{}) template.HTMLAttr {
-	return template.HTMLAttr(cast.ToString(a))
+func safeHTMLAttr(a interface{}) (template.HTMLAttr, error) {
+	s, err := cast.ToStringE(a)
+	return template.HTMLAttr(s), err
 }
 
 // safeCSS returns a given string as html/template CSS content.
-func safeCSS(a interface{}) template.CSS {
-	return template.CSS(cast.ToString(a))
+func safeCSS(a interface{}) (template.CSS, error) {
+	s, err := cast.ToStringE(a)
+	return template.CSS(s), err
 }
 
 // safeURL returns a given string as html/template URL content.
-func safeURL(a interface{}) template.URL {
-	return template.URL(cast.ToString(a))
+func safeURL(a interface{}) (template.URL, error) {
+	s, err := cast.ToStringE(a)
+	return template.URL(s), err
 }
 
 // safeHTML returns a given string as html/template HTML content.
-func safeHTML(a interface{}) template.HTML { return template.HTML(cast.ToString(a)) }
+func safeHTML(a interface{}) (template.HTML, error) {
+	s, err := cast.ToStringE(a)
+	return template.HTML(s), err
+}
 
 // safeJS returns the given string as a html/template JS content.
-func safeJS(a interface{}) template.JS { return template.JS(cast.ToString(a)) }
+func safeJS(a interface{}) (template.JS, error) {
+	s, err := cast.ToStringE(a)
+	return template.JS(s), err
+}
 
 // mod returns a % b.
 func mod(a, b interface{}) (int64, error) {
@@ -1801,9 +1821,25 @@ func htmlUnescape(in interface{}) (string, error) {
 	return html.UnescapeString(conv), nil
 }
 
+func absURL(a interface{}) (template.HTML, error) {
+	s, err := cast.ToStringE(a)
+	if err != nil {
+		return "", nil
+	}
+	return template.HTML(helpers.AbsURL(s)), nil
+}
+
+func relURL(a interface{}) (template.HTML, error) {
+	s, err := cast.ToStringE(a)
+	if err != nil {
+		return "", nil
+	}
+	return template.HTML(helpers.RelURL(s)), nil
+}
+
 func init() {
 	funcMap = template.FuncMap{
-		"absURL":       func(a interface{}) template.HTML { return template.HTML(helpers.AbsURL(cast.ToString(a))) },
+		"absURL":       absURL,
 		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
 		"apply":        apply,
@@ -1834,7 +1870,7 @@ func init() {
 		"humanize":     humanize,
 		"in":           in,
 		"index":        index,
-		"int":          func(v interface{}) int { return cast.ToInt(v) },
+		"int":          func(v interface{}) (int, error) { return cast.ToIntE(v) },
 		"intersect":    intersect,
 		"isSet":        isSet,
 		"isset":        isSet,
@@ -1856,7 +1892,7 @@ func init() {
 		"readDir":      readDirFromWorkingDir,
 		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
-		"relURL":       func(a interface{}) template.HTML { return template.HTML(helpers.RelURL(cast.ToString(a))) },
+		"relURL":       relURL,
 		"relref":       relRef,
 		"replace":      replace,
 		"replaceRE":    replaceRE,
@@ -1875,7 +1911,7 @@ func init() {
 		"slicestr":     slicestr,
 		"sort":         sortSeq,
 		"split":        split,
-		"string":       func(v interface{}) string { return cast.ToString(v) },
+		"string":       func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"sub":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '-') },
 		"substr":       substr,
 		"title":        func(a string) string { return strings.Title(a) },
