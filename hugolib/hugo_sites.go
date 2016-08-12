@@ -394,6 +394,9 @@ func (h *HugoSites) setupTranslations(master *Site) {
 func (h *HugoSites) preRender() error {
 
 	for _, s := range h.Sites {
+		if err := s.setCurrentLanguageConfig(); err != nil {
+			return err
+		}
 		// Run "render prepare"
 		if err := s.renderHomePage(true); err != nil {
 			return err
@@ -409,12 +412,19 @@ func (h *HugoSites) preRender() error {
 		}
 	}
 
+	for _, s := range h.Sites {
+		if err := s.setCurrentLanguageConfig(); err != nil {
+			return err
+		}
+		renderShortcodesForSite(s)
+	}
+
+	return nil
+}
+
+func renderShortcodesForSite(s *Site) {
 	pageChan := make(chan *Page)
-
 	wg := &sync.WaitGroup{}
-
-	// We want all the pages, so just pick one.
-	s := h.Sites[0]
 
 	for i := 0; i < getGoMaxProcs()*4; i++ {
 		wg.Add(1)
@@ -456,7 +466,7 @@ func (h *HugoSites) preRender() error {
 		}(pageChan, wg)
 	}
 
-	for _, p := range s.AllPages {
+	for _, p := range s.Pages {
 		pageChan <- p
 	}
 
@@ -464,7 +474,6 @@ func (h *HugoSites) preRender() error {
 
 	wg.Wait()
 
-	return nil
 }
 
 // Pages returns all pages for all sites.
