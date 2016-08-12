@@ -776,11 +776,15 @@ func (s *Site) setupPrevNext() {
 	}
 }
 
-func (s *Site) render() (err error) {
+func (s *Site) setCurrentLanguageConfig() error {
 	// There are sadly some global template funcs etc. that need the language information.
 	viper.Set("Multilingual", s.multilingualEnabled())
 	viper.Set("CurrentContentLanguage", s.Language)
-	if err = tpl.SetTranslateLang(s.Language.Lang); err != nil {
+	return tpl.SetTranslateLang(s.Language.Lang)
+}
+
+func (s *Site) render() (err error) {
+	if err = s.setCurrentLanguageConfig(); err != nil {
 		return
 	}
 

@@ -258,6 +258,10 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	assertFileContent(t, "public/en/index.html", true, "Home Page 1", "Hello", "Hugo Rocks!")
 	assertFileContent(t, "public/fr/index.html", true, "Home Page 1", "Bonjour", "Hugo Rocks!")
 
+	// check single page content
+	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
+	assertFileContent(t, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
+
 	// Check node translations
 	homeEn := enSite.getNode("home-0")
 	require.NotNil(t, homeEn)
@@ -566,8 +570,6 @@ title = "Svenska"
 	require.Len(t, svPage.Translations(), 2)
 	require.Len(t, svPage.AllTranslations(), 3)
 	require.Equal(t, "en", svPage.Translations()[0].Lang())
-	//noFile := readDestination(t, "/public/no/doc1/index.html")
-	//require.True(t, strings.Contains("foo", noFile), noFile)
 
 }
 
@@ -719,7 +721,7 @@ func createMultiTestSitesForConfig(t *testing.T, configContent, configSuffix str
 	// Add some layouts
 	if err := afero.WriteFile(hugofs.Source(),
 		filepath.Join("layouts", "_default/single.html"),
-		[]byte("Single: {{ .Title }}|{{ i18n \"hello\" }} {{ .Content }}"),
+		[]byte("Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
@@ -734,6 +736,14 @@ func createMultiTestSitesForConfig(t *testing.T, configContent, configSuffix str
 	if err := afero.WriteFile(hugofs.Source(),
 		filepath.Join("layouts", "index.html"),
 		[]byte("{{ $p := .Paginator }}Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
+		0755); err != nil {
+		t.Fatalf("Failed to write layout file: %s", err)
+	}
+
+	// Add a shortcode
+	if err := afero.WriteFile(hugofs.Source(),
+		filepath.Join("layouts", "shortcodes", "shortcode.html"),
+		[]byte("Shortcode: {{ i18n \"hello\" }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
@@ -769,6 +779,9 @@ publishdate: "2000-01-01"
 ---
 # doc1
 *some "content"*
+
+{{< shortcode >}}
+
 NOTE: slug should be used as URL
 `)},
 		{filepath.FromSlash("sect/doc1.fr.md"), []byte(`---
@@ -780,6 +793,9 @@ publishdate: "2000-01-04"
 ---
 # doc1
 *quelque "contenu"*
+
+{{< shortcode >}}
+
 NOTE: should be in the 'en' Page's 'Translations' field.
 NOTE: date is after "doc3"
 `)},
