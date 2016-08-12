@@ -281,10 +281,6 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 
 func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]func() (string, error), error) {
 
-	if p.rendered {
-		panic("Illegal state: Page already marked as rendered, please reuse the shortcodes")
-	}
-
 	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
 
 	if err != nil {

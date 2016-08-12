@@ -220,7 +220,7 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		}
 	}
 
-	if err := h.preRender(); err != nil {
+	if err := h.preRender(config, whatChanged{source: true, other: true}); err != nil {
 		return err
 	}
 
@@ -261,6 +261,10 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		return errors.New("Rebuild does not support 'ResetState'. Use Build.")
 	}
 
+	if !config.Watching {
+		return errors.New("Rebuild called when not in watch mode")
+	}
+
 	h.runMode.Watching = config.Watching
 
 	firstSite := h.Sites[0]
@@ -270,7 +274,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		s.resetBuildState()
 	}
 
-	sourceChanged, err := firstSite.reBuild(events)
+	changed, err := firstSite.reBuild(events)
 
 	if err != nil {
 		return err
@@ -279,7 +283,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	// Assign pages to sites per translation.
 	h.setupTranslations(firstSite)
 
-	if sourceChanged {
+	if changed.source {
 		for _, s := range h.Sites {
 			if err := s.postProcess(); err != nil {
 				return err
@@ -287,7 +291,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		}
 	}
 
-	if err := h.preRender(); err != nil {
+	if err := h.preRender(config, changed); err != nil {
 		return err
 	}
 
@@ -391,7 +395,7 @@ func (h *HugoSites) setupTranslations(master *Site) {
 // preRender performs build tasks that need to be done as late as possible.
 // Shortcode handling is the main task in here.
 // TODO(bep) We need to look at the whole handler-chain construct with he below in mind.
-func (h *HugoSites) preRender() error {
+func (h *HugoSites) preRender(cfg BuildCfg, changed whatChanged) error {
 
 	for _, s := range h.Sites {
 		if err := s.setCurrentLanguageConfig(); err != nil {
@@ -416,13 +420,13 @@ func (h *HugoSites) preRender() error {
 		if err := s.setCurrentLanguageConfig(); err != nil {
 			return err
 		}
-		renderShortcodesForSite(s)
+		s.preparePagesForRender(cfg, changed)
 	}
 
 	return nil
 }
 
-func renderShortcodesForSite(s *Site) {
+func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
 
@@ -431,14 +435,37 @@ func renderShortcodesForSite(s *Site) {
 		go func(pages <-chan *Page, wg *sync.WaitGroup) {
 			defer wg.Done()
 			for p := range pages {
+
+				if !changed.other && p.rendered {
+					// No need to process it again.
+					continue
+				}
+
+				// If we got this far it means that this is either a new Page pointer
+				// or a template or similar has changed so wee need to do a rerendering
+				// of the shortcodes etc.
+
+				// Mark it as rendered
+				p.rendered = true
+
+				// If in watch mode, we need to keep the original so we can
+				// repeat this process on rebuild.
+				if cfg.Watching {
+					p.rawContentCopy = make([]byte, len(p.rawContent))
+					copy(p.rawContentCopy, p.rawContent)
+				} else {
+					// Just reuse the same slice.
+					p.rawContentCopy = p.rawContent
+				}
+
 				if err := handleShortcodes(p, s.owner.tmpl); err != nil {
 					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 
 				if p.Markup == "markdown" {
-					tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.rawContent)
+					tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.rawContentCopy)
 					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-					p.rawContent = tmpContent
+					p.rawContentCopy = tmpContent
 				}
 
 				if p.Markup != "html" {
@@ -449,19 +476,25 @@ func renderShortcodesForSite(s *Site) {
 					if err != nil {
 						jww.ERROR.Printf("Failed to set use defined summary: %s", err)
 					} else if summaryContent != nil {
-						p.rawContent = summaryContent.content
+						p.rawContentCopy = summaryContent.content
 					}
 
-					p.Content = helpers.BytesToHTML(p.rawContent)
-					p.rendered = true
+					p.Content = helpers.BytesToHTML(p.rawContentCopy)
 
 					if summaryContent == nil {
 						p.setAutoSummary()
 					}
+
+				} else {
+					p.Content = helpers.BytesToHTML(p.rawContentCopy)
 				}
+
+				// no need for this anymore
+				p.rawContentCopy = nil
 
 				//analyze for raw stats
 				p.analyzePage()
+
 			}
 		}(pageChan, wg)
 	}
@@ -490,7 +523,7 @@ func handleShortcodes(p *Page, t tpl.Template) error {
 			return err
 		}
 
-		p.rawContent, err = replaceShortcodeTokens(p.rawContent, shortcodePlaceholderPrefix, shortcodes)
+		p.rawContentCopy, err = replaceShortcodeTokens(p.rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
 			jww.FATAL.Printf("Failed to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())

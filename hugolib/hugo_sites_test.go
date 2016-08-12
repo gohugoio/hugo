@@ -51,7 +51,7 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	testCommonResetState()
 	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
 
-	sites := createMultiTestSites(t, multiSiteTomlConfig)
+	sites := createMultiTestSites(t, multiSiteTOMLConfig)
 
 	err := sites.Build(BuildCfg{})
 
@@ -166,7 +166,7 @@ func TestMultiSitesBuild(t *testing.T) {
 		content string
 		suffix  string
 	}{
-		{multiSiteTomlConfig, "toml"},
+		{multiSiteTOMLConfig, "toml"},
 		{multiSiteYAMLConfig, "yml"},
 		{multiSiteJSONConfig, "json"},
 	} {
@@ -323,8 +323,8 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 
 func TestMultiSitesRebuild(t *testing.T) {
 	testCommonResetState()
-	sites := createMultiTestSites(t, multiSiteTomlConfig)
-	cfg := BuildCfg{}
+	sites := createMultiTestSites(t, multiSiteTOMLConfig)
+	cfg := BuildCfg{Watching: true}
 
 	err := sites.Build(cfg)
 
@@ -349,6 +349,10 @@ func TestMultiSitesRebuild(t *testing.T) {
 	assert.True(t, strings.Contains(docEn, "Hello"), "No Hello")
 	docFr := readDestination(t, "public/fr/sect/doc1/index.html")
 	assert.True(t, strings.Contains(docFr, "Bonjour"), "No Bonjour")
+
+	// check single page content
+	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
+	assertFileContent(t, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -474,6 +478,22 @@ func TestMultiSitesRebuild(t *testing.T) {
 
 			},
 		},
+		// Change a shortcode
+		{
+			func(t *testing.T) {
+				writeSource(t, "layouts/shortcodes/shortcode.html", "Modified Shortcode: {{ i18n \"hello\" }}")
+			},
+			[]fsnotify.Event{
+				{Name: "layouts/shortcodes/shortcode.html", Op: fsnotify.Write},
+			},
+			func(t *testing.T) {
+				assert.Len(t, enSite.Pages, 4)
+				assert.Len(t, enSite.AllPages, 10)
+				assert.Len(t, frSite.Pages, 4)
+				assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Modified Shortcode: Salut")
+				assertFileContent(t, "public/en/sect/doc1-slug/index.html", true, "Single", "Modified Shortcode: Hello")
+			},
+		},
 	} {
 
 		if this.preFunc != nil {
@@ -516,7 +536,7 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 func TestAddNewLanguage(t *testing.T) {
 	testCommonResetState()
 
-	sites := createMultiTestSites(t, multiSiteTomlConfig)
+	sites := createMultiTestSites(t, multiSiteTOMLConfig)
 	cfg := BuildCfg{}
 
 	err := sites.Build(cfg)
@@ -525,7 +545,7 @@ func TestAddNewLanguage(t *testing.T) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	newConfig := multiSiteTomlConfig + `
+	newConfig := multiSiteTOMLConfig + `
 
 [Languages.sv]
 weight = 15
@@ -573,7 +593,7 @@ title = "Svenska"
 
 }
 
-var multiSiteTomlConfig = `
+var multiSiteTOMLConfig = `
 DefaultExtension = "html"
 baseurl = "http://example.com/blog"
 DisableSitemap = false
