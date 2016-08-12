@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
@@ -67,6 +68,10 @@ type htmlHandler struct {
 
 func (h htmlHandler) Extensions() []string { return []string{"html", "htm"} }
 func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+	if p.rendered {
+		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
+	}
+
 	p.ProcessShortcodes(t)
 
 	return HandledResult{err: nil}
@@ -100,6 +105,11 @@ func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 }
 
 func commonConvert(p *Page, t tpl.Template) HandledResult {
+
+	if p.rendered {
+		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
+	}
+
 	p.ProcessShortcodes(t)
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to

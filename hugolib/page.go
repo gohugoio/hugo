@@ -48,28 +48,42 @@ var (
 )
 
 type Page struct {
-	Params              map[string]interface{}
-	Content             template.HTML
-	Summary             template.HTML
-	Aliases             []string
-	Status              string
-	Images              []Image
-	Videos              []Video
-	TableOfContents     template.HTML
-	Truncated           bool
-	Draft               bool
-	PublishDate         time.Time
-	ExpiryDate          time.Time
-	Markup              string
-	translations        Pages
-	extension           string
-	contentType         string
-	renderable          bool
-	Layout              string
-	layoutsCalculated   []string
-	linkTitle           string
-	frontmatter         []byte
-	rawContent          []byte
+	Params            map[string]interface{}
+	Content           template.HTML
+	Summary           template.HTML
+	Aliases           []string
+	Status            string
+	Images            []Image
+	Videos            []Video
+	TableOfContents   template.HTML
+	Truncated         bool
+	Draft             bool
+	PublishDate       time.Time
+	ExpiryDate        time.Time
+	Markup            string
+	translations      Pages
+	extension         string
+	contentType       string
+	renderable        bool
+	Layout            string
+	layoutsCalculated []string
+	linkTitle         string
+	frontmatter       []byte
+
+	// rawContent isn't "raw" as in the same as in the content file.
+	// Hugo cares about memory consumption, so we make changes to it to do
+	// markdown rendering etc., but it is "raw enough" so we can do rebuilds
+	// when shortcode changes etc.
+	rawContent []byte
+
+	// When running Hugo in watch mode, we do partial rebuilds and have to make
+	// a copy of the rawContent to be prepared for rebuilds when shortcodes etc.
+	// have changed.
+	rawContentCopy []byte
+
+	// state telling if this is a "new page" or if we have rendered it previously.
+	rendered bool
+
 	contentShortCodes   map[string]func() (string, error)
 	shortcodes          map[string]shortcode
 	plain               string // TODO should be []byte
@@ -84,7 +98,6 @@ type Page struct {
 	Source
 	Position `json:"-"`
 	Node
-	rendered bool
 }
 
 type Source struct {
@@ -220,7 +233,7 @@ var (
 // Returns the page as summary and main if a user defined split is provided.
 func (p *Page) setUserDefinedSummaryIfProvided() (*summaryContent, error) {
 
-	sc := splitUserDefinedSummaryAndContent(p.Markup, p.rawContent)
+	sc := splitUserDefinedSummaryAndContent(p.Markup, p.rawContentCopy)
 
 	if sc == nil {
 		// No divider found
@@ -1024,19 +1037,9 @@ func (p *Page) SaveSource() error {
 }
 
 func (p *Page) ProcessShortcodes(t tpl.Template) {
-
-	// these short codes aren't used until after Page render,
-	// but processed here to avoid coupling
-	// TODO(bep) Move this and remove p.contentShortCodes
-	if !p.rendered {
-		tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
-		p.rawContent = []byte(tmpContent)
-		p.contentShortCodes = tmpContentShortCodes
-	} else {
-		// shortcode template may have changed, rerender
-		p.contentShortCodes = renderShortcodes(p.shortcodes, p, t)
-	}
-
+	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
+	p.rawContent = []byte(tmpContent)
+	p.contentShortCodes = tmpContentShortCodes
 }
 
 func (p *Page) FullFilePath() string {

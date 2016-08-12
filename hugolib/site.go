@@ -450,9 +450,14 @@ func (s *Site) timerStep(step string) {
 	s.timer.Step(step)
 }
 
+type whatChanged struct {
+	source bool
+	other  bool
+}
+
 // reBuild partially rebuilds a site given the filesystem events.
 // It returns whetever the content source was changed.
-func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
+func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 
 	jww.DEBUG.Printf("Rebuild for events %q", events)
 
@@ -500,7 +505,6 @@ func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 	}
 
 	if len(i18nChanged) > 0 {
-		// TODO(bep ml
 		s.readI18nSources()
 	}
 
@@ -564,16 +568,6 @@ func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 	go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
 	go converterCollator(s, convertResults, errs)
 
-	if len(tmplChanged) > 0 || len(dataChanged) > 0 {
-		// Do not need to read the files again, but they need conversion
-		// for shortocde re-rendering.
-		for _, p := range s.rawAllPages {
-			if p.shouldBuild() {
-				pageChan <- p
-			}
-		}
-	}
-
 	for _, ev := range sourceReallyChanged {
 
 		file, err := s.reReadFile(ev.Name)
@@ -610,7 +604,12 @@ func (s *Site) reBuild(events []fsnotify.Event) (bool, error) {
 
 	s.timerStep("read & convert pages from source")
 
-	return len(sourceChanged) > 0, nil
+	changed := whatChanged{
+		source: len(sourceChanged) > 0,
+		other:  len(tmplChanged) > 0 || len(i18nChanged) > 0 || len(dataChanged) > 0,
+	}
+
+	return changed, nil
 
 }
 
