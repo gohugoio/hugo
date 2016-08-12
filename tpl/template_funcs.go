@@ -1803,7 +1803,7 @@ func htmlUnescape(in interface{}) (string, error) {
 
 func init() {
 	funcMap = template.FuncMap{
-		"absURL":       func(a string) template.HTML { return template.HTML(helpers.AbsURL(a)) },
+		"absURL":       func(a interface{}) template.HTML { return template.HTML(helpers.AbsURL(cast.ToString(a))) },
 		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
 		"apply":        apply,
@@ -1856,7 +1856,7 @@ func init() {
 		"readDir":      readDirFromWorkingDir,
 		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
-		"relURL":       func(a string) template.HTML { return template.HTML(helpers.RelURL(a)) },
+		"relURL":       func(a interface{}) template.HTML { return template.HTML(helpers.RelURL(cast.ToString(a))) },
 		"relref":       relRef,
 		"replace":      replace,
 		"replaceRE":    replaceRE,

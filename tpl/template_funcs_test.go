@@ -82,6 +82,7 @@ func TestFuncsInTemplate(t *testing.T) {
 	in :=
 		`absURL: {{ "http://gohugo.io/" | absURL }}
 absURL: {{ "mystyle.css" | absURL }}
+absURL: {{ 42 | absURL }}
 add: {{add 1 2}}
 base64Decode 1: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
 base64Decode 2: {{ 42 | base64Encode | base64Decode }}
@@ -121,6 +122,7 @@ readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
+relURL 2: {{ mul 2 21 | relURL }}
 replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
 replaceRE: {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}
 safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
@@ -146,6 +148,7 @@ urlize: {{ "Bat Man" | urlize }}
 
 	expected := `absURL: http://gohugo.io/
 absURL: http://mysite.com/hugo/mystyle.css
+absURL: http://mysite.com/hugo/42
 add: 3
 base64Decode 1: Hello world
 base64Decode 2: 42
@@ -185,6 +188,7 @@ readDir: README.txt
 readFile: Hugo Rocks!
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
+relURL 2: /hugo/42
 replace: Batman and Catwoman
 replaceRE: gohugo.io
 safeCSS: Bat&amp;Man
