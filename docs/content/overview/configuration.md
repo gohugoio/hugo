@@ -150,7 +150,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # display memory and timing of different steps of the program
     stepAnalysis:               false
     # theme to use (located by default in /themes/THEMENAME/)
-    themesdir = "themes"
+    themesdir:                  "themes"
     theme:                      ""
     title:                      ""
     # if true, use /filename.html instead of /filename/
