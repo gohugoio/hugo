@@ -83,7 +83,10 @@ func (l *Language) SetParam(k string, v interface{}) {
 	l.params[k] = v
 }
 
+func (l *Language) GetBool(key string) bool { return cast.ToBool(l.Get(key)) }
+
 func (l *Language) GetString(key string) string { return cast.ToString(l.Get(key)) }
+
 func (ml *Language) GetStringMap(key string) map[string]interface{} {
 	return cast.ToStringMap(ml.Get(key))
 }
