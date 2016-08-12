@@ -122,7 +122,7 @@ readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
-relURL 2: {{ mul 2 21 | relURL }}
+relURL 3: {{ mul 2 21 | relURL }}
 replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
 replaceRE: {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}
 safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
@@ -188,7 +188,7 @@ readDir: README.txt
 readFile: Hugo Rocks!
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
-relURL 2: /hugo/42
+relURL 3: /hugo/42
 replace: Batman and Catwoman
 replaceRE: gohugo.io
 safeCSS: Bat&amp;Man
