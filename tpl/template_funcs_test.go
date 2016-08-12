@@ -1740,7 +1740,10 @@ func TestMarkdownify(t *testing.T) {
 		{"Hello **World!**", template.HTML("Hello <strong>World!</strong>")},
 		{[]byte("Hello Bytes **World!**"), template.HTML("Hello Bytes <strong>World!</strong>")},
 	} {
-		result := markdownify(this.in)
+		result, err := markdownify(this.in)
+		if err != nil {
+			t.Fatalf("[%d] unexpected error in markdownify", i, err)
+		}
 		if !reflect.DeepEqual(result, this.expect) {
 			t.Errorf("[%d] markdownify got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
 		}
@@ -2127,12 +2130,17 @@ func TestSafeHTML(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, safeHTML(this.str))
+		v, err := safeHTML(this.str)
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHTML returns unexpected error: %s", i, err)
+			t.Fatalf("[%d] unexpected error in safeHTML: %s", i, err)
+		}
+
+		err = tmpl.Execute(buf, v)
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by safeHTML returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHTML, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by safeHTML, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -2162,12 +2170,17 @@ func TestSafeHTMLAttr(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, safeHTMLAttr(this.str))
+		v, err := safeHTMLAttr(this.str)
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHTMLAttr returns unexpected error: %s", i, err)
+			t.Fatalf("[%d] unexpected error in safeHTMLAttr: %s", i, err)
+		}
+
+		err = tmpl.Execute(buf, v)
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by safeHTMLAttr returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeHTMLAttr, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by safeHTMLAttr, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -2197,12 +2210,17 @@ func TestSafeCSS(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, safeCSS(this.str))
+		v, err := safeCSS(this.str)
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeCSS returns unexpected error: %s", i, err)
+			t.Fatalf("[%d] unexpected error in safeCSS: %s", i, err)
+		}
+
+		err = tmpl.Execute(buf, v)
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by safeCSS returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeCSS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by safeCSS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -2232,12 +2250,17 @@ func TestSafeJS(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, safeJS(this.str))
+		v, err := safeJS(this.str)
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeJS returns unexpected error: %s", i, err)
+			t.Fatalf("[%d] unexpected error in safeJS: %s", i, err)
+		}
+
+		err = tmpl.Execute(buf, v)
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by safeJS returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeJS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by safeJS, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
@@ -2267,12 +2290,17 @@ func TestSafeURL(t *testing.T) {
 		}
 
 		buf.Reset()
-		err = tmpl.Execute(buf, safeURL(this.str))
+		v, err := safeURL(this.str)
 		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by SafeURL returns unexpected error: %s", i, err)
+			t.Fatalf("[%d] unexpected error in safeURL: %s", i, err)
+		}
+
+		err = tmpl.Execute(buf, v)
+		if err != nil {
+			t.Errorf("[%d] execute template with an escaped string value by safeURL returns unexpected error: %s", i, err)
 		}
 		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by SafeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+			t.Errorf("[%d] execute template with an escaped string value by safeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
 		}
 	}
 }
