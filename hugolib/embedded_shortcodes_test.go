@@ -282,6 +282,10 @@ func TestShortcodeGist(t *testing.T) {
 }
 
 func TestShortcodeTweet(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping Twitter test in short mode.")
+	}
+
 	for i, this := range []struct {
 		in, expected string
 	}{
