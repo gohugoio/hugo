@@ -107,7 +107,7 @@ func URLize(uri string) string {
 	// escape unicode letters
 	parsedURI, err := url.Parse(sanitized)
 	if err != nil {
-		// if net/url can not parse URL it's meaning Sanitize works incorrect
+		// if net/url can not parse URL it means Sanitize works incorrectly
 		panic(err)
 	}
 	x := parsedURI.String()
