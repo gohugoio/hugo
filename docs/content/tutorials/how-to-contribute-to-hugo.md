@@ -177,7 +177,7 @@ You can check on which branch your are with `git branch`. You should see a list 
 
 Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. Install the [latest release]({{< relref "overview/installing.md" >}}). Or read on and build Hugo from source. 
 
-You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page if you change it's content.
+You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page if you change its content.
 
 ### Building Hugo
 
@@ -195,7 +195,7 @@ Make sure the commands `go test ./...` passes, and `go build` completes.
 
 ### Formatting
 
-The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with it's own formatting tool. Let's apply the styleguide to our addtions:
+The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
 
 ```sh
 go fmt ./...

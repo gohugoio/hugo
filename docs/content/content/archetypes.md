@@ -65,7 +65,7 @@ Congratulations!  We have successfully created an archetype and used it for our 
 
 ### Creating custom archetypes
 
-Earlier you created a new content type by adding a new subfolder to the content directory. In our case it's name would be `content/musician`. To use the corresponding archetype you just need to create a file named after the content type called `musician.md` in the `archetypes` directory, similar to the one below.
+Earlier you created a new content type by adding a new subfolder to the content directory. In our case its name would be `content/musician`. To use the corresponding archetype you just need to create a file named after the content type called `musician.md` in the `archetypes` directory, similar to the one below.
 
 #### archetypes/musician.md
 
