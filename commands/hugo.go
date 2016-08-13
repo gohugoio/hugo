@@ -625,6 +625,7 @@ func getDirList() []string {
 	var a []string
 	dataDir := helpers.AbsPathify(viper.GetString("DataDir"))
 	layoutDir := helpers.AbsPathify(viper.GetString("LayoutDir"))
+	staticDir := helpers.AbsPathify(viper.GetString("StaticDir"))
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			if path == dataDir && os.IsNotExist(err) {
@@ -635,8 +636,13 @@ func getDirList() []string {
 			if path == layoutDir && os.IsNotExist(err) {
 				jww.WARN.Println("Skip LayoutDir:", err)
 				return nil
-
 			}
+
+			if path == staticDir && os.IsNotExist(err) {
+				jww.WARN.Println("Skip StaticDir:", err)
+				return nil
+			}
+
 			jww.ERROR.Println("Walker: ", err)
 			return nil
 		}
@@ -671,7 +677,7 @@ func getDirList() []string {
 	helpers.SymbolicWalk(hugofs.Source(), dataDir, walker)
 	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("ContentDir")), walker)
 	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
-	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("StaticDir")), walker)
+	helpers.SymbolicWalk(hugofs.Source(), staticDir, walker)
 	if helpers.ThemeSet() {
 		helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), walker)
 	}
