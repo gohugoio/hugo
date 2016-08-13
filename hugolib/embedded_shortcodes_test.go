@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/url"
@@ -112,7 +113,7 @@ void do();
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
@@ -152,7 +153,7 @@ func TestShortcodeFigure(t *testing.T) {
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
@@ -177,7 +178,7 @@ func TestShortcodeSpeakerdeck(t *testing.T) {
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
@@ -212,7 +213,7 @@ func TestShortcodeYoutube(t *testing.T) {
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
@@ -247,7 +248,7 @@ func TestShortcodeVimeo(t *testing.T) {
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
@@ -276,25 +277,37 @@ func TestShortcodeGist(t *testing.T) {
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
 
 func TestShortcodeTweet(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping Twitter test in short mode.")
-	}
-
 	for i, this := range []struct {
-		in, expected string
+		in, resp, expected string
 	}{
 		{
 			`{{< tweet 666616452582129664 >}}`,
-			"(?s)^<blockquote class=\"twitter-tweet\"><p lang=\"en\" dir=\"ltr\">Hugo 0.15 will have 30%\\+ faster render times thanks to this commit <a href=\"https://t.co/FfzhM8bNhT\">https://t.co/FfzhM8bNhT</a>  <a href=\"https://twitter.com/hashtag/gohugo\\?src=hash\">#gohugo</a> <a href=\"https://twitter.com/hashtag/golang\\?src=hash\">#golang</a> <a href=\"https://t.co/ITbMNU2BUf\">https://t.co/ITbMNU2BUf</a></p>&mdash; Steve Francia \\(@spf13\\) <a href=\"https://twitter.com/spf13/status/666616452582129664\">November 17, 2015</a></blockquote>.*?<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>$",
+			`{"url":"https:\/\/twitter.com\/spf13\/status\/666616452582129664","author_name":"Steve Francia","author_url":"https:\/\/twitter.com\/spf13","html":"\u003Cblockquote class=\"twitter-tweet\"\u003E\u003Cp lang=\"en\" dir=\"ltr\"\u003EHugo 0.15 will have 30%+ faster render times thanks to this commit \u003Ca href=\"https:\/\/t.co\/FfzhM8bNhT\"\u003Ehttps:\/\/t.co\/FfzhM8bNhT\u003C\/a\u003E  \u003Ca href=\"https:\/\/twitter.com\/hashtag\/gohugo?src=hash\"\u003E#gohugo\u003C\/a\u003E \u003Ca href=\"https:\/\/twitter.com\/hashtag\/golang?src=hash\"\u003E#golang\u003C\/a\u003E \u003Ca href=\"https:\/\/t.co\/ITbMNU2BUf\"\u003Ehttps:\/\/t.co\/ITbMNU2BUf\u003C\/a\u003E\u003C\/p\u003E&mdash; Steve Francia (@spf13) \u003Ca href=\"https:\/\/twitter.com\/spf13\/status\/666616452582129664\"\u003ENovember 17, 2015\u003C\/a\u003E\u003C\/blockquote\u003E\n\u003Cscript async src=\"\/\/platform.twitter.com\/widgets.js\" charset=\"utf-8\"\u003E\u003C\/script\u003E","width":550,"height":null,"type":"rich","cache_age":"3153600000","provider_name":"Twitter","provider_url":"https:\/\/twitter.com","version":"1.0"}`,
+			`(?s)^<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Hugo 0.15 will have 30%. faster render times thanks to this commit <a href="https://t.co/FfzhM8bNhT">https://t.co/FfzhM8bNhT</a>  <a href="https://twitter.com/hashtag/gohugo.src=hash">#gohugo</a> <a href="https://twitter.com/hashtag/golang.src=hash">#golang</a> <a href="https://t.co/ITbMNU2BUf">https://t.co/ITbMNU2BUf</a></p>&mdash; Steve Francia .@spf13. <a href="https://twitter.com/spf13/status/666616452582129664">November 17, 2015</a></blockquote>.*?<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>$`,
 		},
 	} {
+		// overload getJSON to return mock API response from Twitter
+		tweetFuncMap := template.FuncMap{
+			"getJSON": func(urlParts ...string) interface{} {
+				var v interface{}
+				err := json.Unmarshal([]byte(this.resp), &v)
+				if err != nil {
+					t.Fatalf("[%d] unexpected error in json.Unmarshal: %s", i, err)
+					return err
+				}
+				return v
+			},
+		}
+
 		templ := tpl.New()
+		templ.Lookup("").Funcs(tweetFuncMap)
+
 		p, _ := pageFromString(simplePage, "simple.md")
 		cacheFileID := viper.GetString("CacheDir") + url.QueryEscape("https://api.twitter.com/1/statuses/oembed.json?id=666616452582129664")
 		defer os.Remove(cacheFileID)
@@ -307,7 +320,7 @@ func TestShortcodeTweet(t *testing.T) {
 		}
 
 		if !matched {
-			t.Errorf("[%d] Hightlight mismatch, got %s\n", i, output)
+			t.Errorf("[%d] unexpected rendering, got %s\n", i, output)
 		}
 	}
 }
