@@ -1,5 +1,5 @@
 ---
-lastmod: 2016-02-20
+lastmod: 2016-08-14
 date: 2013-07-01
 linktitle: Introduction
 menu:
@@ -153,30 +153,35 @@ pages.
 ## Why did you write Hugo?
 
 I wrote Hugo ultimately for a few reasons. First, I was disappointed with
-WordPress, my then website solution. It rendered slowly. I couldn't create
-content as efficiently as I wanted to and needed to be online to write
-posts. The constant security updates and the horror stories of people's
-hacked blogs. I hated how content was written in HTML instead of the much
-simpler Markdown. Overall, I felt like it got in my way more than it helped
+WordPress, my then website solution. With it, I couldn't create
+content as efficiently as I wanted to.
+It rendered slowly. It required me to be online to write
+posts: plus its constant security updates and the horror stories of people's
+hacked blogs! I hated how content for it was written only in HTML, instead of the much
+simpler Markdown. Overall, I felt like WordPress got in my way
+much more than it helped me. It kept
 me from writing great content.
 
-I looked at existing static site generators like [Jekyll][], [Middleman][] and [nanoc][].
-All had complicated dependencies to install and took far longer to render
-my blog with hundreds of posts than I felt was acceptable. I wanted
-a framework to be able to get rapid feedback while making changes to the
-templates, and the 5+-minute render times was just too slow. In general,
-they were also very blog minded and didn't have the ability to have
-different content types and flexible URLs.
+I looked at the existing static site generators
+like [Jekyll][], [Middleman][] and [Nanoc][].
+All had complicated installation dependencies and took far longer to render
+my blog with its hundreds of posts than I felt was acceptable. I wanted
+a framework to be able to give me rapid feedback while making changes to the
+templates, and the 5+-minute render times were just too slow. In general,
+they were also very blog minded and didn't have the ability to provide
+other content types and flexible URLs.
 
 [Jekyll]: http://jekyllrb.com/
 [Middleman]: https://middlemanapp.com/
-[nanoc]: http://nanoc.ws/
+[Nanoc]: http://nanoc.ws/
 
-I wanted to develop a fast and full-featured website framework without
-dependencies. The [Go language][] seemed to have all of the features I needed
+I wanted to develop a fast and full-featured website framework without any
+dependencies. The [Go language][] seemed to have all the features I needed
 in a language. I began developing Hugo in Go and fell in love with the
-language. I hope you will enjoy using (and contributing to) Hugo as much
+language. I hope you will enjoy using Hugo (and contributing to it) as much
 as I have writing it.
+
+&mdash;Steve Francia (@spf13)
 
 [Go language]: http://golang.org/ "The Go Programming Language"
 
