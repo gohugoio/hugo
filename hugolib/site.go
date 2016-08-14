@@ -112,7 +112,7 @@ type Site struct {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Language: s.Language}
+	return &Site{Language: s.Language, owner: s.owner}
 }
 
 // newSite creates a new site in the given language.
