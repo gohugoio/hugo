@@ -94,10 +94,10 @@ func New() Template {
 
 	localTemplates = &templates.Template
 
-	for k, v := range funcMap {
+	for k, v := range FuncMap {
 		amber.FuncMap[k] = v
 	}
-	templates.Funcs(funcMap)
+	templates.Funcs(FuncMap)
 	templates.LoadEmbedded()
 	return templates
 }
