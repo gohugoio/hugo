@@ -48,7 +48,8 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var funcMap template.FuncMap
+// FuncMap is the map[string]func of the functions available within templates.
+var FuncMap template.FuncMap
 
 // eq returns the boolean truth of arg1 == arg2.
 func eq(x, y interface{}) bool {
@@ -871,7 +872,7 @@ func apply(seq interface{}, fname string, args ...interface{}) (interface{}, err
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	fn, found := funcMap[fname]
+	fn, found := FuncMap[fname]
 	if !found {
 		return nil, errors.New("can't find function " + fname)
 	}
@@ -1802,7 +1803,7 @@ func htmlUnescape(in interface{}) (string, error) {
 }
 
 func init() {
-	funcMap = template.FuncMap{
+	FuncMap = template.FuncMap{
 		"absURL":       func(a interface{}) template.HTML { return template.HTML(helpers.AbsURL(cast.ToString(a))) },
 		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
