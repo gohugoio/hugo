@@ -1948,6 +1948,7 @@ func (s *Site) renderHomePage(prepare bool) error {
 
 	node404 := s.newNode("404")
 	node404.Title = "404 Page not found"
+	node404.Data["Pages"] = s.Pages
 	s.setURLs(node404, "404.html")
 
 	nfLayouts := []string{"404.html"}
