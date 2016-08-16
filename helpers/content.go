@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"html/template"
 	"os/exec"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/miekg/mmark"
@@ -424,10 +425,55 @@ func TruncateWordsByRune(words []string, max int) (string, bool) {
 	return strings.Join(words, " "), false
 }
 
-// TruncateWordsToWholeSentence takes content and an int
-// and returns entire sentences from content, delimited by the int
-// and whether it's truncated or not.
-func TruncateWordsToWholeSentence(words []string, max int) (string, bool) {
+// TruncateWordsToWholeSentence takes content and truncates to whole sentence
+// limited by max number of words. It also returns whether it is truncated.
+func TruncateWordsToWholeSentence(s string, max int) (string, bool) {
+
+	var (
+		wordCount     = 0
+		lastWordIndex = -1
+	)
+
+	for i, r := range s {
+		if unicode.IsSpace(r) {
+			wordCount++
+			lastWordIndex = i
+
+			if wordCount >= max {
+				break
+			}
+
+		}
+	}
+
+	if lastWordIndex == -1 {
+		return s, false
+	}
+
+	endIndex := -1
+
+	for j, r := range s[lastWordIndex:] {
+		if isEndOfSentence(r) {
+			endIndex = j + lastWordIndex + utf8.RuneLen(r)
+			break
+		}
+	}
+
+	if endIndex == -1 {
+		return s, false
+	}
+
+	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
+}
+
+func isEndOfSentence(r rune) bool {
+	return r == '.' || r == '?' || r == '!' || r == '"' || r == '\n'
+}
+
+// Kept only for benchmark.
+func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
+	words := strings.Fields(content)
+
 	if max >= len(words) {
 		return strings.Join(words, " "), false
 	}
