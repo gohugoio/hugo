@@ -2,6 +2,7 @@ language: go
 sudo: required
 go:
   - 1.6.3
+  - 1.7
   - tip
 os:
   - linux
@@ -9,6 +10,7 @@ os:
 matrix:
   allow_failures:
     - go: tip
+  fast_finish: true
 script:
   - make check
   - go build -race
