@@ -35,7 +35,7 @@ docker:
 	docker rm hugo-build
 
 
-check: fmt vet test test-race
+check: get fmt vet test test-race
 
 cyclo:
 	@for d in $(DIRS) ; do \
@@ -55,6 +55,9 @@ lint:
 	@if [ "`golint ./... | tee /dev/stderr`" ]; then \
 		echo "^ golint errors!" && echo && exit 1; \
 	fi
+
+get:
+	go get -v -t ./...
 
 test:
 	go test ./...

@@ -19,6 +19,3 @@ script:
 before_install:
   - gem install asciidoctor
   - sudo pip install docutils
-install:
-  - go get github.com/stretchr/testify
-  - go get -v ./...
