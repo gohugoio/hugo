@@ -56,7 +56,7 @@ var Hugo *hugolib.HugoSites
 // Reset resets Hugo ready for a new full build. This is mainly only useful
 // for benchmark testing etc. via the CLI commands.
 func Reset() error {
-	MainSite = nil
+	Hugo = nil
 	viper.Reset()
 	return nil
 }
