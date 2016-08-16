@@ -89,13 +89,7 @@ started:
 1. Get the latest Hugo sources:
 
     ```
-    go get -u -t github.com/spf13/hugo
-    ```
-
-1. For running the test suite via `make test` you should also run:
-
-    ```
-    go get github.com/stretchr/testify
+    go get -u -t github.com/spf13/hugo/...
     ```
 
 1. Change to the Hugo source directory:
