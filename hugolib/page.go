@@ -89,6 +89,7 @@ type Page struct {
 	plain               string // TODO should be []byte
 	plainWords          []string
 	plainInit           sync.Once
+	plainWordsInit      sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
 	pageMenus           PageMenus
@@ -147,14 +148,20 @@ func (p *Page) Plain() string {
 }
 
 func (p *Page) PlainWords() []string {
-	p.initPlain()
+	p.initPlainWords()
 	return p.plainWords
 }
 
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
 		p.plain = helpers.StripHTML(string(p.Content))
-		p.plainWords = strings.Fields(p.plain)
+		return
+	})
+}
+
+func (p *Page) initPlainWords() {
+	p.plainWordsInit.Do(func() {
+		p.plainWords = strings.Fields(p.Plain())
 		return
 	})
 }
@@ -335,7 +342,7 @@ func (p *Page) setAutoSummary() error {
 	if p.isCJKLanguage {
 		summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
 	} else {
-		summary, truncated = helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
+		summary, truncated = helpers.TruncateWordsToWholeSentence(p.Plain(), helpers.SummaryLength)
 	}
 	p.Summary = template.HTML(summary)
 	p.Truncated = truncated
@@ -479,6 +486,10 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 }
 
 func (p *Page) analyzePage() {
+	// TODO(bep)
+	if true {
+		return
+	}
 	if p.isCJKLanguage {
 		p.WordCount = 0
 		for _, word := range p.PlainWords() {

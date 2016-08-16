@@ -64,6 +64,22 @@ func TestBytesToHTML(t *testing.T) {
 	assert.Equal(t, template.HTML("dobedobedo"), BytesToHTML([]byte("dobedobedo")))
 }
 
+var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
+
+func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		TruncateWordsToWholeSentence(benchmarkTruncateString, SummaryLength)
+	}
+}
+
+func BenchmarkTestTruncateWordsToWholeSentenceOld(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		truncateWordsToWholeSentenceOld(benchmarkTruncateString, SummaryLength)
+	}
+}
+
 func TestTruncateWordsToWholeSentence(t *testing.T) {
 	type test struct {
 		input, expected string
@@ -77,10 +93,11 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 		{"This is a sentence.", "This is a sentence.", 5, false},
 		{"This is also a sentence!", "This is also a sentence!", 1, false},
 		{"To be. Or not to be. That's the question.", "To be.", 1, true},
-		{" \nThis is not a sentence\n ", "This is not a", 4, true},
+		{" \nThis is not a sentence\nAnd this is another", "This is not a sentence", 4, true},
+		{"", "", 10, false},
 	}
 	for i, d := range data {
-		output, truncated := TruncateWordsToWholeSentence(strings.Fields(d.input), d.max)
+		output, truncated := TruncateWordsToWholeSentence(d.input, d.max)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
