@@ -241,10 +241,10 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.md"), []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
-		{filepath.FromSlash("sect/doc2.md"), []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
-		{filepath.FromSlash("sect/doc3.md"), []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
-		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc2.md"), Content: []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
 	siteSetup := func() *Site {
@@ -302,8 +302,8 @@ func TestFutureExpirationRender(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc3.md"), []byte("---\ntitle: doc1\nexpirydate: \"2400-05-29\"\n---\n# doc1\n*some content*")},
-		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("---\ntitle: doc1\nexpirydate: \"2400-05-29\"\n---\n# doc1\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*")},
 	}
 
 	siteSetup := func() *Site {
@@ -380,18 +380,24 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 	}
 
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.md"),
-			[]byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode))},
+		{
+			Name:    filepath.FromSlash("sect/doc1.md"),
+			Content: []byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode)),
+		},
 		// Issue #1148: Make sure that no P-tags is added around shortcodes.
-		{filepath.FromSlash("sect/doc2.md"),
-			[]byte(fmt.Sprintf(`**Ref 1:** 
+		{
+			Name: filepath.FromSlash("sect/doc2.md"),
+			Content: []byte(fmt.Sprintf(`**Ref 1:** 
 
 {{< %s "sect/doc1.md" >}}
 
-THE END.`, refShortcode))},
+THE END.`, refShortcode)),
+		},
 		// Issue #1753: Should not add a trailing newline after shortcode.
-		{filepath.FromSlash("sect/doc3.md"),
-			[]byte(fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode))},
+		{
+			Name:    filepath.FromSlash("sect/doc3.md"),
+			Content: []byte(fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode)),
+		},
 	}
 
 	s := &Site{
@@ -456,8 +462,8 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	viper.Set("UglyURLs", uglyURLs)
 
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.md"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{filepath.FromSlash("sect/doc2.md"), []byte("---\nurl: /ugly.html\nmarkup: markdown\n---\n# title\ndoc2 *content*")},
+		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{Name: filepath.FromSlash("sect/doc2.md"), Content: []byte("---\nurl: /ugly.html\nmarkup: markdown\n---\n# title\ndoc2 *content*")},
 	}
 
 	s := &Site{
@@ -548,9 +554,9 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.html"), []byte("doc1")},
-		{filepath.FromSlash("Fish and Chips/doc2.html"), []byte("doc2")},
-		{filepath.FromSlash("ラーメン/doc3.html"), []byte("doc3")},
+		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("doc1")},
+		{Name: filepath.FromSlash("Fish and Chips/doc2.html"), Content: []byte("doc2")},
+		{Name: filepath.FromSlash("ラーメン/doc3.html"), Content: []byte("doc3")},
 	}
 
 	s := &Site{
@@ -603,14 +609,14 @@ func TestSkipRender(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
-		{filepath.FromSlash("sect/doc3.md"), []byte("# doc3\n*some* content")},
-		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{filepath.FromSlash("sect/doc5.html"), []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
-		{filepath.FromSlash("sect/doc6.html"), []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
-		{filepath.FromSlash("doc7.html"), []byte("<html><body>doc7 content</body></html>")},
-		{filepath.FromSlash("sect/doc8.html"), []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
+		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{Name: filepath.FromSlash("sect/doc2.html"), Content: []byte("<!doctype html><html><body>more content</body></html>")},
+		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("# doc3\n*some* content")},
+		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc5.html"), Content: []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
+		{Name: filepath.FromSlash("sect/doc6.html"), Content: []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
+		{Name: filepath.FromSlash("doc7.html"), Content: []byte("<html><body>doc7 content</body></html>")},
+		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
 	viper.Set("DefaultExtension", "html")
@@ -667,8 +673,8 @@ func TestAbsURLify(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.html"), []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
-		{filepath.FromSlash("content/blue/doc2.html"), []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
+		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
+		{Name: filepath.FromSlash("content/blue/doc2.html"), Content: []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
 	}
 	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
 		for _, canonify := range []bool{true, false} {
@@ -767,10 +773,10 @@ my_date = 2010-05-27T07:32:00Z
 Front Matter with Ordered Pages 4. This is longer content`)
 
 var weightedSources = []source.ByteSource{
-	{filepath.FromSlash("sect/doc1.md"), weightedPage1},
-	{filepath.FromSlash("sect/doc2.md"), weightedPage2},
-	{filepath.FromSlash("sect/doc3.md"), weightedPage3},
-	{filepath.FromSlash("sect/doc4.md"), weightedPage4},
+	{Name: filepath.FromSlash("sect/doc1.md"), Content: weightedPage1},
+	{Name: filepath.FromSlash("sect/doc2.md"), Content: weightedPage2},
+	{Name: filepath.FromSlash("sect/doc3.md"), Content: weightedPage3},
+	{Name: filepath.FromSlash("sect/doc4.md"), Content: weightedPage4},
 }
 
 func TestOrderedPages(t *testing.T) {
@@ -835,10 +841,10 @@ func TestOrderedPages(t *testing.T) {
 }
 
 var groupedSources = []source.ByteSource{
-	{filepath.FromSlash("sect1/doc1.md"), weightedPage1},
-	{filepath.FromSlash("sect1/doc2.md"), weightedPage2},
-	{filepath.FromSlash("sect2/doc3.md"), weightedPage3},
-	{filepath.FromSlash("sect3/doc4.md"), weightedPage4},
+	{Name: filepath.FromSlash("sect1/doc1.md"), Content: weightedPage1},
+	{Name: filepath.FromSlash("sect1/doc2.md"), Content: weightedPage2},
+	{Name: filepath.FromSlash("sect2/doc3.md"), Content: weightedPage3},
+	{Name: filepath.FromSlash("sect3/doc4.md"), Content: weightedPage4},
 }
 
 func TestGroupedPages(t *testing.T) {
@@ -1033,9 +1039,9 @@ func TestWeightedTaxonomies(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.md"), pageWithWeightedTaxonomies2},
-		{filepath.FromSlash("sect/doc2.md"), pageWithWeightedTaxonomies1},
-		{filepath.FromSlash("sect/doc3.md"), pageWithWeightedTaxonomies3},
+		{Name: filepath.FromSlash("sect/doc1.md"), Content: pageWithWeightedTaxonomies2},
+		{Name: filepath.FromSlash("sect/doc2.md"), Content: pageWithWeightedTaxonomies1},
+		{Name: filepath.FromSlash("sect/doc3.md"), Content: pageWithWeightedTaxonomies3},
 	}
 	taxonomies := make(map[string]string)
 
@@ -1086,26 +1092,26 @@ func findPage(site *Site, f string) *Page {
 func setupLinkingMockSite(t *testing.T) *Site {
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("index.md"), []byte("")},
-		{filepath.FromSlash("rootfile.md"), []byte("")},
-		{filepath.FromSlash("root-image.png"), []byte("")},
+		{Name: filepath.FromSlash("index.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("rootfile.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("root-image.png"), Content: []byte("")},
 
-		{filepath.FromSlash("level2/2-root.md"), []byte("")},
-		{filepath.FromSlash("level2/index.md"), []byte("")},
-		{filepath.FromSlash("level2/common.md"), []byte("")},
+		{Name: filepath.FromSlash("level2/2-root.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/index.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/common.md"), Content: []byte("")},
 
-		//		{filepath.FromSlash("level2b/2b-root.md"), []byte("")},
-		//		{filepath.FromSlash("level2b/index.md"), []byte("")},
-		//		{filepath.FromSlash("level2b/common.md"), []byte("")},
+		//		{Name: filepath.FromSlash("level2b/2b-root.md"), Content: []byte("")},
+		//		{Name: filepath.FromSlash("level2b/index.md"), Content: []byte("")},
+		//		{Name: filepath.FromSlash("level2b/common.md"), Content: []byte("")},
 
-		{filepath.FromSlash("level2/2-image.png"), []byte("")},
-		{filepath.FromSlash("level2/common.png"), []byte("")},
+		{Name: filepath.FromSlash("level2/2-image.png"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/common.png"), Content: []byte("")},
 
-		{filepath.FromSlash("level2/level3/3-root.md"), []byte("")},
-		{filepath.FromSlash("level2/level3/index.md"), []byte("")},
-		{filepath.FromSlash("level2/level3/common.md"), []byte("")},
-		{filepath.FromSlash("level2/level3/3-image.png"), []byte("")},
-		{filepath.FromSlash("level2/level3/common.png"), []byte("")},
+		{Name: filepath.FromSlash("level2/level3/3-root.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/level3/index.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/level3/common.md"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/level3/3-image.png"), Content: []byte("")},
+		{Name: filepath.FromSlash("level2/level3/common.png"), Content: []byte("")},
 	}
 
 	viper.Set("baseurl", "http://auth/")

@@ -54,8 +54,8 @@ func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (er
 }
 
 var urlFakeSource = []source.ByteSource{
-	{filepath.FromSlash("content/blue/doc1.md"), []byte(slugDoc1)},
-	{filepath.FromSlash("content/blue/doc2.md"), []byte(slugDoc2)},
+	{Name: filepath.FromSlash("content/blue/doc1.md"), Content: []byte(slugDoc1)},
+	{Name: filepath.FromSlash("content/blue/doc2.md"), Content: []byte(slugDoc2)},
 }
 
 // Issue #1105
