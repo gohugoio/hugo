@@ -55,7 +55,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// first group 10 in weight
 			assert.Equal(t, 10, pg.Key)
 			for _, p := range pg.Pages {
-				assert.True(t, p.FuzzyWordCount%2 == 0) // magic test
+				assert.True(t, p.fuzzyWordCount%2 == 0) // magic test
 			}
 		}
 	} else {
@@ -70,7 +70,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// last should have 5 in weight
 			assert.Equal(t, 5, pg.Key)
 			for _, p := range pg.Pages {
-				assert.True(t, p.FuzzyWordCount%2 != 0) // magic test
+				assert.True(t, p.fuzzyWordCount%2 != 0) // magic test
 			}
 		}
 	} else {
@@ -443,10 +443,10 @@ func TestPage(t *testing.T) {
 	page21, _ := f2.page(1)
 	page2Nil, _ := f2.page(3)
 
-	assert.Equal(t, 1, page11.FuzzyWordCount)
+	assert.Equal(t, 3, page11.fuzzyWordCount)
 	assert.Nil(t, page1Nil)
 
-	assert.Equal(t, 1, page21.FuzzyWordCount)
+	assert.Equal(t, 3, page21.fuzzyWordCount)
 	assert.Nil(t, page2Nil)
 }
 
@@ -468,7 +468,7 @@ func createTestPages(num int) Pages {
 		if i%2 == 0 {
 			w = 10
 		}
-		pages[i].FuzzyWordCount = i
+		pages[i].fuzzyWordCount = i + 2
 		pages[i].Weight = w
 	}
 

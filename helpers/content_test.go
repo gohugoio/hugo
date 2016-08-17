@@ -34,11 +34,22 @@ func TestStripHTML(t *testing.T) {
 	}
 	data := []test{
 		{"<h1>strip h1 tag <h1>", "strip h1 tag "},
-		{"<p> strip p tag </p>", " strip p tag \n"},
+		{"<p> strip p tag </p>", " strip p tag "},
 		{"</br> strip br<br>", " strip br\n"},
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
 		{"No Tags", "No Tags"},
+		{`<p>Summary Next Line. 
+<figure >
+    
+        <img src="/not/real" />
+    
+    
+</figure>
+.
+More text here.</p>
+
+<p>Some more text</p>`, "Summary Next Line.  . More text here.\nSome more text\n"},
 	}
 	for i, d := range data {
 		output := StripHTML(d.input)

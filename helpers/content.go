@@ -138,19 +138,28 @@ func StripHTML(s string) string {
 	// Walk through the string removing all tags
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-
-	inTag := false
+	var inTag, isSpace, wasSpace bool
 	for _, r := range s {
-		switch r {
-		case '<':
+		if !inTag {
+			isSpace = false
+		}
+
+		switch {
+		case r == '<':
 			inTag = true
-		case '>':
+		case r == '>':
 			inTag = false
+		case unicode.IsSpace(r):
+			isSpace = true
+			fallthrough
 		default:
-			if !inTag {
+			if !inTag && (!isSpace || (isSpace && !wasSpace)) {
 				b.WriteRune(r)
 			}
 		}
+
+		wasSpace = isSpace
+
 	}
 	return b.String()
 }
