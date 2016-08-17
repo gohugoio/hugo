@@ -486,10 +486,6 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 }
 
 func (p *Page) analyzePage() {
-	// TODO(bep)
-	if true {
-		return
-	}
 	if p.isCJKLanguage {
 		p.WordCount = 0
 		for _, word := range p.PlainWords() {

@@ -384,8 +384,25 @@ func RenderBytes(ctx *RenderingContext) []byte {
 	}
 }
 
-// TotalWords returns an int of the total number of words in a given content.
+// TotalWords counts instance of one or more consecutive white space
+// characters, as defined by unicode.IsSpace, in s.
+// This is a cheaper way of word counting than the obvious len(strings.Fields(s)).
 func TotalWords(s string) int {
+	n := 0
+	inWord := false
+	for _, r := range s {
+		wasInWord := inWord
+		inWord = !unicode.IsSpace(r)
+		if inWord && !wasInWord {
+			n++
+		}
+	}
+	return n
+}
+
+// Old implementation only kept for benchmark comparison.
+// TODO(bep) remove
+func totalWordsOld(s string) int {
 	return len(strings.Fields(s))
 }
 
