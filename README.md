@@ -103,7 +103,6 @@ If you are unfamiliar with the contribution process, the Hugo team will help you
 For a complete guide to contributing code to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
 
 [![Analytics](https://ga-beacon.appspot.com/UA-7131036-6/hugo/readme)](https://github.com/igrigorik/ga-beacon)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/hugo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 [Go]: https://golang.org/
 [Hugo Documentation]: https://gohugo.io/overview/introduction/
