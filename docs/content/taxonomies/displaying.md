@@ -38,7 +38,7 @@ each content piece are located in the usual place
 
     <ul id="tags">
       {{ range .Params.tags }}
-        <li><a href="tags/{{ . | urlize }}">{{ . }}</a> </li>
+        <li><a href="{{ "/tags/" | relURL }}{{ . | urlize }}">{{ . }}</a> </li>
       {{ end }}
     </ul>
 
@@ -52,7 +52,7 @@ To list such taxonomy use the following:
 
     {{ if .Params.directors }}
       <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
-      {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="directors/{{ . | urlize }}">{{ . }}</a>{{ end }}
+      {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "/directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
     {{ end }}
 
 Alternatively, you may use the [delimit]({{< relref "templates/functions.md#delimit" >}})
@@ -110,7 +110,7 @@ The following example displays all tag keys:
 
     <ul id="all-tags">
       {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-        <li><a href="/tags/{{ $name | urlize }}">{{ $name }}</a></li>
+        <li><a href="{{ "/tags/" | relURL }}{{ $name | urlize }}">{{ $name }}</a></li>
       {{ end }}
     </ul>
 
@@ -120,7 +120,7 @@ This example will list all taxonomies, each of their keys and all the content as
     <section>
       <ul>
         {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-          <li><a href="/{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
+          <li><a href="{{ "/" | relURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
             <ul>
               {{ range $key, $value := $taxonomy }}
               <li> {{ $key }} </li>
