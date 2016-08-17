@@ -149,7 +149,7 @@ func (page *Page) DummyPageMethodReturnThreeValueForTest() (string, string, stri
 }
 
 func (page *Page) DummyPageMethodReturnErrorOnlyForTest() error {
-	return errors.New("something error occured")
+	return errors.New("some error occurred")
 }
 
 func (page *Page) dummyPageMethodReturnTwoValueForTest() (string, string) {
