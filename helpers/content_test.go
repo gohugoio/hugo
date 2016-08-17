@@ -408,12 +408,45 @@ func TestExtractNoTOC(t *testing.T) {
 	}
 }
 
-func TestTotalWords(t *testing.T) {
-	testString := "Two, Words!"
-	actualWordCount := TotalWords(testString)
+var totalWordsBenchmarkString = strings.Repeat("Hugo Rocks ", 200)
 
-	if actualWordCount != 2 {
-		t.Errorf("Actual word count (%d) for test string (%s) did not match 2.", actualWordCount, testString)
+func TestTotalWords(t *testing.T) {
+
+	for i, this := range []struct {
+		s     string
+		words int
+	}{
+		{"Two, Words!", 2},
+		{"Word", 1},
+		{"", 0},
+		{"One, Two,      Three", 3},
+		{totalWordsBenchmarkString, 400},
+	} {
+		actualWordCount := TotalWords(this.s)
+
+		if actualWordCount != this.words {
+			t.Errorf("[%d] Actual word count (%d) for test string (%s) did not match %d", i, actualWordCount, this.s, this.words)
+		}
+	}
+}
+
+func BenchmarkTotalWords(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		wordCount := TotalWords(totalWordsBenchmarkString)
+		if wordCount != 400 {
+			b.Fatal("Wordcount error")
+		}
+	}
+}
+
+func BenchmarkTotalWordsOld(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		wordCount := totalWordsOld(totalWordsBenchmarkString)
+		if wordCount != 400 {
+			b.Fatal("Wordcount error")
+		}
 	}
 }
 
