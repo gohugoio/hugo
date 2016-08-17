@@ -504,10 +504,13 @@ func checkPageContent(t *testing.T, page *Page, content string, msg ...interface
 }
 
 func normalizeContent(c string) string {
-	norm := strings.Replace(c, "\n", "", -1)
+	norm := c
+	norm = strings.Replace(norm, "\n", " ", -1)
 	norm = strings.Replace(norm, "    ", " ", -1)
 	norm = strings.Replace(norm, "   ", " ", -1)
 	norm = strings.Replace(norm, "  ", " ", -1)
+	norm = strings.Replace(norm, "p> ", "p>", -1)
+	norm = strings.Replace(norm, ">  <", "> <", -1)
 	return strings.TrimSpace(norm)
 }
 
@@ -710,8 +713,8 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, p *Page) {
 		checkPageTitle(t, p, "Simple")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. <figure > <img src=\"/not/real\" /> </figure>.\nMore text here.</p><p>Some more text</p>"), ext)
-		checkPageSummary(t, p, "Summary Next Line. . More text here. Some more text", ext)
+		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure >\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
+		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
 		checkPageType(t, p, "page")
 		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	}
@@ -793,8 +796,8 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	testCommonResetState()
 
 	assertFunc := func(t *testing.T, ext string, p *Page) {
-		if p.WordCount != 8 {
-			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 8, p.WordCount)
+		if p.WordCount() != 8 {
+			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 8, p.WordCount())
 		}
 	}
 
@@ -806,11 +809,10 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	viper.Set("HasCJKLanguage", true)
 
 	assertFunc := func(t *testing.T, ext string, p *Page) {
-		if p.WordCount != 15 {
-			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 15, p.WordCount)
+		if p.WordCount() != 15 {
+			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 15, p.WordCount())
 		}
 	}
-
 	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithAllCJKRunes)
 }
 
@@ -820,15 +822,14 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	viper.Set("HasCJKLanguage", true)
 
 	assertFunc := func(t *testing.T, ext string, p *Page) {
-		if p.WordCount != 74 {
-			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount)
+		if p.WordCount() != 74 {
+			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
 
 		if p.Summary != simplePageWithMainEnglishWithCJKRunesSummary {
 			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.plain,
 				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary)
 		}
-
 	}
 
 	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithMainEnglishWithCJKRunes)
@@ -839,15 +840,14 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	viper.Set("HasCJKLanguage", true)
 
 	assertFunc := func(t *testing.T, ext string, p *Page) {
-		if p.WordCount != 75 {
-			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount)
+		if p.WordCount() != 75 {
+			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
 
 		if p.Summary != simplePageWithIsCJKLanguageFalseSummary {
 			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.plain,
 				simplePageWithIsCJKLanguageFalseSummary, p.Summary)
 		}
-
 	}
 
 	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithIsCJKLanguageFalse)
@@ -857,16 +857,16 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 func TestWordCount(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, p *Page) {
-		if p.WordCount != 483 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 483, p.WordCount)
+		if p.WordCount() != 483 {
+			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 483, p.WordCount())
 		}
 
-		if p.FuzzyWordCount != 500 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.WordCount)
+		if p.FuzzyWordCount() != 500 {
+			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.WordCount())
 		}
 
-		if p.ReadingTime != 3 {
-			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime)
+		if p.ReadingTime() != 3 {
+			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime())
 		}
 
 		checkTruncation(t, p, true, "long page")
