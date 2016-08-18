@@ -214,6 +214,8 @@ func TestPretty(t *testing.T) {
 	assert.Equal(t, PrettifyURL("/section/name/index.html"), "/section/name")
 	assert.Equal(t, PrettifyURL("/index.html"), "/")
 	assert.Equal(t, PrettifyURL("/name.xml"), "/name/index.xml")
+	assert.Equal(t, PrettifyURL("/node.js/page/2"), "/node.js/page/2")
+	assert.Equal(t, PrettifyURL("/index.html/page/2"), "/index.html/page/2")
 	assert.Equal(t, PrettifyURL("/"), "/")
 	assert.Equal(t, PrettifyURL(""), "/")
 }
