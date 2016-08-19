@@ -122,16 +122,16 @@ weight = 4
 Front Matter with Menu Pages`)
 
 var menuPageSources = []source.ByteSource{
-	{filepath.FromSlash("sect/doc1.md"), menuPage1},
-	{filepath.FromSlash("sect/doc2.md"), menuPage2},
-	{filepath.FromSlash("sect/doc3.md"), menuPage3},
+	{Name: filepath.FromSlash("sect/doc1.md"), Content: menuPage1},
+	{Name: filepath.FromSlash("sect/doc2.md"), Content: menuPage2},
+	{Name: filepath.FromSlash("sect/doc3.md"), Content: menuPage3},
 }
 
 var menuPageSectionsSources = []source.ByteSource{
-	{filepath.FromSlash("first/doc1.md"), menuPage1},
-	{filepath.FromSlash("first/doc2.md"), menuPage2},
-	{filepath.FromSlash("second-section/doc3.md"), menuPage3},
-	{filepath.FromSlash("Fish and Chips/doc4.md"), menuPage4},
+	{Name: filepath.FromSlash("first/doc1.md"), Content: menuPage1},
+	{Name: filepath.FromSlash("first/doc2.md"), Content: menuPage2},
+	{Name: filepath.FromSlash("second-section/doc3.md"), Content: menuPage3},
+	{Name: filepath.FromSlash("Fish and Chips/doc4.md"), Content: menuPage4},
 }
 
 func tstCreateMenuPageWithNameTOML(title, menu, name string) []byte {
@@ -184,15 +184,15 @@ Front Matter with Menu with Identifier`, title, menu, identifier))
 func TestPageMenuWithIdentifier(t *testing.T) {
 
 	toml := []source.ByteSource{
-		{"sect/doc1.md", tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i1")},
-		{"sect/doc2.md", tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i2")},
-		{"sect/doc3.md", tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i2")}, // duplicate
+		{Name: "sect/doc1.md", Content: tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i1")},
+		{Name: "sect/doc2.md", Content: tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i2")},
+		{Name: "sect/doc3.md", Content: tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i2")}, // duplicate
 	}
 
 	yaml := []source.ByteSource{
-		{"sect/doc1.md", tstCreateMenuPageWithIdentifierYAML("t1", "m1", "i1")},
-		{"sect/doc2.md", tstCreateMenuPageWithIdentifierYAML("t1", "m1", "i2")},
-		{"sect/doc3.md", tstCreateMenuPageWithIdentifierYAML("t1", "m1", "i2")}, // duplicate
+		{Name: "sect/doc1.md", Content: tstCreateMenuPageWithIdentifierYAML("t1", "m1", "i1")},
+		{Name: "sect/doc2.md", Content: tstCreateMenuPageWithIdentifierYAML("t1", "m1", "i2")},
+		{Name: "sect/doc3.md", Content: tstCreateMenuPageWithIdentifierYAML("t1", "m1", "i2")}, // duplicate
 	}
 
 	doTestPageMenuWithIdentifier(t, toml)
@@ -224,15 +224,15 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 func TestPageMenuWithDuplicateName(t *testing.T) {
 
 	toml := []source.ByteSource{
-		{"sect/doc1.md", tstCreateMenuPageWithNameTOML("t1", "m1", "n1")},
-		{"sect/doc2.md", tstCreateMenuPageWithNameTOML("t1", "m1", "n2")},
-		{"sect/doc3.md", tstCreateMenuPageWithNameTOML("t1", "m1", "n2")}, // duplicate
+		{Name: "sect/doc1.md", Content: tstCreateMenuPageWithNameTOML("t1", "m1", "n1")},
+		{Name: "sect/doc2.md", Content: tstCreateMenuPageWithNameTOML("t1", "m1", "n2")},
+		{Name: "sect/doc3.md", Content: tstCreateMenuPageWithNameTOML("t1", "m1", "n2")}, // duplicate
 	}
 
 	yaml := []source.ByteSource{
-		{"sect/doc1.md", tstCreateMenuPageWithNameYAML("t1", "m1", "n1")},
-		{"sect/doc2.md", tstCreateMenuPageWithNameYAML("t1", "m1", "n2")},
-		{"sect/doc3.md", tstCreateMenuPageWithNameYAML("t1", "m1", "n2")}, // duplicate
+		{Name: "sect/doc1.md", Content: tstCreateMenuPageWithNameYAML("t1", "m1", "n1")},
+		{Name: "sect/doc2.md", Content: tstCreateMenuPageWithNameYAML("t1", "m1", "n2")},
+		{Name: "sect/doc3.md", Content: tstCreateMenuPageWithNameYAML("t1", "m1", "n2")}, // duplicate
 	}
 
 	doTestPageMenuWithDuplicateName(t, toml)
@@ -358,8 +358,8 @@ menu:
 Yaml Front Matter with Menu Pages`)
 
 	s := setupMenuTests(t, []source.ByteSource{
-		{filepath.FromSlash("sect/yaml1.md"), ps1},
-		{filepath.FromSlash("sect/yaml2.md"), ps2}})
+		{Name: filepath.FromSlash("sect/yaml1.md"), Content: ps1},
+		{Name: filepath.FromSlash("sect/yaml2.md"), Content: ps2}})
 
 	p1 := s.Pages[0]
 	assert.Len(t, p1.Menus(), 2, "List YAML")

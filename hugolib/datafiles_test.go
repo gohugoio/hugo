@@ -14,17 +14,18 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/parser"
-	"github.com/spf13/hugo/source"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/spf13/hugo/parser"
+	"github.com/spf13/hugo/source"
 )
 
 func TestDataDirJSON(t *testing.T) {
 	sources := []source.ByteSource{
-		{filepath.FromSlash("test/foo.json"), []byte(`{ "bar": "foofoo"  }`)},
-		{filepath.FromSlash("test.json"), []byte(`{ "hello": [ { "world": "foo" } ] }`)},
+		{Name: filepath.FromSlash("test/foo.json"), Content: []byte(`{ "bar": "foofoo"  }`)},
+		{Name: filepath.FromSlash("test.json"), Content: []byte(`{ "hello": [ { "world": "foo" } ] }`)},
 	}
 
 	expected, err := parser.HandleJSONMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
@@ -38,7 +39,7 @@ func TestDataDirJSON(t *testing.T) {
 
 func TestDataDirToml(t *testing.T) {
 	sources := []source.ByteSource{
-		{filepath.FromSlash("test/kung.toml"), []byte("[foo]\nbar = 1")},
+		{Name: filepath.FromSlash("test/kung.toml"), Content: []byte("[foo]\nbar = 1")},
 	}
 
 	expected, err := parser.HandleTOMLMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
@@ -53,10 +54,10 @@ func TestDataDirToml(t *testing.T) {
 func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 	sources := []source.ByteSource{
 		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
-		{filepath.FromSlash("a.yaml"), []byte("a: 1")},
-		{filepath.FromSlash("test/v1.yaml"), []byte("v1-2: 2")},
-		{filepath.FromSlash("test/v2.yaml"), []byte("v2:\n- 2\n- 3")},
-		{filepath.FromSlash("test.yaml"), []byte("v1: 1")},
+		{Name: filepath.FromSlash("a.yaml"), Content: []byte("a: 1")},
+		{Name: filepath.FromSlash("test/v1.yaml"), Content: []byte("v1-2: 2")},
+		{Name: filepath.FromSlash("test/v2.yaml"), Content: []byte("v2:\n- 2\n- 3")},
+		{Name: filepath.FromSlash("test.yaml"), Content: []byte("v1: 1")},
 	}
 
 	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1},
@@ -68,12 +69,12 @@ func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 // issue 892
 func TestDataDirMultipleSources(t *testing.T) {
 	s1 := []source.ByteSource{
-		{filepath.FromSlash("test/first.toml"), []byte("bar = 1")},
+		{Name: filepath.FromSlash("test/first.toml"), Content: []byte("bar = 1")},
 	}
 
 	s2 := []source.ByteSource{
-		{filepath.FromSlash("test/first.toml"), []byte("bar = 2")},
-		{filepath.FromSlash("test/second.toml"), []byte("tender = 2")},
+		{Name: filepath.FromSlash("test/first.toml"), Content: []byte("bar = 2")},
+		{Name: filepath.FromSlash("test/second.toml"), Content: []byte("tender = 2")},
 	}
 
 	expected, _ := parser.HandleTOMLMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
@@ -84,7 +85,7 @@ func TestDataDirMultipleSources(t *testing.T) {
 
 func TestDataDirUnknownFormat(t *testing.T) {
 	sources := []source.ByteSource{
-		{filepath.FromSlash("test.roml"), []byte("boo")},
+		{Name: filepath.FromSlash("test.roml"), Content: []byte("boo")},
 	}
 	s := &Site{}
 	err := s.loadData([]source.Input{&source.InMemorySource{ByteSource: sources}})

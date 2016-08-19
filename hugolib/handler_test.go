@@ -30,15 +30,15 @@ func TestDefaultHandler(t *testing.T) {
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.html"), []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{filepath.FromSlash("sect/doc2.html"), []byte("<!doctype html><html><body>more content</body></html>")},
-		{filepath.FromSlash("sect/doc3.md"), []byte("# doc3\n*some* content")},
-		{filepath.FromSlash("sect/doc4.md"), []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{filepath.FromSlash("sect/doc3/img1.png"), []byte("‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚")},
-		{filepath.FromSlash("sect/img2.gif"), []byte("GIF89a��€��ÿÿÿ���,�������D�;")},
-		{filepath.FromSlash("sect/img2.spf"), []byte("****FAKE-FILETYPE****")},
-		{filepath.FromSlash("doc7.html"), []byte("<html><body>doc7 content</body></html>")},
-		{filepath.FromSlash("sect/doc8.html"), []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
+		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
+		{Name: filepath.FromSlash("sect/doc2.html"), Content: []byte("<!doctype html><html><body>more content</body></html>")},
+		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("# doc3\n*some* content")},
+		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc3/img1.png"), Content: []byte("‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚")},
+		{Name: filepath.FromSlash("sect/img2.gif"), Content: []byte("GIF89a��€��ÿÿÿ���,�������D�;")},
+		{Name: filepath.FromSlash("sect/img2.spf"), Content: []byte("****FAKE-FILETYPE****")},
+		{Name: filepath.FromSlash("doc7.html"), Content: []byte("<html><body>doc7 content</body></html>")},
+		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
 	viper.Set("DefaultExtension", "html")
