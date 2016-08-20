@@ -17,7 +17,6 @@ import (
 	"html/template"
 	"path"
 	"path/filepath"
-	//"sort"
 	"strings"
 	"sync"
 	"time"

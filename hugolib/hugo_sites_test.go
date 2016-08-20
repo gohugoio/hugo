@@ -790,7 +790,7 @@ func createMultiTestSitesForConfig(t *testing.T, configContent, configSuffix str
 
 	// Sources
 	sources := []source.ByteSource{
-		{filepath.FromSlash("sect/doc1.en.md"), []byte(`---
+		{Name: filepath.FromSlash("sect/doc1.en.md"), Content: []byte(`---
 title: doc1
 slug: doc1-slug
 tags:
@@ -804,7 +804,7 @@ publishdate: "2000-01-01"
 
 NOTE: slug should be used as URL
 `)},
-		{filepath.FromSlash("sect/doc1.fr.md"), []byte(`---
+		{Name: filepath.FromSlash("sect/doc1.fr.md"), Content: []byte(`---
 title: doc1
 plaques:
  - frtag1
@@ -819,7 +819,7 @@ publishdate: "2000-01-04"
 NOTE: should be in the 'en' Page's 'Translations' field.
 NOTE: date is after "doc3"
 `)},
-		{filepath.FromSlash("sect/doc2.en.md"), []byte(`---
+		{Name: filepath.FromSlash("sect/doc2.en.md"), Content: []byte(`---
 title: doc2
 publishdate: "2000-01-02"
 ---
@@ -827,7 +827,7 @@ publishdate: "2000-01-02"
 *some content*
 NOTE: without slug, "doc2" should be used, without ".en" as URL
 `)},
-		{filepath.FromSlash("sect/doc3.en.md"), []byte(`---
+		{Name: filepath.FromSlash("sect/doc3.en.md"), Content: []byte(`---
 title: doc3
 publishdate: "2000-01-03"
 tags:
@@ -839,7 +839,7 @@ url: /superbob
 *some content*
 NOTE: third 'en' doc, should trigger pagination on home page.
 `)},
-		{filepath.FromSlash("sect/doc4.md"), []byte(`---
+		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte(`---
 title: doc4
 plaques:
  - frtag1
@@ -850,7 +850,7 @@ publishdate: "2000-01-05"
 NOTE: should use the DefaultContentLanguage and mark this doc as 'fr'.
 NOTE: doesn't have any corresponding translation in 'en'
 `)},
-		{filepath.FromSlash("other/doc5.fr.md"), []byte(`---
+		{Name: filepath.FromSlash("other/doc5.fr.md"), Content: []byte(`---
 title: doc5
 publishdate: "2000-01-06"
 ---
@@ -859,40 +859,40 @@ publishdate: "2000-01-06"
 NOTE: should use the "permalinks" configuration with :filename
 `)},
 		// Add some for the stats
-		{filepath.FromSlash("stats/expired.fr.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/expired.fr.md"), Content: []byte(`---
 title: expired
 publishdate: "2000-01-06"
 expiryDate: "2001-01-06"
 ---
 # Expired
 `)},
-		{filepath.FromSlash("stats/future.fr.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/future.fr.md"), Content: []byte(`---
 title: future
 publishdate: "2100-01-06"
 ---
 # Future
 `)},
-		{filepath.FromSlash("stats/expired.en.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/expired.en.md"), Content: []byte(`---
 title: expired
 publishdate: "2000-01-06"
 expiryDate: "2001-01-06"
 ---
 # Expired
 `)},
-		{filepath.FromSlash("stats/future.en.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/future.en.md"), Content: []byte(`---
 title: future
 publishdate: "2100-01-06"
 ---
 # Future
 `)},
-		{filepath.FromSlash("stats/draft.en.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/draft.en.md"), Content: []byte(`---
 title: expired
 publishdate: "2000-01-06"
 draft: true
 ---
 # Draft
 `)},
-		{filepath.FromSlash("stats/tax.nn.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/tax.nn.md"), Content: []byte(`---
 title: Tax NN
 publishdate: "2000-01-06"
 weight: 1001
@@ -901,7 +901,7 @@ lag:
 ---
 # Tax NN
 `)},
-		{filepath.FromSlash("stats/tax.nb.md"), []byte(`---
+		{Name: filepath.FromSlash("stats/tax.nb.md"), Content: []byte(`---
 title: Tax NB
 publishdate: "2000-01-06"
 weight: 1002

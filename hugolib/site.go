@@ -1724,11 +1724,10 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 
 		if !viper.GetBool("DisableRSS") {
 			// XML Feed
-			c := *n
-			rssNode := &c
-			rssNode.nodeID = ""
+			rssNode := s.newNode(fmt.Sprintf("%s-%s-rss", t.plural, t.key))
 			rssuri := viper.GetString("RSSUri")
 			s.setURLs(rssNode, base+"/"+rssuri)
+			rssNode.Data = n.Data
 
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
@@ -1858,8 +1857,7 @@ func (s *Site) renderSectionLists(prepare bool) error {
 		if !viper.GetBool("DisableRSS") && section != "" {
 			// XML Feed
 			rssuri := viper.GetString("RSSUri")
-			c := *n
-			rssNode := &c
+			rssNode := s.newSectionListNode(true, sectionName+"-rss", section, data, 0)
 			s.setURLs(rssNode, section+"/"+rssuri)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 			if err := s.renderAndWriteXML("section "+section+" rss", rssNode.addLangPathPrefix(section+"/"+rssuri), rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
