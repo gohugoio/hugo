@@ -27,7 +27,7 @@ Hugo comes with all the code you would need to include load Disqus. Simply inclu
 
 ## Configuring Disqus
 
-That template requires you to set a single value in your site config file, e.g. config.yaml.
+That template requires you to set a single value in your site config file, e.g. config.yml.
 
     disqusShortname = "XYW"
 

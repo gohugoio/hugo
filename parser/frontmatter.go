@@ -149,6 +149,13 @@ func FormatSanitize(kind string) string {
 	}
 }
 
+var ConfigBasename = func(kind string) string {
+	if kind == "yaml" {
+		return "config.yml"
+	}
+	return "config." + kind
+}
+
 // DetectFrontMatter detects the type of frontmatter analysing its first character.
 func DetectFrontMatter(mark rune) (f *frontmatterType) {
 	switch mark {

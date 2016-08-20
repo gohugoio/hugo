@@ -26,7 +26,7 @@ or <code><strong>singular key</strong>: &quot;<em>plural value</em>&quot;</code>
 <table class="table">
 <thead>
 <tr>
-<th>config.toml excerpt:</th><th>config.yaml excerpt:</th>
+<th>config.toml excerpt:</th><th>config.yml excerpt:</th>
 </tr>
 </thead>
 <tbody>

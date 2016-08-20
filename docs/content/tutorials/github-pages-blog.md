@@ -29,9 +29,9 @@ As our goal is to host a website using GitHub Pages, it is natural for us to hos
 
 ## Create the Blog
 
-### Write a `config.yaml` File
+### Write a `config.yml` File
 
-The very first step in creating a new Hugo site is to [write the config file](/overview/configuration/). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseurl`) go, and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yaml` with the following contents
+The very first step in creating a new Hugo site is to [write the config file](/overview/configuration/). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseurl`) go, and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yml` with the following contents
 
     ---
     contentdir: "content"
@@ -46,7 +46,7 @@ The very first step in creating a new Hugo site is to [write the config file](/o
 
 > **Caveat:** Hugo's former default of `canonifyurls: true` has been changed
 > to `false` since this tutorial has written.  **Please make sure you manually
-> add `canonifyurls: true` to your `config.yaml`** if you are using Spencer's
+> add `canonifyurls: true` to your `config.yml`** if you are using Spencer's
 > https://github.com/spencerlyon2/hugo_gh_blog for this tutorial, or you *will*
 > run into problems such as the CSS files not loading.
 
@@ -97,7 +97,7 @@ Each of the files in the example repository is well commented with a description
 
 ### Add Some Content
 
-The final step in creating the blog is to add some actual blog posts. To do this, simply create one Markdown file (with extension `.md`) for each new blog post. At the top of each file you should include a metadata section that tells Hugo some things about the post (see [docs](/content/front-matter/)). For example, consider the yaml metadata section from the top of the file `/content/posts/newest.md` from the example repository:
+The final step in creating the blog is to add some actual blog posts. To do this, simply create one Markdown file (with extension `.md`) for each new blog post. At the top of each file you should include a metadata section that tells Hugo some things about the post (see [docs](/content/front-matter/)). For example, consider the YAML metadata section from the top of the file `/content/posts/newest.md` from the example repository:
 
     ---
     title: "Just another sample post"
@@ -115,7 +115,7 @@ The keys set in this section are the mandatory `title` and `date` as well as the
 
 Once the site is set up and working properly, we need to push it to the correct branch of a GitHub repository so the website can be served through GitHub Pages. There are many ways to do this. Here I will show the workflow I currently use to manage my websites that are hosted through GitHub Pages.
 
-GitHub Pages will serve up a website for any repository that has a branch called `gh-pages` with a valid `index.html` file at that branch's root. A typical workflow might be to keep the content of a website on the `master` branch of a repository and the generated website on the `gh-pages` branch. This provides nice separation between input and output, but can be very tedious to work with. As a workaround, we will use the `git subtree` family of commands to have the `public` directory (or whatever `publishdir` is set to in your `config.yaml`) mirror the root of the `gh-pages` branch of the repository. This will allow us to do all our work on the `master` branch, run Hugo to have the site output into the `public` directory, and then push that directory directly to the correct place for GitHub Pages to serve our site.
+GitHub Pages will serve up a website for any repository that has a branch called `gh-pages` with a valid `index.html` file at that branch's root. A typical workflow might be to keep the content of a website on the `master` branch of a repository and the generated website on the `gh-pages` branch. This provides nice separation between input and output, but can be very tedious to work with. As a workaround, we will use the `git subtree` family of commands to have the `public` directory (or whatever `publishdir` is set to in your `config.yml`) mirror the root of the `gh-pages` branch of the repository. This will allow us to do all our work on the `master` branch, run Hugo to have the site output into the `public` directory, and then push that directory directly to the correct place for GitHub Pages to serve our site.
 
 To get this properly set up, we will execute a series of commands at the terminal. I will include all of them in one place here for easy copy and paste, and will explain what each line does via comments. Note that this is to be run from the `<root>` directory (wherever the `content` and `layout` folders of your Hugo project live). Also note that you will need to change the commands that have the example repository GitHub address so that they point to your repo.
 

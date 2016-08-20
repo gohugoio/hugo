@@ -53,9 +53,9 @@ If you had more domains and languages, you would just create more config files. 
 
 ## Prep Translation Strings in `/data`
 
-Create `.yaml` (or `.json` or `.toml`) files for each language, under `/data/translations`.
+Create `.yml` (or `.json` or `.toml`) files for each language, under `/data/translations`.
 
-**English Strings `en-US.yaml`**:
+**English Strings `en-US.yml`**:
 
 ~~~yaml
 topslogan: Acme Inc.
@@ -63,7 +63,7 @@ topsubslogan: You'll love us
 ...
 ~~~
 
-**Japanese Strings `ja-JP.yaml`**:
+**Japanese Strings `ja-JP.yml`**:
 
 ~~~yaml
 topslogan: 有限会社アクミー
@@ -99,7 +99,7 @@ The above shows both techniques, using an `if eq` and `else if eq` to check the 
 
 ## Customize Dates
 
-At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
+At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yml`` with this content:
 
 ~~~toml
 1: "janvier"

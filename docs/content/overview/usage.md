@@ -42,7 +42,7 @@ Flags:
   -D, --buildDrafts=false: include content marked as draft
   -F, --buildFuture=false: include content with publishdate in the future
       --cacheDir="": filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --config="": config file (default is path/config.yaml|json|toml)
+      --config="": config file (default is path/config.yml|json|toml)
   -d, --destination="": filesystem path to write files to
       --disableRSS=false: Do not build RSS files
       --disableSitemap=false: Do not build Sitemap file

@@ -374,7 +374,7 @@ Here is the corresponding code inside of the template:
 
 
 ## Using Site (config) Parameters
-In your top-level configuration file (e.g., `config.yaml`) you can define site
+In your top-level configuration file (e.g., `config.yml`) you can define site
 parameters, which are values which will be available to you in partials.
 
 For instance, you might declare:

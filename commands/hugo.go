@@ -209,7 +209,7 @@ func initHugoBuilderFlags(cmd *cobra.Command) {
 }
 
 func initRootPersistentFlags() {
-	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yml|json|toml)")
 
 	// Set bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}

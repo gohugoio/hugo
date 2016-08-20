@@ -20,7 +20,7 @@ websites since the defaults follow commonly used patterns.
 
 Hugo expects to find the config file in the root of the source directory and
 will look there first for a `config.toml` file. If none is present, it will
-then look for a `config.yaml` file, followed by a `config.json` file.
+then look for a `config.yml` file, followed by a `config.json` file.
 
 The config file is a site-wide config. The config file provides directions to
 hugo on how to build the site as well as site-wide parameters and menus.
@@ -33,13 +33,13 @@ env HUGO_TITLE="Some Title" hugo
 
 ## Examples
 
-The following is an example of a typical yaml config file:
+The following is an example of a typical YAML config file:
 
     ---
     baseurl: "http://yoursite.example.com/"
     ...
 
-The following is an example of a toml config file with some of the default values.
+The following is an example of a TOML config file with some of the default values.
 Values under `[params]` will populate the `.Site.Params` variable for use in templates:
 
     contentdir = "content"
@@ -57,7 +57,7 @@ Values under `[params]` will populate the `.Site.Params` variable for use in tem
       description = "Tesla's Awesome Hugo Site"
       author = "Nikola Tesla"
 
-Here is a yaml configuration file which sets a few more options:
+Here is a YAML configuration file which sets a few more options:
 
     ---
     baseurl: "http://yoursite.example.com/"
@@ -92,7 +92,7 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
     relativeURLs:               false
     canonifyURLs:               false
-    # config file (default is path/config.yaml|json|toml)
+    # config file (default is path/config.yml|json|toml)
     config:                     "config.toml"
     contentdir:                 "content"
     dataDir:                    "data"

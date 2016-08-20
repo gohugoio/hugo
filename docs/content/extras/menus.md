@@ -108,7 +108,7 @@ Here’s an example `config.toml`:
         weight = -100
         url = "/getting-started/"
 
-And the equivalent example `config.yaml`:
+And the equivalent example `config.yml`:
 
     ---
     menu:
