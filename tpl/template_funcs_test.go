@@ -1742,7 +1742,7 @@ func TestMarkdownify(t *testing.T) {
 	} {
 		result, err := markdownify(this.in)
 		if err != nil {
-			t.Fatalf("[%d] unexpected error in markdownify", i, err)
+			t.Fatalf("[%d] unexpected error in markdownify: %s", i, err)
 		}
 		if !reflect.DeepEqual(result, this.expect) {
 			t.Errorf("[%d] markdownify got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
