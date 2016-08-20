@@ -13,7 +13,7 @@ Go 1.6 includes a powerful new keyword, `block`. This construct allows you to de
 
 ## Define the base template
 
-Let's define a simple base template, a shell from which all our pages will start. To find a base template, Hugo searches the same paths and file names as it does for [Ace templates]({{< relref "templates/ace.md" >}}), just with files suffixed `.html` rather than `.ace`.
+Let's define a simple base template (`_default/baseof.html`), a shell from which all our pages will start. To find a base template, Hugo searches the same paths and file names as it does for [Ace templates]({{< relref "templates/ace.md" >}}), just with files suffixed `.html` rather than `.ace`.
 
 ```html
 <!DOCTYPE html>
