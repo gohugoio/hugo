@@ -19,7 +19,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/BurntSushi/toml"
+	toml "github.com/pelletier/go-toml"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -49,11 +50,8 @@ func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
 		}
 		return b.Bytes(), nil
 	case rune(TOMLLead[0]):
-		err := toml.NewEncoder(b).Encode(in)
-		if err != nil {
-			return nil, err
-		}
-		return b.Bytes(), nil
+		tree := toml.TreeFromMap(in.(map[string]interface{}))
+		return []byte(tree.String()), nil
 	case rune(JSONLead[0]):
 		by, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
@@ -99,10 +97,8 @@ func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
 			return nil, err
 		}
 
-		err = toml.NewEncoder(b).Encode(in)
-		if err != nil {
-			return nil, err
-		}
+		tree := toml.TreeFromMap(in.(map[string]interface{}))
+		b.Write([]byte(tree.String()))
 		_, err = b.Write([]byte("\n" + TOMLDelimUnix))
 		if err != nil {
 			return nil, err
@@ -166,9 +162,15 @@ func DetectFrontMatter(mark rune) (f *frontmatterType) {
 func HandleTOMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	datum = removeTOMLIdentifier(datum)
-	if _, err := toml.Decode(string(datum), &m); err != nil {
+
+	tree, err := toml.Load(string(datum))
+
+	if err != nil {
 		return m, err
 	}
+
+	m = tree.ToMap()
+
 	return m, nil
 }
 

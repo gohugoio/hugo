@@ -20,7 +20,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/BurntSushi/toml"
+	toml "github.com/pelletier/go-toml"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
@@ -701,11 +701,12 @@ func testSiteSetup(s *Site, t *testing.T) {
 }
 
 func tomlToMap(s string) (map[string]interface{}, error) {
-	var data = make(map[string]interface{})
-	if _, err := toml.Decode(s, &data); err != nil {
+	tree, err := toml.Load(s)
+
+	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return tree.ToMap(), nil
 
 }

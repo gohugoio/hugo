@@ -317,7 +317,7 @@ func newContentPathSection(path string) (string, string) {
 }
 
 func createConfig(inpath string, kind string) (err error) {
-	in := map[string]string{
+	in := map[string]interface{}{
 		"baseurl":      "http://replace-this-with-your-hugo-site.com/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
