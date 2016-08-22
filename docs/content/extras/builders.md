@@ -6,7 +6,7 @@ menu:
   main:
     parent: extras
 next: /extras/comments
-prev: /extras/analytics
+prev: /extras/authors
 title: Hugo Builders
 weight: 20
 ---
