@@ -2,7 +2,7 @@
 aliases:
 - /doc/variables/
 - /layout/variables/
-lastmod: 2015-12-08
+lastmod: 2016-08-22
 date: 2013-07-01
 linktitle: Variables
 menu:
@@ -61,6 +61,8 @@ matter, content or derived from file location.
 **.Translations** A list of translated versions of the current page. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. Note that the `Translation` variable is also available on node, e.g. home page etc. <br>
 **.IsTranslated** Whether there are any translations to display.<br>
 **.Lang** Language taken from the language extension notation.  <br>
+**.Author** Returns the first listed author for a page<br>
+**.Authors** (**note the plural form**) Returns all listed authors for a page in the order they are defined in the front matter.<br>
 
 ## Page Params
 
@@ -124,10 +126,12 @@ includes taxonomies, lists and the homepage.
 **.Translations** A list of translated versions of the current node. All nodes (except the pager nodes) can have translated counter parts. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. <br>
 **.IsTranslated** Whether there are any translations to display.<br>
 **.Lang** The language code of this node.<br>
+**.Author** Returns the first defined author, sorted by their weight attribute.<br>
+**.Authors** (**note the plural form**) Returns all defined authors, sorted by their weight attribute.<br>
 
 ### Taxonomy Terms Node Variables
 
-[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables. These are available in `layouts/_defaults/terms.html` for example.
+[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following **additional** variables. These are available in `layouts/_defaults/terms.html` for example.
 
 **.Data.Singular** The singular name of the taxonomy<br>
 **.Data.Plural** The plural name of the taxonomy<br>
@@ -168,7 +172,7 @@ Also available is `.Site` which has the following:
 **.Site.Files** All of the source files of the site.<br>
 **.Site.Menus** All of the menus in the site.<br>
 **.Site.Title** A string representing the title of the site.<br>
-**.Site.Authors** An ordered list (ordered by defined weight) of the authors as defined in the site configuration.<br>
+**.Site.Authors** An ordered list (ordered by defined weight) of the authors as defined in the site configuration. Have a look at [acessible attributes](#author-variables).<br>
 **.Site.LanguageCode** A string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
 **.Site.GoogleAnalytics** A string representing your tracking code for Google Analytics as defined in the site configuration.<br>
@@ -198,6 +202,39 @@ Available are the following attributes:
 **.File.BaseFileName** The filename without extension, e.g. `foo`<br>
 **.File.Ext** or **.File.Extension** The file extension of the content file, e.g. `md`<br>
 **.File.Dir** Given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned, e.g. `posts/dir1/dir2/`<br>
+
+## Author variables
+
+This variables are used for the author profiles feature. You can find a more in-depth explaination with examples [here]({{< relref "extras/authors.md" >}}).
+
+The `authors` frontmatter variable represents a list of author identifiers. Those identifiers are used to match their corresponding profiles. `.Author` contains the profile associated with the first identifiers in the list.
+
+**.Author.ID** The identifier of an author (a.k.a. the filename of his/her profile)<br> 
+**.Author.GivenName** or **.Author.FirstName** The author's first name, e.g. Charles<br>
+**.Author.FamilyName** or **.Author.LastName** The author's last name, e.g. Dickens<br>
+**.Author.DisplayName** The author's full name, e.g. Charles Dickens<br>
+**.Author.Thumbnail** A link to a thumbnail of the author. Maybe the relative path to an image in the `static` folder<br>
+**.Author.Image** A larger image of the author. Can be stored in the `static` folder as well.<br>
+**.Author.Bio** A biography with background information about the author<br>
+**.Author.ShortBio** A summarized version of the biography<br>
+**.Author.Email** The email of the author<br>
+**.Author.Weight** The associated weight of an author. Defines the order of authors in the `.Authors` list (except on pages due to the frontmatter)<br>
+**.Author.Social** A container holding the values from the `social` section of the author's profile. For example, a TOML profile (excerpt) might look like this:
+
+    [social]
+        facebook = "charles.dickens"
+        twitter  = "charlesdickens"
+**.Author.Params** A container holding the values from the `params` section of the author's file. The values can be arbitrary and depend on the profile. For example, a TOML profile (excerpt) might look like this:
+
+    [params]
+        random = "whatever you want"
+**.Author.Social.URL** Takes a social network as argument (as string) and generates the link the account automatically. A list of supported social networks and a template can be found [here]({{< relref "extras/authors.md#linking-social-network-accounts-automatically" >}}).
+
+---
+
+`.Authors` (**note the plural form**) is a list of all author profiles that are mentioned in the `authors` frontmatter variable.
+
+**.Authors.Get** Takes the identifier of an author as argument (as string) and returns an `.Author` object.
 
 ## Hugo Variables
 
