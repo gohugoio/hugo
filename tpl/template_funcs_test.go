@@ -758,7 +758,7 @@ func TestSplit(t *testing.T) {
 	}{
 		{"a, b", ", ", []string{"a", "b"}},
 		{"a & b & c", " & ", []string{"a", "b", "c"}},
-		{"http://exmaple.com", "http://", []string{"", "exmaple.com"}},
+		{"http://example.com", "http://", []string{"", "example.com"}},
 		{123, "2", []string{"1", "3"}},
 		{tstNoStringer{}, ",", false},
 	} {
@@ -852,7 +852,7 @@ func (x TstX) MethodWithArg(s string) string {
 func (x TstX) MethodReturnNothing() {}
 
 func (x TstX) MethodReturnErrorOnly() error {
-	return errors.New("something error occured")
+	return errors.New("something error occurred")
 }
 
 func (x TstX) MethodReturnTwoValues() (string, string) {
@@ -860,7 +860,7 @@ func (x TstX) MethodReturnTwoValues() (string, string) {
 }
 
 func (x TstX) MethodReturnValueWithError() (string, error) {
-	return "", errors.New("something error occured")
+	return "", errors.New("something error occurred")
 }
 
 func (x TstX) String() string {
