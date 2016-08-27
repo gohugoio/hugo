@@ -84,6 +84,7 @@ func TestFuncsInTemplate(t *testing.T) {
 absURL: {{ "mystyle.css" | absURL }}
 absURL: {{ 42 | absURL }}
 add: {{add 1 2}}
+asciidocify: {{ .Title | asciidocify }}
 base64Decode 1: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
 base64Decode 2: {{ 42 | base64Encode | base64Decode }}
 base64Encode: {{ "Hello world" | base64Encode }}
@@ -110,7 +111,7 @@ humanize 4: {{ humanize 103 }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
 lower: {{lower "BatMan"}}
-markdownify: {{ .Title | markdownify}}
+markdownify: {{ .Title | markdownify }}
 md5: {{ md5 "Hello world, gophers!" }}
 mod: {{mod 15 3}}
 modBool: {{modBool 15 3}}
@@ -150,6 +151,10 @@ urlize: {{ "Bat Man" | urlize }}
 absURL: http://mysite.com/hugo/mystyle.css
 absURL: http://mysite.com/hugo/42
 add: 3
+asciidocify: <div class="paragraph">
+<p><strong>BatMan</strong></p>
+</div>
+
 base64Decode 1: Hello world
 base64Decode 2: 42
 base64Encode: SGVsbG8gd29ybGQ=
@@ -1746,6 +1751,25 @@ func TestMarkdownify(t *testing.T) {
 		}
 		if !reflect.DeepEqual(result, this.expect) {
 			t.Errorf("[%d] markdownify got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
+		}
+	}
+
+}
+
+func TestAsciidocify(t *testing.T) {
+	for i, this := range []struct {
+		in     interface{}
+		expect interface{}
+	}{
+		{"Hello *World!*", template.HTML("<div class=\"paragraph\">\n<p>Hello <strong>World!</strong></p>\n</div>\n")},
+		{[]byte("Hello Bytes *World!*"), template.HTML("<div class=\"paragraph\">\n<p>Hello Bytes <strong>World!</strong></p>\n</div>\n")},
+	} {
+		result, err := asciidocify(this.in)
+		if err != nil {
+			t.Fatalf("[%d] unexpected error in markdownify: %s", i, err)
+		}
+		if !reflect.DeepEqual(result, this.expect) {
+			t.Errorf("[%d] asciidocify got %v (type %v) but expected %v (type %v)", i, result, reflect.TypeOf(result), this.expect, reflect.TypeOf(this.expect))
 		}
 	}
 
