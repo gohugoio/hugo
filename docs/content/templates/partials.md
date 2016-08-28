@@ -116,7 +116,7 @@ For more examples of referencing these templates, see
 Variable scoping
 ----------------
 
-As you might have noticed, `partial` calls receive two paramters.
+As you might have noticed, `partial` calls receive two parameters.
 
 1. The first is the name of the partial and determines the file
 location to be read.
