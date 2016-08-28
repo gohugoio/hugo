@@ -53,12 +53,17 @@ func TestEmojiCustom(t *testing.T) {
 
 🍺`)},
 		{"test :\n```bash\nthis is a test\n```\n\ntest\n\n:cool::blush:::pizza:\\:blush : : blush: :pizza:", []byte("test :\n```bash\nthis is a test\n```\n\ntest\n\n🆒😊:🍕\\:blush : : blush: 🍕")},
+		{
+			// 2391
+			"[a](http://gohugo.io) :smile: [r](http://gohugo.io/introduction/overview/) :beer:",
+			[]byte(`[a](http://gohugo.io) 😄 [r](http://gohugo.io/introduction/overview/) 🍺`),
+		},
 	} {
 
 		result := Emojify([]byte(this.input))
 
 		if !reflect.DeepEqual(result, this.expect) {
-			t.Errorf("[%d] got '%q' but expected %q", i, result, this.expect)
+			t.Errorf("[%d] got %q but expected %q", i, result, this.expect)
 		}
 
 	}
