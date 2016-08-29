@@ -34,7 +34,6 @@ var (
 // Note that the input byte slice will be modified if needed.
 // See http://www.emoji-cheat-sheet.com/
 func Emojify(source []byte) []byte {
-
 	emojiInit.Do(initEmoji)
 
 	start := 0
@@ -54,7 +53,7 @@ func Emojify(source []byte) []byte {
 		nextWordDelim := bytes.Index(source[j:upper], emojiWordDelim)
 
 		if endEmoji < 0 {
-			start += upper + 1
+			start += 1
 		} else if endEmoji == 0 || (nextWordDelim != -1 && nextWordDelim < endEmoji) {
 			start += endEmoji + 1
 		} else {
@@ -76,7 +75,6 @@ func Emojify(source []byte) []byte {
 	}
 
 	return source
-
 }
 
 func initEmoji() {
