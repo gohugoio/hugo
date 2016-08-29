@@ -97,6 +97,18 @@ One use case is the concatenation of elements in combination with `delimit`:
 ```
 
 
+### shuffle
+
+`shuffle` returns a random permutation of a given array or slice, e.g.
+
+```html
+{{ shuffle (seq 1 5) }}
+<!-- returns [2 5 3 1 4] -->
+
+{{ shuffle (slice "foo" "bar" "buzz") }}
+<!-- returns [buzz foo bar] -->
+```
+
 ### echoParam
 Prints a parameter if it is set.
 
@@ -128,7 +140,7 @@ Encodes a given object to JSON.
 
 e.g.
 
-   {{ dict "title" .Title "content" .Plain | jsonify }}
+    {{ dict "title" .Title "content" .Plain | jsonify }}
 
 ### last
 Slices an array to only the last _N_ elements.
