@@ -617,11 +617,7 @@ func copyStatic() error {
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
-	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
-	if err != nil {
-		return err
-	}
-	return nil
+	return syncer.Sync(publishDir, helpers.FilePathSeparator)
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
