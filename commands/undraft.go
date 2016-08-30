@@ -151,7 +151,7 @@ L:
 	}
 
 	// append the actual content
-	buff.Write([]byte(p.Content()))
+	buff.Write(p.Content())
 
 	return buff, nil
 }
