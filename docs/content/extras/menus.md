@@ -125,7 +125,7 @@ And the equivalent example `config.yaml`:
     ---
 
 
-**NOTE:** The URLs must be relative to the context root. If the `BaseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`.
+**NOTE:** The URLs must be relative to the context root. If the `BaseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the BaseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`. 
 
 ## Nesting
 
