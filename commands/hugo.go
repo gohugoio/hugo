@@ -79,10 +79,6 @@ func newUserError(a ...interface{}) commandError {
 	return commandError{s: fmt.Sprintln(a...), userError: true}
 }
 
-func newUserErrorF(format string, a ...interface{}) commandError {
-	return commandError{s: fmt.Sprintf(format, a...), userError: true}
-}
-
 func newSystemError(a ...interface{}) commandError {
 	return commandError{s: fmt.Sprintln(a...), userError: false}
 }
