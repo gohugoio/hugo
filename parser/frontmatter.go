@@ -180,16 +180,12 @@ func removeTOMLIdentifier(datum []byte) []byte {
 
 func HandleYAMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
-	if err := yaml.Unmarshal(datum, &m); err != nil {
-		return m, err
-	}
-	return m, nil
+	err := yaml.Unmarshal(datum, &m)
+	return m, err
 }
 
 func HandleJSONMetaData(datum []byte) (interface{}, error) {
 	var f interface{}
-	if err := json.Unmarshal(datum, &f); err != nil {
-		return f, err
-	}
-	return f, nil
+	err := json.Unmarshal(datum, &f)
+	return f, err
 }
