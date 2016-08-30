@@ -181,7 +181,7 @@ func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
 			return nil
 		}
 		testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
-		if strings.Index(testStr, HTMLCommentEnd) != -1 {
+		if strings.Contains(testStr, HTMLCommentEnd) {
 			return nil
 		}
 		buf := make([]byte, lineEnd)
@@ -208,7 +208,7 @@ func chompFrontmatterEndComment(r *bufio.Reader) (err error) {
 		return nil
 	}
 	testStr := strings.TrimSuffix(str[0:lineEnd], "\r")
-	if strings.Index(testStr, HTMLCommentStart) != -1 {
+	if strings.Contains(testStr, HTMLCommentStart) {
 		return nil
 	}
 
