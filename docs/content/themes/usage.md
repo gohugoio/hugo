@@ -13,15 +13,13 @@ weight: 30
 Please make certain you have installed the themes you want to use in the
 `/themes` directory.
 
-To use a theme for a site execute hugo with the following parameter:
+To use a theme for a site, execute Hugo with the following parameter:
 
     hugo -t ThemeName
 
 or add this line to your site configuration:
 
     theme:                      "ThemeName"
-
-
 
 The *ThemeName* must match the name of the directory inside `/themes`.
 
