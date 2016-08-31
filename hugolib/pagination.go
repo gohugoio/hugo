@@ -518,6 +518,6 @@ func newPaginationURLFactory(pathElements ...string) paginationURLFactory {
 			rel = fmt.Sprintf("/%s/%s/%d/", path.Join(pathElements...), paginatePath, page)
 		}
 
-		return helpers.URLizeAndPrep(rel)
+		return helpers.RelURL(helpers.URLizeAndPrep(rel))
 	}
 }
