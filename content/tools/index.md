@@ -32,7 +32,7 @@ Alternatively, you can follow the manual [migration guide]({{< relref "tutorials
 
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
 
-### Tumblr 
+### Tumblr
 
 - [tumblr-importr](https://github.com/carlmjohnson/tumblr-importr) - An importer that uses the Tumblr API to create a Hugo static site.
 - [tumblr2hugomarkdown](https://github.com/Wysie/tumblr2hugomarkdown) - Export all your Tumblr content to Hugo Markdown files with preserved original formatting.
@@ -79,6 +79,14 @@ If you still want to use an editor, look at these plugins to automate your workf
 ### Sublime Text
 
 - [Hugofy](https://github.com/akmittal/Hugofy) - Hugofy is a plugin for Sublime Text 3 to make life easier to use Hugo static site generator.
+
+### Emacs
+
+- [hugo.el](https://github.com/yewton/hugo.el) - Some helper functions for creating a Website with Hugo.
+
+### Vim
+
+- [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper) - A small Vim plugin to help me with writing posts with Hugo.
 
 ----
 
