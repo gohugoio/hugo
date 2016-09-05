@@ -15,6 +15,8 @@ package hugolib
 
 import (
 	"testing"
+
+	"github.com/fortytw2/leaktest"
 )
 
 type shortCodeLexerTest struct {
@@ -140,6 +142,8 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 }
 
 func TestShortcodeLexer(t *testing.T) {
+	defer leaktest.Check(t)()
+
 	for _, test := range shortCodeLexerTests {
 
 		items := collect(&test)
