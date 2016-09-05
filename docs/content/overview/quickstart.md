@@ -455,7 +455,7 @@ These are a few of the books that I have read within the last year.
 
 So far all the posts that we have written are in draft status.
 To make a draft public, you can either run a command
-or manually change the draft status in the post to `true`.
+or manually change the draft status in the post to `false`.
 
 ```bash
 $ hugo undraft content/post/good-to-great.md
