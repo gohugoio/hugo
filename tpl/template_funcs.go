@@ -1178,6 +1178,12 @@ func returnWhenSet(a, k interface{}) interface{} {
 		}
 	}
 
+	avv, isNil = indirect(avv)
+
+	if isNil {
+		return ""
+	}
+
 	if avv.IsValid() {
 		switch avv.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:

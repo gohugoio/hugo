@@ -94,6 +94,7 @@ chomp: {{chomp "<p>Blockhead</p>\n" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 div: {{div 6 3}}
+echoParam: {{ echoParam .Params "langCode" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
 findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}
@@ -162,6 +163,7 @@ chomp: <p>Blockhead</p>
 dateFormat: Wednesday, Jan 21, 2015
 delimit: A, B and C
 div: 2
+echoParam: en
 emojify: I ❤️ Hugo
 eq: current
 findRE: [go]
@@ -223,10 +225,12 @@ urlize: bat-man
 	var data struct {
 		Title   string
 		Section string
+		Params  map[string]interface{}
 	}
 
 	data.Title = "**BatMan**"
 	data.Section = "blog"
+	data.Params = map[string]interface{}{"langCode": "en"}
 
 	viper.Set("baseURL", "http://mysite.com/hugo/")
 
