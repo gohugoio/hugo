@@ -154,6 +154,8 @@ type targetList struct {
 }
 
 type SiteInfo struct {
+	// atomic requires 64-bit alignment for struct field access
+	paginationPageCount   uint64
 	BaseURL               template.URL
 	Taxonomies            TaxonomyList
 	Authors               AuthorList
@@ -178,7 +180,6 @@ type SiteInfo struct {
 	BuildDrafts           bool
 	canonifyURLs          bool
 	preserveTaxonomyNames bool
-	paginationPageCount   uint64
 	Data                  *map[string]interface{}
 
 	owner                          *HugoSites
