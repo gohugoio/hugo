@@ -229,6 +229,11 @@ func NewDistinctFeedbackLogger() *DistinctLogger {
 // DistinctErrorLog cann be used to avoid spamming the logs with errors.
 var DistinctErrorLog = NewDistinctErrorLogger()
 
+// InitLoggers sets up the global distinct loggers.
+func InitLoggers() {
+	DistinctErrorLog = NewDistinctErrorLogger()
+}
+
 // Deprecated logs ERROR logs about a deprecation, but only once for a given set of arguments' values.
 func Deprecated(object, item, alternative string) {
 	//	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)

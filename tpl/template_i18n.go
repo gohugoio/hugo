@@ -33,21 +33,22 @@ type translate struct {
 	current bundle.TranslateFunc
 }
 
-var translater *translate = &translate{translateFuncs: make(map[string]bundle.TranslateFunc)}
+var translator *translate
 
 // SetTranslateLang sets the translations language to use during template processing.
 // This construction is unfortunate, but the template system is currently global.
 func SetTranslateLang(lang string) error {
-	if f, ok := translater.translateFuncs[lang]; ok {
-		translater.current = f
+	if f, ok := translator.translateFuncs[lang]; ok {
+		translator.current = f
 	} else {
 		jww.WARN.Printf("Translation func for language %v not found, use default.", lang)
-		translater.current = translater.translateFuncs[viper.GetString("DefaultContentLanguage")]
+		translator.current = translator.translateFuncs[viper.GetString("DefaultContentLanguage")]
 	}
 	return nil
 }
 
 func SetI18nTfuncs(bndl *bundle.Bundle) {
+	translator = &translate{translateFuncs: make(map[string]bundle.TranslateFunc)}
 	defaultContentLanguage := viper.GetString("DefaultContentLanguage")
 	var (
 		defaultT bundle.TranslateFunc
@@ -66,10 +67,10 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 
 		if err != nil {
 			jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
-			translater.translateFuncs[currentLang] = defaultT
+			translator.translateFuncs[currentLang] = defaultT
 			continue
 		}
-		translater.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
+		translator.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
 			if translated := tFunc(translationID, args...); translated != translationID {
 				return translated
 			}
@@ -85,8 +86,9 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 }
 
 func I18nTranslate(id string, args ...interface{}) (string, error) {
-	if translater == nil || translater.current == nil {
-		return "", fmt.Errorf("i18n not initialized, have you configured everything properly?")
+	if translator == nil || translator.current == nil {
+		helpers.DistinctErrorLog.Printf("i18n not initialized, check that you have language file (in i18n) that matches the site language or the default language.")
+		return "", nil
 	}
-	return translater.current(id, args...), nil
+	return translator.current(id, args...), nil
 }
