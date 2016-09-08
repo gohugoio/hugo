@@ -106,7 +106,7 @@ To create a list of links to translated content, use a template similar to this:
 ```
 The above can be put in a `partial` and included in any template, be it for a content page or the home page.  It will not print anything if there are no translations for a given page, or if it is -- in the case of the home page, section listing etc. -- a site with only one language.
 
-The above also uses the `i8n` func, see [Translation of strings](#translation-of-strings).
+The above also uses the `i18n` func, see [Translation of strings](#translation-of-strings).
 
 ### Translation of strings
 
@@ -125,7 +125,7 @@ This uses a definition like this one in `i18n/en-US.yaml`:
   translation: "Home"
 ```
 
-Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `18n`:
+Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `i18n`:
 
 ```
 {{ i18n "wordCount" . }}
