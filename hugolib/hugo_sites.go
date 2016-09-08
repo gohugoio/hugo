@@ -42,7 +42,7 @@ type HugoSites struct {
 
 	// Maps internalID to a set of nodes.
 	nodeMap   map[string]Nodes
-	nodeMapMu sync.Mutex
+	nodeMapMu sync.RWMutex
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
@@ -108,9 +108,11 @@ func (h *HugoSites) addNode(nodeID string, node *Node) {
 }
 
 func (h *HugoSites) getNodes(nodeID string) Nodes {
-	// At this point it is read only, so no need to lock.
 	if nodeID != "" {
-		if nodes, ok := h.nodeMap[nodeID]; ok {
+		h.nodeMapMu.RLock()
+		nodes, ok := h.nodeMap[nodeID]
+		h.nodeMapMu.RUnlock()
+		if ok {
 			return nodes
 		}
 	}

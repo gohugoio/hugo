@@ -288,7 +288,6 @@ func (n *Node) IsTranslated() bool {
 func (n *Node) initTranslations() {
 	n.translationsInit.Do(func() {
 		n.translations = n.Site.owner.getNodes(n.nodeID)
-		//sort.Sort(n.translations)
 	})
 }
 
