@@ -88,3 +88,44 @@ func TestCodeFence(t *testing.T) {
 		}
 	}
 }
+
+func TestBlackfridayTaskList(t *testing.T) {
+	for i, this := range []struct {
+		markdown        string
+		taskListEnabled bool
+		expect          string
+	}{
+		{`
+TODO:
+
+- [x] On1
+- [X] On2
+- [ ] Off
+
+END
+`, true, `<p>TODO:</p>
+
+<ul class="task-list">
+<li><input type="checkbox" checked disabled class="task-list-item"> On1</li>
+<li><input type="checkbox" checked disabled class="task-list-item"> On2</li>
+<li><input type="checkbox" disabled class="task-list-item"> Off</li>
+</ul>
+
+<p>END</p>
+`},
+		{`- [x] On1`, false, `<ul>
+<li>[x] On1</li>
+</ul>
+`},
+	} {
+		blackFridayConfig := NewBlackfriday(viper.GetViper())
+		blackFridayConfig.TaskLists = this.taskListEnabled
+		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
+
+		result := string(RenderBytes(ctx))
+
+		if result != this.expect {
+			t.Errorf("[%d] got \n%v but expected \n%v", i, result, this.expect)
+		}
+	}
+}
