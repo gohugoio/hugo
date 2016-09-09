@@ -1457,12 +1457,20 @@ func (s *Site) renderAliases() error {
 		}
 	}
 
-	if s.owner.multilingual.enabled() && s.Info.defaultContentLanguageInSubdir {
+	if s.owner.multilingual.enabled() {
 		mainLang := s.owner.multilingual.DefaultLang.Lang
-		mainLangURL := helpers.AbsURL(mainLang, false)
-		jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-		if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL); err != nil {
-			return err
+		if s.Info.defaultContentLanguageInSubdir {
+			mainLangURL := helpers.AbsURL(mainLang, false)
+			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL); err != nil {
+				return err
+			}
+		} else {
+			mainLangURL := helpers.AbsURL("", false)
+			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL); err != nil {
+				return err
+			}
 		}
 	}
 

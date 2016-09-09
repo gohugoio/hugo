@@ -93,6 +93,9 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	if defaultInSubDir {
 		// should have a redirect on top level.
 		assertFileContent(t, "public/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+	} else {
+		// should have redirect back to root
+		assertFileContent(t, "public/fr/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
 	}
 	assertFileContent(t, "public/fr/index.html", defaultInSubDir, "Home", "Bonjour")
 	assertFileContent(t, "public/en/index.html", defaultInSubDir, "Home", "Hello")
