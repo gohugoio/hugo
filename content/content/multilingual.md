@@ -27,7 +27,7 @@ Languages:
     title: "Mon blog"
     params:
       linkedin: "lien-francais"
-    copyright: "Tout est miens"
+    copyright: "Tout est à moi"
 
 copyright: "Everything is mine"
 ```
