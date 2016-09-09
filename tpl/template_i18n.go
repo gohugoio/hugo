@@ -78,7 +78,9 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
 			}
 			if defaultT != nil {
-				return defaultT(translationID, args...)
+				if translated := defaultT(translationID, args...); translated != translationID {
+					return translated
+				}
 			}
 			return fmt.Sprintf("[i18n] %s", translationID)
 		}
