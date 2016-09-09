@@ -155,7 +155,14 @@ type targetList struct {
 
 type SiteInfo struct {
 	// atomic requires 64-bit alignment for struct field access
-	paginationPageCount   uint64
+	// According to the docs, " The first word in a global variable or in an
+	// allocated struct or slice can be relied upon to be 64-bit aligned."
+	// Moving paginationPageCount to the top of this struct didn't do the
+	// magic, maybe due to the way SiteInfo is embedded.
+	// Adding the 4 byte padding below does the trick.
+	_                   [4]byte
+	paginationPageCount uint64
+
 	BaseURL               template.URL
 	Taxonomies            TaxonomyList
 	Authors               AuthorList
