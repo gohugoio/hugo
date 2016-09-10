@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/localfiles/
-lastmod: 2015-08-07
+lastmod: 2016-09-12
 date: 2015-06-12
 menu:
   main:
@@ -12,41 +12,47 @@ prev: /extras/urls
 title: Traversing Local Files
 weight: 110
 ---
-
 ## Traversing Local Files
 
-Hugo includes a way to traverse local files.
-This is done using the 'readDir' function.
+Using Hugo's function `readDir`,
+you can traverse your web site's files on your server.
+## Using _readDir_
 
-## Using readDir
+The `readDir` function returns an array
+of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo).
+It takes a single, string argument: a path.
+This path can be to any directory of your web site
+(as found on your server's filesystem).
 
-readDir takes a single string input that is relative to the root directory of the site. It returns an array of [os.FileInfo](https://golang.org/pkg/os/#FileInfo)
+Whether the path is absolute or relative makes no difference,
+because&mdash;at least for `readDir`&mdash;the root of your web site (typically `./public/`)
+in effect becomes both:
 
-Let's create a shortcode to build a file index with links using readDir.
+1. The filesystem root; and
+1. The current working directory.
 
-'fileindex.html'
+## New Shortcode
 
-    <table style="width=100%">
-    <th>Size in bytes</th>
-    <th>Name</th>
-    {{$dir := .Get "dir"}}
-    {{ $url := .Get "baseurl" }}
-    
-    {{ $files := readDir $dir }}
-        {{ range $files }}
-    			<tr>
-                    <td>{{.Size}}</td>
-                    <td>
-                        <a href="{{$url}}{{.Name | urlize }}"> {{.Name}}</a>
-                        </td>
-                </tr>
-    	 {{ end }}
-    </table>
-    
-Now lets use it to list the css files used on this site
+So, let's create a new shortcode using `readDir`:
 
-    {{</* fileindex dir="static/css" baseurl="/css/" */>}}
+**layouts/shortcodes/directoryindex.html**
+```html
+{{< readfile "layouts/shortcodes/directoryindex.html" >}}
+```
+For the files in any given directory,
+this shortcode usefully lists their basenames and sizes,
+while providing links to them.
 
-Is rendered as:
-
-{{< fileindex dir="static/css/" baseurl="/css/">}}
+Already&mdash;actually&mdash;this shortcode
+has been included in this very web site.
+So, let's list some of its CSS files.
+(If you click on their names, you can reveal the contents.)
+{{<   directoryindex path="/static/css" pathURL="/css"   >}}
+<br />
+This is the call that rendered the above output:
+```html
+{{</* directoryindex path="/static/css" pathURL="/css" */>}}
+```
+By the way,
+regarding the pathURL argument, the initial slash `/` is important.
+Otherwise, it becomes relative to the current web page.
