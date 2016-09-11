@@ -61,18 +61,18 @@ func Reset() error {
 	return nil
 }
 
-// userError is an error used to signal different error situations in command handling.
+// commandError is an error used to signal different error situations in command handling.
 type commandError struct {
 	s         string
 	userError bool
 }
 
-func (u commandError) Error() string {
-	return u.s
+func (c commandError) Error() string {
+	return c.s
 }
 
-func (u commandError) isUserError() bool {
-	return u.userError
+func (c commandError) isUserError() bool {
+	return c.userError
 }
 
 func newUserError(a ...interface{}) commandError {
@@ -87,7 +87,7 @@ func newSystemErrorF(format string, a ...interface{}) commandError {
 	return commandError{s: fmt.Sprintf(format, a...), userError: false}
 }
 
-// catch some of the obvious user errors from Cobra.
+// Catch some of the obvious user errors from Cobra.
 // We don't want to show the usage message for every error.
 // The below may be to generic. Time will show.
 var userErrorRegexp = regexp.MustCompile("argument|flag|shorthand")
