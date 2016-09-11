@@ -408,7 +408,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 	themeDir := helpers.GetThemeDir()
 	if themeDir != "" {
-		if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+		if _, err := hugofs.Source().Stat(themeDir); os.IsNotExist(err) {
 			return newSystemError("Unable to find theme Directory:", themeDir)
 		}
 	}
@@ -593,7 +593,7 @@ func getDirList() []string {
 				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
 				return nil
 			}
-			linkfi, err := os.Stat(link)
+			linkfi, err := hugofs.Source().Stat(link)
 			if err != nil {
 				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil

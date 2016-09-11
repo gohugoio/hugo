@@ -119,7 +119,7 @@ func (f *Filesystem) shouldRead(filePath string, fi os.FileInfo) (bool, error) {
 			jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filePath, err)
 			return false, nil
 		}
-		linkfi, err := os.Stat(link)
+		linkfi, err := hugofs.Source().Stat(link)
 		if err != nil {
 			jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 			return false, nil

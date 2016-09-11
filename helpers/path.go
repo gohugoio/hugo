@@ -23,6 +23,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/spf13/hugo/hugofs"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"golang.org/x/text/transform"
@@ -194,7 +196,7 @@ func getThemeDirPath(path string) (string, error) {
 	}
 
 	themeDir := filepath.Join(GetThemeDir(), path)
-	if _, err := os.Stat(themeDir); os.IsNotExist(err) {
+	if _, err := hugofs.Source().Stat(themeDir); os.IsNotExist(err) {
 		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
 	}
 
