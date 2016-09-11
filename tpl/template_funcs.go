@@ -1040,10 +1040,9 @@ func sortSeq(seq interface{}, args ...interface{}) (interface{}, error) {
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < seqv.Len(); i++ {
-			p.Pairs[i].Key = reflect.ValueOf(i)
 			p.Pairs[i].Value = seqv.Index(i)
 			if sortByField == "" || sortByField == "value" {
-				p.Pairs[i].SortByValue = p.Pairs[i].Value
+				p.Pairs[i].Key = p.Pairs[i].Value
 			} else {
 				v := p.Pairs[i].Value
 				var err error
@@ -1053,19 +1052,18 @@ func sortSeq(seq interface{}, args ...interface{}) (interface{}, error) {
 						return nil, err
 					}
 				}
-				p.Pairs[i].SortByValue = v
+				p.Pairs[i].Key = v
 			}
 		}
 
 	case reflect.Map:
 		keys := seqv.MapKeys()
 		for i := 0; i < seqv.Len(); i++ {
-			p.Pairs[i].Key = keys[i]
 			p.Pairs[i].Value = seqv.MapIndex(keys[i])
 			if sortByField == "" {
-				p.Pairs[i].SortByValue = p.Pairs[i].Key
+				p.Pairs[i].Key = keys[i]
 			} else if sortByField == "value" {
-				p.Pairs[i].SortByValue = p.Pairs[i].Value
+				p.Pairs[i].Key = p.Pairs[i].Value
 			} else {
 				v := p.Pairs[i].Value
 				var err error
@@ -1075,7 +1073,7 @@ func sortSeq(seq interface{}, args ...interface{}) (interface{}, error) {
 						return nil, err
 					}
 				}
-				p.Pairs[i].SortByValue = v
+				p.Pairs[i].Key = v
 			}
 		}
 	}
@@ -1086,9 +1084,8 @@ func sortSeq(seq interface{}, args ...interface{}) (interface{}, error) {
 // https://groups.google.com/forum/#!topic/golang-nuts/FT7cjmcL7gw
 // A data structure to hold a key/value pair.
 type pair struct {
-	Key         reflect.Value
-	Value       reflect.Value
-	SortByValue reflect.Value
+	Key   reflect.Value
+	Value reflect.Value
 }
 
 // A slice of pairs that implements sort.Interface to sort by Value.
@@ -1101,8 +1098,8 @@ type pairList struct {
 func (p pairList) Swap(i, j int) { p.Pairs[i], p.Pairs[j] = p.Pairs[j], p.Pairs[i] }
 func (p pairList) Len() int      { return len(p.Pairs) }
 func (p pairList) Less(i, j int) bool {
-	iv := p.Pairs[i].SortByValue
-	jv := p.Pairs[j].SortByValue
+	iv := p.Pairs[i].Key
+	jv := p.Pairs[j].Key
 
 	if iv.IsValid() {
 		if jv.IsValid() {
