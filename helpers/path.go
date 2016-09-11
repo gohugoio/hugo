@@ -481,17 +481,17 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 	}
 
 	// Handle the root first
-	fileInfo, err := lstatIfOs(fs, root)
+	fileInfo, realPath, err := getRealFileInfo(fs, root)
 
 	if err != nil {
 		return walker(root, nil, err)
 	}
 
 	if !fileInfo.IsDir() {
-		return nil
+		return fmt.Errorf("Cannot walk regular file %s", root)
 	}
 
-	if err := walker(root, fileInfo, err); err != nil && err != filepath.SkipDir {
+	if err := walker(realPath, fileInfo, err); err != nil && err != filepath.SkipDir {
 		return err
 	}
 
@@ -509,6 +509,40 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	return nil
 
+}
+
+func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
+	fileInfo, err := lstatIfOs(fs, path)
+	realPath := path
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	if fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
+		link, err := filepath.EvalSymlinks(path)
+		if err != nil {
+			return nil, "", fmt.Errorf("Cannot read symbolic link '%s', error was: %s", path, err)
+		}
+		fileInfo, err = lstatIfOs(fs, link)
+		if err != nil {
+			return nil, "", fmt.Errorf("Cannot stat '%s', error was: %s", link, err)
+		}
+		realPath = link
+	}
+	return fileInfo, realPath, nil
+}
+
+// GetRealPath returns the real file path for the given path, whether it is a
+// symlink or not.
+func GetRealPath(fs afero.Fs, path string) (string, error) {
+	_, realPath, err := getRealFileInfo(fs, path)
+
+	if err != nil {
+		return "", err
+	}
+
+	return realPath, nil
 }
 
 // Code copied from Afero's path.go
