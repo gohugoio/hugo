@@ -95,7 +95,7 @@ title: example
 
 Add at least values for `sitelink`, `title`,  `description` and a path for `thumbnail`.
 
-Furthermore, we need to create the thumbnail of your website. **It's important that the thumbnail has the required dimensions of 600px by 400px.** Give your thumbnail a name like `example-tn.png` or `example-tn.jpg`. Save it under `docs/static/img/`.
+Furthermore, we need to create the thumbnail of your website. **It's important that the thumbnail has the required dimensions of 600px by 400px.** Give your thumbnail a name like `example-tn.png`. Save it under `docs/static/img/`.
 
 Check a last time that everything works as expected. Start Hugo's built-in server in order to inspect your local copy of the showcase in the browser:
 
@@ -105,6 +105,6 @@ If everything looks fine, we are ready to commit your additions. For the sake of
 
     git commit -m"docs: Add example.com to the showcase"
 
-Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare). 
+Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare).
 
 Don't forget to accept the contributor license agreement. Click on the yellow badge in the automatically added comment in the pull request.
