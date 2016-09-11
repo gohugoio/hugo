@@ -193,8 +193,11 @@ func (p *Page) Author() Author {
 
 func (p *Page) Authors() AuthorList {
 	authorKeys, ok := p.Params["authors"]
+	if !ok {
+		return AuthorList{}
+	}
 	authors := authorKeys.([]string)
-	if !ok || len(authors) < 1 || len(p.Site.Authors) < 1 {
+	if len(authors) < 1 || len(p.Site.Authors) < 1 {
 		return AuthorList{}
 	}
 
