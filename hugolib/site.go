@@ -487,7 +487,7 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 			logger.Println("Source changed", ev.Name)
 			sourceChanged = append(sourceChanged, ev)
 		}
-		if s.isLayoutDirEvent(ev) || s.isThemeDirEvent(ev) {
+		if s.isLayoutDirEvent(ev) {
 			logger.Println("Template changed", ev.Name)
 			tmplChanged = append(tmplChanged, ev)
 		}
@@ -495,7 +495,7 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 			logger.Println("Data changed", ev.Name)
 			dataChanged = append(dataChanged, ev)
 		}
-		if strings.HasPrefix(ev.Name, s.absI18nDir()) {
+		if s.isI18nEvent(ev) {
 			logger.Println("i18n changed", ev.Name)
 			i18nChanged = append(dataChanged, ev)
 		}
@@ -939,24 +939,63 @@ func (s *Site) hasTheme() bool {
 	return viper.GetString("theme") != ""
 }
 
+func (s *Site) dataDir() string {
+	return viper.GetString("DataDir")
+}
 func (s *Site) absDataDir() string {
-	return helpers.AbsPathify(viper.GetString("DataDir"))
+	return helpers.AbsPathify(s.dataDir())
+}
+
+func (s *Site) i18nDir() string {
+	return viper.GetString("I18nDir")
 }
 
 func (s *Site) absI18nDir() string {
-	return helpers.AbsPathify(viper.GetString("I18nDir"))
+	return helpers.AbsPathify(s.i18nDir())
+}
+
+func (s *Site) isI18nEvent(e fsnotify.Event) bool {
+	if s.getI18nDir(e.Name) != "" {
+		return true
+	}
+	return s.getThemeI18nDir(e.Name) != ""
+}
+
+func (s *Site) getI18nDir(path string) string {
+	return getRealDir(s.absI18nDir(), path)
+}
+
+func (s *Site) getThemeI18nDir(path string) string {
+	if !s.hasTheme() {
+		return ""
+	}
+	return getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.i18nDir())), path)
 }
 
 func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
-	return s.getDataDir(e.Name) != ""
+	if s.getDataDir(e.Name) != "" {
+		return true
+	}
+	return s.getThemeDataDir(e.Name) != ""
 }
 
 func (s *Site) getDataDir(path string) string {
 	return getRealDir(s.absDataDir(), path)
 }
 
+func (s *Site) getThemeDataDir(path string) string {
+	if !s.hasTheme() {
+		return ""
+	}
+	return getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.dataDir())), path)
+}
+
+func (s *Site) themeDir() string {
+	return viper.GetString("themesDir") + "/" + viper.GetString("theme")
+}
+
 func (s *Site) absThemeDir() string {
-	return helpers.AbsPathify(viper.GetString("themesDir") + "/" + viper.GetString("theme"))
+	return helpers.AbsPathify(s.themeDir())
 }
 
 func (s *Site) isThemeDirEvent(e fsnotify.Event) bool {
@@ -967,16 +1006,30 @@ func (s *Site) getThemeDir(path string) string {
 	return getRealDir(s.absThemeDir(), path)
 }
 
+func (s *Site) layoutDir() string {
+	return viper.GetString("LayoutDir")
+}
+
 func (s *Site) absLayoutDir() string {
-	return helpers.AbsPathify(viper.GetString("LayoutDir"))
+	return helpers.AbsPathify(s.layoutDir())
 }
 
 func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
-	return s.getLayoutDir(e.Name) != ""
+	if s.getLayoutDir(e.Name) != "" {
+		return true
+	}
+	return s.getThemeLayoutDir(e.Name) != ""
 }
 
 func (s *Site) getLayoutDir(path string) string {
 	return getRealDir(s.absLayoutDir(), path)
+}
+
+func (s *Site) getThemeLayoutDir(path string) string {
+	if !s.hasTheme() {
+		return ""
+	}
+	return getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.layoutDir())), path)
 }
 
 func (s *Site) absContentDir() string {
