@@ -271,9 +271,10 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	require.Len(t, homeEn.Translations(), 3)
 	require.Equal(t, "fr", homeEn.Translations()[0].Lang())
 	require.Equal(t, "nn", homeEn.Translations()[1].Lang())
-	require.Equal(t, "Nynorsk", homeEn.Translations()[1].Title)
+	require.Equal(t, "På nynorsk", homeEn.Translations()[1].Title)
 	require.Equal(t, "nb", homeEn.Translations()[2].Lang())
-	require.Equal(t, "Bokmål", homeEn.Translations()[2].Title)
+	require.Equal(t, "På bokmål", homeEn.Translations()[2].Title, configSuffix)
+	require.Equal(t, "Bokmål", homeEn.Translations()[2].Language().LanguageName, configSuffix)
 
 	sectFr := frSite.getNode("sect-sect-0")
 	require.NotNil(t, sectFr)
@@ -626,7 +627,8 @@ tag = "tags"
 [Languages]
 [Languages.en]
 weight = 10
-title = "English"
+title = "In English"
+languageName = "English"
 [Languages.en.blackfriday]
 angledQuotes = false
 [[Languages.en.menu.main]]
@@ -636,13 +638,15 @@ weight = 0
 
 [Languages.fr]
 weight = 20
-title = "Français"
+title = "Le Français"
+languageName = "Français"
 [Languages.fr.Taxonomies]
 plaque = "plaques"
 
 [Languages.nn]
 weight = 30
-title = "Nynorsk"
+title = "På nynorsk"
+languageName = "Nynorsk"
 [Languages.nn.Taxonomies]
 lag = "lag"
 [[Languages.nn.menu.main]]
@@ -652,7 +656,8 @@ weight = 1
 
 [Languages.nb]
 weight = 40
-title = "Bokmål"
+title = "På bokmål"
+languageName = "Bokmål"
 [Languages.nb.Taxonomies]
 lag = "lag"
 `
@@ -679,7 +684,8 @@ Taxonomies:
 Languages:
     en:
         weight: 10
-        title: "English"
+        title: "In English"
+        languageName: "English"
         blackfriday:
             angledQuotes: false
         menu:
@@ -689,12 +695,14 @@ Languages:
                   weight: 0
     fr:
         weight: 20
-        title: "Français"
+        title: "Le Français"
+        languageName: "Français"
         Taxonomies:
             plaque: "plaques"
     nn:
         weight: 30
-        title: "Nynorsk"
+        title: "På nynorsk"
+        languageName: "Nynorsk"
         Taxonomies:
             lag: "lag"
         menu:
@@ -704,7 +712,8 @@ Languages:
                   weight: 1
     nb:
         weight: 40
-        title: "Bokmål"
+        title: "På bokmål"
+        languageName: "Bokmål"
         Taxonomies:
             lag: "lag"
 
@@ -731,7 +740,8 @@ var multiSiteJSONConfig = `
   "Languages": {
     "en": {
       "weight": 10,
-      "title": "English",
+      "title": "In English",
+      "languageName": "English",
       "blackfriday": {
         "angledQuotes": false
       },
@@ -747,14 +757,16 @@ var multiSiteJSONConfig = `
     },
     "fr": {
       "weight": 20,
-      "title": "Français",
+      "title": "Le Français",
+      "languageName": "Français",
       "Taxonomies": {
         "plaque": "plaques"
       }
     },
     "nn": {
       "weight": 30,
-      "title": "Nynorsk",
+      "title": "På nynorsk",
+      "languageName": "Nynorsk",
       "Taxonomies": {
         "lag": "lag"
       },
@@ -770,7 +782,8 @@ var multiSiteJSONConfig = `
     },
     "nb": {
       "weight": 40,
-      "title": "Bokmål",
+      "title": "På bokmål",
+      "languageName": "Bokmål",
       "Taxonomies": {
         "lag": "lag"
       }

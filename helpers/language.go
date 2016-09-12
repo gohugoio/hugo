@@ -24,11 +24,12 @@ import (
 )
 
 type Language struct {
-	Lang       string
-	Title      string
-	Weight     int
-	params     map[string]interface{}
-	paramsInit sync.Once
+	Lang         string
+	LanguageName string
+	Title        string
+	Weight       int
+	params       map[string]interface{}
+	paramsInit   sync.Once
 }
 
 func (l *Language) String() string {

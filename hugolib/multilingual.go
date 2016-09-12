@@ -96,6 +96,8 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 			switch loki {
 			case "title":
 				language.Title = cast.ToString(v)
+			case "languagename":
+				language.LanguageName = cast.ToString(v)
 			case "weight":
 				language.Weight = cast.ToInt(v)
 			}
