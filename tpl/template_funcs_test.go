@@ -149,6 +149,11 @@ time: {{ (time "2015-01-21").Year }}
 trim: {{ trim "++Batman--" "+-" }}
 upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
+typeIs: {{ typeIs "string" "Bat Man" }}
+typeIsLike: {{ typeIsLike "string" "Bat Man" }}
+typeOf: {{ typeOf "Bat Man" }}
+kindIs: {{ kindIs "string" "Bat Man" }}
+kindOf: {{ kindOf (slice "A" "B" "C") }}
 `
 
 	expected := `absLangURL: http://mysite.com/hugo/en/index.html
@@ -218,6 +223,11 @@ time: 2015
 trim: Batman
 upper: BATMAN
 urlize: bat-man
+typeIs: true
+typeIsLike: true
+typeOf: string
+kindIs: true
+kindOf: slice
 `
 
 	var b bytes.Buffer
