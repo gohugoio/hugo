@@ -322,6 +322,14 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	// Check that the drafts etc. are not built/processed/rendered.
 	assertShouldNotBuild(t, sites)
 
+	// en and nn have custom site menus
+	require.Len(t, frSite.Menus, 0, "fr: "+configSuffix)
+	require.Len(t, enSite.Menus, 1, "en: "+configSuffix)
+	require.Len(t, nnSite.Menus, 1, "nn: "+configSuffix)
+
+	require.Equal(t, "Home", enSite.Menus["main"].ByName()[0].Name)
+	require.Equal(t, "Heim", nnSite.Menus["main"].ByName()[0].Name)
+
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
@@ -621,6 +629,10 @@ weight = 10
 title = "English"
 [Languages.en.blackfriday]
 angledQuotes = false
+[[Languages.en.menu.main]]
+url    = "/"
+name   = "Home"
+weight = 0
 
 [Languages.fr]
 weight = 20
@@ -633,6 +645,10 @@ weight = 30
 title = "Nynorsk"
 [Languages.nn.Taxonomies]
 lag = "lag"
+[[Languages.nn.menu.main]]
+url    = "/"
+name   = "Heim"
+weight = 1
 
 [Languages.nb]
 weight = 40
@@ -666,6 +682,11 @@ Languages:
         title: "English"
         blackfriday:
             angledQuotes: false
+        menu:
+            main:
+                - url: "/"
+                  name: "Home"
+                  weight: 0
     fr:
         weight: 20
         title: "Français"
@@ -676,6 +697,11 @@ Languages:
         title: "Nynorsk"
         Taxonomies:
             lag: "lag"
+        menu:
+            main:
+                - url: "/"
+                  name: "Heim"
+                  weight: 1
     nb:
         weight: 40
         title: "Bokmål"
@@ -708,6 +734,15 @@ var multiSiteJSONConfig = `
       "title": "English",
       "blackfriday": {
         "angledQuotes": false
+      },
+	  "menu": {
+        "main": [
+			{
+			"url": "/",
+			"name": "Home",
+			"weight": 0
+			}
+		]
       }
     },
     "fr": {
@@ -722,6 +757,15 @@ var multiSiteJSONConfig = `
       "title": "Nynorsk",
       "Taxonomies": {
         "lag": "lag"
+      },
+	  "menu": {
+        "main": [
+			{
+        	"url": "/",
+			"name": "Heim",
+			"weight": 1
+			}
+      	]
       }
     },
     "nb": {

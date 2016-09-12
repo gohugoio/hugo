@@ -1349,7 +1349,7 @@ func (s *Site) getMenusFromConfig() Menus {
 
 	ret := Menus{}
 
-	if menus := viper.GetStringMap("menu"); menus != nil {
+	if menus := s.Language.GetStringMap("menu"); menus != nil {
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
 			if err != nil {
@@ -1411,7 +1411,7 @@ func (s *Site) assembleMenus() {
 		}
 	}
 
-	sectionPagesMenu := viper.GetString("SectionPagesMenu")
+	sectionPagesMenu := s.Language.GetString("SectionPagesMenu")
 	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
 	for _, p := range s.Pages {
