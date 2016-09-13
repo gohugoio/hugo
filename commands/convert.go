@@ -83,9 +83,16 @@ func convertContents(mark rune) (err error) {
 	if err := InitializeConfig(); err != nil {
 		return err
 	}
-	site := &hugolib.Site{}
 
-	if err := site.Initialise(); err != nil {
+	h, err := hugolib.NewHugoSitesFromConfiguration()
+
+	if err != nil {
+		return err
+	}
+
+	site := h.Sites[0]
+
+	if err = site.Initialise(); err != nil {
 		return err
 	}
 
