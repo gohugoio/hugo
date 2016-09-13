@@ -136,13 +136,19 @@ func convertContents(mark rune) (err error) {
 
 		page.SetDir(filepath.Join(helpers.AbsPathify(viper.GetString("ContentDir")), file.Dir()))
 		page.SetSourceContent(psr.Content())
-		page.SetSourceMetaData(metadata, mark)
+		if err = page.SetSourceMetaData(metadata, mark); err != nil {
+			return err
+		}
 
 		if outputDir != "" {
-			page.SaveSourceAs(filepath.Join(outputDir, page.FullFilePath()))
+			if err = page.SaveSourceAs(filepath.Join(outputDir, page.FullFilePath())); err != nil {
+				return err
+			}
 		} else {
 			if unsafe {
-				page.SaveSource()
+				if err = page.SaveSource(); err != nil {
+					return err
+				}
 			} else {
 				jww.FEEDBACK.Println("Unsafe operation not allowed, use --unsafe or set a different output path")
 			}
