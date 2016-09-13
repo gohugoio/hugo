@@ -169,8 +169,15 @@ func AbsURL(in string, addLanguage bool) string {
 
 	if addLanguage {
 		prefix := getLanguagePrefix()
+		hasPrefix := false
+		// avoid adding language prefix if already present
+		if strings.HasPrefix(in, "/") {
+			hasPrefix = strings.HasPrefix(in[1:], prefix)
+		} else {
+			hasPrefix = strings.HasPrefix(in, prefix)
+		}
 
-		if prefix != "" {
+		if prefix != "" && !hasPrefix {
 			addSlash := in == "" || strings.HasSuffix(in, "/")
 			in = path.Join(prefix, in)
 
@@ -224,7 +231,15 @@ func RelURL(in string, addLanguage bool) string {
 
 	if addLanguage {
 		prefix := getLanguagePrefix()
-		if prefix != "" {
+		hasPrefix := false
+		// avoid adding language prefix if already present
+		if strings.HasPrefix(in, "/") {
+			hasPrefix = strings.HasPrefix(in[1:], prefix)
+		} else {
+			hasPrefix = strings.HasPrefix(in, prefix)
+		}
+
+		if prefix != "" && !hasPrefix {
 			hadSlash := strings.HasSuffix(u, "/")
 
 			u = path.Join(prefix, u)
