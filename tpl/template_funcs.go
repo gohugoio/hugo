@@ -1907,8 +1907,14 @@ func relURL(a interface{}) (template.HTML, error) {
 
 func init() {
 	funcMap = template.FuncMap{
-		"absURL":       absURL,
-		"absLangURL":   func(a string) template.HTML { return template.HTML(helpers.AbsURL(a, true)) },
+		"absURL": absURL,
+		"absLangURL": func(i interface{}) (template.HTML, error) {
+			s, err := cast.ToStringE(i)
+			if err != nil {
+				return "", err
+			}
+			return template.HTML(helpers.AbsURL(s, true)), nil
+		},
 		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
 		"apply":        apply,
@@ -1962,7 +1968,13 @@ func init() {
 		"readFile":     readFileFromWorkingDir,
 		"ref":          ref,
 		"relURL":       relURL,
-		"relLangURL":   func(a string) template.HTML { return template.HTML(helpers.RelURL(a, true)) },
+		"relLangURL": func(i interface{}) (template.HTML, error) {
+			s, err := cast.ToStringE(i)
+			if err != nil {
+				return "", err
+			}
+			return template.HTML(helpers.RelURL(s, true)), nil
+		},
 		"relref":       relRef,
 		"replace":      replace,
 		"replaceRE":    replaceRE,
