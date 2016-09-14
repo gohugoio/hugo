@@ -644,6 +644,16 @@ func (p *Page) Permalink() (string, error) {
 	return link.String(), nil
 }
 
+func (p *Page) URL() string {
+	if p.URLPath.URL != "" {
+		// This is the url set in front matter
+		return p.URLPath.URL
+	}
+	// Fall back to the relative permalink.
+	u, _ := p.RelPermalink()
+	return u
+}
+
 func (p *Page) RelPermalink() (string, error) {
 	link, err := p.permalink()
 	if err != nil {

@@ -211,10 +211,13 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	doc3 := enSite.Pages[2]
 	permalink, err = doc3.Permalink()
 	assert.NoError(t, err, "permalink call failed")
+	// Note that /superbob is a custom URL set in frontmatter.
+	// We respect that URL literally (it can be /search.json)
+	// and do no not do any language code prefixing.
 	assert.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
 
-	assert.Equal(t, "/en/superbob", doc3.URL(), "invalid url, was specified on doc3")
-
+	assert.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
+	assertFileContent(t, "public/superbob/index.html", true, "doc3|Hello|en")
 	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
 	doc1fr := doc1en.Translations()[0]
@@ -230,6 +233,8 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 	permalink, err = doc4.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc4/", permalink, "invalid doc4 permalink")
+	assert.Equal(t, "/blog/fr/sect/doc4/", doc4.URL())
+
 	assert.Len(t, doc4.Translations(), 0, "found translations for doc4")
 
 	doc5 := enSite.AllPages[5]
