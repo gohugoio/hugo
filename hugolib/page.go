@@ -89,6 +89,7 @@ type Page struct {
 	plain               string // TODO should be []byte
 	plainWords          []string
 	plainInit           sync.Once
+	plainWordsInit      sync.Once
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
 	pageMenus           PageMenus
@@ -106,9 +107,10 @@ type Source struct {
 	source.File
 }
 type PageMeta struct {
-	WordCount      int
-	FuzzyWordCount int
-	ReadingTime    int
+	wordCount      int
+	fuzzyWordCount int
+	readingTime    int
+	pageMetaInit   sync.Once
 	Weight         int
 }
 
@@ -147,14 +149,20 @@ func (p *Page) Plain() string {
 }
 
 func (p *Page) PlainWords() []string {
-	p.initPlain()
+	p.initPlainWords()
 	return p.plainWords
 }
 
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
 		p.plain = helpers.StripHTML(string(p.Content))
-		p.plainWords = strings.Fields(p.plain)
+		return
+	})
+}
+
+func (p *Page) initPlainWords() {
+	p.plainWordsInit.Do(func() {
+		p.plainWords = strings.Fields(p.Plain())
 		return
 	})
 }
@@ -335,7 +343,7 @@ func (p *Page) setAutoSummary() error {
 	if p.isCJKLanguage {
 		summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
 	} else {
-		summary, truncated = helpers.TruncateWordsToWholeSentence(p.PlainWords(), helpers.SummaryLength)
+		summary, truncated = helpers.TruncateWordsToWholeSentence(p.Plain(), helpers.SummaryLength)
 	}
 	p.Summary = template.HTML(summary)
 	p.Truncated = truncated
@@ -478,28 +486,48 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	return int64(len(p.rawContent)), nil
 }
 
+func (p *Page) WordCount() int {
+	p.analyzePage()
+	return p.wordCount
+}
+
+func (p *Page) ReadingTime() int {
+	p.analyzePage()
+	return p.readingTime
+}
+
+func (p *Page) FuzzyWordCount() int {
+	p.analyzePage()
+	return p.fuzzyWordCount
+}
+
 func (p *Page) analyzePage() {
-	if p.isCJKLanguage {
-		p.WordCount = 0
-		for _, word := range p.PlainWords() {
-			runeCount := utf8.RuneCountInString(word)
-			if len(word) == runeCount {
-				p.WordCount++
-			} else {
-				p.WordCount += runeCount
+	p.pageMetaInit.Do(func() {
+		if p.isCJKLanguage {
+			p.wordCount = 0
+			for _, word := range p.PlainWords() {
+				runeCount := utf8.RuneCountInString(word)
+				if len(word) == runeCount {
+					p.wordCount++
+				} else {
+					p.wordCount += runeCount
+				}
 			}
+		} else {
+			p.wordCount = helpers.TotalWords(p.Plain())
 		}
-	} else {
-		p.WordCount = len(p.PlainWords())
-	}
 
-	p.FuzzyWordCount = (p.WordCount + 100) / 100 * 100
+		// TODO(bep) is set in a test. Fix that.
+		if p.fuzzyWordCount == 0 {
+			p.fuzzyWordCount = (p.wordCount + 100) / 100 * 100
+		}
 
-	if p.isCJKLanguage {
-		p.ReadingTime = (p.WordCount + 500) / 501
-	} else {
-		p.ReadingTime = (p.WordCount + 212) / 213
-	}
+		if p.isCJKLanguage {
+			p.readingTime = (p.wordCount + 500) / 501
+		} else {
+			p.readingTime = (p.wordCount + 212) / 213
+		}
+	})
 }
 
 func (p *Page) permalink() (*url.URL, error) {

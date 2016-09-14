@@ -33,6 +33,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func init() {
+	//There are expected ERROR logging in tests that produces a lot of noise.
+	jww.SetStdoutThreshold(jww.LevelCritical)
+}
+
 const (
 	pageSimpleTitle = `---
 title: simple template

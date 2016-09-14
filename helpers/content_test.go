@@ -34,11 +34,22 @@ func TestStripHTML(t *testing.T) {
 	}
 	data := []test{
 		{"<h1>strip h1 tag <h1>", "strip h1 tag "},
-		{"<p> strip p tag </p>", " strip p tag \n"},
+		{"<p> strip p tag </p>", " strip p tag "},
 		{"</br> strip br<br>", " strip br\n"},
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
 		{"No Tags", "No Tags"},
+		{`<p>Summary Next Line. 
+<figure >
+    
+        <img src="/not/real" />
+    
+    
+</figure>
+.
+More text here.</p>
+
+<p>Some more text</p>`, "Summary Next Line.  . More text here.\nSome more text\n"},
 	}
 	for i, d := range data {
 		output := StripHTML(d.input)
@@ -64,6 +75,22 @@ func TestBytesToHTML(t *testing.T) {
 	assert.Equal(t, template.HTML("dobedobedo"), BytesToHTML([]byte("dobedobedo")))
 }
 
+var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
+
+func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		TruncateWordsToWholeSentence(benchmarkTruncateString, SummaryLength)
+	}
+}
+
+func BenchmarkTestTruncateWordsToWholeSentenceOld(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		truncateWordsToWholeSentenceOld(benchmarkTruncateString, SummaryLength)
+	}
+}
+
 func TestTruncateWordsToWholeSentence(t *testing.T) {
 	type test struct {
 		input, expected string
@@ -77,10 +104,11 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 		{"This is a sentence.", "This is a sentence.", 5, false},
 		{"This is also a sentence!", "This is also a sentence!", 1, false},
 		{"To be. Or not to be. That's the question.", "To be.", 1, true},
-		{" \nThis is not a sentence\n ", "This is not a", 4, true},
+		{" \nThis is not a sentence\nAnd this is another", "This is not a sentence", 4, true},
+		{"", "", 10, false},
 	}
 	for i, d := range data {
-		output, truncated := TruncateWordsToWholeSentence(strings.Fields(d.input), d.max)
+		output, truncated := TruncateWordsToWholeSentence(d.input, d.max)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -391,12 +419,45 @@ func TestExtractNoTOC(t *testing.T) {
 	}
 }
 
-func TestTotalWords(t *testing.T) {
-	testString := "Two, Words!"
-	actualWordCount := TotalWords(testString)
+var totalWordsBenchmarkString = strings.Repeat("Hugo Rocks ", 200)
 
-	if actualWordCount != 2 {
-		t.Errorf("Actual word count (%d) for test string (%s) did not match 2.", actualWordCount, testString)
+func TestTotalWords(t *testing.T) {
+
+	for i, this := range []struct {
+		s     string
+		words int
+	}{
+		{"Two, Words!", 2},
+		{"Word", 1},
+		{"", 0},
+		{"One, Two,      Three", 3},
+		{totalWordsBenchmarkString, 400},
+	} {
+		actualWordCount := TotalWords(this.s)
+
+		if actualWordCount != this.words {
+			t.Errorf("[%d] Actual word count (%d) for test string (%s) did not match %d", i, actualWordCount, this.s, this.words)
+		}
+	}
+}
+
+func BenchmarkTotalWords(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		wordCount := TotalWords(totalWordsBenchmarkString)
+		if wordCount != 400 {
+			b.Fatal("Wordcount error")
+		}
+	}
+}
+
+func BenchmarkTotalWordsOld(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		wordCount := totalWordsOld(totalWordsBenchmarkString)
+		if wordCount != 400 {
+			b.Fatal("Wordcount error")
+		}
 	}
 }
 

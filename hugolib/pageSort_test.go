@@ -95,11 +95,11 @@ func TestLimit(t *testing.T) {
 
 func TestPageSortReverse(t *testing.T) {
 	p1 := createSortTestPages(10)
-	assert.Equal(t, 0, p1[0].FuzzyWordCount)
-	assert.Equal(t, 9, p1[9].FuzzyWordCount)
+	assert.Equal(t, 0, p1[0].fuzzyWordCount)
+	assert.Equal(t, 9, p1[9].fuzzyWordCount)
 	p2 := p1.Reverse()
-	assert.Equal(t, 9, p2[0].FuzzyWordCount)
-	assert.Equal(t, 0, p2[9].FuzzyWordCount)
+	assert.Equal(t, 9, p2[0].fuzzyWordCount)
+	assert.Equal(t, 0, p2[9].fuzzyWordCount)
 	// cached
 	assert.True(t, probablyEqualPages(p2, p1.Reverse()))
 }
@@ -149,7 +149,7 @@ func createSortTestPages(num int) Pages {
 		if i%2 == 0 {
 			w = 10
 		}
-		pages[i].FuzzyWordCount = i
+		pages[i].fuzzyWordCount = i
 		pages[i].Weight = w
 		pages[i].Description = "initial"
 	}
