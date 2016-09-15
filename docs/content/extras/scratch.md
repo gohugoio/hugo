@@ -15,6 +15,7 @@ weight: 80
 `Scratch` -- a "scratchpad" for your node- or page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
 
 `Scratch` is added to both `Node` and `Page` and `Shortcode` -- with following methods:
+
 * `Set` and `Add` takes a `key` and the `value` to add.
 * `Get` returns the `value` for the `key` given.
 * `SetInMap` takes a `key`, `mapKey` and `value`
