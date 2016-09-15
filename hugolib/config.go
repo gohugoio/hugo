@@ -102,6 +102,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("EnableEmoji", false)
 	viper.SetDefault("PygmentsCodeFencesGuessSyntax", false)
 	viper.SetDefault("UseModTimeAsFallback", false)
+	viper.SetDefault("CurrentContentLanguage", helpers.NewDefaultLanguage())
 	viper.SetDefault("DefaultContentLanguage", "en")
 	viper.SetDefault("DefaultContentLanguageInSubdir", false)
 }

@@ -17,9 +17,20 @@
 // string operations on content.
 package helpers
 
+import (
+	"github.com/spf13/viper"
+)
+
 // ConfigProvider provides the configuration settings for Hugo.
 type ConfigProvider interface {
 	GetString(key string) string
+	GetInt(key string) int
 	GetStringMap(key string) map[string]interface{}
 	GetStringMapString(key string) map[string]string
+}
+
+// Config returns the currently active Hugo config. This will be set
+// per site (language) rendered.
+func Config() ConfigProvider {
+	return viper.Get("CurrentContentLanguage").(ConfigProvider)
 }

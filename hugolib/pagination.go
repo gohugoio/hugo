@@ -24,7 +24,6 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 )
 
 // Pager represents one of the elements in a paginator.
@@ -358,7 +357,7 @@ func (n *Node) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 
 func resolvePagerSize(options ...interface{}) (int, error) {
 	if len(options) == 0 {
-		return viper.GetInt("paginate"), nil
+		return helpers.Config().GetInt("paginate"), nil
 	}
 
 	if len(options) > 1 {
@@ -509,7 +508,7 @@ func newPaginator(elements []paginatedElement, total, size int, urlFactory pagin
 }
 
 func newPaginationURLFactory(pathElements ...string) paginationURLFactory {
-	paginatePath := viper.GetString("paginatePath")
+	paginatePath := helpers.Config().GetString("paginatePath")
 
 	return func(page int) string {
 		var rel string

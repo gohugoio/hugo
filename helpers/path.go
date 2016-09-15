@@ -341,7 +341,7 @@ func GetRelativePath(path, base string) (final string, err error) {
 
 // PaginateAliasPath creates a path used to access the aliases in the paginator.
 func PaginateAliasPath(base string, page int) string {
-	paginatePath := viper.GetString("paginatePath")
+	paginatePath := Config().GetString("paginatePath")
 	uglify := viper.GetBool("UglyURLs")
 	var p string
 	if base != "" {

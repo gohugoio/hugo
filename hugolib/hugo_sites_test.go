@@ -141,7 +141,9 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	assertFileContent(t, "public/en/tags/tag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
 	assertFileContent(t, "public/fr/plaques/frtag1/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
 	assertFileContent(t, "public/en/tags/tag1/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
-
+	// nn (Nynorsk) and nb (Bokmål) have custom pagePath: side ("page" in Norwegian)
+	assertFileContent(t, "public/nn/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nn/"`)
+	assertFileContent(t, "public/nb/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nb/"`)
 }
 
 func replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) string {
@@ -652,6 +654,7 @@ plaque = "plaques"
 weight = 30
 title = "På nynorsk"
 languageName = "Nynorsk"
+paginatePath = "side"
 [Languages.nn.Taxonomies]
 lag = "lag"
 [[Languages.nn.menu.main]]
@@ -663,6 +666,7 @@ weight = 1
 weight = 40
 title = "På bokmål"
 languageName = "Bokmål"
+paginatePath = "side"
 [Languages.nb.Taxonomies]
 lag = "lag"
 `
@@ -708,6 +712,7 @@ Languages:
         weight: 30
         title: "På nynorsk"
         languageName: "Nynorsk"
+        paginatePath: "side"
         Taxonomies:
             lag: "lag"
         menu:
@@ -719,6 +724,7 @@ Languages:
         weight: 40
         title: "På bokmål"
         languageName: "Bokmål"
+        paginatePath: "side"
         Taxonomies:
             lag: "lag"
 
@@ -771,6 +777,7 @@ var multiSiteJSONConfig = `
     "nn": {
       "weight": 30,
       "title": "På nynorsk",
+      "paginatePath": "side",
       "languageName": "Nynorsk",
       "Taxonomies": {
         "lag": "lag"
@@ -788,6 +795,7 @@ var multiSiteJSONConfig = `
     "nb": {
       "weight": 40,
       "title": "På bokmål",
+      "paginatePath": "side",
       "languageName": "Bokmål",
       "Taxonomies": {
         "lag": "lag"

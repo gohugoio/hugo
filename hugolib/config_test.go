@@ -16,6 +16,8 @@ package hugolib
 import (
 	"testing"
 
+	"github.com/spf13/hugo/helpers"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,7 +33,7 @@ func TestLoadGlobalConfig(t *testing.T) {
 	writeSource(t, "hugo.toml", configContent)
 
 	require.NoError(t, LoadGlobalConfig("", "hugo.toml"))
-	assert.Equal(t, "side", viper.GetString("PaginatePath"))
+	assert.Equal(t, "side", helpers.Config().GetString("paginatePath"))
 	// default
 	assert.Equal(t, "layouts", viper.GetString("LayoutDir"))
 }

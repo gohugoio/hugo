@@ -1811,7 +1811,7 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 
 		if n.paginator != nil {
 
-			paginatePath = viper.GetString("paginatePath")
+			paginatePath = helpers.Config().GetString("paginatePath")
 
 			// write alias for page 1
 			s.writeDestAlias(helpers.PaginateAliasPath(baseWithLanguagePrefix, 1), n.Permalink())
@@ -1946,7 +1946,7 @@ func (s *Site) renderSectionLists(prepare bool) error {
 
 		if n.paginator != nil {
 
-			paginatePath := viper.GetString("paginatePath")
+			paginatePath := helpers.Config().GetString("paginatePath")
 
 			// write alias for page 1
 			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base))
@@ -2006,7 +2006,7 @@ func (s *Site) renderHomePage(prepare bool) error {
 	}
 
 	if n.paginator != nil {
-		paginatePath := viper.GetString("paginatePath")
+		paginatePath := helpers.Config().GetString("paginatePath")
 
 		{
 			// write alias for page 1
