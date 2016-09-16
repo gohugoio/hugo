@@ -39,12 +39,6 @@ func (a Authors) Get(id string) Author {
 	return Author{}
 }
 
-// Sort sorts the authors by weight
-func (a Authors) Sort() Authors {
-	sort.Stable(a)
-	return a
-}
-
 // Author contains details about the author of a page.
 type Author struct {
 	ID          string
