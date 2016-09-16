@@ -142,6 +142,48 @@ To track down missing translation strings, run Hugo with the `--i18n-warnings` f
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
+
+### Menus
+
+You can define your menus for each language independently. The [creation of a menu]({{< relref "extras/menus.md" >}}) works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
+
+```toml
+DefaultContentLanguage = "en"
+
+[languages.en]
+weight = 0
+languageName = "English"
+
+[[languages.en.menu.main]]
+url    = "/"
+name   = "Home"
+weight = 0
+
+
+[languages.de]
+weight = 10
+languageName = "Deutsch"
+
+[[languages.de.menu.main]]
+url    = "/"
+name   = "Startseite"
+weight = 0
+```
+
+The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu of the current language. Pay attention to the generation of the menu links. `absLangURL` takes care that you link to the correct locale of your website. Otherwise, both menu entries would link to the English version because it's the default content language that resides in the root directory.
+
+```html
+<ul>
+    {{- $currentNode := . -}}
+    {{ range .Site.Menus.main -}}
+    <li class="{{ if $currentNode.IsMenuCurrent "main" . }}active{{ end }}">
+        <a href="{{ .URL | absLangURL }}">{{ .Name }}</a>
+    </li>
+    {{- end }}
+</ul>
+
+```
+
 ### Multilingual Themes support
 
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there are more than one language, URLs  must either  come from the built-in `.Permalink` or `.URL`, be constructed with `relLangURL` or `absLangURL` template funcs -- or prefixed with `{{.LanguagePrefix }}`.

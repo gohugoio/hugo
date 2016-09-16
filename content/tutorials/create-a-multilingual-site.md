@@ -11,6 +11,8 @@ title: Create a Multilingual Site
 weight: 10
 ---
 
+> **Note:** Since v0.17 Hugo has built-in support for the creation of multilingual website. [Read more about it]({{< relref "content/multilingual.md" >}}). 
+
 ## Introduction
 
 Hugo allows you to create a multilingual site from its built-in tools. This tutorial will show one way to do it, and assumes:
