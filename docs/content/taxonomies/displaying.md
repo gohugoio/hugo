@@ -71,7 +71,7 @@ content.
 
     <ul>
       {{ range .Site.Taxonomies.series.golang }}
-        <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+        <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a></li>
       {{ end }}
     </ul>
 
