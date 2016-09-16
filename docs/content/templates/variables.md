@@ -178,7 +178,10 @@ Also available is `.Site` which has the following:
 **.Site.BuildDrafts** A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.<br>
 **.Site.Data**  Custom data, see [Data Files](/extras/datafiles/).<br>
 **.Site.IsMultiLingual** Whether there are more than one language in this site.<br> See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info.<br>
-**.Site.Language** This indicates which language you are currently rendering the website for.  This is an object with the attributes set in your language definition in your site config. For the language code, use `.Site.Language.Lang`.<br>
+**.Site.Language** This indicates which language you are currently rendering the website for.  This is an object with the attributes set in your language definition in your site config.<br>
+**.Site.Language.Lang** The language code of the current locale, e.g. `en`.<br>
+**.Site.Language.Weight** The weight that defines the order in the `.Site.Languages` list.<br>
+**.Site.Language.LanguageName** The full language name, e.g. `English`.<br>
 **.Site.LanguagePrefix** This can be used to prefix  theURLs with whats needed to point to the correct language. It will even work when only one language defined. See also the functions [absLangURL and relLangURL]({{< relref "templates/functions.md#abslangurl-rellangurl" >}}).<br>
 **.Site.Languages** An ordered list (ordered by defined weight) of languages.<br>
 
