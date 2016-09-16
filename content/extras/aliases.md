@@ -62,6 +62,19 @@ and the complete filename or directory.*
 2. *Aliases are rendered prior to any content and will be overwritten by
 any content with the same location.*
 
+## Multilingual example
+
+On [multilingual sites]({{< relref "content/multilingual.md" >}}), each translation of a post can have unique aliases. To use the same alias across multiple languages, prefix it with the language code.
+
+In `/posts/my-new-post.es.md`:
+
+```yaml
+---
+aliases:
+    - /es/posts/my-original-post/
+---
+```
+
 ## How Hugo Aliases Work
 
 When aliases are specified, Hugo creates a physical folder structure to match the alias entry, and, an html file specifying the canonical URL for the page, and a redirect target.
