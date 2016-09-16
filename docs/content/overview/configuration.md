@@ -118,6 +118,8 @@ Following is a list of Hugo-defined variables that you can configure and their c
     # Enable Emoji emoticons support for page content.
     # See www.emoji-cheat-sheet.com
     enableEmoji:				false
+    # Show a placeholder like "[i18n] foo" instead of an empty string if a translation is missing
+    enableMissingTranslationPlaceholders: false
     footnoteAnchorPrefix:       ""
     footnoteReturnLinkContents: ""
     # google analytics tracking id
