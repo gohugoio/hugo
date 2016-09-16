@@ -82,6 +82,10 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 					return translated
 				}
 			}
+
+			if !viper.GetBool("EnableMissingTranslationPlaceholders") {
+				return ""
+			}
 			return fmt.Sprintf("[i18n] %s", translationID)
 		}
 	}

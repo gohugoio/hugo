@@ -105,4 +105,5 @@ func loadDefaultSettings() {
 	viper.SetDefault("CurrentContentLanguage", helpers.NewDefaultLanguage())
 	viper.SetDefault("DefaultContentLanguage", "en")
 	viper.SetDefault("DefaultContentLanguageInSubdir", false)
+	viper.SetDefault("EnableMissingTranslationPlaceholders", false)
 }
