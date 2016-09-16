@@ -119,7 +119,9 @@ From within your templates, use the `i18n` function like this:
 ```
 {{ i18n "home" }}
 ```
+
 This uses a definition like this one in `i18n/en-US.yaml`:
+
 ```
 - id: home
   translation: "Home"
@@ -130,17 +132,26 @@ Often you will want to use to the page variables in the translations strings. To
 ```
 {{ i18n "wordCount" . }}
 ```
+
 This uses a definition like this one in `i18n/en-US.yaml`:
+
 ```
 - id: wordCount
   translation: "This article has {{ .WordCount }} words."
 ```
+
 To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
 
 ```bash
  hugo --i18n-warnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
+
+An empty string will be shown if the translation for the current language is missing and no default value is set.
+
+While translating a Hugo website it can be handy to have a visual indicator as well. The `EnableMissingTranslationPlaceholders` config option allows you to replace the empty string with a placeholder like `[i18n] identifier`, where `identifier` is the id of the missing translation.
+
+**Remember: Hugo will generate your website with these placeholders. It might not be suited for production environments.**
 
 ### Multilingual Themes support
 
