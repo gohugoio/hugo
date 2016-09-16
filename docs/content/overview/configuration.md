@@ -98,6 +98,10 @@ Following is a list of Hugo-defined variables that you can configure and their c
     dataDir:                    "data"
     defaultExtension:           "html"
     defaultLayout:              "post"
+    # Missing translations will default to this content language
+    DefaultContentLanguage:     "en"
+    # Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
+    DefaultContentLanguageInSubdir: false
     disableLiveReload:          false
     # Do not build RSS files
     disableRSS:                 false
