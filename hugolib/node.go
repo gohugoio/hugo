@@ -21,11 +21,9 @@ import (
 	"sync"
 	"time"
 
-	jww "github.com/spf13/jwalterweatherman"
-
-	"github.com/spf13/hugo/helpers"
-
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 type Node struct {
@@ -321,4 +319,17 @@ func (n *Node) addLangFilepathPrefix(outfile string) string {
 		return outfile
 	}
 	return helpers.FilePathSeparator + filepath.Join(n.Lang(), outfile)
+}
+
+// Author returns the first defined author, sorted by Weight
+func (n *Node) Author() Author {
+	if len(n.Site.Authors) == 0 {
+		return Author{}
+	}
+	return n.Site.Authors[0]
+}
+
+// Authors returns all defined authors, sorted by Weight
+func (n *Node) Authors() Authors {
+	return n.Site.Authors
 }

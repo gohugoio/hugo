@@ -168,7 +168,7 @@ Also available is `.Site` which has the following:
 **.Site.Files** All of the source files of the site.<br>
 **.Site.Menus** All of the menus in the site.<br>
 **.Site.Title** A string representing the title of the site.<br>
-**.Site.Author** A map of the authors as defined in the site configuration.<br>
+**.Site.Authors** An ordered list (ordered by defined weight) of the authors as defined in the site configuration.<br>
 **.Site.LanguageCode** A string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
 **.Site.GoogleAnalytics** A string representing your tracking code for Google Analytics as defined in the site configuration.<br>

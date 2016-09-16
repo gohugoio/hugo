@@ -165,7 +165,7 @@ type SiteInfo struct {
 
 	BaseURL               template.URL
 	Taxonomies            TaxonomyList
-	Authors               AuthorList
+	Authors               Authors
 	Social                SiteSocial
 	Sections              Taxonomy
 	Pages                 *Pages // Includes only pages in this language
@@ -176,7 +176,6 @@ type SiteInfo struct {
 	Hugo                  *HugoInfo
 	Title                 string
 	RSSLink               string
-	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
 	GoogleAnalytics       string
@@ -733,6 +732,11 @@ func (s *Site) readDataFromSourceFS() error {
 	}
 
 	err = s.loadData(dataSources)
+
+	// extract author data from /data/_authors then delete it from .Data
+	s.Info.Authors = mapToAuthors(cast.ToStringMap(s.Data["_authors"]))
+	delete(s.Data, "_authors")
+
 	s.timerStep("load data")
 	return err
 }
@@ -908,7 +912,6 @@ func (s *Site) initializeSiteInfo() {
 	s.Info = SiteInfo{
 		BaseURL:                        template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
 		Title:                          lang.GetString("Title"),
-		Author:                         lang.GetStringMap("author"),
 		Social:                         lang.GetStringMapString("social"),
 		LanguageCode:                   lang.GetString("languagecode"),
 		Copyright:                      lang.GetString("copyright"),
