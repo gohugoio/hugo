@@ -22,6 +22,7 @@ The top level of a source directory will typically have the following elements:
     ▸ archetypes/
     ▸ content/
     ▸ data/
+    ▸ i18n/
     ▸ layouts/
     ▸ static/
     ▸ themes/
@@ -29,13 +30,14 @@ The top level of a source directory will typically have the following elements:
 
 Learn more about the different directories and what their purpose is:
 
-* [config](/overview/configuration/)
-* [data](/extras/datafiles/)
-* [archetypes](/content/archetypes/)
-* [content](/content/organization/)
-* [layouts](/layout/overview/)
-* [static](/themes/creation#static)
-* [themes](/themes/overview/)
+* [config]({{< relref "overview/configuration.md" >}})
+* [data]({{< relref "extras/datafiles.md" >}})
+* [i18n]({{< relref "content/multilingual.md#translation-of-strings" >}})
+* [archetypes]({{< relref "content/archetypes.md" >}})
+* [content]({{< relref "content/organization.md" >}})
+* [layouts]({{< relref "templates/overview.md" >}})
+* [static]({{< relref "themes/creation.md#static" >}})
+* [themes]({{< relref "themes/overview.md" >}})
 
 
 ## Example
@@ -54,6 +56,7 @@ An example directory may look like:
     |   |   ├── first.md
     |   |   └── second.md
     ├── data
+    ├── i18n
     ├── layouts
     |   ├── _default
     |   |   ├── single.html
