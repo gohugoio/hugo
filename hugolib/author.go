@@ -179,6 +179,8 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 			author.social = normalizeSocial(cast.ToStringMapString(data))
 		case "params":
 			author.params = cast.ToStringMapString(data)
+		case "weight":
+			author.Weight = cast.ToInt(data)
 		case "languages":
 			if author.languages == nil {
 				author.languages = make(map[string]Author)
