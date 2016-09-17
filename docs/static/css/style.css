@@ -498,30 +498,6 @@ kbd {
   font-size: 0.85em;
 }
 
-/* For the table used in overview/configuration */
-
-table.table {
-  margin: 1em 0;
-}
-
-.table-bordered th,
-.table-bordered td {
-  border: 2px solid #ddd;
-  padding: 0 0.5em;
-}
-
-td.purpose-title {
-  text-align: right;
-  vertical-align: top;
-  border-right: 0;
-  padding-right: 0.5em;
-  font-weight: bold;
-}
-
-td.purpose-description {
-  border-left: 0;
-}
-
 /* For definitions of variables */
 
 dl {
