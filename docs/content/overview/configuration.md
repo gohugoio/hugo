@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/configuration/
-lastmod: 2015-12-08
+lastmod: 2016-09-17
 date: 2013-07-01
 linktitle: Configuration
 menu:
@@ -13,71 +13,88 @@ prev: /overview/usage
 title: Configuring Hugo
 weight: 40
 ---
+The directory structure of a Hugo web site&mdash;or more precisely,
+of the source files containing its content and templates&mdash;provide
+most of the configuration information that Hugo needs.
+Therefore, in essence,
+many web sites wouldn't actually need a configuration file.
+This is because Hugo is designed to recognize certain typical usage patterns
+(and it expects them, by default).
 
-The directory structure and templates provide the majority of the
-configuration for a site. In fact, a config file isn't even needed for many
-websites since the defaults follow commonly used patterns.
+Nevertheless, Hugo does search for a configuration file bearing
+a particular name in the root of your web site's source directory.
+First, it looks for a `./config.toml` file.
+If that's not present, it will seek a `./config.yaml` file,
+followed by a `./config.json` file.
 
-Hugo expects to find the config file in the root of the source directory and
-will look there first for a `config.toml` file. If none is present, it will
-then look for a `config.yaml` file, followed by a `config.json` file.
+In this `config` file for your web site,
+you can include precise directions to Hugo regarding
+how it should render your site, as well as define its menus,
+and set various other site-wide parameters.
 
-The config file is a site-wide config. The config file provides directions to
-hugo on how to build the site as well as site-wide parameters and menus.
-
-Site configuration can also be set as environment variables in your operating system. The command below will work on *nix systems and overrides the site title. Note that all the variable names must be prefixed with "HUGO_".
-
+Another way that web site configuration can be accomplished is through
+operating system environment variables.
+For instance, the following command will work on Unix-like systems&mdash;it
+sets a web site's title:
 ```bash
-env HUGO_TITLE="Some Title" hugo
+$ env HUGO_TITLE="Some Title" hugo
 ```
+(**Note:** all such environment variable names must be prefixed with
+<code>HUGO_</code>.)
 
 ## Examples
 
-The following is an example of a typical yaml config file:
+Following is a typical example of a YAML configuration file.
+Three periods end the document:
 
-    ---
-    baseurl: "http://yoursite.example.com/"
-    ...
+```yaml
+---
+baseurl: "http://yoursite.example.com/"
+...
+```
+Following is an example TOML configuration file with some default values.
+The values under `[params]` will populate the `.Site.Params` variable
+for use in templates:
 
-The following is an example of a toml config file with some of the default values.
-Values under `[params]` will populate the `.Site.Params` variable for use in templates:
+```toml
+contentdir = "content"
+layoutdir = "layouts"
+publishdir = "public"
+builddrafts = false
+baseurl = "http://yoursite.example.com/"
+canonifyurls = true
 
-    contentdir = "content"
-    layoutdir = "layouts"
-    publishdir = "public"
-    builddrafts = false
-    baseurl = "http://yoursite.example.com/"
-    canonifyurls = true
+[taxonomies]
+  category = "categories"
+  tag = "tags"
 
-    [taxonomies]
-      category = "categories"
-      tag = "tags"
+[params]
+  description = "Tesla's Awesome Hugo Site"
+  author = "Nikola Tesla"
+```
+Here is a YAML configuration file which sets a few more options:
 
-    [params]
-      description = "Tesla's Awesome Hugo Site"
-      author = "Nikola Tesla"
-
-Here is a yaml configuration file which sets a few more options:
-
-    ---
-    baseurl: "http://yoursite.example.com/"
-    title: "Yoyodyne Widget Blogging"
-    footnotereturnlinkcontents: "↩"
-    permalinks:
-      post: /:year/:month/:title/
-    params:
-      Subtitle: "Spinning the cogs in the widgets"
-      AuthorName: "John Doe"
-      GitHubUser: "spf13"
-      ListOfFoo:
-        - "foo1"
-        - "foo2"
-      SidebarRecentLimit: 5
-    ...
-
+```yaml
+---
+baseurl: "http://yoursite.example.com/"
+title: "Yoyodyne Widget Blogging"
+footnotereturnlinkcontents: "↩"
+permalinks:
+  post: /:year/:month/:title/
+params:
+  Subtitle: "Spinning the cogs in the widgets"
+  AuthorName: "John Doe"
+  GitHubUser: "spf13"
+  ListOfFoo:
+    - "foo1"
+    - "foo2"
+  SidebarRecentLimit: 5
+...
+```
 ## Configuration variables
 
-Following is a list of Hugo-defined variables that you can configure and their current default values:
+Following is a list of Hugo-defined variables you can configure,
+along with their current, default values:
 
     ---
     archetypedir:               "archetype"
@@ -167,200 +184,309 @@ Following is a list of Hugo-defined variables that you can configure and their c
     watch:                      true
     ---
 
-## Ignore files on build
+## Ignore various files when rendering
 
-The following inside `config.toml` will ignore files ending with `.foo` and `.boo` when building with `hugo`:
+The following statement inside `./config.toml` will cause Hugo to ignore files
+ending with `.foo` and `.boo` when rendering:
 
-```
+```toml
 ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
-
-The above is a list of Regular Expressions, but note the escaping of the `\` to make TOML happy.
-
-
+The above is a list of regular expressions.
+Note that the backslash (`\`) character is escaped, to keep TOML happy.
 
 ## Configure Blackfriday rendering
 
-[Blackfriday](https://github.com/russross/blackfriday) is the [Markdown](http://daringfireball.net/projects/markdown/) rendering engine used in Hugo. The Blackfriday configuration in Hugo is mostly a set of sane defaults that should fit most use cases.
+[Blackfriday](https://github.com/russross/blackfriday) is Hugo's
+[Markdown](http://daringfireball.net/projects/markdown/)
+rendering engine.
 
-But Hugo does expose some options---as listed in the table below, matched with the corresponding flag in the Blackfriday source ([html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)):
+In the main, Hugo typically configures Blackfriday with a sane set of defaults.
+These defaults should fit most use cases, reasonably well.
 
-<table class="table table-bordered">
-<thead>
-<tr>
-<th>Flag</th><th>Default</th><th>Blackfriday flag</th>
-</tr>
-</thead>
+However, if you have unusual needs with respect to Markdown,
+Hugo exposes some of its Blackfriday behavior options for you to alter.
+The following table lists these Hugo options,
+paired with the corresponding flags from Blackfriday's source code (for the latter, see
+[html.go](https://github.com/russross/blackfriday/blob/master/html.go) and
+[markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)):
 
-<tbody>
-<tr>
-<td><code><strong>smartypants</strong></code></td>
-<td><code>true</code></td>
-<td><code>HTML_USE_SMARTYPANTS</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable/Disable smart punctuation substitutions such as smart quotes, smart dashes, etc.
-May be fine-tuned with the <code>angledQuotes</code>, <code>fractions</code>, <code>smartDashes</code> and <code>latexDashes</code> flags below.</td>
-</tr>
-
-<tr>
-<td><code><strong>angledQuotes</strong></code></td>
-<td><code>false</code></td>
-<td><code>HTML_SMARTYPANTS_ANGLED_QUOTES</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable/Disable smart angled double quotes.<br>
-<small><strong>Example:</strong>&nbsp;<code>"Hugo"</code> renders to «Hugo» instead of “Hugo”.</small></td>
-</tr>
-
-<tr>
-<td><code><strong>fractions</strong></code></td>
-<td><code>true</code></td>
-<td><code>HTML_SMARTYPANTS_FRACTIONS</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable/Disable smart fractions.<br>
-<small><strong>Example:</strong>&nbsp;<code>5/12</code> renders to <sup>5</sup>&frasl;<sub>12</sub> (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>)<br>
-<strong>Caveat:</strong> Even with <code>fractions = false</code>,
-Blackfriday would still convert 1/2, 1/4 and 3/4 to ½&nbsp;(<code>&amp;frac12;</code>),
-¼&nbsp;(<code>&amp;frac14;</code>) and ¾&nbsp;(<code>&amp;frac34;</code>) respectively,
-but only these three.</small></td>
-</tr>
-
-<tr>
-<td><code><strong>smartDashes</strong></code></td>
-<td><code>true</code></td>
-<td><code>HTML_SMARTYPANTS_DASHES</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Enable/Disable smart dashes, i.e. turning hyphens into en&nbsp;dash or em&nbsp;dash.<br>
-Its behavior can be modified with the <code>latexDashes</code> flag listed below.</td>
-</tr>
-
-<tr>
-<td><code><strong>latexDashes</strong></code></td>
-<td><code>true</code></td>
-<td><code>HTML_SMARTYPANTS_LATEX_DASHES</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Choose between LaTeX-style smart dashes and “conventional” smart dashes.<br>
-<strong>If <code>true</code>,</strong> <code>--</code> is translated into “&ndash;” (<code>&amp;ndash;</code>), and <code>---</code> is translated into “&mdash;” (<code>&amp;mdash;</code>).<br>
-<strong>If <code>false</code>,</strong> <code>--</code> is translated into “&mdash;” (<code>&amp;mdash;</code>), whereas a <em>spaced</em> single hyphen between two words is turned into an en&nbsp;dash, e.g.&nbsp;<code>12 June - 3 July</code> becomes <code>12 June &amp;ndash; 3 July</code>.</td>
-</tr>
-
-<tr style="height: 0.5em;"></tr>
-
-<tr>
-<td><code><strong>hrefTargetBlank</strong></code></td>
-<td><code>false</code></td>
-<td><code>HTML_HREF_TARGET_BLANK</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Open external links in a new window/tab.</td>
-</tr>
-
-<tr>
-<td><code><strong>plainIDAnchors</strong></code></td>
-<td><code>true</code></td>
-<td><code>FootnoteAnchorPrefix</code> and <code>HeaderIDSuffix</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">If <code>true</code>, then header and footnote IDs are generated without the document ID.<br>
-<small><strong>Example:</strong>&nbsp;<code>#my-header</code> instead of <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>.</small></td>
-</tr>
-
-<tr style="height: 0.5em;"></tr>
-
-<tr>
-<td><code><strong>extensions</strong></code></td>
-<td><code>[]</code></td>
-<td><code>EXTENSION_*</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Use non-default additional extensions.<br>
-<small><strong>Example:</strong>&nbsp;Add <code>"hardLineBreak"</code> to use <code>EXTENSION_HARD_LINE_BREAK</code>.</small></td>
-</tr>
-
-<tr>
-<td><code><strong>extensionsmask</strong></code></td>
-<td><code>[]</code></td>
-<td><code>EXTENSION_*</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Extensions in this option won't be loaded.<br>
-<small><strong>Example:</strong>&nbsp;Add <code>"autoHeaderIds"</code> to disable <code>EXTENSION_AUTO_HEADER_IDS</code>.</small></td>
-</tr>
-
-<tr>
-<td><code><strong>sourceRelativeLinksEval</strong></code></td>
-<td><code>false</code></td>
-<td><code>none</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Source file based relative linking (a la Github).<br>
-Relative links to markdown and static files within a page will be evaluated relative to the
-location of that page, and then converted to html links during rendering. For example,
-`[example](../other/page.md)` in `content/total/overview.md` will be linked to
-`content/other/overview.md`, and then rendered to `/other/overview/` in the HTML output.
-</td>
-</tr>
-
-<tr>
-<td><code><strong>sourceRelativeLinksProjectFolder</strong></code></td>
-<td><code>"/docs/content"</code></td>
-<td><code>none</code></td>
-</tr>
-<tr>
-<td class="purpose-title">Purpose:</td>
-<td class="purpose-description" colspan="2">Source file based relative linking Hugo Project sub-folder.<br>
-When `sourceRelativeLinksEval` is enabled, source level paths may contain an absolute respository path to the
-markdown or static file which needs to be removed before trying to match it with the intended link.
- For example, if your documentation is in `/docs/content`, then
-`[example](/docs/content/other/page.md)` in `/docs/content/total/overview.md` will be linked to
-`/docs/content/other/overview.md`, and then rendered to `/other/overview/` in the HTML output.
-</td>
-</tr>
-
-</tbody>
+<table class="table table-bordered-configuration">
+    <thead>
+        <tr>
+            <th>Flag</th>
+            <th>Default</th>
+            <th>Blackfriday flag</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code><strong>taskLists</strong></code></td>
+            <td><code>true</code></td>
+            <td><code></code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> turns off GitHub-style automatic task/TODO
+                list generation.
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>smartypants</strong></code></td>
+            <td><code>true</code></td>
+            <td><code>HTML_USE_SMARTYPANTS</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables smart punctuation substitutions
+                including smart quotes, smart dashes, smart fractions, etc.
+                If <code>true</code>, it may be fine-tuned with the
+                <code>angledQuotes</code>,
+                <code>fractions</code>,
+                <code>smartDashes</code> and
+                <code>latexDashes</code> flags (see below).
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>angledQuotes</strong></code></td>
+            <td><code>false</code></td>
+            <td><code>HTML_SMARTYPANTS_ANGLED_QUOTES</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> enables smart, angled double quotes.<br>
+                <small>
+                    <strong>Example:</strong>
+                    <code>"Hugo"</code> renders to
+                    «Hugo» instead of “Hugo”.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>fractions</strong></code></td>
+            <td><code>true</code></td>
+            <td><code>HTML_SMARTYPANTS_FRACTIONS</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables smart fractions.<br>
+                <small>
+                    <strong>Example:</strong>
+                    <code>5/12</code> renders to
+                    <sup>5</sup>&frasl;<sub>12</sub>
+                    (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>).<br>
+                    <strong>Caveat:</strong>
+                    Even with <code>fractions = false</code>,
+                    Blackfriday still converts
+                    1/2, 1/4 and 3/4 respectively to
+                    ½ (<code>&amp;frac12;</code>),
+                    ¼ (<code>&amp;frac14;</code>) and
+                    ¾ (<code>&amp;frac34;</code>),
+                    but only these three.</small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>smartDashes</strong></code></td>
+            <td><code>true</code></td>
+            <td><code>HTML_SMARTYPANTS_DASHES</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables smart dashes; i.e., the conversion
+                of multiple hyphens into en&nbsp;dash or em&nbsp;dash.
+                If <code>true</code>, its behavior can be modified with the
+                <code>latexDashes</code> flag below.
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>latexDashes</strong></code></td>
+            <td><code>true</code></td>
+            <td><code>HTML_SMARTYPANTS_LATEX_DASHES</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables LaTeX-style smart dashes and
+                selects conventional smart dashes. Assuming
+                <code>smartDashes</code> (above), if this is:
+                <ul>
+                    <li>
+                        <strong><code>true</code>,</strong> then
+                        <code>--</code> is translated into “&ndash;”
+                        (<code>&amp;ndash;</code>), whereas
+                        <code>---</code> is translated into “&mdash;”
+                        (<code>&amp;mdash;</code>).
+                    </li>
+                    <li>
+                        <strong><code>false</code>,</strong> then
+                        <code>--</code> is translated into “&mdash;”
+                        (<code>&amp;mdash;</code>), whereas a
+                        <em>spaced</em> single hyphen between two words
+                        is translated into an en&nbsp;dash&mdash;e.g.,
+                        <code>12 June - 3 July</code> becomes
+                        <code>12 June &amp;ndash; 3 July</code>.
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>hrefTargetBlank</strong></code></td>
+            <td><code>false</code></td>
+            <td><code>HTML_HREF_TARGET_BLANK</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> opens external links in a new window or tab.
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>plainIDAnchors</strong></code></td>
+            <td><code>true</code></td>
+            <td>
+                <code>FootnoteAnchorPrefix</code> and
+                <code>HeaderIDSuffix</code>
+            </td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> renders any header and footnote IDs
+                without the document ID.<br>
+                <small>
+                    <strong>Example:</strong>
+                    renders <code>#my-header</code> instead of
+                    <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>extensions</strong></code></td>
+            <td><code>[]</code></td>
+            <td><code>EXTENSION_*</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                Enable one or more of Blackfriday's Markdown extensions
+                (if they aren't Hugo defaults).<br>
+                <small>
+                    <strong>Example:</strong> &nbsp;
+                    Include <code>"hardLineBreak"</code>
+                    in the list to enable Blackfriday's
+                    <code>EXTENSION_HARD_LINE_BREAK</code>.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>extensionsmask</strong></code></td>
+            <td><code>[]</code></td>
+            <td><code>EXTENSION_*</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                Disable one or more of Blackfriday's Markdown extensions
+                (if they are Hugo defaults).<br>
+                <small>
+                    <strong>Example:</strong> &nbsp;
+                    Include <code>"autoHeaderIds"</code>
+                    in the list to disable Blackfriday's
+                    <code>EXTENSION_AUTO_HEADER_IDS</code>.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>sourceRelativeLinksEval</strong></code></td>
+            <td><code>false</code></td>
+            <td><code>none</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> enables source file-based relative linking (à la Github).
+                Relative links to Markdown and static files within a page
+                will be evaluated relative to the location of that page,
+                and then converted to HTML links during rendering.<br>
+                <small>
+                    <strong>Example:</strong>
+                    <code>[some-reference-text](../other/page.md)</code> in
+                    <code>./content/total/overview.md</code> will link to
+                    <code>./content/other/overview.md</code> and render to
+                    <code>/other/overview/</code> in the HTML output.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>sourceRelativeLinksProjectFolder</strong></code></td>
+            <td><code>/docs/content</code></td>
+            <td><code>none</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                Set a sub-folder for source file-based relative linking
+                on a Hugo Project (i.e., a web site). When
+                <code>sourceRelativeLinksEval</code> (see above) is enabled,
+                some source level paths may contain absolute respository
+                paths to Markdown or static files.
+                The absolute portion of these paths should be removed
+                before trying to match the intended links.<br />
+                <small>
+                    <strong>Example:</strong>
+                    Assuming your documentation resides in
+                    <code>./docs/content</code>,
+                    then a reference within
+                    <code>./docs/content/total/overview.md</code> to
+                    <code>[some-reference-text](/docs/content/other/page.md)</code>
+                    will link to
+                    <code>./docs/content/other/overview.md</code> and render to
+                    <code>/other/overview/</code> in the HTML output.
+                </small>
+            </td>
+        </tr>
+    </tbody>
 </table>
-
 
 **Notes**
 
-1. These flags are **very case-sensitive** (as of Hugo v0.15)!
-2. These flags must be grouped under the `blackfriday` key and can be set on **both site and page level**. If set on page, it will override the site setting.  Example:
+* These flags are **case sensitive** (as of Hugo v0.15)!
+* These flags must be grouped under the `blackfriday` key
+and can be set on **both the site level and the page level**.
+Any setting on a page will override the site setting
+there. For example:
 
 <table class="table">
-<thead>
-<tr>
-<th>TOML</th><th>YAML</th>
-</tr>
-</thead>
-<tbody>
-<tr style="vertical-align: top;">
-<td style="width: 50%;"><pre><code>[blackfriday]
+    <thead>
+        <tr>
+            <th>TOML</th>
+            <th>YAML</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="vertical-align: top;">
+            <td style="width: 50%;">
+<pre><code>[blackfriday]
   angledQuotes = true
   fractions = false
   plainIDAnchors = true
   extensions = ["hardLineBreak"]
-</code></pre></td>
-<td><pre><code>blackfriday:
+</code></pre>
+            </td>
+            <td>
+<pre><code>blackfriday:
   angledQuotes: true
   fractions: false
   plainIDAnchors: true
   extensions:
     - hardLineBreak
-</code></pre></td>
-</tr>
-</tbody>
+</code></pre>
+            </td>
+        </tr>
+    </tbody>
 </table>
