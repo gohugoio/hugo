@@ -880,7 +880,7 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 
 func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 	menus := p.Menus()
-	sectionPagesMenu := viper.GetString("SectionPagesMenu")
+	sectionPagesMenu := helpers.Config().GetString("SectionPagesMenu")
 
 	// page is labeled as "shadow-member" of the menu with the same identifier as the section
 	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menu && p.Section() == me.Identifier {
