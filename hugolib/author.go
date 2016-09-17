@@ -55,6 +55,7 @@ type Author struct {
 	Social      AuthorSocial      // social
 	Params      map[string]string // params
 	Weight      int
+	languages   map[string]Author
 }
 
 // AuthorSocial is a place to put social usernames per author. These are the
@@ -141,6 +142,18 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 			author.Social = normalizeSocial(cast.ToStringMapString(data))
 		case "params":
 			author.Params = cast.ToStringMapString(data)
+		case "languages":
+			if author.languages == nil {
+				author.languages = make(map[string]Author)
+			}
+			langAuthorMap := cast.ToStringMap(data)
+			for lang, m := range langAuthorMap {
+				authorMap, ok := m.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				author.languages[lang] = mapToAuthor(id, authorMap)
+			}
 		}
 	}
 
