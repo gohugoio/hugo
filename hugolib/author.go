@@ -42,20 +42,57 @@ func (a Authors) Get(id string) Author {
 // Author contains details about the author of a page.
 type Author struct {
 	ID          string
-	GivenName   string            // givenName OR firstName
-	FirstName   string            // alias for GivenName
-	FamilyName  string            // familyName OR lastName
-	LastName    string            // alias for FamilyName
-	DisplayName string            // displayName
-	Thumbnail   string            // thumbnail
-	Image       string            // image
-	ShortBio    string            // shortBio
-	Bio         string            // bio
-	Email       string            // email
-	Social      AuthorSocial      // social
-	Params      map[string]string // params
+	givenName   string            // givenName OR firstName
+	firstName   string            // alias for GivenName
+	familyName  string            // familyName OR lastName
+	lastName    string            // alias for FamilyName
+	displayName string            // displayName
+	thumbnail   string            // thumbnail
+	image       string            // image
+	shortBio    string            // shortBio
+	bio         string            // bio
+	email       string            // email
+	social      AuthorSocial      // social
+	params      map[string]string // params
 	Weight      int
 	languages   map[string]Author
+}
+
+func (a Author) GivenName() string {
+	return a.givenName
+}
+func (a Author) FirstName() string {
+	return a.firstName
+}
+func (a Author) FamilyName() string {
+	return a.familyName
+}
+func (a Author) LastName() string {
+	return a.lastName
+}
+func (a Author) DisplayName() string {
+	return a.displayName
+}
+func (a Author) Thumbnail() string {
+	return a.thumbnail
+}
+func (a Author) Image() string {
+	return a.image
+}
+func (a Author) ShortBio() string {
+	return a.shortBio
+}
+func (a Author) Bio() string {
+	return a.bio
+}
+func (a Author) Email() string {
+	return a.email
+}
+func (a Author) Social() AuthorSocial {
+	return a.social
+}
+func (a Author) Params() map[string]string {
+	return a.params
 }
 
 // AuthorSocial is a place to put social usernames per author. These are the
@@ -121,27 +158,27 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 	for k, data := range m {
 		switch k {
 		case "givenName", "firstName":
-			author.GivenName = cast.ToString(data)
-			author.FirstName = author.GivenName
+			author.givenName = cast.ToString(data)
+			author.firstName = author.givenName
 		case "familyName", "lastName":
-			author.FamilyName = cast.ToString(data)
-			author.LastName = author.FamilyName
+			author.familyName = cast.ToString(data)
+			author.lastName = author.familyName
 		case "displayName":
-			author.DisplayName = cast.ToString(data)
+			author.displayName = cast.ToString(data)
 		case "thumbnail":
-			author.Thumbnail = cast.ToString(data)
+			author.thumbnail = cast.ToString(data)
 		case "image":
-			author.Image = cast.ToString(data)
+			author.image = cast.ToString(data)
 		case "shortBio":
-			author.ShortBio = cast.ToString(data)
+			author.shortBio = cast.ToString(data)
 		case "bio":
-			author.Bio = cast.ToString(data)
+			author.bio = cast.ToString(data)
 		case "email":
-			author.Email = cast.ToString(data)
+			author.email = cast.ToString(data)
 		case "social":
-			author.Social = normalizeSocial(cast.ToStringMapString(data))
+			author.social = normalizeSocial(cast.ToStringMapString(data))
 		case "params":
-			author.Params = cast.ToStringMapString(data)
+			author.params = cast.ToStringMapString(data)
 		case "languages":
 			if author.languages == nil {
 				author.languages = make(map[string]Author)
@@ -158,8 +195,8 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 	}
 
 	// set a reasonable default for DisplayName
-	if author.DisplayName == "" {
-		author.DisplayName = author.GivenName + " " + author.FamilyName
+	if author.displayName == "" {
+		author.displayName = author.givenName + " " + author.familyName
 	}
 
 	return author
