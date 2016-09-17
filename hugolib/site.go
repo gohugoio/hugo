@@ -103,6 +103,7 @@ type Site struct {
 	timer          *nitro.B
 	targets        targetList
 	targetListInit sync.Once
+	authorInit     sync.Once
 	draftCount     int
 	futureCount    int
 	expiredCount   int
@@ -734,8 +735,11 @@ func (s *Site) readDataFromSourceFS() error {
 	err = s.loadData(dataSources)
 
 	// extract author data from /data/_authors then delete it from .Data
-	s.Info.Authors = mapToAuthors(cast.ToStringMap(s.Data["_authors"]))
-	delete(s.Data, "_authors")
+	// only do it once per site
+	s.authorInit.Do(func() {
+		s.Info.Authors = mapToAuthors(cast.ToStringMap(s.Data["_authors"]))
+		delete(s.Data, "_authors")
+	})
 
 	s.timerStep("load data")
 	return err
