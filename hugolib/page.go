@@ -204,7 +204,8 @@ func (p *Page) Author() Author {
 // since that it the most common use case, then checks for multiple authors.
 func (p *Page) Authors() Authors {
 	authorID, ok := p.Params["author"].(string)
-	if ok {
+
+	if ok && authorID != "" {
 		a := p.Site.Authors.Get(authorID)
 		if a.ID == authorID {
 			return Authors{a}
@@ -218,6 +219,10 @@ func (p *Page) Authors() Authors {
 
 	authors := make([]Author, 0, len(authorIDs))
 	for _, authorID := range authorIDs {
+		if authorID == "" {
+			continue
+		}
+
 		a := p.Site.Authors.Get(authorID)
 		if a.ID == authorID {
 			authors = append(authors, a)

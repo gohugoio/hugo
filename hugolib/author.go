@@ -103,19 +103,26 @@ func (as AuthorSocial) URL(key string) string {
 }
 
 func mapToAuthors(m map[string]interface{}) Authors {
-	authors := make(Authors, len(m))
+	authors := make(Authors, 0, len(m))
 	for authorID, data := range m {
 		authorMap, ok := data.(map[string]interface{})
 		if !ok {
 			continue
 		}
-		authors = append(authors, mapToAuthor(authorID, authorMap))
+		a := mapToAuthor(authorID, authorMap)
+		if a.ID != "" {
+			authors = append(authors, a)
+		}
 	}
 	sort.Stable(authors)
 	return authors
 }
 
 func mapToAuthor(id string, m map[string]interface{}) Author {
+	if id == "" {
+		return Author{}
+	}
+
 	author := Author{ID: id}
 	for k, data := range m {
 		switch k {
@@ -137,6 +144,8 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 			author.Bio = cast.ToString(data)
 		case "email":
 			author.Email = cast.ToString(data)
+		case "weight":
+			author.Weight = cast.ToInt(data)
 		case "social":
 			author.Social = normalizeSocial(cast.ToStringMapString(data))
 		case "params":
@@ -156,6 +165,10 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 // and strips out extraneous characters or url info
 func normalizeSocial(m map[string]string) map[string]string {
 	for network, username := range m {
+		if !isSupportedSocialNetwork(network) {
+			continue
+		}
+
 		username = strings.TrimSpace(username)
 		username = strings.TrimSuffix(username, "/")
 		strs := strings.Split(username, "/")
@@ -165,6 +178,22 @@ func normalizeSocial(m map[string]string) map[string]string {
 		m[network] = username
 	}
 	return m
+}
+
+func isSupportedSocialNetwork(network string) bool {
+	switch network {
+	case
+		"github",
+		"facebook",
+		"twitter",
+		"googleplus",
+		"pinterest",
+		"instagram",
+		"youtube",
+		"linkedin":
+		return true
+	}
+	return false
 }
 
 func (a Authors) Len() int           { return len(a) }
