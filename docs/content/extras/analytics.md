@@ -4,7 +4,7 @@ linktitle: Analytics
 menu:
   main:
     parent: extras
-next: /extras/authors
+next: /extras/builders
 prev: /extras/aliases
 title: Analytics in Hugo
 weight: 15
