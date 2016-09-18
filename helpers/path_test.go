@@ -25,6 +25,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/spf13/afero"
@@ -149,16 +151,16 @@ func TestGetRealPath(t *testing.T) {
 	fs := afero.NewOsFs()
 
 	rp1, err := GetRealPath(fs, d1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, d1, rp1)
 
 	sym := filepath.Join(os.TempDir(), "d1sym")
 	err = os.Symlink(d1, sym)
+	require.NoError(t, err)
 	defer os.Remove(sym)
-	assert.NoError(t, err)
 
 	rp2, err := GetRealPath(fs, sym)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// On OS X, the temp folder is itself a symbolic link (to /private...)
 	// This has to do for now.
