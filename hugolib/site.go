@@ -165,6 +165,7 @@ type SiteInfo struct {
 
 	BaseURL               template.URL
 	Taxonomies            TaxonomyList
+	Author                map[string]interface{} // deprecated and will be removed in 0.18
 	Authors               Authors
 	Social                SiteSocial
 	Sections              Taxonomy
