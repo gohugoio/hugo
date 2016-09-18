@@ -146,6 +146,10 @@ func TestGetRelativePath(t *testing.T) {
 }
 
 func TestGetRealPath(t *testing.T) {
+	if runtime.GOOS == "windows" && os.Getenv("CI") == "" {
+		t.Skip("Skip TestGetRealPath as os.Symlink needs administrator rights on Windows")
+	}
+
 	d1, err := ioutil.TempDir("", "d1")
 	defer os.Remove(d1)
 	fs := afero.NewOsFs()
