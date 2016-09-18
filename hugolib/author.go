@@ -42,19 +42,224 @@ func (a Authors) Get(id string) Author {
 // Author contains details about the author of a page.
 type Author struct {
 	ID          string
-	GivenName   string            // givenName OR firstName
-	FirstName   string            // alias for GivenName
-	FamilyName  string            // familyName OR lastName
-	LastName    string            // alias for FamilyName
-	DisplayName string            // displayName
-	Thumbnail   string            // thumbnail
-	Image       string            // image
-	ShortBio    string            // shortBio
-	Bio         string            // bio
-	Email       string            // email
-	Social      AuthorSocial      // social
-	Params      map[string]string // params
+	givenName   string            // givenName OR firstName
+	firstName   string            // alias for GivenName
+	familyName  string            // familyName OR lastName
+	lastName    string            // alias for FamilyName
+	displayName string            // displayName
+	thumbnail   string            // thumbnail
+	image       string            // image
+	shortBio    string            // shortBio
+	bio         string            // bio
+	email       string            // email
+	social      AuthorSocial      // social
+	params      map[string]string // params
 	Weight      int
+	languages   map[string]Author
+}
+
+func (a Author) GivenName(lang ...string) string {
+	if len(lang) == 0 {
+		return a.givenName
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.givenName
+	}
+
+	if langAuthor.givenName != "" {
+		return langAuthor.givenName
+	}
+
+	return a.givenName
+}
+
+func (a Author) FirstName(lang ...string) string {
+	if len(lang) == 0 {
+		return a.firstName
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.firstName
+	}
+
+	if langAuthor.firstName != "" {
+		return langAuthor.firstName
+	}
+
+	return a.firstName
+}
+
+func (a Author) FamilyName(lang ...string) string {
+	if len(lang) == 0 {
+		return a.familyName
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.familyName
+	}
+
+	if langAuthor.familyName != "" {
+		return langAuthor.familyName
+	}
+
+	return a.familyName
+}
+
+func (a Author) LastName(lang ...string) string {
+	if len(lang) == 0 {
+		return a.lastName
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.lastName
+	}
+
+	if langAuthor.lastName != "" {
+		return langAuthor.lastName
+	}
+
+	return a.lastName
+}
+
+func (a Author) DisplayName(lang ...string) string {
+	if len(lang) == 0 {
+		return a.displayName
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.displayName
+	}
+
+	if langAuthor.displayName != "" {
+		return langAuthor.displayName
+	}
+
+	return a.displayName
+}
+
+func (a Author) Thumbnail(lang ...string) string {
+	if len(lang) == 0 {
+		return a.thumbnail
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.thumbnail
+	}
+
+	if langAuthor.thumbnail != "" {
+		return langAuthor.thumbnail
+	}
+
+	return a.thumbnail
+}
+
+func (a Author) Image(lang ...string) string {
+	if len(lang) == 0 {
+		return a.image
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.image
+	}
+
+	if langAuthor.image != "" {
+		return langAuthor.image
+	}
+
+	return a.image
+}
+
+func (a Author) ShortBio(lang ...string) string {
+	if len(lang) == 0 {
+		return a.shortBio
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.shortBio
+	}
+
+	if langAuthor.shortBio != "" {
+		return langAuthor.shortBio
+	}
+
+	return a.shortBio
+}
+
+func (a Author) Bio(lang ...string) string {
+	if len(lang) == 0 {
+		return a.bio
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.bio
+	}
+
+	if langAuthor.bio != "" {
+		return langAuthor.bio
+	}
+
+	return a.bio
+}
+
+func (a Author) Email(lang ...string) string {
+	if len(lang) == 0 {
+		return a.email
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.email
+	}
+
+	if langAuthor.email != "" {
+		return langAuthor.email
+	}
+
+	return a.email
+}
+
+func (a Author) Social(lang ...string) AuthorSocial {
+	if len(lang) == 0 {
+		return a.social
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.social
+	}
+
+	if langAuthor.social != nil {
+		return langAuthor.social
+	}
+
+	return a.social
+}
+
+func (a Author) Params(lang ...string) map[string]string {
+	if len(lang) == 0 {
+		return a.params
+	}
+
+	langAuthor, ok := a.languages[lang[0]]
+	if !ok {
+		return a.params
+	}
+
+	if langAuthor.params != nil {
+		return langAuthor.params
+	}
+
+	return a.params
 }
 
 // AuthorSocial is a place to put social usernames per author. These are the
@@ -120,33 +325,47 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 	for k, data := range m {
 		switch k {
 		case "givenName", "firstName":
-			author.GivenName = cast.ToString(data)
-			author.FirstName = author.GivenName
+			author.givenName = cast.ToString(data)
+			author.firstName = author.givenName
 		case "familyName", "lastName":
-			author.FamilyName = cast.ToString(data)
-			author.LastName = author.FamilyName
+			author.familyName = cast.ToString(data)
+			author.lastName = author.familyName
 		case "displayName":
-			author.DisplayName = cast.ToString(data)
+			author.displayName = cast.ToString(data)
 		case "thumbnail":
-			author.Thumbnail = cast.ToString(data)
+			author.thumbnail = cast.ToString(data)
 		case "image":
-			author.Image = cast.ToString(data)
+			author.image = cast.ToString(data)
 		case "shortBio":
-			author.ShortBio = cast.ToString(data)
+			author.shortBio = cast.ToString(data)
 		case "bio":
-			author.Bio = cast.ToString(data)
+			author.bio = cast.ToString(data)
 		case "email":
-			author.Email = cast.ToString(data)
+			author.email = cast.ToString(data)
 		case "social":
-			author.Social = normalizeSocial(cast.ToStringMapString(data))
+			author.social = normalizeSocial(cast.ToStringMapString(data))
 		case "params":
-			author.Params = cast.ToStringMapString(data)
+			author.params = cast.ToStringMapString(data)
+		case "weight":
+			author.Weight = cast.ToInt(data)
+		case "languages":
+			if author.languages == nil {
+				author.languages = make(map[string]Author)
+			}
+			langAuthorMap := cast.ToStringMap(data)
+			for lang, m := range langAuthorMap {
+				authorMap, ok := m.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				author.languages[lang] = mapToAuthor(id, authorMap)
+			}
 		}
 	}
 
 	// set a reasonable default for DisplayName
-	if author.DisplayName == "" {
-		author.DisplayName = author.GivenName + " " + author.FamilyName
+	if author.displayName == "" {
+		author.displayName = author.givenName + " " + author.familyName
 	}
 
 	return author
