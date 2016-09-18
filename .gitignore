@@ -10,3 +10,4 @@ cover.out
 *.swo
 .DS_Store
 *~
+vendor/*/

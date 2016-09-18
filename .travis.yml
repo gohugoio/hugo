@@ -11,6 +11,8 @@ matrix:
   allow_failures:
     - go: tip
   fast_finish: true
+install:
+  - make govendor
 script:
   - make check
   - go build -race
