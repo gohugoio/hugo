@@ -63,30 +63,26 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 
 	for _, lang := range bndl.LanguageTags() {
 		currentLang := lang
-		tFunc, err := bndl.Tfunc(currentLang)
 
-		if err != nil {
-			jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
-			translator.translateFuncs[currentLang] = defaultT
-			continue
-		}
 		translator.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
-			if translated := tFunc(translationID, args...); translated != translationID {
+			tFunc, err := bndl.Tfunc(currentLang)
+			if err != nil {
+				jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
+			} else if translated := tFunc(translationID, args...); translated != translationID {
 				return translated
 			}
 			if Logi18nWarnings {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
+			}
+			if viper.GetBool("EnableMissingTranslationPlaceholders") {
+				return fmt.Sprintf("[i18n] %s", translationID)
 			}
 			if defaultT != nil {
 				if translated := defaultT(translationID, args...); translated != translationID {
 					return translated
 				}
 			}
-
-			if !viper.GetBool("EnableMissingTranslationPlaceholders") {
-				return ""
-			}
-			return fmt.Sprintf("[i18n] %s", translationID)
+			return ""
 		}
 	}
 }
