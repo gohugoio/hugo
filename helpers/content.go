@@ -42,8 +42,6 @@ var SummaryLength = 70
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
 
-var summaryDividerAndNewLines = []byte("<!--more-->\n\n")
-
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
 	Smartypants                      bool

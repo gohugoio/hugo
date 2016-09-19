@@ -237,8 +237,7 @@ func (p *Page) lineNumRawContentStart() int {
 }
 
 var (
-	internalSummaryDivider            = []byte("HUGOMORE42")
-	internalSummaryDividerAndNewLines = []byte("HUGOMORE42\n\n")
+	internalSummaryDivider = []byte("HUGOMORE42")
 )
 
 // Returns the page as summary and main if a user defined split is provided.
