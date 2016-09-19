@@ -34,9 +34,9 @@ func doTestI18nTranslate(t *testing.T, data []test, lang, id string) string {
 		if err != nil {
 			t.Errorf("Error parsing translation file: %s", err)
 		}
-		SetI18nTfuncs(i18nBundle)
 	}
 
+	SetI18nTfuncs(i18nBundle)
 	SetTranslateLang(lang)
 
 	translated, err := I18nTranslate(id, nil)
