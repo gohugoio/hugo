@@ -416,21 +416,32 @@ func (p *Page) Author() Author {
 	return Author{}
 }
 
-func (p *Page) Authors() AuthorList {
-	authorKeys, ok := p.Params["authors"]
-	if !ok {
-		return AuthorList{}
+// Authors returns all listed authors for a page in the order they
+// are defined in the front matter. It first checks for a single author
+// since that it the most common use case, then checks for multiple authors.
+func (p *Page) Authors() Authors {
+	authorID, ok := p.Params["author"].(string)
+
+	if ok && authorID != "" {
+		a := p.Site.Authors.Get(authorID)
+		if a.ID == authorID {
+			return Authors{a}
+		}
 	}
 	authors := authorKeys.([]string)
 	if len(authors) < 1 || len(p.Site.Authors) < 1 {
 		return AuthorList{}
 	}
 
-	al := make(AuthorList)
-	for _, author := range authors {
-		a, ok := p.Site.Authors[author]
-		if ok {
-			al[author] = a
+	authors := make([]Author, 0, len(authorIDs))
+	for _, authorID := range authorIDs {
+		if authorID == "" {
+			continue
+		}
+
+		a := p.Site.Authors.Get(authorID)
+		if a.ID == authorID {
+			authors = append(authors, a)
 		}
 	}
 	return al
