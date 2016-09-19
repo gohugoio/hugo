@@ -413,7 +413,8 @@ func (p *Page) Author() Author {
 	for _, author := range authors {
 		return author
 	}
-	return Author{}
+
+	return authors[0].languageOverride(p.Node.lang)
 }
 
 // Authors returns all listed authors for a page in the order they
@@ -425,7 +426,7 @@ func (p *Page) Authors() Authors {
 	if ok && authorID != "" {
 		a := p.Site.Authors.Get(authorID)
 		if a.ID == authorID {
-			return Authors{a}
+			return Authors{a.languageOverride(p.Node.lang)}
 		}
 	}
 	authors := authorKeys.([]string)
@@ -441,7 +442,7 @@ func (p *Page) Authors() Authors {
 
 		a := p.Site.Authors.Get(authorID)
 		if a.ID == authorID {
-			authors = append(authors, a)
+			authors = append(authors, a.languageOverride(p.Node.lang))
 		}
 	}
 	return al

@@ -26,15 +26,21 @@ type AuthorList map[string]Author
 
 // Author contains details about the author of a page.
 type Author struct {
-	GivenName   string
-	FamilyName  string
-	DisplayName string
-	Thumbnail   string
-	Image       string
-	ShortBio    string
-	LongBio     string
-	Email       string
-	Social      AuthorSocial
+	ID          string
+	GivenName   string            // givenName OR firstName
+	FirstName   string            // alias for GivenName
+	FamilyName  string            // familyName OR lastName
+	LastName    string            // alias for FamilyName
+	DisplayName string            // displayName
+	Thumbnail   string            // thumbnail
+	Image       string            // image
+	ShortBio    string            // shortBio
+	Bio         string            // bio
+	Email       string            // email
+	Social      AuthorSocial      // social
+	Params      map[string]string // params
+	Weight      int
+	languages   map[string]Author
 }
 
 // AuthorSocial is a place to put social details per author. These are the
@@ -130,6 +136,18 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 			author.Social = normalizeSocial(cast.ToStringMapString(data))
 		case "params":
 			author.Params = cast.ToStringMapString(data)
+		case "languages":
+			if author.languages == nil {
+				author.languages = make(map[string]Author)
+			}
+			langAuthorMap := cast.ToStringMap(data)
+			for lang, m := range langAuthorMap {
+				authorMap, ok := m.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				author.languages[lang] = mapToAuthor(id, authorMap)
+			}
 		}
 	}
 
@@ -139,6 +157,68 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 	}
 
 	return author
+}
+
+// languageOverride returns an author with details overridden by the provided language
+func (a Authors) languageOverride(lang string) Authors {
+	langAuthors := make(Authors, 0, len(a))
+	for _, author := range a {
+		langAuthors = append(langAuthors, author.languageOverride(lang))
+	}
+	return langAuthors
+}
+
+// languageOverride returns an author with details overridden by the provided language
+func (a Author) languageOverride(lang string) Author {
+	if a.languages == nil {
+		return a
+	}
+
+	langAuthor, ok := a.languages[lang]
+	if !ok {
+		return a
+	}
+
+	if langAuthor.GivenName != "" {
+		a.GivenName = langAuthor.GivenName
+	}
+	if langAuthor.FirstName != "" {
+		a.FirstName = langAuthor.FirstName
+	}
+	if langAuthor.FamilyName != "" {
+		a.FamilyName = langAuthor.FamilyName
+	}
+	if langAuthor.LastName != "" {
+		a.LastName = langAuthor.LastName
+	}
+	if langAuthor.DisplayName != "" {
+		a.DisplayName = langAuthor.DisplayName
+	}
+	if langAuthor.Thumbnail != "" {
+		a.Thumbnail = langAuthor.Thumbnail
+	}
+	if langAuthor.Image != "" {
+		a.Image = langAuthor.Image
+	}
+	if langAuthor.ShortBio != "" {
+		a.ShortBio = langAuthor.ShortBio
+	}
+	if langAuthor.Bio != "" {
+		a.Bio = langAuthor.Bio
+	}
+	if langAuthor.Email != "" {
+		a.Email = langAuthor.Email
+	}
+
+	for k, v := range langAuthor.Social {
+		a.Social[k] = v
+	}
+
+	for k, v := range langAuthor.Params {
+		a.Params[k] = v
+	}
+
+	return a
 }
 
 // normalizeSocial makes a naive attempt to normalize social media usernames
