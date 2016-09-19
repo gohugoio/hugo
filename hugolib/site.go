@@ -104,6 +104,7 @@ type Site struct {
 	expiredCount int
 	Data         map[string]interface{}
 	Language     *helpers.Language
+	authorInit     sync.Once
 
 	disabledKinds map[string]bool
 
@@ -897,6 +898,14 @@ func (s *Site) readDataFromSourceFS() error {
 	}
 
 	err = s.loadData(dataSources)
+
+	// extract author data from /data/_authors then delete it from .Data
+	// only do it once per site
+	s.authorInit.Do(func() {
+		s.Info.Authors = mapToAuthors(cast.ToStringMap(s.Data["_authors"]))
+		delete(s.Data, "_authors")
+	})
+
 	s.timerStep("load data")
 	return err
 }
