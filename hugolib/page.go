@@ -1020,15 +1020,28 @@ func (p *Page) SetSourceContent(content []byte) {
 }
 
 func (p *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
-	by, err := parser.InterfaceToFrontMatter(in, mark)
+	// See https://github.com/spf13/hugo/issues/2458
+	defer func() {
+		if r := recover(); r != nil {
+			var ok bool
+			err, ok = r.(error)
+			if !ok {
+				err = fmt.Errorf("error from marshal: %v", r)
+			}
+		}
+	}()
+
+	var by []byte
+
+	by, err = parser.InterfaceToFrontMatter(in, mark)
 	if err != nil {
-		return err
+		return
 	}
 	by = append(by, '\n')
 
 	p.Source.Frontmatter = by
 
-	return nil
+	return
 }
 
 func (p *Page) SafeSaveSourceAs(path string) error {
