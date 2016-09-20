@@ -185,7 +185,6 @@
 		},
 		{
 			"checksumSHA1": "TkXI1L27/2icLlcE/4wTZCfxLeM=",
-			"origin": "github.com/spf13/hugo/vendor/github.com/opennota/urlesc",
 			"path": "github.com/opennota/urlesc",
 			"revision": "5bd2802263f21d8788851d5305584c82a5c75d7e",
 			"revisionTime": "2016-07-26T15:08:25Z"
@@ -197,10 +196,10 @@
 			"revisionTime": "2016-01-24T19:35:03Z"
 		},
 		{
-			"checksumSHA1": "8p2QlEz7wJdeT4RQINh1mQgB0YQ=",
+			"checksumSHA1": "CtI2rBQw2rxHNIU+a0rcAf29Sco=",
 			"path": "github.com/pelletier/go-toml",
-			"revision": "31055c2ff0bb0c7f9095aec0d220aed21108121e",
-			"revisionTime": "2016-09-06T20:25:57Z"
+			"revision": "45932ad32dfdd20826f5671da37a5f3ce9f26a8d",
+			"revisionTime": "2016-09-20T07:07:15Z"
 		},
 		{
 			"checksumSHA1": "Hky3u+8Rqum+wB5BHMj0A8ZmT4g=",
