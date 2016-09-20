@@ -86,7 +86,7 @@ slowly start to translate your current content without having to rename everythi
 
 If left unspecified, the value for `DefaultContentLanguage` defaults to `en`.
 
-By having the same _base file name_, the content pieces are linked together as translated pieces. 
+By having the same _base file name_, the content pieces are linked together as translated pieces.
 
 ### Link to translated content
 
@@ -190,17 +190,16 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 ```
 
-An empty string will be shown if the translation for the current language is missing and no default value is set.
+### Missing translations
 
-While translating a Hugo website it can be handy to have a visual indicator as well. The `EnableMissingTranslationPlaceholders` config option allows you to replace the empty string with a placeholder like `[i18n] identifier`, where `identifier` is the id of the missing translation.
+If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
+
+While translating a Hugo site, it can be handy to have a visual indicator of missing translations. The `EnableMissingTranslationPlaceholders` config option will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
 
 **Remember: Hugo will generate your website with these placeholders. It might not be suited for production environments.**
-
 
 ### Multilingual Themes support
 
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there are more than one language, URLs  must either  come from the built-in `.Permalink` or `.URL`, be constructed with `relLangURL` or `absLangURL` template funcs -- or prefixed with `{{.LanguagePrefix }}`.
 
 If there are more than one language defined, the`LanguagePrefix` variable will equal `"/en"` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string, so it is harmless for single-language sites.
-
-

@@ -22,15 +22,94 @@ import (
 )
 
 type test struct {
-	file    string
-	content []byte
+	data                              map[string][]byte
+	args                              interface{}
+	lang, id, expected, expected_flag string
 }
 
-func doTestI18nTranslate(t *testing.T, data []test, lang, id string) string {
+var tests []test = []test{
+	// All translations present
+	{
+		data: map[string][]byte{
+			"en.yaml": []byte("- id: \"hello\"\n  translation: \"Hello, World!\""),
+			"es.yaml": []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\""),
+		},
+		args:          nil,
+		lang:          "es",
+		id:            "hello",
+		expected:      "¡Hola, Mundo!",
+		expected_flag: "¡Hola, Mundo!",
+	},
+	// Translation missing in current language but present in default
+	{
+		data: map[string][]byte{
+			"en.yaml": []byte("- id: \"hello\"\n  translation: \"Hello, World!\""),
+			"es.yaml": []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\""),
+		},
+		args:          nil,
+		lang:          "es",
+		id:            "hello",
+		expected:      "Hello, World!",
+		expected_flag: "[i18n] hello",
+	},
+	// Translation missing in default language but present in current
+	{
+		data: map[string][]byte{
+			"en.yaml": []byte("- id: \"goodybe\"\n  translation: \"Goodbye, World!\""),
+			"es.yaml": []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\""),
+		},
+		args:          nil,
+		lang:          "es",
+		id:            "hello",
+		expected:      "¡Hola, Mundo!",
+		expected_flag: "¡Hola, Mundo!",
+	},
+	// Translation missing in both default and current language
+	{
+		data: map[string][]byte{
+			"en.yaml": []byte("- id: \"goodbye\"\n  translation: \"Goodbye, World!\""),
+			"es.yaml": []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\""),
+		},
+		args:          nil,
+		lang:          "es",
+		id:            "hello",
+		expected:      "",
+		expected_flag: "[i18n] hello",
+	},
+	// Default translation file missing or empty
+	{
+		data: map[string][]byte{
+			"en.yaml": []byte(""),
+		},
+		args:          nil,
+		lang:          "es",
+		id:            "hello",
+		expected:      "",
+		expected_flag: "[i18n] hello",
+	},
+	// Context provided
+	{
+		data: map[string][]byte{
+			"en.yaml": []byte("- id: \"wordCount\"\n  translation: \"Hello, {{.WordCount}} people!\""),
+			"es.yaml": []byte("- id: \"wordCount\"\n  translation: \"¡Hola, {{.WordCount}} gente!\""),
+		},
+		args: struct {
+			WordCount int
+		}{
+			50,
+		},
+		lang:          "es",
+		id:            "wordCount",
+		expected:      "¡Hola, 50 gente!",
+		expected_flag: "¡Hola, 50 gente!",
+	},
+}
+
+func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, args interface{}) string {
 	i18nBundle := bundle.New()
 
-	for _, r := range data {
-		err := i18nBundle.ParseTranslationFileBytes(r.file, r.content)
+	for file, content := range data {
+		err := i18nBundle.ParseTranslationFileBytes(file, content)
 		if err != nil {
 			t.Errorf("Error parsing translation file: %s", err)
 		}
@@ -39,7 +118,7 @@ func doTestI18nTranslate(t *testing.T, data []test, lang, id string) string {
 	SetI18nTfuncs(i18nBundle)
 	SetTranslateLang(lang)
 
-	translated, err := I18nTranslate(id, nil)
+	translated, err := I18nTranslate(id, args)
 	if err != nil {
 		t.Errorf("Error translating '%s': %s", id, err)
 	}
@@ -47,7 +126,6 @@ func doTestI18nTranslate(t *testing.T, data []test, lang, id string) string {
 }
 
 func TestI18nTranslate(t *testing.T) {
-	var data []test
 	var actual, expected string
 
 	viper.SetDefault("DefaultContentLanguage", "en")
@@ -56,60 +134,14 @@ func TestI18nTranslate(t *testing.T) {
 	for _, enablePlaceholders := range []bool{false, true} {
 		viper.Set("EnableMissingTranslationPlaceholders", enablePlaceholders)
 
-		// All translations present
-		data = []test{
-			{"en.yaml", []byte("- id: \"hello\"\n  translation: \"Hello, World!\"")},
-			{"es.yaml", []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\"")},
+		for _, test := range tests {
+			if enablePlaceholders {
+				expected = test.expected_flag
+			} else {
+				expected = test.expected
+			}
+			actual = doTestI18nTranslate(t, test.data, test.lang, test.id, test.args)
+			assert.Equal(t, expected, actual)
 		}
-		expected = "¡Hola, Mundo!"
-		actual = doTestI18nTranslate(t, data, "es", "hello")
-		assert.Equal(t, expected, actual)
-
-		// Translation missing in current language but present in default
-		data = []test{
-			{"en.yaml", []byte("- id: \"hello\"\n  translation: \"Hello, World!\"")},
-			{"es.yaml", []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\"")},
-		}
-		if enablePlaceholders {
-			expected = "[i18n] hello"
-		} else {
-			expected = "Hello, World!"
-		}
-		actual = doTestI18nTranslate(t, data, "es", "hello")
-		assert.Equal(t, expected, actual)
-
-		// Translation missing in default language but present in current
-		data = []test{
-			{"en.yaml", []byte("- id: \"goodbye\"\n  translation: \"Goodbye, World!\"")},
-			{"es.yaml", []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\"")},
-		}
-		expected = "¡Hola, Mundo!"
-		actual = doTestI18nTranslate(t, data, "es", "hello")
-		assert.Equal(t, expected, actual)
-
-		// Translation missing in both default and current language
-		data = []test{
-			{"en.yaml", []byte("- id: \"goodbye\"\n  translation: \"Goodbye, World!\"")},
-			{"es.yaml", []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\"")},
-		}
-		if enablePlaceholders {
-			expected = "[i18n] hello"
-		} else {
-			expected = ""
-		}
-		actual = doTestI18nTranslate(t, data, "es", "hello")
-		assert.Equal(t, expected, actual)
-
-		// Default translation file missing or empty
-		data = []test{
-			{"en.yaml", []byte("")},
-		}
-		actual = doTestI18nTranslate(t, data, "es", "hello")
-		if enablePlaceholders {
-			expected = "[i18n] hello"
-		} else {
-			expected = ""
-		}
-		assert.Equal(t, expected, actual)
 	}
 }
