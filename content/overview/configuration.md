@@ -135,7 +135,7 @@ along with their current, default values:
     # Enable Emoji emoticons support for page content.
     # See www.emoji-cheat-sheet.com
     enableEmoji:				false
-    # Show a placeholder like "[i18n] foo" instead of an empty string if a translation is missing
+    # Show a placeholder instead of the default value or an empty string if a translation is missing
     enableMissingTranslationPlaceholders: false
     footnoteAnchorPrefix:       ""
     footnoteReturnLinkContents: ""
