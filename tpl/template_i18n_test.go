@@ -21,24 +21,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type test struct {
-	data                              map[string][]byte
-	args                              interface{}
-	lang, id, expected, expected_flag string
+type i18nTest struct {
+	data                             map[string][]byte
+	args                             interface{}
+	lang, id, expected, expectedFlag string
 }
 
-var tests []test = []test{
+var i18nTests = []i18nTest{
 	// All translations present
 	{
 		data: map[string][]byte{
 			"en.yaml": []byte("- id: \"hello\"\n  translation: \"Hello, World!\""),
 			"es.yaml": []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\""),
 		},
-		args:          nil,
-		lang:          "es",
-		id:            "hello",
-		expected:      "¡Hola, Mundo!",
-		expected_flag: "¡Hola, Mundo!",
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "¡Hola, Mundo!",
+		expectedFlag: "¡Hola, Mundo!",
 	},
 	// Translation missing in current language but present in default
 	{
@@ -46,11 +46,11 @@ var tests []test = []test{
 			"en.yaml": []byte("- id: \"hello\"\n  translation: \"Hello, World!\""),
 			"es.yaml": []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\""),
 		},
-		args:          nil,
-		lang:          "es",
-		id:            "hello",
-		expected:      "Hello, World!",
-		expected_flag: "[i18n] hello",
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "Hello, World!",
+		expectedFlag: "[i18n] hello",
 	},
 	// Translation missing in default language but present in current
 	{
@@ -58,11 +58,11 @@ var tests []test = []test{
 			"en.yaml": []byte("- id: \"goodybe\"\n  translation: \"Goodbye, World!\""),
 			"es.yaml": []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\""),
 		},
-		args:          nil,
-		lang:          "es",
-		id:            "hello",
-		expected:      "¡Hola, Mundo!",
-		expected_flag: "¡Hola, Mundo!",
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "¡Hola, Mundo!",
+		expectedFlag: "¡Hola, Mundo!",
 	},
 	// Translation missing in both default and current language
 	{
@@ -70,22 +70,22 @@ var tests []test = []test{
 			"en.yaml": []byte("- id: \"goodbye\"\n  translation: \"Goodbye, World!\""),
 			"es.yaml": []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\""),
 		},
-		args:          nil,
-		lang:          "es",
-		id:            "hello",
-		expected:      "",
-		expected_flag: "[i18n] hello",
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "",
+		expectedFlag: "[i18n] hello",
 	},
 	// Default translation file missing or empty
 	{
 		data: map[string][]byte{
 			"en.yaml": []byte(""),
 		},
-		args:          nil,
-		lang:          "es",
-		id:            "hello",
-		expected:      "",
-		expected_flag: "[i18n] hello",
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "",
+		expectedFlag: "[i18n] hello",
 	},
 	// Context provided
 	{
@@ -98,10 +98,10 @@ var tests []test = []test{
 		}{
 			50,
 		},
-		lang:          "es",
-		id:            "wordCount",
-		expected:      "¡Hola, 50 gente!",
-		expected_flag: "¡Hola, 50 gente!",
+		lang:         "es",
+		id:           "wordCount",
+		expected:     "¡Hola, 50 gente!",
+		expectedFlag: "¡Hola, 50 gente!",
 	},
 }
 
@@ -134,9 +134,9 @@ func TestI18nTranslate(t *testing.T) {
 	for _, enablePlaceholders := range []bool{false, true} {
 		viper.Set("EnableMissingTranslationPlaceholders", enablePlaceholders)
 
-		for _, test := range tests {
+		for _, test := range i18nTests {
 			if enablePlaceholders {
-				expected = test.expected_flag
+				expected = test.expectedFlag
 			} else {
 				expected = test.expected
 			}
