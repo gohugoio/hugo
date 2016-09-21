@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"path/filepath"
-
 	"os"
+	"path/filepath"
+	"text/template"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
@@ -20,6 +20,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+type testSiteConfig struct {
+	DefaultContentLanguage string
+}
 
 func init() {
 	testCommonResetState()
@@ -50,8 +54,9 @@ func TestMultiSitesMainLangInRoot(t *testing.T) {
 func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	testCommonResetState()
 	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
+	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
 
-	sites := createMultiTestSites(t, multiSiteTOMLConfig)
+	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 
 	err := sites.Build(BuildCfg{})
 
@@ -171,7 +176,7 @@ func TestMultiSitesBuild(t *testing.T) {
 		content string
 		suffix  string
 	}{
-		{multiSiteTOMLConfig, "toml"},
+		{multiSiteTOMLConfigTemplate, "toml"},
 		{multiSiteYAMLConfig, "yml"},
 		{multiSiteJSONConfig, "json"},
 	} {
@@ -179,9 +184,10 @@ func TestMultiSitesBuild(t *testing.T) {
 	}
 }
 
-func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
+func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	testCommonResetState()
-	sites := createMultiTestSitesForConfig(t, configContent, configSuffix)
+	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
+	sites := createMultiTestSitesForConfig(t, siteConfig, configTemplate, configSuffix)
 
 	err := sites.Build(BuildCfg{})
 
@@ -342,7 +348,8 @@ func doTestMultiSitesBuild(t *testing.T, configContent, configSuffix string) {
 
 func TestMultiSitesRebuild(t *testing.T) {
 	testCommonResetState()
-	sites := createMultiTestSites(t, multiSiteTOMLConfig)
+	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
+	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	cfg := BuildCfg{Watching: true}
 
 	err := sites.Build(cfg)
@@ -554,8 +561,9 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 
 func TestAddNewLanguage(t *testing.T) {
 	testCommonResetState()
+	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
 
-	sites := createMultiTestSites(t, multiSiteTOMLConfig)
+	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	cfg := BuildCfg{}
 
 	err := sites.Build(cfg)
@@ -564,12 +572,14 @@ func TestAddNewLanguage(t *testing.T) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	newConfig := multiSiteTOMLConfig + `
+	newConfig := multiSiteTOMLConfigTemplate + `
 
 [Languages.sv]
 weight = 15
 title = "Svenska"
 `
+
+	newConfig = createConfig(t, siteConfig, newConfig)
 
 	writeNewContentFile(t, "Swedish Contentfile", "2016-01-01", "content/sect/doc1.sv.md", 10)
 	// replace the config
@@ -612,7 +622,42 @@ title = "Svenska"
 
 }
 
-var multiSiteTOMLConfig = `
+func TestChangeDefaultLanguage(t *testing.T) {
+	testCommonResetState()
+	viper.Set("DefaultContentLanguageInSubdir", false)
+
+	sites := createMultiTestSites(t, testSiteConfig{DefaultContentLanguage: "fr"}, multiSiteTOMLConfigTemplate)
+	cfg := BuildCfg{}
+
+	err := sites.Build(cfg)
+
+	if err != nil {
+		t.Fatalf("Failed to build sites: %s", err)
+	}
+
+	assertFileContent(t, "public/sect/doc1/index.html", true, "Single", "Bonjour")
+	assertFileContent(t, "public/en/sect/doc2/index.html", true, "Single", "Hello")
+
+	newConfig := createConfig(t, testSiteConfig{DefaultContentLanguage: "en"}, multiSiteTOMLConfigTemplate)
+
+	// replace the config
+	writeSource(t, "multilangconfig.toml", newConfig)
+
+	// Watching does not work with in-memory fs, so we trigger a reload manually
+	require.NoError(t, viper.ReadInConfig())
+	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
+
+	if err != nil {
+		t.Fatalf("Failed to rebuild sites: %s", err)
+	}
+
+	// Default language is now en, so that should now be the "root" language
+	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Bonjour")
+	assertFileContent(t, "public/sect/doc2/index.html", true, "Single", "Hello")
+
+}
+
+var multiSiteTOMLConfigTemplate = `
 DefaultExtension = "html"
 baseurl = "http://example.com/blog"
 DisableSitemap = false
@@ -620,7 +665,7 @@ DisableRSS = false
 RSSUri = "index.xml"
 
 paginate = 1
-DefaultContentLanguage = "fr"
+DefaultContentLanguage = "{{ .DefaultContentLanguage }}"
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -805,11 +850,13 @@ var multiSiteJSONConfig = `
 }
 `
 
-func createMultiTestSites(t *testing.T, tomlConfig string) *HugoSites {
-	return createMultiTestSitesForConfig(t, tomlConfig, "toml")
+func createMultiTestSites(t *testing.T, siteConfig testSiteConfig, tomlConfigTemplate string) *HugoSites {
+	return createMultiTestSitesForConfig(t, siteConfig, tomlConfigTemplate, "toml")
 }
 
-func createMultiTestSitesForConfig(t *testing.T, configContent, configSuffix string) *HugoSites {
+func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, configTemplate, configSuffix string) *HugoSites {
+
+	configContent := createConfig(t, siteConfig, configTemplate)
 
 	// Add some layouts
 	if err := afero.WriteFile(hugofs.Source(),
@@ -1070,4 +1117,14 @@ func newTestPage(title, date string, weight int) string {
 func writeNewContentFile(t *testing.T, title, date, filename string, weight int) {
 	content := newTestPage(title, date, weight)
 	writeSource(t, filename, content)
+}
+
+func createConfig(t *testing.T, config testSiteConfig, configTemplate string) string {
+	templ, err := template.New("test").Parse(configTemplate)
+	if err != nil {
+		t.Fatal("Template parse failed:", err)
+	}
+	var b bytes.Buffer
+	templ.Execute(&b, config)
+	return b.String()
 }
