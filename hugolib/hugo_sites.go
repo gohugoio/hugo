@@ -339,6 +339,10 @@ func (h *HugoSites) render() error {
 		return nil
 	}
 
+	if viper.GetBool("DisableSitemap") {
+		return nil
+	}
+
 	// TODO(bep) DRY
 	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
 
