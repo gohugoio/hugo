@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -185,6 +186,7 @@ func TestMultiSitesBuild(t *testing.T) {
 }
 
 func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
+	defer leaktest.Check(t)()
 	testCommonResetState()
 	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
 	sites := createMultiTestSitesForConfig(t, siteConfig, configTemplate, configSuffix)
@@ -347,6 +349,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
+	defer leaktest.Check(t)()
 	testCommonResetState()
 	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
@@ -654,7 +657,6 @@ func TestChangeDefaultLanguage(t *testing.T) {
 	// Default language is now en, so that should now be the "root" language
 	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Bonjour")
 	assertFileContent(t, "public/sect/doc2/index.html", true, "Single", "Hello")
-
 }
 
 var multiSiteTOMLConfigTemplate = `
