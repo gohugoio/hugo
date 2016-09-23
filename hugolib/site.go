@@ -526,7 +526,7 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 	// We do this in parallel... even though it's likely only one file at a time.
 	// We need to process the reading prior to the conversion for each file, but
 	// we can convert one file while another one is still reading.
-	errs := make(chan error)
+	errs := make(chan error, 2)
 	readResults := make(chan HandledResult)
 	filechan := make(chan *source.File)
 	convertResults := make(chan HandledResult)
@@ -610,6 +610,13 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 	close(convertResults)
 
 	s.timerStep("read & convert pages from source")
+
+	for i := 0; i < 2; i++ {
+		err := <-errs
+		if err != nil {
+			jww.ERROR.Println(err)
+		}
+	}
 
 	changed := whatChanged{
 		source: len(sourceChanged) > 0,
