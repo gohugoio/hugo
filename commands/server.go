@@ -252,7 +252,7 @@ func fixURL(s string) (string, error) {
 	}
 
 	if useLocalhost {
-		if u.Scheme == "https" {
+		if u.Scheme != "http" {
 			u.Scheme = "http"
 		}
 		u.Host = "localhost"
