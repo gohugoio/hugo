@@ -35,6 +35,7 @@ func testCommonResetState() {
 	hugofs.InitMemFs()
 	viper.Reset()
 	viper.SetFs(hugofs.Source())
+	helpers.ResetConfigProvider()
 	loadDefaultSettings()
 
 	// Default is false, but true is easier to use as default in tests

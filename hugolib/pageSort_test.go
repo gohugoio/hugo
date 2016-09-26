@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/stretchr/testify/assert"
 )
@@ -134,6 +135,8 @@ func setSortVals(dates [3]time.Time, titles [3]string, weights [3]int, pages Pag
 func createSortTestPages(num int) Pages {
 	pages := make(Pages, num)
 
+	info := newSiteInfo(siteBuilderCfg{baseURL: "http://base", language: helpers.NewDefaultLanguage()})
+
 	for i := 0; i < num; i++ {
 		pages[i] = &Page{
 			Node: Node{
@@ -141,7 +144,7 @@ func createSortTestPages(num int) Pages {
 					Section: "z",
 					URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
 				},
-				Site: newSiteInfoDefaultLanguage("http://base/"),
+				Site: &info,
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
 		}

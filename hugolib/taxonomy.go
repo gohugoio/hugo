@@ -52,7 +52,7 @@ type OrderedTaxonomyEntry struct {
 
 // KeyPrep... Taxonomies should be case insensitive. Can make it easily conditional later.
 func kp(in string) string {
-	return helpers.MakePathSanitized(in)
+	return helpers.CurrentPathSpec().MakePathSanitized(in)
 }
 
 // Get the weighted pages for the given key.

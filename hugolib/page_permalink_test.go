@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 )
@@ -59,17 +60,18 @@ func TestPermalink(t *testing.T) {
 	}
 
 	viper.Set("DefaultExtension", "html")
-
 	for i, test := range tests {
 		viper.Set("uglyurls", test.uglyURLs)
 		viper.Set("canonifyurls", test.canonifyURLs)
+		info := newSiteInfo(siteBuilderCfg{baseURL: string(test.base), language: helpers.NewDefaultLanguage()})
+
 		p := &Page{
 			Node: Node{
 				URLPath: URLPath{
 					Section: "z",
 					URL:     test.url,
 				},
-				Site: newSiteInfoDefaultLanguage(string(test.base)),
+				Site: &info,
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},
 		}

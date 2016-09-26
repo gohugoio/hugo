@@ -101,8 +101,8 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 // Example:
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
-func URLize(uri string) string {
-	sanitized := MakePathSanitized(uri)
+func (p *PathSpec) URLize(uri string) string {
+	sanitized := p.MakePathSanitized(uri)
 
 	// escape unicode letters
 	parsedURI, err := url.Parse(sanitized)
@@ -147,7 +147,7 @@ func MakePermalink(host, plink string) *url.URL {
 }
 
 // AbsURL creates a absolute URL from the relative path given and the BaseURL set in config.
-func AbsURL(in string, addLanguage bool) string {
+func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 	url, err := url.Parse(in)
 	if err != nil {
 		return in
@@ -168,7 +168,7 @@ func AbsURL(in string, addLanguage bool) string {
 	}
 
 	if addLanguage {
-		prefix := getLanguagePrefix()
+		prefix := p.getLanguagePrefix()
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
@@ -191,15 +191,15 @@ func AbsURL(in string, addLanguage bool) string {
 	return MakePermalink(baseURL, in).String()
 }
 
-func getLanguagePrefix() string {
-	if !viper.GetBool("Multilingual") {
+func (p *PathSpec) getLanguagePrefix() string {
+	if !p.multilingual {
 		return ""
 	}
 
-	defaultLang := viper.GetString("DefaultContentLanguage")
-	defaultInSubDir := viper.GetBool("DefaultContentLanguageInSubdir")
+	defaultLang := p.defaultContentLanguage
+	defaultInSubDir := p.defaultContentLanguageInSubdir
 
-	currentLang := viper.Get("CurrentContentLanguage").(*Language).Lang
+	currentLang := p.currentContentLanguage.Lang
 	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
 		return ""
 	}
@@ -218,9 +218,9 @@ func IsAbsURL(path string) bool {
 
 // RelURL creates a URL relative to the BaseURL root.
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
-func RelURL(in string, addLanguage bool) string {
+func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	baseURL := viper.GetString("BaseURL")
-	canonifyURLs := viper.GetBool("canonifyURLs")
+	canonifyURLs := p.canonifyURLs
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in
 	}
@@ -232,7 +232,7 @@ func RelURL(in string, addLanguage bool) string {
 	}
 
 	if addLanguage {
-		prefix := getLanguagePrefix()
+		prefix := p.getLanguagePrefix()
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
@@ -288,8 +288,8 @@ func AddContextRoot(baseURL, relativePath string) string {
 	return newPath
 }
 
-func URLizeAndPrep(in string) string {
-	return URLPrep(viper.GetBool("UglyURLs"), URLize(in))
+func (p *PathSpec) URLizeAndPrep(in string) string {
+	return URLPrep(p.uglyURLs, p.URLize(in))
 }
 
 func URLPrep(ugly bool, in string) string {

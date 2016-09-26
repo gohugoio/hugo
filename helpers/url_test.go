@@ -24,6 +24,10 @@ import (
 )
 
 func TestURLize(t *testing.T) {
+	initCommonTestConfig()
+
+	p := NewPathSpecFromConfig(viper.GetViper())
+
 	tests := []struct {
 		input    string
 		expected string
@@ -37,7 +41,7 @@ func TestURLize(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		output := URLize(test.input)
+		output := p.URLize(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
@@ -83,7 +87,8 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 
 	for _, test := range tests {
 		viper.Set("BaseURL", test.baseURL)
-		output := AbsURL(test.input, addLanguage)
+		p := NewPathSpecFromConfig(viper.GetViper())
+		output := p.AbsURL(test.input, addLanguage)
 		expected := test.expected
 		if multilingual && addLanguage {
 			if !defaultInSubDir && lang == "en" {
@@ -159,8 +164,9 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	for i, test := range tests {
 		viper.Set("BaseURL", test.baseURL)
 		viper.Set("canonifyURLs", test.canonify)
+		p := NewPathSpecFromConfig(viper.GetViper())
 
-		output := RelURL(test.input, addLanguage)
+		output := p.RelURL(test.input, addLanguage)
 
 		expected := test.expected
 		if multilingual && addLanguage {

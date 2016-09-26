@@ -63,6 +63,11 @@ func tstIsLt(tp tstCompareType) bool {
 	return tp == tstLt || tp == tstLe
 }
 
+func tstInitTemplates() {
+	viper.Set("CurrentContentLanguage", helpers.NewLanguage("en"))
+	helpers.ResetConfigProvider()
+}
+
 func TestFuncsInTemplate(t *testing.T) {
 
 	viper.Reset()
@@ -233,6 +238,8 @@ urlize: bat-man
 	data.Params = map[string]interface{}{"langCode": "en"}
 
 	viper.Set("baseURL", "http://mysite.com/hugo/")
+
+	tstInitTemplates()
 
 	if err != nil {
 		t.Fatal("Got error on parse", err)
@@ -2498,6 +2505,7 @@ func TestPartialCached(t *testing.T) {
 	data.Section = "blog"
 	data.Params = map[string]interface{}{"langCode": "en"}
 
+	tstInitTemplates()
 	InitializeT()
 	for i, tc := range testCases {
 		var tmp string

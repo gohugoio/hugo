@@ -178,7 +178,7 @@ func (n *Node) URL() string {
 }
 
 func (n *Node) Permalink() string {
-	return permalink(n.URL())
+	return n.Site.permalink(n.URL())
 }
 
 // Scratch returns the writable context associated with this Node.

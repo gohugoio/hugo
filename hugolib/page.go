@@ -569,9 +569,9 @@ func (p *Page) analyzePage() {
 
 func (p *Page) permalink() (*url.URL, error) {
 	baseURL := string(p.Site.BaseURL)
-	dir := strings.TrimSpace(helpers.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
-	pSlug := strings.TrimSpace(helpers.URLize(p.Slug))
-	pURL := strings.TrimSpace(helpers.URLize(p.URLPath.URL))
+	dir := strings.TrimSpace(p.Site.pathSpec.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
+	pSlug := strings.TrimSpace(p.Site.pathSpec.URLize(p.Slug))
+	pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
 	var permalink string
 	var err error
 
@@ -1171,5 +1171,6 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = helpers.ReplaceExtension(p.Source.TranslationBaseName(), p.Extension())
 	}
 
-	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(helpers.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
+	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(
+		p.Site.pathSpec.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
 }

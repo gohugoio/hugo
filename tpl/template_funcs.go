@@ -47,7 +47,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var funcMap template.FuncMap
+var (
+	funcMap template.FuncMap
+)
 
 // eq returns the boolean truth of arg1 == arg2.
 func eq(x, y interface{}) bool {
@@ -1940,7 +1942,7 @@ func absURL(a interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", nil
 	}
-	return template.HTML(helpers.AbsURL(s, false)), nil
+	return template.HTML(helpers.CurrentPathSpec().AbsURL(s, false)), nil
 }
 
 func relURL(a interface{}) (template.HTML, error) {
@@ -1948,10 +1950,10 @@ func relURL(a interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", nil
 	}
-	return template.HTML(helpers.RelURL(s, false)), nil
+	return template.HTML(helpers.CurrentPathSpec().RelURL(s, false)), nil
 }
 
-func init() {
+func initFuncMap() {
 	funcMap = template.FuncMap{
 		"absURL": absURL,
 		"absLangURL": func(i interface{}) (template.HTML, error) {
@@ -1959,7 +1961,7 @@ func init() {
 			if err != nil {
 				return "", err
 			}
-			return template.HTML(helpers.AbsURL(s, true)), nil
+			return template.HTML(helpers.CurrentPathSpec().AbsURL(s, true)), nil
 		},
 		"add":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":         after,
@@ -2020,7 +2022,7 @@ func init() {
 			if err != nil {
 				return "", err
 			}
-			return template.HTML(helpers.RelURL(s, true)), nil
+			return template.HTML(helpers.CurrentPathSpec().RelURL(s, true)), nil
 		},
 		"relref":       relRef,
 		"replace":      replace,
@@ -2047,7 +2049,7 @@ func init() {
 		"time":         asTime,
 		"trim":         trim,
 		"upper":        func(a string) string { return strings.ToUpper(a) },
-		"urlize":       helpers.URLize,
+		"urlize":       helpers.CurrentPathSpec().URLize,
 		"where":        where,
 		"i18n":         I18nTranslate,
 		"T":            I18nTranslate,
