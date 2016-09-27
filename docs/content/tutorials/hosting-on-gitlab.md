@@ -65,4 +65,4 @@ After the build has passed, your new website is available at https://YourUsernam
 
 ## Suggested next steps
 
-GitLab supports using custom CNAME's and TLS certificates, but this is out of the scope of this tutorial. For more details on GitHub Pages, see [https://about.gitlab.com/2016/04/07/gitlab-pages-setup/](https://about.gitlab.com/2016/04/07/gitlab-pages-setup/)
+GitLab supports using custom CNAME's and TLS certificates, but this is out of the scope of this tutorial. For more details on GitLab Pages, see [https://about.gitlab.com/2016/04/07/gitlab-pages-setup/](https://about.gitlab.com/2016/04/07/gitlab-pages-setup/)
