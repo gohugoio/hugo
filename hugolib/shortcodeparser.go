@@ -345,6 +345,7 @@ func lexShortcodeComment(l *pagelexer) stateFunc {
 }
 
 func lexShortcodeRightDelim(l *pagelexer) stateFunc {
+	l.closingState = 0
 	l.pos += pos(len(l.currentRightShortcodeDelim()))
 	l.emit(l.currentRightShortcodeDelimItem())
 	return lexTextOutsideShortcodes
