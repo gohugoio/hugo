@@ -81,6 +81,18 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 	// issue #934
 	{"self-closing", `{{< sc1 />}}`, []item{
 		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF}},
+	// Issue 2498
+	{"multiple self-closing", `{{< sc1 />}}{{< sc1 />}}`, []item{
+		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD,
+		tstLeftNoMD, tstSC1, tstSCClose, tstRightNoMD, tstEOF}},
+	{"self-closing with param", `{{< sc1 param1 />}}`, []item{
+		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF}},
+	{"multiple self-closing with param", `{{< sc1 param1 />}}{{< sc1 param1 />}}`, []item{
+		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD,
+		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF}},
+	{"multiple different self-closing with param", `{{< sc1 param1 />}}{{< sc2 param1 />}}`, []item{
+		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD,
+		tstLeftNoMD, tstSC2, tstParam1, tstSCClose, tstRightNoMD, tstEOF}},
 	{"nested simple", `{{< sc1 >}}{{< sc2 >}}{{< /sc1 >}}`, []item{
 		tstLeftNoMD, tstSC1, tstRightNoMD,
 		tstLeftNoMD, tstSC2, tstRightNoMD,
@@ -140,11 +152,10 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 }
 
 func TestShortcodeLexer(t *testing.T) {
-	for _, test := range shortCodeLexerTests {
-
+	for i, test := range shortCodeLexerTests {
 		items := collect(&test)
 		if !equal(items, test.items) {
-			t.Errorf("%s: got\n\t%v\nexpected\n\t%v", test.name, items, test.items)
+			t.Errorf("[%d] %s: got\n\t%v\nexpected\n\t%v", i, test.name, items, test.items)
 		}
 	}
 }
