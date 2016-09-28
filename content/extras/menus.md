@@ -30,6 +30,8 @@ A menu is a named array of menu entries accessible on the site under
 `.Site.Menus` by name. For example, if I have a menu called `main`, I would
 access it via `.Site.Menus.main`.
 
+If you make use of the [multilingual feature]({{< relref "content/multilingual.md#menus">}}) you can define menus language independent.
+
 A menu entry has the following properties:
 
 * **URL**        string
@@ -177,7 +179,7 @@ The following is an example:
                 </ul>
               {{else}}
                 <li>
-                <a class="" href="{{.URL}}">
+                <a href="{{.URL}}">
                     {{ .Pre }}
                     <span>{{ .Name }}</span>
                 </a>
@@ -192,6 +194,7 @@ The following is an example:
     </aside>
     <!--sidebar end-->
 
+> **Note**: use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature]({{< relref "content/multilingual.md" >}}). In contrast to `absURL` and `relURL` it adds the correct language prefix to the url. [Read more]({{< relref "templates/functions.md#urls" >}}).
 
 ## Section Menu for "the Lazy Blogger"
 
