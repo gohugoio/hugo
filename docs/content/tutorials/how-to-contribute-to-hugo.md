@@ -24,7 +24,7 @@ The installation of Go should take only a few minutes. [Download](https://golang
 
 Let's confirm the correct installation of Go. Open a terminal (or command line under Windows). Execute `go version` and you should see the version number of your Go installation. Next, make sure that you setup the `GOPATH` as described in the installation guide.
 
-You can print the `GOPATH` with `echo $GOPATH`. You should a non-empty string containing a valid path. 
+You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace. 
 
 ### GVM as alternative
 
