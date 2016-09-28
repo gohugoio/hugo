@@ -237,7 +237,7 @@ func InitLoggers() {
 // Deprecated logs ERROR logs about a deprecation, but only once for a given set of arguments' values.
 func Deprecated(object, item, alternative string) {
 	//	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
-	DistinctErrorLog.Printf("%s's %s is deprecated and will be removed VERY SOON. Use %s instead.", object, item, alternative)
+	DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in a future release. Use %s instead.", object, item, alternative)
 
 }
 

@@ -114,6 +114,22 @@ type PageMeta struct {
 	Weight         int
 }
 
+func (*PageMeta) WordCount() int {
+	helpers.Deprecated("PageMeta", "WordCount", ".WordCount (on Page)")
+	return 0
+}
+
+func (*PageMeta) FuzzyWordCount() int {
+	helpers.Deprecated("PageMeta", "FuzzyWordCount", ".FuzzyWordCount (on Page)")
+	return 0
+
+}
+
+func (*PageMeta) ReadingTime() int {
+	helpers.Deprecated("PageMeta", "ReadingTime", ".ReadingTime (on Page)")
+	return 0
+}
+
 type Position struct {
 	Prev          *Page
 	Next          *Page
