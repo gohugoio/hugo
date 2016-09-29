@@ -35,6 +35,7 @@ RUN go get github.com/stretchr/testify/assert \
 	&& go get golang.org/x/text/unicode/norm \
 	&& go get github.com/yosssi/ace \
 	&& go get github.com/spf13/nitro \
+    && go get github.com/fortytw2/leaktest \
 	&& go get github.com/fsnotify/fsnotify
 
 COPY . /go/src/github.com/spf13/hugo
