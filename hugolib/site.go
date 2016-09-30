@@ -878,7 +878,12 @@ func (s *SiteInfo) HomeAbsURL() string {
 // SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
 func (s *SiteInfo) SitemapAbsURL() string {
 	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
-	return path.Join(s.HomeAbsURL(), sitemapDefault.Filename)
+	p := s.HomeAbsURL()
+	if !strings.HasSuffix(p, "/") {
+		p += "/"
+	}
+	p += sitemapDefault.Filename
+	return p
 }
 
 func (s *Site) initializeSiteInfo() {

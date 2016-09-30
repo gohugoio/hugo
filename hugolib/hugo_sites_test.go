@@ -116,8 +116,8 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	// Sitemaps behaves different: In a multilanguage setup there will always be a index file and
 	// one sitemap in each lang folder.
 	assertFileContent(t, "public/sitemap.xml", true,
-		"<loc>http:/example.com/blog/en/sitemap.xml</loc>",
-		"<loc>http:/example.com/blog/fr/sitemap.xml</loc>")
+		"<loc>http://example.com/blog/en/sitemap.xml</loc>",
+		"<loc>http://example.com/blog/fr/sitemap.xml</loc>")
 
 	if defaultInSubDir {
 		assertFileContent(t, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/fr/</loc>")
@@ -313,8 +313,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	// Check sitemap(s)
 	sitemapIndex := readDestination(t, "public/sitemap.xml")
-	require.True(t, strings.Contains(sitemapIndex, "<loc>http:/example.com/blog/en/sitemap.xml</loc>"), sitemapIndex)
-	require.True(t, strings.Contains(sitemapIndex, "<loc>http:/example.com/blog/fr/sitemap.xml</loc>"), sitemapIndex)
+	require.True(t, strings.Contains(sitemapIndex, "<loc>http://example.com/blog/en/sitemap.xml</loc>"), sitemapIndex)
+	require.True(t, strings.Contains(sitemapIndex, "<loc>http://example.com/blog/fr/sitemap.xml</loc>"), sitemapIndex)
 	sitemapEn := readDestination(t, "public/en/sitemap.xml")
 	sitemapFr := readDestination(t, "public/fr/sitemap.xml")
 	require.True(t, strings.Contains(sitemapEn, "http://example.com/blog/en/sect/doc2/"), sitemapEn)
