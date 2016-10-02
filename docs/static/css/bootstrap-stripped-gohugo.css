@@ -1,9 +1,10 @@
 /*!
  * Bootstrap for http://gohugo.io/
- * with some customizations and with many unused selectors removed
- * Copyright 2013-2015 Steve Francis and the Hugo Authors
+ * with many unused property-value pairs, as well as selectors, removed
  *
- * Based on:
+ * Copyright 2013-2016 Steve Francia and the Hugo Authors
+ *
+ * Based on 'dist/css/bootstrap.css' from:
  *
  * Bootstrap v3.3.6 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
@@ -227,10 +228,10 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 body {
-  font-family: Lato;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #2b2b2b;
+  color: #333;
   background-color: #fff;
 }
 input,
@@ -242,12 +243,12 @@ textarea {
   line-height: inherit;
 }
 a {
-  color: #ff4088;
+  color: #337ab7;
   text-decoration: none;
 }
 a:hover,
 a:focus {
-  color: #ff4088;
+  color: #23527c;
   text-decoration: underline;
 }
 a:focus {
@@ -273,8 +274,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: Lato;
-  font-weight: 400;
+  font-family: inherit;
+  font-weight: 500;
   line-height: 1.1;
   color: inherit;
 }
@@ -381,7 +382,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: Menlo, Consolas, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', Monaco, 'Droid Sans Mono', monospace;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 code {
   padding: 2px 4px;
@@ -1097,9 +1098,9 @@ legend {
   margin-bottom: 20px;
   font-size: 21px;
   line-height: inherit;
-  color: #2b2b2b;
+  color: #333;
   border: 0;
-  border-bottom: 1px solid #c7c7cc;
+  border-bottom: 1px solid #e5e5e5;
 }
 label {
   display: inline-block;
@@ -1137,81 +1138,102 @@ label {
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
-  -webkit-transition: all 0.15s;
-     -moz-transition: all 0.15s;
-          transition: all 0.15s;
 }
 .btn:focus {
-  /*outline: thin dotted;
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
-  outline-offset: -2px;*/
-  outline: none;
+  outline-offset: -2px;
 }
 .btn:hover,
 .btn:focus {
-  color: #2b2b2b;
+  color: #333;
   text-decoration: none;
+}
+.btn:active {
+  outline: 0;
 }
 .btn-default {
   color: #333;
   background-color: #fff;
   border-color: #ccc;
 }
-.btn-default:hover,
-.btn-default:focus,
+.btn-default:focus {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #8c8c8c;
+}
+.btn-default:hover {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad;
+}
 .btn-default:active {
-  color: #fff;
-  background-color: #9e9e9e;
-  border-color: #9e9e9e;
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad;
 }
 .btn-default:active {
   background-image: none;
 }
 .btn-primary {
   color: #fff;
-  background-color: #007aff;
-  border-color: #007aff;
+  background-color: #337ab7;
+  border-color: #2e6da4;
 }
-.btn-primary:hover,
-.btn-primary:focus,
+.btn-primary:focus {
+  color: #fff;
+  border-color: #122b40;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #286090;
+  border-color: #204d74;
+}
 .btn-primary:active {
-  color: #007aff;
-  border-color: #007aff;
-  background: transparent;
+  color: #fff;
+  border-color: #204d74;
 }
 .btn-primary:active {
   background-image: none;
 }
 .btn-success {
   color: #fff;
-  background-color: #4cd964;
-  border-color: #4cd964;
+  background-color: #5cb85c;
+  border-color: #4cae4c;
 }
-.btn-success:hover,
-.btn-success:focus,
+.btn-success:focus {
+  color: #fff;
+  border-color: #255625;
+}
+.btn-success:hover {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #398439;
+}
 .btn-success:active {
-  color: #4cd964;
-  background: transparent;
-  border-color: #4cd964;
+  color: #fff;
+  border-color: #398439;
 }
 .btn-success:active {
   background-image: none;
-  outline: none;
 }
 .btn-info {
   color: #fff;
-  background-color: #34aadc;
-  border-color: #34aadc;
+  background-color: #5bc0de;
+  border-color: #46b8da;
 }
-.btn-info:hover,
-.btn-info:focus,
-.btn-info:active {
-  color: #34aadc;
-  background: transparent;
-  border-color: #34aadc;
+.btn-info:focus {
+  color: #fff;
+  border-color: #1b6d85;
+}
+.btn-info:hover {
+  color: #fff;
+  background-color: #31b0d5;
+  border-color: #269abc;
 }
 .btn-info:active {
-  background-image: none;
+  color: #fff;
+  border-color: #269abc;
 }
 .btn-lg,
 .btn-group-lg > .btn {
@@ -1266,12 +1288,12 @@ label {
 .panel {
   margin-bottom: 20px;
   background-color: #fff;
-  border: 0px solid transparent;
-  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+          box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 .panel-body {
-  padding: 15px 15px 0px 15px;
+  padding: 15px;
 }
 .carousel {
   position: relative;

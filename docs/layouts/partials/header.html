@@ -10,13 +10,16 @@
 {{ .Scratch.Add "title" "" }}{{ if isset .Site.Data.titles .Title }}{{ .Scratch.Set "title" (index .Site.Data.titles .Title).title }}{{ else }}{{ .Scratch.Set "title" .Title}}{{end}}
     <title>Hugo - {{ .Scratch.Get "title" }}</title>
 
-    <link href="/css/bootstrap-gohugo.css" rel="stylesheet">
-    <link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-stripped-gohugo.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-changes-gohugo.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-additions-gohugo.css">
+
+    <link rel="stylesheet" type="text/css" href="/vendor/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css" />
     <link href="/css/style.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/content-style.css" />
     <link href="/css/style-responsive.css" rel="stylesheet" />
-    <link href="/css/monokai-sublime.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/vendor/highlightjs/css/monokai-sublime.css">
 
   </head>
 
