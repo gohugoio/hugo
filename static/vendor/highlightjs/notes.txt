@@ -1,0 +1,13 @@
+Version: 9.0.0
+
+Source:
+  https://github.com/isagalaev/highlight.js
+
+Also see Hugo commit:
+  7cf7f85ad66a1cd35ab4e6026ed6b9da95c53c34.
+
+Files (there):
+  src/styles/monokai-sublime.css
+
+Files (we build):
+  highlight.pack.js
