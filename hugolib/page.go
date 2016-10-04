@@ -409,12 +409,10 @@ func traverse(keys []string, m map[string]interface{}) interface{} {
 
 func (p *Page) Author() Author {
 	authors := p.Authors()
-
-	for _, author := range authors {
-		return author
+	if len(authors) > 0 {
+		return authors[0].languageOverride(p.Node.lang)
 	}
-
-	return authors[0].languageOverride(p.Node.lang)
+	return Author{}
 }
 
 // Authors returns all listed authors for a page in the order they
