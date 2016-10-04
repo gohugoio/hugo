@@ -132,20 +132,20 @@ func mapToAuthor(id string, m map[string]interface{}) Author {
 
 	author := Author{ID: id}
 	for k, data := range m {
-		switch k {
-		case "givenName", "firstName":
+		switch strings.ToLower(k) {
+		case "givenname", "firstname":
 			author.GivenName = cast.ToString(data)
 			author.FirstName = author.GivenName
-		case "familyName", "lastName":
+		case "familyname", "lastname":
 			author.FamilyName = cast.ToString(data)
 			author.LastName = author.FamilyName
-		case "displayName":
+		case "displayname":
 			author.DisplayName = cast.ToString(data)
 		case "thumbnail":
 			author.Thumbnail = cast.ToString(data)
 		case "image":
 			author.Image = cast.ToString(data)
-		case "shortBio":
+		case "shortbio":
 			author.ShortBio = cast.ToString(data)
 		case "bio":
 			author.Bio = cast.ToString(data)
