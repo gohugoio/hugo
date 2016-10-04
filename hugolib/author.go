@@ -15,14 +15,35 @@ package hugolib
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/spf13/cast"
 )
 
-// AuthorList is a list of all authors and their metadata.
-type AuthorList map[string]Author
+var (
+	onlyNumbersRegExp = regexp.MustCompile("^[0-9]*$")
+)
+
+// Authors is a list of all authors and their metadata.
+type Authors []Author
+
+// Get returns an author from an ID
+func (a Authors) Get(id string) Author {
+	for _, author := range a {
+		if author.ID == id {
+			return author
+		}
+	}
+	return Author{}
+}
+
+// Sort sorts the authors by weight
+func (a Authors) Sort() Authors {
+	sort.Stable(a)
+	return a
+}
 
 // Author contains details about the author of a page.
 type Author struct {
@@ -43,7 +64,7 @@ type Author struct {
 	languages   map[string]Author
 }
 
-// AuthorSocial is a place to put social details per author. These are the
+// AuthorSocial is a place to put social usernames per author. These are the
 // standard keys that themes will expect to have available, but can be
 // expanded to any others on a per site basis
 // - website

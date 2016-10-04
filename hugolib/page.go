@@ -429,9 +429,10 @@ func (p *Page) Authors() Authors {
 			return Authors{a.languageOverride(p.Node.lang)}
 		}
 	}
-	authors := authorKeys.([]string)
-	if len(authors) < 1 || len(p.Site.Authors) < 1 {
-		return AuthorList{}
+
+	authorIDs, ok := p.Params["authors"].([]string)
+	if !ok || len(authorIDs) == 0 || len(p.Site.Authors) == 0 {
+		return Authors{}
 	}
 
 	authors := make([]Author, 0, len(authorIDs))
@@ -445,7 +446,8 @@ func (p *Page) Authors() Authors {
 			authors = append(authors, a.languageOverride(p.Node.lang))
 		}
 	}
-	return al
+
+	return authors
 }
 
 func (p *Page) UniqueID() string {

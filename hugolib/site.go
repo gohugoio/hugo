@@ -300,7 +300,6 @@ type SiteInfo struct {
 	Hugo                  *HugoInfo
 	Title                 string
 	RSSLink               string
-	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
 	GoogleAnalytics       string
