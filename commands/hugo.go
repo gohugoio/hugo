@@ -185,6 +185,7 @@ func Execute() {
 func AddCommands() {
 	HugoCmd.AddCommand(serverCmd)
 	HugoCmd.AddCommand(versionCmd)
+	HugoCmd.AddCommand(envCmd)
 	HugoCmd.AddCommand(configCmd)
 	HugoCmd.AddCommand(checkCmd)
 	HugoCmd.AddCommand(benchmarkCmd)

@@ -31,19 +31,23 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of Hugo",
 	Long:  `All software has versions. This is Hugo's.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if hugolib.BuildDate == "" {
-			setBuildDate() // set the build date from executable's mdate
-		} else {
-			formatBuildDate() // format the compile time
-		}
-		if hugolib.CommitHash == "" {
-			fmt.Printf("Hugo Static Site Generator v%s BuildDate: %s\n", helpers.HugoVersion(), hugolib.BuildDate)
-		} else {
-			fmt.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
-		}
+		printHugoVersion()
 
 		return nil
 	},
+}
+
+func printHugoVersion() {
+	if hugolib.BuildDate == "" {
+		setBuildDate() // set the build date from executable's mdate
+	} else {
+		formatBuildDate() // format the compile time
+	}
+	if hugolib.CommitHash == "" {
+		fmt.Printf("Hugo Static Site Generator v%s BuildDate: %s\n", helpers.HugoVersion(), hugolib.BuildDate)
+	} else {
+		fmt.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
+	}
 }
 
 // setBuildDate checks the ModTime of the Hugo executable and returns it as a
