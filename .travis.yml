@@ -19,5 +19,6 @@ script:
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:
-  - gem install asciidoctor -v 1.5.4
+  - gem update bundler
+  - gem install asciidoctor
   - sudo pip install docutils
