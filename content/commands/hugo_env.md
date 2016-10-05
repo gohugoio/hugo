@@ -1,20 +1,20 @@
 ---
 date: 2016-10-05T10:21:48+02:00
-title: "hugo config"
-slug: hugo_config
-url: /commands/hugo_config/
+title: "hugo env"
+slug: hugo_env
+url: /commands/hugo_env/
 ---
-## hugo config
+## hugo env
 
-Print the site configuration
+Print Hugo version and environment info
 
 ### Synopsis
 
 
-Print the site configuration, both default and custom settings.
+Print Hugo version and environment info. This is useful in Hugo bug reports.
 
 ```
-hugo config
+hugo env
 ```
 
 ### Options inherited from parent commands
