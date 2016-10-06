@@ -155,6 +155,7 @@ func init() {
 	pygmentsKeywords["lineanchors"] = true
 	pygmentsKeywords["linespans"] = true
 	pygmentsKeywords["anchorlinenos"] = true
+	pygmentsKeywords["startinline"] = true
 }
 
 func parseOptions(options map[string]string, in string) error {
