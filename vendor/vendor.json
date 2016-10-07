@@ -251,7 +251,7 @@
 			"revisionTime": "2016-09-19T21:01:14Z"
 		},
 		{
-			"checksumSHA1": "LYlvAvaPyvxqvn5j3frHjr8dwCY=",
+			"checksumSHA1": "M4qI7Ul0vf2uj3fF69DvRnwqfd0=",
 			"path": "github.com/spf13/cast",
 			"revision": "2580bc98dc0e62908119e4737030cc2fdfc45e4c",
 			"revisionTime": "2016-09-26T08:42:49Z"
@@ -293,10 +293,10 @@
 			"revisionTime": "2016-09-15T15:31:01Z"
 		},
 		{
-			"checksumSHA1": "de7x00sr+GTxn9S7yGEYhhWnj7k=",
+			"checksumSHA1": "kXy9anUN6G+pg8NK275mrw1/GoE=",
 			"path": "github.com/spf13/viper",
-			"revision": "51433a5ff06d151bb6d0048df100c4a6b884b728",
-			"revisionTime": "2016-09-26T13:18:46Z"
+			"revision": "670c42a85b2a2215949acd943cb8f11add317e3f",
+			"revisionTime": "2016-10-05T23:22:39Z"
 		},
 		{
 			"checksumSHA1": "iydUphwYqZRq3WhstEdGsbvBAKs=",
