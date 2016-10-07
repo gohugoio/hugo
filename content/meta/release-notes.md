@@ -13,18 +13,18 @@ weight: 10
 
 ## **0.17.0** October 7th 2016
 
-Hugo is going global with our 0.17 release.  We put a lot of thought into how we could extend Hugo 
+Hugo is going global with our 0.17 release.  We put a lot of thought into how we could extend Hugo
 to support multilingual websites with the most simple and elegant experience. Hugo's multilingual
-capabilities rival the best web and documentation software, but Hugo's experience is unmatched. 
-If you have a single language website, the simple Hugo experience you already love is unchanged. 
-Adding additional languages to your website is simple and straightforward. Hugo has been completely 
-internally rewritten to be multilingual aware with translation and internationalization features 
+capabilities rival the best web and documentation software, but Hugo's experience is unmatched.
+If you have a single language website, the simple Hugo experience you already love is unchanged.
+Adding additional languages to your website is simple and straightforward. Hugo has been completely
+internally rewritten to be multilingual aware with translation and internationalization features
 embedded throughout Hugo.
 
 Hugo continues its trend of each release being faster than the last. It's quite a challenge to consistently add
-significant new functionality and simultaneously dramatically improve performance. {{<gh "@bep">}} has made it 
-his personal mission to apply the Go mantra of "Enable more. Do less" to Hugo. Hugo's consistent improvement 
-is a testament to his brilliance and his dedication to his craft. Hugo is further benefited by the 
+significant new functionality and simultaneously dramatically improve performance. {{<gh "@bep">}} has made it
+his personal mission to apply the Go mantra of "Enable more. Do less" to Hugo. Hugo's consistent improvement
+is a testament to his brilliance and his dedication to his craft. Hugo additionally benefits from the
 performance improvements from the Go team in the Go 1.7 release.
 
 This release represents **over 300 contributions by over 70 contributors** to
@@ -36,12 +36,12 @@ Hugo now has:
 * 12,000 stars on GitHub
 * 370+ contributors
 * 110+ themes
-  
-{{<gh "@bep" >}} continues to lead the project with the lionshare of contributions 
-and reviews. A special thanks to {{<gh "@bep" >}} and {{<gh "@abourget" >}} for their 
-considerable work on multilingual support. 
 
-A big welcome to newcomers {{<gh "@MarkDBlackwell" >}}, {{<gh "@bogem" >}} and 
+{{<gh "@bep" >}} continues to lead the project with the lionshare of contributions
+and reviews. A special thanks to {{<gh "@bep" >}} and {{<gh "@abourget" >}} for their
+considerable work on multilingual support.
+
+A big welcome to newcomers {{<gh "@MarkDBlackwell" >}}, {{<gh "@bogem" >}} and
 {{<gh "@g3wanghc" >}} for their critical contributions.
 
 ### Highlights
@@ -57,7 +57,7 @@ This means that the same site will build in nearly half the time it took with Hu
 For the first time Hugo sites are averaging well under 1ms per rendered content.
 
 **Docs overhaul:**
-This release really focused on improving the documentation. [Gohugo.io](http://gohugo.io) is 
+This release really focused on improving the documentation. [Gohugo.io](http://gohugo.io) is
 more accurate and complete than ever.
 
 **Support for Mac OS Sierra**
@@ -121,7 +121,7 @@ including...
 * Many subprojects like {{< gh "@spf13/cobra">}}, {{< gh "@spf13/viper">}} and
   {{< gh "@spf13/afero">}} which have experienced broad usage across the Go
   ecosystem.
-  
+
 {{< gh "@bep" >}} led the development of Hugo for the 3rd consecutive release
 with nearly half of the contributions to 0.16 in addition to his considerable
 contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
@@ -153,7 +153,7 @@ times decreased anywhere from 10% to 99%.
 * Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
 *  Add `ByLastmod` sort function to pages. {{<gh 0xeb627ca16de6fb5e8646279edd295a8bf0f72bf1 >}}
 * New templates functions:
-	* `readFile` {{<gh 1551 >}} 
+	* `readFile` {{<gh 1551 >}}
     * `countwords` and `countrunes` {{<gh 1440>}}
     * `default` {{<gh 1943>}}
     * `hasPrefix` {{<gh 1243>}}
