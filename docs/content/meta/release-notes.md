@@ -60,7 +60,7 @@ For the first time Hugo sites are averaging well under 1ms per rendered content.
 This release really focused on improving the documentation. [Gohugo.io](http://gohugo.io) is
 more accurate and complete than ever.
 
-**Support for Mac OS Sierra**
+**Support for macOS Sierra**
 
 ### New Features
 * Multilingual support {{<gh 2303>}}
