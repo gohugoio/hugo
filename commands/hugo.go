@@ -149,6 +149,7 @@ var (
 	uglyURLs              bool
 	verbose               bool
 	verboseLog            bool
+	quiet                 bool
 )
 
 var (
@@ -209,6 +210,7 @@ func initHugoBuilderFlags(cmd *cobra.Command) {
 
 func initRootPersistentFlags() {
 	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	HugoCmd.PersistentFlags().BoolVar(&quiet, "quiet", false, "build in quiet mode")
 
 	// Set bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
@@ -394,7 +396,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		jww.DiscardLogging()
 	}
 
-	if viper.GetBool("verbose") {
+	if quiet {
+		jww.SetStdoutThreshold(jww.LevelError)
+	} else if viper.GetBool("verbose") {
 		jww.SetStdoutThreshold(jww.LevelInfo)
 	}
 
@@ -631,16 +635,20 @@ func reCreateAndbuildSites(watching bool) (err error) {
 	if err := initSites(); err != nil {
 		return err
 	}
-	fmt.Println("Started building sites ...")
-	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: true})
+	if !quiet {
+		fmt.Println("Started building sites ...")
+	}
+	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: !quiet})
 }
 
 func resetAndbuildSites(watching bool) (err error) {
 	if err := initSites(); err != nil {
 		return err
 	}
-	fmt.Println("Started building sites ...")
-	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: true})
+	if !quiet {
+		fmt.Println("Started building sites ...")
+	}
+	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: !quiet})
 }
 
 func initSites() error {
@@ -662,15 +670,17 @@ func buildSites(watching bool) (err error) {
 	if err := initSites(); err != nil {
 		return err
 	}
-	fmt.Println("Started building sites ...")
-	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: true})
+	if !quiet {
+		fmt.Println("Started building sites ...")
+	}
+	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: !quiet})
 }
 
 func rebuildSites(events []fsnotify.Event) error {
 	if err := initSites(); err != nil {
 		return err
 	}
-	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: true, Watching: true}, events...)
+	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
 }
 
 // NewWatcher creates a new watcher to watch filesystem events.
