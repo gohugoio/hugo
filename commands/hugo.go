@@ -373,6 +373,11 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	if cacheDir != "" {
+		viper.Set("CacheDir", cacheDir)
+	}
+
+	cacheDir = viper.GetString("cacheDir")
+	if cacheDir != "" {
 		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
 			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
