@@ -114,17 +114,6 @@ func (i item) String() string {
 
 type itemType int
 
-// named params in shortcodes
-type namedParam struct {
-	name  string
-	value string
-}
-
-// for testing
-func (np namedParam) String() string {
-	return fmt.Sprintf("%s=%s", np.name, np.value)
-}
-
 const (
 	tError itemType = iota
 	tEOF

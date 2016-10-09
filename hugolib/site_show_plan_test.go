@@ -43,7 +43,6 @@ var fakeSource = []source.ByteSource{
 }
 
 func checkShowPlanExpected(t *testing.T, s *Site, expected string) {
-
 	out := new(bytes.Buffer)
 	if err := s.ShowPlan(out); err != nil {
 		t.Fatalf("ShowPlan unexpectedly returned an error: %s", err)
