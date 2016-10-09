@@ -7,6 +7,8 @@ weight: 120
 
 This section highlights some projects around Hugo that are independently developed. These tools try to extend the functionality of our static site generator or help you to get started.
 
+> **Note:** Do you know or maintain a similar project around Hugo? Feel free to open a [pull request](https://github.com/spf13/hugo/pulls) on GitHub if you think it should be added.
+
 
 ## Migration
 
@@ -104,11 +106,14 @@ A static site with a dynamic search function? Yes. Alternatively to embeddable s
 ## Commercial Services
 
 - [Algolia](https://www.algolia.com/)'s Search API makes it easy to deliver a great search experience in your apps &amp; websites. Algolia Search provides hosted full-text, numerical, faceted and geolocalized search.
+
 - [Appernetic.io](https://appernetic.io) is a Hugo Static Site Generator as a Service that is easy to use for non-technical users.
 Features: inline PageDown editor, visual tree view, image upload and digital asset management with Cloudinary, site preview, continuous integration with GitHub, atomic deploy and hosting, Git and Hugo integration, autosave, custom domain, project syncing, theme cloning and management. Developers have complete control over the source code and can manage it with GitHub’s deceptively simple workflow.
 
 - [Netlify.com](https://www.netlify.com), builds, deploy & hosts your static site or app (Hugo, Jekyll etc). Build, deploy and host your static site or app with a drag and drop interface and automatic deploys from GitHub or Bitbucket.
 Features: global CDN, atomic deploys, ultra fast DNS, instant cache invalidation, high availability, automated hosting, Git integration, form submission hooks, authentication providers, custom domain. Developers have complete control over the source code and can manage it with GitHub’s or Bitbuckets deceptively simple workflow.
+
+- [Forestry.io](https://forestry.io/) - A simple CMS for Jekyll and Hugo sites with an integration of GitHub and Bitbucket. Everytime an update is made via the CMS, Forestry will compile your site and deploy it to your host (S3, GitHub Pages, FTP, etc).
 
 ----
 
@@ -119,8 +124,3 @@ And for all the other small things around Hugo:
 - [hugo-gallery](https://github.com/icecreammatt/hugo-gallery) lets you create an image gallery for Hugo sites.
 - [flickr-hugo-embed](https://github.com/nikhilm/flickr-hugo-embed) prints shortcodes to embed a set of images from an album on Flickr into Hugo.
 - [hugo-openapispec-shortcode](https://github.com/tenfourty/hugo-openapispec-shortcode) A shortcode which allows you to include [Open API Spec](https://openapis.org) (formerly known as Swagger Spec) in a page.
-
-----
-
-> Do you know or maintain a similar project around Hugo? Feel free to open a
-[pull request](https://github.com/spf13/hugo/pulls) on GitHub if you think it should be added.
