@@ -11,7 +11,7 @@ grade: stable # use "devel" or "stable" to assert the snap quality
 apps:
   hugo:
     command: bin/hugo
-    plugs: [home]
+    plugs: [home, network-bind]
 
 parts:
   hugo:
