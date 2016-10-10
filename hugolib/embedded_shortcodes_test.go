@@ -16,6 +16,7 @@ package hugolib
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/url"
 	"os"
 	"path/filepath"
