@@ -293,10 +293,10 @@
 			"revisionTime": "2016-10-06T16:53:40Z"
 		},
 		{
-			"checksumSHA1": "kXy9anUN6G+pg8NK275mrw1/GoE=",
+			"checksumSHA1": "+RJudGkFugn3gRJYUIan1Wbugdw=",
 			"path": "github.com/spf13/viper",
-			"revision": "670c42a85b2a2215949acd943cb8f11add317e3f",
-			"revisionTime": "2016-10-05T23:22:39Z"
+			"revision": "51f23d1f1c56a7773ae8f2cfd038f7996ecc9ac2",
+			"revisionTime": "2016-10-10T11:40:38Z"
 		},
 		{
 			"checksumSHA1": "Q2V7Zs3diLmLfmfbiuLpSxETSuY=",
