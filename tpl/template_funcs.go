@@ -1392,6 +1392,52 @@ func replace(a, b, c interface{}) (string, error) {
 	return strings.Replace(aStr, bStr, cStr, -1), nil
 }
 
+// partialCache represents a cache of partials protected by a mutex.
+type partialCache struct {
+	sync.RWMutex
+	p map[string]template.HTML
+}
+
+// Get retrieves partial output from the cache based upon the partial name.
+// If the partial is not found in the cache, the partial is rendered and added
+// to the cache.
+func (c *partialCache) Get(key, name string, context interface{}) (p template.HTML) {
+	var ok bool
+
+	c.RLock()
+	p, ok = c.p[key]
+	c.RUnlock()
+
+	if ok {
+		return p
+	}
+
+	c.Lock()
+	if p, ok = c.p[key]; !ok {
+		p = partial(name, context)
+		c.p[key] = p
+	}
+	c.Unlock()
+
+	return p
+}
+
+var cachedPartials = partialCache{p: make(map[string]template.HTML)}
+
+// partialCached executes and caches partial templates.  An optional variant
+// string parameter (a string slice actually, but be only use a variadic
+// argument to make it optional) can be passed so that a given partial can have
+// multiple uses.  The cache is created with name+variant as the key.
+func partialCached(name string, context interface{}, variant ...string) template.HTML {
+	key := name
+	if len(variant) > 0 {
+		for i := 0; i < len(variant); i++ {
+			key += variant[i]
+		}
+	}
+	return cachedPartials.Get(key, name, context)
+}
+
 // regexpCache represents a cache of regexp objects protected by a mutex.
 type regexpCache struct {
 	mu sync.RWMutex
@@ -1915,59 +1961,60 @@ func init() {
 			}
 			return template.HTML(helpers.AbsURL(s, true)), nil
 		},
-		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
-		"after":        after,
-		"apply":        apply,
-		"base64Decode": base64Decode,
-		"base64Encode": base64Encode,
-		"chomp":        chomp,
-		"countrunes":   countRunes,
-		"countwords":   countWords,
-		"default":      dfault,
-		"dateFormat":   dateFormat,
-		"delimit":      delimit,
-		"dict":         dictionary,
-		"div":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '/') },
-		"echoParam":    returnWhenSet,
-		"emojify":      emojify,
-		"eq":           eq,
-		"findRE":       findRE,
-		"first":        first,
-		"ge":           ge,
-		"getCSV":       getCSV,
-		"getJSON":      getJSON,
-		"getenv":       func(varName string) string { return os.Getenv(varName) },
-		"gt":           gt,
-		"hasPrefix":    func(a, b string) bool { return strings.HasPrefix(a, b) },
-		"highlight":    highlight,
-		"htmlEscape":   htmlEscape,
-		"htmlUnescape": htmlUnescape,
-		"humanize":     humanize,
-		"in":           in,
-		"index":        index,
-		"int":          func(v interface{}) (int, error) { return cast.ToIntE(v) },
-		"intersect":    intersect,
-		"isSet":        isSet,
-		"isset":        isSet,
-		"jsonify":      jsonify,
-		"last":         last,
-		"le":           le,
-		"lower":        func(a string) string { return strings.ToLower(a) },
-		"lt":           lt,
-		"markdownify":  markdownify,
-		"md5":          md5,
-		"mod":          mod,
-		"modBool":      modBool,
-		"mul":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
-		"ne":           ne,
-		"partial":      partial,
-		"plainify":     plainify,
-		"pluralize":    pluralize,
-		"querify":      querify,
-		"readDir":      readDirFromWorkingDir,
-		"readFile":     readFileFromWorkingDir,
-		"ref":          ref,
-		"relURL":       relURL,
+		"add":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
+		"after":         after,
+		"apply":         apply,
+		"base64Decode":  base64Decode,
+		"base64Encode":  base64Encode,
+		"chomp":         chomp,
+		"countrunes":    countRunes,
+		"countwords":    countWords,
+		"default":       dfault,
+		"dateFormat":    dateFormat,
+		"delimit":       delimit,
+		"dict":          dictionary,
+		"div":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '/') },
+		"echoParam":     returnWhenSet,
+		"emojify":       emojify,
+		"eq":            eq,
+		"findRE":        findRE,
+		"first":         first,
+		"ge":            ge,
+		"getCSV":        getCSV,
+		"getJSON":       getJSON,
+		"getenv":        func(varName string) string { return os.Getenv(varName) },
+		"gt":            gt,
+		"hasPrefix":     func(a, b string) bool { return strings.HasPrefix(a, b) },
+		"highlight":     highlight,
+		"htmlEscape":    htmlEscape,
+		"htmlUnescape":  htmlUnescape,
+		"humanize":      humanize,
+		"in":            in,
+		"index":         index,
+		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
+		"intersect":     intersect,
+		"isSet":         isSet,
+		"isset":         isSet,
+		"jsonify":       jsonify,
+		"last":          last,
+		"le":            le,
+		"lower":         func(a string) string { return strings.ToLower(a) },
+		"lt":            lt,
+		"markdownify":   markdownify,
+		"md5":           md5,
+		"mod":           mod,
+		"modBool":       modBool,
+		"mul":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
+		"ne":            ne,
+		"partial":       partial,
+		"partialCached": partialCached,
+		"plainify":      plainify,
+		"pluralize":     pluralize,
+		"querify":       querify,
+		"readDir":       readDirFromWorkingDir,
+		"readFile":      readFileFromWorkingDir,
+		"ref":           ref,
+		"relURL":        relURL,
 		"relLangURL": func(i interface{}) (template.HTML, error) {
 			s, err := cast.ToStringE(i)
 			if err != nil {

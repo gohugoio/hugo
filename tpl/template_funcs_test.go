@@ -2471,3 +2471,139 @@ func TestReadFile(t *testing.T) {
 		}
 	}
 }
+
+func TestPartialCached(t *testing.T) {
+	testCases := []struct {
+		name    string
+		partial string
+		tmpl    string
+		variant string
+	}{
+		// name and partial should match between test cases.
+		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . }}`, ""},
+		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "header"},
+		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "footer"},
+		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "header"},
+	}
+
+	results := make(map[string]string, len(testCases))
+
+	var data struct {
+		Title   string
+		Section string
+		Params  map[string]interface{}
+	}
+
+	data.Title = "**BatMan**"
+	data.Section = "blog"
+	data.Params = map[string]interface{}{"langCode": "en"}
+
+	InitializeT()
+	for i, tc := range testCases {
+		var tmp string
+		if tc.variant != "" {
+			tmp = fmt.Sprintf(tc.tmpl, tc.variant)
+		} else {
+			tmp = tc.tmpl
+		}
+
+		tmpl, err := New().New("testroot").Parse(tmp)
+		if err != nil {
+			t.Fatalf("[%d] unable to create new html template: %s", i, err)
+		}
+
+		if tmpl == nil {
+			t.Fatalf("[%d] tmpl should not be nil!", i)
+		}
+
+		tmpl.New("partials/" + tc.name).Parse(tc.partial)
+
+		buf := new(bytes.Buffer)
+		err = tmpl.Execute(buf, &data)
+		if err != nil {
+			t.Fatalf("[%d] error executing template: %s", i, err)
+		}
+
+		for j := 0; j < 10; j++ {
+			buf2 := new(bytes.Buffer)
+			err = tmpl.Execute(buf2, nil)
+			if err != nil {
+				t.Fatalf("[%d] error executing template 2nd time: %s", i, err)
+			}
+
+			if !reflect.DeepEqual(buf, buf2) {
+				t.Fatalf("[%d] cached results do not match:\nResult 1:\n%q\nResult 2:\n%q", i, buf, buf2)
+			}
+		}
+
+		// double-check against previous test cases of the same variant
+		previous, ok := results[tc.name+tc.variant]
+		if !ok {
+			results[tc.name+tc.variant] = buf.String()
+		} else {
+			if previous != buf.String() {
+				t.Errorf("[%d] cached variant differs from previous rendering; got:\n%q\nwant:\n%q", i, buf.String(), previous)
+			}
+		}
+	}
+}
+
+func BenchmarkPartial(b *testing.B) {
+	InitializeT()
+	tmpl, err := New().New("testroot").Parse(`{{ partial "bench1" . }}`)
+	if err != nil {
+		b.Fatalf("unable to create new html template: %s", err)
+	}
+
+	tmpl.New("partials/bench1").Parse(`{{ shuffle (seq 1 10) }}`)
+	buf := new(bytes.Buffer)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err = tmpl.Execute(buf, nil); err != nil {
+			b.Fatalf("error executing template: %s", err)
+		}
+		buf.Reset()
+	}
+}
+
+func BenchmarkPartialCached(b *testing.B) {
+	InitializeT()
+	tmpl, err := New().New("testroot").Parse(`{{ partialCached "bench1" . }}`)
+	if err != nil {
+		b.Fatalf("unable to create new html template: %s", err)
+	}
+
+	tmpl.New("partials/bench1").Parse(`{{ shuffle (seq 1 10) }}`)
+	buf := new(bytes.Buffer)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err = tmpl.Execute(buf, nil); err != nil {
+			b.Fatalf("error executing template: %s", err)
+		}
+		buf.Reset()
+	}
+}
+
+func BenchmarkPartialCachedVariants(b *testing.B) {
+	InitializeT()
+	tmpl, err := New().New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
+	if err != nil {
+		b.Fatalf("unable to create new html template: %s", err)
+	}
+
+	tmpl.New("partials/bench1").Parse(`{{ shuffle (seq 1 10) }}`)
+	buf := new(bytes.Buffer)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err = tmpl.Execute(buf, nil); err != nil {
+			b.Fatalf("error executing template: %s", err)
+		}
+		buf.Reset()
+	}
+}
