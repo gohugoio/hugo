@@ -134,9 +134,9 @@ You may then **deploy your site** by copying the `public/` directory
 to your production web server.
 
 Since Hugo generates a static website, your site can be hosted anywhere,
-including [Heroku][], [GoDaddy][], [DreamHost][], [GitHub Pages][],
-[Amazon S3][] with [CloudFront][],
-or any other cheap (or even free) static web hosting service.
+including [Heroku][], [GoDaddy][], [DreamHost][], [GitHub Pages][], [GitLab][],
+[Amazon S3][] with [CloudFront][], or any other cheap (or even free) static web
+hosting service.
 
 [Apache][], [nginx][], [IIS][]...  Any web server software would do!
 
@@ -147,6 +147,7 @@ or any other cheap (or even free) static web hosting service.
 [GoDaddy]: https://www.godaddy.com/
 [DreamHost]: http://www.dreamhost.com/
 [GitHub Pages]: https://pages.github.com/
+[GitLab]: https://about.gitlab.com
 [Amazon S3]: http://aws.amazon.com/s3/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 
@@ -206,4 +207,3 @@ the JavaScript code for LiveReload to be added to your web pages.
 Interested? Here are some great tutorials contributed by Hugo users:
 
 * [hugo, syncthing](http://fredix.xyz/2014/10/hugo-syncthing/) (French) by Frédéric Logier (@fredix)
-
