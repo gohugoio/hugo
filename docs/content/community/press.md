@@ -1,5 +1,5 @@
 ---
-lastmod: 2016-08-17
+lastmod: 2016-10-10
 date: 2014-03-24T20:00:00Z
 linktitle: Press
 notoc: true
@@ -18,6 +18,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title                                                                                                                                                                     | Author                                                        | Date         |
 | ------                                                                                                                                                                    | ------                                                        | -----:       |
+| [A Step-by-Step Guide: Hugo on Netlify](https://www.netlify.com/blog/2016/09/21/a-step-by-step-guide-hugo-on-netlify/)                                                    | Eli Williamson                                                 | 21 Sep 2016  |
 | [Building our site: From Django & Wordpress to a static generator (Part I)](https://tryolabs.com/blog/2016/09/20/building-our-site-django-wordpress-to-static-part-i/)    | Alan Descoins                                                 | 20 Sep 2016  |
 | [Webseitenmaschine - Statische Websites mit Hugo erzeugen](http://www.heise.de/ct/ausgabe/2016-12-Statische-Websites-mit-Hugo-erzeugen-3211704.html) <small>(German, $)</small> | Christian Helmbold                                      | 27 May 2016  |
 | [Cómo hacer sitios web estáticos con Hugo y Go - Platzi](https://www.youtube.com/watch?v=qaXXpdiCHXE) <small>(Video tutorial)</small>                                     | Verónica López                                                | 6 Apr 2016   |
