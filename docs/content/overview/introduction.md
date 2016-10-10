@@ -21,7 +21,7 @@ writing experience.
 
 Sites built with Hugo are extremely fast and very secure. Hugo sites can
 be hosted anywhere, including [Heroku][], [GoDaddy][], [DreamHost][],
-[GitHub Pages][], [Surge][], [Aerobatic][], [Google Cloud Storage][],
+[GitHub Pages][], [GitLab][], [Surge][], [Aerobatic][], [Google Cloud Storage][],
 [Amazon S3][] and [CloudFront][], and work well with CDNs.
 Hugo sites run without dependencies on expensive runtimes like Ruby,
 Python or PHP and without dependencies on any databases.
@@ -29,6 +29,7 @@ Python or PHP and without dependencies on any databases.
 [Heroku]: https://www.heroku.com/
 [GoDaddy]: https://www.godaddy.com/
 [DreamHost]: http://www.dreamhost.com/
+[GitLab]: https://about.gitlab.com
 [GitHub Pages]: https://pages.github.com/
 [Aerobatic]: https://www.aerobatic.com/
 [Google Cloud Storage]: http://cloud.google.com/storage/
