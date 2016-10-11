@@ -1128,7 +1128,7 @@ func TestDraftAndPublishedFrontMatterError(t *testing.T) {
 	}
 }
 
-var pageWithPublishedFalse = `---
+var pagesWithPublishedFalse = `---
 title: okay
 published: false
 ---
@@ -1142,7 +1142,7 @@ some content
 `
 
 func TestPublishedFrontMatter(t *testing.T) {
-	p, err := NewPageFrom(strings.NewReader(pageWithPublishedFalse), "content/post/broken.md")
+	p, err := NewPageFrom(strings.NewReader(pagesWithPublishedFalse), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
@@ -1155,6 +1155,36 @@ func TestPublishedFrontMatter(t *testing.T) {
 	}
 	if p.Draft {
 		t.Errorf("expected false, got %t", p.Draft)
+	}
+}
+
+var pagesDraftTemplate = []string{`---
+title: "okay"
+draft: %t
+---
+some content
+`,
+	`+++
+title = "okay"
+draft = %t
++++
+
+some content
+`,
+}
+
+func TestDraft(t *testing.T) {
+	for _, draft := range []bool{true, false} {
+		for i, templ := range pagesDraftTemplate {
+			pageContent := fmt.Sprintf(templ, draft)
+			p, err := NewPageFrom(strings.NewReader(pageContent), "content/post/broken.md")
+			if err != nil {
+				t.Fatalf("err during parse: %s", err)
+			}
+			if p.Draft != draft {
+				t.Errorf("[%d] expected %t, got %t", i, draft, p.Draft)
+			}
+		}
 	}
 }
 
