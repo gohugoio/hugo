@@ -1286,6 +1286,18 @@ func markdownify(in interface{}) (template.HTML, error) {
 	return template.HTML(m), nil
 }
 
+// asciidocify renders a given string from Markdown to HTML.
+func asciidocify(in interface{}) (template.HTML, error) {
+	text, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+	m := helpers.RenderBytes(&helpers.RenderingContext{Content: []byte(text), PageFmt: "asciidoc"})
+	//m = bytes.TrimPrefix(m, markdownTrimPrefix)
+	//m = bytes.TrimSuffix(m, markdownTrimSuffix)
+	return template.HTML(m), nil
+}
+
 // jsonify encodes a given object to JSON.
 func jsonify(v interface{}) (template.HTML, error) {
 	b, err := json.Marshal(v)
@@ -1918,6 +1930,7 @@ func init() {
 		"add":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":        after,
 		"apply":        apply,
+		"asciidocify":  asciidocify,
 		"base64Decode": base64Decode,
 		"base64Encode": base64Encode,
 		"chomp":        chomp,
