@@ -117,19 +117,17 @@ func partial(name string, contextList ...interface{}) template.HTML {
 }
 
 func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
-	worked := false
+	var worked bool
 	for _, layout := range layouts {
-
-		name := layout
-
-		if Lookup(name) == nil {
-			name = layout + ".html"
+		templ := Lookup(layout)
+		if templ == nil {
+			layout += ".html"
+			templ = Lookup(layout)
 		}
 
-		if templ := Lookup(name); templ != nil {
-			err := templ.Execute(w, context)
-			if err != nil {
-				jww.ERROR.Println(err, "in", name)
+		if templ != nil {
+			if err := templ.Execute(w, context); err != nil {
+				jww.ERROR.Println(err, "in", layout)
 			}
 			worked = true
 			break
