@@ -127,7 +127,8 @@ func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 
 		if templ != nil {
 			if err := templ.Execute(w, context); err != nil {
-				jww.ERROR.Println(err, "in", layout)
+				// Printing the err is spammy, see https://github.com/golang/go/issues/17414
+				helpers.DistinctErrorLog.Println(layout, "is an incomplete or empty template")
 			}
 			worked = true
 			break
