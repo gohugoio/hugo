@@ -139,7 +139,19 @@ This uses a definition like this one in `i18n/en-US.yaml`:
 - id: wordCount
   translation: "This article has {{ .WordCount }} words."
 ```
+An example of singular and plural form:
 
+```
+- id: readingTime
+  translation: 
+    one: "One minute read"
+    other: "{{.Count}} minutes read"
+```
+And then in the template:
+
+```
+{{ i18n "readingTime" .ReadingTime }}
+```
 To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
 
 ```bash
