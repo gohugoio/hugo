@@ -14,6 +14,8 @@
 package hugolib
 
 import (
+	"fmt"
+
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
@@ -29,7 +31,7 @@ func loadI18n(sources []source.Input) error {
 		for _, r := range currentSource.Files() {
 			err := i18nBundle.ParseTranslationFileBytes(r.LogicalName(), r.Bytes())
 			if err != nil {
-				return err
+				return fmt.Errorf("Failed to load translations in file %q: %s", r.LogicalName(), err)
 			}
 		}
 	}

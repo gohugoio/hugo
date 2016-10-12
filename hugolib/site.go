@@ -512,7 +512,9 @@ func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
 	}
 
 	if len(i18nChanged) > 0 {
-		s.readI18nSources()
+		if err := s.readI18nSources(); err != nil {
+			jww.ERROR.Println(err)
+		}
 	}
 
 	// If a content file changes, we need to reload only it and re-render the entire site.
