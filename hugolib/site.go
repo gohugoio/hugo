@@ -2372,7 +2372,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	if outBuffer.Len() == 0 {
 
-		jww.WARN.Printf("%q is rendered empty\n", dest)
+		jww.WARN.Printf("%s is rendered empty\n", dest)
 		if dest == "/" {
 			debugAddend := ""
 			if !viper.GetBool("Verbose") {
