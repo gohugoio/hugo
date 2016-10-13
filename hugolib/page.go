@@ -380,7 +380,8 @@ func (p *Page) renderContent(content []byte) []byte {
 	return helpers.RenderBytes(&helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
 		ConfigProvider: p.Language(),
-		DocumentID:     p.UniqueID(), Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		DocumentID:     p.UniqueID(), DocumentName: p.Path(),
+		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {

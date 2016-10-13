@@ -243,7 +243,9 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 			newInner := helpers.RenderBytes(&helpers.RenderingContext{
 				Content: []byte(inner), PageFmt: p.determineMarkupType(),
 				ConfigProvider: p.Language(),
-				DocumentID:     p.UniqueID(), Config: p.getRenderingConfig()})
+				DocumentID:     p.UniqueID(),
+				DocumentName:   p.Path(),
+				Config:         p.getRenderingConfig()})
 
 			// If the type is “unknown” or “markdown”, we assume the markdown
 			// generation has been performed. Given the input: `a line`, markdown

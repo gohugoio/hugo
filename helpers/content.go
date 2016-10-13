@@ -354,6 +354,7 @@ type RenderingContext struct {
 	Content        []byte
 	PageFmt        string
 	DocumentID     string
+	DocumentName   string
 	Config         *Blackfriday
 	RenderTOC      bool
 	FileResolver   FileResolverFunc
@@ -383,7 +384,7 @@ func RenderBytes(ctx *RenderingContext) []byte {
 	case "markdown":
 		return markdownRender(ctx)
 	case "asciidoc":
-		return getAsciidocContent(ctx.Content)
+		return getAsciidocContent(ctx)
 	case "mmark":
 		return mmarkRender(ctx)
 	case "rst":
@@ -533,7 +534,8 @@ func HasAsciidoc() bool {
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
-func getAsciidocContent(content []byte) []byte {
+func getAsciidocContent(ctx *RenderingContext) []byte {
+	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	path := getAsciidocExecPath()
@@ -555,7 +557,7 @@ func getAsciidocContent(content []byte) []byte {
 	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
 		item := strings.TrimSpace(item)
 		if item != "" {
-			jww.ERROR.Println(item)
+			jww.ERROR.Println(strings.Replace(item, "<stdin>", ctx.DocumentName, 1))
 		}
 	}
 	if err != nil {
