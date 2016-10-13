@@ -23,7 +23,6 @@ import (
 
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"github.com/spf13/viper"
 )
 
@@ -42,17 +41,6 @@ func must(err error) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-type InMemoryAliasTarget struct {
-	target.HTMLRedirectAlias
-	files map[string][]byte
-}
-
-func (t *InMemoryAliasTarget) Publish(label string, permalink template.HTML) (err error) {
-	f, _ := t.Translate(label)
-	t.files[f] = []byte("--dummy text--")
-	return
 }
 
 var urlFakeSource = []source.ByteSource{

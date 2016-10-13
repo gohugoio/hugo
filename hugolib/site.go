@@ -1012,14 +1012,6 @@ func (s *Site) absThemeDir() string {
 	return helpers.AbsPathify(s.themeDir())
 }
 
-func (s *Site) isThemeDirEvent(e fsnotify.Event) bool {
-	return s.getThemeDir(e.Name) != ""
-}
-
-func (s *Site) getThemeDir(path string) string {
-	return getRealDir(s.absThemeDir(), path)
-}
-
 func (s *Site) layoutDir() string {
 	return viper.GetString("LayoutDir")
 }
@@ -1768,7 +1760,6 @@ func (s *Site) newTaxonomyNode(prepare bool, t taxRenderInfo, counter int) (*Nod
 	}
 
 	if s.Info.preserveTaxonomyNames {
-		key = helpers.MakePathSanitized(key)
 		// keep as is in the title
 		n.Title = t.key
 	} else {
