@@ -546,9 +546,19 @@ func getAsciidocContent(content []byte) []byte {
 	jww.INFO.Println("Rendering with", path, "...")
 	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
 	cmd.Stdin = bytes.NewReader(cleanContent)
-	var out bytes.Buffer
+	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
-	if err := cmd.Run(); err != nil {
+	cmd.Stderr = &cmderr
+	err := cmd.Run()
+	// asciidoctor has exit code 0 even if there are errors in stderr
+	// -> log stderr output regardless of state of err
+	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
+		item := strings.TrimSpace(item)
+		if item != "" {
+			jww.ERROR.Println(item)
+		}
+	}
+	if err != nil {
 		jww.ERROR.Println(err)
 	}
 
