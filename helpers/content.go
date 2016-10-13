@@ -109,20 +109,68 @@ var blackfridayExtensionMap = map[string]int{
 	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
 }
 
-var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
+// Mmark holds configuration values for Mmark rendering.
+type Mmark struct {
+	Smartypants     bool
+	HrefTargetBlank bool
+	PlainIDAnchors  bool
+	Extensions      []string
+	ExtensionsMask  []string
+}
+
+// NewMmark creates a new Mmark filled with site config or some sane defaults.
+func NewMmark() *Mmark {
+	combinedParam := map[string]interface{}{
+		"smartypants":     false,
+		"hrefTargetBlank": false,
+		"plainIDAnchors":  true,
+	}
+
+	siteParam := viper.GetStringMap("mmark")
+	if siteParam != nil {
+		siteConfig := cast.ToStringMap(siteParam)
+
+		for key, value := range siteConfig {
+			combinedParam[key] = value
+		}
+	}
+
+	combinedConfig := &Mmark{}
+	if err := mapstructure.Decode(combinedParam, combinedConfig); err != nil {
+		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
+	}
+
+	return combinedConfig
+}
 
 var mmarkExtensionMap = map[string]int{
-	"tables":                 mmark.EXTENSION_TABLES,
-	"fencedCode":             mmark.EXTENSION_FENCED_CODE,
-	"autolink":               mmark.EXTENSION_AUTOLINK,
-	"laxHtmlBlocks":          mmark.EXTENSION_LAX_HTML_BLOCKS,
-	"spaceHeaders":           mmark.EXTENSION_SPACE_HEADERS,
-	"hardLineBreak":          mmark.EXTENSION_HARD_LINE_BREAK,
-	"footnotes":              mmark.EXTENSION_FOOTNOTES,
-	"noEmptyLineBeforeBlock": mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
-	"headerIds":              mmark.EXTENSION_HEADER_IDS,
+	"abbreviations":          mmark.EXTENSION_ABBREVIATIONS,
 	"autoHeaderIds":          mmark.EXTENSION_AUTO_HEADER_IDS,
+	"autolink":               mmark.EXTENSION_AUTOLINK,
+	"citation":               mmark.EXTENSION_CITATION,
+	"exampleLists":           mmark.EXTENSION_EXAMPLE_LISTS,
+	"fencedCode":             mmark.EXTENSION_FENCED_CODE,
+	"footnotes":              mmark.EXTENSION_FOOTNOTES,
+	"hardLineBreak":          mmark.EXTENSION_HARD_LINE_BREAK,
+	"headerIds":              mmark.EXTENSION_HEADER_IDS,
+	"include":                mmark.EXTENSION_INCLUDE,
+	"inlineAttr":             mmark.EXTENSION_INLINE_ATTR,
+	"laxHtmlBlocks":          mmark.EXTENSION_LAX_HTML_BLOCKS,
+	"math":                   mmark.EXTENSION_MATH,
+	"matter":                 mmark.EXTENSION_MATTER,
+	"noEmptyLineBeforeBlock": mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
+	"parts":                  mmark.EXTENSION_PARTS,
+	"quotes":                 mmark.EXTENSION_QUOTES,
+	"shortRef":               mmark.EXTENSION_SHORT_REF,
+	"spaceHeaders":           mmark.EXTENSION_SPACE_HEADERS,
+	"tables":                 mmark.EXTENSION_TABLES,
+	"titleblockToml":         mmark.EXTENSION_TITLEBLOCK_TOML,
+	"uniqueHeaderIds":        mmark.EXTENSION_UNIQUE_HEADER_IDS,
+	"backslashLineBreak":     mmark.EXTENSION_BACKSLASH_LINE_BREAK,
+	"rfc7328":                mmark.EXTENSION_RFC7328,
 }
+
+var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
 
 // StripHTML accepts a string, strips out all HTML tags and returns it.
 func StripHTML(s string) string {
@@ -241,11 +289,15 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 	for _, extension := range ctx.getConfig().Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
+		} else {
+			jww.ERROR.Printf("blackfriday.extensions: %q is not a valid extension", extension)
 		}
 	}
 	for _, extension := range ctx.getConfig().ExtensionsMask {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags &= ^flag
+		} else {
+			jww.ERROR.Printf("blackfriday.extensionsmask: %q is not a valid extension", extension)
 		}
 	}
 	return flags
@@ -270,13 +322,16 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	if b && !ctx.getMmarkConfig().PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
-		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
 
 	htmlFlags := defaultFlags
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
+
+	if ctx.getMmarkConfig().Smartypants {
+		htmlFlags |= mmark.HTML_USE_SMARTYPANTS
+	}
 
 	return &HugoMmarkHTMLRenderer{
 		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
@@ -284,24 +339,44 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 }
 
 func getMmarkExtensions(ctx *RenderingContext) int {
-	flags := 0
-	flags |= mmark.EXTENSION_TABLES
-	flags |= mmark.EXTENSION_FENCED_CODE
-	flags |= mmark.EXTENSION_AUTOLINK
-	flags |= mmark.EXTENSION_SPACE_HEADERS
-	flags |= mmark.EXTENSION_CITATION
-	flags |= mmark.EXTENSION_TITLEBLOCK_TOML
-	flags |= mmark.EXTENSION_HEADER_IDS
-	flags |= mmark.EXTENSION_AUTO_HEADER_IDS
-	flags |= mmark.EXTENSION_UNIQUE_HEADER_IDS
-	flags |= mmark.EXTENSION_FOOTNOTES
-	flags |= mmark.EXTENSION_SHORT_REF
-	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
-	flags |= mmark.EXTENSION_INCLUDE
+	// Default mmark common extensions
+	commonExtensions := 0 |
+		mmark.EXTENSION_TABLES |
+		mmark.EXTENSION_FENCED_CODE |
+		mmark.EXTENSION_AUTOLINK |
+		mmark.EXTENSION_SPACE_HEADERS |
+		mmark.EXTENSION_HEADER_IDS |
+		mmark.EXTENSION_ABBREVIATIONS |
+		mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK | // CommonMark
+		mmark.EXTENSION_BACKSLASH_LINE_BREAK // CommonMark
 
-	for _, extension := range ctx.getConfig().Extensions {
+	// Default mmark XML extensions
+	commonXmlExtensions := commonExtensions |
+		mmark.EXTENSION_UNIQUE_HEADER_IDS |
+		mmark.EXTENSION_AUTO_HEADER_IDS |
+		mmark.EXTENSION_INLINE_ATTR |
+		mmark.EXTENSION_QUOTES |
+		mmark.EXTENSION_MATTER |
+		mmark.EXTENSION_CITATION |
+		mmark.EXTENSION_EXAMPLE_LISTS |
+		mmark.EXTENSION_SHORT_REF
+
+	// Extra mmark extension(s) that Hugo enables by default
+	flags := commonXmlExtensions |
+		mmark.EXTENSION_FOOTNOTES
+
+	for _, extension := range ctx.getMmarkConfig().Extensions {
 		if flag, ok := mmarkExtensionMap[extension]; ok {
 			flags |= flag
+		} else {
+			jww.ERROR.Printf("mmark.extensions: %q is not a valid extension", extension)
+		}
+	}
+	for _, extension := range ctx.getMmarkConfig().ExtensionsMask {
+		if flag, ok := mmarkExtensionMap[extension]; ok {
+			flags &= ^flag
+		} else {
+			jww.ERROR.Printf("mmark.extensionsmask: %q is not a valid extension", extension)
 		}
 	}
 	return flags
@@ -355,6 +430,7 @@ type RenderingContext struct {
 	PageFmt        string
 	DocumentID     string
 	Config         *Blackfriday
+	MmarkConfig    *Mmark // TODO(anthonyfok) Refactor
 	RenderTOC      bool
 	FileResolver   FileResolverFunc
 	LinkResolver   LinkResolverFunc
@@ -373,6 +449,16 @@ func (c *RenderingContext) getConfig() *Blackfriday {
 		}
 	})
 	return c.Config
+}
+
+// TODO(anthonyfok) Refactor
+func (c *RenderingContext) getMmarkConfig() *Mmark {
+	c.configInit.Do(func() {
+		if c.MmarkConfig == nil {
+			c.MmarkConfig = NewMmark()
+		}
+	})
+	return c.MmarkConfig
 }
 
 // RenderBytes renders a []byte.
