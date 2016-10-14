@@ -14,13 +14,9 @@
 package hugolib
 
 import (
-	"bytes"
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 )
 
@@ -52,24 +48,16 @@ func TestRSSOutput(t *testing.T) {
 	viper.Set("baseurl", "http://auth/bub/")
 	viper.Set("RSSUri", rssURI)
 
-	hugofs.InitMemFs()
-	s := &Site{
-		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: helpers.NewDefaultLanguage(),
+	for _, s := range weightedSources {
+		writeSource(t, filepath.Join("content", s.Name), string(s.Content))
 	}
 
-	if err := buildAndRenderSite(s, "rss.xml", rssTemplate); err != nil {
+	writeSource(t, filepath.Join("layouts", "rss.xml"), rssTemplate)
+
+	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	file, err := hugofs.Destination().Open(filepath.Join("public", rssURI))
+	assertFileContent(t, filepath.Join("public", rssURI), true, "<?xml", "rss version")
 
-	if err != nil {
-		t.Fatalf("Unable to locate: %s", rssURI)
-	}
-
-	rss := helpers.ReaderToBytes(file)
-	if !bytes.HasPrefix(rss, []byte("<?xml")) {
-		t.Errorf("rss feed should start with <?xml. %s", rss)
-	}
 }
