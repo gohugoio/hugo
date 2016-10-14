@@ -257,7 +257,10 @@ func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, master
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 	} else {
-		t.overlays[name] = overlayTpl
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/spf13/hugo/issues/2549
+		t.overlays[name] = overlayTpl.Lookup(overlayTpl.Name())
 	}
 
 	return err
