@@ -35,7 +35,7 @@ docker:
 govendor:
 	go get -u github.com/kardianos/govendor
 	go install github.com/kardianos/govendor
-	govendor get github.com/spf13/hugo
+	govendor sync github.com/spf13/hugo
 
 check: fmt vet test test-race
 
