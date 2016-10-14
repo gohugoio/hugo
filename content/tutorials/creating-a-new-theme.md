@@ -489,7 +489,7 @@ So, let's edit your configuration file to add the theme name:
 ```toml
 $ vi config.toml
 theme = "zafta"
-baseurl = "http://replace-this-with-your-hugo-site.com/"
+baseurl = "http://example.org/"
 title = "My New Hugo Site"
 languageCode = "en-us"
 :wq
@@ -1047,8 +1047,8 @@ $ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-    <h4><a href="http://replace-this-with-your-hugo-site.com/article/Second/">Second</a></h4>
-    <h4><a href="http://replace-this-with-your-hugo-site.com/article/First/">First</a></h4>
+    <h4><a href="http://example.org/article/Second/">Second</a></h4>
+    <h4><a href="http://example.org/article/First/">First</a></h4>
 </body>
 </html>
 ```
@@ -1214,7 +1214,7 @@ Nulla facilisi.</p>
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.</p>
 
-  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
+  <h4><a href="http://example.org/">Home</a></h4>
 </body>
 </html>
 
@@ -1236,7 +1236,7 @@ varius sagittis turpis.</p>
 pulvinar. Ut mattis gravida venenatis. Vivamus
 lobortis risus id nisi rutrum, at iaculis.</p>
 
-  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
+  <h4><a href="http://example.org/">Home</a></h4>
 </body>
 </html>
 ```
@@ -1402,7 +1402,7 @@ $ cat public/About/index.html
 ipsum quia dolor sit amet consectetur
 adipisci velit.</p>
 
-  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
+  <h4><a href="http://example.org/">Home</a></h4>
 </body>
 </html>
 ```
@@ -1418,9 +1418,9 @@ $ cat public/index.html
 <!DOCTYPE html>
 <html>
 <body>
-    <h4><a href="http://replace-this-with-your-hugo-site.com/About/">About</a></h4>
-    <h4><a href="http://replace-this-with-your-hugo-site.com/article/Second/">Second</a></h4>
-    <h4><a href="http://replace-this-with-your-hugo-site.com/article/First/">First</a></h4>
+    <h4><a href="http://example.org/About/">About</a></h4>
+    <h4><a href="http://example.org/article/Second/">Second</a></h4>
+    <h4><a href="http://example.org/article/First/">First</a></h4>
 </body>
 </html>
 ```
@@ -1476,10 +1476,10 @@ $ cat public/index.html
 <html>
 <body>
   <h2>Articles</h2>
-      <h4><a href="http://replace-this-with-your-hugo-site.com/article/Second/">Second</a></h4>
-      <h4><a href="http://replace-this-with-your-hugo-site.com/article/First/">First</a></h4>
+      <h4><a href="http://example.org/article/Second/">Second</a></h4>
+      <h4><a href="http://example.org/article/First/">First</a></h4>
   <h2>Pages</h2>
-      <h4><a href="http://replace-this-with-your-hugo-site.com/About/">About</a></h4>
+      <h4><a href="http://example.org/About/">About</a></h4>
 </body>
 </html>
 ```
@@ -1692,7 +1692,7 @@ Nulla facilisi.</p>
 In quam ante, vulputate at massa et, rutrum
 gravida dui. Phasellus tristique libero at ex.</p>
 
-  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
+  <h4><a href="http://example.org/">Home</a></h4>
 </body>
 </html>
 
@@ -1709,7 +1709,7 @@ $ cat public/About/index.html
 ipsum quia dolor sit amet consectetur
 adipisci velit.</p>
 
-  <h4><a href="http://replace-this-with-your-hugo-site.com/">Home</a></h4>
+  <h4><a href="http://example.org/">Home</a></h4>
 </body>
 </html>
 ```
