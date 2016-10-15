@@ -1563,9 +1563,8 @@ func (s *Site) renderAliases() error {
 		if err != nil {
 			return err
 		}
-
 		for _, a := range p.Aliases {
-			if err := s.writeDestAlias(a, plink); err != nil {
+			if err := s.writeDestAlias(a, plink, p); err != nil {
 				return err
 			}
 		}
@@ -1576,13 +1575,13 @@ func (s *Site) renderAliases() error {
 		if s.Info.defaultContentLanguageInSubdir {
 			mainLangURL := helpers.AbsURL(mainLang, false)
 			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL); err != nil {
+			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
 				return err
 			}
 		} else {
 			mainLangURL := helpers.AbsURL("", false)
 			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL); err != nil {
+			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
 				return err
 			}
 		}
@@ -1819,7 +1818,7 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 			paginatePath = helpers.Config().GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(baseWithLanguagePrefix, 1), n.Permalink())
+			s.writeDestAlias(helpers.PaginateAliasPath(baseWithLanguagePrefix, 1), n.Permalink(), nil)
 
 			pagers := n.paginator.Pagers()
 
@@ -1954,7 +1953,7 @@ func (s *Site) renderSectionLists(prepare bool) error {
 			paginatePath := helpers.Config().GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base))
+			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base), nil)
 
 			pagers := n.paginator.Pagers()
 
@@ -2016,7 +2015,7 @@ func (s *Site) renderHomePage(prepare bool) error {
 		{
 			// write alias for page 1
 			// TODO(bep) ml all of these n.addLang ... fix.
-			s.writeDestAlias(n.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), n.Permalink())
+			s.writeDestAlias(n.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), n.Permalink(), nil)
 		}
 
 		pagers := n.paginator.Pagers()
@@ -2479,6 +2478,7 @@ func (s *Site) initTargetList() {
 		if s.targets.alias == nil {
 			s.targets.alias = &target.HTMLRedirectAlias{
 				PublishDir: s.absPublishDir(),
+				Templates:  s.owner.tmpl.Lookup("alias.html"),
 			}
 		}
 		if s.targets.languageAlias == nil {
@@ -2501,11 +2501,11 @@ func (s *Site) writeDestPage(path string, publisher target.Publisher, reader io.
 }
 
 // AliasPublisher
-func (s *Site) writeDestAlias(path string, permalink string) (err error) {
-	return s.publishDestAlias(s.aliasTarget(), path, permalink)
+func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
+	return s.publishDestAlias(s.aliasTarget(), path, permalink, p)
 }
 
-func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path string, permalink string) (err error) {
+func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path, permalink string, p *Page) (err error) {
 	if viper.GetBool("RelativeURLs") {
 		// convert `permalink` into URI relative to location of `path`
 		baseURL := helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))
@@ -2519,7 +2519,7 @@ func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path strin
 		permalink = filepath.ToSlash(permalink)
 	}
 	jww.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
-	return aliasPublisher.Publish(path, permalink)
+	return aliasPublisher.Publish(path, permalink, p)
 }
 
 func (s *Site) draftStats() string {

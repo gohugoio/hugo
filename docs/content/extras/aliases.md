@@ -94,3 +94,11 @@ Assuming a baseurl of `mysite.tld`, the contents of the html file will look some
 ```
 
 The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case.
+
+## Customizing
+
+You may customize this alias page by creating an alias.html template in the
+layouts folder of your site.  In this case, the data passed to the template is
+
+* Permalink - the link to the page being aliased
+* Page - the Page data for the page being aliased
