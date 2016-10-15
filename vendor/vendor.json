@@ -58,6 +58,12 @@
 			"revisionTime": "2016-10-07T09:32:57Z"
 		},
 		{
+			"checksumSHA1": "CZvhwlADkURg2MhxVBDK49v2VTg=",
+			"path": "github.com/fortytw2/leaktest",
+			"revision": "0db74e8cd5adacfcc982838c6e185789e4b44e14",
+			"revisionTime": "2016-09-23T09:02:53Z"
+		},
+		{
 			"checksumSHA1": "e2o/P8ZZ8Iz+um6/nyLUEg7S2H8=",
 			"path": "github.com/fsnotify/fsnotify",
 			"revision": "944cff21b3baf3ced9a880365682152ba577d348",
@@ -355,6 +361,12 @@
 		{
 			"checksumSHA1": "6RQlUOGwzXLntCshLZNUL4r28eU=",
 			"path": "golang.org/x/text/cases",
+			"revision": "ede1cb9f9f2f84c3bace9ca113fd740fc916cdd0",
+			"revisionTime": "2016-09-29T15:02:56Z"
+		},
+		{
+			"checksumSHA1": "bEW91f5xnxh7cwo6Ialo5jWpK5U=",
+			"path": "golang.org/x/text/internal",
 			"revision": "ede1cb9f9f2f84c3bace9ca113fd740fc916cdd0",
 			"revisionTime": "2016-09-29T15:02:56Z"
 		},
