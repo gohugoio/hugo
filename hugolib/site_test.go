@@ -337,8 +337,9 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	viper.Set("DisableRSS", false)
 	viper.Set("RSSUri", "index.xml")
 	viper.Set("blackfriday",
+		// TODO(bep) https://github.com/spf13/viper/issues/261
 		map[string]interface{}{
-			"plainIDAnchors": true})
+			strings.ToLower("plainIDAnchors"): true})
 
 	viper.Set("UglyURLs", uglyURLs)
 
@@ -964,8 +965,9 @@ func setupLinkingMockSite(t *testing.T) *Site {
 	viper.Set("PluralizeListTitles", false)
 	viper.Set("CanonifyURLs", false)
 	viper.Set("blackfriday",
+		// TODO(bep) see https://github.com/spf13/viper/issues/261
 		map[string]interface{}{
-			"sourceRelativeLinksProjectFolder": "/docs"})
+			strings.ToLower("sourceRelativeLinksProjectFolder"): "/docs"})
 
 	site := &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},

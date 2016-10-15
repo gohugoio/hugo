@@ -392,9 +392,11 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 			panic(fmt.Sprintf("nil language for %s with source lang %s", p.BaseFileName(), p.lang))
 		}
 		p.renderingConfig = helpers.NewBlackfriday(p.Language())
+
 		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
+
 	})
 
 	return p.renderingConfig

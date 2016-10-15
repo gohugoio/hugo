@@ -27,7 +27,6 @@ import (
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
-	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
@@ -60,7 +59,8 @@ type Blackfriday struct {
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
 func NewBlackfriday(c ConfigProvider) *Blackfriday {
-	combinedParam := map[string]interface{}{
+
+	defaultParam := map[string]interface{}{
 		"smartypants":                      true,
 		"angledQuotes":                     false,
 		"fractions":                        true,
@@ -73,17 +73,24 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 		"sourceRelativeLinksProjectFolder": "/docs/content",
 	}
 
-	siteParam := c.GetStringMap("blackfriday")
-	if siteParam != nil {
-		siteConfig := cast.ToStringMap(siteParam)
+	ToLowerMap(defaultParam)
 
-		for key, value := range siteConfig {
-			combinedParam[key] = value
+	siteParam := c.GetStringMap("blackfriday")
+
+	siteConfig := make(map[string]interface{})
+
+	for k, v := range defaultParam {
+		siteConfig[k] = v
+	}
+
+	if siteParam != nil {
+		for k, v := range siteParam {
+			siteConfig[k] = v
 		}
 	}
 
 	combinedConfig := &Blackfriday{}
-	if err := mapstructure.Decode(combinedParam, combinedConfig); err != nil {
+	if err := mapstructure.Decode(siteConfig, combinedConfig); err != nil {
 		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
 	}
 
