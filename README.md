@@ -1,9 +1,9 @@
 ![Hugo](https://raw.githubusercontent.com/spf13/hugo/master/docs/static/img/hugo-logo.png)
-
-A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/spf13/hugo/graphs/contributors) in [Go][].
+This is a project name HUGO where we develop stuff and creating something amazing.<br>
+A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/spf13/hugo/graphs/contributors) in [Go][].<br>
 
 [Website](https://gohugo.io) |
-[Forum](https://discuss.gohugo.io) |
+[Forum](https://discuss.gohugo.io) |<br>
 [Developer Chat (no support)](https://gitter.im/spf13/hugo) |
 [Documentation](https://gohugo.io/overview/introduction/) |
 [Installation Guide](https://gohugo.io/overview/installing/) |
@@ -28,7 +28,7 @@ This works well for shared hosts and other systems where you don’t have a priv
 
 Hugo renders a typical website of moderate size in a fraction of a second.
 A good rule of thumb is that each piece of content renders in around 1 millisecond.
-
+<br>
 Hugo is designed to work well for any kind of website including blogs, tumbles and docs.
 
 #### Supported Architectures
