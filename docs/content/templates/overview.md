@@ -71,4 +71,6 @@ Used to render the XML sitemap
 ### [404](/templates/404/)
 This template will create a 404.html page used when hosting on GitHub Pages
 
+### [Alias](/extras/aliases/#customizing)
+This template will override the default page used to create aliases of pages.
 
