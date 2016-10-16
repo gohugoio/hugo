@@ -137,8 +137,9 @@ func ToLowerMap(m map[string]interface{}) {
 		lKey := strings.ToLower(k)
 		if k != lKey {
 			delete(m, k)
+			m[lKey] = v
 		}
-		m[lKey] = v
+
 	}
 }
 
