@@ -114,7 +114,7 @@ Features: inline PageDown editor, visual tree view, image upload and digital ass
 - [Netlify.com](https://www.netlify.com), builds, deploy & hosts your static site or app (Hugo, Jekyll etc). Build, deploy and host your static site or app with a drag and drop interface and automatic deploys from GitHub or Bitbucket.
 Features: global CDN, atomic deploys, ultra fast DNS, instant cache invalidation, high availability, automated hosting, Git integration, form submission hooks, authentication providers, custom domain. Developers have complete control over the source code and can manage it with GitHub’s or Bitbuckets deceptively simple workflow.
 
-- [Forestry.io](https://forestry.io/) - A simple CMS for Jekyll and Hugo sites with an integration of GitHub and Bitbucket. Everytime an update is made via the CMS, Forestry will compile your site and deploy it to your host (S3, GitHub Pages, FTP, etc).
+- [Forestry.io](https://forestry.io/) - A simple CMS for Jekyll and Hugo sites with support for GitHub, GitLab and Bitbucket. Every time an update is made via the CMS, Forestry will commit changes back to your repo and will compile/deploy your site (S3, GitHub Pages, FTP, etc).
 
 ----
 
