@@ -291,3 +291,56 @@ func TestDoArithmetic(t *testing.T) {
 		}
 	}
 }
+
+func TestToLowerMap(t *testing.T) {
+
+	tests := []struct {
+		input    map[string]interface{}
+		expected map[string]interface{}
+	}{
+		{
+			map[string]interface{}{
+				"abC": 32,
+			},
+			map[string]interface{}{
+				"abc": 32,
+			},
+		},
+		{
+			map[string]interface{}{
+				"abC": 32,
+				"deF": map[interface{}]interface{}{
+					23: "A value",
+					24: map[string]interface{}{
+						"AbCDe": "A value",
+						"eFgHi": "Another value",
+					},
+				},
+				"gHi": map[string]interface{}{
+					"J": 25,
+				},
+			},
+			map[string]interface{}{
+				"abc": 32,
+				"def": map[string]interface{}{
+					"23": "A value",
+					"24": map[string]interface{}{
+						"abcde": "A value",
+						"efghi": "Another value",
+					},
+				},
+				"ghi": map[string]interface{}{
+					"j": 25,
+				},
+			},
+		},
+	}
+
+	for i, test := range tests {
+		// ToLowerMap modifies input.
+		ToLowerMap(test.input)
+		if !reflect.DeepEqual(test.expected, test.input) {
+			t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
+		}
+	}
+}

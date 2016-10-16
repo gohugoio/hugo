@@ -17,7 +17,6 @@ import (
 	"sync"
 
 	"sort"
-	"strings"
 
 	"errors"
 	"fmt"
@@ -84,6 +83,7 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 
 	for lang, langConf := range l {
 		langsMap, err := cast.ToStringMapE(langConf)
+		helpers.ToLowerMap(langsMap)
 
 		if err != nil {
 			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
@@ -91,8 +91,7 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 
 		language := helpers.NewLanguage(lang)
 
-		for k, v := range langsMap {
-			loki := strings.ToLower(k)
+		for loki, v := range langsMap {
 			switch loki {
 			case "title":
 				language.Title = cast.ToString(v)

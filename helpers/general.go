@@ -119,6 +119,29 @@ func ReaderToBytes(lines io.Reader) []byte {
 	return bc
 }
 
+// ToLowerMap makes all the keys in the given map lower cased and will do so
+// recursively.
+// Notes:
+// * This will modify the map given.
+// * Any nested map[interface{}]interface{} will be converted to map[string]interface{}.
+func ToLowerMap(m map[string]interface{}) {
+	for k, v := range m {
+		switch v.(type) {
+		case map[interface{}]interface{}:
+			v = cast.ToStringMap(v)
+			ToLowerMap(v.(map[string]interface{}))
+		case map[string]interface{}:
+			ToLowerMap(v.(map[string]interface{}))
+		}
+
+		lKey := strings.ToLower(k)
+		if k != lKey {
+			delete(m, k)
+		}
+		m[lKey] = v
+	}
+}
+
 // ReaderToString is the same as ReaderToBytes, but returns a string.
 func ReaderToString(lines io.Reader) string {
 	if lines == nil {
