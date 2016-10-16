@@ -110,7 +110,6 @@ The following example displays all tag keys:
 
     <ul id="all-tags">
       {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-<<<<<<< HEAD
         <li><a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">{{ $name }}</a></li>
       {{ end }}
     </ul>
