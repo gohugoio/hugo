@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -473,6 +474,11 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 				if p.Markup == "markdown" {
 					tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.rawContentCopy)
 					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+
+					if viper.Get("toctoken") != nil {
+						tmpContent = bytes.Replace(tmpContent, []byte(viper.GetString("toctoken")), tmpTableOfContents, 1)
+					}
+
 					p.rawContentCopy = tmpContent
 				}
 
