@@ -395,7 +395,7 @@ func RenderBytes(ctx *RenderingContext) []byte {
 	case "mmark":
 		return mmarkRender(ctx)
 	case "rst":
-		return getRstContent(ctx.Content)
+		return getRstContent(ctx)
 	}
 }
 
@@ -552,7 +552,7 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 		return content
 	}
 
-	jww.INFO.Println("Rendering with", path, "...")
+	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
 	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
@@ -568,7 +568,7 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 		}
 	}
 	if err != nil {
-		jww.ERROR.Println(err)
+		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
 	}
 
 	return out.Bytes()
@@ -592,7 +592,8 @@ func getRstExecPath() string {
 
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
-func getRstContent(content []byte) []byte {
+func getRstContent(ctx *RenderingContext) []byte {
+	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	path := getRstExecPath()
@@ -604,12 +605,23 @@ func getRstContent(content []byte) []byte {
 
 	}
 
+	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
 	cmd := exec.Command(path, "--leave-comments")
 	cmd.Stdin = bytes.NewReader(cleanContent)
-	var out bytes.Buffer
+	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
-	if err := cmd.Run(); err != nil {
-		jww.ERROR.Println(err)
+	cmd.Stderr = &cmderr
+	err := cmd.Run()
+	// By default rst2html exits w/ non-zero exit code only if severe, i.e.
+	// halting errors occurred. -> log stderr output regardless of state of err
+	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
+		item := strings.TrimSpace(item)
+		if item != "" {
+			jww.ERROR.Println(strings.Replace(item, "<stdin>", ctx.DocumentName, 1))
+		}
+	}
+	if err != nil {
+		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
 	}
 
 	result := out.Bytes()
