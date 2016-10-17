@@ -43,6 +43,10 @@ Alternatively, you can follow the manual [migration guide]({{< relref "tutorials
 
 - [drupal2hugo](https://github.com/danapsimer/drupal2hugo) - Convert a Drupal site to Hugo.
 
+### Joomla
+
+- [hugojoomla](https://github.com/davetcc/hugojoomla) - This utility written in Java takes a Joomla database and converts all the content into Markdown files. It changes any URLs that are in Joomla's internal format and converts them to a suitable form.
+
 ### Blogger
 
 - [blogimport](https://github.com/natefinch/blogimport) - A tool to import from Blogger posts to Hugo.
