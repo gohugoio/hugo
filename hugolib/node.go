@@ -24,8 +24,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/hugo/helpers"
-
-	"github.com/spf13/cast"
 )
 
 type Node struct {
@@ -124,13 +122,9 @@ func (n *Node) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 // Param is a convenience method to do lookups in Site's Params map.
 //
-// This method is also implemented on Page.
+// This method is also implemented on Page and SiteInfo.
 func (n *Node) Param(key interface{}) (interface{}, error) {
-	keyStr, err := cast.ToStringE(key)
-	if err != nil {
-		return nil, err
-	}
-	return n.Site.Params[keyStr], err
+	return n.Site.Param(key)
 }
 
 func (n *Node) Hugo() *HugoInfo {

@@ -223,8 +223,21 @@ func newSiteInfoDefaultLanguage(baseURL string, pages ...*Page) *SiteInfo {
 // linkedin
 type SiteSocial map[string]string
 
+// Param is a convenience method to do lookups in Site's Params map.
+//
+// This method is also implemented on Page and Node.
+func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
+	keyStr, err := cast.ToStringE(key)
+	if err != nil {
+		return nil, err
+	}
+	keyStr = strings.ToLower(keyStr)
+	return s.Params[keyStr], nil
+}
+
 // GetParam gets a site parameter value if found, nil if not.
 func (s *SiteInfo) GetParam(key string) interface{} {
+	helpers.Deprecated("SiteInfo", ".GetParam", ".Param")
 	v := s.Params[strings.ToLower(key)]
 
 	if v == nil {
