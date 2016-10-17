@@ -581,16 +581,16 @@ func normalizeExpected(ext, str string) string {
 	}
 }
 
-func testAllMarkdownEnginesForPage(t *testing.T,
-	assertFunc func(t *testing.T, ext string, p *Page), baseFilename, pageContent string) {
+func testAllMarkdownEnginesForPages(t *testing.T,
+	assertFunc func(t *testing.T, ext string, pages Pages), pageSources ...string) {
 
 	engines := []struct {
 		ext           string
 		shouldExecute func() bool
 	}{
-		{"ad", func() bool { return helpers.HasAsciidoc() }},
 		{"md", func() bool { return true }},
 		{"mmark", func() bool { return true }},
+		{"ad", func() bool { return helpers.HasAsciidoc() }},
 		// TODO(bep) figure a way to include this without too much work.{"html", func() bool { return true }},
 		{"rst", func() bool { return helpers.HasRst() }},
 	}
@@ -600,19 +600,21 @@ func testAllMarkdownEnginesForPage(t *testing.T,
 			continue
 		}
 
-		filename := baseFilename + "." + e.ext
+		var fileSourcePair []string
 
-		s := newSiteFromSources(filename, pageContent)
+		for i, source := range pageSources {
+			fileSourcePair = append(fileSourcePair, fmt.Sprintf("p%d.%s", i, e.ext), source)
+		}
+
+		s := newSiteFromSources(fileSourcePair...)
 
 		if err := buildSiteSkipRender(s); err != nil {
 			t.Fatalf("Failed to build site: %s", err)
 		}
 
-		require.Len(t, s.Pages, 1)
+		require.Len(t, s.Pages, len(pageSources))
 
-		p := s.Pages[0]
-
-		assertFunc(t, e.ext, p)
+		assertFunc(t, e.ext, s.Pages)
 
 	}
 
@@ -620,7 +622,8 @@ func testAllMarkdownEnginesForPage(t *testing.T,
 
 func TestCreateNewPage(t *testing.T) {
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		assert.False(t, p.IsHome)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
@@ -630,7 +633,7 @@ func TestCreateNewPage(t *testing.T) {
 		checkTruncation(t, p, false, "simple short page")
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePage)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePage)
 }
 
 func TestSplitSummaryAndContent(t *testing.T) {
@@ -663,10 +666,25 @@ func TestSplitSummaryAndContent(t *testing.T) {
 		{"markdown", "<p>HUGOMORE42", "<p>", "<p>", ""},
 		{"markdown", "HUGOMORE42<p>", "", "<p>", "<p>"},
 		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>", ""},
+		// Issue #2586
+		// Note: Hugo will not split mid-sentence but will look for the closest
+		// paragraph end marker. This may be a change from Hugo 0.16, but it makes sense.
+		{"markdown", `<p>this is an example HUGOMORE42of the issue.</p>`,
+			"<p>this is an example of the issue.</p>",
+			"<p>this is an example of the issue.</p>", ""},
+		// Issue: #2538
+		{"markdown", fmt.Sprintf(` <p class="lead">%s</p>HUGOMORE42<p>%s</p>
+`,
+			strings.Repeat("A", 10), strings.Repeat("B", 31)),
+			fmt.Sprintf(`<p class="lead">%s</p>`, strings.Repeat("A", 10)),
+			fmt.Sprintf(`<p class="lead">%s</p><p>%s</p>`, strings.Repeat("A", 10), strings.Repeat("B", 31)),
+			fmt.Sprintf(`<p>%s</p>`, strings.Repeat("B", 31)),
+		},
 	} {
 
-		sc := splitUserDefinedSummaryAndContent(this.markup, []byte(this.content))
+		sc, err := splitUserDefinedSummaryAndContent(this.markup, []byte(this.content))
 
+		require.NoError(t, err)
 		require.NotNil(t, sc, fmt.Sprintf("[%d] Nil %s", i, this.markup))
 		require.Equal(t, this.expectedSummary, string(sc.summary), fmt.Sprintf("[%d] Summary markup %s", i, this.markup))
 		require.Equal(t, this.expectedContent, string(sc.content), fmt.Sprintf("[%d] Content markup %s", i, this.markup))
@@ -676,7 +694,8 @@ func TestSplitSummaryAndContent(t *testing.T) {
 
 func TestPageWithDelimiter(t *testing.T) {
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n"), ext)
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>"), ext)
@@ -685,7 +704,7 @@ func TestPageWithDelimiter(t *testing.T) {
 		checkTruncation(t, p, true, "page with summary delimiter")
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithSummaryDelimiter)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithSummaryDelimiter)
 }
 
 // Issue #1076
@@ -711,7 +730,8 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure >\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
@@ -719,12 +739,13 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithShortcodeInSummary)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithShortcodeInSummary)
 }
 
 func TestPageWithEmbeddedScriptTag(t *testing.T) {
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		if ext == "ad" || ext == "rst" {
 			// TOD(bep)
 			return
@@ -732,7 +753,7 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 		checkPageContent(t, p, "<script type='text/javascript'>alert('the script tags are still there, right?');</script>\n", ext)
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithEmbeddedScript)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithEmbeddedScript)
 }
 
 func TestPageWithAdditionalExtension(t *testing.T) {
@@ -766,15 +787,17 @@ func TestTableOfContents(t *testing.T) {
 
 func TestPageWithMoreTag(t *testing.T) {
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
 		checkPageType(t, p, "page")
 		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
+
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithSummaryDelimiterSameLine)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithSummaryDelimiterSameLine)
 }
 
 func TestPageWithDate(t *testing.T) {
@@ -795,25 +818,27 @@ func TestPageWithDate(t *testing.T) {
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	testCommonResetState()
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		if p.WordCount() != 8 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 8, p.WordCount())
 		}
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithAllCJKRunes)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithAllCJKRunes)
 }
 
 func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	testCommonResetState()
 	viper.Set("HasCJKLanguage", true)
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		if p.WordCount() != 15 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 15, p.WordCount())
 		}
 	}
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithAllCJKRunes)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithAllCJKRunes)
 }
 
 func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
@@ -821,7 +846,8 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 
 	viper.Set("HasCJKLanguage", true)
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		if p.WordCount() != 74 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
@@ -832,14 +858,15 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 		}
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithMainEnglishWithCJKRunes)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithMainEnglishWithCJKRunes)
 }
 
 func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	testCommonResetState()
 	viper.Set("HasCJKLanguage", true)
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		if p.WordCount() != 75 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
@@ -850,13 +877,14 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 		}
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithIsCJKLanguageFalse)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithIsCJKLanguageFalse)
 
 }
 
 func TestWordCount(t *testing.T) {
 
-	assertFunc := func(t *testing.T, ext string, p *Page) {
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
 		if p.WordCount() != 483 {
 			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 483, p.WordCount())
 		}
@@ -872,7 +900,7 @@ func TestWordCount(t *testing.T) {
 		checkTruncation(t, p, true, "long page")
 	}
 
-	testAllMarkdownEnginesForPage(t, assertFunc, "simple", simplePageWithLongContent)
+	testAllMarkdownEnginesForPages(t, assertFunc, simplePageWithLongContent)
 }
 
 func TestCreatePage(t *testing.T) {
