@@ -1012,6 +1012,9 @@ func (p *Page) parse(reader io.Reader) error {
 
 	p.renderable = psr.IsRenderable()
 	p.frontmatter = psr.FrontMatter()
+	if p.frontmatter == nil {
+		jww.CRITICAL.Printf("Rendering page %s without header. Check it after building.", p.File.LogicalName())
+	}
 	p.rawContent = psr.Content()
 	p.lang = p.Source.File.Lang()
 
