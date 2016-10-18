@@ -260,7 +260,11 @@ var (
 // Returns the page as summary and main if a user defined split is provided.
 func (p *Page) setUserDefinedSummaryIfProvided() (*summaryContent, error) {
 
-	sc := splitUserDefinedSummaryAndContent(p.Markup, p.rawContentCopy)
+	sc, err := splitUserDefinedSummaryAndContent(p.Markup, p.rawContentCopy)
+
+	if err != nil {
+		return nil, err
+	}
 
 	if sc == nil {
 		// No divider found
@@ -285,12 +289,18 @@ type summaryContent struct {
 	contentWithoutSummary []byte
 }
 
-func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent {
+func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryContent, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("summary split failed: %s", r)
+		}
+	}()
+
 	c = bytes.TrimSpace(c)
 	startDivider := bytes.Index(c, internalSummaryDivider)
 
 	if startDivider == -1 {
-		return nil
+		return
 	}
 
 	endDivider := startDivider + len(internalSummaryDivider)
@@ -317,8 +327,11 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent 
 	}
 
 	// Find the closest end/start markup string to the divider
+	fromStart := -1
 	fromIdx := bytes.LastIndex(c[:startDivider], startMarkup)
-	fromStart := startDivider - fromIdx - len(startMarkup)
+	if fromIdx != -1 {
+		fromStart = startDivider - fromIdx - len(startMarkup)
+	}
 	fromEnd := bytes.Index(c[endDivider:], endMarkup)
 
 	if fromEnd != -1 && fromEnd <= fromStart {
@@ -328,7 +341,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent 
 	}
 
 	withoutDivider := bytes.TrimSpace(append(c[:startDivider], c[endDivider:]...))
-
 	var (
 		contentWithoutSummary []byte
 		summary               []byte
@@ -346,11 +358,17 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) *summaryContent 
 		contentWithoutSummary = append(divStart, contentWithoutSummary...)
 	}
 
-	return &summaryContent{
+	if err != nil {
+		return
+	}
+
+	sc = &summaryContent{
 		summary:               summary,
 		content:               withoutDivider,
 		contentWithoutSummary: contentWithoutSummary,
 	}
+
+	return
 }
 
 func (p *Page) setAutoSummary() error {

@@ -482,7 +482,7 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 					summaryContent, err := p.setUserDefinedSummaryIfProvided()
 
 					if err != nil {
-						jww.ERROR.Printf("Failed to set use defined summary: %s", err)
+						jww.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
 					} else if summaryContent != nil {
 						p.rawContentCopy = summaryContent.content
 					}
