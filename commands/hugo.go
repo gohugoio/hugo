@@ -599,6 +599,11 @@ func getDirList() []string {
 				return nil
 			}
 
+			if os.IsNotExist(err) {
+				// Ignore.
+				return nil
+			}
+
 			jww.ERROR.Println("Walker: ", err)
 			return nil
 		}
