@@ -1,5 +1,5 @@
 ---
-lastmod: 2016-08-19
+lastmod: 2016-10-20
 date: 2013-07-01
 linktitle: Quickstart
 menu:
@@ -160,7 +160,7 @@ I read **Good to Great in January 2016**. An awesome read sharing detailed analy
 
 ## Step 4. Serve content
 
-Hugo has an inbuilt server that can serve your website content so that you can preview it. You can also use the inbuilt Hugo server in production. To serve content, execute the following command.
+Hugo has an inbuilt server that can serve your website content so that you can preview it. You can also use the inbuilt Hugo server in production. To serve content, execute the following command inside the `bookshelf` directory.
 
 ```bash
 $ hugo server
@@ -216,10 +216,9 @@ Themes provide the layout and templates that will be used by Hugo to render your
 > **Hugo currently doesn’t ship with a `default` theme, allowing the user to pick whichever theme best suits their project.**
 
 Themes should be added in the `themes` directory inside the repository root.
-Create new directory `bookshelf/themes` and change directory to it.
 
 ```bash
-$ mkdir themes && cd themes
+$ cd themes
 ```
 Now, you can clone one or more themes inside the `themes` directory.
 We will use the `robust` theme,
@@ -293,7 +292,7 @@ Let's suppose we want to try out the `bleak` theme.
 We clone the `bleak` theme inside the `bookshelf/themes` directory.
 
 ```bash
-$ git clone git@github.com:Zenithar/hugo-theme-bleak.git
+$ git clone https://github.com/Zenithar/hugo-theme-bleak.git
 ```
 
 Restart the server using `hugo-theme-bleak` as shown below.
