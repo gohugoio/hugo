@@ -356,7 +356,7 @@ e.g.
        {{ .Content }}
     {{ end }}
 
-## Files    
+## Files
 
 ### readDir
 
@@ -757,6 +757,64 @@ This can be useful if you want to use Gravatar for generating a unique avatar:
 {{ sha1 "Hello world, gophers!" }}
 <!-- returns the string "c8b5b0e33d408246e30f53e32b8f7627a7a649d4" -->
 ```
+
+## Reflection
+
+### typeOf
+
+Takes an interface and returns a string representation of the type. For pointers, this will return a type prefixed with an asterisk(`*`). So a pointer to type `Foo` will be `*Foo`.
+
+`{{ typeOf "Bat Man" }}`
+
+returns `string`
+
+`{{ typeOf (slice "A" "B") }}`
+
+returns `[]interface {}`
+
+`{{ typeOf (dict "one" "two" "foo" "bar" ) }}`
+
+returns `map[string]interface {}`
+
+### typeIs
+
+Compares an interface with a string name, and returns true if they match. Note that a pointer will not match a reference. For example `*Foo` will not match `Foo`.
+
+`{{ typeIs "string" "Bat Man" }}`
+
+returns `true`
+
+### typeIsLike
+
+Returns true if the interface is of the given type, or is a pointer to the given type.
+
+`{{ typeIsLike "string" "Bat Man" }}`
+
+returns `true`
+
+### kindOf
+
+Takes an interface and returns a string representation of its kind.
+
+`{{ kindOf "Bat Man" }}`
+
+returns `string`
+
+`{{ kindOf (slice "A" "B") }}`
+
+returns `slice`
+
+`{{ kindOf (dict "one" "two" "foo" "bar" ) }}`
+
+returns `map`
+
+### kindIs
+
+Returns true if the given string matches the kind of the given interface.
+
+`{{ kindIs "string" "Bat Man" }}`
+
+returns `true`
 
 ## Internationalization
 
