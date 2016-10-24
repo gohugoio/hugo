@@ -3,6 +3,7 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -169,6 +170,16 @@ func assertFileContent(t *testing.T, filename string, defaultInSubDir bool, matc
 	for _, match := range matches {
 		match = replaceDefaultContentLanguageValue(match, defaultInSubDir)
 		require.True(t, strings.Contains(content, match), fmt.Sprintf("File no match for %q in %q: %s", match, filename, content))
+	}
+}
+
+func assertFileContentRegexp(t *testing.T, filename string, defaultInSubDir bool, matches ...string) {
+	filename = replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+	content := readDestination(t, filename)
+	for _, match := range matches {
+		match = replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		r := regexp.MustCompile(match)
+		require.True(t, r.MatchString(content), fmt.Sprintf("File no match for %q in %q: %s", match, filename, content))
 	}
 }
 
@@ -659,6 +670,105 @@ func TestChangeDefaultLanguage(t *testing.T) {
 	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Bonjour")
 	assertFileContent(t, "public/sect/doc2/index.html", true, "Single", "Hello")
 }
+
+func TestTableOfContentsInShortcodes(t *testing.T) {
+	testCommonResetState()
+
+	sites := createMultiTestSites(t, testSiteConfig{DefaultContentLanguage: "en"}, multiSiteTOMLConfigTemplate)
+
+	writeSource(t, "layouts/shortcodes/toc.html", tocShortcode)
+	writeSource(t, "content/post/simple.en.md", tocPageSimple)
+	writeSource(t, "content/post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
+
+	cfg := BuildCfg{}
+
+	err := sites.Build(cfg)
+
+	if err != nil {
+		t.Fatalf("Failed to build sites: %s", err)
+	}
+
+	assertFileContent(t, "public/en/post/simple/index.html", true, tocPageSimpleExpected)
+	assertFileContent(t, "public/en/post/withSCInHeading/index.html", true, tocPageWithShortcodesInHeadingsExpected)
+}
+
+var tocShortcode = `
+{{ .Page.TableOfContents }}
+`
+
+var tocPageSimple = `---
+title: tocTest
+publishdate: "2000-01-01"
+---
+
+{{< toc >}}
+
+# Heading 1 {#1}
+
+Some text.
+
+## Subheading 1.1 {#1-1}
+
+Some more text.
+
+# Heading 2 {#2}
+
+Even more text.
+
+## Subheading 2.1 {#2-1}
+
+Lorem ipsum...
+`
+
+var tocPageSimpleExpected = `<nav id="TableOfContents">
+<ul>
+<li><a href="#1">Heading 1</a>
+<ul>
+<li><a href="#1-1">Subheading 1.1</a></li>
+</ul></li>
+<li><a href="#2">Heading 2</a>
+<ul>
+<li><a href="#2-1">Subheading 2.1</a></li>
+</ul></li>
+</ul>
+</nav>`
+
+var tocPageWithShortcodesInHeadings = `---
+title: tocTest
+publishdate: "2000-01-01"
+---
+
+{{< toc >}}
+
+# Heading 1 {#1}
+
+Some text.
+
+## Subheading 1.1 {{< shortcode >}} {#1-1}
+
+Some more text.
+
+# Heading 2 {{% shortcode %}} {#2}
+
+Even more text.
+
+## Subheading 2.1 {#2-1}
+
+Lorem ipsum...
+`
+
+var tocPageWithShortcodesInHeadingsExpected = `<nav id="TableOfContents">
+<ul>
+<li><a href="#1">Heading 1</a>
+<ul>
+<li><a href="#1-1">Subheading 1.1 Shortcode: Hello</a></li>
+</ul></li>
+<li><a href="#2">Heading 2 Shortcode: Hello</a>
+<ul>
+<li><a href="#2-1">Subheading 2.1</a></li>
+</ul></li>
+</ul>
+</nav>`
 
 var multiSiteTOMLConfigTemplate = `
 DefaultExtension = "html"

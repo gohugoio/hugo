@@ -466,14 +466,14 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 					p.rawContentCopy = p.rawContent
 				}
 
-				if err := handleShortcodes(p, s.owner.tmpl); err != nil {
-					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
-				}
-
 				if p.Markup == "markdown" {
 					tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.rawContentCopy)
 					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
 					p.rawContentCopy = tmpContent
+				}
+
+				if err := handleShortcodes(p, s.owner.tmpl); err != nil {
+					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 
 				if p.Markup != "html" {
