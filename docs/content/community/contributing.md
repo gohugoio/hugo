@@ -33,29 +33,32 @@ We wrote a [detailed guide]({{< relref "tutorials/how-to-contribute-to-hugo.md" 
 
 ## Clone locally (for contributors):
 
-    git clone https://github.com/spf13/hugo
-    cd hugo
-    go get
+```
+git clone https://github.com/spf13/hugo
+cd hugo
+go get
+```
 
-Because Go expects all of your libraries to be found in either
-`$GOROOT` or `$GOPATH`, it's helpful to symlink the project to one
-of the following paths:
+Because Go expects all of your libraries to be found in either `$GOROOT` or `$GOPATH`, it's helpful to symlink the project to one of the following paths:
 
  * `ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo`
  * `ln -s /path/to/your/hugo $GOROOT/src/pkg/github.com/spf13/hugo`
 
 ## Running Hugo
 
-    cd /path/to/hugo
-    go install github.com/spf13/hugo/hugo
-    go run main.go
+```
+cd /path/to/hugo
+go install github.com/spf13/hugo/hugo
+go run main.go
+```
 
 ## Building Hugo
 
-    cd /path/to/hugo
-    go build -o hugo main.go
-    mv hugo /usr/local/bin/
-
+```
+cd /path/to/hugo
+go build -o hugo main.go
+mv hugo /usr/local/bin/
+```
 
 # Showcase additions
 
@@ -99,11 +102,11 @@ Furthermore, we need to create the thumbnail of your website. **It's important t
 
 Check a last time that everything works as expected. Start Hugo's built-in server in order to inspect your local copy of the showcase in the browser:
 
-    hugo server
+`hugo server`
 
 If everything looks fine, we are ready to commit your additions. For the sake of best practices, please make sure that your commit follows our [code contribution guideline](https://github.com/spf13/hugo#code-contribution-guideline).
 
-    git commit -m"docs: Add example.com to the showcase"
+`git commit -m"docs: Add example.com to the showcase"`
 
 Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare).
 
