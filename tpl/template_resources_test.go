@@ -213,12 +213,12 @@ type wd struct {
 }
 
 func testRetryWhenDone() wd {
-	cd := viper.GetString("CacheDir")
-	viper.Set("CacheDir", helpers.GetTempDir("", hugofs.Source()))
+	cd := viper.GetString("cacheDir")
+	viper.Set("cacheDir", helpers.GetTempDir("", hugofs.Source()))
 	var tmpSleep time.Duration
 	tmpSleep, resSleep = resSleep, time.Millisecond
 	return wd{func() {
-		viper.Set("CacheDir", cd)
+		viper.Set("cacheDir", cd)
 		resSleep = tmpSleep
 	}}
 }

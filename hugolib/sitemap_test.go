@@ -38,7 +38,7 @@ const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap
 func TestSitemapOutput(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("baseurl", "http://auth/bub/")
+	viper.Set("baseURL", "http://auth/bub/")
 
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: weightedSources},

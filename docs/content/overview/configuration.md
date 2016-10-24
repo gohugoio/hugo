@@ -49,7 +49,7 @@ Three periods end the document:
 
 ```yaml
 ---
-baseurl: "http://yoursite.example.com/"
+baseURL: "http://yoursite.example.com/"
 ...
 ```
 Following is an example TOML configuration file with some default values.
@@ -57,12 +57,12 @@ The values under `[params]` will populate the `.Site.Params` variable
 for use in templates:
 
 ```toml
-contentdir = "content"
-layoutdir = "layouts"
-publishdir = "public"
-builddrafts = false
-baseurl = "http://yoursite.example.com/"
-canonifyurls = true
+contentDir = "content"
+layoutDir = "layouts"
+publishDir = "public"
+buildDrafts = false
+baseURL = "http://yoursite.example.com/"
+canonifyURLs = true
 
 [taxonomies]
   category = "categories"
@@ -76,9 +76,9 @@ Here is a YAML configuration file which sets a few more options:
 
 ```yaml
 ---
-baseurl: "http://yoursite.example.com/"
+baseURL: "http://yoursite.example.com/"
 title: "Yoyodyne Widget Blogging"
-footnotereturnlinkcontents: "↩"
+footnoteReturnLinkContents: "↩"
 permalinks:
   post: /:year/:month/:title/
 params:
@@ -97,7 +97,7 @@ Following is a list of Hugo-defined variables you can configure,
 along with their current, default values:
 
     ---
-    archetypedir:               "archetype"
+    archetypeDir:               "archetype"
     # hostname (and path) to the root, e.g. http://spf13.com/
     baseURL:                    ""
     # include content marked as draft
@@ -111,14 +111,14 @@ along with their current, default values:
     canonifyURLs:               false
     # config file (default is path/config.yaml|json|toml)
     config:                     "config.toml"
-    contentdir:                 "content"
+    contentDir:                 "content"
     dataDir:                    "data"
     defaultExtension:           "html"
     defaultLayout:              "post"
     # Missing translations will default to this content language
-    DefaultContentLanguage:     "en"
+    defaultContentLanguage:     "en"
     # Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
-    DefaultContentLanguageInSubdir: false
+    defaultContentLanguageInSubdir: false
     disableLiveReload:          false
     # Do not build RSS files
     disableRSS:                 false
@@ -142,7 +142,7 @@ along with their current, default values:
     # google analytics tracking id
     googleAnalytics:            ""
     languageCode:               ""
-    layoutdir:                  "layouts"
+    layoutDir:                  "layouts"
     # Enable Logging
     log:                        false
     # Log File path (if set, logging enabled automatically)
@@ -160,7 +160,7 @@ along with their current, default values:
     # Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
     preserveTaxonomyNames:      false
     # filesystem path to write files to
-    publishdir:                 "public"
+    publishDir:                 "public"
     # enables syntax guessing for code fences without specified language
     pygmentsCodeFencesGuessSyntax: false
     # color-codes for highlighting derived from this style
@@ -171,11 +171,11 @@ along with their current, default values:
     sitemap:
     # filesystem path to read files relative from
     source:                     ""
-    staticdir:                  "static"
+    staticDir:                  "static"
     # display memory and timing of different steps of the program
     stepAnalysis:               false
     # theme to use (located by default in /themes/THEMENAME/)
-    themesdir:                  "themes"
+    themesDir:                  "themes"
     theme:                      ""
     title:                      ""
     # if true, use /filename.html instead of /filename/

@@ -182,8 +182,8 @@ func BytesToHTML(b []byte) template.HTML {
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
 func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       viper.GetString("footnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: viper.GetString("footnoteReturnLinkContents"),
 	}
 
 	b := len(ctx.DocumentID) != 0
@@ -271,8 +271,8 @@ func markdownRender(ctx *RenderingContext) []byte {
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
 func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("FootnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("FootnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       viper.GetString("footnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: viper.GetString("footnoteReturnLinkContents"),
 	}
 
 	b := len(ctx.DocumentID) != 0

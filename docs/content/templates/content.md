@@ -69,7 +69,7 @@ It makes use of [partial templates](/templates/partials/)
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
-    {{ $baseurl := .Site.BaseURL }}
+    {{ $baseURL := .Site.BaseURL }}
 
     <section id="main">
       <h1 id="title">{{ .Title }}</h1>
@@ -88,12 +88,12 @@ It makes use of [partial templates](/templates/partials/)
         </section>
         <ul id="categories">
           {{ range .Params.topics }}
-            <li><a href="{{ $baseurl }}/topics/{{ . | urlize }}">{{ . }}</a> </li>
+            <li><a href="{{ $baseURL }}/topics/{{ . | urlize }}">{{ . }}</a> </li>
           {{ end }}
         </ul>
         <ul id="tags">
           {{ range .Params.tags }}
-            <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
+            <li> <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
           {{ end }}
         </ul>
         </div>
@@ -118,7 +118,7 @@ It makes use of [partial templates](/templates/partials/)
 
     {{ partial "header.html" . }}
     {{ partial "subheader.html" . }}
-    {{ $baseurl := .Site.BaseURL }}
+    {{ $baseURL := .Site.BaseURL }}
 
     <section id="main">
       <h1 id="title">{{ .Title }}</h1>
@@ -137,12 +137,12 @@ It makes use of [partial templates](/templates/partials/)
         </section>
         <ul id="categories">
           {{ range .Params.topics }}
-          <li><a href="{{ $baseurl }}/topics/{{ . | urlize }}">{{ . }}</a> </li>
+          <li><a href="{{ $baseURL }}/topics/{{ . | urlize }}">{{ . }}</a> </li>
           {{ end }}
         </ul>
         <ul id="tags">
           {{ range .Params.tags }}
-            <li> <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
+            <li> <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
           {{ end }}
         </ul>
         </div>

@@ -34,7 +34,7 @@ import (
 )
 
 func initCommonTestConfig() {
-	viper.Set("CurrentContentLanguage", NewLanguage("en"))
+	viper.Set("currentContentLanguage", NewLanguage("en"))
 }
 
 func TestMakePath(t *testing.T) {
@@ -61,7 +61,7 @@ func TestMakePath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		viper.Set("RemovePathAccents", test.removeAccents)
+		viper.Set("removePathAccents", test.removeAccents)
 		p := NewPathSpecFromConfig(viper.GetViper())
 		output := p.MakePath(test.input)
 		if output != test.expected {
@@ -102,7 +102,7 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	defer viper.Reset()
 
 	initCommonTestConfig()
-	viper.Set("DisablePathToLower", true)
+	viper.Set("disablePathToLower", true)
 	p := NewPathSpecFromConfig(viper.GetViper())
 
 	tests := []struct {
@@ -549,7 +549,7 @@ func TestAbsPathify(t *testing.T) {
 	for i, d := range data {
 		viper.Reset()
 		// todo see comment in AbsPathify
-		viper.Set("WorkingDir", d.workingDir)
+		viper.Set("workingDir", d.workingDir)
 
 		expected := AbsPathify(d.inPath)
 		if d.expected != expected {
@@ -559,7 +559,7 @@ func TestAbsPathify(t *testing.T) {
 	t.Logf("Running platform specific path tests for %s", runtime.GOOS)
 	if runtime.GOOS == "windows" {
 		for i, d := range windowsData {
-			viper.Set("WorkingDir", d.workingDir)
+			viper.Set("workingDir", d.workingDir)
 
 			expected := AbsPathify(d.inPath)
 			if d.expected != expected {
@@ -568,7 +568,7 @@ func TestAbsPathify(t *testing.T) {
 		}
 	} else {
 		for i, d := range unixData {
-			viper.Set("WorkingDir", d.workingDir)
+			viper.Set("workingDir", d.workingDir)
 
 			expected := AbsPathify(d.inPath)
 			if d.expected != expected {

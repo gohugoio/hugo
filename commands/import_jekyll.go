@@ -221,7 +221,7 @@ func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
 
 func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]interface{}) (err error) {
 	title := "My New Hugo Site"
-	baseurl := "http://example.org/"
+	baseURL := "http://example.org/"
 
 	for key, value := range jekyllConfig {
 		lowerKey := strings.ToLower(key)
@@ -234,13 +234,13 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 
 		case "url":
 			if str, ok := value.(string); ok {
-				baseurl = str
+				baseURL = str
 			}
 		}
 	}
 
 	in := map[string]interface{}{
-		"baseurl":            baseurl,
+		"baseURL":            baseURL,
 		"title":              title,
 		"languageCode":       "en-us",
 		"disablePathToLower": true,

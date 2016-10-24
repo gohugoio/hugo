@@ -11,7 +11,7 @@ title: Create a Multilingual Site
 weight: 10
 ---
 
-> **Note:** Since v0.17 Hugo has built-in support for the creation of multilingual website. [Read more about it]({{< relref "content/multilingual.md" >}}). 
+> **Note:** Since v0.17 Hugo has built-in support for the creation of multilingual website. [Read more about it]({{< relref "content/multilingual.md" >}}).
 
 ## Introduction
 
@@ -30,10 +30,10 @@ Create your site configs in the root of your repository, for example for an Engl
 **English Config `config_en.toml`**:
 
 ~~~toml
-baseurl = "http://acme.com/"
+baseURL = "http://acme.com/"
 title = "Acme Inc."
-contentdir = "content/en"
-publishdir = "public/en"
+contentDir = "content/en"
+publishDir = "public/en"
 
 [params]
     locale = "en-US"
@@ -42,10 +42,10 @@ publishdir = "public/en"
 **Japanese Config `config_ja.toml`**:
 
 ~~~toml
-baseurl = "http://acme.jp/"
+baseURL = "http://acme.jp/"
 title = "有限会社アクミー"
-contentdir = "content/ja"
-publishdir = "public/ja"
+contentDir = "content/ja"
+publishDir = "public/ja"
 
 [params]
     locale = "ja-JP"
@@ -60,16 +60,16 @@ Create `.yaml` (or `.json` or `.toml`) files for each language, under `/data/tra
 **English Strings `en-US.yaml`**:
 
 ~~~yaml
-topslogan: Acme Inc.
-topsubslogan: You'll love us
+topSlogan: Acme Inc.
+topSubslogan: You'll love us
 ...
 ~~~
 
 **Japanese Strings `ja-JP.yaml`**:
 
 ~~~yaml
-topslogan: 有限会社アクミー
-topsubslogan: キット勝つぞ
+topSlogan: 有限会社アクミー
+topSubslogan: キット勝つぞ
 ...
 ~~~
 
@@ -90,8 +90,8 @@ Now you can reference the strings in your templates. One way is to do it like in
   </head>
   <body>
     <div class="container">
-      <h1 class="header">{{ ( index $.Site.Data.translations $.Site.Params.locale ).topslogan }}</h1>
-      <h3 class="subheader">{{ ( index $.Site.Data.translations $.Site.Params.locale ).topsubslogan }}</h3>
+      <h1 class="header">{{ ( index $.Site.Data.translations $.Site.Params.locale ).topSlogan }}</h1>
+      <h3 class="subheader">{{ ( index $.Site.Data.translations $.Site.Params.locale ).topSubslogan }}</h3>
     </div>
   </body>
 </html>
@@ -126,7 +126,7 @@ At the time of this writing, Golang does not yet have support for internationali
 </time>
 ~~~
 
-This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.  
+This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.
 
 ## Create Multilingual Content
 

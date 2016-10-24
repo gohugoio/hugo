@@ -67,7 +67,7 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 		return err
 	}
 
-	if err = page.SetSourceMetaData(metadata, parser.FormatToLeadRune(viper.GetString("MetaDataFormat"))); err != nil {
+	if err = page.SetSourceMetaData(metadata, parser.FormatToLeadRune(viper.GetString("metaDataFormat"))); err != nil {
 		return
 	}
 
@@ -78,7 +78,7 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 	}
 	jww.FEEDBACK.Println(helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)), "created")
 
-	editor := viper.GetString("NewContentEditor")
+	editor := viper.GetString("newContentEditor")
 
 	if editor != "" {
 		jww.FEEDBACK.Printf("Editing %s with %q ...\n", name, editor)
@@ -137,7 +137,7 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
 	}
 
-	if x := parser.FormatSanitize(viper.GetString("MetaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
+	if x := parser.FormatSanitize(viper.GetString("metaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
 		metadata["date"] = time.Now().Format(time.RFC3339)
 	}
 

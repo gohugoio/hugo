@@ -830,7 +830,7 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 
 func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	testCommonResetState()
-	viper.Set("HasCJKLanguage", true)
+	viper.Set("hasCJKLanguage", true)
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
@@ -844,7 +844,7 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("HasCJKLanguage", true)
+	viper.Set("hasCJKLanguage", true)
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
@@ -863,7 +863,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 
 func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	testCommonResetState()
-	viper.Set("HasCJKLanguage", true)
+	viper.Set("hasCJKLanguage", true)
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
@@ -1099,7 +1099,7 @@ func TestSliceToLower(t *testing.T) {
 func TestPagePaths(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 	siteParmalinksSetting := PermalinkOverrides{
 		"post": ":year/:month/:day/:title/",
 	}

@@ -588,10 +588,10 @@ func (p *Page) permalink() (*url.URL, error) {
 		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
+			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
 			t := p.Source.TranslationBaseName()
-			permalink = helpers.URLPrep(viper.GetBool("UglyURLs"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
+			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
 		}
 	}
 
@@ -604,7 +604,7 @@ func (p *Page) Extension() string {
 	if p.extension != "" {
 		return p.extension
 	}
-	return viper.GetString("DefaultExtension")
+	return viper.GetString("defaultExtension")
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -637,8 +637,8 @@ func (p *Page) LinkTitle() string {
 }
 
 func (p *Page) shouldBuild() bool {
-	return shouldBuild(viper.GetBool("BuildFuture"), viper.GetBool("BuildExpired"),
-		viper.GetBool("BuildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
+	return shouldBuild(viper.GetBool("buildFuture"), viper.GetBool("buildExpired"),
+		viper.GetBool("buildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
 }
 
 func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
@@ -697,7 +697,7 @@ func (p *Page) RelPermalink() (string, error) {
 		return "", err
 	}
 
-	if viper.GetBool("CanonifyURLs") {
+	if viper.GetBool("canonifyURLs") {
 		// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
 		// have to return the URL relative from baseURL
 		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
@@ -842,8 +842,8 @@ func (p *Page) update(f interface{}) error {
 		p.Draft = !*published
 	}
 
-	if p.Date.IsZero() && viper.GetBool("UseModTimeAsFallback") {
-		fi, err := hugofs.Source().Stat(filepath.Join(helpers.AbsPathify(viper.GetString("ContentDir")), p.File.Path()))
+	if p.Date.IsZero() && viper.GetBool("useModTimeAsFallback") {
+		fi, err := hugofs.Source().Stat(filepath.Join(helpers.AbsPathify(viper.GetString("contentDir")), p.File.Path()))
 		if err == nil {
 			p.Date = fi.ModTime()
 		}
@@ -855,7 +855,7 @@ func (p *Page) update(f interface{}) error {
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
-	} else if viper.GetBool("HasCJKLanguage") {
+	} else if viper.GetBool("hasCJKLanguage") {
 		if cjk.Match(p.rawContent) {
 			p.isCJKLanguage = true
 		} else {

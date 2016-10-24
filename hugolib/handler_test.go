@@ -40,7 +40,7 @@ func TestDefaultHandler(t *testing.T) {
 		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 	viper.Set("verbose", true)
 
 	s := &Site{

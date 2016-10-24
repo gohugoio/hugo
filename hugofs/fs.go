@@ -81,7 +81,7 @@ func InitFs(fs afero.Fs) {
 }
 
 func initSourceDependencies() {
-	workingDir := viper.GetString("WorkingDir")
+	workingDir := viper.GetString("workingDir")
 
 	if workingDir != "" {
 		workingDirFs = afero.NewBasePathFs(afero.NewReadOnlyFs(sourceFs), workingDir).(*afero.BasePathFs)

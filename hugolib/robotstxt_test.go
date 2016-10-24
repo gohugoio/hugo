@@ -34,7 +34,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	hugofs.InitMemFs()
 
-	viper.Set("baseurl", "http://auth/bub/")
+	viper.Set("baseURL", "http://auth/bub/")
 	viper.Set("enableRobotsTXT", true)
 
 	s := &Site{
@@ -54,6 +54,6 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	robots := helpers.ReaderToBytes(robotsFile)
 	if !bytes.HasPrefix(robots, []byte("User-agent: Googlebot")) {
-		t.Errorf("Robots file should start with 'User-agentL Googlebot'. %s", robots)
+		t.Errorf("Robots file should start with 'User-agent: Googlebot'. %s", robots)
 	}
 }

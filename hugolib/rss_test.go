@@ -45,8 +45,8 @@ func TestRSSOutput(t *testing.T) {
 	testCommonResetState()
 
 	rssURI := "public/customrss.xml"
-	viper.Set("baseurl", "http://auth/bub/")
-	viper.Set("RSSUri", rssURI)
+	viper.Set("baseURL", "http://auth/bub/")
+	viper.Set("rssURI", rssURI)
 
 	for _, s := range weightedSources {
 		writeSource(t, filepath.Join("content", s.Name), string(s.Content))

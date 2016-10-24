@@ -40,7 +40,7 @@ func testCommonResetState() {
 	loadDefaultSettings()
 
 	// Default is false, but true is easier to use as default in tests
-	viper.Set("DefaultContentLanguageInSubdir", true)
+	viper.Set("defaultContentLanguageInSubdir", true)
 
 	if err := hugofs.Source().Mkdir("content", 0755); err != nil {
 		panic("Content folder creation failed.")
@@ -56,7 +56,7 @@ func TestMultiSitesMainLangInRoot(t *testing.T) {
 
 func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	testCommonResetState()
-	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
+	viper.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 	siteConfig := testSiteConfig{DefaultContentLanguage: "fr"}
 
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
@@ -155,7 +155,7 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 }
 
 func replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) string {
-	replace := viper.GetString("DefaultContentLanguage") + "/"
+	replace := viper.GetString("defaultContentLanguage") + "/"
 	if !defaultInSubDir {
 		value = strings.Replace(value, replace, "", 1)
 
@@ -639,7 +639,7 @@ title = "Svenska"
 
 func TestChangeDefaultLanguage(t *testing.T) {
 	testCommonResetState()
-	viper.Set("DefaultContentLanguageInSubdir", false)
+	viper.Set("defaultContentLanguageInSubdir", false)
 
 	sites := createMultiTestSites(t, testSiteConfig{DefaultContentLanguage: "fr"}, multiSiteTOMLConfigTemplate)
 	cfg := BuildCfg{}
@@ -771,14 +771,14 @@ var tocPageWithShortcodesInHeadingsExpected = `<nav id="TableOfContents">
 </nav>`
 
 var multiSiteTOMLConfigTemplate = `
-DefaultExtension = "html"
-baseurl = "http://example.com/blog"
-DisableSitemap = false
-DisableRSS = false
-RSSUri = "index.xml"
+defaultExtension = "html"
+baseURL = "http://example.com/blog"
+disableSitemap = false
+disableRSS = false
+rssURI = "index.xml"
 
 paginate = 1
-DefaultContentLanguage = "{{ .DefaultContentLanguage }}"
+defaultContentLanguage = "{{ .DefaultContentLanguage }}"
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -830,14 +830,14 @@ lag = "lag"
 `
 
 var multiSiteYAMLConfig = `
-DefaultExtension: "html"
-baseurl: "http://example.com/blog"
-DisableSitemap: false
-DisableRSS: false
-RSSUri: "index.xml"
+defaultExtension: "html"
+baseURL: "http://example.com/blog"
+disableSitemap: false
+disableRSS: false
+rssURI: "index.xml"
 
 paginate: 1
-DefaultContentLanguage: "fr"
+defaultContentLanguage: "fr"
 
 permalinks:
     other: "/somewhere/else/:filename"
@@ -890,13 +890,13 @@ Languages:
 
 var multiSiteJSONConfig = `
 {
-  "DefaultExtension": "html",
-  "baseurl": "http://example.com/blog",
-  "DisableSitemap": false,
-  "DisableRSS": false,
-  "RSSUri": "index.xml",
+  "defaultExtension": "html",
+  "baseURL": "http://example.com/blog",
+  "disableSitemap": false,
+  "disableRSS": false,
+  "rssURI": "index.xml",
   "paginate": 1,
-  "DefaultContentLanguage": "fr",
+  "defaultContentLanguage": "fr",
   "permalinks": {
     "other": "/somewhere/else/:filename"
   },
@@ -1080,7 +1080,7 @@ publishdate: "2000-01-05"
 ---
 # doc4
 *du contenu francophone*
-NOTE: should use the DefaultContentLanguage and mark this doc as 'fr'.
+NOTE: should use the defaultContentLanguage and mark this doc as 'fr'.
 NOTE: doesn't have any corresponding translation in 'en'
 `)},
 		{Name: filepath.FromSlash("other/doc5.fr.md"), Content: []byte(`---

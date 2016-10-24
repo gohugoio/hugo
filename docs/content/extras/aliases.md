@@ -79,7 +79,7 @@ aliases:
 
 When aliases are specified, Hugo creates a physical folder structure to match the alias entry, and, an html file specifying the canonical URL for the page, and a redirect target.
 
-Assuming a baseurl of `mysite.tld`, the contents of the html file will look something like:
+Assuming a baseURL of `mysite.tld`, the contents of the html file will look something like:
 
 ```html
 <!DOCTYPE html>

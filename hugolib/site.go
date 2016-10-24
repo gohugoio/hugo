@@ -819,8 +819,8 @@ func (s *Site) setupPrevNext() {
 
 func (s *Site) setCurrentLanguageConfig() error {
 	// There are sadly some global template funcs etc. that need the language information.
-	viper.Set("Multilingual", s.multilingualEnabled())
-	viper.Set("CurrentContentLanguage", s.Language)
+	viper.Set("multilingual", s.multilingualEnabled())
+	viper.Set("currentContentLanguage", s.Language)
 	// Cache the current config.
 	helpers.InitConfigProviderForCurrentContentLanguage()
 	return tpl.SetTranslateLang(s.Language)
@@ -886,7 +886,7 @@ func (s *Site) initialize() (err error) {
 		return err
 	}
 
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir") + "/")
+	staticDir := helpers.AbsPathify(viper.GetString("staticDir") + "/")
 
 	s.Source = &source.Filesystem{
 		AvoidPaths: []string{staticDir},
@@ -907,7 +907,7 @@ func (s *SiteInfo) HomeAbsURL() string {
 
 // SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
 func (s *SiteInfo) SitemapAbsURL() string {
-	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
+	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
 	p := s.HomeAbsURL()
 	if !strings.HasSuffix(p, "/") {
 		p += "/"
@@ -930,12 +930,12 @@ func (s *Site) initializeSiteInfo() {
 	params := lang.Params()
 
 	permalinks := make(PermalinkOverrides)
-	for k, v := range viper.GetStringMapString("Permalinks") {
+	for k, v := range viper.GetStringMapString("permalinks") {
 		permalinks[k] = pathPattern(v)
 	}
 
-	defaultContentInSubDir := viper.GetBool("DefaultContentLanguageInSubdir")
-	defaultContentLanguage := viper.GetString("DefaultContentLanguage")
+	defaultContentInSubDir := viper.GetBool("defaultContentLanguageInSubdir")
+	defaultContentLanguage := viper.GetString("defaultContentLanguage")
 
 	languagePrefix := ""
 	if s.multilingualEnabled() && (defaultContentInSubDir || lang.Lang != defaultContentLanguage) {
@@ -948,22 +948,22 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseURL:                        template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))),
-		Title:                          lang.GetString("Title"),
+		BaseURL:                        template.URL(helpers.SanitizeURLKeepTrailingSlash(viper.GetString("baseURL"))),
+		Title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
 		Social:                         lang.GetStringMapString("social"),
-		LanguageCode:                   lang.GetString("languagecode"),
+		LanguageCode:                   lang.GetString("languageCode"),
 		Copyright:                      lang.GetString("copyright"),
-		DisqusShortname:                lang.GetString("DisqusShortname"),
+		DisqusShortname:                lang.GetString("disqusShortname"),
 		multilingual:                   multilingual,
 		Language:                       lang,
 		LanguagePrefix:                 languagePrefix,
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
-		GoogleAnalytics:                lang.GetString("GoogleAnalytics"),
-		BuildDrafts:                    viper.GetBool("BuildDrafts"),
-		canonifyURLs:                   viper.GetBool("CanonifyURLs"),
-		preserveTaxonomyNames:          lang.GetBool("PreserveTaxonomyNames"),
+		GoogleAnalytics:                lang.GetString("googleAnalytics"),
+		BuildDrafts:                    viper.GetBool("buildDrafts"),
+		canonifyURLs:                   viper.GetBool("canonifyURLs"),
+		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
 		AllPages:                       &s.AllPages,
 		Pages:                          &s.Pages,
 		rawAllPages:                    &s.rawAllPages,
@@ -984,14 +984,14 @@ func (s *Site) hasTheme() bool {
 }
 
 func (s *Site) dataDir() string {
-	return viper.GetString("DataDir")
+	return viper.GetString("dataDir")
 }
 func (s *Site) absDataDir() string {
 	return helpers.AbsPathify(s.dataDir())
 }
 
 func (s *Site) i18nDir() string {
-	return viper.GetString("I18nDir")
+	return viper.GetString("i18nDir")
 }
 
 func (s *Site) absI18nDir() string {
@@ -1043,7 +1043,7 @@ func (s *Site) absThemeDir() string {
 }
 
 func (s *Site) layoutDir() string {
-	return viper.GetString("LayoutDir")
+	return viper.GetString("layoutDir")
 }
 
 func (s *Site) absLayoutDir() string {
@@ -1069,7 +1069,7 @@ func (s *Site) getThemeLayoutDir(path string) string {
 }
 
 func (s *Site) absContentDir() string {
-	return helpers.AbsPathify(viper.GetString("ContentDir"))
+	return helpers.AbsPathify(viper.GetString("contentDir"))
 }
 
 func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
@@ -1105,7 +1105,7 @@ func getRealDir(base, path string) string {
 }
 
 func (s *Site) absPublishDir() string {
-	return helpers.AbsPathify(viper.GetString("PublishDir"))
+	return helpers.AbsPathify(viper.GetString("publishDir"))
 }
 
 func (s *Site) checkDirectories() (err error) {
@@ -1756,7 +1756,7 @@ func (s *Site) renderTaxonomiesLists(prepare bool) error {
 
 	go errorCollator(results, errs)
 
-	taxonomies := s.Language.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("taxonomies")
 	for singular, plural := range taxonomies {
 		for key, pages := range s.Taxonomies[plural] {
 			taxes <- taxRenderInfo{key, pages, singular, plural}
@@ -1832,7 +1832,7 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 			[]string{"taxonomy/" + t.singular + ".html", "indexes/" + t.singular + ".html", "_default/taxonomy.html", "_default/list.html"})
 
 		dest := base
-		if viper.GetBool("UglyURLs") {
+		if viper.GetBool("uglyURLs") {
 			dest = helpers.Uglify(baseWithLanguagePrefix + ".html")
 		} else {
 			dest = helpers.PrettifyPath(baseWithLanguagePrefix + "/index.html")
@@ -1880,16 +1880,16 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 			continue
 		}
 
-		if !viper.GetBool("DisableRSS") {
+		if !viper.GetBool("disableRSS") {
 			// XML Feed
 			rssNode := s.newNode(fmt.Sprintf("%s-%s-rss", t.plural, t.key))
-			rssuri := viper.GetString("RSSUri")
-			s.setURLs(rssNode, base+"/"+rssuri)
+			rssURI := viper.GetString("rssURI")
+			s.setURLs(rssNode, base+"/"+rssURI)
 			rssNode.Data = n.Data
 
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 
-			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", baseWithLanguagePrefix+"/"+rssuri, rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("taxonomy "+t.singular+" rss", baseWithLanguagePrefix+"/"+rssURI, rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				results <- err
 				continue
 			}
@@ -1936,7 +1936,7 @@ func (s *Site) newSectionListNode(prepare bool, sectionName, section string, dat
 	}
 
 	sectionName = helpers.FirstUpper(sectionName)
-	if viper.GetBool("PluralizeListTitles") {
+	if viper.GetBool("pluralizeListTitles") {
 		n.Title = inflect.Pluralize(sectionName)
 	} else {
 		n.Title = sectionName
@@ -2012,13 +2012,13 @@ func (s *Site) renderSectionLists(prepare bool) error {
 			return nil
 		}
 
-		if !viper.GetBool("DisableRSS") && section != "" {
+		if !viper.GetBool("disableRSS") && section != "" {
 			// XML Feed
-			rssuri := viper.GetString("RSSUri")
+			rssURI := viper.GetString("rssURI")
 			rssNode := s.newSectionListNode(true, sectionName+"-rss", section, data, 0)
-			s.setURLs(rssNode, section+"/"+rssuri)
+			s.setURLs(rssNode, section+"/"+rssURI)
 			rssLayouts := []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-			if err := s.renderAndWriteXML("section "+section+" rss", rssNode.addLangPathPrefix(section+"/"+rssuri), rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
+			if err := s.renderAndWriteXML("section "+section+" rss", rssNode.addLangPathPrefix(section+"/"+rssURI), rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
 				return err
 			}
 		}
@@ -2076,10 +2076,10 @@ func (s *Site) renderHomePage(prepare bool) error {
 		}
 	}
 
-	if !viper.GetBool("DisableRSS") {
+	if !viper.GetBool("disableRSS") {
 		// XML Feed
 		rssNode := s.newNode("rss-home")
-		s.setURLs(rssNode, viper.GetString("RSSUri"))
+		s.setURLs(rssNode, viper.GetString("rssURI"))
 		rssNode.Title = ""
 		high := 50
 		if len(s.Pages) < high {
@@ -2093,12 +2093,12 @@ func (s *Site) renderHomePage(prepare bool) error {
 
 		rssLayouts := []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
 
-		if err := s.renderAndWriteXML("homepage rss", rssNode.addLangPathPrefix(viper.GetString("RSSUri")), rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
+		if err := s.renderAndWriteXML("homepage rss", rssNode.addLangPathPrefix(viper.GetString("rssURI")), rssNode, s.appendThemeTemplates(rssLayouts)...); err != nil {
 			return err
 		}
 	}
 
-	if viper.GetBool("Disable404") {
+	if viper.GetBool("disable404") {
 		return nil
 	}
 
@@ -2138,11 +2138,11 @@ func (s *Site) newPage() *Page {
 }
 
 func (s *Site) renderSitemap() error {
-	if viper.GetBool("DisableSitemap") {
+	if viper.GetBool("disableSitemap") {
 		return nil
 	}
 
-	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
+	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
 
 	n := s.newNode("sitemap")
 
@@ -2183,7 +2183,7 @@ func (s *Site) renderSitemap() error {
 }
 
 func (s *Site) renderRobotsTXT() error {
-	if !viper.GetBool("EnableRobotsTXT") {
+	if !viper.GetBool("enableRobotsTXT") {
 		return nil
 	}
 
@@ -2232,7 +2232,7 @@ func (s *SiteInfo) permalink(plink string) string {
 
 func (s *SiteInfo) permalinkStr(plink string) string {
 	return helpers.MakePermalink(
-		viper.GetString("BaseURL"),
+		viper.GetString("baseURL"),
 		s.pathSpec.URLizeAndPrep(plink)).String()
 }
 
@@ -2323,10 +2323,10 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	defer bp.PutBuffer(outBuffer)
 
 	var path []byte
-	if viper.GetBool("RelativeURLs") {
+	if viper.GetBool("relativeURLs") {
 		path = []byte(helpers.GetDottedRelativePath(dest))
 	} else {
-		s := viper.GetString("BaseURL")
+		s := viper.GetString("baseURL")
 		if !strings.HasSuffix(s, "/") {
 			s += "/"
 		}
@@ -2364,31 +2364,31 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	transformLinks := transform.NewEmptyTransforms()
 
-	if viper.GetBool("RelativeURLs") || viper.GetBool("CanonifyURLs") {
+	if viper.GetBool("relativeURLs") || viper.GetBool("canonifyURLs") {
 		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
-	if s.running() && viper.GetBool("watch") && !viper.GetBool("DisableLiveReload") {
+	if s.running() && viper.GetBool("watch") && !viper.GetBool("disableLiveReload") {
 		transformLinks = append(transformLinks, transform.LiveReloadInject)
 	}
 
 	// For performance reasons we only inject the Hugo generator tag on the home page.
 	if n, ok := d.(*Node); ok && n.IsHome {
-		if !viper.GetBool("DisableHugoGeneratorInject") {
+		if !viper.GetBool("disableHugoGeneratorInject") {
 			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
 		}
 	}
 
 	var path []byte
 
-	if viper.GetBool("RelativeURLs") {
+	if viper.GetBool("relativeURLs") {
 		translated, err := pageTarget.(target.OptionalTranslator).TranslateRelative(dest)
 		if err != nil {
 			return err
 		}
 		path = []byte(helpers.GetDottedRelativePath(translated))
-	} else if viper.GetBool("CanonifyURLs") {
-		s := viper.GetString("BaseURL")
+	} else if viper.GetBool("canonifyURLs") {
+		s := viper.GetString("baseURL")
 		if !strings.HasSuffix(s, "/") {
 			s += "/"
 		}
@@ -2403,7 +2403,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		jww.WARN.Printf("%q is rendered empty\n", dest)
 		if dest == "/" {
 			debugAddend := ""
-			if !viper.GetBool("Verbose") {
+			if !viper.GetBool("verbose") {
 				debugAddend = "* For more debugging information, run \"hugo -v\""
 			}
 			distinctFeedbackLogger.Printf(`=============================================================
@@ -2413,7 +2413,7 @@ Your rendered home page is blank: /index.html is zero-length
  %s
 =============================================================`,
 				filepath.Base(viper.ConfigFileUsed()),
-				viper.GetString("Theme"),
+				viper.GetString("theme"),
 				debugAddend)
 		}
 
@@ -2499,7 +2499,7 @@ func (s *Site) initTargetList() {
 		if s.targets.page == nil {
 			s.targets.page = &target.PagePub{
 				PublishDir: s.absPublishDir(),
-				UglyURLs:   viper.GetBool("UglyURLs"),
+				UglyURLs:   viper.GetBool("uglyURLs"),
 			}
 		}
 		if s.targets.pageUgly == nil {
@@ -2544,9 +2544,9 @@ func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
 }
 
 func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path, permalink string, p *Page) (err error) {
-	if viper.GetBool("RelativeURLs") {
+	if viper.GetBool("relativeURLs") {
 		// convert `permalink` into URI relative to location of `path`
-		baseURL := helpers.SanitizeURLKeepTrailingSlash(viper.GetString("BaseURL"))
+		baseURL := helpers.SanitizeURLKeepTrailingSlash(viper.GetString("baseURL"))
 		if strings.HasPrefix(permalink, baseURL) {
 			permalink = "/" + strings.TrimPrefix(permalink, baseURL)
 		}
@@ -2572,7 +2572,7 @@ func (s *Site) draftStats() string {
 		msg = fmt.Sprintf("%d drafts rendered", s.draftCount)
 	}
 
-	if viper.GetBool("BuildDrafts") {
+	if viper.GetBool("buildDrafts") {
 		return fmt.Sprintf("%d of ", s.draftCount) + msg
 	}
 
@@ -2591,7 +2591,7 @@ func (s *Site) futureStats() string {
 		msg = fmt.Sprintf("%d futures rendered", s.futureCount)
 	}
 
-	if viper.GetBool("BuildFuture") {
+	if viper.GetBool("buildFuture") {
 		return fmt.Sprintf("%d of ", s.futureCount) + msg
 	}
 
@@ -2610,7 +2610,7 @@ func (s *Site) expiredStats() string {
 		msg = fmt.Sprintf("%d expired rendered", s.expiredCount)
 	}
 
-	if viper.GetBool("BuildExpired") {
+	if viper.GetBool("buildExpired") {
 		return fmt.Sprintf("%d of ", s.expiredCount) + msg
 	}
 

@@ -14,10 +14,11 @@
 package hugofs
 
 import (
+	"testing"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestInitDefault(t *testing.T) {
@@ -71,7 +72,7 @@ func TestWorkingDir(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	viper.Set("WorkingDir", "/a/b/")
+	viper.Set("workingDir", "/a/b/")
 
 	InitMemFs()
 

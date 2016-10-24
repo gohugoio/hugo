@@ -195,7 +195,7 @@ func doTestPagerNoPages(t *testing.T, paginator *paginator) {
 func TestPaginationURLFactory(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("PaginatePath", "zoo")
+	viper.Set("paginatePath", "zoo")
 	unicode := newPaginationURLFactory("новости проекта")
 	fooBar := newPaginationURLFactory("foo", "bar")
 

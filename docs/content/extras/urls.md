@@ -35,11 +35,11 @@ Organization](/content/organization/) for more details.
 
 By default, all relative URLs encountered in the input are left unmodified,
 e.g. `/css/foo.css` would stay as `/css/foo.css`,
-i.e. `canonifyurls` defaults to `false`.
+i.e. `canonifyURLs` defaults to `false`.
 
-By setting `canonifyurls` to `true`, all relative URLs would instead
-be *canonicalized* using `baseurl`.  For example, assuming you have
-`baseurl = http://yoursite.example.com/` defined in the site-wide
+By setting `canonifyURLs` to `true`, all relative URLs would instead
+be *canonicalized* using `baseURL`.  For example, assuming you have
+`baseURL = http://yoursite.example.com/` defined in the site-wide
 `config.toml`, the relative URL `/css/foo.css` would be turned into
 the absolute URL `http://yoursite.example.com/css/foo.css`.
 
@@ -51,9 +51,9 @@ Benefits of non-canonicalization include being able to have resource inclusion
 be scheme-relative, so that http vs https can be decided based on how this
 page was retrieved.
 
-> Note: In the May 2014 release of Hugo v0.11, the default value of `canonifyurls` was switched from `true` to `false`, which we think is the better default and should continue to be the case going forward. So, please verify and adjust your website accordingly if you are upgrading from v0.10 or older versions.
+> Note: In the May 2014 release of Hugo v0.11, the default value of `canonifyURLs` was switched from `true` to `false`, which we think is the better default and should continue to be the case going forward. So, please verify and adjust your website accordingly if you are upgrading from v0.10 or older versions.
 
-To find out the current value of `canonifyurls` for your website, you may use the handy `hugo config` command added in v0.13:
+To find out the current value of `canonifyURLs` for your website, you may use the handy `hugo config` command added in v0.13:
 
     hugo config | grep -i canon
 

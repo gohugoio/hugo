@@ -62,11 +62,11 @@ func TestCodeFence(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
 
-	viper.Set("PygmentsStyle", "monokai")
-	viper.Set("PygmentsUseClasses", true)
+	viper.Set("pygmentsStyle", "monokai")
+	viper.Set("pygmentsUseClasses", true)
 
 	for i, d := range data {
-		viper.Set("PygmentsCodeFences", d.enabled)
+		viper.Set("pygmentsCodeFences", d.enabled)
 
 		result := render(d.input)
 

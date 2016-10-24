@@ -87,7 +87,7 @@ As mentioned in the command output, `bookshelf` directory has 5 sub-directories 
 
 * **archetypes**: You can create new content files in Hugo using the `hugo new` command. When you run that command, it adds few configuration properties to the post like date and title. [Archetype]({{< relref "content/archetypes.md" >}}) allows you to define your own configuration properties that will be added to the post front matter whenever `hugo new` command is used.
 
-* **config.toml**: Every website should have a configuration file at the root. By default, the configuration file uses `TOML` format but you can also use `YAML` or `JSON` formats as well. [TOML](https://github.com/toml-lang/toml) is minimal configuration file format that's easy to read due to obvious semantics. The configuration settings mentioned in the `config.toml` are applied to the full site. These configuration settings include `baseurl` and `title` of the website.
+* **config.toml**: Every website should have a configuration file at the root. By default, the configuration file uses `TOML` format but you can also use `YAML` or `JSON` formats as well. [TOML](https://github.com/toml-lang/toml) is minimal configuration file format that's easy to read due to obvious semantics. The configuration settings mentioned in the `config.toml` are applied to the full site. These configuration settings include `baseURL` and `title` of the website.
 
 * **content**: This is where you will store content of the website. Inside content, you will create sub-directories for different sections. Let's suppose your website has three actions -- `blog`, `article`, and `tutorial` then you will have three different directories for each of them inside the `content` directory. The name of the section i.e. `blog`, `article`, or `tutorial` will be used by Hugo to apply a specific layout applicable to that section.
 
@@ -318,7 +318,7 @@ The website uses the dummy values specified in `bookshelf/config.toml`.
 Let's update the configuration.
 
 ```toml
-baseurl = "http://example.org/"
+baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "Shekhar Gulati Book Reviews"
 
@@ -484,10 +484,10 @@ Now, commenting will be enabled in your blog.
 
 To generate Hugo website source you can use
 to deploy your website on GitHub pages,
-first edit `bookshelf/config.toml`, changing the `baseurl` line to:
+first edit `bookshelf/config.toml`, changing the `baseURL` line to:
 
 ```
-baseurl = "https://<your GitHub username>.github.io/bookshelf/"
+baseURL = "https://<your GitHub username>.github.io/bookshelf/"
 ```
 
 Then type the following command.

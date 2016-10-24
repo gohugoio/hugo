@@ -154,13 +154,13 @@ func AbsPathify(inPath string) string {
 	}
 
 	// TODO(bep): Consider moving workingDir to argument list
-	return filepath.Clean(filepath.Join(viper.GetString("WorkingDir"), inPath))
+	return filepath.Clean(filepath.Join(viper.GetString("workingDir"), inPath))
 }
 
 // GetStaticDirPath returns the absolute path to the static file dir
 // for the current Hugo project.
 func GetStaticDirPath() string {
-	return AbsPathify(viper.GetString("StaticDir"))
+	return AbsPathify(viper.GetString("staticDir"))
 }
 
 // GetThemeDir gets the root directory of the current theme, if there is one.
@@ -342,7 +342,7 @@ func GetRelativePath(path, base string) (final string, err error) {
 // PaginateAliasPath creates a path used to access the aliases in the paginator.
 func PaginateAliasPath(base string, page int) string {
 	paginatePath := Config().GetString("paginatePath")
-	uglify := viper.GetBool("UglyURLs")
+	uglify := viper.GetBool("uglyURLs")
 	var p string
 	if base != "" {
 		p = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))

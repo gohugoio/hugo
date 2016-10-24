@@ -31,22 +31,22 @@ As our goal is to host a website using GitHub Pages, it is natural for us to hos
 
 ### Write a `config.yaml` File
 
-The very first step in creating a new Hugo site is to [write the config file](/overview/configuration/). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseurl`) go, and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yaml` with the following contents
+The very first step in creating a new Hugo site is to [write the config file](/overview/configuration/). This config file is important for at least two reasons: (1) this is where site-wide settings (like the websites `baseURL`) go, and (2) the config file dictates to some extent how Hugo will generate the website. For the example website I created a file `config.yaml` with the following contents
 
     ---
-    contentdir: "content"
-    layoutdir: "layouts"
-    publishdir: "public"
+    contentDir: "content"
+    layoutDir: "layouts"
+    publishDir: "public"
     indexes:
       category: "categories"
-    baseurl: "http://spencerlyon2.github.io/hugo_gh_blog"
+    baseURL: "http://spencerlyon2.github.io/hugo_gh_blog"
     title: "Hugo Blog Template for GitHub Pages"
-    canonifyurls: true
+    canonifyURLs: true
     ...
 
-> **Caveat:** Hugo's former default of `canonifyurls: true` has been changed
+> **Caveat:** Hugo's former default of `canonifyURLs: true` has been changed
 > to `false` since this tutorial has written.  **Please make sure you manually
-> add `canonifyurls: true` to your `config.yaml`** if you are using Spencer's
+> add `canonifyURLs: true` to your `config.yaml`** if you are using Spencer's
 > https://github.com/spencerlyon2/hugo_gh_blog for this tutorial, or you *will*
 > run into problems such as the CSS files not loading.
 
@@ -55,7 +55,7 @@ The very first step in creating a new Hugo site is to [write the config file](/o
 
 ### Define Structure of Website
 
-Hugo assumes that you organize the content of your site in a meaningful way and uses the same structure to render the website. Notice that we have the line `contentdir: "content"` in our configuration file. This means that all the actual content of the website should be placed somewhere within a folder named `content`. Hugo treats all directories in `content` as sections. For our example we only need one section: a place to hold our blog posts. So we created two new folders:
+Hugo assumes that you organize the content of your site in a meaningful way and uses the same structure to render the website. Notice that we have the line `contentDir: "content"` in our configuration file. This means that all the actual content of the website should be placed somewhere within a folder named `content`. Hugo treats all directories in `content` as sections. For our example we only need one section: a place to hold our blog posts. So we created two new folders:
 
 ```
 ▾ <root>/
@@ -115,7 +115,7 @@ The keys set in this section are the mandatory `title` and `date` as well as the
 
 Once the site is set up and working properly, we need to push it to the correct branch of a GitHub repository so the website can be served through GitHub Pages. There are many ways to do this. Here I will show the workflow I currently use to manage my websites that are hosted through GitHub Pages.
 
-GitHub Pages will serve up a website for any repository that has a branch called `gh-pages` with a valid `index.html` file at that branch's root. A typical workflow might be to keep the content of a website on the `master` branch of a repository and the generated website on the `gh-pages` branch. This provides nice separation between input and output, but can be very tedious to work with. As a workaround, we will use the `git subtree` family of commands to have the `public` directory (or whatever `publishdir` is set to in your `config.yaml`) mirror the root of the `gh-pages` branch of the repository. This will allow us to do all our work on the `master` branch, run Hugo to have the site output into the `public` directory, and then push that directory directly to the correct place for GitHub Pages to serve our site.
+GitHub Pages will serve up a website for any repository that has a branch called `gh-pages` with a valid `index.html` file at that branch's root. A typical workflow might be to keep the content of a website on the `master` branch of a repository and the generated website on the `gh-pages` branch. This provides nice separation between input and output, but can be very tedious to work with. As a workaround, we will use the `git subtree` family of commands to have the `public` directory (or whatever `publishDir` is set to in your `config.yaml`) mirror the root of the `gh-pages` branch of the repository. This will allow us to do all our work on the `master` branch, run Hugo to have the site output into the `public` directory, and then push that directory directly to the correct place for GitHub Pages to serve our site.
 
 To get this properly set up, we will execute a series of commands at the terminal. I will include all of them in one place here for easy copy and paste, and will explain what each line does via comments. Note that this is to be run from the `<root>` directory (wherever the `content` and `layout` folders of your Hugo project live). Also note that you will need to change the commands that have the example repository GitHub address so that they point to your repo.
 
@@ -190,22 +190,22 @@ To build all draft posts *(If you only have drafts, no site will be generated)*
 **Deploy.sh:**
 
     #!/bin/bash
-    
+
     echo -e "\033[0;32mDeploying updates to GitHub...\033[0m"
-    
+
     # Build the project.
     hugo
-    
+
     # Add changes to git.
     git add -A
-    
+
     # Commit changes.
     msg="rebuilding site `date`"
     if [ $# -eq 1 ]
       then msg="$1"
     fi
     git commit -m "$msg"
-    
+
     # Push source and build repos.
     git push origin master
     git subtree push --prefix=public git@github.com:spencerlyon2/hugo_gh_blog.git gh-pages

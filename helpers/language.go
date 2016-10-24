@@ -54,7 +54,7 @@ func NewLanguage(lang string) *Language {
 }
 
 func NewDefaultLanguage() *Language {
-	defaultLang := viper.GetString("DefaultContentLanguage")
+	defaultLang := viper.GetString("defaultContentLanguage")
 
 	if defaultLang == "" {
 		defaultLang = "en"
@@ -83,7 +83,7 @@ func (l *Language) Params() map[string]interface{} {
 		// Merge with global config.
 		// TODO(bep) consider making this part of a constructor func.
 
-		globalParams := viper.GetStringMap("Params")
+		globalParams := viper.GetStringMap("params")
 		for k, v := range globalParams {
 			if _, ok := l.params[k]; !ok {
 				l.params[k] = v
