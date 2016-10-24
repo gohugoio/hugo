@@ -11,3 +11,4 @@ cover.out
 .DS_Store
 *~
 vendor/*/
+*.bench

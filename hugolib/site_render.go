@@ -58,7 +58,7 @@ func (s *Site) renderPages() error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("Error(s) rendering pages: %s", err)
+		return fmt.Errorf("Error(s) rendering pages: %.60s…", err)
 	}
 	return nil
 }
