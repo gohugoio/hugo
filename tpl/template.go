@@ -95,7 +95,7 @@ func New() Template {
 	localTemplates = &templates.Template
 
 	// The URL funcs in the funcMap is somewhat language dependent,
-	// so need to be reinit per site.
+	// so we need to wait until the language and site config is loaded.
 	initFuncMap()
 
 	for k, v := range funcMap {
