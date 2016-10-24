@@ -489,7 +489,7 @@ So, let's edit your configuration file to add the theme name:
 ```toml
 $ vi config.toml
 theme = "zafta"
-baseurl = "http://example.org/"
+baseURL = "http://example.org/"
 title = "My New Hugo Site"
 languageCode = "en-us"
 :wq
@@ -1074,13 +1074,13 @@ templates _much_ easier &mdash; so, I'll cover them, now.
 ### Base URL
 
 While developing and testing your theme, did you notice that the links in the
-rendered `./public/index.html` file use the full "baseurl" from your
+rendered `./public/index.html` file use the full "baseURL" from your
 `./config.toml` file? That's because those files are intended to be deployed
 to your web server.
 
 Whenever you test your theme, you start Hugo in web server mode
 (with `hugo server`) and connect to it with your web browser.
-That command is smart enough to replace the "baseurl" with
+That command is smart enough to replace the "baseURL" with
 `http://localhost:1313` on the fly, so that the links automatically
 work for you.
 

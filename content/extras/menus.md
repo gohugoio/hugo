@@ -127,7 +127,7 @@ And the equivalent example `config.yaml`:
     ---
 
 
-**NOTE:** The URLs must be relative to the context root. If the `BaseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the BaseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`. 
+**NOTE:** The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.
 
 ## Nesting
 
@@ -136,9 +136,9 @@ All nesting of content is done via the `parent` field.
 The parent of an entry should be the identifier of another entry.
 Identifier should be unique (within a menu).
 
-The following order is used to determine an Identifier:   
+The following order is used to determine an Identifier:
 
-> Name > LinkTitle > Title. 
+> Name > LinkTitle > Title.
 
 This means that the title will be used unless
 linktitle is present, etc. In practice Name and Identifier are never

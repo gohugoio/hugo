@@ -14,7 +14,7 @@ Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the
 Example:
 
 ```
-DefaultContentLanguage = "en"
+defaultContentLanguage = "en"
 
 Languages:
   en:
@@ -38,7 +38,7 @@ value for that key (like `copyright` for the English (`en`) language in this exa
 With the config above, all content, sitemap, RSS feeds, paginations
 and taxonomy pages will be rendered below `/` in English (your default content language), and below `/fr` in French.
 
-If you want all of the languages to be put below their respective language code, enable `DefaultContentLanguageInSubdir: true` in your configuration.
+If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true` in your configuration.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
 
@@ -81,10 +81,10 @@ You can also have:
 1. `/content/about.md`
 2. `/content/about.fr.md`
 
-In which case the config variable `DefaultContentLanguage` will be used to affect the default language `about.md`.  This way, you can
+In which case the config variable `defaultContentLanguage` will be used to affect the default language `about.md`.  This way, you can
 slowly start to translate your current content without having to rename everything.
 
-If left unspecified, the value for `DefaultContentLanguage` defaults to `en`.
+If left unspecified, the value for `defaultContentLanguage` defaults to `en`.
 
 By having the same _base file name_, the content pieces are linked together as translated pieces.
 
@@ -159,14 +159,12 @@ To track down missing translation strings, run Hugo with the `--i18n-warnings` f
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
-
-
 ### Menus
 
 You can define your menus for each language independently. The [creation of a menu]({{< relref "extras/menus.md" >}}) works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
 
 ```toml
-DefaultContentLanguage = "en"
+defaultContentLanguage = "en"
 
 [languages.en]
 weight = 0

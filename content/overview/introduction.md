@@ -80,7 +80,7 @@ can see what the pages look like.
 
 The second component is used when you're ready to publish your web
 site to the computer running your website. Running Hugo without any
-actions will rebuild your entire web site using the `baseurl` setting
+actions will rebuild your entire web site using the `baseURL` setting
 from your site's configuration file. That's required to have your page
 links work properly with most hosting companies.
 
