@@ -75,16 +75,16 @@ var fpb filepathBridge
 // It does so by creating a Unicode-sanitized string, with the spaces replaced,
 // whilst preserving the original casing of the string.
 // E.g. Social Media -> Social-Media
-func MakePath(s string) string {
-	return UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
+func (p *PathSpec) MakePath(s string) string {
+	return p.UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
 }
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
-func MakePathSanitized(s string) string {
-	if viper.GetBool("DisablePathToLower") {
-		return MakePath(s)
+func (p *PathSpec) MakePathSanitized(s string) string {
+	if p.disablePathToLower {
+		return p.MakePath(s)
 	}
-	return strings.ToLower(MakePath(s))
+	return strings.ToLower(p.MakePath(s))
 }
 
 // MakeTitle converts the path given to a suitable title, trimming whitespace
@@ -110,7 +110,7 @@ func ishex(c rune) bool {
 // a predefined set of special Unicode characters.
 // If RemovePathAccents configuration flag is enabled, Uniccode accents
 // are also removed.
-func UnicodeSanitize(s string) string {
+func (p *PathSpec) UnicodeSanitize(s string) string {
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
 
@@ -124,7 +124,7 @@ func UnicodeSanitize(s string) string {
 
 	var result string
 
-	if viper.GetBool("RemovePathAccents") {
+	if p.removePathAccents {
 		// remove accents - see https://blog.golang.org/normalization
 		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
 		result, _, _ = transform.String(t, string(target))

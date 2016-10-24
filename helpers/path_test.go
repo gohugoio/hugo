@@ -33,9 +33,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+func initCommonTestConfig() {
+	viper.Set("CurrentContentLanguage", NewLanguage("en"))
+}
+
 func TestMakePath(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
+	initCommonTestConfig()
 
 	tests := []struct {
 		input         string
@@ -57,7 +62,8 @@ func TestMakePath(t *testing.T) {
 
 	for _, test := range tests {
 		viper.Set("RemovePathAccents", test.removeAccents)
-		output := MakePath(test.input)
+		p := NewPathSpecFromConfig(viper.GetViper())
+		output := p.MakePath(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
@@ -67,6 +73,9 @@ func TestMakePath(t *testing.T) {
 func TestMakePathSanitized(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
+	initCommonTestConfig()
+
+	p := NewPathSpecFromConfig(viper.GetViper())
 
 	tests := []struct {
 		input    string
@@ -81,7 +90,7 @@ func TestMakePathSanitized(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		output := MakePathSanitized(test.input)
+		output := p.MakePathSanitized(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
@@ -91,7 +100,10 @@ func TestMakePathSanitized(t *testing.T) {
 func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	viper.Reset()
 	defer viper.Reset()
+
+	initCommonTestConfig()
 	viper.Set("DisablePathToLower", true)
+	p := NewPathSpecFromConfig(viper.GetViper())
 
 	tests := []struct {
 		input    string
@@ -106,7 +118,7 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		output := MakePathSanitized(test.input)
+		output := p.MakePathSanitized(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}

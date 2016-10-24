@@ -23,6 +23,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+// These are the settings that should only be looked up in the global Viper
+// config and not per language.
+// This list may not be complete, but contains only settings that we know
+// will be looked up in both.
+// This isn't perfect, but it is ultimately the user who shoots him/herself in
+// the foot.
+// See the pathSpec.
+var globalOnlySettings = map[string]bool{
+	strings.ToLower("defaultContentLanguageInSubdir"): true,
+	strings.ToLower("defaultContentLanguage"):         true,
+	strings.ToLower("multilingual"):                   true,
+}
+
 type Language struct {
 	Lang         string
 	LanguageName string
@@ -81,7 +94,7 @@ func (l *Language) Params() map[string]interface{} {
 }
 
 func (l *Language) SetParam(k string, v interface{}) {
-	l.params[k] = v
+	l.params[strings.ToLower(k)] = v
 }
 
 func (l *Language) GetBool(key string) bool     { return cast.ToBool(l.Get(key)) }
@@ -101,8 +114,10 @@ func (l *Language) Get(key string) interface{} {
 		panic("language not set")
 	}
 	key = strings.ToLower(key)
-	if v, ok := l.params[key]; ok {
-		return v
+	if !globalOnlySettings[key] {
+		if v, ok := l.params[key]; ok {
+			return v
+		}
 	}
 	return viper.Get(key)
 }

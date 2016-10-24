@@ -508,16 +508,16 @@ func newPaginator(elements []paginatedElement, total, size int, urlFactory pagin
 }
 
 func newPaginationURLFactory(pathElements ...string) paginationURLFactory {
-	paginatePath := helpers.Config().GetString("paginatePath")
+	pathSpec := helpers.CurrentPathSpec()
 
 	return func(page int) string {
 		var rel string
 		if page == 1 {
 			rel = fmt.Sprintf("/%s/", path.Join(pathElements...))
 		} else {
-			rel = fmt.Sprintf("/%s/%s/%d/", path.Join(pathElements...), paginatePath, page)
+			rel = fmt.Sprintf("/%s/%s/%d/", path.Join(pathElements...), pathSpec.PaginatePath(), page)
 		}
 
-		return helpers.URLizeAndPrep(rel)
+		return pathSpec.URLizeAndPrep(rel)
 	}
 }

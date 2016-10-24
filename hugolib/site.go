@@ -117,7 +117,8 @@ func (s *Site) reset() *Site {
 
 // newSite creates a new site in the given language.
 func newSite(lang *helpers.Language) *Site {
-	return &Site{Language: lang, Info: SiteInfo{multilingual: newMultiLingualForLanguage(lang)}}
+	return &Site{Language: lang, Info: newSiteInfo(siteBuilderCfg{language: lang})}
+
 }
 
 // newSite creates a new site in the default language.
@@ -139,9 +140,12 @@ func newSiteFromSources(pathContentPairs ...string) *Site {
 		sources = append(sources, source.ByteSource{Name: filepath.FromSlash(path), Content: []byte(content)})
 	}
 
+	lang := helpers.NewDefaultLanguage()
+
 	return &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},
-		Language: helpers.NewDefaultLanguage(),
+		Language: lang,
+		Info:     newSiteInfo(siteBuilderCfg{language: lang}),
 	}
 }
 
@@ -195,16 +199,25 @@ type SiteInfo struct {
 	LanguagePrefix                 string
 	Languages                      helpers.Languages
 	defaultContentLanguageInSubdir bool
+
+	pathSpec *helpers.PathSpec
 }
 
 // Used in tests.
-func newSiteInfoDefaultLanguage(baseURL string, pages ...*Page) *SiteInfo {
-	ps := Pages(pages)
 
-	return &SiteInfo{
-		BaseURL:      template.URL(baseURL),
-		rawAllPages:  &ps,
-		multilingual: newMultiLingualDefaultLanguage(),
+type siteBuilderCfg struct {
+	language *helpers.Language
+	baseURL  string
+
+	pages *Pages
+}
+
+func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
+	return SiteInfo{
+		BaseURL:      template.URL(cfg.baseURL),
+		rawAllPages:  cfg.pages,
+		pathSpec:     helpers.NewPathSpecFromConfig(cfg.language),
+		multilingual: newMultiLingualForLanguage(cfg.language),
 	}
 }
 
@@ -808,7 +821,9 @@ func (s *Site) setCurrentLanguageConfig() error {
 	// There are sadly some global template funcs etc. that need the language information.
 	viper.Set("Multilingual", s.multilingualEnabled())
 	viper.Set("CurrentContentLanguage", s.Language)
-	return tpl.SetTranslateLang(s.Language.Lang)
+	// Cache the current config.
+	helpers.InitConfigProviderForCurrentContentLanguage()
+	return tpl.SetTranslateLang(s.Language)
 }
 
 func (s *Site) render() (err error) {
@@ -887,7 +902,7 @@ func (s *SiteInfo) HomeAbsURL() string {
 	if s.IsMultiLingual() {
 		base = s.Language.Lang
 	}
-	return helpers.AbsURL(base, false)
+	return s.pathSpec.AbsURL(base, false)
 }
 
 // SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
@@ -946,7 +961,6 @@ func (s *Site) initializeSiteInfo() {
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
 		GoogleAnalytics:                lang.GetString("GoogleAnalytics"),
-		RSSLink:                        permalinkStr(lang.GetString("RSSUri")),
 		BuildDrafts:                    viper.GetBool("BuildDrafts"),
 		canonifyURLs:                   viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames:          lang.GetBool("PreserveTaxonomyNames"),
@@ -959,7 +973,10 @@ func (s *Site) initializeSiteInfo() {
 		Permalinks:                     permalinks,
 		Data:                           &s.Data,
 		owner:                          s.owner,
+		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
 	}
+
+	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("RSSUri"))
 }
 
 func (s *Site) hasTheme() bool {
@@ -1407,7 +1424,7 @@ func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
 	}
 	// make it match the nodes
 	menuEntryURL := in
-	menuEntryURL = helpers.SanitizeURLKeepTrailingSlash(helpers.URLize(menuEntryURL))
+	menuEntryURL = helpers.SanitizeURLKeepTrailingSlash(s.pathSpec.URLize(menuEntryURL))
 	if !s.canonifyURLs {
 		menuEntryURL = helpers.AddContextRoot(string(s.BaseURL), menuEntryURL)
 	}
@@ -1586,13 +1603,13 @@ func (s *Site) renderAliases() error {
 	if s.owner.multilingual.enabled() {
 		mainLang := s.owner.multilingual.DefaultLang.Lang
 		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := helpers.AbsURL(mainLang, false)
+			mainLangURL := s.Info.pathSpec.AbsURL(mainLang, false)
 			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
 				return err
 			}
 		} else {
-			mainLangURL := helpers.AbsURL("", false)
+			mainLangURL := s.Info.pathSpec.AbsURL("", false)
 			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
 				return err
@@ -1763,7 +1780,7 @@ func (s *Site) newTaxonomyNode(prepare bool, t taxRenderInfo, counter int) (*Nod
 	n := s.nodeLookup(fmt.Sprintf("tax-%s-%s", t.plural, key), counter, prepare)
 
 	if s.Info.preserveTaxonomyNames {
-		key = helpers.MakePathSanitized(key)
+		key = s.Info.pathSpec.MakePathSanitized(key)
 	}
 	base := t.plural + "/" + key
 
@@ -1952,7 +1969,7 @@ func (s *Site) renderSectionLists(prepare bool) error {
 			[]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 
 		if s.Info.preserveTaxonomyNames {
-			section = helpers.MakePathSanitized(section)
+			section = s.Info.pathSpec.MakePathSanitized(section)
 		}
 
 		base := n.addLangPathPrefix(section)
@@ -1966,7 +1983,7 @@ func (s *Site) renderSectionLists(prepare bool) error {
 			paginatePath := helpers.Config().GetString("paginatePath")
 
 			// write alias for page 1
-			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), permalink(base), nil)
+			s.writeDestAlias(helpers.PaginateAliasPath(base, 1), s.Info.permalink(base), nil)
 
 			pagers := n.paginator.Pagers()
 
@@ -2111,6 +2128,15 @@ func (s *Site) newHomeNode(prepare bool, counter int) *Node {
 	return n
 }
 
+func (s *Site) newPage() *Page {
+	page := &Page{}
+	page.language = s.Language
+	page.Date = s.Info.LastChange
+	page.Lastmod = s.Info.LastChange
+	page.Site = &s.Info
+	return page
+}
+
 func (s *Site) renderSitemap() error {
 	if viper.GetBool("DisableSitemap") {
 		return nil
@@ -2123,11 +2149,7 @@ func (s *Site) renderSitemap() error {
 	// Prepend homepage to the list of pages
 	pages := make(Pages, 0)
 
-	page := &Page{}
-	page.language = s.Language
-	page.Date = s.Info.LastChange
-	page.Lastmod = s.Info.LastChange
-	page.Site = &s.Info
+	page := s.newPage()
 	page.URLPath.URL = ""
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
@@ -2199,18 +2221,21 @@ func (s *Site) Stats() {
 }
 
 func (s *Site) setURLs(n *Node, in string) {
-	n.URLPath.URL = helpers.URLizeAndPrep(in)
-	n.URLPath.Permalink = permalink(n.URLPath.URL)
-	n.RSSLink = template.HTML(permalink(in + ".xml"))
+	n.URLPath.URL = s.Info.pathSpec.URLizeAndPrep(in)
+	n.URLPath.Permalink = s.Info.permalink(n.URLPath.URL)
+	n.RSSLink = template.HTML(s.Info.permalink(in + ".xml"))
 }
 
-func permalink(plink string) string {
-	return permalinkStr(plink)
+func (s *SiteInfo) permalink(plink string) string {
+	return s.permalinkStr(plink)
 }
 
-func permalinkStr(plink string) string {
-	return helpers.MakePermalink(viper.GetString("BaseURL"), helpers.URLizeAndPrep(plink)).String()
+func (s *SiteInfo) permalinkStr(plink string) string {
+	return helpers.MakePermalink(
+		viper.GetString("BaseURL"),
+		s.pathSpec.URLizeAndPrep(plink)).String()
 }
+
 func (s *Site) newNode(nodeID string) *Node {
 	return s.nodeLookup(nodeID, 0, true)
 }

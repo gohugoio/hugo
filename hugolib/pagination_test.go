@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -453,6 +454,7 @@ func TestPage(t *testing.T) {
 func createTestPages(num int) Pages {
 	pages := make(Pages, num)
 
+	info := newSiteInfo(siteBuilderCfg{baseURL: "http://base/", language: helpers.NewDefaultLanguage()})
 	for i := 0; i < num; i++ {
 		pages[i] = &Page{
 			Node: Node{
@@ -460,7 +462,7 @@ func createTestPages(num int) Pages {
 					Section: "z",
 					URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
 				},
-				Site: newSiteInfoDefaultLanguage("http://base/"),
+				Site: &info,
 			},
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
 		}

@@ -94,6 +94,10 @@ func New() Template {
 
 	localTemplates = &templates.Template
 
+	// The URL funcs in the funcMap is somewhat language dependent,
+	// so need to be reinit per site.
+	initFuncMap()
+
 	for k, v := range funcMap {
 		amber.FuncMap[k] = v
 	}

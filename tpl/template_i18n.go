@@ -25,6 +25,7 @@ import (
 var (
 	Logi18nWarnings   bool
 	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
+	currentLanguage   *helpers.Language
 )
 
 type translate struct {
@@ -37,11 +38,12 @@ var translator *translate
 
 // SetTranslateLang sets the translations language to use during template processing.
 // This construction is unfortunate, but the template system is currently global.
-func SetTranslateLang(lang string) error {
-	if f, ok := translator.translateFuncs[lang]; ok {
+func SetTranslateLang(language *helpers.Language) error {
+	currentLanguage = language
+	if f, ok := translator.translateFuncs[language.Lang]; ok {
 		translator.current = f
 	} else {
-		jww.WARN.Printf("Translation func for language %v not found, use default.", lang)
+		jww.WARN.Printf("Translation func for language %v not found, use default.", language.Lang)
 		translator.current = translator.translateFuncs[viper.GetString("DefaultContentLanguage")]
 	}
 	return nil

@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -116,7 +117,7 @@ func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, 
 	}
 
 	SetI18nTfuncs(i18nBundle)
-	SetTranslateLang(lang)
+	SetTranslateLang(helpers.NewLanguage(lang))
 
 	translated, err := I18nTranslate(id, args)
 	if err != nil {
@@ -129,6 +130,7 @@ func TestI18nTranslate(t *testing.T) {
 	var actual, expected string
 
 	viper.SetDefault("DefaultContentLanguage", "en")
+	viper.Set("CurrentContentLanguage", helpers.NewLanguage("en"))
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {
