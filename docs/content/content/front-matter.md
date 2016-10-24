@@ -82,7 +82,7 @@ Content of the file goes Here
 ## Variables
 
 There are a few predefined variables that Hugo is aware of and utilizes. The user can also create
-any variable they want to. These will be placed into the `.Params` variable available to the templates.
+any variable they want. These will be placed into the `.Params` variable available to the templates.
 Field names are always normalized to lowercase (e.g. `camelCase: true` is available as `.Params.camelcase`).
 
 ### Required variables
@@ -113,7 +113,7 @@ Field names are always normalized to lowercase (e.g. `camelCase: true` is availa
 
 ## Configure Blackfriday rendering
 
-It's possible to set some options for Markdown rendering in the page's front matter, as an override to the site wide configuration.
+It's possible to set some options for Markdown rendering in the page's front matter as an override to the site wide configuration.
 
 See [Configuration]({{< ref "overview/configuration.md#configure-blackfriday-rendering" >}}) for more.
 
