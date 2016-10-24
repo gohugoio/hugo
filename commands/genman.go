@@ -14,7 +14,6 @@
 package commands
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -36,7 +35,7 @@ in the "man" directory under the current directory.`,
 		header := &doc.GenManHeader{
 			Section: "1",
 			Manual:  "Hugo Manual",
-			Source:  fmt.Sprintf("Hugo %s", helpers.HugoVersion()),
+			Source:  "Hugo " + helpers.HugoVersion(),
 		}
 		if !strings.HasSuffix(genmandir, helpers.FilePathSeparator) {
 			genmandir += helpers.FilePathSeparator

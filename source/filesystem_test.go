@@ -101,7 +101,7 @@ func TestUnicodeNorm(t *testing.T) {
 
 	for _, path := range paths {
 		src := new(Filesystem)
-		_ = src.add(path.NFD, strings.NewReader(""))
+		src.add(path.NFD, strings.NewReader(""))
 		f := src.Files()[0]
 		if f.BaseFileName() != path.NFC {
 			t.Fatalf("file name in NFD form should be normalized (%s)", path.NFC)

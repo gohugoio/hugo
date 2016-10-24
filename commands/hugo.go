@@ -723,7 +723,7 @@ func NewWatcher(port int) error {
 
 	for _, d := range getDirList() {
 		if d != "" {
-			_ = watcher.Add(d)
+			watcher.Add(d)
 		}
 	}
 
