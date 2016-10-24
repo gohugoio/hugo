@@ -17,15 +17,16 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"fmt"
-	"github.com/spf13/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 const pygmentsBin = "pygmentize"
@@ -62,8 +63,8 @@ func Highlight(code, lang, optsStr string) string {
 
 	fs := hugofs.Os()
 
-	ignoreCache := viper.GetBool("IgnoreCache")
-	cacheDir := viper.GetString("CacheDir")
+	ignoreCache := viper.GetBool("ignoreCache")
+	cacheDir := viper.GetString("cacheDir")
 	var cachefile string
 
 	if !ignoreCache && cacheDir != "" {
@@ -198,17 +199,17 @@ func createOptionsString(options map[string]string) string {
 func parseDefaultPygmentsOpts() (map[string]string, error) {
 
 	options := make(map[string]string)
-	err := parseOptions(options, viper.GetString("PygmentsOptions"))
+	err := parseOptions(options, viper.GetString("pygmentsOptions"))
 	if err != nil {
 		return nil, err
 	}
 
-	if viper.IsSet("PygmentsStyle") {
-		options["style"] = viper.GetString("PygmentsStyle")
+	if viper.IsSet("pygmentsStyle") {
+		options["style"] = viper.GetString("pygmentsStyle")
 	}
 
-	if viper.IsSet("PygmentsUseClasses") {
-		if viper.GetBool("PygmentsUseClasses") {
+	if viper.IsSet("pygmentsUseClasses") {
+		if viper.GetBool("pygmentsUseClasses") {
 			options["noclasses"] = "false"
 		} else {
 			options["noclasses"] = "true"

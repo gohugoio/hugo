@@ -114,7 +114,7 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
 	// process a page in isolation. See the new preRender func.
-	if viper.GetBool("EnableEmoji") {
+	if viper.GetBool("enableEmoji") {
 		p.rawContent = helpers.Emojify(p.rawContent)
 	}
 

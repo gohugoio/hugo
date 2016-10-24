@@ -376,7 +376,7 @@ func TestMenuWithUnicodeURLs(t *testing.T) {
 func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
 	testCommonResetState()
 
-	viper.Set("CanonifyURLs", canonifyURLs)
+	viper.Set("canonifyURLs", canonifyURLs)
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -398,12 +398,12 @@ func TestSectionPagesMenu(t *testing.T) {
 	doTestSectionPagesMenu(false, t)
 }
 
-func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
+func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("SectionPagesMenu", "spm")
+	viper.Set("sectionPagesMenu", "spm")
 
-	viper.Set("CanonifyURLs", canonifyUrls)
+	viper.Set("canonifyURLs", canonifyURLs)
 	s := setupMenuTests(t, menuPageSectionsSources)
 
 	assert.Equal(t, 3, len(s.Sections))
@@ -459,7 +459,7 @@ func doTestSectionPagesMenu(canonifyUrls bool, t *testing.T) {
 func TestTaxonomyNodeMenu(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("CanonifyURLs", true)
+	viper.Set("canonifyURLs", true)
 	s := setupMenuTests(t, menuPageSources)
 
 	for i, this := range []struct {
@@ -544,8 +544,8 @@ func TestMenuSortByN(t *testing.T) {
 func TestHomeNodeMenu(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("CanonifyURLs", true)
-	viper.Set("UglyURLs", true)
+	viper.Set("canonifyURLs", true)
+	viper.Set("uglyURLs", true)
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -660,11 +660,11 @@ func setupTestMenuState(t *testing.T) {
 	menus, err := tomlToMap(confMenu1)
 
 	if err != nil {
-		t.Fatalf("Unable to Read menus: %v", err)
+		t.Fatalf("Unable to read menus: %v", err)
 	}
 
 	viper.Set("menu", menus["menu"])
-	viper.Set("baseurl", "http://foo.local/Zoo/")
+	viper.Set("baseURL", "http://foo.local/Zoo/")
 }
 
 func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *Site {

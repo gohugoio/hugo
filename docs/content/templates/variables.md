@@ -159,7 +159,7 @@ Also available is `.Site` which has the following:
 **.Site.AllPages** Array of all pages regardless of their translation.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
-    baseurl = "http://yoursite.example.com/"
+    baseURL = "http://yoursite.example.com/"
 
     [params]
       description = "Tesla's Awesome Hugo Site"

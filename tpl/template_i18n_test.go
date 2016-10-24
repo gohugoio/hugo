@@ -129,12 +129,12 @@ func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, 
 func TestI18nTranslate(t *testing.T) {
 	var actual, expected string
 
-	viper.SetDefault("DefaultContentLanguage", "en")
-	viper.Set("CurrentContentLanguage", helpers.NewLanguage("en"))
+	viper.SetDefault("defaultContentLanguage", "en")
+	viper.Set("currentContentLanguage", helpers.NewLanguage("en"))
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {
-		viper.Set("EnableMissingTranslationPlaceholders", enablePlaceholders)
+		viper.Set("enableMissingTranslationPlaceholders", enablePlaceholders)
 
 		for _, test := range i18nTests {
 			if enablePlaceholders {

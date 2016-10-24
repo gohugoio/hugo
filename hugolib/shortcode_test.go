@@ -305,8 +305,8 @@ func TestHighlight(t *testing.T) {
 	if !helpers.HasPygments() {
 		t.Skip("Skip test as Pygments is not installed")
 	}
-	viper.Set("PygmentsStyle", "bw")
-	viper.Set("PygmentsUseClasses", false)
+	viper.Set("pygmentsStyle", "bw")
+	viper.Set("pygmentsUseClasses", false)
 
 	templ := tpl.New()
 
@@ -455,14 +455,14 @@ func TestShortcodesInSite(t *testing.T) {
 	testCommonResetState()
 
 	baseURL := "http://foo/bar"
-	viper.Set("DefaultExtension", "html")
-	viper.Set("DefaultContentLanguage", "en")
-	viper.Set("baseurl", baseURL)
-	viper.Set("UglyURLs", false)
+	viper.Set("defaultExtension", "html")
+	viper.Set("defaultContentLanguage", "en")
+	viper.Set("baseURL", baseURL)
+	viper.Set("uglyURLs", false)
 	viper.Set("verbose", true)
 
-	viper.Set("pygmentsuseclasses", true)
-	viper.Set("pygmentscodefences", true)
+	viper.Set("pygmentsUseClasses", true)
+	viper.Set("pygmentsCodefences", true)
 
 	tests := []struct {
 		contentPath string

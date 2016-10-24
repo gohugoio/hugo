@@ -89,11 +89,11 @@ func NewContent(cmd *cobra.Command, args []string) error {
 	}
 
 	if flagChanged(cmd.Flags(), "format") {
-		viper.Set("MetaDataFormat", configFormat)
+		viper.Set("metaDataFormat", configFormat)
 	}
 
 	if flagChanged(cmd.Flags(), "editor") {
-		viper.Set("NewContentEditor", contentEditor)
+		viper.Set("newContentEditor", contentEditor)
 	}
 
 	if len(args) < 1 {

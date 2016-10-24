@@ -49,7 +49,7 @@ var listDraftsCmd = &cobra.Command{
 			return err
 		}
 
-		viper.Set("BuildDrafts", true)
+		viper.Set("buildDrafts", true)
 
 		sites, err := hugolib.NewHugoSitesFromConfiguration()
 
@@ -84,7 +84,7 @@ posted in the future.`,
 			return err
 		}
 
-		viper.Set("BuildFuture", true)
+		viper.Set("buildFuture", true)
 
 		sites, err := hugolib.NewHugoSitesFromConfiguration()
 
@@ -119,7 +119,7 @@ expired.`,
 			return err
 		}
 
-		viper.Set("BuildExpired", true)
+		viper.Set("buildExpired", true)
 
 		sites, err := hugolib.NewHugoSitesFromConfiguration()
 

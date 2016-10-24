@@ -81,8 +81,8 @@ func TestShortcodeHighlight(t *testing.T) {
 	if !helpers.HasPygments() {
 		t.Skip("Skip test as Pygments is not installed")
 	}
-	viper.Set("PygmentsStyle", "bw")
-	viper.Set("PygmentsUseClasses", false)
+	viper.Set("pygmentsStyle", "bw")
+	viper.Set("pygmentsUseClasses", false)
 
 	for i, this := range []struct {
 		in, expected string
@@ -311,7 +311,7 @@ func TestShortcodeTweet(t *testing.T) {
 		templ.Lookup("").Funcs(tweetFuncMap)
 
 		p, _ := pageFromString(simplePage, "simple.md")
-		cacheFileID := viper.GetString("CacheDir") + url.QueryEscape("https://api.twitter.com/1/statuses/oembed.json?id=666616452582129664")
+		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.twitter.com/1/statuses/oembed.json?id=666616452582129664")
 		defer os.Remove(cacheFileID)
 		output, err := HandleShortcodes(this.in, p, templ)
 

@@ -218,7 +218,7 @@ times decreased anywhere from 10% to 99%.
 * Use absolute path when editing with editor {{<gh 1589>}}
 * Fix hugo server "Watching for changes" path display {{<gh 1721>}}
 * Do not strip special characters out of URLs {{<gh 1292>}}
-* Fix `RSSLink` when uglyurls are enabled {{<gh 175>}}
+* Fix `RSSLink` when uglyURLs are enabled {{<gh 175>}}
 * Get BaseURL from viper in server mode {{<gh 1821>}}
 * Fix shortcode handling in RST {{<gh 1904>}}
 * Use default sitemap configuration for homepage {{<gh 1304>}}
@@ -411,7 +411,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 * More Pygments highlighting options, including `line numbers`
 * Show help information to Windows users who try to double click on `hugo.exe`.
 * Add `bind` flag to `hugo server` to set the interface to which the server will bind
-* Add support for `canonifyurls` in `srcset`
+* Add support for `canonifyURLs` in `srcset`
 * Add shortcode support for HTML (content) files
 * Allow the same `shortcode` to  be used with or without inline content
 * Configurable RSS output filename
@@ -420,7 +420,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 * Fix panic with paginator and zero pages in result set.
 * Fix crossrefs on Windows.
 * Fix `eq` and `ne` template functions when used with a raw number combined with the result of `add`, `sub` etc.
-* Fix paginator with uglyurls
+* Fix paginator with uglyURLs
 * Fix {{< gh 998 >}}, supporting UTF8 characters in Permalinks.
 
 ## Notices

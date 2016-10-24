@@ -46,7 +46,7 @@ func TestFixURL(t *testing.T) {
 	for i, test := range tests {
 		viper.Reset()
 		baseURL = test.CLIBaseURL
-		viper.Set("BaseURL", test.CfgBaseURL)
+		viper.Set("baseURL", test.CfgBaseURL)
 		serverAppend = test.AppendPort
 		serverPort = test.Port
 		result, err := fixURL(baseURL)

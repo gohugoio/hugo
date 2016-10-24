@@ -83,7 +83,7 @@ func _TestDegenerateNoTarget(t *testing.T) {
 func _TestFileTarget(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 
 	s := &Site{
 		Source: &source.InMemorySource{ByteSource: fakeSource},
@@ -104,8 +104,8 @@ func _TestFileTarget(t *testing.T) {
 func _TestPageTargetUgly(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
-	viper.Set("UglyURLs", true)
+	viper.Set("defaultExtension", "html")
+	viper.Set("uglyURLs", true)
 
 	s := &Site{
 		targets:  targetList{page: &target.PagePub{UglyURLs: true, PublishDir: "public"}},
@@ -129,7 +129,7 @@ func _TestPageTargetUgly(t *testing.T) {
 func _TestFileTargetPublishDir(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 
 	s := &Site{
 

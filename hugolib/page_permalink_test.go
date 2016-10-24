@@ -59,10 +59,10 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
 	}
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 	for i, test := range tests {
-		viper.Set("uglyurls", test.uglyURLs)
-		viper.Set("canonifyurls", test.canonifyURLs)
+		viper.Set("uglyURLs", test.uglyURLs)
+		viper.Set("canonifyURLs", test.canonifyURLs)
 		info := newSiteInfo(siteBuilderCfg{baseURL: string(test.base), language: helpers.NewDefaultLanguage()})
 
 		p := &Page{

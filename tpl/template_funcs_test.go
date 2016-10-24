@@ -75,9 +75,9 @@ func TestFuncsInTemplate(t *testing.T) {
 
 	workingDir := "/home/hugo"
 
-	viper.Set("WorkingDir", workingDir)
-	viper.Set("CurrentContentLanguage", helpers.NewDefaultLanguage())
-	viper.Set("Multilingual", true)
+	viper.Set("workingDir", workingDir)
+	viper.Set("currentContentLanguage", helpers.NewDefaultLanguage())
+	viper.Set("multilingual", true)
 
 	fs := &afero.MemMapFs{}
 	hugofs.InitFs(fs)
@@ -1773,7 +1773,7 @@ func TestReturnWhenSet(t *testing.T) {
 }
 
 func TestMarkdownify(t *testing.T) {
-	viper.Set("CurrentContentLanguage", helpers.NewDefaultLanguage())
+	viper.Set("currentContentLanguage", helpers.NewDefaultLanguage())
 
 	for i, this := range []struct {
 		in     interface{}
@@ -2444,7 +2444,7 @@ func TestReadFile(t *testing.T) {
 
 	workingDir := "/home/hugo"
 
-	viper.Set("WorkingDir", workingDir)
+	viper.Set("workingDir", workingDir)
 
 	fs := &afero.MemMapFs{}
 	hugofs.InitFs(fs)

@@ -46,7 +46,7 @@ The default is for Jekyll to publish to `_site` and for Hugo to publish to `publ
 
         {
             ..
-            "publishdir": "_site",
+            "publishDir": "_site",
             ..
         }
 

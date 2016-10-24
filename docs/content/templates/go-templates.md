@@ -267,7 +267,7 @@ access this from within the loop, you will likely want to do one of the followin
         {{ $title := .Site.Title }}
         {{ range .Params.tags }}
           <li>
-            <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a>
+            <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a>
             - {{ $title }}
           </li>
         {{ end }}
@@ -281,7 +281,7 @@ access this from within the loop, you will likely want to do one of the followin
 
         {{ range .Params.tags }}
           <li>
-            <a href="{{ $baseurl }}/tags/{{ . | urlize }}">{{ . }}</a>
+            <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a>
             - {{ $.Site.Title }}
           </li>
         {{ end }}

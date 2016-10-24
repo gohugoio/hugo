@@ -73,7 +73,7 @@ func NewHugoSitesFromConfiguration() (*HugoSites, error) {
 
 func createSitesFromConfig() ([]*Site, error) {
 	var sites []*Site
-	multilingual := viper.GetStringMap("Languages")
+	multilingual := viper.GetStringMap("languages")
 	if len(multilingual) == 0 {
 		sites = append(sites, newSite(helpers.NewDefaultLanguage()))
 	}
@@ -339,12 +339,12 @@ func (h *HugoSites) render() error {
 		return nil
 	}
 
-	if viper.GetBool("DisableSitemap") {
+	if viper.GetBool("disableSitemap") {
 		return nil
 	}
 
 	// TODO(bep) DRY
-	sitemapDefault := parseSitemap(viper.GetStringMap("Sitemap"))
+	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
 
 	s := h.Sites[0]
 

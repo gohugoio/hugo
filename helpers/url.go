@@ -157,7 +157,7 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 		return in
 	}
 
-	baseURL := viper.GetString("BaseURL")
+	baseURL := viper.GetString("baseURL")
 	if strings.HasPrefix(in, "/") {
 		p, err := url.Parse(baseURL)
 		if err != nil {
@@ -219,7 +219,7 @@ func IsAbsURL(path string) bool {
 // RelURL creates a URL relative to the BaseURL root.
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
-	baseURL := viper.GetString("BaseURL")
+	baseURL := viper.GetString("baseURL")
 	canonifyURLs := p.canonifyURLs
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in

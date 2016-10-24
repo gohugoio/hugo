@@ -49,7 +49,7 @@ func Config() ConfigProvider {
 		return currentConfigProvider
 	}
 	// Some tests rely on this. We will fix that, eventually.
-	return viper.Get("CurrentContentLanguage").(ConfigProvider)
+	return viper.Get("currentContentLanguage").(ConfigProvider)
 }
 
 // CurrentPathSpec returns the current PathSpec.

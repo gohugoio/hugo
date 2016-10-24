@@ -69,7 +69,7 @@ func TestNewContent(t *testing.T) {
 
 func initViper() {
 	viper.Reset()
-	viper.Set("MetaDataFormat", "toml")
+	viper.Set("metaDataFormat", "toml")
 	viper.Set("archetypeDir", filepath.Join(os.TempDir(), "archetypes"))
 	viper.Set("contentDir", filepath.Join(os.TempDir(), "content"))
 	viper.Set("themesDir", filepath.Join(os.TempDir(), "themes"))

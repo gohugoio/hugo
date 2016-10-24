@@ -44,14 +44,14 @@ func SetTranslateLang(language *helpers.Language) error {
 		translator.current = f
 	} else {
 		jww.WARN.Printf("Translation func for language %v not found, use default.", language.Lang)
-		translator.current = translator.translateFuncs[viper.GetString("DefaultContentLanguage")]
+		translator.current = translator.translateFuncs[viper.GetString("defaultContentLanguage")]
 	}
 	return nil
 }
 
 func SetI18nTfuncs(bndl *bundle.Bundle) {
 	translator = &translate{translateFuncs: make(map[string]bundle.TranslateFunc)}
-	defaultContentLanguage := viper.GetString("DefaultContentLanguage")
+	defaultContentLanguage := viper.GetString("defaultContentLanguage")
 	var (
 		defaultT bundle.TranslateFunc
 		err      error
@@ -76,7 +76,7 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 			if Logi18nWarnings {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
 			}
-			if viper.GetBool("EnableMissingTranslationPlaceholders") {
+			if viper.GetBool("enableMissingTranslationPlaceholders") {
 				return fmt.Sprintf("[i18n] %s", translationID)
 			}
 			if defaultT != nil {

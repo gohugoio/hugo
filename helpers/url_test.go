@@ -62,10 +62,10 @@ func TestAbsURL(t *testing.T) {
 
 func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	viper.Reset()
-	viper.Set("Multilingual", multilingual)
-	viper.Set("CurrentContentLanguage", NewLanguage(lang))
-	viper.Set("DefaultContentLanguage", "en")
-	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
+	viper.Set("multilingual", multilingual)
+	viper.Set("currentContentLanguage", NewLanguage(lang))
+	viper.Set("defaultContentLanguage", "en")
+	viper.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -86,7 +86,7 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for _, test := range tests {
-		viper.Set("BaseURL", test.baseURL)
+		viper.Set("baseURL", test.baseURL)
 		p := NewPathSpecFromConfig(viper.GetViper())
 		output := p.AbsURL(test.input, addLanguage)
 		expected := test.expected
@@ -136,10 +136,10 @@ func TestRelURL(t *testing.T) {
 
 func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
 	viper.Reset()
-	viper.Set("Multilingual", multilingual)
-	viper.Set("CurrentContentLanguage", NewLanguage(lang))
-	viper.Set("DefaultContentLanguage", "en")
-	viper.Set("DefaultContentLanguageInSubdir", defaultInSubDir)
+	viper.Set("multilingual", multilingual)
+	viper.Set("currentContentLanguage", NewLanguage(lang))
+	viper.Set("defaultContentLanguage", "en")
+	viper.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -162,7 +162,7 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for i, test := range tests {
-		viper.Set("BaseURL", test.baseURL)
+		viper.Set("baseURL", test.baseURL)
 		viper.Set("canonifyURLs", test.canonify)
 		p := NewPathSpecFromConfig(viper.GetViper())
 

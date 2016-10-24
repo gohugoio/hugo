@@ -56,9 +56,9 @@ func init() {
 func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 	viper.Set("verbose", true)
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("baseURL", "http://auth/bub")
 
 	sources := []source.ByteSource{}
 
@@ -143,7 +143,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 		return s
 	}
 
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("baseURL", "http://auth/bub")
 
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
 	s := siteSetup(t)
@@ -152,31 +152,31 @@ func TestDraftAndFutureRender(t *testing.T) {
 	}
 
 	// only publishDate in the past should be rendered
-	viper.Set("BuildDrafts", true)
+	viper.Set("buildDrafts", true)
 	s = siteSetup(t)
 	if len(s.AllPages) != 2 {
 		t.Fatal("Future Dated Posts published unexpectedly")
 	}
 
 	//  drafts should not be rendered, but all dates should
-	viper.Set("BuildDrafts", false)
-	viper.Set("BuildFuture", true)
+	viper.Set("buildDrafts", false)
+	viper.Set("buildFuture", true)
 	s = siteSetup(t)
 	if len(s.AllPages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
 	}
 
 	// all 4 should be included
-	viper.Set("BuildDrafts", true)
-	viper.Set("BuildFuture", true)
+	viper.Set("buildDrafts", true)
+	viper.Set("buildFuture", true)
 	s = siteSetup(t)
 	if len(s.AllPages) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
 
 	//setting defaults back
-	viper.Set("BuildDrafts", false)
-	viper.Set("BuildFuture", false)
+	viper.Set("buildDrafts", false)
+	viper.Set("buildFuture", false)
 }
 
 func TestFutureExpirationRender(t *testing.T) {
@@ -201,7 +201,7 @@ func TestFutureExpirationRender(t *testing.T) {
 		return s
 	}
 
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("baseURL", "http://auth/bub")
 
 	s := siteSetup(t)
 
@@ -233,9 +233,9 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 	testCommonResetState()
 
 	baseURL := "http://foo/bar"
-	viper.Set("DefaultExtension", "html")
-	viper.Set("baseurl", baseURL)
-	viper.Set("UglyURLs", uglyURLs)
+	viper.Set("defaultExtension", "html")
+	viper.Set("baseURL", baseURL)
+	viper.Set("uglyURLs", uglyURLs)
 	viper.Set("verbose", true)
 
 	var refShortcode string
@@ -267,7 +267,7 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 		// Issue #1148: Make sure that no P-tags is added around shortcodes.
 		{
 			Name: filepath.FromSlash("sect/doc2.md"),
-			Content: []byte(fmt.Sprintf(`**Ref 1:** 
+			Content: []byte(fmt.Sprintf(`**Ref 1:**
 
 {{< %s "sect/doc1.md" >}}
 
@@ -330,18 +330,18 @@ func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
 func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 	viper.Set("verbose", true)
-	viper.Set("baseurl", "http://auth/bub")
-	viper.Set("DisableSitemap", false)
-	viper.Set("DisableRSS", false)
-	viper.Set("RSSUri", "index.xml")
+	viper.Set("baseURL", "http://auth/bub")
+	viper.Set("disableSitemap", false)
+	viper.Set("disableRSS", false)
+	viper.Set("rssURI", "index.xml")
 	viper.Set("blackfriday",
 		// TODO(bep) https://github.com/spf13/viper/issues/261
 		map[string]interface{}{
 			strings.ToLower("plainIDAnchors"): true})
 
-	viper.Set("UglyURLs", uglyURLs)
+	viper.Set("uglyURLs", uglyURLs)
 
 	sources := []source.ByteSource{
 		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
@@ -413,11 +413,11 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	hugofs.InitMemFs()
 	testCommonResetState()
 
-	viper.Set("baseurl", "http://auth/sub/")
-	viper.Set("DefaultExtension", "html")
-	viper.Set("UglyURLs", uglify)
-	viper.Set("PluralizeListTitles", pluralize)
-	viper.Set("CanonifyURLs", canonify)
+	viper.Set("baseURL", "http://auth/sub/")
+	viper.Set("defaultExtension", "html")
+	viper.Set("uglyURLs", uglify)
+	viper.Set("pluralizeListTitles", pluralize)
+	viper.Set("canonifyURLs", canonify)
 
 	var expectedPathSuffix string
 
@@ -491,10 +491,10 @@ func TestSkipRender(t *testing.T) {
 		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
 	}
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 	viper.Set("verbose", true)
-	viper.Set("CanonifyURLs", true)
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("canonifyURLs", true)
+	viper.Set("baseURL", "http://auth/bub")
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},
 		targets:  targetList{page: &target.PagePub{UglyURLs: true}},
@@ -539,7 +539,7 @@ func TestSkipRender(t *testing.T) {
 func TestAbsURLify(t *testing.T) {
 	testCommonResetState()
 
-	viper.Set("DefaultExtension", "html")
+	viper.Set("defaultExtension", "html")
 
 	hugofs.InitMemFs()
 	sources := []source.ByteSource{
@@ -548,14 +548,14 @@ func TestAbsURLify(t *testing.T) {
 	}
 	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
 		for _, canonify := range []bool{true, false} {
-			viper.Set("CanonifyURLs", canonify)
-			viper.Set("BaseURL", baseURL)
+			viper.Set("canonifyURLs", canonify)
+			viper.Set("baseURL", baseURL)
 			s := &Site{
 				Source:   &source.InMemorySource{ByteSource: sources},
 				targets:  targetList{page: &target.PagePub{UglyURLs: true}},
 				Language: helpers.NewDefaultLanguage(),
 			}
-			t.Logf("Rendering with BaseURL %q and CanonifyURLs set %v", viper.GetString("baseURL"), canonify)
+			t.Logf("Rendering with baseURL %q and canonifyURLs set %v", viper.GetString("baseURL"), canonify)
 
 			if err := buildAndRenderSite(s, "blue/single.html", templateWithURLAbs); err != nil {
 				t.Fatalf("Failed to build site: %s", err)
@@ -644,7 +644,7 @@ func TestOrderedPages(t *testing.T) {
 
 	hugofs.InitMemFs()
 
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("baseURL", "http://auth/bub")
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: weightedSources},
 		Language: helpers.NewDefaultLanguage(),
@@ -713,7 +713,7 @@ func TestGroupedPages(t *testing.T) {
 
 	hugofs.InitMemFs()
 
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("baseURL", "http://auth/bub")
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: groupedSources},
 		Language: helpers.NewDefaultLanguage(),
@@ -897,7 +897,7 @@ func TestWeightedTaxonomies(t *testing.T) {
 	taxonomies["tag"] = "tags"
 	taxonomies["category"] = "categories"
 
-	viper.Set("baseurl", "http://auth/bub")
+	viper.Set("baseURL", "http://auth/bub")
 	viper.Set("taxonomies", taxonomies)
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: sources},
@@ -959,11 +959,11 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{Name: filepath.FromSlash("level2/level3/common.png"), Content: []byte("")},
 	}
 
-	viper.Set("baseurl", "http://auth/")
-	viper.Set("DefaultExtension", "html")
-	viper.Set("UglyURLs", false)
-	viper.Set("PluralizeListTitles", false)
-	viper.Set("CanonifyURLs", false)
+	viper.Set("baseURL", "http://auth/")
+	viper.Set("defaultExtension", "html")
+	viper.Set("uglyURLs", false)
+	viper.Set("pluralizeListTitles", false)
+	viper.Set("canonifyURLs", false)
 	viper.Set("blackfriday",
 		// TODO(bep) see https://github.com/spf13/viper/issues/261
 		map[string]interface{}{

@@ -117,7 +117,7 @@ Complete documentation is available at http://gohugo.io/.`,
 		}
 
 		if buildWatch {
-			viper.Set("DisableLiveReload", true)
+			viper.Set("disableLiveReload", true)
 			watchConfig()
 		}
 
@@ -284,55 +284,55 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 
 		if flagChanged(cmdV.PersistentFlags(), "verbose") {
-			viper.Set("Verbose", verbose)
+			viper.Set("verbose", verbose)
 		}
 		if flagChanged(cmdV.PersistentFlags(), "logFile") {
-			viper.Set("LogFile", logFile)
+			viper.Set("logFile", logFile)
 		}
 		if flagChanged(cmdV.Flags(), "cleanDestinationDir") {
 			viper.Set("cleanDestinationDir", cleanDestination)
 		}
 		if flagChanged(cmdV.Flags(), "buildDrafts") {
-			viper.Set("BuildDrafts", draft)
+			viper.Set("buildDrafts", draft)
 		}
 		if flagChanged(cmdV.Flags(), "buildFuture") {
-			viper.Set("BuildFuture", future)
+			viper.Set("buildFuture", future)
 		}
 		if flagChanged(cmdV.Flags(), "buildExpired") {
-			viper.Set("BuildExpired", expired)
+			viper.Set("buildExpired", expired)
 		}
 		if flagChanged(cmdV.Flags(), "uglyURLs") {
-			viper.Set("UglyURLs", uglyURLs)
+			viper.Set("uglyURLs", uglyURLs)
 		}
 		if flagChanged(cmdV.Flags(), "canonifyURLs") {
-			viper.Set("CanonifyURLs", canonifyURLs)
+			viper.Set("canonifyURLs", canonifyURLs)
 		}
 		if flagChanged(cmdV.Flags(), "disable404") {
-			viper.Set("Disable404", disable404)
+			viper.Set("disable404", disable404)
 		}
 		if flagChanged(cmdV.Flags(), "disableRSS") {
-			viper.Set("DisableRSS", disableRSS)
+			viper.Set("disableRSS", disableRSS)
 		}
 		if flagChanged(cmdV.Flags(), "disableSitemap") {
-			viper.Set("DisableSitemap", disableSitemap)
+			viper.Set("disableSitemap", disableSitemap)
 		}
 		if flagChanged(cmdV.Flags(), "enableRobotsTXT") {
-			viper.Set("EnableRobotsTXT", enableRobotsTXT)
+			viper.Set("enableRobotsTXT", enableRobotsTXT)
 		}
 		if flagChanged(cmdV.Flags(), "pluralizeListTitles") {
-			viper.Set("PluralizeListTitles", pluralizeListTitles)
+			viper.Set("pluralizeListTitles", pluralizeListTitles)
 		}
 		if flagChanged(cmdV.Flags(), "preserveTaxonomyNames") {
-			viper.Set("PreserveTaxonomyNames", preserveTaxonomyNames)
+			viper.Set("preserveTaxonomyNames", preserveTaxonomyNames)
 		}
 		if flagChanged(cmdV.Flags(), "ignoreCache") {
-			viper.Set("IgnoreCache", ignoreCache)
+			viper.Set("ignoreCache", ignoreCache)
 		}
 		if flagChanged(cmdV.Flags(), "forceSyncStatic") {
-			viper.Set("ForceSyncStatic", forceSync)
+			viper.Set("forceSyncStatic", forceSync)
 		}
 		if flagChanged(cmdV.Flags(), "noTimes") {
-			viper.Set("NoTimes", noTimes)
+			viper.Set("noTimes", noTimes)
 		}
 
 	}
@@ -341,10 +341,10 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		if !strings.HasSuffix(baseURL, "/") {
 			baseURL = baseURL + "/"
 		}
-		viper.Set("BaseURL", baseURL)
+		viper.Set("baseURL", baseURL)
 	}
 
-	if !viper.GetBool("RelativeURLs") && viper.GetString("BaseURL") == "" {
+	if !viper.GetBool("relativeURLs") && viper.GetString("baseURL") == "" {
 		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
 	}
 
@@ -353,27 +353,27 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	if destination != "" {
-		viper.Set("PublishDir", destination)
+		viper.Set("publishDir", destination)
 	}
 
+	var dir string
 	if source != "" {
-		dir, _ := filepath.Abs(source)
-		viper.Set("WorkingDir", dir)
+		dir, _ = filepath.Abs(source)
 	} else {
-		dir, _ := os.Getwd()
-		viper.Set("WorkingDir", dir)
+		dir, _ = os.Getwd()
 	}
+	viper.Set("workingDir", dir)
 
 	if contentDir != "" {
-		viper.Set("ContentDir", contentDir)
+		viper.Set("contentDir", contentDir)
 	}
 
 	if layoutDir != "" {
-		viper.Set("LayoutDir", layoutDir)
+		viper.Set("layoutDir", layoutDir)
 	}
 
 	if cacheDir != "" {
-		viper.Set("CacheDir", cacheDir)
+		viper.Set("cacheDir", cacheDir)
 	}
 
 	cacheDir = viper.GetString("cacheDir")
@@ -386,14 +386,14 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		if isDir == false {
 			mkdir(cacheDir)
 		}
-		viper.Set("CacheDir", cacheDir)
+		viper.Set("cacheDir", cacheDir)
 	} else {
-		viper.Set("CacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
+		viper.Set("cacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
 	}
 
-	if verboseLog || logging || (viper.IsSet("LogFile") && viper.GetString("LogFile") != "") {
-		if viper.IsSet("LogFile") && viper.GetString("LogFile") != "" {
-			jww.SetLogFile(viper.GetString("LogFile"))
+	if verboseLog || logging || (viper.IsSet("logFile") && viper.GetString("logFile") != "") {
+		if viper.IsSet("logFile") && viper.GetString("logFile") != "" {
+			jww.SetLogFile(viper.GetString("logFile"))
 		} else {
 			jww.UseTempLogFile("hugo")
 		}
@@ -448,7 +448,7 @@ func watchConfig() {
 		fmt.Println("Config file changed:", e.Name)
 		// Force a full rebuild
 		utils.CheckErr(reCreateAndbuildSites(true))
-		if !viper.GetBool("DisableLiveReload") {
+		if !viper.GetBool("disableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
 		}
@@ -463,11 +463,11 @@ func build(watches ...bool) error {
 	if renderToMemory {
 		hugofs.SetDestination(new(afero.MemMapFs))
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
-		viper.Set("PublishDir", "/")
+		viper.Set("publishDir", "/")
 	}
 
 	if err := copyStatic(); err != nil {
-		return fmt.Errorf("Error copying static files to %s: %s", helpers.AbsPathify(viper.GetString("PublishDir")), err)
+		return fmt.Errorf("Error copying static files to %s: %s", helpers.AbsPathify(viper.GetString("publishDir")), err)
 	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
@@ -478,7 +478,7 @@ func build(watches ...bool) error {
 	}
 
 	if buildWatch {
-		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("ContentDir")))
+		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("contentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
 		utils.CheckErr(NewWatcher(0))
 	}
@@ -532,7 +532,7 @@ func getStaticSourceFs() afero.Fs {
 }
 
 func copyStatic() error {
-	publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
+	publishDir := helpers.AbsPathify(viper.GetString("publishDir")) + helpers.FilePathSeparator
 
 	// If root, remove the second '/'
 	if publishDir == "//" {
@@ -567,10 +567,10 @@ func copyStatic() error {
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
 func getDirList() []string {
 	var a []string
-	dataDir := helpers.AbsPathify(viper.GetString("DataDir"))
-	i18nDir := helpers.AbsPathify(viper.GetString("I18nDir"))
-	layoutDir := helpers.AbsPathify(viper.GetString("LayoutDir"))
-	staticDir := helpers.AbsPathify(viper.GetString("StaticDir"))
+	dataDir := helpers.AbsPathify(viper.GetString("dataDir"))
+	i18nDir := helpers.AbsPathify(viper.GetString("i18nDir"))
+	layoutDir := helpers.AbsPathify(viper.GetString("layoutDir"))
+	staticDir := helpers.AbsPathify(viper.GetString("staticDir"))
 	var themesDir string
 
 	if helpers.ThemeSet() {
@@ -580,22 +580,22 @@ func getDirList() []string {
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			if path == dataDir && os.IsNotExist(err) {
-				jww.WARN.Println("Skip DataDir:", err)
+				jww.WARN.Println("Skip dataDir:", err)
 				return nil
 			}
 
 			if path == i18nDir && os.IsNotExist(err) {
-				jww.WARN.Println("Skip I18nDir:", err)
+				jww.WARN.Println("Skip i18nDir:", err)
 				return nil
 			}
 
 			if path == layoutDir && os.IsNotExist(err) {
-				jww.WARN.Println("Skip LayoutDir:", err)
+				jww.WARN.Println("Skip layoutDir:", err)
 				return nil
 			}
 
 			if path == staticDir && os.IsNotExist(err) {
-				jww.WARN.Println("Skip StaticDir:", err)
+				jww.WARN.Println("Skip staticDir:", err)
 				return nil
 			}
 
@@ -636,9 +636,9 @@ func getDirList() []string {
 	}
 
 	helpers.SymbolicWalk(hugofs.Source(), dataDir, walker)
-	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("ContentDir")), walker)
+	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("contentDir")), walker)
 	helpers.SymbolicWalk(hugofs.Source(), i18nDir, walker)
-	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("LayoutDir")), walker)
+	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("layoutDir")), walker)
 
 	helpers.SymbolicWalk(hugofs.Source(), staticDir, walker)
 	if helpers.ThemeSet() {
@@ -801,7 +801,7 @@ func NewWatcher(port int) error {
 				}
 
 				if len(staticEvents) > 0 {
-					publishDir := helpers.AbsPathify(viper.GetString("PublishDir")) + helpers.FilePathSeparator
+					publishDir := helpers.AbsPathify(viper.GetString("publishDir")) + helpers.FilePathSeparator
 
 					// If root, remove the second '/'
 					if publishDir == "//" {
@@ -812,11 +812,11 @@ func NewWatcher(port int) error {
 					const layout = "2006-01-02 15:04 -0700"
 					fmt.Println(time.Now().Format(layout))
 
-					if viper.GetBool("ForceSyncStatic") {
+					if viper.GetBool("forceSyncStatic") {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
 						err := copyStatic()
 						if err != nil {
-							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("PublishDir"))))
+							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("publishDir"))))
 						}
 					} else {
 						staticSourceFs := getStaticSourceFs()
@@ -896,7 +896,7 @@ func NewWatcher(port int) error {
 						}
 					}
 
-					if !buildWatch && !viper.GetBool("DisableLiveReload") {
+					if !buildWatch && !viper.GetBool("disableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
 						// force refresh when more than one file
@@ -919,7 +919,7 @@ func NewWatcher(port int) error {
 
 					rebuildSites(dynamicEvents)
 
-					if !buildWatch && !viper.GetBool("DisableLiveReload") {
+					if !buildWatch && !viper.GetBool("disableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 						livereload.ForceRefresh()
 					}
@@ -933,7 +933,7 @@ func NewWatcher(port int) error {
 	}()
 
 	if port > 0 {
-		if !viper.GetBool("DisableLiveReload") {
+		if !viper.GetBool("disableLiveReload") {
 			livereload.Initialize()
 			http.HandleFunc("/livereload.js", livereload.ServeJS)
 			http.HandleFunc("/livereload", livereload.Handler)

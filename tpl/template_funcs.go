@@ -1278,7 +1278,7 @@ func markdownify(in interface{}) (template.HTML, error) {
 		return "", err
 	}
 
-	language := viper.Get("CurrentContentLanguage").(*helpers.Language)
+	language := viper.Get("currentContentLanguage").(*helpers.Language)
 
 	m := helpers.RenderBytes(&helpers.RenderingContext{
 		ConfigProvider: language,

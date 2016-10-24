@@ -61,7 +61,7 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com/sub", "http://base.com/sub"},
 		{"http://base.com", "http://base.com"}} {
 
-		viper.Set("BaseURL", this.in)
+		viper.Set("baseURL", this.in)
 		s := newSiteDefaultLang()
 		s.initializeSiteInfo()
 
@@ -76,7 +76,7 @@ func TestPageCount(t *testing.T) {
 	testCommonResetState()
 	hugofs.InitMemFs()
 
-	viper.Set("uglyurls", false)
+	viper.Set("uglyURLs", false)
 	viper.Set("paginate", 10)
 	s := &Site{
 		Source:   &source.InMemorySource{ByteSource: urlFakeSource},

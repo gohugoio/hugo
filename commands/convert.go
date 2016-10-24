@@ -134,7 +134,7 @@ func convertContents(mark rune) (err error) {
 			metadata = newmetadata
 		}
 
-		page.SetDir(filepath.Join(helpers.AbsPathify(viper.GetString("ContentDir")), file.Dir()))
+		page.SetDir(filepath.Join(helpers.AbsPathify(viper.GetString("contentDir")), file.Dir()))
 		page.SetSourceContent(psr.Content())
 		if err = page.SetSourceMetaData(metadata, mark); err != nil {
 			jww.ERROR.Printf("Failed to set source metadata for file %q: %s. For more info see For more info see https://github.com/spf13/hugo/issues/2458", page.FullFilePath(), err)

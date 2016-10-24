@@ -35,8 +35,8 @@ func TestParsePygmentsArgs(t *testing.T) {
 		{"style", "foo", false, false},
 	} {
 		viper.Reset()
-		viper.Set("PygmentsStyle", this.pygmentsStyle)
-		viper.Set("PygmentsUseClasses", this.pygmentsUseClasses)
+		viper.Set("pygmentsStyle", this.pygmentsStyle)
+		viper.Set("pygmentsUseClasses", this.pygmentsUseClasses)
 
 		result1, err := parsePygmentsOpts(this.in)
 		if b, ok := this.expect1.(bool); ok && !b {
@@ -72,14 +72,14 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 	} {
 		viper.Reset()
 
-		viper.Set("PygmentsOptions", this.pygmentsOptions)
+		viper.Set("pygmentsOptions", this.pygmentsOptions)
 
 		if s, ok := this.pygmentsStyle.(string); ok {
-			viper.Set("PygmentsStyle", s)
+			viper.Set("pygmentsStyle", s)
 		}
 
 		if b, ok := this.pygmentsUseClasses.(bool); ok {
-			viper.Set("PygmentsUseClasses", b)
+			viper.Set("pygmentsUseClasses", b)
 		}
 
 		result, err := parsePygmentsOpts(this.in)
