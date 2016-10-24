@@ -189,6 +189,8 @@ type SiteInfo struct {
 	Permalinks            PermalinkOverrides
 	Params                map[string]interface{}
 	BuildDrafts           bool
+	DisableSearchJSON     bool
+	SearchIndexLink       string
 	canonifyURLs          bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
@@ -865,6 +867,11 @@ func (s *Site) render() (err error) {
 	}
 	s.timerStep("render and write robots.txt")
 
+	if err = s.renderSearchJSON(); err != nil {
+		return
+	}
+	s.timerStep("render and write search.json")
+
 	return
 }
 
@@ -962,6 +969,8 @@ func (s *Site) initializeSiteInfo() {
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
 		GoogleAnalytics:                lang.GetString("GoogleAnalytics"),
 		BuildDrafts:                    viper.GetBool("BuildDrafts"),
+		DisableSearchJSON:              viper.GetBool("DisableSearchJSON"),
+		SearchIndexLink:                viper.GetString("baseURL") + viper.GetString("searchuri"),
 		canonifyURLs:                   viper.GetBool("CanonifyURLs"),
 		preserveTaxonomyNames:          lang.GetBool("PreserveTaxonomyNames"),
 		AllPages:                       &s.AllPages,
@@ -2180,6 +2189,28 @@ func (s *Site) renderSitemap() error {
 	}
 
 	return nil
+}
+
+func (s *Site) renderSearchJSON() error {
+	if viper.GetBool("DisableSearchJSON") {
+		return nil
+	}
+
+	n := s.newNode("search")
+	n.Data["Pages"] = s.Pages
+
+	rLayouts := []string{"search.json", "_default/search.json", "_internal/_default/search.json"}
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
+	err := s.renderForLayouts("search", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
+
+	searchuri := viper.GetString("SearchUri")
+
+	if err == nil {
+		err = s.writeDestFile(searchuri, outBuffer)
+	}
+
+	return err
 }
 
 func (s *Site) renderRobotsTXT() error {

@@ -113,6 +113,12 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 </sitemapindex>
 `)
 
+	t.AddInternalTemplate("_default", "search.json", `{{- $.Scratch.Add "search" slice -}}
+{{- range .Site.Pages -}}
+{{- $.Scratch.Add "search" (dict "title" .Title "ref" .Permalink "tags" .Params.tags "categories" .Params.categories "content" .Plain) -}}
+{{- end -}}
+{{- $.Scratch.Get "search" | jsonify -}}`)
+
 	t.AddInternalTemplate("", "pagination.html", `{{ $pag := $.Paginator }}
     {{ if gt $pag.TotalPages 1 }}
     <ul class="pagination">
