@@ -13,7 +13,7 @@ title: Contributing to Hugo
 weight: 30
 ---
 
-All contributions to Hugo are welcome. Whether you want to scratch an itch, or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact [spf13](http://spf13.com/) about what may make sense to do next.
+All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact [spf13](http://spf13.com/) about what may make sense to do next.
 
 You should fork the project and make your changes.  *We encourage pull requests to discuss code changes.*
 
@@ -21,13 +21,13 @@ You should fork the project and make your changes.  *We encourage pull requests 
 When you're ready to create a pull request, be sure to:
 
   * Have test cases for the new code.  If you have questions about how to do it, please ask in your pull request.
-  * Run `go fmt`
+  * Run `go fmt`.
   * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.
   * Make sure `go test ./...` passes, and `go build` completes.  Our [Travis CI loop](https://travis-ci.org/spf13/hugo) will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
 
 ## Contribution Overview
 
-We wrote a [detailed guide]({{< relref "tutorials/how-to-contribute-to-hugo.md" >}}) for newcomers that guides you step by step to your first contribution. If you are more experienced read on. You probably know what to do.
+We wrote a [detailed guide]({{< relref "tutorials/how-to-contribute-to-hugo.md" >}}) for newcomers that guides you step by step to your first contribution. If you are more experienced, follow the guide below.
 
 # Building from source
 
