@@ -460,7 +460,9 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				}
 			}
 
-			t.AddTemplateFile(tplName, baseTemplatePath, path)
+			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
+				jww.ERROR.Printf("Failed to add template %s: %s", tplName, err)
+			}
 
 		}
 		return nil

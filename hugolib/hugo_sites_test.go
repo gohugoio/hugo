@@ -17,7 +17,6 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -29,7 +28,6 @@ type testSiteConfig struct {
 
 func init() {
 	testCommonResetState()
-	jww.SetStdoutThreshold(jww.LevelCritical)
 }
 
 func testCommonResetState() {
