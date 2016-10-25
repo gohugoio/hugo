@@ -458,47 +458,49 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 
 				// If in watch mode, we need to keep the original so we can
 				// repeat this process on rebuild.
+				var rawContentCopy []byte
 				if cfg.Watching {
-					p.rawContentCopy = make([]byte, len(p.rawContent))
-					copy(p.rawContentCopy, p.rawContent)
+					rawContentCopy = make([]byte, len(p.rawContent))
+					copy(rawContentCopy, p.rawContent)
 				} else {
 					// Just reuse the same slice.
-					p.rawContentCopy = p.rawContent
+					rawContentCopy = p.rawContent
 				}
 
 				if p.Markup == "markdown" {
-					tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.rawContentCopy)
+					tmpContent, tmpTableOfContents := helpers.ExtractTOC(rawContentCopy)
 					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-					p.rawContentCopy = tmpContent
+					rawContentCopy = tmpContent
 				}
 
-				if err := handleShortcodes(p, s.owner.tmpl); err != nil {
+				var err error
+				if rawContentCopy, err = handleShortcodes(p, s.owner.tmpl, rawContentCopy); err != nil {
 					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 
 				if p.Markup != "html" {
 
 					// Now we know enough to create a summary of the page and count some words
-					summaryContent, err := p.setUserDefinedSummaryIfProvided()
+					summaryContent, err := p.setUserDefinedSummaryIfProvided(rawContentCopy)
 
 					if err != nil {
 						jww.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
 					} else if summaryContent != nil {
-						p.rawContentCopy = summaryContent.content
+						rawContentCopy = summaryContent.content
 					}
 
-					p.Content = helpers.BytesToHTML(p.rawContentCopy)
+					p.Content = helpers.BytesToHTML(rawContentCopy)
 
 					if summaryContent == nil {
 						p.setAutoSummary()
 					}
 
 				} else {
-					p.Content = helpers.BytesToHTML(p.rawContentCopy)
+					p.Content = helpers.BytesToHTML(rawContentCopy)
 				}
 
 				// no need for this anymore
-				p.rawContentCopy = nil
+				rawContentCopy = nil
 
 				//analyze for raw stats
 				p.analyzePage()
@@ -522,23 +524,23 @@ func (h *HugoSites) Pages() Pages {
 	return h.Sites[0].AllPages
 }
 
-func handleShortcodes(p *Page, t tpl.Template) error {
+func handleShortcodes(p *Page, t tpl.Template, rawContentCopy []byte) ([]byte, error) {
 	if len(p.contentShortCodes) > 0 {
 		jww.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
 		shortcodes, err := executeShortcodeFuncMap(p.contentShortCodes)
 
 		if err != nil {
-			return err
+			return rawContentCopy, err
 		}
 
-		p.rawContentCopy, err = replaceShortcodeTokens(p.rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
+		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
 			jww.FATAL.Printf("Failed to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	}
 
-	return nil
+	return rawContentCopy, nil
 }
 
 func (s *Site) updateBuildStats(page *Page) {
