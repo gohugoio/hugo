@@ -13,7 +13,12 @@ Go 1.6 includes a powerful new keyword, `block`. This construct allows you to de
 
 ## Define the base template
 
-Let's define a simple base template (`_default/baseof.html`), a shell from which all our pages will start. To find a base template, Hugo searches the same paths and file names as it does for [Ace templates]({{< relref "templates/ace.md" >}}), just with files suffixed `.html` rather than `.ace`.
+Let's define a simple base template (`_default/baseof.html`), a shell from which all our pages will start. To find a base template, Hugo searches the same paths and file names as it does for [Ace templates]({{< relref "templates/ace.md" >}}), just with files suffixed `.html` rather than `.ace`. Therefor the layout files are expected to be named as in examples below:
+
+* Home page: `./index.html` + `./_default/baseof.html`
+* Single page in the `blog` section: `./blog/single.html` + `./blog/baseof.html`
+* Single page in another section: `./_default/single.html` + `./_default/single-baseof.html`
+* Taxonomy page in any section: `./default/list.html` + `./_default/baseof.html`
 
 ```html
 <!DOCTYPE html>
