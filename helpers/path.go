@@ -380,14 +380,23 @@ func GuessSection(in string) string {
 	}
 
 	// if first directory is "content", return second directory
+	if parts[0] == "reference" {
+		return "reference"
+	}
 	if parts[0] == "content" {
 		if len(parts) > 2 {
-			return parts[1]
+			if len(parts) > 3 {
+				parts = parts[:len(parts)-1]
+			}
+			return filepath.Join(parts[1:]...)
 		}
 		return ""
 	}
 
-	return parts[0]
+	if len(parts) > 1 {
+		parts = parts[:len(parts)-1]
+	}
+	return filepath.Join(parts...)
 }
 
 // PathPrep prepares the path using the uglify setting to create paths on
