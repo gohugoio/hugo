@@ -76,11 +76,6 @@ type Page struct {
 	// when shortcode changes etc.
 	rawContent []byte
 
-	// When running Hugo in watch mode, we do partial rebuilds and have to make
-	// a copy of the rawContent to be prepared for rebuilds when shortcodes etc.
-	// have changed.
-	rawContentCopy []byte
-
 	// state telling if this is a "new page" or if we have rendered it previously.
 	rendered bool
 
@@ -258,9 +253,9 @@ var (
 )
 
 // Returns the page as summary and main if a user defined split is provided.
-func (p *Page) setUserDefinedSummaryIfProvided() (*summaryContent, error) {
+func (p *Page) setUserDefinedSummaryIfProvided(rawContentCopy []byte) (*summaryContent, error) {
 
-	sc, err := splitUserDefinedSummaryAndContent(p.Markup, p.rawContentCopy)
+	sc, err := splitUserDefinedSummaryAndContent(p.Markup, rawContentCopy)
 
 	if err != nil {
 		return nil, err
