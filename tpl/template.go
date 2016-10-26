@@ -306,8 +306,14 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 	case ".amber":
 		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
 		compiler := amber.New()
-		// Parse the input file
-		if err := compiler.ParseFile(path); err != nil {
+		b, err := afero.ReadFile(hugofs.Source(), path)
+
+		if err != nil {
+			return err
+		}
+
+		// Parse the input data
+		if err := compiler.ParseData(b, path); err != nil {
 			return err
 		}
 
