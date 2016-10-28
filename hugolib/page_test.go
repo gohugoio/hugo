@@ -643,8 +643,8 @@ func TestCreateNewPage(t *testing.T) {
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 
-		// issue #2290: No /content in Path
-		// require.Equal(t, "asdf", p.Path())
+		// issue #2290: Path is relative to the content dir and will continue to be so.
+		require.Equal(t, filepath.FromSlash(fmt.Sprintf("p0.%s", ext)), p.Path())
 		assert.False(t, p.IsHome)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
@@ -654,7 +654,11 @@ func TestCreateNewPage(t *testing.T) {
 		checkTruncation(t, p, false, "simple short page")
 	}
 
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePage)
+	settings := map[string]interface{}{
+		"contentDir": "mycontent",
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
 }
 
 func TestSplitSummaryAndContent(t *testing.T) {

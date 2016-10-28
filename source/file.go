@@ -25,7 +25,7 @@ import (
 // File represents a source content file.
 // All paths are relative from the source directory base
 type File struct {
-	relpath     string // Original relative path, e.g. content/foo.txt
+	relpath     string // Original relative path, e.g. section/foo.txt
 	logicalName string // foo.txt
 	baseName    string // `post` for `post.md`, also `post.en` for `post.en.md`
 	Contents    io.Reader
@@ -101,8 +101,8 @@ func (f *File) Ext() string {
 	return f.Extension()
 }
 
-// Path gets the relative path including file name and extension from
-// the base of the source directory.
+// Path gets the relative path including file name and extension.
+// The directory is relative to the content root.
 func (f *File) Path() string {
 	return f.relpath
 }
