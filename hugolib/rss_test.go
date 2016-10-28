@@ -20,44 +20,27 @@ import (
 	"github.com/spf13/viper"
 )
 
-const rssTemplate = `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>{{ .Title }} on {{ .Site.Title }} </title>
-    <link>{{ .Permalink }}</link>
-    <language>en-us</language>
-    <author>Steve Francia</author>
-    <rights>Francia; all rights reserved.</rights>
-    <updated>{{ .Date }}</updated>
-    {{ range .Data.Pages }}
-    <item>
-      <title>{{ .Title }}</title>
-      <link>{{ .Permalink }}</link>
-      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</pubDate>
-      <author>Steve Francia</author>
-      <guid>{{ .Permalink }}</guid>
-      <description>{{ .Content | html }}</description>
-    </item>
-    {{ end }}
-  </channel>
-</rss>`
-
 func TestRSSOutput(t *testing.T) {
 	testCommonResetState()
 
-	rssURI := "public/customrss.xml"
+	rssURI := "customrss.xml"
 	viper.Set("baseURL", "http://auth/bub/")
 	viper.Set("rssURI", rssURI)
+	viper.Set("title", "RSSTest")
 
 	for _, s := range weightedSources {
-		writeSource(t, filepath.Join("content", s.Name), string(s.Content))
+		writeSource(t, filepath.Join("content", "sect", s.Name), string(s.Content))
 	}
-
-	writeSource(t, filepath.Join("layouts", "rss.xml"), rssTemplate)
 
 	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join("public", rssURI), true, "<?xml", "rss version")
+	// Home RSS
+	assertFileContent(t, filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
+	// Section RSS
+	assertFileContent(t, filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
+	// Taxonomy RSS
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
 
 }

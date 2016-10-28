@@ -623,6 +623,7 @@ date = "2012-01-01"
 publishdate = "2012-01-01"
 my_param = "baz"
 my_date = 2010-05-27T07:32:00Z
+categories = [ "hugo" ]
 +++
 Front Matter with Ordered Pages 4. This is longer content`)
 
