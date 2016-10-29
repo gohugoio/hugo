@@ -162,6 +162,7 @@ var (
 	logFile     string
 	theme       string
 	source      string
+	ignoreFiles string
 )
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -237,6 +238,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&uglyURLs, "uglyURLs", false, "if true, use /filename.html instead of /filename/")
 	cmd.Flags().BoolVar(&canonifyURLs, "canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
+	cmd.Flags().StringVarP(&ignoreFiles, "ignoreFiles", "", "", "Comma-separated list of RegExs, all matching files will not be rendered")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().BoolVar(&pluralizeListTitles, "pluralizeListTitles", true, "Pluralize titles in lists using inflect")
@@ -333,6 +335,11 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		if flagChanged(cmdV.Flags(), "noTimes") {
 			viper.Set("noTimes", noTimes)
+		}
+		if flagChanged(cmdV.Flags(), "ignoreFiles") {
+			cliIgnoreFiles := regexp.MustCompile(",\\s*").Split(ignoreFiles, -1)
+			allIgnoreFiles := append(viper.GetStringSlice("IgnoreFiles"), cliIgnoreFiles...)
+			viper.Set("ignoreFiles", allIgnoreFiles)
 		}
 
 	}
