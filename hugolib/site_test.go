@@ -378,7 +378,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	for _, p := range s.Pages {
-		assert.False(t, p.IsHome)
+		assert.False(t, p.IsHome())
 	}
 
 	for _, test := range tests {

@@ -30,7 +30,7 @@ func TestNodeSimpleMethods(t *testing.T) {
 		{func(n *Node) bool { return n.Now().Unix() == time.Now().Unix() }},
 	} {
 
-		n := &Node{}
+		n := &Node{NodeType: NodeHome}
 		n.RSSLink = "rssLink"
 
 		if !this.assertFunc(n) {

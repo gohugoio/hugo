@@ -31,6 +31,15 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// Temporary feature flag to ease the refactoring of node vs page, see
+// https://github.com/spf13/hugo/issues/2297
+// TODO(bep) eventually remove
+var nodePageFeatureFlag bool
+
+func toggleNodePageFeatureFlag() {
+	nodePageFeatureFlag = !nodePageFeatureFlag
+}
+
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
 	Sites []*Site
@@ -561,6 +570,16 @@ func (s *Site) updateBuildStats(page *Page) {
 	if page.IsExpired() {
 		s.expiredCount++
 	}
+}
+
+func (h *HugoSites) findPagesByNodeType(n NodeType) Pages {
+	var pages Pages
+	for _, p := range h.Sites[0].AllPages {
+		if p.NodeType == n {
+			pages = append(pages, p)
+		}
+	}
+	return pages
 }
 
 // Convenience func used in tests to build a single site/language excluding render phase.

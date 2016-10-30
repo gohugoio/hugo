@@ -26,7 +26,23 @@ import (
 	"github.com/spf13/hugo/helpers"
 )
 
+// TODO(bep) np add String()
+type NodeType int
+
+const (
+	NodePage NodeType = iota
+
+	// The rest are node types; home page, sections etc.
+	NodeHome
+)
+
+func (p NodeType) IsNode() bool {
+	return p >= NodeHome
+}
+
 type Node struct {
+	NodeType NodeType
+
 	// a natural key that should be unique for this site
 	// for the home page this will typically be "home", but it can anything
 	// as long as it is the same for repeated builds.
@@ -44,7 +60,6 @@ type Node struct {
 	Lastmod     time.Time
 	Sitemap     Sitemap
 	URLPath
-	IsHome        bool
 	paginator     *Pager
 	paginatorInit sync.Once
 	scratch       *Scratch
@@ -151,11 +166,15 @@ func (n *Node) RSSlink() template.HTML {
 }
 
 func (n *Node) IsNode() bool {
-	return true
+	return n.NodeType.IsNode()
+}
+
+func (n *Node) IsHome() bool {
+	return n.NodeType == NodeHome
 }
 
 func (n *Node) IsPage() bool {
-	return !n.IsNode()
+	return n.NodeType == NodePage
 }
 
 func (n *Node) Ref(ref string) (string, error) {
@@ -315,4 +334,12 @@ func (n *Node) addLangFilepathPrefix(outfile string) string {
 		return outfile
 	}
 	return helpers.FilePathSeparator + filepath.Join(n.Lang(), outfile)
+}
+
+func nodeTypeFromFilename(filename string) NodeType {
+	// TODO(bep) np
+	if !strings.HasPrefix(filename, "_node") {
+		return NodePage
+	}
+	return NodeHome
 }

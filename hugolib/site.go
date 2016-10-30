@@ -1678,10 +1678,23 @@ func (s *Site) renderPages() error {
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for p := range pages {
+		// TODO(bep) np paginator
+		s.preparePage(p)
 		err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(p.layouts())...)
 		if err != nil {
 			results <- err
 		}
+	}
+}
+
+func (s *Site) preparePage(p *Page) {
+	// TODO(bep) np the order of it all
+	switch p.NodeType {
+	case NodePage:
+	case NodeHome:
+		p.Data = make(map[string]interface{})
+		// TODO(bep) np cache the below
+		p.Data["Pages"] = s.owner.findPagesByNodeType(NodePage)
 	}
 }
 
@@ -2028,6 +2041,11 @@ func (s *Site) renderSectionLists(prepare bool) error {
 }
 
 func (s *Site) renderHomePage(prepare bool) error {
+	// TODO(bep) np remove this and related
+	if nodePageFeatureFlag {
+		return nil
+	}
+
 	n := s.newHomeNode(prepare, 0)
 	if prepare {
 		return nil
@@ -2118,7 +2136,7 @@ func (s *Site) renderHomePage(prepare bool) error {
 func (s *Site) newHomeNode(prepare bool, counter int) *Node {
 	n := s.nodeLookup("home", counter, prepare)
 	n.Title = n.Site.Title
-	n.IsHome = true
+	n.NodeType = NodeHome
 	s.setURLs(n, "/")
 	n.Data["Pages"] = s.Pages
 	if len(s.Pages) != 0 {
@@ -2373,7 +2391,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	// For performance reasons we only inject the Hugo generator tag on the home page.
-	if n, ok := d.(*Node); ok && n.IsHome {
+	if n, ok := d.(*Node); ok && n.IsHome() {
 		if !viper.GetBool("disableHugoGeneratorInject") {
 			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
 		}
