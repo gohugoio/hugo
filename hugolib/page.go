@@ -182,14 +182,6 @@ func (p *Page) initPlainWords() {
 	})
 }
 
-func (p *Page) IsNode() bool {
-	return false
-}
-
-func (p *Page) IsPage() bool {
-	return true
-}
-
 // Param is a convenience method to do lookups in Page's and Site's Params map,
 // in that order.
 //
@@ -423,7 +415,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 func newPage(filename string) *Page {
 	page := Page{contentType: "",
 		Source:       Source{File: *source.NewFile(filename)},
-		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
+		Node:         Node{NodeType: nodeTypeFromFilename(filename), Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
 	}
@@ -455,6 +447,11 @@ func (p *Page) Section() string {
 func (p *Page) layouts(l ...string) []string {
 	if len(p.layoutsCalculated) > 0 {
 		return p.layoutsCalculated
+	}
+
+	// TODO(bep) np
+	if p.NodeType == NodeHome {
+		return []string{"index.html", "_default/list.html"}
 	}
 
 	if p.Layout != "" {
@@ -1136,6 +1133,10 @@ func (p *Page) FullFilePath() string {
 }
 
 func (p *Page) TargetPath() (outfile string) {
+	// TODO(bep) ml
+	if p.NodeType == NodeHome {
+		return "index.html"
+	}
 	// Always use URL if it's specified
 	if len(strings.TrimSpace(p.URLPath.URL)) > 2 {
 		outfile = strings.TrimSpace(p.URLPath.URL)

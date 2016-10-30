@@ -645,7 +645,7 @@ func TestCreateNewPage(t *testing.T) {
 
 		// issue #2290: Path is relative to the content dir and will continue to be so.
 		require.Equal(t, filepath.FromSlash(fmt.Sprintf("p0.%s", ext)), p.Path())
-		assert.False(t, p.IsHome)
+		assert.False(t, p.IsHome())
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
