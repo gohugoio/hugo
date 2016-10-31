@@ -464,6 +464,8 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 					continue
 				}
 
+				p.setNodeTypeVars(s)
+
 				// If we got this far it means that this is either a new Page pointer
 				// or a template or similar has changed so wee need to do a rerendering
 				// of the shortcodes etc.
@@ -572,7 +574,7 @@ func (s *Site) updateBuildStats(page *Page) {
 	}
 }
 
-func (h *HugoSites) findPagesByNodeType(n NodeType) Pages {
+func (h *HugoSites) findAllPagesByNodeType(n NodeType) Pages {
 	var pages Pages
 	for _, p := range h.Sites[0].AllPages {
 		if p.NodeType == n {

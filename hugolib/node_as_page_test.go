@@ -31,8 +31,8 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
+	jww.SetStdoutThreshold(jww.LevelDebug)
+	//jww.SetStdoutThreshold(jww.LevelFatal)
 
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
@@ -67,6 +67,12 @@ title: Section2
 Section2 **Content!**
 `)
 
+	writeSource(t, filepath.Join("content", "categories", "hugo", "_node.md"), `---
+title: Taxonomy Hugo
+---
+Taxonomy Hugo **Content!**
+`)
+
 	writeSource(t, filepath.Join("layouts", "index.html"), `
 Index Title: {{ .Title }}
 Index Content: {{ .Content }}
@@ -84,6 +90,15 @@ Single Content: {{ .Content }}
 	writeSource(t, filepath.Join("layouts", "_default", "section.html"), `
 Section Title: {{ .Title }}
 Section Content: {{ .Content }}
+# Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
+`)
+
+	writeSource(t, filepath.Join("layouts", "_default", "taxonomy.html"), `
+Taxonomy Title: {{ .Title }}
+Taxonomy Content: {{ .Content }}
 # Pages: {{ len .Data.Pages }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
@@ -120,7 +135,7 @@ Content Page %02d
 	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
 
 	h := s.owner
-	nodes := h.findPagesByNodeType(NodeHome)
+	nodes := h.findAllPagesByNodeType(NodeHome)
 	require.Len(t, nodes, 1)
 
 	home := nodes[0]
@@ -129,7 +144,7 @@ Content Page %02d
 	require.True(t, home.IsNode())
 	require.False(t, home.IsPage())
 
-	pages := h.findPagesByNodeType(NodePage)
+	pages := h.findAllPagesByNodeType(NodePage)
 	require.Len(t, pages, 4)
 
 	first := pages[0]
@@ -151,7 +166,16 @@ Content Page %02d
 	assertFileContent(t, filepath.Join("public", "sect1", "page", "2", "index.html"), false,
 		"Pag: Page 02")
 
-	sections := h.findPagesByNodeType(NodeSection)
+	sections := h.findAllPagesByNodeType(NodeSection)
 	require.Len(t, sections, 2)
+
+	// Check taxonomy list
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
+		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>")
+
+	// Check taxonomy list paginator
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "page", "2", "index.html"), false,
+		"Taxonomy Title: Taxonomy Hugo",
+		"Pag: Page 02")
 
 }

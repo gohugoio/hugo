@@ -32,9 +32,13 @@ type NodeType int
 const (
 	NodePage NodeType = iota
 
+	// Temporary state.
+	NodeUnknown
+
 	// The rest are node types; home page, sections etc.
 	NodeHome
 	NodeSection
+	NodeTaxonomy
 )
 
 func (p NodeType) IsNode() bool {
@@ -337,8 +341,14 @@ func (n *Node) addLangFilepathPrefix(outfile string) string {
 	return helpers.FilePathSeparator + filepath.Join(n.Lang(), outfile)
 }
 
+func sectionsFromFilename(filename string) []string {
+	dir, _ := filepath.Split(filename)
+	return strings.Split(dir, helpers.FilePathSeparator)
+}
+
+// TODO(bep) np node identificator
 func nodeTypeFromFilename(filename string) NodeType {
-	// TODO(bep) np
+
 	if !strings.Contains(filename, "_node") {
 		return NodePage
 	}
@@ -347,5 +357,32 @@ func nodeTypeFromFilename(filename string) NodeType {
 		return NodeHome
 	}
 
-	return NodeSection
+	// We don't know enough yet to determine the type.
+	return NodeUnknown
+}
+
+func (p *Page) setNodeTypeVars(s *Site) {
+	// TODO(bep) np taxonomies etc.
+	if p.NodeType == NodeUnknown {
+		// This is either a taxonomy or a section
+		if s.isTaxonomy(p.Section()) {
+			p.NodeType = NodeTaxonomy
+		} else {
+			p.NodeType = NodeSection
+		}
+
+	}
+	// TODO(bep) np node URL
+	// Set Node URL
+	switch p.NodeType {
+	case NodeHome:
+		p.URLPath.URL = ""
+	case NodeSection:
+		p.URLPath.URL = p.Section()
+	case NodeTaxonomy:
+		p.URLPath.URL = path.Join(p.sections...)
+	}
+
+	p.site = s
+
 }
