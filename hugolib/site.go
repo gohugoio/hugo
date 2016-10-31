@@ -848,9 +848,15 @@ func (s *Site) render() (err error) {
 		return
 	}
 	s.timerStep("render and write lists")
+
+	if err = s.preparePages(); err != nil {
+		return
+	}
+
 	if err = s.renderPages(); err != nil {
 		return
 	}
+
 	s.timerStep("render and write pages")
 	if err = s.renderHomePage(false); err != nil {
 		return
@@ -1620,6 +1626,25 @@ func (s *Site) renderAliases() error {
 	return nil
 }
 
+func (s *Site) preparePages() error {
+	var errors []error
+
+	for _, p := range s.Pages {
+		if err := p.prepareLayouts(); err != nil {
+			errors = append(errors, err)
+		}
+		if err := p.prepareData(); err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	if len(errors) != 0 {
+		return fmt.Errorf("Prepare pages failed: %.100q…", errors)
+	}
+
+	return nil
+}
+
 // renderPages renders pages each corresponding to a markdown file.
 func (s *Site) renderPages() error {
 
@@ -1630,26 +1655,6 @@ func (s *Site) renderPages() error {
 	go errorCollator(results, errs)
 
 	procs := getGoMaxProcs()
-
-	// this cannot be fanned out to multiple Go routines
-	// See issue #1601
-	// TODO(bep): Check the IsRenderable logic.
-	for _, p := range s.Pages {
-		var layouts []string
-		if !p.IsRenderable() {
-			self := "__" + p.TargetPath()
-			_, err := s.owner.tmpl.GetClone().New(self).Parse(string(p.Content))
-			if err != nil {
-				results <- err
-				continue
-			}
-			layouts = append(layouts, self)
-		} else {
-			layouts = append(layouts, p.layouts()...)
-			layouts = append(layouts, "_default/single.html")
-		}
-		p.layoutsCalculated = layouts
-	}
 
 	wg := &sync.WaitGroup{}
 
@@ -1678,23 +1683,15 @@ func (s *Site) renderPages() error {
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for p := range pages {
-		// TODO(bep) np paginator
-		s.preparePage(p)
-		err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(p.layouts())...)
-		if err != nil {
+		if err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(p.layouts())...); err != nil {
 			results <- err
 		}
-	}
-}
 
-func (s *Site) preparePage(p *Page) {
-	// TODO(bep) np the order of it all
-	switch p.NodeType {
-	case NodePage:
-	case NodeHome:
-		p.Data = make(map[string]interface{})
-		// TODO(bep) np cache the below
-		p.Data["Pages"] = s.owner.findPagesByNodeType(NodePage)
+		if p.NodeType.IsNode() {
+			if err := p.renderPaginator(s); err != nil {
+				results <- err
+			}
+		}
 	}
 }
 

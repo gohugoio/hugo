@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,6 +55,9 @@ Home **Content!**
 Index Title: {{ .Title }}
 Index Content: {{ .Content }}
 # Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
 `)
 
 	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `
@@ -70,6 +74,8 @@ Content Page %d
 `, i, i))
 	}
 
+	viper.Set("paginate", 3)
+
 	s := newSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
@@ -80,6 +86,7 @@ Content Page %d
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
 		"# Pages: 10")
+
 	assertFileContent(t, filepath.Join("public", "regular1", "index.html"), false, "Single Title: Page 1", "Content Page 1")
 
 	h := s.owner
@@ -99,5 +106,12 @@ Content Page %d
 	require.False(t, first.IsHome())
 	require.False(t, first.IsNode())
 	require.True(t, first.IsPage())
+
+	first.Paginator()
+
+	// Check paginator
+	assertFileContent(t, filepath.Join("public", "page", "3", "index.html"), false,
+		"Pag: Page 6",
+		"Pag: Page 7")
 
 }

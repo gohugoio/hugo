@@ -1173,3 +1173,97 @@ func (p *Page) TargetPath() (outfile string) {
 	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(
 		p.Site.pathSpec.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
 }
+
+// Pre render prepare steps
+
+func (p *Page) prepareLayouts() error {
+	// TODO(bep): Check the IsRenderable logic.
+	if p.NodeType == NodePage {
+		var layouts []string
+		if !p.IsRenderable() {
+			self := "__" + p.TargetPath()
+			_, err := p.Site.owner.tmpl.GetClone().New(self).Parse(string(p.Content))
+			if err != nil {
+				return err
+			}
+			layouts = append(layouts, self)
+		} else {
+			layouts = append(layouts, p.layouts()...)
+			layouts = append(layouts, "_default/single.html")
+		}
+		p.layoutsCalculated = layouts
+	}
+	return nil
+}
+
+func (p *Page) prepareData() error {
+	switch p.NodeType {
+	case NodePage:
+	case NodeHome:
+		p.Data = make(map[string]interface{})
+		// TODO(bep) np cache the below
+		// TODO(bep) np
+		p.Data["Pages"] = p.Site.owner.findPagesByNodeType(NodePage)
+	}
+
+	return nil
+}
+
+// renderPaginator must be run after the owning Page has been rendered.
+// TODO(bep) np
+func (p *Page) renderPaginator(s *Site) error {
+	if p.paginator != nil {
+		paginatePath := helpers.Config().GetString("paginatePath")
+
+		{
+			// write alias for page 1
+			// TODO(bep) ml all of these n.addLang ... fix.
+			permaLink, _ := p.Permalink()
+			s.writeDestAlias(p.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), permaLink, nil)
+		}
+
+		pagers := p.paginator.Pagers()
+
+		for i, pager := range pagers {
+			if i == 0 {
+				// already created
+				continue
+			}
+
+			pagerNode := p.copy()
+
+			pagerNode.paginator = pager
+			if pager.TotalPages() > 0 {
+				first, _ := pager.page(0)
+				pagerNode.Date = first.Date
+				pagerNode.Lastmod = first.Lastmod
+			}
+
+			pageNumber := i + 1
+			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
+			htmlBase = p.addLangPathPrefix(htmlBase)
+			if err := s.renderAndWritePage(pagerNode.Title,
+				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {
+				return err
+			}
+
+		}
+	}
+	return nil
+}
+
+// Page constains some sync.Once which have a mutex, so we cannot just
+// copy the Page by value. So for the situations where we need a copy,
+// the paginators etc., we do it manually here.
+// TODO(bep) np do better
+func (p *Page) copy() *Page {
+	c := &Page{Node: Node{NodeType: p.NodeType}}
+	c.Title = p.Title
+	c.Data = p.Data
+	c.Date = p.Date
+	c.Lastmod = p.Lastmod
+	c.language = p.language
+	c.lang = p.lang
+	c.URLPath = p.URLPath
+	return c
+}
