@@ -586,7 +586,7 @@ func (p *Page) permalink() (*url.URL, error) {
 			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
 			t := p.Source.TranslationBaseName()
-			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, helpers.ReplaceExtension(strings.TrimSpace(t), p.Extension())))
+			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, (strings.TrimSpace(t)+"."+p.Extension())))
 		}
 	}
 
@@ -1163,7 +1163,7 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension()
 	} else {
 		// Fall back to filename
-		outfile = helpers.ReplaceExtension(p.Source.TranslationBaseName(), p.Extension())
+		outfile = (p.Source.TranslationBaseName() + "." + p.Extension())
 	}
 
 	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(

@@ -126,11 +126,14 @@ func NewFile(relpath string) *File {
 	f.ext = strings.TrimPrefix(filepath.Ext(f.LogicalName()), ".")
 	f.baseName = helpers.Filename(f.LogicalName())
 
-	f.lang = strings.TrimPrefix(filepath.Ext(f.baseName), ".")
-	if f.lang == "" {
+	lang := strings.TrimPrefix(filepath.Ext(f.baseName), ".")
+	if _, ok := viper.GetStringMap("languages")[lang]; lang == "" || !ok {
 		f.lang = viper.GetString("defaultContentLanguage")
+		f.translationBaseName = f.baseName
+	} else {
+		f.lang = lang
+		f.translationBaseName = helpers.Filename(f.baseName)
 	}
-	f.translationBaseName = helpers.Filename(f.baseName)
 
 	f.section = helpers.GuessSection(f.Dir())
 	f.uniqueID = helpers.Md5String(f.LogicalName())
