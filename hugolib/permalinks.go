@@ -164,6 +164,7 @@ func pageToPermalinkFilename(p *Page, _ string) (string, error) {
 func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 	if p.Slug != "" {
 		// Don't start or end with a -
+		// TODO(bep) this doesn't look good... Set the Slug once.
 		if strings.HasPrefix(p.Slug, "-") {
 			p.Slug = p.Slug[1:len(p.Slug)]
 		}

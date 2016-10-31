@@ -1633,7 +1633,7 @@ func (s *Site) preparePages() error {
 		if err := p.prepareLayouts(); err != nil {
 			errors = append(errors, err)
 		}
-		if err := p.prepareData(); err != nil {
+		if err := p.prepareData(s); err != nil {
 			errors = append(errors, err)
 		}
 	}
@@ -1683,7 +1683,10 @@ func (s *Site) renderPages() error {
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for p := range pages {
-		if err := s.renderAndWritePage("page "+p.FullFilePath(), p.TargetPath(), p, s.appendThemeTemplates(p.layouts())...); err != nil {
+		targetPath := p.TargetPath()
+		layouts := p.layouts()
+		jww.DEBUG.Printf("Render Page to %q with layouts %q", targetPath, layouts)
+		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
 			results <- err
 		}
 
@@ -1962,6 +1965,9 @@ func (s *Site) newSectionListNode(prepare bool, sectionName, section string, dat
 
 // renderSectionLists renders a page for each section
 func (s *Site) renderSectionLists(prepare bool) error {
+	if nodePageFeatureFlag {
+		return nil
+	}
 	for section, data := range s.Sections {
 		// section keys can be lower case (depending on site.pathifyTaxonomyKeys)
 		// extract the original casing from the first page to get sensible titles.
