@@ -450,8 +450,12 @@ func (p *Page) layouts(l ...string) []string {
 	}
 
 	// TODO(bep) np
-	if p.NodeType == NodeHome {
+	switch p.NodeType {
+	case NodeHome:
 		return []string{"index.html", "_default/list.html"}
+	case NodeSection:
+		section := p.Section()
+		return []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
 	}
 
 	if p.Layout != "" {
@@ -858,6 +862,15 @@ func (p *Page) update(f interface{}) error {
 		}
 	}
 
+	// TODO(bep) np node URL
+	// Set Node URL
+	switch p.NodeType {
+	case NodeHome:
+		p.URLPath.URL = ""
+	case NodeSection:
+		p.URLPath.URL = p.Section()
+	}
+
 	return nil
 
 }
@@ -1133,10 +1146,15 @@ func (p *Page) FullFilePath() string {
 }
 
 func (p *Page) TargetPath() (outfile string) {
-	// TODO(bep) ml
-	if p.NodeType == NodeHome {
+
+	// TODO(bep) np
+	switch p.NodeType {
+	case NodeHome:
 		return "index.html"
+	case NodeSection:
+		return filepath.Join(p.Section(), "index.html")
 	}
+
 	// Always use URL if it's specified
 	if len(strings.TrimSpace(p.URLPath.URL)) > 2 {
 		outfile = strings.TrimSpace(p.URLPath.URL)
@@ -1196,14 +1214,20 @@ func (p *Page) prepareLayouts() error {
 	return nil
 }
 
-func (p *Page) prepareData() error {
+func (p *Page) prepareData(s *Site) error {
+	p.Data = make(map[string]interface{})
 	switch p.NodeType {
 	case NodePage:
 	case NodeHome:
-		p.Data = make(map[string]interface{})
 		// TODO(bep) np cache the below
 		// TODO(bep) np
-		p.Data["Pages"] = p.Site.owner.findPagesByNodeType(NodePage)
+		p.Data["Pages"] = s.owner.findPagesByNodeType(NodePage)
+	case NodeSection:
+		sectionData, ok := s.Sections[p.Section()]
+		if !ok {
+			return fmt.Errorf("Data for section %s not found", p.Section())
+		}
+		p.Data["Pages"] = sectionData
 	}
 
 	return nil
@@ -1215,12 +1239,11 @@ func (p *Page) renderPaginator(s *Site) error {
 	if p.paginator != nil {
 		paginatePath := helpers.Config().GetString("paginatePath")
 
-		{
-			// write alias for page 1
-			// TODO(bep) ml all of these n.addLang ... fix.
-			permaLink, _ := p.Permalink()
-			s.writeDestAlias(p.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), permaLink, nil)
-		}
+		// write alias for page 1
+		// TODO(bep) ml all of these n.addLang ... fix.
+		//permaLink, _ := p.Permalink()
+		// TODO(bep) np fix
+		//s.writeDestAlias(p.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), permaLink, nil)
 
 		pagers := p.paginator.Pagers()
 
@@ -1240,7 +1263,7 @@ func (p *Page) renderPaginator(s *Site) error {
 			}
 
 			pageNumber := i + 1
-			htmlBase := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
+			htmlBase := path.Join(p.URLPath.URL, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))
 			htmlBase = p.addLangPathPrefix(htmlBase)
 			if err := s.renderAndWritePage(pagerNode.Title,
 				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {

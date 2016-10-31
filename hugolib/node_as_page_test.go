@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +30,10 @@ import (
 
 */
 
-func TestHomeAsPage(t *testing.T) {
+func TestNodesAsPage(t *testing.T) {
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	jww.SetStdoutThreshold(jww.LevelFatal)
+
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
 
@@ -51,6 +55,18 @@ title: Home Sweet Home!
 Home **Content!**
 `)
 
+	writeSource(t, filepath.Join("content", "sect1", "_node.md"), `---
+title: Section1
+---
+Section1 **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "sect2", "_node.md"), `---
+title: Section2
+---
+Section2 **Content!**
+`)
+
 	writeSource(t, filepath.Join("layouts", "index.html"), `
 Index Title: {{ .Title }}
 Index Content: {{ .Content }}
@@ -65,16 +81,30 @@ Single Title: {{ .Title }}
 Single Content: {{ .Content }}
 `)
 
+	writeSource(t, filepath.Join("layouts", "_default", "section.html"), `
+Section Title: {{ .Title }}
+Section Content: {{ .Content }}
+# Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
+`)
+
 	// Add some regular pages
-	for i := 0; i < 10; i++ {
-		writeSource(t, filepath.Join("content", fmt.Sprintf("regular%d.md", i)), fmt.Sprintf(`---
-title: Page %d
+	for i := 1; i <= 4; i++ {
+		sect := "sect1"
+		if i > 2 {
+			sect = "sect2"
+		}
+		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.md", i)), fmt.Sprintf(`---
+title: Page %02d
+categories: Hugo
 ---
-Content Page %d
+Content Page %02d
 `, i, i))
 	}
 
-	viper.Set("paginate", 3)
+	viper.Set("paginate", 1)
 
 	s := newSiteDefaultLang()
 
@@ -85,9 +115,9 @@ Content Page %d
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
-		"# Pages: 10")
+		"# Pages: 4")
 
-	assertFileContent(t, filepath.Join("public", "regular1", "index.html"), false, "Single Title: Page 1", "Content Page 1")
+	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
 
 	h := s.owner
 	nodes := h.findPagesByNodeType(NodeHome)
@@ -100,7 +130,7 @@ Content Page %d
 	require.False(t, home.IsPage())
 
 	pages := h.findPagesByNodeType(NodePage)
-	require.Len(t, pages, 10)
+	require.Len(t, pages, 4)
 
 	first := pages[0]
 	require.False(t, first.IsHome())
@@ -109,9 +139,19 @@ Content Page %d
 
 	first.Paginator()
 
-	// Check paginator
-	assertFileContent(t, filepath.Join("public", "page", "3", "index.html"), false,
-		"Pag: Page 6",
-		"Pag: Page 7")
+	// Check Home paginator
+	assertFileContent(t, filepath.Join("public", "page", "2", "index.html"), false,
+		"Pag: Page 02")
+
+	// Check Sections
+	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false, "Section Title: Section", "Section1 <strong>Content!</strong>")
+	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false, "Section Title: Section", "Section2 <strong>Content!</strong>")
+
+	// Check Sections paginator
+	assertFileContent(t, filepath.Join("public", "sect1", "page", "2", "index.html"), false,
+		"Pag: Page 02")
+
+	sections := h.findPagesByNodeType(NodeSection)
+	require.Len(t, sections, 2)
 
 }

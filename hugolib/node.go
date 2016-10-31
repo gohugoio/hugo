@@ -34,6 +34,7 @@ const (
 
 	// The rest are node types; home page, sections etc.
 	NodeHome
+	NodeSection
 )
 
 func (p NodeType) IsNode() bool {
@@ -338,8 +339,13 @@ func (n *Node) addLangFilepathPrefix(outfile string) string {
 
 func nodeTypeFromFilename(filename string) NodeType {
 	// TODO(bep) np
-	if !strings.HasPrefix(filename, "_node") {
+	if !strings.Contains(filename, "_node") {
 		return NodePage
 	}
-	return NodeHome
+
+	if strings.HasPrefix(filename, "_node") {
+		return NodeHome
+	}
+
+	return NodeSection
 }
