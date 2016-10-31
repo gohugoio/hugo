@@ -98,6 +98,21 @@ type Page struct {
 	Node
 
 	GitInfo *gitmap.GitInfo
+
+	// This was added as part of getting the Nodes (taxonomies etc.) to work as
+	// Pages in Hugo 0.18.
+	// It is deliberately named similar to Section, but not exported (for now).
+	// We currently have only one level of section in Hugo, but the page can live
+	// any number of levels down the file path.
+	// To support taxonomies like /categories/hugo etc. we will need to keep track
+	// of that information in a general way.
+	// So, sections represents the path to the content, i.e. a content file or a
+	// virtual content file in the situations where a taxonomy or a section etc.
+	// isn't accomanied by one.
+	sections []string
+
+	// TODO(bep) np Site added to page, keep?
+	site *Site
 }
 
 type Source struct {
@@ -418,6 +433,7 @@ func newPage(filename string) *Page {
 		Node:         Node{NodeType: nodeTypeFromFilename(filename), Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
+		sections:     sectionsFromFilename(filename),
 	}
 
 	jww.DEBUG.Println("Reading from", page.File.Path())
@@ -449,14 +465,19 @@ func (p *Page) layouts(l ...string) []string {
 		return p.layoutsCalculated
 	}
 
-	// TODO(bep) np
+	// TODO(bep) np taxonomy etc.
 	switch p.NodeType {
 	case NodeHome:
 		return []string{"index.html", "_default/list.html"}
 	case NodeSection:
 		section := p.Section()
 		return []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
+	case NodeTaxonomy:
+		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
+		return []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
 	}
+
+	// Regular Page handled below
 
 	if p.Layout != "" {
 		return layouts(p.Type(), p.Layout)
@@ -862,15 +883,6 @@ func (p *Page) update(f interface{}) error {
 		}
 	}
 
-	// TODO(bep) np node URL
-	// Set Node URL
-	switch p.NodeType {
-	case NodeHome:
-		p.URLPath.URL = ""
-	case NodeSection:
-		p.URLPath.URL = p.Section()
-	}
-
 	return nil
 
 }
@@ -1153,6 +1165,8 @@ func (p *Page) TargetPath() (outfile string) {
 		return "index.html"
 	case NodeSection:
 		return filepath.Join(p.Section(), "index.html")
+	case NodeTaxonomy:
+		return filepath.Join(append(p.sections, "index.html")...)
 	}
 
 	// Always use URL if it's specified
@@ -1214,64 +1228,34 @@ func (p *Page) prepareLayouts() error {
 	return nil
 }
 
+// TODO(bep) np naming, move some
 func (p *Page) prepareData(s *Site) error {
 	p.Data = make(map[string]interface{})
 	switch p.NodeType {
 	case NodePage:
 	case NodeHome:
 		// TODO(bep) np cache the below
-		// TODO(bep) np
-		p.Data["Pages"] = s.owner.findPagesByNodeType(NodePage)
+		p.Data["Pages"] = s.owner.findAllPagesByNodeType(NodePage)
 	case NodeSection:
 		sectionData, ok := s.Sections[p.Section()]
 		if !ok {
 			return fmt.Errorf("Data for section %s not found", p.Section())
 		}
 		p.Data["Pages"] = sectionData
+	case NodeTaxonomy:
+		plural := p.sections[0]
+		term := p.sections[1]
+
+		singular := s.taxonomiesPluralSingular[plural]
+		taxonomy := s.Taxonomies[plural].Get(term)
+
+		p.Data[singular] = taxonomy
+		p.Data["Singular"] = singular
+		p.Data["Plural"] = plural
+		p.Data["Pages"] = taxonomy.Pages()
+
 	}
 
-	return nil
-}
-
-// renderPaginator must be run after the owning Page has been rendered.
-// TODO(bep) np
-func (p *Page) renderPaginator(s *Site) error {
-	if p.paginator != nil {
-		paginatePath := helpers.Config().GetString("paginatePath")
-
-		// write alias for page 1
-		// TODO(bep) ml all of these n.addLang ... fix.
-		//permaLink, _ := p.Permalink()
-		// TODO(bep) np fix
-		//s.writeDestAlias(p.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), permaLink, nil)
-
-		pagers := p.paginator.Pagers()
-
-		for i, pager := range pagers {
-			if i == 0 {
-				// already created
-				continue
-			}
-
-			pagerNode := p.copy()
-
-			pagerNode.paginator = pager
-			if pager.TotalPages() > 0 {
-				first, _ := pager.page(0)
-				pagerNode.Date = first.Date
-				pagerNode.Lastmod = first.Lastmod
-			}
-
-			pageNumber := i + 1
-			htmlBase := path.Join(p.URLPath.URL, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))
-			htmlBase = p.addLangPathPrefix(htmlBase)
-			if err := s.renderAndWritePage(pagerNode.Title,
-				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {
-				return err
-			}
-
-		}
-	}
 	return nil
 }
 

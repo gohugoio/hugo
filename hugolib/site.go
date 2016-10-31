@@ -91,11 +91,16 @@ type Site struct {
 	nodeCache     *nodeCache
 	nodeCacheInit sync.Once
 
-	Pages          Pages
-	AllPages       Pages
-	rawAllPages    Pages
-	Files          []*source.File
-	Taxonomies     TaxonomyList
+	Pages       Pages
+	AllPages    Pages
+	rawAllPages Pages
+	Files       []*source.File
+	Taxonomies  TaxonomyList
+
+	// Plural is what we get in the folder, so keep track of this mapping
+	// to get the singular form from that value.
+	taxonomiesPluralSingular map[string]string
+
 	Source         source.Input
 	Sections       Taxonomy
 	Info           SiteInfo
@@ -1514,12 +1519,14 @@ func (s *Site) assembleMenus() {
 
 func (s *Site) assembleTaxonomies() {
 	s.Taxonomies = make(TaxonomyList)
+	s.taxonomiesPluralSingular = make(map[string]string)
 
 	taxonomies := s.Language.GetStringMapString("Taxonomies")
 	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
-	for _, plural := range taxonomies {
+	for singular, plural := range taxonomies {
 		s.Taxonomies[plural] = make(Taxonomy)
+		s.taxonomiesPluralSingular[plural] = singular
 		for _, p := range s.Pages {
 			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
 			weight := p.GetParam(plural + "_weight")
@@ -1569,9 +1576,13 @@ func (s *Site) resetBuildState() {
 func (s *Site) assembleSections() {
 	s.Sections = make(Taxonomy)
 	s.Info.Sections = s.Sections
-
-	for i, p := range s.Pages {
-		s.Sections.add(p.Section(), WeightedPage{s.Pages[i].Weight, s.Pages[i]}, s.Info.preserveTaxonomyNames)
+	regularPages := s.findPagesByNodeType(NodePage)
+	for i, p := range regularPages {
+		section := p.Section()
+		if s.isTaxonomy(section) {
+			continue
+		}
+		s.Sections.add(section, WeightedPage{s.Pages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
 	}
 
 	for k := range s.Sections {
@@ -1586,6 +1597,23 @@ func (s *Site) assembleSections() {
 			}
 		}
 	}
+}
+
+func (s *Site) isTaxonomy(section string) bool {
+	if _, isTaxonomy := s.Taxonomies[section]; isTaxonomy {
+		return true
+	}
+	return false
+}
+
+func (s *Site) findPagesByNodeType(n NodeType) Pages {
+	var pages Pages
+	for _, p := range s.Pages {
+		if p.NodeType == n {
+			pages = append(pages, p)
+		}
+	}
+	return pages
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
@@ -1645,59 +1673,6 @@ func (s *Site) preparePages() error {
 	return nil
 }
 
-// renderPages renders pages each corresponding to a markdown file.
-func (s *Site) renderPages() error {
-
-	results := make(chan error)
-	pages := make(chan *Page)
-	errs := make(chan error)
-
-	go errorCollator(results, errs)
-
-	procs := getGoMaxProcs()
-
-	wg := &sync.WaitGroup{}
-
-	for i := 0; i < procs*4; i++ {
-		wg.Add(1)
-		go pageRenderer(s, pages, results, wg)
-	}
-
-	for _, page := range s.Pages {
-		pages <- page
-	}
-
-	close(pages)
-
-	wg.Wait()
-
-	close(results)
-
-	err := <-errs
-	if err != nil {
-		return fmt.Errorf("Error(s) rendering pages: %s", err)
-	}
-	return nil
-}
-
-func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for p := range pages {
-		targetPath := p.TargetPath()
-		layouts := p.layouts()
-		jww.DEBUG.Printf("Render Page to %q with layouts %q", targetPath, layouts)
-		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
-			results <- err
-		}
-
-		if p.NodeType.IsNode() {
-			if err := p.renderPaginator(s); err != nil {
-				results <- err
-			}
-		}
-	}
-}
-
 func errorCollator(results <-chan error, errs chan<- error) {
 	errMsgs := []string{}
 	for err := range results {
@@ -1753,6 +1728,9 @@ type taxRenderInfo struct {
 // renderTaxonomiesLists renders the listing pages based on the meta data
 // each unique term within a taxonomy will have a page created
 func (s *Site) renderTaxonomiesLists(prepare bool) error {
+	if nodePageFeatureFlag {
+		return nil
+	}
 	wg := &sync.WaitGroup{}
 
 	taxes := make(chan taxRenderInfo)
