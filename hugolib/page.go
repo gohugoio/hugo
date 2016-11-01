@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/bep/gitmap"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
@@ -94,6 +96,8 @@ type Page struct {
 	Source
 	Position `json:"-"`
 	Node
+
+	GitInfo *gitmap.GitInfo
 }
 
 type Source struct {
