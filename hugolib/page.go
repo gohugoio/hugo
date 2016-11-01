@@ -475,6 +475,9 @@ func (p *Page) layouts(l ...string) []string {
 	case NodeTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
+	case NodeTaxonomyTerms:
+		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
+		return []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 	}
 
 	// Regular Page handled below
@@ -1167,6 +1170,8 @@ func (p *Page) TargetPath() (outfile string) {
 		return filepath.Join(p.Section(), "index.html")
 	case NodeTaxonomy:
 		return filepath.Join(append(p.sections, "index.html")...)
+	case NodeTaxonomyTerms:
+		return filepath.Join(append(p.sections, "index.html")...)
 	}
 
 	// Always use URL if it's specified
@@ -1253,7 +1258,16 @@ func (p *Page) prepareData(s *Site) error {
 		p.Data["Singular"] = singular
 		p.Data["Plural"] = plural
 		p.Data["Pages"] = taxonomy.Pages()
+	case NodeTaxonomyTerms:
+		plural := p.sections[0]
+		singular := s.taxonomiesPluralSingular[plural]
 
+		p.Data["Singular"] = singular
+		p.Data["Plural"] = plural
+		p.Data["Terms"] = s.Taxonomies[plural]
+		// keep the following just for legacy reasons
+		p.Data["OrderedIndex"] = p.Data["Terms"]
+		p.Data["Index"] = p.Data["Terms"]
 	}
 
 	return nil
