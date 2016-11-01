@@ -49,6 +49,8 @@ func TestNodesAsPage(t *testing.T) {
 
 	testCommonResetState()
 
+	writeLayoutsForNodeAsPageTests(t)
+
 	writeSource(t, filepath.Join("content", "_node.md"), `---
 title: Home Sweet Home!
 ---
@@ -83,48 +85,6 @@ Taxonomy Web **Content!**
 title: Taxonomy Term Categories
 ---
 Taxonomy Term Categories **Content!**
-`)
-
-	writeSource(t, filepath.Join("layouts", "index.html"), `
-Index Title: {{ .Title }}
-Index Content: {{ .Content }}
-# Pages: {{ len .Data.Pages }}
-{{ range .Paginator.Pages }}
-	Pag: {{ .Title }}
-{{ end }}
-`)
-
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `
-Single Title: {{ .Title }}
-Single Content: {{ .Content }}
-`)
-
-	writeSource(t, filepath.Join("layouts", "_default", "section.html"), `
-Section Title: {{ .Title }}
-Section Content: {{ .Content }}
-# Pages: {{ len .Data.Pages }}
-{{ range .Paginator.Pages }}
-	Pag: {{ .Title }}
-{{ end }}
-`)
-
-	// Taxonomy lists
-	writeSource(t, filepath.Join("layouts", "_default", "taxonomy.html"), `
-Taxonomy Title: {{ .Title }}
-Taxonomy Content: {{ .Content }}
-# Pages: {{ len .Data.Pages }}
-{{ range .Paginator.Pages }}
-	Pag: {{ .Title }}
-{{ end }}
-`)
-
-	// Taxonomy terms
-	writeSource(t, filepath.Join("layouts", "_default", "terms.html"), `
-Taxonomy Terms Title: {{ .Title }}
-Taxonomy Terms Content: {{ .Content }}
-{{ range $key, $value := .Data.Terms }}
-	k/v: {{ $key }} / {{ printf "%=v" $value }}
-{{ end }}
 `)
 
 	// Add some regular pages
@@ -212,4 +172,110 @@ Content Page %02d
 
 	// There are no pages to paginate over in the taxonomy terms.
 
+}
+
+func TestNodesWithNoContentFile(t *testing.T) {
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	jww.SetStdoutThreshold(jww.LevelFatal)
+
+	nodePageFeatureFlag = true
+	defer toggleNodePageFeatureFlag()
+
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+
+	for i := 1; i <= 4; i++ {
+		sect := "sect1"
+		if i > 2 {
+			sect = "sect2"
+		}
+		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.md", i)), fmt.Sprintf(`---
+title: Page %02d
+categories:  [
+        "Hugo",
+		"Web"
+]
+---
+Content Page %02d
+`, i, i))
+	}
+
+	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks!")
+
+	s := newSiteDefaultLang()
+
+	if err := buildAndRenderSite(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	// Home page
+	homePages := s.findPagesByNodeType(NodeHome)
+	require.Len(t, homePages, 1)
+
+	homePage := homePages[0]
+	require.Len(t, homePage.Data["Pages"], 4)
+
+	assertFileContent(t, filepath.Join("public", "index.html"), false,
+		"Index Title: Hugo Rocks!")
+
+	// Taxonomy list
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
+		"Taxonomy Title: Hugo")
+
+	// Taxonomy terms
+	assertFileContent(t, filepath.Join("public", "categories", "index.html"), false,
+		"Taxonomy Terms Title: Categories")
+
+	// Sections
+	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false,
+		"Section Title: Sect1s")
+	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false,
+		"Section Title: Sect2s")
+
+}
+
+func writeLayoutsForNodeAsPageTests(t *testing.T) {
+	writeSource(t, filepath.Join("layouts", "index.html"), `
+Index Title: {{ .Title }}
+Index Content: {{ .Content }}
+# Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
+`)
+
+	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `
+Single Title: {{ .Title }}
+Single Content: {{ .Content }}
+`)
+
+	writeSource(t, filepath.Join("layouts", "_default", "section.html"), `
+Section Title: {{ .Title }}
+Section Content: {{ .Content }}
+# Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
+`)
+
+	// Taxonomy lists
+	writeSource(t, filepath.Join("layouts", "_default", "taxonomy.html"), `
+Taxonomy Title: {{ .Title }}
+Taxonomy Content: {{ .Content }}
+# Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
+`)
+
+	// Taxonomy terms
+	writeSource(t, filepath.Join("layouts", "_default", "terms.html"), `
+Taxonomy Terms Title: {{ .Title }}
+Taxonomy Terms Content: {{ .Content }}
+{{ range $key, $value := .Data.Terms }}
+	k/v: {{ $key }} / {{ printf "%=v" $value }}
+{{ end }}
+`)
 }

@@ -43,6 +43,25 @@ const (
 	NodeTaxonomyTerms
 )
 
+func (p NodeType) String() string {
+	switch p {
+	case NodePage:
+		return "page"
+	case NodeHome:
+		return "home page"
+	case NodeSection:
+		return "section list"
+	case NodeTaxonomy:
+		return "taxonomy list"
+	case NodeTaxonomyTerms:
+		return "taxonomy terms"
+	case NodeUnknown:
+		return "unknown"
+	default:
+		return "invalid value"
+	}
+}
+
 func (p NodeType) IsNode() bool {
 	return p >= NodeHome
 }
@@ -384,7 +403,7 @@ func (p *Page) setNodeTypeVars(s *Site) {
 	case NodeHome:
 		p.URLPath.URL = ""
 	case NodeSection:
-		p.URLPath.URL = p.Section()
+		p.URLPath.URL = p.sections[0]
 	case NodeTaxonomy:
 		p.URLPath.URL = path.Join(p.sections...)
 	case NodeTaxonomyTerms:
