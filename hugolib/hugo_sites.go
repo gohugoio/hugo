@@ -25,6 +25,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/bep/inflect"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
@@ -218,7 +219,7 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		return err
 	}
 
-	h.setupTranslations(firstSite)
+	h.setupTranslations()
 
 	if len(h.Sites) > 1 {
 		// Initialize the rest
@@ -234,6 +235,10 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		if err := s.postProcess(); err != nil {
 			return err
 		}
+	}
+
+	if err := h.createMissingNodes(); err != nil {
+		return err
 	}
 
 	if err := h.preRender(config, whatChanged{source: true, other: true}); err != nil {
@@ -299,7 +304,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	// Assign pages to sites per translation.
-	h.setupTranslations(firstSite)
+	h.setupTranslations()
 
 	if changed.source {
 		h.assembleGitInfo()
@@ -308,6 +313,10 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 				return err
 			}
 		}
+	}
+
+	if err := h.createMissingNodes(); err != nil {
+		return err
 	}
 
 	if err := h.preRender(config, changed); err != nil {
@@ -373,7 +382,147 @@ func (h *HugoSites) render() error {
 	return nil
 }
 
-func (h *HugoSites) setupTranslations(master *Site) {
+// createMissingNodes creates home page, taxonomies etc. that isnt't created as an
+// effect of having a content file.
+func (h *HugoSites) createMissingNodes() error {
+	// TODO(bep) np revisit this on languages -- as this is currently run after the page language distribution (due to taxonomies)
+	// TODO(bep) np re above, Pages vs.
+	// TODO(bep) np check node title etc.
+	s := h.Sites[0]
+
+	home := s.findPagesByNodeType(NodeHome)
+
+	// home page
+	if len(home) == 0 {
+		s.Pages = append(s.Pages, s.newHomePage())
+	}
+
+	// taxonomy list and terms pages
+	taxonomies := s.Language.GetStringMapString("taxonomies")
+	if len(taxonomies) > 0 {
+		taxonomyPages := s.findPagesByNodeType(NodeTaxonomy)
+		taxonomyTermsPages := s.findPagesByNodeType(NodeTaxonomyTerms)
+		for _, plural := range taxonomies {
+			tax := s.Taxonomies[plural]
+			foundTaxonomyPage := false
+			foundTaxonomyTermsPage := false
+			for key, _ := range tax {
+				for _, p := range taxonomyPages {
+					if p.sections[0] == plural && p.sections[1] == key {
+						foundTaxonomyPage = true
+						break
+					}
+				}
+				for _, p := range taxonomyTermsPages {
+					if p.sections[0] == plural {
+						foundTaxonomyTermsPage = true
+						break
+					}
+				}
+				if !foundTaxonomyPage {
+					s.Pages = append(s.Pages, s.newTaxonomyPage(plural, key))
+				}
+
+				if !foundTaxonomyTermsPage {
+					s.Pages = append(s.Pages, s.newTaxonomyTermsPage(plural))
+				}
+			}
+
+		}
+	}
+
+	// sections
+	sectionPages := s.findPagesByNodeType(NodeSection)
+	if len(sectionPages) < len(s.Sections) {
+		for name, section := range s.Sections {
+			foundSection := false
+			for _, sectionPage := range sectionPages {
+				if sectionPage.sections[0] == name {
+					foundSection = true
+					break
+				}
+			}
+			if !foundSection {
+				s.Pages = append(s.Pages, s.newSectionPage(name, section))
+			}
+		}
+	}
+
+	return nil
+}
+
+// Move the new* methods after cleanup in site.go
+func (s *Site) newNodePage(typ NodeType) *Page {
+	n := Node{
+		NodeType: typ,
+		Data:     make(map[string]interface{}),
+		Site:     &s.Info,
+		language: s.Language,
+	}
+
+	return &Page{Node: n}
+}
+
+func (s *Site) newHomePage() *Page {
+	p := s.newNodePage(NodeHome)
+	p.Title = s.Info.Title
+	// TODO(bep) np check Data pages
+	// TODO(bep) np check setURLs
+	return p
+}
+
+func (s *Site) newTaxonomyPage(plural, key string) *Page {
+
+	p := s.newNodePage(NodeTaxonomy)
+
+	p.sections = []string{plural, key}
+
+	if s.Info.preserveTaxonomyNames {
+		key = s.Info.pathSpec.MakePathSanitized(key)
+	}
+
+	if s.Info.preserveTaxonomyNames {
+		// keep as is in the title
+		p.Title = key
+	} else {
+		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
+	}
+
+	// TODO(bep) np check set url
+
+	return p
+}
+
+func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
+
+	p := s.newNodePage(NodeSection)
+	p.sections = []string{name}
+
+	sectionName := name
+	if !s.Info.preserveTaxonomyNames && len(section) > 0 {
+		sectionName = section[0].Page.Section()
+	}
+
+	sectionName = helpers.FirstUpper(sectionName)
+	if viper.GetBool("pluralizeListTitles") {
+		p.Title = inflect.Pluralize(sectionName)
+	} else {
+		p.Title = sectionName
+	}
+
+	return p
+}
+
+func (s *Site) newTaxonomyTermsPage(plural string) *Page {
+	p := s.newNodePage(NodeTaxonomyTerms)
+	p.sections = []string{plural}
+	p.Title = strings.Title(plural)
+	return p
+}
+
+func (h *HugoSites) setupTranslations() {
+
+	master := h.Sites[0]
 
 	for _, p := range master.rawAllPages {
 		if p.Lang() == "" {

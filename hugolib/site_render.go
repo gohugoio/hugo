@@ -65,7 +65,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	for p := range pages {
 		targetPath := p.TargetPath()
 		layouts := p.layouts()
-		jww.DEBUG.Printf("Render Page to %q with layouts %q", targetPath, layouts)
+		jww.DEBUG.Printf("Render %s to %q with layouts %q", p.NodeType, targetPath, layouts)
 		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
 			results <- err
 		}

@@ -470,7 +470,7 @@ func (p *Page) layouts(l ...string) []string {
 	case NodeHome:
 		return []string{"index.html", "_default/list.html"}
 	case NodeSection:
-		section := p.Section()
+		section := p.sections[0]
 		return []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
 	case NodeTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
@@ -1167,7 +1167,7 @@ func (p *Page) TargetPath() (outfile string) {
 	case NodeHome:
 		return "index.html"
 	case NodeSection:
-		return filepath.Join(p.Section(), "index.html")
+		return filepath.Join(p.sections[0], "index.html")
 	case NodeTaxonomy:
 		return filepath.Join(append(p.sections, "index.html")...)
 	case NodeTaxonomyTerms:
@@ -1242,7 +1242,7 @@ func (p *Page) prepareData(s *Site) error {
 		// TODO(bep) np cache the below
 		p.Data["Pages"] = s.owner.findAllPagesByNodeType(NodePage)
 	case NodeSection:
-		sectionData, ok := s.Sections[p.Section()]
+		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {
 			return fmt.Errorf("Data for section %s not found", p.Section())
 		}

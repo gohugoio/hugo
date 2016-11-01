@@ -1606,13 +1606,25 @@ func (s *Site) nodeTypeFromSections(sections []string) NodeType {
 }
 
 func (s *Site) findPagesByNodeType(n NodeType) Pages {
+	return s.findPagesByNodeTypeIn(n, s.Pages)
+}
+
+func (s *Site) findPagesByNodeTypeIn(n NodeType, inPages Pages) Pages {
 	var pages Pages
-	for _, p := range s.Pages {
+	for _, p := range inPages {
 		if p.NodeType == n {
 			pages = append(pages, p)
 		}
 	}
 	return pages
+}
+
+func (s *Site) findAllPagesByNodeType(n NodeType) Pages {
+	return s.findPagesByNodeTypeIn(n, s.rawAllPages)
+}
+
+func (s *Site) findRawAllPagesByNodeType(n NodeType) Pages {
+	return s.findPagesByNodeTypeIn(n, s.rawAllPages)
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
