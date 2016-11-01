@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"html/template"
 	"path"
 	"path/filepath"
@@ -39,6 +40,7 @@ const (
 	NodeHome
 	NodeSection
 	NodeTaxonomy
+	NodeTaxonomyTerms
 )
 
 func (p NodeType) IsNode() bool {
@@ -343,7 +345,9 @@ func (n *Node) addLangFilepathPrefix(outfile string) string {
 
 func sectionsFromFilename(filename string) []string {
 	dir, _ := filepath.Split(filename)
-	return strings.Split(dir, helpers.FilePathSeparator)
+	dir = strings.TrimSuffix(dir, helpers.FilePathSeparator)
+	sections := strings.Split(dir, helpers.FilePathSeparator)
+	return sections
 }
 
 // TODO(bep) np node identificator
@@ -364,12 +368,14 @@ func nodeTypeFromFilename(filename string) NodeType {
 func (p *Page) setNodeTypeVars(s *Site) {
 	// TODO(bep) np taxonomies etc.
 	if p.NodeType == NodeUnknown {
-		// This is either a taxonomy or a section
-		if s.isTaxonomy(p.Section()) {
-			p.NodeType = NodeTaxonomy
-		} else {
-			p.NodeType = NodeSection
+		// This is either a taxonomy list, taxonomy term or a section
+		nodeType := s.nodeTypeFromSections(p.sections)
+
+		if nodeType == NodeUnknown {
+			panic(fmt.Sprintf("Unable to determine node type from %q", p.sections))
 		}
+
+		p.NodeType = nodeType
 
 	}
 	// TODO(bep) np node URL
@@ -380,6 +386,8 @@ func (p *Page) setNodeTypeVars(s *Site) {
 	case NodeSection:
 		p.URLPath.URL = p.Section()
 	case NodeTaxonomy:
+		p.URLPath.URL = path.Join(p.sections...)
+	case NodeTaxonomyTerms:
 		p.URLPath.URL = path.Join(p.sections...)
 	}
 

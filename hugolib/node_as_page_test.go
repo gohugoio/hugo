@@ -31,8 +31,8 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
-	jww.SetStdoutThreshold(jww.LevelDebug)
-	//jww.SetStdoutThreshold(jww.LevelFatal)
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	jww.SetStdoutThreshold(jww.LevelFatal)
 
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
@@ -73,6 +73,18 @@ title: Taxonomy Hugo
 Taxonomy Hugo **Content!**
 `)
 
+	writeSource(t, filepath.Join("content", "categories", "web", "_node.md"), `---
+title: Taxonomy Web
+---
+Taxonomy Web **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "categories", "_node.md"), `---
+title: Taxonomy Term Categories
+---
+Taxonomy Term Categories **Content!**
+`)
+
 	writeSource(t, filepath.Join("layouts", "index.html"), `
 Index Title: {{ .Title }}
 Index Content: {{ .Content }}
@@ -96,12 +108,22 @@ Section Content: {{ .Content }}
 {{ end }}
 `)
 
+	// Taxonomy lists
 	writeSource(t, filepath.Join("layouts", "_default", "taxonomy.html"), `
 Taxonomy Title: {{ .Title }}
 Taxonomy Content: {{ .Content }}
 # Pages: {{ len .Data.Pages }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
+{{ end }}
+`)
+
+	// Taxonomy terms
+	writeSource(t, filepath.Join("layouts", "_default", "terms.html"), `
+Taxonomy Terms Title: {{ .Title }}
+Taxonomy Terms Content: {{ .Content }}
+{{ range $key, $value := .Data.Terms }}
+	k/v: {{ $key }} / {{ printf "%=v" $value }}
 {{ end }}
 `)
 
@@ -113,7 +135,10 @@ Taxonomy Content: {{ .Content }}
 		}
 		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.md", i)), fmt.Sprintf(`---
 title: Page %02d
-categories: Hugo
+categories:  [
+        "Hugo",
+		"Web"
+]
 ---
 Content Page %02d
 `, i, i))
@@ -169,13 +194,22 @@ Content Page %02d
 	sections := h.findAllPagesByNodeType(NodeSection)
 	require.Len(t, sections, 2)
 
-	// Check taxonomy list
+	// Check taxonomy lists
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
 		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>")
+
+	assertFileContent(t, filepath.Join("public", "categories", "web", "index.html"), false,
+		"Taxonomy Title: Taxonomy Web", "Taxonomy Web <strong>Content!</strong>")
 
 	// Check taxonomy list paginator
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "page", "2", "index.html"), false,
 		"Taxonomy Title: Taxonomy Hugo",
 		"Pag: Page 02")
+
+	// Check taxonomy terms
+	assertFileContent(t, filepath.Join("public", "categories", "index.html"), false,
+		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo")
+
+	// There are no pages to paginate over in the taxonomy terms.
 
 }

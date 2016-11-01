@@ -1578,11 +1578,7 @@ func (s *Site) assembleSections() {
 	s.Info.Sections = s.Sections
 	regularPages := s.findPagesByNodeType(NodePage)
 	for i, p := range regularPages {
-		section := p.Section()
-		if s.isTaxonomy(section) {
-			continue
-		}
-		s.Sections.add(section, WeightedPage{s.Pages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
+		s.Sections.add(p.Section(), WeightedPage{s.Pages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
 	}
 
 	for k := range s.Sections {
@@ -1599,11 +1595,14 @@ func (s *Site) assembleSections() {
 	}
 }
 
-func (s *Site) isTaxonomy(section string) bool {
-	if _, isTaxonomy := s.Taxonomies[section]; isTaxonomy {
-		return true
+func (s *Site) nodeTypeFromSections(sections []string) NodeType {
+	if _, isTaxonomy := s.Taxonomies[sections[0]]; isTaxonomy {
+		if len(sections) == 1 {
+			return NodeTaxonomyTerms
+		}
+		return NodeTaxonomy
 	}
-	return false
+	return NodeSection
 }
 
 func (s *Site) findPagesByNodeType(n NodeType) Pages {
@@ -1891,6 +1890,9 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 
 // renderListsOfTaxonomyTerms renders a page per taxonomy that lists the terms for that taxonomy
 func (s *Site) renderListsOfTaxonomyTerms(prepare bool) (err error) {
+	if nodePageFeatureFlag {
+		return nil
+	}
 	taxonomies := s.Language.GetStringMapString("Taxonomies")
 	for singular, plural := range taxonomies {
 		n := s.nodeLookup(fmt.Sprintf("taxlist-%s", plural), 0, prepare)
