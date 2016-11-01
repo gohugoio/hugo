@@ -1,6 +1,6 @@
                     <div class="row">
                         <div class="footer-panel">
-                        <p>Last revision: {{ .Lastmod.Format "January 2, 2006" }}
+                        <p>Last revision: {{ .Lastmod.Format "January 2, 2006" }}{{ if .IsPage }}<em>{{ with .GitInfo }}| {{ .Subject }} | {{ .AbbreviatedHash }}{{end }}</em>{{ end }}
                           <span style="float: right;">Hugo v{{ .Hugo.Version }} documentation</span>
                         </p>
                         </div>
