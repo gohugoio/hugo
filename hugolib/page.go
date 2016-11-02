@@ -95,6 +95,8 @@ type Page struct {
 	PageMeta
 	Source
 	Position `json:"-"`
+
+	// TODO(bep) np pointer, or remove
 	Node
 
 	GitInfo *gitmap.GitInfo
@@ -494,6 +496,29 @@ func (p *Page) layouts(l ...string) []string {
 	}
 
 	return layouts(p.Type(), layout)
+}
+
+// TODO(bep) np consolidate and test these NodeType switches
+// rssLayouts returns RSS layouts to use for the RSS version of this page, nil
+// if no RSS should be rendered.
+func (p *Page) rssLayouts() []string {
+	switch p.NodeType {
+	case NodeHome:
+		return []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
+	case NodeSection:
+		section := p.sections[0]
+		return []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
+	case NodeTaxonomy:
+		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
+		return []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
+	case NodeTaxonomyTerms:
+	// No RSS for taxonomy terms
+	case NodePage:
+		// No RSS for regular pages
+	}
+
+	return nil
+
 }
 
 func layouts(types string, layout string) (layouts []string) {
@@ -1246,7 +1271,7 @@ func (p *Page) prepareData(s *Site) error {
 		if !ok {
 			return fmt.Errorf("Data for section %s not found", p.Section())
 		}
-		p.Data["Pages"] = sectionData
+		p.Data["Pages"] = sectionData.Pages()
 	case NodeTaxonomy:
 		plural := p.sections[0]
 		term := p.sections[1]
@@ -1278,7 +1303,7 @@ func (p *Page) prepareData(s *Site) error {
 // the paginators etc., we do it manually here.
 // TODO(bep) np do better
 func (p *Page) copy() *Page {
-	c := &Page{Node: Node{NodeType: p.NodeType}}
+	c := &Page{Node: Node{NodeType: p.NodeType, Site: p.Site}}
 	c.Title = p.Title
 	c.Data = p.Data
 	c.Date = p.Date

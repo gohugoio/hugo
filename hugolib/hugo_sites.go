@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -390,6 +391,11 @@ func (h *HugoSites) createMissingNodes() error {
 	// TODO(bep) np check node title etc.
 	s := h.Sites[0]
 
+	// TODO(bep) np
+	for _, p := range s.Pages {
+		p.setNodeTypeVars(s)
+	}
+
 	home := s.findPagesByNodeType(NodeHome)
 
 	// home page
@@ -460,7 +466,7 @@ func (s *Site) newNodePage(typ NodeType) *Page {
 		language: s.Language,
 	}
 
-	return &Page{Node: n}
+	return &Page{Node: n, site: s}
 }
 
 func (s *Site) newHomePage() *Page {
@@ -489,6 +495,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 	}
 
 	// TODO(bep) np check set url
+	p.URLPath.URL = path.Join(plural, key)
 
 	return p
 }
@@ -509,7 +516,7 @@ func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 	} else {
 		p.Title = sectionName
 	}
-
+	p.URLPath.URL = name
 	return p
 }
 
@@ -612,8 +619,6 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 					// No need to process it again.
 					continue
 				}
-
-				p.setNodeTypeVars(s)
 
 				// If we got this far it means that this is either a new Page pointer
 				// or a template or similar has changed so wee need to do a rerendering
