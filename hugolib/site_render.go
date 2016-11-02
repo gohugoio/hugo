@@ -76,6 +76,10 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				results <- err
 			}
 		}
+
+		if err := s.renderRSS(p); err != nil {
+			results <- err
+		}
 	}
 }
 
@@ -119,5 +123,27 @@ func (s *Site) renderPaginator(p *Page) error {
 
 		}
 	}
+	return nil
+}
+
+func (s *Site) renderRSS(p *Page) error {
+	layouts := p.rssLayouts()
+
+	if layouts == nil {
+		// No RSS for this NodeType
+		return nil
+	}
+
+	// TODO(bep) np check RSS titles
+	rssNode := p.copy()
+
+	// TODO(bep) np todelido URL
+	rssURI := s.Language.GetString("rssURI")
+	rssNode.URLPath.URL = path.Join(rssNode.URLPath.URL, rssURI)
+
+	if err := s.renderAndWriteXML(rssNode.Title, rssNode.URLPath.URL, rssNode, s.appendThemeTemplates(layouts)...); err != nil {
+		return err
+	}
+
 	return nil
 }

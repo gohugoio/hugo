@@ -31,8 +31,8 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
+	jww.SetStdoutThreshold(jww.LevelDebug)
+	//jww.SetStdoutThreshold(jww.LevelFatal)
 
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
@@ -105,6 +105,8 @@ Content Page %02d
 	}
 
 	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks")
+	viper.Set("rssURI", "customrss.xml")
 
 	s := newSiteDefaultLang()
 
@@ -172,11 +174,18 @@ Content Page %02d
 
 	// There are no pages to paginate over in the taxonomy terms.
 
+	// RSS
+	assertFileContent(t, filepath.Join("public", "customrss.xml"), false, "Recent content in Home Sweet Home! on Hugo Rocks", "<rss")
+	assertFileContent(t, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Section1 on Hugo Rocks", "<rss")
+	assertFileContent(t, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Section2 on Hugo Rocks", "<rss")
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Taxonomy Hugo on Hugo Rocks", "<rss")
+	assertFileContent(t, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Taxonomy Web on Hugo Rocks", "<rss")
+
 }
 
 func TestNodesWithNoContentFile(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
+	jww.SetStdoutThreshold(jww.LevelDebug)
+	//jww.SetStdoutThreshold(jww.LevelFatal)
 
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
@@ -203,6 +212,7 @@ Content Page %02d
 
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
+	viper.Set("rssURI", "customrss.xml")
 
 	s := newSiteDefaultLang()
 
@@ -233,6 +243,13 @@ Content Page %02d
 		"Section Title: Sect1s")
 	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false,
 		"Section Title: Sect2s")
+
+	// RSS
+	assertFileContent(t, filepath.Join("public", "customrss.xml"), false, "Recent content in Hugo Rocks! on Hugo Rocks!", "<rss")
+	assertFileContent(t, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Sect1s on Hugo Rocks!", "<rss")
+	assertFileContent(t, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Sect2s on Hugo Rocks!", "<rss")
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Hugo on Hugo Rocks!", "<rss")
+	assertFileContent(t, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Web on Hugo Rocks!", "<rss")
 
 }
 

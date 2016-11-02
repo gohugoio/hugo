@@ -2322,6 +2322,7 @@ func (s *Site) layoutExists(layouts ...string) bool {
 }
 
 func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layouts ...string) error {
+	jww.DEBUG.Printf("Render XML for %q to %q", name, dest)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
