@@ -51,37 +51,37 @@ func TestNodesAsPage(t *testing.T) {
 
 	writeLayoutsForNodeAsPageTests(t)
 
-	writeSource(t, filepath.Join("content", "_node.md"), `---
+	writeSource(t, filepath.Join("content", "_index.md"), `---
 title: Home Sweet Home!
 ---
 Home **Content!**
 `)
 
-	writeSource(t, filepath.Join("content", "sect1", "_node.md"), `---
+	writeSource(t, filepath.Join("content", "sect1", "_index.md"), `---
 title: Section1
 ---
 Section1 **Content!**
 `)
 
-	writeSource(t, filepath.Join("content", "sect2", "_node.md"), `---
+	writeSource(t, filepath.Join("content", "sect2", "_index.md"), `---
 title: Section2
 ---
 Section2 **Content!**
 `)
 
-	writeSource(t, filepath.Join("content", "categories", "hugo", "_node.md"), `---
+	writeSource(t, filepath.Join("content", "categories", "hugo", "_index.md"), `---
 title: Taxonomy Hugo
 ---
 Taxonomy Hugo **Content!**
 `)
 
-	writeSource(t, filepath.Join("content", "categories", "web", "_node.md"), `---
+	writeSource(t, filepath.Join("content", "categories", "web", "_index.md"), `---
 title: Taxonomy Web
 ---
 Taxonomy Web **Content!**
 `)
 
-	writeSource(t, filepath.Join("content", "categories", "_node.md"), `---
+	writeSource(t, filepath.Join("content", "categories", "_index.md"), `---
 title: Taxonomy Term Categories
 ---
 Taxonomy Term Categories **Content!**

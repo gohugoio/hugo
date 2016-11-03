@@ -372,11 +372,11 @@ func sectionsFromFilename(filename string) []string {
 // TODO(bep) np node identificator
 func nodeTypeFromFilename(filename string) NodeType {
 
-	if !strings.Contains(filename, "_node") {
+	if !strings.Contains(filename, "_index") {
 		return NodePage
 	}
 
-	if strings.HasPrefix(filename, "_node") {
+	if strings.HasPrefix(filename, "_index") {
 		return NodeHome
 	}
 
