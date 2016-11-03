@@ -777,6 +777,7 @@ var multiSiteTOMLConfigTemplate = `
 defaultExtension = "html"
 baseURL = "http://example.com/blog"
 disableSitemap = false
+optimize = false
 disableRSS = false
 rssURI = "index.xml"
 
@@ -836,6 +837,7 @@ var multiSiteYAMLConfig = `
 defaultExtension: "html"
 baseURL: "http://example.com/blog"
 disableSitemap: false
+optimize: false
 disableRSS: false
 rssURI: "index.xml"
 
@@ -896,6 +898,7 @@ var multiSiteJSONConfig = `
   "defaultExtension": "html",
   "baseURL": "http://example.com/blog",
   "disableSitemap": false,
+  "optimize": false,
   "disableRSS": false,
   "rssURI": "index.xml",
   "paginate": 1,

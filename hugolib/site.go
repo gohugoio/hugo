@@ -1764,6 +1764,10 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 		path = []byte(s)
 	}
 
+	if viper.GetBool("optimize") {
+		transformLinks = append(transformLinks, transform.MinifyHTML)
+	}
+
 	transformer := transform.NewChain(transformLinks...)
 	transformer.Apply(outBuffer, renderBuffer, path)
 
