@@ -206,7 +206,7 @@ func (t *templateHandler) embedTemplates() {
 {{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
 {{ end }}{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
-<meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
+<meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
 {{ range .Params.videos }}
   <meta property="og:video" content="{{ . | absURL }}" />
