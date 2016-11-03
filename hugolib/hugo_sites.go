@@ -238,8 +238,14 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		}
 	}
 
+	// TODO(bep) np createMissingNodes needs taxonomies and sections
 	if err := h.createMissingNodes(); err != nil {
 		return err
+	}
+
+	for _, s := range h.Sites {
+		// Needed by all who use .Pages, .AllPages, .indexPages
+		s.refreshPageCaches()
 	}
 
 	if err := h.preRender(config, whatChanged{source: true, other: true}); err != nil {
@@ -314,10 +320,10 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 				return err
 			}
 		}
-	}
 
-	if err := h.createMissingNodes(); err != nil {
-		return err
+		if err := h.createMissingNodes(); err != nil {
+			return err
+		}
 	}
 
 	if err := h.preRender(config, changed); err != nil {
@@ -391,16 +397,11 @@ func (h *HugoSites) createMissingNodes() error {
 	// TODO(bep) np check node title etc.
 	s := h.Sites[0]
 
-	// TODO(bep) np
-	for _, p := range s.Pages {
-		p.setNodeTypeVars(s)
-	}
-
 	home := s.findPagesByNodeType(NodeHome)
 
 	// home page
 	if len(home) == 0 {
-		s.Pages = append(s.Pages, s.newHomePage())
+		s.Nodes = append(s.Nodes, s.newHomePage())
 	}
 
 	// taxonomy list and terms pages
@@ -426,11 +427,11 @@ func (h *HugoSites) createMissingNodes() error {
 					}
 				}
 				if !foundTaxonomyPage {
-					s.Pages = append(s.Pages, s.newTaxonomyPage(plural, key))
+					s.Nodes = append(s.Nodes, s.newTaxonomyPage(plural, key))
 				}
 
 				if !foundTaxonomyTermsPage {
-					s.Pages = append(s.Pages, s.newTaxonomyTermsPage(plural))
+					s.Nodes = append(s.Nodes, s.newTaxonomyTermsPage(plural))
 				}
 			}
 
@@ -449,7 +450,7 @@ func (h *HugoSites) createMissingNodes() error {
 				}
 			}
 			if !foundSection {
-				s.Pages = append(s.Pages, s.newSectionPage(name, section))
+				s.Nodes = append(s.Nodes, s.newSectionPage(name, section))
 			}
 		}
 	}
@@ -542,7 +543,7 @@ func (h *HugoSites) setupTranslations() {
 			if strings.HasPrefix(site.Language.Lang, p.Lang()) {
 				site.updateBuildStats(p)
 				if shouldBuild {
-					site.Pages = append(site.Pages, p)
+					site.Nodes = append(site.Nodes, p)
 					p.Site = &site.Info
 				}
 			}
@@ -552,7 +553,7 @@ func (h *HugoSites) setupTranslations() {
 			}
 
 			if i == 0 {
-				site.AllPages = append(site.AllPages, p)
+				site.AllNodes = append(site.AllNodes, p)
 			}
 		}
 
@@ -560,12 +561,12 @@ func (h *HugoSites) setupTranslations() {
 
 	// Pull over the collections from the master site
 	for i := 1; i < len(h.Sites); i++ {
-		h.Sites[i].AllPages = h.Sites[0].AllPages
+		h.Sites[i].AllNodes = h.Sites[0].AllNodes
 		h.Sites[i].Data = h.Sites[0].Data
 	}
 
 	if len(h.Sites) > 1 {
-		pages := h.Sites[0].AllPages
+		pages := h.Sites[0].AllNodes
 		allTranslations := pagesToTranslationsMap(h.multilingual, pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
@@ -574,12 +575,14 @@ func (h *HugoSites) setupTranslations() {
 // preRender performs build tasks that need to be done as late as possible.
 // Shortcode handling is the main task in here.
 // TODO(bep) We need to look at the whole handler-chain construct with he below in mind.
+// TODO(bep) np clean
 func (h *HugoSites) preRender(cfg BuildCfg, changed whatChanged) error {
 
 	for _, s := range h.Sites {
 		if err := s.setCurrentLanguageConfig(); err != nil {
 			return err
 		}
+
 		// Run "render prepare"
 		if err := s.renderHomePage(true); err != nil {
 			return err
@@ -680,7 +683,7 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 		}(pageChan, wg)
 	}
 
-	for _, p := range s.Pages {
+	for _, p := range s.Nodes {
 		pageChan <- p
 	}
 
@@ -728,9 +731,10 @@ func (s *Site) updateBuildStats(page *Page) {
 	}
 }
 
+// TODO(bep) np remove
 func (h *HugoSites) findAllPagesByNodeType(n NodeType) Pages {
 	var pages Pages
-	for _, p := range h.Sites[0].AllPages {
+	for _, p := range h.Sites[0].AllNodes {
 		if p.NodeType == n {
 			pages = append(pages, p)
 		}
@@ -750,6 +754,9 @@ func buildAndRenderSite(s *Site, additionalTemplates ...string) error {
 
 // Convenience func used in tests to build a single site/language.
 func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
+	if s.PageCollections == nil {
+		s.PageCollections = newPageCollections()
+	}
 	sites, err := newHugoSites(s)
 	if err != nil {
 		return err

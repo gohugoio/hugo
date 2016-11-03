@@ -43,7 +43,7 @@ func (s *Site) renderPages() error {
 		go pageRenderer(s, pages, results, wg)
 	}
 
-	for _, page := range s.Pages {
+	for _, page := range s.Nodes {
 		pages <- page
 	}
 
@@ -135,6 +135,7 @@ func (s *Site) renderRSS(p *Page) error {
 	}
 
 	// TODO(bep) np check RSS titles
+	// TODO(bep) np check RSS page limit, 50?
 	rssNode := p.copy()
 
 	// TODO(bep) np todelido URL
