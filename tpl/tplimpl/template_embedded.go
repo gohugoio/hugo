@@ -82,6 +82,9 @@ func (t *templateHandler) embedTemplates() {
       {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
       <description>{{ .Summary | html }}</description>
+      {{ range $name, $taxonomy := $.Site.Taxonomies }}{{ range index $item.Params $name }}
+      <category>{{ $name }}/{{ . }}</category>
+      {{ end }}{{ end }}
     </item>
     {{ end }}
   </channel>
