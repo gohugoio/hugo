@@ -395,7 +395,6 @@ func (p *Page) setNodeTypeVars(s *Site) {
 		}
 
 		p.NodeType = nodeType
-
 	}
 	// TODO(bep) np node URL
 	// Set Node URL

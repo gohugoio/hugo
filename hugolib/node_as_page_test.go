@@ -31,8 +31,8 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
-	jww.SetStdoutThreshold(jww.LevelDebug)
-	//jww.SetStdoutThreshold(jww.LevelFatal)
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	jww.SetStdoutThreshold(jww.LevelFatal)
 
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
@@ -184,8 +184,8 @@ Content Page %02d
 }
 
 func TestNodesWithNoContentFile(t *testing.T) {
-	jww.SetStdoutThreshold(jww.LevelDebug)
-	//jww.SetStdoutThreshold(jww.LevelFatal)
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	jww.SetStdoutThreshold(jww.LevelFatal)
 
 	nodePageFeatureFlag = true
 	defer toggleNodePageFeatureFlag()
@@ -221,7 +221,7 @@ Content Page %02d
 	}
 
 	// Home page
-	homePages := s.findPagesByNodeType(NodeHome)
+	homePages := s.findIndexNodesByNodeType(NodeHome)
 	require.Len(t, homePages, 1)
 
 	homePage := homePages[0]

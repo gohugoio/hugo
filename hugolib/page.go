@@ -1260,12 +1260,12 @@ func (p *Page) prepareLayouts() error {
 
 // TODO(bep) np naming, move some
 func (p *Page) prepareData(s *Site) error {
+
 	p.Data = make(map[string]interface{})
 	switch p.NodeType {
 	case NodePage:
 	case NodeHome:
-		// TODO(bep) np cache the below
-		p.Data["Pages"] = s.owner.findAllPagesByNodeType(NodePage)
+		p.Data["Pages"] = s.Pages
 	case NodeSection:
 		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {

@@ -91,11 +91,10 @@ type Site struct {
 	nodeCache     *nodeCache
 	nodeCacheInit sync.Once
 
-	Pages       Pages
-	AllPages    Pages
-	rawAllPages Pages
-	Files       []*source.File
-	Taxonomies  TaxonomyList
+	*PageCollections
+
+	Files      []*source.File
+	Taxonomies TaxonomyList
 
 	// Plural is what we get in the folder, so keep track of this mapping
 	// to get the singular form from that value.
@@ -122,7 +121,8 @@ func (s *Site) reset() *Site {
 
 // newSite creates a new site in the given language.
 func newSite(lang *helpers.Language) *Site {
-	return &Site{Language: lang, Info: newSiteInfo(siteBuilderCfg{language: lang})}
+	c := newPageCollections()
+	return &Site{Language: lang, PageCollections: c, Info: newSiteInfo(siteBuilderCfg{pageCollections: c, language: lang})}
 
 }
 
@@ -172,14 +172,12 @@ type SiteInfo struct {
 	_                   [4]byte
 	paginationPageCount uint64
 
-	BaseURL               template.URL
-	Taxonomies            TaxonomyList
-	Authors               AuthorList
-	Social                SiteSocial
-	Sections              Taxonomy
-	Pages                 *Pages // Includes only pages in this language
-	AllPages              *Pages // Includes other translated pages, excluding those in this language.
-	rawAllPages           *Pages // Includes absolute all pages, including drafts etc.
+	BaseURL    template.URL
+	Taxonomies TaxonomyList
+	Authors    AuthorList
+	Social     SiteSocial
+	Sections   Taxonomy
+	*PageCollections
 	Files                 *[]*source.File
 	Menus                 *Menus
 	Hugo                  *HugoInfo
@@ -211,18 +209,19 @@ type SiteInfo struct {
 // Used in tests.
 
 type siteBuilderCfg struct {
-	language *helpers.Language
-	baseURL  string
+	language        *helpers.Language
+	pageCollections *PageCollections
+	baseURL         string
 
-	pages *Pages
+	pages Pages
 }
 
 func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
 	return SiteInfo{
-		BaseURL:      template.URL(cfg.baseURL),
-		rawAllPages:  cfg.pages,
-		pathSpec:     helpers.NewPathSpecFromConfig(cfg.language),
-		multilingual: newMultiLingualForLanguage(cfg.language),
+		BaseURL:         template.URL(cfg.baseURL),
+		pathSpec:        helpers.NewPathSpecFromConfig(cfg.language),
+		multilingual:    newMultiLingualForLanguage(cfg.language),
+		PageCollections: cfg.pageCollections,
 	}
 }
 
@@ -297,7 +296,8 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string
 
 	if refURL.Path != "" {
-		for _, page := range []*Page(*s.AllPages) {
+		// TODO(bep) np relRef
+		for _, page := range s.AllPages {
 			refPath := filepath.FromSlash(refURL.Path)
 			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
@@ -372,7 +372,8 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			}
 		}
 
-		for _, page := range []*Page(*s.AllPages) {
+		// TODO(bep) np sourceRelativeLink
+		for _, page := range s.AllPages {
 			if page.Source.Path() == refPath {
 				target = page
 				break
@@ -381,14 +382,14 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 		// need to exhaust the test, then try with the others :/
 		// if the refPath doesn't end in a filename with extension `.md`, then try with `.md` , and then `/index.md`
 		mdPath := strings.TrimSuffix(refPath, string(os.PathSeparator)) + ".md"
-		for _, page := range []*Page(*s.AllPages) {
+		for _, page := range s.AllPages {
 			if page.Source.Path() == mdPath {
 				target = page
 				break
 			}
 		}
 		indexPath := filepath.Join(refPath, "index.md")
-		for _, page := range []*Page(*s.AllPages) {
+		for _, page := range s.AllPages {
 			if page.Source.Path() == indexPath {
 				target = page
 				break
@@ -806,6 +807,7 @@ func (s *Site) postProcess() (err error) {
 	if err = s.buildSiteMeta(); err != nil {
 		return
 	}
+
 	s.timerStep("build taxonomies")
 	return
 }
@@ -975,9 +977,7 @@ func (s *Site) initializeSiteInfo() {
 		BuildDrafts:                    viper.GetBool("buildDrafts"),
 		canonifyURLs:                   viper.GetBool("canonifyURLs"),
 		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
-		AllPages:                       &s.AllPages,
-		Pages:                          &s.Pages,
-		rawAllPages:                    &s.rawAllPages,
+		PageCollections:                s.PageCollections,
 		Files:                          &s.Files,
 		Menus:                          &s.Menus,
 		Params:                         params,
@@ -1293,28 +1293,6 @@ func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error)
 	errs <- fmt.Errorf("Errors rendering pages: %s", strings.Join(errMsgs, "\n"))
 }
 
-func (s *Site) addPage(page *Page) {
-	s.rawAllPages = append(s.rawAllPages, page)
-}
-
-func (s *Site) removePageByPath(path string) {
-	if i := s.rawAllPages.FindPagePosByFilePath(path); i >= 0 {
-		s.rawAllPages = append(s.rawAllPages[:i], s.rawAllPages[i+1:]...)
-	}
-}
-
-func (s *Site) removePage(page *Page) {
-	if i := s.rawAllPages.FindPagePos(page); i >= 0 {
-		s.rawAllPages = append(s.rawAllPages[:i], s.rawAllPages[i+1:]...)
-	}
-}
-
-func (s *Site) replacePage(page *Page) {
-	// will find existing page that matches filepath and remove it
-	s.removePage(page)
-	s.addPage(page)
-}
-
 func (s *Site) replaceFile(sf *source.File) {
 	for i, f := range s.Files {
 		if f.Path() == sf.Path() {
@@ -1379,15 +1357,29 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 }
 
 func (s *Site) buildSiteMeta() (err error) {
+
 	s.assembleMenus()
 
-	if len(s.Pages) == 0 {
+	if len(s.Nodes) == 0 {
 		return
 	}
 
+	// TODO(bep) np order
+	// assembleTaxonomies: Needs pages (temp lookup) (maybe later nodes)
 	s.assembleTaxonomies()
+
+	// TODO(bep) np
+	for _, p := range s.AllNodes {
+		// setNodeTypeVars needs taxonomies
+		p.setNodeTypeVars(s)
+	}
+
+	// assembleSections: Needs pages (temp lookup)
 	s.assembleSections()
-	s.Info.LastChange = s.Pages[0].Lastmod
+
+	// TODO(bep) np
+	pages := s.findPagesByNodeType(NodePage)
+	s.Info.LastChange = pages[0].Lastmod
 
 	return
 }
@@ -1527,7 +1519,8 @@ func (s *Site) assembleTaxonomies() {
 	for singular, plural := range taxonomies {
 		s.Taxonomies[plural] = make(Taxonomy)
 		s.taxonomiesPluralSingular[plural] = singular
-		for _, p := range s.Pages {
+		// TODO(np) tax other nodes
+		for _, p := range s.findPagesByNodeType(NodePage) {
 			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
 			weight := p.GetParam(plural + "_weight")
 			if weight == nil {
@@ -1560,8 +1553,7 @@ func (s *Site) resetBuildState() {
 
 	s.nodeCache.reset()
 
-	s.Pages = make(Pages, 0)
-	s.AllPages = make(Pages, 0)
+	s.PageCollections = newPageCollections()
 
 	s.Info.paginationPageCount = 0
 	s.draftCount = 0
@@ -1578,7 +1570,7 @@ func (s *Site) assembleSections() {
 	s.Info.Sections = s.Sections
 	regularPages := s.findPagesByNodeType(NodePage)
 	for i, p := range regularPages {
-		s.Sections.add(p.Section(), WeightedPage{s.Pages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
+		s.Sections.add(p.Section(), WeightedPage{regularPages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
 	}
 
 	for k := range s.Sections {
@@ -1603,28 +1595,6 @@ func (s *Site) nodeTypeFromSections(sections []string) NodeType {
 		return NodeTaxonomy
 	}
 	return NodeSection
-}
-
-func (s *Site) findPagesByNodeType(n NodeType) Pages {
-	return s.findPagesByNodeTypeIn(n, s.Pages)
-}
-
-func (s *Site) findPagesByNodeTypeIn(n NodeType, inPages Pages) Pages {
-	var pages Pages
-	for _, p := range inPages {
-		if p.NodeType == n {
-			pages = append(pages, p)
-		}
-	}
-	return pages
-}
-
-func (s *Site) findAllPagesByNodeType(n NodeType) Pages {
-	return s.findPagesByNodeTypeIn(n, s.rawAllPages)
-}
-
-func (s *Site) findRawAllPagesByNodeType(n NodeType) Pages {
-	return s.findPagesByNodeTypeIn(n, s.rawAllPages)
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
@@ -1668,7 +1638,7 @@ func (s *Site) renderAliases() error {
 func (s *Site) preparePages() error {
 	var errors []error
 
-	for _, p := range s.Pages {
+	for _, p := range s.Nodes {
 		if err := p.prepareLayouts(); err != nil {
 			errors = append(errors, err)
 		}
