@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -83,7 +82,7 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 	if editor != "" {
 		jww.FEEDBACK.Printf("Editing %s with %q ...\n", name, editor)
 
-		cmd := exec.Command(editor, helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)))
+		cmd := exec.Command(editor, helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)))
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -151,7 +150,7 @@ func FindArchetype(fs afero.Fs, kind string) (outpath string) {
 	search := []string{helpers.AbsPathify(viper.GetString("archetypeDir"))}
 
 	if viper.GetString("theme") != "" {
-		themeDir := filepath.Join(helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), "/archetypes/")
+		themeDir := helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme"), "/archetypes/"))
 		if _, err := fs.Stat(themeDir); os.IsNotExist(err) {
 			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", viper.GetString("theme"), themeDir)
 		} else {

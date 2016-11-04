@@ -543,7 +543,7 @@ func getDirList() []string {
 	var themesDir string
 
 	if helpers.ThemeSet() {
-		themesDir = helpers.AbsPathify(viper.GetString("themesDir") + "/" + viper.GetString("theme"))
+		themesDir = helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")))
 	}
 
 	walker := func(path string, fi os.FileInfo, err error) error {

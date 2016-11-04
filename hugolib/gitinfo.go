@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -53,7 +52,7 @@ func (h *HugoSites) assembleGitInfo() {
 
 	for _, p := range s.AllPages {
 		// Git normalizes file paths on this form:
-		filename := path.Join(contentRoot, contentDir, filepath.ToSlash(p.Path()))
+		filename := filepath.Join(contentRoot, contentDir, filepath.ToSlash(p.Path()))
 		g, ok := gitMap[filename]
 		if !ok {
 			jww.ERROR.Printf("Failed to find GitInfo for %q", filename)

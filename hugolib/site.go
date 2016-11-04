@@ -886,7 +886,7 @@ func (s *Site) initialize() (err error) {
 		return err
 	}
 
-	staticDir := helpers.AbsPathify(viper.GetString("staticDir") + "/")
+	staticDir := helpers.AbsPathify(viper.GetString("staticDir") + helpers.FilePathSeparator)
 
 	s.Source = &source.Filesystem{
 		AvoidPaths: []string{staticDir},
@@ -975,7 +975,7 @@ func (s *Site) initializeSiteInfo() {
 		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
 	}
 
-	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("RSSUri"))
+	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))
 }
 
 func (s *Site) hasTheme() bool {
@@ -1034,7 +1034,7 @@ func (s *Site) getThemeDataDir(path string) string {
 }
 
 func (s *Site) themeDir() string {
-	return viper.GetString("themesDir") + "/" + viper.GetString("theme")
+	return filepath.Join(viper.GetString("themesDir"), viper.GetString("theme"))
 }
 
 func (s *Site) absThemeDir() string {
@@ -1884,7 +1884,7 @@ func taxonomyRenderer(prepare bool, s *Site, taxes <-chan taxRenderInfo, results
 			rssNode := s.newNode(fmt.Sprintf("%s-%s-rss", t.plural, t.key))
 			rssNode.Title = n.Title
 			rssURI := viper.GetString("rssURI")
-			s.setURLs(rssNode, base+"/"+rssURI)
+			s.setURLs(rssNode, path.Join(base, rssURI))
 			rssNode.Data = n.Data
 
 			rssLayouts := []string{"taxonomy/" + t.singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
