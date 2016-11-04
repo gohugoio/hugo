@@ -426,7 +426,6 @@ func watchConfig() {
 }
 
 func build(watches ...bool) error {
-
 	// Hugo writes the output to memory instead of the disk
 	// This is only used for benchmark testing. Cause the content is only visible
 	// in memory

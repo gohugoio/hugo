@@ -105,7 +105,6 @@ func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 }
 
 func commonConvert(p *Page, t tpl.Template) HandledResult {
-
 	if p.rendered {
 		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
 	}
