@@ -1,6 +1,6 @@
                     <div class="row">
                         <div class="footer-panel">
-                        <p>Last revision: {{ .Lastmod.Format "January 2, 2006" }}{{ if .IsPage }}<em>{{ with .GitInfo }}| {{ .Subject }} | {{ .AbbreviatedHash }}{{end }}</em>{{ end }}
+			  <p>Last revision: {{ .Lastmod.Format "January 2, 2006" }}{{ if .IsPage }}{{ with .GitInfo }} | <a href="https://github.com/spf13/hugo/commit/{{ .Hash }}">{{ .Subject }} ({{ .AbbreviatedHash }})</a>{{end }}{{ end }}
                           <span style="float: right;">Hugo v{{ .Hugo.Version }} documentation</span>
                         </p>
                         </div>
