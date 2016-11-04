@@ -785,7 +785,7 @@ func NewWatcher(port int) error {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
 						err := copyStatic()
 						if err != nil {
-							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", helpers.AbsPathify(viper.GetString("publishDir"))))
+							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", publishDir))
 						}
 					} else {
 						staticSourceFs := getStaticSourceFs()

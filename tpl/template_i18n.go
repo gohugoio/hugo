@@ -63,6 +63,7 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 		jww.WARN.Printf("No translation bundle found for default language %q", defaultContentLanguage)
 	}
 
+	enableMissingTranslationPlaceholders := viper.GetBool("enableMissingTranslationPlaceholders")
 	for _, lang := range bndl.LanguageTags() {
 		currentLang := lang
 
@@ -76,7 +77,7 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 			if Logi18nWarnings {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
 			}
-			if viper.GetBool("enableMissingTranslationPlaceholders") {
+			if enableMissingTranslationPlaceholders {
 				return fmt.Sprintf("[i18n] %s", translationID)
 			}
 			if defaultT != nil {
