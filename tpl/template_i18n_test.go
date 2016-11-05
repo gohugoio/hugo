@@ -119,7 +119,7 @@ func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, 
 	SetI18nTfuncs(i18nBundle)
 	SetTranslateLang(helpers.NewLanguage(lang))
 
-	translated, err := I18nTranslate(id, args)
+	translated, err := i18nTranslate(id, args)
 	if err != nil {
 		t.Errorf("Error translating '%s': %s", id, err)
 	}

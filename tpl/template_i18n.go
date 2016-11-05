@@ -23,6 +23,7 @@ import (
 )
 
 var (
+	// Logi18nWarnings set to true to print warnings about missing language strings
 	Logi18nWarnings   bool
 	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
 	currentLanguage   *helpers.Language
@@ -49,6 +50,7 @@ func SetTranslateLang(language *helpers.Language) error {
 	return nil
 }
 
+// SetI18nTfuncs sets the language bundle to be used for i18n.
 func SetI18nTfuncs(bndl *bundle.Bundle) {
 	translator = &translate{translateFuncs: make(map[string]bundle.TranslateFunc)}
 	defaultContentLanguage := viper.GetString("defaultContentLanguage")
@@ -89,7 +91,7 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 	}
 }
 
-func I18nTranslate(id string, args ...interface{}) (string, error) {
+func i18nTranslate(id string, args ...interface{}) (string, error) {
 	if translator == nil || translator.current == nil {
 		helpers.DistinctErrorLog.Printf("i18n not initialized, check that you have language file (in i18n) that matches the site language or the default language.")
 		return "", nil

@@ -2051,7 +2051,7 @@ func initFuncMap() {
 		"upper":        func(a string) string { return strings.ToUpper(a) },
 		"urlize":       helpers.CurrentPathSpec().URLize,
 		"where":        where,
-		"i18n":         I18nTranslate,
-		"T":            I18nTranslate,
+		"i18n":         i18nTranslate,
+		"T":            i18nTranslate,
 	}
 }
