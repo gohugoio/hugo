@@ -35,6 +35,7 @@ type PathSpec struct {
 	multilingual                   bool
 }
 
+// NewPathSpecFromConfig creats a new PathSpec from the given ConfigProvider.
 func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
 	return &PathSpec{
 		disablePathToLower:             config.GetBool("disablePathToLower"),
@@ -49,6 +50,7 @@ func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
 	}
 }
 
+// PaginatePath returns the configured root path used for paginator pages.
 func (p *PathSpec) PaginatePath() string {
 	return p.paginatePath
 }
