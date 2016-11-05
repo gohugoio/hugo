@@ -2265,7 +2265,7 @@ func (s *Site) getOrAddNode(nodeID string, add bool) *Node {
 
 	if !add {
 		// this is a test type error, print the keys
-		for k, _ := range s.nodeCache.m {
+		for k := range s.nodeCache.m {
 			fmt.Println("Node:", k)
 		}
 		return nil
