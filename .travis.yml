@@ -19,6 +19,4 @@ script:
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:
-  # gem install must be run with sudo on OSX 
-  - sudo gem install asciidoctor | gem install asciidoctor 
-  - sudo pip install docutils
+  - sudo pip install docutils flask
