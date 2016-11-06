@@ -544,11 +544,8 @@ func normalizeExpected(ext, str string) string {
 			if para == "" {
 				continue
 			}
-			expected += fmt.Sprintf("<div class=\"paragraph\">\n%s</p></div>\n", para)
 		}
 		return expected
-	case "rst":
-		return fmt.Sprintf("<div class=\"document\">\n\n\n%s</div>", str)
 	}
 }
 
@@ -561,7 +558,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 	}{
 		{"md", func() bool { return true }},
 		{"mmark", func() bool { return true }},
-		{"ad", func() bool { return helpers.HasAsciidoctor() || helpers.HasAsciidoc() }},
+		{"ad", func() bool { return helpers.HasAsciidoc() }},
 		// TODO(bep) figure a way to include this without too much work.{"html", func() bool { return true }},
 		{"rst", func() bool { return helpers.HasRst() }},
 	}
@@ -642,9 +639,9 @@ func TestSplitSummaryAndContent(t *testing.T) {
 			"<div class=\"paragraph\"><p>sn</p></div>",
 			"<div class=\"paragraph\"><p>sn</p></div><div class=\"paragraph\"><p>Some more text</p></div>"},
 		{"rst",
-			"<div class=\"document\"><p>Summary Next Line</p><p>HUGOMORE42Some more text</p></div>",
-			"<div class=\"document\"><p>Summary Next Line</p></div>",
-			"<div class=\"document\"><p>Summary Next Line</p><p>Some more text</p></div>"},
+			"<p>Summary Next Line</p><p>HUGOMORE42Some more text</p>",
+			"<p>Summary Next Line</p>",
+			"<p>Summary Next Line</p><p>Some more text</p>"},
 		{"markdown", "<p>a</p><p>b</p><p>HUGOMORE42c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
 		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>"},
 		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
