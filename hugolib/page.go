@@ -584,7 +584,6 @@ func (p *Page) permalink() (*url.URL, error) {
 		if err != nil {
 			return nil, err
 		}
-		// fmt.Printf("have a section override for %q in section %s → %s\n", p.Title, p.Section, permalink)
 	} else {
 		if len(pSlug) > 0 {
 			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))

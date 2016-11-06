@@ -103,6 +103,7 @@ func convertContents(mark rune) (err error) {
 		return fmt.Errorf("No source files found")
 	}
 
+	contentDir := helpers.AbsPathify(viper.GetString("contentDir"))
 	jww.FEEDBACK.Println("processing", len(site.Source.Files()), "content files")
 	for _, file := range site.Source.Files() {
 		jww.INFO.Println("Attempting to convert", file.LogicalName())
@@ -134,7 +135,7 @@ func convertContents(mark rune) (err error) {
 			metadata = newmetadata
 		}
 
-		page.SetDir(filepath.Join(helpers.AbsPathify(viper.GetString("contentDir")), file.Dir()))
+		page.SetDir(filepath.Join(contentDir, file.Dir()))
 		page.SetSourceContent(psr.Content())
 		if err = page.SetSourceMetaData(metadata, mark); err != nil {
 			jww.ERROR.Printf("Failed to set source metadata for file %q: %s. For more info see For more info see https://github.com/spf13/hugo/issues/2458", page.FullFilePath(), err)

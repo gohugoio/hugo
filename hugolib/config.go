@@ -22,7 +22,6 @@ import (
 
 // LoadGlobalConfig loads Hugo configuration into the global Viper.
 func LoadGlobalConfig(relativeSourcePath, configFilename string) error {
-
 	if relativeSourcePath == "" {
 		relativeSourcePath = "."
 	}
