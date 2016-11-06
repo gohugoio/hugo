@@ -1023,6 +1023,7 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 	sources := []source.ByteSource{
 		{Name: filepath.FromSlash("sect/doc1.en.md"), Content: []byte(`---
 title: doc1
+weight: 1
 slug: doc1-slug
 tags:
  - tag1
@@ -1037,6 +1038,7 @@ NOTE: slug should be used as URL
 `)},
 		{Name: filepath.FromSlash("sect/doc1.fr.md"), Content: []byte(`---
 title: doc1
+weight: 1
 plaques:
  - frtag1
  - frtag2
@@ -1052,6 +1054,7 @@ NOTE: date is after "doc3"
 `)},
 		{Name: filepath.FromSlash("sect/doc2.en.md"), Content: []byte(`---
 title: doc2
+weight: 2
 publishdate: "2000-01-02"
 ---
 # doc2
@@ -1060,6 +1063,7 @@ NOTE: without slug, "doc2" should be used, without ".en" as URL
 `)},
 		{Name: filepath.FromSlash("sect/doc3.en.md"), Content: []byte(`---
 title: doc3
+weight: 3
 publishdate: "2000-01-03"
 tags:
  - tag2
@@ -1072,6 +1076,7 @@ NOTE: third 'en' doc, should trigger pagination on home page.
 `)},
 		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte(`---
 title: doc4
+weight: 4
 plaques:
  - frtag1
 publishdate: "2000-01-05"
@@ -1083,6 +1088,7 @@ NOTE: doesn't have any corresponding translation in 'en'
 `)},
 		{Name: filepath.FromSlash("other/doc5.fr.md"), Content: []byte(`---
 title: doc5
+weight: 5
 publishdate: "2000-01-06"
 ---
 # doc5
@@ -1099,12 +1105,14 @@ expiryDate: "2001-01-06"
 `)},
 		{Name: filepath.FromSlash("stats/future.fr.md"), Content: []byte(`---
 title: future
+weight: 6
 publishdate: "2100-01-06"
 ---
 # Future
 `)},
 		{Name: filepath.FromSlash("stats/expired.en.md"), Content: []byte(`---
 title: expired
+weight: 7
 publishdate: "2000-01-06"
 expiryDate: "2001-01-06"
 ---
@@ -1112,6 +1120,7 @@ expiryDate: "2001-01-06"
 `)},
 		{Name: filepath.FromSlash("stats/future.en.md"), Content: []byte(`---
 title: future
+weight: 6
 publishdate: "2100-01-06"
 ---
 # Future
@@ -1125,6 +1134,7 @@ draft: true
 `)},
 		{Name: filepath.FromSlash("stats/tax.nn.md"), Content: []byte(`---
 title: Tax NN
+weight: 8
 publishdate: "2000-01-06"
 weight: 1001
 lag:
@@ -1134,6 +1144,7 @@ lag:
 `)},
 		{Name: filepath.FromSlash("stats/tax.nb.md"), Content: []byte(`---
 title: Tax NB
+weight: 8
 publishdate: "2000-01-06"
 weight: 1002
 lag:
