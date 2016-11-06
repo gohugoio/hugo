@@ -1,16 +1,20 @@
 init:
   - copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
   - set PATH=%PATH%;C:\MinGW\bin;%GOPATH%\bin
+  # Take default Ruby out of path
+  - set PATH=%PATH:C:\Ruby193\bin;=%
+  # Add newer Ruby to path
+  - set PATH=C:\Ruby22\bin;%PATH%
   - go version
   - go env
+  - ruby -v
 
 # clones and cd's to path
 clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
 
 install:
-  - gem install asciidoctor
-  - pip install docutils
-
+  - gem install asciidoctor sinatra --no-ri --no-rdoc
+  - pip install docutils flask
 build_script:
   - make hugo-race check
   - hugo -s docs/
