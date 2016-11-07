@@ -722,6 +722,10 @@ func (p *Page) IsExpired() bool {
 }
 
 func (p *Page) Permalink() (string, error) {
+	// TODO(bep) np permalink
+	if p.NodeType.IsNode() {
+		return p.Node.Permalink(), nil
+	}
 	link, err := p.permalink()
 	if err != nil {
 		return "", err
@@ -956,6 +960,10 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 }
 
 func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
+	// TODO(bep) np menu
+	if p.NodeType.IsNode() {
+		return p.Node.HasMenuCurrent(menu, me)
+	}
 	menus := p.Menus()
 	sectionPagesMenu := helpers.Config().GetString("SectionPagesMenu")
 
@@ -982,6 +990,10 @@ func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 }
 
 func (p *Page) IsMenuCurrent(menu string, inme *MenuEntry) bool {
+	// TODO(bep) np menu
+	if p.NodeType.IsNode() {
+		return p.Node.IsMenuCurrent(menu, inme)
+	}
 	menus := p.Menus()
 
 	if me, ok := menus[menu]; ok {
@@ -1190,13 +1202,13 @@ func (p *Page) TargetPath() (outfile string) {
 	// TODO(bep) np
 	switch p.NodeType {
 	case NodeHome:
-		return "index.html"
+		return p.addLangFilepathPrefix("index.html")
 	case NodeSection:
-		return filepath.Join(p.sections[0], "index.html")
+		return p.addLangFilepathPrefix(filepath.Join(p.sections[0], "index.html"))
 	case NodeTaxonomy:
-		return filepath.Join(append(p.sections, "index.html")...)
+		return p.addLangFilepathPrefix(filepath.Join(append(p.sections, "index.html")...))
 	case NodeTaxonomyTerms:
-		return filepath.Join(append(p.sections, "index.html")...)
+		return p.addLangFilepathPrefix(filepath.Join(append(p.sections, "index.html")...))
 	}
 
 	// Always use URL if it's specified

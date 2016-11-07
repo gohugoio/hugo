@@ -213,8 +213,8 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 	me1 := findTestMenuEntryByID(s, "m1", "i1")
 	me2 := findTestMenuEntryByID(s, "m1", "i2")
 
-	assert.NotNil(t, me1)
-	assert.NotNil(t, me2)
+	require.NotNil(t, me1)
+	require.NotNil(t, me2)
 
 	assert.True(t, strings.Contains(me1.URL, "doc1"), me1.URL)
 	assert.True(t, strings.Contains(me2.URL, "doc2") || strings.Contains(me2.URL, "doc3"), me2.URL)
@@ -251,8 +251,8 @@ func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.Byte
 	me1 := findTestMenuEntryByName(s, "m1", "n1")
 	me2 := findTestMenuEntryByName(s, "m1", "n2")
 
-	assert.NotNil(t, me1)
-	assert.NotNil(t, me2)
+	require.NotNil(t, me1)
+	require.NotNil(t, me2)
 
 	assert.True(t, strings.Contains(me1.URL, "doc1"), me1.URL)
 	assert.True(t, strings.Contains(me2.URL, "doc2") || strings.Contains(me2.URL, "doc3"), me2.URL)
@@ -415,12 +415,12 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 	fishySectionPages := s.Sections["fish-and-chips"]
 	assert.Equal(t, 1, len(fishySectionPages))
 
-	nodeFirst := s.getNode("sect-first-0")
+	nodeFirst := s.getPage(NodeSection, "first")
 	require.NotNil(t, nodeFirst)
-	nodeSecond := s.getNode("sect-second-section-0")
+	nodeSecond := s.getPage(NodeSection, "second-section")
 	require.NotNil(t, nodeSecond)
-	nodeFishy := s.getNode("sect-Fish and Chips-0")
-	require.NotNil(t, nodeFishy)
+	nodeFishy := s.getPage(NodeSection, "fish-and-chips")
+	require.Equal(t, "fish-and-chips", nodeFishy.sections[0])
 
 	firstSectionMenuEntry := findTestMenuEntryByID(s, "spm", "first")
 	secondSectionMenuEntry := findTestMenuEntryByID(s, "spm", "second-section")
@@ -549,7 +549,7 @@ func TestHomeNodeMenu(t *testing.T) {
 
 	s := setupMenuTests(t, menuPageSources)
 
-	home := s.getNode("home-0")
+	home := s.getPage(NodeHome)
 
 	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL()}
 

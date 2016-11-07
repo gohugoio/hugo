@@ -63,8 +63,39 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
+// TODO(bep) np clean and remove finders
+
 func (c *PageCollections) findPagesByNodeType(n NodeType) Pages {
 	return c.findPagesByNodeTypeIn(n, c.Nodes)
+}
+
+func (c *PageCollections) getPage(n NodeType, path ...string) *Page {
+	pages := c.findPagesByNodeTypeIn(n, c.Nodes)
+
+	if len(pages) == 0 {
+		return nil
+	}
+
+	if len(path) == 0 && len(pages) == 1 {
+		return pages[0]
+	}
+
+	for _, p := range pages {
+		match := false
+		for i := 0; i < len(path); i++ {
+			if len(p.sections) > i && path[i] == p.sections[i] {
+				match = true
+			} else {
+				match = false
+				break
+			}
+		}
+		if match {
+			return p
+		}
+	}
+
+	return nil
 }
 
 func (c *PageCollections) findIndexNodesByNodeType(n NodeType) Pages {
