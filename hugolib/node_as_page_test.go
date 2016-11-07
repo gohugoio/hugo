@@ -50,42 +50,7 @@ func TestNodesAsPage(t *testing.T) {
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
-
-	writeSource(t, filepath.Join("content", "_index.md"), `---
-title: Home Sweet Home!
----
-Home **Content!**
-`)
-
-	writeSource(t, filepath.Join("content", "sect1", "_index.md"), `---
-title: Section1
----
-Section1 **Content!**
-`)
-
-	writeSource(t, filepath.Join("content", "sect2", "_index.md"), `---
-title: Section2
----
-Section2 **Content!**
-`)
-
-	writeSource(t, filepath.Join("content", "categories", "hugo", "_index.md"), `---
-title: Taxonomy Hugo
----
-Taxonomy Hugo **Content!**
-`)
-
-	writeSource(t, filepath.Join("content", "categories", "web", "_index.md"), `---
-title: Taxonomy Web
----
-Taxonomy Web **Content!**
-`)
-
-	writeSource(t, filepath.Join("content", "categories", "_index.md"), `---
-title: Taxonomy Term Categories
----
-Taxonomy Term Categories **Content!**
-`)
+	writeNodePagesForNodeAsPageTests("", t)
 
 	// Add some regular pages
 	for i := 1; i <= 4; i++ {
@@ -251,6 +216,166 @@ Content Page %02d
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Hugo on Hugo Rocks!", "<rss")
 	assertFileContent(t, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Web on Hugo Rocks!", "<rss")
 
+}
+
+func TestNodesAsPageMultilingual(t *testing.T) {
+
+	nodePageFeatureFlag = true
+	defer toggleNodePageFeatureFlag()
+
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+
+	writeSource(t, "config.toml",
+		`
+paginage = 1
+title = "Hugo Multilingual Rocks!"
+rssURI = "customrss.xml"
+
+[languages]
+[languages.nn]
+languageName = "Nynorsk"
+weight = 1
+title = "Hugo på norsk"
+defaultContentLanguage = "nn"
+
+[languages.en]
+languageName = "English"
+weight = 2
+title = "Hugo in English"
+`)
+
+	for _, lang := range []string{"nn", "en"} {
+		for i := 1; i <= 4; i++ {
+			sect := "sect1"
+			if i > 2 {
+				sect = "sect2"
+			}
+			writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.%s.md", i, lang)), fmt.Sprintf(`---
+title: Page %02d
+categories:  [
+        "Hugo",
+		"Web"
+]
+---
+Content Page %02d
+`, i, i))
+		}
+	}
+
+	// Only write node pages for the English side of the fence
+	writeNodePagesForNodeAsPageTests("en", t)
+
+	if err := LoadGlobalConfig("", "config.toml"); err != nil {
+		t.Fatalf("Failed to load config: %s", err)
+	}
+
+	sites, err := NewHugoSitesFromConfiguration()
+
+	if err != nil {
+		t.Fatalf("Failed to create sites: %s", err)
+	}
+
+	if len(sites.Sites) != 2 {
+		t.Fatalf("Got %d sites", len(sites.Sites))
+	}
+
+	err = sites.Build(BuildCfg{})
+
+	if err != nil {
+		t.Fatalf("Failed to build sites: %s", err)
+	}
+
+	// The en language has content pages
+
+	// TODO(bep) np alias URL check
+
+	assertFileContent(t, filepath.Join("public", "nn", "index.html"), true,
+		"Index Title: Hugo på norsk")
+	assertFileContent(t, filepath.Join("public", "en", "index.html"), true,
+		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
+
+	// Taxonomy list
+	assertFileContent(t, filepath.Join("public", "nn", "categories", "hugo", "index.html"), true,
+		"Taxonomy Title: Hugo")
+	assertFileContent(t, filepath.Join("public", "en", "categories", "hugo", "index.html"), true,
+		"Taxonomy Title: Taxonomy Hugo")
+
+	// Taxonomy terms
+	assertFileContent(t, filepath.Join("public", "nn", "categories", "index.html"), true,
+		"Taxonomy Terms Title: Categories")
+	assertFileContent(t, filepath.Join("public", "en", "categories", "index.html"), true,
+		"Taxonomy Terms Title: Taxonomy Term Categories")
+
+	// Sections
+	assertFileContent(t, filepath.Join("public", "nn", "sect1", "index.html"), true,
+		"Section Title: Sect1s")
+	assertFileContent(t, filepath.Join("public", "nn", "sect2", "index.html"), true,
+		"Section Title: Sect2s")
+	assertFileContent(t, filepath.Join("public", "en", "sect1", "index.html"), true,
+		"Section Title: Section1")
+	assertFileContent(t, filepath.Join("public", "en", "sect2", "index.html"), true,
+		"Section Title: Section2")
+
+	// RSS
+	assertFileContent(t, filepath.Join("public", "nn", "customrss.xml"), true, "Recent content in Hugo på norsk on Hugo på norsk", "<rss")
+	assertFileContent(t, filepath.Join("public", "nn", "sect1", "customrss.xml"), true, "Recent content in Sect1s on Hugo på norsk", "<rss")
+	assertFileContent(t, filepath.Join("public", "nn", "sect2", "customrss.xml"), true, "Recent content in Sect2s on Hugo på norsk", "<rss")
+	assertFileContent(t, filepath.Join("public", "nn", "categories", "hugo", "customrss.xml"), true, "Recent content in Hugo on Hugo på norsk", "<rss")
+	assertFileContent(t, filepath.Join("public", "nn", "categories", "web", "customrss.xml"), true, "Recent content in Web on Hugo på norsk", "<rss")
+
+	assertFileContent(t, filepath.Join("public", "en", "customrss.xml"), true, "Recent content in Home Sweet Home! on Hugo in English", "<rss")
+	assertFileContent(t, filepath.Join("public", "en", "sect1", "customrss.xml"), true, "Recent content in Section1 on Hugo in English", "<rss")
+	assertFileContent(t, filepath.Join("public", "en", "sect2", "customrss.xml"), true, "Recent content in Section2 on Hugo in English", "<rss")
+	assertFileContent(t, filepath.Join("public", "en", "categories", "hugo", "customrss.xml"), true, "Recent content in Taxonomy Hugo on Hugo in English", "<rss")
+	assertFileContent(t, filepath.Join("public", "en", "categories", "web", "customrss.xml"), true, "Recent content in Taxonomy Web on Hugo in English", "<rss")
+
+}
+
+func writeNodePagesForNodeAsPageTests(lang string, t *testing.T) {
+
+	filename := "_index.md"
+
+	if lang != "" {
+		filename = fmt.Sprintf("_index.%s.md", lang)
+	}
+
+	writeSource(t, filepath.Join("content", filename), `---
+title: Home Sweet Home!
+---
+Home **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "sect1", filename), `---
+title: Section1
+---
+Section1 **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "sect2", filename), `---
+title: Section2
+---
+Section2 **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "categories", "hugo", filename), `---
+title: Taxonomy Hugo
+---
+Taxonomy Hugo **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "categories", "web", filename), `---
+title: Taxonomy Web
+---
+Taxonomy Web **Content!**
+`)
+
+	writeSource(t, filepath.Join("content", "categories", filename), `---
+title: Taxonomy Term Categories
+---
+Taxonomy Term Categories **Content!**
+`)
 }
 
 func writeLayoutsForNodeAsPageTests(t *testing.T) {

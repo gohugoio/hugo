@@ -66,6 +66,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 		targetPath := p.TargetPath()
 		layouts := p.layouts()
 		jww.DEBUG.Printf("Render %s to %q with layouts %q", p.NodeType, targetPath, layouts)
+
 		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
 			results <- err
 		}
@@ -92,9 +93,11 @@ func (s *Site) renderPaginator(p *Page) error {
 
 		// write alias for page 1
 		// TODO(bep) ml all of these n.addLang ... fix.
-		//permaLink, _ := p.Permalink()
-		// TODO(bep) np fix
-		//s.writeDestAlias(p.addLangPathPrefix(helpers.PaginateAliasPath("", 1)), permaLink, nil)
+		// TODO(bep) np URL
+
+		aliasPath := p.addLangPathPrefix(helpers.PaginateAliasPath(path.Join(p.sections...), 1))
+		//TODO(bep) np node.permalink
+		s.writeDestAlias(aliasPath, p.Node.Permalink(), nil)
 
 		pagers := p.paginator.Pagers()
 
@@ -116,6 +119,7 @@ func (s *Site) renderPaginator(p *Page) error {
 			pageNumber := i + 1
 			htmlBase := path.Join(p.URLPath.URL, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))
 			htmlBase = p.addLangPathPrefix(htmlBase)
+
 			if err := s.renderAndWritePage(pagerNode.Title,
 				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {
 				return err
@@ -142,7 +146,7 @@ func (s *Site) renderRSS(p *Page) error {
 	rssURI := s.Language.GetString("rssURI")
 	rssNode.URLPath.URL = path.Join(rssNode.URLPath.URL, rssURI)
 
-	if err := s.renderAndWriteXML(rssNode.Title, rssNode.URLPath.URL, rssNode, s.appendThemeTemplates(layouts)...); err != nil {
+	if err := s.renderAndWriteXML(rssNode.Title, rssNode.addLangFilepathPrefix(rssNode.URLPath.URL), rssNode, s.appendThemeTemplates(layouts)...); err != nil {
 		return err
 	}
 

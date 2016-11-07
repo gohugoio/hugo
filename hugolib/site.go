@@ -116,7 +116,7 @@ type Site struct {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Language: s.Language, owner: s.owner}
+	return &Site{Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
 }
 
 // newSite creates a new site in the given language.
@@ -148,9 +148,10 @@ func newSiteFromSources(pathContentPairs ...string) *Site {
 	lang := helpers.NewDefaultLanguage()
 
 	return &Site{
-		Source:   &source.InMemorySource{ByteSource: sources},
-		Language: lang,
-		Info:     newSiteInfo(siteBuilderCfg{language: lang}),
+		PageCollections: newPageCollections(),
+		Source:          &source.InMemorySource{ByteSource: sources},
+		Language:        lang,
+		Info:            newSiteInfo(siteBuilderCfg{language: lang}),
 	}
 }
 
@@ -802,8 +803,6 @@ func (s *Site) preProcess(config BuildCfg) (err error) {
 
 func (s *Site) postProcess() (err error) {
 
-	s.setupPrevNext()
-
 	if err = s.buildSiteMeta(); err != nil {
 		return
 	}
@@ -1333,6 +1332,9 @@ func incrementalReadCollator(s *Site, results <-chan HandledResult, pageChan cha
 }
 
 func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
+	if s.PageCollections == nil {
+		panic("No page collections")
+	}
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
@@ -1453,7 +1455,9 @@ func (s *Site) assembleMenus() {
 	sectionPagesMenu := s.Language.GetString("SectionPagesMenu")
 	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
-	for _, p := range s.Pages {
+	// TODO(bep) np menu
+	pages := s.findPagesByNodeType(NodePage)
+	for _, p := range pages {
 
 		if sectionPagesMenu != "" {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {

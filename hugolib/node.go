@@ -249,6 +249,35 @@ func (n *Node) Lang() string {
 	return n.lang
 }
 
+func (p *Page) isTranslation(candidate *Page) bool {
+	if p == candidate || p.NodeType != candidate.NodeType {
+		return false
+	}
+
+	if p.lang != candidate.lang || p.language != p.language {
+		return false
+	}
+
+	if p.NodeType == NodePage || p.NodeType == NodeUnknown {
+		panic("Node type not currently supported for this op")
+	}
+
+	// At this point, we know that this is a traditional Node (hoe page, section, taxonomy)
+	// It represents the same node, but different language, if the sections is the same.
+	if len(p.sections) != len(candidate.sections) {
+		return false
+	}
+
+	for i := 0; i < len(p.sections); i++ {
+		if p.sections[i] != candidate.sections[i] {
+			return false
+		}
+	}
+
+	return true
+
+}
+
 func (n *Node) shouldAddLanguagePrefix() bool {
 	if !n.Site.IsMultiLingual() {
 		return false
@@ -371,7 +400,6 @@ func sectionsFromFilename(filename string) []string {
 
 // TODO(bep) np node identificator
 func nodeTypeFromFilename(filename string) NodeType {
-
 	if !strings.Contains(filename, "_index") {
 		return NodePage
 	}

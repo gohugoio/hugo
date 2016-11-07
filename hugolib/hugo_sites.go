@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"os"
 	"path"
 	"strings"
@@ -198,6 +199,13 @@ func (h *HugoSites) Build(config BuildCfg) error {
 
 	t0 := time.Now()
 
+	// TODO(bep) np init page collections
+	for _, s := range h.Sites {
+		if s.PageCollections == nil {
+			s.PageCollections = newPageCollections()
+		}
+	}
+
 	if config.ResetState {
 		h.reset()
 	}
@@ -220,7 +228,7 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		return err
 	}
 
-	h.setupTranslations()
+	h.setupTranslationsForRegularPages()
 
 	if len(h.Sites) > 1 {
 		// Initialize the rest
@@ -244,8 +252,13 @@ func (h *HugoSites) Build(config BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
-		// Needed by all who use .Pages, .AllPages, .indexPages
+		// TODO(bep) np Needed by all who use .Pages, .AllPages, .indexPages
 		s.refreshPageCaches()
+		s.setupPrevNext()
+	}
+
+	if err := h.assignMissingTranslations(); err != nil {
+		return err
 	}
 
 	if err := h.preRender(config, whatChanged{source: true, other: true}); err != nil {
@@ -311,7 +324,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	// Assign pages to sites per translation.
-	h.setupTranslations()
+	h.setupTranslationsForRegularPages()
 
 	if changed.source {
 		h.assembleGitInfo()
@@ -322,6 +335,10 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 		}
 
 		if err := h.createMissingNodes(); err != nil {
+			return err
+		}
+
+		if err := h.assignMissingTranslations(); err != nil {
 			return err
 		}
 	}
@@ -389,93 +406,139 @@ func (h *HugoSites) render() error {
 	return nil
 }
 
+func (h *HugoSites) assignMissingTranslations() error {
+	// This looks heavy, but it should be a small number of nodes by now.
+	allNodes := h.findAllPagesByNodeTypeNotIn(NodePage)
+	for _, nodeType := range []NodeType{NodeHome, NodeSection, NodeTaxonomy, NodeTaxonomyTerms} {
+		nodes := h.findPagesByNodeTypeIn(nodeType, allNodes)
+
+		// Assign translations
+		for _, t1 := range nodes {
+			for _, t2 := range nodes {
+				if t2.isTranslation(t1) {
+					t1.translations = append(t1.translations, t2)
+				}
+			}
+		}
+	}
+	return nil
+
+}
+
 // createMissingNodes creates home page, taxonomies etc. that isnt't created as an
 // effect of having a content file.
 func (h *HugoSites) createMissingNodes() error {
 	// TODO(bep) np revisit this on languages -- as this is currently run after the page language distribution (due to taxonomies)
 	// TODO(bep) np re above, Pages vs.
 	// TODO(bep) np check node title etc.
-	s := h.Sites[0]
 
-	home := s.findPagesByNodeType(NodeHome)
+	var newNodes Pages
 
-	// home page
-	if len(home) == 0 {
-		s.Nodes = append(s.Nodes, s.newHomePage())
-	}
+	for _, s := range h.Sites {
 
-	// taxonomy list and terms pages
-	taxonomies := s.Language.GetStringMapString("taxonomies")
-	if len(taxonomies) > 0 {
-		taxonomyPages := s.findPagesByNodeType(NodeTaxonomy)
-		taxonomyTermsPages := s.findPagesByNodeType(NodeTaxonomyTerms)
-		for _, plural := range taxonomies {
-			tax := s.Taxonomies[plural]
-			foundTaxonomyPage := false
-			foundTaxonomyTermsPage := false
-			for key, _ := range tax {
-				for _, p := range taxonomyPages {
-					if p.sections[0] == plural && p.sections[1] == key {
-						foundTaxonomyPage = true
-						break
+		// home pages
+		home := s.findPagesByNodeType(NodeHome)
+		if len(home) > 1 {
+			panic("Too many homes")
+		}
+		if len(home) == 0 {
+			n := s.newHomePage()
+			s.Nodes = append(s.Nodes, n)
+			newNodes = append(newNodes, n)
+		}
+
+		// taxonomy list and terms pages
+		taxonomies := s.Language.GetStringMapString("taxonomies")
+		if len(taxonomies) > 0 {
+			taxonomyPages := s.findPagesByNodeType(NodeTaxonomy)
+			taxonomyTermsPages := s.findPagesByNodeType(NodeTaxonomyTerms)
+			for _, plural := range taxonomies {
+				tax := s.Taxonomies[plural]
+				foundTaxonomyPage := false
+				foundTaxonomyTermsPage := false
+				for key, _ := range tax {
+					for _, p := range taxonomyPages {
+						if p.sections[0] == plural && p.sections[1] == key {
+							foundTaxonomyPage = true
+							break
+						}
 					}
-				}
-				for _, p := range taxonomyTermsPages {
-					if p.sections[0] == plural {
+					for _, p := range taxonomyTermsPages {
+						if p.sections[0] == plural {
+							foundTaxonomyTermsPage = true
+							break
+						}
+					}
+					if !foundTaxonomyPage {
+						n := s.newTaxonomyPage(plural, key)
+						s.Nodes = append(s.Nodes, n)
+						newNodes = append(newNodes, n)
+					}
+
+					if !foundTaxonomyTermsPage {
 						foundTaxonomyTermsPage = true
+						n := s.newTaxonomyTermsPage(plural)
+						s.Nodes = append(s.Nodes, n)
+						newNodes = append(newNodes, n)
+					}
+				}
+			}
+		}
+
+		sectionPages := s.findPagesByNodeType(NodeSection)
+		if len(sectionPages) < len(s.Sections) {
+			for name, section := range s.Sections {
+				foundSection := false
+				for _, sectionPage := range sectionPages {
+					if sectionPage.sections[0] == name {
+						foundSection = true
 						break
 					}
 				}
-				if !foundTaxonomyPage {
-					s.Nodes = append(s.Nodes, s.newTaxonomyPage(plural, key))
+				if !foundSection {
+					n := s.newSectionPage(name, section)
+					s.Nodes = append(s.Nodes, n)
+					newNodes = append(newNodes, n)
 				}
-
-				if !foundTaxonomyTermsPage {
-					s.Nodes = append(s.Nodes, s.newTaxonomyTermsPage(plural))
-				}
-			}
-
-		}
-	}
-
-	// sections
-	sectionPages := s.findPagesByNodeType(NodeSection)
-	if len(sectionPages) < len(s.Sections) {
-		for name, section := range s.Sections {
-			foundSection := false
-			for _, sectionPage := range sectionPages {
-				if sectionPage.sections[0] == name {
-					foundSection = true
-					break
-				}
-			}
-			if !foundSection {
-				s.Nodes = append(s.Nodes, s.newSectionPage(name, section))
 			}
 		}
 	}
 
+	if len(newNodes) > 0 {
+		first := h.Sites[0]
+		first.AllNodes = append(first.AllNodes, newNodes...)
+		for i := 1; i < len(h.Sites); i++ {
+			h.Sites[i].AllNodes = first.AllNodes
+		}
+	}
 	return nil
 }
 
 // Move the new* methods after cleanup in site.go
 func (s *Site) newNodePage(typ NodeType) *Page {
-	n := Node{
+
+	return &Page{Node: Node{
 		NodeType: typ,
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
 		language: s.Language,
-	}
-
-	return &Page{Node: n, site: s}
+	}, site: s}
 }
 
 func (s *Site) newHomePage() *Page {
 	p := s.newNodePage(NodeHome)
 	p.Title = s.Info.Title
+	p.Data["Pages"] = Pages{}
+	s.setPageURLs(p, "/")
 	// TODO(bep) np check Data pages
 	// TODO(bep) np check setURLs
 	return p
+}
+
+func (s *Site) setPageURLs(p *Page, in string) {
+	p.URLPath.URL = s.Info.pathSpec.URLizeAndPrep(in)
+	p.URLPath.Permalink = s.Info.permalink(p.URLPath.URL)
+	p.RSSLink = template.HTML(s.Info.permalink(in + ".xml"))
 }
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {
@@ -495,8 +558,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
 	}
 
-	// TODO(bep) np check set url
-	p.URLPath.URL = path.Join(plural, key)
+	s.setPageURLs(p, path.Join(plural, key))
 
 	return p
 }
@@ -517,7 +579,7 @@ func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 	} else {
 		p.Title = sectionName
 	}
-	p.URLPath.URL = name
+	s.setPageURLs(p, name)
 	return p
 }
 
@@ -528,11 +590,13 @@ func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	return p
 }
 
-func (h *HugoSites) setupTranslations() {
+func (h *HugoSites) setupTranslationsForRegularPages() {
 
 	master := h.Sites[0]
 
-	for _, p := range master.rawAllPages {
+	regularPages := master.rawAllPages // master.findRawAllPagesByNodeType(NodePage)
+
+	for _, p := range regularPages {
 		if p.Lang() == "" {
 			panic("Page language missing: " + p.Title)
 		}
@@ -733,13 +797,24 @@ func (s *Site) updateBuildStats(page *Page) {
 
 // TODO(bep) np remove
 func (h *HugoSites) findAllPagesByNodeType(n NodeType) Pages {
-	var pages Pages
-	for _, p := range h.Sites[0].AllNodes {
-		if p.NodeType == n {
-			pages = append(pages, p)
-		}
-	}
-	return pages
+	return h.Sites[0].findAllPagesByNodeType(n)
+}
+
+func (h *HugoSites) findPagesByNodeTypeNotIn(n NodeType, inPages Pages) Pages {
+	return h.Sites[0].findPagesByNodeTypeNotIn(n, inPages)
+}
+
+func (h *HugoSites) findPagesByNodeTypeIn(n NodeType, inPages Pages) Pages {
+	return h.Sites[0].findPagesByNodeTypeIn(n, inPages)
+}
+
+func (h *HugoSites) findAllPagesByNodeTypeNotIn(n NodeType) Pages {
+	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllNodes)
+}
+
+func (h *HugoSites) findRawAllPagesByNodeType(n NodeType) Pages {
+	return h.Sites[0].findRawAllPagesByNodeType(n)
+
 }
 
 // Convenience func used in tests to build a single site/language excluding render phase.

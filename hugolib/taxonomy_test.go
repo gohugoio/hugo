@@ -14,7 +14,7 @@
 package hugolib
 
 import (
-	"strings"
+	"path/filepath"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -30,10 +30,13 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 
 	viper.Set("taxonomies", taxonomies)
 
+	writeSource(t, filepath.Join("content", "page.md"), pageYamlWithTaxonomiesA)
+
 	site := newSiteDefaultLang()
-	page, _ := NewPageFrom(strings.NewReader(pageYamlWithTaxonomiesA), "path/to/page")
-	site.Pages = append(site.Pages, page)
-	site.assembleTaxonomies()
+
+	if err := buildSiteSkipRender(site); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
 
 	st := make([]string, 0)
 	for _, t := range site.Taxonomies["tags"].ByCount() {

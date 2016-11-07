@@ -259,9 +259,9 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 // Paginator gets this Node's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
-func (n *Node) Paginator(options ...interface{}) (*Pager, error) {
+func (n *Page) Paginator(options ...interface{}) (*Pager, error) {
 	if !n.NodeType.IsNode() {
-		return nil, errors.New("Paginators not supported for content pages.")
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", n.NodeType, n.Title)
 	}
 	pagerSize, err := resolvePagerSize(options...)
 
@@ -302,9 +302,9 @@ func (n *Node) Paginator(options ...interface{}) (*Pager, error) {
 // Paginate gets this Node's paginator if it's already created.
 // If it's not, one will be created with the qiven sequence.
 // Note that repeated calls will return the same result, even if the sequence is different.
-func (n *Node) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
+func (n *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	if !n.NodeType.IsNode() {
-		return nil, errors.New("Paginators not supported for content pages.")
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", n.NodeType, n.Title)
 	}
 
 	pagerSize, err := resolvePagerSize(options...)
