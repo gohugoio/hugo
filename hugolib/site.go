@@ -823,6 +823,7 @@ func (s *Site) setCurrentLanguageConfig() error {
 	viper.Set("currentContentLanguage", s.Language)
 	// Cache the current config.
 	helpers.InitConfigProviderForCurrentContentLanguage()
+	s.Info.pathSpec = helpers.CurrentPathSpec()
 	return tpl.SetTranslateLang(s.Language)
 }
 

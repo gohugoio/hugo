@@ -78,6 +78,8 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 		require.Equal(t, "", frSite.Info.LanguagePrefix)
 	}
 
+	require.Equal(t, "/blog/en/foo", enSite.Info.pathSpec.RelURL("foo", true))
+
 	doc1en := enSite.Pages[0]
 	doc1fr := frSite.Pages[0]
 
