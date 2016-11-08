@@ -457,6 +457,12 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {
+	type taxRenderInfo struct {
+		key      string
+		singular string
+		plural   string
+	}
+
 	testCommonResetState()
 
 	viper.Set("canonifyURLs", true)
