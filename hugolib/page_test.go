@@ -987,13 +987,13 @@ func TestShouldRenderContent(t *testing.T) {
 // Issue #768
 func TestCalendarParamsVariants(t *testing.T) {
 	pageJSON, _ := NewPage("test/fileJSON.md")
-	_, _ = pageJSON.ReadFrom(strings.NewReader(pageWithCalendarJSONFrontmatter))
+	pageJSON.ReadFrom(strings.NewReader(pageWithCalendarJSONFrontmatter))
 
 	pageYAML, _ := NewPage("test/fileYAML.md")
-	_, _ = pageYAML.ReadFrom(strings.NewReader(pageWithCalendarYAMLFrontmatter))
+	pageYAML.ReadFrom(strings.NewReader(pageWithCalendarYAMLFrontmatter))
 
 	pageTOML, _ := NewPage("test/fileTOML.md")
-	_, _ = pageTOML.ReadFrom(strings.NewReader(pageWithCalendarTOMLFrontmatter))
+	pageTOML.ReadFrom(strings.NewReader(pageWithCalendarTOMLFrontmatter))
 
 	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
 	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
@@ -1002,7 +1002,7 @@ func TestCalendarParamsVariants(t *testing.T) {
 
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	page, _ := NewPage("test/file1.md")
-	_, _ = page.ReadFrom(strings.NewReader(pageWithVariousFrontmatterTypes))
+	page.ReadFrom(strings.NewReader(pageWithVariousFrontmatterTypes))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
 	if page.GetParam("a_string") != "bar" {

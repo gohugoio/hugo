@@ -46,8 +46,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var _ = transform.AbsURL
-
 // used to indicate if run as a test.
 var testMode bool
 
