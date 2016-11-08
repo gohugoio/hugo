@@ -21,6 +21,8 @@ import (
 	"github.com/spf13/cast"
 )
 
+// TODO(bep) np menu entries in section content etc.?
+
 // MenuEntry represents a menu item defined in either Page front matter
 // or in the site config.
 type MenuEntry struct {

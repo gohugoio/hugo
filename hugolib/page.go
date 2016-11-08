@@ -1202,13 +1202,13 @@ func (p *Page) TargetPath() (outfile string) {
 	// TODO(bep) np
 	switch p.NodeType {
 	case NodeHome:
-		return p.addLangFilepathPrefix("index.html")
+		return p.addLangFilepathPrefix("/")
 	case NodeSection:
-		return p.addLangFilepathPrefix(filepath.Join(p.sections[0], "index.html"))
+		return p.addLangFilepathPrefix(p.sections[0])
 	case NodeTaxonomy:
-		return p.addLangFilepathPrefix(filepath.Join(append(p.sections, "index.html")...))
+		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
 	case NodeTaxonomyTerms:
-		return p.addLangFilepathPrefix(filepath.Join(append(p.sections, "index.html")...))
+		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
 	}
 
 	// Always use URL if it's specified

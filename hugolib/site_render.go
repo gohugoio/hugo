@@ -19,7 +19,9 @@ import (
 	"path/filepath"
 	"sync"
 
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/viper"
 
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -148,6 +150,128 @@ func (s *Site) renderRSS(p *Page) error {
 
 	if err := s.renderAndWriteXML(rssNode.Title, rssNode.addLangFilepathPrefix(rssNode.URLPath.URL), rssNode, s.appendThemeTemplates(layouts)...); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (s *Site) render404() error {
+	if viper.GetBool("disable404") {
+		return nil
+	}
+
+	p := s.newNodePage(Node404)
+	p.Title = "404 Page not found"
+	p.Data["Pages"] = s.Pages
+	s.setPageURLs(p, "404.html")
+
+	nfLayouts := []string{"404.html"}
+	if nfErr := s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
+		return nfErr
+	}
+
+	return nil
+}
+
+func (s *Site) renderSitemap() error {
+	if viper.GetBool("disableSitemap") {
+		return nil
+	}
+
+	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
+
+	n := s.newNodePage(NodeSitemap)
+
+	// Prepend homepage to the list of pages
+	pages := make(Pages, 0)
+
+	page := s.newNodePage(NodeSitemap)
+	page.URLPath.URL = ""
+	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
+	page.Sitemap.Priority = sitemapDefault.Priority
+
+	pages = append(pages, page)
+	pages = append(pages, s.Pages...)
+
+	n.Data["Pages"] = pages
+
+	for _, page := range pages {
+		if page.Sitemap.ChangeFreq == "" {
+			page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
+		}
+
+		if page.Sitemap.Priority == -1 {
+			page.Sitemap.Priority = sitemapDefault.Priority
+		}
+
+		if page.Sitemap.Filename == "" {
+			page.Sitemap.Filename = sitemapDefault.Filename
+		}
+	}
+
+	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
+	addLanguagePrefix := n.Site.IsMultiLingual()
+	if err := s.renderAndWriteXML("sitemap", n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Site) renderRobotsTXT() error {
+	if !viper.GetBool("enableRobotsTXT") {
+		return nil
+	}
+
+	n := s.newNodePage(NodeRobotsTXT)
+	n.Data["Pages"] = s.Pages
+
+	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
+	outBuffer := bp.GetBuffer()
+	defer bp.PutBuffer(outBuffer)
+	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
+
+	if err == nil {
+		err = s.writeDestFile("robots.txt", outBuffer)
+	}
+
+	return err
+}
+
+// renderAliases renders shell pages that simply have a redirect in the header.
+// TODO(bep) np aliases of node types
+func (s *Site) renderAliases() error {
+	for _, p := range s.Pages {
+		if len(p.Aliases) == 0 {
+			continue
+		}
+
+		plink, err := p.Permalink()
+		if err != nil {
+			return err
+		}
+		for _, a := range p.Aliases {
+			if err := s.writeDestAlias(a, plink, p); err != nil {
+				return err
+			}
+		}
+	}
+
+	if s.owner.multilingual.enabled() {
+		mainLang := s.owner.multilingual.DefaultLang.Lang
+		if s.Info.defaultContentLanguageInSubdir {
+			mainLangURL := s.Info.pathSpec.AbsURL(mainLang, false)
+			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
+				return err
+			}
+		} else {
+			mainLangURL := s.Info.pathSpec.AbsURL("", false)
+			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

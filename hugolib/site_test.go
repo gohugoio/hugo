@@ -393,6 +393,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 // Issue #1176
 func TestSectionNaming(t *testing.T) {
+	//jww.SetStdoutThreshold(jww.LevelDebug)
 
 	for _, canonify := range []bool{true, false} {
 		for _, uglify := range []bool{true, false} {
@@ -404,7 +405,6 @@ func TestSectionNaming(t *testing.T) {
 }
 
 func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
-	hugofs.InitMemFs()
 	testCommonResetState()
 
 	viper.Set("baseURL", "http://auth/sub/")
@@ -427,11 +427,11 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		{Name: filepath.FromSlash("ラーメン/doc3.html"), Content: []byte("doc3")},
 	}
 
-	s := &Site{
-		Source:   &source.InMemorySource{ByteSource: sources},
-		targets:  targetList{page: &target.PagePub{UglyURLs: uglify}},
-		Language: helpers.NewDefaultLanguage(),
+	for _, source := range sources {
+		writeSource(t, filepath.Join("content", source.Name), string(source.Content))
 	}
+
+	s := newSiteDefaultLang()
 
 	if err := buildAndRenderSite(s,
 		"_default/single.html", "{{.Content}}",
@@ -453,20 +453,12 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.Destination().Open(test.doc)
-		if err != nil {
-			t.Fatalf("Did not find %s in target: %s", test.doc, err)
-		}
-
-		content := helpers.ReaderToString(file)
 
 		if test.pluralAware && pluralize {
 			test.expected = inflect.Pluralize(test.expected)
 		}
 
-		if content != test.expected {
-			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
-		}
+		assertFileContent(t, filepath.Join("public", test.doc), true, test.expected)
 	}
 
 }

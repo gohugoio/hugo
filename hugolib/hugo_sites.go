@@ -37,11 +37,7 @@ import (
 // Temporary feature flag to ease the refactoring of node vs page, see
 // https://github.com/spf13/hugo/issues/2297
 // TODO(bep) eventually remove
-var nodePageFeatureFlag bool
-
-func toggleNodePageFeatureFlag() {
-	nodePageFeatureFlag = !nodePageFeatureFlag
-}
+var nodePageFeatureFlag bool = true
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
@@ -516,13 +512,15 @@ func (h *HugoSites) createMissingNodes() error {
 
 // Move the new* methods after cleanup in site.go
 func (s *Site) newNodePage(typ NodeType) *Page {
-
-	return &Page{Node: Node{
-		NodeType: typ,
-		Data:     make(map[string]interface{}),
-		Site:     &s.Info,
-		language: s.Language,
-	}, site: s}
+	return &Page{
+		Node: Node{
+			Date:     s.Info.LastChange,
+			Lastmod:  s.Info.LastChange,
+			NodeType: typ,
+			Data:     make(map[string]interface{}),
+			Site:     &s.Info,
+			language: s.Language,
+		}, site: s}
 }
 
 func (s *Site) newHomePage() *Page {
