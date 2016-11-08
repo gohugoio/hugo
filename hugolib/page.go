@@ -1202,7 +1202,7 @@ func (p *Page) TargetPath() (outfile string) {
 	// TODO(bep) np
 	switch p.NodeType {
 	case NodeHome:
-		return p.addLangFilepathPrefix("/")
+		return p.addLangFilepathPrefix(helpers.FilePathSeparator)
 	case NodeSection:
 		return p.addLangFilepathPrefix(p.sections[0])
 	case NodeTaxonomy:
