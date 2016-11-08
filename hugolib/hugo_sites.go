@@ -47,10 +47,6 @@ type HugoSites struct {
 	runMode runmode
 
 	multilingual *Multilingual
-
-	// Maps internalID to a set of nodes.
-	nodeMap   map[string]Nodes
-	nodeMapMu sync.RWMutex
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
@@ -62,7 +58,7 @@ func newHugoSites(sites ...*Site) (*HugoSites, error) {
 		return nil, err
 	}
 
-	h := &HugoSites{multilingual: langConfig, Sites: sites, nodeMap: make(map[string]Nodes)}
+	h := &HugoSites{multilingual: langConfig, Sites: sites}
 
 	for _, s := range sites {
 		s.owner = h
@@ -104,33 +100,8 @@ func createSitesFromConfig() ([]*Site, error) {
 	return sites, nil
 }
 
-func (h *HugoSites) addNode(nodeID string, node *Node) {
-	h.nodeMapMu.Lock()
-
-	if nodes, ok := h.nodeMap[nodeID]; ok {
-		h.nodeMap[nodeID] = append(nodes, node)
-	} else {
-		h.nodeMap[nodeID] = Nodes{node}
-	}
-	h.nodeMapMu.Unlock()
-}
-
-func (h *HugoSites) getNodes(nodeID string) Nodes {
-	if nodeID != "" {
-		h.nodeMapMu.RLock()
-		nodes, ok := h.nodeMap[nodeID]
-		h.nodeMapMu.RUnlock()
-		if ok {
-			return nodes
-		}
-	}
-	// Paginator pages will not have related nodes.
-	return Nodes{}
-}
-
 // Reset resets the sites and template caches, making it ready for a full rebuild.
 func (h *HugoSites) reset() {
-	h.nodeMap = make(map[string]Nodes)
 	for i, s := range h.Sites {
 		h.Sites[i] = s.reset()
 	}
@@ -139,7 +110,6 @@ func (h *HugoSites) reset() {
 }
 
 func (h *HugoSites) reCreateFromConfig() error {
-	h.nodeMap = make(map[string]Nodes)
 
 	sites, err := createSitesFromConfig()
 
@@ -306,7 +276,6 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 
 	firstSite := h.Sites[0]
 
-	h.nodeMap = make(map[string]Nodes)
 	for _, s := range h.Sites {
 		s.resetBuildState()
 	}
@@ -644,26 +613,6 @@ func (h *HugoSites) preRender(cfg BuildCfg, changed whatChanged) error {
 		if err := s.setCurrentLanguageConfig(); err != nil {
 			return err
 		}
-
-		// Run "render prepare"
-		if err := s.renderHomePage(true); err != nil {
-			return err
-		}
-		if err := s.renderTaxonomiesLists(true); err != nil {
-			return err
-		}
-		if err := s.renderListsOfTaxonomyTerms(true); err != nil {
-			return err
-		}
-		if err := s.renderSectionLists(true); err != nil {
-			return err
-		}
-	}
-
-	for _, s := range h.Sites {
-		if err := s.setCurrentLanguageConfig(); err != nil {
-			return err
-		}
 		s.preparePagesForRender(cfg, changed)
 	}
 
@@ -810,11 +759,6 @@ func (h *HugoSites) findAllPagesByNodeTypeNotIn(n NodeType) Pages {
 	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllNodes)
 }
 
-func (h *HugoSites) findRawAllPagesByNodeType(n NodeType) Pages {
-	return h.Sites[0].findRawAllPagesByNodeType(n)
-
-}
-
 // Convenience func used in tests to build a single site/language excluding render phase.
 func buildSiteSkipRender(s *Site, additionalTemplates ...string) error {
 	return doBuildSite(s, false, additionalTemplates...)
@@ -873,10 +817,6 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages hel
 }
 
 // Convenience func used in tests.
-func newHugoSitesFromLanguages(languages helpers.Languages) (*HugoSites, error) {
-	return newHugoSitesFromSourceAndLanguages(nil, languages)
-}
-
 func newHugoSitesDefaultLanguage() (*HugoSites, error) {
 	return newHugoSitesFromSourceAndLanguages(nil, helpers.Languages{helpers.NewDefaultLanguage()})
 }

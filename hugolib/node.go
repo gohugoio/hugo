@@ -27,7 +27,8 @@ import (
 	"github.com/spf13/hugo/helpers"
 )
 
-// TODO(bep) np add String()
+// TODO(bep) np clean up node vs page
+
 type NodeType int
 
 const (
@@ -81,11 +82,6 @@ func (p NodeType) IsNode() bool {
 type Node struct {
 	NodeType NodeType
 
-	// a natural key that should be unique for this site
-	// for the home page this will typically be "home", but it can anything
-	// as long as it is the same for repeated builds.
-	nodeID string
-
 	RSSLink template.HTML
 	Site    *SiteInfo `json:"-"`
 	//	layout      string
@@ -105,9 +101,6 @@ type Node struct {
 	language     *helpers.Language
 	languageInit sync.Once
 	lang         string
-
-	translations     Nodes
-	translationsInit sync.Once
 }
 
 // The Nodes type is temporary until we get https://github.com/spf13/hugo/issues/2297 fixed.
@@ -335,40 +328,6 @@ func (n *Node) initLanguage() {
 
 func (n *Node) LanguagePrefix() string {
 	return n.Site.LanguagePrefix
-}
-
-// AllTranslations returns all translations, including the current Node.
-// Note that this and the one below is kind of a temporary hack before #2297 is solved.
-func (n *Node) AllTranslations() Nodes {
-	n.initTranslations()
-	return n.translations
-}
-
-// Translations returns the translations excluding the current Node.
-func (n *Node) Translations() Nodes {
-	n.initTranslations()
-	translations := make(Nodes, 0)
-
-	for _, t := range n.translations {
-
-		if t != n {
-			translations = append(translations, t)
-		}
-	}
-	return translations
-}
-
-// IsTranslated returns whether this node is translated to
-// other language(s).
-func (n *Node) IsTranslated() bool {
-	n.initTranslations()
-	return len(n.translations) > 1
-}
-
-func (n *Node) initTranslations() {
-	n.translationsInit.Do(func() {
-		n.translations = n.Site.owner.getNodes(n.nodeID)
-	})
 }
 
 func (n *Node) addLangPathPrefix(outfile string) string {
