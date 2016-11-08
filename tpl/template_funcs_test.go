@@ -19,6 +19,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"image"
+	"image/color"
+	"image/png"
 	"math/rand"
 	"path"
 	"path/filepath"
@@ -593,6 +596,109 @@ func TestDictionary(t *testing.T) {
 				t.Errorf("[%d] got %v but expected %v", i, r, this.expectedValue)
 			}
 		}
+	}
+}
+
+func blankImage(width, height int) []byte {
+	var buf bytes.Buffer
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	if err := png.Encode(&buf, img); err != nil {
+		panic(err)
+	}
+	return buf.Bytes()
+}
+
+func TestImageConfig(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	workingDir := "/home/hugo"
+
+	viper.Set("workingDir", workingDir)
+
+	fs := &afero.MemMapFs{}
+	hugofs.InitFs(fs)
+
+	for i, this := range []struct {
+		resetCache bool
+		path       string
+		input      []byte
+		expected   image.Config
+	}{
+		{
+			resetCache: true,
+			path:       "a.png",
+			input:      blankImage(10, 10),
+			expected: image.Config{
+				Width:      10,
+				Height:     10,
+				ColorModel: color.NRGBAModel,
+			},
+		},
+		{
+			resetCache: false,
+			path:       "b.png",
+			input:      blankImage(20, 15),
+			expected: image.Config{
+				Width:      20,
+				Height:     15,
+				ColorModel: color.NRGBAModel,
+			},
+		},
+		{
+			resetCache: false,
+			path:       "a.png",
+			input:      blankImage(20, 15),
+			expected: image.Config{
+				Width:      10,
+				Height:     10,
+				ColorModel: color.NRGBAModel,
+			},
+		},
+		{
+			resetCache: true,
+			path:       "a.png",
+			input:      blankImage(20, 15),
+			expected: image.Config{
+				Width:      20,
+				Height:     15,
+				ColorModel: color.NRGBAModel,
+			},
+		},
+	} {
+		afero.WriteFile(fs, filepath.Join(workingDir, this.path), this.input, 0755)
+
+		if this.resetCache {
+			resetImageConfigCache()
+		}
+
+		result, err := imageConfig(this.path)
+		if err != nil {
+			t.Errorf("imageConfig returned error: %s", err)
+		}
+
+		if !reflect.DeepEqual(result, this.expected) {
+			t.Errorf("[%d] imageConfig: expected '%v', got '%v'", i, this.expected, result)
+		}
+
+		if len(imageConfigCache.config) == 0 {
+			t.Error("imageConfigCache should have at least 1 item")
+		}
+	}
+
+	if _, err := imageConfig(t); err == nil {
+		t.Error("Expected error from imageConfig when passed invalid path")
+	}
+
+	if _, err := imageConfig("non-existant.png"); err == nil {
+		t.Error("Expected error from imageConfig when passed non-existant file")
+	}
+
+	// test cache clearing
+	ResetCaches()
+
+	if len(imageConfigCache.config) != 0 {
+		t.Error("ResetCaches should have cleared imageConfigCache")
 	}
 }
 

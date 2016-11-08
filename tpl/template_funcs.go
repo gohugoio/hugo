@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"image"
 	"math/rand"
 	"net/url"
 	"os"
@@ -45,6 +46,11 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+
+	// Importing image codecs for image.DecodeConfig
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 )
 
 var (
@@ -362,6 +368,63 @@ func intersect(l1, l2 interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l1).Type().String())
 	}
+}
+
+// ResetCaches resets all caches that might be used during build.
+func ResetCaches() {
+	resetImageConfigCache()
+}
+
+// imageConfigCache is a lockable cache for image.Config objects. It must be
+// locked before reading or writing to config.
+var imageConfigCache struct {
+	sync.RWMutex
+	config map[string]image.Config
+}
+
+// resetImageConfigCache initializes and resets the imageConfig cache for the
+// imageConfig template function. This should be run once before every batch of
+// template renderers so the cache is cleared for new data.
+func resetImageConfigCache() {
+	imageConfigCache.Lock()
+	defer imageConfigCache.Unlock()
+
+	imageConfigCache.config = map[string]image.Config{}
+}
+
+// imageConfig returns the image.Config for the specified path relative to the
+// working directory. resetImageConfigCache must be run beforehand.
+func imageConfig(path interface{}) (image.Config, error) {
+	filename, err := cast.ToStringE(path)
+	if err != nil {
+		return image.Config{}, err
+	}
+
+	if filename == "" {
+		return image.Config{}, errors.New("imageConfig needs a filename")
+	}
+
+	// Check cache for image config.
+	imageConfigCache.RLock()
+	config, ok := imageConfigCache.config[filename]
+	imageConfigCache.RUnlock()
+
+	if ok {
+		return config, nil
+	}
+
+	f, err := hugofs.WorkingDir().Open(filename)
+	if err != nil {
+		return image.Config{}, err
+	}
+
+	config, _, err = image.DecodeConfig(f)
+
+	imageConfigCache.Lock()
+	imageConfigCache.config[filename] = config
+	imageConfigCache.Unlock()
+
+	return config, err
 }
 
 // in returns whether v is in the set l.  l may be an array or slice.
@@ -1991,6 +2054,7 @@ func initFuncMap() {
 		"htmlEscape":    htmlEscape,
 		"htmlUnescape":  htmlUnescape,
 		"humanize":      humanize,
+		"imageConfig":   imageConfig,
 		"in":            in,
 		"index":         index,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
