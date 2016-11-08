@@ -34,9 +34,6 @@ func TestNodesAsPage(t *testing.T) {
 	//jww.SetStdoutThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelFatal)
 
-	nodePageFeatureFlag = true
-	defer toggleNodePageFeatureFlag()
-
 	/* Will have to decide what to name the node content files, but:
 
 		Home page should have:
@@ -152,9 +149,6 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	//jww.SetStdoutThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelFatal)
 
-	nodePageFeatureFlag = true
-	defer toggleNodePageFeatureFlag()
-
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
@@ -219,9 +213,6 @@ Content Page %02d
 }
 
 func TestNodesAsPageMultilingual(t *testing.T) {
-
-	nodePageFeatureFlag = true
-	defer toggleNodePageFeatureFlag()
 
 	testCommonResetState()
 

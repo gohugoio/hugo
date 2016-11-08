@@ -41,6 +41,12 @@ const (
 	NodeSection
 	NodeTaxonomy
 	NodeTaxonomyTerms
+
+	// The following are (currently) temporary nodes,
+	// i.e. nodes we create just to render in isolation.
+	NodeSitemap
+	NodeRobotsTXT
+	Node404
 )
 
 func (p NodeType) String() string {
@@ -55,6 +61,12 @@ func (p NodeType) String() string {
 		return "taxonomy list"
 	case NodeTaxonomyTerms:
 		return "taxonomy terms"
+	case NodeSitemap:
+		return "sitemap"
+	case NodeRobotsTXT:
+		return "robots.txt"
+	case Node404:
+		return "404 Not Found"
 	case NodeUnknown:
 		return "unknown"
 	default:

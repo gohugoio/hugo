@@ -838,36 +838,21 @@ func (s *Site) render() (err error) {
 		return
 	}
 
-	if err = s.renderAliases(); err != nil {
-		return
-	}
-	s.timerStep("render and write aliases")
-	if err = s.renderTaxonomiesLists(false); err != nil {
-		return
-	}
-	s.timerStep("render and write taxonomies")
-	if err = s.renderListsOfTaxonomyTerms(false); err != nil {
-		return
-	}
-	s.timerStep("render & write taxonomy lists")
-	if err = s.renderSectionLists(false); err != nil {
-		return
-	}
-	s.timerStep("render and write lists")
-
 	if err = s.preparePages(); err != nil {
 		return
 	}
+	s.timerStep("prepare pages")
 
 	if err = s.renderPages(); err != nil {
 		return
 	}
-
 	s.timerStep("render and write pages")
-	if err = s.renderHomePage(false); err != nil {
+
+	if err = s.renderAliases(); err != nil {
 		return
 	}
-	s.timerStep("render and write homepage")
+	s.timerStep("render and write aliases")
+
 	if err = s.renderSitemap(); err != nil {
 		return
 	}
@@ -877,6 +862,11 @@ func (s *Site) render() (err error) {
 		return
 	}
 	s.timerStep("render and write robots.txt")
+
+	if err = s.render404(); err != nil {
+		return
+	}
+	s.timerStep("render and write 404")
 
 	return
 }
@@ -1601,44 +1591,6 @@ func (s *Site) nodeTypeFromSections(sections []string) NodeType {
 	return NodeSection
 }
 
-// renderAliases renders shell pages that simply have a redirect in the header.
-func (s *Site) renderAliases() error {
-	for _, p := range s.Pages {
-		if len(p.Aliases) == 0 {
-			continue
-		}
-
-		plink, err := p.Permalink()
-		if err != nil {
-			return err
-		}
-		for _, a := range p.Aliases {
-			if err := s.writeDestAlias(a, plink, p); err != nil {
-				return err
-			}
-		}
-	}
-
-	if s.owner.multilingual.enabled() {
-		mainLang := s.owner.multilingual.DefaultLang.Lang
-		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := s.Info.pathSpec.AbsURL(mainLang, false)
-			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
-				return err
-			}
-		} else {
-			mainLangURL := s.Info.pathSpec.AbsURL("", false)
-			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
 func (s *Site) preparePages() error {
 	var errors []error
 
@@ -2085,21 +2037,8 @@ func (s *Site) renderHomePage(prepare bool) error {
 		}
 	}
 
-	if viper.GetBool("disable404") {
-		return nil
-	}
-
-	node404 := s.newNode("404")
-	node404.Title = "404 Page not found"
-	node404.Data["Pages"] = s.Pages
-	s.setURLs(node404, "404.html")
-
-	nfLayouts := []string{"404.html"}
-	if nfErr := s.renderAndWritePage("404 page", "404.html", node404, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
-		return nfErr
-	}
-
 	return nil
+
 }
 
 func (s *Site) newHomeNode(prepare bool, counter int) *Node {
@@ -2113,80 +2052,6 @@ func (s *Site) newHomeNode(prepare bool, counter int) *Node {
 		n.Lastmod = s.Pages[0].Lastmod
 	}
 	return n
-}
-
-func (s *Site) newPage() *Page {
-	page := &Page{}
-	page.language = s.Language
-	page.Date = s.Info.LastChange
-	page.Lastmod = s.Info.LastChange
-	page.Site = &s.Info
-	return page
-}
-
-func (s *Site) renderSitemap() error {
-	if viper.GetBool("disableSitemap") {
-		return nil
-	}
-
-	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
-
-	n := s.newNode("sitemap")
-
-	// Prepend homepage to the list of pages
-	pages := make(Pages, 0)
-
-	page := s.newPage()
-	page.URLPath.URL = ""
-	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
-	page.Sitemap.Priority = sitemapDefault.Priority
-
-	pages = append(pages, page)
-	pages = append(pages, s.Pages...)
-
-	n.Data["Pages"] = pages
-
-	for _, page := range pages {
-		if page.Sitemap.ChangeFreq == "" {
-			page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
-		}
-
-		if page.Sitemap.Priority == -1 {
-			page.Sitemap.Priority = sitemapDefault.Priority
-		}
-
-		if page.Sitemap.Filename == "" {
-			page.Sitemap.Filename = sitemapDefault.Filename
-		}
-	}
-
-	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
-	addLanguagePrefix := n.Site.IsMultiLingual()
-	if err := s.renderAndWriteXML("sitemap", n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Site) renderRobotsTXT() error {
-	if !viper.GetBool("enableRobotsTXT") {
-		return nil
-	}
-
-	n := s.newNode("robots")
-	n.Data["Pages"] = s.Pages
-
-	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
-	outBuffer := bp.GetBuffer()
-	defer bp.PutBuffer(outBuffer)
-	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
-
-	if err == nil {
-		err = s.writeDestFile("robots.txt", outBuffer)
-	}
-
-	return err
 }
 
 // Stats prints Hugo builds stats to the console.
@@ -2223,15 +2088,19 @@ func (s *SiteInfo) permalinkStr(plink string) string {
 		s.pathSpec.URLizeAndPrep(plink)).String()
 }
 
+// TODO(bep) np remove
 func (s *Site) newNode(nodeID string) *Node {
-	return s.nodeLookup(nodeID, 0, true)
+	return nil //s.nodeLookup(nodeID, 0, true)
 }
 
 func (s *Site) getNode(nodeID string) *Node {
-	return s.getOrAddNode(nodeID, false)
+	return nil //s.getOrAddNode(nodeID, false)
 }
 
 func (s *Site) getOrAddNode(nodeID string, add bool) *Node {
+	if true {
+		return nil
+	}
 	s.nodeCacheInit.Do(func() {
 		s.nodeCache = &nodeCache{m: make(map[string]*Node)}
 	})
@@ -2342,7 +2211,8 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	var pageTarget target.Output
 
-	if p, ok := d.(*Page); ok && path.Ext(p.URLPath.URL) != "" {
+	// TODO(bep) np ugly urls vs frontmatter
+	if p, ok := d.(*Page); ok && p.IsPage() && path.Ext(p.URLPath.URL) != "" {
 		// user has explicitly set a URL with extension for this page
 		// make sure it sticks even if "ugly URLs" are turned off.
 		pageTarget = s.pageUglyTarget()
@@ -2361,7 +2231,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	// For performance reasons we only inject the Hugo generator tag on the home page.
-	if n, ok := d.(*Node); ok && n.IsHome() {
+	if n, ok := d.(*Page); ok && n.IsHome() {
 		if !viper.GetBool("disableHugoGeneratorInject") {
 			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
 		}

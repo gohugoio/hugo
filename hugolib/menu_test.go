@@ -477,10 +477,10 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 			&MenuEntry{Name: "Somewhere else", URL: "/somewhereelse"}, false, false},
 	} {
 
-		n, _ := s.newTaxonomyNode(true, this.taxInfo, i)
+		p := s.newTaxonomyPage(this.taxInfo.plural, this.taxInfo.key)
 
-		isMenuCurrent := n.IsMenuCurrent(this.menu, this.menuItem)
-		hasMenuCurrent := n.HasMenuCurrent(this.menu, this.menuItem)
+		isMenuCurrent := p.IsMenuCurrent(this.menu, this.menuItem)
+		hasMenuCurrent := p.HasMenuCurrent(this.menu, this.menuItem)
 
 		if isMenuCurrent != this.isMenuCurrent {
 			t.Errorf("[%d] Wrong result from IsMenuCurrent: %v", i, isMenuCurrent)
