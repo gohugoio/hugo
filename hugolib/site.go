@@ -1529,7 +1529,7 @@ func (s *Site) assembleTaxonomies() {
 // Prepare site for a new full build.
 func (s *Site) resetBuildState() {
 
-	s.PageCollections = newPageCollections()
+	s.PageCollections = newPageCollectionsFromPages(s.rawAllPages)
 
 	s.Info.paginationPageCount = 0
 	s.draftCount = 0
