@@ -1340,8 +1340,6 @@ func (s *Site) buildSiteMeta() (err error) {
 		return
 	}
 
-	// TODO(bep) np order
-	// assembleTaxonomies: Needs pages (temp lookup) (maybe later nodes)
 	s.assembleTaxonomies()
 
 	// TODO(bep) np
@@ -1497,8 +1495,8 @@ func (s *Site) assembleTaxonomies() {
 	for singular, plural := range taxonomies {
 		s.Taxonomies[plural] = make(Taxonomy)
 		s.taxonomiesPluralSingular[plural] = singular
-		// TODO(np) tax other nodes
-		for _, p := range s.findPagesByNodeType(NodePage) {
+
+		for _, p := range s.Nodes {
 			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
 			weight := p.GetParam(plural + "_weight")
 			if weight == nil {
