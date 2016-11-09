@@ -569,6 +569,7 @@ func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	p := s.newNodePage(NodeTaxonomyTerms)
 	p.sections = []string{plural}
 	p.Title = strings.Title(plural)
+	s.setPageURLs(p, plural)
 	return p
 }
 

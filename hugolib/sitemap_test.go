@@ -17,7 +17,6 @@ import (
 	"testing"
 
 	"reflect"
-	"strings"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
@@ -36,6 +35,12 @@ const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap
 </urlset>`
 
 func TestSitemapOutput(t *testing.T) {
+	for _, internal := range []bool{false, true} {
+		doTestSitemapOutput(t, internal)
+	}
+}
+
+func doTestSitemapOutput(t *testing.T, internal bool) {
 	testCommonResetState()
 
 	viper.Set("baseURL", "http://auth/bub/")
@@ -45,15 +50,30 @@ func TestSitemapOutput(t *testing.T) {
 		Language: helpers.NewDefaultLanguage(),
 	}
 
-	if err := buildAndRenderSite(s, "sitemap.xml", SITEMAP_TEMPLATE); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
+	if internal {
+		if err := buildAndRenderSite(s); err != nil {
+			t.Fatalf("Failed to build site: %s", err)
+		}
+
+	} else {
+		if err := buildAndRenderSite(s, "sitemap.xml", SITEMAP_TEMPLATE); err != nil {
+			t.Fatalf("Failed to build site: %s", err)
+		}
 	}
 
-	sitemapContent := readDestination(t, "public/sitemap.xml")
+	assertFileContent(t, "public/sitemap.xml", true,
+		// Regular page
+		" <loc>http://auth/bub/sect/doc1/</loc>",
+		// Home page
+		"<loc>http://auth/bub/</loc>",
+		// Section
+		"<loc>http://auth/bub/sect/</loc>",
+		// Tax terms
+		"<loc>http://auth/bub/categories/</loc>",
+		// Tax list
+		"<loc>http://auth/bub/categories/hugo/</loc>",
+	)
 
-	if !strings.HasPrefix(sitemapContent, "<?xml") {
-		t.Errorf("Sitemap file should start with <?xml. %s", sitemapContent)
-	}
 }
 
 func TestParseSitemap(t *testing.T) {

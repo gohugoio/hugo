@@ -123,7 +123,7 @@ func (*PageCollections) findPagesByNodeTypeNotIn(n NodeType, inPages Pages) Page
 }
 
 func (c *PageCollections) findAllPagesByNodeType(n NodeType) Pages {
-	return c.findPagesByNodeTypeIn(n, c.rawAllPages)
+	return c.findPagesByNodeTypeIn(n, c.Nodes)
 }
 
 func (c *PageCollections) findRawAllPagesByNodeType(n NodeType) Pages {
