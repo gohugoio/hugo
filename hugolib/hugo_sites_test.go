@@ -51,8 +51,7 @@ func testCommonResetState() {
 func TestMultiSitesMainLangInRoot(t *testing.T) {
 	//jww.SetStdoutThreshold(jww.LevelDebug)
 
-	// TODO(bep) np true false
-	for _, b := range []bool{true} {
+	for _, b := range []bool{true, false} {
 		doTestMultiSitesMainLangInRoot(t, b)
 	}
 }
@@ -366,8 +365,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
-	// TODO(bep) np TestMultiSitesRebuild
-	t.Skip()
 
 	defer leaktest.Check(t)()
 	testCommonResetState()
@@ -390,14 +387,12 @@ func TestMultiSitesRebuild(t *testing.T) {
 	enSite := sites.Sites[0]
 	frSite := sites.Sites[1]
 
-	assert.Len(t, enSite.Pages, 3)
-	assert.Len(t, frSite.Pages, 3)
+	require.Len(t, enSite.Pages, 3)
+	require.Len(t, frSite.Pages, 3)
 
 	// Verify translations
-	docEn := readDestination(t, "public/en/sect/doc1-slug/index.html")
-	assert.True(t, strings.Contains(docEn, "Hello"), "No Hello")
-	docFr := readDestination(t, "public/fr/sect/doc1/index.html")
-	assert.True(t, strings.Contains(docFr, "Bonjour"), "No Bonjour")
+	assertFileContent(t, "public/en/sect/doc1-slug/index.html", true, "Hello")
+	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Bonjour")
 
 	// check single page content
 	assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
@@ -419,15 +414,15 @@ func TestMultiSitesRebuild(t *testing.T) {
 			nil,
 			[]fsnotify.Event{{Name: "content/sect/doc2.en.md", Op: fsnotify.Remove}},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 2, "1 en removed")
+				require.Len(t, enSite.Pages, 2, "1 en removed")
 
 				// Check build stats
-				assert.Equal(t, 1, enSite.draftCount, "Draft")
-				assert.Equal(t, 1, enSite.futureCount, "Future")
-				assert.Equal(t, 1, enSite.expiredCount, "Expired")
-				assert.Equal(t, 0, frSite.draftCount, "Draft")
-				assert.Equal(t, 1, frSite.futureCount, "Future")
-				assert.Equal(t, 1, frSite.expiredCount, "Expired")
+				require.Equal(t, 1, enSite.draftCount, "Draft")
+				require.Equal(t, 1, enSite.futureCount, "Future")
+				require.Equal(t, 1, enSite.expiredCount, "Expired")
+				require.Equal(t, 0, frSite.draftCount, "Draft")
+				require.Equal(t, 1, frSite.futureCount, "Future")
+				require.Equal(t, 1, frSite.expiredCount, "Expired")
 			},
 		},
 		{
@@ -442,15 +437,15 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: "content/new1.fr.md", Op: fsnotify.Create},
 			},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 10)
-				assert.Len(t, frSite.Pages, 4)
-				assert.Equal(t, "new_fr_1", frSite.Pages[3].Title)
-				assert.Equal(t, "new_en_2", enSite.Pages[0].Title)
-				assert.Equal(t, "new_en_1", enSite.Pages[1].Title)
+				require.Len(t, enSite.Pages, 4)
+				require.Len(t, enSite.AllPages, 10)
+				require.Len(t, frSite.Pages, 4)
+				require.Equal(t, "new_fr_1", frSite.Pages[3].Title)
+				require.Equal(t, "new_en_2", enSite.Pages[0].Title)
+				require.Equal(t, "new_en_1", enSite.Pages[1].Title)
 
 				rendered := readDestination(t, "public/en/new1/index.html")
-				assert.True(t, strings.Contains(rendered, "new_en_1"), rendered)
+				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
 			},
 		},
 		{
@@ -462,9 +457,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: "content/sect/doc1.en.md", Op: fsnotify.Write}},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 4)
+				require.Len(t, enSite.Pages, 4)
 				doc1 := readDestination(t, "public/en/sect/doc1-slug/index.html")
-				assert.True(t, strings.Contains(doc1, "CHANGED"), doc1)
+				require.True(t, strings.Contains(doc1, "CHANGED"), doc1)
 
 			},
 		},
@@ -480,10 +475,10 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: "content/new1.en.md", Op: fsnotify.Rename},
 			},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 4, "Rename")
-				assert.Equal(t, "new_en_1", enSite.Pages[1].Title)
+				require.Len(t, enSite.Pages, 4, "Rename")
+				require.Equal(t, "new_en_1", enSite.Pages[1].Title)
 				rendered := readDestination(t, "public/en/new1renamed/index.html")
-				assert.True(t, strings.Contains(rendered, "new_en_1"), rendered)
+				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
 			}},
 		{
 			// Change a template
@@ -495,11 +490,11 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: "layouts/_default/single.html", Op: fsnotify.Write}},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 10)
-				assert.Len(t, frSite.Pages, 4)
+				require.Len(t, enSite.Pages, 4)
+				require.Len(t, enSite.AllPages, 10)
+				require.Len(t, frSite.Pages, 4)
 				doc1 := readDestination(t, "public/en/sect/doc1-slug/index.html")
-				assert.True(t, strings.Contains(doc1, "Template Changed"), doc1)
+				require.True(t, strings.Contains(doc1, "Template Changed"), doc1)
 			},
 		},
 		{
@@ -512,13 +507,13 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: "i18n/fr.yaml", Op: fsnotify.Write}},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 10)
-				assert.Len(t, frSite.Pages, 4)
+				require.Len(t, enSite.Pages, 4)
+				require.Len(t, enSite.AllPages, 10)
+				require.Len(t, frSite.Pages, 4)
 				docEn := readDestination(t, "public/en/sect/doc1-slug/index.html")
-				assert.True(t, strings.Contains(docEn, "Hello"), "No Hello")
+				require.True(t, strings.Contains(docEn, "Hello"), "No Hello")
 				docFr := readDestination(t, "public/fr/sect/doc1/index.html")
-				assert.True(t, strings.Contains(docFr, "Salut"), "No Salut")
+				require.True(t, strings.Contains(docFr, "Salut"), "No Salut")
 
 				homeEn := enSite.getPage(NodeHome)
 				require.NotNil(t, homeEn)
@@ -536,9 +531,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: "layouts/shortcodes/shortcode.html", Op: fsnotify.Write},
 			},
 			func(t *testing.T) {
-				assert.Len(t, enSite.Pages, 4)
-				assert.Len(t, enSite.AllPages, 10)
-				assert.Len(t, frSite.Pages, 4)
+				require.Len(t, enSite.Pages, 4)
+				require.Len(t, enSite.AllPages, 10)
+				require.Len(t, frSite.Pages, 4)
 				assertFileContent(t, "public/fr/sect/doc1/index.html", true, "Single", "Modified Shortcode: Salut")
 				assertFileContent(t, "public/en/sect/doc1-slug/index.html", true, "Single", "Modified Shortcode: Hello")
 			},

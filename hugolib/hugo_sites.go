@@ -194,7 +194,7 @@ func (h *HugoSites) Build(config BuildCfg) error {
 		return err
 	}
 
-	h.setupTranslationsForRegularPages()
+	h.setupTranslations()
 
 	if len(h.Sites) > 1 {
 		// Initialize the rest
@@ -289,7 +289,7 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	// Assign pages to sites per translation.
-	h.setupTranslationsForRegularPages()
+	h.setupTranslations()
 
 	if changed.source {
 		h.assembleGitInfo()
@@ -299,13 +299,21 @@ func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
 			}
 		}
 
-		if err := h.createMissingNodes(); err != nil {
-			return err
-		}
+	}
 
-		if err := h.assignMissingTranslations(); err != nil {
-			return err
-		}
+	// TODO(bep) np consolidate the build lifecycle methods
+	// See also the regular Build() method, and check vs. the changed.source
+	if err := h.createMissingNodes(); err != nil {
+		return err
+	}
+
+	for _, s := range h.Sites {
+		s.refreshPageCaches()
+		s.setupPrevNext()
+	}
+
+	if err := h.assignMissingTranslations(); err != nil {
+		return err
 	}
 
 	if err := h.preRender(config, changed); err != nil {
@@ -557,13 +565,11 @@ func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	return p
 }
 
-func (h *HugoSites) setupTranslationsForRegularPages() {
+func (h *HugoSites) setupTranslations() {
 
 	master := h.Sites[0]
 
-	regularPages := master.rawAllPages // master.findRawAllPagesByNodeType(NodePage)
-
-	for _, p := range regularPages {
+	for _, p := range master.rawAllPages {
 		if p.Lang() == "" {
 			panic("Page language missing: " + p.Title)
 		}
