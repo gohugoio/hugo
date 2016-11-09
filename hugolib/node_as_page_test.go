@@ -152,22 +152,7 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
-
-	for i := 1; i <= 4; i++ {
-		sect := "sect1"
-		if i > 2 {
-			sect = "sect2"
-		}
-		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.md", i)), fmt.Sprintf(`---
-title: Page %02d
-categories:  [
-        "Hugo",
-		"Web"
-]
----
-Content Page %02d
-`, i, i))
-	}
+	writeRegularPagesForNodeAsPageTests(t)
 
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
@@ -238,21 +223,7 @@ title = "Hugo in English"
 `)
 
 	for _, lang := range []string{"nn", "en"} {
-		for i := 1; i <= 4; i++ {
-			sect := "sect1"
-			if i > 2 {
-				sect = "sect2"
-			}
-			writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.%s.md", i, lang)), fmt.Sprintf(`---
-title: Page %02d
-categories:  [
-        "Hugo",
-		"Web"
-]
----
-Content Page %02d
-`, i, i))
-		}
+		writeRegularPagesForNodeAsPageTestsWithLang(t, lang)
 	}
 
 	// Only write node pages for the English side of the fence
@@ -322,6 +293,66 @@ Content Page %02d
 	assertFileContent(t, filepath.Join("public", "en", "categories", "hugo", "customrss.xml"), true, "Recent content in Taxonomy Hugo on Hugo in English", "<rss")
 	assertFileContent(t, filepath.Join("public", "en", "categories", "web", "customrss.xml"), true, "Recent content in Taxonomy Web on Hugo in English", "<rss")
 
+}
+
+func TestNodesWithTaxonomies(t *testing.T) {
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	//defer jww.SetStdoutThreshold(jww.LevelFatal)
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+	writeRegularPagesForNodeAsPageTests(t)
+
+	writeSource(t, filepath.Join("content", "_index.md"), `---
+title: Home With Taxonomies
+categories:  [
+        "Hugo",
+		"Home"
+]
+---
+`)
+
+	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks!")
+	viper.Set("rssURI", "customrss.xml")
+
+	s := newSiteDefaultLang()
+
+	if err := buildAndRenderSite(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5", "Pag: Home With Taxonomies")
+	assertFileContent(t, filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1", "Pag: Home With Taxonomies")
+
+}
+
+func writeRegularPagesForNodeAsPageTests(t *testing.T) {
+	writeRegularPagesForNodeAsPageTestsWithLang(t, "")
+}
+
+func writeRegularPagesForNodeAsPageTestsWithLang(t *testing.T, lang string) {
+	var langStr string
+
+	if lang != "" {
+		langStr = lang + "."
+	}
+
+	for i := 1; i <= 4; i++ {
+		sect := "sect1"
+		if i > 2 {
+			sect = "sect2"
+		}
+		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.%smd", i, langStr)), fmt.Sprintf(`---
+title: Page %02d
+categories:  [
+        "Hugo",
+		"Web"
+]
+---
+Content Page %02d
+`, i, i))
+	}
 }
 
 func writeNodePagesForNodeAsPageTests(lang string, t *testing.T) {
