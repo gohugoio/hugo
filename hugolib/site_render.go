@@ -182,19 +182,18 @@ func (s *Site) renderSitemap() error {
 
 	n := s.newNodePage(NodeSitemap)
 
-	// Prepend homepage to the list of pages
-	pages := make(Pages, 0)
+	// Include all pages (regular, home page, taxonomies etc.)
+	pages := s.Nodes
 
 	page := s.newNodePage(NodeSitemap)
 	page.URLPath.URL = ""
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
-
-	pages = append(pages, page)
-	pages = append(pages, s.Pages...)
+	page.Sitemap.Filename = sitemapDefault.Filename
 
 	n.Data["Pages"] = pages
 
+	// TODO(bep) this should be done somewhere else
 	for _, page := range pages {
 		if page.Sitemap.ChangeFreq == "" {
 			page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
