@@ -461,6 +461,13 @@ func (h *HugoSites) createMissingNodes() error {
 		sectionPages := s.findPagesByNodeType(NodeSection)
 		if len(sectionPages) < len(s.Sections) {
 			for name, section := range s.Sections {
+				// A section may be created for the root content folder if a
+				// content file is placed there.
+				// We cannot create a section node for that, because
+				// that would overwrite the home page.
+				if name == "" {
+					continue
+				}
 				foundSection := false
 				for _, sectionPage := range sectionPages {
 					if sectionPage.sections[0] == name {
