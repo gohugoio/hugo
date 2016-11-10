@@ -325,8 +325,6 @@ categories:  [
 }
 
 func TestNodesWithMenu(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	//defer jww.SetStdoutThreshold(jww.LevelFatal)
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
@@ -350,6 +348,35 @@ menu:
 	}
 
 	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Menu", "Menu Item: Go Home!")
+
+}
+
+func TestNodesWithAlias(t *testing.T) {
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	//defer jww.SetStdoutThreshold(jww.LevelFatal)
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+	writeRegularPagesForNodeAsPageTests(t)
+
+	writeSource(t, filepath.Join("content", "_index.md"), `---
+title: Home With Alias
+aliases:
+    - /my/new/home.html
+---
+`)
+
+	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks!")
+
+	s := newSiteDefaultLang()
+
+	if err := buildAndRenderSite(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Alias")
+	assertFileContent(t, filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=/")
 
 }
 
