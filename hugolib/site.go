@@ -482,7 +482,7 @@ type whatChanged struct {
 
 // reBuild partially rebuilds a site given the filesystem events.
 // It returns whetever the content source was changed.
-func (s *Site) reBuild(events []fsnotify.Event) (whatChanged, error) {
+func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 	jww.DEBUG.Printf("Rebuild for events %q", events)
 
@@ -763,7 +763,7 @@ func (s *Site) readDataFromSourceFS() error {
 	return err
 }
 
-func (s *Site) preProcess(config BuildCfg) (err error) {
+func (s *Site) process(config BuildCfg) (err error) {
 	s.timerStep("Go initialization")
 	if err = s.initialize(); err != nil {
 		return
@@ -783,16 +783,6 @@ func (s *Site) preProcess(config BuildCfg) (err error) {
 	s.timerStep("load i18n")
 	return s.createPages()
 
-}
-
-func (s *Site) postProcess() (err error) {
-
-	if err = s.buildSiteMeta(); err != nil {
-		return
-	}
-
-	s.timerStep("build taxonomies")
-	return
 }
 
 func (s *Site) setupPrevNext() {
@@ -1333,6 +1323,7 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 }
 
 func (s *Site) buildSiteMeta() (err error) {
+	defer s.timerStep("build Site meta")
 
 	s.assembleMenus()
 

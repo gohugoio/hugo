@@ -670,7 +670,7 @@ func rebuildSites(events []fsnotify.Event) error {
 	if err := initSites(); err != nil {
 		return err
 	}
-	return Hugo.Rebuild(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
+	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
 }
 
 // NewWatcher creates a new watcher to watch filesystem events.
