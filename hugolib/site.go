@@ -1351,8 +1351,8 @@ func (s *Site) buildSiteMeta() (err error) {
 	// assembleSections: Needs pages (temp lookup)
 	s.assembleSections()
 
-	// TODO(bep) np
-	pages := s.findPagesByNodeType(NodePage)
+	// TODO(bep) np Site.LastMod
+	pages := s.Nodes
 	s.Info.LastChange = pages[0].Lastmod
 
 	return
@@ -1541,9 +1541,19 @@ func (s *Site) resetBuildState() {
 func (s *Site) assembleSections() {
 	s.Sections = make(Taxonomy)
 	s.Info.Sections = s.Sections
+	// TODO(bep) np check these vs the caches
 	regularPages := s.findPagesByNodeType(NodePage)
+	sectionPages := s.findPagesByNodeType(NodeSection)
+
 	for i, p := range regularPages {
 		s.Sections.add(p.Section(), WeightedPage{regularPages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
+	}
+
+	// Add sections without regular pages, but with a content page
+	for _, sectionPage := range sectionPages {
+		if _, ok := s.Sections[sectionPage.sections[0]]; !ok {
+			s.Sections[sectionPage.sections[0]] = WeightedPages{}
+		}
 	}
 
 	for k := range s.Sections {

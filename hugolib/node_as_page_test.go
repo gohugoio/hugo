@@ -116,6 +116,7 @@ Content Page %02d
 		"Pag: Page 02")
 
 	sections := h.findAllPagesByNodeType(NodeSection)
+
 	require.Len(t, sections, 2)
 
 	// Check taxonomy lists
@@ -352,8 +353,6 @@ menu:
 }
 
 func TestNodesWithAlias(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	//defer jww.SetStdoutThreshold(jww.LevelFatal)
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
@@ -377,6 +376,30 @@ aliases:
 
 	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Alias")
 	assertFileContent(t, filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=/")
+
+}
+
+func TestNodesWithSectionWithIndexPageOnly(t *testing.T) {
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+
+	writeSource(t, filepath.Join("content", "sect", "_index.md"), `---
+title: MySection
+---
+My Section Content
+`)
+
+	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks!")
+
+	s := newSiteDefaultLang()
+
+	if err := buildAndRenderSite(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "sect", "index.html"), true, "My Section")
 
 }
 
