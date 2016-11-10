@@ -543,7 +543,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 		if this.preFunc != nil {
 			this.preFunc(t)
 		}
-		err = sites.Rebuild(cfg, this.events...)
+
+		err = sites.Build(cfg, this.events...)
 
 		if err != nil {
 			t.Fatalf("[%d] Failed to rebuild sites: %s", i, err)

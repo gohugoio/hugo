@@ -14,21 +14,18 @@
 package hugolib
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"os"
 	"path"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/spf13/hugo/helpers"
 
 	"github.com/spf13/viper"
 
 	"github.com/bep/inflect"
-	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -109,7 +106,7 @@ func (h *HugoSites) reset() {
 	tpl.ResetCaches()
 }
 
-func (h *HugoSites) reCreateFromConfig() error {
+func (h *HugoSites) createSitesFromConfig() error {
 
 	sites, err := createSitesFromConfig()
 
@@ -158,189 +155,8 @@ type BuildCfg struct {
 	// Use this to add templates to use for rendering.
 	// Useful for testing.
 	withTemplate func(templ tpl.Template) error
-}
-
-// Build builds all sites.
-func (h *HugoSites) Build(config BuildCfg) error {
-
-	t0 := time.Now()
-
-	// TODO(bep) np init page collections
-	for _, s := range h.Sites {
-		if s.PageCollections == nil {
-			s.PageCollections = newPageCollections()
-		}
-	}
-
-	if config.ResetState {
-		h.reset()
-	}
-
-	if config.CreateSitesFromConfig {
-		if err := h.reCreateFromConfig(); err != nil {
-			return err
-		}
-	}
-
-	h.runMode.Watching = config.Watching
-
-	// We should probably refactor the Site and pull up most of the logic from there to here,
-	// but that seems like a daunting task.
-	// So for now, if there are more than one site (language),
-	// we pre-process the first one, then configure all the sites based on that.
-	firstSite := h.Sites[0]
-
-	if err := firstSite.preProcess(config); err != nil {
-		return err
-	}
-
-	h.setupTranslations()
-
-	if len(h.Sites) > 1 {
-		// Initialize the rest
-		for _, site := range h.Sites[1:] {
-			site.initializeSiteInfo()
-		}
-	}
-
-	// TODO(bep) make a more logical grouping of these.
-	h.assembleGitInfo()
-
-	for _, s := range h.Sites {
-		if err := s.postProcess(); err != nil {
-			return err
-		}
-	}
-
-	// TODO(bep) np createMissingNodes needs taxonomies and sections
-	if err := h.createMissingNodes(); err != nil {
-		return err
-	}
-
-	for _, s := range h.Sites {
-		// TODO(bep) np Needed by all who use .Pages, .AllPages, .indexPages
-		s.refreshPageCaches()
-		s.setupPrevNext()
-	}
-
-	if err := h.assignMissingTranslations(); err != nil {
-		return err
-	}
-
-	if err := h.preRender(config, whatChanged{source: true, other: true}); err != nil {
-		return err
-	}
-
-	if !config.SkipRender {
-		for _, s := range h.Sites {
-
-			if err := s.render(); err != nil {
-				return err
-			}
-
-			if config.PrintStats {
-				s.Stats()
-			}
-		}
-
-		if err := h.render(); err != nil {
-			return err
-		}
-	}
-
-	if config.PrintStats {
-		jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
-	}
-
-	return nil
-
-}
-
-// Rebuild rebuilds all sites.
-func (h *HugoSites) Rebuild(config BuildCfg, events ...fsnotify.Event) error {
-	t0 := time.Now()
-
-	if config.CreateSitesFromConfig {
-		return errors.New("Rebuild does not support 'CreateSitesFromConfig'. Use Build.")
-	}
-
-	if config.ResetState {
-		return errors.New("Rebuild does not support 'ResetState'. Use Build.")
-	}
-
-	if !config.Watching {
-		return errors.New("Rebuild called when not in watch mode")
-	}
-
-	h.runMode.Watching = config.Watching
-
-	firstSite := h.Sites[0]
-
-	for _, s := range h.Sites {
-		s.resetBuildState()
-	}
-
-	helpers.InitLoggers()
-
-	changed, err := firstSite.reBuild(events)
-
-	if err != nil {
-		return err
-	}
-
-	// Assign pages to sites per translation.
-	h.setupTranslations()
-
-	if changed.source {
-		h.assembleGitInfo()
-		for _, s := range h.Sites {
-			if err := s.postProcess(); err != nil {
-				return err
-			}
-		}
-
-	}
-
-	// TODO(bep) np consolidate the build lifecycle methods
-	// See also the regular Build() method, and check vs. the changed.source
-	if err := h.createMissingNodes(); err != nil {
-		return err
-	}
-
-	for _, s := range h.Sites {
-		s.refreshPageCaches()
-		s.setupPrevNext()
-	}
-
-	if err := h.assignMissingTranslations(); err != nil {
-		return err
-	}
-
-	if err := h.preRender(config, changed); err != nil {
-		return err
-	}
-
-	if !config.SkipRender {
-		for _, s := range h.Sites {
-			if err := s.render(); err != nil {
-				return err
-			}
-			if config.PrintStats {
-				s.Stats()
-			}
-		}
-
-		if err := h.render(); err != nil {
-			return err
-		}
-	}
-
-	if config.PrintStats {
-		jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
-	}
-
-	return nil
-
+	// Use this to indicate what changed (for rebuilds).
+	whatChanged *whatChanged
 }
 
 // Analyze prints a build report to Stdout.
@@ -353,8 +169,7 @@ func (h *HugoSites) Analyze() error {
 	return s.ShowPlan(os.Stdout)
 }
 
-// Render the cross-site artifacts.
-func (h *HugoSites) render() error {
+func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 	if !h.multilingual.enabled() {
 		return nil
@@ -494,6 +309,7 @@ func (h *HugoSites) createMissingNodes() error {
 	return nil
 }
 
+// TODO(bep) np move
 // Move the new* methods after cleanup in site.go
 func (s *Site) newNodePage(typ NodeType) *Page {
 	return &Page{
