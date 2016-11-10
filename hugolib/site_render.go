@@ -238,9 +238,8 @@ func (s *Site) renderRobotsTXT() error {
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
-// TODO(bep) np aliases of node types
 func (s *Site) renderAliases() error {
-	for _, p := range s.Pages {
+	for _, p := range s.Nodes {
 		if len(p.Aliases) == 0 {
 			continue
 		}
