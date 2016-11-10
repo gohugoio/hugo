@@ -296,8 +296,6 @@ title = "Hugo in English"
 }
 
 func TestNodesWithTaxonomies(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	//defer jww.SetStdoutThreshold(jww.LevelFatal)
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
@@ -314,7 +312,6 @@ categories:  [
 
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
-	viper.Set("rssURI", "customrss.xml")
 
 	s := newSiteDefaultLang()
 
@@ -324,6 +321,35 @@ categories:  [
 
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5", "Pag: Home With Taxonomies")
 	assertFileContent(t, filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1", "Pag: Home With Taxonomies")
+
+}
+
+func TestNodesWithMenu(t *testing.T) {
+	//jww.SetStdoutThreshold(jww.LevelDebug)
+	//defer jww.SetStdoutThreshold(jww.LevelFatal)
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+	writeRegularPagesForNodeAsPageTests(t)
+
+	writeSource(t, filepath.Join("content", "_index.md"), `---
+title: Home With Menu
+menu:
+  mymenu:
+    name: "Go Home!"
+---
+`)
+
+	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks!")
+
+	s := newSiteDefaultLang()
+
+	if err := buildAndRenderSite(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Menu", "Menu Item: Go Home!")
 
 }
 
@@ -407,6 +433,11 @@ Index Content: {{ .Content }}
 # Pages: {{ len .Data.Pages }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
+{{ end }}
+{{ with .Site.Menus.mymenu }}
+{{ range . }}
+Menu Item: {{ .Name }}
+{{ end }}
 {{ end }}
 `)
 

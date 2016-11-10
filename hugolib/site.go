@@ -1427,8 +1427,7 @@ func (s *Site) assembleMenus() {
 	sectionPagesMenu := s.Language.GetString("SectionPagesMenu")
 	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
-	// TODO(bep) np menu
-	pages := s.findPagesByNodeType(NodePage)
+	pages := s.Nodes
 	for _, p := range pages {
 
 		if sectionPagesMenu != "" {
