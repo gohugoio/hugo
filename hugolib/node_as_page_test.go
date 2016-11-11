@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
@@ -49,22 +50,7 @@ func TestNodesAsPage(t *testing.T) {
 	writeLayoutsForNodeAsPageTests(t)
 	writeNodePagesForNodeAsPageTests("", t)
 
-	// Add some regular pages
-	for i := 1; i <= 4; i++ {
-		sect := "sect1"
-		if i > 2 {
-			sect = "sect2"
-		}
-		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.md", i)), fmt.Sprintf(`---
-title: Page %02d
-categories:  [
-        "Hugo",
-		"Web"
-]
----
-Content Page %02d
-`, i, i))
-	}
+	writeRegularPagesForNodeAsPageTests(t)
 
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks")
@@ -76,40 +62,56 @@ Content Page %02d
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
+	// date order: home, sect1, sect2, cat/hugo, cat/web, categories
+
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
-		"# Pages: 9")
+		"# Pages: 9",
+		"Date: 2009-01-02",
+		"Lastmod: 2009-01-03",
+	)
 
 	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
 
 	h := s.owner
-	nodes := h.findAllPagesByNodeType(PageHome)
-	require.Len(t, nodes, 1)
+	nodes := h.findAllPagesByNodeTypeNotIn(PagePage)
+	require.Len(t, nodes, 6)
 
-	home := nodes[0]
+	home := nodes[5] // oldest
 
 	require.True(t, home.IsHome())
 	require.True(t, home.IsNode())
 	require.False(t, home.IsPage())
 
+	section2 := nodes[3]
+	require.Equal(t, "Section2", section2.Title)
+
 	pages := h.findAllPagesByNodeType(PagePage)
 	require.Len(t, pages, 4)
 
 	first := pages[0]
+
 	require.False(t, first.IsHome())
 	require.False(t, first.IsNode())
 	require.True(t, first.IsPage())
-
-	first.Paginator()
 
 	// Check Home paginator
 	assertFileContent(t, filepath.Join("public", "page", "2", "index.html"), false,
 		"Pag: Page 02")
 
 	// Check Sections
-	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false, "Section Title: Section", "Section1 <strong>Content!</strong>")
-	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false, "Section Title: Section", "Section2 <strong>Content!</strong>")
+	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false,
+		"Section Title: Section", "Section1 <strong>Content!</strong>",
+		"Date: 2009-01-04",
+		"Lastmod: 2009-01-05",
+	)
+
+	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false,
+		"Section Title: Section", "Section2 <strong>Content!</strong>",
+		"Date: 2009-01-06",
+		"Lastmod: 2009-01-07",
+	)
 
 	// Check Sections paginator
 	assertFileContent(t, filepath.Join("public", "sect1", "page", "2", "index.html"), false,
@@ -121,10 +123,17 @@ Content Page %02d
 
 	// Check taxonomy lists
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
-		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>")
+		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>",
+		"Date: 2009-01-08",
+		"Lastmod: 2009-01-09",
+	)
 
 	assertFileContent(t, filepath.Join("public", "categories", "web", "index.html"), false,
-		"Taxonomy Title: Taxonomy Web", "Taxonomy Web <strong>Content!</strong>")
+		"Taxonomy Title: Taxonomy Web",
+		"Taxonomy Web <strong>Content!</strong>",
+		"Date: 2009-01-10",
+		"Lastmod: 2009-01-11",
+	)
 
 	// Check taxonomy list paginator
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "page", "2", "index.html"), false,
@@ -133,7 +142,10 @@ Content Page %02d
 
 	// Check taxonomy terms
 	assertFileContent(t, filepath.Join("public", "categories", "index.html"), false,
-		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo")
+		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo",
+		"Date: 2009-01-12",
+		"Lastmod: 2009-01-13",
+	)
 
 	// There are no pages to paginate over in the taxonomy terms.
 
@@ -174,21 +186,35 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	require.Len(t, homePage.Pages, 9) // Alias
 
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
-		"Index Title: Hugo Rocks!")
+		"Index Title: Hugo Rocks!",
+		"Date: 2010-06-12",
+		"Lastmod: 2010-06-13",
+	)
 
 	// Taxonomy list
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
-		"Taxonomy Title: Hugo")
+		"Taxonomy Title: Hugo",
+		"Date: 2010-06-12",
+		"Lastmod: 2010-06-13",
+	)
 
 	// Taxonomy terms
 	assertFileContent(t, filepath.Join("public", "categories", "index.html"), false,
-		"Taxonomy Terms Title: Categories")
+		"Taxonomy Terms Title: Categories",
+	)
 
 	// Sections
 	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false,
-		"Section Title: Sect1s")
+		"Section Title: Sect1s",
+		"Date: 2010-06-12",
+		"Lastmod: 2010-06-13",
+	)
+
 	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false,
-		"Section Title: Sect2s")
+		"Section Title: Sect2s",
+		"Date: 2008-07-06",
+		"Lastmod: 2008-07-09",
+	)
 
 	// RSS
 	assertFileContent(t, filepath.Join("public", "customrss.xml"), false, "Recent content in Hugo Rocks! on Hugo Rocks!", "<rss")
@@ -321,8 +347,8 @@ categories:  [
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5", "Pag: Home With Taxonomies")
-	assertFileContent(t, filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1", "Pag: Home With Taxonomies")
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5")
+	assertFileContent(t, filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1")
 
 }
 
@@ -415,20 +441,30 @@ func writeRegularPagesForNodeAsPageTestsWithLang(t *testing.T, lang string) {
 		langStr = lang + "."
 	}
 
+	format := "2006-01-02"
+
+	date, _ := time.Parse(format, "2010-06-15")
+
 	for i := 1; i <= 4; i++ {
 		sect := "sect1"
 		if i > 2 {
 			sect = "sect2"
+
+			date, _ = time.Parse(format, "2008-07-15") // Nodes are placed in 2009
+
 		}
+		date = date.Add(-24 * time.Duration(i) * time.Hour)
 		writeSource(t, filepath.Join("content", sect, fmt.Sprintf("regular%d.%smd", i, langStr)), fmt.Sprintf(`---
 title: Page %02d
+lastMod : %q
+date : %q
 categories:  [
         "Hugo",
 		"Web"
 ]
 ---
 Content Page %02d
-`, i, i))
+`, i, date.Add(time.Duration(i)*-24*time.Hour).Format(time.RFC822), date.Add(time.Duration(i)*-2*24*time.Hour).Format(time.RFC822), i))
 	}
 }
 
@@ -440,41 +476,56 @@ func writeNodePagesForNodeAsPageTests(lang string, t *testing.T) {
 		filename = fmt.Sprintf("_index.%s.md", lang)
 	}
 
-	writeSource(t, filepath.Join("content", filename), `---
+	format := "2006-01-02"
+
+	date, _ := time.Parse(format, "2009-01-01")
+
+	writeSource(t, filepath.Join("content", filename), fmt.Sprintf(`---
 title: Home Sweet Home!
+date : %q
+lastMod : %q
 ---
 Home **Content!**
-`)
+`, date.Add(1*24*time.Hour).Format(time.RFC822), date.Add(2*24*time.Hour).Format(time.RFC822)))
 
-	writeSource(t, filepath.Join("content", "sect1", filename), `---
+	writeSource(t, filepath.Join("content", "sect1", filename), fmt.Sprintf(`---
 title: Section1
+date : %q
+lastMod : %q
 ---
 Section1 **Content!**
-`)
-
-	writeSource(t, filepath.Join("content", "sect2", filename), `---
+`, date.Add(3*24*time.Hour).Format(time.RFC822), date.Add(4*24*time.Hour).Format(time.RFC822)))
+	writeSource(t, filepath.Join("content", "sect2", filename), fmt.Sprintf(`---
 title: Section2
+date : %q
+lastMod : %q
 ---
 Section2 **Content!**
-`)
+`, date.Add(5*24*time.Hour).Format(time.RFC822), date.Add(6*24*time.Hour).Format(time.RFC822)))
 
-	writeSource(t, filepath.Join("content", "categories", "hugo", filename), `---
+	writeSource(t, filepath.Join("content", "categories", "hugo", filename), fmt.Sprintf(`---
 title: Taxonomy Hugo
+date : %q
+lastMod : %q
 ---
 Taxonomy Hugo **Content!**
-`)
+`, date.Add(7*24*time.Hour).Format(time.RFC822), date.Add(8*24*time.Hour).Format(time.RFC822)))
 
-	writeSource(t, filepath.Join("content", "categories", "web", filename), `---
+	writeSource(t, filepath.Join("content", "categories", "web", filename), fmt.Sprintf(`---
 title: Taxonomy Web
+date : %q
+lastMod : %q
 ---
 Taxonomy Web **Content!**
-`)
+`, date.Add(9*24*time.Hour).Format(time.RFC822), date.Add(10*24*time.Hour).Format(time.RFC822)))
 
-	writeSource(t, filepath.Join("content", "categories", filename), `---
+	writeSource(t, filepath.Join("content", "categories", filename), fmt.Sprintf(`---
 title: Taxonomy Term Categories
+date : %q
+lastMod : %q
 ---
 Taxonomy Term Categories **Content!**
-`)
+`, date.Add(11*24*time.Hour).Format(time.RFC822), date.Add(12*24*time.Hour).Format(time.RFC822)))
 }
 
 func writeLayoutsForNodeAsPageTests(t *testing.T) {
@@ -490,11 +541,15 @@ Index Content: {{ .Content }}
 Menu Item: {{ .Name }}
 {{ end }}
 {{ end }}
+Date: {{ .Date.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
 
 	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `
 Single Title: {{ .Title }}
 Single Content: {{ .Content }}
+Date: {{ .Date.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
 
 	writeSource(t, filepath.Join("layouts", "_default", "section.html"), `
@@ -504,6 +559,8 @@ Section Content: {{ .Content }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
 {{ end }}
+Date: {{ .Date.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
 
 	// Taxonomy lists
@@ -514,6 +571,8 @@ Taxonomy Content: {{ .Content }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
 {{ end }}
+Date: {{ .Date.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
 
 	// Taxonomy terms
@@ -523,5 +582,7 @@ Taxonomy Terms Content: {{ .Content }}
 {{ range $key, $value := .Data.Terms }}
 	k/v: {{ $key }} / {{ printf "%=v" $value }}
 {{ end }}
+Date: {{ .Date.Format "2006-01-02" }}
+Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
 }
