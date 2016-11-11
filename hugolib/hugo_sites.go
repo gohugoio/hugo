@@ -196,8 +196,8 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 func (h *HugoSites) assignMissingTranslations() error {
 	// This looks heavy, but it should be a small number of nodes by now.
-	allPages := h.findAllPagesByNodeTypeNotIn(NodePage)
-	for _, nodeType := range []NodeType{NodeHome, NodeSection, NodeTaxonomy, NodeTaxonomyTerms} {
+	allPages := h.findAllPagesByNodeTypeNotIn(PagePage)
+	for _, nodeType := range []PageType{PageHome, PageSection, PageTaxonomy, PageTaxonomyTerm} {
 		nodes := h.findPagesByNodeTypeIn(nodeType, allPages)
 
 		// Assign translations
@@ -223,7 +223,7 @@ func (h *HugoSites) createMissingPages() error {
 	for _, s := range h.Sites {
 
 		// home pages
-		home := s.findPagesByNodeType(NodeHome)
+		home := s.findPagesByNodeType(PageHome)
 		if len(home) > 1 {
 			panic("Too many homes")
 		}
@@ -236,8 +236,8 @@ func (h *HugoSites) createMissingPages() error {
 		// taxonomy list and terms pages
 		taxonomies := s.Language.GetStringMapString("taxonomies")
 		if len(taxonomies) > 0 {
-			taxonomyPages := s.findPagesByNodeType(NodeTaxonomy)
-			taxonomyTermsPages := s.findPagesByNodeType(NodeTaxonomyTerms)
+			taxonomyPages := s.findPagesByNodeType(PageTaxonomy)
+			taxonomyTermsPages := s.findPagesByNodeType(PageTaxonomyTerm)
 			for _, plural := range taxonomies {
 				tax := s.Taxonomies[plural]
 				foundTaxonomyPage := false
@@ -271,7 +271,7 @@ func (h *HugoSites) createMissingPages() error {
 			}
 		}
 
-		sectionPages := s.findPagesByNodeType(NodeSection)
+		sectionPages := s.findPagesByNodeType(PageSection)
 		if len(sectionPages) < len(s.Sections) {
 			for name, section := range s.Sections {
 				// A section may be created for the root content folder if a
@@ -309,12 +309,12 @@ func (h *HugoSites) createMissingPages() error {
 
 // TODO(bep) np move
 // Move the new* methods after cleanup in site.go
-func (s *Site) newNodePage(typ NodeType) *Page {
+func (s *Site) newNodePage(typ PageType) *Page {
 	return &Page{
+		PageType: typ,
 		Node: Node{
 			Date:     s.Info.LastChange,
 			Lastmod:  s.Info.LastChange,
-			NodeType: typ,
 			Data:     make(map[string]interface{}),
 			Site:     &s.Info,
 			language: s.Language,
@@ -322,9 +322,11 @@ func (s *Site) newNodePage(typ NodeType) *Page {
 }
 
 func (s *Site) newHomePage() *Page {
-	p := s.newNodePage(NodeHome)
+	p := s.newNodePage(PageHome)
 	p.Title = s.Info.Title
-	p.Data["Pages"] = Pages{}
+	pages := Pages{}
+	p.Data["Pages"] = pages
+	p.Pages = pages
 	s.setPageURLs(p, "/")
 	// TODO(bep) np check Data pages
 	// TODO(bep) np check setURLs
@@ -339,7 +341,7 @@ func (s *Site) setPageURLs(p *Page, in string) {
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {
 
-	p := s.newNodePage(NodeTaxonomy)
+	p := s.newNodePage(PageTaxonomy)
 
 	p.sections = []string{plural, key}
 
@@ -361,7 +363,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 
 func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 
-	p := s.newNodePage(NodeSection)
+	p := s.newNodePage(PageSection)
 	p.sections = []string{name}
 
 	sectionName := name
@@ -380,7 +382,7 @@ func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 }
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
-	p := s.newNodePage(NodeTaxonomyTerms)
+	p := s.newNodePage(PageTaxonomyTerm)
 	p.sections = []string{plural}
 	p.Title = strings.Title(plural)
 	s.setPageURLs(p, plural)
@@ -571,19 +573,19 @@ func (s *Site) updateBuildStats(page *Page) {
 }
 
 // TODO(bep) np remove
-func (h *HugoSites) findAllPagesByNodeType(n NodeType) Pages {
+func (h *HugoSites) findAllPagesByNodeType(n PageType) Pages {
 	return h.Sites[0].findAllPagesByNodeType(n)
 }
 
-func (h *HugoSites) findPagesByNodeTypeNotIn(n NodeType, inPages Pages) Pages {
+func (h *HugoSites) findPagesByNodeTypeNotIn(n PageType, inPages Pages) Pages {
 	return h.Sites[0].findPagesByNodeTypeNotIn(n, inPages)
 }
 
-func (h *HugoSites) findPagesByNodeTypeIn(n NodeType, inPages Pages) Pages {
+func (h *HugoSites) findPagesByNodeTypeIn(n PageType, inPages Pages) Pages {
 	return h.Sites[0].findPagesByNodeTypeIn(n, inPages)
 }
 
-func (h *HugoSites) findAllPagesByNodeTypeNotIn(n NodeType) Pages {
+func (h *HugoSites) findAllPagesByNodeTypeNotIn(n PageType) Pages {
 	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllPages)
 }
 

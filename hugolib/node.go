@@ -29,59 +29,7 @@ import (
 
 // TODO(bep) np clean up node vs page
 
-type NodeType int
-
-const (
-	NodePage NodeType = iota
-
-	// Temporary state.
-	NodeUnknown
-
-	// The rest are node types; home page, sections etc.
-	NodeHome
-	NodeSection
-	NodeTaxonomy
-	NodeTaxonomyTerms
-
-	// The following are (currently) temporary nodes,
-	// i.e. nodes we create just to render in isolation.
-	NodeSitemap
-	NodeRobotsTXT
-	Node404
-)
-
-func (p NodeType) String() string {
-	switch p {
-	case NodePage:
-		return "page"
-	case NodeHome:
-		return "home page"
-	case NodeSection:
-		return "section list"
-	case NodeTaxonomy:
-		return "taxonomy list"
-	case NodeTaxonomyTerms:
-		return "taxonomy terms"
-	case NodeSitemap:
-		return "sitemap"
-	case NodeRobotsTXT:
-		return "robots.txt"
-	case Node404:
-		return "404 Not Found"
-	case NodeUnknown:
-		return "unknown"
-	default:
-		return "invalid value"
-	}
-}
-
-func (p NodeType) IsNode() bool {
-	return p >= NodeHome
-}
-
 type Node struct {
-	NodeType NodeType
-
 	RSSLink template.HTML
 	Site    *SiteInfo `json:"-"`
 	//	layout      string
@@ -181,18 +129,6 @@ func (n *Node) RSSlink() template.HTML {
 	return n.RSSLink
 }
 
-func (n *Node) IsNode() bool {
-	return n.NodeType.IsNode()
-}
-
-func (n *Node) IsHome() bool {
-	return n.NodeType == NodeHome
-}
-
-func (n *Node) IsPage() bool {
-	return n.NodeType == NodePage
-}
-
 func (n *Node) Ref(ref string) (string, error) {
 	return n.Site.Ref(ref, nil)
 }
@@ -240,7 +176,7 @@ func (n *Node) Lang() string {
 }
 
 func (p *Page) isTranslation(candidate *Page) bool {
-	if p == candidate || p.NodeType != candidate.NodeType {
+	if p == candidate || p.PageType != candidate.PageType {
 		return false
 	}
 
@@ -248,7 +184,7 @@ func (p *Page) isTranslation(candidate *Page) bool {
 		return false
 	}
 
-	if p.NodeType == NodePage || p.NodeType == NodeUnknown {
+	if p.PageType == PagePage || p.PageType == pageUnknown {
 		panic("Node type not currently supported for this op")
 	}
 
@@ -355,41 +291,41 @@ func sectionsFromFilename(filename string) []string {
 }
 
 // TODO(bep) np node identificator
-func nodeTypeFromFilename(filename string) NodeType {
+func nodeTypeFromFilename(filename string) PageType {
 	if !strings.Contains(filename, "_index") {
-		return NodePage
+		return PagePage
 	}
 
 	if strings.HasPrefix(filename, "_index") {
-		return NodeHome
+		return PageHome
 	}
 
 	// We don't know enough yet to determine the type.
-	return NodeUnknown
+	return pageUnknown
 }
 
 func (p *Page) setNodeTypeVars(s *Site) {
 	// TODO(bep) np taxonomies etc.
-	if p.NodeType == NodeUnknown {
+	if p.PageType == pageUnknown {
 		// This is either a taxonomy list, taxonomy term or a section
 		nodeType := s.nodeTypeFromSections(p.sections)
 
-		if nodeType == NodeUnknown {
+		if nodeType == pageUnknown {
 			panic(fmt.Sprintf("Unable to determine node type from %q", p.sections))
 		}
 
-		p.NodeType = nodeType
+		p.PageType = nodeType
 	}
 	// TODO(bep) np node URL
 	// Set Node URL
-	switch p.NodeType {
-	case NodeHome:
+	switch p.PageType {
+	case PageHome:
 		p.URLPath.URL = ""
-	case NodeSection:
+	case PageSection:
 		p.URLPath.URL = p.sections[0]
-	case NodeTaxonomy:
+	case PageTaxonomy:
 		p.URLPath.URL = path.Join(p.sections...)
-	case NodeTaxonomyTerms:
+	case PageTaxonomyTerm:
 		p.URLPath.URL = path.Join(p.sections...)
 	}
 

@@ -49,7 +49,46 @@ var (
 	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 )
 
+// PageType is the discriminator that identifies the different page types
+// in the different page collections. This can, as an example, be used
+// to to filter regular pages, find sections etc.
+// NOTE: THe exported constants below are used to filter pages from
+// templates in the wild, so do not change the values!
+type PageType string
+
+const (
+	PagePage PageType = "page"
+
+	// The rest are node types; home page, sections etc.
+	PageHome         PageType = "home"
+	PageSection      PageType = "section"
+	PageTaxonomy     PageType = "taxonomy"
+	PageTaxonomyTerm PageType = "taxonomyTerm"
+
+	// Temporary state.
+	pageUnknown PageType = "unknown"
+
+	// The following are (currently) temporary nodes,
+	// i.e. nodes we create just to render in isolation.
+	pageSitemap   PageType = "sitemap"
+	pageRobotsTXT PageType = "robotsTXT"
+	page404       PageType = "404"
+)
+
+func (p PageType) IsNode() bool {
+	return p != PagePage
+}
+
 type Page struct {
+	PageType PageType
+
+	// Since Hugo 0.18 we got rid of the Node type. So now all pages are ...
+	// pages (regular pages, home page, sections etc.).
+	// Sections etc. will have child pages. These were earlier placed in .Data.Pages,
+	// but can now be more intuitively also be fetched directly from .Pages.
+	// This collection will be nil for regular pages.
+	Pages Pages
+
 	Params            map[string]interface{}
 	Content           template.HTML
 	Summary           template.HTML
@@ -144,6 +183,18 @@ func (*PageMeta) FuzzyWordCount() int {
 func (*PageMeta) ReadingTime() int {
 	helpers.Deprecated("PageMeta", "ReadingTime", ".ReadingTime (on Page)")
 	return 0
+}
+
+func (p *Page) IsNode() bool {
+	return p.PageType.IsNode()
+}
+
+func (p *Page) IsHome() bool {
+	return p.PageType == PageHome
+}
+
+func (p *Page) IsPage() bool {
+	return p.PageType == PagePage
 }
 
 type Position struct {
@@ -430,9 +481,11 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 }
 
 func newPage(filename string) *Page {
-	page := Page{contentType: "",
+	page := Page{
+		PageType:     nodeTypeFromFilename(filename),
+		contentType:  "",
 		Source:       Source{File: *source.NewFile(filename)},
-		Node:         Node{NodeType: nodeTypeFromFilename(filename), Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
+		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
 		Params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
 		sections:     sectionsFromFilename(filename),
@@ -468,16 +521,16 @@ func (p *Page) layouts(l ...string) []string {
 	}
 
 	// TODO(bep) np taxonomy etc.
-	switch p.NodeType {
-	case NodeHome:
+	switch p.PageType {
+	case PageHome:
 		return []string{"index.html", "_default/list.html"}
-	case NodeSection:
+	case PageSection:
 		section := p.sections[0]
 		return []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
-	case NodeTaxonomy:
+	case PageTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
-	case NodeTaxonomyTerms:
+	case PageTaxonomyTerm:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 	}
@@ -502,18 +555,18 @@ func (p *Page) layouts(l ...string) []string {
 // rssLayouts returns RSS layouts to use for the RSS version of this page, nil
 // if no RSS should be rendered.
 func (p *Page) rssLayouts() []string {
-	switch p.NodeType {
-	case NodeHome:
+	switch p.PageType {
+	case PageHome:
 		return []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-	case NodeSection:
+	case PageSection:
 		section := p.sections[0]
 		return []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case NodeTaxonomy:
+	case PageTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case NodeTaxonomyTerms:
+	case PageTaxonomyTerm:
 	// No RSS for taxonomy terms
-	case NodePage:
+	case PagePage:
 		// No RSS for regular pages
 	}
 
@@ -723,7 +776,7 @@ func (p *Page) IsExpired() bool {
 
 func (p *Page) Permalink() (string, error) {
 	// TODO(bep) np permalink
-	if p.NodeType.IsNode() {
+	if p.PageType.IsNode() {
 		return p.Node.Permalink(), nil
 	}
 	link, err := p.permalink()
@@ -961,7 +1014,7 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 
 func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 	// TODO(bep) np menu
-	if p.NodeType.IsNode() {
+	if p.PageType.IsNode() {
 		return p.Node.HasMenuCurrent(menu, me)
 	}
 	menus := p.Menus()
@@ -991,7 +1044,7 @@ func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 
 func (p *Page) IsMenuCurrent(menu string, inme *MenuEntry) bool {
 	// TODO(bep) np menu
-	if p.NodeType.IsNode() {
+	if p.PageType.IsNode() {
 		return p.Node.IsMenuCurrent(menu, inme)
 	}
 	menus := p.Menus()
@@ -1200,14 +1253,14 @@ func (p *Page) FullFilePath() string {
 func (p *Page) TargetPath() (outfile string) {
 
 	// TODO(bep) np
-	switch p.NodeType {
-	case NodeHome:
+	switch p.PageType {
+	case PageHome:
 		return p.addLangFilepathPrefix(helpers.FilePathSeparator)
-	case NodeSection:
+	case PageSection:
 		return p.addLangFilepathPrefix(p.sections[0])
-	case NodeTaxonomy:
+	case PageTaxonomy:
 		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
-	case NodeTaxonomyTerms:
+	case PageTaxonomyTerm:
 		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
 	}
 
@@ -1252,7 +1305,7 @@ func (p *Page) TargetPath() (outfile string) {
 
 func (p *Page) prepareLayouts() error {
 	// TODO(bep): Check the IsRenderable logic.
-	if p.NodeType == NodePage {
+	if p.PageType == PagePage {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
@@ -1273,18 +1326,20 @@ func (p *Page) prepareLayouts() error {
 // TODO(bep) np naming, move some
 func (p *Page) prepareData(s *Site) error {
 
+	var pages Pages
+
 	p.Data = make(map[string]interface{})
-	switch p.NodeType {
-	case NodePage:
-	case NodeHome:
-		p.Data["Pages"] = s.findPagesByNodeTypeNotIn(NodeHome, s.Pages)
-	case NodeSection:
+	switch p.PageType {
+	case PagePage:
+	case PageHome:
+		pages = s.findPagesByNodeTypeNotIn(PageHome, s.Pages)
+	case PageSection:
 		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {
 			return fmt.Errorf("Data for section %s not found", p.Section())
 		}
-		p.Data["Pages"] = sectionData.Pages()
-	case NodeTaxonomy:
+		pages = sectionData.Pages()
+	case PageTaxonomy:
 		plural := p.sections[0]
 		term := p.sections[1]
 
@@ -1294,8 +1349,8 @@ func (p *Page) prepareData(s *Site) error {
 		p.Data[singular] = taxonomy
 		p.Data["Singular"] = singular
 		p.Data["Plural"] = plural
-		p.Data["Pages"] = taxonomy.Pages()
-	case NodeTaxonomyTerms:
+		pages = taxonomy.Pages()
+	case PageTaxonomyTerm:
 		plural := p.sections[0]
 		singular := s.taxonomiesPluralSingular[plural]
 
@@ -1307,6 +1362,9 @@ func (p *Page) prepareData(s *Site) error {
 		p.Data["Index"] = p.Data["Terms"]
 	}
 
+	p.Data["Pages"] = pages
+	p.Pages = pages
+
 	return nil
 }
 
@@ -1315,7 +1373,7 @@ func (p *Page) prepareData(s *Site) error {
 // the paginators etc., we do it manually here.
 // TODO(bep) np do better
 func (p *Page) copy() *Page {
-	c := &Page{Node: Node{NodeType: p.NodeType, Site: p.Site}}
+	c := &Page{PageType: p.PageType, Node: Node{Site: p.Site}}
 	c.Title = p.Title
 	c.Data = p.Data
 	c.Date = p.Date

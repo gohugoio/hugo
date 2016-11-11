@@ -1257,6 +1257,40 @@ func TestPageSimpleMethods(t *testing.T) {
 	}
 }
 
+func TestIndexPageSimpleMethods(t *testing.T) {
+	for i, this := range []struct {
+		assertFunc func(n *Page) bool
+	}{
+		{func(n *Page) bool { return n.IsNode() }},
+		{func(n *Page) bool { return !n.IsPage() }},
+		{func(n *Page) bool { return n.RSSlink() == "rssLink" }},
+		{func(n *Page) bool { return n.Scratch() != nil }},
+		{func(n *Page) bool { return n.Hugo() != nil }},
+		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
+	} {
+
+		n := &Page{PageType: PageHome}
+		n.RSSLink = "rssLink"
+
+		if !this.assertFunc(n) {
+			t.Errorf("[%d] Node method error", i)
+		}
+	}
+}
+
+func TestPageType(t *testing.T) {
+
+	// Add tests for these constants to make sure they don't change
+	require.Equal(t, PageType("page"), PagePage)
+	require.Equal(t, PageType("home"), PageHome)
+	require.Equal(t, PageType("section"), PageSection)
+	require.Equal(t, PageType("taxonomy"), PageTaxonomy)
+	require.Equal(t, PageType("taxonomyTerm"), PageTaxonomyTerm)
+
+	require.False(t, PagePage.IsNode())
+	require.True(t, PageHome.IsNode())
+}
+
 func TestChompBOM(t *testing.T) {
 	const utf8BOM = "\xef\xbb\xbf"
 
