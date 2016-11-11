@@ -91,9 +91,9 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	require.Len(t, s.Pages, 1)
+	require.Len(t, s.regularPages, 1)
 
-	p := s.Pages[0]
+	p := s.regularPages[0]
 
 	err := s.renderThing(p, "foobar", nil)
 	if err == nil {
@@ -142,14 +142,14 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	// Testing Defaults.. Only draft:true and publishDate in the past should be rendered
 	s := siteSetup(t)
-	if len(s.AllPages) != 1 {
+	if len(s.regularPages) != 1 {
 		t.Fatal("Draft or Future dated content published unexpectedly")
 	}
 
 	// only publishDate in the past should be rendered
 	viper.Set("buildDrafts", true)
 	s = siteSetup(t)
-	if len(s.AllPages) != 2 {
+	if len(s.regularPages) != 2 {
 		t.Fatal("Future Dated Posts published unexpectedly")
 	}
 
@@ -157,7 +157,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("buildDrafts", false)
 	viper.Set("buildFuture", true)
 	s = siteSetup(t)
-	if len(s.AllPages) != 2 {
+	if len(s.regularPages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
 	}
 
@@ -165,7 +165,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 	viper.Set("buildDrafts", true)
 	viper.Set("buildFuture", true)
 	s = siteSetup(t)
-	if len(s.AllPages) != 4 {
+	if len(s.regularPages) != 4 {
 		t.Fatal("Drafts or Future posts not included as expected")
 	}
 
@@ -201,11 +201,11 @@ func TestFutureExpirationRender(t *testing.T) {
 	s := siteSetup(t)
 
 	if len(s.AllPages) != 1 {
-		if len(s.AllPages) > 1 {
+		if len(s.regularPages) > 1 {
 			t.Fatal("Expired content published unexpectedly")
 		}
 
-		if len(s.AllPages) < 1 {
+		if len(s.regularPages) < 1 {
 			t.Fatal("Valid content expired unexpectedly")
 		}
 	}
@@ -285,7 +285,7 @@ THE END.`, refShortcode)),
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	if len(s.AllPages) != 3 {
+	if len(s.regularPages) != 3 {
 		t.Fatalf("Expected 3 got %d pages", len(s.AllPages))
 	}
 
@@ -377,7 +377,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		{filepath.FromSlash("public/ugly.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>doc2 <em>content</em></p>\n"},
 	}
 
-	for _, p := range s.Pages {
+	for _, p := range s.regularPages {
 		assert.False(t, p.IsHome())
 	}
 
@@ -649,7 +649,7 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. Second should be '%s', got '%s'", "Three", s.Sections["sect"][1].Page.Title)
 	}
 
-	bydate := s.Pages.ByDate()
+	bydate := s.regularPages.ByDate()
 
 	if bydate[0].Title != "One" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bydate[0].Title)
@@ -660,7 +660,7 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rev[0].Title)
 	}
 
-	bypubdate := s.Pages.ByPublishDate()
+	bypubdate := s.regularPages.ByPublishDate()
 
 	if bypubdate[0].Title != "One" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bypubdate[0].Title)
@@ -671,7 +671,7 @@ func TestOrderedPages(t *testing.T) {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].Title)
 	}
 
-	bylength := s.Pages.ByLength()
+	bylength := s.regularPages.ByLength()
 	if bylength[0].Title != "One" {
 		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].Title)
 	}
@@ -710,7 +710,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	rbysection, err := s.Pages.GroupBy("Section", "desc")
+	rbysection, err := s.regularPages.GroupBy("Section", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -730,7 +730,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
 	}
 
-	bytype, err := s.Pages.GroupBy("Type", "asc")
+	bytype, err := s.regularPages.GroupBy("Type", "asc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -750,7 +750,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bytype[2].Pages))
 	}
 
-	bydate, err := s.Pages.GroupByDate("2006-01", "asc")
+	bydate, err := s.regularPages.GroupByDate("2006-01", "asc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -770,7 +770,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bydate[2].Pages))
 	}
 
-	bypubdate, err := s.Pages.GroupByPublishDate("2006")
+	bypubdate, err := s.regularPages.GroupByPublishDate("2006")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -787,7 +787,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 3, len(bypubdate[0].Pages))
 	}
 
-	byparam, err := s.Pages.GroupByParam("my_param", "desc")
+	byparam, err := s.regularPages.GroupByParam("my_param", "desc")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -807,12 +807,12 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byparam[0].Pages))
 	}
 
-	_, err = s.Pages.GroupByParam("not_exist")
+	_, err = s.regularPages.GroupByParam("not_exist")
 	if err == nil {
 		t.Errorf("GroupByParam didn't return an expected error")
 	}
 
-	byOnlyOneParam, err := s.Pages.GroupByParam("only_one")
+	byOnlyOneParam, err := s.regularPages.GroupByParam("only_one")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}
@@ -823,7 +823,7 @@ func TestGroupedPages(t *testing.T) {
 		t.Errorf("PageGroup array in unexpected order. First group key should be '%s', got '%s'", "yes", byOnlyOneParam[0].Key)
 	}
 
-	byParamDate, err := s.Pages.GroupByParamDate("my_date", "2006-01")
+	byParamDate, err := s.regularPages.GroupByParamDate("my_date", "2006-01")
 	if err != nil {
 		t.Fatalf("Unable to make PageGroup array: %s", err)
 	}

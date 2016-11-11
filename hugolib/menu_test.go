@@ -208,7 +208,7 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 
 	s := setupMenuTests(t, menuPageSources)
 
-	assert.Equal(t, 3, len(s.Pages), "Not enough pages")
+	assert.Equal(t, 3, len(s.regularPages), "Not enough pages")
 
 	me1 := findTestMenuEntryByID(s, "m1", "i1")
 	me2 := findTestMenuEntryByID(s, "m1", "i2")
@@ -246,7 +246,7 @@ func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.Byte
 
 	s := setupMenuTests(t, menuPageSources)
 
-	assert.Equal(t, 3, len(s.Pages), "Not enough pages")
+	assert.Equal(t, 3, len(s.regularPages), "Not enough pages")
 
 	me1 := findTestMenuEntryByName(s, "m1", "n1")
 	me2 := findTestMenuEntryByName(s, "m1", "n2")
@@ -264,13 +264,13 @@ func TestPageMenu(t *testing.T) {
 
 	s := setupMenuTests(t, menuPageSources)
 
-	if len(s.Pages) != 3 {
-		t.Fatalf("Posts not created, expected 3 got %d", len(s.Pages))
+	if len(s.regularPages) != 3 {
+		t.Fatalf("Posts not created, expected 3 got %d", len(s.regularPages))
 	}
 
-	first := s.Pages[0]
-	second := s.Pages[1]
-	third := s.Pages[2]
+	first := s.regularPages[0]
+	second := s.regularPages[1]
+	third := s.regularPages[2]
 
 	pOne := findTestMenuEntryByName(s, "p_one", "One")
 	pTwo := findTestMenuEntryByID(s, "p_two", "Two")
@@ -358,9 +358,9 @@ Yaml Front Matter with Menu Pages`)
 		{Name: filepath.FromSlash("sect/yaml1.md"), Content: ps1},
 		{Name: filepath.FromSlash("sect/yaml2.md"), Content: ps2}})
 
-	p1 := s.Pages[0]
+	p1 := s.regularPages[0]
 	assert.Len(t, p1.Menus(), 2, "List YAML")
-	p2 := s.Pages[1]
+	p2 := s.regularPages[1]
 	assert.Len(t, p2.Menus(), 2, "Map YAML")
 
 }

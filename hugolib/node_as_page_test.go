@@ -79,7 +79,7 @@ Content Page %02d
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
-		"# Pages: 4")
+		"# Pages: 9")
 
 	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
 
@@ -170,7 +170,7 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	require.Len(t, homePages, 1)
 
 	homePage := homePages[0]
-	require.Len(t, homePage.Data["Pages"], 4)
+	require.Len(t, homePage.Data["Pages"], 9)
 
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
 		"Index Title: Hugo Rocks!")

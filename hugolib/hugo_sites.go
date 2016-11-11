@@ -196,9 +196,9 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 func (h *HugoSites) assignMissingTranslations() error {
 	// This looks heavy, but it should be a small number of nodes by now.
-	allNodes := h.findAllPagesByNodeTypeNotIn(NodePage)
+	allPages := h.findAllPagesByNodeTypeNotIn(NodePage)
 	for _, nodeType := range []NodeType{NodeHome, NodeSection, NodeTaxonomy, NodeTaxonomyTerms} {
-		nodes := h.findPagesByNodeTypeIn(nodeType, allNodes)
+		nodes := h.findPagesByNodeTypeIn(nodeType, allPages)
 
 		// Assign translations
 		for _, t1 := range nodes {
@@ -213,14 +213,12 @@ func (h *HugoSites) assignMissingTranslations() error {
 
 }
 
-// createMissingNodes creates home page, taxonomies etc. that isnt't created as an
+// createMissingPages creates home page, taxonomies etc. that isnt't created as an
 // effect of having a content file.
-func (h *HugoSites) createMissingNodes() error {
-	// TODO(bep) np revisit this on languages -- as this is currently run after the page language distribution (due to taxonomies)
-	// TODO(bep) np re above, Pages vs.
+func (h *HugoSites) createMissingPages() error {
 	// TODO(bep) np check node title etc.
 
-	var newNodes Pages
+	var newPages Pages
 
 	for _, s := range h.Sites {
 
@@ -231,8 +229,8 @@ func (h *HugoSites) createMissingNodes() error {
 		}
 		if len(home) == 0 {
 			n := s.newHomePage()
-			s.Nodes = append(s.Nodes, n)
-			newNodes = append(newNodes, n)
+			s.Pages = append(s.Pages, n)
+			newPages = append(newPages, n)
 		}
 
 		// taxonomy list and terms pages
@@ -259,15 +257,15 @@ func (h *HugoSites) createMissingNodes() error {
 					}
 					if !foundTaxonomyPage {
 						n := s.newTaxonomyPage(plural, key)
-						s.Nodes = append(s.Nodes, n)
-						newNodes = append(newNodes, n)
+						s.Pages = append(s.Pages, n)
+						newPages = append(newPages, n)
 					}
 
 					if !foundTaxonomyTermsPage {
 						foundTaxonomyTermsPage = true
 						n := s.newTaxonomyTermsPage(plural)
-						s.Nodes = append(s.Nodes, n)
-						newNodes = append(newNodes, n)
+						s.Pages = append(s.Pages, n)
+						newPages = append(newPages, n)
 					}
 				}
 			}
@@ -292,18 +290,18 @@ func (h *HugoSites) createMissingNodes() error {
 				}
 				if !foundSection {
 					n := s.newSectionPage(name, section)
-					s.Nodes = append(s.Nodes, n)
-					newNodes = append(newNodes, n)
+					s.Pages = append(s.Pages, n)
+					newPages = append(newPages, n)
 				}
 			}
 		}
 	}
 
-	if len(newNodes) > 0 {
+	if len(newPages) > 0 {
 		first := h.Sites[0]
-		first.AllNodes = append(first.AllNodes, newNodes...)
+		first.AllPages = append(first.AllPages, newPages...)
 		for i := 1; i < len(h.Sites); i++ {
-			h.Sites[i].AllNodes = first.AllNodes
+			h.Sites[i].AllPages = first.AllPages
 		}
 	}
 	return nil
@@ -404,7 +402,7 @@ func (h *HugoSites) setupTranslations() {
 			if strings.HasPrefix(site.Language.Lang, p.Lang()) {
 				site.updateBuildStats(p)
 				if shouldBuild {
-					site.Nodes = append(site.Nodes, p)
+					site.Pages = append(site.Pages, p)
 					p.Site = &site.Info
 				}
 			}
@@ -414,7 +412,7 @@ func (h *HugoSites) setupTranslations() {
 			}
 
 			if i == 0 {
-				site.AllNodes = append(site.AllNodes, p)
+				site.AllPages = append(site.AllPages, p)
 			}
 		}
 
@@ -422,12 +420,12 @@ func (h *HugoSites) setupTranslations() {
 
 	// Pull over the collections from the master site
 	for i := 1; i < len(h.Sites); i++ {
-		h.Sites[i].AllNodes = h.Sites[0].AllNodes
+		h.Sites[i].AllPages = h.Sites[0].AllPages
 		h.Sites[i].Data = h.Sites[0].Data
 	}
 
 	if len(h.Sites) > 1 {
-		pages := h.Sites[0].AllNodes
+		pages := h.Sites[0].AllPages
 		allTranslations := pagesToTranslationsMap(h.multilingual, pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
@@ -524,7 +522,7 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 		}(pageChan, wg)
 	}
 
-	for _, p := range s.Nodes {
+	for _, p := range s.Pages {
 		pageChan <- p
 	}
 
@@ -586,7 +584,7 @@ func (h *HugoSites) findPagesByNodeTypeIn(n NodeType, inPages Pages) Pages {
 }
 
 func (h *HugoSites) findAllPagesByNodeTypeNotIn(n NodeType) Pages {
-	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllNodes)
+	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllPages)
 }
 
 // Convenience func used in tests to build a single site/language excluding render phase.

@@ -45,7 +45,7 @@ func (s *Site) renderPages() error {
 		go pageRenderer(s, pages, results, wg)
 	}
 
-	for _, page := range s.Nodes {
+	for _, page := range s.Pages {
 		pages <- page
 	}
 
@@ -183,7 +183,7 @@ func (s *Site) renderSitemap() error {
 	n := s.newNodePage(NodeSitemap)
 
 	// Include all pages (regular, home page, taxonomies etc.)
-	pages := s.Nodes
+	pages := s.Pages
 
 	page := s.newNodePage(NodeSitemap)
 	page.URLPath.URL = ""
@@ -239,7 +239,7 @@ func (s *Site) renderRobotsTXT() error {
 
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
-	for _, p := range s.Nodes {
+	for _, p := range s.Pages {
 		if len(p.Aliases) == 0 {
 			continue
 		}

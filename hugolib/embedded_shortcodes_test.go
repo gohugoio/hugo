@@ -66,9 +66,9 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 	require.NoError(t, err)
 
 	require.NoError(t, sites.Build(BuildCfg{}))
-	require.Len(t, sites.Sites[0].Pages, 1)
+	require.Len(t, sites.Sites[0].regularPages, 1)
 
-	output := string(sites.Sites[0].Pages[0].Content)
+	output := string(sites.Sites[0].regularPages[0].Content)
 
 	if !strings.Contains(output, expected) {
 		t.Errorf("Got\n%q\nExpected\n%q", output, expected)

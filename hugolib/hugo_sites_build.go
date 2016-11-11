@@ -156,7 +156,7 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		}
 	}
 
-	if err := h.createMissingNodes(); err != nil {
+	if err := h.createMissingPages(); err != nil {
 		return err
 	}
 
