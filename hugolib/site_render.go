@@ -67,14 +67,14 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	for p := range pages {
 		targetPath := p.TargetPath()
 		layouts := p.layouts()
-		jww.DEBUG.Printf("Render %s to %q with layouts %q", p.NodeType, targetPath, layouts)
+		jww.DEBUG.Printf("Render %s to %q with layouts %q", p.PageType, targetPath, layouts)
 
 		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
 			results <- err
 		}
 
 		// Taxonomy terms have no page set to paginate, so skip that for now.
-		if p.NodeType.IsNode() && p.NodeType != NodeTaxonomyTerms {
+		if p.PageType.IsNode() && p.PageType != PageTaxonomyTerm {
 			if err := s.renderPaginator(p); err != nil {
 				results <- err
 			}
@@ -160,9 +160,10 @@ func (s *Site) render404() error {
 		return nil
 	}
 
-	p := s.newNodePage(Node404)
+	p := s.newNodePage(page404)
 	p.Title = "404 Page not found"
 	p.Data["Pages"] = s.Pages
+	p.Pages = s.Pages
 	s.setPageURLs(p, "404.html")
 
 	nfLayouts := []string{"404.html"}
@@ -180,18 +181,19 @@ func (s *Site) renderSitemap() error {
 
 	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
 
-	n := s.newNodePage(NodeSitemap)
+	n := s.newNodePage(pageSitemap)
 
 	// Include all pages (regular, home page, taxonomies etc.)
 	pages := s.Pages
 
-	page := s.newNodePage(NodeSitemap)
+	page := s.newNodePage(pageSitemap)
 	page.URLPath.URL = ""
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
 	page.Sitemap.Filename = sitemapDefault.Filename
 
 	n.Data["Pages"] = pages
+	n.Pages = pages
 
 	// TODO(bep) this should be done somewhere else
 	for _, page := range pages {
@@ -222,8 +224,9 @@ func (s *Site) renderRobotsTXT() error {
 		return nil
 	}
 
-	n := s.newNodePage(NodeRobotsTXT)
+	n := s.newNodePage(pageRobotsTXT)
 	n.Data["Pages"] = s.Pages
+	n.Pages = s.Pages
 
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
 	outBuffer := bp.GetBuffer()
