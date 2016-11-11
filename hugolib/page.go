@@ -1277,7 +1277,7 @@ func (p *Page) prepareData(s *Site) error {
 	switch p.NodeType {
 	case NodePage:
 	case NodeHome:
-		p.Data["Pages"] = s.Pages
+		p.Data["Pages"] = s.findPagesByNodeTypeNotIn(NodeHome, s.Pages)
 	case NodeSection:
 		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {

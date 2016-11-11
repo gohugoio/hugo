@@ -17,38 +17,34 @@ import (
 	"fmt"
 )
 
-// TODO(bep) np pages names
-// TODO(bep) np this is a somewhat breaking change and should be doc. + release notes: See AllPages vs. "this language only". Looks like it is like this alread, check.
+// PageCollections contains the page collections for a site.
 type PageCollections struct {
-	// Includes only pages of NodePage type, and only pages in the current language.
+	// Includes only pages of all types, and only pages in the current language.
 	Pages Pages
 
 	// Includes all pages in all languages, including the current one.
-	// Only pages of NodePage type.
+	// Inlcudes pages of all types.
 	AllPages Pages
 
-	// Includes pages of all types, but only pages in the current language.
-	Nodes Pages
-
-	// Includes all pages in all languages, including the current one.
-	// Includes pages of all types.
-	AllNodes Pages
-
-	// A convenience cache for the traditional node types, taxonomies, home page etc.
+	// A convenience cache for the traditional index types, taxonomies, home page etc.
 	// This is for the current language only.
-	indexNodes Pages
+	indexPages Pages
+
+	// A convenience cache for the regular pages.
+	// This is for the current language only.
+	// TODO(bep) np consider exporting this
+	regularPages Pages
 
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
 }
 
 func (c *PageCollections) refreshPageCaches() {
-	// All pages are stored in AllNodes and Nodes. Filter from those.
-	c.Pages = c.findPagesByNodeTypeIn(NodePage, c.Nodes)
-	c.indexNodes = c.findPagesByNodeTypeNotIn(NodePage, c.Nodes)
-	c.AllPages = c.findPagesByNodeTypeIn(NodePage, c.AllNodes)
+	c.indexPages = c.findPagesByNodeTypeNotIn(NodePage, c.Pages)
+	c.regularPages = c.findPagesByNodeTypeIn(NodePage, c.Pages)
 
-	for _, n := range c.Nodes {
+	// TODO(bep) np remove eventually
+	for _, n := range c.Pages {
 		if n.NodeType == NodeUnknown {
 			panic(fmt.Sprintf("Got unknown type %s", n.Title))
 		}
@@ -66,11 +62,11 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 // TODO(bep) np clean and remove finders
 
 func (c *PageCollections) findPagesByNodeType(n NodeType) Pages {
-	return c.findPagesByNodeTypeIn(n, c.Nodes)
+	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
 func (c *PageCollections) getPage(n NodeType, path ...string) *Page {
-	pages := c.findPagesByNodeTypeIn(n, c.Nodes)
+	pages := c.findPagesByNodeTypeIn(n, c.Pages)
 
 	if len(pages) == 0 {
 		return nil
@@ -99,7 +95,7 @@ func (c *PageCollections) getPage(n NodeType, path ...string) *Page {
 }
 
 func (c *PageCollections) findIndexNodesByNodeType(n NodeType) Pages {
-	return c.findPagesByNodeTypeIn(n, c.indexNodes)
+	return c.findPagesByNodeTypeIn(n, c.indexPages)
 }
 
 func (*PageCollections) findPagesByNodeTypeIn(n NodeType, inPages Pages) Pages {
@@ -123,7 +119,7 @@ func (*PageCollections) findPagesByNodeTypeNotIn(n NodeType, inPages Pages) Page
 }
 
 func (c *PageCollections) findAllPagesByNodeType(n NodeType) Pages {
-	return c.findPagesByNodeTypeIn(n, c.Nodes)
+	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
 func (c *PageCollections) findRawAllPagesByNodeType(n NodeType) Pages {

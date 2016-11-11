@@ -103,21 +103,6 @@ type Node struct {
 	lang         string
 }
 
-// The Nodes type is temporary until we get https://github.com/spf13/hugo/issues/2297 fixed.
-type Nodes []*Node
-
-func (n Nodes) Len() int {
-	return len(n)
-}
-
-func (n Nodes) Less(i, j int) bool {
-	return n[i].language.Weight < n[j].language.Weight
-}
-
-func (n Nodes) Swap(i, j int) {
-	n[i], n[j] = n[j], n[i]
-}
-
 func (n *Node) Now() time.Time {
 	return time.Now()
 }

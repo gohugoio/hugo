@@ -1327,14 +1327,14 @@ func (s *Site) buildSiteMeta() (err error) {
 
 	s.assembleMenus()
 
-	if len(s.Nodes) == 0 {
+	if len(s.Pages) == 0 {
 		return
 	}
 
 	s.assembleTaxonomies()
 
 	// TODO(bep) np
-	for _, p := range s.AllNodes {
+	for _, p := range s.AllPages {
 		// setNodeTypeVars needs taxonomies
 		p.setNodeTypeVars(s)
 	}
@@ -1343,7 +1343,7 @@ func (s *Site) buildSiteMeta() (err error) {
 	s.assembleSections()
 
 	// TODO(bep) np Site.LastMod
-	pages := s.Nodes
+	pages := s.Pages
 	s.Info.LastChange = pages[0].Lastmod
 
 	return
@@ -1418,7 +1418,7 @@ func (s *Site) assembleMenus() {
 	sectionPagesMenu := s.Language.GetString("SectionPagesMenu")
 	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
-	pages := s.Nodes
+	pages := s.Pages
 	for _, p := range pages {
 
 		if sectionPagesMenu != "" {
@@ -1486,7 +1486,7 @@ func (s *Site) assembleTaxonomies() {
 		s.Taxonomies[plural] = make(Taxonomy)
 		s.taxonomiesPluralSingular[plural] = singular
 
-		for _, p := range s.Nodes {
+		for _, p := range s.Pages {
 			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
 			weight := p.GetParam(plural + "_weight")
 			if weight == nil {
@@ -1574,7 +1574,7 @@ func (s *Site) nodeTypeFromSections(sections []string) NodeType {
 func (s *Site) preparePages() error {
 	var errors []error
 
-	for _, p := range s.Nodes {
+	for _, p := range s.Pages {
 		if err := p.prepareLayouts(); err != nil {
 			errors = append(errors, err)
 		}
