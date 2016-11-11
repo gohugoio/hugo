@@ -1365,7 +1365,49 @@ func (p *Page) prepareData(s *Site) error {
 	p.Data["Pages"] = pages
 	p.Pages = pages
 
+	// Now we know enough to set missing dates on home page etc.
+	p.updatePageDates()
+
 	return nil
+}
+
+func (p *Page) updatePageDates() {
+	// TODO(bep) np there is a potential issue with page sorting for home pages
+	// etc. without front matter dates set, but let us wrap the head around
+	// that in another time.
+	if !p.PageType.IsNode() {
+		return
+	}
+
+	if !p.Date.IsZero() {
+		if p.Lastmod.IsZero() {
+			p.Lastmod = p.Date
+		}
+		return
+	} else if !p.Lastmod.IsZero() {
+		if p.Date.IsZero() {
+			p.Date = p.Lastmod
+		}
+		return
+	}
+
+	// Set it to the first non Zero date in children
+	var foundDate, foundLastMod bool
+
+	for _, child := range p.Pages {
+		if !child.Date.IsZero() {
+			p.Date = child.Date
+			foundDate = true
+		}
+		if !child.Lastmod.IsZero() {
+			p.Lastmod = child.Lastmod
+			foundLastMod = true
+		}
+
+		if foundDate && foundLastMod {
+			break
+		}
+	}
 }
 
 // Page constains some sync.Once which have a mutex, so we cannot just

@@ -31,11 +31,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-// Temporary feature flag to ease the refactoring of node vs page, see
-// https://github.com/spf13/hugo/issues/2297
-// TODO(bep) eventually remove
-var nodePageFeatureFlag bool = true
-
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
 	Sites []*Site
@@ -313,8 +308,6 @@ func (s *Site) newNodePage(typ PageType) *Page {
 	return &Page{
 		PageType: typ,
 		Node: Node{
-			Date:     s.Info.LastChange,
-			Lastmod:  s.Info.LastChange,
 			Data:     make(map[string]interface{}),
 			Site:     &s.Info,
 			language: s.Language,

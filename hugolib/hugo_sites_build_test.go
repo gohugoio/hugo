@@ -28,7 +28,6 @@ type testSiteConfig struct {
 }
 
 func init() {
-	nodePageFeatureFlag = true
 	testCommonResetState()
 }
 
