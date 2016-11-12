@@ -114,7 +114,6 @@ func resDeleteCache(id string, fs afero.Fs) error {
 
 // resGetRemote loads the content of a remote file. This method is thread safe.
 func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
-
 	c, err := resGetCache(url, fs, viper.GetBool("ignoreCache"))
 	if c != nil && err == nil {
 		return c, nil

@@ -823,6 +823,7 @@ func (s *Site) setCurrentLanguageConfig() error {
 	viper.Set("currentContentLanguage", s.Language)
 	// Cache the current config.
 	helpers.InitConfigProviderForCurrentContentLanguage()
+	s.Info.pathSpec = helpers.CurrentPathSpec()
 	return tpl.SetTranslateLang(s.Language)
 }
 
@@ -917,7 +918,6 @@ func (s *SiteInfo) SitemapAbsURL() string {
 }
 
 func (s *Site) initializeSiteInfo() {
-
 	var (
 		lang      *helpers.Language = s.Language
 		languages helpers.Languages
@@ -1980,7 +1980,6 @@ func (s *Site) renderSectionLists(prepare bool) error {
 		}
 
 		if n.paginator != nil {
-
 			paginatePath := helpers.Config().GetString("paginatePath")
 
 			// write alias for page 1
@@ -2029,7 +2028,6 @@ func (s *Site) renderSectionLists(prepare bool) error {
 }
 
 func (s *Site) renderHomePage(prepare bool) error {
-
 	n := s.newHomeNode(prepare, 0)
 	if prepare {
 		return nil

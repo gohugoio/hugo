@@ -42,7 +42,6 @@ func HasPygments() bool {
 
 // Highlight takes some code and returns highlighted code.
 func Highlight(code, lang, optsStr string) string {
-
 	if !HasPygments() {
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
@@ -197,7 +196,6 @@ func createOptionsString(options map[string]string) string {
 }
 
 func parseDefaultPygmentsOpts() (map[string]string, error) {
-
 	options := make(map[string]string)
 	err := parseOptions(options, viper.GetString("pygmentsOptions"))
 	if err != nil {
@@ -225,7 +223,6 @@ func parseDefaultPygmentsOpts() (map[string]string, error) {
 }
 
 func parsePygmentsOpts(in string) (string, error) {
-
 	options, err := parseDefaultPygmentsOpts()
 	if err != nil {
 		return "", err

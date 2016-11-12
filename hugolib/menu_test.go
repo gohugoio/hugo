@@ -87,9 +87,9 @@ const (
 
 var menuPage1 = []byte(`+++
 title = "One"
+weight = 1
 [menu]
 	[menu.p_one]
-weight = 1
 +++
 Front Matter with Menu Pages`)
 
