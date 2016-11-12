@@ -159,6 +159,35 @@ To track down missing translation strings, run Hugo with the `--i18n-warnings` f
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
+### Crosspost between languages
+
+Sometimes you want a certain post to show up in the index for another language, this is called a "crosspost".
+
+For example you may have an English post `post.en.md` that you want to show up in the index for the Swedish posts.
+
+One way to do this is to create an empty corresponding Swedish post called `post.sv.md` but with the parameter `crosspost: true` in the frontmatter.
+
+```yaml
+---
+date: 2016-10-27
+crosspost: true
+---
+
+```
+
+Then you can have this logic in your index template. What this does is that it replaces which context get rendered if the post is marked as crosspost. Instead of rendering the `post.sv.md` it renders `post.en.md`.
+
+```html
+{{ $c := index .Translations 0 }}
+{{ if isset .Params "crosspost" }}
+  {{ $c.Render "listitem" }}
+{{ else }}
+  {{ .Render "listitem" }}
+{{ end }}
+```
+
+Note: This method only works for a site with two languages.
+
 ### Menus
 
 You can define your menus for each language independently. The [creation of a menu]({{< relref "extras/menus.md" >}}) works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
