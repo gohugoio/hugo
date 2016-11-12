@@ -70,6 +70,7 @@ func TestNodesAsPage(t *testing.T) {
 		"# Pages: 9",
 		"Date: 2009-01-02",
 		"Lastmod: 2009-01-03",
+		"GetPage: Section1 ",
 	)
 
 	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
@@ -543,6 +544,7 @@ Menu Item: {{ .Name }}
 {{ end }}
 Date: {{ .Date.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}
+GetPage: {{ with .Site.GetPage "section" "sect1" }}{{ .Title }}{{ end }} 
 `)
 
 	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `

@@ -65,8 +65,8 @@ func (c *PageCollections) findPagesByNodeType(n PageType) Pages {
 	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
-func (c *PageCollections) getPage(n PageType, path ...string) *Page {
-	pages := c.findPagesByNodeTypeIn(n, c.Pages)
+func (c *PageCollections) getPage(typ PageType, path ...string) *Page {
+	pages := c.findPagesByNodeTypeIn(typ, c.Pages)
 
 	if len(pages) == 0 {
 		return nil
