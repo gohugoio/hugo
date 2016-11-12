@@ -451,8 +451,8 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					pathsToCheck := []string{
 						filepath.Join(templateDir, currBaseFilename),
 						filepath.Join(templateDir, baseFileName),
-						filepath.Join(absPath, "_default", currBaseFilename),
-						filepath.Join(absPath, "_default", baseFileName),
+						filepath.Join(helpers.GetLayoutDirPath(), "_default", currBaseFilename),
+						filepath.Join(helpers.GetLayoutDirPath(), "_default", baseFileName),
 						filepath.Join(themeDir, "layouts", "_default", currBaseFilename),
 						filepath.Join(themeDir, "layouts", "_default", baseFileName),
 					}

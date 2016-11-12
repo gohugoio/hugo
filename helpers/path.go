@@ -163,6 +163,12 @@ func GetStaticDirPath() string {
 	return AbsPathify(viper.GetString("staticDir"))
 }
 
+// GetLayoutDirPath returns the absolute path to the layout file dir
+// for the current Hugo project.
+func GetLayoutDirPath() string {
+	return AbsPathify(viper.GetString("layoutDir"))
+}
+
 // GetThemeDir gets the root directory of the current theme, if there is one.
 // If there is no theme, returns the empty string.
 func GetThemeDir() string {
