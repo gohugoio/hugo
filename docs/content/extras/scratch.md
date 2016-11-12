@@ -23,11 +23,11 @@ weight: 80
 
 `Set` and `SetInMap` can store values of any type. 
 
-For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the follwing adds will be appended to that list.
+For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
 The scope of the backing data is global for the given `Node`, `Page` or `Shortcode`, and spans partial and shortcode includes.
 
-Note that `.Scratch` from a shortcode will return the shortcode's `Scratch`, which in most casses is what you want. If you want to store it in the page scroped Scratch, then use `.Page.Scratch`.
+Note that `.Scratch` from a shortcode will return the shortcode's `Scratch`, which in most cases is what you want. If you want to store it in the page scroped Scratch, then use `.Page.Scratch`.
 
 ## Sample usage
 
