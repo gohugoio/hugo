@@ -60,6 +60,7 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
 {{ end }}`)
 	t.AddInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
 	t.AddInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
+	t.AddInternalShortcode("widgets.html", `{{ widgets (.Get 0) $ }}`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
@@ -140,6 +141,24 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
         {{ end }}
     </ul>
     {{ end }}`)
+
+	t.AddInternalTemplate("", "widgets.html", `{{- range .c.Site.Widgets -}}
+{{- if eq .Name $._wa -}}{{/* Display only the current widget area */}}
+<div class="widget-area widget-area-{{ .Name }}">
+  {{- $waname := .Name -}}
+  {{ range .Widgets -}}
+  <div class="widget widget-{{ .Type }}">
+    {{ partial (print .Type "/widget.html") "widgets" .Params }}
+  </div>
+  {{- end }}{{/* end range widgets */}}
+</div>
+{{/* end if */}}{{- end -}}
+{{/* end range widget areas */}}{{- end -}}`)
+
+	t.AddInternalTemplate("widgets", "text/widget.html", `{{- if isset . "content" -}}
+  {{- .content | safeHTML -}}
+{{- else -}}<pre>Here is a text widget, but there is nothing to print. Please define options.content inside every text widget in your config.</pre>
+{{- end -}}`)
 
 	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">

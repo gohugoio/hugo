@@ -1953,6 +1953,17 @@ func relURL(a interface{}) (template.HTML, error) {
 	return template.HTML(helpers.CurrentPathSpec().RelURL(s, false)), nil
 }
 
+func widgets(name string, context interface{}) template.HTML {
+	// Add (_wa: name) index/value to context to access it inside
+	// the embedded template
+	outcontext := make(map[string]interface{})
+	outcontext["c"] = context
+	outcontext["_wa"] = name
+
+	// See in template_embedded for widgets.html
+	return ExecuteTemplateToHTML(outcontext, "_internal/widgets.html")
+}
+
 func initFuncMap() {
 	funcMap = template.FuncMap{
 		"absURL": absURL,
@@ -2053,5 +2064,6 @@ func initFuncMap() {
 		"where":        where,
 		"i18n":         i18nTranslate,
 		"T":            i18nTranslate,
+		"widgets":      widgets,
 	}
 }
