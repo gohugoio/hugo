@@ -1533,8 +1533,8 @@ func (s *Site) assembleSections() {
 	s.Sections = make(Taxonomy)
 	s.Info.Sections = s.Sections
 	// TODO(bep) np check these vs the caches
-	regularPages := s.findPagesByNodeType(PagePage)
-	sectionPages := s.findPagesByNodeType(PageSection)
+	regularPages := s.findPagesByNodeType(KindPage)
+	sectionPages := s.findPagesByNodeType(KindSection)
 
 	for i, p := range regularPages {
 		s.Sections.add(p.Section(), WeightedPage{regularPages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
@@ -1561,14 +1561,14 @@ func (s *Site) assembleSections() {
 	}
 }
 
-func (s *Site) nodeTypeFromSections(sections []string) PageType {
+func (s *Site) nodeTypeFromSections(sections []string) Kind {
 	if _, isTaxonomy := s.Taxonomies[sections[0]]; isTaxonomy {
 		if len(sections) == 1 {
-			return PageTaxonomyTerm
+			return KindTaxonomyTerm
 		}
-		return PageTaxonomy
+		return KindTaxonomy
 	}
-	return PageSection
+	return KindSection
 }
 
 func (s *Site) preparePages() error {
@@ -1662,7 +1662,7 @@ func (s *Site) Stats() {
 // This will return nil when no page could be found.
 //
 // The valid page types are: home, section, taxonomy and taxonomyTerm
-func (s *SiteInfo) GetPage(typ PageType, path ...string) *Page {
+func (s *SiteInfo) GetPage(typ Kind, path ...string) *Page {
 	return s.getPage(typ, path...)
 }
 

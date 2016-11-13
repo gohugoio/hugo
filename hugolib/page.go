@@ -49,38 +49,53 @@ var (
 	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 )
 
-// PageType is the discriminator that identifies the different page types
+// Kind is the discriminator that identifies the different page types
 // in the different page collections. This can, as an example, be used
 // to to filter regular pages, find sections etc.
 // NOTE: THe exported constants below are used to filter pages from
 // templates in the wild, so do not change the values!
-type PageType string
+type Kind string
 
 const (
-	PagePage PageType = "page"
+	KindPage Kind = "page"
 
 	// The rest are node types; home page, sections etc.
-	PageHome         PageType = "home"
-	PageSection      PageType = "section"
-	PageTaxonomy     PageType = "taxonomy"
-	PageTaxonomyTerm PageType = "taxonomyTerm"
+	KindHome         Kind = "home"
+	KindSection      Kind = "section"
+	KindTaxonomy     Kind = "taxonomy"
+	KindTaxonomyTerm Kind = "taxonomyTerm"
 
 	// Temporary state.
-	pageUnknown PageType = "unknown"
+	kindUnknown Kind = "unknown"
 
 	// The following are (currently) temporary nodes,
 	// i.e. nodes we create just to render in isolation.
-	pageSitemap   PageType = "sitemap"
-	pageRobotsTXT PageType = "robotsTXT"
-	page404       PageType = "404"
+	kindSitemap   Kind = "sitemap"
+	kindRobotsTXT Kind = "robotsTXT"
+	kind404       Kind = "404"
 )
 
-func (p PageType) IsNode() bool {
-	return p != PagePage
+// IsNode returns whether this is an item of one of the list types in Hugo,
+// i.e. not a regular content page.
+func (k Kind) IsNode() bool {
+	return k != KindPage
+}
+
+// IsHome returns whether this is the home page.
+func (k Kind) IsHome() bool {
+	return k == KindHome
+}
+
+// IsPage returns whether this is a regular content page.
+func (k Kind) IsPage() bool {
+	return k == KindPage
 }
 
 type Page struct {
-	PageType PageType
+
+	// Kind will, for the pages available to the templates, be one of:
+	// page, home, section, taxonomy and taxonomyTerm.
+	Kind
 
 	// Since Hugo 0.18 we got rid of the Node type. So now all pages are ...
 	// pages (regular pages, home page, sections etc.).
@@ -183,18 +198,6 @@ func (*PageMeta) FuzzyWordCount() int {
 func (*PageMeta) ReadingTime() int {
 	helpers.Deprecated("PageMeta", "ReadingTime", ".ReadingTime (on Page)")
 	return 0
-}
-
-func (p *Page) IsNode() bool {
-	return p.PageType.IsNode()
-}
-
-func (p *Page) IsHome() bool {
-	return p.PageType == PageHome
-}
-
-func (p *Page) IsPage() bool {
-	return p.PageType == PagePage
 }
 
 type Position struct {
@@ -482,7 +485,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func newPage(filename string) *Page {
 	page := Page{
-		PageType:     nodeTypeFromFilename(filename),
+		Kind:         nodeTypeFromFilename(filename),
 		contentType:  "",
 		Source:       Source{File: *source.NewFile(filename)},
 		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
@@ -521,16 +524,16 @@ func (p *Page) layouts(l ...string) []string {
 	}
 
 	// TODO(bep) np taxonomy etc.
-	switch p.PageType {
-	case PageHome:
+	switch p.Kind {
+	case KindHome:
 		return []string{"index.html", "_default/list.html"}
-	case PageSection:
+	case KindSection:
 		section := p.sections[0]
 		return []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
-	case PageTaxonomy:
+	case KindTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
-	case PageTaxonomyTerm:
+	case KindTaxonomyTerm:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
 	}
@@ -555,18 +558,18 @@ func (p *Page) layouts(l ...string) []string {
 // rssLayouts returns RSS layouts to use for the RSS version of this page, nil
 // if no RSS should be rendered.
 func (p *Page) rssLayouts() []string {
-	switch p.PageType {
-	case PageHome:
+	switch p.Kind {
+	case KindHome:
 		return []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-	case PageSection:
+	case KindSection:
 		section := p.sections[0]
 		return []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case PageTaxonomy:
+	case KindTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case PageTaxonomyTerm:
+	case KindTaxonomyTerm:
 	// No RSS for taxonomy terms
-	case PagePage:
+	case KindPage:
 		// No RSS for regular pages
 	}
 
@@ -776,7 +779,7 @@ func (p *Page) IsExpired() bool {
 
 func (p *Page) Permalink() (string, error) {
 	// TODO(bep) np permalink
-	if p.PageType.IsNode() {
+	if p.IsNode() {
 		return p.Node.Permalink(), nil
 	}
 	link, err := p.permalink()
@@ -1014,7 +1017,7 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 
 func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 	// TODO(bep) np menu
-	if p.PageType.IsNode() {
+	if p.IsNode() {
 		return p.Node.HasMenuCurrent(menu, me)
 	}
 	menus := p.Menus()
@@ -1044,7 +1047,7 @@ func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 
 func (p *Page) IsMenuCurrent(menu string, inme *MenuEntry) bool {
 	// TODO(bep) np menu
-	if p.PageType.IsNode() {
+	if p.IsNode() {
 		return p.Node.IsMenuCurrent(menu, inme)
 	}
 	menus := p.Menus()
@@ -1253,14 +1256,14 @@ func (p *Page) FullFilePath() string {
 func (p *Page) TargetPath() (outfile string) {
 
 	// TODO(bep) np
-	switch p.PageType {
-	case PageHome:
+	switch p.Kind {
+	case KindHome:
 		return p.addLangFilepathPrefix(helpers.FilePathSeparator)
-	case PageSection:
+	case KindSection:
 		return p.addLangFilepathPrefix(p.sections[0])
-	case PageTaxonomy:
+	case KindTaxonomy:
 		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
-	case PageTaxonomyTerm:
+	case KindTaxonomyTerm:
 		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
 	}
 
@@ -1305,7 +1308,7 @@ func (p *Page) TargetPath() (outfile string) {
 
 func (p *Page) prepareLayouts() error {
 	// TODO(bep): Check the IsRenderable logic.
-	if p.PageType == PagePage {
+	if p.Kind == KindPage {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
@@ -1329,17 +1332,17 @@ func (p *Page) prepareData(s *Site) error {
 	var pages Pages
 
 	p.Data = make(map[string]interface{})
-	switch p.PageType {
-	case PagePage:
-	case PageHome:
-		pages = s.findPagesByNodeTypeNotIn(PageHome, s.Pages)
-	case PageSection:
+	switch p.Kind {
+	case KindPage:
+	case KindHome:
+		pages = s.findPagesByNodeTypeNotIn(KindHome, s.Pages)
+	case KindSection:
 		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {
 			return fmt.Errorf("Data for section %s not found", p.Section())
 		}
 		pages = sectionData.Pages()
-	case PageTaxonomy:
+	case KindTaxonomy:
 		plural := p.sections[0]
 		term := p.sections[1]
 
@@ -1350,7 +1353,7 @@ func (p *Page) prepareData(s *Site) error {
 		p.Data["Singular"] = singular
 		p.Data["Plural"] = plural
 		pages = taxonomy.Pages()
-	case PageTaxonomyTerm:
+	case KindTaxonomyTerm:
 		plural := p.sections[0]
 		singular := s.taxonomiesPluralSingular[plural]
 
@@ -1375,7 +1378,7 @@ func (p *Page) updatePageDates() {
 	// TODO(bep) np there is a potential issue with page sorting for home pages
 	// etc. without front matter dates set, but let us wrap the head around
 	// that in another time.
-	if !p.PageType.IsNode() {
+	if !p.Kind.IsNode() {
 		return
 	}
 
@@ -1415,7 +1418,7 @@ func (p *Page) updatePageDates() {
 // the paginators etc., we do it manually here.
 // TODO(bep) np do better
 func (p *Page) copy() *Page {
-	c := &Page{PageType: p.PageType, Node: Node{Site: p.Site}}
+	c := &Page{Kind: p.Kind, Node: Node{Site: p.Site}}
 	c.Title = p.Title
 	c.Data = p.Data
 	c.Date = p.Date

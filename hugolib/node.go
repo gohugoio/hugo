@@ -176,7 +176,7 @@ func (n *Node) Lang() string {
 }
 
 func (p *Page) isTranslation(candidate *Page) bool {
-	if p == candidate || p.PageType != candidate.PageType {
+	if p == candidate || p.Kind != candidate.Kind {
 		return false
 	}
 
@@ -184,7 +184,7 @@ func (p *Page) isTranslation(candidate *Page) bool {
 		return false
 	}
 
-	if p.PageType == PagePage || p.PageType == pageUnknown {
+	if p.Kind == KindPage || p.Kind == kindUnknown {
 		panic("Node type not currently supported for this op")
 	}
 
@@ -291,41 +291,41 @@ func sectionsFromFilename(filename string) []string {
 }
 
 // TODO(bep) np node identificator
-func nodeTypeFromFilename(filename string) PageType {
+func nodeTypeFromFilename(filename string) Kind {
 	if !strings.Contains(filename, "_index") {
-		return PagePage
+		return KindPage
 	}
 
 	if strings.HasPrefix(filename, "_index") {
-		return PageHome
+		return KindHome
 	}
 
 	// We don't know enough yet to determine the type.
-	return pageUnknown
+	return kindUnknown
 }
 
 func (p *Page) setNodeTypeVars(s *Site) {
 	// TODO(bep) np taxonomies etc.
-	if p.PageType == pageUnknown {
+	if p.Kind == kindUnknown {
 		// This is either a taxonomy list, taxonomy term or a section
 		nodeType := s.nodeTypeFromSections(p.sections)
 
-		if nodeType == pageUnknown {
+		if nodeType == kindUnknown {
 			panic(fmt.Sprintf("Unable to determine node type from %q", p.sections))
 		}
 
-		p.PageType = nodeType
+		p.Kind = nodeType
 	}
 	// TODO(bep) np node URL
 	// Set Node URL
-	switch p.PageType {
-	case PageHome:
+	switch p.Kind {
+	case KindHome:
 		p.URLPath.URL = ""
-	case PageSection:
+	case KindSection:
 		p.URLPath.URL = p.sections[0]
-	case PageTaxonomy:
+	case KindTaxonomy:
 		p.URLPath.URL = path.Join(p.sections...)
-	case PageTaxonomyTerm:
+	case KindTaxonomyTerm:
 		p.URLPath.URL = path.Join(p.sections...)
 	}
 

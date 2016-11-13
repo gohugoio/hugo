@@ -296,7 +296,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	assertFileContent(t, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
 
 	// Check node translations
-	homeEn := enSite.getPage(PageHome)
+	homeEn := enSite.getPage(KindHome)
 	require.NotNil(t, homeEn)
 	require.Len(t, homeEn.Translations(), 3)
 	require.Equal(t, "fr", homeEn.Translations()[0].Lang())
@@ -306,7 +306,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "På bokmål", homeEn.Translations()[2].Title, configSuffix)
 	require.Equal(t, "Bokmål", homeEn.Translations()[2].Language().LanguageName, configSuffix)
 
-	sectFr := frSite.getPage(PageSection, "sect")
+	sectFr := frSite.getPage(KindSection, "sect")
 	require.NotNil(t, sectFr)
 
 	require.Equal(t, "fr", sectFr.Lang())
@@ -316,12 +316,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	nnSite := sites.Sites[2]
 	require.Equal(t, "nn", nnSite.Language.Lang)
-	taxNn := nnSite.getPage(PageTaxonomyTerm, "lag")
+	taxNn := nnSite.getPage(KindTaxonomyTerm, "lag")
 	require.NotNil(t, taxNn)
 	require.Len(t, taxNn.Translations(), 1)
 	require.Equal(t, "nb", taxNn.Translations()[0].Lang())
 
-	taxTermNn := nnSite.getPage(PageTaxonomy, "lag", "sogndal")
+	taxTermNn := nnSite.getPage(KindTaxonomy, "lag", "sogndal")
 	require.NotNil(t, taxTermNn)
 	require.Len(t, taxTermNn.Translations(), 1)
 	require.Equal(t, "nb", taxTermNn.Translations()[0].Lang())
@@ -514,7 +514,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				docFr := readDestination(t, "public/fr/sect/doc1/index.html")
 				require.True(t, strings.Contains(docFr, "Salut"), "No Salut")
 
-				homeEn := enSite.getPage(PageHome)
+				homeEn := enSite.getPage(KindHome)
 				require.NotNil(t, homeEn)
 				require.Len(t, homeEn.Translations(), 3)
 				require.Equal(t, "fr", homeEn.Translations()[0].Lang())
@@ -621,7 +621,7 @@ title = "Svenska"
 	require.True(t, svSite.Language.Lang == "sv", svSite.Language.Lang)
 	require.True(t, frSite.Language.Lang == "fr", frSite.Language.Lang)
 
-	homeEn := enSite.getPage(PageHome)
+	homeEn := enSite.getPage(KindHome)
 	require.NotNil(t, homeEn)
 	require.Len(t, homeEn.Translations(), 4)
 	require.Equal(t, "sv", homeEn.Translations()[0].Lang())

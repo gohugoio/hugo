@@ -76,7 +76,7 @@ func TestNodesAsPage(t *testing.T) {
 	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
 
 	h := s.owner
-	nodes := h.findAllPagesByNodeTypeNotIn(PagePage)
+	nodes := h.findAllPagesByNodeTypeNotIn(KindPage)
 	require.Len(t, nodes, 6)
 
 	home := nodes[5] // oldest
@@ -88,7 +88,7 @@ func TestNodesAsPage(t *testing.T) {
 	section2 := nodes[3]
 	require.Equal(t, "Section2", section2.Title)
 
-	pages := h.findAllPagesByNodeType(PagePage)
+	pages := h.findAllPagesByNodeType(KindPage)
 	require.Len(t, pages, 4)
 
 	first := pages[0]
@@ -118,7 +118,7 @@ func TestNodesAsPage(t *testing.T) {
 	assertFileContent(t, filepath.Join("public", "sect1", "page", "2", "index.html"), false,
 		"Pag: Page 02")
 
-	sections := h.findAllPagesByNodeType(PageSection)
+	sections := h.findAllPagesByNodeType(KindSection)
 
 	require.Len(t, sections, 2)
 
@@ -179,7 +179,7 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	}
 
 	// Home page
-	homePages := s.findIndexNodesByNodeType(PageHome)
+	homePages := s.findIndexNodesByNodeType(KindHome)
 	require.Len(t, homePages, 1)
 
 	homePage := homePages[0]

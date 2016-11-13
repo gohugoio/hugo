@@ -40,12 +40,12 @@ type PageCollections struct {
 }
 
 func (c *PageCollections) refreshPageCaches() {
-	c.indexPages = c.findPagesByNodeTypeNotIn(PagePage, c.Pages)
-	c.regularPages = c.findPagesByNodeTypeIn(PagePage, c.Pages)
+	c.indexPages = c.findPagesByNodeTypeNotIn(KindPage, c.Pages)
+	c.regularPages = c.findPagesByNodeTypeIn(KindPage, c.Pages)
 
 	// TODO(bep) np remove eventually
 	for _, n := range c.Pages {
-		if n.PageType == pageUnknown {
+		if n.Kind == kindUnknown {
 			panic(fmt.Sprintf("Got unknown type %s", n.Title))
 		}
 	}
@@ -61,11 +61,11 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 
 // TODO(bep) np clean and remove finders
 
-func (c *PageCollections) findPagesByNodeType(n PageType) Pages {
+func (c *PageCollections) findPagesByNodeType(n Kind) Pages {
 	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
-func (c *PageCollections) getPage(typ PageType, path ...string) *Page {
+func (c *PageCollections) getPage(typ Kind, path ...string) *Page {
 	pages := c.findPagesByNodeTypeIn(typ, c.Pages)
 
 	if len(pages) == 0 {
@@ -94,35 +94,35 @@ func (c *PageCollections) getPage(typ PageType, path ...string) *Page {
 	return nil
 }
 
-func (c *PageCollections) findIndexNodesByNodeType(n PageType) Pages {
+func (c *PageCollections) findIndexNodesByNodeType(n Kind) Pages {
 	return c.findPagesByNodeTypeIn(n, c.indexPages)
 }
 
-func (*PageCollections) findPagesByNodeTypeIn(n PageType, inPages Pages) Pages {
+func (*PageCollections) findPagesByNodeTypeIn(n Kind, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
-		if p.PageType == n {
+		if p.Kind == n {
 			pages = append(pages, p)
 		}
 	}
 	return pages
 }
 
-func (*PageCollections) findPagesByNodeTypeNotIn(n PageType, inPages Pages) Pages {
+func (*PageCollections) findPagesByNodeTypeNotIn(n Kind, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
-		if p.PageType != n {
+		if p.Kind != n {
 			pages = append(pages, p)
 		}
 	}
 	return pages
 }
 
-func (c *PageCollections) findAllPagesByNodeType(n PageType) Pages {
+func (c *PageCollections) findAllPagesByNodeType(n Kind) Pages {
 	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
-func (c *PageCollections) findRawAllPagesByNodeType(n PageType) Pages {
+func (c *PageCollections) findRawAllPagesByNodeType(n Kind) Pages {
 	return c.findPagesByNodeTypeIn(n, c.rawAllPages)
 }
 
