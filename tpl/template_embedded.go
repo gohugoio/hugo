@@ -148,7 +148,8 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
   {{- $waname := .Name -}}
   {{ range .Widgets -}}
   <div class="widget widget-{{ .Type }}">
-    {{ partial (print .Type "/widget.html") "widgets" .Params }}
+    {{ $context := (dict "$" $.c "wa" $._wa "w" .Type "Params" .Params) }}
+    {{ partial (print .Type "/widget.html") "widgets" $context }}
   </div>
   {{- end }}{{/* end range widgets */}}
 </div>
