@@ -1561,7 +1561,7 @@ func (s *Site) assembleSections() {
 	}
 }
 
-func (s *Site) nodeTypeFromSections(sections []string) Kind {
+func (s *Site) nodeTypeFromSections(sections []string) string {
 	if _, isTaxonomy := s.Taxonomies[sections[0]]; isTaxonomy {
 		if len(sections) == 1 {
 			return KindTaxonomyTerm
@@ -1662,7 +1662,7 @@ func (s *Site) Stats() {
 // This will return nil when no page could be found.
 //
 // The valid page types are: home, section, taxonomy and taxonomyTerm
-func (s *SiteInfo) GetPage(typ Kind, path ...string) *Page {
+func (s *SiteInfo) GetPage(typ string, path ...string) *Page {
 	return s.getPage(typ, path...)
 }
 

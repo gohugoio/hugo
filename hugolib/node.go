@@ -291,7 +291,7 @@ func sectionsFromFilename(filename string) []string {
 }
 
 // TODO(bep) np node identificator
-func nodeTypeFromFilename(filename string) Kind {
+func kindFromFilename(filename string) string {
 	if !strings.Contains(filename, "_index") {
 		return KindPage
 	}

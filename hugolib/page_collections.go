@@ -61,11 +61,11 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 
 // TODO(bep) np clean and remove finders
 
-func (c *PageCollections) findPagesByNodeType(n Kind) Pages {
+func (c *PageCollections) findPagesByNodeType(n string) Pages {
 	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
-func (c *PageCollections) getPage(typ Kind, path ...string) *Page {
+func (c *PageCollections) getPage(typ string, path ...string) *Page {
 	pages := c.findPagesByNodeTypeIn(typ, c.Pages)
 
 	if len(pages) == 0 {
@@ -94,11 +94,11 @@ func (c *PageCollections) getPage(typ Kind, path ...string) *Page {
 	return nil
 }
 
-func (c *PageCollections) findIndexNodesByNodeType(n Kind) Pages {
+func (c *PageCollections) findIndexNodesByNodeType(n string) Pages {
 	return c.findPagesByNodeTypeIn(n, c.indexPages)
 }
 
-func (*PageCollections) findPagesByNodeTypeIn(n Kind, inPages Pages) Pages {
+func (*PageCollections) findPagesByNodeTypeIn(n string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
 		if p.Kind == n {
@@ -108,7 +108,7 @@ func (*PageCollections) findPagesByNodeTypeIn(n Kind, inPages Pages) Pages {
 	return pages
 }
 
-func (*PageCollections) findPagesByNodeTypeNotIn(n Kind, inPages Pages) Pages {
+func (*PageCollections) findPagesByNodeTypeNotIn(n string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
 		if p.Kind != n {
@@ -118,11 +118,11 @@ func (*PageCollections) findPagesByNodeTypeNotIn(n Kind, inPages Pages) Pages {
 	return pages
 }
 
-func (c *PageCollections) findAllPagesByNodeType(n Kind) Pages {
+func (c *PageCollections) findAllPagesByNodeType(n string) Pages {
 	return c.findPagesByNodeTypeIn(n, c.Pages)
 }
 
-func (c *PageCollections) findRawAllPagesByNodeType(n Kind) Pages {
+func (c *PageCollections) findRawAllPagesByNodeType(n string) Pages {
 	return c.findPagesByNodeTypeIn(n, c.rawAllPages)
 }
 
