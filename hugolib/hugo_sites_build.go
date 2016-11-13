@@ -169,11 +169,15 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		return err
 	}
 
-	if err := h.preRender(*config, whatChanged{source: true, other: true}); err != nil {
-		return err
+	for _, s := range h.Sites {
+		if err := s.setCurrentLanguageConfig(); err != nil {
+			return err
+		}
+		s.preparePagesForRender(config)
 	}
 
 	return nil
+
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {

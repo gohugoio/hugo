@@ -193,6 +193,10 @@ type SiteInfo struct {
 	pathSpec *helpers.PathSpec
 }
 
+func (s *SiteInfo) String() string {
+	return fmt.Sprintf("Site(%q)", s.Title)
+}
+
 // Used in tests.
 
 type siteBuilderCfg struct {

@@ -32,8 +32,7 @@ type PageCollections struct {
 
 	// A convenience cache for the regular pages.
 	// This is for the current language only.
-	// TODO(bep) np consider exporting this
-	regularPages Pages
+	RegularPages Pages
 
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
@@ -41,7 +40,7 @@ type PageCollections struct {
 
 func (c *PageCollections) refreshPageCaches() {
 	c.indexPages = c.findPagesByNodeTypeNotIn(KindPage, c.Pages)
-	c.regularPages = c.findPagesByNodeTypeIn(KindPage, c.Pages)
+	c.RegularPages = c.findPagesByNodeTypeIn(KindPage, c.Pages)
 
 	// TODO(bep) np remove eventually
 	for _, n := range c.Pages {

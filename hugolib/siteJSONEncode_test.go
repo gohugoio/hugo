@@ -30,7 +30,7 @@ func TestEncodePage(t *testing.T) {
 	_, err := json.Marshal(s)
 	check(t, err)
 
-	_, err = json.Marshal(s.regularPages[0])
+	_, err = json.Marshal(s.RegularPages[0])
 	check(t, err)
 }
 

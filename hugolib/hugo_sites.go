@@ -211,8 +211,6 @@ func (h *HugoSites) assignMissingTranslations() error {
 // createMissingPages creates home page, taxonomies etc. that isnt't created as an
 // effect of having a content file.
 func (h *HugoSites) createMissingPages() error {
-	// TODO(bep) np check node title etc.
-
 	var newPages Pages
 
 	for _, s := range h.Sites {
@@ -306,12 +304,11 @@ func (h *HugoSites) createMissingPages() error {
 // Move the new* methods after cleanup in site.go
 func (s *Site) newNodePage(typ string) *Page {
 	return &Page{
-		Kind: typ,
-		Node: Node{
-			Data:     make(map[string]interface{}),
-			Site:     &s.Info,
-			language: s.Language,
-		}, site: s}
+		Kind:     typ,
+		Data:     make(map[string]interface{}),
+		Site:     &s.Info,
+		language: s.Language,
+		site:     s}
 }
 
 func (s *Site) newHomePage() *Page {
@@ -321,8 +318,6 @@ func (s *Site) newHomePage() *Page {
 	p.Data["Pages"] = pages
 	p.Pages = pages
 	s.setPageURLs(p, "/")
-	// TODO(bep) np check Data pages
-	// TODO(bep) np check setURLs
 	return p
 }
 
@@ -426,23 +421,7 @@ func (h *HugoSites) setupTranslations() {
 	}
 }
 
-// preRender performs build tasks that need to be done as late as possible.
-// Shortcode handling is the main task in here.
-// TODO(bep) We need to look at the whole handler-chain construct with he below in mind.
-// TODO(bep) np clean
-func (h *HugoSites) preRender(cfg BuildCfg, changed whatChanged) error {
-
-	for _, s := range h.Sites {
-		if err := s.setCurrentLanguageConfig(); err != nil {
-			return err
-		}
-		s.preparePagesForRender(cfg, changed)
-	}
-
-	return nil
-}
-
-func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
+func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
 
@@ -452,7 +431,7 @@ func (s *Site) preparePagesForRender(cfg BuildCfg, changed whatChanged) {
 			defer wg.Done()
 			for p := range pages {
 
-				if !changed.other && p.rendered {
+				if !cfg.whatChanged.other && p.rendered {
 					// No need to process it again.
 					continue
 				}
