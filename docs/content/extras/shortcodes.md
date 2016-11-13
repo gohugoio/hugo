@@ -225,6 +225,19 @@ Extract the value from the field `data-id` and pass it to the shortcode:
 
     {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 
+### Instagram
+
+If you'd like to embed photo from [Instagram](https://www.instagram.com/), all you need is photo ID from the URL, e. g.:
+
+* https://www.instagram.com/p/BMokmydjG-M/
+
+Pass it to the shortcode:
+
+    {{</* instagram BMokmydjG-M */>}}
+
+Optionally, hide caption:
+
+    {{</* instagram BMokmydjG-M hidecaption */>}}
 
 ## Creating your own shortcodes
 
