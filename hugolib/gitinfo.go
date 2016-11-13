@@ -52,7 +52,10 @@ func (h *HugoSites) assembleGitInfo() {
 	s := h.Sites[0]
 
 	for _, p := range s.AllPages {
-		// TODO(bep) np consider other nodes
+		if p.Path() == "" {
+			// Home page etc. with no content file.
+			continue
+		}
 		// Git normalizes file paths on this form:
 		filename := path.Join(contentRoot, contentDir, filepath.ToSlash(p.Path()))
 		g, ok := gitMap[filename]

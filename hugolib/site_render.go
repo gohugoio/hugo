@@ -99,7 +99,8 @@ func (s *Site) renderPaginator(p *Page) error {
 
 		aliasPath := p.addLangPathPrefix(helpers.PaginateAliasPath(path.Join(p.sections...), 1))
 		//TODO(bep) np node.permalink
-		s.writeDestAlias(aliasPath, p.Node.Permalink(), nil)
+		link, _ := p.Permalink()
+		s.writeDestAlias(aliasPath, link, nil)
 
 		pagers := p.paginator.Pagers()
 

@@ -630,9 +630,9 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			t.Fatalf("Failed to build site: %s", err)
 		}
 
-		require.Len(t, s.regularPages, len(pageSources))
+		require.Len(t, s.RegularPages, len(pageSources))
 
-		assertFunc(t, e.ext, s.regularPages)
+		assertFunc(t, e.ext, s.RegularPages)
 
 	}
 
@@ -740,9 +740,9 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	require.Len(t, s.regularPages, 1)
+	require.Len(t, s.RegularPages, 1)
 
-	p := s.regularPages[0]
+	p := s.RegularPages[0]
 
 	if p.Summary != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a rel=\"footnote\" href=\"#fn:1\">1</a></sup>\n</p>") {
 		t.Fatalf("Got summary:\n%q", p.Summary)
@@ -788,9 +788,9 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	require.Len(t, s.regularPages, 1)
+	require.Len(t, s.RegularPages, 1)
 
-	p := s.regularPages[0]
+	p := s.RegularPages[0]
 
 	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
 }
@@ -802,9 +802,9 @@ func TestTableOfContents(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	require.Len(t, s.regularPages, 1)
+	require.Len(t, s.RegularPages, 1)
 
-	p := s.regularPages[0]
+	p := s.RegularPages[0]
 
 	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
 	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
@@ -832,9 +832,9 @@ func TestPageWithDate(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	require.Len(t, s.regularPages, 1)
+	require.Len(t, s.RegularPages, 1)
 
-	p := s.regularPages[0]
+	p := s.RegularPages[0]
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
 
 	checkPageDate(t, p, d)
@@ -1145,10 +1145,10 @@ func TestPagePaths(t *testing.T) {
 	for _, test := range tests {
 		p, _ := NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
 		info := newSiteInfo(siteBuilderCfg{language: helpers.NewDefaultLanguage()})
-		p.Node.Site = &info
+		p.Site = &info
 
 		if test.hasPermalink {
-			p.Node.Site.Permalinks = siteParmalinksSetting
+			p.Site.Permalinks = siteParmalinksSetting
 		}
 
 		expectedTargetPath := filepath.FromSlash(test.expected)
@@ -1263,7 +1263,7 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 	}{
 		{func(n *Page) bool { return n.IsNode() }},
 		{func(n *Page) bool { return !n.IsPage() }},
-		{func(n *Page) bool { return n.RSSlink() == "rssLink" }},
+		{func(n *Page) bool { return n.RSSLink == "rssLink" }},
 		{func(n *Page) bool { return n.Scratch() != nil }},
 		{func(n *Page) bool { return n.Hugo() != nil }},
 		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
@@ -1298,9 +1298,9 @@ func TestChompBOM(t *testing.T) {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	require.Len(t, s.regularPages, 1)
+	require.Len(t, s.RegularPages, 1)
 
-	p := s.regularPages[0]
+	p := s.RegularPages[0]
 
 	checkPageTitle(t, p, "Simple")
 }

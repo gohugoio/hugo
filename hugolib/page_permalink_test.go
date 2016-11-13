@@ -67,13 +67,11 @@ func TestPermalink(t *testing.T) {
 
 		p := &Page{
 			Kind: KindPage,
-			Node: Node{
-				URLPath: URLPath{
-					Section: "z",
-					URL:     test.url,
-				},
-				Site: &info,
+			URLPath: URLPath{
+				Section: "z",
+				URL:     test.url,
 			},
+			Site:   &info,
 			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},
 		}
 

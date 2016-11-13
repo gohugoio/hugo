@@ -69,9 +69,9 @@ title: "Title"
 		t.Fatalf("No error from shortcode")
 	}
 
-	require.Len(t, h.Sites[0].regularPages, 1)
+	require.Len(t, h.Sites[0].RegularPages, 1)
 
-	output := strings.TrimSpace(string(h.Sites[0].regularPages[0].Content))
+	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].Content))
 	if strings.HasPrefix(output, "<p>") {
 		output = output[3:]
 	}

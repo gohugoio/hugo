@@ -86,27 +86,35 @@ type Page struct {
 	// This collection will be nil for regular pages.
 	Pages Pages
 
-	Params            map[string]interface{}
-	Content           template.HTML
-	Summary           template.HTML
-	Aliases           []string
-	Status            string
-	Images            []Image
-	Videos            []Video
-	TableOfContents   template.HTML
-	Truncated         bool
-	Draft             bool
-	PublishDate       time.Time
-	ExpiryDate        time.Time
-	Markup            string
-	translations      Pages
-	extension         string
-	contentType       string
-	renderable        bool
+	Params  map[string]interface{}
+	Content template.HTML
+	Summary template.HTML
+	Aliases []string
+	Status  string
+	Images  []Image
+	Videos  []Video
+
+	TableOfContents template.HTML
+
+	Truncated bool
+	Draft     bool
+
+	PublishDate time.Time
+	ExpiryDate  time.Time
+
+	Markup string
+
+	translations Pages
+
+	extension   string
+	contentType string
+	renderable  bool
+
 	Layout            string
 	layoutsCalculated []string
-	linkTitle         string
-	frontmatter       []byte
+
+	linkTitle   string
+	frontmatter []byte
 
 	// rawContent isn't "raw" as in the same as in the content file.
 	// Hugo cares about memory consumption, so we make changes to it to do
@@ -132,9 +140,6 @@ type Page struct {
 	Source
 	Position `json:"-"`
 
-	// TODO(bep) np pointer, or remove
-	Node
-
 	GitInfo *gitmap.GitInfo
 
 	// This was added as part of getting the Nodes (taxonomies etc.) to work as
@@ -151,6 +156,32 @@ type Page struct {
 
 	// TODO(bep) np Site added to page, keep?
 	site *Site
+
+	// Pulled over from Node. TODO(bep) np reorg and group (embed)
+
+	Site *SiteInfo `json:"-"`
+
+	Title       string
+	Description string
+	Keywords    []string
+	Data        map[string]interface{}
+
+	Date    time.Time
+	Lastmod time.Time
+
+	Sitemap Sitemap
+
+	RSSLink template.HTML
+	URLPath
+
+	paginator     *Pager
+	paginatorInit sync.Once
+
+	scratch *Scratch
+
+	language     *helpers.Language
+	languageInit sync.Once
+	lang         string
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -206,6 +237,10 @@ type Position struct {
 }
 
 type Pages []*Page
+
+func (p Pages) String() string {
+	return fmt.Sprintf("Pages(%d)", len(p))
+}
 
 func (ps Pages) FindPagePosByFilePath(inPath string) int {
 	for i, x := range ps {
@@ -298,14 +333,6 @@ func (p *Page) Authors() AuthorList {
 
 func (p *Page) UniqueID() string {
 	return p.Source.UniqueID()
-}
-
-func (p *Page) Ref(ref string) (string, error) {
-	return p.Node.Site.Ref(ref, p)
-}
-
-func (p *Page) RelRef(ref string) (string, error) {
-	return p.Node.Site.RelRef(ref, p)
 }
 
 // for logging
@@ -450,10 +477,10 @@ func (p *Page) renderContent(content []byte) []byte {
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
 		fn = func(ref string) (string, error) {
-			return p.Node.Site.SourceRelativeLink(ref, p)
+			return p.Site.SourceRelativeLink(ref, p)
 		}
 		fileFn = func(ref string) (string, error) {
-			return p.Node.Site.SourceRelativeLinkFile(ref, p)
+			return p.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
 	return helpers.RenderBytes(&helpers.RenderingContext{
@@ -483,10 +510,10 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func newPage(filename string) *Page {
 	page := Page{
-		Kind:         kindFromFilename(filename),
-		contentType:  "",
-		Source:       Source{File: *source.NewFile(filename)},
-		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
+		Kind:        kindFromFilename(filename),
+		contentType: "",
+		Source:      Source{File: *source.NewFile(filename)},
+		Keywords:    []string{}, Sitemap: Sitemap{Priority: -1},
 		Params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
 		sections:     sectionsFromFilename(filename),
@@ -778,7 +805,7 @@ func (p *Page) IsExpired() bool {
 func (p *Page) Permalink() (string, error) {
 	// TODO(bep) np permalink
 	if p.IsNode() {
-		return p.Node.Permalink(), nil
+		return p.Site.permalink(p.URL()), nil
 	}
 	link, err := p.permalink()
 	if err != nil {
@@ -788,6 +815,10 @@ func (p *Page) Permalink() (string, error) {
 }
 
 func (p *Page) URL() string {
+	// TODO(bep np URL
+	if p.IsNode() {
+		return p.addLangPathPrefix(p.URLPath.URL)
+	}
 	if p.URLPath.URL != "" {
 		// This is the url set in front matter
 		return p.URLPath.URL
@@ -1013,29 +1044,48 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 	return nil
 }
 
-func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
-	// TODO(bep) np menu
-	if p.IsNode() {
-		return p.Node.HasMenuCurrent(menu, me)
-	}
-	menus := p.Menus()
+func (p *Page) HasMenuCurrent(menuID string, me *MenuEntry) bool {
+
 	sectionPagesMenu := helpers.Config().GetString("SectionPagesMenu")
 
 	// page is labeled as "shadow-member" of the menu with the same identifier as the section
-	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menu && p.Section() == me.Identifier {
+	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menuID && p.Section() == me.Identifier {
 		return true
 	}
 
-	if m, ok := menus[menu]; ok {
-		if me.HasChildren() {
-			for _, child := range me.Children {
-				if child.IsEqual(m) {
-					return true
-				}
-				if p.HasMenuCurrent(menu, child) {
-					return true
-				}
+	if !me.HasChildren() {
+		return false
+	}
+
+	menus := p.Menus()
+
+	if m, ok := menus[menuID]; ok {
+
+		for _, child := range me.Children {
+			if child.IsEqual(m) {
+				return true
 			}
+			if p.HasMenuCurrent(menuID, child) {
+				return true
+			}
+		}
+
+	}
+
+	if p.IsPage() {
+		return false
+	}
+
+	// The following logic is kept from back when Hugo had both Page and Node types.
+	// TODO(bep) consolidate / clean
+	nme := MenuEntry{Name: p.Title, URL: p.URL()}
+
+	for _, child := range me.Children {
+		if nme.IsSameResource(child) {
+			return true
+		}
+		if p.HasMenuCurrent(menuID, child) {
+			return true
 		}
 	}
 
@@ -1043,17 +1093,59 @@ func (p *Page) HasMenuCurrent(menu string, me *MenuEntry) bool {
 
 }
 
-func (p *Page) IsMenuCurrent(menu string, inme *MenuEntry) bool {
-	// TODO(bep) np menu
-	if p.IsNode() {
-		return p.Node.IsMenuCurrent(menu, inme)
-	}
+func (p *Page) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
+
 	menus := p.Menus()
 
-	if me, ok := menus[menu]; ok {
-		return me.IsEqual(inme)
+	if me, ok := menus[menuID]; ok {
+		if me.IsEqual(inme) {
+			return true
+		}
 	}
 
+	if p.IsPage() {
+		return false
+	}
+
+	// The following logic is kept from back when Hugo had both Page and Node types.
+	// TODO(bep) consolidate / clean
+	me := MenuEntry{Name: p.Title, URL: p.Site.createNodeMenuEntryURL(p.URL())}
+
+	if !me.IsSameResource(inme) {
+		return false
+	}
+
+	// this resource may be included in several menus
+	// search for it to make sure that it is in the menu with the given menuId
+	if menu, ok := (*p.Site.Menus)[menuID]; ok {
+		for _, menuEntry := range *menu {
+			if menuEntry.IsSameResource(inme) {
+				return true
+			}
+
+			descendantFound := p.isSameAsDescendantMenu(inme, menuEntry)
+			if descendantFound {
+				return descendantFound
+			}
+
+		}
+	}
+
+	return false
+}
+
+func (p *Page) isSameAsDescendantMenu(inme *MenuEntry, parent *MenuEntry) bool {
+	if parent.HasChildren() {
+		for _, child := range parent.Children {
+			if child.IsSameResource(inme) {
+				return true
+			}
+			descendantFound := p.isSameAsDescendantMenu(inme, child)
+			if descendantFound {
+				return descendantFound
+			}
+		}
+	}
 	return false
 }
 
@@ -1253,7 +1345,6 @@ func (p *Page) FullFilePath() string {
 
 func (p *Page) TargetPath() (outfile string) {
 
-	// TODO(bep) np
 	switch p.Kind {
 	case KindHome:
 		return p.addLangFilepathPrefix(helpers.FilePathSeparator)
@@ -1416,7 +1507,7 @@ func (p *Page) updatePageDates() {
 // the paginators etc., we do it manually here.
 // TODO(bep) np do better
 func (p *Page) copy() *Page {
-	c := &Page{Kind: p.Kind, Node: Node{Site: p.Site}}
+	c := &Page{Kind: p.Kind, Site: p.Site}
 	c.Title = p.Title
 	c.Data = p.Data
 	c.Date = p.Date
@@ -1425,4 +1516,218 @@ func (p *Page) copy() *Page {
 	c.lang = p.lang
 	c.URLPath = p.URLPath
 	return c
+}
+
+// TODO(bep) np these are pulled over from Node. Needs regrouping / embed
+
+func (p *Page) Now() time.Time {
+	return time.Now()
+}
+
+func (p *Page) Hugo() *HugoInfo {
+	return hugoInfo
+}
+
+func (p *Page) RSSlink() template.HTML {
+	// TODO(bep) we cannot have two of these
+	helpers.Deprecated(".Page", "RSSlink", "RSSLink")
+	return p.RSSLink
+}
+
+func (p *Page) Ref(ref string) (string, error) {
+	return p.Site.Ref(ref, nil)
+}
+
+func (p *Page) RelRef(ref string) (string, error) {
+	return p.Site.RelRef(ref, nil)
+}
+
+func (p *Page) String() string {
+	return fmt.Sprintf("Page(%q)", p.Title)
+}
+
+type URLPath struct {
+	URL       string
+	Permalink string
+	Slug      string
+	Section   string
+}
+
+// Scratch returns the writable context associated with this Page.
+func (p *Page) Scratch() *Scratch {
+	if p.scratch == nil {
+		p.scratch = newScratch()
+	}
+	return p.scratch
+}
+
+func (p *Page) Language() *helpers.Language {
+	p.initLanguage()
+	return p.language
+}
+
+func (p *Page) Lang() string {
+	// When set, Language can be different from lang in the case where there is a
+	// content file (doc.sv.md) with language indicator, but there is no language
+	// config for that language. Then the language will fall back on the site default.
+	if p.Language() != nil {
+		return p.Language().Lang
+	}
+	return p.lang
+}
+
+func (p *Page) isTranslation(candidate *Page) bool {
+	if p == candidate || p.Kind != candidate.Kind {
+		return false
+	}
+
+	if p.lang != candidate.lang || p.language != p.language {
+		return false
+	}
+
+	if p.Kind == KindPage || p.Kind == kindUnknown {
+		panic("Node type not currently supported for this op")
+	}
+
+	// At this point, we know that this is a traditional Node (home page, section, taxonomy)
+	// It represents the same node, but different language, if the sections is the same.
+	if len(p.sections) != len(candidate.sections) {
+		return false
+	}
+
+	for i := 0; i < len(p.sections); i++ {
+		if p.sections[i] != candidate.sections[i] {
+			return false
+		}
+	}
+
+	return true
+
+}
+
+func (p *Page) shouldAddLanguagePrefix() bool {
+	if !p.Site.IsMultiLingual() {
+		return false
+	}
+
+	if p.Lang() == "" {
+		return false
+	}
+
+	if !p.Site.defaultContentLanguageInSubdir && p.Lang() == p.Site.multilingual.DefaultLang.Lang {
+		return false
+	}
+
+	return true
+}
+
+func (p *Page) initLanguage() {
+	p.languageInit.Do(func() {
+		if p.language != nil {
+			return
+		}
+		pageLang := p.lang
+		ml := p.Site.multilingual
+		if ml == nil {
+			panic("Multilanguage not set")
+		}
+		if pageLang == "" {
+			p.language = ml.DefaultLang
+			return
+		}
+
+		language := ml.Language(pageLang)
+
+		if language == nil {
+			// It can be a file named stefano.chiodino.md.
+			jww.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
+			language = ml.DefaultLang
+		}
+
+		p.language = language
+	})
+}
+
+func (p *Page) LanguagePrefix() string {
+	return p.Site.LanguagePrefix
+}
+
+func (p *Page) addLangPathPrefix(outfile string) string {
+	return p.addLangPathPrefixIfFlagSet(outfile, p.shouldAddLanguagePrefix())
+}
+
+func (p *Page) addLangPathPrefixIfFlagSet(outfile string, should bool) string {
+	if helpers.IsAbsURL(outfile) {
+		return outfile
+	}
+
+	if !should {
+		return outfile
+	}
+
+	hadSlashSuffix := strings.HasSuffix(outfile, "/")
+
+	outfile = "/" + path.Join(p.Lang(), outfile)
+	if hadSlashSuffix {
+		outfile += "/"
+	}
+	return outfile
+}
+
+func (p *Page) addLangFilepathPrefix(outfile string) string {
+	if outfile == "" {
+		outfile = helpers.FilePathSeparator
+	}
+	if !p.shouldAddLanguagePrefix() {
+		return outfile
+	}
+	return helpers.FilePathSeparator + filepath.Join(p.Lang(), outfile)
+}
+
+func sectionsFromFilename(filename string) []string {
+	dir, _ := filepath.Split(filename)
+	dir = strings.TrimSuffix(dir, helpers.FilePathSeparator)
+	sections := strings.Split(dir, helpers.FilePathSeparator)
+	return sections
+}
+
+func kindFromFilename(filename string) string {
+	if !strings.Contains(filename, "_index") {
+		return KindPage
+	}
+
+	if strings.HasPrefix(filename, "_index") {
+		return KindHome
+	}
+
+	// We don't know enough yet to determine the type.
+	return kindUnknown
+}
+
+func (p *Page) setNodeTypeVars(s *Site) {
+	if p.Kind == kindUnknown {
+		// This is either a taxonomy list, taxonomy term or a section
+		nodeType := s.nodeTypeFromSections(p.sections)
+
+		if nodeType == kindUnknown {
+			panic(fmt.Sprintf("Unable to determine node type from %q", p.sections))
+		}
+
+		p.Kind = nodeType
+	}
+	// TODO(bep) np node URL
+	// Set Node URL
+	switch p.Kind {
+	case KindHome:
+		p.URLPath.URL = ""
+	case KindSection:
+		p.URLPath.URL = p.sections[0]
+	case KindTaxonomy:
+		p.URLPath.URL = path.Join(p.sections...)
+	case KindTaxonomyTerm:
+		p.URLPath.URL = path.Join(p.sections...)
+	}
+
+	p.site = s
+
 }

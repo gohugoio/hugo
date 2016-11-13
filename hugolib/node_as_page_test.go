@@ -84,6 +84,7 @@ func TestNodesAsPage(t *testing.T) {
 	require.True(t, home.IsHome())
 	require.True(t, home.IsNode())
 	require.False(t, home.IsPage())
+	require.True(t, home.Path() != "")
 
 	section2 := nodes[3]
 	require.Equal(t, "Section2", section2.Title)
@@ -185,6 +186,7 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	homePage := homePages[0]
 	require.Len(t, homePage.Data["Pages"], 9)
 	require.Len(t, homePage.Pages, 9) // Alias
+	require.True(t, homePage.Path() == "")
 
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
 		"Index Title: Hugo Rocks!",
@@ -279,8 +281,6 @@ title = "Hugo in English"
 	}
 
 	// The en language has content pages
-
-	// TODO(bep) np alias URL check
 
 	assertFileContent(t, filepath.Join("public", "nn", "index.html"), true,
 		"Index Title: Hugo på norsk")
@@ -582,7 +582,7 @@ Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 Taxonomy Terms Title: {{ .Title }}
 Taxonomy Terms Content: {{ .Content }}
 {{ range $key, $value := .Data.Terms }}
-	k/v: {{ $key }} / {{ printf "%=v" $value }}
+	k/v: {{ $key }} / {{ printf "%s" $value }}
 {{ end }}
 Date: {{ .Date.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}

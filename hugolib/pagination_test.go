@@ -457,13 +457,11 @@ func createTestPages(num int) Pages {
 	info := newSiteInfo(siteBuilderCfg{baseURL: "http://base/", language: helpers.NewDefaultLanguage()})
 	for i := 0; i < num; i++ {
 		pages[i] = &Page{
-			Node: Node{
-				URLPath: URLPath{
-					Section: "z",
-					URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
-				},
-				Site: &info,
+			URLPath: URLPath{
+				Section: "z",
+				URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
 			},
+			Site:   &info,
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
 		}
 		w := 5

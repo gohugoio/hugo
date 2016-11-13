@@ -33,6 +33,10 @@ type Pager struct {
 	*paginator
 }
 
+func (p Pager) String() string {
+	return fmt.Sprintf("Pager %d", p.number)
+}
+
 type paginatedElement interface {
 	Len() int
 }
@@ -257,11 +261,11 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 	return split
 }
 
-// Paginator gets this Node's paginator if it's already created.
+// Paginator gets this Page's paginator if it's already created.
 // If it's not, one will be created with all pages in Data["Pages"].
-func (n *Page) Paginator(options ...interface{}) (*Pager, error) {
-	if !n.IsNode() {
-		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", n.Kind, n.Title)
+func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
+	if !p.IsNode() {
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.Title)
 	}
 	pagerSize, err := resolvePagerSize(options...)
 
@@ -271,12 +275,12 @@ func (n *Page) Paginator(options ...interface{}) (*Pager, error) {
 
 	var initError error
 
-	n.paginatorInit.Do(func() {
-		if n.paginator != nil {
+	p.paginatorInit.Do(func() {
+		if p.paginator != nil {
 			return
 		}
 
-		pagers, err := paginatePages(n.Data["Pages"], pagerSize, n.URL())
+		pagers, err := paginatePages(p.Data["Pages"], pagerSize, p.URL())
 
 		if err != nil {
 			initError = err
@@ -284,10 +288,10 @@ func (n *Page) Paginator(options ...interface{}) (*Pager, error) {
 
 		if len(pagers) > 0 {
 			// the rest of the nodes will be created later
-			n.paginator = pagers[0]
-			n.paginator.source = "paginator"
-			n.paginator.options = options
-			n.Site.addToPaginationPageCount(uint64(n.paginator.TotalPages()))
+			p.paginator = pagers[0]
+			p.paginator.source = "paginator"
+			p.paginator.options = options
+			p.Site.addToPaginationPageCount(uint64(p.paginator.TotalPages()))
 		}
 
 	})
@@ -296,7 +300,7 @@ func (n *Page) Paginator(options ...interface{}) (*Pager, error) {
 		return nil, initError
 	}
 
-	return n.paginator, nil
+	return p.paginator, nil
 }
 
 // Paginate gets this Node's paginator if it's already created.
