@@ -1278,17 +1278,15 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 	}
 }
 
-func TestPageType(t *testing.T) {
+func TestKind(t *testing.T) {
 
 	// Add tests for these constants to make sure they don't change
-	require.Equal(t, Kind("page"), KindPage)
-	require.Equal(t, Kind("home"), KindHome)
-	require.Equal(t, Kind("section"), KindSection)
-	require.Equal(t, Kind("taxonomy"), KindTaxonomy)
-	require.Equal(t, Kind("taxonomyTerm"), KindTaxonomyTerm)
+	require.Equal(t, "page", KindPage)
+	require.Equal(t, "home", KindHome)
+	require.Equal(t, "section", KindSection)
+	require.Equal(t, "taxonomy", KindTaxonomy)
+	require.Equal(t, "taxonomyTerm", KindTaxonomyTerm)
 
-	require.False(t, KindPage.IsNode())
-	require.True(t, KindHome.IsNode())
 }
 
 func TestChompBOM(t *testing.T) {

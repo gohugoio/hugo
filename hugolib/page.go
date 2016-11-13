@@ -49,53 +49,35 @@ var (
 	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 )
 
-// Kind is the discriminator that identifies the different page types
-// in the different page collections. This can, as an example, be used
-// to to filter regular pages, find sections etc.
-// NOTE: THe exported constants below are used to filter pages from
-// templates in the wild, so do not change the values!
-type Kind string
-
 const (
-	KindPage Kind = "page"
+	KindPage = "page"
 
 	// The rest are node types; home page, sections etc.
-	KindHome         Kind = "home"
-	KindSection      Kind = "section"
-	KindTaxonomy     Kind = "taxonomy"
-	KindTaxonomyTerm Kind = "taxonomyTerm"
+	KindHome         = "home"
+	KindSection      = "section"
+	KindTaxonomy     = "taxonomy"
+	KindTaxonomyTerm = "taxonomyTerm"
 
 	// Temporary state.
-	kindUnknown Kind = "unknown"
+	kindUnknown = "unknown"
 
 	// The following are (currently) temporary nodes,
 	// i.e. nodes we create just to render in isolation.
-	kindSitemap   Kind = "sitemap"
-	kindRobotsTXT Kind = "robotsTXT"
-	kind404       Kind = "404"
+	kindSitemap   = "sitemap"
+	kindRobotsTXT = "robotsTXT"
+	kind404       = "404"
 )
-
-// IsNode returns whether this is an item of one of the list types in Hugo,
-// i.e. not a regular content page.
-func (k Kind) IsNode() bool {
-	return k != KindPage
-}
-
-// IsHome returns whether this is the home page.
-func (k Kind) IsHome() bool {
-	return k == KindHome
-}
-
-// IsPage returns whether this is a regular content page.
-func (k Kind) IsPage() bool {
-	return k == KindPage
-}
 
 type Page struct {
 
+	// Kind is the discriminator that identifies the different page types
+	// in the different page collections. This can, as an example, be used
+	// to to filter regular pages, find sections etc.
 	// Kind will, for the pages available to the templates, be one of:
 	// page, home, section, taxonomy and taxonomyTerm.
-	Kind
+	// It is of string type to make it easy to reason about in
+	// the templates.
+	Kind string
 
 	// Since Hugo 0.18 we got rid of the Node type. So now all pages are ...
 	// pages (regular pages, home page, sections etc.).
@@ -169,6 +151,22 @@ type Page struct {
 
 	// TODO(bep) np Site added to page, keep?
 	site *Site
+}
+
+// IsNode returns whether this is an item of one of the list types in Hugo,
+// i.e. not a regular content page.
+func (p *Page) IsNode() bool {
+	return p.Kind != KindPage
+}
+
+// IsHome returns whether this is the home page.
+func (p *Page) IsHome() bool {
+	return p.Kind == KindHome
+}
+
+// IsPage returns whether this is a regular content page.
+func (p *Page) IsPage() bool {
+	return p.Kind == KindPage
 }
 
 type Source struct {
@@ -485,7 +483,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func newPage(filename string) *Page {
 	page := Page{
-		Kind:         nodeTypeFromFilename(filename),
+		Kind:         kindFromFilename(filename),
 		contentType:  "",
 		Source:       Source{File: *source.NewFile(filename)},
 		Node:         Node{Keywords: []string{}, Sitemap: Sitemap{Priority: -1}},
@@ -1378,7 +1376,7 @@ func (p *Page) updatePageDates() {
 	// TODO(bep) np there is a potential issue with page sorting for home pages
 	// etc. without front matter dates set, but let us wrap the head around
 	// that in another time.
-	if !p.Kind.IsNode() {
+	if !p.IsNode() {
 		return
 	}
 

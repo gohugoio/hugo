@@ -192,7 +192,7 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 func (h *HugoSites) assignMissingTranslations() error {
 	// This looks heavy, but it should be a small number of nodes by now.
 	allPages := h.findAllPagesByNodeTypeNotIn(KindPage)
-	for _, nodeType := range []Kind{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm} {
+	for _, nodeType := range []string{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm} {
 		nodes := h.findPagesByNodeTypeIn(nodeType, allPages)
 
 		// Assign translations
@@ -304,7 +304,7 @@ func (h *HugoSites) createMissingPages() error {
 
 // TODO(bep) np move
 // Move the new* methods after cleanup in site.go
-func (s *Site) newNodePage(typ Kind) *Page {
+func (s *Site) newNodePage(typ string) *Page {
 	return &Page{
 		Kind: typ,
 		Node: Node{
@@ -566,19 +566,19 @@ func (s *Site) updateBuildStats(page *Page) {
 }
 
 // TODO(bep) np remove
-func (h *HugoSites) findAllPagesByNodeType(n Kind) Pages {
+func (h *HugoSites) findAllPagesByNodeType(n string) Pages {
 	return h.Sites[0].findAllPagesByNodeType(n)
 }
 
-func (h *HugoSites) findPagesByNodeTypeNotIn(n Kind, inPages Pages) Pages {
+func (h *HugoSites) findPagesByNodeTypeNotIn(n string, inPages Pages) Pages {
 	return h.Sites[0].findPagesByNodeTypeNotIn(n, inPages)
 }
 
-func (h *HugoSites) findPagesByNodeTypeIn(n Kind, inPages Pages) Pages {
+func (h *HugoSites) findPagesByNodeTypeIn(n string, inPages Pages) Pages {
 	return h.Sites[0].findPagesByNodeTypeIn(n, inPages)
 }
 
-func (h *HugoSites) findAllPagesByNodeTypeNotIn(n Kind) Pages {
+func (h *HugoSites) findAllPagesByNodeTypeNotIn(n string) Pages {
 	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllPages)
 }
 
