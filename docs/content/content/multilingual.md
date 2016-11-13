@@ -163,30 +163,34 @@ i18n|MISSING_TRANSLATION|en|wordCount
 
 Sometimes you want a certain post to show up in the index for another language, this is called a "crosspost".
 
-For example you may have an English post `post.en.md` that you want to show up in the index for the Swedish posts.
+For example you may have written an English post `post.en.md` that you want to show up in the index for the Swedish posts.
 
-One way to do this is to create an empty corresponding Swedish post called `post.sv.md` but with the parameter `crosspost: true` in the frontmatter.
+One way to do this is to create an empty corresponding Swedish post called `post.sv.md` but with the parameter `crosspost: en` in the frontmatter. This means that the post with language "en" will be rendered in-place of the Swedish post.
+
+The date param is also necessary so the post will show in the right chronological order.
 
 ```yaml
 ---
 date: 2016-10-27
-crosspost: true
+crosspost: "en"
 ---
 
 ```
 
-Then you can have this logic in your index template. What this does is that it replaces which context get rendered if the post is marked as crosspost. Instead of rendering the `post.sv.md` it renders `post.en.md`.
+Then you have the following logic in your pages loop on the index template. What this does is that it replaces which context get rendered if the post is marked as crosspost. In this case it renders the `post.en.md` instead of `post.sv.md`.
 
 ```html
-{{ $c := index .Translations 0 }}
 {{ if isset .Params "crosspost" }}
-  {{ $c.Render "listitem" }}
+  {{ $c := .Params.crosspost }}
+  {{ range .Translations }}
+    {{ if eq $c .Lang }}
+      {{ .Render "listitem" }}
+    {{ end }}
+  {{ end }}
 {{ else }}
   {{ .Render "listitem" }}
 {{ end }}
 ```
-
-Note: This method only works for a site with two languages.
 
 ### Menus
 
