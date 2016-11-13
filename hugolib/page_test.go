@@ -1269,7 +1269,7 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
 	} {
 
-		n := &Page{PageType: PageHome}
+		n := &Page{Kind: KindHome}
 		n.RSSLink = "rssLink"
 
 		if !this.assertFunc(n) {
@@ -1281,14 +1281,14 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 func TestPageType(t *testing.T) {
 
 	// Add tests for these constants to make sure they don't change
-	require.Equal(t, PageType("page"), PagePage)
-	require.Equal(t, PageType("home"), PageHome)
-	require.Equal(t, PageType("section"), PageSection)
-	require.Equal(t, PageType("taxonomy"), PageTaxonomy)
-	require.Equal(t, PageType("taxonomyTerm"), PageTaxonomyTerm)
+	require.Equal(t, Kind("page"), KindPage)
+	require.Equal(t, Kind("home"), KindHome)
+	require.Equal(t, Kind("section"), KindSection)
+	require.Equal(t, Kind("taxonomy"), KindTaxonomy)
+	require.Equal(t, Kind("taxonomyTerm"), KindTaxonomyTerm)
 
-	require.False(t, PagePage.IsNode())
-	require.True(t, PageHome.IsNode())
+	require.False(t, KindPage.IsNode())
+	require.True(t, KindHome.IsNode())
 }
 
 func TestChompBOM(t *testing.T) {

@@ -191,8 +191,8 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 func (h *HugoSites) assignMissingTranslations() error {
 	// This looks heavy, but it should be a small number of nodes by now.
-	allPages := h.findAllPagesByNodeTypeNotIn(PagePage)
-	for _, nodeType := range []PageType{PageHome, PageSection, PageTaxonomy, PageTaxonomyTerm} {
+	allPages := h.findAllPagesByNodeTypeNotIn(KindPage)
+	for _, nodeType := range []Kind{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm} {
 		nodes := h.findPagesByNodeTypeIn(nodeType, allPages)
 
 		// Assign translations
@@ -218,7 +218,7 @@ func (h *HugoSites) createMissingPages() error {
 	for _, s := range h.Sites {
 
 		// home pages
-		home := s.findPagesByNodeType(PageHome)
+		home := s.findPagesByNodeType(KindHome)
 		if len(home) > 1 {
 			panic("Too many homes")
 		}
@@ -231,8 +231,8 @@ func (h *HugoSites) createMissingPages() error {
 		// taxonomy list and terms pages
 		taxonomies := s.Language.GetStringMapString("taxonomies")
 		if len(taxonomies) > 0 {
-			taxonomyPages := s.findPagesByNodeType(PageTaxonomy)
-			taxonomyTermsPages := s.findPagesByNodeType(PageTaxonomyTerm)
+			taxonomyPages := s.findPagesByNodeType(KindTaxonomy)
+			taxonomyTermsPages := s.findPagesByNodeType(KindTaxonomyTerm)
 			for _, plural := range taxonomies {
 				tax := s.Taxonomies[plural]
 				foundTaxonomyPage := false
@@ -266,7 +266,7 @@ func (h *HugoSites) createMissingPages() error {
 			}
 		}
 
-		sectionPages := s.findPagesByNodeType(PageSection)
+		sectionPages := s.findPagesByNodeType(KindSection)
 		if len(sectionPages) < len(s.Sections) {
 			for name, section := range s.Sections {
 				// A section may be created for the root content folder if a
@@ -304,9 +304,9 @@ func (h *HugoSites) createMissingPages() error {
 
 // TODO(bep) np move
 // Move the new* methods after cleanup in site.go
-func (s *Site) newNodePage(typ PageType) *Page {
+func (s *Site) newNodePage(typ Kind) *Page {
 	return &Page{
-		PageType: typ,
+		Kind: typ,
 		Node: Node{
 			Data:     make(map[string]interface{}),
 			Site:     &s.Info,
@@ -315,7 +315,7 @@ func (s *Site) newNodePage(typ PageType) *Page {
 }
 
 func (s *Site) newHomePage() *Page {
-	p := s.newNodePage(PageHome)
+	p := s.newNodePage(KindHome)
 	p.Title = s.Info.Title
 	pages := Pages{}
 	p.Data["Pages"] = pages
@@ -334,7 +334,7 @@ func (s *Site) setPageURLs(p *Page, in string) {
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {
 
-	p := s.newNodePage(PageTaxonomy)
+	p := s.newNodePage(KindTaxonomy)
 
 	p.sections = []string{plural, key}
 
@@ -356,7 +356,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 
 func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 
-	p := s.newNodePage(PageSection)
+	p := s.newNodePage(KindSection)
 	p.sections = []string{name}
 
 	sectionName := name
@@ -375,7 +375,7 @@ func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 }
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
-	p := s.newNodePage(PageTaxonomyTerm)
+	p := s.newNodePage(KindTaxonomyTerm)
 	p.sections = []string{plural}
 	p.Title = strings.Title(plural)
 	s.setPageURLs(p, plural)
@@ -566,19 +566,19 @@ func (s *Site) updateBuildStats(page *Page) {
 }
 
 // TODO(bep) np remove
-func (h *HugoSites) findAllPagesByNodeType(n PageType) Pages {
+func (h *HugoSites) findAllPagesByNodeType(n Kind) Pages {
 	return h.Sites[0].findAllPagesByNodeType(n)
 }
 
-func (h *HugoSites) findPagesByNodeTypeNotIn(n PageType, inPages Pages) Pages {
+func (h *HugoSites) findPagesByNodeTypeNotIn(n Kind, inPages Pages) Pages {
 	return h.Sites[0].findPagesByNodeTypeNotIn(n, inPages)
 }
 
-func (h *HugoSites) findPagesByNodeTypeIn(n PageType, inPages Pages) Pages {
+func (h *HugoSites) findPagesByNodeTypeIn(n Kind, inPages Pages) Pages {
 	return h.Sites[0].findPagesByNodeTypeIn(n, inPages)
 }
 
-func (h *HugoSites) findAllPagesByNodeTypeNotIn(n PageType) Pages {
+func (h *HugoSites) findAllPagesByNodeTypeNotIn(n Kind) Pages {
 	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllPages)
 }
 

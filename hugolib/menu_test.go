@@ -415,11 +415,11 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 	fishySectionPages := s.Sections["fish-and-chips"]
 	assert.Equal(t, 1, len(fishySectionPages))
 
-	nodeFirst := s.getPage(PageSection, "first")
+	nodeFirst := s.getPage(KindSection, "first")
 	require.NotNil(t, nodeFirst)
-	nodeSecond := s.getPage(PageSection, "second-section")
+	nodeSecond := s.getPage(KindSection, "second-section")
 	require.NotNil(t, nodeSecond)
-	nodeFishy := s.getPage(PageSection, "fish-and-chips")
+	nodeFishy := s.getPage(KindSection, "fish-and-chips")
 	require.Equal(t, "fish-and-chips", nodeFishy.sections[0])
 
 	firstSectionMenuEntry := findTestMenuEntryByID(s, "spm", "first")
@@ -555,7 +555,7 @@ func TestHomeNodeMenu(t *testing.T) {
 
 	s := setupMenuTests(t, menuPageSources)
 
-	home := s.getPage(PageHome)
+	home := s.getPage(KindHome)
 
 	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL()}
 
