@@ -1010,13 +1010,13 @@ func delimit(seq, delimiter interface{}, last ...interface{}) (template.HTML, er
 	}
 
 	var dLast *string
-	for _, l := range last {
+	if len(last) > 0 {
+		l := last[0]
 		dStr, err := cast.ToStringE(l)
 		if err != nil {
 			dLast = nil
 		}
 		dLast = &dStr
-		break
 	}
 
 	seqv := reflect.ValueOf(seq)

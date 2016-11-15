@@ -62,8 +62,7 @@ func (l *LazyFileReader) Read(p []byte) (n int, err error) {
 		}
 		l.contents = bytes.NewReader(b)
 	}
-	l.contents.Seek(l.pos, 0)
-	if err != nil {
+	if _, err = l.contents.Seek(l.pos, 0); err != nil {
 		return 0, errors.New("failed to set read position: " + err.Error())
 	}
 	n, err = l.contents.Read(p)
