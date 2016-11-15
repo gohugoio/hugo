@@ -86,13 +86,13 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	doc1en := enSite.RegularPages[0]
 	doc1fr := frSite.RegularPages[0]
 
-	enPerm, _ := doc1en.Permalink()
-	enRelPerm, _ := doc1en.RelPermalink()
+	enPerm := doc1en.Permalink()
+	enRelPerm := doc1en.RelPermalink()
 	require.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", enPerm)
 	require.Equal(t, "/blog/en/sect/doc1-slug/", enRelPerm)
 
-	frPerm, _ := doc1fr.Permalink()
-	frRelPerm, _ := doc1fr.RelPermalink()
+	frPerm := doc1fr.Permalink()
+	frRelPerm := doc1fr.RelPermalink()
 	// Main language in root
 	require.Equal(t, replaceDefaultContentLanguageValue("http://example.com/blog/fr/sect/doc1/", defaultInSubDir), frPerm)
 	require.Equal(t, replaceDefaultContentLanguageValue("/blog/fr/sect/doc1/", defaultInSubDir), frRelPerm)
@@ -223,18 +223,18 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	assert.Len(t, enSite.AllPages, 28, "should have 28 total pages (including translations and index types)")
 
 	doc1en := enSite.RegularPages[0]
-	permalink, err := doc1en.Permalink()
+	permalink := doc1en.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", permalink, "invalid doc1.en permalink")
 	assert.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
 
 	doc2 := enSite.RegularPages[1]
-	permalink, err = doc2.Permalink()
+	permalink = doc2.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/en/sect/doc2/", permalink, "invalid doc2 permalink")
 
 	doc3 := enSite.RegularPages[2]
-	permalink, err = doc3.Permalink()
+	permalink = doc3.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	// Note that /superbob is a custom URL set in frontmatter.
 	// We respect that URL literally (it can be /search.json)
@@ -246,7 +246,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
 	doc1fr := doc1en.Translations()[0]
-	permalink, err = doc1fr.Permalink()
+	permalink = doc1fr.Permalink()
 	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc1/", permalink, "invalid doc1fr permalink")
 
@@ -255,16 +255,14 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	assert.Equal(t, "fr", doc1fr.Language().Lang)
 
 	doc4 := enSite.AllPages[4]
-	permalink, err = doc4.Permalink()
-	assert.NoError(t, err, "permalink call failed")
+	permalink = doc4.Permalink()
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc4/", permalink, "invalid doc4 permalink")
 	assert.Equal(t, "/blog/fr/sect/doc4/", doc4.URL())
 
 	assert.Len(t, doc4.Translations(), 0, "found translations for doc4")
 
 	doc5 := enSite.AllPages[5]
-	permalink, err = doc5.Permalink()
-	assert.NoError(t, err, "permalink call failed")
+	permalink = doc5.Permalink()
 	assert.Equal(t, "http://example.com/blog/fr/somewhere/else/doc5", permalink, "invalid doc5 permalink")
 
 	// Taxonomies and their URLs

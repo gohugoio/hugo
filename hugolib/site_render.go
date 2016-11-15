@@ -99,7 +99,7 @@ func (s *Site) renderPaginator(p *Page) error {
 
 		aliasPath := p.addLangPathPrefix(helpers.PaginateAliasPath(path.Join(p.sections...), 1))
 		//TODO(bep) np node.permalink
-		link, _ := p.Permalink()
+		link := p.Permalink()
 		s.writeDestAlias(aliasPath, link, nil)
 
 		pagers := p.paginator.Pagers()
@@ -144,6 +144,7 @@ func (s *Site) renderRSS(p *Page) error {
 	// TODO(bep) np check RSS titles
 	// TODO(bep) np check RSS page limit, 50?
 	rssNode := p.copy()
+	rssNode.Kind = kindRSS
 
 	// TODO(bep) np todelido URL
 	rssURI := s.Language.GetString("rssURI")
@@ -248,10 +249,8 @@ func (s *Site) renderAliases() error {
 			continue
 		}
 
-		plink, err := p.Permalink()
-		if err != nil {
-			return err
-		}
+		plink := p.Permalink()
+
 		for _, a := range p.Aliases {
 			if err := s.writeDestAlias(a, plink, p); err != nil {
 				return err

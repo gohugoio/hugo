@@ -299,13 +299,9 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 		}
 
 		if relative {
-			link, err = target.RelPermalink()
+			link = target.RelPermalink()
 		} else {
-			link, err = target.Permalink()
-		}
-
-		if err != nil {
-			return "", err
+			link = target.Permalink()
 		}
 	}
 
@@ -389,11 +385,8 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			return "", fmt.Errorf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
-		link, err = target.RelPermalink()
+		link = target.RelPermalink()
 
-		if err != nil {
-			return "", err
-		}
 	}
 
 	if refURL.Fragment != "" {

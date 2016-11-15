@@ -136,7 +136,7 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 }
 
 func (h *HugoSites) assemble(config *BuildCfg) error {
-	// TODO(bep) np we could probably wait and do this in one go later
+	// TODO(bep) we could probably wait and do this in one go later
 	h.setupTranslations()
 
 	if len(h.Sites) > 1 {

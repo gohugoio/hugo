@@ -560,7 +560,6 @@ func TestHomeNodeMenu(t *testing.T) {
 	s := setupMenuTests(t, menuPageSources)
 
 	home := s.getPage(KindHome)
-
 	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL()}
 
 	for i, this := range []struct {
@@ -583,7 +582,7 @@ func TestHomeNodeMenu(t *testing.T) {
 		if isMenuCurrent != this.isMenuCurrent {
 			fmt.Println("isMenuCurrent", isMenuCurrent)
 			fmt.Printf("this: %#v\n", this)
-			t.Errorf("[%d] Wrong result from IsMenuCurrent: %v for %q", i, isMenuCurrent, this.menu)
+			t.Errorf("[%d] Wrong result from IsMenuCurrent: %v for %q", i, isMenuCurrent, this.menuItem)
 		}
 
 		if hasMenuCurrent != this.hasMenuCurrent {
