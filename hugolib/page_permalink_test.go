@@ -81,20 +81,14 @@ func TestPermalink(t *testing.T) {
 			})
 		}
 
-		u, err := p.Permalink()
-		if err != nil {
-			t.Errorf("Test %d: Unable to process permalink: %s", i, err)
-		}
+		u := p.Permalink()
 
 		expected := test.expectedAbs
 		if u != expected {
 			t.Errorf("Test %d: Expected abs url: %s, got: %s", i, expected, u)
 		}
 
-		u, err = p.RelPermalink()
-		if err != nil {
-			t.Errorf("Test %d: Unable to process permalink: %s", i, err)
-		}
+		u = p.RelPermalink()
 
 		expected = test.expectedRel
 		if u != expected {

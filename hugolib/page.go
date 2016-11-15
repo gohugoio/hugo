@@ -63,6 +63,7 @@ const (
 
 	// The following are (currently) temporary nodes,
 	// i.e. nodes we create just to render in isolation.
+	kindRSS       = "RSS"
 	kindSitemap   = "sitemap"
 	kindRobotsTXT = "robotsTXT"
 	kind404       = "404"
@@ -698,7 +699,18 @@ func (p *Page) analyzePage() {
 }
 
 func (p *Page) permalink() (*url.URL, error) {
+	// TODO(bep) this should probably be set once during build. Maybe.
+	// And simplified.
 	baseURL := string(p.Site.BaseURL)
+
+	if p.IsNode() {
+		// No permalink config for nodes (currently)
+		pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
+		pURL = p.addLangPathPrefix(pURL)
+		url := helpers.MakePermalink(baseURL, pURL)
+		return url, nil
+	}
+
 	dir := strings.TrimSpace(p.Site.pathSpec.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
 	pSlug := strings.TrimSpace(p.Site.pathSpec.URLize(p.Slug))
 	pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
@@ -802,36 +814,30 @@ func (p *Page) IsExpired() bool {
 	return p.ExpiryDate.Before(time.Now())
 }
 
-func (p *Page) Permalink() (string, error) {
-	// TODO(bep) np permalink
-	if p.IsNode() {
-		return p.Site.permalink(p.URL()), nil
-	}
+func (p *Page) Permalink() string {
 	link, err := p.permalink()
 	if err != nil {
-		return "", err
+		return ""
 	}
-	return link.String(), nil
+
+	return link.String()
 }
 
 func (p *Page) URL() string {
-	// TODO(bep np URL
-	if p.IsNode() {
-		return p.addLangPathPrefix(p.URLPath.URL)
-	}
-	if p.URLPath.URL != "" {
+
+	if p.IsPage() && p.URLPath.URL != "" {
 		// This is the url set in front matter
 		return p.URLPath.URL
 	}
 	// Fall back to the relative permalink.
-	u, _ := p.RelPermalink()
+	u := p.RelPermalink()
 	return u
 }
 
-func (p *Page) RelPermalink() (string, error) {
+func (p *Page) RelPermalink() string {
 	link, err := p.permalink()
 	if err != nil {
-		return "", err
+		return ""
 	}
 
 	if viper.GetBool("canonifyURLs") {
@@ -839,16 +845,27 @@ func (p *Page) RelPermalink() (string, error) {
 		// have to return the URL relative from baseURL
 		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
 		if err != nil {
-			return "", err
+			return ""
 		}
-		return "/" + filepath.ToSlash(relpath), nil
+
+		relpath = filepath.ToSlash(relpath)
+
+		if relpath[0] == '.' {
+			relpath = relpath[1:]
+		}
+
+		if !strings.HasPrefix(relpath, "/") {
+			relpath = "/" + relpath
+		}
+
+		return relpath
 	}
 
 	link.Scheme = ""
 	link.Host = ""
 	link.User = nil
 	link.Opaque = ""
-	return link.String(), nil
+	return link.String()
 }
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
@@ -1109,7 +1126,7 @@ func (p *Page) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 	// The following logic is kept from back when Hugo had both Page and Node types.
 	// TODO(bep) consolidate / clean
-	me := MenuEntry{Name: p.Title, URL: p.Site.createNodeMenuEntryURL(p.URL())}
+	me := MenuEntry{Name: p.Title, URL: p.URL()}
 
 	if !me.IsSameResource(inme) {
 		return false
@@ -1154,7 +1171,7 @@ func (p *Page) Menus() PageMenus {
 		p.pageMenus = PageMenus{}
 
 		if ms, ok := p.Params["menu"]; ok {
-			link, _ := p.RelPermalink()
+			link := p.RelPermalink()
 
 			me := MenuEntry{Name: p.LinkTitle(), Weight: p.Weight, URL: link}
 
@@ -1719,13 +1736,13 @@ func (p *Page) setNodeTypeVars(s *Site) {
 	// Set Node URL
 	switch p.Kind {
 	case KindHome:
-		p.URLPath.URL = ""
+		p.URLPath.URL = "/"
 	case KindSection:
-		p.URLPath.URL = p.sections[0]
+		p.URLPath.URL = "/" + p.sections[0] + "/"
 	case KindTaxonomy:
-		p.URLPath.URL = path.Join(p.sections...)
+		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
 	case KindTaxonomyTerm:
-		p.URLPath.URL = path.Join(p.sections...)
+		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
 	}
 
 	p.site = s

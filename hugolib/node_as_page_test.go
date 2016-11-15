@@ -394,6 +394,7 @@ aliases:
 `)
 
 	viper.Set("paginate", 1)
+	viper.Set("baseURL", "http://base/")
 	viper.Set("title", "Hugo Rocks!")
 
 	s := newSiteDefaultLang()
@@ -403,7 +404,7 @@ aliases:
 	}
 
 	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Alias")
-	assertFileContent(t, filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=/")
+	assertFileContent(t, filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=http://base/")
 
 }
 
@@ -428,6 +429,47 @@ My Section Content
 	}
 
 	assertFileContent(t, filepath.Join("public", "sect", "index.html"), true, "My Section")
+
+}
+
+func TestNodesWithURLs(t *testing.T) {
+	testCommonResetState()
+
+	writeLayoutsForNodeAsPageTests(t)
+
+	writeRegularPagesForNodeAsPageTests(t)
+
+	writeSource(t, filepath.Join("content", "sect", "_index.md"), `---
+title: MySection
+url: foo.html
+---
+My Section Content
+`)
+
+	viper.Set("paginate", 1)
+	viper.Set("title", "Hugo Rocks!")
+	viper.Set("baseURL", "http://bep.is/base/")
+
+	s := newSiteDefaultLang()
+
+	if err := buildAndRenderSite(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "sect", "index.html"), true, "My Section")
+
+	p := s.RegularPages[0]
+
+	require.Equal(t, "/base/sect1/regular1/", p.URL())
+
+	// Section with front matter and url set (which should not be used)
+	sect := s.getPage(KindSection, "sect")
+	require.Equal(t, "/base/sect/", sect.URL())
+	require.Equal(t, "http://bep.is/base/sect/", sect.Permalink())
+	require.Equal(t, "/base/sect/", sect.RelPermalink())
+
+	// Home page without front matter
+	require.Equal(t, "/base/", s.getPage(KindHome).URL())
 
 }
 
