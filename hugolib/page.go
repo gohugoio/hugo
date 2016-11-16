@@ -87,25 +87,35 @@ type Page struct {
 	// This collection will be nil for regular pages.
 	Pages Pages
 
-	Params  map[string]interface{}
-	Content template.HTML
-	Summary template.HTML
-	Aliases []string
-	Status  string
-	Images  []Image
-	Videos  []Video
+	// translations will contain references to this page in other language
+	// if available.
+	translations Pages
 
+	// Params contains configuration defined in the params section of page frontmatter.
+	Params map[string]interface{}
+
+	// Content sections
+	Content         template.HTML
+	Summary         template.HTML
 	TableOfContents template.HTML
+
+	Aliases []string
+
+	Images []Image
+	Videos []Video
 
 	Truncated bool
 	Draft     bool
+	Status    string
 
 	PublishDate time.Time
 	ExpiryDate  time.Time
 
-	Markup string
+	// PageMeta contains page stats such as word count etc.
+	PageMeta
 
-	translations Pages
+	// Markup contains the markup type for the content.
+	Markup string
 
 	extension   string
 	contentType string
@@ -114,7 +124,8 @@ type Page struct {
 	Layout            string
 	layoutsCalculated []string
 
-	linkTitle   string
+	linkTitle string
+
 	frontmatter []byte
 
 	// rawContent isn't "raw" as in the same as in the content file.
@@ -126,19 +137,29 @@ type Page struct {
 	// state telling if this is a "new page" or if we have rendered it previously.
 	rendered bool
 
-	contentShortCodes   map[string]func() (string, error)
-	shortcodes          map[string]shortcode
-	plain               string // TODO should be []byte
-	plainWords          []string
-	plainInit           sync.Once
-	plainWordsInit      sync.Once
+	// whether the content is in a CJK language.
+	isCJKLanguage bool
+
+	// shortcode state
+	contentShortCodes map[string]func() (string, error)
+	shortcodes        map[string]shortcode
+
+	// the content stripped for HTML
+	plain          string // TODO should be []byte
+	plainWords     []string
+	plainInit      sync.Once
+	plainWordsInit sync.Once
+
+	// rendering configuration
 	renderingConfig     *helpers.Blackfriday
 	renderingConfigInit sync.Once
-	pageMenus           PageMenus
-	pageMenusInit       sync.Once
-	isCJKLanguage       bool
-	PageMeta
+
+	// menus
+	pageMenus     PageMenus
+	pageMenusInit sync.Once
+
 	Source
+
 	Position `json:"-"`
 
 	GitInfo *gitmap.GitInfo
@@ -155,7 +176,6 @@ type Page struct {
 	// isn't accomanied by one.
 	sections []string
 
-	// TODO(bep) np Site added to page, keep?
 	site *Site
 
 	// Pulled over from Node. TODO(bep) np reorg and group (embed)
@@ -173,6 +193,7 @@ type Page struct {
 	Sitemap Sitemap
 
 	RSSLink template.HTML
+
 	URLPath
 
 	paginator     *Pager
@@ -549,7 +570,6 @@ func (p *Page) layouts(l ...string) []string {
 		return p.layoutsCalculated
 	}
 
-	// TODO(bep) np taxonomy etc.
 	switch p.Kind {
 	case KindHome:
 		return []string{"index.html", "_default/list.html"}
@@ -580,7 +600,7 @@ func (p *Page) layouts(l ...string) []string {
 	return layouts(p.Type(), layout)
 }
 
-// TODO(bep) np consolidate and test these NodeType switches
+// TODO(bep) consolidate and test these KindHome switches (see other layouts methods)s
 // rssLayouts returns RSS layouts to use for the RSS version of this page, nil
 // if no RSS should be rendered.
 func (p *Page) rssLayouts() []string {
@@ -600,7 +620,6 @@ func (p *Page) rssLayouts() []string {
 	}
 
 	return nil
-
 }
 
 func layouts(types string, layout string) (layouts []string) {
@@ -1441,7 +1460,7 @@ func (p *Page) prepareData(s *Site) error {
 	switch p.Kind {
 	case KindPage:
 	case KindHome:
-		pages = s.findPagesByNodeTypeNotIn(KindHome, s.Pages)
+		pages = s.findPagesByKindNotIn(KindHome, s.Pages)
 	case KindSection:
 		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {
@@ -1721,19 +1740,18 @@ func kindFromFilename(filename string) string {
 	return kindUnknown
 }
 
-func (p *Page) setNodeTypeVars(s *Site) {
+func (p *Page) setValuesForKind(s *Site) {
 	if p.Kind == kindUnknown {
 		// This is either a taxonomy list, taxonomy term or a section
-		nodeType := s.nodeTypeFromSections(p.sections)
+		nodeType := s.kindFromSections(p.sections)
 
 		if nodeType == kindUnknown {
-			panic(fmt.Sprintf("Unable to determine node type from %q", p.sections))
+			panic(fmt.Sprintf("Unable to determine page kind from %q", p.sections))
 		}
 
 		p.Kind = nodeType
 	}
-	// TODO(bep) np node URL
-	// Set Node URL
+
 	switch p.Kind {
 	case KindHome:
 		p.URLPath.URL = "/"

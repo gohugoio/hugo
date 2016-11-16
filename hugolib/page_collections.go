@@ -39,8 +39,8 @@ type PageCollections struct {
 }
 
 func (c *PageCollections) refreshPageCaches() {
-	c.indexPages = c.findPagesByNodeTypeNotIn(KindPage, c.Pages)
-	c.RegularPages = c.findPagesByNodeTypeIn(KindPage, c.Pages)
+	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
+	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
 
 	// TODO(bep) np remove eventually
 	for _, n := range c.Pages {
@@ -58,14 +58,8 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-// TODO(bep) np clean and remove finders
-
-func (c *PageCollections) findPagesByNodeType(n string) Pages {
-	return c.findPagesByNodeTypeIn(n, c.Pages)
-}
-
 func (c *PageCollections) getPage(typ string, path ...string) *Page {
-	pages := c.findPagesByNodeTypeIn(typ, c.Pages)
+	pages := c.findPagesByKindIn(typ, c.Pages)
 
 	if len(pages) == 0 {
 		return nil
@@ -93,36 +87,28 @@ func (c *PageCollections) getPage(typ string, path ...string) *Page {
 	return nil
 }
 
-func (c *PageCollections) findIndexNodesByNodeType(n string) Pages {
-	return c.findPagesByNodeTypeIn(n, c.indexPages)
-}
-
-func (*PageCollections) findPagesByNodeTypeIn(n string, inPages Pages) Pages {
+func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
-		if p.Kind == n {
+		if p.Kind == kind {
 			pages = append(pages, p)
 		}
 	}
 	return pages
 }
 
-func (*PageCollections) findPagesByNodeTypeNotIn(n string, inPages Pages) Pages {
+func (*PageCollections) findPagesByKindNotIn(kind string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
-		if p.Kind != n {
+		if p.Kind != kind {
 			pages = append(pages, p)
 		}
 	}
 	return pages
 }
 
-func (c *PageCollections) findAllPagesByNodeType(n string) Pages {
-	return c.findPagesByNodeTypeIn(n, c.Pages)
-}
-
-func (c *PageCollections) findRawAllPagesByNodeType(n string) Pages {
-	return c.findPagesByNodeTypeIn(n, c.rawAllPages)
+func (c *PageCollections) findPagesByKind(kind string) Pages {
+	return c.findPagesByKindIn(kind, c.Pages)
 }
 
 func (c *PageCollections) addPage(page *Page) {

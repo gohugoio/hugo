@@ -1330,18 +1330,14 @@ func (s *Site) buildSiteMeta() (err error) {
 
 	s.assembleTaxonomies()
 
-	// TODO(bep) np
 	for _, p := range s.AllPages {
-		// setNodeTypeVars needs taxonomies
-		p.setNodeTypeVars(s)
+		// this depends on taxonomies
+		p.setValuesForKind(s)
 	}
 
-	// assembleSections: Needs pages (temp lookup)
 	s.assembleSections()
 
-	// TODO(bep) np Site.LastMod
-	pages := s.Pages
-	s.Info.LastChange = pages[0].Lastmod
+	s.Info.LastChange = s.Pages[0].Lastmod
 
 	return
 }
@@ -1530,8 +1526,8 @@ func (s *Site) assembleSections() {
 	s.Sections = make(Taxonomy)
 	s.Info.Sections = s.Sections
 	// TODO(bep) np check these vs the caches
-	regularPages := s.findPagesByNodeType(KindPage)
-	sectionPages := s.findPagesByNodeType(KindSection)
+	regularPages := s.findPagesByKind(KindPage)
+	sectionPages := s.findPagesByKind(KindSection)
 
 	for i, p := range regularPages {
 		s.Sections.add(p.Section(), WeightedPage{regularPages[i].Weight, regularPages[i]}, s.Info.preserveTaxonomyNames)
@@ -1558,7 +1554,7 @@ func (s *Site) assembleSections() {
 	}
 }
 
-func (s *Site) nodeTypeFromSections(sections []string) string {
+func (s *Site) kindFromSections(sections []string) string {
 	if _, isTaxonomy := s.Taxonomies[sections[0]]; isTaxonomy {
 		if len(sections) == 1 {
 			return KindTaxonomyTerm
