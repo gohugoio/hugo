@@ -356,7 +356,7 @@ e.g.
        {{ .Content }}
     {{ end }}
 
-## Files    
+## Files
 
 ### readDir
 
@@ -371,6 +371,16 @@ Reads a file from disk and converts it into a string. Note that the filename mus
  So, if you have a file with the name `README.txt` in the root of your project with the content `Hugo Rocks!`:
 
  `{{readFile "README.txt"}}` → `"Hugo Rocks!"`
+
+### imageConfig
+Parses the image and returns the height, width and color model.
+
+e.g.
+```
+{{ with (imageConfig "favicon.ico") }}
+favicon.ico: {{.Width}} x {{.Height}}
+{{ end }}
+```
 
 ## Math
 
