@@ -304,6 +304,7 @@ func (h *HugoSites) createMissingPages() error {
 // Move the new* methods after cleanup in site.go
 func (s *Site) newNodePage(typ string) *Page {
 	return &Page{
+		pageInit: &pageInit{},
 		Kind:     typ,
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,

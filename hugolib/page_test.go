@@ -1269,7 +1269,7 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
 	} {
 
-		n := &Page{Kind: KindHome}
+		n := &Page{pageInit: &pageInit{}, Kind: KindHome}
 		n.RSSLink = "rssLink"
 
 		if !this.assertFunc(n) {
