@@ -147,7 +147,7 @@ func createSortTestPages(num int) Pages {
 
 	for i := 0; i < num; i++ {
 		pages[i] = &Page{
-
+			pageInit: &pageInit{},
 			URLPath: URLPath{
 				Section: "z",
 				URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),

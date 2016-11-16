@@ -66,7 +66,8 @@ func TestPermalink(t *testing.T) {
 		info := newSiteInfo(siteBuilderCfg{baseURL: string(test.base), language: helpers.NewDefaultLanguage()})
 
 		p := &Page{
-			Kind: KindPage,
+			pageInit: &pageInit{},
+			Kind:     KindPage,
 			URLPath: URLPath{
 				Section: "z",
 				URL:     test.url,

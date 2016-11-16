@@ -70,6 +70,7 @@ const (
 )
 
 type Page struct {
+	*pageInit
 
 	// Kind is the discriminator that identifies the different page types
 	// in the different page collections. This can, as an example, be used
@@ -145,18 +146,14 @@ type Page struct {
 	shortcodes        map[string]shortcode
 
 	// the content stripped for HTML
-	plain          string // TODO should be []byte
-	plainWords     []string
-	plainInit      sync.Once
-	plainWordsInit sync.Once
+	plain      string // TODO should be []byte
+	plainWords []string
 
 	// rendering configuration
-	renderingConfig     *helpers.Blackfriday
-	renderingConfigInit sync.Once
+	renderingConfig *helpers.Blackfriday
 
 	// menus
-	pageMenus     PageMenus
-	pageMenusInit sync.Once
+	pageMenus PageMenus
 
 	Source
 
@@ -196,14 +193,24 @@ type Page struct {
 
 	URLPath
 
-	paginator     *Pager
-	paginatorInit sync.Once
+	paginator *Pager
 
 	scratch *Scratch
 
-	language     *helpers.Language
-	languageInit sync.Once
-	lang         string
+	language *helpers.Language
+	lang     string
+}
+
+// pageInit lazy initializes different parts of the page. It is extracted
+// into its own type so we can easily create a copy of a given page.
+type pageInit struct {
+	languageInit        sync.Once
+	pageMenusInit       sync.Once
+	pageMetaInit        sync.Once
+	paginatorInit       sync.Once
+	plainInit           sync.Once
+	plainWordsInit      sync.Once
+	renderingConfigInit sync.Once
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -231,7 +238,6 @@ type PageMeta struct {
 	wordCount      int
 	fuzzyWordCount int
 	readingTime    int
-	pageMetaInit   sync.Once
 	Weight         int
 }
 
@@ -532,6 +538,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func newPage(filename string) *Page {
 	page := Page{
+		pageInit:    &pageInit{},
 		Kind:        kindFromFilename(filename),
 		contentType: "",
 		Source:      Source{File: *source.NewFile(filename)},
@@ -1538,20 +1545,12 @@ func (p *Page) updatePageDates() {
 	}
 }
 
-// Page constains some sync.Once which have a mutex, so we cannot just
-// copy the Page by value. So for the situations where we need a copy,
-// the paginators etc., we do it manually here.
-// TODO(bep) np do better
+// copy creates a copy of this page with the lazy sync.Once vars reset
+// so they will be evaluated again, for word count calculations etc.
 func (p *Page) copy() *Page {
-	c := &Page{Kind: p.Kind, Site: p.Site}
-	c.Title = p.Title
-	c.Data = p.Data
-	c.Date = p.Date
-	c.Lastmod = p.Lastmod
-	c.language = p.language
-	c.lang = p.lang
-	c.URLPath = p.URLPath
-	return c
+	c := *p
+	c.pageInit = &pageInit{}
+	return &c
 }
 
 // TODO(bep) np these are pulled over from Node. Needs regrouping / embed
