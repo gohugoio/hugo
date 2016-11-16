@@ -120,12 +120,14 @@ func (h *HugoSites) getNodes(nodeID string) Nodes {
 	return Nodes{}
 }
 
-// Reset resets the sites, making it ready for a full rebuild.
+// Reset resets the sites and template caches, making it ready for a full rebuild.
 func (h *HugoSites) reset() {
 	h.nodeMap = make(map[string]Nodes)
 	for i, s := range h.Sites {
 		h.Sites[i] = s.reset()
 	}
+
+	tpl.ResetCaches()
 }
 
 func (h *HugoSites) reCreateFromConfig() error {
