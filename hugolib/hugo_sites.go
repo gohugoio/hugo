@@ -191,9 +191,9 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 func (h *HugoSites) assignMissingTranslations() error {
 	// This looks heavy, but it should be a small number of nodes by now.
-	allPages := h.findAllPagesByNodeTypeNotIn(KindPage)
+	allPages := h.findAllPagesByKindNotIn(KindPage)
 	for _, nodeType := range []string{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm} {
-		nodes := h.findPagesByNodeTypeIn(nodeType, allPages)
+		nodes := h.findPagesByKindIn(nodeType, allPages)
 
 		// Assign translations
 		for _, t1 := range nodes {
@@ -216,7 +216,7 @@ func (h *HugoSites) createMissingPages() error {
 	for _, s := range h.Sites {
 
 		// home pages
-		home := s.findPagesByNodeType(KindHome)
+		home := s.findPagesByKind(KindHome)
 		if len(home) > 1 {
 			panic("Too many homes")
 		}
@@ -229,8 +229,8 @@ func (h *HugoSites) createMissingPages() error {
 		// taxonomy list and terms pages
 		taxonomies := s.Language.GetStringMapString("taxonomies")
 		if len(taxonomies) > 0 {
-			taxonomyPages := s.findPagesByNodeType(KindTaxonomy)
-			taxonomyTermsPages := s.findPagesByNodeType(KindTaxonomyTerm)
+			taxonomyPages := s.findPagesByKind(KindTaxonomy)
+			taxonomyTermsPages := s.findPagesByKind(KindTaxonomyTerm)
 			for _, plural := range taxonomies {
 				tax := s.Taxonomies[plural]
 				foundTaxonomyPage := false
@@ -264,7 +264,7 @@ func (h *HugoSites) createMissingPages() error {
 			}
 		}
 
-		sectionPages := s.findPagesByNodeType(KindSection)
+		sectionPages := s.findPagesByKind(KindSection)
 		if len(sectionPages) < len(s.Sections) {
 			for name, section := range s.Sections {
 				// A section may be created for the root content folder if a
@@ -544,21 +544,20 @@ func (s *Site) updateBuildStats(page *Page) {
 	}
 }
 
-// TODO(bep) np remove
-func (h *HugoSites) findAllPagesByNodeType(n string) Pages {
-	return h.Sites[0].findAllPagesByNodeType(n)
+func (h *HugoSites) findPagesByKindNotIn(kind string, inPages Pages) Pages {
+	return h.Sites[0].findPagesByKindNotIn(kind, inPages)
 }
 
-func (h *HugoSites) findPagesByNodeTypeNotIn(n string, inPages Pages) Pages {
-	return h.Sites[0].findPagesByNodeTypeNotIn(n, inPages)
+func (h *HugoSites) findPagesByKindIn(kind string, inPages Pages) Pages {
+	return h.Sites[0].findPagesByKindIn(kind, inPages)
 }
 
-func (h *HugoSites) findPagesByNodeTypeIn(n string, inPages Pages) Pages {
-	return h.Sites[0].findPagesByNodeTypeIn(n, inPages)
+func (h *HugoSites) findAllPagesByKind(kind string) Pages {
+	return h.findPagesByKindIn(kind, h.Sites[0].AllPages)
 }
 
-func (h *HugoSites) findAllPagesByNodeTypeNotIn(n string) Pages {
-	return h.findPagesByNodeTypeNotIn(n, h.Sites[0].AllPages)
+func (h *HugoSites) findAllPagesByKindNotIn(kind string) Pages {
+	return h.findPagesByKindNotIn(kind, h.Sites[0].AllPages)
 }
 
 // Convenience func used in tests to build a single site/language excluding render phase.
