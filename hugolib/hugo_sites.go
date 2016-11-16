@@ -15,9 +15,7 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"os"
-	"path"
 	"strings"
 	"sync"
 
@@ -25,7 +23,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/bep/inflect"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -298,84 +295,6 @@ func (h *HugoSites) createMissingPages() error {
 		}
 	}
 	return nil
-}
-
-// TODO(bep) np move
-// Move the new* methods after cleanup in site.go
-func (s *Site) newNodePage(typ string) *Page {
-	return &Page{
-		pageInit: &pageInit{},
-		Kind:     typ,
-		Data:     make(map[string]interface{}),
-		Site:     &s.Info,
-		language: s.Language,
-		site:     s}
-}
-
-func (s *Site) newHomePage() *Page {
-	p := s.newNodePage(KindHome)
-	p.Title = s.Info.Title
-	pages := Pages{}
-	p.Data["Pages"] = pages
-	p.Pages = pages
-	s.setPageURLs(p, "/")
-	return p
-}
-
-func (s *Site) setPageURLs(p *Page, in string) {
-	p.URLPath.URL = s.Info.pathSpec.URLizeAndPrep(in)
-	p.URLPath.Permalink = s.Info.permalink(p.URLPath.URL)
-	p.RSSLink = template.HTML(s.Info.permalink(in + ".xml"))
-}
-
-func (s *Site) newTaxonomyPage(plural, key string) *Page {
-
-	p := s.newNodePage(KindTaxonomy)
-
-	p.sections = []string{plural, key}
-
-	if s.Info.preserveTaxonomyNames {
-		key = s.Info.pathSpec.MakePathSanitized(key)
-	}
-
-	if s.Info.preserveTaxonomyNames {
-		// keep as is in the title
-		p.Title = key
-	} else {
-		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
-	}
-
-	s.setPageURLs(p, path.Join(plural, key))
-
-	return p
-}
-
-func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
-
-	p := s.newNodePage(KindSection)
-	p.sections = []string{name}
-
-	sectionName := name
-	if !s.Info.preserveTaxonomyNames && len(section) > 0 {
-		sectionName = section[0].Page.Section()
-	}
-
-	sectionName = helpers.FirstUpper(sectionName)
-	if viper.GetBool("pluralizeListTitles") {
-		p.Title = inflect.Pluralize(sectionName)
-	} else {
-		p.Title = sectionName
-	}
-	s.setPageURLs(p, name)
-	return p
-}
-
-func (s *Site) newTaxonomyTermsPage(plural string) *Page {
-	p := s.newNodePage(KindTaxonomyTerm)
-	p.sections = []string{plural}
-	p.Title = strings.Title(plural)
-	s.setPageURLs(p, plural)
-	return p
 }
 
 func (h *HugoSites) setupTranslations() {

@@ -87,7 +87,6 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 }
 
 // renderPaginator must be run after the owning Page has been rendered.
-// TODO(bep) np
 func (s *Site) renderPaginator(p *Page) error {
 	if p.paginator != nil {
 		jww.DEBUG.Printf("Render paginator for page %q", p.Path())
@@ -95,10 +94,8 @@ func (s *Site) renderPaginator(p *Page) error {
 
 		// write alias for page 1
 		// TODO(bep) ml all of these n.addLang ... fix.
-		// TODO(bep) np URL
 
 		aliasPath := p.addLangPathPrefix(helpers.PaginateAliasPath(path.Join(p.sections...), 1))
-		//TODO(bep) np node.permalink
 		link := p.Permalink()
 		s.writeDestAlias(aliasPath, link, nil)
 
@@ -141,16 +138,18 @@ func (s *Site) renderRSS(p *Page) error {
 		return nil
 	}
 
-	// TODO(bep) np check RSS titles
-	// TODO(bep) np check RSS page limit, 50?
-	rssNode := p.copy()
-	rssNode.Kind = kindRSS
-
-	// TODO(bep) np todelido URL
+	rssPage := p.copy()
+	rssPage.Kind = kindRSS
+	high := 50
+	if len(rssPage.Pages) > high {
+		rssPage.Pages = rssPage.Pages[:high]
+		rssPage.Data["Pages"] = rssPage.Pages
+	}
 	rssURI := s.Language.GetString("rssURI")
-	rssNode.URLPath.URL = path.Join(rssNode.URLPath.URL, rssURI)
+	rssPath := path.Join(rssPage.URLPath.URL, rssURI)
+	s.setPageURLs(rssPage, rssPath)
 
-	if err := s.renderAndWriteXML(rssNode.Title, rssNode.addLangFilepathPrefix(rssNode.URLPath.URL), rssNode, s.appendThemeTemplates(layouts)...); err != nil {
+	if err := s.renderAndWriteXML(rssPage.Title, rssPage.addLangFilepathPrefix(rssPath), rssPage, s.appendThemeTemplates(layouts)...); err != nil {
 		return err
 	}
 
