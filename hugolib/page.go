@@ -175,7 +175,7 @@ type Page struct {
 
 	site *Site
 
-	// Pulled over from Node. TODO(bep) np reorg and group (embed)
+	// Pulled over from old Node. TODO(bep) reorg and group (embed)
 
 	Site *SiteInfo `json:"-"`
 
@@ -1458,7 +1458,6 @@ func (p *Page) prepareLayouts() error {
 	return nil
 }
 
-// TODO(bep) np naming, move some
 func (p *Page) prepareData(s *Site) error {
 
 	var pages Pages
@@ -1507,7 +1506,7 @@ func (p *Page) prepareData(s *Site) error {
 }
 
 func (p *Page) updatePageDates() {
-	// TODO(bep) np there is a potential issue with page sorting for home pages
+	// TODO(bep) there is a potential issue with page sorting for home pages
 	// etc. without front matter dates set, but let us wrap the head around
 	// that in another time.
 	if !p.IsNode() {
@@ -1552,8 +1551,6 @@ func (p *Page) copy() *Page {
 	c.pageInit = &pageInit{}
 	return &c
 }
-
-// TODO(bep) np these are pulled over from Node. Needs regrouping / embed
 
 func (p *Page) Now() time.Time {
 	return time.Now()

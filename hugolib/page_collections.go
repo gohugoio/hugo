@@ -13,10 +13,6 @@
 
 package hugolib
 
-import (
-	"fmt"
-)
-
 // PageCollections contains the page collections for a site.
 type PageCollections struct {
 	// Includes only pages of all types, and only pages in the current language.
@@ -34,6 +30,9 @@ type PageCollections struct {
 	// This is for the current language only.
 	RegularPages Pages
 
+	// A convenience cache for the all the regular pages.
+	AllRegularPages Pages
+
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
 }
@@ -41,13 +40,7 @@ type PageCollections struct {
 func (c *PageCollections) refreshPageCaches() {
 	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
 	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
-
-	// TODO(bep) np remove eventually
-	for _, n := range c.Pages {
-		if n.Kind == kindUnknown {
-			panic(fmt.Sprintf("Got unknown type %s", n.Title))
-		}
-	}
+	c.AllRegularPages = c.findPagesByKindIn(KindPage, c.AllPages)
 }
 
 func newPageCollections() *PageCollections {

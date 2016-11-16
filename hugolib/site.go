@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bep/inflect"
+
 	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
@@ -285,8 +287,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 	var link string
 
 	if refURL.Path != "" {
-		// TODO(bep) np relRef
-		for _, page := range s.AllPages {
+		for _, page := range s.AllRegularPages {
 			refPath := filepath.FromSlash(refURL.Path)
 			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
 				target = page
@@ -357,8 +358,7 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			}
 		}
 
-		// TODO(bep) np sourceRelativeLink
-		for _, page := range s.AllPages {
+		for _, page := range s.AllRegularPages {
 			if page.Source.Path() == refPath {
 				target = page
 				break
@@ -367,14 +367,14 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 		// need to exhaust the test, then try with the others :/
 		// if the refPath doesn't end in a filename with extension `.md`, then try with `.md` , and then `/index.md`
 		mdPath := strings.TrimSuffix(refPath, string(os.PathSeparator)) + ".md"
-		for _, page := range s.AllPages {
+		for _, page := range s.AllRegularPages {
 			if page.Source.Path() == mdPath {
 				target = page
 				break
 			}
 		}
 		indexPath := filepath.Join(refPath, "index.md")
-		for _, page := range s.AllPages {
+		for _, page := range s.AllRegularPages {
 			if page.Source.Path() == indexPath {
 				target = page
 				break
@@ -1525,7 +1525,7 @@ func (s *Site) resetBuildState() {
 func (s *Site) assembleSections() {
 	s.Sections = make(Taxonomy)
 	s.Info.Sections = s.Sections
-	// TODO(bep) np check these vs the caches
+
 	regularPages := s.findPagesByKind(KindPage)
 	sectionPages := s.findPagesByKind(KindSection)
 
@@ -1716,7 +1716,6 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	var pageTarget target.Output
 
-	// TODO(bep) np ugly urls vs frontmatter
 	if p, ok := d.(*Page); ok && p.IsPage() && path.Ext(p.URLPath.URL) != "" {
 		// user has explicitly set a URL with extension for this page
 		// make sure it sticks even if "ugly URLs" are turned off.
@@ -1988,4 +1987,80 @@ func getGoMaxProcs() int {
 		}
 	}
 	return 1
+}
+
+func (s *Site) newNodePage(typ string) *Page {
+	return &Page{
+		pageInit: &pageInit{},
+		Kind:     typ,
+		Data:     make(map[string]interface{}),
+		Site:     &s.Info,
+		language: s.Language,
+		site:     s}
+}
+
+func (s *Site) newHomePage() *Page {
+	p := s.newNodePage(KindHome)
+	p.Title = s.Info.Title
+	pages := Pages{}
+	p.Data["Pages"] = pages
+	p.Pages = pages
+	s.setPageURLs(p, "/")
+	return p
+}
+
+func (s *Site) setPageURLs(p *Page, in string) {
+	p.URLPath.URL = s.Info.pathSpec.URLizeAndPrep(in)
+	p.URLPath.Permalink = s.Info.permalink(p.URLPath.URL)
+	p.RSSLink = template.HTML(s.Info.permalink(in + ".xml"))
+}
+
+func (s *Site) newTaxonomyPage(plural, key string) *Page {
+
+	p := s.newNodePage(KindTaxonomy)
+
+	p.sections = []string{plural, key}
+
+	if s.Info.preserveTaxonomyNames {
+		key = s.Info.pathSpec.MakePathSanitized(key)
+	}
+
+	if s.Info.preserveTaxonomyNames {
+		// keep as is in the title
+		p.Title = key
+	} else {
+		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
+	}
+
+	s.setPageURLs(p, path.Join(plural, key))
+
+	return p
+}
+
+func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
+
+	p := s.newNodePage(KindSection)
+	p.sections = []string{name}
+
+	sectionName := name
+	if !s.Info.preserveTaxonomyNames && len(section) > 0 {
+		sectionName = section[0].Page.Section()
+	}
+
+	sectionName = helpers.FirstUpper(sectionName)
+	if viper.GetBool("pluralizeListTitles") {
+		p.Title = inflect.Pluralize(sectionName)
+	} else {
+		p.Title = sectionName
+	}
+	s.setPageURLs(p, name)
+	return p
+}
+
+func (s *Site) newTaxonomyTermsPage(plural string) *Page {
+	p := s.newNodePage(KindTaxonomyTerm)
+	p.sections = []string{plural}
+	p.Title = strings.Title(plural)
+	s.setPageURLs(p, plural)
+	return p
 }
