@@ -1466,7 +1466,7 @@ func (p *Page) prepareData(s *Site) error {
 	switch p.Kind {
 	case KindPage:
 	case KindHome:
-		pages = s.findPagesByKindNotIn(KindHome, s.Pages)
+		pages = s.RegularPages
 	case KindSection:
 		sectionData, ok := s.Sections[p.sections[0]]
 		if !ok {

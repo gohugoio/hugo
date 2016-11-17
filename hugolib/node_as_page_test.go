@@ -67,7 +67,7 @@ func TestNodesAsPage(t *testing.T) {
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
-		"# Pages: 9",
+		"# Pages: 4",
 		"Date: 2009-01-02",
 		"Lastmod: 2009-01-03",
 		"GetPage: Section1 ",
@@ -184,8 +184,8 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	require.Len(t, homePages, 1)
 
 	homePage := homePages[0]
-	require.Len(t, homePage.Data["Pages"], 9)
-	require.Len(t, homePage.Pages, 9) // Alias
+	require.Len(t, homePage.Data["Pages"], 4)
+	require.Len(t, homePage.Pages, 4)
 	require.True(t, homePage.Path() == "")
 
 	assertFileContent(t, filepath.Join("public", "index.html"), false,
