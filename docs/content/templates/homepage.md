@@ -60,7 +60,7 @@ It makes use of [partial templates](/templates/partials/) and uses a similar app
         <base href="{{ .Site.BaseURL }}">
         <title>{{ .Site.Title }}</title>
         <link rel="canonical" href="{{ .Permalink }}">
-        <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+        <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
 
         {{ partial "head_includes.html" . }}
     </head>

@@ -65,7 +65,7 @@ This header template is used for [spf13.com](http://spf13.com/):
         <base href="{{ .Site.BaseURL }}">
         <title> {{ .Title }} : spf13.com </title>
         <link rel="canonical" href="{{ .Permalink }}">
-        {{ if .RSSlink }}<link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
+        {{ if .RSSLink }}<link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
 
         {{ partial "head_includes.html" . }}
     </head>
