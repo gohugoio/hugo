@@ -579,16 +579,16 @@ func (p *Page) layouts(l ...string) []string {
 
 	switch p.Kind {
 	case KindHome:
-		return []string{"index.html", "_default/list.html"}
+		return p.site.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 	case KindSection:
 		section := p.sections[0]
-		return []string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"}
+		return p.site.appendThemeTemplates([]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 	case KindTaxonomy:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
-		return []string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"}
+		return p.site.appendThemeTemplates([]string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"})
 	case KindTaxonomyTerm:
 		singular := p.site.taxonomiesPluralSingular[p.sections[0]]
-		return []string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"}
+		return p.site.appendThemeTemplates([]string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"})
 	}
 
 	// Regular Page handled below
