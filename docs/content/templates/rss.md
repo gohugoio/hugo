@@ -99,15 +99,15 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
 In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this:
 
 ~~~html
-{{ if .RSSlink }}
-  <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
-  <link href="{{ .RSSlink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
+{{ if .RSSLink }}
+  <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+  <link href="{{ .RSSLink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
 {{ end }}
 ~~~
 
 ... with the autodiscovery link specified by the line with `rel="alternate"`.
 
-The `.RSSlink` will render the appropriate RSS feed URL for the section, whether it's everything, posts in a section, or a taxonomy.
+The `.RSSLink` will render the appropriate RSS feed URL for the section, whether it's everything, posts in a section, or a taxonomy.
 
 **N.b.**, if you reference your RSS link, be sure to specify the mime type with `type="application/rss+xml"`.
 
