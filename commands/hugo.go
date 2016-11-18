@@ -279,7 +279,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	}
 
 	if !viper.GetBool("relativeURLs") && viper.GetString("baseURL") == "" {
-		jww.ERROR.Println("No 'baseurl' set in configuration or as a flag. Features like page menus will not work without one.")
+		jww.ERROR.Println("No 'baseURL' set in configuration or as a flag. Features like page menus will not work without one.")
 	}
 
 	if theme != "" {

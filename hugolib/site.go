@@ -951,7 +951,7 @@ func (s *Site) initializeSiteInfo() {
 		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
 	}
 
-	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("RSSUri"))
+	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))
 }
 
 func (s *Site) hasTheme() bool {
@@ -1412,7 +1412,7 @@ func (s *Site) assembleMenus() {
 		}
 	}
 
-	sectionPagesMenu := s.Language.GetString("SectionPagesMenu")
+	sectionPagesMenu := s.Language.GetString("sectionPagesMenu")
 	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
 	pages := s.Pages
@@ -1476,7 +1476,7 @@ func (s *Site) assembleTaxonomies() {
 	s.Taxonomies = make(TaxonomyList)
 	s.taxonomiesPluralSingular = make(map[string]string)
 
-	taxonomies := s.Language.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("taxonomies")
 	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
 	for singular, plural := range taxonomies {
@@ -1642,7 +1642,7 @@ func (s *Site) Stats() {
 	jww.FEEDBACK.Printf("%d pages created\n", len(s.Pages))
 	jww.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
 	jww.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
-	taxonomies := s.Language.GetStringMapString("Taxonomies")
+	taxonomies := s.Language.GetStringMapString("taxonomies")
 
 	for _, pl := range taxonomies {
 		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
