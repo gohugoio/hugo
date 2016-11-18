@@ -14,8 +14,6 @@
 package tpl
 
 import (
-	"fmt"
-
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
@@ -80,7 +78,7 @@ func SetI18nTfuncs(bndl *bundle.Bundle) {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
 			}
 			if enableMissingTranslationPlaceholders {
-				return fmt.Sprintf("[i18n] %s", translationID)
+				return "[i18n] " + translationID
 			}
 			if defaultT != nil {
 				if translated := defaultT(translationID, args...); translated != translationID {
