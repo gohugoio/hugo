@@ -15,15 +15,18 @@ package commands
 
 import (
 	"os"
+	"runtime"
 	"runtime/pprof"
+	"time"
 
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var (
 	benchmarkTimes int
-	cpuProfilefile string
-	memProfilefile string
+	cpuProfileFile string
+	memProfileFile string
 )
 
 var benchmarkCmd = &cobra.Command{
@@ -37,48 +40,68 @@ func init() {
 	initHugoBuilderFlags(benchmarkCmd)
 	initBenchmarkBuildingFlags(benchmarkCmd)
 
-	benchmarkCmd.Flags().StringVar(&cpuProfilefile, "cpuprofile", "", "path/filename for the CPU profile file")
-	benchmarkCmd.Flags().StringVar(&memProfilefile, "memprofile", "", "path/filename for the memory profile file")
-
+	benchmarkCmd.Flags().StringVar(&cpuProfileFile, "cpuprofile", "", "path/filename for the CPU profile file")
+	benchmarkCmd.Flags().StringVar(&memProfileFile, "memprofile", "", "path/filename for the memory profile file")
 	benchmarkCmd.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
 
 	benchmarkCmd.RunE = benchmark
 }
 
 func benchmark(cmd *cobra.Command, args []string) error {
-	if err := InitializeConfig(benchmarkCmd); err != nil {
+	var err error
+	if err = InitializeConfig(benchmarkCmd); err != nil {
 		return err
 	}
 
-	if memProfilefile != "" {
-		f, err := os.Create(memProfilefile)
-
+	var memProf *os.File
+	if memProfileFile != "" {
+		memProf, err = os.Create(memProfileFile)
 		if err != nil {
 			return err
-		}
-		for i := 0; i < benchmarkTimes; i++ {
-			_ = resetAndbuildSites(false)
-		}
-		pprof.WriteHeapProfile(f)
-		f.Close()
-
-	} else {
-		if cpuProfilefile == "" {
-			cpuProfilefile = "/tmp/hugo-cpuprofile"
-		}
-		f, err := os.Create(cpuProfilefile)
-
-		if err != nil {
-			return err
-		}
-
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-		for i := 0; i < benchmarkTimes; i++ {
-			_ = resetAndbuildSites(false)
 		}
 	}
 
-	return nil
+	var cpuProf *os.File
+	if cpuProfileFile != "" {
+		cpuProf, err = os.Create(cpuProfileFile)
+		if err != nil {
+			return err
+		}
+	}
 
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+	memAllocated := memStats.TotalAlloc
+	mallocs := memStats.Mallocs
+	if cpuProf != nil {
+		pprof.StartCPUProfile(cpuProf)
+	}
+
+	t := time.Now()
+	for i := 0; i < benchmarkTimes; i++ {
+		if err = resetAndbuildSites(false); err != nil {
+			return err
+		}
+	}
+	totalTime := time.Since(t)
+
+	if memProf != nil {
+		pprof.WriteHeapProfile(memProf)
+		memProf.Close()
+	}
+	if cpuProf != nil {
+		pprof.StopCPUProfile()
+		cpuProf.Close()
+	}
+
+	runtime.ReadMemStats(&memStats)
+	totalMemAllocated := memStats.TotalAlloc - memAllocated
+	totalMallocs := memStats.Mallocs - mallocs
+
+	jww.FEEDBACK.Println()
+	jww.FEEDBACK.Printf("Average time per operation: %vms\n", int(1000*totalTime.Seconds()/float64(benchmarkTimes)))
+	jww.FEEDBACK.Printf("Average memory allocated per operation: %vkB\n", totalMemAllocated/uint64(benchmarkTimes)/1024)
+	jww.FEEDBACK.Printf("Average allocations per operation: %v\n", totalMallocs/uint64(benchmarkTimes))
+
+	return nil
 }
