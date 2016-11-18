@@ -898,7 +898,7 @@ var ErrHasDraftAndPublished = errors.New("both draft and published parameters we
 
 func (p *Page) update(f interface{}) error {
 	if f == nil {
-		return fmt.Errorf("no metadata found")
+		return errors.New("no metadata found")
 	}
 	m := f.(map[string]interface{})
 	// Needed for case insensitive fetching of params values

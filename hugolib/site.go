@@ -1085,7 +1085,7 @@ func (s *Site) absPublishDir() string {
 
 func (s *Site) checkDirectories() (err error) {
 	if b, _ := helpers.DirExists(s.absContentDir(), hugofs.Source()); !b {
-		return fmt.Errorf("No source directory found, expecting to find it at " + s.absContentDir())
+		return errors.New("No source directory found, expecting to find it at " + s.absContentDir())
 	}
 	return
 }

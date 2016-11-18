@@ -1676,13 +1676,13 @@ func prepareArg(value reflect.Value, argType reflect.Type) (reflect.Value, error
 func index(item interface{}, indices ...interface{}) (interface{}, error) {
 	v := reflect.ValueOf(item)
 	if !v.IsValid() {
-		return nil, fmt.Errorf("index of untyped nil")
+		return nil, errors.New("index of untyped nil")
 	}
 	for _, i := range indices {
 		index := reflect.ValueOf(i)
 		var isNil bool
 		if v, isNil = indirect(v); isNil {
-			return nil, fmt.Errorf("index of nil pointer")
+			return nil, errors.New("index of nil pointer")
 		}
 		switch v.Kind() {
 		case reflect.Array, reflect.Slice, reflect.String:
@@ -1693,7 +1693,7 @@ func index(item interface{}, indices ...interface{}) (interface{}, error) {
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 				x = int64(index.Uint())
 			case reflect.Invalid:
-				return nil, fmt.Errorf("cannot index slice/array with nil")
+				return nil, errors.New("cannot index slice/array with nil")
 			default:
 				return nil, fmt.Errorf("cannot index slice/array with type %s", index.Type())
 			}
@@ -1974,7 +1974,7 @@ func querify(params ...interface{}) (string, error) {
 	qs := url.Values{}
 	vals, err := dictionary(params...)
 	if err != nil {
-		return "", fmt.Errorf("querify keys must be strings")
+		return "", errors.New("querify keys must be strings")
 	}
 
 	for name, value := range vals {

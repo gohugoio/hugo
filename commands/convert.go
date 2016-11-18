@@ -14,6 +14,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -100,7 +101,7 @@ func convertContents(mark rune) (err error) {
 		panic("site.Source not set")
 	}
 	if len(site.Source.Files()) < 1 {
-		return fmt.Errorf("No source files found")
+		return errors.New("No source files found")
 	}
 
 	contentDir := helpers.AbsPathify(viper.GetString("contentDir"))
