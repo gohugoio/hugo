@@ -97,7 +97,7 @@ func convertContents(mark rune) (err error) {
 	}
 
 	if site.Source == nil {
-		panic(fmt.Sprintf("site.Source not set"))
+		panic("site.Source not set")
 	}
 	if len(site.Source.Files()) < 1 {
 		return fmt.Errorf("No source files found")

@@ -13,10 +13,7 @@
 
 package source
 
-import (
-	"bytes"
-	"fmt"
-)
+import "bytes"
 
 type ByteSource struct {
 	Name    string
@@ -24,7 +21,7 @@ type ByteSource struct {
 }
 
 func (b *ByteSource) String() string {
-	return fmt.Sprintf("%s %s", b.Name, string(b.Content))
+	return b.Name + " " + string(b.Content)
 }
 
 type InMemorySource struct {

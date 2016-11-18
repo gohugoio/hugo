@@ -14,7 +14,6 @@
 package target
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"path/filepath"
@@ -66,10 +65,10 @@ func (pp *PagePub) TranslateRelative(src string) (dest string, err error) {
 	name := filename(file)
 
 	if pp.UglyURLs || file == "index.html" || (isRoot && file == "404.html") {
-		return filepath.Join(dir, fmt.Sprintf("%s%s", name, ext)), nil
+		return filepath.Join(dir, name+ext), nil
 	}
 
-	return filepath.Join(dir, name, fmt.Sprintf("index%s", ext)), nil
+	return filepath.Join(dir, name, "index"+ext), nil
 }
 
 func (pp *PagePub) extension(ext string) string {
