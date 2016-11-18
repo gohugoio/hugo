@@ -15,7 +15,7 @@ package commands
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
 	"os"
 	"time"
 
@@ -90,8 +90,7 @@ func undraftContent(p parser.Page) (bytes.Buffer, error) {
 	// Front Matter
 	fm := p.FrontMatter()
 	if fm == nil {
-		err := fmt.Errorf("Front Matter was found, nothing was finalized")
-		return buff, err
+		return buff, errors.New("Front Matter was found, nothing was finalized")
 	}
 
 	var isDraft, gotDate bool
@@ -101,7 +100,7 @@ L:
 		switch k {
 		case "draft":
 			if !v.(bool) {
-				return buff, fmt.Errorf("not a Draft: nothing was done")
+				return buff, errors.New("not a Draft: nothing was done")
 			}
 			isDraft = true
 			if gotDate {
@@ -118,7 +117,7 @@ L:
 
 	// if draft wasn't found in FrontMatter, it isn't a draft.
 	if !isDraft {
-		return buff, fmt.Errorf("not a Draft: nothing was done")
+		return buff, errors.New("not a Draft: nothing was done")
 	}
 
 	// get the front matter as bytes and split it into lines
@@ -127,7 +126,7 @@ L:
 	if len(fmLines) == 1 { // if the result is only 1 element, try to split on dos line endings
 		fmLines = bytes.Split(fm, []byte("\r\n"))
 		if len(fmLines) == 1 {
-			return buff, fmt.Errorf("unable to split FrontMatter into lines")
+			return buff, errors.New("unable to split FrontMatter into lines")
 		}
 		lineEnding = append(lineEnding, []byte("\r\n")...)
 	} else {
