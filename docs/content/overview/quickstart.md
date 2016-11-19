@@ -371,7 +371,7 @@ We will use the default image shown below.
 
 Hugo will sync the changes and reload the website to use new image as shown below.
 
-Note: if you don't see your changes applied immediately, restart your server with the `--ignoreCache` flag to disable caching.
+> _Note: if you don't see your changes applied immediately, restart your server with the `--ignoreCache` flag to disable caching._
 
 ![](/img/quickstart/bookshelf-new-default-image.png)
 
