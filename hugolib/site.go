@@ -814,15 +814,19 @@ func (s *Site) render() (err error) {
 	}
 	s.timerStep("prepare pages")
 
-	if err = s.renderPages(); err != nil {
-		return
-	}
-	s.timerStep("render and write pages")
-
+	// Aliases must be rendered before pages.
+	// Some sites, Hugo docs included, have faulty alias definitions that point
+	// to itself or another real page. These will be overwritten in the next
+	// step.
 	if err = s.renderAliases(); err != nil {
 		return
 	}
 	s.timerStep("render and write aliases")
+
+	if err = s.renderPages(); err != nil {
+		return
+	}
+	s.timerStep("render and write pages")
 
 	if err = s.renderSitemap(); err != nil {
 		return
