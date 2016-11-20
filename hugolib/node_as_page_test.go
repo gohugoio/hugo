@@ -220,7 +220,7 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	)
 
 	// RSS
-	assertFileContent(t, filepath.Join("public", "customrss.xml"), false, "Recent content in Hugo Rocks! on Hugo Rocks!", "<rss")
+	assertFileContent(t, filepath.Join("public", "customrss.xml"), false, "Hugo Rocks!", "<rss")
 	assertFileContent(t, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Sect1s on Hugo Rocks!", "<rss")
 	assertFileContent(t, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Sect2s on Hugo Rocks!", "<rss")
 	assertFileContent(t, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Hugo on Hugo Rocks!", "<rss")
@@ -310,7 +310,7 @@ title = "Hugo in English"
 		"Section Title: Section2")
 
 	// RSS
-	assertFileContent(t, filepath.Join("public", "nn", "customrss.xml"), true, "Recent content in Hugo på norsk on Hugo på norsk", "<rss")
+	assertFileContent(t, filepath.Join("public", "nn", "customrss.xml"), true, "Hugo på norsk", "<rss")
 	assertFileContent(t, filepath.Join("public", "nn", "sect1", "customrss.xml"), true, "Recent content in Sect1s on Hugo på norsk", "<rss")
 	assertFileContent(t, filepath.Join("public", "nn", "sect2", "customrss.xml"), true, "Recent content in Sect2s on Hugo på norsk", "<rss")
 	assertFileContent(t, filepath.Join("public", "nn", "categories", "hugo", "customrss.xml"), true, "Recent content in Hugo on Hugo på norsk", "<rss")
