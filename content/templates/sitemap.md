@@ -18,16 +18,13 @@ A single Sitemap template is used to generate the `sitemap.xml` file.
 Hugo automatically comes with this template file. **No work is needed on
 the users' part unless they want to customize `sitemap.xml`.**
 
-This page is of the type "node" and have all the [node
+A sitemap is a `Page` and have all the [page
 variables](/layout/variables/) available to use in this template
 along with Sitemap-specific ones:
 
 **.Sitemap.ChangeFreq** The page change frequency<br>
 **.Sitemap.Priority** The priority of the page<br>
 **.Sitemap.Filename** The sitemap filename<br>
-
-In addition to the standard node variables, the homepage has access to all
-site pages through `.Data.Pages`.
 
 If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal
 one.

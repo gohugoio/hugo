@@ -93,7 +93,7 @@ can have different RSS files for each section and taxonomy.
 
 ## Variables
 
-List pages are of the type "node" and have all the [node variables](/templates/variables/)
+A list page is a `Page` and have all the [page variables](/templates/variables/)
 and [site variables](/templates/variables/) available to use in the templates.
 
 Taxonomy pages will additionally have:

@@ -19,7 +19,7 @@ Like all other templates, you can use a single RSS template to generate all of y
 
 *Unlike other Hugo templates*, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320). In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section.
 
-RSS pages are of the **type "node"** and have all the [node variables](/layout/variables/) available to use in the templates.
+RSS pages are of the type `Page` and have all the [page variables](/layout/variables/) available to use in the templates.
 
 ## Which Template will be rendered?
 Hugo uses a set of rules to figure out which template to use when rendering a specific page.

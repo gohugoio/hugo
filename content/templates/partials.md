@@ -34,9 +34,6 @@ like good names to use for inclusion in your other templates.
           header.html
           footer.html
 
-By ensuring that we only reference [variables](/layout/variables/)
-used for both nodes and pages, we can use the same partials for both.
-
 ## Partial vs Template
 
 Version v0.12 of Hugo introduced the `partial` call inside the template system.
