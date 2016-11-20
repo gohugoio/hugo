@@ -2417,15 +2417,16 @@ Your rendered home page is blank: /index.html is zero-length
 				debugAddend)
 		}
 
+		// Avoid writing empty files to disk.
+		return nil
+
 	}
 
-	if err == nil {
-
-		if err = s.writeDestPage(dest, pageTarget, outBuffer); err != nil {
-			return err
-		}
+	if err = s.writeDestPage(dest, pageTarget, outBuffer); err != nil {
+		return err
 	}
-	return err
+
+	return nil
 }
 
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
