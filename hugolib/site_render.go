@@ -18,6 +18,7 @@ import (
 	"path"
 	"path/filepath"
 	"sync"
+	"time"
 
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
@@ -140,6 +141,15 @@ func (s *Site) renderRSS(p *Page) error {
 
 	rssPage := p.copy()
 	rssPage.Kind = kindRSS
+
+	// TODO(bep) we zero the date here to get the number of diffs down in
+	// testing. But this should be set back later; the RSS feed should
+	// inherit the publish date from the node it represents.
+	if p.Kind == KindTaxonomy {
+		var zeroDate time.Time
+		rssPage.Date = zeroDate
+	}
+
 	high := 50
 	if len(rssPage.Pages) > high {
 		rssPage.Pages = rssPage.Pages[:high]
