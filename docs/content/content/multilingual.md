@@ -190,9 +190,9 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 ```html
 <ul>
-    {{- $currentNode := . -}}
+    {{- $current := . -}}
     {{ range .Site.Menus.main -}}
-    <li class="{{ if $currentNode.IsMenuCurrent "main" . }}active{{ end }}">
+    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
         <a href="{{ .URL | absLangURL }}">{{ .Name }}</a>
     </li>
     {{- end }}

@@ -162,11 +162,11 @@ The following is an example:
         <div id="sidebar" class="nav-collapse">
             <!-- sidebar menu start-->
             <ul class="sidebar-menu">
-              {{ $currentNode := . }}
+              {{ $currentPage := . }}
               {{ range .Site.Menus.main }}
                   {{ if .HasChildren }}
 
-                <li class="sub-menu{{if $currentNode.HasMenuCurrent "main" . }} active{{end}}">
+                <li class="sub-menu{{if $currentPage.HasMenuCurrent "main" . }} active{{end}}">
                 <a href="javascript:;" class="">
                     {{ .Pre }}
                     <span>{{ .Name }}</span>
@@ -174,7 +174,7 @@ The following is an example:
                 </a>
                 <ul class="sub">
                     {{ range .Children }}
-                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
+                    <li{{if $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
                     {{ end }}
                 </ul>
               {{else}}
@@ -210,9 +210,9 @@ This will create a menu with all the sections as menu items and all the sections
 
 ```
   <nav class="sidebar-nav">
-        {{ $currentNode := . }}
+        {{ $currentPage := . }}
         {{ range .Site.Menus.main }}
-        <a class="sidebar-nav-item{{if or ($currentNode.IsMenuCurrent "main" .) ($currentNode.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}">{{ .Name }}</a>
+        <a class="sidebar-nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}">{{ .Name }}</a>
         {{ end }}
     </nav>
 

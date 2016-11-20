@@ -16,7 +16,7 @@ weight: 50
 The home page of a website is often formatted differently than the other
 pages. In Hugo you can define your own homepage template.
 
-Homepage is of the type "node" and have all the [node
+Homepage is a `Page` and have all the [page
 variables](/templates/variables/) and [site
 variables](/templates/variables/) available to use in the templates.
 
@@ -24,7 +24,7 @@ variables](/templates/variables/) available to use in the templates.
 bootstrapping a new site and template. It is also the only required
 template when using a single page site.*
 
-In addition to the standard node variables, the homepage has access to
+In addition to the standard page variables, the homepage has access to
 all site content accessible from `.Data.Pages`. Details on how to use the
 list of pages can be found in the [Lists Template](/templates/list/).
 

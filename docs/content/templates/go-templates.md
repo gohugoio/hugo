@@ -65,8 +65,7 @@ Accessing the Page Parameter "bar"
 ## Variables
 
 Each Go template has a struct (object) made available to it. In Hugo, each
-template is passed either a page or a node struct depending on which type of
-page you are rendering. More details are available on the
+template is passed page struct. More details are available on the
 [variables](/layout/variables/) page.
 
 A variable is accessed by referencing the variable name.

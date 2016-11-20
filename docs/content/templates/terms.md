@@ -46,8 +46,8 @@ dedicated page for the terms.
 
 ## Variables
 
-Taxonomy Terms pages are of the type "node" and have all the
-[node variables](/templates/variables/) and
+Taxonomy Terms pages are of the type `Page` and have all the
+[page variables](/templates/variables/) and
 [site variables](/templates/variables/)
 available to use in the templates.
 
@@ -62,11 +62,6 @@ Taxonomy Terms pages will additionally have:
 The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
 
 ### Example terms.html files
-
-List pages are of the type "node" and have all the
-[node variables](/templates/variables/) and
-[site variables](/templates/variables/)
-available to use in the templates.
 
 This content template is used for [spf13.com](http://spf13.com/).
 It makes use of [partial templates](/templates/partials/). The list of taxonomy

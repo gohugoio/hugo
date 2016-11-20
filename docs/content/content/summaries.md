@@ -36,7 +36,7 @@ Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly
 
 ## Showing Summaries
 
-You can show content summaries with the following code. You could do this, for example, on a [list](/templates/list/) node.
+You can show content summaries with the following code. You could do this, for example, on a [list](/templates/list/) page.
 
     {{ range first 10 .Data.Pages }}
       <div class="summary">
