@@ -26,41 +26,50 @@ matter, content or derived from file location.
 
 **See also:** [Scratch](/extras/scratch) for page-scoped writable variables.
 
-**.Title**  The title for the content.<br>
+
+
 **.Content** The content itself, defined below the front matter.<br>
-**.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
-**.Truncated** A boolean, `true` if the `.Summary` is truncated.  Useful for showing a "Read more..." link only if necessary.  See [Summaries](/content/summaries/) for more details.<br>
-**.Description** The description for the content.<br>
-**.Keywords** The meta keywords for this content.<br>
-**.Date** The date the content is associated with.<br>
-**.Lastmod** The date the content was last modified.<br>
-**.PublishDate** The date the content is published on.<br>
-**.ExpiryDate** The date where the content is scheduled to expire on.<br>
-**.Type** The content [type](/content/types/) (e.g. post).<br>
-**.Section** The [section](/content/sections/) this content belongs to.<br>
-**.Permalink** The Permanent link for this page.<br>
-**.RelPermalink** The Relative permanent link for this page.<br>
-**.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
-**.RSSLink** Link to the taxonomies' RSS link.<br>
-**.TableOfContents** The rendered table of contents for this content.<br>
-**.Prev** Pointer to the previous content (based on pub date).<br>
-**.Next** Pointer to the following content (based on pub date).<br>
-**.PrevInSection** Pointer to the previous content within the same section (based on pub date). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.<br>
-**.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
-**.FuzzyWordCount** The approximate number of words in the content.<br>
-**.WordCount** The number of words in the content.<br>
-**.ReadingTime** The estimated time it takes to read the content in minutes.<br>
-**.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
-**.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
-**.UniqueID** The MD5-checksum of the page's filename<br>
+**.Data** The data specific to this type of page.<br>
+**.Date** The date the page is associated with.<br>
+**.Description** The description for the page.<br>
 **.Draft** A boolean, `true` if the content is marked as a draft in the front matter.<br>
-**.IsNode** Always false for pages.<br>
-**.IsPage** Always true for page.<br>
-**.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
+**.ExpiryDate** The date where the content is scheduled to expire on.<br>
+**.FuzzyWordCount** The approximate number of words in the content.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
-**.Translations** A list of translated versions of the current page. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. Note that the `Translation` variable is also available on node, e.g. home page etc. <br>
+**.IsHome** True if this is the home page.<br>
+**.IsNode** Always false for regular content pages.<br>
+**.IsPage** Always true for regular content pages.<br>
 **.IsTranslated** Whether there are any translations to display.<br>
-**.Lang** Language taken from the language extension notation.  <br>
+**.Keywords** The meta keywords for this content.<br>
+**.Kind** What *kind* of page is this: is one of *page, home, section, taxonomy or taxonomyTerm.* There are also *RSS, sitemap, robotsTXT and 404*, but these will only available during rendering of that kind of page, and not available in any of the `Pages` collections.<br>
+**.Lang** Language taken from the language extension notation.<br>
+**.Language** A language object that points to this the language's definition in the site config.
+**.Lastmod** The date the content was last modified.<br>
+**.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
+**.Next** Pointer to the following content (based on pub date).<br>
+**.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
+**.Permalink** The Permanent link for this page.<br>
+**.Prev** Pointer to the previous content (based on pub date).<br>
+**.PrevInSection** Pointer to the previous content within the same section (based on pub date). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.<br>
+**.PublishDate** The date the content is published on.<br>
+**.RSSLink** Link to the taxonomies' RSS link.<br>
+**.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
+**.ReadingTime** The estimated time it takes to read the content in minutes.<br>
+**.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
+**.RelPermalink** The Relative permanent link for this page.<br>
+**.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments 
+**.Section** The [section](/content/sections/) this content belongs to.<br>
+**.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
+**.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
+**.TableOfContents** The rendered table of contents for this content.<br>
+**.Title**  The title for this page.<br>
+**.Translations** A list of translated versions of the current page. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info.<br>
+**.Truncated** A boolean, `true` if the `.Summary` is truncated.  Useful for showing a "Read more..." link only if necessary.  See [Summaries](/content/summaries/) for more details.<br>
+**.Type** The content [type](/content/types/) (e.g. post).<br>
+**.URL** The relative URL for this page. Note that if `URL` is set directly in frontmatter, that URL is returned as-is.<br>
+**.UniqueID** The MD5-checksum of the page's filename<br>
+**.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
+**.WordCount** The number of words in the content.<br>
 
 ## Page Params
 
@@ -94,40 +103,12 @@ which would render
 
 ### Param method
 In Hugo you can declare params both for the site and the individual page.  A common use case is to have a general value for the site and a more specific value for some of the pages (i.e. an image).
-
-With the `Param` method the most specific value will be selected for you, and it is safe to use it in any template (it's defined on both Page and Node):
-
 ```
 $.Param "image"
 ```
+### Taxonomy Terms Page Variables
 
-## Node Variables
-In Hugo, a node is any page not rendered directly by a content file. This
-includes taxonomies, lists and the homepage.
-
-**See also:** [Scratch](/extras/scratch) for global node variables.
-
-**.Title**  The title for the content.<br>
-**.Date** The date the content is published on.<br>
-**.Lastmod** The date the content was last modified.<br>
-**.Permalink** The Permanent link for this node<br>
-**.URL** The relative URL for this node.<br>
-**.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
-**.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
-**.RSSLink** Link to the taxonomies' RSS link.<br>
-**.Data** The data specific to this type of node.<br>
-**.IsHome** True if the node is the site home page.<br>
-**.IsNode** Always true for nodes.<br>
-**.IsPage** Always false for nodes.<br>
-**.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
-**.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
-**.Translations** A list of translated versions of the current node. All nodes (except the pager nodes) can have translated counter parts. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info. <br>
-**.IsTranslated** Whether there are any translations to display.<br>
-**.Lang** The language code of this node.<br>
-
-### Taxonomy Terms Node Variables
-
-[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables. These are available in `layouts/_defaults/terms.html` for example.
+[Taxonomy Terms](/templates/terms/) pages are of the type `Page` and have the following additional variables. These are available in `layouts/_defaults/terms.html` for example.
 
 **.Data.Singular** The singular name of the taxonomy<br>
 **.Data.Plural** The plural name of the taxonomy<br>
@@ -145,8 +126,6 @@ The **.Site.Taxonomies** variable holds all taxonomies defines site-wide.  It is
 #### The Taxonomy variable
 
 The Taxonomy variable, available as **.Site.Taxonomies.tags** for example, contains the list of tags (values) and, for each of those, their corresponding content pages.
-
-
 
 ## Site Variables
 
@@ -189,7 +168,7 @@ Also available is `.Site` which has the following:
 
 The `.File` variable gives you additional information of a page.
 
-> **Note:** `.File` is only accessible on *Pages* but **not** on *Nodes* (like the homepage and list pages).
+> **Note:** `.File` is only accessible on *Pages* that has a content page attached to it.
 
 Available are the following attributes:
 

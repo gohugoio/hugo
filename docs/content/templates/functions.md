@@ -831,7 +831,7 @@ The above also exploits the fact that the Go template parser JSON-encodes object
 
 
 ### ref, relref
-Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a Node or Page object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
+Looks up a content page by relative path or logical name to return the permalink (`ref`) or relative permalink (`relref`). Requires a `Page` object (usually satisfied with `.`). Used in the [`ref` and `relref` shortcodes]({{% ref "extras/crossreferences.md" %}}).
 
 e.g. {{ ref . "about.md" }}
 

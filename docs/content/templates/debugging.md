@@ -20,13 +20,6 @@ Here are some snippets you can add to your template to answer some common questi
 These snippets use the `printf` function available in all Go templates.  This function is
 an alias to the Go function, [fmt.Printf](http://golang.org/pkg/fmt/).
 
-### What type of page is this?
-
-Does Hugo consider this page to be a "Node" or a "Page"? (Put this snippet at
-the top level of your template. Don't use it inside of a `range` loop.)
-
-    {{ printf "%T" . }}
-
 
 ### What variables are available in this context?
 
@@ -35,8 +28,7 @@ from anywhere in your template.  This will print out all the values under, `.Sit
 
     {{ printf "%#v" $.Site }}
 
-This will print out the value of `.Permalink`, which is available on both Nodes
-and Pages.
+This will print out the value of `.Permalink`:
 
     {{ printf "%#v" .Permalink }}
 
