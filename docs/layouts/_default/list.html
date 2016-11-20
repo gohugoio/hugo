@@ -1,4 +1,7 @@
 {{ define "main" }}
+{{ with .Content }}
+{{ . }}
+{{ end }}
 <ul style="margin-top: 20px">
     {{ range .Data.Pages }}
     <li>
