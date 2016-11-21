@@ -53,7 +53,7 @@ func Emojify(source []byte) []byte {
 		nextWordDelim := bytes.Index(source[j:upper], emojiWordDelim)
 
 		if endEmoji < 0 {
-			start += 1
+			start++
 		} else if endEmoji == 0 || (nextWordDelim != -1 && nextWordDelim < endEmoji) {
 			start += endEmoji + 1
 		} else {
