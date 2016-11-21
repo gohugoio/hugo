@@ -54,12 +54,13 @@ func (f *File) Bytes() []byte {
 	return helpers.ReaderToBytes(f.Contents)
 }
 
-// BaseFileName Filename without extension.
+// BaseFileName is a filename without extension.
 func (f *File) BaseFileName() string {
 	return f.baseName
 }
 
-// Filename with no extension, not even the optional language extension part.
+// TranslationBaseName is a filename with no extension,
+// not even the optional language extension part.
 func (f *File) TranslationBaseName() string {
 	return f.translationBaseName
 }
