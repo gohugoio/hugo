@@ -68,7 +68,7 @@ type GoHTMLTemplate struct {
 	errors []*templateErr
 }
 
-// The "Global" Template System
+// T is the "global" template system
 func T() Template {
 	if tmpl == nil {
 		tmpl = New()
