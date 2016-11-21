@@ -102,7 +102,7 @@ Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, li
 
 To add content and frontmatter to the home page, a section, a taxonomy or a taxonomy terms listing, add a markdown file with the base name `_index` on the relevant place on the file system.
 
-For the default Markdown content, the filename will be `_index.html`. 
+For the default Markdown content, the filename will be `_index.md`. 
 
 Se the example directory tree below. 
 
