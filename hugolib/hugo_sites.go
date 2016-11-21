@@ -295,12 +295,23 @@ func (h *HugoSites) createMissingPages() error {
 	}
 
 	if len(newPages) > 0 {
+		// This resorting is unfortunate, but it also needs to be sorted
+		// when sections are created.
 		first := h.Sites[0]
+
 		first.AllPages = append(first.AllPages, newPages...)
+
+		first.AllPages.Sort()
+
+		for _, s := range h.Sites {
+			s.Pages.Sort()
+		}
+
 		for i := 1; i < len(h.Sites); i++ {
 			h.Sites[i].AllPages = first.AllPages
 		}
 	}
+
 	return nil
 }
 
