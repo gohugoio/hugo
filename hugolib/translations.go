@@ -13,6 +13,10 @@
 
 package hugolib
 
+import (
+	"fmt"
+)
+
 // Translations represent the other translations for a given page. The
 // string here is the language code, as affected by the `post.LANG.md`
 // filename.
@@ -22,7 +26,7 @@ func pagesToTranslationsMap(ml *Multilingual, pages []*Page) map[string]Translat
 	out := make(map[string]Translations)
 
 	for _, page := range pages {
-		base := page.TranslationBaseName()
+		base := createTranslationKey(page)
 
 		pageTranslation, present := out[base]
 		if !present {
@@ -41,10 +45,22 @@ func pagesToTranslationsMap(ml *Multilingual, pages []*Page) map[string]Translat
 	return out
 }
 
+func createTranslationKey(p *Page) string {
+	base := p.TranslationBaseName()
+
+	if p.IsNode() {
+		// TODO(bep) see https://github.com/spf13/hugo/issues/2699
+		// Must prepend the section and kind to the key to make it unique
+		base = fmt.Sprintf("%s/%s/%s", p.Kind, p.sections, base)
+	}
+
+	return base
+}
+
 func assignTranslationsToPages(allTranslations map[string]Translations, pages []*Page) {
 	for _, page := range pages {
 		page.translations = page.translations[:0]
-		base := page.TranslationBaseName()
+		base := createTranslationKey(page)
 		trans, exist := allTranslations[base]
 		if !exist {
 			continue
@@ -53,7 +69,5 @@ func assignTranslationsToPages(allTranslations map[string]Translations, pages []
 		for _, translatedPage := range trans {
 			page.translations = append(page.translations, translatedPage)
 		}
-
-		pageBy(languagePageSort).Sort(page.translations)
 	}
 }

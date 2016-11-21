@@ -195,10 +195,17 @@ func (h *HugoSites) assignMissingTranslations() error {
 		// Assign translations
 		for _, t1 := range nodes {
 			for _, t2 := range nodes {
-				if t2.isTranslation(t1) {
+				if t2.isNewTranslation(t1) {
 					t1.translations = append(t1.translations, t2)
 				}
 			}
+		}
+	}
+
+	// Now we can sort the translations.
+	for _, p := range allPages {
+		if len(p.translations) > 0 {
+			pageBy(languagePageSort).Sort(p.translations)
 		}
 	}
 	return nil

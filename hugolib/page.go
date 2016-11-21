@@ -1608,17 +1608,17 @@ func (p *Page) Lang() string {
 	return p.lang
 }
 
-func (p *Page) isTranslation(candidate *Page) bool {
+func (p *Page) isNewTranslation(candidate *Page) bool {
 	if p == candidate || p.Kind != candidate.Kind {
-		return false
-	}
-
-	if p.lang != candidate.lang || p.language != p.language {
 		return false
 	}
 
 	if p.Kind == KindPage || p.Kind == kindUnknown {
 		panic("Node type not currently supported for this op")
+	}
+
+	if p.language.Lang == candidate.language.Lang {
+		return false
 	}
 
 	// At this point, we know that this is a traditional Node (home page, section, taxonomy)
@@ -1629,6 +1629,13 @@ func (p *Page) isTranslation(candidate *Page) bool {
 
 	for i := 0; i < len(p.sections); i++ {
 		if p.sections[i] != candidate.sections[i] {
+			return false
+		}
+	}
+
+	// Finally check that it is not already added.
+	for _, translation := range candidate.translations {
+		if p == translation {
 			return false
 		}
 	}
@@ -1717,9 +1724,13 @@ func (p *Page) addLangFilepathPrefix(outfile string) string {
 }
 
 func sectionsFromFilename(filename string) []string {
+	var sections []string
 	dir, _ := filepath.Split(filename)
 	dir = strings.TrimSuffix(dir, helpers.FilePathSeparator)
-	sections := strings.Split(dir, helpers.FilePathSeparator)
+	if dir == "" {
+		return sections
+	}
+	sections = strings.Split(dir, helpers.FilePathSeparator)
 	return sections
 }
 
