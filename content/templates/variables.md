@@ -48,6 +48,7 @@ matter, content or derived from file location.
 **.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
 **.Next** Pointer to the following content (based on pub date).<br>
 **.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
+**.Pages** a collection of associated pages. This will be nil for regular content pages. This is an alias for **.Data.Pages**.
 **.Permalink** The Permanent link for this page.<br>
 **.Prev** Pointer to the previous content (based on pub date).<br>
 **.PrevInSection** Pointer to the previous content within the same section (based on pub date). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.<br>
