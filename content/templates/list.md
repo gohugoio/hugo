@@ -46,6 +46,7 @@ A Section will be rendered at /`SECTION`/ (e.g.&nbsp;http://spf13.com/project/)
 * /themes/`THEME`/layouts/\_default/section.html
 * /themes/`THEME`/layouts/\_default/list.html
 
+Note that a sections list page can also have a content file with frontmatter,  see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
 
 ### Taxonomy Lists
 
@@ -57,6 +58,8 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/top
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
 * /themes/`THEME`/layouts/\_default/taxonomy.html
 * /themes/`THEME`/layouts/\_default/list.html
+
+Note that a taxonomy list page can also have a content file with frontmatter,  see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
 
 ### Section RSS
 

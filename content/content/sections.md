@@ -36,6 +36,8 @@ Hugo will automatically create pages for each section root that list all
 of the content in that section. See [List Templates](/templates/list/)
 for details on customizing the way they appear.
 
+Section pages can also have a content file and frontmatter, see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
+
 ## Sections and Types
 
 By default everything created within a section will use the content type

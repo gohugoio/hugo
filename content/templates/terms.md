@@ -20,6 +20,8 @@ A unique template is needed to create a list of the terms for a given
 taxonomy. This is different from the [list template](/templates/list/)
 as that template is a list of content, whereas this is a list of meta data.
 
+Note that a taxonomy terms page can also have a content file with frontmatter,  see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
+
 ## Which Template will be rendered?
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.

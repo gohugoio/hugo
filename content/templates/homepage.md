@@ -28,6 +28,8 @@ In addition to the standard page variables, the homepage has access to
 all site content accessible from `.Data.Pages`. Details on how to use the
 list of pages can be found in the [Lists Template](/templates/list/).
 
+Note that a home page can also have a content file with frontmatter,  see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
+
 ## Which Template will be rendered?
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.

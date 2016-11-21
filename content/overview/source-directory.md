@@ -95,3 +95,32 @@ This directory structure tells us a lot about this site:
 1. The website intends to have two different types of content: *posts* and *quotes*.
 2. It will also apply two different taxonomies to that content: *categories* and *tags*.
 3. It will be displaying content in 3 different views: a list, a summary and a full page view.
+
+## Content for home page and other list pages
+
+Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, like `.Params`, attached to it -- and share the same set of [page variables](/templates/variables/).
+
+To add content and frontmatter to the home page, a section, a taxonomy or a taxonomy terms listing, add a markdown file with the base name `_index` on the relevant place on the file system.
+
+For the default Markdown content, the filename will be `_index.html`. 
+
+Se the example directory tree below. 
+
+**Note that you don't have to create `_index` file for every section, taxonomy and similar, a default page will be created if not present, but with no content an default values for `.Title` etc.**
+
+```bash
+└── content
+    ├── _index.md
+    ├── categories
+    │   ├── _index.md
+    │   └── photo
+    │       └── _index.md
+    ├── post
+    │   ├── _index.md
+    │   └── firstpost.md
+    └── tags
+        ├── _index.md
+        └── hugo
+            └── _index.md
+```
+  
