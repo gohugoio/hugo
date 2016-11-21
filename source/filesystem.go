@@ -105,7 +105,7 @@ func (f *Filesystem) captureFiles() {
 
 	if err != nil {
 		jww.ERROR.Println(err)
-		if err == helpers.WalkRootTooShortError {
+		if err == helpers.ErrWalkRootTooShort {
 			panic("The root path is too short. If this is a test, make sure to init the content paths.")
 		}
 	}
