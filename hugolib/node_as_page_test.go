@@ -239,26 +239,34 @@ func TestNodesAsPageMultilingual(t *testing.T) {
 paginage = 1
 title = "Hugo Multilingual Rocks!"
 rssURI = "customrss.xml"
+defaultContentLanguage = "nn"
+defaultContentLanguageInSubdir = true
+
 
 [languages]
 [languages.nn]
 languageName = "Nynorsk"
 weight = 1
 title = "Hugo på norsk"
-defaultContentLanguage = "nn"
 
 [languages.en]
 languageName = "English"
 weight = 2
 title = "Hugo in English"
+
+[languages.de]
+languageName = "Deutsch"
+weight = 3
+title = "Deutsche Hugo"
 `)
 
 	for _, lang := range []string{"nn", "en"} {
 		writeRegularPagesForNodeAsPageTestsWithLang(t, lang)
 	}
 
-	// Only write node pages for the English side of the fence
+	// Only write node pages for the English and Deutsch
 	writeNodePagesForNodeAsPageTests("en", t)
+	writeNodePagesForNodeAsPageTests("de", t)
 
 	if err := LoadGlobalConfig("", "config.toml"); err != nil {
 		t.Fatalf("Failed to load config: %s", err)
@@ -270,7 +278,7 @@ title = "Hugo in English"
 		t.Fatalf("Failed to create sites: %s", err)
 	}
 
-	if len(sites.Sites) != 2 {
+	if len(sites.Sites) != 3 {
 		t.Fatalf("Got %d sites", len(sites.Sites))
 	}
 
@@ -280,11 +288,33 @@ title = "Hugo in English"
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	// The en language has content pages
+	// The en and de language have content pages
+	enHome := sites.Sites[1].getPage("home")
+	require.NotNil(t, enHome)
+	require.Equal(t, "en", enHome.Language().Lang)
+	require.Contains(t, enHome.Content, "l-en")
+
+	deHome := sites.Sites[2].getPage("home")
+	require.NotNil(t, deHome)
+	require.Equal(t, "de", deHome.Language().Lang)
+	require.Contains(t, deHome.Content, "l-de")
+
+	require.Len(t, deHome.Translations(), 2, deHome.Translations()[0].Language().Lang)
+	require.Equal(t, "en", deHome.Translations()[1].Language().Lang)
+	require.Equal(t, "nn", deHome.Translations()[0].Language().Lang)
+
+	enSect := sites.Sites[1].getPage("section", "sect1")
+	require.NotNil(t, enSect)
+	require.Equal(t, "en", enSect.Language().Lang)
+	require.Len(t, enSect.Translations(), 2, enSect.Translations()[0].Language().Lang)
+	require.Equal(t, "de", enSect.Translations()[1].Language().Lang)
+	require.Equal(t, "nn", enSect.Translations()[0].Language().Lang)
 
 	assertFileContent(t, filepath.Join("public", "nn", "index.html"), true,
 		"Index Title: Hugo på norsk")
 	assertFileContent(t, filepath.Join("public", "en", "index.html"), true,
+		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
+	assertFileContent(t, filepath.Join("public", "de", "index.html"), true,
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
 
 	// Taxonomy list
@@ -528,8 +558,8 @@ title: Home Sweet Home!
 date : %q
 lastMod : %q
 ---
-Home **Content!**
-`, date.Add(1*24*time.Hour).Format(time.RFC822), date.Add(2*24*time.Hour).Format(time.RFC822)))
+l-%s Home **Content!**
+`, date.Add(1*24*time.Hour).Format(time.RFC822), date.Add(2*24*time.Hour).Format(time.RFC822), lang))
 
 	writeSource(t, filepath.Join("content", "sect1", filename), fmt.Sprintf(`---
 title: Section1
