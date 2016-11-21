@@ -2,6 +2,7 @@
 lastmod: 2015-12-23
 date: 2014-05-26
 linktitle: Usage
+toc: true
 menu:
   main:
     parent: taxonomy
@@ -68,7 +69,7 @@ but will still titleize the values for titles and normalize them in URLs.
 Note that if you use `preserveTaxonomyNames` and intend to manually construct URLs to the archive pages,
 you will need to pass the taxonomy values through the `urlize` template function.
 
-### Front Matter Example (in TOML)
+## Front Matter Example (in TOML)
 
 ```toml
 +++
@@ -81,7 +82,7 @@ project_url = "https://github.com/spf13/hugo"
 +++
 ```
 
-### Front Matter Example (in JSON)
+## Front Matter Example (in JSON)
 
 ```json
 {
@@ -102,3 +103,7 @@ project_url = "https://github.com/spf13/hugo"
     "project_url": "https://github.com/spf13/hugo"
 }
 ```
+
+## Add content file with frontmatter
+
+See [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
