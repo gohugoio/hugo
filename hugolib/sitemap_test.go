@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
   <url>
     <loc>{{ .Permalink }}</loc>
@@ -56,7 +56,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 		}
 
 	} else {
-		if err := buildAndRenderSite(s, "sitemap.xml", SITEMAP_TEMPLATE); err != nil {
+		if err := buildAndRenderSite(s, "sitemap.xml", sitemapTemplate); err != nil {
 			t.Fatalf("Failed to build site: %s", err)
 		}
 	}

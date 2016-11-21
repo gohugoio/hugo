@@ -19,14 +19,14 @@ import (
 	"testing"
 )
 
-var SIMPLE_PAGE_YAML = `---
+var simplePageYAML = `---
 contenttype: ""
 ---
 Sample Text
 `
 
 func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), filepath.Join("foobar"))
+	p, err := NewPageFrom(strings.NewReader(simplePageYAML), filepath.Join("foobar"))
 	if err != nil {
 		t.Fatalf("Error in NewPageFrom")
 	}
@@ -48,9 +48,9 @@ func TestNewPageWithFilePath(t *testing.T) {
 	}
 
 	for i, el := range toCheck {
-		p, err := NewPageFrom(strings.NewReader(SIMPLE_PAGE_YAML), el.input)
+		p, err := NewPageFrom(strings.NewReader(simplePageYAML), el.input)
 		if err != nil {
-			t.Errorf("[%d] Reading from SIMPLE_PAGE_YAML resulted in an error: %s", i, err)
+			t.Errorf("[%d] Reading from simplePageYAML resulted in an error: %s", i, err)
 		}
 		if p.Section() != el.section {
 			t.Errorf("[%d] Section incorrect page %s. got %s but expected %s", i, el.input, p.Section(), el.section)
