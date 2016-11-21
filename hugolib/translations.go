@@ -69,5 +69,7 @@ func assignTranslationsToPages(allTranslations map[string]Translations, pages []
 		for _, translatedPage := range trans {
 			page.translations = append(page.translations, translatedPage)
 		}
+
+		pageBy(languagePageSort).Sort(page.translations)
 	}
 }
