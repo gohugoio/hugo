@@ -97,18 +97,29 @@ func (l *Language) SetParam(k string, v interface{}) {
 	l.params[strings.ToLower(k)] = v
 }
 
-func (l *Language) GetBool(key string) bool     { return cast.ToBool(l.Get(key)) }
-func (l *Language) GetString(key string) string { return cast.ToString(l.Get(key)) }
-func (l *Language) GetInt(key string) int       { return cast.ToInt(l.Get(key)) }
+// GetBool returns the value associated with the key as a boolean.
+func (l *Language) GetBool(key string) bool { return cast.ToBool(l.Get(key)) }
 
-func (ml *Language) GetStringMap(key string) map[string]interface{} {
-	return cast.ToStringMap(ml.Get(key))
+// GetString returns the value associated with the key as a string.
+func (l *Language) GetString(key string) string { return cast.ToString(l.Get(key)) }
+
+// GetInt returns the value associated with the key as an int.
+func (l *Language) GetInt(key string) int { return cast.ToInt(l.Get(key)) }
+
+// GetStringMap returns the value associated with the key as a map of interfaces.
+func (l *Language) GetStringMap(key string) map[string]interface{} {
+	return cast.ToStringMap(l.Get(key))
 }
 
+// GetStringMapString returns the value associated with the key as a map of strings.
 func (l *Language) GetStringMapString(key string) map[string]string {
 	return cast.ToStringMapString(l.Get(key))
 }
 
+// Get returns a value associated with the key relying on pecified language.
+// Get is case-insensitive for a key.
+//
+// Get returns an interface. For a specific value use one of the Get____ methods.
 func (l *Language) Get(key string) interface{} {
 	if l == nil {
 		panic("language not set")
