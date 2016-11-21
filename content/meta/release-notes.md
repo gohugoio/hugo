@@ -11,6 +11,24 @@ title: Release Notes
 weight: 10
 ---
 
+## **0.18.0** ???
+
+In Hugo 0.18 every piece of content is a `Page`  ({{<gh 2297 >}}) and this means that every page, including the home page, can have a content file with frontmatter.
+
+Not only is this a much simpler model to understand, it is also faster and it fixes several important issues:
+
+* Enable proper titles for Nodes {{<gh 1051>}}
+* Sitemap.xml should include nodes, as well as pages {{<gh 1303>}}
+* Document homepage content workaround {{<gh 2240>}}
+* Allow home page to be easily authored in markdown {{<gh 720>}}
+* Minimalist website with homepage as content {{<gh 330>}}
+
+
+
+
+
+
+
 ## **0.17.0** October 7th 2016
 
 Hugo is going global with our 0.17 release.  We put a lot of thought into how we could extend Hugo
