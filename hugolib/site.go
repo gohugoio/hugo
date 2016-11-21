@@ -896,7 +896,7 @@ func (s *SiteInfo) SitemapAbsURL() string {
 
 func (s *Site) initializeSiteInfo() {
 	var (
-		lang      *helpers.Language = s.Language
+		lang      = s.Language
 		languages helpers.Languages
 	)
 
