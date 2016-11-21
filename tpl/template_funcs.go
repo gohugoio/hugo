@@ -850,9 +850,8 @@ func checkCondition(v, mv reflect.Value, op string) (bool, error) {
 				return true, nil
 			}
 			return false, nil
-		} else {
-			return false, errors.New("invalid intersect values")
 		}
+		return false, errors.New("invalid intersect values")
 	default:
 		return false, errors.New("no such operator")
 	}
