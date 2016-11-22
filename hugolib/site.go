@@ -1670,7 +1670,7 @@ func (s *Site) renderPages() error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("Error(s) rendering pages: %.60s…", err)
+		return fmt.Errorf("Error(s) rendering pages: %s", err)
 	}
 	return nil
 }
@@ -1770,7 +1770,7 @@ func (s *Site) renderTaxonomiesLists(prepare bool) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("Error(s) rendering taxonomies: %.60s…", err)
+		return fmt.Errorf("Error(s) rendering taxonomies: %s", err)
 	}
 	return nil
 }
@@ -2439,7 +2439,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 	if err := s.renderThing(d, layout, w); err != nil {
 
 		// Behavior here should be dependent on if running in server or watch mode.
-		distinctErrorLogger.Printf("Error while rendering %s: %.60s…", name, err)
+		distinctErrorLogger.Printf("Error while rendering %s: %v", name, err)
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
 			os.Exit(-1)

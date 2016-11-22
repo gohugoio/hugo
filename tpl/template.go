@@ -213,16 +213,11 @@ func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
 
 func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
 	t.checkState()
-	templ, err := t.New(name).Parse(tpl)
+	_, err := t.New(name).Parse(tpl)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
-		return err
 	}
-	if err := applyTemplateTransformers(templ); err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error {
@@ -269,11 +264,7 @@ func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, master
 		// The extra lookup is a workaround, see
 		// * https://github.com/golang/go/issues/16101
 		// * https://github.com/spf13/hugo/issues/2549
-		overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-		if err := applyTemplateTransformers(overlayTpl); err != nil {
-			return err
-		}
-		t.overlays[name] = overlayTpl
+		t.overlays[name] = overlayTpl.Lookup(overlayTpl.Name())
 	}
 
 	return err
@@ -300,12 +291,11 @@ func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseCo
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 		return err
 	}
-	templ, err := ace.CompileResultWithTemplate(t.New(name), parsed, nil)
+	_, err = ace.CompileResultWithTemplate(t.New(name), parsed, nil)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
-		return err
 	}
-	return applyTemplateTransformers(templ)
+	return err
 }
 
 func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
@@ -327,12 +317,9 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 
-		templ, err := compiler.CompileWithTemplate(t.New(templateName))
-		if err != nil {
+		if _, err := compiler.CompileWithTemplate(t.New(templateName)); err != nil {
 			return err
 		}
-
-		return applyTemplateTransformers(templ)
 	case ".ace":
 		var innerContent, baseContent []byte
 		innerContent, err := afero.ReadFile(hugofs.Source(), path)
@@ -365,6 +352,8 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 
 		return t.AddTemplate(name, string(b))
 	}
+
+	return nil
 
 }
 
@@ -478,7 +467,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 			}
 
 			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
-				jww.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
+				jww.ERROR.Printf("Failed to add template %s: %s", tplName, err)
 			}
 
 		}
