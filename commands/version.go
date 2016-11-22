@@ -14,7 +14,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,6 +23,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugolib"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var versionCmd = &cobra.Command{
@@ -32,7 +32,6 @@ var versionCmd = &cobra.Command{
 	Long:  `All software has versions. This is Hugo's.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		printHugoVersion()
-
 		return nil
 	},
 }
@@ -44,9 +43,9 @@ func printHugoVersion() {
 		formatBuildDate() // format the compile time
 	}
 	if hugolib.CommitHash == "" {
-		fmt.Printf("Hugo Static Site Generator v%s BuildDate: %s\n", helpers.HugoVersion(), hugolib.BuildDate)
+		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s BuildDate: %s\n", helpers.HugoVersion(), hugolib.BuildDate)
 	} else {
-		fmt.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
+		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s-%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), hugolib.BuildDate)
 	}
 }
 
@@ -60,12 +59,12 @@ func setBuildDate() {
 	fname, _ := osext.Executable()
 	dir, err := filepath.Abs(filepath.Dir(fname))
 	if err != nil {
-		fmt.Println(err)
+		jww.ERROR.Println(err)
 		return
 	}
 	fi, err := os.Lstat(filepath.Join(dir, filepath.Base(fname)))
 	if err != nil {
-		fmt.Println(err)
+		jww.ERROR.Println(err)
 		return
 	}
 	t := fi.ModTime()

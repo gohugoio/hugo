@@ -14,10 +14,10 @@
 package commands
 
 import (
-	"fmt"
 	"runtime"
 
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 var envCmd = &cobra.Command{
@@ -26,9 +26,9 @@ var envCmd = &cobra.Command{
 	Long:  `Print Hugo version and environment info. This is useful in Hugo bug reports.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		printHugoVersion()
-		fmt.Printf("GOOS=%q\n", runtime.GOOS)
-		fmt.Printf("GOARCH=%q\n", runtime.GOARCH)
-		fmt.Printf("GOVERSION=%q\n", runtime.Version())
+		jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
+		jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
+		jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
 
 		return nil
 	},

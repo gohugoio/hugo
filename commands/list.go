@@ -14,11 +14,11 @@
 package commands
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
 
@@ -63,7 +63,7 @@ var listDraftsCmd = &cobra.Command{
 
 		for _, p := range sites.Pages() {
 			if p.IsDraft() {
-				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+				jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
 
 		}
@@ -98,7 +98,7 @@ posted in the future.`,
 
 		for _, p := range sites.Pages() {
 			if p.IsFuture() {
-				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+				jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
 
 		}
@@ -133,7 +133,7 @@ expired.`,
 
 		for _, p := range sites.Pages() {
 			if p.IsExpired() {
-				fmt.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+				jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
 			}
 
 		}

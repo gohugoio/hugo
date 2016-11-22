@@ -415,7 +415,7 @@ func flagChanged(flags *flag.FlagSet, key string) bool {
 func watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
+		jww.FEEDBACK.Println("Config file changed:", e.Name)
 		// Force a full rebuild
 		utils.CheckErr(reCreateAndbuildSites(true))
 		if !viper.GetBool("disableLiveReload") {
@@ -626,7 +626,7 @@ func reCreateAndbuildSites(watching bool) (err error) {
 		return err
 	}
 	if !quiet {
-		fmt.Println("Started building sites ...")
+		jww.FEEDBACK.Println("Started building sites ...")
 	}
 	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: !quiet})
 }
@@ -636,7 +636,7 @@ func resetAndbuildSites(watching bool) (err error) {
 		return err
 	}
 	if !quiet {
-		fmt.Println("Started building sites ...")
+		jww.FEEDBACK.Println("Started building sites ...")
 	}
 	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: !quiet})
 }
@@ -661,7 +661,7 @@ func buildSites(watching bool) (err error) {
 		return err
 	}
 	if !quiet {
-		fmt.Println("Started building sites ...")
+		jww.FEEDBACK.Println("Started building sites ...")
 	}
 	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: !quiet})
 }
@@ -779,7 +779,7 @@ func NewWatcher(port int) error {
 
 					jww.FEEDBACK.Println("\nStatic file changes detected")
 					const layout = "2006-01-02 15:04 -0700"
-					fmt.Println(time.Now().Format(layout))
+					jww.FEEDBACK.Println(time.Now().Format(layout))
 
 					if viper.GetBool("forceSyncStatic") {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
@@ -825,7 +825,7 @@ func NewWatcher(port int) error {
 							// If we are here we already know the event took place in a static dir
 							relPath, err := helpers.MakeStaticPathRelative(fromPath)
 							if err != nil {
-								fmt.Println(err)
+								jww.ERROR.Println(err)
 								continue
 							}
 
@@ -882,9 +882,9 @@ func NewWatcher(port int) error {
 				}
 
 				if len(dynamicEvents) > 0 {
-					fmt.Print("\nChange detected, rebuilding site\n")
+					jww.FEEDBACK.Println("\nChange detected, rebuilding site")
 					const layout = "2006-01-02 15:04 -0700"
-					fmt.Println(time.Now().Format(layout))
+					jww.FEEDBACK.Println(time.Now().Format(layout))
 
 					rebuildSites(dynamicEvents)
 
@@ -895,7 +895,7 @@ func NewWatcher(port int) error {
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
-					fmt.Println("error:", err)
+					jww.ERROR.Println(err)
 				}
 			}
 		}

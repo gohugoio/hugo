@@ -16,7 +16,6 @@ package commands
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -90,7 +89,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		return newUserError(err)
 	}
 
-	fmt.Println("Importing...")
+	jww.FEEDBACK.Println("Importing...")
 
 	fileCount := 0
 	callback := func(path string, fi os.FileInfo, err error) error {
@@ -129,10 +128,10 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Congratulations!", fileCount, "post(s) imported!")
-	fmt.Println("Now, start Hugo by yourself:\n" +
+	jww.FEEDBACK.Println("Congratulations!", fileCount, "post(s) imported!")
+	jww.FEEDBACK.Println("Now, start Hugo by yourself:\n" +
 		"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-	fmt.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
+	jww.FEEDBACK.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 
 	return nil
 }
