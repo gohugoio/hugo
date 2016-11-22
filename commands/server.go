@@ -211,7 +211,7 @@ func serve(port int) {
 	}
 
 	jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
-	fmt.Println("Press Ctrl+C to stop")
+	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 
 	endpoint := net.JoinHostPort(serverInterface, strconv.Itoa(port))
 	err = http.ListenAndServe(endpoint, nil)

@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/purell"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
 
@@ -306,7 +307,7 @@ func URLPrep(ugly bool, in string) string {
 	}
 	url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
 	if err != nil {
-		fmt.Printf("ERROR returned by NormalizeURLString. Returning in = %q\n", in)
+		jww.ERROR.Printf("Failed to normalize URL string. Returning in = %q\n", in)
 		return in
 	}
 	return url
