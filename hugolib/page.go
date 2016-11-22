@@ -719,6 +719,9 @@ func (p *Page) update(f interface{}) error {
 		return fmt.Errorf("no metadata found")
 	}
 	m := f.(map[string]interface{})
+	// Needed for case insensitive fetching of params values
+	helpers.ToLowerMap(m)
+
 	var err error
 	var draft, published, isCJKLanguage *bool
 	for k, v := range m {
