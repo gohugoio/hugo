@@ -5,48 +5,51 @@ aliases:
 - /extras/indexes
 lastmod: 2015-09-15
 date: 2014-05-21
-linktitle: Taxonomy Terms
+linktitle: Taxonomies
 menu:
   main:
     parent: layout
 next: /templates/views
 prev: /templates/homepage
-title: Taxonomy Terms Template
+title: Taxonomy Templates
 weight: 60
 toc: true
 ---
 
-A unique template is needed to create a list of the terms for a given
-taxonomy. This is different from the [list template](/templates/list/)
-as that template is a list of content, whereas this is a list of meta data.
+Two templates are needed to create lists of the terms for a given taxonomy. 
+1. A Taxonomy terms template
+2. A Taxonomy list template [list template](/templates/list/)
 
-## Which Template will be rendered?
-Hugo uses a set of rules to figure out which template to use when
-rendering a specific page.
-
-A Taxonomy Terms List will be rendered at /`PLURAL`/
+## Taxonomy terms template
+A Taxonomy Terms template will be rendered at /`PLURAL`/
 (e.g. http://spf13.com/topics/)
-from the following prioritized list:
 
+Hugo searches for Taxonomy terms templates in the following folders:
 * /layouts/taxonomy/`SINGULAR`.terms.html (e.g. `/layouts/taxonomy/topic.terms.html`)
+* /theme/layouts/taxonomy/`SINGULAR`.terms.html
 * /layouts/\_default/terms.html
 
-If a file isn’t present,
-then the next one in the list will be used. This enables you to craft
-specific layouts when you want to without creating more templates
-than necessary. For most sites, only the `_default` file at the end of
-the list will be needed.
+If a template isn’t present, then the next listed will be used. This enables you to craft
+specific layouts when you want to without creating more templates than necessary. 
+For most sites, only the `_default` file at the end of the list will be needed.
 
-If that neither file is found in either the /layouts or /theme/layouts
-directory, then Hugo will not render the taxonomy terms pages. It is also
+If no Taxonomy terms template is provided then Hugo will not automatically generate terms pages for it. It is also
 common for people to render taxonomy terms lists on other pages such as
 the homepage or the sidebar (such as a tag cloud) and not have a
 dedicated page for the terms.
 
+## Taxonomy list template 
+A Taxonomy list template will be rendered at /`PLURAL/TERM/`/
+(e.g. http://spf13.com/topics/development/)
+
+Hugo searches for Taxonomy list templates in the following folders:
+* /layouts/taxonomy/`SINGULAR`.html (e.g. `/layouts/taxonomy/topic.html`)
+
+Taxonomy list templates share the same facilities as [list template](/templates/list/)
 
 ## Variables
 
-Taxonomy Terms pages are of the type "node" and have all the
+Taxonomy Terms and List pages are of the type "node" and have all the
 [node variables](/templates/variables/) and
 [site variables](/templates/variables/)
 available to use in the templates.
