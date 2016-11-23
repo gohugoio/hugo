@@ -228,7 +228,7 @@ func (h *HugoSites) createMissingPages() error {
 				tax := s.Taxonomies[plural]
 				foundTaxonomyPage := false
 				foundTaxonomyTermsPage := false
-				for key, _ := range tax {
+				for key := range tax {
 					for _, p := range taxonomyPages {
 						if p.sections[0] == plural && p.sections[1] == key {
 							foundTaxonomyPage = true
