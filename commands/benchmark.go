@@ -79,7 +79,7 @@ func benchmark(cmd *cobra.Command, args []string) error {
 
 	t := time.Now()
 	for i := 0; i < benchmarkTimes; i++ {
-		if err = resetAndbuildSites(false); err != nil {
+		if err = resetAndBuildSites(false); err != nil {
 			return err
 		}
 	}
