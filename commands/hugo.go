@@ -417,7 +417,7 @@ func watchConfig() {
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		jww.FEEDBACK.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		utils.CheckErr(reCreateAndbuildSites(true))
+		utils.CheckErr(recreateAndBuildSites(true))
 		if !viper.GetBool("disableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
@@ -621,7 +621,7 @@ func getDirList() []string {
 	return a
 }
 
-func reCreateAndbuildSites(watching bool) (err error) {
+func recreateAndBuildSites(watching bool) (err error) {
 	if err := initSites(); err != nil {
 		return err
 	}
@@ -631,7 +631,7 @@ func reCreateAndbuildSites(watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: !quiet})
 }
 
-func resetAndbuildSites(watching bool) (err error) {
+func resetAndBuildSites(watching bool) (err error) {
 	if err := initSites(); err != nil {
 		return err
 	}
