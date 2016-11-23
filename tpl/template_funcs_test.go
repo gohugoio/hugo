@@ -690,8 +690,8 @@ func TestImageConfig(t *testing.T) {
 		t.Error("Expected error from imageConfig when passed invalid path")
 	}
 
-	if _, err := imageConfig("non-existant.png"); err == nil {
-		t.Error("Expected error from imageConfig when passed non-existant file")
+	if _, err := imageConfig("non-existent.png"); err == nil {
+		t.Error("Expected error from imageConfig when passed non-existent file")
 	}
 
 	// test cache clearing
