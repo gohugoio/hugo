@@ -191,6 +191,7 @@ type SiteInfo struct {
 	LanguagePrefix                 string
 	Languages                      helpers.Languages
 	defaultContentLanguageInSubdir bool
+	sectionPagesMenu               string
 
 	pathSpec *helpers.PathSpec
 }
@@ -937,6 +938,7 @@ func (s *Site) initializeSiteInfo() {
 		LanguagePrefix:                 languagePrefix,
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
+		sectionPagesMenu:               lang.GetString("sectionPagesMenu"),
 		GoogleAnalytics:                lang.GetString("googleAnalytics"),
 		BuildDrafts:                    viper.GetBool("buildDrafts"),
 		canonifyURLs:                   viper.GetBool("canonifyURLs"),
@@ -1412,7 +1414,7 @@ func (s *Site) assembleMenus() {
 		}
 	}
 
-	sectionPagesMenu := s.Language.GetString("sectionPagesMenu")
+	sectionPagesMenu := s.Info.sectionPagesMenu
 	sectionPagesMenus := make(map[string]interface{})
 	//creating flat hash
 	pages := s.Pages

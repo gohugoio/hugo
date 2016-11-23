@@ -1092,7 +1092,7 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 
 func (p *Page) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 
-	sectionPagesMenu := helpers.Config().GetString("SectionPagesMenu")
+	sectionPagesMenu := p.Site.sectionPagesMenu
 
 	// page is labeled as "shadow-member" of the menu with the same identifier as the section
 	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menuID && p.Section() == me.Identifier {
