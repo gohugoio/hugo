@@ -317,7 +317,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		}
 		isDir, err := helpers.DirExists(cacheDir, hugofs.Source())
 		utils.CheckErr(err)
-		if isDir == false {
+		if !isDir {
 			mkdir(cacheDir)
 		}
 		viper.Set("cacheDir", cacheDir)
