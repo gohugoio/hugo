@@ -232,7 +232,7 @@ func makePathRelative(inPath string, possibleDirectories ...string) (string, err
 }
 
 // Should be good enough for Hugo.
-var isFileRe = regexp.MustCompile(".*\\..{1,6}$")
+var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
 
 // GetDottedRelativePath expects a relative path starting after the content directory.
 // It returns a relative path with dots ("..") navigating up the path structure.
