@@ -97,7 +97,7 @@ Following is a list of Hugo-defined variables you can configure,
 along with their current, default values:
 
     ---
-    archetypedir:               "archetype"
+    archetypeDir:               "archetypes"
     # hostname (and path) to the root, e.g. http://spf13.com/
     baseURL:                    ""
     # include content marked as draft
