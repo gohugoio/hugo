@@ -694,6 +694,10 @@ func TestImageConfig(t *testing.T) {
 		t.Error("Expected error from imageConfig when passed non-existent file")
 	}
 
+	if _, err := imageConfig(""); err == nil {
+		t.Error("Expected error from imageConfig when passed empty path")
+	}
+
 	// test cache clearing
 	ResetCaches()
 
@@ -1897,6 +1901,9 @@ func TestMarkdownify(t *testing.T) {
 		}
 	}
 
+	if _, err := markdownify(t); err == nil {
+		t.Fatalf("markdownify should have errored")
+	}
 }
 
 func TestApply(t *testing.T) {
@@ -2058,14 +2065,17 @@ func TestReplace(t *testing.T) {
 
 func TestReplaceRE(t *testing.T) {
 	for i, val := range []struct {
-		pattern string
-		repl    string
-		src     string
+		pattern interface{}
+		repl    interface{}
+		src     interface{}
 		expect  string
 		ok      bool
 	}{
 		{"^https?://([^/]+).*", "$1", "http://gohugo.io/docs", "gohugo.io", true},
 		{"^https?://([^/]+).*", "$2", "http://gohugo.io/docs", "", true},
+		{tstNoStringer{}, "$2", "http://gohugo.io/docs", "", false},
+		{"^https?://([^/]+).*", tstNoStringer{}, "http://gohugo.io/docs", "", false},
+		{"^https?://([^/]+).*", "$2", tstNoStringer{}, "", false},
 		{"(ab)", "AB", "aabbaab", "aABbaAB", true},
 		{"(ab", "AB", "aabb", "", false}, // invalid re
 	} {
@@ -2080,7 +2090,7 @@ func TestReplaceRE(t *testing.T) {
 func TestFindRE(t *testing.T) {
 	for i, this := range []struct {
 		expr    string
-		content string
+		content interface{}
 		limit   int
 		expect  []string
 		ok      bool
@@ -2090,8 +2100,19 @@ func TestFindRE(t *testing.T) {
 		{"[G|g]o", "Hugo is a static site generator written in Go.", 1, []string{"go"}, true},
 		{"[G|g]o", "Hugo is a static site generator written in Go.", 0, []string(nil), true},
 		{"[G|go", "Hugo is a static site generator written in Go.", 0, []string(nil), false},
+		{"[G|g]o", t, 0, []string(nil), false},
 	} {
-		res, err := findRE(this.expr, this.content, this.limit)
+		var (
+			res []string
+			err error
+		)
+
+		if this.limit >= 0 {
+			res, err = findRE(this.expr, this.content, this.limit)
+
+		} else {
+			res, err = findRE(this.expr, this.content)
+		}
 
 		if err != nil && this.ok {
 			t.Errorf("[%d] returned an unexpected error: %s", i, err)
