@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 
@@ -149,16 +148,6 @@ type BuildCfg struct {
 	withTemplate func(templ tpl.Template) error
 	// Use this to indicate what changed (for rebuilds).
 	whatChanged *whatChanged
-}
-
-// Analyze prints a build report to Stdout.
-// Useful for debugging.
-func (h *HugoSites) Analyze() error {
-	if err := h.Build(BuildCfg{SkipRender: true}); err != nil {
-		return err
-	}
-	s := h.Sites[0]
-	return s.ShowPlan(os.Stdout)
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
