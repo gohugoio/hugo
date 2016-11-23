@@ -250,19 +250,32 @@ func NewDistinctFeedbackLogger() *DistinctLogger {
 	return &DistinctLogger{m: make(map[string]bool), logger: &jww.FEEDBACK}
 }
 
-// DistinctErrorLog cann be used to avoid spamming the logs with errors.
-var DistinctErrorLog = NewDistinctErrorLogger()
+var (
+	// DistinctErrorLog can be used to avoid spamming the logs with errors.
+	DistinctErrorLog = NewDistinctErrorLogger()
+
+	// DistinctFeedbackLog can be used to avoid spamming the logs with info messages.
+	DistinctFeedbackLog = NewDistinctFeedbackLogger()
+)
 
 // InitLoggers sets up the global distinct loggers.
 func InitLoggers() {
 	DistinctErrorLog = NewDistinctErrorLogger()
 }
 
-// Deprecated logs ERROR logs about a deprecation, but only once for a given set of arguments' values.
-func Deprecated(object, item, alternative string) {
-	//	deprecatedLogger.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
-	DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in a future release. Use %s instead.", object, item, alternative)
+// Deprecated informs about a deprecation, but only once for a given set of arguments' values.
+// If the err flag is enabled, it logs as an ERROR (will exit with -1) and the text will
+// point at the next Hugo release.
+// The idea is two remove an item in two Hugo releases to give users and theme authors
+// plenty of time to fix their templates.
+func Deprecated(object, item, alternative string, err bool) {
+	if err {
+		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
 
+	} else {
+		// Make sure the users see this while avoiding build breakage. This will not lead to an os.Exit(-1)
+		DistinctFeedbackLog.Printf("WARNING: %s's %s is deprecated and will be removed in a future release. Use %s instead.", object, item, alternative)
+	}
 }
 
 // SliceToLower goes through the source slice and lowers all values.

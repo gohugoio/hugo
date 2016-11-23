@@ -1270,6 +1270,7 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 	} {
 
 		n := &Page{pageInit: &pageInit{}, Kind: KindHome}
+
 		n.RSSLink = "rssLink"
 
 		if !this.assertFunc(n) {

@@ -245,7 +245,7 @@ func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
 
 // GetParam gets a site parameter value if found, nil if not.
 func (s *SiteInfo) GetParam(key string) interface{} {
-	helpers.Deprecated("SiteInfo", ".GetParam", ".Param")
+	helpers.Deprecated("SiteInfo", ".GetParam", ".Param", false)
 	v := s.Params[strings.ToLower(key)]
 
 	if v == nil {

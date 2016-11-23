@@ -242,18 +242,18 @@ type PageMeta struct {
 }
 
 func (*PageMeta) WordCount() int {
-	helpers.Deprecated("PageMeta", "WordCount", ".WordCount (on Page)")
+	helpers.Deprecated("PageMeta", "WordCount", ".WordCount (on Page)", true)
 	return 0
 }
 
 func (*PageMeta) FuzzyWordCount() int {
-	helpers.Deprecated("PageMeta", "FuzzyWordCount", ".FuzzyWordCount (on Page)")
+	helpers.Deprecated("PageMeta", "FuzzyWordCount", ".FuzzyWordCount (on Page)", true)
 	return 0
 
 }
 
 func (*PageMeta) ReadingTime() int {
-	helpers.Deprecated("PageMeta", "ReadingTime", ".ReadingTime (on Page)")
+	helpers.Deprecated("PageMeta", "ReadingTime", ".ReadingTime (on Page)", true)
 	return 0
 }
 
@@ -1565,7 +1565,7 @@ func (p *Page) Hugo() *HugoInfo {
 
 func (p *Page) RSSlink() template.HTML {
 	// TODO(bep) we cannot have two of these
-	helpers.Deprecated(".Page", "RSSlink", "RSSLink")
+	helpers.Deprecated(".Page", "RSSlink", "RSSLink", false)
 	return p.RSSLink
 }
 
