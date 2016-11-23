@@ -332,7 +332,7 @@ func newContentPathSection(path string) (string, string) {
 
 func createConfig(inpath string, kind string) (err error) {
 	in := map[string]interface{}{
-		"baseurl":      "http://example.org/",
+		"baseURL":      "http://example.org/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
 	}
