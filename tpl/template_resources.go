@@ -233,7 +233,7 @@ func getCSV(sep string, urlParts ...string) [][]string {
 	for i := 0; i <= resRetries; i++ {
 		c, err := resGetResource(url)
 
-		if err == nil && false == bytes.Contains(c, []byte(sep)) {
+		if err == nil && !bytes.Contains(c, []byte(sep)) {
 			err = errors.New("Cannot find separator " + sep + " in CSV.")
 		}
 

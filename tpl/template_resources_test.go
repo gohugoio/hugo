@@ -72,7 +72,7 @@ func TestScpCache(t *testing.T) {
 				t.Errorf("Cache ignored but content is not nil: %s", string(c))
 			}
 		} else {
-			if bytes.Compare(c, test.content) != 0 {
+			if !bytes.Equal(c, test.content) {
 				t.Errorf("\nExpected: %s\nActual: %s\n", string(test.content), string(c))
 			}
 		}
@@ -104,7 +104,7 @@ func TestScpGetLocal(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
-		if bytes.Compare(c, test.content) != 0 {
+		if !bytes.Equal(c, test.content) {
 			t.Errorf("\nExpected: %s\nActual: %s\n", string(test.content), string(c))
 		}
 	}
@@ -148,7 +148,7 @@ func TestScpGetRemote(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
-		if bytes.Compare(c, test.content) != 0 {
+		if !bytes.Equal(c, test.content) {
 			t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(test.content), string(c))
 		}
 		cc, cErr := resGetCache(test.path, fs, test.ignore)
@@ -160,7 +160,7 @@ func TestScpGetRemote(t *testing.T) {
 				t.Errorf("Cache ignored but content is not nil: %s", string(cc))
 			}
 		} else {
-			if bytes.Compare(cc, test.content) != 0 {
+			if !bytes.Equal(cc, test.content) {
 				t.Errorf("\nCache Expected: %s\nCache Actual: %s\n", string(test.content), string(cc))
 			}
 		}

@@ -1593,7 +1593,7 @@ func dfault(dflt interface{}, given ...interface{}) (interface{}, error) {
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
 	// The Go template will complain that we got 1 argument when we expectd 2.
 
-	if given == nil || len(given) == 0 {
+	if len(given) == 0 {
 		return dflt, nil
 	}
 	if len(given) != 1 {
@@ -1922,7 +1922,7 @@ func humanize(in interface{}) (string, error) {
 
 	_, ok := in.(int)           // original param was literal int value
 	_, err = strconv.Atoi(word) // original param was string containing an int value
-	if ok == true || err == nil {
+	if ok || err == nil {
 		return inflect.Ordinalize(word), nil
 	}
 	return inflect.Humanize(word), nil
