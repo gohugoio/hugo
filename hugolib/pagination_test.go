@@ -98,6 +98,7 @@ func TestPager(t *testing.T) {
 	assert.Nil(t, err)
 	doTestPages(t, pag)
 	first := pag.Pagers()[0].First()
+	assert.Equal(t, "Pager 1", first.String())
 	assert.NotEmpty(t, first.Pages())
 	assert.Empty(t, first.PageGroups())
 
