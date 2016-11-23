@@ -104,9 +104,7 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 	}
 
 	// Add the final touch
-	if strings.HasPrefix(alias, helpers.FilePathSeparator) {
-		alias = alias[1:]
-	}
+	alias = strings.TrimPrefix(alias, helpers.FilePathSeparator)
 	if strings.HasSuffix(alias, helpers.FilePathSeparator) {
 		alias = alias + "index.html"
 	} else if !strings.HasSuffix(alias, ".html") {
