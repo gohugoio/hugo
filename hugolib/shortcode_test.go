@@ -72,12 +72,8 @@ title: "Title"
 	require.Len(t, h.Sites[0].RegularPages, 1)
 
 	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].Content))
-	if strings.HasPrefix(output, "<p>") {
-		output = output[3:]
-	}
-	if strings.HasSuffix(output, "</p>") {
-		output = output[:len(output)-4]
-	}
+	output = strings.TrimPrefix(output, "<p>")
+	output = strings.TrimSuffix(output, "</p>")
 
 	expected = strings.TrimSpace(expected)
 

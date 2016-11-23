@@ -1351,11 +1351,7 @@ func (p *Page) saveSourceAs(path string, safe bool) error {
 	bc := make([]byte, b.Len(), b.Len())
 	copy(bc, b.Bytes())
 
-	err := p.saveSource(bc, path, safe)
-	if err != nil {
-		return err
-	}
-	return nil
+	return p.saveSource(bc, path, safe)
 }
 
 func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {

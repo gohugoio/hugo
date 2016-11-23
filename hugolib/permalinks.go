@@ -197,5 +197,5 @@ func init() {
 		"filename":    pageToPermalinkFilename,
 	}
 
-	attributeRegexp = regexp.MustCompile(":\\w+")
+	attributeRegexp = regexp.MustCompile(`:\w+`)
 }

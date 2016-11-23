@@ -167,12 +167,8 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 	smLayouts := []string{"sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml"}
 
-	if err := s.renderAndWriteXML("sitemapindex", sitemapDefault.Filename,
-		h.toSiteInfos(), s.appendThemeTemplates(smLayouts)...); err != nil {
-		return err
-	}
-
-	return nil
+	return s.renderAndWriteXML("sitemapindex",
+		sitemapDefault.Filename, h.toSiteInfos(), s.appendThemeTemplates(smLayouts)...)
 }
 
 func (h *HugoSites) assignMissingTranslations() error {

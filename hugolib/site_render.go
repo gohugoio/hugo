@@ -159,11 +159,8 @@ func (s *Site) renderRSS(p *Page) error {
 	rssPath := path.Join(rssPage.URLPath.URL, rssURI)
 	s.setPageURLs(rssPage, rssPath)
 
-	if err := s.renderAndWriteXML(rssPage.Title, rssPage.addLangFilepathPrefix(rssPath), rssPage, s.appendThemeTemplates(layouts)...); err != nil {
-		return err
-	}
-
-	return nil
+	return s.renderAndWriteXML(rssPage.Title,
+		rssPage.addLangFilepathPrefix(rssPath), rssPage, s.appendThemeTemplates(layouts)...)
 }
 
 func (s *Site) render404() error {
@@ -178,11 +175,9 @@ func (s *Site) render404() error {
 	s.setPageURLs(p, "404.html")
 
 	nfLayouts := []string{"404.html"}
-	if nfErr := s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...); nfErr != nil {
-		return nfErr
-	}
 
-	return nil
+	return s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
+
 }
 
 func (s *Site) renderSitemap() error {
@@ -223,11 +218,9 @@ func (s *Site) renderSitemap() error {
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
 	addLanguagePrefix := n.Site.IsMultiLingual()
-	if err := s.renderAndWriteXML("sitemap", n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...); err != nil {
-		return err
-	}
 
-	return nil
+	return s.renderAndWriteXML("sitemap",
+		n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...)
 }
 
 func (s *Site) renderRobotsTXT() error {

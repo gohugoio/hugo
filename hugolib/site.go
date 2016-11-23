@@ -1797,7 +1797,7 @@ Your rendered home page is blank: /index.html is zero-length
 
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
 	layout, found := s.findFirstLayout(layouts...)
-	if found == false {
+	if !found {
 		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
 		return nil
 	}
