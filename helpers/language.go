@@ -116,7 +116,7 @@ func (l *Language) GetStringMapString(key string) map[string]string {
 	return cast.ToStringMapString(l.Get(key))
 }
 
-// Get returns a value associated with the key relying on pecified language.
+// Get returns a value associated with the key relying on specified language.
 // Get is case-insensitive for a key.
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
