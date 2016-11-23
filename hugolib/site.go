@@ -92,6 +92,7 @@ type Site struct {
 	Sections       Taxonomy
 	Info           SiteInfo
 	Menus          Menus
+	Widgets        Widgets
 	timer          *nitro.B
 	targets        targetList
 	targetListInit sync.Once
@@ -169,6 +170,7 @@ type SiteInfo struct {
 	*PageCollections
 	Files                 *[]*source.File
 	Menus                 *Menus
+	Widgets               *Widgets
 	Hugo                  *HugoInfo
 	Title                 string
 	RSSLink               string
@@ -649,6 +651,14 @@ func (s *Site) loadTemplates() {
 	if s.hasTheme() {
 		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
 	}
+
+	// Here we handle the widgets. The site gets all HTML
+	// code to inject it inside the template, when the
+	// {{ widgets "mywidgetarea" }} is called.
+	if err := injectWidgets(s); err != nil {
+		jww.ERROR.Printf("Failed to load widgets: %s", err)
+	}
+
 }
 
 func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error {
@@ -949,6 +959,7 @@ func (s *Site) initializeSiteInfo() {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
+		Widgets:                        &s.Widgets,
 	}
 
 	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))
@@ -1015,6 +1026,14 @@ func (s *Site) themeDir() string {
 
 func (s *Site) absThemeDir() string {
 	return helpers.AbsPathify(s.themeDir())
+}
+
+func (s *Site) widgetDir() string {
+	return viper.GetString("widgetsDir")
+}
+
+func (s *Site) absWidgetDir() string {
+	return helpers.AbsPathify(s.widgetDir())
 }
 
 func (s *Site) layoutDir() string {

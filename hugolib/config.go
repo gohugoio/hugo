@@ -66,6 +66,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("dataDir", "data")
 	viper.SetDefault("i18nDir", "i18n")
 	viper.SetDefault("themesDir", "themes")
+	viper.SetDefault("widgetsDir", "widgets")
 	viper.SetDefault("defaultLayout", "post")
 	viper.SetDefault("buildDrafts", false)
 	viper.SetDefault("buildFuture", false)

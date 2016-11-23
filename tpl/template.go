@@ -23,6 +23,7 @@ import (
 
 	"github.com/eknkc/amber"
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -110,14 +111,23 @@ func partial(name string, contextList ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
+
+	prefix := "partials"
 	var context interface{}
 
 	if len(contextList) == 0 {
 		context = nil
+	} else if pr, err := cast.ToStringE(contextList[0]); err == nil && len(contextList) >= 2 {
+		// The first parameter of the list (second of the partial
+		// call) is the prefix
+		prefix = pr
+		context = contextList[1]
 	} else {
 		context = contextList[0]
 	}
-	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
+
+	prefix += "/"
+	return ExecuteTemplateToHTML(context, prefix+name, "theme/"+prefix+name)
 }
 
 func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
