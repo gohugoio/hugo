@@ -1,0 +1,17 @@
+{{ partial "head.html" . }}
+{{ partial "header.html" . }}
+
+{{ if .Params.listing }}
+	{{ range .Site.Taxonomies.groups.historias.Pages }}
+	<article class="post">
+		<h3><a href='{{ .Permalink }}'>{{ .Title }}</a> </h3>
+		<div class="post-meta">{{ .Date.Format "Mon, Jan 2, 2006" }} - {{ .FuzzyWordCount }} sõna</div>
+		{{ .Summary }}
+		<a href='{{ .Permalink }}'><nobr>Leer mas →</nobr></a>
+	</article>
+	{{ end }}
+{{ else }}
+	{{ .Content }}
+{{ end }}
+
+{{ partial "footer.html" . }}
