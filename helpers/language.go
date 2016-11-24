@@ -93,6 +93,8 @@ func (l *Language) Params() map[string]interface{} {
 	return l.params
 }
 
+// SetParam sets param with the given key and value.
+// SetParam is case-insensitive.
 func (l *Language) SetParam(k string, v interface{}) {
 	l.params[strings.ToLower(k)] = v
 }
