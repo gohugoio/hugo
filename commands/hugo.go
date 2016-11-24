@@ -426,9 +426,9 @@ func watchConfig() {
 }
 
 func build(watches ...bool) error {
-	// Hugo writes the output to memory instead of the disk
+	// Hugo writes the output to memory instead of the disk.
 	// This is only used for benchmark testing. Cause the content is only visible
-	// in memory
+	// in memory.
 	if renderToMemory {
 		hugofs.SetDestination(new(afero.MemMapFs))
 		// Rendering to memoryFS, publish to Root regardless of publishDir.

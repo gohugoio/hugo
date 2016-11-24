@@ -147,7 +147,7 @@ func MakePermalink(host, plink string) *url.URL {
 	return base
 }
 
-// AbsURL creates a absolute URL from the relative path given and the BaseURL set in config.
+// AbsURL creates an absolute URL from the relative path given and the BaseURL set in config.
 func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 	url, err := url.Parse(in)
 	if err != nil {
