@@ -13,6 +13,8 @@
 
 package helpers
 
+import "github.com/spf13/viper"
+
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
 type PathSpec struct {
 	disablePathToLower bool
@@ -35,22 +37,63 @@ type PathSpec struct {
 	multilingual                   bool
 }
 
-// NewPathSpecFromConfig creats a new PathSpec from the given ConfigProvider.
-func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
+// NewPathSpecFromCurrentLanguage creates a new PathSpec from the
+// current language (currentContentLanguage in viper).
+func NewPathSpecFromCurrentLanguage() *PathSpec {
+	return NewPathSpecFromLanguage(viper.Get("currentContentLanguage").(*Language))
+}
+
+// NewPathSpecFromViper creates a new PathSpec from the global viper instance.
+func NewPathSpecFromViper() *PathSpec {
 	return &PathSpec{
-		disablePathToLower:             config.GetBool("disablePathToLower"),
-		removePathAccents:              config.GetBool("removePathAccents"),
-		uglyURLs:                       config.GetBool("uglyURLs"),
-		canonifyURLs:                   config.GetBool("canonifyURLs"),
-		multilingual:                   config.GetBool("multilingual"),
-		defaultContentLanguageInSubdir: config.GetBool("defaultContentLanguageInSubdir"),
-		defaultContentLanguage:         config.GetString("defaultContentLanguage"),
-		currentContentLanguage:         config.Get("currentContentLanguage").(*Language),
-		paginatePath:                   config.GetString("paginatePath"),
+		disablePathToLower:             viper.GetBool("disablePathToLower"),
+		removePathAccents:              viper.GetBool("removePathAccents"),
+		uglyURLs:                       viper.GetBool("uglyURLs"),
+		canonifyURLs:                   viper.GetBool("canonifyURLs"),
+		multilingual:                   viper.GetBool("multilingual"),
+		defaultContentLanguageInSubdir: viper.GetBool("defaultContentLanguageInSubdir"),
+		defaultContentLanguage:         viper.GetString("defaultContentLanguage"),
+		currentContentLanguage:         viper.Get("currentContentLanguage").(*Language),
+		paginatePath:                   viper.GetString("paginatePath"),
+	}
+}
+
+// NewPathSpecFromLanguage creates a new PathSpec from the given Language.
+func NewPathSpecFromLanguage(l *Language) *PathSpec {
+	return &PathSpec{
+		disablePathToLower:             l.GetBool("disablePathToLower"),
+		removePathAccents:              l.GetBool("removePathAccents"),
+		uglyURLs:                       l.GetBool("uglyURLs"),
+		canonifyURLs:                   l.GetBool("canonifyURLs"),
+		multilingual:                   l.GetBool("multilingual"),
+		defaultContentLanguageInSubdir: l.GetBool("defaultContentLanguageInSubdir"),
+		defaultContentLanguage:         l.GetString("defaultContentLanguage"),
+		currentContentLanguage:         l.Get("currentContentLanguage").(*Language),
+		paginatePath:                   l.GetString("paginatePath"),
 	}
 }
 
 // PaginatePath returns the configured root path used for paginator pages.
 func (p *PathSpec) PaginatePath() string {
 	return p.paginatePath
+}
+
+var currentPathSpec *PathSpec
+
+func InitCurrentPathSpec() {
+	currentPathSpec = NewPathSpecFromCurrentLanguage()
+}
+
+// CurrentPathSpec returns the current PathSpec.
+// If it is not set, a new will be created based in the currently active language.
+func CurrentPathSpec() *PathSpec {
+	if currentPathSpec != nil {
+		return currentPathSpec
+	}
+	return NewPathSpecFromCurrentLanguage()
+}
+
+// ResetCurrentPathSpec is used in tests.
+func ResetCurrentPathSpec() {
+	currentPathSpec = nil
 }

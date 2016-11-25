@@ -1343,8 +1343,8 @@ func markdownify(in interface{}) (template.HTML, error) {
 	language := viper.Get("currentContentLanguage").(*helpers.Language)
 
 	m := helpers.RenderBytes(&helpers.RenderingContext{
-		ConfigProvider: language,
-		Content:        []byte(text), PageFmt: "markdown"})
+		Content: []byte(text), PageFmt: "markdown",
+		Config: helpers.NewBlackfriday(language.GetStringMap("blackfriday"))})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
 	return template.HTML(m), nil

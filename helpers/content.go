@@ -32,7 +32,6 @@ import (
 	"github.com/spf13/viper"
 
 	"strings"
-	"sync"
 )
 
 // SummaryLength is the length of the summary that Hugo extracts from a content.
@@ -57,9 +56,8 @@ type Blackfriday struct {
 	ExtensionsMask                   []string
 }
 
-// NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
-func NewBlackfriday(c ConfigProvider) *Blackfriday {
-
+// NewBlackfriday creates a new Blackfriday filled with params.
+func NewBlackfriday(params map[string]interface{}) Blackfriday {
 	defaultParam := map[string]interface{}{
 		"smartypants":                      true,
 		"angledQuotes":                     false,
@@ -75,22 +73,20 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 
 	ToLowerMap(defaultParam)
 
-	siteParam := c.GetStringMap("blackfriday")
-
 	siteConfig := make(map[string]interface{})
 
 	for k, v := range defaultParam {
 		siteConfig[k] = v
 	}
 
-	if siteParam != nil {
-		for k, v := range siteParam {
+	if params != nil {
+		for k, v := range params {
 			siteConfig[k] = v
 		}
 	}
 
-	combinedConfig := &Blackfriday{}
-	if err := mapstructure.Decode(siteConfig, combinedConfig); err != nil {
+	combinedConfig := Blackfriday{}
+	if err := mapstructure.Decode(siteConfig, &combinedConfig); err != nil {
 		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
 	}
 
@@ -188,7 +184,7 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
@@ -197,27 +193,27 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	if ctx.getConfig().Smartypants {
+	if ctx.Config.Smartypants {
 		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	}
 
-	if ctx.getConfig().AngledQuotes {
+	if ctx.Config.AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	if ctx.getConfig().Fractions {
+	if ctx.Config.Fractions {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
-	if ctx.getConfig().HrefTargetBlank {
+	if ctx.Config.HrefTargetBlank {
 		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
 	}
 
-	if ctx.getConfig().SmartDashes {
+	if ctx.Config.SmartDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
 	}
 
-	if ctx.getConfig().LatexDashes {
+	if ctx.Config.LatexDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
@@ -245,12 +241,12 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 		blackfriday.EXTENSION_AUTO_HEADER_IDS |
 		blackfriday.EXTENSION_FOOTNOTES
 
-	for _, extension := range ctx.getConfig().Extensions {
+	for _, extension := range ctx.Config.Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
 		}
 	}
-	for _, extension := range ctx.getConfig().ExtensionsMask {
+	for _, extension := range ctx.Config.ExtensionsMask {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags &= ^flag
 		}
@@ -277,7 +273,7 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
@@ -306,7 +302,7 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
 	flags |= mmark.EXTENSION_INCLUDE
 
-	for _, extension := range ctx.getConfig().Extensions {
+	for _, extension := range ctx.Config.Extensions {
 		if flag, ok := mmarkExtensionMap[extension]; ok {
 			flags |= flag
 		}
@@ -358,29 +354,19 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content rendering.
 type RenderingContext struct {
-	Content        []byte
-	PageFmt        string
-	DocumentID     string
-	DocumentName   string
-	Config         *Blackfriday
-	RenderTOC      bool
-	FileResolver   FileResolverFunc
-	LinkResolver   LinkResolverFunc
-	ConfigProvider ConfigProvider
-	configInit     sync.Once
+	Config       Blackfriday // Config should always be initialize by developer.
+	Content      []byte
+	DocumentID   string
+	DocumentName string
+	PageFmt      string
+	RenderTOC    bool
+	FileResolver FileResolverFunc
+	LinkResolver LinkResolverFunc
 }
 
+// newViperProvidedRenderingContext is used for tests.
 func newViperProvidedRenderingContext() *RenderingContext {
-	return &RenderingContext{ConfigProvider: viper.GetViper()}
-}
-
-func (c *RenderingContext) getConfig() *Blackfriday {
-	c.configInit.Do(func() {
-		if c.Config == nil {
-			c.Config = NewBlackfriday(c.ConfigProvider)
-		}
-	})
-	return c.Config
+	return &RenderingContext{Config: NewBlackfriday(viper.GetStringMap("blackfriday"))}
 }
 
 // RenderBytes renders a []byte.

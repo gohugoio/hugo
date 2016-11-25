@@ -32,8 +32,9 @@ func TestLoadGlobalConfig(t *testing.T) {
 
 	writeSource(t, "hugo.toml", configContent)
 
+	helpers.ResetCurrentPathSpec()
 	require.NoError(t, LoadGlobalConfig("", "hugo.toml"))
-	assert.Equal(t, "side", helpers.Config().GetString("paginatePath"))
+	assert.Equal(t, "side", helpers.CurrentPathSpec().PaginatePath())
 	// default
 	assert.Equal(t, "layouts", viper.GetString("layoutDir"))
 }

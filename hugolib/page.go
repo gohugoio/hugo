@@ -150,7 +150,7 @@ type Page struct {
 	plainWords []string
 
 	// rendering configuration
-	renderingConfig *helpers.Blackfriday
+	renderingConfig helpers.Blackfriday
 
 	// menus
 	pageMenus PageMenus
@@ -513,21 +513,20 @@ func (p *Page) renderContent(content []byte) []byte {
 	}
 	return helpers.RenderBytes(&helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
-		ConfigProvider: p.Language(),
-		DocumentID:     p.UniqueID(), DocumentName: p.Path(),
+		DocumentID: p.UniqueID(), DocumentName: p.Path(),
 		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
-func (p *Page) getRenderingConfig() *helpers.Blackfriday {
-
+func (p *Page) getRenderingConfig() helpers.Blackfriday {
 	p.renderingConfigInit.Do(func() {
 		pageParam := cast.ToStringMap(p.GetParam("blackfriday"))
-		if p.Language() == nil {
+		language := p.Language()
+		if language == nil {
 			panic(fmt.Sprintf("nil language for %s with source lang %s", p.BaseFileName(), p.lang))
 		}
-		p.renderingConfig = helpers.NewBlackfriday(p.Language())
+		p.renderingConfig = helpers.NewBlackfriday(language.GetStringMap("blackfriday"))
 
-		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
+		if err := mapstructure.Decode(pageParam, &p.renderingConfig); err != nil {
 			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 
