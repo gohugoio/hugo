@@ -292,12 +292,12 @@ func AddContextRoot(baseURL, relativePath string) string {
 // URLizeAndPrep applies misc sanitation to the given URL to get it in line
 // with the Hugo standard.
 func (p *PathSpec) URLizeAndPrep(in string) string {
-	return URLPrep(p.uglyURLs, p.URLize(in))
+	return p.URLPrep(p.URLize(in))
 }
 
 // URLPrep applies misc sanitation to the given URL.
-func URLPrep(ugly bool, in string) string {
-	if ugly {
+func (p *PathSpec) URLPrep(in string) string {
+	if p.uglyURLs {
 		x := Uglify(SanitizeURL(in))
 		return x
 	}

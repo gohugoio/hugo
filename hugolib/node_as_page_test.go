@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -32,6 +33,12 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
+	for _, ugly := range []bool{false, true} {
+		doTestNodeAsPage(t, ugly)
+	}
+}
+
+func doTestNodeAsPage(t *testing.T, ugly bool) {
 	//jww.SetStdoutThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelFatal)
 
@@ -46,6 +53,8 @@ func TestNodesAsPage(t *testing.T) {
 	*/
 
 	testCommonResetState()
+
+	viper.Set("uglyURLs", ugly)
 
 	writeLayoutsForNodeAsPageTests(t)
 	writeNodePagesForNodeAsPageTests("", t)
@@ -73,7 +82,7 @@ func TestNodesAsPage(t *testing.T) {
 		"GetPage: Section1 ",
 	)
 
-	assertFileContent(t, filepath.Join("public", "sect1", "regular1", "index.html"), false, "Single Title: Page 01", "Content Page 01")
+	assertFileContent(t, expectedFilePath(ugly, "public", "sect1", "regular1"), false, "Single Title: Page 01", "Content Page 01")
 
 	h := s.owner
 	nodes := h.findAllPagesByKindNotIn(KindPage)
@@ -99,24 +108,24 @@ func TestNodesAsPage(t *testing.T) {
 	require.True(t, first.IsPage())
 
 	// Check Home paginator
-	assertFileContent(t, filepath.Join("public", "page", "2", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "page", "2"), false,
 		"Pag: Page 02")
 
 	// Check Sections
-	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "sect1"), false,
 		"Section Title: Section", "Section1 <strong>Content!</strong>",
 		"Date: 2009-01-04",
 		"Lastmod: 2009-01-05",
 	)
 
-	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "sect2"), false,
 		"Section Title: Section", "Section2 <strong>Content!</strong>",
 		"Date: 2009-01-06",
 		"Lastmod: 2009-01-07",
 	)
 
 	// Check Sections paginator
-	assertFileContent(t, filepath.Join("public", "sect1", "page", "2", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "sect1", "page", "2"), false,
 		"Pag: Page 02")
 
 	sections := h.findAllPagesByKind(KindSection)
@@ -124,13 +133,13 @@ func TestNodesAsPage(t *testing.T) {
 	require.Len(t, sections, 2)
 
 	// Check taxonomy lists
-	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories", "hugo"), false,
 		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>",
 		"Date: 2009-01-08",
 		"Lastmod: 2009-01-09",
 	)
 
-	assertFileContent(t, filepath.Join("public", "categories", "web", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories", "web"), false,
 		"Taxonomy Title: Taxonomy Web",
 		"Taxonomy Web <strong>Content!</strong>",
 		"Date: 2009-01-10",
@@ -138,12 +147,12 @@ func TestNodesAsPage(t *testing.T) {
 	)
 
 	// Check taxonomy list paginator
-	assertFileContent(t, filepath.Join("public", "categories", "hugo", "page", "2", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories", "hugo", "page", "2"), false,
 		"Taxonomy Title: Taxonomy Hugo",
 		"Pag: Page 02")
 
 	// Check taxonomy terms
-	assertFileContent(t, filepath.Join("public", "categories", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories"), false,
 		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo",
 		"Date: 2009-01-12",
 		"Lastmod: 2009-01-13",
@@ -161,6 +170,12 @@ func TestNodesAsPage(t *testing.T) {
 }
 
 func TestNodesWithNoContentFile(t *testing.T) {
+	for _, ugly := range []bool{false, true} {
+		doTestNodesWithNoContentFile(t, ugly)
+	}
+}
+
+func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	//jww.SetStdoutThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelFatal)
 
@@ -169,6 +184,7 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	writeLayoutsForNodeAsPageTests(t)
 	writeRegularPagesForNodeAsPageTests(t)
 
+	viper.Set("uglyURLs", ugly)
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 	viper.Set("rssURI", "customrss.xml")
@@ -195,25 +211,25 @@ func TestNodesWithNoContentFile(t *testing.T) {
 	)
 
 	// Taxonomy list
-	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories", "hugo"), false,
 		"Taxonomy Title: Hugo",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
 	// Taxonomy terms
-	assertFileContent(t, filepath.Join("public", "categories", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories"), false,
 		"Taxonomy Terms Title: Categories",
 	)
 
 	// Sections
-	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "sect1"), false,
 		"Section Title: Sect1s",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
-	assertFileContent(t, filepath.Join("public", "sect2", "index.html"), false,
+	assertFileContent(t, expectedFilePath(ugly, "public", "sect2"), false,
 		"Section Title: Sect2s",
 		"Date: 2008-07-06",
 		"Lastmod: 2008-07-09",
@@ -229,8 +245,16 @@ func TestNodesWithNoContentFile(t *testing.T) {
 }
 
 func TestNodesAsPageMultilingual(t *testing.T) {
+	for _, ugly := range []bool{true, false} {
+		doTestNodesAsPageMultilingual(t, ugly)
+	}
+}
+
+func doTestNodesAsPageMultilingual(t *testing.T, ugly bool) {
 
 	testCommonResetState()
+
+	viper.Set("uglyURLs", ugly)
 
 	writeLayoutsForNodeAsPageTests(t)
 
@@ -302,6 +326,7 @@ title = "Deutsche Hugo"
 	require.Len(t, deHome.Translations(), 2, deHome.Translations()[0].Language().Lang)
 	require.Equal(t, "en", deHome.Translations()[1].Language().Lang)
 	require.Equal(t, "nn", deHome.Translations()[0].Language().Lang)
+	require.Equal(t, expetedPermalink(ugly, "/de/"), deHome.Permalink())
 
 	enSect := sites.Sites[1].getPage("section", "sect1")
 	require.NotNil(t, enSect)
@@ -309,6 +334,8 @@ title = "Deutsche Hugo"
 	require.Len(t, enSect.Translations(), 2, enSect.Translations()[0].Language().Lang)
 	require.Equal(t, "de", enSect.Translations()[1].Language().Lang)
 	require.Equal(t, "nn", enSect.Translations()[0].Language().Lang)
+
+	require.Equal(t, expetedPermalink(ugly, "/en/sect1/"), enSect.Permalink())
 
 	assertFileContent(t, filepath.Join("public", "nn", "index.html"), true,
 		"Index Title: Hugo på norsk")
@@ -318,26 +345,32 @@ title = "Deutsche Hugo"
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
 
 	// Taxonomy list
-	assertFileContent(t, filepath.Join("public", "nn", "categories", "hugo", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "nn", "categories", "hugo"), true,
 		"Taxonomy Title: Hugo")
-	assertFileContent(t, filepath.Join("public", "en", "categories", "hugo", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "en", "categories", "hugo"), true,
 		"Taxonomy Title: Taxonomy Hugo")
 
 	// Taxonomy terms
-	assertFileContent(t, filepath.Join("public", "nn", "categories", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "nn", "categories"), true,
 		"Taxonomy Terms Title: Categories")
-	assertFileContent(t, filepath.Join("public", "en", "categories", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "en", "categories"), true,
 		"Taxonomy Terms Title: Taxonomy Term Categories")
 
 	// Sections
-	assertFileContent(t, filepath.Join("public", "nn", "sect1", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "nn", "sect1"), true,
 		"Section Title: Sect1s")
-	assertFileContent(t, filepath.Join("public", "nn", "sect2", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "nn", "sect2"), true,
 		"Section Title: Sect2s")
-	assertFileContent(t, filepath.Join("public", "en", "sect1", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "en", "sect1"), true,
 		"Section Title: Section1")
-	assertFileContent(t, filepath.Join("public", "en", "sect2", "index.html"), true,
+	assertFileContent(t, expectedFilePath(ugly, "public", "en", "sect2"), true,
 		"Section Title: Section2")
+
+	// Regular pages
+	assertFileContent(t, expectedFilePath(ugly, "public", "en", "sect1", "regular1"), true,
+		"Single Title: Page 01")
+	assertFileContent(t, expectedFilePath(ugly, "public", "nn", "sect1", "regular2"), true,
+		"Single Title: Page 02")
 
 	// RSS
 	assertFileContent(t, filepath.Join("public", "nn", "customrss.xml"), true, "Hugo på norsk", "<rss")
@@ -659,4 +692,18 @@ Taxonomy Terms Content: {{ .Content }}
 Date: {{ .Date.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
+}
+
+func expectedFilePath(ugly bool, path ...string) string {
+	if ugly {
+		return filepath.Join(append(path[0:len(path)-1], path[len(path)-1]+".html")...)
+	}
+	return filepath.Join(append(path, "index.html")...)
+}
+
+func expetedPermalink(ugly bool, path string) string {
+	if ugly {
+		return strings.TrimSuffix(path, "/") + ".html"
+	}
+	return path
 }

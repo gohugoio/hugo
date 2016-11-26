@@ -372,7 +372,7 @@ func TestShortcodeInstagram(t *testing.T) {
 		}
 
 		if this.expected != output {
-			t.Errorf("[%d] unexpected rendering, got %d expected: %d", i, output, this.expected)
+			t.Errorf("[%d] unexpected rendering, got %s expected: %s", i, output, this.expected)
 		}
 	}
 }

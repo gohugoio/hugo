@@ -733,6 +733,7 @@ func (p *Page) permalink() (*url.URL, error) {
 		// No permalink config for nodes (currently)
 		pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
 		pURL = p.addLangPathPrefix(pURL)
+		pURL = p.Site.pathSpec.URLPrep(path.Join(pURL, "index."+p.Extension()))
 		url := helpers.MakePermalink(baseURL, pURL)
 		return url, nil
 	}
@@ -755,10 +756,10 @@ func (p *Page) permalink() (*url.URL, error) {
 		}
 	} else {
 		if len(pSlug) > 0 {
-			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, p.Slug+"."+p.Extension()))
+			permalink = p.Site.pathSpec.URLPrep(path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
 			t := p.Source.TranslationBaseName()
-			permalink = helpers.URLPrep(viper.GetBool("uglyURLs"), path.Join(dir, (strings.TrimSpace(t)+"."+p.Extension())))
+			permalink = p.Site.pathSpec.URLPrep(path.Join(dir, (strings.TrimSpace(t) + "." + p.Extension())))
 		}
 	}
 

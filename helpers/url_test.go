@@ -248,7 +248,10 @@ func TestURLPrep(t *testing.T) {
 		{true, "/section/name/index.html", "/section/name.html"},
 	}
 	for i, d := range data {
-		output := URLPrep(d.ugly, d.input)
+		viper.Set("uglyURLs", d.ugly)
+		p := NewPathSpecFromConfig(viper.GetViper())
+
+		output := p.URLPrep(d.input)
 		if d.output != output {
 			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
 		}
