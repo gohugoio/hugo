@@ -118,7 +118,7 @@ func (s *Site) renderPaginator(p *Page) error {
 			}
 
 			pageNumber := i + 1
-			htmlBase := path.Join(p.URLPath.URL, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))
+			htmlBase := path.Join(append(p.sections, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))...)
 			htmlBase = p.addLangPathPrefix(htmlBase)
 
 			if err := s.renderAndWritePage(pagerNode.Title,
@@ -156,7 +156,8 @@ func (s *Site) renderRSS(p *Page) error {
 		rssPage.Data["Pages"] = rssPage.Pages
 	}
 	rssURI := s.Language.GetString("rssURI")
-	rssPath := path.Join(rssPage.URLPath.URL, rssURI)
+
+	rssPath := path.Join(append(rssPage.sections, rssURI)...)
 	s.setPageURLs(rssPage, rssPath)
 
 	return s.renderAndWriteXML(rssPage.Title,

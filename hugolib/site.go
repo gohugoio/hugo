@@ -1865,16 +1865,22 @@ func (s *Site) languageAliasTarget() target.AliasPublisher {
 
 func (s *Site) initTargetList() {
 	s.targetListInit.Do(func() {
+		langDir := ""
+		if s.Language.Lang != s.Info.multilingual.DefaultLang.Lang || s.Info.defaultContentLanguageInSubdir {
+			langDir = s.Language.Lang
+		}
 		if s.targets.page == nil {
 			s.targets.page = &target.PagePub{
 				PublishDir: s.absPublishDir(),
 				UglyURLs:   viper.GetBool("uglyURLs"),
+				LangDir:    langDir,
 			}
 		}
 		if s.targets.pageUgly == nil {
 			s.targets.pageUgly = &target.PagePub{
 				PublishDir: s.absPublishDir(),
 				UglyURLs:   true,
+				LangDir:    langDir,
 			}
 		}
 		if s.targets.file == nil {

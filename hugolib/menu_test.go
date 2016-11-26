@@ -555,7 +555,7 @@ func TestHomeNodeMenu(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("canonifyURLs", true)
-	viper.Set("uglyURLs", true)
+	viper.Set("uglyURLs", false)
 
 	s := setupMenuTests(t, menuPageSources)
 
