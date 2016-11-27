@@ -371,7 +371,7 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 		return time.Now(), "", errors.New("filename not match")
 	}
 
-	postDate, err := time.Parse("2006-01-02", r[0][1])
+	postDate, err := time.Parse("2006-1-2", r[0][1])
 	if err != nil {
 		return time.Now(), "", err
 	}
