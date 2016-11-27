@@ -12,3 +12,4 @@ cover.out
 *~
 vendor/*/
 *.bench
+coverage*.out

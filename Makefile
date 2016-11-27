@@ -7,6 +7,7 @@
 COMMIT_HASH=`git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE=`date +%FT%T%z`
 LDFLAGS=-ldflags "-X github.com/spf13/hugo/hugolib.CommitHash=${COMMIT_HASH} -X github.com/spf13/hugo/hugolib.BuildDate=${BUILD_DATE}"
+PACKAGES = $(shell govendor list -no-status +local | sed 's/github.com.spf13.hugo/./')
 
 all: gitinfo
 
@@ -74,3 +75,9 @@ vet:
 		echo "^ go vet errors!" && echo && exit 1; \
 	fi
 
+test-cover-html:
+	echo "mode: count" > coverage-all.out
+	$(foreach pkg,$(PACKAGES),\
+		govendor test -coverprofile=coverage.out -covermode=count $(pkg);\
+		tail -n +2 coverage.out >> coverage-all.out;)
+	go tool cover -html=coverage-all.out
