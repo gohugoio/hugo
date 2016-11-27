@@ -192,6 +192,7 @@ type Page struct {
 	RSSLink template.HTML
 
 	URLPath
+	permalink *url.URL
 
 	paginator *Pager
 
@@ -211,6 +212,7 @@ type pageInit struct {
 	plainInit           sync.Once
 	plainWordsInit      sync.Once
 	renderingConfigInit sync.Once
+	pageURLInit         sync.Once
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -724,7 +726,25 @@ func (p *Page) analyzePage() {
 	})
 }
 
-func (p *Page) permalink() (*url.URL, error) {
+func (p *Page) getPermalink() *url.URL {
+	p.pageURLInit.Do(func() {
+		u, err := p.createPermalink()
+		if err != nil {
+			jww.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
+			p.permalink = new(url.URL)
+			return
+		}
+
+		p.permalink = u
+	})
+
+	// The link may be modified by the receiver, so create a copy.
+	l := *p.permalink
+
+	return &l
+}
+
+func (p *Page) createPermalink() (*url.URL, error) {
 	// TODO(bep) this should probably be set once during build. Maybe.
 	// And simplified.
 	baseURL := string(p.Site.BaseURL)
@@ -842,12 +862,7 @@ func (p *Page) IsExpired() bool {
 }
 
 func (p *Page) Permalink() string {
-	link, err := p.permalink()
-	if err != nil {
-		return ""
-	}
-
-	return link.String()
+	return p.getPermalink().String()
 }
 
 func (p *Page) URL() string {
@@ -862,10 +877,7 @@ func (p *Page) URL() string {
 }
 
 func (p *Page) RelPermalink() string {
-	link, err := p.permalink()
-	if err != nil {
-		return ""
-	}
+	link := p.getPermalink()
 
 	if viper.GetBool("canonifyURLs") {
 		// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
