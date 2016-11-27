@@ -104,6 +104,12 @@ RANGE: {{ . }}: {{ $.Params.LOWER }}
 {{ .NotParam }}
 {{ .NotParam }}
 {{ $notparam }}
+
+
+{{ $lower := .Site.Params.LOWER }}
+F1: {{ printf "themes/%s-theme" .Site.Params.LOWER }}
+F2: {{ Echo (printf "themes/%s-theme" $lower) }}
+F3: {{ Echo (printf "themes/%s-theme" .Site.Params.LOWER) }}
 `
 )
 
@@ -152,6 +158,12 @@ func TestParamsKeysToLower(t *testing.T) {
 	require.Contains(t, result, "RANGE: 3: P1L")
 
 	require.Contains(t, result, "Hi There")
+
+	// Issue #2740
+	require.Contains(t, result, "F1: themes/P2L-theme")
+	require.Contains(t, result, "F2: themes/P2L-theme")
+	require.Contains(t, result, "F3: themes/P2L-theme")
+
 }
 
 func BenchmarkTemplateParamsKeysToLower(b *testing.B) {

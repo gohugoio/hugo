@@ -97,7 +97,10 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 				c.updateIdentsIfNeeded(an.Ident)
 			case *parse.VariableNode:
 				c.updateIdentsIfNeeded(an.Ident)
+			case *parse.PipeNode:
+				c.paramsKeysToLower(an)
 			}
+
 		}
 	}
 }
