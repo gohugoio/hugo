@@ -67,6 +67,50 @@ func TestNewContent(t *testing.T) {
 	}
 }
 
+func TestNewContentInitCaps(t *testing.T) {
+	initViper()
+	viper.Set("coerceTitleFormat", "initCaps")
+
+	err := initFs()
+	if err != nil {
+		t.Fatalf("initialization error: %s", err)
+	}
+
+	cases := []struct {
+		kind          string
+		path          string
+		resultStrings []string
+	}{
+		{"post", "post/sample-one-1.md", []string{`title = "Sample One 1"`, `test = "test1"`}},
+		{"stump", "stump/sample-two-2.md", []string{`title = "Sample Two 2"`}},     // no archetype file
+		{"", "sample-three-3.md", []string{`title = "Sample Three 3"`}},                // no archetype
+		{"product", "product/sample-four-4.md", []string{`title = "Sample Four 4"`}}, // empty archetype front matter
+	}
+
+	for i, c := range cases {
+		err = create.NewContent(hugofs.Source(), c.kind, c.path)
+		if err != nil {
+			t.Errorf("[%d] NewContent: %s", i, err)
+		}
+
+		fname := filepath.Join(os.TempDir(), "content", filepath.FromSlash(c.path))
+		_, err = hugofs.Source().Stat(fname)
+		if err != nil {
+			t.Errorf("[%d] Stat: %s", i, err)
+		}
+
+		for _, v := range c.resultStrings {
+			found, err := afero.FileContainsBytes(hugofs.Source(), fname, []byte(v))
+			if err != nil {
+				t.Errorf("[%d] FileContainsBytes: %s", i, err)
+			}
+			if !found {
+				t.Errorf("content missing from output: %q", v)
+			}
+		}
+	}
+}
+
 func initViper() {
 	viper.Reset()
 	viper.Set("metaDataFormat", "toml")
