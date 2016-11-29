@@ -82,8 +82,8 @@ func TestNewContentInitCaps(t *testing.T) {
 		resultStrings []string
 	}{
 		{"post", "post/sample-one-1.md", []string{`title = "Sample One 1"`, `test = "test1"`}},
-		{"stump", "stump/sample-two-2.md", []string{`title = "Sample Two 2"`}},     // no archetype file
-		{"", "sample-three-3.md", []string{`title = "Sample Three 3"`}},                // no archetype
+		{"stump", "stump/sample-two-2.md", []string{`title = "Sample Two 2"`}},       // no archetype file
+		{"", "sample-three-3.md", []string{`title = "Sample Three 3"`}},              // no archetype
 		{"product", "product/sample-four-4.md", []string{`title = "Sample Four 4"`}}, // empty archetype front matter
 	}
 
