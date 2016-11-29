@@ -119,28 +119,19 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 			}
 		case "title":
 			// Use the archetype title as is
-			metadata[lk] = cast.ToString(v)
+			metadata[lk] = v
 		}
-	}
-
-	caseimatch := func(m map[string]interface{}, key string) bool {
-		for k := range m {
-			if strings.ToLower(k) == strings.ToLower(key) {
-				return true
-			}
-		}
-		return false
 	}
 
 	if metadata == nil {
 		metadata = make(map[string]interface{})
 	}
 
-	if !caseimatch(metadata, "date") {
+	if date.IsZero() {
 		date = time.Now()
 	}
 
-	if !caseimatch(metadata, "title") {
+	if _, ok := metadata["title"]; !ok {
 		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
 	}
 
