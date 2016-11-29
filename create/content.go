@@ -107,12 +107,19 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 		return nil, err
 	}
 
+	// Issue #2743 allow user to override default format
+	coerceTitleFormat := viper.GetString("coerceTitleFormat")
+
 	for k := range metadata {
 		switch strings.ToLower(k) {
 		case "date":
 			metadata[k] = time.Now()
 		case "title":
-			metadata[k] = helpers.MakeTitle(helpers.Filename(name))
+			if coerceTitleFormat == "initCaps" {
+				metadata[k] = helpers.MakeTitleInitCaps(helpers.Filename(name))
+			} else {
+				metadata[k] = helpers.MakeTitle(helpers.Filename(name))
+			}
 		}
 	}
 
@@ -134,7 +141,11 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 	}
 
 	if !caseimatch(metadata, "title") {
-		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+		if coerceTitleFormat == "initCaps" {
+			metadata["title"] = helpers.MakeTitleInitCaps(helpers.Filename(name))
+		} else {
+			metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+		}
 	}
 
 	if x := parser.FormatSanitize(viper.GetString("metaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
