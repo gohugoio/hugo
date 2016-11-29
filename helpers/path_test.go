@@ -263,6 +263,25 @@ func TestMakeTitle(t *testing.T) {
 	}
 }
 
+// Issue #2743 - titles with initial caps
+func TestMakeTitleInitCaps(t *testing.T) {
+	type test struct {
+		input, expected string
+	}
+	data := []test{
+		{"Make-Title", "Make Title"},
+		{"make-title", "Make Title"},
+		{"MakeTitle", "MakeTitle"},
+		{"make_title", "Make_title"},
+	}
+	for i, d := range data {
+		output := MakeTitleInitCaps(d.input)
+		if d.expected != output {
+			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
+		}
+	}
+}
+
 // Replace Extension is probably poorly named, but the intent of the
 // function is to accept a path and return only the file name with a
 // new extension. It's intentionally designed to strip out the path
