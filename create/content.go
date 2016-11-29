@@ -48,7 +48,7 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 		}
 	}
 	if location == "" || err != nil {
-		by = []byte("+++\n title = \"title\"\n draft = true \n+++\n")
+		by = []byte("+++\ndraft = true \n+++\n")
 	}
 
 	psr, err := parser.ReadFrom(bytes.NewReader(by))
@@ -107,38 +107,45 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 		return nil, err
 	}
 
-	for k := range metadata {
-		switch strings.ToLower(k) {
-		case "date":
-			metadata[k] = time.Now()
-		case "title":
-			metadata[k] = helpers.MakeTitle(helpers.Filename(name))
-		}
-	}
-
-	caseimatch := func(m map[string]interface{}, key string) bool {
-		for k := range m {
-			if strings.ToLower(k) == strings.ToLower(key) {
-				return true
-			}
-		}
-		return false
-	}
-
 	if metadata == nil {
 		metadata = make(map[string]interface{})
 	}
 
-	if !caseimatch(metadata, "date") {
-		metadata["date"] = time.Now()
+	var date time.Time
+
+	for k, v := range metadata {
+		lk := strings.ToLower(k)
+		switch lk {
+		case "date":
+			date, err = cast.ToTimeE(v)
+			if err != nil {
+				return nil, err
+			}
+		case "title":
+			// Use the archetype title as is
+			metadata[lk] = v
+		}
 	}
 
-	if !caseimatch(metadata, "title") {
-		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+	if date.IsZero() {
+		date = time.Now()
 	}
 
+	if _, ok := metadata["title"]; !ok {
+		// Issue #2743 allow user to override default format
+		coerceTitleFormat := viper.GetString("coerceTitleFormat")
+		if coerceTitleFormat == "initCaps" {
+			metadata["title"] = helpers.MakeTitleInitCaps(helpers.Filename(name))
+		} else {
+			metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+		}
+	}
+
+	// TOD(bep) what is this?
 	if x := parser.FormatSanitize(viper.GetString("metaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
-		metadata["date"] = time.Now().Format(time.RFC3339)
+		metadata["date"] = date.Format(time.RFC3339)
+	} else {
+		metadata["date"] = date
 	}
 
 	return metadata, nil
