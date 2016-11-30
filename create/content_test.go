@@ -82,6 +82,7 @@ func TestNewContentInitCaps(t *testing.T) {
 		path     string
 		expected []string
 	}{
+		// the first will have no changes since the archetype file overrides
 		{"post", "post/sample-one-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
 		{"stump", "stump/sample-tWO-2.md", []string{`title = "Sample TWO 2"`}},       // no archetype file
 		{"", "sample-three-3.md", []string{`title = "Sample Three 3"`}},              // no archetype
