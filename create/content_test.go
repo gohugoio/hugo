@@ -48,9 +48,6 @@ func TestNewContent(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		if i > 0 {
-			break
-		}
 		err = create.NewContent(hugofs.Source(), c.kind, c.path)
 		if err != nil {
 			t.Errorf("[%d] NewContent: %s", i, err)
