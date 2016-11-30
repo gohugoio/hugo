@@ -251,10 +251,10 @@
 			"revisionTime": "2016-11-15T14:16:05Z"
 		},
 		{
-			"checksumSHA1": "rX57qaKXtIrqUqD7Rskj6YeT6wI=",
+			"checksumSHA1": "NOrvS8XdRlWNXTvGi+oqEHlQYWA=",
 			"path": "github.com/spf13/fsync",
-			"revision": "1773df7b269b572f0fc8df916b38e3c9d15cee66",
-			"revisionTime": "2016-07-01T14:58:17Z"
+			"revision": "cb2da332d00cbc04e4f3f677520dc3e7cc11874b",
+			"revisionTime": "2016-11-30T04:45:28Z"
 		},
 		{
 			"checksumSHA1": "dkruahfhuLXXuyeCuRpsWlcRK+8=",
