@@ -40,6 +40,7 @@ hugo benchmark
       --ignoreCache             Ignores the cache directory
   -l, --layoutDir string        filesystem path to layout directory
       --memprofile string       path/filename for the memory profile file
+      --noChmod                 Don't sync permission mode of files
       --noTimes                 Don't sync modification time of files
       --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
       --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")

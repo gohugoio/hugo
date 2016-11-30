@@ -44,6 +44,7 @@ hugo
   -l, --layoutDir string        filesystem path to layout directory
       --log                     Enable Logging
       --logFile string          Log File path (if set, logging enabled automatically)
+      --noChmod                 Don't sync permission mode of files
       --noTimes                 Don't sync modification time of files
       --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
       --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
