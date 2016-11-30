@@ -229,6 +229,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "Copy all files when static is changed.")
 	cmd.Flags().BoolP("noTimes", "", false, "Don't sync modification time of files")
+	cmd.Flags().BoolP("noChmod", "", false, "Don't sync permission mode of files")
 	cmd.Flags().BoolVarP(&tpl.Logi18nWarnings, "i18n-warnings", "", false, "Print missing translations")
 
 	// Set bash-completion.
@@ -387,6 +388,7 @@ func initializeFlags(cmd *cobra.Command) {
 		"ignoreCache",
 		"forceSyncStatic",
 		"noTimes",
+		"noChmod",
 	}
 
 	for _, key := range persFlagKeys {
@@ -518,6 +520,7 @@ func copyStatic() error {
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = viper.GetBool("noTimes")
+	syncer.NoChmod = viper.GetBool("noChmod")
 	syncer.SrcFs = staticSourceFs
 	syncer.DestFs = hugofs.Destination()
 	// Now that we are using a unionFs for the static directories
@@ -797,6 +800,7 @@ func NewWatcher(port int) error {
 
 						syncer := fsync.NewSyncer()
 						syncer.NoTimes = viper.GetBool("noTimes")
+						syncer.NoChmod = viper.GetBool("noChmod")
 						syncer.SrcFs = staticSourceFs
 						syncer.DestFs = hugofs.Destination()
 

@@ -16,56 +16,69 @@ weight: 30
 Make sure Hugo is in your `PATH` (or provide a path to it). Test this by:
 
 {{< nohighlight >}}$ hugo help
+hugo is the main command, used to build your Hugo site.
 
-Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
+Hugo is a Fast and Flexible Static Site Generator
+built with love by spf13 and friends in Go.
 
-Complete documentation is available at http://gohugo.io
+Complete documentation is available at http://gohugo.io/.
 
 Usage:
   hugo [flags]
   hugo [command]
 
 Available Commands:
-  server          Hugo runs its own webserver to render the files
-  version         Print the version number of Hugo
-  config          Print the site configuration
-  check           Check content in the source directory
-  benchmark       Benchmark hugo by building a site a number of times
-  new             Create new content for your site
-  undraft         Undraft changes the content's draft status from 'True' to 'False'
-  genautocomplete Generate shell autocompletion script for Hugo
-  gendoc          Generate Markdown documentation for the Hugo CLI.
-  help            Help about any command
+  benchmark   Benchmark Hugo by building a site a number of times.
+  config      Print the site configuration
+  convert     Convert your content to different formats
+  env         Print Hugo version and environment info
+  gen         A collection of several useful generators.
+  import      Import your site from others.
+  list        Listing out various types of content
+  new         Create new content for your site
+  server      A high performance webserver
+  undraft     Undraft changes the content's draft status from 'True' to 'False'
+  version     Print the version number of Hugo
 
 Flags:
-  -b, --baseURL="": hostname (and path) to the root, e.g. http://spf13.com/
-  -D, --buildDrafts=false: include content marked as draft
-  -F, --buildFuture=false: include content with publishdate in the future
-      --cacheDir="": filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --config="": config file (default is path/config.yaml|json|toml)
-  -d, --destination="": filesystem path to write files to
-      --disableRSS=false: Do not build RSS files
-      --disableSitemap=false: Do not build Sitemap file
-      --editor="": edit new content with this editor, if provided
-  -h, --help=false: help for hugo
-      --ignoreCache=false: Ignores the cache directory
-      --log=false: Enable Logging
-      --logFile="": Log File path (if set, logging enabled automatically)
-      --noTimes=false: Don't sync modification time of files
-      --pluralizeListTitles=true: Pluralize titles in lists using inflect
-  -s, --source="": filesystem path to read files relative from
-      --stepAnalysis=false: display memory and timing of different steps of the program
-  -t, --theme="": theme to use (located in /themes/THEMENAME/)
-      --uglyURLs=false: if true, use /filename.html instead of /filename/
-  -v, --verbose=false: verbose output
-      --verboseLog=false: verbose logging
-  -w, --watch=false: watch filesystem for changes and recreate as needed
-
+  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
+  -D, --buildDrafts             include content marked as draft
+  -E, --buildExpired            include expired content
+  -F, --buildFuture             include content with publishdate in the future
+      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir     Remove files from destination not found in static directories
+      --config string           config file (default is path/config.yaml|json|toml)
+  -c, --contentDir string       filesystem path to content directory
+  -d, --destination string      filesystem path to write files to
+      --disable404              Do not render 404 page
+      --disableRSS              Do not build RSS files
+      --disableSitemap          Do not build Sitemap file
+      --enableGitInfo           Add Git revision, date and author info to the pages
+      --forceSyncStatic         Copy all files when static is changed.
+      --i18n-warnings           Print missing translations
+      --ignoreCache             Ignores the cache directory
+  -l, --layoutDir string        filesystem path to layout directory
+      --log                     Enable Logging
+      --logFile string          Log File path (if set, logging enabled automatically)
+      --noChmod                 Don't sync permission mode of files
+      --noTimes                 Don't sync modification time of files
+      --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --quiet                   build in quiet mode
+      --renderToMemory          render to memory (only useful for benchmark testing)
+  -s, --source string           filesystem path to read files relative from
+      --stepAnalysis            display memory and timing of different steps of the program
+  -t, --theme string            theme to use (located in /themes/THEMENAME/)
+      --uglyURLs                if true, use /filename.html instead of /filename/
+  -v, --verbose                 verbose output
+      --verboseLog              verbose logging
+  -w, --watch                   watch filesystem for changes and recreate as needed
 
 Additional help topics:
- hugo convert         Convert will modify your content to different formats hugo list            Listing out various types of content
+  hugo check     Contains some verification checks
 
-Use "hugo help [command]" for more information about a command.
+Use "hugo [command] --help" for more information about a command.
 {{< /nohighlight >}}
 
 ## Common Usage Example
