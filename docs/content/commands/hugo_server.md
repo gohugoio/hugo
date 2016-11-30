@@ -52,6 +52,7 @@ hugo server
   -l, --layoutDir string        filesystem path to layout directory
       --meminterval string      interval to poll memory usage (requires --memstats), valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default "100ms")
       --memstats string         log memory usage to this file
+      --noChmod                 Don't sync permission mode of files
       --noTimes                 Don't sync modification time of files
       --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
   -p, --port int                port on which the server will listen (default 1313)

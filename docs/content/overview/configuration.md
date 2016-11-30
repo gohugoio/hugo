@@ -150,6 +150,8 @@ along with their current, default values:
     # "yaml", "toml", "json"
     metaDataFormat:             "toml"
     newContentEditor:           ""
+    # Don't sync permission mode of files
+    noChmod:                    false
     # Don't sync modification time of files
     noTimes:                    false
     paginate:                   10
