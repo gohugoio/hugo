@@ -132,7 +132,13 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 	}
 
 	if _, ok := metadata["title"]; !ok {
-		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+		// Issue #2743 allow user to override default format
+		coerceTitleFormat := viper.GetString("coerceTitleFormat")
+		if coerceTitleFormat == "initCaps" {
+			metadata["title"] = helpers.MakeTitleInitCaps(helpers.Filename(name))
+		} else {
+			metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
+		}
 	}
 
 	// TOD(bep) what is this?

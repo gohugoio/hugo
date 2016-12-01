@@ -65,6 +65,44 @@ func TestNewContent(t *testing.T) {
 	}
 }
 
+func TestNewContentInitCaps(t *testing.T) {
+	initViper()
+	viper.Set("coerceTitleFormat", "initCaps")
+
+	err := initFs()
+	if err != nil {
+		t.Fatalf("initialization error: %s", err)
+	}
+
+	cases := []struct {
+		kind     string
+		path     string
+		expected []string
+	}{
+		{"post", "post/sample-one-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
+		{"stump", "stump/sample-tWO-2.md", []string{`title = "Sample TWO 2"`}},       // no archetype file
+		{"", "sample-three-3.md", []string{`title = "Sample Three 3"`}},              // no archetype
+		{"product", "product/sample-four-4.md", []string{`title = "Sample Four 4"`}}, // empty archetype front matter
+	}
+
+	for i, c := range cases {
+		err = create.NewContent(hugofs.Source(), c.kind, c.path)
+		if err != nil {
+			t.Errorf("[%d] NewContent: %s", i, err)
+		}
+
+		fname := filepath.Join("content", filepath.FromSlash(c.path))
+		content := readFileFromFs(t, hugofs.Source(), fname)
+
+		for i, v := range c.expected {
+			found := strings.Contains(content, v)
+			if !found {
+				t.Errorf("[%d] %q missing from output:\n%q", i, v, content)
+			}
+		}
+	}
+}
+
 func initViper() {
 	viper.Reset()
 	viper.Set("metaDataFormat", "toml")
