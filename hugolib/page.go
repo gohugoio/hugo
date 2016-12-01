@@ -129,11 +129,11 @@ type Page struct {
 
 	frontmatter []byte
 
-	// rawContent isn't "raw" as in the same as in the content file.
-	// Hugo cares about memory consumption, so we make changes to it to do
-	// markdown rendering etc., but it is "raw enough" so we can do rebuilds
-	// when shortcode changes etc.
+	// rawContent is the raw content read from the content file.
 	rawContent []byte
+
+	// workContent is a copy of rawContent that may be mutated during site build.
+	workContent []byte
 
 	// state telling if this is a "new page" or if we have rendered it previously.
 	rendered bool
@@ -290,6 +290,11 @@ func (ps Pages) FindPagePos(page *Page) int {
 		}
 	}
 	return -1
+}
+
+func (p *Page) createWorkContentCopy() {
+	p.workContent = make([]byte, len(p.rawContent))
+	copy(p.workContent, p.rawContent)
 }
 
 func (p *Page) Plain() string {
@@ -1389,8 +1394,8 @@ func (p *Page) SaveSource() error {
 }
 
 func (p *Page) ProcessShortcodes(t tpl.Template) {
-	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.rawContent), p, t)
-	p.rawContent = []byte(tmpContent)
+	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.workContent), p, t)
+	p.workContent = []byte(tmpContent)
 	p.contentShortCodes = tmpContentShortCodes
 }
 

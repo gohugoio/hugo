@@ -753,6 +753,26 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	}
 }
 
+// Issue #2601
+func TestPageRawContent(t *testing.T) {
+	s := newSiteFromSources("raw.md", `---
+title: Raw
+---
+**Raw**`)
+
+	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
+
+	if err := buildSiteSkipRender(s); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	require.Len(t, s.RegularPages, 1)
+	p := s.RegularPages[0]
+
+	require.Contains(t, p.RawContent(), "**Raw**")
+
+}
+
 func TestPageWithShortCodeInSummary(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {

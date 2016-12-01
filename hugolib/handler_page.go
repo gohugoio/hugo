@@ -72,6 +72,9 @@ func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
 	}
 
+	// Work on a copy of the raw content from now on.
+	p.createWorkContentCopy()
+
 	p.ProcessShortcodes(t)
 
 	return HandledResult{err: nil}
@@ -109,19 +112,22 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
 	}
 
+	// Work on a copy of the raw content from now on.
+	p.createWorkContentCopy()
+
 	p.ProcessShortcodes(t)
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
 	// process a page in isolation. See the new preRender func.
 	if viper.GetBool("enableEmoji") {
-		p.rawContent = helpers.Emojify(p.rawContent)
+		p.workContent = helpers.Emojify(p.workContent)
 	}
 
 	// We have to replace the <!--more--> with something that survives all the
 	// rendering engines.
 	// TODO(bep) inline replace
-	p.rawContent = bytes.Replace(p.rawContent, []byte(helpers.SummaryDivider), internalSummaryDivider, 1)
-	p.rawContent = p.renderContent(p.rawContent)
+	p.workContent = bytes.Replace(p.workContent, []byte(helpers.SummaryDivider), internalSummaryDivider, 1)
+	p.workContent = p.renderContent(p.workContent)
 
 	return HandledResult{err: nil}
 }

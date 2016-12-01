@@ -368,49 +368,49 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 
 				// If in watch mode, we need to keep the original so we can
 				// repeat this process on rebuild.
-				var rawContentCopy []byte
+				var workContentCopy []byte
 				if cfg.Watching {
-					rawContentCopy = make([]byte, len(p.rawContent))
-					copy(rawContentCopy, p.rawContent)
+					workContentCopy = make([]byte, len(p.workContent))
+					copy(workContentCopy, p.workContent)
 				} else {
 					// Just reuse the same slice.
-					rawContentCopy = p.rawContent
+					workContentCopy = p.workContent
 				}
 
 				if p.Markup == "markdown" {
-					tmpContent, tmpTableOfContents := helpers.ExtractTOC(rawContentCopy)
+					tmpContent, tmpTableOfContents := helpers.ExtractTOC(workContentCopy)
 					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-					rawContentCopy = tmpContent
+					workContentCopy = tmpContent
 				}
 
 				var err error
-				if rawContentCopy, err = handleShortcodes(p, s.owner.tmpl, rawContentCopy); err != nil {
+				if workContentCopy, err = handleShortcodes(p, s.owner.tmpl, workContentCopy); err != nil {
 					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 
 				if p.Markup != "html" {
 
 					// Now we know enough to create a summary of the page and count some words
-					summaryContent, err := p.setUserDefinedSummaryIfProvided(rawContentCopy)
+					summaryContent, err := p.setUserDefinedSummaryIfProvided(workContentCopy)
 
 					if err != nil {
 						jww.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
 					} else if summaryContent != nil {
-						rawContentCopy = summaryContent.content
+						workContentCopy = summaryContent.content
 					}
 
-					p.Content = helpers.BytesToHTML(rawContentCopy)
+					p.Content = helpers.BytesToHTML(workContentCopy)
 
 					if summaryContent == nil {
 						p.setAutoSummary()
 					}
 
 				} else {
-					p.Content = helpers.BytesToHTML(rawContentCopy)
+					p.Content = helpers.BytesToHTML(workContentCopy)
 				}
 
 				// no need for this anymore
-				rawContentCopy = nil
+				workContentCopy = nil
 
 				//analyze for raw stats
 				p.analyzePage()
