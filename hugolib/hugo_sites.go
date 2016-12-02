@@ -409,9 +409,6 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 				}
 
-				// no need for this anymore
-				workContentCopy = nil
-
 				//analyze for raw stats
 				p.analyzePage()
 
