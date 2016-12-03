@@ -870,6 +870,16 @@ Takes a string and sanitizes it for usage in URLs, converts spaces to "-".
 e.g. `<a href="/tags/{{ . | urlize }}">{{ . }}</a>`
 
 
+### querify
+
+Takes a set of key-value pairs and returns a [`url.Values`](https://godoc.org/net/url#Values) object. The [`Encode`](https://godoc.org/net/url#Values.Encode) method turns the pairs into a [query string](https://en.wikipedia.org/wiki/Query_string) that cen be postpended to a url. E.g. 
+
+    <a href="https://www.google.com?{{ (querify "q" "test" "page" 3).Encode | safeHTML }}">Search</a>
+
+will be rendered as 
+
+    <a href="https://www.google.com?page=3&q=test">Search</a>
+
 
 ## Content Views
 
