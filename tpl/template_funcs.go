@@ -19,6 +19,7 @@ import (
 	"bytes"
 	_md5 "crypto/md5"
 	_sha1 "crypto/sha1"
+	_sha256 "crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -1968,6 +1969,17 @@ func sha1(in interface{}) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
+// sha256 hashes the given input and returns its SHA256 checksum
+func sha256(in interface{}) (string, error) {
+	conv, err := cast.ToStringE(in)
+	if err != nil {
+		return "", err
+	}
+
+	hash := _sha256.Sum256([]byte(conv))
+	return hex.EncodeToString(hash[:]), nil
+}
+
 // querify encodes the given parameters  “URL encoded” form ("bar=baz&foo=quux") sorted by key.
 func querify(params ...interface{}) (string, error) {
 	qs := url.Values{}
@@ -2099,6 +2111,7 @@ func initFuncMap() {
 		"sanitizeurl":  helpers.SanitizeURL,
 		"seq":          helpers.Seq,
 		"sha1":         sha1,
+		"sha256":       sha256,
 		"shuffle":      shuffle,
 		"singularize":  singularize,
 		"slice":        slice,
