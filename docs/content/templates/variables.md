@@ -43,12 +43,12 @@ matter, content or derived from file location.
 **.Keywords** The meta keywords for this content.<br>
 **.Kind** What *kind* of page is this: is one of *page, home, section, taxonomy or taxonomyTerm.* There are also *RSS, sitemap, robotsTXT and 404*, but these will only available during rendering of that kind of page, and not available in any of the `Pages` collections.<br>
 **.Lang** Language taken from the language extension notation.<br>
-**.Language** A language object that points to this the language's definition in the site config.
+**.Language** A language object that points to this the language's definition in the site config.<br>
 **.Lastmod** The date the content was last modified.<br>
 **.LinkTitle** Access when creating links to this content. Will use `linktitle` if set in front matter, else `title`.<br>
 **.Next** Pointer to the following content (based on pub date).<br>
 **.NextInSection** Pointer to the following content within the same section (based on pub date)<br>
-**.Pages** a collection of associated pages. This will be nil for regular content pages. This is an alias for **.Data.Pages**.
+**.Pages** a collection of associated pages. This will be nil for regular content pages. This is an alias for **.Data.Pages**.<br>
 **.Permalink** The Permanent link for this page.<br>
 **.Prev** Pointer to the previous content (based on pub date).<br>
 **.PrevInSection** Pointer to the previous content within the same section (based on pub date). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.<br>
@@ -58,7 +58,7 @@ matter, content or derived from file location.
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
 **.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
-**.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments 
+**.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments.<br> 
 **.Section** The [section](/content/sections/) this content belongs to.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
