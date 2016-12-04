@@ -145,6 +145,7 @@ safeJS: {{ "(1*2)" | safeJS | safeJS }}
 safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
 seq: {{ seq 3 }}
 sha1: {{ sha1 "Hello world, gophers!" }}
+sha256: {{ sha256 "Hello world, gophers!" }}
 singularize: {{ "cats" | singularize }}
 slicestr: {{slicestr "BatMan" 0 3}}
 slicestr: {{slicestr "BatMan" 3}}
@@ -214,6 +215,7 @@ safeJS: (1*2)
 safeURL: http://gohugo.io
 seq: [1 2 3]
 sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
+sha256: 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
 singularize: cat
 slicestr: Bat
 slicestr: Man
@@ -2561,6 +2563,30 @@ func TestSHA1(t *testing.T) {
 		_, err = sha1(t)
 		if err == nil {
 			t.Error("Expected error from sha1")
+		}
+	}
+}
+
+func TestSHA256(t *testing.T) {
+	for i, this := range []struct {
+		input        string
+		expectedHash string
+	}{
+		{"Hello world, gophers!", "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"},
+		{"Lorem ipsum dolor", "9b3e1beb7053e0f900a674dd1c99aca3355e1275e1b03d3cb1bc977f5154e196"},
+	} {
+		result, err := sha256(this.input)
+		if err != nil {
+			t.Errorf("sha256 returned error: %s", err)
+		}
+
+		if result != this.expectedHash {
+			t.Errorf("[%d] sha256: expected '%s', got '%s'", i, this.expectedHash, result)
+		}
+
+		_, err = sha256(t)
+		if err == nil {
+			t.Error("Expected error from sha256")
 		}
 	}
 }
