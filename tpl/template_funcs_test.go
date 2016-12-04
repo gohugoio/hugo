@@ -2535,11 +2535,11 @@ func TestMD5(t *testing.T) {
 		if result != this.expectedHash {
 			t.Errorf("[%d] md5: expected '%s', got '%s'", i, this.expectedHash, result)
 		}
+	}
 
-		_, err = md5(t)
-		if err == nil {
-			t.Error("Expected error from md5")
-		}
+	_, err := md5(t)
+	if err == nil {
+		t.Error("Expected error from md5")
 	}
 }
 
@@ -2559,11 +2559,11 @@ func TestSHA1(t *testing.T) {
 		if result != this.expectedHash {
 			t.Errorf("[%d] sha1: expected '%s', got '%s'", i, this.expectedHash, result)
 		}
+	}
 
-		_, err = sha1(t)
-		if err == nil {
-			t.Error("Expected error from sha1")
-		}
+	_, err := sha1(t)
+	if err == nil {
+		t.Error("Expected error from sha1")
 	}
 }
 
@@ -2583,11 +2583,11 @@ func TestSHA256(t *testing.T) {
 		if result != this.expectedHash {
 			t.Errorf("[%d] sha256: expected '%s', got '%s'", i, this.expectedHash, result)
 		}
+	}
 
-		_, err = sha256(t)
-		if err == nil {
-			t.Error("Expected error from sha256")
-		}
+	_, err := sha256(t)
+	if err == nil {
+		t.Error("Expected error from sha256")
 	}
 }
 
