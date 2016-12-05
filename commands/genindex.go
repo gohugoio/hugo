@@ -51,7 +51,8 @@ This command is used to create an index of the rendered pages
 of your site. It operats in two modes. 
 
 1. JSON file: by default, this command will write the search index to
-a json file that can be used with something like lunr.js
+a json file that can be used with something like lunr.js this file will be placed
+in the static directory of the site.
 
 2. Algolia: Providing the --algolia flag and algolia configuration details (see below)
 will *update* the specified index on Algolia via API. Note, the index specified must
