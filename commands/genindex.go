@@ -57,7 +57,7 @@ a json file that can be used with something like lunr.js
 will *update* the specified index on Algolia via API. Note, the index specified must
 already exist on Algolia. The update algorithm will:
   1. Create a temporary index, 
-  2. Copy settings from existing index
+  2. Copy settings from existing index and apply it to temporary index
   3. Upload new index data to temporary index
   4. Move temporary index to existing index.
 
@@ -88,36 +88,23 @@ the root of the hugo site with the following values:
 			return newSystemError("Error Processing Source Content", err)
 		}
 
-		for i, p := range sites.Pages() {
+		for _, p := range sites.Pages() {
 			if p.IsPage() {
-
-				entry := algoliasearch.Object{
-					"title":   p.LinkTitle(),
-					"content": p.Plain(),
-					"url":     p.Permalink(),
-					"uri":     p.RelPermalink(),
-					"tags":    p.GetParam("tags"),
-				}
-				jww.FEEDBACK.Printf("\nPage %d: %s - %d Words\n", i, entry["title"], p.WordCount())
-				jww.FEEDBACK.Println("URL: ", entry["url"])
-				if entry["tags"] != nil {
-					jww.FEEDBACK.Printf("Tags: [%s]\n", strings.Join(entry["tags"].([]string), ", "))
-				}
-				entries = append(entries, entry)
+				entries = append(entries, processPage(p))
 			}
 		}
+
 		jww.FEEDBACK.Printf("\nGenerated %d Index Entries\n", len(entries))
 
-		staticDir := viper.GetString("staticDir")
-
-		if genindexjson == true {
+		if genindexjson {
+			outFile := viper.GetString("staticDir") + "/" + genindexfile
 			if entriesJson, err = json.Marshal(entries); err != nil {
 				return newSystemError("Error converting index entries to JSON", err)
 			}
-			if err = ioutil.WriteFile(staticDir+"/"+genindexfile, entriesJson, 0644); err != nil {
+			if err = ioutil.WriteFile(outFile, entriesJson, 0644); err != nil {
 				return newSystemError("Error writing index JSON file", err)
 			}
-			jww.FEEDBACK.Printf("Wrote %d Index Entries to %s\n", len(entries), staticDir+"/"+genindexfile)
+			jww.FEEDBACK.Printf("Wrote %d Index Entries to %s\n", len(entries), outFile)
 		}
 
 		if genindexalgolia {
@@ -138,6 +125,24 @@ the root of the hugo site with the following values:
 		}
 		return nil
 	},
+}
+
+func processPage(page *hugolib.Page) map[string]interface{} {
+
+	entry := map[string]interface{}{
+		"title":   page.LinkTitle(),
+		"content": page.Plain(),
+		"url":     page.Permalink(),
+		"uri":     page.RelPermalink(),
+		"tags":    page.GetParam("tags"),
+	}
+
+	jww.FEEDBACK.Printf("\nPage: %s - %d Words\n", entry["title"], page.WordCount())
+	jww.FEEDBACK.Println("URL: ", entry["url"])
+	if entry["tags"] != nil {
+		jww.FEEDBACK.Printf("Tags: [%s]\n", strings.Join(entry["tags"].([]string), ", "))
+	}
+	return entry
 }
 
 func updateAlgoliaIndex(cfg AlgoliaCfg, entries Entries) (err error) {
