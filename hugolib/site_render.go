@@ -140,7 +140,7 @@ func (s *Site) renderRSS(p *Page) error {
 	layouts := p.rssLayouts()
 
 	if layouts == nil {
-		// No RSS for this NodeType
+		// No RSS for this Kind of page.
 		return nil
 	}
 
