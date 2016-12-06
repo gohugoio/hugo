@@ -132,6 +132,11 @@ func (s *Site) renderPaginator(p *Page) error {
 }
 
 func (s *Site) renderRSS(p *Page) error {
+
+	if viper.GetBool("disableRSS") {
+		return nil
+	}
+
 	layouts := p.rssLayouts()
 
 	if layouts == nil {
