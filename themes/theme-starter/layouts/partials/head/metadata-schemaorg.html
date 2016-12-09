@@ -1,0 +1,34 @@
+{{ if and (.IsPage) (eq .Section "blog") }}
+<script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "articleSection": "{{.Section | title}}",
+    "headline": "{{.Title}}",
+    "name": "{{.Title}}",
+    "url": "{{.Permalink }}",
+    "mainEntityOfPage": "{{.Permalink}}",
+    "datePublished": {{.PublishDate.Format "2006-01-02"}},
+    "dateModified": {{.Date.Format "2006-01-02"}},
+    "wordCount": {{.WordCount}},
+    "image": {
+        "@type": "ImageObject",
+        "url": "{{.Site.BaseURL}}/assets/images/{{.Params.image | default .Site.Params.defaultsocialimage }}",
+        "height": 533,
+        "width": 800
+    },
+    "author": {
+        "@type": "person",
+        "name": "{{range .Params.authors}}{{.}}{{end}}"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{.Site.Params.organizationname}}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{.Site.BaseURL}}/assets/images/{{.Site.Params.defaultsocialimage}}"
+        }
+    }
+}
+</script>
+{{ end }}

@@ -1,0 +1,41 @@
+{
+  "name": "hugo-theme-starter-pipeline",
+  "version": "1.0.0",
+  "description": "Gulp asset pipeline for creating themes for Hugo",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/dope/gulp-starter.git"
+  },
+  "keywords": [
+    "gulp",
+    "scss",
+    "js",
+    "images"
+  ],
+  "author": "Joe Richardson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dope/gulp-starter/issues"
+  },
+  "homepage": "https://github.com/dope/gulp-starter",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "concurrent-transform": "^1.0.0",
+    "gulp": "^3.8.8",
+    "gulp-autoprefixer": "^1.0.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-image-resize": "^0.10.0",
+    "gulp-imagemin": "^2.2.1",
+    "gulp-plumber": "^0.6.6",
+    "gulp-rename": "^1.2.0",
+    "gulp-sass": "^2.0.4",
+    "gulp-sourcemaps": "^2.2.0",
+    "gulp-uglify": "^1.1.0",
+    "imagemin-pngquant": "^4.0.0",
+    "pump": "^1.0.1"
+  }
+}

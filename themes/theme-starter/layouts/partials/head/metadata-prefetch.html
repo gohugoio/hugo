@@ -1,0 +1,20 @@
+<link rel="dns-prefetch" href="{{ .Site.Params.siteaddress }}">
+<!-- Preconnect API. For browser compatibility, check http://caniuse.com/#feat=link-rel-preconnect -->
+<link rel="preconnect" href="{{ .Site.BaseURL }}">
+<link rel="canonical" href="{{ .Permalink }}">
+{{ if .RSSlink }}
+  <link href="{{ .RSSlink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+  <link href="{{ .RSSlink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
+{{ end }}
+{{ if .IsPage }}
+	{{with .NextInSection }}
+	<link rel="preload" href="/assets/images/{{.Params.image}}">
+	<link rel="prefetch" href="{{.Permalink}}">
+	<link rel="prerender" href="{{.Permalink}}">
+	{{ end }}
+	{{with .PrevInSection }}
+	<link rel="preload" href="/assets/images/{{.Params.image}}">
+	<link rel="prefetch" href="{{.Permalink}}">
+	<link rel="prerender" href="{{.Permalink}}">
+	{{ end }}
+{{ end }}

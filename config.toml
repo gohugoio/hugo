@@ -1,0 +1,90 @@
+archetypedir = "archetypes"
+baseurl = ""
+buildDrafts = false
+buildFuture = false
+canonifyurls = true
+# Pointing to this file
+config = "config.toml"
+contentdir = "content"
+copyright = ""
+# Set to true is you don't want livereload in local development
+disableLiveReload= false
+# Set to false if you want rss xml files auto-generated
+disableRSS = false
+# Set to false if you want a sitemap.xml created at the site root
+disableSitemap = false
+# Set the unicode character used for the "return" link in page footnotes.
+footnotereturnlinkcontents = "↩"
+# Create an array of files you don't want hugo to build
+ignoreFiles = []
+languageCode = "en-us"
+# Point the generator to the folder used for layouts and templating
+layoutDir = "layouts"
+# Enable Logging
+log = true
+# Log Filepath (if set, logging enabled automatically)
+logFil = ""
+# This accepts yaml, toml, or json
+metaDataFormat = "yaml"
+# This intelligently adds an "s" to the titles of list pages
+pluralizelisttitles = false
+preserveTaxonomyNames = true
+# This sets the title of the directory where hugo builds and pushes the final site when running "Hugo" (ie, without "server")
+publishdir = "public"
+pygmentsUseClasses = true
+relativeURLs = true
+source = ""
+# This is the top-level, global site title
+title = ""
+# Change this once you've created your theme
+theme = "theme-starter"
+# Set to true to convert mysite/section/ to mysite/section.html
+uglyURLs = false
+verbose = false
+verboseLog = false
+# Setting this to false will keep hugo from watching for changes during local development
+watch = true
+
+[permalinks]
+  singles = "/:title/"
+
+#CUSTOM PARAMS
+[params]
+  sitesubtitle = ""
+	organizationname = ""
+  copyrightline = ""
+  sitedescription = ""
+  # Add GA Tracking Code Here. This leverages a built-in (ie, "internal") partial from HUGO: https://gohugo.io/extras/analytics#configuring-google-analytics
+  googleanalyticstrackingcode = ""
+  ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head>>
+  usecrp = false
+  ## Include jQuery 2.2.4 in your site head. (see /static/assets/js)
+  includejq = true
+  ## Date the Site is Published, use YYYY-MM-DD
+  SitePublishDate = ""
+  ## Twitter handle without the "@"
+  TwitterHandle = ""
+  ## Facebook URL
+  facebook = ""
+  ## Default Image for Social Sharing. This image should live at static/images/
+  defaultsocialimage = "cap-logo-social.png"
+  ## Setting this to true will add a "noindex" to *every* page on the site
+  removefromexternalsearch = true
+  ## This is used when the BaseURL does not need to modified (eg, in share links)
+  siteaddress = "http://digital.cap.org"
+  ## Set to true to add Google Tag Manager to the Site
+  addgtm = false
+  gtmid = ""
+  # Set to true to include a CDN call to FontAwesome
+  usefontawesome = true
+# MARKDOWN
+## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
+[blackfriday]
+	plainIDAnchors = true
+	hrefTargetBlank = true
+  angledQuotes = false
+  latexDashes = true
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
