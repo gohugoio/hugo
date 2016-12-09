@@ -7,7 +7,7 @@ menu:
   main:
     parent: content
 prev: /content/summaries
-next: /content/example
+next: /content/multilingual
 title: Markdown Extras
 weight: 66
 toc: false

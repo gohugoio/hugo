@@ -3,8 +3,8 @@ date: 2016-01-02T21:21:00Z
 menu:
   main:
     parent: content
+prev: /content/markdown-extras
 next: /content/example
-prev: /content/summaries
 title: Multilingual Mode
 weight: 68
 toc: true
