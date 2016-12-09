@@ -13,9 +13,9 @@ weight: 10
 
 ## **0.18.0** ???
 
-In Hugo 0.18 every piece of content is a `Page`  ({{<gh 2297 >}}) and this means that every page, including the home page, can have a content file with frontmatter.
-
-Not only is this a much simpler model to understand, it is also faster and it fixes several important issues:
+The primary new feature in Hugo 0.18 is that every piece of content is a `Page` ({{<gh 2297>}}).
+This means that every page, including the home page, can have a content file with frontmatter.
+Not only is this a much simpler model to understand, it is also faster and paved the way for several important new features:
 
 * Enable proper titles for Nodes {{<gh 1051>}}
 * Sitemap.xml should include nodes, as well as pages {{<gh 1303>}}
@@ -23,62 +23,52 @@ Not only is this a much simpler model to understand, it is also faster and it fi
 * Allow home page to be easily authored in markdown {{<gh 720>}}
 * Minimalist website with homepage as content {{<gh 330>}}
 
-Other new features:
+## Other New Features
 
-* Add a `GitInfo` object to `Page` if `enableGitInfo` is set. It then also sets `Lastmod` for the given `Page` to the author date provided by Git.
+* Add a `GitInfo` object to `Page` if `enableGitInfo` is set. It then also sets `Lastmod` for the given `Page` to the author date provided by Git. {{<gh 2291>}}
+* New template functions:
+  * Add `imageConfig` function {{<gh 2677>}}
+  * Add `sha256` function {{<gh 2762>}}
+* New shortcode:
+  * Add shortcode to display Instagram images {{<gh 2690>}}
 
-Fixes
+## Notices
 
-* Add workaround for `block` template crash. Block templates are very useful, but there is a bug in Go 1.6 and 1.7 which makes the template rendering crash if you use the block template in more complex scenarios. This is fixed in the upcoming Go 1.8, but Hugo adds a temporary workaround in Hugo 0.18.
-* All the `Params` configurations are now case insensitive. Fixes #2615
-    Fixes #1129
-    Fixes #2590
-* Make RawContent raw again gh 2601
-* Add noChmod option to disable perm sync gh 2749
-* Fix archetype title and date handling gh 2750
-* Fix TOML archetype parsing in `hugo new` gh 2745
-* Fix page sorting when weight is zero gh 2673
-* Fix page names that contain dot. gh 2555
-* Fix RSS Title regression gh 2645
-* Handle ToC before handling shortcodes. gh 2433
-* Only watch relevant themes dir. gh 2602
+* `RSSlink` is now deprecated.  Use `RSSLink` instead.  See note in **Improvements** section below.
 
-New template funcs:
+## Fixes
 
-* Add `imageConfig` function gh 2677
-* Add `sha256` function gh 2762
+* Add workaround for `block` template crash. Block templates are very useful, but there is a bug in Go 1.6 and 1.7 which makes the template rendering crash if you use the block template in more complex scenarios. This is fixed in the upcoming Go 1.8, but Hugo adds a temporary workaround in Hugo 0.18. {{<gh 2549>}}
+* All the `Params` configurations are now case insensitive {{<gh 1129>}} {{<gh 2590>}} {{<gh 2615>}}
+* Make RawContent raw again {{<gh 2601>}}
+* Add noChmod option to disable perm sync {{<gh 2749>}}
+* Fix archetype title and date handling {{<gh 2750>}}
+* Fix TOML archetype parsing in `hugo new` {{<gh 2745>}}
+* Fix page sorting when weight is zero {{<gh 2673>}}
+* Fix page names that contain dot {{<gh 2555>}}
+* Fix RSS Title regression {{<gh 2645>}}
+* Handle ToC before handling shortcodes {{<gh 2433>}}
+* Only watch relevant themes dir {{<gh 2602>}}
 
-New shortcode:
+## Improvements
 
-* Add shortcode to display Instagram images gh 2690
-
-Improvements:
-
-* Add page information to error logging in rendering. gh 2570
+* Add page information to error logging in rendering {{<gh 2570>}}
 * Deprecate `RSSlink` in favor of `RSSLink`. Note that in Hugo 0.17 both of them existed, so there is a fifty-fifty chance you will not have to do anything (if you use a theme, the chance is close to 0), and `RSSlink` will still work for two Hugo versions.
-* Make benchmark command more useful gh 2432
-* Consolidate the `Param methods. gh 2590
+* Make benchmark command more useful {{<gh 2432>}}
+* Consolidate the `Param methods {{<gh 2590>}}
 * Allow to set cache dir in config file
-* Add `quiet`build mode gh 1218
+* Add `quiet`build mode {{<gh 1218>}}
+* Performance improvements:
+  * Avoid repeated Viper loads of `sectionPagesMenu` {{<gh 2728>}}
+  * Avoid reading from Viper for path and URL funcs {{<gh 2495>}}
+  * Add `partialCached` template function {{<gh 1368>}}
 
-Docs:
+## Documentation Updates
 
-* Update roadmap gh 2666
-* Update multilingual example gh 2417	
-* Add a "Deployment with rsync" tutorial page
-* Refactor `/docs` to use the `block keyword gh 2226
-
-
-Performance improvements:
-
-* Avoid repeated Viper loads of `sectionPagesMenu` gh 2728
-* Avoid reading from Viper for path and URL funcs. gh 2495
-* Add `partialCached` template function. #1368
-
-
-
-
-
+* Update roadmap {{<gh 2666>}}
+* Update multilingual example {{<gh 2417>}}
+* Add a "Deployment with rsync" tutorial page {{<gh 2658>}}
+* Refactor `/docs` to use the `block keyword {{<gh 2226>}}
 
 
 ## **0.17.0** October 7th 2016
