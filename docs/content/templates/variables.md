@@ -173,10 +173,12 @@ The `.File` variable gives you additional information of a page.
 
 Available are the following attributes:
 
-**.File.Path** The original relative path of the page, e.g. `content/posts/foo.md`<br>
-**.File.LogicalName** The name of the content file that represents a page, e.g. `foo.md`<br>
-**.File.BaseFileName** The filename without extension, e.g. `foo`<br>
+**.File.Path** The original relative path of the page, e.g. `content/posts/foo.en.md`<br>
+**.File.LogicalName** The name of the content file that represents a page, e.g. `foo.en.md`<br>
+**.File.TranslationBaseName** The filename without extension or optional language identifier, e.g. `foo`<br>
+**.File.BaseFileName** The filename without extension, e.g. `foo.en`<br>
 **.File.Ext** or **.File.Extension** The file extension of the content file, e.g. `md`<br>
+**.File.Lang** The language associated with the given file if [Multilingual]({{< relref "content/multilingual.md" >}}) is enabled, e.g. `en`<br>
 **.File.Dir** Given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned, e.g. `posts/dir1/dir2/`<br>
 
 ## Hugo Variables
