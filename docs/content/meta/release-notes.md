@@ -45,13 +45,17 @@ Fixes
 
 New template funcs:
 
-* Add imageConfig function gh 2677
-* 
+* Add `imageConfig` function gh 2677
+* Add `sha256` function gh 2762
+
+New shortcode:
+
+* Add shortcode to display Instagram images gh 2690
 
 Improvements:
 
-*  Add page information to error logging in rendering. gh 2570
- * Deprecate `RSSlink` in favor of `RSSLink`. Note that in Hugo 0.17 both of them existed, so there is a fifty-fifty chance you will not have to do anything (if you use a theme, the chance is close to 0), and `RSSlink` will still work for two Hugo versions.
+* Add page information to error logging in rendering. gh 2570
+* Deprecate `RSSlink` in favor of `RSSLink`. Note that in Hugo 0.17 both of them existed, so there is a fifty-fifty chance you will not have to do anything (if you use a theme, the chance is close to 0), and `RSSlink` will still work for two Hugo versions.
 * Make benchmark command more useful gh 2432
 * Consolidate the `Param methods. gh 2590
 * Allow to set cache dir in config file
@@ -68,7 +72,7 @@ Docs:
 Performance improvements:
 
 * Avoid repeated Viper loads of `sectionPagesMenu` gh 2728
-*  Avoid reading from Viper for path and URL funcs. gh 2495
+* Avoid reading from Viper for path and URL funcs. gh 2495
 * Add `partialCached` template function. #1368
 
 
