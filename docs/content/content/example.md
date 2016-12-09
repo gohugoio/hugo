@@ -7,7 +7,7 @@ linktitle: Example
 menu:
   main:
     parent: content
-prev: /content/summaries
+prev: /content/multilingual
 next: /themes/overview
 notoc: true
 title: Example Content File
