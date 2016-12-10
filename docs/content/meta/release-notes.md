@@ -52,7 +52,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 
 ## Notices
 
-* `.Site.Pages` will now contain *all page types*, including regular pages, sections, taxonomies and the home page. If you want a specific kind of page, you can filter it `where` and kind. `.Site.RegularPages` is a shortcut to the page collection you have been used to getting.
+* `.Site.Pages` will now contain *all page types*, including regular pages, sections, taxonomies and the home page. If you want a specific kind of page, you can filter it with `where` and `kind`. `.Site.RegularPages` is a shortcut to the page collection you have been used to getting.
 * `RSSlink` is now deprecated.  Use `RSSLink` instead.  See note in **Improvements** section below.
 
 ## Fixes
