@@ -23,14 +23,14 @@ Hugo now has:
 - 404+ contributors
 - 133+ themes
 
-@bep once again took the lead of Hugo and contributed a significant amount of additions.
+@bep once again took the lead of Hugo and contributed a significant amount of additions. Also a big shoutout to @digitalcraftsman for his relentless work on keeping the documentation and the themes site in pristine condition, and also big thanks to @moorereason and @bogem for their contributions.
 
 We wish you all a Merry Christmas and a Happy New Year.<br>
 The Hugo team
 
 ## Hightlights
 
-The primary new feature in Hugo 0.18 is that every piece of content is a `Page` ({{<gh 2297>}}).
+The primary new feature in Hugo 0.18 is that every piece of content is now a `Page` ({{<gh 2297>}}).
 This means that every page, including the home page, can have a content file with frontmatter.
 Not only is this a much simpler model to understand, it is also faster and paved the way for several important new features:
 
@@ -51,6 +51,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 
 ## Notices
 
+* `.Site.Pages` will now contain *all page types*, including regular pages, sections, taxonomies and the home page. If you want a specific kind of page, you can filter it `where` and kind. `.Site.RegularPages` is a shortcut to the page collection you have been used to getting.
 * `RSSlink` is now deprecated.  Use `RSSLink` instead.  See note in **Improvements** section below.
 
 ## Fixes
