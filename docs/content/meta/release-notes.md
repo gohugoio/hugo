@@ -46,6 +46,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * New template functions:
   * Add `imageConfig` function {{<gh 2677>}}
   * Add `sha256` function {{<gh 2762>}}
+  *  Add `partialCached` template function {{<gh 1368>}}
 * New shortcode:
   * Add shortcode to display Instagram images {{<gh 2690>}}
 
@@ -73,9 +74,9 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Add page information to error logging in rendering {{<gh 2570>}}
 * Deprecate `RSSlink` in favor of `RSSLink`. Note that in Hugo 0.17 both of them existed, so there is a fifty-fifty chance you will not have to do anything (if you use a theme, the chance is close to 0), and `RSSlink` will still work for two Hugo versions.
 * Make benchmark command more useful {{<gh 2432>}}
-* Consolidate the `Param methods {{<gh 2590>}}
+* Consolidate the `Param` methods {{<gh 2590>}}
 * Allow to set cache dir in config file
-* Add `quiet`build mode {{<gh 1218>}}
+* Add `quiet` build mode {{<gh 1218>}}
 * Performance improvements:
   * Avoid repeated Viper loads of `sectionPagesMenu` {{<gh 2728>}}
   * Avoid reading from Viper for path and URL funcs {{<gh 2495>}}
@@ -86,7 +87,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Update roadmap {{<gh 2666>}}
 * Update multilingual example {{<gh 2417>}}
 * Add a "Deployment with rsync" tutorial page {{<gh 2658>}}
-* Refactor `/docs` to use the `block keyword {{<gh 2226>}}
+* Refactor `/docs` to use the `block` keyword {{<gh 2226>}}
 
 
 ## **0.17.0** October 7th 2016
