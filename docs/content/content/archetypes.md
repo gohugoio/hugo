@@ -146,3 +146,5 @@ file name) and the `date` in RFC&nbsp;3339 format based on
 The content type is automatically detected based on the file path passed to the 
 Hugo CLI command <code>hugo new <em>[my-content-type/post-name]</em></code>. To 
 override the content type for a new post, include the `--kind` flag during creation.
+
+> *Note: if you wish to use archetypes that ship with a theme, the theme MUST be specified in your `config.toml`.*
