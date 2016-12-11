@@ -164,6 +164,7 @@ Also available is `.Site` which has the following:
 **.Site.Language.LanguageName** The full language name, e.g. `English`.<br>
 **.Site.LanguagePrefix** This can be used to prefix  theURLs with whats needed to point to the correct language. It will even work when only one language defined. See also the functions [absLangURL and relLangURL]({{< relref "templates/functions.md#abslangurl-rellangurl" >}}).<br>
 **.Site.Languages** An ordered list (ordered by defined weight) of languages.<br>
+**.Site.RegularPages** A shortcut to the *regular page* collection. Equivalent to `where .Site.Pages "Kind" "page"`.<br>
 
 ## File Variables
 
