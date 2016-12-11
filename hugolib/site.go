@@ -1328,8 +1328,6 @@ func readCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
 func (s *Site) buildSiteMeta() (err error) {
 	defer s.timerStep("build Site meta")
 
-	s.assembleMenus()
-
 	if len(s.Pages) == 0 {
 		return
 	}
@@ -1342,6 +1340,8 @@ func (s *Site) buildSiteMeta() (err error) {
 	}
 
 	s.assembleSections()
+
+	s.assembleMenus()
 
 	s.Info.LastChange = s.Pages[0].Lastmod
 
