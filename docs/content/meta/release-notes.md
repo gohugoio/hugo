@@ -47,7 +47,8 @@ Not only is this a much simpler model to understand, it is also faster and paved
 ## Other New Features
 
 * Every `Page` now has a `Kind` property. Since everything is a `Page` now, the `Kind` is used to differentiate different kinds of pages.
-  Possible values are `page`, `home`, `section`, `taxonomy`, `taxonomyTerm`, `RSS`, `sitemap`, `robotsTXT`, and `404`.
+  Possible values are `page`, `home`, `section`, `taxonomy`, and `taxonomyTerm`.
+  (Internally, we also define `RSS`, `sitemap`, `robotsTXT`, and `404`, but those have no practical use for end users at the moment since they are not included in any collections.)
 * Add a `GitInfo` object to `Page` if `enableGitInfo` is set. It then also sets `Lastmod` for the given `Page` to the author date provided by Git. {{<gh 2291>}}
 * New template functions:
   * Add `imageConfig` function {{<gh 2677>}}
