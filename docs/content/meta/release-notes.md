@@ -13,9 +13,11 @@ weight: 10
 
 ## **0.18.0** ???
 
-Today, we're exited to release the much-anticipated Hugo 0.18. 
+Today, we're exited to release the much-anticipated Hugo 0.18!
 
-We're heading towards the end of the year 2016 and we can look back on three releases and a steady growing community around the project. This release includes **over XXX contributions by over XXX contributors** to the main codebase. Since last release Hugo has **gained 1600 stars, XXX contributors and 23 additional themes**.
+We're heading towards the end of the year 2016, and we can look back on three releases and a steady growing community around the project.
+This release includes **over XXX contributions by over XXX contributors** to the main codebase.
+Since the last release, Hugo has **gained 1600 stars, XXX contributors and 23 additional themes**.
 
 Hugo now has:
 
@@ -23,12 +25,14 @@ Hugo now has:
 - 404+ contributors
 - 133+ themes
 
-@bep once again took the lead of Hugo and contributed a significant amount of additions. Also a big shoutout to @digitalcraftsman for his relentless work on keeping the documentation and the themes site in pristine condition, and also big thanks to @moorereason and @bogem for their contributions.
+{{< gh "@bep" >}} once again took the lead of Hugo and contributed a significant amount of additions.
+Also a big shoutout to {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition,
+and also a big thanks to {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their contributions.
 
 We wish you all a Merry Christmas and a Happy New Year.<br>
-The Hugo team
+*The Hugo team*
 
-## Hightlights
+## Highlights
 
 The primary new feature in Hugo 0.18 is that every piece of content is now a `Page` ({{<gh 2297>}}).
 This means that every page, including the home page, can have a content file with frontmatter.
@@ -42,25 +46,32 @@ Not only is this a much simpler model to understand, it is also faster and paved
 
 ## Other New Features
 
+* Every `Page` now has a `Kind` property. Since everything is a `Page` now, the `Kind` is used to differentiate different kinds of pages.
+  Possible values are `page`, `home`, `section`, `taxonomy`, `taxonomyTerm`, `RSS`, `sitemap`, `robotsTXT`, and `404`.
 * Add a `GitInfo` object to `Page` if `enableGitInfo` is set. It then also sets `Lastmod` for the given `Page` to the author date provided by Git. {{<gh 2291>}}
 * New template functions:
   * Add `imageConfig` function {{<gh 2677>}}
   * Add `sha256` function {{<gh 2762>}}
   *  Add `partialCached` template function {{<gh 1368>}}
-* New shortcode:
-  * Add shortcode to display Instagram images {{<gh 2690>}}
+* Add shortcode to display Instagram images {{<gh 2690>}}
 * Add `noChmod` option to disable perm sync {{<gh 2749>}}
 * Add `quiet` build mode {{<gh 1218>}}
 
 
 ## Notices
 
-* `.Site.Pages` will now contain *all page types*, including regular pages, sections, taxonomies and the home page. If you want a specific kind of page, you can filter it with `where` and `Kind`. `.Site.RegularPages` is a shortcut to the page collection you have been used to getting.
-* `RSSlink` is now deprecated.  Use `RSSLink` instead.  See note in **Improvements** section below.
+* `.Site.Pages` will now contain *several kinds of pages*, including regular pages, sections, taxonomies, and the home page.
+  If you want a specific kind of page, you can filter it with `where` and `Kind`.
+  `.Site.RegularPages` is a shortcut to the page collection you have been used to getting.
+* `RSSlink` is now deprecated.  Use `RSSLink` instead.
+  Note that in Hugo 0.17 both of them existed, so there is a fifty-fifty chance you will not have to do anything
+  (if you use a theme, the chance is close to 0), and `RSSlink` will still work for two Hugo versions.
 
 ## Fixes
 
-* Add workaround for `block` template crash. Block templates are very useful, but there is a bug in Go 1.6 and 1.7 which makes the template rendering crash if you use the block template in more complex scenarios. This is fixed in the upcoming Go 1.8, but Hugo adds a temporary workaround in Hugo 0.18. {{<gh 2549>}}
+* Add workaround for `block` template crash.
+  Block templates are very useful, but there is a bug in Go 1.6 and 1.7 which makes the template rendering crash if you use the block template in more complex scenarios.
+  This is fixed in the upcoming Go 1.8, but Hugo adds a temporary workaround in Hugo 0.18. {{<gh 2549>}}
 * All the `Params` configurations are now case insensitive {{<gh 1129>}} {{<gh 2590>}} {{<gh 2615>}}
 * Make RawContent raw again {{<gh 2601>}}
 * Fix archetype title and date handling {{<gh 2750>}}
@@ -74,7 +85,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 ## Improvements
 
 * Add page information to error logging in rendering {{<gh 2570>}}
-* Deprecate `RSSlink` in favor of `RSSLink`. Note that in Hugo 0.17 both of them existed, so there is a fifty-fifty chance you will not have to do anything (if you use a theme, the chance is close to 0), and `RSSlink` will still work for two Hugo versions.
+* Deprecate `RSSlink` in favor of `RSSLink`
 * Make benchmark command more useful {{<gh 2432>}}
 * Consolidate the `Param` methods {{<gh 2590>}}
 * Allow to set cache dir in config file
