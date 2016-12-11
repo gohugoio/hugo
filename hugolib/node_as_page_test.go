@@ -430,6 +430,22 @@ menu:
 ---
 `)
 
+	writeSource(t, filepath.Join("content", "sect1", "_index.md"), `---
+title: Sect1 With Menu
+menu:
+  mymenu:
+    name: "Go Sect1!"
+---
+`)
+
+	writeSource(t, filepath.Join("content", "categories", "hugo", "_index.md"), `---
+title: Taxonomy With Menu
+menu:
+  mymenu:
+    name: "Go Tax Hugo!"
+---
+`)
+
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
@@ -439,7 +455,9 @@ menu:
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Menu", "Menu Item: Go Home!")
+	assertFileContent(t, filepath.Join("public", "index.html"), true, "Home With Menu", "Home Menu Item: Go Home!: /")
+	assertFileContent(t, filepath.Join("public", "sect1", "index.html"), true, "Sect1 With Menu", "Section Menu Item: Go Sect1!: /sect1/")
+	assertFileContent(t, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy With Menu", "Taxonomy Menu Item: Go Tax Hugo!: /categories/hugo/")
 
 }
 
@@ -644,7 +662,7 @@ Index Content: {{ .Content }}
 {{ end }}
 {{ with .Site.Menus.mymenu }}
 {{ range . }}
-Menu Item: {{ .Name }}
+Home Menu Item: {{ .Name }}: {{ .URL }}
 {{ end }}
 {{ end }}
 Date: {{ .Date.Format "2006-01-02" }}
@@ -666,6 +684,11 @@ Section Content: {{ .Content }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
 {{ end }}
+{{ with .Site.Menus.mymenu }}
+{{ range . }}
+Section Menu Item: {{ .Name }}: {{ .URL }}
+{{ end }}
+{{ end }}
 Date: {{ .Date.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
@@ -678,6 +701,11 @@ Taxonomy Content: {{ .Content }}
 {{ range .Paginator.Pages }}
 	Pag: {{ .Title }}
 {{ end }}
+{{ with .Site.Menus.mymenu }}
+{{ range . }}
+Taxonomy Menu Item: {{ .Name }}: {{ .URL }}
+{{ end }}
+{{ end }}
 Date: {{ .Date.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
@@ -688,6 +716,11 @@ Taxonomy Terms Title: {{ .Title }}
 Taxonomy Terms Content: {{ .Content }}
 {{ range $key, $value := .Data.Terms }}
 	k/v: {{ $key }} / {{ printf "%s" $value }}
+{{ end }}
+{{ with .Site.Menus.mymenu }}
+{{ range . }}
+Taxonomy Terms Menu Item: {{ .Name }}: {{ .URL }}
+{{ end }}
 {{ end }}
 Date: {{ .Date.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}
