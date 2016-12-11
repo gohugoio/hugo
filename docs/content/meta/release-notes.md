@@ -49,6 +49,9 @@ Not only is this a much simpler model to understand, it is also faster and paved
   *  Add `partialCached` template function {{<gh 1368>}}
 * New shortcode:
   * Add shortcode to display Instagram images {{<gh 2690>}}
+* Add `noChmod` option to disable perm sync {{<gh 2749>}}
+* Add `quiet` build mode {{<gh 1218>}}
+
 
 ## Notices
 
@@ -60,7 +63,6 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Add workaround for `block` template crash. Block templates are very useful, but there is a bug in Go 1.6 and 1.7 which makes the template rendering crash if you use the block template in more complex scenarios. This is fixed in the upcoming Go 1.8, but Hugo adds a temporary workaround in Hugo 0.18. {{<gh 2549>}}
 * All the `Params` configurations are now case insensitive {{<gh 1129>}} {{<gh 2590>}} {{<gh 2615>}}
 * Make RawContent raw again {{<gh 2601>}}
-* Add noChmod option to disable perm sync {{<gh 2749>}}
 * Fix archetype title and date handling {{<gh 2750>}}
 * Fix TOML archetype parsing in `hugo new` {{<gh 2745>}}
 * Fix page sorting when weight is zero {{<gh 2673>}}
@@ -76,7 +78,6 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Make benchmark command more useful {{<gh 2432>}}
 * Consolidate the `Param` methods {{<gh 2590>}}
 * Allow to set cache dir in config file
-* Add `quiet` build mode {{<gh 1218>}}
 * Performance improvements:
   * Avoid repeated Viper loads of `sectionPagesMenu` {{<gh 2728>}}
   * Avoid reading from Viper for path and URL funcs {{<gh 2495>}}
