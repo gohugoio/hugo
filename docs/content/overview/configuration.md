@@ -124,6 +124,8 @@ along with their current, default values:
     disableRSS:                 false
     # Do not build Sitemap file
     disableSitemap:             false
+    # Enable GitInfo feature
+    enableGitInfo:              false
     # Build robots.txt file
     enableRobotsTXT:            false
     # Do not render 404 page
