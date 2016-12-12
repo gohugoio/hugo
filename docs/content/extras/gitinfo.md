@@ -18,6 +18,8 @@ Hugo provides a way to integrate Git data into your site.
 
 1. The Hugo site must be in a Git-enabled directory.
 1. The Git executable must be installed and in your system `PATH`.
+1. Enable the GitInfo feature in Hugo by using `--enableGitInfo` on the command
+   line or by setting `enableGitInfo` to `true` in your site configuration.
 
 ## The GitInfo Object
 
