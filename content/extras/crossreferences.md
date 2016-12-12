@@ -4,11 +4,10 @@ date: 2014-11-25
 menu:
   main:
     parent: extras
-next: /extras/livereload
+next: /extras/robots-txt
 prev: /extras/comments
 title: Cross-References
 toc: true
-weight: 40
 ---
 
 Hugo makes it easy to link documents together with the `ref` and `relref` shortcodes. These shortcodes are also used to safely provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`).

@@ -7,9 +7,8 @@ menu:
   main:
     parent: extras
 next: /extras/datadrivencontent
-prev: /extras/scratch
+prev: /extras/robots-txt
 title: Data Files
-weight: 90
 ---
 
 In addition to the [built-in variables](/templates/variables/) available from Hugo, you can specify your own custom data that can be accessed via templates or shortcodes.

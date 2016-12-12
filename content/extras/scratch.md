@@ -6,10 +6,9 @@ date: 2015-01-22
 menu:
   main:
     parent: extras
-next: /extras/datafiles
-prev: /extras/pagination
+next: /extras/shortcodes
+prev: /extras/permalinks
 title: Scratch
-weight: 80
 ---
 
 `Scratch` -- a "scratchpad" for your page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
@@ -21,7 +20,7 @@ weight: 80
 * `SetInMap` takes a `key`, `mapKey` and `value`
 * `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
 
-`Set` and `SetInMap` can store values of any type. 
+`Set` and `SetInMap` can store values of any type.
 
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
