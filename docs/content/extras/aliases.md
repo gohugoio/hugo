@@ -9,9 +9,8 @@ menu:
   main:
     parent: extras
 next: /extras/analytics
-prev: /taxonomies/ordering
+prev: /taxonomies/methods
 title: Aliases
-weight: 10
 ---
 
 For people migrating existing published content to Hugo, there's a good chance you need a mechanism to handle redirecting old URLs.

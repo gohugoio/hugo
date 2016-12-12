@@ -5,10 +5,9 @@ toc: true
 menu:
   main:
     parent: extras
-next: /extras/permalinks
+next: /extras/pagination
 prev: /extras/livereload
 title: Menus
-weight: 60
 ---
 
 Hugo has a simple yet powerful menu system that permits content to be
