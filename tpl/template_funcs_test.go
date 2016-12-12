@@ -129,7 +129,8 @@ modBool: {{modBool 15 3}}
 mul: {{mul 2 3}}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 pluralize: {{ "cat" | pluralize }}
-querify: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}
+querify 1: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}
+querify 2: <a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
 readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
 relLangURL: {{ "index.html" | relLangURL }}
@@ -199,7 +200,8 @@ modBool: true
 mul: 6
 plainify: Hello world, gophers!
 pluralize: cats
-querify: bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose
+querify 1: bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose
+querify 2: <a href="https://www.google.com?page=3&amp;q=test">Search</a>
 readDir: README.txt
 readFile: Hugo Rocks!
 relLangURL: /hugo/en/index.html
