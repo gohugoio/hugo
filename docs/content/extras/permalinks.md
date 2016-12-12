@@ -6,11 +6,10 @@ date: 2013-11-18
 menu:
   main:
     parent: extras
-next: /extras/shortcodes
+next: /extras/scratch
 notoc: true
-prev: /extras/menus
+prev: /extras/pagination
 title: Permalinks
-weight: 70
 ---
 
 By default, content is laid out into the target `publishdir` (public)

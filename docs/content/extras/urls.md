@@ -6,11 +6,10 @@ date: 2014-01-03
 menu:
   main:
     parent: extras
-next: /extras/robots-txt
+next: /community/mailing-list
 notoc: true
-prev: /extras/toc
+prev: /extras/localfiles
 title: URLs
-weight: 110
 ---
 
 ## Pretty URLs

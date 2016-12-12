@@ -7,7 +7,6 @@ menu:
 next: /extras/builders
 prev: /extras/aliases
 title: Analytics in Hugo
-weight: 15
 ---
 
 Hugo ships with prebuilt internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.

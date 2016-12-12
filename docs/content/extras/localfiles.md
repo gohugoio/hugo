@@ -6,11 +6,10 @@ date: 2015-06-12
 menu:
   main:
     parent: extras
-next: /community/mailing-list
+next: /extras/urls
 notoc: true
-prev: /extras/urls
+prev: /extras/toc
 title: Traversing Local Files
-weight: 110
 ---
 ## Traversing Local Files
 

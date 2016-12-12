@@ -6,10 +6,9 @@ date: 2015-02-14
 menu:
   main:
     parent: extras
-next: /extras/highlighting
+next: /extras/gitinfo
 prev: /extras/datafiles
 title: Data-driven Content
-weight: 91
 toc: true
 ---
 
