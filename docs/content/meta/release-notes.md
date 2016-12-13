@@ -44,7 +44,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Allow home page to be easily authored in markdown {{<gh 720>}}
 * Minimalist website with homepage as content {{<gh 330>}}
 
-Hugo again continues its trend of each release being faster than the last. It's quite a challenge to consistently add significant new functionality and simultaneously dramatically improve performance. Running [this benchmark]( https://github.com/bep/hugo-benchmark) with[these sites](https://github.com/bep/hugo-benchmark/tree/master/sites) (renders to memory) shows about	60% improvement in speed and 30% reduction in memory usage compared to Hugo 0.17.
+Hugo again continues its trend of each release being faster than the last. It's quite a challenge to consistently add significant new functionality and simultaneously dramatically improve performance. Running [this benchmark]( https://github.com/bep/hugo-benchmark) with [these sites](https://github.com/bep/hugo-benchmark/tree/master/sites) (renders to memory) shows about	60% improvement in speed and 30% reduction in memory usage compared to Hugo 0.17.
 
 ## Other New Features
 
