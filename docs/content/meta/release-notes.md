@@ -44,6 +44,8 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Allow home page to be easily authored in markdown {{<gh 720>}}
 * Minimalist website with homepage as content {{<gh 330>}}
 
+Hugo again continues its trend of each release being faster than the last. It's quite a challenge to consistently add significant new functionality and simultaneously dramatically improve performance. Running [this benchmark]( https://github.com/bep/hugo-benchmark) with[these sites](https://github.com/bep/hugo-benchmark/tree/master/sites) (renders to memory) shows about	60% improvement in speed and 30% reduction in memory usage compared to Hugo 0.17.
+
 ## Other New Features
 
 * Every `Page` now has a `Kind` property. Since everything is a `Page` now, the `Kind` is used to differentiate different kinds of pages.
@@ -93,7 +95,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Performance improvements:
   * Avoid repeated Viper loads of `sectionPagesMenu` {{<gh 2728>}}
   * Avoid reading from Viper for path and URL funcs {{<gh 2495>}}
-  * Add `partialCached` template function {{<gh 1368>}}
+  * Add `partialCached` template function. This can be a significant performance boost if you have complex partials that does not need to be rerendered for every page. {{<gh 1368>}}
 
 ## Documentation Updates
 
