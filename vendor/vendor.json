@@ -21,6 +21,12 @@
 			"revisionTime": "2016-07-26T15:08:25Z"
 		},
 		{
+			"checksumSHA1": "0cvKPxMNIy/G6gEqqvxW9kwuxfQ=",
+			"path": "github.com/algolia/algoliasearch-client-go/algoliasearch",
+			"revision": "ddcd96cd6a0ded1b103608272cbf5b38cc89f698",
+			"revisionTime": "2016-11-04T07:31:56Z"
+		},
+		{
 			"checksumSHA1": "A3v5qAlaOKeq3c+yDCL4jzAB0UA=",
 			"path": "github.com/bep/gitmap",
 			"revision": "a1a71abe12823e27ae7507189fe2e914ba9626ac",
