@@ -893,11 +893,11 @@ e.g. `<a href="/tags/{{ . | urlize }}">{{ . }}</a>`
 
 ### querify
 
-Takes a set of key-value pairs and returns a [`url.Values`](https://godoc.org/net/url#Values) object. The [`Encode`](https://godoc.org/net/url#Values.Encode) method turns the pairs into a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a url. E.g. 
+Takes a set of key-value pairs and returns a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a URL. E.g.
 
-    <a href="https://www.google.com?{{ (querify "q" "test" "page" 3).Encode | safeHTML }}">Search</a>
+    <a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
 
-will be rendered as 
+will be rendered as
 
     <a href="https://www.google.com?page=3&q=test">Search</a>
 
@@ -1020,7 +1020,7 @@ Every `Page` has a `Kind` attribute that shows what kind of page it is. While th
 ```
  {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
  ```
- 
+
 This method wil return `nil` when no page could be found, so the above will not print anything if the blog section isn't found.
 
 The valid page kinds are: *home, section, taxonomy and taxonomyTerm.*
