@@ -15,7 +15,8 @@ toc: true
 
 In practice, it's very convenient to split out common template portions into a
 partial template that can be included anywhere. As you create the rest of your
-templates, you will include templates from the /layout/partials directory, or from arbitrary subdirectories like /layout/partials/post/tag.
+templates, you will include templates from the ``/layout/partials` directory
+or from arbitrary subdirectories like `/layout/partials/post/tag`.
 
 Partials are especially important for themes as it gives users an opportunity
 to overwrite just a small part of your theme, while maintaining future compatibility.
@@ -43,7 +44,7 @@ you could include a partial template with the `template` call in the standard
 template language.
 
 With the addition of the theme system in v0.11, it became apparent that a theme
-& override aware partial was needed.
+& override-aware partial was needed.
 
 When using Hugo v0.12 and above, please use the `partial` call (and leave out
 the “partial/” path). The old approach would still work, but wouldn’t benefit from
@@ -110,8 +111,7 @@ For more examples of referencing these templates, see
 [homepage templates](/templates/homepage/).
 
 
-Variable scoping
-----------------
+## Variable scoping
 
 As you might have noticed, `partial` calls receive two parameters.
 
@@ -122,3 +122,25 @@ location to be read.
 This means that the partial will _only_ be able to access those variables. It is
 isolated and has no access to the outer scope. From within the
 partial, `$.Var` is equivalent to `.Var`
+
+## Cached Partials
+
+The `partialCached` template function can offer significant performance gains
+for complex templates that don't need to be rerendered upon every invocation.
+The simplest usage is as follows:
+
+    {{ partialCached "footer.html" . }}
+
+You can also pass additional parameters to `partialCached` to create *variants* of the cached partial.
+For example, say you have a complex partial that should be identical when rendered for pages within the same section.
+You could use a variant based upon section so that the partial is only rendered once per section:
+
+    {{ partialCached "footer.html" . .Section }}
+
+If you need to pass additional parameters to create unique variants,
+you can pass as many variant parameters as you need:
+
+    {{ partialCached "footer.html" . .Params.country .Params.province }}
+
+Note that the variant parameters are not made available to the underlying partial template.
+They are only use to create a unique cache key.
