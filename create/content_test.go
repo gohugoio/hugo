@@ -42,6 +42,7 @@ func TestNewContent(t *testing.T) {
 		expected []string
 	}{
 		{"post", "post/sample-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
+		{"emptydate", "post/sample-ed.md", []string{`title = "Empty Date Arch title"`, `test = "test1"`}},
 		{"stump", "stump/sample-2.md", []string{`title = "sample 2"`}},     // no archetype file
 		{"", "sample-3.md", []string{`title = "sample 3"`}},                // no archetype
 		{"product", "product/sample-4.md", []string{`title = "sample 4"`}}, // empty archetype front matter
@@ -104,6 +105,10 @@ func initFs() error {
 		{
 			path:    filepath.Join("archetypes", "product.md"),
 			content: "+++\n+++\n",
+		},
+		{
+			path:    filepath.Join("archetypes", "emptydate.md"),
+			content: "+++\ndate =\"\"\ntitle = \"Empty Date Arch title\"\ntest = \"test1\"\n+++\n",
 		},
 	} {
 		f, err := hugofs.Source().Create(v.path)
