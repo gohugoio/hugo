@@ -15,8 +15,8 @@ toc: true
 
 In practice, it's very convenient to split out common template portions into a
 partial template that can be included anywhere. As you create the rest of your
-templates, you will include templates from the ``/layout/partials` directory
-or from arbitrary subdirectories like `/layout/partials/post/tag`.
+templates, you will include templates from the ``/layouts/partials` directory
+or from arbitrary subdirectories like `/layouts/partials/post/tag`.
 
 Partials are especially important for themes as it gives users an opportunity
 to overwrite just a small part of your theme, while maintaining future compatibility.
@@ -99,11 +99,11 @@ This footer template is used for [spf13.com](http://spf13.com/):
     </body>
     </html>
 
-To reference a partial template stored in a subfolder, e.g. `/layout/partials/post/tag/list.html`, call it this way:
+To reference a partial template stored in a subfolder, e.g. `/layouts/partials/post/tag/list.html`, call it this way:
 
      {{ partial "post/tag/list" . }}
 
-Note that the subdirectories you create under /layout/partials can be named whatever you like.
+Note that the subdirectories you create under /layouts/partials can be named whatever you like.
 
 For more examples of referencing these templates, see
 [single content templates](/templates/content/),
