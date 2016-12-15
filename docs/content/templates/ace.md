@@ -29,20 +29,9 @@ For template documentation, follow the links from the [Ace project](https://gith
 
 One noticeable difference between Ace and the others is the inheritance support through [base and inner templates](https://github.com/yosssi/ace/tree/master/examples/base_inner_template).
 
-In Hugo the base template will be chosen in the following order:
+In Hugo the base template will be chosen with the same ruleset as for [Go templates](/templates/blocks/).
 
-```
-1. <current-path>/<template-name>-baseof.ace, e.g. list-baseof.ace
-2. <current-path>/baseof.ace
-3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
-4. _default/baseof.ace
-5. <themedir>/layouts/_default/<template-name>-baseof.ace
-6. <themedir>/layouts/_default/baseof.ace
-```
 
-In the above, `current-path` is where the corresponding inner template lives, `list.ace`, `single.ace`, `index.ace` ...
-
-```
 .:
 index.ace
 

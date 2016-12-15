@@ -9,11 +9,34 @@ title: Block Templates
 weight: 80
 ---
 
-Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages in a single "base" template, filling in or overriding portions as necessary.
+Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages one ore more master template(s), filling in or overriding portions as necessary.
+
+## Base template lookup
+This is the order Hugo searches for a base template:
+
+1. /layouts/_current-path_/_template-name_-baseof.html, e.g. list-baseof.html.
+2. /layouts/_current-path_/baseof.html
+3. /layouts/_default/_template-name_-baseof.html e.g. list-baseof.html.
+4. /layouts/_default/baseof.html
+
+For each of the steps above, it will first look in the project, then, if theme is set, in the theme's layouts folder. Hugo picks the first base template found.
+
+As an example, with a site using the theme `exampletheme`, when rendering the section list for the section `post`. Hugo picks the `section/post.html` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
+
+1. `/layouts/section/post-baseof.html`
+2.  `/themes/exampletheme/layouts/section/post-baseof.html`
+3.  `/layouts/section/baseof.html`
+4. `/themes/exampletheme/layouts/section/baseof.html`
+5.  `/layouts/_default/post-baseof.html`
+6.  `/themes/exampletheme/layouts/_default/post-baseof.html`
+7.   `/layouts/_default/baseof.html`
+8. `/themes/exampletheme/layouts/_default/baseof.html`
+
+
 
 ## Define the base template
 
-Let's define a simple base template (`_default/baseof.html`), a shell from which all our pages will start. To find a base template, Hugo searches the same paths and file names as it does for [Ace templates]({{< relref "templates/ace.md" >}}), just with files suffixed `.html` rather than `.ace`.
+Let's define a simple base template (`_default/baseof.html`), a shell from which all our pages will start. 
 
 ```html
 <!DOCTYPE html>
