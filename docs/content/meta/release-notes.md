@@ -72,7 +72,7 @@ Hugo again continues its trend of each release being faster than the last. It's 
 
 ## Fixes
 
-* Revise the `base` template lookup logic so it now better matches the behavior of regular templates, making it easier to override the master templates from the theme. {{<gh 2783 }}
+* Revise the `base` template lookup logic so it now better matches the behavior of regular templates, making it easier to override the master templates from the theme {{<gh 2783>}}
 * Add workaround for `block` template crash.
   Block templates are very useful, but there is a bug in Go 1.6 and 1.7 which makes the template rendering crash if you use the block template in more complex scenarios.
   This is fixed in the upcoming Go 1.8, but Hugo adds a temporary workaround in Hugo 0.18. {{<gh 2549>}}
