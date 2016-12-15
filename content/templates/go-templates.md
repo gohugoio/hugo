@@ -206,14 +206,11 @@ A few simple examples should help convey how to use the pipe.
 
 **Example 1:**
 
-    {{ if eq 1 1 }} Same {{ end }}
+    {{ shuffle (seq 1 5) }}
 
 is the same as
 
-    {{ eq 1 1 | if }} Same {{ end }}
-
-It does look odd to place the `if` at the end, but it does provide a good
-illustration of how to use the pipes.
+    {{ (seq 1 5) | shuffle }}
 
 **Example 2:**
 
@@ -227,13 +224,13 @@ The `index` function is a [Go][] built-in, and you can read about it [here][gost
 
 **Example 3:**
 
-    {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
+    {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr") }}
     Stuff Here
     {{ end }}
 
 Could be rewritten as
 
-    {{  isset .Params "caption" | or isset .Params "title" | or isset .Params "attr" | if }}
+    {{ if isset .Params "caption" | or isset .Params "title" | or isset .Params "attr" }}
     Stuff Here
     {{ end }}
 
