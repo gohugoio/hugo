@@ -85,6 +85,7 @@ Hugo again continues its trend of each release being faster than the last. It's 
 * Fix RSS Title regression {{<gh 2645>}}
 * Handle ToC before handling shortcodes {{<gh 2433>}}
 * Only watch relevant themes dir {{<gh 2602>}}
+* Hugo new content creates TOML slices with closing bracket on new line {{<gh 2800>}}
 
 ## Improvements
 
