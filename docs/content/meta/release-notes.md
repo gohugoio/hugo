@@ -2,7 +2,7 @@
 aliases:
 - /doc/release-notes/
 - /meta/release-notes/
-lastmod: 2016-03-12
+lastmod: 2016-19-12
 date: 2013-07-01
 menu:
   main:
@@ -11,19 +11,19 @@ title: Release Notes
 weight: 10
 ---
 
-## **0.18.0** ???
+## **0.18.0** December 19th 2016
 
 Today, we're exited to release the much-anticipated Hugo 0.18!
 
 We're heading towards the end of the year 2016, and we can look back on three releases and a steady growing community around the project.
 This release includes **over XXX contributions by over XXX contributors** to the main codebase.
-Since the last release, Hugo has **gained 1600 stars, XXX contributors and 23 additional themes**.
+Since the last release, Hugo has **gained 1700 stars, 408 contributors and 27 additional themes**.
 
 Hugo now has:
 
-- 13600+ stars
+- 13700+ stars
 - 404+ contributors
-- 133+ themes
+- 137+ themes
 
 {{< gh "@bep" >}} once again took the lead of Hugo and contributed a significant amount of additions.
 Also a big shoutout to {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition,
@@ -55,7 +55,7 @@ Hugo again continues its trend of each release being faster than the last. It's 
 * New template functions:
   * Add `imageConfig` function {{<gh 2677>}}
   * Add `sha256` function {{<gh 2762>}}
-  *  Add `partialCached` template function {{<gh 1368>}}
+  * Add `partialCached` template function {{<gh 1368>}}
 * Add shortcode to display Instagram images {{<gh 2690>}}
 * Add `noChmod` option to disable perm sync {{<gh 2749>}}
 * Add `quiet` build mode {{<gh 1218>}}
