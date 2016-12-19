@@ -16,7 +16,7 @@ Today, we're exited to release the much-anticipated Hugo 0.18!
 
 We're heading towards the end of the year 2016, and we can look back on three releases and a steady growing community around the project.
 This release includes **over 220 contributions by nearly 50 contributors** to the main codebase.
-Since the last release, Hugo has **gained 1750 stars, 408 contributors and 27 additional themes**.
+Since the last release, Hugo has **gained 1750 stars and 27 additional themes**.
 
 Hugo now has:
 
