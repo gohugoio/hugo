@@ -51,6 +51,10 @@
         margin-bottom: 5px;
     }
 
+    .navigation.next {
+        display: none;
+    }
+
 }
 
 @media (max-width: 480px) {
