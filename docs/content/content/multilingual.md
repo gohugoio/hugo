@@ -14,25 +14,26 @@ Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the
 Example:
 
 ```
-defaultContentLanguage = "en"
+DefaultContentLanguage = "en"
+copyright = "Everything is mine"
 
-Languages:
-  en:
-    weight: 1
-    title: "My blog"
-    params:
-      linkedin: "english-link"
-  fr:
-    weight: 2
-    title: "Mon blog"
-    params:
-      linkedin: "lien-francais"
-    copyright: "Tout est à moi"
+[Languages]
+[Languages.en]
+title = "My blog"
+weight = 1
+[Languages.en.params]
+linkedin = "english-link"
 
-copyright: "Everything is mine"
+[Languages.fr]
+copyright = "Tout est à moi"
+title = "Mon blog"
+weight = 2
+[Languages.fr.params]
+linkedin = "lien-francais"
+
 ```
 
-Anything not defined in a `[lang]:` block will fall back to the global
+Anything not defined in a `[Languages]` block will fall back to the global
 value for that key (like `copyright` for the English (`en`) language in this example).
 
 With the config above, all content, sitemap, RSS feeds, paginations
