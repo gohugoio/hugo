@@ -55,3 +55,10 @@
         display: none;
     }
 }
+
+@media (max-width:360px) {
+
+    h1 {
+        font-size: 1.9em;
+    }
+}
