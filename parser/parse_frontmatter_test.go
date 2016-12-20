@@ -26,20 +26,22 @@ import (
 )
 
 const (
-	contentNoFrontmatter                 = "a page with no front matter"
-	contentWithFrontmatter               = "---\ntitle: front matter\n---\nContent with front matter"
-	contentHTMLNoDoctype                 = "<html>\n\t<body>\n\t</body>\n</html>"
-	contentHTMLWithDoctype               = "<!doctype html><html><body></body></html>"
-	contentHTMLWithFrontmatter           = "---\ntitle: front matter\n---\n<!doctype><html><body></body></html>"
-	contentHTML                          = "    <html><body></body></html>"
-	contentLinefeedAndHTML               = "\n<html><body></body></html>"
-	contentIncompleteEndFrontmatterDelim = "---\ntitle: incomplete end fm delim\n--\nincomplete frontmatter delim"
-	contentMissingEndFrontmatterDelim    = "---\ntitle: incomplete end fm delim\nincomplete frontmatter delim"
-	contentSlugWorking                   = "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\nslug doc 2 content"
-	contentSlugWorkingVariation          = "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\nslug doc 3 content"
-	contentSlugBug                       = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
-	contentSlugWithJSONFrontMatter       = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
-	contentWithJSONLooseFrontmatter      = "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	contentNoFrontmatter                        = "a page with no front matter"
+	contentWithFrontmatter                      = "---\ntitle: front matter\n---\nContent with front matter"
+	contentHTMLNoDoctype                        = "<html>\n\t<body>\n\t</body>\n</html>"
+	contentHTMLWithDoctype                      = "<!doctype html><html><body></body></html>"
+	contentHTMLWithFrontmatter                  = "---\ntitle: front matter\n---\n<!doctype><html><body></body></html>"
+	contentHTML                                 = "    <html><body></body></html>"
+	contentLinefeedAndHTML                      = "\n<html><body></body></html>"
+	contentIncompleteEndFrontmatterDelim        = "---\ntitle: incomplete end fm delim\n--\nincomplete frontmatter delim"
+	contentMissingEndFrontmatterDelim           = "---\ntitle: incomplete end fm delim\nincomplete frontmatter delim"
+	contentSlugWorking                          = "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\nslug doc 2 content"
+	contentSlugWorkingVariation                 = "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\nslug doc 3 content"
+	contentSlugBug                              = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
+	contentSlugWithJSONFrontMatter              = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	contentWithJSONLooseFrontmatter             = "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	contentSlugWithJSONFrontMatterFirstLineOnly = "{\"categories\":\"d\",\"tags\":[\"a\",\"b\",\"c\"]}\nJSON Front Matter with tags and categories"
+	contentSlugWithJSONFrontMatterFirstLine     = "{\"categories\":\"d\",\n  \"tags\":[\"a\",\"b\",\"c\"]}\nJSON Front Matter with tags and categories"
 )
 
 var lineEndings = []string{"\n", "\r\n"}
@@ -117,6 +119,8 @@ func TestStandaloneCreatePageFrom(t *testing.T) {
 		{contentLinefeedAndHTML, false, true, "", "<html><body></body></html>"},
 		{contentSlugWithJSONFrontMatter, true, false, "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
 		{contentWithJSONLooseFrontmatter, true, false, "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
+		{contentSlugWithJSONFrontMatterFirstLineOnly, true, false, "{\"categories\":\"d\",\"tags\":[\"a\",\"b\",\"c\"]}", "JSON Front Matter with tags and categories"},
+		{contentSlugWithJSONFrontMatterFirstLine, true, false, "{\"categories\":\"d\",\n  \"tags\":[\"a\",\"b\",\"c\"]}", "JSON Front Matter with tags and categories"},
 		{contentSlugWorking, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\n", "slug doc 2 content"},
 		{contentSlugWorkingVariation, true, false, "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\n", "slug doc 3 content"},
 		{contentSlugBug, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n", "slug doc 2 content"},

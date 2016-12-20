@@ -21,7 +21,7 @@ Supported formats:
 
   * **[TOML][]**, identified by '`+++`'.
   * **[YAML][]**, identified by '`---`'.
-  * **[JSON][]**, a single JSON object which is surrounded by '`{`' and '`}`', each on their own line.
+  * **[JSON][]**, a single JSON object which is surrounded by '`{`' and '`}`', followed by a newline.
 
 [TOML]: https://github.com/toml-lang/toml "Tom's Obvious, Minimal Language"
 [YAML]: http://www.yaml.org/ "YAML Ain't Markup Language"

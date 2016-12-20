@@ -283,19 +283,12 @@ func isFrontMatterDelim(data []byte) bool {
 }
 
 func determineDelims(firstLine []byte) (left, right []byte) {
-	switch len(firstLine) {
-	case 5:
-		fallthrough
-	case 4:
-		if firstLine[0] == YAMLLead[0] {
-			return []byte(YAMLDelim), []byte(YAMLDelim)
-		}
+	switch firstLine[0] {
+	case YAMLLead[0]:
+		return []byte(YAMLDelim), []byte(YAMLDelim)
+	case TOMLLead[0]:
 		return []byte(TOMLDelim), []byte(TOMLDelim)
-	case 3:
-		fallthrough
-	case 2:
-		fallthrough
-	case 1:
+	case JSONLead[0]:
 		return []byte(JSONLead), []byte("}")
 	default:
 		panic(fmt.Sprintf("Unable to determine delims from %q", firstLine))
