@@ -21,10 +21,6 @@
         position: none !important;
     }
 
-    #sidebar > ul > li > a > span {
-        line-height: 35px;
-    }
-
     #sidebar > ul > li {
         margin: 0 10px 5px 10px;
     }
