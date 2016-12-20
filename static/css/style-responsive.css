@@ -55,10 +55,3 @@
         display: none;
     }
 }
-
-@media (max-width:320px) {
-
-    .notification-row {
-        display: none;
-    }
-}
