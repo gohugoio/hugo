@@ -629,6 +629,17 @@ func TestImageConfig(t *testing.T) {
 		input      []byte
 		expected   image.Config
 	}{
+		// Make sure that the cache is initialized by default.
+		{
+			resetCache: false,
+			path:       "a.png",
+			input:      blankImage(10, 10),
+			expected: image.Config{
+				Width:      10,
+				Height:     10,
+				ColorModel: color.NRGBAModel,
+			},
+		},
 		{
 			resetCache: true,
 			path:       "a.png",
@@ -685,8 +696,8 @@ func TestImageConfig(t *testing.T) {
 			t.Errorf("[%d] imageConfig: expected '%v', got '%v'", i, this.expected, result)
 		}
 
-		if len(imageConfigCache.config) == 0 {
-			t.Error("imageConfigCache should have at least 1 item")
+		if len(defaultImageConfigCache.config) == 0 {
+			t.Error("defaultImageConfigCache should have at least 1 item")
 		}
 	}
 
@@ -705,8 +716,8 @@ func TestImageConfig(t *testing.T) {
 	// test cache clearing
 	ResetCaches()
 
-	if len(imageConfigCache.config) != 0 {
-		t.Error("ResetCaches should have cleared imageConfigCache")
+	if len(defaultImageConfigCache.config) != 0 {
+		t.Error("ResetCaches should have cleared defaultImageConfigCache")
 	}
 }
 
