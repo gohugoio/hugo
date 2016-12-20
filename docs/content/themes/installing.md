@@ -28,6 +28,7 @@ Otherwise you will not be able to clone the theme repositories.
 ```bash
 $ git clone --depth 1 --recursive https://github.com/spf13/hugoThemes.git themes
 ```
+Before you use a theme, remove the .git folder in that theme's root folder. Otherwise, this will cause problem if you deploy using git.
 
 ## Installing a specific theme
 
