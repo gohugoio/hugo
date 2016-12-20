@@ -21,6 +21,10 @@
         position: none !important;
     }
 
+    .wrapper {
+        padding: inherit;
+    }
+
     #sidebar > ul > li {
         margin: 0 10px 5px 10px;
     }
