@@ -213,6 +213,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	}
 
 	enSite := sites.Sites[0]
+	enSiteHome := enSite.getPage(KindHome)
+	require.True(t, enSiteHome.IsTranslated())
 
 	assert.Equal(t, "en", enSite.Language.Lang)
 
