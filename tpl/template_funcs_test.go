@@ -804,6 +804,33 @@ func TestSlicestr(t *testing.T) {
 	}
 }
 
+func TestHasPrefix(t *testing.T) {
+	cases := []struct {
+		s      interface{}
+		prefix interface{}
+		want   interface{}
+		isErr  bool
+	}{
+		{"abcd", "ab", true, false},
+		{"abcd", "cd", false, false},
+		{template.HTML("abcd"), "ab", true, false},
+		{template.HTML("abcd"), "cd", false, false},
+		{template.HTML("1234"), 12, true, false},
+		{template.HTML("1234"), 34, false, false},
+		{[]byte("abcd"), "ab", true, false},
+	}
+
+	for i, c := range cases {
+		res, err := hasPrefix(c.s, c.prefix)
+		if (err != nil) != c.isErr {
+			t.Fatalf("[%d] unexpected isErr state: want %v, got %v, err = %v", i, c.isErr, err != nil, err)
+		}
+		if res != c.want {
+			t.Errorf("[%d] want %v, got %v", i, c.want, res)
+		}
+	}
+}
+
 func TestSubstr(t *testing.T) {
 	var err error
 	var n int

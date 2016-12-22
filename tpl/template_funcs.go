@@ -239,6 +239,21 @@ func slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 
 }
 
+// hasPrefix tests whether the input s begins with prefix.
+func hasPrefix(s, prefix interface{}) (bool, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return false, err
+	}
+
+	sp, err := cast.ToStringE(prefix)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.HasPrefix(ss, sp), nil
+}
+
 // substr extracts parts of a string, beginning at the character at the specified
 // position, and returns the specified number of characters.
 //
@@ -2060,7 +2075,7 @@ func initFuncMap() {
 		"getJSON":       getJSON,
 		"getenv":        func(varName string) string { return os.Getenv(varName) },
 		"gt":            gt,
-		"hasPrefix":     func(a, b string) bool { return strings.HasPrefix(a, b) },
+		"hasPrefix":     hasPrefix,
 		"highlight":     highlight,
 		"htmlEscape":    htmlEscape,
 		"htmlUnescape":  htmlUnescape,
