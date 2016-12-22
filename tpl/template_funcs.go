@@ -1446,6 +1446,17 @@ func chomp(text interface{}) (template.HTML, error) {
 	return template.HTML(strings.TrimRight(s, "\r\n")), nil
 }
 
+// lower returns a copy of the input s with all Unicode letters mapped to their
+// lower case.
+func lower(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ToLower(ss), nil
+}
+
 // trim leading/trailing characters defined by b from a
 func trim(a interface{}, b string) (string, error) {
 	aStr, err := cast.ToStringE(a)
@@ -2090,7 +2101,7 @@ func initFuncMap() {
 		"jsonify":       jsonify,
 		"last":          last,
 		"le":            le,
-		"lower":         func(a string) string { return strings.ToLower(a) },
+		"lower":         lower,
 		"lt":            lt,
 		"markdownify":   markdownify,
 		"md5":           md5,
