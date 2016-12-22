@@ -9,7 +9,7 @@ title: Block Templates
 weight: 80
 ---
 
-Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages one ore more master template(s), filling in or overriding portions as necessary.
+Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages one or more master template(s), filling in or overriding portions as necessary.
 
 ## Base template lookup
 This is the order Hugo searches for a base template:
