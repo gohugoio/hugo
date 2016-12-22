@@ -36,7 +36,8 @@ You'll need a place to store the Hugo executable, your content (the files that y
 
 1. Download the latest zipped Hugo executable from the [Hugo Releases](https://github.com/spf13/hugo/releases) page.
 2. Extract all contents to your `..\Hugo\bin` folder.
-3. In PowerShell or your preferred CLI, add the `hugo.exe` executable to your PATH by navigating to `C:\Hugo\bin` (or the location of your hugo.exe file) and use the command `set PATH=%PATH%;C:\Hugo\bin`. If the `hugo` command does not work after a reboot, you may have to run the command prompt as administrator.
+3. The hugo executable will be named as `hugo_hugo-version_platform_arch.exe`. Rename that executable to `hugo.exe` for ease of use.
+4. In PowerShell or your preferred CLI, add the `hugo.exe` executable to your PATH by navigating to `C:\Hugo\bin` (or the location of your hugo.exe file) and use the command `set PATH=%PATH%;C:\Hugo\bin`. If the `hugo` command does not work after a reboot, you may have to run the command prompt as administrator.
 
 ## Less technical users
 
@@ -45,7 +46,7 @@ You'll need a place to store the Hugo executable, your content (the files that y
 3. Find the Windows files near the bottom (they're in alphabetical order, so Windows is last) – download either the 32-bit or 64-bit file depending on whether you have 32-bit or 64-bit Windows. (If you don't know, [see here](https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx).)
 4. Move the ZIP file into your `C:\Hugo\bin` folder.
 5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder – Windows will do this by default unless you tell it to extract somewhere else.
-6. You should now have three new files: hugo.exe, license.md, and readme.md. (you can delete the ZIP download now.)
+6. You should now have three new files: hugo executable (example: hugo_0.18_windows_amd64.exe), license.md, and readme.md. (you can delete the ZIP download now.). Rename that hugo executable (hugo_hugo-version_platform_arch.exe) to hugo.exe for ease of use.
 7. Now add Hugo to your Windows PATH settings:
 
     ### For Windows 10 users:
