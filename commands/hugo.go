@@ -146,6 +146,7 @@ var (
 	destination string
 	logFile     string
 	theme       string
+	themesDir   string
 	source      string
 )
 
@@ -219,6 +220,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("ignoreCache", "", false, "Ignores the cache directory")
 	cmd.Flags().StringVarP(&destination, "destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
+	cmd.Flags().StringVarP(&themesDir, "themesDir", "", "", "filesystem path to themes directory")
 	cmd.Flags().Bool("uglyURLs", false, "if true, use /filename.html instead of /filename/")
 	cmd.Flags().Bool("canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
@@ -285,6 +287,10 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 	if theme != "" {
 		viper.Set("theme", theme)
+	}
+
+	if themesDir != "" {
+		viper.Set("themesDir", themesDir)
 	}
 
 	if destination != "" {
