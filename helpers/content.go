@@ -20,7 +20,6 @@ package helpers
 import (
 	"bytes"
 	"html/template"
-	"os/exec"
 	"unicode"
 	"unicode/utf8"
 
@@ -30,6 +29,7 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"github.com/tychoish/shimgo"
 
 	"strings"
 	"sync"
@@ -523,20 +523,9 @@ func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
 	return strings.Join(words[:max], " "), true
 }
 
-func getAsciidocExecPath() string {
-	path, err := exec.LookPath("asciidoctor")
-	if err != nil {
-		path, err = exec.LookPath("asciidoc")
-		if err != nil {
-			return ""
-		}
-	}
-	return path
-}
-
 // HasAsciidoc returns whether Asciidoctor or Asciidoc is installed on this computer.
 func HasAsciidoc() bool {
-	return getAsciidocExecPath() != ""
+	return shimgo.SupportsAsciiDoc()
 }
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
@@ -545,49 +534,28 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path := getAsciidocExecPath()
-	if path == "" {
-		jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
-			"                 Leaving AsciiDoc content unrendered.")
-		return content
-	}
-
-	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
-	cmd.Stdin = bytes.NewReader(cleanContent)
-	var out, cmderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &cmderr
-	err := cmd.Run()
-	// asciidoctor has exit code 0 even if there are errors in stderr
-	// -> log stderr output regardless of state of err
-	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
-		item := strings.TrimSpace(item)
-		if item != "" {
-			jww.ERROR.Println(strings.Replace(item, "<stdin>", ctx.DocumentName, 1))
+	out, err := shimgo.ConvertFromAsciiDoc(cleanContent)
+	if out == nil {
+		if err != nil {
+			jww.ERROR.Printf("problem converting %s to asciidoc; dependencies (flask) may not be installed (%v)",
+				ctx.DocumentName, err)
+			return nil
 		}
-	}
-	if err != nil {
-		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
+
+		jww.ERROR.Printf("unknown error converting asciidoc; %s not rendered", ctx.DocumentName)
+		return nil
 	}
 
-	return out.Bytes()
+	if err != nil {
+		jww.ERROR.Printf("found asciidoc error: %s:%v", ctx.DocumentName, err)
+	}
+
+	return out
 }
 
 // HasRst returns whether rst2html is installed on this computer.
 func HasRst() bool {
-	return getRstExecPath() != ""
-}
-
-func getRstExecPath() string {
-	path, err := exec.LookPath("rst2html")
-	if err != nil {
-		path, err = exec.LookPath("rst2html.py")
-		if err != nil {
-			return ""
-		}
-	}
-	return path
+	return shimgo.SupportsRst()
 }
 
 // getRstContent calls the Python script rst2html as an external helper
@@ -596,39 +564,21 @@ func getRstContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path := getRstExecPath()
-
-	if path == "" {
-		jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
-			"                 Leaving reStructuredText content unrendered.")
-		return content
-
-	}
-
-	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--leave-comments")
-	cmd.Stdin = bytes.NewReader(cleanContent)
-	var out, cmderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &cmderr
-	err := cmd.Run()
-	// By default rst2html exits w/ non-zero exit code only if severe, i.e.
-	// halting errors occurred. -> log stderr output regardless of state of err
-	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
-		item := strings.TrimSpace(item)
-		if item != "" {
-			jww.ERROR.Println(strings.Replace(item, "<stdin>", ctx.DocumentName, 1))
+	out, err := shimgo.ConvertFromRst(cleanContent)
+	if out == nil {
+		if err != nil {
+			jww.ERROR.Printf("problem converting %s to rst; dependencies (docutils; flask) may not be installed (%v)",
+				ctx.DocumentName, err)
+			return nil
 		}
+
+		jww.ERROR.Printf("unknown error converting rst; %s not rendered", ctx.DocumentName)
+		return nil
 	}
+
 	if err != nil {
-		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
+		jww.ERROR.Printf("found rst error: %s:%v", ctx.DocumentName, err)
 	}
 
-	result := out.Bytes()
-
-	// TODO(bep) check if rst2html has a body only option.
-	bodyStart := bytes.Index(result, []byte("<body>\n"))
-	bodyEnd := bytes.Index(result, []byte("\n</body>"))
-
-	return result[bodyStart+7 : bodyEnd]
+	return out
 }

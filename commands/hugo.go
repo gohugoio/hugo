@@ -46,6 +46,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
+	"github.com/tychoish/shimgo"
 )
 
 // Hugo represents the Hugo sites to build. This variable is exported as it
@@ -262,6 +263,11 @@ func init() {
 
 	// Set bash-completion
 	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+
+	// configure dtor/cleanup op
+	HugoCmd.PostRun = func(_ *cobra.Command, _ []string) {
+		shimgo.Cleanup()
+	}
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
