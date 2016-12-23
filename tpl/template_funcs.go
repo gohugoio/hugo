@@ -2075,6 +2075,17 @@ func relURL(a interface{}) (template.HTML, error) {
 	return template.HTML(helpers.CurrentPathSpec().RelURL(s, false)), nil
 }
 
+// getenv retrieves the value of the environment variable named by the key.
+// It returns the value, which will be empty if the variable is not present.
+func getenv(key interface{}) (string, error) {
+	skey, err := cast.ToStringE(key)
+	if err != nil {
+		return "", nil
+	}
+
+	return os.Getenv(skey), nil
+}
+
 func initFuncMap() {
 	funcMap = template.FuncMap{
 		"absURL": absURL,
@@ -2106,7 +2117,7 @@ func initFuncMap() {
 		"ge":            ge,
 		"getCSV":        getCSV,
 		"getJSON":       getJSON,
-		"getenv":        func(varName string) string { return os.Getenv(varName) },
+		"getenv":        getenv,
 		"gt":            gt,
 		"hasPrefix":     hasPrefix,
 		"highlight":     highlight,
