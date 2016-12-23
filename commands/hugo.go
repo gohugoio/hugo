@@ -472,7 +472,9 @@ func getStaticSourceFs() afero.Fs {
 	useStatic := true
 
 	if err != nil {
-		jww.WARN.Println(err)
+		if err != helpers.ErrThemeUndefined {
+			jww.WARN.Println(err)
+		}
 		useTheme = false
 	} else {
 		if _, err := source.Stat(themeDir); os.IsNotExist(err) {
