@@ -186,6 +186,49 @@ func assertFileContentRegexp(t *testing.T, filename string, defaultInSubDir bool
 	}
 }
 
+func TestMultiSitesWithTwoLanguages(t *testing.T) {
+	testCommonResetState()
+
+	viper.Set("defaultContentLanguage", "nn")
+
+	writeSource(t, "config.toml", `
+[languages]
+[languages.nn]
+languageName = "Nynorsk"
+weight = 1
+title = "Tittel på Nynorsk"
+
+[languages.en]
+title = "Title in English"
+languageName = "English"
+weight = 2
+`,
+	)
+
+	if err := LoadGlobalConfig("", "config.toml"); err != nil {
+		t.Fatalf("Failed to load config: %s", err)
+	}
+
+	// Add some data
+	writeSource(t, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
+
+	sites, err := NewHugoSitesFromConfiguration()
+
+	if err != nil {
+		t.Fatalf("Failed to create sites: %s", err)
+	}
+
+	require.NoError(t, sites.Build(BuildCfg{}))
+	require.Len(t, sites.Sites, 2)
+
+	nnSite := sites.Sites[0]
+	nnSiteHome := nnSite.getPage(KindHome)
+	require.Len(t, nnSiteHome.AllTranslations(), 2)
+	require.Len(t, nnSiteHome.Translations(), 1)
+	require.True(t, nnSiteHome.IsTranslated())
+
+}
+
 //
 func TestMultiSitesBuild(t *testing.T) {
 	for _, config := range []struct {
