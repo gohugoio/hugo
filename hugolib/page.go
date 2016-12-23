@@ -99,6 +99,7 @@ type Page struct {
 	Content         template.HTML
 	Summary         template.HTML
 	TableOfContents template.HTML
+	TocEntries      []*helpers.TocEntry
 
 	Aliases []string
 
@@ -134,6 +135,9 @@ type Page struct {
 
 	// workContent is a copy of rawContent that may be mutated during site build.
 	workContent []byte
+	// workTOC is the table of contents associated with the content (if non-nil).
+	// It is produced during rendering of the content.
+	workTOC *helpers.TocEntry
 
 	// state telling if this is a "new page" or if we have rendered it previously.
 	rendered bool
@@ -507,7 +511,7 @@ func (p *Page) setAutoSummary() error {
 	return nil
 }
 
-func (p *Page) renderContent(content []byte) []byte {
+func (p *Page) renderContent(content []byte) ([]byte, *helpers.TocEntry) {
 	var fn helpers.LinkResolverFunc
 	var fileFn helpers.FileResolverFunc
 	if p.getRenderingConfig().SourceRelativeLinksEval {
@@ -518,11 +522,13 @@ func (p *Page) renderContent(content []byte) []byte {
 			return p.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
-	return helpers.RenderBytes(&helpers.RenderingContext{
+	ctx := &helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
 		ConfigProvider: p.Language(),
 		DocumentID:     p.UniqueID(), DocumentName: p.Path(),
-		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn}
+	result := helpers.RenderBytes(ctx)
+	return result, ctx.TocRoot
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {

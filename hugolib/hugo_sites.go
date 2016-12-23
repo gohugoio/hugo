@@ -369,13 +369,22 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 				// If in watch mode, we need to keep the original so we can
 				// repeat this process on rebuild.
 				var workContentCopy []byte
+				workTocEntriesCopy := []*helpers.TocEntry{}
 				if cfg.Watching {
 					workContentCopy = make([]byte, len(p.workContent))
 					copy(workContentCopy, p.workContent)
+					if p.workTOC != nil {
+						workTocEntriesCopy = p.workTOC.Clone().Contents
+					}
 				} else {
 					// Just reuse the same slice.
 					workContentCopy = p.workContent
+					if p.workTOC != nil {
+						workTocEntriesCopy = p.workTOC.Contents
+					}
 				}
+
+				p.TocEntries = workTocEntriesCopy
 
 				if p.Markup == "markdown" {
 					tmpContent, tmpTableOfContents := helpers.ExtractTOC(workContentCopy)

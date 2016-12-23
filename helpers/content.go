@@ -355,6 +355,21 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 	return
 }
 
+type TocEntry struct {
+	Placeholder bool
+	Text        string
+	Id          string
+	Contents    []*TocEntry
+}
+
+func (c TocEntry) Clone() *TocEntry {
+	clonedContents := make([]*TocEntry, len(c.Contents))
+	for i, _ := range c.Contents {
+		clonedContents[i] = c.Contents[i].Clone()
+	}
+	return &TocEntry{c.Placeholder, c.Text, c.Id, clonedContents}
+}
+
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content rendering.
 type RenderingContext struct {
@@ -368,6 +383,7 @@ type RenderingContext struct {
 	LinkResolver   LinkResolverFunc
 	ConfigProvider ConfigProvider
 	configInit     sync.Once
+	TocRoot        *TocEntry
 }
 
 func newViperProvidedRenderingContext() *RenderingContext {

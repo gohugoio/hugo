@@ -127,7 +127,7 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 	// rendering engines.
 	// TODO(bep) inline replace
 	p.workContent = bytes.Replace(p.workContent, []byte(helpers.SummaryDivider), internalSummaryDivider, 1)
-	p.workContent = p.renderContent(p.workContent)
+	p.workContent, p.workTOC = p.renderContent(p.workContent)
 
 	return HandledResult{err: nil}
 }

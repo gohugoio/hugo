@@ -16,6 +16,7 @@ package helpers
 import (
 	"bytes"
 	"html"
+	"regexp"
 
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
@@ -108,6 +109,42 @@ func (renderer *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flag
 			out.Write(list)
 		}
 	}
+}
+
+var headerExtractor = regexp.MustCompile(">([^<]+)<")
+
+// Header tracks the headers that have been rendered by the Blackfriday renderer.
+func (renderer *HugoHTMLRenderer) Header(out *bytes.Buffer, text func() bool, level int, id string) {
+	marker := out.Len()
+	renderer.Renderer.Header(out, text, level, id)
+
+	// When Blackfriday supports a better hook for retrieving the text of a header, use that.
+	headerMatch := headerExtractor.FindSubmatch(out.Bytes()[marker:])
+	if headerMatch == nil {
+		// Unable to find the header text -- how should this error be reported?
+		return
+	}
+	headerText := headerMatch[1]
+	renderer.recordTocEntry(level, string(headerText), id)
+}
+
+func (renderer *HugoHTMLRenderer) recordTocEntry(level int, text string, id string) {
+	newEntry := &TocEntry{false, text, id, []*TocEntry{}}
+
+	if renderer.TocRoot == nil {
+		renderer.TocRoot = &TocEntry{true, "", "", []*TocEntry{}}
+	}
+	var root = renderer.TocRoot
+	for i := 1; i < level; i++ {
+		if len(root.Contents) == 0 {
+			newRoot := &TocEntry{true, "", "", []*TocEntry{}}
+			root.Contents = append(root.Contents, newRoot)
+			root = newRoot
+		} else {
+			root = root.Contents[len(root.Contents)-1]
+		}
+	}
+	root.Contents = append(root.Contents, newEntry)
 }
 
 // HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html
