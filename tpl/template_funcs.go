@@ -1457,6 +1457,17 @@ func lower(s interface{}) (string, error) {
 	return strings.ToLower(ss), nil
 }
 
+// title returns a copy of the input s with all Unicode letters that begin words
+// mapped to their title case.
+func title(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Title(ss), nil
+}
+
 // upper returns a copy of the input s with all Unicode letters mapped to their
 // upper case.
 func upper(s interface{}) (string, error) {
@@ -2158,7 +2169,7 @@ func initFuncMap() {
 		"string":       func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"sub":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '-') },
 		"substr":       substr,
-		"title":        func(a string) string { return strings.Title(a) },
+		"title":        title,
 		"time":         asTime,
 		"trim":         trim,
 		"upper":        upper,

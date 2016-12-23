@@ -2022,6 +2022,29 @@ func TestLower(t *testing.T) {
 	}
 }
 
+func TestTitle(t *testing.T) {
+	cases := []struct {
+		s     interface{}
+		want  string
+		isErr bool
+	}{
+		{"test", "Test", false},
+		{template.HTML("hypertext"), "Hypertext", false},
+		{[]byte("bytes"), "Bytes", false},
+	}
+
+	for i, c := range cases {
+		res, err := title(c.s)
+		if (err != nil) != c.isErr {
+			t.Fatalf("[%d] unexpected isErr state: want %v, got %v, err = %v", i, c.want, (err != nil), err)
+		}
+
+		if res != c.want {
+			t.Errorf("[%d] title failed: want %v, got %v", i, c.want, res)
+		}
+	}
+}
+
 func TestUpper(t *testing.T) {
 	cases := []struct {
 		s     interface{}
