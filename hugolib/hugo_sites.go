@@ -180,7 +180,7 @@ func (h *HugoSites) assignMissingTranslations() error {
 		// Assign translations
 		for _, t1 := range nodes {
 			for _, t2 := range nodes {
-				if t2.isNewTranslation(t1) {
+				if t1.isNewTranslation(t2) {
 					t1.translations = append(t1.translations, t2)
 				}
 			}

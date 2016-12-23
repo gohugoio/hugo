@@ -1626,16 +1626,13 @@ func (p *Page) Lang() string {
 }
 
 func (p *Page) isNewTranslation(candidate *Page) bool {
-	if p == candidate || p.Kind != candidate.Kind {
+
+	if p.Kind != candidate.Kind {
 		return false
 	}
 
 	if p.Kind == KindPage || p.Kind == kindUnknown {
 		panic("Node type not currently supported for this op")
-	}
-
-	if p.language.Lang == candidate.language.Lang {
-		return false
 	}
 
 	// At this point, we know that this is a traditional Node (home page, section, taxonomy)
@@ -1651,8 +1648,8 @@ func (p *Page) isNewTranslation(candidate *Page) bool {
 	}
 
 	// Finally check that it is not already added.
-	for _, translation := range candidate.translations {
-		if p == translation {
+	for _, translation := range p.translations {
+		if candidate == translation {
 			return false
 		}
 	}
