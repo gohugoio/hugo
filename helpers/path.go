@@ -31,6 +31,13 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+var (
+	// ErrThemeUndefined is returned when a theme has not be defined by the user.
+	ErrThemeUndefined = errors.New("no theme set")
+
+	ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
+)
+
 // filepathPathBridge is a bridge for common functionality in filepath vs path
 type filepathPathBridge interface {
 	Base(in string) string
@@ -207,7 +214,7 @@ func GetThemeI18nDirPath() (string, error) {
 
 func getThemeDirPath(path string) (string, error) {
 	if !ThemeSet() {
-		return "", errors.New("No theme set")
+		return "", ErrThemeUndefined
 	}
 
 	themeDir := filepath.Join(GetThemeDir(), path)
@@ -484,8 +491,6 @@ func FindCWD() (string, error) {
 
 	return path, nil
 }
-
-var ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
 
 // SymbolicWalk is like filepath.Walk, but it supports the root being a
 // symbolic link. It will still not follow symbolic links deeper down in
