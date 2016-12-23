@@ -1457,6 +1457,17 @@ func lower(s interface{}) (string, error) {
 	return strings.ToLower(ss), nil
 }
 
+// upper returns a copy of the input s with all Unicode letters mapped to their
+// upper case.
+func upper(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ToUpper(ss), nil
+}
+
 // trim leading/trailing characters defined by b from a
 func trim(a interface{}, b string) (string, error) {
 	aStr, err := cast.ToStringE(a)
@@ -2150,7 +2161,7 @@ func initFuncMap() {
 		"title":        func(a string) string { return strings.Title(a) },
 		"time":         asTime,
 		"trim":         trim,
-		"upper":        func(a string) string { return strings.ToUpper(a) },
+		"upper":        upper,
 		"urlize":       helpers.CurrentPathSpec().URLize,
 		"where":        where,
 		"i18n":         i18nTranslate,
