@@ -93,6 +93,8 @@ func undraftContent(p parser.Page) (bytes.Buffer, error) {
 		return buff, errors.New("Front Matter was found, nothing was finalized")
 	}
 
+	isYaml := rune(fm[0]) == '-'
+
 	var isDraft, gotDate bool
 	var date string
 L:
@@ -138,6 +140,18 @@ L:
 		pos := bytes.Index(v, []byte("draft"))
 		if pos != -1 {
 			v = bytes.Replace(v, []byte("true"), []byte("false"), 1)
+			if isYaml {
+				v = bytes.Replace(v, []byte("True"), []byte("False"), 1)
+				v = bytes.Replace(v, []byte("TRUE"), []byte("FALSE"), 1)
+				v = bytes.Replace(v, []byte("yes"), []byte("no"), 1)
+				v = bytes.Replace(v, []byte("y"), []byte("n"), 1)
+				v = bytes.Replace(v, []byte("Yes"), []byte("No"), 1)
+				v = bytes.Replace(v, []byte("YES"), []byte("NO"), 1)
+				v = bytes.Replace(v, []byte("Y"), []byte("N"), 1)
+				v = bytes.Replace(v, []byte("on"), []byte("off"), 1)
+				v = bytes.Replace(v, []byte("On"), []byte("Off"), 1)
+				v = bytes.Replace(v, []byte("ON"), []byte("OFF"), 1)
+			}
 			goto write
 		}
 		pos = bytes.Index(v, []byte("date"))
