@@ -2272,7 +2272,7 @@ func TestDateFormat(t *testing.T) {
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
 		{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
 		{"This isn't a date layout string", "2015-01-21", "This isn't a date layout string"},
-		{"Monday, Jan 2, 2006", 1421733600, false},
+		{"Monday, Jan 2, 2006", 1421733600, "Tuesday, Jan 20, 2015"},
 		{"Monday, Jan 2, 2006", 1421733600.123, false},
 		{time.RFC3339, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "2016-03-03T04:05:00Z"},
 		{time.RFC1123, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "Thu, 03 Mar 2016 04:05:00 UTC"},
@@ -2282,7 +2282,7 @@ func TestDateFormat(t *testing.T) {
 		result, err := dateFormat(this.layout, this.value)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] DateFormat didn't return an expected error", i)
+				t.Errorf("[%d] DateFormat didn't return an expected error, got %v", i, result)
 			}
 		} else {
 			if err != nil {
