@@ -149,7 +149,6 @@
 		},
 		{
 			"checksumSHA1": "KQhA4EQp4Ldwj9nJZnEURlE6aQw=",
-			"origin": "github.com/spf13/hugo/vendor/github.com/kr/fs",
 			"path": "github.com/kr/fs",
 			"revision": "2788f0dbd16903de03cb8186e5c7d97b69ad387b",
 			"revisionTime": "2013-11-06T22:25:44Z"
@@ -198,7 +197,6 @@
 		},
 		{
 			"checksumSHA1": "TkXI1L27/2icLlcE/4wTZCfxLeM=",
-			"origin": "github.com/spf13/hugo/vendor/github.com/opennota/urlesc",
 			"path": "github.com/opennota/urlesc",
 			"revision": "5bd2802263f21d8788851d5305584c82a5c75d7e",
 			"revisionTime": "2016-07-26T15:08:25Z"
@@ -217,14 +215,12 @@
 		},
 		{
 			"checksumSHA1": "ynJSWoF6v+3zMnh9R0QmmG6iGV8=",
-			"origin": "github.com/spf13/hugo/vendor/github.com/pkg/errors",
 			"path": "github.com/pkg/errors",
 			"revision": "248dadf4e9068a0b3e79f02ed0a610d935de5302",
 			"revisionTime": "2016-10-29T09:36:37Z"
 		},
 		{
 			"checksumSHA1": "k9SlQdp/DTB72G/u4aNecX/fFIg=",
-			"origin": "github.com/spf13/hugo/vendor/github.com/pkg/sftp",
 			"path": "github.com/pkg/sftp",
 			"revision": "4d0e916071f68db74f8a73926335f809396d6b42",
 			"revisionTime": "2016-09-30T22:07:58Z"
@@ -249,10 +245,10 @@
 			"revisionTime": "2016-09-18T04:11:01Z"
 		},
 		{
-			"checksumSHA1": "KEzQv4I7c+tcoTizQM+tavqKsuM=",
+			"checksumSHA1": "irOCQS1AUSZZqYRJBFr3zZ3BZho=",
 			"path": "github.com/spf13/afero",
-			"revision": "2f30b2a92c0e5700bcfe4715891adb1f2a7a406d",
-			"revisionTime": "2016-12-08T18:21:42Z"
+			"revision": "8a1f1350d877063e2d8271126a7dcd56e260bb90",
+			"revisionTime": "2016-12-08T18:19:22Z"
 		},
 		{
 			"checksumSHA1": "u6B0SEgZ/TUEfIvF6w/HnFVQbII=",
@@ -328,28 +324,24 @@
 		},
 		{
 			"checksumSHA1": "dwOedwBJ1EIK9+S3t108Bx054Y8=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/crypto/curve25519",
 			"path": "golang.org/x/crypto/curve25519",
 			"revision": "f6b343c37ca80bfa8ea539da67a0b621f84fab1d",
 			"revisionTime": "2016-12-21T04:54:10Z"
 		},
 		{
 			"checksumSHA1": "wGb//LjBPNxYHqk+dcLo7BjPXK8=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/crypto/ed25519",
 			"path": "golang.org/x/crypto/ed25519",
 			"revision": "f6b343c37ca80bfa8ea539da67a0b621f84fab1d",
 			"revisionTime": "2016-12-21T04:54:10Z"
 		},
 		{
 			"checksumSHA1": "LXFcVx8I587SnWmKycSDEq9yvK8=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/crypto/ed25519/internal/edwards25519",
 			"path": "golang.org/x/crypto/ed25519/internal/edwards25519",
 			"revision": "f6b343c37ca80bfa8ea539da67a0b621f84fab1d",
 			"revisionTime": "2016-12-21T04:54:10Z"
 		},
 		{
 			"checksumSHA1": "RnJfaFwKpC0h06J2MZ8UZX2eohc=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/crypto/ssh",
 			"path": "golang.org/x/crypto/ssh",
 			"revision": "f6b343c37ca80bfa8ea539da67a0b621f84fab1d",
 			"revisionTime": "2016-12-21T04:54:10Z"
@@ -368,49 +360,42 @@
 		},
 		{
 			"checksumSHA1": "6RQlUOGwzXLntCshLZNUL4r28eU=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/cases",
 			"path": "golang.org/x/text/cases",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
 		},
 		{
 			"checksumSHA1": "wmWAZCPKJA5SLXTUhvlkPD7J2tg=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/internal",
 			"path": "golang.org/x/text/internal",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
 		},
 		{
 			"checksumSHA1": "hyNCcTwMQnV6/MK8uUW9E5H0J0M=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/internal/tag",
 			"path": "golang.org/x/text/internal/tag",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
 		},
 		{
 			"checksumSHA1": "euHabPKoKBA1T8PJWKTxjPoIDhc=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/language",
 			"path": "golang.org/x/text/language",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
 		},
 		{
 			"checksumSHA1": "IV4MN7KGBSocu/5NR3le3sxup4Y=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/runes",
 			"path": "golang.org/x/text/runes",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
 		},
 		{
 			"checksumSHA1": "faFDXp++cLjLBlvsr+izZ+go1WU=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/secure/bidirule",
 			"path": "golang.org/x/text/secure/bidirule",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
 		},
 		{
 			"checksumSHA1": "cjeJ7OfP2+j3yu6x8eR5+qBnPXA=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/secure/precis",
 			"path": "golang.org/x/text/secure/precis",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
@@ -423,7 +408,6 @@
 		},
 		{
 			"checksumSHA1": "VoN1N+QSzZGXJuTX2mVH7fAUXNM=",
-			"origin": "github.com/spf13/hugo/vendor/golang.org/x/text/unicode/bidi",
 			"path": "golang.org/x/text/unicode/bidi",
 			"revision": "a49bea13b776691cb1b49873e5d8df96ec74831a",
 			"revisionTime": "2016-12-16T03:07:57Z"
