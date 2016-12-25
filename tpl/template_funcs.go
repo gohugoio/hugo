@@ -393,19 +393,23 @@ func ResetCaches() {
 
 // imageConfigCache is a lockable cache for image.Config objects. It must be
 // locked before reading or writing to config.
-var imageConfigCache struct {
-	sync.RWMutex
+type imageConfigCache struct {
 	config map[string]image.Config
+	sync.RWMutex
+}
+
+var defaultImageConfigCache = imageConfigCache{
+	config: map[string]image.Config{},
 }
 
 // resetImageConfigCache initializes and resets the imageConfig cache for the
 // imageConfig template function. This should be run once before every batch of
 // template renderers so the cache is cleared for new data.
 func resetImageConfigCache() {
-	imageConfigCache.Lock()
-	defer imageConfigCache.Unlock()
+	defaultImageConfigCache.Lock()
+	defer defaultImageConfigCache.Unlock()
 
-	imageConfigCache.config = map[string]image.Config{}
+	defaultImageConfigCache.config = map[string]image.Config{}
 }
 
 // imageConfig returns the image.Config for the specified path relative to the
@@ -421,9 +425,9 @@ func imageConfig(path interface{}) (image.Config, error) {
 	}
 
 	// Check cache for image config.
-	imageConfigCache.RLock()
-	config, ok := imageConfigCache.config[filename]
-	imageConfigCache.RUnlock()
+	defaultImageConfigCache.RLock()
+	config, ok := defaultImageConfigCache.config[filename]
+	defaultImageConfigCache.RUnlock()
 
 	if ok {
 		return config, nil
@@ -436,9 +440,9 @@ func imageConfig(path interface{}) (image.Config, error) {
 
 	config, _, err = image.DecodeConfig(f)
 
-	imageConfigCache.Lock()
-	imageConfigCache.config[filename] = config
-	imageConfigCache.Unlock()
+	defaultImageConfigCache.Lock()
+	defaultImageConfigCache.config[filename] = config
+	defaultImageConfigCache.Unlock()
 
 	return config, err
 }
