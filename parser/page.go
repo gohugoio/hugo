@@ -64,30 +64,42 @@ var (
 
 // Page represents a parsed content page.
 type Page interface {
+	// FrontMatter contains the raw frontmatter with relevant delimiters.
 	FrontMatter() []byte
+
+	// Content contains the raw page content.
 	Content() []byte
+
+	// IsRenderable denotes that the page should be rendered.
 	IsRenderable() bool
+
+	// Metadata returns the unmarshalled frontmatter data.
 	Metadata() (interface{}, error)
 }
 
+// page implements the Page interface.
 type page struct {
 	render      bool
 	frontmatter []byte
 	content     []byte
 }
 
+// Content returns the raw page content.
 func (p *page) Content() []byte {
 	return p.content
 }
 
+// FrontMatter contains the raw frontmatter with relevant delimiters.
 func (p *page) FrontMatter() []byte {
 	return p.frontmatter
 }
 
+// IsRenderable denotes that the page should be rendered.
 func (p *page) IsRenderable() bool {
 	return p.render
 }
 
+// Metadata returns the unmarshalled frontmatter data.
 func (p *page) Metadata() (meta interface{}, err error) {
 	frontmatter := p.FrontMatter()
 
@@ -151,6 +163,7 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 	return newp, nil
 }
 
+// chompBOM scans any leading Unicode Byte Order Markers from r.
 func chompBOM(r io.RuneScanner) (err error) {
 	for {
 		c, _, err := r.ReadRune()
@@ -164,6 +177,7 @@ func chompBOM(r io.RuneScanner) (err error) {
 	}
 }
 
+// chompWhitespace scans any leading Unicode whitespace from r.
 func chompWhitespace(r io.RuneScanner) (err error) {
 	for {
 		c, _, err := r.ReadRune()
@@ -177,6 +191,9 @@ func chompWhitespace(r io.RuneScanner) (err error) {
 	}
 }
 
+// chompFrontmatterStartComment checks r for a leading HTML comment.  If a
+// comment is found, it is read from r and then whitespace is trimmed from the
+// beginning of r.
 func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
 	candidate, err := r.Peek(32)
 	if err != nil {
@@ -206,6 +223,7 @@ func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
 	return nil
 }
 
+// chompFrontmatterEndComment checks r for a trailing HTML comment.
 func chompFrontmatterEndComment(r *bufio.Reader) (err error) {
 	candidate, err := r.Peek(32)
 	if err != nil {

@@ -356,15 +356,11 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	}
 	kind = parser.FormatSanitize(kind)
 
-	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))
+	var buf bytes.Buffer
+	err = parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind), &buf)
 	if err != nil {
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), fs.Source)
-	if err != nil {
-		return
-	}
-
-	return nil
+	return helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), &buf, fs.Source)
 }

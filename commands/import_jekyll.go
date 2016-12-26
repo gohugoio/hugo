@@ -251,17 +251,13 @@ func createConfigFromJekyll(fs afero.Fs, inpath string, kind string, jekyllConfi
 	}
 	kind = parser.FormatSanitize(kind)
 
-	by, err := parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind))
+	var buf bytes.Buffer
+	err = parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind), &buf)
 	if err != nil {
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), fs)
-	if err != nil {
-		return
-	}
-
-	return nil
+	return helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), &buf, fs)
 }
 
 func copyFile(source string, dest string) error {

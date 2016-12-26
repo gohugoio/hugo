@@ -1424,15 +1424,20 @@ func (p *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
 		}
 	}()
 
-	var by []byte
+	buf := bp.GetBuffer()
+	defer bp.PutBuffer(buf)
 
-	by, err = parser.InterfaceToFrontMatter(in, mark)
+	err = parser.InterfaceToFrontMatter(in, mark, buf)
 	if err != nil {
 		return
 	}
-	by = append(by, '\n')
 
-	p.Source.Frontmatter = by
+	_, err = buf.WriteRune('\n')
+	if err != nil {
+		return
+	}
+
+	p.Source.Frontmatter = buf.Bytes()
 
 	return
 }
