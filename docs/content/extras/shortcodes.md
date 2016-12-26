@@ -190,6 +190,11 @@ Furthermore, you can autostart the embedded video by setting the `autostart` par
      {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 
 
+Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
+
+     {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
+
+
 ### Vimeo
 
 Adding a video from [Vimeo](https://vimeo.com/) is equivalent to the YouTube shortcode above. Extract the ID from the URL, e.g.:
