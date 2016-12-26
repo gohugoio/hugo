@@ -9,7 +9,7 @@ menu:
 next: /extras/highlighting
 prev: /extras/scratch
 title: Shortcodes
-toc: false
+toc: true
 ---
 
 Hugo uses Markdown for its simple content format. However, there are a lot
