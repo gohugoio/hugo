@@ -1494,6 +1494,12 @@ func (p *Page) prepareData(s *Site) error {
 		plural := p.sections[0]
 		term := p.sections[1]
 
+		if s.Info.preserveTaxonomyNames {
+			if v, ok := s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, term)]; ok {
+				term = v
+			}
+		}
+
 		singular := s.taxonomiesPluralSingular[plural]
 		taxonomy := s.Taxonomies[plural].Get(term)
 
