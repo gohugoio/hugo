@@ -33,12 +33,14 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
-	for _, ugly := range []bool{false, true} {
-		doTestNodeAsPage(t, ugly)
+	for _, preserveTaxonomyNames := range []bool{false, true} {
+		for _, ugly := range []bool{true, false} {
+			doTestNodeAsPage(t, ugly, preserveTaxonomyNames)
+		}
 	}
 }
 
-func doTestNodeAsPage(t *testing.T, ugly bool) {
+func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	//jww.SetStdoutThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelFatal)
 
@@ -55,6 +57,7 @@ func doTestNodeAsPage(t *testing.T, ugly bool) {
 	testCommonResetState()
 
 	viper.Set("uglyURLs", ugly)
+	viper.Set("preserveTaxonomyNames", preserveTaxonomyNames)
 
 	writeLayoutsForNodeAsPageTests(t)
 	writeNodePagesForNodeAsPageTests("", t)
@@ -86,6 +89,7 @@ func doTestNodeAsPage(t *testing.T, ugly bool) {
 
 	h := s.owner
 	nodes := h.findAllPagesByKindNotIn(KindPage)
+
 	require.Len(t, nodes, 6)
 
 	home := nodes[5] // oldest
@@ -138,6 +142,10 @@ func doTestNodeAsPage(t *testing.T, ugly bool) {
 		"Date: 2009-01-08",
 		"Lastmod: 2009-01-09",
 	)
+
+	web := s.getPage(KindTaxonomy, "categories", "web")
+	require.NotNil(t, web)
+	require.Len(t, web.Data["Pages"].(Pages), 4)
 
 	assertFileContent(t, expectedFilePath(ugly, "public", "categories", "web"), false,
 		"Taxonomy Title: Taxonomy Web",
@@ -728,7 +736,7 @@ Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 Taxonomy Terms Title: {{ .Title }}
 Taxonomy Terms Content: {{ .Content }}
 {{ range $key, $value := .Data.Terms }}
-	k/v: {{ $key }} / {{ printf "%s" $value }}
+	k/v: {{ $key | lower }} / {{ printf "%s" $value }}
 {{ end }}
 {{ with .Site.Menus.mymenu }}
 {{ range . }}

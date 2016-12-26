@@ -225,6 +225,9 @@ func (h *HugoSites) createMissingPages() error {
 				foundTaxonomyPage := false
 				foundTaxonomyTermsPage := false
 				for key := range tax {
+					if s.Info.preserveTaxonomyNames {
+						key = s.Info.pathSpec.MakePathSanitized(key)
+					}
 					for _, p := range taxonomyPages {
 						if p.sections[0] == plural && p.sections[1] == key {
 							foundTaxonomyPage = true
