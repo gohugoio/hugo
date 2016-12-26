@@ -1808,7 +1808,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 	if err := s.renderThing(d, layout, w); err != nil {
 
 		// Behavior here should be dependent on if running in server or watch mode.
-		distinctErrorLogger.Printf("Error while rendering %s: %.60s…", name, err)
+		distinctErrorLogger.Printf("Error while rendering %q: %s", name, err)
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
 			os.Exit(-1)
