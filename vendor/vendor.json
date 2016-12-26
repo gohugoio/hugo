@@ -245,10 +245,10 @@
 			"revisionTime": "2016-09-18T04:11:01Z"
 		},
 		{
-			"checksumSHA1": "irOCQS1AUSZZqYRJBFr3zZ3BZho=",
+			"checksumSHA1": "iGmLeUVcmiFgd4/iK2Tmx7WIoa4=",
 			"path": "github.com/spf13/afero",
-			"revision": "8a1f1350d877063e2d8271126a7dcd56e260bb90",
-			"revisionTime": "2016-12-08T18:19:22Z"
+			"revision": "90dd71edc4d0a8b3511dc12ea15d617d03be09e0",
+			"revisionTime": "2016-12-26T09:19:39Z"
 		},
 		{
 			"checksumSHA1": "u6B0SEgZ/TUEfIvF6w/HnFVQbII=",
