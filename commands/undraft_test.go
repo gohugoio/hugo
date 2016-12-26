@@ -46,17 +46,17 @@ func TestUndraftContent(t *testing.T) {
 		{yamlDraftFM, ""},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		r := bytes.NewReader([]byte(test.fm))
 		p, _ := parser.ReadFrom(r)
 		res, err := undraftContent(p)
 		if test.expectedErr != "" {
 			if err == nil {
-				t.Error("Expected error, got none")
+				t.Error("[%d] Expected error, got none", i)
 				continue
 			}
 			if err.Error() != test.expectedErr {
-				t.Errorf("Expected %q, got %q", test.expectedErr, err)
+				t.Errorf("[%d] Expected %q, got %q", i, test.expectedErr, err)
 				continue
 			}
 		} else {
@@ -64,19 +64,19 @@ func TestUndraftContent(t *testing.T) {
 			p, _ = parser.ReadFrom(r)
 			meta, err := p.Metadata()
 			if err != nil {
-				t.Errorf("unexpected error %q", err)
+				t.Errorf("[%d] unexpected error %q", i, err)
 				continue
 			}
 			for k, v := range meta.(map[string]interface{}) {
 				if k == "draft" {
 					if v.(bool) {
-						t.Errorf("Expected %q to be \"false\", got \"true\"", k)
+						t.Errorf("[%d] Expected %q to be \"false\", got \"true\"", i, k)
 						continue
 					}
 				}
 				if k == "date" {
 					if !strings.HasPrefix(v.(string), time.Now().Format("2006-01-02")) {
-						t.Errorf("Expected %v to start with %v", v.(string), time.Now().Format("2006-01-02"))
+						t.Errorf("[%d] Expected %v to start with %v", i, v.(string), time.Now().Format("2006-01-02"))
 					}
 				}
 			}
