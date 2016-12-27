@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -73,7 +74,7 @@ func TestParseTaxonomies(t *testing.T) {
 
 		if params, ok := param.([]string); ok {
 			expected := []string{"a", "b", "c"}
-			if !compareStringSlice(params, expected) {
+			if !reflect.DeepEqual(params, expected) {
 				t.Errorf("Expected %s: got: %s", expected, params)
 			}
 		} else if params, ok := param.(string); ok {
@@ -90,18 +91,4 @@ func TestParseTaxonomies(t *testing.T) {
 			t.Fatalf("Expected: d, got: %s", singleparam)
 		}
 	}
-}
-
-func compareStringSlice(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i, v := range a {
-		if b[i] != v {
-			return false
-		}
-	}
-
-	return true
 }

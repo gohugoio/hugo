@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -43,7 +44,7 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 		st = append(st, t.Name)
 	}
 
-	if !compareStringSlice(st, []string{"a", "b", "c"}) {
+	if !reflect.DeepEqual(st, []string{"a", "b", "c"}) {
 		t.Fatalf("ordered taxonomies do not match [a, b, c].  Got: %s", st)
 	}
 }
