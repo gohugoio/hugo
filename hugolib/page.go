@@ -758,7 +758,7 @@ func (p *Page) createPermalink() (*url.URL, error) {
 		// No permalink config for nodes (currently)
 		pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
 		pURL = p.addLangPathPrefix(pURL)
-		pURL = p.Site.pathSpec.URLPrep(path.Join(pURL, "index."+p.Extension()))
+		pURL = p.Site.pathSpec.URLPrep(pURL)
 		url := helpers.MakePermalink(baseURL, pURL)
 		return url, nil
 	}
