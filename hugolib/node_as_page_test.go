@@ -222,6 +222,19 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 		"Taxonomy Terms Title: Categories",
 	)
 
+	pages := s.findPagesByKind(KindTaxonomyTerm)
+	for _, p := range pages {
+		var want string
+		if ugly {
+			want = "/" + p.Site.pathSpec.URLize(p.Title) + ".html"
+		} else {
+			want = "/" + p.Site.pathSpec.URLize(p.Title) + "/"
+		}
+		if p.URL() != want {
+			t.Errorf("Taxonomy term URL mismatch: want %q, got %q", want, p.URL())
+		}
+	}
+
 	// Sections
 	assertFileContent(t, expectedFilePath(ugly, "public", "sect1"), false,
 		"Section Title: Sect1s",
