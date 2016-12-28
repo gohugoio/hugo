@@ -56,9 +56,9 @@ matter, content or derived from file location.
 **.RSSLink** Link to the taxonomies' RSS link.<br>
 **.RawContent** Raw Markdown content without the metadata header. Useful with [remarkjs.com](http://remarkjs.com)<br>
 **.ReadingTime** The estimated time it takes to read the content in minutes.<br>
-**.Ref(ref)** Returns the permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
+**.Ref** Returns the permalink for a given reference.  Example: `.Ref "sample.md"`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments correctly.<br>
 **.RelPermalink** The Relative permanent link for this page.<br>
-**.RelRef(ref)** Returns the relative permalink for `ref`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments.<br> 
+**.RelRef** Returns the relative permalink for a given reference.  Example: `RelRef "sample.md"`. See [cross-references]({{% ref "extras/crossreferences.md" %}}). Does not handle in-page fragments.<br>
 **.Section** The [section](/content/sections/) this content belongs to.<br>
 **.Site** See [Site Variables]({{< relref "#site-variables" >}}) below.<br>
 **.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
@@ -164,6 +164,7 @@ Also available is `.Site` which has the following:
 **.Site.Language.LanguageName** The full language name, e.g. `English`.<br>
 **.Site.LanguagePrefix** This can be used to prefix  theURLs with whats needed to point to the correct language. It will even work when only one language defined. See also the functions [absLangURL and relLangURL]({{< relref "templates/functions.md#abslangurl-rellangurl" >}}).<br>
 **.Site.Languages** An ordered list (ordered by defined weight) of languages.<br>
+**.Site.RegularPages** A shortcut to the *regular page* collection. Equivalent to `where .Site.Pages "Kind" "page"`.<br>
 
 ## File Variables
 

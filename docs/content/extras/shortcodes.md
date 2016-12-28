@@ -6,11 +6,10 @@ date: 2013-07-01
 menu:
   main:
     parent: extras
-next: /extras/pagination
-prev: /extras/permalinks
+next: /extras/highlighting
+prev: /extras/scratch
 title: Shortcodes
-weight: 80
-toc: false
+toc: true
 ---
 
 Hugo uses Markdown for its simple content format. However, there are a lot

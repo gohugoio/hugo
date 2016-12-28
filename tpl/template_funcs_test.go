@@ -629,6 +629,17 @@ func TestImageConfig(t *testing.T) {
 		input      []byte
 		expected   image.Config
 	}{
+		// Make sure that the cache is initialized by default.
+		{
+			resetCache: false,
+			path:       "a.png",
+			input:      blankImage(10, 10),
+			expected: image.Config{
+				Width:      10,
+				Height:     10,
+				ColorModel: color.NRGBAModel,
+			},
+		},
 		{
 			resetCache: true,
 			path:       "a.png",
@@ -685,8 +696,8 @@ func TestImageConfig(t *testing.T) {
 			t.Errorf("[%d] imageConfig: expected '%v', got '%v'", i, this.expected, result)
 		}
 
-		if len(imageConfigCache.config) == 0 {
-			t.Error("imageConfigCache should have at least 1 item")
+		if len(defaultImageConfigCache.config) == 0 {
+			t.Error("defaultImageConfigCache should have at least 1 item")
 		}
 	}
 
@@ -705,8 +716,8 @@ func TestImageConfig(t *testing.T) {
 	// test cache clearing
 	ResetCaches()
 
-	if len(imageConfigCache.config) != 0 {
-		t.Error("ResetCaches should have cleared imageConfigCache")
+	if len(defaultImageConfigCache.config) != 0 {
+		t.Error("ResetCaches should have cleared defaultImageConfigCache")
 	}
 }
 
@@ -801,6 +812,33 @@ func TestSlicestr(t *testing.T) {
 	_, err = slicestr("a", 1, 2, 3)
 	if err == nil {
 		t.Errorf("Should have errored")
+	}
+}
+
+func TestHasPrefix(t *testing.T) {
+	cases := []struct {
+		s      interface{}
+		prefix interface{}
+		want   interface{}
+		isErr  bool
+	}{
+		{"abcd", "ab", true, false},
+		{"abcd", "cd", false, false},
+		{template.HTML("abcd"), "ab", true, false},
+		{template.HTML("abcd"), "cd", false, false},
+		{template.HTML("1234"), 12, true, false},
+		{template.HTML("1234"), 34, false, false},
+		{[]byte("abcd"), "ab", true, false},
+	}
+
+	for i, c := range cases {
+		res, err := hasPrefix(c.s, c.prefix)
+		if (err != nil) != c.isErr {
+			t.Fatalf("[%d] unexpected isErr state: want %v, got %v, err = %v", i, c.isErr, err != nil, err)
+		}
+		if res != c.want {
+			t.Errorf("[%d] want %v, got %v", i, c.want, res)
+		}
 	}
 }
 
@@ -1972,6 +2010,75 @@ func TestChomp(t *testing.T) {
 	}
 }
 
+func TestLower(t *testing.T) {
+	cases := []struct {
+		s     interface{}
+		want  string
+		isErr bool
+	}{
+		{"TEST", "test", false},
+		{template.HTML("LoWeR"), "lower", false},
+		{[]byte("BYTES"), "bytes", false},
+	}
+
+	for i, c := range cases {
+		res, err := lower(c.s)
+		if (err != nil) != c.isErr {
+			t.Fatalf("[%d] unexpected isErr state: want %v, got %v, err = %v", i, c.want, (err != nil), err)
+		}
+
+		if res != c.want {
+			t.Errorf("[%d] lower failed: want %v, got %v", i, c.want, res)
+		}
+	}
+}
+
+func TestTitle(t *testing.T) {
+	cases := []struct {
+		s     interface{}
+		want  string
+		isErr bool
+	}{
+		{"test", "Test", false},
+		{template.HTML("hypertext"), "Hypertext", false},
+		{[]byte("bytes"), "Bytes", false},
+	}
+
+	for i, c := range cases {
+		res, err := title(c.s)
+		if (err != nil) != c.isErr {
+			t.Fatalf("[%d] unexpected isErr state: want %v, got %v, err = %v", i, c.want, (err != nil), err)
+		}
+
+		if res != c.want {
+			t.Errorf("[%d] title failed: want %v, got %v", i, c.want, res)
+		}
+	}
+}
+
+func TestUpper(t *testing.T) {
+	cases := []struct {
+		s     interface{}
+		want  string
+		isErr bool
+	}{
+		{"test", "TEST", false},
+		{template.HTML("UpPeR"), "UPPER", false},
+		{[]byte("bytes"), "BYTES", false},
+	}
+
+	for i, c := range cases {
+		res, err := upper(c.s)
+		if (err != nil) != c.isErr {
+			t.Fatalf("[%d] unexpected isErr state: want %v, got %v, err = %v", i, c.want, (err != nil), err)
+		}
+
+		if res != c.want {
+			t.Errorf("[%d] upper failed: want %v, got %v", i, c.want, res)
+		}
+	}
+}
+
 func TestHighlight(t *testing.T) {
 	code := "func boo() {}"
 	highlighted, err := highlight(code, "go", "")
@@ -2165,7 +2272,7 @@ func TestDateFormat(t *testing.T) {
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
 		{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
 		{"This isn't a date layout string", "2015-01-21", "This isn't a date layout string"},
-		{"Monday, Jan 2, 2006", 1421733600, false},
+		{"Monday, Jan 2, 2006", 1421733600, "Tuesday, Jan 20, 2015"},
 		{"Monday, Jan 2, 2006", 1421733600.123, false},
 		{time.RFC3339, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "2016-03-03T04:05:00Z"},
 		{time.RFC1123, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "Thu, 03 Mar 2016 04:05:00 UTC"},
@@ -2175,7 +2282,7 @@ func TestDateFormat(t *testing.T) {
 		result, err := dateFormat(this.layout, this.value)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
-				t.Errorf("[%d] DateFormat didn't return an expected error", i)
+				t.Errorf("[%d] DateFormat didn't return an expected error, got %v", i, result)
 			}
 		} else {
 			if err != nil {

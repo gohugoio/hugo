@@ -88,6 +88,11 @@ type Site struct {
 	// to get the singular form from that value.
 	taxonomiesPluralSingular map[string]string
 
+	// This is temporary, see https://github.com/spf13/hugo/issues/2835
+	// Maps 	"actors-gerard-depardieu" to "Gérard Depardieu" when preserveTaxonomyNames
+	// is set.
+	taxonomiesOrigKey map[string]string
+
 	Source         source.Input
 	Sections       Taxonomy
 	Info           SiteInfo
@@ -1477,8 +1482,10 @@ func (s *Site) assembleMenus() {
 func (s *Site) assembleTaxonomies() {
 	s.Taxonomies = make(TaxonomyList)
 	s.taxonomiesPluralSingular = make(map[string]string)
+	s.taxonomiesOrigKey = make(map[string]string)
 
 	taxonomies := s.Language.GetStringMapString("taxonomies")
+
 	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
 	for singular, plural := range taxonomies {
@@ -1496,10 +1503,18 @@ func (s *Site) assembleTaxonomies() {
 					for _, idx := range v {
 						x := WeightedPage{weight.(int), p}
 						s.Taxonomies[plural].add(idx, x, s.Info.preserveTaxonomyNames)
+						if s.Info.preserveTaxonomyNames {
+							// Need to track the original
+							s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, kp(idx))] = idx
+						}
 					}
 				} else if v, ok := vals.(string); ok {
 					x := WeightedPage{weight.(int), p}
 					s.Taxonomies[plural].add(v, x, s.Info.preserveTaxonomyNames)
+					if s.Info.preserveTaxonomyNames {
+						// Need to track the original
+						s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, kp(v))] = v
+					}
 				} else {
 					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
 				}
@@ -1808,7 +1823,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 	if err := s.renderThing(d, layout, w); err != nil {
 
 		// Behavior here should be dependent on if running in server or watch mode.
-		distinctErrorLogger.Printf("Error while rendering %s: %.60s…", name, err)
+		distinctErrorLogger.Printf("Error while rendering %q: %s", name, err)
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
 			os.Exit(-1)

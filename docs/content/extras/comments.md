@@ -8,7 +8,6 @@ menu:
 next: /extras/crossreferences
 prev: /extras/builders
 title: Comments in Hugo
-weight: 30
 ---
 
 As Hugo is a static site generator, the content produced is static and doesn’t interact with the users. The most common interaction people ask for is comment capability.
