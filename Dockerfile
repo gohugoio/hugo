@@ -36,14 +36,14 @@ RUN go get github.com/stretchr/testify/assert \
 	&& go get github.com/yosssi/ace \
 	&& go get github.com/spf13/nitro \
 	&& go get github.com/fortytw2/leaktest \
-	&& go get github.com/fsnotify/fsnotify
+	&& go get github.com/fsnotify/fsnotify \
+	&& go get github.com/bep/gitmap \
+	&& go get github.com/nicksnyder/go-i18n/i18n
 
 COPY . /go/src/github.com/spf13/hugo
-RUN go get -d -v github.com/spf13/hugo
-RUN go install github.com/spf13/hugo
 
-WORKDIR /go/src/github.com/spf13/hugo
-RUN go get -d -v
-RUN go build -o hugo main.go
-RUN go test github.com/spf13/hugo/...
+RUN cd /go/src/github.com/spf13/hugo \
+	&& go get -d -v \
+	&& go install \
+	&& go test github.com/spf13/hugo/...
 
