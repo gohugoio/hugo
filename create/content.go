@@ -110,6 +110,9 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 	var date time.Time
 
 	for k, v := range metadata {
+		if v == "" {
+			continue
+		}
 		lk := strings.ToLower(k)
 		switch lk {
 		case "date":

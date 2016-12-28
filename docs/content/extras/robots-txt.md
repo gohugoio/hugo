@@ -4,10 +4,9 @@ date: 2015-12-08
 menu:
   main:
     parent: extras
-next: /community/mailing-list
-prev: /extras/urls
+next: /extras/datafiles
+prev: /extras/crossreferences
 title: Custom robots.txt
-weight: 120
 ---
 
 Hugo can generated a customized [robots.txt](http://www.robotstxt.org/) in the

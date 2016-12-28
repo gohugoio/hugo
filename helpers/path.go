@@ -31,6 +31,13 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+var (
+	// ErrThemeUndefined is returned when a theme has not be defined by the user.
+	ErrThemeUndefined = errors.New("no theme set")
+
+	ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
+)
+
 // filepathPathBridge is a bridge for common functionality in filepath vs path
 type filepathPathBridge interface {
 	Base(in string) string
@@ -157,6 +164,12 @@ func AbsPathify(inPath string) string {
 	return filepath.Clean(filepath.Join(viper.GetString("workingDir"), inPath))
 }
 
+// GetLayoutDirPath returns the absolute path to the layout file dir
+// for the current Hugo project.
+func GetLayoutDirPath() string {
+	return AbsPathify(viper.GetString("layoutDir"))
+}
+
 // GetStaticDirPath returns the absolute path to the static file dir
 // for the current Hugo project.
 func GetStaticDirPath() string {
@@ -168,6 +181,15 @@ func GetStaticDirPath() string {
 func GetThemeDir() string {
 	if ThemeSet() {
 		return AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")))
+	}
+	return ""
+}
+
+// GetRelativeThemeDir gets the relative root directory of the current theme, if there is one.
+// If there is no theme, returns the empty string.
+func GetRelativeThemeDir() string {
+	if ThemeSet() {
+		return strings.TrimPrefix(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")), FilePathSeparator)
 	}
 	return ""
 }
@@ -192,7 +214,7 @@ func GetThemeI18nDirPath() (string, error) {
 
 func getThemeDirPath(path string) (string, error) {
 	if !ThemeSet() {
-		return "", errors.New("No theme set")
+		return "", ErrThemeUndefined
 	}
 
 	themeDir := filepath.Join(GetThemeDir(), path)
@@ -469,8 +491,6 @@ func FindCWD() (string, error) {
 
 	return path, nil
 }
-
-var ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
 
 // SymbolicWalk is like filepath.Walk, but it supports the root being a
 // symbolic link. It will still not follow symbolic links deeper down in

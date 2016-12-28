@@ -87,6 +87,10 @@ If you still want to use an editor, look at these plugins to automate your workf
 
 - [Hugofy](https://github.com/akmittal/Hugofy) - Hugofy is a plugin for Sublime Text 3 to make life easier to use Hugo static site generator.
 
+### Visual Studio Code
+
+- [Hugofy](https://marketplace.visualstudio.com/items?itemName=akmittal.hugofy) - Hugofy is a plugin for Visual Studio Code to make life easier to use Hugo static site generator. The source code can be found [here](https://github.com/akmittal/hugofy-vscode).
+
 ### Emacs
 
 - [hugo.el](https://github.com/yewton/hugo.el) - Some helper functions for creating a Website with Hugo.

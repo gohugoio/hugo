@@ -239,6 +239,21 @@ func slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 
 }
 
+// hasPrefix tests whether the input s begins with prefix.
+func hasPrefix(s, prefix interface{}) (bool, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return false, err
+	}
+
+	sp, err := cast.ToStringE(prefix)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.HasPrefix(ss, sp), nil
+}
+
 // substr extracts parts of a string, beginning at the character at the specified
 // position, and returns the specified number of characters.
 //
@@ -378,19 +393,23 @@ func ResetCaches() {
 
 // imageConfigCache is a lockable cache for image.Config objects. It must be
 // locked before reading or writing to config.
-var imageConfigCache struct {
-	sync.RWMutex
+type imageConfigCache struct {
 	config map[string]image.Config
+	sync.RWMutex
+}
+
+var defaultImageConfigCache = imageConfigCache{
+	config: map[string]image.Config{},
 }
 
 // resetImageConfigCache initializes and resets the imageConfig cache for the
 // imageConfig template function. This should be run once before every batch of
 // template renderers so the cache is cleared for new data.
 func resetImageConfigCache() {
-	imageConfigCache.Lock()
-	defer imageConfigCache.Unlock()
+	defaultImageConfigCache.Lock()
+	defer defaultImageConfigCache.Unlock()
 
-	imageConfigCache.config = map[string]image.Config{}
+	defaultImageConfigCache.config = map[string]image.Config{}
 }
 
 // imageConfig returns the image.Config for the specified path relative to the
@@ -406,9 +425,9 @@ func imageConfig(path interface{}) (image.Config, error) {
 	}
 
 	// Check cache for image config.
-	imageConfigCache.RLock()
-	config, ok := imageConfigCache.config[filename]
-	imageConfigCache.RUnlock()
+	defaultImageConfigCache.RLock()
+	config, ok := defaultImageConfigCache.config[filename]
+	defaultImageConfigCache.RUnlock()
 
 	if ok {
 		return config, nil
@@ -421,9 +440,9 @@ func imageConfig(path interface{}) (image.Config, error) {
 
 	config, _, err = image.DecodeConfig(f)
 
-	imageConfigCache.Lock()
-	imageConfigCache.config[filename] = config
-	imageConfigCache.Unlock()
+	defaultImageConfigCache.Lock()
+	defaultImageConfigCache.config[filename] = config
+	defaultImageConfigCache.Unlock()
 
 	return config, err
 }
@@ -1431,6 +1450,39 @@ func chomp(text interface{}) (template.HTML, error) {
 	return template.HTML(strings.TrimRight(s, "\r\n")), nil
 }
 
+// lower returns a copy of the input s with all Unicode letters mapped to their
+// lower case.
+func lower(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ToLower(ss), nil
+}
+
+// title returns a copy of the input s with all Unicode letters that begin words
+// mapped to their title case.
+func title(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Title(ss), nil
+}
+
+// upper returns a copy of the input s with all Unicode letters mapped to their
+// upper case.
+func upper(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ToUpper(ss), nil
+}
+
 // trim leading/trailing characters defined by b from a
 func trim(a interface{}, b string) (string, error) {
 	aStr, err := cast.ToStringE(a)
@@ -2027,6 +2079,17 @@ func relURL(a interface{}) (template.HTML, error) {
 	return template.HTML(helpers.CurrentPathSpec().RelURL(s, false)), nil
 }
 
+// getenv retrieves the value of the environment variable named by the key.
+// It returns the value, which will be empty if the variable is not present.
+func getenv(key interface{}) (string, error) {
+	skey, err := cast.ToStringE(key)
+	if err != nil {
+		return "", nil
+	}
+
+	return os.Getenv(skey), nil
+}
+
 func initFuncMap() {
 	funcMap = template.FuncMap{
 		"absURL": absURL,
@@ -2058,9 +2121,9 @@ func initFuncMap() {
 		"ge":            ge,
 		"getCSV":        getCSV,
 		"getJSON":       getJSON,
-		"getenv":        func(varName string) string { return os.Getenv(varName) },
+		"getenv":        getenv,
 		"gt":            gt,
-		"hasPrefix":     func(a, b string) bool { return strings.HasPrefix(a, b) },
+		"hasPrefix":     hasPrefix,
 		"highlight":     highlight,
 		"htmlEscape":    htmlEscape,
 		"htmlUnescape":  htmlUnescape,
@@ -2075,7 +2138,7 @@ func initFuncMap() {
 		"jsonify":       jsonify,
 		"last":          last,
 		"le":            le,
-		"lower":         func(a string) string { return strings.ToLower(a) },
+		"lower":         lower,
 		"lt":            lt,
 		"markdownify":   markdownify,
 		"md5":           md5,
@@ -2121,10 +2184,10 @@ func initFuncMap() {
 		"string":       func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"sub":          func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '-') },
 		"substr":       substr,
-		"title":        func(a string) string { return strings.Title(a) },
+		"title":        title,
 		"time":         asTime,
 		"trim":         trim,
-		"upper":        func(a string) string { return strings.ToUpper(a) },
+		"upper":        upper,
 		"urlize":       helpers.CurrentPathSpec().URLize,
 		"where":        where,
 		"i18n":         i18nTranslate,

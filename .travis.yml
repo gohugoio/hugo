@@ -1,8 +1,8 @@
 language: go
 sudo: required
 go:
-  - 1.6.3
-  - 1.7.3
+  - 1.6.4
+  - 1.7.4
   - tip
 os:
   - linux
@@ -19,6 +19,6 @@ script:
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:
-  # gem install must be run with sudo on OSX 
-  - sudo gem install asciidoctor | gem install asciidoctor 
+  # gem install must be run with sudo on OSX
+  - sudo gem install asciidoctor | gem install asciidoctor
   - sudo pip install docutils

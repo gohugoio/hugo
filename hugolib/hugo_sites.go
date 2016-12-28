@@ -180,7 +180,7 @@ func (h *HugoSites) assignMissingTranslations() error {
 		// Assign translations
 		for _, t1 := range nodes {
 			for _, t2 := range nodes {
-				if t2.isNewTranslation(t1) {
+				if t1.isNewTranslation(t2) {
 					t1.translations = append(t1.translations, t2)
 				}
 			}
@@ -225,6 +225,9 @@ func (h *HugoSites) createMissingPages() error {
 				foundTaxonomyPage := false
 				foundTaxonomyTermsPage := false
 				for key := range tax {
+					if s.Info.preserveTaxonomyNames {
+						key = s.Info.pathSpec.MakePathSanitized(key)
+					}
 					for _, p := range taxonomyPages {
 						if p.sections[0] == plural && p.sections[1] == key {
 							foundTaxonomyPage = true

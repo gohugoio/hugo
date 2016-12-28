@@ -21,8 +21,8 @@
         position: none !important;
     }
 
-    #sidebar > ul > li > a > span {
-        line-height: 35px;
+    .wrapper {
+        padding: inherit;
     }
 
     #sidebar > ul > li {
@@ -51,6 +51,10 @@
         margin-bottom: 5px;
     }
 
+    .navigation.next {
+        display: none;
+    }
+
 }
 
 @media (max-width: 480px) {
@@ -60,9 +64,9 @@
     }
 }
 
-@media (max-width:320px) {
+@media (max-width:360px) {
 
-    .notification-row {
-        display: none;
+    h1 {
+        font-size: 1.9em;
     }
 }

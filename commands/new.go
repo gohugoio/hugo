@@ -296,7 +296,7 @@ description = ""
 homepage = "http://siteforthistheme.com/"
 tags = ["", ""]
 features = ["", ""]
-min_version = 0.17
+min_version = 0.18
 
 [author]
   name = ""

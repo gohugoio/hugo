@@ -758,7 +758,7 @@ func (p *Page) createPermalink() (*url.URL, error) {
 		// No permalink config for nodes (currently)
 		pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
 		pURL = p.addLangPathPrefix(pURL)
-		pURL = p.Site.pathSpec.URLPrep(path.Join(pURL, "index."+p.Extension()))
+		pURL = p.Site.pathSpec.URLPrep(pURL)
 		url := helpers.MakePermalink(baseURL, pURL)
 		return url, nil
 	}
@@ -1494,6 +1494,12 @@ func (p *Page) prepareData(s *Site) error {
 		plural := p.sections[0]
 		term := p.sections[1]
 
+		if s.Info.preserveTaxonomyNames {
+			if v, ok := s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, term)]; ok {
+				term = v
+			}
+		}
+
 		singular := s.taxonomiesPluralSingular[plural]
 		taxonomy := s.Taxonomies[plural].Get(term)
 
@@ -1626,16 +1632,13 @@ func (p *Page) Lang() string {
 }
 
 func (p *Page) isNewTranslation(candidate *Page) bool {
-	if p == candidate || p.Kind != candidate.Kind {
+
+	if p.Kind != candidate.Kind {
 		return false
 	}
 
 	if p.Kind == KindPage || p.Kind == kindUnknown {
 		panic("Node type not currently supported for this op")
-	}
-
-	if p.language.Lang == candidate.language.Lang {
-		return false
 	}
 
 	// At this point, we know that this is a traditional Node (home page, section, taxonomy)
@@ -1651,8 +1654,8 @@ func (p *Page) isNewTranslation(candidate *Page) bool {
 	}
 
 	// Finally check that it is not already added.
-	for _, translation := range candidate.translations {
-		if p == translation {
+	for _, translation := range p.translations {
+		if candidate == translation {
 			return false
 		}
 	}

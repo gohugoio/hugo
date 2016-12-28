@@ -447,31 +447,45 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				}
 				if needsBase {
 
+					layoutDir := helpers.GetLayoutDirPath()
+					currBaseFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseFileName)
+					templateDir := filepath.Dir(path)
+					themeDir := filepath.Join(helpers.GetThemeDir())
+					relativeThemeLayoutsDir := filepath.Join(helpers.GetRelativeThemeDir(), "layouts")
+
+					var baseTemplatedDir string
+
+					if strings.HasPrefix(templateDir, relativeThemeLayoutsDir) {
+						baseTemplatedDir = strings.TrimPrefix(templateDir, relativeThemeLayoutsDir)
+					} else {
+						baseTemplatedDir = strings.TrimPrefix(templateDir, layoutDir)
+					}
+
+					baseTemplatedDir = strings.TrimPrefix(baseTemplatedDir, helpers.FilePathSeparator)
+
 					// Look for base template in the follwing order:
 					//   1. <current-path>/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 					//   2. <current-path>/baseof.<suffix>
 					//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 					//   4. _default/baseof.<suffix>
-					//   5. <themedir>/layouts/_default/<template-name>-baseof.<suffix>
-					//   6. <themedir>/layouts/_default/baseof.<suffix>
+					// For each of the steps above, it will first look in the project, then, if theme is set,
+					// in the theme's layouts folder.
 
-					currBaseFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseFileName)
-					templateDir := filepath.Dir(path)
-					themeDir := helpers.GetThemeDir()
-
-					pathsToCheck := []string{
-						filepath.Join(templateDir, currBaseFilename),
-						filepath.Join(templateDir, baseFileName),
-						filepath.Join(absPath, "_default", currBaseFilename),
-						filepath.Join(absPath, "_default", baseFileName),
-						filepath.Join(themeDir, "layouts", "_default", currBaseFilename),
-						filepath.Join(themeDir, "layouts", "_default", baseFileName),
+					pairsToCheck := [][]string{
+						[]string{baseTemplatedDir, currBaseFilename},
+						[]string{baseTemplatedDir, baseFileName},
+						[]string{"_default", currBaseFilename},
+						[]string{"_default", baseFileName},
 					}
 
-					for _, pathToCheck := range pathsToCheck {
-						if ok, err := helpers.Exists(pathToCheck, hugofs.Source()); err == nil && ok {
-							baseTemplatePath = pathToCheck
-							break
+				Loop:
+					for _, pair := range pairsToCheck {
+						pathsToCheck := basePathsToCheck(pair, layoutDir, themeDir)
+						for _, pathToCheck := range pathsToCheck {
+							if ok, err := helpers.Exists(pathToCheck, hugofs.Source()); err == nil && ok {
+								baseTemplatePath = pathToCheck
+								break Loop
+							}
 						}
 					}
 				}
@@ -487,6 +501,19 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 	if err := helpers.SymbolicWalk(hugofs.Source(), absPath, walker); err != nil {
 		jww.ERROR.Printf("Failed to load templates: %s", err)
 	}
+}
+
+func basePathsToCheck(path []string, layoutDir, themeDir string) []string {
+	// Always look in the project.
+	pathsToCheck := []string{filepath.Join((append([]string{layoutDir}, path...))...)}
+
+	// May have a theme
+	if themeDir != "" {
+		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{themeDir, "layouts"}, path...))...))
+	}
+
+	return pathsToCheck
+
 }
 
 func (t *GoHTMLTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {

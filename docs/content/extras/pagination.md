@@ -6,10 +6,9 @@ date: 2014-01-01
 menu:
   main:
     parent: extras
-next: /extras/scratch
-prev: /extras/shortcodes
+next: /extras/permalinks
+prev: /extras/menus
 title: Pagination
-weight: 80
 ---
 
 Hugo supports pagination for the home page, sections and taxonomies. It's built to be easy use, but with loads of flexibility when needed. The real power shines when you combine it with [`where`](/templates/functions/), with its SQL-like operators, `first` and others --- you can even [order the content](/templates/list/) the way you've become used to with Hugo.

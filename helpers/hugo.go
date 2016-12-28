@@ -19,33 +19,45 @@ import (
 
 // HugoVersionNumber represents the current build version.
 // This should be the only one
-const HugoVersionNumber = 0.18
+const (
+	// Major and minor version.
+	HugoVersionNumber = 0.19
+
+	// Increment this for bug releases
+	HugoPatchVersion = 0
+)
 
 // HugoVersionSuffix is the suffix used in the Hugo version string.
 // It will be blank for release versions.
 const HugoVersionSuffix = "-DEV" // use this when not doing a release
-// const HugoVersionSuffix = "" // use this line when doing a release
+//const HugoVersionSuffix = "" // use this line when doing a release
 
 // HugoVersion returns the current Hugo version. It will include
 // a suffix, typically '-DEV', if it's development version.
 func HugoVersion() string {
-	return hugoVersion(HugoVersionNumber, HugoVersionSuffix)
+	return hugoVersion(HugoVersionNumber, HugoPatchVersion, HugoVersionSuffix)
 }
 
 // HugoReleaseVersion is same as HugoVersion, but no suffix.
 func HugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber)
+	return hugoVersionNoSuffix(HugoVersionNumber, HugoPatchVersion)
 }
 
 // NextHugoReleaseVersion returns the next Hugo release version.
 func NextHugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber + 0.01)
+	return hugoVersionNoSuffix(HugoVersionNumber+0.01, 0)
 }
 
-func hugoVersion(version float32, suffix string) string {
+func hugoVersion(version float32, patchVersion int, suffix string) string {
+	if patchVersion > 0 {
+		return fmt.Sprintf("%.2g.%d%s", version, patchVersion, suffix)
+	}
 	return fmt.Sprintf("%.2g%s", version, suffix)
 }
 
-func hugoVersionNoSuffix(version float32) string {
+func hugoVersionNoSuffix(version float32, patchVersion int) string {
+	if patchVersion > 0 {
+		return fmt.Sprintf("%.2g.%d", version, patchVersion)
+	}
 	return fmt.Sprintf("%.2g", version)
 }

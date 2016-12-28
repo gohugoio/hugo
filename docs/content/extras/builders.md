@@ -8,7 +8,6 @@ menu:
 next: /extras/comments
 prev: /extras/analytics
 title: Hugo Builders
-weight: 20
 ---
 
 Hugo provides the functionality to quickly get a site, theme or page
