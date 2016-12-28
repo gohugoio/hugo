@@ -1261,6 +1261,61 @@ func TestDraft(t *testing.T) {
 	}
 }
 
+var pagesParamsTemplate = []string{`+++
+title = "okay"
+draft = false
+tags = [ "hugo", "web" ]
+social= [
+  [ "a", "#" ],
+  [ "b", "#" ],
+]
++++
+some content
+`,
+	`---
+title: "okay"
+draft: false
+tags:
+  - hugo
+  - web
+social:
+  - - a
+    - "#"
+  - - b
+    - "#"
+---
+some content
+`,
+	`{
+	"title": "okay",
+	"draft": false,
+	"tags": [ "hugo", "web" ],
+	"social": [
+		[ "a", "#" ],
+		[ "b", "#" ]
+	]
+}
+some content
+`,
+}
+
+func TestPageParams(t *testing.T) {
+	want := map[string]interface{}{
+		"tags": []string{"hugo", "web"},
+		// Issue #2752
+		"social": []interface{}{
+			[]interface{}{"a", "#"},
+			[]interface{}{"b", "#"},
+		},
+	}
+
+	for i, c := range pagesParamsTemplate {
+		p, err := NewPageFrom(strings.NewReader(c), "content/post/params.md")
+		require.NoError(t, err, "err during parse", "#%d", i)
+		assert.Equal(t, want, p.Params, "#%d", i)
+	}
+}
+
 func TestPageSimpleMethods(t *testing.T) {
 	for i, this := range []struct {
 		assertFunc func(p *Page) bool
