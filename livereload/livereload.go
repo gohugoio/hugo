@@ -38,7 +38,7 @@ package livereload
 
 import (
 	"net/http"
-	"strings"
+	"path/filepath"
 
 	"github.com/gorilla/websocket"
 )
@@ -74,8 +74,8 @@ func ForceRefresh() {
 // will be updated in the browser, not the entire page.
 func RefreshPath(s string) {
 	// Tell livereload a file has changed - will force a hard refresh if not CSS or an image
-	urlPath := strings.Replace(s, "\\", "/", -1) // If path has backslashes on Windows, make path work for URL
-	wsHub.broadcast <- []byte(`{"command":"reload","path":"` + urlPath + "\"" + `,"originalPath":"","liveCSS":true,"liveImg":true}`)
+	urlPath := filepath.ToSlash(s)
+	wsHub.broadcast <- []byte(`{"command":"reload","path":"` + urlPath + `","originalPath":"","liveCSS":true,"liveImg":true}`)
 }
 
 // ServeJS serves the liverreload.js who's reference is injected into the page.
