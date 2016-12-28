@@ -1018,6 +1018,8 @@ func (p *Page) update(f interface{}) error {
 							p.Params[loki] = vvv
 						case map[string]interface{}: // Proper parsing structured array from JSON based FrontMatter
 							p.Params[loki] = vvv
+						case []interface{}:
+							p.Params[loki] = vvv
 						default:
 							a := make([]string, len(vvv))
 							for i, u := range vvv {
