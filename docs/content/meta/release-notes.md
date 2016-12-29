@@ -9,6 +9,15 @@ menu:
 title: Release Notes
 weight: 10
 ---
+## **0.18.1** December 30th 2016
+
+Hugo 0.18.1 is a bug fix release fixing some issues introduced in Hugo 0.18:
+
+* Fix 32-bit binaries {{<gh 2847 >}}
+* Fix issues with `preserveTaxonomyNames` {{<gh 2809 >}}
+* Fix `.URL` for taxonomy pages when `uglyURLs=true` {{<gh 2819 >}}
+* Fix `IsTranslated` and `Translations` for node pages {{<gh 2812 >}}
+* Make template error messages more verbose {{<gh 2820 >}}
 
 ## **0.18.0** December 19th 2016
 
