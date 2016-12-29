@@ -14,6 +14,11 @@
 package lang
 
 import (
+	"errors"
+	"math"
+	"strconv"
+	"strings"
+
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/deps"
 )
@@ -38,4 +43,94 @@ func (ns *Namespace) Translate(id interface{}, args ...interface{}) (string, err
 	}
 
 	return ns.deps.Translate(sid, args...), nil
+}
+
+// NumFmt formats a number with the given precision using the
+// negative, decimal, and grouping options.  The `options`
+// parameter is a string consisting of `<negative> <decimal> <grouping>`.  The
+// default `options` value is `- . ,`.
+//
+// Note that numbers are rounded up at 5 or greater.
+// So, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.
+func (ns *Namespace) NumFmt(precision, number interface{}, options ...interface{}) (string, error) {
+	prec, err := cast.ToIntE(precision)
+	if err != nil {
+		return "", err
+	}
+
+	n, err := cast.ToFloat64E(number)
+	if err != nil {
+		return "", err
+	}
+
+	var neg, dec, grp string
+
+	if len(options) == 0 {
+		// TODO(moorereason): move to site config
+		neg, dec, grp = "-", ".", ","
+	} else {
+		s, err := cast.ToStringE(options[0])
+		if err != nil {
+			return "", nil
+		}
+
+		rs := strings.Fields(s)
+		switch len(rs) {
+		case 0:
+		case 1:
+			neg = rs[0]
+		case 2:
+			neg, dec = rs[0], rs[1]
+		case 3:
+			neg, dec, grp = rs[0], rs[1], rs[2]
+		default:
+			return "", errors.New("too many fields in options parameter to NumFmt")
+		}
+	}
+
+	// Logic from MIT Licensed github.com/go-playground/locales/
+	// Original Copyright (c) 2016 Go Playground
+
+	s := strconv.FormatFloat(math.Abs(n), 'f', prec, 64)
+	L := len(s) + 2 + len(s[:len(s)-1-prec])/3
+
+	var count int
+	inWhole := prec == 0
+	b := make([]byte, 0, L)
+
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == '.' {
+			for j := len(dec) - 1; j >= 0; j-- {
+				b = append(b, dec[j])
+			}
+			inWhole = true
+			continue
+		}
+
+		if inWhole {
+			if count == 3 {
+				for j := len(grp) - 1; j >= 0; j-- {
+					b = append(b, grp[j])
+				}
+				count = 1
+			} else {
+				count++
+			}
+		}
+
+		b = append(b, s[i])
+	}
+
+	if n < 0 {
+		for j := len(neg) - 1; j >= 0; j-- {
+			b = append(b, neg[j])
+		}
+	}
+
+	// reverse
+	for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
+		b[i], b[j] = b[j], b[i]
+	}
+
+	return string(b), nil
 }
