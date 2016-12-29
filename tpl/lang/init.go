@@ -34,6 +34,16 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.NumFmt,
+			nil,
+			[][2]string{
+				{`{{ lang.NumFmt 2 12345.6789 }}`, `12,345.68`},
+				{`{{ lang.NumFmt 2 12345.6789 "- , ." }}`, `12.345,68`},
+				{`{{ lang.NumFmt 6 -12345.6789 "- ." }}`, `-12345.678900`},
+				{`{{ lang.NumFmt 0 -12345.6789 "- . ," }}`, `-12,346`},
+				{`{{ -98765.4321 | lang.NumFmt 2 }}`, `-98,765.43`},
+			},
+		)
 		return ns
 
 	}
