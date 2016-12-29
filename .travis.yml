@@ -15,6 +15,8 @@ install:
   - make govendor
 script:
   - make check
+  # Test 64-bit alignment on 32-bit builds
+  - env GOARCH=386 make test
   - go build -race
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
