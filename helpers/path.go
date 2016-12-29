@@ -31,7 +31,6 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-
 var (
 	// ErrThemeUndefined is returned when a theme has not be defined by the user.
 	ErrThemeUndefined = errors.New("no theme set")
