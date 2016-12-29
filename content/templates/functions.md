@@ -460,6 +460,24 @@ e.g.
 
 * `{{ int "123" }}` → 123
 
+### lang.NumFmt
+
+`NumFmt` formats a number with the given precision using the *decimal*,
+*grouping*, and *negative* options.  The `options` parameter is a
+string consisting of `<negative> <decimal> <grouping>`.  The default
+`options` value is `- . ,`.
+
+Note that numbers are rounded up at 5 or greater.
+So, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.
+
+```
+{{ lang.NumFmt 2 12345.6789 }} → 12,345.68
+{{ lang.NumFmt 2 12345.6789 "- , ." }} → 12.345,68
+{{ lang.NumFmt 0 -12345.6789 "- . ," }} → -12,346
+{{ lang.NumFmt 6 -12345.6789 "- ." }} → -12345.678900
+{{ -98765.4321 | lang.NumFmt 2 }} → -98,765.43
+```
+
 ## Strings
 
 ### printf
