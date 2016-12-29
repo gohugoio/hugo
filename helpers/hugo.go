@@ -24,7 +24,7 @@ const (
 	HugoVersionNumber = 0.18
 
 	// Increment this for bug releases
-	HugoPatchVersion = 0
+	HugoPatchVersion = 1
 )
 
 // HugoVersionSuffix is the suffix used in the Hugo version string.
