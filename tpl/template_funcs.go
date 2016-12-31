@@ -2146,6 +2146,7 @@ func initFuncMap() {
 		"modBool":       modBool,
 		"mul":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
 		"ne":            ne,
+		"now":           func() time.Time { return time.Now() },
 		"partial":       partial,
 		"partialCached": partialCached,
 		"plainify":      plainify,
