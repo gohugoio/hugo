@@ -68,7 +68,7 @@ matter, content or derived from file location.
 **.Truncated** A boolean, `true` if the `.Summary` is truncated.  Useful for showing a "Read more..." link only if necessary.  See [Summaries](/content/summaries/) for more details.<br>
 **.Type** The content [type](/content/types/) (e.g. post).<br>
 **.URL** The relative URL for this page. Note that if `URL` is set directly in frontmatter, that URL is returned as-is.<br>
-**.UniqueID** The MD5-checksum of the page's filename<br>
+**.UniqueID** The MD5-checksum of the content file's path<br>
 **.Weight** Assigned weight (in the front matter) to this content, used in sorting.<br>
 **.WordCount** The number of words in the content.<br>
 
