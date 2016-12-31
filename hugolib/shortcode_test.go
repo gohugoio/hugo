@@ -324,7 +324,7 @@ void do();
 	}
 
 	if !matched {
-		t.Error("Hightlight mismatch, got\n", output)
+		t.Errorf("Hightlight mismatch, got (escaped to see invisible chars)\n%+q", output)
 	}
 }
 

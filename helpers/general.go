@@ -38,6 +38,11 @@ import (
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
+// Strips carriage returns from third-party / external processes (useful for Windows)
+func normalizeExternalHelperLineFeeds(content []byte) []byte {
+	return bytes.Replace(content, []byte("\r"), []byte(""), -1)
+}
+
 // FindAvailablePort returns an available and valid TCP port.
 func FindAvailablePort() (*net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")
