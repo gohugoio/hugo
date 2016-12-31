@@ -137,7 +137,7 @@ func NewFile(relpath string) *File {
 	}
 
 	f.section = helpers.GuessSection(f.Dir())
-	f.uniqueID = helpers.Md5String(f.LogicalName())
+	f.uniqueID = helpers.Md5String(f.Path())
 
 	return f
 }
