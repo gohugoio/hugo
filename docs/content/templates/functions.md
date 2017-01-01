@@ -804,6 +804,10 @@ For more information about string translations, see [Translation of strings]({{<
 * `{{ (time "2016-05-28").YearDay }}` → 149
 * `{{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }}` → 1464395400000 (Unix time in milliseconds)
 
+### now
+
+`now` returns the current local time as a [`time.Time`](https://godoc.org/time#Time).
+
 ## URLs
 ### absLangURL, relLangURL
 These are similar to the `absURL` and `relURL` relatives below, but will add the correct language prefix when the site is configured with more than one language.
