@@ -214,19 +214,72 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 	mkdir(createpath, "layouts", "_default")
 	mkdir(createpath, "layouts", "partials")
 
-	touchFile(createpath, "layouts", "index.html")
 	touchFile(createpath, "layouts", "404.html")
-	touchFile(createpath, "layouts", "_default", "list.html")
-	touchFile(createpath, "layouts", "_default", "single.html")
 
-	touchFile(createpath, "layouts", "partials", "header.html")
-	touchFile(createpath, "layouts", "partials", "footer.html")
+	layoutIndex := []byte(`{{ partial "header.html" . }}
+<h1>Articles</h1>
+{{ range first 10 .Data.Pages }}
+  {{ if eq .Type "article"}}
+    <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+  {{ end }}
+{{ end }}
+<h1>Pages</h1>
+{{ range .Data.Pages }}
+  {{ if eq .Type "page" }}
+    <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+  {{ end }}
+{{ end }}
+{{ partial "footer.html" . }}`)
+	err := helpers.WriteToDisk(filepath.Join(createpath, "layouts", "index.html"), bytes.NewReader(layoutIndex), hugofs.Source())
+	if err != nil {
+	  return err
+	}
+
+	layoutSingle := []byte(`{{ partial "header.html" . }}
+<h1>{{ .Title }}</h1>
+<h2>{{ .Date.Format "Mon, Jan 2, 2006" }}</h2>
+{{ .Content }}
+<p><a href="{{ .Site.BaseURL }}">Home</a></p>
+{{ partial "footer.html" . }}`)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "layouts", "_default", "single.html"), bytes.NewReader(layoutSingle), hugofs.Source())
+	if err != nil {
+	  return err
+	}
+
+	layoutList := []byte(`{{ partial "header.html" . }}
+{{ range first 10 .Data.Pages }}
+  <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+{{ end }}
+<p><a href="{{ .Site.BaseURL }}">Home</a></p>
+{{ partial "footer.html" . }}`)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "layouts", "_default", "list.html"), bytes.NewReader(layoutList), hugofs.Source())
+	if err != nil {
+	  return err
+	}
+
+	layoutHeader := []byte(`<!DOCTYPE html>
+<html>
+<head>
+<title>{{ .Title }}</title>
+</head>
+<body>`)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "layouts", "partials", "header.html"), bytes.NewReader(layoutHeader), hugofs.Source())
+	if err != nil {
+	  return err
+	}
+
+	layoutFooter := []byte(`</body>
+</html>`)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "layouts", "partials", "footer.html"), bytes.NewReader(layoutFooter), hugofs.Source())
+	if err != nil {
+	  return err
+	}
 
 	mkdir(createpath, "archetypes")
 
 	archDefault := []byte("+++\n+++\n")
 
-	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.Source())
 	if err != nil {
 		return err
 	}
