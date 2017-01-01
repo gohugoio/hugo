@@ -1579,6 +1579,8 @@ func (p *Page) copy() *Page {
 }
 
 func (p *Page) Now() time.Time {
+	// Delete in Hugo 0.21
+	helpers.Deprecated("Page", "Now", "now (the template func)", false)
 	return time.Now()
 }
 
