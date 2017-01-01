@@ -340,9 +340,11 @@ In each piece of content, you can provide variables to be used by the
 templates. This happens in the [front matter](/content/front-matter/).
 
 An example of this is used in this documentation site. Most of the pages
-benefit from having the table of contents provided. Sometimes the TOC just
-doesn't make a lot of sense. We've defined a variable in our front matter
-of some pages to turn off the TOC from being displayed.
+benefit from having the table of contents provided.
+However, sometimes having a TOC just doesn't make a lot of sense.
+In the front matter of some of our pages,
+we've defined a variable which enables the TOC. If you don't want the TOC,
+then just omit that variable. (Its value defaults to false.)
 
 Here is the example front matter:
 
@@ -355,13 +357,13 @@ aliases:
   - "/doc/permalinks/"
 groups: ["extras"]
 groups_weight: 30
-notoc: true
+toc: true
 ---
 ```
 
 Here is the corresponding code inside of the template:
 
-      {{ if not .Params.notoc }}
+      {{ if .Params.toc }}
         <div id="toc" class="well col-md-4 col-sm-6">
         {{ .TableOfContents }}
         </div>

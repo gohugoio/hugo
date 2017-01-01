@@ -8,7 +8,6 @@ menu:
   main:
     parent: layout
 next: /templates/404
-notoc: true
 prev: /templates/rss
 title: Sitemap Template
 weight: 95

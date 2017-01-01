@@ -9,7 +9,6 @@ menu:
     parent: content
 prev: /content/multilingual
 next: /themes/overview
-notoc: true
 title: Example Content File
 weight: 70
 ---

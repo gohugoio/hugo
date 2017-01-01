@@ -7,7 +7,6 @@ menu:
   main:
     parent: getting started
 next: /content/organization
-notoc: true
 prev: /overview/configuration
 title: Source Organization
 weight: 50

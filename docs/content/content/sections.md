@@ -5,7 +5,6 @@ menu:
   main:
     parent: content
 next: /content/types
-notoc: true
 prev: /content/front-matter
 title: Sections
 weight: 30
