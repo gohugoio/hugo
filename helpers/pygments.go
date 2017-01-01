@@ -112,7 +112,7 @@ func Highlight(code, lang, optsStr string) string {
 		return code
 	}
 
-	str := out.String()
+	str := string(normalizeExternalHelperLineFeeds([]byte(out.String())))
 
 	// inject code tag into Pygments output
 	if lang != "" && strings.Contains(str, "<pre>") {

@@ -571,7 +571,7 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
 	}
 
-	return out.Bytes()
+	return normalizeExternalHelperLineFeeds(out.Bytes())
 }
 
 // HasRst returns whether rst2html is installed on this computer.
@@ -590,12 +590,24 @@ func getRstExecPath() string {
 	return path
 }
 
+func getPythonExecPath() string {
+	path, err := exec.LookPath("python")
+	if err != nil {
+		path, err = exec.LookPath("python.exe")
+		if err != nil {
+			return ""
+		}
+	}
+	return path
+}
+
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
 func getRstContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
+	python := getPythonExecPath()
 	path := getRstExecPath()
 
 	if path == "" {
@@ -606,7 +618,7 @@ func getRstContent(ctx *RenderingContext) []byte {
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--leave-comments")
+	cmd := exec.Command(python, path, "--leave-comments")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
@@ -624,11 +636,21 @@ func getRstContent(ctx *RenderingContext) []byte {
 		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
 	}
 
-	result := out.Bytes()
+	result := normalizeExternalHelperLineFeeds(out.Bytes())
 
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
+	if bodyStart < 0 {
+		bodyStart = -7 //compensate for length
+	}
+
 	bodyEnd := bytes.Index(result, []byte("\n</body>"))
+	if bodyEnd < 0 || bodyEnd >= len(result) {
+		bodyEnd = len(result) - 1
+		if bodyEnd < 0 {
+			bodyEnd = 0
+		}
+	}
 
 	return result[bodyStart+7 : bodyEnd]
 }
