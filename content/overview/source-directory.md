@@ -106,7 +106,7 @@ For the default Markdown content, the filename will be `_index.md`.
 
 Se the example directory tree below. 
 
-**Note that you don't have to create `_index` file for every section, taxonomy and similar, a default page will be created if not present, but with no content an default values for `.Title` etc.**
+**Note that you don't have to create `_index` file for every section, taxonomy and similar, a default page will be created if not present, but with no content and default values for `.Title` etc.**
 
 ```bash
 └── content
