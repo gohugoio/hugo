@@ -14,8 +14,10 @@
 package hugolib
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
+	"os"
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -1394,5 +1396,16 @@ func TestShouldBuild(t *testing.T) {
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)
 		}
+	}
+}
+
+func BenchmarkParsePage(b *testing.B) {
+	f, _ := os.Open("testdata/redis.cn.md")
+	var buf bytes.Buffer
+	buf.ReadFrom(f)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		page, _ := NewPage("bench")
+		page.ReadFrom(bytes.NewReader(buf.Bytes()))
 	}
 }
