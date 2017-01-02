@@ -90,16 +90,16 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	h := s.owner
 	nodes := h.findAllPagesByKindNotIn(KindPage)
 
-	require.Len(t, nodes, 6)
+	require.Len(t, nodes, 7)
 
-	home := nodes[5] // oldest
+	home := nodes[6] // oldest
 
 	require.True(t, home.IsHome())
 	require.True(t, home.IsNode())
 	require.False(t, home.IsPage())
 	require.True(t, home.Path() != "")
 
-	section2 := nodes[3]
+	section2 := nodes[4]
 	require.Equal(t, "Section2", section2.Title)
 
 	pages := h.findAllPagesByKind(KindPage)
@@ -143,6 +143,10 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 		"Lastmod: 2009-01-09",
 	)
 
+	assertFileContent(t, expectedFilePath(ugly, "public", "categories", "hugo-rocks"), false,
+		"Taxonomy Title: Taxonomy Hugo Rocks",
+	)
+
 	web := s.getPage(KindTaxonomy, "categories", "web")
 	require.NotNil(t, web)
 	require.Len(t, web.Data["Pages"].(Pages), 4)
@@ -162,8 +166,8 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	// Check taxonomy terms
 	assertFileContent(t, expectedFilePath(ugly, "public", "categories"), false,
 		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo",
-		"Date: 2009-01-12",
-		"Lastmod: 2009-01-13",
+		"Date: 2009-01-14",
+		"Lastmod: 2009-01-15",
 	)
 
 	// There are no pages to paginate over in the taxonomy terms.
@@ -605,7 +609,8 @@ lastMod : %q
 date : %q
 categories:  [
         "Hugo",
-		"Web"
+		"Web",
+		"Hugo Rocks!"
 ]
 ---
 Content Page %02d
@@ -664,13 +669,22 @@ lastMod : %q
 Taxonomy Web **Content!**
 `, date.Add(9*24*time.Hour).Format(time.RFC822), date.Add(10*24*time.Hour).Format(time.RFC822)))
 
+	writeSource(t, filepath.Join("content", "categories", "hugo-rocks", filename), fmt.Sprintf(`---
+title: Taxonomy Hugo Rocks
+date : %q
+lastMod : %q
+---
+Taxonomy Hugo Rocks **Content!**
+`, date.Add(11*24*time.Hour).Format(time.RFC822), date.Add(12*24*time.Hour).Format(time.RFC822)))
+
 	writeSource(t, filepath.Join("content", "categories", filename), fmt.Sprintf(`---
 title: Taxonomy Term Categories
 date : %q
 lastMod : %q
 ---
 Taxonomy Term Categories **Content!**
-`, date.Add(11*24*time.Hour).Format(time.RFC822), date.Add(12*24*time.Hour).Format(time.RFC822)))
+`, date.Add(13*24*time.Hour).Format(time.RFC822), date.Add(14*24*time.Hour).Format(time.RFC822)))
+
 }
 
 func writeLayoutsForNodeAsPageTests(t *testing.T) {
