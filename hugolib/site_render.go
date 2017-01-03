@@ -23,8 +23,6 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/viper"
-
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -68,7 +66,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	for p := range pages {
 		targetPath := p.TargetPath()
 		layouts := p.layouts()
-		jww.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
+		s.log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
 
 		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
 			results <- err
@@ -90,7 +88,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 // renderPaginator must be run after the owning Page has been rendered.
 func (s *Site) renderPaginator(p *Page) error {
 	if p.paginator != nil {
-		jww.DEBUG.Printf("Render paginator for page %q", p.Path())
+		s.log.DEBUG.Printf("Render paginator for page %q", p.Path())
 		paginatePath := helpers.Config().GetString("paginatePath")
 
 		// write alias for page 1
@@ -270,13 +268,13 @@ func (s *Site) renderAliases() error {
 		mainLang := s.owner.multilingual.DefaultLang.Lang
 		if s.Info.defaultContentLanguageInSubdir {
 			mainLangURL := s.Info.pathSpec.AbsURL(mainLang, false)
-			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			s.log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
 				return err
 			}
 		} else {
 			mainLangURL := s.Info.pathSpec.AbsURL("", false)
-			jww.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			s.log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
 				return err
 			}

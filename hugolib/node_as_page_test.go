@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -41,8 +40,6 @@ func TestNodesAsPage(t *testing.T) {
 }
 
 func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
 
 	/* Will have to decide what to name the node content files, but:
 
@@ -68,7 +65,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	viper.Set("title", "Hugo Rocks")
 	viper.Set("rssURI", "customrss.xml")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -188,9 +185,6 @@ func TestNodesWithNoContentFile(t *testing.T) {
 }
 
 func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
-
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)
@@ -201,7 +195,7 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	viper.Set("title", "Hugo Rocks!")
 	viper.Set("rssURI", "customrss.xml")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -321,7 +315,7 @@ title = "Deutsche Hugo"
 		t.Fatalf("Failed to load config: %s", err)
 	}
 
-	sites, err := NewHugoSitesFromConfiguration()
+	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -430,7 +424,7 @@ categories:  [
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -474,7 +468,7 @@ menu:
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -503,7 +497,7 @@ aliases:
 	viper.Set("baseURL", "http://base/")
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -528,7 +522,7 @@ My Section Content
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -556,7 +550,7 @@ My Section Content
 	viper.Set("title", "Hugo Rocks!")
 	viper.Set("baseURL", "http://bep.is/base/")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)

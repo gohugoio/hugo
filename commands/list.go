@@ -45,13 +45,14 @@ var listDraftsCmd = &cobra.Command{
 	Long:  `List all of the drafts in your content directory.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		if err := InitializeConfig(); err != nil {
+		cfg, err := InitializeConfig()
+		if err != nil {
 			return err
 		}
 
 		viper.Set("buildDrafts", true)
 
-		sites, err := hugolib.NewHugoSitesFromConfiguration()
+		sites, err := hugolib.NewHugoSitesFromConfiguration(cfg)
 
 		if err != nil {
 			return newSystemError("Error creating sites", err)
@@ -80,13 +81,14 @@ var listFutureCmd = &cobra.Command{
 posted in the future.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		if err := InitializeConfig(); err != nil {
+		cfg, err := InitializeConfig()
+		if err != nil {
 			return err
 		}
 
 		viper.Set("buildFuture", true)
 
-		sites, err := hugolib.NewHugoSitesFromConfiguration()
+		sites, err := hugolib.NewHugoSitesFromConfiguration(cfg)
 
 		if err != nil {
 			return newSystemError("Error creating sites", err)
@@ -115,13 +117,14 @@ var listExpiredCmd = &cobra.Command{
 expired.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		if err := InitializeConfig(); err != nil {
+		cfg, err := InitializeConfig()
+		if err != nil {
 			return err
 		}
 
 		viper.Set("buildExpired", true)
 
-		sites, err := hugolib.NewHugoSitesFromConfiguration()
+		sites, err := hugolib.NewHugoSitesFromConfiguration(cfg)
 
 		if err != nil {
 			return newSystemError("Error creating sites", err)

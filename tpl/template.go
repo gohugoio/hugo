@@ -31,7 +31,9 @@ import (
 )
 
 var localTemplates *template.Template
-var tmpl Template
+
+// TODO(bep) globals get rid of the reset of the jww.ERR etc.
+var tmpl *GoHTMLTemplate
 
 // TODO(bep) an interface with hundreds of methods ... remove it.
 // And unexport most of these methods.
@@ -66,30 +68,25 @@ type GoHTMLTemplate struct {
 	overlays map[string]*template.Template
 
 	errors []*templateErr
-}
 
-// T is the "global" template system
-func T() Template {
-	if tmpl == nil {
-		tmpl = New()
-	}
-
-	return tmpl
+	// TODO(bep) globals template
+	log *jww.Notepad
 }
 
 // InitializeT resets the internal template state to its initial state
-func InitializeT() Template {
-	tmpl = New()
+func InitializeT(logger *jww.Notepad) *GoHTMLTemplate {
+	tmpl = New(logger)
 	return tmpl
 }
 
 // New returns a new Hugo Template System
 // with all the additional features, templates & functions
-func New() Template {
+func New(logger *jww.Notepad) *GoHTMLTemplate {
 	var templates = &GoHTMLTemplate{
 		Template: *template.New(""),
 		overlays: make(map[string]*template.Template),
 		errors:   make([]*templateErr, 0),
+		log:      logger,
 	}
 
 	localTemplates = &templates.Template
@@ -139,8 +136,8 @@ func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 		}
 	}
 	if !worked {
-		jww.ERROR.Println("Unable to render", layouts)
-		jww.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+		tmpl.log.ERROR.Println("Unable to render", layouts)
+		tmpl.log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
 	}
 }
 
@@ -152,7 +149,7 @@ func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML
 }
 
 func Lookup(name string) *template.Template {
-	return (tmpl.(*GoHTMLTemplate)).Lookup(name)
+	return tmpl.Lookup(name)
 }
 
 func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
@@ -361,7 +358,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 
-		jww.DEBUG.Printf("Add template file from path %s", path)
+		t.log.DEBUG.Printf("Add template file from path %s", path)
 
 		return t.AddTemplate(name, string(b))
 	}
@@ -391,25 +388,25 @@ func isBaseTemplate(path string) bool {
 }
 
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
-	jww.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
+	t.log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
-		jww.DEBUG.Println("Template path", path)
+		t.log.DEBUG.Println("Template path", path)
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(absPath)
 			if err != nil {
-				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
+				t.log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
 				return nil
 			}
 			linkfi, err := hugofs.Source().Stat(link)
 			if err != nil {
-				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				t.log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
 			}
 			if !linkfi.Mode().IsRegular() {
-				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
+				t.log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
 			}
 			return nil
 		}
@@ -492,14 +489,14 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 			}
 
 			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
-				jww.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
+				t.log.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
 			}
 
 		}
 		return nil
 	}
 	if err := helpers.SymbolicWalk(hugofs.Source(), absPath, walker); err != nil {
-		jww.ERROR.Printf("Failed to load templates: %s", err)
+		t.log.ERROR.Printf("Failed to load templates: %s", err)
 	}
 }
 
@@ -526,6 +523,6 @@ func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
 
 func (t *GoHTMLTemplate) PrintErrors() {
 	for _, e := range t.errors {
-		jww.ERROR.Println(e.err)
+		t.log.ERROR.Println(e.err)
 	}
 }

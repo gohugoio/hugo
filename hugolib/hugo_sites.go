@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 	"strings"
 	"sync"
 
@@ -35,32 +38,64 @@ type HugoSites struct {
 	runMode runmode
 
 	multilingual *Multilingual
+
+	*deps
+}
+
+// deps holds dependencies used by many.
+// TODO(bep) globals a better name.
+// There will be normally be only one instance of deps in play
+// at a given time.
+type deps struct {
+	// The logger to use.
+	log *jww.Notepad
+
+	// TODO(bep) next in line: Viper, hugofs, template
+}
+
+func newDeps(cfg DepsCfg) *deps {
+	logger := cfg.Logger
+
+	if logger == nil {
+		// TODO(bep) globals default log level
+		//logger = jww.NewNotepad(jww.LevelError, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+	}
+
+	return &deps{
+		log: logger,
+	}
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
-func newHugoSites(sites ...*Site) (*HugoSites, error) {
+func newHugoSites(cfg DepsCfg, sites ...*Site) (*HugoSites, error) {
 	langConfig, err := newMultiLingualFromSites(sites...)
 
 	if err != nil {
 		return nil, err
 	}
 
-	h := &HugoSites{multilingual: langConfig, Sites: sites}
+	h := &HugoSites{
+		deps:         newDeps(cfg),
+		multilingual: langConfig,
+		Sites:        sites}
 
 	for _, s := range sites {
 		s.owner = h
+		s.deps = h.deps
 	}
 	return h, nil
 }
 
 // NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
-func NewHugoSitesFromConfiguration() (*HugoSites, error) {
+// TODO(bep) globals rename this when all the globals are gone.
+func NewHugoSitesFromConfiguration(cfg DepsCfg) (*HugoSites, error) {
 	sites, err := createSitesFromConfig()
 	if err != nil {
 		return nil, err
 	}
-	return newHugoSites(sites...)
+	return newHugoSites(cfg, sites...)
 }
 
 func createSitesFromConfig() ([]*Site, error) {
@@ -148,6 +183,15 @@ type BuildCfg struct {
 	withTemplate func(templ tpl.Template) error
 	// Use this to indicate what changed (for rebuilds).
 	whatChanged *whatChanged
+}
+
+// DepsCfg contains configuration options that can be used to configure Hugo
+// on a global level, i.e. logging etc.
+// Nil values will be given default values.
+type DepsCfg struct {
+
+	// The Logger to use.
+	Logger *jww.Notepad
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
@@ -498,7 +542,7 @@ func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
 	if s.PageCollections == nil {
 		s.PageCollections = newPageCollections()
 	}
-	sites, err := newHugoSites(s)
+	sites, err := newHugoSites(DepsCfg{}, s)
 	if err != nil {
 		return err
 	}
@@ -522,12 +566,15 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages hel
 	if len(languages) == 0 {
 		panic("Must provide at least one language")
 	}
+
+	cfg := DepsCfg{}
+
 	first := &Site{
 		Source:   &source.InMemorySource{ByteSource: input},
 		Language: languages[0],
 	}
 	if len(languages) == 1 {
-		return newHugoSites(first)
+		return newHugoSites(cfg, first)
 	}
 
 	sites := make([]*Site, len(languages))
@@ -536,7 +583,7 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages hel
 		sites[i] = &Site{Language: languages[i]}
 	}
 
-	return newHugoSites(sites...)
+	return newHugoSites(cfg, sites...)
 
 }
 
