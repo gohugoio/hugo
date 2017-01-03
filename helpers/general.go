@@ -252,7 +252,7 @@ func NewDistinctErrorLogger() *DistinctLogger {
 // NewDistinctFeedbackLogger creates a new DistinctLogger that can be used
 // to give feedback to the user while not spamming with duplicates.
 func NewDistinctFeedbackLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: &jww.FEEDBACK}
+	return &DistinctLogger{m: make(map[string]bool), logger: jww.FEEDBACK}
 }
 
 var (

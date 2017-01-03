@@ -17,6 +17,7 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -332,15 +333,26 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		viper.Set("cacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
 	}
 
+	logFile := ioutil.Discard
+
 	if verboseLog || logging || (viper.IsSet("logFile") && viper.GetString("logFile") != "") {
+
+		var err error
 		if viper.IsSet("logFile") && viper.GetString("logFile") != "" {
-			jww.SetLogFile(viper.GetString("logFile"))
+			path := viper.GetString("logFile")
+			logFile, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+			if err != nil {
+				return newSystemError("Failed to open log file:", path, err)
+			}
 		} else {
-			jww.UseTempLogFile("hugo")
+			logFile, err = ioutil.TempFile(os.TempDir(), "hugo")
+			if err != nil {
+				return newSystemError(err)
+			}
 		}
-	} else {
-		jww.DiscardLogging()
 	}
+
+	jww.SetLogOutput(logFile)
 
 	if quiet {
 		jww.SetStdoutThreshold(jww.LevelError)
