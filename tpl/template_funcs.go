@@ -38,6 +38,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/bep/inflect"
@@ -55,7 +56,14 @@ import (
 )
 
 var (
-	funcMap template.FuncMap
+	funcMap      template.FuncMap
+	tagRE        = regexp.MustCompile(`(?s)<(/)?([^ ]+?)(?:(\s*/)| .*?)?>`)
+	htmlRE       = regexp.MustCompile(`(?s)<.*?>|((?:\w[-\w]*|&.*?;)+)`)
+	htmlSinglets = map[string]bool{
+		"br": true, "col": true, "link": true,
+		"base": true, "img": true, "param": true,
+		"area": true, "hr": true, "input": true,
+	}
 )
 
 // eq returns the boolean truth of arg1 == arg2.
@@ -237,6 +245,130 @@ func slicestr(a interface{}, startEnd ...interface{}) (string, error) {
 		return string(asRunes[:]), nil
 	}
 
+}
+
+func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
+	length, err := cast.ToIntE(a)
+	if err != nil {
+		return "", err
+	}
+	var textParam interface{}
+	var ellipsis template.HTML
+
+	switch len(options) {
+	case 0:
+		return "", errors.New("truncate requires a length and a string")
+	case 1:
+		textParam = options[0]
+		ellipsis = " …"
+	case 2:
+		textParam = options[1]
+		var ok bool
+		if ellipsis, ok = options[0].(template.HTML); !ok {
+			s, e := cast.ToStringE(options[0])
+			if e != nil {
+				return "", errors.New("ellipsis must be a string")
+			}
+			ellipsis = template.HTML(html.EscapeString(s))
+		}
+	default:
+		return "", errors.New("too many arguments passed to truncate")
+	}
+	if err != nil {
+		return "", errors.New("text to truncate must be a string")
+	}
+	text, err := cast.ToStringE(textParam)
+	if err != nil {
+		return "", errors.New("text must be a string")
+	}
+
+	if html, ok := textParam.(template.HTML); ok {
+		return truncateHTML(length, ellipsis, html)
+	}
+
+	if len(text) <= length {
+		return template.HTML(html.EscapeString(text)), nil
+	}
+
+	var lastWordIndex int
+	var lastNonSpace int
+	for i, r := range text {
+		if unicode.IsSpace(r) {
+			lastWordIndex = lastNonSpace
+		} else {
+			lastNonSpace = i
+		}
+		if i >= length {
+			return template.HTML(html.EscapeString(text[0:lastWordIndex+1])) + ellipsis, nil
+		}
+	}
+
+	return template.HTML(html.EscapeString(text)), nil
+}
+
+func truncateHTML(length int, ellipsis, text template.HTML) (template.HTML, error) {
+	if len(text) <= length {
+		return text, nil
+	}
+
+	var pos, endTextPos, currentLen int
+	openTags := []string{}
+
+	for currentLen < length {
+		slice := string(text[pos:])
+		m := htmlRE.FindStringSubmatchIndex(slice)
+		if len(m) == 0 {
+			// Checked through whole string
+			break
+		}
+
+		pos += m[1]
+		if len(m) == 4 && m[3]-m[2] > 0 {
+			// It's an actual non-HTML word or char
+			currentLen += (m[3] - m[2]) + 1 // 1 space between each word
+			if currentLen >= length {
+				endTextPos = pos
+			}
+			continue
+		}
+
+		tag := tagRE.FindStringSubmatch(slice[m[0]:m[1]])
+		if len(tag) == 0 || currentLen >= length {
+			// Don't worry about non tags or tags after our truncate point
+			continue
+		}
+		closingTag := tag[1]
+		tagname := strings.ToLower(tag[2])
+		selfClosing := tag[3]
+
+		_, singlet := htmlSinglets[tagname]
+		if !singlet && selfClosing == "" {
+			if closingTag == "" {
+				// Add it to the start of the open tags list
+				openTags = append([]string{tagname}, openTags...)
+			} else {
+				for i, tag := range openTags {
+					if tag == tagname {
+						// SGML: An end tag closes, back to the matching start tag,
+						// all unclosed intervening start tags with omitted end tags
+						openTags = openTags[i+1:]
+						break
+					}
+				}
+			}
+		}
+	}
+
+	if currentLen < length {
+		return text, nil
+	}
+
+	out := text[0:endTextPos]
+	out += ellipsis
+	for _, tag := range openTags {
+		out += ("</" + template.HTML(tag) + ">")
+	}
+	return out, nil
 }
 
 // hasPrefix tests whether the input s begins with prefix.
@@ -2188,6 +2320,7 @@ func initFuncMap() {
 		"title":        title,
 		"time":         asTime,
 		"trim":         trim,
+		"truncate":     truncate,
 		"upper":        upper,
 		"urlize":       helpers.CurrentPathSpec().URLize,
 		"where":        where,

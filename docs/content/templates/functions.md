@@ -662,6 +662,15 @@ e.g.
 * `{{slicestr "BatMan" 3}}` → "Man"
 * `{{slicestr "BatMan" 0 3}}` → "Bat"
 
+### truncate
+
+Truncate a text to a max length without cutting words or HTML tags in half. Since go templates are HTML aware, truncate will handle normal strings vs HTML strings intelligently.
+
+e.q.
+
+* `{{ "this is a text" | truncate 10 " ..." }}` → this is a ...
+* `{{ "With [Markdown](#markdown) inside." | markdownify | truncate 10 }}` → With &lt;a href='#markdown'&gt;Markdown …&lt;/a&gt;
+
 ### split
 
 Split a string into substrings separated by a delimiter.
