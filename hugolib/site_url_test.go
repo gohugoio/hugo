@@ -79,6 +79,7 @@ func TestPageCount(t *testing.T) {
 	viper.Set("uglyURLs", false)
 	viper.Set("paginate", 10)
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: urlFakeSource},
 		Language: helpers.NewDefaultLanguage(),
 	}

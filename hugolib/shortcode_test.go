@@ -578,7 +578,7 @@ tags:
 
 	}
 
-	sites, err := newHugoSites(s)
+	sites, err := newHugoSites(DepsCfg{}, s)
 
 	if err != nil {
 		t.Fatalf("Failed to build site: %s", err)

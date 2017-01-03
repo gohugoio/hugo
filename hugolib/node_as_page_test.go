@@ -321,7 +321,7 @@ title = "Deutsche Hugo"
 		t.Fatalf("Failed to load config: %s", err)
 	}
 
-	sites, err := NewHugoSitesFromConfiguration()
+	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)

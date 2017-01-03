@@ -58,6 +58,7 @@ func TestReadPagesFromSourceWithEmptySource(t *testing.T) {
 	sources := []source.ByteSource{}
 
 	s := &Site{
+		deps:    newDeps(DepsCfg{}),
 		Source:  &source.InMemorySource{ByteSource: sources},
 		targets: targetList{page: &target.PagePub{UglyURLs: true}},
 	}
@@ -127,6 +128,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	siteSetup := func(t *testing.T) *Site {
 		s := &Site{
+			deps:     newDeps(DepsCfg{}),
 			Source:   &source.InMemorySource{ByteSource: sources},
 			Language: helpers.NewDefaultLanguage(),
 		}
@@ -185,6 +187,7 @@ func TestFutureExpirationRender(t *testing.T) {
 
 	siteSetup := func(t *testing.T) *Site {
 		s := &Site{
+			deps:     newDeps(DepsCfg{}),
 			Source:   &source.InMemorySource{ByteSource: sources},
 			Language: helpers.NewDefaultLanguage(),
 		}
@@ -276,6 +279,7 @@ THE END.`, refShortcode)),
 	}
 
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: sources},
 		targets:  targetList{page: &target.PagePub{UglyURLs: uglyURLs}},
 		Language: helpers.NewDefaultLanguage(),
@@ -343,6 +347,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	}
 
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: sources},
 		targets:  targetList{page: &target.PagePub{UglyURLs: uglyURLs, PublishDir: "public"}},
 		Language: helpers.NewDefaultLanguage(),
@@ -482,6 +487,7 @@ func TestSkipRender(t *testing.T) {
 	viper.Set("canonifyURLs", true)
 	viper.Set("baseURL", "http://auth/bub")
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: sources},
 		targets:  targetList{page: &target.PagePub{UglyURLs: true}},
 		Language: helpers.NewDefaultLanguage(),
@@ -537,6 +543,7 @@ func TestAbsURLify(t *testing.T) {
 			viper.Set("canonifyURLs", canonify)
 			viper.Set("baseURL", baseURL)
 			s := &Site{
+				deps:     newDeps(DepsCfg{}),
 				Source:   &source.InMemorySource{ByteSource: sources},
 				targets:  targetList{page: &target.PagePub{UglyURLs: true}},
 				Language: helpers.NewDefaultLanguage(),
@@ -633,6 +640,7 @@ func TestOrderedPages(t *testing.T) {
 
 	viper.Set("baseURL", "http://auth/bub")
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: weightedSources},
 		Language: helpers.NewDefaultLanguage(),
 	}
@@ -702,6 +710,7 @@ func TestGroupedPages(t *testing.T) {
 
 	viper.Set("baseURL", "http://auth/bub")
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: groupedSources},
 		Language: helpers.NewDefaultLanguage(),
 	}
@@ -887,6 +896,7 @@ func TestWeightedTaxonomies(t *testing.T) {
 	viper.Set("baseURL", "http://auth/bub")
 	viper.Set("taxonomies", taxonomies)
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: sources},
 		Language: helpers.NewDefaultLanguage(),
 	}
@@ -956,6 +966,7 @@ func setupLinkingMockSite(t *testing.T) *Site {
 			"sourceRelativeLinksProjectFolder": "/docs"})
 
 	site := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: sources},
 		Language: helpers.NewDefaultLanguage(),
 	}

@@ -333,37 +333,6 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		viper.Set("cacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
 	}
 
-	logFile := ioutil.Discard
-
-	if verboseLog || logging || (viper.IsSet("logFile") && viper.GetString("logFile") != "") {
-
-		var err error
-		if viper.IsSet("logFile") && viper.GetString("logFile") != "" {
-			path := viper.GetString("logFile")
-			logFile, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-			if err != nil {
-				return newSystemError("Failed to open log file:", path, err)
-			}
-		} else {
-			logFile, err = ioutil.TempFile(os.TempDir(), "hugo")
-			if err != nil {
-				return newSystemError(err)
-			}
-		}
-	}
-
-	jww.SetLogOutput(logFile)
-
-	if quiet {
-		jww.SetStdoutThreshold(jww.LevelError)
-	} else if viper.GetBool("verbose") {
-		jww.SetStdoutThreshold(jww.LevelInfo)
-	}
-
-	if verboseLog {
-		jww.SetLogThreshold(jww.LevelInfo)
-	}
-
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
 	// Init file systems. This may be changed at a later point.
@@ -385,6 +354,42 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 
 	return nil
 
+}
+
+func createLogger() *jww.NotePad {
+	var (
+		logHandle         = ioutil.Discard
+		outHandle = os.Stdout
+		stdoutThreshold = jww.LevelError
+		logThreshold    = jww.LevelWarn
+	)
+
+	if verboseLog || logging || (viper.IsSet("logFile") && viper.GetString("logFile") != "") {
+
+		var err error
+		if viper.IsSet("logFile") && viper.GetString("logFile") != "" {
+			path := viper.GetString("logFile")
+			logHandle, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+			if err != nil {
+				return newSystemError("Failed to open log file:", path, err)
+			}
+		} else {
+			logHandle, err = ioutil.TempFile(os.TempDir(), "hugo")
+			if err != nil {
+				return newSystemError(err)
+			}
+		}
+	}
+
+	} else if !quiet && viper.GetBool("verbose") {
+		stdoutThreshold = jww.LevelInfo
+	}
+
+	if verboseLog {
+		logThreshold = jww.LevelInfo
+	}
+	
+	return jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime)
 }
 
 func initializeFlags(cmd *cobra.Command) {
