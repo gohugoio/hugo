@@ -48,7 +48,6 @@ func testCommonResetState() {
 }
 
 func TestMultiSitesMainLangInRoot(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
 
 	for _, b := range []bool{true, false} {
 		doTestMultiSitesMainLangInRoot(t, b)
@@ -212,7 +211,7 @@ weight = 2
 	// Add some data
 	writeSource(t, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
 
-	sites, err := NewHugoSitesFromConfiguration()
+	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -1227,7 +1226,7 @@ lag:
 	// Add some data
 	writeSource(t, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
 
-	sites, err := NewHugoSitesFromConfiguration()
+	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)

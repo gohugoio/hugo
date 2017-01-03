@@ -46,6 +46,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 	viper.Set("baseURL", "http://auth/bub/")
 
 	s := &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: weightedSources},
 		Language: helpers.NewDefaultLanguage(),
 	}

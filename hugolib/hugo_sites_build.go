@@ -20,7 +20,6 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // Build builds all sites. If filesystem events are provided,
@@ -60,7 +59,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	if config.PrintStats {
-		jww.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
+		h.log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
 	}
 
 	return nil

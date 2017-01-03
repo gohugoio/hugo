@@ -80,13 +80,13 @@ func init() {
 	convertCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 }
 
-func convertContents(mark rune) (err error) {
-	if err := InitializeConfig(); err != nil {
+func convertContents(mark rune) error {
+	cfg, err := InitializeConfig()
+	if err != nil {
 		return err
 	}
 
-	h, err := hugolib.NewHugoSitesFromConfiguration()
-
+	h, err := hugolib.NewHugoSitesFromConfiguration(cfg)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func convertContents(mark rune) (err error) {
 	jww.FEEDBACK.Println("processing", len(site.Source.Files()), "content files")
 	for _, file := range site.Source.Files() {
 		jww.INFO.Println("Attempting to convert", file.LogicalName())
-		page, err := hugolib.NewPage(file.LogicalName())
+		page, err := site.NewPage(file.LogicalName())
 		if err != nil {
 			return err
 		}
@@ -157,5 +157,5 @@ func convertContents(mark rune) (err error) {
 			}
 		}
 	}
-	return
+	return nil
 }

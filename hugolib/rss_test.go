@@ -32,7 +32,7 @@ func TestRSSOutput(t *testing.T) {
 		writeSource(t, filepath.Join("content", "sect", s.Name), string(s.Content))
 	}
 
-	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
+	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 

@@ -168,7 +168,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		t.Fatalf("Failed to load config: %s", err)
 	}
 
-	sites, err := NewHugoSitesFromConfiguration()
+	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -267,7 +267,7 @@ p
 		t.Fatalf("Failed to load config: %s", err)
 	}
 
-	sites, err := NewHugoSitesFromConfiguration()
+	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
