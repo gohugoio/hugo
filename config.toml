@@ -1,5 +1,5 @@
 archetypedir = "archetypes"
-baseurl = ""
+baseurl = "/"
 buildDrafts = false
 buildFuture = false
 canonifyurls = true
@@ -35,9 +35,9 @@ pygmentsUseClasses = true
 relativeURLs = true
 source = ""
 # This is the top-level, global site title
-title = ""
+title = "Hugo Docs Concept"
 # Change this once you've created your theme
-theme = "theme-starter"
+theme = "hugodocs"
 # Set to true to convert mysite/section/ to mysite/section.html
 uglyURLs = false
 verbose = false
@@ -45,8 +45,8 @@ verboseLog = false
 # Setting this to false will keep hugo from watching for changes during local development
 watch = true
 
-[permalinks]
-  singles = "/:title/"
+# [permalinks]
+#   singles = "/:title/"
 
 #CUSTOM PARAMS
 [params]
