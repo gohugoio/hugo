@@ -29,7 +29,7 @@ in Hugo and is used as the [section](/content/sections/).
     .
     └── content
         └── about
-        |   └── index.md  // <- http://1.com/about/
+        |   └── _index.md  // <- http://1.com/about/
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost/
         |   ├── happy
@@ -44,7 +44,7 @@ in Hugo and is used as the [section](/content/sections/).
     .
     └── content
         └── about
-        |   └── index.md  // <- http://1.com/about/
+        |   └── _index.md  // <- http://1.com/about/
         ├── post
         |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
         |   ├── happy
@@ -62,13 +62,13 @@ site. As displayed above, the organization of the source content will be
 mirrored in the destination.
 
 Notice that the first level `about/` page URL was created using a directory
-named "about" with a single `index.md` file inside.  
+named "about" with a single `_index.md` file inside. Find out more about `_index.md` specifically in [content for the homepage and other list pages](https://gohugo.io/overview/source-directory#content-for-home-page-and-other-list-pages).
 
 There are times when one would need more control over their content. In these
 cases, there are a variety of things that can be specified in the front matter
 to determine the destination of a specific piece of content.
 
-The following items are defined in order, latter items in the list will override
+The following items are defined in order; latter items in the list will override
 earlier settings.
 
 ### filename
@@ -84,7 +84,7 @@ The actual path to the file on disk. Destination will create the destination
 with the same path. Includes [section](/content/sections/).
 
 ### section
-`section` is determined by its location on disk and can *not* be specified in the front matter. See [section](/content/sections/).
+`section` is determined by its location on disk and *cannot* be specified in the front matter. See [section](/content/sections/).
 
 ### type
 `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [type](/content/types/).
