@@ -167,7 +167,7 @@ func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string,
 		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
-			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
+			return "", fmt.Errorf("Failed to replace shortcode tokens in %s:\n%s", page.BaseFileName(), err.Error())
 		}
 		return string(tmpContentWithTokensReplaced), nil
 	}
