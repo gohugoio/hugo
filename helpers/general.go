@@ -363,13 +363,13 @@ func Seq(args ...interface{}) ([]int, error) {
 
 	// sanity check
 	if last < -100000 {
-		return nil, errors.New("size of result exeeds limit")
+		return nil, errors.New("size of result exceeds limit")
 	}
 	size := ((last - first) / inc) + 1
 
 	// sanity check
 	if size <= 0 || size > 2000 {
-		return nil, errors.New("size of result exeeds limit")
+		return nil, errors.New("size of result exceeds limit")
 	}
 
 	seq := make([]int, size)
