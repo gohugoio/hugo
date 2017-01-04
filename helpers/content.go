@@ -421,16 +421,6 @@ func totalWordsOld(s string) int {
 	return len(strings.Fields(s))
 }
 
-// WordCount takes content and returns a map of words and count of each word.
-func WordCount(s string) map[string]int {
-	m := make(map[string]int)
-	for _, f := range strings.Fields(s) {
-		m[f]++
-	}
-
-	return m
-}
-
 // TruncateWordsByRune truncates words by runes.
 func TruncateWordsByRune(words []string, max int) (string, bool) {
 	count := 0

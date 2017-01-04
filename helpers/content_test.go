@@ -16,7 +16,6 @@ package helpers
 import (
 	"bytes"
 	"html/template"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -458,15 +457,5 @@ func BenchmarkTotalWordsOld(b *testing.B) {
 		if wordCount != 400 {
 			b.Fatal("Wordcount error")
 		}
-	}
-}
-
-func TestWordCount(t *testing.T) {
-	testString := "Two, Words!"
-	expectedMap := map[string]int{"Two,": 1, "Words!": 1}
-	actualMap := WordCount(testString)
-
-	if !reflect.DeepEqual(expectedMap, actualMap) {
-		t.Errorf("Actual Map (%v) does not equal expected (%v)", actualMap, expectedMap)
 	}
 }
