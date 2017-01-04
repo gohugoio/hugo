@@ -446,7 +446,7 @@ func handleShortcodes(p *Page, t tpl.Template, rawContentCopy []byte) ([]byte, e
 		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
-			jww.FATAL.Printf("Failed to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			jww.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	}
 
