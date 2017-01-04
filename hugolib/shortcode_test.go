@@ -441,7 +441,7 @@ func TestExtractShortcodes(t *testing.T) {
 		if this.expectShortCodes != "" {
 			shortCodesAsStr := fmt.Sprintf("map%q", collectAndSortShortcodes(shortCodes))
 			if !strings.Contains(shortCodesAsStr, this.expectShortCodes) {
-				t.Fatalf("[%d] %s: Short codes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
+				t.Fatalf("[%d] %s: Shortcodes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
 			}
 		}
 	}
