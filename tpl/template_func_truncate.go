@@ -73,38 +73,13 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 		return "", errors.New("text must be a string")
 	}
 
-	if html, ok := textParam.(template.HTML); ok {
-		return truncateHTML(length, ellipsis, html)
-	}
+	_, isHTML := textParam.(template.HTML)
 
 	if utf8.RuneCountInString(text) <= length {
+		if isHTML {
+			return template.HTML(text), nil
+		}
 		return template.HTML(html.EscapeString(text)), nil
-	}
-
-	var lastWordIndex, lastNonSpace, currentLen int
-	for i, r := range text {
-		currentLen++
-		if unicode.IsSpace(r) {
-			lastWordIndex = lastNonSpace
-		} else if unicode.In(r, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana) {
-			lastWordIndex = i
-		} else {
-			lastNonSpace = i + utf8.RuneLen(r)
-		}
-		if currentLen > length {
-			if lastWordIndex == 0 {
-				return template.HTML(html.EscapeString(text[0:i])) + ellipsis, nil
-			}
-			return template.HTML(html.EscapeString(text[0:lastWordIndex])) + ellipsis, nil
-		}
-	}
-
-	return template.HTML(html.EscapeString(text)), nil
-}
-
-func truncateHTML(length int, ellipsis, text template.HTML) (template.HTML, error) {
-	if utf8.RuneCountInString(string(text)) <= length {
-		return text, nil
 	}
 
 	openTags := []openTag{}
@@ -114,29 +89,33 @@ func truncateHTML(length int, ellipsis, text template.HTML) (template.HTML, erro
 		if i < nextTag {
 			continue
 		}
-		slice := string(text[i:])
-		m := tagRE.FindStringSubmatchIndex(slice)
-		if len(m) > 0 && m[0] == 0 {
-			nextTag = i + m[1]
-			tagname := slice[m[4]:m[5]]
-			lastWordIndex = lastNonSpace
-			_, singlet := htmlSinglets[tagname]
-			if singlet || m[6] != -1 {
-				continue
-			}
-			if m[2] == -1 {
-				openTags = append(openTags, openTag{name: tagname, pos: i})
-			} else {
-				// SGML: An end tag closes, back to the matching start tag,
-				// all unclosed intervening start tags with omitted end tags
-				for i, tag := range openTags {
-					if tag.name == tagname {
-						openTags = openTags[i:]
-						break
+
+		if isHTML {
+			// Make sure we keep tag of HTML tags
+			slice := string(text[i:])
+			m := tagRE.FindStringSubmatchIndex(slice)
+			if len(m) > 0 && m[0] == 0 {
+				nextTag = i + m[1]
+				tagname := slice[m[4]:m[5]]
+				lastWordIndex = lastNonSpace
+				_, singlet := htmlSinglets[tagname]
+				if singlet || m[6] != -1 {
+					continue
+				}
+				if m[2] == -1 {
+					openTags = append(openTags, openTag{name: tagname, pos: i})
+				} else {
+					// SGML: An end tag closes, back to the matching start tag,
+					// all unclosed intervening start tags with omitted end tags
+					for i, tag := range openTags {
+						if tag.name == tagname {
+							openTags = openTags[i:]
+							break
+						}
 					}
 				}
+				continue
 			}
-			continue
 		}
 
 		currentLen++
@@ -147,23 +126,31 @@ func truncateHTML(length int, ellipsis, text template.HTML) (template.HTML, erro
 		} else {
 			lastNonSpace = i + utf8.RuneLen(r)
 		}
+
 		if currentLen > length {
 			if lastWordIndex == 0 {
 				endTextPos = i
 			} else {
 				endTextPos = lastWordIndex
 			}
-			out := text[0:endTextPos] + ellipsis
-			for _, tag := range openTags {
-				if tag.pos > endTextPos {
-					break
+			out := text[0:endTextPos]
+			if isHTML {
+				// Close out any open HTML tags
+				out += string(ellipsis)
+				for _, tag := range openTags {
+					if tag.pos > endTextPos {
+						break
+					}
+					out += ("</" + tag.name + ">")
 				}
-				out += ("</" + template.HTML(tag.name) + ">")
+				return template.HTML(out), nil
 			}
-
-			return out, nil
+			return template.HTML(html.EscapeString(out)) + ellipsis, nil
 		}
 	}
 
-	return text, nil
+	if isHTML {
+		return template.HTML(text), nil
+	}
+	return template.HTML(html.EscapeString(text)), nil
 }
