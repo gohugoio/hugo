@@ -61,8 +61,6 @@ func init() {
 }
 
 func importFromJekyll(cmd *cobra.Command, args []string) error {
-	jww.SetLogThreshold(jww.LevelTrace)
-	jww.SetStdoutThreshold(jww.LevelWarn)
 
 	if len(args) < 2 {
 		return newUserError(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
