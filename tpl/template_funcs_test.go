@@ -158,7 +158,7 @@ title: {{title "Bat man"}}
 time: {{ (time "2015-01-21").Year }}
 trim: {{ trim "++Batman--" "+-" }}
 truncate: {{ "this is a very long text" | truncate 10 " ..." }}
-truncate: {{ "With [Markdown](/markdown) inside." | markdownify | truncate 10 }}
+truncate: {{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}
 upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
 `
@@ -817,57 +817,6 @@ func TestSlicestr(t *testing.T) {
 	if err == nil {
 		t.Errorf("Should have errored")
 	}
-}
-
-func TestTruncate(t *testing.T) {
-	var err error
-	cases := []struct {
-		v1    interface{}
-		v2    interface{}
-		v3    interface{}
-		want  interface{}
-		isErr bool
-	}{
-		{10, "I am a test sentence", nil, template.HTML("I am a …"), false},
-		{10, "", "I am a test sentence", template.HTML("I am a"), false},
-		{10, "", "a b c d e f g h i j k", template.HTML("a b c d e"), false},
-		{12, "", "<b>Should be escaped</b>", template.HTML("&lt;b&gt;Should be"), false},
-		{10, template.HTML(" <a href='#'>Read more</a>"), "I am a test sentence", template.HTML("I am a <a href='#'>Read more</a>"), false},
-		{10, template.HTML("I have a <a href='/markdown'>Markdown</a> link inside."), nil, template.HTML("I have a <a href='/markdown'>Markdown …</a>"), false},
-		{10, nil, nil, template.HTML(""), true},
-		{nil, nil, nil, template.HTML(""), true},
-	}
-	for i, c := range cases {
-		var result template.HTML
-		if c.v2 == nil {
-			result, err = truncate(c.v1)
-		} else if c.v3 == nil {
-			result, err = truncate(c.v1, c.v2)
-		} else {
-			result, err = truncate(c.v1, c.v2, c.v3)
-		}
-
-		if c.isErr {
-			if err == nil {
-				t.Errorf("[%d] Slice didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, c.want) {
-				t.Errorf("[%d] got '%s' but expected '%s'", i, result, c.want)
-			}
-		}
-	}
-
-	// Too many arguments
-	_, err = truncate(10, " ...", "I am a test sentence", "wrong")
-	if err == nil {
-		t.Errorf("Should have errored")
-	}
-
 }
 
 func TestHasPrefix(t *testing.T) {
