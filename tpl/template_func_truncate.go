@@ -117,7 +117,12 @@ func truncateHTML(length int, ellipsis, text template.HTML) (template.HTML, erro
 		slice := string(text[i:])
 		m := tagRE.FindStringSubmatchIndex(slice)
 		if len(m) > 0 && m[0] == 0 {
+			nextTag = i + m[1]
 			tagname := slice[m[4]:m[5]]
+			_, singlet := htmlSinglets[tagname]
+			if singlet || m[6] != -1 {
+				continue
+			}
 			if m[2] == -1 {
 				openTags = append(openTags, openTag{name: tagname, pos: i})
 			} else {
@@ -130,7 +135,6 @@ func truncateHTML(length int, ellipsis, text template.HTML) (template.HTML, erro
 					}
 				}
 			}
-			nextTag = i + m[1]
 			continue
 		}
 

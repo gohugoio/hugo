@@ -38,6 +38,7 @@ func TestTruncate(t *testing.T) {
 		{10, template.HTML("<p>IamanextremelylongwordthatjustgoesonandonandonjusttoannoyyoualmostasifIwaswritteninGermanActuallyIbettheresagermanwordforthis</p>"), nil, template.HTML("<p>Iamanextre …</p>"), false},
 		{13, template.HTML("With <a href=\"/markdown\">Markdown</a> inside."), nil, template.HTML("With <a href=\"/markdown\">Markdown …</a>"), false},
 		{14, "Hello中国 Good 好的", nil, template.HTML("Hello中国 Good 好 …"), false},
+		{15, "", template.HTML("A <br> tag that's not closed"), template.HTML("A <br> tag that's"), false},
 		{14, template.HTML("<p>Hello中国 Good 好的</p>"), nil, template.HTML("<p>Hello中国 Good 好 …</p>"), false},
 		{10, nil, nil, template.HTML(""), true},
 		{nil, nil, nil, template.HTML(""), true},
