@@ -40,6 +40,7 @@ func TestTruncate(t *testing.T) {
 		{14, "Hello中国 Good 好的", nil, template.HTML("Hello中国 Good 好 …"), false},
 		{15, "", template.HTML("A <br> tag that's not closed"), template.HTML("A <br> tag that's"), false},
 		{14, template.HTML("<p>Hello中国 Good 好的</p>"), nil, template.HTML("<p>Hello中国 Good 好 …</p>"), false},
+		{2, template.HTML("<p>P1</p><p>P2</p>"), nil, template.HTML("<p>P1 …</p>"), false},
 		{10, nil, nil, template.HTML(""), true},
 		{nil, nil, nil, template.HTML(""), true},
 	}
