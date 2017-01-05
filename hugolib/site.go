@@ -1532,6 +1532,8 @@ func (s *Site) assembleTaxonomies() {
 func (s *Site) resetBuildState() {
 
 	s.PageCollections = newPageCollectionsFromPages(s.rawAllPages)
+	// TODO(bep) get rid of this double
+	s.Info.PageCollections = s.PageCollections
 
 	s.Info.paginationPageCount = 0
 	s.draftCount = 0
