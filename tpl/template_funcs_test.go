@@ -68,7 +68,7 @@ func tstIsLt(tp tstCompareType) bool {
 
 func tstInitTemplates() {
 	viper.Set("CurrentContentLanguage", helpers.NewLanguage("en"))
-	helpers.ResetConfigProvider()
+	helpers.ResetCurrentPathSpec()
 }
 
 func TestFuncsInTemplate(t *testing.T) {

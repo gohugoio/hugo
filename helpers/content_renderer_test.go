@@ -118,7 +118,7 @@ END
 </ul>
 `},
 	} {
-		blackFridayConfig := NewBlackfriday(viper.GetViper())
+		blackFridayConfig := NewBlackfriday(viper.GetStringMap("blackfriday"))
 		blackFridayConfig.TaskLists = this.taskListEnabled
 		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
 

@@ -216,7 +216,7 @@ type siteBuilderCfg struct {
 func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
 	return SiteInfo{
 		BaseURL:         template.URL(cfg.baseURL),
-		pathSpec:        helpers.NewPathSpecFromConfig(cfg.language),
+		pathSpec:        helpers.NewPathSpecFromLanguage(cfg.language),
 		multilingual:    newMultiLingualForLanguage(cfg.language),
 		PageCollections: cfg.pageCollections,
 	}
@@ -805,7 +805,7 @@ func (s *Site) setCurrentLanguageConfig() error {
 	viper.Set("multilingual", s.multilingualEnabled())
 	viper.Set("currentContentLanguage", s.Language)
 	// Cache the current config.
-	helpers.InitConfigProviderForCurrentContentLanguage()
+	helpers.InitCurrentPathSpec()
 	s.Info.pathSpec = helpers.CurrentPathSpec()
 	return tpl.SetTranslateLang(s.Language)
 }
@@ -955,7 +955,7 @@ func (s *Site) initializeSiteInfo() {
 		Permalinks:                     permalinks,
 		Data:                           &s.Data,
 		owner:                          s.owner,
-		pathSpec:                       helpers.NewPathSpecFromConfig(lang),
+		pathSpec:                       helpers.NewPathSpecFromLanguage(lang),
 	}
 
 	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))

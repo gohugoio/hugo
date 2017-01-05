@@ -21,7 +21,6 @@ import (
 
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,12 +37,12 @@ func TestStripHTML(t *testing.T) {
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
 		{"No Tags", "No Tags"},
-		{`<p>Summary Next Line. 
+		{`<p>Summary Next Line.
 <figure >
-    
+
         <img src="/not/real" />
-    
-    
+
+
 </figure>
 .
 More text here.</p>
@@ -177,7 +176,6 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 	}
 	defaultFlags := blackfriday.HTML_USE_XHTML
 	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
 	ctx.Config.AngledQuotes = true
 	ctx.Config.Fractions = true
 	ctx.Config.HrefTargetBlank = true
@@ -201,7 +199,6 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 func TestGetHTMLRendererAnchors(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 
 	actualRenderer := getHTMLRenderer(0, ctx)
@@ -225,7 +222,6 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 func TestGetMmarkHTMLRenderer(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 	actualRenderer := getMmarkHTMLRenderer(0, ctx)
 
@@ -248,7 +244,6 @@ func TestGetMmarkHTMLRenderer(t *testing.T) {
 
 func TestGetMarkdownExtensionsMasksAreRemovedFromExtensions(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
 	ctx.Config.Extensions = []string{"headerId"}
 	ctx.Config.ExtensionsMask = []string{"noIntraEmphasis"}
 
@@ -263,7 +258,6 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 		testFlag int
 	}
 	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
 	ctx.Config.Extensions = []string{""}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
@@ -295,7 +289,6 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 
 func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
 	ctx.Config.Extensions = []string{"definitionLists"}
 	ctx.Config.ExtensionsMask = []string{""}
 
@@ -308,7 +301,6 @@ func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
 func TestGetMarkdownRenderer(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
@@ -317,9 +309,9 @@ func TestGetMarkdownRenderer(t *testing.T) {
 }
 
 func TestGetMarkdownRendererWithTOC(t *testing.T) {
-	ctx := &RenderingContext{RenderTOC: true, ConfigProvider: viper.GetViper()}
+	ctx := newViperProvidedRenderingContext()
+	ctx.RenderTOC = true
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
@@ -333,7 +325,6 @@ func TestGetMmarkExtensions(t *testing.T) {
 		testFlag int
 	}
 	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
 	ctx.Config.Extensions = []string{"tables"}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
@@ -363,7 +354,6 @@ func TestGetMmarkExtensions(t *testing.T) {
 func TestMmarkRender(t *testing.T) {
 	ctx := newViperProvidedRenderingContext()
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := mmarkRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {

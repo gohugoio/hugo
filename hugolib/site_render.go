@@ -91,7 +91,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 func (s *Site) renderPaginator(p *Page) error {
 	if p.paginator != nil {
 		jww.DEBUG.Printf("Render paginator for page %q", p.Path())
-		paginatePath := helpers.Config().GetString("paginatePath")
+		paginatePath := helpers.CurrentPathSpec().PaginatePath()
 
 		// write alias for page 1
 		// TODO(bep) ml all of these n.addLang ... fix.

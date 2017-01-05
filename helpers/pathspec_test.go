@@ -31,7 +31,7 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	viper.Set("canonifyURLs", true)
 	viper.Set("paginatePath", "side")
 
-	pathSpec := NewPathSpecFromConfig(viper.GetViper())
+	pathSpec := NewPathSpecFromViper()
 
 	require.True(t, pathSpec.canonifyURLs)
 	require.True(t, pathSpec.defaultContentLanguageInSubdir)

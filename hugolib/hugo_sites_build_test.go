@@ -17,7 +17,6 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	//	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -35,7 +34,7 @@ func testCommonResetState() {
 	hugofs.InitMemFs()
 	viper.Reset()
 	viper.SetFs(hugofs.Source())
-	helpers.ResetConfigProvider()
+	helpers.ResetCurrentPathSpec()
 	loadDefaultSettings()
 
 	// Default is false, but true is easier to use as default in tests
@@ -48,8 +47,6 @@ func testCommonResetState() {
 }
 
 func TestMultiSitesMainLangInRoot(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-
 	for _, b := range []bool{true, false} {
 		doTestMultiSitesMainLangInRoot(t, b)
 	}
@@ -269,18 +266,15 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	doc1en := enSite.RegularPages[0]
 	permalink := doc1en.Permalink()
-	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", permalink, "invalid doc1.en permalink")
 	assert.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
 
 	doc2 := enSite.RegularPages[1]
 	permalink = doc2.Permalink()
-	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/en/sect/doc2/", permalink, "invalid doc2 permalink")
 
 	doc3 := enSite.RegularPages[2]
 	permalink = doc3.Permalink()
-	assert.NoError(t, err, "permalink call failed")
 	// Note that /superbob is a custom URL set in frontmatter.
 	// We respect that URL literally (it can be /search.json)
 	// and do no not do any language code prefixing.
@@ -292,7 +286,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	doc1fr := doc1en.Translations()[0]
 	permalink = doc1fr.Permalink()
-	assert.NoError(t, err, "permalink call failed")
 	assert.Equal(t, "http://example.com/blog/fr/sect/doc1/", permalink, "invalid doc1fr permalink")
 
 	assert.Equal(t, doc1en.Translations()[0], doc1fr, "doc1-en should have doc1-fr as translation")
@@ -1014,7 +1007,6 @@ func createMultiTestSites(t *testing.T, siteConfig testSiteConfig, tomlConfigTem
 }
 
 func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, configTemplate, configSuffix string) *HugoSites {
-
 	configContent := createConfig(t, siteConfig, configTemplate)
 
 	// Add some layouts

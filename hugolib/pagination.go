@@ -267,8 +267,8 @@ func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 	if !p.IsNode() {
 		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.Title)
 	}
-	pagerSize, err := resolvePagerSize(options...)
 
+	pagerSize, err := p.resolvePagerSize(options...)
 	if err != nil {
 		return nil, err
 	}
@@ -311,7 +311,7 @@ func (n *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", n.Kind, n.Title)
 	}
 
-	pagerSize, err := resolvePagerSize(options...)
+	pagerSize, err := n.resolvePagerSize(options...)
 
 	if err != nil {
 		return nil, err
@@ -354,9 +354,9 @@ func (n *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 	return n.paginator, nil
 }
 
-func resolvePagerSize(options ...interface{}) (int, error) {
+func (p *Page) resolvePagerSize(options ...interface{}) (int, error) {
 	if len(options) == 0 {
-		return helpers.Config().GetInt("paginate"), nil
+		return p.language.GetInt("paginate"), nil
 	}
 
 	if len(options) > 1 {
