@@ -92,7 +92,7 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 
 		if isHTML {
 			// Make sure we keep tag of HTML tags
-			slice := string(text[i:])
+			slice := text[i:]
 			m := tagRE.FindStringSubmatchIndex(slice)
 			if len(m) > 0 && m[0] == 0 {
 				nextTag = i + m[1]
