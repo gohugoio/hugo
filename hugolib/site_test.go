@@ -105,7 +105,7 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 func TestRenderWithInvalidTemplate(t *testing.T) {
 	jww.ResetLogCounters()
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	if err := buildAndRenderSite(s, "missing", templateMissingFunc); err != nil {
 		t.Fatalf("Got build error: %s", err)
 	}
@@ -436,7 +436,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		writeSource(t, filepath.Join("content", source.Name), string(source.Content))
 	}
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s,
 		"_default/single.html", "{{.Content}}",

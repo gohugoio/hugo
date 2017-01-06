@@ -465,7 +465,7 @@ activity = "exam"
 Hi.
 `
 
-var pageTestSite = newSiteDefaultLang()
+var pageTestSite = NewSiteDefaultLang()
 
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
@@ -628,7 +628,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			writeSource(t, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
 		}
 
-		s := newSiteDefaultLang()
+		s := NewSiteDefaultLang()
 
 		if err := buildSiteSkipRender(s); err != nil {
 			t.Fatalf("Failed to build site: %s", err)

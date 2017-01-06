@@ -68,7 +68,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	viper.Set("title", "Hugo Rocks")
 	viper.Set("rssURI", "customrss.xml")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -201,7 +201,7 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	viper.Set("title", "Hugo Rocks!")
 	viper.Set("rssURI", "customrss.xml")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -430,7 +430,7 @@ categories:  [
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -474,7 +474,7 @@ menu:
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -503,7 +503,7 @@ aliases:
 	viper.Set("baseURL", "http://base/")
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -528,7 +528,7 @@ My Section Content
 	viper.Set("paginate", 1)
 	viper.Set("title", "Hugo Rocks!")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
@@ -556,7 +556,7 @@ My Section Content
 	viper.Set("title", "Hugo Rocks!")
 	viper.Set("baseURL", "http://bep.is/base/")
 
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 
 	if err := buildAndRenderSite(s); err != nil {
 		t.Fatalf("Failed to build site: %s", err)

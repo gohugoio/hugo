@@ -125,8 +125,8 @@ func newSite(lang *helpers.Language) *Site {
 
 }
 
-// newSite creates a new site in the default language.
-func newSiteDefaultLang() *Site {
+// NewSiteDefaultLang creates a new site in the default language.
+func NewSiteDefaultLang() *Site {
 	return newSite(helpers.NewDefaultLanguage())
 }
 

@@ -27,7 +27,6 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // ShortcodeWithPage is the "." context in a shortcode template.
@@ -215,7 +214,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
-		jww.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
+		p.site.log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 		return ""
 	}
 
@@ -233,7 +232,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 			case shortcode:
 				inner += renderShortcode(innerData.(shortcode), data, p, t)
 			default:
-				jww.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
+				p.site.log.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
 					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
 				return ""
 			}
@@ -287,7 +286,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 
 	if err != nil {
 		//  try to render what we have whilst logging the error
-		jww.ERROR.Println(err.Error())
+		p.site.log.ERROR.Println(err.Error())
 	}
 
 	// Save for reuse
@@ -585,8 +584,9 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	err := tmpl.Execute(buffer, data)
 	isInnerShortcodeCache.RUnlock()
 	if err != nil {
-		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
-		jww.WARN.Println(data)
+		// TODO(bep) globals
+		data.Page.site.log.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
+		data.Page.site.log.WARN.Println(data)
 	}
 	return buffer.String()
 }

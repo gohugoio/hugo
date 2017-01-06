@@ -225,7 +225,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 		viper.Set("paginate", -1)
 	}
 	pages := createTestPages(12)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 	n1.Data["Pages"] = pages
@@ -262,7 +262,7 @@ func TestPaginatorWithNegativePaginate(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", -1)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	_, err := s.newHomePage().Paginator()
 	assert.NotNil(t, err)
 }
@@ -284,7 +284,7 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	}
 
 	pages := createTestPages(6)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 
@@ -317,7 +317,7 @@ func doTestPaginate(t *testing.T, useViper bool) {
 }
 
 func TestInvalidOptions(t *testing.T) {
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	_, err := n1.Paginate(createTestPages(1), 1, 2)
 	assert.NotNil(t, err)
@@ -331,7 +331,7 @@ func TestPaginateWithNegativePaginate(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", -1)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	_, err := s.newHomePage().Paginate(createTestPages(2))
 	assert.NotNil(t, err)
 }
@@ -353,7 +353,7 @@ func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", 10)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 
@@ -371,7 +371,7 @@ func TestPaginateFollowedByDifferentPaginateShouldFail(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", 10)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 

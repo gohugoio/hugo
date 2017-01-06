@@ -62,7 +62,7 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com", "http://base.com"}} {
 
 		viper.Set("baseURL", this.in)
-		s := newSiteDefaultLang()
+		s := NewSiteDefaultLang()
 		s.initializeSiteInfo()
 
 		if s.Info.BaseURL != template.URL(this.expected) {

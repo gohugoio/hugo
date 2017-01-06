@@ -62,7 +62,9 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 		return err
 	}
 
-	page, err := hugolib.NewPage(name)
+	site := hugolib.NewSiteDefaultLang()
+
+	page, err := site.NewPage(name)
 	if err != nil {
 		return err
 	}

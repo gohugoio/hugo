@@ -33,7 +33,7 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 
 	writeSource(t, filepath.Join("content", "page.md"), pageYamlWithTaxonomiesA)
 
-	site := newSiteDefaultLang()
+	site := NewSiteDefaultLang()
 
 	if err := buildSiteSkipRender(site); err != nil {
 		t.Fatalf("Failed to build site: %s", err)

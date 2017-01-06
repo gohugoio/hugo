@@ -135,7 +135,7 @@ Some content
 `)
 		this.setup(t)
 
-		if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
+		if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
 			t.Fatalf("[%d] Failed to build site: %s", i, err)
 		}
 
