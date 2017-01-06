@@ -34,7 +34,7 @@ func init() {
 type basicPageHandler Handle
 
 func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
-	page, err := NewPage(f.Path())
+	page, err := s.NewPage(f.Path())
 
 	if err != nil {
 		return HandledResult{file: f, err: err}
@@ -43,8 +43,6 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 	if _, err := page.ReadFrom(f.Contents); err != nil {
 		return HandledResult{file: f, err: err}
 	}
-
-	page.Site = &s.Info
 
 	return HandledResult{file: f, page: page, err: err}
 }

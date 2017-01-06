@@ -119,6 +119,8 @@ func newSite(lang *helpers.Language) *Site {
 	c := newPageCollections()
 	// TODO(bep) globals (also see other Site creation places)
 	deps := newDeps(DepsCfg{})
+	// TODO(bep) globals
+	viper.Set("currentContentLanguage", lang)
 	return &Site{deps: deps, Language: lang, PageCollections: c, Info: newSiteInfo(siteBuilderCfg{pageCollections: c, language: lang})}
 
 }

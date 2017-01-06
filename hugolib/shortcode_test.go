@@ -33,7 +33,7 @@ import (
 
 // TODO(bep) remove
 func pageFromString(in, filename string) (*Page, error) {
-	return NewPageFrom(strings.NewReader(in), filename)
+	return pageTestSite.NewPageFrom(strings.NewReader(in), filename)
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {

@@ -41,7 +41,6 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
 
@@ -538,7 +537,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 		p.renderingConfig = helpers.NewBlackfriday(p.Language())
 
 		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
-			jww.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
+			p.site.log.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 
 	})
@@ -546,7 +545,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 	return p.renderingConfig
 }
 
-func newPage(filename string) *Page {
+func (s *Site) newPage(filename string) *Page {
 	page := Page{
 		pageInit:    &pageInit{},
 		Kind:        kindFromFilename(filename),
@@ -558,7 +557,7 @@ func newPage(filename string) *Page {
 		sections:     sectionsFromFilename(filename),
 	}
 
-	jww.DEBUG.Println("Reading from", page.File.Path())
+	s.log.DEBUG.Println("Reading from", page.File.Path())
 	return &page
 }
 
@@ -659,8 +658,8 @@ func layouts(types string, layout string) (layouts []string) {
 	return
 }
 
-func NewPageFrom(buf io.Reader, name string) (*Page, error) {
-	p, err := NewPage(name)
+func (s *Site) NewPageFrom(buf io.Reader, name string) (*Page, error) {
+	p, err := s.NewPage(name)
 	if err != nil {
 		return p, err
 	}
@@ -669,13 +668,15 @@ func NewPageFrom(buf io.Reader, name string) (*Page, error) {
 	return p, err
 }
 
-func NewPage(name string) (*Page, error) {
+func (s *Site) NewPage(name string) (*Page, error) {
 	if len(name) == 0 {
 		return nil, errors.New("Zero length page name")
 	}
 
 	// Create new page
-	p := newPage(name)
+	p := s.newPage(name)
+	p.site = s
+	p.Site = &s.Info
 
 	return p, nil
 }
@@ -683,7 +684,7 @@ func NewPage(name string) (*Page, error) {
 func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
 	if err := p.parse(buf); err != nil {
-		jww.ERROR.Print(err)
+		p.site.log.ERROR.Print(err)
 		return 0, err
 	}
 
@@ -738,7 +739,7 @@ func (p *Page) getPermalink() *url.URL {
 	p.pageURLInit.Do(func() {
 		u, err := p.createPermalink()
 		if err != nil {
-			jww.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
+			p.site.log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
 			p.permalink = new(url.URL)
 			return
 		}
@@ -953,22 +954,22 @@ func (p *Page) update(f interface{}) error {
 		case "date":
 			p.Date, err = cast.ToTimeE(v)
 			if err != nil {
-				jww.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
+				p.site.log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
 			}
 		case "lastmod":
 			p.Lastmod, err = cast.ToTimeE(v)
 			if err != nil {
-				jww.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
+				p.site.log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
 			}
 		case "publishdate", "pubdate":
 			p.PublishDate, err = cast.ToTimeE(v)
 			if err != nil {
-				jww.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
+				p.site.log.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
 		case "expirydate", "unpublishdate":
 			p.ExpiryDate, err = cast.ToTimeE(v)
 			if err != nil {
-				jww.ERROR.Printf("Failed to parse expirydate '%v' in page %s", v, p.File.Path())
+				p.site.log.ERROR.Printf("Failed to parse expirydate '%v' in page %s", v, p.File.Path())
 			}
 		case "draft":
 			draft = new(bool)
@@ -1040,7 +1041,7 @@ func (p *Page) update(f interface{}) error {
 
 	if draft != nil && published != nil {
 		p.Draft = *draft
-		jww.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
+		p.site.log.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
 		return ErrHasDraftAndPublished
 	} else if draft != nil {
 		p.Draft = *draft
@@ -1109,7 +1110,7 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 		return v
 	}
 
-	jww.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
+	p.site.log.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
 	return nil
 }
 
@@ -1251,16 +1252,16 @@ func (p *Page) Menus() PageMenus {
 			menus, err := cast.ToStringMapE(ms)
 
 			if err != nil {
-				jww.ERROR.Printf("unable to process menus for %q\n", p.Title)
+				p.site.log.ERROR.Printf("unable to process menus for %q\n", p.Title)
 			}
 
 			for name, menu := range menus {
 				menuEntry := MenuEntry{Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
 				if menu != nil {
-					jww.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
+					p.site.log.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
 					ime, err := cast.ToStringMapE(menu)
 					if err != nil {
-						jww.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
+						p.site.log.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
 					}
 
 					menuEntry.marshallMap(ime)
@@ -1311,8 +1312,8 @@ func (p *Page) parse(reader io.Reader) error {
 	meta, err := psr.Metadata()
 	if meta != nil {
 		if err != nil {
-			jww.ERROR.Printf("Error parsing page meta data for %s", p.File.Path())
-			jww.ERROR.Println(err)
+			p.site.log.ERROR.Printf("Error parsing page meta data for %s", p.File.Path())
+			p.site.log.ERROR.Println(err)
 			return err
 		}
 		if err = p.update(meta); err != nil {
@@ -1381,7 +1382,7 @@ func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 	if !filepath.IsAbs(inpath) {
 		inpath = helpers.AbsPathify(inpath)
 	}
-	jww.INFO.Println("creating", inpath)
+	p.site.log.INFO.Println("creating", inpath)
 
 	if safe {
 		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), hugofs.Source())
@@ -1707,7 +1708,7 @@ func (p *Page) initLanguage() {
 
 		if language == nil {
 			// It can be a file named stefano.chiodino.md.
-			jww.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
+			p.site.log.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
 			language = ml.DefaultLang
 		}
 

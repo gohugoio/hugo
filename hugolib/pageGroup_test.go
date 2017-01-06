@@ -40,7 +40,7 @@ var pageGroupTestSources = []pageGroupTestObject{
 func preparePageGroupTestPages(t *testing.T) Pages {
 	var pages Pages
 	for _, s := range pageGroupTestSources {
-		p, err := NewPage(filepath.FromSlash(s.path))
+		p, err := pageTestSite.NewPage(filepath.FromSlash(s.path))
 		if err != nil {
 			t.Fatalf("failed to prepare test page %s", s.path)
 		}
@@ -237,7 +237,7 @@ func TestGroupByParamInReverseOrder(t *testing.T) {
 func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
 	testStr := "TestString"
 	f := "/section1/test_capital.md"
-	p, err := NewPage(filepath.FromSlash(f))
+	p, err := pageTestSite.NewPage(filepath.FromSlash(f))
 	if err != nil {
 		t.Fatalf("failed to prepare test page %s", f)
 	}

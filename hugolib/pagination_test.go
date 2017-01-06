@@ -253,7 +253,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 	samePaginator, _ := n1.Paginator()
 	assert.Equal(t, paginator1, samePaginator)
 
-	p, _ := NewPage("test")
+	p, _ := pageTestSite.NewPage("test")
 	_, err = p.Paginator()
 	assert.NotNil(t, err)
 }
@@ -311,7 +311,7 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	assert.Nil(t, err)
 	assert.Equal(t, paginator2, paginator1.Next())
 
-	p, _ := NewPage("test")
+	p, _ := pageTestSite.NewPage("test")
 	_, err = p.Paginate(pages)
 	assert.NotNil(t, err)
 }
