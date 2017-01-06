@@ -48,3 +48,29 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 		t.Fatalf("ordered taxonomies do not match [a, b, c].  Got: %s", st)
 	}
 }
+
+func TestByCountOrderOfTaxonomies(t *testing.T) {
+	viper.Reset()
+	defer viper.Reset()
+
+	taxonomies := make(map[string]string)
+
+	taxonomies["tag"] = "tags"
+	taxonomies["category"] = "categories"
+
+	viper.Set("taxonomies", taxonomies)
+
+	site := new(Site)
+	page, _ := NewPageFrom(strings.NewReader(pageYamlWithTaxonomiesA), "path/to/page")
+	site.Pages = append(site.Pages, page)
+	site.assembleTaxonomies()
+
+	st := make([]string, 0)
+	for _, t := range site.Taxonomies["tags"].ByCount() {
+		st = append(st, t.Name)
+	}
+
+	if !compareStringSlice(st, []string{"a", "b", "c"}) {
+		t.Fatalf("ordered taxonomies do not match [a, b, c].  Got: %s", st)
+	}
+}
