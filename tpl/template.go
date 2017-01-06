@@ -31,6 +31,8 @@ import (
 )
 
 var localTemplates *template.Template
+
+// TODO(bep) globals get rid of the reset of the jww.ERR etc.
 var tmpl *GoHTMLTemplate
 
 // TODO(bep) an interface with hundreds of methods ... remove it.
