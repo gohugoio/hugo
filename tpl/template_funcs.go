@@ -2188,6 +2188,7 @@ func initFuncMap() {
 		"title":        title,
 		"time":         asTime,
 		"trim":         trim,
+		"truncate":     truncate,
 		"upper":        upper,
 		"urlize":       helpers.CurrentPathSpec().URLize,
 		"where":        where,

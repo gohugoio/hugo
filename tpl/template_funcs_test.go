@@ -157,6 +157,8 @@ substr: {{substr "BatMan" 3 3}}
 title: {{title "Bat man"}}
 time: {{ (time "2015-01-21").Year }}
 trim: {{ trim "++Batman--" "+-" }}
+truncate: {{ "this is a very long text" | truncate 10 " ..." }}
+truncate: {{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}
 upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
 `
@@ -228,6 +230,8 @@ substr: Man
 title: Bat Man
 time: 2015
 trim: Batman
+truncate: this is a ...
+truncate: With <a href="/markdown">Markdown …</a>
 upper: BATMAN
 urlize: bat-man
 `
