@@ -16,6 +16,7 @@ package tpl
 import (
 	"html/template"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -41,6 +42,9 @@ func TestTruncate(t *testing.T) {
 		{15, "", template.HTML("A <br> tag that's not closed"), template.HTML("A <br> tag that's"), false},
 		{14, template.HTML("<p>Hello中国 Good 好的</p>"), nil, template.HTML("<p>Hello中国 Good 好 …</p>"), false},
 		{2, template.HTML("<p>P1</p><p>P2</p>"), nil, template.HTML("<p>P1 …</p>"), false},
+		{3, template.HTML(strings.Repeat("<p>P</p>", 20)), nil, template.HTML("<p>P</p><p>P</p><p>P …</p>"), false},
+		{18, template.HTML("<p>test <b>hello</b> test something</p>"), nil, template.HTML("<p>test <b>hello</b> test …</p>"), false},
+		{4, template.HTML("<p>a<b><i>b</b>c d e</p>"), nil, template.HTML("<p>a<b><i>b</b>c …</p>"), false},
 		{10, nil, nil, template.HTML(""), true},
 		{nil, nil, nil, template.HTML(""), true},
 	}

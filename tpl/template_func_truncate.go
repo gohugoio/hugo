@@ -33,9 +33,10 @@ var (
 	}
 )
 
-type openTag struct {
-	name string
-	pos  int
+type htmlTag struct {
+	name    string
+	pos     int
+	openTag bool
 }
 
 func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
@@ -44,7 +45,7 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 		return "", err
 	}
 	var textParam interface{}
-	var ellipsis template.HTML
+	var ellipsis string
 
 	switch len(options) {
 	case 0:
@@ -54,13 +55,12 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 		ellipsis = " …"
 	case 2:
 		textParam = options[1]
-		var ok bool
-		if ellipsis, ok = options[0].(template.HTML); !ok {
-			s, e := cast.ToStringE(options[0])
-			if e != nil {
-				return "", errors.New("ellipsis must be a string")
-			}
-			ellipsis = template.HTML(html.EscapeString(s))
+		ellipsis, err = cast.ToStringE(options[0])
+		if err != nil {
+			return "", errors.New("ellipsis must be a string")
+		}
+		if _, ok := options[0].(template.HTML); !ok {
+			ellipsis = html.EscapeString(ellipsis)
 		}
 	default:
 		return "", errors.New("too many arguments passed to truncate")
@@ -82,7 +82,7 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 		return template.HTML(html.EscapeString(text)), nil
 	}
 
-	openTags := []openTag{}
+	tags := []htmlTag{}
 	var lastWordIndex, lastNonSpace, currentLen, endTextPos, nextTag int
 
 	for i, r := range text {
@@ -99,21 +99,10 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 				tagname := slice[m[4]:m[5]]
 				lastWordIndex = lastNonSpace
 				_, singlet := htmlSinglets[tagname]
-				if singlet || m[6] != -1 {
-					continue
+				if !singlet && m[6] == -1 {
+					tags = append(tags, htmlTag{name: tagname, pos: i, openTag: m[2] == -1})
 				}
-				if m[2] == -1 {
-					openTags = append(openTags, openTag{name: tagname, pos: i})
-				} else {
-					// SGML: An end tag closes, back to the matching start tag,
-					// all unclosed intervening start tags with omitted end tags
-					for i, tag := range openTags {
-						if tag.name == tagname {
-							openTags = openTags[i:]
-							break
-						}
-					}
-				}
+
 				continue
 			}
 		}
@@ -135,17 +124,28 @@ func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 			}
 			out := text[0:endTextPos]
 			if isHTML {
+				out += ellipsis
 				// Close out any open HTML tags
-				out += string(ellipsis)
-				for _, tag := range openTags {
-					if tag.pos > endTextPos {
-						break
+				var currentTag *htmlTag
+				for i := len(tags) - 1; i >= 0; i-- {
+					tag := tags[i]
+					if tag.pos >= endTextPos || currentTag != nil {
+						if currentTag != nil && currentTag.name == tag.name {
+							currentTag = nil
+						}
+						continue
 					}
-					out += ("</" + tag.name + ">")
+
+					if tag.openTag {
+						out += ("</" + tag.name + ">")
+					} else {
+						currentTag = &tag
+					}
 				}
+
 				return template.HTML(out), nil
 			}
-			return template.HTML(html.EscapeString(out)) + ellipsis, nil
+			return template.HTML(html.EscapeString(out) + ellipsis), nil
 		}
 	}
 
