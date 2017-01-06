@@ -657,7 +657,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 }
 
 func (s *Site) loadTemplates() {
-	s.owner.tmpl = tpl.InitializeT()
+	s.owner.tmpl = tpl.InitializeT(s.log)
 	s.owner.tmpl.LoadTemplates(s.absLayoutDir())
 	if s.hasTheme() {
 		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")

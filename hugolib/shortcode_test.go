@@ -83,7 +83,7 @@ title: "Title"
 }
 
 func TestShortcodeGoFuzzReports(t *testing.T) {
-	tem := tpl.New()
+	tem := tpl.New(logger)
 
 	tem.AddInternalShortcode("sc.html", `foo`)
 	p, _ := pageFromString(simplePage, "simple.md")
@@ -304,7 +304,7 @@ func TestHighlight(t *testing.T) {
 	viper.Set("pygmentsStyle", "bw")
 	viper.Set("pygmentsUseClasses", false)
 
-	templ := tpl.New()
+	templ := tpl.New(logger)
 
 	code := `
 {{< highlight java >}}
@@ -380,7 +380,7 @@ func TestExtractShortcodes(t *testing.T) {
 	} {
 
 		p, _ := pageFromString(simplePage, "simple.md")
-		tem := tpl.New()
+		tem := tpl.New(logger)
 		tem.AddInternalShortcode("tag.html", `tag`)
 		tem.AddInternalShortcode("sc1.html", `sc1`)
 		tem.AddInternalShortcode("sc2.html", `sc2`)
