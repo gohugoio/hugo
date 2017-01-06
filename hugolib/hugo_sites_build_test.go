@@ -48,7 +48,6 @@ func testCommonResetState() {
 }
 
 func TestMultiSitesMainLangInRoot(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
 
 	for _, b := range []bool{true, false} {
 		doTestMultiSitesMainLangInRoot(t, b)

@@ -104,7 +104,8 @@ func init() {
 }
 
 func server(cmd *cobra.Command, args []string) error {
-	if err := InitializeConfig(serverCmd); err != nil {
+	cfg, err := InitializeConfig()
+	if err != nil {
 		return err
 	}
 
@@ -118,7 +119,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if viper.GetBool("watch") {
 		serverWatch = true
-		watchConfig()
+		watchConfig(cfg)
 	}
 
 	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
@@ -161,7 +162,7 @@ func server(cmd *cobra.Command, args []string) error {
 		viper.Set("publishDir", "/")
 	}
 
-	if err := build(serverWatch); err != nil {
+	if err := build(cfg, serverWatch); err != nil {
 		return err
 	}
 
@@ -176,7 +177,7 @@ func server(cmd *cobra.Command, args []string) error {
 		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(watchDirs)), ",")
 
 		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
-		err := NewWatcher(serverPort)
+		err := newWatcher(cfg, serverPort)
 
 		if err != nil {
 			return err

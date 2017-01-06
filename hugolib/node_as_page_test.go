@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -41,8 +40,6 @@ func TestNodesAsPage(t *testing.T) {
 }
 
 func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
 
 	/* Will have to decide what to name the node content files, but:
 
@@ -188,9 +185,6 @@ func TestNodesWithNoContentFile(t *testing.T) {
 }
 
 func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
-	jww.SetStdoutThreshold(jww.LevelFatal)
-
 	testCommonResetState()
 
 	writeLayoutsForNodeAsPageTests(t)

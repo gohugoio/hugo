@@ -103,14 +103,13 @@ func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
 }
 
 func TestRenderWithInvalidTemplate(t *testing.T) {
-	jww.ResetLogCounters()
 
 	s := NewSiteDefaultLang()
 	if err := buildAndRenderSite(s, "missing", templateMissingFunc); err != nil {
 		t.Fatalf("Got build error: %s", err)
 	}
 
-	if jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) != 1 {
+	if s.log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) != 1 {
 		t.Fatalf("Expecting the template to log an ERROR")
 	}
 }
@@ -398,7 +397,6 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 // Issue #1176
 func TestSectionNaming(t *testing.T) {
-	//jww.SetStdoutThreshold(jww.LevelDebug)
 
 	for _, canonify := range []bool{true, false} {
 		for _, uglify := range []bool{true, false} {

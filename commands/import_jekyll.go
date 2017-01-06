@@ -83,8 +83,9 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 	}
 
 	forceImport, _ := cmd.Flags().GetBool("force")
-	if err := createSiteFromJekyll(jekyllRoot, targetDir, forceImport); err != nil {
-		return newUserError(err)
+	site, err := createSiteFromJekyll(jekyllRoot, targetDir, forceImport)
+	if err != nil {
+		return err
 	}
 
 	jww.FEEDBACK.Println("Importing...")
@@ -118,7 +119,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		}
 
 		fileCount++
-		return convertJekyllPost(path, relPath, targetDir, draft)
+		return convertJekyllPost(site, path, relPath, targetDir, draft)
 	}
 
 	err = helpers.SymbolicWalk(hugofs.Os(), jekyllRoot, callback)
@@ -135,17 +136,17 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 }
 
 // TODO: Consider calling doNewSite() instead?
-func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
+func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) (*hugolib.Site, error) {
 	fs := hugofs.Source()
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
-			return errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
+			return nil, errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
 		}
 
 		isEmpty, _ := helpers.IsEmpty(targetDir, fs)
 
 		if !isEmpty && !force {
-			return errors.New("Target path \"" + targetDir + "\" already exists and is not empty")
+			return nil, errors.New("Target path \"" + targetDir + "\" already exists and is not empty")
 		}
 	}
 
@@ -166,7 +167,7 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
 		}
 	}
 	if !hasPostsOrDrafts {
-		return errors.New("Your Jekyll root contains neither posts nor drafts, aborting.")
+		return nil, errors.New("Your Jekyll root contains neither posts nor drafts, aborting.")
 	}
 
 	mkdir(targetDir, "layouts")
@@ -179,8 +180,9 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) error {
 	createConfigFromJekyll(targetDir, "yaml", jekyllConfig)
 
 	copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"))
+	site := hugolib.NewSiteDefaultLang()
 
-	return nil
+	return site, nil
 }
 
 func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
@@ -379,7 +381,7 @@ func parseJekyllFilename(filename string) (time.Time, string, error) {
 	return postDate, postName, nil
 }
 
-func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
+func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft bool) error {
 	jww.TRACE.Println("Converting", path)
 
 	filename := filepath.Base(path)
@@ -422,7 +424,7 @@ func convertJekyllPost(path, relPath, targetDir string, draft bool) error {
 	jww.TRACE.Println(newmetadata)
 	content := convertJekyllContent(newmetadata, string(psr.Content()))
 
-	page, err := hugolib.NewPage(filename)
+	page, err := s.NewPage(filename)
 	if err != nil {
 		jww.ERROR.Println("New page error", filename)
 		return err
