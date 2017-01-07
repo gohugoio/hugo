@@ -124,7 +124,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	for i, r := range source {
 		if r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]) {
 			target = append(target, r)
-		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' {
+		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' || r == '~' {
 			target = append(target, r)
 		}
 	}

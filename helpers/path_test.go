@@ -58,6 +58,8 @@ func TestMakePath(t *testing.T) {
 		{"संस्कृत", "संस्कृत", false},
 		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
 		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
+		{"~foo", "~foo", false},                     // Issue #2177
+
 	}
 
 	for _, test := range tests {
