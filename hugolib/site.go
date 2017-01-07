@@ -2033,7 +2033,7 @@ func (s *Site) newNodePage(typ string) *Page {
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
 		language: s.Language,
-		site:     s}
+		s:     s}
 }
 
 func (s *Site) newHomePage() *Page {

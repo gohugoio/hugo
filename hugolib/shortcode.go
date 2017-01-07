@@ -214,7 +214,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 	tmpl := getShortcodeTemplate(sc.name, t)
 
 	if tmpl == nil {
-		p.site.log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
+		p.s.log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 		return ""
 	}
 
@@ -232,7 +232,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 			case shortcode:
 				inner += renderShortcode(innerData.(shortcode), data, p, t)
 			default:
-				p.site.log.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
+				p.s.log.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
 					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
 				return ""
 			}
@@ -286,7 +286,7 @@ func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (
 
 	if err != nil {
 		//  try to render what we have whilst logging the error
-		p.site.log.ERROR.Println(err.Error())
+		p.s.log.ERROR.Println(err.Error())
 	}
 
 	// Save for reuse
@@ -585,8 +585,8 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	isInnerShortcodeCache.RUnlock()
 	if err != nil {
 		// TODO(bep) globals
-		data.Page.site.log.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
-		data.Page.site.log.WARN.Println(data)
+		data.Page.s.log.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
+		data.Page.s.log.WARN.Println(data)
 	}
 	return buffer.String()
 }
