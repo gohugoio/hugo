@@ -689,6 +689,7 @@ func createTestSite(pageSources []source.ByteSource) *Site {
 	hugofs.InitMemFs()
 
 	return &Site{
+		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: pageSources},
 		Language: helpers.NewDefaultLanguage(),
 	}

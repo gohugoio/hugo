@@ -84,7 +84,7 @@ as you see fit.`,
 
 // NewContent adds new content to a Hugo site.
 func NewContent(cmd *cobra.Command, args []string) error {
-	if err := InitializeConfig(); err != nil {
+	if _, err := InitializeConfig(); err != nil {
 		return err
 	}
 
@@ -195,7 +195,7 @@ func NewSite(cmd *cobra.Command, args []string) error {
 
 // NewTheme creates a new Hugo theme.
 func NewTheme(cmd *cobra.Command, args []string) error {
-	if err := InitializeConfig(); err != nil {
+	if _, err := InitializeConfig(); err != nil {
 		return err
 	}
 

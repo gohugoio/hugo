@@ -33,7 +33,7 @@ func TestAlias(t *testing.T) {
 	writeSource(t, filepath.Join("content", "page.md"), pageWithAlias)
 	writeSource(t, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
 
-	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
+	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 
@@ -49,7 +49,7 @@ func TestAliasTemplate(t *testing.T) {
 	writeSource(t, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
 	writeSource(t, filepath.Join("layouts", "alias.html"), aliasTemplate)
 
-	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
+	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
 		t.Fatalf("Failed to build site: %s", err)
 	}
 

@@ -89,7 +89,7 @@ Page With Date HugoLong`
 )
 
 func TestDegenerateDateFrontMatter(t *testing.T) {
-	p, _ := NewPageFrom(strings.NewReader(pageWithInvalidDate), "page/with/invalid/date")
+	p, _ := pageTestSite.NewPageFrom(strings.NewReader(pageWithInvalidDate), "page/with/invalid/date")
 	if p.Date != *new(time.Time) {
 		t.Fatalf("Date should be set to time.Time zero value.  Got: %s", p.Date)
 	}
@@ -131,7 +131,7 @@ func TestParsingDateInFrontMatter(t *testing.T) {
 		if e != nil {
 			t.Fatalf("Unable to parse date time (RFC3339) for running the test: %s", e)
 		}
-		p, err := NewPageFrom(strings.NewReader(test.buf), "page/with/date")
+		p, err := pageTestSite.NewPageFrom(strings.NewReader(test.buf), "page/with/date")
 		if err != nil {
 			t.Fatalf("Expected to be able to parse page.")
 		}

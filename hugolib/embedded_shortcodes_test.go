@@ -24,11 +24,17 @@ import (
 	"strings"
 	"testing"
 
+	"io/ioutil"
+	"log"
+
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
+
+var logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 
 const (
 	baseURL = "http://foo/bar"
@@ -100,7 +106,7 @@ void do();
 			"(?s)^\n<div class=\"highlight\" style=\"background: #f0f0f0\"><pre style=\"line-height: 125%\">.*?void</span>.*?do</span>.*?().*?</pre></div>\n$",
 		},
 	} {
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
 		output, err := HandleShortcodes(this.in, p, templ)
 
@@ -144,7 +150,7 @@ func TestShortcodeFigure(t *testing.T) {
 			"(?s)^\n<figure >.*?<img src=\"/img/hugo-logo.png\" />.*?<figcaption>.*?<p>.*?<a href=\"/img/hugo-logo.png\">.*?Hugo logo.*?</a>.*?</p>.*?</figcaption>.*?</figure>\n$",
 		},
 	} {
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
 		output, err := HandleShortcodes(this.in, p, templ)
 
@@ -169,7 +175,7 @@ func TestShortcodeSpeakerdeck(t *testing.T) {
 			"(?s)^<script async class='speakerdeck-embed' data-id='4e8126e72d853c0060001f97'.*?>.*?</script>$",
 		},
 	} {
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
 		output, err := HandleShortcodes(this.in, p, templ)
 
@@ -204,7 +210,7 @@ func TestShortcodeYoutube(t *testing.T) {
 			"(?s)^\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen frameborder=\"0\">.*?</iframe>.*?</div>$",
 		},
 	} {
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
 		output, err := HandleShortcodes(this.in, p, templ)
 
@@ -239,7 +245,7 @@ func TestShortcodeVimeo(t *testing.T) {
 			"(?s)^<div class=\"video\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>$",
 		},
 	} {
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
 		output, err := HandleShortcodes(this.in, p, templ)
 
@@ -268,7 +274,7 @@ func TestShortcodeGist(t *testing.T) {
 			"(?s)^<script src=\"//gist.github.com/spf13/7896402.js\\?file=img.html\"></script>$",
 		},
 	} {
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
 		output, err := HandleShortcodes(this.in, p, templ)
 
@@ -307,7 +313,7 @@ func TestShortcodeTweet(t *testing.T) {
 			},
 		}
 
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		templ.Lookup("").Funcs(tweetFuncMap)
 
 		p, _ := pageFromString(simplePage, "simple.md")
@@ -359,7 +365,7 @@ func TestShortcodeInstagram(t *testing.T) {
 			},
 		}
 
-		templ := tpl.New()
+		templ := tpl.New(logger)
 		templ.Lookup("").Funcs(tweetFuncMap)
 
 		p, _ := pageFromString(simplePage, "simple.md")

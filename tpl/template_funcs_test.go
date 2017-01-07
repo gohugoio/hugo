@@ -33,12 +33,19 @@ import (
 
 	"github.com/spf13/hugo/helpers"
 
+	"io/ioutil"
+	"log"
+	"os"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
+
+var logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 
 type tstNoStringer struct {
 }
@@ -237,7 +244,7 @@ urlize: bat-man
 `
 
 	var b bytes.Buffer
-	templ, err := New().New("test").Parse(in)
+	templ, err := New(logger).New("test").Parse(in)
 	var data struct {
 		Title   string
 		Section string
@@ -2371,7 +2378,7 @@ func TestDefault(t *testing.T) {
 		{map[string]string{"foo": "dog"}, `{{ default "nope" .foo "extra" }}`, ``, false},
 		{map[string]interface{}{"images": []string{}}, `{{ default "default.jpg" (index .images 0) }}`, `default.jpg`, true},
 	} {
-		tmpl, err := New().New("test").Parse(this.tpl)
+		tmpl, err := New(logger).New("test").Parse(this.tpl)
 		if err != nil {
 			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tpl, err)
 			continue
@@ -2773,7 +2780,7 @@ func TestPartialCached(t *testing.T) {
 	data.Params = map[string]interface{}{"langCode": "en"}
 
 	tstInitTemplates()
-	InitializeT()
+	InitializeT(logger)
 	for i, tc := range testCases {
 		var tmp string
 		if tc.variant != "" {
@@ -2782,7 +2789,7 @@ func TestPartialCached(t *testing.T) {
 			tmp = tc.tmpl
 		}
 
-		tmpl, err := New().New("testroot").Parse(tmp)
+		tmpl, err := New(logger).New("testroot").Parse(tmp)
 		if err != nil {
 			t.Fatalf("[%d] unable to create new html template: %s", i, err)
 		}
@@ -2824,8 +2831,8 @@ func TestPartialCached(t *testing.T) {
 }
 
 func BenchmarkPartial(b *testing.B) {
-	InitializeT()
-	tmpl, err := New().New("testroot").Parse(`{{ partial "bench1" . }}`)
+	InitializeT(logger)
+	tmpl, err := New(logger).New("testroot").Parse(`{{ partial "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
 	}
@@ -2844,8 +2851,8 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
-	InitializeT()
-	tmpl, err := New().New("testroot").Parse(`{{ partialCached "bench1" . }}`)
+	InitializeT(logger)
+	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
 	}
@@ -2864,8 +2871,8 @@ func BenchmarkPartialCached(b *testing.B) {
 }
 
 func BenchmarkPartialCachedVariants(b *testing.B) {
-	InitializeT()
-	tmpl, err := New().New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
+	InitializeT(logger)
+	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
 	}

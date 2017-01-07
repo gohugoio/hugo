@@ -42,7 +42,6 @@ import (
 	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/hugo/transform"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 )
@@ -105,22 +104,29 @@ type Site struct {
 	expiredCount   int
 	Data           map[string]interface{}
 	Language       *helpers.Language
+
+	// Logger etc.
+	*deps
 }
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
+	return &Site{deps: s.deps, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
 }
 
 // newSite creates a new site in the given language.
 func newSite(lang *helpers.Language) *Site {
 	c := newPageCollections()
-	return &Site{Language: lang, PageCollections: c, Info: newSiteInfo(siteBuilderCfg{pageCollections: c, language: lang})}
+	// TODO(bep) globals (also see other Site creation places)
+	deps := newDeps(DepsCfg{})
+	// TODO(bep) globals
+	viper.Set("currentContentLanguage", lang)
+	return &Site{deps: deps, Language: lang, PageCollections: c, Info: newSiteInfo(siteBuilderCfg{pageCollections: c, language: lang})}
 
 }
 
-// newSite creates a new site in the default language.
-func newSiteDefaultLang() *Site {
+// NewSiteDefaultLang creates a new site in the default language.
+func NewSiteDefaultLang() *Site {
 	return newSite(helpers.NewDefaultLanguage())
 }
 
@@ -141,6 +147,7 @@ func newSiteFromSources(pathContentPairs ...string) *Site {
 	lang := helpers.NewDefaultLanguage()
 
 	return &Site{
+		deps:            newDeps(DepsCfg{}),
 		PageCollections: newPageCollections(),
 		Source:          &source.InMemorySource{ByteSource: sources},
 		Language:        lang,
@@ -487,7 +494,7 @@ type whatChanged struct {
 // It returns whetever the content source was changed.
 func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
-	jww.DEBUG.Printf("Rebuild for events %q", events)
+	s.log.DEBUG.Printf("Rebuild for events %q", events)
 
 	s.timerStep("initialize rebuild")
 
@@ -533,7 +540,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 	if len(i18nChanged) > 0 {
 		if err := s.readI18nSources(); err != nil {
-			jww.ERROR.Println(err)
+			s.log.ERROR.Println(err)
 		}
 	}
 
@@ -602,7 +609,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 		file, err := s.reReadFile(ev.Name)
 
 		if err != nil {
-			jww.ERROR.Println("Error reading file", ev.Name, ";", err)
+			s.log.ERROR.Println("Error reading file", ev.Name, ";", err)
 		}
 
 		if file != nil {
@@ -636,7 +643,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 	for i := 0; i < 2; i++ {
 		err := <-errs
 		if err != nil {
-			jww.ERROR.Println(err)
+			s.log.ERROR.Println(err)
 		}
 	}
 
@@ -650,7 +657,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 }
 
 func (s *Site) loadTemplates() {
-	s.owner.tmpl = tpl.InitializeT()
+	s.owner.tmpl = tpl.InitializeT(s.log)
 	s.owner.tmpl.LoadTemplates(s.absLayoutDir())
 	if s.hasTheme() {
 		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
@@ -672,7 +679,7 @@ func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error 
 }
 
 func (s *Site) loadData(sources []source.Input) (err error) {
-	jww.DEBUG.Printf("Load Data from %q", sources)
+	s.log.DEBUG.Printf("Load Data from %q", sources)
 	s.Data = make(map[string]interface{})
 	var current map[string]interface{}
 	for _, currentSource := range sources {
@@ -688,7 +695,7 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 				}
 			}
 
-			data, err := readData(r)
+			data, err := s.readData(r)
 			if err != nil {
 				return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
 			}
@@ -707,7 +714,7 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 						// this warning could happen if
 						// 1. A theme uses the same key; the main data folder wins
 						// 2. A sub folder uses the same key: the sub folder wins
-						jww.WARN.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
+						s.log.WARN.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
 					}
 					data[key] = value
 				}
@@ -721,7 +728,7 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 	return
 }
 
-func readData(f *source.File) (interface{}, error) {
+func (s *Site) readData(f *source.File) (interface{}, error) {
 	switch f.Extension() {
 	case "yaml", "yml":
 		return parser.HandleYAMLMetaData(f.Bytes())
@@ -730,7 +737,7 @@ func readData(f *source.File) (interface{}, error) {
 	case "toml":
 		return parser.HandleTOMLMetaData(f.Bytes())
 	default:
-		jww.WARN.Printf("Data not supported for extension '%s'", f.Extension())
+		s.log.WARN.Printf("Data not supported for extension '%s'", f.Extension())
 		return nil, nil
 	}
 }
@@ -862,7 +869,7 @@ func (s *Site) initialize() (err error) {
 
 	// May be supplied in tests.
 	if s.Source != nil && len(s.Source.Files()) > 0 {
-		jww.DEBUG.Println("initialize: Source is already set")
+		s.log.DEBUG.Println("initialize: Source is already set")
 		return
 	}
 
@@ -988,14 +995,14 @@ func (s *Site) isI18nEvent(e fsnotify.Event) bool {
 }
 
 func (s *Site) getI18nDir(path string) string {
-	return getRealDir(s.absI18nDir(), path)
+	return s.getRealDir(s.absI18nDir(), path)
 }
 
 func (s *Site) getThemeI18nDir(path string) string {
 	if !s.hasTheme() {
 		return ""
 	}
-	return getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.i18nDir())), path)
+	return s.getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.i18nDir())), path)
 }
 
 func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
@@ -1006,14 +1013,14 @@ func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
 }
 
 func (s *Site) getDataDir(path string) string {
-	return getRealDir(s.absDataDir(), path)
+	return s.getRealDir(s.absDataDir(), path)
 }
 
 func (s *Site) getThemeDataDir(path string) string {
 	if !s.hasTheme() {
 		return ""
 	}
-	return getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.dataDir())), path)
+	return s.getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.dataDir())), path)
 }
 
 func (s *Site) themeDir() string {
@@ -1040,14 +1047,14 @@ func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
 }
 
 func (s *Site) getLayoutDir(path string) string {
-	return getRealDir(s.absLayoutDir(), path)
+	return s.getRealDir(s.absLayoutDir(), path)
 }
 
 func (s *Site) getThemeLayoutDir(path string) string {
 	if !s.hasTheme() {
 		return ""
 	}
-	return getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.layoutDir())), path)
+	return s.getRealDir(helpers.AbsPathify(filepath.Join(s.themeDir(), s.layoutDir())), path)
 }
 
 func (s *Site) absContentDir() string {
@@ -1059,12 +1066,12 @@ func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
 }
 
 func (s *Site) getContentDir(path string) string {
-	return getRealDir(s.absContentDir(), path)
+	return s.getRealDir(s.absContentDir(), path)
 }
 
 // getRealDir gets the base path of the given path, also handling the case where
 // base is a symlinked folder.
-func getRealDir(base, path string) string {
+func (s *Site) getRealDir(base, path string) string {
 
 	if strings.HasPrefix(path, base) {
 		return base
@@ -1074,7 +1081,7 @@ func getRealDir(base, path string) string {
 
 	if err != nil {
 		if !os.IsNotExist(err) {
-			jww.ERROR.Printf("Failed to get real path for %s: %s", path, err)
+			s.log.ERROR.Printf("Failed to get real path for %s: %s", path, err)
 		}
 		return ""
 	}
@@ -1099,7 +1106,7 @@ func (s *Site) checkDirectories() (err error) {
 
 // reReadFile resets file to be read from disk again
 func (s *Site) reReadFile(absFilePath string) (*source.File, error) {
-	jww.INFO.Println("rereading", absFilePath)
+	s.log.INFO.Println("rereading", absFilePath)
 	var file *source.File
 
 	reader, err := source.NewLazyFileReader(hugofs.Source(), absFilePath)
@@ -1120,7 +1127,7 @@ func (s *Site) readPagesFromSource() chan error {
 		panic(fmt.Sprintf("s.Source not set %s", s.absContentDir()))
 	}
 
-	jww.DEBUG.Printf("Read %d pages from source", len(s.Source.Files()))
+	s.log.DEBUG.Printf("Read %d pages from source", len(s.Source.Files()))
 
 	errs := make(chan error)
 	if len(s.Source.Files()) < 1 {
@@ -1220,7 +1227,7 @@ func readSourceFile(s *Site, file *source.File, results chan<- HandledResult) {
 	if h != nil {
 		h.Read(file, s, results)
 	} else {
-		jww.ERROR.Println("Unsupported File Type", file.Path())
+		s.log.ERROR.Println("Unsupported File Type", file.Path())
 	}
 }
 
@@ -1361,17 +1368,17 @@ func (s *Site) getMenusFromConfig() Menus {
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
 			if err != nil {
-				jww.ERROR.Printf("unable to process menus in site config\n")
-				jww.ERROR.Println(err)
+				s.log.ERROR.Printf("unable to process menus in site config\n")
+				s.log.ERROR.Println(err)
 			} else {
 				for _, entry := range m {
-					jww.DEBUG.Printf("found menu: %q, in site config\n", name)
+					s.log.DEBUG.Printf("found menu: %q, in site config\n", name)
 
 					menuEntry := MenuEntry{Menu: name}
 					ime, err := cast.ToStringMapE(entry)
 					if err != nil {
-						jww.ERROR.Printf("unable to process menus in site config\n")
-						jww.ERROR.Println(err)
+						s.log.ERROR.Printf("unable to process menus in site config\n")
+						s.log.ERROR.Println(err)
 					}
 
 					menuEntry.marshallMap(ime)
@@ -1443,7 +1450,7 @@ func (s *Site) assembleMenus() {
 
 		for name, me := range p.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
-				jww.ERROR.Printf("Two or more menu items have the same name/identifier in Menu %q: %q.\nRename or set an unique identifier.\n", name, me.KeyName())
+				s.log.ERROR.Printf("Two or more menu items have the same name/identifier in Menu %q: %q.\nRename or set an unique identifier.\n", name, me.KeyName())
 				continue
 			}
 			flat[twoD{name, me.KeyName()}] = me
@@ -1486,7 +1493,7 @@ func (s *Site) assembleTaxonomies() {
 
 	taxonomies := s.Language.GetStringMapString("taxonomies")
 
-	jww.INFO.Printf("found taxonomies: %#v\n", taxonomies)
+	s.log.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
 	for singular, plural := range taxonomies {
 		s.Taxonomies[plural] = make(Taxonomy)
@@ -1516,7 +1523,7 @@ func (s *Site) assembleTaxonomies() {
 						s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, kp(v))] = v
 					}
 				} else {
-					jww.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
+					s.log.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
 				}
 			}
 		}
@@ -1654,18 +1661,18 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
 func (s *Site) Stats() {
-	jww.FEEDBACK.Printf("Built site for language %s:\n", s.Language.Lang)
-	jww.FEEDBACK.Println(s.draftStats())
-	jww.FEEDBACK.Println(s.futureStats())
-	jww.FEEDBACK.Println(s.expiredStats())
-	jww.FEEDBACK.Printf("%d regular pages created\n", len(s.RegularPages))
-	jww.FEEDBACK.Printf("%d other pages created\n", (len(s.Pages) - len(s.RegularPages)))
-	jww.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
-	jww.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
+	s.log.FEEDBACK.Printf("Built site for language %s:\n", s.Language.Lang)
+	s.log.FEEDBACK.Println(s.draftStats())
+	s.log.FEEDBACK.Println(s.futureStats())
+	s.log.FEEDBACK.Println(s.expiredStats())
+	s.log.FEEDBACK.Printf("%d regular pages created\n", len(s.RegularPages))
+	s.log.FEEDBACK.Printf("%d other pages created\n", (len(s.Pages) - len(s.RegularPages)))
+	s.log.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
+	s.log.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
 	taxonomies := s.Language.GetStringMapString("taxonomies")
 
 	for _, pl := range taxonomies {
-		jww.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
+		s.log.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
 	}
 
 }
@@ -1694,7 +1701,7 @@ func (s *SiteInfo) permalinkStr(plink string) string {
 }
 
 func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layouts ...string) error {
-	jww.DEBUG.Printf("Render XML for %q to %q", name, dest)
+	s.log.DEBUG.Printf("Render XML for %q to %q", name, dest)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
@@ -1786,7 +1793,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	if outBuffer.Len() == 0 {
 
-		jww.WARN.Printf("%s is rendered empty\n", dest)
+		s.log.WARN.Printf("%s is rendered empty\n", dest)
 		if dest == "/" {
 			debugAddend := ""
 			if !viper.GetBool("verbose") {
@@ -1818,7 +1825,7 @@ Your rendered home page is blank: /index.html is zero-length
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
 	layout, found := s.findFirstLayout(layouts...)
 	if !found {
-		jww.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
+		s.log.WARN.Printf("Unable to locate layout for %s: %s\n", name, layouts)
 		return nil
 	}
 
@@ -1922,12 +1929,12 @@ func (s *Site) initTargetList() {
 }
 
 func (s *Site) writeDestFile(path string, reader io.Reader) (err error) {
-	jww.DEBUG.Println("creating file:", path)
+	s.log.DEBUG.Println("creating file:", path)
 	return s.fileTarget().Publish(path, reader)
 }
 
 func (s *Site) writeDestPage(path string, publisher target.Publisher, reader io.Reader) (err error) {
-	jww.DEBUG.Println("creating page:", path)
+	s.log.DEBUG.Println("creating page:", path)
 	return publisher.Publish(path, reader)
 }
 
@@ -1945,11 +1952,11 @@ func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path, perm
 		}
 		permalink, err = helpers.GetRelativePath(permalink, path)
 		if err != nil {
-			jww.ERROR.Println("Failed to make a RelativeURL alias:", path, "redirecting to", permalink)
+			s.log.ERROR.Println("Failed to make a RelativeURL alias:", path, "redirecting to", permalink)
 		}
 		permalink = filepath.ToSlash(permalink)
 	}
-	jww.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
+	s.log.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
 	return aliasPublisher.Publish(path, permalink, p)
 }
 
@@ -2026,7 +2033,7 @@ func (s *Site) newNodePage(typ string) *Page {
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
 		language: s.Language,
-		site:     s}
+		s:     s}
 }
 
 func (s *Site) newHomePage() *Page {

@@ -55,7 +55,7 @@ html lang=en
 
 		for _, root := range []string{"", os.TempDir()} {
 
-			templ := New()
+			templ := New(logger)
 
 			basePath := this.basePath
 			innerPath := this.innerPath
@@ -124,7 +124,7 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 	} {
 
 		hugofs.InitMemFs()
-		templ := New()
+		templ := New(logger)
 		overlayTplName := "ot"
 		masterTplName := "mt"
 		finalTplName := "tp"
@@ -245,7 +245,7 @@ func TestTplGoFuzzReports(t *testing.T) {
 		// Issue #1095
 		{"{{apply .C \"urlize\" " +
 			"\".\"}}", 2}} {
-		templ := New()
+		templ := New(logger)
 
 		d := &Data{
 			A: 42,

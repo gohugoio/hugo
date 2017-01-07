@@ -52,7 +52,7 @@ func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
 	w := WeightedPages{}
 
 	for _, s := range pagePNTestSources {
-		p, err := NewPage(s.path)
+		p, err := pageTestSite.NewPage(s.path)
 		if err != nil {
 			t.Fatalf("failed to prepare test page %s", s.path)
 		}

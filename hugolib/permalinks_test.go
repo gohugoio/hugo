@@ -71,7 +71,7 @@ func TestPermalinkValidation(t *testing.T) {
 }
 
 func TestPermalinkExpansion(t *testing.T) {
-	page, err := NewPageFrom(strings.NewReader(simplePageJSON), "blue/test-page.md")
+	page, err := pageTestSite.NewPageFrom(strings.NewReader(simplePageJSON), "blue/test-page.md")
 	info := newSiteInfo(siteBuilderCfg{language: helpers.NewDefaultLanguage()})
 	page.Site = &info
 	if err != nil {

@@ -37,7 +37,7 @@ If the content's draft status is 'False', nothing is done.`,
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
 func Undraft(cmd *cobra.Command, args []string) error {
-	if err := InitializeConfig(); err != nil {
+	if _, err := InitializeConfig(); err != nil {
 		return err
 	}
 
