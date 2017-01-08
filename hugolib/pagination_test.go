@@ -200,7 +200,6 @@ func TestPaginationURLFactory(t *testing.T) {
 	unicode := newPaginationURLFactory("новости проекта")
 	fooBar := newPaginationURLFactory("foo", "bar")
 
-	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/", unicode(1))
 	assert.Equal(t, "/foo/bar/", fooBar(1))
 	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/zoo/4/", unicode(4))
 	assert.Equal(t, "/foo/bar/zoo/12345/", fooBar(12345))
@@ -273,6 +272,41 @@ func TestPaginate(t *testing.T) {
 	for _, useViper := range []bool{false, true} {
 		doTestPaginate(t, useViper)
 	}
+}
+
+func TestPaginatorURL(t *testing.T) {
+
+	testCommonResetState()
+	viper.Set("paginate", 2)
+	viper.Set("paginatePath", "testing")
+
+	for i := 0; i < 10; i++ {
+		// Issue #2177, do not double encode URLs
+		writeSource(t, filepath.Join("content", "阅读", fmt.Sprintf("page%d.md", (i+1))),
+			fmt.Sprintf(`---
+title: Page%d
+---
+Conten%d
+`, (i+1), i+1))
+
+	}
+	writeSource(t, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
+	writeSource(t, filepath.Join("layouts", "_default", "list.html"),
+		`
+<html><body>
+Count: {{ .Paginator.TotalNumberOfElements }}
+Pages: {{ .Paginator.TotalPages }}
+{{ range .Paginator.Pagers -}}
+ {{ .PageNumber }}: {{ .URL }} 
+{{ end }}
+</body></html>`)
+
+	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "阅读", "testing", "2", "index.html"), false, "2: /%E9%98%85%E8%AF%BB/testing/2/")
+
 }
 
 func doTestPaginate(t *testing.T, useViper bool) {

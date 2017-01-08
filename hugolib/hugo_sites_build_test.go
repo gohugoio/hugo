@@ -171,7 +171,7 @@ func assertFileContent(t *testing.T, filename string, defaultInSubDir bool, matc
 	content := readDestination(t, filename)
 	for _, match := range matches {
 		match = replaceDefaultContentLanguageValue(match, defaultInSubDir)
-		require.True(t, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", match, filename, content))
+		require.True(t, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
 	}
 }
 
