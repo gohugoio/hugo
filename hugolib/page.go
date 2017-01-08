@@ -1284,7 +1284,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 		l = p.layouts()
 	}
 
-	return tpl.ExecuteTemplateToHTML(p, l...)
+	return p.s.tmpl.ExecuteTemplateToHTML(p, l...)
 }
 
 func (p *Page) determineMarkupType() string {

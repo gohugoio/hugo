@@ -55,8 +55,6 @@ html lang=en
 
 		for _, root := range []string{"", os.TempDir()} {
 
-			templ := New(logger)
-
 			basePath := this.basePath
 			innerPath := this.innerPath
 
@@ -70,17 +68,20 @@ html lang=en
 
 			d := "DATA"
 
-			err := templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
-				[]byte(this.baseContent), []byte(this.innerContent))
+			templ := New(logger, func(templ Template) error {
+				return templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
+					[]byte(this.baseContent), []byte(this.innerContent))
 
-			if err != nil && this.expectErr == 0 {
-				t.Errorf("Test %d with root '%s' errored: %s", i, root, err)
-			} else if err == nil && this.expectErr == 1 {
+			})
+
+			if len(templ.errors) > 0 && this.expectErr == 0 {
+				t.Errorf("Test %d with root '%s' errored: %v", i, root, templ.errors)
+			} else if len(templ.errors) == 0 && this.expectErr == 1 {
 				t.Errorf("#1 Test %d with root '%s' should have errored", i, root)
 			}
 
 			var buff bytes.Buffer
-			err = templ.ExecuteTemplate(&buff, "mytemplate.html", d)
+			err := templ.ExecuteTemplate(&buff, "mytemplate.html", d)
 
 			if err != nil && this.expectErr == 0 {
 				t.Errorf("Test %d with root '%s' errored: %s", i, root, err)
@@ -245,7 +246,6 @@ func TestTplGoFuzzReports(t *testing.T) {
 		// Issue #1095
 		{"{{apply .C \"urlize\" " +
 			"\".\"}}", 2}} {
-		templ := New(logger)
 
 		d := &Data{
 			A: 42,
@@ -258,15 +258,17 @@ func TestTplGoFuzzReports(t *testing.T) {
 			H: "a,b,c,d,e,f",
 		}
 
-		err := templ.AddTemplate("fuzz", this.data)
+		templ := New(logger, func(templ Template) error {
+			return templ.AddTemplate("fuzz", this.data)
 
-		if err != nil && this.expectErr == 0 {
-			t.Fatalf("Test %d errored: %s", i, err)
-		} else if err == nil && this.expectErr == 1 {
-			t.Fatalf("#1 Test %d should have errored", i)
+		})
+
+		if len(templ.errors) > 0 && this.expectErr == 0 {
+			t.Errorf("Test %d errored: %v", i, templ.errors)
+		} else if len(templ.errors) == 0 && this.expectErr == 1 {
+			t.Errorf("#1 Test %d should have errored", i)
 		}
-
-		err = templ.ExecuteTemplate(ioutil.Discard, "fuzz", d)
+		err := templ.ExecuteTemplate(ioutil.Discard, "fuzz", d)
 
 		if err != nil && this.expectErr == 0 {
 			t.Fatalf("Test %d errored: %s", i, err)

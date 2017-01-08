@@ -34,7 +34,6 @@ import (
 type HugoSites struct {
 	Sites []*Site
 
-	tmpl    tpl.Template
 	runMode runmode
 
 	multilingual *Multilingual
@@ -50,7 +49,14 @@ type deps struct {
 	// The logger to use.
 	log *jww.Notepad
 
-	// TODO(bep) next in line: Viper, hugofs, template
+	tmpl *tpl.GoHTMLTemplate
+
+	// TODO(bep) next in line: Viper, hugofs
+}
+
+func (d *deps) refreshTemplates(withTemplate ...func(templ tpl.Template) error) {
+	d.tmpl = tpl.New(d.log, withTemplate...)
+	d.tmpl.PrintErrors() // TODO(bep) globals error handling
 }
 
 func newDeps(cfg DepsCfg) *deps {
@@ -63,7 +69,8 @@ func newDeps(cfg DepsCfg) *deps {
 	}
 
 	return &deps{
-		log: logger,
+		log:  logger,
+		tmpl: tpl.New(logger),
 	}
 }
 

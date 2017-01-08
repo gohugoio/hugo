@@ -57,6 +57,7 @@ import (
 // Some of the template funcs are'nt entirely stateless.
 type templateFuncster struct {
 	t              *GoHTMLTemplate
+	funcMap        template.FuncMap
 	cachedPartials partialCache
 }
 
@@ -66,10 +67,6 @@ func newTemplateFuncster(t *GoHTMLTemplate) *templateFuncster {
 		cachedPartials: partialCache{p: make(map[string]template.HTML)},
 	}
 }
-
-var (
-	funcMap template.FuncMap
-)
 
 // eq returns the boolean truth of arg1 == arg2.
 func eq(x, y interface{}) bool {
@@ -1016,7 +1013,7 @@ func where(seq, key interface{}, args ...interface{}) (interface{}, error) {
 }
 
 // apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
-func apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+func (tf *templateFuncster) apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
 	if seq == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -1031,7 +1028,7 @@ func apply(seq interface{}, fname string, args ...interface{}) (interface{}, err
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	fn, found := funcMap[fname]
+	fn, found := tf.funcMap[fname]
 	if !found {
 		return nil, errors.New("can't find function " + fname)
 	}
@@ -2113,7 +2110,7 @@ func (tf *templateFuncster) initFuncMap() {
 		},
 		"add":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":         after,
-		"apply":         apply,
+		"apply":         tf.apply,
 		"base64Decode":  base64Decode,
 		"base64Encode":  base64Encode,
 		"chomp":         chomp,
@@ -2207,5 +2204,6 @@ func (tf *templateFuncster) initFuncMap() {
 		"T":            i18nTranslate,
 	}
 
+	tf.funcMap = funcMap
 	tf.t.Funcs(funcMap)
 }

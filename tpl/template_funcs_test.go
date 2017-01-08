@@ -1960,40 +1960,43 @@ func TestMarkdownify(t *testing.T) {
 }
 
 func TestApply(t *testing.T) {
+
+	f := newTestFuncster()
+
 	strings := []interface{}{"a\n", "b\n"}
 	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
 
-	chomped, _ := apply(strings, "chomp", ".")
+	chomped, _ := f.apply(strings, "chomp", ".")
 	assert.Equal(t, []interface{}{template.HTML("a"), template.HTML("b")}, chomped)
 
-	chomped, _ = apply(strings, "chomp", "c\n")
+	chomped, _ = f.apply(strings, "chomp", "c\n")
 	assert.Equal(t, []interface{}{template.HTML("c"), template.HTML("c")}, chomped)
 
-	chomped, _ = apply(nil, "chomp", ".")
+	chomped, _ = f.apply(nil, "chomp", ".")
 	assert.Equal(t, []interface{}{}, chomped)
 
-	_, err := apply(strings, "apply", ".")
+	_, err := f.apply(strings, "apply", ".")
 	if err == nil {
 		t.Errorf("apply with apply should fail")
 	}
 
 	var nilErr *error
-	_, err = apply(nilErr, "chomp", ".")
+	_, err = f.apply(nilErr, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with nil in seq should fail")
 	}
 
-	_, err = apply(strings, "dobedobedo", ".")
+	_, err = f.apply(strings, "dobedobedo", ".")
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
 
-	_, err = apply(noStringers, "chomp", ".")
+	_, err = f.apply(noStringers, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply when func fails should fail")
 	}
 
-	_, err = apply(tstNoStringer{}, "chomp", ".")
+	_, err = f.apply(tstNoStringer{}, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with non-sequence should fail")
 	}
@@ -2884,4 +2887,8 @@ func BenchmarkPartialCachedVariants(b *testing.B) {
 		}
 		buf.Reset()
 	}
+}
+
+func newTestFuncster() *templateFuncster {
+	return New(logger).funcster
 }

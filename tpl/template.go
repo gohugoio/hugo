@@ -43,7 +43,6 @@ type Template interface {
 	GetClone() *template.Template
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
-	MarkReady()
 	AddTemplate(name, tpl string) error
 	AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error
 	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
@@ -76,7 +75,7 @@ type GoHTMLTemplate struct {
 
 // New returns a new Hugo Template System
 // with all the additional features, templates & functions
-func New(logger *jww.Notepad) *GoHTMLTemplate {
+func New(logger *jww.Notepad, withTemplate ...func(templ Template) error) *GoHTMLTemplate {
 	tmpl := &GoHTMLTemplate{
 		Template: template.New(""),
 		overlays: make(map[string]*template.Template),
@@ -92,14 +91,21 @@ func New(logger *jww.Notepad) *GoHTMLTemplate {
 	tmpl.funcster.initFuncMap()
 
 	// TODO(bep) globals
-	for k, v := range funcMap {
+	for k, v := range tmpl.funcster.funcMap {
 		amber.FuncMap[k] = v
 	}
 
 	tmpl.LoadEmbedded()
 
-	// TODO(bep) globals
-	tmpl.MarkReady()
+	for _, wt := range withTemplate {
+		err := wt(tmpl)
+		if err != nil {
+			tmpl.errors = append(tmpl.errors, &templateErr{"init", err})
+		}
+
+	}
+
+	tmpl.markReady()
 
 	return tmpl
 }
@@ -176,9 +182,9 @@ func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedTemplates()
 }
 
-// MarkReady marks the template as "ready for execution". No changes allowed
+// markReady marks the template as "ready for execution". No changes allowed
 // after this is set.
-func (t *GoHTMLTemplate) MarkReady() {
+func (t *GoHTMLTemplate) markReady() {
 	if t.clone == nil {
 		t.clone = template.Must(t.Template.Clone())
 	}

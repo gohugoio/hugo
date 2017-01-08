@@ -117,10 +117,11 @@ func (s *Site) reset() *Site {
 // newSite creates a new site in the given language.
 func newSite(lang *helpers.Language) *Site {
 	c := newPageCollections()
-	// TODO(bep) globals (also see other Site creation places)
-	deps := newDeps(DepsCfg{})
 	// TODO(bep) globals
 	viper.Set("currentContentLanguage", lang)
+
+	// TODO(bep) globals (also see other Site creation places)
+	deps := newDeps(DepsCfg{})
 	return &Site{deps: deps, Language: lang, PageCollections: c, Info: newSiteInfo(siteBuilderCfg{pageCollections: c, language: lang})}
 
 }
@@ -656,24 +657,24 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 }
 
-func (s *Site) loadTemplates() {
-	s.owner.tmpl = tpl.InitializeT(s.log)
-	s.owner.tmpl.LoadTemplates(s.absLayoutDir())
-	if s.hasTheme() {
-		s.owner.tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
-	}
-}
-
 func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error {
-	s.loadTemplates()
 
-	if withTemplate != nil {
-		if err := withTemplate(s.owner.tmpl); err != nil {
-			return err
+	wt := func(tmpl tpl.Template) error {
+		fmt.Println(">>> Load templ")
+		// TODO(bep) global error handling
+		tmpl.LoadTemplates(s.absLayoutDir())
+		if s.hasTheme() {
+			tmpl.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
 		}
+		if withTemplate != nil {
+			if err := withTemplate(tmpl); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
-	s.owner.tmpl.MarkReady()
+	s.refreshTemplates(wt)
 
 	return nil
 }

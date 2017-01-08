@@ -83,9 +83,10 @@ title: "Title"
 }
 
 func TestShortcodeGoFuzzReports(t *testing.T) {
-	tem := tpl.New(logger)
+	tem := tpl.New(logger, func(templ tpl.Template) error {
+		return templ.AddInternalShortcode("sc.html", `foo`)
+	})
 
-	tem.AddInternalShortcode("sc.html", `foo`)
 	p, _ := pageFromString(simplePage, "simple.md")
 
 	for i, this := range []struct {
@@ -380,13 +381,15 @@ func TestExtractShortcodes(t *testing.T) {
 	} {
 
 		p, _ := pageFromString(simplePage, "simple.md")
-		tem := tpl.New(logger)
-		tem.AddInternalShortcode("tag.html", `tag`)
-		tem.AddInternalShortcode("sc1.html", `sc1`)
-		tem.AddInternalShortcode("sc2.html", `sc2`)
-		tem.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
-		tem.AddInternalShortcode("inner2.html", `{{.Inner}}`)
-		tem.AddInternalShortcode("inner3.html", `{{.Inner}}`)
+		tem := tpl.New(logger, func(templ tpl.Template) error {
+			templ.AddInternalShortcode("tag.html", `tag`)
+			templ.AddInternalShortcode("sc1.html", `sc1`)
+			templ.AddInternalShortcode("sc2.html", `sc2`)
+			templ.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
+			templ.AddInternalShortcode("inner2.html", `{{.Inner}}`)
+			templ.AddInternalShortcode("inner3.html", `{{.Inner}}`)
+			return nil
+		})
 
 		content, shortCodes, err := extractShortcodes(this.input, p, tem)
 
