@@ -1512,6 +1512,7 @@ func replace(a, b, c interface{}) (string, error) {
 // partialCache represents a cache of partials protected by a mutex.
 type partialCache struct {
 	sync.RWMutex
+	t *GoHTMLTemplate
 	p map[string]template.HTML
 }
 

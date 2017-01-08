@@ -2780,7 +2780,6 @@ func TestPartialCached(t *testing.T) {
 	data.Params = map[string]interface{}{"langCode": "en"}
 
 	tstInitTemplates()
-	InitializeT(logger)
 	for i, tc := range testCases {
 		var tmp string
 		if tc.variant != "" {
@@ -2831,7 +2830,6 @@ func TestPartialCached(t *testing.T) {
 }
 
 func BenchmarkPartial(b *testing.B) {
-	InitializeT(logger)
 	tmpl, err := New(logger).New("testroot").Parse(`{{ partial "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
@@ -2851,7 +2849,6 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
-	InitializeT(logger)
 	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
@@ -2871,7 +2868,6 @@ func BenchmarkPartialCached(b *testing.B) {
 }
 
 func BenchmarkPartialCachedVariants(b *testing.B) {
-	InitializeT(logger)
 	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)

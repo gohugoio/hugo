@@ -30,10 +30,8 @@ import (
 	"github.com/yosssi/ace"
 )
 
-var localTemplates *template.Template
-
-// TODO(bep) globals get rid of the reset of the jww.ERR etc.
-var tmpl *GoHTMLTemplate
+// TODO(bep) globals get rid of the rest of the jww.ERR etc.
+//var tmpl *GoHTMLTemplate
 
 // TODO(bep) an interface with hundreds of methods ... remove it.
 // And unexport most of these methods.
@@ -60,7 +58,8 @@ type templateErr struct {
 }
 
 type GoHTMLTemplate struct {
-	template.Template
+	*template.Template
+
 	clone *template.Template
 
 	// a separate storage for the overlays created from cloned master templates.
@@ -73,23 +72,15 @@ type GoHTMLTemplate struct {
 	log *jww.Notepad
 }
 
-// InitializeT resets the internal template state to its initial state
-func InitializeT(logger *jww.Notepad) *GoHTMLTemplate {
-	tmpl = New(logger)
-	return tmpl
-}
-
 // New returns a new Hugo Template System
 // with all the additional features, templates & functions
 func New(logger *jww.Notepad) *GoHTMLTemplate {
-	var templates = &GoHTMLTemplate{
-		Template: *template.New(""),
+	tmpl := &GoHTMLTemplate{
+		Template: template.New(""),
 		overlays: make(map[string]*template.Template),
 		errors:   make([]*templateErr, 0),
 		log:      logger,
 	}
-
-	localTemplates = &templates.Template
 
 	// The URL funcs in the funcMap is somewhat language dependent,
 	// so we need to wait until the language and site config is loaded.
@@ -98,12 +89,16 @@ func New(logger *jww.Notepad) *GoHTMLTemplate {
 	for k, v := range funcMap {
 		amber.FuncMap[k] = v
 	}
-	templates.Funcs(funcMap)
-	templates.LoadEmbedded()
-	return templates
+	tmpl.Funcs(funcMap)
+	tmpl.LoadEmbedded()
+
+	// TODO(bep) globals
+	tmpl.MarkReady()
+
+	return tmpl
 }
 
-func partial(name string, contextList ...interface{}) template.HTML {
+func (t *GoHTMLTemplate) partial(name string, contextList ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
@@ -114,16 +109,16 @@ func partial(name string, contextList ...interface{}) template.HTML {
 	} else {
 		context = contextList[0]
 	}
-	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
+	return t.ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
+func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 	var worked bool
 	for _, layout := range layouts {
-		templ := Lookup(layout)
+		templ := t.Lookup(layout)
 		if templ == nil {
 			layout += ".html"
-			templ = Lookup(layout)
+			templ = t.Lookup(layout)
 		}
 
 		if templ != nil {
@@ -136,27 +131,19 @@ func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 		}
 	}
 	if !worked {
-		tmpl.log.ERROR.Println("Unable to render", layouts)
-		tmpl.log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+		t.log.ERROR.Println("Unable to render", layouts)
+		t.log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
 	}
 }
 
-func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
+func (t *GoHTMLTemplate) ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	executeTemplate(context, b, layouts...)
+	t.executeTemplate(context, b, layouts...)
 	return template.HTML(b.String())
 }
 
-func Lookup(name string) *template.Template {
-	return tmpl.Lookup(name)
-}
-
 func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
-
-	if templ := localTemplates.Lookup(name); templ != nil {
-		return templ
-	}
 
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
