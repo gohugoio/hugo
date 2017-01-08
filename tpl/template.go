@@ -68,6 +68,8 @@ type GoHTMLTemplate struct {
 
 	errors []*templateErr
 
+	funcster *templateFuncster
+
 	// TODO(bep) globals template
 	log *jww.Notepad
 }
@@ -82,14 +84,18 @@ func New(logger *jww.Notepad) *GoHTMLTemplate {
 		log:      logger,
 	}
 
+	tmpl.funcster = newTemplateFuncster(tmpl)
+
 	// The URL funcs in the funcMap is somewhat language dependent,
 	// so we need to wait until the language and site config is loaded.
-	initFuncMap()
+	// TODO(bep) globals
+	tmpl.funcster.initFuncMap()
 
+	// TODO(bep) globals
 	for k, v := range funcMap {
 		amber.FuncMap[k] = v
 	}
-	tmpl.Funcs(funcMap)
+
 	tmpl.LoadEmbedded()
 
 	// TODO(bep) globals

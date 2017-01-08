@@ -54,6 +54,19 @@ import (
 	_ "image/png"
 )
 
+// Some of the template funcs are'nt entirely stateless.
+type templateFuncster struct {
+	t              *GoHTMLTemplate
+	cachedPartials partialCache
+}
+
+func newTemplateFuncster(t *GoHTMLTemplate) *templateFuncster {
+	return &templateFuncster{
+		t:              t,
+		cachedPartials: partialCache{p: make(map[string]template.HTML)},
+	}
+}
+
 var (
 	funcMap template.FuncMap
 )
@@ -1512,48 +1525,45 @@ func replace(a, b, c interface{}) (string, error) {
 // partialCache represents a cache of partials protected by a mutex.
 type partialCache struct {
 	sync.RWMutex
-	t *GoHTMLTemplate
 	p map[string]template.HTML
 }
 
 // Get retrieves partial output from the cache based upon the partial name.
 // If the partial is not found in the cache, the partial is rendered and added
 // to the cache.
-func (c *partialCache) Get(key, name string, context interface{}) (p template.HTML) {
+func (tf *templateFuncster) Get(key, name string, context interface{}) (p template.HTML) {
 	var ok bool
 
-	c.RLock()
-	p, ok = c.p[key]
-	c.RUnlock()
+	tf.cachedPartials.RLock()
+	p, ok = tf.cachedPartials.p[key]
+	tf.cachedPartials.RUnlock()
 
 	if ok {
 		return p
 	}
 
-	c.Lock()
-	if p, ok = c.p[key]; !ok {
-		p = partial(name, context)
-		c.p[key] = p
+	tf.cachedPartials.Lock()
+	if p, ok = tf.cachedPartials.p[key]; !ok {
+		p = tf.t.partial(name, context)
+		tf.cachedPartials.p[key] = p
 	}
-	c.Unlock()
+	tf.cachedPartials.Unlock()
 
 	return p
 }
-
-var cachedPartials = partialCache{p: make(map[string]template.HTML)}
 
 // partialCached executes and caches partial templates.  An optional variant
 // string parameter (a string slice actually, but be only use a variadic
 // argument to make it optional) can be passed so that a given partial can have
 // multiple uses.  The cache is created with name+variant as the key.
-func partialCached(name string, context interface{}, variant ...string) template.HTML {
+func (tf *templateFuncster) partialCached(name string, context interface{}, variant ...string) template.HTML {
 	key := name
 	if len(variant) > 0 {
 		for i := 0; i < len(variant); i++ {
 			key += variant[i]
 		}
 	}
-	return cachedPartials.Get(key, name, context)
+	return tf.Get(key, name, context)
 }
 
 // regexpCache represents a cache of regexp objects protected by a mutex.
@@ -2091,8 +2101,8 @@ func getenv(key interface{}) (string, error) {
 	return os.Getenv(skey), nil
 }
 
-func initFuncMap() {
-	funcMap = template.FuncMap{
+func (tf *templateFuncster) initFuncMap() {
+	funcMap := template.FuncMap{
 		"absURL": absURL,
 		"absLangURL": func(i interface{}) (template.HTML, error) {
 			s, err := cast.ToStringE(i)
@@ -2148,8 +2158,8 @@ func initFuncMap() {
 		"mul":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
 		"ne":            ne,
 		"now":           func() time.Time { return time.Now() },
-		"partial":       partial,
-		"partialCached": partialCached,
+		"partial":       tf.t.partial,
+		"partialCached": tf.partialCached,
 		"plainify":      plainify,
 		"pluralize":     pluralize,
 		"querify":       querify,
@@ -2196,4 +2206,6 @@ func initFuncMap() {
 		"i18n":         i18nTranslate,
 		"T":            i18nTranslate,
 	}
+
+	tf.t.Funcs(funcMap)
 }
