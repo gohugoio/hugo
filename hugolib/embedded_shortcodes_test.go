@@ -19,13 +19,15 @@ import (
 	"html/template"
 	"net/url"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 
 	"io/ioutil"
 	"log"
+	"path/filepath"
+
+	"github.com/spf13/hugo/tpl"
 
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
@@ -306,8 +308,10 @@ func TestShortcodeTweet(t *testing.T) {
 			},
 		}
 
-		p, _ := pageFromString(simplePage, "simple.md")
-		p.s.tmpl.Funcs(tweetFuncMap)
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
+			templ.Funcs(tweetFuncMap)
+			return nil
+		})
 
 		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.twitter.com/1/statuses/oembed.json?id=666616452582129664")
 		defer os.Remove(cacheFileID)
@@ -357,8 +361,10 @@ func TestShortcodeInstagram(t *testing.T) {
 			},
 		}
 
-		p, _ := pageFromString(simplePage, "simple.md")
-		p.s.tmpl.Funcs(instagramFuncMap)
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
+			templ.Funcs(instagramFuncMap)
+			return nil
+		})
 
 		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.instagram.com/oembed/?url=https://instagram.com/p/BMokmydjG-M/&hidecaption="+this.hidecaption)
 		defer os.Remove(cacheFileID)

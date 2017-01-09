@@ -49,6 +49,7 @@ type Template interface {
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
 	PrintErrors()
+	Funcs(funcMap template.FuncMap)
 }
 
 type templateErr struct {
@@ -108,6 +109,10 @@ func New(logger *jww.Notepad, withTemplate ...func(templ Template) error) *GoHTM
 	tmpl.markReady()
 
 	return tmpl
+}
+
+func (t *GoHTMLTemplate) Funcs(funcMap template.FuncMap) {
+	t.Template.Funcs(funcMap)
 }
 
 func (t *GoHTMLTemplate) partial(name string, contextList ...interface{}) template.HTML {
