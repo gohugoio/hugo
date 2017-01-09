@@ -18,7 +18,6 @@ import (
 
 	"github.com/dchest/cssmin"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
 )
 
 func init() {
@@ -32,7 +31,7 @@ func (h basicFileHandler) Read(f *source.File, s *Site) HandledResult {
 	return HandledResult{file: f}
 }
 
-func (h basicFileHandler) PageConvert(*Page, tpl.Template) HandledResult {
+func (h basicFileHandler) PageConvert(*Page) HandledResult {
 	return HandledResult{}
 }
 

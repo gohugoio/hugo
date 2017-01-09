@@ -106,9 +106,8 @@ void do();
 			"(?s)^\n<div class=\"highlight\" style=\"background: #f0f0f0\"><pre style=\"line-height: 125%\">.*?void</span>.*?do</span>.*?().*?</pre></div>\n$",
 		},
 	} {
-		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		if err != nil {
 			t.Fatalf("[%d] Handle shortcode error", i)
@@ -150,9 +149,8 @@ func TestShortcodeFigure(t *testing.T) {
 			"(?s)^\n<figure >.*?<img src=\"/img/hugo-logo.png\" />.*?<figcaption>.*?<p>.*?<a href=\"/img/hugo-logo.png\">.*?Hugo logo.*?</a>.*?</p>.*?</figcaption>.*?</figure>\n$",
 		},
 	} {
-		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		matched, err := regexp.MatchString(this.expected, output)
 
@@ -175,9 +173,8 @@ func TestShortcodeSpeakerdeck(t *testing.T) {
 			"(?s)^<script async class='speakerdeck-embed' data-id='4e8126e72d853c0060001f97'.*?>.*?</script>$",
 		},
 	} {
-		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		matched, err := regexp.MatchString(this.expected, output)
 
@@ -210,9 +207,8 @@ func TestShortcodeYoutube(t *testing.T) {
 			"(?s)^\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen frameborder=\"0\">.*?</iframe>.*?</div>$",
 		},
 	} {
-		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		matched, err := regexp.MatchString(this.expected, output)
 
@@ -245,9 +241,8 @@ func TestShortcodeVimeo(t *testing.T) {
 			"(?s)^<div class=\"video\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>$",
 		},
 	} {
-		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		matched, err := regexp.MatchString(this.expected, output)
 
@@ -274,9 +269,8 @@ func TestShortcodeGist(t *testing.T) {
 			"(?s)^<script src=\"//gist.github.com/spf13/7896402.js\\?file=img.html\"></script>$",
 		},
 	} {
-		templ := tpl.New(logger)
 		p, _ := pageFromString(simplePage, "simple.md")
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		matched, err := regexp.MatchString(this.expected, output)
 
@@ -319,7 +313,7 @@ func TestShortcodeTweet(t *testing.T) {
 		p, _ := pageFromString(simplePage, "simple.md")
 		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.twitter.com/1/statuses/oembed.json?id=666616452582129664")
 		defer os.Remove(cacheFileID)
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		matched, err := regexp.MatchString(this.expected, output)
 
@@ -371,7 +365,7 @@ func TestShortcodeInstagram(t *testing.T) {
 		p, _ := pageFromString(simplePage, "simple.md")
 		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.instagram.com/oembed/?url=https://instagram.com/p/BMokmydjG-M/&hidecaption="+this.hidecaption)
 		defer os.Remove(cacheFileID)
-		output, err := HandleShortcodes(this.in, p, templ)
+		output, err := HandleShortcodes(this.in, p)
 
 		if err != nil {
 			t.Fatalf("[%d] Failed to render shortcodes", i)

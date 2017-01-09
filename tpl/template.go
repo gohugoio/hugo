@@ -521,7 +521,7 @@ func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
 }
 
 func (t *GoHTMLTemplate) PrintErrors() {
-	for _, e := range t.errors {
-		t.log.ERROR.Println(e.err)
+	for i, e := range t.errors {
+		t.log.ERROR.Println(i, ":", e.err)
 	}
 }

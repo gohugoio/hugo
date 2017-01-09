@@ -111,7 +111,6 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 		s.resetBuildState()
 	}
 
-	// TODO(bep) globals
 	helpers.InitLoggers()
 
 	return nil

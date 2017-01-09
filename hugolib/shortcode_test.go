@@ -32,8 +32,13 @@ import (
 )
 
 // TODO(bep) remove
-func pageFromString(in, filename string) (*Page, error) {
-	return pageTestSite.NewPageFrom(strings.NewReader(in), filename)
+func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template) error) (*Page, error) {
+	s := pageTestSite
+	if len(withTemplate) > 0 {
+		// Have to create a new site
+		s = NewSiteDefaultLang(withTemplate...)
+	}
+	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {
@@ -83,11 +88,10 @@ title: "Title"
 }
 
 func TestShortcodeGoFuzzReports(t *testing.T) {
-	tem := tpl.New(logger, func(templ tpl.Template) error {
+
+	p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
 		return templ.AddInternalShortcode("sc.html", `foo`)
 	})
-
-	p, _ := pageFromString(simplePage, "simple.md")
 
 	for i, this := range []struct {
 		data      string
@@ -95,7 +99,7 @@ func TestShortcodeGoFuzzReports(t *testing.T) {
 	}{
 		{"{{</*/", true},
 	} {
-		output, err := HandleShortcodes(this.data, p, tem)
+		output, err := HandleShortcodes(this.data, p)
 
 		if this.expectErr && err == nil {
 			t.Errorf("[%d] should have errored", i)
@@ -305,15 +309,13 @@ func TestHighlight(t *testing.T) {
 	viper.Set("pygmentsStyle", "bw")
 	viper.Set("pygmentsUseClasses", false)
 
-	templ := tpl.New(logger)
-
 	code := `
 {{< highlight java >}}
 void do();
 {{< /highlight >}}`
 
 	p, _ := pageFromString(simplePage, "simple.md")
-	output, err := HandleShortcodes(code, p, templ)
+	output, err := HandleShortcodes(code, p)
 
 	if err != nil {
 		t.Fatal("Handle shortcode error", err)
@@ -380,8 +382,7 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(simplePage, "simple.md")
-		tem := tpl.New(logger, func(templ tpl.Template) error {
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
 			templ.AddInternalShortcode("tag.html", `tag`)
 			templ.AddInternalShortcode("sc1.html", `sc1`)
 			templ.AddInternalShortcode("sc2.html", `sc2`)
@@ -391,7 +392,7 @@ func TestExtractShortcodes(t *testing.T) {
 			return nil
 		})
 
-		content, shortCodes, err := extractShortcodes(this.input, p, tem)
+		content, shortCodes, err := extractShortcodes(this.input, p)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {

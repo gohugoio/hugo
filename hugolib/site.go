@@ -115,20 +115,23 @@ func (s *Site) reset() *Site {
 }
 
 // newSite creates a new site in the given language.
-func newSite(lang *helpers.Language) *Site {
+func newSite(lang *helpers.Language, deps *deps, withTemplate ...func(templ tpl.Template) error) *Site {
 	c := newPageCollections()
 	// TODO(bep) globals
 	viper.Set("currentContentLanguage", lang)
 
-	// TODO(bep) globals (also see other Site creation places)
-	deps := newDeps(DepsCfg{})
+	if deps == nil {
+		depsCfg := DepsCfg{WithTemplate: withTemplate}
+		deps = newDeps(depsCfg)
+	}
+
 	return &Site{deps: deps, Language: lang, PageCollections: c, Info: newSiteInfo(siteBuilderCfg{pageCollections: c, language: lang})}
 
 }
 
 // NewSiteDefaultLang creates a new site in the default language.
-func NewSiteDefaultLang() *Site {
-	return newSite(helpers.NewDefaultLanguage())
+func NewSiteDefaultLang(withTemplate ...func(templ tpl.Template) error) *Site {
+	return newSite(helpers.NewDefaultLanguage(), nil, withTemplate...)
 }
 
 // Convenience func used in tests.
@@ -660,7 +663,6 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 func (s *Site) prepTemplates(withTemplate func(templ tpl.Template) error) error {
 
 	wt := func(tmpl tpl.Template) error {
-		fmt.Println(">>> Load templ")
 		// TODO(bep) global error handling
 		tmpl.LoadTemplates(s.absLayoutDir())
 		if s.hasTheme() {
@@ -779,6 +781,7 @@ func (s *Site) process(config BuildCfg) (err error) {
 	if err = s.initialize(); err != nil {
 		return
 	}
+
 	s.prepTemplates(config.withTemplate)
 	s.owner.tmpl.PrintErrors()
 	s.timerStep("initialize & template prep")

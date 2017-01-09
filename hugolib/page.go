@@ -40,7 +40,6 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 )
 
@@ -1399,8 +1398,8 @@ func (p *Page) SaveSource() error {
 	return p.SaveSourceAs(p.FullFilePath())
 }
 
-func (p *Page) ProcessShortcodes(t tpl.Template) {
-	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.workContent), p, t)
+func (p *Page) ProcessShortcodes() {
+	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.workContent), p)
 	p.workContent = []byte(tmpContent)
 	p.contentShortCodes = tmpContentShortCodes
 }
