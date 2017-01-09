@@ -20,3 +20,5 @@ parts:
     go-importpath: "github.com/spf13/hugo"
     build-packages:
       - git
+    stage-packages:
+      - python-pygments
