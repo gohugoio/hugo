@@ -28,7 +28,6 @@ import (
 	"log"
 
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -307,10 +306,9 @@ func TestShortcodeTweet(t *testing.T) {
 			},
 		}
 
-		templ := tpl.New(logger)
-		templ.Lookup("").Funcs(tweetFuncMap)
-
 		p, _ := pageFromString(simplePage, "simple.md")
+		p.s.tmpl.Funcs(tweetFuncMap)
+
 		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.twitter.com/1/statuses/oembed.json?id=666616452582129664")
 		defer os.Remove(cacheFileID)
 		output, err := HandleShortcodes(this.in, p)
@@ -347,7 +345,7 @@ func TestShortcodeInstagram(t *testing.T) {
 		},
 	} {
 		// overload getJSON to return mock API response from Instagram
-		tweetFuncMap := template.FuncMap{
+		instagramFuncMap := template.FuncMap{
 			"getJSON": func(urlParts ...string) interface{} {
 				var v interface{}
 				err := json.Unmarshal([]byte(this.resp), &v)
@@ -359,10 +357,9 @@ func TestShortcodeInstagram(t *testing.T) {
 			},
 		}
 
-		templ := tpl.New(logger)
-		templ.Lookup("").Funcs(tweetFuncMap)
-
 		p, _ := pageFromString(simplePage, "simple.md")
+		p.s.tmpl.Funcs(instagramFuncMap)
+
 		cacheFileID := viper.GetString("cacheDir") + url.QueryEscape("https://api.instagram.com/oembed/?url=https://instagram.com/p/BMokmydjG-M/&hidecaption="+this.hidecaption)
 		defer os.Remove(cacheFileID)
 		output, err := HandleShortcodes(this.in, p)
