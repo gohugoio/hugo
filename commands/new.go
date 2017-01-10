@@ -16,15 +16,18 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
@@ -84,7 +87,9 @@ as you see fit.`,
 
 // NewContent adds new content to a Hugo site.
 func NewContent(cmd *cobra.Command, args []string) error {
-	if _, err := InitializeConfig(); err != nil {
+	cfg, err := InitializeConfig()
+
+	if err != nil {
 		return err
 	}
 
@@ -110,10 +115,16 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		kind = contentType
 	}
 
-	return create.NewContent(hugofs.Source(), kind, createpath)
+	s, err := hugolib.NewSite(cfg)
+
+	if err != nil {
+		return newSystemError(err)
+	}
+
+	return create.NewContent(s, kind, createpath)
 }
 
-func doNewSite(basepath string, force bool) error {
+func doNewSite(fs *hugofs.Fs, basepath string, force bool) error {
 	dirs := []string{
 		filepath.Join(basepath, "layouts"),
 		filepath.Join(basepath, "content"),
@@ -123,12 +134,12 @@ func doNewSite(basepath string, force bool) error {
 		filepath.Join(basepath, "themes"),
 	}
 
-	if exists, _ := helpers.Exists(basepath, hugofs.Source()); exists {
-		if isDir, _ := helpers.IsDir(basepath, hugofs.Source()); !isDir {
+	if exists, _ := helpers.Exists(basepath, fs.Source); exists {
+		if isDir, _ := helpers.IsDir(basepath, fs.Source); !isDir {
 			return errors.New(basepath + " already exists but not a directory")
 		}
 
-		isEmpty, _ := helpers.IsEmpty(basepath, hugofs.Source())
+		isEmpty, _ := helpers.IsEmpty(basepath, fs.Source)
 
 		switch {
 		case !isEmpty && !force:
@@ -137,7 +148,7 @@ func doNewSite(basepath string, force bool) error {
 		case !isEmpty && force:
 			all := append(dirs, filepath.Join(basepath, "config."+configFormat))
 			for _, path := range all {
-				if exists, _ := helpers.Exists(path, hugofs.Source()); exists {
+				if exists, _ := helpers.Exists(path, fs.Source); exists {
 					return errors.New(path + " already exists")
 				}
 			}
@@ -145,10 +156,12 @@ func doNewSite(basepath string, force bool) error {
 	}
 
 	for _, dir := range dirs {
-		hugofs.Source().MkdirAll(dir, 0777)
+		if err := fs.Source.MkdirAll(dir, 0777); err != nil {
+			return fmt.Errorf("Failed to create dir: %s", err)
+		}
 	}
 
-	createConfig(basepath, configFormat)
+	createConfig(fs, basepath, configFormat)
 
 	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %s.\n\n", basepath)
 	jww.FEEDBACK.Println(nextStepsText())
@@ -190,12 +203,14 @@ func NewSite(cmd *cobra.Command, args []string) error {
 
 	forceNew, _ := cmd.Flags().GetBool("force")
 
-	return doNewSite(createpath, forceNew)
+	return doNewSite(hugofs.NewDefault(), createpath, forceNew)
 }
 
 // NewTheme creates a new Hugo theme.
 func NewTheme(cmd *cobra.Command, args []string) error {
-	if _, err := InitializeConfig(); err != nil {
+	cfg, err := InitializeConfig()
+
+	if err != nil {
 		return err
 	}
 
@@ -207,26 +222,26 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 	createpath := helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
-	if x, _ := helpers.Exists(createpath, hugofs.Source()); x {
+	if x, _ := helpers.Exists(createpath, cfg.Fs.Source); x {
 		return newUserError(createpath, "already exists")
 	}
 
 	mkdir(createpath, "layouts", "_default")
 	mkdir(createpath, "layouts", "partials")
 
-	touchFile(createpath, "layouts", "index.html")
-	touchFile(createpath, "layouts", "404.html")
-	touchFile(createpath, "layouts", "_default", "list.html")
-	touchFile(createpath, "layouts", "_default", "single.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "index.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "404.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "list.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "single.html")
 
-	touchFile(createpath, "layouts", "partials", "header.html")
-	touchFile(createpath, "layouts", "partials", "footer.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "header.html")
+	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "footer.html")
 
 	mkdir(createpath, "archetypes")
 
 	archDefault := []byte("+++\n+++\n")
 
-	err := helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(createpath, "archetypes", "default.md"), bytes.NewReader(archDefault), cfg.Fs.Source)
 	if err != nil {
 		return err
 	}
@@ -256,12 +271,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `)
 
-	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), cfg.Fs.Source)
 	if err != nil {
 		return err
 	}
 
-	createThemeMD(createpath)
+	createThemeMD(cfg.Fs, createpath)
 
 	return nil
 }
@@ -275,16 +290,16 @@ func mkdir(x ...string) {
 	}
 }
 
-func touchFile(x ...string) {
+func touchFile(fs afero.Fs, x ...string) {
 	inpath := filepath.Join(x...)
 	mkdir(filepath.Dir(inpath))
-	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), hugofs.Source())
+	err := helpers.WriteToDisk(inpath, bytes.NewReader([]byte{}), fs)
 	if err != nil {
 		jww.FATAL.Fatalln(err)
 	}
 }
 
-func createThemeMD(inpath string) (err error) {
+func createThemeMD(fs *hugofs.Fs, inpath string) (err error) {
 
 	by := []byte(`# theme.toml template for a Hugo theme
 # See https://github.com/spf13/hugoThemes#themetoml for an example
@@ -309,7 +324,7 @@ min_version = 0.18
   repo = ""
 `)
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(inpath, "theme.toml"), bytes.NewReader(by), fs.Source)
 	if err != nil {
 		return
 	}
@@ -320,7 +335,7 @@ min_version = 0.18
 func newContentPathSection(path string) (string, string) {
 	// Forward slashes is used in all examples. Convert if needed.
 	// Issue #1133
-	createpath := strings.Replace(path, "/", helpers.FilePathSeparator, -1)
+	createpath := filepath.FromSlash(path)
 	var section string
 	// assume the first directory is the section (kind)
 	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {
@@ -330,7 +345,7 @@ func newContentPathSection(path string) (string, string) {
 	return createpath, section
 }
 
-func createConfig(inpath string, kind string) (err error) {
+func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	in := map[string]interface{}{
 		"baseURL":      "http://example.org/",
 		"title":        "My New Hugo Site",
@@ -343,7 +358,7 @@ func createConfig(inpath string, kind string) (err error) {
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), fs.Source)
 	if err != nil {
 		return
 	}

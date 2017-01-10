@@ -31,6 +31,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/hugo/tplapi"
+
+	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 
 	"io/ioutil"
@@ -43,9 +46,17 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+var (
+	logger            = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+	defaultDepsConfig = deps.DepsCfg{
+		Language:         helpers.NewLanguage("en"),
+		Logger:           logger,
+		TemplateProvider: DefaultTemplateProvider,
+	}
+)
 
 type tstNoStringer struct {
 }
@@ -80,8 +91,7 @@ func tstInitTemplates() {
 
 func TestFuncsInTemplate(t *testing.T) {
 
-	viper.Reset()
-	defer viper.Reset()
+	testReset()
 
 	workingDir := "/home/hugo"
 
@@ -89,10 +99,9 @@ func TestFuncsInTemplate(t *testing.T) {
 	viper.Set("currentContentLanguage", helpers.NewDefaultLanguage())
 	viper.Set("multilingual", true)
 
-	fs := &afero.MemMapFs{}
-	hugofs.InitFs(fs)
+	fs := hugofs.NewMem()
 
-	afero.WriteFile(fs, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
 
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
 	// TODO(bep): docs: fix title example
@@ -244,7 +253,7 @@ urlize: bat-man
 `
 
 	var b bytes.Buffer
-	templ, err := New(logger).New("test").Parse(in)
+
 	var data struct {
 		Title   string
 		Section string
@@ -259,11 +268,21 @@ urlize: bat-man
 
 	tstInitTemplates()
 
-	if err != nil {
-		t.Fatal("Got error on parse", err)
+	config := defaultDepsConfig
+	config.WithTemplate = func(templ tplapi.Template) error {
+		if _, err := templ.New("test").Parse(in); err != nil {
+			t.Fatal("Got error on parse", err)
+		}
+		return nil
+	}
+	config.Fs = fs
+
+	d := deps.New(config)
+	if err := d.LoadTemplates(); err != nil {
+		t.Fatal(err)
 	}
 
-	err = templ.Execute(&b, &data)
+	err := d.Tmpl.Lookup("test").Execute(&b, &data)
 
 	if err != nil {
 		t.Fatal("Got error on execute", err)
@@ -624,15 +643,13 @@ func blankImage(width, height int) []byte {
 }
 
 func TestImageConfig(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testReset()
 
 	workingDir := "/home/hugo"
 
 	viper.Set("workingDir", workingDir)
 
-	fs := &afero.MemMapFs{}
-	hugofs.InitFs(fs)
+	f := newTestFuncster()
 
 	for i, this := range []struct {
 		resetCache bool
@@ -692,13 +709,13 @@ func TestImageConfig(t *testing.T) {
 			},
 		},
 	} {
-		afero.WriteFile(fs, filepath.Join(workingDir, this.path), this.input, 0755)
+		afero.WriteFile(f.Fs.Source, filepath.Join(workingDir, this.path), this.input, 0755)
 
 		if this.resetCache {
 			resetImageConfigCache()
 		}
 
-		result, err := imageConfig(this.path)
+		result, err := f.imageConfig(this.path)
 		if err != nil {
 			t.Errorf("imageConfig returned error: %s", err)
 		}
@@ -712,15 +729,15 @@ func TestImageConfig(t *testing.T) {
 		}
 	}
 
-	if _, err := imageConfig(t); err == nil {
+	if _, err := f.imageConfig(t); err == nil {
 		t.Error("Expected error from imageConfig when passed invalid path")
 	}
 
-	if _, err := imageConfig("non-existent.png"); err == nil {
+	if _, err := f.imageConfig("non-existent.png"); err == nil {
 		t.Error("Expected error from imageConfig when passed non-existent file")
 	}
 
-	if _, err := imageConfig(""); err == nil {
+	if _, err := f.imageConfig(""); err == nil {
 		t.Error("Expected error from imageConfig when passed empty path")
 	}
 
@@ -2381,14 +2398,11 @@ func TestDefault(t *testing.T) {
 		{map[string]string{"foo": "dog"}, `{{ default "nope" .foo "extra" }}`, ``, false},
 		{map[string]interface{}{"images": []string{}}, `{{ default "default.jpg" (index .images 0) }}`, `default.jpg`, true},
 	} {
-		tmpl, err := New(logger).New("test").Parse(this.tpl)
-		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tpl, err)
-			continue
-		}
+
+		tmpl := newTestTemplate(t, "test", this.tpl)
 
 		buf := new(bytes.Buffer)
-		err = tmpl.Execute(buf, this.input)
+		err := tmpl.Execute(buf, this.input)
 		if (err == nil) != this.ok {
 			t.Errorf("[%d] execute template returned unexpected error: %s", i, err)
 			continue
@@ -2520,6 +2534,7 @@ func TestSafeCSS(t *testing.T) {
 	}
 }
 
+// TODO(bep) what is this? Also look above.
 func TestSafeJS(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
@@ -2560,6 +2575,7 @@ func TestSafeJS(t *testing.T) {
 	}
 }
 
+// TODO(bep) what is this?
 func TestSafeURL(t *testing.T) {
 	for i, this := range []struct {
 		str                 string
@@ -2716,18 +2732,16 @@ func TestSHA256(t *testing.T) {
 }
 
 func TestReadFile(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	testReset()
 
 	workingDir := "/home/hugo"
 
 	viper.Set("workingDir", workingDir)
 
-	fs := &afero.MemMapFs{}
-	hugofs.InitFs(fs)
+	f := newTestFuncster()
 
-	afero.WriteFile(fs, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
-	afero.WriteFile(fs, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
+	afero.WriteFile(f.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
+	afero.WriteFile(f.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
 
 	for i, this := range []struct {
 		filename string
@@ -2739,7 +2753,7 @@ func TestReadFile(t *testing.T) {
 		{filepath.FromSlash("f/f1.txt"), "f1-content"},
 		{filepath.FromSlash("../f2.txt"), false},
 	} {
-		result, err := readFileFromWorkingDir(this.filename)
+		result, err := f.readFileFromWorkingDir(this.filename)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] readFile didn't return an expected error", i)
@@ -2770,8 +2784,6 @@ func TestPartialCached(t *testing.T) {
 		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "header"},
 	}
 
-	results := make(map[string]string, len(testCases))
-
 	var data struct {
 		Title   string
 		Section string
@@ -2791,26 +2803,32 @@ func TestPartialCached(t *testing.T) {
 			tmp = tc.tmpl
 		}
 
-		tmpl, err := New(logger).New("testroot").Parse(tmp)
-		if err != nil {
-			t.Fatalf("[%d] unable to create new html template: %s", i, err)
+		defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+			err := templ.AddTemplate("testroot", tmp)
+			if err != nil {
+				return err
+			}
+			err = templ.AddTemplate("partials/"+tc.name, tc.partial)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		}
 
-		if tmpl == nil {
-			t.Fatalf("[%d] tmpl should not be nil!", i)
-		}
-
-		tmpl.New("partials/" + tc.name).Parse(tc.partial)
+		de := deps.New(defaultDepsConfig)
+		require.NoError(t, de.LoadTemplates())
 
 		buf := new(bytes.Buffer)
-		err = tmpl.Execute(buf, &data)
+		templ := de.Tmpl.Lookup("testroot")
+		err := templ.Execute(buf, &data)
 		if err != nil {
 			t.Fatalf("[%d] error executing template: %s", i, err)
 		}
 
 		for j := 0; j < 10; j++ {
 			buf2 := new(bytes.Buffer)
-			err = tmpl.Execute(buf2, nil)
+			err := templ.Execute(buf2, nil)
 			if err != nil {
 				t.Fatalf("[%d] error executing template 2nd time: %s", i, err)
 			}
@@ -2819,33 +2837,33 @@ func TestPartialCached(t *testing.T) {
 				t.Fatalf("[%d] cached results do not match:\nResult 1:\n%q\nResult 2:\n%q", i, buf, buf2)
 			}
 		}
-
-		// double-check against previous test cases of the same variant
-		previous, ok := results[tc.name+tc.variant]
-		if !ok {
-			results[tc.name+tc.variant] = buf.String()
-		} else {
-			if previous != buf.String() {
-				t.Errorf("[%d] cached variant differs from previous rendering; got:\n%q\nwant:\n%q", i, buf.String(), previous)
-			}
-		}
 	}
 }
 
 func BenchmarkPartial(b *testing.B) {
-	tstInitTemplates()
-	tmpl, err := New(logger).New("testroot").Parse(`{{ partial "bench1" . }}`)
-	if err != nil {
-		b.Fatalf("unable to create new html template: %s", err)
+	defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+		err := templ.AddTemplate("testroot", `{{ partial "bench1" . }}`)
+		if err != nil {
+			return err
+		}
+		err = templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	tmpl.New("partials/bench1").Parse(`{{ shuffle (seq 1 10) }}`)
+	de := deps.New(defaultDepsConfig)
+	require.NoError(b, de.LoadTemplates())
+
 	buf := new(bytes.Buffer)
+	tmpl := de.Tmpl.Lookup("testroot")
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err = tmpl.Execute(buf, nil); err != nil {
+		if err := tmpl.Execute(buf, nil); err != nil {
 			b.Fatalf("error executing template: %s", err)
 		}
 		buf.Reset()
@@ -2853,38 +2871,29 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
-	tstInitTemplates()
-	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . }}`)
-	if err != nil {
-		b.Fatalf("unable to create new html template: %s", err)
-	}
-
-	tmpl.New("partials/bench1").Parse(`{{ shuffle (seq 1 10) }}`)
-	buf := new(bytes.Buffer)
-
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err = tmpl.Execute(buf, nil); err != nil {
-			b.Fatalf("error executing template: %s", err)
+	defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+		err := templ.AddTemplate("testroot", `{{ partialCached "bench1" . }}`)
+		if err != nil {
+			return err
 		}
-		buf.Reset()
-	}
-}
+		err = templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
+		if err != nil {
+			return err
+		}
 
-func BenchmarkPartialCachedVariants(b *testing.B) {
-	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
-	if err != nil {
-		b.Fatalf("unable to create new html template: %s", err)
+		return nil
 	}
 
-	tmpl.New("partials/bench1").Parse(`{{ shuffle (seq 1 10) }}`)
+	de := deps.New(defaultDepsConfig)
+	require.NoError(b, de.LoadTemplates())
+
 	buf := new(bytes.Buffer)
+	tmpl := de.Tmpl.Lookup("testroot")
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err = tmpl.Execute(buf, nil); err != nil {
+		if err := tmpl.Execute(buf, nil); err != nil {
 			b.Fatalf("error executing template: %s", err)
 		}
 		buf.Reset()
@@ -2892,5 +2901,25 @@ func BenchmarkPartialCachedVariants(b *testing.B) {
 }
 
 func newTestFuncster() *templateFuncster {
-	return New(logger).funcster
+	d := deps.New(defaultDepsConfig)
+	if err := d.LoadTemplates(); err != nil {
+		panic(err)
+	}
+
+	return d.Tmpl.(*GoHTMLTemplate).funcster
+}
+
+func newTestTemplate(t *testing.T, name, template string) *template.Template {
+	defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+		err := templ.AddTemplate(name, template)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	de := deps.New(defaultDepsConfig)
+	require.NoError(t, de.LoadTemplates())
+
+	return de.Tmpl.Lookup(name)
 }

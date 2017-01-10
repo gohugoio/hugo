@@ -65,7 +65,6 @@ type htmlHandler struct {
 
 func (h htmlHandler) Extensions() []string { return []string{"html", "htm"} }
 
-// TODO(bep) globals use p.s.t
 func (h htmlHandler) PageConvert(p *Page) HandledResult {
 	if p.rendered {
 		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))

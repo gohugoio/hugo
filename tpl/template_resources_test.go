@@ -80,8 +80,10 @@ func TestScpCache(t *testing.T) {
 }
 
 func TestScpGetLocal(t *testing.T) {
-	fs := new(afero.MemMapFs)
+	testReset()
+	fs := hugofs.NewMem()
 	ps := helpers.FilePathSeparator
+
 	tests := []struct {
 		path    string
 		content []byte
@@ -95,12 +97,12 @@ func TestScpGetLocal(t *testing.T) {
 
 	for _, test := range tests {
 		r := bytes.NewReader(test.content)
-		err := helpers.WriteToDisk(test.path, r, fs)
+		err := helpers.WriteToDisk(test.path, r, fs.Source)
 		if err != nil {
 			t.Error(err)
 		}
 
-		c, err := resGetLocal(test.path, fs)
+		c, err := resGetLocal(test.path, fs.Source)
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
@@ -212,9 +214,9 @@ type wd struct {
 	Reset func()
 }
 
-func testRetryWhenDone() wd {
+func testRetryWhenDone(f *templateFuncster) wd {
 	cd := viper.GetString("cacheDir")
-	viper.Set("cacheDir", helpers.GetTempDir("", hugofs.Source()))
+	viper.Set("cacheDir", helpers.GetTempDir("", f.Fs.Source))
 	var tmpSleep time.Duration
 	tmpSleep, resSleep = resSleep, time.Millisecond
 	return wd{func() {
@@ -224,7 +226,10 @@ func testRetryWhenDone() wd {
 }
 
 func TestGetJSONFailParse(t *testing.T) {
-	defer testRetryWhenDone().Reset()
+
+	f := newTestFuncster()
+
+	defer testRetryWhenDone(f).Reset()
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -242,7 +247,7 @@ func TestGetJSONFailParse(t *testing.T) {
 	defer os.Remove(getCacheFileID(url))
 
 	want := map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}}
-	have := getJSON(url)
+	have := f.getJSON(url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
@@ -250,7 +255,9 @@ func TestGetJSONFailParse(t *testing.T) {
 }
 
 func TestGetCSVFailParseSep(t *testing.T) {
-	defer testRetryWhenDone().Reset()
+	f := newTestFuncster()
+
+	defer testRetryWhenDone(f).Reset()
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -271,7 +278,7 @@ func TestGetCSVFailParseSep(t *testing.T) {
 	defer os.Remove(getCacheFileID(url))
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := getCSV(",", url)
+	have := f.getCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
@@ -279,7 +286,10 @@ func TestGetCSVFailParseSep(t *testing.T) {
 }
 
 func TestGetCSVFailParse(t *testing.T) {
-	defer testRetryWhenDone().Reset()
+
+	f := newTestFuncster()
+
+	defer testRetryWhenDone(f).Reset()
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -302,7 +312,7 @@ func TestGetCSVFailParse(t *testing.T) {
 	defer os.Remove(getCacheFileID(url))
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := getCSV(",", url)
+	have := f.getCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)

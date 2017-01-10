@@ -14,12 +14,12 @@
 package commands
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/spf13/hugo/hugofs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Issue #1133
@@ -29,7 +29,8 @@ func TestNewContentPathSectionWithForwardSlashes(t *testing.T) {
 	assert.Equal(t, "post", s)
 }
 
-func checkNewSiteInited(basepath string, t *testing.T) {
+func checkNewSiteInited(fs *hugofs.Fs, basepath string, t *testing.T) {
+
 	paths := []string{
 		filepath.Join(basepath, "layouts"),
 		filepath.Join(basepath, "content"),
@@ -40,63 +41,70 @@ func checkNewSiteInited(basepath string, t *testing.T) {
 	}
 
 	for _, path := range paths {
-		_, err := hugofs.Source().Stat(path)
-		assert.Nil(t, err)
+		_, err := fs.Source.Stat(path)
+		require.NoError(t, err)
 	}
 }
 
 func TestDoNewSite(t *testing.T) {
-	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.InitMemFs()
-	err := doNewSite(basepath, false)
-	assert.Nil(t, err)
+	basepath := filepath.Join("base", "blog")
+	fs := hugofs.NewMem()
 
-	checkNewSiteInited(basepath, t)
+	require.NoError(t, doNewSite(fs, basepath, false))
+
+	checkNewSiteInited(fs, basepath, t)
 }
 
 func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
-	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.InitMemFs()
-	hugofs.Source().MkdirAll(basepath, 777)
-	err := doNewSite(basepath, false)
-	assert.Nil(t, err)
+	basepath := filepath.Join("base", "blog")
+	fs := hugofs.NewMem()
+
+	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+
+	require.NoError(t, doNewSite(fs, basepath, false))
 }
 
 func TestDoNewSite_error_base_exists(t *testing.T) {
-	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.InitMemFs()
-	hugofs.Source().MkdirAll(basepath, 777)
-	hugofs.Source().Create(filepath.Join(basepath, "foo"))
+	basepath := filepath.Join("base", "blog")
+	fs := hugofs.NewMem()
+
+	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+	_, err := fs.Source.Create(filepath.Join(basepath, "foo"))
+	require.NoError(t, err)
 	// Since the directory already exists and isn't empty, expect an error
-	err := doNewSite(basepath, false)
-	assert.NotNil(t, err)
+	require.Error(t, doNewSite(fs, basepath, false))
+
 }
 
 func TestDoNewSite_force_empty_dir(t *testing.T) {
-	basepath := filepath.Join(os.TempDir(), "blog")
-	hugofs.InitMemFs()
-	hugofs.Source().MkdirAll(basepath, 777)
-	err := doNewSite(basepath, true)
-	assert.Nil(t, err)
+	basepath := filepath.Join("base", "blog")
+	fs := hugofs.NewMem()
 
-	checkNewSiteInited(basepath, t)
+	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+
+	require.NoError(t, doNewSite(fs, basepath, true))
+
+	checkNewSiteInited(fs, basepath, t)
 }
 
 func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
-	basepath := filepath.Join(os.TempDir(), "blog")
+	basepath := filepath.Join("base", "blog")
+	fs := hugofs.NewMem()
+
 	contentPath := filepath.Join(basepath, "content")
-	hugofs.InitMemFs()
-	hugofs.Source().MkdirAll(contentPath, 777)
-	err := doNewSite(basepath, true)
-	assert.NotNil(t, err)
+
+	require.NoError(t, fs.Source.MkdirAll(contentPath, 777))
+	require.Error(t, doNewSite(fs, basepath, true))
 }
 
 func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
-	basepath := filepath.Join(os.TempDir(), "blog")
+	basepath := filepath.Join("base", "blog")
+	fs := hugofs.NewMem()
+
 	configPath := filepath.Join(basepath, "config.toml")
-	hugofs.InitMemFs()
-	hugofs.Source().MkdirAll(basepath, 777)
-	hugofs.Source().Create(configPath)
-	err := doNewSite(basepath, true)
-	assert.NotNil(t, err)
+	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+	_, err := fs.Source.Create(configPath)
+	require.NoError(t, err)
+
+	require.Error(t, doNewSite(fs, basepath, true))
 }

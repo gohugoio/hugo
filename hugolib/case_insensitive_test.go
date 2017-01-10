@@ -18,6 +18,11 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/spf13/viper"
+
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/hugofs"
 )
 
 var (
@@ -106,22 +111,22 @@ ColorS:
 `
 )
 
-func caseMixingTestsWriteCommonSources(t *testing.T) {
-	writeSource(t, filepath.Join("content", "sect1", "page1.md"), caseMixingPage1)
-	writeSource(t, filepath.Join("content", "sect2", "page2.md"), caseMixingPage2)
-	writeSource(t, filepath.Join("content", "sect1", "page1.en.md"), caseMixingPage1En)
+func caseMixingTestsWriteCommonSources(t *testing.T, fs *hugofs.Fs) {
+	writeSource(t, fs, filepath.Join("content", "sect1", "page1.md"), caseMixingPage1)
+	writeSource(t, fs, filepath.Join("content", "sect2", "page2.md"), caseMixingPage2)
+	writeSource(t, fs, filepath.Join("content", "sect1", "page1.en.md"), caseMixingPage1En)
 
-	writeSource(t, "layouts/shortcodes/shortcode.html", `
+	writeSource(t, fs, "layouts/shortcodes/shortcode.html", `
 Shortcode Page: {{ .Page.Params.COLOR }}|{{ .Page.Params.Colors.Blue  }}
 Shortcode Site: {{ .Page.Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW  }}
 `)
 
-	writeSource(t, "layouts/partials/partial.html", `
+	writeSource(t, fs, "layouts/partials/partial.html", `
 Partial Page: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
 Partial Site: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 `)
 
-	writeSource(t, "config.toml", caseMixingSiteConfigTOML)
+	writeSource(t, fs, "config.toml", caseMixingSiteConfigTOML)
 
 }
 
@@ -139,13 +144,21 @@ func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 	// page frontmatter: regular fields, blackfriday config, param with nested map
 
 	testCommonResetState()
-	caseMixingTestsWriteCommonSources(t)
 
-	writeSource(t, filepath.Join("layouts", "_default", "baseof.html"), `
+	depsCfg := newTestDepsConfig()
+	viper.SetFs(depsCfg.Fs.Source)
+
+	caseMixingTestsWriteCommonSources(t, depsCfg.Fs)
+
+	if err := LoadGlobalConfig("", "config.toml"); err != nil {
+		t.Fatalf("Failed to load config: %s", err)
+	}
+
+	writeSource(t, depsCfg.Fs, filepath.Join("layouts", "_default", "baseof.html"), `
 Block Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}	
 {{ block "main" . }}default{{end}}`)
 
-	writeSource(t, filepath.Join("layouts", "sect2", "single.html"), `
+	writeSource(t, depsCfg.Fs, filepath.Join("layouts", "sect2", "single.html"), `
 {{ define "main"}}
 Page Colors: {{ .Params.CoLOR }}|{{ .Params.Colors.Blue }}
 Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
@@ -154,7 +167,7 @@ Site Colors: {{ .Site.Params.COlOR }}|{{ .Site.Params.COLORS.YELLOW }}
 {{ end }}
 `)
 
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `
+	writeSource(t, depsCfg.Fs, filepath.Join("layouts", "_default", "single.html"), `
 Page Title: {{ .Title }}
 Site Title: {{ .Site.Title }}
 Site Lang Mood: {{ .Site.Language.Params.MOoD }}
@@ -164,11 +177,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 {{ partial "partial.html" . }}
 `)
 
-	if err := LoadGlobalConfig("", "config.toml"); err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
-
-	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
+	sites, err := NewHugoSitesFromConfiguration(depsCfg)
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -180,7 +189,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
+	assertFileContent(t, sites.Fs, filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
 		"Page Colors: red|heavenly",
 		"Site Colors: green|yellow",
 		"Site Lang Mood: Happy",
@@ -193,7 +202,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"&laquo;Hi&raquo;", // angled quotes
 	)
 
-	assertFileContent(t, filepath.Join("public", "en", "sect1", "page1", "index.html"), true,
+	assertFileContent(t, sites.Fs, filepath.Join("public", "en", "sect1", "page1", "index.html"), true,
 		"Site Colors: Pink|golden",
 		"Page Colors: black|bluesy",
 		"Site Lang Mood: Thoughtful",
@@ -202,7 +211,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"&ldquo;Hi&rdquo;",
 	)
 
-	assertFileContent(t, filepath.Join("public", "nn", "sect2", "page2", "index.html"), true,
+	assertFileContent(t, sites.Fs, filepath.Join("public", "nn", "sect2", "page2", "index.html"), true,
 		"Page Colors: black|sky",
 		"Site Colors: green|yellow",
 		"Shortcode Page: black|sky",
@@ -244,7 +253,15 @@ func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
 func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
 
 	testCommonResetState()
-	caseMixingTestsWriteCommonSources(t)
+
+	fs := hugofs.NewMem()
+	viper.SetFs(fs.Source)
+
+	caseMixingTestsWriteCommonSources(t, fs)
+
+	if err := LoadGlobalConfig("", "config.toml"); err != nil {
+		t.Fatalf("Failed to load config: %s", err)
+	}
 
 	t.Log("Testing", suffix)
 
@@ -261,13 +278,9 @@ p
 
 	t.Log(templ)
 
-	writeSource(t, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
+	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
 
-	if err := LoadGlobalConfig("", "config.toml"); err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
-
-	sites, err := NewHugoSitesFromConfiguration(DepsCfg{})
+	sites, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -279,7 +292,7 @@ p
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
+	assertFileContent(t, sites.Fs, filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
 		"Page Colors: red|heavenly",
 		"Site Colors: green|yellow",
 		"Shortcode Page: red|heavenly",

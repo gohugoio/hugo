@@ -26,7 +26,9 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -465,7 +467,12 @@ activity = "exam"
 Hi.
 `
 
-var pageTestSite = NewSiteDefaultLang()
+func init() {
+	testCommonResetState()
+	pageTestSite, _ = NewSiteDefaultLang()
+}
+
+var pageTestSite *Site
 
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
@@ -606,6 +613,8 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 
 		testCommonResetState()
 
+		fs := hugofs.NewMem()
+
 		if settings != nil {
 			for k, v := range settings {
 				viper.Set(k, v)
@@ -625,14 +634,10 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		}
 
 		for i := 0; i < len(fileSourcePairs); i += 2 {
-			writeSource(t, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
+			writeSource(t, fs, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
 		}
 
-		s := NewSiteDefaultLang()
-
-		if err := buildSiteSkipRender(s); err != nil {
-			t.Fatalf("Failed to build site: %s", err)
-		}
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 		require.Len(t, s.RegularPages, len(pageSources))
 
@@ -738,11 +743,14 @@ func TestPageWithDelimiter(t *testing.T) {
 
 // Issue #1076
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
-	s := newSiteFromSources("simple.md", simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
 
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	testCommonResetState()
+
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -759,16 +767,18 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 // Issue #2601
 func TestPageRawContent(t *testing.T) {
-	s := newSiteFromSources("raw.md", `---
+	testCommonResetState()
+
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, filepath.Join("content", "raw.md"), `---
 title: Raw
 ---
 **Raw**`)
 
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
 
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 	require.Len(t, s.RegularPages, 1)
 	p := s.RegularPages[0]
@@ -806,11 +816,12 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 }
 
 func TestPageWithAdditionalExtension(t *testing.T) {
-	s := newSiteFromSources("simple.md", simplePageWithAdditionalExtension)
 
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithAdditionalExtension)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -820,11 +831,12 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-	s := newSiteFromSources("tocpage.md", pageWithToC)
 
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, filepath.Join("content", "tocpage.md"), pageWithToC)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -850,11 +862,11 @@ func TestPageWithMoreTag(t *testing.T) {
 }
 
 func TestPageWithDate(t *testing.T) {
-	s := newSiteFromSources("simple.md", simplePageRFC3339Date)
+	fs := hugofs.NewMem()
 
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -1372,11 +1384,11 @@ func TestKind(t *testing.T) {
 func TestChompBOM(t *testing.T) {
 	const utf8BOM = "\xef\xbb\xbf"
 
-	s := newSiteFromSources("simple.md", utf8BOM+simplePage)
+	fs := hugofs.NewMem()
 
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	writeSource(t, fs, filepath.Join("content", "simple.md"), utf8BOM+simplePage)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 

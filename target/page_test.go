@@ -16,9 +16,13 @@ package target
 import (
 	"path/filepath"
 	"testing"
+
+	"github.com/spf13/hugo/hugofs"
 )
 
 func TestPageTranslator(t *testing.T) {
+	fs := hugofs.NewMem()
+
 	tests := []struct {
 		content  string
 		expected string
@@ -37,7 +41,7 @@ func TestPageTranslator(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		f := new(PagePub)
+		f := &PagePub{Fs: fs}
 		dest, err := f.Translate(filepath.FromSlash(test.content))
 		expected := filepath.FromSlash(test.expected)
 		if err != nil {

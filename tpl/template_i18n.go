@@ -33,6 +33,7 @@ type translate struct {
 	current bundle.TranslateFunc
 }
 
+// TODO(bep) global translator
 var translator *translate
 
 // SetTranslateLang sets the translations language to use during template processing.

@@ -19,76 +19,54 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	sourceFs      afero.Fs
-	destinationFs afero.Fs
-	osFs          afero.Fs = &afero.OsFs{}
-	workingDirFs  *afero.BasePathFs
-)
+// Os points to an Os Afero file system.
+var Os = &afero.OsFs{}
 
-// Source returns Hugo's source file system.
-func Source() afero.Fs {
-	return sourceFs
+type Fs struct {
+	// Source is Hugo's source file system.
+	Source afero.Fs
+
+	// Destination is Hugo's destionation file system.
+	Destination afero.Fs
+
+	// Os is an OS file system.
+	Os afero.Fs
+
+	// WorkingDir is a read-only file system
+	// restricted to the project working dir.
+	WorkingDir *afero.BasePathFs
 }
 
-// SetSource sets Hugo's source file system
-// and re-initializes dependent file systems.
-func SetSource(fs afero.Fs) {
-	sourceFs = fs
-	initSourceDependencies()
-}
-
-// Destination returns Hugo's destionation file system.
-func Destination() afero.Fs {
-	return destinationFs
-}
-
-// SetDestination sets Hugo's destionation file system
-func SetDestination(fs afero.Fs) {
-	destinationFs = fs
-}
-
-// Os returns an OS file system.
-func Os() afero.Fs {
-	return osFs
-}
-
-// WorkingDir returns a read-only file system
-// restricted to the project working dir.
-func WorkingDir() *afero.BasePathFs {
-	return workingDirFs
-}
-
-// InitDefaultFs initializes with the OS file system
+// NewDefault creates a new Fs with the OS file system
 // as source and destination file systems.
-func InitDefaultFs() {
-	InitFs(&afero.OsFs{})
+func NewDefault() *Fs {
+	fs := &afero.OsFs{}
+	return newFs(fs)
 }
 
-// InitMemFs initializes with a MemMapFs as source and destination file systems.
+// NewDefault creates a new Fs with the MemMapFs
+// as source and destination file systems.
 // Useful for testing.
-func InitMemFs() {
-	InitFs(&afero.MemMapFs{})
+func NewMem() *Fs {
+	fs := &afero.MemMapFs{}
+	return newFs(fs)
 }
 
-// InitFs initializes with the given file system
-// as source and destination file systems.
-func InitFs(fs afero.Fs) {
-	sourceFs = fs
-	destinationFs = fs
-
-	initSourceDependencies()
+func newFs(base afero.Fs) *Fs {
+	return &Fs{
+		Source:      base,
+		Destination: base,
+		Os:          &afero.OsFs{},
+		WorkingDir:  getWorkingDirFs(base),
+	}
 }
 
-func initSourceDependencies() {
+func getWorkingDirFs(base afero.Fs) *afero.BasePathFs {
 	workingDir := viper.GetString("workingDir")
 
 	if workingDir != "" {
-		workingDirFs = afero.NewBasePathFs(afero.NewReadOnlyFs(sourceFs), workingDir).(*afero.BasePathFs)
+		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir).(*afero.BasePathFs)
 	}
 
-}
-
-func init() {
-	InitDefaultFs()
+	return nil
 }

@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
@@ -122,7 +123,7 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		return convertJekyllPost(site, path, relPath, targetDir, draft)
 	}
 
-	err = helpers.SymbolicWalk(hugofs.Os(), jekyllRoot, callback)
+	err = helpers.SymbolicWalk(hugofs.Os, jekyllRoot, callback)
 
 	if err != nil {
 		return err
@@ -137,7 +138,13 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 
 // TODO: Consider calling doNewSite() instead?
 func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) (*hugolib.Site, error) {
-	fs := hugofs.Source()
+	s, err := hugolib.NewSiteDefaultLang()
+	if err != nil {
+		return nil, err
+	}
+
+	fs := s.Fs.Source
+
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
 			return nil, errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
@@ -150,7 +157,7 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) (*hugolib.Si
 		}
 	}
 
-	jekyllConfig := loadJekyllConfig(jekyllRoot)
+	jekyllConfig := loadJekyllConfig(fs, jekyllRoot)
 
 	// Crude test to make sure at least one of _drafts/ and _posts/ exists
 	// and is not empty.
@@ -177,16 +184,14 @@ func createSiteFromJekyll(jekyllRoot, targetDir string, force bool) (*hugolib.Si
 	mkdir(targetDir, "data")
 	mkdir(targetDir, "themes")
 
-	createConfigFromJekyll(targetDir, "yaml", jekyllConfig)
+	createConfigFromJekyll(fs, targetDir, "yaml", jekyllConfig)
 
 	copyJekyllFilesAndFolders(jekyllRoot, filepath.Join(targetDir, "static"))
-	site := hugolib.NewSiteDefaultLang()
 
-	return site, nil
+	return s, nil
 }
 
-func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
-	fs := hugofs.Source()
+func loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]interface{} {
 	path := filepath.Join(jekyllRoot, "_config.yml")
 
 	exists, err := helpers.Exists(path, fs)
@@ -218,7 +223,7 @@ func loadJekyllConfig(jekyllRoot string) map[string]interface{} {
 	return c.(map[string]interface{})
 }
 
-func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]interface{}) (err error) {
+func createConfigFromJekyll(fs afero.Fs, inpath string, kind string, jekyllConfig map[string]interface{}) (err error) {
 	title := "My New Hugo Site"
 	baseURL := "http://example.org/"
 
@@ -251,7 +256,7 @@ func createConfigFromJekyll(inpath string, kind string, jekyllConfig map[string]
 		return err
 	}
 
-	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), hugofs.Source())
+	err = helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), bytes.NewReader(by), fs)
 	if err != nil {
 		return
 	}

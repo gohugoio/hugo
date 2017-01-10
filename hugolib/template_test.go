@@ -17,127 +17,133 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/hugofs"
+
 	"github.com/spf13/viper"
 )
 
 func TestBaseGoTemplate(t *testing.T) {
+
+	var fs *hugofs.Fs
+
 	// Variants:
 	//   1. <current-path>/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 	//   2. <current-path>/baseof.<suffix>
 	//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 	//   4. _default/baseof.<suffix>
-	for i, this := range []struct {
+	for _, this := range []struct {
 		setup  func(t *testing.T)
 		assert func(t *testing.T)
 	}{
 		{
 			// Variant 1
 			func(t *testing.T) {
-				writeSource(t, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
 			},
 		},
 		{
 			// Variant 2
 			func(t *testing.T) {
-				writeSource(t, filepath.Join("layouts", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("layouts", "index.html"), `{{define "main"}}index{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "index.html"), `{{define "main"}}index{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "index.html"), false, "Base: index")
+				assertFileContent(t, fs, filepath.Join("public", "index.html"), false, "Base: index")
 			},
 		},
 		{
 			// Variant 3
 			func(t *testing.T) {
-				writeSource(t, filepath.Join("layouts", "_default", "list-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "list-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base: list")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: list")
 			},
 		},
 		{
 			// Variant 4
 			func(t *testing.T) {
-				writeSource(t, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base: list")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: list")
 			},
 		},
 		{
 			// Variant 1, theme,  use project's base
 			func(t *testing.T) {
 				viper.Set("theme", "mytheme")
-				writeSource(t, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
 			},
 		},
 		{
 			// Variant 1, theme,  use theme's base
 			func(t *testing.T) {
 				viper.Set("theme", "mytheme")
-				writeSource(t, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base Theme: sect")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base Theme: sect")
 			},
 		},
 		{
 			// Variant 4, theme, use project's base
 			func(t *testing.T) {
 				viper.Set("theme", "mytheme")
-				writeSource(t, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base: list")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: list")
 			},
 		},
 		{
 			// Variant 4, theme, use themes's base
 			func(t *testing.T) {
 				viper.Set("theme", "mytheme")
-				writeSource(t, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
-				writeSource(t, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				assertFileContent(t, filepath.Join("public", "sect", "index.html"), false, "Base Theme: list")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base Theme: list")
 			},
 		},
 	} {
 
 		testCommonResetState()
 
-		writeSource(t, filepath.Join("content", "sect", "page.md"), `---
+		fs = hugofs.NewMem()
+
+		writeSource(t, fs, filepath.Join("content", "sect", "page.md"), `---
 title: Template test
 ---
 Some content
 `)
 		this.setup(t)
 
-		if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
-			t.Fatalf("[%d] Failed to build site: %s", i, err)
-		}
+		buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 		this.assert(t)
 

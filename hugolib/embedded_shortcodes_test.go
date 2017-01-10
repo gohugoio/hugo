@@ -27,9 +27,11 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/spf13/hugo/tpl"
+	"github.com/spf13/hugo/deps"
 
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/tplapi"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -65,17 +67,17 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 	path := filepath.FromSlash("blog/post.md")
 	in := fmt.Sprintf(`{{< %s "%s" >}}`, refShortcode, path)
 
-	writeSource(t, "content/"+path, simplePageWithURL+": "+in)
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, "content/"+path, simplePageWithURL+": "+in)
 
 	expected := fmt.Sprintf(`%s/simple/url/`, expectedBase)
 
-	sites, err := newHugoSitesDefaultLanguage()
-	require.NoError(t, err)
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
-	require.NoError(t, sites.Build(BuildCfg{}))
-	require.Len(t, sites.Sites[0].RegularPages, 1)
+	require.Len(t, s.RegularPages, 1)
 
-	output := string(sites.Sites[0].RegularPages[0].Content)
+	output := string(s.RegularPages[0].Content)
 
 	if !strings.Contains(output, expected) {
 		t.Errorf("Got\n%q\nExpected\n%q", output, expected)
@@ -308,7 +310,7 @@ func TestShortcodeTweet(t *testing.T) {
 			},
 		}
 
-		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tplapi.Template) error {
 			templ.Funcs(tweetFuncMap)
 			return nil
 		})
@@ -361,7 +363,7 @@ func TestShortcodeInstagram(t *testing.T) {
 			},
 		}
 
-		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tplapi.Template) error {
 			templ.Funcs(instagramFuncMap)
 			return nil
 		})

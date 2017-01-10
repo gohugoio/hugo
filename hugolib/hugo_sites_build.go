@@ -59,7 +59,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	if config.PrintStats {
-		h.log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
+		h.Log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
 	}
 
 	return nil

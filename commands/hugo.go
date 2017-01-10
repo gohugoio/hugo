@@ -40,6 +40,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
+	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/livereload"
@@ -49,6 +50,10 @@ import (
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 )
+
+type commandeer struct {
+	deps.DepsCfg
+}
 
 // Hugo represents the Hugo sites to build. This variable is exported as it
 // is used by at least one external library (the Hugo caddy plugin). We should
@@ -119,12 +124,14 @@ Complete documentation is available at http://gohugo.io/.`,
 			return err
 		}
 
+		c := commandeer{cfg}
+
 		if buildWatch {
 			viper.Set("disableLiveReload", true)
-			watchConfig(cfg)
+			c.watchConfig()
 		}
 
-		return build(cfg)
+		return c.build()
 	},
 }
 
@@ -268,9 +275,9 @@ func init() {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig(subCmdVs ...*cobra.Command) (hugolib.DepsCfg, error) {
+func InitializeConfig(subCmdVs ...*cobra.Command) (deps.DepsCfg, error) {
 
-	var cfg hugolib.DepsCfg
+	var cfg deps.DepsCfg
 
 	if err := hugolib.LoadGlobalConfig(source, cfgFile); err != nil {
 		return cfg, err
@@ -323,34 +330,34 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (hugolib.DepsCfg, error) {
 		viper.Set("cacheDir", cacheDir)
 	}
 
+	// Init file systems. This may be changed at a later point.
+	cfg.Fs = hugofs.NewDefault()
+
 	cacheDir = viper.GetString("cacheDir")
 	if cacheDir != "" {
 		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
 			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
-		isDir, err := helpers.DirExists(cacheDir, hugofs.Source())
+		isDir, err := helpers.DirExists(cacheDir, cfg.Fs.Source)
 		utils.CheckErr(err)
 		if !isDir {
 			mkdir(cacheDir)
 		}
 		viper.Set("cacheDir", cacheDir)
 	} else {
-		viper.Set("cacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
+		viper.Set("cacheDir", helpers.GetTempDir("hugo_cache", cfg.Fs.Source))
 	}
 
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
-	// Init file systems. This may be changed at a later point.
-	hugofs.InitDefaultFs()
-
 	themeDir := helpers.GetThemeDir()
 	if themeDir != "" {
-		if _, err := hugofs.Source().Stat(themeDir); os.IsNotExist(err) {
+		if _, err := cfg.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
 			return cfg, newSystemError("Unable to find theme Directory:", themeDir)
 		}
 	}
 
-	themeVersionMismatch, minVersion := isThemeVsHugoVersionMismatch()
+	themeVersionMismatch, minVersion := isThemeVsHugoVersionMismatch(cfg.Fs.Source)
 
 	if themeVersionMismatch {
 		jww.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
@@ -447,12 +454,12 @@ func flagChanged(flags *flag.FlagSet, key string) bool {
 	return flag.Changed
 }
 
-func watchConfig(cfg hugolib.DepsCfg) {
+func (c commandeer) watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		jww.FEEDBACK.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		utils.CheckErr(recreateAndBuildSites(cfg, true))
+		utils.CheckErr(c.recreateAndBuildSites(true))
 		if !viper.GetBool("disableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
@@ -460,39 +467,40 @@ func watchConfig(cfg hugolib.DepsCfg) {
 	})
 }
 
-func build(cfg hugolib.DepsCfg, watches ...bool) error {
+func (c commandeer) build(watches ...bool) error {
 	// Hugo writes the output to memory instead of the disk.
 	// This is only used for benchmark testing. Cause the content is only visible
 	// in memory.
 	if renderToMemory {
-		hugofs.SetDestination(new(afero.MemMapFs))
+		c.Fs.Destination = new(afero.MemMapFs)
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		viper.Set("publishDir", "/")
 	}
 
-	if err := copyStatic(); err != nil {
+	if err := c.copyStatic(); err != nil {
 		return fmt.Errorf("Error copying static files to %s: %s", helpers.AbsPathify(viper.GetString("publishDir")), err)
 	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
 		watch = true
 	}
-	if err := buildSites(cfg, buildWatch || watch); err != nil {
+	if err := c.buildSites(buildWatch || watch); err != nil {
 		return fmt.Errorf("Error building site: %s", err)
 	}
 
 	if buildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("contentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
-		utils.CheckErr(newWatcher(cfg, 0))
+		utils.CheckErr(c.newWatcher(0))
 	}
 
 	return nil
 }
 
-func getStaticSourceFs() afero.Fs {
-	source := hugofs.Source()
-	themeDir, err := helpers.GetThemeStaticDirPath()
+func (c commandeer) getStaticSourceFs() afero.Fs {
+	source := c.Fs.Source
+	pathSpec := helpers.NewPathSpec(c.Fs, viper.GetViper())
+	themeDir, err := pathSpec.GetThemeStaticDirPath()
 	staticDir := helpers.GetStaticDirPath() + helpers.FilePathSeparator
 
 	useTheme := true
@@ -532,12 +540,12 @@ func getStaticSourceFs() afero.Fs {
 	jww.INFO.Println("using a UnionFS for static directory comprised of:")
 	jww.INFO.Println("Base:", themeDir)
 	jww.INFO.Println("Overlay:", staticDir)
-	base := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.Source(), themeDir))
-	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(hugofs.Source(), staticDir))
+	base := afero.NewReadOnlyFs(afero.NewBasePathFs(source, themeDir))
+	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(source, staticDir))
 	return afero.NewCopyOnWriteFs(base, overlay)
 }
 
-func copyStatic() error {
+func (c commandeer) copyStatic() error {
 	publishDir := helpers.AbsPathify(viper.GetString("publishDir")) + helpers.FilePathSeparator
 
 	// If root, remove the second '/'
@@ -546,7 +554,7 @@ func copyStatic() error {
 	}
 
 	// Includes both theme/static & /static
-	staticSourceFs := getStaticSourceFs()
+	staticSourceFs := c.getStaticSourceFs()
 
 	if staticSourceFs == nil {
 		jww.WARN.Println("No static directories found to sync")
@@ -557,7 +565,7 @@ func copyStatic() error {
 	syncer.NoTimes = viper.GetBool("noTimes")
 	syncer.NoChmod = viper.GetBool("noChmod")
 	syncer.SrcFs = staticSourceFs
-	syncer.DestFs = hugofs.Destination()
+	syncer.DestFs = c.Fs.Destination
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
 	syncer.Delete = viper.GetBool("cleanDestinationDir")
@@ -572,7 +580,7 @@ func copyStatic() error {
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
-func getDirList() []string {
+func (c commandeer) getDirList() []string {
 	var a []string
 	dataDir := helpers.AbsPathify(viper.GetString("dataDir"))
 	i18nDir := helpers.AbsPathify(viper.GetString("i18nDir"))
@@ -621,7 +629,7 @@ func getDirList() []string {
 				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
 				return nil
 			}
-			linkfi, err := hugofs.Source().Stat(link)
+			linkfi, err := c.Fs.Source.Stat(link)
 			if err != nil {
 				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
@@ -642,25 +650,25 @@ func getDirList() []string {
 		return nil
 	}
 
-	helpers.SymbolicWalk(hugofs.Source(), dataDir, walker)
-	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("contentDir")), walker)
-	helpers.SymbolicWalk(hugofs.Source(), i18nDir, walker)
-	helpers.SymbolicWalk(hugofs.Source(), helpers.AbsPathify(viper.GetString("layoutDir")), walker)
+	helpers.SymbolicWalk(c.Fs.Source, dataDir, walker)
+	helpers.SymbolicWalk(c.Fs.Source, helpers.AbsPathify(viper.GetString("contentDir")), walker)
+	helpers.SymbolicWalk(c.Fs.Source, i18nDir, walker)
+	helpers.SymbolicWalk(c.Fs.Source, helpers.AbsPathify(viper.GetString("layoutDir")), walker)
 
-	helpers.SymbolicWalk(hugofs.Source(), staticDir, walker)
+	helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
 	if helpers.ThemeSet() {
-		helpers.SymbolicWalk(hugofs.Source(), filepath.Join(themesDir, "layouts"), walker)
-		helpers.SymbolicWalk(hugofs.Source(), filepath.Join(themesDir, "static"), walker)
-		helpers.SymbolicWalk(hugofs.Source(), filepath.Join(themesDir, "i18n"), walker)
-		helpers.SymbolicWalk(hugofs.Source(), filepath.Join(themesDir, "data"), walker)
+		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), walker)
+		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "static"), walker)
+		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), walker)
+		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), walker)
 
 	}
 
 	return a
 }
 
-func recreateAndBuildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
-	if err := initSites(cfg); err != nil {
+func (c commandeer) recreateAndBuildSites(watching bool) (err error) {
+	if err := c.initSites(); err != nil {
 		return err
 	}
 	if !quiet {
@@ -669,9 +677,9 @@ func recreateAndBuildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: !quiet})
 }
 
-func resetAndBuildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
-	if err := initSites(cfg); err != nil {
-		return err
+func (c commandeer) resetAndBuildSites(watching bool) (err error) {
+	if err = c.initSites(); err != nil {
+		return
 	}
 	if !quiet {
 		jww.FEEDBACK.Println("Started building sites ...")
@@ -679,12 +687,12 @@ func resetAndBuildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: !quiet})
 }
 
-func initSites(cfg hugolib.DepsCfg) error {
+func (c commandeer) initSites() error {
 	if Hugo != nil {
 		return nil
 	}
 
-	h, err := hugolib.NewHugoSitesFromConfiguration(cfg)
+	h, err := hugolib.NewHugoSitesFromConfiguration(c.DepsCfg)
 
 	if err != nil {
 		return err
@@ -694,8 +702,8 @@ func initSites(cfg hugolib.DepsCfg) error {
 	return nil
 }
 
-func buildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
-	if err := initSites(cfg); err != nil {
+func (c commandeer) buildSites(watching bool) (err error) {
+	if err := c.initSites(); err != nil {
 		return err
 	}
 	if !quiet {
@@ -704,18 +712,20 @@ func buildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: !quiet})
 }
 
-func rebuildSites(cfg hugolib.DepsCfg, events []fsnotify.Event) error {
-	if err := initSites(cfg); err != nil {
+func (c commandeer) rebuildSites(events []fsnotify.Event) error {
+	if err := c.initSites(); err != nil {
 		return err
 	}
 	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func newWatcher(cfg hugolib.DepsCfg, port int) error {
+func (c commandeer) newWatcher(port int) error {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
+
+	pathSpec := helpers.NewPathSpec(c.Fs, viper.GetViper())
 
 	watcher, err := watcher.New(1 * time.Second)
 	var wg sync.WaitGroup
@@ -728,7 +738,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 
 	wg.Add(1)
 
-	for _, d := range getDirList() {
+	for _, d := range c.getDirList() {
 		if d != "" {
 			_ = watcher.Add(d)
 		}
@@ -793,12 +803,12 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 					// recursively add new directories to watch list
 					// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
 					if ev.Op&fsnotify.Create == fsnotify.Create {
-						if s, err := hugofs.Source().Stat(ev.Name); err == nil && s.Mode().IsDir() {
-							helpers.SymbolicWalk(hugofs.Source(), ev.Name, walkAdder)
+						if s, err := c.Fs.Source.Stat(ev.Name); err == nil && s.Mode().IsDir() {
+							helpers.SymbolicWalk(c.Fs.Source, ev.Name, walkAdder)
 						}
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(helpers.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, helpers.GetThemesDirPath()))
+					isstatic := strings.HasPrefix(ev.Name, helpers.GetStaticDirPath()) || (len(pathSpec.GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, pathSpec.GetThemesDirPath()))
 
 					if isstatic {
 						staticEvents = append(staticEvents, ev)
@@ -821,12 +831,12 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 
 					if viper.GetBool("forceSyncStatic") {
 						jww.FEEDBACK.Printf("Syncing all static files\n")
-						err := copyStatic()
+						err := c.copyStatic()
 						if err != nil {
 							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", publishDir))
 						}
 					} else {
-						staticSourceFs := getStaticSourceFs()
+						staticSourceFs := c.getStaticSourceFs()
 
 						if staticSourceFs == nil {
 							jww.WARN.Println("No static directories found to sync")
@@ -837,7 +847,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 						syncer.NoTimes = viper.GetBool("noTimes")
 						syncer.NoChmod = viper.GetBool("noChmod")
 						syncer.SrcFs = staticSourceFs
-						syncer.DestFs = hugofs.Destination()
+						syncer.DestFs = c.Fs.Destination
 
 						// prevent spamming the log on changes
 						logger := helpers.NewDistinctFeedbackLogger()
@@ -862,7 +872,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 							fromPath := ev.Name
 
 							// If we are here we already know the event took place in a static dir
-							relPath, err := helpers.MakeStaticPathRelative(fromPath)
+							relPath, err := pathSpec.MakeStaticPathRelative(fromPath)
 							if err != nil {
 								jww.ERROR.Println(err)
 								continue
@@ -882,7 +892,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 									// If file doesn't exist in any static dir, remove it
 									toRemove := filepath.Join(publishDir, relPath)
 									logger.Println("File no longer exists in static dir, removing", toRemove)
-									hugofs.Destination().RemoveAll(toRemove)
+									c.Fs.Destination.RemoveAll(toRemove)
 								} else if err == nil {
 									// If file still exists, sync it
 									logger.Println("Syncing", relPath, "to", publishDir)
@@ -910,7 +920,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 						// force refresh when more than one file
 						if len(staticEvents) > 0 {
 							for _, ev := range staticEvents {
-								path, _ := helpers.MakeStaticPathRelative(ev.Name)
+								path, _ := pathSpec.MakeStaticPathRelative(ev.Name)
 								livereload.RefreshPath(path)
 							}
 
@@ -925,7 +935,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 					const layout = "2006-01-02 15:04 -0700"
 					jww.FEEDBACK.Println(time.Now().Format(layout))
 
-					rebuildSites(cfg, dynamicEvents)
+					c.rebuildSites(dynamicEvents)
 
 					if !buildWatch && !viper.GetBool("disableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
@@ -947,7 +957,7 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 			http.HandleFunc("/livereload", livereload.Handler)
 		}
 
-		go serve(port)
+		go c.serve(port)
 	}
 
 	wg.Wait()
@@ -956,14 +966,13 @@ func newWatcher(cfg hugolib.DepsCfg, port int) error {
 
 // isThemeVsHugoVersionMismatch returns whether the current Hugo version is
 // less than the theme's min_version.
-func isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
+func isThemeVsHugoVersionMismatch(fs afero.Fs) (mismatch bool, requiredMinVersion string) {
 	if !helpers.ThemeSet() {
 		return
 	}
 
 	themeDir := helpers.GetThemeDir()
 
-	fs := hugofs.Source()
 	path := filepath.Join(themeDir, "theme.toml")
 
 	exists, err := helpers.Exists(path, fs)

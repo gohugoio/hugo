@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/parser"
 )
 
@@ -37,7 +36,9 @@ If the content's draft status is 'False', nothing is done.`,
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
 func Undraft(cmd *cobra.Command, args []string) error {
-	if _, err := InitializeConfig(); err != nil {
+	cfg, err := InitializeConfig()
+
+	if err != nil {
 		return err
 	}
 
@@ -47,7 +48,7 @@ func Undraft(cmd *cobra.Command, args []string) error {
 
 	location := args[0]
 	// open the file
-	f, err := hugofs.Source().Open(location)
+	f, err := cfg.Fs.Source.Open(location)
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func Undraft(cmd *cobra.Command, args []string) error {
 		return newSystemErrorF("an error occurred while undrafting %q: %s", location, err)
 	}
 
-	f, err = hugofs.Source().OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
+	f, err = cfg.Fs.Source.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return newSystemErrorF("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
 	}

@@ -23,8 +23,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/spf13/hugo/hugofs"
-
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"golang.org/x/text/transform"
@@ -196,29 +194,29 @@ func GetRelativeThemeDir() string {
 
 // GetThemeStaticDirPath returns the theme's static dir path if theme is set.
 // If theme is set and the static dir doesn't exist, an error is returned.
-func GetThemeStaticDirPath() (string, error) {
-	return getThemeDirPath("static")
+func (p *PathSpec) GetThemeStaticDirPath() (string, error) {
+	return p.getThemeDirPath("static")
 }
 
 // GetThemeDataDirPath returns the theme's data dir path if theme is set.
 // If theme is set and the data dir doesn't exist, an error is returned.
-func GetThemeDataDirPath() (string, error) {
-	return getThemeDirPath("data")
+func (p *PathSpec) GetThemeDataDirPath() (string, error) {
+	return p.getThemeDirPath("data")
 }
 
 // GetThemeI18nDirPath returns the theme's i18n dir path if theme is set.
 // If theme is set and the i18n dir doesn't exist, an error is returned.
-func GetThemeI18nDirPath() (string, error) {
-	return getThemeDirPath("i18n")
+func (p *PathSpec) GetThemeI18nDirPath() (string, error) {
+	return p.getThemeDirPath("i18n")
 }
 
-func getThemeDirPath(path string) (string, error) {
+func (p *PathSpec) getThemeDirPath(path string) (string, error) {
 	if !ThemeSet() {
 		return "", ErrThemeUndefined
 	}
 
 	themeDir := filepath.Join(GetThemeDir(), path)
-	if _, err := hugofs.Source().Stat(themeDir); os.IsNotExist(err) {
+	if _, err := p.fs.Source.Stat(themeDir); os.IsNotExist(err) {
 		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
 	}
 
@@ -228,17 +226,17 @@ func getThemeDirPath(path string) (string, error) {
 // GetThemesDirPath gets the static files directory of the current theme, if there is one.
 // Ignores underlying errors.
 // TODO(bep) Candidate for deprecation?
-func GetThemesDirPath() string {
-	dir, _ := getThemeDirPath("static")
+func (p *PathSpec) GetThemesDirPath() string {
+	dir, _ := p.getThemeDirPath("static")
 	return dir
 }
 
 // MakeStaticPathRelative makes a relative path to the static files directory.
 // It does so by taking either the project's static path or the theme's static
 // path into consideration.
-func MakeStaticPathRelative(inPath string) (string, error) {
+func (p *PathSpec) MakeStaticPathRelative(inPath string) (string, error) {
 	staticDir := GetStaticDirPath()
-	themeStaticDir := GetThemesDirPath()
+	themeStaticDir := p.GetThemesDirPath()
 
 	return makePathRelative(inPath, staticDir, themeStaticDir)
 }

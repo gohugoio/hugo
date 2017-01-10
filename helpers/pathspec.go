@@ -13,6 +13,12 @@
 
 package helpers
 
+import (
+	"fmt"
+
+	"github.com/spf13/hugo/hugofs"
+)
+
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
 type PathSpec struct {
 	disablePathToLower bool
@@ -33,11 +39,27 @@ type PathSpec struct {
 	defaultContentLanguageInSubdir bool
 	defaultContentLanguage         string
 	multilingual                   bool
+
+	// The file systems to use
+	fs *hugofs.Fs
 }
 
-// NewPathSpecFromConfig creats a new PathSpec from the given ConfigProvider.
-func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
+func (p PathSpec) String() string {
+	return fmt.Sprintf("PathSpec, language %q, prefix %q, multilingual: %T", p.currentContentLanguage.Lang, p.getLanguagePrefix(), p.multilingual)
+}
+
+// NewPathSpec creats a new PathSpec from the given filesystems and ConfigProvider.
+func NewPathSpec(fs *hugofs.Fs, config ConfigProvider) *PathSpec {
+
+	currCl, ok := config.Get("currentContentLanguage").(*Language)
+
+	if !ok {
+		// TODO(bep) globals
+		currCl = NewLanguage("en")
+	}
+
 	return &PathSpec{
+		fs:                             fs,
 		disablePathToLower:             config.GetBool("disablePathToLower"),
 		removePathAccents:              config.GetBool("removePathAccents"),
 		uglyURLs:                       config.GetBool("uglyURLs"),
@@ -45,7 +67,7 @@ func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
 		multilingual:                   config.GetBool("multilingual"),
 		defaultContentLanguageInSubdir: config.GetBool("defaultContentLanguageInSubdir"),
 		defaultContentLanguage:         config.GetString("defaultContentLanguage"),
-		currentContentLanguage:         config.Get("currentContentLanguage").(*Language),
+		currentContentLanguage:         currCl,
 		paginatePath:                   config.GetString("paginatePath"),
 	}
 }
