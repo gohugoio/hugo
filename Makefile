@@ -32,11 +32,22 @@ docker: ## Build hugo Docker container
 	docker cp hugo-build:/go/bin/hugo .
 	docker rm hugo-build
 
-build: hugo # Deprecated: use "hugo" target
+govendor: vendor # Deprecated: use "vendor" target
+get: vendor # Deprecated: use "vendor"
+gitinfo: hugo # Deprecated: use "hugo" target
 install-gitinfo: install # Deprecated: use "install" target
 no-git-info: hugo-no-gitinfo # Deprecated: use "hugo-no-gitinfo" target
 
-check: fmt test test-race test386 vet ## Run default tests and linters
+check: test-race test386 fmt vet ## Run tests and linters
+
+test386: ## Run tests in 32-bit mode
+	GOARCH=386 govendor test +local
+
+test: ## Run tests
+	govendor test +local
+
+test-race: ## Run tests with race detector
+	govendor test -race +local
 
 fmt: ## Run gofmt linter
 	@for d in `govendor list -no-status +local | sed 's/github.com.spf13.hugo/./'` ; do \
@@ -51,15 +62,6 @@ lint: ## Run golint linter
 			echo "^ golint errors!" && echo && exit 1; \
 		fi \
 	done
-
-test: ## Run tests
-	govendor test +local
-
-test386: ## Run tests in 32-bit mode
-	GOARCH=386 govendor test +local
-
-test-race: ## Run tests with race detector
-	govendor test -race +local
 
 vet: ## Run go vet linter
 	@if [ "`govendor vet +local | tee /dev/stderr`" ]; then \
