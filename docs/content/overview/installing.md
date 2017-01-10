@@ -56,6 +56,11 @@ you need to install the Python-based Pygments program. The procedure is outlined
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve
 placed in your `PATH`.
 
+## Installing from snap
+
+In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/core/install):
+
+    $ snap install hugo
 
 ## Installing from source
 

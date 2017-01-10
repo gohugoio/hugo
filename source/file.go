@@ -32,13 +32,13 @@ type File struct {
 	section     string // The first directory
 	dir         string // The relative directory Path (minus file name)
 	ext         string // Just the ext (eg txt)
-	uniqueID    string // MD5 of the filename
+	uniqueID    string // MD5 of the file's path
 
 	translationBaseName string // `post` for `post.es.md` (if `Multilingual` is enabled.)
 	lang                string // The language code if `Multilingual` is enabled
 }
 
-// UniqueID is the MD5 hash of the filename and is for most practical applications,
+// UniqueID is the MD5 hash of the file's path and is for most practical applications,
 // Hugo content files being one of them, considered to be unique.
 func (f *File) UniqueID() string {
 	return f.uniqueID
@@ -137,7 +137,7 @@ func NewFile(relpath string) *File {
 	}
 
 	f.section = helpers.GuessSection(f.Dir())
-	f.uniqueID = helpers.Md5String(f.LogicalName())
+	f.uniqueID = helpers.Md5String(f.Path())
 
 	return f
 }

@@ -14,6 +14,7 @@
 package source
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -26,6 +27,11 @@ func TestFileUniqueID(t *testing.T) {
 
 	assert.Equal(t, "123", f1.UniqueID())
 	assert.Equal(t, "0cc175b9c0f1b6a831c399e269772661", f2.UniqueID())
+
+	f3 := NewFile(filepath.FromSlash("test1/index.md"))
+	f4 := NewFile(filepath.FromSlash("test2/index.md"))
+
+	assert.NotEqual(t, f3.UniqueID(), f4.UniqueID())
 }
 
 func TestFileString(t *testing.T) {

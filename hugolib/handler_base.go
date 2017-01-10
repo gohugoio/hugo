@@ -15,12 +15,11 @@ package hugolib
 
 import (
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
 )
 
 type Handler interface {
 	FileConvert(*source.File, *Site) HandledResult
-	PageConvert(*Page, tpl.Template) HandledResult
+	PageConvert(*Page) HandledResult
 	Read(*source.File, *Site) HandledResult
 	Extensions() []string
 }

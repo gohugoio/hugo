@@ -14,8 +14,10 @@
 package hugolib
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
+	"os"
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -463,6 +465,8 @@ activity = "exam"
 Hi.
 `
 
+var pageTestSite = NewSiteDefaultLang()
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
@@ -474,7 +478,7 @@ func checkError(t *testing.T, err error, expected string) {
 
 func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
 
-	_, err := NewPage("")
+	_, err := pageTestSite.NewPage("")
 	if err == nil {
 		t.Fatalf("A zero length page name must return an error")
 	}
@@ -483,7 +487,7 @@ func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
 }
 
 func TestDegenerateEmptyPage(t *testing.T) {
-	_, err := NewPageFrom(strings.NewReader(emptyPage), "test")
+	_, err := pageTestSite.NewPageFrom(strings.NewReader(emptyPage), "test")
 	if err != nil {
 		t.Fatalf("Empty files should not trigger an error. Should be able to touch a file while watching without erroring out.")
 	}
@@ -624,7 +628,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			writeSource(t, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
 		}
 
-		s := newSiteDefaultLang()
+		s := NewSiteDefaultLang()
 
 		if err := buildSiteSkipRender(s); err != nil {
 			t.Fatalf("Failed to build site: %s", err)
@@ -956,7 +960,7 @@ func TestCreatePage(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		p, _ := NewPage("page")
+		p, _ := pageTestSite.NewPage("page")
 		if _, err := p.ReadFrom(strings.NewReader(test.r)); err != nil {
 			t.Errorf("Unable to parse page: %s", err)
 		}
@@ -972,7 +976,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 	}
 	for _, test := range tests {
 
-		p, _ := NewPage("invalid/front/matter/short/delim")
+		p, _ := pageTestSite.NewPage("invalid/front/matter/short/delim")
 		_, err := p.ReadFrom(strings.NewReader(test.r))
 		checkError(t, err, test.err)
 	}
@@ -995,7 +999,7 @@ func TestShouldRenderContent(t *testing.T) {
 
 	for _, test := range tests {
 
-		p, _ := NewPage("render/front/matter")
+		p, _ := pageTestSite.NewPage("render/front/matter")
 		_, err := p.ReadFrom(strings.NewReader(test.text))
 		p = pageMust(p, err)
 		if p.IsRenderable() != test.render {
@@ -1006,13 +1010,13 @@ func TestShouldRenderContent(t *testing.T) {
 
 // Issue #768
 func TestCalendarParamsVariants(t *testing.T) {
-	pageJSON, _ := NewPage("test/fileJSON.md")
+	pageJSON, _ := pageTestSite.NewPage("test/fileJSON.md")
 	_, _ = pageJSON.ReadFrom(strings.NewReader(pageWithCalendarJSONFrontmatter))
 
-	pageYAML, _ := NewPage("test/fileYAML.md")
+	pageYAML, _ := pageTestSite.NewPage("test/fileYAML.md")
 	_, _ = pageYAML.ReadFrom(strings.NewReader(pageWithCalendarYAMLFrontmatter))
 
-	pageTOML, _ := NewPage("test/fileTOML.md")
+	pageTOML, _ := pageTestSite.NewPage("test/fileTOML.md")
 	_, _ = pageTOML.ReadFrom(strings.NewReader(pageWithCalendarTOMLFrontmatter))
 
 	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
@@ -1021,7 +1025,7 @@ func TestCalendarParamsVariants(t *testing.T) {
 }
 
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
-	page, _ := NewPage("test/file1.md")
+	page, _ := pageTestSite.NewPage("test/file1.md")
 	_, _ = page.ReadFrom(strings.NewReader(pageWithVariousFrontmatterTypes))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
@@ -1050,7 +1054,7 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 }
 
 func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
-	p, _ := NewPage("invalid/front/matter/leading/ws")
+	p, _ := pageTestSite.NewPage("invalid/front/matter/leading/ws")
 	_, err := p.ReadFrom(strings.NewReader(invalidFrontmatterLadingWs))
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
@@ -1058,7 +1062,7 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 }
 
 func TestSectionEvaluation(t *testing.T) {
-	page, _ := NewPage(filepath.FromSlash("blue/file1.md"))
+	page, _ := pageTestSite.NewPage(filepath.FromSlash("blue/file1.md"))
 	page.ReadFrom(strings.NewReader(simplePage))
 	if page.Section() != "blue" {
 		t.Errorf("Section should be %s, got: %s", "blue", page.Section())
@@ -1103,7 +1107,7 @@ func TestLayoutOverride(t *testing.T) {
 		{simplePageTypeLayout, pathNoDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
 	}
 	for _, test := range tests {
-		p, _ := NewPage(test.path)
+		p, _ := pageTestSite.NewPage(test.path)
 		_, err := p.ReadFrom(strings.NewReader(test.content))
 		if err != nil {
 			t.Fatalf("Unable to parse content:\n%s\n", test.content)
@@ -1163,7 +1167,7 @@ func TestPagePaths(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		p, _ := NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
+		p, _ := pageTestSite.NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
 		info := newSiteInfo(siteBuilderCfg{language: helpers.NewDefaultLanguage()})
 		p.Site = &info
 
@@ -1193,7 +1197,7 @@ some content
 `
 
 func TestDraftAndPublishedFrontMatterError(t *testing.T) {
-	_, err := NewPageFrom(strings.NewReader(pageWithDraftAndPublished), "content/post/broken.md")
+	_, err := pageTestSite.NewPageFrom(strings.NewReader(pageWithDraftAndPublished), "content/post/broken.md")
 	if err != ErrHasDraftAndPublished {
 		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
 	}
@@ -1213,14 +1217,14 @@ some content
 `
 
 func TestPublishedFrontMatter(t *testing.T) {
-	p, err := NewPageFrom(strings.NewReader(pagesWithPublishedFalse), "content/post/broken.md")
+	p, err := pageTestSite.NewPageFrom(strings.NewReader(pagesWithPublishedFalse), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
 	if !p.Draft {
 		t.Errorf("expected true, got %t", p.Draft)
 	}
-	p, err = NewPageFrom(strings.NewReader(pageWithPublishedTrue), "content/post/broken.md")
+	p, err = pageTestSite.NewPageFrom(strings.NewReader(pageWithPublishedTrue), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
@@ -1248,7 +1252,7 @@ func TestDraft(t *testing.T) {
 	for _, draft := range []bool{true, false} {
 		for i, templ := range pagesDraftTemplate {
 			pageContent := fmt.Sprintf(templ, draft)
-			p, err := NewPageFrom(strings.NewReader(pageContent), "content/post/broken.md")
+			p, err := pageTestSite.NewPageFrom(strings.NewReader(pageContent), "content/post/broken.md")
 			if err != nil {
 				t.Fatalf("err during parse: %s", err)
 			}
@@ -1256,6 +1260,61 @@ func TestDraft(t *testing.T) {
 				t.Errorf("[%d] expected %t, got %t", i, draft, p.Draft)
 			}
 		}
+	}
+}
+
+var pagesParamsTemplate = []string{`+++
+title = "okay"
+draft = false
+tags = [ "hugo", "web" ]
+social= [
+  [ "a", "#" ],
+  [ "b", "#" ],
+]
++++
+some content
+`,
+	`---
+title: "okay"
+draft: false
+tags:
+  - hugo
+  - web
+social:
+  - - a
+    - "#"
+  - - b
+    - "#"
+---
+some content
+`,
+	`{
+	"title": "okay",
+	"draft": false,
+	"tags": [ "hugo", "web" ],
+	"social": [
+		[ "a", "#" ],
+		[ "b", "#" ]
+	]
+}
+some content
+`,
+}
+
+func TestPageParams(t *testing.T) {
+	want := map[string]interface{}{
+		"tags": []string{"hugo", "web"},
+		// Issue #2752
+		"social": []interface{}{
+			[]interface{}{"a", "#"},
+			[]interface{}{"b", "#"},
+		},
+	}
+
+	for i, c := range pagesParamsTemplate {
+		p, err := pageTestSite.NewPageFrom(strings.NewReader(c), "content/post/params.md")
+		require.NoError(t, err, "err during parse", "#%d", i)
+		assert.Equal(t, want, p.Params, "#%d", i)
 	}
 }
 
@@ -1269,7 +1328,7 @@ func TestPageSimpleMethods(t *testing.T) {
 		{func(p *Page) bool { return strings.Join(p.PlainWords(), " ") == "Do Be Do Be Do" }},
 	} {
 
-		p, _ := NewPage("Test")
+		p, _ := pageTestSite.NewPage("Test")
 		p.Content = "<h1>Do Be Do Be Do</h1>"
 		if !this.assertFunc(p) {
 			t.Errorf("[%d] Page method error", i)
@@ -1394,5 +1453,16 @@ func TestShouldBuild(t *testing.T) {
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)
 		}
+	}
+}
+
+func BenchmarkParsePage(b *testing.B) {
+	f, _ := os.Open("testdata/redis.cn.md")
+	var buf bytes.Buffer
+	buf.ReadFrom(f)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		page, _ := pageTestSite.NewPage("bench")
+		page.ReadFrom(bytes.NewReader(buf.Bytes()))
 	}
 }

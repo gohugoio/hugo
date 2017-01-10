@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 	"strings"
 	"sync"
 
@@ -31,43 +34,96 @@ import (
 type HugoSites struct {
 	Sites []*Site
 
-	tmpl    tpl.Template
 	runMode runmode
 
 	multilingual *Multilingual
+
+	*deps
+}
+
+// deps holds dependencies used by many.
+// TODO(bep) globals a better name.
+// There will be normally be only one instance of deps in play
+// at a given time.
+type deps struct {
+	// The logger to use.
+	log *jww.Notepad
+
+	tmpl *tpl.GoHTMLTemplate
+
+	// TODO(bep) next in line: Viper, hugofs
+}
+
+func (d *deps) refreshTemplates(withTemplate ...func(templ tpl.Template) error) {
+	d.tmpl = tpl.New(d.log, withTemplate...)
+	d.tmpl.PrintErrors() // TODO(bep) globals error handling
+}
+
+func newDeps(cfg DepsCfg) *deps {
+	logger := cfg.Logger
+
+	if logger == nil {
+		// TODO(bep) globals default log level
+		//logger = jww.NewNotepad(jww.LevelError, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+	}
+
+	return &deps{
+		log:  logger,
+		tmpl: tpl.New(logger, cfg.WithTemplate...),
+	}
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
-func newHugoSites(sites ...*Site) (*HugoSites, error) {
+func newHugoSites(cfg DepsCfg, sites ...*Site) (*HugoSites, error) {
 	langConfig, err := newMultiLingualFromSites(sites...)
 
 	if err != nil {
 		return nil, err
 	}
 
-	h := &HugoSites{multilingual: langConfig, Sites: sites}
+	var d *deps
+
+	if sites[0].deps != nil {
+		d = sites[0].deps
+	} else {
+		d = newDeps(cfg)
+	}
+
+	h := &HugoSites{
+		deps:         d,
+		multilingual: langConfig,
+		Sites:        sites}
 
 	for _, s := range sites {
 		s.owner = h
+		s.deps = h.deps
 	}
 	return h, nil
 }
 
 // NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
-func NewHugoSitesFromConfiguration() (*HugoSites, error) {
-	sites, err := createSitesFromConfig()
+// TODO(bep) globals rename this when all the globals are gone.
+func NewHugoSitesFromConfiguration(cfg DepsCfg) (*HugoSites, error) {
+	sites, err := createSitesFromConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
-	return newHugoSites(sites...)
+	return newHugoSites(cfg, sites...)
 }
 
-func createSitesFromConfig() ([]*Site, error) {
+func createSitesFromConfig(cfg DepsCfg) ([]*Site, error) {
+	deps := newDeps(cfg)
+	return createSitesFromDeps(deps)
+}
+
+func createSitesFromDeps(deps *deps) ([]*Site, error) {
 	var sites []*Site
 	multilingual := viper.GetStringMap("languages")
+
 	if len(multilingual) == 0 {
-		sites = append(sites, newSite(helpers.NewDefaultLanguage()))
+		sites = append(sites, newSite(helpers.NewDefaultLanguage(), deps))
 	}
 
 	if len(multilingual) > 0 {
@@ -80,7 +136,7 @@ func createSitesFromConfig() ([]*Site, error) {
 		}
 
 		for _, lang := range languages {
-			sites = append(sites, newSite(lang))
+			sites = append(sites, newSite(lang, deps))
 		}
 
 	}
@@ -99,7 +155,7 @@ func (h *HugoSites) reset() {
 
 func (h *HugoSites) createSitesFromConfig() error {
 
-	sites, err := createSitesFromConfig()
+	sites, err := createSitesFromDeps(h.deps)
 
 	if err != nil {
 		return err
@@ -148,6 +204,17 @@ type BuildCfg struct {
 	withTemplate func(templ tpl.Template) error
 	// Use this to indicate what changed (for rebuilds).
 	whatChanged *whatChanged
+}
+
+// DepsCfg contains configuration options that can be used to configure Hugo
+// on a global level, i.e. logging etc.
+// Nil values will be given default values.
+type DepsCfg struct {
+
+	// The Logger to use.
+	Logger *jww.Notepad
+
+	WithTemplate []func(templ tpl.Template) error
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
@@ -446,7 +513,7 @@ func handleShortcodes(p *Page, t tpl.Template, rawContentCopy []byte) ([]byte, e
 		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
-			jww.FATAL.Printf("Failed to replace short code tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			jww.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	}
 
@@ -498,7 +565,7 @@ func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
 	if s.PageCollections == nil {
 		s.PageCollections = newPageCollections()
 	}
-	sites, err := newHugoSites(s)
+	sites, err := newHugoSites(DepsCfg{}, s)
 	if err != nil {
 		return err
 	}
@@ -522,12 +589,15 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages hel
 	if len(languages) == 0 {
 		panic("Must provide at least one language")
 	}
+
+	cfg := DepsCfg{}
+
 	first := &Site{
 		Source:   &source.InMemorySource{ByteSource: input},
 		Language: languages[0],
 	}
 	if len(languages) == 1 {
-		return newHugoSites(first)
+		return newHugoSites(cfg, first)
 	}
 
 	sites := make([]*Site, len(languages))
@@ -536,7 +606,7 @@ func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages hel
 		sites[i] = &Site{Language: languages[i]}
 	}
 
-	return newHugoSites(sites...)
+	return newHugoSites(cfg, sites...)
 
 }
 

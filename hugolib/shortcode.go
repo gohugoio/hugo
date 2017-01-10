@@ -27,7 +27,6 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // ShortcodeWithPage is the "." context in a shortcode template.
@@ -152,8 +151,8 @@ func (sc shortcode) String() string {
 
 // HandleShortcodes does all in  one go: extract, render and replace
 // only used for testing
-func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string, error) {
-	tmpContent, tmpShortcodes, err := extractAndRenderShortcodes(stringToParse, page, t)
+func HandleShortcodes(stringToParse string, page *Page) (string, error) {
+	tmpContent, tmpShortcodes, err := extractAndRenderShortcodes(stringToParse, page)
 
 	if err != nil {
 		return "", err
@@ -167,7 +166,7 @@ func HandleShortcodes(stringToParse string, page *Page, t tpl.Template) (string,
 		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, shortcodes)
 
 		if err != nil {
-			return "", fmt.Errorf("Fail to replace short code tokens in %s:\n%s", page.BaseFileName(), err.Error())
+			return "", fmt.Errorf("Failed to replace shortcode tokens in %s:\n%s", page.BaseFileName(), err.Error())
 		}
 		return string(tmpContentWithTokensReplaced), nil
 	}
@@ -211,11 +210,11 @@ const innerNewlineRegexp = "\n"
 const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
 
-func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Template) string {
-	tmpl := getShortcodeTemplate(sc.name, t)
+func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
+	tmpl := getShortcodeTemplate(sc.name, p.s.tmpl)
 
 	if tmpl == nil {
-		jww.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
+		p.s.log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
 		return ""
 	}
 
@@ -231,9 +230,9 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 			case string:
 				inner += innerData.(string)
 			case shortcode:
-				inner += renderShortcode(innerData.(shortcode), data, p, t)
+				inner += renderShortcode(innerData.(shortcode), data, p)
 			default:
-				jww.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
+				p.s.log.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
 					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
 				return ""
 			}
@@ -281,20 +280,20 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page, t tpl.Tem
 	return renderShortcodeWithPage(tmpl, data)
 }
 
-func extractAndRenderShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]func() (string, error), error) {
+func extractAndRenderShortcodes(stringToParse string, p *Page) (string, map[string]func() (string, error), error) {
 
-	content, shortcodes, err := extractShortcodes(stringToParse, p, t)
+	content, shortcodes, err := extractShortcodes(stringToParse, p)
 
 	if err != nil {
 		//  try to render what we have whilst logging the error
-		jww.ERROR.Println(err.Error())
+		p.s.log.ERROR.Println(err.Error())
 	}
 
 	// Save for reuse
 	// TODO(bep) refactor this
 	p.shortcodes = shortcodes
 
-	renderedShortcodes := renderShortcodes(shortcodes, p, t)
+	renderedShortcodes := renderShortcodes(shortcodes, p)
 
 	return content, renderedShortcodes, err
 
@@ -316,7 +315,7 @@ func executeShortcodeFuncMap(funcs map[string]func() (string, error)) (map[strin
 	return result, nil
 }
 
-func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) map[string]func() (string, error) {
+func renderShortcodes(shortcodes map[string]shortcode, p *Page) map[string]func() (string, error) {
 	renderedShortcodes := make(map[string]func() (string, error))
 
 	for key, sc := range shortcodes {
@@ -325,7 +324,7 @@ func renderShortcodes(shortcodes map[string]shortcode, p *Page, t tpl.Template) 
 			renderedShortcodes[key] = emptyShortcodeFn
 		} else {
 			shorctode := sc
-			renderedShortcodes[key] = func() (string, error) { return renderShortcode(shorctode, nil, p, t), nil }
+			renderedShortcodes[key] = func() (string, error) { return renderShortcode(shorctode, nil, p), nil }
 		}
 	}
 
@@ -337,7 +336,7 @@ var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func extractShortcode(pt *pageTokens, p *Page, t tpl.Template) (shortcode, error) {
+func extractShortcode(pt *pageTokens, p *Page) (shortcode, error) {
 	sc := shortcode{}
 	var isInner = false
 
@@ -358,7 +357,7 @@ Loop:
 			if cnt > 0 {
 				// nested shortcode; append it to inner content
 				pt.backup3(currItem, next)
-				nested, err := extractShortcode(pt, p, t)
+				nested, err := extractShortcode(pt, p)
 				if err == nil {
 					sc.inner = append(sc.inner, nested)
 				} else {
@@ -399,7 +398,7 @@ Loop:
 			sc.inner = append(sc.inner, currItem.val)
 		case tScName:
 			sc.name = currItem.val
-			tmpl := getShortcodeTemplate(sc.name, t)
+			tmpl := getShortcodeTemplate(sc.name, p.s.tmpl)
 
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
@@ -455,7 +454,7 @@ Loop:
 	return sc, nil
 }
 
-func extractShortcodes(stringToParse string, p *Page, t tpl.Template) (string, map[string]shortcode, error) {
+func extractShortcodes(stringToParse string, p *Page) (string, map[string]shortcode, error) {
 
 	shortCodes := make(map[string]shortcode)
 
@@ -493,7 +492,7 @@ Loop:
 		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
 			// let extractShortcode handle left delim (will do so recursively)
 			pt.backup()
-			if currShortcode, err = extractShortcode(pt, p, t); err != nil {
+			if currShortcode, err = extractShortcode(pt, p); err != nil {
 				return result.String(), shortCodes, err
 			}
 
@@ -585,8 +584,9 @@ func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) s
 	err := tmpl.Execute(buffer, data)
 	isInnerShortcodeCache.RUnlock()
 	if err != nil {
-		jww.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
-		jww.WARN.Println(data)
+		// TODO(bep) globals
+		data.Page.s.log.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
+		data.Page.s.log.WARN.Println(data)
 	}
 	return buffer.String()
 }

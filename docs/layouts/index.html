@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hugo, a fast and flexible static site generator built with love by spf13 and friends in Go">
-    <meta name="author" content="Steve Francia (spf13) and friends">
+    <meta name="description" content="Hugo, a fast and flexible static site generator built with love by spf13, bep, and friends in Go">
+    <meta name="author" content="Steve Francia (spf13), Bjørn Erik Pedersen (bep), and friends">
     <title>Hugo :: A fast and modern static website engine</title>
 
     {{ "<!--icon for browser shortcuts-->" | safeHTML }}
@@ -175,7 +175,7 @@
 
                   {{ "<!--wrapper for slides start-->" | safeHTML }}
                   <div class="carousel-inner owl-carousel">
-{{ partial "quotes.html" ((where $.Site.Data.references.quotes "date" "ge" ($.Now.AddDate -2 0 0) | shuffle )) }}
+{{ partial "quotes.html" ((where $.Site.Data.references.quotes "date" "ge" (now.AddDate -2 0 0) | shuffle )) }}
                   </div>
                   {{ "<!--wrapper for slides end-->" | safeHTML }}
 
@@ -275,7 +275,7 @@
                     <li><a class="icon-octocat icon-2x" href="https://github.com/spf13/hugo"></a></li>
                 </ul>
                 <hr>
-                <p>Copyright &copy; Steve Francia 2013&ndash;{{ .Now.Format "2006" }}</p>
+                <p>Copyright &copy; Steve Francia 2013&ndash;{{ now.Format "2006" }}</p>
               </div>
             </div>
             {{ "<!--row end-->" | safeHTML }}

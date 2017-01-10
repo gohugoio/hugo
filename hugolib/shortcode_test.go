@@ -32,8 +32,13 @@ import (
 )
 
 // TODO(bep) remove
-func pageFromString(in, filename string) (*Page, error) {
-	return NewPageFrom(strings.NewReader(in), filename)
+func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template) error) (*Page, error) {
+	s := pageTestSite
+	if len(withTemplate) > 0 {
+		// Have to create a new site
+		s = NewSiteDefaultLang(withTemplate...)
+	}
+	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {
@@ -83,10 +88,10 @@ title: "Title"
 }
 
 func TestShortcodeGoFuzzReports(t *testing.T) {
-	tem := tpl.New()
 
-	tem.AddInternalShortcode("sc.html", `foo`)
-	p, _ := pageFromString(simplePage, "simple.md")
+	p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
+		return templ.AddInternalShortcode("sc.html", `foo`)
+	})
 
 	for i, this := range []struct {
 		data      string
@@ -94,7 +99,7 @@ func TestShortcodeGoFuzzReports(t *testing.T) {
 	}{
 		{"{{</*/", true},
 	} {
-		output, err := HandleShortcodes(this.data, p, tem)
+		output, err := HandleShortcodes(this.data, p)
 
 		if this.expectErr && err == nil {
 			t.Errorf("[%d] should have errored", i)
@@ -304,15 +309,13 @@ func TestHighlight(t *testing.T) {
 	viper.Set("pygmentsStyle", "bw")
 	viper.Set("pygmentsUseClasses", false)
 
-	templ := tpl.New()
-
 	code := `
 {{< highlight java >}}
 void do();
 {{< /highlight >}}`
 
 	p, _ := pageFromString(simplePage, "simple.md")
-	output, err := HandleShortcodes(code, p, templ)
+	output, err := HandleShortcodes(code, p)
 
 	if err != nil {
 		t.Fatal("Handle shortcode error", err)
@@ -324,7 +327,7 @@ void do();
 	}
 
 	if !matched {
-		t.Error("Hightlight mismatch, got\n", output)
+		t.Errorf("Hightlight mismatch, got (escaped to see invisible chars)\n%+q", output)
 	}
 }
 
@@ -379,16 +382,17 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(simplePage, "simple.md")
-		tem := tpl.New()
-		tem.AddInternalShortcode("tag.html", `tag`)
-		tem.AddInternalShortcode("sc1.html", `sc1`)
-		tem.AddInternalShortcode("sc2.html", `sc2`)
-		tem.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
-		tem.AddInternalShortcode("inner2.html", `{{.Inner}}`)
-		tem.AddInternalShortcode("inner3.html", `{{.Inner}}`)
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
+			templ.AddInternalShortcode("tag.html", `tag`)
+			templ.AddInternalShortcode("sc1.html", `sc1`)
+			templ.AddInternalShortcode("sc2.html", `sc2`)
+			templ.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
+			templ.AddInternalShortcode("inner2.html", `{{.Inner}}`)
+			templ.AddInternalShortcode("inner3.html", `{{.Inner}}`)
+			return nil
+		})
 
-		content, shortCodes, err := extractShortcodes(this.input, p, tem)
+		content, shortCodes, err := extractShortcodes(this.input, p)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -441,7 +445,7 @@ func TestExtractShortcodes(t *testing.T) {
 		if this.expectShortCodes != "" {
 			shortCodesAsStr := fmt.Sprintf("map%q", collectAndSortShortcodes(shortCodes))
 			if !strings.Contains(shortCodesAsStr, this.expectShortCodes) {
-				t.Fatalf("[%d] %s: Short codes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
+				t.Fatalf("[%d] %s: Shortcodes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
 			}
 		}
 	}
@@ -578,7 +582,7 @@ tags:
 
 	}
 
-	sites, err := newHugoSites(s)
+	sites, err := newHugoSites(DepsCfg{}, s)
 
 	if err != nil {
 		t.Fatalf("Failed to build site: %s", err)

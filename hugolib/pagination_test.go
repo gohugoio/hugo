@@ -200,7 +200,6 @@ func TestPaginationURLFactory(t *testing.T) {
 	unicode := newPaginationURLFactory("новости проекта")
 	fooBar := newPaginationURLFactory("foo", "bar")
 
-	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/", unicode(1))
 	assert.Equal(t, "/foo/bar/", fooBar(1))
 	assert.Equal(t, "/%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0/zoo/4/", unicode(4))
 	assert.Equal(t, "/foo/bar/zoo/12345/", fooBar(12345))
@@ -225,7 +224,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 		viper.Set("paginate", -1)
 	}
 	pages := createTestPages(12)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 	n1.Data["Pages"] = pages
@@ -253,7 +252,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 	samePaginator, _ := n1.Paginator()
 	assert.Equal(t, paginator1, samePaginator)
 
-	p, _ := NewPage("test")
+	p, _ := pageTestSite.NewPage("test")
 	_, err = p.Paginator()
 	assert.NotNil(t, err)
 }
@@ -262,7 +261,7 @@ func TestPaginatorWithNegativePaginate(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", -1)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	_, err := s.newHomePage().Paginator()
 	assert.NotNil(t, err)
 }
@@ -275,6 +274,41 @@ func TestPaginate(t *testing.T) {
 	}
 }
 
+func TestPaginatorURL(t *testing.T) {
+
+	testCommonResetState()
+	viper.Set("paginate", 2)
+	viper.Set("paginatePath", "testing")
+
+	for i := 0; i < 10; i++ {
+		// Issue #2177, do not double encode URLs
+		writeSource(t, filepath.Join("content", "阅读", fmt.Sprintf("page%d.md", (i+1))),
+			fmt.Sprintf(`---
+title: Page%d
+---
+Conten%d
+`, (i+1), i+1))
+
+	}
+	writeSource(t, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
+	writeSource(t, filepath.Join("layouts", "_default", "list.html"),
+		`
+<html><body>
+Count: {{ .Paginator.TotalNumberOfElements }}
+Pages: {{ .Paginator.TotalPages }}
+{{ range .Paginator.Pagers -}}
+ {{ .PageNumber }}: {{ .URL }} 
+{{ end }}
+</body></html>`)
+
+	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
+		t.Fatalf("Failed to build site: %s", err)
+	}
+
+	assertFileContent(t, filepath.Join("public", "阅读", "testing", "2", "index.html"), false, "2: /%E9%98%85%E8%AF%BB/testing/2/")
+
+}
+
 func doTestPaginate(t *testing.T, useViper bool) {
 	pagerSize := 5
 	if useViper {
@@ -284,7 +318,7 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	}
 
 	pages := createTestPages(6)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 
@@ -311,13 +345,13 @@ func doTestPaginate(t *testing.T, useViper bool) {
 	assert.Nil(t, err)
 	assert.Equal(t, paginator2, paginator1.Next())
 
-	p, _ := NewPage("test")
+	p, _ := pageTestSite.NewPage("test")
 	_, err = p.Paginate(pages)
 	assert.NotNil(t, err)
 }
 
 func TestInvalidOptions(t *testing.T) {
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	_, err := n1.Paginate(createTestPages(1), 1, 2)
 	assert.NotNil(t, err)
@@ -331,7 +365,7 @@ func TestPaginateWithNegativePaginate(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", -1)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	_, err := s.newHomePage().Paginate(createTestPages(2))
 	assert.NotNil(t, err)
 }
@@ -353,7 +387,7 @@ func TestPaginatorFollowedByPaginateShouldFail(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", 10)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 
@@ -371,7 +405,7 @@ func TestPaginateFollowedByDifferentPaginateShouldFail(t *testing.T) {
 	testCommonResetState()
 
 	viper.Set("paginate", 10)
-	s := newSiteDefaultLang()
+	s := NewSiteDefaultLang()
 	n1 := s.newHomePage()
 	n2 := s.newHomePage()
 

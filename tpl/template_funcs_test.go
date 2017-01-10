@@ -33,12 +33,19 @@ import (
 
 	"github.com/spf13/hugo/helpers"
 
+	"io/ioutil"
+	"log"
+	"os"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
+
+var logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 
 type tstNoStringer struct {
 }
@@ -157,6 +164,8 @@ substr: {{substr "BatMan" 3 3}}
 title: {{title "Bat man"}}
 time: {{ (time "2015-01-21").Year }}
 trim: {{ trim "++Batman--" "+-" }}
+truncate: {{ "this is a very long text" | truncate 10 " ..." }}
+truncate: {{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}
 upper: {{upper "BatMan"}}
 urlize: {{ "Bat Man" | urlize }}
 `
@@ -228,12 +237,14 @@ substr: Man
 title: Bat Man
 time: 2015
 trim: Batman
+truncate: this is a ...
+truncate: With <a href="/markdown">Markdown …</a>
 upper: BATMAN
 urlize: bat-man
 `
 
 	var b bytes.Buffer
-	templ, err := New().New("test").Parse(in)
+	templ, err := New(logger).New("test").Parse(in)
 	var data struct {
 		Title   string
 		Section string
@@ -1949,40 +1960,43 @@ func TestMarkdownify(t *testing.T) {
 }
 
 func TestApply(t *testing.T) {
+
+	f := newTestFuncster()
+
 	strings := []interface{}{"a\n", "b\n"}
 	noStringers := []interface{}{tstNoStringer{}, tstNoStringer{}}
 
-	chomped, _ := apply(strings, "chomp", ".")
+	chomped, _ := f.apply(strings, "chomp", ".")
 	assert.Equal(t, []interface{}{template.HTML("a"), template.HTML("b")}, chomped)
 
-	chomped, _ = apply(strings, "chomp", "c\n")
+	chomped, _ = f.apply(strings, "chomp", "c\n")
 	assert.Equal(t, []interface{}{template.HTML("c"), template.HTML("c")}, chomped)
 
-	chomped, _ = apply(nil, "chomp", ".")
+	chomped, _ = f.apply(nil, "chomp", ".")
 	assert.Equal(t, []interface{}{}, chomped)
 
-	_, err := apply(strings, "apply", ".")
+	_, err := f.apply(strings, "apply", ".")
 	if err == nil {
 		t.Errorf("apply with apply should fail")
 	}
 
 	var nilErr *error
-	_, err = apply(nilErr, "chomp", ".")
+	_, err = f.apply(nilErr, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with nil in seq should fail")
 	}
 
-	_, err = apply(strings, "dobedobedo", ".")
+	_, err = f.apply(strings, "dobedobedo", ".")
 	if err == nil {
 		t.Errorf("apply with unknown func should fail")
 	}
 
-	_, err = apply(noStringers, "chomp", ".")
+	_, err = f.apply(noStringers, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply when func fails should fail")
 	}
 
-	_, err = apply(tstNoStringer{}, "chomp", ".")
+	_, err = f.apply(tstNoStringer{}, "chomp", ".")
 	if err == nil {
 		t.Errorf("apply with non-sequence should fail")
 	}
@@ -2272,7 +2286,8 @@ func TestDateFormat(t *testing.T) {
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
 		{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
 		{"This isn't a date layout string", "2015-01-21", "This isn't a date layout string"},
-		{"Monday, Jan 2, 2006", 1421733600, "Tuesday, Jan 20, 2015"},
+		// The following test case gives either "Tuesday, Jan 20, 2015" or "Monday, Jan 19, 2015" depending on the local time zone
+		{"Monday, Jan 2, 2006", 1421733600, time.Unix(1421733600, 0).Format("Monday, Jan 2, 2006")},
 		{"Monday, Jan 2, 2006", 1421733600.123, false},
 		{time.RFC3339, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "2016-03-03T04:05:00Z"},
 		{time.RFC1123, time.Date(2016, time.March, 3, 4, 5, 0, 0, time.UTC), "Thu, 03 Mar 2016 04:05:00 UTC"},
@@ -2366,7 +2381,7 @@ func TestDefault(t *testing.T) {
 		{map[string]string{"foo": "dog"}, `{{ default "nope" .foo "extra" }}`, ``, false},
 		{map[string]interface{}{"images": []string{}}, `{{ default "default.jpg" (index .images 0) }}`, `default.jpg`, true},
 	} {
-		tmpl, err := New().New("test").Parse(this.tpl)
+		tmpl, err := New(logger).New("test").Parse(this.tpl)
 		if err != nil {
 			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tpl, err)
 			continue
@@ -2768,7 +2783,6 @@ func TestPartialCached(t *testing.T) {
 	data.Params = map[string]interface{}{"langCode": "en"}
 
 	tstInitTemplates()
-	InitializeT()
 	for i, tc := range testCases {
 		var tmp string
 		if tc.variant != "" {
@@ -2777,7 +2791,7 @@ func TestPartialCached(t *testing.T) {
 			tmp = tc.tmpl
 		}
 
-		tmpl, err := New().New("testroot").Parse(tmp)
+		tmpl, err := New(logger).New("testroot").Parse(tmp)
 		if err != nil {
 			t.Fatalf("[%d] unable to create new html template: %s", i, err)
 		}
@@ -2819,8 +2833,7 @@ func TestPartialCached(t *testing.T) {
 }
 
 func BenchmarkPartial(b *testing.B) {
-	InitializeT()
-	tmpl, err := New().New("testroot").Parse(`{{ partial "bench1" . }}`)
+	tmpl, err := New(logger).New("testroot").Parse(`{{ partial "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
 	}
@@ -2839,8 +2852,7 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
-	InitializeT()
-	tmpl, err := New().New("testroot").Parse(`{{ partialCached "bench1" . }}`)
+	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
 	}
@@ -2859,8 +2871,7 @@ func BenchmarkPartialCached(b *testing.B) {
 }
 
 func BenchmarkPartialCachedVariants(b *testing.B) {
-	InitializeT()
-	tmpl, err := New().New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
+	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . "header" }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
 	}
@@ -2876,4 +2887,8 @@ func BenchmarkPartialCachedVariants(b *testing.B) {
 		}
 		buf.Reset()
 	}
+}
+
+func newTestFuncster() *templateFuncster {
+	return New(logger).funcster
 }

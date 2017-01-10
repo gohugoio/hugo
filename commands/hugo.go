@@ -17,6 +17,8 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -112,16 +114,17 @@ built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := InitializeConfig(); err != nil {
+		cfg, err := InitializeConfig()
+		if err != nil {
 			return err
 		}
 
 		if buildWatch {
 			viper.Set("disableLiveReload", true)
-			watchConfig()
+			watchConfig(cfg)
 		}
 
-		return build()
+		return build(cfg)
 	},
 }
 
@@ -265,9 +268,12 @@ func init() {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig(subCmdVs ...*cobra.Command) error {
+func InitializeConfig(subCmdVs ...*cobra.Command) (hugolib.DepsCfg, error) {
+
+	var cfg hugolib.DepsCfg
+
 	if err := hugolib.LoadGlobalConfig(source, cfgFile); err != nil {
-		return err
+		return cfg, err
 	}
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
@@ -332,26 +338,6 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 		viper.Set("cacheDir", helpers.GetTempDir("hugo_cache", hugofs.Source()))
 	}
 
-	if verboseLog || logging || (viper.IsSet("logFile") && viper.GetString("logFile") != "") {
-		if viper.IsSet("logFile") && viper.GetString("logFile") != "" {
-			jww.SetLogFile(viper.GetString("logFile"))
-		} else {
-			jww.UseTempLogFile("hugo")
-		}
-	} else {
-		jww.DiscardLogging()
-	}
-
-	if quiet {
-		jww.SetStdoutThreshold(jww.LevelError)
-	} else if viper.GetBool("verbose") {
-		jww.SetStdoutThreshold(jww.LevelInfo)
-	}
-
-	if verboseLog {
-		jww.SetLogThreshold(jww.LevelInfo)
-	}
-
 	jww.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
 	// Init file systems. This may be changed at a later point.
@@ -360,7 +346,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 	themeDir := helpers.GetThemeDir()
 	if themeDir != "" {
 		if _, err := hugofs.Source().Stat(themeDir); os.IsNotExist(err) {
-			return newSystemError("Unable to find theme Directory:", themeDir)
+			return cfg, newSystemError("Unable to find theme Directory:", themeDir)
 		}
 	}
 
@@ -371,8 +357,49 @@ func InitializeConfig(subCmdVs ...*cobra.Command) error {
 			helpers.HugoReleaseVersion(), minVersion)
 	}
 
-	return nil
+	logger, err := createLogger()
+	if err != nil {
+		return cfg, err
+	}
 
+	cfg.Logger = logger
+
+	return cfg, nil
+
+}
+
+func createLogger() (*jww.Notepad, error) {
+	var (
+		logHandle       = ioutil.Discard
+		outHandle       = os.Stdout
+		stdoutThreshold = jww.LevelError
+		logThreshold    = jww.LevelWarn
+	)
+
+	if verboseLog || logging || (viper.IsSet("logFile") && viper.GetString("logFile") != "") {
+
+		var err error
+		if viper.IsSet("logFile") && viper.GetString("logFile") != "" {
+			path := viper.GetString("logFile")
+			logHandle, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+			if err != nil {
+				return nil, newSystemError("Failed to open log file:", path, err)
+			}
+		} else {
+			logHandle, err = ioutil.TempFile(os.TempDir(), "hugo")
+			if err != nil {
+				return nil, newSystemError(err)
+			}
+		}
+	} else if !quiet && viper.GetBool("verbose") {
+		stdoutThreshold = jww.LevelInfo
+	}
+
+	if verboseLog {
+		logThreshold = jww.LevelInfo
+	}
+
+	return jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime), nil
 }
 
 func initializeFlags(cmd *cobra.Command) {
@@ -420,12 +447,12 @@ func flagChanged(flags *flag.FlagSet, key string) bool {
 	return flag.Changed
 }
 
-func watchConfig() {
+func watchConfig(cfg hugolib.DepsCfg) {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		jww.FEEDBACK.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		utils.CheckErr(reCreateAndbuildSites(true))
+		utils.CheckErr(recreateAndBuildSites(cfg, true))
 		if !viper.GetBool("disableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
@@ -433,10 +460,10 @@ func watchConfig() {
 	})
 }
 
-func build(watches ...bool) error {
-	// Hugo writes the output to memory instead of the disk
+func build(cfg hugolib.DepsCfg, watches ...bool) error {
+	// Hugo writes the output to memory instead of the disk.
 	// This is only used for benchmark testing. Cause the content is only visible
-	// in memory
+	// in memory.
 	if renderToMemory {
 		hugofs.SetDestination(new(afero.MemMapFs))
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
@@ -450,14 +477,14 @@ func build(watches ...bool) error {
 	if len(watches) > 0 && watches[0] {
 		watch = true
 	}
-	if err := buildSites(buildWatch || watch); err != nil {
+	if err := buildSites(cfg, buildWatch || watch); err != nil {
 		return fmt.Errorf("Error building site: %s", err)
 	}
 
 	if buildWatch {
 		jww.FEEDBACK.Println("Watching for changes in", helpers.AbsPathify(viper.GetString("contentDir")))
 		jww.FEEDBACK.Println("Press Ctrl+C to stop")
-		utils.CheckErr(NewWatcher(0))
+		utils.CheckErr(newWatcher(cfg, 0))
 	}
 
 	return nil
@@ -632,8 +659,8 @@ func getDirList() []string {
 	return a
 }
 
-func reCreateAndbuildSites(watching bool) (err error) {
-	if err := initSites(); err != nil {
+func recreateAndBuildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
+	if err := initSites(cfg); err != nil {
 		return err
 	}
 	if !quiet {
@@ -642,8 +669,8 @@ func reCreateAndbuildSites(watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: !quiet})
 }
 
-func resetAndbuildSites(watching bool) (err error) {
-	if err := initSites(); err != nil {
+func resetAndBuildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
+	if err := initSites(cfg); err != nil {
 		return err
 	}
 	if !quiet {
@@ -652,12 +679,12 @@ func resetAndbuildSites(watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: !quiet})
 }
 
-func initSites() error {
+func initSites(cfg hugolib.DepsCfg) error {
 	if Hugo != nil {
 		return nil
 	}
 
-	h, err := hugolib.NewHugoSitesFromConfiguration()
+	h, err := hugolib.NewHugoSitesFromConfiguration(cfg)
 
 	if err != nil {
 		return err
@@ -667,8 +694,8 @@ func initSites() error {
 	return nil
 }
 
-func buildSites(watching bool) (err error) {
-	if err := initSites(); err != nil {
+func buildSites(cfg hugolib.DepsCfg, watching bool) (err error) {
+	if err := initSites(cfg); err != nil {
 		return err
 	}
 	if !quiet {
@@ -677,15 +704,15 @@ func buildSites(watching bool) (err error) {
 	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: !quiet})
 }
 
-func rebuildSites(events []fsnotify.Event) error {
-	if err := initSites(); err != nil {
+func rebuildSites(cfg hugolib.DepsCfg, events []fsnotify.Event) error {
+	if err := initSites(cfg); err != nil {
 		return err
 	}
 	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
 }
 
-// NewWatcher creates a new watcher to watch filesystem events.
-func NewWatcher(port int) error {
+// newWatcher creates a new watcher to watch filesystem events.
+func newWatcher(cfg hugolib.DepsCfg, port int) error {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -898,7 +925,7 @@ func NewWatcher(port int) error {
 					const layout = "2006-01-02 15:04 -0700"
 					jww.FEEDBACK.Println(time.Now().Format(layout))
 
-					rebuildSites(dynamicEvents)
+					rebuildSites(cfg, dynamicEvents)
 
 					if !buildWatch && !viper.GetBool("disableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized

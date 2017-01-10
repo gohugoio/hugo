@@ -19,7 +19,6 @@ import (
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 )
 
@@ -34,7 +33,7 @@ func init() {
 type basicPageHandler Handle
 
 func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
-	page, err := NewPage(f.Path())
+	page, err := s.NewPage(f.Path())
 
 	if err != nil {
 		return HandledResult{file: f, err: err}
@@ -43,8 +42,6 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 	if _, err := page.ReadFrom(f.Contents); err != nil {
 		return HandledResult{file: f, err: err}
 	}
-
-	page.Site = &s.Info
 
 	return HandledResult{file: f, page: page, err: err}
 }
@@ -58,8 +55,8 @@ type markdownHandler struct {
 }
 
 func (h markdownHandler) Extensions() []string { return []string{"mdown", "markdown", "md"} }
-func (h markdownHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
-	return commonConvert(p, t)
+func (h markdownHandler) PageConvert(p *Page) HandledResult {
+	return commonConvert(p)
 }
 
 type htmlHandler struct {
@@ -67,7 +64,9 @@ type htmlHandler struct {
 }
 
 func (h htmlHandler) Extensions() []string { return []string{"html", "htm"} }
-func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
+
+// TODO(bep) globals use p.s.t
+func (h htmlHandler) PageConvert(p *Page) HandledResult {
 	if p.rendered {
 		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
 	}
@@ -75,7 +74,7 @@ func (h htmlHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
 	// Work on a copy of the raw content from now on.
 	p.createWorkContentCopy()
 
-	p.ProcessShortcodes(t)
+	p.ProcessShortcodes()
 
 	return HandledResult{err: nil}
 }
@@ -85,8 +84,8 @@ type asciidocHandler struct {
 }
 
 func (h asciidocHandler) Extensions() []string { return []string{"asciidoc", "adoc", "ad"} }
-func (h asciidocHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
-	return commonConvert(p, t)
+func (h asciidocHandler) PageConvert(p *Page) HandledResult {
+	return commonConvert(p)
 }
 
 type rstHandler struct {
@@ -94,8 +93,8 @@ type rstHandler struct {
 }
 
 func (h rstHandler) Extensions() []string { return []string{"rest", "rst"} }
-func (h rstHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
-	return commonConvert(p, t)
+func (h rstHandler) PageConvert(p *Page) HandledResult {
+	return commonConvert(p)
 }
 
 type mmarkHandler struct {
@@ -103,11 +102,11 @@ type mmarkHandler struct {
 }
 
 func (h mmarkHandler) Extensions() []string { return []string{"mmark"} }
-func (h mmarkHandler) PageConvert(p *Page, t tpl.Template) HandledResult {
-	return commonConvert(p, t)
+func (h mmarkHandler) PageConvert(p *Page) HandledResult {
+	return commonConvert(p)
 }
 
-func commonConvert(p *Page, t tpl.Template) HandledResult {
+func commonConvert(p *Page) HandledResult {
 	if p.rendered {
 		panic(fmt.Sprintf("Page %q already rendered, does not need conversion", p.BaseFileName()))
 	}
@@ -115,7 +114,7 @@ func commonConvert(p *Page, t tpl.Template) HandledResult {
 	// Work on a copy of the raw content from now on.
 	p.createWorkContentCopy()
 
-	p.ProcessShortcodes(t)
+	p.ProcessShortcodes()
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
 	// process a page in isolation. See the new preRender func.

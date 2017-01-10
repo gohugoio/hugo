@@ -1,0 +1,29 @@
+image: WMF 5
+clone_folder: c:\GOPATH\src\github.com\spf13\hugo
+init:
+- cmd: >-
+    set PATH=%PATH%;C:\MinGW\bin;C:\GOPATH\bin
+
+    copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
+environment:
+  GOPATH: c:\GOPATH
+install:
+- cmd: >-
+    gem install asciidoctor
+
+    pip install docutils
+build_script:
+- cmd: make govendor
+test_script:
+- cmd: >-
+    make check
+
+    REM Test 64-bit alignment on 32-bit builds
+
+    set "GOARCH=386" & make test & set GOARCH=
+
+    go build -race
+
+    hugo -s docs/
+
+    hugo --renderToMemory -s docs/

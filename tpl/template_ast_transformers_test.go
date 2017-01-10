@@ -18,7 +18,6 @@ import (
 
 	"html/template"
 
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/stretchr/testify/require"
 )
 
@@ -264,8 +263,4 @@ P2: {{ .Params.LOWER }}
 
 	require.Contains(t, result, "P1: P1L")
 	require.Contains(t, result, "P2: P1L")
-}
-
-func init() {
-	jww.SetStdoutThreshold(jww.LevelCritical)
 }

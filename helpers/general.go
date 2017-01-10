@@ -38,6 +38,11 @@ import (
 // FilePathSeparator as defined by os.Separator.
 const FilePathSeparator = string(filepath.Separator)
 
+// Strips carriage returns from third-party / external processes (useful for Windows)
+func normalizeExternalHelperLineFeeds(content []byte) []byte {
+	return bytes.Replace(content, []byte("\r"), []byte(""), -1)
+}
+
 // FindAvailablePort returns an available and valid TCP port.
 func FindAvailablePort() (*net.TCPAddr, error) {
 	l, err := net.Listen("tcp", ":0")
@@ -247,7 +252,7 @@ func NewDistinctErrorLogger() *DistinctLogger {
 // NewDistinctFeedbackLogger creates a new DistinctLogger that can be used
 // to give feedback to the user while not spamming with duplicates.
 func NewDistinctFeedbackLogger() *DistinctLogger {
-	return &DistinctLogger{m: make(map[string]bool), logger: &jww.FEEDBACK}
+	return &DistinctLogger{m: make(map[string]bool), logger: jww.FEEDBACK}
 }
 
 var (
@@ -358,13 +363,13 @@ func Seq(args ...interface{}) ([]int, error) {
 
 	// sanity check
 	if last < -100000 {
-		return nil, errors.New("size of result exeeds limit")
+		return nil, errors.New("size of result exceeds limit")
 	}
 	size := ((last - first) / inc) + 1
 
 	// sanity check
 	if size <= 0 || size > 2000 {
-		return nil, errors.New("size of result exeeds limit")
+		return nil, errors.New("size of result exceeds limit")
 	}
 
 	seq := make([]int, size)

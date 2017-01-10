@@ -30,8 +30,8 @@ import (
 	"github.com/yosssi/ace"
 )
 
-var localTemplates *template.Template
-var tmpl Template
+// TODO(bep) globals get rid of the rest of the jww.ERR etc.
+//var tmpl *GoHTMLTemplate
 
 // TODO(bep) an interface with hundreds of methods ... remove it.
 // And unexport most of these methods.
@@ -43,13 +43,13 @@ type Template interface {
 	GetClone() *template.Template
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
-	MarkReady()
 	AddTemplate(name, tpl string) error
 	AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error
 	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
 	AddInternalTemplate(prefix, name, tpl string) error
 	AddInternalShortcode(name, tpl string) error
 	PrintErrors()
+	Funcs(funcMap template.FuncMap)
 }
 
 type templateErr struct {
@@ -58,7 +58,8 @@ type templateErr struct {
 }
 
 type GoHTMLTemplate struct {
-	template.Template
+	*template.Template
+
 	clone *template.Template
 
 	// a separate storage for the overlays created from cloned master templates.
@@ -66,47 +67,55 @@ type GoHTMLTemplate struct {
 	overlays map[string]*template.Template
 
 	errors []*templateErr
-}
 
-// T is the "global" template system
-func T() Template {
-	if tmpl == nil {
-		tmpl = New()
-	}
+	funcster *templateFuncster
 
-	return tmpl
-}
-
-// InitializeT resets the internal template state to its initial state
-func InitializeT() Template {
-	tmpl = New()
-	return tmpl
+	// TODO(bep) globals template
+	log *jww.Notepad
 }
 
 // New returns a new Hugo Template System
 // with all the additional features, templates & functions
-func New() Template {
-	var templates = &GoHTMLTemplate{
-		Template: *template.New(""),
+func New(logger *jww.Notepad, withTemplate ...func(templ Template) error) *GoHTMLTemplate {
+	tmpl := &GoHTMLTemplate{
+		Template: template.New(""),
 		overlays: make(map[string]*template.Template),
 		errors:   make([]*templateErr, 0),
+		log:      logger,
 	}
 
-	localTemplates = &templates.Template
+	tmpl.funcster = newTemplateFuncster(tmpl)
 
 	// The URL funcs in the funcMap is somewhat language dependent,
 	// so we need to wait until the language and site config is loaded.
-	initFuncMap()
+	// TODO(bep) globals
+	tmpl.funcster.initFuncMap()
 
-	for k, v := range funcMap {
+	// TODO(bep) globals
+	for k, v := range tmpl.funcster.funcMap {
 		amber.FuncMap[k] = v
 	}
-	templates.Funcs(funcMap)
-	templates.LoadEmbedded()
-	return templates
+
+	tmpl.LoadEmbedded()
+
+	for _, wt := range withTemplate {
+		err := wt(tmpl)
+		if err != nil {
+			tmpl.errors = append(tmpl.errors, &templateErr{"init", err})
+		}
+
+	}
+
+	tmpl.markReady()
+
+	return tmpl
 }
 
-func partial(name string, contextList ...interface{}) template.HTML {
+func (t *GoHTMLTemplate) Funcs(funcMap template.FuncMap) {
+	t.Template.Funcs(funcMap)
+}
+
+func (t *GoHTMLTemplate) partial(name string, contextList ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
@@ -117,16 +126,16 @@ func partial(name string, contextList ...interface{}) template.HTML {
 	} else {
 		context = contextList[0]
 	}
-	return ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
+	return t.ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
 }
 
-func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
+func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 	var worked bool
 	for _, layout := range layouts {
-		templ := Lookup(layout)
+		templ := t.Lookup(layout)
 		if templ == nil {
 			layout += ".html"
-			templ = Lookup(layout)
+			templ = t.Lookup(layout)
 		}
 
 		if templ != nil {
@@ -139,27 +148,19 @@ func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 		}
 	}
 	if !worked {
-		jww.ERROR.Println("Unable to render", layouts)
-		jww.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+		t.log.ERROR.Println("Unable to render", layouts)
+		t.log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
 	}
 }
 
-func ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
+func (t *GoHTMLTemplate) ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	executeTemplate(context, b, layouts...)
+	t.executeTemplate(context, b, layouts...)
 	return template.HTML(b.String())
 }
 
-func Lookup(name string) *template.Template {
-	return (tmpl.(*GoHTMLTemplate)).Lookup(name)
-}
-
 func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
-
-	if templ := localTemplates.Lookup(name); templ != nil {
-		return templ
-	}
 
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
@@ -186,9 +187,9 @@ func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedTemplates()
 }
 
-// MarkReady marks the template as "ready for execution". No changes allowed
+// markReady marks the template as "ready for execution". No changes allowed
 // after this is set.
-func (t *GoHTMLTemplate) MarkReady() {
+func (t *GoHTMLTemplate) markReady() {
 	if t.clone == nil {
 		t.clone = template.Must(t.Template.Clone())
 	}
@@ -361,7 +362,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 
-		jww.DEBUG.Printf("Add template file from path %s", path)
+		t.log.DEBUG.Printf("Add template file from path %s", path)
 
 		return t.AddTemplate(name, string(b))
 	}
@@ -391,25 +392,25 @@ func isBaseTemplate(path string) bool {
 }
 
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
-	jww.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
+	t.log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
-		jww.DEBUG.Println("Template path", path)
+		t.log.DEBUG.Println("Template path", path)
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(absPath)
 			if err != nil {
-				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
+				t.log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
 				return nil
 			}
 			linkfi, err := hugofs.Source().Stat(link)
 			if err != nil {
-				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				t.log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
 			}
 			if !linkfi.Mode().IsRegular() {
-				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
+				t.log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
 			}
 			return nil
 		}
@@ -492,14 +493,14 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 			}
 
 			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
-				jww.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
+				t.log.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
 			}
 
 		}
 		return nil
 	}
 	if err := helpers.SymbolicWalk(hugofs.Source(), absPath, walker); err != nil {
-		jww.ERROR.Printf("Failed to load templates: %s", err)
+		t.log.ERROR.Printf("Failed to load templates: %s", err)
 	}
 }
 
@@ -525,7 +526,7 @@ func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
 }
 
 func (t *GoHTMLTemplate) PrintErrors() {
-	for _, e := range t.errors {
-		jww.ERROR.Println(e.err)
+	for i, e := range t.errors {
+		t.log.ERROR.Println(i, ":", e.err)
 	}
 }
