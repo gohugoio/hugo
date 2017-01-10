@@ -34,7 +34,6 @@ import (
 type HugoSites struct {
 	Sites []*Site
 
-	tmpl    tpl.Template
 	runMode runmode
 
 	multilingual *Multilingual
@@ -50,7 +49,14 @@ type deps struct {
 	// The logger to use.
 	log *jww.Notepad
 
-	// TODO(bep) next in line: Viper, hugofs, template
+	tmpl *tpl.GoHTMLTemplate
+
+	// TODO(bep) next in line: Viper, hugofs
+}
+
+func (d *deps) refreshTemplates(withTemplate ...func(templ tpl.Template) error) {
+	d.tmpl = tpl.New(d.log, withTemplate...)
+	d.tmpl.PrintErrors() // TODO(bep) globals error handling
 }
 
 func newDeps(cfg DepsCfg) *deps {
@@ -59,11 +65,12 @@ func newDeps(cfg DepsCfg) *deps {
 	if logger == nil {
 		// TODO(bep) globals default log level
 		//logger = jww.NewNotepad(jww.LevelError, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
-		logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 	}
 
 	return &deps{
-		log: logger,
+		log:  logger,
+		tmpl: tpl.New(logger, cfg.WithTemplate...),
 	}
 }
 
@@ -76,8 +83,16 @@ func newHugoSites(cfg DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, err
 	}
 
+	var d *deps
+
+	if sites[0].deps != nil {
+		d = sites[0].deps
+	} else {
+		d = newDeps(cfg)
+	}
+
 	h := &HugoSites{
-		deps:         newDeps(cfg),
+		deps:         d,
 		multilingual: langConfig,
 		Sites:        sites}
 
@@ -91,18 +106,24 @@ func newHugoSites(cfg DepsCfg, sites ...*Site) (*HugoSites, error) {
 // NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
 // TODO(bep) globals rename this when all the globals are gone.
 func NewHugoSitesFromConfiguration(cfg DepsCfg) (*HugoSites, error) {
-	sites, err := createSitesFromConfig()
+	sites, err := createSitesFromConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
 	return newHugoSites(cfg, sites...)
 }
 
-func createSitesFromConfig() ([]*Site, error) {
+func createSitesFromConfig(cfg DepsCfg) ([]*Site, error) {
+	deps := newDeps(cfg)
+	return createSitesFromDeps(deps)
+}
+
+func createSitesFromDeps(deps *deps) ([]*Site, error) {
 	var sites []*Site
 	multilingual := viper.GetStringMap("languages")
+
 	if len(multilingual) == 0 {
-		sites = append(sites, newSite(helpers.NewDefaultLanguage()))
+		sites = append(sites, newSite(helpers.NewDefaultLanguage(), deps))
 	}
 
 	if len(multilingual) > 0 {
@@ -115,7 +136,7 @@ func createSitesFromConfig() ([]*Site, error) {
 		}
 
 		for _, lang := range languages {
-			sites = append(sites, newSite(lang))
+			sites = append(sites, newSite(lang, deps))
 		}
 
 	}
@@ -134,7 +155,7 @@ func (h *HugoSites) reset() {
 
 func (h *HugoSites) createSitesFromConfig() error {
 
-	sites, err := createSitesFromConfig()
+	sites, err := createSitesFromDeps(h.deps)
 
 	if err != nil {
 		return err
@@ -192,6 +213,8 @@ type DepsCfg struct {
 
 	// The Logger to use.
 	Logger *jww.Notepad
+
+	WithTemplate []func(templ tpl.Template) error
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {

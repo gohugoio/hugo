@@ -54,9 +54,19 @@ import (
 	_ "image/png"
 )
 
-var (
-	funcMap template.FuncMap
-)
+// Some of the template funcs are'nt entirely stateless.
+type templateFuncster struct {
+	t              *GoHTMLTemplate
+	funcMap        template.FuncMap
+	cachedPartials partialCache
+}
+
+func newTemplateFuncster(t *GoHTMLTemplate) *templateFuncster {
+	return &templateFuncster{
+		t:              t,
+		cachedPartials: partialCache{p: make(map[string]template.HTML)},
+	}
+}
 
 // eq returns the boolean truth of arg1 == arg2.
 func eq(x, y interface{}) bool {
@@ -1003,7 +1013,7 @@ func where(seq, key interface{}, args ...interface{}) (interface{}, error) {
 }
 
 // apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
-func apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+func (tf *templateFuncster) apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
 	if seq == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -1018,7 +1028,7 @@ func apply(seq interface{}, fname string, args ...interface{}) (interface{}, err
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	fn, found := funcMap[fname]
+	fn, found := tf.funcMap[fname]
 	if !found {
 		return nil, errors.New("can't find function " + fname)
 	}
@@ -1518,41 +1528,39 @@ type partialCache struct {
 // Get retrieves partial output from the cache based upon the partial name.
 // If the partial is not found in the cache, the partial is rendered and added
 // to the cache.
-func (c *partialCache) Get(key, name string, context interface{}) (p template.HTML) {
+func (tf *templateFuncster) Get(key, name string, context interface{}) (p template.HTML) {
 	var ok bool
 
-	c.RLock()
-	p, ok = c.p[key]
-	c.RUnlock()
+	tf.cachedPartials.RLock()
+	p, ok = tf.cachedPartials.p[key]
+	tf.cachedPartials.RUnlock()
 
 	if ok {
 		return p
 	}
 
-	c.Lock()
-	if p, ok = c.p[key]; !ok {
-		p = partial(name, context)
-		c.p[key] = p
+	tf.cachedPartials.Lock()
+	if p, ok = tf.cachedPartials.p[key]; !ok {
+		p = tf.t.partial(name, context)
+		tf.cachedPartials.p[key] = p
 	}
-	c.Unlock()
+	tf.cachedPartials.Unlock()
 
 	return p
 }
-
-var cachedPartials = partialCache{p: make(map[string]template.HTML)}
 
 // partialCached executes and caches partial templates.  An optional variant
 // string parameter (a string slice actually, but be only use a variadic
 // argument to make it optional) can be passed so that a given partial can have
 // multiple uses.  The cache is created with name+variant as the key.
-func partialCached(name string, context interface{}, variant ...string) template.HTML {
+func (tf *templateFuncster) partialCached(name string, context interface{}, variant ...string) template.HTML {
 	key := name
 	if len(variant) > 0 {
 		for i := 0; i < len(variant); i++ {
 			key += variant[i]
 		}
 	}
-	return cachedPartials.Get(key, name, context)
+	return tf.Get(key, name, context)
 }
 
 // regexpCache represents a cache of regexp objects protected by a mutex.
@@ -2090,8 +2098,8 @@ func getenv(key interface{}) (string, error) {
 	return os.Getenv(skey), nil
 }
 
-func initFuncMap() {
-	funcMap = template.FuncMap{
+func (tf *templateFuncster) initFuncMap() {
+	funcMap := template.FuncMap{
 		"absURL": absURL,
 		"absLangURL": func(i interface{}) (template.HTML, error) {
 			s, err := cast.ToStringE(i)
@@ -2102,7 +2110,7 @@ func initFuncMap() {
 		},
 		"add":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":         after,
-		"apply":         apply,
+		"apply":         tf.apply,
 		"base64Decode":  base64Decode,
 		"base64Encode":  base64Encode,
 		"chomp":         chomp,
@@ -2147,8 +2155,8 @@ func initFuncMap() {
 		"mul":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
 		"ne":            ne,
 		"now":           func() time.Time { return time.Now() },
-		"partial":       partial,
-		"partialCached": partialCached,
+		"partial":       tf.t.partial,
+		"partialCached": tf.partialCached,
 		"plainify":      plainify,
 		"pluralize":     pluralize,
 		"querify":       querify,
@@ -2195,4 +2203,7 @@ func initFuncMap() {
 		"i18n":         i18nTranslate,
 		"T":            i18nTranslate,
 	}
+
+	tf.funcMap = funcMap
+	tf.t.Funcs(funcMap)
 }
