@@ -19,22 +19,21 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/hugo/hugolib"
+
 	"fmt"
+
+	"github.com/spf13/hugo/hugofs"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/create"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewContent(t *testing.T) {
 	initViper()
-
-	err := initFs()
-	if err != nil {
-		t.Fatalf("initialization error: %s", err)
-	}
 
 	cases := []struct {
 		kind     string
@@ -48,15 +47,15 @@ func TestNewContent(t *testing.T) {
 		{"product", "product/sample-4.md", []string{`title = "sample 4"`}}, // empty archetype front matter
 	}
 
-	for i, c := range cases {
-		err = create.NewContent(hugofs.Source(), c.kind, c.path)
-		if err != nil {
-			t.Errorf("[%d] NewContent: %s", i, err)
-		}
+	for _, c := range cases {
+		s, err := hugolib.NewEnglishSite()
+		require.NoError(t, err)
+		require.NoError(t, initFs(s.Fs))
+
+		require.NoError(t, create.NewContent(s, c.kind, c.path))
 
 		fname := filepath.Join("content", filepath.FromSlash(c.path))
-		content := readFileFromFs(t, hugofs.Source(), fname)
-
+		content := readFileFromFs(t, s.Fs.Source, fname)
 		for i, v := range c.expected {
 			found := strings.Contains(content, v)
 			if !found {
@@ -72,11 +71,11 @@ func initViper() {
 	viper.Set("archetypeDir", "archetypes")
 	viper.Set("contentDir", "content")
 	viper.Set("themesDir", "themes")
+	viper.Set("layoutDir", "layouts")
 	viper.Set("theme", "sample")
 }
 
-func initFs() error {
-	hugofs.InitMemFs()
+func initFs(fs *hugofs.Fs) error {
 	perm := os.FileMode(0755)
 	var err error
 
@@ -87,7 +86,7 @@ func initFs() error {
 		filepath.Join("themes", "sample", "archetypes"),
 	}
 	for _, dir := range dirs {
-		err = hugofs.Source().Mkdir(dir, perm)
+		err = fs.Source.Mkdir(dir, perm)
 		if err != nil {
 			return err
 		}
@@ -111,7 +110,7 @@ func initFs() error {
 			content: "+++\ndate =\"\"\ntitle = \"Empty Date Arch title\"\ntest = \"test1\"\n+++\n",
 		},
 	} {
-		f, err := hugofs.Source().Create(v.path)
+		f, err := fs.Source.Create(v.path)
 		if err != nil {
 			return err
 		}

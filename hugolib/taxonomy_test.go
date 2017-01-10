@@ -18,6 +18,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/hugofs"
+
 	"github.com/spf13/viper"
 )
 
@@ -31,16 +34,14 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 
 	viper.Set("taxonomies", taxonomies)
 
-	writeSource(t, filepath.Join("content", "page.md"), pageYamlWithTaxonomiesA)
+	fs := hugofs.NewMem()
 
-	site := NewSiteDefaultLang()
+	writeSource(t, fs, filepath.Join("content", "page.md"), pageYamlWithTaxonomiesA)
 
-	if err := buildSiteSkipRender(site); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 	st := make([]string, 0)
-	for _, t := range site.Taxonomies["tags"].ByCount() {
+	for _, t := range s.Taxonomies["tags"].ByCount() {
 		st = append(st, t.Name)
 	}
 

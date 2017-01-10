@@ -25,8 +25,20 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
+
+func testReset() {
+	viper.Reset()
+
+	// TODO(bep) viper-globals
+	viper.Set("currentContentLanguage", helpers.NewLanguage("en"))
+}
 
 // Some tests for Issue #1178 -- Ace
 func TestAceTemplates(t *testing.T) {
@@ -68,11 +80,19 @@ html lang=en
 
 			d := "DATA"
 
-			templ := New(logger, func(templ Template) error {
+			config := defaultDepsConfig
+			config.WithTemplate = func(templ tplapi.Template) error {
 				return templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
 					[]byte(this.baseContent), []byte(this.innerContent))
+			}
 
-			})
+			a := deps.New(config)
+
+			if err := a.LoadTemplates(); err != nil {
+				t.Fatal(err)
+			}
+
+			templ := a.Tmpl.(*GoHTMLTemplate)
 
 			if len(templ.errors) > 0 && this.expectErr == 0 {
 				t.Errorf("Test %d with root '%s' errored: %v", i, root, templ.errors)
@@ -81,7 +101,7 @@ html lang=en
 			}
 
 			var buff bytes.Buffer
-			err := templ.ExecuteTemplate(&buff, "mytemplate.html", d)
+			err := a.Tmpl.ExecuteTemplate(&buff, "mytemplate.html", d)
 
 			if err != nil && this.expectErr == 0 {
 				t.Errorf("Test %d with root '%s' errored: %s", i, root, err)
@@ -93,6 +113,7 @@ html lang=en
 					t.Errorf("Test %d  with root '%s' got\n%s\nexpected\n%s", i, root, result, this.expect)
 				}
 			}
+
 		}
 	}
 
@@ -124,52 +145,59 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 		{`tpl`, `{{.0.E}}`, 0, false},
 	} {
 
-		hugofs.InitMemFs()
-		templ := New(logger)
 		overlayTplName := "ot"
 		masterTplName := "mt"
 		finalTplName := "tp"
 
+		defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+
+			err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
+
+			if b, ok := this.expect.(bool); ok && !b {
+				if err == nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster didn't return an expected error", i)
+				}
+			} else {
+
+				if err != nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster failed: %s", i, err)
+					return nil
+				}
+
+				resultTpl := templ.Lookup(finalTplName)
+
+				if resultTpl == nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster: Result template not found", i)
+					return nil
+				}
+
+				var b bytes.Buffer
+				err := resultTpl.Execute(&b, nil)
+
+				if err != nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster execute failed: %s", i, err)
+					return nil
+				}
+				resultContent := b.String()
+
+				if resultContent != this.expect {
+					t.Errorf("[%d] AddTemplateFileWithMaster got \n%s but expected \n%v", i, resultContent, this.expect)
+				}
+			}
+
+			return nil
+		}
+
+		defaultDepsConfig.Fs = hugofs.NewMem()
+
 		if this.writeSkipper != 1 {
-			afero.WriteFile(hugofs.Source(), masterTplName, []byte(this.masterTplContent), 0644)
+			afero.WriteFile(defaultDepsConfig.Fs.Source, masterTplName, []byte(this.masterTplContent), 0644)
 		}
 		if this.writeSkipper != 2 {
-			afero.WriteFile(hugofs.Source(), overlayTplName, []byte(this.overlayTplContent), 0644)
+			afero.WriteFile(defaultDepsConfig.Fs.Source, overlayTplName, []byte(this.overlayTplContent), 0644)
 		}
 
-		err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
-
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] AddTemplateFileWithMaster didn't return an expected error", i)
-			}
-		} else {
-
-			if err != nil {
-				t.Errorf("[%d] AddTemplateFileWithMaster failed: %s", i, err)
-				continue
-			}
-
-			resultTpl := templ.Lookup(finalTplName)
-
-			if resultTpl == nil {
-				t.Errorf("[%d] AddTemplateFileWithMaster: Result template not found", i)
-				continue
-			}
-
-			var b bytes.Buffer
-			err := resultTpl.Execute(&b, nil)
-
-			if err != nil {
-				t.Errorf("[%d] AddTemplateFileWithMaster execute failed: %s", i, err)
-				continue
-			}
-			resultContent := b.String()
-
-			if resultContent != this.expect {
-				t.Errorf("[%d] AddTemplateFileWithMaster got \n%s but expected \n%v", i, resultContent, this.expect)
-			}
-		}
+		deps.New(defaultDepsConfig)
 
 	}
 
@@ -258,23 +286,29 @@ func TestTplGoFuzzReports(t *testing.T) {
 			H: "a,b,c,d,e,f",
 		}
 
-		templ := New(logger, func(templ Template) error {
+		defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
 			return templ.AddTemplate("fuzz", this.data)
+		}
 
-		})
+		de := deps.New(defaultDepsConfig)
+		require.NoError(t, de.LoadTemplates())
+
+		templ := de.Tmpl.(*GoHTMLTemplate)
 
 		if len(templ.errors) > 0 && this.expectErr == 0 {
 			t.Errorf("Test %d errored: %v", i, templ.errors)
 		} else if len(templ.errors) == 0 && this.expectErr == 1 {
 			t.Errorf("#1 Test %d should have errored", i)
 		}
-		err := templ.ExecuteTemplate(ioutil.Discard, "fuzz", d)
+
+		err := de.Tmpl.ExecuteTemplate(ioutil.Discard, "fuzz", d)
 
 		if err != nil && this.expectErr == 0 {
 			t.Fatalf("Test %d errored: %s", i, err)
 		} else if err == nil && this.expectErr == 2 {
 			t.Fatalf("#2 Test %d should have errored", i)
 		}
+
 	}
 }
 

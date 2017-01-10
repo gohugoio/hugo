@@ -28,7 +28,6 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
@@ -165,25 +164,25 @@ func resGetLocal(url string, fs afero.Fs) ([]byte, error) {
 }
 
 // resGetResource loads the content of a local or remote file
-func resGetResource(url string) ([]byte, error) {
+func (t *templateFuncster) resGetResource(url string) ([]byte, error) {
 	if url == "" {
 		return nil, nil
 	}
 	if strings.Contains(url, "://") {
-		return resGetRemote(url, hugofs.Source(), http.DefaultClient)
+		return resGetRemote(url, t.Fs.Source, http.DefaultClient)
 	}
-	return resGetLocal(url, hugofs.Source())
+	return resGetLocal(url, t.Fs.Source)
 }
 
 // getJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
 // If you provide multiple parts they will be joined together to the final URL.
 // GetJSON returns nil or parsed JSON to use in a short code.
-func getJSON(urlParts ...string) interface{} {
+func (t *templateFuncster) getJSON(urlParts ...string) interface{} {
 	var v interface{}
 	url := strings.Join(urlParts, "")
 
 	for i := 0; i <= resRetries; i++ {
-		c, err := resGetResource(url)
+		c, err := t.resGetResource(url)
 		if err != nil {
 			jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
 			return nil
@@ -194,7 +193,7 @@ func getJSON(urlParts ...string) interface{} {
 			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
 			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
-			resDeleteCache(url, hugofs.Source())
+			resDeleteCache(url, t.Fs.Source)
 			continue
 		}
 		break
@@ -220,18 +219,18 @@ func parseCSV(c []byte, sep string) ([][]string, error) {
 // The data separator can be a comma, semi-colon, pipe, etc, but only one character.
 // If you provide multiple parts for the URL they will be joined together to the final URL.
 // GetCSV returns nil or a slice slice to use in a short code.
-func getCSV(sep string, urlParts ...string) [][]string {
+func (t *templateFuncster) getCSV(sep string, urlParts ...string) [][]string {
 	var d [][]string
 	url := strings.Join(urlParts, "")
 
 	var clearCacheSleep = func(i int, u string) {
 		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
-		resDeleteCache(url, hugofs.Source())
+		resDeleteCache(url, t.Fs.Source)
 	}
 
 	for i := 0; i <= resRetries; i++ {
-		c, err := resGetResource(url)
+		c, err := t.resGetResource(url)
 
 		if err == nil && !bytes.Contains(c, []byte(sep)) {
 			err = errors.New("Cannot find separator " + sep + " in CSV.")

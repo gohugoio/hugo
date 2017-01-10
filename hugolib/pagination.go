@@ -279,7 +279,7 @@ func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 			return
 		}
 
-		pagers, err := paginatePages(p.Data["Pages"], pagerSize, p.sections...)
+		pagers, err := paginatePages(p.s.PathSpec, p.Data["Pages"], pagerSize, p.sections...)
 
 		if err != nil {
 			initError = err
@@ -322,7 +322,7 @@ func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 		if p.paginator != nil {
 			return
 		}
-		pagers, err := paginatePages(seq, pagerSize, p.sections...)
+		pagers, err := paginatePages(p.s.PathSpec, seq, pagerSize, p.sections...)
 
 		if err != nil {
 			initError = err
@@ -371,13 +371,13 @@ func resolvePagerSize(options ...interface{}) (int, error) {
 	return pas, nil
 }
 
-func paginatePages(seq interface{}, pagerSize int, sections ...string) (pagers, error) {
+func paginatePages(pathSpec *helpers.PathSpec, seq interface{}, pagerSize int, sections ...string) (pagers, error) {
 
 	if pagerSize <= 0 {
 		return nil, errors.New("'paginate' configuration setting must be positive to paginate")
 	}
 
-	urlFactory := newPaginationURLFactory(sections...)
+	urlFactory := newPaginationURLFactory(pathSpec, sections...)
 
 	var paginator *paginator
 
@@ -504,8 +504,7 @@ func newPaginator(elements []paginatedElement, total, size int, urlFactory pagin
 	return p, nil
 }
 
-func newPaginationURLFactory(pathElements ...string) paginationURLFactory {
-	pathSpec := helpers.CurrentPathSpec()
+func newPaginationURLFactory(pathSpec *helpers.PathSpec, pathElements ...string) paginationURLFactory {
 
 	basePath := path.Join(pathElements...)
 

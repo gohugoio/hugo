@@ -34,15 +34,15 @@ import (
 
 // NewContent creates a new content file in the content directory based upon the
 // given kind, which is used to lookup an archetype.
-func NewContent(fs afero.Fs, kind, name string) (err error) {
+func NewContent(s *hugolib.Site, kind, name string) (err error) {
 	jww.INFO.Println("attempting to create ", name, "of", kind)
 
-	location := FindArchetype(fs, kind)
+	location := FindArchetype(s.Fs.Source, kind)
 
 	var by []byte
 
 	if location != "" {
-		by, err = afero.ReadFile(fs, location)
+		by, err = afero.ReadFile(s.Fs.Source, location)
 		if err != nil {
 			jww.ERROR.Println(err)
 		}
@@ -62,9 +62,7 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 		return err
 	}
 
-	site := hugolib.NewSiteDefaultLang()
-
-	page, err := site.NewPage(name)
+	page, err := s.NewPage(name)
 	if err != nil {
 		return err
 	}

@@ -17,6 +17,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
 )
 
@@ -28,19 +30,19 @@ func TestRSSOutput(t *testing.T) {
 	viper.Set("rssURI", rssURI)
 	viper.Set("title", "RSSTest")
 
-	for _, s := range weightedSources {
-		writeSource(t, filepath.Join("content", "sect", s.Name), string(s.Content))
+	fs := hugofs.NewMem()
+
+	for _, src := range weightedSources {
+		writeSource(t, fs, filepath.Join("content", "sect", src.Name), string(src.Content))
 	}
 
-	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 	// Home RSS
-	assertFileContent(t, filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
+	assertFileContent(t, fs, filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
 	// Section RSS
-	assertFileContent(t, filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
+	assertFileContent(t, fs, filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
 	// Taxonomy RSS
-	assertFileContent(t, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
+	assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
 
 }

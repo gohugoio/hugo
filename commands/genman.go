@@ -41,9 +41,9 @@ in the "man" directory under the current directory.`,
 		if !strings.HasSuffix(genmandir, helpers.FilePathSeparator) {
 			genmandir += helpers.FilePathSeparator
 		}
-		if found, _ := helpers.Exists(genmandir, hugofs.Os()); !found {
+		if found, _ := helpers.Exists(genmandir, hugofs.Os); !found {
 			jww.FEEDBACK.Println("Directory", genmandir, "does not exist, creating...")
-			hugofs.Os().MkdirAll(genmandir, 0777)
+			hugofs.Os.MkdirAll(genmandir, 0777)
 		}
 		cmd.Root().DisableAutoGenTag = true
 

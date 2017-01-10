@@ -41,6 +41,8 @@ type Output interface {
 
 type Filesystem struct {
 	PublishDir string
+
+	Fs *hugofs.Fs
 }
 
 func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
@@ -49,7 +51,7 @@ func (fs *Filesystem) Publish(path string, r io.Reader) (err error) {
 		return
 	}
 
-	return helpers.WriteToDisk(translated, r, hugofs.Destination())
+	return helpers.WriteToDisk(translated, r, fs.Fs.Destination)
 }
 
 func (fs *Filesystem) Translate(src string) (dest string, err error) {

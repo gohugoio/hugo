@@ -35,6 +35,8 @@ type PagePub struct {
 	// LangDir will contain the subdir for the language, i.e. "en", "de" etc.
 	// It will be empty if the site is rendered in root.
 	LangDir string
+
+	Fs *hugofs.Fs
 }
 
 func (pp *PagePub) Publish(path string, r io.Reader) (err error) {
@@ -44,7 +46,7 @@ func (pp *PagePub) Publish(path string, r io.Reader) (err error) {
 		return
 	}
 
-	return helpers.WriteToDisk(translated, r, hugofs.Destination())
+	return helpers.WriteToDisk(translated, r, pp.Fs.Destination)
 }
 
 func (pp *PagePub) Translate(src string) (dest string, err error) {

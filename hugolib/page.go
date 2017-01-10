@@ -38,7 +38,6 @@ import (
 
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 )
@@ -536,7 +535,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 		p.renderingConfig = helpers.NewBlackfriday(p.Language())
 
 		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
-			p.s.log.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
+			p.s.Log.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 
 	})
@@ -556,7 +555,7 @@ func (s *Site) newPage(filename string) *Page {
 		sections:     sectionsFromFilename(filename),
 	}
 
-	s.log.DEBUG.Println("Reading from", page.File.Path())
+	s.Log.DEBUG.Println("Reading from", page.File.Path())
 	return &page
 }
 
@@ -683,7 +682,7 @@ func (s *Site) NewPage(name string) (*Page, error) {
 func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
 	if err := p.parse(buf); err != nil {
-		p.s.log.ERROR.Print(err)
+		p.s.Log.ERROR.Print(err)
 		return 0, err
 	}
 
@@ -738,7 +737,7 @@ func (p *Page) getPermalink() *url.URL {
 	p.pageURLInit.Do(func() {
 		u, err := p.createPermalink()
 		if err != nil {
-			p.s.log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
+			p.s.Log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
 			p.permalink = new(url.URL)
 			return
 		}
@@ -759,16 +758,16 @@ func (p *Page) createPermalink() (*url.URL, error) {
 
 	if p.IsNode() {
 		// No permalink config for nodes (currently)
-		pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
+		pURL := strings.TrimSpace(p.s.PathSpec.URLize(p.URLPath.URL))
 		pURL = p.addLangPathPrefix(pURL)
-		pURL = p.Site.pathSpec.URLPrep(pURL)
+		pURL = p.s.PathSpec.URLPrep(pURL)
 		url := helpers.MakePermalink(baseURL, pURL)
 		return url, nil
 	}
 
-	dir := strings.TrimSpace(p.Site.pathSpec.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
-	pSlug := strings.TrimSpace(p.Site.pathSpec.URLize(p.Slug))
-	pURL := strings.TrimSpace(p.Site.pathSpec.URLize(p.URLPath.URL))
+	dir := strings.TrimSpace(p.s.PathSpec.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
+	pSlug := strings.TrimSpace(p.s.PathSpec.URLize(p.Slug))
+	pURL := strings.TrimSpace(p.s.PathSpec.URLize(p.URLPath.URL))
 	var permalink string
 	var err error
 
@@ -784,10 +783,10 @@ func (p *Page) createPermalink() (*url.URL, error) {
 		}
 	} else {
 		if len(pSlug) > 0 {
-			permalink = p.Site.pathSpec.URLPrep(path.Join(dir, p.Slug+"."+p.Extension()))
+			permalink = p.s.PathSpec.URLPrep(path.Join(dir, p.Slug+"."+p.Extension()))
 		} else {
 			t := p.Source.TranslationBaseName()
-			permalink = p.Site.pathSpec.URLPrep(path.Join(dir, (strings.TrimSpace(t) + "." + p.Extension())))
+			permalink = p.s.PathSpec.URLPrep(path.Join(dir, (strings.TrimSpace(t) + "." + p.Extension())))
 		}
 	}
 
@@ -953,22 +952,22 @@ func (p *Page) update(f interface{}) error {
 		case "date":
 			p.Date, err = cast.ToTimeE(v)
 			if err != nil {
-				p.s.log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
+				p.s.Log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
 			}
 		case "lastmod":
 			p.Lastmod, err = cast.ToTimeE(v)
 			if err != nil {
-				p.s.log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
+				p.s.Log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
 			}
 		case "publishdate", "pubdate":
 			p.PublishDate, err = cast.ToTimeE(v)
 			if err != nil {
-				p.s.log.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
+				p.s.Log.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
 		case "expirydate", "unpublishdate":
 			p.ExpiryDate, err = cast.ToTimeE(v)
 			if err != nil {
-				p.s.log.ERROR.Printf("Failed to parse expirydate '%v' in page %s", v, p.File.Path())
+				p.s.Log.ERROR.Printf("Failed to parse expirydate '%v' in page %s", v, p.File.Path())
 			}
 		case "draft":
 			draft = new(bool)
@@ -1040,7 +1039,7 @@ func (p *Page) update(f interface{}) error {
 
 	if draft != nil && published != nil {
 		p.Draft = *draft
-		p.s.log.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
+		p.s.Log.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
 		return ErrHasDraftAndPublished
 	} else if draft != nil {
 		p.Draft = *draft
@@ -1049,7 +1048,7 @@ func (p *Page) update(f interface{}) error {
 	}
 
 	if p.Date.IsZero() && viper.GetBool("useModTimeAsFallback") {
-		fi, err := hugofs.Source().Stat(filepath.Join(helpers.AbsPathify(viper.GetString("contentDir")), p.File.Path()))
+		fi, err := p.s.Fs.Source.Stat(filepath.Join(helpers.AbsPathify(viper.GetString("contentDir")), p.File.Path()))
 		if err == nil {
 			p.Date = fi.ModTime()
 		}
@@ -1109,7 +1108,7 @@ func (p *Page) getParam(key string, stringToLower bool) interface{} {
 		return v
 	}
 
-	p.s.log.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
+	p.s.Log.ERROR.Printf("GetParam(\"%s\"): Unknown type %s\n", key, reflect.TypeOf(v))
 	return nil
 }
 
@@ -1251,16 +1250,16 @@ func (p *Page) Menus() PageMenus {
 			menus, err := cast.ToStringMapE(ms)
 
 			if err != nil {
-				p.s.log.ERROR.Printf("unable to process menus for %q\n", p.Title)
+				p.s.Log.ERROR.Printf("unable to process menus for %q\n", p.Title)
 			}
 
 			for name, menu := range menus {
 				menuEntry := MenuEntry{Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
 				if menu != nil {
-					p.s.log.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
+					p.s.Log.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
 					ime, err := cast.ToStringMapE(menu)
 					if err != nil {
-						p.s.log.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
+						p.s.Log.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
 					}
 
 					menuEntry.marshallMap(ime)
@@ -1283,7 +1282,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 		l = p.layouts()
 	}
 
-	return p.s.tmpl.ExecuteTemplateToHTML(p, l...)
+	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
 }
 
 func (p *Page) determineMarkupType() string {
@@ -1311,8 +1310,8 @@ func (p *Page) parse(reader io.Reader) error {
 	meta, err := psr.Metadata()
 	if meta != nil {
 		if err != nil {
-			p.s.log.ERROR.Printf("Error parsing page meta data for %s", p.File.Path())
-			p.s.log.ERROR.Println(err)
+			p.s.Log.ERROR.Printf("Error parsing page meta data for %s", p.File.Path())
+			p.s.Log.ERROR.Println(err)
 			return err
 		}
 		if err = p.update(meta); err != nil {
@@ -1381,12 +1380,12 @@ func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 	if !filepath.IsAbs(inpath) {
 		inpath = helpers.AbsPathify(inpath)
 	}
-	p.s.log.INFO.Println("creating", inpath)
+	p.s.Log.INFO.Println("creating", inpath)
 
 	if safe {
-		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), hugofs.Source())
+		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), p.s.Fs.Source)
 	} else {
-		err = helpers.WriteToDisk(inpath, bytes.NewReader(by), hugofs.Source())
+		err = helpers.WriteToDisk(inpath, bytes.NewReader(by), p.s.Fs.Source)
 	}
 	if err != nil {
 		return
@@ -1455,7 +1454,7 @@ func (p *Page) TargetPath() (outfile string) {
 	}
 
 	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(
-		p.Site.pathSpec.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
+		p.s.PathSpec.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
 }
 
 // Pre render prepare steps
@@ -1466,14 +1465,13 @@ func (p *Page) prepareLayouts() error {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
-			_, err := p.Site.owner.tmpl.GetClone().New(self).Parse(string(p.Content))
+			_, err := p.Site.owner.Tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				return err
 			}
 			layouts = append(layouts, self)
 		} else {
 			layouts = append(layouts, p.layouts()...)
-			layouts = append(layouts, "_default/single.html")
 		}
 		p.layoutsCalculated = layouts
 	}
@@ -1707,7 +1705,7 @@ func (p *Page) initLanguage() {
 
 		if language == nil {
 			// It can be a file named stefano.chiodino.md.
-			p.s.log.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
+			p.s.Log.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
 			language = ml.DefaultLang
 		}
 

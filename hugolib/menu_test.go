@@ -18,12 +18,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/hugo/deps"
+
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 
 	"path/filepath"
 
 	toml "github.com/pelletier/go-toml"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -677,29 +679,27 @@ func setupTestMenuState(t *testing.T) {
 }
 
 func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *Site {
-	s := createTestSite(pageSources)
 
 	setupTestMenuState(t)
-	testSiteSetup(s, t)
 
-	return s
+	fs := hugofs.NewMem()
+
+	for _, src := range pageSources {
+		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+
+	}
+
+	return buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+
 }
 
 func createTestSite(pageSources []source.ByteSource) *Site {
-	hugofs.InitMemFs()
 
 	return &Site{
-		deps:     newDeps(DepsCfg{}),
 		Source:   &source.InMemorySource{ByteSource: pageSources},
 		Language: helpers.NewDefaultLanguage(),
 	}
 
-}
-
-func testSiteSetup(s *Site, t *testing.T) {
-	if err := buildSiteSkipRender(s); err != nil {
-		t.Fatalf("Sites build failed: %s", err)
-	}
 }
 
 func tomlToMap(s string) (map[string]interface{}, error) {

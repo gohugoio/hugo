@@ -16,6 +16,8 @@ package helpers
 import (
 	"testing"
 
+	"github.com/spf13/hugo/hugofs"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -31,15 +33,15 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	viper.Set("canonifyURLs", true)
 	viper.Set("paginatePath", "side")
 
-	pathSpec := NewPathSpecFromConfig(viper.GetViper())
+	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
 
-	require.True(t, pathSpec.canonifyURLs)
-	require.True(t, pathSpec.defaultContentLanguageInSubdir)
-	require.True(t, pathSpec.disablePathToLower)
-	require.True(t, pathSpec.multilingual)
-	require.True(t, pathSpec.removePathAccents)
-	require.True(t, pathSpec.uglyURLs)
-	require.Equal(t, "no", pathSpec.defaultContentLanguage)
-	require.Equal(t, "no", pathSpec.currentContentLanguage.Lang)
-	require.Equal(t, "side", pathSpec.paginatePath)
+	require.True(t, p.canonifyURLs)
+	require.True(t, p.defaultContentLanguageInSubdir)
+	require.True(t, p.disablePathToLower)
+	require.True(t, p.multilingual)
+	require.True(t, p.removePathAccents)
+	require.True(t, p.uglyURLs)
+	require.Equal(t, "no", p.defaultContentLanguage)
+	require.Equal(t, "no", p.currentContentLanguage.Lang)
+	require.Equal(t, "side", p.paginatePath)
 }

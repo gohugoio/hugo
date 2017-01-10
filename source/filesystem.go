@@ -38,6 +38,12 @@ type Filesystem struct {
 	files      []*File
 	Base       string
 	AvoidPaths []string
+
+	fs *hugofs.Fs
+}
+
+func NewFilesystem(fs *hugofs.Fs, base string, avoidPaths ...string) *Filesystem {
+	return &Filesystem{fs: fs, Base: base, AvoidPaths: avoidPaths}
 }
 
 func (f *Filesystem) FilesByExts(exts ...string) []*File {
@@ -92,7 +98,7 @@ func (f *Filesystem) captureFiles() {
 			return err
 		}
 		if b {
-			rd, err := NewLazyFileReader(hugofs.Source(), filePath)
+			rd, err := NewLazyFileReader(f.fs.Source, filePath)
 			if err != nil {
 				return err
 			}
@@ -101,7 +107,10 @@ func (f *Filesystem) captureFiles() {
 		return err
 	}
 
-	err := helpers.SymbolicWalk(hugofs.Source(), f.Base, walker)
+	if f.fs == nil {
+		panic("Must have a fs")
+	}
+	err := helpers.SymbolicWalk(f.fs.Source, f.Base, walker)
 
 	if err != nil {
 		jww.ERROR.Println(err)
@@ -119,7 +128,7 @@ func (f *Filesystem) shouldRead(filePath string, fi os.FileInfo) (bool, error) {
 			jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filePath, err)
 			return false, nil
 		}
-		linkfi, err := hugofs.Source().Stat(link)
+		linkfi, err := f.fs.Source.Stat(link)
 		if err != nil {
 			jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 			return false, nil

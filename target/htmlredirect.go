@@ -46,6 +46,8 @@ type HTMLRedirectAlias struct {
 	PublishDir string
 	Templates  *template.Template
 	AllowRoot  bool // for the language redirects
+
+	Fs *hugofs.Fs
 }
 
 func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error) {
@@ -145,5 +147,5 @@ func (h *HTMLRedirectAlias) Publish(path string, permalink string, page interfac
 		return
 	}
 
-	return helpers.WriteToDisk(path, buffer, hugofs.Destination())
+	return helpers.WriteToDisk(path, buffer, h.Fs.Destination)
 }

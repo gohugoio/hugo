@@ -24,33 +24,12 @@ import (
 	"github.com/eknkc/amber"
 	"github.com/spf13/afero"
 	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/yosssi/ace"
 )
 
 // TODO(bep) globals get rid of the rest of the jww.ERR etc.
-//var tmpl *GoHTMLTemplate
-
-// TODO(bep) an interface with hundreds of methods ... remove it.
-// And unexport most of these methods.
-type Template interface {
-	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
-	Lookup(name string) *template.Template
-	Templates() []*template.Template
-	New(name string) *template.Template
-	GetClone() *template.Template
-	LoadTemplates(absPath string)
-	LoadTemplatesWithPrefix(absPath, prefix string)
-	AddTemplate(name, tpl string) error
-	AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error
-	AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error
-	AddInternalTemplate(prefix, name, tpl string) error
-	AddInternalShortcode(name, tpl string) error
-	PrintErrors()
-	Funcs(funcMap template.FuncMap)
-}
 
 type templateErr struct {
 	name string
@@ -70,52 +49,105 @@ type GoHTMLTemplate struct {
 
 	funcster *templateFuncster
 
-	// TODO(bep) globals template
-	log *jww.Notepad
+	amberFuncMap template.FuncMap
+
+	*deps.Deps
 }
 
-// New returns a new Hugo Template System
+type TemplateProvider struct{}
+
+var DefaultTemplateProvider *TemplateProvider
+
+// Update updates the Hugo Template System in the provided Deps.
 // with all the additional features, templates & functions
-func New(logger *jww.Notepad, withTemplate ...func(templ Template) error) *GoHTMLTemplate {
+func (*TemplateProvider) Update(deps *deps.Deps) error {
+	// TODO(bep) check that this isn't called too many times.
 	tmpl := &GoHTMLTemplate{
 		Template: template.New(""),
 		overlays: make(map[string]*template.Template),
 		errors:   make([]*templateErr, 0),
-		log:      logger,
+		Deps:     deps,
 	}
 
-	tmpl.funcster = newTemplateFuncster(tmpl)
+	deps.Tmpl = tmpl
 
-	// The URL funcs in the funcMap is somewhat language dependent,
-	// so we need to wait until the language and site config is loaded.
-	// TODO(bep) globals
-	tmpl.funcster.initFuncMap()
-
-	// TODO(bep) globals
-	for k, v := range tmpl.funcster.funcMap {
-		amber.FuncMap[k] = v
-	}
+	tmpl.initFuncs(deps)
 
 	tmpl.LoadEmbedded()
 
-	for _, wt := range withTemplate {
-		err := wt(tmpl)
+	if deps.WithTemplate != nil {
+		err := deps.WithTemplate(tmpl)
 		if err != nil {
 			tmpl.errors = append(tmpl.errors, &templateErr{"init", err})
 		}
 
 	}
 
-	tmpl.markReady()
+	tmpl.MarkReady()
 
-	return tmpl
+	return nil
+
+}
+
+// Clone clones
+func (*TemplateProvider) Clone(d *deps.Deps) error {
+
+	t := d.Tmpl.(*GoHTMLTemplate)
+
+	// 1. Clone the clone with new template funcs
+	// 2. Clone any overlays with new template funcs
+
+	tmpl := &GoHTMLTemplate{
+		Template: template.Must(t.Template.Clone()),
+		overlays: make(map[string]*template.Template),
+		errors:   make([]*templateErr, 0),
+		Deps:     d,
+	}
+
+	d.Tmpl = tmpl
+	tmpl.initFuncs(d)
+
+	for k, v := range t.overlays {
+		vc := template.Must(v.Clone())
+		vc.Funcs(tmpl.funcster.funcMap)
+		tmpl.overlays[k] = vc
+	}
+
+	tmpl.MarkReady()
+
+	return nil
+}
+
+func (t *GoHTMLTemplate) initFuncs(d *deps.Deps) {
+
+	t.funcster = newTemplateFuncster(d)
+
+	// The URL funcs in the funcMap is somewhat language dependent,
+	// so we need to wait until the language and site config is loaded.
+	t.funcster.initFuncMap()
+
+	t.amberFuncMap = template.FuncMap{}
+
+	for k, v := range amber.FuncMap {
+		t.amberFuncMap[k] = v
+	}
+
+	for k, v := range t.funcster.funcMap {
+		t.amberFuncMap[k] = v
+		// Hacky, but we need to make sure that the func names are in the global map.
+		amber.FuncMap[k] = func() string {
+			panic("should never be invoked")
+			return ""
+		}
+	}
+
 }
 
 func (t *GoHTMLTemplate) Funcs(funcMap template.FuncMap) {
 	t.Template.Funcs(funcMap)
 }
 
-func (t *GoHTMLTemplate) partial(name string, contextList ...interface{}) template.HTML {
+func (t *GoHTMLTemplate) Partial(name string, contextList ...interface{}) template.HTML {
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
@@ -147,8 +179,8 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 		}
 	}
 	if !worked {
-		t.log.ERROR.Println("Unable to render", layouts)
-		t.log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+		t.Log.ERROR.Println("Unable to render", layouts)
+		t.Log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
 	}
 }
 
@@ -186,9 +218,9 @@ func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedTemplates()
 }
 
-// markReady marks the template as "ready for execution". No changes allowed
+// MarkReady marks the template as "ready for execution". No changes allowed
 // after this is set.
-func (t *GoHTMLTemplate) markReady() {
+func (t *GoHTMLTemplate) MarkReady() {
 	if t.clone == nil {
 		t.clone = template.Must(t.Template.Clone())
 	}
@@ -244,7 +276,7 @@ func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, master
 	masterTpl := t.Lookup(masterFilename)
 
 	if masterTpl == nil {
-		b, err := afero.ReadFile(hugofs.Source(), masterFilename)
+		b, err := afero.ReadFile(t.Fs.Source, masterFilename)
 		if err != nil {
 			return err
 		}
@@ -257,7 +289,7 @@ func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, master
 		}
 	}
 
-	b, err := afero.ReadFile(hugofs.Source(), overlayFilename)
+	b, err := afero.ReadFile(t.Fs.Source, overlayFilename)
 	if err != nil {
 		return err
 	}
@@ -315,19 +347,13 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 	switch ext {
 	case ".amber":
 		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
-		compiler := amber.New()
-		b, err := afero.ReadFile(hugofs.Source(), path)
+		b, err := afero.ReadFile(t.Fs.Source, path)
 
 		if err != nil {
 			return err
 		}
 
-		// Parse the input data
-		if err := compiler.ParseData(b, path); err != nil {
-			return err
-		}
-
-		templ, err := compiler.CompileWithTemplate(t.New(templateName))
+		templ, err := t.CompileAmberWithTemplate(b, path, t.New(templateName))
 		if err != nil {
 			return err
 		}
@@ -335,14 +361,14 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 		return applyTemplateTransformers(templ)
 	case ".ace":
 		var innerContent, baseContent []byte
-		innerContent, err := afero.ReadFile(hugofs.Source(), path)
+		innerContent, err := afero.ReadFile(t.Fs.Source, path)
 
 		if err != nil {
 			return err
 		}
 
 		if baseTemplatePath != "" {
-			baseContent, err = afero.ReadFile(hugofs.Source(), baseTemplatePath)
+			baseContent, err = afero.ReadFile(t.Fs.Source, baseTemplatePath)
 			if err != nil {
 				return err
 			}
@@ -355,13 +381,13 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return t.AddTemplateFileWithMaster(name, path, baseTemplatePath)
 		}
 
-		b, err := afero.ReadFile(hugofs.Source(), path)
+		b, err := afero.ReadFile(t.Fs.Source, path)
 
 		if err != nil {
 			return err
 		}
 
-		t.log.DEBUG.Printf("Add template file from path %s", path)
+		t.Log.DEBUG.Printf("Add template file from path %s", path)
 
 		return t.AddTemplate(name, string(b))
 	}
@@ -391,25 +417,25 @@ func isBaseTemplate(path string) bool {
 }
 
 func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
-	t.log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
+	t.Log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
-		t.log.DEBUG.Println("Template path", path)
+		t.Log.DEBUG.Println("Template path", path)
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(absPath)
 			if err != nil {
-				t.log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
+				t.Log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
 				return nil
 			}
-			linkfi, err := hugofs.Source().Stat(link)
+			linkfi, err := t.Fs.Source.Stat(link)
 			if err != nil {
-				t.log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				t.Log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
 			}
 			if !linkfi.Mode().IsRegular() {
-				t.log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
+				t.Log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
 			}
 			return nil
 		}
@@ -441,7 +467,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 
 				// This may be a view that shouldn't have base template
 				// Have to look inside it to make sure
-				needsBase, err := helpers.FileContainsAny(path, innerMarkers, hugofs.Source())
+				needsBase, err := helpers.FileContainsAny(path, innerMarkers, t.Fs.Source)
 				if err != nil {
 					return err
 				}
@@ -482,7 +508,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 					for _, pair := range pairsToCheck {
 						pathsToCheck := basePathsToCheck(pair, layoutDir, themeDir)
 						for _, pathToCheck := range pathsToCheck {
-							if ok, err := helpers.Exists(pathToCheck, hugofs.Source()); err == nil && ok {
+							if ok, err := helpers.Exists(pathToCheck, t.Fs.Source); err == nil && ok {
 								baseTemplatePath = pathToCheck
 								break Loop
 							}
@@ -492,14 +518,14 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 			}
 
 			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
-				t.log.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
+				t.Log.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
 			}
 
 		}
 		return nil
 	}
-	if err := helpers.SymbolicWalk(hugofs.Source(), absPath, walker); err != nil {
-		t.log.ERROR.Printf("Failed to load templates: %s", err)
+	if err := helpers.SymbolicWalk(t.Fs.Source, absPath, walker); err != nil {
+		t.Log.ERROR.Printf("Failed to load templates: %s", err)
 	}
 }
 
@@ -526,6 +552,6 @@ func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
 
 func (t *GoHTMLTemplate) PrintErrors() {
 	for i, e := range t.errors {
-		t.log.ERROR.Println(i, ":", e.err)
+		t.Log.ERROR.Println(i, ":", e.err)
 	}
 }

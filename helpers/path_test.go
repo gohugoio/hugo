@@ -30,6 +30,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
 )
 
@@ -64,7 +65,8 @@ func TestMakePath(t *testing.T) {
 
 	for _, test := range tests {
 		viper.Set("removePathAccents", test.removeAccents)
-		p := NewPathSpecFromConfig(viper.GetViper())
+		p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+
 		output := p.MakePath(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
@@ -77,7 +79,7 @@ func TestMakePathSanitized(t *testing.T) {
 	defer viper.Reset()
 	initCommonTestConfig()
 
-	p := NewPathSpecFromConfig(viper.GetViper())
+	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
 
 	tests := []struct {
 		input    string
@@ -105,7 +107,7 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 
 	initCommonTestConfig()
 	viper.Set("disablePathToLower", true)
-	p := NewPathSpecFromConfig(viper.GetViper())
+	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
 
 	tests := []struct {
 		input    string

@@ -43,8 +43,8 @@ import (
 	"github.com/bep/inflect"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 
@@ -56,14 +56,15 @@ import (
 
 // Some of the template funcs are'nt entirely stateless.
 type templateFuncster struct {
-	t              *GoHTMLTemplate
 	funcMap        template.FuncMap
 	cachedPartials partialCache
+
+	*deps.Deps
 }
 
-func newTemplateFuncster(t *GoHTMLTemplate) *templateFuncster {
+func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 	return &templateFuncster{
-		t:              t,
+		Deps:           deps,
 		cachedPartials: partialCache{p: make(map[string]template.HTML)},
 	}
 }
@@ -424,7 +425,7 @@ func resetImageConfigCache() {
 
 // imageConfig returns the image.Config for the specified path relative to the
 // working directory. resetImageConfigCache must be run beforehand.
-func imageConfig(path interface{}) (image.Config, error) {
+func (t *templateFuncster) imageConfig(path interface{}) (image.Config, error) {
 	filename, err := cast.ToStringE(path)
 	if err != nil {
 		return image.Config{}, err
@@ -443,7 +444,7 @@ func imageConfig(path interface{}) (image.Config, error) {
 		return config, nil
 	}
 
-	f, err := hugofs.WorkingDir().Open(filename)
+	f, err := t.Fs.WorkingDir.Open(filename)
 	if err != nil {
 		return image.Config{}, err
 	}
@@ -1013,7 +1014,7 @@ func where(seq, key interface{}, args ...interface{}) (interface{}, error) {
 }
 
 // apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
-func (tf *templateFuncster) apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
+func (t *templateFuncster) apply(seq interface{}, fname string, args ...interface{}) (interface{}, error) {
 	if seq == nil {
 		return make([]interface{}, 0), nil
 	}
@@ -1028,7 +1029,7 @@ func (tf *templateFuncster) apply(seq interface{}, fname string, args ...interfa
 		return nil, errors.New("can't iterate over a nil value")
 	}
 
-	fn, found := tf.funcMap[fname]
+	fn, found := t.funcMap[fname]
 	if !found {
 		return nil, errors.New("can't find function " + fname)
 	}
@@ -1528,26 +1529,27 @@ type partialCache struct {
 // Get retrieves partial output from the cache based upon the partial name.
 // If the partial is not found in the cache, the partial is rendered and added
 // to the cache.
-func (tf *templateFuncster) Get(key, name string, context interface{}) (p template.HTML) {
+func (t *templateFuncster) Get(key, name string, context interface{}) (p template.HTML) {
 	var ok bool
 
-	tf.cachedPartials.RLock()
-	p, ok = tf.cachedPartials.p[key]
-	tf.cachedPartials.RUnlock()
+	t.cachedPartials.RLock()
+	p, ok = t.cachedPartials.p[key]
+	t.cachedPartials.RUnlock()
 
 	if ok {
 		return p
 	}
 
-	tf.cachedPartials.Lock()
-	if p, ok = tf.cachedPartials.p[key]; !ok {
-		tf.cachedPartials.Unlock()
-		p = tf.t.partial(name, context)
+	t.cachedPartials.Lock()
+	if p, ok = t.cachedPartials.p[key]; !ok {
+		t.cachedPartials.Unlock()
+		p = t.Tmpl.Partial(name, context)
 
-		tf.cachedPartials.Lock()
-		tf.cachedPartials.p[key] = p
+		t.cachedPartials.Lock()
+		t.cachedPartials.p[key] = p
+
 	}
-	tf.cachedPartials.Unlock()
+	t.cachedPartials.Unlock()
 
 	return p
 }
@@ -1556,14 +1558,14 @@ func (tf *templateFuncster) Get(key, name string, context interface{}) (p templa
 // string parameter (a string slice actually, but be only use a variadic
 // argument to make it optional) can be passed so that a given partial can have
 // multiple uses.  The cache is created with name+variant as the key.
-func (tf *templateFuncster) partialCached(name string, context interface{}, variant ...string) template.HTML {
+func (t *templateFuncster) partialCached(name string, context interface{}, variant ...string) template.HTML {
 	key := name
 	if len(variant) > 0 {
 		for i := 0; i < len(variant); i++ {
 			key += variant[i]
 		}
 	}
-	return tf.Get(key, name, context)
+	return t.Get(key, name, context)
 }
 
 // regexpCache represents a cache of regexp objects protected by a mutex.
@@ -1814,23 +1816,23 @@ func readFile(fs *afero.BasePathFs, filename string) (string, error) {
 // configured WorkingDir.
 // It returns the contents as a string.
 // There is a upper size limit set at 1 megabytes.
-func readFileFromWorkingDir(i interface{}) (string, error) {
+func (t *templateFuncster) readFileFromWorkingDir(i interface{}) (string, error) {
 	s, err := cast.ToStringE(i)
 	if err != nil {
 		return "", err
 	}
-	return readFile(hugofs.WorkingDir(), s)
+	return readFile(t.Fs.WorkingDir, s)
 }
 
 // readDirFromWorkingDir listst the directory content relative to the
 // configured WorkingDir.
-func readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
+func (t *templateFuncster) readDirFromWorkingDir(i interface{}) ([]os.FileInfo, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := afero.ReadDir(hugofs.WorkingDir(), path)
+	list, err := afero.ReadDir(t.Fs.WorkingDir, path)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to read Directory %s with error message %s", path, err)
@@ -2074,20 +2076,20 @@ func htmlUnescape(in interface{}) (string, error) {
 	return html.UnescapeString(conv), nil
 }
 
-func absURL(a interface{}) (template.HTML, error) {
+func (t *templateFuncster) absURL(a interface{}) (template.HTML, error) {
 	s, err := cast.ToStringE(a)
 	if err != nil {
 		return "", nil
 	}
-	return template.HTML(helpers.CurrentPathSpec().AbsURL(s, false)), nil
+	return template.HTML(t.PathSpec.AbsURL(s, false)), nil
 }
 
-func relURL(a interface{}) (template.HTML, error) {
+func (t *templateFuncster) relURL(a interface{}) (template.HTML, error) {
 	s, err := cast.ToStringE(a)
 	if err != nil {
 		return "", nil
 	}
-	return template.HTML(helpers.CurrentPathSpec().RelURL(s, false)), nil
+	return template.HTML(t.PathSpec.RelURL(s, false)), nil
 }
 
 // getenv retrieves the value of the environment variable named by the key.
@@ -2101,19 +2103,19 @@ func getenv(key interface{}) (string, error) {
 	return os.Getenv(skey), nil
 }
 
-func (tf *templateFuncster) initFuncMap() {
+func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
-		"absURL": absURL,
+		"absURL": t.absURL,
 		"absLangURL": func(i interface{}) (template.HTML, error) {
 			s, err := cast.ToStringE(i)
 			if err != nil {
 				return "", err
 			}
-			return template.HTML(helpers.CurrentPathSpec().AbsURL(s, true)), nil
+			return template.HTML(t.PathSpec.AbsURL(s, true)), nil
 		},
 		"add":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '+') },
 		"after":         after,
-		"apply":         tf.apply,
+		"apply":         t.apply,
 		"base64Decode":  base64Decode,
 		"base64Encode":  base64Encode,
 		"chomp":         chomp,
@@ -2130,8 +2132,8 @@ func (tf *templateFuncster) initFuncMap() {
 		"findRE":        findRE,
 		"first":         first,
 		"ge":            ge,
-		"getCSV":        getCSV,
-		"getJSON":       getJSON,
+		"getCSV":        t.getCSV,
+		"getJSON":       t.getJSON,
 		"getenv":        getenv,
 		"gt":            gt,
 		"hasPrefix":     hasPrefix,
@@ -2139,7 +2141,7 @@ func (tf *templateFuncster) initFuncMap() {
 		"htmlEscape":    htmlEscape,
 		"htmlUnescape":  htmlUnescape,
 		"humanize":      humanize,
-		"imageConfig":   imageConfig,
+		"imageConfig":   t.imageConfig,
 		"in":            in,
 		"index":         index,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
@@ -2158,21 +2160,21 @@ func (tf *templateFuncster) initFuncMap() {
 		"mul":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
 		"ne":            ne,
 		"now":           func() time.Time { return time.Now() },
-		"partial":       tf.t.partial,
-		"partialCached": tf.partialCached,
+		"partial":       t.Tmpl.Partial,
+		"partialCached": t.partialCached,
 		"plainify":      plainify,
 		"pluralize":     pluralize,
 		"querify":       querify,
-		"readDir":       readDirFromWorkingDir,
-		"readFile":      readFileFromWorkingDir,
+		"readDir":       t.readDirFromWorkingDir,
+		"readFile":      t.readFileFromWorkingDir,
 		"ref":           ref,
-		"relURL":        relURL,
+		"relURL":        t.relURL,
 		"relLangURL": func(i interface{}) (template.HTML, error) {
 			s, err := cast.ToStringE(i)
 			if err != nil {
 				return "", err
 			}
-			return template.HTML(helpers.CurrentPathSpec().RelURL(s, true)), nil
+			return template.HTML(t.PathSpec.RelURL(s, true)), nil
 		},
 		"relref":       relRef,
 		"replace":      replace,
@@ -2201,12 +2203,12 @@ func (tf *templateFuncster) initFuncMap() {
 		"trim":         trim,
 		"truncate":     truncate,
 		"upper":        upper,
-		"urlize":       helpers.CurrentPathSpec().URLize,
+		"urlize":       t.PathSpec.URLize,
 		"where":        where,
 		"i18n":         i18nTranslate,
 		"T":            i18nTranslate,
 	}
 
-	tf.funcMap = funcMap
-	tf.t.Funcs(funcMap)
+	t.funcMap = funcMap
+	t.Tmpl.Funcs(funcMap)
 }

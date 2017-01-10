@@ -16,6 +16,10 @@ package hugolib
 import (
 	"path/filepath"
 	"testing"
+
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/stretchr/testify/require"
 )
 
 const pageWithAlias = `---
@@ -30,31 +34,37 @@ const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 
 func TestAlias(t *testing.T) {
 	testCommonResetState()
-	writeSource(t, filepath.Join("content", "page.md"), pageWithAlias)
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
 
-	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAlias)
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
+
+	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
 	// the real page
-	assertFileContent(t, filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
+	assertFileContent(t, fs, filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
 	// the alias redirector
-	assertFileContent(t, filepath.Join("public", "foo", "bar", "index.html"), false, "<meta http-equiv=\"refresh\" content=\"0; ")
+	assertFileContent(t, fs, filepath.Join("public", "foo", "bar", "index.html"), false, "<meta http-equiv=\"refresh\" content=\"0; ")
 }
 
 func TestAliasTemplate(t *testing.T) {
 	testCommonResetState()
-	writeSource(t, filepath.Join("content", "page.md"), pageWithAlias)
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
-	writeSource(t, filepath.Join("layouts", "alias.html"), aliasTemplate)
 
-	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	fs := hugofs.NewMem()
+
+	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAlias)
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
+	writeSource(t, fs, filepath.Join("layouts", "alias.html"), aliasTemplate)
+
+	sites, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+
+	require.NoError(t, err)
+
+	require.NoError(t, sites.Build(BuildCfg{}))
 
 	// the real page
-	assertFileContent(t, filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
+	assertFileContent(t, fs, filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
 	// the alias redirector
-	assertFileContent(t, filepath.Join("public", "foo", "bar", "index.html"), false, "ALIASTEMPLATE")
+	assertFileContent(t, fs, filepath.Join("public", "foo", "bar", "index.html"), false, "ALIASTEMPLATE")
 }

@@ -60,7 +60,7 @@ func Highlight(code, lang, optsStr string) string {
 	io.WriteString(hash, lang)
 	io.WriteString(hash, options)
 
-	fs := hugofs.Os()
+	fs := hugofs.Os
 
 	ignoreCache := viper.GetBool("ignoreCache")
 	cacheDir := viper.GetString("cacheDir")

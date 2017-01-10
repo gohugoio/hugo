@@ -29,7 +29,6 @@ import (
 // TODO(bep) Get rid of these.
 var (
 	currentConfigProvider ConfigProvider
-	currentPathSpec       *PathSpec
 )
 
 // ConfigProvider provides the configuration settings for Hugo.
@@ -52,24 +51,13 @@ func Config() ConfigProvider {
 	return viper.Get("currentContentLanguage").(ConfigProvider)
 }
 
-// CurrentPathSpec returns the current PathSpec.
-// If it is not set, a new will be created based in the currently active Hugo config.
-func CurrentPathSpec() *PathSpec {
-	if currentPathSpec != nil {
-		return currentPathSpec
-	}
-	// Some tests rely on this. We will fix that, eventually.
-	return NewPathSpecFromConfig(Config())
-}
-
 // InitConfigProviderForCurrentContentLanguage does what it says.
 func InitConfigProviderForCurrentContentLanguage() {
 	currentConfigProvider = viper.Get("CurrentContentLanguage").(ConfigProvider)
-	currentPathSpec = NewPathSpecFromConfig(currentConfigProvider)
 }
 
 // ResetConfigProvider is used in tests.
 func ResetConfigProvider() {
 	currentConfigProvider = nil
-	currentPathSpec = nil
+
 }

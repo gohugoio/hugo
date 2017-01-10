@@ -29,7 +29,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
@@ -109,6 +108,8 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	c := commandeer{cfg}
+
 	if flagChanged(cmd.Flags(), "disableLiveReload") {
 		viper.Set("disableLiveReload", disableLiveReload)
 	}
@@ -119,7 +120,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if viper.GetBool("watch") {
 		serverWatch = true
-		watchConfig(cfg)
+		c.watchConfig()
 	}
 
 	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
@@ -157,18 +158,18 @@ func server(cmd *cobra.Command, args []string) error {
 
 	// Hugo writes the output to memory instead of the disk
 	if !renderToDisk {
-		hugofs.SetDestination(new(afero.MemMapFs))
+		cfg.Fs.Destination = new(afero.MemMapFs)
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		viper.Set("publishDir", "/")
 	}
 
-	if err := build(cfg, serverWatch); err != nil {
+	if err := c.build(serverWatch); err != nil {
 		return err
 	}
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
-		watchDirs := getDirList()
+		watchDirs := c.getDirList()
 		baseWatchDir := viper.GetString("workingDir")
 		for i, dir := range watchDirs {
 			watchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
@@ -177,26 +178,26 @@ func server(cmd *cobra.Command, args []string) error {
 		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(watchDirs)), ",")
 
 		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
-		err := newWatcher(cfg, serverPort)
+		err := c.newWatcher(serverPort)
 
 		if err != nil {
 			return err
 		}
 	}
 
-	serve(serverPort)
+	c.serve(serverPort)
 
 	return nil
 }
 
-func serve(port int) {
+func (c commandeer) serve(port int) {
 	if renderToDisk {
 		jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("publishDir")))
 	} else {
 		jww.FEEDBACK.Println("Serving pages from memory")
 	}
 
-	httpFs := afero.NewHttpFs(hugofs.Destination())
+	httpFs := afero.NewHttpFs(c.Fs.Destination)
 	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("publishDir")))}
 	fileserver := http.FileServer(fs)
 

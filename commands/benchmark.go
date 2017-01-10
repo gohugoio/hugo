@@ -49,9 +49,12 @@ func init() {
 
 func benchmark(cmd *cobra.Command, args []string) error {
 	cfg, err := InitializeConfig(benchmarkCmd)
+
 	if err != nil {
 		return err
 	}
+
+	c := commandeer{cfg}
 
 	var memProf *os.File
 	if memProfileFile != "" {
@@ -79,7 +82,7 @@ func benchmark(cmd *cobra.Command, args []string) error {
 
 	t := time.Now()
 	for i := 0; i < benchmarkTimes; i++ {
-		if err = resetAndBuildSites(cfg, false); err != nil {
+		if err = c.resetAndBuildSites(false); err != nil {
 			return err
 		}
 	}

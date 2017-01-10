@@ -89,19 +89,16 @@ func TestDataDirUnknownFormat(t *testing.T) {
 	sources := []source.ByteSource{
 		{Name: filepath.FromSlash("test.roml"), Content: []byte("boo")},
 	}
-	s := NewSiteDefaultLang()
-	err := s.loadData([]source.Input{&source.InMemorySource{ByteSource: sources}})
-	if err != nil {
-		t.Fatalf("Should not return an error")
-	}
+	s, err := NewSiteDefaultLang()
+	require.NoError(t, err)
+	require.NoError(t, s.loadData([]source.Input{&source.InMemorySource{ByteSource: sources}}))
 }
 
 func doTestDataDir(t *testing.T, expected interface{}, sources []source.Input) {
-	s := NewSiteDefaultLang()
-	err := s.loadData(sources)
-	if err != nil {
-		t.Fatalf("Error loading data: %s", err)
-	}
+	s, err := NewSiteDefaultLang()
+	require.NoError(t, err)
+	require.NoError(t, s.loadData(sources))
+
 	if !reflect.DeepEqual(expected, s.Data) {
 		t.Errorf("Expected structure\n%#v got\n%#v", expected, s.Data)
 	}
@@ -109,21 +106,22 @@ func doTestDataDir(t *testing.T, expected interface{}, sources []source.Input) {
 
 func TestDataFromShortcode(t *testing.T) {
 	testCommonResetState()
-	writeSource(t, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
-	writeSource(t, "layouts/_default/single.html", `
+
+	cfg := newTestDepsConfig()
+
+	writeSource(t, cfg.Fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
+	writeSource(t, cfg.Fs, "layouts/_default/single.html", `
 * Slogan from template: {{  .Site.Data.hugo.slogan }}
 * {{ .Content }}`)
-	writeSource(t, "layouts/shortcodes/d.html", `{{  .Page.Site.Data.hugo.slogan }}`)
-	writeSource(t, "content/c.md", `---
+	writeSource(t, cfg.Fs, "layouts/shortcodes/d.html", `{{  .Page.Site.Data.hugo.slogan }}`)
+	writeSource(t, cfg.Fs, "content/c.md", `---
 ---
 Slogan from shortcode: {{< d >}}
 `)
 
-	h, err := newHugoSitesDefaultLanguage()
-	require.NoError(t, err)
-	require.NoError(t, h.Build(BuildCfg{}))
+	buildSingleSite(t, cfg, BuildCfg{})
 
-	content := readSource(t, "public/c/index.html")
+	content := readSource(t, cfg.Fs, "public/c/index.html")
 	require.True(t, strings.Contains(content, "Slogan from template: Hugo Rocks!"), content)
 	require.True(t, strings.Contains(content, "Slogan from shortcode: Hugo Rocks!"), content)
 

@@ -18,8 +18,9 @@ import (
 
 	"reflect"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
+	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/tplapi"
 	"github.com/spf13/viper"
 )
 
@@ -45,24 +46,21 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	viper.Set("baseURL", "http://auth/bub/")
 
-	s := &Site{
-		deps:     newDeps(DepsCfg{}),
-		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: helpers.NewDefaultLanguage(),
-	}
+	fs := hugofs.NewMem()
 
-	if internal {
-		if err := buildAndRenderSite(s); err != nil {
-			t.Fatalf("Failed to build site: %s", err)
-		}
+	depsCfg := deps.DepsCfg{Fs: fs}
 
-	} else {
-		if err := buildAndRenderSite(s, "sitemap.xml", sitemapTemplate); err != nil {
-			t.Fatalf("Failed to build site: %s", err)
+	if !internal {
+		depsCfg.WithTemplate = func(templ tplapi.Template) error {
+			templ.AddTemplate("sitemap.xml", sitemapTemplate)
+			return nil
 		}
 	}
 
-	assertFileContent(t, "public/sitemap.xml", true,
+	writeSourcesToSource(t, "content", fs, weightedSources...)
+	s := buildSingleSite(t, depsCfg, BuildCfg{})
+
+	assertFileContent(t, s.Fs, "public/sitemap.xml", true,
 		// Regular page
 		" <loc>http://auth/bub/sect/doc1/</loc>",
 		// Home page
