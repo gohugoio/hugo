@@ -33,7 +33,7 @@ docker: ## Build hugo Docker container
 	docker rm hugo-build
 
 build: hugo # Deprecated: use "hugo" target
-install-gitinfo: install # Deprected: use "install" target
+install-gitinfo: install # Deprecated: use "install" target
 no-git-info: hugo-no-gitinfo # Deprecated: use "hugo-no-gitinfo" target
 
 check: fmt test test-race test386 vet ## Run default tests and linters
