@@ -140,8 +140,7 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 
 		if templ != nil {
 			if err := templ.Execute(w, context); err != nil {
-				// Printing the err is spammy, see https://github.com/golang/go/issues/17414
-				helpers.DistinctErrorLog.Println(layout, "is an incomplete or empty template")
+				helpers.DistinctErrorLog.Println(layout, err)
 			}
 			worked = true
 			break
