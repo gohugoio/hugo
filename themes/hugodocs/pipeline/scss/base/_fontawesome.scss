@@ -1,8 +1,8 @@
 @if $usefontawesome {
   @font-face {
     font-family: 'FontAwesome';
-    src: url("/assets/css/fonts/fontawesome/fontawesome-webfont.eot?v=4.6.3");
-    src: url("/assets/css/fonts/fontawesome/fontawesome-webfont.eot?#iefix&v=4.6.3") format("embedded-opentype"), url("/assets/css/fonts/fontawesome/fontawesome-webfont.woff2?v=4.6.3") format("woff2"), url("/assets//css/fonts/fontawesome/fontawesome-webfont.woff?v=4.6.3") format("woff"), url("/assets/css/fonts/fontawesome/fontawesome-webfont.ttf?v=4.6.3") format("truetype"), url("/assets/css/fonts/fontawesome/fontawesome-webfont.svg?v=4.6.3#fontawesomeregular") format("svg");
+    src: url("/fonts/fontawesome/fontawesome-webfont.eot?v=4.6.3");
+    src: url("/fonts/fontawesome/fontawesome-webfont.eot?#iefix&v=4.6.3") format("embedded-opentype"), url("/fonts/fontawesome/fontawesome-webfont.woff2?v=4.6.3") format("woff2"), url("/afonts/fontawesome/fontawesome-webfont.woff?v=4.6.3") format("woff"), url("/fonts/fontawesome/fontawesome-webfont.ttf?v=4.6.3") format("truetype"), url("/fonts/fontawesome/fontawesome-webfont.svg?v=4.6.3#fontawesomeregular") format("svg");
     font-weight: normal;
     font-style: normal;
   }

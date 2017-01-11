@@ -319,7 +319,7 @@
 }
 
 //Font mixin
-@mixin fonts($font: null, $path: '/css/fonts', $weights: 100 200 300 400 500 600 700 800 900, $woff2: false, $italic: true) {
+@mixin fonts($font: null, $path: '/fonts', $weights: 100 200 300 400 500 600 700 800 900, $woff2: false, $italic: true) {
   @each $weight in $weights {
     @font-face {
       font-family: "#{$font}";

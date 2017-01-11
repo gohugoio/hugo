@@ -2,11 +2,9 @@
 title:
 linktitle:
 description:
-qr_description:
-qr_returns:
 date: 2017-01-01
-publishdate: 2017-01-01
-lastmod: 2017-01-01
+publishdate:
+lastmod:
 tags: []
 categories: []
 weight: 10

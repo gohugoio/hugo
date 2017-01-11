@@ -61,9 +61,9 @@ watch = true
   ## Include jQuery 2.2.4 in your site head. (see /static/assets/js)
   includejq = true
   ## Date the Site is Published, use YYYY-MM-DD
-  SitePublishDate = ""
+  sitepublishdate = ""
   ## Twitter handle without the "@"
-  TwitterHandle = ""
+  twitterhandle = ""
   ## Facebook URL
   facebook = ""
   ## Default Image for Social Sharing. This image should live at static/images/

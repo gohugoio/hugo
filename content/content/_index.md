@@ -1,16 +1,18 @@
 ---
-aliases: []
-date: 2016-12-26T06:42:59-06:00
-description: null
+title: Content
+linktitle:
+description: How content is organized and managed with Hugo.
+date: 2017-01-09
+publishdate: 2017-01-09
+lastmod: 2017-01-09
+tags: [content, source, organization]
+categories: [content]
+weight: 01
 draft: false
-lastmod: 2017-01-01
-linktitle: null
-notes: null
-publishdate: 2017-01-01
-qr_description: null
-qr_returns: null
-slug: null
-title: _index
-weight: 1
+slug:
+aliases: []
+notes:
 ---
+
+
 

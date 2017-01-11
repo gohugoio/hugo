@@ -16,19 +16,18 @@ aliases: []
 notes:
 ---
 
-
 Hugo boasts the following features:
 
-### General
+## General
 
-  * Extremely fast build times (≈1 ms per page)
-  * Completely cross platform: Runs on <i class="fa fa-apple"></i>&nbsp;Mac OS&nbsp;X, <i class="fa fa-linux"></i>&nbsp;Linux, <i class="fa fa-windows"></i>&nbsp;Windows, and more!
-  * Easy [installation](/overview/installing/)
-  * Render changes [on the fly](/overview/usage/) with [LiveReload](/extras/livereload/) as you develop
-  * [Powerful Theming][]
-  * Host your site anywhere
+* Extremely fast build times (≈1 ms per page)
+* Completely cross platform: Runs on <i class="fa fa-apple"></i>&nbsp;Mac OS&nbsp;X, <i class="fa fa-linux"></i>&nbsp;Linux, <i class="fa fa-windows"></i>&nbsp;Windows, and more!
+* Easy [installation](/overview/installing/)
+* Render changes [on the fly](/overview/usage/) with [LiveReload](/extras/livereload/) as you develop
+* [Powerful Theming][]
+* Host your site anywhere
 
-### Organization
+## Organization
 
   * Straightforward [organization](/project-organization), including website sections
   * Customizable [URLs](/extras/urls/)
@@ -40,7 +39,7 @@ Hugo boasts the following features:
   * [Permalink](/extras/permalinks/) pattern support
   * [Aliases](/extras/aliases/) (redirects)
 
-### Content
+## Content
 
   * Native [Markdown](/content/example/) support
     * Support for other languages through _external helpers_, see [supported formats](/content/supported-formats)
@@ -52,7 +51,7 @@ Hugo boasts the following features:
   * ["Minutes to Read"](/layout/variables/) functionality
   * ["Wordcount"](/layout/variables/) functionality
 
-### Additional Features
+## Additional Features
 
   * Integrated [Disqus](https://disqus.com/) comment support
   * Integrated [Google Analytics](https://google-analytics.com/) support
@@ -60,6 +59,7 @@ Hugo boasts the following features:
   * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](https://github.com/yosssi/ace) HTML templates
   * Syntax [highlighting](/extras/highlighting/) powered by [Pygments](http://pygments.org/)
 
-See what's coming next in the [roadmap](/meta/roadmap/).
+See what's coming next in the [Hugo roadmap][].
 
 [Powerful Theming]: /themes
+[Hugo roadmap]: /about/roadmap
