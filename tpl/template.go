@@ -140,12 +140,7 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 
 		if templ != nil {
 			if err := templ.Execute(w, context); err != nil {
-				errmsg := err.Error()
-				// Clip overly long error messages, see https://github.com/golang/go/issues/17414
-				if len(errmsg) > 512 {
-					errmsg = errmsg[:512] + "..."
-				}
-				helpers.DistinctErrorLog.Println(layout, errmsg)
+				helpers.DistinctErrorLog.Println(layout, err)
 			}
 			worked = true
 			break
