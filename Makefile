@@ -1,83 +1,80 @@
+# A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
-# Adds build information from git repo
-#
-# as suggested by tatsushid in
-# https://github.com/spf13/hugo/issues/540
+PACKAGE = github.com/spf13/hugo
+COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
+BUILD_DATE = `date +%FT%T%z`
+LDFLAGS = -ldflags "-X ${PACKAGE}/hugolib.CommitHash=${COMMIT_HASH} -X ${PACKAGE}/hugolib.BuildDate=${BUILD_DATE}"
+NOGI_LDFLAGS = -ldflags "-X ${PACKAGE}/hugolib.BuildDate=${BUILD_DATE}"
 
-COMMIT_HASH=`git rev-parse --short HEAD 2>/dev/null`
-BUILD_DATE=`date +%FT%T%z`
-LDFLAGS=-ldflags "-X github.com/spf13/hugo/hugolib.CommitHash=${COMMIT_HASH} -X github.com/spf13/hugo/hugolib.BuildDate=${BUILD_DATE}"
-PACKAGES = $(shell govendor list -no-status +local | sed 's/github.com.spf13.hugo/./')
+.PHONY: vendor docker check fmt lint test test-race vet test-cover-html help
+.DEFAULT_GOAL := help
 
-all: gitinfo
+vendor: ## Install govendor and sync Hugo's vendored dependencies
+	go get github.com/kardianos/govendor
+	govendor sync ${PACKAGE}
 
-install: install-gitinfo
+hugo: vendor ## Build hugo binary
+	go build ${LDFLAGS} ${PACKAGE}
 
-help:
-	echo ${COMMIT_HASH}
-	echo ${BUILD_DATE}
+hugo-race: vendor ## Build hugo binary with race detector enabled
+	go build -race ${LDFLAGS} ${PACAGE}
 
-gitinfo:
-	go build ${LDFLAGS} -o hugo main.go
+install: vendor ## Install hugo binary
+	go install ${LDFLAGS} ${PACKAGE}
 
-install-gitinfo:
-	go install ${LDFLAGS} ./...
+hugo-no-gitinfo: LDFLAGS = ${NOGI_LDFLAGS}
+hugo-no-gitinfo: vendor hugo ## Build hugo without git info
 
-no-git-info:
-	go build -o hugo main.go
-
-docker:
+docker: ## Build hugo Docker container
 	docker build -t hugo .
 	docker rm -f hugo-build || true
 	docker run --name hugo-build hugo ls /go/bin
 	docker cp hugo-build:/go/bin/hugo .
 	docker rm hugo-build
 
-govendor:
-	go get -u github.com/kardianos/govendor
-	go install github.com/kardianos/govendor
-	govendor sync github.com/spf13/hugo
+govendor: vendor # Deprecated: use "vendor" target
+get: vendor # Deprecated: use "vendor"
+gitinfo: hugo # Deprecated: use "hugo" target
+install-gitinfo: install # Deprecated: use "install" target
+no-git-info: hugo-no-gitinfo # Deprecated: use "hugo-no-gitinfo" target
 
-check: fmt vet test test-race
+check: test-race test386 fmt vet ## Run tests and linters
 
-cyclo:
-	@for d in `govendor list -no-status +local | sed 's/github.com.spf13.hugo/./'` ; do \
-		if [ "`gocyclo -over 20 $$d | tee /dev/stderr`" ]; then \
-			echo "^ cyclomatic complexity exceeds 20, refactor the code!" && echo && exit 1; \
-		fi \
-	done
+test386: ## Run tests in 32-bit mode
+	GOARCH=386 govendor test +local
 
-fmt:
+test: ## Run tests
+	govendor test +local
+
+test-race: ## Run tests with race detector
+	govendor test -race +local
+
+fmt: ## Run gofmt linter
 	@for d in `govendor list -no-status +local | sed 's/github.com.spf13.hugo/./'` ; do \
 		if [ "`gofmt -l $$d/*.go | tee /dev/stderr`" ]; then \
 			echo "^ improperly formatted go files" && echo && exit 1; \
 		fi \
 	done
 
-lint:
+lint: ## Run golint linter
 	@for d in `govendor list -no-status +local | sed 's/github.com.spf13.hugo/./'` ; do \
 		if [ "`golint $$d | tee /dev/stderr`" ]; then \
 			echo "^ golint errors!" && echo && exit 1; \
 		fi \
 	done
 
-get:
-	go get -v -t ./...
-
-test:
-	govendor test +local
-
-test-race:
-	govendor test -race +local
-
-vet:
+vet: ## Run go vet linter
 	@if [ "`govendor vet +local | tee /dev/stderr`" ]; then \
 		echo "^ go vet errors!" && echo && exit 1; \
 	fi
 
-test-cover-html:
+test-cover-html: PACKAGES = $(shell govendor list -no-status +local | sed 's/github.com.spf13.hugo/./')
+test-cover-html: ## Generate test coverage report
 	echo "mode: count" > coverage-all.out
 	$(foreach pkg,$(PACKAGES),\
 		govendor test -coverprofile=coverage.out -covermode=count $(pkg);\
 		tail -n +2 coverage.out >> coverage-all.out;)
 	go tool cover -html=coverage-all.out
+
+help:
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

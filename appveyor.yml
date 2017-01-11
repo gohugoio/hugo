@@ -13,16 +13,10 @@ install:
 
     pip install docutils
 build_script:
-- cmd: make govendor
+- cmd: make vendor
 test_script:
 - cmd: >-
-    make check
-
-    REM Test 64-bit alignment on 32-bit builds
-
-    set "GOARCH=386" & make test & set GOARCH=
-
-    go build -race
+    make hugo-race check
 
     hugo -s docs/
 
