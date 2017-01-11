@@ -104,7 +104,7 @@ func init() {
 }
 
 func server(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig()
+	cfg, err := InitializeConfig(serverCmd)
 	if err != nil {
 		return err
 	}
