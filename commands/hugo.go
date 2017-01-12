@@ -319,6 +319,14 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (hugolib.DepsCfg, error) {
 		viper.Set("layoutDir", layoutDir)
 	}
 
+	if contentDir != "" {
+		viper.Set("ContentDir", contentDir)
+	}
+
+	if layoutDir != "" {
+		viper.Set("LayoutDir", layoutDir)
+	}
+
 	if cacheDir != "" {
 		viper.Set("cacheDir", cacheDir)
 	}
