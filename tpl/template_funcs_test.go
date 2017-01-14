@@ -2833,6 +2833,7 @@ func TestPartialCached(t *testing.T) {
 }
 
 func BenchmarkPartial(b *testing.B) {
+	tstInitTemplates()
 	tmpl, err := New(logger).New("testroot").Parse(`{{ partial "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
@@ -2852,6 +2853,7 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
+	tstInitTemplates()
 	tmpl, err := New(logger).New("testroot").Parse(`{{ partialCached "bench1" . }}`)
 	if err != nil {
 		b.Fatalf("unable to create new html template: %s", err)
