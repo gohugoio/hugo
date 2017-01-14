@@ -1409,7 +1409,6 @@ func (p *Page) FullFilePath() string {
 }
 
 func (p *Page) TargetPath() (outfile string) {
-
 	switch p.Kind {
 	case KindHome:
 		return p.addLangFilepathPrefix(helpers.FilePathSeparator)
@@ -1438,6 +1437,12 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile, err = override.Expand(p)
 		if err == nil {
 			outfile, _ = url.QueryUnescape(outfile)
+
+			// QueryUnescape replaces '+' with ' '.
+			// In this case we need to put it back
+			re, _ := regexp.Compile(" ")
+			outfile = re.ReplaceAllString(outfile, "+")
+
 			if strings.HasSuffix(outfile, "/") {
 				outfile += "index.html"
 			}
