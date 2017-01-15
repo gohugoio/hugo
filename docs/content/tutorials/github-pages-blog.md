@@ -15,7 +15,7 @@ title: Hosting on GitHub Pages
 weight: 10
 ---
 
-*This tutorial was contributed by [Spencer Lyon](http://sglyon.com/) (Personal/Organization Pages) and [Gunnar Morling](https://github.com/gunnarmorling/).*
+*This tutorial was contributed by [Spencer Lyon](http://spencerlyon.com/) (Personal/Organization Pages) and [Gunnar Morling](https://github.com/gunnarmorling/).*
 
 ## Introduction
 
