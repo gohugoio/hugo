@@ -29,6 +29,10 @@ Alternatively, you can follow the manual [migration guide]({{< relref "tutorials
 
 - [octohug](https://github.com/codebrane/octohug) - Octopress to Hugo migrator.
 
+### DokuWiki
+
+- [dokuwiki-to-hugo](https://github.com/wgroeneveld/dokuwiki-to-hugo) - Migrates your dokuwiki source pages from [DokuWiki syntax](https://www.dokuwiki.org/wiki:syntax) to Hugo Markdown syntax. Includes extra's like the TODO plugin. Written with extensibility in mind using python 3. Also generates a TOML header for each page. Designed to copypaste the wiki directory into your /content directory. 
+
 ### WordPress
 
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
