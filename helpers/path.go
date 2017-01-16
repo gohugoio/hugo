@@ -100,6 +100,13 @@ func MakeTitle(inpath string) string {
 	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
 }
 
+// MakeTitleInitCaps converts the path given to a suitable title, trimming whitespace
+// and replacing hyphens with whitespace, then forcing the first letter of each word
+// to uppercase. Issue #2743
+func MakeTitleInitCaps(inpath string) string {
+	return strings.Title(strings.Join(strings.Split(strings.TrimSpace(inpath), "-"), " "))
+}
+
 // From https://golang.org/src/net/url/url.go
 func ishex(c rune) bool {
 	switch {
