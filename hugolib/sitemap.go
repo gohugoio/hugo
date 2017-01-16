@@ -26,14 +26,30 @@ type Sitemap struct {
 }
 
 func parseSitemap(input map[string]interface{}) Sitemap {
-	sitemap := Sitemap{Priority: -1, Filename: "sitemap.xml"}
+	sitemap := Sitemap{Priority: 0.5, Filename: "sitemap.xml"}
 
 	for key, value := range input {
 		switch key {
 		case "changefreq":
-			sitemap.ChangeFreq = cast.ToString(value)
+			if value == "always" ||
+			value == "hourly" ||
+			value == "daily" ||
+			value == "weekly" ||
+			value == "monthly" ||
+			value == "yearly" ||
+			value == "never" {
+				sitemap.ChangeFreq = cast.ToString(value)
+				break
+			}
+			jww.WARN.Printf("value '%s' for sitemap.changefreq is invalid, accepted values are: always, hourly, daily, weekly, monthly, yearly, never\n", value)
 		case "priority":
-			sitemap.Priority = cast.ToFloat64(value)
+			priority := cast.ToFloat64(value)
+			if priority >= 0 &&
+			priority <= 1.0 {
+				sitemap.Priority = priority
+				break
+			}
+			jww.WARN.Printf("value '%s' for sitemap.priority is invalid, value should be between 0 and 1.0 and have a maximum of 1 decimal\n", value)
 		case "filename":
 			sitemap.Filename = cast.ToString(value)
 		default:

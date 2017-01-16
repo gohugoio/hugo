@@ -77,11 +77,9 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 }
 
-func TestParseSitemap(t *testing.T) {
-	expected := Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
+func TestParseSitemapUnknownAndFilename(t *testing.T) {
+	expected := Sitemap{Filename: "doo.xml", Priority: 0.5}
 	input := map[string]interface{}{
-		"changefreq": "3",
-		"priority":   3.0,
 		"filename":   "doo.xml",
 		"unknown":    "ignore",
 	}
@@ -90,5 +88,100 @@ func TestParseSitemap(t *testing.T) {
 	if !reflect.DeepEqual(expected, result) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)
 	}
+}
 
+func TestParseSitemapChangefreq(t *testing.T) {
+	var sitemaps = []struct {
+	expected Sitemap
+	result Sitemap
+	}{
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "always"},
+			parseSitemap(map[string]interface{}{"changefreq": "always"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "hourly"},
+			parseSitemap(map[string]interface{}{"changefreq": "hourly"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "daily"},
+			parseSitemap(map[string]interface{}{"changefreq": "daily"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "weekly"},
+			parseSitemap(map[string]interface{}{"changefreq": "weekly"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "monthly"},
+			parseSitemap(map[string]interface{}{"changefreq": "monthly"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "yearly"},
+			parseSitemap(map[string]interface{}{"changefreq": "yearly"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "never"},
+			parseSitemap(map[string]interface{}{"changefreq": "never"}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"changefreq": "invalid"}),
+		},
+	}
+
+	for _, s := range sitemaps {
+		if !reflect.DeepEqual(s.expected, s.result) {
+			t.Errorf("Got \n%v expected \n%v", s.result, s.expected)
+		}	
+	}
+}
+
+func TestParseSitemapPriority(t *testing.T) {
+	var sitemaps = []struct {
+	expected Sitemap
+	result Sitemap
+	}{
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": -1.0}),
+		},
+		{
+			Sitemap{Priority: 0, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 0}),
+		},
+		{
+			Sitemap{Priority: 0.1, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 0.1}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 0.5}),
+		},
+		{
+			Sitemap{Priority: 1.0, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 1.0}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 1.1}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 0.01}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": 1.01}),
+		},
+		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
+			parseSitemap(map[string]interface{}{"priority": "text"}),
+		},
+	}
+
+	for _, s := range sitemaps {
+		if !reflect.DeepEqual(s.expected, s.result) {
+			t.Errorf("Got \n%v expected \n%v", s.result, s.expected)
+		}	
+	}
 }
