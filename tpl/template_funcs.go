@@ -1541,7 +1541,10 @@ func (tf *templateFuncster) Get(key, name string, context interface{}) (p templa
 
 	tf.cachedPartials.Lock()
 	if p, ok = tf.cachedPartials.p[key]; !ok {
+		tf.cachedPartials.Unlock()
 		p = tf.t.partial(name, context)
+
+		tf.cachedPartials.Lock()
 		tf.cachedPartials.p[key] = p
 	}
 	tf.cachedPartials.Unlock()
