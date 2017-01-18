@@ -17,7 +17,7 @@ hugo: vendor ## Build hugo binary
 	go build ${LDFLAGS} ${PACKAGE}
 
 hugo-race: vendor ## Build hugo binary with race detector enabled
-	go build -race ${LDFLAGS} ${PACAGE}
+	go build -race ${LDFLAGS} ${PACKAGE}
 
 install: vendor ## Install hugo binary
 	go install ${LDFLAGS} ${PACKAGE}
