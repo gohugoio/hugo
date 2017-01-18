@@ -37,6 +37,7 @@ Alternatively, you can follow the manual [migration guide]({{< relref "tutorials
 
 - [tumblr-importr](https://github.com/carlmjohnson/tumblr-importr) - An importer that uses the Tumblr API to create a Hugo static site.
 - [tumblr2hugomarkdown](https://github.com/Wysie/tumblr2hugomarkdown) - Export all your Tumblr content to Hugo Markdown files with preserved original formatting.
+- [Tumblr to Hugo](https://github.com/jipiboily/tumblr-to-hugo) - A migration tool that converts each of your Tumblr posts to a content file with a proper title and path. Furthermore, "Tumblr to Hugo" creates a CSV file with the original URL and the new path on Hugo, to help you setup the redirections.
 
 ### Drupal
 
