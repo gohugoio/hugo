@@ -294,8 +294,8 @@ license = "MIT"
 licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE.md"
 description = ""
 homepage = "http://siteforthistheme.com/"
-tags = ["", ""]
-features = ["", ""]
+tags = []
+features = []
 min_version = 0.18
 
 [author]
