@@ -1,0 +1,143 @@
+@media screen and (min-width: 768.1px) {
+  main#main {
+      position: relative;
+  }
+  a#logo-article,
+  main#main.TableOfContents-compact > nav#TableOfContents > ul > li > ul > li > ul, /* below the compact level */
+  nav#anchor-menu,
+  p#title-article,
+  ul#nav-menu.toggle-alternate {
+      display: none;
+  }
+  main#main.TableOfContents-compact > nav#TableOfContents ul > li,
+  p#title-top {
+      display: inline-block;
+  }
+  main#main {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex; /* Opera 36 (Windows XP) */
+  }
+  body,
+  html {
+      width: 100vw;
+  }
+  div#container-page,
+  div#header-page {
+      width: 100%;
+  }
+  body,
+  html {
+      height: 100vh;
+  }
+  article#article,
+  nav#TableOfContents,
+  ul#nav-menu {
+      max-height: 100%;
+  }
+  div#container-page {
+      overflow-x: hidden;
+  }
+  body {
+      overflow-y: hidden;
+  }
+  article#article,
+  nav#TableOfContents,
+  ul#nav-menu {
+  /* To avoid complex cross-axis margin/padding, use 'overflow-y: scroll' */
+      overflow-y: auto;
+  }
+  nav#nav-binary > a.direction,
+  nav#nav-binary {
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+          -ms-flex-direction: column;
+              flex-direction: column;
+  }
+  ul#nav-menu {
+      -webkit-box-ordinal-group: 2;
+          -ms-flex-order: 1;
+              order: 1;
+  }
+  nav#nav-repo {
+      -webkit-box-pack: end;
+          -ms-flex-pack: end;
+              justify-content: flex-end;
+  }
+/*  ul#nav-menu { align-self: flex-start } Chrome: prevents vertical scrollbar
+*/
+  nav#TableOfContents {
+      -ms-flex-preferred-size: auto;
+          flex-basis: auto;
+  }
+  nav#nav-repo {
+      -ms-flex-negative: 32766;
+          flex-shrink: 32766; /* Chrome, Opera shrink better than Firefox */
+  }
+  nav#anchor-top {
+      -ms-flex-negative: 9;
+          flex-shrink: 9;
+  }
+  p#title-top {
+      -ms-flex-negative: .395;
+          flex-shrink: .395;
+  }
+  nav#TableOfContents {
+      -ms-flex-negative: 0;
+          flex-shrink: 0;
+  }
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name > span.name {
+      margin-left: auto;
+  }
+  nav#TableOfContents,
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+  ul#nav-menu > li > a.name {
+      padding-right: 17px; /* Firefox, IE 11, Opera 36 (Windows XP): space for vertical scrollbar */
+  }
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+  ul#nav-menu > li > a.name {
+      border-right-style: solid;
+  }
+  nav#nav-binary > a.direction > i.fa {
+      line-height: 0;
+  }
+}
+@media screen and (min-width: 768.1px)
+              and (max-width: 1110px) {
+  nav#TableOfContents {
+      position: absolute;
+  }
+  nav#TableOfContents {
+      top: 0;
+  }
+  nav#TableOfContents {
+      right: 17px; /* Firefox, IE 11, Opera 36 (Windows XP): space for article's vertical scrollbar */
+  }
+  nav#TableOfContents {
+      bottom: 17px; /* Firefox, IE 11, Opera 36 (Windows XP): space for article's horizontal scrollbar */
+  }
+  article#article {
+      width: 100%; /* IE 10 */
+  }
+  article#article {
+      padding-right: 34px; /* Firefox, IE 11, Opera 36 (Windows XP): space for two vertical scrollbars */
+  }
+}
+@media screen and (min-width: 1110.1px) {
+  nav#TableOfContents {
+      position: static;
+  }
+  nav#TableOfContents ul > li > ul > li > ul > li > ul,
+  nav#TableOfContents ul > li > ul > li > ul > li,
+  nav#TableOfContents ul > li > ul > li > ul,
+  nav#TableOfContents ul > li {
+      display: inline-block;
+  }
+  nav#TableOfContents   ul > li > ul > li > ul > li > ul > li,
+  nav#TableOfContents > ul > li > ul > li > ul > li {
+      margin-left: 0;
+  }
+  article#article {
+      padding-right: 17px; /* Firefox, IE 11, Opera 36 (Windows XP): space for vertical scrollbar */
+  }
+}

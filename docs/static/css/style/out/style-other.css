@@ -46,6 +46,14 @@ textarea:focus {
     outline: none;
 }
 
+@-webkit-keyframes square {
+  0% { background-position: 0 0; }
+  25% { background-position: 100% 0; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0 100%; }
+  100% { background-position: 0 0; }
+}
+
 @keyframes square {
   0% { background-position: 0 0; }
   25% { background-position: 100% 0; }
@@ -87,6 +95,7 @@ kbd {
   border-radius: 0.2em;
   box-shadow: 0.1em 0.2em 0.2em #ddd;
   background-color: #f9f9f9;
+  background-image:         -webkit-linear-gradient(top, #ddd, #f9f9f9, #ddd);
   background-image:         linear-gradient(to bottom, #ddd, #f9f9f9, #ddd);
   padding: 0.1em 0.3em;
   font-family: inherit;

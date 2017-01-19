@@ -1,0 +1,35 @@
+@media screen and (min-width: 768.1px) {
+  footer.footer-panel {
+      padding-left: 10px;
+  }
+  article#article > p:not(#title-article),
+  article#article dl,
+  article#article li,
+  article#article table,
+  article#article {
+      font-size: 18px;
+  }
+  article#article a:not(#logo-article):focus:after,
+  article#article a:not(#logo-article):hover:after {
+      font-size: 16px;
+  }
+  footer.footer-panel {
+      font-size: 14px;
+  }
+  nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn-xs.btn > i.icon-github,
+  nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn-xs.btn > span.gh-text,
+  nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+      font-size: 11px;
+  }
+}
+@media screen and (min-width: 768.1px)
+              and (max-width: 1110px) {
+  div.thumbnail-wrapper { /* showcase */
+      width: 33.33333333%;
+  }
+}
+@media screen and (min-width: 1110.1px) {
+  div.thumbnail-wrapper { /* showcase */
+      width: 25%;
+  }
+}

@@ -1,0 +1,72 @@
+@media screen and (min-width: 768.1px) {
+  ul#nav-menu > li > a.name > i.fa {
+      width: 36px;
+  }
+  nav#TableOfContents {
+      max-width: 40vw;
+  }
+  main#main.TableOfContents-compact > nav#TableOfContents {
+      max-width: 20.4vw;
+  }
+  ul#nav-menu > li.menu-dynamic > a.name > span.menu-arrow {
+      padding-top: 5.76667px;
+  }
+  nav#nav-binary > a.direction {
+      padding-right: 1.1px;
+  }
+  nav#TableOfContents {
+      padding-bottom: 11.2px;
+  }
+  ul#nav-menu > li.menu-dynamic > a.name > span.menu-arrow {
+      padding-left: 5.76667px;
+  }
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+  ul#nav-menu > li > a.name {
+      border-right-width: .01vw;
+  }
+  div#header-page {
+      border-bottom-width: .01vh;
+  }
+  ul#nav-menu > li:last-of-type > a.name,
+  ul#nav-menu > li:last-of-type > ul > li:last-of-type > a.name {
+      border-bottom-right-radius: .7vh;
+  }
+  nav#nav-binary {
+      font-size: 96px;
+  }
+  p#title-top {
+      font-size: 36px;
+  }
+  nav#TableOfContents,
+  ul#nav-menu > li > a.name > i.fa {
+      font-size: 18px;
+  }
+  a#hamburger-menu > i.fa,
+  a#hamburger-top,
+  ul#nav-menu {
+      font-size: 16px;
+  }
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name {
+      font-size: 13.6px;
+  }
+  a#logo-top > span {
+      font-size: 13px;
+  }
+}
+@media screen and (min-width: 768.1px)
+              and (max-width: 1110px) {
+  nav#TableOfContents {
+      opacity: .48;
+  }
+}
+@media screen and (min-width: 1110.1px) {
+  nav#TableOfContents {
+      max-width: 33%;
+  }
+  main#main.TableOfContents-compact > nav#TableOfContents {
+      max-width: 29%;
+  }
+  nav#TableOfContents ul > li > ul > li > a {
+      margin-right: 8px;
+  }
+}

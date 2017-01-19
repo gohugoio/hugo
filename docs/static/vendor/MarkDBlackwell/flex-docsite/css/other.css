@@ -1,0 +1,29 @@
+a#hamburger-menu > i,
+a#hamburger-top > i,
+a#logo-menu > img,
+a#logo-top > img,
+a#logo-top > span,
+nav#nav-binary > a.direction > i.fa,
+ul#nav-menu a.name > i,
+ul#nav-menu a.name > span {
+    pointer-events: none; /* IE 11 */
+}
+a#hamburger-menu,
+a#hamburger-top,
+a#logo-menu,
+a#logo-top,
+nav#nav-binary > a.direction {
+    cursor: pointer;
+}
+a#logo-top:focus,
+a#logo-top:hover {
+    outline: none;
+}
+nav#anchor-menu > a#hamburger-menu:focus, /* need this specificity */
+nav#anchor-top > a#hamburger-top:focus { /* need this specificity */
+    outline-style: dotted;
+}
+nav#anchor-menu > a#hamburger-menu:focus, /* need this specificity */
+nav#anchor-top > a#hamburger-top:focus { /* need this specificity */
+    outline-width: 1px; /* Chrome, Opera */
+}

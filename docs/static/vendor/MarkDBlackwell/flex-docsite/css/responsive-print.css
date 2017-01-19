@@ -1,0 +1,42 @@
+@media print {
+  p {
+      break-inside: avoid-page;
+      page-break-inside: avoid;
+  }
+  a#hamburger-top,
+  div#header-page,
+  nav#nav-binary,
+  nav#TableOfContents,
+  ul#nav-menu {
+      display: none;
+  }
+  body,
+  div#container-page,
+  main#main {
+      display: block;
+  }
+  a#logo-article {
+      display: inline;
+  }
+  article#article { /* Chrome */
+      overflow-y: hidden;
+  }
+  a#logo-article {
+      float: left;
+  }
+  * {
+      border-style: none;
+  }
+  * {
+      border-width: 0;
+  }
+  * {
+      background-color: white !important; /* override for <body>, etc. */
+  }
+  * {
+      color: black;
+  }
+  a#logo-article {
+      line-height: 0;
+  }
+}

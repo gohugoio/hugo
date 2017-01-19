@@ -1,0 +1,64 @@
+nav#TableOfContents > ul > li > a,
+nav#TableOfContents > ul > li > ul > li > a, /* the compact level only */
+p#title-article {
+    font-weight: bold;
+}
+a#logo-article,
+div#header-page,
+nav#nav-binary,
+nav#TableOfContents,
+ul#nav-menu {
+    font-weight: normal;
+}
+nav#TableOfContents > ul > li > a,
+nav#TableOfContents > ul > li > ul > li > a, /* the compact level only */
+p#title-article {
+    font-style: italic;
+}
+a#hamburger-menu > i.fa,
+a#hamburger-top > i.fa,
+a#logo-article,
+div#header-page,
+nav#nav-binary,
+nav#TableOfContents,
+ul#nav-menu {
+    font-style: normal;
+}
+a#logo-article,
+div#header-page,
+nav#nav-binary,
+nav#TableOfContents,
+p#title-article,
+ul#nav-menu {
+    font-variant: normal;
+}
+a#logo-article,
+article#article > p:not(#title-article) *,
+article#article > p:not(#title-article),
+div#header-page,
+nav#nav-binary,
+nav#TableOfContents,
+p#title-article,
+ul#nav-menu {
+    font-size-adjust: none;
+}
+a#logo-article,
+div#header-page,
+nav#nav-binary,
+nav#TableOfContents,
+p#title-article,
+ul#nav-menu {
+    font-family: 'Lato', sans-serif;
+}
+nav#nav-binary > a.direction {
+    transition:
+        background-color .75s ease-out,
+        color            1.2s ease-out;
+}
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+ul#nav-menu > li > a.name {
+    transition:
+        background-color     .7s ease,
+        border-bottom-color 1.4s ease-out,
+        color               1.4s ease;
+}

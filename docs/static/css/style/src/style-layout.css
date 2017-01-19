@@ -1,0 +1,220 @@
+article#article > div.cse, /* JavaScript displays this */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count { /* JavaScript displays this */
+    display: none;
+}
+nav#nav-repo > span.show-repo > span.repo-btn {
+    display: block;
+}
+footer.footer-panel > p,
+footer.footer-panel,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn > i.icon-github,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    display: inline-block;
+}
+main#main .fa { /* prevent linebreak right after an icon */
+    display: inline;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    position: absolute;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    position: relative;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    top: 50%;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after { /* pointer */
+    left: -2.5px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    left: -3.5px;
+}
+footer.footer-panel > span {
+    float: right;
+}
+footer.footer-panel > p {
+    float: left;
+}
+article#article > div.cse,
+footer.footer-panel {
+    width: 100%;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    width: 0;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    height: 0;
+}
+article#article > div.cse {
+    margin-top: 9px;
+}
+footer.footer-panel {
+    margin-top: 2px;
+}
+footer.footer-panel > p {
+    margin-top: 0;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after { /* pointer */
+    margin-top: -3px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    margin-top: -4px;
+}
+footer.footer-panel > p {
+    margin-bottom: 0;
+}
+footer.footer-panel {
+    margin-bottom: -8px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    margin-left: 3.5px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn {
+    padding-top: 0;
+}
+footer.footer-panel {
+    padding-right: 3px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn-xs.btn > span.gh-text {
+    padding-right: .5px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn {
+    padding-right: 0;
+}
+footer.footer-panel {
+    padding-bottom: 2px;
+}
+article#article,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn {
+    padding-bottom: 0;
+}
+article#article {
+    padding-left: 10px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn-xs > i.icon-github {
+    padding-left: .5px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn {
+    padding-left: 0;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    border-style: solid;
+}
+footer.footer-panel {
+    border-top-style: solid;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    border-top-width: 4px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after { /* pointer */
+    border-top-width: 3px; /* Chrome */
+}
+footer.footer-panel,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    border-top-width: 1px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    border-right-width: 4px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after { /* pointer */
+    border-right-width: 3px; /* Chrome */
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    border-right-width: 1px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    border-bottom-width: 4px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after { /* pointer */
+    border-bottom-width: 3px; /* Chrome */
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default {
+    border-left-width: 1px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    border-left-width: 0;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    border-radius: 3px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    cursor: pointer;
+}
+div.cse,
+article#article ol,
+article#article ul {
+    line-height: 1.8;
+}
+footer.footer-panel,
+nav#nav-repo > span.show-repo > span.repo-btn {
+    line-height: 1.5;
+}
+footer.footer-panel > p,
+footer.footer-panel > span {
+    vertical-align: top;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    vertical-align: middle;
+}
+nav#nav-repo > span.show-repo > span.repo-btn:not(.github-followers) > a.btn > span.gh-text {
+    text-transform: capitalize;
+}
+article#article a:not(#logo-article):visited,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:hover {
+    text-decoration: none;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:hover,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:hover {
+    background-position: 0 -15px;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    background-repeat: repeat-x;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn > span.gh-text,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    font-weight: bold;
+}
+footer.footer-panel {
+    font-style: italic;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn > i.icon-github {
+    font-style: normal;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn > i.icon-github {
+    font-family: 'FontAwesome';
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default.btn-xs.btn {
+    font-size: 0;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    white-space: nowrap;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn > i.icon-github {
+    -moz-osx-font-smoothing: grayscale;
+     -webkit-font-smoothing: antialiased;
+}
+nav#nav-repo > span.show-repo > span.github-forks > a.btn > i.icon-github:before{
+    content: "\f126";
+}
+nav#nav-repo > span.show-repo > span.github-stargazers > a.btn > i.icon-github:before{
+    content: "\f005";
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    content: ' ';
+}

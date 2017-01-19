@@ -1,0 +1,70 @@
+a#hamburger-menu > i.fa,
+a#hamburger-top > i.fa,
+a#logo-menu > img,
+a#logo-top > img {
+    height: 40px;
+}
+article#article > p:not(#title-article) *,
+article#article > p:not(#title-article) {
+    margin: 0;
+}
+nav#TableOfContents > ul > li > ul > li,
+nav#TableOfContents > ul > li:not(:first-of-type) {
+    margin-top: 11.2px;
+}
+nav#TableOfContents ul > li > ul > li > ul > li {
+    margin-top: 7px;
+}
+article#article > p:not(#title-article) {
+    margin-bottom: 10px;
+}
+nav#TableOfContents   ul > li > ul > li > ul > li > ul > li,
+nav#TableOfContents > ul > li > ul > li {
+    margin-left: 4.8px;
+}
+nav#TableOfContents > ul > li > ul > li > ul > li {
+    margin-left: -4.8px;
+}
+article#article > p:not(#title-article) *,
+article#article > p:not(#title-article) {
+    padding: 0;
+}
+a#hamburger-menu > i.fa,
+a#hamburger-top > i.fa {
+    padding-top: 20px;
+}
+nav#TableOfContents > ul > li > a, /* <li> padding fails, somehow */
+nav#TableOfContents > ul > li > ul > li > a {
+    padding-right: .787vw;
+}
+nav#TableOfContents > ul > li > a, /* <li> padding fails, somehow */
+nav#TableOfContents > ul > li > ul > li > a {
+    padding-left: .787vw;
+}
+nav#nav-repo > span.show-repo:not(:first-of-type) {
+    padding-left: 5px;
+}
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+ul#nav-menu > li > a.name {
+    border-bottom-width: 1px;
+}
+article#article > p:not(#title-article) *,
+article#article > p:not(#title-article) {
+    line-height: 1.8;
+}
+ul#nav-menu > li > a.name > i.fa {
+    line-height: 1.52;
+}
+ul#nav-menu > li {
+    line-height: 1.429;
+}
+nav#TableOfContents {
+    line-height: 1.253; /* 1.253 matches Firefox default */
+}
+a#logo-top > span {
+    line-height: 1;
+}
+nav#nav-repo,
+p#title-top {
+    line-height: .8;
+}

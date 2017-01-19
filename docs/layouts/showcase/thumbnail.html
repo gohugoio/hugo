@@ -1,17 +1,21 @@
-<div class="col-sm-6 col-md-4" style="padding-bottom:1em;">
+{{ "<!--thumbnail wrapper start-->" | safeHTML }}
+<div class="thumbnail-wrapper">
     <div class="showcase-container">
-      <div class="dummy"></div>
-      <div class="thumbnail">
-      <a href="{{ .Params.sitelink }}"><img class="img-responsive img-rounded" style="width:100%;" src="{{ .Params.thumbnail }}" alt="{{ .Description }}"></a>
-      <h4>
-        <a href="{{ .Params.sitelink }}">{{ .Title | safeHTML }}</a>
-        {{ if (isset .Params "sourcelink") }}
-        <a href="{{ .Params.sourcelink }}" class="small pull-right">source</a>
-        {{ end }}
-      </h4>
-              {{ range .Params.tags }}
-              <span class="label label-default" style="font-size:60%;">{{ . }}</span>
-              {{ end }}
-      </div>
-  </div>
+        <div class="dummy"></div>
+        <div class="thumbnail">
+            <a href="{{ .Params.sitelink }}">
+                <img class="img-responsive img-rounded" alt="{{ .Description }}" src="{{ .Params.thumbnail }}">
+            </a>
+            <h4>
+                <a href="{{ .Params.sitelink }}">{{ .Title | safeHTML }}</a>
+{{- if (isset .Params "sourcelink") }}
+                <a class="small pull-right" href="{{ .Params.sourcelink }}">source</a>
+{{- end }}
+            </h4>
+{{- range .Params.tags }}
+            <span class="label label-default">{{ . }}</span>
+{{- end }}
+        </div>
+    </div>
 </div>
+{{ "<!--thumbnail wrapper end-->" | safeHTML }}

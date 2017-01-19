@@ -1,0 +1,62 @@
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    border-color: transparent;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default {
+    border-color: rgb(219,219,219);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    border-color: rgb(212,212,212);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:hover {
+    border-color: rgb(173,173,173);
+}
+footer.footer-panel {
+    border-top-color: rgb(239,239,239);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after { /* pointer */
+    border-right-color: rgb(250,250,250);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    border-right-color: rgb(212,212,212);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    background-image: linear-gradient(to bottom, white, #e0e0e0 90%);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:after, /* pointer */
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:before { /* pointer */
+    background-color: transparent;
+}
+::selection { /* keep separate, for where it's illegal */
+    background-color: rgb(255,64,136);
+}
+footer.footer-panel {
+    background-color: rgb(249,249,249);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:hover,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:hover {
+    background-color: rgb(224,224,224);
+}
+::selection { /* keep separate, for where it's illegal */
+    color: white;
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    color: rgb(85,85,85);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default:hover,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:focus,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count:hover {
+    color: rgb(65,131,196);
+}
+article#article > div.cse {
+    color: rgb(53,59,68);
+}
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn-default,
+nav#nav-repo > span.show-repo > span.repo-btn > a.gh-count {
+    text-shadow: 0 1px 0 #fff;
+}

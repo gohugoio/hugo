@@ -1,0 +1,317 @@
+a#logo-article *,
+a#logo-article,
+body,
+div#header-page *,
+div#header-page,
+main#main,
+nav#nav-binary *,
+nav#nav-binary,
+nav#TableOfContents *,
+nav#TableOfContents,
+p#title-article,
+ul#nav-menu *,
+ul#nav-menu {
+    box-sizing: border-box;
+}
+a#hamburger-top:after,
+a#logo-article:after,
+a#logo-top:after,
+nav#anchor-top a:after,
+nav#nav-binary > a.direction:after,
+nav#nav-repo a:after,
+ul#nav-menu a:after {
+    display: none;
+}
+body,
+div#container-page,
+div#header-page,
+nav#anchor-menu,
+nav#anchor-top,
+nav#nav-binary > a.direction,
+nav#nav-binary,
+nav#nav-repo,
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+ul#nav-menu > li > a.name {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+nav#nav-repo > span.show-repo {
+    display: block;
+}
+a#hamburger-menu > i.fa,
+a#hamburger-top > i.fa,
+nav#nav-binary > a.direction > i.fa, /* IE 10 */
+nav#TableOfContents ul > li > a, /* vertical margins */
+ul#nav-menu > li.menu-dynamic > a.name > span.menu-arrow.fa, /* IE 10 */
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name > span.name, /* IE 10 */
+ul#nav-menu > li > a.name > i.fa, /* IE 10 */
+ul#nav-menu > li > a.name > span.name { /* IE 10 */
+    display: inline-block;
+}
+main#main {
+    overflow-x: hidden; /* Firefox, Chrome, Opera */
+}
+ul#nav-menu {
+    overflow-x: visible;
+}
+article#article {
+    overflow-x: auto;
+}
+div#container-page {
+    overflow-y: hidden;
+}
+body {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+}
+main#main,
+nav#nav-repo {
+    -webkit-box-ordinal-group: 4;
+        -ms-flex-order: 3;
+            order: 3;
+}
+a#logo-top,
+div#container-page,
+nav#nav-binary,
+p#title-top {
+    -webkit-box-ordinal-group: 3;
+        -ms-flex-order: 2;
+            order: 2;
+}
+a#hamburger-top,
+div#header-page,
+nav#anchor-top {
+    -webkit-box-ordinal-group: 2;
+        -ms-flex-order: 1;
+            order: 1;
+}
+nav#nav-binary > a.direction {
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
+}
+div#header-page,
+ul#nav-menu > li.menu-dynamic > a.name {
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+}
+div#container-page,
+div#header-page,
+main#main,
+nav#anchor-top,
+nav#nav-binary > a.direction,
+nav#nav-binary,
+nav#nav-repo > span.show-repo,
+nav#nav-repo,
+p#title-top,
+ul#nav-menu {
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+}
+article#article,
+div#container-page,
+main#main,
+nav#nav-binary > a.direction,
+nav#TableOfContents,
+p#title-top,
+ul#nav-menu > li.menu-dynamic > a.name > span.name {
+    -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
+}
+div#header-page,
+nav#anchor-top,
+nav#nav-repo {
+    -webkit-box-flex: 0;
+        -ms-flex-positive: 0;
+            flex-grow: 0;
+}
+nav#nav-repo {
+    -ms-flex-negative: 3;
+        flex-shrink: 3;
+}
+nav#anchor-top {
+    -ms-flex-negative: 2;
+        flex-shrink: 2;
+}
+article#article,
+div#container-page,
+main#main,
+p#title-top,
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name > span.name,
+ul#nav-menu > li > a.name > span.name {
+    -ms-flex-negative: 1;
+        flex-shrink: 1; /* IE 10: sometimes defaults to 0 */
+}
+div#header-page, /* Chrome, Opera */
+nav#nav-binary > a.direction > i.fa,
+nav#nav-binary > a.direction,
+nav#nav-binary,
+nav#nav-repo > span.show-repo,
+ul#nav-menu > li.menu-dynamic > a.name > span.menu-arrow.fa,
+ul#nav-menu > li > a.name > i.fa,
+
+ul#nav-menu {
+    -ms-flex-negative: 0;
+        flex-shrink: 0;
+}
+nav#nav-repo {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+}
+body,
+div#container-page,
+div#header-page,
+nav#anchor-menu,
+nav#anchor-top,
+nav#nav-binary > a.direction,
+nav#nav-binary {
+    -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+}
+ul#nav-menu > li > a.name {
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+                -ms-grid-row-align: flex-start;
+            align-items: flex-start;
+}
+div#header-page,
+nav#anchor-menu,
+nav#anchor-top,
+nav#nav-binary > a.direction,
+nav#nav-binary {
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+                -ms-grid-row-align: center;
+            align-items: center;
+}
+nav#TableOfContents {
+    height: auto;
+}
+nav#TableOfContents {
+    min-height: 0;
+}
+a#logo-article *,
+a#logo-article,
+article#article,
+body,
+div#container-page,
+div#header-page *,
+div#header-page,
+html,
+main#main,
+nav#nav-binary *,
+nav#nav-binary,
+nav#TableOfContents *,
+nav#TableOfContents,
+p#title-article,
+ul#nav-menu *,
+ul#nav-menu {
+    margin: 0;
+}
+ul#nav-menu > li > a.name > span.name {
+    margin-right: auto;
+}
+a#logo-article *,
+a#logo-article,
+article#article,
+body,
+div#container-page,
+div#header-page *,
+div#header-page,
+html,
+main#main,
+nav#nav-binary *,
+nav#nav-binary,
+nav#TableOfContents *,
+p#title-article,
+ul#nav-menu * {
+    padding: 0;
+}
+nav#TableOfContents,
+ul#nav-menu {
+    padding-top: 0;
+}
+ul#nav-menu {
+    padding-right: 0;
+}
+ul#nav-menu {
+    padding-bottom: 0;
+}
+nav#TableOfContents > ul {
+    padding-left: .1vw;
+}
+nav#TableOfContents ul > li > ul, /* override <ul> */
+nav#TableOfContents,
+ul#nav-menu ul, /* override <ul> */
+ul#nav-menu { /* override <ul> */
+    padding-left: 0;
+}
+div#header-page,
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name,
+ul#nav-menu > li > a.name {
+    border-bottom-style: solid;
+}
+a#logo-article *,
+a#logo-article,
+body,
+div#header-page *,
+div#header-page,
+main#main,
+nav#nav-binary *,
+nav#nav-binary,
+nav#TableOfContents *,
+nav#TableOfContents,
+p#title-article,
+ul#nav-menu *,
+ul#nav-menu {
+    border-width: 0;
+}
+nav#TableOfContents li,
+nav#TableOfContents ul,
+ul#nav-menu li,
+ul#nav-menu ul,
+ul#nav-menu {
+    list-style-type: none; /* Firefox, Chrome, Opera, IE 11: inheritance odd */
+}
+a#hamburger-menu > i.fa,
+a#hamburger-top > i.fa,
+div#header-page,
+ul#nav-menu {
+    line-height: 0;
+}
+nav#nav-binary > a.direction > i.fa,
+p#title-article,
+p#title-top,
+ul#nav-menu > li.menu-dynamic > a.name > span.menu-arrow.fa,
+ul#nav-menu > li > a.name > i.fa {
+    text-align: center;
+}
+a#logo-article > img, /* override Bootstrap */
+a#logo-menu > img, /* override Bootstrap */
+a#logo-top > img { /* override Bootstrap */
+    vertical-align: baseline;
+}
+a#logo-article,
+div#header-page,
+nav#anchor-menu {
+    font-size: 0;
+}
+a#logo-top > span,
+ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name > span.name,
+ul#nav-menu > li > a.name > span.name {
+    white-space: nowrap;
+}
+nav#TableOfContents {
+    word-wrap: break-word; /* IE 11, Opera mini */
+    overflow-wrap: break-word;
+}
+nav#TableOfContents {
+    word-break: break-word; /* Chrome, Opera */
+    word-break: break-all;
+}
+/*  nav#TableOfContents { hyphens: auto } 'word-break: break-all' prevents hyphens
+*/

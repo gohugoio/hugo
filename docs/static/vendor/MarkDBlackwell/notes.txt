@@ -1,0 +1,8 @@
+Version: 1.0
+
+Source:
+  https://github.com/MarkDBlackwell/flex-docsite
+
+Files (there):
+  static/exact/css/out/*.css
+  static/exact/js/scripts.js

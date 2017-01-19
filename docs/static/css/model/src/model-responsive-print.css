@@ -1,0 +1,33 @@
+@media print {
+  a#logo-article > img {
+      height: .5cm;
+  }
+  article#article > p:not(#title-article) {
+      margin-top: .2cm;
+  }
+  a#logo-article {
+      margin-top: .1cm; /* Opera 36 (Windows XP) */
+  }
+  p#title-article {
+      margin-bottom: .5cm;
+  }
+  p#title-article {
+      line-height: 1.253; /* 1.253 matches Firefox default */
+  }
+  p#title-article {
+      font-weight: 800;
+  }
+  html {
+      font-size: .6cm;
+  }
+  article#article > *,
+  p#title-article {
+      font-size: .5cm;
+  }
+  p#title-article {
+      letter-spacing: .042cm;
+  }
+  a[href]:after {
+      content: '';
+  }
+}

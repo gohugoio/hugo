@@ -1,0 +1,10 @@
+a:after {
+    height: 1px;
+}
+a:after {
+    background-color: rgb(255,64,136);
+}
+a:after {
+    -webkit-transition: width .2s ease-out;
+    transition: width .2s ease-out;
+}

@@ -1,0 +1,34 @@
+ul#nav-menu   li.leaf:not(:last-of-type) > a.name,
+ul#nav-menu > li.menu-dynamic.open > a.name {
+    border-bottom-color: transparent;
+}
+nav#nav-binary > a.direction > i.fa,
+nav#nav-binary > a.direction,
+ul#nav-menu > li * {
+    background-color: inherit;
+}
+a#hamburger-menu > i,
+a#hamburger-menu,
+a#logo-article,
+a#logo-menu,
+nav#anchor-top *,
+nav#anchor-top,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn > span,
+nav#nav-repo > span.show-repo > span.repo-btn > a.btn,
+nav#nav-repo > span.show-repo > span.repo-btn,
+nav#nav-repo > span.show-repo,
+nav#nav-repo,
+nav#TableOfContents li,
+nav#TableOfContents ul > li > ul > li > ul > li > a,
+nav#TableOfContents ul,
+p#title-article,
+p#title-top {
+    background-color: transparent;
+}
+nav#TableOfContents > ul > li > a,
+nav#TableOfContents > ul > li > ul > li > a {
+    background-color: rgba(255,255,255,.4);
+}
+nav#TableOfContents {
+    background-color: rgba(0,0,0,.09);
+}

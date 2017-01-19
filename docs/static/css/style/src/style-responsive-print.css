@@ -1,0 +1,20 @@
+@media print {
+  article#article > div.cse {
+      display: none !important;
+  }
+  div.thumbnail-wrapper { /* showcase */
+      width: 33.33333333%;
+  }
+  footer.footer-panel {
+      margin-top: .5cm;
+  }
+  div.showcase-container span {
+      font-size: .36cm;
+  }
+  div.showcase-container h4 {
+      font-size: .34cm;
+  }
+  footer.footer-panel {
+      font-size: .3cm;
+  }
+}
