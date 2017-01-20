@@ -106,4 +106,5 @@ func loadDefaultSettings() {
 	viper.SetDefault("defaultContentLanguageInSubdir", false)
 	viper.SetDefault("enableMissingTranslationPlaceholders", false)
 	viper.SetDefault("enableGitInfo", false)
+	viper.SetDefault("SummaryLength", 200)
 }
