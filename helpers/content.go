@@ -36,7 +36,7 @@ import (
 )
 
 // SummaryLength is the length of the summary that Hugo extracts from a content.
-var SummaryLength = 70
+var SummaryLength = 200
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
