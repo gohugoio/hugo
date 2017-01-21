@@ -80,8 +80,8 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 func TestParseSitemapUnknownAndFilename(t *testing.T) {
 	expected := Sitemap{Filename: "doo.xml", Priority: 0.5}
 	input := map[string]interface{}{
-		"filename":   "doo.xml",
-		"unknown":    "ignore",
+		"filename": "doo.xml",
+		"unknown":  "ignore",
 	}
 	result := parseSitemap(input)
 
@@ -92,8 +92,8 @@ func TestParseSitemapUnknownAndFilename(t *testing.T) {
 
 func TestParseSitemapChangefreq(t *testing.T) {
 	var sitemaps = []struct {
-	expected Sitemap
-	result Sitemap
+		expected Sitemap
+		result   Sitemap
 	}{
 		{
 			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "always"},
@@ -136,14 +136,14 @@ func TestParseSitemapChangefreq(t *testing.T) {
 	for _, s := range sitemaps {
 		if !reflect.DeepEqual(s.expected, s.result) {
 			t.Errorf("Got \n%v expected \n%v", s.result, s.expected)
-		}	
+		}
 	}
 }
 
 func TestParseSitemapPriority(t *testing.T) {
 	var sitemaps = []struct {
-	expected Sitemap
-	result Sitemap
+		expected Sitemap
+		result   Sitemap
 	}{
 		{
 			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
@@ -186,6 +186,6 @@ func TestParseSitemapPriority(t *testing.T) {
 	for _, s := range sitemaps {
 		if !reflect.DeepEqual(s.expected, s.result) {
 			t.Errorf("Got \n%v expected \n%v", s.result, s.expected)
-		}	
+		}
 	}
 }
