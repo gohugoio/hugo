@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 	"strings"
+	"math"
 )
 
 // Sitemap configures the sitemap to be generated.
@@ -53,8 +54,10 @@ func parseSitemap(input map[string]interface{}) Sitemap {
 				priority := cast.ToFloat64(value)
 				if priority >= 0 &&
 				priority <= 1.0 {
-					sitemap.Priority = priority
-					break
+					if checkDecimalPlaces(1, priority) {
+						sitemap.Priority = priority
+						break
+					}
 				}
 			}
 			jww.WARN.Printf("value '%s' for sitemap.priority is invalid, value should be between 0 and 1.0 and have a maximum of 1 decimal\n", value)
@@ -66,4 +69,12 @@ func parseSitemap(input map[string]interface{}) Sitemap {
 	}
 
 	return sitemap
+}
+
+func checkDecimalPlaces(i int, value float64) bool {
+	valuef := value * float64(math.Pow(10.0, float64(i)))
+	println(valuef)
+	extra := valuef - float64(int(valuef))
+	
+	return extra == 0
 }
