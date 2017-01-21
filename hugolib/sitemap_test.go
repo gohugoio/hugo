@@ -124,6 +124,10 @@ func TestParseSitemapChangefreq(t *testing.T) {
 			parseSitemap(map[string]interface{}{"changefreq": "never"}),
 		},
 		{
+			Sitemap{Priority: 0.5, Filename: "sitemap.xml", ChangeFreq: "never"},
+			parseSitemap(map[string]interface{}{"changefreq": "NEVER"}),
+		},
+		{
 			Sitemap{Priority: 0.5, Filename: "sitemap.xml"},
 			parseSitemap(map[string]interface{}{"changefreq": "invalid"}),
 		},

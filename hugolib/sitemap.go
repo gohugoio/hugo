@@ -16,6 +16,7 @@ package hugolib
 import (
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
+	"strings"
 )
 
 // Sitemap configures the sitemap to be generated.
@@ -31,15 +32,18 @@ func parseSitemap(input map[string]interface{}) Sitemap {
 	for key, value := range input {
 		switch key {
 		case "changefreq":
-			if value == "always" ||
-			value == "hourly" ||
-			value == "daily" ||
-			value == "weekly" ||
-			value == "monthly" ||
-			value == "yearly" ||
-			value == "never" {
-				sitemap.ChangeFreq = cast.ToString(value)
-				break
+			if str, ok := value.(string); ok {
+				valueLowercase := strings.ToLower(str)
+				if valueLowercase == "always" ||
+				valueLowercase == "hourly" ||
+				valueLowercase == "daily" ||
+				valueLowercase == "weekly" ||
+				valueLowercase == "monthly" ||
+				valueLowercase == "yearly" ||
+				valueLowercase == "never" {
+					sitemap.ChangeFreq = valueLowercase
+					break
+				}
 			}
 			jww.WARN.Printf("value '%s' for sitemap.changefreq is invalid, accepted values are: always, hourly, daily, weekly, monthly, yearly, never\n", value)
 		case "priority":
