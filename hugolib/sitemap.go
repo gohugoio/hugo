@@ -47,11 +47,15 @@ func parseSitemap(input map[string]interface{}) Sitemap {
 			}
 			jww.WARN.Printf("value '%s' for sitemap.changefreq is invalid, accepted values are: always, hourly, daily, weekly, monthly, yearly, never\n", value)
 		case "priority":
-			priority := cast.ToFloat64(value)
-			if priority >= 0 &&
-			priority <= 1.0 {
-				sitemap.Priority = priority
-				break
+			if _, ok := value.(string); ok {
+				//value is a string... do nothing.
+			} else {
+				priority := cast.ToFloat64(value)
+				if priority >= 0 &&
+				priority <= 1.0 {
+					sitemap.Priority = priority
+					break
+				}
 			}
 			jww.WARN.Printf("value '%s' for sitemap.priority is invalid, value should be between 0 and 1.0 and have a maximum of 1 decimal\n", value)
 		case "filename":
