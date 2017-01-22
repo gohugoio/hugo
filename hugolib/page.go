@@ -818,7 +818,7 @@ func (p *Page) IsTranslated() bool {
 func (p *Page) Translations() Pages {
 	translations := make(Pages, 0)
 	for _, t := range p.translations {
-		if t != p {
+		if t.Lang() != p.Lang() {
 			translations = append(translations, t)
 		}
 	}
