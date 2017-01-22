@@ -1430,6 +1430,7 @@ func (s *Site) assembleMenus() {
 	flat := map[twoD]*MenuEntry{}
 	children := map[twoD]Menu{}
 
+	// add menu entries from config to flat hash
 	menuConfig := s.getMenusFromConfig()
 	for name, menu := range menuConfig {
 		for _, me := range *menu {
@@ -1438,26 +1439,49 @@ func (s *Site) assembleMenus() {
 	}
 
 	sectionPagesMenu := s.Info.sectionPagesMenu
-	sectionPagesMenus := make(map[string]interface{})
-	//creating flat hash
 	pages := s.Pages
-	for _, p := range pages {
-		if sectionPagesMenu != "" {
+
+	if sectionPagesMenu != "" {
+		// Create menu entries for section pages with content
+		for _, p := range pages {
+			if p.Kind == KindSection {
+				// menu with same id defined in config, let that one win
+				if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
+					continue
+				}
+
+				me := MenuEntry{Identifier: p.Section(),
+					Name:   p.LinkTitle(),
+					Weight: p.Weight,
+					URL:    p.RelPermalink()}
+
+				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
+			}
+		}
+
+		// Create entries for remaining content-less section pages
+		sectionPagesMenus := make(map[string]interface{})
+		for _, p := range pages {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {
 				if p.Section() != "" {
+					// menu with same id defined in config, let that one win
+					if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
+						continue
+					}
+
 					me := MenuEntry{Identifier: p.Section(),
 						Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())),
 						URL:  s.Info.createNodeMenuEntryURL(p.addLangPathPrefix("/"+p.Section()) + "/")}
-					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
-						// menu with same id defined in config, let that one win
-						continue
-					}
+
 					flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 					sectionPagesMenus[p.Section()] = true
 				}
 			}
 		}
+	}
 
+	// Add menu entries provided by pages
+	for _, p := range pages {
 		for name, me := range p.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
 				s.Log.ERROR.Printf("Two or more menu items have the same name/identifier in Menu %q: %q.\nRename or set an unique identifier.\n", name, me.KeyName())
