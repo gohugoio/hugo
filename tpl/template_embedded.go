@@ -167,7 +167,13 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
   <meta property="og:image" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
-{{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}{{ with .Params.audio }}
+{{ if .IsPage }}
+{{ if not .PublishDate.IsZero }}<meta property="article:published_time" content="{{ .PublishDate.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>
+{{ else if not .Date.IsZero }}<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
+{{ if not .Lastmod.IsZero }}<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
+{{ else }}
+{{ if not .Date.IsZero }}<meta property="article:modified_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
+{{ end }}{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
 <meta property="og:site_name" content="{{ . }}" />{{ end }}{{ with .Params.videos }}
@@ -189,8 +195,6 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ range .Site.Authors }}{{ with .Social.facebook }}
 <meta property="article:author" content="https://www.facebook.com/{{ . }}" />{{ end }}{{ with .Site.Social.facebook }}
 <meta property="article:publisher" content="https://www.facebook.com/{{ . }}" />{{ end }}
-<meta property="article:published_time" content="{{ .PublishDate }}" />
-<meta property="article:modified_time" content="{{ .Date }}" />
 <meta property="article:section" content="{{ .Section }}" />
 {{ with .Params.tags }}{{ range first 6 . }}
   <meta property="article:tag" content="{{ . }}" />{{ end }}{{ end }}
