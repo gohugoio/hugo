@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"fmt"
 
 	"github.com/spf13/hugo/helpers"
@@ -121,10 +120,7 @@ func commonConvert(p *Page) HandledResult {
 		p.workContent = helpers.Emojify(p.workContent)
 	}
 
-	// We have to replace the <!--more--> with something that survives all the
-	// rendering engines.
-	// TODO(bep) inline replace
-	p.workContent = bytes.Replace(p.workContent, []byte(helpers.SummaryDivider), internalSummaryDivider, 1)
+	p.workContent = p.replaceDivider(p.workContent)
 	p.workContent = p.renderContent(p.workContent)
 
 	return HandledResult{err: nil}

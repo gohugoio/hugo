@@ -33,6 +33,7 @@ Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</co
 
 Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly, i.e. all lowercase with no whitespace, otherwise it would be treated as regular comment and ignored.
 
+If there is nothing but spaces and newlines after the summary divider then `.Truncated` will be false.
 
 ## Showing Summaries
 
