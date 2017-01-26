@@ -414,6 +414,23 @@ var (
 	internalSummaryDivider = []byte("HUGOMORE42")
 )
 
+// We have to replace the <!--more--> with something that survives all the
+// rendering engines.
+// TODO(bep) inline replace
+func (p *Page) replaceDivider(content []byte) []byte {
+	sections := bytes.Split(content, helpers.SummaryDivider)
+
+	// If the raw content has nothing but whitespace after the summary
+	// marker then the page shouldn't be marked as truncated.  This check
+	// is simplest against the raw content because different markup engines
+	// (rst and asciidoc in particular) add div and p elements after the
+	// summary marker.
+	p.Truncated = (len(sections) == 2 &&
+		len(bytes.Trim(sections[1], " \n\r")) > 0)
+
+	return bytes.Join(sections, internalSummaryDivider)
+}
+
 // Returns the page as summary and main if a user defined split is provided.
 func (p *Page) setUserDefinedSummaryIfProvided(rawContentCopy []byte) (*summaryContent, error) {
 
@@ -428,12 +445,6 @@ func (p *Page) setUserDefinedSummaryIfProvided(rawContentCopy []byte) (*summaryC
 		return nil, nil
 	}
 
-	p.Truncated = true
-	if len(sc.content) < 20 {
-		// only whitespace?
-		p.Truncated = len(bytes.Trim(sc.content, " \n\r")) > 0
-	}
-
 	p.Summary = helpers.BytesToHTML(sc.summary)
 
 	return sc, nil
@@ -441,9 +452,8 @@ func (p *Page) setUserDefinedSummaryIfProvided(rawContentCopy []byte) (*summaryC
 
 // Make this explicit so there is no doubt about what is what.
 type summaryContent struct {
-	summary               []byte
-	content               []byte
-	contentWithoutSummary []byte
+	summary []byte
+	content []byte
 }
 
 func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryContent, err error) {
@@ -467,7 +477,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 		startMarkup []byte
 		endMarkup   []byte
 		addDiv      bool
-		divStart    = []byte("<div class=\"document\">")
 	)
 
 	switch markup {
@@ -499,20 +508,16 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 
 	withoutDivider := bytes.TrimSpace(append(c[:startDivider], c[endDivider:]...))
 	var (
-		contentWithoutSummary []byte
-		summary               []byte
+		summary []byte
 	)
 
 	if len(withoutDivider) > 0 {
-		contentWithoutSummary = bytes.TrimSpace(withoutDivider[endSummary:])
 		summary = bytes.TrimSpace(withoutDivider[:endSummary])
 	}
 
 	if addDiv {
 		// For the rst
 		summary = append(append([]byte(nil), summary...), []byte("</div>")...)
-		// TODO(bep) include the document class, maybe
-		contentWithoutSummary = append(divStart, contentWithoutSummary...)
 	}
 
 	if err != nil {
@@ -520,9 +525,8 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 	}
 
 	sc = &summaryContent{
-		summary:               summary,
-		content:               withoutDivider,
-		contentWithoutSummary: contentWithoutSummary,
+		summary: summary,
+		content: withoutDivider,
 	}
 
 	return

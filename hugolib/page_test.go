@@ -166,6 +166,14 @@ Summary Same Line<!--more-->
 Some more text
 `
 
+	simplePageWithSummaryDelimiterOnlySummary = `---
+title: Simple
+---
+Summary text
+
+<!--more-->
+`
+
 	simplePageWithAllCJKRunes = `---
 title: Simple
 ---
@@ -665,46 +673,42 @@ func TestCreateNewPage(t *testing.T) {
 func TestSplitSummaryAndContent(t *testing.T) {
 	t.Parallel()
 	for i, this := range []struct {
-		markup                        string
-		content                       string
-		expectedSummary               string
-		expectedContent               string
-		expectedContentWithoutSummary string
+		markup          string
+		content         string
+		expectedSummary string
+		expectedContent string
 	}{
 		{"markdown", `<p>Summary Same LineHUGOMORE42</p>
 
-<p>Some more text</p>`, "<p>Summary Same Line</p>", "<p>Summary Same Line</p>\n\n<p>Some more text</p>", "<p>Some more text</p>"},
+<p>Some more text</p>`, "<p>Summary Same Line</p>", "<p>Summary Same Line</p>\n\n<p>Some more text</p>"},
 		{"asciidoc", `<div class="paragraph"><p>sn</p></div><div class="paragraph"><p>HUGOMORE42Some more text</p></div>`,
 			"<div class=\"paragraph\"><p>sn</p></div>",
-			"<div class=\"paragraph\"><p>sn</p></div><div class=\"paragraph\"><p>Some more text</p></div>",
-			"<div class=\"paragraph\"><p>Some more text</p></div>"},
+			"<div class=\"paragraph\"><p>sn</p></div><div class=\"paragraph\"><p>Some more text</p></div>"},
 		{"rst",
 			"<div class=\"document\"><p>Summary Next Line</p><p>HUGOMORE42Some more text</p></div>",
 			"<div class=\"document\"><p>Summary Next Line</p></div>",
-			"<div class=\"document\"><p>Summary Next Line</p><p>Some more text</p></div>",
-			"<div class=\"document\"><p>Some more text</p></div>"},
-		{"markdown", "<p>a</p><p>b</p><p>HUGOMORE42c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>", "<p>c</p>"},
-		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>", ""},
-		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>", "<p>c</p>"},
-		{"markdown", "<p>aHUGOMORE42</p><p>b</p><p>c</p>", "<p>a</p>", "<p>a</p><p>b</p><p>c</p>", "<p>b</p><p>c</p>"},
-		{"markdown", "  HUGOMORE42 ", "", "", ""},
-		{"markdown", "HUGOMORE42", "", "", ""},
-		{"markdown", "<p>HUGOMORE42", "<p>", "<p>", ""},
-		{"markdown", "HUGOMORE42<p>", "", "<p>", "<p>"},
-		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>", ""},
+			"<div class=\"document\"><p>Summary Next Line</p><p>Some more text</p></div>"},
+		{"markdown", "<p>a</p><p>b</p><p>HUGOMORE42c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "<p>aHUGOMORE42</p><p>b</p><p>c</p>", "<p>a</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "  HUGOMORE42 ", "", ""},
+		{"markdown", "HUGOMORE42", "", ""},
+		{"markdown", "<p>HUGOMORE42", "<p>", "<p>"},
+		{"markdown", "HUGOMORE42<p>", "", "<p>"},
+		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>"},
 		// Issue #2586
 		// Note: Hugo will not split mid-sentence but will look for the closest
 		// paragraph end marker. This may be a change from Hugo 0.16, but it makes sense.
 		{"markdown", `<p>this is an example HUGOMORE42of the issue.</p>`,
 			"<p>this is an example of the issue.</p>",
-			"<p>this is an example of the issue.</p>", ""},
+			"<p>this is an example of the issue.</p>"},
 		// Issue: #2538
 		{"markdown", fmt.Sprintf(` <p class="lead">%s</p>HUGOMORE42<p>%s</p>
 `,
 			strings.Repeat("A", 10), strings.Repeat("B", 31)),
 			fmt.Sprintf(`<p class="lead">%s</p>`, strings.Repeat("A", 10)),
 			fmt.Sprintf(`<p class="lead">%s</p><p>%s</p>`, strings.Repeat("A", 10), strings.Repeat("B", 31)),
-			fmt.Sprintf(`<p>%s</p>`, strings.Repeat("B", 31)),
 		},
 	} {
 
@@ -714,7 +718,6 @@ func TestSplitSummaryAndContent(t *testing.T) {
 		require.NotNil(t, sc, fmt.Sprintf("[%d] Nil %s", i, this.markup))
 		require.Equal(t, this.expectedSummary, string(sc.summary), fmt.Sprintf("[%d] Summary markup %s", i, this.markup))
 		require.Equal(t, this.expectedContent, string(sc.content), fmt.Sprintf("[%d] Content markup %s", i, this.markup))
-		require.Equal(t, this.expectedContentWithoutSummary, string(sc.contentWithoutSummary), fmt.Sprintf("[%d] Content without summary, markup %s", i, this.markup))
 	}
 }
 
@@ -848,6 +851,16 @@ func TestPageWithMoreTag(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
+}
+
+func TestPageWithMoreTagOnlySummary(t *testing.T) {
+
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
+		checkTruncation(t, p, false, "page with summary delimiter at end")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterOnlySummary)
 }
 
 func TestPageWithDate(t *testing.T) {
