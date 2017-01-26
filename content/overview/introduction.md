@@ -21,7 +21,7 @@ writing experience.
 
 Sites built with Hugo are extremely fast and very secure. Hugo sites can
 be hosted anywhere, including [Heroku][], [GoDaddy][], [DreamHost][],
-[GitHub Pages][], [Surge][], [Aerobatic][], [Firebase Hosting][],
+[GitHub Pages][], [Netlify][], [Surge][], [Aerobatic][], [Firebase Hosting][],
 [Google Cloud Storage][], [Amazon S3][] and [CloudFront][], and work well
 with CDNs. Hugo sites run without dependencies on expensive runtimes
 like Ruby, Python or PHP and without dependencies on any databases.
@@ -37,6 +37,7 @@ like Ruby, Python or PHP and without dependencies on any databases.
 [Amazon S3]: http://aws.amazon.com/s3/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 [Surge]: https://surge.sh
+[Netlify]: https://www.netlify.com
 
 We think of Hugo as the ideal website creation tool. With nearly instant
 build times and the ability to rebuild whenever a change is made, Hugo
