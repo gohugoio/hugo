@@ -17,6 +17,9 @@ Example:
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
+[params.navigation]
+help  = "Help"
+
 [Languages]
 [Languages.en]
 title = "My blog"
@@ -30,6 +33,8 @@ title = "Mon blog"
 weight = 2
 [Languages.fr.params]
 linkedin = "lien-francais"
+[Languages.fr.navigation]
+help  = "Aide"
 
 ```
 
@@ -38,6 +43,8 @@ value for that key (like `copyright` for the English (`en`) language in this exa
 
 With the config above, all content, sitemap, RSS feeds, paginations
 and taxonomy pages will be rendered below `/` in English (your default content language), and below `/fr` in French.
+
+When working with params in frontmatter pages, omit the `params` in the key for the translation.
 
 If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true` in your configuration.
 
