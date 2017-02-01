@@ -67,7 +67,6 @@ links work properly with most hosting companies.
 
 ## How fast is Hugo?
 
-{{% youtube CdiDYZ51a2o %}}
 
 ## What does Hugo do?
 

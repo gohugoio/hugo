@@ -71,9 +71,7 @@ watch = true
   ## Setting this to true will add a "noindex" to *every* page on the site
   removefromexternalsearch = true
   ## This is used when the BaseURL does not need to modified (eg, in share links)
-  siteaddress = "http://digital.cap.org"
-  ## Set to true to add Google Tag Manager to the Site
-  addgtm = false
+  siteaddress = "https://gohugo.io"
   gtmid = ""
   # Set to true to include a CDN call to FontAwesome
   usefontawesome = true
@@ -87,4 +85,3 @@ watch = true
 
 [taxonomies]
   tag = "tags"
-  category = "categories"

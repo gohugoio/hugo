@@ -1,7 +1,9 @@
 ---
-title: Installing from Source
+title: Install Hugo on Mac OSX
 linktitle:
 description:
+qr_description:
+qr_returns:
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01

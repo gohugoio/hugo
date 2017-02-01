@@ -1,5 +1,5 @@
 ---
-title: seq
+title: index
 linktitle:
 description:
 qr_description:

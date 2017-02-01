@@ -1,5 +1,5 @@
 ---
-title: seq
+title: default
 linktitle:
 description:
 qr_description:

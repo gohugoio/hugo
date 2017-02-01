@@ -1,5 +1,5 @@
 ---
-title: seq
+title: GetPage
 linktitle:
 description:
 qr_description:
