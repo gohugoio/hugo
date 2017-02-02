@@ -277,7 +277,7 @@ func TestReplaceExtension(t *testing.T) {
 		input, newext, expected string
 	}
 	data := []test{
-		// These work according to the above defination
+		// These work according to the above definition
 		{"/some/random/path/file.xml", "html", "file.html"},
 		{"/banana.html", "xml", "banana.xml"},
 		{"./banana.html", "xml", "banana.xml"},
@@ -361,7 +361,7 @@ func TestIsEmpty(t *testing.T) {
 	nonEmptyNonZeroLengthFilesDirectory, _ := createTempDirWithNonZeroLengthFiles()
 	defer deleteTempDir(nonEmptyNonZeroLengthFilesDirectory)
 	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
-	nonExistentDir := os.TempDir() + "/this/direcotry/does/not/exist/"
+	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
 
 	fileDoesNotExist := fmt.Errorf("%q path does not exist", nonExistentFile)
 	dirDoesNotExist := fmt.Errorf("%q path does not exist", nonExistentDir)
@@ -502,7 +502,7 @@ func TestExists(t *testing.T) {
 	emptyDirectory, _ := createEmptyTempDir()
 	defer deleteTempDir(emptyDirectory)
 	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
-	nonExistentDir := os.TempDir() + "/this/direcotry/does/not/exist/"
+	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
 
 	type test struct {
 		input          string
@@ -596,7 +596,7 @@ func TestFilename(t *testing.T) {
 		{"./filename-no-ext", "filename-no-ext"},
 		{"/filename-no-ext", "filename-no-ext"},
 		{"filename-no-ext", "filename-no-ext"},
-		{"directoy/", ""}, // no filename case??
+		{"directory/", ""}, // no filename case??
 		{"directory/.hidden.ext", ".hidden"},
 		{"./directory/../~/banana/gold.fish", "gold"},
 		{"../directory/banana.man", "banana"},
@@ -625,7 +625,7 @@ func TestFileAndExt(t *testing.T) {
 		{"./filename-no-ext", "filename-no-ext", ""},
 		{"/filename-no-ext", "filename-no-ext", ""},
 		{"filename-no-ext", "filename-no-ext", ""},
-		{"directoy/", "", ""}, // no filename case??
+		{"directory/", "", ""}, // no filename case??
 		{"directory/.hidden.ext", ".hidden", ".ext"},
 		{"./directory/../~/banana/gold.fish", "gold", ".fish"},
 		{"../directory/banana.man", "banana", ".man"},

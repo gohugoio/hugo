@@ -19,7 +19,7 @@ type PageCollections struct {
 	Pages Pages
 
 	// Includes all pages in all languages, including the current one.
-	// Inlcudes pages of all types.
+	// Includes pages of all types.
 	AllPages Pages
 
 	// A convenience cache for the traditional index types, taxonomies, home page etc.
