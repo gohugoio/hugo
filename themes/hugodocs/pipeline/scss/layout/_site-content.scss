@@ -1,17 +1,31 @@
 #all-content-wrapper {
   margin-top: $site-header-height;
+  z-index: 5;
   @include MQ(L) {
     margin-left: $sidebar-width;
   }
 }
 
 main.main {
-	width:90%;
-	display:block;
-	margin-left:5%;
-	margin:{
-		left:auto;
-		right:auto;
-	}
-	max-width: $content-max-width;
+  width: 90%;
+  display: block;
+  margin-left: 5%;
+  margin: {
+    left: auto;
+    right: auto;
+  }
+  max-width: $content-max-width;
+}
+
+.body-copy {
+  margin-bottom: 2em;
+  .last-modified {
+    color: lighten($base-font-color, 20%);
+    display: block;
+    width: 100%;
+    font-size: .8em;
+    border-top: 1px solid lighten($base-font-color, 20%);
+    text-align: center;
+    text-transform:uppercase;
+  }
 }

@@ -12,3 +12,5 @@ aliases: []
 notes:
 ---
 
+Here is some content for the homepage.
+

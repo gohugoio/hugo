@@ -12,11 +12,16 @@
   top: 0px;
   left: 0px;
   z-index: 10;
+  @include card(1);
   .page-title {
     // margin:{
     //  left:auto;
     //  right:auto;
     // }
+  }
+  .hugo-meta {
+    display: flex;
+    align-items: center;
   }
   #home-link {
     display: flex;
@@ -28,7 +33,12 @@
       margin-right: .25em;
     }
   }
-  .header-links {
+  //github buttons in site-header
+  iframe[src^="https://buttons.github.io"] {
+    margin-left: 1em;
+  }
+  .header-buttons {
     margin-right: 1em;
+    font-size: .8em;
   }
 }

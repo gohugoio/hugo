@@ -1,7 +1,7 @@
 ---
-title: Hosting and Deployment
+title: Developer Tools
 linktitle:
-description: Description for the Hosting and Deployment Section
+description: Description for the developer tools section.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
@@ -11,4 +11,3 @@ slug:
 aliases:
 notes:
 ---
-

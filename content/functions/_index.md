@@ -1,7 +1,7 @@
 ---
 title: Functions Quick Reference
 linktitle: Functions Quick Reference
-description: Description for this page
+description: Description for templating functions.
 date: 2017-01-09
 publishdate: 2017-01-09
 lastmod: 2017-01-09

@@ -1,7 +1,7 @@
 ---
-title: Templating Introduction
+title: Introduction to Hugo Templating
 linktitle:
-description:
+description: Description of the template section and its contents.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

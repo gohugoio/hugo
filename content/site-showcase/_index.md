@@ -1,16 +1,18 @@
 ---
-aliases: []
-date: 2016-12-26T06:45:18-06:00
-description: null
-draft: false
-lastmod: 2017-01-01
-linktitle: All Sites
-notes: null
-publishdate: 2017-01-01
-qr_description: null
-qr_returns: null
-slug: null
 title: Site Showcase
-weight: 1
+linktitle:
+description: A collection of sites built using Hugo.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+tags: []
+categories: []
+weight:
+draft: false
+slug:
+aliases: []
+notes:
 ---
+
+
 

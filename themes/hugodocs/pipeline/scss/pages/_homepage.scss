@@ -1,0 +1,50 @@
+main#homepage {
+  width: 90%;
+  @include MQ(M) {
+    max-width: $M * .9;
+  }
+  @include MQ(L) {
+    max-width: 860px * .9;
+  }
+}
+
+.homepage-image {
+  display: block;
+  margin: 1em auto;
+  max-width: 200px;
+  img {
+    max-width: 200px;
+    margin: {
+      left: auto;
+      right: auto;
+    }
+  }
+}
+
+.homepage-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  .homepage-card {
+    color: inherit;
+    @include card(1, 3);
+    width: 100%;
+    @include MQ(M) {
+      width: $M * .9 * .48;
+    }
+    @include MQ(L) {
+      width: 860px * .9 * .31;
+    }
+    margin-bottom:1em;
+    padding:16px 8px;
+    h2 {
+      font-size: 1.1em;
+      margin: 0px;
+      line-height: 1.1;
+      margin-bottom: 1em;
+    }
+    p {
+      font-size: .9em;
+    }
+  }
+}

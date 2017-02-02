@@ -1,11 +1,30 @@
-ul,
-ol {
-  margin-left: 0px;
-  padding-left: 0px;
-  list-style: none;
-  text-indent: 0px;
-  li {
+//clear nav lists
+nav,
+aside {
+  ul,
+  ol {
     margin-left: 0px;
-    padding-left: 0px
+    padding-left: 0px;
+    list-style: none;
+    text-indent: 0px;
+    li {
+      margin-left: 0px;
+      padding-left: 0px;
+      list-style: none;
+    }
+  }
+}
+
+//sets list style in body copy
+.body-copy {
+  ul {
+    list-style: disc outside none;
+    padding-left: 1em;
+    margin-left: 1em;
+    li {
+      // padding-left:1em;
+      // margin-left: 1em;
+      // text-indent: -1em;
+    }
   }
 }

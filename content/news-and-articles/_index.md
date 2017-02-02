@@ -1,16 +1,18 @@
 ---
-aliases: []
-date: 2016-12-26T06:43:58-06:00
-description: null
+title: News and Articles
+linktitle:
+description: Articles where Hugo is featured, as well as news and updates on the project itself.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+tags: []
+categories: []
+weight:
 draft: false
-lastmod: 2017-01-01
-linktitle: null
-notes: null
-publishdate: 2017-01-01
-qr_description: null
-qr_returns: null
-slug: null
-title: _index
-weight: 1
+slug:
+aliases: []
+notes:
 ---
+
+
 

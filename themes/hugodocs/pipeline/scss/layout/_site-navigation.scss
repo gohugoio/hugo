@@ -9,6 +9,7 @@
   background-color: darken(#ffffff, 1%);
   transform:translateX(-#{$sidebar-width});
   padding: 1em;
+  z-index: 9;
   &.navigation-open {
     transition: transform .3s ease-in-out;
     transform: translateX(0px);
@@ -33,7 +34,7 @@
       margin-bottom: .66em;
     }
     a.top-menu-item-link {
-    	font-size:17px;
+      font-size: 17px;
       &.active-section {
         color: $active-color;
         // border-bottom: 1px solid $active-color;
@@ -48,14 +49,26 @@
       a.submenu-item-link {
         font-size: 14px;
         &:hover {
-          color: lighten($base-font-color,25%);
+          color: lighten($base-font-color, 25%);
         }
         &.active-page {
-        	font-weight: 600;
+          font-weight: 600;
           // border-bottom: 1px solid $hugo-pink;
           color: $hugo-blue;
         }
       }
     }
   }
+}
+
+#navigation-toggle {
+  @include MQ(L) {
+    display: none;
+  }
+  position:fixed;
+  top:$site-header-height;
+  left:0px;
+  padding:.25em .5em;
+  @include card(1);
+  z-index:15;
 }

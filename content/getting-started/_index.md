@@ -1,7 +1,7 @@
 ---
 title: Getting Started with Hugo
 linktitle:
-description:
+description: Description for the Getting Started section.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

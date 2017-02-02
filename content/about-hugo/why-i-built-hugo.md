@@ -23,11 +23,13 @@ I looked at existing static site generators like [Jekyll][], [Middleman][], and 
 I wanted to develop a fast and full-featured website framework without any
 dependencies. The [Go language][] seemed to have all the features I needed
 in a language. I began developing Hugo in Go and fell in love with the
-language. I hope you will enjoy using Hugo (and contributing to it) as much
+language. I hope you will enjoy using Hugo (and [contributing to it][]) as much
 as I have writing it.
 
 &mdash;Steve Francia ([@spf13][])
 
+[contributing to it]: https://github.com/spf13/hugo
+[Go language]: https://golang.org/
 [Jekyll]: https://jekyllrb.com/
 [Middleman]: https://middlemanapp.com/
 [Nanoc]: https://nanoc.ws/

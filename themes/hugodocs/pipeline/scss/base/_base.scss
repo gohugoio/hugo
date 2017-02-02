@@ -26,3 +26,9 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+p {
+  margin-top:0px;
+  margin-bottom:1em;
+  line-height:$base-line-height;
+}

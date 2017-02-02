@@ -15,7 +15,7 @@ $hugo-pink:#ff4088;
 $hugo-blue:#0594CB;
 
 $default-anchor-color:$hugo-pink;
-$default-anchor-weight: 600;
+$default-anchor-weight: inherit;
 $active-color: $default-anchor-color;
 
 //Typography
@@ -25,9 +25,14 @@ $base-font-color: #333333;
 $base-line-height: 1.6;
 $base-font-weight: 300;
 
+//Buttons
+$base-button-color: $hugo-blue;
+$base-button-text-color: $hugo-white;
+$button-border-radius: .25em;
+
 //Sidebar
 $sidebar-width: 280px;
-$content-max-width: $M;
+$content-max-width: 35em;
 
 //Header
-$site-header-height:40px;
+$site-header-height:50px;

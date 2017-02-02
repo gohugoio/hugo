@@ -1,5 +1,27 @@
 {{ define "main" }}
 <main class="main" id="homepage">
+	<div class="homepage-image">
+		<img src="{{"images/hugo-h-only.png" | relURL}}" alt="">
+	</div>
+	<div class="testing">
+		{{range $section,$content := .Site.Sections}}
 
+		{{end}}
+	</div>
+	<div class="homepage-cards">
+		{{range .Site.Params.sitemenuitems }}
+		{{$sectionurl := . | urlize}}
+		<a href="{{ $sectionurl | relURL }}" class="homepage-card">
+			<section>
+				<header>
+					<h2>{{.}}</h2>
+				</header>
+				<div class="homepage-card-copy">
+				<p>{{ with $.Site.GetPage "section" $sectionurl }}{{ .Description | markdownify }}{{ end }}</p>
+				</div>
+			</section>
+		</a>
+		{{end}}
+	</div>
 </main>
 {{ end }}

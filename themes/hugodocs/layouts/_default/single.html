@@ -5,6 +5,7 @@
 	</header>
 	<div class="body-copy">
 	{{.Content}}
+	<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "January 2, 2006"}}{{else}}{{.PublishDate.Format "January 2, 2006"}}{{end}}</span>
 	</div>
 </main>
 {{ end }}
