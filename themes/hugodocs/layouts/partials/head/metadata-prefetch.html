@@ -8,12 +8,10 @@
 {{ end }}
 {{ if .IsPage }}
 	{{with .NextInSection }}
-	<link rel="preload" href="/assets/images/{{.Params.image}}">
 	<link rel="prefetch" href="{{.Permalink}}">
 	<link rel="prerender" href="{{.Permalink}}">
 	{{ end }}
 	{{with .PrevInSection }}
-	<link rel="preload" href="/assets/images/{{.Params.image}}">
 	<link rel="prefetch" href="{{.Permalink}}">
 	<link rel="prerender" href="{{.Permalink}}">
 	{{ end }}
