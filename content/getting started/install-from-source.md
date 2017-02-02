@@ -1,5 +1,5 @@
 ---
-title: Install Hugo from Source
+title: Install from Source
 linktitle:
 description:
 date: 2016-11-01

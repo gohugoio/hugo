@@ -1,6 +1,6 @@
 ---
-title: GetPage
-linktitle:
+title: getpage
+linktitle: GetPage
 description:
 qr_description:
 qr_returns:

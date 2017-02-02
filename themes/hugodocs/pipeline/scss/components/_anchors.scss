@@ -1,0 +1,7 @@
+a {
+	color:$default-anchor-color;
+	font-weight:$default-anchor-weight;
+	@include on-event($self:true){
+		text-decoration:none;
+	}
+}

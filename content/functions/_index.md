@@ -1,6 +1,6 @@
 ---
-title: Functions
-linktitle:
+title: Functions Quick Reference
+linktitle: Functions Quick Reference
 description: Description for this page
 date: 2017-01-09
 publishdate: 2017-01-09

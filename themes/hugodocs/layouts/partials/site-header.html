@@ -1,3 +1,8 @@
 <header id="site-header" class="site-header">
-
+	<div class="hugo-meta" title="Hugo version {{.Hugo.Version}}, built {{.Hugo.BuildDate}}">
+		<a href="{{.Site.BaseURL}}" id="home-link">
+			<img src="{{"images/hugo-logo.png" | relURL}}" alt="">{{.Hugo.Version}}
+		</a>
+	</div>
+	<h1 class="page-title">{{.Title}}</h1>
 </header>

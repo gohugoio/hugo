@@ -1,0 +1,22 @@
+<nav class="site-navigation" id="site-navigation">
+	<ul>
+		{{ $menuitems := .Site.Params.sitemenuitems }}
+		{{ $sitesections := .Site.Sections }}
+		{{ range $menuitems }}
+		{{ $menuitem := . }}
+			{{ range $section,$content := $sitesections}}
+				{{if eq $section $menuitem}}
+				<li>{{ $section }}
+				{{if gt (len $content.Pages) 1 }}
+					<ul>
+						{{range $content.Pages}}
+						<li>{{with .LinkTitle}}{{.}}{{else}}{{.Title}}{{end}}</li>
+						{{end}}
+					</ul>
+				{{end}}
+				</li>
+			{{ end }}
+		{{ end }}
+		{{ end }}
+	</ul>
+</nav>

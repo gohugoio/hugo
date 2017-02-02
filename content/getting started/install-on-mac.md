@@ -1,5 +1,5 @@
 ---
-title: Install Hugo on Mac OSX
+title: Install on Mac OSX
 linktitle:
 description:
 qr_description:

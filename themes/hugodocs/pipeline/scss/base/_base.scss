@@ -1,0 +1,11 @@
+html,body {
+	margin:0px;
+	padding:0px;
+	outline:none;
+	border:none;
+	font-size:$base-font-size;
+}
+
+body {
+	@include MQALL('font-size',90% 95% 100%);
+}

@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		{{- partial "site-head.html" . -}}
-	</head>
-	<body>
-		<div id="all-site-wrapper" class="all-site-wrapper">
-		  {{- partial "site-header.html" . -}}
-			<div id="all-content-wrapper" class="all-content-wrapper">
-				{{block "main" . }}
-				{{end}}
-			</div>
-			{{- partial "site-footer.html" . -}}
-		</div>
-		{{- partial "footer/site-scripts.html" . -}}
-		{{- partial "footer/google-analytics.html" . -}}
-	</body>
+	{{- partial "site-head.html" . -}}
+<body>
+  {{- partial "site-header.html" . -}}
+  <div class="all-content-wrapper" id="all-content-wrapper">
+	{{block "main" . }}
+	{{end}}
+	</div>
+	{{- partial "site-footer.html" . -}}
+	{{- partial "site-navigation-sidebar.html" . -}}
+	{{- partial "site-scripts.html" . -}}
+</body>
 </html>

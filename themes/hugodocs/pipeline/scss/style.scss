@@ -2,14 +2,13 @@
 @import 'abstracts/mixins';
 @import 'abstracts/mediaqueries';
 @import 'abstracts/functions';
-@import 'base/fontawesome'; //requires that $usefontawesome be set to true in _variables.scss
 @import 'base/normalize';
+@import 'base/base';
+@import 'base/fontawesome'; //requires that $usefontawesome be set to true in _variables.scss
 @import 'base/typography';
 @import 'components/buttons';
+@import 'components/lists';
+@import 'components/anchors';
 @import 'layout/site-header';
+@import 'layout/site-content';
 @import 'layout/site-footer';
-// @import 'abstracts/animate';
-
-body {
-
-}

@@ -10,7 +10,7 @@ publishdate: 2017-01-01
 qr_description: null
 qr_returns: null
 slug: null
-title: _index
+title: Site Showcase
 weight: 1
 ---
 

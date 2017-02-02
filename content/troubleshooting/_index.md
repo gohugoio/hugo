@@ -1,16 +1,14 @@
 ---
-aliases: []
-date: 2016-12-26T06:46:25-06:00
-description: null
+title: Troubleshooting
+linktitle:
+description:
+date: 2016-11-01
+publishdate: 2016-11-01
+lastmod: 2016-11-01
+weight:
 draft: false
-lastmod: 2017-01-01
-linktitle: null
-notes: null
-publishdate: 2017-01-01
-qr_description: null
-qr_returns: null
-slug: null
-title: _index
-weight: 1
+slug:
+aliases: []
+notes:
 ---
 

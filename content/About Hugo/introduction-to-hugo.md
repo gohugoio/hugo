@@ -2,15 +2,11 @@
 title: Introduction to Hugo
 linktitle:
 description: An introduction to Hugo and the impetus for its creation.
-qr_description:
-qr_returns:
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
 weight: 10
 draft: false
-type:
-layout:
 slug:
 aliases: [/overview/introduction]
 notes:

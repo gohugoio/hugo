@@ -1,16 +1,12 @@
 ---
 title: Hugo Features
 linktitle:
-description: Hugo is the fastest of all static site generators and includes features
-qr_description:
-qr_returns:
+description: Hugo is the fastest static site generator and includes a powerful templating language, making it the appropriate choice for websites of all sizes and types.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
 weight:
 draft: false
-type:
-layout:
 slug:
 aliases: []
 notes:

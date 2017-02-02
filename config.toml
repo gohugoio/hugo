@@ -7,8 +7,11 @@ canonifyurls = true
 config = "config.toml"
 contentdir = "content"
 copyright = ""
+defaultContentLanguage = "en"
 # Set to true is you don't want livereload in local development
-disableLiveReload= false
+disableLiveReload = false
+# Set to true to keep url path preserve casing (eg, for sections)
+disablePathToLower = false
 # Set to false if you want rss xml files auto-generated
 disableRSS = false
 # Set to false if you want a sitemap.xml created at the site root
@@ -34,8 +37,10 @@ publishdir = "public"
 pygmentsUseClasses = true
 relativeURLs = true
 source = ""
+# Display memory and timing of different steps of the program
+stepAnalysis = true
 # This is the top-level, global site title
-title = "Hugo Docs Concept"
+title = "Hugo"
 # Change this once you've created your theme
 theme = "hugodocs"
 # Set to true to convert mysite/section/ to mysite/section.html
@@ -59,7 +64,7 @@ watch = true
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head>>
   usecrp = false
   ## Include jQuery 2.2.4 in your site head. (see /static/assets/js)
-  includejq = true
+  includejq = false
   ## Date the Site is Published, use YYYY-MM-DD
   sitepublishdate = ""
   ## Twitter handle without the "@"
@@ -67,7 +72,7 @@ watch = true
   ## Facebook URL
   facebook = ""
   ## Default Image for Social Sharing. This image should live at static/images/
-  defaultsocialimage = "cap-logo-social.png"
+  defaultsocialimage = "hugodefaultsocial.png"
   ## Setting this to true will add a "noindex" to *every* page on the site
   removefromexternalsearch = true
   ## This is used when the BaseURL does not need to modified (eg, in share links)
@@ -75,6 +80,8 @@ watch = true
   gtmid = ""
   # Set to true to include a CDN call to FontAwesome
   usefontawesome = true
+  # Sets the order of site sections in the sidebar navigation
+  sitemenuitems = ["About Hugo", "Getting Started", "Using the Docs", "Community Discussion", "Managing Content", "Templating", "Functions", "Themes", "Hosting and Deployment", "Migrating to Hugo", "News and Articles", "Site Showcase", "Developer Tools", "Themes", "Troubleshooting"]
 # MARKDOWN
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
 [blackfriday]

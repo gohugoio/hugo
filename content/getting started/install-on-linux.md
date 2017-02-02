@@ -1,5 +1,5 @@
 ---
-title: Install Hugo on Linux
+title: Install on Linux
 linktitle:
 description:
 date: 2016-11-01
