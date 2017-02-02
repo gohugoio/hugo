@@ -1,6 +1,6 @@
 ---
-title: absLangURL
-linktitle:
+title: abslangurl
+linktitle: absLangURL
 description:
 qr_description:
 qr_returns:

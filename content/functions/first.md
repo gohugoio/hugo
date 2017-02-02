@@ -8,9 +8,9 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
+categories: [functions]
+tags: [filtering content, limiting content]
 draft: false
-type:
-layout:
 slug:
 aliases: []
 notes:

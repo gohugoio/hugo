@@ -1,3 +1,17 @@
 #all-content-wrapper {
-	margin-top:$site-header-height;
+  margin-top: $site-header-height;
+  @include MQ(L) {
+    margin-left: $sidebar-width;
+  }
+}
+
+main.main {
+	width:90%;
+	display:block;
+	margin-left:5%;
+	margin:{
+		left:auto;
+		right:auto;
+	}
+	max-width: $content-max-width;
 }

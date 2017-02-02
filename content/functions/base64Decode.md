@@ -1,6 +1,6 @@
 ---
-title: base64Decode
-linktitle:
+title: base64decode
+linktitle: base64Decode
 description:
 qr_description:
 qr_returns:

@@ -1,11 +1,28 @@
-html,body {
-	margin:0px;
-	padding:0px;
-	outline:none;
-	border:none;
-	font-size:$base-font-size;
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  outline: none;
+  border: none;
+  font-size: $base-font-size;
+  font-family: $base-font-family;
+  color: $base-font-color;
+  line-height: $base-line-height;
+  font-weight:$base-font-weight;
 }
 
 body {
-	@include MQALL('font-size',90% 95% 100%);
+  @include MQALL('font-size', 90% 95% 100%);
+  display: flex;
+  flex-direction: column;
 }

@@ -1,0 +1,61 @@
+.site-navigation {
+  transition: transform .3s ease-in-out;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: $sidebar-width;
+  bottom: 0px;
+  overflow-y: scroll;
+  background-color: darken(#ffffff, 1%);
+  transform:translateX(-#{$sidebar-width});
+  padding: 1em;
+  &.navigation-open {
+    transition: transform .3s ease-in-out;
+    transform: translateX(0px);
+  }
+  @include MQ(L) {
+    transform: translateX(0px);
+  }
+  ul.top-menu {
+    margin-top: $site-header-height;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    a {
+      color: $base-font-color;
+      font-weight: $base-font-weight;
+    }
+    li {
+      padding-left: 1em;
+      // text-indent: -1em;
+      line-height: 1;
+      margin-top: .75em;
+      margin-bottom: .75em;
+    }
+    a.top-menu-item-link {
+    	font-size:17px;
+      &.active-section {
+        color: $active-color;
+        // border-bottom: 1px solid $active-color;
+        font-weight: 600;
+        + ul.submenu {
+          display: block;
+        }
+      }
+    }
+    ul.submenu {
+      display: none;
+      a.submenu-item-link {
+        font-size: 14px;
+        &:hover {
+          color: lighten($base-font-color,25%);
+        }
+        &.active-page {
+        	font-weight: 600;
+          // border-bottom: 1px solid $hugo-pink;
+          color: $hugo-blue;
+        }
+      }
+    }
+  }
+}

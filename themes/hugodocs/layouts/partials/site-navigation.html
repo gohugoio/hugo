@@ -1,0 +1,24 @@
+<nav class="site-navigation" id="site-navigation">
+	<ul class="top-menu">
+		{{ $menuitems := .Site.Params.sitemenuitems }}
+		{{ $sitesections := .Site.Sections }}
+		{{ $url := .URL }}
+		{{ $perma := .Permalink }}
+		{{ range $menuitems }}
+		{{ $menuitem := . }}
+			{{ range $section,$content := $sitesections}}
+				{{if eq $section ($menuitem | urlize)}}
+				<li class="top-menu-item"><a class="top-menu-item-link{{if in $url $section }} active-section{{end}}" href="#">{{ replace $section "-" " "| title }}</a>
+				{{if gt (len $content.Pages) 1 }}
+					<ul class="submenu">
+						{{range $content.Pages}}
+						<li data-pagelink="{{.URL}}" class="submenu-item"><a class="submenu-item-link{{if in $perma .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+						{{end}}
+					</ul>
+				{{end}}
+				</li>
+			{{ end }}
+		{{ end }}
+		{{ end }}
+	</ul>
+</nav>

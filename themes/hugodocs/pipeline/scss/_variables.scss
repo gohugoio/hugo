@@ -12,13 +12,22 @@ $HUGE:1600px;
 $hugo-black:#000000;
 $hugo-white:#ffffff;
 $hugo-pink:#ff4088;
+$hugo-blue:#0594CB;
 
 $default-anchor-color:$hugo-pink;
 $default-anchor-weight: 600;
+$active-color: $default-anchor-color;
 
 //Typography
-$base-font-size: 16px;
+$base-font-size: 18px;
+$base-font-family: 'proximanova','helvetica neue',helvetica,sans-serif;
+$base-font-color: #333333;
+$base-line-height: 1.6;
+$base-font-weight: 300;
 
+//Sidebar
+$sidebar-width: 280px;
+$content-max-width: $M;
 
 //Header
 $site-header-height:40px;

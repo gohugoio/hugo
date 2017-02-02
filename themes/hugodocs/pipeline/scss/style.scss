@@ -1,14 +1,24 @@
+//variables and abstracts
 @import 'variables';
 @import 'abstracts/mixins';
 @import 'abstracts/mediaqueries';
 @import 'abstracts/functions';
+
+//base styles
 @import 'base/normalize';
 @import 'base/base';
 @import 'base/fontawesome'; //requires that $usefontawesome be set to true in _variables.scss
 @import 'base/typography';
+
+//components
 @import 'components/buttons';
 @import 'components/lists';
 @import 'components/anchors';
+
+//major layout parts/chrome
 @import 'layout/site-header';
+@import 'layout/site-navigation';
 @import 'layout/site-content';
 @import 'layout/site-footer';
+
+//styles for individual pages

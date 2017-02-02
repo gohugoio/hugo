@@ -81,7 +81,7 @@ watch = true
   # Set to true to include a CDN call to FontAwesome
   usefontawesome = true
   # Sets the order of site sections in the sidebar navigation
-  sitemenuitems = ["About Hugo", "Getting Started", "Using the Docs", "Community Discussion", "Managing Content", "Templating", "Functions", "Themes", "Hosting and Deployment", "Migrating to Hugo", "News and Articles", "Site Showcase", "Developer Tools", "Themes", "Troubleshooting"]
+  sitemenuitems = ["About Hugo", "Getting Started", "Using the Docs", "Community Discussion", "Managing Content", "Templates", "Functions", "Themes", "Hosting and Deployment", "Migrating to Hugo", "News and Articles", "Site Showcase", "Developer Tools", "Themes", "Troubleshooting"]
 # MARKDOWN
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
 [blackfriday]

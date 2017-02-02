@@ -3,5 +3,6 @@ a {
 	font-weight:$default-anchor-weight;
 	@include on-event($self:true){
 		text-decoration:none;
+		cursor:pointer;
 	}
 }

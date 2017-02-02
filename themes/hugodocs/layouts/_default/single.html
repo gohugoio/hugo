@@ -1,5 +1,10 @@
-{{- define "main" -}}
+{{ define "main" }}
 <main class="main">
-{{.Content}}
+	<header>
+		<h1>{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title }}{{end}}</h1>
+	</header>
+	<div class="body-copy">
+	{{.Content}}
+	</div>
 </main>
-{{- end -}}
+{{ end }}
