@@ -16,6 +16,10 @@ package hugolib
 import (
 	"fmt"
 	"sort"
+	"unicode"
+
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/spf13/hugo/helpers"
 )
@@ -102,6 +106,26 @@ func (i Taxonomy) Alphabetical() OrderedTaxonomy {
 	ia := i.TaxonomyArray()
 	oiBy(name).Sort(ia)
 	return ia
+}
+
+// AlphabeticalAndDiacriticsStripped returns an ordered taxonomy sorted by key name.
+// Unlike Alphabetical, diacritics such as Č is stripped when sorted.
+func (i Taxonomy) AlphabeticalAndDiacriticsStripped() OrderedTaxonomy {
+	chain := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+
+	name := func(i1, i2 *OrderedTaxonomyEntry) bool {
+		i1Name, _, _ := transform.String(chain, i1.Name)
+		i2Name, _, _ := transform.String(chain, i2.Name)
+		return i1Name < i2Name
+	}
+
+	ia := i.TaxonomyArray()
+	oiBy(name).Sort(ia)
+	return ia
+}
+
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
 // ByCount returns an ordered taxonomy sorted by # of pages per key.
