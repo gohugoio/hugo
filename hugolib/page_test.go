@@ -637,7 +637,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			writeSource(t, fs, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
 		}
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 		require.Len(t, s.RegularPages, len(pageSources))
 
@@ -750,7 +750,7 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -778,7 +778,7 @@ title: Raw
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 	p := s.RegularPages[0]
