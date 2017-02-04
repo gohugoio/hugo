@@ -563,7 +563,7 @@ We can limit the number of matches in that list with a third parameter. Let's sa
         </ul>
     {{ end }}
 
-First, we try to find all second-level headers and generate a list if at least one header was found. `plainify` strips the HTML and `urlize` converts the header into an a valid URL.
+First, we try to find all second-level headers and generate a list if at least one header was found. `plainify` strips the HTML and `urlize` converts the header into a valid URL.
 
 ### replace
 Replaces all occurrences of the search string with the replacement string.
