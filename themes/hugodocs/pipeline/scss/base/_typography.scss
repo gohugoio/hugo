@@ -1,1 +1,27 @@
-@include fonts('proximanova',$weights: 100 300 400 600 700);
+@include fonts('muli', $weights: 100 300 400 600 700);
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -.021em;
+  font-weight: $heading-font-weight;
+  margin-top: 0px;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: 2em;
+  line-height: 1.2;
+  margin-bottom: .25em;
+  @include MQ(M) {
+    font-size: 2.25em;
+  }
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+h3 {
+  font-size: 1.2em;
+}

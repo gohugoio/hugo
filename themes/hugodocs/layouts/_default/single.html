@@ -1,7 +1,8 @@
 {{ define "main" }}
 <main class="main">
-	<header>
-		<h1>{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title }}{{end}}</h1>
+	<header class="content-header">
+		<h1>{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<a role="button" target="_blank" class="edit-link" href="{{.Site.Params.ghrepourl}}{{.File.Path}}"><span class="edit-text">Edit</span> <i class="fa fa-pencil" aria-hidden="true"></i></a>
 	</header>
 	<div class="body-copy">
 	{{.Content}}

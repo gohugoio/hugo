@@ -32,6 +32,9 @@
       line-height: 1;
       margin-top: .66em;
       margin-bottom: .66em;
+      ul li {
+        padding-left:.5em;
+      }
     }
     a.top-menu-item-link {
       font-size: 17px;
@@ -58,6 +61,16 @@
         }
       }
     }
+  }
+}
+
+.nav-buttons {
+  a {
+    margin-left:1em;
+    margin-bottom:.5em;
+    display:inline-block;
+    width:200px;
+    font-size:.9em;
   }
 }
 

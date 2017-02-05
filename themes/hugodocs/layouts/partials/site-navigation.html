@@ -4,22 +4,28 @@
 		{{ $menuitems := .Site.Params.sitemenuitems }}
 		{{ $sitesections := .Site.Sections }}
 		{{ $url := .URL }}
+		{{ $kind := .Kind}}
 		{{ $perma := .Permalink }}
 		{{ range $menuitems }}
 		{{ $menuitem := . }}
 			{{ range $section,$content := $sitesections}}
 				{{if eq $section ($menuitem | urlize)}}
-				<li class="top-menu-item"><a class="top-menu-item-link{{if in $url $section }} active-section{{end}}" href="#">{{ replace $section "-" " "| title }}</a>
-				{{if gt (len $content.Pages) 1 }}
+				<li class="top-menu-item"><a class="top-menu-item-link{{if in $url $section }} active-section{{end}}" href="#">{{ replaceRE "And" "and" (replace $section "-" " "| title) }}</a>
 					<ul class="submenu">
+						{{ with $.Site.GetPage "section" $section }}
+						<li class="submenu-item"><a class="submenu-item-link{{if and (in $perma .URL) (eq $kind "section")}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+						{{ end }}
 						{{range $content.Pages}}
-						<li data-pagelink="{{.URL}}" class="submenu-item"><a class="submenu-item-link{{if in $perma .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+						<li class="submenu-item"><a class="submenu-item-link{{if in $perma .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
 						{{end}}
 					</ul>
-				{{end}}
 				</li>
 			{{ end }}
 		{{ end }}
 		{{ end }}
 	</ul>
+	<div class="nav-buttons">
+		<a role="button" class="icon-forum" href="https://discuss.gohugo.io" target="_blank">Community Forum</a><br>
+		<a role="button" class="icon-mailing-list" href="{{.Site.BaseURL}}mailing-list/">Join the Mailing List</a>
+	</div>
 </nav>

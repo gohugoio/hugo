@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin: 0px;
   background-color: $hugo-white;
   color: $hugo-black;
@@ -13,11 +13,8 @@
   left: 0px;
   z-index: 10;
   @include card(1);
-  .page-title {
-    // margin:{
-    //  left:auto;
-    //  right:auto;
-    // }
+  @include MQ(M) {
+    justify-content: space-between;
   }
   .hugo-meta {
     display: flex;
@@ -27,18 +24,22 @@
     display: flex;
     align-items: center;
     font-size: .8em;
-    margin-left: 1em;
+    margin-left: 1.5em;
     img {
-      height: $site-header-height * .8;
+      height: $site-header-height * .7;
       margin-right: .25em;
+    }
+    .hugo-v {
+      align-self: flex-end;
+      font-size: .9em;
     }
   }
   //github buttons in site-header
   iframe[src^="https://buttons.github.io"] {
+    display: none;
+    @include MQ(M) {
+      display: inline;
+    }
     margin-left: 1em;
-  }
-  .header-buttons {
-    margin-right: 1em;
-    font-size: .8em;
   }
 }

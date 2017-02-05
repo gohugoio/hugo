@@ -3,7 +3,7 @@
 	{{- partial "site-head.html" . -}}
 <body>
   {{- partial "site-header.html" . -}}
-  <div class="all-content-wrapper" id="all-content-wrapper">
+  <div class="all-content-wrapper{{if .IsHome}} home{{end}}" id="all-content-wrapper">
 	{{block "main" . }}
 	{{end}}
 	</div>

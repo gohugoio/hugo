@@ -77,6 +77,8 @@ watch = true
   removefromexternalsearch = true
   ## This is used when the BaseURL does not need to modified (eg, in share links)
   siteaddress = "https://gohugo.io"
+  ## GitHub Repository Base URL (should contain /edit/master/ to automatically link to edit-ready version of file and also include closing slash)
+  ghrepourl = "https://github.com/rdwatters/hugo-docs-concept/edit/master/content/"
   gtmid = ""
   # Set to true to include a CDN call to FontAwesome
   usefontawesome = true

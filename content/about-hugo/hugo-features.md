@@ -5,18 +5,16 @@ description: Hugo is the fastest static site generator and includes a powerful t
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
-weight:
+weight: 10
 draft: false
 slug:
-aliases: []
+aliases: [/about-hugo/features]
 notes:
 ---
 
-Hugo boasts the following features:
-
 ## General
 
-* Extremely fast build times (≈1 ms per page)
+* Extremely fast build times (<1 ms per page)
 * Completely cross platform: Runs on <i class="fa fa-apple"></i>&nbsp;Mac OS&nbsp;X, <i class="fa fa-linux"></i>&nbsp;Linux, <i class="fa fa-windows"></i>&nbsp;Windows, and more!
 * Easy [installation](/overview/installing/)
 * Render changes [on the fly](/overview/usage/) with [LiveReload](/extras/livereload/) as you develop

@@ -18,12 +18,16 @@ $default-anchor-color:$hugo-pink;
 $default-anchor-weight: inherit;
 $active-color: $default-anchor-color;
 
+//Document Body
+$body-bg-color:$hugo-white;
+
 //Typography
 $base-font-size: 18px;
-$base-font-family: 'proximanova','helvetica neue',helvetica,sans-serif;
+$base-font-family: 'muli','helvetica neue',helvetica,sans-serif;
 $base-font-color: #333333;
 $base-line-height: 1.6;
 $base-font-weight: 300;
+$heading-font-weight: 700;
 
 //Buttons
 $base-button-color: $hugo-blue;

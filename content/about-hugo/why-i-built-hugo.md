@@ -5,7 +5,7 @@ description: Hugo is the fastest of all static site generators and includes feat
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+weight: 30
 draft: false
 slug:
 aliases: []

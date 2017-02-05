@@ -5,7 +5,7 @@ description:
 date: 2016-02-01
 publishdate: 2016-02-01
 lastmod: 2016-02-01
-weight:
+weight: 20
 draft: false
 slug:
 aliases: []

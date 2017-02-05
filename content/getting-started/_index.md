@@ -1,6 +1,6 @@
 ---
-title: Getting Started with Hugo
-linktitle:
+title: Getting Started with Hugo Docs
+linktitle: Using the Hugo Docs
 description: Description for the Getting Started section.
 date: 2017-02-01
 publishdate: 2017-02-01

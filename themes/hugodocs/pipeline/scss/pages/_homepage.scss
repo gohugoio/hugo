@@ -1,3 +1,7 @@
+.all-content-wrapper.home {
+  background-color: lighten($hugo-blue,55%);
+}
+
 main#homepage {
   width: 90%;
   @include MQ(M) {
@@ -29,6 +33,7 @@ main#homepage {
     color: inherit;
     @include card(1, 3);
     width: 100%;
+    background-color: $body-bg-color;
     @include MQ(M) {
       width: $M * .9 * .48;
     }
