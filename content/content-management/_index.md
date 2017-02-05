@@ -1,7 +1,7 @@
 ---
 title: Content Management
 linktitle:
-description: How content is organized and managed with Hugo.
+description: Content organization, summaries, archetypes, front matter, and supported formats.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

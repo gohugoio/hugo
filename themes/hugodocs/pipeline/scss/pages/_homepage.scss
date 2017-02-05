@@ -38,11 +38,12 @@ main#homepage {
     margin-bottom: .5em;
     padding: 16px 8px;
     @include MQ(M) {
-      width: $M * .9 * .48;
+      max-width: $M * .9 * .48;
       margin-bottom: 1em;
     }
     @include MQ(L) {
-      width: 860px * .9 * .31;
+     max-width: 860px * .9 * .31;
+     margin-left:.2em;
     }
     h2 {
       font-size: 1em;

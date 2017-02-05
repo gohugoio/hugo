@@ -33,6 +33,8 @@ designing websites, but also very useful when creating content.
 
 ## How Fast is Hugo?
 
+{{< youtube "CdiDYZ51a2o" >}}
+
 
 ## What Does Hugo Do?
 
