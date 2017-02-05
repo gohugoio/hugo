@@ -1,4 +1,9 @@
-<a href="#" id="navigation-toggle"><i class="fa fa-bars" aria-hidden="true"></i> Menu</a>
+<a class="navigation-toggle-wrapper" id="navigation-toggle" href="#">
+		<div class="top bar"></div>
+		<div class="middle bar"></div>
+		<div class="bottom bar"></div>
+		<h4 class="menu">Menu</h4>
+</a>
 <nav class="site-navigation" id="site-navigation">
 	<ul class="top-menu">
 		{{ $menuitems := .Site.Params.sitemenuitems }}
@@ -25,7 +30,7 @@
 		{{ end }}
 	</ul>
 	<div class="nav-buttons">
-		<a role="button" class="icon-forum" href="https://discuss.gohugo.io" target="_blank">Discussion Forum</a><br>
-		<a role="button" class="icon-mailing-list" href="{{.Site.BaseURL}}mailing-list/">Join the Mailing List</a>
+		<a role="button" class="icon-forum" href="https://discuss.gohugo.io" target="_blank">Discuss Hugo</a><br>
+		<a role="button" class="icon-mailing-list" href="{{.Site.BaseURL}}mailing-list/">Mailing List</a>
 	</div>
 </nav>

@@ -29,21 +29,24 @@ main.main {
     clear: both;
     width: 100%;
     position: relative;
-    margin-top: 2.5em;
+    margin-top: 3em;
     @include MQ(M) {
       margin-top: 2em;
     }
     a.edit-link {
       font-size: 1.2em;
       position: absolute;
-      top: 0px;
+      top: -1em;
       right: 0px;
-      @include MQ(M) {
+      @include MQ(L) {
         font-size: .7em;
+        position:fixed;
+        top:$site-header-height + 40px;
+        right: 2em;
       }
       .edit-text {
         display: none;
-        @include MQ(M) {
+        @include MQ(L) {
           display: inline;
           margin-right: .15em;
           text-transform: uppercase;

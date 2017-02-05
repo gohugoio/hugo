@@ -1,5 +1,5 @@
 ---
-title: Template Variables
+title: Tutorials
 linktitle:
 description:
 date: 2017-02-01

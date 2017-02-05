@@ -1,8 +1,87 @@
 a {
-	color:$default-anchor-color;
-	font-weight:$default-anchor-weight;
-	@include on-event($self:true){
-		text-decoration:none;
-		cursor:pointer;
-	}
+  color: $default-anchor-color;
+  font-weight: $default-anchor-weight;
+  @include on-event($self: true) {
+    text-decoration: none;
+    cursor: pointer;
+  }
 }
+
+.body-copy {
+  a {
+    text-decoration: none;
+    color: $default-anchor-color;
+    display: inline-block;
+    outline: none;
+    position: relative;
+    transition: color 0.3s ease;
+    perspective: 1800px;
+    &:hover {
+    	color:$hugo-white;
+    }
+    &::before,
+    &::after {
+      position: absolute;
+      top: 0;
+      left: -4px;
+      padding: 0 4px;
+      z-index: -1;
+      box-sizing: content-box;
+      width: 100%;
+      height: 100%;
+      content: '';
+    }
+    &::before {
+      background-color: $default-anchor-color;
+      transition: transform 0.2s;
+      transition-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
+      transform: rotateX(90deg);
+      transform-origin: 50% 100%;
+    }
+    &:hover::before,
+    &:focus::before {
+      transform: rotateX(0);
+    }
+    &::after {
+      border-bottom: 2px solid #fff;
+    }
+  }
+}
+
+// .body-copy {
+//   a {
+//     position: relative;
+//     display: inline-block;
+//     outline: none;
+//     color: $default-anchor-color;
+//     vertical-align: bottom;
+//     text-decoration: none;
+//     white-space: nowrap;
+//     font-weight: 500;
+//     &:hover {
+//     	color:$hugo-white;
+//     }
+//     &:before {
+//       position: absolute;
+//       top: 0;
+//       left: -5px;
+//       z-index: -1;
+//       box-sizing: content-box;
+//       padding: 0 5px;
+//       width: 100%;
+//       height: 100%;
+//       border-radius: 10px;
+//       background-color: $default-anchor-color;
+//       content: '';
+//       opacity: 0;
+//       transition: transform 0.2s, opacity 0.2s;
+//       transform: scale(0);
+//     }
+//     &:hover::before,
+//     &:focus::before {
+//       opacity: 1;
+//       -webkit-transform: scale(1);
+//       transform: scale(1);
+//     }
+//   }
+// }

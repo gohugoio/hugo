@@ -1,5 +1,5 @@
 ---
-title: Goland Primer
+title: Go Template Primer
 linktitle:
 description:
 date: 2017-02-01
