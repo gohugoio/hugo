@@ -1,5 +1,5 @@
 ---
-lastmod: 2016-10-10
+lastmod: 2017-02-05
 date: 2014-03-24T20:00:00Z
 linktitle: Press
 notoc: true
@@ -18,6 +18,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title                                                                                                                                                                                                    | Author                                                                  | Date                   |
 | ------                                                                                                                                                                                                   | ------                                                                  | -----:                 |
+| [Build a Hugo site using Cloud9 IDE and host on App Engine](https://loyall.ch/lab/2017/01/build-a-static-website-with-cloud9-hugo-and-app-engine/)                                                 | Pascal Aubort                                                              | 5 Feb 2017             |
 | [How to use Firebase to host a Hugo site](https://www.m0d3rnc0ad.com/post/static-site-firebase/)                                                 | Andrew Cuga                                                              | 4 Feb 2017             |
 | [A publishing workflow for teams using static site generators](https://www.keybits.net/post/publishing-workflow-for-teams-using-static-site-generators/)                                                 | Tom Atkins                                                              | 2 Jan 2017             |
 | [How To Dynamically Use Google Fonts In A Hugo Website](https://stoned.io/web-development/hugo/How-To-Dynamically-Use-Google-Fonts-In-A-Hugo-Website/)                                                   | Hash Borgir                                                             | 27 Oct 2016            |
