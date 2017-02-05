@@ -1,5 +1,5 @@
 ---
-title: Project Organization
+title: New Project Scaffolding
 linktitle:
 description: Scaffolding new projects, configuration, and source organization.
 date: 2016-11-01
