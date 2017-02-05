@@ -1,7 +1,7 @@
 ---
 title: Introduction to Hugo
 linktitle:
-description: A general introduction to Hugo, a powerful static site generator written in Golang.
+description: Hugo's features, roadmap, license, and motivation.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01

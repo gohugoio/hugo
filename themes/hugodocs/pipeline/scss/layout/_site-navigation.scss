@@ -18,7 +18,7 @@
     transform: translateX(0px);
   }
   ul.top-menu {
-    margin-top: $site-header-height;
+    margin-top: $site-header-height + 20px;
     display: inline-block;
     margin-left: auto;
     margin-right: auto;
@@ -84,4 +84,5 @@
   padding:.25em .5em;
   @include card(1);
   z-index:15;
+  background-color: $body-bg-color;
 }

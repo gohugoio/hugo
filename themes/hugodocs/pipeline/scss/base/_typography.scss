@@ -13,6 +13,7 @@ h1 {
   font-size: 2em;
   line-height: 1.2;
   margin-bottom: .25em;
+  padding-top: .75em;
   @include MQ(M) {
     font-size: 2.25em;
   }
