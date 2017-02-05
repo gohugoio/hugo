@@ -55,7 +55,7 @@ main.main {
 
 .body-copy {
   margin-bottom: 2em;
-  display: inline-block;
+  display: block;
   .last-modified {
     color: lighten($base-font-color, 20%);
     display: block;

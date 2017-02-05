@@ -16,7 +16,7 @@
 						<li class="submenu-item"><a class="submenu-item-link{{if and (in $perma .URL) (eq $kind "section")}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
 						{{ end }}
 						{{range $content.Pages}}
-						<li class="submenu-item"><a class="submenu-item-link{{if in $perma .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+						<li class="submenu-item"><a class="submenu-item-link {{$section}}{{if in $perma .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
 						{{end}}
 					</ul>
 				</li>

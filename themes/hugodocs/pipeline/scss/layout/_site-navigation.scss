@@ -59,6 +59,9 @@
           // border-bottom: 1px solid $hugo-pink;
           color: $hugo-blue;
         }
+        &.functions {
+          font-family:$code-font-family;
+        }
       }
     }
   }
