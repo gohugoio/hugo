@@ -19,6 +19,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/hugo/deps"
+
 	"github.com/spf13/hugo/hugolib"
 
 	"fmt"
@@ -33,7 +35,8 @@ import (
 )
 
 func TestNewContent(t *testing.T) {
-	initViper()
+	v := viper.New()
+	initViper(v)
 
 	cases := []struct {
 		kind     string
@@ -48,14 +51,17 @@ func TestNewContent(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		s, err := hugolib.NewEnglishSiteMem()
+		cfg, fs := newTestCfg()
+		h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
 		require.NoError(t, err)
-		require.NoError(t, initFs(s.Fs))
+		require.NoError(t, initFs(fs))
+
+		s := h.Sites[0]
 
 		require.NoError(t, create.NewContent(s, c.kind, c.path))
 
 		fname := filepath.Join("content", filepath.FromSlash(c.path))
-		content := readFileFromFs(t, s.Fs.Source, fname)
+		content := readFileFromFs(t, fs.Source, fname)
 		for i, v := range c.expected {
 			found := strings.Contains(content, v)
 			if !found {
@@ -65,14 +71,14 @@ func TestNewContent(t *testing.T) {
 	}
 }
 
-func initViper() {
-	viper.Reset()
-	viper.Set("metaDataFormat", "toml")
-	viper.Set("archetypeDir", "archetypes")
-	viper.Set("contentDir", "content")
-	viper.Set("themesDir", "themes")
-	viper.Set("layoutDir", "layouts")
-	viper.Set("theme", "sample")
+func initViper(v *viper.Viper) {
+	v.Set("metaDataFormat", "toml")
+	v.Set("archetypeDir", "archetypes")
+	v.Set("contentDir", "content")
+	v.Set("themesDir", "themes")
+	v.Set("layoutDir", "layouts")
+	v.Set("i18nDir", "i18n")
+	v.Set("theme", "sample")
 }
 
 func initFs(fs *hugofs.Fs) error {
@@ -142,4 +148,17 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 		t.Fatalf("Failed to read file: %s", err)
 	}
 	return string(b)
+}
+
+func newTestCfg() (*viper.Viper, *hugofs.Fs) {
+
+	v := viper.New()
+	fs := hugofs.NewMem(v)
+
+	v.SetFs(fs.Source)
+
+	initViper(v)
+
+	return v, fs
+
 }

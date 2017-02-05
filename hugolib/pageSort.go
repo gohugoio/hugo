@@ -68,7 +68,7 @@ var defaultPageSort = func(p1, p2 *Page) bool {
 }
 
 var languagePageSort = func(p1, p2 *Page) bool {
-	if p1.language.Weight == p2.language.Weight {
+	if p1.Language().Weight == p2.Language().Weight {
 		if p1.Date.Unix() == p2.Date.Unix() {
 			if p1.LinkTitle() == p2.LinkTitle() {
 				return (p1.FullFilePath() < p2.FullFilePath())
@@ -78,15 +78,15 @@ var languagePageSort = func(p1, p2 *Page) bool {
 		return p1.Date.Unix() > p2.Date.Unix()
 	}
 
-	if p2.language.Weight == 0 {
+	if p2.Language().Weight == 0 {
 		return true
 	}
 
-	if p1.language.Weight == 0 {
+	if p1.Language().Weight == 0 {
 		return false
 	}
 
-	return p1.language.Weight < p2.language.Weight
+	return p1.Language().Weight < p2.Language().Weight
 }
 
 func (ps *pageSorter) Len() int      { return len(ps.pages) }

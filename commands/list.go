@@ -19,7 +19,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/hugolib"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 func init() {
@@ -50,9 +49,11 @@ var listDraftsCmd = &cobra.Command{
 			return err
 		}
 
-		viper.Set("buildDrafts", true)
+		c := newCommandeer(cfg)
 
-		sites, err := hugolib.NewHugoSitesFromConfiguration(cfg)
+		c.Set("buildDrafts", true)
+
+		sites, err := hugolib.NewHugoSites(*cfg)
 
 		if err != nil {
 			return newSystemError("Error creating sites", err)
@@ -86,9 +87,11 @@ posted in the future.`,
 			return err
 		}
 
-		viper.Set("buildFuture", true)
+		c := newCommandeer(cfg)
 
-		sites, err := hugolib.NewHugoSitesFromConfiguration(cfg)
+		c.Set("buildFuture", true)
+
+		sites, err := hugolib.NewHugoSites(*cfg)
 
 		if err != nil {
 			return newSystemError("Error creating sites", err)
@@ -122,9 +125,11 @@ expired.`,
 			return err
 		}
 
-		viper.Set("buildExpired", true)
+		c := newCommandeer(cfg)
 
-		sites, err := hugolib.NewHugoSitesFromConfiguration(cfg)
+		c.Set("buildExpired", true)
+
+		sites, err := hugolib.NewHugoSites(*cfg)
 
 		if err != nil {
 			return newSystemError("Error creating sites", err)

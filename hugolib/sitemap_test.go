@@ -19,9 +19,7 @@ import (
 	"reflect"
 
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/tplapi"
-	"github.com/spf13/viper"
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -36,19 +34,18 @@ const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/
 </urlset>`
 
 func TestSitemapOutput(t *testing.T) {
+	t.Parallel()
 	for _, internal := range []bool{false, true} {
 		doTestSitemapOutput(t, internal)
 	}
 }
 
 func doTestSitemapOutput(t *testing.T, internal bool) {
-	testCommonResetState()
 
-	viper.Set("baseURL", "http://auth/bub/")
+	cfg, fs := newTestCfg()
+	cfg.Set("baseURL", "http://auth/bub/")
 
-	fs := hugofs.NewMem()
-
-	depsCfg := deps.DepsCfg{Fs: fs}
+	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
 
 	if !internal {
 		depsCfg.WithTemplate = func(templ tplapi.Template) error {
@@ -59,8 +56,9 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	writeSourcesToSource(t, "content", fs, weightedSources...)
 	s := buildSingleSite(t, depsCfg, BuildCfg{})
+	th := testHelper{s.Cfg}
 
-	assertFileContent(t, s.Fs, "public/sitemap.xml", true,
+	th.assertFileContent(t, s.Fs, "public/sitemap.xml", true,
 		// Regular page
 		" <loc>http://auth/bub/sect/doc1/</loc>",
 		// Home page
@@ -76,6 +74,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 }
 
 func TestParseSitemap(t *testing.T) {
+	t.Parallel()
 	expected := Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
 	input := map[string]interface{}{
 		"changefreq": "3",

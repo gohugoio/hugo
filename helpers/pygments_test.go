@@ -34,11 +34,12 @@ func TestParsePygmentsArgs(t *testing.T) {
 		{"boo=invalid", "foo", false, false},
 		{"style", "foo", false, false},
 	} {
-		viper.Reset()
-		viper.Set("pygmentsStyle", this.pygmentsStyle)
-		viper.Set("pygmentsUseClasses", this.pygmentsUseClasses)
 
-		result1, err := parsePygmentsOpts(this.in)
+		v := viper.New()
+		v.Set("pygmentsStyle", this.pygmentsStyle)
+		v.Set("pygmentsUseClasses", this.pygmentsUseClasses)
+
+		result1, err := parsePygmentsOpts(v, this.in)
 		if b, ok := this.expect1.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parsePygmentArgs didn't return an expected error", i)
@@ -70,19 +71,19 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 		{"style=foo,noclasses=false", nil, nil, "style=override,noclasses=override"},
 		{"style=foo,noclasses=false", "override", false, "style=override,noclasses=override"},
 	} {
-		viper.Reset()
+		v := viper.New()
 
-		viper.Set("pygmentsOptions", this.pygmentsOptions)
+		v.Set("pygmentsOptions", this.pygmentsOptions)
 
 		if s, ok := this.pygmentsStyle.(string); ok {
-			viper.Set("pygmentsStyle", s)
+			v.Set("pygmentsStyle", s)
 		}
 
 		if b, ok := this.pygmentsUseClasses.(bool); ok {
-			viper.Set("pygmentsUseClasses", b)
+			v.Set("pygmentsUseClasses", b)
 		}
 
-		result, err := parsePygmentsOpts(this.in)
+		result, err := parsePygmentsOpts(v, this.in)
 		if err != nil {
 			t.Errorf("[%d] parsePygmentArgs failed: %s", i, err)
 			continue

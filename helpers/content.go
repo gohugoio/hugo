@@ -24,12 +24,13 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/spf13/hugo/config"
+
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 
 	"strings"
 	"sync"
@@ -40,6 +41,14 @@ var SummaryLength = 70
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
+
+type ContentSpec struct {
+	cfg config.Provider
+}
+
+func NewContentSpec(cfg config.Provider) *ContentSpec {
+	return &ContentSpec{cfg}
+}
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
@@ -58,7 +67,7 @@ type Blackfriday struct {
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
-func NewBlackfriday(c ConfigProvider) *Blackfriday {
+func (c ContentSpec) NewBlackfriday() *Blackfriday {
 
 	defaultParam := map[string]interface{}{
 		"smartypants":                      true,
@@ -75,7 +84,7 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 
 	ToLowerMap(defaultParam)
 
-	siteParam := c.GetStringMap("blackfriday")
+	siteParam := c.cfg.GetStringMap("blackfriday")
 
 	siteConfig := make(map[string]interface{})
 
@@ -187,10 +196,10 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
-func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
+func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("footnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("footnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       c.cfg.GetString("footnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: c.cfg.GetString("footnoteReturnLinkContents"),
 	}
 
 	b := len(ctx.DocumentID) != 0
@@ -265,21 +274,21 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-func markdownRender(ctx *RenderingContext) []byte {
+func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 	if ctx.RenderTOC {
 		return blackfriday.Markdown(ctx.Content,
-			getHTMLRenderer(blackfriday.HTML_TOC, ctx),
+			c.getHTMLRenderer(blackfriday.HTML_TOC, ctx),
 			getMarkdownExtensions(ctx))
 	}
-	return blackfriday.Markdown(ctx.Content, getHTMLRenderer(0, ctx),
+	return blackfriday.Markdown(ctx.Content, c.getHTMLRenderer(0, ctx),
 		getMarkdownExtensions(ctx))
 }
 
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
-func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("footnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("footnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       c.cfg.GetString("footnoteAnchorPrefix"),
+		FootnoteReturnLinkContents: c.cfg.GetString("footnoteReturnLinkContents"),
 	}
 
 	b := len(ctx.DocumentID) != 0
@@ -294,6 +303,7 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 
 	return &HugoMmarkHTMLRenderer{
 		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		c.cfg,
 	}
 }
 
@@ -321,8 +331,8 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-func mmarkRender(ctx *RenderingContext) []byte {
-	return mmark.Parse(ctx.Content, getMmarkHTMLRenderer(0, ctx),
+func (c ContentSpec) mmarkRender(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content, c.getMmarkHTMLRenderer(0, ctx),
 		getMmarkExtensions(ctx)).Bytes()
 }
 
@@ -365,42 +375,44 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content rendering.
 type RenderingContext struct {
-	Content        []byte
-	PageFmt        string
-	DocumentID     string
-	DocumentName   string
-	Config         *Blackfriday
-	RenderTOC      bool
-	FileResolver   FileResolverFunc
-	LinkResolver   LinkResolverFunc
-	ConfigProvider ConfigProvider
-	configInit     sync.Once
+	Content      []byte
+	PageFmt      string
+	DocumentID   string
+	DocumentName string
+	Config       *Blackfriday
+	RenderTOC    bool
+	FileResolver FileResolverFunc
+	LinkResolver LinkResolverFunc
+	Cfg          config.Provider
+	configInit   sync.Once
 }
 
-func newViperProvidedRenderingContext() *RenderingContext {
-	return &RenderingContext{ConfigProvider: viper.GetViper()}
+func newRenderingContext(cfg config.Provider) *RenderingContext {
+	return &RenderingContext{Cfg: cfg}
 }
 
 func (c *RenderingContext) getConfig() *Blackfriday {
+	// TODO(bep) get rid of this
 	c.configInit.Do(func() {
 		if c.Config == nil {
-			c.Config = NewBlackfriday(c.ConfigProvider)
+			cs := NewContentSpec(c.Cfg)
+			c.Config = cs.NewBlackfriday()
 		}
 	})
 	return c.Config
 }
 
 // RenderBytes renders a []byte.
-func RenderBytes(ctx *RenderingContext) []byte {
+func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
-		return markdownRender(ctx)
+		return c.markdownRender(ctx)
 	case "markdown":
-		return markdownRender(ctx)
+		return c.markdownRender(ctx)
 	case "asciidoc":
 		return getAsciidocContent(ctx)
 	case "mmark":
-		return mmarkRender(ctx)
+		return c.mmarkRender(ctx)
 	case "rst":
 		return getRstContent(ctx)
 	}

@@ -16,8 +16,6 @@ package hugolib
 import (
 	"strings"
 	"testing"
-
-	"github.com/spf13/hugo/helpers"
 )
 
 // testdataPermalinks is used by a couple of tests; the expandsTo content is
@@ -54,6 +52,7 @@ var testdataPermalinks = []struct {
 }
 
 func TestPermalinkValidation(t *testing.T) {
+	t.Parallel()
 	for _, item := range testdataPermalinks {
 		pp := pathPattern(item.spec)
 		have := pp.validate()
@@ -71,9 +70,10 @@ func TestPermalinkValidation(t *testing.T) {
 }
 
 func TestPermalinkExpansion(t *testing.T) {
-	page, err := pageTestSite.NewPageFrom(strings.NewReader(simplePageJSON), "blue/test-page.md")
-	info := newSiteInfo(siteBuilderCfg{language: helpers.NewDefaultLanguage()})
-	page.Site = &info
+	t.Parallel()
+	s := newTestSite(t)
+	page, err := s.NewPageFrom(strings.NewReader(simplePageJSON), "blue/test-page.md")
+
 	if err != nil {
 		t.Fatalf("failed before we began, could not parse SIMPLE_PAGE_JSON: %s", err)
 	}

@@ -20,17 +20,16 @@ import (
 
 	"github.com/bep/gitmap"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 )
 
 func (h *HugoSites) assembleGitInfo() {
-	if !viper.GetBool("enableGitInfo") {
+	if !h.Cfg.GetBool("enableGitInfo") {
 		return
 	}
 
 	var (
-		workingDir = viper.GetString("workingDir")
-		contentDir = viper.GetString("contentDir")
+		workingDir = h.Cfg.GetString("workingDir")
+		contentDir = h.Cfg.GetString("contentDir")
 	)
 
 	gitRepo, err := gitmap.Map(workingDir, "")

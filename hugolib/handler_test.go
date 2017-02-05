@@ -19,18 +19,18 @@ import (
 
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/viper"
 )
 
 func TestDefaultHandler(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
 
-	viper.Set("defaultExtension", "html")
-	viper.Set("verbose", true)
-	viper.Set("uglyURLs", true)
+	var (
+		cfg, fs = newTestCfg()
+	)
 
-	fs := hugofs.NewMem()
+	cfg.Set("defaultExtension", "html")
+	cfg.Set("verbose", true)
+	cfg.Set("uglyURLs", true)
 
 	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.html"), "---\nmarkup: markdown\n---\n# title\nsome *content*")
 	writeSource(t, fs, filepath.FromSlash("content/sect/doc2.html"), "<!doctype html><html><body>more content</body></html>")
@@ -46,7 +46,7 @@ func TestDefaultHandler(t *testing.T) {
 	writeSource(t, fs, filepath.FromSlash("head"), "<head><script src=\"script.js\"></script></head>")
 	writeSource(t, fs, filepath.FromSlash("head_abs"), "<head><script src=\"/script.js\"></script></head")
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	tests := []struct {
 		doc      string

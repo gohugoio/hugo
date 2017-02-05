@@ -42,7 +42,9 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/i18n"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -53,12 +55,16 @@ var (
 	logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 )
 
-func newDefaultDepsCfg() deps.DepsCfg {
+func newDepsConfig(cfg config.Provider) deps.DepsCfg {
+	l := helpers.NewLanguage("en", cfg)
+	l.Set("i18nDir", "i18n")
 	return deps.DepsCfg{
-		Language:         helpers.NewLanguage("en"),
-		Fs:               hugofs.NewMem(),
-		Logger:           logger,
-		TemplateProvider: DefaultTemplateProvider,
+		Language:            l,
+		Cfg:                 cfg,
+		Fs:                  hugofs.NewMem(l),
+		Logger:              logger,
+		TemplateProvider:    DefaultTemplateProvider,
+		TranslationProvider: i18n.NewTranslationProvider(),
 	}
 }
 
@@ -88,22 +94,17 @@ func tstIsLt(tp tstCompareType) bool {
 	return tp == tstLt || tp == tstLe
 }
 
-func tstInitTemplates() {
-	viper.Set("CurrentContentLanguage", helpers.NewLanguage("en"))
-	helpers.ResetConfigProvider()
-}
-
 func TestFuncsInTemplate(t *testing.T) {
-
-	testReset()
+	t.Parallel()
 
 	workingDir := "/home/hugo"
 
-	viper.Set("workingDir", workingDir)
-	viper.Set("currentContentLanguage", helpers.NewDefaultLanguage())
-	viper.Set("multilingual", true)
+	v := viper.New()
 
-	fs := hugofs.NewMem()
+	v.Set("workingDir", workingDir)
+	v.Set("multilingual", true)
+
+	fs := hugofs.NewMem(v)
 
 	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
 
@@ -268,11 +269,10 @@ urlize: bat-man
 	data.Section = "blog"
 	data.Params = map[string]interface{}{"langCode": "en"}
 
-	viper.Set("baseURL", "http://mysite.com/hugo/")
+	v.Set("baseURL", "http://mysite.com/hugo/")
+	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
 
-	tstInitTemplates()
-
-	config := newDefaultDepsCfg()
+	config := newDepsConfig(v)
 	config.WithTemplate = func(templ tplapi.Template) error {
 		if _, err := templ.New("test").Parse(in); err != nil {
 			t.Fatal("Got error on parse", err)
@@ -282,7 +282,7 @@ urlize: bat-man
 	config.Fs = fs
 
 	d := deps.New(config)
-	if err := d.LoadTemplates(); err != nil {
+	if err := d.LoadResources(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -300,6 +300,7 @@ urlize: bat-man
 }
 
 func TestCompare(t *testing.T) {
+	t.Parallel()
 	for _, this := range []struct {
 		tstCompareType
 		funcUnderTest func(a, b interface{}) bool
@@ -370,6 +371,7 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 }
 
 func TestMod(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		a      interface{}
 		b      interface{}
@@ -405,6 +407,7 @@ func TestMod(t *testing.T) {
 }
 
 func TestModBool(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		a      interface{}
 		b      interface{}
@@ -445,6 +448,7 @@ func TestModBool(t *testing.T) {
 }
 
 func TestFirst(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		count    interface{}
 		sequence interface{}
@@ -480,6 +484,7 @@ func TestFirst(t *testing.T) {
 }
 
 func TestLast(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		count    interface{}
 		sequence interface{}
@@ -515,6 +520,7 @@ func TestLast(t *testing.T) {
 }
 
 func TestAfter(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		count    interface{}
 		sequence interface{}
@@ -550,6 +556,7 @@ func TestAfter(t *testing.T) {
 }
 
 func TestShuffleInputAndOutputFormat(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		sequence interface{}
 		success  bool
@@ -588,6 +595,7 @@ func TestShuffleInputAndOutputFormat(t *testing.T) {
 }
 
 func TestShuffleRandomising(t *testing.T) {
+	t.Parallel()
 	// Note that this test can fail with false negative result if the shuffle
 	// of the sequence happens to be the same as the original sequence. However
 	// the propability of the event is 10^-158 which is negligible.
@@ -615,6 +623,7 @@ func TestShuffleRandomising(t *testing.T) {
 }
 
 func TestDictionary(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		v1            []interface{}
 		expecterr     bool
@@ -647,13 +656,15 @@ func blankImage(width, height int) []byte {
 }
 
 func TestImageConfig(t *testing.T) {
-	testReset()
+	t.Parallel()
 
 	workingDir := "/home/hugo"
 
-	viper.Set("workingDir", workingDir)
+	v := viper.New()
 
-	f := newTestFuncster()
+	v.Set("workingDir", workingDir)
+
+	f := newTestFuncsterWithViper(v)
 
 	for i, this := range []struct {
 		resetCache bool
@@ -754,6 +765,7 @@ func TestImageConfig(t *testing.T) {
 }
 
 func TestIn(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		v1     interface{}
 		v2     interface{}
@@ -783,6 +795,7 @@ func TestIn(t *testing.T) {
 }
 
 func TestSlicestr(t *testing.T) {
+	t.Parallel()
 	var err error
 	for i, this := range []struct {
 		v1     interface{}
@@ -848,6 +861,7 @@ func TestSlicestr(t *testing.T) {
 }
 
 func TestHasPrefix(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		s      interface{}
 		prefix interface{}
@@ -875,6 +889,7 @@ func TestHasPrefix(t *testing.T) {
 }
 
 func TestSubstr(t *testing.T) {
+	t.Parallel()
 	var err error
 	var n int
 	for i, this := range []struct {
@@ -952,6 +967,7 @@ func TestSubstr(t *testing.T) {
 }
 
 func TestSplit(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		v1     interface{}
 		v2     string
@@ -982,6 +998,7 @@ func TestSplit(t *testing.T) {
 }
 
 func TestIntersect(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		sequence1 interface{}
 		sequence2 interface{}
@@ -1025,6 +1042,7 @@ func TestIntersect(t *testing.T) {
 }
 
 func TestIsSet(t *testing.T) {
+	t.Parallel()
 	aSlice := []interface{}{1, 2, 3, 5}
 	aMap := map[string]interface{}{"a": 1, "b": 2}
 
@@ -1074,6 +1092,7 @@ type TstX struct {
 }
 
 func TestTimeUnix(t *testing.T) {
+	t.Parallel()
 	var sec int64 = 1234567890
 	tv := reflect.ValueOf(time.Unix(sec, 0))
 	i := 1
@@ -1096,6 +1115,7 @@ func TestTimeUnix(t *testing.T) {
 }
 
 func TestEvaluateSubElem(t *testing.T) {
+	t.Parallel()
 	tstx := TstX{A: "foo", B: "bar"}
 	var inner struct {
 		S fmt.Stringer
@@ -1146,6 +1166,7 @@ func TestEvaluateSubElem(t *testing.T) {
 }
 
 func TestCheckCondition(t *testing.T) {
+	t.Parallel()
 	type expect struct {
 		result  bool
 		isError bool
@@ -1266,6 +1287,7 @@ func TestCheckCondition(t *testing.T) {
 }
 
 func TestWhere(t *testing.T) {
+	t.Parallel()
 
 	type Mid struct {
 		Tst TstX
@@ -1671,6 +1693,7 @@ func TestWhere(t *testing.T) {
 }
 
 func TestDelimit(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		sequence  interface{}
 		delimiter interface{}
@@ -1720,6 +1743,7 @@ func TestDelimit(t *testing.T) {
 }
 
 func TestSort(t *testing.T) {
+	t.Parallel()
 	type ts struct {
 		MyInt    int
 		MyFloat  float64
@@ -1932,6 +1956,7 @@ func TestSort(t *testing.T) {
 }
 
 func TestReturnWhenSet(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		data   interface{}
 		key    interface{}
@@ -1957,7 +1982,10 @@ func TestReturnWhenSet(t *testing.T) {
 }
 
 func TestMarkdownify(t *testing.T) {
-	viper.Set("currentContentLanguage", helpers.NewDefaultLanguage())
+	t.Parallel()
+	v := viper.New()
+
+	f := newTestFuncsterWithViper(v)
 
 	for i, this := range []struct {
 		in     interface{}
@@ -1966,7 +1994,7 @@ func TestMarkdownify(t *testing.T) {
 		{"Hello **World!**", template.HTML("Hello <strong>World!</strong>")},
 		{[]byte("Hello Bytes **World!**"), template.HTML("Hello Bytes <strong>World!</strong>")},
 	} {
-		result, err := markdownify(this.in)
+		result, err := f.markdownify(this.in)
 		if err != nil {
 			t.Fatalf("[%d] unexpected error in markdownify: %s", i, err)
 		}
@@ -1975,12 +2003,13 @@ func TestMarkdownify(t *testing.T) {
 		}
 	}
 
-	if _, err := markdownify(t); err == nil {
+	if _, err := f.markdownify(t); err == nil {
 		t.Fatalf("markdownify should have errored")
 	}
 }
 
 func TestApply(t *testing.T) {
+	t.Parallel()
 
 	f := newTestFuncster()
 
@@ -2024,6 +2053,7 @@ func TestApply(t *testing.T) {
 }
 
 func TestChomp(t *testing.T) {
+	t.Parallel()
 	base := "\n This is\na story "
 	for i, item := range []string{
 		"\n", "\n\n",
@@ -2046,6 +2076,7 @@ func TestChomp(t *testing.T) {
 }
 
 func TestLower(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		s     interface{}
 		want  string
@@ -2069,6 +2100,7 @@ func TestLower(t *testing.T) {
 }
 
 func TestTitle(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		s     interface{}
 		want  string
@@ -2092,6 +2124,7 @@ func TestTitle(t *testing.T) {
 }
 
 func TestUpper(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		s     interface{}
 		want  string
@@ -2115,8 +2148,12 @@ func TestUpper(t *testing.T) {
 }
 
 func TestHighlight(t *testing.T) {
+	t.Parallel()
 	code := "func boo() {}"
-	highlighted, err := highlight(code, "go", "")
+
+	f := newTestFuncster()
+
+	highlighted, err := f.highlight(code, "go", "")
 
 	if err != nil {
 		t.Fatal("Highlight returned error:", err)
@@ -2127,7 +2164,7 @@ func TestHighlight(t *testing.T) {
 		t.Errorf("Highlight mismatch,  got %v", highlighted)
 	}
 
-	_, err = highlight(t, "go", "")
+	_, err = f.highlight(t, "go", "")
 
 	if err == nil {
 		t.Error("Expected highlight error")
@@ -2135,6 +2172,7 @@ func TestHighlight(t *testing.T) {
 }
 
 func TestInflect(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		inflectFunc func(i interface{}) (string, error)
 		in          interface{}
@@ -2169,6 +2207,7 @@ func TestInflect(t *testing.T) {
 }
 
 func TestCounterFuncs(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		countFunc func(i interface{}) (int, error)
 		in        string
@@ -2195,6 +2234,7 @@ func TestCounterFuncs(t *testing.T) {
 }
 
 func TestReplace(t *testing.T) {
+	t.Parallel()
 	v, _ := replace("aab", "a", "b")
 	assert.Equal(t, "bbb", v)
 	v, _ = replace("11a11", 1, 2)
@@ -2210,6 +2250,7 @@ func TestReplace(t *testing.T) {
 }
 
 func TestReplaceRE(t *testing.T) {
+	t.Parallel()
 	for i, val := range []struct {
 		pattern interface{}
 		repl    interface{}
@@ -2234,6 +2275,7 @@ func TestReplaceRE(t *testing.T) {
 }
 
 func TestFindRE(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		expr    string
 		content interface{}
@@ -2264,6 +2306,7 @@ func TestFindRE(t *testing.T) {
 }
 
 func TestTrim(t *testing.T) {
+	t.Parallel()
 
 	for i, this := range []struct {
 		v1     interface{}
@@ -2294,6 +2337,7 @@ func TestTrim(t *testing.T) {
 }
 
 func TestDateFormat(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		layout string
 		value  interface{}
@@ -2328,6 +2372,7 @@ func TestDateFormat(t *testing.T) {
 }
 
 func TestDefaultFunc(t *testing.T) {
+	t.Parallel()
 	then := time.Now()
 	now := time.Now()
 
@@ -2385,6 +2430,7 @@ func TestDefaultFunc(t *testing.T) {
 }
 
 func TestDefault(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input    interface{}
 		tpl      string
@@ -2414,6 +2460,7 @@ func TestDefault(t *testing.T) {
 }
 
 func TestSafeHTML(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -2454,6 +2501,7 @@ func TestSafeHTML(t *testing.T) {
 }
 
 func TestSafeHTMLAttr(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -2494,6 +2542,7 @@ func TestSafeHTMLAttr(t *testing.T) {
 }
 
 func TestSafeCSS(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -2535,6 +2584,7 @@ func TestSafeCSS(t *testing.T) {
 
 // TODO(bep) what is this? Also look above.
 func TestSafeJS(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -2576,6 +2626,7 @@ func TestSafeJS(t *testing.T) {
 
 // TODO(bep) what is this?
 func TestSafeURL(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		str                 string
 		tmplStr             string
@@ -2616,6 +2667,7 @@ func TestSafeURL(t *testing.T) {
 }
 
 func TestBase64Decode(t *testing.T) {
+	t.Parallel()
 	testStr := "abc123!?$*&()'-=@~"
 	enc := base64.StdEncoding.EncodeToString([]byte(testStr))
 	result, err := base64Decode(enc)
@@ -2635,6 +2687,7 @@ func TestBase64Decode(t *testing.T) {
 }
 
 func TestBase64Encode(t *testing.T) {
+	t.Parallel()
 	testStr := "YWJjMTIzIT8kKiYoKSctPUB+"
 	dec, err := base64.StdEncoding.DecodeString(testStr)
 
@@ -2659,6 +2712,7 @@ func TestBase64Encode(t *testing.T) {
 }
 
 func TestMD5(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input        string
 		expectedHash string
@@ -2683,6 +2737,7 @@ func TestMD5(t *testing.T) {
 }
 
 func TestSHA1(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input        string
 		expectedHash string
@@ -2707,6 +2762,7 @@ func TestSHA1(t *testing.T) {
 }
 
 func TestSHA256(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input        string
 		expectedHash string
@@ -2731,13 +2787,15 @@ func TestSHA256(t *testing.T) {
 }
 
 func TestReadFile(t *testing.T) {
-	testReset()
+	t.Parallel()
 
 	workingDir := "/home/hugo"
 
-	viper.Set("workingDir", workingDir)
+	v := viper.New()
 
-	f := newTestFuncster()
+	v.Set("workingDir", workingDir)
+
+	f := newTestFuncsterWithViper(v)
 
 	afero.WriteFile(f.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
 	afero.WriteFile(f.Fs.Source, filepath.Join("/home", "f2.txt"), []byte("f2-content"), 0755)
@@ -2770,6 +2828,7 @@ func TestReadFile(t *testing.T) {
 }
 
 func TestPartialCached(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name    string
 		partial string
@@ -2793,7 +2852,6 @@ func TestPartialCached(t *testing.T) {
 	data.Section = "blog"
 	data.Params = map[string]interface{}{"langCode": "en"}
 
-	tstInitTemplates()
 	for i, tc := range testCases {
 		var tmp string
 		if tc.variant != "" {
@@ -2802,9 +2860,9 @@ func TestPartialCached(t *testing.T) {
 			tmp = tc.tmpl
 		}
 
-		cfg := newDefaultDepsCfg()
+		config := newDepsConfig(viper.New())
 
-		cfg.WithTemplate = func(templ tplapi.Template) error {
+		config.WithTemplate = func(templ tplapi.Template) error {
 			err := templ.AddTemplate("testroot", tmp)
 			if err != nil {
 				return err
@@ -2817,8 +2875,8 @@ func TestPartialCached(t *testing.T) {
 			return nil
 		}
 
-		de := deps.New(cfg)
-		require.NoError(t, de.LoadTemplates())
+		de := deps.New(config)
+		require.NoError(t, de.LoadResources())
 
 		buf := new(bytes.Buffer)
 		templ := de.Tmpl.Lookup("testroot")
@@ -2842,8 +2900,8 @@ func TestPartialCached(t *testing.T) {
 }
 
 func BenchmarkPartial(b *testing.B) {
-	cfg := newDefaultDepsCfg()
-	cfg.WithTemplate = func(templ tplapi.Template) error {
+	config := newDepsConfig(viper.New())
+	config.WithTemplate = func(templ tplapi.Template) error {
 		err := templ.AddTemplate("testroot", `{{ partial "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2856,8 +2914,8 @@ func BenchmarkPartial(b *testing.B) {
 		return nil
 	}
 
-	de := deps.New(cfg)
-	require.NoError(b, de.LoadTemplates())
+	de := deps.New(config)
+	require.NoError(b, de.LoadResources())
 
 	buf := new(bytes.Buffer)
 	tmpl := de.Tmpl.Lookup("testroot")
@@ -2873,8 +2931,8 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
-	cfg := newDefaultDepsCfg()
-	cfg.WithTemplate = func(templ tplapi.Template) error {
+	config := newDepsConfig(viper.New())
+	config.WithTemplate = func(templ tplapi.Template) error {
 		err := templ.AddTemplate("testroot", `{{ partialCached "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2887,8 +2945,8 @@ func BenchmarkPartialCached(b *testing.B) {
 		return nil
 	}
 
-	de := deps.New(cfg)
-	require.NoError(b, de.LoadTemplates())
+	de := deps.New(config)
+	require.NoError(b, de.LoadResources())
 
 	buf := new(bytes.Buffer)
 	tmpl := de.Tmpl.Lookup("testroot")
@@ -2904,9 +2962,14 @@ func BenchmarkPartialCached(b *testing.B) {
 }
 
 func newTestFuncster() *templateFuncster {
-	cfg := newDefaultDepsCfg()
-	d := deps.New(cfg)
-	if err := d.LoadTemplates(); err != nil {
+	return newTestFuncsterWithViper(viper.New())
+}
+
+func newTestFuncsterWithViper(v *viper.Viper) *templateFuncster {
+	config := newDepsConfig(v)
+	d := deps.New(config)
+
+	if err := d.LoadResources(); err != nil {
 		panic(err)
 	}
 
@@ -2914,8 +2977,8 @@ func newTestFuncster() *templateFuncster {
 }
 
 func newTestTemplate(t *testing.T, name, template string) *template.Template {
-	cfg := newDefaultDepsCfg()
-	cfg.WithTemplate = func(templ tplapi.Template) error {
+	config := newDepsConfig(viper.New())
+	config.WithTemplate = func(templ tplapi.Template) error {
 		err := templ.AddTemplate(name, template)
 		if err != nil {
 			return err
@@ -2923,8 +2986,8 @@ func newTestTemplate(t *testing.T, name, template string) *template.Template {
 		return nil
 	}
 
-	de := deps.New(cfg)
-	require.NoError(t, de.LoadTemplates())
+	de := deps.New(config)
+	require.NoError(t, de.LoadResources())
 
 	return de.Tmpl.Lookup(name)
 }

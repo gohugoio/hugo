@@ -22,10 +22,8 @@ import (
 )
 
 func TestNewDefault(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-
-	f := NewDefault()
+	v := viper.New()
+	f := NewDefault(v)
 
 	assert.NotNil(t, f.Source)
 	assert.IsType(t, new(afero.OsFs), f.Source)
@@ -39,10 +37,8 @@ func TestNewDefault(t *testing.T) {
 }
 
 func TestNewMem(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-
-	f := NewMem()
+	v := viper.New()
+	f := NewMem(v)
 
 	assert.NotNil(t, f.Source)
 	assert.IsType(t, new(afero.MemMapFs), f.Source)
@@ -53,12 +49,11 @@ func TestNewMem(t *testing.T) {
 }
 
 func TestWorkingDir(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	v := viper.New()
 
-	viper.Set("workingDir", "/a/b/")
+	v.Set("workingDir", "/a/b/")
 
-	f := NewMem()
+	f := NewMem(v)
 
 	assert.NotNil(t, f.WorkingDir)
 	assert.IsType(t, new(afero.BasePathFs), f.WorkingDir)

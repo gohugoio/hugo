@@ -24,20 +24,22 @@ import (
 
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tplapi"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 // TODO(bep) remove
 func pageFromString(in, filename string, withTemplate ...func(templ tplapi.Template) error) (*Page, error) {
-	s := pageTestSite
+	s := newTestSite(nil)
 	if len(withTemplate) > 0 {
 		// Have to create a new site
 		var err error
-		s, err = NewSiteDefaultLang(withTemplate...)
+		cfg, fs := newTestCfg()
+
+		d := deps.DepsCfg{Language: helpers.NewLanguage("en", cfg), Fs: fs, WithTemplate: withTemplate[0]}
+
+		s, err = NewSiteForCfg(d)
 		if err != nil {
 			return nil, err
 		}
@@ -50,9 +52,8 @@ func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func
 }
 
 func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tplapi.Template) error, expectError bool) {
-	testCommonResetState()
 
-	fs := hugofs.NewMem()
+	cfg, fs := newTestCfg()
 
 	// Need some front matter, see https://github.com/spf13/hugo/issues/2337
 	contentFile := `---
@@ -62,7 +63,7 @@ title: "Title"
 
 	writeSource(t, fs, "content/simple.md", contentFile)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs, WithTemplate: withTemplate})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate})
 
 	require.NoError(t, err)
 	require.Len(t, h.Sites, 1)
@@ -90,43 +91,15 @@ title: "Title"
 	}
 }
 
-func TestShortcodeGoFuzzReports(t *testing.T) {
-
-	p, _ := pageFromString(simplePage, "simple.md", func(templ tplapi.Template) error {
-		return templ.AddInternalShortcode("sc.html", `foo`)
-	})
-
-	for i, this := range []struct {
-		data      string
-		expectErr bool
-	}{
-		{"{{</*/", true},
-	} {
-		output, err := HandleShortcodes(this.data, p)
-
-		if this.expectErr && err == nil {
-			t.Errorf("[%d] should have errored", i)
-		}
-
-		if !this.expectErr && err != nil {
-			t.Errorf("[%d] should not have errored: %s", i, err)
-		}
-
-		if !this.expectErr && err == nil && len(output) == 0 {
-			t.Errorf("[%d] empty result", i)
-		}
-	}
-
-}
-
 func TestNonSC(t *testing.T) {
-
+	t.Parallel()
 	// notice the syntax diff from 0.12, now comment delims must be added
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", nil)
 }
 
 // Issue #929
 func TestHyphenatedSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
@@ -137,6 +110,7 @@ func TestHyphenatedSC(t *testing.T) {
 
 // Issue #1753
 func TestNoTrailingNewline(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
 		return nil
@@ -146,6 +120,7 @@ func TestNoTrailingNewline(t *testing.T) {
 }
 
 func TestPositionalParamSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
@@ -159,6 +134,7 @@ func TestPositionalParamSC(t *testing.T) {
 }
 
 func TestPositionalParamIndexOutOfBounds(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
 		return nil
@@ -169,6 +145,7 @@ func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 // some repro issues for panics in Go Fuzz testing
 
 func TestNamedParamSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
 		return nil
@@ -183,6 +160,7 @@ func TestNamedParamSC(t *testing.T) {
 
 // Issue #2294
 func TestNestedNamedMissingParam(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
 		tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
@@ -195,6 +173,7 @@ func TestNestedNamedMissingParam(t *testing.T) {
 }
 
 func TestIsNamedParamsSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
 		tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
@@ -210,6 +189,7 @@ func TestIsNamedParamsSC(t *testing.T) {
 }
 
 func TestInnerSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
@@ -220,6 +200,7 @@ func TestInnerSC(t *testing.T) {
 }
 
 func TestInnerSCWithMarkdown(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
@@ -233,6 +214,7 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
@@ -256,12 +238,14 @@ This is **plain** text.
 }
 
 func TestEmbeddedSC(t *testing.T) {
+	t.Parallel()
 	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", nil)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
 }
 
 func TestNestedSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
 		tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
@@ -273,6 +257,7 @@ func TestNestedSC(t *testing.T) {
 }
 
 func TestNestedComplexSC(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
 		tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
@@ -288,6 +273,7 @@ func TestNestedComplexSC(t *testing.T) {
 }
 
 func TestParentShortcode(t *testing.T) {
+	t.Parallel()
 	wt := func(tem tplapi.Template) error {
 		tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
 		tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
@@ -300,43 +286,14 @@ func TestParentShortcode(t *testing.T) {
 }
 
 func TestFigureImgWidth(t *testing.T) {
+	t.Parallel()
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
-}
-
-func TestHighlight(t *testing.T) {
-	testCommonResetState()
-
-	if !helpers.HasPygments() {
-		t.Skip("Skip test as Pygments is not installed")
-	}
-	viper.Set("pygmentsStyle", "bw")
-	viper.Set("pygmentsUseClasses", false)
-
-	code := `
-{{< highlight java >}}
-void do();
-{{< /highlight >}}`
-
-	p, _ := pageFromString(simplePage, "simple.md")
-	output, err := HandleShortcodes(code, p)
-
-	if err != nil {
-		t.Fatal("Handle shortcode error", err)
-	}
-	matched, err := regexp.MatchString("(?s)^\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\">.*?void</span> do().*?</pre></div>\n$", output)
-
-	if err != nil {
-		t.Fatal("Regexp error", err)
-	}
-
-	if !matched {
-		t.Errorf("Hightlight mismatch, got (escaped to see invisible chars)\n%+q", output)
-	}
 }
 
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
 
 func TestExtractShortcodes(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		name             string
 		input            string
@@ -455,17 +412,8 @@ func TestExtractShortcodes(t *testing.T) {
 }
 
 func TestShortcodesInSite(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	baseURL := "http://foo/bar"
-	viper.Set("defaultExtension", "html")
-	viper.Set("defaultContentLanguage", "en")
-	viper.Set("baseURL", baseURL)
-	viper.Set("uglyURLs", false)
-	viper.Set("verbose", true)
-
-	viper.Set("pygmentsUseClasses", true)
-	viper.Set("pygmentsCodefences", true)
 
 	tests := []struct {
 		contentPath string
@@ -579,11 +527,21 @@ tags:
 
 	}
 
-	fs := hugofs.NewMem()
+	cfg, fs := newTestCfg()
+
+	cfg.Set("defaultExtension", "html")
+	cfg.Set("defaultContentLanguage", "en")
+	cfg.Set("baseURL", baseURL)
+	cfg.Set("uglyURLs", false)
+	cfg.Set("verbose", true)
+
+	cfg.Set("pygmentsUseClasses", true)
+	cfg.Set("pygmentsCodefences", true)
 
 	writeSourcesToSource(t, "content", fs, sources...)
 
-	buildSingleSite(t, deps.DepsCfg{WithTemplate: addTemplates, Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{WithTemplate: addTemplates, Fs: fs, Cfg: cfg}, BuildCfg{})
+	th := testHelper{s.Cfg}
 
 	for _, test := range tests {
 		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
@@ -597,7 +555,7 @@ tags:
 			continue
 		}
 
-		assertFileContent(t, fs, test.outFile, true, test.expected)
+		th.assertFileContent(t, fs, test.outFile, true, test.expected)
 	}
 
 }
@@ -665,6 +623,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 }
 
 func TestReplaceShortcodeTokens(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input        string
 		prefix       string

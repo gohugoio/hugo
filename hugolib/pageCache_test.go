@@ -14,13 +14,15 @@
 package hugolib
 
 import (
-	"github.com/stretchr/testify/assert"
 	"sync"
 	"sync/atomic"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPageCache(t *testing.T) {
+	t.Parallel()
 	c1 := newPageCache()
 
 	changeFirst := func(p Pages) {
@@ -37,8 +39,10 @@ func TestPageCache(t *testing.T) {
 
 	var testPageSets []Pages
 
+	s := newTestSite(t)
+
 	for i := 0; i < 50; i++ {
-		testPageSets = append(testPageSets, createSortTestPages(i+1))
+		testPageSets = append(testPageSets, createSortTestPages(s, i+1))
 	}
 
 	for j := 0; j < 100; j++ {

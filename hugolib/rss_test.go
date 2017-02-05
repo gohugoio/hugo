@@ -18,31 +18,32 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/viper"
 )
 
 func TestRSSOutput(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
 	rssURI := "customrss.xml"
-	viper.Set("baseURL", "http://auth/bub/")
-	viper.Set("rssURI", rssURI)
-	viper.Set("title", "RSSTest")
 
-	fs := hugofs.NewMem()
+	cfg.Set("baseURL", "http://auth/bub/")
+	cfg.Set("rssURI", rssURI)
+	cfg.Set("title", "RSSTest")
 
 	for _, src := range weightedSources {
 		writeSource(t, fs, filepath.Join("content", "sect", src.Name), string(src.Content))
 	}
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	// Home RSS
-	assertFileContent(t, fs, filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
+	th.assertFileContent(t, fs, filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
 	// Section RSS
-	assertFileContent(t, fs, filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
 	// Taxonomy RSS
-	assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
 
 }

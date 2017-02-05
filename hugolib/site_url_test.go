@@ -20,9 +20,7 @@ import (
 	"html/template"
 
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -35,14 +33,6 @@ slug: slug-doc-2
 slug doc 2 content
 `
 
-const indexTemplate = "{{ range .Data.Pages }}.{{ end }}"
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 var urlFakeSource = []source.ByteSource{
 	{Name: filepath.FromSlash("content/blue/doc1.md"), Content: []byte(slugDoc1)},
 	{Name: filepath.FromSlash("content/blue/doc2.md"), Content: []byte(slugDoc2)},
@@ -50,8 +40,7 @@ var urlFakeSource = []source.ByteSource{
 
 // Issue #1105
 func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	for i, this := range []struct {
 		in       string
 		expected string
@@ -61,8 +50,10 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com/sub", "http://base.com/sub"},
 		{"http://base.com", "http://base.com"}} {
 
-		viper.Set("baseURL", this.in)
-		s, err := NewSiteDefaultLang()
+		cfg, fs := newTestCfg()
+		cfg.Set("baseURL", this.in)
+		d := deps.DepsCfg{Cfg: cfg, Fs: fs}
+		s, err := NewSiteForCfg(d)
 		require.NoError(t, err)
 		s.initializeSiteInfo()
 
@@ -70,18 +61,16 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL, this.expected)
 		}
 	}
-
 }
 
 func TestPageCount(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	cfg, fs := newTestCfg()
+	cfg.Set("uglyURLs", false)
+	cfg.Set("paginate", 10)
 
-	viper.Set("uglyURLs", false)
-	viper.Set("paginate", 10)
-
-	fs := hugofs.NewMem()
 	writeSourcesToSource(t, "content", fs, urlFakeSource...)
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	_, err := s.Fs.Destination.Open("public/blue")
 	if err != nil {

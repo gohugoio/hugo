@@ -34,15 +34,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func initCommonTestConfig() {
-	viper.Set("currentContentLanguage", NewLanguage("en"))
-}
-
 func TestMakePath(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-	initCommonTestConfig()
-
 	tests := []struct {
 		input         string
 		expected      string
@@ -64,8 +56,10 @@ func TestMakePath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		viper.Set("removePathAccents", test.removeAccents)
-		p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+		v := viper.New()
+		l := NewDefaultLanguage(v)
+		v.Set("removePathAccents", test.removeAccents)
+		p := NewPathSpec(hugofs.NewMem(v), l)
 
 		output := p.MakePath(test.input)
 		if output != test.expected {
@@ -75,11 +69,9 @@ func TestMakePath(t *testing.T) {
 }
 
 func TestMakePathSanitized(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-	initCommonTestConfig()
-
-	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+	v := viper.New()
+	l := NewDefaultLanguage(v)
+	p := NewPathSpec(hugofs.NewMem(v), l)
 
 	tests := []struct {
 		input    string
@@ -102,12 +94,12 @@ func TestMakePathSanitized(t *testing.T) {
 }
 
 func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	v := viper.New()
 
-	initCommonTestConfig()
-	viper.Set("disablePathToLower", true)
-	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+	v.Set("disablePathToLower", true)
+
+	l := NewDefaultLanguage(v)
+	p := NewPathSpec(hugofs.NewMem(v), l)
 
 	tests := []struct {
 		input    string
@@ -553,9 +545,9 @@ func TestAbsPathify(t *testing.T) {
 	for i, d := range data {
 		viper.Reset()
 		// todo see comment in AbsPathify
-		viper.Set("workingDir", d.workingDir)
+		ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 
-		expected := AbsPathify(d.inPath)
+		expected := ps.AbsPathify(d.inPath)
 		if d.expected != expected {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 		}
@@ -563,18 +555,18 @@ func TestAbsPathify(t *testing.T) {
 	t.Logf("Running platform specific path tests for %s", runtime.GOOS)
 	if runtime.GOOS == "windows" {
 		for i, d := range windowsData {
-			viper.Set("workingDir", d.workingDir)
+			ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 
-			expected := AbsPathify(d.inPath)
+			expected := ps.AbsPathify(d.inPath)
 			if d.expected != expected {
 				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 			}
 		}
 	} else {
 		for i, d := range unixData {
-			viper.Set("workingDir", d.workingDir)
+			ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 
-			expected := AbsPathify(d.inPath)
+			expected := ps.AbsPathify(d.inPath)
 			if d.expected != expected {
 				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 			}

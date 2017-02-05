@@ -20,15 +20,14 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
 )
 
 // Issue #1123
 // Testing prevention of cyclic refs in JSON encoding
 // May be smart to run with: -timeout 4000ms
 func TestEncodePage(t *testing.T) {
-
-	fs := hugofs.NewMem()
+	t.Parallel()
+	cfg, fs := newTestCfg()
 
 	// borrowed from menu_test.go
 	for _, src := range menuPageSources {
@@ -36,7 +35,7 @@ func TestEncodePage(t *testing.T) {
 
 	}
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	_, err := json.Marshal(s)
 	check(t, err)

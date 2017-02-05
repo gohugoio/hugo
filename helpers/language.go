@@ -19,8 +19,7 @@ import (
 	"sync"
 
 	"github.com/spf13/cast"
-
-	"github.com/spf13/viper"
+	"github.com/spf13/hugo/config"
 )
 
 // These are the settings that should only be looked up in the global Viper
@@ -41,26 +40,28 @@ type Language struct {
 	LanguageName string
 	Title        string
 	Weight       int
-	params       map[string]interface{}
-	paramsInit   sync.Once
+
+	Cfg        config.Provider
+	params     map[string]interface{}
+	paramsInit sync.Once
 }
 
 func (l *Language) String() string {
 	return l.Lang
 }
 
-func NewLanguage(lang string) *Language {
-	return &Language{Lang: lang, params: make(map[string]interface{})}
+func NewLanguage(lang string, cfg config.Provider) *Language {
+	return &Language{Lang: lang, Cfg: cfg, params: make(map[string]interface{})}
 }
 
-func NewDefaultLanguage() *Language {
-	defaultLang := viper.GetString("defaultContentLanguage")
+func NewDefaultLanguage(cfg config.Provider) *Language {
+	defaultLang := cfg.GetString("defaultContentLanguage")
 
 	if defaultLang == "" {
 		defaultLang = "en"
 	}
 
-	return NewLanguage(defaultLang)
+	return NewLanguage(defaultLang, cfg)
 }
 
 type Languages []*Language
@@ -83,7 +84,7 @@ func (l *Language) Params() map[string]interface{} {
 		// Merge with global config.
 		// TODO(bep) consider making this part of a constructor func.
 
-		globalParams := viper.GetStringMap("params")
+		globalParams := l.Cfg.GetStringMap("params")
 		for k, v := range globalParams {
 			if _, ok := l.params[k]; !ok {
 				l.params[k] = v
@@ -132,5 +133,28 @@ func (l *Language) Get(key string) interface{} {
 			return v
 		}
 	}
-	return viper.Get(key)
+	return l.Cfg.Get(key)
+}
+
+// Set sets the value for the key in the language's params.
+func (l *Language) Set(key string, value interface{}) {
+	if l == nil {
+		panic("language not set")
+	}
+	key = strings.ToLower(key)
+	l.params[key] = value
+}
+
+// IsSet checks whether the key is set in the language or the related config store.
+func (l *Language) IsSet(key string) bool {
+	key = strings.ToLower(key)
+
+	key = strings.ToLower(key)
+	if !globalOnlySettings[key] {
+		if _, ok := l.params[key]; ok {
+			return true
+		}
+	}
+	return l.Cfg.IsSet(key)
+
 }

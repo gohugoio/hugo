@@ -32,7 +32,6 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 // FilePathSeparator as defined by os.Separator.
@@ -196,8 +195,8 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 }
 
 // ThemeSet checks whether a theme is in use or not.
-func ThemeSet() bool {
-	return viper.GetString("theme") != ""
+func (p *PathSpec) ThemeSet() bool {
+	return p.theme != ""
 }
 
 type logPrinter interface {

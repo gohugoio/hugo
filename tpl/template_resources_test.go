@@ -19,10 +19,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -32,6 +30,7 @@ import (
 )
 
 func TestScpCache(t *testing.T) {
+	t.Parallel()
 
 	tests := []struct {
 		path    string
@@ -50,7 +49,8 @@ func TestScpCache(t *testing.T) {
 	fs := new(afero.MemMapFs)
 
 	for _, test := range tests {
-		c, err := resGetCache(test.path, fs, test.ignore)
+		cfg := viper.New()
+		c, err := resGetCache(test.path, fs, cfg, test.ignore)
 		if err != nil {
 			t.Errorf("Error getting cache: %s", err)
 		}
@@ -58,12 +58,12 @@ func TestScpCache(t *testing.T) {
 			t.Errorf("There is content where there should not be anything: %s", string(c))
 		}
 
-		err = resWriteCache(test.path, test.content, fs, test.ignore)
+		err = resWriteCache(test.path, test.content, fs, cfg, test.ignore)
 		if err != nil {
 			t.Errorf("Error writing cache: %s", err)
 		}
 
-		c, err = resGetCache(test.path, fs, test.ignore)
+		c, err = resGetCache(test.path, fs, cfg, test.ignore)
 		if err != nil {
 			t.Errorf("Error getting cache after writing: %s", err)
 		}
@@ -80,8 +80,9 @@ func TestScpCache(t *testing.T) {
 }
 
 func TestScpGetLocal(t *testing.T) {
-	testReset()
-	fs := hugofs.NewMem()
+	t.Parallel()
+	v := viper.New()
+	fs := hugofs.NewMem(v)
 	ps := helpers.FilePathSeparator
 
 	tests := []struct {
@@ -102,7 +103,7 @@ func TestScpGetLocal(t *testing.T) {
 			t.Error(err)
 		}
 
-		c, err := resGetLocal(test.path, fs.Source)
+		c, err := resGetLocal(test.path, fs.Source, v)
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
@@ -126,6 +127,7 @@ func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httpt
 }
 
 func TestScpGetRemote(t *testing.T) {
+	t.Parallel()
 	fs := new(afero.MemMapFs)
 
 	tests := []struct {
@@ -146,14 +148,16 @@ func TestScpGetRemote(t *testing.T) {
 		})
 		defer func() { srv.Close() }()
 
-		c, err := resGetRemote(test.path, fs, cl)
+		cfg := viper.New()
+
+		c, err := resGetRemote(test.path, fs, cfg, cl)
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
 		if !bytes.Equal(c, test.content) {
 			t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(test.content), string(c))
 		}
-		cc, cErr := resGetCache(test.path, fs, test.ignore)
+		cc, cErr := resGetCache(test.path, fs, cfg, test.ignore)
 		if cErr != nil {
 			t.Error(cErr)
 		}
@@ -170,6 +174,7 @@ func TestScpGetRemote(t *testing.T) {
 }
 
 func TestParseCSV(t *testing.T) {
+	t.Parallel()
 
 	tests := []struct {
 		csv []byte
@@ -208,28 +213,10 @@ func TestParseCSV(t *testing.T) {
 	}
 }
 
-// https://twitter.com/francesc/status/603066617124126720
-// for the construct: defer testRetryWhenDone().Reset()
-type wd struct {
-	Reset func()
-}
-
-func testRetryWhenDone(f *templateFuncster) wd {
-	cd := viper.GetString("cacheDir")
-	viper.Set("cacheDir", helpers.GetTempDir("", f.Fs.Source))
-	var tmpSleep time.Duration
-	tmpSleep, resSleep = resSleep, time.Millisecond
-	return wd{func() {
-		viper.Set("cacheDir", cd)
-		resSleep = tmpSleep
-	}}
-}
-
 func TestGetJSONFailParse(t *testing.T) {
+	t.Parallel()
 
 	f := newTestFuncster()
-
-	defer testRetryWhenDone(f).Reset()
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -244,7 +231,6 @@ func TestGetJSONFailParse(t *testing.T) {
 	}))
 	defer ts.Close()
 	url := ts.URL + "/test.json"
-	defer os.Remove(getCacheFileID(url))
 
 	want := map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}}
 	have := f.getJSON(url)
@@ -255,9 +241,8 @@ func TestGetJSONFailParse(t *testing.T) {
 }
 
 func TestGetCSVFailParseSep(t *testing.T) {
+	t.Parallel()
 	f := newTestFuncster()
-
-	defer testRetryWhenDone(f).Reset()
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -275,7 +260,6 @@ func TestGetCSVFailParseSep(t *testing.T) {
 	}))
 	defer ts.Close()
 	url := ts.URL + "/test.csv"
-	defer os.Remove(getCacheFileID(url))
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
 	have := f.getCSV(",", url)
@@ -286,10 +270,9 @@ func TestGetCSVFailParseSep(t *testing.T) {
 }
 
 func TestGetCSVFailParse(t *testing.T) {
+	t.Parallel()
 
 	f := newTestFuncster()
-
-	defer testRetryWhenDone(f).Reset()
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -309,7 +292,6 @@ func TestGetCSVFailParse(t *testing.T) {
 	}))
 	defer ts.Close()
 	url := ts.URL + "/test.csv"
-	defer os.Remove(getCacheFileID(url))
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
 	have := f.getCSV(",", url)

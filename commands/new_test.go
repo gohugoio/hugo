@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +49,7 @@ func checkNewSiteInited(fs *hugofs.Fs, basepath string, t *testing.T) {
 
 func TestDoNewSite(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
-	fs := hugofs.NewMem()
+	_, fs := newTestCfg()
 
 	require.NoError(t, doNewSite(fs, basepath, false))
 
@@ -57,7 +58,7 @@ func TestDoNewSite(t *testing.T) {
 
 func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
-	fs := hugofs.NewMem()
+	_, fs := newTestCfg()
 
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 
@@ -66,7 +67,7 @@ func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
 
 func TestDoNewSite_error_base_exists(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
-	fs := hugofs.NewMem()
+	_, fs := newTestCfg()
 
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 	_, err := fs.Source.Create(filepath.Join(basepath, "foo"))
@@ -78,7 +79,7 @@ func TestDoNewSite_error_base_exists(t *testing.T) {
 
 func TestDoNewSite_force_empty_dir(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
-	fs := hugofs.NewMem()
+	_, fs := newTestCfg()
 
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 
@@ -89,7 +90,7 @@ func TestDoNewSite_force_empty_dir(t *testing.T) {
 
 func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
-	fs := hugofs.NewMem()
+	_, fs := newTestCfg()
 
 	contentPath := filepath.Join(basepath, "content")
 
@@ -99,7 +100,7 @@ func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 
 func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
-	fs := hugofs.NewMem()
+	_, fs := newTestCfg()
 
 	configPath := filepath.Join(basepath, "config.toml")
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
@@ -107,4 +108,15 @@ func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Error(t, doNewSite(fs, basepath, true))
+}
+
+func newTestCfg() (*viper.Viper, *hugofs.Fs) {
+
+	v := viper.New()
+	fs := hugofs.NewMem(v)
+
+	v.SetFs(fs.Source)
+
+	return v, fs
+
 }
