@@ -26,7 +26,9 @@ Sample Text
 `
 
 func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	p, err := pageTestSite.NewPageFrom(strings.NewReader(simplePageYAML), filepath.Join("foobar"))
+	t.Parallel()
+	s := newTestSite(t)
+	p, err := s.NewPageFrom(strings.NewReader(simplePageYAML), filepath.Join("foobar"))
 	if err != nil {
 		t.Fatalf("Error in NewPageFrom")
 	}
@@ -36,6 +38,8 @@ func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
 }
 
 func TestNewPageWithFilePath(t *testing.T) {
+	t.Parallel()
+	s := newTestSite(t)
 	toCheck := []struct {
 		input   string
 		section string
@@ -48,7 +52,7 @@ func TestNewPageWithFilePath(t *testing.T) {
 	}
 
 	for i, el := range toCheck {
-		p, err := pageTestSite.NewPageFrom(strings.NewReader(simplePageYAML), el.input)
+		p, err := s.NewPageFrom(strings.NewReader(simplePageYAML), el.input)
 		if err != nil {
 			t.Errorf("[%d] Reading from simplePageYAML resulted in an error: %s", i, err)
 		}

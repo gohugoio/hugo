@@ -21,9 +21,10 @@ import (
 
 	"time"
 
+	"github.com/spf13/afero"
+
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -35,6 +36,7 @@ import (
 */
 
 func TestNodesAsPage(t *testing.T) {
+	t.Parallel()
 	for _, preserveTaxonomyNames := range []bool{false, true} {
 		for _, ugly := range []bool{true, false} {
 			doTestNodeAsPage(t, ugly, preserveTaxonomyNames)
@@ -54,25 +56,24 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 
 	*/
 
-	testCommonResetState()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	viper.Set("uglyURLs", ugly)
-	viper.Set("preserveTaxonomyNames", preserveTaxonomyNames)
+	cfg.Set("uglyURLs", ugly)
+	cfg.Set("preserveTaxonomyNames", preserveTaxonomyNames)
 
-	viper.Set("paginate", 1)
-	viper.Set("title", "Hugo Rocks")
-	viper.Set("rssURI", "customrss.xml")
+	cfg.Set("paginate", 1)
+	cfg.Set("title", "Hugo Rocks")
+	cfg.Set("rssURI", "customrss.xml")
 
-	depsCfg := newTestDepsConfig()
+	writeLayoutsForNodeAsPageTests(t, fs)
+	writeNodePagesForNodeAsPageTests(t, fs, "")
 
-	viper.SetFs(depsCfg.Fs.Source)
+	writeRegularPagesForNodeAsPageTests(t, fs)
 
-	writeLayoutsForNodeAsPageTests(t, depsCfg.Fs)
-	writeNodePagesForNodeAsPageTests(t, depsCfg.Fs, "")
-
-	writeRegularPagesForNodeAsPageTests(t, depsCfg.Fs)
-
-	sites, err := NewHugoSitesFromConfiguration(depsCfg)
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
@@ -80,7 +81,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 
 	// date order: home, sect1, sect2, cat/hugo, cat/web, categories
 
-	assertFileContent(t, depsCfg.Fs, filepath.Join("public", "index.html"), false,
+	th.assertFileContent(t, fs, filepath.Join("public", "index.html"), false,
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
 		"# Pages: 4",
@@ -89,7 +90,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 		"GetPage: Section1 ",
 	)
 
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "sect1", "regular1"), false, "Single Title: Page 01", "Content Page 01")
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect1", "regular1"), false, "Single Title: Page 01", "Content Page 01")
 
 	nodes := sites.findAllPagesByKindNotIn(KindPage)
 
@@ -115,24 +116,24 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.True(t, first.IsPage())
 
 	// Check Home paginator
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "page", "2"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "page", "2"), false,
 		"Pag: Page 02")
 
 	// Check Sections
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "sect1"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect1"), false,
 		"Section Title: Section", "Section1 <strong>Content!</strong>",
 		"Date: 2009-01-04",
 		"Lastmod: 2009-01-05",
 	)
 
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "sect2"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect2"), false,
 		"Section Title: Section", "Section2 <strong>Content!</strong>",
 		"Date: 2009-01-06",
 		"Lastmod: 2009-01-07",
 	)
 
 	// Check Sections paginator
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "sect1", "page", "2"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect1", "page", "2"), false,
 		"Pag: Page 02")
 
 	sections := sites.findAllPagesByKind(KindSection)
@@ -140,13 +141,13 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.Len(t, sections, 2)
 
 	// Check taxonomy lists
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "categories", "hugo"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories", "hugo"), false,
 		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>",
 		"Date: 2009-01-08",
 		"Lastmod: 2009-01-09",
 	)
 
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "categories", "hugo-rocks"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories", "hugo-rocks"), false,
 		"Taxonomy Title: Taxonomy Hugo Rocks",
 	)
 
@@ -156,7 +157,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.NotNil(t, web)
 	require.Len(t, web.Data["Pages"].(Pages), 4)
 
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "categories", "web"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories", "web"), false,
 		"Taxonomy Title: Taxonomy Web",
 		"Taxonomy Web <strong>Content!</strong>",
 		"Date: 2009-01-10",
@@ -164,12 +165,12 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	)
 
 	// Check taxonomy list paginator
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "categories", "hugo", "page", "2"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories", "hugo", "page", "2"), false,
 		"Taxonomy Title: Taxonomy Hugo",
 		"Pag: Page 02")
 
 	// Check taxonomy terms
-	assertFileContent(t, depsCfg.Fs, expectedFilePath(ugly, "public", "categories"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories"), false,
 		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo",
 		"Date: 2009-01-14",
 		"Lastmod: 2009-01-15",
@@ -178,34 +179,37 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	// There are no pages to paginate over in the taxonomy terms.
 
 	// RSS
-	assertFileContent(t, depsCfg.Fs, filepath.Join("public", "customrss.xml"), false, "Recent content in Home Sweet Home! on Hugo Rocks", "<rss")
-	assertFileContent(t, depsCfg.Fs, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Section1 on Hugo Rocks", "<rss")
-	assertFileContent(t, depsCfg.Fs, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Section2 on Hugo Rocks", "<rss")
-	assertFileContent(t, depsCfg.Fs, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Taxonomy Hugo on Hugo Rocks", "<rss")
-	assertFileContent(t, depsCfg.Fs, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Taxonomy Web on Hugo Rocks", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "customrss.xml"), false, "Recent content in Home Sweet Home! on Hugo Rocks", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Section1 on Hugo Rocks", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Section2 on Hugo Rocks", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Taxonomy Hugo on Hugo Rocks", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Taxonomy Web on Hugo Rocks", "<rss")
 
 }
 
 func TestNodesWithNoContentFile(t *testing.T) {
+	t.Parallel()
 	for _, ugly := range []bool{false, true} {
 		doTestNodesWithNoContentFile(t, ugly)
 	}
 }
 
 func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
-	testCommonResetState()
 
-	viper.Set("uglyURLs", ugly)
-	viper.Set("paginate", 1)
-	viper.Set("title", "Hugo Rocks!")
-	viper.Set("rssURI", "customrss.xml")
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	fs := hugofs.NewMem()
+	cfg.Set("uglyURLs", ugly)
+	cfg.Set("paginate", 1)
+	cfg.Set("title", "Hugo Rocks!")
+	cfg.Set("rssURI", "customrss.xml")
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeRegularPagesForNodeAsPageTests(t, fs)
 
-	sites, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
@@ -222,21 +226,21 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	require.Len(t, homePage.Pages, 4)
 	require.True(t, homePage.Path() == "")
 
-	assertFileContent(t, fs, filepath.Join("public", "index.html"), false,
+	th.assertFileContent(t, fs, filepath.Join("public", "index.html"), false,
 		"Index Title: Hugo Rocks!",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
 	// Taxonomy list
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories", "hugo"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories", "hugo"), false,
 		"Taxonomy Title: Hugo",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
 	// Taxonomy terms
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "categories"), false,
 		"Taxonomy Terms Title: Categories",
 	)
 
@@ -254,28 +258,29 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	}
 
 	// Sections
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect1"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect1"), false,
 		"Section Title: Sect1s",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect2"), false,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "sect2"), false,
 		"Section Title: Sect2s",
 		"Date: 2008-07-06",
 		"Lastmod: 2008-07-09",
 	)
 
 	// RSS
-	assertFileContent(t, fs, filepath.Join("public", "customrss.xml"), false, "Hugo Rocks!", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Sect1s on Hugo Rocks!", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Sect2s on Hugo Rocks!", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Hugo on Hugo Rocks!", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Web on Hugo Rocks!", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "customrss.xml"), false, "Hugo Rocks!", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Sect1s on Hugo Rocks!", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Sect2s on Hugo Rocks!", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Hugo on Hugo Rocks!", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Web on Hugo Rocks!", "<rss")
 
 }
 
 func TestNodesAsPageMultilingual(t *testing.T) {
+	t.Parallel()
 	for _, ugly := range []bool{false, true} {
 		doTestNodesAsPageMultilingual(t, ugly)
 	}
@@ -283,15 +288,9 @@ func TestNodesAsPageMultilingual(t *testing.T) {
 
 func doTestNodesAsPageMultilingual(t *testing.T, ugly bool) {
 
-	testCommonResetState()
+	mf := afero.NewMemMapFs()
 
-	fs := hugofs.NewMem()
-
-	viper.Set("uglyURLs", ugly)
-
-	viper.SetFs(fs.Source)
-
-	writeSource(t, fs, "config.toml",
+	writeToFs(t, mf, "config.toml",
 		`
 paginage = 1
 title = "Hugo Multilingual Rocks!"
@@ -317,17 +316,22 @@ weight = 3
 title = "Deutsche Hugo"
 `)
 
+	cfg, err := LoadConfig(mf, "", "config.toml")
+	require.NoError(t, err)
+
+	cfg.Set("uglyURLs", ugly)
+
+	fs := hugofs.NewFrom(mf, cfg)
+
 	writeLayoutsForNodeAsPageTests(t, fs)
 
 	for _, lang := range []string{"nn", "en"} {
 		writeRegularPagesForNodeAsPageTestsWithLang(t, fs, lang)
 	}
 
-	if err := LoadGlobalConfig("", "config.toml"); err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
+	th := testHelper{cfg}
 
-	sites, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -372,63 +376,65 @@ title = "Deutsche Hugo"
 
 	require.Equal(t, expetedPermalink(ugly, "/en/sect1/"), enSect.Permalink())
 
-	assertFileContent(t, fs, filepath.Join("public", "nn", "index.html"), true,
+	th.assertFileContent(t, fs, filepath.Join("public", "nn", "index.html"), true,
 		"Index Title: Hugo på norsk")
-	assertFileContent(t, fs, filepath.Join("public", "en", "index.html"), true,
+	th.assertFileContent(t, fs, filepath.Join("public", "en", "index.html"), true,
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
-	assertFileContent(t, fs, filepath.Join("public", "de", "index.html"), true,
+	th.assertFileContent(t, fs, filepath.Join("public", "de", "index.html"), true,
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
 
 	// Taxonomy list
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "categories", "hugo"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "categories", "hugo"), true,
 		"Taxonomy Title: Hugo")
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "categories", "hugo"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "categories", "hugo"), true,
 		"Taxonomy Title: Taxonomy Hugo")
 
 	// Taxonomy terms
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "categories"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "categories"), true,
 		"Taxonomy Terms Title: Categories")
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "categories"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "categories"), true,
 		"Taxonomy Terms Title: Taxonomy Term Categories")
 
 	// Sections
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "sect1"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "sect1"), true,
 		"Section Title: Sect1s")
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "sect2"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "sect2"), true,
 		"Section Title: Sect2s")
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "sect1"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "sect1"), true,
 		"Section Title: Section1")
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "sect2"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "sect2"), true,
 		"Section Title: Section2")
 
 	// Regular pages
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "sect1", "regular1"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "en", "sect1", "regular1"), true,
 		"Single Title: Page 01")
-	assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "sect1", "regular2"), true,
+	th.assertFileContent(t, fs, expectedFilePath(ugly, "public", "nn", "sect1", "regular2"), true,
 		"Single Title: Page 02")
 
 	// RSS
-	assertFileContent(t, fs, filepath.Join("public", "nn", "customrss.xml"), true, "Hugo på norsk", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "nn", "sect1", "customrss.xml"), true, "Recent content in Sect1s on Hugo på norsk", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "nn", "sect2", "customrss.xml"), true, "Recent content in Sect2s on Hugo på norsk", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "nn", "categories", "hugo", "customrss.xml"), true, "Recent content in Hugo on Hugo på norsk", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "nn", "categories", "web", "customrss.xml"), true, "Recent content in Web on Hugo på norsk", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "nn", "customrss.xml"), true, "Hugo på norsk", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "nn", "sect1", "customrss.xml"), true, "Recent content in Sect1s on Hugo på norsk", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "nn", "sect2", "customrss.xml"), true, "Recent content in Sect2s on Hugo på norsk", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "nn", "categories", "hugo", "customrss.xml"), true, "Recent content in Hugo on Hugo på norsk", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "nn", "categories", "web", "customrss.xml"), true, "Recent content in Web on Hugo på norsk", "<rss")
 
-	assertFileContent(t, fs, filepath.Join("public", "en", "customrss.xml"), true, "Recent content in Home Sweet Home! on Hugo in English", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "en", "sect1", "customrss.xml"), true, "Recent content in Section1 on Hugo in English", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "en", "sect2", "customrss.xml"), true, "Recent content in Section2 on Hugo in English", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "en", "categories", "hugo", "customrss.xml"), true, "Recent content in Taxonomy Hugo on Hugo in English", "<rss")
-	assertFileContent(t, fs, filepath.Join("public", "en", "categories", "web", "customrss.xml"), true, "Recent content in Taxonomy Web on Hugo in English", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "en", "customrss.xml"), true, "Recent content in Home Sweet Home! on Hugo in English", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "en", "sect1", "customrss.xml"), true, "Recent content in Section1 on Hugo in English", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "en", "sect2", "customrss.xml"), true, "Recent content in Section2 on Hugo in English", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "en", "categories", "hugo", "customrss.xml"), true, "Recent content in Taxonomy Hugo on Hugo in English", "<rss")
+	th.assertFileContent(t, fs, filepath.Join("public", "en", "categories", "web", "customrss.xml"), true, "Recent content in Taxonomy Web on Hugo in English", "<rss")
 
 }
 
 func TestNodesWithTaxonomies(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	fs := hugofs.NewMem()
-
-	viper.Set("paginate", 1)
-	viper.Set("title", "Hugo Rocks!")
+	cfg.Set("paginate", 1)
+	cfg.Set("title", "Hugo Rocks!")
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeRegularPagesForNodeAsPageTests(t, fs)
@@ -442,24 +448,26 @@ categories:  [
 ---
 `)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5")
-	assertFileContent(t, fs, filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1")
 
 }
 
 func TestNodesWithMenu(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	viper.Set("paginate", 1)
-	viper.Set("title", "Hugo Rocks!")
-
-	fs := hugofs.NewMem()
+	cfg.Set("paginate", 1)
+	cfg.Set("title", "Hugo Rocks!")
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeRegularPagesForNodeAsPageTests(t, fs)
@@ -488,26 +496,28 @@ menu:
 ---
 `)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	assertFileContent(t, fs, filepath.Join("public", "index.html"), true, "Home With Menu", "Home Menu Item: Go Home!: /")
-	assertFileContent(t, fs, filepath.Join("public", "sect1", "index.html"), true, "Sect1 With Menu", "Section Menu Item: Go Sect1!: /sect1/")
-	assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy With Menu", "Taxonomy Menu Item: Go Tax Hugo!: /categories/hugo/")
+	th.assertFileContent(t, fs, filepath.Join("public", "index.html"), true, "Home With Menu", "Home Menu Item: Go Home!: /")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect1", "index.html"), true, "Sect1 With Menu", "Section Menu Item: Go Sect1!: /sect1/")
+	th.assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy With Menu", "Taxonomy Menu Item: Go Tax Hugo!: /categories/hugo/")
 
 }
 
 func TestNodesWithAlias(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	fs := hugofs.NewMem()
-
-	viper.Set("paginate", 1)
-	viper.Set("baseURL", "http://base/")
-	viper.Set("title", "Hugo Rocks!")
+	cfg.Set("paginate", 1)
+	cfg.Set("baseURL", "http://base/")
+	cfg.Set("title", "Hugo Rocks!")
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeRegularPagesForNodeAsPageTests(t, fs)
@@ -519,24 +529,26 @@ aliases:
 ---
 `)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	assertFileContent(t, fs, filepath.Join("public", "index.html"), true, "Home With Alias")
-	assertFileContent(t, fs, filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=http://base/")
+	th.assertFileContent(t, fs, filepath.Join("public", "index.html"), true, "Home With Alias")
+	th.assertFileContent(t, fs, filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=http://base/")
 
 }
 
 func TestNodesWithSectionWithIndexPageOnly(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	fs := hugofs.NewMem()
-
-	viper.Set("paginate", 1)
-	viper.Set("title", "Hugo Rocks!")
+	cfg.Set("paginate", 1)
+	cfg.Set("title", "Hugo Rocks!")
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 
@@ -546,24 +558,26 @@ title: MySection
 My Section Content
 `)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), true, "My Section")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), true, "My Section")
 
 }
 
 func TestNodesWithURLs(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg}
+	)
 
-	fs := hugofs.NewMem()
-
-	viper.Set("paginate", 1)
-	viper.Set("title", "Hugo Rocks!")
-	viper.Set("baseURL", "http://bep.is/base/")
+	cfg.Set("paginate", 1)
+	cfg.Set("title", "Hugo Rocks!")
+	cfg.Set("baseURL", "http://bep.is/base/")
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeRegularPagesForNodeAsPageTests(t, fs)
@@ -575,13 +589,13 @@ url: foo.html
 My Section Content
 `)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	require.NoError(t, err)
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), true, "My Section")
+	th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), true, "My Section")
 
 	s := h.Sites[0]
 

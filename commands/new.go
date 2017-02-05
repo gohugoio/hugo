@@ -93,12 +93,14 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if flagChanged(cmd.Flags(), "format") {
-		viper.Set("metaDataFormat", configFormat)
+	c := newCommandeer(cfg)
+
+	if c.flagChanged(cmd.Flags(), "format") {
+		c.Set("metaDataFormat", configFormat)
 	}
 
-	if flagChanged(cmd.Flags(), "editor") {
-		viper.Set("newContentEditor", contentEditor)
+	if c.flagChanged(cmd.Flags(), "editor") {
+		c.Set("newContentEditor", contentEditor)
 	}
 
 	if len(args) < 1 {
@@ -115,7 +117,7 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		kind = contentType
 	}
 
-	s, err := hugolib.NewSite(cfg)
+	s, err := hugolib.NewSite(*cfg)
 
 	if err != nil {
 		return newSystemError(err)
@@ -203,7 +205,7 @@ func NewSite(cmd *cobra.Command, args []string) error {
 
 	forceNew, _ := cmd.Flags().GetBool("force")
 
-	return doNewSite(hugofs.NewDefault(), createpath, forceNew)
+	return doNewSite(hugofs.NewDefault(viper.New()), createpath, forceNew)
 }
 
 // NewTheme creates a new Hugo theme.
@@ -215,11 +217,12 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(args) < 1 {
-
 		return newUserError("theme name needs to be provided")
 	}
 
-	createpath := helpers.AbsPathify(filepath.Join(viper.GetString("themesDir"), args[0]))
+	c := newCommandeer(cfg)
+
+	createpath := c.PathSpec().AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
 	if x, _ := helpers.Exists(createpath, cfg.Fs.Source); x {

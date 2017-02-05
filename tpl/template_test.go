@@ -26,21 +26,15 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/helpers"
+
 	"github.com/spf13/hugo/tplapi"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
-func testReset() {
-	viper.Reset()
-
-	// TODO(bep) viper-globals
-	viper.Set("currentContentLanguage", helpers.NewLanguage("en"))
-}
-
 // Some tests for Issue #1178 -- Ace
 func TestAceTemplates(t *testing.T) {
+	t.Parallel()
 
 	for i, this := range []struct {
 		basePath     string
@@ -79,7 +73,7 @@ html lang=en
 
 			d := "DATA"
 
-			config := newDefaultDepsCfg()
+			config := newDepsConfig(viper.New())
 			config.WithTemplate = func(templ tplapi.Template) error {
 				return templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
 					[]byte(this.baseContent), []byte(this.innerContent))
@@ -87,7 +81,7 @@ html lang=en
 
 			a := deps.New(config)
 
-			if err := a.LoadTemplates(); err != nil {
+			if err := a.LoadResources(); err != nil {
 				t.Fatal(err)
 			}
 
@@ -124,6 +118,7 @@ func isAtLeastGo16() bool {
 }
 
 func TestAddTemplateFileWithMaster(t *testing.T) {
+	t.Parallel()
 
 	if !isAtLeastGo16() {
 		t.Skip("This test only runs on Go >= 1.6")
@@ -148,8 +143,8 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 		masterTplName := "mt"
 		finalTplName := "tp"
 
-		cfg := newDefaultDepsCfg()
-		cfg.WithTemplate = func(templ tplapi.Template) error {
+		config := newDepsConfig(viper.New())
+		config.WithTemplate = func(templ tplapi.Template) error {
 
 			err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
 
@@ -189,13 +184,13 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 		}
 
 		if this.writeSkipper != 1 {
-			afero.WriteFile(cfg.Fs.Source, masterTplName, []byte(this.masterTplContent), 0644)
+			afero.WriteFile(config.Fs.Source, masterTplName, []byte(this.masterTplContent), 0644)
 		}
 		if this.writeSkipper != 2 {
-			afero.WriteFile(cfg.Fs.Source, overlayTplName, []byte(this.overlayTplContent), 0644)
+			afero.WriteFile(config.Fs.Source, overlayTplName, []byte(this.overlayTplContent), 0644)
 		}
 
-		deps.New(cfg)
+		deps.New(config)
 
 	}
 
@@ -204,6 +199,7 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 // A Go stdlib test for linux/arm. Will remove later.
 // See #1771
 func TestBigIntegerFunc(t *testing.T) {
+	t.Parallel()
 	var func1 = func(v int64) error {
 		return nil
 	}
@@ -234,6 +230,7 @@ func (b BI) A(v int64) error {
 	return nil
 }
 func TestBigIntegerMethod(t *testing.T) {
+	t.Parallel()
 
 	data := &BI{}
 
@@ -253,6 +250,7 @@ func TestBigIntegerMethod(t *testing.T) {
 
 // Test for bugs discovered by https://github.com/dvyukov/go-fuzz
 func TestTplGoFuzzReports(t *testing.T) {
+	t.Parallel()
 
 	// The following test case(s) also fail
 	// See https://github.com/golang/go/issues/10634
@@ -284,13 +282,14 @@ func TestTplGoFuzzReports(t *testing.T) {
 			H: "a,b,c,d,e,f",
 		}
 
-		cfg := newDefaultDepsCfg()
-		cfg.WithTemplate = func(templ tplapi.Template) error {
+		config := newDepsConfig(viper.New())
+
+		config.WithTemplate = func(templ tplapi.Template) error {
 			return templ.AddTemplate("fuzz", this.data)
 		}
 
-		de := deps.New(cfg)
-		require.NoError(t, de.LoadTemplates())
+		de := deps.New(config)
+		require.NoError(t, de.LoadResources())
 
 		templ := de.Tmpl.(*GoHTMLTemplate)
 

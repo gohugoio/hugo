@@ -20,14 +20,10 @@ import (
 
 	"github.com/spf13/hugo/deps"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-
 	"path/filepath"
 
 	toml "github.com/pelletier/go-toml"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -187,7 +183,7 @@ Front Matter with Menu with Identifier`, title, menu, identifier))
 
 // Issue 817 - identifier should trump everything
 func TestPageMenuWithIdentifier(t *testing.T) {
-
+	t.Parallel()
 	toml := []source.ByteSource{
 		{Name: "sect/doc1.md", Content: tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i1")},
 		{Name: "sect/doc2.md", Content: tstCreateMenuPageWithIdentifierTOML("t1", "m1", "i2")},
@@ -206,7 +202,6 @@ func TestPageMenuWithIdentifier(t *testing.T) {
 }
 
 func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSource) {
-	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -225,7 +220,7 @@ func doTestPageMenuWithIdentifier(t *testing.T, menuPageSources []source.ByteSou
 
 // Issue 817 contd - name should be second identifier in
 func TestPageMenuWithDuplicateName(t *testing.T) {
-
+	t.Parallel()
 	toml := []source.ByteSource{
 		{Name: "sect/doc1.md", Content: tstCreateMenuPageWithNameTOML("t1", "m1", "n1")},
 		{Name: "sect/doc2.md", Content: tstCreateMenuPageWithNameTOML("t1", "m1", "n2")},
@@ -244,7 +239,6 @@ func TestPageMenuWithDuplicateName(t *testing.T) {
 }
 
 func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.ByteSource) {
-	testCommonResetState()
 
 	s := setupMenuTests(t, menuPageSources)
 
@@ -262,8 +256,7 @@ func doTestPageMenuWithDuplicateName(t *testing.T, menuPageSources []source.Byte
 }
 
 func TestPageMenu(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	s := setupMenuTests(t, menuPageSources)
 
 	if len(s.RegularPages) != 3 {
@@ -312,8 +305,7 @@ func TestPageMenu(t *testing.T) {
 }
 
 func TestMenuURL(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	s := setupMenuTests(t, menuPageSources)
 
 	for i, this := range []struct {
@@ -342,8 +334,7 @@ func TestMenuURL(t *testing.T) {
 
 // Issue #1934
 func TestYAMLMenuWithMultipleEntries(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	ps1 := []byte(`---
 title: "Yaml 1"
 weight: 5
@@ -373,18 +364,15 @@ Yaml Front Matter with Menu Pages`)
 
 // issue #719
 func TestMenuWithUnicodeURLs(t *testing.T) {
-
+	t.Parallel()
 	for _, canonifyURLs := range []bool{true, false} {
 		doTestMenuWithUnicodeURLs(t, canonifyURLs)
 	}
 }
 
 func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
-	testCommonResetState()
 
-	viper.Set("canonifyURLs", canonifyURLs)
-
-	s := setupMenuTests(t, menuPageSources)
+	s := setupMenuTests(t, menuPageSources, "canonifyURLs", canonifyURLs)
 
 	unicodeRussian := findTestMenuEntryByID(s, "unicode", "unicode-russian")
 
@@ -399,18 +387,17 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
 
 // Issue #1114
 func TestSectionPagesMenu(t *testing.T) {
-
+	t.Parallel()
 	doTestSectionPagesMenu(true, t)
 	doTestSectionPagesMenu(false, t)
 }
 
 func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
-	testCommonResetState()
 
-	viper.Set("sectionPagesMenu", "spm")
-
-	viper.Set("canonifyURLs", canonifyURLs)
-	s := setupMenuTests(t, menuPageSectionsSources)
+	s := setupMenuTests(t, menuPageSectionsSources,
+		"sectionPagesMenu", "spm",
+		"canonifyURLs", canonifyURLs,
+	)
 
 	require.Equal(t, 3, len(s.Sections))
 
@@ -463,16 +450,15 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 }
 
 func TestTaxonomyNodeMenu(t *testing.T) {
+	t.Parallel()
+
 	type taxRenderInfo struct {
 		key      string
 		singular string
 		plural   string
 	}
 
-	testCommonResetState()
-
-	viper.Set("canonifyURLs", true)
-	s := setupMenuTests(t, menuPageSources)
+	s := setupMenuTests(t, menuPageSources, "canonifyURLs", true)
 
 	for i, this := range []struct {
 		menu           string
@@ -512,8 +498,7 @@ func TestTaxonomyNodeMenu(t *testing.T) {
 }
 
 func TestMenuLimit(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	s := setupMenuTests(t, menuPageSources)
 	m := *s.Menus["main"]
 
@@ -528,7 +513,7 @@ func TestMenuLimit(t *testing.T) {
 }
 
 func TestMenuSortByN(t *testing.T) {
-
+	t.Parallel()
 	for i, this := range []struct {
 		sortFunc   func(p Menu) Menu
 		assertFunc func(p Menu) bool
@@ -554,12 +539,11 @@ func TestMenuSortByN(t *testing.T) {
 }
 
 func TestHomeNodeMenu(t *testing.T) {
-	testCommonResetState()
-
-	viper.Set("canonifyURLs", true)
-	viper.Set("uglyURLs", false)
-
-	s := setupMenuTests(t, menuPageSources)
+	t.Parallel()
+	s := setupMenuTests(t, menuPageSources,
+		"canonifyURLs", true,
+		"uglyURLs", false,
+	)
 
 	home := s.getPage(KindHome)
 	homeMenuEntry := &MenuEntry{Name: home.Title, URL: home.URL()}
@@ -596,12 +580,14 @@ func TestHomeNodeMenu(t *testing.T) {
 }
 
 func TestHopefullyUniqueID(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "i", (&MenuEntry{Identifier: "i", URL: "u", Name: "n"}).hopefullyUniqueID())
 	assert.Equal(t, "u", (&MenuEntry{Identifier: "", URL: "u", Name: "n"}).hopefullyUniqueID())
 	assert.Equal(t, "n", (&MenuEntry{Identifier: "", URL: "", Name: "n"}).hopefullyUniqueID())
 }
 
 func TestAddMenuEntryChild(t *testing.T) {
+	t.Parallel()
 	root := &MenuEntry{Weight: 1}
 	root.addChild(&MenuEntry{Weight: 2})
 	root.addChild(&MenuEntry{Weight: 1})
@@ -667,38 +653,28 @@ func findDescendantTestMenuEntry(parent *MenuEntry, id string, matcher func(me *
 	return found
 }
 
-func setupTestMenuState(t *testing.T) {
+func setupMenuTests(t *testing.T, pageSources []source.ByteSource, configKeyValues ...interface{}) *Site {
+
+	var (
+		cfg, fs = newTestCfg()
+	)
+
 	menus, err := tomlToMap(confMenu1)
+	require.NoError(t, err)
 
-	if err != nil {
-		t.Fatalf("Unable to read menus: %v", err)
+	cfg.Set("menu", menus["menu"])
+	cfg.Set("baseURL", "http://foo.local/Zoo/")
+
+	for i := 0; i < len(configKeyValues); i += 2 {
+		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
 	}
-
-	viper.Set("menu", menus["menu"])
-	viper.Set("baseURL", "http://foo.local/Zoo/")
-}
-
-func setupMenuTests(t *testing.T, pageSources []source.ByteSource) *Site {
-
-	setupTestMenuState(t)
-
-	fs := hugofs.NewMem()
 
 	for _, src := range pageSources {
 		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
 
 	}
 
-	return buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
-
-}
-
-func createTestSite(pageSources []source.ByteSource) *Site {
-
-	return &Site{
-		Source:   &source.InMemorySource{ByteSource: pageSources},
-		Language: helpers.NewDefaultLanguage(),
-	}
+	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 }
 

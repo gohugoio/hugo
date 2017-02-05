@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/tplapi"
@@ -27,24 +28,40 @@ type Deps struct {
 	// The PathSpec to use
 	*helpers.PathSpec `json:"-"`
 
-	templateProvider TemplateProvider
-	WithTemplate     func(templ tplapi.Template) error
+	// The ContentSpec to use
+	*helpers.ContentSpec `json:"-"`
 
-	// TODO(bep) globals next in line: Viper
+	// The configuration to use
+	Cfg config.Provider `json:"-"`
 
+	// The translation func to use
+	Translate func(translationID string, args ...interface{}) string `json:"-"`
+
+	Language *helpers.Language
+
+	templateProvider ResourceProvider
+	WithTemplate     func(templ tplapi.Template) error `json:"-"`
+
+	translationProvider ResourceProvider
 }
 
-// Used to create and refresh, and clone the template.
-type TemplateProvider interface {
+// Used to create and refresh, and clone resources needed.
+type ResourceProvider interface {
 	Update(deps *Deps) error
 	Clone(deps *Deps) error
 }
 
-func (d *Deps) LoadTemplates() error {
+func (d *Deps) LoadResources() error {
+	// Note that the translations need to be loaded before the templates.
+	if err := d.translationProvider.Update(d); err != nil {
+		return err
+	}
+
 	if err := d.templateProvider.Update(d); err != nil {
 		return err
 	}
 	d.Tmpl.PrintErrors()
+
 	return nil
 }
 
@@ -58,6 +75,10 @@ func New(cfg DepsCfg) *Deps {
 		panic("Must have a TemplateProvider")
 	}
 
+	if cfg.TranslationProvider == nil {
+		panic("Must have a TranslationProvider")
+	}
+
 	if cfg.Language == nil {
 		panic("Must have a Language")
 	}
@@ -67,16 +88,20 @@ func New(cfg DepsCfg) *Deps {
 	}
 
 	if fs == nil {
-		// Default to the production file systems.
-		fs = hugofs.NewDefault()
+		// Default to the production file system.
+		fs = hugofs.NewDefault(cfg.Language)
 	}
 
 	d := &Deps{
-		Fs:               fs,
-		Log:              logger,
-		templateProvider: cfg.TemplateProvider,
-		WithTemplate:     cfg.WithTemplate,
-		PathSpec:         helpers.NewPathSpec(fs, cfg.Language),
+		Fs:                  fs,
+		Log:                 logger,
+		templateProvider:    cfg.TemplateProvider,
+		translationProvider: cfg.TranslationProvider,
+		WithTemplate:        cfg.WithTemplate,
+		PathSpec:            helpers.NewPathSpec(fs, cfg.Language),
+		ContentSpec:         helpers.NewContentSpec(cfg.Language),
+		Cfg:                 cfg.Language,
+		Language:            cfg.Language,
 	}
 
 	return d
@@ -87,6 +112,14 @@ func New(cfg DepsCfg) *Deps {
 func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
 
 	d.PathSpec = helpers.NewPathSpec(d.Fs, l)
+	d.ContentSpec = helpers.NewContentSpec(l)
+	d.Cfg = l
+	d.Language = l
+
+	if err := d.translationProvider.Clone(&d); err != nil {
+		return nil, err
+	}
+
 	if err := d.templateProvider.Clone(&d); err != nil {
 		return nil, err
 	}
@@ -109,7 +142,13 @@ type DepsCfg struct {
 	// The language to use.
 	Language *helpers.Language
 
+	// The configuration to use.
+	Cfg config.Provider
+
 	// Template handling.
-	TemplateProvider TemplateProvider
+	TemplateProvider ResourceProvider
 	WithTemplate     func(templ tplapi.Template) error
+
+	// i18n handling.
+	TranslationProvider ResourceProvider
 }

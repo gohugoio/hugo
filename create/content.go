@@ -29,7 +29,6 @@ import (
 	"github.com/spf13/hugo/hugolib"
 	"github.com/spf13/hugo/parser"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 // NewContent creates a new content file in the content directory based upon the
@@ -37,7 +36,7 @@ import (
 func NewContent(s *hugolib.Site, kind, name string) (err error) {
 	jww.INFO.Println("attempting to create ", name, "of", kind)
 
-	location := FindArchetype(s.Fs.Source, kind)
+	location := FindArchetype(s, kind)
 
 	var by []byte
 
@@ -67,23 +66,23 @@ func NewContent(s *hugolib.Site, kind, name string) (err error) {
 		return err
 	}
 
-	if err = page.SetSourceMetaData(metadata, parser.FormatToLeadRune(viper.GetString("metaDataFormat"))); err != nil {
+	if err = page.SetSourceMetaData(metadata, parser.FormatToLeadRune(s.Cfg.GetString("metaDataFormat"))); err != nil {
 		return
 	}
 
 	page.SetSourceContent(psr.Content())
 
-	if err = page.SafeSaveSourceAs(filepath.Join(viper.GetString("contentDir"), name)); err != nil {
+	if err = page.SafeSaveSourceAs(filepath.Join(s.Cfg.GetString("contentDir"), name)); err != nil {
 		return
 	}
-	jww.FEEDBACK.Println(helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)), "created")
+	jww.FEEDBACK.Println(s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), name)), "created")
 
-	editor := viper.GetString("newContentEditor")
+	editor := s.Cfg.GetString("newContentEditor")
 
 	if editor != "" {
 		jww.FEEDBACK.Printf("Editing %s with %q ...\n", name, editor)
 
-		cmd := exec.Command(editor, helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)))
+		cmd := exec.Command(editor, s.PathSpec.AbsPathify(path.Join(s.Cfg.GetString("contentDir"), name)))
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -138,12 +137,7 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
 	}
 
-	// TOD(bep) what is this?
-	if x := parser.FormatSanitize(viper.GetString("metaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
-		metadata["date"] = date.Format(time.RFC3339)
-	} else {
-		metadata["date"] = date
-	}
+	metadata["date"] = date.Format(time.RFC3339)
 
 	return metadata, nil
 }
@@ -151,13 +145,13 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 // FindArchetype takes a given kind/archetype of content and returns an output
 // path for that archetype.  If no archetype is found, an empty string is
 // returned.
-func FindArchetype(fs afero.Fs, kind string) (outpath string) {
-	search := []string{helpers.AbsPathify(viper.GetString("archetypeDir"))}
+func FindArchetype(s *hugolib.Site, kind string) (outpath string) {
+	search := []string{s.PathSpec.AbsPathify(s.Cfg.GetString("archetypeDir"))}
 
-	if viper.GetString("theme") != "" {
-		themeDir := filepath.Join(helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), "/archetypes/")
-		if _, err := fs.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", viper.GetString("theme"), themeDir)
+	if s.Cfg.GetString("theme") != "" {
+		themeDir := filepath.Join(s.PathSpec.AbsPathify(s.Cfg.GetString("themesDir")+"/"+s.Cfg.GetString("theme")), "/archetypes/")
+		if _, err := s.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", s.Cfg.GetString("theme"), themeDir)
 		} else {
 			search = append(search, themeDir)
 		}
@@ -177,7 +171,7 @@ func FindArchetype(fs afero.Fs, kind string) (outpath string) {
 		for _, p := range pathsToCheck {
 			curpath := filepath.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
-			if exists, _ := helpers.Exists(curpath, fs); exists {
+			if exists, _ := helpers.Exists(curpath, s.Fs.Source); exists {
 				jww.INFO.Println("curpath: " + curpath)
 				return curpath
 			}

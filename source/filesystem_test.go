@@ -19,12 +19,11 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-
-	"github.com/spf13/hugo/hugofs"
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
-	src := NewFilesystem(hugofs.NewMem(), "Empty")
+	ss := newTestSourceSpec()
+	src := ss.NewFilesystem("Empty")
 	if len(src.Files()) != 0 {
 		t.Errorf("new filesystem should contain 0 files.")
 	}
@@ -39,12 +38,12 @@ type TestPath struct {
 }
 
 func TestAddFile(t *testing.T) {
-	fs := hugofs.NewMem()
+	ss := newTestSourceSpec()
 	tests := platformPaths
 	for _, test := range tests {
 		base := platformBase
-		srcDefault := NewFilesystem(fs, "")
-		srcWithBase := NewFilesystem(fs, base)
+		srcDefault := ss.NewFilesystem("")
+		srcWithBase := ss.NewFilesystem(base)
 
 		for _, src := range []*Filesystem{srcDefault, srcWithBase} {
 
@@ -100,10 +99,10 @@ func TestUnicodeNorm(t *testing.T) {
 		{NFC: "é", NFD: "\x65\xcc\x81"},
 	}
 
-	fs := hugofs.NewMem()
+	ss := newTestSourceSpec()
 
 	for _, path := range paths {
-		src := NewFilesystem(fs, "")
+		src := ss.NewFilesystem("")
 		_ = src.add(path.NFD, strings.NewReader(""))
 		f := src.Files()[0]
 		if f.BaseFileName() != path.NFC {

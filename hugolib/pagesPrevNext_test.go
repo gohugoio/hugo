@@ -35,6 +35,7 @@ var pagePNTestSources = []pagePNTestObject{
 }
 
 func TestPrev(t *testing.T) {
+	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	assert.Equal(t, pages.Prev(pages[0]), pages[4])
 	assert.Equal(t, pages.Prev(pages[1]), pages[0])
@@ -42,6 +43,7 @@ func TestPrev(t *testing.T) {
 }
 
 func TestNext(t *testing.T) {
+	t.Parallel()
 	pages := preparePageGroupTestPages(t)
 	assert.Equal(t, pages.Next(pages[0]), pages[1])
 	assert.Equal(t, pages.Next(pages[1]), pages[2])
@@ -49,16 +51,17 @@ func TestNext(t *testing.T) {
 }
 
 func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
+	s := newTestSite(t)
 	w := WeightedPages{}
 
-	for _, s := range pagePNTestSources {
-		p, err := pageTestSite.NewPage(s.path)
+	for _, src := range pagePNTestSources {
+		p, err := s.NewPage(src.path)
 		if err != nil {
-			t.Fatalf("failed to prepare test page %s", s.path)
+			t.Fatalf("failed to prepare test page %s", src.path)
 		}
-		p.Weight = s.weight
-		p.Date = cast.ToTime(s.date)
-		p.PublishDate = cast.ToTime(s.date)
+		p.Weight = src.weight
+		p.Date = cast.ToTime(src.date)
+		p.PublishDate = cast.ToTime(src.date)
 		w = append(w, WeightedPage{p.Weight, p})
 	}
 
@@ -67,6 +70,7 @@ func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
 }
 
 func TestWeightedPagesPrev(t *testing.T) {
+	t.Parallel()
 	w := prepareWeightedPagesPrevNext(t)
 	assert.Equal(t, w.Prev(w[0].Page), w[4].Page)
 	assert.Equal(t, w.Prev(w[1].Page), w[0].Page)
@@ -74,6 +78,7 @@ func TestWeightedPagesPrev(t *testing.T) {
 }
 
 func TestWeightedPagesNext(t *testing.T) {
+	t.Parallel()
 	w := prepareWeightedPagesPrevNext(t)
 	assert.Equal(t, w.Next(w[0].Page), w[1].Page)
 	assert.Equal(t, w.Next(w[1].Page), w[2].Page)

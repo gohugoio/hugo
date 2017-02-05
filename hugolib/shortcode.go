@@ -149,31 +149,6 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-// HandleShortcodes does all in  one go: extract, render and replace
-// only used for testing
-func HandleShortcodes(stringToParse string, page *Page) (string, error) {
-	tmpContent, tmpShortcodes, err := extractAndRenderShortcodes(stringToParse, page)
-
-	if err != nil {
-		return "", err
-	}
-
-	if len(tmpShortcodes) > 0 {
-		shortcodes, err := executeShortcodeFuncMap(tmpShortcodes)
-		if err != nil {
-			return "", err
-		}
-		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, shortcodes)
-
-		if err != nil {
-			return "", fmt.Errorf("Failed to replace shortcode tokens in %s:\n%s", page.BaseFileName(), err.Error())
-		}
-		return string(tmpContentWithTokensReplaced), nil
-	}
-
-	return tmpContent, nil
-}
-
 var isInnerShortcodeCache = struct {
 	sync.RWMutex
 	m map[string]bool
@@ -239,12 +214,12 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 		}
 
 		if sc.doMarkup {
-			newInner := helpers.RenderBytes(&helpers.RenderingContext{
+			newInner := p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
 				Content: []byte(inner), PageFmt: p.determineMarkupType(),
-				ConfigProvider: p.Language(),
-				DocumentID:     p.UniqueID(),
-				DocumentName:   p.Path(),
-				Config:         p.getRenderingConfig()})
+				Cfg:          p.Language(),
+				DocumentID:   p.UniqueID(),
+				DocumentName: p.Path(),
+				Config:       p.getRenderingConfig()})
 
 			// If the type is “unknown” or “markdown”, we assume the markdown
 			// generation has been performed. Given the input: `a line`, markdown

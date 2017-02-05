@@ -14,52 +14,35 @@ import (
 	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/source"
-	//	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 type testSiteConfig struct {
-	DefaultContentLanguage string
-	Fs                     *hugofs.Fs
+	DefaultContentLanguage         string
+	DefaultContentLanguageInSubdir bool
+	Fs                             afero.Fs
 }
 
-func init() {
-	testCommonResetState()
-}
-
-func testCommonResetState() {
-	viper.Reset()
-	// TODO(bep) globals viper	viper.SetFs(hugofs.Source())
-	viper.Set("currentContentLanguage", helpers.NewLanguage("en"))
-	helpers.ResetConfigProvider()
-	loadDefaultSettings()
-
-	// Default is false, but true is easier to use as default in tests
-	viper.Set("defaultContentLanguageInSubdir", true)
-
-}
-
-// TODO(bep) globals this currently fails because of a configuration dependency that will be resolved when we get rid of the global Viper.
-func _TestMultiSitesMainLangInRoot(t *testing.T) {
-
+func TestMultiSitesMainLangInRoot(t *testing.T) {
+	t.Parallel()
 	for _, b := range []bool{true, false} {
 		doTestMultiSitesMainLangInRoot(t, b)
 	}
 }
 
 func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
-	testCommonResetState()
-	viper.Set("defaultContentLanguageInSubdir", defaultInSubDir)
-	fs := hugofs.NewMem()
-	siteConfig := testSiteConfig{DefaultContentLanguage: "fr", Fs: fs}
+
+	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: defaultInSubDir}
 
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
+	th := testHelper{sites.Cfg}
+	fs := sites.Fs
 
 	err := sites.Build(BuildCfg{})
 
@@ -80,7 +63,6 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 		require.Equal(t, "", frSite.Info.LanguagePrefix)
 	}
 
-	fmt.Println(">>>", enSite.PathSpec)
 	require.Equal(t, "/blog/en/foo", enSite.PathSpec.RelURL("foo", true))
 
 	doc1en := enSite.RegularPages[0]
@@ -94,71 +76,75 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	frPerm := doc1fr.Permalink()
 	frRelPerm := doc1fr.RelPermalink()
 	// Main language in root
-	require.Equal(t, replaceDefaultContentLanguageValue("http://example.com/blog/fr/sect/doc1/", defaultInSubDir), frPerm)
-	require.Equal(t, replaceDefaultContentLanguageValue("/blog/fr/sect/doc1/", defaultInSubDir), frRelPerm)
+	require.Equal(t, th.replaceDefaultContentLanguageValue("http://example.com/blog/fr/sect/doc1/", defaultInSubDir), frPerm)
+	require.Equal(t, th.replaceDefaultContentLanguageValue("/blog/fr/sect/doc1/", defaultInSubDir), frRelPerm)
 
-	assertFileContent(t, fs, "public/fr/sect/doc1/index.html", defaultInSubDir, "Single", "Bonjour")
-	assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", defaultInSubDir, "Single", "Hello")
+	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", defaultInSubDir, "Single", "Bonjour")
+	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", defaultInSubDir, "Single", "Hello")
 
 	// Check home
 	if defaultInSubDir {
 		// should have a redirect on top level.
-		assertFileContent(t, fs, "public/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+		th.assertFileContent(t, fs, "public/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
 	} else {
 		// should have redirect back to root
-		assertFileContent(t, fs, "public/fr/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
+		th.assertFileContent(t, fs, "public/fr/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
 	}
-	assertFileContent(t, fs, "public/fr/index.html", defaultInSubDir, "Home", "Bonjour")
-	assertFileContent(t, fs, "public/en/index.html", defaultInSubDir, "Home", "Hello")
+	th.assertFileContent(t, fs, "public/fr/index.html", defaultInSubDir, "Home", "Bonjour")
+	th.assertFileContent(t, fs, "public/en/index.html", defaultInSubDir, "Home", "Hello")
 
 	// Check list pages
-	assertFileContent(t, fs, "public/fr/sect/index.html", defaultInSubDir, "List", "Bonjour")
-	assertFileContent(t, fs, "public/en/sect/index.html", defaultInSubDir, "List", "Hello")
-	assertFileContent(t, fs, "public/fr/plaques/frtag1/index.html", defaultInSubDir, "List", "Bonjour")
-	assertFileContent(t, fs, "public/en/tags/tag1/index.html", defaultInSubDir, "List", "Hello")
+	th.assertFileContent(t, fs, "public/fr/sect/index.html", defaultInSubDir, "List", "Bonjour")
+	th.assertFileContent(t, fs, "public/en/sect/index.html", defaultInSubDir, "List", "Hello")
+	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/index.html", defaultInSubDir, "List", "Bonjour")
+	th.assertFileContent(t, fs, "public/en/tags/tag1/index.html", defaultInSubDir, "List", "Hello")
 
 	// Check sitemaps
 	// Sitemaps behaves different: In a multilanguage setup there will always be a index file and
 	// one sitemap in each lang folder.
-	assertFileContent(t, fs, "public/sitemap.xml", true,
+	th.assertFileContent(t, fs, "public/sitemap.xml", true,
 		"<loc>http://example.com/blog/en/sitemap.xml</loc>",
 		"<loc>http://example.com/blog/fr/sitemap.xml</loc>")
 
 	if defaultInSubDir {
-		assertFileContent(t, fs, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/fr/</loc>")
+		th.assertFileContent(t, fs, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/fr/</loc>")
 	} else {
-		assertFileContent(t, fs, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/</loc>")
+		th.assertFileContent(t, fs, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/</loc>")
 	}
-	assertFileContent(t, fs, "public/en/sitemap.xml", true, "<loc>http://example.com/blog/en/</loc>")
+	th.assertFileContent(t, fs, "public/en/sitemap.xml", true, "<loc>http://example.com/blog/en/</loc>")
 
 	// Check rss
-	assertFileContent(t, fs, "public/fr/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/index.xml"`)
-	assertFileContent(t, fs, "public/en/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/index.xml"`)
-	assertFileContent(t, fs, "public/fr/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
-	assertFileContent(t, fs, "public/en/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
-	assertFileContent(t, fs, "public/fr/plaques/frtag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
-	assertFileContent(t, fs, "public/en/tags/tag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
+	th.assertFileContent(t, fs, "public/fr/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/index.xml"`)
+	th.assertFileContent(t, fs, "public/en/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/index.xml"`)
+	th.assertFileContent(t, fs, "public/fr/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
+	th.assertFileContent(t, fs, "public/en/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
+	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
+	th.assertFileContent(t, fs, "public/en/tags/tag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
 
 	// Check paginators
-	assertFileContent(t, fs, "public/fr/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/"`)
-	assertFileContent(t, fs, "public/en/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/"`)
-	assertFileContent(t, fs, "public/fr/page/2/index.html", defaultInSubDir, "Home Page 2", "Bonjour", "http://example.com/blog/fr/")
-	assertFileContent(t, fs, "public/en/page/2/index.html", defaultInSubDir, "Home Page 2", "Hello", "http://example.com/blog/en/")
-	assertFileContent(t, fs, "public/fr/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/sect/"`)
-	assertFileContent(t, fs, "public/en/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/sect/"`)
-	assertFileContent(t, fs, "public/fr/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/sect/")
-	assertFileContent(t, fs, "public/en/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/sect/")
-	assertFileContent(t, fs, "public/fr/plaques/frtag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`)
-	assertFileContent(t, fs, "public/en/tags/tag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
-	assertFileContent(t, fs, "public/fr/plaques/frtag1/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
-	assertFileContent(t, fs, "public/en/tags/tag1/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
+	th.assertFileContent(t, fs, "public/fr/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/"`)
+	th.assertFileContent(t, fs, "public/en/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/"`)
+	th.assertFileContent(t, fs, "public/fr/page/2/index.html", defaultInSubDir, "Home Page 2", "Bonjour", "http://example.com/blog/fr/")
+	th.assertFileContent(t, fs, "public/en/page/2/index.html", defaultInSubDir, "Home Page 2", "Hello", "http://example.com/blog/en/")
+	th.assertFileContent(t, fs, "public/fr/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/sect/"`)
+	th.assertFileContent(t, fs, "public/en/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/sect/"`)
+	th.assertFileContent(t, fs, "public/fr/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/sect/")
+	th.assertFileContent(t, fs, "public/en/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/sect/")
+	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`)
+	th.assertFileContent(t, fs, "public/en/tags/tag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
+	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
+	th.assertFileContent(t, fs, "public/en/tags/tag1/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
 	// nn (Nynorsk) and nb (Bokmål) have custom pagePath: side ("page" in Norwegian)
-	assertFileContent(t, fs, "public/nn/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nn/"`)
-	assertFileContent(t, fs, "public/nb/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nb/"`)
+	th.assertFileContent(t, fs, "public/nn/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nn/"`)
+	th.assertFileContent(t, fs, "public/nb/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nb/"`)
 }
 
-func replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) string {
-	replace := viper.GetString("defaultContentLanguage") + "/"
+type testHelper struct {
+	Cfg config.Provider
+}
+
+func (th testHelper) replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) string {
+	replace := th.Cfg.GetString("defaultContentLanguage") + "/"
 	if !defaultInSubDir {
 		value = strings.Replace(value, replace, "", 1)
 
@@ -167,36 +153,33 @@ func replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) stri
 
 }
 
-func assertFileContent(t *testing.T, fs *hugofs.Fs, filename string, defaultInSubDir bool, matches ...string) {
-	filename = replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+func (th testHelper) assertFileContent(t *testing.T, fs *hugofs.Fs, filename string, defaultInSubDir bool, matches ...string) {
+	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
 	content := readDestination(t, fs, filename)
 	for _, match := range matches {
-		match = replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
 		require.True(t, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
 	}
 }
 
-func assertFileContentRegexp(t *testing.T, fs *hugofs.Fs, filename string, defaultInSubDir bool, matches ...string) {
-	filename = replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+func (th testHelper) assertFileContentRegexp(t *testing.T, fs *hugofs.Fs, filename string, defaultInSubDir bool, matches ...string) {
+	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
 	content := readDestination(t, fs, filename)
 	for _, match := range matches {
-		match = replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
 		r := regexp.MustCompile(match)
-		require.True(t, r.MatchString(content), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", match, filename, content))
+		require.True(t, r.MatchString(content), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
 	}
 }
 
 func TestMultiSitesWithTwoLanguages(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	mm := afero.NewMemMapFs()
 
-	viper.Set("defaultContentLanguage", "nn")
+	writeToFs(t, mm, "config.toml", `
 
-	fs := hugofs.NewMem()
+defaultContentLanguage = "nn"
 
-	depsCfg := deps.DepsCfg{Fs: fs}
-	viper.SetFs(depsCfg.Fs.Source)
-
-	writeSource(t, depsCfg.Fs, "config.toml", `
 [languages]
 [languages.nn]
 languageName = "Nynorsk"
@@ -210,11 +193,12 @@ weight = 2
 `,
 	)
 
-	if err := LoadGlobalConfig("", "config.toml"); err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
+	cfg, err := LoadConfig(mm, "", "config.toml")
+	require.NoError(t, err)
 
-	sites, err := NewHugoSitesFromConfiguration(depsCfg)
+	fs := hugofs.NewFrom(mm, cfg)
+
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -238,100 +222,108 @@ weight = 2
 
 //
 func TestMultiSitesBuild(t *testing.T) {
+	t.Parallel()
+
 	for _, config := range []struct {
 		content string
 		suffix  string
 	}{
 		{multiSiteTOMLConfigTemplate, "toml"},
-		{multiSiteYAMLConfig, "yml"},
-		{multiSiteJSONConfig, "json"},
+		{multiSiteYAMLConfigTemplate, "yml"},
+		{multiSiteJSONConfigTemplate, "json"},
 	} {
 		doTestMultiSitesBuild(t, config.content, config.suffix)
 	}
 }
 
 func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
-	defer leaktest.Check(t)()
-	testCommonResetState()
-	fs := hugofs.NewMem()
-	siteConfig := testSiteConfig{DefaultContentLanguage: "fr", Fs: fs}
+	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
 	sites := createMultiTestSitesForConfig(t, siteConfig, configTemplate, configSuffix)
 
+	require.Len(t, sites.Sites, 4)
+
+	fs := sites.Fs
+	th := testHelper{sites.Cfg}
 	err := sites.Build(BuildCfg{})
 
 	if err != nil {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
+	// Check site config
+	for _, s := range sites.Sites {
+		require.True(t, s.Info.defaultContentLanguageInSubdir, s.Info.Title)
+	}
+
 	enSite := sites.Sites[0]
 	enSiteHome := enSite.getPage(KindHome)
 	require.True(t, enSiteHome.IsTranslated())
 
-	assert.Equal(t, "en", enSite.Language.Lang)
+	require.Equal(t, "en", enSite.Language.Lang)
 
 	if len(enSite.RegularPages) != 4 {
 		t.Fatal("Expected 4 english pages")
 	}
-	assert.Len(t, enSite.Source.Files(), 14, "should have 13 source files")
-	assert.Len(t, enSite.AllPages, 28, "should have 28 total pages (including translations and index types)")
+	require.Len(t, enSite.Source.Files(), 14, "should have 13 source files")
+	require.Len(t, enSite.AllPages, 28, "should have 28 total pages (including translations and index types)")
 
 	doc1en := enSite.RegularPages[0]
 	permalink := doc1en.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", permalink, "invalid doc1.en permalink")
-	assert.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
+	require.NoError(t, err, "permalink call failed")
+	require.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", permalink, "invalid doc1.en permalink")
+	require.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
 
 	doc2 := enSite.RegularPages[1]
 	permalink = doc2.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/en/sect/doc2/", permalink, "invalid doc2 permalink")
+	require.NoError(t, err, "permalink call failed")
+	require.Equal(t, "http://example.com/blog/en/sect/doc2/", permalink, "invalid doc2 permalink")
 
 	doc3 := enSite.RegularPages[2]
 	permalink = doc3.Permalink()
-	assert.NoError(t, err, "permalink call failed")
+	require.NoError(t, err, "permalink call failed")
 	// Note that /superbob is a custom URL set in frontmatter.
 	// We respect that URL literally (it can be /search.json)
 	// and do no not do any language code prefixing.
-	assert.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
+	require.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
 
-	assert.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
-	assertFileContent(t, fs, "public/superbob/index.html", true, "doc3|Hello|en")
-	assert.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
+	require.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
+	th.assertFileContent(t, fs, "public/superbob/index.html", true, "doc3|Hello|en")
+	require.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
 	doc1fr := doc1en.Translations()[0]
 	permalink = doc1fr.Permalink()
-	assert.NoError(t, err, "permalink call failed")
-	assert.Equal(t, "http://example.com/blog/fr/sect/doc1/", permalink, "invalid doc1fr permalink")
+	require.NoError(t, err, "permalink call failed")
+	require.Equal(t, "http://example.com/blog/fr/sect/doc1/", permalink, "invalid doc1fr permalink")
 
-	assert.Equal(t, doc1en.Translations()[0], doc1fr, "doc1-en should have doc1-fr as translation")
-	assert.Equal(t, doc1fr.Translations()[0], doc1en, "doc1-fr should have doc1-en as translation")
-	assert.Equal(t, "fr", doc1fr.Language().Lang)
+	require.Equal(t, doc1en.Translations()[0], doc1fr, "doc1-en should have doc1-fr as translation")
+	require.Equal(t, doc1fr.Translations()[0], doc1en, "doc1-fr should have doc1-en as translation")
+	require.Equal(t, "fr", doc1fr.Language().Lang)
 
 	doc4 := enSite.AllPages[4]
 	permalink = doc4.Permalink()
-	assert.Equal(t, "http://example.com/blog/fr/sect/doc4/", permalink, "invalid doc4 permalink")
-	assert.Equal(t, "/blog/fr/sect/doc4/", doc4.URL())
+	require.Equal(t, "http://example.com/blog/fr/sect/doc4/", permalink, "invalid doc4 permalink")
+	require.Equal(t, "/blog/fr/sect/doc4/", doc4.URL())
 
-	assert.Len(t, doc4.Translations(), 0, "found translations for doc4")
+	require.Len(t, doc4.Translations(), 0, "found translations for doc4")
 
 	doc5 := enSite.AllPages[5]
 	permalink = doc5.Permalink()
-	assert.Equal(t, "http://example.com/blog/fr/somewhere/else/doc5", permalink, "invalid doc5 permalink")
+	require.Equal(t, "http://example.com/blog/fr/somewhere/else/doc5", permalink, "invalid doc5 permalink")
 
 	// Taxonomies and their URLs
-	assert.Len(t, enSite.Taxonomies, 1, "should have 1 taxonomy")
+	require.Len(t, enSite.Taxonomies, 1, "should have 1 taxonomy")
 	tags := enSite.Taxonomies["tags"]
-	assert.Len(t, tags, 2, "should have 2 different tags")
-	assert.Equal(t, tags["tag1"][0].Page, doc1en, "first tag1 page should be doc1")
+	require.Len(t, tags, 2, "should have 2 different tags")
+	require.Equal(t, tags["tag1"][0].Page, doc1en, "first tag1 page should be doc1")
 
 	frSite := sites.Sites[1]
 
-	assert.Equal(t, "fr", frSite.Language.Lang)
-	assert.Len(t, frSite.RegularPages, 3, "should have 3 pages")
-	assert.Len(t, frSite.AllPages, 28, "should have 28 total pages (including translations and nodes)")
+	require.Equal(t, "fr", frSite.Language.Lang)
+	require.Len(t, frSite.RegularPages, 3, "should have 3 pages")
+	require.Len(t, frSite.AllPages, 28, "should have 28 total pages (including translations and nodes)")
 
 	for _, frenchPage := range frSite.RegularPages {
-		assert.Equal(t, "fr", frenchPage.Lang())
+		require.Equal(t, "fr", frenchPage.Lang())
 	}
 
 	// Check redirect to main language, French
@@ -339,12 +331,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
 
 	// check home page content (including data files rendering)
-	assertFileContent(t, fs, "public/en/index.html", true, "Home Page 1", "Hello", "Hugo Rocks!")
-	assertFileContent(t, fs, "public/fr/index.html", true, "Home Page 1", "Bonjour", "Hugo Rocks!")
+	th.assertFileContent(t, fs, "public/en/index.html", true, "Home Page 1", "Hello", "Hugo Rocks!")
+	th.assertFileContent(t, fs, "public/fr/index.html", true, "Home Page 1", "Bonjour", "Hugo Rocks!")
 
 	// check single page content
-	assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
-	assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
+	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
+	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
 
 	// Check node translations
 	homeEn := enSite.getPage(KindHome)
@@ -397,9 +389,9 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	readDestination(t, fs, "public/en/tags/tag1/index.html")
 
 	// Check Blackfriday config
-	assert.True(t, strings.Contains(string(doc1fr.Content), "&laquo;"), string(doc1fr.Content))
-	assert.False(t, strings.Contains(string(doc1en.Content), "&laquo;"), string(doc1en.Content))
-	assert.True(t, strings.Contains(string(doc1en.Content), "&ldquo;"), string(doc1en.Content))
+	require.True(t, strings.Contains(string(doc1fr.Content), "&laquo;"), string(doc1fr.Content))
+	require.False(t, strings.Contains(string(doc1en.Content), "&laquo;"), string(doc1en.Content))
+	require.True(t, strings.Contains(string(doc1en.Content), "&ldquo;"), string(doc1en.Content))
 
 	// Check that the drafts etc. are not built/processed/rendered.
 	assertShouldNotBuild(t, sites)
@@ -415,13 +407,14 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
-
+	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	defer leaktest.Check(t)()
-	testCommonResetState()
-	fs := hugofs.NewMem()
-	siteConfig := testSiteConfig{DefaultContentLanguage: "fr", Fs: fs}
+
+	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
+	fs := sites.Fs
 	cfg := BuildCfg{Watching: true}
+	th := testHelper{sites.Cfg}
 
 	err := sites.Build(cfg)
 
@@ -442,12 +435,12 @@ func TestMultiSitesRebuild(t *testing.T) {
 	require.Len(t, frSite.RegularPages, 3)
 
 	// Verify translations
-	assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Hello")
-	assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Bonjour")
+	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Hello")
+	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Bonjour")
 
 	// check single page content
-	assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
-	assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
+	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
+	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -585,8 +578,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
 				require.Len(t, enSite.AllPages, 30)
 				require.Len(t, frSite.RegularPages, 4)
-				assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Modified Shortcode: Salut")
-				assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Modified Shortcode: Hello")
+				th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Modified Shortcode: Salut")
+				th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Modified Shortcode: Hello")
 			},
 		},
 	} {
@@ -630,9 +623,8 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 }
 
 func TestAddNewLanguage(t *testing.T) {
-	testCommonResetState()
-	fs := hugofs.NewMem()
-	siteConfig := testSiteConfig{DefaultContentLanguage: "fr", Fs: fs}
+	t.Parallel()
+	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
 
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	cfg := BuildCfg{}
@@ -642,6 +634,8 @@ func TestAddNewLanguage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
+
+	fs := sites.Fs
 
 	newConfig := multiSiteTOMLConfigTemplate + `
 
@@ -657,7 +651,7 @@ title = "Svenska"
 	writeSource(t, fs, "multilangconfig.toml", newConfig)
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
-	require.NoError(t, viper.ReadInConfig())
+	require.NoError(t, sites.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
 	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
 
 	if err != nil {
@@ -694,11 +688,15 @@ title = "Svenska"
 }
 
 func TestChangeDefaultLanguage(t *testing.T) {
-	testCommonResetState()
-	viper.Set("defaultContentLanguageInSubdir", false)
-	fs := hugofs.NewMem()
-	sites := createMultiTestSites(t, testSiteConfig{DefaultContentLanguage: "fr", Fs: fs}, multiSiteTOMLConfigTemplate)
+	t.Parallel()
+	mf := afero.NewMemMapFs()
+
+	sites := createMultiTestSites(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: false}, multiSiteTOMLConfigTemplate)
+
+	require.Equal(t, mf, sites.Fs.Source)
+
 	cfg := BuildCfg{}
+	th := testHelper{sites.Cfg}
 
 	err := sites.Build(cfg)
 
@@ -706,16 +704,19 @@ func TestChangeDefaultLanguage(t *testing.T) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	assertFileContent(t, fs, "public/sect/doc1/index.html", true, "Single", "Bonjour")
-	assertFileContent(t, fs, "public/en/sect/doc2/index.html", true, "Single", "Hello")
+	fs := sites.Fs
 
-	newConfig := createConfig(t, testSiteConfig{DefaultContentLanguage: "en"}, multiSiteTOMLConfigTemplate)
+	th.assertFileContent(t, fs, "public/sect/doc1/index.html", false, "Single", "Bonjour")
+	th.assertFileContent(t, fs, "public/en/sect/doc2/index.html", false, "Single", "Hello")
+
+	newConfig := createConfig(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "en", DefaultContentLanguageInSubdir: false}, multiSiteTOMLConfigTemplate)
 
 	// replace the config
 	writeSource(t, fs, "multilangconfig.toml", newConfig)
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
-	require.NoError(t, viper.ReadInConfig())
+	// This does not look pretty, so we should think of something else.
+	require.NoError(t, th.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
 	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
 
 	if err != nil {
@@ -723,19 +724,19 @@ func TestChangeDefaultLanguage(t *testing.T) {
 	}
 
 	// Default language is now en, so that should now be the "root" language
-	assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Bonjour")
-	assertFileContent(t, fs, "public/sect/doc2/index.html", true, "Single", "Hello")
+	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", false, "Single", "Bonjour")
+	th.assertFileContent(t, fs, "public/sect/doc2/index.html", false, "Single", "Hello")
 }
 
 func TestTableOfContentsInShortcodes(t *testing.T) {
-	testCommonResetState()
-	fs := hugofs.NewMem()
+	t.Parallel()
+	mf := afero.NewMemMapFs()
 
-	writeSource(t, fs, "layouts/shortcodes/toc.html", tocShortcode)
-	writeSource(t, fs, "content/post/simple.en.md", tocPageSimple)
-	writeSource(t, fs, "content/post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
+	writeToFs(t, mf, "layouts/shortcodes/toc.html", tocShortcode)
+	writeToFs(t, mf, "content/post/simple.en.md", tocPageSimple)
+	writeToFs(t, mf, "content/post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
 
-	sites := createMultiTestSites(t, testSiteConfig{DefaultContentLanguage: "en", Fs: fs}, multiSiteTOMLConfigTemplate)
+	sites := createMultiTestSites(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "en", DefaultContentLanguageInSubdir: true}, multiSiteTOMLConfigTemplate)
 
 	cfg := BuildCfg{}
 
@@ -745,8 +746,11 @@ func TestTableOfContentsInShortcodes(t *testing.T) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	assertFileContent(t, fs, "public/en/post/simple/index.html", true, tocPageSimpleExpected)
-	assertFileContent(t, fs, "public/en/post/withSCInHeading/index.html", true, tocPageWithShortcodesInHeadingsExpected)
+	th := testHelper{sites.Cfg}
+	fs := sites.Fs
+
+	th.assertFileContent(t, fs, "public/en/post/simple/index.html", true, tocPageSimpleExpected)
+	th.assertFileContent(t, fs, "public/en/post/withSCInHeading/index.html", true, tocPageWithShortcodesInHeadingsExpected)
 }
 
 var tocShortcode = `
@@ -836,6 +840,7 @@ rssURI = "index.xml"
 
 paginate = 1
 defaultContentLanguage = "{{ .DefaultContentLanguage }}"
+defaultContentLanguageInSubdir = {{ .DefaultContentLanguageInSubdir }}
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -886,7 +891,7 @@ paginatePath = "side"
 lag = "lag"
 `
 
-var multiSiteYAMLConfig = `
+var multiSiteYAMLConfigTemplate = `
 defaultExtension: "html"
 baseURL: "http://example.com/blog"
 disableSitemap: false
@@ -894,7 +899,8 @@ disableRSS: false
 rssURI: "index.xml"
 
 paginate: 1
-defaultContentLanguage: "fr"
+defaultContentLanguage: "{{ .DefaultContentLanguage }}"
+defaultContentLanguageInSubdir: {{ .DefaultContentLanguageInSubdir }}
 
 permalinks:
     other: "/somewhere/else/:filename"
@@ -945,7 +951,7 @@ Languages:
 
 `
 
-var multiSiteJSONConfig = `
+var multiSiteJSONConfigTemplate = `
 {
   "defaultExtension": "html",
   "baseURL": "http://example.com/blog",
@@ -953,7 +959,8 @@ var multiSiteJSONConfig = `
   "disableRSS": false,
   "rssURI": "index.xml",
   "paginate": 1,
-  "defaultContentLanguage": "fr",
+  "defaultContentLanguage": "{{ .DefaultContentLanguage }}",
+  "defaultContentLanguageInSubdir": true,
   "permalinks": {
     "other": "/somewhere/else/:filename"
   },
@@ -1026,25 +1033,26 @@ func createMultiTestSites(t *testing.T, siteConfig testSiteConfig, tomlConfigTem
 
 func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, configTemplate, configSuffix string) *HugoSites {
 
-	depsCfg := deps.DepsCfg{Fs: siteConfig.Fs}
 	configContent := createConfig(t, siteConfig, configTemplate)
 
+	mf := siteConfig.Fs
+
 	// Add some layouts
-	if err := afero.WriteFile(depsCfg.Fs.Source,
+	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "_default/single.html"),
 		[]byte("Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
 
-	if err := afero.WriteFile(depsCfg.Fs.Source,
+	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "_default/list.html"),
 		[]byte("{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
 
-	if err := afero.WriteFile(depsCfg.Fs.Source,
+	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "index.html"),
 		[]byte("{{ $p := .Paginator }}Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
 		0755); err != nil {
@@ -1052,7 +1060,7 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 	}
 
 	// Add a shortcode
-	if err := afero.WriteFile(depsCfg.Fs.Source,
+	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "shortcodes", "shortcode.html"),
 		[]byte("Shortcode: {{ i18n \"hello\" }}"),
 		0755); err != nil {
@@ -1060,7 +1068,7 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 	}
 
 	// Add some language files
-	if err := afero.WriteFile(depsCfg.Fs.Source,
+	if err := afero.WriteFile(mf,
 		filepath.Join("i18n", "en.yaml"),
 		[]byte(`
 - id: hello
@@ -1069,7 +1077,7 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 		0755); err != nil {
 		t.Fatalf("Failed to write language file: %s", err)
 	}
-	if err := afero.WriteFile(depsCfg.Fs.Source,
+	if err := afero.WriteFile(mf,
 		filepath.Join("i18n", "fr.yaml"),
 		[]byte(`
 - id: hello
@@ -1223,26 +1231,25 @@ lag:
 	}
 
 	configFile := "multilangconfig." + configSuffix
-	writeSource(t, depsCfg.Fs, configFile, configContent)
+	writeToFs(t, mf, configFile, configContent)
 
-	viper.SetFs(depsCfg.Fs.Source)
+	cfg, err := LoadConfig(mf, "", configFile)
+	require.NoError(t, err)
 
-	if err := LoadGlobalConfig("", configFile); err != nil {
-		t.Fatalf("Failed to load config: %s", err)
-	}
+	fs := hugofs.NewFrom(mf, cfg)
 
 	// Hugo support using ByteSource's directly (for testing),
 	// but to make it more real, we write them to the mem file system.
 	for _, s := range sources {
-		if err := afero.WriteFile(depsCfg.Fs.Source, filepath.Join("content", s.Name), s.Content, 0755); err != nil {
+		if err := afero.WriteFile(mf, filepath.Join("content", s.Name), s.Content, 0755); err != nil {
 			t.Fatalf("Failed to write file: %s", err)
 		}
 	}
 
 	// Add some data
-	writeSource(t, depsCfg.Fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
+	writeSource(t, fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
 
-	sites, err := NewHugoSitesFromConfiguration(depsCfg)
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg}) //, Logger: newDebugLogger()})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -1252,11 +1259,19 @@ lag:
 		t.Fatalf("Got %d sites", len(sites.Sites))
 	}
 
+	if sites.Fs.Source != mf {
+		t.Fatal("FS mismatch")
+	}
+
 	return sites
 }
 
 func writeSource(t *testing.T, fs *hugofs.Fs, filename, content string) {
-	if err := afero.WriteFile(fs.Source, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
+	writeToFs(t, fs.Source, filename, content)
+}
+
+func writeToFs(t *testing.T, fs afero.Fs, filename, content string) {
+	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
 		t.Fatalf("Failed to write file: %s", err)
 	}
 }

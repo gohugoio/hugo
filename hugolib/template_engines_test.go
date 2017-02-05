@@ -20,13 +20,11 @@ import (
 
 	"strings"
 
-	"github.com/spf13/viper"
-
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
 )
 
 func TestAllTemplateEngines(t *testing.T) {
+	t.Parallel()
 	noOp := func(s string) string {
 		return s
 	}
@@ -57,10 +55,7 @@ func TestAllTemplateEngines(t *testing.T) {
 
 func doTestTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
 
-	testCommonResetState()
-
-	fs := hugofs.NewMem()
-	viper.SetFs(fs.Source)
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "p.md"), `
 ---
@@ -88,9 +83,10 @@ p
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	th := testHelper{s.Cfg}
 
-	assertFileContent(t, fs, filepath.Join("public", "p", "index.html"), true,
+	th.assertFileContent(t, fs, filepath.Join("public", "p", "index.html"), true,
 		"Page Title: My Title",
 		"My Content",
 		"Hello World",

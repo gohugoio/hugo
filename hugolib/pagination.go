@@ -21,6 +21,8 @@ import (
 	"path"
 	"reflect"
 
+	"github.com/spf13/hugo/config"
+
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 )
@@ -266,7 +268,7 @@ func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 	if !p.IsNode() {
 		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.Title)
 	}
-	pagerSize, err := resolvePagerSize(options...)
+	pagerSize, err := resolvePagerSize(p.s.Cfg, options...)
 
 	if err != nil {
 		return nil, err
@@ -310,7 +312,7 @@ func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.Title)
 	}
 
-	pagerSize, err := resolvePagerSize(options...)
+	pagerSize, err := resolvePagerSize(p.s.Cfg, options...)
 
 	if err != nil {
 		return nil, err
@@ -353,9 +355,9 @@ func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 	return p.paginator, nil
 }
 
-func resolvePagerSize(options ...interface{}) (int, error) {
+func resolvePagerSize(cfg config.Provider, options ...interface{}) (int, error) {
 	if len(options) == 0 {
-		return helpers.Config().GetInt("paginate"), nil
+		return cfg.GetInt("paginate"), nil
 	}
 
 	if len(options) > 1 {

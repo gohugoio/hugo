@@ -121,6 +121,7 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 	// but that seems like a daunting task.
 	// So for now, if there are more than one site (language),
 	// we pre-process the first one, then configure all the sites based on that.
+
 	firstSite := h.Sites[0]
 
 	if len(events) > 0 {
@@ -169,9 +170,6 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
-		if err := s.setCurrentLanguageConfig(); err != nil {
-			return err
-		}
 		s.preparePagesForRender(config)
 	}
 

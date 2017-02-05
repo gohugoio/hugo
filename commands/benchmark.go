@@ -54,7 +54,7 @@ func benchmark(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c := commandeer{cfg}
+	c := newCommandeer(cfg)
 
 	var memProf *os.File
 	if memProfileFile != "" {

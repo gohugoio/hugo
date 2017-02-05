@@ -19,7 +19,6 @@ import (
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
 )
 
 func init() {
@@ -42,6 +41,13 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 	if _, err := page.ReadFrom(f.Contents); err != nil {
 		return HandledResult{file: f, err: err}
 	}
+
+	// In a multilanguage setup, we use the first site to
+	// do the initial processing.
+	// That site may be different than where the page will end up,
+	// so we do the assignment here.
+	// We should clean up this, but that will have to wait.
+	s.assignSiteByLanguage(page)
 
 	return HandledResult{file: f, page: page, err: err}
 }
@@ -117,7 +123,7 @@ func commonConvert(p *Page) HandledResult {
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
 	// process a page in isolation. See the new preRender func.
-	if viper.GetBool("enableEmoji") {
+	if p.s.Cfg.GetBool("enableEmoji") {
 		p.workContent = helpers.Emojify(p.workContent)
 	}
 

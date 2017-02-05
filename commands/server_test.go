@@ -20,8 +20,6 @@ import (
 )
 
 func TestFixURL(t *testing.T) {
-	defer viper.Reset()
-
 	type data struct {
 		TestName   string
 		CLIBaseURL string
@@ -44,12 +42,12 @@ func TestFixURL(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		viper.Reset()
+		v := viper.New()
 		baseURL = test.CLIBaseURL
-		viper.Set("baseURL", test.CfgBaseURL)
+		v.Set("baseURL", test.CfgBaseURL)
 		serverAppend = test.AppendPort
 		serverPort = test.Port
-		result, err := fixURL(baseURL)
+		result, err := fixURL(v, baseURL)
 		if err != nil {
 			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
 		}

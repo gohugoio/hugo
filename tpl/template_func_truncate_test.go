@@ -21,6 +21,7 @@ import (
 )
 
 func TestTruncate(t *testing.T) {
+	t.Parallel()
 	var err error
 	cases := []struct {
 		v1    interface{}

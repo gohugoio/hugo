@@ -14,13 +14,15 @@
 package hugolib
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestScratchAdd(t *testing.T) {
+	t.Parallel()
 	scratch := newScratch()
 	scratch.Add("int1", 10)
 	scratch.Add("int1", 20)
@@ -50,6 +52,7 @@ func TestScratchAdd(t *testing.T) {
 }
 
 func TestScratchAddSlice(t *testing.T) {
+	t.Parallel()
 	scratch := newScratch()
 
 	_, err := scratch.Add("intSlice", []int{1, 2})
@@ -78,6 +81,7 @@ func TestScratchAddSlice(t *testing.T) {
 }
 
 func TestScratchSet(t *testing.T) {
+	t.Parallel()
 	scratch := newScratch()
 	scratch.Set("key", "val")
 	assert.Equal(t, "val", scratch.Get("key"))
@@ -119,6 +123,7 @@ func TestScratchInParallel(t *testing.T) {
 }
 
 func TestScratchGet(t *testing.T) {
+	t.Parallel()
 	scratch := newScratch()
 	nothing := scratch.Get("nothing")
 	if nothing != nil {
@@ -127,6 +132,7 @@ func TestScratchGet(t *testing.T) {
 }
 
 func TestScratchSetInMap(t *testing.T) {
+	t.Parallel()
 	scratch := newScratch()
 	scratch.SetInMap("key", "lux", "Lux")
 	scratch.SetInMap("key", "abc", "Abc")
@@ -137,6 +143,7 @@ func TestScratchSetInMap(t *testing.T) {
 }
 
 func TestScratchGetSortedMapValues(t *testing.T) {
+	t.Parallel()
 	scratch := newScratch()
 	nothing := scratch.GetSortedMapValues("nothing")
 	if nothing != nil {

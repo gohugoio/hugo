@@ -24,7 +24,6 @@ import (
 	"unicode"
 
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 )
@@ -153,41 +152,41 @@ func ReplaceExtension(path string, newExt string) string {
 
 // AbsPathify creates an absolute path if given a relative path. If already
 // absolute, the path is just cleaned.
-func AbsPathify(inPath string) string {
+func (p *PathSpec) AbsPathify(inPath string) string {
 	if filepath.IsAbs(inPath) {
 		return filepath.Clean(inPath)
 	}
 
 	// TODO(bep): Consider moving workingDir to argument list
-	return filepath.Clean(filepath.Join(viper.GetString("workingDir"), inPath))
+	return filepath.Clean(filepath.Join(p.workingDir, inPath))
 }
 
 // GetLayoutDirPath returns the absolute path to the layout file dir
 // for the current Hugo project.
-func GetLayoutDirPath() string {
-	return AbsPathify(viper.GetString("layoutDir"))
+func (p *PathSpec) GetLayoutDirPath() string {
+	return p.AbsPathify(p.layoutDir)
 }
 
 // GetStaticDirPath returns the absolute path to the static file dir
 // for the current Hugo project.
-func GetStaticDirPath() string {
-	return AbsPathify(viper.GetString("staticDir"))
+func (p *PathSpec) GetStaticDirPath() string {
+	return p.AbsPathify(p.staticDir)
 }
 
 // GetThemeDir gets the root directory of the current theme, if there is one.
 // If there is no theme, returns the empty string.
-func GetThemeDir() string {
-	if ThemeSet() {
-		return AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")))
+func (p *PathSpec) GetThemeDir() string {
+	if p.ThemeSet() {
+		return p.AbsPathify(filepath.Join(p.themesDir, p.theme))
 	}
 	return ""
 }
 
 // GetRelativeThemeDir gets the relative root directory of the current theme, if there is one.
 // If there is no theme, returns the empty string.
-func GetRelativeThemeDir() string {
-	if ThemeSet() {
-		return strings.TrimPrefix(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")), FilePathSeparator)
+func (p *PathSpec) GetRelativeThemeDir() string {
+	if p.ThemeSet() {
+		return strings.TrimPrefix(filepath.Join(p.themesDir, p.theme), FilePathSeparator)
 	}
 	return ""
 }
@@ -211,13 +210,13 @@ func (p *PathSpec) GetThemeI18nDirPath() (string, error) {
 }
 
 func (p *PathSpec) getThemeDirPath(path string) (string, error) {
-	if !ThemeSet() {
+	if !p.ThemeSet() {
 		return "", ErrThemeUndefined
 	}
 
-	themeDir := filepath.Join(GetThemeDir(), path)
+	themeDir := filepath.Join(p.GetThemeDir(), path)
 	if _, err := p.fs.Source.Stat(themeDir); os.IsNotExist(err) {
-		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
+		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, p.theme, themeDir)
 	}
 
 	return themeDir, nil
@@ -235,7 +234,7 @@ func (p *PathSpec) GetThemesDirPath() string {
 // It does so by taking either the project's static path or the theme's static
 // path into consideration.
 func (p *PathSpec) MakeStaticPathRelative(inPath string) (string, error) {
-	staticDir := GetStaticDirPath()
+	staticDir := p.GetStaticDirPath()
 	themeStaticDir := p.GetThemesDirPath()
 
 	return makePathRelative(inPath, staticDir, themeStaticDir)
@@ -360,20 +359,20 @@ func GetRelativePath(path, base string) (final string, err error) {
 }
 
 // PaginateAliasPath creates a path used to access the aliases in the paginator.
-func PaginateAliasPath(base string, page int) string {
-	paginatePath := Config().GetString("paginatePath")
-	uglify := viper.GetBool("uglyURLs")
-	var p string
+func (p *PathSpec) PaginateAliasPath(base string, page int) string {
+	paginatePath := p.paginatePath
+	uglify := p.uglyURLs
+	var pth string
 	if base != "" {
-		p = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))
+		pth = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))
 	} else {
-		p = filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, page))
+		pth = filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, page))
 	}
 	if uglify {
-		p += ".html"
+		pth += ".html"
 	}
 
-	return p
+	return pth
 }
 
 // GuessSection returns the section given a source path.

@@ -21,6 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"sync"
+
 	"github.com/eknkc/amber"
 	"github.com/spf13/afero"
 	bp "github.com/spf13/hugo/bufferpool"
@@ -30,6 +32,9 @@ import (
 )
 
 // TODO(bep) globals get rid of the rest of the jww.ERR etc.
+
+// Protecting global map access (Amber)
+var amberMu sync.Mutex
 
 type templateErr struct {
 	name string
@@ -132,6 +137,7 @@ func (t *GoHTMLTemplate) initFuncs(d *deps.Deps) {
 
 	t.amberFuncMap = template.FuncMap{}
 
+	amberMu.Lock()
 	for k, v := range amber.FuncMap {
 		t.amberFuncMap[k] = v
 	}
@@ -143,6 +149,7 @@ func (t *GoHTMLTemplate) initFuncs(d *deps.Deps) {
 			panic("should never be invoked")
 		}
 	}
+	amberMu.Unlock()
 
 }
 
@@ -362,7 +369,9 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 
+		amberMu.Lock()
 		templ, err := t.CompileAmberWithTemplate(b, path, t.New(templateName))
+		amberMu.Unlock()
 		if err != nil {
 			return err
 		}
@@ -482,11 +491,11 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				}
 				if needsBase {
 
-					layoutDir := helpers.GetLayoutDirPath()
+					layoutDir := t.PathSpec.GetLayoutDirPath()
 					currBaseFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseFileName)
 					templateDir := filepath.Dir(path)
-					themeDir := filepath.Join(helpers.GetThemeDir())
-					relativeThemeLayoutsDir := filepath.Join(helpers.GetRelativeThemeDir(), "layouts")
+					themeDir := filepath.Join(t.PathSpec.GetThemeDir())
+					relativeThemeLayoutsDir := filepath.Join(t.PathSpec.GetRelativeThemeDir(), "layouts")
 
 					var baseTemplatedDir string
 

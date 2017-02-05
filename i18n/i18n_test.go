@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2017 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,16 +11,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tpl
+package i18n
 
 import (
 	"testing"
 
+	"io/ioutil"
+	"os"
+
+	"log"
+
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/config"
+	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+var logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 
 type i18nTest struct {
 	data                             map[string][]byte
@@ -106,7 +114,7 @@ var i18nTests = []i18nTest{
 	},
 }
 
-func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, args interface{}) string {
+func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, args interface{}, cfg config.Provider) string {
 	i18nBundle := bundle.New()
 
 	for file, content := range data {
@@ -116,25 +124,23 @@ func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, 
 		}
 	}
 
-	SetI18nTfuncs(i18nBundle)
-	SetTranslateLang(helpers.NewLanguage(lang))
+	translator := NewTranslator(i18nBundle, cfg, logger)
 
-	translated, err := i18nTranslate(id, args)
-	if err != nil {
-		t.Errorf("Error translating '%s': %s", id, err)
-	}
+	f := translator.Func(lang)
+
+	translated := f(id, args)
+
 	return translated
 }
 
 func TestI18nTranslate(t *testing.T) {
 	var actual, expected string
-
-	viper.SetDefault("defaultContentLanguage", "en")
-	viper.Set("currentContentLanguage", helpers.NewLanguage("en"))
+	v := viper.New()
+	v.SetDefault("defaultContentLanguage", "en")
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {
-		viper.Set("enableMissingTranslationPlaceholders", enablePlaceholders)
+		v.Set("enableMissingTranslationPlaceholders", enablePlaceholders)
 
 		for _, test := range i18nTests {
 			if enablePlaceholders {
@@ -142,8 +148,8 @@ func TestI18nTranslate(t *testing.T) {
 			} else {
 				expected = test.expected
 			}
-			actual = doTestI18nTranslate(t, test.data, test.lang, test.id, test.args)
-			assert.Equal(t, expected, actual)
+			actual = doTestI18nTranslate(t, test.data, test.lang, test.id, test.args, v)
+			require.Equal(t, expected, actual)
 		}
 	}
 }

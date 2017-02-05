@@ -46,7 +46,6 @@ import (
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 
 	// Importing image codecs for image.DecodeConfig
 	_ "image/gif"
@@ -58,7 +57,6 @@ import (
 type templateFuncster struct {
 	funcMap        template.FuncMap
 	cachedPartials partialCache
-
 	*deps.Deps
 }
 
@@ -398,6 +396,7 @@ func intersect(l1, l2 interface{}) (interface{}, error) {
 }
 
 // ResetCaches resets all caches that might be used during build.
+// TODO(bep) globals move image config cache to funcster
 func ResetCaches() {
 	resetImageConfigCache()
 }
@@ -1357,31 +1356,29 @@ func returnWhenSet(a, k interface{}) interface{} {
 }
 
 // highlight returns an HTML string with syntax highlighting applied.
-func highlight(in interface{}, lang, opts string) (template.HTML, error) {
+func (t *templateFuncster) highlight(in interface{}, lang, opts string) (template.HTML, error) {
 	str, err := cast.ToStringE(in)
 
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(helpers.Highlight(html.UnescapeString(str), lang, opts)), nil
+	return template.HTML(helpers.Highlight(t.Cfg, html.UnescapeString(str), lang, opts)), nil
 }
 
 var markdownTrimPrefix = []byte("<p>")
 var markdownTrimSuffix = []byte("</p>\n")
 
 // markdownify renders a given string from Markdown to HTML.
-func markdownify(in interface{}) (template.HTML, error) {
+func (t *templateFuncster) markdownify(in interface{}) (template.HTML, error) {
 	text, err := cast.ToStringE(in)
 	if err != nil {
 		return "", err
 	}
 
-	language := viper.Get("currentContentLanguage").(*helpers.Language)
-
-	m := helpers.RenderBytes(&helpers.RenderingContext{
-		ConfigProvider: language,
-		Content:        []byte(text), PageFmt: "markdown"})
+	m := t.ContentSpec.RenderBytes(&helpers.RenderingContext{
+		Cfg:     t.Cfg,
+		Content: []byte(text), PageFmt: "markdown"})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
 	return template.HTML(m), nil
@@ -2143,7 +2140,7 @@ func (t *templateFuncster) initFuncMap() {
 		"getenv":        getenv,
 		"gt":            gt,
 		"hasPrefix":     hasPrefix,
-		"highlight":     highlight,
+		"highlight":     t.highlight,
 		"htmlEscape":    htmlEscape,
 		"htmlUnescape":  htmlUnescape,
 		"humanize":      humanize,
@@ -2159,7 +2156,7 @@ func (t *templateFuncster) initFuncMap() {
 		"le":            le,
 		"lower":         lower,
 		"lt":            lt,
-		"markdownify":   markdownify,
+		"markdownify":   t.markdownify,
 		"md5":           md5,
 		"mod":           mod,
 		"modBool":       modBool,
@@ -2211,8 +2208,8 @@ func (t *templateFuncster) initFuncMap() {
 		"upper":        upper,
 		"urlize":       t.PathSpec.URLize,
 		"where":        where,
-		"i18n":         i18nTranslate,
-		"T":            i18nTranslate,
+		"i18n":         t.Translate,
+		"T":            t.Translate,
 	}
 
 	t.funcMap = funcMap

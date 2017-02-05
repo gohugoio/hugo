@@ -39,7 +39,6 @@ import (
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -195,8 +194,11 @@ type Page struct {
 
 	scratch *Scratch
 
+	// It would be tempting to use the language set on the Site, but in they way we do
+	// multi-site processing, these values may differ during the initial page processing.
 	language *helpers.Language
-	lang     string
+
+	lang string
 }
 
 // pageInit lazy initializes different parts of the page. It is extracted
@@ -518,10 +520,11 @@ func (p *Page) renderContent(content []byte) []byte {
 			return p.Site.SourceRelativeLinkFile(ref, p)
 		}
 	}
-	return helpers.RenderBytes(&helpers.RenderingContext{
+
+	return p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
-		ConfigProvider: p.Language(),
-		DocumentID:     p.UniqueID(), DocumentName: p.Path(),
+		Cfg:        p.Language(),
+		DocumentID: p.UniqueID(), DocumentName: p.Path(),
 		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
@@ -532,7 +535,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 		if p.Language() == nil {
 			panic(fmt.Sprintf("nil language for %s with source lang %s", p.BaseFileName(), p.lang))
 		}
-		p.renderingConfig = helpers.NewBlackfriday(p.Language())
+		p.renderingConfig = p.s.ContentSpec.NewBlackfriday()
 
 		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
 			p.s.Log.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
@@ -544,15 +547,18 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 }
 
 func (s *Site) newPage(filename string) *Page {
+	sp := source.NewSourceSpec(s.Cfg, s.Fs)
 	page := Page{
 		pageInit:    &pageInit{},
 		Kind:        kindFromFilename(filename),
 		contentType: "",
-		Source:      Source{File: *source.NewFile(filename)},
+		Source:      Source{File: *sp.NewFile(filename)},
 		Keywords:    []string{}, Sitemap: Sitemap{Priority: -1},
 		Params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
 		sections:     sectionsFromFilename(filename),
+		Site:         &s.Info,
+		s:            s,
 	}
 
 	s.Log.DEBUG.Println("Reading from", page.File.Path())
@@ -799,7 +805,7 @@ func (p *Page) Extension() string {
 	if p.extension != "" {
 		return p.extension
 	}
-	return viper.GetString("defaultExtension")
+	return p.s.Cfg.GetString("defaultExtension")
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -832,8 +838,8 @@ func (p *Page) LinkTitle() string {
 }
 
 func (p *Page) shouldBuild() bool {
-	return shouldBuild(viper.GetBool("buildFuture"), viper.GetBool("buildExpired"),
-		viper.GetBool("buildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
+	return shouldBuild(p.s.Cfg.GetBool("buildFuture"), p.s.Cfg.GetBool("buildExpired"),
+		p.s.Cfg.GetBool("buildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
 }
 
 func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
@@ -886,7 +892,7 @@ func (p *Page) URL() string {
 func (p *Page) RelPermalink() string {
 	link := p.getPermalink()
 
-	if viper.GetBool("canonifyURLs") {
+	if p.s.Cfg.GetBool("canonifyURLs") {
 		// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
 		// have to return the URL relative from baseURL
 		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
@@ -1047,8 +1053,8 @@ func (p *Page) update(f interface{}) error {
 		p.Draft = !*published
 	}
 
-	if p.Date.IsZero() && viper.GetBool("useModTimeAsFallback") {
-		fi, err := p.s.Fs.Source.Stat(filepath.Join(helpers.AbsPathify(viper.GetString("contentDir")), p.File.Path()))
+	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
+		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
 		if err == nil {
 			p.Date = fi.ModTime()
 		}
@@ -1060,7 +1066,7 @@ func (p *Page) update(f interface{}) error {
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
-	} else if viper.GetBool("hasCJKLanguage") {
+	} else if p.s.Cfg.GetBool("hasCJKLanguage") {
 		if cjk.Match(p.rawContent) {
 			p.isCJKLanguage = true
 		} else {
@@ -1378,10 +1384,9 @@ func (p *Page) saveSourceAs(path string, safe bool) error {
 
 func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 	if !filepath.IsAbs(inpath) {
-		inpath = helpers.AbsPathify(inpath)
+		inpath = p.s.PathSpec.AbsPathify(inpath)
 	}
 	p.s.Log.INFO.Println("creating", inpath)
-
 	if safe {
 		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), p.s.Fs.Source)
 	} else {
@@ -1691,25 +1696,27 @@ func (p *Page) initLanguage() {
 		if p.language != nil {
 			return
 		}
-		pageLang := p.lang
+
 		ml := p.Site.multilingual
 		if ml == nil {
 			panic("Multilanguage not set")
 		}
-		if pageLang == "" {
+		if p.lang == "" {
+			p.lang = ml.DefaultLang.Lang
 			p.language = ml.DefaultLang
 			return
 		}
 
-		language := ml.Language(pageLang)
+		language := ml.Language(p.lang)
 
 		if language == nil {
 			// It can be a file named stefano.chiodino.md.
-			p.s.Log.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", pageLang)
+			p.s.Log.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", p.lang)
 			language = ml.DefaultLang
 		}
 
 		p.language = language
+
 	})
 }
 
@@ -1743,6 +1750,7 @@ func (p *Page) addLangFilepathPrefix(outfile string) string {
 	if outfile == "" {
 		outfile = helpers.FilePathSeparator
 	}
+
 	if !p.shouldAddLanguagePrefix() {
 		return outfile
 	}
@@ -1795,7 +1803,4 @@ func (p *Page) setValuesForKind(s *Site) {
 	case KindTaxonomyTerm:
 		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
 	}
-
-	p.s = s
-
 }

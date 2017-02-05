@@ -21,8 +21,6 @@ import (
 	"time"
 
 	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -65,6 +63,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	defer wg.Done()
 	for p := range pages {
 		targetPath := p.TargetPath()
+
 		layouts := p.layouts()
 		s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
 
@@ -89,12 +88,12 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 func (s *Site) renderPaginator(p *Page) error {
 	if p.paginator != nil {
 		s.Log.DEBUG.Printf("Render paginator for page %q", p.Path())
-		paginatePath := helpers.Config().GetString("paginatePath")
+		paginatePath := s.Cfg.GetString("paginatePath")
 
 		// write alias for page 1
 		// TODO(bep) ml all of these n.addLang ... fix.
 
-		aliasPath := p.addLangPathPrefix(helpers.PaginateAliasPath(path.Join(p.sections...), 1))
+		aliasPath := p.addLangPathPrefix(s.PathSpec.PaginateAliasPath(path.Join(p.sections...), 1))
 		link := p.Permalink()
 		s.writeDestAlias(aliasPath, link, nil)
 
@@ -131,7 +130,7 @@ func (s *Site) renderPaginator(p *Page) error {
 
 func (s *Site) renderRSS(p *Page) error {
 
-	if viper.GetBool("disableRSS") {
+	if s.Cfg.GetBool("disableRSS") {
 		return nil
 	}
 
@@ -168,7 +167,7 @@ func (s *Site) renderRSS(p *Page) error {
 }
 
 func (s *Site) render404() error {
-	if viper.GetBool("disable404") {
+	if s.Cfg.GetBool("disable404") {
 		return nil
 	}
 
@@ -185,11 +184,11 @@ func (s *Site) render404() error {
 }
 
 func (s *Site) renderSitemap() error {
-	if viper.GetBool("disableSitemap") {
+	if s.Cfg.GetBool("disableSitemap") {
 		return nil
 	}
 
-	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
+	sitemapDefault := parseSitemap(s.Cfg.GetStringMap("sitemap"))
 
 	n := s.newNodePage(kindSitemap)
 
@@ -228,7 +227,7 @@ func (s *Site) renderSitemap() error {
 }
 
 func (s *Site) renderRobotsTXT() error {
-	if !viper.GetBool("enableRobotsTXT") {
+	if !s.Cfg.GetBool("enableRobotsTXT") {
 		return nil
 	}
 
@@ -265,9 +264,9 @@ func (s *Site) renderAliases() error {
 	}
 
 	if s.owner.multilingual.enabled() {
-		mainLang := s.owner.multilingual.DefaultLang.Lang
+		mainLang := s.owner.multilingual.DefaultLang
 		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := s.PathSpec.AbsURL(mainLang, false)
+			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang, false)
 			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
 			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
 				return err
@@ -275,7 +274,7 @@ func (s *Site) renderAliases() error {
 		} else {
 			mainLangURL := s.PathSpec.AbsURL("", false)
 			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
+			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang.Lang, mainLangURL, nil); err != nil {
 				return err
 			}
 		}

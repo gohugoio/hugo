@@ -21,7 +21,6 @@ import (
 
 	"github.com/PuerkitoBio/purell"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 type pathBridge struct {
@@ -158,7 +157,7 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 		return in
 	}
 
-	baseURL := viper.GetString("baseURL")
+	baseURL := p.baseURL
 	if strings.HasPrefix(in, "/") {
 		p, err := url.Parse(baseURL)
 		if err != nil {
@@ -200,7 +199,7 @@ func (p *PathSpec) getLanguagePrefix() string {
 	defaultLang := p.defaultContentLanguage
 	defaultInSubDir := p.defaultContentLanguageInSubdir
 
-	currentLang := p.currentContentLanguage.Lang
+	currentLang := p.language.Lang
 	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
 		return ""
 	}
@@ -220,7 +219,7 @@ func IsAbsURL(path string) bool {
 // RelURL creates a URL relative to the BaseURL root.
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
-	baseURL := viper.GetString("baseURL")
+	baseURL := p.baseURL
 	canonifyURLs := p.canonifyURLs
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in

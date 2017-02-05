@@ -28,9 +28,9 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -41,8 +41,6 @@ var (
 	serverPort        int
 	serverWatch       bool
 )
-
-//var serverCmdV *cobra.Command
 
 var serverCmd = &cobra.Command{
 	Use:     "server",
@@ -108,17 +106,17 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c := commandeer{cfg}
+	c := newCommandeer(cfg)
 
-	if flagChanged(cmd.Flags(), "disableLiveReload") {
-		viper.Set("disableLiveReload", disableLiveReload)
+	if c.flagChanged(cmd.Flags(), "disableLiveReload") {
+		c.Set("disableLiveReload", disableLiveReload)
 	}
 
 	if serverWatch {
-		viper.Set("watch", true)
+		c.Set("watch", true)
 	}
 
-	if viper.GetBool("watch") {
+	if c.Cfg.GetBool("watch") {
 		serverWatch = true
 		c.watchConfig()
 	}
@@ -127,7 +125,7 @@ func server(cmd *cobra.Command, args []string) error {
 	if err == nil {
 		l.Close()
 	} else {
-		if flagChanged(serverCmd.Flags(), "port") {
+		if c.flagChanged(serverCmd.Flags(), "port") {
 			// port set explicitly by user -- he/she probably meant it!
 			return newSystemErrorF("Server startup failed: %s", err)
 		}
@@ -139,13 +137,13 @@ func server(cmd *cobra.Command, args []string) error {
 		serverPort = sp.Port
 	}
 
-	viper.Set("port", serverPort)
+	c.Set("port", serverPort)
 
-	baseURL, err = fixURL(baseURL)
+	baseURL, err = fixURL(c.Cfg, baseURL)
 	if err != nil {
 		return err
 	}
-	viper.Set("baseURL", baseURL)
+	c.Set("baseURL", baseURL)
 
 	if err := memStats(); err != nil {
 		jww.ERROR.Println("memstats error:", err)
@@ -160,7 +158,7 @@ func server(cmd *cobra.Command, args []string) error {
 	if !renderToDisk {
 		cfg.Fs.Destination = new(afero.MemMapFs)
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
-		viper.Set("publishDir", "/")
+		c.Set("publishDir", "/")
 	}
 
 	if err := c.build(serverWatch); err != nil {
@@ -170,7 +168,7 @@ func server(cmd *cobra.Command, args []string) error {
 	// Watch runs its own server as part of the routine
 	if serverWatch {
 		watchDirs := c.getDirList()
-		baseWatchDir := viper.GetString("workingDir")
+		baseWatchDir := c.Cfg.GetString("workingDir")
 		for i, dir := range watchDirs {
 			watchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
 		}
@@ -190,19 +188,19 @@ func server(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (c commandeer) serve(port int) {
+func (c *commandeer) serve(port int) {
 	if renderToDisk {
-		jww.FEEDBACK.Println("Serving pages from " + helpers.AbsPathify(viper.GetString("publishDir")))
+		jww.FEEDBACK.Println("Serving pages from " + c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))
 	} else {
 		jww.FEEDBACK.Println("Serving pages from memory")
 	}
 
 	httpFs := afero.NewHttpFs(c.Fs.Destination)
-	fs := filesOnlyFs{httpFs.Dir(helpers.AbsPathify(viper.GetString("publishDir")))}
+	fs := filesOnlyFs{httpFs.Dir(c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))}
 	fileserver := http.FileServer(fs)
 
 	// We're only interested in the path
-	u, err := url.Parse(viper.GetString("baseURL"))
+	u, err := url.Parse(c.Cfg.GetString("baseURL"))
 	if err != nil {
 		jww.ERROR.Fatalf("Invalid baseURL: %s", err)
 	}
@@ -225,10 +223,10 @@ func (c commandeer) serve(port int) {
 
 // fixURL massages the baseURL into a form needed for serving
 // all pages correctly.
-func fixURL(s string) (string, error) {
+func fixURL(cfg config.Provider, s string) (string, error) {
 	useLocalhost := false
 	if s == "" {
-		s = viper.GetString("baseURL")
+		s = cfg.GetString("baseURL")
 		useLocalhost = true
 	}
 

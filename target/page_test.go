@@ -18,10 +18,11 @@ import (
 	"testing"
 
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
 )
 
 func TestPageTranslator(t *testing.T) {
-	fs := hugofs.NewMem()
+	fs := hugofs.NewMem(viper.New())
 
 	tests := []struct {
 		content  string

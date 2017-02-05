@@ -14,13 +14,13 @@
 package source
 
 import (
-	"github.com/spf13/viper"
 	"testing"
+
+	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/viper"
 )
 
 func TestIgnoreDotFilesAndDirectories(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
 
 	tests := []struct {
 		path                string
@@ -49,9 +49,12 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 
 	for _, test := range tests {
 
-		viper.Set("ignoreFiles", test.ignoreFilesRegexpes)
+		v := viper.New()
+		v.Set("ignoreFiles", test.ignoreFilesRegexpes)
 
-		if ignored := isNonProcessablePath(test.path); test.ignore != ignored {
+		s := NewSourceSpec(v, hugofs.NewMem(v))
+
+		if ignored := s.isNonProcessablePath(test.path); test.ignore != ignored {
 			t.Errorf("File not ignored.  Expected: %t, got: %t", test.ignore, ignored)
 		}
 	}

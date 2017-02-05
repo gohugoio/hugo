@@ -18,9 +18,20 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/hugo/hugofs"
+
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
 )
+
+type SourceSpec struct {
+	Cfg config.Provider
+	Fs  *hugofs.Fs
+}
+
+func NewSourceSpec(cfg config.Provider, fs *hugofs.Fs) SourceSpec {
+	return SourceSpec{Cfg: cfg, Fs: fs}
+}
 
 // File represents a source content file.
 // All paths are relative from the source directory base
@@ -110,15 +121,15 @@ func (f *File) Path() string {
 
 // NewFileWithContents creates a new File pointer with the given relative path and
 // content. The language defaults to "en".
-func NewFileWithContents(relpath string, content io.Reader) *File {
-	file := NewFile(relpath)
+func (sp SourceSpec) NewFileWithContents(relpath string, content io.Reader) *File {
+	file := sp.NewFile(relpath)
 	file.Contents = content
 	file.lang = "en"
 	return file
 }
 
 // NewFile creates a new File pointer with the given relative path.
-func NewFile(relpath string) *File {
+func (sp SourceSpec) NewFile(relpath string) *File {
 	f := &File{
 		relpath: relpath,
 	}
@@ -128,8 +139,8 @@ func NewFile(relpath string) *File {
 	f.baseName = helpers.Filename(f.LogicalName())
 
 	lang := strings.TrimPrefix(filepath.Ext(f.baseName), ".")
-	if _, ok := viper.GetStringMap("languages")[lang]; lang == "" || !ok {
-		f.lang = viper.GetString("defaultContentLanguage")
+	if _, ok := sp.Cfg.GetStringMap("languages")[lang]; lang == "" || !ok {
+		f.lang = sp.Cfg.GetString("defaultContentLanguage")
 		f.translationBaseName = f.baseName
 	} else {
 		f.lang = lang
@@ -144,11 +155,11 @@ func NewFile(relpath string) *File {
 
 // NewFileFromAbs creates a new File pointer with the given full file path path and
 // content.
-func NewFileFromAbs(base, fullpath string, content io.Reader) (f *File, err error) {
+func (sp SourceSpec) NewFileFromAbs(base, fullpath string, content io.Reader) (f *File, err error) {
 	var name string
 	if name, err = helpers.GetRelativePath(fullpath, base); err != nil {
 		return nil, err
 	}
 
-	return NewFileWithContents(name, content), nil
+	return sp.NewFileWithContents(name, content), nil
 }

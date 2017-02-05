@@ -27,9 +27,9 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -63,17 +63,17 @@ func (l *remoteLock) URLUnlock(url string) {
 }
 
 // getCacheFileID returns the cache ID for a string
-func getCacheFileID(id string) string {
-	return viper.GetString("cacheDir") + url.QueryEscape(id)
+func getCacheFileID(cfg config.Provider, id string) string {
+	return cfg.GetString("cacheDir") + url.QueryEscape(id)
 }
 
 // resGetCache returns the content for an ID from the file cache or an error
 // if the file is not found returns nil,nil
-func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
+func resGetCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) ([]byte, error) {
 	if ignoreCache {
 		return nil, nil
 	}
-	fID := getCacheFileID(id)
+	fID := getCacheFileID(cfg, id)
 	isExists, err := helpers.Exists(fID, fs)
 	if err != nil {
 		return nil, err
@@ -87,11 +87,11 @@ func resGetCache(id string, fs afero.Fs, ignoreCache bool) ([]byte, error) {
 }
 
 // resWriteCache writes bytes to an ID into the file cache
-func resWriteCache(id string, c []byte, fs afero.Fs, ignoreCache bool) error {
+func resWriteCache(id string, c []byte, fs afero.Fs, cfg config.Provider, ignoreCache bool) error {
 	if ignoreCache {
 		return nil
 	}
-	fID := getCacheFileID(id)
+	fID := getCacheFileID(cfg, id)
 	f, err := fs.Create(fID)
 	if err != nil {
 		return errors.New("Error: " + err.Error() + ". Failed to create file: " + fID)
@@ -107,13 +107,13 @@ func resWriteCache(id string, c []byte, fs afero.Fs, ignoreCache bool) error {
 	return nil
 }
 
-func resDeleteCache(id string, fs afero.Fs) error {
-	return fs.Remove(getCacheFileID(id))
+func resDeleteCache(id string, fs afero.Fs, cfg config.Provider) error {
+	return fs.Remove(getCacheFileID(cfg, id))
 }
 
 // resGetRemote loads the content of a remote file. This method is thread safe.
-func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
-	c, err := resGetCache(url, fs, viper.GetBool("ignoreCache"))
+func resGetRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client) ([]byte, error) {
+	c, err := resGetCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
 	if c != nil && err == nil {
 		return c, nil
 	}
@@ -126,7 +126,7 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 	defer func() { remoteURLLock.URLUnlock(url) }()
 
 	// avoid multiple locks due to calling resGetCache twice
-	c, err = resGetCache(url, fs, viper.GetBool("ignoreCache"))
+	c, err = resGetCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
 	if c != nil && err == nil {
 		return c, nil
 	}
@@ -144,17 +144,17 @@ func resGetRemote(url string, fs afero.Fs, hc *http.Client) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = resWriteCache(url, c, fs, viper.GetBool("ignoreCache"))
+	err = resWriteCache(url, c, fs, cfg, cfg.GetBool("ignoreCache"))
 	if err != nil {
 		return nil, err
 	}
-	jww.INFO.Printf("... and cached to: %s", getCacheFileID(url))
+	jww.INFO.Printf("... and cached to: %s", getCacheFileID(cfg, url))
 	return c, nil
 }
 
 // resGetLocal loads the content of a local file
-func resGetLocal(url string, fs afero.Fs) ([]byte, error) {
-	filename := filepath.Join(viper.GetString("workingDir"), url)
+func resGetLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
+	filename := filepath.Join(cfg.GetString("workingDir"), url)
 	if e, err := helpers.Exists(filename, fs); !e {
 		return nil, err
 	}
@@ -169,9 +169,9 @@ func (t *templateFuncster) resGetResource(url string) ([]byte, error) {
 		return nil, nil
 	}
 	if strings.Contains(url, "://") {
-		return resGetRemote(url, t.Fs.Source, http.DefaultClient)
+		return resGetRemote(url, t.Fs.Source, t.Cfg, http.DefaultClient)
 	}
-	return resGetLocal(url, t.Fs.Source)
+	return resGetLocal(url, t.Fs.Source, t.Cfg)
 }
 
 // getJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
@@ -193,7 +193,7 @@ func (t *templateFuncster) getJSON(urlParts ...string) interface{} {
 			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
 			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
-			resDeleteCache(url, t.Fs.Source)
+			resDeleteCache(url, t.Fs.Source, t.Cfg)
 			continue
 		}
 		break
@@ -226,7 +226,7 @@ func (t *templateFuncster) getCSV(sep string, urlParts ...string) [][]string {
 	var clearCacheSleep = func(i int, u string) {
 		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
-		resDeleteCache(url, t.Fs.Source)
+		resDeleteCache(url, t.Fs.Source, t.Cfg)
 	}
 
 	for i := 0; i <= resRetries; i++ {

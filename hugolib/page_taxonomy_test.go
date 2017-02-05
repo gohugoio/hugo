@@ -57,6 +57,7 @@ categories = "d"
 TOML Front Matter with tags and categories`
 
 func TestParseTaxonomies(t *testing.T) {
+	t.Parallel()
 	for _, test := range []string{pageTomlWithTaxonomies,
 		pageJSONWithTaxonomies,
 		pageYamlWithTaxonomiesA,
@@ -64,7 +65,8 @@ func TestParseTaxonomies(t *testing.T) {
 		pageYamlWithTaxonomiesC,
 	} {
 
-		p, _ := pageTestSite.NewPage("page/with/taxonomy")
+		s := newTestSite(t)
+		p, _ := s.NewPage("page/with/taxonomy")
 		_, err := p.ReadFrom(strings.NewReader(test))
 		if err != nil {
 			t.Fatalf("Failed parsing %q: %s", test, err)
