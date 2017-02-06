@@ -42,9 +42,16 @@ func TestBaseGoTemplate(t *testing.T) {
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
 
+				// See #2995
+				writeSource(t, fs, filepath.Join("layouts", "sect", "single.html"), `{{define "main"}}single sect{{ end }}`)
+
+				// Should not be picked.
+				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}NO{{end}}`)
+
 			},
 			func(t *testing.T) {
 				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "page", "index.html"), false, "Base: single sect")
 			},
 		},
 		{
@@ -52,7 +59,6 @@ func TestBaseGoTemplate(t *testing.T) {
 			func(t *testing.T) {
 				writeSource(t, fs, filepath.Join("layouts", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "index.html"), `{{define "main"}}index{{ end }}`)
-
 			},
 			func(t *testing.T) {
 				assertFileContent(t, fs, filepath.Join("public", "index.html"), false, "Base: index")
@@ -88,9 +94,16 @@ func TestBaseGoTemplate(t *testing.T) {
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
 
+				// See #2995
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "sect", "single.html"), `{{define "main"}}single sect{{ end }}`)
+
+				// Should not be picked.
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base: {{block "main" .}}NO{{end}}`)
+
 			},
 			func(t *testing.T) {
 				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "page", "index.html"), false, "Base: single sect")
 			},
 		},
 		{
@@ -100,9 +113,16 @@ func TestBaseGoTemplate(t *testing.T) {
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
 
+				// See #2995
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "sect", "single.html"), `{{define "main"}}single sect{{ end }}`)
+
+				// Should not be picked.
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base: {{block "main" .}}NO{{end}}`)
+
 			},
 			func(t *testing.T) {
 				assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base Theme: sect")
+				assertFileContent(t, fs, filepath.Join("public", "sect", "page", "index.html"), false, "Base: single sect")
 			},
 		},
 		{
