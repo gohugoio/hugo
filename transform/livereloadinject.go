@@ -21,18 +21,27 @@ import (
 )
 
 func LiveReloadInject(ct contentTransformer) {
-	endBodyTag := "</body>"
-	match := []byte(endBodyTag)
+	endTags := []string{"</body>", "</BODY>", "</html>", "</HTML>"}
 	port := viper.Get("port")
 	replaceTemplate := `<script data-no-instant>document.write('<script src="/livereload.js?port=%d&mindelay=10"></' + 'script>')</script>%s`
-	replace := []byte(fmt.Sprintf(replaceTemplate, port, endBodyTag))
+	var newcontent []byte
 
-	newcontent := bytes.Replace(ct.Content(), match, replace, 1)
+	for _, endTag := range endTags {
+		replacement := []byte(fmt.Sprintf(replaceTemplate, port, endTag))
+		match := []byte(endTag)
+		newcontent = bytes.Replace(ct.Content(), match, replacement, 1)
+		if len(newcontent) != len(ct.Content()) {
+			break
+		}
+	}
 	if len(newcontent) == len(ct.Content()) {
-		endBodyTag = "</BODY>"
-		replace := []byte(fmt.Sprintf(replaceTemplate, port, endBodyTag))
-		match := []byte(endBodyTag)
-		newcontent = bytes.Replace(ct.Content(), match, replace, 1)
+		doctype := "<!DOCTYPE html>"
+		if 0 == bytes.Index(newcontent, []byte(doctype)) {
+			// this is an HTML document with body and html tag omited
+			replace := fmt.Sprintf(replaceTemplate, port, "")
+			newcontent = append(ct.Content(), replace...)
+			// append livereload to end of document
+		}
 	}
 
 	ct.Write(newcontent)
