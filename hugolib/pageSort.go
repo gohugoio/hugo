@@ -109,7 +109,7 @@ func (p Pages) Limit(n int) Pages {
 
 // ByWeight sorts the Pages by weight and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByWeight() Pages {
@@ -120,7 +120,7 @@ func (p Pages) ByWeight() Pages {
 
 // ByTitle sorts the Pages by title and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByTitle() Pages {
@@ -137,7 +137,7 @@ func (p Pages) ByTitle() Pages {
 
 // ByLinkTitle sorts the Pages by link title and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByLinkTitle() Pages {
@@ -155,7 +155,7 @@ func (p Pages) ByLinkTitle() Pages {
 
 // ByDate sorts the Pages by date and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByDate() Pages {
@@ -173,7 +173,7 @@ func (p Pages) ByDate() Pages {
 
 // ByPublishDate sorts the Pages by publish date and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByPublishDate() Pages {
@@ -191,7 +191,7 @@ func (p Pages) ByPublishDate() Pages {
 
 // ByExpiryDate sorts the Pages by publish date and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByExpiryDate() Pages {
@@ -209,7 +209,7 @@ func (p Pages) ByExpiryDate() Pages {
 
 // ByLastmod sorts the Pages by the last modification date and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByLastmod() Pages {
@@ -227,7 +227,7 @@ func (p Pages) ByLastmod() Pages {
 
 // ByLength sorts the Pages by length and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByLength() Pages {
@@ -245,7 +245,7 @@ func (p Pages) ByLength() Pages {
 
 // ByLanguage sorts the Pages by the language's Weight.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByLanguage() Pages {
@@ -259,7 +259,7 @@ func (p Pages) ByLanguage() Pages {
 
 // Reverse reverses the order in Pages and returns a copy.
 //
-// Adjacent invocactions on the same receiver will return a cached result.
+// Adjacent invocations on the same receiver will return a cached result.
 //
 // This may safely be executed  in parallel.
 func (p Pages) Reverse() Pages {
