@@ -1,5 +1,5 @@
 ---
-title: Hosting and Deployment Overview
+title: Building Your Static Site
 linktitle:
 description: Build process, automated deployments, and popular hosting solutions.
 date: 2016-11-01

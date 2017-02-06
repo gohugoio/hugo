@@ -15,3 +15,19 @@ slug:
 aliases: []
 notes:
 ---
+
+## Heading
+
+Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores, praesentium quod magnam veritatis, itaque tenetur minima nihil a at cum doloremque accusantium fugiat quam! Cumque ad vero provident enim temporibus!
+
+{{% note title="Note" %}}
+Here is *something in italic* in a shortcode. Here is **something in bold**.
+{{% /note %}}
+
+{{% caution title="Caution" %}}
+Here is *something in italic* in a shortcode. Here is **something in bold**.
+{{% /caution %}}
+
+{{% warn title="Warn" %}}
+Here is *something in italic* in a shortcode. Here is **something in bold**.
+{{% /warn %}}

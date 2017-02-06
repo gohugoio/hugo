@@ -1,5 +1,5 @@
 ---
-title: Hostingon GitLab
+title: Hosting on GitLab
 linktitle:
 description:
 date: 2017-02-01

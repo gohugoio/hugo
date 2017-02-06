@@ -1,0 +1,48 @@
+.note,
+.caution,.warn {
+  display: block;
+  margin-bottom: 1em;
+  width: 100%;
+  h2 {
+    font-size: 1.1em;
+    color: $hugo-white;
+    width: 100%;
+    display: block;
+    margin: 0px;
+    padding: .25em 12px;
+    border: none;
+    outline: none;
+  }
+  .shortcode-content {
+    display: block;
+    margin: 0px;
+    padding: 12px;
+  }
+}
+
+.note {
+  > h2 {
+    background-color: $hugo-blue;
+  }
+  .shortcode-content {
+    background-color: lighten($hugo-blue, 50%);
+  }
+}
+
+.caution {
+  > h2 {
+    background-color: $hugo-gold;
+  }
+  .shortcode-content {
+  	background-color: lighten($hugo-gold, 30%);
+  }
+}
+
+.warn {
+  > h2 {
+    background-color: $hugo-pink-dark;
+  }
+  .shortcode-content {
+  	background-color: lighten($hugo-pink-dark, 50%);
+  }
+}

@@ -22,6 +22,9 @@
     display: inline-block;
     margin-left: auto;
     margin-right: auto;
+    @include MQ(L) {
+      margin-top: $site-header-height + 10px;
+    }
     a {
       color: $base-font-color;
       font-weight: $base-font-weight;
