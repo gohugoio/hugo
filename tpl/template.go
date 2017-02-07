@@ -109,6 +109,10 @@ func (*TemplateProvider) Clone(d *deps.Deps) error {
 
 	for k, v := range t.overlays {
 		vc := template.Must(v.Clone())
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/spf13/hugo/issues/2549
+		vc = vc.Lookup(vc.Name())
 		vc.Funcs(tmpl.funcster.funcMap)
 		tmpl.overlays[k] = vc
 	}
