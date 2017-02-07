@@ -1,13 +1,13 @@
 {{- if .IsNamedParams -}}
 {{$filenameclass := index (split (.Get "filename") ".") 1 }}
 <div class="code-copy" id="{{.Get "filename" | urlize}}">
-	{{- with .Get "filename" -}}<div class="code-copy-header"><div class="action-buttons"></div><span title="{{.}}" class="filename"><strong>Output to: </strong>{{- . -}}</span><i class="icon-{{$filenameclass}}"></i></div>{{- end -}}
+	{{- with .Get "filename" -}}<div class="code-copy-header output"><div class="action-buttons"></div><span title="{{.}}" class="filename"><strong>Output to: </strong>{{- . -}}</span><i class="icon-{{$filenameclass}}"></i></div>{{- end -}}
 	{{- .Inner -}}
 </div>
 {{- else -}}
 {{$filenameclass := index (split (.Get 0) ".") 1 }}
 <div class="code-copy" id="{{.Get 0|urlize}}">
-	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="{{.Get 0}}"><strong>Output to: </strong>{{.Get 0}}</span><i class="icon-{{$filenameclass}}"></i></div>
+	<div class="code-copy-header output"><div class="action-buttons"></div><span class="filename" title="{{.Get 0}}"><strong>Output to: </strong>{{.Get 0}}</span><i class="icon-{{$filenameclass}}"></i></div>
 	{{- .Inner -}}
 </div>
 {{- end -}}

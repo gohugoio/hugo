@@ -3,6 +3,14 @@
 	<a role="button" target="_blank" class="edit-link" href="{{.Site.Params.ghrepourl}}{{.File.Path}}"><span class="edit-text">Edit</span> <i class="icon-pencil" aria-hidden="true"></i></a>
 	<header class="content-header">
 		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		{{with .Params.tags}}
+		<ul class="tags">
+			<li><i class="icon-tags"></i></li>
+			{{range .}}
+			<li><a class="tag" href="/tags/{{.|urlize}}">{{.}}</a></li>
+			{{end}}
+		</ul>
+		{{end}}
 		<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "January 2, 2006"}}{{else}}{{.PublishDate.Format "January 2, 2006"}}{{end}}</span>
 	</header>
 	<div class="body-copy">

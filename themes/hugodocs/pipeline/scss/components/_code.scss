@@ -36,8 +36,7 @@ button.copy-button {
     padding: 0px;
     transition: all .2s ease-in-out;
     opacity: 1;
-    background-color: lighten($code-editor-header-bg-color,8%);
-    // background-color: #000000;
+    background-color: $code-editor-header-bg-color;
     box-sizing: border-box;
     position: absolute;
     bottom: 0px;
@@ -48,6 +47,9 @@ button.copy-button {
     border-width: 0px;
     border-radius: 0px;
     color:$code-copy-button-text-color;
+    &:hover {
+      background-color:$hugo-blue;
+    }
     &:active,
     &:focus {
       outline: none;

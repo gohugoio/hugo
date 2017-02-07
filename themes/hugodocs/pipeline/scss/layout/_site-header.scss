@@ -34,6 +34,12 @@
       font-size: .9em;
     }
   }
+  a.github-button {
+    display: none;
+    @include MQ(M) {
+      display: inline;
+    }
+  }
   //github buttons in site-header
   iframe[src^="https://buttons.github.io"] {
     display: none;
