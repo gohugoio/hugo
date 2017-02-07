@@ -17,7 +17,7 @@ body {
   font-size: $base-font-size;
   font-family: $base-font-family;
   color: $base-font-color;
-  line-height: $base-line-height;
+  line-height: $base-line-height-content;
   font-weight: $base-font-weight;
 }
 
@@ -35,6 +35,6 @@ body {
 
 p {
   margin-top: 0px;
-  margin-bottom: 1em;
-  line-height: $base-line-height;
+  margin-bottom: 1.5em;
+  line-height: $base-line-height-content;
 }

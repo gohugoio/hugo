@@ -1,0 +1,503 @@
+//General code styling for inline code (ie, within body copy and not in a separate code block)
+code,pre {
+  font-family: $code-font-family;
+}
+p code, li > code {
+  font-size: .9em;
+  color:$base-font-color;
+  font-family: $code-font-family;
+  border:1px solid $hugo-gray-light;
+  padding-left:.25em;
+  padding-right:.25em;
+}
+
+//for clipboard.js tooltip and button
+div.code-copy {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: .8em;
+  &:hover {
+    button.copy-button {
+      transition: all .2s ease-in-out;
+      opacity: 1;
+    }
+  }
+}
+
+p + .code-copy {
+  margin-top: 0em;
+}
+
+button.copy-button {
+  display: none;
+  @include MQ(M) {
+    display: block;
+    padding: 0px;
+    transition: all .2s ease-in-out;
+    opacity: 1;
+    background-color: lighten($code-editor-header-bg-color,8%);
+    // background-color: #000000;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    z-index: 4;
+    width: 80px;
+    height: 1.5em;
+    border-width: 0px;
+    border-radius: 0px;
+    color:$code-copy-button-text-color;
+    &:active,
+    &:focus {
+      outline: none;
+      position: absolute;
+    }
+  }
+}
+
+.copy-text {
+  color:$code-copy-button-text-color;
+  font-size: 12px;
+  display: block;
+  width: 80px;
+  line-height: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  text-align: center;
+  i.icon-clipboard {
+    display: inline;
+  }
+}
+
+button.copy-button {
+  @include MQ(retinaPortrait) {
+    display: none;
+  }
+  @include MQ(retinaLandscape) {
+    display: none;
+  }
+}
+
+div.code-copy {
+  position: relative;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  border-radius: 0px;
+}
+
+div.code-copy-header {
+  position: relative;
+  height: 1.5em;
+  line-height: 1.5em;
+  background-color: $code-editor-header-bg-color;
+  border-radius: 0px;
+  position: relative;
+  span.filename {
+    @include center;
+    text-align: center;
+    max-width: 50%;
+    color: $code-filename-color;
+    font-weight: 100;
+    font-size: .8em;
+    background-color: transparent;
+    font-family: $systemfonts;
+  }
+  [class^="icon-"]{
+    float:right;
+    position:relative;
+    top:-1.45em;
+    right:.5em;
+    color:$code-filename-color;
+  }
+}
+
+.action-buttons {
+  position: absolute;
+  left: 10px;
+  margin-top: .35em;
+  width: 12px;
+  height: 12px;
+  background: Crimson;
+  border-radius: 50%;
+  box-shadow: 18px 0 0 Orange, 36px 0 0 LimeGreen;
+}
+
+.tooltipped {
+  position: relative;
+  background-color: $code-tooltip-bg-color;
+  padding-right: 2em;
+}
+
+.tooltipped:after {
+  position: absolute;
+  z-index: 1000000;
+  display: none;
+  padding: 2px 4px;
+  font-size: .8em;
+  font-weight: $base-font-bold-weight;
+  font-family: $heading-font-family;
+  color: $hugo-white;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-shadow: none;
+  letter-spacing: normal;
+  word-wrap: break-word;
+  white-space: pre;
+  pointer-events: none;
+  content: attr(aria-label);
+  background-color: $code-tooltip-bg-color;
+  border-color: $code-tooltip-bg-color;
+  border-radius: 0px;
+  -webkit-font-smoothing: subpixel-antialiased
+}
+
+.tooltipped:before {
+  position: absolute;
+  z-index: 1000001;
+  display: none;
+  width: 0;
+  height: 0;
+  color: $code-tooltip-bg-color;
+  pointer-events: none;
+  content: "";
+  border: 5px solid transparent;
+}
+
+.tooltipped:hover:before,
+.tooltipped:hover:after,
+.tooltipped:active:before,
+.tooltipped:active:after,
+.tooltipped:focus:before,
+.tooltipped:focus:after {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.tooltipped-multiline:hover:after,
+.tooltipped-multiline:active:after,
+.tooltipped-multiline:focus:after {
+  display: table-cell;
+}
+
+.tooltipped-s:after,
+.tooltipped-se:after,
+.tooltipped-sw:after {
+  top: 100%;
+  right: 50%;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.tooltipped-s:before,
+.tooltipped-se:before,
+.tooltipped-sw:before {
+  top: auto;
+  right: 50%;
+  bottom: -5px;
+  margin-right: -5px;
+  border-bottom-color: $code-tooltip-bg-color;
+  text-align: center;
+}
+
+.tooltipped-se:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px;
+  text-align: center;
+}
+
+.tooltipped-sw:after {
+  margin-right: -15px
+}
+
+.tooltipped-n:after,
+.tooltipped-ne:after,
+.tooltipped-nw:after {
+  right: 50%;
+  bottom: 100%;
+  margin-bottom: 5px
+}
+
+.tooltipped-n:before,
+.tooltipped-ne:before,
+.tooltipped-nw:before {
+  top: -5px;
+  right: 50%;
+  bottom: auto;
+  margin-right: -5px;
+  border-top-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-ne:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px
+}
+
+.tooltipped-nw:after {
+  margin-right: -15px
+}
+
+.tooltipped-s:after,
+.tooltipped-n:after {
+  -webkit-transform: translateX(50%);
+  -ms-transform: translateX(50%);
+  transform: translateX(50%)
+}
+
+.tooltipped-w:after {
+  right: 100%;
+  bottom: 50%;
+  margin-right: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-w:before {
+  top: 50%;
+  bottom: 50%;
+  left: -5px;
+  margin-top: -5px;
+  border-left-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-e:after {
+  bottom: 50%;
+  left: 100%;
+  margin-left: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-e:before {
+  top: 50%;
+  right: -5px;
+  bottom: 50%;
+  margin-top: -5px;
+  border-right-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-multiline:after {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  max-width: 250px;
+  word-break: break-word;
+  word-wrap: normal;
+  white-space: pre-line;
+  border-collapse: separate
+}
+
+.tooltipped-multiline.tooltipped-s:after,
+.tooltipped-multiline.tooltipped-n:after {
+  right: auto;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%)
+}
+
+.tooltipped-multiline.tooltipped-w:after,
+.tooltipped-multiline.tooltipped-e:after {
+  right: 100%
+}
+
+
+/* http://prismjs.com/download.html?themes=prism&languages=markup+css+clike+javascript+go+markdown+scss&plugins=line-numbers */
+
+
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+  color: black;
+  background: none;
+  text-shadow: 0 1px white;
+  font-family: $code-font-family;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 2;
+  hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection,
+pre[class*="language-"]::-moz-selection,
+code[class*="language-"]::-moz-selection,
+code[class*="language-"]::-moz-selection {
+  text-shadow: none;
+  background: #b3d4fc;
+}
+
+pre[class*="language-"]::selection,
+pre[class*="language-"]::selection,
+code[class*="language-"]::selection,
+code[class*="language-"]::selection {
+  text-shadow: none;
+  background: #b3d4fc;
+}
+
+@media print {
+  code[class*="language-"],
+  pre[class*="language-"] {
+    text-shadow: none;
+  }
+}
+
+
+/* Code blocks */
+
+pre[class*="language-"] {
+  padding: 1em 1em 2em 1em;
+  margin: .5em 0;
+  overflow: auto;
+  background-color: $code-block-background-color;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: $body-bg-color;
+}
+
+
+/* Inline code */
+
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: $hugo-gray-dark;
+}
+
+.token.punctuation {
+  color: #999;
+}
+
+.namespace {
+  opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: $hugo-pink-dark;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: $hugo-green;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: $hugo-pink-dark;
+  background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: $hugo-blue;
+}
+
+.token.function {
+  color: $hugo-gold;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: $hugo-gold
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+pre.line-numbers {
+  position: relative;
+  padding-left: 3.8em;
+  counter-reset: linenumber;
+}
+
+pre.line-numbers > code {
+  position: relative;
+}
+
+.line-numbers .line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  font-size: 100%;
+  left: -3.8em;
+  width: 3em;
+  /* works for line-numbers below 1000 lines */
+  letter-spacing: -1px;
+  border-right: 1px solid $hugo-gray;
+  user-select: none;
+}
+
+.line-numbers-rows > span {
+  pointer-events: none;
+  display: block;
+  counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+  content: counter(linenumber);
+  color: $hugo-gray;
+  display: block;
+  padding-right: 0.8em;
+  text-align: right;
+}
+
+//Modifications, especially for digital.cap.org/docs
+code.language-markdown {
+  span.token.italic {
+    color: $hugo-pink;
+  }
+  span.token.url {
+    color: $hugo-blue;
+  }
+  //for * and 1 in markdown lists
+  .token.list.punctuation {
+    color: $hugo-blue;
+  }
+}

@@ -1,12 +1,12 @@
 {{ define "main" }}
 <main class="main">
+	<a role="button" target="_blank" class="edit-link" href="{{.Site.Params.ghrepourl}}{{.File.Path}}"><span class="edit-text">Edit</span> <i class="icon-pencil" aria-hidden="true"></i></a>
 	<header class="content-header">
-		<h1 class="{{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
-		<a role="button" target="_blank" class="edit-link" href="{{.Site.Params.ghrepourl}}{{.File.Path}}"><span class="edit-text">Edit</span> <i class="fa fa-pencil" aria-hidden="true"></i></a>
+		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "January 2, 2006"}}{{else}}{{.PublishDate.Format "January 2, 2006"}}{{end}}</span>
 	</header>
 	<div class="body-copy">
 	{{.Content}}
-	<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "January 2, 2006"}}{{else}}{{.PublishDate.Format "January 2, 2006"}}{{end}}</span>
 	</div>
 </main>
 {{ end }}

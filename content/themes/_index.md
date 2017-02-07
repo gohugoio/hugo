@@ -5,7 +5,8 @@ description: Description of the theming section and its contents.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+weight: 01
+categories: []
 tags: []
 draft: false
 slug:

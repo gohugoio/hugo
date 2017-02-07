@@ -7,7 +7,7 @@
 //base styles
 @import 'base/normalize';
 @import 'base/base';
-@import 'base/fontawesome'; //requires that $usefontawesome be set to true in _variables.scss
+@import 'base/fontello';
 @import 'base/typography';
 
 //components
@@ -15,13 +15,16 @@
 @import 'components/lists';
 @import 'components/anchors';
 @import 'components/note-and-warn';
-// @import 'components/navigation-menu';
+@import 'vendor/prism';
+@import 'components/code';
+@import 'components/icons';
 
 //major layout parts/chrome
 @import 'layout/site-header';
 @import 'layout/site-navigation';
 @import 'layout/site-content';
 @import 'layout/site-footer';
+
 
 //styles for individual pages
 @import 'pages/homepage';

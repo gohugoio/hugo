@@ -1,0 +1,84 @@
+about:
+  order: 1
+  title: "About Hugo"
+  url: "about-hugo"
+  haschildren: true
+  sortsubpagesby: "weight"
+gettingstarted:
+  order: 2
+  title: "Getting Started"
+  url: "getting-started"
+  haschildren: true
+  sortsubpagesby: "weight"
+projectorganization:
+  order: 3
+  title: "Project Organization"
+  url: "project-organization"
+  haschildren: true
+  sortsubpagesby: "weight"
+contentmanagement:
+  order: 4
+  title: "Content Management"
+  url: "content-management"
+  haschildren: true
+  sortsubpagesby: "weight"
+templates:
+  order: 5
+  title: "Templates"
+  url: "templates"
+  haschildren: true
+  sortsubpagesby: "weight"
+functions:
+  order: 6
+  title: "Functions"
+  url: "functions"
+  haschildren: true
+  sortsubpagesby: "title"
+variablesandparams:
+  order: 7
+  title: "Variables and Params"
+  url: "variables-and-params"
+  haschildren: true
+  sortsubpagesby: "weight"
+themes:
+  order: 8
+  title: "Themes"
+  url: "themes"
+  haschildren: true
+  sortsubpagesby: "weight"
+hostinganddeployment:
+  order: 9
+  title: "Hosting and Deployment"
+  url: "hosting-and-deployment"
+  haschildren: true
+  sortsubpagesby: "weight"
+migratingtohugo:
+  order: 10
+  title: "Migrating to Hugo"
+  url: "migrating-to-hugo"
+  haschildren: true
+  sortsubpagesby: "weight"
+tutorials:
+  order: 11
+  title: "Tutorials"
+  url: "tutorials"
+  haschildren: true
+  sortsubpagesby: "weight"
+developertools:
+  order: 12
+  title: "Developer Tools"
+  url: "developer-tools"
+  haschildren: true
+  sortsubpagesby: "weight"
+troubleshooting:
+  order: 13
+  title: "Troubleshooting"
+  url: "troubleshooting"
+  haschildren: true
+  sortsubpagesby: "weight"
+newsandarticles:
+  order: 14
+  title: "News and Articles"
+  url: "news-and-articles"
+  haschildren: true
+  sortsubpagesby: "weight"

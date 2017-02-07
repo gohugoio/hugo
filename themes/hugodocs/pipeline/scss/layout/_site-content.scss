@@ -23,7 +23,7 @@ main.main {
   margin-left: auto;
   margin-right: auto;
   max-width: $content-max-width;
-  // background-color: $body-bg-color;
+  position:relative;
   header.content-header {
     display: block;
     clear: both;
@@ -33,25 +33,34 @@ main.main {
     @include MQ(M) {
       margin-top: 2em;
     }
-    a.edit-link {
-      font-size: 1.2em;
-      position: absolute;
-      top: -1em;
-      right: 0px;
-      @include MQ(L) {
-        font-size: .7em;
-        position:fixed;
-        top:$site-header-height + 40px;
-        right: 2em;
-      }
-      .edit-text {
-        display: none;
-        @include MQ(L) {
-          display: inline;
-          margin-right: .15em;
-          text-transform: uppercase;
-        }
-      }
+    .last-modified {
+      color: $hugo-gray-light;
+      display: block;
+      margin-top: -10px;
+      width: 100%;
+      font-size: .8em;
+      margin-bottom: 20px;
+    }
+  }
+}
+
+a.edit-link {
+  font-size: 1.2em;
+  position: absolute;
+  top: -40px;
+  right: 0px;
+  @include MQ(L) {
+    font-size: .7em;
+    position: fixed;
+    top: $site-header-height + 40px;
+    right: 2em;
+  }
+  .edit-text {
+    display: none;
+    @include MQ(L) {
+      display: inline;
+      margin-right: .15em;
+      text-transform: uppercase;
     }
   }
 }
@@ -59,16 +68,6 @@ main.main {
 .body-copy {
   margin-bottom: 2em;
   display: block;
-  .last-modified {
-    color: lighten($base-font-color, 20%);
-    display: block;
-    margin-top: 1.5em;
-    width: 100%;
-    font-size: .8em;
-    border-top: 1px solid lighten($base-font-color, 20%);
-    text-align: center;
-    text-transform: uppercase;
-  }
   div + h2 {
     margin-top: 1em;
   }

@@ -16,6 +16,11 @@ $hugo-pink-dark:#C9177E;
 $hugo-blue:#0594CB;
 $hugo-yellow:#FCD804;
 $hugo-gold:#EBB951;
+$hugo-gray:#737373;
+$hugo-gray-dark:darken($hugo-gray,10%);
+$hugo-gray-light:#949494;
+$hugo-green:#33BA91;
+$hugo-green-dark:#00A88A;
 $default-anchor-color:$hugo-pink;
 $default-anchor-weight: 500;
 $active-color: $default-anchor-color;
@@ -26,10 +31,13 @@ $body-bg-color:$hugo-white;
 //Typography
 $base-font-size: 18px;
 $base-font-family: 'muli','helvetica neue',helvetica,sans-serif;
+$heading-font-family: $base-font-family;
 $base-font-color: #333333;
-$base-line-height: 1.6;
+$base-line-height-content: 1.6;
 $base-font-weight: 300;
+$base-font-bold-weight: 700;
 $heading-font-weight: 700;
+$systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
 
 //Buttons
 $base-button-color: $hugo-blue;
@@ -38,6 +46,12 @@ $button-border-radius: .25em;
 
 //Codeblocks
 $code-font-family:'courierprime',courier,monospace;
+$code-tooltip-bg-color: $hugo-blue;
+$code-block-base-font-color: #333333;
+$code-block-background-color: $base-font-color;
+$code-editor-header-bg-color: $hugo-gray-dark;
+$code-filename-color:#ffffff;
+$code-copy-button-text-color:$code-filename-color;
 
 //Sidebar
 $sidebar-width: 280px;
@@ -45,3 +59,10 @@ $content-max-width: 35em;
 
 //Header
 $site-header-height:50px;
+
+//Brand Colors:
+$html: #E44D26;
+$css: #1758A7;
+$sass: #CF649A;
+$golang: #69D7E2;
+$javascript: #F0DB4F;

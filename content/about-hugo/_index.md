@@ -5,6 +5,7 @@ description: Hugo's features, roadmap, license, and motivation.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
+layout: single
 weight: 01
 draft: false
 slug:

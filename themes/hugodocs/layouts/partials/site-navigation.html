@@ -6,6 +6,30 @@
 </a>
 <nav class="site-navigation" id="site-navigation">
 	<ul class="top-menu">
+		{{$base := $.Site.BaseURL}}
+		{{$.Scratch.Set "currentsection" $.Section}}
+		{{$.Scratch.Set "currentpage" .Permalink }}
+		{{$.Scratch.Set "url" .URL }}
+		{{range $item, $params := sort ($.Site.Data.sitenavigation) "order"}}
+		{{$section := $params.url}}
+		<li class="top-menu-item"><a class="top-menu-item-link{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="#">{{$params.title}}</a>
+		{{if $params.haschildren}}
+			<ul class="submenu">
+				{{- if eq $params.sortsubpagesby "title"}}
+					{{range (where $.Site.Pages "Section" $section).ByTitle}}
+					<li class="submenu-item"><a class="submenu-item-link {{$section}}{{if eq ($.Scratch.Get "url") .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+					{{end}}
+				{{ else }}
+					{{range (where $.Site.Pages "Section" $section).ByWeight}}
+					<li class="submenu-item"><a class="submenu-item-link {{$section}}{{if eq ($.Scratch.Get "url") .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+					{{end}}
+				{{- end }}
+			</ul>
+		{{end}}
+		</li>
+		{{end}}
+	</ul>
+<!-- 	<ul class="top-menu">
 		{{ $menuitems := .Site.Params.sitemenuitems }}
 		{{ $sitesections := .Site.Sections }}
 		{{ $url := .URL }}
@@ -28,7 +52,7 @@
 			{{ end }}
 		{{ end }}
 		{{ end }}
-	</ul>
+	</ul> -->
 	<div class="nav-buttons">
 		<a role="button" class="icon-forum" href="https://discuss.gohugo.io" target="_blank">Discuss Hugo</a><br>
 		<a role="button" class="icon-mailing-list" href="{{.Site.BaseURL}}mailing-list/">Mailing List</a>
