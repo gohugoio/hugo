@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Site Showcase on Hugo</title>
+    <link>/site-showcase/index.xml</link>
+    <description>Recent content in Site Showcase on Hugo</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Feb 2017 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/site-showcase/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Clearhaus</title>
+      <link>/site-showcase/clearhaus/</link>
+      <pubDate>Fri, 21 Oct 2016 12:37:00 +0200</pubDate>
+      
+      <guid>/site-showcase/clearhaus/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dmitriid.com</title>
+      <link>/site-showcase/dmitriid.com/</link>
+      <pubDate>Wed, 19 Oct 2016 16:52:28 +0200</pubDate>
+      
+      <guid>/site-showcase/dmitriid.com/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Atom</title>
+      <link>/site-showcase/fixatom/</link>
+      <pubDate>Mon, 17 Oct 2016 16:19:24 +0800</pubDate>
+      
+      <guid>/site-showcase/fixatom/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>christianmendoza.me</title>
+      <link>/site-showcase/christianmendoza/</link>
+      <pubDate>Sun, 16 Oct 2016 13:30:47 -0400</pubDate>
+      
+      <guid>/site-showcase/christianmendoza/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>eurie Desk docs</title>
+      <link>/site-showcase/eurie/</link>
+      <pubDate>Sat, 15 Oct 2016 23:30:59 +0900</pubDate>
+      
+      <guid>/site-showcase/eurie/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>shapeshed.com</title>
+      <link>/site-showcase/shapeshed/</link>
+      <pubDate>Mon, 10 Oct 2016 07:32:00 +0000</pubDate>
+      
+      <guid>/site-showcase/shapeshed/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>thecodeking</title>
+      <link>/site-showcase/thecodeking/</link>
+      <pubDate>Sun, 09 Oct 2016 23:06:16 +0100</pubDate>
+      
+      <guid>/site-showcase/thecodeking/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>My Take on Cloud</title>
+      <link>/site-showcase/rahulrai/</link>
+      <pubDate>Tue, 04 Oct 2016 21:01:18 +0100</pubDate>
+      
+      <guid>/site-showcase/rahulrai/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>David Yates</title>
+      <link>/site-showcase/davidyates/</link>
+      <pubDate>Sat, 10 Sep 2016 07:07:39 +0200</pubDate>
+      
+      <guid>/site-showcase/davidyates/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Cinegy Open</title>
+      <link>/site-showcase/cinegyopen/</link>
+      <pubDate>Mon, 05 Sep 2016 23:23:18 +0200</pubDate>
+      
+      <guid>/site-showcase/cinegyopen/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Randall Degges</title>
+      <link>/site-showcase/rdegges/</link>
+      <pubDate>Fri, 05 Aug 2016 15:33:56 -0700</pubDate>
+      
+      <guid>/site-showcase/rdegges/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Roman Silin</title>
+      <link>/site-showcase/astrochili/</link>
+      <pubDate>Sun, 31 Jul 2016 11:22:32 +0300</pubDate>
+      
+      <guid>/site-showcase/astrochili/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>weilinshi</title>
+      <link>/site-showcase/steambap/</link>
+      <pubDate>Thu, 28 Jul 2016 07:32:00 +0000</pubDate>
+      
+      <guid>/site-showcase/steambap/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CompilED at CTL</title>
+      <link>/site-showcase/ctlcompiled/</link>
+      <pubDate>Mon, 25 Jul 2016 13:45:09 -0400</pubDate>
+      
+      <guid>/site-showcase/ctlcompiled/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Leow Kah Man - Tech Blog</title>
+      <link>/site-showcase/leowkahman/</link>
+      <pubDate>Sun, 24 Jul 2016 00:00:00 +0800</pubDate>
+      
+      <guid>/site-showcase/leowkahman/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Introduction to Hugo on Hugo</title>
+    <link>/about-hugo/index.xml</link>
+    <description>Recent content in Introduction to Hugo on Hugo</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 01 Nov 2016 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/about-hugo/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hugo Features</title>
+      <link>/about-hugo/hugo-features/</link>
+      <pubDate>Tue, 01 Nov 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/about-hugo/hugo-features/</guid>
+      <description>
+
+&lt;h2 id=&#34;general&#34;&gt;General&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Extremely fast build times (&amp;lt;1 ms per page)&lt;/li&gt;
+&lt;li&gt;Completely cross platform: Runs on &lt;i class=&#34;fa fa-apple&#34;&gt;&lt;/i&gt;&amp;nbsp;Mac OS&amp;nbsp;X, &lt;i class=&#34;fa fa-linux&#34;&gt;&lt;/i&gt;&amp;nbsp;Linux, &lt;i class=&#34;fa fa-windows&#34;&gt;&lt;/i&gt;&amp;nbsp;Windows, and more!&lt;/li&gt;
+&lt;li&gt;Easy &lt;a href=&#34;../overview/installing/&#34;&gt;installation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Render changes &lt;a href=&#34;../overview/usage/&#34;&gt;on the fly&lt;/a&gt; with &lt;a href=&#34;../extras/livereload/&#34;&gt;LiveReload&lt;/a&gt; as you develop&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../themes&#34;&gt;Powerful Theming&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Host your site anywhere&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;organization&#34;&gt;Organization&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Straightforward &lt;a href=&#34;../project-organization&#34;&gt;organization&lt;/a&gt;, including website sections&lt;/li&gt;
+&lt;li&gt;Customizable &lt;a href=&#34;../extras/urls/&#34;&gt;URLs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Support for configurable &lt;a href=&#34;../taxonomies/overview/&#34;&gt;taxonomies&lt;/a&gt; which includes categories and tags.  Create your own custom organization of content&lt;/li&gt;
+&lt;li&gt;Ability to &lt;a href=&#34;../content/ordering/&#34;&gt;sort content&lt;/a&gt; as you desire&lt;/li&gt;
+&lt;li&gt;Automatic &lt;a href=&#34;../extras/toc/&#34;&gt;table of contents&lt;/a&gt; generation&lt;/li&gt;
+&lt;li&gt;Dynamic menu creation&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../extras/urls/&#34;&gt;Pretty URLs&lt;/a&gt; support&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../extras/permalinks/&#34;&gt;Permalink&lt;/a&gt; pattern support&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../extras/aliases/&#34;&gt;Aliases&lt;/a&gt; (redirects)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;content&#34;&gt;Content&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Native &lt;a href=&#34;../content/example/&#34;&gt;Markdown&lt;/a&gt; support
+
+&lt;ul&gt;
+&lt;li&gt;Support for other languages through &lt;em&gt;external helpers&lt;/em&gt;, see &lt;a href=&#34;../content/supported-formats&#34;&gt;supported formats&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Support for TOML, YAML and JSON metadata in &lt;a href=&#34;../content/front-matter/&#34;&gt;frontmatter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Customizable &lt;a href=&#34;../layout/homepage/&#34;&gt;homepage&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Multiple &lt;a href=&#34;../content/types/&#34;&gt;content types&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Automatic and user defined &lt;a href=&#34;../content/summaries/&#34;&gt;summaries&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../extras/shortcodes/&#34;&gt;Shortcodes&lt;/a&gt; to enable rich content inside of Markdown&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../layout/variables/&#34;&gt;&amp;ldquo;Minutes to Read&amp;rdquo;&lt;/a&gt; functionality&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;../layout/variables/&#34;&gt;&amp;ldquo;Wordcount&amp;rdquo;&lt;/a&gt; functionality&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;additional-features&#34;&gt;Additional Features&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Integrated &lt;a href=&#34;https://disqus.com/&#34; target=&#34;_blank&#34;&gt;Disqus&lt;/a&gt; comment support&lt;/li&gt;
+&lt;li&gt;Integrated &lt;a href=&#34;https://google-analytics.com/&#34; target=&#34;_blank&#34;&gt;Google Analytics&lt;/a&gt; support&lt;/li&gt;
+&lt;li&gt;Automatic &lt;a href=&#34;../layout/rss/&#34;&gt;RSS&lt;/a&gt; creation&lt;/li&gt;
+&lt;li&gt;Support for &lt;a href=&#34;http://golang.org/pkg/html/template/&#34; target=&#34;_blank&#34;&gt;Go&lt;/a&gt;, &lt;a href=&#34;https://github.com/eknkc/amber&#34; target=&#34;_blank&#34;&gt;Amber&lt;/a&gt; and &lt;a href=&#34;https://github.com/yosssi/ace&#34; target=&#34;_blank&#34;&gt;Ace&lt;/a&gt; HTML templates&lt;/li&gt;
+&lt;li&gt;Syntax &lt;a href=&#34;../extras/highlighting/&#34;&gt;highlighting&lt;/a&gt; powered by &lt;a href=&#34;http://pygments.org/&#34; target=&#34;_blank&#34;&gt;Pygments&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;See what&amp;rsquo;s coming next in the &lt;a href=&#34;../about/roadmap&#34;&gt;Hugo roadmap&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Why Use a Static Site Generator?</title>
+      <link>/about-hugo/why-use-a-static-site-generator/</link>
+      <pubDate>Mon, 01 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/about-hugo/why-use-a-static-site-generator/</guid>
+      <description>
+
+&lt;p&gt;Website generators render content into HTML files. Most are &amp;ldquo;dynamic site generators.&amp;rdquo; That means the HTTP server (i.e., the program that communicates with your end user&amp;rsquo;s browser) runs the generator to create a new HTML file every time an end user requests a page.&lt;/p&gt;
+
+&lt;p&gt;Creating the page dynamically requires the HTTP server to have enough memory and CPU to effectively run the generator nonstop. If not, your end user will wait in a queue for the page to be generated.&lt;/p&gt;
+
+&lt;p&gt;To prevent unnecessary delays in delivering pages to end users, dynamic site generators were programmed to cache their HTML files. A cached page is a copy that is temporarily stored on the computer. Sending a cached copy is faster than generating a new page at the time of request because the majority of the work is already done.&lt;/p&gt;
+
+&lt;p&gt;Hugo and other static site generators take caching a step further. All HTML files are rendered on your computer. You can review the files before you copy them to the computer hosting the HTTP server. Since the HTML files aren&amp;rsquo;t generated dynamically, we say that Hugo is a &amp;ldquo;static site generator.&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;Not running a web site generator on your HTTP server has many benefits. The most noticeable is performance&amp;mdash;HTTP servers are very good at
+sending files. So good that you can effectively serve the same number
+of pages with a fraction of the memory and CPU needed for a dynamic site.&lt;/p&gt;
+
+&lt;p&gt;Hugo has two components to help you build and test your web site. The
+one that you&amp;rsquo;ll probably use most often is the built-in HTTP server.
+When you run &lt;code&gt;hugo server&lt;/code&gt;, Hugo renders all of your content into
+HTML files and then runs an HTTP server on your computer so that you
+can see what the pages look like.&lt;/p&gt;
+
+&lt;p&gt;The second component is used when you&amp;rsquo;re ready to publish your web
+site to the computer running your website. Running Hugo without any
+actions will rebuild your entire web site using the &lt;code&gt;baseURL&lt;/code&gt; setting
+from your site&amp;rsquo;s configuration file. That&amp;rsquo;s required to have your page
+links work properly with most hosting companies.&lt;/p&gt;
+
+&lt;h2 id=&#34;further-reading&#34;&gt;Further Reading&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;../documents/oreilly-static-site-generators.pdf&#34;&gt;&amp;ldquo;Static Site Generators&amp;rdquo;, O-Reilly&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.staticgen.com/&#34; target=&#34;_blank&#34;&gt;StaticGen: Top Open-Source Static Site Generators&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/&#34; target=&#34;_blank&#34;&gt;&amp;ldquo;Top 10 Static Website Generators,&amp;rdquo; Netlify blog&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Why I Built Hugo</title>
+      <link>/about-hugo/why-i-built-hugo/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/about-hugo/why-i-built-hugo/</guid>
+      <description>&lt;p&gt;I wrote Hugo ultimately for a few reasons. First, I was disappointed with
+WordPress, my then website solution. With it, I couldn&amp;rsquo;t create
+content as efficiently as I wanted to.&lt;/p&gt;
+
+&lt;p&gt;WordPress sites rendered slowly and required I be online to write posts. WordPress is known for its constant security updates and horror stories of hacked blogs. I hated writing content in HTML instead of the much simpler Markdown. Overall, I felt like WordPress hindered more than helped. It kept me from writing great content.&lt;/p&gt;
+
+&lt;p&gt;I looked at existing static site generators like &lt;a href=&#34;https://jekyllrb.com/&#34; target=&#34;_blank&#34;&gt;Jekyll&lt;/a&gt;, &lt;a href=&#34;https://middlemanapp.com/&#34; target=&#34;_blank&#34;&gt;Middleman&lt;/a&gt;, and &lt;a href=&#34;https://nanoc.ws/&#34; target=&#34;_blank&#34;&gt;Nanoc&lt;/a&gt;. All had complicated installation dependencies and an unacceptably long time to render my blog with hundreds of posts. I wanted a framework that would give me rapid feedback while making changes to the templates, and the 5-minute-plus render times were just too slow. In general, the static site generators were very blog-minded and didn&amp;rsquo;t provide for other content types and flexible URLs.&lt;/p&gt;
+
+&lt;p&gt;I wanted to develop a fast and full-featured website framework without any
+dependencies. The &lt;a href=&#34;https://golang.org/&#34; target=&#34;_blank&#34;&gt;Go language&lt;/a&gt; seemed to have all the features I needed
+in a language. I began developing Hugo in Go and fell in love with the
+language. I hope you will enjoy using Hugo (and &lt;a href=&#34;https://github.com/spf13/hugo&#34; target=&#34;_blank&#34;&gt;contributing to it&lt;/a&gt;) as much
+as I have writing it.&lt;/p&gt;
+
+&lt;p&gt;&amp;mdash;Steve Francia (&lt;a href=&#34;https://twitter.com/@spf13&#34; target=&#34;_blank&#34;&gt;@spf13&lt;/a&gt;)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Roadmap</title>
+      <link>/about-hugo/roadmap/</link>
+      <pubDate>Tue, 01 Nov 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/about-hugo/roadmap/</guid>
+      <description>&lt;p&gt;In no particular order, here is what is currently being worked on for the Hugo project:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Intelligently related posts (&lt;a href=&#34;https://github.com/spf13/hugo/issues/98&#34; target=&#34;_blank&#34;&gt;#98&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Even easier deployment to S3, SSH, GitHub, rsync. Give the &lt;a href=&#34;../hosting-and-deployment/&#34;&gt;hosting and deployment&lt;/a&gt; section a shot or read one of the related &lt;a href=&#34;../tutorials&#34;&gt;tutorials&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Import from other website systems. There are already existing migration tools but they don’t cover all major platforms.&lt;/li&gt;
+&lt;li&gt;An interactive web based editor (See the &lt;a href=&#34;https://discuss.gohugo.io/t/web-based-editor/155&#34; target=&#34;_blank&#34;&gt;related Discuss thread&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Additional &lt;a href=&#34;../themes&#34;&gt;themes&lt;/a&gt; (always on-going, contributions welcome!)&lt;/li&gt;
+&lt;li&gt;Dynamic image resizing via shortcodes (&lt;a href=&#34;https://github.com/spf13/hugo/issues/1014&#34; target=&#34;_blank&#34;&gt;#1014&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Native support for additional content formats (AsciiDoc &lt;a href=&#34;https://github.com/spf13/hugo/issues/1435&#34; target=&#34;_blank&#34;&gt;#1435&lt;/a&gt;, reST &lt;a href=&#34;https://github.com/spf13/hugo/issues/1436&#34; target=&#34;_blank&#34;&gt;#1436&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;And, last but not least, &lt;em&gt;your&lt;/em&gt; best ideas!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&#34;note&#34;&gt;
+	&lt;h2&gt;&lt;i class=&#34;icon-note&#34;&gt;&lt;/i&gt; error: cannot access named params by position&lt;/h2&gt;
+	&lt;div class=&#34;shortcode-content&#34;&gt;
+	&lt;p&gt;Feel free to &lt;a href=&#34;../tutorials/how-to-contribute-to-hugo/&#34;&gt;contribute&lt;/a&gt; or open a new issue if you have an idea for a new feature.&lt;/p&gt;
+
+	&lt;/div&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>License</title>
+      <link>/about-hugo/license/</link>
+      <pubDate>Mon, 01 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/about-hugo/license/</guid>
+      <description>
+
+&lt;p&gt;Hugo v0.15 and later are released under the Apache 2.0 license.
+Earlier releases were under the Simple Public License.&lt;/p&gt;
+
+&lt;h2 id=&#34;apache-license&#34;&gt;Apache License&lt;/h2&gt;
+
+&lt;p&gt;&lt;em&gt;Version 2.0, January 2004&lt;/em&gt;
+&lt;em&gt;&amp;lt;&lt;a href=&#34;http://www.apache.org/licenses/&#34; target=&#34;_blank&#34;&gt;http://www.apache.org/licenses/&lt;/a&gt;&amp;gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;terms-and-conditions-for-use-reproduction-and-distribution&#34;&gt;Terms and Conditions for use, reproduction, and distribution&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-definitions&#34;&gt;1. Definitions&lt;/h4&gt;
+
+&lt;p&gt;“License” shall mean the terms and conditions for use, reproduction, and
+distribution as defined by Sections 1 through 9 of this document.&lt;/p&gt;
+
+&lt;p&gt;“Licensor” shall mean the copyright owner or entity authorized by the copyright
+owner that is granting the License.&lt;/p&gt;
+
+&lt;p&gt;“Legal Entity” shall mean the union of the acting entity and all other entities
+that control, are controlled by, or are under common control with that entity.
+For the purposes of this definition, “control” means &lt;strong&gt;(i)&lt;/strong&gt; the power, direct or
+indirect, to cause the direction or management of such entity, whether by
+contract or otherwise, or &lt;strong&gt;(ii)&lt;/strong&gt; ownership of fifty percent (50%) or more of the
+outstanding shares, or &lt;strong&gt;(iii)&lt;/strong&gt; beneficial ownership of such entity.&lt;/p&gt;
+
+&lt;p&gt;“You” (or “Your”) shall mean an individual or Legal Entity exercising
+permissions granted by this License.&lt;/p&gt;
+
+&lt;p&gt;“Source” form shall mean the preferred form for making modifications, including
+but not limited to software source code, documentation source, and configuration
+files.&lt;/p&gt;
+
+&lt;p&gt;“Object” form shall mean any form resulting from mechanical transformation or
+translation of a Source form, including but not limited to compiled object code,
+generated documentation, and conversions to other media types.&lt;/p&gt;
+
+&lt;p&gt;“Work” shall mean the work of authorship, whether in Source or Object form, made
+available under the License, as indicated by a copyright notice that is included
+in or attached to the work (an example is provided in the Appendix below).&lt;/p&gt;
+
+&lt;p&gt;“Derivative Works” shall mean any work, whether in Source or Object form, that
+is based on (or derived from) the Work and for which the editorial revisions,
+annotations, elaborations, or other modifications represent, as a whole, an
+original work of authorship. For the purposes of this License, Derivative Works
+shall not include works that remain separable from, or merely link (or bind by
+name) to the interfaces of, the Work and Derivative Works thereof.&lt;/p&gt;
+
+&lt;p&gt;“Contribution” shall mean any work of authorship, including the original version
+of the Work and any modifications or additions to that Work or Derivative Works
+thereof, that is intentionally submitted to Licensor for inclusion in the Work
+by the copyright owner or by an individual or Legal Entity authorized to submit
+on behalf of the copyright owner. For the purposes of this definition,
+“submitted” means any form of electronic, verbal, or written communication sent
+to the Licensor or its representatives, including but not limited to
+communication on electronic mailing lists, source code control systems, and
+issue tracking systems that are managed by, or on behalf of, the Licensor for
+the purpose of discussing and improving the Work, but excluding communication
+that is conspicuously marked or otherwise designated in writing by the copyright
+owner as “Not a Contribution.”&lt;/p&gt;
+
+&lt;p&gt;“Contributor” shall mean Licensor and any individual or Legal Entity on behalf
+of whom a Contribution has been received by Licensor and subsequently
+incorporated within the Work.&lt;/p&gt;
+
+&lt;h4 id=&#34;2-grant-of-copyright-license&#34;&gt;2. Grant of Copyright License&lt;/h4&gt;
+
+&lt;p&gt;Subject to the terms and conditions of this License, each Contributor hereby
+grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free,
+irrevocable copyright license to reproduce, prepare Derivative Works of,
+publicly display, publicly perform, sublicense, and distribute the Work and such
+Derivative Works in Source or Object form.&lt;/p&gt;
+
+&lt;h4 id=&#34;3-grant-of-patent-license&#34;&gt;3. Grant of Patent License&lt;/h4&gt;
+
+&lt;p&gt;Subject to the terms and conditions of this License, each Contributor hereby
+grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free,
+irrevocable (except as stated in this section) patent license to make, have
+made, use, offer to sell, sell, import, and otherwise transfer the Work, where
+such license applies only to those patent claims licensable by such Contributor
+that are necessarily infringed by their Contribution(s) alone or by combination
+of their Contribution(s) with the Work to which such Contribution(s) was
+submitted. If You institute patent litigation against any entity (including a
+cross-claim or counterclaim in a lawsuit) alleging that the Work or a
+Contribution incorporated within the Work constitutes direct or contributory
+patent infringement, then any patent licenses granted to You under this License
+for that Work shall terminate as of the date such litigation is filed.&lt;/p&gt;
+
+&lt;h4 id=&#34;4-redistribution&#34;&gt;4. Redistribution&lt;/h4&gt;
+
+&lt;p&gt;You may reproduce and distribute copies of the Work or Derivative Works thereof
+in any medium, with or without modifications, and in Source or Object form,
+provided that You meet the following conditions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;(a)&lt;/strong&gt; You must give any other recipients of the Work or Derivative Works a copy of
+this License; and&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;(b)&lt;/strong&gt; You must cause any modified files to carry prominent notices stating that You
+changed the files; and&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&amp;copy;&lt;/strong&gt; You must retain, in the Source form of any Derivative Works that You distribute,
+all copyright, patent, trademark, and attribution notices from the Source form
+of the Work, excluding those notices that do not pertain to any part of the
+Derivative Works; and&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;(d)&lt;/strong&gt; If the Work includes a “NOTICE” text file as part of its distribution, then any
+Derivative Works that You distribute must include a readable copy of the
+attribution notices contained within such NOTICE file, excluding those notices
+that do not pertain to any part of the Derivative Works, in at least one of the
+following places: within a NOTICE text file distributed as part of the
+Derivative Works; within the Source form or documentation, if provided along
+with the Derivative Works; or, within a display generated by the Derivative
+Works, if and wherever such third-party notices normally appear. The contents of
+the NOTICE file are for informational purposes only and do not modify the
+License. You may add Your own attribution notices within Derivative Works that
+You distribute, alongside or as an addendum to the NOTICE text from the Work,
+provided that such additional attribution notices cannot be construed as
+modifying the License.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;You may add Your own copyright statement to Your modifications and may provide
+additional or different license terms and conditions for use, reproduction, or
+distribution of Your modifications, or for any such Derivative Works as a whole,
+provided Your use, reproduction, and distribution of the Work otherwise complies
+with the conditions stated in this License.&lt;/p&gt;
+
+&lt;h4 id=&#34;5-submission-of-contributions&#34;&gt;5. Submission of Contributions&lt;/h4&gt;
+
+&lt;p&gt;Unless You explicitly state otherwise, any Contribution intentionally submitted
+for inclusion in the Work by You to the Licensor shall be under the terms and
+conditions of this License, without any additional terms or conditions.
+Notwithstanding the above, nothing herein shall supersede or modify the terms of
+any separate license agreement you may have executed with Licensor regarding
+such Contributions.&lt;/p&gt;
+
+&lt;h4 id=&#34;6-trademarks&#34;&gt;6. Trademarks&lt;/h4&gt;
+
+&lt;p&gt;This License does not grant permission to use the trade names, trademarks,
+service marks, or product names of the Licensor, except as required for
+reasonable and customary use in describing the origin of the Work and
+reproducing the content of the NOTICE file.&lt;/p&gt;
+
+&lt;h4 id=&#34;7-disclaimer-of-warranty&#34;&gt;7. Disclaimer of Warranty&lt;/h4&gt;
+
+&lt;p&gt;Unless required by applicable law or agreed to in writing, Licensor provides the
+Work (and each Contributor provides its Contributions) on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied,
+including, without limitation, any warranties or conditions of TITLE,
+NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are
+solely responsible for determining the appropriateness of using or
+redistributing the Work and assume any risks associated with Your exercise of
+permissions under this License.&lt;/p&gt;
+
+&lt;h4 id=&#34;8-limitation-of-liability&#34;&gt;8. Limitation of Liability&lt;/h4&gt;
+
+&lt;p&gt;In no event and under no legal theory, whether in tort (including negligence),
+contract, or otherwise, unless required by applicable law (such as deliberate
+and grossly negligent acts) or agreed to in writing, shall any Contributor be
+liable to You for damages, including any direct, indirect, special, incidental,
+or consequential damages of any character arising as a result of this License or
+out of the use or inability to use the Work (including but not limited to
+damages for loss of goodwill, work stoppage, computer failure or malfunction, or
+any and all other commercial damages or losses), even if such Contributor has
+been advised of the possibility of such damages.&lt;/p&gt;
+
+&lt;h4 id=&#34;9-accepting-warranty-or-additional-liability&#34;&gt;9. Accepting Warranty or Additional Liability&lt;/h4&gt;
+
+&lt;p&gt;While redistributing the Work or Derivative Works thereof, You may choose to
+offer, and charge a fee for, acceptance of support, warranty, indemnity, or
+other liability obligations and/or rights consistent with this License. However,
+in accepting such obligations, You may act only on Your own behalf and on Your
+sole responsibility, not on behalf of any other Contributor, and only if You
+agree to indemnify, defend, and hold each Contributor harmless for any liability
+incurred by, or claims asserted against, such Contributor by reason of your
+accepting any such warranty or additional liability.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;END OF TERMS AND CONDITIONS&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;appendix-how-to-apply-the-apache-license-to-your-work&#34;&gt;APPENDIX: How to apply the Apache License to your work&lt;/h3&gt;
+
+&lt;p&gt;To apply the Apache License to your work, attach the following boilerplate
+notice, with the fields enclosed by brackets &lt;code&gt;[]&lt;/code&gt; replaced with your own
+identifying information. (Don&amp;rsquo;t include the brackets!) The text should be
+enclosed in the appropriate comment syntax for the file format. We also
+recommend that a file or class name and description of purpose be included on
+the same “printed page” as the copyright notice for easier identification within
+third-party archives.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Copyright [yyyy] [name of copyright owner]
+
+Licensed under the Apache License, Version 2.0 (the &amp;quot;License&amp;quot;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &amp;quot;AS IS&amp;quot; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sample Styles</title>
+      <link>/about-hugo/sample-styles-temporary/</link>
+      <pubDate>Mon, 01 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/about-hugo/sample-styles-temporary/</guid>
+      <description>
+
+&lt;p&gt;Here is some body copy. Here is a bit of &lt;code&gt;inline code&lt;/code&gt;. Here is a &lt;a href=&#34;https://www.google.com&#34; target=&#34;_blank&#34;&gt;link to Google&lt;/a&gt;. Here is some &lt;em&gt;emphasized and italics text&lt;/em&gt;. Here is some &lt;strong&gt;emphasized and bold text&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;lists&#34;&gt;Lists&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Unordered list item lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad dolorum alias vero.&lt;/li&gt;
+&lt;li&gt;Unordered list item
+
+&lt;ul&gt;
+&lt;li&gt;Nested unordered list item&lt;/li&gt;
+&lt;li&gt;Nested unordered list item
+
+&lt;ul&gt;
+&lt;li&gt;Nested again&lt;/li&gt;
+&lt;li&gt;Nested again&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Unordered list item&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Ordered list item lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente, quae nulla dolore eligendi.&lt;/li&gt;
+&lt;li&gt;Ordered list item
+
+&lt;ol&gt;
+&lt;li&gt;Nested ordered list item&lt;/li&gt;
+&lt;li&gt;Nested ordered list item
+
+&lt;ol&gt;
+&lt;li&gt;Nested again, ordered&lt;/li&gt;
+&lt;li&gt;Nested again, ordered&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;Ordered list item&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;callouts-ctas-admonitions&#34;&gt;Callouts/CTAs/Admonitions&lt;/h2&gt;
+
+&lt;div class=&#34;note&#34;&gt;
+	&lt;h2&gt;&lt;i class=&#34;icon-note&#34;&gt;&lt;/i&gt; Note Shortcode&lt;/h2&gt;
+	&lt;div class=&#34;shortcode-content&#34;&gt;
+	&lt;p&gt;Here is &lt;em&gt;something in italic&lt;/em&gt; in a shortcode. Here is &lt;strong&gt;something in bold&lt;/strong&gt;.&lt;/p&gt;
+
+	&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;caution&#34;&gt;
+	&lt;h2&gt;&lt;i class=&#34;icon-caution&#34;&gt;&lt;/i&gt; Caution Shortcode&lt;/h2&gt;
+	&lt;div class=&#34;shortcode-content&#34;&gt;
+	&lt;p&gt;Here is &lt;em&gt;something in italic&lt;/em&gt; in a shortcode. Here is &lt;strong&gt;something in bold&lt;/strong&gt;.&lt;/p&gt;
+
+	&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;warning&#34;&gt;
+	&lt;h2&gt;&lt;i class=&#34;icon-warning&#34;&gt;&lt;/i&gt; Warning Shortcode&lt;/h2&gt;
+	&lt;div class=&#34;shortcode-content&#34;&gt;
+	&lt;p&gt;Here is &lt;em&gt;something in italic&lt;/em&gt; in a shortcode. Here is &lt;strong&gt;something in bold&lt;/strong&gt;.&lt;/p&gt;
+
+	&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;code-block-shortcodes&#34;&gt;Code Block Shortcodes&lt;/h2&gt;
+
+&lt;h3 id=&#34;code-input-shortcode&#34;&gt;Code Input Shortcode&lt;/h3&gt;
+
+
+&lt;div class=&#34;code-copy&#34; id=&#34;my-first-template.html&#34;&gt;
+	&lt;div class=&#34;code-copy-header&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;my-first-template.html&#34;&gt;my-first-template.html&lt;/span&gt;&lt;i class=&#34;icon-html input&#34;&gt;&lt;/i&gt;&lt;/div&gt;
+	&lt;button class=&#34;copy-button&#34; title=&#34;Copy to clipboard&#34; data-clipboard-snippet&gt;
+			&lt;div class=&#34;copy-text&#34;&gt;&lt;i class=&#34;icon-clipboard&#34;&gt;&lt;/i&gt; COPY&lt;/div&gt;
+	&lt;/button&gt;&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;&amp;lt;ul&amp;gt;
+  {{range $.Site.Pages}}
+    &amp;lt;li&amp;gt;{{.Title}}&amp;lt;/li&amp;gt;
+  {{end}}
+&amp;lt;/ul&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+
+&lt;div class=&#34;code-copy&#34; id=&#34;first-script.js&#34;&gt;
+	&lt;div class=&#34;code-copy-header&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;first-script.js&#34;&gt;first-script.js&lt;/span&gt;&lt;i class=&#34;icon-js input&#34;&gt;&lt;/i&gt;&lt;/div&gt;
+	&lt;button class=&#34;copy-button&#34; title=&#34;Copy to clipboard&#34; data-clipboard-snippet&gt;
+			&lt;div class=&#34;copy-text&#34;&gt;&lt;i class=&#34;icon-clipboard&#34;&gt;&lt;/i&gt; COPY&lt;/div&gt;
+	&lt;/button&gt;&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;function myFunction(arg){
+  console.log(arg);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&#34;code-output-shortcode&#34;&gt;Code Output Shortcode&lt;/h3&gt;
+
+&lt;div class=&#34;code-copy&#34; id=&#34;/posts/index.html&#34;&gt;
+	&lt;div class=&#34;code-copy-header output&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;/posts/index.html&#34;&gt;&lt;strong&gt;&lt;em&gt;Renders to... &lt;/em&gt;&lt;/strong&gt;/posts/index.html&lt;/span&gt;&lt;i class=&#34;icon-html&#34;&gt;&lt;/i&gt;&lt;/div&gt;&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;&amp;lt;ul&amp;gt;
+    &amp;lt;li&amp;gt;My First Post&amp;lt;/li&amp;gt;
+    &amp;lt;li&amp;gt;My Second Post&amp;lt;/li&amp;gt;
+    &amp;lt;li&amp;gt;My Third Post&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;code-copy&#34; id=&#34;/first-data.json&#34;&gt;
+	&lt;div class=&#34;code-copy-header output&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;/first-data.json&#34;&gt;&lt;strong&gt;&lt;em&gt;Renders to... &lt;/em&gt;&lt;/strong&gt;/first-data.json&lt;/span&gt;&lt;i class=&#34;icon-json&#34;&gt;&lt;/i&gt;&lt;/div&gt;&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+    &amp;quot;glossary&amp;quot;: {
+        &amp;quot;title&amp;quot;: &amp;quot;example glossary&amp;quot;,
+        &amp;quot;GlossDiv&amp;quot;: {
+            &amp;quot;title&amp;quot;: &amp;quot;S&amp;quot;
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&#34;markdown-code-block-without-shortcode&#34;&gt;Markdown Code Block without Shortcode&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-javascript&#34;&gt;function myFunction(val){
+  console.log(val);
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

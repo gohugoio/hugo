@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta name="robots" content="noindex"><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Scaffolding new projects, configuration, and source organization." />
+<title>Hugo | Configuration</title>
+<link rel="dns-prefetch" href="https://gohugo.io">
+
+<link rel="preconnect" href="../../">
+<link rel="canonical" href="../../project-organization/configuration/">
+
+
+	
+	
+	<link rel="prefetch" href="../../project-organization/directory-structure/">
+	<link rel="prerender" href="../../project-organization/directory-structure/">
+	
+
+
+<link rel="apple-touch-icon" sizes="57x57" href="../../images/favicons/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="../../images/favicons/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../../images/favicons/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="../../images/favicons/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../../images/favicons/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="../../images/favicons/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="../../images/favicons/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="../../images/favicons/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../../images/favicons/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="../../images/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="../../images/favicons/favicon-194x194.png" sizes="194x194">
+<link rel="icon" type="image/png" href="../../images/favicons/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="../../images/favicons/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="../../images/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="../../images/favicons/manifest.json">
+<link rel="mask-icon" href="../../images/favicons/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="shortcut icon" href="../../images/favicons/favicon.ico">
+<meta name="msapplication-TileColor" content="#2b5797">
+<meta name="msapplication-TileImage" content="/images/favicons/mstile-144x144.png">
+<meta name="msapplication-config" content="/images/favicons/browserconfig.xml">
+<meta name="theme-color" content="#ffffff"><link rel="stylesheet" href="../../css/style.min.css">
+</head><body><header id="site-header" class="site-header">
+	<div class="hugo-meta" title="Hugo version 0.19-DEV, built ">
+		<a href="../../" id="home-link">
+			<img src="../../images/hugo-logo-wide.png" alt=""><span class="hugo-v">v0.19-DEV</span>
+		</a>
+	</div>
+</header><div class="all-content-wrapper" id="all-content-wrapper">
+	
+
+<main class="main">
+	<header class="content-header">
+		<h1 class="page-title">Configuration</h1>
+		<div class="content-header-links">
+		<a target="_blank" class="edit-link" href="https://github.com/rdwatters/hugo-docs-concept/edit/master/content/project-organization/configuration.md"><span class="edit">Edit Page</span><i class="icon-pencil" aria-hidden="true"></i></a></div>
+		
+		<ul class="tags">
+			<li><i class="icon-tags"></i></li>
+			
+			<li><a class="tag" href="../../tags/configuration">configuration</a></li>
+			
+			<li><a class="tag" href="../../tags/fundamentals">fundamentals</a></li>
+			
+		</ul>
+		
+		<span class="last-modified">Last Updated: January 2, 2017</span>
+	</header>
+	<div class="body-copy">
+	
+
+<p>The <a href="../../project-organization/directory-structure">directory structure</a> of a Hugo website&mdash;or more precisely, the source organization of files containing the website&rsquo;s content and templates&mdash;provide most of the configuration information that Hugo needs in order to statically generate a finished website.</p>
+
+<p>Therefore, many websites wouldn&rsquo;t actually need a configuration file. This is because Hugo is designed to recognize certain typical usage patterns (and expects them, by default).</p>
+
+<p>Nevertheless, Hugo searches for a configuration file in the root of your website&rsquo;s source directory as a default behavior. First, it looks for a <code>./config.toml</code> file. If that&rsquo;s not present, it will seek a <code>./config.yaml</code> file,
+followed by a <code>./config.json</code> file.</p>
+
+<p>In this <code>config</code> file, you can include precise directions to Hugo regarding how it should render your website, control your website&rsquo;s menus, and arbitrarily define site-wide parameters specific to your project.</p>
+
+<h2 id="configure-through-environmental-variables">Configure Through Environmental Variables</h2>
+
+<p>In addition to the 3 configuration file options already mentioned, website configuration can be accomplished through operating system environment variables.</p>
+
+<p>For example, the following command will effectively set a website&rsquo;s title on Unix-like systems:</p>
+
+
+<div class="code-copy" id="environment-variable.sh">
+	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="environment-variable.sh">environment-variable.sh</span><i class="icon-sh input"></i></div>
+	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
+			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
+	</button><pre><code class="language-bash">$ env HUGO_TITLE=&quot;Some Title&quot; hugo
+</code></pre>
+</div>
+
+<div class="note">
+	<h2><i class="icon-note"></i> Setting Environment Variables</h2>
+	<div class="shortcode-content">
+	<p>names must be prefixed with <code>HUGO_</code> when setting environment variables through operating system environment variables.</p>
+
+	</div>
+</div>
+
+<h2 id="configuration-in-yaml">Configuration in YAML</h2>
+
+<p>The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under <code>params:</code> will populate the <a href="../../variables-and-params/"><code>.Site.Params</code></a> variable for use in <a href="../../templates">templates</a>:</p>
+
+
+<div class="code-copy" id="config.yml">
+	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="config.yml">config.yml</span><i class="icon-yml input"></i></div>
+	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
+			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
+	</button><pre><code class="language-yaml">---
+baseURL: &quot;http://yoursite.example.com/&quot;
+title: &quot;Yoyodyne Widget Blogging&quot;
+footnoteReturnLinkContents: &quot;↩&quot;
+permalinks:
+  post: /:year/:month/:title/
+params:
+  Subtitle: &quot;Spinning the cogs in the widgets&quot;
+  AuthorName: &quot;John Doe&quot;
+  GitHubUser: &quot;spf13&quot;
+  ListOfFoo:
+    - &quot;foo1&quot;
+    - &quot;foo2&quot;
+  SidebarRecentLimit: 5
+...
+</code></pre>
+</div>
+
+<h2 id="configuration-in-toml">Configuration in TOML</h2>
+
+<p>The following is an example of a TOML configuration file. The values under <code>[params]</code> will populate the <code>.Site.Params</code> variable for use in <a href="../../templates">templates</a>:</p>
+
+
+<div class="code-copy" id="config.toml">
+	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="config.toml">config.toml</span><i class="icon-toml input"></i></div>
+	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
+			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
+	</button><pre><code class="language-toml">contentDir = &quot;content&quot;
+layoutDir = &quot;layouts&quot;
+publishDir = &quot;public&quot;
+buildDrafts = false
+baseURL = &quot;http://yoursite.example.com/&quot;
+canonifyURLs = true
+
+[taxonomies]
+  category = &quot;categories&quot;
+  tag = &quot;tags&quot;
+
+[params]
+  description = &quot;Tesla's Awesome Hugo Site&quot;
+  author = &quot;Nikola Tesla&quot;
+</code></pre>
+</div>
+
+<h2 id="complete-list-of-configuration-variables">Complete List of Configuration Variables</h2>
+
+<p>The following is a list of Hugo-defined variables. The values assigned to each of the variables represents the default value used by Hugo if you not specifically change the value in your configuration.</p>
+
+
+<div class="code-copy" id="config.yml">
+	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="config.yml">config.yml</span><i class="icon-yml input"></i></div>
+	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
+			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
+	</button><pre><code class="language-yaml">---
+archetypeDir:               &quot;archetypes&quot;
+# hostname (and path) to the root, e.g. http://spf13.com/
+baseURL:                    &quot;&quot;
+# include content marked as draft
+buildDrafts:                false
+# include content with publishdate in the future
+buildFuture:                false
+# include content already expired
+buildExpired:               false
+# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+relativeURLs:               false
+canonifyURLs:               false
+# config file (default is path/config.yaml|json|toml)
+config:                     &quot;config.toml&quot;
+contentDir:                 &quot;content&quot;
+dataDir:                    &quot;data&quot;
+defaultExtension:           &quot;html&quot;
+defaultLayout:              &quot;post&quot;
+# Missing translations will default to this content language
+defaultContentLanguage:     &quot;en&quot;
+# Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
+defaultContentLanguageInSubdir: false
+disableLiveReload:          false
+# Do not build RSS files
+disableRSS:                 false
+# Do not build Sitemap file
+disableSitemap:             false
+# Enable GitInfo feature
+enableGitInfo:              false
+# Build robots.txt file
+enableRobotsTXT:            false
+# Do not render 404 page
+disable404:                 false
+# Do not inject generator meta tag on homepage
+disableHugoGeneratorInject: false
+# edit new content with this editor, if provided
+editor:                     &quot;&quot;
+# Enable Emoji emoticons support for page content.
+# See www.emoji-cheat-sheet.com
+enableEmoji:                false
+# Show a placeholder instead of the default value or an empty string if a translation is missing
+enableMissingTranslationPlaceholders: false
+footnoteAnchorPrefix:       &quot;&quot;
+footnoteReturnLinkContents: &quot;&quot;
+# google analytics tracking id
+googleAnalytics:            &quot;&quot;
+languageCode:               &quot;&quot;
+layoutDir:                  &quot;layouts&quot;
+# Enable Logging
+log:                        false
+# Log File path (if set, logging enabled automatically)
+logFile:                    &quot;&quot;
+# &quot;yaml&quot;, &quot;toml&quot;, &quot;json&quot;
+metaDataFormat:             &quot;toml&quot;
+newContentEditor:           &quot;&quot;
+# Don't sync permission mode of files
+noChmod:                    false
+# Don't sync modification time of files
+noTimes:                    false
+paginate:                   10
+paginatePath:               &quot;page&quot;
+permalinks:
+# Pluralize titles in lists using inflect
+pluralizeListTitles:        true
+# Preserve special characters in taxonomy names (&quot;Gérard Depardieu&quot; vs &quot;Gerard Depardieu&quot;)
+preserveTaxonomyNames:      false
+# filesystem path to write files to
+publishDir:                 &quot;public&quot;
+# enables syntax guessing for code fences without specified language
+pygmentsCodeFencesGuessSyntax: false
+# color-codes for highlighting derived from this style
+pygmentsStyle:              &quot;monokai&quot;
+# true: use pygments-css or false: color-codes directly
+pygmentsUseClasses:         false
+# default sitemap configuration map
+sitemap:
+# filesystem path to read files relative from
+source:                     &quot;&quot;
+staticDir:                  &quot;static&quot;
+# display memory and timing of different steps of the program
+stepAnalysis:               false
+# theme to use (located by default in /themes/THEMENAME/)
+themesDir:                  &quot;themes&quot;
+theme:                      &quot;&quot;
+title:                      &quot;&quot;
+# if true, use /filename.html instead of /filename/
+uglyURLs:                   false
+# Do not make the url/path to lowercase
+disablePathToLower:         false
+# if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
+hasCJKLanguage:             false
+# verbose output
+verbose:                    false
+# verbose logging
+verboseLog:                 false
+# watch filesystem for changes and recreate as needed
+watch:                      true
+---
+</code></pre>
+</div>
+
+<h2 id="ignoring-files-when-rendering">Ignoring Files When Rendering</h2>
+
+<p>The following statement inside <code>./config.toml</code> will cause Hugo to ignore files
+ending with <code>.foo</code> and <code>.boo</code> when rendering:</p>
+
+<pre><code class="language-toml">ignoreFiles = [ &quot;\\.foo$&quot;, &quot;\\.boo$&quot; ]
+</code></pre>
+
+<p>The above is a list of regular expressions. Note that the backslash (<code>\</code>) character is escaped in this example to keep TOML happy.</p>
+
+	</div>
+</main>
+
+	</div><footer id="site-footer" class="site-footer">
+	<div>
+		<span><i class="icon-heart"></i> By <a href="https://twitter.com/spf13" target="_blank">spf13</a> and friends.</span>
+		<img src="../../images/made-with-hugo-dark.png" alt="Made with Hugo Logo">
+	</div>
+	<div>
+		<ul class="footer-list">
+			<li><a href="https://github.com/rdwatters/hugo-docs-concept/"><i class="icon-github" target="_blank"></i><i class="icon-docs"></i> Docs Source</a></li>
+			<li><a href="https://github.com/spf13/hugo/" target="_blank"><i class="icon-github"></i><i class="icon-code"></i> Project Source</a></li>
+			<li><a href="" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a></li>
+			<li><a href="https://gitter.im/spf13/hugo" target="_blank"><i class="icon-gitter"></i> Gitter (Dev Chat Only)</a></li>
+		</ul>
+	</div>
+</footer><a class="navigation-toggle-wrapper" id="navigation-toggle" href="#">
+		<div class="top bar"></div>
+		<div class="middle bar"></div>
+		<div class="bottom bar"></div>
+		<h4 class="menu">Menu</h4>
+</a>
+<nav class="site-navigation" id="site-navigation">
+	<ul class="top-menu">
+		
+		
+		
+		
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">About Hugo</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/">Introduction to Hugo</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/hugo-features/">Hugo Features</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/why-use-a-static-site-generator/">Why Use a Static Site Generator?</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/why-i-built-hugo/">Why I Built Hugo</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/roadmap/">Roadmap</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/license/">License</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link about-hugo" href="../../about-hugo/sample-styles-temporary/">Sample Styles</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Getting Started</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link getting-started" href="../../getting-started/">Using the Hugo Docs</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link getting-started" href="../../getting-started/download-hugo/">Download Hugo</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link getting-started" href="../../getting-started/install-from-source/">Install from Source</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link getting-started" href="../../getting-started/install-on-linux/">Install on Linux</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link getting-started" href="../../getting-started/install-on-mac/">Install on Mac OSX</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link getting-started" href="../../getting-started/install-on-pc/">Install on PC</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true active-section" href="#">Project Organization</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link project-organization" href="../../project-organization/">New Project Scaffolding</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link project-organization active-page" href="../../project-organization/configuration/">Configuration</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link project-organization" href="../../project-organization/directory-structure/">Directory Structure</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Content Management</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/">Content Management</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/archetypes/">Archetypes</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/cross-references/">Cross References</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/content-summaries/">Content Summaries</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/markdown-and-supported-formats/">Markdown and Supported Formats</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/multilingual-mode/">Multilingual Mode</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/permalinks/">Permalinks</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/sections/">Site Sections</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link content-management" href="../../content-management/front-matter/">Front Matter</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Templates</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/">Introduction to Hugo Templating</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/ace-templating/">Ace Templating</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/amber-templating/">Amber Templating</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/base-templates-and-blocks/">Base Templates and Blocks</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/data-templates/">Data Templates</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/go-template-primer/">Go Template Primer</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/homepage-template/">Homepage Template</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/list-page-template/">List Page Templates</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/shortcodes/">Shortcodes</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/single-page-template/">Single Page Templates</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/sitemap-template/">Sitemap Template</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/taxonomy-templates/">Taxonomy Templates</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/template-debugging/">Template Debugging</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/template-types-and-kinds/">Template Types and Kinds</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link templates" href="../../templates/template-views/">Template Views</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Functions</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/">Quick Reference</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/abslangurl/">absLangURL</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/absurl/">absURL</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/add/">add</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/after/">after</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/apply/">apply</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/base64decode/">base64Decode</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/base64encode/">base64Encode</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/chomp/">chomp</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/countrunes/">countrunes</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/countwords/">countwords</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/dateFormat/">dateFormat</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/default-function/">default</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/delimit/">delimit</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/dict/">dict</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/div/">div</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/echoParam/">echoParam</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/emojify/">emojify</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/findRe/">findRe</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/first/">first</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/getenv/">getenv</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/getpage/">GetPage</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/hasPrefix/">hasPrefix</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/highlight/">highlight</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/htmlEscape/">htmlEscape</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/htmlUnescape/">htmlUnescape</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/humanize/">humanize</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/imageConfig/">imageConfig</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/in/">in</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/index-function/">index</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/int/">int</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/intersect/">intersect</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/isset/">isset</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/jsonify/">jsonify</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/last/">last</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/lower/">lower</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/markdownify/">markdownify</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/md5/">md5</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/mod/">mod</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/modBool/">modBool</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/mul/">mul</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/partialCached/">partialCached</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/plainify/">plainify</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/pluralize/">pluralize</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/printf/">printf</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/querify/">querify</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/range/">range</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/readDir/">readDir</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/readFile/">readFile</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/rel/">rel</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/relLangURL/">relLangURL</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/relURL/">relURL</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/relref/">relref</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/render/">render</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/replace/">replace</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/safeCSS/">safeCSS</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/safeHTML/">safeHTML</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/safeHTMLAttr/">safeHTMLAttr</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/safeJS/">safeJS</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/safeURL/">safeURL</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/scratch/">Scratch</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/seq/">seq</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/sha1/">sha1</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/sha256/">sha256</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/shuffle/">shuffle</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/singularize/">singularize</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/slice/">slice</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/slicestr/">slicestr</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/sort/">sort</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/split/">split</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/string/">string</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/sub/">sub</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/substr/">substr</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/time/">time</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/title/">title</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/trim/">trim</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/upper/">upper</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/urlize/">urlize</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link functions" href="../../functions/where/">where</a></li>
+					
+				
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Variables and Params</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link variables-and-params" href="../../variables-and-params/">Variables vs Parameters</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link variables-and-params" href="../../variables-and-params/file-variables/">File Variables</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link variables-and-params" href="../../variables-and-params/page-variables/">Page Variables</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link variables-and-params" href="../../variables-and-params/site-variables/">Site Variables</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link variables-and-params" href="../../variables-and-params/taxonomy-variables/">Taxonomy Variables</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Themes</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link themes" href="../../themes/">Introduction to Themes</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Hosting and Deployment</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link hosting-and-deployment" href="../../hosting-and-deployment/">Building Your Static Site</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link hosting-and-deployment" href="../../hosting-and-deployment/deployment-with-wercker/">Deployment with Wercker</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link hosting-and-deployment" href="../../hosting-and-deployment/deployment-with-rsync/">Deployment with rysnc</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link hosting-and-deployment" href="../../hosting-and-deployment/hosting-on-bitbucket/">Hosting on Bitbucket</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link hosting-and-deployment" href="../../hosting-and-deployment/hosting-on-github/">Hosting on GitHub</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link hosting-and-deployment" href="../../hosting-and-deployment/hosting-on-gitlab/">Hosting on GitLab</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Migrating to Hugo</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link migrating-to-hugo" href="../../migrating-to-hugo/">Migrating to Hugo</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Tutorials</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link tutorials" href="../../tutorials/creating-a-multilingual-site/">Create a Multilingual Site</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Developer Tools</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link developer-tools" href="../../developer-tools/">Developer Tools</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Troubleshooting</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link troubleshooting" href="../../troubleshooting/">Troubleshooting</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link troubleshooting" href="../../troubleshooting/frequently-asked-questions/">Frequently Asked Questions</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">News and Articles</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link news-and-articles" href="../../news-and-articles/">News and Articles</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link news-and-articles" href="../../news-and-articles/release-notes/">Release Notes</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link true" href="#">Contribute to Hugo</a>
+		
+			<ul class="submenu">
+					
+					<li class="submenu-item"><a class="submenu-item-link contribute-to-hugo" href="../../contribute-to-hugo/">Contribute to Hugo Development</a></li>
+					
+					<li class="submenu-item"><a class="submenu-item-link contribute-to-hugo" href="../../contribute-to-hugo/contribute-to-hugo-docs/">Contribute to Hugo Docs</a></li>
+					
+			</ul>
+		
+		</li>
+		
+		
+		<li class="top-menu-item"><a class="top-menu-item-link false" href="../../site-showcase">Site Showcase</a>
+		
+		</li>
+		
+	</ul>
+	<div class="nav-buttons">
+		<a role="button" href="" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a><br>
+		<a role="button" href="../../mailing-list/"><i class="icon-mail"></i>Mailing List</a>
+	</div>
+</nav><script src="../../js/vendor/jquery-2.2.4.min.js"></script>
+<script src="../../js/script.min.js" async></script>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<script>
+(function() {
+  if (window.location.hostname === "localhost") {
+  	console.log("Analytics not running on local dev.");
+    return;
+  } else {
+    (function(i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', '', 'auto');
+    ga('send', 'pageview');
+    ga('create', '', {'siteSpeedSampleRate': 100});
+  }
+})();
+</script></body>
+</html>

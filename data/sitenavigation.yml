@@ -4,93 +4,109 @@ about:
   url: "about-hugo"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Hugo's features, roadmap, and license, as well as the motivation behind creating Hugo"
 gettingstarted:
   order: 2
   title: "Getting Started"
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Quick start and guides for installing Hugo on your development machine"
 projectorganization:
   order: 3
   title: "Project Organization"
   url: "project-organization"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Scaffolding new projects, configuration, and source organization"
 contentmanagement:
   order: 4
   title: "Content Management"
   url: "content-management"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Content organization, summaries, archetypes, front-matter, and supported formats"
 templates:
   order: 5
   title: "Templates"
   url: "templates"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Golang templating, template types and lookup order, shortcodes, and data"
 functions:
   order: 6
   title: "Functions"
   url: "functions"
   haschildren: true
   sortsubpagesby: "title"
+  desc: "Comprehensive list of Hugo templating functions, including basic and advanced usage examples"
 variablesandparams:
   order: 7
   title: "Variables and Params"
   url: "variables-and-params"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Page-, file-, taxonomy-, and site-level variables and parameters available in templates"
 themes:
   order: 8
   title: "Themes"
   url: "themes"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Install, use, and create your own Hugo themes"
 hostinganddeployment:
   order: 9
   title: "Hosting and Deployment"
   url: "hosting-and-deployment"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Site builds, automated deployments, and popular hosting solutions"
 migratingtohugo:
   order: 10
   title: "Migrating to Hugo"
   url: "migrating-to-hugo"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Tools and tutorials for migrating to Hugo from other platforms or generators (eg, Wordpress or Jekyll)"
 tutorials:
   order: 11
   title: "Tutorials"
   url: "tutorials"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Community-aggregated advice on how to approach different projects using Hugo"
 developertools:
   order: 12
   title: "Developer Tools"
   url: "developer-tools"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Command line reference, flags, syntax highlighting"
 troubleshooting:
   order: 13
   title: "Troubleshooting"
   url: "troubleshooting"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "FAQs pulled from the Hugo forum, known issues, and workarounds"
 newsandarticles:
   order: 14
   title: "News and Articles"
   url: "news-and-articles"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Articles featuring Hugo, as well as news, updates, and release notes for the project"
 contributetohugo:
   order: 15
   title: "Contribute to Hugo"
   url: "contribute-to-hugo"
   haschildren: true
   sortsubpagesby: "weight"
+  desc: "Contribute to Hugo development and documentation"
 siteshowcase:
   order: 16
   title: "Site Showcase"
   url: "site-showcase"
   haschildren: false
   sortsubpagesby: "weight"
+  desc: "A collection of websites build using Hugo"

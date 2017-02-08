@@ -50,8 +50,6 @@ verboseLog = false
 # Setting this to false will keep hugo from watching for changes during local development
 watch = true
 
-# [permalinks]
-#   singles = "/:title/"
 
 #CUSTOM PARAMS
 [params]
@@ -102,3 +100,4 @@ watch = true
 
 [taxonomies]
   tag = "tags"
+  category = "categories"

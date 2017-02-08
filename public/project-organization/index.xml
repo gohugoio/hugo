@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>New Project Scaffolding on Hugo</title>
+    <link>/project-organization/index.xml</link>
+    <description>Recent content in New Project Scaffolding on Hugo</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 01 Nov 2016 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/project-organization/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Configuration</title>
+      <link>/project-organization/configuration/</link>
+      <pubDate>Mon, 02 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/project-organization/configuration/</guid>
+      <description>
+
+&lt;p&gt;The &lt;a href=&#34;../project-organization/directory-structure&#34;&gt;directory structure&lt;/a&gt; of a Hugo website&amp;mdash;or more precisely, the source organization of files containing the website&amp;rsquo;s content and templates&amp;mdash;provide most of the configuration information that Hugo needs in order to statically generate a finished website.&lt;/p&gt;
+
+&lt;p&gt;Therefore, many websites wouldn&amp;rsquo;t actually need a configuration file. This is because Hugo is designed to recognize certain typical usage patterns (and expects them, by default).&lt;/p&gt;
+
+&lt;p&gt;Nevertheless, Hugo searches for a configuration file in the root of your website&amp;rsquo;s source directory as a default behavior. First, it looks for a &lt;code&gt;./config.toml&lt;/code&gt; file. If that&amp;rsquo;s not present, it will seek a &lt;code&gt;./config.yaml&lt;/code&gt; file,
+followed by a &lt;code&gt;./config.json&lt;/code&gt; file.&lt;/p&gt;
+
+&lt;p&gt;In this &lt;code&gt;config&lt;/code&gt; file, you can include precise directions to Hugo regarding how it should render your website, control your website&amp;rsquo;s menus, and arbitrarily define site-wide parameters specific to your project.&lt;/p&gt;
+
+&lt;h2 id=&#34;configure-through-environmental-variables&#34;&gt;Configure Through Environmental Variables&lt;/h2&gt;
+
+&lt;p&gt;In addition to the 3 configuration file options already mentioned, website configuration can be accomplished through operating system environment variables.&lt;/p&gt;
+
+&lt;p&gt;For example, the following command will effectively set a website&amp;rsquo;s title on Unix-like systems:&lt;/p&gt;
+
+
+&lt;div class=&#34;code-copy&#34; id=&#34;environment-variable.sh&#34;&gt;
+	&lt;div class=&#34;code-copy-header&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;environment-variable.sh&#34;&gt;environment-variable.sh&lt;/span&gt;&lt;i class=&#34;icon-sh input&#34;&gt;&lt;/i&gt;&lt;/div&gt;
+	&lt;button class=&#34;copy-button&#34; title=&#34;Copy to clipboard&#34; data-clipboard-snippet&gt;
+			&lt;div class=&#34;copy-text&#34;&gt;&lt;i class=&#34;icon-clipboard&#34;&gt;&lt;/i&gt; COPY&lt;/div&gt;
+	&lt;/button&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ env HUGO_TITLE=&amp;quot;Some Title&amp;quot; hugo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;note&#34;&gt;
+	&lt;h2&gt;&lt;i class=&#34;icon-note&#34;&gt;&lt;/i&gt; Setting Environment Variables&lt;/h2&gt;
+	&lt;div class=&#34;shortcode-content&#34;&gt;
+	&lt;p&gt;names must be prefixed with &lt;code&gt;HUGO_&lt;/code&gt; when setting environment variables through operating system environment variables.&lt;/p&gt;
+
+	&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;configuration-in-yaml&#34;&gt;Configuration in YAML&lt;/h2&gt;
+
+&lt;p&gt;The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under &lt;code&gt;params:&lt;/code&gt; will populate the &lt;a href=&#34;../variables-and-params/&#34;&gt;&lt;code&gt;.Site.Params&lt;/code&gt;&lt;/a&gt; variable for use in &lt;a href=&#34;../templates&#34;&gt;templates&lt;/a&gt;:&lt;/p&gt;
+
+
+&lt;div class=&#34;code-copy&#34; id=&#34;config.yml&#34;&gt;
+	&lt;div class=&#34;code-copy-header&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;config.yml&#34;&gt;config.yml&lt;/span&gt;&lt;i class=&#34;icon-yml input&#34;&gt;&lt;/i&gt;&lt;/div&gt;
+	&lt;button class=&#34;copy-button&#34; title=&#34;Copy to clipboard&#34; data-clipboard-snippet&gt;
+			&lt;div class=&#34;copy-text&#34;&gt;&lt;i class=&#34;icon-clipboard&#34;&gt;&lt;/i&gt; COPY&lt;/div&gt;
+	&lt;/button&gt;&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;---
+baseURL: &amp;quot;http://yoursite.example.com/&amp;quot;
+title: &amp;quot;Yoyodyne Widget Blogging&amp;quot;
+footnoteReturnLinkContents: &amp;quot;↩&amp;quot;
+permalinks:
+  post: /:year/:month/:title/
+params:
+  Subtitle: &amp;quot;Spinning the cogs in the widgets&amp;quot;
+  AuthorName: &amp;quot;John Doe&amp;quot;
+  GitHubUser: &amp;quot;spf13&amp;quot;
+  ListOfFoo:
+    - &amp;quot;foo1&amp;quot;
+    - &amp;quot;foo2&amp;quot;
+  SidebarRecentLimit: 5
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;configuration-in-toml&#34;&gt;Configuration in TOML&lt;/h2&gt;
+
+&lt;p&gt;The following is an example of a TOML configuration file. The values under &lt;code&gt;[params]&lt;/code&gt; will populate the &lt;code&gt;.Site.Params&lt;/code&gt; variable for use in &lt;a href=&#34;../templates&#34;&gt;templates&lt;/a&gt;:&lt;/p&gt;
+
+
+&lt;div class=&#34;code-copy&#34; id=&#34;config.toml&#34;&gt;
+	&lt;div class=&#34;code-copy-header&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;config.toml&#34;&gt;config.toml&lt;/span&gt;&lt;i class=&#34;icon-toml input&#34;&gt;&lt;/i&gt;&lt;/div&gt;
+	&lt;button class=&#34;copy-button&#34; title=&#34;Copy to clipboard&#34; data-clipboard-snippet&gt;
+			&lt;div class=&#34;copy-text&#34;&gt;&lt;i class=&#34;icon-clipboard&#34;&gt;&lt;/i&gt; COPY&lt;/div&gt;
+	&lt;/button&gt;&lt;pre&gt;&lt;code class=&#34;language-toml&#34;&gt;contentDir = &amp;quot;content&amp;quot;
+layoutDir = &amp;quot;layouts&amp;quot;
+publishDir = &amp;quot;public&amp;quot;
+buildDrafts = false
+baseURL = &amp;quot;http://yoursite.example.com/&amp;quot;
+canonifyURLs = true
+
+[taxonomies]
+  category = &amp;quot;categories&amp;quot;
+  tag = &amp;quot;tags&amp;quot;
+
+[params]
+  description = &amp;quot;Tesla&#39;s Awesome Hugo Site&amp;quot;
+  author = &amp;quot;Nikola Tesla&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;complete-list-of-configuration-variables&#34;&gt;Complete List of Configuration Variables&lt;/h2&gt;
+
+&lt;p&gt;The following is a list of Hugo-defined variables. The values assigned to each of the variables represents the default value used by Hugo if you not specifically change the value in your configuration.&lt;/p&gt;
+
+
+&lt;div class=&#34;code-copy&#34; id=&#34;config.yml&#34;&gt;
+	&lt;div class=&#34;code-copy-header&#34;&gt;&lt;div class=&#34;action-buttons&#34;&gt;&lt;/div&gt;&lt;span class=&#34;filename&#34; title=&#34;config.yml&#34;&gt;config.yml&lt;/span&gt;&lt;i class=&#34;icon-yml input&#34;&gt;&lt;/i&gt;&lt;/div&gt;
+	&lt;button class=&#34;copy-button&#34; title=&#34;Copy to clipboard&#34; data-clipboard-snippet&gt;
+			&lt;div class=&#34;copy-text&#34;&gt;&lt;i class=&#34;icon-clipboard&#34;&gt;&lt;/i&gt; COPY&lt;/div&gt;
+	&lt;/button&gt;&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;---
+archetypeDir:               &amp;quot;archetypes&amp;quot;
+# hostname (and path) to the root, e.g. http://spf13.com/
+baseURL:                    &amp;quot;&amp;quot;
+# include content marked as draft
+buildDrafts:                false
+# include content with publishdate in the future
+buildFuture:                false
+# include content already expired
+buildExpired:               false
+# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+relativeURLs:               false
+canonifyURLs:               false
+# config file (default is path/config.yaml|json|toml)
+config:                     &amp;quot;config.toml&amp;quot;
+contentDir:                 &amp;quot;content&amp;quot;
+dataDir:                    &amp;quot;data&amp;quot;
+defaultExtension:           &amp;quot;html&amp;quot;
+defaultLayout:              &amp;quot;post&amp;quot;
+# Missing translations will default to this content language
+defaultContentLanguage:     &amp;quot;en&amp;quot;
+# Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
+defaultContentLanguageInSubdir: false
+disableLiveReload:          false
+# Do not build RSS files
+disableRSS:                 false
+# Do not build Sitemap file
+disableSitemap:             false
+# Enable GitInfo feature
+enableGitInfo:              false
+# Build robots.txt file
+enableRobotsTXT:            false
+# Do not render 404 page
+disable404:                 false
+# Do not inject generator meta tag on homepage
+disableHugoGeneratorInject: false
+# edit new content with this editor, if provided
+editor:                     &amp;quot;&amp;quot;
+# Enable Emoji emoticons support for page content.
+# See www.emoji-cheat-sheet.com
+enableEmoji:                false
+# Show a placeholder instead of the default value or an empty string if a translation is missing
+enableMissingTranslationPlaceholders: false
+footnoteAnchorPrefix:       &amp;quot;&amp;quot;
+footnoteReturnLinkContents: &amp;quot;&amp;quot;
+# google analytics tracking id
+googleAnalytics:            &amp;quot;&amp;quot;
+languageCode:               &amp;quot;&amp;quot;
+layoutDir:                  &amp;quot;layouts&amp;quot;
+# Enable Logging
+log:                        false
+# Log File path (if set, logging enabled automatically)
+logFile:                    &amp;quot;&amp;quot;
+# &amp;quot;yaml&amp;quot;, &amp;quot;toml&amp;quot;, &amp;quot;json&amp;quot;
+metaDataFormat:             &amp;quot;toml&amp;quot;
+newContentEditor:           &amp;quot;&amp;quot;
+# Don&#39;t sync permission mode of files
+noChmod:                    false
+# Don&#39;t sync modification time of files
+noTimes:                    false
+paginate:                   10
+paginatePath:               &amp;quot;page&amp;quot;
+permalinks:
+# Pluralize titles in lists using inflect
+pluralizeListTitles:        true
+# Preserve special characters in taxonomy names (&amp;quot;Gérard Depardieu&amp;quot; vs &amp;quot;Gerard Depardieu&amp;quot;)
+preserveTaxonomyNames:      false
+# filesystem path to write files to
+publishDir:                 &amp;quot;public&amp;quot;
+# enables syntax guessing for code fences without specified language
+pygmentsCodeFencesGuessSyntax: false
+# color-codes for highlighting derived from this style
+pygmentsStyle:              &amp;quot;monokai&amp;quot;
+# true: use pygments-css or false: color-codes directly
+pygmentsUseClasses:         false
+# default sitemap configuration map
+sitemap:
+# filesystem path to read files relative from
+source:                     &amp;quot;&amp;quot;
+staticDir:                  &amp;quot;static&amp;quot;
+# display memory and timing of different steps of the program
+stepAnalysis:               false
+# theme to use (located by default in /themes/THEMENAME/)
+themesDir:                  &amp;quot;themes&amp;quot;
+theme:                      &amp;quot;&amp;quot;
+title:                      &amp;quot;&amp;quot;
+# if true, use /filename.html instead of /filename/
+uglyURLs:                   false
+# Do not make the url/path to lowercase
+disablePathToLower:         false
+# if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
+hasCJKLanguage:             false
+# verbose output
+verbose:                    false
+# verbose logging
+verboseLog:                 false
+# watch filesystem for changes and recreate as needed
+watch:                      true
+---
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&#34;ignoring-files-when-rendering&#34;&gt;Ignoring Files When Rendering&lt;/h2&gt;
+
+&lt;p&gt;The following statement inside &lt;code&gt;./config.toml&lt;/code&gt; will cause Hugo to ignore files
+ending with &lt;code&gt;.foo&lt;/code&gt; and &lt;code&gt;.boo&lt;/code&gt; when rendering:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-toml&#34;&gt;ignoreFiles = [ &amp;quot;\\.foo$&amp;quot;, &amp;quot;\\.boo$&amp;quot; ]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The above is a list of regular expressions. Note that the backslash (&lt;code&gt;\&lt;/code&gt;) character is escaped in this example to keep TOML happy.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Directory Structure</title>
+      <link>/project-organization/directory-structure/</link>
+      <pubDate>Mon, 02 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/project-organization/directory-structure/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

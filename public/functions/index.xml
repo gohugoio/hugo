@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Quick Reference on Hugo</title>
+    <link>/functions/index.xml</link>
+    <description>Recent content in Quick Reference on Hugo</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 09 Jan 2017 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/functions/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>abslangurl</title>
+      <link>/functions/abslangurl/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/abslangurl/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>absurl</title>
+      <link>/functions/absurl/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/absurl/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>add</title>
+      <link>/functions/add/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/add/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>after</title>
+      <link>/functions/after/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/after/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>apply</title>
+      <link>/functions/apply/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/apply/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>base64decode</title>
+      <link>/functions/base64decode/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/base64decode/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>base64encode</title>
+      <link>/functions/base64encode/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/base64encode/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>chomp</title>
+      <link>/functions/chomp/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/chomp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>countrunes</title>
+      <link>/functions/countrunes/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/countrunes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>countwords</title>
+      <link>/functions/countwords/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/countwords/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dateFormat</title>
+      <link>/functions/dateFormat/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/dateFormat/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>default</title>
+      <link>/functions/default-function/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/default-function/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>delimit</title>
+      <link>/functions/delimit/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/delimit/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dict</title>
+      <link>/functions/dict/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/dict/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>div</title>
+      <link>/functions/div/</link>
+      <pubDate>Wed, 01 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/functions/div/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
