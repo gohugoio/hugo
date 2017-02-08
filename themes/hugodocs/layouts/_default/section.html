@@ -1,13 +1,21 @@
 {{ define "main" }}
+{{$base := .Site.BaseURL}}
 <main class="main">
-	<a role="button" target="_blank" class="edit-link" href="{{.Site.Params.ghrepourl}}{{.File.Path}}"><span class="edit-text">Edit</span> <i class="icon-pencil" aria-hidden="true"></i></a>
 	<header class="content-header">
-		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<h1 class="page-title">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<div class="content-header-links">
+		<a target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><span class="edit">Edit Page</span><i class="icon-pencil" aria-hidden="true"></i></a>
+		{{- with .Params.godocref -}}
+		<a target="_blank" class="godoc-link" href="{{.}}" title="See the corresponding Golang Documentation for {{$.Title}}, {{$.Section}}."><span class="godocs">GoDocs</span>
+			{{ partial "svg-icons/godoc-icon.svg" .}}
+		</a>
+		{{- end -}}
+		</div>
 		{{with .Params.tags}}
 		<ul class="tags">
 			<li><i class="icon-tags"></i></li>
 			{{range .}}
-			<li><a class="tag" href="/tags/{{.|urlize}}">{{.}}</a></li>
+			<li><a class="tag" href="{{$base}}tags/{{.|urlize}}">{{.}}</a></li>
 			{{end}}
 		</ul>
 		{{end}}

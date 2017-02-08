@@ -1,6 +1,6 @@
 ---
 title: Developer Tools
-linktitle:
+linktitle: Developer Tools
 description: Description for the developer tools section.
 date: 2016-11-01
 publishdate: 2016-11-01

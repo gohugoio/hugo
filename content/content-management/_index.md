@@ -1,6 +1,6 @@
 ---
 title: Content Management
-linktitle:
+linktitle: Content Management
 description: Content organization, summaries, archetypes, front matter, and supported formats.
 date: 2017-02-01
 publishdate: 2017-02-01
