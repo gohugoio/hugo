@@ -121,7 +121,7 @@ div: {{div 6 3}}
 echoParam: {{ echoParam .Params "langCode" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
-findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." 1 }}
+findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}
 hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
 hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
 htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
@@ -2233,29 +2233,24 @@ func TestFindRE(t *testing.T) {
 	for i, this := range []struct {
 		expr    string
 		content interface{}
-		limit   int
+		limit   interface{}
 		expect  []string
 		ok      bool
 	}{
 		{"[G|g]o", "Hugo is a static site generator written in Go.", 2, []string{"go", "Go"}, true},
 		{"[G|g]o", "Hugo is a static site generator written in Go.", -1, []string{"go", "Go"}, true},
 		{"[G|g]o", "Hugo is a static site generator written in Go.", 1, []string{"go"}, true},
-		{"[G|g]o", "Hugo is a static site generator written in Go.", 0, []string(nil), true},
-		{"[G|go", "Hugo is a static site generator written in Go.", 0, []string(nil), false},
-		{"[G|g]o", t, 0, []string(nil), false},
+		{"[G|g]o", "Hugo is a static site generator written in Go.", "1", []string{"go"}, true},
+		{"[G|g]o", "Hugo is a static site generator written in Go.", nil, []string(nil), true},
+		{"[G|go", "Hugo is a static site generator written in Go.", nil, []string(nil), false},
+		{"[G|g]o", t, nil, []string(nil), false},
 	} {
 		var (
 			res []string
 			err error
 		)
 
-		if this.limit >= 0 {
-			res, err = findRE(this.expr, this.content, this.limit)
-
-		} else {
-			res, err = findRE(this.expr, this.content)
-		}
-
+		res, err = findRE(this.expr, this.content, this.limit)
 		if err != nil && this.ok {
 			t.Errorf("[%d] returned an unexpected error: %s", i, err)
 		}
