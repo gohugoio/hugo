@@ -113,6 +113,26 @@ func TestPageSortReverse(t *testing.T) {
 	assert.True(t, probablyEqualPages(p2, p1.Reverse()))
 }
 
+func TestPageSortByParam(t *testing.T) {
+	unsorted := createSortTestPages(10)
+	firstValue, _ := unsorted[0].Param("arbitrary")
+	secondValue, _ := unsorted[1].Param("arbitrary")
+	lastValue, _ := unsorted[9].Param("arbitrary")
+
+	assert.Equal(t, "xyz100", firstValue)
+	assert.Equal(t, "xyz99", secondValue)
+	assert.Equal(t, "xyz91", lastValue)
+
+	sorted := unsorted.ByParam("arbitrary")
+	firstSortedValue, _ := sorted[0].Param("arbitrary")
+	secondSortedValue, _ := sorted[1].Param("arbitrary")
+	lastSortedValue, _ := sorted[9].Param("arbitrary")
+
+	assert.Equal(t, firstValue, firstSortedValue)
+	assert.Equal(t, secondValue, lastSortedValue)
+	assert.Equal(t, lastValue, secondSortedValue)
+}
+
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
 
 	p := createSortTestPages(300)
@@ -154,6 +174,9 @@ func createSortTestPages(num int) Pages {
 			},
 			Site:   &info,
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
+			Params: map[string]interface{}{
+				"arbitrary": "xyz" + fmt.Sprintf("%v", 100-i),
+			},
 		}
 		w := 5
 

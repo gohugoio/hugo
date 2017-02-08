@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -272,6 +273,23 @@ func (p Pages) Reverse() Pages {
 	}
 
 	pages, _ := spc.get(key, p, reverseFunc)
+
+	return pages
+}
+
+func (p Pages) ByParam(paramsKeyStr string) Pages {
+	key := "pageSort.ByParam." + paramsKeyStr
+
+	paramsKeyComparator := func(p1, p2 *Page) bool {
+		v1, _ := p1.Param(paramsKeyStr)
+		v2, _ := p2.Param(paramsKeyStr)
+		s1 := fmt.Sprintf("%v", v1)
+		s2 := fmt.Sprintf("%v", v2)
+
+		return s1 < s2
+	}
+
+	pages, _ := spc.get(key, p, pageBy(paramsKeyComparator).Sort)
 
 	return pages
 }
