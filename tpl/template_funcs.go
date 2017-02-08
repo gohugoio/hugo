@@ -535,8 +535,8 @@ func first(limit interface{}, seq interface{}) (interface{}, error) {
 }
 
 // findRE returns a list of strings that match the regular expression. By default all matches
-// will be included. The number of matches can be limitted with an optional third parameter.
-func findRE(expr string, content interface{}, limit ...int) ([]string, error) {
+// will be included. The number of matches can be limited with an optional third parameter.
+func findRE(expr string, content interface{}, limit ...interface{}) ([]string, error) {
 	re, err := reCache.Get(expr)
 	if err != nil {
 		return nil, err
@@ -546,11 +546,17 @@ func findRE(expr string, content interface{}, limit ...int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(limit) > 0 {
-		return re.FindAllString(conv, limit[0]), nil
+
+	if len(limit) == 0 {
+		return re.FindAllString(conv, -1), nil
 	}
 
-	return re.FindAllString(conv, -1), nil
+	lim, err := cast.ToIntE(limit[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return re.FindAllString(conv, lim), nil
 }
 
 // last returns the last N items in a rangeable list.
