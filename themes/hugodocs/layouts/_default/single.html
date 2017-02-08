@@ -2,7 +2,7 @@
 {{$base := .Site.BaseURL}}
 <main class="main">
 	<header class="content-header">
-		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<h1 class="page-title">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
 		<div class="content-header-links">
 		<a target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><span class="edit">Edit Page</span><i class="icon-pencil" aria-hidden="true"></i></a>
 		{{- with .Params.godocref -}}
