@@ -1,0 +1,43 @@
+// Used for creating the source string for fonts using @font-face
+// Reference: http://goo.gl/Ru1bKP
+
+@function font-url-prefixer($asset-pipeline) {
+  @if $asset-pipeline == true {
+    @return font-url;
+  } @else {
+    @return url;
+  }
+}
+
+@function font-source-declaration(
+  $font-family,
+  $file-path,
+  $asset-pipeline,
+  $file-formats,
+  $font-url) {
+
+  $src: ();
+
+  $formats-map: (
+    eot:   "#{$file-path}.eot?#iefix" format("embedded-opentype"),
+    woff2: "#{$file-path}.woff2" format("woff2"),
+    woff:  "#{$file-path}.woff" format("woff"),
+    ttf:   "#{$file-path}.ttf" format("truetype"),
+    svg:   "#{$file-path}.svg##{$font-family}" format("svg")
+  );
+
+  @each $key, $values in $formats-map {
+    @if contains($file-formats, $key) {
+      $file-path: nth($values, 1);
+      $font-format: nth($values, 2);
+
+      @if $asset-pipeline == true {
+        $src: append($src, font-url($file-path) $font-format, comma);
+      } @else {
+        $src: append($src, url($file-path) $font-format, comma);
+      }
+    }
+  }
+
+  @return $src;
+}

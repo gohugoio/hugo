@@ -1,0 +1,51 @@
+@charset "UTF-8";
+
+/// Sets the `width` and `height` of the element.
+///
+/// @param {List} $size
+///   A list of at most 2 size values.
+///
+///   If there is only a single value in `$size` it is used for both width and height. All units are supported.
+///
+/// @example scss - Usage
+///   .first-element {
+///     @include size(2em);
+///   }
+///
+///   .second-element {
+///     @include size(auto 10em);
+///   }
+///
+/// @example css - CSS Output
+///   .first-element {
+///     width: 2em;
+///     height: 2em;
+///   }
+///
+///   .second-element {
+///     width: auto;
+///     height: 10em;
+///   }
+///
+/// @todo Refactor in 5.0.0 to use a comma-separated argument
+
+@mixin size($value) {
+  $width: nth($value, 1);
+  $height: $width;
+
+  @if length($value) > 1 {
+    $height: nth($value, 2);
+  }
+
+  @if is-size($height) {
+    height: $height;
+  } @else {
+    @warn "`#{$height}` is not a valid length for the `$height` parameter in the `size` mixin.";
+  }
+
+  @if is-size($width) {
+    width: $width;
+  } @else {
+    @warn "`#{$width}` is not a valid length for the `$width` parameter in the `size` mixin.";
+  }
+}

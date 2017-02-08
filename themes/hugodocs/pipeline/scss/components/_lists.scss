@@ -17,17 +17,42 @@ aside {
 
 //sets list style in body copy
 .body-copy {
-  ul {
-    list-style: disc outside none;
-    padding-left: 1em;
+  ul,
+  ol {
+    padding-left: .75em;
     margin-left: .25em;
     margin-top: 0px;
     padding-top: 0px;
-    margin-bottom:1.5em;
+    margin-bottom: 1.5em;
     li {
-      // padding-left:1em;
-      // margin-left: 1em;
-      // text-indent: -1em;
+      ul,ol {
+        margin-bottom:0px;
+      }
+    }
+  }
+  ul {
+    list-style: disc outside none;
+    li {
+      ul {
+        list-style-type: circle;
+        li {
+          ul {
+            list-style-type: square;
+          }
+        }
+      }
+    }
+  }
+  ol {
+    li {
+      ol {
+        list-style-type: lower-roman;
+        li {
+          ol {
+            list-style-type: lower-alpha;
+          }
+        }
+      }
     }
   }
 }

@@ -1,0 +1,96 @@
+@charset "UTF-8";
+
+/// Directional-property mixins are shorthands for writing properties like the following
+///
+/// @ignore You can also use `false` instead of `null`.
+///
+/// @param {List} $vals
+///   List of directional values
+///
+/// @example scss - Usage
+///   .element {
+///     @include border-style(dotted null);
+///     @include margin(null 0 10px);
+///   }
+///
+/// @example css - CSS Output
+///   .element {
+///     border-bottom-style: dotted;
+///     border-top-style: dotted;
+///     margin-bottom: 10px;
+///     margin-left: 0;
+///     margin-right: 0;
+///   }
+///
+/// @require {function} contains-falsy
+///
+/// @return {List}
+
+@function collapse-directionals($vals) {
+  $output: null;
+
+  $a: nth($vals, 1);
+  $b: if(length($vals) < 2, $a, nth($vals, 2));
+  $c: if(length($vals) < 3, $a, nth($vals, 3));
+  $d: if(length($vals) < 2, $a, nth($vals, if(length($vals) < 4, 2, 4)));
+
+  @if $a == 0 { $a: 0; }
+  @if $b == 0 { $b: 0; }
+  @if $c == 0 { $c: 0; }
+  @if $d == 0 { $d: 0; }
+
+  @if $a == $b and $a == $c and $a == $d { $output: $a;          }
+  @else if $a == $c and $b == $d         { $output: $a $b;       }
+  @else if $b == $d                      { $output: $a $b $c;    }
+  @else                                  { $output: $a $b $c $d; }
+
+  @return $output;
+}
+
+/// Output directional properties, for instance `margin`.
+///
+/// @access private
+///
+/// @param {String} $pre
+///   Prefix to use
+/// @param {String} $suf
+///   Suffix to use
+/// @param {List} $vals
+///   List of values
+///
+/// @require {function} collapse-directionals
+/// @require {function} contains-falsy
+
+@mixin directional-property($pre, $suf, $vals) {
+  // Property Names
+  $top:    $pre + "-top"    + if($suf, "-#{$suf}", "");
+  $bottom: $pre + "-bottom" + if($suf, "-#{$suf}", "");
+  $left:   $pre + "-left"   + if($suf, "-#{$suf}", "");
+  $right:  $pre + "-right"  + if($suf, "-#{$suf}", "");
+  $all:    $pre +             if($suf, "-#{$suf}", "");
+
+  $vals: collapse-directionals($vals);
+
+  @if contains-falsy($vals) {
+    @if nth($vals, 1) { #{$top}: nth($vals, 1); }
+
+    @if length($vals) == 1 {
+      @if nth($vals, 1) { #{$right}: nth($vals, 1); }
+    } @else {
+      @if nth($vals, 2) { #{$right}: nth($vals, 2); }
+    }
+
+    @if length($vals) == 2 {
+      @if nth($vals, 1) { #{$bottom}: nth($vals, 1); }
+      @if nth($vals, 2) { #{$left}:   nth($vals, 2); }
+    } @else if length($vals) == 3 {
+      @if nth($vals, 3) { #{$bottom}: nth($vals, 3); }
+      @if nth($vals, 2) { #{$left}:   nth($vals, 2); }
+    } @else if length($vals) == 4 {
+      @if nth($vals, 3) { #{$bottom}: nth($vals, 3); }
+      @if nth($vals, 4) { #{$left}:   nth($vals, 4); }
+    }
+  } @else {
+    #{$all}: $vals;
+  }
+}

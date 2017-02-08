@@ -14,7 +14,7 @@ notes:
 
 Website generators render content into HTML files. Most are "dynamic site generators." That means the HTTP server (i.e., the program that communicates with your end user's browser) runs the generator to create a new HTML file every time an end user requests a page.
 
-Creating the page dynamically requires the HTTP server have enough memory and CPU to effectively run the generator around the clock. If not, your end user will wait in a queue for the page to be generated.
+Creating the page dynamically requires the HTTP server to have enough memory and CPU to effectively run the generator nonstop. If not, your end user will wait in a queue for the page to be generated.
 
 To prevent unnecessary delays in delivering pages to end users, dynamic site generators were programmed to cache their HTML files. A cached page is a copy that is temporarily stored on the computer. Sending a cached copy is faster than generating a new page at the time of request because the majority of the work is already done.
 

@@ -4,7 +4,6 @@ h1,
 h2,
 h3,
 h4 {
-  letter-spacing: -.021em;
   font-weight: $heading-font-weight;
   margin: 0px;
   padding-bottom: 20px;
@@ -13,6 +12,7 @@ h4 {
 
 h1 {
   font-size: 2em;
+  letter-spacing: -.021em;
   @include MQ(M) {
     font-size: 2.25em;
   }
@@ -28,11 +28,17 @@ h3 {
 
 h4 {
   font-size: 1em;
-  color:$hugo-gray;
-  text-transform:uppercase;
+  color: $hugo-gray;
+  text-transform: uppercase;
 }
 
 .functions {
   font-family: $code-font-family;
   font-weight: $base-font-weight;
+}
+//keeps index page from taking on code/pre font family
+.submenu-item:first-child {
+  a.submenu-item-link.functions{
+    font-family:$base-font-family;
+  }
 }

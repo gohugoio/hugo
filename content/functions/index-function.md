@@ -1,17 +1,19 @@
 ---
 title: index
-linktitle:
+linktitle: index
 description:
-qr_description:
-qr_returns:
+workson: [map,slice,array]
+godocref: https://golang.org/pkg/text/template/#hdr-Functions
+tags: [iteration]
+categories: [functions]
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
 draft: false
-type:
-layout:
 slug:
 aliases: []
 notes:
 ---
+
+Here is some content for the `index` function.

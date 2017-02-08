@@ -1,7 +1,7 @@
 ---
 title: Submitting a Tutorial
 linktitle:
-description: Learn how to submit your tutorial to the Hugo docs.
+description: .
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

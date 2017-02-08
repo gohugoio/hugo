@@ -82,8 +82,14 @@ newsandarticles:
   url: "news-and-articles"
   haschildren: true
   sortsubpagesby: "weight"
-siteshowcase:
+contributetohugo:
   order: 15
+  title: "Contribute to Hugo"
+  url: "contribute-to-hugo"
+  haschildren: true
+  sortsubpagesby: "weight"
+siteshowcase:
+  order: 16
   title: "Site Showcase"
   url: "site-showcase"
   haschildren: false

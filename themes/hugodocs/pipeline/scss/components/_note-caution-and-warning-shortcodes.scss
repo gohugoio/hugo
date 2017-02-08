@@ -1,5 +1,5 @@
 .note,
-.caution,.warn {
+.caution,.warning {
   display: block;
   margin-bottom: 1em;
   width: 100%;
@@ -17,6 +17,7 @@
     display: block;
     margin: 0px;
     padding: 12px;
+    font-size:.9em;
   }
 }
 
@@ -25,7 +26,10 @@
     background-color: $hugo-blue;
   }
   .shortcode-content {
-    background-color: lighten($hugo-blue, 50%);
+    background-color: lighten($hugo-blue, 55%);
+    @include MQ(retina){
+      background-color: lighten($hugo-blue,56%);
+    }
   }
 }
 
@@ -35,14 +39,20 @@
   }
   .shortcode-content {
   	background-color: lighten($hugo-gold, 30%);
+    @include MQ(retina){
+      background-color: lighten($hugo-gold,35%);
+    }
   }
 }
 
-.warn {
+.warning {
   > h2 {
     background-color: $hugo-pink-dark;
   }
   .shortcode-content {
   	background-color: lighten($hugo-pink-dark, 50%);
+    @include MQ(retina){
+      background-color: lighten($hugo-pink-dark, 54%);
+    }
   }
 }

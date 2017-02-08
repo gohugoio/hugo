@@ -1,7 +1,7 @@
 ---
 title: Introduction to Themes
 linktitle:
-description: Description of the theming section and its contents.
+description: Install, use, and create Hugo themes.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -1,16 +1,16 @@
 ---
-title: Introduction
+title: Variables vs Parameters
 linktitle:
-description: Description for the variables and parameters section of the site.
+description: Page-, file-, taxonomy-, and site-level variables and parameters available in templates.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+weight: 01
 draft: false
 slug:
 aliases: []
 notes:
 ---
 
-Here is some content for the homepage.
+Content for the Variables and Params Section
 

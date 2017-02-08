@@ -1,3 +1,14 @@
 <footer id="site-footer" class="site-footer">
-
+	<div>
+		<span><i class="icon-heart"></i> By <a href="https://twitter.com/spf13" target="_blank">spf13</a> and friends.</span>
+		<img src="{{"images/made-with-hugo-dark.png" | relURL}}" alt="Made with Hugo Logo">
+	</div>
+	<div>
+		<ul class="footer-list">
+			<li><a href="{{.Site.Params.ghdocsrepo}}"><i class="icon-github" target="_blank"></i><i class="icon-docs"></i> Docs Source</a></li>
+			<li><a href="{{.Site.Params.ghrepo}}" target="_blank"><i class="icon-github"></i><i class="icon-code"></i> Project Source</a></li>
+			<li><a href="{{.Site.Params.discuss}}" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a></li>
+			<li><a href="{{.Site.Params.gitter}}" target="_blank"><i class="icon-gitter"></i> Gitter (Dev Chat Only)</a></li>
+		</ul>
+	</div>
 </footer>

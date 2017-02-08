@@ -1,5 +1,5 @@
 <div class="note">
-	<h2>{{with .Get "title"}}{{.}}{{else}}Note{{end}}</h2>
+	<h2><i class="icon-note"></i> {{if .Get 0}}{{.Get 0}}{{else}}Note{{end}}</h2>
 	<div class="shortcode-content">
 	{{.Inner}}
 	</div>

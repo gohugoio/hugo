@@ -13,3 +13,5 @@ slug:
 aliases: []
 notes:
 ---
+
+`.IsNamedParams` (reference to shortcodes)

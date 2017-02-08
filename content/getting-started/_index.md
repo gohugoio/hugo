@@ -1,7 +1,7 @@
 ---
 title: How to Use the Hugo Docs
 linktitle: Using the Hugo Docs
-description: Description for the Getting Started section.
+description: Quick start and guides for installing Hugo on your preferred operating system.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

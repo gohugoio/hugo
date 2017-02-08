@@ -1,0 +1,48 @@
+@charset "UTF-8";
+
+/// Provides a quick method for targeting `border-radius` on both corners on the side of a box.
+///
+/// @param {Number} $radii
+///   List of arguments
+///
+/// @example scss - Usage
+///   .element-one {
+///     @include border-top-radius(5px);
+///   }
+///
+///   .element-two {
+///     @include border-left-radius(3px);
+///   }
+///
+/// @example css - CSS Output
+///   .element-one {
+///     border-top-left-radius: 5px;
+///     border-top-right-radius: 5px;
+///   }
+///
+///   .element-two {
+///     border-bottom-left-radius: 3px;
+///     border-top-left-radius: 3px;
+///   }
+///
+/// @output `border-radius`
+
+@mixin border-top-radius($radii) {
+  border-top-left-radius: $radii;
+  border-top-right-radius: $radii;
+}
+
+@mixin border-right-radius($radii) {
+  border-bottom-right-radius: $radii;
+  border-top-right-radius: $radii;
+}
+
+@mixin border-bottom-radius($radii) {
+  border-bottom-left-radius: $radii;
+  border-bottom-right-radius: $radii;
+}
+
+@mixin border-left-radius($radii) {
+  border-bottom-left-radius: $radii;
+  border-top-left-radius: $radii;
+}

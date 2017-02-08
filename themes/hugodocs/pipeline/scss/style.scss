@@ -1,3 +1,5 @@
+@import 'bourbon/bourbon';
+
 //variables and abstracts
 @import 'variables';
 @import 'abstracts/mixins';
@@ -14,7 +16,7 @@
 @import 'components/buttons';
 @import 'components/lists';
 @import 'components/anchors';
-@import 'components/note-and-warn';
+@import 'components/note-caution-and-warning-shortcodes';
 @import 'vendor/prism';
 @import 'components/code';
 @import 'components/icons';

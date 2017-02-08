@@ -1,7 +1,7 @@
 ---
 title: Introduction to Hugo
 linktitle:
-description: Hugo's features, roadmap, license, and motivation.
+description: Hugo's features, roadmap, and license, as well as the motivation behind creating Hugo.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
@@ -55,6 +55,10 @@ Hugo is for people building a blog, company site, portfolio, tumblog,
 documentation, single-page website, or a website with thousands of
 pages.
 
+## See Also
+
+* [Hugo Performance Benchmark(@bep)]
+
 
 [Aerobatic]: https://www.aerobatic.com/
 [Amazon S3]: http://aws.amazon.com/s3/
@@ -67,15 +71,8 @@ pages.
 [GoDaddy]: https://www.godaddy.com/
 [Google Cloud Storage]: http://cloud.google.com/storage/
 [Heroku]: https://www.heroku.com/
+[Hugo Performance Benchmark(@bep)]: https://github.com/bep/hugo-benchmark
 [Jekyll]: http://jekyllrb.com/
 [Middleman]: https://middlemanapp.com/
 [Nanoc]: http://nanoc.ws/
 [Surge]: https://surge.sh
-
-## Next Steps
-
- * [Install Hugo](/overview/installing/)
- * [Quick start](/overview/quickstart/)
- * [Join the Mailing List](/community/mailing-list/)
- * [Star us on GitHub](https://github.com/spf13/hugo)
- * [Discussion Forum](http://discuss.gohugo.io/)

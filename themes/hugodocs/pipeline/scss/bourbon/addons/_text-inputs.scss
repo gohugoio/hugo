@@ -1,0 +1,113 @@
+@charset "UTF-8";
+
+/// Generates variables for all text-based inputs. Please note that you must use interpolation on the variable: `#{$all-text-inputs}`.
+///
+/// @example scss - Usage
+///   #{$all-text-inputs} {
+///     border: 1px solid #f00;
+///   }
+///
+///   #{$all-text-inputs-focus},
+///   #{$all-text-inputs-hover} {
+///     border: 1px solid #0f0;
+///   }
+///
+///   #{$all-text-inputs-active} {
+///     border: 1px solid #00f;
+///   }
+///
+/// @example css - CSS Output
+///   input[type="color"],
+///   input[type="date"],
+///   input[type="datetime"],
+///   input[type="datetime-local"],
+///   input[type="email"],
+///   input[type="month"],
+///   input[type="number"],
+///   input[type="password"],
+///   input[type="search"],
+///   input[type="tel"],
+///   input[type="text"],
+///   input[type="time"],
+///   input[type="url"],
+///   input[type="week"],
+///   textarea {
+///     border: 1px solid #f00;
+///   }
+///
+///   input[type="color"]:focus,
+///   input[type="date"]:focus,
+///   input[type="datetime"]:focus,
+///   input[type="datetime-local"]:focus,
+///   input[type="email"]:focus,
+///   input[type="month"]:focus,
+///   input[type="number"]:focus,
+///   input[type="password"]:focus,
+///   input[type="search"]:focus,
+///   input[type="tel"]:focus,
+///   input[type="text"]:focus,
+///   input[type="time"]:focus,
+///   input[type="url"]:focus,
+///   input[type="week"]:focus,
+///   textarea:focus,
+///   input[type="color"]:hover,
+///   input[type="date"]:hover,
+///   input[type="datetime"]:hover,
+///   input[type="datetime-local"]:hover,
+///   input[type="email"]:hover,
+///   input[type="month"]:hover,
+///   input[type="number"]:hover,
+///   input[type="password"]:hover,
+///   input[type="search"]:hover,
+///   input[type="tel"]:hover,
+///   input[type="text"]:hover,
+///   input[type="time"]:hover,
+///   input[type="url"]:hover,
+///   input[type="week"]:hover,
+///   textarea:hover {
+///     border: 1px solid #0f0;
+///   }
+///
+///   input[type="color"]:active,
+///   input[type="date"]:active,
+///   input[type="datetime"]:active,
+///   input[type="datetime-local"]:active,
+///   input[type="email"]:active,
+///   input[type="month"]:active,
+///   input[type="number"]:active,
+///   input[type="password"]:active,
+///   input[type="search"]:active,
+///   input[type="tel"]:active,
+///   input[type="text"]:active,
+///   input[type="time"]:active,
+///   input[type="url"]:active,
+///   input[type="week"]:active,
+///   textarea:active {
+///     border: 1px solid #00f;
+///   }
+///
+/// @require assign-inputs
+///
+/// @type List
+
+$text-inputs-list: 'input[type="color"]',
+                   'input[type="date"]',
+                   'input[type="datetime"]',
+                   'input[type="datetime-local"]',
+                   'input[type="email"]',
+                   'input[type="month"]',
+                   'input[type="number"]',
+                   'input[type="password"]',
+                   'input[type="search"]',
+                   'input[type="tel"]',
+                   'input[type="text"]',
+                   'input[type="time"]',
+                   'input[type="url"]',
+                   'input[type="week"]',
+                   'input:not([type])',
+                   'textarea';
+
+$all-text-inputs:        assign-inputs($text-inputs-list);
+$all-text-inputs-active: assign-inputs($text-inputs-list, active);
+$all-text-inputs-focus:  assign-inputs($text-inputs-list, focus);
+$all-text-inputs-hover:  assign-inputs($text-inputs-list, hover);

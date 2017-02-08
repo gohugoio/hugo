@@ -1,22 +1,42 @@
 //General code styling for inline code (ie, within body copy and not in a separate code block)
-code,pre {
+code,
+pre {
   font-family: $code-font-family;
 }
-p code, li > code {
+
+pre > code {
+  font-size: .8em;
+}
+
+.body-copy > pre[class*="language-"],
+.body-copy > code[class*="language-"] {
+  @include card(3);
+  text-shadow: 0 0px transparent;
+  text-shadow: none;
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+}
+
+.body-copy > pre[class*="language-"] {
+  margin-bottom:1.5em;
+}
+
+p code,
+li > code {
   font-size: .9em;
-  color:$base-font-color;
+  color: $base-font-color;
   font-family: $code-font-family;
-  border:1px solid $hugo-gray-light;
-  padding-left:.25em;
-  padding-right:.25em;
+  border: 1px solid $hugo-gray-light;
+  padding-left: .25em;
+  padding-right: .25em;
 }
 
 //for clipboard.js tooltip and button
 div.code-copy {
   position: relative;
   margin-top: 1em;
-  margin-bottom: 1em;
-  font-size: .8em;
+  margin-bottom: 1.5em;
   &:hover {
     button.copy-button {
       transition: all .2s ease-in-out;
@@ -46,9 +66,9 @@ button.copy-button {
     height: 1.5em;
     border-width: 0px;
     border-radius: 0px;
-    color:$code-copy-button-text-color;
+    color: $code-copy-button-text-color;
     &:hover {
-      background-color:$hugo-blue;
+      background-color: $hugo-blue;
     }
     &:active,
     &:focus {
@@ -59,7 +79,7 @@ button.copy-button {
 }
 
 .copy-text {
-  color:$code-copy-button-text-color;
+  color: $code-copy-button-text-color;
   font-size: 12px;
   display: block;
   width: 80px;
@@ -83,7 +103,8 @@ button.copy-button {
 
 div.code-copy {
   position: relative;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  // box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  @include card(3);
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
   border-radius: 0px;
 }
@@ -95,6 +116,9 @@ div.code-copy-header {
   background-color: $code-editor-header-bg-color;
   border-radius: 0px;
   position: relative;
+  &.output {
+    background-color: $hugo-blue;
+  }
   span.filename {
     @include center;
     text-align: center;
@@ -105,12 +129,12 @@ div.code-copy-header {
     background-color: transparent;
     font-family: $systemfonts;
   }
-  [class^="icon-"]{
-    float:right;
-    position:relative;
-    top:-1.45em;
-    right:.5em;
-    color:$code-filename-color;
+  [class^="icon-"] {
+    float: right;
+    position: relative;
+    top: -1.45em;
+    right: .5em;
+    color: $code-filename-color;
   }
 }
 

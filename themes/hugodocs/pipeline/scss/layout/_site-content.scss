@@ -23,25 +23,65 @@ main.main {
   margin-left: auto;
   margin-right: auto;
   max-width: $content-max-width;
-  position:relative;
-  header.content-header {
-    display: block;
-    clear: both;
-    width: 100%;
-    position: relative;
-    margin-top: 3em;
-    @include MQ(M) {
-      margin-top: 2em;
-    }
-    .last-modified {
-      color: $hugo-gray-light;
-      display: block;
-      margin-top: -10px;
-      width: 100%;
-      font-size: .8em;
-      margin-bottom: 20px;
-    }
+  position: relative;
+  min-height:calc(100vh - #{$site-header-height * 2});
+}
+
+header.content-header {
+  display: block;
+  clear: both;
+  width: 100%;
+  position: relative;
+  margin-top: 3em;
+  @include MQ(M) {
+    margin-top: 2em;
   }
+  .last-modified {
+    color: $hugo-gray-light;
+    display: block;
+    margin-top: -10px;
+    width: 100%;
+    font-size: .8em;
+    margin-bottom: 20px;
+  }
+}
+
+a.godoc-link {
+  // position: absolute;
+  // display:flex;
+  // position:relative;
+  display: inline-block;
+  // flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+  width:auto;
+  position:relative;
+  margin-bottom:0px;
+  vertical-align:bottom;
+  svg {
+    height:1em;
+    width:.7em;
+  }
+  // @include MQ(M) {
+  //   max-width: 30px;
+  // }
+  // svg {
+  //   display: inline;
+  // // }
+  // span {
+  //   display: none;
+  //   text-align: center;
+  //   text-transform: uppercase;
+  //   font-size: 12px;
+  //   color: $hugo-white;
+  //   background-color: brown;
+  //   padding: .2em .5em;
+  //   margin-top: -5px;
+  //   @include MQ(M) {
+  //     font-size: 14px;
+  //     margin-top: -8px;
+  //   }
+  // }
 }
 
 a.edit-link {
@@ -66,7 +106,7 @@ a.edit-link {
 }
 
 .body-copy {
-  margin-bottom: 2em;
+  margin-bottom: 2.5em;
   display: block;
   div + h2 {
     margin-top: 1em;

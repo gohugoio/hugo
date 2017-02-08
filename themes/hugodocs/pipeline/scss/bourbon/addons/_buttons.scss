@@ -1,0 +1,64 @@
+@charset "UTF-8";
+
+/// Generates variables for all buttons. Please note that you must use interpolation on the variable: `#{$all-buttons}`.
+///
+/// @example scss - Usage
+///   #{$all-buttons} {
+///     background-color: #f00;
+///   }
+///
+///   #{$all-buttons-focus},
+///   #{$all-buttons-hover} {
+///     background-color: #0f0;
+///   }
+///
+///   #{$all-buttons-active} {
+///     background-color: #00f;
+///   }
+///
+/// @example css - CSS Output
+///   button,
+///   input[type="button"],
+///   input[type="reset"],
+///   input[type="submit"] {
+///     background-color: #f00;
+///   }
+///
+///   button:focus,
+///   input[type="button"]:focus,
+///   input[type="reset"]:focus,
+///   input[type="submit"]:focus,
+///   button:hover,
+///   input[type="button"]:hover,
+///   input[type="reset"]:hover,
+///   input[type="submit"]:hover {
+///     background-color: #0f0;
+///   }
+///
+///   button:active,
+///   input[type="button"]:active,
+///   input[type="reset"]:active,
+///   input[type="submit"]:active {
+///     background-color: #00f;
+///   }
+///
+/// @require assign-inputs
+///
+/// @type List
+///
+/// @todo Remove double assigned variables (Lines 59–62) in v5.0.0
+
+$buttons-list: 'button',
+               'input[type="button"]',
+               'input[type="reset"]',
+               'input[type="submit"]';
+
+$all-buttons:        assign-inputs($buttons-list);
+$all-buttons-active: assign-inputs($buttons-list, active);
+$all-buttons-focus:  assign-inputs($buttons-list, focus);
+$all-buttons-hover:  assign-inputs($buttons-list, hover);
+
+$all-button-inputs:        $all-buttons;
+$all-button-inputs-active: $all-buttons-active;
+$all-button-inputs-focus:  $all-buttons-focus;
+$all-button-inputs-hover:  $all-buttons-hover;

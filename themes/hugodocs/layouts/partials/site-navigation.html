@@ -29,32 +29,8 @@
 		</li>
 		{{end}}
 	</ul>
-<!-- 	<ul class="top-menu">
-		{{ $menuitems := .Site.Params.sitemenuitems }}
-		{{ $sitesections := .Site.Sections }}
-		{{ $url := .URL }}
-		{{ $kind := .Kind}}
-		{{ $perma := .Permalink }}
-		{{ range $menuitems }}
-		{{ $menuitem := . }}
-			{{ range $section,$content := $sitesections}}
-				{{if eq $section ($menuitem | urlize)}}
-				<li class="top-menu-item"><a class="top-menu-item-link{{if in $url $section }} active-section{{end}}" href="#">{{ replaceRE "And" "and" (replace $section "-" " "| title) }}</a>
-					<ul class="submenu">
-						{{ with $.Site.GetPage "section" $section }}
-						<li class="submenu-item"><a class="submenu-item-link{{if and (in $perma .URL) (eq $kind "section")}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
-						{{ end }}
-						{{range $content.Pages}}
-						<li class="submenu-item"><a class="submenu-item-link {{$section}}{{if in $perma .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
-						{{end}}
-					</ul>
-				</li>
-			{{ end }}
-		{{ end }}
-		{{ end }}
-	</ul> -->
 	<div class="nav-buttons">
-		<a role="button" class="icon-forum" href="https://discuss.gohugo.io" target="_blank">Discuss Hugo</a><br>
-		<a role="button" class="icon-mailing-list" href="{{.Site.BaseURL}}mailing-list/">Mailing List</a>
+		<a role="button" href="{{.Site.Params.discuss}}" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a><br>
+		<a role="button" href="{{.Site.BaseURL}}mailing-list/"><i class="icon-mail"></i>Mailing List</a>
 	</div>
 </nav>

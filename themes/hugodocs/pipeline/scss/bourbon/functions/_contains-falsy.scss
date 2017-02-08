@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+/// Checks if a list does not contains a value.
+///
+/// @access private
+///
+/// @param {List} $list
+///   The list to check against.
+///
+/// @return {Bool}
+
+@function contains-falsy($list) {
+  @each $item in $list {
+    @if not $item {
+      @return true;
+    }
+  }
+
+  @return false;
+}
