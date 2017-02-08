@@ -1,7 +1,7 @@
 {{ define "main" }}
 <main class="main" id="homepage">
 	<div class="homepage-image">
-		<img src="{{"images/hugo-h-only.png" | relURL}}" alt="">
+		<img src="{{"images/hugo-h-only.png" | relURL}}" alt="H icon from the large Hugo logo">
 	</div>
 	<ul class="homepage-cards">
 		{{range $key,$params := sort ($.Site.Data.sitenavigation) "order" }}
