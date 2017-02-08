@@ -46,61 +46,54 @@ header.content-header {
   }
 }
 
-a.godoc-link {
-  // position: absolute;
-  // display:flex;
-  // position:relative;
-  display: inline-block;
-  // flex-direction: column;
-  // justify-content: center;
-  // align-items: center;
-  width:auto;
-  position:relative;
-  margin-bottom:0px;
-  vertical-align:bottom;
-  svg {
-    height:1em;
-    width:.7em;
+.content-header-links {
+  display: none;
+  @include MQ(M) {
+    display: block;
   }
-  // @include MQ(M) {
-  //   max-width: 30px;
-  // }
-  // svg {
-  //   display: inline;
-  // // }
-  // span {
-  //   display: none;
-  //   text-align: center;
-  //   text-transform: uppercase;
-  //   font-size: 12px;
-  //   color: $hugo-white;
-  //   background-color: brown;
-  //   padding: .2em .5em;
-  //   margin-top: -5px;
-  //   @include MQ(M) {
-  //     font-size: 14px;
-  //     margin-top: -8px;
-  //   }
-  // }
-}
-
-a.edit-link {
-  font-size: 1.2em;
   position: absolute;
-  top: -40px;
   right: 0px;
-  @include MQ(L) {
-    font-size: .7em;
-    position: fixed;
-    top: $site-header-height + 40px;
-    right: 2em;
-  }
-  .edit-text {
-    display: none;
-    @include MQ(L) {
-      display: inline;
-      margin-right: .15em;
+  top: 0px;
+  text-transform:uppercase;
+  width:110px;
+  // text-align:center;
+  a {
+    position: relative;
+    @include card(1, 3);
+    display: inline-block;
+    width: 100%;
+    color: $base-font-color;
+    padding: 4px 6px;
+    vertical-align: middle;
+    height: 36px;
+    line-height: 36px;
+    &:hover {
+      color: $default-anchor-color;
+    }
+    span {
+      font-size: 12px;
+      height: 36px;
+      position: relative;
+      bottom: 4px;
+      line-height: 36px;
+      vertical-align: middle;
       text-transform: uppercase;
+      &.edit {
+        bottom:6px;
+      }
+      &.godocs {
+        margin-right:10px;
+      }
+    }
+    i.icon-pencil {
+      font-size:24px;
+      position:relative;
+      bottom:4px;
+    }
+    svg {
+      height: 24px;
+      width: 24px;
+      display:inline;
     }
   }
 }

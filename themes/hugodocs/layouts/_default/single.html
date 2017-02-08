@@ -1,15 +1,16 @@
 {{ define "main" }}
 {{$base := .Site.BaseURL}}
 <main class="main">
-	<a role="button" target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><span class="edit-text">Edit</span> <i class="icon-pencil" aria-hidden="true"></i></a>
 	<header class="content-header">
-		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}
+		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<div class="content-header-links">
+		<a target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><span class="edit">Edit Page</span><i class="icon-pencil" aria-hidden="true"></i></a>
 		{{- with .Params.godocref -}}
-		<a class="godoc-link" target="_blank" href="{{.}}" title="See the corresponding Golang Documentation for {{$.Title}}, {{$.Section}}.">
+		<a target="_blank" class="godoc-link" href="{{.}}" title="See the corresponding Golang Documentation for {{$.Title}}, {{$.Section}}."><span class="godocs">GoDocs</span>
 			{{ partial "svg-icons/godoc-icon.svg" .}}
 		</a>
 		{{- end -}}
-		</h1>
+		</div>
 		{{with .Params.tags}}
 		<ul class="tags">
 			<li><i class="icon-tags"></i></li>

@@ -30,6 +30,7 @@ main#homepage {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  flex-shrink: 0;
   .homepage-card {
     @include card(1, 3);
     color: inherit;
@@ -37,13 +38,16 @@ main#homepage {
     background-color: $body-bg-color;
     margin-bottom: .5em;
     padding: 16px 8px;
+    flex-shrink: 0;
     @include MQ(M) {
+      flex: 1 0 #{$M * .9 * .48};
       max-width: $M * .9 * .48;
       margin-bottom: 1em;
     }
     @include MQ(L) {
-     max-width: 860px * .9 * .31;
-     margin-left:.2em;
+      flex: 1 0 #{860px * .9 * .31};
+      max-width: 860px * .9 * .31;
+      margin-left: .2em;
     }
     h2 {
       font-size: 1em;
