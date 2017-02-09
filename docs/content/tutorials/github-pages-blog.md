@@ -121,7 +121,7 @@ cd public && git add --all && git commit -m "Publishing to gh-pages (publish.sh)
 ```
 
 This will abort if there are pending changes in the working directory and also makes sure that all previously existing output files are removed.
-Adjust the script to taste, e.g. to include the final push to the remote repository if you don't need to take a look at the gh-pages branch before pushing.
+Adjust the script to taste, e.g. to include the final push to the remote repository if you don't need to take a look at the gh-pages branch before pushing. Or adding `echo yourdomainname.com >> CNAME` if you set up for your gh-pages to use customize domain. 
 
 ## Deployment with Git 2.4 and earlier
 
