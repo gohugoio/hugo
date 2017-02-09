@@ -3,11 +3,11 @@
   position: fixed;
   left: 0px;
   top: 0px;
-  width: $sidebar-width;
+  width: $site-navigation-width;
   bottom: 0px;
   overflow-y: scroll;
   background-color: darken(#ffffff, 1%);
-  transform:translateX(-#{$sidebar-width});
+  transform:translateX(-#{$site-navigation-width});
   padding: 1em;
   z-index: 9;
   &.navigation-open {
@@ -78,11 +78,11 @@
 }
 
 .navigation-toggle-wrapper {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   /*border:1px solid red;*/
   position: fixed;
-  top: $site-header-height;
+  top: 2px;
   left: 0px;
   z-index: 20;
   h4.menu {
@@ -98,26 +98,26 @@
   }
 }
 
-.navigation-toggle-wrapper.navigation-open .middle {
-  width: 40px;
-  height: 40px;
-  top: 10%;
-  border-radius: 50%;
-  background-color: $hugo-pink;
-  border-color: $hugo-pink;
-  opacity: 0.3;
-}
-
 .navigation-toggle-wrapper.navigation-open .top {
-  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
   top: 40%;
   border-radius: 5px;
   background-color: $hugo-pink;
   border-color: $hugo-pink;
 }
 
+.navigation-toggle-wrapper.navigation-open .middle {
+  width: 40px;
+  height: 40px;
+  top: 4%;
+  border-radius: 50%;
+  background-color: $hugo-pink;
+  border-color: $hugo-pink;
+  opacity: 0.3;
+}
+
 .navigation-toggle-wrapper.navigation-open .bottom {
-  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
   top: 40%;
   border-radius: 5px;
   background-color: $hugo-pink;
@@ -140,17 +140,17 @@
 .top {
   left: 15%;
   top: 20%;
-  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
 }
 
 .middle {
   left: 15%;
   top: 40%;
-  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
 }
 
 .bottom {
   left: 15%;
   top: 60%;
-  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
 }

@@ -20,8 +20,8 @@
   	color:$hugo-pink;
   }
   @include MQ(L) {
-    width:calc(100% - #{$sidebar-width});
-    margin-left: $sidebar-width;
+    width:calc(100% - #{$site-navigation-width});
+    margin-left: $site-navigation-width;
   }
 }
 

@@ -4,11 +4,11 @@
   transition: all .3s ease-in-out;
   opacity: 1;
   @include MQ(L) {
-    margin-left: $sidebar-width;
+    margin-left: $site-navigation-width;
   }
   &.navigation-open {
     transition: all .3s ease-in-out;
-    transform:translateX(#{$sidebar-width});
+    transform:translateX(#{$site-navigation-width});
     opacity: .4;
     @include MQ(L) {
       opacity: 1;

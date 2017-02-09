@@ -13,7 +13,7 @@
   left: 0px;
   z-index: 10;
   @include card(1);
-  @include MQ(M) {
+  @include MQ(L) {
     justify-content: space-between;
   }
   .hugo-meta {

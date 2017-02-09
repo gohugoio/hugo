@@ -8,10 +8,13 @@
 			<li class="homepage-card">
 			<a href="{{ $values.url }}">
 				<section>
+					<div class="homepage-card-image-wrapper">
+						<img src="/images/{{ $values.url }}.svg" alt="">
+					</div>
+					<div class="homepage-card-copy">
 					<header>
 						<h2>{{ $values.title }}</h2>
 					</header>
-					<div class="homepage-card-copy">
 					<p>{{ $values.desc | markdownify}}</p>
 					</div>
 				</section>
