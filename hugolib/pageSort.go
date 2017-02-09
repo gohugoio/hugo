@@ -278,7 +278,7 @@ func (p Pages) Reverse() Pages {
 	return pages
 }
 
-func (p Pages) ByParam(paramsKeyStr string) Pages {
+func (p Pages) ByParam(paramsKey interface{}) Pages {
 	paramsKeyStr := cast.ToString(paramsKey)
 	key := "pageSort.ByParam." + paramsKeyStr
 
