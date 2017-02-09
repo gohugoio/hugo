@@ -15,3 +15,4 @@ notes:
 ---
 
 `.IsNamedParams` (reference to shortcodes)
+`.TableOfContents` (reference to content/table-of-contents)

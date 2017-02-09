@@ -46,16 +46,17 @@ a {
       border-bottom: 1px solid $default-anchor-color;
     }
   }
-  &a[href$=".pdf"]::after {
-    font-family: "fontello";
-    font-style: normal;
-    font-weight: normal;
-    speak: none;
-    display: inline-block;
-    text-decoration: inherit;
-    width: 1em;
-    margin-left: .2em;
-    text-align: center;
-    content: '\f1c1';
+  a.heading-link {
+    color:lighten($base-font-color,40%);
+    font-size:.8em;
+    position:relative;
+    left:.3em;
+    bottom:.05em;
+    &:before,&:after {
+      display:none;
+    }
+    &:hover {
+      color:$default-anchor-color;
+    }
   }
 }

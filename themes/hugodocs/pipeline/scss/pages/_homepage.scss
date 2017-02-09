@@ -1,5 +1,5 @@
 .all-content-wrapper.home {
-  background-color: $hugo-blue;
+  background-color: lighten($hugo-blue-light,50%);
 }
 
 main#homepage {
