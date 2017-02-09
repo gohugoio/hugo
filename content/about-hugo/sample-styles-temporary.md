@@ -12,6 +12,90 @@ aliases:
 notes:
 ---
 
+## Code Block Shortcodes
+
+### Code Input Shortcode
+
+{{% input "my-first-template.html" %}}
+```go
+<ul>
+  {{range $.Site.Pages}}
+    <li>{{.Title}}</li>
+  {{end}}
+</ul>
+```
+{{% /input %}}
+
+{{% input "first-script.js" %}}
+```js
+function myFunction(arg){
+  console.log(arg);
+}
+```
+{{% /input %}}
+
+{{% input "config.yml" %}}
+```yaml
+---
+archetypeDir:               "archetypes"
+# hostname (and path) to the root, e.g. http://spf13.com/
+baseURL:                    ""
+# include content marked as draft
+buildDrafts:                false
+# include content with publishdate in the future
+buildFuture:                false
+# include content already expired
+buildExpired:               false
+# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+relativeURLs:               false
+canonifyURLs:               false
+...
+```
+{{% /input %}}
+
+### Code Output Shortcode
+
+{{% output "/posts/index.html" %}}
+```html
+<ul>
+    <li>My First Post</li>
+    <li>My Second Post</li>
+    <li>My Third Post</li>
+</ul>
+```
+{{% /output %}}
+
+{{% output "/first-data.json" %}}
+```json
+{
+    "glossary": {
+        "title": "example glossary",
+        "GlossDiv": {
+            "title": "S"
+        }
+    }
+}
+```
+{{% /output %}}
+
+{{% output "/script.js" %}}
+```javascript
+$('my-div').on('click',function(evt){
+    evt.preventDefault();
+    console.log('Hello world!');
+});
+```
+{{% /output %}}
+
+### Markdown Code Block without Shortcode
+
+```javascript
+function myFunction(val){
+  console.log(val);
+}
+```
+
+
 Here is some body copy. Here is a bit of `inline code`. Here is a [link to Google](https://www.google.com). Here is some *emphasized and italics text*. Here is some **emphasized and bold text**.
 
 ## Lists
@@ -45,58 +129,3 @@ Here is *something in italic* in a shortcode. Here is **something in bold**.
 {{% warning "Warning Shortcode" %}}
 Here is *something in italic* in a shortcode. Here is **something in bold**.
 {{% /warning %}}
-
-## Code Block Shortcodes
-
-### Code Input Shortcode
-
-{{% input "my-first-template.html" %}}
-```go
-<ul>
-  {{range $.Site.Pages}}
-    <li>{{.Title}}</li>
-  {{end}}
-</ul>
-```
-{{% /input %}}
-
-{{% input "first-script.js" %}}
-```js
-function myFunction(arg){
-  console.log(arg);
-}
-```
-{{% /input %}}
-
-### Code Output Shortcode
-
-{{% output "/posts/index.html" %}}
-```go
-<ul>
-    <li>My First Post</li>
-    <li>My Second Post</li>
-    <li>My Third Post</li>
-</ul>
-```
-{{% /output %}}
-
-{{% output "/first-data.json" %}}
-```json
-{
-    "glossary": {
-        "title": "example glossary",
-        "GlossDiv": {
-            "title": "S"
-        }
-    }
-}
-```
-{{% /output %}}
-
-### Markdown Code Block without Shortcode
-
-```javascript
-function myFunction(val){
-  console.log(val);
-}
-```

@@ -1,5 +1,5 @@
 ---
-title: New Project Scaffolding
+title: New Project Scaffolding and Directory Structure
 linktitle:
 description: Scaffolding new projects, configuration, and source organization.
 date: 2016-11-01
@@ -13,4 +13,8 @@ slug:
 aliases:
 notes:
 ---
+
+## New Projects
+
+## Hugo Directory Structure
 

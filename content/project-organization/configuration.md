@@ -127,6 +127,8 @@ enableRobotsTXT:            false
 disable404:                 false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject: false
+# Do not make the url/path to lowercase
+disablePathToLower:         false
 # edit new content with this editor, if provided
 editor:                     ""
 # Enable Emoji emoticons support for page content.
@@ -138,6 +140,8 @@ footnoteAnchorPrefix:       ""
 footnoteReturnLinkContents: ""
 # google analytics tracking id
 googleAnalytics:            ""
+# if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
+hasCJKLanguage:             false
 languageCode:               ""
 layoutDir:                  "layouts"
 # Enable Logging
@@ -179,10 +183,6 @@ theme:                      ""
 title:                      ""
 # if true, use /filename.html instead of /filename/
 uglyURLs:                   false
-# Do not make the url/path to lowercase
-disablePathToLower:         false
-# if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
-hasCJKLanguage:             false
 # verbose output
 verbose:                    false
 # verbose logging
@@ -203,6 +203,11 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
+## See Also
+
+* [TOML Spec][]
+
 [`.Site.Params`]: /variables-and-params/
 [templates]: /templates
+[TOML Spec]: https://github.com/toml-lang/toml
 [directory structure]: /project-organization/directory-structure

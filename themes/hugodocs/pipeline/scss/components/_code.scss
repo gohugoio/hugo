@@ -2,24 +2,16 @@
 code,
 pre {
   font-family: $code-font-family;
-}
-
-pre > code {
-  font-size: .8em;
+  margin:0px;
 }
 
 .body-copy > pre[class*="language-"],
 .body-copy > code[class*="language-"] {
   @include card(3);
-  text-shadow: 0 0px transparent;
   text-shadow: none;
   padding: 1em;
-  margin: .5em 0;
+  margin: .5em 0px 1.5em 0px;
   overflow: auto;
-}
-
-.body-copy > pre[class*="language-"] {
-  margin-bottom:1.5em;
 }
 
 p code,
@@ -36,7 +28,8 @@ li > code {
 div.code-copy {
   position: relative;
   margin-top: 1em;
-  margin-bottom: 1.5em;
+  margin-bottom: 32px;
+  background-color:$code-block-background-color;
   &:hover {
     button.copy-button {
       transition: all .2s ease-in-out;
@@ -56,7 +49,7 @@ button.copy-button {
     padding: 0px;
     transition: all .2s ease-in-out;
     opacity: 1;
-    background-color: $code-editor-header-bg-color;
+    background-color: $code-copy-button-color;
     box-sizing: border-box;
     position: absolute;
     bottom: 0px;
@@ -67,6 +60,7 @@ button.copy-button {
     border-width: 0px;
     border-radius: 0px;
     color: $code-copy-button-text-color;
+    font-weight:bold;
     &:hover {
       background-color: $hugo-blue;
     }
@@ -103,7 +97,6 @@ button.copy-button {
 
 div.code-copy {
   position: relative;
-  // box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   @include card(3);
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
   border-radius: 0px;
@@ -125,8 +118,7 @@ div.code-copy-header {
     max-width: 50%;
     color: $code-filename-color;
     font-weight: 100;
-    font-size: .8em;
-    background-color: transparent;
+    font-size: 15px!important;
     font-family: $systemfonts;
   }
   [class^="icon-"] {
@@ -333,197 +325,154 @@ div.code-copy-header {
 }
 
 
-/* http://prismjs.com/download.html?themes=prism&languages=markup+css+clike+javascript+go+markdown+scss&plugins=line-numbers */
+// /* Modified heavily from http://prismjs.com/download.html?themes=prism&languages=markup+css+clike+javascript+go+markdown+scss&plugins=line-numbers */
 
 
-/**
- * prism.js default theme for JavaScript, CSS and HTML
- * Based on dabblet (http://dabblet.com)
- * @author Lea Verou
- */
+// /**
+//  * prism.js default theme for JavaScript, CSS and HTML
+//  * Based on dabblet (http://dabblet.com)
+//  * @author Lea Verou
+//  */
 
-code[class*="language-"],
-pre[class*="language-"] {
-  color: black;
-  background: none;
-  text-shadow: 0 1px white;
-  font-family: $code-font-family;
-  text-align: left;
-  white-space: pre;
-  word-spacing: normal;
-  word-break: normal;
-  word-wrap: normal;
-  line-height: 1.5;
-  tab-size: 2;
-  hyphens: none;
-}
+// code[class*="language-"],
+// pre[class*="language-"] {
+//   color: $code-block-base-font-color;
+//   background-color:$code-block-background-color;
+//   text-shadow: none;
+//   font-family: $code-font-family;
+//   text-align: left;
+//   white-space: pre;
+//   word-spacing: normal;
+//   word-break: normal;
+//   word-wrap: normal;
+//   line-height: 1.7;
+//   tab-size: 2;
+//   hyphens: none;
+// }
 
-pre[class*="language-"]::-moz-selection,
-pre[class*="language-"]::-moz-selection,
-code[class*="language-"]::-moz-selection,
-code[class*="language-"]::-moz-selection {
-  text-shadow: none;
-  background: #b3d4fc;
-}
+// pre[class*="language-"]::-moz-selection,
+// pre[class*="language-"]::-moz-selection,
+// code[class*="language-"]::-moz-selection,
+// code[class*="language-"]::-moz-selection {
+//   text-shadow: none;
+//   background: $hugo-blue-light;
+// }
 
-pre[class*="language-"]::selection,
-pre[class*="language-"]::selection,
-code[class*="language-"]::selection,
-code[class*="language-"]::selection {
-  text-shadow: none;
-  background: #b3d4fc;
-}
+// pre[class*="language-"]::selection,
+// pre[class*="language-"]::selection,
+// code[class*="language-"]::selection,
+// code[class*="language-"]::selection {
+//   text-shadow: none;
+//   background: $hugo-blue-light;
+// }
 
-@media print {
-  code[class*="language-"],
-  pre[class*="language-"] {
-    text-shadow: none;
-  }
-}
-
-
-/* Code blocks */
-
-pre[class*="language-"] {
-  padding: 1em 1em 2em 1em;
-  margin: .5em 0;
-  overflow: auto;
-  background-color: $code-block-background-color;
-}
-
-:not(pre) > code[class*="language-"],
-pre[class*="language-"] {
-  background: $body-bg-color;
-}
+// @media print {
+//   code[class*="language-"],
+//   pre[class*="language-"] {
+//     text-shadow: none;
+//   }
+// }
 
 
-/* Inline code */
+// /* Code blocks */
 
-:not(pre) > code[class*="language-"] {
-  padding: .1em;
-  border-radius: .3em;
-  white-space: normal;
-}
+// pre[class*="language-"],
+// code[class*="language-"] {
+//   padding: 1em 1em 2em 1em;
+//   margin: 0;
+//   overflow: auto;
+//   background-color: $code-block-background-color;
+// }
 
-.token.comment,
-.token.prolog,
-.token.doctype,
-.token.cdata {
-  color: $hugo-gray-dark;
-}
+// /* Inline code */
 
-.token.punctuation {
-  color: #999;
-}
+// :not(pre) > code[class*="language-"] {
+//   padding: .1em;
+//   border-radius: .3em;
+//   white-space: normal;
+// }
 
-.namespace {
-  opacity: .7;
-}
+// .token.comment,
+// .token.prolog,
+// .token.doctype,
+// .token.cdata {
+//   color: $hugo-gray-dark;
+// }
 
-.token.property,
-.token.tag,
-.token.boolean,
-.token.number,
-.token.constant,
-.token.symbol,
-.token.deleted {
-  color: $hugo-pink-dark;
-}
+// .token.punctuation {
+//   color: #999;
+// }
 
-.token.selector,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin,
-.token.inserted {
-  color: $hugo-green;
-}
+// .namespace {
+//   opacity: .7;
+// }
 
-.token.operator,
-.token.entity,
-.token.url,
-.language-css .token.string,
-.style .token.string {
-  color: $hugo-pink-dark;
-  background: hsla(0, 0%, 100%, .5);
-}
+// .token.property,
+// .token.tag,
+// .token.boolean,
+// .token.number,
+// .token.constant,
+// .token.symbol,
+// .token.deleted {
+//   color: $hugo-pink;
+// }
 
-.token.atrule,
-.token.attr-value,
-.token.keyword {
-  color: $hugo-blue;
-}
+// .token.selector,
+// .token.attr-name,
+// .token.string,
+// .token.char,
+// .token.builtin,
+// .token.inserted {
+//   color: $hugo-green;
+// }
 
-.token.function {
-  color: $hugo-gold;
-}
+// .token.operator,
+// .token.entity,
+// .token.url,
+// .language-css .token.string,
+// .style .token.string {
+//   color: $hugo-pink;
+// }
 
-.token.regex,
-.token.important,
-.token.variable {
-  color: $hugo-gold
-}
+// .token.atrule,
+// .token.attr-value,
+// .token.keyword {
+//   color: $hugo-blue;
+// }
 
-.token.important,
-.token.bold {
-  font-weight: bold;
-}
+// .token.function {
+//   color: $hugo-gold;
+// }
 
-.token.italic {
-  font-style: italic;
-}
+// .token.regex,
+// .token.important,
+// .token.variable {
+//   color: $hugo-gold
+// }
 
-.token.entity {
-  cursor: help;
-}
+// .token.important,
+// .token.bold {
+//   font-weight: bold;
+// }
 
-pre.line-numbers {
-  position: relative;
-  padding-left: 3.8em;
-  counter-reset: linenumber;
-}
+// .token.italic {
+//   font-style: italic;
+// }
 
-pre.line-numbers > code {
-  position: relative;
-}
+// .token.entity {
+//   cursor: help;
+// }
 
-.line-numbers .line-numbers-rows {
-  position: absolute;
-  pointer-events: none;
-  top: 0;
-  font-size: 100%;
-  left: -3.8em;
-  width: 3em;
-  /* works for line-numbers below 1000 lines */
-  letter-spacing: -1px;
-  border-right: 1px solid $hugo-gray;
-  user-select: none;
-}
-
-.line-numbers-rows > span {
-  pointer-events: none;
-  display: block;
-  counter-increment: linenumber;
-}
-
-.line-numbers-rows > span:before {
-  content: counter(linenumber);
-  color: $hugo-gray;
-  display: block;
-  padding-right: 0.8em;
-  text-align: right;
-}
-
-//Modifications, especially for digital.cap.org/docs
-code.language-markdown {
-  span.token.italic {
-    color: $hugo-pink;
-  }
-  span.token.url {
-    color: $hugo-blue;
-  }
-  //for * and 1 in markdown lists
-  .token.list.punctuation {
-    color: $hugo-blue;
-  }
-}
+// // //Modifications,
+// // code.language-markdown {
+// //   span.token.italic {
+// //     color: $hugo-pink;
+// //   }
+// //   span.token.url {
+// //     color: $hugo-blue;
+// //   }
+// //   //for * and 1 in markdown lists
+// //   .token.list.punctuation {
+// //     color: $hugo-blue;
+// //   }
+// // }

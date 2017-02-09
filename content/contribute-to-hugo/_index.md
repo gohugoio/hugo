@@ -11,6 +11,6 @@ authorprofileurl:
 weight:
 draft: false
 slug:
-aliases:
+aliases: [/tutorials/how-to-contribute-to-hugo/]
 notes:
 ---

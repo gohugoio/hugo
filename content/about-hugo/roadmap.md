@@ -2,9 +2,9 @@
 title: Roadmap
 linktitle:
 description: Information on the Hugo license.
-date: 2016-11-01
-publishdate: 2016-11-01
-lastmod: 2016-11-01
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
 tags: []
 weight: 40
 draft: false
@@ -24,8 +24,8 @@ In no particular order, here is what is currently being worked on for the Hugo p
 * Native support for additional content formats (AsciiDoc [#1435][], reST [#1436][])
 * And, last but not least, *your* best ideas!
 
-{{% note title="Contributions Welcome" %}}
-Feel free to [contribute](/tutorials/how-to-contribute-to-hugo/) or open a new issue if you have an idea for a new feature.
+{{% note "Contributions Welcome" %}}
+Feel free to [contribute](/contribute-to-hugo/) or open a new issue if you have an idea for a new feature.
 {{% /note %}}
 
 [#98]: https://github.com/spf13/hugo/issues/98

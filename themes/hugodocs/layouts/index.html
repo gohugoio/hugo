@@ -6,7 +6,7 @@
 	<ul class="homepage-cards">
 		{{range $key,$values := sort (.Site.Data.sitenavigation) "order" }}
 			<li class="homepage-card">
-			<a href="{{ $values.url }}"">
+			<a href="{{ $values.url }}">
 				<section>
 					<header>
 						<h2>{{ $values.title }}</h2>

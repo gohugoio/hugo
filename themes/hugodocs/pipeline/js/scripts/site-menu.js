@@ -1,4 +1,4 @@
-$('.top-menu-item-link:not(.false)').on('click',function(evt) {
+$('.top-menu-item-link.true').on('click',function(evt) {
   evt.preventDefault();
   evt.stopPropagation();
   var $ul = $(this).next('ul'),

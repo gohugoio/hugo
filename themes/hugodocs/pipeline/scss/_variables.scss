@@ -11,16 +11,17 @@ $HUGE:1600px;
 //Color Palette
 $hugo-black:#000000;
 $hugo-white:#ffffff;
-$hugo-pink:#ff4088;
-$hugo-pink-dark:#C9177E;
-$hugo-blue:#0594CB;
+$hugo-pink:#C9177E;
+$hugo-pink-light:#ff4088;
+$hugo-blue:#0083C0;
+$hugo-blue-light:#0594CB;
 $hugo-yellow:#FCD804;
 $hugo-gold:#EBB951;
 $hugo-gray:#737373;
 $hugo-gray-dark:darken($hugo-gray,10%);
-$hugo-gray-light:#949494;
-$hugo-green:#33BA91;
-$hugo-green-dark:#00A88A;
+$hugo-gray-light:lighten($hugo-gray,20%);
+$hugo-green:#00A88A;
+$hugo-green-light:#33BA91;
 $default-anchor-color:$hugo-pink;
 $default-anchor-weight: 500;
 $active-color: $default-anchor-color;
@@ -32,7 +33,7 @@ $body-bg-color:$hugo-white;
 $base-font-size: 18px;
 $base-font-family: 'muli',$helvetica;
 $heading-font-family: $base-font-family;
-$base-font-color: #333333;
+$base-font-color: #222222;
 $base-line-height-content: 1.6;
 $base-font-weight: 300;
 $base-font-bold-weight: 700;
@@ -47,11 +48,12 @@ $button-border-radius: .25em;
 //Codeblocks
 $code-font-family:'courierprime',courier,monospace;
 $code-tooltip-bg-color: $hugo-blue;
-$code-block-base-font-color: #333333;
-$code-block-background-color: $base-font-color;
+$code-block-base-font-color: #ffffff;
+$code-block-background-color: $hugo-black;
 $code-editor-header-bg-color: $hugo-gray-dark;
 $code-filename-color:#ffffff;
-$code-copy-button-text-color:$code-filename-color;
+$code-copy-button-color:#ffffff;
+$code-copy-button-text-color:$base-font-color;
 
 //Sidebar
 $sidebar-width: 280px;

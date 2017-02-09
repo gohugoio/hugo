@@ -53,10 +53,10 @@ ul.tags {
 }
 
 .tag:hover {
-  background-color: $hugo-pink-dark;
+  background-color: $hugo-pink;
   color: white;
 }
 
 .tag:hover::after {
-   border-left-color: $hugo-pink-dark;
+   border-left-color: $hugo-pink;
 }

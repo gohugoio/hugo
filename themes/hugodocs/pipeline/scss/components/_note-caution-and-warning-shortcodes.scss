@@ -1,7 +1,7 @@
 .note,
 .caution,.warning {
   display: block;
-  margin-bottom: 1em;
+  margin-bottom:20px;
   width: 100%;
   h2 {
     font-size: 1.1em;
@@ -47,12 +47,12 @@
 
 .warning {
   > h2 {
-    background-color: $hugo-pink-dark;
+    background-color: $hugo-pink;
   }
   .shortcode-content {
-  	background-color: lighten($hugo-pink-dark, 50%);
+  	background-color: lighten($hugo-pink, 50%);
     @include MQ(retina){
-      background-color: lighten($hugo-pink-dark, 54%);
+      background-color: lighten($hugo-pink, 54%);
     }
   }
 }
