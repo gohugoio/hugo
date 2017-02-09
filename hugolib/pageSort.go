@@ -14,8 +14,9 @@
 package hugolib
 
 import (
-	"fmt"
 	"sort"
+
+	"github.com/spf13/cast"
 )
 
 var spc = newPageCache()
@@ -278,13 +279,14 @@ func (p Pages) Reverse() Pages {
 }
 
 func (p Pages) ByParam(paramsKeyStr string) Pages {
+	paramsKeyStr := cast.ToString(paramsKey)
 	key := "pageSort.ByParam." + paramsKeyStr
 
 	paramsKeyComparator := func(p1, p2 *Page) bool {
 		v1, _ := p1.Param(paramsKeyStr)
 		v2, _ := p2.Param(paramsKeyStr)
-		s1 := fmt.Sprintf("%v", v1)
-		s2 := fmt.Sprintf("%v", v2)
+		s1 := cast.ToString(v1)
+		s2 := cast.ToString(v2)
 
 		return s1 < s2
 	}
