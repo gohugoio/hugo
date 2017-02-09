@@ -288,6 +288,13 @@ func (p Pages) ByParam(paramsKey interface{}) Pages {
 		s1 := cast.ToString(v1)
 		s2 := cast.ToString(v2)
 
+		// Sort nils last.
+		if s1 == "" {
+			return false
+		} else if s2 == "" {
+			return true
+		}
+
 		return s1 < s2
 	}
 
