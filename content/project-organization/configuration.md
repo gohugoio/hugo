@@ -13,7 +13,7 @@ aliases: [/overview/source-directory/]
 notes:
 ---
 
-The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provide most of the configuration information that Hugo needs in order to statically generate a finished website.
+The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
 
 Therefore, many websites wouldn't actually need a configuration file. This is because Hugo is designed to recognize certain typical usage patterns (and expects them, by default).
 
@@ -85,7 +85,7 @@ canonifyURLs = true
 
 ## All Configuration Variables, YAML
 
-The following is a list of Hugo-defined variables. The values assigned to each of the variables represents the default value used by Hugo if you not specifically change the value in your configuration.
+The following is a list of Hugo-defined variables. The values provided in this example represent the default values used by Hugo if not otherwise specified.
 
 {{% input "config.yml" %}}
 ```yaml
