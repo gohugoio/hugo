@@ -66,7 +66,6 @@ params:
 
 The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
 
-{{% input "config.toml" %}}
 ```toml
 contentDir = "content"
 layoutDir = "layouts"
@@ -83,9 +82,8 @@ canonifyURLs = true
   description = "Tesla's Awesome Hugo Site"
   author = "Nikola Tesla"
 ```
-{{% /input %}}
 
-## Complete List of Configuration Variables
+## Complete List of Configuration Variables - YAML
 
 The following is a list of Hugo-defined variables. The values assigned to each of the variables represents the default value used by Hugo if you not specifically change the value in your configuration.
 
@@ -148,15 +146,17 @@ layoutDir:                  "layouts"
 log:                        false
 # Log File path (if set, logging enabled automatically)
 logFile:                    ""
-# "yaml", "toml", "json"
+# "toml","yaml", or "json"
 metaDataFormat:             "toml"
 newContentEditor:           ""
 # Don't sync permission mode of files
 noChmod:                    false
 # Don't sync modification time of files
 noTimes:                    false
+# Pagination
 paginate:                   10
 paginatePath:               "page"
+# See "content-management/permalinks"
 permalinks:
 # Pluralize titles in lists using inflect
 pluralizeListTitles:        true
@@ -189,6 +189,9 @@ verbose:                    false
 verboseLog:                 false
 # watch filesystem for changes and recreate as needed
 watch:                      true
+taxonomies:
+  - category:               "categories"
+  - tag:                    "tags"
 ---
 ```
 {{% /input %}}
@@ -206,8 +209,12 @@ The above is a list of regular expressions. Note that the backslash (`\`) charac
 ## See Also
 
 * [TOML Spec][]
+* [YAML Spec][]
+* [JSON Spec][]
 
 [`.Site.Params`]: /variables-and-params/
+[directory structure]: /project-organization/directory-structure
+[JSON Spec]: /documents/ecma-404-json-spec.pdf
 [templates]: /templates
 [TOML Spec]: https://github.com/toml-lang/toml
-[directory structure]: /project-organization/directory-structure
+[YAML Spec]: http://yaml.org/spec/

@@ -17,14 +17,14 @@ a {
     transition: color 0.3s ease;
     perspective: 1800px;
     &:hover {
-    	color:$hugo-white;
+      color: $hugo-white;
     }
     &::before,
     &::after {
       position: absolute;
       top: 0;
-      left: -4px;
-      padding: 0 4px;
+      left: -2px;
+      padding: 0 2px;
       z-index: -1;
       box-sizing: content-box;
       width: 100%;
@@ -45,5 +45,17 @@ a {
     &::after {
       border-bottom: 1px solid $default-anchor-color;
     }
+  }
+  &a[href$=".pdf"]::after {
+    font-family: "fontello";
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-left: .2em;
+    text-align: center;
+    content: '\f1c1';
   }
 }

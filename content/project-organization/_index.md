@@ -16,5 +16,7 @@ notes:
 
 ## New Projects
 
+
+
 ## Hugo Directory Structure
 

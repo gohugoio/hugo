@@ -1,0 +1,1 @@
+$('.body-copy a[href$=".pdf"]').append('<i class="icon-pdf"></i>');

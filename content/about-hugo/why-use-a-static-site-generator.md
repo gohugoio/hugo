@@ -5,6 +5,7 @@ description:
 date: 2016-02-01
 publishdate: 2016-02-01
 lastmod: 2016-02-01
+tags: [ssg,static site generator]
 weight: 20
 draft: false
 slug:

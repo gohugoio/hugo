@@ -5,12 +5,11 @@ pre {
   margin:0px;
 }
 
-.body-copy > pre[class*="language-"],
-.body-copy > code[class*="language-"] {
+.body-copy > pre {
   @include card(3);
   text-shadow: none;
-  padding: 1em;
-  margin: .5em 0px 1.5em 0px;
+  padding: 0px;
+  margin: .5em 0px 32px 0px;
   overflow: auto;
 }
 
