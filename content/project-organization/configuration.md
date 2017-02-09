@@ -83,7 +83,7 @@ canonifyURLs = true
   author = "Nikola Tesla"
 ```
 
-## Complete List of Configuration Variables - YAML
+## All Configuration Variables, YAML
 
 The following is a list of Hugo-defined variables. The values assigned to each of the variables represents the default value used by Hugo if you not specifically change the value in your configuration.
 
@@ -195,6 +195,10 @@ taxonomies:
 ---
 ```
 {{% /input %}}
+
+## All Configuration Variables, TOML
+
+
 
 ## Ignoring Files When Rendering
 
