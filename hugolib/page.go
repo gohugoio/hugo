@@ -1465,7 +1465,7 @@ func (p *Page) prepareLayouts() error {
 		var layouts []string
 		if !p.IsRenderable() {
 			self := "__" + p.TargetPath()
-			_, err := p.Site.owner.Tmpl.GetClone().New(self).Parse(string(p.Content))
+			_, err := p.s.Tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				return err
 			}
