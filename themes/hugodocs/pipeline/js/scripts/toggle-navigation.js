@@ -1,5 +1,7 @@
 //toggle off-canvas navigation for M- screens
-$('#navigation-toggle').on('click', function() {
+$('#navigation-toggle').on('click', function(evt) {
+	evt.preventDefault();
+	evt.stopPropagation();
   $('#site-navigation,.all-content-wrapper,#navigation-toggle').toggleClass('navigation-open');
 });
 //close navigation if body content is clicked when docs are open
