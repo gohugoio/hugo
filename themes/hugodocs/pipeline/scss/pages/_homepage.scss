@@ -48,7 +48,7 @@ main#homepage {
     }
     @include MQ(M) {
       flex: 1 0 #{$M * .4};
-      max-width: $M * .4;
+      max-width: 48%;
       margin-bottom: 1em;
     }
     section {
