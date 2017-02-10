@@ -67,7 +67,7 @@ migratingtohugo:
   url: "migrating-to-hugo"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Tools and tutorials for migrating to Hugo from other platforms or generators (eg, Wordpress or Jekyll)"
+  desc: "Tools for migrating to Hugo from other platforms or generators (eg, Wordpress or Jekyll)"
 tutorials:
   order: 11
   title: "Tutorials"

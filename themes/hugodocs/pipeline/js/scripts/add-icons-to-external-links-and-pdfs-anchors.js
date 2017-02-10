@@ -17,7 +17,7 @@ $(document).ready(function () {
         // scroll to each target
         $(target).velocity('scroll', {
             duration: 500,
-            offset: -20,
+            offset: -50,
             easing: 'ease-in-out'
         });
         location.hash = hashid;
