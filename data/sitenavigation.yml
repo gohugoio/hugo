@@ -11,7 +11,7 @@ gettingstarted:
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Quick start and guides for installing Hugo on your development machine"
+  desc: "Quick start and multi-platform guides for installing Hugo on your development machine"
 projectorganization:
   order: 3
   title: "Project Organization"
@@ -25,7 +25,7 @@ contentmanagement:
   url: "content-management"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Content organization, summaries, archetypes, front-matter, and supported formats"
+  desc: "Content summaries, archetypes, pagination, permalinks, front matter, and supported formats"
 templates:
   order: 5
   title: "Templates"
@@ -74,7 +74,7 @@ tutorials:
   url: "tutorials"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Community-aggregated advice on how to approach different projects using Hugo"
+  desc: "Community-aggregated articles on methods to approaching different projects using Hugo"
 developertools:
   order: 12
   title: "Developer Tools"
