@@ -8,7 +8,7 @@ $searchbox-config: (
 	input-focus-border-color: #AAAAAA,
 	input-background: #FFFFFF,
 	input-focus-background: #FFFFFF,
-	font-size: 12px,
+	font-size: 1em,
 	placeholder-color: #AAAAAA,
 	icon-size: 14px,
 	icon-position: left,
@@ -22,7 +22,7 @@ $searchbox-config: (
 $dropdown-config: (
   main-color: #458EE1,
   layout-type: normal,
-  layout-width: normal,
+  layout-width: small,
   layout-alignment: align,
   background-color: #fff,
   border-radius: 4,

@@ -6,7 +6,7 @@
 <script>
 (function() {
   if (window.location.hostname === "localhost") {
-  	console.log("Analytics not running on local dev.");
+    console.log("Analytics not running on local dev.");
     return;
   } else {
     (function(i, s, o, g, r, a, m) {
@@ -23,16 +23,19 @@
 
     ga('create', '{{$gaid}}', 'auto');
     ga('send', 'pageview');
-    ga('create', '{{$gaid}}', {'siteSpeedSampleRate': 100});
+    ga('create', '{{$gaid}}', {
+      'siteSpeedSampleRate': 100
+    });
   }
 })();
 </script>
 <!-- Algolia embed -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
-<script type="text/javascript"> docsearch({
-apiKey: '41fdb7fafd9b009498ef9ab6d3fb1886',
-indexName: 'hugodocsconcept',
-inputSelector: '#search-input',
-debug: true // Set debug to true if you want to inspect the dropdown
+<script type="text/javascript">
+docsearch({
+  apiKey: '41fdb7fafd9b009498ef9ab6d3fb1886',
+  indexName: 'hugodocsconcept',
+  inputSelector: '#search-input',
+  debug: true // Set debug to true if you want to inspect the dropdown
 });
 </script>

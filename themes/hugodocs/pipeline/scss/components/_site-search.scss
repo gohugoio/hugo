@@ -2,7 +2,91 @@
   @include on-event($self: true) {
     outline: none;
   }
+  width:300px;
   outline:none;
   border:0px;
   border-bottom:1px solid $base-font-color;
+}
+
+
+/* Bottom border of each suggestion */
+
+.algolia-docsearch-suggestion {
+  border-bottom-color: #3A3DD1;
+}
+
+
+/* Main category headers */
+
+// .algolia-docsearch-suggestion--category-header {
+//   background-color: #4B54DE;
+// }
+
+/* Highlighted search terms */
+
+.algolia-docsearch-suggestion--highlight {
+  color: #3A33D1;
+}
+
+
+/* Highligted search terms in the main category headers */
+
+.algolia-docsearch-suggestion--category-header .algolia-docsearch-suggestion--highlight {
+  background-color: #4D47D5;
+}
+
+
+/* Currently selected suggestion */
+
+.aa-cursor .algolia-docsearch-suggestion--content {
+  color: #272296;
+}
+
+.aa-cursor .algolia-docsearch-suggestion {
+  background: #EBEBFB;
+}
+
+.algolia-autocomplete .algolia-docsearch-suggestion--text .algolia-docsearch-suggestion--highlight {
+  box-shadow: inset 0 -2px 0 0 $hugo-pink;
+}
+
+.algolia-autocomplete .algolia-docsearch-suggestion--highlight {
+  color: $hugo-pink;
+  background: desaturate(lighten($hugo-pink, 50%), 30%);
+  padding: 0.1em 0.05em;
+}
+
+.algolia-autocomplete .algolia-docsearch-suggestion--subcategory-column {
+  background-color: $hugo-white;
+}
+
+.algolia-autocomplete .ds-dropdown-menu {
+	font-size:.8em;
+  min-width: 340px;
+  max-width: 340px;
+  @include MQ(M) {
+  	font-size:1em;
+    min-width: 400px;
+    max-width: 500px;
+  }
+  @include MQ(L) {
+    min-width: 500px;
+    max-width: 600px;
+  }
+}
+
+
+/* For bigger screens, when displaying results in two columns */
+
+@media (min-width: 768px) {
+  /* Bottom border of each suggestion */
+  .algolia-docsearch-suggestion {
+    border-bottom-color: #7671df;
+  }
+  /* Left column, with secondary category header */
+  .algolia-docsearch-suggestion--subcategory-column {
+    border-right-color: #7671df;
+    background-color: #F2F2FF;
+    color: #4E4726;
+  }
 }
