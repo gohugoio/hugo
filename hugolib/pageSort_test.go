@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/stretchr/testify/assert"
@@ -113,6 +114,34 @@ func TestPageSortReverse(t *testing.T) {
 	assert.True(t, probablyEqualPages(p2, p1.Reverse()))
 }
 
+func TestPageSortByParam(t *testing.T) {
+	var k interface{} = "arbitrary"
+
+	unsorted := createSortTestPages(10)
+	delete(unsorted[9].Params, cast.ToString(k))
+
+	firstSetValue, _ := unsorted[0].Param(k)
+	secondSetValue, _ := unsorted[1].Param(k)
+	lastSetValue, _ := unsorted[8].Param(k)
+	unsetValue, _ := unsorted[9].Param(k)
+
+	assert.Equal(t, "xyz100", firstSetValue)
+	assert.Equal(t, "xyz99", secondSetValue)
+	assert.Equal(t, "xyz92", lastSetValue)
+	assert.Equal(t, nil, unsetValue)
+
+	sorted := unsorted.ByParam("arbitrary")
+	firstSetSortedValue, _ := sorted[0].Param(k)
+	secondSetSortedValue, _ := sorted[1].Param(k)
+	lastSetSortedValue, _ := sorted[8].Param(k)
+	unsetSortedValue, _ := sorted[9].Param(k)
+
+	assert.Equal(t, firstSetValue, firstSetSortedValue)
+	assert.Equal(t, secondSetValue, lastSetSortedValue)
+	assert.Equal(t, lastSetValue, secondSetSortedValue)
+	assert.Equal(t, unsetValue, unsetSortedValue)
+}
+
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
 
 	p := createSortTestPages(300)
@@ -154,6 +183,9 @@ func createSortTestPages(num int) Pages {
 			},
 			Site:   &info,
 			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
+			Params: map[string]interface{}{
+				"arbitrary": "xyz" + fmt.Sprintf("%v", 100-i),
+			},
 		}
 		w := 5
 

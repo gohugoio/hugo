@@ -15,6 +15,8 @@ package hugolib
 
 import (
 	"sort"
+
+	"github.com/spf13/cast"
 )
 
 var spc = newPageCache()
@@ -272,6 +274,31 @@ func (p Pages) Reverse() Pages {
 	}
 
 	pages, _ := spc.get(key, p, reverseFunc)
+
+	return pages
+}
+
+func (p Pages) ByParam(paramsKey interface{}) Pages {
+	paramsKeyStr := cast.ToString(paramsKey)
+	key := "pageSort.ByParam." + paramsKeyStr
+
+	paramsKeyComparator := func(p1, p2 *Page) bool {
+		v1, _ := p1.Param(paramsKeyStr)
+		v2, _ := p2.Param(paramsKeyStr)
+		s1 := cast.ToString(v1)
+		s2 := cast.ToString(v2)
+
+		// Sort nils last.
+		if s1 == "" {
+			return false
+		} else if s2 == "" {
+			return true
+		}
+
+		return s1 < s2
+	}
+
+	pages, _ := spc.get(key, p, pageBy(paramsKeyComparator).Sort)
 
 	return pages
 }
