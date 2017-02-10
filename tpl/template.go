@@ -141,7 +141,6 @@ func (t *GoHTMLTemplate) initFuncs(d *deps.Deps) {
 		// Hacky, but we need to make sure that the func names are in the global map.
 		amber.FuncMap[k] = func() string {
 			panic("should never be invoked")
-			return ""
 		}
 	}
 
@@ -197,12 +196,18 @@ func (t *GoHTMLTemplate) ExecuteTemplateToHTML(context interface{}, layouts ...s
 
 func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
 
+	if templ := t.Template.Lookup(name); templ != nil {
+		return templ
+	}
+
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
 			return templ
 		}
 	}
 
+	// The clone is used for the non-renderable HTML pages (p.IsRenderable == false) that is parsed
+	// as Go templates late in the build process.
 	if t.clone != nil {
 		if templ := t.clone.Lookup(name); templ != nil {
 			return templ

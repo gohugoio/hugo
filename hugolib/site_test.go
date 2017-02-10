@@ -436,6 +436,8 @@ func TestSkipRender(t *testing.T) {
 		{Name: filepath.FromSlash("sect/doc6.html"), Content: []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
 		{Name: filepath.FromSlash("doc7.html"), Content: []byte("<html><body>doc7 content</body></html>")},
 		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
+		// Issue #3021
+		{Name: filepath.FromSlash("doc9.html"), Content: []byte("<html><body>doc9: {{< myshortcode >}}</body></html>")},
 	}
 
 	viper.Set("defaultExtension", "html")
@@ -454,6 +456,7 @@ func TestSkipRender(t *testing.T) {
 	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
 	writeSource(t, fs, filepath.Join("layouts", "head"), "<head><script src=\"script.js\"></script></head>")
 	writeSource(t, fs, filepath.Join("layouts", "head_abs"), "<head><script src=\"/script.js\"></script></head>")
+	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "myshortcode.html"), "SHORT")
 
 	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
 
@@ -469,6 +472,7 @@ func TestSkipRender(t *testing.T) {
 		{filepath.FromSlash("public/sect/doc6.html"), "<!doctype html><html><head><script src=\"http://auth/bub/script.js\"></script></head><body>body5</body></html>"},
 		{filepath.FromSlash("public/doc7.html"), "<html><body>doc7 content</body></html>"},
 		{filepath.FromSlash("public/sect/doc8.html"), "\n\n<h1 id=\"title\">title</h1>\n\n<p>some <em>content</em></p>\n"},
+		{filepath.FromSlash("public/doc9.html"), "<html><body>doc9: SHORT</body></html>"},
 	}
 
 	for _, test := range tests {
