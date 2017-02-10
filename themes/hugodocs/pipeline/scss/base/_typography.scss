@@ -9,10 +9,10 @@ h4 {
   line-height: 1.4;
 }
 
-h1 {
+h1.page-title {
   font-size: 2em;
   letter-spacing: -.021em;
-  padding-bottom:1em;
+  padding-bottom:.75em;
   @include MQ(M) {
     font-size: 2.25em;
     padding-top: 1em;
