@@ -1,10 +1,10 @@
 ---
 title: Introduction to Hugo
-linktitle:
+linktitle: Introduction to Hugo
 description: Hugo's features, roadmap, and license, as well as the motivation behind creating Hugo.
-date: 2016-11-01
-publishdate: 2016-11-01
-lastmod: 2016-11-01
+date: 2016-02-01
+publishdate: 2016-02-01
+lastmod: 2016-02-01
 layout: single
 weight: 01
 draft: false

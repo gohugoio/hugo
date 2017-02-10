@@ -1,0 +1,8 @@
+#search-input {
+  @include on-event($self: true) {
+    outline: none;
+  }
+  outline:none;
+  border:0px;
+  border-bottom:1px solid $base-font-color;
+}

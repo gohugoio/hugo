@@ -73,19 +73,19 @@ main#homepage {
         }
       }
     }
-    .homepage-card-copy {}
     h2 {
       font-size: 1em;
       margin: 0px;
       line-height: 1.1;
       margin-bottom: .5em;
       padding-bottom: 0px;
+      color:$base-font-color;
     }
     p {
       font-size: .8em;
       line-height: 1.3;
       margin-bottom: 0px;
-      color: lighten($base-font-color, 15%);
+      color: lighten($base-font-color, 20%);
     }
   }
 }

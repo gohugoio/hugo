@@ -17,18 +17,19 @@
 @import 'components/lists';
 @import 'components/anchors';
 @import 'components/note-caution-and-warning-shortcodes';
-// @import 'vendor/prism';
 @import 'vendor/highlightjs';
 @import 'components/code';
 @import 'components/icons';
 @import 'components/tags';
+@import 'algolia/main';
+@import 'components/site-search';
+
 
 //major layout parts/chrome
 @import 'layout/site-header';
 @import 'layout/site-navigation';
 @import 'layout/site-content';
 @import 'layout/site-footer';
-
 
 //styles for individual pages
 @import 'pages/homepage';
