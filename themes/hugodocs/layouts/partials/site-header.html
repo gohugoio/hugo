@@ -1,12 +1,14 @@
 {{$version := .Hugo.Version}}
 <header id="site-header" class="site-header">
-	<div class="hugo-meta" title="Hugo version {{$version}}">
-		<a href="/" id="home-link">
-			<img src="/images/hugo-logo-wide.png" alt=""><span class="hugo-v">v{{$version}}</span>
-		</a>
-	</div>
+  <div class="hugo-meta" title="Hugo version {{$version}}">
+    <a href="/" id="home-link">
+      <img src="/images/hugo-logo-wide.png" alt=""><span class="hugo-v">v{{$version}}</span>
+    </a>
+  </div>
+  <a href="#" id="toggle-search">
+    <i class="icon-search"></i>
+  </a>
+  <form id="site-search-form" action="">
+    <input type="search" id="search-input" placeholder="Search {{.Site.Title}}...">
+  </form>
 </header>
-<form id="site-search" action="">
-	<i class="icon-search"></i>
-	<input type="search" id="search-input" placeholder="Search {{.Site.Title}}...">
-</form>
