@@ -25,7 +25,7 @@ contentmanagement:
   url: "content-management"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Content summaries, archetypes, pagination, permalinks, front matter, and supported formats"
+  desc: "Content summaries, archetypes, pagination, permalinks, front matter, and supported content formats"
 templates:
   order: 5
   title: "Templates"
