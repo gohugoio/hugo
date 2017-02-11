@@ -1,7 +1,7 @@
 ---
 date: 2017-02-11T10:30:00+02:00
 description: "German language GOLD REPORT. Tips, tricks, news & glossary on coins, bullion bars and precious-metals investments."
-sitelink: http://www.bullion-investor.com/report/
+sitelink: https://www.bullion-investor.com/report/
 tags:
 - 'gold price'
 - blog
