@@ -413,56 +413,7 @@ paired with the corresponding flags from Blackfriday's source code (for the latt
                 </small>
             </td>
         </tr>
-        <tr>
-            <td><code><strong>sourceRelativeLinksEval</strong></code></td>
-            <td><code>false</code></td>
-            <td><code>none</code></td>
-        </tr>
-        <tr>
-            <td class="purpose-description" colspan="3">
-                <span class="purpose-title">Purpose:</span>
-                <code>true</code> enables source file-based relative linking (à la Github).
-                Relative links to Markdown and static files within a page
-                will be evaluated relative to the location of that page,
-                and then converted to HTML links during rendering.<br>
-                <small>
-                    <strong>Example:</strong>
-                    <code>[some-reference-text](../other/page.md)</code> in
-                    <code>./content/total/overview.md</code> will link to
-                    <code>./content/other/overview.md</code> and render to
-                    <code>/other/overview/</code> in the HTML output.
-                </small>
-            </td>
-        </tr>
-        <tr>
-            <td><code><strong>sourceRelativeLinksProjectFolder</strong></code></td>
-            <td><code>/docs/content</code></td>
-            <td><code>none</code></td>
-        </tr>
-        <tr>
-            <td class="purpose-description" colspan="3">
-                <span class="purpose-title">Purpose:</span>
-                Set a sub-folder for source file-based relative linking
-                on a Hugo Project (i.e., a web site). When
-                <code>sourceRelativeLinksEval</code> (see above) is enabled,
-                some source level paths may contain absolute respository
-                paths to Markdown or static files.
-                The absolute portion of these paths should be removed
-                before trying to match the intended links.<br />
-                <small>
-                    <strong>Example:</strong>
-                    Assuming your documentation resides in
-                    <code>./docs/content</code>,
-                    then a reference within
-                    <code>./docs/content/total/overview.md</code> to
-                    <code>[some-reference-text](/docs/content/other/page.md)</code>
-                    will link to
-                    <code>./docs/content/other/overview.md</code> and render to
-                    <code>/other/overview/</code> in the HTML output.
-                </small>
-            </td>
-        </tr>
-    </tbody>
+        </tbody>
 </table>
 
 **Notes**
