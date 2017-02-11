@@ -275,11 +275,11 @@ func InitLoggers() {
 // plenty of time to fix their templates.
 func Deprecated(object, item, alternative string, err bool) {
 	if err {
-		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. Use %s instead.", object, item, NextHugoReleaseVersion(), alternative)
+		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. %s.", object, item, NextHugoReleaseVersion(), alternative)
 
 	} else {
 		// Make sure the users see this while avoiding build breakage. This will not lead to an os.Exit(-1)
-		DistinctFeedbackLog.Printf("WARNING: %s's %s is deprecated and will be removed in a future release. Use %s instead.", object, item, alternative)
+		DistinctFeedbackLog.Printf("WARNING: %s's %s is deprecated and will be removed in a future release. %s.", object, item, alternative)
 	}
 }
 

@@ -94,6 +94,13 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
 	}
 
+	if combinedConfig.SourceRelativeLinksEval {
+		// Remove in Hugo 0.21
+		Deprecated("blackfriday", "sourceRelativeLinksEval",
+			`There is no replacement for this feature, as no developer has stepped up to the plate and volunteered to maintain this feature`, false)
+
+	}
+
 	return combinedConfig
 }
 
