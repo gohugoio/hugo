@@ -19,12 +19,13 @@ $hugo-yellow:#FCD804;
 $hugo-gold:#EBB951;
 $hugo-gray:#737373;
 $hugo-gray-dark:darken($hugo-gray,10%);
-$hugo-gray-light:lighten($hugo-gray,25%);
+$hugo-gray-light:lighten($hugo-gray,30%);
 $hugo-green:#00A88A;
 $hugo-green-light:#33BA91;
 $default-anchor-color:$hugo-pink;
 $default-anchor-weight: 500;
 $active-color: $default-anchor-color;
+
 
 //Document Body
 $body-bg-color:$hugo-white;
@@ -54,6 +55,7 @@ $code-editor-header-bg-color: $hugo-gray-dark;
 $code-filename-color:#ffffff;
 $code-copy-button-color:#ffffff;
 $code-copy-button-text-color:$base-font-color;
+$inline-code-text-color:$hugo-pink-light;
 
 //Sidebar
 $site-navigation-width: 280px;
