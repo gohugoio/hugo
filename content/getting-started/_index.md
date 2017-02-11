@@ -13,3 +13,5 @@ slug:
 aliases: []
 notes:
 ---
+
+The Hugo docs have been completely reformatted to include

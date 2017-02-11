@@ -1,8 +1,8 @@
 <script src="{{.Site.BaseURL}}js/vendor/jquery-2.2.4.min.js"></script>
 <script src="/js/script.min.js" async></script>
+{{$gaid := .Site.Params.googleanalyticstrackingcode }}
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
-{{$gaid := .Site.Params.googleanalyticstrackingcode }}
 <script>
 (function() {
   if (window.location.hostname === "localhost") {

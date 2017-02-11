@@ -11,14 +11,22 @@
   position: fixed;
   top: 0px;
   left: 0px;
-  z-index: 10;
+  z-index: 20;
   @include card(1);
   @include MQ(L) {
     justify-content: space-between;
   }
   .hugo-meta {
     display: flex;
+    width: 100%;
     align-items: center;
+    justify-content: center;
+    @include MQ(L) {
+      float: left;
+      width: auto;
+      justify-content: flex-start;
+      // max-width: 200px;
+    }
   }
   #home-link {
     display: flex;
@@ -49,5 +57,3 @@
     margin-left: 1em;
   }
 }
-
-

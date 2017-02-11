@@ -1,26 +1,78 @@
 #toggle-search {
-  display:block;
-  float:right;
-  margin-right:20px;
-  z-index:60;
+  display: block;
+  position: fixed;
+  top: .5em;
+  right: .5em;
+  float: right;
+  margin-right: 20px;
+  font-size: 1.2em;
+  z-index: 60;
 }
 
 form#site-search-form {
-  display: block;
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 50;
-  width: 300px;
-  transform: translateX(290px);
   transition: transform .3s ease-in-out;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  width: 100vw;
+  position: fixed;
+  top: $site-header-height;
+  height: $site-header-height * .9;
+  transform:translateY(-#{$site-header-height});
+  background-color: $body-bg-color;
+  z-index: 19;
+  box-shadow: 0 3px 6px rgba($hugo-pink, 0.15), 0 3px 6px rgba($hugo-pink, 0.3);
   &.search-open {
     transition: transform .3s ease-in-out;
-    border-bottom: 1px solid $base-font-color;
-    transform: translateX(0px);
+    transform: translateY(0);
+    border-bottom: 1px solid $hugo-pink;
+  }
+  #search-input {
+    max-height: $site-header-height * .9;
+    padding-left: 20px;
+    font-size: 24px;
   }
 }
 
+@include MQ(L) {
+  form#site-search-form {
+    display: block;
+    position: fixed;
+    top: 8px;
+    right: 0px;
+    z-index: 50;
+    width: 300px;
+    transform: translateX(290px);
+    transition: transform .3s ease-in-out;
+    box-shadow: none;
+    max-height: $site-header-height * .8;
+    &.search-open {
+      transition: transform .3s ease-in-out;
+      border-bottom-width: 0px;
+      transform: translateX(0px);
+      #search-input {
+        transition: opacity .3 ease-in-out;
+        opacity: 1;
+        border-bottom:3px solid $hugo-pink;
+        &::after {
+          display:inline-block;
+          content:'';
+          width:1em;
+          border-bottom:3px solid $hugo-pink;
+        }
+      }
+    }
+    #search-input {
+      transition: opacity .3s ease-in-out;
+      max-height: $site-header-height * .8;
+      padding-left: 0px;
+      font-size: 20px;
+      opacity: 0;
+    }
+  }
+}
+
+//clear default search styles
 #search-input {
   @include on-event($self: true) {
     outline: none;
@@ -28,6 +80,7 @@ form#site-search-form {
   width:260px;
   outline:none;
   border:0px;
+  border-radius:0px;
 }
 
 
@@ -98,8 +151,8 @@ form#site-search-form {
 }
 
 .algolia-autocomplete .algolia-docsearch-suggestion--subcategory-column-text .algolia-docsearch-suggestion--highlight {
-  color:$hugo-blue;
-  font-weight:bold;
+  color: $hugo-blue;
+  font-weight: bold;
   background: desaturate(lighten($hugo-blue, 50%), 30%);
 }
 
