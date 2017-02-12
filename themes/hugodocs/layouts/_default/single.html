@@ -1,6 +1,12 @@
 {{ define "main" }}
 {{$title := .Title}}
 <main class="main">
+	{{with .Params.testing }}
+	{{range $ind,$value := . }}
+	<p>Index: {{$ind}}</p>
+	<p>Value: {{$value}}</p>
+	{{end}}
+	{{end}}
 	<header class="content-header">
 		<h1 class="page-title">{{with .LinkTitle}}{{ . | markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
 		<div class="content-header-links">

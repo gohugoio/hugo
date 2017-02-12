@@ -7,7 +7,7 @@ publishdate: 2017-01-10
 lastmod: 2017-01-10
 tags: []
 categories: []
-weight:
+weight: 60
 draft: false
 slug:
 aliases: []

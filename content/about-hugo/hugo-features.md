@@ -55,5 +55,5 @@ notes:
 
 See what's coming next in the [Hugo roadmap][].
 
-[Powerful Theming]: /themes
-[Hugo roadmap]: /about/roadmap
+[Powerful Theming]: /themes/
+[Hugo roadmap]: /about-hugo/roadmap

@@ -7,16 +7,18 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [archetypes,generators]
 categories: [content]
-weight:
+weight: 50
 draft: false
 slug:
 aliases: []
 notes:
 ---
 
+**Archetypes** are content (i.e., `.md`) files in the `archetypes` directory of your [project][] that contain pre-configured [front matter][] for your site's [content types][]. Archetypes facilitate more consistent metadata by enabling `hugo new` to populate new instances of a content type.
+
 Hugo uses **archetypes** to facilitate creation of consistent metadata for content types across a website. Archetypes allow authors to easily generate new content files with associated metadata that are new instances of a content type. {{< relref "content-management/front-matter.md" >}}
 
-To create new instances of a content type that pull from an archetype, authors can use the the `hugo new` command combined with the file path from the [content][] downward; e.g.---
+To create new instances of a content type that pull from an archetype, authors can use the the `hugo new` command combined with the file path that assumes the present directory is [content][] downward; e.g.---
 
 ```bash
 hugo new posts/my-first-post.md
@@ -25,10 +27,7 @@ hugo new posts/my-first-post.md
 When defining a custom content type, you can use an **archetype** as a way to
 define the default metadata for a new post of that type.
 
-**Archetypes** are quite literally archetypal content files with pre-configured
-[front matter][]. An archetype will populate each new content file of a given type with any default metadata you've defined whenever you run the `hugo new` command.
-
-## Creating an archetype
+## Creating a Default Archetype
 
 In the following example scenario, suppose we have a blog with a single content
 type (blog post). Our imaginary blog will use ‘tags’ and ‘categories’ for its
@@ -48,7 +47,7 @@ categories = ["x", "y"]
 Some editors (e.g., Sublime, Emacs) do not insert an end-of-line (EOL) character at the end of the file (EOF).  If you get a [strange EOF error](/troubleshooting/frequently-asked-questions/#eof-error) when using `hugo new`, open each archetype file and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` if you're using TOML or YAML front matter, respectively.
 {{% /caution %}}
 
-## Using the Archetype
+## Using the Default Archetype
 
 Now, with `archetypes/default.md` in place, let's create a new post in the `post` section with the `hugo new` command:
 
@@ -75,6 +74,14 @@ We see that the `title` and `date` variables have been added in addition to the 
 
 Congratulations! We have successfully created an archetype and used it to
 quickly scaffold out a new post. But wait, what if we want to create some content that isn't exactly a blog post, like a profile for a musician? Let's see how using **archetypes** can help us out.
+
+### Override the Inferred Content Type in a New File
+
+To override the content type for a new post, include the `--kind` flag during creation.
+
+{{% note "Using a Theme Archetype" %}}
+If you wish to use archetypes that ship with a theme, the theme must be specified in your [configuration file](/project-organization/configuration/).
+{{% /note %}}
 
 ## Creating Custom Archetypes
 
@@ -146,17 +153,10 @@ Hugo CLI command:
 hugo new [my-content-type/post-name]
 ```
 
-### Override the Inferred Content Type in a New File
-
-To override the content type for a new post, include the `--kind` flag during creation.
-
-{{% note "Using Theme Archetypes" %}}
-If you wish to use archetypes that ship with a theme, the theme must be specified in your [configuration file](/project-organization/configuration/).
-{{% /note %}}
-
 [`now()`]: http://golang.org/pkg/time/#Now
 [configuration file]: /project-organization/configuration/
 [content]: /project-organization/directory-structure/
 [front matter]: /content-management/front-matter/
+[project]:
 [RFC 3339 format]: https://www.ietf.org/rfc/rfc3339.txt
 

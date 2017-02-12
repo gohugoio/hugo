@@ -26,7 +26,7 @@ in a language. I began developing Hugo in Go and fell in love with the
 language. I hope you will enjoy using Hugo (and [contributing to it][]) as much
 as I have writing it.
 
-&mdash;Steve Francia ([@spf13][])
+&#8213;Steve Francia ([@spf13][])
 
 [contributing to it]: https://github.com/spf13/hugo
 [Go language]: https://golang.org/

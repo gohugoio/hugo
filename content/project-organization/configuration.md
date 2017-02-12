@@ -317,7 +317,7 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
-## See Also
+## Additional Resources
 
 * [TOML Spec][]
 * [YAML Spec][]

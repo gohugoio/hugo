@@ -1,15 +1,15 @@
 ---
-title: Troubleshooting
-linktitle:
-description: FAQs pulled from the Hugo forum, known issues, and workarounds.
+title: Issues and FAQs
+linktitle: Issues and FAQs
+description: Frequently asked questions and known issues pulled from the Hugo Discuss forum.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-layout: singlescroller
-weight: 01
+layout: sectionlist
+weight:
 draft: false
 slug:
-aliases: []
+aliases: [/troubleshooting/faqs/,/faqs/]
 notes:
 ---
 
