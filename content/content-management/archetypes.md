@@ -48,12 +48,15 @@ categories = ["x", "y"]
 Some editors (e.g., Sublime, Emacs) do not insert an end-of-line (EOL) character at the end of the file (EOF).  If you get a [strange EOF error](/troubleshooting/frequently-asked-questions/#eof-error) when using `hugo new`, open each archetype file and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` if you're using TOML or YAML front matter, respectively.
 {{% /caution %}}
 
-## Using the archetype
+## Using the Archetype
 
-Now, with `archetypes/default.md` in place, let's create a new post in the `post`
-section with the `hugo new` command:
+Now, with `archetypes/default.md` in place, let's create a new post in the `post` section with the `hugo new` command:
 
-    $ hugo new post/my-new-post.md
+{{% input "new-post.sh" %}}
+```bash
+$ hugo new post/my-new-post.md
+```
+{{% /input %}}
 
 Hugo will now create the file with the following contents:
 
@@ -73,12 +76,11 @@ We see that the `title` and `date` variables have been added in addition to the 
 Congratulations! We have successfully created an archetype and used it to
 quickly scaffold out a new post. But wait, what if we want to create some content that isn't exactly a blog post, like a profile for a musician? Let's see how using **archetypes** can help us out.
 
-## Creating custom archetypes
+## Creating Custom Archetypes
 
 Previously, we had created a new content type by adding a new subfolder to the content directory. In this case, its name would be `content/musician`. To begin using a `musician` archetype for each new `musician` post, we simply need to create a file named after the content type called `musician.md`, and put it in the `archetypes` directory, similar to the one below.
 
-## archetypes/musician.md
-
+{{% input "archetypes/musician.md"%}}
 ```toml
 +++
 name = ""
@@ -86,12 +88,15 @@ bio = ""
 genre = ""
 +++
 ```
+{{% /input %}}
 
 Now, let's create a new musician.
 
+{{% input "new-musician.sh" %}}
 ```bash
 $ hugo new musician/mozart.md
 ```
+{{% /input %}}
 
 This time, Hugo recognizes our custom `musician` archetype and uses it instead of the default one. Take a look at the new `musician/mozart.md` post. You should see that the generated file's front matter now includes the variables `name`, `bio`, and `genre`.
 
@@ -115,11 +120,11 @@ By default, the front matter will be created in the TOML format regardless of wh
 
 You can specify a different default format in your site [configuration file][] file using the `metaDataFormat` directive. Possible values are `toml`, `yaml`, and `json`.
 
-## Which archetype is being used
+## Which Archetype is Being Used
 
 The following rules apply when creating new content:
 
-* If an archetype with a filename matching the new post's [content type](/content/types) exists, it will be used.
+* If an archetype with a filename matching the new post's [content type](/content/content-types) exists, it will be used.
 * If no match is found, `archetypes/default.md` will be used.
 * If neither is present and a theme is in use, then within the theme:
     * If an archetype with a filename that matches the content type being created, it will be used.
@@ -127,8 +132,7 @@ The following rules apply when creating new content:
 * If no archetype files are present, then the one that ships with Hugo will be used.
 
 Hugo provides a simple archetype which sets the `title` (based on the
-file name) and the `date` in RFC&nbsp;3339 format based on
-[`now()`][], which returns the current time.
+file name) and the `date` in [RFC 3339 format][] based on [`now()`][], which returns the current time.
 
 {{% note "Dynamic Key-Values in Archetypes" %}}
 `hugo new` does *not* automatically add `draft = true` when the user
@@ -142,14 +146,17 @@ Hugo CLI command:
 hugo new [my-content-type/post-name]
 ```
 
+### Override the Inferred Content Type in a New File
+
 To override the content type for a new post, include the `--kind` flag during creation.
 
 {{% note "Using Theme Archetypes" %}}
-If you wish to use archetypes that ship with a theme, the theme be specified in your [configuration file](/project-organization/configuration/).
+If you wish to use archetypes that ship with a theme, the theme must be specified in your [configuration file](/project-organization/configuration/).
 {{% /note %}}
 
-[front matter]: /content-management/front-matter/
-[content]: /project-organization/directory-structure/
-[configuration file]: /project-organization/configuration/
 [`now()`]: http://golang.org/pkg/time/#Now
+[configuration file]: /project-organization/configuration/
+[content]: /project-organization/directory-structure/
+[front matter]: /content-management/front-matter/
+[RFC 3339 format]: https://www.ietf.org/rfc/rfc3339.txt
 
