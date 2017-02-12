@@ -1336,7 +1336,7 @@ some content
 func TestPageParams(t *testing.T) {
 	t.Parallel()
 	s := newTestSite(t)
-	want := map[string]interface{}{
+	wantedMap := map[string]interface{}{
 		"tags": []string{"hugo", "web"},
 		// Issue #2752
 		"social": []interface{}{
@@ -1348,7 +1348,9 @@ func TestPageParams(t *testing.T) {
 	for i, c := range pagesParamsTemplate {
 		p, err := s.NewPageFrom(strings.NewReader(c), "content/post/params.md")
 		require.NoError(t, err, "err during parse", "#%d", i)
-		assert.Equal(t, want, p.Params, "#%d", i)
+		for key, _ := range wantedMap {
+			assert.Equal(t, wantedMap[key], p.Params[key], "#%d", key)
+		}
 	}
 }
 
