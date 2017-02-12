@@ -1,23 +1,31 @@
 #site-footer {
   position: relative;
   display: flex;
-  align-items:center;
-  justify-content:space-around;
+  align-items: center;
+  justify-content: space-around;
   background-color: $hugo-black;
   min-height: 100px;
   width: 100%;
   color: $hugo-white;
+  transition: transform .3s ease-in-out;
   div {
-  	display:flex;
-  	flex-direction:column;
-  	justify-content:center;
-  	align-items:center;
-  	img {
-  		max-width:200px;
-  	}
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    img {
+      max-width: 200px;
+    }
+  }
+  &.navigation-open {
+    transition: transform .3s ease-in-out;
+    transform: translateX($site-navigation-width);
+    @include MQ(L){
+      transform: translateX(0);
+    }
   }
   i.icon-heart:before {
-  	color:$hugo-pink;
+    color: $hugo-pink;
   }
   @include MQ(L) {
     width:calc(100% - #{$site-navigation-width});
@@ -28,8 +36,8 @@
 ul.footer-list {
   color: $hugo-white;
   list-style: none;
-  margin-left:0px;
-  padding-left:0px;
+  margin-left: 0px;
+  padding-left: 0px;
   li a {
     color: $hugo-white;
     font-size: .9em;
