@@ -3,6 +3,7 @@
   z-index: 5;
   transition: all .3s ease-in-out;
   opacity: 1;
+  overflow-x: hidden;
   @include MQ(L) {
     margin-left: $site-navigation-width;
   }
@@ -10,9 +11,11 @@
     transition: all .3s ease-in-out;
     transform:translateX(#{$site-navigation-width});
     opacity: .4;
+    overflow-x: hidden;
     @include MQ(L) {
       opacity: 1;
       transform: translateX(0px);
+      overflow-x: hidden;
     }
   }
 }
@@ -25,6 +28,7 @@ main.main {
   max-width: $content-max-width;
   position: relative;
   min-height:calc(100vh - #{$site-header-height * 2});
+  overflow-x:hidden;
 }
 
 header.content-header {
@@ -79,21 +83,21 @@ header.content-header {
       vertical-align: middle;
       text-transform: uppercase;
       &.edit {
-        bottom:6px;
+        bottom: 6px;
       }
       &.godocs {
-        margin-right:10px;
+        margin-right: 10px;
       }
     }
     i.icon-pencil {
-      font-size:24px;
-      position:relative;
-      bottom:4px;
+      font-size: 24px;
+      position: relative;
+      bottom: 4px;
     }
     svg {
       height: 24px;
       width: 24px;
-      display:inline;
+      display: inline;
     }
   }
 }
