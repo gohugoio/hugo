@@ -989,29 +989,37 @@ func (p *Page) update(f interface{}) error {
 		switch loki {
 		case "title":
 			p.Title = cast.ToString(v)
+			p.Params[loki] = p.Title
 		case "linktitle":
 			p.linkTitle = cast.ToString(v)
+			p.Params[loki] = p.linkTitle
 		case "description":
 			p.Description = cast.ToString(v)
-			p.Params["description"] = p.Description
+			p.Params[loki] = p.Description
 		case "slug":
 			p.Slug = cast.ToString(v)
+			p.Params[loki] = p.Slug
 		case "url":
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
 			p.URLPath.URL = cast.ToString(v)
+			p.Params[loki] = p.URLPath.URL
 		case "type":
 			p.contentType = cast.ToString(v)
+			p.Params[loki] = p.contentType
 		case "extension", "ext":
 			p.extension = cast.ToString(v)
+			p.Params[loki] = p.extension
 		case "keywords":
 			p.Keywords = cast.ToStringSlice(v)
+			p.Params[loki] = p.Keywords
 		case "date":
 			p.Date, err = cast.ToTimeE(v)
 			if err != nil {
 				p.s.Log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
 			}
+			p.Params[loki] = p.Date
 		case "lastmod":
 			p.Lastmod, err = cast.ToTimeE(v)
 			if err != nil {
@@ -1035,10 +1043,13 @@ func (p *Page) update(f interface{}) error {
 			*published = cast.ToBool(v)
 		case "layout":
 			p.Layout = cast.ToString(v)
+			p.Params[loki] = p.Layout
 		case "markup":
 			p.Markup = cast.ToString(v)
+			p.Params[loki] = p.Markup
 		case "weight":
 			p.Weight = cast.ToInt(v)
+			p.Params[loki] = p.Weight
 		case "aliases":
 			p.Aliases = cast.ToStringSlice(v)
 			for _, alias := range p.Aliases {
@@ -1046,10 +1057,13 @@ func (p *Page) update(f interface{}) error {
 					return fmt.Errorf("Only relative aliases are supported, %v provided", alias)
 				}
 			}
+			p.Params[loki] = p.Aliases
 		case "status":
 			p.Status = cast.ToString(v)
+			p.Params[loki] = p.Status
 		case "sitemap":
 			p.Sitemap = parseSitemap(cast.ToStringMap(v))
+			p.Params[loki] = p.Sitemap
 		case "iscjklanguage":
 			isCJKLanguage = new(bool)
 			*isCJKLanguage = cast.ToBool(v)
@@ -1104,17 +1118,20 @@ func (p *Page) update(f interface{}) error {
 	} else if published != nil {
 		p.Draft = !*published
 	}
+	p.Params["draft"] = p.Draft
 
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
 		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
 		if err == nil {
 			p.Date = fi.ModTime()
+			p.Params["date"] = p.Date
 		}
 	}
 
 	if p.Lastmod.IsZero() {
 		p.Lastmod = p.Date
 	}
+	p.Params["lastmod"] = p.Lastmod
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
@@ -1125,6 +1142,7 @@ func (p *Page) update(f interface{}) error {
 			p.isCJKLanguage = false
 		}
 	}
+	p.Params["iscjklanguage"] = p.isCJKLanguage
 
 	return nil
 
