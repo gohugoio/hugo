@@ -37,7 +37,7 @@ actions will rebuild your entire web site using the `baseURL` setting
 from your site's configuration file. That's required to have your page
 links work properly with most hosting companies.
 
-## Further Reading
+## Additional Resources
 
 * ["Static Site Generators", O-Reilly][]
 * [StaticGen: Top Open-Source Static Site Generators][]
