@@ -3,6 +3,7 @@ code,
 pre {
   font-family: $code-font-family;
   margin: 0px;
+  color:$code-base-font-color;
 }
 
 .body-copy > pre {
@@ -17,19 +18,20 @@ pre {
   p {
     code {
       display:inline-block;
+      padding-top:.15em;
     }
   }
 }
 
 p code,
-li > code {
+li code {
   font-size: .9em;
   color: $inline-code-text-color;
   font-family: $code-font-family;
-  border: 1px solid $hugo-gray-light;
+  // border: 1px solid $hugo-gray-light;
   padding-left: .25em;
   padding-right: .25em;
-  background-color: $code-block-background-color;
+  background-color: $inline-code-background-color;
   border:none;
   outline:none;
 }
@@ -333,131 +335,3 @@ div.code-copy-header {
 .tooltipped-multiline.tooltipped-e:after {
   right: 100%
 }
-
-// /* Modified heavily from http://prismjs.com/download.html?themes=prism&languages=markup+css+clike+javascript+go+markdown+scss&plugins=line-numbers */
-// /**
-//  * prism.js default theme for JavaScript, CSS and HTML
-//  * Based on dabblet (http://dabblet.com)
-//  * @author Lea Verou
-//  */
-// code[class*="language-"],
-// pre[class*="language-"] {
-//   color: $code-block-base-font-color;
-//   background-color:$code-block-background-color;
-//   text-shadow: none;
-//   font-family: $code-font-family;
-//   text-align: left;
-//   white-space: pre;
-//   word-spacing: normal;
-//   word-break: normal;
-//   word-wrap: normal;
-//   line-height: 1.7;
-//   tab-size: 2;
-//   hyphens: none;
-// }
-// pre[class*="language-"]::-moz-selection,
-// pre[class*="language-"]::-moz-selection,
-// code[class*="language-"]::-moz-selection,
-// code[class*="language-"]::-moz-selection {
-//   text-shadow: none;
-//   background: $hugo-blue-light;
-// }
-// pre[class*="language-"]::selection,
-// pre[class*="language-"]::selection,
-// code[class*="language-"]::selection,
-// code[class*="language-"]::selection {
-//   text-shadow: none;
-//   background: $hugo-blue-light;
-// }
-// @media print {
-//   code[class*="language-"],
-//   pre[class*="language-"] {
-//     text-shadow: none;
-//   }
-// }
-// /* Code blocks */
-// pre[class*="language-"],
-// code[class*="language-"] {
-//   padding: 1em 1em 2em 1em;
-//   margin: 0;
-//   overflow: auto;
-//   background-color: $code-block-background-color;
-// }
-// /* Inline code */
-// :not(pre) > code[class*="language-"] {
-//   padding: .1em;
-//   border-radius: .3em;
-//   white-space: normal;
-// }
-// .token.comment,
-// .token.prolog,
-// .token.doctype,
-// .token.cdata {
-//   color: $hugo-gray-dark;
-// }
-// .token.punctuation {
-//   color: #999;
-// }
-// .namespace {
-//   opacity: .7;
-// }
-// .token.property,
-// .token.tag,
-// .token.boolean,
-// .token.number,
-// .token.constant,
-// .token.symbol,
-// .token.deleted {
-//   color: $hugo-pink;
-// }
-// .token.selector,
-// .token.attr-name,
-// .token.string,
-// .token.char,
-// .token.builtin,
-// .token.inserted {
-//   color: $hugo-green;
-// }
-// .token.operator,
-// .token.entity,
-// .token.url,
-// .language-css .token.string,
-// .style .token.string {
-//   color: $hugo-pink;
-// }
-// .token.atrule,
-// .token.attr-value,
-// .token.keyword {
-//   color: $hugo-blue;
-// }
-// .token.function {
-//   color: $hugo-gold;
-// }
-// .token.regex,
-// .token.important,
-// .token.variable {
-//   color: $hugo-gold
-// }
-// .token.important,
-// .token.bold {
-//   font-weight: bold;
-// }
-// .token.italic {
-//   font-style: italic;
-// }
-// .token.entity {
-//   cursor: help;
-// }
-// // //Modifications,
-// // code.language-markdown {
-// //   span.token.italic {
-// //     color: $hugo-pink;
-// //   }
-// //   span.token.url {
-// //     color: $hugo-blue;
-// //   }
-// //   //for * and 1 in markdown lists
-// //   .token.list.punctuation {
-// //     color: $hugo-blue;
-// //   }
-// // }
