@@ -314,11 +314,63 @@ func (p *Page) Param(key interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	keyStr = strings.ToLower(keyStr)
+	result, _ := p.traverseDirect(keyStr)
+	if result != nil {
+		return result, nil
+	}
+
+	keySegments := strings.Split(keyStr, ".")
+	result, _ = p.traverseNested(keySegments)
+	if result != nil {
+		return result, nil
+	}
+
+	return nil, nil
+}
+
+func (p *Page) traverseDirect(key string) (interface{}, error) {
+	keyStr := strings.ToLower(key)
 	if val, ok := p.Params[keyStr]; ok {
 		return val, nil
 	}
+
 	return p.Site.Params[keyStr], nil
+}
+
+func (p *Page) traverseNested(keySegments []string) (interface{}, error) {
+	result, err := traverse(keySegments, p.Params)
+	if err == nil {
+		return result, nil
+	}
+
+	result, err = traverse(keySegments, p.Site.Params)
+	if err == nil {
+		return result, nil
+	}
+
+	// Didn't find anything, but also no problems.
+	return nil, nil
+}
+
+func traverse(keys []string, m map[string]interface{}) (interface{}, error) {
+	// Shift first element off.
+	firstKey, rest := keys[0], keys[1:]
+	result := m[firstKey]
+
+	// No point in continuing here.
+	if result == nil {
+		return result, fmt.Errorf("no such key: " + fmt.Sprintf("%v", firstKey))
+	}
+
+	if len(rest) == 0 {
+		// That was the last key.
+		return result, nil
+	} else {
+		// That was not the last key.
+		return traverse(rest, cast.ToStringMap(result))
+	}
 }
 
 func (p *Page) Author() Author {

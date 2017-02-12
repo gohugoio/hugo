@@ -1336,7 +1336,7 @@ some content
 func TestPageParams(t *testing.T) {
 	t.Parallel()
 	s := newTestSite(t)
-	want := map[string]interface{}{
+	wantedMap := map[string]interface{}{
 		"tags": []string{"hugo", "web"},
 		// Issue #2752
 		"social": []interface{}{
@@ -1348,8 +1348,35 @@ func TestPageParams(t *testing.T) {
 	for i, c := range pagesParamsTemplate {
 		p, err := s.NewPageFrom(strings.NewReader(c), "content/post/params.md")
 		require.NoError(t, err, "err during parse", "#%d", i)
-		assert.Equal(t, want, p.Params, "#%d", i)
+		for key, _ := range wantedMap {
+			assert.Equal(t, wantedMap[key], p.Params[key], "#%d", key)
+		}
 	}
+}
+
+func TestTraverse(t *testing.T) {
+	exampleParams := `---
+rating: "5 stars"
+tags:
+  - hugo
+  - web
+social:
+  twitter: "@jxxf"
+  facebook: "https://example.com"
+---`
+	t.Parallel()
+	s := newTestSite(t)
+	p, _ := s.NewPageFrom(strings.NewReader(exampleParams), "content/post/params.md")
+	fmt.Println("%v", p.Params)
+
+	topLevelKeyValue, _ := p.Param("rating")
+	assert.Equal(t, "5 stars", topLevelKeyValue)
+
+	nestedStringKeyValue, _ := p.Param("social.twitter")
+	assert.Equal(t, "@jxxf", nestedStringKeyValue)
+
+	nonexistentKeyValue, _ := p.Param("doesn't.exist")
+	assert.Nil(t, nonexistentKeyValue)
 }
 
 func TestPageSimpleMethods(t *testing.T) {
