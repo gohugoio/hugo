@@ -39,12 +39,13 @@ links work properly with most hosting companies.
 
 ## Additional Resources
 
+* ["An Introduction to Static Site Generators", David Walsh][]
 * ["Static Site Generators", O-Reilly][]
 * [StaticGen: Top Open-Source Static Site Generators][]
 * ["Top 10 Static Website Generators," Netlify blog][]
 
 
-
+["An Introduction to Static Site Generators", David Walsh]: https://davidwalsh.name/introduction-static-site-generators
 ["Static Site Generators", O-Reilly]: /documents/oreilly-static-site-generators.pdf
 ["Top 10 Static Website Generators," Netlify blog]: https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/
 [StaticGen: Top Open-Source Static Site Generators]: https://www.staticgen.com/
