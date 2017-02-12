@@ -6,7 +6,7 @@ date: 2017-01-09
 publishdate: 2017-01-09
 lastmod: 2017-01-09
 categories: [content]
-tags: [front matter, yaml, toml, json]
+tags: [front matter, yaml, toml, json, metadata]
 weight:
 draft: false
 slug:

@@ -19,10 +19,12 @@ body {
   color: $base-font-color;
   line-height: $base-line-height-content;
   font-weight: $base-font-weight;
+   overflow-x:hidden;
 }
 
 body {
   font-size: 90%;
+   overflow-x:hidden;
   @include MQ(M) {
     font-size: 95%;
   }
