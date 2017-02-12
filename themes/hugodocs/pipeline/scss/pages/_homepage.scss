@@ -1,10 +1,12 @@
 .all-content-wrapper.home {
   background-color: lighten($hugo-blue-light, 50%);
+  overflow-x:hidden;
 }
 
 main#homepage {
   width: 90%;
   margin-bottom: 2.5em;
+   overflow-x:hidden;
   @include MQ(M) {
     max-width: $M * .9;
   }

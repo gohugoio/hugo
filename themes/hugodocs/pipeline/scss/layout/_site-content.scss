@@ -28,7 +28,7 @@ main.main {
   max-width: $content-max-width;
   position: relative;
   min-height:calc(100vh - #{$site-header-height * 2});
-  overflow-x:hidden;
+  overflow-x: hidden;
 }
 
 header.content-header {
@@ -37,6 +37,7 @@ header.content-header {
   width: 100%;
   position: relative;
   margin-top: 3em;
+  overflow-x: hidden;
   @include MQ(M) {
     margin-top: 2em;
   }
