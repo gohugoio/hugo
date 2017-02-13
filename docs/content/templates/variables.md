@@ -103,10 +103,55 @@ which would render
 **See also:** [Archetypes]({{% ref "content/archetypes.md" %}}) for consistency of `Params` across pieces of content.
 
 ### Param method
-In Hugo you can declare params both for the site and the individual page.  A common use case is to have a general value for the site and a more specific value for some of the pages (i.e. an image).
+
+In Hugo you can declare params both for the site and the individual page. A
+common use case is to have a general value for the site and a more specific
+value for some of the pages (i.e. a header image):
+
 ```
-$.Param "image"
+{{ $.Param "header_image" }}
 ```
+
+Thee `.Param` method provides a way to resolve a single value whether it's
+in a page parameter or a site parameter.
+
+When frontmatter contains nested fields, like:
+
+```
+---
+author:
+  given_name: John
+  family_name: Feminella
+  display_name: John Feminella
+---
+```
+
+then `.Param` can access them by concatenating the field names together with a
+dot:
+
+```
+{{ $.Param "author.display_name" }}
+```
+
+If your frontmatter contains a top-level key that is ambiguous with a nested
+key, as in the following case,
+
+```
+---
+favorites.flavor: vanilla
+favorites:
+  flavor: chocolate
+---
+```
+
+then the top-level key will be preferred. In the previous example, this
+
+```
+{{ $.Param "favorites.flavor" }}
+```
+
+will print `vanilla`, not `chocolate`.
+
 ### Taxonomy Terms Page Variables
 
 [Taxonomy Terms](/templates/terms/) pages are of the type `Page` and have the following additional variables. These are available in `layouts/_defaults/terms.html` for example.
