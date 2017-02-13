@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/source"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -121,11 +123,11 @@ func TestPageSortReverse(t *testing.T) {
 
 func TestPageSortByParam(t *testing.T) {
 	t.Parallel()
-	var k interface{} = "arbitrary"
+	var k interface{} = "arbitrarily.nested"
 	s := newTestSite(t)
 
 	unsorted := createSortTestPages(s, 10)
-	delete(unsorted[9].Params, cast.ToString(k))
+	delete(unsorted[9].Params, "arbitrarily")
 
 	firstSetValue, _ := unsorted[0].Param(k)
 	secondSetValue, _ := unsorted[1].Param(k)
@@ -137,7 +139,7 @@ func TestPageSortByParam(t *testing.T) {
 	assert.Equal(t, "xyz92", lastSetValue)
 	assert.Equal(t, nil, unsetValue)
 
-	sorted := unsorted.ByParam("arbitrary")
+	sorted := unsorted.ByParam("arbitrarily.nested")
 	firstSetSortedValue, _ := sorted[0].Param(k)
 	secondSetSortedValue, _ := sorted[1].Param(k)
 	lastSetSortedValue, _ := sorted[8].Param(k)
@@ -181,8 +183,19 @@ func createSortTestPages(s *Site, num int) Pages {
 
 	for i := 0; i < num; i++ {
 		p := s.newPage(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))
-		p.Params = map[string]interface{}{
-			"arbitrary": "xyz" + fmt.Sprintf("%v", 100-i),
+		pages[i] = &Page{
+			pageInit: &pageInit{},
+			URLPath: URLPath{
+				Section: "z",
+				URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
+			},
+			Site:   &info,
+			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
+			Params: map[string]interface{}{
+				"arbitrarily": map[string]interface{}{
+					"nested": ("xyz" + fmt.Sprintf("%v", 100-i)),
+				},
+			},
 		}
 
 		w := 5
