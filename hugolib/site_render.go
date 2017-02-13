@@ -152,9 +152,9 @@ func (s *Site) renderRSS(p *Page) error {
 		rssPage.Date = zeroDate
 	}
 
-	high := 50
-	if len(rssPage.Pages) > high {
-		rssPage.Pages = rssPage.Pages[:high]
+	limit := s.Cfg.GetInt("rssLimit")
+	if len(rssPage.Pages) > limit {
+		rssPage.Pages = rssPage.Pages[:limit]
 		rssPage.Data["Pages"] = rssPage.Pages
 	}
 	rssURI := s.Language.GetString("rssURI")

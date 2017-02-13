@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/spf13/hugo/deps"
@@ -27,11 +28,14 @@ func TestRSSOutput(t *testing.T) {
 		th      = testHelper{cfg}
 	)
 
+	rssLimit := len(weightedSources) - 1
+
 	rssURI := "customrss.xml"
 
 	cfg.Set("baseURL", "http://auth/bub/")
 	cfg.Set("rssURI", rssURI)
 	cfg.Set("title", "RSSTest")
+	cfg.Set("rssLimit", rssLimit)
 
 	for _, src := range weightedSources {
 		writeSource(t, fs, filepath.Join("content", "sect", src.Name), string(src.Content))
@@ -46,4 +50,10 @@ func TestRSSOutput(t *testing.T) {
 	// Taxonomy RSS
 	th.assertFileContent(t, fs, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
 
+	// RSS Item Limit
+	content := readDestination(t, fs, filepath.Join("public", rssURI))
+	c := strings.Count(content, "<item>")
+	if c != rssLimit {
+		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
+	}
 }
