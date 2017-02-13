@@ -171,6 +171,8 @@ along with their current, default values:
     pygmentsStyle:              "monokai"
     # true: use pygments-css or false: color-codes directly
     pygmentsUseClasses:         false
+    # maximum number of items in the RSS feed
+    rssLimit:                   15
     # default sitemap configuration map
     sitemap:
     # filesystem path to read files relative from
