@@ -1,6 +1,6 @@
 $(document).ready(function() {
   // bind click event to all internal page anchors
-  $('a.heading-link,#TableOfContents a').on('click', function(e) {
+  $('a.heading-link,#toc a').on('click', function(e) {
     // prevent default action and bubbling
     e.preventDefault();
     e.stopPropagation();
@@ -16,3 +16,5 @@ $(document).ready(function() {
     location.hash = hashid;
   });
 });
+
+

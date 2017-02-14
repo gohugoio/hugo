@@ -1,7 +1,9 @@
-{{ if gt .WordCount 500}}
+{{ if gt .WordCount 300}}
 <aside id="toc">
 	<header>
+		<a href="#page-top">
 		<h3>{{.Title}}</h3>
+		</a>
 	</header>
 	{{.TableOfContents}}
 	<a href="#" id="toc-toggle">ToC</a>

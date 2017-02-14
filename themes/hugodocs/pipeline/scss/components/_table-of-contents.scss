@@ -13,6 +13,7 @@ aside#toc {
     ul li ul {
       font-size: .8em;
       li {
+        margin-top:.5em;
         a {
           color: lighten($base-font-color, 25%);
         }
@@ -29,7 +30,7 @@ aside#toc {
   }
   @include MQ(XL) {
     top: $site-header-height + 20px;
-    right: 2vw;
+    left: calc(#{$site-navigation-width} + #{$content-max-width} + 3em);
 
   }
   @include MQ(HUGE){
