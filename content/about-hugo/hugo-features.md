@@ -14,12 +14,11 @@ notes:
 
 ## General
 
-* Extremely fast build times (<1 ms per page)
-* Completely cross platform: Runs on <i class="fa fa-apple"></i>&nbsp;Mac OS&nbsp;X, <i class="fa fa-linux"></i>&nbsp;Linux, <i class="fa fa-windows"></i>&nbsp;Windows, and more!
-* Easy [installation](/overview/installing/)
-* Render changes [on the fly](/overview/usage/) with [LiveReload](/extras/livereload/) as you develop
+* Extremely fast build times (&lt;.7 ms per page)
+* Completely cross platform, with easy installation on [Mac OSX][], [Linux][], [Windows][], and more
+* Renders changes [on the fly](/overview/usage/) with [LiveReload][] as you develop
 * [Powerful Theming][]
-* Host your site anywhere
+* [Host your site anywhere][]
 
 ## Organization
 
@@ -27,33 +26,57 @@ notes:
   * Customizable [URLs](/extras/urls/)
   * Support for configurable [taxonomies](/taxonomies/overview/) which includes categories and tags.  Create your own custom organization of content
   * Ability to [sort content](/content/ordering/) as you desire
-  * Automatic [table of contents](/extras/toc/) generation
+  * Automatic [table of contents][] generation
   * Dynamic menu creation
-  * [Pretty URLs](/extras/urls/) support
-  * [Permalink](/extras/permalinks/) pattern support
-  * [Aliases](/extras/aliases/) (redirects)
+  * [Pretty URLs][] support
+  * [Permalink][] pattern support
+  * Redirects via [aliases][]
 
 ## Content
 
-  * Native [Markdown](/content/example/) support
-    * Support for other languages through _external helpers_, see [supported formats](/content/supported-formats)
-  * Support for TOML, YAML and JSON metadata in [frontmatter](/content/front-matter/)
-  * Customizable [homepage](/layout/homepage/)
-  * Multiple [content types](/content/types/)
-  * Automatic and user defined [summaries](/content/summaries/)
-  * [Shortcodes](/extras/shortcodes/) to enable rich content inside of Markdown
-  * ["Minutes to Read"](/layout/variables/) functionality
-  * ["Wordcount"](/layout/variables/) functionality
+  * Native Markdown support, as well as other languages through *external helpers* (see [supported formats][])
+  * Support for TOML, YAML and JSON metadata in [front matter][]
+  * Customizable [homepage][]
+  * Multiple [content types][]
+  * Automatic and user defined [content summaries][]
+  * [Shortcodes][] to enable rich content inside of Markdown
+  * ["Minutes to Read"][]functionality
+  * ["Wordcount"][] functionality
 
 ## Additional Features
 
-  * Integrated [Disqus](https://disqus.com/) comment support
-  * Integrated [Google Analytics](https://google-analytics.com/) support
-  * Automatic [RSS](/layout/rss/) creation
-  * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](https://github.com/yosssi/ace) HTML templates
-  * Syntax [highlighting](/extras/highlighting/) powered by [Pygments](http://pygments.org/)
+  * Integrated [Disqus][] comment support
+  * Integrated [Google Analytics][] support
+  * Automatic [RSS][] creation
+  * Support for [Golang][], [Amber] and [Ace][] HTML templates
+  * [Syntax highlighting][] powered by [Pygments][]
 
 See what's coming next in the [Hugo roadmap][].
 
-[Powerful Theming]: /themes/
+["Minutes to Read"]: /variables-and-params/
+["Wordcount"]: /variables-and-params/
+[Ace]: https://github.com/yosssi/ace
+[aliases]: /content-management/url-management/#aliases
+[Amber]: https://github.com/eknkc/amber
+[content summaries]: /content-management/content-summaries/
+[content types]: /content-management/content-types/
+[Disqus]: https://disqus.com/
+[front matter]: /content-management/front-matter/
+[Golang]: http://golang.org/pkg/html/template/
+[Google Analytics]: https://google-analytics.com/
+[homepage]: /templates/homepage-template/
+[Host your site anywhere]: /hosting-and-deployment/
 [Hugo roadmap]: /about-hugo/roadmap
+[Linux]: /getting-started/install-on-mac/
+[LiveReload]: /getting-started/using-hugo/
+[Mac OSX]: /getting-started/install-of-pc/
+[Permalinks]: /content-management/url-management/#permalinks
+[Pretty URLs]: /content-management/url-management/
+[Powerful Theming]: /themes/
+[Pygments]: http://pygments.org/
+[RSS]: /templates/rss-templates/
+[Shortcodes]: /templates/shortcodes/
+[supported formats]: /content-management/markdown-and-supported-formats/
+[Syntax highlighting]: /developer-tools/syntax-highlighting/
+[table of contents]: /content-management/table-of-contents/
+[Windows]: /getting-started/install-on-linux/

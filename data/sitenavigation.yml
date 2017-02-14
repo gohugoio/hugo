@@ -61,13 +61,13 @@ hostinganddeployment:
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Site builds, automated deployments, and popular hosting solutions"
-migratingtohugo:
-  order: 10
-  title: "Migrating to Hugo"
-  url: "migrating-to-hugo"
-  haschildren: true
-  sortsubpagesby: "weight"
-  desc: "Tools for migrating to Hugo from other platforms or generators (eg, Wordpress or Jekyll)"
+# migratingtohugo:
+#   order: 10
+#   title: "Migrating to Hugo"
+#   url: "migrating-to-hugo"
+#   haschildren: true
+#   sortsubpagesby: "weight"
+#   desc: "Tools for migrating to Hugo from other platforms or generators (eg, Wordpress or Jekyll)"
 tutorials:
   order: 11
   title: "Tutorials"
@@ -81,7 +81,7 @@ developertools:
   url: "developer-tools"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Command line reference, flags, syntax highlighting"
+  desc: "Command line reference, flags, and migration tools"
 troubleshooting:
   order: 13
   title: "Troubleshooting"

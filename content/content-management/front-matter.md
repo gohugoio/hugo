@@ -10,7 +10,7 @@ tags: [front matter, yaml, toml, json, metadata, archetypes]
 weight: 20
 draft: false
 slug:
-aliases: []
+aliases: [/content/front-matter/]
 notes:
 ---
 

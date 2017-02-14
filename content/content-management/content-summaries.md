@@ -10,6 +10,6 @@ categories: []
 weight: 70
 draft: false
 slug:
-aliases: []
+aliases: [/content/summaries/]
 notes:
 ---

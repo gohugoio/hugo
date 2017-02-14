@@ -1,15 +1,14 @@
 ---
-title: Table of Contents
-linktitle:
+title: RSS Templates
+linktitle: RSS Templates
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
+weight:
 tags: []
-categories: []
-weight: 100
 draft: false
 slug:
-aliases: [/extras/toc/]
+aliases: [/templates/rss/]
 notes:
 ---

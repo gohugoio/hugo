@@ -11,14 +11,14 @@ $('document').ready(function() {
 // const hasCopy = document.execCommand('copy', false, null);
 // console.log(`${hasCopy} is hasCopy value`);
 
-window.setTimeout(function() {
-  // let headLinks = document.querySelector('.heading-link');
-  // for (var i = 0; i < headLinks.length; i++) {
-  //   headLinks[i].addEventListener('click', copyHeaderLink, false);
-  // }
-}, 2000);
+// window.setTimeout(function() {
+//   // let headLinks = document.querySelector('.heading-link');
+//   // for (var i = 0; i < headLinks.length; i++) {
+//   //   headLinks[i].addEventListener('click', copyHeaderLink, false);
+//   // }
+// }, 2000);
 
-function copyHeaderLink(evt) {
-	let link = evt.target.dataset.clip;
-	console.log(link);
-}
+// function copyHeaderLink(evt) {
+// 	let link = evt.target.dataset.clip;
+// 	console.log(link);
+// }

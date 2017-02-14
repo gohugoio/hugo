@@ -27,6 +27,7 @@ aside#toc {
     margin-bottom: 0px;
     padding-bottom: 0px;
     border-bottom: 1px solid $base-font-color;
+    color:$base-font-color;
   }
   @include MQ(XL) {
     top: $site-header-height + 20px;
