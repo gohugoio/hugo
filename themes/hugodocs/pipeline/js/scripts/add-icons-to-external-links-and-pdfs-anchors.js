@@ -7,7 +7,7 @@ $('.body-copy > h2,.body-copy > h3').each(function() {
 
 $(document).ready(function () {
     // bind click event to all internal page anchors
-    $('a.heading-link').on('click', function (e) {
+    $('a.heading-link,#TableOfContents a').on('click', function (e) {
         // prevent default action and bubbling
         e.preventDefault();
         e.stopPropagation();

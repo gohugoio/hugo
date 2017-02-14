@@ -11,6 +11,8 @@ main#homepage {
     max-width: $M * .9;
   }
   @include MQ(L) {
+    margin-left:auto;
+    margin-right:auto;
     max-width: 860px * .9;
   }
 }

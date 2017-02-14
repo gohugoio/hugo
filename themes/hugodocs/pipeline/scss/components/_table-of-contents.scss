@@ -1,0 +1,38 @@
+aside#toc {
+  position: fixed;
+  max-width: 300px;
+  min-width:200px;
+  overflow-y:scroll;
+  nav {
+    float:left;
+    ul {
+      margin-top: .5em;
+    }
+    ul li ul {
+      font-size: .9em;
+      li {
+        a {
+          color: lighten($base-font-color, 25%);
+        }
+        ul {
+          display:none;
+        }
+      }
+    }
+  }
+  h3 {
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    border-bottom: 1px solid $base-font-color;
+  }
+  @include MQ(XL) {
+    top: $site-header-height + 20px;
+    right: 3vw;
+  }
+}
+
+a#toc-toggle {
+  @include MQ(XL) {
+    display: none;
+  }
+}

@@ -14,149 +14,163 @@ aliases: []
 notes:
 ---
 
-**Archetypes** are content (i.e., `.md`) files in the `archetypes` directory of your [project][] that contain pre-configured [front matter][] for your site's [content types][]. Archetypes facilitate more consistent metadata by enabling `hugo new` to populate new instances of a content type.
+**Archetypes** are content (i.e., `.md`) files in the [`archetypes` directory][] of your project that contain pre-configured [front matter][] for your site's [content types][]. Archetypes facilitate consistent metadata in your website's content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
 
-Hugo uses **archetypes** to facilitate creation of consistent metadata for content types across a website. Archetypes allow authors to easily generate new content files with associated metadata that are new instances of a content type. {{< relref "content-management/front-matter.md" >}}
+Hugo's generator assumes your working directory is the content folder at the root of your project. Hugo is able to infer the appropriate archetype by assuming the content type from the content section passed to the CLI command:
 
-To create new instances of a content type that pull from an archetype, authors can use the the `hugo new` command combined with the file path that assumes the present directory is [content][] downward; e.g.---
+```bash
+hugo new [content-section/file-name.md]
+```
 
+We can use this pattern to create a new `.md` file in the `posts` section of the [example site][]:
+
+{{% input "archetype-example.sh" %}}
 ```bash
 hugo new posts/my-first-post.md
 ```
+{{% /input %}}
 
-When defining a custom content type, you can use an **archetype** as a way to
-define the default metadata for a new post of that type.
+{{% note "Override the Inferred Content Type in a New File" %}}
+To override the content type Hugo infers from `[content-section]`, you can include the `--kind` flag at the end of the `hugo new` command.
+{{% /note %}}
+
+If you were to run this command in a new site that does not contain any default or custom archetypes, Hugo will create the following file.
+
+{{% output "content/posts/my-first-post.md" %}}
+```toml
++++
+date = "2017-02-01T19:20:04-07:00"
+title: my first post
++++
+```
+{{% /output %}}
+
+Note that if you do not already have a `posts` directory in `content`, Hugo will create both `content/posts/` and `content/posts/my-first-post.md`.
+
+`date` and `title` are the key-values that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `title` is generated from the new content's filename. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time.
+
+Two key-values are often not enough for effective content management of larger websites. As such, Hugo provides a simple mechanism for extending these key-values through default and custom archetypes.
+
+## Lookup Order for Archetypes
+
+Similar to the lookup order for [templates in the layouts folder][], Hugo looks for a default file before falling back on the base/internal archetype. For the `my-first-post.md` example, Hugo looks for the new content's archetype file in the following order:
+
+1. `archetypes/posts.md`
+2. `archetypes/default.md`
+3. `themes/theme-name/archetypes/posts.md`
+4. `themes/theme-name/archetypes/default.md`
+5. `_internal` (i.e., `title` and `date`)
+
+{{% note "Using a Theme Archetype" %}}
+If you wish to use archetypes that ship with a theme, `theme` must be specified in your [configuration file](/project-organization/configuration/).
+{{% /note %}}
+
+## Choosing Your Front Matter Format
+
+By default, `hugo new` content files include front matter in the TOML format regardless of the format used in `archetypes/*md`.
+
+You can specify a different default format in your site [configuration file][] file using the `metaDataFormat` directive. Possible values are `toml`, `yaml`, and `json`.
 
 ## Creating a Default Archetype
 
-In the following example scenario, suppose we have a blog with a single content
-type (blog post). Our imaginary blog will use ‘tags’ and ‘categories’ for its
-taxonomies, so let's create an archetype file with ‘tags’ and ‘categories’
-predefined:
+Default archetypes are convenient if your content's front matter stays consistent across multiple [content sections][].
+
+The [example site][] includes `tags` and `categories` as [taxonomies][]. If we assume that all content files will require these two key-values, we can create a `default.md` archetype that *extends* Hugo's base archetype. In this example, we are including "golang" and "hugo" as tags and "web development" as a category.
 
 {{% input "archetypes/default.md" %}}
 ```toml
 +++
-tags = ["x", "y"]
-categories = ["x", "y"]
+tags = ["golang", "hugo"]
+categories = ["web development"]
 +++
 ```
 {{% /input %}}
 
-{{% caution ""%}}
-Some editors (e.g., Sublime, Emacs) do not insert an end-of-line (EOL) character at the end of the file (EOF).  If you get a [strange EOF error](/troubleshooting/frequently-asked-questions/#eof-error) when using `hugo new`, open each archetype file and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` if you're using TOML or YAML front matter, respectively.
+{{% caution "EOL Characters in Text Editors"%}}
+Some editors (e.g., Sublime Text, Emacs) do not insert an end-of-line (EOL) character at the end of the file (EOF). If you get an [EOF error](/troubleshooting/eof-error/) when using `hugo new`, open each archetype file and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively.
 {{% /caution %}}
 
 ## Using the Default Archetype
 
-Now, with `archetypes/default.md` in place, let's create a new post in the `post` section with the `hugo new` command:
+With an `archetypes/default.md` in place, we can use the CLI to create a new post in the `posts` content section:
 
-{{% input "new-post.sh" %}}
+{{% input "new-post-from-default-archetype.sh" %}}
 ```bash
-$ hugo new post/my-new-post.md
+$ hugo new posts/my-new-post.md
 ```
 {{% /input %}}
 
-Hugo will now create the file with the following contents:
+Hugo then creates a new markdown file with the following front matter:
 
-{{% output "content/post/my-new-post.md" %}}
+{{% output "content/posts/my-new-post.md" %}}
 ```toml
 +++
+categories = ["web development"]
+date = "2017-02-01T19:20:04-07:00"
+tags = ["golang", "hugo"]
 title = "my new post"
-date = "2015-01-12T19:20:04-07:00"
-tags = ["x", "y"]
-categories = ["x", "y"]
 +++
 ```
 {{% /output %}}
 
-We see that the `title` and `date` variables have been added in addition to the `tags` and `categories` variables that were carried over from `archetype/default.md`.
+We see that the `title` and `date` key-values have been added in addition to the `tags` and `categories` key-values from `archetypes/default.md`.
 
-Congratulations! We have successfully created an archetype and used it to
-quickly scaffold out a new post. But wait, what if we want to create some content that isn't exactly a blog post, like a profile for a musician? Let's see how using **archetypes** can help us out.
-
-### Override the Inferred Content Type in a New File
-
-To override the content type for a new post, include the `--kind` flag during creation.
-
-{{% note "Using a Theme Archetype" %}}
-If you wish to use archetypes that ship with a theme, the theme must be specified in your [configuration file](/project-organization/configuration/).
+{{% note "Ordering of Front Matter" %}}
+You may notice that content files created with `hugo new` do not observe the order of the key-values specified in your archetype files and instead list your front matter alphabetically. This is a known issue ({{< issue 452 >}}).
 {{% /note %}}
 
 ## Creating Custom Archetypes
 
-Previously, we had created a new content type by adding a new subfolder to the content directory. In this case, its name would be `content/musician`. To begin using a `musician` archetype for each new `musician` post, we simply need to create a file named after the content type called `musician.md`, and put it in the `archetypes` directory, similar to the one below.
+Suppose the example site's `posts` section requires more sophisticated front matter than what has been specified in `archetypes/default.md`. We can create a custom archetype for our posts at `archetypes/posts.md` that includes the full set of front matter.
 
-{{% input "archetypes/musician.md"%}}
+{{% input "archetypes/posts.md"%}}
 ```toml
 +++
-name = ""
-bio = ""
-genre = ""
+subtitle = ""
+author = ""
+publishdate = ""
+description = ""
+tags = ""
+categories = ""
 +++
 ```
 {{% /input %}}
 
-Now, let's create a new musician.
+## Using Custom Archetypes
 
-{{% input "new-musician.sh" %}}
+With an `archetypes/posts.md` in place, we can use the CLI to create a new posts with custom `posts` metadata in the `posts` content section:
+
+{{% input "new-post-from-custom-archetype.sh" %}}
 ```bash
-$ hugo new musician/mozart.md
+$ hugo new posts/post-from-custom.md
 ```
 {{% /input %}}
 
-This time, Hugo recognizes our custom `musician` archetype and uses it instead of the default one. Take a look at the new `musician/mozart.md` post. You should see that the generated file's front matter now includes the variables `name`, `bio`, and `genre`.
+This time, Hugo recognizes our custom `archetypes/posts.md` archetype and uses it instead of `archetypes/default.md`. The generated file will now include the full list of front matter parameters, as well as the base archetypes `title` and `date`.
 
-
-{{% output "content/musician/mozart.md" %}}
-
+{{% output "content/posts/post-from-custom.md" %}}
 ```toml
 +++
-title = "mozart"
-date = "2015-08-24T13:04:37+02:00"
-name = ""
-bio = ""
-genre = ""
+author = ""
+categories = ""
+date = 2017-02-13T17:24:43-08:00
+description = ""
+publishdate = ""
+subtitle = ""
+tags = ""
+title = post from custom
 +++
 ```
 {{% /output %}}
 
-## Using a Different Front Matter Format
-
-By default, the front matter will be created in the TOML format regardless of what format the archetype is using.
-
-You can specify a different default format in your site [configuration file][] file using the `metaDataFormat` directive. Possible values are `toml`, `yaml`, and `json`.
-
-## Which Archetype is Being Used
-
-The following rules apply when creating new content:
-
-* If an archetype with a filename matching the new post's [content type](/content/content-types) exists, it will be used.
-* If no match is found, `archetypes/default.md` will be used.
-* If neither is present and a theme is in use, then within the theme:
-    * If an archetype with a filename that matches the content type being created, it will be used.
-    * If no match is found, `archetypes/default.md` will be used.
-* If no archetype files are present, then the one that ships with Hugo will be used.
-
-Hugo provides a simple archetype which sets the `title` (based on the
-file name) and the `date` in [RFC 3339 format][] based on [`now()`][], which returns the current time.
-
-{{% note "Dynamic Key-Values in Archetypes" %}}
-`hugo new` does *not* automatically add `draft = true` when the user
-provides an archetype. This is by design---the rationale is that the archetype should set its own value for all fields. `title` and `date`, which are dynamic and unique for each piece of content, are the sole exceptions.
-{{% /note %}}
-
-The content type is automatically detected based on the file path passed to the
-Hugo CLI command:
-
-```bash
-hugo new [my-content-type/post-name]
-```
-
+[`archetypes` directory]: /project-organization/directory-structure/
 [`now()`]: http://golang.org/pkg/time/#Now
 [configuration file]: /project-organization/configuration/
-[content]: /project-organization/directory-structure/
+[content sections]: /content-sections/
+[content types]: /content-management/content-types/
+[example site]: /getting-started/
 [front matter]: /content-management/front-matter/
-[project]:
 [RFC 3339 format]: https://www.ietf.org/rfc/rfc3339.txt
-
+[taxonomies]: /content-management/taxonomies/
+[templates in the layouts folder]: /templates/base-templates-and-blocks/
+[templates]: /templates/

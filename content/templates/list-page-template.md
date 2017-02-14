@@ -13,4 +13,4 @@ aliases:
 notes:
 ---
 
-## List Page Lookup Order
+## Lookup Order for List and Section Pages

@@ -1,16 +1,15 @@
 ---
-title: Single Page Templates
+title: Taxonomies
 linktitle:
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: []
+tags: [taxonomies,terms]
+categories: [content]
+weight: 60
 draft: false
 slug:
-aliases:
+aliases: []
 notes:
 ---
-
-## Lookup Order for Single Page Templates

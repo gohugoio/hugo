@@ -5,7 +5,6 @@ description: Frequently asked questions and known issues pulled from the Hugo Di
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-layout: sectionlist
 weight:
 draft: false
 slug:

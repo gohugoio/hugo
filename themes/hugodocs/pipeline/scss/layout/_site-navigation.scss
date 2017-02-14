@@ -44,7 +44,7 @@
       &.active-section {
         color: $active-color;
         // border-bottom: 1px solid $active-color;
-        font-weight: 600;
+        font-weight: 700;
         + ul.submenu {
           display: block;
           border-left: 1px solid $hugo-pink;
@@ -59,7 +59,7 @@
           color: lighten($base-font-color, 25%);
         }
         &.active-page {
-          font-weight: 600;
+          font-weight: 700;
           color: $hugo-blue;
         }
       }

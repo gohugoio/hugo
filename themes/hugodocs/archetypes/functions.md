@@ -1,7 +1,8 @@
----
-publishdate: Now()
-expirydate: ""
-description: ""
-tags: [tag1, tag2]
-categories: ['base category']
----
++++
+subtitle = ""
+author = ""
+publishdate = ""
+description = ""
+tags = ""
+categories = ""
++++
