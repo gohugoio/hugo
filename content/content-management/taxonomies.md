@@ -10,6 +10,6 @@ categories: [content]
 weight: 60
 draft: false
 slug:
-aliases: []
+aliases: [/taxonomies/overview/]
 notes:
 ---

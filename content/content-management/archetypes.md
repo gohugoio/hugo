@@ -30,7 +30,7 @@ hugo new posts/my-first-post.md
 ```
 {{% /input %}}
 
-{{% note "Override the Inferred Content Type in a New File" %}}
+{{% note "Override Content Type in a New File" %}}
 To override the content type Hugo infers from `[content-section]`, you can include the `--kind` flag at the end of the `hugo new` command.
 {{% /note %}}
 
@@ -87,7 +87,7 @@ categories = ["web development"]
 {{% /input %}}
 
 {{% caution "EOL Characters in Text Editors"%}}
-Some editors (e.g., Sublime Text, Emacs) do not insert an end-of-line (EOL) character at the end of the file (EOF). If you get an [EOF error](/troubleshooting/eof-error/) when using `hugo new`, open each archetype file and press <kbd>Enter</kbd> to type a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively.
+If you get an `EOF error` when using `hugo new`, add a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively. (See [troubleshooting](/troubleshooting/eof-error/))
 {{% /caution %}}
 
 ## Using the Default Archetype

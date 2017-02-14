@@ -14,18 +14,18 @@ notes:
 
 ## General
 
-* Extremely fast build times (&lt;.7 ms per page)
+* Extremely fast build times (&lt; .7 ms per page)
 * Completely cross platform, with easy installation on [Mac OSX][], [Linux][], [Windows][], and more
-* Renders changes [on the fly](/overview/usage/) with [LiveReload][] as you develop
-* [Powerful Theming][]
+* Renders changes on the fly with [LiveReload][] as you develop
+* [Powerful theming][]
 * [Host your site anywhere][]
 
 ## Organization
 
-  * Straightforward [organization](/project-organization), including website sections
-  * Customizable [URLs](/extras/urls/)
-  * Support for configurable [taxonomies](/taxonomies/overview/) which includes categories and tags.  Create your own custom organization of content
-  * Ability to [sort content](/content/ordering/) as you desire
+  * Straightforward [organization for your projects][], including website sections
+  * Customizable [URLs][]
+  * Support for configurable [taxonomies][], including categories and tags
+  * Ability to [sort content][] as you desire through [powerful template functions][]
   * Automatic [table of contents][] generation
   * Dynamic menu creation
   * [Pretty URLs][] support
@@ -70,13 +70,18 @@ See what's coming next in the [Hugo roadmap][].
 [Linux]: /getting-started/install-on-mac/
 [LiveReload]: /getting-started/using-hugo/
 [Mac OSX]: /getting-started/install-of-pc/
+[organization for your projects]: /project-organization/
 [Permalinks]: /content-management/url-management/#permalinks
+[powerful template functions]: /functions/
 [Pretty URLs]: /content-management/url-management/
-[Powerful Theming]: /themes/
+[Powerful theming]: /themes/
 [Pygments]: http://pygments.org/
 [RSS]: /templates/rss-templates/
 [Shortcodes]: /templates/shortcodes/
+[sort content]: /templates/
 [supported formats]: /content-management/markdown-and-supported-formats/
 [Syntax highlighting]: /developer-tools/syntax-highlighting/
 [table of contents]: /content-management/table-of-contents/
+[taxonomies]: /content-management/taxonomies/
+[URLs]: /url-management/
 [Windows]: /getting-started/install-on-linux/

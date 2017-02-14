@@ -9,6 +9,6 @@ weight:
 tags: [taxonomies]
 draft: false
 slug:
-aliases:
+aliases: []
 notes:
 ---
