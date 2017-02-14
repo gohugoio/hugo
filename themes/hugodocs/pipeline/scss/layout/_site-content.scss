@@ -28,9 +28,9 @@ main.main {
   max-width: $content-max-width;
   position: relative;
   min-height:calc(100vh - #{$site-header-height * 2});
-  overflow-x: hidden;
-  @include MQ(L){
-    margin-left:1em;
+  // overflow-x: hidden;
+  @include MQ(XL) {
+    margin-left: 2em;
   }
 }
 
@@ -109,6 +109,7 @@ header.content-header {
 .body-copy {
   margin-bottom: 2.5em;
   display: block;
+  overflow: visible;
   div + h2 {
     margin-top: 1em;
   }

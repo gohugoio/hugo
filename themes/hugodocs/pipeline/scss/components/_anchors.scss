@@ -46,17 +46,21 @@ a {
       border-bottom: 1px solid $default-anchor-color;
     }
   }
-  a.heading-link {
-    color:lighten($base-font-color,40%);
-    font-size:.8em;
-    position:relative;
-    left:.3em;
-    bottom:.05em;
-    &:before,&:after {
-      display:none;
-    }
-    &:hover {
-      color:$default-anchor-color;
-    }
+}
+
+//heading links are added on the client (see pipeline/js/scripts/add-icons-to-external-links-and-pdfs-anchors.js)
+a.heading-link {
+  color: lighten($base-font-color, 50%);
+  font-size: .8em;
+  position: relative;
+  display:inline;
+  top:-.1em;
+  right:0px;
+  &:before,
+  &:after {
+    display: none;
+  }
+  &:hover {
+    color: $default-anchor-color;
   }
 }

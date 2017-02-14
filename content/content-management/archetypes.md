@@ -5,7 +5,7 @@ description: Archetypes allow you to create and set default parameters from the 
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [archetypes,generators]
+tags: [archetypes,generators,metadata,front matter]
 categories: [content]
 weight: 50
 draft: false

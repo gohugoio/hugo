@@ -1,15 +1,17 @@
 aside#toc {
   position: fixed;
-  max-width: 300px;
+  max-width: 280px;
   min-width:200px;
   overflow-y:scroll;
+  padding-left:1em;
   nav {
     float:left;
+    overflow-y:scroll;
     ul {
       margin-top: .5em;
     }
     ul li ul {
-      font-size: .9em;
+      font-size: .8em;
       li {
         a {
           color: lighten($base-font-color, 25%);
@@ -27,7 +29,12 @@ aside#toc {
   }
   @include MQ(XL) {
     top: $site-header-height + 20px;
-    right: 3vw;
+    right: 2vw;
+
+  }
+  @include MQ(HUGE){
+    max-width:320px;
+    right:10vw;
   }
 }
 
