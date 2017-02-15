@@ -16,4 +16,6 @@ aliases: []
 notes:
 ---
 
-Here is some content for the `index` function.
+## Example
+
+## Advanced Example

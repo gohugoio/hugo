@@ -1,0 +1,8 @@
+<div class="content-header-links">
+	{{- if .Params.godocref -}}
+	<a target="_blank" class="tooltip godoc-link" data-tooltip="Golang Ref" href="{{.Params.godocref}}" >
+		{{ partial "svg-icons/godoc-icon.html" .}}
+	</a>
+	{{- end -}}
+	<a target="_blank" class="tooltip edit-link" data-tooltip="Edit on GitHub" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><i class="icon-pencil" aria-hidden="true"></i></a>
+</div>

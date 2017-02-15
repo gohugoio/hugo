@@ -1,5 +1,5 @@
 ---
-title: New Website Scaffolding
+title: Overview
 linktitle:
 description: Scaffolding new projects, configuration, and source organization.
 date: 2016-11-01

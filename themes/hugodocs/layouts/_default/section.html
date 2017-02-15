@@ -2,10 +2,8 @@
 {{$title := .Title}}
 <main class="main">
 	<header class="content-header">
-		<h1 class="page-title">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
-		<div class="content-header-links">
-			<a target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><i class="icon-pencil" aria-hidden="true"></i></a>
-		</div>
+		<h1 class="page-title"><img src="{{.Site.BaseURL}}images/{{.Section}}.svg" alt="Icon for the {{.Section}} section.">{{with .LinkTitle}}{{ . |markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		{{partial "content-header-links.html" . }}
 		{{with .Params.tags}}
 		<ul class="tags">
 			<li><i class="icon-tags"></i></li>

@@ -15,3 +15,7 @@ slug:
 aliases: []
 notes:
 ---
+
+## Example
+
+## Advanced Example

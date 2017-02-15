@@ -12,56 +12,65 @@ a {
     color: $default-anchor-color;
     // color:$base-font-color;
     text-decoration: none;
-    border-bottom:1px solid $default-anchor-color;
+    border-bottom: 1px solid $default-anchor-color;
   }
-  // a {
-  //   text-decoration: none;
-  //   color: $default-anchor-color;
-  //   display: inline-block;
-  //   outline: none;
-  //   position: relative;
-  //   transition: color 0.3s ease;
-  //   perspective: 1800px;
-  //   &:hover {
-  //     color: $hugo-white;
-  //   }
-  //   &::before,
-  //   &::after {
-  //     position: absolute;
-  //     top: 0;
-  //     left: -2px;
-  //     padding: 0 2px;
-  //     z-index: -1;
-  //     box-sizing: content-box;
-  //     width: 100%;
-  //     height: 100%;
-  //     content: '';
-  //   }
-  //   &::before {
-  //     background-color: $default-anchor-color;
-  //     transition: transform 0.2s;
-  //     transition-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
-  //     transform: rotateX(90deg);
-  //     transform-origin: 50% 100%;
-  //   }
-  //   &:hover::before,
-  //   &:focus::before {
-  //     transform: rotateX(0);
-  //   }
-  //   &::after {
-  //     border-bottom: 1px solid $default-anchor-color;
-  //   }
-  // }
 }
+
+//tooltips
+a.tooltip {
+  position: relative;
+  overflow: visible;
+  &:hover::before {
+    display: inline-block;
+    position: absolute;
+    line-height: 1;
+    bottom: -1.4em;
+    right: 0px;
+    font-size: 12px;
+    color: white;
+    font-family: 'fontello';
+    width: auto;
+    padding: .25em .33em;
+    background-color: $base-font-color;
+    content: attr(data-tooltip);
+    white-space: nowrap;
+    text-transform: none;
+    font-weight: normal;
+    border-radius:.25em;
+  }
+  &.edit-link:hover {
+    &::after {
+      content: '\f09b';
+      font-family: 'fontello';
+      color: white;
+      font-size: 13px;
+      display: inline-block;
+      position: absolute;
+      line-height: 1;
+      bottom: -1.1em;
+      right: 3px;
+    }
+    &::before {
+      padding-right: 1.5em;
+    }
+  }
+}
+
+.icon-github:before {
+  content: '\f09b';
+}
+
+
+/* '' */
 
 //heading links are added on the client (see pipeline/js/scripts/add-icons-to-external-links-and-pdfs-anchors.js)
 a.heading-link {
   color: lighten($base-font-color, 50%);
   font-size: .8em;
   position: relative;
-  display:inline;
-  top:-.1em;
-  right:0px;
+  display: inline;
+  top: -.1em;
+  right: 0px;
   &:before,
   &:after {
     display: none;
@@ -70,3 +79,44 @@ a.heading-link {
     color: $default-anchor-color;
   }
 }
+
+// .body-copy {
+// a {
+//   text-decoration: none;
+//   color: $default-anchor-color;
+//   display: inline-block;
+//   outline: none;
+//   position: relative;
+//   transition: color 0.3s ease;
+//   perspective: 1800px;
+//   &:hover {
+//     color: $hugo-white;
+//   }
+//   &::before,
+//   &::after {
+//     position: absolute;
+//     top: 0;
+//     left: -2px;
+//     padding: 0 2px;
+//     z-index: -1;
+//     box-sizing: content-box;
+//     width: 100%;
+//     height: 100%;
+//     content: '';
+//   }
+//   &::before {
+//     background-color: $default-anchor-color;
+//     transition: transform 0.2s;
+//     transition-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
+//     transform: rotateX(90deg);
+//     transform-origin: 50% 100%;
+//   }
+//   &:hover::before,
+//   &:focus::before {
+//     transform: rotateX(0);
+//   }
+//   &::after {
+//     border-bottom: 1px solid $default-anchor-color;
+//   }
+// }
+// }

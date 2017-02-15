@@ -14,7 +14,7 @@ aliases: []
 notes:
 ---
 
-**Archetypes** are content files in the [archetypes directory][] of your project that contain pre-configured [front matter][] for your site's [content types][]. Archetypes facilitate consistent metadata in your website's content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
+**Archetypes** are content files in the [archetypes directory][] of your project that contain pre-configured [front matter][] for your website's [content types][]. Archetypes facilitate consistent metadata across your website content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
 
 Hugo's generator assumes your working directory is the content folder at the root of your project. Hugo is able to infer the appropriate archetype by assuming the content type from the content section passed to the CLI command:
 
@@ -31,10 +31,10 @@ hugo new posts/my-first-post.md
 {{% /input %}}
 
 {{% note "Override Content Type in a New File" %}}
-To override the content type Hugo infers from `[content-section]`, you can include the `--kind` flag at the end of the `hugo new` command.
+To override the content type Hugo infers from `[content-section]`, add the `--kind` flag to the end of the `hugo new` command.
 {{% /note %}}
 
-If you were to run this command in a new site that does not contain any default or custom archetypes, Hugo will create the following file.
+Running this command in a new site that does not have default or custom archetypes will create the following file:
 
 {{% output "content/posts/my-first-post.md" %}}
 ```toml
@@ -45,15 +45,15 @@ title: my first post
 ```
 {{% /output %}}
 
-Note that if you do not already have a `posts` directory in `content`, Hugo will create both `content/posts/` and `content/posts/my-first-post.md`.
+Note that if you do not already have a `posts` directory, Hugo will create both `content/posts/` and `content/posts/my-first-post.md`.
 
-`date` and `title` are the key-values that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `title` is generated from the new content's filename. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time.
+`date` and `title` are the variables that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `title` is generated from the new content's filename. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time.
 
-Two key-values are often not enough for effective content management of larger websites. As such, Hugo provides a simple mechanism for extending these key-values through default and custom archetypes.
+Two variables per content file are often not enough for effective content management of larger websites. Luckily, Hugo provides a simple mechanism for extending the number of variables through default and custom archetypes.
 
 ## Lookup Order for Archetypes
 
-Similar to the lookup order for [templates in the layouts folder][], Hugo looks for a default file before falling back on the base/internal archetype. For the `my-first-post.md` example, Hugo looks for the new content's archetype file in the following order:
+Similar to the lookup order for [templates in the `layouts` directory][], Hugo looks for a default file before falling back on the base/internal archetype. For the `my-first-post.md` example, Hugo looks for the new content's archetype file in the following order:
 
 1. `archetypes/posts.md`
 2. `archetypes/default.md`
@@ -172,5 +172,5 @@ title = post from custom
 [front matter]: /content-management/front-matter/
 [RFC 3339 format]: https://www.ietf.org/rfc/rfc3339.txt
 [taxonomies]: /content-management/taxonomies/
-[templates in the layouts folder]: /templates/base-templates-and-blocks/
+[templates in the `layouts` directory]: /templates/base-templates-and-blocks/
 [templates]: /templates/

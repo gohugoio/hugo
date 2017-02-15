@@ -44,14 +44,21 @@ header.content-header {
   @include MQ(M) {
     margin-top: 2em;
   }
-  .last-modified {
-    color: $hugo-gray;
-    display: block;
-    margin-top: -10px;
-    width: 100%;
-    font-size: .8em;
-    margin-bottom: 20px;
-    font-weight:normal;
+}
+
+.content-section-image-wrapper {
+  margin-bottom: 1em;
+  a {
+    display: flex;
+    align-items: center;
+    color: $base-font-color;
+    img {
+      width: 20px;
+    }
+    span {
+      font-size: .8em;
+      margin-left: .25em;
+    }
   }
 }
 
@@ -65,44 +72,35 @@ header.content-header {
   top: 0px;
   text-transform:uppercase;
   width:auto;
-  // text-align:center;
+  overflow:visible;
   a {
     position: relative;
-    @include card(1, 3);
+    border: 1px solid $hugo-gray-light;
     display: inline-block;
-    width: 100%;
     color: $base-font-color;
     padding: 4px 6px;
     vertical-align: middle;
-    height: 36px;
+    @include size(36px);
     line-height: 36px;
+    text-align: center;
+    border-radius:$button-border-radius;
+    @include card(1,3);
     &:hover {
       color: $default-anchor-color;
-    }
-    span {
-      font-size: 12px;
-      height: 36px;
-      position: relative;
-      bottom: 4px;
-      line-height: 36px;
-      vertical-align: middle;
-      text-transform: uppercase;
-      &.edit {
-        bottom: 6px;
-      }
-      &.godocs {
-        margin-right: 10px;
-      }
     }
     i.icon-pencil {
       font-size: 20px;
       position: relative;
       bottom: 4px;
+      right: 2px;
     }
     svg {
       height: 24px;
       width: 24px;
       display: inline;
+    }
+    &.godoc-link {
+      border-right-width: 0px;
     }
   }
 }
@@ -114,4 +112,14 @@ header.content-header {
   div + h2 {
     margin-top: 1em;
   }
+}
+
+.last-modified {
+  color: $hugo-gray;
+  display: block;
+  margin-top: -10px;
+  width: 100%;
+  font-size: .8em;
+  margin-bottom: 20px;
+  font-weight: normal;
 }

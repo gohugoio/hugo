@@ -14,9 +14,16 @@ h1.page-title {
   font-size: 2em;
   letter-spacing: -.021em;
   padding-bottom: .75em;
+  display:flex;
+  align-items:center;
   @include MQ(M) {
     font-size: 2.25em;
     padding-top: 0px;
+  }
+  img {
+    display:inline;
+    @include size(1em);
+    margin-right:.15em;
   }
   i[class^="icon-"] {
     margin-left: -.15em;

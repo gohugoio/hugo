@@ -3,15 +3,14 @@
 <span id="page-top"></span>
 <main class="main">
 	<header class="content-header">
-		<h1 class="page-title {{.Section}}">{{ .Title | markdownify }}</h1>
-		<div class="content-header-links">
-		<a target="_blank" title="Edit {{.Title}} on GitHub" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><i class="icon-pencil" aria-hidden="true"></i></a>
-		{{- if .Params.godocref -}}
-		<a target="_blank" class="godoc-link" href="{{.Params.godocref}}" title="See the corresponding Golang Documentation for {{$title}}."><span class="godocs">GoDocs</span>
-			{{ partial "svg-icons/godoc-icon.html" .}}
-		</a>
-		{{- end -}}
+		<div class="content-section-image-wrapper">
+			<a href="{{.Site.BaseURL}}{{.Section | urlize}}">
+			<img src="{{.Site.BaseURL}}images/{{.Section | urlize}}.svg" alt="">
+			<span>{{replace (replace .Section "-" " " | title) "And" "and"}}</span>
+			</a>
 		</div>
+		<h1 class="page-title {{.Section}}">{{ .Title | markdownify }}</h1>
+		{{partial "content-header-links.html" . }}
 		{{with .Params.tags}}
 		<ul class="tags">
 			<li><i class="icon-tags"></i></li>

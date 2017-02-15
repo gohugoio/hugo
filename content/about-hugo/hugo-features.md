@@ -14,7 +14,7 @@ notes:
 
 ## General
 
-* Extremely fast build times (&lt; .7 ms per page)
+* [Extremely fast][] build times (&lt; .7 ms per page)
 * Completely cross platform, with easy installation on [Mac OSX][], [Linux][], [Windows][], and more
 * Renders changes on the fly with [LiveReload][] as you develop
 * [Powerful theming][]
@@ -55,12 +55,13 @@ See what's coming next in the [Hugo roadmap][].
 
 ["Minutes to Read"]: /variables-and-params/
 ["Wordcount"]: /variables-and-params/
-[Ace]: https://github.com/yosssi/ace
+[Ace]: /templates/ace-templating/
 [aliases]: /content-management/url-management/#aliases
 [Amber]: https://github.com/eknkc/amber
 [content summaries]: /content-management/content-summaries/
 [content types]: /content-management/content-types/
 [Disqus]: https://disqus.com/
+[Extremely fast]: https://github.com/bep/hugo-benchmark
 [front matter]: /content-management/front-matter/
 [functions]: /functions/
 [Golang]: http://golang.org/pkg/html/template/

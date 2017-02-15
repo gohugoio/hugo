@@ -8,12 +8,15 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [fundamentals]
-tags: []
+tags: [iteration]
 weight:
 draft: false
-type:
-layout:
 slug:
 aliases: []
 notes:
 ---
+
+## Example
+
+## Advanced Example
+

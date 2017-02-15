@@ -66,7 +66,7 @@ aside#toc + a#toc-toggle {
   background-color: $toc-bg-color;
   color: $hugo-white;
   background-color: $hugo-pink;
-  @include size(50px);
+  @include size(40px);
   z-index: 99;
   line-height: 50px;
   text-align: center;
@@ -76,11 +76,11 @@ aside#toc + a#toc-toggle {
     content: '\2026';
     display: block;
     position: relative;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     font-size: 2em;
-    line-height: 50px;
-    bottom: 11px;
+    line-height: 40px;
+    bottom: 10px;
   }
   &.toc-open {
     box-shadow: none;

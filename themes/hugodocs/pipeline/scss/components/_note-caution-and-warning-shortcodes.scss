@@ -1,58 +1,173 @@
 .note,
-.caution,.warning {
+.caution,
+.warning {
   display: block;
-  margin-bottom:20px;
+  margin-bottom: 20px;
   width: 100%;
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-left-color: lighten($base-font-color,20%);
+  // border-bottom-width: 2px;
+  // border-bottom-style: solid;
+  position: relative;
+  padding-top:4px;
+  padding-bottom:4px;
+  &:before {
+    font-family: 'fontello';
+    display: block;
+    position: absolute;
+    top: 40%;
+    left: -.5em;
+    z-index: 10;
+    background-color: $body-bg-color;
+  }
   h2 {
     font-size: 1.1em;
-    color: $hugo-white;
+    color: lighten($base-font-color,20%);
     width: 100%;
     display: block;
     margin: 0px;
-    padding: .25em 12px;
+    padding: 0px;
+    margin-left: 0px;
+    padding:0px 12px;
     border: none;
     outline: none;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
+    display:inline-block;
+    width:auto;
+    z-index:20;
+    code,
+    pre {
+      color: lighten($base-font-color,20%);
+    }
   }
   .shortcode-content {
     display: block;
     margin: 0px;
-    padding: 12px;
-    font-size:.9em;
+    font-size: .9em;
+    padding:8px 0px 8px;
+    margin-left: 12px;
+    color: lighten($base-font-color,20%);
+    p:last-child {
+      margin-bottom: 0px;
+    }
   }
 }
 
 .note {
-  > h2 {
-    background-color: $hugo-blue;
+  border-color: $hugo-blue;
+  &:before {
+    content: '\e80d';
+    color: $hugo-blue;
+  }
+  h2 {
+    border-bottom-color: $hugo-blue;
+    color:$hugo-blue;
   }
   .shortcode-content {
-    background-color: lighten($hugo-blue, 55%);
-    @include MQ(retina){
-      background-color: lighten($hugo-blue,56%);
+    a {
+      // color:$hugo-blue;
+      // border-bottom-color:
     }
   }
 }
 
 .caution {
-  > h2 {
-    background-color: $hugo-gold;
+  border-color: $hugo-gold;
+  &:before {
+    content: '\e80f';
+    color: $hugo-gold;
+  }
+  h2 {
+    border-bottom-color: $hugo-gold;
+    color: $hugo-gold;
   }
   .shortcode-content {
-  	background-color: lighten($hugo-gold, 30%);
-    @include MQ(retina){
-      background-color: lighten($hugo-gold,35%);
+    a {
+      // color: $hugo-gold;
+      // border-bottom-color:
     }
   }
 }
 
 .warning {
-  > h2 {
-    background-color: $hugo-pink;
+  border-color: $hugo-pink;
+  &:before {
+    content: '\e810';
+    color: $hugo-pink;
+  }
+  h2 {
+    border-bottom-color: $hugo-pink;
+    color:$hugo-pink;
+    pre,code {
+      color:$hugo-pink;
+    }
   }
   .shortcode-content {
-  	background-color: lighten($hugo-pink, 50%);
-    @include MQ(retina){
-      background-color: lighten($hugo-pink, 54%);
+    a {
+      // color:$hugo-pink;
+      // border-bottom-color:
+
     }
   }
 }
+
+// .note,
+// .caution,.warning {
+//   display: block;
+//   margin-bottom:20px;
+//   width: 100%;
+//   h2 {
+//     font-size: 1.1em;
+//     color: $hugo-white;
+//     width: 100%;
+//     display: block;
+//     margin: 0px;
+//     padding: .25em 12px;
+//     border: none;
+//     outline: none;
+//     code,pre {
+//       color:$hugo-white;
+//     }
+//   }
+//   .shortcode-content {
+//     display: block;
+//     margin: 0px;
+//     padding: 12px;
+//     font-size:.9em;
+//   }
+// }
+// .note {
+//   > h2 {
+//     background-color: $hugo-blue;
+//   }
+//   .shortcode-content {
+//     background-color: lighten($hugo-blue, 55%);
+//     @include MQ(retina){
+//       background-color: lighten($hugo-blue,56%);
+//     }
+//   }
+// }
+// .caution {
+//   > h2 {
+//     background-color: $hugo-gold;
+//   }
+//   .shortcode-content {
+//    background-color: lighten($hugo-gold, 30%);
+//     @include MQ(retina){
+//       background-color: lighten($hugo-gold,35%);
+//     }
+//   }
+// }
+// .warning {
+//   > h2 {
+//     background-color: $hugo-pink;
+//   }
+//   .shortcode-content {
+//    background-color: lighten($hugo-pink, 50%);
+//     @include MQ(retina){
+//       background-color: lighten($hugo-pink, 54%);
+//     }
+//   }
+// }

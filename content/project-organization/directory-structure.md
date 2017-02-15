@@ -5,6 +5,8 @@ description: Explanation of the directory structure in a typical Hugo project an
 date: 2017-01-02
 publishdate: 2017-01-02
 lastmod: 2017-01-02
+categories: [project organization]
+tags: [source, organization, directories]
 weight: 10
 draft: false
 slug:

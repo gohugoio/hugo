@@ -1,10 +1,10 @@
 ---
-title: Quick Reference
-linktitle: Quick Reference
+title: Overview
+linktitle: Overview
 description: Comprehensive list of Hugo templating functions, including basic and advanced usage examples.
-date: 2017-01-09
-publishdate: 2017-01-09
-lastmod: 2017-01-09
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
 tags: [functions,templating]
 weight: 01
 draft: false

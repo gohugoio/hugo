@@ -20,7 +20,7 @@
   &.navigation-open {
     transition: transform .3s ease-in-out;
     transform: translateX($site-navigation-width);
-    @include MQ(L){
+    @include MQ(L) {
       transform: translateX(0);
     }
   }
@@ -41,11 +41,21 @@ ul.footer-list {
   li a {
     color: $hugo-white;
     font-size: .9em;
+    display:flex;
+    align-items:center;
     &:not(i) {
       font-size: 14px;
     }
     i {
       font-size: 16px;
+      margin-right:.25em;
+      &.icon-github:before {
+        font-size: 22px;
+        margin-left:0px;
+      }
+    }
+    &:hover {
+      color:$hugo-pink;
     }
   }
 }
