@@ -94,7 +94,7 @@ If you get an `EOF error` when using `hugo new`, add a carriage return after the
 
 With an `archetypes/default.md` in place, we can use the CLI to create a new post in the `posts` content section:
 
-{{% input "new-post-from-default-archetype.sh" %}}
+{{% input "new-post-from-default.sh" %}}
 ```bash
 $ hugo new posts/my-new-post.md
 ```
@@ -140,7 +140,7 @@ categories = ""
 
 With an `archetypes/posts.md` in place, we can use the CLI to create a new posts with custom `posts` metadata in the `posts` content section:
 
-{{% input "new-post-from-custom-archetype.sh" %}}
+{{% input "new-post-from-custom.sh" %}}
 ```bash
 $ hugo new posts/post-from-custom.md
 ```

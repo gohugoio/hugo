@@ -127,10 +127,10 @@ div.code-copy-header {
   span.filename {
     @include center;
     text-align: center;
-    max-width: 60%;
+    max-width: 70%;
     color: $code-filename-color;
     font-weight: 100;
-    font-size: 13px;
+    font-size: 12px;
     font-family: $systemfonts;
   }
   [class^="icon-"] {
