@@ -64,7 +64,7 @@ header.content-header {
   right: 0px;
   top: 0px;
   text-transform:uppercase;
-  width:110px;
+  width:auto;
   // text-align:center;
   a {
     position: relative;
@@ -95,7 +95,7 @@ header.content-header {
       }
     }
     i.icon-pencil {
-      font-size: 24px;
+      font-size: 20px;
       position: relative;
       bottom: 4px;
     }

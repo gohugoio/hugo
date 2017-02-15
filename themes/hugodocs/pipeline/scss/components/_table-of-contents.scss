@@ -46,7 +46,7 @@ aside#toc {
   }
   @include MQ(XL) {
     box-shadow: none;
-    top: $site-header-height + 70px;
+    top: $site-header-height + 20px;
     left: calc(#{$site-navigation-width} + #{$content-max-width} + 48px);
     bottom:auto;
     opacity: 1;

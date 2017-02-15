@@ -5,7 +5,7 @@
 	<header class="content-header">
 		<h1 class="page-title {{.Section}}">{{ .Title | markdownify }}</h1>
 		<div class="content-header-links">
-		<a target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><span class="edit">Edit Page</span><i class="icon-pencil" aria-hidden="true"></i></a>
+		<a target="_blank" title="Edit {{.Title}} on GitHub" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><i class="icon-pencil" aria-hidden="true"></i></a>
 		{{- if .Params.godocref -}}
 		<a target="_blank" class="godoc-link" href="{{.Params.godocref}}" title="See the corresponding Golang Documentation for {{$title}}."><span class="godocs">GoDocs</span>
 			{{ partial "svg-icons/godoc-icon.html" .}}
