@@ -5,7 +5,7 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [migrations,jekyll]
+tags: [usage]
 weight: 40
 draft: false
 slug:
