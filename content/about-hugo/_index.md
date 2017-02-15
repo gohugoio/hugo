@@ -16,7 +16,7 @@ notes:
 ## What is Hugo?
 
 Hugo is a general-purpose website framework. Technically speaking, Hugo is
-a static site generator. Unlike systems that dynamically build a page
+a [static site generator][]. Unlike systems that dynamically build a page
 with each visitor request, Hugo builds pages when you create
 your content. Since websites are viewed far more often than they are
 edited, Hugo is optimized for website viewing for the end users of your site and an ideal writing experience for authors.
@@ -59,7 +59,6 @@ pages.
 
 * [Hugo Performance Benchmark(@bep)]
 
-
 [Aerobatic]: https://www.aerobatic.com/
 [Amazon S3]: http://aws.amazon.com/s3/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
@@ -75,4 +74,5 @@ pages.
 [Jekyll]: http://jekyllrb.com/
 [Middleman]: https://middlemanapp.com/
 [Nanoc]: http://nanoc.ws/
+[static site generator]: /about-hugo/benefits-of-static/
 [Surge]: https://surge.sh

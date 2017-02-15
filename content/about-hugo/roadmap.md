@@ -24,14 +24,16 @@ In no particular order, here is what is currently being worked on for the Hugo p
 * Native support for additional content formats (AsciiDoc [#1435][], reST [#1436][])
 * And, last but not least, *your* best ideas!
 
-{{% note "Contributions Welcome" %}}
-Feel free to [contribute](/contribute-to-hugo/) or open a new issue if you have an idea for a new feature.
-{{% /note %}}
+## Contributions Welcome
+
+Feel free to [contribute][] or open a new issue if you have an idea for a new feature.
+
 
 [#98]: https://github.com/spf13/hugo/issues/98
 [#1014]: https://github.com/spf13/hugo/issues/1014
 [#1435]: https://github.com/spf13/hugo/issues/1435
 [#1436]: https://github.com/spf13/hugo/issues/1436
+[contribute]: /contribute-to-hugo/
 [hosting and deployment]: /hosting-and-deployment/
 [existing migration tools]: /developer-tool/migrations/
 [related Discuss thread]: https://discuss.gohugo.io/t/web-based-editor/155

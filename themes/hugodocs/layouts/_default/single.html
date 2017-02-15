@@ -2,14 +2,8 @@
 {{$title := .Title}}
 <span id="page-top"></span>
 <main class="main">
-	{{with .Params.testing }}
-	{{range $ind,$value := . }}
-	<p>Index: {{$ind}}</p>
-	<p>Value: {{$value}}</p>
-	{{end}}
-	{{end}}
 	<header class="content-header">
-		<h1 class="page-title">{{with .LinkTitle}}{{ . | markdownify}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<h1 class="page-title {{.Section}}">{{ .Title | markdownify }}</h1>
 		<div class="content-header-links">
 		<a target="_blank" class="edit-link" href="{{.Site.Params.ghdocsrepo}}edit/master/content/{{.File.Path}}"><span class="edit">Edit Page</span><i class="icon-pencil" aria-hidden="true"></i></a>
 		{{- if .Params.godocref -}}
@@ -31,6 +25,7 @@
 	<div class="body-copy">
 	{{.Content}}
 	</div>
+	{{partial "previous-and-next-links.html" . }}
 	{{partial "table-of-contents.html" . }}
 </main>
 {{ end }}
