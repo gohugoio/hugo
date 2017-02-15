@@ -1,6 +1,6 @@
 ---
-title: "Overview"
-linktitle: "Overview"
+title: "Content Management: Overview"
+linktitle: "Content Management: Overview"
 description: Content organization, summaries, archetypes, front matter, and supported formats.
 date: 2017-02-01
 publishdate: 2017-02-01

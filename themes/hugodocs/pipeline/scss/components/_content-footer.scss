@@ -1,0 +1,45 @@
+#content-footer {
+  height: 40px;
+  line-height: 40px;
+  vertical-align: middle;
+  display:flex;
+  flex-direction:row;
+  align-items:flex-start;
+  border-top:2px solid $base-font-color;
+  margin-bottom:3em;
+  .prev-and-next-link {
+    // background-color: orange;
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 1em;
+    span {
+      display: block;
+      font-size: .8em;
+    }
+    @include MQ(M) {
+      max-width: calc(48% - 100px);
+      margin-bottom: 1.5em;
+      &.next-page {
+        float: right;
+      }
+    }
+    &.prev-page {
+      text-align:left;
+    }
+    &.next-page {
+      text-align:right;
+    }
+  }
+}
+
+.last-modified {
+  color: $hugo-gray;
+  display: inline-block;
+  min-width: 200px;
+  width: 200px;
+  max-width: 200px;
+  font-size: .8em;
+  font-weight: normal;
+  text-align: center;
+}

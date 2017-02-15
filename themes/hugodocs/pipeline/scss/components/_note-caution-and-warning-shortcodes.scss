@@ -6,12 +6,10 @@
   width: 100%;
   border-left-width: 2px;
   border-left-style: solid;
-  border-left-color: lighten($base-font-color,20%);
-  // border-bottom-width: 2px;
-  // border-bottom-style: solid;
+  border-left-color: lighten($base-font-color, 20%);
   position: relative;
-  padding-top:4px;
-  padding-bottom:4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   &:before {
     font-family: 'fontello';
     display: block;
@@ -23,32 +21,32 @@
   }
   h2 {
     font-size: 1.1em;
-    color: lighten($base-font-color,20%);
+    color: lighten($base-font-color, 20%);
     width: 100%;
     display: block;
     margin: 0px;
     padding: 0px;
     margin-left: 0px;
-    padding:0px 12px;
+    padding: 0px 12px;
     border: none;
     outline: none;
     border-bottom-width: 2px;
     border-bottom-style: solid;
-    display:inline-block;
-    width:auto;
-    z-index:20;
+    display: inline-block;
+    width: auto;
+    z-index: 20;
     code,
     pre {
-      color: lighten($base-font-color,20%);
+      color: lighten($base-font-color, 20%);
     }
   }
   .shortcode-content {
     display: block;
     margin: 0px;
-    font-size: .9em;
-    padding:8px 0px 8px;
+    font-size: 1em;
+    padding: 8px 0px 8px;
     margin-left: 12px;
-    color: lighten($base-font-color,20%);
+    color: lighten($base-font-color, 20%);
     p:last-child {
       margin-bottom: 0px;
     }
@@ -63,13 +61,7 @@
   }
   h2 {
     border-bottom-color: $hugo-blue;
-    color:$hugo-blue;
-  }
-  .shortcode-content {
-    a {
-      // color:$hugo-blue;
-      // border-bottom-color:
-    }
+    color: $hugo-blue;
   }
 }
 
@@ -83,12 +75,6 @@
     border-bottom-color: $hugo-gold;
     color: $hugo-gold;
   }
-  .shortcode-content {
-    a {
-      // color: $hugo-gold;
-      // border-bottom-color:
-    }
-  }
 }
 
 .warning {
@@ -99,16 +85,10 @@
   }
   h2 {
     border-bottom-color: $hugo-pink;
-    color:$hugo-pink;
-    pre,code {
-      color:$hugo-pink;
-    }
-  }
-  .shortcode-content {
-    a {
-      // color:$hugo-pink;
-      // border-bottom-color:
-
+    color: $hugo-pink;
+    pre,
+    code {
+      color: $hugo-pink;
     }
   }
 }

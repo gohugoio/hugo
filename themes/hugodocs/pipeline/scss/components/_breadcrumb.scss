@@ -1,0 +1,91 @@
+.breadcrumbs {
+  list-style: none;
+  display: inline-block;
+  li {
+    float: left;
+    a {
+      color: $base-font-color;
+      display: flex;
+      align-items: center;
+      background: $breadcrumb-navigation-bg-color;
+      text-decoration: none;
+      position: relative;
+      height: 30px;
+      line-height: 30px;
+      padding: 0 10px 0 5px;
+      text-align: center;
+      margin-right: 23px;
+      font-size: 14px;
+      img {
+        @include size(20px);
+      }
+      span {
+        margin-left:4px;
+      }
+    }
+    &:nth-child(even) {
+      margin-left:-8px;
+      a {
+        background-color: $hugo-gray-ultra-light;
+        &:before {
+          border-color: $hugo-gray-ultra-light;
+          border-left-color: transparent;
+          height: 30px;
+          line-height: 30px;
+        }
+        &:after {
+          border-left-color: $hugo-gray-ultra-light;
+        }
+      }
+    }
+    &:first-child {
+      a {
+        padding-left: 10px;
+        @include border-radius(4px 0 0 4px);
+        &:before {
+          border: none;
+        }
+      }
+    }
+    &:last-child {
+      a {
+        padding-right: 15px;
+        @include border-radius(0 4px 4px 0);
+        &:after {
+          border: none;
+        }
+      }
+    }
+    a {
+      &:before,
+      &:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        border: 0 solid $hugo-gray-ultra-light;
+        border-width: 15px 6.666px;
+        width: 0;
+        height: 0;
+      }
+      &:before {
+        left: -12px;
+        border-left-color: transparent;
+      }
+      &:after {
+        left: 100%;
+        border-color: transparent;
+        border-left-color: $hugo-gray-ultra-light;
+      }
+      &:hover,&:active {
+        background-color: $breadcrumb-navigation-bg-color-active;
+        &:before {
+          border-color: $breadcrumb-navigation-bg-color-active;
+          border-left-color: transparent;
+        }
+        &:after {
+          border-left-color: $breadcrumb-navigation-bg-color-active;
+        }
+      }
+    }
+  }
+}

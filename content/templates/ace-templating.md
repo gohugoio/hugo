@@ -12,3 +12,5 @@ slug:
 aliases:
 notes:
 ---
+
+> Without the fear of falling, there is no joy in flight. - [Ryan Watters](https://www.google.com)

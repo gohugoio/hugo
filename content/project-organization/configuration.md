@@ -22,21 +22,21 @@ followed by a `./config.json` file.
 
 In this `config` file, you can include precise directions to Hugo regarding how it should render your website, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
-## Configuration in YAML
+## YAML Configuration
 
 The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
 
 {{% input "config.yml" %}}
 ```yaml
 ---
-baseURL: "http://yoursite.example.com/"
-title: "Yoyodyne Widget Blogging"
+baseURL: "https://yoursite.example.com/"
+title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
 permalinks:
   post: /:year/:month/:title/
 params:
-  Subtitle: "Spinning the cogs in the widgets"
-  AuthorName: "John Doe"
+  Subtitle: "Hugo is Absurdly Fast!"
+  AuthorName: "Jon Doe"
   GitHubUser: "spf13"
   ListOfFoo:
     - "foo1"
@@ -46,7 +46,7 @@ params:
 ```
 {{% /input %}}
 
-## Configuration in TOML
+## TOML Configuration
 
 The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
 
@@ -55,21 +55,22 @@ contentDir = "content"
 layoutDir = "layouts"
 publishDir = "public"
 buildDrafts = false
-baseURL = "http://yoursite.example.com/"
+baseURL = "https://yoursite.example.com/"
 canonifyURLs = true
+title = "My Hugo Site"
 
 [taxonomies]
   category = "categories"
   tag = "tags"
 
 [params]
-  description = "Tesla's Awesome Hugo Site"
-  author = "Nikola Tesla"
+  subtitle = "Hugo is Absurdly Fast!"
+  author = "John Doe"
 ```
 
-## All Configuration Variables, YAML
+## All Variables, YAML
 
-The following is the full list of Hugo-defined variables in a example YAML file. The values provided in this example represent the default values used by Hugo if not otherwise specified.
+The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
 
 {{% input "config.yml" %}}
 ```yaml
@@ -180,9 +181,9 @@ taxonomies:
 ```
 {{% /input %}}
 
-## All Configuration Variables, TOML
+## All Variables, TOML
 
-The following is the full list of Hugo-defined variables in a example YAML file. The values provided in this example represent the default values used by Hugo if not otherwise specified.
+The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
 {{% input "config.toml" %}}
 ```toml

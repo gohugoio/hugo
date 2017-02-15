@@ -9,7 +9,7 @@ weight:
 tags: [lists,sections]
 draft: false
 slug:
-aliases:[/templates/list/]
+aliases: [/templates/list/]
 notes:
 ---
 

@@ -1,6 +1,6 @@
 ---
-title: Overview
-linktitle:
+title: "Project Organization: New Sites"
+linktitle: "Project Organization: New Sites"
 description: Scaffolding new projects, configuration, and source organization.
 date: 2016-11-01
 publishdate: 2016-11-01

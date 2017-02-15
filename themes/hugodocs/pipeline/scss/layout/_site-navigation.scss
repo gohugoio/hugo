@@ -6,7 +6,7 @@
   width: $site-navigation-width;
   bottom: 0px;
   overflow-y: scroll;
-  background-color: darken(#ffffff, 1%);
+  background-color: $site-navigation-bg-color;
   transform:translateX(-#{$site-navigation-width});
   padding: 1em;
   z-index: 9;
@@ -28,6 +28,9 @@
     a {
       color: $base-font-color;
       font-weight: $base-font-weight;
+      &:hover {
+        color:$hugo-pink;
+      }
     }
     li {
       padding-left: 1em;
@@ -56,7 +59,7 @@
       a.submenu-item-link {
         font-size: 14px;
         &:hover {
-          color: lighten($base-font-color, 25%);
+          color: $hugo-blue;
         }
         &.active-page {
           font-weight: 700;

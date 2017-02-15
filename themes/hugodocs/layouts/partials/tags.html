@@ -1,0 +1,8 @@
+{{with .Params.tags}}
+	<ul class="tags">
+		<li class="icon"><i class="icon-tags"></i></li>
+		{{range .}}
+		<li><a class="tag" href="/tags/{{.|urlize}}">{{.}}</a></li>
+		{{end}}
+	</ul>
+{{end}}

@@ -11,13 +11,12 @@ h4 {
 }
 
 h1.page-title {
-  font-size: 2em;
+  font-size: 1.8em;
   letter-spacing: -.021em;
   padding-bottom: .75em;
   display:flex;
   align-items:center;
   @include MQ(M) {
-    font-size: 2.25em;
     padding-top: 0px;
   }
   img {
@@ -37,11 +36,11 @@ h3 {
 }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 1.3em;
 }
 
 h3 {
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 h4 {

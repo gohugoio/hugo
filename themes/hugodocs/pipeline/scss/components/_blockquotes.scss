@@ -1,7 +1,41 @@
 .body-copy {
-	blockquote {
-		p {
-
-		}
-	}
+  blockquote {
+    position: relative;
+    display:block;
+    margin:0px;
+    // border-left:2px solid $base-font-color;
+    font-style: italic;
+    background-color: $hugo-gray-ultra-light;
+    padding: 16px;
+    // padding-top:16px;
+    // padding-bottom:16px;
+    p {
+    	margin-bottom:0px;
+    	margin-top:16px;
+    }
+    p:first-child {
+    	margin-top:8px;
+    }
+    &:before {
+      font-family: 'fontello';
+      display: block;
+      @include size(1em);
+      position: absolute;
+      content: '\e809';
+      color:$hugo-gray-light;
+      top: -3px;
+      left: 4px;
+      font-size: 1.2em;
+      // background-color: $body-bg-color;
+      font-style: normal;
+    }
+    cite.blockquote-citation {
+      position: absolute;
+      bottom: .3em;
+      right: .3em;
+      float: right;
+      font-size: 14px;
+      font-style: normal;
+    }
+  }
 }
