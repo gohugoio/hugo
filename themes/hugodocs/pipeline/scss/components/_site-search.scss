@@ -2,11 +2,14 @@
   display: block;
   position: fixed;
   top: .5em;
-  right: .5em;
+  right: .3em;
   float: right;
   margin-right: 20px;
   font-size: 1.2em;
   z-index: 60;
+  @include MQ(L){
+    top:.3em;
+  }
 }
 
 form#site-search-form {

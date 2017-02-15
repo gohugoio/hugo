@@ -5,5 +5,5 @@ $('#toggle-search').on('click', function(evt) {
   window.setTimeout(function() {
   	var sInput = document.getElementById('search-input');
     sInput.focus();
-  },400);
+  },800);
 });

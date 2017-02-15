@@ -3,7 +3,7 @@
     box-shadow: none;
     background-color: transparent;
     color: $base-font-color;
-    margin-bottom:1em;
+    margin-bottom: 1em;
     &:before,
     &:after,
     &:hover {
@@ -13,10 +13,16 @@
     }
     h2 {
       padding-bottom: 2px;
-      border-bottom:2px solid $base-font-color;
+      border-bottom: 2px solid $base-font-color;
     }
     p {
-    	margin-bottom:0px;
+      margin-bottom: 0px;
     }
+  }
+  .taxonomy-term {
+    font-size: 1.3em;
+    display: inline-block;
+    width:auto;
+    clear:both;
   }
 }

@@ -1,5 +1,16 @@
 {{ define "main" }}
 <main class="main">
-
+<header class="content-header">
+		<h1 class="page-title"><i class="icon-{{.Data.Plural}}"></i> {{.Data.Plural}}</h1>
+	</header>
+	<div class="body-copy taxonomies">
+		{{ $data := .Data }}
+		{{ $base := $.Site.BaseURL }}
+		{{ range $key, $value := .Data.Terms.Alphabetical }}
+		<div>
+      <a href="{{ $base }}/{{ $data.Plural }}/{{ $value.Name | urlize }}" class="taxonomy-term">{{ $value.Name }} {{ $value.Count }}</a>
+    </div>
+    {{ end }}
+	</div>
 </main>
 {{ end }}

@@ -18,9 +18,11 @@ h1.page-title {
     font-size: 2.25em;
     padding-top: 1em;
   }
-  // a {
-  //   font-size:14px;
-  // }
+  a {
+    i[class^="icon-"] {
+      margin-left:-.15em;
+    }
+  }
 }
 
 h2,
