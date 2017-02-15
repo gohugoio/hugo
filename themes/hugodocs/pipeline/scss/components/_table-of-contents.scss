@@ -47,6 +47,7 @@ aside#toc {
     box-shadow: none;
     top: $site-header-height + 20px;
     left: calc(#{$site-navigation-width} + #{$content-max-width} + 3em);
+    bottom:auto;
     opacity: 1;
     transform: scale(1);
   }

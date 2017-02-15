@@ -4,12 +4,17 @@
     background-color: transparent;
     color: $base-font-color;
     margin-bottom: 1em;
-    &:before,
-    &:after,
-    &:hover {
-      background-color: transparent;
-      border: none;
-      color: $base-font-color;
+    position: relative;
+    a {
+      width:100%;
+      color:$base-font-color;
+      &:before,
+      &:after,
+      &:hover {
+        background-color: transparent;
+        border: none;
+        color: $base-font-color;
+      }
     }
     h2 {
       padding-bottom: 2px;
@@ -22,7 +27,28 @@
   .taxonomy-term {
     font-size: 1.3em;
     display: inline-block;
-    width:auto;
-    clear:both;
+    width: auto;
+    clear: both;
+  }
+  .list-header-image-wrapper {
+    max-width: 30px;
+    position: absolute;
+    top: 4px;
+    right: 0px;
+    img {
+      max-width: 30px;
+      min-width: 30px;
+      margin-bottom: 0px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+    }
+    span {
+      font-size: .7em;
+      display: block;
+      margin-top: 0px;
+      text-align: center;
+      line-height: 1.2;
+    }
   }
 }

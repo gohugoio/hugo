@@ -5,14 +5,16 @@
 	</header>
 	<div class="body-copy taxonomies">
 		{{range .Data.Pages}}
-		<a href="{{.Permalink}}" class="taxonomy">
-		<article>
+		<article class="taxonomy">
 			<header>
-				<h2>{{.Title}}</h2>
+				<a href="{{.Permalink}}"><h2>{{.Title}}</h2></a>
+				<div class="list-header-image-wrapper">
+					<img src="{{.Site.BaseURL}}images/{{.Section}}.svg" alt="">
+					<!-- <span>{{replace .Section "-" " " | title}}</span> -->
+				</div>
 			</header>
 			<p>{{.Description}}</p>
 		</article>
-		</a>
 		{{end}}
 	</div>
 </main>
