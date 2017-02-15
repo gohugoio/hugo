@@ -74,24 +74,27 @@ aside#toc + a#toc-toggle {
   text-align: center;
   border-radius: 5px;
   &:after {
-    content:'ToC';
-    display:block;
-    position:relative;
-    width:50px;
-    height:50px;
-    // top:-50px;
-    // left:-50px;
+    // content:'ToC';
+    content: '\2026';
+    display: block;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    font-size: 2em;
+    line-height: 50px;
+    bottom: 11px;
   }
   &.toc-open {
     box-shadow: none;
     background-color: $toc-bg-color;
-    color:$base-font-color;
+    color: $base-font-color;
     &::after {
-      content:"\00D7";
-      font-size:2em;
+      content: "\00D7";
+      font-size: 2em;
+      bottom: 0px;
     }
     &:hover {
-      box-shadow:none;
+      box-shadow: none;
     }
   }
   @include card(2, 5);
