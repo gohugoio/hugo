@@ -1,6 +1,6 @@
 ---
 title: The Benefits of Static
-linktitle: Benefits of Static
+linktitle: The Benefits of Static
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
