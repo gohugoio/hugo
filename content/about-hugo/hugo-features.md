@@ -2,9 +2,9 @@
 title: Hugo Features
 linktitle:
 description: Hugo is the fastest static site generator and includes a powerful templating language, making it the appropriate choice for websites of all sizes and types.
-date: 2016-11-01
-publishdate: 2016-11-01
-lastmod: 2016-11-01
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
 weight: 10
 draft: false
 slug:
@@ -22,34 +22,34 @@ notes:
 
 ## Organization
 
-  * Straightforward [organization for your projects][], including website sections
-  * Customizable [URLs][]
-  * Support for configurable [taxonomies][], including categories and tags
-  * Ability to [sort content][] as you desire through [powerful template functions][]
-  * Automatic [table of contents][] generation
-  * Dynamic menu creation
-  * [Pretty URLs][] support
-  * [Permalink][] pattern support
-  * Redirects via [aliases][]
+* Straightforward [organization for your projects][], including website sections
+* Customizable [URLs][]
+* Support for configurable [taxonomies][], including categories and tags
+* Ability to [sort content][] as you desire through powerful template [functions][]
+* Automatic [table of contents][] generation
+* Dynamic menu creation
+* [Pretty URLs][] support
+* [Permalink][] pattern support
+* Redirects via [aliases][]
 
 ## Content
 
-  * Native Markdown support, as well as other languages through *external helpers* (see [supported formats][])
-  * Support for TOML, YAML and JSON metadata in [front matter][]
-  * Customizable [homepage][]
-  * Multiple [content types][]
-  * Automatic and user defined [content summaries][]
-  * [Shortcodes][] to enable rich content inside of Markdown
-  * ["Minutes to Read"][]functionality
-  * ["Wordcount"][] functionality
+* Native Markdown support, as well as other languages through *external helpers* (see [supported formats][])
+* Support for TOML, YAML and JSON metadata in [front matter][]
+* Customizable [homepage][]
+* Multiple [content types][]
+* Automatic and user defined [content summaries][]
+* [Shortcodes][] to enable rich content inside of Markdown
+* ["Minutes to Read"][]functionality
+* ["Wordcount"][] functionality
 
 ## Additional Features
 
-  * Integrated [Disqus][] comment support
-  * Integrated [Google Analytics][] support
-  * Automatic [RSS][] creation
-  * Support for [Golang][], [Amber] and [Ace][] HTML templates
-  * [Syntax highlighting][] powered by [Pygments][]
+* Integrated [Disqus][] comment support
+* Integrated [Google Analytics][] support
+* Automatic [RSS][] creation
+* Support for [Golang][], [Amber] and [Ace][] HTML templates
+* [Syntax highlighting][] powered by [Pygments][]
 
 See what's coming next in the [Hugo roadmap][].
 
@@ -62,6 +62,7 @@ See what's coming next in the [Hugo roadmap][].
 [content types]: /content-management/content-types/
 [Disqus]: https://disqus.com/
 [front matter]: /content-management/front-matter/
+[functions]: /functions/
 [Golang]: http://golang.org/pkg/html/template/
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage-template/
@@ -71,10 +72,9 @@ See what's coming next in the [Hugo roadmap][].
 [LiveReload]: /getting-started/using-hugo/
 [Mac OSX]: /getting-started/install-of-pc/
 [organization for your projects]: /project-organization/
-[Permalinks]: /content-management/url-management/#permalinks
-[powerful template functions]: /functions/
-[Pretty URLs]: /content-management/url-management/
+[Permalink]: /content-management/url-management/#permalinks
 [Powerful theming]: /themes/
+[Pretty URLs]: /content-management/url-management/
 [Pygments]: http://pygments.org/
 [RSS]: /templates/rss-templates/
 [Shortcodes]: /templates/shortcodes/
@@ -83,5 +83,5 @@ See what's coming next in the [Hugo roadmap][].
 [Syntax highlighting]: /developer-tools/syntax-highlighting/
 [table of contents]: /content-management/table-of-contents/
 [taxonomies]: /content-management/taxonomies/
-[URLs]: /url-management/
+[URLs]: /content-management/url-management/
 [Windows]: /getting-started/install-on-linux/

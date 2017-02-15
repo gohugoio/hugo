@@ -1,24 +1,38 @@
 aside#toc {
   position: fixed;
   max-width: 280px;
-  min-width:200px;
-  overflow-y:scroll;
-  padding-left:1em;
+  min-width: 200px;
+  overflow-y: scroll;
+  padding: .5em;
+  bottom: 20px;
+  right: 20px;
+  @include card(1);
+  z-index: 30;
+  background-color: $toc-bg-color;
+  transform: scale(0);
+  transform-origin: bottom right;
+  opacity: 0;
+  border-radius: 5px;
+  &.toc-open {
+    transform: scale(1);
+    opacity: 1;
+  }
   nav {
-    float:left;
-    overflow-y:scroll;
+    float: left;
+    overflow-y: scroll;
     ul {
       margin-top: .5em;
+      margin-bottom: 2em;
     }
     ul li ul {
       font-size: .8em;
       li {
-        margin-top:.5em;
+        margin-top: .5em;
         a {
           color: lighten($base-font-color, 25%);
         }
         ul {
-          display:none;
+          display: none;
         }
       }
     }
@@ -27,20 +41,60 @@ aside#toc {
     margin-bottom: 0px;
     padding-bottom: 0px;
     border-bottom: 1px solid $base-font-color;
-    color:$base-font-color;
+    color: $base-font-color;
   }
   @include MQ(XL) {
+    box-shadow: none;
     top: $site-header-height + 20px;
     left: calc(#{$site-navigation-width} + #{$content-max-width} + 3em);
-
+    opacity: 1;
+    transform: scale(1);
   }
-  @include MQ(HUGE){
-    max-width:320px;
-    right:10vw;
+  @include MQ(HUGE) {
+    max-width: 320px;
+    right: 10vw;
   }
 }
 
 a#toc-toggle {
+  display: none;
+}
+
+aside#toc + a#toc-toggle {
+  display: block;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: $toc-bg-color;
+  color: $hugo-white;
+  background-color: $hugo-pink;
+  @include size(50px);
+  z-index: 99;
+  line-height: 50px;
+  text-align: center;
+  border-radius: 5px;
+  &:after {
+    content:'ToC';
+    display:block;
+    position:relative;
+    width:50px;
+    height:50px;
+    // top:-50px;
+    // left:-50px;
+  }
+  &.toc-open {
+    box-shadow: none;
+    background-color: $toc-bg-color;
+    color:$base-font-color;
+    &::after {
+      content:"\00D7";
+      font-size:2em;
+    }
+    &:hover {
+      box-shadow:none;
+    }
+  }
+  @include card(2, 5);
   @include MQ(XL) {
     display: none;
   }

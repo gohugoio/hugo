@@ -1,10 +1,10 @@
 ---
-title: Why Use a Static Site Generator?
-linktitle:
+title: The Benefits of Static
+linktitle: Benefits of Static
 description:
-date: 2016-02-01
-publishdate: 2016-02-01
-lastmod: 2016-02-01
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
 tags: [ssg,static site generator]
 weight: 20
 draft: false
@@ -47,5 +47,5 @@ links work properly with most hosting companies.
 
 ["An Introduction to Static Site Generators", David Walsh]: https://davidwalsh.name/introduction-static-site-generators
 ["Static Site Generators", O-Reilly]: /documents/oreilly-static-site-generators.pdf
-["Top 10 Static Website Generators", Netlify blog]: https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/
+["Top 10 Static Website Generators," Netlify blog]: https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/
 [StaticGen: Top Open-Source Static Site Generators (GitHub Stars)]: https://www.staticgen.com/
