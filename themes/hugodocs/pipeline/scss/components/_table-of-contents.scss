@@ -25,7 +25,7 @@ aside#toc {
       margin-bottom: 2em;
     }
     ul li ul {
-      font-size: .8em;
+      font-size: 15px;
       li {
         margin-top: .5em;
         a {
@@ -42,18 +42,15 @@ aside#toc {
     padding-bottom: 0px;
     border-bottom: 1px solid $base-font-color;
     color: $base-font-color;
+    font-size:17px;
   }
   @include MQ(XL) {
     box-shadow: none;
-    top: $site-header-height + 20px;
-    left: calc(#{$site-navigation-width} + #{$content-max-width} + 3em);
+    top: $site-header-height + 70px;
+    left: calc(#{$site-navigation-width} + #{$content-max-width} + 48px);
     bottom:auto;
     opacity: 1;
     transform: scale(1);
-  }
-  @include MQ(HUGE) {
-    max-width: 320px;
-    right: 10vw;
   }
 }
 

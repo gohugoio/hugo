@@ -87,7 +87,7 @@ categories = ["web development"]
 {{% /input %}}
 
 {{% caution "EOL Characters in Text Editors"%}}
-If you get an `EOF error` when using `hugo new`, add a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively. (See [troubleshooting](/troubleshooting/eof-error/))
+If you get an `EOF error` when using `hugo new`, add a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively. (See [troubleshooting](/troubleshooting/eof-error/).)
 {{% /caution %}}
 
 ## Using the Default Archetype
@@ -146,7 +146,7 @@ $ hugo new posts/post-from-custom.md
 ```
 {{% /input %}}
 
-This time, Hugo recognizes our custom `archetypes/posts.md` archetype and uses it instead of `archetypes/default.md`. The generated file will now include the full list of front matter parameters, as well as the base archetypes `title` and `date`.
+This time, Hugo recognizes our custom `archetypes/posts.md` archetype and uses it instead of `archetypes/default.md`. The generated file will now include the full list of front matter parameters, as well as the base archetype's `title` and `date`.
 
 {{% output "content/posts/post-from-custom.md" %}}
 ```toml

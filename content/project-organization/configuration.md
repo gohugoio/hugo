@@ -293,7 +293,7 @@ watch =                       true
 ```
 {{% /input %}}
 
-## Configure Through Environmental Variables
+## Configuration Through Environmental Variables
 
 In addition to the 3 configuration file options already mentioned, website configuration can be accomplished through operating system environment variables.
 
