@@ -1,0 +1,22 @@
+.taxonomies {
+  .taxonomy {
+    box-shadow: none;
+    background-color: transparent;
+    color: $base-font-color;
+    margin-bottom:1em;
+    &:before,
+    &:after,
+    &:hover {
+      background-color: transparent;
+      border: none;
+      color: $base-font-color;
+    }
+    h2 {
+      padding-bottom: 2px;
+      border-bottom:2px solid $base-font-color;
+    }
+    p {
+    	margin-bottom:0px;
+    }
+  }
+}

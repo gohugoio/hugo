@@ -14,7 +14,7 @@ aliases: []
 notes:
 ---
 
-**Archetypes** are content `.md` files in the [archetypes directory][] of your project that contain pre-configured [front matter][] for your site's [content types][]. Archetypes facilitate consistent metadata in your website's content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
+**Archetypes** are content files in the [archetypes directory][] of your project that contain pre-configured [front matter][] for your site's [content types][]. Archetypes facilitate consistent metadata in your website's content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
 
 Hugo's generator assumes your working directory is the content folder at the root of your project. Hugo is able to infer the appropriate archetype by assuming the content type from the content section passed to the CLI command:
 
