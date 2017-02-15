@@ -148,6 +148,7 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 	return s, nil
 }
 
+// TODO(bep) globals clean below...
 // NewSiteDefaultLang creates a new site in the default language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
@@ -155,14 +156,32 @@ func NewSiteDefaultLang(withTemplate ...func(templ tplapi.Template) error) (*Sit
 	return newSiteForLang(helpers.NewDefaultLanguage(), withTemplate...)
 }
 
-// NewSiteDefaultLang creates a new site in the default language.
+// NewEnglishSite creates a new site in English language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
 func NewEnglishSite(withTemplate ...func(templ tplapi.Template) error) (*Site, error) {
 	return newSiteForLang(helpers.NewLanguage("en"), withTemplate...)
 }
 
-// NewSiteDefaultLang creates a new site in the default language.
+// NewEnglishSite creates a new site in the  English language with in-memory Fs.
+// The site will have a template system loaded and ready to use.
+// Note: This is mainly used in single site tests.
+func NewEnglishSiteMem(withTemplate ...func(templ tplapi.Template) error) (*Site, error) {
+	withTemplates := func(templ tplapi.Template) error {
+		for _, wt := range withTemplate {
+			if err := wt(templ); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	cfg := deps.DepsCfg{WithTemplate: withTemplates, Language: helpers.NewLanguage("en"), Fs: hugofs.NewMem()}
+
+	return newSiteForCfg(cfg)
+}
+
+// newSiteForLang creates a new site in the given language.
 func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tplapi.Template) error) (*Site, error) {
 	withTemplates := func(templ tplapi.Template) error {
 		for _, wt := range withTemplate {
@@ -173,6 +192,12 @@ func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tplapi.Te
 		return nil
 	}
 	cfg := deps.DepsCfg{WithTemplate: withTemplates, Language: lang}
+
+	return newSiteForCfg(cfg)
+
+}
+
+func newSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
 	s, err := newSite(cfg)
 
 	if err != nil {

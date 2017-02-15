@@ -355,6 +355,13 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 }
 
+func TestNewSiteDefaultLang(t *testing.T) {
+	s, err := NewSiteDefaultLang()
+	require.NoError(t, err)
+	require.Equal(t, hugofs.Os, s.Fs.Source)
+	require.Equal(t, hugofs.Os, s.Fs.Destination)
+}
+
 // Issue #1176
 func TestSectionNaming(t *testing.T) {
 

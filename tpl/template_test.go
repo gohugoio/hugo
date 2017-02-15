@@ -27,7 +27,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/tplapi"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -80,7 +79,7 @@ html lang=en
 
 			d := "DATA"
 
-			config := defaultDepsConfig
+			config := newDefaultDepsCfg()
 			config.WithTemplate = func(templ tplapi.Template) error {
 				return templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
 					[]byte(this.baseContent), []byte(this.innerContent))
@@ -149,7 +148,8 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 		masterTplName := "mt"
 		finalTplName := "tp"
 
-		defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+		cfg := newDefaultDepsCfg()
+		cfg.WithTemplate = func(templ tplapi.Template) error {
 
 			err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
 
@@ -188,16 +188,14 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 			return nil
 		}
 
-		defaultDepsConfig.Fs = hugofs.NewMem()
-
 		if this.writeSkipper != 1 {
-			afero.WriteFile(defaultDepsConfig.Fs.Source, masterTplName, []byte(this.masterTplContent), 0644)
+			afero.WriteFile(cfg.Fs.Source, masterTplName, []byte(this.masterTplContent), 0644)
 		}
 		if this.writeSkipper != 2 {
-			afero.WriteFile(defaultDepsConfig.Fs.Source, overlayTplName, []byte(this.overlayTplContent), 0644)
+			afero.WriteFile(cfg.Fs.Source, overlayTplName, []byte(this.overlayTplContent), 0644)
 		}
 
-		deps.New(defaultDepsConfig)
+		deps.New(cfg)
 
 	}
 
@@ -286,11 +284,12 @@ func TestTplGoFuzzReports(t *testing.T) {
 			H: "a,b,c,d,e,f",
 		}
 
-		defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+		cfg := newDefaultDepsCfg()
+		cfg.WithTemplate = func(templ tplapi.Template) error {
 			return templ.AddTemplate("fuzz", this.data)
 		}
 
-		de := deps.New(defaultDepsConfig)
+		de := deps.New(cfg)
 		require.NoError(t, de.LoadTemplates())
 
 		templ := de.Tmpl.(*GoHTMLTemplate)

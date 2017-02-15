@@ -50,13 +50,17 @@ import (
 )
 
 var (
-	logger            = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
-	defaultDepsConfig = deps.DepsCfg{
+	logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+)
+
+func newDefaultDepsCfg() deps.DepsCfg {
+	return deps.DepsCfg{
 		Language:         helpers.NewLanguage("en"),
+		Fs:               hugofs.NewMem(),
 		Logger:           logger,
 		TemplateProvider: DefaultTemplateProvider,
 	}
-)
+}
 
 type tstNoStringer struct {
 }
@@ -268,7 +272,7 @@ urlize: bat-man
 
 	tstInitTemplates()
 
-	config := defaultDepsConfig
+	config := newDefaultDepsCfg()
 	config.WithTemplate = func(templ tplapi.Template) error {
 		if _, err := templ.New("test").Parse(in); err != nil {
 			t.Fatal("Got error on parse", err)
@@ -2798,7 +2802,9 @@ func TestPartialCached(t *testing.T) {
 			tmp = tc.tmpl
 		}
 
-		defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+		cfg := newDefaultDepsCfg()
+
+		cfg.WithTemplate = func(templ tplapi.Template) error {
 			err := templ.AddTemplate("testroot", tmp)
 			if err != nil {
 				return err
@@ -2811,7 +2817,7 @@ func TestPartialCached(t *testing.T) {
 			return nil
 		}
 
-		de := deps.New(defaultDepsConfig)
+		de := deps.New(cfg)
 		require.NoError(t, de.LoadTemplates())
 
 		buf := new(bytes.Buffer)
@@ -2836,7 +2842,8 @@ func TestPartialCached(t *testing.T) {
 }
 
 func BenchmarkPartial(b *testing.B) {
-	defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+	cfg := newDefaultDepsCfg()
+	cfg.WithTemplate = func(templ tplapi.Template) error {
 		err := templ.AddTemplate("testroot", `{{ partial "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2849,7 +2856,7 @@ func BenchmarkPartial(b *testing.B) {
 		return nil
 	}
 
-	de := deps.New(defaultDepsConfig)
+	de := deps.New(cfg)
 	require.NoError(b, de.LoadTemplates())
 
 	buf := new(bytes.Buffer)
@@ -2866,7 +2873,8 @@ func BenchmarkPartial(b *testing.B) {
 }
 
 func BenchmarkPartialCached(b *testing.B) {
-	defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+	cfg := newDefaultDepsCfg()
+	cfg.WithTemplate = func(templ tplapi.Template) error {
 		err := templ.AddTemplate("testroot", `{{ partialCached "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2879,7 +2887,7 @@ func BenchmarkPartialCached(b *testing.B) {
 		return nil
 	}
 
-	de := deps.New(defaultDepsConfig)
+	de := deps.New(cfg)
 	require.NoError(b, de.LoadTemplates())
 
 	buf := new(bytes.Buffer)
@@ -2896,7 +2904,8 @@ func BenchmarkPartialCached(b *testing.B) {
 }
 
 func newTestFuncster() *templateFuncster {
-	d := deps.New(defaultDepsConfig)
+	cfg := newDefaultDepsCfg()
+	d := deps.New(cfg)
 	if err := d.LoadTemplates(); err != nil {
 		panic(err)
 	}
@@ -2905,7 +2914,8 @@ func newTestFuncster() *templateFuncster {
 }
 
 func newTestTemplate(t *testing.T, name, template string) *template.Template {
-	defaultDepsConfig.WithTemplate = func(templ tplapi.Template) error {
+	cfg := newDefaultDepsCfg()
+	cfg.WithTemplate = func(templ tplapi.Template) error {
 		err := templ.AddTemplate(name, template)
 		if err != nil {
 			return err
@@ -2913,7 +2923,7 @@ func newTestTemplate(t *testing.T, name, template string) *template.Template {
 		return nil
 	}
 
-	de := deps.New(defaultDepsConfig)
+	de := deps.New(cfg)
 	require.NoError(t, de.LoadTemplates())
 
 	return de.Tmpl.Lookup(name)

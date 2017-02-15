@@ -67,8 +67,8 @@ func New(cfg DepsCfg) *Deps {
 	}
 
 	if fs == nil {
-		// Default to the most used file systems.
-		fs = hugofs.NewMem()
+		// Default to the production file systems.
+		fs = hugofs.NewDefault()
 	}
 
 	d := &Deps{

@@ -48,7 +48,7 @@ func TestNewContent(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		s, err := hugolib.NewEnglishSite()
+		s, err := hugolib.NewEnglishSiteMem()
 		require.NoError(t, err)
 		require.NoError(t, initFs(s.Fs))
 
