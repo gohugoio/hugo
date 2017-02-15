@@ -25,18 +25,6 @@ Not running a web site generator on your HTTP server has many benefits. The most
 sending files. So good that you can effectively serve the same number
 of pages with a fraction of the memory and CPU needed for a dynamic site.
 
-Hugo has two components to help you build and test your web site. The
-one that you'll probably use most often is the built-in HTTP server.
-When you run `hugo server`, Hugo renders all of your content into
-HTML files and then runs an HTTP server on your computer so that you
-can see what the pages look like.
-
-The second component is used when you're ready to publish your web
-site to the computer running your website. Running Hugo without any
-actions will rebuild your entire web site using the `baseURL` setting
-from your site's configuration file. That's required to have your page
-links work properly with most hosting companies.
-
 ## Additional Resources
 
 * ["An Introduction to Static Site Generators", David Walsh][]

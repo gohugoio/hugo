@@ -1,6 +1,6 @@
 ---
-title: Contribute to Hugo Docs
-linktitle: Contribute to Hugo Docs
+title: Contribute to the Docs
+linktitle: Contribute to the Docs
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
