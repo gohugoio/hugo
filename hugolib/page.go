@@ -322,9 +322,13 @@ func (p *Page) Param(key interface{}) (interface{}, error) {
 	}
 
 	keySegments := strings.Split(keyStr, ".")
-	result, _ = p.traverseNested(keySegments)
-	if result != nil {
-		return result, nil
+	if len(keySegments) == 1 {
+		return nil, nil
+	} else {
+		result, _ = p.traverseNested(keySegments)
+		if result != nil {
+			return result, nil
+		}
 	}
 
 	return nil, nil
@@ -340,13 +344,13 @@ func (p *Page) traverseDirect(key string) (interface{}, error) {
 }
 
 func (p *Page) traverseNested(keySegments []string) (interface{}, error) {
-	result, err := traverse(keySegments, p.Params)
-	if err == nil {
+	result := traverse(keySegments, p.Params)
+	if result != nil {
 		return result, nil
 	}
 
-	result, err = traverse(keySegments, p.Site.Params)
-	if err == nil {
+	result = traverse(keySegments, p.Site.Params)
+	if result != nil {
 		return result, nil
 	}
 
@@ -354,19 +358,19 @@ func (p *Page) traverseNested(keySegments []string) (interface{}, error) {
 	return nil, nil
 }
 
-func traverse(keys []string, m map[string]interface{}) (interface{}, error) {
+func traverse(keys []string, m map[string]interface{}) interface{} {
 	// Shift first element off.
 	firstKey, rest := keys[0], keys[1:]
 	result := m[firstKey]
 
 	// No point in continuing here.
 	if result == nil {
-		return result, fmt.Errorf("no such key: " + fmt.Sprintf("%v", firstKey))
+		return result
 	}
 
 	if len(rest) == 0 {
 		// That was the last key.
-		return result, nil
+		return result
 	} else {
 		// That was not the last key.
 		return traverse(rest, cast.ToStringMap(result))
