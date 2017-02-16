@@ -104,6 +104,10 @@ If you still want to use an editor, look at these plugins to automate your workf
 
 - [Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper) - A small Vim plugin to help me with writing posts with Hugo.
 
+### Atom
+
+- [Hugofy](https://atom.io/packages/hugofy) - A Hugo Static Website Generator package for Atom
+
 ----
 
 ## Search
