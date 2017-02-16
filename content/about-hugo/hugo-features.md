@@ -27,7 +27,7 @@ notes:
 * Support for configurable [taxonomies][], including categories and tags
 * Ability to [sort content][] as you desire through powerful template [functions][]
 * Automatic [table of contents][] generation
-* Dynamic menu creation
+* [Dynamic menu][] creation
 * [Pretty URLs][] support
 * [Permalink][] pattern support
 * Redirects via [aliases][]
@@ -61,6 +61,7 @@ See what's coming next in the [Hugo roadmap][].
 [content summaries]: /content-management/content-summaries/
 [content types]: /content-management/content-types/
 [Disqus]: https://disqus.com/
+[Dynamic menu]: /templates/menus/
 [Extremely fast]: https://github.com/bep/hugo-benchmark
 [front matter]: /content-management/front-matter/
 [functions]: /functions/

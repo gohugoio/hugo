@@ -8,7 +8,7 @@ lastmod: 2017-02-01
 tags: [contribute,tutorials]
 author:
 authorprofileurl:
-weight:
+weight: 01
 draft: false
 slug:
 aliases: [/tutorials/how-to-contribute-to-hugo/]

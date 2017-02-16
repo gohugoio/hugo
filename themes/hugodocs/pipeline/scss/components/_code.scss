@@ -24,7 +24,8 @@ pre {
 }
 
 p code,
-li code {
+li code,
+td code {
   font-size: .9em;
   color: $inline-code-text-color;
   font-family: $code-font-family;

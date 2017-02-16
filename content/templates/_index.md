@@ -1,13 +1,13 @@
 ---
-title: "Overview: Template Types"
-linktitle: "Overview: Template Types"
+title: Templates
+linktitle: Templates
 description: Golang templating, template types and lookup order, shortcodes, and data.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight: 01
-tags: []
-hidesectioncontents: false
+categories: [templates]
+tags: [templating,functions]
 draft: false
 slug:
 aliases:

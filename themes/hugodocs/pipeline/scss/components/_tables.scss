@@ -1,0 +1,40 @@
+table {
+  text-align: left;
+  overflow-x: scroll;
+  max-width: 100%;
+  display: block;
+  border-left: 2px solid $hugo-gray;
+  border-right: 2px solid $hugo-gray;
+  tr {
+    border-top: 2px solid $hugo-gray;
+    th,
+    td {
+      padding-left: 4px;
+      padding-right: 6px;
+    }
+  }
+  thead {
+    tr {
+      th {
+        padding-left: 4px;
+        padding-right: 6px;
+        @include MQ(M) {
+          &:last-child {
+            min-width: 220px;
+          }
+        }
+      }
+    }
+  }
+  tbody {
+    tr {
+      background-color: $body-bg-color;
+      &:nth-child(even) {
+        background-color: $hugo-gray-light;
+      }
+      &:last-child {
+      	border-bottom: 2px solid $hugo-gray;
+      }
+    }
+  }
+}

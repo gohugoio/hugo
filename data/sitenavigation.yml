@@ -106,7 +106,7 @@ contributetohugo:
 siteshowcase:
   order: 16
   title: "Site Showcase"
-  url: "site-showcase"
+  url: "showcase"
   haschildren: false
   sortsubpagesby: "weight"
   desc: "A collection of websites build using Hugo"

@@ -6,6 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [lists,sections,content,types,organization]
+categories: [content management]
 weight: 30
 draft: false
 slug:

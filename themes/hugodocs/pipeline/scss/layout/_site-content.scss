@@ -83,8 +83,8 @@ header.content-header {
     @include size(36px);
     line-height: 36px;
     text-align: center;
-    border-radius:$button-border-radius;
-    @include card(1,3);
+    border-radius: $button-border-radius;
+    @include card(1, 3);
     &:hover {
       color: $default-anchor-color;
     }
@@ -106,7 +106,7 @@ header.content-header {
 }
 
 .body-copy {
-  margin-top:1.5em;
+  margin-top: 20px;
   margin-bottom: 2.5em;
   display: block;
   overflow: visible;

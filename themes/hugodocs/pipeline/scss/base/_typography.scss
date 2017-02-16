@@ -16,6 +16,7 @@ h1.page-title {
   padding-bottom: 0px;
   display:flex;
   align-items:center;
+  margin-bottom: 8px;
   @include MQ(M) {
     padding-top: 0px;
   }
@@ -26,6 +27,7 @@ h1.page-title {
   }
   i[class^="icon-"] {
     margin-left: -.15em;
+    margin-right: .15em;
   }
 }
 

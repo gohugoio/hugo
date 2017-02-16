@@ -5,6 +5,18 @@ a {
     text-decoration: none;
     cursor: pointer;
   }
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.body-copy {
+  li,
+  p {
+    a:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 //tooltips
@@ -29,6 +41,12 @@ a.tooltip {
     font-weight: normal;
     border-radius: .25em;
   }
+  &.tooltip-right {
+    &:hover::before {
+      left:0px;
+      right:auto;
+    }
+  }
   &.edit-link:hover {
     &::after {
       content: '\f09b';
@@ -51,62 +69,63 @@ a.tooltip {
   content: '\f09b';
 }
 
+a.heading-link {
+  color: lighten($base-font-color, 50%);
+  font-size: .8em;
+  position: relative;
+  display: inline;
+  top: -.1em;
+  right: 0px;
+  &:before,
+  &:after {
+    display: none;
+  }
+  &:hover {
+    color: $default-anchor-underline-color;
+  }
+}
+
 
 /* '' */
 
-.body-copy {
-  a {
-    text-decoration: none;
-    color: $default-anchor-color;
-    display: inline-block;
-    outline: none;
-    position: relative;
-    transition: color 0.3s ease;
-    perspective: 1800px;
-    &:hover {
-      color: $hugo-white;
-    }
-    &::before,
-    &::after {
-      position: absolute;
-      top: 0;
-      left: -2px;
-      padding: 0 2px;
-      z-index: -1;
-      box-sizing: content-box;
-      width: 100%;
-      height: 100%;
-      content: '';
-    }
-    &::before {
-      background-color: $default-anchor-underline-color;
-      transition: transform 0.2s;
-      transition-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
-      transform: rotateX(90deg);
-      transform-origin: 50% 100%;
-    }
-    &:hover::before,
-    &:focus::before {
-      transform: rotateX(0);
-    }
-    &::after {
-      border-bottom: 1px solid $default-anchor-underline-color;
-    }
-  }
-  //heading links are added on the client (see pipeline/js/scripts/add-icons-to-external-links-and-pdfs-anchors.js)
-  a.heading-link {
-    color: lighten($base-font-color, 50%);
-    font-size: .8em;
-    position: relative;
-    display: inline;
-    top: -.1em;
-    right: 0px;
-    &:before,
-    &:after {
-      display: none;
-    }
-    &:hover {
-      color: $default-anchor-underline-color;
-    }
-  }
-}
+// .body-copy {
+//   a {
+//     text-decoration: none;
+//     color: $default-anchor-color;
+//     display: inline-block;
+//     outline: none;
+//     position: relative;
+//     transition: color 0.3s ease;
+//     perspective: 1800px;
+//     &:hover {
+//       color: $hugo-white;
+//     }
+//     &::before,
+//     &::after {
+//       position: absolute;
+//       top: 0;
+//       left: -2px;
+//       padding: 0 2px;
+//       z-index: -1;
+//       box-sizing: content-box;
+//       width: 100%;
+//       height: 100%;
+//       content: '';
+//     }
+//     &::before {
+//       background-color: $default-anchor-underline-color;
+//       transition: transform 0.2s;
+//       transition-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
+//       transform: rotateX(90deg);
+//       transform-origin: 50% 100%;
+//     }
+//     &:hover::before,
+//     &:focus::before {
+//       transform: rotateX(0);
+//     }
+//     &::after {
+//       border-bottom: 1px solid $default-anchor-underline-color;
+//     }
+//   }
+//   //heading links are added on the client (see pipeline/js/scripts/add-icons-to-external-links-and-pdfs-anchors.js)
+// }

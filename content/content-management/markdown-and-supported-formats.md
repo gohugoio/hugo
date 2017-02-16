@@ -5,6 +5,7 @@ description: Hugo uses the BlackFriday markdown parser for content files but als
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
+categories: [content management]
 tags: [markdown,asciidoc,mmark,content format]
 weight: 10
 draft: false

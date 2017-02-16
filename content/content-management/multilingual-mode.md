@@ -5,7 +5,8 @@ description:
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
-tags: []
+categories: [content management]
+tags: [multilingual,i189,]
 weight: 120
 draft: false
 slug:

@@ -1,9 +1,11 @@
 ---
-title:
-linktitle:
 date:
-publishdate: ""
-lastmod: ""
 description: ""
-comments:
+license: ""
+licenseLink: ""
+sitelink: ""
+sourceLink: ""
+tags: []
+thumbnail: ""
+title:
 ---
