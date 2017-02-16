@@ -27,15 +27,15 @@
     &:nth-child(even) {
       margin-left:-8px;
       a {
-        background-color: $hugo-gray-ultra-light;
+        background-color: $breadcrumb-navigation-bg-color;
         &:before {
-          border-color: $hugo-gray-ultra-light;
+          border-color: $breadcrumb-navigation-bg-color;
           border-left-color: transparent;
           height: 30px;
           line-height: 30px;
         }
         &:after {
-          border-left-color: $hugo-gray-ultra-light;
+          border-left-color: $breadcrumb-navigation-bg-color;
         }
       }
     }
@@ -63,7 +63,7 @@
         content: "";
         position: absolute;
         top: 0;
-        border: 0 solid $hugo-gray-ultra-light;
+        border: 0 solid $breadcrumb-navigation-bg-color;
         border-width: 15px 6.666px;
         width: 0;
         height: 0;
@@ -75,7 +75,7 @@
       &:after {
         left: 100%;
         border-color: transparent;
-        border-left-color: $hugo-gray-ultra-light;
+        border-left-color: $breadcrumb-navigation-bg-color;
       }
       &:hover {
         background-color: $breadcrumb-navigation-bg-color-active;

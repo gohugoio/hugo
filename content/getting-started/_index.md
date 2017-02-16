@@ -1,6 +1,6 @@
 ---
-title: "Getting Started: Using the Docs"
-linktitle: "Getting Started: Using the Docs"
+title: "Getting Started"
+linktitle: "Getting Started"
 description: Quick start and guides for installing Hugo on your preferred operating system.
 date: 2017-02-01
 publishdate: 2017-02-01

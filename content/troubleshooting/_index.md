@@ -7,6 +7,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
 draft: false
+hidesectioncontents: false
 slug:
 aliases: [/troubleshooting/faqs/,/faqs/]
 notes:

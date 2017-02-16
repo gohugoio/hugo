@@ -20,10 +20,7 @@ A good example of when multiple types are needed is to look at [Tumblr][]. A pie
 
 ## Assigning a content type
 
-Hugo assumes that your site will be organized into [sections](/content/sections/)
-and each section will use the corresponding type. If you are taking advantage of
-this, then each new piece of content you place into a section will automatically
-inherit the type.
+Hugo assumes that your site will be organized into [sections][] and each section will use the corresponding type. If you are taking advantage of this, then each new piece of content you place into a section will automatically inherit the type.
 
 Alternatively, you can set the type in the meta data under the key "`type`".
 
@@ -65,6 +62,7 @@ Create a file called <code><em>type</em>.md</code> in the `/archetypes` director
 More details about archetypes can be found at the [archetypes docs](/content/archetypes/).
 
 [archetypes]: /content-management/archetypes/
+[sections]: /content-sections/
 [front matter]: /content-management/front-matter/
 [list of contents on a single page]: /templates/list-and-section-templates/
 [template]: /templates/
