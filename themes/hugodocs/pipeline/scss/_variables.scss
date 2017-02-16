@@ -67,8 +67,9 @@ $site-navigation-width: 280px;
 $content-max-width: 35em;
 $site-navigation-bg-color:$hugo-gray-ultra-light;
 $breadcrumb-navigation-bg-color:$site-navigation-bg-color;
-$breadcrumb-navigation-bg-color-active:$hugo-blue-light;
-$breadcrumb-navigation-text-color-active:$hugo-white;
+$breadcrumb-navigation-bg-color-active:#D1F1FE;
+// $breadcrumb-navigation-bg-color-active:$hugo-blue-light;
+$breadcrumb-navigation-text-color-active:$base-font-color;
 
 //Header
 $site-header-height:50px;

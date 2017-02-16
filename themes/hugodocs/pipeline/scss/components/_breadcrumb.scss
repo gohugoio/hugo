@@ -18,7 +18,7 @@
       font-size: 14px;
       img {
         @include size(20px);
-        filter:grayscale(100%);
+        // filter:grayscale(100%);
       }
       span {
         margin-left:4px;

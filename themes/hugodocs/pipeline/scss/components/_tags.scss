@@ -2,9 +2,11 @@ ul.tags {
   list-style: none;
   margin: 0;
   padding: 0;
-  margin-bottom: 1em;
+  margin-top:24px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
+  float:right;
   li {
     height: 20px;
     line-height: 20px;
