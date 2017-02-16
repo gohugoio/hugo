@@ -15,13 +15,13 @@ notes:
 
 In no particular order, here is what is currently being worked on for the Hugo project:
 
-* Intelligently related posts ({{ issue 98}})
+* Intelligently related posts ({{< issue 98 >}})
 * Even easier deployment to S3, SSH, GitHub, rsync. Give the [hosting and deployment][] section a shot.
 * Import from other website systems. There are already [existing migration tools][] but they don’t cover all major platforms.
 * An interactive web based editor (See the [related Discuss thread][])
-* Additional [themes][] (always on-going, contributions welcome!)
-* Dynamic image resizing via shortcodes ([#1014][])
-* Native support for additional content formats (AsciiDoc [#1435][], reST [#1436][])
+* Additional [themes][], which are always ongoing and contributions are welcome!
+* Dynamic image resizing via shortcodes ({{< issue 1014 >}})
+* Native support for additional content formats (AsciiDoc {{< issue 1435>}}, reST {{< issue 1436 >}})
 * And, last but not least, *your* best ideas!
 
 ## Contributions Welcome
@@ -35,7 +35,7 @@ Feel free to [contribute][] or open a new issue if you have an idea for a new fe
 [#1436]: https://github.com/spf13/hugo/issues/1436
 [contribute]: /contribute-to-hugo/
 [hosting and deployment]: /hosting-and-deployment/
-[existing migration tools]: /developer-tool/migrations/
+[existing migration tools]: /developer-tools/migrate-to-hugo/
 [related Discuss thread]: https://discuss.gohugo.io/t/web-based-editor/155
 [themes]: /themes
 [tutorials]: /tutorials
