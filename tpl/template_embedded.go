@@ -238,7 +238,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ end }}{{ end }}
 
 <!-- Output all taxonomies as schema.org keywords -->
-<meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
+<meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
 {{ end }}`)
 
 	t.AddInternalTemplate("", "google_analytics.html", `{{ with .Site.GoogleAnalytics }}
