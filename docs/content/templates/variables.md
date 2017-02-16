@@ -64,6 +64,7 @@ matter, content or derived from file location.
 **.Summary** A generated summary of the content for easily showing a snippet in a summary view. Note that the breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page.  See [Summaries](/content/summaries/) for more details.<br>
 **.TableOfContents** The rendered table of contents for this content.<br>
 **.Title**  The title for this page.<br>
+**.TocEntries** A list of the top-level entries in the table of contents. See [Table of Contents]({{< relref "extras/toc.md" >}}) for more details.<br>
 **.Translations** A list of translated versions of the current page. See [Multilingual]({{< relref "content/multilingual.md" >}}) for more info.<br>
 **.Truncated** A boolean, `true` if the `.Summary` is truncated.  Useful for showing a "Read more..." link only if necessary.  See [Summaries](/content/summaries/) for more details.<br>
 **.Type** The content [type](/content/types/) (e.g. post).<br>

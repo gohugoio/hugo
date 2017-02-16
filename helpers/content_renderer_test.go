@@ -15,6 +15,7 @@ package helpers
 
 import (
 	"bytes"
+	"reflect"
 	"regexp"
 	"testing"
 
@@ -126,6 +127,63 @@ END
 
 		if result != this.expect {
 			t.Errorf("[%d] got \n%v but expected \n%v", i, result, this.expect)
+		}
+	}
+}
+
+func TestBlackfridayToc(t *testing.T) {
+	for i, this := range []struct {
+		markdown string
+		expect   TocEntry
+	}{
+		{`
+# A top-level header
+
+Some text
+
+# Another top-level header
+## This one
+## has content
+### Nested in it
+
+`, TocEntry{true, "", "", []*TocEntry{
+			&TocEntry{false, "A top-level header", "a-top-level-header", []*TocEntry{}},
+			&TocEntry{false, "Another top-level header", "another-top-level-header", []*TocEntry{
+				&TocEntry{false, "This one", "this-one", []*TocEntry{}},
+				&TocEntry{false, "has content", "has-content", []*TocEntry{
+					&TocEntry{false, "Nested in it", "nested-in-it", []*TocEntry{}},
+				}},
+			}},
+		}},
+		},
+		{`
+## AA
+
+Some text
+
+### AAA
+
+Some more text ## BB
+
+### BBB
+
+Some more text
+`, TocEntry{true, "", "", []*TocEntry{
+			&TocEntry{true, "", "", []*TocEntry{
+				&TocEntry{false, "AA", "aa", []*TocEntry{
+					&TocEntry{false, "AAA", "aaa", []*TocEntry{}},
+					&TocEntry{false, "BBB", "bbb", []*TocEntry{}},
+				}},
+			}},
+		}},
+		},
+	} {
+		blackFridayConfig := NewBlackfriday(viper.GetViper())
+		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
+		RenderBytes(ctx)
+
+		if ctx.TocRoot == nil || !reflect.DeepEqual(*ctx.TocRoot, this.expect) {
+			t.Errorf("[%d] got \n%v but expected \n%v", i, *ctx.TocRoot, this.expect)
 		}
 	}
 }
