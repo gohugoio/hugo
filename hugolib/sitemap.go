@@ -16,6 +16,8 @@ package hugolib
 import (
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
+	"math"
+	"strings"
 )
 
 // Sitemap configures the sitemap to be generated.
@@ -26,14 +28,39 @@ type Sitemap struct {
 }
 
 func parseSitemap(input map[string]interface{}) Sitemap {
-	sitemap := Sitemap{Priority: -1, Filename: "sitemap.xml"}
+	sitemap := Sitemap{Priority: 0.5, Filename: "sitemap.xml"}
 
 	for key, value := range input {
 		switch key {
 		case "changefreq":
-			sitemap.ChangeFreq = cast.ToString(value)
+			if str, ok := value.(string); ok {
+				valueLowercase := strings.ToLower(str)
+				if valueLowercase == "always" ||
+					valueLowercase == "hourly" ||
+					valueLowercase == "daily" ||
+					valueLowercase == "weekly" ||
+					valueLowercase == "monthly" ||
+					valueLowercase == "yearly" ||
+					valueLowercase == "never" {
+					sitemap.ChangeFreq = valueLowercase
+					break
+				}
+			}
+			jww.WARN.Printf("value '%s' for sitemap.changefreq is invalid, accepted values are: always, hourly, daily, weekly, monthly, yearly, never\n", value)
 		case "priority":
-			sitemap.Priority = cast.ToFloat64(value)
+			if _, ok := value.(string); ok {
+				//value is a string... do nothing.
+			} else {
+				priority := cast.ToFloat64(value)
+				if priority >= 0 &&
+					priority <= 1.0 {
+					if checkDecimalPlaces(1, priority) {
+						sitemap.Priority = priority
+						break
+					}
+				}
+			}
+			jww.WARN.Printf("value '%s' for sitemap.priority is invalid, value should be between 0 and 1.0 and have a maximum of 1 decimal\n", value)
 		case "filename":
 			sitemap.Filename = cast.ToString(value)
 		default:
@@ -42,4 +69,12 @@ func parseSitemap(input map[string]interface{}) Sitemap {
 	}
 
 	return sitemap
+}
+
+func checkDecimalPlaces(i int, value float64) bool {
+	valuef := value * float64(math.Pow(10.0, float64(i)))
+	println(valuef)
+	extra := valuef - float64(int(valuef))
+
+	return extra == 0
 }
