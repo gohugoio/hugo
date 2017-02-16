@@ -1,54 +1,59 @@
-.taxonomies {
-  .taxonomy {
-    box-shadow: none;
-    background-color: transparent;
+.contents-list {
+  box-shadow: none;
+  background-color: transparent;
+  color: $base-font-color;
+  margin-bottom: 1em;
+  position: relative;
+  a {
+    width: 100%;
     color: $base-font-color;
-    margin-bottom: 1em;
-    position: relative;
-    a {
-      width:100%;
-      color:$base-font-color;
-      &:before,
-      &:after,
-      &:hover {
-        background-color: transparent;
-        border: none;
-        color: $base-font-color;
-      }
+    &:before,
+    &:after,
+    &:hover {
+      background-color: transparent;
+      border: none;
+      color: $base-font-color;
     }
-    h2 {
+  }
+  h3 {
+    padding-bottom: 2px;
+  }
+  &.taxonomy {
+    h3 {
       padding-bottom: 2px;
       border-bottom: 2px solid $base-font-color;
     }
-    p {
-      margin-bottom: 0px;
-    }
   }
-  .taxonomy-term {
-    font-size: 1.3em;
-    display: inline-block;
-    width: auto;
-    clear: both;
+  p {
+    margin-bottom: 0px;
   }
-  .list-header-image-wrapper {
-    max-width: 30px;
-    position: absolute;
-    top: 4px;
-    right: 0px;
-    img {
-      max-width: 30px;
-      min-width: 30px;
-      margin-bottom: 0px;
-      margin-left: auto;
-      margin-right: auto;
-      display: block;
-    }
-    span {
-      font-size: .7em;
-      display: block;
-      margin-top: 0px;
-      text-align: center;
-      line-height: 1.2;
-    }
+}
+
+.taxonomy-term {
+  font-size: 1.3em;
+  display: inline-block;
+  width: auto;
+  clear: both;
+}
+
+.contents-list-image-wrapper {
+  max-width: 30px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  img {
+    max-width: 1.5em;
+    min-width: 1.5em;
+    margin-bottom: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  span {
+    font-size: .7em;
+    display: block;
+    margin-top: 0px;
+    text-align: center;
+    line-height: 1.2;
   }
 }

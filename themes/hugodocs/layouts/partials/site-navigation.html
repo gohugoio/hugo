@@ -12,8 +12,9 @@
 		{{$.Scratch.Set "url" .URL }}
 		{{range $item, $params := sort ($.Site.Data.sitenavigation) "order"}}
 		{{$section := $params.url}}
-		<li class="top-menu-item"><a class="top-menu-item-link {{$params.haschildren}}{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="{{if $params.haschildren}}#{{else}}{{$base}}{{$params.url}}{{end}}">{{$params.title}}</a>
-		{{if $params.haschildren}}&raquo;
+		<li class="top-menu-item"><a class="top-menu-item-link {{$params.haschildren}}{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="{{if $params.haschildren}}#{{else}}{{$base}}{{$params.url}}{{end}}">{{$params.title}}
+		{{if $params.haschildren}}
+		<i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
 			<ul class="submenu">
 				{{- if eq $params.sortsubpagesby "title"}}
 					{{range (where $.Site.Pages "Section" $section).ByTitle}}
@@ -25,6 +26,8 @@
 					{{end}}
 				{{- end }}
 			</ul>
+		{{else}}
+		</a>
 		{{end}}
 		</li>
 		{{end}}

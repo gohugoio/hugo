@@ -1,5 +1,5 @@
 ---
-title: Template Views
+title: View Templates
 linktitle:
 description:
 date: 2017-02-01

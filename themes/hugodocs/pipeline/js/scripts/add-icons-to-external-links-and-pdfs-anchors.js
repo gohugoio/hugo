@@ -1,6 +1,6 @@
 $('document').ready(function() {
   $('.body-copy a[href$=".pdf"]').append('<i class="icon-pdf"></i>');
-  $('.body-copy > h2,.body-copy > h3').each(function() {
+  $('.body-copy > h2:not(.section-heading),.body-copy > h3').each(function() {
     var id = $(this).attr('id'),
       baseurl = window.location.origin,
       path = window.location.pathname,

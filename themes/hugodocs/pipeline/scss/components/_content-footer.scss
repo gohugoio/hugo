@@ -2,11 +2,10 @@
   height: 40px;
   line-height: 40px;
   vertical-align: middle;
-  display:flex;
-  flex-direction:row;
-  align-items:flex-start;
-  border-top:2px solid $base-font-color;
-  margin-bottom:3em;
+  display:block;
+  border-top: 2px solid $base-font-color;
+  margin-bottom: 3em;
+  width:100%;
   .prev-and-next-link {
     // background-color: orange;
     width: 100%;
@@ -25,10 +24,13 @@
       }
     }
     &.prev-page {
-      text-align:left;
+      text-align: left;
+      float:left;
     }
     &.next-page {
-      text-align:right;
+      text-align: right;
+      float: right;
+      margin-right: 0px;
     }
   }
 }
@@ -40,6 +42,8 @@
   width: 200px;
   max-width: 200px;
   font-size: .8em;
+  position: absolute;
+  left: calc(50% - 100px);
   font-weight: normal;
   text-align: center;
 }

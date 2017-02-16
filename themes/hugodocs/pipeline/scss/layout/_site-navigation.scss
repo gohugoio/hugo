@@ -45,7 +45,7 @@
     a.top-menu-item-link {
       font-size: 16px;
       &.active-section {
-        color: $active-color;
+        color: $hugo-pink;
         // border-bottom: 1px solid $active-color;
         font-weight: 700;
         + ul.submenu {

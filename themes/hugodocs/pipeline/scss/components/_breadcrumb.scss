@@ -18,6 +18,7 @@
       font-size: 14px;
       img {
         @include size(20px);
+        filter:grayscale(100%);
       }
       span {
         margin-left:4px;
@@ -76,8 +77,12 @@
         border-color: transparent;
         border-left-color: $hugo-gray-ultra-light;
       }
-      &:hover,&:active {
+      &:hover {
         background-color: $breadcrumb-navigation-bg-color-active;
+        color:$breadcrumb-navigation-text-color-active;
+        img {
+          filter:grayscale(0%);
+        }
         &:before {
           border-color: $breadcrumb-navigation-bg-color-active;
           border-left-color: transparent;

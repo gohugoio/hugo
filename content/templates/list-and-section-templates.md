@@ -1,6 +1,6 @@
 ---
-title: List and Section Page Templates
-linktitle: List and Section Page Templates
+title: List and Section Templates
+linktitle: List and Section Templates
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
