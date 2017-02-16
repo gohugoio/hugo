@@ -317,6 +317,78 @@
 			"revisionTime": "2016-12-17T20:04:45Z"
 		},
 		{
+			"checksumSHA1": "ItM9x14tp2vRPEwTufY42XkJFe8=",
+			"path": "github.com/tdewolff/buffer",
+			"revision": "0edfcb7b750146ff879e95831de2ef53605a5cb5",
+			"revisionTime": "2016-04-27T18:11:22Z"
+		},
+		{
+			"checksumSHA1": "aYOP+Gtn+AK81aMpgqGKkrt+rMI=",
+			"path": "github.com/tdewolff/minify",
+			"revision": "5788bd40c07d1e1d4fc4eb8a955760d509c3159c",
+			"revisionTime": "2016-11-05T17:17:08Z"
+		},
+		{
+			"checksumSHA1": "uRo+3Qy3vwfbwBsjQNEprWBHKHo=",
+			"path": "github.com/tdewolff/minify/css",
+			"revision": "5788bd40c07d1e1d4fc4eb8a955760d509c3159c",
+			"revisionTime": "2016-11-05T17:17:08Z"
+		},
+		{
+			"checksumSHA1": "Ytcf7dKpnLbz62zxwB/VdSCBS7w=",
+			"path": "github.com/tdewolff/minify/html",
+			"revision": "5788bd40c07d1e1d4fc4eb8a955760d509c3159c",
+			"revisionTime": "2016-11-05T17:17:08Z"
+		},
+		{
+			"checksumSHA1": "8Vj9VTxgIn/BaZuGuwi1u/ckWZ8=",
+			"path": "github.com/tdewolff/minify/js",
+			"revision": "5788bd40c07d1e1d4fc4eb8a955760d509c3159c",
+			"revisionTime": "2016-11-05T17:17:08Z"
+		},
+		{
+			"checksumSHA1": "w9vp7arHrzUEi6KyAM9K8hAP3hM=",
+			"path": "github.com/tdewolff/minify/json",
+			"revision": "5788bd40c07d1e1d4fc4eb8a955760d509c3159c",
+			"revisionTime": "2016-11-05T17:17:08Z"
+		},
+		{
+			"checksumSHA1": "dW3/qMmvhmqylTirRfPK0by6bVE=",
+			"path": "github.com/tdewolff/parse",
+			"revision": "5c35632ca368ebf46247ede2b96e9f6c0258fae0",
+			"revisionTime": "2016-10-09T09:18:41Z"
+		},
+		{
+			"checksumSHA1": "QnZ3/9oDs+BrgtD/gS7x1oeNI2U=",
+			"path": "github.com/tdewolff/parse/css",
+			"revision": "5c35632ca368ebf46247ede2b96e9f6c0258fae0",
+			"revisionTime": "2016-10-09T09:18:41Z"
+		},
+		{
+			"checksumSHA1": "+gDXaHsyhgy8EB9beJKKH932qAk=",
+			"path": "github.com/tdewolff/parse/html",
+			"revision": "5c35632ca368ebf46247ede2b96e9f6c0258fae0",
+			"revisionTime": "2016-10-09T09:18:41Z"
+		},
+		{
+			"checksumSHA1": "tZNYHHm8NPAA/MKMzH9ThJgRdZs=",
+			"path": "github.com/tdewolff/parse/js",
+			"revision": "5c35632ca368ebf46247ede2b96e9f6c0258fae0",
+			"revisionTime": "2016-10-09T09:18:41Z"
+		},
+		{
+			"checksumSHA1": "kVJVV52ifqE4j6vNiWi9UiXOscs=",
+			"path": "github.com/tdewolff/parse/json",
+			"revision": "5c35632ca368ebf46247ede2b96e9f6c0258fae0",
+			"revisionTime": "2016-10-09T09:18:41Z"
+		},
+		{
+			"checksumSHA1": "hR7GEsOkEtR/doq2kiCmOF8spEg=",
+			"path": "github.com/tdewolff/strconv",
+			"revision": "3e8091f4417ebaaa3910da63a45ea394ebbfb0e3",
+			"revisionTime": "2016-04-27T18:05:39Z"
+		},
+		{
 			"checksumSHA1": "U4bWGZ3c9p8FHrgU5l4l5i7A6bo=",
 			"path": "github.com/yosssi/ace",
 			"revision": "ea038f4770b6746c3f8f84f14fa60d9fe1205b56",

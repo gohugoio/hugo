@@ -57,6 +57,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("disable404", false)
 	viper.SetDefault("disableRSS", false)
 	viper.SetDefault("disableSitemap", false)
+	viper.SetDefault("optimize", false)
 	viper.SetDefault("disableRobotsTXT", false)
 	viper.SetDefault("contentDir", "content")
 	viper.SetDefault("layoutDir", "layouts")

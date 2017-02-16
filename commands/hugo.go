@@ -235,6 +235,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "Add Git revision, date and author info to the pages")
+	cmd.Flags().Bool("optimize", false, "Minify HTML")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().Bool("pluralizeListTitles", true, "Pluralize titles in lists using inflect")
@@ -429,6 +430,7 @@ func initializeFlags(cmd *cobra.Command) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
+		"optimize",
 	}
 
 	for _, key := range persFlagKeys {
