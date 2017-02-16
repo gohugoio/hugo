@@ -333,6 +333,12 @@ date: '2013-10-15T06:16:13'
 ---
 Simple Page With Date`
 
+	simplePageWithDateAndPlus = `---
+title: X+Y
+date: '2013-10-15T06:16:13'
+---
+Simple Page With Date`
+
 	UTF8Page = `---
 title: ラーメン
 ---
@@ -1172,6 +1178,7 @@ func TestPagePaths(t *testing.T) {
 		{simplePageWithURL, "content/post/x.md", false, "simple/url/index.html"},
 		{simplePageWithSlug, "content/post/x.md", false, "content/post/simple-slug.html"},
 		{simplePageWithDate, "content/post/x.md", true, "2013/10/15/simple/index.html"},
+		{simplePageWithDateAndPlus, "content/post/x+y.md", true, "2013/10/15/x+y/index.html"},
 		{UTF8Page, "content/post/x.md", false, "content/post/x.html"},
 		{UTF8PageWithURL, "content/post/x.md", false, "ラーメン/url/index.html"},
 		{UTF8PageWithSlug, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
