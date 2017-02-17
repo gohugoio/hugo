@@ -685,6 +685,10 @@ title = "Svenska"
 	require.Len(t, svPage.AllTranslations(), 3)
 	require.Equal(t, "en", svPage.Translations()[0].Lang())
 
+	// Regular pages have no children
+	require.Len(t, svPage.Pages, 0)
+	require.Len(t, svPage.Data["Pages"], 0)
+
 }
 
 func TestChangeDefaultLanguage(t *testing.T) {
