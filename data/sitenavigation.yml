@@ -11,7 +11,7 @@ gettingstarted:
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Quick start and multi-platform guides for installing Hugo on your development machine"
+  desc: "Quick start, multi-platform installation guides, and basic usage"
 projectorganization:
   order: 3
   title: "Project Organization"
