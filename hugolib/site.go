@@ -302,6 +302,7 @@ func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
 
 // GetParam gets a site parameter value if found, nil if not.
 func (s *SiteInfo) GetParam(key string) interface{} {
+	// Remove in Hugo 0.20
 	helpers.Deprecated("SiteInfo", ".GetParam", "Use .Param", true)
 	v := s.Params[strings.ToLower(key)]
 

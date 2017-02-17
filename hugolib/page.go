@@ -242,25 +242,6 @@ type PageMeta struct {
 	Weight         int
 }
 
-func (*PageMeta) WordCount() int {
-	// Remove in Hugo 0.19
-	helpers.Deprecated("PageMeta", "WordCount", "Use .WordCount (on Page)", true)
-	return 0
-}
-
-func (*PageMeta) FuzzyWordCount() int {
-	// Remove in Hugo 0.19
-	helpers.Deprecated("PageMeta", "FuzzyWordCount", "Use .FuzzyWordCount (on Page)", true)
-	return 0
-
-}
-
-func (*PageMeta) ReadingTime() int {
-	// Remove in Hugo 0.19
-	helpers.Deprecated("PageMeta", "ReadingTime", "Use .ReadingTime (on Page)", true)
-	return 0
-}
-
 type Position struct {
 	Prev          *Page
 	Next          *Page
