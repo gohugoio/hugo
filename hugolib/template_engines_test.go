@@ -86,7 +86,7 @@ p
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 	th := testHelper{s.Cfg, s.Fs, t}
 
-	th.assertFileContent(filepath.Join("public", "p", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "p", "index.html"),
 		"Page Title: My Title",
 		"My Content",
 		"Hello World",

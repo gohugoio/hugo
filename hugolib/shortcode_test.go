@@ -555,7 +555,7 @@ tags:
 			continue
 		}
 
-		th.assertFileContent(test.outFile, true, test.expected)
+		th.assertFileContent(test.outFile, test.expected)
 	}
 
 }

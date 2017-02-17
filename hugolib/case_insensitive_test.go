@@ -191,7 +191,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"),
 		"Page Colors: red|heavenly",
 		"Site Colors: green|yellow",
 		"Site Lang Mood: Happy",
@@ -204,7 +204,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"&laquo;Hi&raquo;", // angled quotes
 	)
 
-	th.assertFileContent(filepath.Join("public", "en", "sect1", "page1", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "en", "sect1", "page1", "index.html"),
 		"Site Colors: Pink|golden",
 		"Page Colors: black|bluesy",
 		"Site Lang Mood: Thoughtful",
@@ -213,7 +213,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"&ldquo;Hi&rdquo;",
 	)
 
-	th.assertFileContent(filepath.Join("public", "nn", "sect2", "page2", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "sect2", "page2", "index.html"),
 		"Page Colors: black|sky",
 		"Site Colors: green|yellow",
 		"Shortcode Page: black|sky",
@@ -296,7 +296,7 @@ p
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"),
 		"Page Colors: red|heavenly",
 		"Site Colors: green|yellow",
 		"Shortcode Page: red|heavenly",

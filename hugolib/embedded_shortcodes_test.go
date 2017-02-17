@@ -115,7 +115,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
 	}
 }
@@ -160,7 +160,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
 	}
 }
@@ -190,7 +190,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 	}
 }
 
@@ -228,7 +228,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 	}
 
 }
@@ -267,7 +267,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
 	}
 }
@@ -300,7 +300,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
 	}
 }
@@ -348,7 +348,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
 	}
 }
@@ -403,7 +403,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
 
-		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
 
 	}
 }

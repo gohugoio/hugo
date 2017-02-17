@@ -81,7 +81,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 
 	// date order: home, sect1, sect2, cat/hugo, cat/web, categories
 
-	th.assertFileContent(filepath.Join("public", "index.html"), false,
+	th.assertFileContent(filepath.Join("public", "index.html"),
 		"Index Title: Home Sweet Home!",
 		"Home <strong>Content!</strong>",
 		"# Pages: 4",
@@ -90,7 +90,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 		"GetPage: Section1 ",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1", "regular1"), false, "Single Title: Page 01", "Content Page 01")
+	th.assertFileContent(expectedFilePath(ugly, "public", "sect1", "regular1"), "Single Title: Page 01", "Content Page 01")
 
 	nodes := sites.findAllPagesByKindNotIn(KindPage)
 
@@ -116,24 +116,24 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.True(t, first.IsPage())
 
 	// Check Home paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "page", "2"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "page", "2"),
 		"Pag: Page 02")
 
 	// Check Sections
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "sect1"),
 		"Section Title: Section", "Section1 <strong>Content!</strong>",
 		"Date: 2009-01-04",
 		"Lastmod: 2009-01-05",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect2"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "sect2"),
 		"Section Title: Section", "Section2 <strong>Content!</strong>",
 		"Date: 2009-01-06",
 		"Lastmod: 2009-01-07",
 	)
 
 	// Check Sections paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1", "page", "2"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "sect1", "page", "2"),
 		"Pag: Page 02")
 
 	sections := sites.findAllPagesByKind(KindSection)
@@ -141,13 +141,13 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.Len(t, sections, 2)
 
 	// Check taxonomy lists
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo"),
 		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>",
 		"Date: 2009-01-08",
 		"Lastmod: 2009-01-09",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo-rocks"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo-rocks"),
 		"Taxonomy Title: Taxonomy Hugo Rocks",
 	)
 
@@ -157,7 +157,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.NotNil(t, web)
 	require.Len(t, web.Data["Pages"].(Pages), 4)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "web"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "web"),
 		"Taxonomy Title: Taxonomy Web",
 		"Taxonomy Web <strong>Content!</strong>",
 		"Date: 2009-01-10",
@@ -165,12 +165,12 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	)
 
 	// Check taxonomy list paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo", "page", "2"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo", "page", "2"),
 		"Taxonomy Title: Taxonomy Hugo",
 		"Pag: Page 02")
 
 	// Check taxonomy terms
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories"),
 		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo",
 		"Date: 2009-01-14",
 		"Lastmod: 2009-01-15",
@@ -179,11 +179,11 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	// There are no pages to paginate over in the taxonomy terms.
 
 	// RSS
-	th.assertFileContent(filepath.Join("public", "customrss.xml"), false, "Recent content in Home Sweet Home! on Hugo Rocks", "<rss")
-	th.assertFileContent(filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Section1 on Hugo Rocks", "<rss")
-	th.assertFileContent(filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Section2 on Hugo Rocks", "<rss")
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Taxonomy Hugo on Hugo Rocks", "<rss")
-	th.assertFileContent(filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Taxonomy Web on Hugo Rocks", "<rss")
+	th.assertFileContent(filepath.Join("public", "customrss.xml"), "Recent content in Home Sweet Home! on Hugo Rocks", "<rss")
+	th.assertFileContent(filepath.Join("public", "sect1", "customrss.xml"), "Recent content in Section1 on Hugo Rocks", "<rss")
+	th.assertFileContent(filepath.Join("public", "sect2", "customrss.xml"), "Recent content in Section2 on Hugo Rocks", "<rss")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", "customrss.xml"), "Recent content in Taxonomy Hugo on Hugo Rocks", "<rss")
+	th.assertFileContent(filepath.Join("public", "categories", "web", "customrss.xml"), "Recent content in Taxonomy Web on Hugo Rocks", "<rss")
 
 }
 
@@ -226,21 +226,21 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	require.Len(t, homePage.Pages, 4)
 	require.True(t, homePage.Path() == "")
 
-	th.assertFileContent(filepath.Join("public", "index.html"), false,
+	th.assertFileContent(filepath.Join("public", "index.html"),
 		"Index Title: Hugo Rocks!",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
 	// Taxonomy list
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo"),
 		"Taxonomy Title: Hugo",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
 	// Taxonomy terms
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories"),
 		"Taxonomy Terms Title: Categories",
 	)
 
@@ -258,24 +258,24 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	}
 
 	// Sections
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "sect1"),
 		"Section Title: Sect1s",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect2"), false,
+	th.assertFileContent(expectedFilePath(ugly, "public", "sect2"),
 		"Section Title: Sect2s",
 		"Date: 2008-07-06",
 		"Lastmod: 2008-07-09",
 	)
 
 	// RSS
-	th.assertFileContent(filepath.Join("public", "customrss.xml"), false, "Hugo Rocks!", "<rss")
-	th.assertFileContent(filepath.Join("public", "sect1", "customrss.xml"), false, "Recent content in Sect1s on Hugo Rocks!", "<rss")
-	th.assertFileContent(filepath.Join("public", "sect2", "customrss.xml"), false, "Recent content in Sect2s on Hugo Rocks!", "<rss")
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", "customrss.xml"), false, "Recent content in Hugo on Hugo Rocks!", "<rss")
-	th.assertFileContent(filepath.Join("public", "categories", "web", "customrss.xml"), false, "Recent content in Web on Hugo Rocks!", "<rss")
+	th.assertFileContent(filepath.Join("public", "customrss.xml"), "Hugo Rocks!", "<rss")
+	th.assertFileContent(filepath.Join("public", "sect1", "customrss.xml"), "Recent content in Sect1s on Hugo Rocks!", "<rss")
+	th.assertFileContent(filepath.Join("public", "sect2", "customrss.xml"), "Recent content in Sect2s on Hugo Rocks!", "<rss")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", "customrss.xml"), "Recent content in Hugo on Hugo Rocks!", "<rss")
+	th.assertFileContent(filepath.Join("public", "categories", "web", "customrss.xml"), "Recent content in Web on Hugo Rocks!", "<rss")
 
 }
 
@@ -376,53 +376,53 @@ title = "Deutsche Hugo"
 
 	require.Equal(t, expetedPermalink(ugly, "/en/sect1/"), enSect.Permalink())
 
-	th.assertFileContent(filepath.Join("public", "nn", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "index.html"),
 		"Index Title: Hugo på norsk")
-	th.assertFileContent(filepath.Join("public", "en", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "en", "index.html"),
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
-	th.assertFileContent(filepath.Join("public", "de", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "de", "index.html"),
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
 
 	// Taxonomy list
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "categories", "hugo"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "categories", "hugo"),
 		"Taxonomy Title: Hugo")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "categories", "hugo"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "en", "categories", "hugo"),
 		"Taxonomy Title: Taxonomy Hugo")
 
 	// Taxonomy terms
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "categories"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "categories"),
 		"Taxonomy Terms Title: Categories")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "categories"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "en", "categories"),
 		"Taxonomy Terms Title: Taxonomy Term Categories")
 
 	// Sections
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect1"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect1"),
 		"Section Title: Sect1s")
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect2"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect2"),
 		"Section Title: Sect2s")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect1"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect1"),
 		"Section Title: Section1")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect2"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect2"),
 		"Section Title: Section2")
 
 	// Regular pages
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect1", "regular1"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect1", "regular1"),
 		"Single Title: Page 01")
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect1", "regular2"), true,
+	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect1", "regular2"),
 		"Single Title: Page 02")
 
 	// RSS
-	th.assertFileContent(filepath.Join("public", "nn", "customrss.xml"), true, "Hugo på norsk", "<rss")
-	th.assertFileContent(filepath.Join("public", "nn", "sect1", "customrss.xml"), true, "Recent content in Sect1s on Hugo på norsk", "<rss")
-	th.assertFileContent(filepath.Join("public", "nn", "sect2", "customrss.xml"), true, "Recent content in Sect2s on Hugo på norsk", "<rss")
-	th.assertFileContent(filepath.Join("public", "nn", "categories", "hugo", "customrss.xml"), true, "Recent content in Hugo on Hugo på norsk", "<rss")
-	th.assertFileContent(filepath.Join("public", "nn", "categories", "web", "customrss.xml"), true, "Recent content in Web on Hugo på norsk", "<rss")
+	th.assertFileContent(filepath.Join("public", "nn", "customrss.xml"), "Hugo på norsk", "<rss")
+	th.assertFileContent(filepath.Join("public", "nn", "sect1", "customrss.xml"), "Recent content in Sect1s on Hugo på norsk", "<rss")
+	th.assertFileContent(filepath.Join("public", "nn", "sect2", "customrss.xml"), "Recent content in Sect2s on Hugo på norsk", "<rss")
+	th.assertFileContent(filepath.Join("public", "nn", "categories", "hugo", "customrss.xml"), "Recent content in Hugo on Hugo på norsk", "<rss")
+	th.assertFileContent(filepath.Join("public", "nn", "categories", "web", "customrss.xml"), "Recent content in Web on Hugo på norsk", "<rss")
 
-	th.assertFileContent(filepath.Join("public", "en", "customrss.xml"), true, "Recent content in Home Sweet Home! on Hugo in English", "<rss")
-	th.assertFileContent(filepath.Join("public", "en", "sect1", "customrss.xml"), true, "Recent content in Section1 on Hugo in English", "<rss")
-	th.assertFileContent(filepath.Join("public", "en", "sect2", "customrss.xml"), true, "Recent content in Section2 on Hugo in English", "<rss")
-	th.assertFileContent(filepath.Join("public", "en", "categories", "hugo", "customrss.xml"), true, "Recent content in Taxonomy Hugo on Hugo in English", "<rss")
-	th.assertFileContent(filepath.Join("public", "en", "categories", "web", "customrss.xml"), true, "Recent content in Taxonomy Web on Hugo in English", "<rss")
+	th.assertFileContent(filepath.Join("public", "en", "customrss.xml"), "Recent content in Home Sweet Home! on Hugo in English", "<rss")
+	th.assertFileContent(filepath.Join("public", "en", "sect1", "customrss.xml"), "Recent content in Section1 on Hugo in English", "<rss")
+	th.assertFileContent(filepath.Join("public", "en", "sect2", "customrss.xml"), "Recent content in Section2 on Hugo in English", "<rss")
+	th.assertFileContent(filepath.Join("public", "en", "categories", "hugo", "customrss.xml"), "Recent content in Taxonomy Hugo on Hugo in English", "<rss")
+	th.assertFileContent(filepath.Join("public", "en", "categories", "web", "customrss.xml"), "Recent content in Taxonomy Web on Hugo in English", "<rss")
 
 }
 
@@ -454,8 +454,8 @@ categories:  [
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy Title: Hugo", "# Pages: 5")
-	th.assertFileContent(filepath.Join("public", "categories", "home", "index.html"), true, "Taxonomy Title: Home", "# Pages: 1")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", "index.html"), "Taxonomy Title: Hugo", "# Pages: 5")
+	th.assertFileContent(filepath.Join("public", "categories", "home", "index.html"), "Taxonomy Title: Home", "# Pages: 1")
 
 }
 
@@ -502,9 +502,9 @@ menu:
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	th.assertFileContent(filepath.Join("public", "index.html"), true, "Home With Menu", "Home Menu Item: Go Home!: /")
-	th.assertFileContent(filepath.Join("public", "sect1", "index.html"), true, "Sect1 With Menu", "Section Menu Item: Go Sect1!: /sect1/")
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", "index.html"), true, "Taxonomy With Menu", "Taxonomy Menu Item: Go Tax Hugo!: /categories/hugo/")
+	th.assertFileContent(filepath.Join("public", "index.html"), "Home With Menu", "Home Menu Item: Go Home!: /")
+	th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Sect1 With Menu", "Section Menu Item: Go Sect1!: /sect1/")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", "index.html"), "Taxonomy With Menu", "Taxonomy Menu Item: Go Tax Hugo!: /categories/hugo/")
 
 }
 
@@ -535,8 +535,8 @@ aliases:
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	th.assertFileContent(filepath.Join("public", "index.html"), true, "Home With Alias")
-	th.assertFileContent(filepath.Join("public", "my", "new", "home.html"), true, "content=\"0; url=http://base/")
+	th.assertFileContent(filepath.Join("public", "index.html"), "Home With Alias")
+	th.assertFileContent(filepath.Join("public", "my", "new", "home.html"), "content=\"0; url=http://base/")
 
 }
 
@@ -564,7 +564,7 @@ My Section Content
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	th.assertFileContent(filepath.Join("public", "sect", "index.html"), true, "My Section")
+	th.assertFileContent(filepath.Join("public", "sect", "index.html"), "My Section")
 
 }
 
@@ -595,7 +595,7 @@ My Section Content
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	th.assertFileContent(filepath.Join("public", "sect", "index.html"), true, "My Section")
+	th.assertFileContent(filepath.Join("public", "sect", "index.html"), "My Section")
 
 	s := h.Sites[0]
 

@@ -44,11 +44,11 @@ func TestRSSOutput(t *testing.T) {
 	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	// Home RSS
-	th.assertFileContent(filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
+	th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "rss version", "RSSTest")
 	// Section RSS
-	th.assertFileContent(filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
+	th.assertFileContent(filepath.Join("public", "sect", rssURI), "<?xml", "rss version", "Sects on RSSTest")
 	// Taxonomy RSS
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "Hugo on RSSTest")
 
 	// RSS Item Limit
 	content := readDestination(t, fs, filepath.Join("public", rssURI))

@@ -45,9 +45,9 @@ func TestAlias(t *testing.T) {
 	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	// the real page
-	th.assertFileContent(filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
+	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
 	// the alias redirector
-	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), false, "<meta http-equiv=\"refresh\" content=\"0; ")
+	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
 }
 
 func TestAliasTemplate(t *testing.T) {
@@ -69,7 +69,7 @@ func TestAliasTemplate(t *testing.T) {
 	require.NoError(t, sites.Build(BuildCfg{}))
 
 	// the real page
-	th.assertFileContent(filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
+	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
 	// the alias redirector
-	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), false, "ALIASTEMPLATE")
+	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "ALIASTEMPLATE")
 }

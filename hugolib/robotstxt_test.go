@@ -41,6 +41,6 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	th.assertFileContent("public/robots.txt", true, "User-agent: Googlebot")
+	th.assertFileContent("public/robots.txt", "User-agent: Googlebot")
 
 }

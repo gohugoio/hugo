@@ -275,7 +275,7 @@ THE END.`, refShortcode)),
 	}
 
 	for _, test := range tests {
-		th.assertFileContent(test.doc, true, test.expected)
+		th.assertFileContent(test.doc, test.expected)
 
 	}
 
@@ -429,7 +429,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 			test.expected = inflect.Pluralize(test.expected)
 		}
 
-		th.assertFileContent(filepath.Join("public", test.doc), true, test.expected)
+		th.assertFileContent(filepath.Join("public", test.doc), test.expected)
 	}
 
 }
@@ -542,7 +542,7 @@ func TestAbsURLify(t *testing.T) {
 					expected = strings.Replace(expected, baseURL, "", -1)
 				}
 
-				th.assertFileContent(test.file, true, expected)
+				th.assertFileContent(test.file, expected)
 
 			}
 		}

@@ -33,23 +33,42 @@ type testHelper struct {
 	T   testing.TB
 }
 
-func (th testHelper) assertFileContent(filename string, defaultInSubDir bool, matches ...string) {
-	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+func (th testHelper) assertFileContent(filename string, matches ...string) {
+	filename = th.replaceDefaultContentLanguageValue(filename)
 	content := readDestination(th.T, th.Fs, filename)
 	for _, match := range matches {
-		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		match = th.replaceDefaultContentLanguageValue(match)
 		require.True(th.T, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
 	}
 }
 
-func (th testHelper) assertFileContentRegexp(filename string, defaultInSubDir bool, matches ...string) {
-	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+// TODO(bep) better name for this. It does no magic replacements depending on defaultontentLanguageInSubDir.
+func (th testHelper) assertFileContentStraight(filename string, matches ...string) {
 	content := readDestination(th.T, th.Fs, filename)
 	for _, match := range matches {
-		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		require.True(th.T, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
+	}
+}
+
+func (th testHelper) assertFileContentRegexp(filename string, matches ...string) {
+	filename = th.replaceDefaultContentLanguageValue(filename)
+	content := readDestination(th.T, th.Fs, filename)
+	for _, match := range matches {
+		match = th.replaceDefaultContentLanguageValue(match)
 		r := regexp.MustCompile(match)
 		require.True(th.T, r.MatchString(content), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
 	}
+}
+
+func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
+	defaultInSubDir := th.Cfg.GetBool("defaultContentLanguageInSubDir")
+	replace := th.Cfg.GetString("defaultContentLanguage") + "/"
+
+	if !defaultInSubDir {
+		value = strings.Replace(value, replace, "", 1)
+
+	}
+	return value
 }
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *helpers.PathSpec {

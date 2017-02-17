@@ -322,7 +322,7 @@ Pages: {{ .Paginator.TotalPages }}
 
 	th := testHelper{s.Cfg, s.Fs, t}
 
-	th.assertFileContent(filepath.Join("public", "阅读", "testing", "2", "index.html"), false, "2: /%E9%98%85%E8%AF%BB/testing/2/")
+	th.assertFileContent(filepath.Join("public", "阅读", "testing", "2", "index.html"), "2: /%E9%98%85%E8%AF%BB/testing/2/")
 
 }
 
