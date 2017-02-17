@@ -81,7 +81,7 @@ developertools:
   url: "developer-tools"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Command line reference, flags, and migration tools"
+  desc: "Command line reference, syntax highlighting, and migration tools"
 troubleshooting:
   order: 13
   title: "Troubleshooting"
