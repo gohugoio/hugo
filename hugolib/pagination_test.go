@@ -320,9 +320,9 @@ Pages: {{ .Paginator.TotalPages }}
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	th := testHelper{s.Cfg}
+	th := testHelper{s.Cfg, s.Fs, t}
 
-	th.assertFileContent(t, fs, filepath.Join("public", "阅读", "testing", "2", "index.html"), false, "2: /%E9%98%85%E8%AF%BB/testing/2/")
+	th.assertFileContent(filepath.Join("public", "阅读", "testing", "2", "index.html"), false, "2: /%E9%98%85%E8%AF%BB/testing/2/")
 
 }
 

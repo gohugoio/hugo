@@ -84,9 +84,9 @@ p
 	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-	th := testHelper{s.Cfg}
+	th := testHelper{s.Cfg, s.Fs, t}
 
-	th.assertFileContent(t, fs, filepath.Join("public", "p", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "p", "index.html"), true,
 		"Page Title: My Title",
 		"My Content",
 		"Hello World",

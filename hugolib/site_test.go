@@ -263,7 +263,7 @@ THE END.`, refShortcode)),
 		t.Fatalf("Expected 3 got %d pages", len(s.AllPages))
 	}
 
-	th := testHelper{s.Cfg}
+	th := testHelper{s.Cfg, s.Fs, t}
 
 	tests := []struct {
 		doc      string
@@ -275,7 +275,7 @@ THE END.`, refShortcode)),
 	}
 
 	for _, test := range tests {
-		th.assertFileContent(t, fs, test.doc, true, test.expected)
+		th.assertFileContent(test.doc, true, test.expected)
 
 	}
 
@@ -409,7 +409,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "{{.Title}}")
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-	th := testHelper{s.Cfg}
+	th := testHelper{s.Cfg, s.Fs, t}
 	tests := []struct {
 		doc         string
 		pluralAware bool
@@ -429,7 +429,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 			test.expected = inflect.Pluralize(test.expected)
 		}
 
-		th.assertFileContent(t, fs, filepath.Join("public", test.doc), true, test.expected)
+		th.assertFileContent(filepath.Join("public", test.doc), true, test.expected)
 	}
 
 }
@@ -521,7 +521,7 @@ func TestAbsURLify(t *testing.T) {
 			writeSource(t, fs, filepath.Join("layouts", "blue/single.html"), templateWithURLAbs)
 
 			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-			th := testHelper{s.Cfg}
+			th := testHelper{s.Cfg, s.Fs, t}
 
 			tests := []struct {
 				file, expected string
@@ -542,7 +542,7 @@ func TestAbsURLify(t *testing.T) {
 					expected = strings.Replace(expected, baseURL, "", -1)
 				}
 
-				th.assertFileContent(t, fs, test.file, true, expected)
+				th.assertFileContent(test.file, true, expected)
 
 			}
 		}

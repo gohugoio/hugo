@@ -541,7 +541,7 @@ tags:
 	writeSourcesToSource(t, "content", fs, sources...)
 
 	s := buildSingleSite(t, deps.DepsCfg{WithTemplate: addTemplates, Fs: fs, Cfg: cfg}, BuildCfg{})
-	th := testHelper{s.Cfg}
+	th := testHelper{s.Cfg, s.Fs, t}
 
 	for _, test := range tests {
 		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
@@ -555,7 +555,7 @@ tags:
 			continue
 		}
 
-		th.assertFileContent(t, fs, test.outFile, true, test.expected)
+		th.assertFileContent(test.outFile, true, test.expected)
 	}
 
 }

@@ -4,7 +4,14 @@ import (
 	"path/filepath"
 	"testing"
 
+	"regexp"
+
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/deps"
+
+	"fmt"
+	"strings"
+
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
@@ -19,6 +26,31 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/stretchr/testify/require"
 )
+
+type testHelper struct {
+	Cfg config.Provider
+	Fs  *hugofs.Fs
+	T   testing.TB
+}
+
+func (th testHelper) assertFileContent(filename string, defaultInSubDir bool, matches ...string) {
+	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+	content := readDestination(th.T, th.Fs, filename)
+	for _, match := range matches {
+		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		require.True(th.T, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
+	}
+}
+
+func (th testHelper) assertFileContentRegexp(filename string, defaultInSubDir bool, matches ...string) {
+	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
+	content := readDestination(th.T, th.Fs, filename)
+	for _, match := range matches {
+		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
+		r := regexp.MustCompile(match)
+		require.True(th.T, r.MatchString(content), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
+	}
+}
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *helpers.PathSpec {
 	l := helpers.NewDefaultLanguage(v)

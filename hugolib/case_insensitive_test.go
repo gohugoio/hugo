@@ -154,7 +154,7 @@ func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 
 	fs := hugofs.NewFrom(mm, cfg)
 
-	th := testHelper{cfg}
+	th := testHelper{cfg, fs, t}
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `
 Block Page Colors: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}	
@@ -191,7 +191,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	th.assertFileContent(t, sites.Fs, filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
 		"Page Colors: red|heavenly",
 		"Site Colors: green|yellow",
 		"Site Lang Mood: Happy",
@@ -204,7 +204,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"&laquo;Hi&raquo;", // angled quotes
 	)
 
-	th.assertFileContent(t, sites.Fs, filepath.Join("public", "en", "sect1", "page1", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "en", "sect1", "page1", "index.html"), true,
 		"Site Colors: Pink|golden",
 		"Page Colors: black|bluesy",
 		"Site Lang Mood: Thoughtful",
@@ -213,7 +213,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"&ldquo;Hi&rdquo;",
 	)
 
-	th.assertFileContent(t, sites.Fs, filepath.Join("public", "nn", "sect2", "page2", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "sect2", "page2", "index.html"), true,
 		"Page Colors: black|sky",
 		"Site Colors: green|yellow",
 		"Shortcode Page: black|sky",
@@ -265,7 +265,7 @@ func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix st
 
 	fs := hugofs.NewFrom(mm, cfg)
 
-	th := testHelper{cfg}
+	th := testHelper{cfg, fs, t}
 
 	t.Log("Testing", suffix)
 
@@ -296,7 +296,7 @@ p
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	th.assertFileContent(t, sites.Fs, filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "nn", "sect1", "page1", "index.html"), true,
 		"Page Colors: red|heavenly",
 		"Site Colors: green|yellow",
 		"Shortcode Page: red|heavenly",

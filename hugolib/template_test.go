@@ -48,7 +48,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base: sect")
 			},
 		},
 		{
@@ -59,7 +59,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "index.html"), false, "Base: index")
+				th.assertFileContent(filepath.Join("public", "index.html"), false, "Base: index")
 			},
 		},
 		{
@@ -70,7 +70,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: list")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base: list")
 			},
 		},
 		{
@@ -81,7 +81,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: list")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base: list")
 			},
 		},
 		{
@@ -94,7 +94,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: sect")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base: sect")
 			},
 		},
 		{
@@ -106,7 +106,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base Theme: sect")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base Theme: sect")
 			},
 		},
 		{
@@ -119,7 +119,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base: list")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base: list")
 			},
 		},
 		{
@@ -131,13 +131,13 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(t, fs, filepath.Join("public", "sect", "index.html"), false, "Base Theme: list")
+				th.assertFileContent(filepath.Join("public", "sect", "index.html"), false, "Base Theme: list")
 			},
 		},
 	} {
 
 		cfg, fs = newTestCfg()
-		th = testHelper{cfg}
+		th = testHelper{cfg, fs, t}
 
 		writeSource(t, fs, filepath.Join("content", "sect", "page.md"), `---
 title: Template test

@@ -101,7 +101,7 @@ void do();
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		cfg.Set("pygmentsStyle", "bw")
@@ -115,7 +115,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 
 	}
 }
@@ -149,7 +149,7 @@ func TestShortcodeFigure(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -160,7 +160,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 
 	}
 }
@@ -179,7 +179,7 @@ func TestShortcodeSpeakerdeck(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -190,7 +190,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 	}
 }
 
@@ -217,7 +217,7 @@ func TestShortcodeYoutube(t *testing.T) {
 	} {
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -228,7 +228,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 	}
 
 }
@@ -256,7 +256,7 @@ func TestShortcodeVimeo(t *testing.T) {
 	} {
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -267,7 +267,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 
 	}
 }
@@ -289,7 +289,7 @@ func TestShortcodeGist(t *testing.T) {
 	} {
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
@@ -300,7 +300,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 
 	}
 }
@@ -332,7 +332,7 @@ func TestShortcodeTweet(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		withTemplate := func(templ tpl.Template) error {
@@ -348,7 +348,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 
 	}
 }
@@ -387,7 +387,7 @@ func TestShortcodeInstagram(t *testing.T) {
 
 		var (
 			cfg, fs = newTestCfg()
-			th      = testHelper{cfg}
+			th      = testHelper{cfg, fs, t}
 		)
 
 		withTemplate := func(templ tpl.Template) error {
@@ -403,7 +403,7 @@ title: Shorty
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
 
-		th.assertFileContentRegexp(t, fs, filepath.Join("public", "simple", "index.html"), false, this.expected)
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), false, this.expected)
 
 	}
 }

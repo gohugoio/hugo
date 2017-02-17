@@ -30,7 +30,7 @@ func TestRobotsTXTOutput(t *testing.T) {
 	t.Parallel()
 	var (
 		cfg, fs = newTestCfg()
-		th      = testHelper{cfg}
+		th      = testHelper{cfg, fs, t}
 	)
 
 	cfg.Set("baseURL", "http://auth/bub/")
@@ -41,6 +41,6 @@ func TestRobotsTXTOutput(t *testing.T) {
 
 	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	th.assertFileContent(t, fs, "public/robots.txt", true, "User-agent: Googlebot")
+	th.assertFileContent("public/robots.txt", true, "User-agent: Googlebot")
 
 }

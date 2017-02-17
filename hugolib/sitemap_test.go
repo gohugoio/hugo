@@ -56,9 +56,9 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	writeSourcesToSource(t, "content", fs, weightedSources...)
 	s := buildSingleSite(t, depsCfg, BuildCfg{})
-	th := testHelper{s.Cfg}
+	th := testHelper{s.Cfg, s.Fs, t}
 
-	th.assertFileContent(t, s.Fs, "public/sitemap.xml", true,
+	th.assertFileContent("public/sitemap.xml", true,
 		// Regular page
 		" <loc>http://auth/bub/sect/doc1/</loc>",
 		// Home page

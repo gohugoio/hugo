@@ -3,7 +3,6 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
-	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
@@ -41,8 +39,8 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: defaultInSubDir}
 
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
-	th := testHelper{sites.Cfg}
 	fs := sites.Fs
+	th := testHelper{sites.Cfg, fs, t}
 
 	err := sites.Build(BuildCfg{})
 
@@ -79,68 +77,64 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	require.Equal(t, th.replaceDefaultContentLanguageValue("http://example.com/blog/fr/sect/doc1/", defaultInSubDir), frPerm)
 	require.Equal(t, th.replaceDefaultContentLanguageValue("/blog/fr/sect/doc1/", defaultInSubDir), frRelPerm)
 
-	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", defaultInSubDir, "Single", "Bonjour")
-	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", defaultInSubDir, "Single", "Hello")
+	th.assertFileContent("public/fr/sect/doc1/index.html", defaultInSubDir, "Single", "Bonjour")
+	th.assertFileContent("public/en/sect/doc1-slug/index.html", defaultInSubDir, "Single", "Hello")
 
 	// Check home
 	if defaultInSubDir {
 		// should have a redirect on top level.
-		th.assertFileContent(t, fs, "public/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+		th.assertFileContent("public/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
 	} else {
 		// should have redirect back to root
-		th.assertFileContent(t, fs, "public/fr/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
+		th.assertFileContent("public/fr/index.html", true, `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
 	}
-	th.assertFileContent(t, fs, "public/fr/index.html", defaultInSubDir, "Home", "Bonjour")
-	th.assertFileContent(t, fs, "public/en/index.html", defaultInSubDir, "Home", "Hello")
+	th.assertFileContent("public/fr/index.html", defaultInSubDir, "Home", "Bonjour")
+	th.assertFileContent("public/en/index.html", defaultInSubDir, "Home", "Hello")
 
 	// Check list pages
-	th.assertFileContent(t, fs, "public/fr/sect/index.html", defaultInSubDir, "List", "Bonjour")
-	th.assertFileContent(t, fs, "public/en/sect/index.html", defaultInSubDir, "List", "Hello")
-	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/index.html", defaultInSubDir, "List", "Bonjour")
-	th.assertFileContent(t, fs, "public/en/tags/tag1/index.html", defaultInSubDir, "List", "Hello")
+	th.assertFileContent("public/fr/sect/index.html", defaultInSubDir, "List", "Bonjour")
+	th.assertFileContent("public/en/sect/index.html", defaultInSubDir, "List", "Hello")
+	th.assertFileContent("public/fr/plaques/frtag1/index.html", defaultInSubDir, "List", "Bonjour")
+	th.assertFileContent("public/en/tags/tag1/index.html", defaultInSubDir, "List", "Hello")
 
 	// Check sitemaps
 	// Sitemaps behaves different: In a multilanguage setup there will always be a index file and
 	// one sitemap in each lang folder.
-	th.assertFileContent(t, fs, "public/sitemap.xml", true,
+	th.assertFileContent("public/sitemap.xml", true,
 		"<loc>http://example.com/blog/en/sitemap.xml</loc>",
 		"<loc>http://example.com/blog/fr/sitemap.xml</loc>")
 
 	if defaultInSubDir {
-		th.assertFileContent(t, fs, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/fr/</loc>")
+		th.assertFileContent("public/fr/sitemap.xml", true, "<loc>http://example.com/blog/fr/</loc>")
 	} else {
-		th.assertFileContent(t, fs, "public/fr/sitemap.xml", true, "<loc>http://example.com/blog/</loc>")
+		th.assertFileContent("public/fr/sitemap.xml", true, "<loc>http://example.com/blog/</loc>")
 	}
-	th.assertFileContent(t, fs, "public/en/sitemap.xml", true, "<loc>http://example.com/blog/en/</loc>")
+	th.assertFileContent("public/en/sitemap.xml", true, "<loc>http://example.com/blog/en/</loc>")
 
 	// Check rss
-	th.assertFileContent(t, fs, "public/fr/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/index.xml"`)
-	th.assertFileContent(t, fs, "public/en/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/index.xml"`)
-	th.assertFileContent(t, fs, "public/fr/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
-	th.assertFileContent(t, fs, "public/en/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
-	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
-	th.assertFileContent(t, fs, "public/en/tags/tag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
+	th.assertFileContent("public/fr/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/index.xml"`)
+	th.assertFileContent("public/en/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/index.xml"`)
+	th.assertFileContent("public/fr/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
+	th.assertFileContent("public/en/sect/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
+	th.assertFileContent("public/fr/plaques/frtag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
+	th.assertFileContent("public/en/tags/tag1/index.xml", defaultInSubDir, `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
 
 	// Check paginators
-	th.assertFileContent(t, fs, "public/fr/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/"`)
-	th.assertFileContent(t, fs, "public/en/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/"`)
-	th.assertFileContent(t, fs, "public/fr/page/2/index.html", defaultInSubDir, "Home Page 2", "Bonjour", "http://example.com/blog/fr/")
-	th.assertFileContent(t, fs, "public/en/page/2/index.html", defaultInSubDir, "Home Page 2", "Hello", "http://example.com/blog/en/")
-	th.assertFileContent(t, fs, "public/fr/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/sect/"`)
-	th.assertFileContent(t, fs, "public/en/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/sect/"`)
-	th.assertFileContent(t, fs, "public/fr/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/sect/")
-	th.assertFileContent(t, fs, "public/en/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/sect/")
-	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`)
-	th.assertFileContent(t, fs, "public/en/tags/tag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
-	th.assertFileContent(t, fs, "public/fr/plaques/frtag1/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
-	th.assertFileContent(t, fs, "public/en/tags/tag1/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
+	th.assertFileContent("public/fr/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/"`)
+	th.assertFileContent("public/en/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/"`)
+	th.assertFileContent("public/fr/page/2/index.html", defaultInSubDir, "Home Page 2", "Bonjour", "http://example.com/blog/fr/")
+	th.assertFileContent("public/en/page/2/index.html", defaultInSubDir, "Home Page 2", "Hello", "http://example.com/blog/en/")
+	th.assertFileContent("public/fr/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/sect/"`)
+	th.assertFileContent("public/en/sect/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/sect/"`)
+	th.assertFileContent("public/fr/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/sect/")
+	th.assertFileContent("public/en/sect/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/sect/")
+	th.assertFileContent("public/fr/plaques/frtag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`)
+	th.assertFileContent("public/en/tags/tag1/page/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
+	th.assertFileContent("public/fr/plaques/frtag1/page/2/index.html", defaultInSubDir, "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
+	th.assertFileContent("public/en/tags/tag1/page/2/index.html", defaultInSubDir, "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
 	// nn (Nynorsk) and nb (Bokmål) have custom pagePath: side ("page" in Norwegian)
-	th.assertFileContent(t, fs, "public/nn/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nn/"`)
-	th.assertFileContent(t, fs, "public/nb/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nb/"`)
-}
-
-type testHelper struct {
-	Cfg config.Provider
+	th.assertFileContent("public/nn/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nn/"`)
+	th.assertFileContent("public/nb/side/1/index.html", defaultInSubDir, `refresh" content="0; url=http://example.com/blog/nb/"`)
 }
 
 func (th testHelper) replaceDefaultContentLanguageValue(value string, defaultInSubDir bool) string {
@@ -151,25 +145,6 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string, defaultInS
 	}
 	return value
 
-}
-
-func (th testHelper) assertFileContent(t *testing.T, fs *hugofs.Fs, filename string, defaultInSubDir bool, matches ...string) {
-	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
-	content := readDestination(t, fs, filename)
-	for _, match := range matches {
-		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
-		require.True(t, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
-	}
-}
-
-func (th testHelper) assertFileContentRegexp(t *testing.T, fs *hugofs.Fs, filename string, defaultInSubDir bool, matches ...string) {
-	filename = th.replaceDefaultContentLanguageValue(filename, defaultInSubDir)
-	content := readDestination(t, fs, filename)
-	for _, match := range matches {
-		match = th.replaceDefaultContentLanguageValue(match, defaultInSubDir)
-		r := regexp.MustCompile(match)
-		require.True(t, r.MatchString(content), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
-	}
 }
 
 func TestMultiSitesWithTwoLanguages(t *testing.T) {
@@ -243,7 +218,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Len(t, sites.Sites, 4)
 
 	fs := sites.Fs
-	th := testHelper{sites.Cfg}
+	th := testHelper{sites.Cfg, fs, t}
 	err := sites.Build(BuildCfg{})
 
 	if err != nil {
@@ -287,7 +262,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "http://example.com/blog/superbob", permalink, "invalid doc3 permalink")
 
 	require.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
-	th.assertFileContent(t, fs, "public/superbob/index.html", true, "doc3|Hello|en")
+	th.assertFileContent("public/superbob/index.html", true, "doc3|Hello|en")
 	require.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
 	doc1fr := doc1en.Translations()[0]
@@ -331,12 +306,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
 
 	// check home page content (including data files rendering)
-	th.assertFileContent(t, fs, "public/en/index.html", true, "Home Page 1", "Hello", "Hugo Rocks!")
-	th.assertFileContent(t, fs, "public/fr/index.html", true, "Home Page 1", "Bonjour", "Hugo Rocks!")
+	th.assertFileContent("public/en/index.html", true, "Home Page 1", "Hello", "Hugo Rocks!")
+	th.assertFileContent("public/fr/index.html", true, "Home Page 1", "Bonjour", "Hugo Rocks!")
 
 	// check single page content
-	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
-	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
+	th.assertFileContent("public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
+	th.assertFileContent("public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
 
 	// Check node translations
 	homeEn := enSite.getPage(KindHome)
@@ -414,7 +389,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	fs := sites.Fs
 	cfg := BuildCfg{Watching: true}
-	th := testHelper{sites.Cfg}
+	th := testHelper{sites.Cfg, fs, t}
 
 	err := sites.Build(cfg)
 
@@ -435,12 +410,12 @@ func TestMultiSitesRebuild(t *testing.T) {
 	require.Len(t, frSite.RegularPages, 3)
 
 	// Verify translations
-	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Hello")
-	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Bonjour")
+	th.assertFileContent("public/en/sect/doc1-slug/index.html", true, "Hello")
+	th.assertFileContent("public/fr/sect/doc1/index.html", true, "Bonjour")
 
 	// check single page content
-	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
-	th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
+	th.assertFileContent("public/fr/sect/doc1/index.html", true, "Single", "Shortcode: Bonjour")
+	th.assertFileContent("public/en/sect/doc1-slug/index.html", true, "Single", "Shortcode: Hello")
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -578,8 +553,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
 				require.Len(t, enSite.AllPages, 30)
 				require.Len(t, frSite.RegularPages, 4)
-				th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", true, "Single", "Modified Shortcode: Salut")
-				th.assertFileContent(t, fs, "public/en/sect/doc1-slug/index.html", true, "Single", "Modified Shortcode: Hello")
+				th.assertFileContent("public/fr/sect/doc1/index.html", true, "Single", "Modified Shortcode: Salut")
+				th.assertFileContent("public/en/sect/doc1-slug/index.html", true, "Single", "Modified Shortcode: Hello")
 			},
 		},
 	} {
@@ -700,7 +675,8 @@ func TestChangeDefaultLanguage(t *testing.T) {
 	require.Equal(t, mf, sites.Fs.Source)
 
 	cfg := BuildCfg{}
-	th := testHelper{sites.Cfg}
+	fs := sites.Fs
+	th := testHelper{sites.Cfg, fs, t}
 
 	err := sites.Build(cfg)
 
@@ -708,10 +684,8 @@ func TestChangeDefaultLanguage(t *testing.T) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	fs := sites.Fs
-
-	th.assertFileContent(t, fs, "public/sect/doc1/index.html", false, "Single", "Bonjour")
-	th.assertFileContent(t, fs, "public/en/sect/doc2/index.html", false, "Single", "Hello")
+	th.assertFileContent("public/sect/doc1/index.html", false, "Single", "Bonjour")
+	th.assertFileContent("public/en/sect/doc2/index.html", false, "Single", "Hello")
 
 	newConfig := createConfig(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "en", DefaultContentLanguageInSubdir: false}, multiSiteTOMLConfigTemplate)
 
@@ -728,8 +702,8 @@ func TestChangeDefaultLanguage(t *testing.T) {
 	}
 
 	// Default language is now en, so that should now be the "root" language
-	th.assertFileContent(t, fs, "public/fr/sect/doc1/index.html", false, "Single", "Bonjour")
-	th.assertFileContent(t, fs, "public/sect/doc2/index.html", false, "Single", "Hello")
+	th.assertFileContent("public/fr/sect/doc1/index.html", false, "Single", "Bonjour")
+	th.assertFileContent("public/sect/doc2/index.html", false, "Single", "Hello")
 }
 
 func TestTableOfContentsInShortcodes(t *testing.T) {
@@ -750,11 +724,11 @@ func TestTableOfContentsInShortcodes(t *testing.T) {
 		t.Fatalf("Failed to build sites: %s", err)
 	}
 
-	th := testHelper{sites.Cfg}
 	fs := sites.Fs
+	th := testHelper{sites.Cfg, fs, t}
 
-	th.assertFileContent(t, fs, "public/en/post/simple/index.html", true, tocPageSimpleExpected)
-	th.assertFileContent(t, fs, "public/en/post/withSCInHeading/index.html", true, tocPageWithShortcodesInHeadingsExpected)
+	th.assertFileContent("public/en/post/simple/index.html", true, tocPageSimpleExpected)
+	th.assertFileContent("public/en/post/withSCInHeading/index.html", true, tocPageWithShortcodesInHeadingsExpected)
 }
 
 var tocShortcode = `
@@ -1280,7 +1254,7 @@ func writeToFs(t *testing.T, fs afero.Fs, filename, content string) {
 	}
 }
 
-func readDestination(t *testing.T, fs *hugofs.Fs, filename string) string {
+func readDestination(t testing.TB, fs *hugofs.Fs, filename string) string {
 	return readFileFromFs(t, fs.Destination, filename)
 }
 
@@ -1296,7 +1270,7 @@ func readSource(t *testing.T, fs *hugofs.Fs, filename string) string {
 	return readFileFromFs(t, fs.Source, filename)
 }
 
-func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
+func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	filename = filepath.FromSlash(filename)
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
