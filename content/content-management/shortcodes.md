@@ -160,7 +160,7 @@ Assuming that standard Hugo pretty URLs are turned on.
 <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 ```
 
-### `tweet` (Twitter)
+### `tweet`
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet. For example, let's say you want to include the following tweet from `https://twitter.com/spf13/status/666616452582129664`. Pass the tweet's ID from the URL as parameter to the shortcode as shown below:
 
@@ -200,7 +200,7 @@ and pass it to the shortcode:
 {{</* vimeo 146022717 */>}}
 ```
 
-### `gist` (GitHub)
+### `gist`
 
 Including code snippets with GitHub gists while writing a tutorial is common situation bloggers face. With a given URL of the gist, e.g.:
 

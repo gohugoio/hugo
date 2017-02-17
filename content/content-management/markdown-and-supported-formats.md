@@ -20,7 +20,7 @@ notes:
 Markdown is the natively supported content format for Hugo and is rendered using the excellent [BlackFriday project][], a markdown parser written in Golang.
 
 {{% note "Deeply Nested Lists" %}}
-Hugo uses [BlackFriday](https://github.com/russross/blackfriday), a markdown processor written in Golang. BlackFriday has a known issues [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists, but there is a workaround. If you write lists in markdown, be sure to include 4 spaces (i.e., <kbd>tab</kbd>) rather than 2 to delimit nesting of lists.
+Hugo uses [BlackFriday](https://github.com/russross/blackfriday), a markdown processor written in Golang. BlackFriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists, but there is a workaround. If you write lists in markdown, be sure to include 4 spaces (i.e., <kbd>tab</kbd>) rather than 2 to delimit nesting of lists.
 {{% /note %}}
 
 ## Additional Resources
