@@ -26,7 +26,7 @@ import (
 
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 )
 
 // ShortcodeWithPage is the "." context in a shortcode template.
@@ -541,7 +541,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	return source, nil
 }
 
-func getShortcodeTemplate(name string, t tplapi.Template) *template.Template {
+func getShortcodeTemplate(name string, t tpl.Template) *template.Template {
 	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
 		return x
 	}

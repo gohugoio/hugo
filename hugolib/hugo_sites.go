@@ -24,7 +24,7 @@ import (
 
 	"github.com/spf13/hugo/i18n"
 	"github.com/spf13/hugo/tpl"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl/tplimpl"
 )
 
 // HugoSites represents the sites to build. Each site represents a language.
@@ -72,7 +72,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 
 func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 	if cfg.TemplateProvider == nil {
-		cfg.TemplateProvider = tpl.DefaultTemplateProvider
+		cfg.TemplateProvider = tplimpl.DefaultTemplateProvider
 	}
 
 	if cfg.TranslationProvider == nil {
@@ -121,8 +121,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	return newHugoSites(cfg, sites...)
 }
 
-func (s *Site) withSiteTemplates(withTemplates ...func(templ tplapi.Template) error) func(templ tplapi.Template) error {
-	return func(templ tplapi.Template) error {
+func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.Template) error) func(templ tpl.Template) error {
+	return func(templ tpl.Template) error {
 		templ.LoadTemplates(s.absLayoutDir())
 		if s.hasTheme() {
 			templ.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
@@ -191,7 +191,7 @@ func (h *HugoSites) reset() {
 		h.Sites[i] = s.reset()
 	}
 
-	tpl.ResetCaches()
+	tplimpl.ResetCaches()
 }
 
 func (h *HugoSites) createSitesFromConfig() error {
@@ -553,7 +553,7 @@ func (h *HugoSites) Pages() Pages {
 	return h.Sites[0].AllPages
 }
 
-func handleShortcodes(p *Page, t tplapi.Template, rawContentCopy []byte) ([]byte, error) {
+func handleShortcodes(p *Page, t tpl.Template, rawContentCopy []byte) ([]byte, error) {
 	if len(p.contentShortCodes) > 0 {
 		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
 		shortcodes, err := executeShortcodeFuncMap(p.contentShortCodes)

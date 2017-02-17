@@ -25,12 +25,12 @@ import (
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 	"github.com/stretchr/testify/require"
 )
 
 // TODO(bep) remove
-func pageFromString(in, filename string, withTemplate ...func(templ tplapi.Template) error) (*Page, error) {
+func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template) error) (*Page, error) {
 	s := newTestSite(nil)
 	if len(withTemplate) > 0 {
 		// Have to create a new site
@@ -47,11 +47,11 @@ func pageFromString(in, filename string, withTemplate ...func(templ tplapi.Templ
 	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 
-func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tplapi.Template) error) {
+func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {
 	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
 }
 
-func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tplapi.Template) error, expectError bool) {
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error, expectError bool) {
 
 	cfg, fs := newTestCfg()
 
@@ -100,7 +100,7 @@ func TestNonSC(t *testing.T) {
 // Issue #929
 func TestHyphenatedSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
@@ -111,7 +111,7 @@ func TestHyphenatedSC(t *testing.T) {
 // Issue #1753
 func TestNoTrailingNewline(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
 		return nil
 	}
@@ -121,7 +121,7 @@ func TestNoTrailingNewline(t *testing.T) {
 
 func TestPositionalParamSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
@@ -135,7 +135,7 @@ func TestPositionalParamSC(t *testing.T) {
 
 func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
 		return nil
 	}
@@ -146,7 +146,7 @@ func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 
 func TestNamedParamSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
 		return nil
 	}
@@ -161,7 +161,7 @@ func TestNamedParamSC(t *testing.T) {
 // Issue #2294
 func TestNestedNamedMissingParam(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
 		tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
 		tem.AddInternalShortcode("div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
@@ -174,7 +174,7 @@ func TestNestedNamedMissingParam(t *testing.T) {
 
 func TestIsNamedParamsSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
 		tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
 		tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
@@ -190,7 +190,7 @@ func TestIsNamedParamsSC(t *testing.T) {
 
 func TestInnerSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
@@ -201,7 +201,7 @@ func TestInnerSC(t *testing.T) {
 
 func TestInnerSCWithMarkdown(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
@@ -215,7 +215,7 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
@@ -246,7 +246,7 @@ func TestEmbeddedSC(t *testing.T) {
 
 func TestNestedSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
 		tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
 		return nil
@@ -258,7 +258,7 @@ func TestNestedSC(t *testing.T) {
 
 func TestNestedComplexSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
 		tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
 		tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
@@ -274,7 +274,7 @@ func TestNestedComplexSC(t *testing.T) {
 
 func TestParentShortcode(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tplapi.Template) error {
+	wt := func(tem tpl.Template) error {
 		tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
 		tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
 		tem.AddInternalShortcode("r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
@@ -342,7 +342,7 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(simplePage, "simple.md", func(templ tplapi.Template) error {
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
 			templ.AddInternalShortcode("tag.html", `tag`)
 			templ.AddInternalShortcode("sc1.html", `sc1`)
 			templ.AddInternalShortcode("sc2.html", `sc2`)
@@ -514,7 +514,7 @@ tags:
 		sources[i] = source.ByteSource{Name: filepath.FromSlash(test.contentPath), Content: []byte(test.content)}
 	}
 
-	addTemplates := func(templ tplapi.Template) error {
+	addTemplates := func(templ tpl.Template) error {
 		templ.AddTemplate("_default/single.html", "{{.Content}}")
 
 		templ.AddInternalShortcode("b.html", `b`)

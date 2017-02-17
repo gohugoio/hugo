@@ -40,7 +40,7 @@ import (
 	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/target"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/hugo/transform"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
@@ -149,7 +149,7 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // NewSiteDefaultLang creates a new site in the default language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
-func NewSiteDefaultLang(withTemplate ...func(templ tplapi.Template) error) (*Site, error) {
+func NewSiteDefaultLang(withTemplate ...func(templ tpl.Template) error) (*Site, error) {
 	v := viper.New()
 	loadDefaultSettingsFor(v)
 	return newSiteForLang(helpers.NewDefaultLanguage(v), withTemplate...)
@@ -158,15 +158,15 @@ func NewSiteDefaultLang(withTemplate ...func(templ tplapi.Template) error) (*Sit
 // NewEnglishSite creates a new site in English language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
-func NewEnglishSite(withTemplate ...func(templ tplapi.Template) error) (*Site, error) {
+func NewEnglishSite(withTemplate ...func(templ tpl.Template) error) (*Site, error) {
 	v := viper.New()
 	loadDefaultSettingsFor(v)
 	return newSiteForLang(helpers.NewLanguage("en", v), withTemplate...)
 }
 
 // newSiteForLang creates a new site in the given language.
-func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tplapi.Template) error) (*Site, error) {
-	withTemplates := func(templ tplapi.Template) error {
+func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tpl.Template) error) (*Site, error) {
+	withTemplates := func(templ tpl.Template) error {
 		for _, wt := range withTemplate {
 			if err := wt(templ); err != nil {
 				return err

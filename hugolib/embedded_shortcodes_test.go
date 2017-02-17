@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/hugo/deps"
 
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 	"github.com/stretchr/testify/require"
 )
 
@@ -335,7 +335,7 @@ func TestShortcodeTweet(t *testing.T) {
 			th      = testHelper{cfg}
 		)
 
-		withTemplate := func(templ tplapi.Template) error {
+		withTemplate := func(templ tpl.Template) error {
 			templ.Funcs(tweetFuncMap)
 			return nil
 		}
@@ -390,7 +390,7 @@ func TestShortcodeInstagram(t *testing.T) {
 			th      = testHelper{cfg}
 		)
 
-		withTemplate := func(templ tplapi.Template) error {
+		withTemplate := func(templ tpl.Template) error {
 			templ.Funcs(instagramFuncMap)
 			return nil
 		}
