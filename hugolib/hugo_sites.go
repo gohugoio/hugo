@@ -190,8 +190,6 @@ func (h *HugoSites) reset() {
 	for i, s := range h.Sites {
 		h.Sites[i] = s.reset()
 	}
-
-	tplimpl.ResetCaches()
 }
 
 func (h *HugoSites) createSitesFromConfig() error {
