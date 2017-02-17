@@ -9,7 +9,7 @@
 		<div class="contents-list-image-wrapper">
 			<img src="{{.Site.BaseURL}}images/{{.Section}}.svg" alt="">
 		</div>
-		<h3 class="{{.Section}}">{{with .LinkTitle}}{{.}}{{else}}{{.Title | markdownify}}{{end}}</h3>
+		<h3 class="{{.Section}}">{{with .LinkTitle}}{{. | markdownify}}{{else}}{{.Title | markdownify}}{{end}}</h3>
 	</header>
 	<p>{{.Description | markdownify }}</p>
 </article>
