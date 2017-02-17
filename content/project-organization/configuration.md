@@ -3,13 +3,15 @@ title: Configuration
 linktitle:
 description: Scaffolding new projects, configuration, and source organization.
 date: 2017-01-02
-tags: [configuration,fundamentals,toml,yaml,json]
 publishdate: 2017-01-02
 lastmod: 2017-01-02
+tags: [configuration,fundamentals,toml,yaml,json]
+categories: [project organization]
 weight: 10
 draft: false
 slug:
 aliases: [/overview/source-directory/]
+toc: true
 notes:
 ---
 

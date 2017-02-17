@@ -7,9 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
 tags: [lists,sections]
+categories: [templates]
 draft: false
 slug:
 aliases: [/templates/list/]
+toc: false
 notes:
 ---
 

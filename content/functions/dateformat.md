@@ -2,15 +2,14 @@
 title: dateFormat
 linktitle:
 description:
-qr_description:
-qr_returns:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [dates]
-weight:
+tags: [dates,time]
+categories: [functions]
+toc: false
 draft: false
-slug:
 aliases: []
 notes:
 ---

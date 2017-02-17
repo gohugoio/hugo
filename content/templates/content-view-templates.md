@@ -6,10 +6,11 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
-categories: []
+categories: [templates]
 tags: [views]
 draft: false
 slug:
 aliases: [/templates/views/]
+toc: false
 notes:
 ---

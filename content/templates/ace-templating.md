@@ -7,9 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
 tags: []
+categories: [templates]
 draft: false
 slug:
-aliases:
+aliases: []
+toc: false
 notes:
 ---
 

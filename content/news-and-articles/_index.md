@@ -7,11 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: []
 categories: []
-hidesectioncontents: false
 weight: 01
 draft: false
-slug:
 aliases: []
+toc: false
+hidesectioncontents: false
 notes:
 ---
 

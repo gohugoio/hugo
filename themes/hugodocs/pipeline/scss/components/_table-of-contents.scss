@@ -2,7 +2,7 @@ aside#toc {
   position: fixed;
   max-width: 280px;
   min-width: 200px;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: .5em;
   bottom: 20px;
   right: 20px;
@@ -40,6 +40,7 @@ nav#TableOfContents {
   float: left;
   position:relative;
   overflow-y: scroll;
+  margin-bottom:20px;
   > ul:first-child {
     padding-left: 0px;
     margin-left: 0px;
@@ -116,6 +117,9 @@ nav#TableOfContents {
                 left: -16px;
               }
             }
+          }
+          ul {
+            display:none;
           }
         }
       }

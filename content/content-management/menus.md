@@ -1,16 +1,16 @@
 ---
-title: Data Templates
-linktitle:
+title: Menus
+linktitle: Menus
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
-tags: [data]
-categories: [templates]
+categories: [templating]
+tags: [lists,sections,menus]
 draft: false
 slug:
-aliases:
+aliases: [/extras/menus/]
 toc: false
 notes:
 ---

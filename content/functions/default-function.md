@@ -2,15 +2,15 @@
 title: default
 linktitle: default
 description:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+tags: []
+categories: [functions]
+toc: false
 draft: false
-type:
-layout:
-slug:
-aliases: []
+aliases: [/functions/default/]
 notes:
 ---
 

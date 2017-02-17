@@ -1,7 +1,7 @@
 ---
 title: Content Sections
 linktitle: Content Sections
-description:
+description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -14,7 +14,11 @@ toc:
 notes:
 ---
 
-If you are using a different static site generator or CMS (e.g, Jeklly or Wordpress), the following tools were developed by the Hugo community to facilitate automated exports from your current system to a Hugo-friendly format.
+If you are using a different static site generator or CMS (e.g, Jeklly or Wordpress, respectively), the following tools were developed by the Hugo community to facilitate automated exports from your current system to a Hugo-friendly format.
 
 ## Jekyll
+
+## WordPress
+
+## Contentful
 

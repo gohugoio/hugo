@@ -18,7 +18,7 @@ $(document).ready(function() {
   // Bind to scroll
   $(window).scroll(function() {
     // Get container scroll position
-    var fromTop = $(this).scrollTop() + headerHeight + 30;
+    var fromTop = $(this).scrollTop() + headerHeight + 100;
     console.log("fromTop = " + fromTop);
 
     // Get id of current scroll item

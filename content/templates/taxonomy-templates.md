@@ -5,18 +5,16 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-categories: []
 tags: [taxonomies,metadata,front matter,terms]
+categories: [templates]
+weight:
 draft: false
 slug:
 aliases: []
+toc: true
 notes:
 ---
-
-## Configuring Taxonomies
 
 ## Taxonomy Templates
 
 ## Terms Templates
-

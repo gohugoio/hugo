@@ -11,7 +11,8 @@ categories: []
 draft: false
 hidesectioncontents: false
 slug:
-aliases:
+aliases: []
+toc: false
 notes:
 ---
 

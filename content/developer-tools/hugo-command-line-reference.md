@@ -6,11 +6,12 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [usage]
+categories: [developer tools]
 weight: 40
 draft: false
 slug:
 aliases: []
-toc:
+toc: true
 notes:
 ---
 

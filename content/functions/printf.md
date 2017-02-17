@@ -1,17 +1,15 @@
 ---
 title: printf
-linktitle:
+linktitle: printf
 description:
-qr_description:
-qr_returns:
+godocref: https://golang.org/pkg/fmt/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+tags: []
+categories: [functions]
+toc: false
 draft: false
-type:
-layout:
-slug:
 aliases: []
 notes:
 ---

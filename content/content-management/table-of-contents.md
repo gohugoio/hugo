@@ -9,8 +9,7 @@ tags: [table of contents, toc]
 categories: [content management]
 weight: 100
 draft: false
-slug:
 aliases: [/extras/toc/]
-toc:
+toc: false
 notes:
 ---

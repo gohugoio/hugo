@@ -1,17 +1,15 @@
 ---
 title: first
-linktitle:
+linktitle: first
 description:
-qr_description:
-qr_returns:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+tags: []
 categories: [functions]
-tags: [filtering content, limiting content]
+toc: false
 draft: false
-slug:
 aliases: []
 notes:
 ---

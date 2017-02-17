@@ -25,14 +25,14 @@ contentmanagement:
   url: "content-management"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Content summaries, archetypes, pagination, permalinks, front matter, and supported content formats"
+  desc: "Summaries, shortcodes, archetypes, permalinks, front matter, and supported content formats"
 templates:
   order: 5
   title: "Templates"
   url: "templates"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Golang templating, template types and lookup order, shortcodes, and data"
+  desc: "Pagination, homepage, rss/sitemap, template types and lookup order, and data"
 functions:
   order: 6
   title: "Functions"

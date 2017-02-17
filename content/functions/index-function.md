@@ -2,16 +2,14 @@
 title: index
 linktitle: index
 description:
-workson: [map,slice,array]
-godocref: https://golang.org/pkg/text/template/#hdr-Functions
-tags: [iteration]
-categories: [functions]
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+tags: []
+categories: [functions]
+toc: false
 draft: false
-slug:
 aliases: []
 notes:
 ---

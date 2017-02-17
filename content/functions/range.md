@@ -2,16 +2,14 @@
 title: range
 linktitle:
 description:
-qr_description:
-qr_returns:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [fundamentals]
-tags: [iteration]
-weight:
+tags: [iteration,fundamentals]
+categories: [functions]
+toc: false
 draft: false
-slug:
 aliases: []
 notes:
 ---

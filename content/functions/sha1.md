@@ -1,17 +1,16 @@
 ---
 title: sha1
-linktitle:
+linktitle: sha1
 description:
-qr_description:
-qr_returns:
+description:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+tags: []
+categories: [functions]
+toc: false
 draft: false
-type:
-layout:
-slug:
 aliases: []
 notes:
 ---

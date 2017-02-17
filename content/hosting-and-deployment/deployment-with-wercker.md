@@ -1,12 +1,12 @@
 ---
 title: Deployment with Wercker
-linktitle:
+linktitle: Deployment with Wercker
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
-categories: []
+tags: [wercker]
+categories: [hosting and deployment]
 toc: false
 draft: false
 slug:

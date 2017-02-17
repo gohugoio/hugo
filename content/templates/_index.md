@@ -11,5 +11,6 @@ tags: [templating,functions]
 draft: false
 slug:
 aliases:
+toc: false
 notes:
 ---

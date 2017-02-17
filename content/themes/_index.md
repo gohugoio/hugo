@@ -11,5 +11,6 @@ tags: []
 draft: false
 slug:
 aliases:
+toc: false
 notes:
 ---

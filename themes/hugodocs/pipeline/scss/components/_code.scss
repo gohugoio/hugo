@@ -3,7 +3,7 @@ code,
 pre {
   font-family: $code-font-family;
   margin: 0px;
-  color: $code-base-font-color;
+  color: $inline-code-text-color;
 }
 
 .body-copy > pre {
@@ -24,32 +24,45 @@ pre {
 }
 
 .body-copy {
-  p code,
-  td code {
-    font-size: .85em;
-    display:inline-block;
-    color: $inline-code-text-color;
-    font-family: $code-font-family;
-    padding-left: .25em;
-    padding-right: .25em;
-    padding-bottom:.1em;
-    line-height:1.2;
-    margin-bottom:.15em;
-    margin-top:0px;
-    padding-top:0px;
-    // line-height:1;
-    vertical-align:middle;
-    //darken code background color for non-retina screens
-    background-color: darken($inline-code-background-color,5%);
-    border: none;
-    outline: none;
-    z-index:-1;
-    @include MQ(retina){
-      background-color: $inline-code-background-color;
+  p,
+  td,
+  li {
+    code {
+      font-size: .85em;
+      display: inline-block;
+      color: $inline-code-text-color;
+      font-family: $code-font-family;
+      padding-left: .25em;
+      padding-right: .25em;
+      padding-bottom: .1em;
+      text-transform: none;
+      line-height: 1.2;
+      margin-bottom: .15em;
+      margin-top: 0px;
+      padding-top: 0px;
+      // line-height:1;
+      vertical-align: middle;
+      //darken code background color for non-retina screens
+      background-color: darken($inline-code-background-color, 5%);
+      border: none;
+      outline: none;
+      z-index: -1;
+      @include MQ(retina) {
+        background-color: $inline-code-background-color;
+      }
     }
   }
-  p > a code,  li > a code, td > a code {
-    color:$hugo-pink;
+  h3 > code {
+    font-size:1.1em;
+    font-weight:normal;
+  }
+  h4 code {
+    text-transform:none;
+  }
+  p > a code,
+  li > a code,
+  td > a code {
+    color: $hugo-pink;
   }
 }
 

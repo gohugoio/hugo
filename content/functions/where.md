@@ -2,16 +2,14 @@
 title: where
 linktitle:
 description:
-qr_description:
-qr_returns:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
+tags: []
+categories: [functions]
+toc: false
 draft: false
-type:
-layout:
-slug:
 aliases: []
 notes:
 ---
@@ -20,5 +18,3 @@ notes:
 
 ## Advanced Example
 
-
-Here is just some content testing for the where function.
