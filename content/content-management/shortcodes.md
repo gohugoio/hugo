@@ -228,9 +228,9 @@ Extract the value from the field `data-id` and pass it to the shortcode:
 
     {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 
-### Instagram
+### `instagram`
 
-If you'd like to embed photo from [Instagram](https://www.instagram.com/), all you need is photo ID from the URL, e. g.:
+If you'd like to embed a photo from [Instagram][], all you need is photo ID from the URL, e. g.:
 
 * https://www.instagram.com/p/BMokmydjG-M/
 
@@ -442,7 +442,7 @@ And will be rendered as:
 
 {{% note %}}
 The preceding template makes use of a Hugo-specific template function
-called `highlight`, which uses [Pygments](http://pygments.org/) to add the highlighting code.
+called `highlight`, which uses [Pygments][] to add the highlighting code.
 {{% /note %}}
 
 ### Simple Single-word Example: `year`
@@ -462,7 +462,9 @@ Let's assume you would like to have a shortcode to be replaced by the current ye
 More shortcode examples can be found in the [shortcodes directory for spf13.com][].
 
 [cross-references]: /content-management/cross-references/
+[Instagram]: https://www.instagram.com/
 [page variables]: /variables-and-params/page-variables/
+[Pygments]: http://pygments.org/
 [shortcodes directory for spf13.com]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes
 [source organization]: /project-organization/directory-structure/
 [Speaker Deck]: https://speakerdeck.com/

@@ -9,7 +9,6 @@ tags: [archetypes,generators,metadata,front matter]
 categories: ["content management"]
 weight: 50
 draft: false
-slug:
 aliases: [/content/archetypes/]
 toc: true
 notes:
