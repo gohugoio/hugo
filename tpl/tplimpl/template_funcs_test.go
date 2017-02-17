@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tpl
+package tplimpl
 
 import (
 	"bytes"
@@ -31,7 +31,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
@@ -273,7 +273,7 @@ urlize: bat-man
 	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
 
 	config := newDepsConfig(v)
-	config.WithTemplate = func(templ tplapi.Template) error {
+	config.WithTemplate = func(templ tpl.Template) error {
 		if _, err := templ.New("test").Parse(in); err != nil {
 			t.Fatal("Got error on parse", err)
 		}
@@ -2862,7 +2862,7 @@ func TestPartialCached(t *testing.T) {
 
 		config := newDepsConfig(viper.New())
 
-		config.WithTemplate = func(templ tplapi.Template) error {
+		config.WithTemplate = func(templ tpl.Template) error {
 			err := templ.AddTemplate("testroot", tmp)
 			if err != nil {
 				return err
@@ -2901,7 +2901,7 @@ func TestPartialCached(t *testing.T) {
 
 func BenchmarkPartial(b *testing.B) {
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tplapi.Template) error {
+	config.WithTemplate = func(templ tpl.Template) error {
 		err := templ.AddTemplate("testroot", `{{ partial "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2932,7 +2932,7 @@ func BenchmarkPartial(b *testing.B) {
 
 func BenchmarkPartialCached(b *testing.B) {
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tplapi.Template) error {
+	config.WithTemplate = func(templ tpl.Template) error {
 		err := templ.AddTemplate("testroot", `{{ partialCached "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2978,7 +2978,7 @@ func newTestFuncsterWithViper(v *viper.Viper) *templateFuncster {
 
 func newTestTemplate(t *testing.T, name, template string) *template.Template {
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tplapi.Template) error {
+	config.WithTemplate = func(templ tpl.Template) error {
 		err := templ.AddTemplate(name, template)
 		if err != nil {
 			return err

@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tpl
+package tplimpl
 
 import (
 	"bytes"
@@ -27,7 +27,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/deps"
 
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -74,7 +74,7 @@ html lang=en
 			d := "DATA"
 
 			config := newDepsConfig(viper.New())
-			config.WithTemplate = func(templ tplapi.Template) error {
+			config.WithTemplate = func(templ tpl.Template) error {
 				return templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
 					[]byte(this.baseContent), []byte(this.innerContent))
 			}
@@ -144,7 +144,7 @@ func TestAddTemplateFileWithMaster(t *testing.T) {
 		finalTplName := "tp"
 
 		config := newDepsConfig(viper.New())
-		config.WithTemplate = func(templ tplapi.Template) error {
+		config.WithTemplate = func(templ tpl.Template) error {
 
 			err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
 
@@ -284,7 +284,7 @@ func TestTplGoFuzzReports(t *testing.T) {
 
 		config := newDepsConfig(viper.New())
 
-		config.WithTemplate = func(templ tplapi.Template) error {
+		config.WithTemplate = func(templ tpl.Template) error {
 			return templ.AddTemplate("fuzz", this.data)
 		}
 

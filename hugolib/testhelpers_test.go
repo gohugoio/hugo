@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 
 	"io/ioutil"
@@ -66,9 +66,9 @@ func newDebugLogger() *jww.Notepad {
 	return jww.NewNotepad(jww.LevelDebug, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 }
 
-func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tplapi.Template) error {
+func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.Template) error {
 
-	return func(templ tplapi.Template) error {
+	return func(templ tpl.Template) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
 			if err != nil {

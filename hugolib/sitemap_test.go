@@ -19,7 +19,7 @@ import (
 	"reflect"
 
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -48,7 +48,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
 
 	if !internal {
-		depsCfg.WithTemplate = func(templ tplapi.Template) error {
+		depsCfg.WithTemplate = func(templ tpl.Template) error {
 			templ.AddTemplate("sitemap.xml", sitemapTemplate)
 			return nil
 		}

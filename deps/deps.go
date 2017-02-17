@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/tplapi"
+	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -20,7 +20,7 @@ type Deps struct {
 	Log *jww.Notepad `json:"-"`
 
 	// The templates to use.
-	Tmpl tplapi.Template `json:"-"`
+	Tmpl tpl.Template `json:"-"`
 
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
@@ -40,7 +40,7 @@ type Deps struct {
 	Language *helpers.Language
 
 	templateProvider ResourceProvider
-	WithTemplate     func(templ tplapi.Template) error `json:"-"`
+	WithTemplate     func(templ tpl.Template) error `json:"-"`
 
 	translationProvider ResourceProvider
 }
@@ -147,7 +147,7 @@ type DepsCfg struct {
 
 	// Template handling.
 	TemplateProvider ResourceProvider
-	WithTemplate     func(templ tplapi.Template) error
+	WithTemplate     func(templ tpl.Template) error
 
 	// i18n handling.
 	TranslationProvider ResourceProvider
