@@ -6,6 +6,7 @@ aside#toc {
   padding: .5em;
   bottom: 20px;
   right: 20px;
+  height:auto;
   @include card(1);
   z-index: 30;
   background-color: $toc-bg-color;
@@ -17,40 +18,108 @@ aside#toc {
     transform: scale(1);
     opacity: 1;
   }
-  nav {
-    float: left;
-    overflow-y: scroll;
-    ul {
-      margin-top: .5em;
-      margin-bottom: 2em;
-    }
-    ul li ul {
-      font-size: 15px;
-      li {
-        margin-top: .5em;
-        a {
-          color: lighten($base-font-color, 25%);
-        }
-        ul {
-          display: none;
-        }
-      }
-    }
-  }
   h3 {
     margin-bottom: 0px;
+    margin-left: 8px;
     padding-bottom: 0px;
     border-bottom: 1px solid $base-font-color;
     color: $base-font-color;
-    font-size:17px;
+    font-size: 17px;
   }
   @include MQ(XL) {
     box-shadow: none;
     top: $site-header-height + 20px;
     left: calc(#{$site-navigation-width} + #{$content-max-width} + 48px);
-    bottom:auto;
+    bottom: auto;
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+nav#TableOfContents {
+  float: left;
+  position:relative;
+  overflow-y: scroll;
+  > ul:first-child {
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-top: .5em;
+    margin-bottom: .5em;
+    > li {
+      padding-left: 0px;
+      margin-left: 0px;
+      font-size: 18px;
+    }
+  }
+  ul > li > ul {
+    li {
+      line-height: 1.2;
+      font-size: .85em;
+      padding-left: 8px;
+      position: relative;
+      margin-top: .5em;
+      margin-bottom: .5em;
+      a {
+        color: $base-font-color;
+        position: relative;
+        &:hover {
+          color: $hugo-pink;
+          &::before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            border-left: 1px solid $hugo-pink;
+            position: absolute;
+            left: -8px;
+          }
+        }
+      }
+      &.active {
+        > a {
+          position: relative;
+          color: $hugo-pink;
+          font-weight: 400;
+          &::before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            border-left: 2px solid $hugo-pink;
+            position: absolute;
+            left: -8px;
+          }
+        }
+      }
+      > ul {
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 0px;
+        > li {
+          a {
+            &:hover {
+              color: $hugo-blue;
+              &::before {
+                content: '';
+                display: inline-block;
+                height: 100%;
+                border-left: 1px solid $hugo-blue;
+                position: absolute;
+                left: -16px;
+              }
+            }
+          }
+          &.active {
+            > a {
+              color: $hugo-blue;
+              font-weight: 400;
+              &::before {
+                border-left: 2px solid $hugo-blue;
+                left: -16px;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 

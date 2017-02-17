@@ -11,6 +11,7 @@ weight: 30
 draft: false
 slug:
 aliases: [/content-management/sections,/content/sections/]
+toc: true
 notes:
 ---
 

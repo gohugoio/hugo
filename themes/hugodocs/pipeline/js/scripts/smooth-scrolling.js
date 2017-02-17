@@ -16,5 +16,3 @@ $(document).ready(function() {
     location.hash = hashid;
   });
 });
-
-

@@ -15,3 +15,8 @@ notes:
 ---
 
 ## Configuring Taxonomies
+
+## Taxonomy Templates
+
+## Terms Templates
+

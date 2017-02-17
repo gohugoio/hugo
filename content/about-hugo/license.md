@@ -9,6 +9,7 @@ weight: 50
 draft: false
 slug:
 aliases: [/meta/license]
+toc: true
 notes:
 ---
 

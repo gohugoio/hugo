@@ -11,6 +11,7 @@ weight: 10
 draft: false
 slug:
 aliases: [/content/markdown-extras/,/content/supported-formats/,/content/markdown/]
+toc:
 notes:
 ---
 

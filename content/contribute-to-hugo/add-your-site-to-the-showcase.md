@@ -5,12 +5,13 @@ description: Proud of a site you built with Hugo? Add it to the Official Hugo Si
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [contribute]
+categories: [contribute to hugo]
 tags: [dev,showcase]
 weight:
 draft: false
 slug:
-aliases:
+aliases: []
+toc: false
 notes:
 ---
 
@@ -69,6 +70,5 @@ git commit -m "docs: Add example.com to the showcase"
 Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare).
 
 Don't forget to accept the contributor license agreement. Click on the yellow badge in the automatically added comment in the pull request.
-
 
 [code contribution guideline]: https://github.com/spf13/hugo#code-contribution-guideline

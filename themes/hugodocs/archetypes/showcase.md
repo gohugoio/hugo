@@ -1,11 +1,11 @@
 ---
-date:
 description: ""
+lastmod: ""
 license: ""
 licenseLink: ""
 sitelink: ""
 sourceLink: ""
 tags: []
-thumbnail: ""
-title:
+thumbnail: "/images/yourthumb-tn.jpg"
+toc: false
 ---

@@ -18,6 +18,7 @@
   h3 {
     padding-bottom: 2px;
     border-bottom: 2px solid $base-font-color;
+    padding-left:1.5em;
   }
   p {
     margin-bottom: 0px;
@@ -35,7 +36,7 @@
   max-width: 30px;
   position: absolute;
   top: 0px;
-  right: 0px;
+  left: 0px;
   img {
     max-width: 1.5em;
     min-width: 1.5em;

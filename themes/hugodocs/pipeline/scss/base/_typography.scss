@@ -1,5 +1,5 @@
 @include fonts('muli', $weights: 100 300 400 600 700);
-@include fonts('courierprime', $weights: 400 700);
+@include fonts('sourcecodepro', $weights: 400 700);
 h1,
 h2,
 h3,
@@ -14,16 +14,16 @@ h1.page-title {
   font-size: 1.8em;
   letter-spacing: -.021em;
   padding-bottom: 0px;
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   margin-bottom: 8px;
   @include MQ(M) {
     padding-top: 0px;
   }
   img {
-    display:inline;
+    display: inline;
     @include size(1em);
-    margin-right:.15em;
+    margin-right: .15em;
   }
   i[class^="icon-"] {
     margin-left: -.15em;

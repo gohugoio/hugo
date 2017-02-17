@@ -11,6 +11,7 @@ weight: 90
 draft: false
 slug:
 aliases: [/extras/permalinks/,/extras/aliases/,/content-management/permalinks-and-redirects/,/extras/urls/]
+toc: true
 notes:
 ---
 

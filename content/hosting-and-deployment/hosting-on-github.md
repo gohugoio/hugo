@@ -7,9 +7,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
 draft: false
-type:
-layout:
-slug:
+tags: []
+categories: []
+toc: false
 aliases: []
 notes:
 ---

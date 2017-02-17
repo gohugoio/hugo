@@ -12,5 +12,6 @@ weight: 01
 draft: false
 slug:
 aliases: [/tutorials/how-to-contribute-to-hugo/]
+toc: false
 notes:
 ---

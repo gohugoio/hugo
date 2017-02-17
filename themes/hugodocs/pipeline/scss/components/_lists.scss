@@ -8,6 +8,7 @@ aside {
     list-style: none;
     text-indent: 0px;
     li {
+      position:relative;
       margin-left: 0px;
       padding-left: 0px;
       list-style: none;
@@ -25,6 +26,8 @@ aside {
     padding-top: 0px;
     margin-bottom: 1.5em;
     li {
+      position:relative;
+      margin-top:.25em;
       ul,ol {
         margin-bottom:0px;
       }

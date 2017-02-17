@@ -5,8 +5,9 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [wercker]
-weight:
+tags: []
+categories: []
+toc: false
 draft: false
 slug:
 aliases: []

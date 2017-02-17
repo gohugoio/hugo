@@ -10,9 +10,12 @@ categories: [content management]
 weight: 50
 draft: false
 slug:
-aliases: []
+aliases: [/content/archetypes/]
+toc: true
 notes:
 ---
+
+## What are Archetypes?
 
 **Archetypes** are content files in the [archetypes directory][] of your project that contain preconfigured [front matter][] for your website's [content types][]. Archetypes facilitate consistent metadata across your website content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
 
@@ -40,7 +43,7 @@ Running this command in a new site that does not have default or custom archetyp
 ```toml
 +++
 date = "2017-02-01T19:20:04-07:00"
-title: my first post
+title = my first post
 +++
 ```
 {{% /output %}}

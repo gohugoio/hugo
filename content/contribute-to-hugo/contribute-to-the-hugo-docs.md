@@ -5,7 +5,7 @@ description: Documentation is an integral part of any open source project. The H
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [contribute]
+categories: [contribute to hugo]
 tags: [docs,documentation]
 weight:
 draft: false

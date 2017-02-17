@@ -5,7 +5,7 @@ description: Hugo relies heavily on the contributions of the open source communi
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [contribute]
+categories: [contribute to hugo]
 tags: [dev,open source]
 weight:
 draft: false

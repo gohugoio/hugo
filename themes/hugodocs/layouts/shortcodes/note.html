@@ -1,5 +1,5 @@
 <div class="note">
-	<h2>{{if .Get 0}}{{.Get 0 | markdownify}}{{else}}Note{{end}}</h2>
+	<h2 id="{{if .Get 0}}{{.Get 0 | urlize}}{{else}}note{{end}}">{{if .Get 0}}{{.Get 0 | markdownify}}{{else}}Note{{end}}</h2>
 	<div class="shortcode-content">
 	{{.Inner}}
 	</div>

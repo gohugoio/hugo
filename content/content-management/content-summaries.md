@@ -11,5 +11,6 @@ weight: 70
 draft: false
 slug:
 aliases: [/content/summaries/]
+toc:
 notes:
 ---

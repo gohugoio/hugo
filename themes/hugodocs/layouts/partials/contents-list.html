@@ -1,14 +1,14 @@
 {{$kind := .Kind}}
 {{if eq $kind "section"}}
-<h2 class="section-heading">{{replace (replace .Section "-" " " | title) "And" "and"}} Contents:</h2>
+<h2 class="section-heading">Section Contents:</h2>
 {{end}}
 {{range .Data.Pages}}
 <article class="contents-list {{$kind}}">
 	<header>
-		<a href="{{.Permalink}}"><h3>{{.Title}}</h3></a>
 		<div class="contents-list-image-wrapper">
 			<img src="{{.Site.BaseURL}}images/{{.Section}}.svg" alt="">
 		</div>
+		<a href="{{.Permalink}}"><h3>{{.Title}}</h3></a>
 	</header>
 	<p>{{.Description}}</p>
 </article>

@@ -3,7 +3,7 @@ title: Configuration
 linktitle:
 description: Scaffolding new projects, configuration, and source organization.
 date: 2017-01-02
-tags: [configuration,fundamentals]
+tags: [configuration,fundamentals,toml,yaml,json]
 publishdate: 2017-01-02
 lastmod: 2017-01-02
 weight: 10
@@ -15,7 +15,9 @@ notes:
 
 The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
 
-Therefore, many websites wouldn't actually need a configuration file. This is because Hugo is designed to recognize certain typical usage patterns (and expects them, by default).
+Therefore, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and expects them, by default).
+
+## Configuration Lookup Order
 
 Nevertheless, Hugo searches for a configuration file in the root of your website's source directory as a default behavior. First, it looks for a `./config.toml` file. If that's not present, it will seek a `./config.yaml` file,
 followed by a `./config.json` file.
@@ -46,29 +48,7 @@ params:
 ```
 {{% /input %}}
 
-## TOML Configuration
-
-The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
-
-```toml
-contentDir = "content"
-layoutDir = "layouts"
-publishDir = "public"
-buildDrafts = false
-baseURL = "https://yoursite.example.com/"
-canonifyURLs = true
-title = "My Hugo Site"
-
-[taxonomies]
-  category = "categories"
-  tag = "tags"
-
-[params]
-  subtitle = "Hugo is Absurdly Fast!"
-  author = "John Doe"
-```
-
-## All Variables, YAML
+### All Variables, YAML
 
 The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
 
@@ -181,7 +161,29 @@ taxonomies:
 ```
 {{% /input %}}
 
-## All Variables, TOML
+## TOML Configuration
+
+The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
+
+```toml
+contentDir = "content"
+layoutDir = "layouts"
+publishDir = "public"
+buildDrafts = false
+baseURL = "https://yoursite.example.com/"
+canonifyURLs = true
+title = "My Hugo Site"
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+[params]
+  subtitle = "Hugo is Absurdly Fast!"
+  author = "John Doe"
+```
+
+### All Variables, TOML
 
 The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
@@ -305,7 +307,7 @@ $ env HUGO_TITLE="Some Title" hugo
 ```
 
 {{% note "Setting Environment Variables" %}}
-names must be prefixed with `HUGO_` when setting environment variables through operating system environment variables.
+Names must be prefixed with `HUGO_` when setting environment variables through operating system environment variables.
 {{% /note %}}
 
 ## Ignoring Files When Rendering
@@ -318,7 +320,7 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
-## Additional Resources
+## Configuration Format Specs
 
 * [TOML Spec][]
 * [YAML Spec][]

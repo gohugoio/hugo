@@ -13,8 +13,13 @@ a {
 .body-copy {
   li,
   p {
-    a:hover {
-      text-decoration: underline;
+    a {
+      z-index:1;
+      color:$default-anchor-underline-color;
+      &:hover {
+        // text-decoration: underline!important;
+        border-bottom:1px solid $default-anchor-underline-color;
+      }
     }
   }
 }
@@ -43,8 +48,8 @@ a.tooltip {
   }
   &.tooltip-right {
     &:hover::before {
-      left:0px;
-      right:auto;
+      left: 0px;
+      right: auto;
     }
   }
   &.edit-link:hover {

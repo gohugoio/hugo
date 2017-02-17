@@ -9,6 +9,7 @@ weight: 10
 draft: false
 slug:
 aliases: [/about-hugo/features]
+toc: true
 notes:
 ---
 

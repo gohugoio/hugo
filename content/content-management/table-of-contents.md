@@ -11,5 +11,6 @@ weight: 100
 draft: false
 slug:
 aliases: [/extras/toc/]
+toc:
 notes:
 ---
