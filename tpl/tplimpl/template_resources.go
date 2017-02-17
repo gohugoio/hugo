@@ -49,8 +49,8 @@ func (l *remoteLock) URLLock(url string) {
 	if _, ok := l.m[url]; !ok {
 		l.m[url] = &sync.Mutex{}
 	}
-	l.Unlock() // call this Unlock before the next lock will be called. NFI why but defer doesn't work.
 	l.m[url].Lock()
+	l.Unlock()
 }
 
 // URLUnlock unlocks an URL when the download has been finished. Use only in defer calls.
