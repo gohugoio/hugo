@@ -321,9 +321,9 @@ func (h *HugoSites) createMissingPages() error {
 			taxonomyTermsPages := s.findPagesByKind(KindTaxonomyTerm)
 			for _, plural := range taxonomies {
 				tax := s.Taxonomies[plural]
-				foundTaxonomyPage := false
 				foundTaxonomyTermsPage := false
 				for key := range tax {
+					foundTaxonomyPage := false
 					if s.Info.preserveTaxonomyNames {
 						key = s.PathSpec.MakePathSanitized(key)
 					}
