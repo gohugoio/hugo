@@ -11,7 +11,7 @@ gettingstarted:
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Quick start, multi-platform installation guides, and basic usage"
+  desc: "Quick start, multi-platform installation guides, and basic usage instructions, for local development"
 projectorganization:
   order: 3
   title: "Project Organization"
