@@ -6,12 +6,14 @@ ul.tags {
   margin-bottom: 8px;
   margin-right: 4px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   float:right;
   li {
     height: 20px;
     line-height: 20px;
     margin-left: 4px;
+    margin-bottom: .75em;
     display: flex;
     &:not(.icon) {
       @include card(1, 3);

@@ -29,7 +29,7 @@ main.main {
   position: relative;
   min-height:calc(100vh - #{$site-header-height * 2});
   // overflow-x: hidden;
-  @include MQ(XL) {
+  @include MQ(L) {
     margin-left: 2em;
   }
 }

@@ -11,6 +11,13 @@ tags: [lists,sections,partials]
 draft: false
 slug:
 aliases: [/templates/partials/]
-toc: false
+toc: true
 notes:
 ---
+
+## Partials vs Templates
+
+## Built-in Partials
+
+* Google Analytics
+* Disqus Comments

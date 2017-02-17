@@ -1,15 +1,17 @@
 {{$kind := .Kind}}
 {{if eq $kind "section"}}
-<h2 class="section-heading">Section Contents:</h2>
+<h2 class="section-heading"><em>{{.Title | markdownify}}</em> Contents:</h2>
 {{end}}
 {{range .Data.Pages}}
+<a href="{{.Permalink}}">
 <article class="contents-list {{$kind}}">
 	<header>
 		<div class="contents-list-image-wrapper">
 			<img src="{{.Site.BaseURL}}images/{{.Section}}.svg" alt="">
 		</div>
-		<a href="{{.Permalink}}"><h3>{{.Title}}</h3></a>
+		<h3 class="{{.Section}}">{{with .LinkTitle}}{{.}}{{else}}{{.Title | markdownify}}{{end}}</h3>
 	</header>
-	<p>{{.Description}}</p>
+	<p>{{.Description | markdownify }}</p>
 </article>
+</a>
 {{end}}

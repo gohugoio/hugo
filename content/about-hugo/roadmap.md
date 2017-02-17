@@ -1,7 +1,7 @@
 ---
 title: Roadmap
 linktitle:
-description: Information on the Hugo license.
+description: Take a look at what's in the pipeline for future versions of the Hugo project, as well related GitHub issues and Hugo Forum discussions for new features.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

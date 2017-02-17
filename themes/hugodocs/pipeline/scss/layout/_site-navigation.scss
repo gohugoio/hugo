@@ -8,8 +8,12 @@
   overflow-y: scroll;
   background-color: $site-navigation-bg-color;
   transform:translateX(-#{$site-navigation-width});
-  padding: 1em;
+  padding: 0px;
   z-index: 9;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  // justify-content:center;
   &.navigation-open {
     transition: transform .3s ease-in-out;
     transform: translateX(0px);
@@ -19,21 +23,22 @@
   }
   ul.top-menu {
     margin-top: $site-header-height + 30px;
-    display: inline-block;
-    margin-left: auto;
-    margin-right: auto;
+    // display: inline-block;
+    width:85%;
     @include MQ(L) {
       margin-top: $site-header-height + 10px;
     }
     a {
       color: $base-font-color;
       font-weight: $base-font-weight;
+      width:100%;
+      display:block;
       &:hover {
         color:$hugo-pink;
       }
     }
     li {
-      padding-left: 1em;
+      padding-left: 0px;
       // text-indent: -1em;
       line-height: 1;
       margin-top: .66em;
@@ -44,6 +49,10 @@
     }
     a.top-menu-item-link {
       font-size: 16px;
+      width:100%;
+      i.fa.fa-angle-double-right {
+        margin-left:.25em;
+      }
       &.active-section {
         color: $hugo-pink;
         // border-bottom: 1px solid $active-color;
@@ -72,7 +81,6 @@
 
 .nav-buttons {
   a {
-    margin-left: 1em;
     margin-bottom: .5em;
     display: inline-block;
     width: 200px;

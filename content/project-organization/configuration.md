@@ -1,7 +1,7 @@
 ---
 title: Configuration
 linktitle:
-description: Scaffolding new projects, configuration, and source organization.
+description: Your configuration can include precise directions to Hugo regarding how it should render your website.
 date: 2017-01-02
 publishdate: 2017-01-02
 lastmod: 2017-01-02

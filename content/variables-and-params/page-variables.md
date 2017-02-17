@@ -17,3 +17,5 @@ notes:
 
 `.IsNamedParams` (reference to shortcodes)
 `.TableOfContents` (reference to content/table-of-contents)
+
+<!-- Include rss and sitemap variables for page variables as well -->

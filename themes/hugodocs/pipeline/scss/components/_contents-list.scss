@@ -2,6 +2,7 @@
   box-shadow: none;
   background-color: transparent;
   color: $base-font-color;
+  border-bottom: 1px solid $hugo-gray-light;
   margin-bottom: 1em;
   position: relative;
   a {
@@ -16,12 +17,14 @@
     }
   }
   h3 {
+    margin-top:0px;
+    padding-top:0px;
     padding-bottom: 2px;
-    border-bottom: 2px solid $base-font-color;
     padding-left:1.5em;
   }
   p {
-    margin-bottom: 0px;
+    margin-top:8px;
+    margin-bottom: 16px;
   }
 }
 
@@ -35,11 +38,11 @@
 .contents-list-image-wrapper {
   max-width: 30px;
   position: absolute;
-  top: 0px;
+  top: .2em;
   left: 0px;
   img {
-    max-width: 1.5em;
-    min-width: 1.5em;
+    max-width: 1.2em;
+    min-width: 1.2em;
     margin-bottom: 0px;
     margin-left: auto;
     margin-right: auto;

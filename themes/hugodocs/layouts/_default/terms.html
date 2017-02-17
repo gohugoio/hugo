@@ -5,12 +5,24 @@
 	</header>
 	<div class="body-copy taxonomies">
 		{{ $data := .Data }}
+		{{ $dataPlural := .Title | urlize}}
 		{{ $base := $.Site.BaseURL }}
+		<table>
+			<thead>
+				<tr>
+					<th>Term</th>
+					<th>Count</th>
+				</tr>
+			</thead>
+		<tbody>
 		{{ range $key, $value := .Data.Terms.Alphabetical }}
-		<div>
-      <a href="{{ $base }}/{{ $data.Plural }}/{{ $value.Name | urlize }}" class="taxonomy-term">{{ $value.Name }} {{ $value.Count }}</a>
-    </div>
+		<tr>
+			<td><a href="{{ $base }}{{ $dataPlural }}/{{$value.Name | urlize}}">{{ $value.Name }}</a></td>
+			<td>{{ $value.Count }}</td>
+		</tr>
     {{ end }}
+    </tbody>
+    </table>
 	</div>
 </main>
 {{ end }}

@@ -4,13 +4,15 @@ table {
   max-width: 100%;
   display: block;
   border-left: 2px solid $hugo-gray;
-  border-right: 2px solid $hugo-gray;
   tr {
     border-top: 2px solid $hugo-gray;
     th,
     td {
       padding-left: 4px;
       padding-right: 6px;
+      &:last-child {
+        border-right: 2px solid $hugo-gray;
+      }
     }
   }
   thead {
