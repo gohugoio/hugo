@@ -11,7 +11,7 @@ gettingstarted:
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Quick start, multi-platform installation guides, and basic usage instructions, for local development"
+  desc: "Quick start, multi-platform installation guides, and basic usage instructions for local development"
 projectorganization:
   order: 3
   title: "Project Organization"
@@ -60,7 +60,7 @@ hostinganddeployment:
   url: "hosting-and-deployment"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Site builds, automated deployments, and popular hosting solutions"
+  desc: "Site builds and community-aggregated tutorials on automated deploymentsand popular hosting solutions"
 # migratingtohugo:
 #   order: 10
 #   title: "Migrating to Hugo"

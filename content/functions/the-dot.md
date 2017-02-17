@@ -1,5 +1,5 @@
 ---
-title: The Dot (.)
+title: thedot
 linktitle: The Dot (.)
 description:
 godocref: https://golang.org/pkg/text/template/#hdr-Variables
@@ -8,9 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [fundamentals,iteration]
 categories: [functions]
-weight: 02
+weight:
 toc: false
 draft: false
-aliases: [/functions/dot/,/functions/the-dot/]
+aliases: [/functions/dot/,/functions/context/]
 notes:
 ---
