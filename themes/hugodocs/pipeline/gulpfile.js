@@ -34,27 +34,27 @@ gulp.task('sass', function() {
     .pipe(prefix('last 2 versions', '> 1%', 'ie 10', 'Android 2', 'Firefox ESR'))
     .pipe(plumber())
     .pipe(rename('style.min.css'))
-    .pipe(gulp.dest('../static/css'));
+    .pipe(gulp.dest('../../../static/css'));
 });
 
 gulp.task("image-resize", () => {
-  return gulp.src("../source-images/*.{jpg,png,jpeg,gif}")
+  return gulp.src("../../../source-images/*.{jpg,png,jpeg,gif}")
     .pipe(imagemin())
     .pipe(parallel(
       imageresize({ width: imagefull }),
       os.cpus().length
     ))
-    .pipe(gulp.dest("../static/images"))
+    .pipe(gulp.dest("../../../static/images"))
     .pipe(parallel(
       imageresize({ width: imagehalf }),
       os.cpus().length
     ))
-    .pipe(gulp.dest("../static/images/half"))
+    .pipe(gulp.dest("../../../static/images/half"))
     .pipe(parallel(
       imageresize({ width: imagethumb }),
       os.cpus().length
     ))
-    .pipe(gulp.dest("../static/images/thumb"));
+    .pipe(gulp.dest("../../../static/images/thumb"));
 });
 
 
@@ -70,7 +70,7 @@ gulp.task('scripts', function(cb) {
       concat('script.min.js'),
       // sourcemaps.write('.'),
       uglify(),
-      gulp.dest('../static/js/')
+      gulp.dest('../../../static/js/')
     ],
     cb
   );

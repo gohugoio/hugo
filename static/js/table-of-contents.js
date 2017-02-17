@@ -13,14 +13,16 @@ $(document).ready(function() {
         return item;
       }
     });
-  console.log(tocNavHeight);
 
   // Bind to scroll
-  $(window).scroll(function() {
+  $(window).scroll(function(evt) {
+    evt.preventDefault();
+    // checks for top of page
+    // var isTop = $(window).scrollTop() == 0;
+    // console.log("Top of page?: " + isTop);
+    var isBottom = $(window).scrollTop() + $(window).height() == $(document).height();
     // Get container scroll position
     var fromTop = $(this).scrollTop() + headerHeight + 100;
-    console.log("fromTop = " + fromTop);
-
     // Get id of current scroll item
     var cur = scrollItems.map(function() {
       if ($(this).offset().top < fromTop)
@@ -29,15 +31,18 @@ $(document).ready(function() {
     // Get the id of the current element
     cur = cur[cur.length - 1];
     var id = cur && cur.length ? cur[0].id : "";
-    var isBottom = $(window).scrollTop() + $(window).height() == $(document).height();
+
+
 
     if (lastId !== id) {
       lastId = id;
       // Set/remove active class
-      menuItems
-        .parent().removeClass("active")
-        .end().filter("[href='#" + id + "']").parent().addClass("active");
+      menuItems.parent().removeClass("active").end().filter("[href='#" + id + "']").parent().addClass("active");
+      history.replaceState({}, "", menuItems.filter("[href='#" + id + "']").attr("href"));
     }
+    // if (isTop) {
+    //   window.location.hash = "";
+    // }
     if (isBottom) {
       menuItems.parent().removeClass('active');
       if (menuItems.last().parent().attr('class') !== 'active') {

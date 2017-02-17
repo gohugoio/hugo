@@ -2,7 +2,6 @@
 (function() {
   let tocLinks = document.querySelectorAll('#TableOfContents > ul a');
   let toc = document.getElementById('toc');
-  console.log(tocLinks);
   if (toc && (tocLinks.length < 2)) {
     toc.remove();
   } else if (tocLinks.length > 1) {

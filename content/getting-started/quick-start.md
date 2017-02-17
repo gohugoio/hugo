@@ -6,8 +6,8 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
-tags: []
-weight:
+tags: [quick start,usage]
+weight: 20
 draft: false
 slug:
 aliases: []

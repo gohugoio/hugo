@@ -6,7 +6,7 @@ aside#toc {
   padding: .5em;
   bottom: 20px;
   right: 20px;
-  height:auto;
+  height: auto;
   @include card(1);
   z-index: 30;
   background-color: $toc-bg-color;
@@ -38,9 +38,9 @@ aside#toc {
 
 nav#TableOfContents {
   float: left;
-  position:relative;
+  position: relative;
   overflow-y: scroll;
-  margin-bottom:20px;
+  margin-bottom: 20px;
   > ul:first-child {
     padding-left: 0px;
     margin-left: 0px;
@@ -63,15 +63,17 @@ nav#TableOfContents {
       a {
         color: $base-font-color;
         position: relative;
-        &:hover {
-          color: $hugo-pink;
-          &::before {
-            content: '';
-            display: inline-block;
-            height: 100%;
-            border-left: 1px solid $hugo-pink;
-            position: absolute;
-            left: -8px;
+        @include MQ(L) {
+          &:hover {
+            color: $hugo-pink;
+            &::before {
+              content: '';
+              display: inline-block;
+              height: 100%;
+              border-left: 1px solid $hugo-pink;
+              position: absolute;
+              left: -8px;
+            }
           }
         }
       }
@@ -96,15 +98,17 @@ nav#TableOfContents {
         margin-bottom: 0px;
         > li {
           a {
-            &:hover {
-              color: $hugo-blue;
-              &::before {
-                content: '';
-                display: inline-block;
-                height: 100%;
-                border-left: 1px solid $hugo-blue;
-                position: absolute;
-                left: -16px;
+            @include MQ(L) {
+              &:hover {
+                color: $hugo-blue;
+                &::before {
+                  content: '';
+                  display: inline-block;
+                  height: 100%;
+                  border-left: 1px solid $hugo-blue;
+                  position: absolute;
+                  left: -16px;
+                }
               }
             }
           }
@@ -119,7 +123,7 @@ nav#TableOfContents {
             }
           }
           ul {
-            display:none;
+            display: none;
           }
         }
       }

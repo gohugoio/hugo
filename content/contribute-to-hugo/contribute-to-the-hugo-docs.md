@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute to hugo]
-tags: [docs,documentation]
+tags: [docs,documentation,community]
 weight:
 draft: false
 slug:

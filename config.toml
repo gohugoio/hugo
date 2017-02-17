@@ -75,11 +75,10 @@ watch = true
   removefromexternalsearch = true
   ## This is used when the BaseURL does not need to modified (eg, in share links)
   siteaddress = "https://gohugo.io"
-  ## Gh repo for site footer
+  ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
   ## GitHub Docs Repository Base URL (include trailing slash)
-  # ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/"
-  ghdocsrepo = ""
+  ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/"
   ## Github Wiki for Documentation
   ghdocswiki = ""
   ## Github Wiki for Development
