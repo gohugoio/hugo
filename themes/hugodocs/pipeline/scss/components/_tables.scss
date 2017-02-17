@@ -1,9 +1,12 @@
 table {
   text-align: left;
   overflow-x: scroll;
+  width: 100%;
   max-width: 100%;
+  width: auto;
   display: block;
   border-left: 2px solid $hugo-gray;
+  margin:0px;
   tr {
     border-top: 2px solid $hugo-gray;
     th,
@@ -15,8 +18,15 @@ table {
       }
     }
   }
+  &.terms-table {
+    td {
+      width:50%;
+    }
+  }
   thead {
+    width:100%;
     tr {
+      min-width:100%;
       th {
         padding-left: 4px;
         padding-right: 6px;
@@ -29,7 +39,9 @@ table {
     }
   }
   tbody {
+    min-width:100%;
     tr {
+      min-width:100%;
       background-color: $body-bg-color;
       &:nth-child(even) {
         background-color: $hugo-gray-light;
