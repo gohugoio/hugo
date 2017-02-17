@@ -6,7 +6,7 @@ date: 2017-01-09
 publishdate: 2017-01-09
 lastmod: 2017-01-09
 categories: [content management]
-tags: [front matter, yaml, toml, json, metadata, archetypes]
+tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 weight: 20
 draft: false
 slug:

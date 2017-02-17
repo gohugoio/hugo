@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [archetypes,generators,metadata,front matter]
-categories: [content management]
+categories: ["content management"]
 weight: 50
 draft: false
 slug:
