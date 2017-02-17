@@ -60,7 +60,7 @@ func (t *GoHTMLTemplate) EmbedShortcodes() {
 {{ end }}`)
 	t.AddInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
 	t.AddInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
-	t.AddInternalShortcode("instagram.html", `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ (getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1").html | safeHTML }}{{ end }}{{ else }}{{ (getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0").html | safeHTML }}{{ end }}`)
+	t.AddInternalShortcode("instagram.html", `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}`)
 }
 
 func (t *GoHTMLTemplate) EmbedTemplates() {
