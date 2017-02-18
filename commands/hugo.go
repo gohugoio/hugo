@@ -153,6 +153,7 @@ var (
 	themesDir       string
 	source          string
 	logI18nWarnings bool
+	disableKinds    []string
 )
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -239,6 +240,8 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("noChmod", "", false, "Don't sync permission mode of files")
 	cmd.Flags().BoolVarP(&logI18nWarnings, "i18n-warnings", "", false, "Print missing translations")
 
+	cmd.Flags().StringSliceVar(&disableKinds, "disableKinds", []string{}, "Disable different kind of pages (home, RSS etc.)")
+
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
 	cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
@@ -288,6 +291,10 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 		c.initializeFlags(cmdV)
+	}
+
+	if len(disableKinds) > 0 {
+		c.Set("disableKinds", disableKinds)
 	}
 
 	logger, err := createLogger(cfg.Cfg)
@@ -450,6 +457,7 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 	for _, key := range flagKeys {
 		c.setValueFromFlag(cmd.Flags(), key)
 	}
+
 }
 
 func (c *commandeer) setValueFromFlag(flags *flag.FlagSet, key string) {

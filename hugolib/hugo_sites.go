@@ -303,15 +303,17 @@ func (h *HugoSites) createMissingPages() error {
 
 	for _, s := range h.Sites {
 
-		// home pages
-		home := s.findPagesByKind(KindHome)
-		if len(home) > 1 {
-			panic("Too many homes")
-		}
-		if len(home) == 0 {
-			n := s.newHomePage()
-			s.Pages = append(s.Pages, n)
-			newPages = append(newPages, n)
+		if s.isEnabled(KindHome) {
+			// home pages
+			home := s.findPagesByKind(KindHome)
+			if len(home) > 1 {
+				panic("Too many homes")
+			}
+			if len(home) == 0 {
+				n := s.newHomePage()
+				s.Pages = append(s.Pages, n)
+				newPages = append(newPages, n)
+			}
 		}
 
 		// taxonomy list and terms pages
@@ -339,43 +341,50 @@ func (h *HugoSites) createMissingPages() error {
 							break
 						}
 					}
-					if !foundTaxonomyPage {
-						n := s.newTaxonomyPage(plural, key)
-						s.Pages = append(s.Pages, n)
-						newPages = append(newPages, n)
+
+					if s.isEnabled(KindTaxonomy) {
+						if !foundTaxonomyPage {
+							n := s.newTaxonomyPage(plural, key)
+							s.Pages = append(s.Pages, n)
+							newPages = append(newPages, n)
+						}
 					}
 
-					if !foundTaxonomyTermsPage {
-						foundTaxonomyTermsPage = true
-						n := s.newTaxonomyTermsPage(plural)
-						s.Pages = append(s.Pages, n)
-						newPages = append(newPages, n)
+					if s.isEnabled(KindTaxonomyTerm) {
+						if !foundTaxonomyTermsPage {
+							foundTaxonomyTermsPage = true
+							n := s.newTaxonomyTermsPage(plural)
+							s.Pages = append(s.Pages, n)
+							newPages = append(newPages, n)
+						}
 					}
 				}
 			}
 		}
 
-		sectionPages := s.findPagesByKind(KindSection)
-		if len(sectionPages) < len(s.Sections) {
-			for name, section := range s.Sections {
-				// A section may be created for the root content folder if a
-				// content file is placed there.
-				// We cannot create a section node for that, because
-				// that would overwrite the home page.
-				if name == "" {
-					continue
-				}
-				foundSection := false
-				for _, sectionPage := range sectionPages {
-					if sectionPage.sections[0] == name {
-						foundSection = true
-						break
+		if s.isEnabled(KindSection) {
+			sectionPages := s.findPagesByKind(KindSection)
+			if len(sectionPages) < len(s.Sections) {
+				for name, section := range s.Sections {
+					// A section may be created for the root content folder if a
+					// content file is placed there.
+					// We cannot create a section node for that, because
+					// that would overwrite the home page.
+					if name == "" {
+						continue
 					}
-				}
-				if !foundSection {
-					n := s.newSectionPage(name, section)
-					s.Pages = append(s.Pages, n)
-					newPages = append(newPages, n)
+					foundSection := false
+					for _, sectionPage := range sectionPages {
+						if sectionPage.sections[0] == name {
+							foundSection = true
+							break
+						}
+					}
+					if !foundSection {
+						n := s.newSectionPage(name, section)
+						s.Pages = append(s.Pages, n)
+						newPages = append(newPages, n)
+					}
 				}
 			}
 		}
@@ -427,6 +436,14 @@ func (h *HugoSites) setupTranslations() {
 	for _, p := range master.rawAllPages {
 		if p.Lang() == "" {
 			panic("Page language missing: " + p.Title)
+		}
+
+		if p.Kind == kindUnknown {
+			p.Kind = p.s.kindFromSections(p.sections)
+		}
+
+		if !p.s.isEnabled(p.Kind) {
+			continue
 		}
 
 		shouldBuild := p.shouldBuild()

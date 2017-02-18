@@ -105,13 +105,22 @@ type Site struct {
 	Data           map[string]interface{}
 	Language       *helpers.Language
 
+	disabledKinds map[string]bool
+
 	// Logger etc.
 	*deps.Deps `json:"-"`
 }
 
+func (s *Site) isEnabled(kind string) bool {
+	if kind == kindUnknown {
+		panic("Unknown kind")
+	}
+	return !s.disabledKinds[kind]
+}
+
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Deps: s.Deps, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
+	return &Site{Deps: s.Deps, disabledKinds: s.disabledKinds, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
 }
 
 // newSite creates a new site with the given configuration.
@@ -122,7 +131,12 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		cfg.Language = helpers.NewDefaultLanguage(cfg.Cfg)
 	}
 
-	s := &Site{PageCollections: c, Language: cfg.Language}
+	disabledKinds := make(map[string]bool)
+	for _, disabled := range cast.ToStringSlice(cfg.Language.Get("disableKinds")) {
+		disabledKinds[disabled] = true
+	}
+
+	s := &Site{PageCollections: c, Language: cfg.Language, disabledKinds: disabledKinds}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
 	return s, nil
@@ -820,6 +834,7 @@ func (s *Site) setupPrevNext() {
 }
 
 func (s *Site) render() (err error) {
+
 	if err = s.preparePages(); err != nil {
 		return
 	}
@@ -1493,8 +1508,18 @@ func (s *Site) getTaxonomyKey(key string) string {
 	}
 	return s.PathSpec.MakePathSanitized(key)
 }
-func (s *Site) assembleTaxonomies() {
+
+// We need to create the top level taxonomy early in the build process
+// to be able to determine the page Kind correctly.
+func (s *Site) createTaxonomiesEntries() {
 	s.Taxonomies = make(TaxonomyList)
+	taxonomies := s.Language.GetStringMapString("taxonomies")
+	for _, plural := range taxonomies {
+		s.Taxonomies[plural] = make(Taxonomy)
+	}
+}
+
+func (s *Site) assembleTaxonomies() {
 	s.taxonomiesPluralSingular = make(map[string]string)
 	s.taxonomiesOrigKey = make(map[string]string)
 
@@ -1503,7 +1528,6 @@ func (s *Site) assembleTaxonomies() {
 	s.Log.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
 	for singular, plural := range taxonomies {
-		s.Taxonomies[plural] = make(Taxonomy)
 		s.taxonomiesPluralSingular[plural] = singular
 
 		for _, p := range s.Pages {
