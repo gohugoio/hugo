@@ -120,7 +120,7 @@ title = "my new post"
 We see that the `title` and `date` key-values have been added in addition to the `tags` and `categories` key-values from `archetypes/default.md`.
 
 {{% note "Ordering of Front Matter" %}}
-You may notice that content files created with `hugo new` do not observe the order of the key-values specified in your archetype files and instead list your front matter alphabetically. This is a known issue ({{< gh 452 >}}).
+You may notice that content files created with `hugo new` do not observe the order of the key-values specified in your archetype files and instead list your front matter alphabetically. This is a [known issue](https://github.com/spf13/hugo/issues/452).
 {{% /note %}}
 
 ### Example Site Default Archetype
