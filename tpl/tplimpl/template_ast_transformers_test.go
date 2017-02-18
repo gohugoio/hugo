@@ -267,3 +267,24 @@ P2: {{ .Params.LOWER }}
 	require.Contains(t, result, "P1: P1L")
 	require.Contains(t, result, "P2: P1L")
 }
+
+// Issue #2927
+func TestTransformRecursiveTemplate(t *testing.T) {
+
+	recursive := `
+{{ define "menu-nodes" }}
+{{ template "menu-node" }}
+{{ end }}
+{{ define "menu-node" }}
+{{ template "menu-node" }}
+{{ end }}
+{{ template "menu-nodes" }}
+`
+
+	templ, err := template.New("foo").Parse(recursive)
+	require.NoError(t, err)
+
+	c := newTemplateContext(templ)
+	c.paramsKeysToLower(templ.Tree.Root)
+
+}

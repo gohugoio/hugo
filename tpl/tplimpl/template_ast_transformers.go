@@ -35,12 +35,21 @@ var paramsPaths = [][]string{
 }
 
 type templateContext struct {
-	decl  decl
-	templ *template.Template
+	decl    decl
+	templ   *template.Template
+	visited map[string]bool
+}
+
+func (c templateContext) getIfNotVisited(name string) *template.Template {
+	if c.visited[name] {
+		return nil
+	}
+	c.visited[name] = true
+	return c.templ.Lookup(name)
 }
 
 func newTemplateContext(templ *template.Template) *templateContext {
-	return &templateContext{templ: templ, decl: make(map[string]string)}
+	return &templateContext{templ: templ, decl: make(map[string]string), visited: make(map[string]bool)}
 
 }
 
@@ -59,7 +68,6 @@ func applyTemplateTransformers(templ *template.Template) error {
 // paramsKeysToLower is made purposely non-generic to make it not so tempting
 // to do more of these hard-to-maintain AST transformations.
 func (c *templateContext) paramsKeysToLower(n parse.Node) {
-
 	switch x := n.(type) {
 	case *parse.ListNode:
 		if x != nil {
@@ -74,7 +82,7 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 	case *parse.RangeNode:
 		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.TemplateNode:
-		subTempl := c.templ.Lookup(x.Name)
+		subTempl := c.getIfNotVisited(x.Name)
 		if subTempl != nil {
 			c.paramsKeysToLowerForNodes(subTempl.Tree.Root)
 		}
