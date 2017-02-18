@@ -3,6 +3,7 @@ aside#toc {
   max-width: 280px;
   min-width: 200px;
   overflow-y: scroll;
+  max-height: calc(100vh - #{$site-header-height} - 40px);
   padding: {
     left: .5em;
     right: .5em;
@@ -46,7 +47,6 @@ aside#toc {
     min-height: calc(100vh - #{$site-header-height});
     max-height: calc(100vh - #{$site-header-height});
     transform: scale(1);
-    overflow-y: scroll;
     border-left: 1px solid $hugo-gray-light;
     border-radius: 0px;
   }

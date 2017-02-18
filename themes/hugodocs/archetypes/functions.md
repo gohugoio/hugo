@@ -1,13 +1,13 @@
 ---
 linktitle: ""
-expirydate: ""
+description: ""
+godocref: ""
 publishdate: ""
 lastmod: ""
-description: ""
-draft: false
 tags: []
-categories: ["functions"]
-aliases: []
+categories: [functions]
 toc: false
-notes: Some notes on this function.
+draft: false
+aliases: []
+notes:
 ---

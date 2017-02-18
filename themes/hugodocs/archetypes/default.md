@@ -1,6 +1,7 @@
 ---
 linktitle:
 description: ""
+godocref: ""
 publishdate: ""
 lastmod: ""
 categories: []
@@ -10,5 +11,5 @@ draft: true
 slug: ""
 aliases: []
 toc: false
-notes: Categories are not required metadata as of February 2017.
+notes: "Categories are not required metadata as of February 2017.""
 ---
