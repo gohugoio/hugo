@@ -17,7 +17,7 @@ build_script:
 test_script:
 - cmd: >-
     go env
-	
+
     make hugo-race check
 
     hugo -s docs/
