@@ -7,8 +7,7 @@
     font-style: italic;
     background-color: $hugo-gray-ultra-light;
     padding: 16px;
-    // padding-top:16px;
-    // padding-bottom:16px;
+    margin-bottom:1em;
     p {
     	margin-bottom:0px;
     	margin-top:16px;
@@ -28,6 +27,9 @@
       font-size: 1.2em;
       // background-color: $body-bg-color;
       font-style: normal;
+    }
+    code,pre {
+      font-style:normal;
     }
     cite.blockquote-citation {
       position: absolute;

@@ -35,6 +35,11 @@ body {
   flex-direction: column;
 }
 
+strong {
+  font-weight:$base-font-bold-weight;
+  color:$base-font-bold-color;
+}
+
 p {
   margin-top: 0px;
   margin-bottom: 1.5em;

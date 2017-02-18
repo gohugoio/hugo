@@ -78,7 +78,8 @@ watch = true
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
   ## GitHub Docs Repository Base URL (include trailing slash)
-  ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/"
+  ### https://github.com/spf13/hugo/tree/master/docs
+  ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/tree/master/"
   ## Github Wiki for Documentation
   ghdocswiki = ""
   ## Github Wiki for Development

@@ -1,6 +1,6 @@
 ---
-title: List and Section Templates
-linktitle: List and Section Templates
+title: List and Section Page Templates
+linktitle: List and Section Page Templates
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -14,5 +14,7 @@ aliases: [/templates/list/]
 toc: false
 notes:
 ---
+
+## Understanding what is Meant by a "List" Page
 
 ## Lookup Order for List and Section Page Templates

@@ -6,10 +6,7 @@
 <a href="{{.Permalink}}">
 <article class="contents-list {{$kind}}">
 	<header>
-		<div class="contents-list-image-wrapper">
-			<img src="{{.Site.BaseURL}}images/{{.Section}}.svg" alt="">
-		</div>
-		<h3 class="{{.Section}}">{{with .LinkTitle}}{{. | markdownify}}{{else}}{{.Title | markdownify}}{{end}}</h3>
+		<h3 class="list-icon {{.Section}}">{{- partial "list-icon.html" . -}}{{with .LinkTitle}}{{. | markdownify}}{{else}}{{.Title | markdownify}}{{end}}</h3>
 	</header>
 	<p>{{.Description | markdownify }}</p>
 </article>

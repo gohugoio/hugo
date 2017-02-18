@@ -1,5 +1,5 @@
-@include fonts('muli', $weights: 100 300 400 600 700);
-@include fonts('sourcecodepro', $weights: 400 700);
+@include fonts('muli', $weights: 100 300 400 600 700 800, $italic: true);
+@include fonts('courierprime', $weights: 400 700, $italic: true);
 h1,
 h2,
 h3,
@@ -8,15 +8,20 @@ h4 {
   margin: 0px;
   line-height: 1.4;
   position: relative;
+  > code {
+    font-weight: $heading-font-weight;
+  }
 }
 
 h1.page-title {
-  font-size: 1.8em;
+  font-size: 2.2em;
+  line-height:1.2;
   letter-spacing: -.021em;
   padding-bottom: 0px;
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  font-weight:$heading-font-weight;
   @include MQ(M) {
     padding-top: 0px;
   }
@@ -38,19 +43,19 @@ h3 {
 }
 
 h2 {
-  font-size: 1.3em;
+  font-size: 1.5em;
 }
 
 h3 {
-  font-size: 1.1em;
+  font-size: 1.3em;
 }
 
 h4 {
-  font-size: 1em;
+  font-size: 1.1em;
   margin-top: 1em;
   margin-bottom:1em;
   color: $hugo-gray;
-  text-transform: uppercase;
+  // text-transform: uppercase;
 }
 
 .functions {

@@ -1,16 +1,15 @@
-<footer id="site-footer" class="site-footer">
-	<div>
+<footer id="site-footer" class="site-footer{{if .Params.toc}} withtoc{{end}}">
+	<div class="footer-content">
+	<div class="footer-info">
 		<span>By <a href="//spf13.com" target="_blank">spf13</a> and friends.</span>
 		<img src="/images/made-with-hugo-dark.png" alt="Made with Hugo Logo">
 	</div>
 	<div>
 		<ul class="footer-list">
-			{{with .Site.Params.ghdocsrepo}}
-			<li><a href="{{.}}"><i class="icon-github" target="_blank"></i><i class="icon-docs"></i> Docs Source</a></li>
-			{{end}}
 			<li><a href="{{.Site.Params.ghrepo}}" target="_blank"><i class="icon-github"></i> Project Source</a></li>
 			<li><a href="{{.Site.Params.discuss}}" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a></li>
 			<li><a href="{{.Site.Params.gitter}}" target="_blank"><i class="icon-gitter"></i> Gitter (Dev Chat Only)</a></li>
 		</ul>
+	</div>
 	</div>
 </footer>

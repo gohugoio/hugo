@@ -1,35 +1,45 @@
+<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "2006-01-02"}}{{else}}{{.PublishDate.Format "2006-01-02"}}{{end}}</span>
 <footer id="content-footer">
-{{$section := replace (replace .Section "-" " " | title) "And" "and"}}
+{{$section := .Section}}
 {{ if .NextInSection }}
-<a href="{{.NextInSection.Permalink}}" data-tooltip="{{.NextInSection.Title}}" class="tooltip tooltip-right prev-and-next-link prev-page">
-	<div>
-		<span><i class="fa fa-chevron-left"></i> Previous</span>
-	</div>
+<a href="{{.NextInSection.Permalink}}" class="prev-and-next-link prev-page">
+		<i class="fa fa-chevron-left"></i>
+		<div class="page-info">
+			<span>Previous</span>
+			<h5 class="{{$section}}">{{.NextInSection.Title}}</h5>
+		</div>
 </a>
 {{ else if eq .Kind "page" }}
-	{{ with .Site.GetPage "section" .Section }}
-	<a href="{{.Permalink}}" data-tooltip="{{.Title}}" class="tooltip tooltip-right prev-and-next-link prev-page">
-		<div>
-			<span><i class="fa fa-chevron-left"></i> Previous</span>
-		</div>
+	{{ with .Site.GetPage "section" $section }}
+	<a href="{{.Permalink}}" class="prev-and-next-link prev-page">
+
+			<i class="fa fa-chevron-left"></i>
+			<div class="page-info">
+				<span>Previous</span>
+				<h5 class="{{$section}}">{{.Title}}</h5>
+			</div>
+
 	</a>
 	{{ end }}
 {{ end }}
-<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "2006-01-02"}}{{else}}{{.PublishDate.Format "2006-01-02"}}{{end}}</span>
 {{ with .PrevInSection }}
-<a href="{{.Permalink}}" data-tooltip="{{.Title}}" class="tooltip prev-and-next-link next-page">
-	<div>
-		<span>Next <i class="fa fa-chevron-right"></i></span>
-	</div>
-</a>
+	<a href="{{.Permalink}}" class="prev-and-next-link next-page">
+		<div class="page-info">
+			<span>Next</span>
+			<h5 class="{{$section}}">{{.Title}}</h5>
+		</div>
+		<i class="fa fa-chevron-right"></i>
+	</a>
 {{ end }}
 {{if eq .Kind "section"}}
-{{ range first 1 .Data.Pages }}
-<a href="{{.Permalink}}" data-tooltip="{{.Title}}" class="tooltip prev-and-next-link next-page">
-	<div>
-		<span>Next <i class="fa fa-chevron-right"></i></span>
-	</div>
-</a>
-{{end}}
+	{{ range first 1 .Data.Pages }}
+	<a href="{{.Permalink}}" class="prev-and-next-link next-page">
+	  <div class="page-info">
+	    <span>Next</span>
+	    <h5 class="{{.Section}}">{{.Title}}</h5>
+	  </div>
+	  <i class="fa fa-chevron-right"></i>
+	</a>
+	{{end}}
 {{end}}
 </footer>

@@ -52,13 +52,6 @@ pre {
       }
     }
   }
-  h3 > code {
-    font-size:1.1em;
-    font-weight:normal;
-  }
-  h4 code {
-    text-transform:none;
-  }
   p > a code,
   li > a code,
   td > a code {
@@ -72,57 +65,64 @@ div.code-copy {
   margin-top: 1em;
   margin-bottom: 32px;
   background-color: $code-block-background-color;
-  &:hover {
-    button.copy-button {
-      transition: all .2s ease-in-out;
-      opacity: 1;
-    }
-  }
 }
 
 p + .code-copy {
   margin-top: 0em;
 }
 
+button.copy-button,
+a[role="button"].see-on-github {
+  display: block;
+  box-shadow: none;
+  padding: 0px;
+  transition: all .2s ease-in-out;
+  opacity: 1;
+  background-color: $code-copy-button-color;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0px;
+  z-index: 4;
+  min-width: 90px;
+  width: auto;
+  padding: {
+    left: 4px;
+    right: 4px;
+  }
+  height: 1.5em;
+  border-width: 0px;
+  border-radius: 0px;
+  font-weight: bold;
+  color: $code-copy-button-text-color;
+  font-size: 14px;
+  display: block;
+  width: 80px;
+  line-height: 24px;
+  height: 24px;
+  vertical-align: middle;
+  text-align: center;
+  text-transform:uppercase;
+  &:hover {
+    background-color: $hugo-blue;
+    box-shadow: none;
+  }
+  &:active,
+  &:focus {
+    outline: none;
+    position: absolute;
+  }
+}
+
+a[role="button"].see-on-github {
+  left: 0px;
+}
+
 button.copy-button {
   display: none;
   @include MQ(M) {
     display: block;
-    padding: 0px;
-    transition: all .2s ease-in-out;
-    opacity: 1;
-    background-color: $code-copy-button-color;
-    box-sizing: border-box;
-    position: absolute;
-    bottom: 0px;
     right: 0px;
-    z-index: 4;
-    width: 80px;
-    height: 1.5em;
-    border-width: 0px;
-    border-radius: 0px;
-    color: $code-copy-button-text-color;
-    font-weight: bold;
-    &:hover {
-      background-color: $hugo-blue;
-    }
-    &:active,
-    &:focus {
-      outline: none;
-      position: absolute;
-    }
   }
-}
-
-.copy-text {
-  color: $code-copy-button-text-color;
-  font-size: 12px;
-  display: block;
-  width: 80px;
-  line-height: 1.5em;
-  height: 1.5em;
-  vertical-align: middle;
-  text-align: center;
   i.icon-clipboard {
     display: inline;
   }
@@ -148,34 +148,39 @@ div.code-copy-header {
   position: relative;
   height: 1.5em;
   line-height: 1.5em;
-  background-color: $code-editor-header-bg-color;
+  background-color: $code-editor-header-base-bg-color;
   border-radius: 0px;
   position: relative;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   &.output {
-    background-color: $hugo-blue;
+    background-color: $output-example-color;
+  }
+  &.examplesite {
+    background-color: $examplesite-example-color;
   }
   span.filename {
-    @include center;
     text-align: center;
-    max-width: 70%;
     color: $code-filename-color;
     font-weight: 100;
     font-size: 12px;
     font-family: $systemfonts;
+    i.icon-website {
+      color: inherit;
+      font-weight:bold;
+      font-size:18px;
+    }
   }
   [class^="icon-"] {
-    float: right;
-    position: relative;
-    top: -1.45em;
-    right: .5em;
     color: $code-filename-color;
   }
 }
 
 .action-buttons {
-  position: absolute;
+  // position: absolute;
+  position:relative;
   left: 10px;
-  margin-top: .35em;
   width: 12px;
   height: 12px;
   background: Crimson;

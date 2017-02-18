@@ -14,11 +14,11 @@ a {
   li,
   p {
     a {
-      z-index:1;
-      color:$default-anchor-underline-color;
+      z-index: 1;
+      color: $default-anchor-underline-color;
       &:hover {
         // text-decoration: underline!important;
-        border-bottom:1px solid $default-anchor-underline-color;
+        border-bottom: 1px solid $default-anchor-underline-color;
       }
     }
   }
@@ -33,11 +33,10 @@ a.tooltip {
     position: absolute;
     line-height: 1;
     bottom: -1.4em;
-    right: 0px;
     font-size: 12px;
     color: white;
     font-family: 'fontello';
-    width: auto;
+    min-width: 80px;
     padding: .25em .33em;
     background-color: $base-font-color;
     content: attr(data-tooltip);
@@ -46,7 +45,13 @@ a.tooltip {
     font-weight: normal;
     border-radius: .25em;
   }
-  &.tooltip-right {
+  &.left {
+    &:hover::before {
+      right: 0px;
+      left: auto;
+    }
+  }
+  &.right {
     &:hover::before {
       left: 0px;
       right: auto;

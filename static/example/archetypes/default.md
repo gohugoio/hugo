@@ -1,5 +1,6 @@
 ---
 publishdate: ""
 description: ""
-musician: ""
+tags: []
+categories: []
 ---

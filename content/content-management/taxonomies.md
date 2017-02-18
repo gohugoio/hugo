@@ -31,11 +31,15 @@ In order to effectively work with taxonomies in Hugo, it's important to first un
 * **Term:** A key within that taxonomy
 * **Value:** A piece of content assigned to that Term
 
-## Hugo's Default Taxonomies
+## Default Values and URLs
+
+Hugo natively supports taxonomies, which means there are architectural patterns and default values baked into Hugo's core. Luckily, Hugo limits these default behaviors to those that save you time as you develop your site.
+
+### Default Taxonomies
 
 Hugo ships with *tags* and *categories* as default taxonomies. These taxonomies are common to many website systems (e.g., WordPress, Drupal, Jekyll). Unlike these systems, Hugo makes it trivial to customize the taxonomies you will be using for your website. In addition to *tags* and *categories*, a *series* of posts for a blog is another common example of taxonomies.
 
-## Pages Generated
+### Pages Generated
 
 When taxonomies are used---and [taxonomy templates][] are provided---Hugo will automatically create a taxonomy page listing all of the taxonomy's terms and individual pages for all content associated with the term. For example, a `categories` taxonomy will create the following pages:
 

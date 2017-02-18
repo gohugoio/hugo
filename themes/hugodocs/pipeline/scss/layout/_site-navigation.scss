@@ -13,13 +13,15 @@
   display:flex;
   flex-direction:column;
   align-items:center;
-  // justify-content:center;
   &.navigation-open {
     transition: transform .3s ease-in-out;
     transform: translateX(0px);
   }
   @include MQ(L) {
     transform: translateX(0px);
+  }
+  ul li a {
+    display: flex;
   }
   ul.top-menu {
     margin-top: $site-header-height + 30px;
@@ -32,7 +34,6 @@
       color: $base-font-color;
       font-weight: $base-font-weight;
       width:100%;
-      display:block;
       &:hover {
         color:$hugo-pink;
       }
@@ -59,12 +60,14 @@
         font-weight: 700;
         + ul.submenu {
           display: block;
-          border-left: 1px solid $hugo-pink;
+          border-left: 2px solid $hugo-pink;
         }
       }
     }
     ul.submenu {
       display: none;
+      margin-left: .4em;
+      padding-left: .5em;
       a.submenu-item-link {
         font-size: 14px;
         &:hover {
@@ -147,7 +150,6 @@
     border: 2px solid $hugo-pink;
   }
 }
-
 .top {
   left: 15%;
   top: 20%;

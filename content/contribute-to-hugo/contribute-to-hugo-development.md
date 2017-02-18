@@ -13,3 +13,7 @@ slug:
 aliases:
 notes:
 ---
+
+## Submitting a Pull Request
+
+## Gitter Channel

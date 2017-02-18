@@ -62,5 +62,6 @@ By default, everything created within a section will use the [content type][] th
 [content type]: /content-management/content-types/
 [example site]: /getting-started/
 [directory structure]: /project-organization/directory-structure/
+[List and Section Page Templates]: /templates/list-and-section-page-templates/
 
 

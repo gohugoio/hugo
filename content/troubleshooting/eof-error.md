@@ -1,6 +1,6 @@
 ---
 title: EOF Error
-linktitle:
+linktitle: EOF Error
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -9,8 +9,41 @@ tags: [eof, end of file, error, faqs]
 categories: [troubleshooting]
 weight:
 draft: false
-slug:
 aliases: []
-toc: false
-notes:
+toc: true
+notes: "All troubleshooting docs should include two h2-headings, one for 'Trouble:' and one for 'Solution:'. Additional h2-headings include 'Discussion Forum Threads', 'Related Hugo Issues', and 'Additional References'."
 ---
+
+## Trouble: `hugo new` Aborts with EOF error
+
+> I'm running into an issue where I cannot get archetypes working, when running `hugo new showcase/test.md`, for example, I see an `EOF` error thrown by Hugo.
+>
+> I have set up this test repository to show exactly what I've done, but it is essentially a vanilla installation of Hugo. https://github.com/polds/hugo-archetypes-test
+>
+> When in that repository, using Hugo v0.12 to run `hugo new -v showcase/test.md`, I see the following output:
+>
+> ```bash
+> INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml
+> INFO: 2015/01/04 attempting to create  showcase/test.md of showcase
+> INFO: 2015/01/04 curpath: /private/tmp/test/archetypes/showcase.md
+> ERROR: 2015/01/04 EOF
+> ```
+>
+> Is there something that I am blatantly missing?
+
+## Solution: Carriage Returns
+
+The solution is to add a final newline (i.e., `EOL`) to the end of your default.md archetype file of your theme. You can do this by adding a carriage return after the closing `+++` or `---` of your TOML or YAML front matter, respectively.
+
+{{% note "Final EOL Unnecessary in v0.13+" %}}
+As of v0.13, Hugo's parser has been enhanced to accommodate archetype files without final EOL thanks to the great work by [@tatsushid](https://github.com/tatsushid).
+{{% /note %}}
+
+## Discussion Forum Threads
+
+* http://discuss.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
+* http://discuss.gohugo.io/t/eol-f-in-archetype-files/554
+
+## Related Hugo Issues
+
+* https://github.com/spf13/hugo/issues/776

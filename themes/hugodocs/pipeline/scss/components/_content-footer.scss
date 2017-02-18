@@ -1,47 +1,68 @@
-#content-footer {
-  height: 40px;
-  line-height: 40px;
-  vertical-align: middle;
-  display:block;
-  border-top: 2px solid $hugo-gray-light;
-  margin-bottom: 3em;
-  width:100%;
-  .prev-and-next-link {
-    // width: 100%;
-    display: inline-block;
-    text-align: center;
-    margin-bottom: 1em;
-    span {
-      display: block;
-      font-size: .8em;
-    }
-    @include MQ(M) {
-      max-width: calc(48% - 100px);
-      margin-bottom: 1.5em;
-      &.next-page {
-        float: right;
-      }
-    }
-    &.prev-page {
-      text-align: left;
-      float:left;
-    }
-    &.next-page {
-      text-align: right;
-      float: right;
-      margin-right: 0px;
-    }
-  }
-}
-
 .last-modified {
   color: $hugo-gray;
-  display: inline-block;
-  width: 200px;
-  max-width: 200px;
-  font-size: .8em;
-  position: absolute;
-  left: calc(50% - 100px);
-  font-weight: normal;
+  display: block;
+  min-width: 200px;
+  width: 100%;
   text-align: center;
+  font-size: .8em;
+  position: relative;
+  bottom: -1.75em;
+}
+
+#content-footer {
+  min-height: 100px;
+  height: auto;
+  display:block;
+  border-top: 2px solid $hugo-gray-light;
+  width: 100%;
+  margin-bottom:2em;
+}
+
+.prev-and-next-link {
+  display:inline-block;
+  margin-top: 2em;
+  min-width: 45%;
+  .page-info {
+    display:inline-block;
+    h5 {
+      font-size: 16px;
+      padding: 0px;
+      margin: 0px;
+      line-height: 1.2;
+      margin-top: .5em;
+    }
+    span {
+      width: 100%;
+      padding: 0px;
+      margin: 0px;
+      display: block;
+      font-size: 14px;
+      text-align: center;
+      line-height: 1;
+      margin-top: .5em;
+    }
+  }
+  i.fa.fa-chevron-right,
+  i.fa.fa-chevron-left {
+    font-size: 24px;
+    display:inline-block;
+  }
+  i.fa.fa-chevron-left {
+    margin-right: .5em;
+  }
+  i.fa.fa-chevron-right {
+    margin-left: .5em;
+  }
+  &.prev-page {
+    text-align:left;
+    float:left;
+  }
+  &.next-page {
+    text-align:right;
+    float:right;
+  }
+  &:hover {
+    text-decoration: none;
+    border: 0px solid transparent;
+  }
 }

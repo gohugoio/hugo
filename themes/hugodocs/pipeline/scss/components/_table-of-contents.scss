@@ -2,9 +2,9 @@ aside#toc {
   position: fixed;
   max-width: 280px;
   min-width: 200px;
-  overflow-y: auto;
+  overflow-y: scroll;
   padding: .5em;
-  bottom: 20px;
+  bottom: 40px;
   right: 20px;
   height: auto;
   @include card(1);
@@ -28,24 +28,32 @@ aside#toc {
   }
   @include MQ(XL) {
     box-shadow: none;
-    top: $site-header-height + 20px;
-    left: calc(#{$site-navigation-width} + #{$content-max-width} + 48px);
+    top: $site-header-height;
+    left: calc(#{$site-navigation-width} + #{$content-max-width} + 4em);
     bottom: auto;
     opacity: 1;
+    min-height: calc(100vh - #{$site-header-height});
+    max-height: calc(100vh - #{$site-header-height});
     transform: scale(1);
+    overflow-y:scroll;
+    border-left:1px solid $hugo-gray-light;
+    border-radius:0px;
   }
 }
 
 nav#TableOfContents {
-  float: left;
   position: relative;
-  overflow-y: scroll;
   margin-bottom: 20px;
+  height:auto;
+  li.active > a > code {
+    color:inherit;
+    font-weight:700;
+  }
   > ul:first-child {
     padding-left: 0px;
     margin-left: 0px;
     margin-top: .5em;
-    margin-bottom: .5em;
+    margin-bottom: 2em;
     > li {
       padding-left: 0px;
       margin-left: 0px;
@@ -55,7 +63,7 @@ nav#TableOfContents {
   ul > li > ul {
     li {
       line-height: 1.2;
-      font-size: .85em;
+      font-size: 16px;
       padding-left: 8px;
       position: relative;
       margin-top: .5em;
@@ -73,6 +81,9 @@ nav#TableOfContents {
               border-left: 1px solid $hugo-pink;
               position: absolute;
               left: -8px;
+            }
+            code {
+              color:inherit;
             }
           }
         }
@@ -97,6 +108,7 @@ nav#TableOfContents {
         margin-top: 8px;
         margin-bottom: 0px;
         > li {
+          font-size: 14px;
           a {
             @include MQ(L) {
               &:hover {
@@ -117,7 +129,7 @@ nav#TableOfContents {
               color: $hugo-blue;
               font-weight: 400;
               &::before {
-                border-left: 2px solid $hugo-blue;
+                border-left: 2px solid $hugo-pink;
                 left: -16px;
               }
             }
@@ -138,7 +150,7 @@ a#toc-toggle {
 aside#toc + a#toc-toggle {
   display: block;
   position: fixed;
-  bottom: 20px;
+  bottom: 40px;
   right: 20px;
   background-color: $toc-bg-color;
   color: $hugo-white;

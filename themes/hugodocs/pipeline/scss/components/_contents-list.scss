@@ -20,7 +20,6 @@
     margin-top:0px;
     padding-top:0px;
     padding-bottom: 2px;
-    padding-left:1.5em;
   }
   p {
     margin-top:8px;
@@ -35,24 +34,22 @@
   clear: both;
 }
 
-.contents-list-image-wrapper {
-  max-width: 30px;
-  position: absolute;
-  top: .2em;
-  left: 0px;
+.list-icon {
+  display:flex;
+  align-items:center;
+}
+
+.list-icon-wrapper {
+  max-width: 1em;
+  max-height: 1em;
+  margin-right: .2em;
   img {
-    max-width: 1.2em;
-    min-width: 1.2em;
+    width: 100%;
+    height: auto;
     margin-bottom: 0px;
     margin-left: auto;
     margin-right: auto;
     display: block;
   }
-  span {
-    font-size: .7em;
-    display: block;
-    margin-top: 0px;
-    text-align: center;
-    line-height: 1.2;
-  }
 }
+

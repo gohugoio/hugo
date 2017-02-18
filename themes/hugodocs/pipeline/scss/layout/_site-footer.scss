@@ -1,35 +1,50 @@
 #site-footer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  background-color: $hugo-black;
-  min-height: 100px;
-  width: 100%;
-  color: $hugo-white;
-  transition: transform .3s ease-in-out;
-  div {
+  background-color: $site-footer-bg-color;
+  min-height: $site-footer-height;
+  max-height: $site-footer-height;
+  .footer-content {
+    min-height: $site-footer-height;
+    max-height: $site-footer-height;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    img {
-      max-width: 200px;
-    }
-  }
-  &.navigation-open {
+    justify-content: space-around;
+    width: 90%;
+    color: $hugo-white;
     transition: transform .3s ease-in-out;
-    transform: translateX($site-navigation-width);
-    @include MQ(L) {
-      transform: translateX(0);
+    div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      max-height: 100px;
+      margin: 0px;
+      img {
+        max-width: 120px;
+      }
     }
-  }
-  i.icon-heart:before {
-    color: $hugo-pink;
+    &.navigation-open {
+      transition: transform .3s ease-in-out;
+      transform: translateX($site-navigation-width);
+      @include MQ(L) {
+        transform: translateX(0);
+      }
+    }
+    i.icon-heart:before {
+      color: $hugo-pink;
+    }
+    @include MQ(L) {
+      margin-left: 2em;
+    }
   }
   @include MQ(L) {
     width:calc(100% - #{$site-navigation-width});
     margin-left: $site-navigation-width;
+  }
+  @include MQ(XL) {
+    &.withtoc {
+      max-width:calc(#{$content-max-width} + 4em);
+    }
   }
 }
 
@@ -38,24 +53,25 @@ ul.footer-list {
   list-style: none;
   margin-left: 0px;
   padding-left: 0px;
+  margin: 0px;
   li a {
     color: $hugo-white;
-    font-size: .9em;
-    display:flex;
-    align-items:center;
+    display: flex;
+    align-items: center;
     &:not(i) {
       font-size: 14px;
     }
     i {
       font-size: 16px;
-      margin-right:.25em;
+      margin-right: .25em;
       &.icon-github:before {
         font-size: 22px;
-        margin-left:0px;
+        margin-left: 0px;
+        margin-right: 2px;
       }
     }
     &:hover {
-      color:$hugo-pink;
+      color: $hugo-pink;
     }
   }
 }

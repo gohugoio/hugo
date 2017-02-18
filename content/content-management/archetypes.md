@@ -90,9 +90,9 @@ categories = ["web development"]
 ```
 {{% /input %}}
 
-{{% caution "EOL Characters in Text Editors"%}}
+{{% warning "EOL Characters in Text Editors"%}}
 If you get an `EOF error` when using `hugo new`, add a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively. (See [troubleshooting](/troubleshooting/eof-error/).)
-{{% /caution %}}
+{{% /warning %}}
 
 ### Using the Default Archetype
 
