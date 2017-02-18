@@ -25,7 +25,7 @@ A shortcode is a simple snippet inside a content file that Hugo will render usin
 
 Another benefit is, you can update your shortcode with any related new classes or techniques, and upon generation, Hugo will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
-## Using a shortcode
+## Using Shortcodes
 
 In your content files, a shortcode can be called by using the `{{%/* name parameters*/%}}` form. Shortcode parameters are space delimited. Parameters with spaces can be quoted.
 

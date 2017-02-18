@@ -39,11 +39,9 @@ header.content-header {
   clear: both;
   width: 100%;
   position: relative;
-  margin-top: 3em;
+  margin-top: 2em;
   overflow-x: hidden;
-  @include MQ(M) {
-    margin-top: 2em;
-  }
+  margin-bottom:1em;
 }
 
 .content-section-image-wrapper {
@@ -106,7 +104,7 @@ header.content-header {
 }
 
 .body-copy {
-  margin-top: 20px;
+  margin-top: 0px;
   margin-bottom: 2.5em;
   display: block;
   overflow: visible;

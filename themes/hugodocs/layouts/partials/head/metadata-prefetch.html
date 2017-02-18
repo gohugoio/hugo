@@ -6,13 +6,11 @@
   <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
   <link href="{{ .RSSLink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
 {{ end }}
-{{ if .IsPage }}
-	{{with .NextInSection }}
-	<link rel="prefetch" href="{{.Permalink}}">
-	<link rel="prerender" href="{{.Permalink}}">
-	{{ end }}
-	{{with .PrevInSection }}
-	<link rel="prefetch" href="{{.Permalink}}">
-	<link rel="prerender" href="{{.Permalink}}">
-	{{ end }}
+{{with .NextInSection }}
+<link rel="prefetch" href="{{.Permalink}}">
+<link rel="prerender" href="{{.Permalink}}">
+{{ end }}
+{{with .PrevInSection }}
+<link rel="prefetch" href="{{.Permalink}}">
+<link rel="prerender" href="{{.Permalink}}">
 {{ end }}

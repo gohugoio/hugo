@@ -12,18 +12,36 @@
 #content-footer {
   min-height: 100px;
   height: auto;
-  display:block;
+  display: block;
   border-top: 2px solid $hugo-gray-light;
   width: 100%;
-  margin-bottom:2em;
+  margin-bottom: 2em;
 }
 
 .prev-and-next-link {
-  display:inline-block;
+  display: inline-block;
   margin-top: 2em;
   min-width: 45%;
+  max-width: 45%;
+  min-height: 70px;
+  position: relative;
+  @include MQ(M) {
+    transition: background-color .3s ease-in-out;
+    &:hover {
+      transition: background-color .3s ease-in-out;
+      background-color: $hugo-pink;
+      color: $hugo-white;
+    }
+  }
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+    min-height: 100%;
+  }
   .page-info {
-    display:inline-block;
+    display: inline-block;
+    position: relative;
     h5 {
       font-size: 16px;
       padding: 0px;
@@ -37,7 +55,6 @@
       margin: 0px;
       display: block;
       font-size: 14px;
-      text-align: center;
       line-height: 1;
       margin-top: .5em;
     }
@@ -45,21 +62,34 @@
   i.fa.fa-chevron-right,
   i.fa.fa-chevron-left {
     font-size: 24px;
-    display:inline-block;
+    position: absolute;
+    top: 23px;
+    @include MQ(M) {
+      font-size: 30px;
+      top: 20px;
+    }
   }
   i.fa.fa-chevron-left {
-    margin-right: .5em;
+    left: 0px;
   }
   i.fa.fa-chevron-right {
-    margin-left: .5em;
+    right: 0px;
   }
   &.prev-page {
-    text-align:left;
-    float:left;
+    text-align: left;
+    float: left;
+    .page-info {
+      padding-left: 1.75em;
+    }
   }
   &.next-page {
-    text-align:right;
-    float:right;
+    text-align: right;
+    position: relative;
+    right: 0px;
+    float: right;
+    .page-info {
+      padding-right: 1.75em;
+    }
   }
   &:hover {
     text-decoration: none;
