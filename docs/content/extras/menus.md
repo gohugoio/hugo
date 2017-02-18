@@ -33,25 +33,26 @@ If you make use of the [multilingual feature]({{< relref "content/multilingual.m
 
 A menu entry has the following properties:
 
-* **URL**        string
-* **Name**       string
-* **Menu**       string
-* **Identifier** string
-* **Pre**        template.HTML
-* **Post**       template.HTML
-* **Weight**     int
-* **Parent**     string
-* **Children**   Menu
+* `URL        string`
+* `Name       string`
+* `Menu       string`
+* `Identifier string`
+* `Pre        template.HTML`
+* `Post       template.HTML`
+* `Weight     int`
+* `Parent     string`
+* `Children   Menu`
 
 And the following functions:
 
-* **HasChildren** bool
+* `HasChildren() bool`
 
-Additionally, there are some relevant functions available on the page:
+Additionally, the `Page` object has two functions, which can be used when rendering menus:
 
-* **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
-* **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
+* `IsMenuCurrent (menu string, menuEntry *MenuEntry ) bool`
+* `HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool`
 
+See [Menu Functions](#menu-functions) for explanations of these functions, and [Rendering Nested Menus](#rendering-nested-menus) for an example of their use.
 
 ## Adding content to menus
 
@@ -232,3 +233,161 @@ The above is all that's needed. But if you want custom menu items, e.g. changing
 
 **Note** that the `identifier` must match the section name.
 
+
+
+
+## Menu Functions
+
+Suppose you have the menu structure shown below.
+
+```
+    [menu.main]
+    │
+    ├───colour
+    │   │
+    │   ├───warm
+    │   │   ├───orange
+    │   │   ├───red
+    │   │   └───yellow
+    │   │
+    │   └───cool
+    │       ├───blue
+    │       ├───green
+    │       └───purple
+    │   
+    └───tool
+        ├───hammer
+        ├───shovel
+        └───saw
+```
+
+For each menu item, you can determine:
+
+* If the menu item has any children: `.HasChildren()`
+* If the menu item is a parent of the page you are currently rendering: `.Page.HasMenuCurrent()`
+* If the menu item **is** the page you are currently rendering: `.Page.IsMenuCurrent()`
+
+For example, if you are currently rendering the page `/colour/warm`, the values of `.HasChildren`, `HasMenuCurrent`, and `IsMenuCurrent` would be as shown below:
+
+```
+
+    [menu.main]           |                |               |             |
+    │                     |                |               |             |
+    ├───colour            | HasMenuCurrent |               | HasChildren |
+    │   ├───<< WARM >>    |                | IsMenuCurrent | HasChildren |
+    │   │   ├───orange    |                |               |             |
+    │   │   ├───red       |                |               |             |
+    │   │   └───yellow    |                |               |             |
+    │   └───cool          |                |               | HasChildren |
+    │       ├───blue      |                |               |             |
+    │       ├───green     |                |               |             |
+    │       └───purple    |                |               |             |
+    └───tool              |                |               | HasChildren |
+        ├───hammer        |                |               |             |
+        ├───shovel        |                |               |             |
+        └───saw           |                |               |             |
+```
+
+## Rendering nested menus
+
+Hugo supports nested menus with as many levels as you like.
+
+Nested menus can be rendered using a recursive partial template, such as the example below.
+
+```
+<!-- layouts/index.html, layouts/_default/single.html, ... -->
+<h1>{{ .Title }}</h1>
+<!-- Put this line in your main template, at the place where you want to
+     render the menu. -->
+{{ partial "menu_include.html" . }} 
+```
+
+```
+<!-- layouts/partials/menu_include.html -->
+{{ partial "menu_recursive.html" (dict "menu" .Site.Menus.main "page" . "site" .Site) }}
+```
+
+```
+<!-- layouts/partials/menu_recursive.html -->
+{{ $page := .page }}
+{{ $site := .site }}
+<ul>
+{{ range .menu }}
+  {{ $is := $page.IsMenuCurrent "main" . }}
+  {{ $has := $page.HasMenuCurrent "main" . }}
+  {{ if .HasChildren }} 
+    <li>
+      <a href="{{ .URL }}">
+        {{ .Name }}
+        {{ if $is }}[Is]{{ end }}
+        {{ if $has }}[Has]{{ end }}
+        {{ if .HasChildren }}[Children]{{ end }}
+      </a>
+        <!-- If the menu item has children, include this partial template again (recursively) -->
+        {{ partial "menu_recursive.html" (dict "menu" .Children "page" $page "site" $site) }}
+    </li>
+  {{ else }}
+    <li>
+      <a href="{{ .URL }}">
+        {{ .Name }}
+        {{ if $is }}[Is]{{ end }}
+        {{ if $has }}[Has]{{ end }}
+        {{ if .HasChildren }}[Children]{{ end }}
+      </a>
+    </li>
+  {{ end }}
+{{ end }}
+</ul>
+```
+
+This example code renders the words `[Is]`, `[Has]`, and `[Children]` to demonstrate how the `IsMenuCurrent()`, `HasMenuCurrent()`, and `HasChildren()` functions work.
+
+You can customise this example to implement features such as:
+
+* Highlight the current item, by applying a CSS style:
+
+        <a href="{{ .URL }}"{{ if $is }} class="active"{{ end }}>
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Highlight parents of the current item, by applying a CSS style:
+
+        <a href="{{ .URL }}"{{ if $has }} class="parent-active"{{ end }}>
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Only render sub-menus for parents of the current menu item, and the current menu item itself:
+
+        {{ if or $is $has }}
+            {{ partial "menu_recursive.html" (dict "menu" .Children "page" $page "site" $site) }}
+        {{ end }}
+
+A working example, implementing these features, is shown below.
+
+```
+<!-- layouts/partials/menu_recursive.html -->
+{{ $page := .page }}
+{{ $site := .site }}
+<ul>
+<!-- Menu items sorted alphabetically by name -->
+{{ range .menu.ByName }}
+  {{ $is := $page.IsMenuCurrent "main" . }}
+  {{ $has := $page.HasMenuCurrent "main" . }}
+  {{ if .HasChildren }} 
+    <li>
+      <a href="{{ .URL }}" class="{{ if $is }} active{{ end }}{{ if $has }} parent-active{{ end }}">
+        {{ .Name }}
+        <!-- Show a » symbol if there is a sub-menu we haven't rendered -->
+        {{ if not (or $is $has) }}»{{ end }}
+      </a>
+      <!-- Only render sub-menu for parent items and the current item -->
+      {{ if or $is $has }}
+        {{ partial "menu_recursive.html" (dict "menu" .Children "page" $page "site" $site) }}
+      {{ end }}
+    </li>
+  {{ else }}
+    <li>
+      <a href="{{ .URL }}" class="{{ if $is }}active{{end}}">{{ .Name }}</a>
+    </li>
+  {{ end }}
+{{ end }}
+</ul>
+```
