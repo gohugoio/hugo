@@ -190,7 +190,7 @@ Read a more extensive description of `ref` and `relref` in the [cross-references
 
 #### Example `ref` and `relref` Input
 
-```markdown
+```golang
 [Neat]({{</* ref "blog/neat.md" */>}})
 [Who]({{</* relref "about.md#who" */>}})
 ```
@@ -199,7 +199,7 @@ Read a more extensive description of `ref` and `relref` in the [cross-references
 
 Assuming that standard Hugo pretty URLs are turned on.
 
-```markdown
+```html
 <a href="/blog/neat">Neat</a>
 <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 ```
@@ -215,7 +215,7 @@ To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (u
 Extract the value from the field `data-id` and pass it to the shortcode:
 
 {{% input "speakerdeck-example-input.md" %}}
-```markdown
+```golang
 {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 ```
 {{% /input %}}
@@ -226,7 +226,7 @@ You want to include a single tweet into your blog post? Everything you need is t
 
 #### Example `tweet` Input
 
-```markdown
+```golang
 {{</* tweet 666616452582129664 */>}}
 ```
 
@@ -250,13 +250,13 @@ This shortcode embeds a responsive video player for [YouTube videos][]. Only the
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
-```markdown
+```golang
 {{</* youtube w7Ft2ymGmfc */>}}
 ```
 
 Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
 
-```markdown
+```golang
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 ```
 
@@ -300,7 +300,7 @@ to the user.
 
 A shortcode with `.Inner` content can be used without the inline content, and without the closing shortcode, by using the self-closing syntax:
 
-```markdown
+```golang
 {{</* innershortcode /*/>}}
 ```
 
@@ -312,7 +312,7 @@ A shortcodes can be nested. In a nested shortcode you can access the parent shor
 
 ### Single Positional Example: `youtube`
 
-```html
+```golang
 {{</* youtube 09jf3ow9jfw */>}}
 ```
 
@@ -344,7 +344,7 @@ This would be rendered as:
 ### Single Named Example: `image`
 
 {{% input "content-image.md" %}}
-```markdown
+```golang
 {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
 ```
 {{% /input %}}
@@ -389,7 +389,7 @@ Would be rendered as:
 
 ### Single Flexible Example: `vimeo`
 
-```markdown
+```golang
 {{</* vimeo 49718712 */>}}
 {{</* vimeo id="49718712" class="flex-video" */>}}
 ```
@@ -430,14 +430,14 @@ Would be rendered as:
 {{% input "highlight-example.md" %}}
 ```markdown
 {{</* highlight html */>}}
-<html>
+  <html>
     <body> This HTML </body>
-</html>
+  </html>
 {{</* /highlight */>}}
 ```
 {{% /input %}}
 
-The template for this utilizes the following code (already included in Hugo)
+The template for this uses the following code, which is already included in Hugo:
 
 ```golang
 {{ .Get 0 | highlight .Inner  }}
