@@ -16,6 +16,7 @@ build_script:
 - cmd: make vendor
 test_script:
 - cmd: >-
+    go env
     make hugo-race check
 
     hugo -s docs/
