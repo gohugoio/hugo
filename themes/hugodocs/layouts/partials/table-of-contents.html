@@ -1,7 +1,7 @@
 {{if ne .Params.toc false}}
 <aside id="toc">
-	<header>
-		<a href="#page-top">
+	<header class="toc-header">
+		<a href="#{{.Title | urlize}}">
 		<h3 class="{{.Section}}">{{.Title}}</h3>
 		</a>
 	</header>

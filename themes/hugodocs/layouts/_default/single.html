@@ -4,7 +4,7 @@
 <main class="main">
 	<header class="content-header">
 		{{partial "breadcrumb.html" . }}
-		<h1 class="page-title {{.Section}}">{{with .LinkTitle}}{{.}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
+		<h1 class="page-title {{.Section}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">{{with .LinkTitle}}{{.}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
 		{{partial "content-header-links.html" . }}
 		{{partial "tags.html" . }}
 	</header>

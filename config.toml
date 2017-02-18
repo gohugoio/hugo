@@ -74,7 +74,7 @@ watch = true
   ## Setting this to true will add a "noindex" to *every* page on the site
   removefromexternalsearch = true
   ## This is used when the BaseURL does not need to modified (eg, in share links)
-  siteaddress = "https://gohugo.io"
+  siteaddress = "https://hugodocsconcept.netlify.com"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
   ## GitHub Docs Repository Base URL (include trailing slash)

@@ -3,7 +3,10 @@ aside#toc {
   max-width: 280px;
   min-width: 200px;
   overflow-y: scroll;
-  padding: .5em;
+  padding: {
+    left: .5em;
+    right: .5em;
+  }
   bottom: 40px;
   right: 20px;
   height: auto;
@@ -14,17 +17,25 @@ aside#toc {
   transform-origin: bottom right;
   opacity: 0;
   border-radius: 5px;
+  header.toc-header {
+    display: inline-block;
+    width:100%;
+    margin-top:24px;
+    > a {
+      h3 {
+        margin-top: 0px;
+        margin-bottom: 0px;
+        margin-left: 8px;
+        padding-bottom: 0px;
+        border-bottom: 1px solid $base-font-color;
+        color: $base-font-color;
+        font-size: 17px;
+      }
+    }
+  }
   &.toc-open {
     transform: scale(1);
     opacity: 1;
-  }
-  h3 {
-    margin-bottom: 0px;
-    margin-left: 8px;
-    padding-bottom: 0px;
-    border-bottom: 1px solid $base-font-color;
-    color: $base-font-color;
-    font-size: 17px;
   }
   @include MQ(XL) {
     box-shadow: none;
@@ -35,19 +46,19 @@ aside#toc {
     min-height: calc(100vh - #{$site-header-height});
     max-height: calc(100vh - #{$site-header-height});
     transform: scale(1);
-    overflow-y:scroll;
-    border-left:1px solid $hugo-gray-light;
-    border-radius:0px;
+    overflow-y: scroll;
+    border-left: 1px solid $hugo-gray-light;
+    border-radius: 0px;
   }
 }
 
 nav#TableOfContents {
   position: relative;
   margin-bottom: 20px;
-  height:auto;
+  height: auto;
   li.active > a > code {
-    color:inherit;
-    font-weight:700;
+    color: inherit;
+    font-weight: 700;
   }
   > ul:first-child {
     padding-left: 0px;
@@ -83,7 +94,7 @@ nav#TableOfContents {
               left: -8px;
             }
             code {
-              color:inherit;
+              color: inherit;
             }
           }
         }

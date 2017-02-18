@@ -50,9 +50,6 @@ $(document).ready(function() {
       menuItems.parent().removeClass("active").end().filter("[href='#" + id + "']").parent().addClass("active");
       history.replaceState({}, "", menuItems.filter("[href='#" + id + "']").attr("href"));
     }
-    // if (isTop) {
-    //   window.location.hash = "";
-    // }
     if (isBottom) {
       menuItems.parent().removeClass('active');
       if (menuItems.last().parent().attr('class') !== 'active') {

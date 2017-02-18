@@ -65,6 +65,60 @@ The `<` character indicates that the shortcode's inner content doesn't need any 
 
 Hugo ships with a set of predefined shortcodes.
 
+### `figure`
+
+`figure` is simply an extension of the image capabilities present with Markdown.`figure` provides the ability to add captions, CSS classes, alt text, links etc.
+
+`figure` can use the following named parameters:
+
+* src
+* link
+* title
+* caption
+* class
+* attr (attribution)
+* attrlink
+* alt
+
+#### Example `figure` Input
+
+{{% input "figure-input-example.md" %}}
+```markdown
+{{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
+```
+{{% /input %}}
+
+#### Example `figure` Output
+
+{{% output "figure-output-example.html" %}}
+```html
+<figure>
+  <img src="/media/spf13.jpg"  />
+  <figcaption>
+      <h4>Steve Francia</h4>
+  </figcaption>
+</figure>
+```
+{{% /output %}}
+
+### `gist`
+
+Including code snippets with GitHub gists while writing a tutorial is common situation bloggers face. With a given URL of the gist; e.g.:
+
+* https://gist.github.com/spf13/7896402
+
+pass the owner and the ID of the gist to the shortcode:
+
+```
+{{</* gist spf13 7896402 */>}}
+```
+
+If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
+
+```golang
+{{</* gist spf13 7896402 "img.html" */>}}
+```
+
 ### `highlight`
 
 This shortcode will convert the source code provided into syntax highlighted
@@ -102,35 +156,25 @@ HTML. Read more on [highlighting](/extras/highlighting/). `highlight` takes exac
 ```
 {{% /output %}}
 
-### `figure`
+### `instagram`
 
-`figure` is simply an extension of the image capabilities present with Markdown.`figure` provides the ability to add captions, CSS classes, alt text, links etc.
+If you'd like to embed a photo from [Instagram][], all you need is photo ID from the URL:
 
-`figure` can use the following named parameters:
-
- * src
- * link
- * title
- * caption
- * class
- * attr (attribution)
- * attrlink
- * alt
-
-#### Example `figure` Input
-
-```markdown
-{{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
+```html
+https://www.instagram.com/p/BMokmydjG-M/
 ```
 
-#### Example `figure` Output
+Pass it to the shortcode:
 
-    <figure>
-        <img src="/media/spf13.jpg"  />
-        <figcaption>
-            <h4>Steve Francia</h4>
-        </figcaption>
-    </figure>
+```golang
+{{</* instagram BMokmydjG-M */>}}
+```
+
+You also have the option to hide the caption:
+
+```golang
+{{</* instagram BMokmydjG-M hidecaption */>}}
+```
 
 ### `ref` and `relref`
 
@@ -160,6 +204,22 @@ Assuming that standard Hugo pretty URLs are turned on.
 <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 ```
 
+### `speakerdeck`
+
+To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL, e.g.:
+
+```html
+<script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+```
+
+Extract the value from the field `data-id` and pass it to the shortcode:
+
+{{% input "speakerdeck-example-input.md" %}}
+```markdown
+{{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
+```
+{{% /input %}}
+
 ### `tweet`
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet. For example, let's say you want to include the following tweet from `https://twitter.com/spf13/status/666616452582129664`. Pass the tweet's ID from the URL as parameter to the shortcode as shown below:
@@ -168,6 +228,18 @@ You want to include a single tweet into your blog post? Everything you need is t
 
 ```markdown
 {{</* tweet 666616452582129664 */>}}
+```
+
+### `vimeo`
+
+Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above. Extract the ID from the URL, e.g.:
+
+* https://vimeo.com/channels/staffpicks/146022717
+
+and pass it to the shortcode:
+
+```golang
+{{</* vimeo 146022717 */>}}
 ```
 
 ### `youtube`
@@ -186,64 +258,6 @@ Furthermore, you can autostart the embedded video by setting the `autostart` par
 
 ```markdown
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
-```
-
-### `vimeo`
-
-Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above. Extract the ID from the URL, e.g.:
-
-* https://vimeo.com/channels/staffpicks/146022717
-
-and pass it to the shortcode:
-
-```golang
-{{</* vimeo 146022717 */>}}
-```
-
-### `gist`
-
-Including code snippets with GitHub gists while writing a tutorial is common situation bloggers face. With a given URL of the gist, e.g.:
-
-* https://gist.github.com/spf13/7896402
-
-pass the owner and the ID of the gist to the shortcode:
-
-```
-{{</* gist spf13 7896402 */>}}
-```
-
-If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
-
-```golang
-{{</* gist spf13 7896402 "img.html" */>}}
-```
-
-### `speakerdeck`
-
-To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL, e.g.:
-
-    <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
-
-Extract the value from the field `data-id` and pass it to the shortcode:
-
-    {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
-
-### `instagram`
-
-If you'd like to embed a photo from [Instagram][], all you need is photo ID from the URL, e. g.:
-
-* https://www.instagram.com/p/BMokmydjG-M/
-
-Pass it to the shortcode:
-
-```golang
-{{</* instagram BMokmydjG-M */>}}
-```
-
-Optionally, hide caption:
-
-```golang
-{{</* instagram BMokmydjG-M hidecaption */>}}
 ```
 
 ## Creating your own shortcodes
