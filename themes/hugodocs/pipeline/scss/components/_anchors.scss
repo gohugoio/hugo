@@ -53,8 +53,8 @@ a.tooltip {
   }
   &.right {
     &:hover::before {
-      left: 0px;
-      right: auto;
+      right: 0px;
+      left: auto;
     }
   }
   &.edit-link:hover {

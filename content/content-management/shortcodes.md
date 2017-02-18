@@ -472,7 +472,7 @@ Let's assume you would like to have a shortcode to be replaced by the current ye
 ```
 {{% /input %}}
 
-More shortcode examples can be found in the [shortcodes directory for spf13.com][] and [shortcodes directory for the Hugo docs][].
+More shortcode examples can be found in the [shortcodes directory for spf13.com][] and the [shortcodes directory for the Hugo docs][].
 
 [cross-references]: /content-management/cross-references/
 [Instagram]: https://www.instagram.com/

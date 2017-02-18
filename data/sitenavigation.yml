@@ -32,7 +32,7 @@ templates:
   url: "templates"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Pagination, homepage, rss/sitemap, template types and lookup order, and data"
+  desc: "Pagination, homepage, rss, sitemap, lookup order, and data templates"
 functions:
   order: 6
   title: "Functions"
@@ -60,7 +60,7 @@ hostinganddeployment:
   url: "hosting-and-deployment"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Site builds and community-aggregated tutorials on automated deploymentsand popular hosting solutions"
+  desc: "Site builds, automated deployments, and popular hosting solutions, as explained by the Hugo community"
 # migratingtohugo:
 #   order: 10
 #   title: "Migrating to Hugo"
@@ -74,7 +74,7 @@ tutorials:
   url: "tutorials"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Community-aggregated articles on methods to approaching different projects using Hugo"
+  desc: "Community-aggregated articles and code examples for approaching different projects using Hugo"
 developertools:
   order: 12
   title: "Developer Tools"

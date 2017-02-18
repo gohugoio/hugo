@@ -10,7 +10,7 @@ tags: []
 categories: [templates]
 draft: false
 slug:
-aliases:
+aliases: [/templates/go-templates/]
 toc: false
 notes:
 ---
