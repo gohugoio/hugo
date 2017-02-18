@@ -136,6 +136,12 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 }
 
 func (h *HugoSites) assemble(config *BuildCfg) error {
+	if config.whatChanged.source {
+		for _, s := range h.Sites {
+			s.createTaxonomiesEntries()
+		}
+	}
+
 	// TODO(bep) we could probably wait and do this in one go later
 	h.setupTranslations()
 

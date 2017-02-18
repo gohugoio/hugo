@@ -218,6 +218,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	// Check site config
 	for _, s := range sites.Sites {
 		require.True(t, s.Info.defaultContentLanguageInSubdir, s.Info.Title)
+		require.NotNil(t, s.disabledKinds)
 	}
 
 	enSite := sites.Sites[0]

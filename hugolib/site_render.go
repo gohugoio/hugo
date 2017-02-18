@@ -130,6 +130,10 @@ func (s *Site) renderPaginator(p *Page) error {
 
 func (s *Site) renderRSS(p *Page) error {
 
+	if !s.isEnabled(kindRSS) {
+		return nil
+	}
+
 	if s.Cfg.GetBool("disableRSS") {
 		return nil
 	}
@@ -167,6 +171,10 @@ func (s *Site) renderRSS(p *Page) error {
 }
 
 func (s *Site) render404() error {
+	if !s.isEnabled(kind404) {
+		return nil
+	}
+
 	if s.Cfg.GetBool("disable404") {
 		return nil
 	}
@@ -184,6 +192,10 @@ func (s *Site) render404() error {
 }
 
 func (s *Site) renderSitemap() error {
+	if !s.isEnabled(kindSitemap) {
+		return nil
+	}
+
 	if s.Cfg.GetBool("disableSitemap") {
 		return nil
 	}
@@ -227,6 +239,10 @@ func (s *Site) renderSitemap() error {
 }
 
 func (s *Site) renderRobotsTXT() error {
+	if !s.isEnabled(kindRobotsTXT) {
+		return nil
+	}
+
 	if !s.Cfg.GetBool("enableRobotsTXT") {
 		return nil
 	}
