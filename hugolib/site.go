@@ -148,12 +148,11 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 // Note: This is mainly used in single site tests.
 func NewSite(cfg deps.DepsCfg) (*Site, error) {
 	s, err := newSite(cfg)
-
 	if err != nil {
 		return nil, err
 	}
 
-	if err := applyDepsIfNeeded(cfg, s); err != nil {
+	if err = applyDepsIfNeeded(cfg, s); err != nil {
 		return nil, err
 	}
 
@@ -302,7 +301,7 @@ func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
 // linkedin
 type SiteSocial map[string]string
 
-// Param is a convenience method to do lookups in Site's Params map.
+// Param is a convenience method to do lookups in SiteInfo's Params map.
 //
 // This method is also implemented on Page and Node.
 func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
@@ -903,7 +902,7 @@ func (s *Site) initialize() (err error) {
 		return err
 	}
 
-	staticDir := s.PathSpec.AbsPathify(s.Cfg.GetString("staticDir") + "/")
+	staticDir := s.PathSpec.GetStaticDirPath() + "/"
 
 	sp := source.NewSourceSpec(s.Cfg, s.Fs)
 	s.Source = sp.NewFilesystem(s.absContentDir(), staticDir)
@@ -992,13 +991,10 @@ func (s *Site) initializeSiteInfo() {
 	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))
 }
 
-func (s *Site) hasTheme() bool {
-	return s.Cfg.GetString("theme") != ""
-}
-
 func (s *Site) dataDir() string {
 	return s.Cfg.GetString("dataDir")
 }
+
 func (s *Site) absDataDir() string {
 	return s.PathSpec.AbsPathify(s.dataDir())
 }
@@ -1023,10 +1019,10 @@ func (s *Site) getI18nDir(path string) string {
 }
 
 func (s *Site) getThemeI18nDir(path string) string {
-	if !s.hasTheme() {
+	if !s.PathSpec.ThemeSet() {
 		return ""
 	}
-	return s.getRealDir(s.PathSpec.AbsPathify(filepath.Join(s.themeDir(), s.i18nDir())), path)
+	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.i18nDir()), path)
 }
 
 func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
@@ -1041,26 +1037,14 @@ func (s *Site) getDataDir(path string) string {
 }
 
 func (s *Site) getThemeDataDir(path string) string {
-	if !s.hasTheme() {
+	if !s.PathSpec.ThemeSet() {
 		return ""
 	}
-	return s.getRealDir(s.PathSpec.AbsPathify(filepath.Join(s.themeDir(), s.dataDir())), path)
-}
-
-func (s *Site) themeDir() string {
-	return s.Cfg.GetString("themesDir") + "/" + s.Cfg.GetString("theme")
-}
-
-func (s *Site) absThemeDir() string {
-	return s.PathSpec.AbsPathify(s.themeDir())
+	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.dataDir()), path)
 }
 
 func (s *Site) layoutDir() string {
 	return s.Cfg.GetString("layoutDir")
-}
-
-func (s *Site) absLayoutDir() string {
-	return s.PathSpec.AbsPathify(s.layoutDir())
 }
 
 func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
@@ -1071,14 +1055,14 @@ func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
 }
 
 func (s *Site) getLayoutDir(path string) string {
-	return s.getRealDir(s.absLayoutDir(), path)
+	return s.getRealDir(s.PathSpec.GetLayoutDirPath(), path)
 }
 
 func (s *Site) getThemeLayoutDir(path string) string {
-	if !s.hasTheme() {
+	if !s.PathSpec.ThemeSet() {
 		return ""
 	}
-	return s.getRealDir(s.PathSpec.AbsPathify(filepath.Join(s.themeDir(), s.layoutDir())), path)
+	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.layoutDir()), path)
 }
 
 func (s *Site) absContentDir() string {
@@ -1671,7 +1655,7 @@ func errorCollator(results <-chan error, errs chan<- error) {
 }
 
 func (s *Site) appendThemeTemplates(in []string) []string {
-	if !s.hasTheme() {
+	if !s.PathSpec.ThemeSet() {
 		return in
 	}
 
@@ -1798,8 +1782,9 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	transformLinks := transform.NewEmptyTransforms()
+	relativeURLs := s.Cfg.GetBool("relativeURLs")
 
-	if s.Cfg.GetBool("relativeURLs") || s.Cfg.GetBool("canonifyURLs") {
+	if relativeURLs || s.Info.canonifyURLs {
 		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
@@ -1816,18 +1801,18 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	var path []byte
 
-	if s.Cfg.GetBool("relativeURLs") {
+	if relativeURLs {
 		translated, err := pageTarget.(target.OptionalTranslator).TranslateRelative(dest)
 		if err != nil {
 			return err
 		}
 		path = []byte(helpers.GetDottedRelativePath(translated))
-	} else if s.Cfg.GetBool("canonifyURLs") {
-		s := s.Cfg.GetString("baseURL")
-		if !strings.HasSuffix(s, "/") {
-			s += "/"
+	} else if s.Info.canonifyURLs {
+		url := s.Cfg.GetString("baseURL")
+		if !strings.HasSuffix(url, "/") {
+			url += "/"
 		}
-		path = []byte(s)
+		path = []byte(url)
 	}
 
 	transformer := transform.NewChain(transformLinks...)
