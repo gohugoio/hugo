@@ -20,9 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -183,18 +180,9 @@ func createSortTestPages(s *Site, num int) Pages {
 
 	for i := 0; i < num; i++ {
 		p := s.newPage(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))
-		pages[i] = &Page{
-			pageInit: &pageInit{},
-			URLPath: URLPath{
-				Section: "z",
-				URL:     fmt.Sprintf("http://base/x/y/p%d.html", i),
-			},
-			Site:   &info,
-			Source: Source{File: *source.NewFile(filepath.FromSlash(fmt.Sprintf("/x/y/p%d.md", i)))},
-			Params: map[string]interface{}{
-				"arbitrarily": map[string]interface{}{
-					"nested": ("xyz" + fmt.Sprintf("%v", 100-i)),
-				},
+		p.Params = map[string]interface{}{
+			"arbitrarily": map[string]interface{}{
+				"nested": ("xyz" + fmt.Sprintf("%v", 100-i)),
 			},
 		}
 
