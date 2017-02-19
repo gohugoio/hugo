@@ -1461,15 +1461,16 @@ func (s *Site) assembleMenus() {
 		// Create menu entries for section pages with content
 		for _, p := range pages {
 			if p.Section() != "" && p.Kind == KindSection {
+				// menu with same id defined in config, let that one win
+				if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
+					continue
+				}
+
 				me := MenuEntry{Identifier: p.Section(),
 					Name:   p.LinkTitle(),
 					Weight: p.Weight,
 					URL:    p.RelPermalink()}
 
-				// menu with same id defined in config, let that one win
-				if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
-					continue
-				}
 				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 			}
 		}
@@ -1479,14 +1480,15 @@ func (s *Site) assembleMenus() {
 		for _, p := range pages {
 			if _, ok := sectionPagesMenus[p.Section()]; !ok {
 				if p.Section() != "" {
+					// menu with same id defined in config, let that one win
+					if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
+						continue
+					}
+
 					me := MenuEntry{Identifier: p.Section(),
 						Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())),
 						URL:  s.Info.createNodeMenuEntryURL(p.addLangPathPrefix("/"+p.Section()) + "/")}
 
-					// menu with same id defined in config, let that one win
-					if _, ok := flat[twoD{sectionPagesMenu, me.KeyName()}]; ok {
-						continue
-					}
 					flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 					sectionPagesMenus[p.Section()] = true
 				}
