@@ -43,7 +43,7 @@ import (
 
 var (
 	cjk      = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
-	allKinds = []string{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm, kindRSS, kindSitemap, kindRobotsTXT, kind404}
+	allKinds = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm, kindRSS, kindSitemap, kindRobotsTXT, kind404}
 )
 
 const (
