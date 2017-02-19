@@ -111,11 +111,11 @@ See [site configuration][] for more information.
 
 ## Parameters
 
-## Ordering Content
+## Assigning `weight` for Ordering
 
-### Assigning `weight` to Content
+### Assigning `weight` for Ordering Content
 
-### Assigning `weight` to Taxonomies
+### Assigning `weight` for Ordering Taxonomies
 
 ## Front Matter Format Specs
 
