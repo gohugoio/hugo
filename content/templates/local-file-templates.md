@@ -2,6 +2,7 @@
 title: Local File Templates
 linktitle: Local File Templates
 description:
+godocref: https://golang.org/pkg/os/#FileInfo
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -45,16 +46,20 @@ So, let's create a new shortcode using `readDir`:
 
 For the files in any given directory, this shortcode usefully lists their basenames and sizes, while providing links to them.
 
-Already&mdash;actually&mdash;this shortcode
-has been included in this very web site.
-So, let's list some of its CSS files.
-(If you click on their names, you can reveal the contents.)
-{{</*   directoryindex path="/static/css" pathURL="/css"   */>}}
+This shortcode [has already been included in this very web site][].
+So, let's list some of its CSS files. (If you click on their names, you can reveal the contents.)
+
+{{<   directoryindex path="/static/css" pathURL="/css"   >}}
 <br />
+
 This is the call that rendered the above output:
+
 ```html
 {{</* directoryindex path="/static/css" pathURL="/css" */>}}
 ```
-By the way,
-regarding the pathURL argument, the initial slash `/` is important.
-Otherwise, it becomes relative to the current web page.
+
+{{% note "Slashes are Important" %}}
+The initial slash `/` in `pathURL` is important. Otherwise, `pathURL` becomes relative to the current web page.
+{{% /note %}}
+
+[has already been included in this very web site]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
