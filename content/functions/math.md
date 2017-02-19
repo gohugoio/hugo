@@ -11,7 +11,7 @@ categories: [functions]
 toc: false
 draft: false
 aliases: []
-notes:
+notesforauthors:
 ---
 
 There are 6 basic mathematical operators that can be used in Hugo templates:

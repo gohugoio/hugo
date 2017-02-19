@@ -1,6 +1,6 @@
 ---
-title: echoParam
-linktitle:
+title: echoparam
+linktitle: echoParam
 description:
 godocref:
 date: 2017-02-01
@@ -10,8 +10,8 @@ tags: []
 categories: [functions]
 toc: false
 draft: false
-aliases: []
-notes:
+aliases: [/functions/echoParam/]
+notesforauthors:
 ---
 
 ## Example

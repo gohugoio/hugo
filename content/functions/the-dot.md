@@ -12,5 +12,5 @@ weight:
 toc: false
 draft: false
 aliases: [/functions/dot/,/functions/context/]
-notes:
+notesforauthors:
 ---

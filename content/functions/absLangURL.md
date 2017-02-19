@@ -10,8 +10,8 @@ tags: [multilingual,i18n,urls]
 categories: [functions]
 toc: false
 draft: false
-aliases: []
-notes:
+aliases: [/functions/absLangUrl/]
+notesforauthors:
 ---
 
 ## Example

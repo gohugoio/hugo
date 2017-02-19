@@ -10,8 +10,8 @@ tags: [strings]
 categories: [functions]
 toc: false
 draft: false
-aliases: []
-notes:
+aliases: [/functions/safeHTMLAttr/]
+notesforauthors:
 ---
 
 ## Example

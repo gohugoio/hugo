@@ -11,7 +11,7 @@ categories: [functions]
 toc: false
 draft: false
 aliases: [/functions/default/]
-notes:
+notesforauthors:
 ---
 
 ## Example

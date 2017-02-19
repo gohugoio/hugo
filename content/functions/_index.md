@@ -10,6 +10,6 @@ weight: 01
 draft: false
 slug:
 aliases: []
-notes:
+notesforauthors:
 ---
 

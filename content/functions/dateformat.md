@@ -10,8 +10,8 @@ tags: [dates,time]
 categories: [functions]
 toc: false
 draft: false
-aliases: []
-notes:
+aliases: [/functions/dateFormat/]
+notesforauthors:
 ---
 
 ## Example
