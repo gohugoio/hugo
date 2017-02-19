@@ -168,7 +168,7 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 
 	for _, s := range h.Sites {
 		s.refreshPageCaches()
-		s.setupPrevNext()
+		s.setupSitePages()
 	}
 
 	if err := h.assignMissingTranslations(); err != nil {
