@@ -314,11 +314,62 @@ func (p *Page) Param(key interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	keyStr = strings.ToLower(keyStr)
+	result, _ := p.traverseDirect(keyStr)
+	if result != nil {
+		return result, nil
+	}
+
+	keySegments := strings.Split(keyStr, ".")
+	if len(keySegments) == 1 {
+		return nil, nil
+	}
+
+	return p.traverseNested(keySegments)
+}
+
+func (p *Page) traverseDirect(key string) (interface{}, error) {
+	keyStr := strings.ToLower(key)
 	if val, ok := p.Params[keyStr]; ok {
 		return val, nil
 	}
+
 	return p.Site.Params[keyStr], nil
+}
+
+func (p *Page) traverseNested(keySegments []string) (interface{}, error) {
+	result := traverse(keySegments, p.Params)
+	if result != nil {
+		return result, nil
+	}
+
+	result = traverse(keySegments, p.Site.Params)
+	if result != nil {
+		return result, nil
+	}
+
+	// Didn't find anything, but also no problems.
+	return nil, nil
+}
+
+func traverse(keys []string, m map[string]interface{}) interface{} {
+	// Shift first element off.
+	firstKey, rest := keys[0], keys[1:]
+	result := m[firstKey]
+
+	// No point in continuing here.
+	if result == nil {
+		return result
+	}
+
+	if len(rest) == 0 {
+		// That was the last key.
+		return result
+	} else {
+		// That was not the last key.
+		return traverse(rest, cast.ToStringMap(result))
+	}
 }
 
 func (p *Page) Author() Author {

@@ -14,9 +14,8 @@
 package hugolib
 
 import (
-	"sort"
-
 	"github.com/spf13/cast"
+	"sort"
 )
 
 var spc = newPageCache()
