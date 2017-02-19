@@ -17,16 +17,6 @@
 // string operations on content.
 package config
 
-// A cached version of the current ConfigProvider (language) and relatives. These globals
-// are unfortunate, but we still have some places that needs this that does
-// not have access to the site configuration.
-// These values will be set on initialization when rendering a new language.
-//
-// TODO(bep) Get rid of these.
-var (
-	currentConfigProvider Provider
-)
-
 // Provider provides the configuration settings for Hugo.
 type Provider interface {
 	GetString(key string) string
