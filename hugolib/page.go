@@ -929,7 +929,7 @@ func (p *Page) URL() string {
 func (p *Page) RelPermalink() string {
 	link := p.getPermalink()
 
-	if p.s.Cfg.GetBool("canonifyURLs") {
+	if p.s.Info.canonifyURLs {
 		// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
 		// have to return the URL relative from baseURL
 		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))

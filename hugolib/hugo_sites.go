@@ -95,7 +95,7 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			d = deps.New(cfg)
 			s.Deps = d
 
-			if err := d.LoadResources(); err != nil {
+			if err = d.LoadResources(); err != nil {
 				return err
 			}
 
@@ -123,9 +123,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.Template) error) func(templ tpl.Template) error {
 	return func(templ tpl.Template) error {
-		templ.LoadTemplates(s.absLayoutDir())
-		if s.hasTheme() {
-			templ.LoadTemplatesWithPrefix(s.absThemeDir()+"/layouts", "theme")
+		templ.LoadTemplates(s.PathSpec.GetLayoutDirPath())
+		if s.PathSpec.ThemeSet() {
+			templ.LoadTemplatesWithPrefix(s.PathSpec.GetThemeDir()+"/layouts", "theme")
 		}
 
 		for _, wt := range withTemplates {
