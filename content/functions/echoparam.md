@@ -10,7 +10,7 @@ tags: []
 categories: [functions]
 toc: false
 draft: false
-aliases: [/functions/echoParam/]
+aliases: []
 notesforauthors:
 ---
 

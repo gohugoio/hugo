@@ -11,6 +11,6 @@ categories: [functions]
 weight:
 toc: false
 draft: false
-aliases: [/functions/dot/,/functions/context/]
+aliases: []
 notesforauthors:
 ---

@@ -28,26 +28,26 @@ pre {
   td,
   li {
     code {
-      font-size: .85em;
+      font-size: .9em;
       display: inline-block;
       color: $inline-code-text-color;
       font-family: $code-font-family;
       padding-left: .25em;
       padding-right: .25em;
-      padding-bottom: .1em;
+      // padding-bottom: .1em;
       text-transform: none;
       line-height: 1.2;
       margin-bottom: .15em;
       margin-top: 0px;
-      padding-top: 0px;
-      // line-height:1;
-      vertical-align: middle;
-      //darken code background color for non-retina screens
+      padding-top: .1em;
+      vertical-align: bottom;
+      //darken code background color for non-retina displays
       background-color: darken($inline-code-background-color, 5%);
       border: none;
       outline: none;
       z-index: -1;
       @include MQ(retina) {
+        //lighten code background color for retina displays
         background-color: $inline-code-background-color;
       }
     }
@@ -168,7 +168,7 @@ div.code-copy-header {
     background-color: $output-example-color;
   }
   &.examplesite {
-    background-color: $examplesite-example-color;
+    background-color: $examplesite-codeblock-shortcode-header-bg-color;
   }
   span.filename {
     text-align: center;
@@ -184,6 +184,10 @@ div.code-copy-header {
   }
   [class^="icon-"] {
     color: $code-filename-color;
+  }
+  //corrects odd placement of terminal icon
+  i.icon-sh.input,i.icon-bash.input {
+    padding-right:.5em;
   }
 }
 

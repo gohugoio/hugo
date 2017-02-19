@@ -10,7 +10,7 @@ tags: [multilingual,i18n,urls]
 categories: [functions]
 toc: false
 draft: false
-aliases: [/functions/absLangUrl/]
+aliases: []
 notesforauthors:
 ---
 

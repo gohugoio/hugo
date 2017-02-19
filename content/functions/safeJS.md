@@ -10,7 +10,7 @@ tags: [strings]
 categories: [functions]
 toc: false
 draft: false
-aliases: [/functions/safeJS/]
+aliases: []
 notesforauthors:
 ---
 

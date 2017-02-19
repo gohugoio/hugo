@@ -6,8 +6,9 @@ table {
   width: auto;
   display: block;
   border-left: 2px solid $hugo-gray;
-  margin:0px;
-  font-size:15px;
+  margin: 0px;
+  font-size: 15px;
+  margin-bottom:1em;
   tr {
     border-top: 2px solid $hugo-gray;
     th,
@@ -21,15 +22,15 @@ table {
   }
   &.terms-table {
     td {
-      width:50%;
+      width: 50%;
     }
   }
   thead {
-    width:100%;
+    width: 100%;
     background-color: $hugo-black;
-    color:$hugo-white;
+    color: $hugo-white;
     tr {
-      min-width:100%;
+      min-width: 100%;
       th {
         padding-left: 4px;
         padding-right: 6px;
@@ -42,15 +43,24 @@ table {
     }
   }
   tbody {
-    min-width:100%;
+    min-width: 100%;
     tr {
-      min-width:100%;
+      min-width: 100%;
       background-color: $body-bg-color;
       &:nth-child(even) {
         background-color: $hugo-blue-ultra-light;
       }
       &:last-child {
-      	border-bottom: 2px solid $hugo-gray;
+        border-bottom: 2px solid $hugo-gray;
+      }
+    }
+  }
+  &.utils-table {
+    tr {
+      line-height: 1.2;
+      font-size:.9em;
+      > td:first-child {
+        min-width: 220px;
       }
     }
   }

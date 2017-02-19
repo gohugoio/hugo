@@ -10,7 +10,7 @@ categories: [functions]
 tags: [internationalization,multilingual,i18n,urls]
 toc: false
 draft: false
-aliases: [/functions/relLangUrl/]
+aliases: []
 notesforauthors:
 ---
 

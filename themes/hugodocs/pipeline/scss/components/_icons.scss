@@ -1,3 +1,22 @@
 svg.svg-icon {
   max-width: 60px;
 }
+
+//for lists that show good and bad examples
+h2,
+h3,
+h4,
+li {
+  .fa.fa-thumbs-up {
+    color: $hugo-green;
+  }
+}
+
+h2,
+h3,
+h4,
+li {
+  .fa.fa-thumbs-down {
+    color: $hugo-pink;
+  }
+}

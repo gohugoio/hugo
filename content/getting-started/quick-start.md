@@ -9,7 +9,7 @@ categories: [getting started]
 tags: [quick start,usage]
 weight: 10
 draft: false
-aliases: []
+aliases: [/overview/quickstart/]
 toc: false
 notesforauthors:
 ---

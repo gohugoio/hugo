@@ -10,7 +10,7 @@
 {{- else -}}
 {{$filenameclass := index (split (.Get 0) ".") 1 }}
 <div class="code-copy input" id="{{.Get 0|urlize}}">
-	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="{{.Get 0}}">{{.Get 0}}</span><i class="icon-{{$filenameclass}} input"></i></div>
+	<div class="code-copy-header"><div class="action-buttons"></div>{{if ne $filenameclass "sh"}}<span class="filename" title="{{.Get 0}}">{{.Get 0}}</span>{{end}}<i class="icon-{{$filenameclass}} input"></i></div>
 	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
 			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
 	</button>

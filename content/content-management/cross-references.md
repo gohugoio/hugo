@@ -34,26 +34,34 @@ The single parameter to `ref` is a string with a content _document name_ (`about
 
 The _document name_ is the name of a document including the format extension; this may be just the filename, or the relative path from the `content/` directory. With a document `content/blog/post.md`, either format will produce the same result.
 
-    {{</* relref "blog/post.md" */>}} ⇒ `/blog/post/`
-    {{</* relref "post.md" */>}} ⇒ `/blog/post/`
+```golang
+{{</* relref "blog/post.md" */>}} ⇒ `/blog/post/`
+{{</* relref "post.md" */>}} ⇒ `/blog/post/`
+```
 
 If you have multiple sections with the same filename, you should only use the relative path format, because the behaviour is _undefined_. So, if I also have a document `link/post.md`, the output of `ref` is unknown for `post.md`.
 
-    {{</* relref "blog/post.md" */>}} ⇒ `/blog/post/`
-    {{</* relref "post.md" */>}} ⇒ `/blog/post/` (maybe)
-    {{</* relref "post.md" */>}} ⇒ `/link/post/` (maybe)
-    {{</* relref "link/post.md" */>}} ⇒ `/link/post/`
+```golang
+{{</* relref "blog/post.md" */>}} ⇒ `/blog/post/`
+{{</* relref "post.md" */>}} ⇒ `/blog/post/` (maybe)
+{{</* relref "post.md" */>}} ⇒ `/link/post/` (maybe)
+{{</* relref "link/post.md" */>}} ⇒ `/link/post/`
+```
 
 A relative document name must *not* begin with a slash (`/`).
 
-    {{</* relref "/blog/post.md" */>}} ⇒ `""`
+```golang
+{{</* relref "/blog/post.md" */>}} ⇒ `""`
+```
 
 ### Anchors
 
 When an _anchor_ is provided by itself, the current page’s unique identifier will be appended; when an _anchor_ is provided with a document name, the found page's unique identifier will be appended.
 
-    {{</* relref "#who" */>}} ⇒ `#who:9decaf7`
-    {{</* relref "blog/post.md#who" */>}} ⇒ `/blog/post/#who:badcafe`
+```golang
+{{</* relref "#who" */>}} ⇒ `#who:9decaf7`
+{{</* relref "blog/post.md#who" */>}} ⇒ `/blog/post/#who:badcafe`
+```
 
 More information about document unique identifiers and headings can be found [below]({{< ref "#hugo-heading-anchors" >}}).
 
@@ -74,10 +82,12 @@ Ensuring heading uniqueness across the site is accomplished with a unique identi
 
 `ref` and `relref` were added so you can make these reference links without having to know the document’s unique identifier. (The links in document tables of contents are automatically up-to-date with this value.)
 
-    {{</* relref "extras/crossreferences.md#hugo-heading-anchors" */>}}
-    /extras/crossreferences/#hugo-heading-anchors:77cd9ea530577debf4ce0f28c8dca242
+```golang
+{{</* relref "content-management/crossreferences.md#hugo-heading-anchors" */>}}
+/content-management/crossreferences/#hugo-heading-anchors:77cd9ea530577debf4ce0f28c8dca242
+```
 
-> What follows is a deeper discussion of *why* and *how* Hugo generates heading anchors. It is not necessary to know this to use `ref` and `relref`, but it may be useful in understanding how some anchors may not match your expectations.
+What follows is a deeper discussion of *why* and *how* Hugo generates heading anchors. It is not necessary to know this to use `ref` and `relref`, but it may be useful in understanding how some anchors may not match your expectations.
 
 ### How to Generate a Heading Anchor
 

@@ -10,7 +10,7 @@ tags: [views]
 categories: [functions]
 toc: false
 draft: false
-aliases: [/functions/Render/]
+aliases: []
 notesforauthors:
 ---
 

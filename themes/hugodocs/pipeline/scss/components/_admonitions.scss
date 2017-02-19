@@ -1,5 +1,4 @@
 .note,
-.caution,
 .warning {
   display: block;
   margin-bottom: 20px;
@@ -18,6 +17,7 @@
     left: -.5em;
     z-index: 10;
     background-color: $body-bg-color;
+    border-radius:30%;
   }
   h2 {
     font-size: 1.1em;
@@ -39,6 +39,10 @@
     pre {
       color: lighten($base-font-color, 20%);
     }
+    em,strong {
+      color:inherit;
+      font-weight:inherit;
+    }
   }
   .shortcode-content {
     display: block;
@@ -55,9 +59,11 @@
 
 .note {
   border-color: $hugo-blue;
+  background-color: desaturate(lighten($hugo-blue,61%),20%);
   &:before {
     content: '\e80d';
     color: $hugo-blue;
+    background-color: desaturate(lighten($hugo-blue,61%),20%);
   }
   h2 {
     border-bottom-color: $hugo-blue;
@@ -65,23 +71,13 @@
   }
 }
 
-.caution {
-  border-color: $hugo-gold;
-  &:before {
-    content: '\e80f';
-    color: $hugo-gold;
-  }
-  h2 {
-    border-bottom-color: $hugo-gold;
-    color: $hugo-gold;
-  }
-}
-
 .warning {
   border-color: $hugo-pink;
+  background-color: lighten($hugo-pink,54%);
   &:before {
     content: '\e810';
     color: $hugo-pink;
+    background-color: lighten($hugo-pink,54%);
   }
   h2 {
     border-bottom-color: $hugo-pink;
@@ -92,62 +88,3 @@
     }
   }
 }
-
-// .note,
-// .caution,.warning {
-//   display: block;
-//   margin-bottom:20px;
-//   width: 100%;
-//   h2 {
-//     font-size: 1.1em;
-//     color: $hugo-white;
-//     width: 100%;
-//     display: block;
-//     margin: 0px;
-//     padding: .25em 12px;
-//     border: none;
-//     outline: none;
-//     code,pre {
-//       color:$hugo-white;
-//     }
-//   }
-//   .shortcode-content {
-//     display: block;
-//     margin: 0px;
-//     padding: 12px;
-//     font-size:.9em;
-//   }
-// }
-// .note {
-//   > h2 {
-//     background-color: $hugo-blue;
-//   }
-//   .shortcode-content {
-//     background-color: lighten($hugo-blue, 55%);
-//     @include MQ(retina){
-//       background-color: lighten($hugo-blue,56%);
-//     }
-//   }
-// }
-// .caution {
-//   > h2 {
-//     background-color: $hugo-gold;
-//   }
-//   .shortcode-content {
-//    background-color: lighten($hugo-gold, 30%);
-//     @include MQ(retina){
-//       background-color: lighten($hugo-gold,35%);
-//     }
-//   }
-// }
-// .warning {
-//   > h2 {
-//     background-color: $hugo-pink;
-//   }
-//   .shortcode-content {
-//    background-color: lighten($hugo-pink, 50%);
-//     @include MQ(retina){
-//       background-color: lighten($hugo-pink, 54%);
-//     }
-//   }
-// }

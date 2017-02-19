@@ -32,10 +32,11 @@
       font-style:normal;
     }
     cite.blockquote-citation {
-      position: absolute;
-      bottom: .3em;
-      right: .3em;
-      float: right;
+      position: relative;
+      display:block;
+      clear:both;
+      text-align:right;
+      line-height:2;
       font-size: 14px;
       font-style: normal;
     }
