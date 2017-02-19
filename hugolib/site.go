@@ -821,7 +821,9 @@ func (s *Site) process(config BuildCfg) (err error) {
 
 }
 
-func (s *Site) setupPrevNext() {
+func (s *Site) setupSitePages() {
+	var siteLastChange time.Time
+
 	for i, page := range s.Pages {
 		if i < len(s.Pages)-1 {
 			page.Next = s.Pages[i+1]
@@ -830,7 +832,18 @@ func (s *Site) setupPrevNext() {
 		if i > 0 {
 			page.Prev = s.Pages[i-1]
 		}
+
+		// Determine Site.Info.LastChange
+		// Note that the logic to determine which date to use for Lastmod
+		// is already applied, so this is *the* date to use.
+		// We cannot just pick the last page in the default sort, because
+		// that may not be ordered by date.
+		if page.Lastmod.After(siteLastChange) {
+			siteLastChange = page.Lastmod
+		}
 	}
+
+	s.Info.LastChange = siteLastChange
 }
 
 func (s *Site) render() (err error) {
@@ -1370,8 +1383,6 @@ func (s *Site) buildSiteMeta() (err error) {
 	s.assembleSections()
 
 	s.assembleMenus()
-
-	s.Info.LastChange = s.Pages[0].Lastmod
 
 	return
 }
