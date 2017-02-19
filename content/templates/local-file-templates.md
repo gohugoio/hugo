@@ -41,7 +41,7 @@ So, let's create a new shortcode using `readDir`:
 **layouts/shortcodes/directoryindex.html**
 
 ```html
-{{</* readfile "layouts/shortcodes/directoryindex.html" */>}}
+{{< readfile "layouts/shortcodes/directoryindex.html" >}}
 ```
 
 For the files in any given directory, this shortcode usefully lists their basenames and sizes, while providing links to them.
