@@ -17,6 +17,7 @@
 @import 'components/buttons';
 @import 'components/lists';
 @import 'components/anchors';
+@import 'components/images';
 @import 'components/note-caution-and-warning-shortcodes';
 @import 'vendor/highlightjs';
 @import 'components/code';
@@ -31,6 +32,7 @@
 @import 'components/blockquotes';
 @import 'components/breadcrumb';
 @import 'components/tables';
+@import 'vendor/featherlight.scss';
 
 //major layout parts/chrome
 @import 'layout/site-header';
