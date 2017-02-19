@@ -19,7 +19,7 @@ Hugo makes it easy to link documents together with `ref` and `relref`, both of w
 
 ## Using `ref` and `relref`
 
-```django
+```golang
 {{</* ref "document" */>}}
 {{</* ref "#anchor" */>}}
 {{</* ref "document#anchor" */>}}
