@@ -6,11 +6,11 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc: false
+tags: [strings]
 draft: false
 aliases: []
+toc: false
 notesforauthors:
 ---
 
