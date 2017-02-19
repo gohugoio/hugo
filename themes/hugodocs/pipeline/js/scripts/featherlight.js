@@ -5,9 +5,9 @@
  * Copyright 2016, Noël Raoul Bossart (http://www.noelboss.com)
  * MIT Licensed.
 **/
-// Modification IIFE for digital.cap.org to wrap all images in feather anchor first
+// Modification IIFE for gohugo.il to wrap all images in feather anchor first; this only applies to img within body copy
 (function() {
-  $('.body-copy img').each(function() {
+  $('.body-copy img:not(.hugo-icon)').each(function() {
     $(this).wrap('<a class=\"image-link\" data-featherlight=\"image\" href=\"' + $(this).attr('src') + '\"></a>');
   });
 })();
