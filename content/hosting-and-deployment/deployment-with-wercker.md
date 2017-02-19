@@ -12,11 +12,9 @@ toc: false
 draft: false
 aliases: []
 toc: true
-needsreview: true
+needsreview: false
 notesforauthors:
 ---
-
-## Introduction
 
 By the end of this guide, you will have completed the following:
 
@@ -26,9 +24,7 @@ By the end of this guide, you will have completed the following:
 * Automating site deployments with a free tool called Wercker
 * Deploying your website to GitHub Pages for free hosting
 
-### Assumptions
-
-This guide was created with the following assumptions:
+## Assumptions
 
 1. You have a working familiarity with using Git for version control
 2. You have a GitHub account
