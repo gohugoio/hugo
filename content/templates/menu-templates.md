@@ -10,7 +10,7 @@ categories: [templates]
 tags: [lists,sections,menus]
 draft: false
 slug:
-aliases: [/extras/menus/]
+aliases: [/extras/menus/,/templates/menus/]
 toc: false
 notesforauthors:
 ---

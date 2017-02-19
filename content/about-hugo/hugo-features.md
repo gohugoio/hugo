@@ -41,8 +41,8 @@ notesforauthors:
 * Multiple [content types][]
 * Automatic and user defined [content summaries][]
 * [Shortcodes][] to enable rich content inside of Markdown
-* ["Minutes to Read"][]functionality
-* ["Wordcount"][] functionality
+* ["Minutes to Read"][pagevars] functionality
+* ["Wordcount"][pagevars] functionality
 
 ## Additional Features
 
@@ -54,8 +54,7 @@ notesforauthors:
 
 See what's coming next in the [Hugo roadmap][].
 
-["Minutes to Read"]: /variables-and-params/
-["Wordcount"]: /variables-and-params/
+[pagevars]: /variables-and-params/page-variables/
 [Ace]: /templates/ace-templating/
 [aliases]: /content-management/url-management/#aliases
 [Amber]: https://github.com/eknkc/amber
@@ -74,13 +73,13 @@ See what's coming next in the [Hugo roadmap][].
 [Linux]: /getting-started/install-on-mac/
 [LiveReload]: /getting-started/using-hugo/
 [Mac OSX]: /getting-started/install-of-pc/
-[organization for your projects]: /project-organization/
+[organization for your projects]: /getting-started/directory-structure/
 [Permalink]: /content-management/url-management/#permalinks
 [Powerful theming]: /themes/
 [Pretty URLs]: /content-management/url-management/
 [Pygments]: http://pygments.org/
 [RSS]: /templates/rss-templates/
-[Shortcodes]: /templates/shortcodes/
+[Shortcodes]: /content-management/shortcodes/
 [sort content]: /templates/
 [supported formats]: /content-management/supported-content-formats/
 [Syntax highlighting]: /developer-tools/syntax-highlighting/

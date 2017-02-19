@@ -10,7 +10,7 @@ tags: [usage,livereload,command line]
 weight: 70
 draft: false
 slug:
-aliases: [/overview/usage/,/extras/livereload/]
+aliases: [/overview/usage/,/extras/livereload/,/getting-started/using-hugo/]
 toc: false
 notesforauthors:
 ---
