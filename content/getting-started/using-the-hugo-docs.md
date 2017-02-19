@@ -39,4 +39,4 @@ Interested in helping us improve the documentation?
 2. If you're not up for git and GitHub, start a thread on the ["docs" category in the Hugo Forums][]
 
 ["docs" category in the Hugo Forums]: https://discuss.gohugo.io/c/feature
-[step-by-step guide for docs contributors]: /contribute-to-hugo//contribute-to-hugo/contribute-to-the-hugo-docs/
+[step-by-step guide for docs contributors]: /contribute-to-hugo/contribute-to-hugo/contribute-to-the-hugo-docs/

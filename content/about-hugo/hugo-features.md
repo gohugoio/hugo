@@ -49,7 +49,7 @@ notesforauthors:
 * Integrated [Disqus][] comment support
 * Integrated [Google Analytics][] support
 * Automatic [RSS][] creation
-* Support for [Golang][], [Amber] and [Ace][] HTML templates
+* Support for [Golang][], [Amber], and [Ace][] HTML templates
 * [Syntax highlighting][] powered by [Pygments][]
 
 See what's coming next in the [Hugo roadmap][].
