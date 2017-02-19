@@ -291,7 +291,8 @@ type SiteInfo struct {
 	paginationPageCount uint64
 
 	Taxonomies TaxonomyList
-	Authors    AuthorList
+	Authors    Authors
+	Author     map[string]interface{}
 	Social     SiteSocial
 	Sections   Taxonomy
 	*PageCollections

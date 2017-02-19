@@ -410,7 +410,7 @@ func traverse(keys []string, m map[string]interface{}) interface{} {
 func (p *Page) Author() Author {
 	authors := p.Authors()
 	if len(authors) > 0 {
-		return authors[0].languageOverride(p.Node.lang)
+		return authors[0].languageOverride(p.lang)
 	}
 	return Author{}
 }
@@ -424,7 +424,7 @@ func (p *Page) Authors() Authors {
 	if ok && authorID != "" {
 		a := p.Site.Authors.Get(authorID)
 		if a.ID == authorID {
-			return Authors{a.languageOverride(p.Node.lang)}
+			return Authors{a.languageOverride(p.lang)}
 		}
 	}
 
@@ -441,7 +441,7 @@ func (p *Page) Authors() Authors {
 
 		a := p.Site.Authors.Get(authorID)
 		if a.ID == authorID {
-			authors = append(authors, a.languageOverride(p.Node.lang))
+			authors = append(authors, a.languageOverride(p.lang))
 		}
 	}
 
