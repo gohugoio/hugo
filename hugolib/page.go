@@ -324,14 +324,9 @@ func (p *Page) Param(key interface{}) (interface{}, error) {
 	keySegments := strings.Split(keyStr, ".")
 	if len(keySegments) == 1 {
 		return nil, nil
-	} else {
-		result, _ = p.traverseNested(keySegments)
-		if result != nil {
-			return result, nil
-		}
 	}
 
-	return nil, nil
+	return p.traverseNested(keySegments)
 }
 
 func (p *Page) traverseDirect(key string) (interface{}, error) {
