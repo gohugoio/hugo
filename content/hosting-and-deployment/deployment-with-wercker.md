@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [hosting and deployment]
-tags: [wercker,deployment]
+tags: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
 toc: false
 draft: false
@@ -157,7 +157,7 @@ Sign up for Wercker using your GitHub credentials. If you don't have a GitHub ac
 
 After you are registered, you will need to link your GitHub or Bitbucket account to Wercker. You can link your account by navigating to your profile settings and then selecting "Git connections."
 
-![][werckersettings]
+![][17]
 
 If you registered for Wercker using GitHub, it will most likely look like the following image. To connect a missing service, click the **Connect** button, which may send you to either GitHub or Bitbucket to sign into your respective account.
 
@@ -223,21 +223,21 @@ A summary of very basic usage is available at the top of the details for the Hug
 
 We're not going to use any of the advanced features of Hugo-Build in this guide. Let's return to our project and add the first section of details we need to our `wercker.yml`.
 
+{{% warning "Hugo Version in `wercker.yml`" %}}
+The docs are a work in progress. As such, the `version` represented in this guide may not represent the version you've been using for local development. Be sure to use the appropriate Hugo version for your build step.
+{{% /warning %}}
+
 {{% input "wercker-build-step.yml" %}}
 ```yaml
 box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: "0.14"
+        version: "0.17"
         theme: herring-cove
         flags: --buildDrafts=true
 ```
 {{% /input %}}
-
-{{% note "Validating Your `wercker.yml`" %}}
-Wercker provides a [`wercker.yml` validation page](http://devcenter.wercker.com/articles/werckeryml/validate.html). It's usually a good idea to validate your file before committing changes, especially if you are unfamiliar with Wercker or YAML syntax.
-{{% /note %}}
 
 We can conclude this first step by pushing our `wercker.yml` to our GitHub repository and then seeing the magic at work within Wercker's interface.
 
@@ -262,7 +262,7 @@ box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: "0.14"
+        version: "0.17"
         theme: herring-cove
         flags: --buildDrafts=true
 deploy:
@@ -276,7 +276,7 @@ deploy:
 ```
 {{% /input %}}
 
-### How does the GitHUb Pages Configuration Work?
+### How does the GitHub Pages Configuration Work?
 
 We've provided a some important information in our `wercker.yml`. First, we've added the domain we want to use for our published website. Configuring the domain here will ensure that GitHub Pages is aware of the domain we want to use.
 
@@ -328,7 +328,8 @@ If you want to see an example of how you can deploy to S3 instead of GitHub page
 [14]: /images/hosting-and-deployment/deployment-with-wercker/using-hugo-build.png
 [15]: /images/hosting-and-deployment/deployment-with-wercker/adding-a-github-pages-step.png
 [16]: /images/hosting-and-deployment/deployment-with-wercker/configure-the-deploy-step.png
-[werckersettings]: /images/hosting-and-deployment/deployment-with-wercker/wercker-account-settings.png
+[17]: /images/hosting-and-deployment/deployment-with-wercker/wercker-account-settings.png
+
 
 [accesstokenghhelp]: https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 [basicusage]: /getting-started/basic-usage/
