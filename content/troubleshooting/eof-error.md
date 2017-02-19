@@ -5,13 +5,12 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [eof, end of file, error, faqs]
 categories: [troubleshooting]
-weight:
+tags: [eof, end of file, error, faqs]
 draft: false
-aliases: []
+weight:
+aliases: [/troubleshooting/strange-eof-error/]
 toc: true
-notes: "All troubleshooting docs should include two h2-headings, one for 'Trouble:' and one for 'Solution:'. Additional h2-headings include 'Discussion Forum Threads', 'Related Hugo Issues', and 'Additional References'."
 ---
 
 ## Trouble: `hugo new` Aborts with EOF error

@@ -1,6 +1,6 @@
 ---
-title: Variables and Params
-linktitle:
+title: Overview
+linktitle: Overview
 description: Page-, file-, taxonomy-, and site-level variables and parameters available in templates.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -13,7 +13,7 @@ slug:
 aliases: [/templates/variables/]
 toc: false
 hidesectioncontents: false
-notes:
+notesforauthors:
 ---
 
 Content for the Variables and Params Section

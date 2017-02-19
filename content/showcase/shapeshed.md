@@ -4,11 +4,11 @@ description: Personal blog.
 license: ""
 licenseLink: ""
 sitelink: http://shapeshed.com/
-sourceLink: https://github.com/shapeshed/shapeshed.com
+sourcelink: https://github.com/shapeshed/shapeshed.com
 tags:
 - personal
 - blog
-thumbnail: /images/shapeshed-tn.png
+image:  shapeshed-tn.png
 title: shapeshed.com
 ---
 

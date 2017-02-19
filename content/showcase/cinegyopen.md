@@ -4,9 +4,9 @@ description: "Cinegy Open documentation project"
 license: ""
 licenseLink: ""
 sitelink: https://open.cinegy.com/
-sourceLink:
+sourcelink:
 tags:
 - documentation
-thumbnail: /images/cinegyopen-tn.png
+image:  cinegyopen-tn.png
 title: Cinegy Open
 ---

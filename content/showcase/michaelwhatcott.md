@@ -5,11 +5,11 @@ description: ""
 license: Simpl-2.0
 licenseLink: ""
 sitelink: http://michaelwhatcott.com/
-sourceLink: https://bitbucket.org/mdwhatcott/michaelwhatcott.com-boilerplate/src
+sourcelink: https://bitbucket.org/mdwhatcott/michaelwhatcott.com-boilerplate/src
 tags:
 - personal
 - blog
-thumbnail: /images/michaelwhatcott-tn.jpg
+image:  michaelwhatcott-tn.jpg
 title: michaelwhatcott
 ---
 

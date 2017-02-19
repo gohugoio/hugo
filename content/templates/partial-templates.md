@@ -12,7 +12,7 @@ draft: false
 slug:
 aliases: [/templates/partials/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## Partials vs Templates

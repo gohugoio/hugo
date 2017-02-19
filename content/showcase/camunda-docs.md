@@ -5,11 +5,11 @@ description: "Camunda BPM Documentation"
 license: MIT
 licenseLink: "https://github.com/camunda/camunda-docs-theme#licence"
 sitelink: http://docs.camunda.org/
-sourceLink: https://github.com/camunda/camunda-docs-theme
+sourcelink: https://github.com/camunda/camunda-docs-theme
 tags:
 - company
 - documentation
-thumbnail: /images/camunda-docs.png
+image:  camunda-docs.png
 title: Camunda Docs
 ---
 

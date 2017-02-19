@@ -5,10 +5,10 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://mariosanchez.org/
-sourceLink: https://github.com/mariobox/Hugo-Source
+sourcelink: https://github.com/mariobox/Hugo-Source
 tags:
 - personal
 - blog
-thumbnail: /images/mariosanchez-tn.jpg
+image:  mariosanchez-tn.jpg
 title: mariosanchez.org
 ---

@@ -7,6 +7,7 @@ table {
   display: block;
   border-left: 2px solid $hugo-gray;
   margin:0px;
+  font-size:15px;
   tr {
     border-top: 2px solid $hugo-gray;
     th,
@@ -25,6 +26,8 @@ table {
   }
   thead {
     width:100%;
+    background-color: $hugo-black;
+    color:$hugo-white;
     tr {
       min-width:100%;
       th {
@@ -44,7 +47,7 @@ table {
       min-width:100%;
       background-color: $body-bg-color;
       &:nth-child(even) {
-        background-color: $hugo-gray-light;
+        background-color: $hugo-blue-ultra-light;
       }
       &:last-child {
       	border-bottom: 2px solid $hugo-gray;

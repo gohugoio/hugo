@@ -5,11 +5,11 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://vurt.co.uk/
-sourceLink: https://github.com/gilesp/vurtcouk
+sourcelink: https://github.com/gilesp/vurtcouk
 tags:
 - personal
 - blog
-thumbnail: /images/vurt.co-tn.jpg
+image:  vurt.co-tn.jpg
 title: vurt.co.uk
 ---
 

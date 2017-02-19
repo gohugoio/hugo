@@ -5,11 +5,11 @@ description: ""
 license: MIT
 licenseLink: ""
 sitelink: http://danmux.com/
-sourceLink: https://github.com/danmux/danmux-hugo
+sourcelink: https://github.com/danmux/danmux-hugo
 tags:
 - personal
 - blog
-thumbnail: /images/danmux-tn.jpg
+image:  danmux-tn.jpg
 title: Danmux
 ---
 

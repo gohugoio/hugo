@@ -7,7 +7,7 @@ tags:
 - tech
 - blog
 - website
-thumbnail: /images/datapipelinearchitect-tn.jpg
+image:  datapipelinearchitect-tn.jpg
 title: Data Pipeline Architect
 ---
 

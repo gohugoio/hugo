@@ -6,6 +6,6 @@ sitelink: http://nodesk.co/
 tags:
 - digital nomad
 - web
-thumbnail: /images/nodesk-tn.png
+image:  nodesk-tn.png
 title: nodesk.co
 ---

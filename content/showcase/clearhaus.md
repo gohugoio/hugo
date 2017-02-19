@@ -9,6 +9,6 @@ tags:
   - fintech
   - payments
   - acquirer
-thumbnail: /images/clearhaus-tn.png
+image:  clearhaus-tn.png
 title: Clearhaus
 ---

@@ -5,11 +5,11 @@ description: Fabio Alessandro Locati personal blog.
 license: AGPLv3
 licenseLink: ""
 sitelink: http://fale.io/
-sourceLink: https://github.com/fale/fale.io
+sourcelink: https://github.com/fale/fale.io
 tags:
 - personal
 - blog
-thumbnail: /images/fale-tn.png
+image:  fale-tn.png
 title: fale.io
 ---
 

@@ -5,12 +5,13 @@ description: A collection of sites built using Hugo.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: []
+tags: [introduction,overview]
 weight: 01
 draft: false
 hidesectioncontents: false
-slug:
+type: showcase
+layout: showcaselist.html
 aliases: [/site-showcase/]
-notes:
+notesforauthors:
 ---

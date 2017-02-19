@@ -4,11 +4,11 @@ description: "Free Open Source Document Management System"
 license: "Apache 2.0"
 licenseLink: ""
 sitelink: http://www.mayan-edms.com/
-sourceLink: https://gitlab.com/mayan-edms/website
+sourcelink: https://gitlab.com/mayan-edms/website
 tags:
 - paperless
 - floss
-thumbnail: /images/mayan-edms-tn.png
+image:  mayan-edms-tn.png
 title: Mayan EDMS
 ---
 

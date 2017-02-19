@@ -1,19 +1,18 @@
 ---
 title: Ace Templating
 linktitle:
-description:
+description: In addition to Go templates and Amber templates, Hugo supports the powerful Ace templating from @yosssi.
 godocref: https://godoc.org/github.com/yosssi/ace
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
 tags: []
-categories: [templates]
+categories: [amber, templating options]
 draft: false
-slug:
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---
 
 In addition to [Go templates][] and [Amber templates][], Hugo supports the powerful Ace templates.

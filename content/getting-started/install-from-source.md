@@ -6,11 +6,11 @@ date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
 categories: [getting started]
-tags: []
-weight:
+tags: [install]
+weight: 30
 draft: false
 slug:
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---

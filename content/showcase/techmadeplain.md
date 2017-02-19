@@ -8,7 +8,7 @@ sitelink: http://techmadeplain.com/
 tags:
 - personal
 - blog
-thumbnail: /images/techmadeplain-tn.jpg
+image:  techmadeplain-tn.jpg
 title: Tech Made Plain
 ---
 

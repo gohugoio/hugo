@@ -1,0 +1,267 @@
+---
+title: Shortcode Templates
+linktitle: Shortcode Templates
+description:
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+weight:
+categories: [templates]
+tags: [shortcodes]
+draft: false
+aliases: []
+toc: true
+notesforauthors:
+---
+
+## Creating Custom Shortcodes
+
+Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs. In this sense, you can think of shortcodes as the intermediary between [page and list templates][templatessection] and [basic content files][].
+
+### File Placement
+
+To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization][directorystructurepage]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
+
+### Deciding on Shortcode and Parameter Type
+
+You can create the following types of shortcodes
+
+* Positional parameters
+* Named parameters
+* Both positional or named parameters (i.e, "flexible")
+* Single-word shortcodes
+* Nested
+
+#### Positional Parameters
+
+In shortcodes with positional parameters, the order of the parameters is important.
+
+you can choose if the shortcode will use _positional parameters_, or _named parameters_, or _both_. A good rule of thumb is that if a shortcode has a single required value in the case of the `youtube` example below, then positional works very well. For more complex layouts with optional parameters, named parameters work best. Allowing both types of parameters is useful for complex layouts where you want to set default values that can be overridden.
+
+### Accessing Parameters
+
+To access a parameter in any shortcode, use the `.Get` method. Whether you pass a key (string) or a number to the `.Get` method depends on whether you are accessing a named or positional parameter, respectively.
+
+To access a parameter by name, the `.Get` method followed by the named parameter as a quoted string. Named parameters are less terse but do not require that a content author be mindful of the order of parameters.
+
+```golang
+{{ .Get "class" }}
+```
+
+To access a parameter by position, the `.Get` method can be used, keeping in mind that the first positional parameter within the shortcode declaration starts at `0`:
+
+```golang
+{{ .Get 0 }}
+```
+
+`with` is great when the output depends on a parameter being set:
+
+```golang
+{{ with .Get "class"}} class="{{.}}"{{ end }}
+```
+
+`.Get` can also be used to check if a parameter has been provided. This is
+most helpful when the condition depends on either of the values, or both:
+
+```golang
+{{ or .Get "title" | .Get "alt" | if }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
+```
+
+If a closing shortcode is used, the variable `.Inner` will be populated with all of the content between the opening and closing shortcodes. If a closing shortcode is required, you can check the length of `.Inner` and provide a warning to the user.
+
+A shortcode with `.Inner` content can be used without the inline content, and without the closing shortcode, by using the self-closing syntax:
+
+```golang
+{{</* innershortcode /*/>}}
+```
+
+The variable `.Params` contains the list of parameters in case you need to do more complicated things than `.Get`.  It is sometimes useful to provide a flexible shortcode that can take named or positional parameters. To meet this need, Hugo shortcodes have `.IsNamedParams`, a boolean available that can be used such as `{{ if .IsNamedParams }}...{{ else }}...{{ end }}`. See the [example Vimeo shortcode][vimeoexample] below for an example.
+
+You can also use the variable `.Page` to access all the normal [page variables][pagevariablespage].
+
+A shortcodes can also be nested. In a nested shortcode, you can access the parent shortcode context with [`.Parent` variable][shortcodesvariablespage]. This can be very useful for inheritance of common shortcode parameters from the root.
+
+## Custom Shortcode Examples
+
+The following are examples of the different types of shortcodes you can create via template files in `/layouts/shortcodes`.
+
+### Single-word Example: `year`
+
+Let's assume you would like to keep mentions of your copyright year current in your content files without having to continually review your markdown. Your goal is to be able to call the shortcode as follows:
+
+```markdown
+{{</* year */>}}
+```
+
+{{% input "/layouts/shortcodes/year.html" %}}
+```golang
+{{ .Page.Now.Year }}
+```
+{{% /input %}}
+
+### Single Positional Example: `youtube`
+
+Embedded videos are a common addition to markdown content that can quickly become unsightly. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]
+
+```golang
+{{</* youtube 09jf3ow9jfw */>}}
+```
+
+Would load the template at `/layouts/shortcodes/youtube.html`:
+
+{{% input "/layouts/shortcodes/youtube.html" %}}
+```html
+<div class="embed video-player">
+<iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
+</iframe>
+</div>
+```
+{{% /input %}}
+
+
+
+{{% output "youtube-embed.html" %}}
+```html
+<div class="embed video-player">
+    <iframe class="youtube-player" type="text/html"
+        width="640" height="385"
+        src="http://www.youtube.com/embed/09jf3ow9jfw"
+        allowfullscreen frameborder="0">
+    </iframe>
+</div>
+```
+{{% /output %}}
+
+### Single Named Example: `image`
+
+Let's say you want to create your own `img` shortcode rather than use Hugo's built-in [`figure` shortcode][]. Your goal is to be able to call the shortcode as follows in your content files:
+
+{{% input "content-image.md" %}}
+```golang
+{{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
+```
+{{% /input %}}
+
+You have created the shortcode at `/layouts/shortcodes/img.html`, which loads the following shortcode template:
+
+{{% input "/layouts/shortcodes/img.html" %}}
+```html
+<!-- image -->
+<figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
+    {{ with .Get "link"}}<a href="{{.}}">{{ end }}
+        <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}"{{ end }} />
+    {{ if .Get "link"}}</a>{{ end }}
+    {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr")}}
+    <figcaption>{{ if isset .Params "title" }}
+        <h4>{{ .Get "title" }}</h4>{{ end }}
+        {{ if or (.Get "caption") (.Get "attr")}}<p>
+        {{ .Get "caption" }}
+        {{ with .Get "attrlink"}}<a href="{{.}}"> {{ end }}
+            {{ .Get "attr" }}
+        {{ if .Get "attrlink"}}</a> {{ end }}
+        </p> {{ end }}
+    </figcaption>
+    {{ end }}
+</figure>
+<!-- image -->
+```
+{{% /input %}}
+
+Would be rendered as:
+
+{{% output "figure.html" %}}
+```html
+<figure >
+    <img src="/media/spf13.jpg"  />
+    <figcaption>
+        <h4>Steve Francia</h4>
+    </figcaption>
+</figure>
+```
+{{% /output %}}
+
+### Single Flexible Example: `vimeo`
+
+```golang
+{{</* vimeo 49718712 */>}}
+{{</* vimeo id="49718712" class="flex-video" */>}}
+```
+
+Would load the template found at `/layouts/shortcodes/vimeo.html`:
+
+{{% input "/layouts/shortcodes/vimeo.html" %}}
+```html
+{{ if .IsNamedParams }}
+  <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
+    <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
+  </div>
+{{ else }}
+  <div class="{{ if len .Params | eq 2 }}{{ .Get 1 }}{{ else }}vimeo-container{{ end }}">
+    <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
+  </div>
+{{ end }}
+```
+{{% /input %}}
+
+Would be rendered as:
+
+{{% output "vimeo-iframes.html" %}}
+```html
+<div class="vimeo-container">
+  <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+</div>
+<div class="flex-video">
+  <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
+</div>
+```
+{{% /output %}}
+
+### Paired Example: `highlight`
+
+The following is taken from `highlight`, which is a [built-in shortcode][] that ships with Hugo.
+
+{{% input "highlight-example.md" %}}
+```markdown
+{{</* highlight html */>}}
+  <html>
+    <body> This HTML </body>
+  </html>
+{{</* /highlight */>}}
+```
+{{% /input %}}
+
+The template for the `highlight` shortcode uses the following code, which is already included in Hugo:
+
+```golang
+{{ .Get 0 | highlight .Inner  }}
+```
+
+The rendered output of the HTML example code block will be as follows:
+
+{{% output "syntax-highlighted.html" %}}
+```html
+<div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
+    <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
+<span style="color: #f92672">&lt;/html&gt;</span>
+</pre></div>
+```
+{{% /output %}}
+
+{{% note %}}
+The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/developer-tools/syntax-highlighting/) for more information.
+{{% /note %}}
+
+## More Shortcode Examples
+
+More shortcode examples can be found in the [shortcodes directory for spf13.com][spf13shortcodesdirectory] and the [shortcodes directory for the Hugo docs][docsshortcodesdirectory].
+
+[built-in shortcode]: /content-management/shortcodes/
+[directorystructurepage]: /getting-started/directory-structure/ "Learn how Hugo scaffolds new sites and what it expects to find in each of your directories."
+[docsshortcodesdirectory]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."
+[basic content files]: /content-management/supported-content-formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
+[pagevariablespage]: /variables-and-params/page-variables/ "See which variables you can leverage in your templating for page vs list templates."
+[shortcodesvariablespage]: /variables-and-params/shortcode-variables/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."
+[spf13shortcodesdirectory]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes "See more examples of shortcodes by visiting the shortcode directory of the source for spf13.com, the blog of Hugo's creator, Steve Francia."
+[templatessection]: /templates/ "The templates section of the Hugo docs."
+[vimeoexample]: #single-flexible-example-vimeo
+[youtubeshortcode]: /content-management/shortcodes/#youtube "See how to use Hugo's built-in YouTube shortcode."

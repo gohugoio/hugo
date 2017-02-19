@@ -5,12 +5,12 @@ description: "consequently.org, Greg Restall's personal website"
 license: ""
 licenseLink: ""
 sitelink: http://consequently.org
-sourceLink: "https://github.com/consequently/consequently-hugo"
+sourcelink: "https://github.com/consequently/consequently-hugo"
 tags:
 - academic
 - blog
 - kube
-thumbnail: /images/consequently.jpg
+image:  consequently.jpg
 title: consequently.org
 ---
 

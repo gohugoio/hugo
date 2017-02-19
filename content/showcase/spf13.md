@@ -5,11 +5,11 @@ description: The first Hugo powered website.
 license: MIT
 licenseLink: ""
 sitelink: http://spf13.com/
-sourceLink: https://github.com/spf13/spf13.com
+sourcelink: https://github.com/spf13/spf13.com
 tags:
 - personal
 - blog
-thumbnail: /images/spf13-tn.jpg
+image:  spf13-tn.jpg
 title: spf13.com
 ---
 

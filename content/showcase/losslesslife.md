@@ -10,6 +10,6 @@ tags:
 - reviews
 - education
 - audiophile
-thumbnail: /images/losslesslife-tn.png
+image:  losslesslife-tn.png
 title: LosslessLife
 ---

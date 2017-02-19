@@ -12,10 +12,11 @@ draft: false
 slug:
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---
 
 `.IsNamedParams` (reference to shortcodes)
 `.TableOfContents` (reference to content/table-of-contents)
+`.Parent` (reference to nested shortcodes paragraph in /shortcodes/)
 
 <!-- Include rss and sitemap variables for page variables as well -->

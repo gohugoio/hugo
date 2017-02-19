@@ -12,7 +12,7 @@ draft: false
 slug:
 aliases: [/troubleshooting/categories-with-accented-characters/]
 toc: true
-notes: "All troubleshooting docs should include two h2-headings, one for 'Trouble:' and one for 'Solution:'. Additional h2-headings include 'Discussion Forum Threads', 'Related Hugo Issues', and 'Additional References'."
+notesforauthors: "All troubleshooting docs should include two h2-headings, one for 'Trouble:' and one for 'Solution:'. Additional h2-headings include 'Discussion Forum Threads', 'Related Hugo Issues', and 'Additional References'."
 ---
 
 ## Trouble: Categories with accented characters

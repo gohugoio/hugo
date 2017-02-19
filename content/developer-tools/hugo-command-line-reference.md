@@ -12,7 +12,7 @@ draft: false
 slug:
 aliases: []
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## Generators

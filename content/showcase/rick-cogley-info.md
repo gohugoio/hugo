@@ -5,12 +5,12 @@ description: Rick Cogley's personal site, powered by Hugo.
 license: MIT
 licenseLink: ""
 sitelink: http://rick.cogley.info/
-sourceLink: https://github.com/RickCogley/RCC-Hugo2015
+sourcelink: https://github.com/RickCogley/RCC-Hugo2015
 tags:
 - personal
 - blog
 - rickcogley
 - japan
-thumbnail: /images/rick_cogley_info-tn.jpg
+image:  rick_cogley_info-tn.jpg
 title: rick.cogley.info
 ---

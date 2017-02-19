@@ -5,11 +5,11 @@ description: Appernetic.io blog
 license: MIT
 licenseLink: https://github.com/appernetic/hugo-bootstrap-premium/blob/master/LICENSE.md
 sitelink: https://blog.appernetic.io/
-sourceLink: https://github.com/appernetic/hugo-bootstrap-premium
+sourcelink: https://github.com/appernetic/hugo-bootstrap-premium
 tags:
 - company
 - blog
 - bootstrap
-thumbnail: /images/apperneticioblog.png
+image:  apperneticioblog.png
 title: Appernetic
 ---

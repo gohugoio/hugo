@@ -6,10 +6,10 @@ date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
 categories: [getting started]
-tags: []
-weight:
+tags: [install,mac,osx]
+weight: 50
 draft: false
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---

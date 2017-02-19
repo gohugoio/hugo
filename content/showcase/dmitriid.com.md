@@ -4,11 +4,11 @@ description: "Personal blog"
 license: "CC BY-NC 4.0"
 licenseLink: ""
 sitelink: http://dmitriid.com/
-sourceLink: https://github.com/dmitriid/dmitriid.com
+sourcelink: https://github.com/dmitriid/dmitriid.com
 tags:
 - personal
 - blog
-thumbnail: /images/dmitriid.com.png
+image:  dmitriid.com.png
 title: dmitriid.com
 ---
 

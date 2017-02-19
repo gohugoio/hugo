@@ -1,18 +1,17 @@
 ---
 title: Configuration
 linktitle:
-description: Your configuration can include precise directions to Hugo regarding how it should render your website.
+description: Hugo is designed to make enough assumptions that often configuration is unnecessary. However, a site config file can include precise directions to Hugo on how you want to render your website.
 date: 2017-01-02
 publishdate: 2017-01-02
 lastmod: 2017-01-02
-tags: [configuration,fundamentals,toml,yaml,json]
 categories: [project organization]
-weight: 10
+tags: [configuration,fundamentals,toml,yaml,json]
+weight: 90
 draft: false
-slug:
 aliases: [/overview/source-directory/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
@@ -331,6 +330,6 @@ The above is a list of regular expressions. Note that the backslash (`\`) charac
 [`.Site.Params`]: /variables-and-params/
 [directory structure]: /project-organization/directory-structure
 [JSON Spec]: /documents/ecma-404-json-spec.pdf
-[templates]: /templates
+[templates]: /templates/
 [TOML Spec]: https://github.com/toml-lang/toml
 [YAML Spec]: http://yaml.org/spec/

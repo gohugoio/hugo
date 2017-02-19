@@ -5,12 +5,12 @@ description: Multilingual, community documentation and blog site
 license: ""
 licenseLink: ""
 sitelink: https://www.fxsitecompat.com/
-sourceLink: https://github.com/fxsitecompat/www.fxsitecompat.com
+sourcelink: https://github.com/fxsitecompat/www.fxsitecompat.com
 tags:
 - community
 - documentation
 - translation
-thumbnail: /images/fxsitecompat-tn.png
+image:  fxsitecompat-tn.png
 title: Firefox Site Compatibility
 ---
 

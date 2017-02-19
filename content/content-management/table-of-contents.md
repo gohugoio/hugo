@@ -11,5 +11,5 @@ weight: 100
 draft: false
 aliases: [/extras/toc/]
 toc: false
-notes:
+notesforauthors:
 ---

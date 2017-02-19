@@ -12,5 +12,5 @@ draft: false
 slug:
 aliases: [/layout/homepage/,/templates/homepage/]
 toc: false
-notes:
+notesforauthors:
 ---

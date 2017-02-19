@@ -5,12 +5,12 @@ description: Tokyo IT service provider eSolia Inc's Hugo-powered website.
 license: MIT
 licenseLink: ""
 sitelink: http://esolia.com/
-sourceLink: https://github.com/eSolia/eSolia
+sourcelink: https://github.com/eSolia/eSolia
 tags:
 - company
 - esolia
 - rickcogley
 - japan
-thumbnail: /images/esolia_com-tn.png
+image:  esolia_com-tn.png
 title: eSolia.com
 ---

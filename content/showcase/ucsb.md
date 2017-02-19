@@ -5,10 +5,10 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://philosophy.ucsb.edu/
-sourceLink: https://github.com/ucsbphil/philweb
+sourcelink: https://github.com/ucsbphil/philweb
 tags:
 - education
-thumbnail: /images/ucsb-tn.jpg
+image:  ucsb-tn.jpg
 title: ucsb
 ---
 

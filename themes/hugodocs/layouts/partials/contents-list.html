@@ -1,6 +1,7 @@
 {{$kind := .Kind}}
 {{if eq $kind "section"}}
-<h2 class="section-heading"><em>{{.Title | markdownify}}</em> Contents:</h2>
+{{$section := replace (humanize .Section | title) "And" "and"}}
+<h2 class="section-heading">In <em>{{$section }}</em>:</h2>
 {{end}}
 {{range .Data.Pages}}
 <a href="{{.Permalink}}">

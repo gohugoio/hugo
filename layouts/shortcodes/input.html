@@ -1,6 +1,6 @@
 {{- if .IsNamedParams -}}
 {{$filenameclass := index (split (.Get "filename") ".") 1 }}
-<div class="code-copy" id="{{.Get "filename" | urlize}}">
+<div class="code-copy input" id="{{.Get "filename" | urlize}}">
 	{{- with .Get "filename" -}}<div class="code-copy-header"><div class="action-buttons"></div><span title="{{.}}" class="filename">{{- . -}}</span><i class="icon-{{$filenameclass}} input"></i></div>{{- end -}}
 	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
 			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
@@ -9,7 +9,7 @@
 </div>
 {{- else -}}
 {{$filenameclass := index (split (.Get 0) ".") 1 }}
-<div class="code-copy" id="{{.Get 0|urlize}}">
+<div class="code-copy input" id="{{.Get 0|urlize}}">
 	<div class="code-copy-header"><div class="action-buttons"></div><span class="filename" title="{{.Get 0}}">{{.Get 0}}</span><i class="icon-{{$filenameclass}} input"></i></div>
 	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
 			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>

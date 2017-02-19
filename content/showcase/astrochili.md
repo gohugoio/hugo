@@ -4,11 +4,11 @@ description: "Personal website"
 license: ""
 licenseLink: ""
 sitelink: http://romansilin.com/
-sourceLink: https://github.com/astrochili/astrochili.github.io
+sourcelink: https://github.com/astrochili/astrochili.github.io
 tags:
 - personal
 - blog
-thumbnail: /images/astrochili-tn.png
+image:  astrochili-tn.png
 title: Roman Silin
 ---
 

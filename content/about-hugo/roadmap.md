@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-linktitle:
+linktitle: Roadmap
 description: Take a look at what's in the pipeline for future versions of the Hugo project, as well related GitHub issues and Hugo Forum discussions for new features.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,7 +11,7 @@ draft: false
 slug:
 aliases: [/meta/roadmap]
 toc: false
-notes:
+notesforauthors:
 ---
 
 In no particular order, here is what is currently being worked on for the Hugo project:

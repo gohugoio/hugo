@@ -4,10 +4,10 @@ description: "Peter Y. Chuang - Novelist, Short Story Writer"
 license: ""
 licenseLink: ""
 sitelink: https://novelist.xyz
-sourceLink: https://github.com/peterychuang/peterychuang.github.io/tree/source
+sourcelink: https://github.com/peterychuang/peterychuang.github.io/tree/source
 tags:
 - personal
 - blog
-thumbnail: /images/novelist-xyz.png
+image:  novelist-xyz.png
 title: Peter Y. Chuang
 ---

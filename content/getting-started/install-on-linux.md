@@ -5,11 +5,11 @@ description:
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2016-11-01
-weight:
+weight: 40
 categories: [getting started]
-tags: []
+tags: [install,linux]
 draft: false
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---

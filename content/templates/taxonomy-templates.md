@@ -12,9 +12,14 @@ draft: false
 slug:
 aliases: []
 toc: true
-notes:
+notesforauthors:
 ---
 
-## Taxonomy Templates
+## Taxonomy Terms Page Templates
 
-## Terms Templates
+### Lookup Order for Taxonomy Terms Page Templates
+
+## Taxonomy List Page Templates
+
+### Lookup Order for Taxonomy List Page Templates
+

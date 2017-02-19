@@ -3,10 +3,10 @@ lastmod: 2015-08-21
 date: 2015-08-23
 description: Chinese grammar lessons
 sitelink: https://www.chineseboost.com/grammar/
-sourceLink: https://github.com/hughgrigg/chineseboost-articles
+sourcelink: https://github.com/hughgrigg/chineseboost-articles
 tags:
 - learning
 - education
-thumbnail: /images/chinese-grammar-tn.png
+image:  chinese-grammar-tn.png
 title: Chinese Grammar
 ---

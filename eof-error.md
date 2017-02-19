@@ -9,7 +9,7 @@ weight:
 draft: false
 slug:
 aliases: [/troubleshooting/faqs]
-notes:
+notesforauthors:
 ---
 
 ## `hugo new` Aborts with a Cryptic EOF Error

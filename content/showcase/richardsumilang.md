@@ -5,13 +5,13 @@ description: "Personal website dedicated to electronics, programming, and review
 license: "MIT"
 licenseLink: "https://opensource.org/licenses/MIT"
 sitelink: http://richardsumilang.com/
-sourceLink: https://github.com/richardsumilang-blog
+sourcelink: https://github.com/richardsumilang-blog
 tags:
 - personal
 - blog
 - technical
 - electronics
 - reviews
-thumbnail: /images/richardsumilang-tn.png
+image:  richardsumilang-tn.png
 title: Richard Sumilang - Top Secret Labs
 ---

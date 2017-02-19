@@ -12,7 +12,7 @@ draft: false
 slug:
 aliases: [/extras/highlighting/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## Code Blocks in Markdown

@@ -5,11 +5,11 @@ description: This site
 license: Simpl
 licenseLink: ""
 sitelink: http://gohugo.io/
-sourceLink: https://github.com/spf13/hugo/tree/master/docs
+sourcelink: https://github.com/spf13/hugo/tree/master/docs
 tags:
 - documentation
 - bootstrap
-thumbnail: /images/hugo-tn.jpg
+image:  hugo-tn.jpg
 title: Hugo
 ---
 

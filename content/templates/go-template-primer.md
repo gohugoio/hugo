@@ -13,7 +13,7 @@ draft: false
 slug:
 aliases: [/templates/go-templates/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 Hugo uses the excellent [Go html/template][] library, an extremely lightweight engine that provides just the right amount of logic to be able to create a good static website. If you have used other template systems from different languages or frameworks, you will find a lot of similarities in Go templates.
@@ -28,23 +28,19 @@ A unique characteristic of Go templates is they are content aware. Variables and
 
 ## Basic Syntax
 
-Golang templates are HTML files with the addition of [variables][variablesparams] and [functions][hugofunctions].
+Golang templates are HTML files with the addition of [variables][variablesparams] and [functions][hugofunctions]. Golang template variables and functions are accessible within `{{ }}`.
 
-**Go variables and functions are accessible within {{ }}**
-
-Accessing a predefined variable "foo":
+### Accessing a Predefined Variable
 
 ```golang
 {{ foo }}
 ```
 
-**Parameters are separated using spaces**
-
-Calling the `add` function with input of 1, 2:
+Parameters for functions are separated using spaces. The following example calls the `add` function with inputs of `1` and `2`:
 
 ```golang
 {{ add 1 2 }}
-```
+```d
 
 **Methods and fields are accessed via dot notation**
 

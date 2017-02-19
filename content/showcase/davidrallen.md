@@ -4,12 +4,12 @@ description: "Personal website for David Allen"
 license: "MIT"
 licenseLink: "https://opensource.org/licenses/MIT"
 sitelink: http://davidrallen.com/
-sourceLink: https://github.com/doctorallen/davidrallen.com
+sourcelink: https://github.com/doctorallen/davidrallen.com
 tags:
 - personal
 - blog
 - tech
-thumbnail: /images/davidrallen-tn.png
+image:  davidrallen-tn.png
 title: David Allen
 ---
 

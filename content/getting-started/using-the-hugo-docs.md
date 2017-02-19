@@ -6,13 +6,13 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
-tags: []
-weight: 10
+tags: [usage,docs]
+weight: 20
 draft: false
 slug:
 aliases: [/getting-started/using-the-docs/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## Example Site

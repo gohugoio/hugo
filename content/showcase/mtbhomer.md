@@ -4,11 +4,11 @@ description: "Personal website Martijn ten Bhömer"
 license: ""
 licenseLink: ""
 sitelink: https://www.mtbhomer.com/
-sourceLink: https://github.com/mtbhomer/web-portfolio
+sourcelink: https://github.com/mtbhomer/web-portfolio
 tags:
 - personal
 - portfolio
 - design
-thumbnail: /images/mtbhomer-tn.png
+image:  mtbhomer-tn.png
 title: mtbhomer.com
 ---

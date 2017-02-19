@@ -50,6 +50,8 @@ verboseLog = false
 # Setting this to false will keep hugo from watching for changes during local development
 watch = true
 
+[permalinks]
+  temp = "/:title"
 
 #CUSTOM PARAMS
 [params]
@@ -89,8 +91,8 @@ watch = true
   ## Discuss Forum URL
   forum = "https://discuss.hugo.io"
   gtmid = ""
-  # Set to true to include a CDN call to FontAwesome
-  usefontawesome = true
+  # Set to true to include a CDN call to FontAwesome (not that Hugo docs currently hosts its own FA (see pipeline/scss/_variables.scss))
+  usefontawesome = false
 # MARKDOWN
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
 [blackfriday]
@@ -101,4 +103,4 @@ watch = true
 
 [taxonomies]
   tag = "tags"
-  category = ""
+  category = "categories"

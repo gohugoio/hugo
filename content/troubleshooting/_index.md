@@ -1,6 +1,6 @@
 ---
-title: Troubleshooting
-linktitle: Troubleshooting
+title: Overview
+linktitle: Overview
 description: Frequently asked questions and known issues pulled from the Hugo Discuss forum.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,6 +11,13 @@ hidesectioncontents: false
 slug:
 aliases: [/troubleshooting/faqs/,/faqs/]
 toc: false
-notes:
+notesforauthors:
 ---
+
+The Troubleshooting section includes known issues, recent workarounds, and FAQs pulled from the [Hugo Discussion Forum][].
+
+
+
+
+[Hugo Discussion Forum]: https://discuss.gohugo.io
 

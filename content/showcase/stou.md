@@ -5,11 +5,11 @@ description: "Rasmus Stougaard"
 license: ""
 licenseLink: ""
 sitelink: http://stou.dk/
-sourceLink: "https://github.com/stou/stou.github.io"
+sourcelink: "https://github.com/stou/stou.github.io"
 tags:
 - personal
 - blog
-thumbnail: /images/stou-tn.png
+image:  stou-tn.png
 title: stou.dk
 ---
 

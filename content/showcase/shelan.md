@@ -5,10 +5,10 @@ description: Shelan's Blog
 license: MIT
 licenseLink: ""
 sitelink: http://shelan.org/
-sourceLink: https://github.com/shelan/my-hugo-site
+sourcelink: https://github.com/shelan/my-hugo-site
 tags:
 - personal
 - blog
-thumbnail: /images/shelan-tn.png
+image:  shelan-tn.png
 title: shelan.org
 ---

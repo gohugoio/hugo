@@ -9,9 +9,9 @@ tags: [archetypes,generators,metadata,front matter]
 categories: ["content management"]
 weight: 50
 draft: false
-aliases: [/content/archetypes/]
+aliases: [/content/archetypes/,/content-management/content-archetypes/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## What are Archetypes?

@@ -1,7 +1,7 @@
 ---
 title: Hugo Features
 linktitle:
-description: Hugo is the world's fastest static site generator, includes a powerful templating language, and works for websites of all sizes and types.
+description: In addition to blistering speed, Hugo also includes a powerful templating language that makes it appropriate for websites of all sizes and types.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -10,7 +10,7 @@ draft: false
 slug:
 aliases: [/about-hugo/features]
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## General
@@ -82,7 +82,7 @@ See what's coming next in the [Hugo roadmap][].
 [RSS]: /templates/rss-templates/
 [Shortcodes]: /templates/shortcodes/
 [sort content]: /templates/
-[supported formats]: /content-management/markdown-and-supported-formats/
+[supported formats]: /content-management/supported-content-formats/
 [Syntax highlighting]: /developer-tools/syntax-highlighting/
 [table of contents]: /content-management/table-of-contents/
 [taxonomies]: /content-management/taxonomies/

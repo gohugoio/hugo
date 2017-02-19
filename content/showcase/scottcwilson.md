@@ -5,11 +5,11 @@ description: Personal portfolio, created with Hugo
 license: MIT
 licenseLink: ""
 sitelink: http://scottcwilson.github.io/
-sourceLink: https://github.com/scottcwilson/hugosite
+sourcelink: https://github.com/scottcwilson/hugosite
 tags:
 - personal
 - blog
-thumbnail: /images/scottcwilson-tn.png
+image:  scottcwilson-tn.png
 title: scottcwilson.com
 ---
 

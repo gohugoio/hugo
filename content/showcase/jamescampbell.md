@@ -4,11 +4,11 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: https://jamescampbell.us/
-sourceLink: https://github.com/jamesacampbell/causes-and-effects-hugo
+sourcelink: https://github.com/jamesacampbell/causes-and-effects-hugo
 tags:
 - personal
 - blog
-thumbnail: /images/jamescampbell-tn.png
+image:  jamescampbell-tn.png
 title: jamescampbell.us
 ---
 

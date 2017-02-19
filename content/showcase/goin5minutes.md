@@ -5,9 +5,9 @@ description: "Code for Go in 5 Minutes Screencasts"
 license: "Apache License 2.0"
 licenseLink: "https://github.com/arschles/go-in-5-minutes/blob/master/LICENSE"
 sitelink: http://www.goin5minutes.com/
-sourceLink: https://github.com/arschles/go-in-5-minutes/tree/master/www
+sourcelink: https://github.com/arschles/go-in-5-minutes/tree/master/www
 tags:
 - screencasts
-thumbnail: /images/goin5minutes-tn.png
+image:  goin5minutes-tn.png
 title: Go in 5 minutes
 ---

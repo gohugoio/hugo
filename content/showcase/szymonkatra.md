@@ -5,11 +5,11 @@ description: Szymon Katra
 license: ""
 licenseLink: ""
 sitelink: http://szymonkatra.github.io/
-sourceLink: https://github.com/SzymonKatra/SzymonKatra.github.io/tree/master/hugo_project
+sourcelink: https://github.com/SzymonKatra/SzymonKatra.github.io/tree/master/hugo_project
 tags:
 - personal
 - blog
-thumbnail: /images/szymonkatra-tn.png
+image:  szymonkatra-tn.png
 title: szymonkatra.github.io
 ---
 

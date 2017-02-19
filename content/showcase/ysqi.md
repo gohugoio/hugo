@@ -4,10 +4,10 @@ description: "虞双齐个人博客"
 license: "MIT"
 licenseLink: "https://opensource.org/licenses/MIT"
 sitelink: https://www.yushuangqi.com/
-sourceLink: https://github.com/ysqi/yushuangqi.com/
+sourcelink: https://github.com/ysqi/yushuangqi.com/
 tags:
 - personal
 - blog
-thumbnail: /images/ysqi-blog.png
+image:  ysqi-blog.png
 title: yushuangqi-blog
 ---

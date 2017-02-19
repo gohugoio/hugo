@@ -1,8 +1,9 @@
 {{$version := .Hugo.Version}}
+{{$base := .Site.BaseURL}}
 <header id="site-header" class="site-header">
   <div class="hugo-meta" title="Hugo version {{$version}}">
   <a href="/" id="home-link">
-    <img src="/images/hugo-logo-wide.png" alt=""><span class="hugo-v">v{{$version}}</span>
+    <img src="{{$base}}images/hugo-logo/hugo-logo-wide.png" alt=""><span class="hugo-v">v{{$version}}</span>
   </a>
   </div>
 </header>

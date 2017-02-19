@@ -12,5 +12,5 @@ draft: false
 slug:
 aliases: [/extras/menus/]
 toc: false
-notes:
+notesforauthors:
 ---

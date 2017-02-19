@@ -1,6 +1,6 @@
 ---
-title: Developer Tools
-linktitle: Developer Tools
+title: Overview
+linktitle: Overview
 description: Description for the developer tools section.
 date: 2016-11-01
 publishdate: 2016-11-01
@@ -12,5 +12,5 @@ draft: false
 slug:
 aliases: []
 toc:
-notes:
+notesforauthors:
 ---

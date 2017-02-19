@@ -5,11 +5,11 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://blog.ninya.io/
-sourceLink: https://github.com/ninya-io/ninya-io.github.io/tree/dev
+sourcelink: https://github.com/ninya-io/ninya-io.github.io/tree/dev
 tags:
 - project
 - blog
-thumbnail: /images/ninya-tn.jpg
+image:  ninya-tn.jpg
 title: ninya.io
 ---
 

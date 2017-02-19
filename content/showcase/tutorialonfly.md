@@ -10,6 +10,6 @@ tags:
 - free
 - ebook download
 - fast
-thumbnail: /images/tutorialonfly-tn.jpg
+image:  tutorialonfly-tn.jpg
 title: Tutorialonfly
 ---

@@ -4,11 +4,11 @@ description: "Personal site + blog"
 license: ""
 licenseLink: ""
 sitelink: https://stefano.chiodino.uk/
-sourceLink: https://github.com/Draga/go-web
+sourcelink: https://github.com/Draga/go-web
 tags:
 - personal
 - blog
-thumbnail: /images/stefano.chiodino-tn.png
+image:  stefano.chiodino-tn.png
 title: stefano.chiodino.uk
 ---
 

@@ -5,11 +5,11 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: https://peteraba.com/
-sourceLink: https://github.com/peteraba/peteraba.com
+sourcelink: https://github.com/peteraba/peteraba.com
 tags:
 - personal
 - blog
-thumbnail: /images/peteraba-tn.jpg
+image:  peteraba-tn.jpg
 title: peteraba
 ---
 

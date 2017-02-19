@@ -7,19 +7,19 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute to hugo]
 tags: [docs,documentation,community]
-weight:
+weight: 20
 draft: false
 slug:
 aliases: []
 toc: true
-notes:
+notesforauthors:
 ---
 
 Documentation is an integral part of any open source project. The Hugo docs were completely reworked in anticipation of the release of v0.19, but there is always room for improvement.
 
 ## Edit Locally and Submit a Pull Request
 
-## How Content is Ordered in Hugo
+## How Content is Ordered in the Hugo Docs
 
 ## Creating New Files from Archetypes
 

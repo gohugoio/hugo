@@ -5,11 +5,11 @@ description: "bep's blog"
 license: ""
 licenseLink: ""
 sitelink: http://bepsays.com/
-sourceLink: "https://github.com/bep/bepsays.com"
+sourcelink: "https://github.com/bep/bepsays.com"
 tags:
 - personal
 - blog
-thumbnail: /images/bepsays-tn.png
+image:  bepsays-tn.png
 title: bepsays.com
 ---
 

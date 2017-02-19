@@ -4,11 +4,11 @@ description: "The personal website of Randall Degges."
 license: "Unlicense"
 licenseLink: "http://unlicense.org/"
 sitelink: https://www.rdegges.com/
-sourceLink: https://github.com/rdegges/rdegges-www
+sourcelink: https://github.com/rdegges/rdegges-www
 tags:
 - personal
 - blog
-thumbnail: /images/rdegges-tn.png
+image:  rdegges-tn.png
 title: Randall Degges
 ---
 

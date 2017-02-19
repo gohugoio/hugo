@@ -12,5 +12,5 @@ draft: false
 slug:
 aliases: [/extras/pagination]
 toc: false
-notes:
+notesforauthors:
 ---

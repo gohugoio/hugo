@@ -1,22 +1,21 @@
 ---
 title: Amber Templating
 linktitle:
-description:
+description: In addition to Go templates and Ace templates, Hugo supports the powerful Amber templating from @eknkc.
 godocref: https://godoc.org/github.com/eknkc/amber
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
-tags: [amber,layout]
 categories: [templates]
+tags: [amber, templating options]
 draft: false
-slug: [/templates/amber/]
-aliases:
+aliases: [/templates/amber/]
 toc: false
-notes:
+notesforauthors:
 ---
 
-Amber templates are another template type which Hugo supports, in addition to [Go templates][] and [Ace templates][] templates.
+Hugo also supports the Amber templating engine in addition to [Go templates][] and [Ace templates][] templates.
 
 For template documentation, follow the links from the [Amber project][].
 

@@ -2,14 +2,14 @@
 	<ul class="breadcrumbs">
 		<li>
 			<a class="crumb" href="{{.Site.BaseURL}}">
-    		<img src="{{.Site.BaseURL}}images/hugo-home.svg" alt="">
+    		<img src="{{.Site.BaseURL}}images/hugo-icons/hugo-home.svg" alt="">
     		<span>Home</span>
   		</a>
 		</li>
 		{{if ne .Kind "section"}}
 		<li>
 			<a class="crumb" href="{{.Site.BaseURL}}{{.Section | urlize}}">
-    		<img src="{{.Site.BaseURL}}images/{{.Section | urlize}}.svg" alt="">
+    		<img src="{{.Site.BaseURL}}images/hugo-icons/{{.Section | urlize}}.svg" alt="">
     		<span>{{replace (replace .Section "-" " " | title) "And" "and"}}</span>
   		</a>
 		</li>

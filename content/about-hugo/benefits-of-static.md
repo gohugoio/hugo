@@ -1,7 +1,7 @@
 ---
 title: The Benefits of Static
 linktitle: The Benefits of Static
-description: Learn why static site generators have become so popular. Benefits include performance, security, ease of use, and exportability of content.
+description: Learn why static site generators have become such a popular option for developers. Benefits include performance, security, ease of use, and exportability of content.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -11,7 +11,7 @@ draft: false
 slug:
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---
 
 Website generators render content into HTML files. Most are "dynamic site generators." That means the HTTP server (i.e., the program that communicates with your end user's browser) runs the generator to create a new HTML file every time an end user requests a page.

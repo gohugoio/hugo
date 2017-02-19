@@ -57,6 +57,13 @@ pre {
   td > a code {
     color: $hugo-pink;
   }
+  > pre {
+    padding-bottom:20px;
+    padding-top:20px;
+    background-color: $code-block-background-color;
+    font-family: $code-font-family;
+    color: $code-block-base-font-color;
+  }
 }
 
 //for clipboard.js tooltip and button
@@ -65,6 +72,9 @@ div.code-copy {
   margin-top: 1em;
   margin-bottom: 32px;
   background-color: $code-block-background-color;
+  &.input {
+    padding-bottom: 24px;
+  }
 }
 
 p + .code-copy {

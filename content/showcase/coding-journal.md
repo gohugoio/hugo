@@ -5,10 +5,10 @@ description: blog, portfolio
 license: ""
 licenseLink: ""
 sitelink: http://blog.kulman.sk/
-sourceLink: https://github.com/igorkulman/coding-journal
+sourcelink: https://github.com/igorkulman/coding-journal
 tags:
 - blog
 - portfolio
-thumbnail: /images/codingjournal-tn.png
+image:  codingjournal-tn.png
 title: Coding Journal
 ---

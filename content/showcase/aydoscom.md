@@ -6,7 +6,7 @@ licenseLink: ""
 sitelink: https://aydos.com/
 tags:
 - web applications
-thumbnail: /images/aydoscom.png
+image:  aydoscom.png
 title: aydos.com
 ---
 

@@ -11,7 +11,7 @@ weight: 30
 draft: false
 aliases: [/meta/release-notes/]
 toc: true
-notes:
+notesforauthors:
 ---
 
 ## **0.18.1** December 30th 2016

@@ -12,7 +12,7 @@ draft: false
 slug:
 aliases: [/templates/list/]
 toc: false
-notes:
+notesforauthors:
 ---
 
 ## Understanding what is Meant by a "List" Page

@@ -4,10 +4,10 @@ description: Weilin's blog
 license: MIT
 licenseLink: ""
 sitelink: http://weilinshi.org/
-sourceLink: https://github.com/steambap/weilinshi.org
+sourcelink: https://github.com/steambap/weilinshi.org
 tags:
 - personal
 - blog
-thumbnail: /images/steambap.png
+image:  steambap.png
 title: weilinshi
 ---

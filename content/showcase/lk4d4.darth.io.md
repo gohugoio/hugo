@@ -5,11 +5,11 @@ description: Alexandr Morozov
 license: ""
 licenseLink: ""
 sitelink: http://lk4d4.darth.io/
-sourceLink: https://github.com/LK4D4/lk4d4.darth.io
+sourcelink: https://github.com/LK4D4/lk4d4.darth.io
 tags:
 - personal
 - blog
-thumbnail: /images/lk4d4-tn.jpg
+image:  lk4d4-tn.jpg
 title: lk4d4.darth.io
 ---
 

@@ -7,11 +7,10 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
 tags: [quick start,usage]
-weight: 20
+weight: 10
 draft: false
-slug:
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---
 

@@ -5,11 +5,11 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
+categories: [hosting and deployment]
+tags: [hosting,bitbucket]
 weight:
 draft: false
-tags: [bitbucket]
-categories: [hosting and deployment]
 toc: false
 aliases: []
-notes:
+notesforauthors:
 ---

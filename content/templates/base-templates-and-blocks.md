@@ -7,13 +7,12 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight:
-tags: [blocks,base]
 categories: [templates]
+tags: [blocks,base,fundamentals]
 draft: false
-slug:
 aliases: [/templates/blocks/]
-toc: false
-notes:
+toc: true
+notesforauthors:
 ---
 
 ## Base Template Lookup Order

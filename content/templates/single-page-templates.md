@@ -12,7 +12,7 @@ draft: false
 slug:
 aliases: []
 toc: false
-notes:
+notesforauthors:
 ---
 
 ## Lookup Order for Single Page Templates

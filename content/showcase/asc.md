@@ -5,11 +5,11 @@ description: ""
 license: CC-BY-SA
 licenseLink: ""
 sitelink: http://andrewcodispoti.com/
-sourceLink: https://gitlab.com/acodispo/andrewcodispoti-com
+sourcelink: https://gitlab.com/acodispo/andrewcodispoti-com
 tags:
 - personal
 - bootstrap
-thumbnail: /images/asc-tn.jpg
+image:  asc-tn.jpg
 title: Andrew S Codispoti
 ---
 

@@ -5,11 +5,11 @@ description: "Robert Basic is a web developer from Serbia."
 license: ""
 licenseLink: ""
 sitelink: http://robertbasic.com/
-sourceLink: https://github.com/robertbasic/robertbasic.com-hugo
+sourcelink: https://github.com/robertbasic/robertbasic.com-hugo
 tags:
 - personal
 - blog
-thumbnail: /images/robertbasic-tn.jpg
+image:  robertbasic-tn.jpg
 title: Robert Basic's blog
 ---
 

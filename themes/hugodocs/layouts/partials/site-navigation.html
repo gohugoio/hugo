@@ -12,7 +12,7 @@
 		{{$.Scratch.Set "url" .URL }}
 		{{range $item, $params := sort ($.Site.Data.sitenavigation) "order"}}
 		{{$section := $params.url}}
-		<li class="top-menu-item"><a class="list-icon top-menu-item-link {{$params.haschildren}}{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="{{if $params.haschildren}}#{{else}}{{$base}}{{$params.url}}{{end}}"><div class="list-icon-wrapper"><img src="{{$base}}images/{{$section}}.svg" alt=""></div>{{$params.title}}</a>
+		<li class="top-menu-item"><a class="list-icon top-menu-item-link {{$params.haschildren}}{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="{{if $params.haschildren}}#{{else}}{{$base}}{{$params.url}}{{end}}"><div class="list-icon-wrapper"><img src="{{$base}}images/hugo-icons/{{$section}}.svg" alt=""></div>{{$params.title}}</a>
 		{{if $params.haschildren}}
 			<ul class="submenu">
 				{{- if eq $params.sortsubpagesby "title"}}
@@ -30,7 +30,8 @@
 		{{end}}
 	</ul>
 	<div class="nav-buttons">
+		<a role="button" href="https://github.com/spf13/hugo/releases"><i class="icon-download"></i>Download Hugo</a>
 		<a role="button" href="{{.Site.Params.discuss}}" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a><br>
-		<a role="button" href="{{.Site.BaseURL}}mailing-list/"><i class="icon-mail"></i>Mailing List</a>
+		<!-- <a role="button" href="{{.Site.BaseURL}}mailing-list/"><i class="icon-mail"></i>Join the Mailing List</a> -->
 	</div>
 </nav>

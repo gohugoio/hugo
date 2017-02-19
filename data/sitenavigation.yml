@@ -11,14 +11,14 @@ gettingstarted:
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Quick start, multi-platform installation guides, and basic usage instructions for local development"
-projectorganization:
-  order: 3
-  title: "Project Organization"
-  url: "project-organization"
-  haschildren: true
-  sortsubpagesby: "weight"
-  desc: "Scaffolding new projects, configuration, and source organization"
+  desc: "Quick start, installation guides, configuration, and basic usage for local development"
+# projectorganization:
+#   order: 3
+#   title: "Project Organization"
+#   url: "project-organization"
+#   haschildren: true
+#   sortsubpagesby: "weight"
+#   desc: "Site configuration, scaffolding of new projects, and source organization"
 contentmanagement:
   order: 4
   title: "Content Management"
@@ -88,7 +88,7 @@ troubleshooting:
   url: "troubleshooting"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "FAQs pulled from the Hugo forum, known issues, and workarounds"
+  desc: "Known issues, workarounds, and FAQs pulled from the Hugo discussion forum"
 newsandarticles:
   order: 14
   title: "News and Articles"
@@ -96,17 +96,17 @@ newsandarticles:
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Articles featuring Hugo, as well as news, updates, and release notes for the project"
-contributetohugo:
+siteshowcase:
   order: 15
+  title: "Site Showcase"
+  url: "showcase"
+  haschildren: false
+  sortsubpagesby: "weight"
+  desc: "A collection of websites built using Hugo"
+contributetohugo:
+  order: 16
   title: "Contribute to Hugo"
   url: "contribute-to-hugo"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Contribute to Hugo development and documentation"
-siteshowcase:
-  order: 16
-  title: "Site Showcase"
-  url: "showcase"
-  haschildren: false
-  sortsubpagesby: "weight"
-  desc: "A collection of websites build using Hugo"

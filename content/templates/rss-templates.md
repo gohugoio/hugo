@@ -12,5 +12,5 @@ draft: false
 slug:
 aliases: [/templates/rss/]
 toc: false
-notes:
+notesforauthors:
 ---

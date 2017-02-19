@@ -12,5 +12,5 @@ draft: false
 slug:
 aliases: [/templates/views/]
 toc: false
-notes:
+notesforauthors:
 ---
