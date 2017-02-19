@@ -238,6 +238,7 @@ your list templates:
     {{ end }}
 
 ### Order by Parameter
+
 Order based on the specified frontmatter parameter. Pages without that
 parameter will use the site's `.Site.Params` default. If the parameter is not
 found at all in some entries, those entries will appear together at the end
@@ -246,6 +247,13 @@ of the ordering.
 The below example sorts a list of posts by their rating.
 
     {{ range (.Data.Pages.ByParam "rating") }}
+      <!-- ... -->
+    {{ end }}
+
+If the frontmatter field of interest is nested beneath another field, you can
+also get it:
+
+    {{ range (.Date.Pages.ByParam "author.last_name") }}
       <!-- ... -->
     {{ end }}
 
