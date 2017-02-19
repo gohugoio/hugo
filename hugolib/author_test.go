@@ -222,7 +222,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "derek",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			authorDerek,
 		},
@@ -232,7 +232,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "tanner",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			authorTanner,
 		},
@@ -242,7 +242,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "abc",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Author{},
 		},
@@ -250,7 +250,7 @@ func TestPageAuthor(t *testing.T) {
 			"no ID",
 			&Page{
 				Params: map[string]interface{}{},
-				Node:   Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Author{},
 		},
@@ -260,7 +260,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Author{},
 		},
@@ -270,7 +270,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"derek"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			authorDerek,
 		},
@@ -280,7 +280,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"abc"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Author{},
 		},
@@ -290,7 +290,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{""},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Author{},
 		},
@@ -300,7 +300,7 @@ func TestPageAuthor(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "derek",
 				},
-				Node: Node{Site: &SiteInfo{Authors: Authors{}}},
+				Site: &SiteInfo{Authors: Authors{}},
 			},
 			Author{},
 		},
@@ -326,7 +326,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"derek"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{authorDerek},
 		},
@@ -336,7 +336,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"tanner", "derek"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			defaultAuthors,
 		},
@@ -346,7 +346,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"derek", "tanner"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{authorDerek, authorTanner},
 		},
@@ -356,7 +356,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"abc"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -366,7 +366,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{""},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -376,7 +376,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -384,7 +384,7 @@ func TestPageAuthors(t *testing.T) {
 			"no authors param",
 			&Page{
 				Params: map[string]interface{}{},
-				Node:   Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -394,7 +394,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "derek",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{authorDerek},
 		},
@@ -404,7 +404,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "abc",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -414,7 +414,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"author": "",
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -425,7 +425,7 @@ func TestPageAuthors(t *testing.T) {
 					"author":  "tanner",
 					"authors": []string{"derek"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{authorTanner},
 		},
@@ -436,7 +436,7 @@ func TestPageAuthors(t *testing.T) {
 					"author":  "abc",
 					"authors": []string{"derek"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{authorDerek},
 		},
@@ -447,7 +447,7 @@ func TestPageAuthors(t *testing.T) {
 					"author":  "abc",
 					"authors": []string{"abc"},
 				},
-				Node: Node{Site: defaultAuthorSiteInfo},
+				Site: defaultAuthorSiteInfo,
 			},
 			Authors{},
 		},
@@ -457,7 +457,7 @@ func TestPageAuthors(t *testing.T) {
 				Params: map[string]interface{}{
 					"authors": []string{"derek"},
 				},
-				Node: Node{Site: &SiteInfo{Authors: Authors{}}},
+				Site: &SiteInfo{Authors: Authors{}},
 			},
 			Authors{},
 		},
@@ -465,58 +465,6 @@ func TestPageAuthors(t *testing.T) {
 
 	for _, test := range tests {
 		authors := test.page.Authors()
-		if !reflect.DeepEqual(authors, test.expected) {
-			t.Errorf("author: expected:\n%#v\ngot:\n%#v", test.expected, authors)
-		}
-	}
-}
-
-func TestNodeAuthor(t *testing.T) {
-	tests := []struct {
-		desc     string
-		node     *Node
-		expected Author
-	}{
-		{
-			"valid",
-			&Node{Site: defaultAuthorSiteInfo},
-			authorTanner,
-		},
-		{
-			"no site authors",
-			&Node{Site: &SiteInfo{Authors: Authors{}}},
-			Author{},
-		},
-	}
-
-	for _, test := range tests {
-		author := test.node.Author()
-		if !reflect.DeepEqual(author, test.expected) {
-			t.Errorf("author: expected:\n%#v\ngot:\n%#v", test.expected, author)
-		}
-	}
-}
-
-func TestNodeAuthors(t *testing.T) {
-	tests := []struct {
-		desc     string
-		node     *Node
-		expected Authors
-	}{
-		{
-			"valid",
-			&Node{Site: defaultAuthorSiteInfo},
-			defaultAuthors,
-		},
-		{
-			"no site authors",
-			&Node{Site: &SiteInfo{Authors: Authors{}}},
-			Authors{},
-		},
-	}
-
-	for _, test := range tests {
-		authors := test.node.Authors()
 		if !reflect.DeepEqual(authors, test.expected) {
 			t.Errorf("author: expected:\n%#v\ngot:\n%#v", test.expected, authors)
 		}
