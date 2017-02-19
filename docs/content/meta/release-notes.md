@@ -10,10 +10,52 @@ title: Release Notes
 weight: 10
 ---
 
-## **0.19**  ??
+# **0.19**  ??
+
+TODO There will hopefully be some more new items before release, org mode support etc.
+
+TODO: About the boring globals.  {{<gh 3016 >}}.
+
+New Contributors: @fj Gunnar Morling (docs), others?
+
+Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on this order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
+
+With Hugo `0.19`, you can control this behaviour by turning off page types you do not want ({{<gh 2534 >}}). In its most extreme case, if you put the below setting in your `config.toml`, you will get **nothing!**:
+
+```
+disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+```
+## Other New Features
+
+*  Enhance `.Param` to permit arbitrarily nested parameter references gh 2598
+* Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. gh 3022
+* Add truncate template function gh 2882
+* Add `now` function, which replaces the now deprecated `.Now` gh 2882
+* Make RSS item limit configurable gh 3035
+* Hugo now compiles with Go 1.8!
+* Accept limit as interface in findRE func gh 3018
+* Improve generation of OpenGraph date tags
+
+## Notes
+
+* `sourceRelativeLinks` is now deprecated and will be removed in Hugo 0.21 if  no one is stepping up to the plate and fixes and maintains this feature. gh 3028
+
+## Fixes
+
+* Fix issue with taxonomies when only some have content page gh 2992
+* Fix instagram shortcode panic on invalid ID gh 3048
+* Fix subtle data race in `getJSON` gh 3045
+* Fix deadlock in cached partials gh 2935
+* Avoid double-encoding of paginator URLs gh 2177
+* Allow tilde in URLs gh 2177
+* Fix `.Site.Pages` handling on live reloads gh 2869
+* `UniqueID` now correctly uses the fill file path from the content root to calculate the hash, and is finally ... unique!
+*
 
 
-
+## Docs
+* Add tutorial "How to use Google Firebase to host a Hugo site"
+* 
 ## **0.18.1** December 30th 2016
 
 Hugo 0.18.1 is a bug fix release fixing some issues introduced in Hugo 0.18:
