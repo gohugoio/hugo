@@ -17,8 +17,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/spf13/cast"
 )
 
 const (
@@ -143,4 +146,38 @@ func TestParsingDateInFrontMatter(t *testing.T) {
 			t.Errorf("Date does not equal frontmatter:\n%s\nExpecting: %s\n      Got: %s. Diff: %s\n internal: %#v\n           %#v", test.buf, dt, p.Date, dt.Sub(p.Date), dt, p.Date)
 		}
 	}
+}
+
+// Temp test https://github.com/spf13/hugo/issues/3059
+func TestParsingDateParallel(t *testing.T) {
+	t.Parallel()
+
+	var wg sync.WaitGroup
+
+	for j := 0; j < 100; j++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 100; j++ {
+				dateStr := "2010-05-02 15:29:31 +08:00"
+
+				dt, err := time.Parse("2006-01-02 15:04:05 -07:00", dateStr)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if dt.Year() != 2010 {
+					t.Fatal("time.Parse: Invalid date:", dt)
+				}
+
+				dt2 := cast.ToTime(dateStr)
+
+				if dt2.Year() != 2010 {
+					t.Fatal("cast.ToTime: Invalid date:", dt2.Year())
+				}
+			}
+		}()
+	}
+	wg.Wait()
+
 }
