@@ -1380,7 +1380,6 @@ social:
 	t.Parallel()
 	s := newTestSite(t)
 	p, _ := s.NewPageFrom(strings.NewReader(exampleParams), "content/post/params.md")
-	fmt.Println("%v", p.Params)
 
 	topLevelKeyValue, _ := p.Param("rating")
 	assert.Equal(t, "5 stars", topLevelKeyValue)
