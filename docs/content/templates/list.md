@@ -250,7 +250,7 @@ The below example sorts a list of posts by their rating.
       <!-- ... -->
     {{ end }}
 
-If the frontmatter field of interest is nested beneath another field you can
+If the frontmatter field of interest is nested beneath another field, you can
 also get it:
 
     {{ range (.Date.Pages.ByParam "author.last_name") }}

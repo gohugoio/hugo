@@ -112,7 +112,7 @@ value for some of the pages (i.e. a header image):
 {{ $.Param "header_image" }}
 ```
 
-Thee `.Param` method provides a way to resolve a single value whether it's
+The `.Param` method provides a way to resolve a single value whether it's
 in a page parameter or a site parameter.
 
 When frontmatter contains nested fields, like:
