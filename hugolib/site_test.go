@@ -93,10 +93,10 @@ func TestRenderWithInvalidTemplate(t *testing.T) {
 func TestDraftAndFutureRender(t *testing.T) {
 	t.Parallel()
 	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc2.md"), Content: []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\ntitle: doc1\ndraft: true\ndate: 2414-05-29\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc2.md"), Content: []byte("---\ntitle: doc2\ndraft: true\ndate: 2012-05-29\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("---\ntitle: doc3\ndraft: false\ndate: 2414-05-29\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
+		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\ndraft: false\ndate: 2012-05-29\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
 	}
 
 	siteSetup := func(t *testing.T, configKeyValues ...interface{}) *Site {
@@ -122,6 +122,10 @@ func TestDraftAndFutureRender(t *testing.T) {
 		t.Fatal("Draft or Future dated content published unexpectedly")
 	}
 
+	if s.Info.LastChange.Year() != 2012 {
+		t.Errorf("Incorrect site LastChange: want 2012, got %d", s.Info.LastChange.Year())
+	}
+
 	// only publishDate in the past should be rendered
 	s = siteSetup(t, "buildDrafts", true)
 	if len(s.RegularPages) != 2 {
@@ -135,6 +139,10 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 	if len(s.RegularPages) != 2 {
 		t.Fatal("Draft posts published unexpectedly")
+	}
+
+	if s.Info.LastChange.Year() != 2414 {
+		t.Errorf("Incorrect site LastChange: want 2414, got %d", s.Info.LastChange.Year())
 	}
 
 	// all 4 should be included

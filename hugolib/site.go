@@ -1371,7 +1371,12 @@ func (s *Site) buildSiteMeta() (err error) {
 
 	s.assembleMenus()
 
-	s.Info.LastChange = s.Pages[0].Lastmod
+	for _, p := range s.Pages.ByLastmod().Reverse() {
+		if p.shouldBuild() {
+			s.Info.LastChange = p.Lastmod
+			break
+		}
+	}
 
 	return
 }
