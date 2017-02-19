@@ -1460,7 +1460,7 @@ func (s *Site) assembleMenus() {
 	if sectionPagesMenu != "" {
 		// Create menu entries for section pages with content
 		for _, p := range pages {
-			if p.Section() != "" && p.Kind == KindSection {
+			if p.Kind == KindSection {
 				// menu with same id defined in config, let that one win
 				if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
 					continue
