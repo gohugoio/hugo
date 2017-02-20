@@ -26,18 +26,14 @@ This Quick Start depends on features introduced in Hugo v0.15.  If you have an e
 
 ## Step 1. Install Hugo
 
-Go to [Hugo Releases](https://github.com/spf13/hugo/releases) and download the
-appropriate version for your OS and architecture.
+Go to [Hugo Releases][releases] and download the appropriate version for your OS and architecture or follow the [Quick Install][quickinstall] in the Hugo docs.
 
-Save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH` as we will be using it in the next step.
+If installing from Hugo release, you'll need to save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH` as we will be using it in the next step.
 
-More complete instructions are available
-at [Installing Hugo][installhugo].
-
-If you're on Windows, this quickstart will assume
-you're using [Git Bash](https://git-for-windows.github.io/)
-(also known as Git for Windows).
+{{% note "Windows Users and Git Bash" %}}
+If you're on Windows, this quickstart will assume you're using [Git Bash](https://git-for-windows.github.io/) (also known as Git for Windows).
 Thus all commands will begin with the Bash prompt character (which is `$`).
+{{% /note %}}
 
 Once `hugo` is installed, make sure to run the `help` command to verify `hugo` installation. Below you can see part of the `help` command output for brevity.
 
@@ -89,7 +85,7 @@ $ tree -a
 
 As mentioned in the command output, `bookshelf` directory has 5 sub-directories and 1 file. Let's look at each of them one by one.
 
-* **archetypes**: You can create new content files in Hugo using the `hugo new` command. When you run that command, it adds few configuration properties to the post like date and title. [Archetype]({{< relref "content/archetypes.md" >}}) allows you to define your own configuration properties that will be added to the post front matter whenever `hugo new` command is used.
+* **archetypes**: You can create new content files in Hugo using the `hugo new` command. When you run that command, it adds few configuration properties to the post like date and title. [Archetype][archetypes] allows you to define your own configuration properties that will be added to the post front matter whenever `hugo new` command is used.
 
 * **config.toml**: Every website should have a configuration file at the root. By default, the configuration file uses `TOML` format but you can also use `YAML` or `JSON` formats as well. [TOML](https://github.com/toml-lang/toml) is minimal configuration file format that's easy to read due to obvious semantics. The configuration settings mentioned in the `config.toml` are applied to the full site. These configuration settings include `baseURL` and `title` of the website.
 
@@ -355,12 +351,7 @@ in 11 ms
 
 ## Step 8. Customize robust theme
 
-The `robust` theme is a good start towards our online bookshelf but we want to
-customize it a bit to meet the look and feel required for the bookshelf.
-Hugo makes it very easy to customize themes.
-You can also create your themes but we will not do that today.
-If you want to create your own theme, then you should refer to
-the [Hugo documentation]({{< relref "themes/creation.md" >}}).
+The `robust` theme is a good start towards our online bookshelf but we want to customize it a bit to meet the look and feel required for the bookshelf. Hugo makes it very easy to customize themes. You can also create your themes but we will not do that today. You can also [customize existing themes or create your own][themes].
 
 The first change that we have to make is to use a different default image
 instead of the one used in the theme.
@@ -575,5 +566,8 @@ $ git push -f origin gh-pages
 
 This quick start was originally written by [Shekhar Gulati](https://twitter.com/shekhargulati) in his [52 Technologies in 2016](https://github.com/shekhargulati/52-technologies-in-2016) blog series.
 
-[installhugo]:
-
+[archetypes]: /content-management/archetypes/
+[installhugo]: /getting-started/install-hugo/
+[quickinstall]: /getting-started/install-hugo/#quick-install
+[releases]: https://github.com/spf13/hugo/releases
+[themes]: /themes/
