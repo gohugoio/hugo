@@ -12,6 +12,7 @@ draft: false
 slug:
 aliases: [/getting-started/using-the-docs/]
 toc: true
+needsreview: true
 notesforauthors:
 needsreview: true
 ---

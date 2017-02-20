@@ -48,7 +48,8 @@ We wish you all a Merry Christmas and a Happy New Year.<br>
 ## Highlights
 
 The primary new feature in Hugo 0.18 is that every piece of content is now a `Page` ({{<gh 2297>}}).
-This means that every page, including the home page, can have a content file with frontmatter.
+This means that every page, including the home page, can have a content file with front matter.
+
 Not only is this a much simpler model to understand, it is also faster and paved the way for several important new features:
 
 * Enable proper titles for Nodes {{<gh 1051>}}
