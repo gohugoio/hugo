@@ -108,7 +108,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 	c := newCommandeer(cfg)
 
-	if c.flagChanged(cmd.Flags(), "disableLiveReload") {
+	if flagChanged(cmd.Flags(), "disableLiveReload") {
 		c.Set("disableLiveReload", disableLiveReload)
 	}
 
@@ -125,7 +125,7 @@ func server(cmd *cobra.Command, args []string) error {
 	if err == nil {
 		l.Close()
 	} else {
-		if c.flagChanged(serverCmd.Flags(), "port") {
+		if flagChanged(serverCmd.Flags(), "port") {
 			// port set explicitly by user -- he/she probably meant it!
 			return newSystemErrorF("Server startup failed: %s", err)
 		}

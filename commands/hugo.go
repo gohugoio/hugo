@@ -461,13 +461,13 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 }
 
 func (c *commandeer) setValueFromFlag(flags *flag.FlagSet, key string) {
-	if c.flagChanged(flags, key) {
+	if flagChanged(flags, key) {
 		f := flags.Lookup(key)
 		c.Set(key, f.Value.String())
 	}
 }
 
-func (c *commandeer) flagChanged(flags *flag.FlagSet, key string) bool {
+func flagChanged(flags *flag.FlagSet, key string) bool {
 	flag := flags.Lookup(key)
 	if flag == nil {
 		return false
