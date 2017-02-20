@@ -15,6 +15,6 @@ toc: false
 
 
 {{% warning "Use Proper Cross References" %}}
-When creating your theme, it is not always safe to assume that the end user of the theme is working from the root directory of the website. That said, whenever possible,
+When creating your theme, it is not always safe to assume that the end user of the theme is working from the root directory of the website. That said, whenever possible, use Hugo's powerful [URL management functions](/content-management/url-management/).
 {{% /warning %}}
 

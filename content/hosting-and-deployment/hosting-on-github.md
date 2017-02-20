@@ -16,7 +16,9 @@ needsreview: true
 notesforauthors:
 ---
 
-*This tutorial was contributed by [Spencer Lyon](http://spencerlyon.com/) (Personal/Organization Pages) and [Gunnar Morling](https://github.com/gunnarmorling/).*
+{{% note %}}
+This hosting and deployment guide was originally contributed as a tutorial by [Spencer Lyon](http://spencerlyon.com/) and [Gunnar Morling](https://github.com/gunnarmorling/).
+{{% /note %}}
 
 ## Introduction
 
