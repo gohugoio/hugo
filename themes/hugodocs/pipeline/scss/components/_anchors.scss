@@ -82,60 +82,18 @@ a.tooltip {
 a.heading-link {
   color: lighten($base-font-color, 50%);
   font-size: .8em;
-  position: relative;
+  position: absolute;
   display: inline;
-  top: -.1em;
-  right: 0px;
+  top: .3em;
+  right:0px;
   &:before,
   &:after {
     display: none;
+  }
+  @include MQ(M){
+    left:-1.5em;
   }
   &:hover {
     color: $default-anchor-underline-color;
   }
 }
-
-
-/* '' */
-
-// .body-copy {
-//   a {
-//     text-decoration: none;
-//     color: $default-anchor-color;
-//     display: inline-block;
-//     outline: none;
-//     position: relative;
-//     transition: color 0.3s ease;
-//     perspective: 1800px;
-//     &:hover {
-//       color: $hugo-white;
-//     }
-//     &::before,
-//     &::after {
-//       position: absolute;
-//       top: 0;
-//       left: -2px;
-//       padding: 0 2px;
-//       z-index: -1;
-//       box-sizing: content-box;
-//       width: 100%;
-//       height: 100%;
-//       content: '';
-//     }
-//     &::before {
-//       background-color: $default-anchor-underline-color;
-//       transition: transform 0.2s;
-//       transition-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
-//       transform: rotateX(90deg);
-//       transform-origin: 50% 100%;
-//     }
-//     &:hover::before,
-//     &:focus::before {
-//       transform: rotateX(0);
-//     }
-//     &::after {
-//       border-bottom: 1px solid $default-anchor-underline-color;
-//     }
-//   }
-//   //heading links are added on the client (see pipeline/js/scripts/add-icons-to-external-links-and-pdfs-anchors.js)
-// }

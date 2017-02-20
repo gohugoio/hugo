@@ -11,7 +11,7 @@ gettingstarted:
   url: "getting-started"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Quick start, installation guides, configuration, and basic usage for local development"
+  desc: "Quick start, cross-platform installation, configuration, basic usage, and directory structure"
 # projectorganization:
 #   order: 3
 #   title: "Project Organization"
@@ -88,14 +88,14 @@ troubleshooting:
   url: "troubleshooting"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Known issues, workarounds, and FAQs pulled from the Hugo discussion forum"
-newsandarticles:
+  desc: "Known issues and workarounds, as well as FAQs pulled from the Hugo discussion forum"
+news:
   order: 14
-  title: "News and Articles"
-  url: "news-and-articles"
+  title: "News"
+  url: "news"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Articles featuring Hugo, as well as news, updates, and release notes for the project"
+  desc: "Articles featuring Hugo, as well as updates and release notes for the project"
 siteshowcase:
   order: 15
   title: "Site Showcase"

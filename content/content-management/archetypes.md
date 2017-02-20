@@ -43,15 +43,16 @@ Running this command in a new site that does not have default or custom archetyp
 +++
 date = "2017-02-01T19:20:04-07:00"
 title = my first post
+draft = true
 +++
 ```
 {{% /output %}}
 
 Note that if you do not already have a `posts` directory, Hugo will create both `content/posts/` and `content/posts/my-first-post.md`.
 
-`date` and `title` are the variables that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `title` is generated from the new content's filename. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time.
+`date` and `title` are the variables that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `title` is generated from the new content's filename. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time. The third variable, `draft = true` is not carried over into your default archetype but has been added as a convenience to the Hugo's internal/base archetype.
 
-Two variables per content file are often not enough for effective content management of larger websites. Luckily, Hugo provides a simple mechanism for extending the number of variables through default and custom archetypes.
+Three variables per content file are often not enough for effective content management of larger websites. Luckily, Hugo provides a simple mechanism for extending the number of variables through default and custom archetypes.
 
 ## Lookup Order for Archetypes
 

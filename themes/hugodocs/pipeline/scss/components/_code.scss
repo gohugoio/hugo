@@ -12,6 +12,9 @@ pre {
   padding: 0px;
   margin: .5em 0px 32px 0px;
   overflow: auto;
+  & > code {
+    color:$hugo-white;
+  }
 }
 
 .body-copy {

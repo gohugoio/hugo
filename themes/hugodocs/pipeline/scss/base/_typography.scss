@@ -44,6 +44,13 @@ h3 {
 
 h2 {
   font-size: 1.5em;
+  &.contents-list-heading {
+    text-transform:uppercase;
+    color:$hugo-gray;
+    em {
+      font-style:normal;
+    }
+  }
 }
 
 h3 {
@@ -68,4 +75,8 @@ h4 {
   a.submenu-item-link.functions {
     font-family: $base-font-family;
   }
+}
+
+hr {
+  border-top: 3px double $base-font-color;
 }
