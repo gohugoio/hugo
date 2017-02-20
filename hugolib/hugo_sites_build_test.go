@@ -1235,11 +1235,11 @@ lag:
 	return sites
 }
 
-func writeSource(t *testing.T, fs *hugofs.Fs, filename, content string) {
+func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {
 	writeToFs(t, fs.Source, filename, content)
 }
 
-func writeToFs(t *testing.T, fs afero.Fs, filename, content string) {
+func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
 	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
 		t.Fatalf("Failed to write file: %s", err)
 	}

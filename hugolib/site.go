@@ -1366,8 +1366,6 @@ func (s *Site) buildSiteMeta() (err error) {
 
 	s.assembleSections()
 
-	s.assembleMenus()
-
 	return
 }
 
@@ -1442,40 +1440,18 @@ func (s *Site) assembleMenus() {
 	pages := s.Pages
 
 	if sectionPagesMenu != "" {
-		// Create menu entries for section pages with content
 		for _, p := range pages {
 			if p.Kind == KindSection {
-				// menu with same id defined in config, let that one win
-				if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
+				id := p.Section()
+				if _, ok := flat[twoD{sectionPagesMenu, id}]; ok {
 					continue
 				}
 
-				me := MenuEntry{Identifier: p.Section(),
+				me := MenuEntry{Identifier: id,
 					Name:   p.LinkTitle(),
 					Weight: p.Weight,
 					URL:    p.RelPermalink()}
-
 				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
-			}
-		}
-
-		// Create entries for remaining content-less section pages
-		sectionPagesMenus := make(map[string]interface{})
-		for _, p := range pages {
-			if _, ok := sectionPagesMenus[p.Section()]; !ok {
-				if p.Section() != "" {
-					// menu with same id defined in config, let that one win
-					if _, ok := flat[twoD{sectionPagesMenu, p.Section()}]; ok {
-						continue
-					}
-
-					me := MenuEntry{Identifier: p.Section(),
-						Name: helpers.MakeTitle(helpers.FirstUpper(p.Section())),
-						URL:  s.Info.createNodeMenuEntryURL(p.addLangPathPrefix("/"+p.Section()) + "/")}
-
-					flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
-					sectionPagesMenus[p.Section()] = true
-				}
 			}
 		}
 	}
@@ -1610,7 +1586,8 @@ func (s *Site) assembleSections() {
 	sectionPages := s.findPagesByKind(KindSection)
 
 	for i, p := range regularPages {
-		s.Sections.add(s.getTaxonomyKey(p.Section()), WeightedPage{regularPages[i].Weight, regularPages[i]})
+		section := s.getTaxonomyKey(p.Section())
+		s.Sections.add(section, WeightedPage{regularPages[i].Weight, regularPages[i]})
 	}
 
 	// Add sections without regular pages, but with a content page
@@ -2135,7 +2112,6 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 }
 
 func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
-
 	p := s.newNodePage(KindSection)
 	p.sections = []string{name}
 

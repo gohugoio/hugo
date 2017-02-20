@@ -167,6 +167,7 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
+		s.assembleMenus()
 		s.refreshPageCaches()
 		s.setupSitePages()
 	}
