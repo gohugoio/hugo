@@ -22,10 +22,10 @@ The latest release can be found at [Hugo Releases][releases].
 
 Hugo currently provides pre-built binaries for the following:
 
+* <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X (Darwin) for x64, i386 and ARM architectures
 * <i class="fa fa-windows"></i>&nbsp;Windows,
 * <i class="fa fa-linux"></i>&nbsp;Linux,
 * <i class="icon-freebsd"></i>&nbsp;FreeBSD
-* <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X (Darwin) for x64, i386 and ARM architectures
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run---e.g., for other operating systems, including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
@@ -72,7 +72,7 @@ You may run `go get` with the `-u` option to update Hugo's dependencies:
 go get -u -v github.com/spf13/hugo
 ```
 
-## Installing Hugo on OS X
+## <i class="fa fa-apple"></i> Installing Hugo on OS X
 
 ### Assumptions
 
@@ -293,7 +293,7 @@ go build -o hugo main.go
 
 Then place the `hugo` executable somewhere in your `$PATH`. You're now ready to start using Hugo.
 
-## Installing Hugo on Windows
+## <i class="fa fa-windows"></i> Installing Hugo on Windows
 
 The following aims to be a complete guide to installing Hugo on your Windows PC.
 
@@ -408,7 +408,7 @@ C:\Hugo\Sites\example.com&gt;dir
 
 {{< youtube c8fJIRNChmU >}}
 
-## Installing Hugo on Linux
+## <i class="fa fa-linux"></i> Installing Hugo on Linux
 
 ### Installing From Snap
 

@@ -21,7 +21,7 @@ Hugo has a simple yet powerful menu system that permits content to be
 placed in menus with a good degree of control without a lot of work.
 
 
-*TIP:* If all you want is a simple menu for your sections, see [Section Menu for "the Lazy Blogger"]({{< relref "#section-menu-for-the-lazy-blogger" >}}).
+*TIP:* If all you want is a simple menu for your sections, see [Section Menu for "the Lazy Blogger"](#section-menu-for-the-lazy-blogger).
 
 Some of the features of Hugo Menus:
 
@@ -36,7 +36,7 @@ A menu is a named array of menu entries accessible on the site under
 `.Site.Menus` by name. For example, if I have a menu called `main`, I would
 access it via `.Site.Menus.main`.
 
-If you make use of the [multilingual feature]({{< relref "content/multilingual.md#menus">}}) you can define menus language independent.
+If you make use of the [multilingual feature](content-management/multilingual-mode/) you can define menus language independent.
 
 A menu entry has the following properties:
 
@@ -200,7 +200,7 @@ The following is an example:
     </aside>
     <!--sidebar end-->
 
-> **Note**: use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature]({{< relref "content/multilingual.md" >}}). In contrast to `absURL` and `relURL` it adds the correct language prefix to the url. [Read more]({{< relref "templates/functions.md#urls" >}}).
+> **Note**: use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature](/content-management/multilingual-mode/). In contrast to `absURL` and `relURL` it adds the correct language prefix to the url. [Read more](/functions/).
 
 ## Section Menu for "the Lazy Blogger"
 

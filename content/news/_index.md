@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: News
 linktitle: Overview
 description: Articles where Hugo is featured, as well as news and updates on the project itself.
 date: 2017-02-01

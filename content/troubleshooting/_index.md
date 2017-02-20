@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Troubleshooting
 linktitle: Overview
 description: Frequently asked questions and known issues pulled from the Hugo Discuss forum.
 date: 2017-02-01

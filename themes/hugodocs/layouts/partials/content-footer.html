@@ -16,7 +16,7 @@
 			<i class="fa fa-chevron-left"></i>
 			<div class="page-info">
 				<span>Previous</span>
-				<h5 class="{{$section}}">{{.Title}} of {{.Section}}</h5>
+				<h5 class="{{$section}}">{{.Title}} of {{.Section | humanize | title}}</h5>
 			</div>
 	</a>
 	{{ end }}

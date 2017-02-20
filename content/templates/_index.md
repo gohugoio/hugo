@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Templates
 linktitle: Overview
 description: Golang templating, template types and lookup order, shortcodes, and data.
 date: 2017-02-01

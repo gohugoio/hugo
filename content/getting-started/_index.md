@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Getting Started
 linktitle: Overview
 description: Quick start and guides for installing Hugo on your preferred operating system.
 date: 2017-02-01

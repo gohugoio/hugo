@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Contribute to Hugo
 linktitle: Overview
 description: Contribute to Hugo development and documentation.
 date: 2017-02-01
