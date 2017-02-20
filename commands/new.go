@@ -95,11 +95,11 @@ func NewContent(cmd *cobra.Command, args []string) error {
 
 	c := newCommandeer(cfg)
 
-	if c.flagChanged(cmd.Flags(), "format") {
+	if flagChanged(cmd.Flags(), "format") {
 		c.Set("metaDataFormat", configFormat)
 	}
 
-	if c.flagChanged(cmd.Flags(), "editor") {
+	if flagChanged(cmd.Flags(), "editor") {
 		c.Set("newContentEditor", contentEditor)
 	}
 
