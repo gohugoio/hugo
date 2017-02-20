@@ -22,6 +22,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 
 | Title | Author | Date   |
 | ----- | ------ | -----: |
+| [How to Password Protect a Hugo Site](https://www.aerobatic.com/blog/password-protect-a-hugo-site/) | Aerobatic | 2017-02-19 |
 | [Build a Hugo site using Cloud9 IDE and host on App Engine](https://loyall.ch/lab/2017/01/build-a-static-website-with-cloud9-hugo-and-app-engine/)| Pascal Aubort | 2017-02-05 |
 | [How to use Firebase to host a Hugo site](https://www.m0d3rnc0ad.com/post/static-site-firebase/) | Andrew Cuga | 2017-02-04 |
 | [A publishing workflow for teams using static site generators](https://www.keybits.net/post/publishing-workflow-for-teams-using-static-site-generators/) | Tom Atkins | 2017-01-02 |
