@@ -398,22 +398,21 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 	var (
 		logHandle       = ioutil.Discard
+		logThreshold    = jww.LevelWarn
+		logFile         = cfg.GetString("logFile")
 		outHandle       = os.Stdout
 		stdoutThreshold = jww.LevelError
-		logThreshold    = jww.LevelWarn
 	)
 
-	if verboseLog || logging || (cfg.GetString("logFile") != "") {
-
+	if verboseLog || logging || (logFile != "") {
 		var err error
-		if cfg.GetString("logFile") != "" {
-			path := cfg.GetString("logFile")
-			logHandle, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+		if logFile != "" {
+			logHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 			if err != nil {
-				return nil, newSystemError("Failed to open log file:", path, err)
+				return nil, newSystemError("Failed to open log file:", logFile, err)
 			}
 		} else {
-			logHandle, err = ioutil.TempFile(os.TempDir(), "hugo")
+			logHandle, err = ioutil.TempFile("", "hugo")
 			if err != nil {
 				return nil, newSystemError(err)
 			}
