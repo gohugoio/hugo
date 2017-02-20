@@ -19,11 +19,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
 )
 
 func TestByCountOrderOfTaxonomies(t *testing.T) {
@@ -79,19 +77,10 @@ others:
 # Doc
 `
 
-	mf := afero.NewMemMapFs()
+	th, h := newTestSitesFromConfigWithDefaultTemplates(t, siteConfig)
+	require.Len(t, h.Sites, 1)
 
-	writeToFs(t, mf, "config.toml", siteConfig)
-
-	cfg, err := LoadConfig(mf, "", "config.toml")
-	require.NoError(t, err)
-
-	fs := hugofs.NewFrom(mf, cfg)
-	th := testHelper{cfg, fs, t}
-
-	writeSource(t, fs, "layouts/_default/single.html", "Single|{{ .Title }}|{{ .Content }}")
-	writeSource(t, fs, "layouts/_default/list.html", "List|{{ .Title }}|{{ .Content }}")
-	writeSource(t, fs, "layouts/_default/terms.html", "Terms List|{{ .Title }}|{{ .Content }}")
+	fs := th.Fs
 
 	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1"))
 	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1"))
@@ -99,12 +88,7 @@ others:
 	writeNewContentFile(t, fs, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs, "Tag1 List", "2017-01-01", "content/tags/tag1/_index.md", 10)
 
-	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
-	require.NoError(t, err)
-	require.Len(t, h.Sites, 1)
-
-	err = h.Build(BuildCfg{})
+	err := h.Build(BuildCfg{})
 
 	require.NoError(t, err)
 

@@ -6,11 +6,12 @@ import (
 
 	"regexp"
 
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/deps"
-
 	"fmt"
 	"strings"
+
+	"github.com/spf13/afero"
+	"github.com/spf13/hugo/config"
+	"github.com/spf13/hugo/deps"
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
@@ -111,6 +112,39 @@ func newTestSite(t testing.TB, configKeyValues ...interface{}) *Site {
 		t.Fatalf("Failed to create Site: %s", err)
 	}
 	return s
+}
+
+func newTestSitesFromConfig(t testing.TB, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
+	if len(layoutPathContentPairs)%2 != 0 {
+		t.Fatalf("Layouts must be provided in pairs")
+	}
+	mf := afero.NewMemMapFs()
+
+	writeToFs(t, mf, "config.toml", tomlConfig)
+
+	cfg, err := LoadConfig(mf, "", "config.toml")
+	require.NoError(t, err)
+
+	fs := hugofs.NewFrom(mf, cfg)
+	th := testHelper{cfg, fs, t}
+
+	for i := 0; i < len(layoutPathContentPairs); i += 2 {
+		writeSource(t, fs, layoutPathContentPairs[i], layoutPathContentPairs[i+1])
+	}
+
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
+
+	require.NoError(t, err)
+
+	return th, h
+}
+
+func newTestSitesFromConfigWithDefaultTemplates(t testing.TB, tomlConfig string) (testHelper, *HugoSites) {
+	return newTestSitesFromConfig(t, tomlConfig,
+		"layouts/_default/single.html", "Single|{{ .Title }}|{{ .Content }}",
+		"layouts/_default/list.html", "List|{{ .Title }}|{{ .Content }}",
+		"layouts/_default/terms.html", "Terms List|{{ .Title }}|{{ .Content }}",
+	)
 }
 
 func newDebugLogger() *jww.Notepad {

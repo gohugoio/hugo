@@ -621,6 +621,9 @@ func (p *Page) Type() string {
 }
 
 func (p *Page) Section() string {
+	if p.Kind == KindSection {
+		return p.sections[0]
+	}
 	return p.Source.Section()
 }
 
@@ -1167,8 +1170,16 @@ func (p *Page) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 	sectionPagesMenu := p.Site.sectionPagesMenu
 
 	// page is labeled as "shadow-member" of the menu with the same identifier as the section
-	if sectionPagesMenu != "" && p.Section() != "" && sectionPagesMenu == menuID && p.Section() == me.Identifier {
-		return true
+	if sectionPagesMenu != "" {
+		section := p.Section()
+
+		if !p.s.Info.preserveTaxonomyNames {
+			section = p.s.PathSpec.MakePathSanitized(section)
+		}
+
+		if section != "" && sectionPagesMenu == menuID && section == me.Identifier {
+			return true
+		}
 	}
 
 	if !me.HasChildren() {
@@ -1537,7 +1548,7 @@ func (p *Page) prepareData(s *Site) error {
 	case KindHome:
 		pages = s.RegularPages
 	case KindSection:
-		sectionData, ok := s.Sections[p.sections[0]]
+		sectionData, ok := s.Sections[p.Section()]
 		if !ok {
 			return fmt.Errorf("Data for section %s not found", p.Section())
 		}
