@@ -12,10 +12,10 @@ draft: false
 slug:
 aliases: [/content-management/sections,/content/sections/]
 toc: true
-notesforauthors:
+needsreview: true
 ---
 
-Hugo uses files (see [supported content formats][]) with headers called [front matter][]. By default, Hugo assumes the same structure that works to organize your content is used to organize the rendered site. This is done in an effort to reduce configuration. However, this convention can be overridden through additional configuration in the front matter, as well as through Hugo's extensive features related to [URL management][].
+Hugo uses files (see [supported content formats][]) with headers called [front matter][]. By default, Hugo assumes the same structure that works to organize your content should be used to organize your rendered website. This is done in an effort to reduce configuration. However, this convention can be overridden through additional configuration in the front matter, as well as through Hugo's extensive features related to [URL management][].
 
 ## Organizing Source Content
 

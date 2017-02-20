@@ -5,16 +5,12 @@ description: Page-, file-, taxonomy-, and site-level variables and parameters av
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 01
 categories: [variables and params]
 tags: [files]
 draft: false
-slug:
+weight: 01
 aliases: [/templates/variables/]
 toc: false
 hidesectioncontents: false
-notesforauthors:
+needsreview: true
 ---
-
-Content for the Variables and Params Section
-

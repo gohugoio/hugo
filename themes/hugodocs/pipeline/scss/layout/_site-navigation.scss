@@ -40,8 +40,7 @@
     }
     li {
       padding-left: 0px;
-      // text-indent: -1em;
-      line-height: 1;
+      line-height: 1.2;
       margin-top: .66em;
       margin-bottom: .66em;
       ul li {
@@ -68,6 +67,9 @@
       display: none;
       margin-left: .4em;
       padding-left: .5em;
+      li {
+        line-height:1.1;
+      }
       a.submenu-item-link {
         font-size: 14px;
         &:hover {

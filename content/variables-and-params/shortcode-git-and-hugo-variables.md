@@ -1,19 +1,25 @@
 ---
-title: Hugo Variables
-linktitle:
+title: Shortcode, Git, and Hugo Variables
+linktitle: Shortcode, Git, and Hugo Variables
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
 categories: [variables and params]
-tags: [hugo]
+tags: [shortcodes,git]
 draft: false
-slug:
+weight: 50
 aliases: []
 toc: false
+needsreview: true
 notesforauthors:
 ---
+
+## Shortcodes
+
+`.Parent` (reference to nested shortcodes paragraph in /shortcodes/)
+`.IsNamedParams` (reference to shortcodes)
+`.Inner`
 
 ## Hugo Variables
 
@@ -23,3 +29,4 @@ Also available is `.Hugo` which has the following:
 **.Hugo.Version** The current version of the Hugo binary you are using e.g. `0.13-DEV`<br>
 **.Hugo.CommitHash** The git commit hash of the current Hugo binary e.g. `0e8bed9ccffba0df554728b46c5bbf6d78ae5247`<br>
 **.Hugo.BuildDate** The compile date of the current Hugo binary formatted with RFC 3339 e.g. `2002-10-02T10:00:00-05:00`<br>
+

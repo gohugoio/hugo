@@ -5,10 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
 categories: [variables and params]
 tags: [pages]
 draft: false
+weight: 20
 aliases: []
 toc: false
 needsreview: true
