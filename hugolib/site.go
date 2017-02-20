@@ -249,6 +249,7 @@ type SiteInfo struct {
 	Params                map[string]interface{}
 	BuildDrafts           bool
 	canonifyURLs          bool
+	relativeURLs          bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
 
@@ -977,6 +978,7 @@ func (s *Site) initializeSiteInfo() {
 		GoogleAnalytics:                lang.GetString("googleAnalytics"),
 		BuildDrafts:                    s.Cfg.GetBool("buildDrafts"),
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
+		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
 		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
 		PageCollections:                s.PageCollections,
 		Files:                          &s.Files,
@@ -1744,7 +1746,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	defer bp.PutBuffer(outBuffer)
 
 	var path []byte
-	if s.Cfg.GetBool("relativeURLs") {
+	if s.Info.relativeURLs {
 		path = []byte(helpers.GetDottedRelativePath(dest))
 	} else {
 		s := s.Cfg.GetString("baseURL")
@@ -1784,9 +1786,8 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	transformLinks := transform.NewEmptyTransforms()
-	relativeURLs := s.Cfg.GetBool("relativeURLs")
 
-	if relativeURLs || s.Info.canonifyURLs {
+	if s.Info.relativeURLs || s.Info.canonifyURLs {
 		transformLinks = append(transformLinks, transform.AbsURL)
 	}
 
@@ -1803,7 +1804,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 
 	var path []byte
 
-	if relativeURLs {
+	if s.Info.relativeURLs {
 		translated, err := pageTarget.(target.OptionalTranslator).TranslateRelative(dest)
 		if err != nil {
 			return err
@@ -1982,7 +1983,7 @@ func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
 }
 
 func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path, permalink string, p *Page) (err error) {
-	if s.Cfg.GetBool("relativeURLs") {
+	if s.Info.relativeURLs {
 		// convert `permalink` into URI relative to location of `path`
 		baseURL := helpers.SanitizeURLKeepTrailingSlash(s.Cfg.GetString("baseURL"))
 		if strings.HasPrefix(permalink, baseURL) {
