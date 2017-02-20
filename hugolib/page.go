@@ -932,8 +932,7 @@ func (p *Page) RelPermalink() string {
 	p.relPermalinkInit.Do(func() {
 		link := p.getPermalink()
 
-		if p.s.Info.canonifyURLs {
-			// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
+		if p.s.Info.canonifyURLs { // replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
 			// have to return the URL relative from baseURL
 			relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
 			if err != nil {
