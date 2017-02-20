@@ -7,7 +7,7 @@ publishdate: 2017-01-02
 lastmod: 2017-01-02
 categories: [project organization]
 tags: [source, organization, directories,fundamentals]
-weight: 80
+weight: 50
 draft: false
 aliases: [/overview/source-directory/]
 notesforauthors:

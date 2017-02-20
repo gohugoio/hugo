@@ -1,6 +1,16 @@
 svg.svg-icon {
   max-width: 60px;
 }
+.icon-freebsd:before {
+	@include size(1em);
+	content: '';
+	display:inline-block;
+	margin-left:-.15em;
+	margin-right: 0em;
+	background-image: url(/images/hugo-icons/freebsd.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+}
 
 //for lists that show good and bad examples
 h2,

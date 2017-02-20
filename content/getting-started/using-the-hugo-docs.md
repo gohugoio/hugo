@@ -31,12 +31,12 @@ notesforauthors:
 
 ### Warning Admonition
 
-## Help Us Improve the Hugo Docs
+## Help Us Improve our Documentation
 
-Interested in helping us improve the documentation?
+Interested in helping us improve the Hugo docs?
 
-1. We've developed a [step-by-step guide for docs contributors][] on how to submit a pull request after making changes locally.
-2. If you're not up for git and GitHub, start a thread on the ["docs" category in the Hugo Forums][]
+1. We've developed a [step-by-step guide for docs contributors][contributedocs] on how to submit a pull request after making changes locally.
+2. If you're not up for git and GitHub, start a thread on the ["docs" category in the Hugo Forums][hugodiscussion]
 
-["docs" category in the Hugo Forums]: https://discuss.gohugo.io/c/feature
-[step-by-step guide for docs contributors]: /contribute-to-hugo/contribute-to-hugo/contribute-to-the-hugo-docs/
+[hugodiscussion]: https://discuss.gohugo.io/c/feature
+[contributedocs]: /contribute-to-hugo/contribute-to-the-hugo-docs/

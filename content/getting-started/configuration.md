@@ -7,7 +7,7 @@ publishdate: 2017-01-02
 lastmod: 2017-01-02
 categories: [project organization]
 tags: [configuration,fundamentals,toml,yaml,json]
-weight: 90
+weight: 60
 draft: false
 aliases: [/overview/source-directory/]
 toc: true

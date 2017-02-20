@@ -7,6 +7,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
 tags: [quick start,usage]
+authors: [Shekhar Gulati]
 weight: 10
 draft: false
 aliases: [/overview/quickstart/]
@@ -18,7 +19,7 @@ notesforauthors:
 In this Quick Start guide, we will build an online bookshelf that lists books and their reviews.
 
 {{% note %}}
-This quickstart depends on features introduced in Hugo v0.15.  If you have an earlier version of Hugo, you will need to [upgrade](/overview/installing/) before proceeding.
+This Quick Start depends on features introduced in Hugo v0.15.  If you have an earlier version of Hugo, you will need to [upgrade](/overview/installing/) before proceeding.
 {{% /note %}}
 
 {{% youtube w7Ft2ymGmfc %}}
@@ -31,7 +32,7 @@ appropriate version for your OS and architecture.
 Save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH` as we will be using it in the next step.
 
 More complete instructions are available
-at [Installing Hugo]({{< relref "overview/installing.md" >}}).
+at [Installing Hugo][installhugo].
 
 If you're on Windows, this quickstart will assume
 you're using [Git Bash](https://git-for-windows.github.io/)
@@ -216,33 +217,34 @@ you still will not see anything as we have not specified a theme that Hugo shoul
 
 Themes provide the layout and templates that will be used by Hugo to render your website. There are a lot of Open-source themes available at [https://themes.gohugo.io/](https://themes.gohugo.io/) that you can use.
 
-> **Hugo currently doesn’t ship with a `default` theme, allowing the user to pick whichever theme best suits their project.**
+{{% note "No Default Hugo Theme" %}}
+Hugo currently doesn’t ship with a *default** theme, allowing the user to pick whichever theme best suits their project.
+{{% /note %}}
 
 Themes should be added in the `themes` directory inside the repository root.
 
 ```bash
 $ cd themes
 ```
+
 Now, you can clone one or more themes inside the `themes` directory.
-We will use the `robust` theme,
-but at a commit (in its history) that works with this quickstart.
+We will use the `robust` theme, but at a commit (in its history) that works with this Quick Start.
 
 ```bash
-$ git clone https://github.com/dim0627/hugo_theme_robust.git
-$ (cd hugo_theme_robust; git checkout b8ce466)
+git clone https://github.com/dim0627/hugo_theme_robust.git
+(cd hugo_theme_robust; git checkout b8ce466)
 ```
 
 Leave the themes folder.
 
 ```bash
-$ cd ..
+cd ..
 ```
-
 
 Start the server again.
 
 ```bash
-$ hugo server --theme=hugo_theme_robust --buildDrafts
+hugo server --theme=hugo_theme_robust --buildDrafts
 ```
 ```
 1 of 1 draft rendered
@@ -258,15 +260,16 @@ Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
 
-> *Note: If Hugo doesn't find the specified theme in the `themes` directory,
-it will throw an exception as shown below.*
+If Hugo doesn't find the specified theme in the `themes` directory,
+it will throw an exception:
+
 ```
 FATAL: 2016/02/14 Unable to find theme Directory: /Users/shekhargulati/bookshelf/themes/robust
 ```
 
-To view your website, you can go to http://localhost:1313/. You will see as shown below.
+To view your website, you can go to <http://localhost:1313/>. You will see as shown below.
 
-![](/img/quickstart/bookshelf-robust-theme.png)
+![](/images/quickstart/bookshelf-robust-theme.png)
 
 Let's understand the layout of the theme. A theme consists of the following:
 
@@ -571,4 +574,6 @@ $ git push -f origin gh-pages
 ----
 
 This quick start was originally written by [Shekhar Gulati](https://twitter.com/shekhargulati) in his [52 Technologies in 2016](https://github.com/shekhargulati/52-technologies-in-2016) blog series.
+
+[installhugo]:
 
