@@ -189,7 +189,8 @@ type Page struct {
 	RSSLink template.HTML
 
 	URLPath
-	permalink *url.URL
+	permalink    *url.URL
+	relPermalink string
 
 	paginator *Pager
 
@@ -213,6 +214,7 @@ type pageInit struct {
 	plainWordsInit      sync.Once
 	renderingConfigInit sync.Once
 	pageURLInit         sync.Once
+	relPermalinkInit    sync.Once
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -927,34 +929,39 @@ func (p *Page) URL() string {
 }
 
 func (p *Page) RelPermalink() string {
-	link := p.getPermalink()
+	p.relPermalinkInit.Do(func() {
+		link := p.getPermalink()
 
-	if p.s.Info.canonifyURLs {
-		// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
-		// have to return the URL relative from baseURL
-		relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
-		if err != nil {
-			return ""
+		if p.s.Info.canonifyURLs {
+			// replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
+			// have to return the URL relative from baseURL
+			relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
+			if err != nil {
+				return
+			}
+
+			relpath = filepath.ToSlash(relpath)
+
+			if relpath[0] == '.' {
+				relpath = relpath[1:]
+			}
+
+			if !strings.HasPrefix(relpath, "/") {
+				relpath = "/" + relpath
+			}
+
+			p.relPermalink = relpath
+			return
 		}
 
-		relpath = filepath.ToSlash(relpath)
+		link.Scheme = ""
+		link.Host = ""
+		link.User = nil
+		link.Opaque = ""
+		p.relPermalink = link.String()
+	})
 
-		if relpath[0] == '.' {
-			relpath = relpath[1:]
-		}
-
-		if !strings.HasPrefix(relpath, "/") {
-			relpath = "/" + relpath
-		}
-
-		return relpath
-	}
-
-	link.Scheme = ""
-	link.Host = ""
-	link.User = nil
-	link.Opaque = ""
-	return link.String()
+	return p.relPermalink
 }
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
