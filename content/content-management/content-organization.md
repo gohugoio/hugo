@@ -173,5 +173,5 @@ http://spf13.com/extras/indexes/example
 * overrides all the above
 
 [front matter]: /content-management/front-matter/
-[supported formats]: /content-management/supported-content-formats/
+[supported content formats]: /content-management/supported-content-formats/
 [URL management]: /content-management/url-management/
