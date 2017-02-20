@@ -13,6 +13,7 @@ slug:
 aliases: [/getting-started/using-the-docs/]
 toc: true
 notesforauthors:
+needsreview: true
 ---
 
 ## Example Site

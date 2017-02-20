@@ -10,7 +10,7 @@ tags: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
 toc: false
 draft: false
-aliases: []
+aliases: [/tutorials/automated-deployments/]
 toc: true
 needsreview: false
 notesforauthors:

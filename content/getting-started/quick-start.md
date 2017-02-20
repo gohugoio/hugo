@@ -12,7 +12,6 @@ weight: 10
 draft: false
 aliases: [/overview/quickstart/]
 toc: true
-needsreview: true
 notesforauthors:
 ---
 
@@ -542,6 +541,8 @@ After you run the `hugo` command, a `bookshelf/public` directory will be created
 
 {{% note "GitHub Account" %}}
 The following step assumes that you have a working familiarity with Git version control and also a GitHub account. A GitHub account is required to leverage Pages, a static website hosting service that is complimentary for GitHub users. [Setting up a GitHub account is free](https://github.com/join).
+
+There is more than one way to host your site on GitHub. Be sure to check out [Hosting on GitHub](/hosting-and-deployment/hosting-on-github/) and [Deployment with Wercker](/hosting-and-deployment/deployment-with-wercker).
 {{% /note %}}
 
 First, let's set up Git version control for your bookshelf website and include a `.gitignore` file to prevent tracking of the `public` and `themes` directories. From within your root project directory, you can use the following one-liner:
