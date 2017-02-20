@@ -1,20 +1,16 @@
 ---
-title: scratch
-linktitle: Scratch
+title: param
+linktitle: Param
 description:
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [iteration]
+tags: []
 categories: [functions]
 toc: false
 draft: false
-aliases: [/extras/scratch/]
+aliases: []
 notesforauthors:
 ---
-
-## Example
-
-## Advanced Example
 

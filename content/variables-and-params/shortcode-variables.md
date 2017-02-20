@@ -11,5 +11,9 @@ draft: false
 slug:
 aliases: []
 toc: false
+needsreview: true
 notesforauthors:
 ---
+
+`.Parent` (reference to nested shortcodes paragraph in /shortcodes/)
+`.IsNamedParams` (reference to shortcodes)

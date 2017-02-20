@@ -10,7 +10,8 @@ tags: [multilingual,i18n]
 weight: 120
 draft: false
 slug:
-aliases: []
+aliases: [/content/multilingual/]
 toc: true
+needsreview: true
 notesforauthors:
 ---
