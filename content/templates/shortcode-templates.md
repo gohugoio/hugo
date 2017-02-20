@@ -11,7 +11,6 @@ tags: [shortcodes]
 draft: false
 aliases: []
 toc: true
-notesforauthors:
 ---
 
 ## Creating Custom Shortcodes
@@ -28,7 +27,7 @@ You can create the following types of shortcodes
 
 * Positional parameters
 * Named parameters
-* Both positional or named parameters (i.e, "flexible")
+* Positional *or* named parameters (i.e, "flexible")
 * Single-word shortcodes
 * Nested
 

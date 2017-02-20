@@ -8,7 +8,7 @@ aside {
     list-style: none;
     text-indent: 0px;
     li {
-      position:relative;
+      position: relative;
       margin-left: 0px;
       padding-left: 0px;
       list-style: none;
@@ -26,10 +26,11 @@ aside {
     padding-top: 0px;
     margin-bottom: 1.5em;
     li {
-      position:relative;
-      margin-top:.25em;
-      ul,ol {
-        margin-bottom:0px;
+      position: relative;
+      margin-top: .25em;
+      ul,
+      ol {
+        margin-bottom: 0px;
       }
     }
   }
@@ -55,6 +56,45 @@ aside {
             list-style-type: lower-alpha;
           }
         }
+      }
+    }
+  }
+}
+
+//definition lists
+.body-copy {
+  dl {
+    margin: 0px;
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    display: block;
+    margin-bottom: 1em;
+    font-size: 1em;
+    clear: both;
+    line-height:1.6;
+    padding: {
+      top: .5em;
+      bottom: .5em;
+    }
+    dt {
+      float: left;
+      display: block;
+      width: 100%;
+      clear: both;
+      margin: 0px;
+      font-weight: bolder;
+      margin-right: 1em;
+    }
+    dd {
+      margin: .5em 0em 0em 0em;
+      text-indent: 0px;
+      height: auto;
+      font-size:.9em;
+      padding: {
+        top: .25em;
+        bottom: 0em;
+        left: 1.5em;
+        right: 0em;
       }
     }
   }

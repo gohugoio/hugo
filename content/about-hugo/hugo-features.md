@@ -36,7 +36,7 @@ notesforauthors:
 ## Content
 
 * Native Markdown support, as well as other languages through *external helpers* (see [supported formats][])
-* Support for TOML, YAML and JSON metadata in [front matter][]
+* Support for TOML, YAML, and JSON metadata in [front matter][]
 * Customizable [homepage][]
 * Multiple [content types][]
 * Automatic and user defined [content summaries][]
@@ -54,7 +54,6 @@ notesforauthors:
 
 See what's coming next in the [Hugo roadmap][].
 
-[pagevars]: /variables-and-params/page-variables/
 [Ace]: /templates/ace-templating/
 [aliases]: /content-management/url-management/#aliases
 [Amber]: https://github.com/eknkc/amber
@@ -74,6 +73,7 @@ See what's coming next in the [Hugo roadmap][].
 [LiveReload]: /getting-started/using-hugo/
 [Mac OSX]: /getting-started/install-of-pc/
 [organization for your projects]: /getting-started/directory-structure/
+[pagevars]: /variables-and-params/page-variables/
 [Permalink]: /content-management/url-management/#permalinks
 [Powerful theming]: /themes/
 [Pretty URLs]: /content-management/url-management/

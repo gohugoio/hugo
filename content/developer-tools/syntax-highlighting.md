@@ -10,8 +10,9 @@ categories: [developer tools]
 weight:
 draft: false
 slug:
-aliases: [/extras/highlighting/]
+aliases: [/extras/highlighting/,/extras/highlight/]
 toc: true
+needsreview: true
 notesforauthors:
 ---
 

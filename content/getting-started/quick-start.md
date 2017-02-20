@@ -1,7 +1,7 @@
 ---
 title: Quick Start
 linktitle: Quick Start
-description: Build an online bookshelf that lists books and their reviews. The Quick Start introduces you to HUGO's CLI, directory structure, configuration, theming, and even a simple deployment.
+description: Build an online bookshelf that lists books and their reviews. The Quick Start introduces you to HUGO's CLI, directory structure, configuration, theming, and a simple deployment to GitHub Pages.
 date: 2013-07-01
 publishdate: 2013-07-01
 lastmod: 2017-02-19
@@ -12,7 +12,6 @@ weight: 10
 draft: false
 aliases: [/overview/quickstart/]
 toc: true
-notesforauthors:
 ---
 
 In this Quick Start, we will build an online bookshelf that lists books and their reviews. This quick start assumes you are using Hugo v0.15 or greater.

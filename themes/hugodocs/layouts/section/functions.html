@@ -1,0 +1,9 @@
+{{define "main"}}
+<main class="main showcase-list">
+		<header class="content-header">
+		{{partial "breadcrumb.html" . }}
+		<h1 class="page-title" id="{{ .Title | urlize }}">{{ .Title | markdownify }}</h1>
+		{{.Content}}
+		</header>
+</main>
+{{end}}

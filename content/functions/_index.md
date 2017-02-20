@@ -1,5 +1,5 @@
 ---
-title: Functions
+title: Functions Quick Reference
 linktitle: Overview
 description: Comprehensive list of Hugo templating functions, including basic and advanced usage examples.
 date: 2017-02-01

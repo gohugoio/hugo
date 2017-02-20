@@ -5,7 +5,7 @@ description: Learn why static site generators have become such a popular option 
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [ssg,static site generator]
+tags: [ssg,static,performance, security]
 weight: 20
 draft: false
 slug:
@@ -26,7 +26,7 @@ Not running a website generator on your HTTP server has many benefits. The most 
 sending files. So good that you can effectively serve the same number
 of pages with a fraction of the memory and CPU needed for a dynamic site.
 
-## Additional Resources
+## Resources on Static Site Generators
 
 * ["An Introduction to Static Site Generators", David Walsh][]
 * ["Static Site Generators", O-Reilly][]

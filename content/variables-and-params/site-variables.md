@@ -1,7 +1,7 @@
 ---
 title: Site Variables
 linktitle: Site Variables
-description:
+description: Many, but not all, site-wide variables are defined in your site's configuration. However, Hugo provides a number of built-in variables for convenient access to global values in your templates.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -10,40 +10,99 @@ tags: [global,site]
 draft: false
 weight: 10
 aliases: []
-toc: false
+toc: true
 notesforauthors:
 ---
 
-Also available is `.Site` which has the following:
+The following is a list of site-level variables (aka "global"). Many of these variables are defined in your site's [configuration file](/getting-started/config/), whereas others are built into Hugo's core for convenient usage in your templates.
 
-* `.Site.AllPages` Array of all pages regardless of their translation.
-* `.Site.Author` A map of the authors as defined in the site configuration.
-* `.Site.BaseURL` The base URL for the site as defined in the site configuration file.
-* `.Site.BuildDrafts` A boolean (Default: false) to indicate whether to build drafts. Defined in the site configuration.
-* `.Site.Copyright` A string representing the copyright of your web site as defined in the site configuration.
-* `.Site.Data`  Custom data, see [Data Files](/extras/datafiles/).
-* `.Site.DisqusShortname` A string representing the shortname of the Disqus shortcode as defined in the site configuration.
-* `.Site.Files` All of the source files of the site.
-* `.Site.GoogleAnalytics` A string representing your tracking code for Google Analytics as defined in the site configuration.
-* `.Site.IsMultiLingual` Whether there are more than one language in this site. See [Multilingual](/content-management/multilingual-mode/) for more information.
-* `.Site.Language.Lang` The language code of the current locale, e.g. `en`.
-* `.Site.Language.LanguageName` The full language name, e.g. `English`.
-* `.Site.Language.Weight` The weight that defines the order in the `.Site.Languages` list.
-* `.Site.Language` This indicates which language you are currently rendering the website for.  This is an object with the attributes set in your language definition in your site config.
-* `.Site.LanguageCode` A string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.
-* `.Site.LanguagePrefix` This can be used to prefix  theURLs with whats needed to point to the correct language. It will even work when only one language defined. See also the functions [absLangURL](/functions/abslangurl/) and [relLangURL](/functions/rellangurl).
-* `.Site.Languages` An ordered list (ordered by defined weight) of languages.
-* `.Site.LastChange` A string representing the date/time of the most recent change to your site, based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
-* `.Site.Menus` All of the menus in the site.
-* `.Site.Pages` Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13. This array contains only the pages in the current language.
-* `.Site.Permalinks` A string to override the default [permalink](/content-management/url-management/) format defined in the [site configuration](/getting-started/configuration/).
-* `.Site.RegularPages` A shortcut to the *regular page* collection. Equivalent to `where .Site.Pages "Kind" "page"`.
-* `.Site.RSSLink` The URL for the site RSS.
-* `.Site.Sections` Top level directories of the site.
-* `.Site.Taxonomies` The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
-* `.Site.Title` A string representing the title of the site.
+## Site Variables List
 
-`.Site.Params` is a container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
+`.Site.AllPages`
+: array of all pages, regardless of their translation.
+
+`.Site.Author`
+: a map of the authors as defined in the site configuration.
+
+`.Site.BaseURL`
+: the base URL for the site as defined in the site configuration.
+
+`.Site.BuildDrafts`
+: a boolean (default: `false`) to indicate whether to build drafts as defined in the site configuration.
+
+`.Site.Copyright`
+: a string representing the copyright of your website as defined in the site configuration.
+
+`.Site.Data`
+: custom data, see [Data Templates](/templates/date-templates/).
+
+`.Site.DisqusShortname`
+: a string representing the shortname of the Disqus shortcode as defined in the site configuration.
+
+`.Site.Files`
+: all source files for the Hugo website.
+
+`.Site.GoogleAnalytics`
+: a string representing your tracking code for Google Analytics as defined in the site configuration.
+
+`.Site.IsMultiLingual`
+: whether there are more than one language in this site. See [Multilingual](/content-management/multilingual-mode/) for more information.
+
+`.Site.Language.Lang`
+: the language code of the current locale (e.g., `en`).
+
+`.Site.Language.LanguageName`
+: the full language name (e.g. `English`).
+
+`.Site.Language.Weight`
+: the weight that defines the order in the `.Site.Languages` list.
+
+`.Site.Language`
+: indicates the language currently being used to render the website. This object's attributes are set in site configurations' language definition.
+
+`.Site.LanguageCode`
+: a string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.
+
+`.Site.LanguagePrefix`
+: this can be used to prefix URLs to point to the correct language. It will even work when only one defined language. See also the functions [absLangURL](/functions/abslangurl/) and [relLangURL](/functions/rellangurl).
+
+`.Site.Languages`
+: an ordered list (ordered by defined weight) of languages.
+
+`.Site.LastChange`
+: a string representing the date/time of the most recent change to your site. This string is based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
+
+`.Site.Menus`
+: all of the menus in the site.
+
+`.Site.Pages`
+: array of all content ordered by Date with the newest first. `.Site.Pages` replaced the deprecated `.Site.Recent` as of Hugo v0.13. This array contains only the pages in the current language.
+
+`.Site.Permalinks`
+: a string to override the default [permalink](/content-management/url-management/) format as defined in the site configuration.
+
+`.Site.RegularPages`
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalents to `where .Site.Pages "Kind" "page"`.
+
+`.Site.RSSLink`
+: the URL for the site RSS.
+
+`.Site.Sections`
+: top-level directories of the site.
+
+`.Site.Taxonomies`
+: the [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
+
+`.Site.Title`
+: a string representing the title of the site.
+
+## The `.Site.Params` Variable
+
+`.Site.Params` is a container holding the values from the `params` section of your site configuration.
+
+### `.Site.Params` Example
+
+The following `config.toml` defines a site-wide param for `description`:
 
 ```toml
 baseURL = "http://yoursite.example.com/"
@@ -53,3 +112,10 @@ baseURL = "http://yoursite.example.com/"
   author = "Nikola Tesla"
 ```
 
+You can use `.Site.Params` in a [partial template](/templates/partial-templates/) to call the default site description:
+
+{{% input "layouts/partials/head.html" %}}
+```html
+<meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
+```
+{{% /input %}}

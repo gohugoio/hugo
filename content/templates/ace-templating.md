@@ -12,7 +12,6 @@ categories: [amber, templating options]
 draft: false
 aliases: []
 toc: false
-notesforauthors:
 ---
 
 In addition to [Go templates][] and [Amber templates][], Hugo supports the powerful Ace templates.

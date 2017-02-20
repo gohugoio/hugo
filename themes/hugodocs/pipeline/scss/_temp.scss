@@ -1,0 +1,14 @@
+#beingreviewed {
+	background-color: $hugo-pink;
+	color:white;
+	position:absolute;
+	left:40px;
+	top:20px;
+	transform:rotate(-10deg);
+	font-weight:bold;
+	width:200px;
+	font-size:24px;
+	padding:6px;
+	z-index:9999;
+	overflow:visible;
+}

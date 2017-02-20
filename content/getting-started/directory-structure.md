@@ -1,7 +1,7 @@
 ---
 title: Directory Structure
 linktitle: Directory Structure
-description: Explanation of the directory structure in a typical Hugo project and how Hugo traverses the file system therein.
+description: Hugo's CLI scaffolds a project's directory structure nearly instantly and then takes that single directory and uses it as the input for creating a complete website.
 date: 2017-01-02
 publishdate: 2017-01-02
 lastmod: 2017-01-02

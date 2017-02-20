@@ -12,7 +12,6 @@ tags: [amber, templating options]
 draft: false
 aliases: [/templates/amber/]
 toc: false
-notesforauthors:
 ---
 
 Hugo also supports the Amber templating engine in addition to [Go templates][] and [Ace templates][] templates.

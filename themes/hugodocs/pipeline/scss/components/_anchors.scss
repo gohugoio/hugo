@@ -81,10 +81,10 @@ a.tooltip {
 
 a.heading-link {
   color: lighten($base-font-color, 50%);
-  font-size: .8em;
+  font-size: .7em;
   position: absolute;
   display: inline;
-  top: .3em;
+  top: .4em;
   right:0px;
   &:before,
   &:after {

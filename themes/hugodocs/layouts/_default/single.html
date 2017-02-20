@@ -7,6 +7,9 @@
 		<h1 class="page-title {{.Section}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">{{with .LinkTitle}}{{.}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
 		{{partial "content-header-links.html" . }}
 		{{partial "tags.html" . }}
+		{{if .Params.needsreview }}
+		<div id="beingreviewed">UNDERGOING REVIEW</div>
+		{{end}}
 	</header>
 	<div class="body-copy">
 	{{.Content}}

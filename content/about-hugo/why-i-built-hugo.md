@@ -19,7 +19,7 @@ WordPress sites rendered slowly and required I be online to write posts. WordPre
 
 I looked at existing static site generators like [Jekyll][], [Middleman][], and [Nanoc][]. All had complicated installation dependencies and an unacceptably long time to render my blog with hundreds of posts. I wanted a framework that would give me rapid feedback while making changes to the templates, and the 5-minute-plus render times were just too slow. In general, the static site generators were very blog-minded and didn't provide for other content types and flexible URLs.
 
-I wanted to develop a fast and full-featured website framework without any dependencies. The [Go language][] seemed to have all the features I needed in a language. I began developing Hugo in Go and fell in love with the language. I hope you will enjoy using Hugo (and [contributing to it][]) as much as I have writing it.
+I wanted to develop a fast and full-featured website framework without any dependencies. The [Go language][] seemed to have all the features I needed. I began developing Hugo in Go and fell in love with the language. I hope you will enjoy using Hugo (and [contributing to it][]) as much as I have writing it.
 
 &#8213;Steve Francia ([@spf13][])
 

@@ -1,15 +1,15 @@
 ---
 title: Using the Hugo Docs
 linktitle: Using the Hugo Docs
-description:
+description: The Hugo docs are optimized for consistency. Code samples and tutorials pull from a single example site, and content is grouped together to make learning Hugo easier and even more fun.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
-tags: [usage,docs]
+tags: [usage,docs,fundamentals]
+tags_weight: 01
 weight: 20
 draft: false
-slug:
 aliases: [/getting-started/using-the-docs/]
 toc: true
 needsreview: true
@@ -21,9 +21,15 @@ needsreview: true
 
 ## Code Samples
 
-### Input Code Code Blocks
+Throughout the docs, you'll see four different types of code blocks.
 
-### Output Code Code Blocks
+### Standard
+
+This should be obvious.
+
+### Input Code Blocks (Copyable)
+
+### Output Code Blocks
 
 ### Example Site Code Blocks
 

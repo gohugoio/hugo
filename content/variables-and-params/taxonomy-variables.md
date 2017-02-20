@@ -10,28 +10,48 @@ tags: [taxonomies,terms]
 draft: false
 weight: 30
 aliases: []
-toc: false
+toc: true
 needsreview: true
 notesforauthors:
 ---
 
 ### Taxonomy Terms Page Variables
 
-[Taxonomy terms](/templates/taxonomy-templates/) pages are of the type `Page` and have the following additional variables. These are available in `layouts/_defaults/terms.html` for example.
+[Taxonomy terms pages][taxonomytemplates] are of the type `Page` and have the following additional variables. For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
 
-* `.Data.Singular` The singular name of the taxonomy<br>
-* `.Data.Plural` The plural name of the taxonomy<br>
-* `.Data.Pages` the list of pages in this taxonomy<br>
-* `.Data.Terms` The taxonomy itself<br>
-* `.Data.Terms.Alphabetical` The Terms alphabetized<br>
-* `.Data.Terms.ByCount` The Terms ordered by popularity<br>
+`.Data.Singular`
+: The singular name of the taxonomy
 
-The last two can also be reversed: `.Data.Terms.Alphabetical.Reverse`, `.Data.Terms.ByCount.Reverse`.
+`.Data.Plural`
+: The plural name of the taxonomy
 
-### Taxonomies elsewhere
+`.Data.Pages`
+: The list of pages in the taxonomy
 
-The `.Site.Taxonomies` variable holds all taxonomies defines site-wide. It is a map of the taxonomy name to a list of its values. For example: "tags" -> ["tag1", "tag2", "tag3"]. Each value, though, is not a string but rather a [Taxonomy variable](#the-taxonomy-variable).
+`.Data.Terms`
+: The taxonomy itself
 
-#### The Taxonomy variable
+`.Data.Terms.Alphabetical`
+: The taxonomy terms alphabetized
 
-The Taxonomy variable, available as `.Site.Taxonomies.tags` for example, contains the list of tags (values) and, for each of tag, their corresponding content pages.
+`.Data.Terms.ByCount`
+: The Terms ordered by popularity
+
+Note that `.Data.Terms.Alphabetical` and `.Data.Terms.ByCount` can also be reversed:
+
+* `.Data.Terms.Alphabetical.Reverse`
+* `.Data.Terms.ByCount.Reverse`
+
+### Using `.Site.Taxonomies` Outside of Taxonomy Templates
+
+The `.Site.Taxonomies` variable holds all the taxonomies that defined site-wide. It is a map of the taxonomy name to a list of its values (e.g., "tags" -> ["tag1", "tag2", "tag3"]). Each value, though, is not a string but rather a **Taxonomy variable**.
+
+### The Taxonomy Variable
+
+The Taxonomy variable, available, for example, as `.Site.Taxonomies.tags`, contains the list of tags (values) and, for each of tag, their corresponding content pages.
+
+### Example Usage of `.Site.Taxonomies`
+
+**NEEDS EXAMPLE**
+
+[taxonomytemplates]: /templates/taxonomy-templates/

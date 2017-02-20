@@ -10,23 +10,18 @@ categories: [templates]
 tags: [files]
 draft: false
 weight:
-aliases: [/extras/localfiles/]
+aliases: [/extras/localfiles/,/templates/files/]
 toc: true
-notesforauthors:
+needsreview: true
 ---
 
 ## Traversing Local Files
 
-Hugo's [`readDir` function][], you can traverse your website's files on your server.
-
+With Hugo's [`readDir` function][], you can traverse your website's files on your server.
 
 ## Using _readDir_
 
-The `readDir` function returns an array
-of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo).
-It takes a single, string argument: a path.
-This path can be to any directory of your website
-(as found on your server's filesystem).
+The `readDir` function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes a single, string argument: a path. This path can be to any directory of your website (as found on your server's filesystem).
 
 Whether the path is absolute or relative makes no difference,
 because&mdash;at least for `readDir`&mdash;the root of your website (typically `./public/`)
@@ -35,7 +30,7 @@ in effect becomes both:
 1. The filesystem root; and
 1. The current working directory.
 
-## New Shortcode
+## Example Shortcode: List Directory's Files
 
 So, let's create a new shortcode using `readDir`:
 

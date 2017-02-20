@@ -13,7 +13,7 @@ pre {
   margin: .5em 0px 32px 0px;
   overflow: auto;
   & > code {
-    color:$hugo-white;
+    color: $hugo-white;
   }
 }
 
@@ -37,7 +37,6 @@ pre {
       font-family: $code-font-family;
       padding-left: .25em;
       padding-right: .25em;
-      // padding-bottom: .1em;
       text-transform: none;
       line-height: 1.2;
       margin-bottom: .15em;
@@ -55,14 +54,28 @@ pre {
       }
     }
   }
+  //for definitions lists
+  dd,
+  dt {
+    code {
+      //darken code background color for non-retina displays
+      background-color: darken($inline-code-background-color, 5%);
+      color: $inline-code-text-color;
+      font-family: $code-font-family;
+      @include MQ(retina) {
+        //lighten code background color for retina displays
+        background-color: $inline-code-background-color;
+      }
+    }
+  }
   p > a code,
   li > a code,
   td > a code {
     color: $hugo-pink;
   }
   > pre {
-    padding-bottom:20px;
-    padding-top:20px;
+    padding-bottom: 20px;
+    padding-top: 20px;
     background-color: $code-block-background-color;
     font-family: $code-font-family;
     color: $code-block-base-font-color;
@@ -164,9 +177,9 @@ div.code-copy-header {
   background-color: $code-editor-header-base-bg-color;
   border-radius: 0px;
   position: relative;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   &.output {
     background-color: $output-example-color;
   }
@@ -181,22 +194,23 @@ div.code-copy-header {
     font-family: $systemfonts;
     i.icon-website {
       color: inherit;
-      font-weight:bold;
-      font-size:18px;
+      font-weight: bold;
+      font-size: 18px;
     }
   }
   [class^="icon-"] {
     color: $code-filename-color;
   }
   //corrects odd placement of terminal icon
-  i.icon-sh.input,i.icon-bash.input {
-    padding-right:.5em;
+  i.icon-sh.input,
+  i.icon-bash.input {
+    padding-right: .5em;
   }
 }
 
 .action-buttons {
   // position: absolute;
-  position:relative;
+  position: relative;
   left: 10px;
   width: 12px;
   height: 12px;

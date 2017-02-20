@@ -1,13 +1,13 @@
 ---
 title: Install Hugo
 linktitle: Install Hugo
-description:
+description: Install Hugo on Mac OSX, Windows, Linux, FreeBSD, and on any machine where the Go compiler tool chain can run.
 date: 2016-11-01
 publishdate: 2016-11-01
-lastmod: 2016-11-01
+lastmod: 2017-02-20
 categories: [getting started]
 authors: ["Michael Henderson"]
-tags: [install,pc,windows,linux,mac,osx,binary,tarball]
+tags: [install,fundamentals,pc,windows,linux,mac,osx,binary,tarball]
 weight: 30
 draft: false
 aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/]
