@@ -302,11 +302,11 @@ func TestExtractShortcodes(t *testing.T) {
 		expectErrorMsg   string
 	}{
 		{"text", "Some text.", "map[]", "Some text.", ""},
-		{"invalid right delim", "{{< tag }}", "", false, "simple:4:.*unrecognized character.*}"},
-		{"invalid close", "\n{{< /tag >}}", "", false, "simple:5:.*got closing shortcode, but none is open"},
-		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, "simple:6: closing tag for shortcode 'anotherTag' does not match start tag"},
-		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, "simple:4:.got pos.*"},
-		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, "simple:4:.*unterm.*}"},
+		{"invalid right delim", "{{< tag }}", "", false, "simple.md:4:.*unrecognized character.*}"},
+		{"invalid close", "\n{{< /tag >}}", "", false, "simple.md:5:.*got closing shortcode, but none is open"},
+		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, "simple.md:6: closing tag for shortcode 'anotherTag' does not match start tag"},
+		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, "simple.md:4:.got pos.*"},
+		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, "simple.md:4:.*unterm.*}"},
 		{"one shortcode, no markup", "{{< tag >}}", "", testScPlaceholderRegexp, ""},
 		{"one shortcode, markup", "{{% tag %}}", "", testScPlaceholderRegexp, ""},
 		{"one pos param", "{{% tag param1 %}}", `tag([\"param1\"], true){[]}"]`, testScPlaceholderRegexp, ""},
