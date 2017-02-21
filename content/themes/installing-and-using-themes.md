@@ -98,6 +98,6 @@ The `themename` in the above examples must match the name of the specific theme 
 {{% /note %}}
 
 [customizethemes]: /themes/customizing-a-theme/
-[flag]: /developer-tools/hugo-command-line-reference/#flags "See the full list of flags available via the Hugo CLI."
+[flag]: /getting-started/basic-usage/ "See the full list of flags in Hugo's basic usage."
 [configuration]: /project-organization/configuration/  "Learn how to customize your Hugo website configuration file in yaml, toml, or json."
 [themesrepo]: https://github.com/spf13/hugoThemes

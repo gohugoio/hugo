@@ -12,99 +12,92 @@ gettingstarted:
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Quick start, cross-platform installation, configuration, basic usage, and directory structure"
-# projectorganization:
-#   order: 3
-#   title: "Project Organization"
-#   url: "project-organization"
-#   haschildren: true
-#   sortsubpagesby: "weight"
-#   desc: "Site configuration, scaffolding of new projects, and source organization"
 contentmanagement:
-  order: 4
+  order: 3
   title: "Content Management"
   url: "content-management"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Summaries, shortcodes, archetypes, permalinks, front matter, and supported content formats"
 templates:
-  order: 5
+  order: 4
   title: "Templates"
   url: "templates"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Pagination, homepage, rss, sitemap, lookup order, and data templates"
 functions:
-  order: 6
+  order: 5
   title: "Functions"
   url: "functions"
   haschildren: true
   sortsubpagesby: "title"
   desc: "Comprehensive list of Hugo templating functions, including basic and advanced usage examples"
 variablesandparams:
-  order: 7
+  order: 6
   title: "Variables and Params"
   url: "variables-and-params"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Page-, file-, taxonomy-, and site-level variables and parameters available in templates"
 themes:
-  order: 8
+  order: 7
   title: "Themes"
   url: "themes"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Install, use, and create your own Hugo themes"
 hostinganddeployment:
-  order: 9
+  order: 8
   title: "Hosting and Deployment"
   url: "hosting-and-deployment"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Site builds, automated deployments, and popular hosting solutions, as explained by the Hugo community"
-# migratingtohugo:
-#   order: 10
-#   title: "Migrating to Hugo"
-#   url: "migrating-to-hugo"
-#   haschildren: true
-#   sortsubpagesby: "weight"
-#   desc: "Tools for migrating to Hugo from other platforms or generators (eg, Wordpress or Jekyll)"
 tutorials:
-  order: 11
+  order: 9
   title: "Tutorials"
   url: "tutorials"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Community-aggregated articles and code examples for approaching different projects using Hugo"
 developertools:
-  order: 12
+  order: 10
   title: "Developer Tools"
   url: "developer-tools"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Command line reference, syntax highlighting, and migration tools"
+commands:
+  order: 11
+  title: "Command Line Reference"
+  url: "commands"
+  haschildren: false
+  sortsubpagesby: false
+  desc: "Hugo's easy-to-use but extensive command line interface"
 troubleshooting:
-  order: 13
+  order: 12
   title: "Troubleshooting"
   url: "troubleshooting"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Known issues and workarounds, as well as FAQs pulled from the Hugo discussion forum"
 news:
-  order: 14
+  order: 13
   title: "News"
   url: "news"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Articles featuring Hugo, as well as updates and release notes for the project"
 siteshowcase:
-  order: 15
+  order: 14
   title: "Site Showcase"
   url: "showcase"
   haschildren: false
   sortsubpagesby: "weight"
   desc: "A collection of websites built using Hugo"
 contributetohugo:
-  order: 16
+  order: 15
   title: "Contribute to Hugo"
   url: "contribute-to-hugo"
   haschildren: true

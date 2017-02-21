@@ -11,7 +11,7 @@ weight: 90
 draft: false
 aliases: [/extras/permalinks/,/extras/aliases/,/content-management/permalinks-and-redirects/,/extras/urls/]
 toc: true
-notesforauthors:
+needsreview: true
 ---
 
 ## Base URL
@@ -107,6 +107,6 @@ Setting `relativeURLs` to `true` in the site configuration will cause Hugo to re
 For example, if the `/post/first/` page contained a link with a relative URL of `/about/`, Hugo would rewrite that URL to `../../about/`.
 
 [Content Organization]: /content-management/content-organization/
-[flag from the command line]: /developer-tools/hugo-command-line-reference/#flags
+[flag from the command line]: /getting-started/basic-usage/
 [sections]: /content-management/content-sections/
 [site configuration]: /project-organization/configuration/

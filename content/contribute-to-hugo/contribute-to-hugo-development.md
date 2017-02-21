@@ -75,7 +75,7 @@ If you're going to contribute code, you'll need to have an account on GitHub. Go
 
 ## Installing Git on Your System
 
-You will need to have Git installed on your computer to contribute to Hugo development. Teaching git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book](https://git-scm.com/) if you are not sure where to begin. The used terminology will be explained with annotations.
+You will need to have Git installed on your computer to contribute to Hugo development. Teaching git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. The used terminology will be explained with annotations.
 
 Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
@@ -322,7 +322,7 @@ squash 33c8973 Begin workflow
 squash 3502f2e Refactoring and typo fixes
 ```
 
-Close the editor. It should open again with a new tab. A text is instructing you to define a new commit message for the last two commits that should be merged (aka "squashed"). Save the file (<kbd>CTRL</kbd>+<kbd>S</kbd>) and close the editor again.
+Close the editor. It should open again with a new tab. A text is instructing you to define a new commit message for the last two commits that should be merged (aka "squashed"). Save the file with <kbd>CTRL</kbd>+<kbd>S</kbd> and close the editor again.
 
 A last time a new tab opens. Enter a new commit message and save again. Your terminal should contain a status message. Hopefully this one:
 
@@ -374,16 +374,17 @@ If you have questions leave a comment in the pull request. We are willing to ass
 
 Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
 
-## Additional References for Learning Git
+## Learning Git References
 
 * [Codecademy's Free "Learn Git" Course][codecademy]
 * [Code School and GitHub's Free "Try Git" Tutorial][trygit]
-*
+* [The Git Book][gitbook]
 
 
 [codecademy]: https://www.codecademy.com/learn/learn-git
 [contributors]: https://github.com/spf13/hugo/graphs/contributors
 [downloadgo]: https://golang.org/dl/
+[gitbook]: https://git-scm.com/
 [gvm]: https://github.com/moovweb/gvm
 [installgo]: https://golang.org/doc/install
 [releases]: /getting-started/

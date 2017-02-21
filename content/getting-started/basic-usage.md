@@ -15,10 +15,17 @@ needsreview: true
 notesforauthors:
 ---
 
-Once you have [installed Hugo][install] is in your `PATH` (or provide a path to it). Test this by:
+## Testing Installation with Hugo Help
+
+Once you have [installed Hugo][install], make sure it is in your `PATH` (or provide a path to it). You can test that Hugo has been installed correctly via the `help` command:
 
 ```bash
 hugo help
+```
+
+The output you see in your console should be similar to the following:
+
+```bash
 hugo is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
@@ -83,7 +90,6 @@ Additional help topics:
 Use "hugo [command] --help" for more information about a command.
 ```
 
-## Common Usage Example
 
 The most common use is probably to run `hugo` with your current directory being the input directory:
 
@@ -98,11 +104,11 @@ hugo
 in 120 ms
 ```
 
-This generates your web site to the `public/` directory, ready to be deployed to your web server.
+This generates your website to the `public/` directory, ready to be deployed to your web server.
 
 ## Instant feedback as you develop your web site
 
-If you are working on things and want to see the changes immediately, by default Hugo will watch the filesystem for changes, and rebuild your site as soon as a file is saved:
+If you are working on things and want to see the changes immediately, by default Hugo will watch the filesystem for changes and rebuild your site as soon as a file is saved:
 
 ```bash
 hugo -s ~/Code/hugo/docs
@@ -140,7 +146,7 @@ The combination of Hugo’s insane build speed and LiveReload make
 crafting your content pure joy. Virtually instantly after you hit save
 your rebuilt content will appear in your browser.
 
-## LiveReload
+### LiveReload
 
 Hugo comes with [LiveReload](https://github.com/livereload/livereload-js) built in. There are no additional packages to install. A common way to use Hugo while developing a site is to have Hugo run a server and watch for changes:
 
@@ -197,31 +203,17 @@ After running `hugo server` for local web development, you need to do a final `h
 
 Since Hugo generates a static website, your site can be hosted anywhere, including [Heroku][], [GoDaddy][], [DreamHost][], [GitHub Pages][], [Amazon S3][] with [CloudFront][], [Firebase Hosting][], or any other cheap (or even free) static web hosting service.
 
-[Apache][], [nginx][], [IIS][]...  Any web server software would do!
-
-[Apache]: http://httpd.apache.org/ "Apache HTTP Server"
-[nginx]: http://nginx.org/
-[IIS]: http://www.iis.net/
-[Heroku]: https://www.heroku.com/
-[GoDaddy]: https://www.godaddy.com/
-[DreamHost]: http://www.dreamhost.com/
-[GitHub Pages]: https://pages.github.com/
-[GitLab]: https://about.gitlab.com
-[Amazon S3]: http://aws.amazon.com/s3/
-[CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
-[Firebase Hosting]: https://firebase.google.com/docs/hosting/
+[Apache][], [nginx][], [IIS][]...any web server software will work.
 
 {{% warning "Generated Files are **NOT** Removed on Site Build" %}}
-
+Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the directory you specified with `-d`/`--destination`) before running the `hugo` command, or you run the risk of the wrong files (e.g., drafts or future posts) being left in the generated site.
 {{% /warning %}}
 
-### A Note About Deployment
+### Destination Directories for Dev vs Deploy
 
-Running `hugo` *does not* remove generated files before building. This means that you should delete your `public/` directory (or the directory you specified with `-d`/`--destination`) before running the `hugo` command, or you run the risk of the wrong files (e.g., drafts or future posts) being left in the generated site.
+Hugo does not remove generated files before building. An easy workaround is to use different directories for development and production.
 
-An easy way to work around this is to use different directories for development and production.
-
-To start a server that builds draft content (helpful for editing), you can specify a different destination: the `dev/` dir.
+To start a server that builds draft content (helpful for editing), you can specify a different destination; e.g., a `dev/` directory:
 
 ```bash
 hugo server -wDs ~/Code/hugo/docs -d dev
@@ -237,18 +229,20 @@ This prevents content you're not yet ready to share from accidentally becoming a
 
 ### Using Hugo's Server in Production
 
-Because Hugo is so blazingly fast both in web site creation *and* in web serving (thanks to its concurrent and multi-threaded design and its Golang heritage), some users prefer using Hugo itself to serve their website *on their production server*.
+Because Hugo is so blazingly fast both in website creation *and* in web serving (thanks to its concurrent, multi-threaded design and Golang heritage), some users prefer to use Hugo itself to serve their website *on their production server*.
 
 No other web server software (e.g., Apache, nginx, IIS) is necessary.
 
 Here is the command:
 
+{{% input "hugo-production-server.sh" %}}
 ```bash
 hugo server --baseURL=http://yoursite.org/ \
 --port=80 \
 --appendPort=false \
 --bind=87.245.198.50
 ```
+{{% /input %}}
 
 Note the `bind` option, which is the interface to which the server will bind (defaults to `127.0.0.1`: fine for most development use cases). Some hosts, such as Amazon Web Services, run NAT (network address translation); sometimes it can be hard to figure out the actual IP address. Using `--bind=0.0.0.0` will bind to all interfaces.
 
@@ -258,5 +252,15 @@ Interested? Here are some great tutorials contributed by Hugo users:
 
 * [hugo, syncthing](http://fredix.xyz/2014/10/hugo-syncthing/) (French) by Frédéric Logier (@fredix)
 
-
+[Amazon S3]: http://aws.amazon.com/s3/
+[Apache]: http://httpd.apache.org/ "Apache HTTP Server"
+[CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
+[DreamHost]: http://www.dreamhost.com/
+[Firebase Hosting]: https://firebase.google.com/docs/hosting/
+[GitHub Pages]: https://pages.github.com/
+[GitLab]: https://about.gitlab.com
+[GoDaddy]: https://www.godaddy.com/
+[Heroku]: https://www.heroku.com/
+[IIS]: http://www.iis.net/
 [install]: /getting-started/install-hugo/
+[nginx]: http://nginx.org/
