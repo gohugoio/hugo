@@ -323,7 +323,7 @@ Our website is now using the `bleak` theme at <http://localhost:1313>, which sho
 
 ![Screenshot of the Quick Start website's homepage running with the Bleak Hugo theme.](/images/quickstart/bookshelf-bleak-theme.png)
 
-## Step 7. Update `config.toml` and Watch LiveReload in Action
+## Step 7. Update Your Configuration
 
 Kill the Hugo server if you are still running it with the Bleak theme, and then restart the server with the `robust` theme. We will use Robust for the duration of this Quick Start:
 
@@ -511,7 +511,7 @@ Now, commenting will be enabled in your blog.
 
 ![](/images/quickstart/bookshelf-disqus.png)
 
-## Step 11. Generate Your Website with `hugo`
+## Step 11. Build Your Website with `hugo`
 
 To generate a website that can be deployed to GitHub pages, we first need to change the `baseURL` in our configuration as follows:
 

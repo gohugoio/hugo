@@ -14,23 +14,19 @@ aliases: [/extras/shortcodes/]
 toc: true
 ---
 
-Hugo loves Markdown because of its simple content format, but there are times when markdown falls short. Often, content authors fall back on adding raw HTML (e.g., video `<iframes>`) to markdown content. We think blocks of raw HTML contradict the beautiful simplicity of markdown's syntax.
+Hugo loves Markdown because of its simple content format, but there are times when markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to markdown content. We think this contradicts the beautiful simplicity of markdown's syntax.
 
 Hugo created **shortcodes** to circumvent these limitations.
 
-A shortcode is a simple snippet inside a content file that Hugo will render using a predefined template. Note that shortcodes will not work in template files---if you need the type of drop-in functionality that shortcodes provide but in a template, you most likely want a [partial template][partialtemplatespage] instead.
+A shortcode is a simple snippet inside a content file that Hugo will render using a predefined template. Note that shortcodes will not work in template files---if you need the type of drop-in functionality that shortcodes provide but in a template, you most likely want a [partial template][partials] instead.
 
 In addition to cleaner markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
 ## Using Shortcodes
 
-In your content files, a shortcode can be called by using the `{{%/* shortcodename parameters*/%}}` form. Shortcode parameters are space delimited. Parameters with internal spaces can be quoted.
+In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters*/%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 
-The first word is always the name of the shortcode. Parameters follow the name.
-Depending upon how the shortcode is defined, the parameters may be named,
-positional or both (although you can't mixed parameter types in a single call).
-The format for named parameters models that of HTML with the format
-`name="value"`.
+The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional or both (although you can't mixed parameter types in a single call). The format for named parameters models that of HTML with the format `name="value"`.
 
 Some shortcodes use or require closing shortcodes. Like HTML, the opening and closing shortcodes match (name only) with the closing declaration prepended with a slash.
 
@@ -120,8 +116,7 @@ If the gist contains several files and you want to quote just one of them, you c
 
 ### `highlight`
 
-This shortcode will convert the source code provided into syntax highlighted
-HTML. Read more on [highlighting](/extras/highlighting/). `highlight` takes exactly one required parameter of _language_ and requires a closing shortcode.
+This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/developer-tools/syntax-highlighting/). `highlight` takes exactly one required parameter of _language_ and requires a closing shortcode.
 
 #### Example `highlight` Input
 
@@ -269,7 +264,7 @@ To learn more about creating your own shortcode templates, see the [shortcode te
 [`figure` shortcode]: #figure
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables-and-params/page-variables/
-[partialtemplatespage]: /templates/partials-templates/
+[partials]: /templates/partials-templates/
 [Pygments]: http://pygments.org/
 [projectorganizationsection]: /project-organization/directory-structure/
 [shortcode template documentation]: /templates/shortcode-templates/

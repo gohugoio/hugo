@@ -55,10 +55,9 @@ watch = true
 
 #CUSTOM PARAMS
 [params]
-  sitesubtitle = ""
 	organizationname = ""
-  copyrightline = ""
   sitedescription = ""
+  release = "0.18.1"
   # Add GA Tracking Code Here. This leverages a built-in (ie, "internal") partial from HUGO: https://gohugo.io/extras/analytics#configuring-google-analytics
   googleanalyticstrackingcode = ""
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head>>

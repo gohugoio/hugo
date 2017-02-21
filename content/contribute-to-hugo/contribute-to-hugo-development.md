@@ -7,6 +7,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute to hugo]
 tags: [dev,open source]
+authors: [digitalcraftsman]
 weight: 10
 draft: false
 aliases: [/contribute-to-hugo/contribute-to-hugo-development/]
@@ -17,35 +18,64 @@ notesforauthors:
 
 ## Introduction
 
-Hugo is an open-source project and lives by the work of its [contributors](https://github.com/spf13/hugo/graphs/contributors). Help to make Hugo even more awesome. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub, and we need your help.
+Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][], and we need your help to make Hugo even more awesome.
 
-This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do.
+## Assumptions
 
-For any kind of questions please take a look at the [Hugo Discussion forum](https://discuss.gohugo.io/).
+* You are new to Git or open-source projects in general
+* You are a fan of Hugo and enthusiastic about contributing to the project
 
-## Install Go
+This contribution guide takes a step-by-step approach in hopes of helping newcomers.
 
-The installation of Go should take only a few minutes. [Download](https://golang.org/dl/) the latest stable version of Go and follow the official [installation guide](https://golang.org/doc/install).
+{{% note "Additional Questions?" %}}
+If you're struggling at any point in this contribution guide, reach out to Hugo community in [Hugo's Discussion forum](https://discuss.gohugo.io).
+{{% /note %}}
 
-Let's confirm the correct installation of Go. Open a terminal (or command line under Windows). Execute `go version` and you should see the version number of your Go installation. Next, make sure that you setup the `GOPATH` as described in the installation guide.
+### Installing Golang
 
-You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace.
+The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
 
-### GVM as alternative
+## Installing Go From Source
 
-More experienced users can use the [Go Version Manager](https://github.com/moovweb/gvm), or GVM for short. It allows you to switch between different Go versions *on the same machine*. Probably you don't need this feature. But you can easily upgrade to a new released Go version with a few commands.
+[Download the latest stable version of Go][downloadgo] and follow the official [Golang installation guide][installgo].
 
-This is handy if you follow the developement of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later you have to upgrade if you want to keep up.
+Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
+
+```bash
+`go version`
+```
+
+You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
+
+```bash
+go version go1.8 darwin/amd64
+```
+
+Next, make sure that you set up your `GOPATH` [as described in the installation guide][setupgopath].
+
+You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; .e.g.:
+
+```bash
+/Users/<yourusername>/Code/go
+```
+
+### Installing Go with Homebrew
 
 
-## Create an account on GitHub
+
+### Install Go GVM
+
+More experienced users can use the [Go Version Manager][gvm] (GVM). GVM allows you to switch between different Go versions *on the same machine*. If you're a beginner, you probably don't need this feature. However, GVM makes it easy to upgrade to a new released Go version with just a few commands.
+
+GVM comes in especially handy if you follow the development of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later, you will have to upgrade if you want to keep up.
+
+## Creating a GitHub Account
 
 If you're going to contribute code, you'll need to have an account on GitHub. Go to [www.github.com/join](https://github.com/join) and set up a personal account.
 
+## Installing Git on Your System
 
-## Install Git on your system
-
-You will need to install Git. This tutorial assumes basic knowledge about Git. Refer to this excellent [Git book](https://git-scm.com/) if you are not sure where to begin. The used terminology will be explained with annotations.
+You will need to have Git installed on your computer to contribute to Hugo development. Teaching git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book](https://git-scm.com/) if you are not sure where to begin. The used terminology will be explained with annotations.
 
 Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
@@ -59,17 +89,17 @@ Finally, check again with `git version` if Git was installed successfully.
 
 There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Thus, so we will use the command line since the commands are everywhere the same.
 
-### Install Hub on your system (optional)
+### Install Hub on Your System (optional)
 
 Hub is a great tool for working with GitHub. The main site for it is [www.hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
 
-On a Mac, install Hub using brew:
+On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
 
 ```sh
 brew install hub
 ```
 
-Create an alias (in Bash) so that typing git actually runs Hub:
+Now we'll create an [alias in Bash](http://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
 ```sh
 echo "alias git='hub'" >> ~/.bash_profile
@@ -156,8 +186,7 @@ origin  https://github.com/spf13/hugo (fetch)
 origin  https://github.com/spf13/hugo (push)
 ```
 
-
-## The contribution workflow
+## The Hugo Git Contribution Workflow
 
 ### Create a new branch
 
@@ -180,7 +209,7 @@ You can check on which branch your are with `git branch`. You should see a list 
 
 ### Contributing to the documentation
 
-Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. [Install the latest release][]. Or read on and build Hugo from source.
+Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. [Install the latest release][releases]. Or read on and build Hugo from source.
 
 You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page if you change its content.
 
@@ -345,4 +374,19 @@ If you have questions leave a comment in the pull request. We are willing to ass
 
 Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
 
-[Install the latest release]: /getting-started/
+## Additional References for Learning Git
+
+* [Codecademy's Free "Learn Git" Course][codecademy]
+* [Code School and GitHub's Free "Try Git" Tutorial][trygit]
+*
+
+
+[codecademy]: https://www.codecademy.com/learn/learn-git
+[contributors]: https://github.com/spf13/hugo/graphs/contributors
+[downloadgo]: https://golang.org/dl/
+[gvm]: https://github.com/moovweb/gvm
+[installgo]: https://golang.org/doc/install
+[releases]: /getting-started/
+[setupgopath]: https://golang.org/doc/code.html#Workspaces
+[open issues]: https://github.com/spf13/hugo/issues
+[trygit]: https://try.github.io/levels/1/challenges/1
