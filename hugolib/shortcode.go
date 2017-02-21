@@ -483,7 +483,7 @@ Loop:
 			break Loop
 		case tError:
 			err := fmt.Errorf("%s:%d: %s",
-				p.BaseFileName(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
+				p.FullFilePath(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
 			currShortcode.err = err
 			return result.String(), shortCodes, err
 		}
