@@ -84,8 +84,40 @@ The `.Hugo` variable provides easy access to Hugo-related data and contains the 
 We highly recommend using `.Hugo.Generator` in your website. It is already included in all theme headers. The generator tag is significant in that it allows the Hugo team to track the usage and popularity of Hugo.
 {{% /note %}}
 
+## Menu Variables
+
+A menu entry in a [menu template][] has the following properties:
+
+`URL`
+: string
+
+`Name`
+: string
+
+`Menu`
+: string
+
+`Identifier`
+: string
+
+`Pre`
+: template.HTML
+
+`Post`
+: template.HTML
+
+`Weight`
+: int
+
+`Parent`
+: string
+
+`Children`
+: Menu
+
+
 [configuration]: /getting-started/configuration/
 [getfunction]: /functions/get/
 [markdownshortcode]: /content-management/shortcodes/#shortcodes-with-markdown
+[menu template]: /templates/menu-templates/
 [shortcodes]: /templates/shortcode-templates/
-

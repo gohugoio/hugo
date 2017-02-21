@@ -134,8 +134,10 @@ publishDir:                 "public"
 pygmentsCodeFencesGuessSyntax: false
 # color-codes for highlighting derived from this style
 pygmentsStyle:              "monokai"
-# true: use pygments-css or false: color-codes directly
+# true use pygments-css or false will color code directly
 pygmentsUseClasses:         false
+# see "Section Menu for Lazy Bloggers", /templates/menu-templates for more info
+SectionPagesMenu:           ""
 # default sitemap configuration map
 sitemap:
 # filesystem path to read files relative from
@@ -190,7 +192,7 @@ The following is the full list of Hugo-defined variables in an example TOML file
 
 {{% input "config.toml" %}}
 ```toml
----
++++
 archetypeDir =                "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
 baseURL =                     ""
@@ -271,6 +273,8 @@ pygmentsCodeFencesGuessSyntax = false
 pygmentsStyle =               "monokai"
 # true: use pygments-css or false: color-codes directly
 pygmentsUseClasses =          false
+# see "Section Menu for Lazy Bloggers", /templates/menu-templates for more info
+SectionPagesMenu =
 # default sitemap configuration map
 sitemap =
 # filesystem path to read files relative from
@@ -293,7 +297,7 @@ watch =                       true
 [taxonomies]
   category = "categories"
   tag = "tags"
----
++++
 ```
 {{% /input %}}
 

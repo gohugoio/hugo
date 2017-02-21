@@ -14,11 +14,10 @@ toc: true
 needsreview: true
 ---
 
-Hugo has a simple yet powerful menu system that permits content to be
-placed in menus with a good degree of control without a lot of work.
+Hugo has a simple yet powerful menu system that permits content to be placed in menus with a good degree of control without a lot of work.
 
 {{% note "Lazy Blogger"%}}
-If all you want is a simple menu for your sections, see [Section Menu for "the Lazy Blogger"](#section-menu-for-the-lazy-blogger).
+If all you want is a simple menu for your sections, see the ["Section Menu for Lazy Bloggers" in Menu Templates](/templates/menu-templates/#section-menu-for-lazy-blogger).
 {{% /note %}}
 
 Some of the features of Hugo Menus:
@@ -28,47 +27,63 @@ Some of the features of Hugo Menus:
 * Create menu entries without being attached to any content
 * Distinguish active element (and active branch)
 
-## What is a menu?
+## What is a Menu?
 
-A menu is a named array of menu entries accessible on the site under
-`.Site.Menus` by name. For example, if I have a menu called `main`, I would
-access it via `.Site.Menus.main`.
+A menu is a named array of menu entries accessible on the site under `.Site.Menus` by name. For example, if I have a menu called `main`, I would access it via `.Site.Menus.main`.
 
-If you make use of the [multilingual feature](content-management/multilingual-mode/) you can define menus language independent.
+If you make use of the [multilingual feature](content-management/multilingual-mode/) you can define language-independent menus.
 
 A menu entry has the following properties:
 
-* **URL**        string
-* **Name**       string
-* **Menu**       string
-* **Identifier** string
-* **Pre**        template.HTML
-* **Post**       template.HTML
-* **Weight**     int
-* **Parent**     string
-* **Children**   Menu
+`URL`
+: string
+
+`Name`
+: string
+
+`Menu`
+: string
+
+`Identifier`
+: string
+
+`Pre`
+: template.HTML
+
+`Post`
+: template.HTML
+
+`Weight`
+: int
+
+`Parent`
+: string
+
+`Children`
+: Menu
 
 And the following functions:
 
-* **HasChildren** bool
+`HasChildren`
+: boolean
 
 Additionally, there are some relevant functions available on the page:
 
-* **IsMenuCurrent** (menu string, menuEntry *MenuEntry ) bool
-* **HasMenuCurrent** (menu string, menuEntry *MenuEntry) bool
+`IsMenuCurrent`
+: (menu string, menuEntry *MenuEntry ) boolean
 
+`HasMenuCurrent`
+: (menu string, menuEntry *MenuEntry) bool
 
 ## Adding content to menus
 
-Hugo supports a couple of different methods of adding a piece of content
-to the front matter.
+Hugo supports a couple of different methods of adding a piece of content to the front matter.
 
 ### Simple
 
-If all you need to do is add an entry to a menu, the simple form works
-well.
+If all you need to do is add an entry to a menu, the simple form works well.
 
-**A single menu:**
+#### A Single Menu:
 
 ```yaml
 ---
@@ -76,14 +91,13 @@ menu: "main"
 ---
 ```
 
-**Multiple menus:**
+#### Multiple Menus:
 
 ```yaml
 ---
 menu: ["main", "footer"]
 ---
 ```
-
 
 ### Advanced
 
@@ -100,38 +114,41 @@ menu:
 
 ## Adding Non-content Entries to a Menu
 
-You can also add entries to menus that aren’t attached to a piece of
-content. This takes place in the sitewide [config file](/overview/configuration/).
+You can also add entries to menus that aren’t attached to a piece of content. This takes place in the sitewide [config file](/overview/configuration/).
 
 Here’s an example `config.toml`:
 
-    [[menu.main]]
-        name = "about hugo"
-        pre = "<i class='fa fa-heart'></i>"
-        weight = -110
-        identifier = "about"
-        url = "/about/"
-    [[menu.main]]
-        name = "getting started"
-        pre = "<i class='fa fa-road'></i>"
-        weight = -100
-        url = "/getting-started/"
+```toml
+[[menu.main]]
+    name = "about hugo"
+    pre = "<i class='fa fa-heart'></i>"
+    weight = -110
+    identifier = "about"
+    url = "/about/"
+[[menu.main]]
+    name = "getting started"
+    pre = "<i class='fa fa-road'></i>"
+    weight = -100
+    url = "/getting-started/"
+```
 
 And the equivalent example `config.yaml`:
 
-    ---
-    menu:
-      main:
-          - Name: "about hugo"
-            Pre: "<i class='fa fa-heart'></i>"
-            Weight: -110
-            Identifier: "about"
-            URL: "/about/"
-          - Name: "getting started"
-            Pre: "<i class='fa fa-road'></i>"
-            Weight: -100
-            URL: "/getting-started/"
-    ---
+```yaml
+---
+menu:
+  main:
+      - Name: "about hugo"
+        Pre: "<i class='fa fa-heart'></i>"
+        Weight: -110
+        Identifier: "about"
+        URL: "/about/"
+      - Name: "getting started"
+        Pre: "<i class='fa fa-road'></i>"
+        Weight: -100
+        URL: "/getting-started/"
+---
+```
 
 
 **NOTE:** The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.
@@ -157,4 +174,4 @@ and all content entries are attached to one of these entries via the
 
 ## Rendering Menus
 
-See [Menu Templates](/templates/menu-templates/) for more information on how to render your site menus to your deployable Hugo website.
+See [Menu Templates](/templates/menu-templates/) for information on how to render your site menus.

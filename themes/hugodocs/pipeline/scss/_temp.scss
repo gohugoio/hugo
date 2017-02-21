@@ -11,6 +11,9 @@
 	padding:6px;
 	z-index:9999;
 	overflow:visible;
+	text-align:center;
+	border-radius:15px;
+	@include card(5);
 }
 
 // .twitter-tweet-rendered {
