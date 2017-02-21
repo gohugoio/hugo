@@ -80,6 +80,8 @@ func GuessType(in string) string {
 		return "rst"
 	case "html", "htm":
 		return "html"
+	case "org":
+		return "org"
 	}
 
 	return "unknown"

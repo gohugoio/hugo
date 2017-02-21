@@ -26,6 +26,7 @@ func init() {
 	RegisterHandler(new(asciidocHandler))
 	RegisterHandler(new(rstHandler))
 	RegisterHandler(new(mmarkHandler))
+	RegisterHandler(new(orgHandler))
 }
 
 type basicPageHandler Handle
@@ -107,6 +108,15 @@ type mmarkHandler struct {
 
 func (h mmarkHandler) Extensions() []string { return []string{"mmark"} }
 func (h mmarkHandler) PageConvert(p *Page) HandledResult {
+	return commonConvert(p)
+}
+
+type orgHandler struct {
+	basicPageHandler
+}
+
+func (h orgHandler) Extensions() []string { return []string{"org"} }
+func (h orgHandler) PageConvert(p *Page) HandledResult {
 	return commonConvert(p)
 }
 

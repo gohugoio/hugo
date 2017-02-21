@@ -19,6 +19,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/chaseadamsio/goorgeous"
 	toml "github.com/pelletier/go-toml"
 
 	"gopkg.in/yaml.v2"
@@ -154,6 +155,8 @@ func DetectFrontMatter(mark rune) (f *frontmatterType) {
 		return &frontmatterType{[]byte(TOMLDelim), []byte(TOMLDelim), HandleTOMLMetaData, false}
 	case '{':
 		return &frontmatterType{[]byte{'{'}, []byte{'}'}, HandleJSONMetaData, true}
+	case '#':
+		return &frontmatterType{[]byte("#+"), []byte("\n"), HandleOrgMetaData, false}
 	default:
 		return nil
 	}
@@ -188,4 +191,8 @@ func HandleJSONMetaData(datum []byte) (interface{}, error) {
 	var f interface{}
 	err := json.Unmarshal(datum, &f)
 	return f, err
+}
+
+func HandleOrgMetaData(datum []byte) (interface{}, error) {
+	return goorgeous.OrgHeaders(datum)
 }

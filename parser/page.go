@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/chaseadamsio/goorgeous"
 )
 
 const (
@@ -91,9 +93,11 @@ func (p *page) Metadata() (meta interface{}, err error) {
 
 	if len(frontmatter) != 0 {
 		fm := DetectFrontMatter(rune(frontmatter[0]))
-		meta, err = fm.Parse(frontmatter)
-		if err != nil {
-			return
+		if fm != nil {
+			meta, err = fm.Parse(frontmatter)
+			if err != nil {
+				return
+			}
 		}
 	}
 	return
@@ -125,6 +129,12 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 	if newp.render && isFrontMatterDelim(firstLine) {
 		left, right := determineDelims(firstLine)
 		fm, err := extractFrontMatterDelims(reader, left, right)
+		if err != nil {
+			return nil, err
+		}
+		newp.frontmatter = fm
+	} else if newp.render && goorgeous.IsKeyword(firstLine) {
+		fm, err := goorgeous.ExtractOrgHeaders(reader)
 		if err != nil {
 			return nil, err
 		}
