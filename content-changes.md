@@ -8,12 +8,10 @@
 
 <!-- /MarkdownTOC -->
 
-
-
 <a name="changes-to-existing-content-sections"></a>
 ## Changes to Existing Content Sections
 
-The following is an *abbreviated* listing and only includes the *larger* changes to content organization
+The following is an *abbreviated* listing and only includes the *larger* changes to content organization. These changes do not include copy edits for consistent usage, which easily numbers in the thousands at this point.
 
 <a name="extras"></a>
 ### [Extras](http://gohugo.io/extras)
