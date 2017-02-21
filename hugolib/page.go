@@ -421,7 +421,8 @@ var (
 // TODO(bep) inline replace
 func (p *Page) replaceDivider(content []byte) []byte {
 	summaryDivider := helpers.SummaryDivider
-	if p.Ext() == "org" {
+	// TODO(bep) handle better.
+	if p.Ext() == "org" || p.Markup == "org" {
 		summaryDivider = []byte("# more")
 	}
 	sections := bytes.Split(content, summaryDivider)
