@@ -12,7 +12,6 @@ draft: false
 aliases: [/extras/toc/]
 toc: false
 needsreview: true
-notesforauthors:
 ---
 
 Hugo will automatically parse the Markdown for your content and create
