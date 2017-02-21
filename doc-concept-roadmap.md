@@ -1,4 +1,4 @@
-## Hugo Docs Concept Roadmap
+## Roadmap
 
 - [ ] Addition of Algolia search
 - [ ] "Documentation" channel on Hugo discourse

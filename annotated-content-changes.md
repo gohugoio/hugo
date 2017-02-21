@@ -1,3 +1,50 @@
+<!-- MarkdownTOC -->
+
+- [Changes to Existing Content Sections][changes-to-existing-content-sections]
+    - [Extras][extras]
+    - [Tutorials][tutorials]
+- [Content Organization \(Site\)][content-organization-site]
+- [Content Organization \(Source\)][content-organization-source]
+
+<!-- /MarkdownTOC -->
+
+
+
+<a name="changes-to-existing-content-sections"></a>
+## Changes to Existing Content Sections
+
+The following is an *abbreviated* listing and only includes the *larger* changes to content organization
+
+<a name="extras"></a>
+### [Extras](http://gohugo.io/extras)
+
+* This section no longer exists in the new documentation site
+    * *Extras*, in the content world, is the equivalent of *miscellaneous* or *additional resources*. READ: "We don't have any idea of where to put this"
+* Previous pages in extras are now in the following locations:
+    * **Aliases** Incorporated into `/content-management/url-management/`
+    * **Analytics** Incorporated into /templates/partial-templates/#built-in
+
+<a name="tutorials"></a>
+### [Tutorials](http://gohugo.io/tutorials)
+
+* Moved all installation guides to /getting-started/install-hugo/
+    * Installing Hugo shouldn't be considered a separate tutorial
+    * "Tutorials" is not an intuitive place for end-users to look for this kind of documentation
+* All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")
+* Aliases added to new pages and in-page links updated throughout
+
+
+<a name="content-organization-site"></a>
+## Content Organization (Site)
+
+The following is a list of weights for the newly restructure site architecture
+
+<a name="content-organization-source"></a>
+## Content Organization (Source)
+
+**2017-02-21 New Content Reorganization**
+
+```
 .
 ├── _index.md
 ├── about-hugo
@@ -262,14 +309,14 @@
 │   ├── customizing-a-theme.md
 │   ├── installing-and-using-themes.md
 │   └── theme-showcase.md
-├── tree.txt
 ├── troubleshooting
 │   ├── _index.md
 │   ├── accented-characters-in-urls.md
 │   └── eof-error.md
 ├── tutorials
 │   ├── _index.md
-│   ├── creating-a-multilingual-site.md
+│   ├── create-a-multilingual-site.md
+│   ├── creating-a-new-theme.md
 │   └── migrate-from-jekyll-to-hugo.md
 └── variables-and-params
     ├── _index.md
@@ -280,3 +327,4 @@
     └── taxonomy-variables.md
 
 15 directories, 264 files
+```

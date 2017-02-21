@@ -23,6 +23,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | Title | Author | Date   |
 | ----- | ------ | -----: |
 | [How to Password Protect a Hugo Site](https://www.aerobatic.com/blog/password-protect-a-hugo-site/) | Aerobatic | 2017-02-19 |
+| [Switching from Wordpress to Hugo](http://schnuddelhuddel.de/switching-from-wordpress-to-hugo/) | http://schnuddelhuddel.de/ | 2017-02-19 | ]
 | [Deploy a Hugo site to Aerobatic with CircleCI ](https://www.aerobatic.com/blog/hugo-github-circleci/) | Aerobatic | 2017-02-14 |
 | [NPM scripts for building and deploying Hugo site]() | Aerobatic | 2017-02-12 |
 | [Build a Hugo site using Cloud9 IDE and host on App Engine](https://loyall.ch/lab/2017/01/build-a-static-website-with-cloud9-hugo-and-app-engine/)| Pascal Aubort | 2017-02-05 |

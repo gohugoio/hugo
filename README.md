@@ -2,11 +2,10 @@
 
 <https://hugodocsconcept.netlify.com>
 
-**Currently In Development.** This Hugo Docs concept is an attempt at implementing the new docs source organization found here:
+**CURRENTLY IN DEVELOPMENT.** This Hugo Docs concept is a complete reworking of the HUGO documentation. I originally broached the subject of a documentation overhaul here:
 
 <https://discuss.gohugo.io/t/proposed-source-organization-for-hugo-docs-concept/4506>
 
 ## Contributing to the Docs
 
-## Suggestions for Improvements
-
+(WIP) See the guide at <http://gohugo.io/contribute-to-hugo/contribute-to-the-hugo-docs> for instructions on how to contribute to the documentation.

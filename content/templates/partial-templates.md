@@ -149,7 +149,7 @@ you can pass as many variant parameters as you need:
 Note that the variant parameters are not made available to the underlying partial template.
 They are only use to create a unique cache key.
 
-## Built-in Partials
+## Using the Built-in Partials
 
 * Google Analytics
 Hugo ships with prebuilt internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.
@@ -180,31 +180,39 @@ Hugo ships with support for [Disqus](https://disqus.com/), a third-party service
 
 Your theme may already support Disqus, but even it if doesn’t, it is easy to add.
 
-# Disqus Support
+### Disqus Support
 
-## Adding Disqus to a template
+#### Adding Disqus to a template
 
 Hugo comes with all the code you would need to include load Disqus. Simply include the following line where you want your comments to appear:
 
     {{ template "_internal/disqus.html" . }}
 
-## Configuring Disqus
+#### Configuring Disqus
 
-That template requires you to set a single value in your site config file, e.g. config.yaml.
+That template requires you to set a single value in your site `config`:
 
-    disqusShortname = "XYW"
+```toml
+disqusShortname = "yourdiscussshortname"
+```
 
-Additionally, you can optionally set the following in the front matter
-for a given piece of content:
+Or with a `config.yml`:
 
- * **disqus_identifier**
- * **disqus_title**
- * **disqus_url**
+```yaml
+disqusShortname: "yourdiscussshortname"
+```
 
-## Conditional Loading of Disqus Comments
+You also have the option to set the following in the front matter for a given piece of content:
 
-Users have noticed that enabling Disqus comments when running the Hugo web server on localhost causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in your `partials` folder that looks like this:
+* `disqus_identifier`
+* `disqus_title`
+* `disqus_url`
 
+#### Conditional Loading of Disqus Comments
+
+Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
+
+{{% input "layouts/partials/disqus.html" %}}
 ```html
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -224,15 +232,19 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 ```
+{{% /input %}}
 
-Notice that there is a simple `if` statement that detects when you are running on localhost and skips the initialization of the Disqus comment injection.
+The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
 
-Now, reference the partial template from your page template:
+You can then reference the partial template:
 
-    {{ partial "disqus.html" . }}
+{{% input "disqus-reference.html" %}}
+```golang
+{{ partial "disqus.html" . }}
+```
+{{% /input %}}
 
-
-# Alternatives
+## Alternatives
 
 A few alternatives exist to [Disqus](https://disqus.com/):
 
