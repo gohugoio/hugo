@@ -9,9 +9,8 @@ weight:
 tags: [lists,sections]
 categories: [templates]
 draft: false
-slug:
 aliases: [/templates/list/]
-toc: false
+toc: true
 needsreview: true
 ---
 
