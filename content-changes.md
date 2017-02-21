@@ -1,19 +1,16 @@
-<!-- MarkdownTOC -->
+# Content Reorganization
 
-- [Changes to Existing Content Sections][changes-to-existing-content-sections]
-    - [Extras][extras]
-    - [Tutorials][tutorials]
-- [Content Organization \(Site\)][content-organization-site]
-- [Content Organization \(Source\)][content-organization-source]
+- [Changes to Existing Content Sections](#changes-to-existing-sections)
+    - [Extras](#extras)
+    - [Tutorials](#tutorials)
+    - [Getting Started](#getting-started)
+- [Content Organization: \(Site Navigation\](#content-organization-site-navigation)
+- [Content Organization: \(Source\)](#content-organization-source)
 
-<!-- /MarkdownTOC -->
-
-<a name="changes-to-existing-content-sections"></a>
-## Changes to Existing Content Sections
+## Changes to Existing Sections
 
 The following is an *abbreviated* listing and only includes the *larger* changes to content organization. These changes do not include copy edits for consistent usage, which easily numbers in the thousands at this point.
 
-<a name="extras"></a>
 ### [Extras](http://gohugo.io/extras)
 
 * This section no longer exists in the new documentation site
@@ -22,7 +19,6 @@ The following is an *abbreviated* listing and only includes the *larger* changes
     * **Aliases** Incorporated into `/content-management/url-management/`
     * **Analytics** Incorporated into /templates/partial-templates/#built-in
 
-<a name="tutorials"></a>
 ### [Tutorials](http://gohugo.io/tutorials)
 
 * Moved all installation guides to /getting-started/install-hugo/
@@ -31,16 +27,13 @@ The following is an *abbreviated* listing and only includes the *larger* changes
 * All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")
 * Aliases added to new pages and in-page links updated throughout
 
-
-<a name="content-organization-site"></a>
-## Content Organization (Site)
+## Content Organization: Site Navigation
 
 The following is a list of weights for the newly restructure site architecture
 
-<a name="content-organization-source"></a>
-## Content Organization (Source)
+## Content Organization: Source
 
-**2017-02-21 New Content Reorganization**
+**Updated 2017-02-21**
 
 ```
 .
