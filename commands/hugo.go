@@ -943,7 +943,9 @@ func (c *commandeer) newWatcher(port int) error {
 					const layout = "2006-01-02 15:04 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
 
-					c.rebuildSites(dynamicEvents)
+					if err := c.rebuildSites(dynamicEvents); err != nil {
+						c.Logger.ERROR.Println("Failed to rebuild site:", err)
+					}
 
 					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
