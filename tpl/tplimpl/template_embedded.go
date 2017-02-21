@@ -216,7 +216,6 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 <meta name="twitter:title" content="{{ .Title }}"/>
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}"/>
 {{ with .Site.Social.twitter }}<meta name="twitter:site" content="@{{ . }}"/>{{ end }}
-{{ with .Site.Social.twitter_domain }}<meta name="twitter:domain" content="{{ . }}"/>{{ end }}
 {{ range .Site.Authors }}
   {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
 {{ end }}{{ end }}`)
