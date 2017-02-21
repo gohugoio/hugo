@@ -34,7 +34,7 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Make RSS item limit configurable gh 3035
 * Hugo now compiles with Go 1.8!
 * Accept limit as interface in findRE func gh 3018
-* Improve generation of OpenGraph date tags
+* Improve generation of OpenGraph date tags gh 2979
 
 ## Notes
 
@@ -54,8 +54,8 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 
 
 ## Docs
-* Add tutorial "How to use Google Firebase to host a Hugo site"
-* 
+* Add tutorial "How to use Google Firebase to host a Hugo site" gh 3007
+* Improve documentation for menu rendering gh 3056
 ## **0.18.1** December 30th 2016
 
 Hugo 0.18.1 is a bug fix release fixing some issues introduced in Hugo 0.18:
