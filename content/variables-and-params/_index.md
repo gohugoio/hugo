@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Variables and Params
 linktitle: Overview
 description: Page-, file-, taxonomy-, and site-level variables and parameters available in templates.
 date: 2017-02-01
