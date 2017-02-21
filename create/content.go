@@ -38,6 +38,10 @@ func NewContent(s *hugolib.Site, kind, name string) (err error) {
 
 	location := FindArchetype(s, kind)
 
+	if location == "" && kind != "" {
+		jww.ERROR.Println("Content Type", kind, "not found")
+	}
+
 	var by []byte
 
 	if location != "" {
