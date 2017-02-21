@@ -420,7 +420,11 @@ var (
 // rendering engines.
 // TODO(bep) inline replace
 func (p *Page) replaceDivider(content []byte) []byte {
-	sections := bytes.Split(content, helpers.SummaryDivider)
+	summaryDivider := helpers.SummaryDivider
+	if p.Ext() == "org" {
+		summaryDivider = []byte("# more")
+	}
+	sections := bytes.Split(content, summaryDivider)
 
 	// If the raw content has nothing but whitespace after the summary
 	// marker then the page shouldn't be marked as truncated.  This check

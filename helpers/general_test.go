@@ -36,6 +36,7 @@ func TestGuessType(t *testing.T) {
 		{"mmark", "mmark"},
 		{"html", "html"},
 		{"htm", "html"},
+		{"org", "org"},
 		{"excel", "unknown"},
 	} {
 		result := GuessType(this.in)

@@ -24,12 +24,12 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/spf13/hugo/config"
-
+	"github.com/chaseadamsio/goorgeous"
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
 	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/config"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"strings"
@@ -415,6 +415,8 @@ func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 		return c.mmarkRender(ctx)
 	case "rst":
 		return getRstContent(ctx)
+	case "org":
+		return orgRender(ctx, c)
 	}
 }
 
@@ -662,4 +664,11 @@ func getRstContent(ctx *RenderingContext) []byte {
 	}
 
 	return result[bodyStart+7 : bodyEnd]
+}
+
+func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
+	content := ctx.Content
+	cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
+	return goorgeous.Org(cleanContent,
+		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
 }
