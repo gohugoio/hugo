@@ -366,7 +366,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
 		isDir, err := helpers.DirExists(cacheDir, cfg.Fs.Source)
-		utils.CheckErr(err)
+		utils.CheckErr(cfg.Logger, err)
 		if !isDir {
 			mkdir(cacheDir)
 		}
@@ -481,7 +481,7 @@ func (c *commandeer) watchConfig() {
 	v.OnConfigChange(func(e fsnotify.Event) {
 		c.Logger.FEEDBACK.Println("Config file changed:", e.Name)
 		// Force a full rebuild
-		utils.CheckErr(c.recreateAndBuildSites(true))
+		utils.CheckErr(c.Logger, c.recreateAndBuildSites(true))
 		if !c.Cfg.GetBool("disableLiveReload") {
 			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 			livereload.ForceRefresh()
@@ -504,7 +504,7 @@ func (c *commandeer) build(watches ...bool) error {
 	if buildWatch {
 		c.Logger.FEEDBACK.Println("Watching for changes in", c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
-		utils.CheckErr(c.newWatcher(0))
+		utils.CheckErr(c.Logger, c.newWatcher(0))
 	}
 
 	return nil
@@ -841,7 +841,7 @@ func (c *commandeer) newWatcher(port int) error {
 						c.Logger.FEEDBACK.Printf("Syncing all static files\n")
 						err := c.copyStatic()
 						if err != nil {
-							utils.StopOnErr(err, fmt.Sprintf("Error copying static files to %s", publishDir))
+							utils.StopOnErr(c.Logger, err, fmt.Sprintf("Error copying static files to %s", publishDir))
 						}
 					} else {
 						staticSourceFs := c.getStaticSourceFs()
