@@ -1,10 +1,13 @@
-FROM golang:1.6.2
+FROM golang:1.8-alpine
 MAINTAINER Sven Dowideit <SvenDowideit@home.org.au>
 
 ENV GOPATH /go
 ENV USER root
 
+RUN apk update && apk add git
+
 # pre-install known dependencies before the source, so we don't redownload them whenever the source changes
+# TODO can this list be generated?
 RUN go get github.com/stretchr/testify/assert \
 	&& go get github.com/kyokomi/emoji \
 	&& go get github.com/bep/inflect \
@@ -47,3 +50,4 @@ RUN cd /go/src/github.com/spf13/hugo \
 	&& go install \
 	&& go test github.com/spf13/hugo/...
 
+ENTRYPOINT "/bin/sh"
