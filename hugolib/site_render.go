@@ -33,11 +33,11 @@ func (s *Site) renderPages() error {
 
 	go errorCollator(results, errs)
 
-	procs := getGoMaxProcs()
+	numWorkers := getGoMaxProcs() * 4
 
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < procs*4; i++ {
+	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go pageRenderer(s, pages, results, wg)
 	}

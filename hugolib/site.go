@@ -1150,11 +1150,10 @@ func (s *Site) readPagesFromSource() chan error {
 	files := s.Source.Files()
 	results := make(chan HandledResult)
 	filechan := make(chan *source.File)
-	procs := getGoMaxProcs()
 	wg := &sync.WaitGroup{}
-
-	wg.Add(procs * 4)
-	for i := 0; i < procs*4; i++ {
+	numWorkers := getGoMaxProcs() * 4
+	wg.Add(numWorkers)
+	for i := 0; i < numWorkers; i++ {
 		go sourceReader(s, filechan, results, wg)
 	}
 
@@ -1178,11 +1177,11 @@ func (s *Site) convertSource() chan error {
 	results := make(chan HandledResult)
 	pageChan := make(chan *Page)
 	fileConvChan := make(chan *source.File)
-	procs := getGoMaxProcs()
+	numWorkers := getGoMaxProcs() * 4
 	wg := &sync.WaitGroup{}
 
-	wg.Add(2 * procs * 4)
-	for i := 0; i < procs*4; i++ {
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(2)
 		go fileConverter(s, fileConvChan, results, wg)
 		go pageConverter(pageChan, results, wg)
 	}

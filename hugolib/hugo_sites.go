@@ -484,8 +484,9 @@ func (h *HugoSites) setupTranslations() {
 func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
+	numWorkers := getGoMaxProcs() * 4
 
-	for i := 0; i < getGoMaxProcs()*4; i++ {
+	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go func(pages <-chan *Page, wg *sync.WaitGroup) {
 			defer wg.Done()
