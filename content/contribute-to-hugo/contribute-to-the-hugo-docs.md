@@ -10,9 +10,9 @@ tags: [docs,documentation,community]
 weight: 20
 draft: false
 slug:
-aliases: []
+aliases: [/docs-contribute/,/docscontrib/]
 toc: true
-notesforauthors:
+needsreview: true
 ---
 
 Documentation is an integral part of any open source project. The Hugo docs were completely reworked in anticipation of the release of v0.19, but there is always room for improvement.

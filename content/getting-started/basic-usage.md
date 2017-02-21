@@ -17,7 +17,7 @@ notesforauthors:
 
 ## Testing Installation with Hugo Help
 
-Once you have [installed Hugo][install], make sure it is in your `PATH` (or provide a path to it). You can test that Hugo has been installed correctly via the `help` command:
+Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
 
 ```bash
 hugo help
@@ -143,8 +143,7 @@ Hugo may not be the first static site generator to utilize LiveReload
 technology, but it’s the first to do it right.
 
 The combination of Hugo’s insane build speed and LiveReload make
-crafting your content pure joy. Virtually instantly after you hit save
-your rebuilt content will appear in your browser.
+crafting your content pure joy. Your updated content appears virtually instantly in your browser as soon as you save your changes.
 
 ### LiveReload
 
@@ -154,7 +153,7 @@ Hugo comes with [LiveReload](https://github.com/livereload/livereload-js) built 
 hugo server
 ```
 
-This will run a full functioning web server while simultaneously watching your file system for additions, deletions, or changes within the following
+This will run a fully functioning web server while simultaneously watching your file system for additions, deletions, or changes within the following the following areas of your [project organization][directorystructure]
 
 * `/static/*`
 * `/content/*`
@@ -255,6 +254,7 @@ Interested? Here are some great tutorials contributed by Hugo users:
 [Amazon S3]: http://aws.amazon.com/s3/
 [Apache]: http://httpd.apache.org/ "Apache HTTP Server"
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
+[directorystructure]: /getting-started/directory-structure/
 [DreamHost]: http://www.dreamhost.com/
 [Firebase Hosting]: https://firebase.google.com/docs/hosting/
 [GitHub Pages]: https://pages.github.com/

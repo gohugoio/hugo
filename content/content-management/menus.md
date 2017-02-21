@@ -9,9 +9,8 @@ weight:
 categories: [templating]
 tags: [lists,sections,menus]
 draft: false
-slug:
 aliases: [/extras/menus/]
-toc: false
+toc: true
 needsreview: true
 ---
 
@@ -71,32 +70,35 @@ well.
 
 **A single menu:**
 
-    ---
-    menu: "main"
-    ---
+```yaml
+---
+menu: "main"
+---
+```
 
 **Multiple menus:**
 
-    ---
-    menu: ["main", "footer"]
-    ---
+```yaml
+---
+menu: ["main", "footer"]
+---
+```
 
 
 ### Advanced
 
-If more control is required, then the advanced approach gives you the
-control you want. All of the menu entry properties listed above are
-available.
+Take the advanced approach if more control is required. All of the menu entry properties listed above are available.
 
-    ---
-    menu:
-      main:
-        parent: 'extras'
-        weight: 20
-    ---
+```yaml
+---
+menu:
+  main:
+    parent: 'extras'
+    weight: 20
+---
+```
 
-
-## Adding (non-content) entries to a menu
+## Adding Non-content Entries to a Menu
 
 You can also add entries to menus that aren’t attached to a piece of
 content. This takes place in the sitewide [config file](/overview/configuration/).
@@ -143,11 +145,11 @@ Identifier should be unique (within a menu).
 
 The following order is used to determine an Identifier:
 
-> Name > LinkTitle > Title.
+* Name >
+    * LinkTitle >
+        * Title
 
-This means that the title will be used unless
-linktitle is present, etc. In practice Name and Identifier are never
-displayed and only used to structure relationships.
+This means that `title` will be used unless `linktitle` is present, etc. In practice, Name and Identifier are never displayed and only used to structure relationships.
 
 In this example, the top level of the menu is defined in the config file
 and all content entries are attached to one of these entries via the
@@ -155,4 +157,4 @@ and all content entries are attached to one of these entries via the
 
 ## Rendering Menus
 
-See [Menu Templates](/templates/menu-templates/).
+See [Menu Templates](/templates/menu-templates/) for more information on how to render your site menus to your deployable Hugo website.

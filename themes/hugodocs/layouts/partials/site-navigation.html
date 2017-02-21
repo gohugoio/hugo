@@ -21,7 +21,7 @@
 					{{end}}
 				{{ else }}
 					{{range (where $.Site.Pages "Section" $section).ByWeight}}
-					<li class="submenu-item"><a class="submenu-item-link {{$section}}{{if eq ($.Scratch.Get "url") .URL}} active-page{{end}}" href="{{.Permalink}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
+					<li class="submenu-item"><a class="submenu-item-link {{$section}}{{if eq ($.Scratch.Get "url") .URL}} active-page{{end}}" href="{{with .Params.redirecturl}}{{.}}{{else}}{{.Permalink}}{{end}}">{{with .LinkTitle}}{{. | markdownify }}{{else}}{{.Title | markdownify}}{{end}}</a></li>
 					{{end}}
 				{{- end }}
 			</ul>

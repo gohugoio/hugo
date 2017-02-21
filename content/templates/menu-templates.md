@@ -23,50 +23,54 @@ able to build your menu however you want.
 
 The following is an example:
 
-    <!--sidebar start-->
-    <aside>
-        <div id="sidebar" class="nav-collapse">
-            <!-- sidebar menu start-->
-            <ul class="sidebar-menu">
-              {{ $currentPage := . }}
-              {{ range .Site.Menus.main }}
-                  {{ if .HasChildren }}
+```html
+<!--sidebar start-->
+<aside>
+    <div id="sidebar" class="nav-collapse">
+        <!-- sidebar menu start-->
+        <ul class="sidebar-menu">
+          {{ $currentPage := . }}
+          {{ range .Site.Menus.main }}
+              {{ if .HasChildren }}
 
-                <li class="sub-menu{{if $currentPage.HasMenuCurrent "main" . }} active{{end}}">
-                <a href="javascript:;" class="">
-                    {{ .Pre }}
-                    <span>{{ .Name }}</span>
-                    <span class="menu-arrow arrow_carrot-right"></span>
-                </a>
-                <ul class="sub">
-                    {{ range .Children }}
-                    <li{{if $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
-                    {{ end }}
-                </ul>
-              {{else}}
-                <li>
-                <a href="{{.URL}}">
-                    {{ .Pre }}
-                    <span>{{ .Name }}</span>
-                </a>
-              {{end}}
-              </li>
-              {{end}}
-                <li> <a href="https://github.com/spf13/hugo/issues" target="blank">Questions and Issues</a> </li>
-                <li> <a href="#" target="blank">Edit this Page</a> </li>
+            <li class="sub-menu{{if $currentPage.HasMenuCurrent "main" . }} active{{end}}">
+            <a href="javascript:;" class="">
+                {{ .Pre }}
+                <span>{{ .Name }}</span>
+                <span class="menu-arrow arrow_carrot-right"></span>
+            </a>
+            <ul class="sub">
+                {{ range .Children }}
+                <li{{if $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
+                {{ end }}
             </ul>
-            <!-- sidebar menu end-->
-        </div>
-    </aside>
-    <!--sidebar end-->
+          {{else}}
+            <li>
+            <a href="{{.URL}}">
+                {{ .Pre }}
+                <span>{{ .Name }}</span>
+            </a>
+          {{end}}
+          </li>
+          {{end}}
+            <li> <a href="https://github.com/spf13/hugo/issues" target="blank">Questions and Issues</a> </li>
+            <li> <a href="#" target="blank">Edit this Page</a> </li>
+        </ul>
+        <!-- sidebar menu end-->
+    </div>
+</aside>
+<!--sidebar end-->
+```
 
-> **Note**: use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature](/content-management/multilingual-mode/). In contrast to `absURL` and `relURL` it adds the correct language prefix to the url. [Read more](/functions/).
+{{% note "`absLangURL` and `relLangURL`" %}}
+Use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature](/content-management/multilingual-mode/). In contrast to `absURL` and `relURL`, these two functions add the correct language prefix to the url. [Read more](/functions/abslangurl).
+{{% /note %}}
 
 ## Section Menu for "the Lazy Blogger"
 
-To enable this menu, add this to your site config, i.e. `config.toml`:
+To enable this menu, add the following to your site `config`:
 
-```
+```toml
 SectionPagesMenu = "main"
 ```
 

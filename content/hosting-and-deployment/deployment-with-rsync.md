@@ -1,5 +1,5 @@
 ---
-title: Deployment with rysnc
+title: Deployment with Rysnc
 linktitle:
 description:
 date: 2017-02-01

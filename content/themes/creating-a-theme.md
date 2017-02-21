@@ -10,7 +10,7 @@ tags: [themes, source, organization, directories]
 weight: 30
 draft: false
 aliases: [/themes/creation/]
-toc: false
+toc: true
 needsreview: true
 ---
 
@@ -32,6 +32,11 @@ to Go, the [Go template primer](/layout/go-templates/) will help you get started
 A theme consists of templates and static assets such as javascript and css
 files. Themes can also optionally provide [archetypes](/content/archetypes/)
 which are archetypal content types used by the `hugo new` command.
+
+
+{{% note "Use the Hugo Generator Tag" %}}
+The [`.Hugo.Generator`](/variables-and-params/other/) tag is included in all themes featured in the [Hugo Them Showcase](/http://themes.gohugo.io). We ask that you include the generator tag in all sites and themes you create with Hugo. The generator tag is significant in that it allows the Hugo team to track Hugo's usage and popularity.
+{{% /note %}}
 
 ### Layouts
 
@@ -72,15 +77,8 @@ common to organize the static content into:
 
 The actual structure is entirely up to you, the theme creator, on how you would like to organize your files.
 
-
 ### Archetypes
 
 If your theme makes use of specific keys in the front matter, it is a good idea
 to provide an archetype for each content type you have. Archetypes follow the
 [guidelines provided](/content/archetypes/).
-
-
-### Generator meta tag
-
-With a growing community around Hugo we recommend theme creators to include the [Generator meta tag](/templates/variables/) with `.Hugo.Generator` in the `<head>` of your HTML code. The output  might looks like `<meta name="generator" content="Hugo 0.13" />` and helps us to analyse the usage and popularity of Hugo.
-
