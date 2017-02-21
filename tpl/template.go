@@ -13,6 +13,7 @@ type Template interface {
 	Templates() []*template.Template
 	New(name string) *template.Template
 	GetClone() *template.Template
+	RebuildClone() *template.Template
 	LoadTemplates(absPath string)
 	LoadTemplatesWithPrefix(absPath, prefix string)
 	AddTemplate(name, tpl string) error

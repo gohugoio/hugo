@@ -107,6 +107,13 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 
 	h.runMode.Watching = config.Watching
 
+	if config.whatChanged.source {
+		// This is for the non-renderable content pages (rarely used, I guess).
+		// We could maybe detect if this is really needed, but it should be
+		// pretty fast.
+		h.Tmpl.RebuildClone()
+	}
+
 	for _, s := range h.Sites {
 		s.resetBuildState()
 	}

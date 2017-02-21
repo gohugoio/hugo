@@ -44,7 +44,12 @@ type templateErr struct {
 type GoHTMLTemplate struct {
 	*template.Template
 
-	clone *template.Template
+	// This looks, and is, strange.
+	// The clone is used by non-renderable content pages, and these need to be
+	// re-parsed on content change, and to avoid the
+	// "cannot Parse after Execute" error, we need to re-clone it from the original clone.
+	clone      *template.Template
+	cloneClone *template.Template
 
 	// a separate storage for the overlays created from cloned master templates.
 	// note: No mutex protection, so we add these in one Go routine, then just read.
@@ -66,7 +71,6 @@ var DefaultTemplateProvider *TemplateProvider
 // Update updates the Hugo Template System in the provided Deps.
 // with all the additional features, templates & functions
 func (*TemplateProvider) Update(deps *deps.Deps) error {
-	// TODO(bep) check that this isn't called too many times.
 	tmpl := &GoHTMLTemplate{
 		Template: template.New(""),
 		overlays: make(map[string]*template.Template),
@@ -229,6 +233,11 @@ func (t *GoHTMLTemplate) GetClone() *template.Template {
 	return t.clone
 }
 
+func (t *GoHTMLTemplate) RebuildClone() *template.Template {
+	t.clone = template.Must(t.cloneClone.Clone())
+	return t.clone
+}
+
 func (t *GoHTMLTemplate) LoadEmbedded() {
 	t.EmbedShortcodes()
 	t.EmbedTemplates()
@@ -236,9 +245,12 @@ func (t *GoHTMLTemplate) LoadEmbedded() {
 
 // MarkReady marks the template as "ready for execution". No changes allowed
 // after this is set.
+// TODO(bep) if this proves to be resource heavy, we could detect
+// earlier if we really need this, or make it lazy.
 func (t *GoHTMLTemplate) MarkReady() {
 	if t.clone == nil {
 		t.clone = template.Must(t.Template.Clone())
+		t.cloneClone = template.Must(t.clone.Clone())
 	}
 }
 

@@ -1571,6 +1571,7 @@ func (s *Site) resetBuildState() {
 	s.Info.paginationPageCount = 0
 	s.draftCount = 0
 	s.futureCount = 0
+
 	s.expiredCount = 0
 
 	for _, p := range s.rawAllPages {
