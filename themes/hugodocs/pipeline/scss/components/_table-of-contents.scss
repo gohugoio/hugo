@@ -49,6 +49,7 @@ aside#toc {
     transform: scale(1);
     border-left: 1px solid $hugo-gray-light;
     border-radius: 0px;
+    max-width:320px;
   }
 }
 
