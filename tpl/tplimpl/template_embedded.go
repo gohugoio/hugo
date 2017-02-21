@@ -172,7 +172,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ else if not .Date.IsZero }}<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
 {{ if not .Lastmod.IsZero }}<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
 {{ else }}
-{{ if not .Date.IsZero }}<meta property="article:modified_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
+{{ if not .Date.IsZero }}<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML }}"/>{{ end }}
 {{ end }}{{ with .Params.audio }}
 <meta property="og:audio" content="{{ . }}" />{{ end }}{{ with .Params.locale }}
 <meta property="og:locale" content="{{ . }}" />{{ end }}{{ with .Site.Params.title }}
