@@ -4,7 +4,8 @@
 <h2 id="contents" class="contents-list-heading section-heading">Contents:</h2>
 {{end}}
 {{range .Data.Pages}}
-<a href="{{.Permalink}}">
+<!-- if statement checks for sitelink, which includes the themes site and *every* showcase site -->
+<a {{with .Params.sitelink }}href="{{.}}"target="_blank"{{else}}href="{{.Permalink}}"{{end}}>
 <article class="contents-list {{$kind}}">
 	<header>
 		<h3 class="list-icon {{.Section}}">{{- partial "list-icon.html" . -}}{{with .LinkTitle}}{{. | markdownify}}{{else}}{{.Title | markdownify}}{{end}}</h3>

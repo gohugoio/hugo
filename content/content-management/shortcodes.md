@@ -2,6 +2,7 @@
 title: Shortcodes
 linktitle:
 description:
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -9,7 +10,6 @@ weight: 25
 categories: [content management]
 tags: [markdown,content,shortcodes]
 draft: false
-slug:
 aliases: [/extras/shortcodes/]
 toc: true
 ---
@@ -18,7 +18,7 @@ Hugo loves Markdown because of its simple content format, but there are times wh
 
 Hugo created **shortcodes** to circumvent these limitations.
 
-A shortcode is a simple snippet inside a content file that Hugo will render using a predefined template. Note that shortcodes will not work in template files---if you need the type of drop-in functionality that shortcodes provide but in a template, you most likely want a [partial template][partials] instead.
+A shortcode is a simple snippet inside a content file that Hugo will render using a predefined template. Note that shortcodes will not work in template files. If you need the type of drop-in functionality that shortcodes provide but in a template, you most likely want a [partial template][partials] instead.
 
 In addition to cleaner markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
@@ -26,43 +26,47 @@ In addition to cleaner markdown, shortcodes can be updated any time to reflect n
 
 In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters*/%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 
-The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional or both (although you can't mixed parameter types in a single call). The format for named parameters models that of HTML with the format `name="value"`.
+The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional, or both, although you can't mix parameter types in a single call. The format for named parameters models that of HTML with the format `name="value"`.
 
-Some shortcodes use or require closing shortcodes. Like HTML, the opening and closing shortcodes match (name only) with the closing declaration prepended with a slash.
+Some shortcodes use or require closing shortcodes. Again like HTML, the opening and closing shortcodes match (name only) with the closing declaration, which is prepended with a slash.
 
-Example of a paired shortcode:
+Here are two examples of paired shortcodes:
+
+```golang
+{{%/* mdshortcode */%}}Stuff to `process` in the *center*.{{%/* /mdshortcode */%}}
+```
 
 ```golang
 {{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
 ```
 
-The examples above use two different delimiters, the difference being the `%` and the `<` character:
+The examples above use two different delimiters, the difference being the `%` character in the first and the `<>` characters in the second.
 
 ### Shortcodes with Markdown
 
-The `%` characters indicates that the shortcode's inner content (`.Inner`) needs further processing by the page's rendering processor (i.e. Markdown), which would be needed to convert `**World**` to `<strong>World</strong>` in the following example:
+The `%` character indicates that the shortcode's inner content---called in the [shortcode template](/templates/shortcode-templates/) with the [`.Inner` variable](/variables-and-parmams/other/)---needs further processing by the page's rendering processor (i.e. Markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
 
 ```golang
 {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
 ```
 
-### Shortcodes without Markdown
+### Shortcodes Without Markdown
 
-The `<` character indicates that the shortcode's inner content doesn't need any further rendering, this will typically be pure HTML:
+The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
 
 ```golang
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
 
-## Using the Built-in Shortcodes
+## Using Hugo's Built-in Shortcodes
 
-Hugo ships with a set of predefined shortcodes the represent very common usage that would otherwise muddy your content with unnecessary markup.
+Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your markdown content clean.
 
 ### `figure`
 
 `figure` is an extension of the image syntax in Markdown, which does not provide a shorthand for the more semantic [HTML5 `<figure>` element][figurelement].
 
-`figure` can use the following named parameters:
+The `figure` shortcode can use the following named parameters:
 
 * `src`
 * `link`
@@ -96,7 +100,7 @@ Hugo ships with a set of predefined shortcodes the represent very common usage t
 
 ### `gist`
 
-Bloggers often want to include GitHub gists when writing posts. Let's supposed we want to use the following [gist][examplegist]:
+Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the following [gist][examplegist]:
 
 ```html
 https://gist.github.com/spf13/7896402
@@ -113,6 +117,10 @@ If the gist contains several files and you want to quote just one of them, you c
 ```golang
 {{</* gist spf13 7896402 "img.html" */>}}
 ```
+
+To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page:
+
+{{< gist spf13 7896402 >}}
 
 ### `highlight`
 

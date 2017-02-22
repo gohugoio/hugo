@@ -153,7 +153,7 @@ If you need to pass additional parameters to create unique variants, you can pas
 
 Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key.
 
-## Using the Built-in Partials
+## Using Hugo's Built-in Partials
 
 ### Google Analytics
 

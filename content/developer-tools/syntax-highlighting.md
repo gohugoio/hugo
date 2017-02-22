@@ -41,11 +41,12 @@ Hugo gives you two options that you can set with the variable `pygmentsuseclasse
 
 ### Usage
 
-Highlighting is carried out via the in-built shortcode `highlight`. `highlight` takes exactly one required parameter of language, and requires a closing shortcode. Note that `highlight` is _not_ used for client-side javascript highlighting.
+Highlighting is carried out via the [built-in shortcode](/content-management/shortcodes/) `highlight`. `highlight` takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is _not_ used for client-side javascript highlighting.
 
-### Example
+### Example `highlight` Shortcode Input
 
-```
+{{% input "example-highlight-shortcode-input.md" %}}
+```html
 {{</* highlight html */>}}
 <section id="main">
   <div>
@@ -57,9 +58,11 @@ Highlighting is carried out via the in-built shortcode `highlight`. `highlight` 
 </section>
 {{</* /highlight */>}}
 ```
+{{% /input %}}
 
-### Example Output
+### Example `highlight` Shortcode Output
 
+{{% output "example-highlight-shortcode-output.html" %}}
 ```
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
@@ -70,10 +73,11 @@ Highlighting is carried out via the in-built shortcode `highlight`. `highlight` 
   <span style="color: #f92672">&lt;/div&gt;</span>
 <span style="color: #f92672">&lt;/section&gt;</span>
 ```
+{{% /output %}}
 
 ### Options
 
-Options to control highlighting can be added as a quoted, comma separated key-value list as the second argument in the shortcode. The example below will highlight as language `go` with inline line numbers, with line number 2 and 3 highlighted.
+Options for controlling highlighting can be added in the second argument as a quoted, comma-separated key-value list. The example below will syntax highlight in `go` with inline line numbers and line numbers 2 and 3 highlighted.
 
 ```
 {{</* highlight go "linenos=inline,hl_lines=2 3" */>}}
@@ -84,13 +88,21 @@ var d string
 {{</* / highlight */>}}
 ```
 
-Supported keywords:  `style`, `encoding`, `noclasses`, `hl_lines`, `linenos`. Note that `style` and `noclasses` will override the similar setting in the global config.
+The `highlight` shortcode includes the following supported keywords:
 
-The keywords are the same you would using with Pygments from the command line, see the [Pygments doc](http://pygments.org/docs/) for more info.
+* `style`
+* `encoding`
+* `noclasses`
+* `hl_lines`
+* `linenos`
 
-### Code fences
+Note that `style` and `noclasses` will override the similar setting in the [global config](/getting-started/configuration/).
 
-It is also possible to add syntax highlighting with GitHub flavoured code fences. To enable this, set the `PygmentsCodeFences` to `true` in Hugo's configuration file.
+The keywords in the `highlight` shortcode mirror those of Pygments from the command line. See the [Pygments documentation](http://pygments.org/docs/) for more information.
+
+### Code Fences
+
+It is also possible to add syntax highlighting with GitHub flavored code fences. To enable this, set the `PygmentsCodeFences` to `true` in Hugo's [configuration file](/getting-started/configuration/);
 
 ````
 ``` html
@@ -105,15 +117,15 @@ It is also possible to add syntax highlighting with GitHub flavoured code fences
 ```
 ````
 
-### Disclaimers
+{{% note "Disclaimers on Pygments" %}}
+* Pygments is relatively slow and _causes a performance hit when building your site_, but Hugo has been designed to cache the results to disk.
+* The caching can be turned off by setting the `--ignoreCache` flag to `true`.
+* The languages available for highlighting depend on your Pygments installation.
+{{% /note %}}
 
- * Pygments is relatively slow and _causes a performance hit when building your site_, but Hugo has been designed to cache the results to disk.
- * The caching can be turned off by setting the `--ignoreCache` flag to `true`.
- * Languages available depends on your Pygments installation.
+## Client-side Syntax Highlighting
 
-## Client-side
-
-Alternatively, code highlighting can be done in client-side JavaScript.
+Alternatively, code highlighting can be applied to your code blocks in client-side JavaScript.
 
 Client-side syntax highlighting is very simple to add. You'll need to pick
 a library and a corresponding theme. Some popular libraries are:
@@ -142,7 +154,10 @@ In your `./layouts/partials/` (or `./layouts/chrome/`) folder, depending on your
 
 ### Prism example
 
-Prism is another popular highlighter library, used on some major sites. Similar to Highlight.js, you simply load `prism.css` in your `<head>` via whatever Hugo partial template is creating that part of your pages, like so:
+Prism is another popular highlighter library and is used on some major sites.
+The [download section of the prism.js website] is simple to use and affords you a high degree of customization to pick only the languages you'll be using on your site.
+
+Similar to Highlight.js, you simply load `prism.css` in your `<head>` via whatever Hugo partial template is creating that part of your pages:
 
 ```html
 ...
@@ -150,7 +165,7 @@ Prism is another popular highlighter library, used on some major sites. Similar 
 ...
 ```
 
-... and add `prism.js` near the bottom of your `<body>` tag, again in whatever Hugo partial template is appropriate for your site or theme.
+Add `prism.js` near the bottom of your `<body>` tag in whatever Hugo partial template is appropriate for your site or theme.
 
 ```html
 ...
@@ -159,45 +174,54 @@ Prism is another popular highlighter library, used on some major sites. Similar 
 </body>
 ```
 
-In this example, the local paths indicate that your own copy of these files are being added to the site, typically under `./static/`.
+In this example, the local paths indicate that your downloaded copy of these files are being added to the site, typically under `./static/css/` and `./static/js/`, respectively.
 
-### Using Client-side highlighting
+### Using Client-side Highlighting
 
-To use client-side highlighting, most of these javascript libraries expect your code to be wrapped in semantically correct `<code>` tags, with the language expressed in a class attribute on the `<code>` tag, such as `class="language-abc"`, where the `abc` is the code the highlighter script uses to represent that language.
+To use client-side highlighting, most of these javascript libraries expect your code to be wrapped in semantically correct `<code>` elements with language-specific class attributes. For example, a code block for HTML would have `class="language-html"`.
 
-The script would be looking for classes like `language-go`, `language-html`, or `language-css`. If you look at the page's source, it would be marked up like so:
+The client-side highlighting script therefore looks for programming language classes according to this convention: `language-go`, `language-html`, `language-css`, `language-bash`, etc. If you look at the page's source, you might see something like the following:
 
 ```html
 <pre>
-<code class="language-css">
-body {
-  font-family: "Noto Sans", sans-serif;
-}
-</code>
+  <code class="language-css">
+  body {
+    font-family: "Noto Sans", sans-serif;
+  }
+  </code>
 </pre>
 ```
 
-The markup in your content pages (e.g. `my-css-tutorial.md`) needs to look like the following, with the name of the language to be highlighted entered directly after the first "fence. A fenced code block can be noted by opening and close triple tilde (`~`) or triple back ticks (```):
+If you are using markdown, your content pages needs to use the following syntax, with the name of the language to be highlighted entered directly after the first "fence." A fenced code block can be noted by opening and closing triple tilde <kbd>~</kbd> or triple back ticks <kbd>`</kbd>:
 
-```css
+{{< nohighlight >}}
 ~~~css
 body {
   font-family: "Noto Sans", sans-serif;
 }
 ~~~
-```
+{{< /nohighlight >}}
 
-Or with back ticks:
+Here is the same example but with triple back ticks to denote the fenced code block:
 
-~~~css
+{{< nohighlight >}}
 ```css
 body {
   font-family: "Noto Sans", sans-serif;
 }
 ```
-~~~
+{{< /nohighlight >}}
 
-When passed through the highlighter script, it would yield something like this output when viewed on your rendered page:
+Passing the above examples through the highlighter script would yield the following markup:
+
+{{< nohighlight >}}
+&lt;pre&gt;&lt;code class="language-css hljs"&gt;;&lt;span class="hljs-selector-tag"&gt;body&lt;/span&gt; {
+  &lt;span class="hljs-attribute"&gt;font-family&lt;/span&gt;: &ltspan class="hljs-string"&gt;"Noto Sans"&lt;/span&gt;, sans-serif;
+}
+</code></pre>
+{{< /nohighlight >}}
+
+In the case of the coding color scheme used by the Hugo docs, the resulting output would then look like the following to the website's end users:
 
 ```css
 body {

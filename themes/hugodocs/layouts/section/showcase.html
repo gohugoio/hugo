@@ -5,5 +5,39 @@
 		<h1 class="page-title {{if eq .Kind "page"}}{{.Section}}{{end}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">{{with .LinkTitle}}{{.}}{{else}}{{ .Title | markdownify }}{{end}}</h1>
 		{{.Content}}
 		</header>
+		<ul id="showcase">
+		{{$base := .Site.BaseURL}}
+
+		{{- range .Data.Pages.ByPublishDate.Reverse -}}
+		{{$title := .Title}}
+			<li class="showcase-site">
+			<div class="image-wrapper">
+				<a href="{{.Params.sitelink}}" target="_blank">
+				<img src="{{$base}}images/showcase/{{.Params.image}}" alt="Screenshot thumbnail for the website {{.Title}}, {{.Description}}">
+				</a>
+			</div>
+			<div class="showcase-meta">
+				<div class="showcase-links">
+				{{with .Params.sitelink}}
+				<span class="showcase-title"><a href="{{.}}" target="_blank">{{$title}}</a></span>
+				{{else}}
+				<h3>{{$title}}</h3>
+				{{end}}
+				{{with .Params.sourcelink}}
+				<span class="showcase-source"><a href="{{.}}" target="_blank"><i class="icon-code"></i>Source</a></span>
+				{{end}}
+				</div>
+				{{- with .Params.tags -}}
+				<ul class="tags showcase-tags">
+					<li class="tags-icon-li"><i class="icon-tags"></i></li>
+					{{- range . -}}
+					<li><a href="{{$base}}tags/{{. | urlize}}">{{.}}</a></li>
+					{{- end -}}
+				</ul>
+				{{- end -}}
+			</div>
+			</li>
+		{{- end -}}
+		</ul>
 </main>
 {{end}}

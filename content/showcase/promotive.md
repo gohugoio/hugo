@@ -1,6 +1,6 @@
 ---
 date: 2017-02-21T12:26:26+01:00
-description: "Corporate website a event management agency"
+description: "Corporate website of an event management agency"
 license: ""
 licenseLink: ""
 sitelink: https://promotive.es
@@ -10,6 +10,6 @@ tags:
 - spanish
 - event management
 - bootstrap
-thumbnail: /img/promotive.png
+image: promotive.png
 title: Promotive
 ---
