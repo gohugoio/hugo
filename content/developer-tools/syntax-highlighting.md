@@ -12,18 +12,18 @@ draft: false
 slug:
 aliases: [/extras/highlighting/,/extras/highlight/]
 toc: true
-needsreview: true
+needsreview:
 ---
 
-Hugo provides the ability for you to highlight source code in _two different ways_ &mdash; either pre-processed server side from your content, or to defer the processing to the client side, using a JavaScript library.
-
-**The advantage of server side** is that it doesn’t depend on a JavaScript library and consequently works very well when read from an RSS feed.
-
-**The advantage of client side** is that it doesn’t cost anything when building your site and some of the highlighting scripts available cover more languages than Pygments does.
+Hugo provides the ability for you to highlight source code in _two different ways_&mdash;either pre-processed server side from your content or to defer the processing to the client side, using a JavaScript library.
 
 ## Server-side
 
 For the pre-processed approach, highlighting is performed by an external Python-based program called [Pygments](http://pygments.org/) and is triggered via an embedded Hugo shortcode (see example below). If Pygments is absent from the path, it will silently simply pass the content along unhighlighted.
+
+### Server-side Advantages
+
+The advantages of server-side syntax highlighting are that it doesn’t depend on a JavaScript library and, consequently, works very well when read from an RSS feed.
 
 ### Pygments
 
@@ -124,6 +124,10 @@ a library and a corresponding theme. Some popular libraries are:
 - [Syntax Highlighter]
 - [Google Prettify]
 
+### Client-side Advantages
+
+The advantages of client-side syntax highlighting are that it doesn’t cost anything when building your site, and some of the highlighting scripts available cover more languages than Pygments does.
+
 ### Highlight.js example
 
 This example uses the popular [Highlight.js] library, hosted by [Yandex], a popular Russian search engine.
@@ -173,13 +177,25 @@ body {
 </pre>
 ```
 
-The markup in your content pages (e.g. `my-css-tutorial.md`) needs to look like the following, with the name of the language to be highlighted entered directly after the first "fence", in a fenced code block:
+The markup in your content pages (e.g. `my-css-tutorial.md`) needs to look like the following, with the name of the language to be highlighted entered directly after the first "fence. A fenced code block can be noted by opening and close triple tilde (`~`) or triple back ticks (```):
 
-<pre><code class="language-css">&#126;&#126;&#126;css
+```css
+~~~css
 body {
   font-family: "Noto Sans", sans-serif;
 }
-&#126;&#126;&#126;</code></pre>
+~~~
+```
+
+Or with back ticks:
+
+~~~css
+```css
+body {
+  font-family: "Noto Sans", sans-serif;
+}
+```
+~~~
 
 When passed through the highlighter script, it would yield something like this output when viewed on your rendered page:
 
@@ -190,16 +206,6 @@ body {
 ```
 
 Please see individual libraries' documentation for how to implement each of the JavaScript-based libraries.
-
-## Code Blocks in Markdown
-
-## Using Pygments with Hugo
-
-## JavaScript Syntax Highlighters
-
-### Highlight.js
-
-### Prism.js
 
 [Prism]: http://prismjs.com
 [Highlight.js]: http://highlightjs.org/

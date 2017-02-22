@@ -5,7 +5,7 @@ description: A list of community-developed tools for migrating from your existin
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [migrations,jekyll,wordpress,drupal]
+tags: [migrations,jekyll,wordpress,drupal,ghost,contentful]
 weight: 40
 draft: false
 aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
