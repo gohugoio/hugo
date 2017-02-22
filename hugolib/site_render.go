@@ -71,8 +71,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			results <- err
 		}
 
-		// Taxonomy terms have no page set to paginate, so skip that for now.
-		if p.IsNode() && p.Kind != KindTaxonomyTerm {
+		if p.IsNode() {
 			if err := s.renderPaginator(p); err != nil {
 				results <- err
 			}
