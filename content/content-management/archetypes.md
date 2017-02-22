@@ -1,7 +1,7 @@
 ---
 title: Archetypes
 linktitle: Archetypes
-description: Archetypes allow you to create and set default parameters from the command line according to the content section.
+description: Archetypes allow you to create new instances of content types and set default parameters from the command line.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
