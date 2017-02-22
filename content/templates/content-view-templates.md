@@ -10,7 +10,7 @@ tags: [views]
 weight: 70
 draft: false
 aliases: [/templates/views/]
-toc: false
+toc: true
 needsreview: true
 ---
 
