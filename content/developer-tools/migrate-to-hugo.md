@@ -10,7 +10,6 @@ weight: 40
 draft: false
 aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
 toc: true
-needsreview: true
 ---
 
 This section highlights some projects around Hugo that are independently developed. These tools try to extend the functionality of our static site generator or help you to get started.
