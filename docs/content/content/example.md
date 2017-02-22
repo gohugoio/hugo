@@ -8,7 +8,7 @@ menu:
   main:
     parent: content
 prev: /content/multilingual
-next: /themes/overview
+next: /content/using-index-md
 notoc: true
 title: Example Content File
 weight: 70
