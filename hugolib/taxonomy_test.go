@@ -84,6 +84,7 @@ others:
 
 	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1"))
 	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1"))
+	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1"))
 
 	writeNewContentFile(t, fs, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs, "Tag1 List", "2017-01-01", "content/tags/tag1/_index.md", 10)
@@ -109,5 +110,16 @@ others:
 	// 3.
 	th.assertFileContent("public/others/o1/index.html", "List", "O1")
 	th.assertFileContent("public/others/index.html", "Terms List", "Others")
+
+	s := h.Sites[0]
+	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
+	require.NotNil(t, cat1)
+	require.Len(t, cat1.Pages, 2)
+
+	cat := s.getPage(KindTaxonomyTerm, "categories")
+	require.NotNil(t, cat)
+	require.Len(t, cat.Pages, 3)
+	require.Len(t, cat.Data["Pages"], 3)
+	require.Equal(t, "t1/c1", cat.Pages[0].Title)
 
 }
