@@ -15,7 +15,7 @@ weight: 70
 ---
 # \_index.md and 'Everything is a Page'
 
-As of version v0.18 Hugo now treats '[everything as a page](http://bepsays.com/en/2016/12/19/hugo-018/)'. This allows you to add content and frontmatter to any page - including List pages like [Sections](/content/sections/), [Taxonomies](/taxonomies/overview/), [Taxonomy Terms pages](/templates/terms/) and even to 'special case' pages like the [Home page](/templates/homepage/).
+As of version v0.18 Hugo now treats '[everything as a page](http://bepsays.com/en/2016/12/19/hugo-018/)'. This allows you to add content and frontmatter to any page - including List pages like [Sections](/content/sections/), [Taxonomies](/taxonomies/overview/), [Taxonomy Terms pages](/templates/terms/) and even to potential 'special case' pages like the [Home page](/templates/homepage/).
 
 In order to take advantage of this behaviour you need to do a few things. 
 
@@ -40,25 +40,31 @@ Now that you've got a handle on templates lets recap some Hugo basics to underst
 
 1. Sections and Taxonomies are 'List' pages, NOT single pages.
 2. List pages are rendered using the template heirarchy found in the [Content - List Template](http://localhost:1313/templates/list/) docs.
-3. The Home page is not technically a list page but has [it's own template](/templates/homepage/) at layouts/index.html.
+3. The Home page, though technically a List page, can have [it's own template](/templates/homepage/) at layouts/index.html rather than \_default/list.html. Many themes exploit this behaviour so you are likely to encounter this specific use case. 
 4. Taxonomy terms pages are 'lists of metadata' not lists of content, so [have their own templates](/templates/terms/). 
 
-Let's put this all together clearly because it's a source of much confusion:
+Let's put all this information together:
 
->**\_index.md files used in List pages, Terms pages or the Home page are NOT rendered as single pages or with Single Content templates, they are used to 'inject' frontmatter/content into the respective List pages, Terms pages or the Home page and those pages are rendered using templates listed above.**
+> **\_index.md files used in List pages, Terms pages or the Home page are NOT rendered as single pages or with Single Content templates.**
+
+> **All pages, including List pages, can have frontmatter and frontmatter can have markdown content - meaning \_index.md files are the way to _provide_ frontmatter and content to the respective List/Terms/Home page.**
 
 Here are a couple of examples to make it clearer...
 
-| \_index.md location               | Page affected             | Rendered by                   |
-| -------------------               | ------------              | -----------                   |
-| /content/post/\_index.md          | site.com/post/            | /layouts/section/post.html    |
-| /content/categories/hugo/index.md | site.com/categories/hugo/ | /layouts/taxonomy/hugo.html   |
+| \_index.md location                 | Page affected             | Rendered by                   |
+| -------------------                 | ------------              | -----------                   |
+| /content/post/\_index.md            | site.com/post/            | /layouts/section/post.html    |
+| /content/categories/hugo/\_index.md | site.com/categories/hugo/ | /layouts/taxonomy/hugo.html   |
+
+## Why \_index.md files are needed
+
+With a Single page such as a post it's possible to add the frontmatter and content directly into the .md page itself. With List/Terms/Home pages this is not possible so \_index.md files can be used to provide that frontmatter/content to them. 
 
 ## How to display content from \_index.md files
 
-From the information above it should follow that content within an \_index.md file won't be rendered in its own Single Page, it'll be 'injected' into the respective List/Terms/Home page. 
+From the information above it should follow that content within an \_index.md file won't be rendered in its own Single Page, instead it'll be made available to the respective List/Terms/Home page. 
 
-To **_actually display that content_** you need to ensure that the relevant template responsible for rendering the List/Terms/Home page contains (at least) `{{ .Content }}`. 
+To **_actually render that content_** you need to ensure that the relevant template responsible for rendering the List/Terms/Home page contains (at least) `{{ .Content }}`. 
 
 This is the way to actually display the content within the \_index.md file on the List/Terms/Home page. 
 
@@ -68,8 +74,7 @@ A very simple/naive example of this would be:
 {{ partial "header.html" . }}
 	<main>
         {{ .Content }}
-		{{ $paginator := .Paginate (where .Site.Pages "Type" "post") }}
-		{{ range $paginator.Pages }}
+        {{ range .Paginator.Pages }}
 			{{ partial "summary.html" . }}
 		{{ end }}
 		{{ partial "pagination.html" . }}
