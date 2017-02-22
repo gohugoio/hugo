@@ -8,7 +8,10 @@
 		{{partial "content-header-links.html" . }}
 		{{partial "tags.html" . }}
 		{{if .Params.needsreview }}
-		<div id="beingreviewed">WORK IN PROGRESS</div>
+		<div id="beingreviewed">WIP</div>
+		{{end}}
+		{{if .Params.outdated}}
+		<div id="outdated">OUTDATED</div>
 		{{end}}
 	</header>
 	<div class="body-copy">

@@ -72,4 +72,4 @@ Note how the `.Truncated` boolean valuable may be used to hide the "Read More...
 
 [org]: /content-management/supported-content-formats/
 [pagevariables]: /variables-and-params/page-variables/
-[section's list page template]: /templates/list-and-section-templates/
+[section's list page template]: /templates/section-and-list-templates/

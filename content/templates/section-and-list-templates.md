@@ -1,6 +1,6 @@
 ---
-title: List and Section Page Templates
-linktitle: List and Section Page Templates
+title: Section and List Page Templates
+linktitle: Section and List Page Templates
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -20,7 +20,7 @@ dedicated template).
 
 We are using the term *list* in its truest sense, a sequential arrangement of material, especially in alphabetical or numerical order. Hugo uses list templates to render anyplace where content is being listed such as taxonomies and sections.
 
-## List and Section Template Lookup Order
+## Lookup Order for List and Section Page Templates
 
 Hugo uses a set of rules to figure out which template to use when
 rendering a specific page.

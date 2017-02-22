@@ -19,7 +19,7 @@ Hugo provides the ability for you to highlight source code in _two different way
 
 ## Server-side
 
-For the pre-processed approach, highlighting is performed by an external Python-based program called [Pygments](http://pygments.org/) and is triggered via an embedded Hugo shortcode (see example below). If Pygments is absent from the path, it will silently simply pass the content along unhighlighted.
+For the pre-processed approach, highlighting is performed by an external Python-based program called [Pygments](http://pygments.org/) and is triggered via an embedded Hugo shortcode (see [example](#example-highlight-shortcode-input) below). If Pygments is absent from the path, it will silently simply pass the content along withou highlighting.
 
 ### Server-side Advantages
 
@@ -30,16 +30,16 @@ The advantages of server-side syntax highlighting are that it doesn’t depend o
 If you have never worked with Pygments before, here is a brief primer:
 
 + Install Python from [python.org](https://www.python.org/downloads/). Version 2.7.x is already sufficient.
-+ Run `pip install Pygments` in order to install Pygments. Once installed, Pygments gives you a command `pygmentize`. Make sure it sits in your PATH, otherwise Hugo cannot find it.
++ Run `pip install Pygments` in order to install Pygments. Once installed, Pygments gives you a command `pygmentize`. Make sure it sits in your PATH; otherwise, Hugo will not be able to find and use it.
 
 On Debian and Ubuntu systems, you may also install Pygments by running `sudo apt-get install python3-pygments`.
 
-Hugo gives you two options that you can set with the variable `pygmentsuseclasses` (default `false`) in `config.toml` (or `config.yaml`).
+Hugo gives you two options that you can set with the variable `pygmentsuseclasses` (default `false`) in your [site configuration](/getting-started/configuration/).
 
-1. Color-codes for highlighting keywords are directly inserted if `pygmentsuseclasses = false` (default). See in the example below. The color-codes depend on your choice of the `pygmentsstyle` (default `"monokai"`). You can explore the different color styles on [pygments.org](http://pygments.org/) after inserting some example code.
-2. If you choose `pygmentsuseclasses = true`, Hugo includes class names in your code instead of color-codes. For class-names to be meaningful, you need to include a `.css`-file in your website representing your color-scheme. You can either generate this `.css`-files according to this [description](http://pygments.org/docs/cmdline/) or download the standard ones from the [GitHub pygments-css repository](https://github.com/richleland/pygments-css).
+1. Color codes for highlighting keywords are directly inserted if `pygmentsuseclasses = false` (default). The color codes depend on your choice of the `pygmentsstyle` (default = `"monokai"`). You can explore the different color styles on [pygments.org](http://pygments.org/) after inserting some example code.
+2. If you choose `pygmentsuseclasses = true`, Hugo includes class names in your code instead of color codes. For class-names to be meaningful, you need to include a `.css` file in your website representing your color scheme. You can either generate this `.css` files according to the [description from the Pygments documentation](http://pygments.org/docs/cmdline/) or download the one of the many pre-built color schemes from [Pygment's GitHub css repository](https://github.com/richleland/pygments-css).
 
-### Usage
+### Server-side Usage
 
 Highlighting is carried out via the [built-in shortcode](/content-management/shortcodes/) `highlight`. `highlight` takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is _not_ used for client-side javascript highlighting.
 
@@ -140,7 +140,7 @@ a library and a corresponding theme. Some popular libraries are:
 
 The advantages of client-side syntax highlighting are that it doesn’t cost anything when building your site, and some of the highlighting scripts available cover more languages than Pygments does.
 
-### Highlight.js example
+### Highlight.js Example
 
 This example uses the popular [Highlight.js] library, hosted by [Yandex], a popular Russian search engine.
 
@@ -176,7 +176,7 @@ Add `prism.js` near the bottom of your `<body>` tag in whatever Hugo partial tem
 
 In this example, the local paths indicate that your downloaded copy of these files are being added to the site, typically under `./static/css/` and `./static/js/`, respectively.
 
-### Using Client-side Highlighting
+### Client-side Usage
 
 To use client-side highlighting, most of these javascript libraries expect your code to be wrapped in semantically correct `<code>` elements with language-specific class attributes. For example, a code block for HTML would have `class="language-html"`.
 

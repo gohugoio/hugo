@@ -594,7 +594,7 @@ git push
 [frontmatter]: /content-management/front-matter/
 [hugodirectories]: /getting-started/directory-structure/
 [installhugo]: /getting-started/install-hugo/
-[listsectiontemplates]: /templates/list-and-section-templates/
+[listsectiontemplates]: /templates/section-and-list-templates/
 [partialtemplates]: /templates/partial-templates/
 [quickinstall]: /getting-started/install-hugo/#quick-install
 [releases]: https://github.com/spf13/hugo/releases

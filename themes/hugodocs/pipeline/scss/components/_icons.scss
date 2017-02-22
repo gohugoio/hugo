@@ -1,15 +1,55 @@
 svg.svg-icon {
   max-width: 60px;
 }
+
 .icon-freebsd:before {
-	@include size(1em);
-	content: '';
-	display:inline-block;
-	margin-left:-.15em;
-	margin-right: 0em;
-	background-image: url(/images/hugo-icons/freebsd.svg);
-	background-size: contain;
-	background-repeat: no-repeat;
+  @include size(1em);
+  content: '';
+  display: inline-block;
+  margin-left: -.15em;
+  margin-right: 0em;
+  background-image: url(/images/hugo-icons/freebsd.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+span.no {
+	code {
+		background-color: $hugo-pink;
+		color:$hugo-white;
+	}
+  &:after {
+    display: inline-block;
+    @include size(1em);
+    font-family:'FontAwesome';
+    content: '\f165';
+    margin-left: .5em;
+		font-size: 1.2em;
+		color:$hugo-pink;
+  }
+}
+
+span.yes {
+	code {
+		color:$hugo-white;
+		background-color: $hugo-green;
+	}
+	&:after {
+		display:inline-block;
+		@include size(1em);
+		font-family:'FontAwesome';
+		content: '\f164';
+		color: $hugo-green;
+		margin-left: .5em;
+		font-size:1.2em;
+	}
+}
+
+span.na {
+	code {
+		background-color:transparent;
+		color:lighten($base-font-color,60%);
+	}
 }
 
 //for lists that show good and bad examples

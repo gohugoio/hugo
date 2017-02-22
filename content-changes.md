@@ -286,7 +286,7 @@ The following is a list of weights for the newly restructure site architecture
 │   ├── data-templates.md
 │   ├── go-template-primer.md
 │   ├── homepage-template.md
-│   ├── list-and-section-templates.md
+│   ├── section-and-listtemplates.md
 │   ├── local-file-templates.md
 │   ├── menu-templates.md
 │   ├── pagination.md

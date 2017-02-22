@@ -62,6 +62,6 @@ More details about archetypes can be found in the [archetypes documentation][].
 [archetypes documentation]: /content-management/archetypes/
 [sections]: /content-management/sections/
 [front matter]: /content-management/front-matter/
-[list of contents on a single page]: /templates/list-and-section-templates/
+[list of contents on a single page]: /templates/section-and-list-templates/
 [template]: /templates/
 [Tumblr]: https://www.tumblr.com/
