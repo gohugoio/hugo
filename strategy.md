@@ -1,6 +1,6 @@
-# Hugo Docs Strategy, Tactics, and Requirements
+# Hugo Docs Concept Strategy, Tactics, and Requirements
 
-> **Note:** Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *very schlocky* version of the documentation required for a real content strategy.
+> **Disclaimer:** Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *very schlocky* version of the documentation required for a real content strategy.
 
 **Updated 2017-02-21**
 
@@ -21,7 +21,7 @@
 
 ## Assumptions
 
-> **Note**: These assumptions are empirical; i.e. the result of me spending a large (and potentially unhealthy) amount of time on the [Hugo Discussion Forum](https://discuss.gohugo.io). Google analytics *may* provide more quantitative insight into actual Hugo docs usage. I should also mention that these are *assumptions* and not *criticisms*. I **LOVE** Hugo.
+> **Note**: These assumptions are *empirical*. In other words, they are the result of me spending a large (and potentially unhealthy) amount of time on the [Hugo Discussion Forum](https://discuss.gohugo.io). Google analytics *may* provide more quantitative insight into actual Hugo docs usage. These are *assumptions* and not *criticisms*. I **LOVE** Hugo.
 
 * The current documentation is
     * confusing for new users
@@ -37,6 +37,7 @@
     * content modeling is king
     * go DRY (e.g., with shortcodes)
     * set required metadata
+    * develop for contribution guidelines to dev *and* docs
 
 ## Goals
 
@@ -61,20 +62,24 @@ Hugo documentation should...
 
 ## Persona
 
-### End User: Developer
+### End User: SSG Developer
 
-* Limited proficiency in Git and DVCS
-* No to little proficiency in Golang
+The SSG developer has
+
+* limited proficiency in Git and DVCS
+* no to little proficiency in Golang
 * working proficiency in front-end development---HTML, CSS, JS---but not necessarily front-end build tools
 * familiarity with at least one double-curly templating language (e.g., liquid, Twig, Swig, or Django)
 * proficiency in the English language
     * proficiency in other languages (for future multilingual versions)
 
-### End User: Themes (i.e. blogger/author/)
+### End User: Themes (i.e. blogger/author/hobbyist)
 
-* Limited proficiency in the command line/prompt
-* Proficiency in a supported content format (specifically markdown)
-* Access to static hosting but with limited proficiency in basic deployments
+The themes end user has
+
+* limited proficiency in the command line/prompt
+* proficiency in a supported content format (specifically markdown)
+* access to static hosting but with limited proficiency in deploying a static website
 
 ## Requirements
 
@@ -84,8 +89,8 @@ Hugo documentation should...
 - [X] Performant (e.g., 80+ [Google Page Speed Score](https://developers.google.com/speed/pagespeed/insights/?url=https%3A%2F%2Fhugodocsconcept.netlify.com%2Fabout-hugo))
 - [X] Front-end build tools for concatenation, minification
 - [X] Browser compatibility: modern (i.e. Chrome, Edge, Firefox, Safari) and IE11
-- [ ] AMP?
 - [ ] CDN
+- [ ] AMP?
 
 ### SEO
 
@@ -99,7 +104,8 @@ Hugo documentation should...
 
 ### Editorial/Content
 
-- [X] Basic style guide
+- [ ] Basic style guide
+    - The style guide should server to facilitate a more consistent UX for the site but not deter contributors to the documentation
 - [X] Contribution guidelines (see [working draft on live site](https://hugodocsconcept.netlify.com/contribute-to-hugo/contribute-to-the-hugo-docs/))
 - [X] Standardized content types (i.e, [see current archetypes](https://github.com/rdwatters/hugo-docs-concept/tree/master/themes/hugodocs/archetypes)
 - [X] New content model, including taxonomies ([see tags page][tagspage])
@@ -109,19 +115,19 @@ Hugo documentation should...
 
 #### [Content Strategy Statement](http://contentmarketinginstitute.com/2016/01/content-on-strategy-templates/)
 
-> The Hugo documentation increases the Hugo user base and strengthens the Hugo community by providing intuitive, beginner-friendly content that makes visitors to the site feel excited and confident that Hugo is the ideal choice for all their static web publishing needs.
+> The Hugo documentation increases the Hugo user base and strengthens the Hugo community by providing intuitive, beginner-friendly usage guides. Hugo documentation makes visitors feel excited and confident that Hugo is the ideal choice for all their static website development needs.
 
 #### [Editorial Mission](http://contentmarketinginstitute.com/2015/10/statement-content-marketing/)
 
-> The Hugo documentation is a joint effort between the Hugo maintainers and the open-source community. Hugo documentation is designed to promote Hugo, the world's fastest, friendliest, and most extensible static site generator. Hugo documentation is the primary vehicle by which the Hugo team reaches our target audiences. When visitors comes to our site, we want them to install Hugo, developer a new site in Hugo, and share their progress with the community at large.
+> The Hugo documentation is a joint effort between the Hugo maintainers and the open-source community. Hugo documentation is designed to promote Hugo, the world's fastest, friendliest, and most extensible static site generator. Hugo documentation is the primary vehicle by which the Hugo team reaches its target audiences. When visitors comes to the Hugo documentation, we want them to install Hugo, develop a new static website with our tool, and share their progress and insights with the Hugo community at large.
 
 ## UX/UI
 
 - [X] Copyable code blocks (via highlight.js, extended for hugo-specific keywords)
-- [X] Dual in-page navigation (i.e. for site nav and in-page TOC)
+- [X] Dual in-page navigation (i.e. site nav *and* in-page TOC)
 - [X] Smooth scrolling
 - [X] [RTD-style admonitions][admonitions] (see [example admonition shortcode](https://github.com/rdwatters/hugo-docs-concept/blob/master/layouts/shortcodes/note.html) and [examples on published site](http://localhost:1313/contribute-to-hugo/contribute-to-the-hugo-docs/#admonition-short-codes))
-- [ ] Share buttons: Reddit, Twitter, LinkedIn, and "Copy Page Url" (the last of which has strongest utility for referencing in forums)
+- [ ] Share buttons: Reddit, Twitter, LinkedIn, and "Copy Page Url"; the last of these provides the strongest utility for docs references in the Hugo forums
 
 ## Author Experience (AX)
 
@@ -131,8 +137,8 @@ Hugo documentation should...
 ## Analytics/Metrics
 
 - [X] Google Analytics
-- [ ] Content groupings in GA to measure usage and define content gaps
-- [ ] Automated reports
+- [ ] Content groupings (GA) to measure usage, behavior flow, and define content gaps
+- [ ] Automated reports (GA)
 
 > **Note:** These are separate from usage statics re: Hugo downloads, `.Hugo.Generator`, etc.
 

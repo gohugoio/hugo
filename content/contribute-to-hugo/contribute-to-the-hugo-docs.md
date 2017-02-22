@@ -19,25 +19,47 @@ Documentation is an integral part of any open source project. The Hugo docs were
 
 ## Edit Locally and Submit a Pull Request
 
+**IN DEVELOPMENT**
+
 ## How Content is Ordered in the Hugo Docs
+
+**IN DEVELOPMENT**
 
 ## Creating New Files from Archetypes
 
+**IN DEVELOPMENT**
+
 ### New Default Content
+
+**IN DEVELOPMENT**
 
 ### New Function
 
+**IN DEVELOPMENT**
+
 ### New Showcase
+
+**IN DEVELOPMENT**
 
 ### New Tutorial
 
-## Code Block Shortcodes
+**IN DEVELOPMENT**
+
+## Code Block Shortcode Examples
+
+**IN DEVELOPMENT**
 
 ### Input Code Block
 
+**IN DEVELOPMENT**
+
 ### Output Code Block
 
+**IN DEVELOPMENT**
+
 ### Example Site Code Block
+
+**IN DEVELOPMENT**
 
 ## Blockquotes
 
@@ -48,6 +70,9 @@ Documentation is an integral part of any open source project. The Hugo docs were
 **Admonitions** are common directives in technical documentation. The most popular is that seen in [reStructuredTex Directives][sourceforge]. From the SourceForge documentation:
 
 > Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
+
+
+Both `note` and `warning` with a single, *optional* argument for the admonition title. If the title, a [positional parameter][shortcodeparams]
 
 {{% note "Admonitions are **NOT** Blockquotes" %}}
 Previous versions of the Hugo documentation used [Markdown `<blockquote>` syntax](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes) to draw attention to content. This is not the [intended semantic use of the `<blockquote>` element](http://html5doctor.com/cite-and-blockquote-reloaded/).
@@ -101,10 +126,15 @@ This is a warning, which should be reserved for *important* information like bre
 
 ## Editorial Style Guide
 
-The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute, regardless of your writing style. **It's more important to contribute *some* documentation than no documentation at all**. That said, here are a few pointers to help the project maintain more consistency:
+{{% note %}}
+It's more important to contribute *some* documentation than no documentation at all. We need your help!
+{{% /note %}}
+
+The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute, regardless of your writing style. That said, here are a few pointers to help the project maintain more consistency:
 
 ## How Content is Ordered in the Docs
 
+**IN DEVELOPMENT**
 
 ## Be Mindful of Aliases
 
@@ -112,4 +142,5 @@ Use aliases sparingly. The following table shows a list of all the aliases used 
 
 {{< allaliases >}}
 
+[shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown
 [sourceforge]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions

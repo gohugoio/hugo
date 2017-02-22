@@ -1,13 +1,13 @@
 ---
 title: Local File Templates
 linktitle: Local File Templates
-description:
+description: Hugo's `readerDir` and `readFile` functions make it easy to traverse your project's directory structure and write file contents to your templates.
 godocref: https://golang.org/pkg/os/#FileInfo
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-tags: [files]
+tags: [files,directories]
 weight: 110
 draft: false
 aliases: [/extras/localfiles/,/templates/files/]
@@ -23,10 +23,10 @@ With Hugo's [`readDir` function][], you can traverse your website's files on you
 
 The `readDir` function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e. as found on your server's file system).
 
-Whether the path is absolute or relative makes no difference, because&mdash;at least for `readDir`&mdash;the root of your website (typically `./public/`) in effect becomes both:
+Whether the path is absolute or relative does not matter because---at least for `readDir`---the root of your website (typically `./public/`) in effect becomes both:
 
-1. The filesystem root; and
-1. The current working directory.
+1. The file system root
+2. The current working directory
 
 ## Example Shortcode: List Directory's Files
 
@@ -40,7 +40,7 @@ This shortcode [has already been included in this very website][]. So, let's lis
 
 {{< directoryindex path="/static/css" pathURL="/css" >}}
 
-This is the call that rendered the above output:
+The following is the [shortcode declaration][shortcodes] used to render the above output:
 
 ```html
 {{</* directoryindex path="/static/css" pathURL="/css" */>}}
@@ -52,3 +52,4 @@ The initial slash `/` in `pathURL` is important. Otherwise, `pathURL` becomes re
 
 [has already been included in this very website]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [`readDir` function]: /functions/readdir/
+[shortcodes]: /content-management/shortcodes/

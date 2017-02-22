@@ -7,7 +7,7 @@
 {{- range $files }}
     <tr>
         <td>{{ .Size }}</td>
-        <td><a href="{{ $pathURL }}{{ .Name | relURL }}"> {{ .Name }}</a></td>
+        <td><a href="{{ $pathURL }}{{ .Name | relURL }}" target="_blank"> {{ .Name }}</a></td>
     </tr>
 {{- end }}
 </table>
