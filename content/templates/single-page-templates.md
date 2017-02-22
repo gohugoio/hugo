@@ -48,7 +48,7 @@ This is why #1 and #3 come before #2 and #4, respectively. Values in angle brack
 
 The following examples assume two things:
 
-1. The project is using the theme `mytheme`, which would be specified as `theme: mytheme` or `theme = "mytheme` in the project's [`config.toml` or `config.yaml`][config], respectively:
+1. The project is using the theme `mytheme`, which would be specified as `theme: mytheme` or `theme = "mytheme` in the project's [`config.toml` or `config.yaml`][config], respectively.
 2. The layouts and content directories for the project are as follows:
 
 ```bash
