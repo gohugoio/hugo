@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	//"github.com/fortytw2/leaktest"
+	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/deps"
@@ -374,7 +374,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 func TestMultiSitesRebuild(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
-	// defer leaktest.Check(t)()
+	defer leaktest.Check(t)()
 
 	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
