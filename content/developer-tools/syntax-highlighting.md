@@ -1,7 +1,7 @@
 ---
 title: Syntax Highlighting
 linktitle:
-description:
+description: Hugo provides server-side syntax highlighting via Pygments and, like most static site generators, works very well with client-side (JavaScript) syntax highlighting libraries as well.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
