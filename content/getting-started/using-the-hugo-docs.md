@@ -1,7 +1,7 @@
 ---
 title: Using the Hugo Docs
 linktitle: Using the Hugo Docs
-description: The Hugo docs are optimized for consistency. Code samples and tutorials pull from a single example site, and content is grouped together to make learning Hugo easier and even more fun.
+description: The Hugo docs are optimized for consistency. Whenever possible, code samples and tutorials pull from a single example site. Doc content is grouped together to make learning Hugo easier and even more fun.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

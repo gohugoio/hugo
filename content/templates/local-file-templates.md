@@ -21,11 +21,9 @@ With Hugo's [`readDir` function][], you can traverse your website's files on you
 
 ## Using _readDir_
 
-The `readDir` function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes a single, string argument: a path. This path can be to any directory of your website (as found on your server's filesystem).
+The `readDir` function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e. as found on your server's file system).
 
-Whether the path is absolute or relative makes no difference,
-because&mdash;at least for `readDir`&mdash;the root of your website (typically `./public/`)
-in effect becomes both:
+Whether the path is absolute or relative makes no difference, because&mdash;at least for `readDir`&mdash;the root of your website (typically `./public/`) in effect becomes both:
 
 1. The filesystem root; and
 1. The current working directory.
@@ -38,11 +36,9 @@ So, let's create a new shortcode using `readDir`:
 
 For the files in any given directory, this shortcode usefully lists the files' basenames and sizes and also creates a link to each of them.
 
-This shortcode [has already been included in this very website][].
-So, let's list some of its CSS files. (If you click on their names, you can reveal the contents.)
+This shortcode [has already been included in this very website][]. So, let's list some of its CSS files. (If you click on their names, you can reveal the contents.)
 
-{{<   directoryindex path="/static/css" pathURL="/css"   >}}
-<br />
+{{< directoryindex path="/static/css" pathURL="/css" >}}
 
 This is the call that rendered the above output:
 

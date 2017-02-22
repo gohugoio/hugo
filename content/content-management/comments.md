@@ -90,9 +90,9 @@ You can then reference the partial template:
 
 ## Alternatives
 
-A few alternatives exist to [Disqus](https://disqus.com/):
+There are a few alternatives to commenting on static sites for those who do not want to use Hugo's built-in Disqus support:
 
-* [Discourse](http://www.discourse.org)
+* [Static Man](https://staticman.net/)
 * [IntenseDebate](http://intensedebate.com/)
 * [Livefyre](http://livefyre.com/)
 * [Muut](http://muut.com/)

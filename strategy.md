@@ -1,4 +1,6 @@
-# Hugo Docs Strategy Statement (Draft)
+# Hugo Docs Strategy, Tactics, and Requirements
+
+> **Note:** Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *very schlocky* version of the documentation required for a real content strategy.
 
 **Updated 2017-02-21**
 
@@ -16,8 +18,6 @@
 - [Author Experience \(AX\)](#author-experience-ax)
 - [Analytics/Metrics](#analyticsmetrics)
 - [Visual Design](#visual-design)
-
-This is a *very* schlocky version of the documentation I'd put together in my professional life. That said, I think the following pieces are still important and should provide some insight as to how I've approached reworking the Hugo documentation over the last three months.
 
 ## Assumptions
 
