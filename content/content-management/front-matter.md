@@ -11,7 +11,7 @@ weight: 30
 draft: false
 aliases: [/content/front-matter/]
 needsreview: true
-toc:
+toc: true
 notesforauthors:
 ---
 
