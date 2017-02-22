@@ -64,6 +64,12 @@ main.showcase-list {
           font-size: .8em;
           text-transform: uppercase;
         }
+        .showcase-title {
+          font-weight:bold;
+          a {
+            font-weight:bold;
+          }
+        }
       }
     }
   }

@@ -18,14 +18,14 @@
 			</div>
 			<div class="showcase-meta">
 				<div class="showcase-links">
-				{{with .Params.sitelink}}
-				<span class="showcase-title"><a href="{{.}}" target="_blank">{{$title}}</a></span>
-				{{else}}
-				<h3>{{$title}}</h3>
-				{{end}}
-				{{with .Params.sourcelink}}
-				<span class="showcase-source"><a href="{{.}}" target="_blank"><i class="icon-code"></i>Source</a></span>
-				{{end}}
+					{{with .Params.sitelink}}
+						<span class="showcase-title"><a href="{{.}}" target="_blank">{{$title}}</a></span>
+					{{else}}
+						<h3>{{$title}}</h3>
+					{{end}}
+					{{with .Params.sourcelink}}
+						<span class="showcase-source"><a href="{{.}}" target="_blank"><i class="icon-code"></i>Source</a></span>
+					{{end}}
 				</div>
 				{{- with .Params.tags -}}
 				<ul class="tags showcase-tags">

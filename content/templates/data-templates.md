@@ -10,7 +10,7 @@ tags: [data,dynamic,csv,json,toml,yaml]
 weight: 80
 draft: false
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
-toc: false
+toc: true
 needsreview: true
 ---
 

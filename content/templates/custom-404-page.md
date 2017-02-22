@@ -14,36 +14,37 @@ toc: false
 needsreview: true
 ---
 
-When using Hugo with [GitHub Pages](http://pages.github.com/), you can provide
-your own template for a [custom 404 error page](https://help.github.com/articles/custom-404-pages/)
-by creating a 404.html template file in your `/layouts` folder.
-When Hugo generates your site, the `404.html` file will be placed in the root.
+When using Hugo with [GitHub Pages](http://pages.github.com/), you can provide your own template for a [custom 404 error page](https://help.github.com/articles/custom-404-pages/) by creating a 404.html template file in your `/layouts` folder. When Hugo generates your site, the `404.html` file will be placed in the root.
 
-404 pages will have all the regular [page
-variables](/layout/variables/) available to use in the templates.
+404 pages will have all the regular [page variables][pagevars] available to use in the templates.
 
-In addition to the standard page variables, the 404 page has access to
-all site content accessible from `.Data.Pages`.
+In addition to the standard page variables, the 404 page has access to all site content accessible from `.Data.Pages`.
 
-    ▾ layouts/
-        404.html
+```bash
+▾ layouts/
+    404.html
+```
 
 ## 404.html
 
 This is a basic example of a 404.html template:
 
-    {{ partial "header.html" . }}
-    {{ partial "subheader.html" . }}
+{{% input "404.html"%}}
+```html
+{{ partial "header.html" . }}
+{{ partial "subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-      </div>
-    </section>
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+  </div>
+</section>
 
-    {{ partial "footer.html" . }}
+{{ partial "footer.html" . }}
+```
+{{% /input %}}
 
-### Automatic Loading
+## Automatic Loading
 
 Your 404.html file can be set to load automatically when a visitor enters a mistaken URL path, dependent upon the web serving environment you are using. For example:
 
@@ -52,3 +53,5 @@ Your 404.html file can be set to load automatically when a visitor enters a mist
 * _Nginx_ - you might specify `error_page   404  =  /404.html;` in your `nginx.conf` file.
 * _Amazon AWS S3_ - when setting a bucket up for static web serving, you can specify the error file.
 * _Caddy Server_ - using `errors { 404 /404.html }`. [Details here](https://caddyserver.com/docs/errors)
+
+[pagevars]: /variables-and-params/page-variables/

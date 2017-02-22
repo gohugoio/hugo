@@ -31,7 +31,7 @@ Hugo assumes your content section and content type are the same unless you tell 
 
 This is why #1 and #3 come before #2 and #4, respectively. Values in angle brackets (`<>`) are variables.
 
-### Lookup Order for Single Page Templates
+## Lookup Order for Single Page Templates
 
 1. `/layouts/<TYPE>/<LAYOUT>.html`
 2. `/layouts/<SECTION>/<LAYOUT>.html`
@@ -44,7 +44,7 @@ This is why #1 and #3 come before #2 and #4, respectively. Values in angle brack
 9. `/themes/<THEME>/layouts/<SECTION>/single.html`
 10. `/themes/<THEME>/layouts/_default/single.html`
 
-### Single Page Template Lookup Order Examples
+## Single Page Lookup Examples
 
 The following examples assume two things:
 
@@ -85,7 +85,7 @@ Now we can look at the front matter for the three single-page content (i.e.`.md`
 `_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are of kind `section` and therefore do not submit themselves to the ***single*** page template lookup. Instead, `events/_index.md` will render according to the lookup order of [section and list templates](templates/section-and-list-templates/).
 {{% /note %}}
 
-#### `my-first-post.md`
+### `my-first-post.md`
 
 {{% input "content/posts/my-first-post.md" %}}
 ```yaml
@@ -113,7 +113,7 @@ When it comes time for Hugo to render the content to the page, it will go throug
 
 Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo the specific type and layout, it makes inferences based on sane defaults. `my-first-post.md` does not specify a content `type` in its front matter. Therefore, Hugo assumes the content `type` and `section` (i.e. `posts`, which is defined by file location) are one in the same. The `layout` also is not specified in the front matter. Hugo assumes that `my-first-post.md`, which is of type `page` and a *single* piece of content, should default to the next occurrence of a `single.html` template in the lookup.
 
-#### `my-second-post.md`
+### `my-second-post.md`
 
 {{% input "content/posts/my-second-post.md" %}}
 ```yaml
@@ -147,7 +147,7 @@ In the case of `my-second-post.md`, the front matter specifies the content `type
 Notice that the directory for the template for `my-second-post.md` is `review` and not `reviews`. This is because *type is always singular*.
 {{% /note%}}
 
-#### `my-first-event.md`
+### `my-first-event.md`
 
 {{% input "content/events/my-first-event.md" %}}
 ```yaml
@@ -177,7 +177,7 @@ Here is the lookup order for `my-first-event.md`:
 `my-first-event.md` is significant because it demonstrates the role of the lookup order in Hugo themes. Both the root project directory *and* the `mytheme` themes directory have a file at `_default/single.html`. Understanding this order allows you to [customize Hugo themes](/themes/customizing-a-theme/) by creating template files with identical names in your project directory that step in front of theme template files in the lookup. This allows you to customize the look and feel of your website while maintaining compatibility with the theme's upstream.
 {{% /note %}}
 
-## Single-Page Template Files Examples
+## Single Page Template Files Examples
 
 Content pages are of the type `page` and will therefore have all the [page variables][] and [site variables][] available to use in their templates.
 

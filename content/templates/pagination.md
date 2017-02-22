@@ -10,7 +10,7 @@ tags: [lists,sections,pagination]
 weight: 140
 draft: false
 aliases: [/extras/pagination,/doc/pagination/]
-toc: false
+toc: true
 needsreview: true
 ---
 
