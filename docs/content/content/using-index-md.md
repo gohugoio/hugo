@@ -56,7 +56,7 @@ Here are a couple of examples to make it clearer...
 | /content/post/\_index.md            | site.com/post/            | /layouts/section/post.html    |
 | /content/categories/hugo/\_index.md | site.com/categories/hugo/ | /layouts/taxonomy/hugo.html   |
 
-## Why \_index.md files are needed
+## Why \_index.md files are used
 
 With a Single page such as a post it's possible to add the frontmatter and content directly into the .md page itself. With List/Terms/Home pages this is not possible so \_index.md files can be used to provide that frontmatter/content to them. 
 
