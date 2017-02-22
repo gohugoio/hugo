@@ -22,9 +22,9 @@ Hugo ships with support for [Disqus](https://disqus.com/), a third-party service
 
 Your theme may already support Disqus, but even it if doesn’t, it is easy to add.
 
-### Disqus
+## Disqus
 
-#### Adding Disqus to a Template
+### Adding Disqus to a Template
 
 Hugo comes with all the code you would need to include load Disqus. Simply include the following line where you want your comments to appear:
 
@@ -32,7 +32,7 @@ Hugo comes with all the code you would need to include load Disqus. Simply inclu
 {{ template "_internal/disqus.html" . }}
 ```
 
-#### Configuring Disqus
+### Configuring Disqus
 
 That template requires you to set a single value in your site `config`:
 
@@ -52,7 +52,7 @@ You also have the option to set the following in the front matter for a given pi
 * `disqus_title`
 * `disqus_url`
 
-#### Conditional Loading of Disqus Comments
+### Conditional Loading of Disqus Comments
 
 Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
 
