@@ -8,7 +8,7 @@ sitelink: http://philosophy.ucsb.edu/
 sourcelink: https://github.com/ucsbphil/philweb
 tags:
 - education
-image:  ucsb-tn.jpg
+image: ucsb.jpg
 title: ucsb
 ---
 

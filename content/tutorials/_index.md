@@ -13,3 +13,6 @@ slug:
 aliases:
 notesforauthors:
 ---
+
+Hugo tutorials are developed and submitted by the Hugo community.
+

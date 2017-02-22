@@ -5,11 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: [homepage]
 categories: [templates]
+tags: [homepage]
+weight: 30
 draft: false
-slug:
 aliases: [/layout/homepage/,/templates/homepage/]
 toc: false
 needsreview: true

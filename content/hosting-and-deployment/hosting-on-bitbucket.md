@@ -8,15 +8,12 @@ lastmod: 2017-02-04
 categories: [hosting and deployment]
 tags: [hosting,bitbucket,deployment,aerobatic]
 authors: [Jason Gowans]
-weight:
+weight: 30
 draft: false
 toc: true
 aliases: [/tutorials/hosting-on-bitbucket/]
 needsreview: true
-notesforauthors:
 ---
-
-## Introduction
 
 You can use [Bitbucket](https://bitbucket.org/) and [Aerobatic](https://www.aerobatic.com) to build, deploy, and host a Hugo website. Aerobatic is a static hosting service that integrates with Bitbucket and provides a free hosting tier.
 

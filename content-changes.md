@@ -1,4 +1,4 @@
-# Content Reorganization
+# Annotated Content Reorganization
 
 - [Changes to Existing Content Sections](#changes-to-existing-sections)
     - [Extras](#extras)
@@ -26,6 +26,9 @@ The following is an *abbreviated* listing and only includes the *larger* changes
     * "Tutorials" is not an intuitive place for end-users to look for this kind of documentation
 * All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")
 * Aliases added to new pages and in-page links updated throughout
+
+
+
 
 ## Content Organization: Site Navigation
 

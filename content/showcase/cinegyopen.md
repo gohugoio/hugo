@@ -7,6 +7,6 @@ sitelink: https://open.cinegy.com/
 sourcelink:
 tags:
 - documentation
-image:  cinegyopen-tn.png
+image: cinegyopen.png
 title: Cinegy Open
 ---

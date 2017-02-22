@@ -7,12 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-01-09
 categories: [content management]
 tags: ["cross references","references", "anchors", "urls"]
-weight: 80
+weight: 100
 draft: false
 aliases: []
-toc:
+toc: true
 needsreview: true
-notesforauthors:
 ---
 
 Hugo makes it easy to link documents together with `ref` and `relref`, both of which are [built-in Hugo shortcodes][]. These shortcodes are also used to safely provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`).

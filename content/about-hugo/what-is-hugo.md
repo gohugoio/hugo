@@ -6,11 +6,10 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 layout: single
-weight: 05
+weight: 10
 draft: false
 aliases: [/overview/introduction/]
 toc: true
-notesforauthors:
 ---
 
 ## What is Hugo?

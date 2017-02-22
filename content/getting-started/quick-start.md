@@ -599,7 +599,7 @@ git push
 [quickinstall]: /getting-started/install-hugo/#quick-install
 [releases]: https://github.com/spf13/hugo/releases
 [robusttheme]: https://github.com/dim0627/hugo_theme_robust
-[section]: /content-management/content-sections/
+[section]: /content-management/sections/
 [shortcodetemplates]: /templates/shortcode-templates/
 [sitemenu]: /content-management/menus/
 [templating]: /templates/

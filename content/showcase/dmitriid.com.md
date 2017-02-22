@@ -8,7 +8,7 @@ sourcelink: https://github.com/dmitriid/dmitriid.com
 tags:
 - personal
 - blog
-image:  dmitriid.com.png
+image: dmitriid.com.png
 title: dmitriid.com
 ---
 

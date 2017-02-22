@@ -8,7 +8,7 @@ sitelink: http://tendermint.com/
 sourcelink: https://github.com/tendermint/tendermint.github.io
 tags:
 - project
-image:  tendermint-tn.jpg
+image: tendermint.jpg
 title: tendermint
 ---
 

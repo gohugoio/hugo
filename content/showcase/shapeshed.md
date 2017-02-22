@@ -8,7 +8,7 @@ sourcelink: https://github.com/shapeshed/shapeshed.com
 tags:
 - personal
 - blog
-image:  shapeshed-tn.png
+image: shapeshed.png
 title: shapeshed.com
 ---
 

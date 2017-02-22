@@ -5,12 +5,10 @@ description: Learn why Steve Francia (@spf13) decided to ditch his previous cont
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 30
+weight: 40
 draft: false
-slug:
 aliases: []
 toc: false
-notesforauthors:
 ---
 
 I wrote Hugo ultimately for a few reasons. First, I was disappointed with WordPress, my then website solution. With it, I couldn't create content as efficiently as I wanted to.

@@ -9,7 +9,7 @@ sourcelink: https://github.com/camunda/blog.camunda.org
 tags:
 - company
 - blog
-image:  camunda-blog.png
+image: camunda-blog.png
 title: Camunda Blog
 ---
 

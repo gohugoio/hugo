@@ -5,9 +5,9 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
 categories: [templates]
 tags: [views]
+weight: 70
 draft: false
 aliases: [/templates/views/]
 toc: false

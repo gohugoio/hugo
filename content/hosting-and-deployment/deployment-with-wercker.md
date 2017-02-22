@@ -8,13 +8,15 @@ lastmod: 2017-02-01
 categories: [hosting and deployment]
 tags: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
-toc: false
+weight: 20
 draft: false
 aliases: [/tutorials/automated-deployments/]
 toc: true
 needsreview: false
 notesforauthors:
 ---
+
+## Goals
 
 By the end of this guide, you will have completed the following:
 
@@ -88,7 +90,7 @@ Once the website is build, t's a good idea to run the following command to start
 hugo server --theme=herring-cove
 ```
 
-If everything is fine, you should see something similar to the image below when you go to <localhost:1313> in your browser.
+If everything is fine, you should see something similar to the image below when you go to <http://localhost:1313> in your browser.
 
 ![][1]
 

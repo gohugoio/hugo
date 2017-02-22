@@ -8,7 +8,7 @@ sitelink: http://www.launchcode5.com/
 sourcelink: https://github.com/Launchcode5/launchcode5.com
 tags:
 - bootstrap
-image:  launchcode-tn.jpg
+image: launchcode.jpg
 title: Launchcode Software Studios
 ---
 

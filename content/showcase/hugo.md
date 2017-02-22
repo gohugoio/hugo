@@ -9,7 +9,7 @@ sourcelink: https://github.com/spf13/hugo/tree/master/docs
 tags:
 - documentation
 - bootstrap
-image:  hugo-tn.jpg
+image: hugo.jpg
 title: Hugo
 ---
 

@@ -9,7 +9,7 @@ sourcelink: https://github.com/robertbasic/robertbasic.com-hugo
 tags:
 - personal
 - blog
-image:  robertbasic-tn.jpg
+image: robertbasic.jpg
 title: Robert Basic's blog
 ---
 

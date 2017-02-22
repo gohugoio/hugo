@@ -9,7 +9,7 @@ sourcelink: https://github.com/SamuelDebruyn/chipsncookies-site
 tags:
 - personal
 - blog
-image:  chipsncookies-tn.png
+image: chipsncookies.png
 title: Chips 'n' Cookies
 ---
 

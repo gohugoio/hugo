@@ -5,11 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: [sitemap, xml]
 categories: [templates]
+tags: [sitemap, xml]
+weight: 160
 draft: false
-slug:
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: false
 needsreview: true

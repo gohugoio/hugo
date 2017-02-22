@@ -8,6 +8,6 @@ sourcelink:
 tags:
 - personal
 - blog
-image:  upbeat.png
+image: upbeat.png
 title: upbeat
 ---

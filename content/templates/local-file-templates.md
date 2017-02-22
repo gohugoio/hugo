@@ -8,8 +8,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [files]
+weight: 110
 draft: false
-weight:
 aliases: [/extras/localfiles/,/templates/files/]
 toc: true
 needsreview: true

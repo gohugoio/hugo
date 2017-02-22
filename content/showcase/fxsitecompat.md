@@ -10,7 +10,7 @@ tags:
 - community
 - documentation
 - translation
-image:  fxsitecompat-tn.png
+image: fxsitecompat.png
 title: Firefox Site Compatibility
 ---
 

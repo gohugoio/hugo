@@ -7,9 +7,8 @@ publishdate: 2017-01-09
 lastmod: 2017-01-09
 categories: [content management]
 tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
-weight: 20
+weight: 30
 draft: false
-slug:
 aliases: [/content/front-matter/]
 needsreview: true
 toc:
@@ -104,11 +103,11 @@ There are a few predefined variables that Hugo is aware of and utilizes. The use
 If neither `slug` nor `url` is present, and [permalinks are not configured otherwise](/content-management/url-management/#permalinks), the filename will be used to create the URL for a page.
 {{% /note %}}
 
-## Configure Blackfriday Rendering
+## Override Global Blackfriday Configuration
 
 It's possible to set some options for Markdown rendering in the page's front matter as an override to the site-wide configuration.
 
-See [site configuration][] for more information.
+See [site configuration][] for more information on setting up global Blackfriday options.
 
 ## Parameters
 

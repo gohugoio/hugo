@@ -9,7 +9,7 @@ sourcelink: https://github.com/natefinch/npf
 tags:
 - personal
 - blog
-image:  npf-tn.jpg
+image: npf.jpg
 title: npf.io
 ---
 

@@ -7,9 +7,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [taxonomies,metadata,front matter,terms]
 categories: [content management]
-weight: 60
+weight: 80
 draft: false
-slug:
 aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 toc: true
 notesforauthors:

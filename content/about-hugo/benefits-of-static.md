@@ -6,12 +6,10 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [ssg,static,performance, security]
-weight: 20
+weight: 30
 draft: false
-slug:
 aliases: []
 toc: false
-notesforauthors:
 ---
 
 Website generators render content into HTML files. Most are "dynamic site generators." That means the HTTP server (i.e., the program that communicates with your end user's browser) runs the generator to create a new HTML file every time an end user requests a page.

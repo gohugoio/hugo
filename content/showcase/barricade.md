@@ -7,7 +7,7 @@ sitelink: https://barricade.io
 tags:
 - company
 - security
-image:  barricade-tn.png
+image: barricade.png
 title: Barricade
 ---
 

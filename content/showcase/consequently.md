@@ -10,7 +10,7 @@ tags:
 - academic
 - blog
 - kube
-image:  consequently.jpg
+image: consequently.jpg
 title: consequently.org
 ---
 

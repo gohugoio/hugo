@@ -9,7 +9,7 @@ sourcelink: https://bitbucket.org/mdwhatcott/michaelwhatcott.com-boilerplate/src
 tags:
 - personal
 - blog
-image:  michaelwhatcott-tn.jpg
+image: michaelwhatcott.jpg
 title: michaelwhatcott
 ---
 

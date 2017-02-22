@@ -9,7 +9,7 @@ sourcelink: "https://github.com/bep/bepsays.com"
 tags:
 - personal
 - blog
-image:  bepsays-tn.png
+image: bepsays.png
 title: bepsays.com
 ---
 

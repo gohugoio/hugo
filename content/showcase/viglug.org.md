@@ -9,7 +9,7 @@ tags:
 - tech
 - linux
 - user group
-image:  viglug-tn.png
+image: viglug.png
 title: Viglug.org
 ---
 

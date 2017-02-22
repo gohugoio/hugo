@@ -9,7 +9,7 @@ sourcelink: https://github.com/fale/fale.io
 tags:
 - personal
 - blog
-image:  fale-tn.png
+image: fale.png
 title: fale.io
 ---
 

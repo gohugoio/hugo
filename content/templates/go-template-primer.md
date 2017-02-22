@@ -1,17 +1,16 @@
 ---
 title: Go Template Primer
-linktitle:
+linktitle: Go Template Primer
 description:
 godocref: https://golang.org/pkg/html/template/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: []
 categories: [templates]
+tags: [go,fundamentals]
+weight: 10
 draft: false
-slug:
-aliases: [/templates/go-templates/]
+aliases: [/templates/go-templates/,/layouts/go-templates/,/layout/go-templates/]
 toc: true
 needsreview: true
 ---
@@ -40,9 +39,9 @@ Parameters for functions are separated using spaces. The following example calls
 
 ```golang
 {{ add 1 2 }}
-```d
+```
 
-**Methods and fields are accessed via dot notation**
+#### Methods and Fields are Accessed via dot Notation
 
 Accessing the Page Parameter "bar"
 
@@ -50,7 +49,7 @@ Accessing the Page Parameter "bar"
 {{ .Params.bar }}
 ```
 
-**Parentheses can be used to group items together**
+#### Parentheses can be Used to Group Items Together
 
 ```golang
 {{ if or (isset .Params "alt") (isset .Params "caption") }} Caption {{ end }}
@@ -76,19 +75,23 @@ Variables can also be defined and referenced.
 
 ## Functions
 
-Go template ships with a few functions which provide basic functionality. The Go template system also provides a mechanism for applications to extend the available functions with their own. [Hugo template functions][hugofunctions] provide some additional functionality we believe are useful for building websites. Functions are called by using their name followed by the required parameters separated by spaces. Template functions cannot be added without recompiling Hugo.
+Go template ships with a few functions that provide basic functionality. The Go template system also provides a mechanism for applications to extend the set of available functions. [Hugo template functions][hugofunctions] provide additional functionality we believe us useful for building websites. Functions are called by using their name followed by the required parameters separated by spaces. Template functions cannot be added without recompiling Hugo.
 
 ### Example 1: Adding Numbers
 
 ```golang
 {{ add 1 2 }}
+=> 3
 ```
 
 ### Example 2: Comparing Numbers
 
 ```golang
 {{ lt 1 2 }}
+=> true (i.e., since 1 is less than 2)
 ```
+
+Note that both examples make us of Go template's [math functions][].
 
 {{% note "Additional Boolean Operators" %}}
 There are more boolean operators than those listed in the Hugo docs in the [Golang template documentation](http://golang.org/pkg/text/template/#hdr-Functions).
@@ -108,7 +111,7 @@ the /layout/ directory within Hugo.
 ```
 
 And, starting with Hugo v0.12, you may also use the `partial` call
-for [partial templates][]:
+for [partial templates][partials]:
 
 ```golang
 {{ partial "header.html" . }}
@@ -209,7 +212,7 @@ Because of the very simple syntax of Go templates, the pipe is essential to bein
 
 A few simple examples should help convey how to use the pipe.
 
-**Example 1:**
+### Example 1: `shuffle`
 
 ```golang
 {{ shuffle (seq 1 5) }}
@@ -221,7 +224,7 @@ is the same as
 {{ (seq 1 5) | shuffle }}
 ```
 
-**Example 2:**
+### Example 2: `index`
 
 ```golang
 {{ index .Params "disqus_url" | html }}
@@ -229,31 +232,35 @@ is the same as
 
 Access the page parameter called "disqus_url" and escape the HTML.
 
-The `index` function is a built in to [Go][] built-in. [You can read more about `index` in the Godocs][]. The Godocs have the following to say about`index`:
+The `index` function is built in to [Go][]. [You can read more about `index` in the Godocs][]. The Godocs have the following to say about`index`:
 
 > ...returns the result of indexing its first argument by the following arguments. Thus "index x 1 2 3" is, in Go syntax, `x[1][2][3]`. Each indexed item must be a map, slice, or array.
 
-**Example 3:**
+### Example 3: `or` with `isset`
 
-    {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr") }}
-    Stuff Here
-    {{ end }}
+```golang
+{{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr") }}
+Stuff Here
+{{ end }}
 
 Could be rewritten as
 
-    {{ if isset .Params "caption" | or isset .Params "title" | or isset .Params "attr" }}
-    Stuff Here
-    {{ end }}
+```golang
+{{ if isset .Params "caption" | or isset .Params "title" | or isset .Params "attr" }}
+Stuff Here
+{{ end }}
 
-### Internet Explorer Conditional Comments
+### Example $: Internet Explorer Conditional Comments
 
 By default, Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
 
-    {{ "<!--[if lt IE 9]>" | safeHTML }}
-      <script src="html5shiv.js"></script>
-    {{ "<![endif]-->" | safeHTML }}
+```golang
+{{ "<!--[if lt IE 9]>" | safeHTML }}
+  <script src="html5shiv.js"></script>
+{{ "<![endif]-->" | safeHTML }}
+```
 
-Alternatively, use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](http://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation, e.g.:
+Alternatively, you can use the backtick (`` ` ``) to quote the IE conditional comments, avoiding the tedious task of escaping every double quotes (`"`) inside, as demonstrated in the [examples](http://golang.org/pkg/text/template/#hdr-Examples) in the Go text/template documentation:
 
 ```
 {{ `<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->` | safeHTML }}
@@ -263,9 +270,9 @@ Alternatively, use the backtick (`` ` ``) to quote the IE conditional comments, 
 
 The most easily overlooked concept to understand about Go templates is that `{{ . }}` always refers to the current context. In the top level of your template, this will be the data set made available to it. Inside of a iteration, however, it will have the value of the current item. When inside of a loop, the context has changed: `{{ . }}` will no longer refer to the data available to the entire page. If you need to access this from within the loop, you will likely want to do one of the following:
 
-### Define Variable Independent of Context
+### Define a Variable Independent of Context
 
-variable instead of depending on the context.  For example:
+The following shows how to define a variable independent of the context.
 
 {{% input "range-through-tags-w-variable.html" %}}
 ```html
@@ -283,12 +290,12 @@ variable instead of depending on the context.  For example:
 {{% /input %}}
 
 {{% note %}}
-Notice how once we have entered the loop, the value of `{{ . }}` has changed. We have defined a variable outside of the loop (`{{$title}}`) so we have access to it from within the loop.
+Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside of the loop (`{{$title}}`) that we've assigned a value so that we have access to the value from within the loop as well.
 {{% /note %}}
 
 ### Use `$.` to Access the Global Context
 
-from anywhere. Here is an equivalent example:
+`$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block where we defined `$title` and `$base` for the same desired output, but now using `$`:
 
 {{% input "range-through-tags-w-global.html" %}}
 ```html
@@ -304,47 +311,49 @@ from anywhere. Here is an equivalent example:
 ```
 {{% /input %}}
 
-This is because `$`, a special variable, is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][].
-
 {{% warning "Don't Redefine the Dot" %}}
-The built-in magic of `$` would cease to work if someone were to mischievously redefine the special character; e.g. `{{ $ := .Site }}`. *Don't do it.* You may, of course, recover from this mischief by using `{{ $ := . }}` in a global context to reset `$` to its default value.
+The built-in magic of `$` would cease to work if someone were to mischievously redefine the special character; e.g. `{{ $ := .Site }}`. ***Don't do it.*** You may, of course, recover from this mischief by using `{{ $ := . }}` in a global context to reset `$` to its default value.
 {{% /warning %}}
 
 ## Whitespace
 
 Go 1.6 includes the ability to trim the whitespace from either side of a Go tag by including a hyphen (`-`) and space immediately beside the corresponding `{{` or `}}` delimiter.
 
-For instance, the following Go template:
+For instance, the following Go template will include the newlines and horizontal tab in its HTML output:
 
+{{% input "with-whitespace.html" %}}
 ```html
 <div>
   {{ .Title }}
 </div>
 ```
+{{% /input %}}
 
-will include the newlines and horizontal tab in its HTML output:
-
+{{% output "with-whitespace-output.html" %}}
 ```html
 <div>
   Hello, World!
 </div>
 ```
+{{% /output %}}
 
-whereas using
+Leveraging the `-` in the following example will remove the extra white space surrounding the `.Title` variable and remove the newline:
 
+{{% input "without-whitespace-input.html" %}}
 ```html
 <div>
   {{- .Title -}}
 </div>
 ```
+{{% /input %}}
 
-in that case will output simply
-
+{{% output "without-whitespace-input.html" %}}
 ```html
 <div>Hello, World!</div>
 ```
+{{% /output %}}
 
-Go considers the following characters as whitespace:
+Go considers the following characters whitespace:
 
 * <kbd>space</kbd>
 * horizontal <kbd>tab</kbd>
@@ -353,42 +362,48 @@ Go considers the following characters as whitespace:
 
 ## Hugo Parameters
 
-Hugo provides the option of passing values to the template language through the site configuration (for sitewide values), or through the meta data of each specific piece of content. You can define any values of any type (supported by your front matter/config format) and use them however you want to inside of your templates.
+Hugo provides the option of passing values to the template language through the site configuration (i.e. for site-wide values), or through the metadata of each specific piece of content (i.e. the [front matter][]). You can define any values of any type---as long as they are supported by the front matter format specified via `metaDataFormat` in your configuration file---and use them however you want in your templates.
 
-## Using Content (page) Parameters
+## Using Content (`Page`) Parameters
 
-In each piece of content, you can provide variables to be used by the templates. This happens in the [front matter][].
+You can provide variables to be used by templates in individual content's [front matter][].
 
-An example of this is used in this documentation site. Most of the pages benefit from having the table of contents provided. Sometimes the TOC just doesn't make a lot of sense. We've defined a variable in our front matter of some pages to turn off the TOC from being displayed.
+An example of this is used in this documentation site and specifically on the page you're currently reading. Most of the pages benefit from having the table of contents provided, but sometimes the table of contents doesn't make a lot of sense. We've defined a variable in our front matter that will prevent a table of contents from rendering when specifically set to `false`.
 
 Here is the example front matter:
 
 ```yaml
 ---
-title: "Permalinks"
-lastmod: 2015-11-30
-date: "2013-11-18"
-aliases:
-  - "/doc/permalinks/"
-groups: ["extras"]
-groups_weight: 30
-notoc: true
+title: Go Template Primer
+lastmod: 2017-02-21
+date: 2013-11-18
+toc: true
 ---
 ```
 
-Here is the corresponding code inside of the template:
+Here is the corresponding code inside the `table-of-contents.html` [partial template][partials]:
 
+{{% input "table-of-contents.html" %}}
 ```html
-{{ if not .Params.notoc }}
-    <div id="toc" class="well col-md-4 col-sm-6">
-    {{ .TableOfContents }}
-    </div>
-{{ end }}
+{{if ne .Params.toc false}}
+<aside id="toc">
+  <header class="toc-header">
+    <a href="#{{.Title | urlize}}">
+    <h3 class="{{.Section}}">{{.Title}}</h3>
+    </a>
+  </header>
+  {{.TableOfContents}}
+</aside>
+<a href="#" id="toc-toggle"></a>
+{{end}}
 ```
+{{% /input %}}
 
-## Using Site (config) Parameters
+We want the *default* behavior to be for pages to include a TOC unless otherwise specified. This template checks to make sure that the `toc:` field in this page's front matter does not equal (i.e. `ne`) `false`.
 
-In your top-level configuration file (e.g., `config.yaml`), you can define site-level parameters that are available to you as variables throughout your templates.
+## Using Site Configuration Parameters
+
+In your [site's configuration file][hugoconfig] (e.g., `config.yaml`), you can define site-level parameters that are available to you as variables throughout your templates.
 
 For instance, you might declare:
 
@@ -403,14 +418,17 @@ params:
 
 Within a footer layout, you might then declare a `<footer>` which is only provided if the `CopyrightHTML` parameter is provided, and if it is given, you would declare it to be HTML-safe, so that the HTML entity is not escaped again.  This would let you easily update just your top-level config file each January 1st, instead of hunting through your templates.
 
+{{% input "layouts/partials/sample-footer.html" %}}
 ```html
 {{if .Site.Params.CopyrightHTML}}<footer>
 <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML}}</div>
 </footer>{{end}}
 ```
+{{% /input %}}
 
-An alternative way of writing the "`if`" and then referencing the same value is to use "`with`" instead. With rebinds the context `.` within its scope, and skips the block if the variable is absent:
+An alternative way of writing the "`if`" and then referencing the same value is to use [`with`](/functions/with/) instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
+{{% input "layouts/partials/twitter.html" %}}
 ```html
 {{with .Site.Params.TwitterUser}}<span class="twitter">
 <a href="https://twitter.com/{{.}}" rel="author">
@@ -418,8 +436,9 @@ An alternative way of writing the "`if`" and then referencing the same value is 
  alt="Twitter"></a>
 </span>{{end}}
 ```
+{{% /input %}}
 
-Finally, if you want to pull "magic constants" out of your layouts, you can do so, such as in this example:
+Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`](/functions/first/) and [`.RelPermalink`](/functions/relpermalink/) functions as well as the [`.Site.Pages` variable](/variables-and-params/site-variables/).
 
 ```html
 <nav class="recent">
@@ -430,9 +449,9 @@ Finally, if you want to pull "magic constants" out of your layouts, you can do s
 </nav>
 ```
 
-## Template example: Show only upcoming events
+## Go Templating Example: Show Only Upcoming Events
 
-Go allows you to do more than what's shown here.  Using Hugo's [`where` function][] and Go built-ins, we can list only the items from `content/events/` whose date (set in the front matter) is in the future:
+Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in the [front matter][]) is in the future:
 
 {{% input "show-upcoming-dates.html" %}}
 ```golang
@@ -451,12 +470,15 @@ Go allows you to do more than what's shown here.  Using Hugo's [`where` function
 ```
 {{% /input %}}
 
+
 [`where` function]: /functions/where/
 [documented feature of Go text/template]: http://golang.org/pkg/text/template/#hdr-Variables
 [front matter]: /content-management/front-matter/
 [Go html/template]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
 [gohtmltemplate]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
+[hugoconfig]: /getting-started/configuration/
 [hugofunctions]: /functions/ "Link to section for Hugo's templating functions"
-[partial templates]: /templates/partials-templates/ "Link to the partial templates page inside of the templating section of the Hugo docs"
+[math functions]: /functions/math
+[partials]: /templates/partials-templates/ "Link to the partial templates page inside of the templating section of the Hugo docs"
 [variablesparams]: /variables-and-params/ "Link to the list page for the Variables and Params section of the site."
 [You can read more about `index` in the Godocs]: http://golang.org/pkg/text/template/ "Godocs page for index function"

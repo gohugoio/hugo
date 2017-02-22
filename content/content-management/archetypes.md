@@ -7,7 +7,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [archetypes,generators,metadata,front matter]
 categories: ["content management"]
-weight: 50
+weight: 70
 draft: false
 aliases: [/content/archetypes/,/content-management/content-archetypes/]
 toc: true
@@ -182,7 +182,7 @@ The following is the `musicians` archetype from the [example site][]:
 [archetypes directory]: /project-organization/directory-structure/
 [`now()`]: http://golang.org/pkg/time/#Now
 [configuration file]: /project-organization/configuration/
-[content sections]: /content-sections/
+[content sections]: /sections/
 [content types]: /content-management/content-types/
 [example site]: /getting-started/using-the-hugo-docs/#example-site
 [front matter]: /content-management/front-matter/

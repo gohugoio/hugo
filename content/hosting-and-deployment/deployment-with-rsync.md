@@ -1,6 +1,6 @@
 ---
 title: Deployment with Rysnc
-linktitle:
+linktitle: Deployment with Rysnc
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -8,7 +8,7 @@ lastmod: 2017-02-01
 categories: [hosting and deployment]
 tags: [rysnc,deployment]
 authors: [Adrien Poupin]
-weight:
+weight: 10
 draft: false
 aliases: [/tutorials/deployment-with-rsync/]
 toc: true

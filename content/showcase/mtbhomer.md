@@ -9,6 +9,6 @@ tags:
 - personal
 - portfolio
 - design
-image:  mtbhomer-tn.png
+image: mtbhomer.png
 title: mtbhomer.com
 ---

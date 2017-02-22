@@ -1,31 +1,30 @@
 ---
 title: Supported Content Formats
-linktitle:
+linktitle: Content Formats
 description: Hugo uses the Blackfriday markdown parser for content files but also provides support for additional syntaxes (eg, Asciidoc) via external helpers.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
 categories: [content management]
 tags: [markdown,asciidoc,mmark,content format]
-weight: 10
+weight: 20
 draft: false
-slug:
-aliases: [/content/markdown-extras/,/content/supported-formats/,/content/markdown/]
+aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
 toc: true
 notesforauthors:
 ---
 
 ## Markdown
 
-Markdown is the natively supported content format for Hugo and is rendered using the excellent [Blackfriday project][], a markdown parser written in Golang.
+Markdown is the native content format for Hugo and is rendered using the excellent [Blackfriday project][], a blazingly fast parser written in Golang.
 
 {{% note "Deeply Nested Lists" %}}
-Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists, but there is a workaround. If you write lists in markdown, use 4 spaces (i.e., <kbd>tab</kbd>) rather than 2 to delimit nesting of lists.
+Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is a workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations to delimit nesting of lists.
 {{% /note %}}
 
 ## Additional Content Formats
 
-Since 0.14, Hugo has defined a new concept called _external helpers_. This means you can write your content using [Asciidoc][] or [reStructuredText][]. If you have files with associated extensions, Hugo will call external commands to generate the content ([see Hugo source code][]).
+Since 0.14, Hugo has defined a new concept called _external helpers_. This means you can write your content using [Asciidoc][], [reStructuredText][], or [Org-mode][]. If you have files with associated extensions, Hugo will call external commands to generate the content ([see Hugo source code][]). The exception is Org-mode, which is parsed natively.
 
 For example, for Asciidoc files, Hugo will try to call the **asciidoctor** or **asciidoc** command. This means that you will have to install the associated tool on your machine to be able to use these formats.
 
@@ -89,6 +88,7 @@ Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as pr
 [Daring Fireball: Markdown, John Gruber]: https://daringfireball.net/projects/markdown/
 [developer tools]: /developer-tools/
 [Markdown Tutorial]: http://www.markdowntutorial.com/
+[Org-mode]: http://orgmode.org/
 [Pygments]: http://pygments.org/
 [reStructuredText]: http://docutils.sourceforge.net/rst.html
 [see Hugo source code]: https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65

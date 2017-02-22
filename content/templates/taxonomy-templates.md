@@ -5,11 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [taxonomies,metadata,front matter,terms]
 categories: [templates]
-weight:
+tags: [taxonomies,metadata,front matter,terms]
+weight: 50
 draft: false
-slug:
 aliases: [/taxonomies/displaying/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/]
 needsreview: true
 toc: true

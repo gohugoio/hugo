@@ -5,11 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [lists,sections,content types,types,organization]
 categories: [content management]
-weight: 40
+tags: [lists,sections,content types,types,organization]
+weight: 60
 draft: false
-slug:
 aliases: [/content/types]
 toc: true
 needsreview: true
@@ -34,7 +33,7 @@ You can manually add files to your content directories, but Hugo has the ability
 Creating a new content type is easy in Hugo. You simply provide the templates and archetype that the new type will use. You only need to define the templates, archetypes and/or views unique to that content type. Hugo will fall back to using the general templates and default archetype whenever a specific file is not present.
 
 {{% note "Declaring Content Types" %}}
-Remember, all of the following are *optional*. If you do not specifically declare content types in your front matter or develop specific layouts for content types, Hugo is smart enough to infer the content type from the file path and content section (see [content sections](/content-management/content-sections/)).
+Remember, all of the following are *optional*. If you do not specifically declare content types in your front matter or develop specific layouts for content types, Hugo is smart enough to infer the content type from the file path and content section (see [content sections](/content-management/sections/)).
 {{% /note %}}
 
 ### Create Type Layout Directory
@@ -61,7 +60,7 @@ More details about archetypes can be found in the [archetypes documentation][].
 
 [archetypes]: /content-management/archetypes/
 [archetypes documentation]: /content-management/archetypes/
-[sections]: /content-sections/
+[sections]: /content-management/sections/
 [front matter]: /content-management/front-matter/
 [list of contents on a single page]: /templates/list-and-section-templates/
 [template]: /templates/

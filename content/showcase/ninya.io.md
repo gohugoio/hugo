@@ -9,7 +9,7 @@ sourcelink: https://github.com/ninya-io/ninya-io.github.io/tree/dev
 tags:
 - project
 - blog
-image:  ninya-tn.jpg
+image: ninya.jpg
 title: ninya.io
 ---
 

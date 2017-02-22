@@ -8,7 +8,7 @@ sitelink: http://techblog.rakuten.co.jp/
 tags:
 - company
 - blog
-image:  rakutentech-tn.png
+image: rakutentech.png
 title: Rakuten Tech Blog
 ---
 

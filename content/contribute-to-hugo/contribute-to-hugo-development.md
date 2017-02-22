@@ -374,11 +374,11 @@ If you have questions leave a comment in the pull request. We are willing to ass
 
 Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
 
-## Learning Git References
+## Additional References for Learning Git
 
-* [Codecademy's Free "Learn Git" Course][codecademy]
-* [Code School and GitHub's Free "Try Git" Tutorial][trygit]
-* [The Git Book][gitbook]
+* [Codecademy's Free "Learn Git" Course][codecademy] (Free)
+* [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)
+* [The Git Book][gitbook] (Free)
 
 
 [codecademy]: https://www.codecademy.com/learn/learn-git

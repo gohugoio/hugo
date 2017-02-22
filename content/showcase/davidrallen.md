@@ -9,7 +9,7 @@ tags:
 - personal
 - blog
 - tech
-image:  davidrallen-tn.png
+image: davidrallen.png
 title: David Allen
 ---
 

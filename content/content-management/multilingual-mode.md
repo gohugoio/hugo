@@ -7,10 +7,9 @@ publishdate: 2017-01-10
 lastmod: 2017-01-10
 categories: [content management]
 tags: [multilingual,i18n]
-weight: 120
+weight: 150
 draft: false
-slug:
-aliases: [/content/multilingual/]
+aliases: [/content/multilingual/,/content-management/multilingual/]
 toc: true
 needsreview: true
 notesforauthors:
@@ -46,20 +45,20 @@ help  = "Aide"
 ```
 
 Anything not defined in a `[Languages]` block will fall back to the global
-value for that key (like `copyright` for the English (`en`) language in this example).
+value for that key (e.g., `copyright` for the English [`en`] language).
 
-With the config above, all content, sitemap, RSS feeds, paginations
+With the config above, all content, sitemap, RSS feeds, paginations,
 and taxonomy pages will be rendered below `/` in English (your default content language), and below `/fr` in French.
 
-When working with params in frontmatter pages, omit the `params` in the key for the translation.
+When working with params in front matter pages, omit the `params` in the key for the translation.
 
 If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true` in your configuration.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
 
-Taxonomies and Blackfriday configuration can also be set per language, example:
+Taxonomies and [Blackfriday configuration][hugoconfig] can also be set per language:
 
-```
+```toml
 [Taxonomies]
 tag = "tags"
 
@@ -81,12 +80,11 @@ title = "Français"
 plaque = "plaques"
 ```
 
-
-### Translating your content
+## Translating Your Content
 
 Translated articles are identified by the name of the content file.
 
-Example of translated articles:
+### Examples of Translated Articles
 
 1. `/content/about.en.md`
 2. `/content/about.fr.md`
@@ -103,11 +101,12 @@ If left unspecified, the value for `defaultContentLanguage` defaults to `en`.
 
 By having the same _base file name_, the content pieces are linked together as translated pieces.
 
-### Link to translated content
+## Link to Translated Content
 
 To create a list of links to translated content, use a template similar to this:
 
-```
+{{% input "layouts/partials/i18nlist.html" %}}
+```html
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
@@ -119,13 +118,15 @@ To create a list of links to translated content, use a template similar to this:
 </ul>
 {{ end }}
 ```
-The above can be put in a `partial` and included in any template, be it for a content page or the home page.  It will not print anything if there are no translations for a given page, or if it is -- in the case of the home page, section listing etc. -- a site with only one language.
+{{% /input %}}
 
-The above also uses the `i18n` func, see [Translation of strings](#translation-of-strings).
+The above can be put in a `partial` (`./layouts/partials/`) and included in any template, be it for a [content page][contenttemplate] or the [home page][homepagetemplte]. It will not print anything if there are no translations for a given page, or if it is---in the case of the home page, section listing, etc.---a site with only one language.
 
-### Translation of strings
+The above also uses the `i18n` func described in the next section.
 
-Hugo uses [go-i18n](https://github.com/nicksnyder/go-i18n) to support string translations.  Follow the link to find tools to manage your translation workflows.
+## Translation of Strings
+
+Hugo uses [go-i18n](https://github.com/nicksnyder/go-i18n) to support string translations. [See the project's source repository](https://github.com/nicksnyder/go-i18n) to find tools that will help you manage your translation workflows.
 
 Translations are collected from the `themes/[name]/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project.  In the `i18n`, the translations will be merged and take precedence over what is in the theme folder.  Language files should be named according to RFC 5646  with names such as `en-US.yaml`, `fr.yaml`, etc.
 
@@ -174,7 +175,7 @@ To track down missing translation strings, run Hugo with the `--i18n-warnings` f
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
-### Menus
+## Menus
 
 You can define your menus for each language independently. The [creation of a menu](/content-management/menus/) works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
 
@@ -215,16 +216,25 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 ```
 
-### Missing translations
+## Missing translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
-While translating a Hugo site, it can be handy to have a visual indicator of missing translations. The `EnableMissingTranslationPlaceholders` config option will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
+While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`EnableMissingTranslationPlaceholders` configuration option][hugoconfig] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
 
-**Remember: Hugo will generate your website with these placeholders. It might not be suited for production environments.**
+{{% note %}}
+Hugo will generate your website with these placeholders. It might not be suited for production environments.
+{{% /note %}}
 
-### Multilingual Themes support
+## Multilingual Themes support
 
-To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there are more than one language, URLs  must either  come from the built-in `.Permalink` or `.URL`, be constructed with `relLangURL` or `absLangURL` template funcs -- or prefixed with `{{.LanguagePrefix }}`.
+To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must
 
-If there are more than one language defined, the`LanguagePrefix` variable will equal `"/en"` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string, so it is harmless for single-language sites.
+* come from the built-in `.Permalink` or `.URL`
+* be constructed with `relLangURL` or `absLangURL` template funcs **or** prefixed with `{{.LanguagePrefix }}`
+
+If there is more than one language defined, the`LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string and is therefore harmless for single-language Hugo websites.
+
+[contenttemplate]: /templates/single-page-template/
+[homepagetemplate]: /templates/homepage-template/
+[hugoconfig]: /getting-started/configuration/

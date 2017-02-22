@@ -5,10 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
 categories: [templating]
 tags: [lists,sections,menus]
 draft: false
+weight: 120
 aliases: [/extras/menus/]
 toc: true
 needsreview: true

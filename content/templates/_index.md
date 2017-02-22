@@ -9,8 +9,8 @@ weight: 01
 categories: [templates]
 tags: [templating,functions]
 draft: false
-slug:
-aliases:
+aliases: [/templates/overview/]
 toc: false
 notesforauthors:
 ---
+

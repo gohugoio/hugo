@@ -8,7 +8,7 @@ sourcelink: https://github.com/jamesacampbell/causes-and-effects-hugo
 tags:
 - personal
 - blog
-image:  jamescampbell-tn.png
+image: jamescampbell.png
 title: jamescampbell.us
 ---
 

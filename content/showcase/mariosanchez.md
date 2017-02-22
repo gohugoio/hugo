@@ -9,6 +9,6 @@ sourcelink: https://github.com/mariobox/Hugo-Source
 tags:
 - personal
 - blog
-image:  mariosanchez-tn.jpg
+image: mariosanchez.jpg
 title: mariosanchez.org
 ---

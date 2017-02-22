@@ -9,7 +9,7 @@ sourcelink: https://github.com/nickoneill/blog.nickoneill.name
 tags:
 - personal
 - blog
-image:  nickoneill-tn.jpg
+image: nickoneill.jpg
 title: authenticgeek
 ---
 

@@ -1,20 +1,22 @@
 ---
-title: Create a Multilingual Site
-linktitle:
+title: Creating a Multilingual Site
+linktitle: Multilingual Site
 godocref:
 description:
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
+date: 2015-07-08
+publishdate: 2015-07-08
+lastmod: 2015-12-24
 categories: [tutorials]
 tags: [internationalization,multilingual,i18n,tutorials]
 authors: ["Rick Cogley"]
-aliases: []
+aliases: [/tutorials/create-a-multilingual-site/]
 draft: false
 needsreview: true
 ---
 
-> **Note:** Since v0.17 Hugo has built-in support for the creation of multilingual website. [Read more about it](/content-management/multilingual/).
+{{% note %}}
+Since v0.17, Hugo has built-in support for the creation of multilingual websites. Read the [multilingual documentation](/content-management/multilingual-mode/) for more information.
+{{% /note %}}
 
 ## Introduction
 

@@ -7,6 +7,6 @@ sourcelink: https://github.com/hughgrigg/chineseboost-articles
 tags:
 - learning
 - education
-image:  chinese-grammar-tn.png
+image: chinese-grammar.png
 title: Chinese Grammar
 ---

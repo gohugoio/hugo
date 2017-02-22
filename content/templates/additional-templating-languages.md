@@ -1,20 +1,22 @@
 ---
-title: Ace Templating
-linktitle:
-description: In addition to Go templates and Amber templates, Hugo supports the powerful Ace templating from @yosssi.
-godocref: https://godoc.org/github.com/yosssi/ace
+title: Additional Templating Languages
+linktitle: Additional Templating
+description: In addition to Go templates and Amber templates, Hugo supports the powerful Ace templating from @yosssi and Amber templating from @eknkc.
+godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: []
-categories: [amber, templating options]
+categories: [templates]
+tags: [amber,ace,templating languages]
+weight: 170
 draft: false
-aliases: []
-toc: false
+aliases: [/templates/ace/,/templates/amber/]
+toc: true
 ---
 
-In addition to [Go templates][] and [Amber templates][], Hugo supports the powerful Ace templates.
+Hugo natively supports Amber and Ace in addition to the powerful [Go templates][].
+
+## Ace Templates
 
 For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace).
 
@@ -25,11 +27,11 @@ For template documentation, follow the links from the [Ace project](https://gith
     * `= include partials/foo.html .`
     * `{{ partial "foo" . }}`
 
-One noticeable difference between Ace and the other templating engines in Hugo is [Ace's inheritance support through base and inner templates][].
+One noticeable difference between Ace and the other templating engines in Hugo is [Ace's inheritance support through base and inner templates][aceinheritance].
 
 In Hugo, the Ace base template will be chosen with the same rule set as for [Go base templates][].
 
-```
+```bash
 .:
 index.ace
 
@@ -42,7 +44,7 @@ baseof.ace  list.ace  single.ace  single-baseof.ace
 ```
 
 {{% note %}}
-Note that the `html` suffix is needed, even if the filename is suffixed `ace`. This does not work from inside a theme ([issue #763](https://github.com/spf13/hugo/issues/763)).
+Note that the `html` suffix is needed even if the filename is suffixed `ace`. This does not work from inside a theme ([issue #763](https://github.com/spf13/hugo/issues/763)).
 {{% /note %}}
 
 Some examples for the layout files above:
@@ -56,8 +58,17 @@ Some examples for the layout files above:
 In most cases, one `baseof.ace` in `_default` will suffice. An Ace template without a reference to a base section (e.g., `= content`) will be handled as a standalone template.
 {{% /note %}}
 
-[Ace's inheritance support through base and inner templates]: https://github.com/yosssi/ace/tree/master/examples/base_inner_template
-[Amber templates]: /templates/amber-templating/
+## Amber Templates
+
+For Amber template documentation, follow the links from the [Amber project][].
+
+* Amber templates must be named with the Amber suffix; e.g., `list.amber`
+* Partials in Amber or HTML can be included with the Amber template syntax:
+    * `import ../partials/test.html `
+    * `import ../partials/test_a.amber `
+
+[aceinheritance]: https://github.com/yosssi/ace/tree/master/examples/base_inner_template
+[Amber Project]: https://github.com/eknkc/amber
 [template functions]: /functions/
 [Go templates]: /templates/go-template-primer/
 [Go base templates]: /templates/base-templates-and-blocks/

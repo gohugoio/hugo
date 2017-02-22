@@ -10,7 +10,7 @@ tags:
 - personal
 - blog
 - academic
-image:  kjhealy-tn.jpg
+image: kjhealy.jpg
 title: Kieran Healy
 ---
 

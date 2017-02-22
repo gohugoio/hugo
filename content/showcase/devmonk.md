@@ -9,7 +9,7 @@ sourcelink: https://github.com/peteraba/devmonk.com
 tags:
 - educational
 - video
-image:  devmonk-tn.jpg
+image: devmonk.jpg
 title: devmonk
 ---
 

@@ -10,6 +10,6 @@ tags:
 - company
 - blog
 - bootstrap
-image:  apperneticioblog.png
+image: apperneticioblog.png
 title: Appernetic
 ---

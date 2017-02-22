@@ -59,8 +59,8 @@ tutorials:
   title: "Tutorials"
   url: "tutorials"
   haschildren: true
-  sortsubpagesby: "weight"
-  desc: "Community-aggregated articles and code examples for approaching different projects using Hugo"
+  sortsubpagesby: "title"
+  desc: "Community-aggregated articles and code examples for approaching different projects  Hugo"
 developertools:
   order: 10
   title: "Developer Tools"
@@ -73,7 +73,7 @@ commands:
   title: "Command Line Reference"
   url: "commands"
   haschildren: false
-  sortsubpagesby: false
+  sortsubpagesby: ""
   desc: "Hugo's easy-to-use but extensive command line interface"
 troubleshooting:
   order: 12

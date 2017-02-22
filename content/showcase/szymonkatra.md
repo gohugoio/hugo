@@ -9,7 +9,7 @@ sourcelink: https://github.com/SzymonKatra/SzymonKatra.github.io/tree/master/hug
 tags:
 - personal
 - blog
-image:  szymonkatra-tn.png
+image: szymonkatra.png
 title: szymonkatra.github.io
 ---
 

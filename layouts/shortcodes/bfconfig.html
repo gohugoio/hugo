@@ -1,0 +1,194 @@
+<table class="bf-configuration">
+    <thead>
+        <tr>
+            <th>Flag</th>
+            <th>Default</th>
+            <th>Blackfriday flag</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code><strong>taskLists</strong></code></td>
+            <td class="bf-default"><code>true</code></td>
+            <td class="bf-flag"><code></code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> turns off GitHub-style automatic task/TODO
+                list generation.
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>smartypants</strong></code></td>
+            <td class="bf-default"><code>true</code></td>
+            <td class="bf-flag"><code>HTML_USE_SMARTYPANTS</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables smart punctuation substitutions
+                including smart quotes, smart dashes, smart fractions, etc.
+                If <code>true</code>, it may be fine-tuned with the
+                <code>angledQuotes</code>,
+                <code>fractions</code>,
+                <code>smartDashes</code>, and
+                <code>latexDashes</code> flags (see below).
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>angledQuotes</strong></code></td>
+            <td class="bf-default"><code>false</code></td>
+            <td class="bf-flag"><code>HTML_SMARTYPANTS_ANGLED_QUOTES</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> enables smart, angled double quotes.<br>
+                <small>
+                    <strong>Example:</strong>
+                    <code>"Hugo"</code> renders to
+                    «Hugo» instead of “Hugo”.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>fractions</strong></code></td>
+            <td class="bf-default"><code>true</code></td>
+            <td class="bf-flag"><code>HTML_SMARTYPANTS_FRACTIONS</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables smart fractions.<br>
+                <small>
+                    <strong>Example:</strong>
+                    <code>5/12</code> renders to
+                    <sup>5</sup>&frasl;<sub>12</sub>
+                    (<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>).<br>
+                    <strong>Caveat:</strong>
+                    Even with <code>fractions = false</code>,
+                    Blackfriday still converts
+                    1/2, 1/4 and 3/4 respectively to
+                    ½ (<code>&amp;frac12;</code>),
+                    ¼ (<code>&amp;frac14;</code>) and
+                    ¾ (<code>&amp;frac34;</code>),
+                    but only these three.</small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>smartDashes</strong></code></td>
+            <td class="bf-default"><code>true</code></td>
+            <td class="bf-flag"><code>HTML_SMARTYPANTS_DASHES</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables smart dashes; i.e., the conversion
+                of multiple hyphens into en&nbsp;dash or em&nbsp;dash.
+                If <code>true</code>, its behavior can be modified with the
+                <code>latexDashes</code> flag below.
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>latexDashes</strong></code></td>
+            <td class="bf-default"><code>true</code></td>
+            <td class="bf-flag"><code>HTML_SMARTYPANTS_LATEX_DASHES</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>false</code> disables LaTeX-style smart dashes and
+                selects conventional smart dashes. Assuming
+                <code>smartDashes</code> (above):
+                <ul>
+                    <li>
+                        If <strong><code>true</code>,</strong>
+                        <code>--</code> is translated into “&ndash;”
+                        (<code>&amp;ndash;</code>), whereas
+                        <code>---</code> is translated into “&mdash;”
+                        (<code>&amp;mdash;</code>).
+                    </li>
+                    <li>
+                        If <strong><code>false</code>,</strong>
+                        <code>--</code> is translated into “&mdash;”
+                        (<code>&amp;mdash;</code>), whereas a
+                        <em>spaced</em> single hyphen between two words
+                        is translated into an en&nbsp;dash&mdash;e.g.,
+                        <code>12 June - 3 July</code> becomes
+                        <code>12 June &amp;ndash; 3 July</code>.
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>hrefTargetBlank</strong></code></td>
+            <td class="bf-default"><code>false</code></td>
+            <td class="bf-flag"><code>HTML_HREF_TARGET_BLANK</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> opens external links in a new window or tab.
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>plainIDAnchors</strong></code></td>
+            <td class="bf-default"><code>true</code></td>
+            <td class="bf-flag">
+                <code>FootnoteAnchorPrefix</code> and
+                <code>HeaderIDSuffix</code>
+            </td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                <code>true</code> renders any header and footnote IDs
+                without the document ID.<br>
+                <small>
+                    <strong>Example:</strong>
+                    renders <code>#my-header</code> instead of
+                    <code>#my-header:bec3ed8ba720b9073ab75abcf3ba5d97</code>.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>extensions</strong></code></td>
+            <td class="bf-default"><code>[]</code></td>
+            <td class="bf-flag"><code>EXTENSION_*</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                Enable one or more of Blackfriday's Markdown extensions
+                (if they aren't Hugo defaults).<br>
+                <small>
+                    <strong>Example:</strong> &nbsp;
+                    Include <code>"hardLineBreak"</code>
+                    in the list to enable Blackfriday's
+                    <code>EXTENSION_HARD_LINE_BREAK</code>.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td><code><strong>extensionsmask</strong></code></td>
+            <td class="bf-default"><code>[]</code></td>
+            <td class="bf-flag"><code>EXTENSION_*</code></td>
+        </tr>
+        <tr>
+            <td class="purpose-description" colspan="3">
+                <span class="purpose-title">Purpose:</span>
+                Disable one or more of Blackfriday's Markdown extensions
+                (if they are Hugo defaults).<br>
+                <small>
+                    <strong>Example:</strong> &nbsp;
+                    Include <code>"autoHeaderIds"</code>
+                    in the list to disable Blackfriday's
+                    <code>EXTENSION_AUTO_HEADER_IDS</code>.
+                </small>
+            </td>
+        </tr>
+        </tbody>
+</table>
+
+

@@ -9,7 +9,7 @@ sourcelink: https://github.com/LK4D4/lk4d4.darth.io
 tags:
 - personal
 - blog
-image:  lk4d4-tn.jpg
+image: lk4d4.jpg
 title: lk4d4.darth.io
 ---
 

@@ -10,7 +10,7 @@ tags:
 - photography
 - portfolio
 - blog
-image:  davidepetilli-tn.jpg
+image: davidepetilli.jpg
 title: Davide Petilli
 ---
 

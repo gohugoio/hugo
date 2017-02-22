@@ -9,7 +9,7 @@ sourcelink: https://github.com/danmux/danmux-hugo
 tags:
 - personal
 - blog
-image:  danmux-tn.jpg
+image: danmux.jpg
 title: Danmux
 ---
 

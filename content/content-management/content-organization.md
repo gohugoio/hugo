@@ -5,11 +5,10 @@ description: Hugo assumes that the same structure that works to organize your so
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [sections,content,organization, fundamentals]
 categories: [project organization]
-weight: 05
+tags: [sections,content,organization, fundamentals]
+weight: 10
 draft: false
-slug:
 aliases: [/content-management/sections,/content/sections/]
 toc: true
 needsreview: true
@@ -19,7 +18,7 @@ Hugo uses files (see [supported content formats][]) with headers called [front m
 
 ## Organizing Source Content
 
-In Hugo, the content should be organized in a manner that reflects the rendered website. Without any additional configuration, the following will just work. Hugo supports content nested at any level, but the top level is special in Hugo and is used as the [section](/content-management/content-sections/).
+In Hugo, the content should be organized in a manner that reflects the rendered website. Without any additional configuration, the following will just work. Hugo supports content nested at any level, but the top level is special in Hugo and is used as the [section](/content-management/sections/).
 
 ```bash
 .

@@ -5,9 +5,8 @@ description: In addition to blistering speed, Hugo also includes a powerful temp
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 10
+weight: 20
 draft: false
-slug:
 aliases: [/about-hugo/features]
 toc: true
 notesforauthors:

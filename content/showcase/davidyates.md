@@ -7,7 +7,7 @@ sitelink: https://davidyat.es/
 tags:
 - personal
 - blog
-image:  davidyates-tn.png
+image: davidyates.png
 title: David Yates
 ---
 

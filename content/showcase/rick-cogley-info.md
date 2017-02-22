@@ -11,6 +11,6 @@ tags:
 - blog
 - rickcogley
 - japan
-image:  rick_cogley_info-tn.jpg
+image: rick_cogley_info.jpg
 title: rick.cogley.info
 ---

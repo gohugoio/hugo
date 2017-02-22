@@ -6,7 +6,7 @@ sitelink: http://www.chingli.com/
 tags:
 - personal
 - blog
-image:  chingli-tn.jpg
+image: chingli.jpg
 title: <span lang="zh-CN">青砾</span> (chingli)
 ---
 

@@ -9,7 +9,7 @@ sourcelink: https://github.com/peteraba/peteraba.com
 tags:
 - personal
 - blog
-image:  peteraba-tn.jpg
+image: peteraba.jpg
 title: peteraba
 ---
 

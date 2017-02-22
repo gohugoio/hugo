@@ -1,25 +1,23 @@
 ---
-title: Sections
+title: Content Sections
 linktitle: Sections
 description: Hugo provides full support for content sections, which according to Hugo's default behavior, should reflect the architecture of the output website sections as well.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [lists,sections,content types,organization]
 categories: [content management]
-weight: 30
+tags: [lists,sections,content types,organization]
+weight: 50
 draft: false
-slug:
 aliases: [/content-management/sections/,/content/sections/]
 toc: true
-notesforauthors:
 ---
 
 ## What are Sections in Hugo
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site (see [directory structure][]).
 
-Following this pattern, Hugo uses the top level of your content organization as the **content section**.
+Following this pattern, Hugo uses the top level of your content organization as the content **section**.
 
 The [example site][] used throughout the Hugo docs includes three sections: "authors," "events," and "posts". The following illustrates both the source organization and the default URL structure for the rendered files:
 

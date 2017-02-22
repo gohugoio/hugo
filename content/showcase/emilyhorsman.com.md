@@ -7,7 +7,7 @@ sourcelink: https://github.com/emilyhorsman/buttercup
 tags:
 - personal
 - blog
-image:  emilyhorsman.com-tn.jpg
+image: emilyhorsman.com.jpg
 title: emilyhorsman.com
 ---
 

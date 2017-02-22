@@ -9,7 +9,7 @@ sourcelink: https://github.com/gilesp/vurtcouk
 tags:
 - personal
 - blog
-image:  vurt.co-tn.jpg
+image: vurt.co.jpg
 title: vurt.co.uk
 ---
 

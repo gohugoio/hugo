@@ -8,6 +8,6 @@ sourcelink: https://github.com/steambap/weilinshi.org
 tags:
 - personal
 - blog
-image:  steambap.png
+image: steambap.png
 title: weilinshi
 ---

@@ -8,21 +8,19 @@ lastmod: 2016-06-23
 categories: [hosting and deployment]
 tags: [hosting,deployment,git,gitlab]
 authors: [Riku-Pekka Silvola]
-weight:
+weight: 50
 draft: false
 toc: true
-needsreview: true
+needsreview: false
 aliases: [/tutorials/hosting-on-gitlab/]
-notesforauthors:
 ---
 
-
-[GitLab](https://gitlab.com/) makes it incredibly easy to build, deploy, and host your Hugo website.
+[GitLab](https://gitlab.com/) makes it incredibly easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides [native support for Hugo, as well as numerous other static site generators](https://gitlab.com/pages/hugo).
 
 ## Assumptions
 
 * Working familiarity with Git for version control
-* Completion of the [Quick Start][quickstart]
+* Completion of the Hugo [Quick Start][]
 * A [GitLab account](https://gitlab.com/users/sign_in)
 * A Hugo website on your local machine that you are ready to publish
 
@@ -34,6 +32,7 @@ cd your-hugo-site
 
 In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
 
+{{% input "gitlab-ci.yml" %}}
 ```yml
 image: publysher/hugo
 
@@ -46,10 +45,11 @@ pages:
   only:
   - master
 ```
+{{% /input %}}
 
 ## Push Your Hugo Website to GitLab
 
-Next up, create a new repository on GitLab. It is *not* necessary to set the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab.
+Next, create a new repository on GitLab. It is *not* necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
 
 ```bash
 # initialize new git repository
@@ -65,14 +65,14 @@ git remote add origin https://gitlab.com/YourUsername/your-hugo-site.git
 git push -u origin master
 ```
 
-## Wait for Your Page to be Built
+## Wait for Your Page to Build
 
-That's it! You can now follow the CI agent building your page at https://gitlab.com/YourUsername/your-hugo-site/pipelines.
+That's it! You can now follow the CI agent building your page at https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines.
 
-After the build has passed, your new website is available at `https://YourUsername.gitlab.io/your-hugo-site/`.
+After the build has passed, your new website is available at `https://<YourUsername>.gitlab.io/<your-hugo-site>/`.
 
 ## Next Steps
 
-GitLab supports using custom CNAME's and TLS certificates. For more details on GitLab Pages, see [https://about.gitlab.com/2016/04/07/gitlab-pages-setup/](https://about.gitlab.com/2016/04/07/gitlab-pages-setup/).
+GitLab supports using custom CNAME's and TLS certificates. For more details on GitLab Pages, see the [GitLab Pages setup documentation](https://about.gitlab.com/2016/04/07/gitlab-pages-setup/).
 
-[quickstart]: /getting-started/quick-start/
+[Quick Start]: /getting-started/quick-start/

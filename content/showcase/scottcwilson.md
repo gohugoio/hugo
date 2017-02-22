@@ -9,7 +9,7 @@ sourcelink: https://github.com/scottcwilson/hugosite
 tags:
 - personal
 - blog
-image:  scottcwilson-tn.png
+image: scottcwilson.png
 title: scottcwilson.com
 ---
 

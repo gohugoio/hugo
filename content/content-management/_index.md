@@ -11,5 +11,4 @@ weight: 01
 draft: false
 aliases: [/content/]
 toc: false
-notesforauthors:
 ---

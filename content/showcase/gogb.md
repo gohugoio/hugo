@@ -7,7 +7,7 @@ licenseLink: ""
 sitelink: http://getgb.io
 tags:
 - project
-image:  gogb-tn.jpg
+image: gogb.jpg
 title: GoGB
 ---
 

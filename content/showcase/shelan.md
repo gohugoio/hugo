@@ -9,6 +9,6 @@ sourcelink: https://github.com/shelan/my-hugo-site
 tags:
 - personal
 - blog
-image:  shelan-tn.png
+image: shelan.png
 title: shelan.org
 ---

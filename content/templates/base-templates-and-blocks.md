@@ -6,9 +6,9 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
 categories: [templates]
 tags: [blocks,base,fundamentals]
+weight: 20
 draft: false
 aliases: [/templates/blocks/]
 toc: true

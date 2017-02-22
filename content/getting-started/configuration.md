@@ -16,14 +16,13 @@ notesforauthors:
 
 The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
 
-Therefore, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and expects them, by default).
+Because of Hugo's preference for sane defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and even expects them by default).
 
 ## Configuration Lookup Order
 
-Nevertheless, Hugo searches for a configuration file in the root of your website's source directory as a default behavior. First, it looks for a `./config.toml` file. If that's not present, it will seek a `./config.yaml` file,
-followed by a `./config.json` file.
+Hugo searches for a configuration file in the root of your website's source directory as a default behavior. First, it looks for a `./config.toml` file. If that's not present, it will seek a `./config.yaml` file, followed by a `./config.json` file.
 
-In this `config` file, you can include precise directions to Hugo regarding how it should render your website, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
+In this `config` file, you can direct to Hugo as to how it should render your website, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
 ## YAML Configuration
 
@@ -325,7 +324,45 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
-## Configuration Format Specs
+## Configure Blackfriday Rendering
+
+[Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in
+[Markdown](http://daringfireball.net/projects/markdown/) rendering engine.
+
+Hugo typically configures Blackfriday with sane default values. These defaults should fit most use cases reasonably well.
+
+However, if you have specific needs with respect to Markdown, Hugo exposes some of its Blackfriday behavior options for you to alter. The following table lists these Hugo options, paired with the corresponding flags from Blackfriday's source code ( [html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)).
+
+{{< bfconfig >}}
+
+{{% note %}}
+1. Blackfriday flags are **case sensitive** as of Hugo v0.15.
+2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override the site setting there. See [site configuration for more information](/content-management/front-matter/#override-global-blackfriday-configuration).
+{{% /note %}}
+
+{{% input "bf-config.toml" %}}
+```toml
+[blackfriday]
+  angledQuotes = true
+  fractions = false
+  plainIDAnchors = true
+  extensions = ["hardLineBreak"]
+```
+{{% /input %}}
+
+{{% input "bf-config.yml" %}}
+```yaml
+blackfriday:
+  angledQuotes: true
+  fractions: false
+  plainIDAnchors: true
+  extensions:
+    - hardLineBreak
+```
+{{% /input %}}
+
+
+## Specs for Configuration Formats
 
 * [TOML Spec][]
 * [YAML Spec][]

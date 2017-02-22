@@ -118,7 +118,7 @@ http://remarkjs.com)
 "sample.md"`). `.RelRef` does *not* handle in-page fragments correctly. See [Cross References](/content-management/cross-references/).
 
 `.Section`
-: the [section](/content-management/content-sections/) this content belongs to.
+: the [section](/content-management/sections/) this content belongs to.
 
 `.Site`
 : see [Site Variables](/variables-and-params/site-variables/).

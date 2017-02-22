@@ -10,7 +10,7 @@ tags:
 - personal
 - blog
 - foundation
-image:  antzucaro-tn.jpg
+image: antzucaro.jpg
 title: Ant Zucaro
 ---
 

@@ -12,6 +12,6 @@ tags:
 - technical
 - electronics
 - reviews
-image:  richardsumilang-tn.png
+image: richardsumilang.png
 title: Richard Sumilang - Top Secret Labs
 ---

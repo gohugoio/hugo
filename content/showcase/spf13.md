@@ -9,7 +9,7 @@ sourcelink: https://github.com/spf13/spf13.com
 tags:
 - personal
 - blog
-image:  spf13-tn.jpg
+image: spf13.jpg
 title: spf13.com
 ---
 

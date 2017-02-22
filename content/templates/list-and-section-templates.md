@@ -5,9 +5,9 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: [lists,sections]
 categories: [templates]
+tags: [lists,sections]
+weight: 40
 draft: false
 aliases: [/templates/list/]
 toc: true

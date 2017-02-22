@@ -8,7 +8,7 @@ sourcelink: https://github.com/rdegges/rdegges-www
 tags:
 - personal
 - blog
-image:  rdegges-tn.png
+image: rdegges.png
 title: Randall Degges
 ---
 

@@ -5,11 +5,10 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
-tags: []
 categories: [templates]
+tags: [page]
+weight: 60
 draft: false
-slug:
 aliases: [/layout/content/]
 toc: false
 needsreview: true

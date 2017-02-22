@@ -7,8 +7,8 @@ table {
   display: block;
   border-left: 2px solid $hugo-gray;
   margin: 0px;
-  font-size: 15px;
-  margin-bottom:1em;
+  font-size: 16px;
+  margin-bottom: 1em;
   tr {
     border-top: 2px solid $hugo-gray;
     th,
@@ -48,19 +48,57 @@ table {
       min-width: 100%;
       background-color: $body-bg-color;
       &:nth-child(even) {
-        background-color: $hugo-blue-ultra-light;
+        background-color: lighten($hugo-gray-light, 10%);
       }
       &:last-child {
         border-bottom: 2px solid $hugo-gray;
+      }
+      small {
+        font-size: 1em;
+      }
+    }
+    td {
+      .purpose-title {
+        font-style: italic;
+        color: $hugo-pink;
+        font-weight: bold;
+      }
+      &.bf-default {
+        code {
+          color: $hugo-blue;
+          font-weight: bold;
+        }
+      }
+      &.bf-flag {
+        code {
+          color: $hugo-green;
+          font-weight: bold;
+        }
       }
     }
   }
   &.utils-table {
     tr {
       line-height: 1.2;
-      font-size:.9em;
       > td:first-child {
         min-width: 220px;
+      }
+    }
+  }
+}
+
+table.bf-configuration {
+  tbody {
+    tr {
+      td.purpose-description {
+        ul {
+          list-style: none;
+          margin-left:0px;
+          padding-left:0px;
+          li {
+            list-style: none;
+          }
+        }
       }
     }
   }

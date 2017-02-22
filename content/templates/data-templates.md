@@ -5,9 +5,9 @@ description:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight:
 categories: [templates]
 tags: [data,dynamic,csv,json,toml,yaml]
+weight: 80
 draft: false
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: false

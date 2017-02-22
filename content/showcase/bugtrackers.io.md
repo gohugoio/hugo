@@ -7,7 +7,7 @@ tags:
 - blog
 - community
 - interviews
-image:  bugtrackersio-tn.jpg
+image: bugtrackersio.jpg
 title: bugtrackers.io
 ---
 
