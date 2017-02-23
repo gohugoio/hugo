@@ -2097,12 +2097,11 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 	p.sections = []string{plural, key}
 
 	if s.Info.preserveTaxonomyNames {
+		// Keep (mostly) as is in the title
+		// We make the first character upper case, mostly because
+		// it is easier to reason about in the tests.
+		p.Title = helpers.FirstUpper(key)
 		key = s.PathSpec.MakePathSanitized(key)
-	}
-
-	if s.Info.preserveTaxonomyNames {
-		// keep as is in the title
-		p.Title = key
 	} else {
 		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
 	}

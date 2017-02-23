@@ -326,6 +326,8 @@ func (h *HugoSites) createMissingPages() error {
 				foundTaxonomyTermsPage := false
 				for key := range tax {
 					foundTaxonomyPage := false
+					origKey := key
+
 					if s.Info.preserveTaxonomyNames {
 						key = s.PathSpec.MakePathSanitized(key)
 					}
@@ -344,7 +346,7 @@ func (h *HugoSites) createMissingPages() error {
 
 					if s.isEnabled(KindTaxonomy) {
 						if !foundTaxonomyPage {
-							n := s.newTaxonomyPage(plural, key)
+							n := s.newTaxonomyPage(plural, origKey)
 							s.Pages = append(s.Pages, n)
 							newPages = append(newPages, n)
 						}

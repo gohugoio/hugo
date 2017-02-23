@@ -49,12 +49,21 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 	}
 }
 
-// Issue #2992
 func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
+	for _, preserveTaxonomyNames := range []bool{false, true} {
+		t.Run(fmt.Sprintf("preserveTaxonomyNames %t", preserveTaxonomyNames), func(t *testing.T) {
+			doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames)
+		})
+
+	}
+}
+
+func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNames bool) {
 	t.Parallel()
 
 	siteConfig := `
 baseURL = "http://example.com/blog"
+preserveTaxonomyNames = %t
 
 paginate = 1
 defaultContentLanguage = "en"
@@ -77,6 +86,8 @@ others:
 # Doc
 `
 
+	siteConfig = fmt.Sprintf(siteConfig, preserveTaxonomyNames)
+
 	th, h := newTestSitesFromConfigWithDefaultTemplates(t, siteConfig)
 	require.Len(t, h.Sites, 1)
 
@@ -85,6 +96,7 @@ others:
 	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1"))
 	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1"))
 	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1"))
+	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\""))
 
 	writeNewContentFile(t, fs, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs, "Tag1 List", "2017-01-01", "content/tags/tag1/_index.md", 10)
@@ -121,5 +133,16 @@ others:
 	require.Len(t, cat.Pages, 3)
 	require.Len(t, cat.Data["Pages"], 3)
 	require.Equal(t, "t1/c1", cat.Pages[0].Title)
+
+	// Issue #3070 preserveTaxonomyNames
+	if preserveTaxonomyNames {
+		helloWorld := s.getPage(KindTaxonomy, "others", "Hello Hugo world")
+		require.NotNil(t, helloWorld)
+		require.Equal(t, "Hello Hugo world", helloWorld.Title)
+	} else {
+		helloWorld := s.getPage(KindTaxonomy, "others", "hello-hugo-world")
+		require.NotNil(t, helloWorld)
+		require.Equal(t, "Hello Hugo World", helloWorld.Title)
+	}
 
 }
