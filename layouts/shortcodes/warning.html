@@ -1,6 +1,4 @@
 <div class="warning">
 	<h2>{{if .Get 0}}{{.Get 0 | markdownify}}{{else}}Warning{{end}}</h2>
-	<div class="shortcode-content">
-	{{.Inner}}
-	</div>
+	<div class="shortcode-content">{{- .Inner -}}</div>
 </div>

@@ -50,7 +50,7 @@ Create a file called `post.html` inside the section lists template directory, `/
 
 ### Create views
 
-Many sites support rendering content in a few different ways, for instance, a single page view and a summary view to be used when displaying a [list of contents on a single page][]. Hugo makes no assumptions about how you want to display your content and will support as many different views of a content type as your site requires. All that is required for these additional views is that a template exists in each `/layouts/TYPE` directory with the same name.
+Many sites support rendering content in a few different ways, for instance, a single page view and a summary view to be used when displaying a [list of section contents][]. Hugo makes no assumptions about how you want to display your content and will support as many different views of a content type as your site requires. All that is required for these additional views is that a template exists in each `/layouts/TYPE` directory with the same name.
 
 ### Create A Corresponding Archetype
 
@@ -62,6 +62,6 @@ More details about archetypes can be found in the [archetypes documentation][].
 [archetypes documentation]: /content-management/archetypes/
 [sections]: /content-management/sections/
 [front matter]: /content-management/front-matter/
-[list of contents on a single page]: /templates/section-and-list-templates/
+[list of section contents]: /templates/section-templates/
 [template]: /templates/
 [Tumblr]: https://www.tumblr.com/

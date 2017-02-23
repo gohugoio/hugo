@@ -15,23 +15,15 @@ toc: true
 
 The primary view of content in Hugo is the single view. Hugo will render every Markdown file provided with a corresponding single template.
 
-## Which Template Will be Rendered?
+## Introduction to the Template Lookup Order
 
-Hugo uses a set of rules to figure out which template to use when rendering a specific page.
-
-Hugo will use the following prioritized list. This list is an inverted cascade: if a file isn’t present, Hugo will look to the next file. If that next file isn't present, Hugo will look to the file after that, and so on until it reaches the `_default` layout directory for the project and then the theme.
-
-The template lookup order enables you to craft specific layouts as needed  without creating more templating than necessary. For most sites, only the `_default/*html` files at the end of the list will be needed.
-
-You can specify `type` (i.e., [content type][]) and `layout` in a content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (i.e. it's content [section][]).
-
-{{% note "Hugo Makes Assumptions" %}}
-Hugo assumes your content section and content type are the same unless you tell Hugo otherwise by providing a `type` directly in the front matter of a content file.
-{{% /note %}}
-
-This is why #1 and #3 come before #2 and #4, respectively. Values in angle brackets (`<>`) are variables.
+{{< lookupexplanation >}}
 
 ## Lookup Order for Single Page Templates
+
+You can specify `type` (i.e., [content type][]) and `layout` in a single content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (see [content section][section]).
+
+Hugo assumes your content section and content type are the same unless you tell Hugo otherwise by providing a `type` directly in the front matter of a content file. This is why #1 and #3 come before #2 and #4, respectively, in the following lookup order. Values in angle brackets (`<>`) are variable.
 
 1. `/layouts/<TYPE>/<LAYOUT>.html`
 2. `/layouts/<SECTION>/<LAYOUT>.html`
@@ -82,7 +74,7 @@ The following examples assume two things:
 Now we can look at the front matter for the three single-page content (i.e.`.md`) files.
 
 {{% note "Three Content Pages but *Four* Markdown Files?" %}}
-`_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are of kind `section` and therefore do not submit themselves to the ***single*** page template lookup. Instead, `events/_index.md` will render according to the lookup order of [section and list templates](templates/section-and-list-templates/).
+`_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are of kind `section` and therefore do not submit themselves to the *single* page template lookup. Instead, `events/_index.md` will render according to its [section template](templates/section-templates/) and respective lookup order.
 {{% /note %}}
 
 ### `my-first-post.md`
@@ -111,7 +103,9 @@ When it comes time for Hugo to render the content to the page, it will go throug
 9. <span class="na">`/themes/mytheme/layouts/posts/single.html`</span>
 10. <span class="na">`/themes/mytheme/layouts/_default/single.html`</span>
 
-Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo the specific type and layout, it makes inferences based on sane defaults. `my-first-post.md` does not specify a content `type` in its front matter. Therefore, Hugo assumes the content `type` and `section` (i.e. `posts`, which is defined by file location) are one in the same. The `layout` also is not specified in the front matter. Hugo assumes that `my-first-post.md`, which is of type `page` and a *single* piece of content, should default to the next occurrence of a `single.html` template in the lookup.
+Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo the specific type and layout, it makes assumptions based on sane defaults. `my-first-post.md` does not specify a content `type` in its front matter. Therefore, Hugo assumes the content `type` and `section` (i.e. `posts`, which is defined by file location) are one in the same. ([Read more on sections][section].)
+
+`my-first-post.md` also does not specify a `layout` in its front matter. Therefore, Hugo assumes that `my-first-post.md`, which is of type `page` and a *single* piece of content, should default to the next occurrence of a `single.html` template in the lookup (#4).
 
 ### `my-second-post.md`
 
@@ -127,7 +121,7 @@ layout: reviewarticle
 ```
 {{% /input %}}
 
-Here is the lookup order for `my-second-post.md`:
+Here is the way Hugo's traverses the single-page lookup order for `my-second-post.md`:
 
 1. <span class="yes">`/layouts/review/reviewarticle.html`</span>
   <br>**BREAK**
@@ -141,7 +135,7 @@ Here is the lookup order for `my-second-post.md`:
 9. <span class="na">`/themes/mytheme/layouts/posts/single.html`</span>
 10. <span class="na">`/themes/mytheme/layouts/_default/single.html`</span>
 
-In the case of `my-second-post.md`, the front matter specifies the content `type` as well as the `layout`. Hugo finds the layout it needs at the top level of the lookup and does not continue to search through the other templates.
+The front matter in `my-second-post.md` specifies the content `type` (i.e. `review`) as well as the `layout` (i.e. `reviewarticle`). Hugo finds the layout it needs at the top level of the lookup (#1) and does not continue to search through the other templates.
 
 {{% note "Type and not Types" %}}
 Notice that the directory for the template for `my-second-post.md` is `review` and not `reviews`. This is because *type is always singular*.
@@ -159,7 +153,7 @@ description: This is an upcoming event..
 ```
 {{% /input %}}
 
-Here is the lookup order for `my-first-event.md`:
+Here is the way Hugo's traverses the single-page lookup order for `my-first-event.md`:
 
 1. <span class="no">`/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
 2. <span class="no">`/layouts/events/UNSPECIFIED.html`</span>
@@ -177,11 +171,11 @@ Here is the lookup order for `my-first-event.md`:
 `my-first-event.md` is significant because it demonstrates the role of the lookup order in Hugo themes. Both the root project directory *and* the `mytheme` themes directory have a file at `_default/single.html`. Understanding this order allows you to [customize Hugo themes](/themes/customizing-a-theme/) by creating template files with identical names in your project directory that step in front of theme template files in the lookup. This allows you to customize the look and feel of your website while maintaining compatibility with the theme's upstream.
 {{% /note %}}
 
-## Single Page Template Files Examples
+## Example Single Page Templates
 
 Content pages are of the type `page` and will therefore have all the [page variables][] and [site variables][] available to use in their templates.
 
-### Example: `post/single.html`
+### `post/single.html`
 
 This content template is used for [spf13.com][spf13]. It makes use of [partial templates][partials]:
 
@@ -230,7 +224,7 @@ This content template is used for [spf13.com][spf13]. It makes use of [partial t
 ```
 {{% /input %}}
 
-### Example: `project/single.html`
+### `project/single.html`
 
 This content template is also used for [spf13.com][spf13] and makes use of [partial templates][partials]:
 
@@ -286,9 +280,10 @@ To easily generate new instances of this content type (e.g., new `.md` files in 
 [config]: /getting-started/configuration/
 [content type]: /content-management/content-types/
 [directory structure]: /getting-started/directory-structure/
+[dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [front matter]: /content-management/front-matter/
 [page variables]: /variables-and-parms/page-variables/
 [partials]: /templates/partial-templates/
-[section]: /content-management/content-sections/
+[section]: /content-management/sections/
 [site variables]: /variables-and-params/site-variables/
 [spf13]: http://spf13.com/

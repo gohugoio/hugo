@@ -1,4 +1,4 @@
-**Content Files at a Glance**
+## Content Files at a Glance
 
 ```
 .
@@ -254,7 +254,7 @@
 │   ├── pagination.md
 │   ├── partial-templates.md
 │   ├── rss-templates.md
-│   ├── section-and-list-templates.md
+│   ├── section-templates.md
 │   ├── shortcode-templates.md
 │   ├── single-page-templates.md
 │   ├── sitemap-template.md

@@ -48,7 +48,7 @@ Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly
 
 ## Example: First 10 Articles with Summaries
 
-You can show content summaries with the following code. You could use the following snipper, for example, in a [section's list page template][].
+You can show content summaries with the following code. You could use the following snipper, for example, in a [section template][].
 
 {{% input "page-list-with-summaries.html" %}}
 ```html
@@ -72,4 +72,4 @@ Note how the `.Truncated` boolean valuable may be used to hide the "Read More...
 
 [org]: /content-management/supported-content-formats/
 [pagevariables]: /variables-and-params/page-variables/
-[section's list page template]: /templates/section-and-list-templates/
+[section template]: /templates/section-templates/

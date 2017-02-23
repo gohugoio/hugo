@@ -17,31 +17,31 @@ needsreview: true
 
 Documentation is an integral part of any open source project. The Hugo docs were completely reworked in anticipation of the release of v0.19, but there is always room for improvement.
 
-## Edit Locally and Submit a Pull Request
+<!-- ## Edit Locally and Submit a Pull Request
 
 **IN DEVELOPMENT**
 
 ## How Content is Ordered in the Hugo Docs
 
-**IN DEVELOPMENT**
+**IN DEVELOPMENT** -->
 
-## Creating New Files from Archetypes
-
-**IN DEVELOPMENT**
-
-### New Default Content
+## Creating New Content for the Hugo Docs
 
 **IN DEVELOPMENT**
 
-### New Function
+### Creating Default Content
 
 **IN DEVELOPMENT**
 
-### New Showcase
+### Adding a New Function
 
 **IN DEVELOPMENT**
 
-### New Tutorial
+### Adding a New Showcase
+
+**IN DEVELOPMENT**
+
+### Adding a New Tutorial
 
 **IN DEVELOPMENT**
 
@@ -54,10 +54,6 @@ Documentation is an integral part of any open source project. The Hugo docs were
 **IN DEVELOPMENT**
 
 ### Output Code Block
-
-**IN DEVELOPMENT**
-
-### Example Site Code Block
 
 **IN DEVELOPMENT**
 
@@ -82,9 +78,9 @@ Previous versions of the Hugo documentation used [Markdown `<blockquote>` syntax
 
 Use the `note` shortcode when you want to draw attention to information subtly. `note` is intended to be less of an interruption in content than is `warning`.
 
-#### Example `note` Admonition Shortcode Input
+#### `note` Admonition Shortcode Input
 
-{{% input "example-note-with-heading.md" %}}
+{{% input "note-with-heading.md" %}}
 ```golang
 {{%/* note "Example Note Admonition" */%}}
 Here is a piece of information I would like to draw your **attention** to.
@@ -92,30 +88,50 @@ Here is a piece of information I would like to draw your **attention** to.
 ```
 {{% /input %}}
 
-#### Examle `note` Admonition Shortcode Output
+#### `note` Admonition Shortcode Output (Code)
+
+{{% output "note-with-heading.html" %}}
+```html
+{{% note "Example Note Admonition" %}}
+Here is a piece of information I would like to draw your **attention** to.
+{{% /note %}}
+```
+{{% /output %}}
+
+#### `note` Admonition Shortcode Display
 
 {{% note "Example Note Admonition" %}}
 Here is a piece of information I would like to draw your **attention** to.
 {{% /note %}}
 
-### Warning Admonition Shortcode
+### Warning Admonition Examples
 
-Use the `warning` shortcode when you want to draw the user's attention
+Use the `warning` shortcode when you want to draw the user's attention to something important. A good usage example is for announcing breaking changes for Hugo versions, known bugs, or templating gotchas.
 
-#### Example `warning` Admonition Shortcode Input
+#### `warning` Admonition Shortcode Input
 
-{{% input "example-note.md" %}}
+{{% input "warning-admonition-input.md" %}}
 ```golang
 {{%/* warning "Example Warning" */%}}
-This is a warning, which should be reserved for *important* information like breaking changes, bad practices, etc.
+This is a warning, which should be reserved for *important* information like breaking changes.
 {{%/* /warning */%}}
 ```
 {{% /input %}}
 
-#### Example `warning` Admonition Shortcode Output
+#### `warning` Admonition Shortcode Output
+
+{{% output "warning-admonition-output.html" %}}
+```html
+{{% warning "Example Warning" %}}
+This is a warning, which should be reserved for *important* information like breaking changes.
+{{% /warning %}}
+```
+{{% /output %}}
+
+#### `warning` Admonition Shortcode Display
 
 {{% warning "Example Warning" %}}
-This is a warning, which should be reserved for *important* information like breaking changes, bad practices, etc.
+This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
 
 ## Example Site Shortcodes

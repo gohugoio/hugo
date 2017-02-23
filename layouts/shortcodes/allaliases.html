@@ -14,7 +14,7 @@
 		<tr>
 		<td>{{.Title}} <a href="{{.Permalink}}" title="See Web Page"><i class="fa fa-file-o" aria-hidden="true"></i></a> <a href="{{$ghrepo}}{{.File.Path}}" title="See Source" target="_blank"> <i class="fa fa-code" aria-hidden="true"></i></a></td>
 		<td>{{$section}}</td>
-		<td><code>{{ delimit .Aliases ", " }}<code></td>
+		<td><code>{{ delimit .Aliases ", " " and " }}<code></td>
 		{{end}}
 		</tr>
 	{{end}}

@@ -9,17 +9,41 @@ categories: [templates]
 tags: [taxonomies,metadata,front matter,terms]
 weight: 50
 draft: false
-aliases: [/taxonomies/displaying/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/]
-needsreview: true
+aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/]
 toc: true
-notesforauthors:
+needsreview: true
 ---
 
-<!-- Begin /taxonomies/methods/ -->
+Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies](/content-management/taxonomies) if you are unfamiliar with how Hugo uses taxonomies for content management.
 
+Hugo provides multiple ways to leverage taxonomies through your project:
+
+* Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
+* Order the way content associated with a taxonomy term are display in a [taxonomy list template](#taxonomy-list-template)
+* List a single content's taxonomy terms within a [single page template]()
+
+## Introduction to the Template Lookup Order
+
+{{< lookupexplanation >}}
+
+## Taxonomy List Templates
+
+### Lookup Order for Taxonomy List Templates
+
+
+
+## Taxonomy Terms Template
+
+### Lookup Order for Taxonomy Terms Templates
+
+{{% note "The Taxonomy Terms Template has a Unique Lookup Order" %}}
+Compared to taxonomy list pages and [other list templates](/templates/section-templates/), a terms template lookup has only two options. If Hugo does not find a terms template in `layout/` or `/themes/<yourchosentheme>/layouts/`, Hugo will *not* render a taxonomy terms page.,
+{{% /note %}}
+
+<!-- Begin /taxonomies/methods/ -->
 Hugo makes a set of values and methods available on the various Taxonomy structures.
 
-## Taxonomy Methods
+### Taxonomy Methods
 
 A Taxonomy is a `map[string]WeightedPages`.
 
@@ -35,7 +59,7 @@ A Taxonomy is a `map[string]WeightedPages`.
 .ByCount
 : Returns an OrderedTaxonomy (slice) ordered by number of entries.
 
-## OrderedTaxonomy
+### OrderedTaxonomy
 
 Since Maps are unordered, an OrderedTaxonomy is a special structure that has a defined order.
 
@@ -76,44 +100,43 @@ type WeightedPages []WeightedPage
 
 <!-- Begin /taxonomies/ordering/ -->
 
-Hugo provides the ability to both:
-
- 1. Order the way the keys for a taxonomy are displayed
- 2. Order the way taxonomyed content appears
 
 
 ## Ordering Taxonomies
+
 Taxonomies can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
 
 ### Order Alphabetically Example
 
-    <ul>
-    {{ $data := .Data }}
-    {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
-    <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-    {{ end }}
-    </ul>
+```
+<ul>
+  {{ $data := .Data }}
+  {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
+  <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+  {{ end }}
+</ul>
+```
 
 ### Order by Popularity Example
 
-    <ul>
-    {{ $data := .Data }}
-    {{ range $key, $value := .Data.Taxonomy.ByCount }}
-    <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
-    {{ end }}
-    </ul>
+```
+<ul>
+  {{ $data := .Data }}
+  {{ range $key, $value := .Data.Taxonomy.ByCount }}
+  <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+  {{ end }}
+</ul>
+```
 
-
-[See Also Taxonomy Lists](/templates/list/)
+<!-- [See Also Taxonomy Lists](/templates/list/) -->
 
 ## Ordering Content within Taxonomies
 
-Hugo uses both **Date** and **Weight** to order content within taxonomies.
+Hugo uses both `date` and `weight` to order content within taxonomies.
 
-Each piece of content in Hugo can optionally be assigned a date.
-It can also be assigned a weight for each taxonomy it is assigned to.
+Each piece of content in Hugo can optionally be assigned a date. It can also be assigned a weight for each taxonomy it is assigned to.
 
-When iterating over content within taxonomies the default sort is first by weight then by date. This means that if the weights for two pieces of content are the same, than the more recent content will be displayed first. The default weight for any piece of content is 0.
+When iterating over content within taxonomies, the default sort is the same as that used for [section and list pages]() first by weight then by date. This means that if the weights for two pieces of content are the same, than the more recent content will be displayed first. The default weight for any piece of content is 0.
 
 ### Assigning Weight
 
@@ -146,9 +169,7 @@ There are two different templates that the use of taxonomies will require you to
 
 Both templates are covered in detail in the templates section.
 
-A [list template](/templates/list/) is any template that will be used to render multiple pieces of
-content in a single html page. This template will be used to generate
-all the automatically created taxonomy pages.
+A [list template](/templates/list/) is any template that will be used to render multiple pieces of content in a single html page. This template will be used to generate all the automatically created taxonomy pages.
 
 A [taxonomy terms template](/templates/terms/) is a template used to
 generate the list of terms for a given template.
@@ -165,42 +186,41 @@ using the [list templates](/templates/list/):
 3. You can list all terms for a taxonomy
 4. You can list all taxonomies (with their terms)
 
-## 1. Displaying taxonomy terms assigned to this content
+### Displaying a Single Piece of Content's Taxonomies
 
-Within your content templates, you may wish to display
-the taxonomies that that piece of content is assigned to.
+Within your content templates, you may wish to display the taxonomies that piece of content is assigned to.
 
-Because we are leveraging the front matter system to
-define taxonomies for content, the taxonomies assigned to
-each content piece are located in the usual place
+Because we are leveraging the front matter system to define taxonomies for content, the taxonomies assigned to each content piece are located in the usual place
 (.Params.`plural`).
 
 ### Example
 
-    <ul id="tags">
-      {{ range .Params.tags }}
-        <li><a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a> </li>
-      {{ end }}
-    </ul>
+```html
+<ul id="tags">
+  {{ range .Params.tags }}
+    <li><a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a> </li>
+  {{ end }}
+</ul>
+```
 
-If you want to list taxonomies inline, you will have to take
-care of optional plural ending in the title (if multiple taxonomies),
-as well as commas. Let's say we have a taxonomy "directors" such as
-`directors: [ "Joel Coen", "Ethan Coen" ]` in the TOML-format front matter.
-To list such taxonomy use the following:
+If you want to list taxonomies inline, you will have to take care of optional plural ending in the title (if multiple taxonomies), as well as commas. Let's say we have a taxonomy "directors" such as `directors: [ "Joel Coen", "Ethan Coen" ]` in the TOML-format front matter.
+
+To list such taxonomies, use the following:
 
 ### Example
 
-    {{ if .Params.directors }}
-      <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
-      {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "/directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
-    {{ end }}
+```html
+{{ if .Params.directors }}
+  <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
+  {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "/directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
+{{ end }}
+```
 
-Alternatively, you may use the [delimit](/templates/functions/) template function as a shortcut if the taxonomies should just be listed with a separator.  See {{< gh 2143 >}} on GitHub for discussion.
+Alternatively, you may use the [delimit](/functions/delimit/) template function as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
 
-## 2. Listing content with the same taxonomy term
+## 2. Listing content with the Same Taxonomy Term
 
-First, you may be asking why you would use this. If you are using a taxonomy for something like a series of posts, this is exactly how you would do it. It’s also an quick and dirty way to show some related content.
+First, you may be asking why you would use this. If you are using a taxonomy for something like a series of posts, this is exactly how you would do it. It’s also a quick and dirty way to show some related content.
 
 ### Example
 
@@ -214,30 +234,28 @@ First, you may be asking why you would use this. If you are using a taxonomy for
 
 ## 3. Listing all content in a given taxonomy
 
-This would be very useful in a sidebar as “featured content”. You could
-even have different sections of “featured content” by assigning
-different terms to the content.
+This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
 
 ### Example
 
-    <section id="menu">
+```html
+<section id="menu">
+    <ul>
+        {{ range $key, $taxonomy := .Site.Taxonomies.featured }}
+        <li> {{ $key }} </li>
         <ul>
-            {{ range $key, $taxonomy := .Site.Taxonomies.featured }}
-            <li> {{ $key }} </li>
-            <ul>
-                {{ range $taxonomy.Pages }}
-                <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
-                {{ end }}
-            </ul>
+            {{ range $taxonomy.Pages }}
+            <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
             {{ end }}
         </ul>
-    </section>
-
+        {{ end }}
+    </ul>
+</section>
+```
 
 ## 4. Rendering a Site's Taxonomies
 
-If you wish to display the list of all keys for a taxonomy, you can find retrieve
-them from the `.Site` variable which is available on every page.
+If you wish to display the list of all keys for a taxonomy, you can find retrieve them from the `.Site` variable which is available on every page.
 
 This may take the form of a tag cloud, a menu or simply a list.
 
@@ -245,30 +263,40 @@ The following example displays all tag keys:
 
 ### Example
 
-    <ul id="all-tags">
-      {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-        <li><a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">{{ $name }}</a></li>
-      {{ end }}
-    </ul>
+```html
+<ul id="all-tags">
+  {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+    <li><a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">{{ $name }}</a></li>
+  {{ end }}
+</ul>
+```
 
 ### Complete Example
 This example will list all taxonomies, each of their keys and all the content assigned to each key.
 
-    <section>
-      <ul>
-        {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-          <li><a href="{{ "/" | relLangURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
-            <ul>
-              {{ range $key, $value := $taxonomy }}
-              <li> {{ $key }} </li>
-                    <ul>
-                    {{ range $value.Pages }}
-                        <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
-                    {{ end }}
-                    </ul>
-              {{ end }}
-            </ul>
-          </li>
-        {{ end }}
-      </ul>
-    </section>
+```html
+<section>
+  <ul>
+    {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
+      <li><a href="{{ "/" | relLangURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
+        <ul>
+          {{ range $key, $value := $taxonomy }}
+          <li> {{ $key }} </li>
+                <ul>
+                {{ range $value.Pages }}
+                    <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+                {{ end }}
+                </ul>
+          {{ end }}
+        </ul>
+      </li>
+    {{ end }}
+  </ul>
+</section>
+```
+
+## `.Site.GetPage` for Taxonomies
+
+### `.Site.GetPage` Taxonomy List Example
+
+### `.Site.GetPage` Taxonomy Terms Example

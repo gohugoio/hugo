@@ -1,6 +1,6 @@
 ---
-title: Section and List Page Templates
-linktitle: Section and List Page Templates
+title: Section Page Templates
+linktitle: Section Page Templates
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -9,27 +9,22 @@ categories: [templates]
 tags: [lists,sections]
 weight: 40
 draft: false
-aliases: [/templates/list/]
+aliases: []
 toc: true
 needsreview: true
 ---
 
-A list template is any template that will be used to render multiple pieces of
-content in a single HTML page (with the exception of the [homepage](/layout/homepage/) which has a
-dedicated template).
+## Introduction to the Template Lookup Order
 
-We are using the term *list* in its truest sense, a sequential arrangement of material, especially in alphabetical or numerical order. Hugo uses list templates to render anyplace where content is being listed such as taxonomies and sections.
+{{< lookupexplanation >}}
 
-## Lookup Order for List and Section Page Templates
 
-Hugo uses a set of rules to figure out which template to use when
-rendering a specific page.
 
-Hugo will use the following prioritized list. If a file isn’t present,
-then the next one in the list will be used. This enables you to craft
-specific layouts when you want to without creating more templates
-than necessary. For most sites only the \_default file at the end of
-the list will be needed.
+## Lookup Order for Section Page Templates
+
+Hugo uses a set of rules to figure out which template to use when rendering a specific page.
+
+Hugo will use the following prioritized list. If a file isn’t present, then the next one in the list will be used. This enables you to craft specific layouts when you want to without creating more templates than necessary. For most sites only the \_default file at the end of the list will be needed.
 
 ### Section Lists
 
@@ -56,22 +51,6 @@ A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/top
 * /themes/`THEME`/layouts/\_default/list.html
 
 Note that a taxonomy list page can also have a content file with frontmatter,  see [Source Organization](/overview/source-directory/).
-
-### Section RSS
-
-A Section’s RSS will be rendered at /`SECTION`/index.xml (e.g.&nbsp;http://spf13.com/project/index.xml)
-
-*Hugo ships with its own [RSS 2.0][] template. In most cases this will
-be sufficient, and an RSS template will not need to be provided by the
-user.*
-
-Hugo provides the ability for you to define any RSS type you wish, and
-can have different RSS files for each section and taxonomy.
-
-* /layouts/section/`SECTION`.rss.xml
-* /layouts/\_default/rss.xml
-* /themes/`THEME`/layouts/section/`SECTION`.rss.xml
-* /themes/`THEME`/layouts/\_default/rss.xml
 
 ### Taxonomy RSS
 
@@ -101,27 +80,31 @@ Taxonomy pages will additionally have:
 
 ## Example List Template Pages
 
-### Example section template (post.html)
+### Example Section Template: `post.html`
+
 This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates](/templates/partials/). All examples use a
+It makes use of [partial templates][partials]. All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
-    {{ partial "header.html" . }}
-    {{ partial "subheader.html" . }}
+{{% input "layouts/section/post.html" %}}
+```html
+{{ partial "header.html" . }}
+{{ partial "subheader.html" . }}
 
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-            <ul id="list">
-                {{ range .Data.Pages }}
-                    {{ .Render "li"}}
-                {{ end }}
-            </ul>
-      </div>
-    </section>
-
-    {{ partial "footer.html" . }}
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+        <ul id="list">
+            {{ range .Data.Pages }}
+                {{ .Render "li"}}
+            {{ end }}
+        </ul>
+  </div>
+</section>
+{{ partial "footer.html" . }}
+```
+{{% /input %}}
 
 ### Example taxonomy template (tag.html)
 This content template is used for [spf13.com](http://spf13.com/).
@@ -394,37 +377,80 @@ you can do just that.
 
 ### `first`
 
-`first` works like the `limit` keyword in SQL. It reduces the array to only the
-first _N_ elements. It takes the array and number of elements as input.
+`first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
 
-    {{ range first 10 .Data.Pages }}
-        {{ .Render "summary" }}
-    {{ end }}
+1. `array` or `slice of maps or structs`
+2. `number of elements`
+
+{{% input "layout/_default/section.html" %}}
+```golang
+{{ range first 10 .Data.Pages }}
+  {{ .Render "summary" }}
+{{ end }}
+```
+{{% /input %}}
 
 ### `where`
 
-`where` works in a similar manner to the `where` keyword in SQL. It selects all
-elements of the slice that match the provided field and value. It takes three
-arguments: 'array or slice of maps or structs', 'key or field name' and 'match
-value'.
+`where` works in a similar manner to the `where` keyword in SQL. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
 
-    {{ range where .Data.Pages "Section" "post" }}
-       {{ .Content }}
-    {{ end }}
+1. `array` or a `slice of maps or structs`
+2. `key` or `field name'
+3. `match value`
 
-### `first` & `where` Together
+{{% input "layouts/_default/.html" %}}
+```html
+{{ range where .Data.Pages "Section" "post" }}
+   {{ .Content }}
+{{ end }}
+```
+{{% /input %}}
 
-Using both together can be very powerful.
+### `first` and `where` Together
 
-    {{ range first 5 (where .Data.Pages "Section" "post") }}
-       {{ .Content }}
-    {{ end }}
+Using `first` and `where` together can be very powerful:
 
-If `where` or `first` receives invalid input or a field name that doesn’t exist,
-it will return an error and stop site generation.
+{{% input "first-and-where-together.html" %}}
+```golang
+{{ range first 5 (where .Data.Pages "Section" "post") }}
+   {{ .Content }}
+{{ end }}
+```
+{{% /input %}}
 
-These are both template functions and work on not only
-[lists](/templates/list/), but [taxonomies](/taxonomies/displaying/),
-[terms](/templates/terms/) and [groups](/templates/list/).
+{{% note %}}
+If `where` or `first` receives invalid input or a field name that doesn’t exist, it will return an error and stop site generation. `where` and `first` also work on taxonomy list templates *and* taxonomy terms templates. (See [Taxonomy Templates](/templates/taxonomy-templates/).)
+{{% /note %}}
 
+## `.Site.GetPage`
+
+Every `Page` in Hugo has a `.Kind` attribute. `Kind` can easily be combined with [`where`](/functions/where/) in your templates to create kind-specific lists of content, but there are times where you may want to fetch the index page of a single section by the section's path.
+
+[`.GetPage`](/function/getpage/) looks up an index page (i.e `_index.md`) of a given `Kind` and `path`. This method is only supported in section page templates but *may* support [single page templates][singlepages] in the future.
+
+`.Site.GetPage` takes two arguments: `kind` and `kind value`.
+
+The valid values for 'kind' are as follows:
+
+1. `home`
+2. `section`
+3. `taxonomy`
+4. `taxonomyTerm`
+
+### `.Site.GetPage` Example
+
+The `.Site.GetPage` example assumes the following project directory structure:
+
+{{% input "grab-blog-section-index-page-title.html" %}}
+{{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
+{{% /input %}}
+
+`.Site.GetPage` will return `nil` if no `_index.md` page is found. If `content/blog/_index.md` does not exist, the template will output a blank section where `{{.Title}}` should have been in the preceding example.
+
+[sections]: /content-management/sections/
+[directorystructure]: /getting-started/directory-structure/
+[homepage]: /templates/homepage-template/
+[limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
+[partials]: /templates/partial-templates/
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
+[singlepages]: /templates/single-page-templates/

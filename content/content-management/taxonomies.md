@@ -11,7 +11,6 @@ weight: 80
 draft: false
 aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 toc: true
-notesforauthors:
 ---
 
 ## What is a Taxonomy?
@@ -124,13 +123,23 @@ taxonomies:
 
 ### Overriding Hugo's Default Taxonomies
 
-If you do not specify any taxonomies in your [site configuration][] file ***and*** your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file.
+If you do not specify any taxonomies in your [site configuration][] file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file.
 
+{{% input "remove-default-taxonomies-config.toml" %}}
 ```toml
 [taxonomies]
   tag = ""
   category = ""
 ```
+{{% /input %}}
+
+{{% input "remove-default-taxonomies-config.yml" %}}
+```yaml
+taxonomies:
+    tag: ""
+    category: ""
+```
+{{% /input %}}
 
 ### Preserving Taxonomy Values
 
@@ -200,7 +209,7 @@ project_url: "https://github.com/spf13/hugo"
 
 ## Adding Taxonomic `weight` to Content
 
-A content file can assign weight for each of its associate taxonomies. Taxonomic weight can be used for sorting or ordering content in [taxonomy list templates][] and is declared in the content file's [front matter][]. The convention for declaring taxonomic weight is `taxonomyname_weight`.
+A content file can assign weight for each of its associate taxonomies. Taxonomic weight can be used for sorting or ordering content in [taxonomy list templates][] and is declared in a content file's [front matter][]. The convention for declaring taxonomic weight is `taxonomyname_weight`.
 
 The following TOML and YAML examples show a piece of content that has a weight of 22, which can be used for ordering purposes when rendering the pages assigned to the "a", "b" and "c" values of the `tags` taxonomy. It has also been assigned the weight of 44 when rendering the "d" category page.
 
@@ -244,5 +253,5 @@ Currently taxonomies only support the default ordering of content which is weigh
 [site configuration]: /project-organization/configuration/
 [taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-page-templates
 [taxonomy templates]: /templates/taxonomy-templates/
-[taxonomy terms templates]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with taxonomy via taxonomy templates"
+[taxonomy terms templates]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with a taxonomy"
 [website configuration]: /project-organization/configuration/

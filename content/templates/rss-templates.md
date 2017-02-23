@@ -18,9 +18,27 @@ needsreview: true
 
 Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed.
 
+* /layouts/section/`SECTION`.rss.xml
+* /layouts/\_default/rss.xml
+* /themes/`THEME`/layouts/section/`SECTION`.rss.xml
+* /themes/`THEME`/layouts/\_default/rss.xml
+
+{{% note "Hugo Ships with an RSS Template" %}}
 *Unlike other Hugo templates*, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320). In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section.
+{{% /note %}}
 
 RSS pages are of the type `Page` and have all the [page variables](/layout/variables/) available to use in the templates.
+
+### Section RSS
+
+A [section’s][section] RSS will be rendered at /`SECTION`/index.xml (e.g., http://spf13.com/project/index.xml)
+
+*Hugo ships with its own [RSS 2.0][] template. In most cases this will
+be sufficient, and an RSS template will not need to be provided by the
+user.*
+
+Hugo provides the ability for you to define any RSS type you wish, and
+can have different RSS files for each section and taxonomy.
 
 ## Which Template will be Rendered?
 
@@ -122,3 +140,4 @@ The `.RSSLink` will render the appropriate RSS feed URL for the section, whether
 ```
 
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
+[section]: /content-management/sections/

@@ -20,10 +20,10 @@ notesforauthors:
 [Taxonomy terms pages][taxonomytemplates] are of the type `Page` and have the following additional variables. For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
 
 `.Data.Singular`
-: The singular name of the taxonomy
+: The singular name of the taxonomy (e.g., `tags => `tag`)
 
 `.Data.Plural`
-: The plural name of the taxonomy
+: The plural name of the taxonomy (e.g., `tags => tags`)
 
 `.Data.Pages`
 : The list of pages in the taxonomy

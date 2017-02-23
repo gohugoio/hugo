@@ -9,7 +9,28 @@
 
 ## Changes to Existing Sections
 
-The following is an *abbreviated* listing and only includes the *larger* changes to content organization. These changes do not include copy edits for consistent usage, which easily numbers in the thousands at this point.
+The following is an *abbreviated* listing and only includes the *larger* changes to content organization. Everything is ordered according to [existing site structure and site navigation](http://gohugo.io/overview/introduction/). These changes do not include copy edits for consistent usage, which easily numbers in the thousands, if not more.
+
+### Download Hugo
+
+This is no longer a site navigation link and is instead a button along with "File and Issue" and "Discuss Hugo".
+
+### Site Showcase
+
+### Press & Articles
+
+### About Hugo
+
+### Getting Started
+
+### Content
+
+### Themes
+
+### Templates
+
+### Taxonomies
+
 
 ### [Extras](http://gohugo.io/extras)
 
@@ -19,6 +40,8 @@ The following is an *abbreviated* listing and only includes the *larger* changes
     * **Aliases** Incorporated into `/content-management/url-management/`
     * **Analytics** Incorporated into /templates/partial-templates/#built-in
 
+### Community
+
 ### [Tutorials](http://gohugo.io/tutorials)
 
 * Moved all installation guides to /getting-started/install-hugo/
@@ -27,298 +50,133 @@ The following is an *abbreviated* listing and only includes the *larger* changes
 * All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")
 * Aliases added to new pages and in-page links updated throughout
 
+### Troubleshooting
 
+### Tools
 
+### Hugo Cmd Reference
+
+This hasn't been touched. I'll make the necessary style changes once/if the site is integrated into the Hugo GH repo since these pages are pulled automatically using Viper.
+
+### Issues & Help
+
+This is no longer a site navigation link and is instead a button along with "Download" and "Discuss Hugo".
 
 ## Content Organization: Site Navigation
 
-The following is a list of weights for the newly restructure site architecture
+The following shows weights and ordering for the newly restructured site architecture.
+
+### "About Hugo" Ordering (- weight)
+
+_index - 01
+what is hugo - 10
+hugo features - 20
+the benefits of static - 30
+why i built hugo - 40
+roadmap - 50
+apache license - 60
+
+### "Getting Started" Ordering (- weight)
+
+* _index.md - 01
+* quick start - 10
+* using the hugo docs - 20
+* install from source - 30
+* install on linux - 40
+* install on mac - 50
+* install on pc - 60
+* basic usage - 70
+* directory structure - 80
+* configuration - 90
+
+### "Content Management" Ordering (- weight)
+
+* _index.md - 01
+* Content Organization - 10
+* Supported Content Formats - 20
+* Front Matter - 30
+* Shortcodes - 40
+* Sections - 50
+* Content Types - 60
+* Archetypes - 70
+* Taxonomies - 80
+* Content Summaries - 90
+* Cross References - 100
+* URL Management - 110
+* Menus - 120
+* Table of Contents - 130
+* Comments - 140
+* Multilingual Mode - 150
+
+### "Templates" Ordering (- weight)
+
+* _index - 01
+* go template primer - 10
+* base templates and blocks - 20
+* lists in Hugo - 25
+* homepage template - 30
+* section templates - 40
+* taxonomy templates - 50
+* single page templates - 60
+* content view templates - 70
+* data templates - 80
+* partial templates - 90
+* shortcode templates - 100
+* local file templates - 110
+* custom 404 page - 120
+* menu templates - 130
+* pagination - 140
+* rss templates - 150
+* sitemap template - 160
+* additional templating languages - 170
+* template debugging - 180
+
+## "Functions" Ordering
+
+**Ordered by title (note that `.Title` is all lowercase, whereas `.Linktitle` is used for proper casing)**
+
+### "Variables and Params" Ordering (- weight)
+
+* _index.md - 01
+* site variables - 10
+* page variables - 20
+* taxonomy variables - 30
+* file variables - 40
+* shortcode git and huge variables - 50
+
+### "Hosting and Deployment" Ordering (- weight)
+
+* _index.md - 01
+* deployment with rsync - 10
+* deployment with wercker - 20
+* hosting on bitbucket - 30
+* hosting on github - 40
+* hosting on gitlab - 50
+
+### "Themes" Ordering (- weight)
+
+* _index.md - 01
+* installing and using themes - 10
+* customizing a theme - 20
+* creating a them - 30
+* theme showcase - 30
+
+### "Site Showcase" Ordering
+
+**Ordered by `.PublishDate`**
+
+### "Themes" Ordering (- weight)
+
+* _index.md - 01
+* Installing and Using Themes - 10
+* Customizing a Theme - 20
+* Creating a Theme - 30
+* Theme Showcase - 40
+
+### "Troubleshooting" Ordering
+
+**Ordered by title**
 
 ## Content Organization: Source
 
-**Updated 2017-02-21**
-
-```
-.
-├── _index.md
-├── about-hugo
-│   ├── _index.md
-│   ├── benefits-of-static.md
-│   ├── hugo-features.md
-│   ├── license.md
-│   ├── roadmap.md
-│   ├── what-is-hugo.md
-│   └── why-i-built-hugo.md
-├── commands
-│   └── _index.md
-├── content-management
-│   ├── _index.md
-│   ├── archetypes.md
-│   ├── content-organization.md
-│   ├── content-sections.md
-│   ├── content-summaries.md
-│   ├── content-types.md
-│   ├── cross-references.md
-│   ├── front-matter.md
-│   ├── menus.md
-│   ├── multilingual-mode.md
-│   ├── shortcodes.md
-│   ├── supported-content-formats.md
-│   ├── table-of-contents.md
-│   ├── taxonomies.md
-│   └── url-management.md
-├── contribute-to-hugo
-│   ├── _index.md
-│   ├── add-your-site-to-the-showcase.md
-│   ├── contribute-to-hugo-development.md
-│   └── contribute-to-the-hugo-docs.md
-├── developer-tools
-│   ├── _index.md
-│   ├── migrate-to-hugo.md
-│   └── syntax-highlighting.md
-├── functions
-│   ├── _index.md
-│   ├── abslangurl.md
-│   ├── absurl.md
-│   ├── after.md
-│   ├── apply.md
-│   ├── base64decode.md
-│   ├── base64encode.md
-│   ├── chomp.md
-│   ├── countrunes.md
-│   ├── countwords.md
-│   ├── dateformat.md
-│   ├── default-function.md
-│   ├── delimit.md
-│   ├── dict.md
-│   ├── echoparam.md
-│   ├── emojify.md
-│   ├── findre.md
-│   ├── first.md
-│   ├── get.md
-│   ├── getenv.md
-│   ├── getpage.md
-│   ├── haschildren.md
-│   ├── hasmenucurrent.md
-│   ├── hasprefix.md
-│   ├── highlight.md
-│   ├── htmlescape.md
-│   ├── htmlunescape.md
-│   ├── humanize.md
-│   ├── i18n.md
-│   ├── imageconfig.md
-│   ├── in.md
-│   ├── index-function.md
-│   ├── int.md
-│   ├── intersect.md
-│   ├── ismenucurrent.md
-│   ├── isset.md
-│   ├── jsonify.md
-│   ├── last.md
-│   ├── lower.md
-│   ├── markdownify.md
-│   ├── math.md
-│   ├── md5.md
-│   ├── param.md
-│   ├── partialcached.md
-│   ├── plainify.md
-│   ├── pluralize.md
-│   ├── printf.md
-│   ├── querify.md
-│   ├── range.md
-│   ├── readdir.md
-│   ├── readfile.md
-│   ├── rel.md
-│   ├── rellangurl.md
-│   ├── relref.md
-│   ├── relurl.md
-│   ├── render.md
-│   ├── replace.md
-│   ├── safecss.md
-│   ├── safehtml.md
-│   ├── safehtmlattr.md
-│   ├── safejs.md
-│   ├── safeurl.md
-│   ├── scratch.md
-│   ├── seq.md
-│   ├── sha1.md
-│   ├── sha256.md
-│   ├── shuffle.md
-│   ├── singularize.md
-│   ├── slice.md
-│   ├── slicestr.md
-│   ├── sort.md
-│   ├── split.md
-│   ├── string.md
-│   ├── substr.md
-│   ├── the-dot.md
-│   ├── time.md
-│   ├── title.md
-│   ├── trim.md
-│   ├── unix.md
-│   ├── upper.md
-│   ├── urlize.md
-│   ├── where.md
-│   └── with.md
-├── getting-started
-│   ├── _index.md
-│   ├── basic-usage.md
-│   ├── configuration.md
-│   ├── directory-structure.md
-│   ├── install-hugo.md
-│   ├── quick-start.md
-│   └── using-the-hugo-docs.md
-├── hosting-and-deployment
-│   ├── _index.md
-│   ├── deployment-with-rsync.md
-│   ├── deployment-with-wercker.md
-│   ├── hosting-on-bitbucket.md
-│   ├── hosting-on-github.md
-│   └── hosting-on-gitlab.md
-├── mailing-list.md
-├── news
-│   ├── _index.md
-│   ├── press-and-articles.md
-│   └── release-notes.md
-├── showcase
-│   ├── 2626info.md
-│   ├── _index.md
-│   ├── antzucaro.md
-│   ├── appernetic.md
-│   ├── arresteddevops.md
-│   ├── asc.md
-│   ├── astrochili.md
-│   ├── aydoscom.md
-│   ├── barricade.md
-│   ├── bepsays.md
-│   ├── bugtrackers.io.md
-│   ├── camunda-blog.md
-│   ├── camunda-docs.md
-│   ├── cdnoverview.md
-│   ├── chinese-grammar.md
-│   ├── chingli.md
-│   ├── chipsncookies.md
-│   ├── christianmendoza.md
-│   ├── cinegyopen.md
-│   ├── clearhaus.md
-│   ├── cloudshark.md
-│   ├── coding-journal.md
-│   ├── consequently.md
-│   ├── ctlcompiled.md
-│   ├── danmux.md
-│   ├── datapipelinearchitect.md
-│   ├── davidepetilli.md
-│   ├── davidrallen.md
-│   ├── davidyates.md
-│   ├── devmonk.md
-│   ├── dmitriid.com.md
-│   ├── emilyhorsman.com.md
-│   ├── esolia-com.md
-│   ├── esolia-pro.md
-│   ├── eurie.md
-│   ├── fale.md
-│   ├── fixatom.md
-│   ├── fxsitecompat.md
-│   ├── gntech.md
-│   ├── gogb.md
-│   ├── goin5minutes.md
-│   ├── h10n.me.md
-│   ├── hugo.md
-│   ├── jamescampbell.md
-│   ├── jorgennilsson.md
-│   ├── kieranhealy.md
-│   ├── klingt-net.md
-│   ├── launchcode5.md
-│   ├── leepenney.md
-│   ├── leowkahman.md
-│   ├── lk4d4.darth.io.md
-│   ├── losslesslife.md
-│   ├── mariosanchez.md
-│   ├── mayan-edms.md
-│   ├── michaelwhatcott.md
-│   ├── mongodb-eng-journal.md
-│   ├── mtbhomer.md
-│   ├── nickoneill.md
-│   ├── ninjaducks.in.md
-│   ├── ninya.io.md
-│   ├── nodesk.md
-│   ├── novelist-xyz.md
-│   ├── npf.md
-│   ├── peteraba.md
-│   ├── rahulrai.md
-│   ├── rakutentech.md
-│   ├── rdegges.md
-│   ├── readtext.md
-│   ├── richardsumilang.md
-│   ├── rick-cogley-info.md
-│   ├── ridingbytes.md
-│   ├── robertbasic.md
-│   ├── scottcwilson.md
-│   ├── shapeshed.md
-│   ├── shelan.md
-│   ├── silvergeko.md
-│   ├── softinio.md
-│   ├── spf13.md
-│   ├── steambap.md
-│   ├── stefano.chiodino.md
-│   ├── stou.md
-│   ├── szymonkatra.md
-│   ├── techmadeplain.md
-│   ├── tendermint.md
-│   ├── thecodeking.md
-│   ├── thehome.md
-│   ├── tutorialonfly.md
-│   ├── ucsb.md
-│   ├── upbeat.md
-│   ├── vamp.md
-│   ├── viglug.org.md
-│   ├── vurt.co.md
-│   ├── yslow-rules.md
-│   ├── ysqi.md
-│   └── yulinling.net.md
-├── templates
-│   ├── _index.md
-│   ├── ace-templating.md
-│   ├── amber-templating.md
-│   ├── base-templates-and-blocks.md
-│   ├── content-view-templates.md
-│   ├── custom-404-page.md
-│   ├── data-templates.md
-│   ├── go-template-primer.md
-│   ├── homepage-template.md
-│   ├── section-and-listtemplates.md
-│   ├── local-file-templates.md
-│   ├── menu-templates.md
-│   ├── pagination.md
-│   ├── partial-templates.md
-│   ├── rss-templates.md
-│   ├── shortcode-templates.md
-│   ├── single-page-templates.md
-│   ├── sitemap-template.md
-│   ├── taxonomy-templates.md
-│   └── template-debugging.md
-├── themes
-│   ├── _index.md
-│   ├── creating-a-theme.md
-│   ├── customizing-a-theme.md
-│   ├── installing-and-using-themes.md
-│   └── theme-showcase.md
-├── troubleshooting
-│   ├── _index.md
-│   ├── accented-characters-in-urls.md
-│   └── eof-error.md
-├── tutorials
-│   ├── _index.md
-│   ├── create-a-multilingual-site.md
-│   ├── creating-a-new-theme.md
-│   └── migrate-from-jekyll-to-hugo.md
-└── variables-and-params
-    ├── _index.md
-    ├── file-variables.md
-    ├── page-variables.md
-    ├── shortcode-git-and-hugo-variables.md
-    ├── site-variables.md
-    └── taxonomy-variables.md
-
-15 directories, 264 files
-```
+**[See tree.md at the root of this repository](tree.md).**
