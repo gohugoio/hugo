@@ -16,6 +16,10 @@ Hugo has its own [discussion forum](http://discuss.gohugo.io/) powered by [Disco
 
 Please use this for all discussions, questions, etc.
 
+### Twitter
+
+Get the latest bite-sized news and themes from the Hugo community on Twitter by following [@gohugoio](http://twitter.com/gohugoio).
+
 ## Mailing List
 
 Hugo has two mailing lists:
@@ -45,7 +49,3 @@ https://groups.google.com/forum/#!forum/golang-nuts
 ### GitHub Issues
 
 https://github.com/spf13/hugo/issues
-
-### Twitter
-
-Hugo doesn't have its own Twitter handle, but feel free to tweet [@spf13](http://twitter.com/spf13).
