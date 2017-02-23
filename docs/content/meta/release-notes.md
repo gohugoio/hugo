@@ -10,7 +10,17 @@ title: Release Notes
 weight: 10
 ---
 
-# **0.19**  ??
+# **0.19** February XXth 2017
+
+We're happy to announce the first release of Hugo in 2017.
+
+Hugo now has:
+
+- 15100+ stars
+- 440+ contributors
+- 150+ themes
+
+Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where were we share bite-sized the latest news and themes from the Hugo community.
 
 TODO There will hopefully be some more new items before release, org mode support etc.
 
