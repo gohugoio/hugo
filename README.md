@@ -8,7 +8,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Documentation](https://gohugo.io/overview/introduction/) |
 [Installation Guide](https://gohugo.io/overview/installing/) |
 [Contribution Guide](CONTRIBUTING.md) |
-[Twitter](http://twitter.com/spf13)
+[Twitter](http://twitter.com/gohugoio)
 
 [![GoDoc](https://godoc.org/github.com/spf13/hugo?status.svg)](https://godoc.org/github.com/spf13/hugo)
 [![Linux and OS X Build Status](https://api.travis-ci.org/spf13/hugo.svg?branch=master&label=Linux+and+OS+X+build "Linux and OS X Build Status")](https://travis-ci.org/spf13/hugo)
