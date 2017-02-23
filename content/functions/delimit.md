@@ -34,7 +34,7 @@ tags: [ "tag1", "tag2", "tag3" ]
 `delimit` called in your template takes the form of
 
 ```
-{{ delimit array/slice/map delimiter optionaldelimiter}}
+{{ delimit array/slice/map delimiter optionallastdelimiter}}
 ```
 
 {{% input "delimit-pages-tags.html" %}}
