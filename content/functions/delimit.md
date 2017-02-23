@@ -2,8 +2,9 @@
 title: delimit
 linktitle: delimit
 description: loops through any array, slice, or map and returns a string of all the values separated by a delimiter.
-qref: d
 godocref:
+qref:
+workson: []
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -14,9 +15,9 @@ draft: false
 aliases: []
 ---
 
-`delimit` loops through any array, slice, or map and returns a string of all the values separated by the delimiter. There is an optional third parameter that lets you choose a different delimiter to go between the last two values.
+`delimit` loops through any array, slice, or map and returns a string of all the values separated by a delimiter. There is an optional third parameter that lets you choose a different delimiter to go between the last two values in the loop.
 
-Maps will be sorted by the keys, and only a slice of the values will be returned, keeping a consistent output order.
+Maps will be sorted by keys, and only a slice of the values will be returned. This maintains a consistent output order.
 
 `delimit` works on [lists][], [taxonomies][], and [terms][].
 
