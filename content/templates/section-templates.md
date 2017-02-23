@@ -18,8 +18,6 @@ needsreview: true
 
 {{< lookupexplanation >}}
 
-
-
 ## Lookup Order for Section Page Templates
 
 Hugo uses a set of rules to figure out which template to use when rendering a specific page.
@@ -232,19 +230,23 @@ The below example sorts a list of posts by their rating.
 If the frontmatter field of interest is nested beneath another field, you can
 also get it:
 
-    {{ range (.Date.Pages.ByParam "author.last_name") }}
-      <!-- ... -->
-    {{ end }}
+```
+{{ range (.Date.Pages.ByParam "author.last_name") }}
+  <!-- ... -->
+{{ end }}
+```
 
 ### Reverse Order
 Can be applied to any of the above. Using Date for an example.
 
-    {{ range .Data.Pages.ByDate.Reverse }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
+```
+{{ range .Data.Pages.ByDate.Reverse }}
+<li>
+<a href="{{ .Permalink }}">{{ .Title }}</a>
+<div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+</li>
+{{ end }}
+```
 
 ## Grouping Content
 
@@ -256,73 +258,83 @@ your list templates:
 
 ### Grouping by Page field
 
-    {{ range .Data.Pages.GroupBy "Section" }}
-    <h3>{{ .Key }}</h3>
-    <ul>
-        {{ range .Pages }}
-        <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
-        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-        </li>
-        {{ end }}
-    </ul>
+```
+{{ range .Data.Pages.GroupBy "Section" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
     {{ end }}
+</ul>
+{{ end }}
+```
 
 ### Grouping by Page date
 
-    {{ range .Data.Pages.GroupByDate "2006-01" }}
-    <h3>{{ .Key }}</h3>
-    <ul>
-        {{ range .Pages }}
-        <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
-        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-        </li>
-        {{ end }}
-    </ul>
+```
+{{ range .Data.Pages.GroupByDate "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
     {{ end }}
+</ul>
+{{ end }}
+```
 
 ### Grouping by Page publish date
 
-    {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
-    <h3>{{ .Key }}</h3>
-    <ul>
-        {{ range .Pages }}
-        <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
-        <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
-        </li>
-        {{ end }}
-    </ul>
+```
+{{ range .Data.Pages.GroupByPublishDate "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
     {{ end }}
+</ul>
+{{ end }}
+```
 
 ### Grouping by Page param
 
-    {{ range .Data.Pages.GroupByParam "param_key" }}
-    <h3>{{ .Key }}</h3>
-    <ul>
-        {{ range .Pages }}
-        <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
-        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-        </li>
-        {{ end }}
-    </ul>
+```html
+{{ range .Data.Pages.GroupByParam "param_key" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
     {{ end }}
+</ul>
+{{ end }}
+```
 
 ### Grouping by Page param in date format
 
-    {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
-    <h3>{{ .Key }}</h3>
-    <ul>
-        {{ range .Pages }}
-        <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
-        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-        </li>
-        {{ end }}
-    </ul>
+```html
+{{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
     {{ end }}
+</ul>
+{{ end }}
+```
 
 ### Reversing Key Order
 
@@ -335,20 +347,24 @@ it’s really just a matter of preference.
 
 #### Reverse method
 
-    {{ range (.Data.Pages.GroupBy "Section").Reverse }}
-    ...
+```golang
+{{ range (.Data.Pages.GroupBy "Section").Reverse }}
+```
 
-    {{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
-    ...
+```golang
+{{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
+```
 
 
 #### Providing the (alternate) direction
 
-    {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
-    ...
+```golang
+{{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
+```
 
-    {{ range .Data.Pages.GroupBy "Section" "desc" }}
-    ...
+```golang
+{{ range .Data.Pages.GroupBy "Section" "desc" }}
+```
 
 ### Ordering Pages within Group
 
@@ -357,17 +373,19 @@ Because Grouping returns a key and a slice of pages, all of the ordering methods
 In this example, I’ve ordered the groups in chronological order and the content
 within each group in alphabetical order by title.
 
-    {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
-    <h3>{{ .Key }}</h3>
-    <ul>
-        {{ range .Pages.ByTitle }}
-        <li>
-        <a href="{{ .Permalink }}">{{ .Title }}</a>
-        <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-        </li>
-        {{ end }}
-    </ul>
+```html
+{{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
+<h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages.ByTitle }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
     {{ end }}
+</ul>
+{{ end }}
+```
 
 ## Filtering & Limiting Content
 

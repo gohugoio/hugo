@@ -10,6 +10,7 @@ tags: [migrations,jekyll, command line]
 authors: [Alexandre Normand]
 weight:
 draft: false
+hugoversion: 14
 toc: true
 aliases: [/tutorials/migrate-from-jekyll/]
 needsreview: true

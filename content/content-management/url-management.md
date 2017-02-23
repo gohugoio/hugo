@@ -53,12 +53,6 @@ The following is a list of values that can be used in a `permalink` definition i
 * `:slug` = the content's slug (or title if no slug)
 * `:filename` = the content's filename (without extension)
 
-## Aliases
-
-For people migrating existing published content to Hugo, there's a good chance you need a mechanism to handle redirecting old URLs.
-
-Luckily, redirects can be handled easily with _aliases_ in Hugo.
-
 ## Example
 
 Given a post on your current Hugo site, with a path of:
@@ -116,7 +110,13 @@ aliases:
 ---
 ```
 
-## How Hugo Aliases Work
+## Aliases
+
+For people migrating existing published content to Hugo, there's a good chance you need a mechanism to handle redirecting old URLs.
+
+Luckily, redirects can be handled easily with _aliases_ in Hugo.
+
+### How Hugo Aliases Work
 
 When aliases are specified, Hugo creates a physical folder structure to match the alias entry, and, an html file specifying the canonical URL for the page, and a redirect target.
 
@@ -136,20 +136,31 @@ Assuming a baseURL of `mysite.tld`, the contents of the html file will look some
 
 The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case.
 
-## Customizing
+### Customizing
 
 You may customize this alias page by creating an alias.html template in the
-layouts folder of your site.  In this case, the data passed to the template is
+layouts folder of your site. In this case, the data passed to the template is
 
-* Permalink - the link to the page being aliased
-* Page - the Page data for the page being aliased
+`Permalink`
+: the link to the page being aliased
+
+`Page`
+: the Page data for the page being aliased
 
 ## Pretty URLs
 
-By default, Hugo renders your content with "pretty" URLs. For example,
-content created at `/content/extras/urls.md` will be rendered at
-`/public/extras/urls/index.html` according to Hugo's default behavior after running the `hugo` CLI build command. No non-standard server-side
-configuration is required for these pretty URLs to work.
+Hugo's default behavior is to render your content with "pretty" URLs. No non-standard server-side configuration is required for these pretty URLs to work.
+
+The following demonstrates the concept:
+
+```bash
+content/posts/_index.md
+=> yoursite.com/posts/index.html
+content/posts/post-1.md
+=> yoursite.com/
+content/posts/post-2.md
+content/posts/post-3.md
+```
 
 ## Ugly URLs
 

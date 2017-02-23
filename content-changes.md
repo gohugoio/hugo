@@ -51,6 +51,7 @@ This is no longer a site navigation link and is instead a button along with "Fil
     * "Tutorials" is not an intuitive place for end-users to look for this kind of documentation
 * All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")
 * Aliases added to new pages and in-page links updated throughout
+* Michael Henderson's "Creating a Theme" website ([current][],[concept][]) has been copy edited and content edited to include the new code block shortcodes.
 
 ### Troubleshooting
 

@@ -146,7 +146,11 @@ This is a warning, which should be reserved for *important* information like bre
 It's more important to contribute *some* documentation than no documentation at all. We need your help!
 {{% /note %}}
 
-The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute, regardless of your writing style. That said, here are a few pointers to help the project maintain more consistency:
+The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute, regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience:
+
+1. *Front matter* is two words.
+2. *Homepage* is one word.
+3. Be sure to add a `godocref` whenever possible to a new content file's front matter. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
 
 ## How Content is Ordered in the Docs
 
@@ -154,7 +158,7 @@ The Hugo docs are not especially prescriptive in terms of grammar and usage. We 
 
 ## Be Mindful of Aliases
 
-Use aliases sparingly. The following table shows a list of all the aliases used in the Hugo Docs. If you need to use an alias in your new content file's front matter, be sure to check here first.
+Use aliases sparingly. The following table shows a list of all the aliases used in the Hugo Docs. If you need to use an alias in your new content file's front matter, be sure to check here first to prevent conflicts.
 
 {{< allaliases >}}
 

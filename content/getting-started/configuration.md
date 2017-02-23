@@ -135,6 +135,8 @@ pygmentsCodeFencesGuessSyntax: false
 pygmentsStyle:              "monokai"
 # true use pygments-css or false will color code directly
 pygmentsUseClasses:         false
+# maximum number of items in the RSS feed
+rssLimit:                   15
 # see "Section Menu for Lazy Bloggers", /templates/menu-templates for more info
 SectionPagesMenu:           ""
 # default sitemap configuration map
@@ -247,7 +249,9 @@ layoutDir =                   "layouts"
 # Enable Logging
 log =                         false
 # Log File path (if set, logging enabled automatically)
-logFile =                     ""
+logFile =
+# maximum number of items in the RSS feed
+rssLimit =                   15
 # "toml","yaml", or "json"
 metaDataFormat =              "toml"
 newContentEditor =            ""
@@ -272,6 +276,8 @@ pygmentsCodeFencesGuessSyntax = false
 pygmentsStyle =               "monokai"
 # true: use pygments-css or false: color-codes directly
 pygmentsUseClasses =          false
+# maximum number of items in the RSS feed
+rssLimit:                   15
 # see "Section Menu for Lazy Bloggers", /templates/menu-templates for more info
 SectionPagesMenu =
 # default sitemap configuration map

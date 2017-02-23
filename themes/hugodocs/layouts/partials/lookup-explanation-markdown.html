@@ -1,0 +1,6 @@
+Hugo uses a prioritized list called the *lookup order* as it traverses your files looking for the appropriate template to render your content. The template lookup order is an inverted cascade: if template A isn’t present or specified, Hugo will look to template B. If template B isn't present or specified, Hugo will look for template C, and so on until it reaches the `layouts/_default/` directory for your project, or in the case of themes, `themes/<mytheme>/layouts/_default/`. In many ways, the lookup order is similar to the [control mechanism of a switch statement (i.e. without fallthrough)][switch] seen in many programming languages.
+
+The power of the lookup order is that it enables you to craft specific layouts as needed without creating more templating than necessary, thereby keeping your templating [DRY][dry]. *Most sites will only need the default template files at the end of the lookup* (i.e. `_default/*.html`).
+
+[dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[switch]: https://en.wikipedia.org/wiki/Switch_statement#Fallthrough

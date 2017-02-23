@@ -43,7 +43,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped writable variables.
 : the approximate number of words in the content.
 
 `.Hugo`
-: see [Hugo Variables](/variables-and-params/shortcode-git-and-hugo-variables/).
+: see [Hugo Variables](/variables-and-params/other/).
 
 `.IsHome`
 : `true` in the context of the [home page](/templates/homepage-template/).

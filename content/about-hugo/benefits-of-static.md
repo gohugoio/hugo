@@ -1,5 +1,5 @@
 ---
-title: The Benefits of Static
+title: The Benefits of Static Site Generators
 linktitle: The Benefits of Static
 description: Learn why static site generators have become such a popular option for developers. Benefits include performance, security, ease of use, and exportability of content.
 date: 2017-02-01
@@ -20,9 +20,7 @@ To prevent unnecessary delays in delivering pages to end users, dynamic site gen
 
 Hugo and other static site generators take caching a step further. All HTML files are rendered on your computer. You can review the files before you copy them to the computer hosting the HTTP server. Since the HTML files aren't generated dynamically, we say that Hugo is a "static site generator."
 
-Not running a website generator on your HTTP server has many benefits. The most noticeable is performance---HTTP servers are very good at
-sending files. So good that you can effectively serve the same number
-of pages with a fraction of the memory and CPU needed for a dynamic site.
+Not running a website generator on your HTTP server has many benefits. The most noticeable is performance---HTTP servers are very good at sending files. So good that you can effectively serve the same number of pages with a fraction of the memory and CPU needed for a dynamic site.
 
 ## Resources on Static Site Generators
 

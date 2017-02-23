@@ -49,6 +49,7 @@ You can check your `hugo version` as well:
 ```bash
 hugo version
 ```
+
 ```
 Hugo Static Site Generator v0.18.1 BuildDate: 2016-12-30T05:02:43-05:00
 ```

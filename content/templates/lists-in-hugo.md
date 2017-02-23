@@ -28,21 +28,15 @@ Hugo uses the term *list* in its truest sense: a sequential arrangement of mater
 
 Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][]) are both *lists* with regards to their templates, both of these templates have the same terminating default of `_default/list.html`---or `themes/mytheme/layouts/_default/list.html` in the case of a themed project---in their *lookup orders*. In addition, both [section lists][sections] and [taxonomy lists][taxonomies] have their own default list templates in `_default`:
 
-
-
 #### Default Section Templates
 
 1. `layouts/section/sectionname.html`
 
 ### Understanding `.Data.Pages`
 
-
-
-
-
-
-
-
+{{% note "The Confusion over `.Data`" %}}
+**Mention something here about the difference between .Data.Pages and .Site.Data maybe?**
+{{% /note %}}
 
 
 [homepage]: /templates/homepage-template/

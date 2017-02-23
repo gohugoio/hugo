@@ -105,7 +105,7 @@ The keywords in the `highlight` shortcode mirror those of Pygments from the comm
 It is also possible to add syntax highlighting with GitHub flavored code fences. To enable this, set the `PygmentsCodeFences` to `true` in Hugo's [configuration file](/getting-started/configuration/);
 
 ````
-``` html
+```html
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
