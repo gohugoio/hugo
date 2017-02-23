@@ -92,8 +92,9 @@ After a short while you'll see the updated contents on your GitHub Pages site.
 
 ### Putting it into a script
 
-To automate these steps, you can create a script _scripts/publish_to_ghpages.sh_ with the following contents:
+To automate these steps, you can create a script with the following contents:
 
+{{% input "publish_to_ghpages.sh" %}}
 ```sh
 #!/bin/sh
 
@@ -125,9 +126,9 @@ hugo
 echo "Updating gh-pages branch"
 cd public && git add --all && git commit -m "Publishing to gh-pages (publish.sh)"
 ```
+{{% /input %}}
 
-This will abort if there are pending changes in the working directory and also makes sure that all previously existing output files are removed.
-Adjust the script to taste, e.g. to include the final push to the remote repository if you don't need to take a look at the gh-pages branch before pushing. Or adding `echo yourdomainname.com >> CNAME` if you set up for your gh-pages to use customize domain.
+This will abort if there are pending changes in the working directory and also makes sure that all previously existing output files are removed. Adjust the script to taste, e.g. to include the final push to the remote repository if you don't need to take a look at the gh-pages branch before pushing. Or adding `echo yourdomainname.com >> CNAME` if you set up for your gh-pages to use customize domain.
 
 ## Deployment with Git 2.4 and Earlier
 
@@ -147,12 +148,12 @@ The other steps are the same as with the worktree approach.
 
 ## Hosting Personal or Organization Pages
 
-As mentioned [in this GitHub's article](https://help.github.com/articles/user-organization-and-project-pages/), besides project pages, you may also want to host a user/organization page. Here are the key differences:
+As mentioned [in this GitHub Help article](https://help.github.com/articles/user-organization-and-project-pages/), you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
 1. You must use the `username.github.io` naming scheme.
 2. Content from the `master` branch will be used to build and publish your GitHub Pages site.
 
-It becomes much simpler in that case: we'll create two separate repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
+It becomes much simpler in this case: we'll create two separate repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
 
 ### Step-by-step Instructions
 

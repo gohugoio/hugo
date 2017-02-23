@@ -9,7 +9,7 @@
 		{{$base := .Site.BaseURL}}
 
 		{{- range .Data.Pages.ByPublishDate.Reverse -}}
-		{{$title := .Title}}
+		{{$title := .Title | markdownify}}
 			<li class="showcase-site">
 			<div class="image-wrapper">
 				<a href="{{.Params.sitelink}}" target="_blank">
