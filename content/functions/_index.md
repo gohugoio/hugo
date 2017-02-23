@@ -9,7 +9,7 @@ tags: [functions,templating]
 weight: 01
 draft: false
 slug:
-aliases: []
+aliases: [/layout/functions/]
 notesforauthors:
 ---
 

@@ -95,7 +95,7 @@ When it comes time for Hugo to render the content to the page, it will go throug
 2. <span class="no">`/layouts/posts/UNSPECIFIED.html`</span>
 3. <span class="no">`/layouts/UNSPECIFIED/single.html`</span>
 4. <span class="yes">`/layouts/posts/single.html`</span>
-  <br>**BREAK**
+  <br><span class="break">BREAK</span>
 5. <span class="na">`/layouts/_default/single.html`</span>
 6. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
 7. <span class="na">`/themes/mytheme/layouts/posts/UNSPECIFIED.html`</span>
@@ -124,7 +124,7 @@ layout: reviewarticle
 Here is the way Hugo's traverses the single-page lookup order for `my-second-post.md`:
 
 1. <span class="yes">`/layouts/review/reviewarticle.html`</span>
-  <br>**BREAK**
+  <br><span class="break">BREAK</span>
 2. <span class="na">`/layouts/posts/reviewarticle.html`</span>
 3. <span class="na">`/layouts/review/single.html`</span>
 4. <span class="na">`/layouts/posts/single.html`</span>
@@ -160,7 +160,7 @@ Here is the way Hugo's traverses the single-page lookup order for `my-first-even
 3. <span class="no">`/layouts/UNSPECIFIED/single.html`</span>
 4. <span class="no">`/layouts/events/single.html`</span>
 5. <span class="yes">`/layouts/_default/single.html`</span>
-<br>**BREAK**
+<br><span class="break">BREAK</span>
 6. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
 7. <span class="na">`/themes/mytheme/layouts/events/UNSPECIFIED.html`</span>
 8. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/single.html`</span>

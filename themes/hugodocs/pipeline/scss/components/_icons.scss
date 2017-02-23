@@ -13,43 +13,72 @@ svg.svg-icon {
   background-repeat: no-repeat;
 }
 
+//for template lookup yes/no/na (e.g., in single-page template [/templates/single-page-template/])
 span.no {
-	code {
-		background-color: $hugo-pink;
-		color:$hugo-white;
-	}
+  code {
+    background-color: $hugo-pink;
+    color: $hugo-white;
+  }
   &:after {
     display: inline-block;
     @include size(1em);
-    font-family:'FontAwesome';
+    font-family: 'FontAwesome';
     content: '\f165';
     margin-left: .5em;
-		font-size: 1.2em;
-		color:$hugo-pink;
+    font-size: 1.2em;
+    color: $hugo-pink;
+  }
+}
+
+span.break {
+  position: relative;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+  width: auto;
+  left: calc(50% - 40px);
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    display: inline-block;
+    height: .2em;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    top: .666em;
+    width:140px;
+  }
+  &:before {
+    right: 100%;
+    margin-right: .5em;
+  }
+  &:after {
+    left: 100%;
+    margin-left: .5em;
   }
 }
 
 span.yes {
-	code {
-		color:$hugo-white;
-		background-color: $hugo-green;
-	}
-	&:after {
-		display:inline-block;
-		@include size(1em);
-		font-family:'FontAwesome';
-		content: '\f164';
-		color: $hugo-green;
-		margin-left: .5em;
-		font-size:1.2em;
-	}
+  code {
+    color: $hugo-white;
+    background-color: $hugo-green;
+  }
+  &:after {
+    display: inline-block;
+    @include size(1em);
+    font-family: 'FontAwesome';
+    content: '\f164';
+    color: $hugo-green;
+    margin-left: .5em;
+    font-size: 1.2em;
+  }
 }
 
 span.na {
-	code {
-		background-color:transparent;
-		color:lighten($base-font-color,60%);
-	}
+  code {
+    background-color: transparent;
+    color: lighten($base-font-color, 60%);
+  }
 }
 
 //for lists that show good and bad examples
