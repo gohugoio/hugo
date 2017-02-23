@@ -67,7 +67,7 @@ developertools:
   url: "developer-tools"
   haschildren: true
   sortsubpagesby: "weight"
-  desc: "Command line reference, syntax highlighting, and migration tools"
+  desc: "Syntax highlighting, site search, and migration tools"
 commands:
   order: 11
   title: "Command Line Reference"
