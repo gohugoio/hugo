@@ -30,8 +30,6 @@ Hugo provides multiple ways to leverage taxonomies through your project:
 
 ### Lookup Order for Taxonomy List Templates
 
-
-
 ## Taxonomy Terms Template
 
 ### Lookup Order for Taxonomy Terms Templates
