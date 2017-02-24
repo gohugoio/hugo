@@ -10,6 +10,5 @@ weight: 01
 draft: false
 slug:
 aliases: [/layout/functions/]
-notesforauthors:
 ---
 

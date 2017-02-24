@@ -47,7 +47,7 @@ git clone URL_TO_THEME
 
 The following example shows how to use the "Hyde" theme, which has its source hosted at <https://github.com/spf13/hyde>:
 
-{{% input "clone-theme.sh" %}}
+{{% input file="clone-theme.sh" %}}
 ```bash
 cd themes
 git clone https://github.com/spf13/hyde

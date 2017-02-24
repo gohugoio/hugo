@@ -8,10 +8,14 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [iteration]
 categories: [functions]
-toc: false
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: [/extras/scratch/,/doc/scratch/]
-notesforauthors:
 ---
 
 `Scratch` -- a "scratchpad" for your page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.

@@ -35,7 +35,7 @@ If it is not done yet, we will make an automated way to SSH to your server. If y
 
 First, install the ssh client. On Debian/Ubuntu/derivates, use the following command:
 
-{{% input "install-openssh.sh" %}}
+{{% input file="install-openssh.sh" %}}
 ```bash
 sudo apt-get install openssh-client
 ```

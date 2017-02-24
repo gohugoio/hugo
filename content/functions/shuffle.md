@@ -9,10 +9,14 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [ordering]
 categories: [functions]
-toc: false
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: []
-notesforauthors:
 ---
 
 ## Example

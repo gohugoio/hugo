@@ -8,11 +8,22 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
 tags: []
-toc: false
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: []
 ---
 
-Truncate a text to a max length without cutting words or leaving unclosed HTML tags. Since Go templates are HTML-aware, truncate will handle normal strings vs HTML strings intelligently. It's important to note that if you have a raw string that contains HTML tags that you want treated as HTML, you will need to convert the string to HTML using the safeHTML template function before sending the value to truncate; otherwise, the HTML tags will be escaped by truncate.
+Truncate a text to a max length without cutting words or leaving unclosed HTML tags. Since Go templates are HTML-aware, `truncate` will intelligently handle normal strings vs HTML strings ((**INSERT EXAMPLE**)).
+
+{{% note %}}
+If you have a raw string that contains HTML tags you want to remain treated as HTML, you will need to convert the string to HTML using the [`safeHTML` template function](/functions/safehtml) before sending the value to truncate. Otherwise, the HTML tags will be escaped when passed through the `truncate` function.
+{{% /note %}}
+
+## Examples of `truncate`
 
 `{{ "<em>Keep my HTML</em>" | safeHTML | truncate 10 }}` → `<em>Keep my …</em>`

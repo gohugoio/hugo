@@ -9,7 +9,12 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [defaults]
 categories: [functions]
-toc: false
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: [/functions/default/]
 ---
@@ -23,7 +28,7 @@ Checks whether a given value is set and returns a default value if it is not. *S
 
 `default` function examples reference the following content page:
 
-{{% input "content/posts/default-function-example.md" %}}
+{{% input file="content/posts/default-function-example.md" %}}
 ```yaml
 ---
 title: Sane Defaults
@@ -47,7 +52,7 @@ Both of the above `default` function calls return `Roboto`.
 
 A `default` value, however, does not need to be hard coded like the previous example. The `default` value can be a variable or pulled directly from the front matter using dot notation:
 
-{{% input "variable-as-default-value.html" nocopy %}}
+{{% input file="variable-as-default-value.html" nocopy="true" %}}
 ```golang
 {{$old := .Params.oldparam }}
 <p>{{ .Params.newparam | default $old }}</p>
@@ -62,7 +67,7 @@ Which would return:
 
 And then using dot notation
 
-{{% input "dot-notation-default-value.html" %}}
+{{% input file="dot-notation-default-value.html" %}}
 ```golang
 <title>{{ .Params.seo_title | default .Title }}</title>
 ```
@@ -80,7 +85,7 @@ The following have equivalent return values but are far less terse. This demonst
 
 Using `if`:
 
-{{% input "if-instead-of-default.html" nocopy %}}
+{{% input file="if-instead-of-default.html" nocopy="true" %}}
 ```golang
 <title>{{if .Params.seo_title}}{{.Params.seo_title}}{{else}}{{.Title}}{{end}}</title>
 => Sane Defaults
@@ -89,7 +94,7 @@ Using `if`:
 
 Using `with`:
 
-{{% input "with-instead-of-default.html" nocopy %}}
+{{% input file="with-instead-of-default.html" nocopy="true" %}}
 ```golang
 <title>{{with .Params.seo_title}}{{.}}{{else}}{{.Title}}{{end}}</title>
 => Sane Defaults

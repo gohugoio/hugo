@@ -45,7 +45,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 
 ### Example `highlight` Shortcode Input
 
-{{% input "example-highlight-shortcode-input.md" %}}
+{{% input file="example-highlight-shortcode-input.md" %}}
 ```html
 {{</* highlight html */>}}
 <section id="main">

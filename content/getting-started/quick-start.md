@@ -91,7 +91,7 @@ You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look
 
 Let's now add a post to our "bookshelf." We will use the `hugo new` command to add a post. This first post will be on the book [*Good To Great*][bookurl]. Make sure you are inside the `bookshelf` directory.
 
-{{% input "create-new-book-review-post.sh" %}}
+{{% input file="create-new-book-review-post.sh" %}}
 ```bash
 hugo new post/good-to-great.md
 ```
@@ -137,7 +137,7 @@ The text bracketed by `+++` is the TOML [front matter][frontmatter] for the cont
 
 Let's update `good-to-great.md` with a short review of *Good to Great*:
 
-{{% input "good-to-great-start.md" %}}
+{{% input file="good-to-great-start.md" %}}
 ```markdown
 +++
 date = "2016-02-14T16:11:58+05:30"
@@ -230,7 +230,7 @@ You can clone one or more themes from within the `themes` directory. We will use
 
 Once inside the `themes` directory, you can use the following one-liner to clone Robust, check out the specific commit, and then return to your project's root directory:
 
-{{% input "clone-robust-theme" %}}
+{{% input file="clone-robust-theme" %}}
 ```bash
 git clone https://github.com/dim0627/hugo_theme_robust.git && cd hugo_theme_robust && git checkout 3baae29 && cd ../..
 ```
@@ -238,7 +238,7 @@ git clone https://github.com/dim0627/hugo_theme_robust.git && cd hugo_theme_robu
 
 Now let's start Hugo's server again but with the addition of the `-theme` flag for Robust:
 
-{{% input "hugo-server-with-theme.sh" %}}
+{{% input file="hugo-server-with-theme.sh" %}}
 ```bash
 hugo server --theme=hugo_theme_robust --buildDrafts
 ```
@@ -306,7 +306,7 @@ You can very easily switch between different themes in Hugo. Let's suppose we wa
 
 From your project root, you can use this one-liner to change into `themes`, clone Bleak, and go back to your project's root directory:
 
-{{% input "clone-bleak-theme.sh" %}}
+{{% input file="clone-bleak-theme.sh" %}}
 ```bash
 cd themes && git clone https://github.com/Zenithar/hugo-theme-bleak.git && cd ..
 ```
@@ -314,7 +314,7 @@ cd themes && git clone https://github.com/Zenithar/hugo-theme-bleak.git && cd ..
 
 Now restart the server with our new theme flag:
 
-{{% input "run-server-with-bleak.sh" %}}
+{{% input file="run-server-with-bleak.sh" %}}
 ```bash
 hugo server --theme=hugo-theme-bleak --buildDrafts
 ```
@@ -328,7 +328,7 @@ Our website is now using the `bleak` theme at <http://localhost:1313>, which sho
 
 Kill the Hugo server if you are still running it with the Bleak theme, and then restart the server with the `robust` theme. We will use Robust for the duration of this Quick Start:
 
-{{% input "restart-with-robust-sh" %}}
+{{% input file="restart-with-robust-sh" %}}
 ```bash
 hugo server --theme=hugo_theme_robust --buildDrafts
 ```
@@ -338,7 +338,7 @@ hugo server --theme=hugo_theme_robust --buildDrafts
 
 Our website is currently using the dummy values specified in `bookshelf/config.toml`, which were auto-generated with `hugo new site bookshelf`. Let's update the configuration:
 
-{{% input "updated-config.toml" %}}
+{{% input file="updated-config.toml" %}}
 ```toml
 baseURL = "http://example.org/"
 languageCode = "en-us"
@@ -404,7 +404,7 @@ Now we need to change the layout of the index page so that only images are shown
 
 Create a new file for `li.html` inside the `bookshelf/layouts/_default` directory. If you are in your project root, you can use the following one-liner to both create the file and return to the project root:
 
-{{% input "create-new-li-html.sh" %}}
+{{% input file="create-new-li-html.sh" %}}
 ```bash
 cd layouts && mkdir _default && cd _default && touch li.html && cd ../..
 ```
@@ -412,7 +412,7 @@ cd layouts && mkdir _default && cd _default && touch li.html && cd ../..
 
 Copy the content shown below into the new `li.html`. When contrasting this with the `li.html` that ships with the Robust theme, you'll notice we have removed details of the book so that only the image is shown:
 
-{{% input "layouts/_default/li.html" %}}
+{{% input file="layouts/_default/li.html" %}}
 ```html
 <article class="li">
   <a href="{{ .Permalink }}" class="clearfix">
@@ -430,7 +430,7 @@ Next, we want to remove information related to the theme from the footer. Let's 
 
 This is a new [partial template][partialtemplates]. If you are still in the project's root directory, you can use the following one-liner to create the partial before returning to the project root:
 
-{{% input "create-new-default-foot.sh" %}}
+{{% input file="create-new-default-foot.sh" %}}
 ```bash
 cd layouts && mkdir partials && cd partials && touch default_foot.html && cd ../..
 ```
@@ -438,7 +438,7 @@ cd layouts && mkdir partials && cd partials && touch default_foot.html && cd ../
 
 Now add the following to our new `default_foot.html` partial template:
 
-{{% input "layouts/partials/default_foot.html" %}}
+{{% input file="layouts/partials/default_foot.html" %}}
 ```html
 <footer class="site">
   <p>{{ with .Site.Copyright | safeHTML }}{{ . }}{{ else }}&copy; {{ $.Site.LastChange.Year }} {{ if isset $.Site.Params "Author" }}{{ $.Site.Params.Author }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}</p>
@@ -449,7 +449,7 @@ Now add the following to our new `default_foot.html` partial template:
 
 So far we are using the default image, but we would like to use the book image so that we can relate to the book. Every book review will define a configuration setting in its front matter. Update the content and front matter of `good-to-great.md` as shown below.
 
-{{% input "content/post/good-to-great.md" %}}
+{{% input file="content/post/good-to-great.md" %}}
 ```markdown
 +++
 date = "2017-02-19T21:09:05-06:00"
@@ -547,7 +547,7 @@ There is more than one way to host your site on GitHub. Be sure to check out [Ho
 
 First, let's set up Git version control for your bookshelf website and include a `.gitignore` file to prevent tracking of the `public` and `themes` directories. From within your root project directory, you can use the following one-liner:
 
-{{% input "set-up-git.sh" %}}
+{{% input file="set-up-git.sh" %}}
 ```bash
 git init && echo "/public/" >> .gitignore && echo "/themes/" >> .gitignore && git add . && git commit -m "Initial commit"
 ```

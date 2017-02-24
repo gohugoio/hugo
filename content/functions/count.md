@@ -8,10 +8,14 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: []
 categories: [functions]
-toc: false
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: []
-notesforauthors:
 ---
 
 [Link to Taxonomy templates](/templates/taxonomy-templates/)

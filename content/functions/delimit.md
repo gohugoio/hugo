@@ -1,9 +1,9 @@
 ---
 title: delimit
 linktitle: delimit
-description: loops through any array, slice, or map and returns a string of all the values separated by a delimiter.
+description: "`delimit` loops through any array, slice, or map and returns a string of all the values separated by a delimiter."
 godocref:
-qref:
+qref: loops through array, slice, or map and returns string of all values separated by a delimiter.
 workson: []
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,19 +11,22 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [iteration]
 toc: false
+signature: ""
+workson: [lists,taxonomies,terms]
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: []
 ---
 
-`delimit` loops through any array, slice, or map and returns a string of all the values separated by a delimiter. There is an optional third parameter that lets you choose a different delimiter to go between the last two values in the loop.
+`delimit` loops through any array, slice, or map and returns a string of all the values separated by a delimiter, the second argument in the function call. There is an optional third parameter that lets you choose a different delimiter to go between the last two values in the loop.
 
-Maps will be sorted by keys, and only a slice of the values will be returned. This maintains a consistent output order.
-
-`delimit` works on [lists][], [taxonomies][], and [terms][].
+To maintain a consistent output order, maps will be sorted by keys and only a slice of the values will be returned.
 
 Examples of `delimit` use the following front matter:
 
-{{% input "delimit-example-front-matter.toml" nocopy %}}
+{{% input file="delimit-example-front-matter.toml" nocopy="true" %}}
 ```toml
 +++
 title: I love Delimit
@@ -38,7 +41,7 @@ tags: [ "tag1", "tag2", "tag3" ]
 {{ delimit array/slice/map delimiter optionallastdelimiter}}
 ```
 
-{{% input "delimit-pages-tags.html" %}}
+{{% input file="delimit-pages-tags.html" %}}
 ```html
 <p>Tags: {{ delimit .Params.tags ", " }}</p>
 ```
@@ -52,7 +55,7 @@ tags: [ "tag1", "tag2", "tag3" ]
 
 Here is the same example but with the optional "last" delimiter:
 
-{{% input "delimit-page-tags-final-and.html" %}}
+{{% input file="delimit-page-tags-final-and.html" %}}
 ```golang
 Tags: {{ delimit .Params.tags ", " ", and " }}
 ```

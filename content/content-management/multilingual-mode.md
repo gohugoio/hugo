@@ -105,7 +105,7 @@ By having the same _base file name_, the content pieces are linked together as t
 
 To create a list of links to translated content, use a template similar to this:
 
-{{% input "layouts/partials/i18nlist.html" %}}
+{{% input file="layouts/partials/i18nlist.html" %}}
 ```html
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>

@@ -56,7 +56,7 @@ When using Hugo v0.12 and above, please use the `partial` call (and leave out th
 
 This header template is used for [spf13.com](http://spf13.com/):
 
-{{% input "layouts/partials/header.html" %}}
+{{% input file="layouts/partials/header.html" %}}
 ```html
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -80,7 +80,7 @@ This header template is used for [spf13.com](http://spf13.com/):
 
 This footer template is used for [spf13.com](http://spf13.com/):
 
-{{% input "layouts/partials/footer.html" %}}
+{{% input file="layouts/partials/footer.html" %}}
 ```html
 <footer>
   <div>
@@ -171,7 +171,7 @@ Provide your tracking id in your configuration file, e.g. config.yaml.
 
 Include the internal template in your templates like so:
 
-{{% input "call-ga.md" %}}
+{{% input file="call-ga.md" %}}
 ```golang
 {{ template "_internal/google_analytics.html" . }}
 ```
@@ -179,7 +179,7 @@ Include the internal template in your templates like so:
 
 For asynchronous loading of Google analytics, include the async template:
 
-{{% input "call-ga-async.md" %}}
+{{% input file="call-ga-async.md" %}}
 ```golang
 {{ template "_internal/google_analytics_async.html" . }}
 ```
@@ -227,7 +227,7 @@ You also have the option to set the following in the front matter for a given pi
 
 Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
 
-{{% input "layouts/partials/disqus.html" %}}
+{{% input file="layouts/partials/disqus.html" %}}
 ```html
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -253,7 +253,7 @@ The `if` statement skips the initialization of the Disqus comment injection when
 
 You can then reference the partial template:
 
-{{% input "disqus-reference.html" %}}
+{{% input file="disqus-reference.html" %}}
 ```golang
 {{ partial "disqus.html" . }}
 ```

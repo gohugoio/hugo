@@ -94,7 +94,7 @@ After a short while you'll see the updated contents on your GitHub Pages site.
 
 To automate these steps, you can create a script with the following contents:
 
-{{% input "publish_to_ghpages.sh" %}}
+{{% input file="publish_to_ghpages.sh" %}}
 ```sh
 #!/bin/sh
 

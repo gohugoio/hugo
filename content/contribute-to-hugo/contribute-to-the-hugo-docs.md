@@ -29,13 +29,9 @@ Documentation is an integral part of any open source project. The Hugo docs were
 
 **IN DEVELOPMENT**
 
-### Creating Default Content
-
-**IN DEVELOPMENT**
 
 ### Adding a New Function
 
-**IN DEVELOPMENT**
 
 ### Adding a New Showcase
 
@@ -80,7 +76,7 @@ Use the `note` shortcode when you want to draw attention to information subtly. 
 
 #### `note` Admonition Shortcode Input
 
-{{% input "note-with-heading.md" %}}
+{{% input file="note-with-heading.md" %}}
 ```golang
 {{%/* note "Example Note Admonition" */%}}
 Here is a piece of information I would like to draw your **attention** to.
@@ -110,7 +106,7 @@ Use the `warning` shortcode when you want to draw the user's attention to someth
 
 #### `warning` Admonition Shortcode Input
 
-{{% input "warning-admonition-input.md" %}}
+{{% input file="warning-admonition-input.md" %}}
 ```golang
 {{%/* warning "Example Warning" */%}}
 This is a warning, which should be reserved for *important* information like breaking changes.
@@ -134,11 +130,11 @@ This is a warning, which should be reserved for *important* information like bre
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
 
-## Example Site Shortcodes
+<!-- ## Example Site Shortcodes
 
 ### Example File Shortcode
 
-### Example Front Matter Shortcode
+### Example Front Matter Shortcode -->
 
 ## Editorial Style Guide
 
@@ -146,7 +142,7 @@ This is a warning, which should be reserved for *important* information like bre
 It's more important to contribute *some* documentation than no documentation at all. We need your help!
 {{% /note %}}
 
-The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute, regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience:
+The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience:
 
 1. *Front matter* is two words.
 2. *Homepage* is one word.

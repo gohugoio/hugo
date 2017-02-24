@@ -85,7 +85,7 @@ It makes use of [partial templates][partials]. All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
-{{% input "layouts/section/post.html" %}}
+{{% input file="layouts/section/post.html" %}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
@@ -400,7 +400,7 @@ you can do just that.
 1. `array` or `slice of maps or structs`
 2. `number of elements`
 
-{{% input "layout/_default/section.html" %}}
+{{% input file="layout/_default/section.html" %}}
 ```golang
 {{ range first 10 .Data.Pages }}
   {{ .Render "summary" }}
@@ -416,7 +416,7 @@ you can do just that.
 2. `key` or `field name'
 3. `match value`
 
-{{% input "layouts/_default/.html" %}}
+{{% input file="layouts/_default/.html" %}}
 ```html
 {{ range where .Data.Pages "Section" "post" }}
    {{ .Content }}
@@ -428,7 +428,7 @@ you can do just that.
 
 Using `first` and `where` together can be very powerful:
 
-{{% input "first-and-where-together.html" %}}
+{{% input file="first-and-where-together.html" %}}
 ```golang
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
@@ -459,7 +459,7 @@ The valid values for 'kind' are as follows:
 
 The `.Site.GetPage` example assumes the following project directory structure:
 
-{{% input "grab-blog-section-index-page-title.html" %}}
+{{% input file="grab-blog-section-index-page-title.html" %}}
 {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 {{% /input %}}
 

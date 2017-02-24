@@ -39,7 +39,7 @@ Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/loca
 
 If you are on OS X and using [Homebrew][brew], you can install Hugo with the following one-liner:
 
-{{% input "install-with-homebrew.sh" %}}
+{{% input file="install-with-homebrew.sh" %}}
 ```bash
 brew update && brew install hugo
 ```
@@ -110,7 +110,7 @@ Since building from source is appealing to more seasoned command line users, thi
 
 Go to the `brew` website, <http://brew.sh/>, and follow the directions there. The most important step is the installation from the command line:
 
-{{% input "install-brew.sh" %}}
+{{% input file="install-brew.sh" %}}
 ```bash
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
@@ -120,7 +120,7 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 
 Whenever installing with Homebrew, it's a good idea to update the formulae and Homebrew itself by running the update command:
 
-{{% input "update-brew.sh" %}}
+{{% input file="update-brew.sh" %}}
 ```bash
 $ brew update
 ```
@@ -128,7 +128,7 @@ $ brew update
 
 You can then install Hugo using `brew`:
 
-{{% input "install-brew.sh" %}}
+{{% input file="install-brew.sh" %}}
 ```bash
 $ brew install hugo
 ```

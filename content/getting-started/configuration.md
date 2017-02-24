@@ -28,7 +28,7 @@ In this `config` file, you can direct to Hugo as to how it should render your we
 
 The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
 
-{{% input "config.yml" %}}
+{{% input file="config.yml" %}}
 ```yaml
 ---
 baseURL: "https://yoursite.example.com/"
@@ -52,7 +52,7 @@ params:
 
 The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
 
-{{% input "config.yml" %}}
+{{% input file="config.yml" %}}
 ```yaml
 ---
 archetypeDir:               "archetypes"
@@ -191,7 +191,7 @@ title = "My Hugo Site"
 
 The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
-{{% input "config.toml" %}}
+{{% input file="config.toml" %}}
 ```toml
 +++
 archetypeDir =                "archetypes"
@@ -346,7 +346,7 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override the site setting there. See [site configuration for more information](/content-management/front-matter/#override-global-blackfriday-configuration).
 {{% /note %}}
 
-{{% input "bf-config.toml" %}}
+{{% input file="bf-config.toml" %}}
 ```toml
 [blackfriday]
   angledQuotes = true
@@ -356,7 +356,7 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 ```
 {{% /input %}}
 
-{{% input "bf-config.yml" %}}
+{{% input file="bf-config.yml" %}}
 ```yaml
 blackfriday:
   angledQuotes: true

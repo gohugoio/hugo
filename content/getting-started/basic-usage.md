@@ -234,7 +234,7 @@ No other web server software (e.g., Apache, nginx, IIS) is necessary.
 
 Here is the command:
 
-{{% input "hugo-production-server.sh" %}}
+{{% input file="hugo-production-server.sh" %}}
 ```bash
 hugo server --baseURL=http://yoursite.org/ \
 --port=80 \

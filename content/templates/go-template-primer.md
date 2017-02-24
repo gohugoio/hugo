@@ -274,7 +274,7 @@ The most easily overlooked concept to understand about Go templates is that `{{ 
 
 The following shows how to define a variable independent of the context.
 
-{{% input "range-through-tags-w-variable.html" %}}
+{{% input file="range-through-tags-w-variable.html" %}}
 ```html
 {{ $title := .Site.Title }}
 {{ $base := .Site.BaseURL }}
@@ -297,7 +297,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block where we defined `$title` and `$base` for the same desired output, but now using `$`:
 
-{{% input "range-through-tags-w-global.html" %}}
+{{% input file="range-through-tags-w-global.html" %}}
 ```html
 {{ $base := .Site.BaseURL }}
 <ul class="tags">
@@ -321,7 +321,7 @@ Go 1.6 includes the ability to trim the whitespace from either side of a Go tag 
 
 For instance, the following Go template will include the newlines and horizontal tab in its HTML output:
 
-{{% input "with-whitespace.html" %}}
+{{% input file="with-whitespace.html" %}}
 ```html
 <div>
   {{ .Title }}
@@ -339,7 +339,7 @@ For instance, the following Go template will include the newlines and horizontal
 
 Leveraging the `-` in the following example will remove the extra white space surrounding the `.Title` variable and remove the newline:
 
-{{% input "without-whitespace-input.html" %}}
+{{% input file="without-whitespace-input.html" %}}
 ```html
 <div>
   {{- .Title -}}
@@ -383,7 +383,7 @@ toc: true
 
 Here is the corresponding code inside the `table-of-contents.html` [partial template][partials]:
 
-{{% input "table-of-contents.html" %}}
+{{% input file="table-of-contents.html" %}}
 ```html
 {{if ne .Params.toc false}}
 <aside id="toc">
@@ -407,7 +407,7 @@ In your [site's configuration file][hugoconfig] (e.g., `config.yaml`), you can d
 
 For instance, you might declare:
 
-{{% input "config.yaml" %}}
+{{% input file="config.yaml" %}}
 ```yaml
 params:
   CopyrightHTML: "Copyright &#xA9; 2013 John Doe. All Rights Reserved."
@@ -418,7 +418,7 @@ params:
 
 Within a footer layout, you might then declare a `<footer>` which is only provided if the `CopyrightHTML` parameter is provided, and if it is given, you would declare it to be HTML-safe, so that the HTML entity is not escaped again.  This would let you easily update just your top-level config file each January 1st, instead of hunting through your templates.
 
-{{% input "layouts/partials/sample-footer.html" %}}
+{{% input file="layouts/partials/sample-footer.html" %}}
 ```html
 {{if .Site.Params.CopyrightHTML}}<footer>
 <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML}}</div>
@@ -428,7 +428,7 @@ Within a footer layout, you might then declare a `<footer>` which is only provid
 
 An alternative way of writing the "`if`" and then referencing the same value is to use [`with`](/functions/with/) instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
-{{% input "layouts/partials/twitter.html" %}}
+{{% input file="layouts/partials/twitter.html" %}}
 ```html
 {{with .Site.Params.TwitterUser}}<span class="twitter">
 <a href="https://twitter.com/{{.}}" rel="author">
@@ -453,7 +453,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 
 Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in the [front matter][]) is in the future:
 
-{{% input "show-upcoming-dates.html" %}}
+{{% input file="show-upcoming-dates.html" %}}
 ```golang
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">

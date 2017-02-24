@@ -10,8 +10,12 @@ categories: [functions]
 tags: [strings]
 draft: false
 aliases: []
-toc: false
-notesforauthors:
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 ---
 
 ## Example

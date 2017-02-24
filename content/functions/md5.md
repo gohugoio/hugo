@@ -9,9 +9,13 @@ lastmod: 2017-02-01
 tags: []
 categories: [functions]
 toc: false
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: []
-notesforauthors:
 ---
 
 ## Example

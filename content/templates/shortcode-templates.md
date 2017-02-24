@@ -92,7 +92,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 {{</* year */>}}
 ```
 
-{{% input "/layouts/shortcodes/year.html" %}}
+{{% input file="/layouts/shortcodes/year.html" %}}
 ```golang
 {{ .Page.Now.Year }}
 ```
@@ -100,7 +100,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 
 ### Single Positional Example: `youtube`
 
-Embedded videos are a common addition to markdown content that can quickly become unsightly. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]
+Embedded videos are a common addition to markdown content that can quickly become unsightly. The following is the code used by [Hugo's built-in YouTube shortcode][youtubeshortcode]:
 
 ```golang
 {{</* youtube 09jf3ow9jfw */>}}
@@ -108,7 +108,7 @@ Embedded videos are a common addition to markdown content that can quickly becom
 
 Would load the template at `/layouts/shortcodes/youtube.html`:
 
-{{% input "/layouts/shortcodes/youtube.html" %}}
+{{% input file="/layouts/shortcodes/youtube.html" %}}
 ```html
 <div class="embed video-player">
 <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
@@ -135,7 +135,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 
 Let's say you want to create your own `img` shortcode rather than use Hugo's built-in [`figure` shortcode][]. Your goal is to be able to call the shortcode as follows in your content files:
 
-{{% input "content-image.md" %}}
+{{% input file="content-image.md" %}}
 ```golang
 {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
 ```
@@ -143,7 +143,7 @@ Let's say you want to create your own `img` shortcode rather than use Hugo's bui
 
 You have created the shortcode at `/layouts/shortcodes/img.html`, which loads the following shortcode template:
 
-{{% input "/layouts/shortcodes/img.html" %}}
+{{% input file="/layouts/shortcodes/img.html" %}}
 ```html
 <!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
@@ -188,7 +188,7 @@ Would be rendered as:
 
 Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
-{{% input "/layouts/shortcodes/vimeo.html" %}}
+{{% input file="/layouts/shortcodes/vimeo.html" %}}
 ```html
 {{ if .IsNamedParams }}
   <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
@@ -219,7 +219,7 @@ Would be rendered as:
 
 The following is taken from `highlight`, which is a [built-in shortcode][] that ships with Hugo.
 
-{{% input "highlight-example.md" %}}
+{{% input file="highlight-example.md" %}}
 ```markdown
 {{</* highlight html */>}}
   <html>

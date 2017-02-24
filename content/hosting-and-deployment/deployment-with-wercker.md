@@ -42,7 +42,7 @@ All the work for setting up a Hugo project and using this guide is done via the 
 
 First, create your new Hugo website using the [`hugo new site` command][basicusage] and change into the newly created directory for the project. In this guide, we are calling our new project `hugo-wercker-example`:
 
-{{% input "hugo-new-site.sh" %}}
+{{% input file="hugo-new-site.sh" %}}
 ```bash
 hugo new site hugo-wercker-example
 cd hugo-wercker-example
@@ -51,7 +51,7 @@ cd hugo-wercker-example
 
 We will use the [Herring Cove theme][] by first cloning the theme into the `themes` directory.
 
-{{% input "clone-herring-cove-theme.sh" %}}
+{{% input file="clone-herring-cove-theme.sh" %}}
 ```bash
 cd themes
 git clone https://github.com/spf13/herring-cove.git
@@ -60,7 +60,7 @@ git clone https://github.com/spf13/herring-cove.git
 
 Cloning the project from the command line will conflict with our own version control. So, we need to remove the external git configuration that came with the clone of Herring Cove:
 
-{{% input "remove-herring-cove-git.sh" %}}
+{{% input file="remove-herring-cove-git.sh" %}}
 ```bash
 rm -rf herring-cove/.git
 ```
@@ -78,7 +78,7 @@ The preceding example for the about page leverages archetypes to scaffold a new 
 
 Now you can edit `contents/about.md` in your text editor of choice, but this is not necessary for the purposes of this guide. Running the following command will build your Hugo site into the `public` directory. We have added `undraft` to ensure that the example page is no longer in draft mode:
 
-{{% input "hugo-build-undraft.sh" %}}
+{{% input file="hugo-build-undraft.sh" %}}
 ```bash
 hugo undraft content/about.md
 ```
@@ -104,7 +104,7 @@ git init
 
 Running `git status` at this point will show you the following entries: the `config.toml` file, the `themes` directory, the `contents` directory, and the `public` directory. However, we don't want the `public` directory version controlled because Wercker is responsible for generating the finished website later on. Therefore, we'll add a `.gitignore` file to our project that will exclude the `/public` directory from being tracked by Git:
 
-{{% input "gitignore.sh" %}}
+{{% input file="gitignore.sh" %}}
 ```bash
 echo "/public" >> .gitignore
 ```
@@ -112,7 +112,7 @@ echo "/public" >> .gitignore
 
 Wercker might complain when we try to build the site later on because we currently do not have any static files outside of the `themes` directory. We simply have to add *any* file to the static folder to prevent Wercker from complaining. To keep this guide simple, let's add a `robots.txt`. The following command creates the file in `/static`. The contents of the `robots.txt` lets search engines know they have full access to crawl the published website:
 
-{{% input "addrobotstxt.sh" %}}
+{{% input file="addrobotstxt.sh" %}}
 ```bash
 echo "User-agent: *\nDisallow:" > static/robots.txt
 ```
@@ -130,7 +130,7 @@ Now we need to create a new repository on GitHub. Once you are signed in to GitH
 
 We then choose a name for the project (`hugo-wercker-example`). When clicking on create repository GitHub displays the commands for adding an existing project to the site. The commands shown below are the ones used for this site, if you're following along you will need to use the ones shown by GitHub. Once we've run those commands the project is in GitHub and we can move on to setting up the Wercker configuration. Be sure to replace `YourUserName` with your GitHub account/username:
 
-{{% input "setup-gh-repo.sh" %}}
+{{% input file="setup-gh-repo.sh" %}}
 ```bash
 git remote add origin git@github.com:YourUsername/hugo-wercker-example.git
 git push -u origin master
@@ -225,7 +225,7 @@ We're not going to use any of the advanced features of Hugo-Build in this guide.
 The docs are a work in progress. As such, the `version` represented in this guide may not represent the version you've been using for local development. Be sure to use the appropriate Hugo version for your build step.
 {{% /warning %}}
 
-{{% input "wercker-build-step.yml" %}}
+{{% input file="wercker-build-step.yml" %}}
 ```yaml
 box: debian
 build:
@@ -239,7 +239,7 @@ build:
 
 We can conclude this first step by pushing our `wercker.yml` to our GitHub repository and then seeing the magic at work within Wercker's interface.
 
-{{% input "push-wecker-to-gh.sh" %}}
+{{% input file="push-wecker-to-gh.sh" %}}
 ```bash
 git commit -a -m "Add wercker.yml"
 git push origin master
@@ -254,7 +254,7 @@ If completed and successful, a green check mark should appear in the commit colu
 
 In order to deploy to GitHub Pages, we need to add a deploy step to our `wercker.yml`. We are going to add `lukevevier/gh-pages`, the most popular GitHub Pages step in the Wercker Steps repository. Additionally, we need to ensure the box Wercker uses for our deployments has git and ssh installed. We can do this using the `install-packages` command. Here is our *final* `wercker.yml` file:
 
-{{% input "wercker.yml" %}}
+{{% input file="wercker.yml" %}}
 ```yaml
 box: debian
 build:

@@ -26,7 +26,7 @@ hugo new [content-section/file-name.md]
 
 We can use this pattern to create a new `.md` file in the `posts` section of the [example site][]:
 
-{{% input "archetype-example.sh" %}}
+{{% input file="archetype-example.sh" %}}
 ```bash
 hugo new posts/my-first-post.md
 ```
@@ -82,7 +82,7 @@ Default archetypes are convenient if your content's front matter stays consisten
 
 The [example site][] includes `tags` and `categories` as [taxonomies][]. If we assume that all content files will require these two key-values, we can create a `default.md` archetype that *extends* Hugo's base archetype. In this example, we are including "golang" and "hugo" as tags and "web development" as a category.
 
-{{% input "archetypes/default.md" %}}
+{{% input file="archetypes/default.md" %}}
 ```toml
 +++
 tags = ["golang", "hugo"]
@@ -99,7 +99,7 @@ If you get an `EOF error` when using `hugo new`, add a carriage return after the
 
 With an `archetypes/default.md` in place, we can use the CLI to create a new post in the `posts` content section:
 
-{{% input "new-post-from-default.sh" %}}
+{{% input file="new-post-from-default.sh" %}}
 ```bash
 $ hugo new posts/my-new-post.md
 ```
@@ -136,7 +136,7 @@ Suppose the example site's `posts` section requires more sophisticated front mat
 
 ### Creating a Custom Archetype
 
-{{% input "archetypes/posts.md"%}}
+{{% input file="archetypes/posts.md"%}}
 ```toml
 +++
 description = ""
@@ -150,7 +150,7 @@ categories = ""
 
 With an `archetypes/posts.md` in place, we can use the CLI to create a new posts with custom `posts` metadata in the `posts` content section:
 
-{{% input "new-post-from-custom.sh" %}}
+{{% input file="new-post-from-custom.sh" %}}
 ```bash
 $ hugo new posts/post-from-custom.md
 ```

@@ -79,7 +79,7 @@ The `figure` shortcode can use the following named parameters:
 
 #### Example `figure` Input
 
-{{% input "figure-input-example.md" %}}
+{{% input file="figure-input-example.md" %}}
 ```markdown
 {{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
 ```
@@ -128,7 +128,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 
 #### Example `highlight` Input
 
-{{% input "highlight-shortcode.md" %}}
+{{% input file="highlight-shortcode.md" %}}
 ```golang
 {{</* highlight html */>}}
 <section id="main">
@@ -216,7 +216,7 @@ To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (u
 
 Extract the value from the field `data-id` and pass it to the shortcode:
 
-{{% input "speakerdeck-example-input.md" %}}
+{{% input file="speakerdeck-example-input.md" %}}
 ```golang
 {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 ```

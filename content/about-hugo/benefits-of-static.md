@@ -28,9 +28,11 @@ Not running a website generator on your HTTP server has many benefits. The most 
 * ["Static Site Generators", O-Reilly][]
 * [StaticGen: Top Open-Source Static Site Generators (GitHub Stars)][]
 * ["Top 10 Static Website Generators," Netlify blog][]
+* ["Hugo vs. Wordpress page load speed comparison: Hugo leaves WordPress in its dust", GettingThingsTech][hugovwordpress]
 
 
 ["An Introduction to Static Site Generators", David Walsh]: https://davidwalsh.name/introduction-static-site-generators
 ["Static Site Generators", O-Reilly]: /documents/oreilly-static-site-generators.pdf
 ["Top 10 Static Website Generators," Netlify blog]: https://www.netlify.com/blog/2016/05/02/top-ten-static-website-generators/
+[hugovwordpress]: https://gettingthingstech.com/hugo-vs.-wordpress-page-load-speed-comparison-hugo-leaves-wordpress-in-its-dust/
 [StaticGen: Top Open-Source Static Site Generators (GitHub Stars)]: https://www.staticgen.com/

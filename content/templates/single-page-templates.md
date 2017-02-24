@@ -79,7 +79,7 @@ Now we can look at the front matter for the three single-page content (i.e.`.md`
 
 ### `my-first-post.md`
 
-{{% input "content/posts/my-first-post.md" %}}
+{{% input file="content/posts/my-first-post.md" %}}
 ```yaml
 ---
 title: My First Post
@@ -109,7 +109,7 @@ Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo th
 
 ### `my-second-post.md`
 
-{{% input "content/posts/my-second-post.md" %}}
+{{% input file="content/posts/my-second-post.md" %}}
 ```yaml
 ---
 title: My Second Post
@@ -143,7 +143,7 @@ Notice that the directory for the template for `my-second-post.md` is `review` a
 
 ### `my-first-event.md`
 
-{{% input "content/events/my-first-event.md" %}}
+{{% input file="content/events/my-first-event.md" %}}
 ```yaml
 ---
 title: My First
@@ -179,7 +179,7 @@ Content pages are of the type `page` and will therefore have all the [page varia
 
 This content template is used for [spf13.com][spf13]. It makes use of [partial templates][partials]:
 
-{{% input "layouts/post/single.html" %}}
+{{% input file="layouts/post/single.html" %}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
@@ -228,7 +228,7 @@ This content template is used for [spf13.com][spf13]. It makes use of [partial t
 
 This content template is also used for [spf13.com][spf13] and makes use of [partial templates][partials]:
 
-{{% input "project/single.html" %}}
+{{% input file="project/single.html" %}}
 ```html
   {{ partial "header.html" . }}
   {{ partial "subheader.html" . }}

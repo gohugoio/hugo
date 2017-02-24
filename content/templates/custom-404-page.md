@@ -29,7 +29,7 @@ In addition to the standard page variables, the 404 page has access to all site 
 
 This is a basic example of a 404.html template:
 
-{{% input "404.html"%}}
+{{% input file="404.html"%}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}

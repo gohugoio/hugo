@@ -190,7 +190,7 @@ These fields would then be accessible to the `/themes/yourtheme/layouts/review/s
 
 Two common situations where this type of front matter field could be introduced is as a value of a certain attribute like `href=""` or by itself to be displayed as text to the website's visitors.
 
-{{% input "/themes/yourtheme/layouts/review/single.html" %}}
+{{% input file="/themes/yourtheme/layouts/review/single.html" %}}
 ```html
 <h3><a href={{ printf "%s" $.Params.affiliatelink }}>Buy this book</a></h3>
 <p>It was recommended by {{ .Params.recommendedby }}.</p>

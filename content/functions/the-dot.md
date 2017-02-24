@@ -9,8 +9,12 @@ lastmod: 2017-02-01
 tags: [fundamentals,iteration]
 categories: [functions]
 weight:
-toc: false
+toc:
+signature:
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
 draft: false
 aliases: []
-notesforauthors:
 ---

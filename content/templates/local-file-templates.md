@@ -32,7 +32,7 @@ Whether the path is absolute or relative does not matter because---at least for 
 
 So, let's create a new shortcode using `readDir`:
 
-{{% input "layouts/shortcodes/directoryindex.html" %}}<pre><code>{{< readfile "layouts/shortcodes/directoryindex.html" >}}</code></pre>{{% /input %}}
+{{% input file="layouts/shortcodes/directoryindex.html" %}}<pre><code>{{< readfile "layouts/shortcodes/directoryindex.html" >}}</code></pre>{{% /input %}}
 
 For the files in any given directory, this shortcode usefully lists the files' basenames and sizes and also creates a link to each of them.
 
