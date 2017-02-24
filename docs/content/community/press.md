@@ -2,7 +2,6 @@
 lastmod: 2017-02-05
 date: 2014-03-24T20:00:00Z
 linktitle: Press
-notoc: true
 title: Press, Blogs and Media Coverage
 weight: 20
 ---

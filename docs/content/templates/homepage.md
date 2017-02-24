@@ -7,7 +7,6 @@ menu:
   main:
     parent: layout
 next: /templates/terms
-notoc: true
 prev: /templates/list
 title: Homepage
 weight: 50

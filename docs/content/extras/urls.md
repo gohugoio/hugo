@@ -7,7 +7,6 @@ menu:
   main:
     parent: extras
 next: /community/mailing-list
-notoc: true
 prev: /extras/localfiles
 title: URLs
 ---

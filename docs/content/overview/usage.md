@@ -7,7 +7,6 @@ menu:
   main:
     parent: getting started
 next: /overview/configuration
-notoc: true
 prev: /overview/installing
 title: Using Hugo
 weight: 30

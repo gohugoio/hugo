@@ -7,7 +7,6 @@ menu:
   main:
     parent: extras
 next: /extras/scratch
-notoc: true
 prev: /extras/pagination
 title: Permalinks
 ---

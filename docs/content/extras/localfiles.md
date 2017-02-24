@@ -7,7 +7,6 @@ menu:
   main:
     parent: extras
 next: /extras/urls
-notoc: true
 prev: /extras/toc
 title: Traversing Local Files
 ---
