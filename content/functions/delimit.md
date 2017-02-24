@@ -20,6 +20,12 @@ draft: false
 aliases: []
 ---
 
+`delimit` called in your template takes the form of
+
+```
+{{ delimit array/slice/map delimiter optionallastdelimiter}}
+```
+
 `delimit` loops through any array, slice, or map and returns a string of all the values separated by a delimiter, the second argument in the function call. There is an optional third parameter that lets you choose a different delimiter to go between the last two values in the loop.
 
 To maintain a consistent output order, maps will be sorted by keys and only a slice of the values will be returned.
@@ -35,19 +41,15 @@ tags: [ "tag1", "tag2", "tag3" ]
 ```
 {{% /code %}}
 
-`delimit` called in your template takes the form of
 
-```
-{{ delimit array/slice/map delimiter optionallastdelimiter}}
-```
 
-{{% code file="delimit-pages-tags.html" %}}
+{{% code file="delimit-page-tags-input.html" %}}
 ```html
 <p>Tags: {{ delimit .Params.tags ", " }}</p>
 ```
 {{% /code %}}
 
-{{% output "delimit-pages-tags-output.html" %}}
+{{% output "delimit-page-tags-output.html" %}}
 ```html
 <p>Tags: tag1, tag2, tag3</p>
 ```
@@ -55,7 +57,7 @@ tags: [ "tag1", "tag2", "tag3" ]
 
 Here is the same example but with the optional "last" delimiter:
 
-{{% code file="delimit-page-tags-final-and.html" %}}
+{{% code file="delimit-page-tags-final-and-input.html" %}}
 ```golang
 Tags: {{ delimit .Params.tags ", " ", and " }}
 ```

@@ -34,7 +34,7 @@ The following is a list of site-level variables (aka "global"). Many of these va
 : a string representing the copyright of your website as defined in the site configuration.
 
 `.Site.Data`
-: custom data, see [Data Templates](/templates/date-templates/).
+: custom data, see [Data Templates](/templates/data-templates/).
 
 `.Site.DisqusShortname`
 : a string representing the shortname of the Disqus shortcode as defined in the site configuration.
