@@ -7,33 +7,13 @@
   }
 }
 
-main#homepage.main {
+main#homepage {
   width: 90%;
   margin-bottom: 2.5em;
-  overflow-x: hidden;
-  @include MQ(M) {
-    max-width:calc(100vw - #{$site-navigation-width});
+  margin:{
+    left:auto;
+    right:auto;
   }
-  @include MQ(L) {
-    // max-width:calc(100vw - #{$site-navigation-width});
-    max-width: 100vw;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  @include MQ(XL) {
-    // max-width:calc(100vw - #{$site-navigation-width});
-    max-width: 100vw;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  // @include MQ(M) {
-  //   max-width: $M * .9;
-  // }
-  // @include MQ(L) {
-  //   margin-left:auto;
-  //   margin-right:auto;
-  //   max-width: 860px * .9;
-  // }
 }
 
 .homepage-image {
@@ -57,6 +37,7 @@ main#homepage.main {
   list-style: none;
   padding-left: 0px;
   margin-left: 0px;
+  max-width:$L;
   .homepage-card {
     @include card(1, 3);
     color: inherit;
@@ -112,8 +93,11 @@ main#homepage.main {
       color: lighten($base-font-color, 20%);
     }
   }
-  // @include MQ(L) {
-  //   margin-left: auto;
-  //   margin-right: auto;
-  // }
+  @include MQ(L) {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  @include MQ(XL){
+    max-width:$M;
+  }
 }
