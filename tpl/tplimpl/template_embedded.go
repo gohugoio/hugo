@@ -213,6 +213,7 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
 {{ end }}
 
 <!-- Twitter Card data -->
+<meta name="twitter:text:title" content="{{ .Title }}"/>
 <meta name="twitter:title" content="{{ .Title }}"/>
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}"/>
 {{ with .Site.Social.twitter }}<meta name="twitter:site" content="@{{ . }}"/>{{ end }}
