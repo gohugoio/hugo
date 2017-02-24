@@ -1,7 +1,7 @@
 aside#toc {
   position: fixed;
-  max-width: 280px;
-  min-width: 200px;
+  max-width: $site-navigation-width;
+  min-width: $site-navigation-width;
   overflow-y: scroll;
   max-height: calc(100vh - #{$site-header-height} - 40px);
   padding: {
@@ -20,8 +20,8 @@ aside#toc {
   border-radius: 5px;
   header.toc-header {
     display: inline-block;
-    width:100%;
-    margin-top:24px;
+    width: 100%;
+    margin-top: 24px;
     > a {
       h3 {
         margin-top: 0px;
@@ -41,7 +41,8 @@ aside#toc {
   @include MQ(XL) {
     box-shadow: none;
     top: $site-header-height;
-    left: calc(#{$site-navigation-width} + #{$content-max-width} + 4em);
+    // left: calc(#{$site-navigation-width} + #{$content-max-width} + 4em);
+    right:0px;
     bottom: auto;
     opacity: 1;
     min-height: calc(100vh - #{$site-header-height});
@@ -49,7 +50,7 @@ aside#toc {
     transform: scale(1);
     border-left: 1px solid $hugo-gray-light;
     border-radius: 0px;
-    max-width:320px;
+    max-width: 320px;
   }
 }
 

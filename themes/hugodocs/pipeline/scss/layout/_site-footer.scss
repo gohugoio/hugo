@@ -43,7 +43,7 @@
   }
   @include MQ(XL) {
     &.withtoc {
-      max-width:calc(#{$content-max-width} + 4em);
+      max-width:calc(100vw - #{$site-navigation-width * 2});
     }
   }
 }

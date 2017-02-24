@@ -1,20 +1,39 @@
 .all-content-wrapper.home {
   background-color: lighten($hugo-blue-light, 50%);
-  overflow-x:hidden;
+  overflow-x: hidden;
+  @include MQ(L) {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-main#homepage {
+main#homepage.main {
   width: 90%;
   margin-bottom: 2.5em;
-   overflow-x:hidden;
+  overflow-x: hidden;
   @include MQ(M) {
-    max-width: $M * .9;
+    max-width:calc(100vw - #{$site-navigation-width});
   }
   @include MQ(L) {
-    margin-left:auto;
-    margin-right:auto;
-    max-width: 860px * .9;
+    // max-width:calc(100vw - #{$site-navigation-width});
+    max-width: 100vw;
+    margin-left: auto;
+    margin-right: auto;
   }
+  @include MQ(XL) {
+    // max-width:calc(100vw - #{$site-navigation-width});
+    max-width: 100vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  // @include MQ(M) {
+  //   max-width: $M * .9;
+  // }
+  // @include MQ(L) {
+  //   margin-left:auto;
+  //   margin-right:auto;
+  //   max-width: 860px * .9;
+  // }
 }
 
 .homepage-image {
@@ -66,8 +85,8 @@ main#homepage {
       margin-right: 10px;
       img {
         max-width: 60px;
-        margin-left:auto;
-        margin-right:auto;
+        margin-left: auto;
+        margin-right: auto;
       }
       @include MQ(M) {
         max-width: 70px;
@@ -83,8 +102,8 @@ main#homepage {
       line-height: 1.1;
       margin-bottom: .5em;
       padding-bottom: 0px;
-      padding-top:0px;
-      color:$base-font-color;
+      padding-top: 0px;
+      color: $base-font-color;
     }
     p {
       font-size: .8em;
@@ -93,4 +112,8 @@ main#homepage {
       color: lighten($base-font-color, 20%);
     }
   }
+  // @include MQ(L) {
+  //   margin-left: auto;
+  //   margin-right: auto;
+  // }
 }
