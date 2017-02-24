@@ -14,10 +14,12 @@ weight: 10
 
 We're happy to announce the first release of Hugo in 2017.
 
+This release represents **over 180 contributions by over 50 contributors** to the main Hugo code base. Since last release Hugo has **gained 1400 stars, 35 new contributors and 15 additional themes.**
+
 Hugo now has:
 
 - 15100+ stars
-- 440+ contributors
+- 470+ contributors
 - 150+ themes
 
 Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where were we share bite-sized the latest news and themes from the Hugo community.
@@ -76,7 +78,7 @@ Hugo 0.18.1 is a bug fix release fixing some issues introduced in Hugo 0.18:
 * Fix `IsTranslated` and `Translations` for node pages {{<gh 2812 >}}
 * Make template error messages more verbose {{<gh 2820 >}}
 
-## **0.18.0** December 19th 2016
+# **0.18.0** December 19th 2016
 
 Today, we're excited to release the much-anticipated Hugo 0.18!
 
