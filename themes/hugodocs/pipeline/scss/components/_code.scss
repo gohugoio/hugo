@@ -98,7 +98,7 @@ p + .code-copy {
 }
 
 button.copy-button,
-a[role="button"].see-on-github {
+button.download-button {
   display: block;
   box-shadow: none;
   padding: 0px;
@@ -139,9 +139,42 @@ a[role="button"].see-on-github {
   }
 }
 
-a[role="button"].see-on-github {
-  left: 0px;
+a[role="button"].see-code-source {
+  position: absolute;
+  top: 1.75em;
+  right: 0px;
+  border-radius: 0px;
+  background: transparent;
+  text-transform: uppercase;
+  color: darken($hugo-white, 5%);
+  font-size: 14px;
 }
+
+a[href*="bitbucket"].see-code-source:after {
+  content: '\f171';
+  font-family: 'FontAwesome';
+  display: inline-block;
+  font-size: 1.3em;
+  color: inherit;
+  margin-left:.2em;
+}
+a[href*="github"].see-code-source:after {
+  content: '\f09b';
+  font-family: 'FontAwesome';
+  display: inline-block;
+  font-size: 1.3em;
+  color: inherit;
+  margin-left:.2em;
+}
+a[href*="gitlab"].see-code-source:after {
+  content: '\f296';
+  font-family: 'FontAwesome';
+  display: inline-block;
+  font-size: 1.3em;
+  color: inherit;
+  margin-left:.2em;
+}
+
 
 button.copy-button {
   display: none;

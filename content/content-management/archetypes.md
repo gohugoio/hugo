@@ -26,11 +26,11 @@ hugo new [content-section/file-name.md]
 
 We can use this pattern to create a new `.md` file in the `posts` section of the [example site][]:
 
-{{% input file="archetype-example.sh" %}}
+{{% code file="archetype-example.sh" %}}
 ```bash
 hugo new posts/my-first-post.md
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% note "Override Content Type in a New File" %}}
 To override the content type Hugo infers from `[content-section]`, add the `--kind` flag to the end of the `hugo new` command.
@@ -82,14 +82,14 @@ Default archetypes are convenient if your content's front matter stays consisten
 
 The [example site][] includes `tags` and `categories` as [taxonomies][]. If we assume that all content files will require these two key-values, we can create a `default.md` archetype that *extends* Hugo's base archetype. In this example, we are including "golang" and "hugo" as tags and "web development" as a category.
 
-{{% input file="archetypes/default.md" %}}
+{{% code file="archetypes/default.md" %}}
 ```toml
 +++
 tags = ["golang", "hugo"]
 categories = ["web development"]
 +++
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% warning "EOL Characters in Text Editors"%}}
 If you get an `EOF error` when using `hugo new`, add a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively. (See [troubleshooting](/troubleshooting/eof-error/).)
@@ -99,11 +99,11 @@ If you get an `EOF error` when using `hugo new`, add a carriage return after the
 
 With an `archetypes/default.md` in place, we can use the CLI to create a new post in the `posts` content section:
 
-{{% input file="new-post-from-default.sh" %}}
+{{% code file="new-post-from-default.sh" %}}
 ```bash
 $ hugo new posts/my-new-post.md
 ```
-{{% /input %}}
+{{% /code %}}
 
 Hugo then creates a new markdown file with the following front matter:
 
@@ -136,7 +136,7 @@ Suppose the example site's `posts` section requires more sophisticated front mat
 
 ### Creating a Custom Archetype
 
-{{% input file="archetypes/posts.md"%}}
+{{% code file="archetypes/posts.md"%}}
 ```toml
 +++
 description = ""
@@ -144,17 +144,17 @@ tags = ""
 categories = ""
 +++
 ```
-{{% /input %}}
+{{% /code %}}
 
 ### Using a Custom Archetype
 
 With an `archetypes/posts.md` in place, we can use the CLI to create a new posts with custom `posts` metadata in the `posts` content section:
 
-{{% input file="new-post-from-custom.sh" %}}
+{{% code file="new-post-from-custom.sh" %}}
 ```bash
 $ hugo new posts/post-from-custom.md
 ```
-{{% /input %}}
+{{% /code %}}
 
 This time, Hugo recognizes our custom `archetypes/posts.md` archetype and uses it instead of `archetypes/default.md`. The generated file will now include the full list of front matter parameters, as well as the base archetype's `title` and `date`.
 

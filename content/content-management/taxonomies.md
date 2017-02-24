@@ -125,21 +125,21 @@ taxonomies:
 
 If you do not specify any taxonomies in your [site configuration][] file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file.
 
-{{% input file="remove-default-taxonomies-config.toml" %}}
+{{% code file="remove-default-taxonomies-config.toml" %}}
 ```toml
 [taxonomies]
   tag = ""
   category = ""
 ```
-{{% /input %}}
+{{% /code %}}
 
-{{% input file="remove-default-taxonomies-config.yml" %}}
+{{% code file="remove-default-taxonomies-config.yml" %}}
 ```yaml
 taxonomies:
     tag: ""
     category: ""
 ```
-{{% /input %}}
+{{% /code %}}
 
 ### Preserving Taxonomy Values
 

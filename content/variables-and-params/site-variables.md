@@ -114,8 +114,8 @@ baseURL = "http://yoursite.example.com/"
 
 You can use `.Site.Params` in a [partial template](/templates/partial-templates/) to call the default site description:
 
-{{% input file="layouts/partials/head.html" %}}
+{{% code file="layouts/partials/head.html" %}}
 ```html
 <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 ```
-{{% /input %}}
+{{% /code %}}

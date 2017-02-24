@@ -76,13 +76,13 @@ Use the `note` shortcode when you want to draw attention to information subtly. 
 
 #### `note` Admonition Shortcode Input
 
-{{% input file="note-with-heading.md" %}}
+{{% code file="note-with-heading.md" %}}
 ```golang
 {{%/* note "Example Note Admonition" */%}}
 Here is a piece of information I would like to draw your **attention** to.
 {{%/* /note */%}}
 ```
-{{% /input %}}
+{{% /code %}}
 
 #### `note` Admonition Shortcode Output (Code)
 
@@ -106,13 +106,13 @@ Use the `warning` shortcode when you want to draw the user's attention to someth
 
 #### `warning` Admonition Shortcode Input
 
-{{% input file="warning-admonition-input.md" %}}
+{{% code file="warning-admonition-input.md" %}}
 ```golang
 {{%/* warning "Example Warning" */%}}
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{%/* /warning */%}}
 ```
-{{% /input %}}
+{{% /code %}}
 
 #### `warning` Admonition Shortcode Output
 

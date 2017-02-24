@@ -274,7 +274,7 @@ The most easily overlooked concept to understand about Go templates is that `{{ 
 
 The following shows how to define a variable independent of the context.
 
-{{% input file="range-through-tags-w-variable.html" %}}
+{{% code file="range-through-tags-w-variable.html" %}}
 ```html
 {{ $title := .Site.Title }}
 {{ $base := .Site.BaseURL }}
@@ -287,7 +287,7 @@ The following shows how to define a variable independent of the context.
 {{ end }}
 </ul>
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% note %}}
 Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside of the loop (`{{$title}}`) that we've assigned a value so that we have access to the value from within the loop as well.
@@ -297,7 +297,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block where we defined `$title` and `$base` for the same desired output, but now using `$`:
 
-{{% input file="range-through-tags-w-global.html" %}}
+{{% code file="range-through-tags-w-global.html" %}}
 ```html
 {{ $base := .Site.BaseURL }}
 <ul class="tags">
@@ -309,7 +309,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 {{ end }}
 </ul>
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% warning "Don't Redefine the Dot" %}}
 The built-in magic of `$` would cease to work if someone were to mischievously redefine the special character; e.g. `{{ $ := .Site }}`. ***Don't do it.*** You may, of course, recover from this mischief by using `{{ $ := . }}` in a global context to reset `$` to its default value.
@@ -321,13 +321,13 @@ Go 1.6 includes the ability to trim the whitespace from either side of a Go tag 
 
 For instance, the following Go template will include the newlines and horizontal tab in its HTML output:
 
-{{% input file="with-whitespace.html" %}}
+{{% code file="with-whitespace.html" %}}
 ```html
 <div>
   {{ .Title }}
 </div>
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% output "with-whitespace-output.html" %}}
 ```html
@@ -339,13 +339,13 @@ For instance, the following Go template will include the newlines and horizontal
 
 Leveraging the `-` in the following example will remove the extra white space surrounding the `.Title` variable and remove the newline:
 
-{{% input file="without-whitespace-input.html" %}}
+{{% code file="without-whitespace-input.html" %}}
 ```html
 <div>
   {{- .Title -}}
 </div>
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% output "without-whitespace-input.html" %}}
 ```html
@@ -383,7 +383,7 @@ toc: true
 
 Here is the corresponding code inside the `table-of-contents.html` [partial template][partials]:
 
-{{% input file="table-of-contents.html" %}}
+{{% code file="table-of-contents.html" %}}
 ```html
 {{if ne .Params.toc false}}
 <aside id="toc">
@@ -397,7 +397,7 @@ Here is the corresponding code inside the `table-of-contents.html` [partial temp
 <a href="#" id="toc-toggle"></a>
 {{end}}
 ```
-{{% /input %}}
+{{% /code %}}
 
 We want the *default* behavior to be for pages to include a TOC unless otherwise specified. This template checks to make sure that the `toc:` field in this page's front matter does not equal (i.e. `ne`) `false`.
 
@@ -407,28 +407,28 @@ In your [site's configuration file][hugoconfig] (e.g., `config.yaml`), you can d
 
 For instance, you might declare:
 
-{{% input file="config.yaml" %}}
+{{% code file="config.yaml" %}}
 ```yaml
 params:
   CopyrightHTML: "Copyright &#xA9; 2013 John Doe. All Rights Reserved."
   TwitterUser: "spf13"
   SidebarRecentLimit: 5
 ```
-{{% /input %}}
+{{% /code %}}
 
 Within a footer layout, you might then declare a `<footer>` which is only provided if the `CopyrightHTML` parameter is provided, and if it is given, you would declare it to be HTML-safe, so that the HTML entity is not escaped again.  This would let you easily update just your top-level config file each January 1st, instead of hunting through your templates.
 
-{{% input file="layouts/partials/sample-footer.html" %}}
+{{% code file="layouts/partials/sample-footer.html" %}}
 ```html
 {{if .Site.Params.CopyrightHTML}}<footer>
 <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML}}</div>
 </footer>{{end}}
 ```
-{{% /input %}}
+{{% /code %}}
 
 An alternative way of writing the "`if`" and then referencing the same value is to use [`with`](/functions/with/) instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
-{{% input file="layouts/partials/twitter.html" %}}
+{{% code file="layouts/partials/twitter.html" %}}
 ```html
 {{with .Site.Params.TwitterUser}}<span class="twitter">
 <a href="https://twitter.com/{{.}}" rel="author">
@@ -436,7 +436,7 @@ An alternative way of writing the "`if`" and then referencing the same value is 
  alt="Twitter"></a>
 </span>{{end}}
 ```
-{{% /input %}}
+{{% /code %}}
 
 Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`](/functions/first/) and [`.RelPermalink`](/functions/relpermalink/) functions as well as the [`.Site.Pages` variable](/variables-and-params/site-variables/).
 
@@ -453,7 +453,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 
 Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in the [front matter][]) is in the future:
 
-{{% input file="show-upcoming-dates.html" %}}
+{{% code file="show-upcoming-dates.html" %}}
 ```golang
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
@@ -468,7 +468,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
   {{ end }}
 {{ end }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 
 [`where` function]: /functions/where/

@@ -77,11 +77,11 @@ hugo server
 
 If everything looks fine, we are ready to commit your additions. For the sake of best practices, please make sure that your commit follows our [code contribution guideline][].
 
-{{% input file="commit-site.sh" %}}
+{{% code file="commit-site.sh" %}}
 ```git
 git commit -m "docs: Add example.com to the showcase"
 ```
-{{% /input %}}
+{{% /code %}}
 
 Last but not least, we're ready to create a [pull request].
 

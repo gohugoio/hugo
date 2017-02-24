@@ -56,7 +56,7 @@ When using Hugo v0.12 and above, please use the `partial` call (and leave out th
 
 This header template is used for [spf13.com](http://spf13.com/):
 
-{{% input file="layouts/partials/header.html" %}}
+{{% code file="layouts/partials/header.html" %}}
 ```html
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -74,13 +74,13 @@ This header template is used for [spf13.com](http://spf13.com/):
 </head>
 <body lang="en">
 ```
-{{% /input %}}
+{{% /code %}}
 
 ## Example footer.html
 
 This footer template is used for [spf13.com](http://spf13.com/):
 
-{{% input file="layouts/partials/footer.html" %}}
+{{% code file="layouts/partials/footer.html" %}}
 ```html
 <footer>
   <div>
@@ -109,7 +109,7 @@ This footer template is used for [spf13.com](http://spf13.com/):
 </body>
 </html>
 ```
-{{% /input %}}
+{{% /code %}}
 
 To reference a partial template stored in a subfolder, e.g. `/layouts/partials/post/tag/list.html`, call it this way:
 
@@ -171,19 +171,19 @@ Provide your tracking id in your configuration file, e.g. config.yaml.
 
 Include the internal template in your templates like so:
 
-{{% input file="call-ga.md" %}}
+{{% code file="call-ga.md" %}}
 ```golang
 {{ template "_internal/google_analytics.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 For asynchronous loading of Google analytics, include the async template:
 
-{{% input file="call-ga-async.md" %}}
+{{% code file="call-ga-async.md" %}}
 ```golang
 {{ template "_internal/google_analytics_async.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 <!-- pulled from extras/comments -->
 
@@ -227,7 +227,7 @@ You also have the option to set the following in the front matter for a given pi
 
 Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
 
-{{% input file="layouts/partials/disqus.html" %}}
+{{% code file="layouts/partials/disqus.html" %}}
 ```html
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -247,17 +247,17 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 ```
-{{% /input %}}
+{{% /code %}}
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
 
 You can then reference the partial template:
 
-{{% input file="disqus-reference.html" %}}
+{{% code file="disqus-reference.html" %}}
 ```golang
 {{ partial "disqus.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 ## Alternatives
 

@@ -54,6 +54,7 @@ ul.footer-list {
   margin-left: 0px;
   padding-left: 0px;
   margin: 0px;
+  flex-wrap: wrap;
   li a {
     color: $hugo-white;
     display: flex;

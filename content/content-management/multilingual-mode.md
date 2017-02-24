@@ -105,7 +105,7 @@ By having the same _base file name_, the content pieces are linked together as t
 
 To create a list of links to translated content, use a template similar to this:
 
-{{% input file="layouts/partials/i18nlist.html" %}}
+{{% code file="layouts/partials/i18nlist.html" %}}
 ```html
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
@@ -118,7 +118,7 @@ To create a list of links to translated content, use a template similar to this:
 </ul>
 {{ end }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 The above can be put in a `partial` (`./layouts/partials/`) and included in any template, be it for a [content page][contenttemplate] or the [home page][homepagetemplte]. It will not print anything if there are no translations for a given page, or if it is---in the case of the home page, section listing, etc.---a site with only one language.
 

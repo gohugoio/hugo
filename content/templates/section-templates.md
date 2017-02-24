@@ -85,7 +85,7 @@ It makes use of [partial templates][partials]. All examples use a
 [view](/templates/views/) called either "li" or "summary" which this example site
 defined.
 
-{{% input file="layouts/section/post.html" %}}
+{{% code file="layouts/section/post.html" %}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
@@ -102,7 +102,7 @@ defined.
 </section>
 {{ partial "footer.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 ### Example taxonomy template (tag.html)
 This content template is used for [spf13.com](http://spf13.com/).
@@ -400,13 +400,13 @@ you can do just that.
 1. `array` or `slice of maps or structs`
 2. `number of elements`
 
-{{% input file="layout/_default/section.html" %}}
+{{% code file="layout/_default/section.html" %}}
 ```golang
 {{ range first 10 .Data.Pages }}
   {{ .Render "summary" }}
 {{ end }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 ### `where`
 
@@ -416,25 +416,25 @@ you can do just that.
 2. `key` or `field name'
 3. `match value`
 
-{{% input file="layouts/_default/.html" %}}
+{{% code file="layouts/_default/.html" %}}
 ```html
 {{ range where .Data.Pages "Section" "post" }}
    {{ .Content }}
 {{ end }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 ### `first` and `where` Together
 
 Using `first` and `where` together can be very powerful:
 
-{{% input file="first-and-where-together.html" %}}
+{{% code file="first-and-where-together.html" %}}
 ```golang
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 {{% note %}}
 If `where` or `first` receives invalid input or a field name that doesn’t exist, it will return an error and stop site generation. `where` and `first` also work on taxonomy list templates *and* taxonomy terms templates. (See [Taxonomy Templates](/templates/taxonomy-templates/).)
@@ -459,9 +459,9 @@ The valid values for 'kind' are as follows:
 
 The `.Site.GetPage` example assumes the following project directory structure:
 
-{{% input file="grab-blog-section-index-page-title.html" %}}
+{{% code file="grab-blog-section-index-page-title.html" %}}
 {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
-{{% /input %}}
+{{% /code %}}
 
 `.Site.GetPage` will return `nil` if no `_index.md` page is found. If `content/blog/_index.md` does not exist, the template will output a blank section where `{{.Title}}` should have been in the preceding example.
 

@@ -79,7 +79,7 @@ Now we can look at the front matter for the three single-page content (i.e.`.md`
 
 ### `my-first-post.md`
 
-{{% input file="content/posts/my-first-post.md" %}}
+{{% code file="content/posts/my-first-post.md" %}}
 ```yaml
 ---
 title: My First Post
@@ -87,7 +87,7 @@ date: 2017-02-19
 description: This is my first post.
 ---
 ```
-{{% /input %}}
+{{% /code %}}
 
 When it comes time for Hugo to render the content to the page, it will go through the single page template lookup order until it finds what it needs for `my-first-post.md`:
 
@@ -109,7 +109,7 @@ Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo th
 
 ### `my-second-post.md`
 
-{{% input file="content/posts/my-second-post.md" %}}
+{{% code file="content/posts/my-second-post.md" %}}
 ```yaml
 ---
 title: My Second Post
@@ -119,7 +119,7 @@ type: review
 layout: reviewarticle
 ---
 ```
-{{% /input %}}
+{{% /code %}}
 
 Here is the way Hugo's traverses the single-page lookup order for `my-second-post.md`:
 
@@ -143,7 +143,7 @@ Notice that the directory for the template for `my-second-post.md` is `review` a
 
 ### `my-first-event.md`
 
-{{% input file="content/events/my-first-event.md" %}}
+{{% code file="content/events/my-first-event.md" %}}
 ```yaml
 ---
 title: My First
@@ -151,7 +151,7 @@ date: 2017-02-21
 description: This is an upcoming event..
 ---
 ```
-{{% /input %}}
+{{% /code %}}
 
 Here is the way Hugo's traverses the single-page lookup order for `my-first-event.md`:
 
@@ -179,7 +179,7 @@ Content pages are of the type `page` and will therefore have all the [page varia
 
 This content template is used for [spf13.com][spf13]. It makes use of [partial templates][partials]:
 
-{{% input file="layouts/post/single.html" %}}
+{{% code file="layouts/post/single.html" %}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
@@ -222,13 +222,13 @@ This content template is used for [spf13.com][spf13]. It makes use of [partial t
 {{ partial "disqus.html" . }}
 {{ partial "footer.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 ### `project/single.html`
 
 This content template is also used for [spf13.com][spf13] and makes use of [partial templates][partials]:
 
-{{% input file="project/single.html" %}}
+{{% code file="project/single.html" %}}
 ```html
   {{ partial "header.html" . }}
   {{ partial "subheader.html" . }}
@@ -270,7 +270,7 @@ This content template is also used for [spf13.com][spf13] and makes use of [part
 
   {{ partial "footer.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 Notice how `project/single.html` uses an additional parameter unique to this template. This doesn't need to be defined ahead of time. The key can wait to be used in the template if present in the content file's front matter.
 

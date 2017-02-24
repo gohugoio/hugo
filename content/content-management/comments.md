@@ -56,7 +56,7 @@ You also have the option to set the following in the front matter for a given pi
 
 Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
 
-{{% input file="layouts/partials/disqus.html" %}}
+{{% code file="layouts/partials/disqus.html" %}}
 ```html
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -76,17 +76,17 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 ```
-{{% /input %}}
+{{% /code %}}
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
 
 You can then reference the partial template:
 
-{{% input file="disqus-reference.html" %}}
+{{% code file="disqus-reference.html" %}}
 ```golang
 {{ partial "disqus.html" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 ## Alternatives
 

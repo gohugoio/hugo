@@ -23,28 +23,28 @@ These snippets use the `printf` function available in all Go templates.  This fu
 
 You can use the template syntax, `$.`, to get the top-level template context from anywhere in your template. This will print out all the values under, `.Site`.
 
-{{% input file="get-top-level-syntax.sh" %}}
+{{% code file="get-top-level-syntax.sh" %}}
 ```golang
 {{ printf "%#v" $.Site }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 This will print out the value of `.Permalink`:
 
-{{% input file="get-permalink.sh" %}}
+{{% code file="get-permalink.sh" %}}
 ```golang
 {{ printf "%#v" .Permalink }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 This will print out a list of all the variables scoped to the current context
 (aka [The dot, "`.`"][thedot]).
 
-{{% input file="get-all-vars-current-context.sh" %}}
+{{% code file="get-all-vars-current-context.sh" %}}
 ```golang
 {{ printf "%#v" . }}
 ```
-{{% /input %}}
+{{% /code %}}
 
 When writing a [Homepage][hometemplate], what does one of the pages you're looping through look like?
 

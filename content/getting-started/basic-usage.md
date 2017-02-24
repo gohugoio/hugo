@@ -234,14 +234,14 @@ No other web server software (e.g., Apache, nginx, IIS) is necessary.
 
 Here is the command:
 
-{{% input file="hugo-production-server.sh" %}}
+{{% code file="hugo-production-server.sh" %}}
 ```bash
 hugo server --baseURL=http://yoursite.org/ \
 --port=80 \
 --appendPort=false \
 --bind=87.245.198.50
 ```
-{{% /input %}}
+{{% /code %}}
 
 Note the `bind` option, which is the interface to which the server will bind (defaults to `127.0.0.1`: fine for most development use cases). Some hosts, such as Amazon Web Services, run NAT (network address translation); sometimes it can be hard to figure out the actual IP address. Using `--bind=0.0.0.0` will bind to all interfaces.
 
