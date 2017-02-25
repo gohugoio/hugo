@@ -30,7 +30,7 @@ Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/
 ## Highlights
 Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "chaseadamsio" >}}.
 
-Also, a considerably amount of work have been put into cleaning up the Hugo source code, in a issue titled [Refactor the globals out of site build](https://github.com/spf13/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
+Also, a considerably amount of work have been put into cleaning up the Hugo source code, in an issue titled [Refactor the globals out of site build](https://github.com/spf13/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
 
 Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on this order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
 
@@ -46,14 +46,14 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Add `truncate` template function gh 2882
 * Add `now` function, which replaces the now deprecated `.Now` gh 2882
 * Make RSS item limit configurable gh 3035
-* Accept limit as interface in findRE func gh 3018
-* Improve generation of OpenGraph date tags gh 2979
 
 ## Enhancements
 *  Enhance `.Param` to permit arbitrarily nested parameter references gh 2598
 * Use `Page.Params` more consistently when adding metadata gh 3033
-* The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is not integrated with the section content pages. gh 2974
- * Hugo 0.19 is compiled with Go 1.8!
+* The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is now integrated with the section content pages. gh 2974
+* Hugo 0.19 is compiled with Go 1.8!
+* Accept limit as interface in findRE func gh 3018
+* Improve generation of OpenGraph date tags gh 2979
 
 ## Notes
 
