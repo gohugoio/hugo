@@ -22,13 +22,15 @@ Hugo now has:
 - 470+ contributors
 - 150+ themes
 
+{{< gh "@bep" >}} once again took the lead of Hugo and contributed a significant amount of additions.
+Also a big shoutout to  {{< gh "chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< "@fj" >}}  for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
+
 Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where were we share bite-sized the latest news and themes from the Hugo community.
 
-TODO There will hopefully be some more new items before release, org mode support etc.
+## Highlights
+Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "chaseadamsio" >}}.
 
-TODO: About the boring globals.  {{<gh 3016 >}}.
-
-New Contributors: @fj Gunnar Morling (docs), others?
+Also, a considerably amount of work have been put into cleaning up the Hugo source code, in a issue titled [Refactor the globals out of site build](https://github.com/spf13/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
 
 Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on this order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
 
@@ -39,21 +41,28 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 ```
 ## Other New Features
 
-*  Enhance `.Param` to permit arbitrarily nested parameter references gh 2598
 * Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. gh 3022
-* Add truncate template function gh 2882
+* Add terms' pages to `.Data.Pages` (all the pages in `categories` as an example), which means that these pages also can be paginated. gh 2826
+* Add `truncate` template function gh 2882
 * Add `now` function, which replaces the now deprecated `.Now` gh 2882
 * Make RSS item limit configurable gh 3035
-* Hugo now compiles with Go 1.8!
 * Accept limit as interface in findRE func gh 3018
 * Improve generation of OpenGraph date tags gh 2979
+
+## Enhancements
+*  Enhance `.Param` to permit arbitrarily nested parameter references gh 2598
+* Use `Page.Params` more consistently when adding metadata gh 3033
+* The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is not integrated with the section content pages. gh 2974
+ * Hugo 0.19 is compiled with Go 1.8!
 
 ## Notes
 
 * `sourceRelativeLinks` is now deprecated and will be removed in Hugo 0.21 if  no one is stepping up to the plate and fixes and maintains this feature. gh 3028
 
 ## Fixes
-
+* Fix `.Site.LastChange` on sites where the default sort order is not chronological. gh 2909
+* Fix regression of .Truncated evaluation in manual summaries. gh 2989
+* Fix preserveTaxonomyNames regression gh 3070
 * Fix issue with taxonomies when only some have content page gh 2992
 * Fix instagram shortcode panic on invalid ID gh 3048
 * Fix subtle data race in `getJSON` gh 3045
@@ -62,13 +71,15 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Allow tilde in URLs gh 2177
 * Fix `.Site.Pages` handling on live reloads gh 2869
 * `UniqueID` now correctly uses the fill file path from the content root to calculate the hash, and is finally ... unique!
-*
-
+* Discard current language based on `.Lang()`, go get translations correct for paginated pages. gh 2972
+ 
 
 ## Docs
 * Add tutorial "How to use Google Firebase to host a Hugo site" gh 3007
 * Improve documentation for menu rendering gh 3056
-## **0.18.1** December 30th 2016
+* Revise GitHub Pages deployment tutorial gh 2930
+
+# **0.18.1** December 30th 2016
 
 Hugo 0.18.1 is a bug fix release fixing some issues introduced in Hugo 0.18:
 
@@ -128,7 +139,6 @@ Hugo again continues its trend of each release being faster than the last. It's 
 * Add `noChmod` option to disable perm sync {{<gh 2749>}}
 * Add `quiet` build mode {{<gh 1218>}}
 
-
 ## Notices
 
 * `.Site.Pages` will now contain *several kinds of pages*, including regular pages, sections, taxonomies, and the home page.
@@ -154,6 +164,7 @@ Hugo again continues its trend of each release being faster than the last. It's 
 * Handle ToC before handling shortcodes {{<gh 2433>}}
 * Only watch relevant themes dir {{<gh 2602>}}
 * Hugo new content creates TOML slices with closing bracket on new line {{<gh 2800>}}
+
 
 ## Improvements
 
