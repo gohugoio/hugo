@@ -1,7 +1,7 @@
 ---
 title: Introduction to Lists in Hugo
-linktitle: Lists in Hugo
-description:
+linktitle: Hugo Lists Introduction
+description: Lists have a specific meaning and usage in Hugo. If you want to know how to render your site homepage, section homepage, taxonomy list, or taxonomy terms list, start here.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -20,7 +20,7 @@ A list page template is a template used to render multiple pieces of content in 
 
 Hugo uses the term *list* in its truest sense: a sequential arrangement of material, especially in alphabetical or numerical order. Hugo uses list templates on any output HTML page where content is being listed (e.g., [taxonomies][], [sections][], and [RSS][]). The idea of a list page comes from the [hierarchical mental model of the web][mentalmodel] and is best demonstrated visually:
 
-
+```yaml
 ---
 aliases:
 - /doc/using-index-md/
@@ -36,7 +36,9 @@ notoc: true
 title: Using _index.md
 weight: 70
 ---
-# \_index.md and 'Everything is a Page'
+```
+
+## \_index.md and 'Everything is a Page'
 
 As of version v0.18 Hugo now treats '[everything as a page](http://bepsays.com/en/2016/12/19/hugo-018/)'. This allows you to add content and front matter to any page - including List pages like [Sections](/content/sections/), [Taxonomies](/taxonomies/overview/), [Taxonomy Terms pages](/templates/terms/) and even to potential 'special case' pages like the [Home page](/templates/homepage/).
 
@@ -48,7 +50,7 @@ In order to take advantage of this behaviour you need to do a few things.
 
 3. Ensure that the respective template is configured to display `{{ .Content }}` if you wish for the content of the \_index.md file to be rendered on the respective page.
 
-## How \_index.md pages work
+### How \_index.md pages work
 
 Before continuing it's important to know that this page must reference certain templates to describe how the \_index.md page will be rendered. Hugo has a multitude of possible templates that can be used and placed in various places (think theme templates for instance). For simplicity/brevity the default/top level template location will be used to refer to the entire range of places the template can be placed.
 
@@ -74,10 +76,12 @@ Let's put all this information together:
 
 Here are a couple of examples to make it clearer...
 
+```
 | \_index.md location                 | Page affected             | Rendered by                   |
 | -------------------                 | ------------              | -----------                   |
 | /content/post/\_index.md            | site.com/post/            | /layouts/section/post.html    |
 | /content/categories/hugo/\_index.md | site.com/categories/hugo/ | /layouts/taxonomy/hugo.html   |
+```
 
 ## Why \_index.md files are used
 
@@ -139,7 +143,7 @@ In the above example \_index.md pages have been added to each section/taxonomy.
 
 An `_index.md` file has also been added in the top level 'content' directory.
 
-### Where to place \_index.md for the Home page
+### Where to place \_index.md for the Homepage Template
 
 Hugo themes are designed to use the 'content' directory as the root of the website, so adding an \_index.md file here (like has been done in the example above) is how you would add front matter/content to the home page.
 
@@ -197,363 +201,7 @@ Taxonomy pages will additionally have:
 
 **.Data.`Singular`** The taxonomy itself.<br>
 
-## Example List Template Pages
 
-### Example Section Template: `post.html`
-
-This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates][partials]. All examples use a
-[view](/templates/views/) called either "li" or "summary" which this example site
-defined.
-
-{{% code file="layouts/section/post.html" %}}
-```html
-{{ partial "header.html" . }}
-{{ partial "subheader.html" . }}
-
-<section id="main">
-  <div>
-   <h1 id="title">{{ .Title }}</h1>
-        <ul id="list">
-            {{ range .Data.Pages }}
-                {{ .Render "li"}}
-            {{ end }}
-        </ul>
-  </div>
-</section>
-{{ partial "footer.html" . }}
-```
-{{% /code %}}
-
-### Example Taxonomy Template
-
-This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates](/templates/partials/). All examples use a
-[view](/templates/views/) called either "li" or "summary" which this example site defined.
-
-{{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
-<section id="main">
-  <div>
-   <h1 id="title">{{ .Title }}</h1>
-    {{ range .Data.Pages }}
-        {{ .Render "summary"}}
-    {{ end }}
-  </div>
-</section>
-{{ end }}
-{{% /code %}}
-
-## Ordering Content
-
-In the case of Hugo, each list will render the content based on metadata provided in the [front
-matter](/content/front-matter/). See [ordering content](/content/ordering/) for more information.
-
-Here are a variety of different ways you can order the content items in
-your list templates:
-
-### Order by Weight -> Date (default)
-
-    {{ range .Data.Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by Weight -> Date
-
-    {{ range .Data.Pages.ByWeight }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by Date
-
-    {{ range .Data.Pages.ByDate }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by PublishDate
-
-    {{ range .Data.Pages.ByPublishDate }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by ExpiryDate
-
-    {{ range .Data.Pages.ByExpiryDate }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .ExpiryDate.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by Lastmod
-
-    {{ range .Data.Pages.ByLastmod }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by Length
-
-    {{ range .Data.Pages.ByLength }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-
-### Order by Title
-
-    {{ range .Data.Pages.ByTitle }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by LinkTitle
-
-    {{ range .Data.Pages.ByLinkTitle }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-
-### Order by Parameter
-
-Order based on the specified front matter parameter. Pages without that
-parameter will use the site's `.Site.Params` default. If the parameter is not
-found at all in some entries, those entries will appear together at the end
-of the ordering.
-
-The below example sorts a list of posts by their rating.
-
-    {{ range (.Data.Pages.ByParam "rating") }}
-      <!-- ... -->
-    {{ end }}
-
-If the front matter field of interest is nested beneath another field, you can
-also get it:
-
-```
-{{ range (.Date.Pages.ByParam "author.last_name") }}
-  <!-- ... -->
-{{ end }}
-```
-
-### Reverse Order
-Can be applied to any of the above. Using Date for an example.
-
-```
-{{ range .Data.Pages.ByDate.Reverse }}
-<li>
-<a href="{{ .Permalink }}">{{ .Title }}</a>
-<div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-</li>
-{{ end }}
-```
-
-## Grouping Content
-
-Hugo provides some grouping functions for list pages. You can use them to
-group pages by Section, Type, Date etc.
-
-Here are a variety of different ways you can group the content items in
-your list templates:
-
-### Grouping by Page field
-
-```
-{{ range .Data.Pages.GroupBy "Section" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-```
-
-### Grouping by Page date
-
-```
-{{ range .Data.Pages.GroupByDate "2006-01" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-```
-
-### Grouping by Page publish date
-
-```
-{{ range .Data.Pages.GroupByPublishDate "2006-01" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-```
-
-### Grouping by Page param
-
-```html
-{{ range .Data.Pages.GroupByParam "param_key" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-```
-
-### Grouping by Page param in date format
-
-```html
-{{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-```
-
-### Reversing Key Order
-
-The ordering of the groups is performed by keys in alphanumeric order (A–Z,
-1–100) and in reverse chronological order (newest first) for dates.
-
-While these are logical defaults, they are not always the desired order. There
-are two different syntaxes to change the order; they both work the same way, so
-it’s really just a matter of preference.
-
-#### Reverse method
-
-```golang
-{{ range (.Data.Pages.GroupBy "Section").Reverse }}
-```
-
-```golang
-{{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
-```
-
-
-#### Providing the (alternate) direction
-
-```golang
-{{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
-```
-
-```golang
-{{ range .Data.Pages.GroupBy "Section" "desc" }}
-```
-
-### Ordering Pages within Group
-
-Because Grouping returns a key and a slice of pages, all of the ordering methods listed above are available.
-
-In this example, I’ve ordered the groups in chronological order and the content
-within each group in alphabetical order by title.
-
-```html
-{{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
-<h3>{{ .Key }}</h3>
-<ul>
-    {{ range .Pages.ByTitle }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-    {{ end }}
-</ul>
-{{ end }}
-```
-
-## Filtering & Limiting Content
-
-Sometimes you only want to list a subset of the available content. A common
-request is to only display “Posts” on the homepage. Using the `where` function,
-you can do just that.
-
-### `first`
-
-`first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
-
-1. `array` or `slice of maps or structs`
-2. `number of elements`
-
-{{% code file="layout/_default/section.html" %}}
-```golang
-{{ range first 10 .Data.Pages }}
-  {{ .Render "summary" }}
-{{ end }}
-```
-{{% /code %}}
-
-### `where`
-
-`where` works in a similar manner to the `where` keyword in SQL. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
-
-1. `array` or a `slice of maps or structs`
-2. `key` or `field name'
-3. `match value`
-
-{{% code file="layouts/_default/.html" %}}
-```html
-{{ range where .Data.Pages "Section" "post" }}
-   {{ .Content }}
-{{ end }}
-```
-{{% /code %}}
-
-### `first` and `where` Together
-
-Using `first` and `where` together can be very powerful:
-
-{{% code file="first-and-where-together.html" %}}
-```golang
-{{ range first 5 (where .Data.Pages "Section" "post") }}
-   {{ .Content }}
-{{ end }}
-```
-{{% /code %}}
 
 {{% note %}}
 If `where` or `first` receives invalid input or a field name that doesn’t exist, it will return an error and stop site generation. `where` and `first` also work on taxonomy list templates *and* taxonomy terms templates. (See [Taxonomy Templates](/templates/taxonomy-templates/).)
