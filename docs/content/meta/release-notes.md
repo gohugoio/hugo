@@ -10,7 +10,7 @@ title: Release Notes
 weight: 10
 ---
 
-# **0.19** February XXth 2017
+# **0.19** February 27th 2017
 
 We're happy to announce the first release of Hugo in 2017.
 
@@ -22,17 +22,16 @@ Hugo now has:
 - 470+ contributors
 - 150+ themes
 
-Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where we share bite-sized news and themes from the Hugo community.
+Furthermore, Hugo has its own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where we share bite-sized news and themes from the Hugo community.
 
-{{< gh "@bep" >}} once again took the lead of Hugo and contributed a significant amount of additions.
-Also a big shoutout to  {{< gh "chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< "@fj" >}}  for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
+{{< gh "@bep" >}} leads the Hugo development and once again contributed a significant amount of additions. Also a big shoutout to  {{< gh "chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< "@fj" >}}  for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
 
 ## Highlights
 Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "chaseadamsio" >}}.
 
 Also, a considerably amount of work have been put into cleaning up the Hugo source code, in an issue titled [Refactor the globals out of site build](https://github.com/spf13/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
 
-Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on this order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
+Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on rendering order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
 
 With Hugo `0.19`, you can control this behaviour by turning off page types you do not want ({{<gh 2534 >}}). In its most extreme case, if you put the below setting in your `config.toml`, you will get **nothing!**:
 
@@ -51,18 +50,18 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 *  Enhance `.Param` to permit arbitrarily nested parameter references gh 2598
 * Use `Page.Params` more consistently when adding metadata gh 3033
 * The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is now integrated with the section content pages. gh 2974
-* Hugo 0.19 is compiled with Go 1.8!
-* Accept limit as interface in findRE func gh 3018
+* Hugo `0.19` is compiled with Go 1.8!
+* Accept limit as interface in the `findRE` template func gh 3018
 * Improve generation of OpenGraph date tags gh 2979
 
 ## Notes
 
-* `sourceRelativeLinks` is now deprecated and will be removed in Hugo 0.21 if  no one is stepping up to the plate and fixes and maintains this feature. gh 3028
+* `sourceRelativeLinks` is now deprecated and will be removed in Hugo `0.21` if  no one is stepping up to the plate and fixes and maintains this feature. gh 3028
 
 ## Fixes
 * Fix `.Site.LastChange` on sites where the default sort order is not chronological. gh 2909
-* Fix regression of .Truncated evaluation in manual summaries. gh 2989
-* Fix preserveTaxonomyNames regression gh 3070
+* Fix regression of `.Truncated` evaluation in manual summaries. gh 2989
+* Fix `preserveTaxonomyNames` regression gh 3070
 * Fix issue with taxonomies when only some have content page gh 2992
 * Fix instagram shortcode panic on invalid ID gh 3048
 * Fix subtle data race in `getJSON` gh 3045
