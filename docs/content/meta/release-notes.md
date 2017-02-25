@@ -50,7 +50,7 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Use `Page.Params` more consistently when adding metadata {{<gh 3033 >}}
 * The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is now integrated with the section content pages. {{<gh 2974 >}}
 * Hugo `0.19` is compiled with Go 1.8!
-* Accept limit as interface in the `findRE` template func {{<gh 3018 >}}
+* Make template funcs like `findRE` and friends more liberal in what argument types they accept {{<gh 3018 >}} {{<gh 2822 >}}
 * Improve generation of OpenGraph date tags {{<gh 2979 >}}
 
 ## Notes
@@ -72,6 +72,8 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Discard current language based on `.Lang()`, go get translations correct for paginated pages. {{<gh 2972 >}}
 * Fix infinite loop in template AST handling for recursive templates  {{<gh 2927 >}} 
 * Fix issue with watching when config loading fails {{<gh 2603 >}} 
+* Correctly flush the imageConfig on live-reload {{<gh 3016 >}} 
+* Fix parsing of TOML arrays in frontmatter {{<gh 2752 >}} 
 
 ## Docs
 * Add tutorial "How to use Google Firebase to host a Hugo site" {{<gh 3007 >}}
