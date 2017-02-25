@@ -14,6 +14,8 @@ aliases: [/extras/shortcodes/]
 toc: true
 ---
 
+## Introduction to Shortcodes
+
 Hugo loves Markdown because of its simple content format, but there are times when markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to markdown content. We think this contradicts the beautiful simplicity of markdown's syntax.
 
 Hugo created **shortcodes** to circumvent these limitations.
@@ -315,33 +317,81 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 ### `vimeo`
 
-Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above. Extract the ID from the URL, e.g.:
+Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above.
 
-* https://vimeo.com/channels/staffpicks/146022717
+```
+https://vimeo.com/channels/staffpicks/146022717
+```
 
-and pass it to the shortcode:
+#### Example `vimeo` Input
 
+Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
+
+{{% code file="example-vimeo-input.md" %}}
 ```golang
 {{</* vimeo 146022717 */>}}
 ```
+{{% /code %}}
+
+#### Example `vimeo` Output
+
+Using the preceding `vimeo` example, the following HTML will be added to your rendered website's markup:
+
+{{% output file="example-vimeo-output.html" %}}
+```html
+{{< vimeo 146022717 >}}
+```
+{{% /output %}}
+
+#### Example `vimeo` Display
+
+Using the preceding `vimeo` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< vimeo 146022717 >}}
 
 ### `youtube`
 
-This shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
+The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
 
-* https://www.youtube.com/watch?v=w7Ft2ymGmfc
+```
+https://www.youtube.com/watch?v=w7Ft2ymGmfc
+```
+
+
+#### Example `youtube` Input
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
+{{% code file="example-youtube-input.md" %}}
 ```golang
 {{</* youtube w7Ft2ymGmfc */>}}
 ```
+{{% /code %}}
 
-Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
+Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters, so you'll need to assign the yet unamed video id to the parameter `id`:
 
+
+{{% code file="example-youtube-input-with-autoplay.md" %}}
 ```golang
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 ```
+{{% /code %}}
+
+#### Example `youtube` Output
+
+Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
+
+{{% code file="example-youtube-output.html" %}}
+```golang
+{{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
+```
+{{% /code %}}
+
+#### Example `youtube` Display
+
+Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< youtube w7Ft2ymGmfc >}}
 
 ## Creating Custom Shortcodes
 
