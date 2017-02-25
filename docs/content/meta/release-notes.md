@@ -22,10 +22,10 @@ Hugo now has:
 - 470+ contributors
 - 150+ themes
 
+Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where where we share bite-sized news and themes from the Hugo community.
+
 {{< gh "@bep" >}} once again took the lead of Hugo and contributed a significant amount of additions.
 Also a big shoutout to  {{< gh "chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< "@fj" >}}  for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
-
-Furthermore, Hugo has it's own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where were we share bite-sized the latest news and themes from the Hugo community.
 
 ## Highlights
 Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "chaseadamsio" >}}.
