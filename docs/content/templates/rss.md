@@ -58,24 +58,29 @@ If the following values are specified in the site’s config file (`config.toml`
 
     [author]
         name = "My Name Here"
+        email = "sample@domain.tld"
 
+### Limiting the Number of Items
+
+By default, the RSS feed is limited to **15** items.
+You may override the default by using the `rssLimit` [site configuration variable](/overview/configuration/).
 
 ## The Embedded rss.xml
 This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
 
     <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
       <channel>
-        <title>{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}</title>
+        <title>{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}{{ end }}</title>
         <link>{{ .Permalink }}</link>
-        <description>Recent content {{ with .Title }}in {{.}} {{ end }}on {{ .Site.Title }}</description>
+        <description>Recent content {{ if ne  .Title  .Site.Title }}{{ with .Title }}in {{.}} {{ end }}{{ end }}on {{ .Site.Title }}</description>
         <generator>Hugo -- gohugo.io</generator>{{ with .Site.LanguageCode }}
         <language>{{.}}</language>{{end}}{{ with .Site.Author.email }}
         <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
         <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
         <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
         <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
-        <atom:link href="{{.URL}}" rel="self" type="application/rss+xml" />
-        {{ range first 15 .Data.Pages }}
+        <atom:link href="{{.Permalink}}" rel="self" type="application/rss+xml" />
+        {{ range .Data.Pages }}
         <item>
           <title>{{ .Title }}</title>
           <link>{{ .Permalink }}</link>
