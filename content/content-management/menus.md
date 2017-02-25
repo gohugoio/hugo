@@ -14,76 +14,40 @@ toc: true
 needsreview: true
 ---
 
-Hugo has a simple yet powerful menu system that permits content to be placed in menus with a good degree of control without a lot of work.
+Hugo has a simple yet powerful menu system that allows you to add content to menus with a high degree of control and a very low amount of effort on the part of content authors.
 
 {{% note "Lazy Blogger"%}}
 If all you want is a simple menu for your sections, see the ["Section Menu for Lazy Bloggers" in Menu Templates](/templates/menu-templates/#section-menu-for-lazy-blogger).
 {{% /note %}}
 
-Some of the features of Hugo Menus:
+Hugo's robust menu features allow you to do the following:
 
 * Place content in one or many menus
 * Handle nested menus with unlimited depth
 * Create menu entries without being attached to any content
 * Distinguish active element (and active branch)
 
-## What is a Menu?
+## What is a Menu in Hugo?
 
-A menu is a named array of menu entries accessible on the site under `.Site.Menus` by name. For example, if I have a menu called `main`, I would access it via `.Site.Menus.main`.
+A **menu** is a named array of menu entries accessible by name via the [`.Site.Menus` site variable][sitevars]. For example, you can access your site's `main` menu via `.Site.Menus.main`.
 
-If you make use of the [multilingual feature](content-management/multilingual-mode/) you can define language-independent menus.
+{{% note "Menus on Multilingual Sites" %}}
+If you make use of the [multilingual feature](/content-management/multilingual-mode/), you can define language-independent menus.
+{{% /note %}}
 
-A menu entry has the following properties:
+A menu entry has the following properties (i.e., variables) available to it:
 
-`URL`
-: string
-
-`Name`
-: string
-
-`Menu`
-: string
-
-`Identifier`
-: string
-
-`Pre`
-: template.HTML
-
-`Post`
-: template.HTML
-
-`Weight`
-: int
-
-`Parent`
-: string
-
-`Children`
-: Menu
-
-And the following functions:
-
-`HasChildren`
-: boolean
-
-Additionally, there are some relevant functions available on the page:
-
-`IsMenuCurrent`
-: (menu string, menuEntry *MenuEntry ) boolean
-
-`HasMenuCurrent`
-: (menu string, menuEntry *MenuEntry) bool
+{{< readfile file="readfile-content/menuvars.md" markdown="true" >}}
 
 ## Adding content to menus
 
-Hugo supports a couple of different methods of adding a piece of content to the front matter.
+Hugo allows you to add content to a menu via the content's [front matter](/content-management/front-matter/).
 
 ### Simple
 
 If all you need to do is add an entry to a menu, the simple form works well.
 
-#### A Single Menu:
+#### A Single Menu
 
 ```yaml
 ---
@@ -91,7 +55,7 @@ menu: "main"
 ---
 ```
 
-#### Multiple Menus:
+#### Multiple Menus
 
 ```yaml
 ---
@@ -116,8 +80,9 @@ menu:
 
 You can also add entries to menus that aren’t attached to a piece of content. This takes place in the sitewide [config file](/overview/configuration/).
 
-Here’s an example `config.toml`:
+Here’s an example snippet pulled from a `config.toml`:
 
+{{% code file="menu-in-config.toml" %}}
 ```toml
 [[menu.main]]
     name = "about hugo"
@@ -131,9 +96,11 @@ Here’s an example `config.toml`:
     weight = -100
     url = "/getting-started/"
 ```
+{{% /code %}}
 
-And the equivalent example `config.yaml`:
+Here's the equivalent snippet pulled from a `config.yaml`:
 
+{{% code file="menu-in-config.yml" %}}
 ```yaml
 ---
 menu:
@@ -149,29 +116,30 @@ menu:
         URL: "/getting-started/"
 ---
 ```
+{{% /code %}}
 
-
-**NOTE:** The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.
+{{% note %}}
+The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.
+{{% /note %}}
 
 ## Nesting
 
 All nesting of content is done via the `parent` field.
 
-The parent of an entry should be the identifier of another entry.
-Identifier should be unique (within a menu).
+The parent of an entry should be the identifier of another entry. Identifier should be unique (within a menu).
 
 The following order is used to determine an Identifier:
 
-* Name >
-    * LinkTitle >
-        * Title
+`.Name > .LinkTitle` > .Title`
 
-This means that `title` will be used unless `linktitle` is present, etc. In practice, Name and Identifier are never displayed and only used to structure relationships.
+This means that `.Title` will be used unless `.LinkTitle` is present, etc. In practice, `.Name` and `.Identifier` are only used to structure relationships and therefore never displayed.
 
-In this example, the top level of the menu is defined in the config file
-and all content entries are attached to one of these entries via the
-`parent` field.
+In this example, the top level of the menu is defined in your [site `config` file][config]). All content entries are attached to one of these entries via the `.Parent` field.
 
 ## Rendering Menus
 
 See [Menu Templates](/templates/menu-templates/) for information on how to render your site menus.
+
+[config]: /getting-started/configuration/
+[multilingual]: /content-management/multilingual-mode/
+[sitevars]: /variables/

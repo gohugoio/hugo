@@ -374,7 +374,7 @@ blackfriday:
 * [YAML Spec][]
 * [JSON Spec][]
 
-[`.Site.Params`]: /variables-and-params/
+[`.Site.Params`]: /variables/
 [directory structure]: /project-organization/directory-structure
 [JSON Spec]: /documents/ecma-404-json-spec.pdf
 [templates]: /templates/

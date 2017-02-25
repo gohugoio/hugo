@@ -24,7 +24,7 @@ Hugo provides multiple ways to leverage taxonomies through your project:
 
 ## Introduction to the Template Lookup Order
 
-{{< lookupexplanation >}}
+{{< readfile file="readfile-content/lookupexplanation.md" markdown="true" >}}
 
 ## Taxonomy List Templates
 

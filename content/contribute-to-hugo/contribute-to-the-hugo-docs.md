@@ -86,7 +86,7 @@ Here is a piece of information I would like to draw your **attention** to.
 
 #### `note` Admonition Shortcode Output (Code)
 
-{{% output "note-with-heading.html" %}}
+{{% output file="note-with-heading.html" %}}
 ```html
 {{% note "Example Note Admonition" %}}
 Here is a piece of information I would like to draw your **attention** to.
@@ -116,7 +116,7 @@ This is a warning, which should be reserved for *important* information like bre
 
 #### `warning` Admonition Shortcode Output
 
-{{% output "warning-admonition-output.html" %}}
+{{% output file="warning-admonition-output.html" %}}
 ```html
 {{% warning "Example Warning" %}}
 This is a warning, which should be reserved for *important* information like breaking changes.

@@ -20,33 +20,27 @@
   }
 }
 
-// main.main {
-//   width: 90%;
-//   display: block;
-//   margin-left: auto;
-//   margin-right: auto;
-//   max-width: $content-max-width;
-//   position: relative;
-//   min-height:calc(100vh - #{$site-header-height * 2});
-//   // overflow-x: hidden;
-//   @include MQ(L) {
-//     margin-left: 2em;
-//   }
-// }
 main.main {
-  width: 90%;
+  width: 100%;
   display: block;
   margin-left: auto;
   margin-right: auto;
   position: relative;
   min-height:calc(100vh - #{$site-header-height * 2});
   @include MQ(XL) {
-    width: 90%;
+    width: 100%;
     margin-right: 0px;
     max-width: calc(100vw - #{$site-navigation-width * 2} - 20px);
     float: left;
-    padding-left: 1.5em;
+    padding-left: 0px;
+    padding-right: 0px;
   }
+}
+
+article.content {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 header.content-header {

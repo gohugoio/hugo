@@ -72,7 +72,7 @@ See what's coming next in the [Hugo roadmap][].
 [LiveReload]: /getting-started/using-hugo/
 [Mac OSX]: /getting-started/install-of-pc/
 [organization for your projects]: /getting-started/directory-structure/
-[pagevars]: /variables-and-params/page-variables/
+[pagevars]: /variables/page-variables/
 [Permalink]: /content-management/url-management/#permalinks
 [Powerful theming]: /themes/
 [Pretty URLs]: /content-management/url-management/

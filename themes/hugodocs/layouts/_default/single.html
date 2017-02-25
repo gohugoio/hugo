@@ -2,23 +2,25 @@
 {{$title := .Title}}
 <span id="page-top"></span>
 <main class="main">
-	<header class="content-header">
-		{{partial "breadcrumb.html" . }}
-		<h1 class="page-title {{.Section}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">{{ .Title | markdownify }}</h1>
-		{{partial "content-header-links.html" . }}
-		{{partial "tags.html" . }}
-		{{if .Params.needsreview }}
-		<div id="beingreviewed">WIP</div>
-		{{end}}
-		{{if .Params.outdated}}
-		<div id="outdated">OUTDATED</div>
-		{{end}}
-		{{$title := .Title}}
-	</header>
-	<div class="body-copy">
-	{{.Content}}
-	</div>
-	{{partial "content-footer.html" . }}
+	<article class="content" id="{{.Title | urlize}}">
+		<header class="content-header">
+			{{- partial "breadcrumb.html" . -}}
+			<h1 class="page-title {{.Section}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">{{ .Title | markdownify }}</h1>
+			{{- partial "content-header-links.html" . -}}
+			{{- partial "tags.html" . -}}
+			{{- if .Params.needsreview -}}
+			<div id="beingreviewed">WIP</div>
+			{{- end -}}
+			{{- if .Params.outdated -}}
+			<div id="outdated">OUTDATED</div>
+			{{- end -}}
+			{{ $title := .Title }}
+		</header>
+		<div class="body-copy">
+		{{.Content}}
+		</div>
+		{{- partial "content-footer.html" . -}}
+	</article>
 </main>
-{{partial "table-of-contents.html" . }}
+{{- partial "table-of-contents.html" . -}}
 {{ end }}

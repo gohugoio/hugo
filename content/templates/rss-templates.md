@@ -18,13 +18,13 @@ needsreview: true
 
 Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed.
 
-* /layouts/section/`SECTION`.rss.xml
-* /layouts/\_default/rss.xml
-* /themes/`THEME`/layouts/section/`SECTION`.rss.xml
-* /themes/`THEME`/layouts/\_default/rss.xml
+* `/layouts/section/<section>.rss.xml`
+* `/layouts/\_default/rss.xml`
+* `/themes/<theme>/layouts/section/<section>.rss.xml`
+* `/themes/<theme>/layouts/\_default/rss.xml`
 
 {{% note "Hugo Ships with an RSS Template" %}}
-*Unlike other Hugo templates*, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320). In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section.
+Unlike other Hugo templates, Hugo ships with its own [RSS 2.0 template][embedded]. In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section.
 {{% /note %}}
 
 RSS pages are of the type `Page` and have all the [page variables](/layout/variables/) available to use in the templates.
@@ -50,15 +50,15 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 
 * /layouts/rss.xml
 * /layouts/\_default/rss.xml
-* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
+* [Embedded rss.xml][embedded]
 
 ### Section RSS
 
 * /layouts/section/`SECTION`.rss.xml
 * /layouts/\_default/rss.xml
-* /themes/`THEME`/layouts/section/`SECTION`.rss.xml
+* /themes/<mytheme>/layouts/section/<section>.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
-* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
+* [Embedded rss.xml][embedded]
 
 ### Taxonomy RSS
 
@@ -66,7 +66,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 * /layouts/\_default/rss.xml
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
-* [Embedded rss.xml](#the-embedded-rss-xml:eceb479b7b3b2077408a2878a29e1320)
+* [Embedded rss.xml][embedded]
 
 ## Configuring RSS
 
@@ -139,5 +139,6 @@ The `.RSSLink` will render the appropriate RSS feed URL for the section, whether
 <a href="{{ .URL }}" type="application/rss+xml" target="_blank">{{ .SomeText }}</a>
 ```
 
+[embedded]:
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [section]: /content-management/sections/

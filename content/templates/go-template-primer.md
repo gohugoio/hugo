@@ -329,7 +329,7 @@ For instance, the following Go template will include the newlines and horizontal
 ```
 {{% /code %}}
 
-{{% output "with-whitespace-output.html" %}}
+{{% output file="with-whitespace-output.html" %}}
 ```html
 <div>
   Hello, World!
@@ -347,7 +347,7 @@ Leveraging the `-` in the following example will remove the extra white space su
 ```
 {{% /code %}}
 
-{{% output "without-whitespace-input.html" %}}
+{{% output file="without-whitespace-input.html" %}}
 ```html
 <div>Hello, World!</div>
 ```
@@ -438,7 +438,7 @@ An alternative way of writing the "`if`" and then referencing the same value is 
 ```
 {{% /code %}}
 
-Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`](/functions/first/) and [`.RelPermalink`](/functions/relpermalink/) functions as well as the [`.Site.Pages` variable](/variables-and-params/site-variables/).
+Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`](/functions/first/) and [`.RelPermalink`](/functions/relpermalink/) functions as well as the [`.Site.Pages` variable](/variables/site-variables/).
 
 ```html
 <nav class="recent">
@@ -480,5 +480,5 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [hugofunctions]: /functions/ "Link to section for Hugo's templating functions"
 [math functions]: /functions/math
 [partials]: /templates/partials-templates/ "Link to the partial templates page inside of the templating section of the Hugo docs"
-[variablesparams]: /variables-and-params/ "Link to the list page for the Variables and Params section of the site."
+[variablesparams]: /variables/ "Link to the list page for the Variables and Params section of the site."
 [You can read more about `index` in the Godocs]: http://golang.org/pkg/text/template/ "Godocs page for index function"

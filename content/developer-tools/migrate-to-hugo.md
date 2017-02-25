@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [migrations,jekyll,wordpress,drupal,ghost,contentful]
-weight: 40
+weight: 10
 draft: false
 aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
 toc: true

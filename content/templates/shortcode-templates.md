@@ -119,7 +119,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 
 
 
-{{% output "youtube-embed.html" %}}
+{{% output file="youtube-embed.html" %}}
 ```html
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
@@ -168,7 +168,7 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 Would be rendered as:
 
-{{% output "figure.html" %}}
+{{% output file="figure.html" %}}
 ```html
 <figure >
     <img src="/media/spf13.jpg"  />
@@ -204,7 +204,7 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
 Would be rendered as:
 
-{{% output "vimeo-iframes.html" %}}
+{{% output file="vimeo-iframes.html" %}}
 ```html
 <div class="vimeo-container">
   <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
@@ -237,7 +237,7 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{% output "syntax-highlighted.html" %}}
+{{% output file="syntax-highlighted.html" %}}
 ```html
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
@@ -259,8 +259,8 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 [source organization]: /getting-started/directory-structure/ "Learn how Hugo scaffolds new sites and what it expects to find in each of your directories."
 [docsshortcodes]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."
 [figure]: /content-management/shortcodes/#figure
-[pagevars]: /variables-and-params/page-variables/ "See which variables you can leverage in your templating for page vs list templates."
-[shortcodesvars]: /variables-and-params/shortcode-variables/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."
+[pagevars]: /variables/page-variables/ "See which variables you can leverage in your templating for page vs list templates."
+[shortcodesvars]: /variables/shortcode-variables/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."
 [spf13shortcodes]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes "See more examples of shortcodes by visiting the shortcode directory of the source for spf13.com, the blog of Hugo's creator, Steve Francia."
 [templates]: /templates/ "The templates section of the Hugo docs."
 [vimeoexample]: #single-flexible-example-vimeo

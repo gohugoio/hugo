@@ -24,7 +24,7 @@ When you use a theme cloned from its git repository, do not edit the theme's fil
 
 ## Understanding the Theme Lookup Order
 
-{{< lookupexplanation >}}
+{{< readfile file="readfile-content/lookupexplanation.md" markdown="true" >}}
 
 ## Replacing Static Files
 
@@ -33,7 +33,7 @@ There are times where you want to include static assets that differ from version
 Let's assume the theme you are using has jQuery 1.8 in the following location:
 
 ```bash
-/themes/mytheme/static/js/jquery.min.js
+/themes/<MYTHEME>/static/js/jquery.min.js
 ```
 
 You want to replace jQuery with jQuery 1.7. The easiest way to do this is to replace the file *with a file of the same name* in the same relative path in your project's root.

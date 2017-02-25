@@ -38,7 +38,7 @@ To override the content type Hugo infers from `[content-section]`, add the `--ki
 
 Running this command in a new site that does not have default or custom archetypes will create the following file:
 
-{{% output "content/posts/my-first-post.md" %}}
+{{% output file="content/posts/my-first-post.md" %}}
 ```toml
 +++
 date = "2017-02-01T19:20:04-07:00"
@@ -107,7 +107,7 @@ $ hugo new posts/my-new-post.md
 
 Hugo then creates a new markdown file with the following front matter:
 
-{{% output "content/posts/my-new-post.md" %}}
+{{% output file="content/posts/my-new-post.md" %}}
 ```toml
 +++
 categories = ["web development"]
@@ -158,7 +158,7 @@ $ hugo new posts/post-from-custom.md
 
 This time, Hugo recognizes our custom `archetypes/posts.md` archetype and uses it instead of `archetypes/default.md`. The generated file will now include the full list of front matter parameters, as well as the base archetype's `title` and `date`.
 
-{{% output "content/posts/post-from-custom.md" %}}
+{{% output file="content/posts/post-from-custom.md" %}}
 ```toml
 +++
 categories = ""

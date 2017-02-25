@@ -14,43 +14,13 @@ toc: true
 needsreview: true
 ---
 
+## Introduction
+
 Hugo uses files (see [supported content formats][]) with headers called [front matter][]. By default, Hugo assumes the same structure that works to organize your content should be used to organize your rendered website. This is done in an effort to reduce configuration. However, this convention can be overridden through additional configuration in the front matter, as well as through Hugo's extensive features related to [URL management][].
 
 ## Organizing Source Content
 
-In Hugo, the content should be organized in a manner that reflects the rendered website. Without any additional configuration, the following will just work. Hugo supports content nested at any level, but the top level is special in Hugo and is used as the [section](/content-management/sections/).
-
-```bash
-.
-└── content
-    └── about
-    |   └── _index.md  // <- http://1.com/about/
-    ├── post
-    |   ├── firstpost.md   // <- http://1.com/post/firstpost/
-    |   ├── happy
-    |   |   └── ness.md  // <- http://1.com/post/happy/ness/
-    |   └── secondpost.md  // <- http://1.com/post/secondpost/
-    └── quote
-        ├── first.md       // <- http://1.com/quote/first/
-        └── second.md      // <- http://1.com/quote/second/
-```
-
-Here's the same organization run with `hugo --uglyURLs`:
-
-```bash
-.
-└── content
-    └── about
-    |   └── _index.md  // <- http://1.com/about/
-    ├── post
-    |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
-    |   ├── happy
-    |   |   └── ness.md    // <- http://1.com/post/happy/ness.html
-    |   └── secondpost.md  // <- http://1.com/post/secondpost.html
-    └── quote
-        ├── first.md       // <- http://1.com/quote/first.html
-        └── second.md      // <- http://1.com/quote/second.html
-```
+In Hugo, the content should be organized in a manner that reflects the rendered website. Without any additional configuration, the following will just work. Hugo supports content nested at any level, but the top level (i.e. `content/<directories>*``) is special in Hugo and is considered the content [section](/content-management/sections/).
 
 ## Destinations
 
@@ -91,7 +61,7 @@ The actual path to the file on disk. Destination will create the destination wit
 A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a "/"). When a `url` is provided, it will be used exactly. Using `url` will ignore the `--uglyURLs` setting.
 
 
-## Path breakdown in Hugo
+## Path Breakdown in Hugo
 
 ### Content
 
@@ -161,7 +131,7 @@ http://spf13.com/extras/indexes/example
 * based on `content-name.md`
 * front matter overrides
 
-**path** = section + path to file, excluding slug
+**path** = section  path to file, excluding slug
 
 * based on path to content location
 

@@ -19,9 +19,9 @@ needsreview: true
 
 With Hugo's [`readDir` function][], you can traverse your website's files on your server.
 
-## Using _readDir_
+## Using `readDir`
 
-The `readDir` function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e. as found on your server's file system).
+The [`readDir`](/functions/readdir) function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e. as found on your server's file system).
 
 Whether the path is absolute or relative does not matter because---at least for `readDir`---the root of your website (typically `./public/`) in effect becomes both:
 
@@ -32,7 +32,11 @@ Whether the path is absolute or relative does not matter because---at least for 
 
 So, let's create a new shortcode using `readDir`:
 
-{{% code file="layouts/shortcodes/directoryindex.html" %}}<pre><code>{{< readfile "layouts/shortcodes/directoryindex.html" >}}</code></pre>{{% /code %}}
+{{% code file="layouts/shortcodes/directoryindex.html" %}}
+```html
+{{< readfile file="layouts/shortcodes/directoryindex.html" >}}
+```
+{{% /code %}}
 
 For the files in any given directory, this shortcode usefully lists the files' basenames and sizes and also creates a link to each of them.
 
@@ -49,6 +53,11 @@ The following is the [shortcode declaration][shortcodes] used to render the abov
 {{% note "Slashes are Important" %}}
 The initial slash `/` in `pathURL` is important. Otherwise, `pathURL` becomes relative to the current web page.
 {{% /note %}}
+
+## Using `readFile`
+
+The [`readDir`](/functions/readdir) function returns...
+**CONTENT NEEDED**.
 
 [has already been included in this very website]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [`readDir` function]: /functions/readdir/

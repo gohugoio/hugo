@@ -16,8 +16,11 @@ needsreview: true
 
 ## Permalinks
 
-By default, content is laid out into the target `publishdir` (public)
-namespace matching its layout within the `contentdir` hierarchy. The `permalinks` [site configuration][] option allows you to adjust this on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
+By default, a Hugo-built site is laid out into the target `publishdir` specified in your [site configuration][configuration]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder. namespace matching its layout within the `contentdir` hierarchy. The `permalinks` option in your [site configuration][] allows you to adjust the  directory paths (i.e., the URLs) on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
+
+{{% note "Default Publish and Content Folders" %}}
+These examples use the default values for `publishDir` and `contentDir`; i.e., `publish` and `content`, respectively. You can override the default values in your [site's `config` file](/getting-started/configuration/).
+{{% /note %}}
 
 For example, if one of your [sections][] is called `post` and you want to adjust the canonical path to be hierarchical based on the year and month, you could set up the following configurations in YAML and TOML, respectively.
 
@@ -166,7 +169,40 @@ content/posts/post-3.md
 
 If you would like to have what we call "ugly URLs" (e.g.,&nbsp;http://example.com/extras/urls.html), set `uglyurls = true` or `uglyurls: true` to your site-wide `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][].
 
-If you want a specific piece of content to have an exact URL, you can specify this in the front matter under the `url` key. See [Content Organization][] for more details.
+If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be run with the default See [Content Organization][] for more details.
+
+```bash
+.
+└── content
+    └── about
+    |   └── _index.md  // <- http://1.com/about/
+    ├── post
+    |   ├── firstpost.md   // <- http://1.com/post/firstpost/
+    |   ├── happy
+    |   |   └── ness.md  // <- http://1.com/post/happy/ness/
+    |   └── secondpost.md  // <- http://1.com/post/secondpost/
+    └── quote
+        ├── first.md       // <- http://1.com/quote/first/
+        └── second.md      // <- http://1.com/quote/second/
+```
+
+Here's the same organization run with `hugo --uglyURLs`:
+
+```bash
+.
+└── content
+    └── about
+    |   └── _index.md  // <- http://1.com/about/
+    ├── post
+    |   ├── firstpost.md   // <- http://1.com/post/firstpost.html
+    |   ├── happy
+    |   |   └── ness.md    // <- http://1.com/post/happy/ness.html
+    |   └── secondpost.md  // <- http://1.com/post/secondpost.html
+    └── quote
+        ├── first.md       // <- http://1.com/quote/first.html
+        └── second.md      // <- http://1.com/quote/second.html
+```
+
 
 ## Canonicalization
 
@@ -204,5 +240,6 @@ For example, if the `/post/first/` page contained a link with a relative URL of 
 
 [Content Organization]: /content-management/content-organization/
 [flag from the command line]: /getting-started/basic-usage/
+[front matter]: /content-management/front-matter/
 [sections]: /content-management/sections/
 [site configuration]: /project-organization/configuration/

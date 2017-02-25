@@ -54,4 +54,4 @@ Your 404.html file can be set to load automatically when a visitor enters a mist
 * _Amazon AWS S3_ - when setting a bucket up for static web serving, you can specify the error file.
 * _Caddy Server_ - using `errors { 404 /404.html }`. [Details here](https://caddyserver.com/docs/errors)
 
-[pagevars]: /variables-and-params/page-variables/
+[pagevars]: /variables/page-variables/

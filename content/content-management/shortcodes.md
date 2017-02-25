@@ -87,7 +87,7 @@ The `figure` shortcode can use the following named parameters:
 
 #### Example `figure` Output
 
-{{% output "figure-output-example.html" %}}
+{{% output file="figure-output-example.html" %}}
 ```html
 <figure>
   <img src="/media/spf13.jpg"  />
@@ -100,11 +100,13 @@ The `figure` shortcode can use the following named parameters:
 
 ### `gist`
 
-Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the following [gist][examplegist]:
+Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:
 
 ```html
 https://gist.github.com/spf13/7896402
 ```
+
+###
 
 We can embed the gist in our content via username and gist ID pulled from the URL:
 
@@ -112,13 +114,27 @@ We can embed the gist in our content via username and gist ID pulled from the UR
 {{</* gist spf13 7896402 */>}}
 ```
 
+#### Example `gist` Input
+
 If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
 
+{{% code file="gist-input.md" %}}
 ```golang
 {{</* gist spf13 7896402 "img.html" */>}}
 ```
+{{% /code %}}
 
-To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page:
+#### Example `gist` Output
+
+{{% output file="gist-output.html" %}}
+```html
+{{< gist spf13 7896402 >}}
+```
+{{% /output %}}
+
+#### Example `gist` Display
+
+To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
 {{< gist spf13 7896402 >}}
 
@@ -145,7 +161,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 
 #### Example `highlight` Output
 
-{{% output "syntax-highlighted.html" %}}
+{{% output file="syntax-highlighted.html" %}}
 ```html
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
@@ -158,25 +174,50 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 ```
 {{% /output %}}
 
+{{% note "Syntax Highlighting" %}}
+For more information on your options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/developer-tools/syntax-highlighting/.
+{{% /note %}}
+
 ### `instagram`
 
-If you'd like to embed a photo from [Instagram][], all you need is photo ID from the URL:
+If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
 
 ```html
 https://www.instagram.com/p/BMokmydjG-M/
 ```
 
-Pass it to the shortcode:
+#### Example `instagram` Input
 
+{{% code file="instagram-input.md" %}}
 ```golang
 {{</* instagram BMokmydjG-M */>}}
 ```
+{{% /code %}}
 
 You also have the option to hide the caption:
 
+{{% code file="instagram-input-hide-caption.md" %}}
 ```golang
 {{</* instagram BMokmydjG-M hidecaption */>}}
 ```
+{{% /code %}}
+
+#### Example `instagram` Output
+
+By adding the preceding `hidecaption` example, the following HTML will be added to your rendered website's markup:
+
+{{% output file="instagraph-hide-caption-output.html" %}}
+```html
+{{< instagram BMokmydjG-M hidecaption >}}
+```
+{{% /output %}}
+
+#### Example `instagram` Display
+
+Using the preceding `instagram` with hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< instagram BMokmydjG-M hidecaption >}}
+
 
 ### `ref` and `relref`
 
@@ -208,11 +249,13 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 ### `speakerdeck`
 
-To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL, e.g.:
+To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL:
 
 ```html
 <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
 ```
+
+#### `speakerdeck` Example Input
 
 Extract the value from the field `data-id` and pass it to the shortcode:
 
@@ -222,15 +265,53 @@ Extract the value from the field `data-id` and pass it to the shortcode:
 ```
 {{% /code %}}
 
+#### `speakerdeck` Example Output
+
+{{% output file="speakerdeck-example-input.md" %}}
+```html
+{{< speakerdeck 4e8126e72d853c0060001f97 >}}
+```
+{{% /output %}}
+
+#### `speakerdeck` Example Display
+
+For the preceding `speakerdeck` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< speakerdeck 4e8126e72d853c0060001f97 >}}
+
 ### `tweet`
 
-You want to include a single tweet into your blog post? Everything you need is the URL of the tweet. For example, let's say you want to include the following tweet from `https://twitter.com/spf13/status/666616452582129664`. Pass the tweet's ID from the URL as parameter to the shortcode as shown below:
+You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
+
+```
+https://twitter.com/spf13/status/666616452582129664
+```
 
 #### Example `tweet` Input
 
+Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
+
+{{% code file="example-tweet-input.md" %}}
 ```golang
 {{</* tweet 666616452582129664 */>}}
 ```
+{{% /code %}}
+
+#### Example `tweet` Output
+
+Using the preceding `tweet` example, the following HTML will be added to your rendered website's markup:
+
+{{% output file="example-tweet-output.html" %}}
+```golang
+{{< tweet 666616452582129664 >}}
+```
+{{% /output %}}
+
+#### Example `tweet` Display
+
+Using the preceding `tweet` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< tweet 666616452582129664 >}}
 
 ### `vimeo`
 
@@ -271,7 +352,7 @@ To learn more about creating your own shortcode templates, see the [shortcode te
 [figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
 [`figure` shortcode]: #figure
 [Instagram]: https://www.instagram.com/
-[pagevariables]: /variables-and-params/page-variables/
+[pagevariables]: /variables/page-variables/
 [partials]: /templates/partials-templates/
 [Pygments]: http://pygments.org/
 [projectorganizationsection]: /project-organization/directory-structure/

@@ -19,7 +19,6 @@ notesforauthors:
 Hugo takes a single directory and uses it as the input for creating a complete
 website.
 
-
 The top level of a source directory will typically have the following elements:
 
 ```bash
@@ -105,7 +104,7 @@ This directory structure tells us a lot about this website:
 
 ## Content for Home Page and Other List Pages
 
-Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, like `.Params`, attached to it -- and share the same set of [page variables](/variables-and-params/page-variables/).
+Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, like `.Params`, attached to it -- and share the same set of [page variables](/variables/page-variables/).
 
 To add content and front matter to the home page, a section, a taxonomy or a taxonomy terms listing, add a markdown file with the base name `_index` on the relevant place on the file system.
 

@@ -1,4 +1,6 @@
-<div class="code-copy" id="{{.Get 0 | urlize}}">
-	<div class="code-copy-header output"><div class="action-buttons"></div><span class="filename" title="{{.Get 0}}">{{.Get 0}}</span><i class="icon-{{index (split (.Get 0) ".") 1 }}"></i></div>
+{{$file := .Get "file"}}
+{{$icon := index (split $file ".") 1 }}
+<div class="code-copy" id="{{$file | urlize}}">
+	<div class="code-copy-header output"><div class="action-buttons"></div><span class="filename" title="{{$file}}">{{$file}}</span><i class="icon-{{$icon}}"></i></div>
 	{{- .Inner -}}
 </div>

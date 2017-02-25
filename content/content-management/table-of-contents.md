@@ -25,7 +25,7 @@ your content.
 
 Simply create content like you normally would with the appropriate headers.
 
-Hugo will take this Markdown and create a table of contents stored in the [content variable](/variables-and-params/page-variables/) `.TableOfContents`.
+Hugo will take this Markdown and create a table of contents stored in the [content variable](/variables/page-variables/) `.TableOfContents`.
 
 ## Template Example
 

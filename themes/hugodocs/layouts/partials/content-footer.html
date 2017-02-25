@@ -12,11 +12,10 @@
 {{ else if eq .Kind "page" }}
 	{{ with .Site.GetPage "section" $section }}
 	<a href="{{.Permalink}}" class="prev-and-next-link prev-page">
-
 			<i class="fa fa-chevron-left"></i>
 			<div class="page-info">
 				<span>Previous</span>
-				<h5 class="{{$section}}">{{.Title}}{{if and (ne .Section "functions") (ne .Section "hosting-and-deployment")}} of {{.Section | humanize | title}}{{end}}</h5>
+				<h5 class="{{$section}}">{{ .LinkTitle }}</h5>
 			</div>
 	</a>
 	{{ end }}

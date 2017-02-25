@@ -51,4 +51,6 @@ https://github.com/spf13/hugo/issues
 
 ### Twitter
 
-Hugo doesn't have its own Twitter handle, but feel free to tweet [@spf13](http://twitter.com/spf13).
+The Official Hugo Twitter Account: [@GoHugoIO](https://twitter.com/GoHugoIO)
+Steve Francia: [@spf13](https://twitter.com/spf13).
+Bjørn Erik Pedersen: [@bepsays](https://twitter.com/bepsays)

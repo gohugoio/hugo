@@ -71,5 +71,5 @@ You can show content summaries with the following code. You could use the follow
 Note how the `.Truncated` boolean valuable may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
 
 [org]: /content-management/supported-content-formats/
-[pagevariables]: /variables-and-params/page-variables/
+[pagevariables]: /variables/page-variables/
 [section template]: /templates/section-templates/

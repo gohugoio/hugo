@@ -17,7 +17,7 @@ The primary view of content in Hugo is the single view. Hugo will render every M
 
 ## Introduction to the Template Lookup Order
 
-{{< lookupexplanation >}}
+{{< readfile file="readfile-content/lookupexplanation.md" markdown="true" >}}
 
 ## Lookup Order for Single Page Templates
 
@@ -97,11 +97,11 @@ When it comes time for Hugo to render the content to the page, it will go throug
 4. <span class="yes">`/layouts/posts/single.html`</span>
   <br><span class="break">BREAK</span>
 5. <span class="na">`/layouts/_default/single.html`</span>
-6. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
-7. <span class="na">`/themes/mytheme/layouts/posts/UNSPECIFIED.html`</span>
-8. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/single.html`</span>
-9. <span class="na">`/themes/mytheme/layouts/posts/single.html`</span>
-10. <span class="na">`/themes/mytheme/layouts/_default/single.html`</span>
+6. <span class="na">`/themes/<MYTHEME>/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
+7. <span class="na">`/themes/<MYTHEME>/layouts/posts/UNSPECIFIED.html`</span>
+8. <span class="na">`/themes/<MYTHEME>/layouts/UNSPECIFIED/single.html`</span>
+9. <span class="na">`/themes/<MYTHEME>/layouts/posts/single.html`</span>
+10. <span class="na">`/themes/<MYTHEME>/layouts/_default/single.html`</span>
 
 Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo the specific type and layout, it makes assumptions based on sane defaults. `my-first-post.md` does not specify a content `type` in its front matter. Therefore, Hugo assumes the content `type` and `section` (i.e. `posts`, which is defined by file location) are one in the same. ([Read more on sections][section].)
 
@@ -129,11 +129,11 @@ Here is the way Hugo's traverses the single-page lookup order for `my-second-pos
 3. <span class="na">`/layouts/review/single.html`</span>
 4. <span class="na">`/layouts/posts/single.html`</span>
 5. <span class="na">`/layouts/_default/single.html`</span>
-6. <span class="na">`/themes/mytheme/layouts/review/reviewarticle.html`</span>
-7. <span class="na">`/themes/mytheme/layouts/posts/reviewarticle.html`</span>
-8. <span class="na">`/themes/mytheme/layouts/review/single.html`</span>
-9. <span class="na">`/themes/mytheme/layouts/posts/single.html`</span>
-10. <span class="na">`/themes/mytheme/layouts/_default/single.html`</span>
+6. <span class="na">`/themes/<MYTHEME>/layouts/review/reviewarticle.html`</span>
+7. <span class="na">`/themes/<MYTHEME>/layouts/posts/reviewarticle.html`</span>
+8. <span class="na">`/themes/<MYTHEME>/layouts/review/single.html`</span>
+9. <span class="na">`/themes/<MYTHEME>/layouts/posts/single.html`</span>
+10. <span class="na">`/themes/<MYTHEME>/layouts/_default/single.html`</span>
 
 The front matter in `my-second-post.md` specifies the content `type` (i.e. `review`) as well as the `layout` (i.e. `reviewarticle`). Hugo finds the layout it needs at the top level of the lookup (#1) and does not continue to search through the other templates.
 
@@ -161,11 +161,11 @@ Here is the way Hugo's traverses the single-page lookup order for `my-first-even
 4. <span class="no">`/layouts/events/single.html`</span>
 5. <span class="yes">`/layouts/_default/single.html`</span>
 <br><span class="break">BREAK</span>
-6. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
-7. <span class="na">`/themes/mytheme/layouts/events/UNSPECIFIED.html`</span>
-8. <span class="na">`/themes/mytheme/layouts/UNSPECIFIED/single.html`</span>
-9. <span class="na">`/themes/mytheme/layouts/events/single.html`</span>
-10. <span class="na">`/themes/mytheme/layouts/_default/single.html`</span>
+6. <span class="na">`/themes/<MYTHEME>/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
+7. <span class="na">`/themes/<MYTHEME>/layouts/events/UNSPECIFIED.html`</span>
+8. <span class="na">`/themes/<MYTHEME>/layouts/UNSPECIFIED/single.html`</span>
+9. <span class="na">`/themes/<MYTHEME>/layouts/events/single.html`</span>
+10. <span class="na">`/themes/<MYTHEME>/layouts/_default/single.html`</span>
 
 {{% note %}}
 `my-first-event.md` is significant because it demonstrates the role of the lookup order in Hugo themes. Both the root project directory *and* the `mytheme` themes directory have a file at `_default/single.html`. Understanding this order allows you to [customize Hugo themes](/themes/customizing-a-theme/) by creating template files with identical names in your project directory that step in front of theme template files in the lookup. This allows you to customize the look and feel of your website while maintaining compatibility with the theme's upstream.
@@ -179,7 +179,7 @@ Content pages are of the type `page` and will therefore have all the [page varia
 
 This content template is used for [spf13.com][spf13]. It makes use of [partial templates][partials]:
 
-{{% code file="layouts/post/single.html" %}}
+{{% code file="layouts/post/single.html" download="single.html" %}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
@@ -228,7 +228,7 @@ This content template is used for [spf13.com][spf13]. It makes use of [partial t
 
 This content template is also used for [spf13.com][spf13] and makes use of [partial templates][partials]:
 
-{{% code file="project/single.html" %}}
+{{% code file="project/single.html" download="single.html" %}}
 ```html
   {{ partial "header.html" . }}
   {{ partial "subheader.html" . }}
@@ -285,5 +285,5 @@ To easily generate new instances of this content type (e.g., new `.md` files in 
 [page variables]: /variables-and-parms/page-variables/
 [partials]: /templates/partial-templates/
 [section]: /content-management/sections/
-[site variables]: /variables-and-params/site-variables/
+[site variables]: /variables/site-variables/
 [spf13]: http://spf13.com/

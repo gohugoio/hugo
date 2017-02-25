@@ -75,7 +75,7 @@ And then using dot notation
 
 Which would return
 
-{{% output "dot-notation-default-return-value.html" %}}
+{{% output file="dot-notation-default-return-value.html" %}}
 ```html
 <title>Sane Defaults</title>
 ```

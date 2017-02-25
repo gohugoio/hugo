@@ -97,25 +97,3 @@ a.heading-link {
     color: $default-anchor-underline-color;
   }
 }
-
-// .body-copy {
-//   a[href*="github.com"]:after {
-//     content: '\f09b';
-//     font-family: 'fontello';
-//     color: inherit;
-//     display: inline-block;
-//     margin-left: .1em;
-//     @include size(1em);
-//     margin-right: .2em;
-//     text-align: center;
-//   }
-//   a[href*="discuss.gohugo.io"]:after {
-//     content: '\f03d';
-//     display: inline-block;
-//     font-family: 'fontello';
-//     margin-left: .1em;
-//     @include size(1em);
-//     margin-right: .2em;
-//     text-align: center;
-//   }
-// }

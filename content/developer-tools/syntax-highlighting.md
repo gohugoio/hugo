@@ -7,9 +7,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [highlighting,pygments,code blocks]
 categories: [developer tools]
-weight:
+weight: 20
 draft: false
-slug:
 aliases: [/extras/highlighting/,/extras/highlight/]
 toc: true
 needsreview:
@@ -62,7 +61,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 
 ### Example `highlight` Shortcode Output
 
-{{% output "example-highlight-shortcode-output.html" %}}
+{{% output file="example-highlight-shortcode-output.html" %}}
 ```
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>

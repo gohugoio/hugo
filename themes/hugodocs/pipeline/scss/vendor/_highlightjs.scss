@@ -1,6 +1,7 @@
 /*
 Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-license.org/
 */
+/* SEE HUGO SPECIFIC CLASSES AT BOTTOM OF PAGE*/
 
 .hljs {
   display: block;
@@ -79,4 +80,8 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 .hljs-deletion,
 .hljs-meta {
   color: $hugo-gray-light;
+}
+
+.language-toml.hljs .hljs-section {
+  color:$hugo-pink-light;
 }

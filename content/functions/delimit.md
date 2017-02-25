@@ -49,7 +49,7 @@ tags: [ "tag1", "tag2", "tag3" ]
 ```
 {{% /code %}}
 
-{{% output "delimit-page-tags-output.html" %}}
+{{% output file="delimit-page-tags-output.html" %}}
 ```html
 <p>Tags: tag1, tag2, tag3</p>
 ```
@@ -63,13 +63,13 @@ Tags: {{ delimit .Params.tags ", " ", and " }}
 ```
 {{% /code %}}
 
-{{% output "delimit-page-tags-final-and-output.html" %}}
+{{% output file="delimit-page-tags-final-and-output.html" %}}
 ```html
 <p>Tags: tag1, tag2, and tag3</p>
 ```
 {{% /output %}}
 
 
-[lists]: /templates/lists-in-hugo/
+[lists]: /templates/lists/
 [taxonomies]: /templates/taxonomy-templates/#taxonomy-list-templates
 [terms]: /templates/taxonomy-templates/#terms-list-templates

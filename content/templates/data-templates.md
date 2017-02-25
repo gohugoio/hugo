@@ -22,7 +22,7 @@ Hugo supports loading data from [YAML](http://yaml.org/), [JSON](http://www.json
 
 **It even works with [LiveReload](/extras/livereload/).**
 
-Data Files can also be used in [themes](/themes/overview/), but note: If the same `key` is used in both the main data folder and in the theme's data folder, the main one will win. So, for theme authors,  for theme specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace, e.g. `mytheme/data/mytheme/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag, e.g. `hugo -v`.
+Data Files can also be used in [themes](/themes/overview/), but note: If the same `key` is used in both the main data folder and in the theme's data folder, the main one will win. So, for theme authors,  for theme specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace, e.g. `mytheme/data/<MYTHEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag, e.g. `hugo -v`.
 
 ## The Data Folder
 

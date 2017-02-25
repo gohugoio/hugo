@@ -14,17 +14,19 @@ aliases: [/overview/quickstart/]
 toc: true
 ---
 
-In this Quick Start, we will build an online bookshelf that lists books and their reviews. This quick start assumes you are using Hugo v0.15 or greater.
-
 {{% note %}}
 This Quick Start was originally written by [Shekhar Gulati](https://twitter.com/shekhargulati) in his [52 Technologies in 2016](https://github.com/shekhargulati/52-technologies-in-2016) blog series but has been heavily modified to represent additional features and other changes to Hugo.
 {{% /note %}}
 
+In this Quick Start, we will build an online bookshelf that lists books and their reviews.
+
+## Assumptions
+
+This quick start assumes you are using Hugo v0.15 or greater.
+
 ## Step 1. Install Hugo
 
-Go to [Hugo Releases][releases] and download the appropriate version for your operating system and architecture or follow the [Quick Install][quickinstall] in the Hugo docs.
-
-If installing from Hugo release, you'll need to save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH`. You will need this command in the following steps..
+[Install Hugo][install]. If installing from [Hugo releases][releases], you'll need to save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH`. You will need the `hugo` command in the following steps.
 
 {{% note "Windows Users and Git Bash" %}}
 If you're on Windows, this Quick Start will assume you're using [Git Bash](https://git-for-windows.github.io/) (aka Git for Windows).
@@ -44,7 +46,7 @@ built with love by spf13 and friends in Go.
 Complete documentation is available at http://gohugo.io/.
 ```
 
-You can check your `hugo version` as well:
+You can check the version of Hugo you're currently using with the `hugo version` command:
 
 ```bash
 hugo version
@@ -77,13 +79,13 @@ Change into the newly created `bookshelf` directory. Listing the new directory's
 6 directories, 1 file
 ```
 
-You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look at each of them quickly. (For more detailed information, see [Directory Structure][hugodirectories].)
+You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look at each of them quickly. (See [Directory Structure][hugodirectories].)
 
 * `archetypes`: [Archetypes][archetypes] allow you to preconfigure [front matter][frontmatter] for content files for easier scaffolding of content from the command line using `hugo new`.
-* `config.toml`: Hugo uses `.toml` as its default configuration format but also accepts `.yml` and `.json`. The configuration settings mentioned in the `config.toml` are applied to the full website an include important global variables such as the `baseURL` and `title` of your website. (See [Configuration][configuration])
+* `config.toml`: Hugo uses `.toml` as its default configuration format but also accepts `.yml` and `.json`. The configuration settings mentioned in the `config.toml` are applied to the full website an include important global variables such as the `baseURL` and `title` of your website. (See [Configuration][configuration].)
 * `content`: This single directory houses all of the content for your website. Each subdirectory in content is considered a [section][]. If your website has sections for posts, events, and tutorials, you would create `content/posts`, `content/events`, and `content/tutorials`.
 * `data`: This directory is used to store files of serialized data (YAML, TOML, or JSON) that can be used in [data templates][datatemplates] and your [website's menu][sitemenu].
-* `layouts`: This is the hub for all of our [templating][templating], including [list and section templates][listsectiontemplates] and [shortcodes][shortcodetemplates].
+* `layouts`: This is the hub for all your [templating][templating], including [list and section templates][listsectiontemplates] and [shortcodes][shortcodetemplates].
 * `static`: This houses all your static content; i.e., images, JavaScript, and CSS. Everything in `/static` is copied over *as is* to your finished website.
 * `themes`: This is where you will download themes for Hugo. You can see a showcase of all themes at <http://themes.gohugo.io>.
 
@@ -580,7 +582,7 @@ git commit -m "<some change message>"
 git push
 ```
 
-----
+--------
 
 ## Video: Hugo Website in 2 Minutes
 
@@ -594,13 +596,14 @@ git push
 [datatemplates]: /templates/data-templates/
 [frontmatter]: /content-management/front-matter/
 [hugodirectories]: /getting-started/directory-structure/
-[installhugo]: /getting-started/install-hugo/
-[listsectiontemplates]: /templates/section-templates/
+[install]: /getting-started/install-hugo/
+[lists]: /templating/lists/
 [partialtemplates]: /templates/partial-templates/
 [quickinstall]: /getting-started/install-hugo/#quick-install
 [releases]: https://github.com/spf13/hugo/releases
 [robusttheme]: https://github.com/dim0627/hugo_theme_robust
 [section]: /content-management/sections/
+[sectiontemplates]: /templates/section-templates/
 [shortcodetemplates]: /templates/shortcode-templates/
 [sitemenu]: /content-management/menus/
 [templating]: /templates/

@@ -43,7 +43,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped writable variables.
 : the approximate number of words in the content.
 
 `.Hugo`
-: see [Hugo Variables](/variables-and-params/other/).
+: see [Hugo Variables](/variables/other/).
 
 `.IsHome`
 : `true` in the context of the [home page](/templates/homepage-template/).
@@ -121,7 +121,7 @@ http://remarkjs.com)
 : the [section](/content-management/sections/) this content belongs to.
 
 `.Site`
-: see [Site Variables](/variables-and-params/site-variables/).
+: see [Site Variables](/variables/site-variables/).
 
 `.Summary`
 : a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/content-summaries/) for more details.
@@ -199,7 +199,7 @@ Two common situations where this type of front matter field could be introduced 
 
 This template would render as follows, assuming you've set [`uglyURLs`](/content-management/url-management/) to `false` in your [site `config`](/getting-started/configuration/):
 
-{{% output "yourbaseurl/review/book01/index.html" %}}
+{{% output file="yourbaseurl/review/book01/index.html" %}}
 ```html
 <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
 <p>It was recommended by my Mother.</p>

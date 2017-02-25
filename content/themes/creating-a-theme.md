@@ -35,7 +35,7 @@ which are archetypal content types used by the `hugo new` command.
 
 
 {{% note "Use the Hugo Generator Tag" %}}
-The [`.Hugo.Generator`](/variables-and-params/other/) tag is included in all themes featured in the [Hugo Them Showcase](/http://themes.gohugo.io). We ask that you include the generator tag in all sites and themes you create with Hugo. The generator tag is significant in that it allows the Hugo team to track Hugo's usage and popularity.
+The [`.Hugo.Generator`](/variables/other/) tag is included in all themes featured in the [Hugo Them Showcase](/http://themes.gohugo.io). We ask that you include the generator tag in all sites and themes you create with Hugo. The generator tag is significant in that it allows the Hugo team to track Hugo's usage and popularity.
 {{% /note %}}
 
 ## Layouts
