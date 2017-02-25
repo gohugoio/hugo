@@ -124,15 +124,6 @@ others:
 	th.assertFileContent("public/others/index.html", "Terms List", "Others")
 
 	s := h.Sites[0]
-	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
-	require.NotNil(t, cat1)
-	require.Len(t, cat1.Pages, 2)
-
-	cat := s.getPage(KindTaxonomyTerm, "categories")
-	require.NotNil(t, cat)
-	require.Len(t, cat.Pages, 3)
-	require.Len(t, cat.Data["Pages"], 3)
-	require.Equal(t, "t1/c1", cat.Pages[0].Title)
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {

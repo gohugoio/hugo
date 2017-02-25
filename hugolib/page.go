@@ -1595,17 +1595,10 @@ func (p *Page) prepareData(s *Site) error {
 	case KindTaxonomyTerm:
 		plural := p.sections[0]
 		singular := s.taxonomiesPluralSingular[plural]
-		terms := s.Taxonomies[plural]
-
-		for _, tax := range terms {
-			pages = append(pages, tax.Pages()...)
-		}
-
-		pages = pages.ByWeight()
 
 		p.Data["Singular"] = singular
 		p.Data["Plural"] = plural
-		p.Data["Terms"] = terms
+		p.Data["Terms"] = s.Taxonomies[plural]
 		// keep the following just for legacy reasons
 		p.Data["OrderedIndex"] = p.Data["Terms"]
 		p.Data["Index"] = p.Data["Terms"]
