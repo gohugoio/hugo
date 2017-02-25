@@ -16,6 +16,7 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: []
+needsexamples: true
 ---
 
 ## Example

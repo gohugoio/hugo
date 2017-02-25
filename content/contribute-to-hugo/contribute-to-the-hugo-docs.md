@@ -15,7 +15,7 @@ toc: true
 needsreview: true
 ---
 
-Documentation is an integral part of any open source project. The Hugo docs were completely reworked in anticipation of the release of v0.19, but there is always room for improvement.
+Documentation is a critical component of any open-source project. The Hugo docs were completely reworked in anticipation of the release of v0.19, but there is always room for improvement.
 
 <!-- ## Edit Locally and Submit a Pull Request
 
@@ -25,9 +25,9 @@ Documentation is an integral part of any open source project. The Hugo docs were
 
 **IN DEVELOPMENT** -->
 
-## Creating New Content for the Hugo Docs
+## Adding a New Content Pages
 
-**IN DEVELOPMENT**
+The Hugo docs are built using Hugo and therefore make heavy use of Hugo's [archetype][] feature to easily scaffold new instances of content types. All [content sections][] in Hugo documentation have an assigned archetypes ([see source][archsource])
 
 
 ### Adding a New Function
@@ -41,11 +41,13 @@ Documentation is an integral part of any open source project. The Hugo docs were
 
 **IN DEVELOPMENT**
 
-## Code Block Shortcode Examples
+## Adding Code Blocks to Hugo Docs
+
+### Code Block Shortcodes
 
 **IN DEVELOPMENT**
 
-### Input Code Block
+### Code Block
 
 **IN DEVELOPMENT**
 
@@ -54,7 +56,6 @@ Documentation is an integral part of any open source project. The Hugo docs were
 **IN DEVELOPMENT**
 
 ## Blockquotes
-
 
 
 ## Admonition Short Codes
@@ -148,6 +149,10 @@ The Hugo docs are not especially prescriptive in terms of grammar and usage. We 
 2. *Homepage* is one word.
 3. Be sure to add a `godocref` whenever possible to a new content file's front matter. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
 
+## Pages Needing Code Examples
+
+{{< needsexamples >}}
+
 ## How Content is Ordered in the Docs
 
 **IN DEVELOPMENT**
@@ -158,5 +163,7 @@ Use aliases sparingly. The following table shows a list of all the aliases used 
 
 {{< allaliases >}}
 
+[archsource]: https://github.com/spf13/hugo/tree/master/docs/archetypes
+[archetype]: /content-management/archetypes/
 [shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown
 [sourceforge]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions

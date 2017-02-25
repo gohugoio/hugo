@@ -17,9 +17,27 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: []
+needsexamples: true
 ---
 
-## Example
+### shuffle
 
-## Advanced Example
+`shuffle` returns a random permutation of a given array or slice:
 
+{{% code file="shuffle-input.html" %}}
+```html
+<div class="shuffle-sequence">{{ shuffle (seq 1 5) }}</div>
+<div class="shuffle-slice">{{ shuffle (slice "foo" "bar" "buzz") }}</div>
+```
+{{% /code %}}
+
+This example would return the following:
+
+{{% output file="shuffle-output.html" %}}
+```html
+<div class="shuffle-seq">2 5 3 1 4</div>
+<div class="shuffle-slice">buzz foo bar</div>
+```
+{{% /output %}}
+
+This example also makes use of the [slice](/functions/slice/) and [seq](/functions/seq/) functions.

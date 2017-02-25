@@ -71,7 +71,7 @@ aside {
     margin-bottom: 1em;
     font-size: 1em;
     clear: both;
-    line-height:1.6;
+    line-height: 1.6;
     padding: {
       top: .5em;
       bottom: .5em;
@@ -89,13 +89,28 @@ aside {
       margin: .5em 0em 0em 0em;
       text-indent: 0px;
       height: auto;
-      font-size:.9em;
+      font-size: .9em;
       padding: {
         top: .25em;
         bottom: 0em;
         left: 1.5em;
         right: 0em;
       }
+    }
+  }
+}
+
+//For example, used in the "Pages Needing Code Examples" section of "Contribute to the Hugo docs"
+.body-copy {
+  .utils-list {
+    list-style: none;
+    margin-left: 0px;
+    padding-left: 0px;
+    li {
+      list-style: none;
+      display: inline;
+      margin-left: 0px;
+      padding-left: 0px;
     }
   }
 }

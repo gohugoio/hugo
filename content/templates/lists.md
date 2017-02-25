@@ -1,6 +1,6 @@
 ---
 title: Introduction to Lists in Hugo
-linktitle: Hugo Lists Introduction
+linktitle: Hugo Lists
 description: Lists have a specific meaning and usage in Hugo. If you want to know how to render your site homepage, section homepage, taxonomy list, or taxonomy terms list, start here.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -50,7 +50,7 @@ In order to take advantage of this behaviour you need to do a few things.
 
 3. Ensure that the respective template is configured to display `{{ .Content }}` if you wish for the content of the \_index.md file to be rendered on the respective page.
 
-### How \_index.md pages work
+### How \_index.md Pages Work
 
 Before continuing it's important to know that this page must reference certain templates to describe how the \_index.md page will be rendered. Hugo has a multitude of possible templates that can be used and placed in various places (think theme templates for instance). For simplicity/brevity the default/top level template location will be used to refer to the entire range of places the template can be placed.
 

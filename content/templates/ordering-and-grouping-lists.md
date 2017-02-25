@@ -1,6 +1,6 @@
 ---
 title: Ordering and Grouping Lists
-linktitle: Rendering Lists
+linktitle: Rendering Hugo Lists
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site, but
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -334,7 +334,7 @@ within each group in alphabetical order by title.
 {{ end }}
 ```
 
-## Filtering & Limiting Content
+## Filtering and Limiting Content
 
 Sometimes you only want to list a subset of the available content. A common
 request is to only display “Posts” on the homepage. Using the `where` function,

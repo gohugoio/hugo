@@ -1,0 +1,7 @@
+<ul class="utils-list">
+	{{range where .Site.Pages "Section" "functions"}}
+	{{ if .Params.needsexamples }}
+	<li><a href="{{.Permalink}}">{{.Title}}</a></li>
+	{{ end }}
+	{{ end }}
+</ul>

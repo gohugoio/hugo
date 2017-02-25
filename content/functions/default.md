@@ -17,6 +17,7 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: [/functions/default/]
+needsexamples: false
 ---
 
 Checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on date type:
