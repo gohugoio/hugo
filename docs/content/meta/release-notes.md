@@ -41,7 +41,6 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 ## Other New Features
 
 * Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. {{<gh 3022 >}}
-* Add terms' pages to `.Data.Pages` (all the pages in `categories` as an example), which means that these pages also can be paginated. {{<gh 2826 >}}
 * Add `truncate` template function {{<gh 2882 >}}
 * Add `now` function, which replaces the now deprecated `.Now` {{<gh 2882 >}}
 * Make RSS item limit configurable {{<gh 3035 >}}
