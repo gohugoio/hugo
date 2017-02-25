@@ -40,43 +40,43 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 ```
 ## Other New Features
 
-* Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. gh 3022
-* Add terms' pages to `.Data.Pages` (all the pages in `categories` as an example), which means that these pages also can be paginated. gh 2826
-* Add `truncate` template function gh 2882
-* Add `now` function, which replaces the now deprecated `.Now` gh 2882
-* Make RSS item limit configurable gh 3035
+* Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. {{<gh 3022 >}}
+* Add terms' pages to `.Data.Pages` (all the pages in `categories` as an example), which means that these pages also can be paginated. {{<gh 2826 >}}
+* Add `truncate` template function {{<gh 2882 >}}
+* Add `now` function, which replaces the now deprecated `.Now` {{<gh 2882 >}}
+* Make RSS item limit configurable {{<gh 3035 >}}
 
 ## Enhancements
-*  Enhance `.Param` to permit arbitrarily nested parameter references gh 2598
-* Use `Page.Params` more consistently when adding metadata gh 3033
-* The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is now integrated with the section content pages. gh 2974
+*  Enhance `.Param` to permit arbitrarily nested parameter references {{<gh 2598 >}}
+* Use `Page.Params` more consistently when adding metadata {{<gh 3033 >}}
+* The `sectionPagesMenu` feature ("Section menu for the lazy blogger") is now integrated with the section content pages. {{<gh 2974 >}}
 * Hugo `0.19` is compiled with Go 1.8!
-* Accept limit as interface in the `findRE` template func gh 3018
-* Improve generation of OpenGraph date tags gh 2979
+* Accept limit as interface in the `findRE` template func {{<gh 3018 >}}
+* Improve generation of OpenGraph date tags {{<gh 2979 >}}
 
 ## Notes
 
-* `sourceRelativeLinks` is now deprecated and will be removed in Hugo `0.21` if  no one is stepping up to the plate and fixes and maintains this feature. gh 3028
+* `sourceRelativeLinks` is now deprecated and will be removed in Hugo `0.21` if  no one is stepping up to the plate and fixes and maintains this feature. {{<gh 3028 >}}
 
 ## Fixes
-* Fix `.Site.LastChange` on sites where the default sort order is not chronological. gh 2909
-* Fix regression of `.Truncated` evaluation in manual summaries. gh 2989
-* Fix `preserveTaxonomyNames` regression gh 3070
-* Fix issue with taxonomies when only some have content page gh 2992
-* Fix instagram shortcode panic on invalid ID gh 3048
-* Fix subtle data race in `getJSON` gh 3045
-* Fix deadlock in cached partials gh 2935
-* Avoid double-encoding of paginator URLs gh 2177
-* Allow tilde in URLs gh 2177
-* Fix `.Site.Pages` handling on live reloads gh 2869
+* Fix `.Site.LastChange` on sites where the default sort order is not chronological. {{<gh 2909 >}}
+* Fix regression of `.Truncated` evaluation in manual summaries. {{<gh 2989 >}}
+* Fix `preserveTaxonomyNames` regression {{<gh 3070 >}}
+* Fix issue with taxonomies when only some have content page {{<gh 2992 >}}
+* Fix instagram shortcode panic on invalid ID {{<gh 3048 >}}
+* Fix subtle data race in `getJSON` {{<gh 3045 >}}
+* Fix deadlock in cached partials {{<gh 2935 >}}
+* Avoid double-encoding of paginator URLs {{<gh 2177 >}}
+* Allow tilde in URLs {{<gh 2177 >}}
+* Fix `.Site.Pages` handling on live reloads {{<gh 2869 >}}
 * `UniqueID` now correctly uses the fill file path from the content root to calculate the hash, and is finally ... unique!
-* Discard current language based on `.Lang()`, go get translations correct for paginated pages. gh 2972
+* Discard current language based on `.Lang()`, go get translations correct for paginated pages. {{<gh 2972 >}}
  
 
 ## Docs
-* Add tutorial "How to use Google Firebase to host a Hugo site" gh 3007
-* Improve documentation for menu rendering gh 3056
-* Revise GitHub Pages deployment tutorial gh 2930
+* Add tutorial "How to use Google Firebase to host a Hugo site" {{<gh 3007 >}}
+* Improve documentation for menu rendering {{<gh 3056 >}}
+* Revise GitHub Pages deployment tutorial {{<gh 2930 >}}
 
 # **0.18.1** December 30th 2016
 
@@ -369,14 +369,11 @@ times decreased anywhere from 10% to 99%.
   `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
 * Make `ByCount` sort consistently {{<gh 1930>}}
 * Add `Scratch` to shortcode {{<gh 2000>}}
-* Add support for symbolic links for content, layout, static, theme  {{<gh 1855
-  >}}
+* Add support for symbolic links for content, layout, static, theme  {{<gh 1855 >}}
 * Add '+' as one of the valid characters in URLs specified in the front matter
   {{<gh 1290 >}}
-* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh
-  2093 >}}
-* Hugo injects meta generator tag on homepage if missing {{<gh
-  2182 >}}
+* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh 2093 >}}
+* Hugo injects meta generator tag on homepage if missing {{<gh 2182 >}}
 
 ### Fixes
 * Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
