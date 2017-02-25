@@ -71,6 +71,7 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * `UniqueID` now correctly uses the fill file path from the content root to calculate the hash, and is finally ... unique!
 * Discard current language based on `.Lang()`, go get translations correct for paginated pages. {{<gh 2972 >}}
 * Fix infinite loop in template AST handling for recursive templates  {{<gh 2927 >}} 
+* Fix issue with watching when config loading fails {{<gh 2603 >}} 
 
 ## Docs
 * Add tutorial "How to use Google Firebase to host a Hugo site" {{<gh 3007 >}}
