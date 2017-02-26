@@ -298,23 +298,34 @@ It's more important to contribute *some* documentation than no documentation at 
 
 The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience:
 
-1. *Front matter* is two words.
-2. *Homepage* is one word.
-3. Be sure to add a `godocref` whenever possible to a new content file's front matter. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
+1. *Front matter* is two words, *Homepage* is one word, *file system* is two words.
+3. Be sure to add a value to the `godocref` in content files whenever possible. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
 
-## Pages Needing Code Examples
+## Ask the Community for Code Examples
 
-Examples
+Sometimes you want to contribute to the docs but don't have enough time to provide lengthy examples. If you want to flag a piece of content you feel needs more examples to be better understood by Hugo users, you can add the following field to a content file's front matter:
+
+```
+needsexamples: true
+```
+
+## Hugo Docs Examples Needed, Please Help!
+
+The preceding `needsexamples` field generates the following list of files that we feel could benefit from some community-driven examples. The edit link will take you directly to the edit URL for the file if you're more comfortable making small changes in the GitHub interface rather than in your local text editor.
 
 {{< needsexamples >}}
 
-## How Content is Ordered in the Docs
+{{% note "Pull Requests and Branches" %}}
+Similar to [contributing to Hugo development](/contribute/contribute-to-hugo-development), the Hugo team expects you to create a separate branch/fork for your generous contributions to Hugo.
+{{% /note %}}
 
-**IN DEVELOPMENT**
+## Ordering Content in the Hugo Docs
+
+If you're contributing to the Hugo docs, do not worry about weight and ordering, especially in the case of a new content file. All Hugo doc sections have been ordered specifically to keep the docs website scalable and easy to use.
 
 ## Be Mindful of Aliases
 
-Use aliases sparingly. The following table shows a list of all the aliases used in the Hugo Docs. If you need to use an alias in your new content file's front matter, be sure to check here first to prevent conflicts.
+Use aliases sparingly. The following table shows a list of all the aliases currently being used in the Hugo Docs. If you need to use an alias in your new content file's front matter, be sure to check here first to prevent conflicts.
 
 {{< allaliases >}}
 

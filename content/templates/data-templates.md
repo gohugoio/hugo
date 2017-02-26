@@ -248,7 +248,7 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [customize]: /themes/customizing/
 [lookup]: /templates/lookup-order/
 [json]: /documents/ecma-404-json-spec.pdf
-[LiveReload]: /getting-started/basic-usage/#livereload
+[LiveReload]: /getting-started/usage/#livereload
 [OAuth]: http://en.wikipedia.org/wiki/OAuth
 [partials]: /templates/partials/
 [themes]: /themes/

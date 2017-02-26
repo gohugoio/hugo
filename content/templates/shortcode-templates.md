@@ -254,7 +254,7 @@ The preceding shortcode makes use of a Hugo-specific template function called `h
 
 More shortcode examples can be found in the [shortcodes directory for spf13.com][spf13shortcodes] and the [shortcodes directory for the Hugo docs][docsshortcodes].
 
-[basic content files]: /content-management/supported-content-formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
+[basic content files]: /content-management/formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
 [built-in shortcode]: /content-management/shortcodes/
 [source organization]: /getting-started/directory-structure/ "Learn how Hugo scaffolds new sites and what it expects to find in each of your directories."
 [docsshortcodes]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."

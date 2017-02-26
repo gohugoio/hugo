@@ -6,18 +6,17 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
-aliases: []
 ---
 
-## Example
+Trim returns a slice of the string with all leading and trailing characters contained in cutset removed.
 
-## Advanced Example
+```
+{{ trim "++Batman--" "+-" }} → "Batman"
+```

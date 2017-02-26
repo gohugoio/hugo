@@ -1,24 +1,40 @@
 ---
 title: safeHTML
 linktitle:
-description:
-godocref:
+description: Declares a provided string as a "safe" HTML document to avoid escaping by Go templates.
+godocref: https://golang.org/src/html/template/content.go?s=1374:1385#L25
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [strings]
 categories: [functions]
-toc:
+tags: [strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
-aliases: []
 ---
 
-## Example
+`safeHTML` declares the provided string as a "safe" HTML document fragment
+so Go html/template will not filter it.  It should not be used
+for HTML from a third-party, or HTML with unclosed tags or comments.
 
-## Advanced Example
+Given a site-wide [`config.toml`][config] with the following `copyright` value:
 
+```toml
+copyright = "© 2015 Jane Doe.  <a href=\"http://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
+```
+
+`{{ .Site.Copyright | safeHTML }}` in a template would then output:
+
+```html
+© 2015 Jane Doe.  <a href="http://creativecommons.org/licenses/by/4.0/">Some rights reserved</a>.
+```
+
+However, without the `safeHTML` function, html/template assumes `.Site.Copyright` to be unsafe and therefore escapes all HTML tags and renders the whole string as plain text:
+
+```html
+<p>© 2015 Jane Doe.  &lt;a href=&#34;http://creativecommons.org/licenses by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
+```
+
+[config]: /getting-started/configuration/

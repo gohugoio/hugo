@@ -86,7 +86,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped writable variables.
 : a collection of associated pages. This value will be `nil` for regular content pages. `.Pages` is an alias for `.Data.Pages`.
 
 `.Permalink`
-: the Permanent link for this page; see [Permalinks](/content-management/url-management/)
+: the Permanent link for this page; see [Permalinks](/content-management/urls/)
 
 `.Prev`
 : Pointer to the previous content (based on `publishdate` in front matter).
@@ -133,7 +133,7 @@ http://remarkjs.com)
 : the title for this page.
 
 `.Translations`
-: a list of translated versions of the current page. See [Multilingual Mode](/content-management/multilingual-mode/) for more information.
+: a list of translated versions of the current page. See [Multilingual Mode](/content-management/multilingual/) for more information.
 
 `.Truncated`
 : a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/content-summaries/) for more information.
@@ -197,7 +197,7 @@ Two common situations where this type of front matter field could be introduced 
 ```
 {{% /code %}}
 
-This template would render as follows, assuming you've set [`uglyURLs`](/content-management/url-management/) to `false` in your [site `config`](/getting-started/configuration/):
+This template would render as follows, assuming you've set [`uglyURLs`](/content-management/urls/) to `false` in your [site `config`](/getting-started/configuration/):
 
 {{% output file="yourbaseurl/review/book01/index.html" %}}
 ```html

@@ -1,7 +1,7 @@
 ---
 title: Supported Content Formats
 linktitle: Content Formats
-description: Hugo uses the Blackfriday markdown parser for content files but also provides support for additional syntaxes (eg, Asciidoc) via external helpers.
+description: Markdown is natively supported in Hugo and is parsed by the feature-rich and incredibly speed Blackfriday parse. Hugo also provides support for additional syntaxes (eg, Asciidoc) via external helpers.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
@@ -19,7 +19,7 @@ notesforauthors:
 Markdown is the native content format for Hugo and is rendered using the excellent [Blackfriday project][], a blazingly fast parser written in Golang.
 
 {{% note "Deeply Nested Lists" %}}
-Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is a workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations to delimit nesting of lists.
+Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations to delimit nesting of lists in your content.
 {{% /note %}}
 
 ## Additional Content Formats

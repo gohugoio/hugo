@@ -2,22 +2,21 @@
 title: chomp
 linktitle: chomp
 description:
-godocref:
+godocref: Removes any trailing newline characters.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [trim]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [truncate]
 deprecated: false
-draft: false
-aliases: []
 ---
 
-## Example
+Removes any trailing newline characters. Useful in a pipeline to remove newlines added by other processing (e.g., [`markdownify`](/functions/markdownify/)).
 
-## Advanced Example
+```golang
+{{chomp "<p>Blockhead</p>\n"}} → "<p>Blockhead</p>"
+```

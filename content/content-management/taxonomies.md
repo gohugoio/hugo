@@ -1,7 +1,7 @@
 ---
 title: Taxonomies
 linktitle:
-description:
+description: Hugo includes support for user-defined taxonomies to help you  demonstrate logical relationships between content for the end users of your website.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

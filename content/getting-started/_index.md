@@ -5,17 +5,15 @@ description: Quick start and guides for installing Hugo on your preferred operat
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: []
+categories: [getting started]
 tags: [usage,docs]
 weight: 01
 draft: false
-slug:
-aliases: []
+aliases: [/overview/introduction/]
 toc: false
-notesforauthors:
 ---
 
-The Hugo docs were completely reworked from the ground up in anticipation of v0.19. There are extensive code block examples throughout the documentation. If this is your first time using Hugo and you [already have Hugo installed on your machine][install], we recommend the [quick start][].
+The Hugo docs were completely reworked from the ground up in anticipation of v0.19. There are extensive code block examples throughout the documentation. If this is your first time using Hugo and you've [already installed Hugo on your machine][installed], we recommend the [quick start][].
 
-[install]: /getting-started/installing/
+[installed]: /getting-started/installing/
 [quick start]: /getting-started/quick-start/

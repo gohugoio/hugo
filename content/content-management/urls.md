@@ -9,7 +9,7 @@ tags: [aliases,redirects,permalinks,urls]
 categories: [content management]
 weight: 110
 draft: false
-aliases: [/extras/permalinks/,/extras/aliases/,/content-management/permalinks-and-redirects/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
+aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 toc: true
 needsreview: true
 ---
@@ -230,6 +230,10 @@ Or, if you are on Windows and do not have `grep` installed:
 hugo config | FINDSTR /I canon
 ```
 
+## Overriding URLS in Front Matter
+
+**Need explanation of *slug* and *url* here**
+
 ## Relative URLs
 
 By default, all relative URLs are left unchanged by Hugo, which can be problematic when you want to make your site browsable from a local file system.
@@ -239,9 +243,9 @@ Setting `relativeURLs` to `true` in your [site configuration][configuration] wil
 For example, if the `/post/first/` page contained a link to `/about/`, Hugo would rewrite that URL to `../../about/`.
 
 [configuration]: /getting-started/configuration/
-[Content Organization]: /content-management/content-organization/
-[flag from the command line]: /getting-started/basic-usage/
+[Content Organization]: /content-management/organization/
+[flag from the command line]: /getting-started/usage/
 [front matter]: /content-management/front-matter/
-[multilingual]: /content-management/multilingual-mode/
+[multilingual]: /content-management/multilingual/
 [sections]: /content-management/sections/
 [site configuration]: /project-organization/configuration/

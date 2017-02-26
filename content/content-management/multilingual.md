@@ -1,7 +1,7 @@
 ---
 title: Multilingual Mode
 linktitle:
-description:
+description: As of v0.17, Hugo supports the creation of websites with multiple languages side by side.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
@@ -12,7 +12,6 @@ draft: false
 aliases: [/content/multilingual/,/content-management/multilingual/]
 toc: true
 needsreview: true
-notesforauthors:
 ---
 
 Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the available languages in a `Languages` section in your top-level `config.toml` (or equivalent).

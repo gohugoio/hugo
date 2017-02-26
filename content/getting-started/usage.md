@@ -6,16 +6,15 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
-tags: [usage,livereload,command line]
+tags: [usage,livereload,command line,flags]
 weight: 40
 draft: false
-aliases: [/overview/usage/,/extras/livereload/,/getting-started/using-hugo/,/doc/usage/]
+aliases: [/overview/usage/,/extras/livereload/,/doc/usage/]
 toc: true
 needsreview: true
-notesforauthors:
 ---
 
-## Testing Installation with Hugo Help
+## Testing Installation with `hugo help`
 
 Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
 
@@ -90,8 +89,11 @@ Additional help topics:
 Use "hugo [command] --help" for more information about a command.
 ```
 
+## Common Usage
 
-The most common use is probably to run `hugo` with your current directory being the input directory:
+The most common usage is probably to run `hugo` with your current directory being the input directory.
+
+This generates your website to the `public/` directory by default---although [this can be configured to your needs via `publishDir`][configdir]---ready to be deployed to your web server.
 
 ```bash
 hugo
@@ -104,11 +106,9 @@ hugo
 in 120 ms
 ```
 
-This generates your website to the `public/` directory, ready to be deployed to your web server.
+## Instant Feedback During Development
 
-## Instant feedback as you develop your web site
-
-If you are working on things and want to see the changes immediately, by default Hugo will watch the filesystem for changes and rebuild your site as soon as a file is saved:
+If you are working on things and want to see the changes immediately, by default Hugo will watch the file system for changes and rebuild your site as soon as a file is saved:
 
 ```bash
 hugo -s ~/Code/hugo/docs
@@ -254,6 +254,7 @@ Interested? Here are some great tutorials contributed by Hugo users:
 [Amazon S3]: http://aws.amazon.com/s3/
 [Apache]: http://httpd.apache.org/ "Apache HTTP Server"
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
+[configdir]: /getting-started/configuration/
 [directorystructure]: /getting-started/directory-structure/
 [DreamHost]: http://www.dreamhost.com/
 [Firebase Hosting]: https://firebase.google.com/docs/hosting/

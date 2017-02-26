@@ -1,24 +1,23 @@
 ---
 title: int
-linktitle:
-description:
+linktitle: int
+description: Creates an `int` from the argument passed into the function.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings,integers]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+Creates an integer (`int`) from the argument passed into the function. Useful for turning strings into numbers.
 
-## Advanced Example
-
+```
+{{ int "123" }} → 123
+```

@@ -1,7 +1,7 @@
 ---
 title: What is Hugo
 linktitle: What is Hugo
-description: Hugo is the world's fastest static site generator. The purpose of Hugo is to make making websites fun again.
+description: Hugo is the world's fastest static site generator, a powerful templating engine written in Golang, and an enthusiastic community of open-source developers. Most importantly, Hugo is here so that making websites can be fun again.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -51,5 +51,5 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [Middleman]: https://middlemanapp.com/
 [Nanoc]: http://nanoc.ws/
 [rackspace]: https://www.rackspace.com/cloud/files
-[static site generator]: /about-hugo/benefits-of-static/
+[static site generator]: /about-hugo/benefits/
 [Surge]: https://surge.sh

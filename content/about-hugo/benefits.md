@@ -22,7 +22,7 @@ Hugo and other static site generators take caching a step further. All HTML file
 
 Not running a website generator on your HTTP server has many benefits. The most noticeable is performance---HTTP servers are very good at sending files. So good that you can effectively serve the same number of pages with a fraction of the memory and CPU needed for a dynamic site.
 
-## Resources on Static Site Generators
+## More Information on the Benefits of Static Site Generators
 
 * ["An Introduction to Static Site Generators", David Walsh][]
 * ["Static Site Generators", O-Reilly][]

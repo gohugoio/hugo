@@ -1,7 +1,7 @@
 ---
 title: upper
-linktitle:
-description:
+linktitle: upper
+description: Converts all characters in a string to uppercase
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -18,7 +18,10 @@ draft: false
 aliases: []
 ---
 
-## Example
+`upper` converts all characters in string to uppercase. Note that `upper` can be applied in your templates in more than one way:
 
-## Advanced Example
+```
+{{ upper "BatMan" }} → "BATMAN"
+{{ "BatMan" | upper }} → "BATMAN"
+```
 

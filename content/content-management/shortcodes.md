@@ -397,7 +397,7 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 To learn more about creating your own shortcode templates, see the [shortcode template documentation][].
 
-[contentmanagementsection]: /content-management/supported-content-formats/
+[contentmanagementsection]: /content-management/formats/
 [examplegist]: https://gist.github.com/spf13/7896402
 [figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
 [`figure` shortcode]: #figure

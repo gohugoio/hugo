@@ -1,7 +1,7 @@
 ---
 title: Content Organization
 linktitle: Content Organization
-description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site, but
+description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -252,5 +252,5 @@ Hugo themes are designed to use the 'content' directory as the root of the websi
 
 [front matter]: /content-management/front-matter/
 [section]: /content-management/section/
-[supported content formats]: /content-management/supported-content-formats/
-[URL management]: /content-management/url-management/
+[supported content formats]: /content-management/formats/
+[URL management]: /content-management/urls/

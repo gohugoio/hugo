@@ -100,7 +100,7 @@ There are a few predefined variables that Hugo is aware of and utilizes. The use
 * **url** The full path to the content from the web root. It makes no assumptions about the path of the content file. It also ignores any language prefixes of the multilingual feature.
 
 {{% note "Hugo's Default URLs" %}}
-If neither `slug` nor `url` is present, and [permalinks are not configured otherwise](/content-management/url-management/#permalinks), the filename will be used to create the URL for a page.
+If neither `slug` nor `url` is present, and [permalinks are not configured otherwise](/content-management/urls/#permalinks), the filename will be used to create the URL for a page.
 {{% /note %}}
 
 ## Override Global Blackfriday Configuration
@@ -123,7 +123,7 @@ See [site configuration][] for more information on setting up global Blackfriday
 * [YAML Spec][]
 * [JSON Spec][]
 
-[aliases]: /content-management/url-management/#aliases/
+[aliases]: /content-management/urls/#aliases/
 [content type]: /content-management/content-types/
 [site configuration]: /project-organization/configuration/ "Hugo documentation for site configuration"
 [JSON Spec]: /documents/ecma-404-json-spec.pdf "Specification for JSON, JavaScript Object Notation"

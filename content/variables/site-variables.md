@@ -46,7 +46,7 @@ The following is a list of site-level variables (aka "global"). Many of these va
 : a string representing your tracking code for Google Analytics as defined in the site configuration.
 
 `.Site.IsMultiLingual`
-: whether there are more than one language in this site. See [Multilingual](/content-management/multilingual-mode/) for more information.
+: whether there are more than one language in this site. See [Multilingual](/content-management/multilingual/) for more information.
 
 `.Site.Language.Lang`
 : the language code of the current locale (e.g., `en`).
@@ -79,7 +79,7 @@ The following is a list of site-level variables (aka "global"). Many of these va
 : array of all content ordered by Date with the newest first. `.Site.Pages` replaced the deprecated `.Site.Recent` as of Hugo v0.13. This array contains only the pages in the current language.
 
 `.Site.Permalinks`
-: a string to override the default [permalink](/content-management/url-management/) format as defined in the site configuration.
+: a string to override the default [permalink](/content-management/urls/) format as defined in the site configuration.
 
 `.Site.RegularPages`
 : a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalents to `where .Site.Pages "Kind" "page"`.

@@ -89,7 +89,7 @@ The SSG developer has
 The themes end user has
 
 * limited proficiency in the command line/prompt
-* proficiency in one of the [supported content formats](https://hugodocsconcept.netlify.com/content-management/supported-content-formats/)(specifically markdown)
+* proficiency in one of the [supported content formats](https://hugodocsconcept.netlify.com/content-management/formats/)(specifically markdown)
 * access to static hosting;
 * limited proficiency in deploying a static website
 
@@ -126,7 +126,7 @@ The following are high-level requirements for the documentation site.
 
 - [ ] Basic style guide
     - The style guide should facilitate a more consistent UX for the site but not be so complex as to deter documentation contributors
-- [X] Contribution guidelines (see [WIP on live site](https://hugodocsconcept.netlify.com/contribute/contribute-to-the-hugo-docs/))
+- [X] Contribution guidelines (see [WIP on live site](https://hugodocsconcept.netlify.com/contribute/documentation/))
 - [X] Standardized content types (see [WIP archetypes in source](https://github.com/rdwatters/hugo-docs-concept/tree/master/themes/hugodocs/archetypes)
 - [X] New content model, including taxonomies ([see tags page][tagspage])
 - [ ] DRY. New shortcodes for repeat content (e.g., lists of aliases, page variables, site variables, and others)
@@ -150,7 +150,7 @@ The following are high-level requirements for the documentation site.
 - [X] Copyable code blocks (via highlight.js, extended for hugo-specific keywords)
 - [X] Dual in-page navigation (i.e. site nav *and* in-page TOC)
 - [X] Smooth scrolling
-- [X] [RTD-style admonitions][admonitions] (see [example admonition shortcode](https://github.com/rdwatters/hugo-docs-concept/blob/master/layouts/shortcodes/note.html) and [examples on published site](/contribute/contribute-to-the-hugo-docs/#admonition-short-codes))
+- [X] [RTD-style admonitions][admonitions] (see [example admonition shortcode](https://github.com/rdwatters/hugo-docs-concept/blob/master/layouts/shortcodes/note.html) and [examples on published site](/contribute/documentation/#admonition-short-codes))
 - [ ] Share buttons: Reddit, Twitter, LinkedIn, and "Copy Page Url"; the last of these provides the strongest utility for docs references in the Hugo forums
 
 ## Author Experience (AX)
@@ -195,7 +195,7 @@ This is no longer a site navigation link and is instead a button along with "Fil
 
 ### Site Showcase
 
-* Site showcase has stayed more or less as is, including styling, etc. However, I did clean up the templating and all currently submitted showcase files. (E.g., changing "thumbnail" to "image" and not requiring a full path.) This will also be updated in the ["docs" page of the contribute section](/contribute/contribute-to-the-hugo-docs/)
+* Site showcase has stayed more or less as is, including styling, etc. However, I did clean up the templating and all currently submitted showcase files. (E.g., changing "thumbnail" to "image" and not requiring a full path.) This will also be updated in the ["docs" page of the contribute section](/contribute/documentation/)
 
 ### Press & Articles
 
@@ -228,7 +228,7 @@ This is no longer a site navigation link and is instead a button along with "Fil
 * This section no longer exists in the new documentation site
     * *Extras*, in the content world, is the equivalent of *miscellaneous* or *additional resources*. It's an area that's been tacked onto site navigation to accommodate a *seemingly* disparate set of new features. In other words, READ: "We don't have any idea of where to put this"
 * *Extras* pages:
-    * **Aliases** Incorporated into [URL Management](/content-management/url-management/)
+    * **Aliases** Incorporated into [URL Management](/content-management/urls/)
     * **Analytics** Incorporated into [built-in partials](/templates/partials/#using-hugos-built-in-partials)
     * **Builders** This has been removed completely since it has no real added value. The three "builders" mentioned (`new site`, `new theme`, and `new <content>`) are all well-delimited in their respective pages, which is where end users expect to find this type of information in the first place.
     * **Comments** Incorporated into [content management](/content-management/comments/) for content-related pieces and mentioned in [partials](/templates/partials/) for implementation.
@@ -375,7 +375,7 @@ Apache License - 60
 2. **2017-03-01** Post in Discussion Forum for Feedback
 3. **2017-??-??** Add to Hugo repo for release with v19
 
-[^1]: As this point, the URL structure has changed considerably. I've been fastidious about adding aliases wherever possible, but I'm not sure what negative effect this approach is going to take with our current search relevancy. The [current list of aliases is quite large](/contribute/contribute-to-the-hugo-docs/#be-mindful-of-aliases).
+[^1]: As this point, the URL structure has changed considerably. I've been fastidious about adding aliases wherever possible, but I'm not sure what negative effect this approach is going to take with our current search relevancy. The [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
 
 
 [admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions

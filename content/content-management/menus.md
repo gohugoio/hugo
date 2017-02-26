@@ -1,7 +1,7 @@
 ---
 title: Menus
 linktitle: Menus
-description:
+description: Hugo's simple yet powerful menu system allows you to add content to menus with a high level of control and low level of effort.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -14,7 +14,7 @@ toc: true
 needsreview: true
 ---
 
-Hugo has a simple yet powerful menu system that allows you to add content to menus with a high degree of control and a very low amount of effort on the part of content authors.
+Hugo's simple yet powerful menu system allows you to add content to menus with a high degree of control and a very low amount of effort on the part of content authors.
 
 {{% note "Lazy Blogger"%}}
 If all you want is a simple menu for your sections, see the ["Section Menu for Lazy Bloggers" in Menu Templates](/templates/menu-templates/#section-menu-for-lazy-blogger).
@@ -32,7 +32,7 @@ Hugo's robust menu features allow you to do the following:
 A **menu** is a named array of menu entries accessible by name via the [`.Site.Menus` site variable][sitevars]. For example, you can access your site's `main` menu via `.Site.Menus.main`.
 
 {{% note "Menus on Multilingual Sites" %}}
-If you make use of the [multilingual feature](/content-management/multilingual-mode/), you can define language-independent menus.
+If you make use of the [multilingual feature](/content-management/multilingual/), you can define language-independent menus.
 {{% /note %}}
 
 A menu entry has the following properties (i.e., variables) available to it:
@@ -141,5 +141,5 @@ In this example, the top level of the menu is defined in your [site `config` fil
 See [Menu Templates](/templates/menu-templates/) for information on how to render your site menus.
 
 [config]: /getting-started/configuration/
-[multilingual]: /content-management/multilingual-mode/
+[multilingual]: /content-management/multilingual/
 [sitevars]: /variables/

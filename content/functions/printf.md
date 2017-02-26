@@ -6,19 +6,23 @@ godocref: https://golang.org/pkg/fmt/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: []
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
-aliases: []
+needsexamples: true
 ---
 
-## Example
+Format a string using the standard `fmt.Sprintf` function. See [the go
+doc](https://golang.org/pkg/fmt/) for additional information.
 
-## Advanced Example
+```golang
+{{ i18n ( printf "combined_%s" $var ) }}
+```
 
+```
+{{ printf "formatted %.2f" 3.1416 }}
+```

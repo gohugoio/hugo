@@ -63,7 +63,7 @@ It makes use of [partial templates][partials] and uses a similar approach as a [
 ```
 {{% /code %}}
 
-[contentorg]: /content-management/content-organization/
+[contentorg]: /content-management/organization/
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
 [pagevars]: /variables/page-variables/

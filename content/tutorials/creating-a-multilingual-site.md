@@ -16,7 +16,7 @@ needsreview: true
 ---
 
 {{% note %}}
-Since v0.17, Hugo has built-in support for the creation of multilingual websites. Read the [multilingual documentation](/content-management/multilingual-mode/) for more information.
+Since v0.17, Hugo has built-in support for the creation of multilingual websites. Read the [multilingual documentation](/content-management/multilingual/) for more information.
 {{% /note %}}
 
 ## Introduction

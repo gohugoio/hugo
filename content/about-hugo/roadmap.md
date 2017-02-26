@@ -5,13 +5,12 @@ description: Take a look at what's in the pipeline for future versions of the Hu
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
+categories: [about hugo]
+tags: [about,contribute,roadmap]
 weight: 50
 draft: false
-slug:
 aliases: [/meta/roadmap]
 toc: false
-notesforauthors:
 ---
 
 In no particular order, here is what is currently being worked on for the Hugo project:
@@ -33,8 +32,8 @@ Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's 
 [#1014]: https://github.com/spf13/hugo/issues/1014
 [#1435]: https://github.com/spf13/hugo/issues/1435
 [#1436]: https://github.com/spf13/hugo/issues/1436
-[devcontribute]: /contribute/contribute-to-hugo-development/
-[doccontribute]: /contribute/contribute-to-the-hugo-docs/
+[devcontribute]: /contribute/development/
+[doccontribute]: /contribute/documentation/
 [hosting and deployment]: /hosting-and-deployment/
 [migrate]: /developer-tools/migrate-to-hugo/
 [newissue]: https://github.com/spf13/hugo/issues/

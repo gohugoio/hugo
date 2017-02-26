@@ -1,7 +1,7 @@
 ---
 title: Hugo Features
-linktitle:
-description: In addition to blistering speed, Hugo also includes a powerful templating language that makes it appropriate for websites of all sizes and types.
+linktitle: Hugo Features
+description: In addition to blistering speed, Hugo also includes robust content management features and a powerful templating language that make it appropriate for websites of all sizes and types.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -54,7 +54,7 @@ notesforauthors:
 See what's coming next in the [Hugo roadmap][].
 
 [Ace]: /templates/ace-templating/
-[aliases]: /content-management/url-management/#aliases
+[aliases]: /content-management/urls/#aliases
 [Amber]: https://github.com/eknkc/amber
 [content summaries]: /content-management/content-summaries/
 [content types]: /content-management/content-types/
@@ -73,16 +73,16 @@ See what's coming next in the [Hugo roadmap][].
 [Mac OSX]: /getting-started/install-of-pc/
 [organization for your projects]: /getting-started/directory-structure/
 [pagevars]: /variables/page-variables/
-[Permalink]: /content-management/url-management/#permalinks
+[Permalink]: /content-management/urls/#permalinks
 [Powerful theming]: /themes/
-[Pretty URLs]: /content-management/url-management/
+[Pretty URLs]: /content-management/urls/
 [Pygments]: http://pygments.org/
 [RSS]: /templates/rss-templates/
 [Shortcodes]: /content-management/shortcodes/
 [sort content]: /templates/
-[supported formats]: /content-management/supported-content-formats/
+[supported formats]: /content-management/formats/
 [Syntax highlighting]: /developer-tools/syntax-highlighting/
 [table of contents]: /content-management/table-of-contents/
 [taxonomies]: /content-management/taxonomies/
-[URLs]: /content-management/url-management/
+[URLs]: /content-management/urls/
 [Windows]: /getting-started/install-on-linux/

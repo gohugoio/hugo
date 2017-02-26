@@ -17,7 +17,7 @@ needsreview: true
 Section page templates are lists and therefore have all the variables and methods available to [list pages][lists].
 
 {{% warning "Section Pages Pull Content from `_index.md`" %}}
-To effectively leverage section page templates, you should first understand the Hugo [content organization](/content-management/content-organization/), and specifically the purpose of `_index.md`.
+To effectively leverage section page templates, you should first understand the Hugo [content organization](/content-management/organization/), and specifically the purpose of `_index.md`.
 {{% /warning %}}
 
 ### Section Template Lookup Order

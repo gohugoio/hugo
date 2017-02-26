@@ -3,6 +3,9 @@ main.showcase-list {
   max-width: $XL;
   margin-left: auto;
   margin-right: auto;
+  @include MQ(XL) {
+    margin-left: 5%;
+  }
 }
 
 #showcase {
@@ -65,9 +68,9 @@ main.showcase-list {
           text-transform: uppercase;
         }
         .showcase-title {
-          font-weight:bold;
+          font-weight: bold;
           a {
-            font-weight:bold;
+            font-weight: bold;
           }
         }
       }

@@ -35,9 +35,9 @@ Learn more about the different directories and what their purpose is:
 
 * [config](/getting-started/configuration/)
 * [data](/templates/data-templates/)
-* [i18n](/content-management/multilingual-mode/)
+* [i18n](/content-management/multilingual/)
 * [archetypes](/content-management/archetypes/)
-* [content](/content-managemt/content-organization/)
+* [content](/content-managemt/organization/)
 * [layouts](/templates/)
 * [static](/themes/creating-a-theme/)
 * [themes](/themes/)

@@ -330,7 +330,7 @@ If you want to see an example of how you can deploy to S3 instead of GitHub page
 
 
 [accesstokenghhelp]: https://help.github.com/articles/creating-an-access-token-for-command-line-use/
-[basicusage]: /getting-started/basic-usage/
+[basicusage]: /getting-started/usage/
 [ghsignup]: https://github.com/join
 [gitbasics]: https://git-scm.com/book/en/v2/Getting-Started-Git-Basics
 [githubhelp]: https://help.github.com/articles/set-up-git/

@@ -60,7 +60,7 @@ The following is an example:
 ```
 
 {{% note "`absLangURL` and `relLangURL`" %}}
-Use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature](/content-management/multilingual-mode/). In contrast to `absURL` and `relURL`, these two functions add the correct language prefix to the url. Read more on the [`absLangUrl`](/functions/abslangurl) and [`relLangUrl`](/functions/rellangurl) functions.
+Use the `absLangURL` or `relLangURL` if your theme makes use of the [multilingual feature](/content-management/multilingual/). In contrast to `absURL` and `relURL`, these two functions add the correct language prefix to the url. Read more on the [`absLangUrl`](/functions/abslangurl) and [`relLangUrl`](/functions/rellangurl) functions.
 {{% /note %}}
 
 ## Section Menu for Lazy Bloggers
