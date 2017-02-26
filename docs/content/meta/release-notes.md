@@ -14,13 +14,13 @@ weight: 10
 
 We're happy to announce the first release of Hugo in 2017.
 
-This release represents **over 180 contributions by over 50 contributors** to the main Hugo code base. Since last release Hugo has **gained 1400 stars, 35 new contributors and 15 additional themes.**
+This release represents **over 180 contributions by over 50 contributors** to the main Hugo code base. Since last release Hugo has **gained 1450 stars, 35 new contributors and 15 additional themes.**
 
 Hugo now has:
 
-- 15100+ stars
+- 15200+ stars
 - 470+ contributors
-- 150+ themes
+- 151+ themes
 
 Furthermore, Hugo has its own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where we share bite-sized news and themes from the Hugo community.
 
