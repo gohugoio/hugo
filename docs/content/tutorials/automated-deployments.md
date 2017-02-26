@@ -155,17 +155,17 @@ Clicking this will make Wercker show you all the repositories you have on GitHub
 
 As Wercker doesn't access to check out your private projects by default, it will ask you what you want to do. When your project is public, as needs to be the case if you wish to use GitHub Pages, the top choice is recommended. When you use this it will simply check out the code in the same way anybody visiting the project on GitHub can do.
 
-![][9]
+![][8]
 
-[9]: /img/tutorials/automated-deployments/wercker-access.png
+[8]: /img/tutorials/automated-deployments/wercker-access.png
 
 ## Public or not
 
 This is a personal choice, you can make an app public so that everyone can see more details about it. This doesn't give you any real benefits either way in general, although as part of the tutorial I have of course made this app public so you can see it in action [yourself](https://app.wercker.com/#applications/5586dcbdaf7de9c51b02b0d5).
 
-![][11]
+![][9]
 
-[11]: /img/tutorials/automated-deployments/public-or-not.png
+[9]: /img/tutorials/automated-deployments/public-or-not.png
 
 ## Wercker.yml
 
@@ -179,17 +179,13 @@ Choose Default for your programming language. Wercker will now attempt to create
 
 The application is added now, and Wercker will be offering you the chance to trigger a build. As we haven't pushed up the **wercker.yml** file however, we will politely decline this option. Wercker has automatically added a build pipeline to your application.
 
-![][12]
+## Adding build step
 
-[12]: /img/tutorials/automated-deployments/and-we-ve-got-an-app.png
+And now we're going to add the build step to the build pipeline. First, we go to the "Registry" action in the top menu and then search for "hugo build". Find the **Hugo-Build** task by Arjen and select it.
 
-## Adding steps
+![][11]
 
-And now we're going to add the steps themselves. First, we go to the "Registry" action in the top menu and then search for "hugo build". Find the **Hugo-Build** task by Arjen and select it.
-
-![][13]
-
-[13]: /img/tutorials/automated-deployments/wercker-search.png
+[11]: /img/tutorials/automated-deployments/wercker-search.png
 
 ## Using Hugo-Build
 
@@ -207,7 +203,7 @@ build:
         flags: --buildDrafts=true
 ```
 
-This concludes the first step, so we'll test that it all works as it should by pushing up our wercker.yml file and seeing the magic at work.
+As you can see, the only step in the build pipeline is the arjen/hugo-build step. Now we'll test that it all works as it should by pushing up our wercker.yml file to Github and seeing the magic at work.
 
 ```bash
 git commit -a -m "Add wercker.yml"
@@ -216,13 +212,21 @@ git push origin master
 
 Once completed a nice tick should have appeared in front of your first build, and if you want you can look at the details by clicking on it. However, we're not done yet as we still need to deploy it to GitHub Pages.
 
-![][14]
+![][12]
 
-[14]: /img/tutorials/automated-deployments/using-hugo-build.png
+[12]: /img/tutorials/automated-deployments/using-hugo-build.png
 
 ## Adding a deploy pipeline
 
-In order to deploy to GitHub Pages we need to add a deploy pipeline. First, go to your Wercker application's page. Go to the "Workflows" tab and click on "Add new pipeline." Name it whatever you want; "deploy-production" or "deploy" works fine. For your YML Pipeline name, type in "deploy" without quotes. Leave the hook type as "Default" and hit the Create button. Now you need to link the deploy pipeline to your build pipeline. In the workflow editor, click on the + next to your build pipeline and add the deploy pipeline you've just made. Now the deploy pipeline will be run automatically whenever the build pipeline is completed succesfully.
+In order to deploy to GitHub Pages we need to add a deploy pipeline. 
+
+1. First, go to your Wercker application's page. Go to the "Workflows" tab and click on "Add new pipeline." Name it whatever you want; "deploy-production" or "deploy" works fine. For your YML Pipeline name, type in "deploy" without quotes. Leave the hook type as "Default" and hit the Create button. 
+
+2. Now you need to link the deploy pipeline to your build pipeline. In the workflow editor, click on the + next to your build pipeline and add the deploy pipeline you've just made. Now the deploy pipeline will be run automatically whenever the build pipeline is completed succesfully.
+
+![][13]
+
+[13]: /img/tutorials/automated-deployments/adding-a-deploy-pipeline.png
 
 ## Adding a deploy step
 
@@ -251,6 +255,10 @@ How does the GitHub Pages configuration work? We've selected a couple of things,
 Secondly we've configured the basedir to **public**, this is the directory that will be used as the website on GitHub Pages.
 
 And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. To do this, go to your application page and click on the "Environment" tab. Under Application Environment Variables, put **$GIT_TOKEN** for the Key. Now you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). Copy and paste the access token you generated from Github into the Value box. **Make sure you check Protected** and then hit Add. 
+
+![][14]
+
+[14]: /img/tutorials/automated-deployments/adding-a-deploy-step.png
 
 With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us. The example site we used here is accessible under hugo-wercker.ig.nore.me
 
