@@ -197,13 +197,19 @@ We're not going to use any of the advanced features in this tutorial, so we'll r
 box: debian
 build:
   steps:
+    - install-packages:
+        packages: git
+    - script:
+        name: download theme
+        code: |
+            $(git clone https://github.com/spf13/herring-cove ./themes/herring-cove)
     - arjen/hugo-build:
         version: "0.14"
         theme: herring-cove
         flags: --buildDrafts=true
 ```
 
-As you can see, the only step in the build pipeline is the arjen/hugo-build step. Now we'll test that it all works as it should by pushing up our wercker.yml file to Github and seeing the magic at work.
+As you can see, we have two steps in the build pipeline. The first step downloads the theme, and the second step runs arjen's hugo-build step. To use a different theme, you can replace the link to the herring-cove source with another theme's repository - just make sure the name of the folder you download the theme to (./themes/your-theme-name) matches the theme name you tell arjen/hugo-build to use (theme: your-theme-name). Now we'll test that it all works as it should by pushing up our wercker.yml file to Github and seeing the magic at work.
 
 ```bash
 git commit -a -m "Add wercker.yml"
