@@ -119,6 +119,8 @@ along with their current, default values:
     defaultContentLanguage:     "en"
     # Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
     defaultContentLanguageInSubdir: false
+    # The below example will disable all page types and will render nothing.
+    disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
     disableLiveReload:          false
     # Do not build RSS files
     disableRSS:                 false
