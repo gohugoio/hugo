@@ -177,7 +177,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 {{% /output %}}
 
 {{% note "Syntax Highlighting" %}}
-For more information on your options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/developer-tools/syntax-highlighting/.
+For more information on your options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/developer-tools/syntax-highlighting/).
 {{% /note %}}
 
 ### `instagram`

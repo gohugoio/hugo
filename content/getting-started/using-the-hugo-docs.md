@@ -9,7 +9,7 @@ categories: [getting started]
 tags: [usage,docs,fundamentals]
 tags_weight: 01
 weight: 20
-draft: false
+draft: true
 aliases: [/getting-started/using-the-docs/]
 toc: true
 needsreview: true

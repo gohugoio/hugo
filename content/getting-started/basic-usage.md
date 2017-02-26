@@ -262,5 +262,5 @@ Interested? Here are some great tutorials contributed by Hugo users:
 [GoDaddy]: https://www.godaddy.com/
 [Heroku]: https://www.heroku.com/
 [IIS]: http://www.iis.net/
-[install]: /getting-started/install-hugo/
+[install]: /getting-started/installing/
 [nginx]: http://nginx.org/

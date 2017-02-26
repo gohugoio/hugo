@@ -70,7 +70,7 @@ The following examples assume two things:
 Now we can look at the front matter for the three single-page content (i.e.`.md`) files.
 
 {{% note "Three Content Pages but *Four* Markdown Files?" %}}
-`_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are of kind `section` and therefore do not submit themselves to the *single* page template lookup. Instead, `events/_index.md` will render according to its [section template](templates/section-templates/) and respective lookup order.
+`_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are of kind `section` and therefore do not submit themselves to the *single* page template lookup. Instead, `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
 {{% /note %}}
 
 ### `my-first-post.md`
@@ -279,7 +279,7 @@ To easily generate new instances of this content type (e.g., new `.md` files in 
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [front matter]: /content-management/front-matter/
 [page variables]: /variables-and-parms/page-variables/
-[partials]: /templates/partial-templates/
+[partials]: /templates/partials/
 [section]: /content-management/sections/
 [site variables]: /variables/site-variables/
 [spf13]: http://spf13.com/

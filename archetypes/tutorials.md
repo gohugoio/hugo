@@ -1,18 +1,16 @@
 ---
-title: Create a Multilingual Site
-linktitle: Create a Multilingual Site
-description:
-godocref:
-author: ""
-authorurl: ""
-originalurl: ""
+linktitle: ""
+description: ""
+godocref: ""
 publishdate: ""
 lastmod: ""
 categories: [tutorials]
-tags: [tutorials]
-weight:
+tags: []
+author: ""
+authorurl: ""
+originalurl: ""
 draft: false
 aliases: []
-z_notesforauthors: "Go to gohugo.io/docscontrib for info on req fields"
+z_notesforauthors: "Go to gohugo.io/docscontrib for info on required fields"
 ---
 

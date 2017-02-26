@@ -14,59 +14,59 @@ toc: false
 needsreview: true
 ---
 
-The home page of a website is often formatted differently than the other pages. In Hugo you can define your own homepage template.
+The homepage of a website is often formatted differently than the other pages. In Hugo you can define your own homepage template.
 
-Homepage is a `Page` and has all the [page variables](/templates/variables/) and [site variables](/templates/variables/) available to use in the templates.
+Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
-*This is the only required template for building a site and useful when bootstrapping a new site and template. It is also the only required template when using a single page site.*
+{{% note "The Only Required Template" %}}
+The homepage template is the *only* required template for building a site and useful when bootstrapping a new site and template. It is also the only required template if you are developing a single page site.
+{{% /note %}}
 
-In addition to the standard page variables, the homepage has access to all site content accessible from `.Data.Pages`. Details on how to use the list of pages can be found in the [Lists Template](/templates/list/).
+## Homepage Template Lookup Order
 
-Note that a home page can also have a content file with frontmatter,  see [Source Organization](/overview/source-directory/).
+The [lookup order][lookup] for the homepage template is as follows:
 
-## Which Template will be rendered?
+* `/layouts/index.html`
+* `/layouts/\_default/list.html`
+* `/layouts/\_default/single.html`
+* `/themes/<THEME>/layouts/index.html`
+* `/themes/<THEME>/layouts/_default/list.html`
+* `/themes/<THEME>/layouts/_default/single.html`
 
-Hugo uses a set of rules to figure out which template to use when rendering a specific page.
+## `.Data.Pages` on the Homepage
 
-Hugo will use the following prioritized list. If a file isn’t present, then the next one in the list will be used. This enables you to craft specific layouts when you want to without creating more templates than necessary. For most sites, only the \_default file at the end of
-the list will be needed.
+In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Data.Pages`.
 
-* /layouts/index.html
-* /layouts/\_default/list.html
-* /layouts/\_default/single.html
-* /themes/`THEME`/layouts/index.html
-* /themes/`THEME`/layouts/\_default/list.html
-* /themes/`THEME`/layouts/\_default/single.html
+`.Data.Pages` usually refers to the list of pages available within a given section or taxonomy. However, since `index.html` is the homepage of your Hugo project (i.e., in essence, the top of the master section), `Data.Pages` for `layouts/index.html` is interchangeable with `.Site.Pages` when written on the homepage template.
 
-## Example index.html
-This content template is used for [spf13.com](http://spf13.com/).
+Note that a homepage can also have a content file with front matter. This content file lives at `content/_index.md`. See [Content Organization][contentorg] for more information.
 
-It makes use of [partial templates](/templates/partials/) and uses a similar approach as a [List](/templates/list/).
+## Example Homepage Template
 
-    <!DOCTYPE html>
-    <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
-    <head>
-        <meta charset="utf-8">
+The following is an example of a homepage template.
 
-        {{ partial "meta.html" . }}
+It makes use of [partial templates][partials] and uses a similar approach as a [Hugo list template][lists].
 
-        <base href="{{ .Site.BaseURL }}">
-        <title>{{ .Site.Title }}</title>
-        <link rel="canonical" href="{{ .Permalink }}">
-        <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
-
-        {{ partial "head_includes.html" . }}
-    </head>
-    <body lang="en">
-
-    {{ partial "subheader.html" . }}
-
-    <section id="main">
+{{% code file="layouts/index.html" download="index.html" %}}
+```html
+{{ define "main" }}
+    {{ partial "content-header.html" . }}
+    <main aria-role="main">
       <div>
+        <!-- Note that .Data.Pages is the equivalent of .Site.Pages on the homepage template. -->
         {{ range first 10 .Data.Pages }}
             {{ .Render "summary"}}
         {{ end }}
       </div>
-    </section>
+    </main>
+    {{ partial "content-footer.html" . }}
+{{ end }}
+```
+{{% /code %}}
 
-    {{ partial "footer.html" . }}
+[contentorg]: /content-management/content-organization/
+[lists]: /templates/lists/
+[lookup]: /templates/lookup-order/
+[pagevars]: /variables/page-variables/
+[partials]: /templates/partials/
+[sitevars]: /variables/site-variables/

@@ -133,11 +133,15 @@ The following are high-level requirements for the documentation site.
 - [X] New site architecture and content groupings
 - [ ] Single sample website (include in docs source, [`/static/example`](https://github.com/rdwatters/hugo-docs-concept/tree/master/static/example)) for consistent code samples or in-page tutorials
 
-#### [Content Strategy Statement](http://contentmarketinginstitute.com/2016/01/content-on-strategy-templates/)
+#### Content Strategy Statement
+
+[What is this?](http://contentmarketinginstitute.com/2016/01/content-on-strategy-templates/)
 
 > The Hugo documentation increases the Hugo user base and strengthens the Hugo community by providing intuitive, beginner-friendly, regularly updated usage guides. Hugo documentation makes visitors feel excited and confident that Hugo is the ideal choice for static website development.
 
-#### [Editorial Mission](http://contentmarketinginstitute.com/2015/10/statement-content-marketing/)
+#### Editorial Mission
+
+[What is this?](http://contentmarketinginstitute.com/2015/10/statement-content-marketing/)
 
 > The Hugo documentation is a joint effort between the Hugo maintainers and the open-source community. Hugo documentation is designed to promote Hugo, the world's fastest, friendliest, and most extensible static site generator. Hugo documentation is the primary vehicle by which the Hugo team reaches its target audiences. When visitors comes to the Hugo documentation, we want them to install Hugo, develop a new static website with our tool, and share their progress and insights with the Hugo community at large.
 
@@ -160,7 +164,9 @@ The following are high-level requirements for the documentation site.
 - [ ] Content groupings (GA) to measure usage, behavior flow, and define content gaps
 - [ ] Automated reports (GA)
 
-> **Note:** These are separate from usage statics re: Hugo downloads, `.Hugo.Generator`, etc.
+{{% note %}}
+These are separate from usage statics re: Hugo downloads, `.Hugo.Generator`, etc.
+{{% /note %}}
 
 ## Visual Design
 
@@ -181,15 +187,20 @@ The following are high-level requirements for the documentation site.
 
 ## Content Changes
 
-The following is an *abbreviated* listing of *substantive* changes to content organization. Everything is ordered according to [existing site structure and site navigation](http://gohugo.io/overview/introduction/). These changes do not include copy edits for consistent or preferred usage, improvements in semantics, etc, all of which easily numbers in the thousands, if not more.
+The following is an *abbreviated* listing of *substantive* changes to content organization. Everything is ordered according to the current docs site navigation. The changes I delimit here do not include copy edits for consistent or preferred usage, improvements in semantics, etc, all of which easily numbers in the thousands, likely more.
 
 ### Download Hugo
 
-This is no longer a site navigation link and is instead a button along with "File and Issue" and "Discuss Hugo".
+This is no longer a site navigation link and is instead a button along with "File an Issue" and "Discuss Hugo" at the bottom of the sidebar.
 
 ### Site Showcase
 
+* Site showcase has stayed more or less as is, including styling, etc. However, I did clean up the templating and all currently submitted showcase files. (E.g., changing "thumbnail" to "image" and not requiring a full path.) This will also be updated in the ["docs" page of the contribute section](/contribute/contribute-to-the-hugo-docs/)
+
 ### Press & Articles
+
+* The press and article pages has been moved under "News" along with "Release Notes". Also, this whole section is lower on the navigation because it's less frequently visited---I'm assuming---than just about everything on the site.
+* Like everything else, I've kept up with changes to the docs upstream on GitHub, but in this case, I also includes a [half dozen *new* articles as well](/news/press-and-articles/).
 
 ### About Hugo
 
@@ -197,7 +208,7 @@ This is no longer a site navigation link and is instead a button along with "Fil
 
 * The [Quick Start][] has been completely updated for more consistent heading structure, etc. Also, **I may delete the "deployment" section of the Quick Start** since this a) adds unnecessary length, making the guide less "quick" and b) detracts from the new "hosting and deployment" section, which offers better advice, and c) is redundant with [Hosting on Github](https://hugodocsconcept.netlify.com/hosting-and-deployment/hosting-on-github/). For example, the Quick Start didn't mention that files already written to public are not necessarily erased at build time. This can cause problems with drafts. I think the other options&mdash;e.g. Arjen's Wercker tutorial&mdash;are more viable and represent better practices for newcomers to Hugo. If future versions of Hugo include baked-in deployment features, I think it's worth reconsidering adding the deployment step back to the Quick Start.
 
-### [Content](http://gohugo.io/content)
+### Content
 
 * This section has been renamed "Content Management" to facilitate elimination of the ["extras"](http://gohugo.io) section. **Note**: this section does *not* include any templating. The convention is `content-management/shortcodes.md` (for explanation and usage) and then `content-management/shortcode-templates.md`
 
@@ -205,22 +216,29 @@ This is no longer a site navigation link and is instead a button along with "Fil
 
 ### Templates
 
+* Reworked considerably. Page titles have all been changed to reflect their obvious connection to *templating*.
+* "Lookup order" page added. The order of the template pages in the main navigation is now such that it could be seen as a sequence of pages showing how to learn templating. Hence the primer, lookup order, and base templates as the first three pages in this section.
+
 ### Taxonomies
 
 
-### [Extras](http://gohugo.io/extras)
+### Extras
 
 * This section no longer exists in the new documentation site
     * *Extras*, in the content world, is the equivalent of *miscellaneous* or *additional resources*. It's an area that's been tacked onto site navigation to accommodate a *seemingly* disparate set of new features. In other words, READ: "We don't have any idea of where to put this"
 * *Extras* pages:
-    * **Aliases** Incorporated into [`/content-management/url-management/`]
-    * **Analytics** Incorporated into [/templates/partial-templates/#built-in]
+    * **Aliases** Incorporated into [URL Management](/content-management/url-management/)
+    * **Analytics** Incorporated into [built-in partials](/templates/partials/#using-hugos-built-in-partials)
+    * **Builders** This has been removed completely since it has no real added value. The three "builders" mentioned (`new site`, `new theme`, and `new <content>`) are all well-delimited in their respective pages, which is where end users expect to find this type of information in the first place.
+    * **Comments** Incorporated into [content management](/content-management/comments/) for content-related pieces and mentioned in [partials](/templates/partials/) for implementation.
+    * **Cross-References** Added as its own page under Content Management (`/content-management/cross-references/`)
 
 ### Community
 
-### [Tutorials](http://gohugo.io/tutorials)
+### Tutorials
 
-* All installation guides have been consilidated under [/getting-started/install-hugo/]
+* Original page: <http://gohugo.io/tutorials>
+* All installation guides have been consolidated under [/getting-started/installing/]
     * Installing Hugo shouldn't be considered a separate tutorial
     * "Tutorials" is not an intuitive place for end-users to look for this kind of documentation
 * All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")

@@ -14,81 +14,39 @@ toc: true
 needsreview: true
 ---
 
-<!-- pulled from extras/comments -->
+As Hugo is a static site generator, the content produced is static and doesn't allow for a high degree of interaction with the website's end users. The most common interaction people ask for in static websites is the ability to add comments.
 
-As Hugo is a static site generator, the content produced is static and doesn’t interact with the users. The most common interaction people ask for is comment capability.
-
-Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to website via JavaScript.
+Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to websites via JavaScript.
 
 Your theme may already support Disqus, but even it if doesn’t, it is easy to add.
 
 ## Disqus
 
-### Adding Disqus to a Template
-
-Hugo comes with all the code you would need to include load Disqus. Simply include the following line where you want your comments to appear:
-
-```golang
-{{ template "_internal/disqus.html" . }}
-```
+Hugo comes with all the code you need to include load [Disqus][], a popular commenting service for both static and dynamic websites.
 
 ### Configuring Disqus
 
-That template requires you to set a single value in your site `config`:
+Disqus comments require you set a single value in your [site's configuration file][configuration]. The following show the configuration variable in TOML and YAML, respectively:
 
 ```toml
 disqusShortname = "yourdiscussshortname"
 ```
 
-Or with a `config.yml`:
-
 ```yaml
 disqusShortname: "yourdiscussshortname"
 ```
 
-You also have the option to set the following in the front matter for a given piece of content:
+For many website, this is enough configuration. However, you also have the option to set the following in the [front matter][] of a single content file:
 
 * `disqus_identifier`
 * `disqus_title`
 * `disqus_url`
 
-### Conditional Loading of Disqus Comments
+### Rendering Hugo's Built-in Disqus Partial Template
 
-Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
+See [Partial Templates][partials] to learn how to add the Disqus partial to your Hugo website's templates.
 
-{{% code file="layouts/partials/disqus.html" %}}
-```html
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-
-(function() {
-    // Don't ever inject Disqus on localhost--it creates unwanted
-    // discussions from 'localhost:1313' on your Disqus account...
-    if (window.location.hostname == "localhost")
-        return;
-
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    var disqus_shortname = '{{ .Site.DisqusShortname }}';
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-```
-{{% /code %}}
-
-The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
-
-You can then reference the partial template:
-
-{{% code file="disqus-reference.html" %}}
-```golang
-{{ partial "disqus.html" . }}
-```
-{{% /code %}}
-
-## Alternatives
+## Commenting Alternatives
 
 There are a few alternatives to commenting on static sites for those who do not want to use Hugo's built-in Disqus support:
 
@@ -98,16 +56,22 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [Muut](http://muut.com/)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
+    * [Tutorial on Implementing Isso with Hugo][issotutorial]
 * [Kaiju](https://github.com/spf13/kaiju)
 
 ## Kaiju
 
 [Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
 
-Written using Go, Socket.io and MongoDB, it is very fast and easy to deploy.
+Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to deploy.
 
-It is in early development but shows promise. If you have interest, please help by contributing whether via a pull request, an issue or even just a tweet. Everything helps.
+It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps.
 
-## Discourse
-
-Additionally, you may recognize [Discourse](http://www.discourse.org) as the system that powers the [Hugo Discussion Forum](http://discuss.gohugo.io).
+[configuration]: /getting-started/configuration/
+[forum]: https://discuss.gohugo.io
+[front matter]: /content-management/front-matter/
+[kaijuissue]: https://github.com/spf13/kaiju/issues/new
+[issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
+[partials]: /templates/partials/
+[MongoDB]: https://www.mongodb.com/
+[tweet]: https://twitter.com/spf13

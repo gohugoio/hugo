@@ -430,7 +430,7 @@ Now, the website should render similar to the following screenshot:
 
 Next, we want to remove information related to the theme from the footer. Let's create a new directory at `bookshelf/layouts/partials`. This will hold our new file called `default_foot.html`.
 
-This is a new [partial template][partialtemplates]. If you are still in the project's root directory, you can use the following one-liner to create the partial before returning to the project root:
+This is a new [partial template][partials]. If you are still in the project's root directory, you can use the following one-liner to create the partial before returning to the project root:
 
 {{% code file="create-new-default-foot.sh" %}}
 ```bash
@@ -565,10 +565,10 @@ Here's what you should look into next:
 [frontmatter]: /content-management/front-matter/
 [hostinganddeploy]: /hosting-and-deployment/
 [hugodirectories]: /getting-started/directory-structure/
-[install]: /getting-started/install-hugo/
+[install]: /getting-started/installing/
 [lists]: /templating/lists/
-[partialtemplates]: /templates/partial-templates/
-[quickinstall]: /getting-started/install-hugo/#quick-install
+[partials]: /templates/partials/
+[quickinstall]: /getting-started/installing/#quick-install
 [releases]: https://github.com/spf13/hugo/releases
 [robusttheme]: https://github.com/dim0627/hugo_theme_robust
 [section]: /content-management/sections/

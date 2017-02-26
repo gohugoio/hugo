@@ -112,7 +112,7 @@ baseURL = "http://yoursite.example.com/"
   author = "Nikola Tesla"
 ```
 
-You can use `.Site.Params` in a [partial template](/templates/partial-templates/) to call the default site description:
+You can use `.Site.Params` in a [partial template](/templates/partials/) to call the default site description:
 
 {{% code file="layouts/partials/head.html" %}}
 ```html

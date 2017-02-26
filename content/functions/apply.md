@@ -116,5 +116,5 @@ Now in the complete version, you can sort the tags, convert the tags to links wi
 [chome]: /functions/chomp/
 [delimit]: /functions/delimit/
 [functions]: /functions/
-[partials]: /templates/partial-templates/
+[partials]: /templates/partials/
 [range]: /functions/range/

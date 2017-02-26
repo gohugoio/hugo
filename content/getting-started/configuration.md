@@ -330,7 +330,7 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
-## Configure Blackfriday Rendering
+## Configuring Blackfriday Rendering
 
 [Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in
 [Markdown](http://daringfireball.net/projects/markdown/) rendering engine.

@@ -16,21 +16,22 @@ needsreview: true
 
 <!-- begin data files -->
 
-In addition to the [built-in variables](/templates/variables/) available from Hugo, you can specify your own custom data that can be accessed via templates or shortcodes.
+In addition to the [built-in variables][vars] available from Hugo, you can specify your own custom data that can be accessed via templates or shortcodes.
 
-Hugo supports loading data from YAML(http://yaml.org/), [JSON](http://www.json.org/), and [TOML](https://github.com/toml-lang/toml) files located in the `data` directory.
+Hugo supports loading data from YAML, JSON, and TOML files located in the `data` directory in the root of your Hugo project.
 
-{{% note %}}
-Templates using `.Site.Data` even work with LiveReload!
-{{% /note %}}
-
-Data Files can also be used in [Hugo themes][themes], but note: If the same `key` is used in both the root data folder (i.e. `data/`) and in the theme's data folder (i.e., `themes/<THEME>/data/), the main one will win. So, for theme authors, for theme specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace, e.g. `mytheme/data/<THEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag; e.g., `hugo -v`.
 
 ## The Data Folder
 
 The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages - rather they're meant supplemental to the content files. This feature can extend the content in case your frontmatter would grow immensely. Or perhaps your want to show a larger dataset in a template (see example below). In both cases it's a good idea to outsource the data in their own file.
 
-These files must be YAML, JSON or TOML files (using either the `.yml`, `.yaml`, `.json` or `toml` extension) and the data will be accessible as a `map` in `.Site.Data`.
+These files must be YAML, JSON or TOML files (using either the `.yml`, `.yaml`, `.json` or `toml` extension). The data will be accessible as a `map` in the `.Site.Data` variable.
+
+## Data Files in Themes
+
+Data Files can also be used in [Hugo themes][themes] but note that theme data files follow the same logic as other template files in the [Hugo lookup order][lookup] (i.e., give two files with the same name and relative path, the file in the root project `data` directory will override the file in the `themes/<THEME>/data` directory).
+
+Therefore, theme authors should take care to not include data files that could be easily overwritten by a user who decides to [customize a theme][customize]. for theme specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace, e.g. `mytheme/data/<THEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag.
 
 **The keys in this map will be a dot chained set of _path_, _filename_ and _key_ in file (if applicable).**
 
@@ -114,6 +115,8 @@ Note the use of the `markdownify` template function. This will send the descript
 
 <!-- begin "Data-drive Content" page -->
 
+## Data-Driven Content
+
 Data-driven content with a static site generator? Yes, it is possible!
 
 In addition to the [data files](/extras/datafiles/) feature, we have also
@@ -127,15 +130,17 @@ and `getCSV`, which are available in **all template files**.
 
 ## Implementation details
 
-### Calling the functions with an URL
+### Calling the Functions with a URL
 
 In any HTML template or Markdown document, call the functions like this:
 
-    {{ $dataJ := getJSON "url" }}
-    {{ $dataC := getCSV "separator" "url" }}
+```golang
+{{ $dataJ := getJSON "url" }}
+{{ $dataC := getCSV "separator" "url" }}
+```
 
-or, if you use a prefix or postfix for the URL, the functions
-accept [variadic arguments](http://en.wikipedia.org/wiki/Variadic_function):
+If you use a prefix or postfix for the URL, the functions
+accept [variadic arguments][variadic]:
 
     {{ $dataJ := getJSON "url prefix" "arg1" "arg2" "arg n" }}
     {{ $dataC := getCSV  "separator" "url prefix" "arg1" "arg2" "arg n" }}
@@ -165,32 +170,35 @@ first 5 gists for a GitHub user:
       {{ end }}
     </ul>
 
-
 ### Example for CSV files
 
-For `getCSV`, the one-character long separator must be placed in the
-first position followed by the URL.
+For `getCSV`, the one-character-long separator must be placed in the
+first position followed by the URL. The following is an example of creating an HTML table in a [partial template][partials] from a published CSV:
 
-    <table>
-      <thead>
-        <tr>
-        <th>Name</th>
-        <th>Position</th>
-        <th>Salary</th>
-        </tr>
-      </thead>
-      <tbody>
-      {{ $url := "http://a-big-corp.com/finance/employee-salaries.csv" }}
-      {{ $sep := "," }}
-      {{ range $i, $r := getCSV $sep $url }}
-        <tr>
-          <td>{{ index $r 0 }}</td>
-          <td>{{ index $r 1 }}</td>
-          <td>{{ index $r 2 }}</td>
-        </tr>
-      {{ end }}
-      </tbody>
-    </table>
+{{% code file="layouts/partials/get-csv.html" %}}
+```html
+  <table>
+    <thead>
+      <tr>
+      <th>Name</th>
+      <th>Position</th>
+      <th>Salary</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{ $url := "http://a-big-corp.com/finance/employee-salaries.csv" }}
+    {{ $sep := "," }}
+    {{ range $i, $r := getCSV $sep $url }}
+      <tr>
+        <td>{{ index $r 0 }}</td>
+        <td>{{ index $r 1 }}</td>
+        <td>{{ index $r 2 }}</td>
+      </tr>
+    {{ end }}
+    </tbody>
+  </table>
+```
+{{% /code %}}
 
 The expression `{{index $r number}}` must be used to output the nth-column from
 the current row.
@@ -205,26 +213,23 @@ You can also set `cacheDir` in the main configuration file.
 
 If you don't like caching at all, you can fully disable caching with the command line flag `--ignoreCache`.
 
-### Authentication when using REST URLs
+### Authentication When Using REST URLs
 
-Currently, you can only use those authentication methods that can be put into an URL. [OAuth](http://en.wikipedia.org/wiki/OAuth) or other authentication methods are not implemented.
+Currently, you can only use those authentication methods that can be put into an URL. [OAuth][] and other authentication methods are not implemented.
 
-### Loading local files
+### Loading Local files
 
-To load local files with the two functions `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter but the content does.
+To load local files with `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter, but the content does.
 
-It applies the same output logic as in the topic: *Calling the functions with an URL*.
+It applies the same output logic as above in [Calling the Functions with a URL](#calling-the-functions-with-a-url).
 
-## LiveReload
+## LiveReload with Data Files
 
-There is no chance to trigger a [LiveReload](/extras/livereload/) when the content of an URL changes. However, when a local JSON/CSV file changes, then a LiveReload will be triggered of course. Symlinks are not supported.
+There is no chance to trigger a [LiveReload][] when the content of a URL changes. However, when a *local* file changes (i.e., `data/*` and `themes/<THEME>/data/*`), a LiveReload will be triggered. Symlinks are not supported. Note too that because downloading of data takes a while, Hugo stops processing your Markdown files until the data download has completed.
 
-{{% note "URLs and LiveReload" %}}
-If you change any local file and the LiveReload is triggered, Hugo will either read the URL content from the cache or, if you have disabled the cache, Hugo will re-download the content. This can create huge traffic and you may also reach API limits quickly.
-{{% /note %}}
-
-As downloading of content takes a while, Hugo stops processing
-your Markdown files until the content has been downloaded.
+{{% warning "URL Data and LiveReload" %}}
+If you change any local file and the LiveReload is triggered, Hugo will read the data-driven (URL) content from the cache. If you have disabled the cache (i.e., by running the server with `hugo server --ignoreCache`), Hugo will re-download the content every time LiveReload triggers. This can create *huge* traffic. You may reach API limits quickly.
+{{% /warning %}}
 
 ## Examples
 
@@ -232,13 +237,22 @@ your Markdown files until the content has been downloaded.
 - GitHub Starred Repositories [in a posts](https://github.com/SchumacherFM/blog-cs/blob/master/content%2Fposts%2Fgithub-starred.md) with the related [short code](https://github.com/SchumacherFM/blog-cs/blob/master/layouts%2Fshortcodes%2FghStarred.html).
 - More?  Please tell us!
 
-## Specs for Configuration Formats
+## Specs for Data Formats
 
 * [TOML Spec][toml]
 * [YAML Spec][yaml]
 * [JSON Spec][json]
+* [CSV Spec][csv]
 
+[csv]: https://tools.ietf.org/html/rfc4180
+[customize]: /themes/customizing/
+[lookup]: /templates/lookup-order/
 [json]: /documents/ecma-404-json-spec.pdf
+[LiveReload]: /getting-started/basic-usage/#livereload
+[OAuth]: http://en.wikipedia.org/wiki/OAuth
+[partials]: /templates/partials/
 [themes]: /themes/
 [toml]: https://github.com/toml-lang/toml
 [yaml]: http://yaml.org/spec/
+[variadic]: http://en.wikipedia.org/wiki/Variadic_function
+[vars]: /variables/

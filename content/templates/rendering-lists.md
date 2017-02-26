@@ -86,7 +86,7 @@ your list templates:
 ```
 {{% /code %}}
 
-### Order by Weight -> Date
+### Ordering a list by Weight -> Date
 
 ```html
 {{ range .Data.Pages.ByWeight }}
@@ -97,7 +97,7 @@ your list templates:
 {{ end }}
 ```
 
-### Order by Date
+### Ordering a List by Date
 
     {{ range .Data.Pages.ByDate }}
     <li>
@@ -106,7 +106,7 @@ your list templates:
     </li>
     {{ end }}
 
-### Order by PublishDate
+### Ordering a List by PublishDate
 
     {{ range .Data.Pages.ByPublishDate }}
     <li>
@@ -115,7 +115,7 @@ your list templates:
     </li>
     {{ end }}
 
-### Order by ExpiryDate
+### Ordering a list by ExpiryDate
 
     {{ range .Data.Pages.ByExpiryDate }}
     <li>
@@ -124,7 +124,7 @@ your list templates:
     </li>
     {{ end }}
 
-### Order by Lastmod
+### Ordering a List by Lastmod
 
     {{ range .Data.Pages.ByLastmod }}
     <li>
@@ -133,7 +133,7 @@ your list templates:
     </li>
     {{ end }}
 
-### Order by Length
+### Ordering a List by Length
 
     {{ range .Data.Pages.ByLength }}
     <li>
@@ -143,7 +143,7 @@ your list templates:
     {{ end }}
 
 
-### Order by Title
+### Ordering a List by Title
 
     {{ range .Data.Pages.ByTitle }}
     <li>
@@ -152,7 +152,7 @@ your list templates:
     </li>
     {{ end }}
 
-### Order by LinkTitle
+### Ordering a List by LinkTitle
 
     {{ range .Data.Pages.ByLinkTitle }}
     <li>
@@ -161,7 +161,7 @@ your list templates:
     </li>
     {{ end }}
 
-### Order by Parameter
+### Order List by Parameter
 
 Order based on the specified front matter parameter. Pages without that
 parameter will use the site's `.Site.Params` default. If the parameter is not
@@ -317,7 +317,7 @@ it’s really just a matter of preference.
 
 Because Grouping returns a key and a slice of pages, all of the ordering methods listed above are available.
 
-In this example, I’ve ordered the groups in chronological order and the content
+In this example, I’ve ordered the groups in chronological ordering and the content
 within each group in alphabetical order by title.
 
 ```html

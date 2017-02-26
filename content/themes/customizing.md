@@ -9,22 +9,18 @@ categories: [themes]
 tags: [themes, source, organization, directories]
 weight: 20
 draft: false
-aliases: [/themes/customizing/,/themes/customize/]
+aliases: [/themes/customize/]
 toc: true
 needsreview: true
 ---
 
 ## Introduction
 
-The following are key concepts for Hugo site customization. Hugo permits you to supplement *or* override any theme template or static file, with files in your working directory.
+The following are key concepts for Hugo site customization with themes. Hugo permits you to supplement *or* override any theme template or static file with files in your working directory.
 
 {{% note %}}
 When you use a theme cloned from its git repository, do not edit the theme's files directly. Instead, theme customization in Hugo is a matter of *overriding* the templates made available to you in a theme. This provides the added flexibility of tweaking a theme to meet your needs while staying current with a theme's upstream.
 {{% /note %}}
-
-## Understanding the Theme Lookup Order
-
-{{< readfile file="readfile-content/lookupexplanation.md" markdown="true" >}}
 
 ## Replacing Static Files
 

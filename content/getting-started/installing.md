@@ -51,8 +51,8 @@ For more detailed explanations, read the installation guides that follow for [Wi
 
 #### Prerequisite tools for downloading and building source code
 
-* [Git](http://git-scm.com/)
-* [Go][] 1.5+
+* [Git][installgit]
+* [Go 1.5+][installgo]
 
 #### Get directly from GitHub
 
@@ -366,7 +366,7 @@ built with love by spf13 and friends in Go.
 Complete documentation is available at http://gohugo.io/.
 ```
 
-If you do, then the installation is complete. If you don't, double-check the path that you placed the `hugo.exe` file in and that you typed that path correctly when you added it to your `PATH` variable. If you're still not getting the output, search the [Hugo discussion forum][hugodiscussion] to see if others have already figured out our problem. If not, add a note---in the "Support" category---and be sure to include your command and the output.
+If you do, then the installation is complete. If you don't, double-check the path that you placed the `hugo.exe` file in and that you typed that path correctly when you added it to your `PATH` variable. If you're still not getting the output, search the [Hugo discussion forum][forum] to see if others have already figured out our problem. If not, add a note---in the "Support" category---and be sure to include your command and the output.
 
 At the prompt, change your directory to the `Sites` directory.
 
@@ -432,13 +432,15 @@ you need to install the Python-based Pygments program. The procedure is outlined
 
 ## Next Steps
 
-Now that you've installed Hugo, read the [Quick Start guide](/getting-started/quick-start/) and explore the rest of the documentation, starting with an [explanation of how to best use the Hugo docs][usingthehugodocs]. If you have questions, ask the Hugo community directly by visiting the [Hugo Discussion Forum][hugodiscussion].
+Now that you've installed Hugo, read the [Quick Start guide][quickstart] and explore the rest of the documentation. If you have questions, ask the Hugo community directly by visiting the [Hugo Discussion Forum][forum].
 
 [brew]: https://brew.sh/
 [highlight shortcode]: /content-management/shortcodes/#highlight
-[hugodiscussion]: https://discuss.gohugo.io
+[forum]: https://discuss.gohugo.io
+[installgit]: (http://git-scm.com/)
+[installgo]: https://golang.org/dl/
 [Path Editor]: https://patheditor2.codeplex.com/
 [pygments]: http://pygments.org
+[quickstart]: /getting-started/quick-start/
 [releases]: https://github.com/spf13/hugo/releases
-[usingthehugodocs]: /getting-started/using-the-hugo-docs/
 [Windows Environment Variables Editor]: http://eveditor.com/

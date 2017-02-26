@@ -28,6 +28,7 @@ a {
 a.tooltip {
   position: relative;
   overflow: visible;
+  font-family:$base-font-family;
   &:hover::before {
     display: inline-block;
     position: absolute;
@@ -35,7 +36,6 @@ a.tooltip {
     bottom: -1.4em;
     font-size: 12px;
     color: white;
-    font-family: 'fontello';
     min-width: 80px;
     padding: .25em .33em;
     background-color: $base-font-color;
@@ -71,6 +71,7 @@ a.tooltip {
     }
     &::before {
       padding-right: 1.5em;
+      font-family:$base-font-family;
     }
   }
 }

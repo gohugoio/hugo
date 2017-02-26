@@ -118,7 +118,7 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 [homepage]: /templates/homepage-template/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
 [mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
-[partials]: /templates/partial-templates/
+[partials]: /templates/partials/
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [RSS]: /templates/rss-templates/
 [sections]: /content-management/sections/

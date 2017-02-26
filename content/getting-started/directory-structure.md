@@ -44,9 +44,9 @@ Learn more about the different directories and what their purpose is:
 * [themes](/themes/)
 
 
-## Example
+## Example Hugo Project Directory
 
-An example directory may look like:
+An example directory may look like the following
 
 ```bash
 .
@@ -93,6 +93,7 @@ An example directory may look like:
 |   └── doc
 └── static
     ├── css
+    ├── images
     └── js
 ```
 
@@ -102,7 +103,7 @@ This directory structure tells us a lot about this website:
 2. It will also apply two different taxonomies to that content: *categories* and *tags*.
 3. It will be displaying content in 3 different views: a list, a summary, and a full-page view.
 
-## Content for Home Page and Other List Pages
+## Content for Homepage and Other List Pages
 
 Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, like `.Params`, attached to it -- and share the same set of [page variables](/variables/page-variables/).
 
@@ -112,7 +113,9 @@ For the default Markdown content, the filename will be `_index.md`.
 
 Se the example directory tree below.
 
-**Note that you don't have to create `_index` file for every section, taxonomy and similar, a default page will be created if not present, but with no content and default values for `.Title` etc.**
+{{% note "You Don't Have to Create `_index.md`"%}}
+You don't have to create an `_index` file for every list page (i.e. section, taxonomy, taxonomy terms, etc). If Hugo does not find an `_index.md` on a list page, a default page will be created if not present but with no `{{.Content}}`  and only the default values for `.Title` etc.
+{{% /note %}}
 
 ```bash
 └── content

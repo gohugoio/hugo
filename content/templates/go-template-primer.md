@@ -451,7 +451,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 </nav>
 ```
 
-## Go Templating Example: Show Only Upcoming Events
+## Example: Show Only Upcoming Events
 
 Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in a content file's [front matter][]) is in the future. The following is an example [partial template][partials]:
 

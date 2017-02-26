@@ -6,7 +6,7 @@
     		<span>Home</span>
   		</a>
 		</li>
-		{{if ne .Kind "section"}}
+		{{if and (ne .Kind "section") (ne .Section "")}}
 		<li>
 			<a class="crumb" href="{{.Site.BaseURL}}{{.Section | urlize}}">
     		<img src="{{.Site.BaseURL}}images/hugo-icons/{{.Section | urlize}}.svg" alt="">

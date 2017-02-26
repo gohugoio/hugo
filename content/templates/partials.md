@@ -18,11 +18,10 @@ notesforauthors:
 
 In practice, it's very convenient to split out common template portions into a
 partial template that can be included anywhere. As you create the rest of your
-templates, you will include templates from the ``/layouts/partials` directory
-or from arbitrary subdirectories like `/layouts/partials/post/tag`.
+templates, you will include templates from the `/layouts/partials/` directory
+or from arbitrary partial subdirectories like `/layouts/partials/post/tag/`.
 
-Partials are especially important for themes as it gives users an opportunity
-to overwrite just a small part of your theme, while maintaining future compatibility.
+Partials are especially important for [themes][] because they give theme users an opportunity to [overwrite just a small portion of a theme][customize] while maintaining compatibility with the theme's upstream.
 
 Theme developers may want to include a few partials with empty HTML
 files in the theme just so end users have an easy place to inject their
@@ -161,39 +160,35 @@ Hugo ships with prebuilt internal partial templates for Google Analytics trackin
 
 <!-- pulled from extras/analytics -->
 
-### Configuring Google Analytics
+#### Configuring Google Analytics
 
 Provide your tracking id in your configuration file, e.g. config.yaml.
 
-    googleAnalytics = "UA-123-45"
+```toml
+googleAnalytics = "UA-123-45"
+```
 
-### Google Analytics Example
+#### Google Analytics Example
 
 Include the internal template in your templates like so:
 
-{{% code file="call-ga.md" %}}
+{{% code file="call-ga.html" %}}
 ```golang
 {{ template "_internal/google_analytics.html" . }}
 ```
 {{% /code %}}
 
-For asynchronous loading of Google analytics, include the async template:
 
-{{% code file="call-ga-async.md" %}}
+{{% code file="call-ga-async.html" %}}
 ```golang
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 {{% /code %}}
 
 <!-- pulled from extras/comments -->
-
-As Hugo is a static site generator, the content produced is static and doesn’t interact with the users. The most common interaction people ask for is comment capability.
-
-Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to website via JavaScript.
-
-Your theme may already support Disqus, but even it if doesn’t, it is easy to add.
-
 ### Disqus
+
+Hugo also ships with a built-in partial for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites.
 
 #### Adding Disqus to a Template
 
@@ -259,26 +254,6 @@ You can then reference the partial template:
 ```
 {{% /code %}}
 
-## Alternatives
-
-A few alternatives exist to [Disqus](https://disqus.com/):
-
-* [Discourse](http://www.discourse.org)
-* [IntenseDebate](http://intensedebate.com/)
-* [Livefyre](http://livefyre.com/)
-* [Muut](http://muut.com/)
-* [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
-* [isso](http://posativ.org/isso/) (Self-hosted, Python)
-* [Kaiju](https://github.com/spf13/kaiju)
-
-## Kaiju
-
-[Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
-
-Written using Go, Socket.io and MongoDB, it is very fast and easy to deploy.
-
-It is in early development but shows promise. If you have interest, please help by contributing whether via a pull request, an issue or even just a tweet. Everything helps.
-
-## Discourse
-
-Additionally, you may recognize [Discourse](http://www.discourse.org) as the system that powers the [Hugo Discussion Forum](http://discuss.gohugo.io).
+[themes]: /themes/
+[customize]: /themes/customizing/
+[disqus]: https://disqus.com

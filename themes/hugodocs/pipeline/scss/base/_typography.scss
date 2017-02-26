@@ -65,6 +65,13 @@ h4 {
   // text-transform: uppercase;
 }
 
+h5 {
+  font-size: 1em;
+  font-weight: bold;
+  margin-bottom: 1em;
+  color:$base-font-color;
+}
+
 //used throughout the "functions" section to render titles in the base code font family
 .functions {
   font-family: $code-font-family;

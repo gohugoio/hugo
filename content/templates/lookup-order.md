@@ -28,16 +28,18 @@ Most Hugo websites will only need the default template files at the end of the l
 
 See examples of the lookup order for each of the Hugo template types:
 
-* [Base Templates][]
+* [Homepage Template][home]
+* [Base Templates][base]
 * [Section Page Templates][sectionlookup]
 * [Taxonomy List Templates][taxonomylookup]
 * [Taxonomy Terms Templates][termslookup]
 * [Single Page Templates][singlelookup]
 * [RSS Templates][rsslookup]
 
-[Base Templates]: /templates/base-templates-and-blocks/#base-template-lookup-order
+[base]: /templates/base-templates-and-blocks/#base-template-lookup-order
 [directory structure]: /getting-started/directory-structure/
 [DRY]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[home]: /templates/homepage-template/#homepage-template-lookup-order
 [rsslookup]: /templates/rss-templates/#rss-template-lookup-order
 [sectionlookup]: /templates/section-templates/#section-template-lookup-order
 [singlelookup]: templates/single-page-templates/#single-page-template-lookup-order
