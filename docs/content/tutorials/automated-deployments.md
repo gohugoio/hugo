@@ -2,7 +2,7 @@
 authors:
 - Arjen Schwarz
 - Samuel Debruyn
-lastmod: 2017-2-25
+lastmod: 2017-2-26
 date: 2015-01-12
 linktitle: Automated deployments
 toc: true
@@ -161,7 +161,7 @@ As Wercker doesn't access to check out your private projects by default, it will
 
 ## Public or not
 
-This is a personal choice, you can make an app public so that everyone can see more details about it. This doesn't give you any real benefits either way in general, although as part of the tutorial I have of course made this app public so you can see it in action [yourself](https://app.wercker.com/#applications/5586dcbdaf7de9c51b02b0d5).
+This is a personal choice; you can make an app public so that everyone can see more details about it. This doesn't give you any real benefits either way in general, although as part of the tutorial I have of course made this app public so you can see it in action [yourself](https://app.wercker.com/#applications/5586dcbdaf7de9c51b02b0d5).
 
 ![][9]
 
@@ -228,7 +228,7 @@ In order to deploy to GitHub Pages we need to add a deploy pipeline.
 
 1. First, go to your Wercker application's page. Go to the "Workflows" tab and click on "Add new pipeline." Name it whatever you want; "deploy-production" or "deploy" works fine. For your YML Pipeline name, type in "deploy" without quotes. Leave the hook type as "Default" and hit the Create button. 
 
-2. Now you need to link the deploy pipeline to your build pipeline. In the workflow editor, click on the + next to your build pipeline and add the deploy pipeline you've just made. Now the deploy pipeline will be run automatically whenever the build pipeline is completed succesfully.
+2. Now you need to link the deploy pipeline to your build pipeline. In the workflow editor, click on the + next to your build pipeline and add the deploy pipeline you've just made. Now the deploy pipeline will be run automatically whenever the build pipeline is completed successfully.
 
 ![][13]
 
@@ -236,7 +236,7 @@ In order to deploy to GitHub Pages we need to add a deploy pipeline.
 
 ## Adding a deploy step
 
-Next we need to add a step to our deploy pipeline that will deploy the Hugo-built website to your Github pages repository. Once again searching through the Steps registry, we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
+Next, we need to add a step to our deploy pipeline that will deploy the Hugo-built website to your Github pages repository. Once again searching through the Steps registry, we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally, we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
 
 ```yaml
 box: debian
