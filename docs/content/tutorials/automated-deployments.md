@@ -2,7 +2,7 @@
 authors:
 - Arjen Schwarz
 - Samuel Debruyn
-lastmod: 2015-11-01
+lastmod: 2017-2-25
 date: 2015-01-12
 linktitle: Automated deployments
 toc: true
@@ -151,29 +151,13 @@ Clicking this will make Wercker show you all the repositories you have on GitHub
 
 [7]: /img/tutorials/automated-deployments/wercker-select-repository.png
 
-## Select the repository owner
-
-In the next step, Wercker asks you to select the repository owner. Just select your own GitHub account and continue.
-
-![][8]
-
-[8]: /img/tutorials/automated-deployments/wercker-select-owner.png
-
 ## Configure access
 
-This step can be slightly tricky. As Wercker doesn't access to check out your private projects by default it will ask you what you want to do. When your project is public, as needs to be the case if you wish to use GitHub Pages, the top choice is recommended. When you use this it will simply check out the code in the same way anybody visiting the project on GitHub can do.
+As Wercker doesn't access to check out your private projects by default, it will ask you what you want to do. When your project is public, as needs to be the case if you wish to use GitHub Pages, the top choice is recommended. When you use this it will simply check out the code in the same way anybody visiting the project on GitHub can do.
 
 ![][9]
 
 [9]: /img/tutorials/automated-deployments/wercker-access.png
-
-## Wercker.yml
-
-Wercker will now attempt to create an initial *wercker.yml* file for you. Or rather, it will create the code you can copy into it yourself. Because there is nothing special about our project according to Wercker, we will simply get the `debian` box. So what we do now is create a *wercker.yml* file in the root of our project that contains the provided configuration, and after we finish setting up the app we will expand this file to make it actually do something.
-
-![][10]
-
-[10]: /img/tutorials/automated-deployments/werckeryml.png
 
 ## Public or not
 
@@ -182,6 +166,14 @@ This is a personal choice, you can make an app public so that everyone can see m
 ![][11]
 
 [11]: /img/tutorials/automated-deployments/public-or-not.png
+
+## Wercker.yml
+
+Choose Default for your programming language. Wercker will now attempt to create an initial *wercker.yml* file for you. Or rather, it will create the code you can copy into it yourself. Because there is nothing special about our project according to Wercker, we will simply get the `debian` box. So what we do now is create a *wercker.yml* file in the local root of our project that contains the provided configuration, and after we finish setting up the app we will expand this file to make it actually do something.
+
+![][10]
+
+[10]: /img/tutorials/automated-deployments/werckeryml.png
 
 ## And we've got an app
 
@@ -193,7 +185,7 @@ The application is added now, and Wercker will be offering you the chance to tri
 
 ## Adding steps
 
-And now we're going to add the steps themselves. First, we go to the "Registry" action in the top menu and then search for "hugo build". The first result is the **Hugo-Build** task, which we select.
+And now we're going to add the steps themselves. First, we go to the "Registry" action in the top menu and then search for "hugo build". Find the **Hugo-Build** task by Arjen and select it.
 
 ![][13]
 
@@ -201,9 +193,9 @@ And now we're going to add the steps themselves. First, we go to the "Registry" 
 
 ## Using Hugo-Build
 
-Inside the details of this step you will see how to use it. At the top is a summary for the very basic usage, but when scrolling down you go through the README of the step which will usually contain more details about the advanced options available and a full example of using the step.
+Inside the details of this step you will see how to use it. At the top is a summary for very basic usage, but when scrolling down you go through the README of the step which will usually contain more details about the advanced options available and a full example of using the step.
 
-We're not going to use any of the advanced features in this tutorial, so we'll return to our project and add the details we need to our wercker.yml file so that it looks like the below. Wercker also has a [page](http://devcenter.wercker.com/articles/werckeryml/validate.html) for validating wercker.yml files, and it's usually a good idea to do so before committing changes as minor typos might cause it to fail.
+We're not going to use any of the advanced features in this tutorial, so we'll return to our project and add the details we need to our wercker.yml file so that it looks like below: 
 
 ```yaml
 box: debian
@@ -228,7 +220,7 @@ Once completed a nice tick should have appeared in front of your first build, an
 
 [14]: /img/tutorials/automated-deployments/using-hugo-build.png
 
-## Adding a GitHub Pages step
+## Adding a GitHub Pages deploy step
 
 In order to deploy to GitHub Pages we need to add a deploy step. Once again searching through the Steps repository we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
 
@@ -254,19 +246,9 @@ How does the GitHub Pages configuration work? We've selected a couple of things,
 
 Secondly we've configured the basedir to **public**, this is the directory that will be used as the website on GitHub Pages.
 
-And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. We do this by going to our app's settings and clicking on **Deploy targets**. Now, we **Add deploy target** and select **Custom deploy**.
+And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. To do this, go to your application page and click on your deploy pipeline. 
 
-![][15]
-
-[15]: /img/tutorials/automated-deployments/adding-a-github-pages-step.png
-
-## Configure the deploy step
-
-Simply fill in the name, and make sure you enable **auto deploy** from the **master** branch. Next you add a variable for the **GIT_TOKEN**, for this you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us. The example site we used here is accessible under hugo-wercker.ig.nore.me
-
-![][16]
-
-[16]: /img/tutorials/automated-deployments/configure-the-deploy-step.png
+Under Pipeline Environment Variables, put **$GIT_TOKEN** for the Key. Now you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). Copy and paste the access token you generated from Github into the Value box. With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us. The example site we used here is accessible under hugo-wercker.ig.nore.me
 
 ## Conclusion
 
