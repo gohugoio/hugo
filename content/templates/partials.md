@@ -11,26 +11,18 @@ weight: 90
 draft: false
 aliases: [/templates/partials/,/layout/chrome/,/extras/analytics/]
 toc: true
-notesforauthors:
+needsreview: true
 ---
 
 ## Partials vs Templates
 
-In practice, it's very convenient to split out common template portions into a
-partial template that can be included anywhere. As you create the rest of your
-templates, you will include templates from the `/layouts/partials/` directory
-or from arbitrary partial subdirectories like `/layouts/partials/post/tag/`.
+In practice, it's very convenient to split out common template portions into a partial template that can be included anywhere. As you create the rest of your templates, you will include templates from the `/layouts/partials/` directory or from arbitrary partial subdirectories like `/layouts/partials/post/tag/`.
 
 Partials are especially important for [themes][] because they give theme users an opportunity to [overwrite just a small portion of a theme][customize] while maintaining compatibility with the theme's upstream.
 
-Theme developers may want to include a few partials with empty HTML
-files in the theme just so end users have an easy place to inject their
-customized content.
+Theme developers may want to include a few partials with empty HTML files in the theme just so end users have an easy place to inject their customized content.
 
-I've found it helpful to include a header and footer template in
-partials so I can include those in all the full page layouts.  There is
-nothing special about header.html and footer.html other than they seem
-like good names to use for inclusion in your other templates.
+I've found it helpful to include a header and footer template in partials so I can include those in all the full page layouts.  There is nothing special about header.html and footer.html other than they seem like good names to use for inclusion in your other templates.
 
 ```bash
 ▾ layouts/
@@ -41,17 +33,13 @@ like good names to use for inclusion in your other templates.
 
 ## Partial vs Template
 
-Version v0.12 of Hugo introduced the `partial` call inside the template system.
-This is a change to the way partials were handled previously inside the
-template system. In earlier versions, Hugo didn’t treat partials specially, and
-you could include a partial template with the `template` call in the standard
-template language.
+Version v0.12 of Hugo introduced the `partial` call inside the template system. This is a change to the way partials were handled previously inside the template system. In earlier versions, Hugo didn’t treat partials specially, and you could include a partial template with the `template` call in the standard template language.
 
 With the addition of the theme system in v0.11, it became apparent that a theme & override-aware partial was needed.
 
 When using Hugo v0.12 and above, please use the `partial` call (and leave out the “partial/” path). The old approach would still work, but wouldn’t benefit from the ability to have users override the partial theme file with local layouts.
 
-## Example header.html
+## Example `header.html`
 
 This header template is used for [spf13.com](http://spf13.com/):
 
@@ -75,7 +63,7 @@ This header template is used for [spf13.com](http://spf13.com/):
 ```
 {{% /code %}}
 
-## Example footer.html
+## Example `footer.html`
 
 This footer template is used for [spf13.com](http://spf13.com/):
 
@@ -120,7 +108,7 @@ Note that the subdirectories you create under /layouts/partials can be named wha
 
 For more examples of referencing these templates, see [single content templates](/templates/content/), [list templates](/templates/list/) and [homepage templates](/templates/homepage/).
 
-## Variable scoping
+## Variable Scoping
 
 As you might have noticed, `partial` calls receive two parameters.
 

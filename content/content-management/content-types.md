@@ -1,7 +1,7 @@
 ---
 title: Content Types
 linktitle: Content Types
-description:
+description: Hugo provides support for sites with multiple content types and assumes your site will be organized into sections, where each section will use the corresponding type.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -16,9 +16,13 @@ needsreview: true
 
 Hugo provides full support for sites with multiple content types. A **content type** can have a unique set of metadata (i.e., [front matter][]) or customized [template][] and can be created by the `hugo new` command via content [archetypes][].
 
+{{% note "Hugo Content Type != MIME Type" %}}
+It's important to distinguish the difference between Hugo's content types and [MIME types](https://en.wikipedia.org/wiki/Media_type). In Hugo, a content type is a piece of information (i.e. content item) that has multiple attributes (i.e. front matter/metadata and a content block). It is not necessarily related to a file format or file extension.
+{{% /note %}}
+
 A good example of when multiple types are needed is to look at [Tumblr][]. A piece of "content" could be a photo, quote or post, each with different meta data and rendered differently.
 
-## Assigning a content type
+## Assigning a Content Type
 
 Hugo assumes that your site will be organized into [sections][] and each section will use the corresponding type. If you are taking advantage of this, then each new piece of content you place into a section will automatically inherit the type.
 
@@ -36,7 +40,7 @@ Creating a new content type is easy in Hugo. You simply provide the templates an
 Remember, all of the following are *optional*. If you do not specifically declare content types in your front matter or develop specific layouts for content types, Hugo is smart enough to infer the content type from the file path and content section (see [content sections](/content-management/sections/)).
 {{% /note %}}
 
-### Create Type Layout Directory
+### Create a Type Layout Directory
 
 Create a directory with the name of the type in `/layouts`. Type is always singular; e.g., even if your content directory is `content/posts`, create `/layouts/post/`.
 
@@ -52,7 +56,7 @@ Create a file called `post.html` inside the section lists template directory, `/
 
 Many sites support rendering content in a few different ways, for instance, a single page view and a summary view to be used when displaying a [list of section contents][]. Hugo makes no assumptions about how you want to display your content and will support as many different views of a content type as your site requires. All that is required for these additional views is that a template exists in each `/layouts/TYPE` directory with the same name.
 
-### Create A Corresponding Archetype
+### Create a Corresponding Archetype
 
 Create an archetype file for your type at `yourtype.md` in the `/archetypes` directory; e.g., `/archetypes/post.md`.
 

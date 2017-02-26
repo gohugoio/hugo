@@ -1,5 +1,12 @@
-{{- define "main" -}}
+{{ define "main" }}
 <main class="main">
-
+	<article class="content">
+		<header class="content-header">
+			<h1>Page Not Found</h1>
+		</header>
+		<div class="body-copy">
+			<a href="{{.Site.BaseURL}}"><i class="icon-home"></i> Go Home</a>
+		</div>
+	</article>
 </main>
-{{- end -}}
+{{ end }}

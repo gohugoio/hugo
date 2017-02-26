@@ -31,6 +31,12 @@
       transition: background-color .3s ease-in-out;
       background-color: $hugo-pink;
       color: $hugo-white;
+      .page-info {
+        color:$hugo-white;
+        h5 {
+          color:$hugo-white;
+        }
+      }
     }
   }
   &:after {
@@ -48,6 +54,7 @@
       margin: 0px;
       line-height: 1.2;
       margin-top: .5em;
+      color:$hugo-pink;
     }
     span {
       width: 100%;

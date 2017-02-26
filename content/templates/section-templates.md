@@ -22,7 +22,7 @@ To effectively leverage section page templates, you should first understand the 
 
 ### Section Template Lookup Order
 
-The [lookup order][lookup] for section pages
+The [lookup order][lookup] for section pages is as follows:
 
 * /layouts/section/<SECTION>.html
 * /layouts/\_default/section.html

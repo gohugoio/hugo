@@ -218,6 +218,7 @@ This is no longer a site navigation link and is instead a button along with "Fil
 
 * Reworked considerably. Page titles have all been changed to reflect their obvious connection to *templating*.
 * "Lookup order" page added. The order of the template pages in the main navigation is now such that it could be seen as a sequence of pages showing how to learn templating. Hence the primer, lookup order, and base templates as the first three pages in this section.
+* Shortcodes, menus, pagination
 
 ### Taxonomies
 

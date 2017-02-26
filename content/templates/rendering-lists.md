@@ -334,26 +334,9 @@ within each group in alphabetical order by title.
 {{ end }}
 ```
 
-## Filtering and Limiting Content
+## Filtering and Limiting List Content
 
-Sometimes you only want to list a subset of the available content. A common
-request is to only display “Posts” on the homepage. Using the `where` function,
-you can do just that.
-
-### `first`
-
-`first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
-
-1. `array` or `slice of maps or structs`
-2. `number of elements`
-
-{{% code file="layout/_default/section.html" %}}
-```golang
-{{ range first 10 .Data.Pages }}
-  {{ .Render "summary" }}
-{{ end }}
-```
-{{% /code %}}
+Sometimes you only want to list a subset of the available content. A common request is to only display “Posts” on the homepage. Using the `where` function, you can do just that.
 
 ### `where`
 
@@ -367,6 +350,21 @@ you can do just that.
 ```html
 {{ range where .Data.Pages "Section" "post" }}
    {{ .Content }}
+{{ end }}
+```
+{{% /code %}}
+
+### `first`
+
+`first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
+
+1. `array` or `slice of maps or structs`
+2. `number of elements`
+
+{{% code file="layout/_default/section.html" %}}
+```golang
+{{ range first 10 .Data.Pages }}
+  {{ .Render "summary" }}
 {{ end }}
 ```
 {{% /code %}}

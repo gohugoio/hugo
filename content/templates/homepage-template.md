@@ -11,7 +11,6 @@ weight: 30
 draft: false
 aliases: [/layout/homepage/,/templates/homepage/]
 toc: false
-needsreview: true
 ---
 
 The homepage of a website is often formatted differently than the other pages. In Hugo you can define your own homepage template.
@@ -19,7 +18,7 @@ The homepage of a website is often formatted differently than the other pages. I
 Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
 {{% note "The Only Required Template" %}}
-The homepage template is the *only* required template for building a site and useful when bootstrapping a new site and template. It is also the only required template if you are developing a single page site.
+The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
 {{% /note %}}
 
 ## Homepage Template Lookup Order

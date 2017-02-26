@@ -11,7 +11,6 @@ weight: 50
 draft: false
 needsreview: true
 aliases: [/overview/source-directory/]
-notesforauthors:
 ---
 
 <!-- copied from old overview/source-directory -->
