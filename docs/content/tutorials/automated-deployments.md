@@ -250,9 +250,9 @@ How does the GitHub Pages configuration work? We've selected a couple of things,
 
 Secondly we've configured the basedir to **public**, this is the directory that will be used as the website on GitHub Pages.
 
-And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. To do this, go to your application page and click on your deploy pipeline. 
+And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. To do this, go to your application page and click on the "Environment" tab. 
 
-Under Pipeline Environment Variables, put **$GIT_TOKEN** for the Key. Now you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). Copy and paste the access token you generated from Github into the Value box. With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us. The example site we used here is accessible under hugo-wercker.ig.nore.me
+Under Application Environment Variables, put **$GIT_TOKEN** for the Key. Now you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). Copy and paste the access token you generated from Github into the Value box. With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us. The example site we used here is accessible under hugo-wercker.ig.nore.me
 
 ## Conclusion
 
