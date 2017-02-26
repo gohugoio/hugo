@@ -16,7 +16,7 @@ toc: true
 ## Strategy, Tactics, and Requirements
 
 {{% warning "Disclaimer" %}}
-WIP. Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *very schlocky* version of the content strategy document.
+WIP. Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *schlocky* version of a true strategic document.
 {{% /warning %}}
 
 ### Introduction
@@ -115,12 +115,18 @@ The following are high-level requirements for the documentation site.
 - [X] Semantic HTML5 elements (e.g., `article`, `main`, `aside`, `dl`)
 - [X] SSL
 - [ ] AMP?
+- [ ] 301s [^1]
+
+#### Accessibility
+
+- [ ] Aria roles
+- [ ] Alt text for all images
 
 #### Editorial and Content
 
 - [ ] Basic style guide
     - The style guide should facilitate a more consistent UX for the site but not be so complex as to deter documentation contributors
-- [X] Contribution guidelines (see [WIP on live site](https://hugodocsconcept.netlify.com/contribute-to-hugo/contribute-to-the-hugo-docs/))
+- [X] Contribution guidelines (see [WIP on live site](https://hugodocsconcept.netlify.com/contribute/contribute-to-the-hugo-docs/))
 - [X] Standardized content types (see [WIP archetypes in source](https://github.com/rdwatters/hugo-docs-concept/tree/master/themes/hugodocs/archetypes)
 - [X] New content model, including taxonomies ([see tags page][tagspage])
 - [ ] DRY. New shortcodes for repeat content (e.g., lists of aliases, page variables, site variables, and others)
@@ -140,7 +146,7 @@ The following are high-level requirements for the documentation site.
 - [X] Copyable code blocks (via highlight.js, extended for hugo-specific keywords)
 - [X] Dual in-page navigation (i.e. site nav *and* in-page TOC)
 - [X] Smooth scrolling
-- [X] [RTD-style admonitions][admonitions] (see [example admonition shortcode](https://github.com/rdwatters/hugo-docs-concept/blob/master/layouts/shortcodes/note.html) and [examples on published site](http://localhost:1313/contribute-to-hugo/contribute-to-the-hugo-docs/#admonition-short-codes))
+- [X] [RTD-style admonitions][admonitions] (see [example admonition shortcode](https://github.com/rdwatters/hugo-docs-concept/blob/master/layouts/shortcodes/note.html) and [examples on published site](/contribute/contribute-to-the-hugo-docs/#admonition-short-codes))
 - [ ] Share buttons: Reddit, Twitter, LinkedIn, and "Copy Page Url"; the last of these provides the strongest utility for docs references in the Hugo forums
 
 ## Author Experience (AX)
@@ -171,14 +177,7 @@ The following are high-level requirements for the documentation site.
     - [X] Abstracted color palette
     - [X] Abstracted typefaces (multiple open-source fonts available)
 
-[admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
-[designresources]: https://github.com/rdwatters/hugo-docs-concept/tree/master/dev-and-design-resources
-[forum]: https://discuss.gohugo.io
-[ex1]: https://discuss.gohugo.io/t/frustrated-with-documentation/2810
-[ex2]: https://discuss.gohugo.io/t/documentation-restructure-and-design/1891
-[forum]:
-[functionarchetype]: https://github.com/rdwatters/hugo-docs-concept/blob/master/themes/hugodocs/archetypes/functions.md
-[tagspage]: https://hugodocsconcept.netlify.com/tags/
+
 
 ## Content Changes
 
@@ -344,11 +343,27 @@ Apache License - 60
 
 **Ordered by title**
 
-[Quick Start]: https://hugodocsconcept.netlify.com/getting-started/quick-start/
-
 ## Current Content (Source)
 
 ```markdown
 {{< readfile file="content/tree.txt" >}}
 ```
 
+## Proposed Schedule for Hugo Docs Release
+
+
+1. **2017-02-26** Release to Gitter Channel for Review
+2. **2017-03-01** Post in Discussion Forum for Feedback
+3. **2017-??-??** Add to Hugo repo for release with v19
+
+[^1]: As this point, the URL structure has changed considerably. I've been fastidious about adding aliases wherever possible, but I'm not sure what negative effect this approach is going to take with our current search relevancy. The [current list of aliases is quite large](/contribute/contribute-to-the-hugo-docs/#be-mindful-of-aliases).
+
+
+[admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+[designresources]: https://github.com/rdwatters/hugo-docs-concept/tree/master/dev-and-design-resources
+[forum]: https://discuss.gohugo.io
+[ex1]: https://discuss.gohugo.io/t/frustrated-with-documentation/2810
+[ex2]: https://discuss.gohugo.io/t/documentation-restructure-and-design/1891
+[functionarchetype]: https://github.com/rdwatters/hugo-docs-concept/blob/master/themes/hugodocs/archetypes/functions.md
+[tagspage]: https://hugodocsconcept.netlify.com/tags/
+[Quick Start]: https://hugodocsconcept.netlify.com/getting-started/quick-start/

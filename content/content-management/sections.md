@@ -49,7 +49,7 @@ Hugo will automatically create pages for each section root that list all of the 
 As of Hugo v0.18, section pages can also have a content file and front matter. These section content files must be placed in their corresponding section folder and named `_index.md` in order for Hugo to correctly render the front matter and content.
 
 {{% warning "`index.md` vs `_index.md`" %}}
-Hugo themes developed before v0.18 often used an `index.md` in a content section as a hack to emulate the behavior of `_index.md`. The hack may work...*sometimes*; however, the order of page rendering can be unpredictable in Hugo. What works now may fail to render appropriately as your site grows. It is **strongly advised** to use `_index.md` as the *preferred* content section index page. **Note:** `_index.md`'s layout, as representative of a section, is a [list template](/templates/section-templates/) and *not* a [single template](/templates/single-page-templates/).
+Hugo themes developed before v0.18 often used an `index.md`(i.e., without the leading underscore) in a content section as a hack to emulate the behavior of `_index.md`. The hack may work...*sometimes*; however, the order of page rendering can be unpredictable in Hugo. What works now may fail to render appropriately as your site grows. It is **strongly advised** to use `_index.md` as content for your section index pages. **Note:** `_index.md`'s layout, as representative of a section, is a [list page template](/templates/section-templates/) and *not* a [single page template](/templates/single-page-templates/).
 {{% /warning %}}
 
 ## Content *Section* vs Content *Type*

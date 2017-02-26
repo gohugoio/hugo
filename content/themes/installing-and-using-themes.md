@@ -94,7 +94,7 @@ theme: themename
 ```
 
 {{% note "A Note on `themename`" %}}
-The `themename` in the above examples must match the name of the specific theme directory inside `/themes`; i.e., the directory name (likely lowercase and urlized) rather the (likely humanized) name of the theme displayed in the [Themes Showcase site](http://themes.gohugo.io).
+The `themename` in the above examples must match the name of the specific theme directory inside `/themes`; i.e., the directory name (likely lowercase and urlized) rather than the name of the theme displayed in the [Themes Showcase site](http://themes.gohugo.io).
 {{% /note %}}
 
 [customizethemes]: /themes/customizing-a-theme/

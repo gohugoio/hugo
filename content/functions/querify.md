@@ -1,24 +1,31 @@
 ---
 title: querify
-linktitle:
+linktitle: querify
 description:
-godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [urls]
 categories: [functions]
-toc:
+tags: [urls]
+godocref:
 signature:
-workson: []
 hugoversion:
-relatedfuncs: []
 deprecated: false
-draft: false
+workson: []
+relatedfuncs: []
 aliases: []
 ---
 
-## Example
+`querify` takes a set of key-value pairs and returns a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a URL. E.g.
 
-## Advanced Example
+The following example creates a link to a search results page on Google.
 
+```html
+<a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
+```
+
+This example renders the following HTML:
+
+```html
+<a href="https://www.google.com?page=3&q=test">Search</a>
+```

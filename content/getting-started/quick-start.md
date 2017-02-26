@@ -58,7 +58,7 @@ Hugo Static Site Generator v0.18.1 BuildDate: 2016-12-30T05:02:43-05:00
 
 ## Step 2. Scaffold Your Hugo Bookshelf Website
 
-Hugo's CLI has commands that allow you to quickly scaffold a new website. Navigate to your preferred location on your file system and create a new Hugo site `bookshelf` by executing the `hugo new` command as follows:
+Hugo's CLI has commands that allow you to quickly scaffold a new website. Navigate to your preferred location on your file system and create a new Hugo site `bookshelf` by executing the `hugo new` command:
 
 ```bash
 hugo new site bookshelf
@@ -539,48 +539,15 @@ in 17 ms
 
 After you run the `hugo` command, a `bookshelf/public` directory will be created containing the generated website source.
 
-## Step 12. Deploy Your Bookshelf Website on GitHub Pages
+## Step 9. What Next?
 
-{{% note "GitHub Account" %}}
-The following step assumes that you have a working familiarity with Git version control and also a GitHub account. A GitHub account is required to leverage Pages, a static website hosting service that is complimentary for GitHub users. [Setting up a GitHub account is free](https://github.com/join).
+**Congratulations!** Your new `bookshelf`/public directory is a fully generated, deployable Hugo website. Since all your files are *static*, you have innumerable options for hosting, and your new directory structure and simple content format are going to make scaling your website a breeze.
 
-There is more than one way to host your site on GitHub. Be sure to check out [Hosting on GitHub](/hosting-and-deployment/hosting-on-github/) and [Deployment with Wercker](/hosting-and-deployment/deployment-with-wercker).
-{{% /note %}}
+Here's what you should look into next:
 
-First, let's set up Git version control for your bookshelf website and include a `.gitignore` file to prevent tracking of the `public` and `themes` directories. From within your root project directory, you can use the following one-liner:
-
-{{% code file="set-up-git.sh" %}}
-```bash
-git init && echo "/public/" >> .gitignore && echo "/themes/" >> .gitignore && git add . && git commit -m "Initial commit"
-```
-{{% /code %}}
-
-Now the Git repositories under `bookshelf/themes` won't conflict with your `bookshelf` repository, and neither will a Git repository in `bookshelf/public`.
-
-Create a new repository on GitHub named `bookshelf`. Do not create a `README.md`. Once you have created a new repository, change into the `public` directory within `bookshelf` and create a *new* Git repository and add your new GitHub repository as the remote. Keep in mind that you will need to replace `<github-username>` with your actual username and repository URL:
-
-```bash
-cd public
-git init
-git remote add origin git@github.com:<github-username>/bookshelf.git
-git push -u origin master
-```
-
-Once everything in `public` has been pushed to your new GitHub repository, navigate to the repository's settings and scroll to the "GitHub Pages" section. Select "master branch" from the Source dropdown and then click the **Save** button.
-
-![](/images/quickstart/gh-pages-ui.png)
-
-In a couple of minutes, your website will be live at `https://<github-username>.github.io/bookshelf/`.
-
-Now, from within your project's root directory, you can regenerate and update your published website with the following commands. Note that changing your Hugo theme is as simple as changing the `theme` flag appended to the `hugo` build command:
-
-```bash
-hugo --theme=hugo_theme_robust
-cd public
-git add --all
-git commit -m "<some change message>"
-git push
-```
+1. [See hosting and deployment options][hostinganddeploy] for sharing your newly created Hugo website with the world.
+2. [Learn more about Hugo's powerful templating][templating] to tailor your new Hugo website to your specific needs and keep it scaling accordingly.
+3. [Visit the Hugo Discussion Forum][forum] to ask questions, answer questions, and become an active member of the Hugo community.
 
 --------
 
@@ -594,7 +561,9 @@ git push
 [configuration]: /getting-started/configuration/
 [createtheme]: /themes/creating-a-theme/
 [datatemplates]: /templates/data-templates/
+[forum]: https://discuss.gohugo.io
 [frontmatter]: /content-management/front-matter/
+[hostinganddeploy]: /hosting-and-deployment/
 [hugodirectories]: /getting-started/directory-structure/
 [install]: /getting-started/install-hugo/
 [lists]: /templating/lists/

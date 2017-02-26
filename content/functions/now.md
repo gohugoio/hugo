@@ -1,24 +1,20 @@
 ---
-title: readFile
-linktitle:
+title: now
+linktitle: now
 description:
-godocref:
+godocref: https://godoc.org/time#Time
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [files]
 categories: [functions]
-toc:
+tags: [dates,time]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
+needsexamples: true
 ---
 
-## Example
-
-## Advanced Example
-
+`now` returns the current local time as a [`time.Time`](https://godoc.org/time#Time).

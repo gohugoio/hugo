@@ -1,8 +1,8 @@
 ---
 title: Base Templates and Blocks
 linktitle:
-description:
-godocref:
+description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page) in a syntax that allows for easy extending and overwriting.
+godocref: https://golang.org/pkg/text/template/#example_Template_block
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -21,29 +21,28 @@ Go 1.6 includes a powerful new keyword, `block`. This construct allows you to de
 
 This is the order Hugo searches for a base template:
 
-1. /layouts/_current-path_/_template-name_-baseof.html, e.g. list-baseof.html.
-2. /layouts/_current-path_/baseof.html
-3. /layouts/_default/_template-name_-baseof.html e.g. list-baseof.html.
-4. /layouts/_default/baseof.html
-
-For each of the steps above, it will first look in the project, then, if theme is set, in the theme's layouts folder. Hugo picks the first base template found.
+1. `/layouts/<CURRENTPATH>/<TEMPLATENAME>-baseof.html`
+2. `/layouts/<CURRENTPATH>/baseof.html`
+3. `/layouts/_default/<TEMPLATENAME>-baseof.html`
+4. `/layouts/_default/baseof.html`
 
 As an example, with a site using the theme `exampletheme`, when rendering the section list for the section `post`. Hugo picks the `section/post.html` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
 
 1. `/layouts/section/post-baseof.html`
-2.  `/themes/exampletheme/layouts/section/post-baseof.html`
-3.  `/layouts/section/baseof.html`
-4. `/themes/exampletheme/layouts/section/baseof.html`
-5.  `/layouts/_default/post-baseof.html`
-6.  `/themes/exampletheme/layouts/_default/post-baseof.html`
-7.   `/layouts/_default/baseof.html`
-8. `/themes/exampletheme/layouts/_default/baseof.html`
+2. `/themes/<THEME>/layouts/section/post-baseof.html`
+3. `/layouts/section/baseof.html`
+4. `/themes/<THEME>/layouts/section/baseof.html`
+5. `/layouts/_default/post-baseof.html`
+6. `/themes/<THEME>/layouts/_default/post-baseof.html`
+7. `/layouts/_default/baseof.html`
+8. `/themes/<THEME>/layouts/_default/baseof.html`
 
 
-## Define the base template
+## Defining the Base Template
 
-Let's define a simple base template (`_default/baseof.html`), a shell from which all our pages will start.
+The following defines a simple base template at `_default/baseof.html`). As a default template, it is the shell from which all our pages will start unless a more specific `*baseof.html` is defined.
 
+{{% code file="layouts/_default/baseof.html" download="baseof.html" %}}
 ```html
 <!DOCTYPE html>
 <html>
@@ -65,13 +64,14 @@ Let's define a simple base template (`_default/baseof.html`), a shell from which
   </body>
 </html>
 ```
+{{% /code %}}
 
 ## Overriding the Base Template
 
-Your [default list template](/templates/list/)---`_default/list.html`---will inherit all of the code defined in the base template. It could then implement its own "main" block from the base template above like so:
+From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 
+{{% code file="layouts/_default/list.html" download="list.html" %}}
 ```html
-<!-- Note the lack of Go's context "dot" when defining blocks -->
 {{ define "main" }}
   <h1>Posts</h1>
   {{ range .Data.Pages }}
@@ -82,13 +82,20 @@ Your [default list template](/templates/list/)---`_default/list.html`---will inh
   {{ end }}
 {{ end }}
 ```
+{{% /code %}}
 
-This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a "title" block so the contents from our base template remain unchanged in lists.
+{{% note "No Go Context \"Dot\" in Block Definitions" %}}
+When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., 'The Dot"). (Read more on the [Go Context Dot](/functions/the-dot/).)
+{{% /note %}}
 
-In our [default single template](/templates/content/)---`_default/single.html`---let's implement both blocks:
+This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"`` block, so the contents from our base template remain unchanged in lists.
 
+The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
+
+{{% code file="layouts/_default/single.html" download="single.html" %}}
 ```html
 {{ define "title" }}
+  <!-- This will override the default value set in baseof.html; i.e., "{{.Site.Title}}" in the original example-->
   {{ .Title }} &ndash; {{ .Site.Title }}
 {{ end }}
 {{ define "main" }}
@@ -96,6 +103,7 @@ In our [default single template](/templates/content/)---`_default/single.html`--
   {{ .Content }}
 {{ end }}
 ```
+{{% /code %}}
 
-This overrides both block areas from the base template with code unique to our single template.
-
+[hugolists]: /templates/lists
+[singletemplate]: /templates/single-page-templates/

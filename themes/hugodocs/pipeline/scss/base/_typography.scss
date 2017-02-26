@@ -15,13 +15,13 @@ h4 {
 
 h1.page-title {
   font-size: 2.2em;
-  line-height:1.2;
+  line-height: 1.2;
   letter-spacing: -.021em;
   padding-bottom: 0px;
   display: flex;
   align-items: center;
   margin-bottom: 8px;
-  font-weight:$heading-font-weight;
+  font-weight: $heading-font-weight;
   @include MQ(M) {
     padding-top: 0px;
   }
@@ -45,10 +45,10 @@ h3 {
 h2 {
   font-size: 1.6em;
   &.contents-list-heading {
-    text-transform:uppercase;
-    color:$hugo-gray;
+    text-transform: uppercase;
+    color: $hugo-gray;
     em {
-      font-style:normal;
+      font-style: normal;
     }
   }
 }
@@ -60,14 +60,30 @@ h3 {
 h4 {
   font-size: 1.1em;
   margin-top: 1em;
-  margin-bottom:1em;
+  margin-bottom: 1em;
   color: $hugo-gray;
   // text-transform: uppercase;
 }
 
+//used throughout the "functions" section to render titles in the base code font family
 .functions {
   font-family: $code-font-family;
   font-weight: $base-font-weight;
+  color: inherit;
+}
+
+//just for function section page titles that include the word "and":
+//in templates, a conditional statement checks for section=functions, and if so, replaces "and" in title/linktitle with <em>and</em>
+.functions {
+  > em {
+    font-style: normal;
+    font-family: $base-font-family;
+    padding-left: .25em;
+    padding-right: .25em;
+    font-size: .8em;
+    position: relative;
+    margin-bottom: .3em;
+  }
 }
 
 //keeps index page from taking on code/pre font family

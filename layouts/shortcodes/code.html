@@ -5,12 +5,12 @@
 	<a href="{{.}}" class="see-code-source" role="button" target="_blank" title="See source for this snippet">See Source</a>
 	{{end}}
 	{{with .Get "download"}}
-	<button class="download-button" title="Download a copy of {{.}}">
+	<button class="download-button" title="Download &quot;{{.}}&quot;.">
 		<i class="icon-download"></i>
 	</button>
 	{{end}}
 	{{ if ne (.Get "copy") "false" }}
-	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
+	<button class="copy-button" title="Copy this code to your clipboard." data-clipboard-snippet>
 			<i class="icon-clipboard"></i><!-- <div class="copy-text"> COPY</div> -->
 	</button>
 	{{end}}

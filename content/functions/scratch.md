@@ -18,7 +18,7 @@ draft: false
 aliases: [/extras/scratch/,/doc/scratch/]
 ---
 
-`Scratch` -- a "scratchpad" for your page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
+**`Scratch`** is a "scratchpad" for your [page-scoped variables][pagevars]. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
 
 `Scratch` is added to both `Page` and `Shortcode` -- with following methods:
 
@@ -68,3 +68,4 @@ The usage is best illustrated with some samples:
 **Note:** The examples above uses the special `$` variable, which refers to the top-level node. This is the behavior you most likely want, and will help remove some confusion when using `Scratch` inside page range loops -- and you start inadvertently calling the wrong `Scratch`. But there may be use cases for `{{ .Scratch.Add "key" "some value" }}`.
 
 
+[pagevars]: /variables/page-variables/

@@ -6,13 +6,11 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [variables and params]
-tags: [files]
+tags: [variables,params,values,globals]
 draft: false
 weight: 01
 aliases: [/templates/variables/]
 toc: false
-hidesectioncontents: false
-needsreview: true
 ---
 
 [Go templates][], the backbone of Hugo templating, are context based, and Hugo makes a large number of values available to you as you're creating views for your website. The following variables and params provide convenient means to displaying your content with Hugo's powerful templating engine.

@@ -18,10 +18,10 @@ needsreview: true
 
 Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed.
 
-* `/layouts/section/<section>.rss.xml`
-* `/layouts/\_default/rss.xml`
-* `/themes/<theme>/layouts/section/<section>.rss.xml`
-* `/themes/<theme>/layouts/\_default/rss.xml`
+`/layouts/section/<section>.rss.xml`
+`/layouts/\_default/rss.xml`
+`/themes/<theme>/layouts/section/<section>.rss.xml`
+`/themes/<theme>/layouts/\_default/rss.xml`
 
 {{% note "Hugo Ships with an RSS Template" %}}
 Unlike other Hugo templates, Hugo ships with its own [RSS 2.0 template][embedded]. In most cases this will be sufficient, and an RSS template will not need to be provided by the user. But you can provide an rss template if you like, as you can see in the next section.
@@ -56,7 +56,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 
 * /layouts/section/`SECTION`.rss.xml
 * /layouts/\_default/rss.xml
-* /themes/<mytheme>/layouts/section/<section>.rss.xml
+* /themes/<THEME>/layouts/section/<section>.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
 * [Embedded rss.xml][embedded]
 

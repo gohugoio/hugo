@@ -1,11 +1,11 @@
 ---
 title: Go Template Primer
 linktitle: Go Template Primer
-description:
+description: Hugo uses Go html/template library, an extremely lightweight and performant, engine as the basis for all Hugo templating.
 godocref: https://golang.org/pkg/html/template/
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-02-25
 categories: [templates]
 tags: [go,fundamentals]
 weight: 10
@@ -15,19 +15,21 @@ toc: true
 needsreview: true
 ---
 
-Hugo uses the excellent [Go html/template][] library, an extremely lightweight engine that provides just the right amount of logic to be able to create a good static website. If you have used other template systems from different languages or frameworks, you will find a lot of similarities in Go templates.
+Hugo uses the excellent [Go html/template][gohtmltemplate] library, an extremely lightweight engine that provides just the right amount of logic to be able to create any style of static website. If you have used other template systems from different languages or frameworks, you will find a lot of similarities in Go templates.
 
-This document is a brief primer on using Go templates. The [Go docs][gohtmltemplate] go into more depth and cover features that aren't mentioned here.
+{{% note "Go Deep with the Go Docs" %}}
+This document is only designed as a brief primer. For an in-depth look into Go templates, check the official [Go docs](http://golang.org/pkg/html/template/).
+{{% /note %}}
 
 ## Introduction to Go Templates
 
-Go templates provide an extremely simple template language. It adheres to the belief that only the most basic of logic belongs in the template or view layer. One consequence of this simplicity is that Go templates parse very quickly.
+Go templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer. As a positive consequence of this simplicity, Go templates parse very quickly.
 
-A unique characteristic of Go templates is they are content aware. Variables and content will be sanitized depending on the context of where they are used. More details can be found in the [Go docs][gohtmltemplate].
+A unique characteristic of Go templates is that they are content aware. Variables and content will be sanitized depending on the context of where they are used.
 
 ## Basic Syntax
 
-Golang templates are HTML files with the addition of [variables][variablesparams] and [functions][hugofunctions]. Golang template variables and functions are accessible within `{{ }}`.
+Golang templates are HTML files with the addition of [variables][variables] and [functions][hugofunctions]. Golang template variables and functions are accessible within `{{ }}`.
 
 ### Accessing a Predefined Variable
 
@@ -451,9 +453,9 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 
 ## Go Templating Example: Show Only Upcoming Events
 
-Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in the [front matter][]) is in the future:
+Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in a content file's [front matter][]) is in the future. The following is an example [partial template][partials]:
 
-{{% code file="show-upcoming-dates.html" %}}
+{{% code file="layouts/partials/show-upcoming-dates.html" download="show-upcoming-dates.html" %}}
 ```golang
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
@@ -478,7 +480,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [gohtmltemplate]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
 [hugoconfig]: /getting-started/configuration/
 [hugofunctions]: /functions/ "Link to section for Hugo's templating functions"
-[math functions]: /functions/math
+[math functions]: /functions/math/
 [partials]: /templates/partials-templates/ "Link to the partial templates page inside of the templating section of the Hugo docs"
-[variablesparams]: /variables/ "Link to the list page for the Variables and Params section of the site."
+[variables]: /variables/ "See the full extent of page-, site-, and other variables that Hugo make available to you in your templates."
 [You can read more about `index` in the Godocs]: http://golang.org/pkg/text/template/ "Godocs page for index function"

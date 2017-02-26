@@ -16,7 +16,7 @@ needsreview: true
 
 ![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)
 
-## Understanding `.Data.*Pages`
+## Understanding `.Data.Pages`
 
 From this image, we can assume that the "homepage" for Section A---presumably, `/section-a/index.html`---is going to list the content pages 1,2,3. In this way, pages 1,2,3 are *data* made available to the template that renders to the .
 

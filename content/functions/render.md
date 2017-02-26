@@ -18,7 +18,14 @@ draft: false
 aliases: []
 ---
 
-## Example
+Takes a view to render the content with.  The view is an alternate layout, and should be a file name that points to a template in one of the locations specified in the documentation for [Content Views](/templates/views).
 
-## Advanced Example
+This function is only available on a piece of content, and in list context.
 
+This example could render a piece of content using the content view located at `/layouts/_default/summary.html`:
+
+```golang
+{{ range .Data.Pages }}
+    {{ .Render "summary"}}
+{{ end }}
+```

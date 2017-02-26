@@ -1,4 +1,5 @@
-{{if ne .Params.toc false}}
+<!-- TOCs need to be declared explicitly in the front matter of content/*.md -->
+{{if .Params.toc }}
 <aside id="toc">
 	<header class="toc-header">
 		<a href="#{{.Title | urlize}}">

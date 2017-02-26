@@ -33,7 +33,7 @@ There are times where you want to include static assets that differ from version
 Let's assume the theme you are using has jQuery 1.8 in the following location:
 
 ```bash
-/themes/<MYTHEME>/static/js/jquery.min.js
+/themes/<THEME>/static/js/jquery.min.js
 ```
 
 You want to replace jQuery with jQuery 1.7. The easiest way to do this is to replace the file *with a file of the same name* in the same relative path in your project's root.
@@ -73,7 +73,7 @@ This only works for templates that Hugo "knows about" (i.e., that follow its con
 If the archetype that ships with the theme for a given content type (or all content types) doesn’t fit with how you are using the theme, feel free to copy it to your `/archetypes` directory and make modifications as you see fit.
 
 {{% warning "Beware of `layouts/_default`" %}}
-The `_default` directory is a very powerful force in Hugo, especially as it pertains to overwriting theme files. If a default file is located in the local [archetype](/content-management/archetypes/) or layout directory (i.e., `archetypes/default.md` or `/layouts/_default/*.html`, respectively), it will override the file of the same name in the corresponding theme directory (i.e., `themes/<mytheme>/archetypes/default.md` or `themes/<mytheme>/layout/_defaults/*.html`, respectively).
+The `_default` directory is a very powerful force in Hugo, especially as it pertains to overwriting theme files. If a default file is located in the local [archetype](/content-management/archetypes/) or layout directory (i.e., `archetypes/default.md` or `/layouts/_default/*.html`, respectively), it will override the file of the same name in the corresponding theme directory (i.e., `themes/<THEME>/archetypes/default.md` or `themes/<THEME>/layout/_defaults/*.html`, respectively).
 
 It is usually better to override specific files; i.e. rather than using `layouts/_default/*.html` in your working directory.
 {{% /warning %}}

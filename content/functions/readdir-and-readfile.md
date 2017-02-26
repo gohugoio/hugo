@@ -1,24 +1,18 @@
 ---
-title: abslangurl
-linktitle: absLangURL
+title: readdir and readfile
+linktitle:
 description:
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [multilingual,i18n,urls]
+tags: [files]
 categories: [functions]
-toc:
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
-aliases: []
-needsexamples: true
+aliases: [/functions/readdir/,/functions/readfile/]
 ---
 
-## Example
-
-## Advanced Example

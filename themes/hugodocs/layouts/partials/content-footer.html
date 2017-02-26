@@ -6,7 +6,7 @@
 		<i class="fa fa-chevron-left"></i>
 		<div class="page-info">
 			<span>Previous</span>
-			<h5 class="{{$section}}">{{.NextInSection.Title}}</h5>
+			<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.NextInSection.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.NextInSection.Title | markdownify}}{{end}}</h5>
 		</div>
 </a>
 {{ else if eq .Kind "page" }}
@@ -15,7 +15,7 @@
 			<i class="fa fa-chevron-left"></i>
 			<div class="page-info">
 				<span>Previous</span>
-				<h5 class="{{$section}}">{{ .LinkTitle }}</h5>
+				<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.Title | markdownify}}{{end}}</h5>
 			</div>
 	</a>
 	{{ end }}
@@ -24,7 +24,7 @@
 	<a href="{{.Permalink}}" class="prev-and-next-link next-page">
 		<div class="page-info">
 			<span>Next</span>
-			<h5 class="{{$section}}">{{.Title}}</h5>
+			<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.Title | markdownify}}{{end}}</h5>
 		</div>
 		<i class="fa fa-chevron-right"></i>
 	</a>

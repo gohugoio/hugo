@@ -9,7 +9,7 @@ categories: [content management]
 tags: [summaries,abstracts,read more]
 weight: 90
 draft: false
-aliases: [/content/summaries/]
+aliases: [/content/summaries/,/content-management/summaries]
 toc: true
 ---
 

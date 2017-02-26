@@ -2,5 +2,5 @@
 {{- if eq (.Get "markdown") "true" -}}
 {{- $file  | readFile | markdownify -}}
 {{- else -}}
-{{ $file  | readFile }}
+{{ $file  | readFile | safeHTML }}
 {{- end -}}

@@ -1,14 +1,13 @@
 ---
 title: apply
 linktitle: apply
-description:
+description: Given a map, array, or slice, `description` returns a new slice with a function applied over it.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [advanced]
 signature:
 workson: []
 hugoversion:
@@ -16,8 +15,106 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: []
+needsreview: true
 ---
 
-## Example
+Given a map, array, or slice, `apply` returns a new slice with a function applied over it. `apply` expects at least three parameters, depending on the function being applied.
 
-## Advanced Example
+1. The first parameter is the sequence to operate on
+2. The second parameter is the name of the function as a string, which must be in the [Hugo function map][functions].
+3. After that, the parameters to the applied function are provided, with the string `"."` standing in for each element of the sequence the function is to be applied against.
+
+Here is an example of a content file with `name:` as a front matter field:
+
+```toml
++++
+names: [ "Derek Perkins", "Joe Bergevin", "Tanner Linsley" ]
++++
+```
+
+You can then use `apply` as follows:
+
+```golang
+{{ apply .Params.names "urlize" "." }}
+```
+
+Which will result as follows:
+
+```
+"derek-perkins", "joe-bergevin", "tanner-linsley"
+```
+
+This is *roughly* equivalent to using the following with [range][]
+
+```golang
+{{ range .Params.names }}{{ . | urlize }}{{ end }}
+```
+
+However, it isn’t possible to provide the output of a range to the [`delimit` function][delimit], so you need to `apply` it.
+
+If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *could* use the following snippets, respectively:
+
+{{% code file="layouts/partial/post-tag-list.html" copy="false" %}}
+```html
+{{ with .Params.tags }}
+<div class="tags-list">
+  Tags:
+  {{ $len := len . }}
+  {{ if eq $len 1 }}
+    {{ partial "post/tag/link" (index . 0) }}
+  {{ else }}
+    {{ $last := sub $len 1 }}
+    {{ range first $last . }}
+      {{ partial "post/tag/link" . }},
+    {{ end }}
+    {{ partial "post/tag/link" (index . $last) }}
+  {{ end }}
+</div>
+{{ end }}
+```
+{{% /code %}}
+
+{{% code file="layouts/partial/post-tag-link.html" copy="false" %}}
+```html
+<a class="post-tag post-tag-{{ . | urlize }}" href="/tags/{{ . | urlize }}">{{ . }}</a>
+```
+{{% /code %}}
+
+This works, but the complexity of `post-tag-list.html` is fairly high: the Hugo template needs to perform special behavior for the case where there’s only one tag, and it has to treat the last tag as special. Additionally, the tag list will be rendered something like `Tags: tag1 , tag2 , tag3` because of the way that the HTML is generated and then interpreted by a browser.
+
+This first version of `layouts/partials/post-tag-list.html` separates all of the operations for ease of reading; the combined and DRYer version is shown next:
+
+```html
+{{ with .Params.tags }}
+    <div class="tags-list">
+      Tags:
+      {{ $sort := sort . }}
+      {{ $links := apply $sort "partial" "post-tag-link" "." }}
+      {{ $clean := apply $links "chomp" "." }}
+      {{ delimit $clean ", " }}
+    </div>
+{{ end }}
+```
+
+Now in the complete version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp][] off stray newlines, and join the tags together in a delimited list for presentation. Here is a DRYer version of the preceding example:
+
+{{% code file="layouts/partials/post-tag-list.html" download="post-tag-list.html" %}}
+```html
+    {{ with .Params.tags }}
+    <div class="tags-list">
+      Tags:
+      {{ delimit (apply (apply (sort .) "partial" "post-tag-link" ".") "chomp" ".") ", " }}
+    </div>
+    {{ end }}
+```
+{{% /code %}}
+
+{{% note %}}
+`apply` does not work when receiving the sequence as an argument through a pipeline.
+{{% /note %}}
+
+[chome]: /functions/chomp/
+[delimit]: /functions/delimit/
+[functions]: /functions/
+[partials]: /templates/partial-templates/
+[range]: /functions/range/

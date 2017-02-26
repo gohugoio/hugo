@@ -9,30 +9,30 @@ categories: [templates]
 tags: [taxonomies,metadata,front matter,terms]
 weight: 50
 draft: false
-aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/]
+aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true
 needsreview: true
 ---
 
-Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies](/content-management/taxonomies) if you are unfamiliar with how Hugo uses taxonomies for content management.
+<!-- NOTE! Check on https://github.com/spf13/hugo/issues/2826 for shifting of terms' pages to .Data.Pages -->
 
-Hugo provides multiple ways to leverage taxonomies through your project:
+Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies](/content-management/taxonomies) if you are unfamiliar with how Hugo leverages this powerful feature for content management.
+
+Hugo provides multiple ways to use taxonomies throughout your project:
 
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
 * Order the way content associated with a taxonomy term are display in a [taxonomy list template](#taxonomy-list-template)
-* List a single content's taxonomy terms within a [single page template]()
-
-## Introduction to the Template Lookup Order
-
-{{< readfile file="readfile-content/lookupexplanation.md" markdown="true" >}}
+* List a single content's taxonomy terms within a [single page template][taxinotherpage]
 
 ## Taxonomy List Templates
 
-### Lookup Order for Taxonomy List Templates
+Taxonomy list page templates are lists and therefore have all the variables and methods available to [list pages][lists].
+
+### Taxonomy List Template Lookup Order
 
 ## Taxonomy Terms Template
 
-### Lookup Order for Taxonomy Terms Templates
+### Taxonomy Terms Templates Lookup Order
 
 {{% note "The Taxonomy Terms Template has a Unique Lookup Order" %}}
 Compared to taxonomy list pages and [other list templates](/templates/section-templates/), a terms template lookup has only two options. If Hugo does not find a terms template in `layout/` or `/themes/<yourchosentheme>/layouts/`, Hugo will *not* render a taxonomy terms page.,
@@ -97,8 +97,6 @@ type WeightedPages []WeightedPage
 : Returns a slice of pages, which then can be ordered using any of the [list methods](/templates/list/).
 
 <!-- Begin /taxonomies/ordering/ -->
-
-
 
 ## Ordering Taxonomies
 

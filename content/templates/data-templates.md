@@ -18,11 +18,13 @@ needsreview: true
 
 In addition to the [built-in variables](/templates/variables/) available from Hugo, you can specify your own custom data that can be accessed via templates or shortcodes.
 
-Hugo supports loading data from [YAML](http://yaml.org/), [JSON](http://www.json.org/), and [TOML](https://github.com/toml-lang/toml) files located in the `data` directory.
+Hugo supports loading data from YAML(http://yaml.org/), [JSON](http://www.json.org/), and [TOML](https://github.com/toml-lang/toml) files located in the `data` directory.
 
-**It even works with [LiveReload](/extras/livereload/).**
+{{% note %}}
+Templates using `.Site.Data` even work with LiveReload!
+{{% /note %}}
 
-Data Files can also be used in [themes](/themes/overview/), but note: If the same `key` is used in both the main data folder and in the theme's data folder, the main one will win. So, for theme authors,  for theme specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace, e.g. `mytheme/data/<MYTHEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag, e.g. `hugo -v`.
+Data Files can also be used in [Hugo themes][themes], but note: If the same `key` is used in both the root data folder (i.e. `data/`) and in the theme's data folder (i.e., `themes/<THEME>/data/), the main one will win. So, for theme authors, for theme specific data items that shouldn't be overridden, it can be wise to prefix the folder structure with a namespace, e.g. `mytheme/data/<THEME>/somekey/...`. To check if any such duplicate exists, run hugo with the `-v` flag; e.g., `hugo -v`.
 
 ## The Data Folder
 
@@ -229,3 +231,14 @@ your Markdown files until the content has been downloaded.
 - Photo gallery JSON powered: [https://github.com/pcdummy/hugo-lightslider-example](https://github.com/pcdummy/hugo-lightslider-example)
 - GitHub Starred Repositories [in a posts](https://github.com/SchumacherFM/blog-cs/blob/master/content%2Fposts%2Fgithub-starred.md) with the related [short code](https://github.com/SchumacherFM/blog-cs/blob/master/layouts%2Fshortcodes%2FghStarred.html).
 - More?  Please tell us!
+
+## Specs for Configuration Formats
+
+* [TOML Spec][toml]
+* [YAML Spec][yaml]
+* [JSON Spec][json]
+
+[json]: /documents/ecma-404-json-spec.pdf
+[themes]: /themes/
+[toml]: https://github.com/toml-lang/toml
+[yaml]: http://yaml.org/spec/

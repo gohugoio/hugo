@@ -78,6 +78,13 @@
         &.active-page {
           font-weight: 700;
           color: $hugo-blue;
+          > code {
+            color: $hugo-blue;
+            > em {
+              font-style:normal;
+              family:$base-font-family;
+            }
+          }
         }
       }
     }

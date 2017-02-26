@@ -10,7 +10,7 @@ tags: [dev,open source]
 authors: [digitalcraftsman]
 weight: 10
 draft: false
-aliases: [/contribute-to-hugo/contribute-to-hugo-development/]
+aliases: [/contribute/contribute-to-hugo-development/]
 toc: true
 needsreview: true
 notesforauthors:
@@ -141,11 +141,11 @@ If you're not fimiliar with this term, GitHub's [help pages](https://help.github
 
 Open the [Hugo repository](https://github.com/spf13/hugo) on Github and click on the "Fork" button in the top right.
 
-![Fork button](/images/contribute-to-hugo/contribute-to-hugo-development/forking-a-repository.png)
+![Fork button](/images/contribute/contribute-to-hugo-development/forking-a-repository.png)
 
 Now open your fork repository on GitHub and copy the remote url of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
 
-![Copy remote url](/images/contribute-to-hugo/contribute-to-hugo-development/copy-remote-url.png)
+![Copy remote url](/images/contribute/contribute-to-hugo-development/copy-remote-url.png)
 
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
@@ -350,7 +350,7 @@ We made a lot of progress. Good work. In this step we finally open a pull reques
 
 You should find a green button labeld with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
 
-![Open a pull request](/images/contribute-to-hugo/contribute-to-hugo-development/open-pull-request.png)
+![Open a pull request](/images/contribute/contribute-to-hugo-development/open-pull-request.png)
 
 The new page summaries the most important information of your pull request. Scroll down and you find the additions of all your commits. Make sure everything looks as expected and click on "Create pull request".
 
@@ -358,13 +358,13 @@ The new page summaries the most important information of your pull request. Scro
 
 Last but not least you should accept the contributor license agreement (CLA). A new comment should be added automatically to your pull request. Click on the yellow badge, accept the agreement and authenticate yourself with your GitHub account. It just takes a few clicks and only needs to be done once.
 
-![Accept the CLA](/images/contribute-to-hugo/contribute-to-hugo-development/accept-cla.png)
+![Accept the CLA](/images/contribute/contribute-to-hugo-development/accept-cla.png)
 
 ### Automatic builds
 
 We use the [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
 
-![Automic builds and their status](/images/contribute-to-hugo/contribute-to-hugo-development/ci-errors.png)
+![Automic builds and their status](/images/contribute/contribute-to-hugo-development/ci-errors.png)
 
 Above you can see that Travis wasn't able to compile the changes in this pull request. Click on "Details" and try to investigate why the build failed. But it doesn't have to be your fault. Mostly, the `master` branch that we used as foundation for your pull request should build without problems.
 

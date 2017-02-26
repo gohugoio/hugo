@@ -1,4 +1,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>{{.Title}}{{if not .IsHome}} | {{.Site.Title}}{{end}}</title>
+{{$st := .Site.Title}}
+{{- if eq .Section "functions" -}}
+<title>{{.LinkTitle}} | {{$st}}</title>
+{{- else -}}
+<title>{{.Title}}{{if not .IsHome}} | {{$st}}{{end}}</title>
+{{- end -}}
 <meta name="description" content="{{ .Description }}" />

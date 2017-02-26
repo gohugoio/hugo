@@ -342,7 +342,7 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 {{< bfconfig >}}
 
 {{% note %}}
-1. Blackfriday flags are **case sensitive** as of Hugo v0.15.
+1. Blackfriday flags are *case sensitive* as of Hugo v0.15.
 2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override the site setting there. See [site configuration for more information](/content-management/front-matter/#override-global-blackfriday-configuration).
 {{% /note %}}
 
@@ -367,16 +367,15 @@ blackfriday:
 ```
 {{% /code %}}
 
-
 ## Specs for Configuration Formats
 
-* [TOML Spec][]
-* [YAML Spec][]
-* [JSON Spec][]
+* [TOML Spec][toml]
+* [YAML Spec][yaml]
+* [JSON Spec][json]
 
 [`.Site.Params`]: /variables/
 [directory structure]: /project-organization/directory-structure
-[JSON Spec]: /documents/ecma-404-json-spec.pdf
+[json]: /documents/ecma-404-json-spec.pdf
 [templates]: /templates/
-[TOML Spec]: https://github.com/toml-lang/toml
-[YAML Spec]: http://yaml.org/spec/
+[toml]: https://github.com/toml-lang/toml
+[yaml]: http://yaml.org/spec/

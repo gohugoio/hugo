@@ -36,7 +36,7 @@ functions:
 variablesandparams:
   order: 6
   title: "Variables and Params"
-  url: "variables-and-params"
+  url: "variables"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Page-, file-, taxonomy-, and site-level variables and parameters available in templates"
@@ -99,7 +99,7 @@ siteshowcase:
 contributetohugo:
   order: 15
   title: "Contribute to Hugo"
-  url: "contribute-to-hugo"
+  url: "contribute"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Contribute to Hugo development and documentation"

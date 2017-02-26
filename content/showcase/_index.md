@@ -18,4 +18,4 @@ toc: false
 The following sites have been built with <i class="icon-love"></i> and Hugo. [Interested in adding your site to the showcase?][addshowcase]
 
 
-[addshowcase]: /contribute-to-hugo/add-your-site-to-the-showcase/
+[addshowcase]: /contribute/add-your-site-to-the-showcase/

@@ -33,12 +33,12 @@ Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's 
 [#1014]: https://github.com/spf13/hugo/issues/1014
 [#1435]: https://github.com/spf13/hugo/issues/1435
 [#1436]: https://github.com/spf13/hugo/issues/1436
-[devcontribute]: /contribute-to-hugo/contribute-to-hugo-development/
-[doccontribute]: /contribute-to-hugo/contribute-to-the-hugo-docs/
+[devcontribute]: /contribute/contribute-to-hugo-development/
+[doccontribute]: /contribute/contribute-to-the-hugo-docs/
 [hosting and deployment]: /hosting-and-deployment/
 [migrate]: /developer-tools/migrate-to-hugo/
 [newissue]: https://github.com/spf13/hugo/issues/
 [related Discuss thread]: https://discuss.gohugo.io/t/web-based-editor/155
 [themes]: /themes/
 [tutorials]: /tutorials
-[***your*** best ideas!]: /contribute-to-hugo/
+[***your*** best ideas!]: /contribute/

@@ -8,4 +8,4 @@
 
 ## Contributing to the Docs
 
-(WIP) See the guide at <http://gohugo.io/contribute-to-hugo/contribute-to-the-hugo-docs> for instructions on how to contribute to the documentation.
+(WIP) See the guide at <http://gohugo.io/contribute/contribute-to-the-hugo-docs> for instructions on how to contribute to the documentation.

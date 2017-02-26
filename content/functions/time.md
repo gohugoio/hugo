@@ -6,21 +6,20 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [dates,time]
 categories: [functions]
-toc:
+tags: [dates,time]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`time` converts a timestamp string into a [`time.Time`](https://godoc.org/time#Time) structure so you can access its fields:
 
-refer to http://gohugo.io/templates/go-templates/#template-example-show-only-upcoming-events
-
-## Advanced Example
-
+```
+{{ time "2016-05-28" }} → "2016-05-28T00:00:00Z"
+{{ (time "2016-05-28").YearDay }} → 149
+{{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }} → 1464395400000, or Unix time in milliseconds
+```

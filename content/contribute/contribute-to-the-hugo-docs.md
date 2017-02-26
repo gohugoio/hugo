@@ -151,6 +151,8 @@ The Hugo docs are not especially prescriptive in terms of grammar and usage. We 
 
 ## Pages Needing Code Examples
 
+Examples
+
 {{< needsexamples >}}
 
 ## How Content is Ordered in the Docs

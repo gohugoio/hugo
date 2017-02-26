@@ -37,10 +37,21 @@ main.main {
   }
 }
 
+//note: article.content in single pages and div.content in section pages for improved semantics
 .content {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
+  max-width: $content-max-width;
+  @include MQ(L) {
+    float:left;
+    margin-left:5%;
+    margin-right:auto;
+  }
+  @include MQ(XL) {
+    min-width: $content-max-width;
+    max-width: 90%;
+  }
 }
 
 header.content-header {

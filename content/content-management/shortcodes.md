@@ -1,7 +1,7 @@
 ---
 title: Shortcodes
 linktitle:
-description:
+description: Shortcodes are simple snippets inside your content files that Hugo renders renders so as not to mess with the clean and simple syntax of your preferred content format.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -389,7 +389,7 @@ Using the preceding `youtube` example, the following HTML will be added to your 
 
 #### Example `youtube` Display
 
-Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
 
@@ -406,6 +406,7 @@ To learn more about creating your own shortcode templates, see the [shortcode te
 [partials]: /templates/partials-templates/
 [Pygments]: http://pygments.org/
 [projectorganizationsection]: /project-organization/directory-structure/
+[quickstart]: /getting-started/quick-start/
 [shortcode template documentation]: /templates/shortcode-templates/
 [Speaker Deck]: https://speakerdeck.com/
 [templatessection]: /templates/

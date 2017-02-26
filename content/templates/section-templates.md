@@ -14,19 +14,15 @@ toc: true
 needsreview: true
 ---
 
-## Introduction to the Template Lookup Order
+Section page templates are lists and therefore have all the variables and methods available to [list pages][lists].
 
-{{< readfile file="readfile-content/lookupexplanation.md" markdown="true" >}}
+{{% warning "Section Pages Pull Content from `_index.md`" %}}
+To effectively leverage section page templates, you should first understand the Hugo [content organization](/content-management/content-organization/), and specifically the purpose of `_index.md`.
+{{% /warning %}}
 
-## Lookup Order for Section Page Templates
+### Section Template Lookup Order
 
-Hugo uses a set of rules to figure out which template to use when rendering a specific page.
-
-Hugo will use the following prioritized list. If a file isn’t present, then the next one in the list will be used. This enables you to craft specific layouts when you want to without creating more templates than necessary. For most sites only the \_default file at the end of the list will be needed.
-
-### Section Template Page Lookup Order
-
-A Section will be rendered at /<SECTION>/ (e.g.&nbsp;http://spf13.com/project/)
+The [lookup order][lookup] for section pages
 
 * /layouts/section/<SECTION>.html
 * /layouts/\_default/section.html
@@ -57,7 +53,13 @@ The valid values for 'kind' are as follows:
 The `.Site.GetPage` example assumes the following project directory structure:
 
 {{% code file="grab-blog-section-index-page-title.html" %}}
+```golang
 {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
+```
 {{% /code %}}
 
 `.Site.GetPage` will return `nil` if no `_index.md` page is found. If `content/blog/_index.md` does not exist, the template will output a blank section where `{{.Title}}` should have been in the preceding example.
+
+
+[lists]: /templates/lists/
+[lookup]: /templates/lookup-order/

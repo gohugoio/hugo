@@ -13,26 +13,27 @@ draft: false
 aliases: [/extras/localfiles/,/templates/files/]
 toc: true
 needsreview: true
+needsexample: true
 ---
 
 ## Traversing Local Files
 
-With Hugo's [`readDir` function][], you can traverse your website's files on your server.
+With Hugo's [`readDir` and `readFile` template functions][reads], you can traverse your website's files on your server.
 
 ## Using `readDir`
 
-The [`readDir`](/functions/readdir) function returns an array of [`os.FileInfo`](https://golang.org/pkg/os/#FileInfo). It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e. as found on your server's file system).
+The [`readDir` function][reads] returns an array of [`os.FileInfo`][osfileinfo]. It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e., as found on your server's file system).
 
 Whether the path is absolute or relative does not matter because---at least for `readDir`---the root of your website (typically `./public/`) in effect becomes both:
 
 1. The file system root
 2. The current working directory
 
-## Example Shortcode: List Directory's Files
+## Example: List Directory Files
 
 So, let's create a new shortcode using `readDir`:
 
-{{% code file="layouts/shortcodes/directoryindex.html" %}}
+{{% code file="layouts/shortcodes/directoryindex.html" download="directoryindex.html" %}}
 ```html
 {{< readfile file="layouts/shortcodes/directoryindex.html" >}}
 ```
@@ -56,9 +57,11 @@ The initial slash `/` in `pathURL` is important. Otherwise, `pathURL` becomes re
 
 ## Using `readFile`
 
-The [`readDir`](/functions/readdir) function returns...
+The [`readfile` function][reads] returns...
+
 **CONTENT NEEDED**.
 
 [has already been included in this very website]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
-[`readDir` function]: /functions/readdir/
+[osfileinfo]: https://golang.org/pkg/os/#FileInfo
+[reads]: /functions/readdir-and-readfile/
 [shortcodes]: /content-management/shortcodes/
