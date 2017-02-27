@@ -8,19 +8,17 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [dates,time]
 categories: [functions]
-toc:
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
 `Unix` returns t as a Unix time; i.e., the number of seconds elapsed since January 1, 1970 UTC.
 
-## `Unix` Example: Show Only Upcoming Events
+## `Unix` Example 1: Show Only Upcoming Events
 
 The following assumes you have a content section called `events` (i.e., `content/events/*.md`). The following [partial template][] allows you to only list events that haven't occurred yet.
 
@@ -41,5 +39,23 @@ The following assumes you have a content section called `events` (i.e., `content
 </ul>
 ```
 {{% /code %}}
+
+## `Unix` Example 2: Days Passed Since Last Modification
+
+This very simple one-liner uses `Unix` with `Now` to calculate the amount of time that has passed between the `.LastMod` for the current page and the last build of the current page.
+
+{{% code file="time-passed.html" %}}
+```golang
+{{ div (sub .Now.Unix .Lastmod.Unix) 86400 }}
+```
+{{% /code %}}
+
+Since both values are integers, they can be subtracted and then divided by the number of seconds in a day (i.e., `60 * 60 * 24 == 86400`).
+
+{{% note %}}
+Adding a value like the preceding example to your Hugo website only provides value if you update every day. Hugo's output is *static*, so a month-old page published on a static website that only publishes monthly could easily be misrepresented as updated *yesterday* rather than 30 days ago.
+ {{% /note %}}
+
+
 
 [partial template]: /templates/partials/
