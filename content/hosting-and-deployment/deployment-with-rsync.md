@@ -1,7 +1,7 @@
 ---
 title: Deployment with Rysnc
 linktitle: Deployment with Rysnc
-description:
+description: If you have access to your web host with SSH, you can use a simple rsync one-liner to incrementally deploy your entire Hugo website.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

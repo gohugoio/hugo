@@ -1,7 +1,7 @@
 ---
 title: Hosting on GitLab
 linktitle: Hosting on GitLab
-description:
+description: GitLab makes it incredibly easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides native support for Hugo.
 date: 2016-06-23
 publishdate: 2016-06-23
 lastmod: 2016-06-23

@@ -1,7 +1,7 @@
 ---
 title: Hosting on Bitbucket
 linktitle: Hosting on Bitbucket
-description:
+description: You can use Bitbucket in conjunction with Aerobatic to build, deploy, and host a Hugo website.
 date: 2017-02-04
 publishdate: 2017-02-04
 lastmod: 2017-02-04
