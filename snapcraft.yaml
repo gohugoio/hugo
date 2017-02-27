@@ -6,7 +6,7 @@ description: |
   optimized for speed, easy use and configurability. Hugo takes a directory
   with content and templates and renders them into a full HTML website.
 confinement: strict
-grade: stable # "devel" or "stable"
+grade: devel # "devel" or "stable"
 
 apps:
   hugo:
