@@ -1,21 +1,19 @@
 ---
-title: absurl and relurl
-linktitle: absURL and relURL
-description:
+title: relurl
+linktitle: relURL
+description: Given a string, prepends the relative URL according to a page's position in the project directory structure.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [urls]
 categories: [functions]
-toc:
+tags: [urls]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [absURL]
 deprecated: false
-draft: false
-aliases: [/functions/relurl/]
+aliases: []
 ---
 
 Both `absURL` and `relURL` consider the configured value of `baseURL` in your site's [`config` file][configuration]. Given a `baseURL` set to `http://yoursite.com/hugo/`:
@@ -41,7 +39,7 @@ The last two examples may look strange but can be very useful. For example, the 
 ```
 {{% /code %}}
 
-The above uses the [apply function][] and also exploits the fact that the Go template parser JSON-encodes objects inside `<script>` tags. See [the safeJS template function][safejs] for examples of how to tell Hugo not to escape strings inside of such tags.
+The above uses the [apply function][] and also exposes how the Go template parser JSON-encodes objects inside `<script>` tags. See [the safeJS template function][safejs] for examples of how to tell Hugo not to escape strings inside of such tags.
 
 {{% note "Ending Slash" %}}
 `absURL` and `relURL` are smart about missing slashes, but they will *not* add a closing slash to a URL if it is not present.

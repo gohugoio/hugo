@@ -1,16 +1,20 @@
 ---
 title: Developer Tools
 linktitle: Overview
-description: Description for the developer tools section.
-date: 2016-11-01
-publishdate: 2016-11-01
-lastmod: 2016-11-01
+description: In addition to Hugo's powerful CLI, there is a large number of community-developed tool chains for Hugo developers.
+date: 2016-12-05
+publishdate: 2016-12-05
+lastmod: 2017-02-26
+categories: [developer tools]
 tags: []
-categories: []
 weight: 01
 draft: false
-slug:
-aliases: []
-toc:
-notesforauthors:
+aliases: [/tools/]
 ---
+
+One of Hugo's greatest strengths is it's passionate---and always evolving---developer community. With the exception of the `highlight` shortcode mentioned in [Syntax Highlighting][syntax], the tools and other projects featured in this section are offerings from commercial services and open-source projects developed by Hugo developers just like you.
+
+[See the popularity of Hugo compared with other static site generators.][staticgen]
+
+[staticgen]: https://staticgen.com
+[syntax]: /developer-tools/syntax-highlighting/

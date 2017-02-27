@@ -6,38 +6,46 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute to hugo]
-tags: [docs,documentation,community]
+tags: [docs,documentation,community, contribute]
 weight: 20
 draft: false
-slug:
-aliases: [/docs-contribute/,/docscontrib/]
+aliases: [/contribute/docs/]
 toc: true
 needsreview: true
 ---
 
-Documentation is a critical component of any open-source project. The Hugo docs were completely reworked in anticipation of the release of v0.19, but there is always room for improvement.
+Documentation is a critical component of any open-source project. The Hugo docs were completely reworked for the release of v0.19, but there is always room for improvement.
 
 ## Create Your Fork
 
-First, make sure that you created a [fork](https://help.github.com/articles/fork-a-repo/) of Hugo on Github and cloned the fork locally on your computer. Next, create a separate branch for your additions. Note that you can choose a different descriptive branch name that best fits the type of content you're trying to submit:
+It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of Hugo on GitHub and cloned the repository locally on your computer. For more information, you can use the [GitHub docs for "forking"][ghforking] or see [Hugo's extensive development contribution guide][hugodev].
+
+You can then create a separate branch for your additions. Note that you can choose a different descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
 
 ```git
-git checkout -b showcase-addition
+git checkout -b jon-doe-showcase-addition
 ```
 
-## Adding a New Content Page
+## Adding New Content
 
-The Hugo docs are built using Hugo and therefore make heavy use of Hugo's [archetype][] feature to easily scaffold new instances of content types. All [content sections][] in Hugo documentation have an assigned archetypes ([see source][archsource]).
+The Hugo docs are built using Hugo and therefore make heavy use of Hugo's [archetypes][] feature to easily scaffold new instances of content types. All content sections in Hugo documentation have an assigned archetype ([see the Hugo docs archetype source][archsource]).
 
+Adding new content follows the same pattern, regardless of the content section:
+
+```
+hugo new <docssection>/<newcontent-all-lowercase.md>
+```
+
+{{% note "`title:`, `date:`, and Field Order" %}}
+`title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the following examples. This is a [known issue (#452)](https://github.com/spf13/hugo/issues/452).
+{{% /note %}}
 
 ### Adding a New Function
 
-### Adding a New Tutorial
-
-Once you have cloned the Hugo repository, you can create a new function via the following command. For functions, title the new function in lowercase.
+Once you have cloned the Hugo repository, you can create a new function via the following command. Keep the file name lowercase.
 
 ```
-hugo new tutorials/newfunction.md
+hugo new functions/newfunction.md
 ```
 
 The archetype for the `functions` content type is as follows:
@@ -48,13 +56,16 @@ The archetype for the `functions` content type is as follows:
 ```
 {{% /code %}}
 
+#### Function Required Fields
 
-### Adding a New Showcase
 
-Once you have cloned the Hugo repository, you can create add your site as a new showcase content file via the following command. Name the markdown file accordingly:
+
+### Adding to the Showcase
+
+Once you have cloned the Hugo repository, you can add your Hugo website as a new showcase content file via the following command. Name the markdown file accordingly:
 
 ```
-hugo new tutorials/my-showcase-addition.md
+hugo new tutorials/my-hugo-showcase-website.md
 ```
 
 The archetype for the `showcase` content type is as follows:
@@ -65,7 +76,21 @@ The archetype for the `showcase` content type is as follows:
 ```
 {{% /code %}}
 
-Add at least values for `sitelink`, `title`,  `description`, and a path for `image`.
+#### Showcase Required Fields
+
+`sitelink`
+: the *full* URL to your website
+
+`title`
+: the `<title>`` of your website
+
+`description`
+: a general description of your website, preferably < 180 characters.
+
+`image`
+: the image (filename only) you want to associate with your website on the Showcase page. The image should be 600px x 400px.
+
+We also appreciate the addition of the remaining fields, specially `sourcelink` and `license` if you are willing to share your hard work with the open-source community. `tags` is optional, but we recommend adding at least 2 to 3 tags to improve discoverability.
 
 #### Add an Image for the Showcase
 
@@ -91,11 +116,11 @@ The archetype for the `tutorials` content type is as follows:
 ```
 {{% /code %}}
 
-## Adding Code Blocks to Hugo Docs
+## Adding Code Blocks
 
 Code blocks are crucial for providing examples of Hugo's new features to end users of the Hugo docs. Whenever possible, create examples that you think Hugo users will be able to implement in their own projects.
 
-### Standard Code Block Syntax
+### Standard Syntax
 
 Across all pages on the Hugo docs, the typical triple-back-tick markdown syntax is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard Github-flavored markdown. The Hugo docs use a version of [highlight.js](https://highlightjs.org/) that's been modified for specific Hugo keywords.
 
@@ -112,12 +137,12 @@ Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd
 The Hugo documentation comes with very robust shortcodes to help you add interactive code snippets.
 
 {{% note %}}
-With both the `code` and the `output` shortcodes, *you still need to include the triple back ticks and language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the docs. We assume that the triple-back-tick syntax will live longer than the shortcode.
+With both `code` and `output` shortcodes, *you must include triple back ticks and language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs. We assume that the triple-back-tick syntax will live longer than our current, pretty shortcode. {{< emo ":smile:" >}}
 {{% /note %}}
 
-#### Input Code Block
+#### `code`
 
-The first shortcode is the one you'll use most often, `code`. `code`, like all code block shortcodes, requires at least a single `file` named parameter. Here is the signature:
+`code` is the code block shortcode you'll use most often. `code` requires at least a single `file` named parameter. Here is the signature:
 
 ````golang
 {{%/* code file="smart/file/name/with/path.html" download="download.html" copy="true" */%}}
@@ -127,15 +152,23 @@ A whole bunch of coding going on up in here! Boo-yah!
 {{%/* /code */%}}
 ````
 
-Let's go through each of the three arguments passed into `code`:
+These are the arguments passed into `code`
 
-1. `file`. This is the only ***required*** argument for this shortcode. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top bar of the text-editor design you've seen throughout the docs. Note that you always want to end the file with an extension, but never use more than a single period in the filename. For example, instead of `./archetypes/default`, use `archetypes/default.md`. The file extension is important for displaying the correct icon.
-2. `download`. If omitted entirely, this will have no effect on the rendered shortcode. When a value is added to `download`, it's used as the filename for a downloadable version of the code block.
-3. `copy`. All `code` instances add a copy button to the bottom right automatically. However, there are times where you may not want to encourage your end user to copy a code block but still want to keep consistent styling for the filename (e.g., if you adding a "Do not do" code in a tutorial). If you want to turn off the copy functionality of `code`, you can add `copy="false"`.
+`file`
+: the only ***required*** argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top bar of the text-editor. Always end the value with an extension. For example, instead of `./public/section/`, use `public/section/index.html`. The file extension is used to display the icon.
 
-##### Example of `Code`
+`download`
+: if omitted, this will have no effect on the rendered shortcode. When a value is added to `download`, it's used as the filename for a downloadable version of the code block.
 
-Here is an HTML code block we want to tell the user lives in the `layouts/_default` directory. We are going to also make the block downloadable because it works as a standalone file:
+`copy`
+: a copy button is added automatically to all `code` (i.e., default value  = `true`). If you want to keep the filename and styling of `code` but don't want to encourage readers to copy the code (e.g., a "Do not do" snippet in a tutorial), pass the `copy` argument as `copy="false"`.
+
+##### Example `code` Input
+
+Here is an HTML code block in a case where we want to show the user of the Hugo docs the following:
+
+1. This type of file *could* live in `layouts/_default`.
+2. This snippet is complete enough that it might be worth downloading as a standalone file.
 
 ````html
 {{%/* code file="layouts/_default/single.html" download="single.html" */%}}
@@ -161,6 +194,8 @@ Here is an HTML code block we want to tell the user lives in the `layouts/_defau
 {{%/* /code */%}}
 ````
 
+##### Example 'code' Display
+
 The output of this example will render to the Hugo docs as follows:
 
 {{% code file="layouts/_default/single.html" download="single.html" %}}
@@ -185,9 +220,11 @@ The output of this example will render to the Hugo docs as follows:
 ```
 {{% /code %}}
 
+Cool, right?
+
 #### Output Code Block
 
-The `output` shortcode is almost identical to the `code` shortcode but doesn't take any more arguments than the required `file`. The purpose is to demonstrate what the output, or *rendered*, HTML will look after Hugo builds its templates:
+The `output` shortcode is almost identical to the `code` shortcode but only takes and requires `file`. The purpose of `output` is to show *rendered* HTML and therefore almost always follows another basic code block *or* and instance of the `code` shortcode:
 
 ````html
 {{%/* output file="post/my-first-post/index.html" */%}}
@@ -209,26 +246,43 @@ The preceding `output` example will render as follows to the Hugo docs:
 
 ## Blockquotes
 
-Blockquotes can be
+Blockquotes can be added to the Hugo documentation using [typical Markdown blockquote syntax][bqsyntax]:
 
+```markdown
+> Without the fear of falling, there is no joy in flight.
+```
+
+The preceding blockquote will render as follows in the Hugo docs:
+
+> Without the threat of punishment, there is no joy in flight.
+
+However, you can add a quick and easy `<cite>` element (adding on the client via JavaScript) by separating your main blockquote and the citation with ` - `:
+
+```markdown
+> Without the threat of punishment, there is no joy in flight. - [Kobo Abe](https://en.wikipedia.org/wiki/K%C5%8Db%C5%8D_Abe)
+```
+
+Which will render as follows on the Hugo docs:
+
+> Without the threat of punishment, there is no joy in flight. - [Kobo Abe][abe]
 
 {{% note "Blockquotes `!=` Admonitions" %}}
-Previous versions of the Hugo documentation used [Markdown `<blockquote>` syntax](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes) to draw attention to content. This is [*not* the intended semantic use of the `<blockquote>` element](http://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting actual text. To note or warn your user of specific information, use the admonition shortcodes that follow.
+Previous versions of Hugo documentation used blockquotes to draw attention to text. [This is *not* the intended semantic use of the `<blockquote>` element](http://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting. To note or warn your user of specific information, use the admonition shortcodes that follow.
 {{% /note %}}
 
-## Admonition Short Codes
+## Admonitions
 
-**Admonitions** are common directives in technical documentation. The most popular is that seen in [reStructuredTex Directives][sourceforge]. From the SourceForge documentation:
+**Admonitions** are common in technical documentation. The most popular is that seen in [reStructuredTex Directives][sourceforge]. From the SourceForge documentation:
 
 > Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
 
-Both `note` and `warning` use a single, *optional* argument for the admonition title, which accepts markdown syntax as well. If the title, a [positional parameter][shortcodeparams] in quotes is missing, the default behavior of the `note` and `warning` shortcodes will be to display the text "Note" and "Warning", respectively.
+Both `note` and `warning` use a single, *optional* argument for the admonition title, which accepts markdown syntax as well. If the title, a [positional parameter in quotes][shortcodeparams] is missing, the default behavior of the `note` and `warning` shortcodes will be to display "Note" and "Warning", respectively.
 
 ### Note Admonition Shortcode
 
 Use the `note` shortcode when you want to draw attention to information subtly. `note` is intended to be less of an interruption in content than is `warning`.
 
-#### `note` Admonition Shortcode Input
+#### Example `note` Input
 
 {{% code file="note-with-heading.md" %}}
 ```golang
@@ -238,7 +292,7 @@ Here is a piece of information I would like to draw your **attention** to.
 ```
 {{% /code %}}
 
-#### `note` Admonition Shortcode Output (Code)
+#### Example `note` Output
 
 {{% output file="note-with-heading.html" %}}
 ```html
@@ -248,7 +302,7 @@ Here is a piece of information I would like to draw your **attention** to.
 ```
 {{% /output %}}
 
-#### `note` Admonition Shortcode Display
+#### Example `note` Display
 
 {{% note "Example Note Admonition" %}}
 Here is a piece of information I would like to draw your **attention** to.
@@ -258,7 +312,7 @@ Here is a piece of information I would like to draw your **attention** to.
 
 Use the `warning` shortcode when you want to draw the user's attention to something important. A good usage example is for announcing breaking changes for Hugo versions, known bugs, or templating gotchas.
 
-#### `warning` Admonition Shortcode Input
+#### Example `warning` Input
 
 {{% code file="warning-admonition-input.md" %}}
 ```golang
@@ -268,7 +322,7 @@ This is a warning, which should be reserved for *important* information like bre
 ```
 {{% /code %}}
 
-#### `warning` Admonition Shortcode Output
+#### Example `warning` Output
 
 {{% output file="warning-admonition-output.html" %}}
 ```html
@@ -278,7 +332,7 @@ This is a warning, which should be reserved for *important* information like bre
 ```
 {{% /output %}}
 
-#### `warning` Admonition Shortcode Display
+#### Example `warning` Display
 
 {{% warning "Example Warning Admonition" %}}
 This is a warning, which should be reserved for *important* information like breaking changes.
@@ -301,35 +355,36 @@ The Hugo docs are not especially prescriptive in terms of grammar and usage. We 
 1. *Front matter* is two words, *Homepage* is one word, *file system* is two words.
 3. Be sure to add a value to the `godocref` in content files whenever possible. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
 
-## Ask the Community for Code Examples
+## Ask for Code Examples
 
-Sometimes you want to contribute to the docs but don't have enough time to provide lengthy examples. If you want to flag a piece of content you feel needs more examples to be better understood by Hugo users, you can add the following field to a content file's front matter:
+Sometimes you want to contribute to the docs but don't have enough time to provide lengthy examples. If you want to flag a piece of content as needing more examples, add the following field to your front matter:
 
 ```
 needsexamples: true
 ```
 
-## Hugo Docs Examples Needed, Please Help!
+## Please Help! Examples Needed!
 
-The preceding `needsexamples` field generates the following list of files that we feel could benefit from some community-driven examples. The edit link will take you directly to the edit URL for the file if you're more comfortable making small changes in the GitHub interface rather than in your local text editor.
+The preceding `needsexamples` is used to generate the following table. The edit link will take you directly to the edit URL for the file in GitHub:
 
 {{< needsexamples >}}
 
 {{% note "Pull Requests and Branches" %}}
-Similar to [contributing to Hugo development](/contribute/contribute-to-hugo-development), the Hugo team expects you to create a separate branch/fork for your generous contributions to Hugo.
+Similar to [contributing to Hugo development](/contribute/contribute-to-hugo-development), the Hugo team expects you to create a separate branch/fork when you make your generous contributions to the Hugo docs.
 {{% /note %}}
-
-## Ordering Content in the Hugo Docs
-
-If you're contributing to the Hugo docs, do not worry about weight and ordering, especially in the case of a new content file. All Hugo doc sections have been ordered specifically to keep the docs website scalable and easy to use.
 
 ## Be Mindful of Aliases
 
-Use aliases sparingly. The following table shows a list of all the aliases currently being used in the Hugo Docs. If you need to use an alias in your new content file's front matter, be sure to check here first to prevent conflicts.
+Use aliases sparingly. The following table shows a list of all the aliases currently being used in the Hugo Docs. Check here first for potential conflicts if you need to use an alias:
 
 {{< allaliases >}}
 
+[abe]: https://en.wikipedia.org/wiki/K%C5%8Db%C5%8D_Abe
+[archetypes]: /content-management/archetypes/
 [archsource]: https://github.com/spf13/hugo/tree/master/docs/archetypes
-[archetype]: /content-management/archetypes/
+[bqsyntax]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes
+[charcount]: http://www.lettercount.com/
+[ghforking]: https://help.github.com/articles/fork-a-repo/
+[hugodev]: /contribute/development/
 [shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown
 [sourceforge]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions

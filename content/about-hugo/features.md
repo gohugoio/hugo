@@ -82,7 +82,7 @@ See what's coming next in the [Hugo roadmap][].
 [sort content]: /templates/
 [supported formats]: /content-management/formats/
 [Syntax highlighting]: /developer-tools/syntax-highlighting/
-[table of contents]: /content-management/table-of-contents/
+[table of contents]: /content-management/toc/
 [taxonomies]: /content-management/taxonomies/
 [URLs]: /content-management/urls/
 [Windows]: /getting-started/install-on-linux/

@@ -1,7 +1,7 @@
 ---
 title: Accented Characters in URLs
 linktitle: Accented Characters in URLs
-description:
+description: If you're having trouble with special characters in your taxonomies or titles adding odd characters to your URLs.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

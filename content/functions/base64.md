@@ -19,14 +19,14 @@ aliases: []
 
 `base64Encode` and `base64Decode` let you easily decode content with a base64 encoding and vice versa through pipes. Let's take a look at an example:
 
-{{% code "base64-input.html" %}}
+{{% code file="base64-input.html" %}}
 ```html
 <p>Hello world = {{ "Hello world" | base64Encode }}</p>
 <p>SGVsbG8gd29ybGQ = {{ "SGVsbG8gd29ybGQ=" | base64Decode }}</p>
 ```
 {{% /code %}}
 
-{{% output "base-64-output.html" %}}
+{{% output file="base-64-output.html" %}}
 ```html
 <p>Hello world = SGVsbG8gd29ybGQ=</p>
 <p>SGVsbG8gd29ybGQ = Hello world</p>

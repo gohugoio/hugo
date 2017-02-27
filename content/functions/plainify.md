@@ -1,23 +1,23 @@
 ---
 title: plainify
-linktitle:
-description:
+linktitle: plainify
+description: Strips any HTML and returns the plain text version of the provided string.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`plainify` strips any HTML and returns the plain text version of the provided string.
 
-## Advanced Example
+```
+{{ "<b>BatMan</b>" | plainify }} → "BatMan"
+```

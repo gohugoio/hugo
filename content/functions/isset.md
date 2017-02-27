@@ -1,24 +1,25 @@
 ---
 title: isset
 linktitle: isset
-description:
+description: Returns true if the parameter is set.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: []
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`isset` returns true if the parameter is set.
+Takes either a slice, array or channel and an index or a map and a key as input.
 
-## Advanced Example
+```
+{{ if isset .Params "project_url" }} {{ index .Params "project_url" }}{{ end }}
+```
 

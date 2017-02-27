@@ -1,24 +1,24 @@
 ---
 title: pluralize
-linktitle:
-description:
+linktitle: pluralize
+description: Pluralizes the given word according to a set of common English pluralization rules
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`pluralize` will pluralize the given word according to a set of common English pluralization rules.
 
-## Advanced Example
+```
+{{ "cat" | pluralize }} → "cats"
+```
 

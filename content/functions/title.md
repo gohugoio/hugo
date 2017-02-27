@@ -1,24 +1,24 @@
 ---
 title: title
 linktitle:
-description:
+description: Converts all characters in the provided string to title case.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [fundamentals,strings]
 categories: [functions]
-toc:
+tags: [fundamentals,strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
 
-## Advanced Example
+`title` converts all characters in the provided string to title case.
 
+```
+{{title "BatMan"}}` → "Batman"
+```

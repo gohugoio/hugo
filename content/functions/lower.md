@@ -1,23 +1,23 @@
 ---
 title: lower
 linktitle: lower
-description:
+description: Converts all characters in the provided string to lowercase.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings,casing]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`lower` converts all characters in the provided string to lowercase.
 
-## Advanced Example
+```
+{{lower "BatMan"}} → "batman"
+```

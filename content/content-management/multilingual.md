@@ -1,12 +1,12 @@
 ---
 title: Multilingual Mode
-linktitle:
+linktitle: Multilingual and i18n
 description: As of v0.17, Hugo supports the creation of websites with multiple languages side by side.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
 categories: [content management]
-tags: [multilingual,i18n]
+tags: [multilingual,i18n, internationalization]
 weight: 150
 draft: false
 aliases: [/content/multilingual/,/content-management/multilingual/]
@@ -16,9 +16,12 @@ needsreview: true
 
 Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the available languages in a `Languages` section in your top-level `config.toml` (or equivalent).
 
-Example:
+## Configuring Multilingual Mode
 
-```
+The following is an example of a TOML site configuration for a multilingual Hugo project:
+
+{{% code file="config.toml" download="config.toml" %}}
+```toml
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -40,20 +43,22 @@ weight = 2
 linkedin = "lien-francais"
 [Languages.fr.navigation]
 help  = "Aide"
-
 ```
+{{% /code %}}
 
 Anything not defined in a `[Languages]` block will fall back to the global
 value for that key (e.g., `copyright` for the English [`en`] language).
 
-With the config above, all content, sitemap, RSS feeds, paginations,
-and taxonomy pages will be rendered below `/` in English (your default content language), and below `/fr` in French.
+With the configuration above, all content, sitemap, RSS feeds, paginations,
+and taxonomy pages will be rendered below `/` in English (your default content language) and then below `/fr` in French.
 
-When working with params in front matter pages, omit the `params` in the key for the translation.
+When working with front matter `Params` in [single page templates][singles], omit the `params` in the key for the translation.
 
-If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true` in your configuration.
+If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true`.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
+
+## Taxonomies and Blackfriday
 
 Taxonomies and [Blackfriday configuration][hugoconfig] can also be set per language:
 
@@ -119,15 +124,15 @@ To create a list of links to translated content, use a template similar to this:
 ```
 {{% /code %}}
 
-The above can be put in a `partial` (`./layouts/partials/`) and included in any template, be it for a [content page][contenttemplate] or the [home page][homepagetemplte]. It will not print anything if there are no translations for a given page, or if it is---in the case of the home page, section listing, etc.---a site with only one language.
+The above can be put in a `partial` (`./layouts/partials/`) and included in any template, be it for a [content page][contenttemplate] or the [homepage][]]. It will not print anything if there are no translations for a given page, or if there is---in the case of the homepage, section listing, etc.---a site with only one language.
 
-The above also uses the `i18n` func described in the next section.
+The above also uses the [`i18n` function][i18func] described in the next section.
 
 ## Translation of Strings
 
 Hugo uses [go-i18n](https://github.com/nicksnyder/go-i18n) to support string translations. [See the project's source repository](https://github.com/nicksnyder/go-i18n) to find tools that will help you manage your translation workflows.
 
-Translations are collected from the `themes/[name]/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project.  In the `i18n`, the translations will be merged and take precedence over what is in the theme folder.  Language files should be named according to RFC 5646  with names such as `en-US.yaml`, `fr.yaml`, etc.
+Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646][] with names such as `en-US.yaml`, `fr.yaml`, etc.
 
 From within your templates, use the `i18n` function like this:
 
@@ -229,11 +234,18 @@ Hugo will generate your website with these placeholders. It might not be suited 
 
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must
 
-* come from the built-in `.Permalink` or `.URL`
-* be constructed with `relLangURL` or `absLangURL` template funcs **or** prefixed with `{{.LanguagePrefix }}`
+* Come from the built-in `.Permalink` or `.URL`
+* Be constructed with
+    * The [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] template functions **OR**
+    * Prefixed with `{{.LanguagePrefix }}`
 
 If there is more than one language defined, the`LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string and is therefore harmless for single-language Hugo websites.
 
+[abslangurl]: /functions/abslangurl
 [contenttemplate]: /templates/single-page-template/
-[homepagetemplate]: /templates/homepage-template/
+[homepage]: /templates/homepage-template/
 [hugoconfig]: /getting-started/configuration/
+[i18func]: /functions/i18n/
+[RFC 5646]: https://tools.ietf.org/html/rfc5646
+[singles]: /templates/single-page-templates/
+[rellangurl]: /functions/rellangurl

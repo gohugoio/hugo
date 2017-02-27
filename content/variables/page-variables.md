@@ -127,7 +127,7 @@ http://remarkjs.com)
 : a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/content-summaries/) for more details.
 
 `.TableOfContents`
-: the rendered [table of contents](/content-management/table-of-contents/) for the page.
+: the rendered [table of contents](/content-management/toc/) for the page.
 
 `.Title`
 : the title for this page.

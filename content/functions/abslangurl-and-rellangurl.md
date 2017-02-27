@@ -1,7 +1,7 @@
 ---
 title: abslangurl and rellangurl
 linktitle: absLangURL and relLangURL
-description:
+description: Similar to absURL, but adds the absolute URL with correct language prefix according to site configuration for multilingual and baseURL.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,7 +11,7 @@ categories: [functions]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [relLangURL]
 deprecated: false
 aliases: [/functions/absurl/,/functions/rellangurl/]
 needsexamples: true

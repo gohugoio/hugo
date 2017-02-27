@@ -1,24 +1,25 @@
 ---
 title: htmlEscape
 linktitle:
-description:
+description: Returns the given string with the critical reserved HTML codes escaped.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings, html]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [htmlUnescape]
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`htmlEscape` returns the given string with the critical reserved HTML codes escaped, such that `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.
 
-## Advanced Example
+Bear in mind that, unless content is passed to `safeHTML`, output strings are escaped usually by the processor anyway.
 
+```
+{{ htmlEscape "Hugo & Caddy > Wordpress & Apache" }} → "Hugo &amp; Caddy &gt; Wordpress &amp; Apache"
+```

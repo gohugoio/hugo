@@ -1,7 +1,7 @@
 ---
 title: EOF Error
 linktitle: EOF Error
-description:
+description: If you find yourself seeing an EOF error in the console whenever you create a new content file from Hugo's archetype feature.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -38,7 +38,7 @@ The solution is to add a final newline (i.e., `EOL`) to the end of your default.
 As of v0.13, Hugo's parser has been enhanced to accommodate archetype files without final EOL thanks to the great work by [@tatsushid](https://github.com/tatsushid).
 {{% /note %}}
 
-## Discussion Forum Threads
+## Discussion Forum References
 
 * http://discuss.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
 * http://discuss.gohugo.io/t/eol-f-in-archetype-files/554

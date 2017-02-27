@@ -12,12 +12,15 @@ aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
 toc: false
 ---
 
-Know of a Hugo-related project that isn't mentioned here? [Please add it to the list.][addkit]
+Know of a Hugo-related starter kit that isn't mentioned here? [Please add it to the list.][addkit]
 
-| Kit                               | Actively Maintained? |
-| --------------------------------- | -------------------- |
-| [Victor Hugo](https://github.com/netlify/victor-hugo) | Yes |
+{{% note "Starter Kits are Not Maintained by the Hugo Team"%}}
+The following starter kits are developed by active members of the Hugo community. If you find yourself having issues with any of the projects, it's best to file an issue directly with the project's maintainer(s).
+{{% /note %}}
 
+* [Victor Hugo][]. Victor Hugo is a Hugo boilerplate for creating truly epic websites using Gulp + Webpack as an asset pipeline. Victor Hugo uses post-css and Babel for CSS and JavaScript, respectively.
+* [Blaupause][]. Blaupause is a developer-friendly Hugo starter kit based on Gulp tasks. It comes ES6-ready with several helpers for SVG and fonts and basic structure for HTML, SCSS, and JavaScript.
 
-
-[addkit]: https://github.com/spf13/hugo/blob/master/docs/content/developer-tools/starter-kits.md
+[addkit]: https://github.com/spf13/hugo/edit/master/docs/content/developer-tools/starter-kits.md
+[Blaupause]: https://github.com/fspoettel/blaupause
+[Victor Hugo]: https://github.com/netlify/victor-hugo

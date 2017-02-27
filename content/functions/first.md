@@ -1,24 +1,26 @@
 ---
 title: first
 linktitle: first
-description:
+description: Slices an array to only the first Nth elements.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [iteration]
 signature:
-workson: []
+workson: [lists,taxonomies,terms,groups]
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [after,last]
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`first` slices an array to only the first _N_th elements.
 
-## Advanced Example
+```golang
+{{ range first 10 .Data.Pages }}
+    {{ .Render "summary" }}
+{{ end }}
+```
 

@@ -1,24 +1,22 @@
 ---
 title: string
-linktitle:
-description:
+linktitle: string
+description: Creates a string from the argument passed to the function
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
 tags: [strings]
-draft: false
-aliases: []
-toc:
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
+aliases: []
 ---
 
-## Example
+`string` creates a string from the argument passed to the function.
 
-## Advanced Example
+* `{{string "BatMan"}}` → "BatMan"
 

@@ -146,8 +146,8 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 
 #### Example `highlight` Input
 
-{{% code file="highlight-shortcode.md" %}}
-```golang
+{{% code file="content/tutorials/learn-html.md" %}}
+```html
 {{</* highlight html */>}}
 <section id="main">
   <div>
@@ -163,7 +163,9 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 
 #### Example `highlight` Output
 
-{{% output file="syntax-highlighted.html" %}}
+The `highlight` shortcode example above would produce the following HTML when the site is rendered:
+
+{{% output file="tutorials/learn-html/index.html" %}}
 ```html
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
@@ -176,8 +178,8 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 ```
 {{% /output %}}
 
-{{% note "Syntax Highlighting" %}}
-For more information on your options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/developer-tools/syntax-highlighting/).
+{{% note "More on Syntax Highlighting" %}}
+To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/developer-tools/syntax-highlighting/) in Developer Tools.
 {{% /note %}}
 
 ### `instagram`

@@ -145,7 +145,7 @@ taxonomies:
 
 By default, taxonomy names are hyphenated, lower-cased, normalized, and then fixed and title-ized within.
 
-However, if you want to have a taxonomy value with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, you need to set the value for `preserveTaxonomyNames` in your [site configuration][] to `true`. Hugo will then preserve special characters in taxonomy values but will still titleize the values for titles and normalize them in URLs.
+Therefore, if you want to have a taxonomy value with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, you need to set the value for `preserveTaxonomyNames` in your [site configuration][] to `true`. Hugo will then preserve special characters in taxonomy values but will still title-ize the values for titles and normalize them in URLs.
 
 Note that if you use `preserveTaxonomyNames` and intend to manually construct URLs to the archive pages, you will need to pass the taxonomy values through the [`urlize` template function][].
 

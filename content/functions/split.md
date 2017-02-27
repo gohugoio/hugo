@@ -1,24 +1,23 @@
 ---
 title: split
-linktitle:
-description:
+linktitle: split
+description: splits a string into substrings separated by a delimiter
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`split` splits a string into substrings separated by a delimiter.
 
-## Advanced Example
+* `{{split "tag1,tag2,tag3" "," }}` → ["tag1" "tag2" "tag3"]
+
 

@@ -1,24 +1,22 @@
 ---
 title: singularize
-linktitle:
-description:
+linktitle: singularize
+description: Converts a word according to a set of common English singularization rules.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings,singular]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`singularize` converts a word according to a set of common English singularization rules.
 
-## Advanced Example
+`{{ "cats" | singularize }}` → "cat"
 

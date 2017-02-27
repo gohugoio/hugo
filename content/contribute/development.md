@@ -18,26 +18,28 @@ notesforauthors:
 
 ## Introduction
 
-Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][], and we need your help to make Hugo even more awesome.
+Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome.
 
 ## Assumptions
+
+This contribution guide takes a step-by-step approach in hopes of helping newcomers. Therefore, we only assume the following:
 
 * You are new to Git or open-source projects in general
 * You are a fan of Hugo and enthusiastic about contributing to the project
 
-This contribution guide takes a step-by-step approach in hopes of helping newcomers.
-
 {{% note "Additional Questions?" %}}
-If you're struggling at any point in this contribution guide, reach out to Hugo community in [Hugo's Discussion forum](https://discuss.gohugo.io).
+If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discuss.gohugo.io).
 {{% /note %}}
 
-### Installing Golang
+## Installing Golang
 
 The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
 
-## Installing Go From Source
+If you are having trouble following the installation guides for go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
 
-[Download the latest stable version of Go][downloadgo] and follow the official [Golang installation guide][installgo].
+### Installing Go From Source
+
+[Download the latest stable version of Go][godl] and follow the official [Golang installation guide][goinstall].
 
 Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
@@ -61,9 +63,15 @@ You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty strin
 
 ### Installing Go with Homebrew
 
+If you are a Mac OSX user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
+{{% code file="install-go.sh" %}}
+```bash
+brew install go
+```
+{{% /code %}}
 
-### Install Go GVM
+### Install Go via GVM
 
 More experienced users can use the [Go Version Manager][gvm] (GVM). GVM allows you to switch between different Go versions *on the same machine*. If you're a beginner, you probably don't need this feature. However, GVM makes it easy to upgrade to a new released Go version with just a few commands.
 
@@ -89,7 +97,7 @@ Finally, check again with `git version` if Git was installed successfully.
 
 There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Thus, so we will use the command line since the commands are everywhere the same.
 
-### Install Hub on Your System (optional)
+### Install Hub on Your System (Optional)
 
 Hub is a great tool for working with GitHub. The main site for it is [www.hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
 
@@ -111,7 +119,6 @@ Confirm the installation:
 git version 2.6.3
 hub version 2.2.2
 ```
-
 
 ## Set up your working copy
 
@@ -207,11 +214,13 @@ git checkout -b <BRANCH-NAME>
 
 You can check on which branch your are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
 
-### Contributing to the documentation
+### Contributing to Documentation
 
-Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. [Install the latest release][releases]. Or read on and build Hugo from source.
+Perhaps you want to start contributing to the Hugo docs. If so, you can ignore most of the following steps and focus on the `/docs` directory within your newly cloned repository. You can change directories into the Hugo docs using `cd docs`.
 
-You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page if you change its content.
+You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page whenever you change content.
+
+We have developed a [separate Hugo documentation contribution guide][docscontrib] for more information on how the Hugo docs are built, organized, and improved by the generosity of people like you.
 
 ### Building Hugo
 
@@ -368,26 +377,33 @@ We use the [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp
 
 Above you can see that Travis wasn't able to compile the changes in this pull request. Click on "Details" and try to investigate why the build failed. But it doesn't have to be your fault. Mostly, the `master` branch that we used as foundation for your pull request should build without problems.
 
-If you have questions leave a comment in the pull request. We are willing to assist you.
+If you have questions, leave a comment in the pull request. We are willing to assist you.
 
 ## Where to start?
 
-Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
+Thank you for reading through this contribution guide. Hopefully, we will see you again soon on GitHub. There are plenty of [open issues][issues] for you to help with.
 
-## Additional References for Learning Git
+Feel free to [open an issue][newissue] if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
+
+## Additional References for Learning Git and Golang
 
 * [Codecademy's Free "Learn Git" Course][codecademy] (Free)
 * [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)
 * [The Git Book][gitbook] (Free)
+* [Go Bootcamp][gobootcamp]
 
 
 [codecademy]: https://www.codecademy.com/learn/learn-git
 [contributors]: https://github.com/spf13/hugo/graphs/contributors
-[downloadgo]: https://golang.org/dl/
+[docscontrib]: /contribute/documentation/
+[forums]: https://discuss.gohugo.io
 [gitbook]: https://git-scm.com/
+[gobootcamp]: http://www.golangbootcamp.com/book/get_setup
+[godl]: https://golang.org/dl/
+[goinstall]: https://golang.org/doc/install
 [gvm]: https://github.com/moovweb/gvm
-[installgo]: https://golang.org/doc/install
+[issues]: https://github.com/spf13/hugo/issues
+[newissue]: https://github.com/spf13/hugo/issues/new
 [releases]: /getting-started/
 [setupgopath]: https://golang.org/doc/code.html#Workspaces
-[open issues]: https://github.com/spf13/hugo/issues
 [trygit]: https://try.github.io/levels/1/challenges/1

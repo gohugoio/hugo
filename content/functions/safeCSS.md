@@ -1,24 +1,36 @@
 ---
-title: safeCSS
-linktitle:
-description:
-godocref:
+title: safecss
+linktitle: safeCSS
+description: Declares the provided string as a known "safe" CSS string.
+godocref: https://golang.org/src/html/template/content.go?s=919:929#L15
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
-tags: [style,css,strings]
+lastmod: 2017-02-26
 categories: [functions]
-toc:
+tags: [style,css,strings]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [safeHTML,safeHTMLAttr,]
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`safeCSS` declares the provided string as a known "safe" CSS string so that Go html/templates will not filter it as unsafe.
 
-## Advanced Example
+In this context, *safe* means CSS content that matches any of the following:
+
+1. The CSS3 stylesheet production, such as `p { color: purple }`.
+2. The CSS3 rule production, such as `a[href=~"https:"].foo#bar`.
+3. CSS3 declaration productions, such as `color: red; margin: 2px`.
+4. The CSS3 value production, such as `rgba(0, 0, 255, 127)`.
+
+Example: Given `style = "color: red;"` defined in the front matter of your `.md` file:
+
+* `<p style="{{ .Params.style | safeCSS }}">…</p>` ⇒ `<p style="color: red;">…</p>` (Good!)
+* `<p style="{{ .Params.style }}">…</p>` ⇒ `<p style="ZgotmplZ">…</p>` (Bad!)
+
+{{% note "ZgotmplZ" %}}
+ZgotmplZ is a special value that indicates that unsafe content reached a CSS or URL context.
+{{% /note %}}
 

@@ -1,24 +1,28 @@
 ---
 title: getenv
-linktitle:
-description:
+linktitle: getenv
+description: Returns the value of an environment variable.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: []
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`getenv` returns the value of an environment variable.
 
-## Advanced Example
+Takes a string containing the name of the variable as input. Returns
+an empty string if the variable is not set, otherwise returns the
+value of the variable. Note that in Unix-like environments, the
+variable must also be exported in order to be seen by `hugo`.
 
+```
+{{ getenv "HOME" }}
+```

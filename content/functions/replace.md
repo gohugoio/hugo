@@ -1,24 +1,24 @@
 ---
 title: replace
-linktitle:
-description:
+linktitle: replace
+description: Replaces all occurrences of the search string with the replacement string.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: []
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`replace` replaces all occurrences of the search string with the replacement string:
 
-## Advanced Example
+```
+`{{ replace "Batman and Robin" "Robin" "Catwoman" }}` → "Batman and Catwoman"
+```
 

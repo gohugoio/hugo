@@ -114,3 +114,17 @@ aside {
     }
   }
 }
+
+//for Hugo's native support of Github-flavored task list synax
+.body-copy {
+  .task-list {
+    list-style: none;
+    margin-left: 0px;
+    padding-left: 0px;
+    li {
+      list-style: none;
+      // padding-left:0px;
+      // margin-left:0px;
+    }
+  }
+}

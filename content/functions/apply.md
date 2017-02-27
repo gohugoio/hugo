@@ -15,13 +15,12 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: []
-needsreview: true
 ---
 
 Given a map, array, or slice, `apply` returns a new slice with a function applied over it. `apply` expects at least three parameters, depending on the function being applied.
 
 1. The first parameter is the sequence to operate on
-2. The second parameter is the name of the function as a string, which must be in the [Hugo function map][functions].
+2. The second parameter is the name of the function as a string, which must be the name of a valid [Hugo function][functions].
 3. After that, the parameters to the applied function are provided, with the string `"."` standing in for each element of the sequence the function is to be applied against.
 
 Here is an example of a content file with `name:` as a front matter field:
@@ -80,9 +79,9 @@ If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *
 ```
 {{% /code %}}
 
-This works, but the complexity of `post-tag-list.html` is fairly high: the Hugo template needs to perform special behavior for the case where there’s only one tag, and it has to treat the last tag as special. Additionally, the tag list will be rendered something like `Tags: tag1 , tag2 , tag3` because of the way that the HTML is generated and then interpreted by a browser.
+This works, but the complexity of `post-tag-list.html` is fairly high. The Hugo template needs to perform special behavior for the case where there’s only one tag, and it has to treat the last tag as special. Additionally, the tag list will be rendered something like `Tags: tag1 , tag2 , tag3` because of the way that the HTML is generated and then interpreted by a browser.
 
-This first version of `layouts/partials/post-tag-list.html` separates all of the operations for ease of reading; the combined and DRYer version is shown next:
+This first version of `layouts/partials/post-tag-list.html` separates all of the operations for ease of reading. The combined and DRYer version is shown next:
 
 ```html
 {{ with .Params.tags }}
@@ -96,7 +95,7 @@ This first version of `layouts/partials/post-tag-list.html` separates all of the
 {{ end }}
 ```
 
-Now in the complete version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp][] off stray newlines, and join the tags together in a delimited list for presentation. Here is a DRYer version of the preceding example:
+Now in the completed version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp][] off stray newlines, and join the tags together in a delimited list for presentation. Here is an even DRYer version of the preceding example:
 
 {{% code file="layouts/partials/post-tag-list.html" download="post-tag-list.html" %}}
 ```html
@@ -113,8 +112,8 @@ Now in the complete version, you can sort the tags, convert the tags to links wi
 `apply` does not work when receiving the sequence as an argument through a pipeline.
 {{% /note %}}
 
-[chome]: /functions/chomp/
-[delimit]: /functions/delimit/
-[functions]: /functions/
+[chomp]: /functions/chomp/ "See documentation for the chomp function"
+[delimit]: /functions/delimit/ "See documentation for the delimit function"
+[functions]: /functions/ "See the full list of Hugo functions to see what can be passed as an argument to the apply function."
 [partials]: /templates/partials/
-[range]: /functions/range/
+[range]: /functions/range/ "Learn the importance of the range function, a fundamental keyword in both Hugo templates and the Go programming language."

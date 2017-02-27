@@ -1,24 +1,24 @@
 ---
 title: jsonify
-linktitle:
-description:
+linktitle: jsonify
+description: Encodes a given object to JSON.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: []
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`jsonify` encodes a given object to JSON.
 
-## Advanced Example
+```
+{{ dict "title" .Title "content" .Plain | jsonify }}
+```
 

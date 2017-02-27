@@ -14,10 +14,10 @@ toc: false
 notesforauthors:
 ---
 
-The Troubleshooting section includes known issues, recent workarounds, and FAQs pulled from the [Hugo Discussion Forum][].
+The Troubleshooting section includes known issues, recent workarounds, and FAQs pulled from the [Hugo Discussion Forum][forum].
 
 
 
 
-[Hugo Discussion Forum]: https://discuss.gohugo.io
+[forum]: https://discuss.gohugo.io
 

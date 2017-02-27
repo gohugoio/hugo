@@ -18,4 +18,4 @@ toc: false
 The following sites have been built with {{< emo ":heart:" >}} and Hugo. If you're interested in adding your site to the showcase, [see how to contribute][addshowcase].
 
 
-[addshowcase]: /contribute/documentation/
+[addshowcase]: /contribute/documentation/#adding-to-the-showcase

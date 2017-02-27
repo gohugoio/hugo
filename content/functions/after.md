@@ -1,23 +1,27 @@
 ---
 title: after
-linktitle:
-description:
+linktitle: after
+description: Slices an array to only the items after the Nth item.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [iteration]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [last]
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`after` slices an array to only the items after the *N*th item. Combining `after` with `first` uses both use both halves of an array split at item *N*.
 
-## Advanced Example
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+
+e.g.
+
+    {{ range after 10 .Data.Pages }}
+        {{ .Render "title" }}
+    {{ end }}

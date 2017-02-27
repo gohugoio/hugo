@@ -1,24 +1,28 @@
 ---
 title: humanize
 linktitle:
-description:
+description: Returns the humanized version of an argument with the first letter capitalized.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings,casing]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`humanize` returns the humanized version of an argument with the first letter capitalized. If the input is either an int64 value or the string representation of an integer, humanize returns the number with the proper ordinal appended.
 
-## Advanced Example
+
+```
+{{humanize "my-first-post"}} → "My first post"
+{{humanize "myCamelPost"}} → "My camel post"
+{{humanize "52"}} → "52nd"
+{{humanize 103}} → "103rd"
+```
 

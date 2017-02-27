@@ -5,8 +5,8 @@ description: Hugo assumes that the same structure that works to organize your so
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [project organization]
-tags: [sections,content,organization, fundamentals]
+categories: [content management]
+tags: [sections,content,organization,fundamentals]
 weight: 10
 draft: false
 aliases: [/content-management/sections,/content/sections/]
@@ -16,9 +16,9 @@ needsreview: true
 
 ## Introduction
 
-Hugo uses files (see [Supported Content Formats][]) with headers called [front matter][]. By default, Hugo assumes the same structure that works to organize your content should be used to organize your rendered website. This is done in an effort to reduce configuration. However, this convention can be overridden through additional configuration in the front matter, as well as through Hugo's extensive features related to [URL management][].
+Hugo uses files (see [Hugo's supported content formats][formats]) with headers called [front matter][]. By default, Hugo assumes the same structure that works to organize your content should be used to organize your rendered website. This is done in an effort to reduce configuration. However, this convention can be overridden through additional configuration in the front matter, as well as through Hugo's extensive features related to [URL management][urls].
 
-## Organizing Source Content
+## Organizing Content Source
 
 In Hugo, the content should be organized in a manner that reflects the rendered website. Without any additional configuration, the following will just work. Hugo supports content nested at any level, but the top level (i.e. `content/<directories>*``) is special in Hugo and is considered the content [section][].
 
@@ -121,29 +121,37 @@ http://spf13.com/projects/hugo
 http://spf13.com/extras/indexes/example
 ```
 
-**section** = which type the content is by default
+#### `section`
 
-* based on content location
+A section is the content type the piece of content is assigned to by default. `section` is determined by the following:
+
+* content location within the project's directory structure
 * front matter overrides
 
-**slug** = name.ext or name/
+#### `slug`
 
-* based on `content-name.md`
+A content's `slug` is either `name.extension` or `name/`. `slug` is determined by the following:
+
+* the name of the content file (e.g., `content-name.md`)
 * front matter overrides
 
-**path** = section  path to file, excluding slug
+## `path`
 
-* based on path to content location
+A content's `path` is determined by the section's path to the file. `path`
 
+* is based on the path to the content's location
+* excludes the slug
 
-**url** = relative URL
+## `url`
 
-* defined in front matter
+The `url` is the relative URL for the piece of content. The `url`
+
+* is defined in front matter
 * overrides all the above
 
-## \_index.md and 'Everything is a Page'
+## \_index.md and "Everything is a Page"
 
-As of version v0.18 Hugo now treats '[everything as a page](http://bepsays.com/en/2016/12/19/hugo-018/)'. This allows you to add content and front matter to any page, including list pages like [sections][sectiontemplates], [taxonomies][taxonomytemplates], [Taxonomy Terms pages](/templates/terms/) and even to potential 'special case' pages like the [Homepage](/templates/homepage/).
+As of version v0.18, Hugo now treats "[everything as a page](http://bepsays.com/en/2016/12/19/hugo-018/)". This allows you to add content and front matter to any page, including list pages like [sections][sectiontemplates], [taxonomy list pages][taxonomytemplates], [taxonomy terms pages](/templates/terms/) and even to potential "special case" pages like the [homepage][].
 
 In order to take advantage of this behaviour you need to do a few things.
 
@@ -173,7 +181,7 @@ Now that you've got a handle on templates lets recap some Hugo basics to underst
 
 Let's put all this information together:
 
-> **\_index.md files used in List pages, Terms pages or the Homepage are NOT rendered as single pages or with Single Content templates.**
+* `_index.md` file are used in List pages, terms pages or the homepage and are NOT rendered as single pages or with [single page templates][singles].
 
 > **All pages, including List pages, can have front matter and front matter can have markdown content - meaning \_index.md files are the way to _provide_ front matter and content to the respective List/Terms/Homepage.**
 
@@ -251,6 +259,8 @@ An `_index.md` file has also been added in the top level 'content' directory.
 Hugo themes are designed to use the 'content' directory as the root of the website, so adding an \_index.md file here (like has been done in the example above) is how you would add front matter/content to the homepage.
 
 [front matter]: /content-management/front-matter/
+[homepage]: /templates/homepage-template/
 [section]: /content-management/section/
-[supported content formats]: /content-management/formats/
-[URL management]: /content-management/urls/
+[formats]: /content-management/formats/
+[singles]: /templates/single-page-templates/
+[urls]: /content-management/urls/

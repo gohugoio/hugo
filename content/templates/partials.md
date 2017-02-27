@@ -9,7 +9,7 @@ categories: [templates]
 tags: [lists,sections,partials]
 weight: 90
 draft: false
-aliases: [/templates/partials/,/layout/chrome/,/extras/analytics/]
+aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
 needsreview: true
 ---

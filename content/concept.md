@@ -13,41 +13,40 @@ aliases: []
 toc: true
 ---
 
-## Strategy, Tactics, and Requirements
-
-{{% warning "Disclaimer" %}}
-WIP. Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *schlocky* version of a true strategic document.
-{{% /warning %}}
-
 ### Introduction
 
 The claims made in this strategic document are largely *empirical* and pulled from two major sources:
 
-* My experience starting 18 months ago as a new user.
+* My experience starting 18 months ago as a new Hugo user.
 * Conversations with fellow Hugo users and noted trends within the [Discussion Forum][forum].
 
-Ideally,
+{{% warning "Disclaimer" %}}
+WIP. Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *schlocky* version of a true strategic document. It'll get better. I promise.
+{{% /warning %}}
+
+## Strategy, Tactics, and Requirements
 
 ### Assumptions
 
-* The current documentation
-    * is confusing for new users
-    * is a common complaint in the Hugo forums ([example discussion 1][ex1], [example discussion 2][ex2])
-    * lacks structure and is therefore
-        * unscalable, as demonstrated by [patch pages](http://gohugo.io/taxonomies/templates/) that seem out of place or require unnecessary drilldown
-        * inconsistent in its terminology, style, and (sometimes) layout
-        * limited in effective use of Alogolia's document search (i.e., because of redundant content grouping, headings, etc)
-        * difficult to optimize external search engines (SEO)
-    * does not leverage Hugo's more powerful feature (e.g., there is only *one* archetype); leveraging these features would help address the aforementioned shortcomings (i.e., scalability, consistency, and search)
-    * assumes a higher level of Golang proficiency than is realistic for newcomers to static site generators or general web development. An prime example is the sparsity of basic and advanced code samples through the templating functions, some of which are still wholly undocumented.
+The current Hugo documentation
+
+* is confusing for new users
+* is a common complaint in the Hugo forums ([forum discussion 1][ex1], [forum discussion 2][ex2])
+* lacks structure and is therefore
+    * unscalable, as demonstrated by patch pages (e.g. [here][patch1] and [here][patch2]) that seem out of place, require unnecessary drilldown, or duplicate content in other areas of the docs, thus requiring duplicative efforts to update
+    * inconsistent in its terminology, style, and (sometimes) layout
+    * limited in effective use of Alogolia's document search (i.e., because of redundant content grouping, headings, etc)
+    * difficult to optimize for external search engines (SEO)
+* does not leverage Hugo's more powerful feature (e.g., there is only *one* archetype); leveraging these features would help address the aforementioned shortcomings (i.e., scalability, consistency, and search)
+* assumes a higher level of Golang proficiency than is realistic for newcomers to static site generators or general web development. A prime example is the sparsity of basic and advanced code samples for templating functions, some of which may still be wholly undocumented.
 
 ### Goals
 
 New Hugo documentation should...
 
-* reduce confusion surrounding Hugo concepts; e.g., `list`, `section`, `page`, and `content type` with the intention of
+* reduce confusion surrounding Hugo concepts; e.g., `list`, `section`, `page`, `kind`, and `content type` with the intention of
     * making it easier for new users to get up and running
-    * creating better consistency and scalability for Hugo-dependent projects (viz., [themes.gohugo.io](http://themes.gohugo.io))
+    * creating better consistency and scalability for Hugo-dependent projects (viz., [themes.gohugo.io][hugothemes])
     * reducing the frequency of beginner-level questions in the [Hugo Discussion Forum][forum]
 * not require, or assume, any degree of Golang proficiency from end users;
     * that said, Hugo can&mdash;and *should*&mdash;act as a bridge for users interested in learning Golang. A implementationn example of this strategy point is the inclusion of `godocref:` as a default front matter field for all function and template pages. See [`archetypes/functions.md`][functionarchetype].
@@ -155,8 +154,8 @@ The following are high-level requirements for the documentation site.
 
 ## Author Experience (AX)
 
-- [X] Easy scaffolding of content types (CLI)
-- [X] Type-based content storage model and scope (archetypes)
+- [X] Easy scaffolding of content types (i.e., via Hugo CLI [`hugo new`])
+- [X] Type-based content storage model and scope (i.e, via archetypes)
 
 ## Analytics/Metrics
 
@@ -165,10 +164,10 @@ The following are high-level requirements for the documentation site.
 - [ ] Automated reports (GA)
 
 {{% note %}}
-These are separate from usage statics re: Hugo downloads, `.Hugo.Generator`, etc.
+The preceding analytics and metrics are separate from usage statics re: Hugo downloads, `.Hugo.Generator`, etc.
 {{% /note %}}
 
-## Visual Design
+## Visual Design and Front-end Development
 
 - [X] Clean typography with open-source font
     - [X] Optimal line length (50-80 characters)
@@ -184,10 +183,9 @@ These are separate from usage statics re: Hugo downloads, `.Hugo.Generator`, etc
     - [X] Abstracted typefaces (multiple open-source fonts available)
 
 
-
 ## Content Changes
 
-The following is an *abbreviated* listing of *substantive* changes to content organization. Everything is ordered according to the current docs site navigation. The changes I delimit here do not include copy edits for consistent or preferred usage, improvements in semantics, etc, all of which easily numbers in the thousands, likely more.
+The following is an *abbreviated* listing of *substantive* changes made to the current documentation's source content and organization. Sections here are ordered according to the current site navigation. The changes delimited here do not include copy edits for consistent or preferred usage, improvements in semantics, etc, all of which easily numbers in the thousands, likely more.
 
 ### Download Hugo
 
@@ -195,7 +193,9 @@ This is no longer a site navigation link and is instead a button along with "Fil
 
 ### Site Showcase
 
-* Site showcase has stayed more or less as is, including styling, etc. However, I did clean up the templating and all currently submitted showcase files. (E.g., changing "thumbnail" to "image" and not requiring a full path.) This will also be updated in the ["docs" page of the contribute section](/contribute/documentation/)
+Site showcase has stayed more or less as is, including styling, etc. However...
+ * The showcase archetype has changed for simplicity.
+ * To keep compatibility, all [showcase content files][showcasefiles] have been edited to reflect the new content type. This will also be updated in the ["docs" page of the contribute section](/contribute/documentation/)
 
 ### Press & Articles
 
@@ -370,19 +370,24 @@ Apache License - 60
 
 ## Proposed Schedule for Hugo Docs Release
 
+If the Hugo Team finds the improvements to the Hugo documentation acceptable, I've proposed the following schedule for leveraging the new Hugo documentation.
 
-1. **2017-02-26** Release to Gitter Channel for Review
-2. **2017-03-01** Post in Discussion Forum for Feedback
-3. **2017-??-??** Add to Hugo repo for release with v19
+1. **2017-02-26** Release to Gitter Channel for dev review
+2. **2017-03-05** Post in Discussion Forum for Hugo user feedback
+3. **2017-03-6** Pull request/add to Hugo Rep
+3. **2017-??-??** Add to Hugo repo for release with v19?
 
-[^1]: As this point, the URL structure has changed considerably. I've been fastidious about adding aliases wherever possible, but I'm not sure what negative effect this approach is going to take with our current search relevancy. The [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
-
+[^1]: As this point, the URL structure has changed considerably. I've been fastidious about adding aliases wherever possible and trying to retain URLs for related content on the current site if applicable. That said, the [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
 
 [admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
 [designresources]: https://github.com/rdwatters/hugo-docs-concept/tree/master/dev-and-design-resources
-[forum]: https://discuss.gohugo.io
 [ex1]: https://discuss.gohugo.io/t/frustrated-with-documentation/2810
 [ex2]: https://discuss.gohugo.io/t/documentation-restructure-and-design/1891
+[forum]: https://discuss.gohugo.io
 [functionarchetype]: https://github.com/rdwatters/hugo-docs-concept/blob/master/themes/hugodocs/archetypes/functions.md
-[tagspage]: https://hugodocsconcept.netlify.com/tags/
+[hugothemes]: http://themes.gohugo.io
+[patch1]: http://gohugo.io/taxonomies/templates/
+[patch2]: https://github.com/spf13/hugo/commit/eaabecf586fd0375585e27c752e05dd8cb4c72b4
 [Quick Start]: https://hugodocsconcept.netlify.com/getting-started/quick-start/
+[showcasefiles]:
+[tagspage]: https://hugodocsconcept.netlify.com/tags/

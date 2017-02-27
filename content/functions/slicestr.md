@@ -1,24 +1,26 @@
 ---
 title: slicestr
 linktitle:
-description:
+description: Creates a slice of a half-open range, including start and end indices.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: [strings]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+Slicing in `slicestr` is done by specifying a half-open range with two indices; i.e., a `start` and and `end`.
 
-## Advanced Example
+For example, 1 and 4 creates a slice including elements 1 through 3.
+The `end` index can be omitted; it defaults to the string's length.
+
+* `{{slicestr "BatMan" 3}}` → "Man"
+* `{{slicestr "BatMan" 0 3}}` → "Bat"
 

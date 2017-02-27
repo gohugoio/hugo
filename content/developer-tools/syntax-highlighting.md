@@ -11,7 +11,6 @@ weight: 20
 draft: false
 aliases: [/extras/highlighting/,/extras/highlight/]
 toc: true
-needsreview:
 ---
 
 Hugo provides the ability for you to highlight source code in _two different ways_&mdash;either pre-processed server side from your content or to defer the processing to the client side, using a JavaScript library.

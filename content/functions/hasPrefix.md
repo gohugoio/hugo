@@ -1,24 +1,21 @@
 ---
-title: hasPrefix
-linktitle:
-description:
+title: hasprefix
+linktitle: hasPrefix
+description: Tests whether a string begins with prefix.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: []
 categories: [functions]
-toc:
+tags: []
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 ---
 
-## Example
+`hasPrefix` tests whether a string begins with prefix.
 
-## Advanced Example
-
+* `{{ hasPrefix "Hugo" "Hu" }}` → true
