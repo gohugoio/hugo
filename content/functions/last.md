@@ -10,7 +10,7 @@ tags: []
 categories: [functions]
 toc:
 signature:
-workson: []
+workson: [lists, taxonomies, terms, groups]
 hugoversion:
 relatedfuncs: []
 deprecated: false
@@ -18,9 +18,7 @@ draft: false
 aliases: []
 ---
 
-`last` slices an array to only the last _N_th elements.
-
-Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+`last` slices an array to only the last *N*th elements.
 
 ```
 {{ range last 10 .Data.Pages }}

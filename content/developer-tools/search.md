@@ -1,5 +1,5 @@
 ---
-title: Adding Search to your Hugo Website
+title: Search for your Hugo Website
 linktitle: Search
 description: Search is not a built-in feature of Hugo, but you have plenty of options for adding search to your Hugo-generated website. See some of the open-source and commercial search options for your newly created website.
 date: 2017-02-01

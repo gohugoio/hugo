@@ -90,6 +90,8 @@ enableRobotsTXT:            false
 disable404:                 false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject: false
+# The below example will disable all page types and will render nothing.
+disableKinds: ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
 # Do not make the url/path to lowercase
 disablePathToLower:         false
 # edit new content with this editor, if provided
@@ -229,6 +231,8 @@ enableRobotsTXT =             false
 disable404 =                  false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject =  false
+# The below example will disable all page types and will render nothing.
+disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
 # Do not make the url/path to lowercase
 disablePathToLower =          false
 # edit new content with this editor, if provided

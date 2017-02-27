@@ -1,7 +1,7 @@
 ---
-title: The Homepage Template
+title: Homepage Template
 linktitle: Homepage Template
-description:
+description: The homepage of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's homepage as a unique template.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

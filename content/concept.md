@@ -204,6 +204,9 @@ Site showcase has stayed more or less as is, including styling, etc. However...
 
 ### About Hugo
 
+* Content is more or less the same, but I've cleaned up a lot of the language, and copy edited for consistency throughout. I've also added in some extra frills (e.g. resources that extoll and teach more about the benefits of SSGs on [/about-hugo/benefist](/about-hugo/benefits/)).
+* Release notes are now in the "News" section, although I'm still iffy on this decision. I can gladly move this back into "About" to give it a higher degree of discoverability in the menu.
+
 ### Getting Started
 
 * The [Quick Start][] has been completely updated for more consistent heading structure, etc. Also, **I may delete the "deployment" section of the Quick Start** since this a) adds unnecessary length, making the guide less "quick" and b) detracts from the new "hosting and deployment" section, which offers better advice, and c) is redundant with [Hosting on Github](https://hugodocsconcept.netlify.com/hosting-and-deployment/hosting-on-github/). For example, the Quick Start didn't mention that files already written to public are not necessarily erased at build time. This can cause problems with drafts. I think the other options&mdash;e.g. Arjen's Wercker tutorial&mdash;are more viable and represent better practices for newcomers to Hugo. If future versions of Hugo include baked-in deployment features, I think it's worth reconsidering adding the deployment step back to the Quick Start.
@@ -223,8 +226,14 @@ Themes section organization has only changed slightly in that the 6 content page
 ### Templates
 
 * Reworked considerably. Page titles have all been changed to reflect their obvious connection to *templating*.
-* "Lookup order" page added. The order of the template pages in the main navigation is now such that it could be seen as a sequence of pages showing how to learn templating. Hence the primer, lookup order, and base templates as the first three pages in this section.
-* Shortcodes, menus, pagination
+* "Lookup order" page added. Placement of this page in the site navigation is significant in that the order of the template pages are no sequentially ordered as to when they should be learned; i.e.---
+    * Go template primer
+    * Lookup order
+    * Base templates
+    * Hugo Lists (introduces the lists concept [i.e. sections, taxonomies, etc]); this includes one of multiple forthcoming visualizations for Hugo architecture
+    * Rendering Hugo Lists (i.e., ordering, grouping, etc)
+* Shortcodes and menus (templating), pagination, data, traversing local files, data-driven content, and data files have all moved out from "Extras" and into templating. *Note that there is only one stylesheet in the local example now* {{< emo ":wink:" >}}.
+* **2017-02-26**. I am currently working on a new example for `readDir`.
 
 ### Taxonomies
 
@@ -236,17 +245,30 @@ Themes section organization has only changed slightly in that the 6 content page
 * This section no longer exists in the new documentation site
     * *Extras*, in the content world, is the equivalent of *miscellaneous* or *additional resources*. It's an area that's been tacked onto site navigation to accommodate a *seemingly* disparate set of new features. In other words, READ: "We don't have any idea of where to put this"
 * *Extras* pages:
-    * **Aliases** Incorporated into [URL Management](/content-management/urls/)
-    * **Analytics** Incorporated into [built-in partials](/templates/partials/#using-hugos-built-in-partials)
-    * **Builders** This has been removed completely since it has no real added value. The three "builders" mentioned (`new site`, `new theme`, and `new <content>`) are all well-delimited in their respective pages, which is where end users expect to find this type of information in the first place.
-    * **Comments** Incorporated into [content management](/content-management/comments/) for content-related pieces and mentioned in [partials](/templates/partials/) for implementation.
-    * **Cross-References** Added as its own page under Content Management (`/content-management/cross-references/`)
+    * Aliases. Incorporated into [URL Management](/content-management/urls/)
+    * Analytics. Incorporated into [built-in partials](/templates/partials/#using-hugos-built-in-partials)
+    * Builders. This has been removed completely since it has no real added value. The three "builders" mentioned (`new site`, `new theme`, and `new <content>`) are all well-delimited in their respective pages, which is where end users expect to find this type of information in the first place.
+    * Comments. Incorporated into [content management](/content-management/comments/) for content-related pieces and mentioned in [partials](/templates/partials/) for implementation.
+    * Cross-References. Added as its own page under Content Management (`/content-management/cross-references/`)
+    * Custom robots.txt. Incorporated into [/templates/robots/](/templates/robots/)
+    * Data Files and Data-Driven Content. Combined and incorporated into [/templates/data-templates/](/templates/data-templates/)
+    * GitInfo. Incorporated into [/variables/other/](/variables/other/)
+    * LiveReload. This doesn't really merits its own page. It's mentioned in features, usage, about, and elsewhere.
+    * Menus. This is broken into [/content-management/menus/](/content-management/menus/) and [/templates/menu-templates/](/templates/menu-templates/)
+    * Pagination. Now in [/templates/pagination/](/templates/pagination/)
+    * Permalinks. Now a heading/subsection of [/content-management/urls/](/content-management/urls/
+    * Scratch. Has it's own devoted function page at [/functions/scratch/](/functions/scratch/), and is therefore in the [Functions Quick Reference](/functions/). Also mentioned in an admonition in [/variables/page-variables/](/variables/page-variables/).
+    * Shortcodes. Now split into two pages, one a [/content-management/shortcodes/](/content-management/shortcodes/) and the templating portion (i.e. "create your own shortcodes") at [/templates/shortcode-templates/]
+    * URLS. Now combined with permalinks and others as a heading/subsection of [/content-management/urls/](/content-management/urls/)
+    * Syntax Highlighting. The shortcode is featured and explained with usage examples at [/content-management/shortcodes/](/content-management/shortcodes/), as well as expaned upon in it's own page under [/developer-tools/syntax-highlighting/](/developer-tools/syntax-highlighting/). I did this under the assumption that *developers* are most interested in adding code blocks to their content.
+    * Table of Contents. This is now it's own page under [/content-management/toc](/content-management/toc/) and referenced in [/variables/page-variables](/variables/page-variables/).
+    * Traversing Local Files. This is now split into [/templates/local-file-templates/](/templates/local-file-templates/) and variables delimited at [/variables/other/](/variables/other/).
 
 ### Community
 
 The "Community" section has been removed as a site navigation item because `/contribute` is now it's own section.
     * There are now more calls than ever for contributing to Hugo throughout the Hugo docs.
-    *
+    * The most important changes to "Community" (now [/contribute/](/contribute/)) are that @digitalcraftsman's tutorial on contributing to Hugo can be found under [/contribute/development/](/contribute/development/), and a brand-new page for *contributing to documentation*, including examples of shortcodes used throughout the docs, etc, can be found at [/contribute/documentation/]. This is a **VERY IMPORTANT* change since it's instructions, archetypes, and guidelines like this that will make the documentation site scale more easily.
 
 ### Tutorials
 
@@ -341,8 +363,10 @@ Apache License - 60
 
 * _index - 01
 * Go Template Primer - 10
+* Template Lookup Order -15
 * Base Templates And Blocks - 20
-* Lists in Hugo - 25
+* Lists in Hugo - 22
+* Rendering Lists in Hugo - 27
 * Homepage Template - 30
 * Section Templates - 40
 * Taxonomy Templates - 50
@@ -352,15 +376,18 @@ Apache License - 60
 * Partial Templates - 90
 * Shortcode Templates - 100
 * Local File Templates - 110
-* Custom 404 Page - 120
+* 404 Page - 120
 * Menu Templates - 130
 * Pagination - 140
 * RSS Templates - 150
 * Sitemap Template - 160
+* Robots.txt - 165
 * Additional Templating Languages - 170
 * Template Debugging - 180
 
 ### "functions" Ordering (`.OrderByTitle`)
+
+* _index.md - 01 (i.e., "Functions Quick Reference")
 
 ### "variables" Ordering (`.OrderByWeight`)
 
@@ -369,7 +396,15 @@ Apache License - 60
 * Page Variables - 20
 * Taxonomy Variables - 30
 * File Variables - 40
-* Other Variables - 50
+* Other (Shortcode, Git, Menu, and Hugo vars) - 50
+
+### "themes" Ordering (`.OrderByWeight`)
+
+* _index.md - 01
+* Installing and Using Themes - 10
+* Customizing a Theme - 20
+* Creating a Theme - 30
+* Theme Showcase - 40
 
 ### "hosting-and-deployment" Ordering (`.OrderByWeight`)
 
@@ -380,15 +415,18 @@ Apache License - 60
 * Hosting on Github - 40
 * Hosting on Gitlab - 50
 
-### "themes" Ordering (`.OrderByWeight`)
+### "developer-tools" Ordering
 
 * _index.md - 01
-* Installing and Using Themes - 10
-* Customizing a Theme - 20
-* Creating a Theme - 30
-* Theme Showcase - 40
+* migrate to hugo - 10
+* syntax highlighting - 20
+* starter kits - 30
+* frontends - 40
+* editor plug-ins - 50
+* search - 60
+* other (community projects) - 70
 
-### "showcase" Ordering (`.OrderByPublishDate`)
+### "showcase" Ordering (`.OrderByPublishDate.Reverse`)
 
 
 ### "troubleshooting" Ordering (`.OrderByTitle`)
@@ -402,9 +440,9 @@ Apache License - 60
 
 ## Proposed Schedule for Hugo Docs Release
 
-If the Hugo Team finds the improvements to the Hugo documentation acceptable, I've proposed the following schedule for leveraging the new Hugo documentation.
+If the Hugo Team finds the improvements to the Hugo documentation acceptable, I've proposed the following schedule for releasing the new Hugo documentation.
 
-1. **2017-02-26** Release to Gitter Channel for dev review
+1. **2017-02-27** Release to Gitter Channel for dev review
 2. **2017-03-05** Post in Discussion Forum for Hugo user feedback
 3. **2017-03-6** Pull request/add to Hugo Rep
 3. **2017-??-??** Add to Hugo repo for release with v19?
