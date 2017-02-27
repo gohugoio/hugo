@@ -9,7 +9,7 @@ categories: [templates]
 tags: [lists,sections,rss,taxonomies,terms]
 weight: 22
 draft: false
-aliases: [/templates/lists-in-hugo/]
+aliases: [/templates/list/,/layout/indexes/]
 toc: true
 needsreview: true
 ---
@@ -20,10 +20,10 @@ A list page template is a template used to render multiple pieces of content in 
 
 Hugo uses the term *list* in its truest sense; i.e. a sequential arrangement of material, especially in alphabetical or numerical order. Hugo uses list templates on any output HTML page where content is traditionally listed:
 
-* [Taxonomy terms pages][taxonomy terms]
-* [Taxonomy list pages][taxonomy lists]
-* [Section list pages][section templates]
-* [RSS][]
+* [Taxonomy terms pages][taxterms]
+* [Taxonomy list pages][taxlists]
+* [Section list pages][sectiontemps]
+* [RSS][rss]
 
 The idea of a list page comes from the [hierarchical mental model of the web][mentalmodel] and is best demonstrated visually:
 
@@ -33,7 +33,7 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 ### Default Templates
 
-Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html`---or `themes/<THEME>/layouts/_default/list.html` in the case of a themed project---in their *lookup orders*. In addition, both [section lists][sectiontemplates] and [taxonomy lists][taxonomies] have their own default list templates in `_default`:
+Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html`---or `themes/<THEME>/layouts/_default/list.html` in the case of a themed project---in their *lookup orders*. In addition, both [section lists][sectiontemplates] and [taxonomy lists][taxonomies] have their own default list templates in `_default`:
 
 #### Default Section Templates
 
@@ -82,8 +82,8 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 [mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
 [partials]: /templates/partials/
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
-[RSS]: /templates/rss-templates/
+[rss]: /templates/rss-templates/
 [sections]: /content-management/sections/
-[section templates]: /templates/section-templates
-[taxonomy lists]: /templates/taxonomy-templates/#taxonomy-list-templates/
-[taxonomy terms]: /templates/taxonomy-templates/#taxonomy-terms-templates/
+[sectiontemps]: /templates/section-templates
+[taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
+[taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/

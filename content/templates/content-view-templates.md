@@ -43,7 +43,7 @@ provide a specific view for a given type and continue to use the
         summary.html
 ```
 
-Hugo also has support for a default content template to be used in the event that a specific template has not been provided for that type. The default type works the same as the other types, but the directory must be called "_default". Content views can also be defined in the "_default" directory.
+Hugo also has support for a default content template to be used in the event that a specific template has not been provided for that type. Content views can also be defined in the `_default` directory and will work the same as layouts for other types who eventually fall trickle down to this directory.
 
 
 ```bash
@@ -56,9 +56,7 @@ Hugo also has support for a default content template to be used in the event tha
 
 ## Which Template Will be Rendered?
 
-Hugo uses a set of rules to figure out which template to use when rendering a specific page.
-
-Hugo will use the following prioritized list. If a file isn’t present, then the next one in the list will be used. This enables you to craft specific layouts when you want to without creating more templates than necessary. For most sites only the \_default file at the end of the list will be needed.
+The following is the [lookup order][lookup] for content views:
 
 * `/layouts/<TYPE>/<VIEW>.html`
 * `/layouts/\_default/<VIEW>.html`
@@ -71,7 +69,7 @@ The following example demonstrates how to use content views inside of your [list
 
 ### `list.html`
 
-In this example, `.Render` is passed into the template to call the [render function][]. `.Render` is a special function that instructs content to render itself with the view template provided as the first argument.
+In this example, `.Render` is passed into the template to call the [render function][render]. `.Render` is a special function that instructs content to render itself with the view template provided as the first argument.
 
 This `list.html` content view template is part of a larger `section.html` default template used for [spf13.com][spf]. ([See source on GitHub][spfsourcesection].)
 
@@ -128,8 +126,9 @@ This `li.html` content view template is used for [spf13.com][spf]. ([See source 
 {{% /code %}}
 
 [listtemplates]: /templates/lists/
+[lookup]: /templates/lookup-order/
 [pagevars]: /variables/page-variables/
-[render function]: /functions/render/
+[render]: /functions/render/
 [singletemplates]: /templates/single-page-templates/
 [spf]: http://spf13.com
 [spfsourceli]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/li.html

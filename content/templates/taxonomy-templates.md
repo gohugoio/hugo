@@ -22,7 +22,7 @@ Hugo provides multiple ways to use taxonomies throughout your project:
 
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
 * Order the way content associated with a taxonomy term are display in a [taxonomy list template](#taxonomy-list-template)
-* List a single content's taxonomy terms within a [single page template][taxinotherpage]
+* List a single content's taxonomy terms within a [single page template]()
 
 ## Taxonomy List Templates
 
@@ -32,20 +32,20 @@ Taxonomy list page templates are lists and therefore have all the variables and 
 
 A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
 
-* /layouts/taxonomy/`SINGULAR`.html (e.g.&nbsp;`/layouts/taxonomy/topic.html`)
-* /layouts/\_default/taxonomy.html
-* /layouts/\_default/list.html
-* /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
-* /themes/`THEME`/layouts/\_default/taxonomy.html
-* /themes/`THEME`/layouts/\_default/list.html
+* `/layouts/taxonomy/<SINGULAR>.html`
+* /layouts/_default/taxonomy.html
+* /layouts/_default/list.html
+* /themes/<THEME>/layouts/taxonomy/<SINGULAR>.html
+* /themes/<THEME>/layouts/_default/taxonomy.html
+* /themes/`THEME`/layouts/_default/list.html
 
 ## Taxonomy Terms Template
 
 ### Taxonomy Terms Templates Lookup Order
 
-{{% note "The Taxonomy Terms Template has a Unique Lookup Order" %}}
-Compared to taxonomy list pages and [other list templates](/templates/section-templates/), a terms template lookup has only two options. If Hugo does not find a terms template in `layout/` or `/themes/<yourchosentheme>/layouts/`, Hugo will *not* render a taxonomy terms page.,
-{{% /note %}}
+{{% warning "The Taxonomy Terms Template has a Unique Lookup Order" %}}
+Compared to taxonomy list pages and other list templates such as [sections](/templates/section-templates/), a terms template lookup has only two options. If Hugo does not find a terms template in `layout/` or `/themes/<THEME>/layouts/`, Hugo will *not* render a taxonomy terms page.
+{{% /warning %}}
 
 <!-- Begin /taxonomies/methods/ -->
 Hugo makes a set of values and methods available on the various Taxonomy structures.
@@ -89,7 +89,7 @@ Each element of the slice has:
 : The number of pieces of content assigned to this term.
 
 .Pages
-: All Pages assigned to this term. All [list methods](/templates/list/) are available to this.
+: All Pages assigned to this term. All [list methods][renderlists] are available to this.
 
 ## WeightedPages
 
@@ -103,7 +103,7 @@ type WeightedPages []WeightedPage
 : The number of pieces of content assigned to this term.
 
 .Pages
-: Returns a slice of pages, which then can be ordered using any of the [list methods](/templates/list/).
+: Returns a slice of pages, which then can be ordered using any of the [list methods][renderlists].
 
 <!-- Begin /taxonomies/ordering/ -->
 
@@ -217,11 +217,11 @@ To list such taxonomies, use the following:
 ```html
 {{ if .Params.directors }}
   <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
-  {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "/directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
+  {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
 {{ end }}
 ```
 
-Alternatively, you may use the [delimit](/functions/delimit/) template function as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
+Alternatively, you may use the [delimit template function][delimit] as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
 
 ## 2. Listing content with the Same Taxonomy Term
 
@@ -260,13 +260,13 @@ This would be very useful in a sidebar as “featured content”. You could even
 
 ## 4. Rendering a Site's Taxonomies
 
-If you wish to display the list of all keys for a taxonomy, you can find retrieve them from the `.Site` variable which is available on every page.
+If you wish to display the list of all keys for your site's taxonomy, you can retrieve them from the [`.Site` variable][sitevars] available on every page.
 
-This may take the form of a tag cloud, a menu or simply a list.
+This may take the form of a tag cloud, a menu, or simply a list.
 
-The following example displays all tag keys:
+The following example displays all terms in a site's tags taxonomy:
 
-### Example
+### Example: List All Tags
 
 ```html
 <ul id="all-tags">
@@ -276,12 +276,14 @@ The following example displays all tag keys:
 </ul>
 ```
 
-### Complete Example
-This example will list all taxonomies, each of their keys and all the content assigned to each key.
+### Example: List All Taxonomies, Keys, and Assigned Content
 
+This example will list all taxonomies, each of their keys, and all the content assigned to each key.
+
+{{% code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" %}}
 ```html
 <section>
-  <ul>
+  <ul id="all-taxonomies">
     {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
       <li><a href="{{ "/" | relLangURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
         <ul>
@@ -299,9 +301,15 @@ This example will list all taxonomies, each of their keys and all the content as
   </ul>
 </section>
 ```
+{{% /code %}}
 
 ## `.Site.GetPage` for Taxonomies
 
 ### `.Site.GetPage` Taxonomy List Example
 
 ### `.Site.GetPage` Taxonomy Terms Example
+
+
+[delimit]: /functions/delimit/
+[renderlists]: /templates/lists/
+[sitevars]: /variables/site-variables/
