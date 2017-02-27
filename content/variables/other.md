@@ -9,9 +9,9 @@ categories: [variables and params]
 tags: [shortcodes,git]
 draft: false
 weight: 50
-aliases: [/extras/gitinfo/,/variables/other/]
+aliases: [/extras/gitinfo/,/variables/other-variables/]
 toc: true
-needsreview: true
+needsreview: false
 ---
 
 ## Shortcode Variables

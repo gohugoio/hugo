@@ -24,12 +24,12 @@ To effectively leverage section page templates, you should first understand the 
 
 The [lookup order][lookup] for section pages is as follows:
 
-* /layouts/section/<SECTION>.html
-* /layouts/\_default/section.html
-* /layouts/\_default/list.html
-* /themes/<THEME>/layouts/section/`SECTION`.html
-* /themes/`THEME`/layouts/\_default/section.html
-* /themes/`THEME`/layouts/\_default/list.html
+1. `/layouts/section/<SECTION>.html`
+2. `/layouts/_default/section.html`
+3. `/layouts/_default/list.html`
+4. `/themes/<THEME>/layouts/section/<SECTION>.html`
+5. `/themes/<THEME>/layouts/_default/section.html`
+6. `/themes/<THEME>/layouts/_default/list.html`
 
 Note that a sections list page can also have a content file with frontmatter,  see [Source Organization](/overview/source-directory/}}).
 
