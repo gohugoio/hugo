@@ -58,7 +58,36 @@ The archetype for the `functions` content type is as follows:
 
 #### Function Required Fields
 
+Let's review some of the fields automatically generated for you using `hugo new functions/*`:
 
+`title`
+: ***Required.*** This should be generated in all lowercase when you use `hugo new`.
+
+`linktitle`
+: ***Required.*** Use the function's actual casing (e.g., `replaceRE` rather than `replacere`).
+
+`description`
+: ***Required.*** Keep this really short. This is what's used to populate the [Functions Quick Reference](/functions/).
+
+`categories`
+: This is populated with 'functions` for future-proofing and portability reasons only. Skip this field.'
+
+`tags`
+: Only if you think it will help end users find other related functions
+
+`signature`
+: This is a signature/syntax definition for calling the function (e.g., `apply SEQUENCE FUNCTION [PARAM...]`)
+
+`workson`
+: Acceptable values include `lists`,`taxonomies`, `terms`, `groups`, and `files`
+
+`hugoversion`
+: The version of Hugo that will ship with this new function
+
+`relatedfuncs`
+: If you can, list some functions you think are related to your new function to help fellow Hugo users.
+
+In the body of you function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [code shortcodes](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
 ### Adding to the Showcase
 
@@ -82,7 +111,7 @@ The archetype for the `showcase` content type is as follows:
 : the *full* URL to your website
 
 `title`
-: the `<title>`` of your website
+: the `<title>` of your website
 
 `description`
 : a general description of your website, preferably < 180 characters.
@@ -249,14 +278,14 @@ The preceding `output` example will render as follows to the Hugo docs:
 Blockquotes can be added to the Hugo documentation using [typical Markdown blockquote syntax][bqsyntax]:
 
 ```markdown
-> Without the fear of falling, there is no joy in flight.
+> Without the threat of punishment, there is no joy in flight.
 ```
 
 The preceding blockquote will render as follows in the Hugo docs:
 
 > Without the threat of punishment, there is no joy in flight.
 
-However, you can add a quick and easy `<cite>` element (adding on the client via JavaScript) by separating your main blockquote and the citation with ` - `:
+However, you can add a quick and easy `<cite>` element (added on the client via JavaScript) by separating your main blockquote and the citation with ` - `:
 
 ```markdown
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe](https://en.wikipedia.org/wiki/K%C5%8Db%C5%8D_Abe)
@@ -276,9 +305,9 @@ Previous versions of Hugo documentation used blockquotes to draw attention to te
 
 > Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
 
-Both `note` and `warning` use a single, *optional* argument for the admonition title, which accepts markdown syntax as well. If the title, a [positional parameter in quotes][shortcodeparams] is missing, the default behavior of the `note` and `warning` shortcodes will be to display "Note" and "Warning", respectively.
+Both `note` and `warning` use a single, *optional* argument for the admonition title. You can use markdown syntax in this title if you would like. If the title, a [positional parameter in quotes][shortcodeparams] is missing, the default behavior of the `note` and `warning` shortcodes will be to display the text "Note" and "Warning", respectively.
 
-### Note Admonition Shortcode
+### `note` Admonition
 
 Use the `note` shortcode when you want to draw attention to information subtly. `note` is intended to be less of an interruption in content than is `warning`.
 
@@ -308,7 +337,7 @@ Here is a piece of information I would like to draw your **attention** to.
 Here is a piece of information I would like to draw your **attention** to.
 {{% /note %}}
 
-### Warning Admonition Examples
+### `warning` Admonition
 
 Use the `warning` shortcode when you want to draw the user's attention to something important. A good usage example is for announcing breaking changes for Hugo versions, known bugs, or templating gotchas.
 
@@ -338,22 +367,16 @@ This is a warning, which should be reserved for *important* information like bre
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
 
-<!-- ## Example Site Shortcodes
-
-### Example File Shortcode
-
-### Example Front Matter Shortcode -->
-
 ## Editorial Style Guide
 
 {{% note %}}
 It's more important to contribute *some* documentation than no documentation at all. We need your help!
 {{% /note %}}
 
-The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience:
+The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience for the Hugo community:
 
-1. *Front matter* is two words, *Homepage* is one word, *file system* is two words.
-3. Be sure to add a value to the `godocref` in content files whenever possible. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
+1. *Front matter* and *file system* are two words; *Homepage* is one word.
+3. Add a `godocref` value to the front matter of content files whenever possible. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two. {{< emo ":star:" >}}
 
 ## Ask for Code Examples
 
@@ -363,9 +386,9 @@ Sometimes you want to contribute to the docs but don't have enough time to provi
 needsexamples: true
 ```
 
-## Please Help! Examples Needed!
+## ~~Please Help! Examples Needed!~~ (WIP)
 
-The preceding `needsexamples` is used to generate the following table. The edit link will take you directly to the edit URL for the file in GitHub:
+The preceding `needsexamples` is used to generate the following list of pages flagged for needing example. The edit link will take you directly to the edit URL for the file in GitHub:
 
 {{< needsexamples >}}
 

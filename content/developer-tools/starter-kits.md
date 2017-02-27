@@ -3,7 +3,7 @@ title: Starter Kits
 linktitle: Starter Kits
 description: A list of community-developed projects designed to help you get up and running with Hugo.
 date: 2017-02-22
-publishdate: 2017-02-22
+publishdate: 2017-02-01
 lastmod: 2017-02-22
 tags: [starters,assets,pipeline]
 weight: 30

@@ -11,7 +11,6 @@ weight: 50
 draft: false
 aliases: []
 toc: false
-needsreview: true
 ---
 
 The Hugo community uses a wide range of preferred tools and has developed plug-ins for some of the most popular text editors to help automate parts of your workflow.

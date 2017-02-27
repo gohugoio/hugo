@@ -66,7 +66,7 @@ developertools:
   title: "Developer Tools"
   url: "developer-tools"
   haschildren: true
-  sortsubpagesby: "title"
+  sortsubpagesby: "weight"
   desc: "Syntax highlighting, site search, and migration tools"
 commands:
   order: 11
