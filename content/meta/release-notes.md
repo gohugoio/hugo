@@ -24,7 +24,7 @@ Hugo now has:
 
 Furthermore, Hugo has its own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where we share bite-sized news and themes from the Hugo community.
 
-{{< gh "@bep" >}} leads the Hugo development and once again contributed a significant amount of additions. Also a big shoutout to  {{< gh "chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< "@fj" >}}  for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
+{{< gh "@bep" >}} leads the Hugo development and once again contributed a significant amount of additions. Also a big shoutout to  {{< gh "chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< gh "@fj" >}}for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
 
 ## Highlights
 Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "chaseadamsio" >}}.
