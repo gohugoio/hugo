@@ -1,4 +1,4 @@
-<script type="application/ld+json">
+<!-- <script type="application/ld+json">
 {
     "@context": "http://schema.org",
     "@type": "BlogPosting",
@@ -12,14 +12,17 @@
     "wordCount": {{.WordCount}},
     "image": {
         "@type": "ImageObject",
-        "url": "{{.Site.BaseURL}}/assets/images/{{.Params.image | default .Site.Params.defaultsocialimage }}",
+        "url": "{{.Site.BaseURL | safeJS}}images/{{.Site.Params.defaultsocialimage | safeJS }}",
         "height": 533,
         "width": 800
     },
+    {{ with .Params.authors }}
+    {{range . }}
     "author": {
         "@type": "person",
-        "name": "{{range .Params.authors}}{{.}}{{end}}"
+        "name": "{{.}}"
     },
+    {{ end }}
     "publisher": {
         "@type": "Organization",
         "name": "{{.Site.Params.organizationname}}",
@@ -30,3 +33,4 @@
     }
 }
 </script>
+ -->

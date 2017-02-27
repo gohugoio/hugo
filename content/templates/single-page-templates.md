@@ -278,7 +278,7 @@ To easily generate new instances of this content type (e.g., new `.md` files in 
 [directory structure]: /getting-started/directory-structure/
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [front matter]: /content-management/front-matter/
-[page variables]: /variables-and-parms/page-variables/
+[page variables]: /variables/page-variables/
 [partials]: /templates/partials/
 [section]: /content-management/sections/
 [site variables]: /variables/site-variables/

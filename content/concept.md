@@ -32,17 +32,20 @@ WIP. Before any of my fellow content strategists banish me to content strategy h
 
 ### Assumptions
 
-The current Hugo documentation
+First and foremost, the biggest shortcomings of the current documentation are a matter of *content* more than visual or UX design.
+
+In addition, this project was started with the assumptions that the Hugo documentation
 
 * is confusing for new users
 * is a common complaint in the Hugo forums ([forum discussion 1][ex1], [forum discussion 2][ex2])
 * lacks structure and is therefore
-    * unscalable, as demonstrated by patch pages (e.g. [here][patch1] and [here][patch2]) that seem out of place, require unnecessary drilldown, or duplicate content in other areas of the docs, thus requiring duplicative efforts to update
+    * unscalable, as demonstrated by patch pages (e.g. [here][patch1] and [here][patch2]) that seem out of place, require unnecessary drill-down, or duplicate content in other areas of the docs, thus requiring duplicative efforts to update
     * inconsistent in its terminology, style, and (sometimes) layout
-    * limited in effective use of Alogolia's document search (i.e., because of redundant content grouping, headings, etc)
+    * limited in effective use of Alogolia's document search (i.e., due to redundant content grouping, headings, etc)
     * difficult to optimize for external search engines (SEO)
-* does not leverage Hugo's more powerful feature (e.g., there is only *one* archetype); leveraging these features would help address the aforementioned shortcomings (i.e., scalability, consistency, and search)
-* assumes a higher level of Golang proficiency than is realistic for newcomers to static site generators or general web development. A prime example is the sparsity of basic and advanced code samples for templating functions, some of which may still be wholly undocumented.
+* does not leverage Hugo's more powerful features (e.g., only *one* archetype); leveraging these features would help address the aforementioned shortcomings (i.e., scalability, consistency, and search)
+* assumes a higher level of Golang proficiency than is realistic for newcomers to static site generators or general web development; a prime example is the sparsity of basic and advanced code samples for templating functions, some of which may still be wholly undocumented
+* lacks well-defined contribution and editorial guidelines for those interested in submitting or editing documentation.
 
 ### Goals
 
@@ -53,16 +56,17 @@ New Hugo documentation should...
     * creating better consistency and scalability for Hugo-dependent projects (viz., [themes.gohugo.io][hugothemes])
     * reducing the frequency of beginner-level questions in the [Hugo Discussion Forum][forum]
 * not require, or assume, any degree of Golang proficiency from end users;
-    * that said, Hugo can&mdash;and *should*&mdash;act as a bridge for users interested in learning Golang. A implementationn example of this strategy point is the inclusion of `godocref:` as a default front matter field for all function and template pages. See [`archetypes/functions.md`][functionarchetype].
-* be easiest to expand and edit for *contributors** but even easier to understand by *end users*.
-     If you don't make it *very easy* for authors to contribute to documentation correctly, they will inevitably contribute *incorrectly*;
-        * Content modeling is king
-        * Go DRY (e.g., by leveraging shortcodes whenever possible)
-        * Set required metadata (e.g., via section-specific *archetypes*)
-        * Develop contribution guidelines for both development *and* documentation
+    * that said, Hugo can&mdash;and *should*&mdash;act as a bridge for users interested in learning Golang. An implementationn example of this strategic point is the inclusion of `godocref:` as a default front matter field for all function and template pages. See [`archetypes/functions.md`][functionarchetype].
+* be easiest to expand and edit for *contributors** but even easier to understand by *end users*
+     * if you don't make it *very easy* for authors to contribute to documentation correctly, they will inevitably contribute *incorrectly*;
+        * content modeling is king
+        * go DRY (e.g., by leveraging shortcodes whenever possible)
+        * set required metadata (e.g., via section-specific *archetypes*)
+        * develop contribution guidelines for both development *and* documentation
 * be equally accessible via mobile, tablet, desktop, and offline.
-* avoid "miscellaneous" sections (e.g.,"Extras"). [This is the last place end users look to get up and running with Hugo](https://discuss.gohugo.io/t/site-with-different-lists-of-sections/5536/3). All content in miscellaneous sections should be edited and incorporated into more logical content groupings (e.g., with the goal of removing *extras* entirely).
-* easily scaffold for potential i18n/multilingual versions.
+* avoid "miscellaneous" sections (e.g.,"Extras"); [these catch-all sections are the last place end users look to get up and running](https://discuss.gohugo.io/t/site-with-different-lists-of-sections/5536/3)
+    * all content in miscellaneous sections should be edited and incorporated into more logical content groupings with the goal of removing miscellaneous sections entirely.
+* easily scaffold for potential *i18n/multilingual versions*.
 
 ### Audiences
 
@@ -451,11 +455,12 @@ The following demonstrates the *ideal* sequence for content strategy and is only
 
 * What are the goals for this product?
 * Who are the targeted users/audiences?
+    * Personal development
 
 ### 2. Content Stragegy Development
 
 * What is the editorial mission statement?
-    * What are we promising to end users to help them achiece *their* goals? (We [at least ostensibly] serve *their* needs first)
+    * What are we promising to target audiences to help them achiece *their* goals? (We [at least ostensibly] serve *their* needs first)
     * What have we failed to deliver to end users with the current website in helping them accomplish their goals?
 * What is the content strategy statement? I.e., now that end users know what they're getting...
     * How do we accomplish *our* goals?

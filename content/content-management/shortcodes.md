@@ -46,7 +46,7 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 ### Shortcodes with Markdown
 
-The `%` character indicates that the shortcode's inner content---called in the [shortcode template](/templates/shortcode-templates/) with the [`.Inner` variable](/variables-and-parmams/other/)---needs further processing by the page's rendering processor (i.e. Markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
+The `%` character indicates that the shortcode's inner content---called in the [shortcode template](/templates/shortcode-templates/) with the [`.Inner` variable](/variables/other/)---needs further processing by the page's rendering processor (i.e. Markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
 
 ```golang
 {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
