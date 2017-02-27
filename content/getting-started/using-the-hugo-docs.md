@@ -12,9 +12,9 @@ weight: 20
 draft: true
 aliases: [/getting-started/using-the-docs/]
 toc: true
-needsreview: true
+wip: true
 notesforauthors:
-needsreview: true
+wip: true
 ---
 
 ## Example Site

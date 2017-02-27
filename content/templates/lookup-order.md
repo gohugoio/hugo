@@ -11,7 +11,7 @@ tags: [lookup,fundamentals]
 weight: 15
 draft: false
 aliases: []
-needsreview: true
+wip: true
 ---
 
 Before creating your templates, it's important to know how Hugo looks for files within your project's [directory structure][].

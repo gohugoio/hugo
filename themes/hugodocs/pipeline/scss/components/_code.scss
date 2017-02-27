@@ -121,7 +121,6 @@ button.download-button {
   font-weight: bold;
   color: $code-copy-button-text-color;
   font-size: 14px;
-  display: block;
   width: 80px;
   line-height: 24px;
   height: 24px;
@@ -136,6 +135,22 @@ button.download-button {
   &:focus {
     outline: none;
     position: absolute;
+  }
+}
+//hide copy button on iPad and iPhone
+button.copy-button {
+  @include MQ(retinaPortrait) {
+    display: none;
+  }
+  @include MQ(retinaLandscape) {
+    display: none;
+  }
+}
+
+button.download-button {
+  display: none;
+  @include MQ(M) {
+    display: block;
   }
 }
 
@@ -156,25 +171,26 @@ a[href*="bitbucket"].see-code-source:after {
   display: inline-block;
   font-size: 1.3em;
   color: inherit;
-  margin-left:.2em;
+  margin-left: .2em;
 }
+
 a[href*="github"].see-code-source:after {
   content: '\f09b';
   font-family: 'FontAwesome';
   display: inline-block;
   font-size: 1.3em;
   color: inherit;
-  margin-left:.2em;
+  margin-left: .2em;
 }
+
 a[href*="gitlab"].see-code-source:after {
   content: '\f296';
   font-family: 'FontAwesome';
   display: inline-block;
   font-size: 1.3em;
   color: inherit;
-  margin-left:.2em;
+  margin-left: .2em;
 }
-
 
 button.copy-button {
   display: none;
@@ -187,14 +203,7 @@ button.copy-button {
   }
 }
 
-button.copy-button {
-  @include MQ(retinaPortrait) {
-    display: none;
-  }
-  @include MQ(retinaLandscape) {
-    display: none;
-  }
-}
+
 
 div.code-copy {
   position: relative;

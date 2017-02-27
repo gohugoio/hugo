@@ -9,7 +9,7 @@ categories: [project organization]
 tags: [source, organization, directories,fundamentals]
 weight: 50
 draft: false
-needsreview: true
+wip: true
 aliases: [/overview/source-directory/]
 ---
 

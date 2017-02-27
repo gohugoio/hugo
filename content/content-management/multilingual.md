@@ -11,7 +11,7 @@ weight: 150
 draft: false
 aliases: [/content/multilingual/,/content-management/multilingual/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the available languages in a `Languages` section in your top-level `config.toml` (or equivalent).

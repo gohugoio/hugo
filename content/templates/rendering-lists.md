@@ -11,7 +11,7 @@ weight: 27
 draft: false
 aliases: [/templates/ordering/,/templates/grouping/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 ![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)

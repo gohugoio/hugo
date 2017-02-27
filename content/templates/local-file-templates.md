@@ -12,8 +12,6 @@ weight: 110
 draft: false
 aliases: [/extras/localfiles/,/templates/files/]
 toc: true
-needsreview: true
-needsexample: true
 ---
 
 ## Traversing Local Files
@@ -29,7 +27,7 @@ Whether the path is absolute or relative does not matter because---at least for 
 1. The file system root
 2. The current working directory
 
-## Example: List Directory Files
+### `readDir` Example: List Directory Files
 
 So, let's create a new shortcode using `readDir`:
 
@@ -39,29 +37,75 @@ So, let's create a new shortcode using `readDir`:
 ```
 {{% /code %}}
 
-For the files in any given directory, this shortcode usefully lists the files' basenames and sizes and also creates a link to each of them.
+This shortcode creates a link, files' basenames and sizes and creates a link to each of them.
 
-This shortcode [has already been included in this very website][]. So, let's list some of its CSS files. (If you click on their names, you can reveal the contents.)
+This shortcode [is part of the code for the Hugo docs][dirindex].  list some of its CSS files. (If you click on their names, you can reveal the contents.)
 
 {{< directoryindex path="/static/css" pathURL="/css" >}}
 
-The following is the [shortcode declaration][shortcodes] used to render the above output:
+The following is the [shortcode declaration][sc] used to render the above output:
 
 ```html
 {{</* directoryindex path="/static/css" pathURL="/css" */>}}
 ```
 
 {{% note "Slashes are Important" %}}
-The initial slash `/` in `pathURL` is important. Otherwise, `pathURL` becomes relative to the current web page.
+The initial slash `/` in `pathURL` is important in the `directoryindex` shortcode. Otherwise, `pathURL` becomes relative to the current web page.
 {{% /note %}}
 
 ## Using `readFile`
 
-The [`readfile` function][reads] returns...
+The [`readfile` function][reads] reads a file--passed as an argument to the function, including path---from disk and converts it into a string to be manipulated by other Hugo functions or added as-is.
 
-**CONTENT NEEDED**.
+To use the `readFile` function in your templates, make sure the path is relative to your *Hugo project's root directory*:
 
-[has already been included in this very website]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
+```
+{{ readFile "content/templates/local-file-templates" }}
+```
+
+### `readFile` Example: Add a Project File to Your Content
+
+As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an options second argument to send the file through the Blackfriday markdown processor. The pattern for adding this shortcode to your content will be as follows:
+
+```
+{{</* readfile file="path/to/local/file.txt" markdown="true" */>}}
+```
+
+Here is the templating for our new `readfile` shortcode:
+
+{{% code file="layouts/shortcodes/readfile.html" download="readfile.html" %}}
+```
+{{< readfile file="layouts/shortcodes/readfile.html">}}
+```
+{{% /code %}}
+
+This shortcode is [also part of the Hugo docs][readfilesource]. The Hugo docs also include this [`testing.txt`][testfile] file. We can call pass this file into our new `readfile` shortcode as follows:
+
+```
+{{</* readfile file="testing.txt" */>}}
+```
+
+The output "string" for calling this file is as follows:
+
+```markdown
+{{< readfile file="testing.txt" >}}
+```
+
+However, if we want Hugo to pass this string through Blackfriday, we should add the `markdown="true"` optional parameter:
+
+```html
+{{</* readfile file="testing.txt" markdown="true" */>}}
+```
+
+And here is it is [called directly in the Hugo docs][] content file used to creat this page and rendered for display:
+
+{{< readfile file="testing.txt" markdown="true">}}
+
+[called directly in the Hugo docs]: https://github.com/spf13/hugo/blob/master/docs/content/templates/local-file-templates.md
+[dirindex]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [osfileinfo]: https://golang.org/pkg/os/#FileInfo
-[reads]: /functions/readdir-and-readfile/
-[shortcodes]: /content-management/shortcodes/
+[reads]: /functions/readfile/
+[sc]: /content-management/shortcodes/
+[sct]: /templates/shortcode-templates/
+[readfilesource]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/readfile.html
+[testfile]: https://github.com/spf13/hugo/blob/master/docs/testfile

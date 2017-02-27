@@ -12,7 +12,7 @@ weight: 10
 draft: false
 aliases: [/templates/go-template-primer/,/layouts/go-templates/,/layout/go-templates/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 Hugo uses the excellent [Go html/template][gohtmltemplate] library, an extremely lightweight engine that provides just the right amount of logic to be able to create any style of static website. If you have used other template systems from different languages or frameworks, you will find a lot of similarities in Go templates.

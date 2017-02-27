@@ -11,7 +11,7 @@ weight: 165
 draft: false
 aliases: [/extras/robots-txt/]
 toc: false
-needsreview: true
+wip: true
 ---
 
 Hugo can generate a customized [robots.txt][robots] in the same way as any other template.

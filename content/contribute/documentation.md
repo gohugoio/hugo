@@ -1,6 +1,6 @@
 ---
 title: Contribute to the Hugo Docs
-linktitle: Contribute to the Hugo Docs
+linktitle: Improve the Docs
 description: Documentation is an integral part of any open source project. The Hugo docs are as much a work in progress as the source it attempts to teach its users.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,7 +11,7 @@ weight: 20
 draft: false
 aliases: [/contribute/docs/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 Documentation is a critical component of any open-source project. The Hugo docs were completely reworked for the release of v0.19, but there is always room for improvement.

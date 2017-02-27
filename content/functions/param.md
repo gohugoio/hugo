@@ -16,7 +16,7 @@ relatedfuncs: []
 deprecated: false
 draft: false
 aliases: []
-needsreview: true
+wip: true
 ---
 
 In Hugo, you can declare [site-wide params][sitevars] (i.e. in your [configuration][]), as well as params for [individual pages][pagevars].

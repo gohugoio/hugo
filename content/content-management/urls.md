@@ -11,7 +11,7 @@ weight: 110
 draft: false
 aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 ## Permalinks

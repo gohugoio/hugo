@@ -13,7 +13,7 @@ draft: false
 hugoversion: 14
 toc: true
 aliases: [/tutorials/migrate-from-jekyll/]
-needsreview: true
+wip: true
 ---
 
 {{% note "Support for Jekyll Imports" %}}

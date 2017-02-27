@@ -11,7 +11,7 @@ draft: false
 weight: 50
 aliases: [/extras/gitinfo/,/variables/other-variables/]
 toc: true
-needsreview: false
+wip: false
 ---
 
 ## Shortcode Variables

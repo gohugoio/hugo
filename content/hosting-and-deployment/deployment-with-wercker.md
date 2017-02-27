@@ -12,7 +12,7 @@ weight: 20
 draft: false
 aliases: [/tutorials/automated-deployments/]
 toc: true
-needsreview: false
+wip: false
 notesforauthors:
 ---
 

@@ -10,7 +10,7 @@ tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 weight: 30
 draft: false
 aliases: [/content/front-matter/]
-needsreview: true
+wip: true
 toc: true
 notesforauthors:
 ---

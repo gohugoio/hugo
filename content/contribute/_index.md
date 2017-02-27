@@ -10,7 +10,7 @@ tags: []
 weight: 01
 draft: false
 slug:
-aliases: [/tutorials/how-to-contribute-to-hugo/]
+aliases: [/tutorials/how-to-contribute-to-hugo/,/community/contributing/]
 toc: false
 ---
 

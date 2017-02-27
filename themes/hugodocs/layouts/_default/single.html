@@ -9,7 +9,7 @@
 			{{- partial "content-header-links.html" . -}}
 			{{- partial "tags.html" . -}}
 			<!-- temporary WIP badge; should be removed before site launch -->
-			{{- if .Params.needsreview -}}
+			{{- if .Params.wip -}}
 			<div id="beingreviewed">WIP</div>
 			{{- end -}}
 			{{ $title := .Title }}

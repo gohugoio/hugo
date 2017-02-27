@@ -11,7 +11,7 @@ weight: 60
 draft: false
 aliases: [/content/types]
 toc: true
-needsreview: true
+wip: true
 ---
 
 Hugo provides full support for sites with multiple content types. A **content type** can have a unique set of metadata (i.e., [front matter][]) or customized [template][] and can be created by the `hugo new` command via content [archetypes][].

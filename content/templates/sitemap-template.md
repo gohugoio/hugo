@@ -11,7 +11,7 @@ weight: 160
 draft: false
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: false
-needsreview: true
+wip: true
 ---
 
 A single Sitemap template is used to generate the `sitemap.xml` file.

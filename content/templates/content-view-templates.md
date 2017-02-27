@@ -11,7 +11,7 @@ weight: 70
 draft: false
 aliases: [/templates/views/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 In addition to the [single page content template][singletemplates], Hugo can render alternative views of your content. These are especially useful in [list templates][listtemplates].

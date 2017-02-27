@@ -11,7 +11,7 @@ weight: 22
 draft: false
 aliases: [/templates/list/,/layout/indexes/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 ## What is a List Page Template?

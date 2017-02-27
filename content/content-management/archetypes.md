@@ -11,7 +11,7 @@ weight: 70
 draft: false
 aliases: [/content/archetypes/]
 toc: true
-notesforauthors:
+wip: true
 ---
 
 ## What are Archetypes?
@@ -24,7 +24,7 @@ Hugo's generator assumes your working directory is the content folder at the roo
 hugo new [content-section/file-name.md]
 ```
 
-We can use this pattern to create a new `.md` file in the `posts` section of the [example site][]:
+We can use this pattern to create a new `.md` file in the `posts` section:
 
 {{% code file="archetype-example.sh" %}}
 ```bash
@@ -60,8 +60,8 @@ Similar to the lookup order for [templates in the `layouts` directory][], Hugo l
 
 1. `archetypes/posts.md`
 2. `archetypes/default.md`
-3. `themes/theme-name/archetypes/posts.md`
-4. `themes/theme-name/archetypes/default.md`
+3. `themes/<THEME>/archetypes/posts.md`
+4. `themes/<THEME>/archetypes/default.md`
 5. `_internal` (i.e., `title` and `date`)
 
 {{% note "Using a Theme Archetype" %}}
@@ -76,11 +76,11 @@ You can specify a different default format in your site [configuration file][] f
 
 ## Default Archetypes
 
-Default archetypes are convenient if your content's front matter stays consistent across multiple [content sections][].
+Default archetypes are convenient if your content's front matter stays consistent across multiple [content sections][sections].
 
 ### Creating the Default Archetype
 
-The [example site][] includes `tags` and `categories` as [taxonomies][]. If we assume that all content files will require these two key-values, we can create a `default.md` archetype that *extends* Hugo's base archetype. In this example, we are including "golang" and "hugo" as tags and "web development" as a category.
+The following examples are from a site using `tags` and `categories` as [taxonomies][]. If we assume that all content files will require these two key-values, we can create a `default.md` archetype that *extends* Hugo's base archetype. In this example, we are including "golang" and "hugo" as tags and "web development" as a category.
 
 {{% code file="archetypes/default.md" %}}
 ```toml
@@ -124,15 +124,9 @@ We see that the `title` and `date` key-values have been added in addition to the
 You may notice that content files created with `hugo new` do not observe the order of the key-values specified in your archetype files and instead list your front matter alphabetically. This is a [known issue](https://github.com/spf13/hugo/issues/452).
 {{% /note %}}
 
-### Example Site Default Archetype
-
-The following is the default archetype used in the [example site][].
-
-{{< exfile "static/example/archetypes/default.md" "yaml">}}
-
 ## Custom Archetypes
 
-Suppose the example site's `posts` section requires more sophisticated front matter than what has been specified in `archetypes/default.md`. We can create a custom archetype for our posts at `archetypes/posts.md` that includes the full set of front matter.
+Suppose your site's `posts` section requires more sophisticated front matter than what has been specified in `archetypes/default.md`. You can create a custom archetype for your posts at `archetypes/posts.md` that includes the full set of front matter to be added to the two default archetypes fields.
 
 ### Creating a Custom Archetype
 
@@ -148,7 +142,7 @@ categories = ""
 
 ### Using a Custom Archetype
 
-With an `archetypes/posts.md` in place, we can use the CLI to create a new posts with custom `posts` metadata in the `posts` content section:
+With an `archetypes/posts.md` in place, you can use the Hugo CLI to create a new post with your custom `posts` metadata in the `posts` content section:
 
 {{% code file="new-post-from-custom.sh" %}}
 ```bash
@@ -170,21 +164,25 @@ title = post from custom
 ```
 {{% /output %}}
 
-### Example Site Custom Archetype
+### Hugo Docs Custom Archetype
 
-`musicians` in the [example site] require more sophisticated front matter than what has been specified in `archetypes/default.md`. We can create a custom archetype for musicians at `archetypes/musicians.md` that includes the full set of front matter.
+As an example of archetypes in practice, the following is the `functions` archetype from the Hugo docs:
 
-The following is the `musicians` archetype from the [example site][]:
+{{% code file="archetypes/functions.md" %}}
+```yaml
+{{< readfile file="archetypes/functions.md" >}}
+```
+{{% /code %}}
 
-{{< exfile "static/example/archetypes/musicians.md" "yaml" >}}
-
+{{% note %}}
+The preceding archetype is kept up to date with every Hugo build by using Hugo's [`readFile` function](/functions/readfile/). For similar examples, see [Local File Templates](/templates/local-file-templates/).
+{{% /note %}}
 
 [archetypes directory]: /project-organization/directory-structure/
 [`now()`]: http://golang.org/pkg/time/#Now
 [configuration file]: /project-organization/configuration/
-[content sections]: /sections/
+[sections]: /sections/
 [content types]: /content-management/content-types/
-[example site]: /getting-started/using-the-hugo-docs/#example-site
 [front matter]: /content-management/front-matter/
 [RFC 3339 format]: https://www.ietf.org/rfc/rfc3339.txt
 [taxonomies]: /content-management/taxonomies/

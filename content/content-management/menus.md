@@ -11,7 +11,7 @@ draft: false
 weight: 120
 aliases: [/extras/menus/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 Hugo's simple yet powerful menu system allows you to add content to menus with a high degree of control and a very low amount of effort on the part of content authors.

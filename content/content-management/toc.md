@@ -11,7 +11,7 @@ weight: 130
 draft: false
 aliases: [/extras/toc/,/content-management/toc/]
 toc: false
-needsreview: true
+wip: true
 ---
 
 Hugo can automatically parse Markdown content and create a Table of Contents you can leverage in your templates to guide readers to sections of longer pages.

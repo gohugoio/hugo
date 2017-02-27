@@ -11,7 +11,7 @@ authors: [Riku-Pekka Silvola]
 weight: 50
 draft: false
 toc: true
-needsreview: false
+wip: false
 aliases: [/tutorials/hosting-on-gitlab/]
 ---
 

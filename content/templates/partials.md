@@ -11,7 +11,7 @@ weight: 90
 draft: false
 aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 ## Partials vs Templates

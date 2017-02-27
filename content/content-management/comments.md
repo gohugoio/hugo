@@ -11,7 +11,7 @@ weight: 140
 draft: false
 aliases: [/extras/comments/]
 toc: true
-needsreview: true
+wip: true
 ---
 
 As Hugo is a static site generator, the content produced is static and doesn't allow for a high degree of interaction with the website's end users. The most common interaction people ask for in static websites is the ability to add comments.
